@@ -36,7 +36,7 @@
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.2.0
 
 
 # 0x00 --> <darkness>
@@ -52,8 +52,8 @@ G:.:W
 
 # 0x02 --> unused
 
-N:2:unused
-G:1:s
+N:2:chasm
+G:%:D
 
 # 0x03 --> glyph of warding
 
@@ -360,28 +360,26 @@ N:59:granite wall
 G:#:W1
 M:56
 
-# 0x3C --> iron wall -- basic (perm)
+# 0x3C --> unused
 
-N:60:iron wall
-G:#:s
+N:60:unused
+G:1:s
 
-# 0x3D --> iron wall -- inner (perm)
+# 0x3D --> unused
 
-N:61:iron wall
-G:#:s
-M:60
+N:61:unused
+G:1:s
 
-# 0x3E --> iron wall -- outer (perm)
+# 0x3E --> unused
 
-N:62:iron wall
-G:#:s
-M:60
+N:62:unused
+G:1:s
 
-# 0x3F --> iron wall -- solid (perm)
+# 0x3F --> granite wall -- permanent
 
-N:63:iron wall
-G:#:s
-M:60
+N:63:granite wall
+G:#:W1
+M:56
 
 # 0x40 --> forge -- 0 uses
 

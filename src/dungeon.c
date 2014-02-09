@@ -446,15 +446,19 @@ static void regen_monsters(void)
 		}
 
 		/* Allow mana regeneration, if needed. */
-		if (m_ptr->mana != r_ptr->mana)
-		{						
-			m_ptr->mana += regen_amount(turn / 10, r_ptr->mana, MON_REGEN_SP_PERIOD);
-			
-			/* Do not over-regenerate */
-			if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
-			
-			/* Fully healed -> flag minimum range for recalculation */
-			if (m_ptr->mana == r_ptr->mana) m_ptr->min_range = 0;
+		if (m_ptr->mana != MON_MANA_MAX)
+		{
+            // can only regenerate mana if not singing
+            if (m_ptr->song == SNG_NOTHING)
+            {
+                m_ptr->mana += regen_amount(turn / 10, MON_MANA_MAX, MON_REGEN_SP_PERIOD);
+                
+                /* Do not over-regenerate */
+                if (m_ptr->mana > MON_MANA_MAX) m_ptr->mana = MON_MANA_MAX;
+                
+                /* Fully healed -> flag minimum range for recalculation */
+                if (m_ptr->mana == MON_MANA_MAX) m_ptr->min_range = 0;
+            }
 		}
 	}
 }
@@ -800,36 +804,33 @@ static bool verify_debug_mode(void)
 
 
 
-#ifdef ALLOW_BORG
-
 /*
- * Verify use of "borg" mode
+ * Verify use of "automaton" mode
  */
-static bool verify_borg_mode(void)
+static bool verify_automaton_mode(void)
 {
 	/* Ask first time */
 	if (!(p_ptr->noscore & 0x0010))
 	{
 		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
+		msg_print("You are about to turn on the automaton.");
+		msg_print("This is highly experimental and will probably kill your character.");
 		message_flush();
-
+        
 		/* Verify request */
-		if (!get_check("Are you sure you want to use the borg commands? "))
+		if (!get_check("Are you sure you want to use the automaton? "))
 		{
 			return (FALSE);
 		}
 	}
-
-	/* Mark savefile */
-	p_ptr->noscore |= 0x0010;
-
+    
+    /* Mark savefile */
+    p_ptr->noscore |= 0x0010;
+    
 	/* Okay */
 	return (TRUE);
 }
 
-#endif /* ALLOW_BORG */
 
 
 /*
@@ -846,6 +847,7 @@ static void process_command(void)
 
 #endif /* ALLOW_REPEAT */
 
+    
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -889,18 +891,6 @@ static void process_command(void)
 		case KTRL('A'):
 		{
 			if (verify_debug_mode()) do_cmd_debug();
-			break;
-		}
-
-#endif
-
-
-#ifdef ALLOW_BORG
-
-		/* Special "borg" commands */
-		case KTRL('Z'):
-		{
-			if (verify_borg_mode()) do_cmd_borg();
 			break;
 		}
 
@@ -998,13 +988,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Alter a grid */
-		//case 'P':
-		//{
-		//	do_cmd_steal();
-		//	break;
-		//}
-
 		/* Dig a tunnel */
 		case 'T':
 		{
@@ -1018,14 +1001,6 @@ static void process_command(void)
 			do_cmd_walk();
 			break;
 		}
-
-		/* Jump */
-		case '-':
-		{
-			do_cmd_jump();
-			break;
-		}
-
 
 		/*** Running, Resting, Searching, Staying */
 
@@ -1058,13 +1033,6 @@ static void process_command(void)
 			break;
 		}
 			
-		/* Search for traps/doors */
-		//case 's':
-		//{
-		//	do_cmd_search();
-		//	break;
-		//}
-			
 		/* Toggle stealth mode */
 		case 'S':
 		{
@@ -1072,6 +1040,12 @@ static void process_command(void)
 			break;
 		}
 
+        /* Automaton */
+		case '|':
+		{
+			if (verify_automaton_mode()) do_cmd_automaton();
+			break;
+		}
 
 		/*** Stairs and Doors and Chests and Traps ***/
 
@@ -1142,13 +1116,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Uninscribe an object */
-		//case '}':
-		//{
-		//	do_cmd_uninscribe();
-		//	break;
-		//}
-
 		/* Activate a staff */
 		case 'a':
 		{
@@ -1180,7 +1147,14 @@ static void process_command(void)
 		/* Throw an item */
 		case 't':
 		{
-			do_cmd_throw();
+			do_cmd_throw(FALSE);
+			break;
+		}
+
+        /* Throw an automatically chosen item at nearest target */
+		case KTRL('T'):
+		{
+			do_cmd_throw(TRUE);
 			break;
 		}
 
@@ -1198,13 +1172,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Refuel your lantern/torch */
-		//case 'r':
-		//{
-		//	do_cmd_refuel();
-		//	break;
-		//}
-			
 		/* Use an item */
 		case 'u':
 		{
@@ -1262,7 +1229,7 @@ static void process_command(void)
 		}
 		case ESCAPE:
 		{
-			if (easy_main_menu) do_cmd_main_menu();
+			if (easy_main_menu && !p_ptr->automaton) do_cmd_main_menu();
 			break;
 		}
 			
@@ -1418,6 +1385,141 @@ static void process_command(void)
 	}
 }
 
+/*
+ * Determine if the object can be picked up, and either has "=g" in its inscription
+ * or has the pickup flag set to true (e.g. for thrown and fired items)
+ */
+static bool auto_pickup_okay(const object_type *o_ptr)
+{
+	//cptr s;
+    
+	/* It can't be carried */
+	if (!inven_carry_okay(o_ptr)) return (FALSE);
+    
+	/*object is marked to not pickup*/
+	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) &&
+	    object_aware_p(o_ptr)) return (FALSE);
+    
+	/*object is marked to not pickup*/
+	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) &&
+	    object_aware_p(o_ptr)) return (TRUE);
+    
+	/* object has pickup flag set */
+	if (o_ptr->pickup) return (TRUE);
+    
+	/* No inscription */
+	if (!o_ptr->obj_note) return (FALSE);
+    
+	/* Find a '=' */
+	//s = strchr(quark_str(o_ptr->obj_note), '=');
+    
+	/* Process inscription */ // Sil-y: turned the =g inscriptions off for now
+	//while (s)
+	//{
+	//	/* Auto-pickup on "=g" */
+	//	if (s[1] == 'g') return (TRUE);
+    
+	//	/* Find another '=' */
+	//	s = strchr(s + 1, '=');
+	//}
+    
+	/* Don't auto pickup */
+	return (FALSE);
+}
+
+/*
+ * Finish your leap
+ */
+void land(void)
+{
+    // the player has landed
+    p_ptr->leaping = FALSE;
+    
+    // make some noise when landing
+    stealth_score -= 5;
+
+	/* Set off traps */
+	if (cave_trap_bold(p_ptr->py, p_ptr->px) || (cave_feat[p_ptr->py][p_ptr->px] == FEAT_CHASM))
+	{
+		// If it is hidden
+		if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_HIDDEN))
+		{
+			/* Reveal the trap */
+			reveal_trap(p_ptr->py, p_ptr->px);
+		}
+        
+		/* Hit the trap */
+		hit_trap(p_ptr->py, p_ptr->px);
+	}
+}
+
+/*
+ * Continue your leap
+ */
+void continue_leap(void)
+{
+    int dir;
+	int y_end, x_end;   // the desired endpoint of the leap
+	
+	dir = p_ptr->previous_action[1];
+    
+	/* Get location */
+	y_end = p_ptr->py + ddy[dir];
+	x_end = p_ptr->px + ddx[dir];
+    
+    // display a message until player input is received
+    msg_print("You fly through the air.");
+    message_flush();
+    
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+    
+	// store the action type
+	p_ptr->previous_action[0] = dir;
+	
+    // solid objects end the leap
+    if (cave_info[y_end][x_end] & (CAVE_WALL))
+    {
+        if (cave_feat[y_end][x_end] == FEAT_RUBBLE)
+        {
+            msg_print("You slam into a wall of rubble.");
+        }
+        if (cave_wall_bold(y_end, x_end))
+        {
+            msg_print("You slam into a wall.");
+        }
+        else if (cave_any_closed_door_bold(y_end, x_end))
+        {
+            msg_print("You slam into a door.");
+        }
+    }
+    
+    // monsters end the leap
+    else if (cave_m_idx[y_end][x_end] > 0)
+    {
+        monster_type *m_ptr = &mon_list[cave_m_idx[y_end][x_end]];
+        char m_name[80];
+        
+        /* Get the monster name */
+        monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+        
+        if (m_ptr->ml)  msg_format("%^s blocks your landing.", m_name);
+        else            msg_format("Some unseen foe blocks your landing.", m_name);
+    }
+    
+    // successful leap
+    else
+    {
+        // we generously give you your free flanking attack...
+        flanking_or_retreat(y_end, x_end);
+        
+        // move player to the new position
+        monster_swap(p_ptr->py, p_ptr->px, y_end, x_end);
+    }
+    
+    // land on the ground
+    land();
+}
 
 
 /*
@@ -1579,7 +1681,10 @@ static void process_player(void)
 
 				/* Disturb */
 				disturb(0, 0);
-
+                
+                // cancel automaton control
+                p_ptr->automaton = FALSE;
+                
 				/* Hack -- Show a Message */
 				msg_print("Cancelled.");
 			}
@@ -1729,8 +1834,14 @@ static void process_player(void)
 			}
 		}
 				
+        /* Leaping */
+        if (p_ptr->leaping)
+        {
+            continue_leap();
+        }
+        
 		/* Entranced or Knocked Out */
-		if ((p_ptr->entranced) || (p_ptr->stun > 100))
+		else if ((p_ptr->entranced) || (p_ptr->stun > 100))
 		{
 			// stop singing
 			change_song(SNG_NOTHING);
@@ -1794,6 +1905,25 @@ static void process_player(void)
 			/* Searching */ 
 			search();
 		}
+        
+        /* Recovering footing */
+        else if (p_ptr->skip_next_turn)
+        {
+            // let the player know
+            msg_print("You recover your footing.");
+            
+            // force a -more-
+            message_flush();
+            
+            // reset flag
+            p_ptr->skip_next_turn = FALSE;
+
+            /* Take a turn */
+			p_ptr->energy_use = 100;
+			
+			// store the action type
+			p_ptr->previous_action[0] = ACTION_MISC;
+        }
 
 		/* Running */
 		else if (p_ptr->running)
@@ -1807,14 +1937,7 @@ static void process_player(void)
 				Term_xtra(TERM_XTRA_DELAY, 17);
 			}
 		}
-
-		#ifdef ALLOW_BORG
-
- 		/* Using the borg. */
-		else if (count_stop) do_cmd_borg();
-
-		#endif /* ALLOW_BORG */
-
+        
 		/* Repeated command */
 		else if (p_ptr->command_rep)
 		{
@@ -1842,23 +1965,61 @@ static void process_player(void)
 		/* Normal command */
 		else
 		{
+            char out_val[160];
+            char o_name[80];
+            object_type *o_ptr;
+                        
+            // build an object description
+            if (cave_o_idx[p_ptr->py][p_ptr->px])
+            {
+                o_ptr = &o_list[cave_o_idx[p_ptr->py][p_ptr->px]];
+                
+                /* Describe the object */
+                object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+                strnfmt(out_val, sizeof(out_val), "Pick up %s? ", o_name);
+            }
 
-			/* Check monster recall */
-			process_player_aux();
+            // always offer to pickup if the mode is on, there is an object present, and you have just moved
+            if (always_pickup && cave_o_idx[p_ptr->py][p_ptr->px] && (o_ptr->tval != TV_NOTE) &&
+                (p_ptr->previous_action[1] >= 1) && (p_ptr->previous_action[1] <= 9) && (p_ptr->previous_action[1] != 5))
+            {
+                // allow the player to decline to pick up the object
+                if (get_check(out_val))
+                {
+                    /* Handle "objects" */
+                    py_pickup();
+                }
+            }
+            
+            // if the player hasn't used their turn picking something up...
+            if (p_ptr->energy_use < 100)
+            {
+                /* Check monster recall */
+                process_player_aux();
+                
+                /* Place the cursor on the player or target */
+                if (hilite_player) move_cursor_relative(p_ptr->py, p_ptr->px);
+                if (hilite_target && target_sighted()) move_cursor_relative(p_ptr->target_row, p_ptr->target_col);
+                
+                /* We are certainly no longer in the process of restoring a game */
+                p_ptr->restoring = FALSE;
+                
+                /* Get a command (normal) */
+                request_command();
+                
+                /* Process the command */
+                process_command();
+            }
+            
+            // check the item under the player
+            o_ptr = &o_list[cave_o_idx[p_ptr->py][p_ptr->px]];
 
-			/* Place the cursor on the player or target */
-			if (hilite_player) move_cursor_relative(p_ptr->py, p_ptr->px);
-			if (hilite_target && target_sighted()) move_cursor_relative(p_ptr->target_row, p_ptr->target_col);
-
-			/* We are certainly no longer in the process of restoring a game */
-			p_ptr->restoring = FALSE;
-
-			/* Get a command (normal) */
-			request_command();
-
-			/* Process the command */
-			process_command();
-
+            /* Test for auto-pickup for thrown/fired items */
+            if (auto_pickup_okay(o_ptr))
+            {
+                /* Pick up the object */
+                py_pickup_aux(cave_o_idx[p_ptr->py][p_ptr->px]);
+            }
 		}		
 		
 		/*** Clean up ***/
@@ -1873,6 +2034,12 @@ static void process_player(void)
 			strnfmt(note, sizeof(note), fmt, g_vault_name);
 
 			do_cmd_note(note, p_ptr->depth);
+
+            // give a message unless it is the Gates or the Throne Room
+			if (p_ptr->depth > 0 && p_ptr->depth < 20)
+            {
+				msg_format("You have entered %s.", g_vault_name);
+            }
 
 		  	g_vault_name[0] = '\0';
 		}
@@ -1984,6 +2151,9 @@ static void process_player(void)
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
 
+    // if the player is exiting the the game in some manner then stop processing now
+    if (p_ptr->leaving) return;
+    
 	/* Do song effects */
 	sing();
 
@@ -2002,16 +2172,14 @@ static void process_player(void)
 		monster_perception(TRUE, FALSE, -10);
 	}
 	
-	/* Update noise flow information */
-	update_noise(p_ptr->py, p_ptr->px, FLOW_PASS_DOORS);
-	update_noise(p_ptr->py, p_ptr->px, FLOW_NO_DOORS); 
-	update_noise(p_ptr->py, p_ptr->px, FLOW_REAL_NOISE);
+    // update player noise
+    update_flow(p_ptr->py, p_ptr->px, FLOW_PLAYER_NOISE);
 
 	/* Update scent trail */
 	update_smell();
 
 	/* possibly identify passive abilities every so often*/
-	if (one_in_(1000))
+	if (one_in_(500))
 	{
 		ident_passive();
 	}
@@ -2095,52 +2263,28 @@ static void process_player(void)
 	/* Lower the staircasiness */
 	if (p_ptr->staircasiness > 0)
 	{
-		// amount is one thousandth of the current value, rounding up 
-		amount = (p_ptr->staircasiness + 999) / 1000;
-	
+        // decreases much faster on the escape
+        if (p_ptr->on_the_run)
+        {
+            // amount is one hundredth of the current value, rounding up
+            amount = (p_ptr->staircasiness + 99) / 100;
+        }
+        
+        else
+        {
+            // amount is one thousandth of the current value, rounding up
+            amount = (p_ptr->staircasiness + 999) / 1000;
+        }
+	       
 		p_ptr->staircasiness -= amount;
-		
-		// double the rate of decrease in the endgame
-		if (p_ptr->on_the_run && (p_ptr->staircasiness > 0)) p_ptr->staircasiness -= amount;
 	}
 	
 	/* Increase the time since the last forge */
 	p_ptr->forge_drought++;
 	
-	/* Default regeneration multiplier */
-	regen_multiplier = 1;
-
-	/* Getting Weak */
-	if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		/* Lower regeneration */
-		if (p_ptr->food < PY_FOOD_STARVE)
-		{
-			regen_multiplier = 0;
-		}
-
-		/* Getting Faint */
-		//if (p_ptr->food < PY_FOOD_FAINT)
-		//{
-			/* Faint occasionally */
-		//	if (!p_ptr->entranced && percent_chance(10))
-		//	{
-				/* Message */
-		//		msg_print("You faint from the lack of food.");
-		//		disturb(1, 0);
-
-				/* Hack -- faint (bypass free action) */
-		//		(void)set_entranced(damroll(5, 4));
-		//	}
-		//}
-	}
-	
 	/* Regeneration ability */
-	if (p_ptr->regenerate)
-	{
-		regen_multiplier = regen_multiplier * 2;
-	}
-
+    regen_multiplier = p_ptr->regenerate + 1;
+	
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
@@ -2148,6 +2292,7 @@ static void process_player(void)
 	}
 
 	/* Various things interfere with healing */
+    if (p_ptr->food < PY_FOOD_STARVE) regen_multiplier = 0;
 	if (p_ptr->poisoned) regen_multiplier = 0;
 	if (p_ptr->cut) regen_multiplier = 0;
 
@@ -2334,7 +2479,7 @@ static void process_player(void)
 		{
 			if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)))
 			{
-				if (!object_known_p(o_ptr) && one_in_(10) && ident_by_use_perception_check(5))
+				if (!object_known_p(o_ptr) && one_in_(10))
 				{
 					char o_short_name[80];
 					char o_full_name[80];
@@ -2554,10 +2699,10 @@ static void dungeon(void)
 	{
 
 		/* Hack -- Compact the monster list occasionally */
-		if (mon_cnt + 32 > z_info->m_max) compact_monsters(64);
+		if (mon_cnt + 10 > MAX_MONSTERS) compact_monsters(20);
 
 		/* Hack -- Compress the monster list occasionally */
-		if (mon_cnt + 32 < mon_max) compact_monsters(0);
+		if (mon_cnt + 32 < MAX_MONSTERS) compact_monsters(0);
 
 		/* Hack -- Compact the object list occasionally */
 		if (o_cnt + 32 > z_info->o_max) compact_objects(64);
@@ -2772,6 +2917,7 @@ static void death_knowledge(void)
  */
 void play_game(bool new_game)
 {
+    
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
 
@@ -2946,14 +3092,15 @@ void play_game(bool new_game)
 	/* Redraw everything */
 	// Sil-y: added to get 'shades' right in extra inventory terms
 	do_cmd_redraw();
-	
-	/* Update noise flow information */
-	update_noise(p_ptr->py, p_ptr->px, FLOW_PASS_DOORS);
-	update_noise(p_ptr->py, p_ptr->px, FLOW_NO_DOORS); 
-	update_noise(p_ptr->py, p_ptr->px, FLOW_REAL_NOISE);
+    
+    // update player noise
+    update_flow(p_ptr->py, p_ptr->px, FLOW_PLAYER_NOISE);
 
 	// reset combat roll info
 	turns_since_combat = 0;
+    
+    // assume the player is on the ground
+    p_ptr->leaping = FALSE;
 	
 	/* Process */
 	while (TRUE)
@@ -3029,6 +3176,10 @@ void play_game(bool new_game)
 				(void)set_image(0);
 				(void)set_stun(0);
 				(void)set_cut(0);
+                (void)res_stat(A_STR, 20);
+                (void)res_stat(A_CON, 20);
+                (void)res_stat(A_DEX, 20);
+                (void)res_stat(A_GRA, 20);
 
 				/* Hack -- Prevent starvation */
 				(void)set_food(PY_FOOD_FULL - 1);

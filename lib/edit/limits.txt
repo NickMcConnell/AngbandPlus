@@ -12,7 +12,7 @@
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.2.0
 
 
 # Maximum number of feature types
@@ -48,7 +48,7 @@ M:R:656
 M:G:19
 
 # Maximum number of vaults
-M:V:201
+M:V:500
 
 # Maximum number of player races
 M:P:4
@@ -68,8 +68,8 @@ M:L:310
 # Maximum number of objects on the level
 M:O:512
 
-# Maximum number of monsters on the level
-M:M:1024
+# Previously we had the maximum number of monsters on the level here
+# but it has been made into a compile-time #define
 
 #
 # Array sizes (in bytes) for some initialization stuff

@@ -139,7 +139,7 @@ bool easter_time(void)
  * For the most part, flavors are assigned randomly each game.
  *
  * Initialize descriptions for the "colored" objects, including:
- * Rings, Amulets, Staffs, Trumpets, Food, Potions, Scrolls.
+ * Rings, Amulets, Staffs, Horns, Food, Potions, Scrolls.
  *
  * The first 4 entries for potions are fixed (Miruvor, unused, Orcish Liquor, unused).
  *
@@ -163,7 +163,7 @@ void flavor_init(void)
 	flavor_assign_random(TV_RING);
 	flavor_assign_random(TV_AMULET);
 	flavor_assign_random(TV_STAFF);
-	flavor_assign_random(TV_TRUMPET);
+	flavor_assign_random(TV_HORN);
 	flavor_assign_random(TV_FOOD);
 	flavor_assign_random(TV_POTION);
 
@@ -191,9 +191,9 @@ void flavor_init(void)
 
 
 
-#ifdef ALLOW_BORG_GRAPHICS
+#ifdef ALLOW_AUTOMATON_GRAPHICS
 extern void init_translate_visuals(void);
-#endif /* ALLOW_BORG_GRAPHICS */
+#endif /* ALLOW_AUTOMATON_GRAPHICS */
 
 
 /*
@@ -280,10 +280,10 @@ void reset_visuals(bool unused)
 		process_pref_file("font.prf");
 	}
 
-#ifdef ALLOW_BORG_GRAPHICS
-	/* Initialize the translation table for the borg */
+#ifdef ALLOW_AUTOMATON_GRAPHICS
+	/* Initialize the translation table for the automaton */
 	init_translate_visuals();
-#endif /* ALLOW_BORG_GRAPHICS */
+#endif /* ALLOW_AUTOMATON_GRAPHICS */
 }
 
 
@@ -355,21 +355,6 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 
 	if (mode == OBJECT_FLAGS_KNOWN)
 	{
-		bool spoil = FALSE;
-
-		spoil = spoil; // to remove possible warning message about unused variable
-		
-#ifdef SPOIL_ARTEFACTS
-		/* Full knowledge for some artefacts */
-		if (artefact_p(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_ARTEFACTS */
-
-#ifdef SPOIL_EGO_ITEMS
-		/* Full knowledge for some special items */
-		if (ego_item_p(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_EGO_ITEMS */
-
-
 		/* Artefact, *ID'ed or spoiled */
 		if (o_ptr->name1)
 		{
@@ -739,13 +724,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
-		/* Trumpets */
-		case TV_TRUMPET:
+		/* Horns */
+		case TV_HORN:
 		{
 			/* Color the object */
 			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Trumpet~" : "& Trumpet~");
+			basenm = (flavor ? "& # Horn~" : "& Horn~");
 
 			break;
 		}
@@ -1196,7 +1181,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		object_desc_chr_macro(t, a2);
 	}
 
-	/* Indicate "charging" objects, but not trumpets or lites */
+	/* Indicate "charging" objects, but not horns or lights */
 	if (known && o_ptr->timeout && !fuelable_light_p(o_ptr))
 	{
 
@@ -1312,221 +1297,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	my_strcpy(buf, tmp_buf, max);
 }
 
-
-/*
- * An ugly hack - for mimics - take a k_idx and return the object name/flavor
- */
-void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx)
-{
-
-	cptr basenm;
-	cptr modstr;
-
-	bool aware;
-
-	bool flavor;
-
-	bool append_name;
-
-	char *t;
-
-	cptr s;
-
-	char tmp_buf[128];
-
-	object_kind *k_ptr = &k_info[mimic_k_idx];
-
-	/* Extract some flags */
-
-	/* See if the object is "aware" */
-	aware = (k_ptr->aware ? TRUE : FALSE);
-
-	/* See if the object is "flavored" */
-	flavor = (k_ptr->flavor ? TRUE : FALSE);
-
-	/* Assume no name appending */
-	append_name = FALSE;
-
-	/* Extract default "base" string */
-	basenm = (k_name + k_ptr->name);
-
-	/* Assume no "modifier" string */
-	modstr = "";
-
-
-	/* Analyze the object */
-	switch (k_ptr->tval)
-	{
-		/* No flavor for these...*/
-		case TV_USELESS:
-		case TV_METAL:
-		case TV_FLASK:
-		case TV_CHEST:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_MAIL:
-		case TV_LIGHT:
-		{
-			break;
-		}
-
-		/* Amulets (including a few "Specials") */
-		case TV_AMULET:
-		{
-
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
-
-			break;
-		}
-
-		/* Rings (including a few "Specials") */
-		case TV_RING:
-		{
-
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Ring~" : "& Ring~");
-
-			break;
-		}
-
-		/* Staffs */
-		case TV_STAFF:
-		{
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
-
-			break;
-		}
-
-		/* Trumpets */
-		case TV_TRUMPET:
-		{
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Trumpet~" : "& Trumpet~");
-
-			break;
-		}
-
-		/* Potions */
-		case TV_POTION:
-		{
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Potion~" : "& Potion~");
-
-			break;
-		}
-
-		/* Food */
-		case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (k_ptr->sval >= SV_FOOD_MIN_FOOD) break;
-
-			/* Color the object */
-			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Herb~" : "& Herb~");
-
-			break;
-		}
-
-		/* Hack -- Default -- Used in the "inventory" routine */
-		default:
-		{
-			my_strcpy(buf, "(nothing)", max);
-			return;
-		}
-	}
-
-
-	/* Start dumping the result */
-	t = tmp_buf;
-
-	/* Begin */
-	s = basenm;
-
-	/* Handle objects which sometimes use "a" or "an" */
-	if (*s == '&')
-	{
-
-		/* Skip the ampersand and the following space */
-		s += 2;
-
-		/* Hack -- A single one, and next character will be a vowel */
-		if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
-		{
-			object_desc_str_macro(t, "an ");
-		}
-
-		/* A single one, and next character will be a non-vowel */
-		else
-		{
-			object_desc_str_macro(t, "a ");
-		}
-	}
-
-	/* Copy the string */
-	for (; *s; s++)
-	{
-		/* Pluralizer */
-		if (*s == '~')
-		{
-			 /*nothing*/
-		}
-
-		/* Modifier */
-		else if (*s == '#')
-		{
-			/* Append the modifier */
-			object_desc_str_macro(t, modstr);
-		}
-
-		/* Normal */
-		else
-		{
-			/* Copy */
-			*t++ = *s;
-		}
-	}
-
-
-	/* Append the "kind name" to the "base name" */
-	if (append_name)
-	{
-		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (k_name + k_ptr->name));
-	}
-
-
-	/* Terminate */
-	*t = '\0';
-
-	/* Copy the string over */
-	my_strcpy(buf, tmp_buf, max);
-
-}
 
 /*
  * Describe an item and pretend the item is fully known and has no flavor.
@@ -2135,8 +1905,8 @@ void display_equip(void)
 
 	/* Put in the total weight */
 	Term_putstr(col, INVEN_TOTAL - INVEN_WIELD, -1, TERM_L_DARK, "--------");
-	sprintf(tmp_val, "%3d.%1d lb", armour_weight / 10, armour_weight % 10);
-	Term_putstr(col, INVEN_TOTAL - INVEN_WIELD + 1, -1, TERM_SLATE, tmp_val);
+	sprintf(tmp_val, "armour: %3d.%1d lb", armour_weight / 10, armour_weight % 10);
+	Term_putstr(col-8, INVEN_TOTAL - INVEN_WIELD + 1, -1, TERM_SLATE, tmp_val);
 	
 
 }
@@ -2386,8 +2156,8 @@ void show_equip(void)
 		/* Blank the line for the total */
 		prt("", j + 2, col ? col - 2 : col);
 		c_put_str(TERM_L_DARK, "--------", INVEN_TOTAL - INVEN_WIELD + 1, 71);
-		sprintf(tmp_val, "%3d.%1d lb", armour_weight / 10, armour_weight % 10);
-		c_put_str(TERM_SLATE, tmp_val, INVEN_TOTAL - INVEN_WIELD + 2, 71);
+		sprintf(tmp_val, "armour: %3d.%1d lb", armour_weight / 10, armour_weight % 10);
+		c_put_str(TERM_SLATE, tmp_val, INVEN_TOTAL - INVEN_WIELD + 2, 71-8);
 		/* Make a new "shadow" below the list (only if needed) */
 		if (j && (j+3 < 23)) prt("", j + 3, col ? col - 2 : col);
 

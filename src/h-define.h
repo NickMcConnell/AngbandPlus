@@ -92,6 +92,12 @@
 #undef SGN
 #define SGN(a)		(((a) < 0)   ? (-1) : ((a) != 0))
 
+/*
+ * Non-typed between value macro
+ */
+#undef ORDERED
+#define ORDERED(a,b,c)	((((a) <= (b)) && ((b) <= (c))) || (((c) <= (b)) && ((b) <= (a))))
+
 
 /*
  * Hack -- allow use of "ASCII" and "EBCDIC" for "indexes", "digits",

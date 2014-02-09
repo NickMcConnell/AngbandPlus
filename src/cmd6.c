@@ -315,7 +315,7 @@ void do_cmd_play_instrument(object_type *default_o_ptr, int default_item)
 	else
 	{		
 		/* Restrict choices to instruments */
-		item_tester_tval = TV_TRUMPET;
+		item_tester_tval = TV_HORN;
 		
 		/* Get an item */
 		q = "Play which instrument? ";
@@ -335,18 +335,21 @@ void do_cmd_play_instrument(object_type *default_o_ptr, int default_item)
 		}
 	}
 	
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-	
-	// store the action type
-	p_ptr->previous_action[0] = ACTION_MISC;
-	
 	/* Not identified yet */
 	ident = FALSE;
 	
 	/* Play the instrument */
 	if (!use_object(o_ptr, &ident)) return;
 	
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+	
+	// store the action type
+	p_ptr->previous_action[0] = ACTION_MISC;
+
+    // end the current song
+	change_song(SNG_NOTHING);
+    
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	

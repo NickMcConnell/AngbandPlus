@@ -31,7 +31,7 @@ void new_wandering_flow(monster_type *m_ptr, int ty, int tx)
 		if (m_ptr->mspeed == 0)
 		{
 			// update the flow
-			update_noise(m_ptr->fy, m_ptr->fx, wandering_idx);
+			update_flow(m_ptr->fy, m_ptr->fx, wandering_idx);
 		}
 	}
 	
@@ -42,7 +42,7 @@ void new_wandering_flow(monster_type *m_ptr, int ty, int tx)
 		x = tx;
 		
 		// update the flow
-		update_noise(y, x, wandering_idx);
+		update_flow(y, x, wandering_idx);
 	}
 	
 	// otherwise choose a location
@@ -53,7 +53,7 @@ void new_wandering_flow(monster_type *m_ptr, int ty, int tx)
 		    one_in_(5) && random_stair_location(&y, &x) && (cave_m_idx[y][x] >= 0) && !(cave_info[y][x] & (CAVE_ICKY)))
 		{
 			// update the flow
-			update_noise(y, x, wandering_idx);
+			update_flow(y, x, wandering_idx);
 		}
 		
 		// otherwise pick a random location (on a floor, in a room, and not in a vault)
@@ -69,7 +69,7 @@ void new_wandering_flow(monster_type *m_ptr, int ty, int tx)
 					!(cave_info[y][x] & (CAVE_ICKY)))
 				{
 					// update the flow
-					update_noise(y, x, wandering_idx);
+					update_flow(y, x, wandering_idx);
 					break;
 				}
 			}
@@ -89,7 +89,7 @@ void new_wandering_flow(monster_type *m_ptr, int ty, int tx)
 void new_wandering_destination(monster_type *m_ptr, monster_type *leader_ptr)
 {
 	int i;
-	bool wandering_indices[FLOW_WANDERING_TAIL];
+	bool wandering_indices[FLOW_WANDERING_TAIL+1];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	// many monsters don't get wandering destinations:
@@ -123,7 +123,7 @@ void new_wandering_destination(monster_type *m_ptr, monster_type *leader_ptr)
 	else
 	{
 		// clear the index array
-		for (i = 0; i < FLOW_WANDERING_TAIL; i++)
+		for (i = 0; i <= FLOW_WANDERING_TAIL; i++)
 		{
 			wandering_indices[i] = FALSE;
 		}
@@ -140,14 +140,14 @@ void new_wandering_destination(monster_type *m_ptr, monster_type *leader_ptr)
 		}
 		
 		// find the smallest unused index
-		for (i = FLOW_WANDERING_HEAD; i < FLOW_WANDERING_TAIL; i++)
+		for (i = FLOW_WANDERING_HEAD; i <= FLOW_WANDERING_TAIL; i++)
 		{
 			if (!wandering_indices[i]) break;
 		}
 	}
 	
 	// if we have a valid index, then find a location and build the noise flow
-	if (i < FLOW_WANDERING_TAIL)
+	if (i <= FLOW_WANDERING_TAIL)
 	{
 		m_ptr->wandering_idx = i;
 		m_ptr->wandering_dist = MON_WANDER_RANGE;
@@ -158,6 +158,7 @@ void new_wandering_destination(monster_type *m_ptr, monster_type *leader_ptr)
 	// Sil-y: this is only really a problem on the Gates level
 	else
 	{
+        msg_debug("out of wandering indices");
 		m_ptr->wandering_idx = 0;
 		m_ptr->wandering_dist = MON_WANDER_RANGE;
 	}
@@ -231,7 +232,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 			m_ptr->skip_next_turn = TRUE;
 			
 			// Notice the "waking up and noticing"
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				msg_format("%^s wakes up and notices you.", m_name);
@@ -246,7 +247,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		else if ((m_ptr->alertness < ALERTNESS_UNWARY) && (alertness >= ALERTNESS_UNWARY))
 		{
 			// Notice the "waking up"
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				msg_format("%^s wakes up.", m_name);
@@ -264,7 +265,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 			m_ptr->skip_next_turn = TRUE;
 			
 			// Notice the "noticing" (!)
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				msg_format("%^s notices you.", m_name);
@@ -279,7 +280,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		else if ((m_ptr->alertness < ALERTNESS_UNWARY) && (alertness < ALERTNESS_UNWARY) && (alertness >= ALERTNESS_UNWARY - 2))
 		{
 			// Notice the "stirring"
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				msg_format("%^s stirs.", m_name);
@@ -288,7 +289,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		else if ((m_ptr->alertness < ALERTNESS_ALERT) && (alertness < ALERTNESS_ALERT) && (alertness >= ALERTNESS_ALERT - 2))
 		{
 			// Notice the "looking around"
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				msg_format("%^s looks around.", m_name);
@@ -301,7 +302,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		if ((m_ptr->alertness >= ALERTNESS_UNWARY) && (alertness < ALERTNESS_UNWARY))
 		{
 			// Notice the falling asleep
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				msg_format("%^s falls asleep.", m_name);
@@ -319,7 +320,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		else if ((m_ptr->alertness >= ALERTNESS_ALERT) && (alertness < ALERTNESS_ALERT))
 		{
 			// Notice the becoming unwary
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				msg_format("%^s becomes unwary.", m_name);
@@ -335,7 +336,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		else if (alertness < ALERTNESS_UNWARY)
 		{
 			// Notice the deepening sleep
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				//msg_format("%^s's sleep deepens.", m_name);
@@ -344,7 +345,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		else if (alertness < ALERTNESS_ALERT)
 		{
 			// Notice the increasing unwariness
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				//msg_format("%^s becomes more unwary.", m_name);
@@ -353,7 +354,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		else
 		{
 			// Notice the decreasing alertness
-			if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+			if (m_ptr->ml)
 			{
 				// Dump a message
 				//msg_format("%^s looks less alert.", m_name);
@@ -402,6 +403,9 @@ extern int success_chance(int sides, int skill, int difficulty)
  * (1d10 + skill) - (1d10 + difficulty)
  * Results <= 0 count as fails.
  * Results > 0 are successes.
+ *
+ * There is a fake skill check in monster_perception (where player roll is used once for all monsters)
+ * so if something changes here, remember to change it there.
  */
 int skill_check(monster_type *m_ptr1, int skill, int difficulty, monster_type *m_ptr2)
 {
@@ -409,10 +413,14 @@ int skill_check(monster_type *m_ptr1, int skill, int difficulty, monster_type *m
 	int difficulty_total;
 	int skill_total_alt;
 	int difficulty_total_alt;
-	
+
 	// bonuses against your enemy of choice
 	if ((m_ptr1 == PLAYER) && (m_ptr2 != NULL)) skill += bane_bonus(m_ptr2);
 	if ((m_ptr2 == PLAYER) && (m_ptr1 != NULL)) difficulty += bane_bonus(m_ptr1);
+    
+    // elf-bane bonus against you
+	if ((m_ptr1 == PLAYER) && (m_ptr2 != NULL)) difficulty += elf_bane_bonus(m_ptr2);
+	if ((m_ptr2 == PLAYER) && (m_ptr1 != NULL)) skill += elf_bane_bonus(m_ptr1);
 	
 	// the basic rolls
 	skill_total = dieroll(10) + skill;
@@ -547,7 +555,7 @@ int total_player_attack(monster_type *m_ptr, int base)
 		if (!m_ptr->ml) att /= 2;
 		
 		// penalise the player if (s)he is in a pit or web
-		if (cave_pit(p_ptr->py,p_ptr->px) || (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB))
+		if (cave_pit_bold(p_ptr->py,p_ptr->px) || (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB))
 		{
 			att /= 2;
 		}
@@ -581,7 +589,7 @@ int total_player_evasion(monster_type *m_ptr, bool archery)
 		if (archery) evn /= 2;
 
 		// penalise the player if (s)he is in a pit or web
-		if (cave_pit(p_ptr->py,p_ptr->px) || (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB))
+		if (cave_pit_bold(p_ptr->py,p_ptr->px) || (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB))
 		{
 			evn /= 2;
 		}
@@ -612,6 +620,9 @@ int total_monster_attack(monster_type *m_ptr, int base)
 
 	// penalise distance
 	att -= distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) / 5;
+    
+    // elf-bane bonus
+    att += elf_bane_bonus(m_ptr);
 	
 	// halve attack score for certain situations (and only halve positive scores!)
 	if (att > 0)
@@ -643,7 +654,10 @@ int total_monster_evasion(monster_type *m_ptr, bool archery)
 	// penalise being in bright light for light-averse monsters
 	evn -= light_penalty(m_ptr);
 	
-	// halve evasion for certain situations (and only halve positive evasion!)
+    // elf-bane bonus
+    evn += elf_bane_bonus(m_ptr);
+	
+    // halve evasion for certain situations (and only halve positive evasion!)
 	if (evn > 0)
 	{
 		// check if player is unseen
@@ -697,23 +711,17 @@ int stealth_melee_bonus(const monster_type *m_ptr)
 int overwhelming_att_mod(monster_type *m_ptr)
 {
 	int mod = 0;
-	int deltay, deltax;
+    int dir;
 	int dy, dx;
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 	
-	deltay = m_ptr->fy - py;
-	deltax = m_ptr->fx - px;
-		
-	if (deltay == 0) dy = 0;
-	else             dy = (deltay > 0) ? 1 : -1;
-	
-	if (deltax == 0) dx = 0;
-	else             dx = (deltax > 0) ? 1 : -1;
-	
-	if ((deltax != 0) && (ABS(deltay) / ABS(deltax) >= 2)) dx = 0;
-	
-	if ((deltay != 0) && (ABS(deltax) / ABS(deltay) >= 2)) dy = 0;
+    // determine the main direction from the player to the monster
+    dir = rough_direction(py, px, m_ptr->fy, m_ptr->fx);
+    
+    // extract the deltas from the direction
+    dy = ddy[dir];
+    dx = ddx[dir];
 	
 	// if monster in an orthogonal direction   753
 	//                                         8@M
@@ -882,7 +890,7 @@ void slay_desc(char *description, u32b flag, const monster_type *m_ptr)
         	sprintf(description, "cuts deeply");
 			break;
 		case TR1_SHARPNESS2:
-        	sprintf(description, "cuts very deeply");
+        	sprintf(description, "cuts effortlessly");
 			break;
 		case TR1_VAMPIRIC:
         	sprintf(description, "drains life from %s", m_name);
@@ -978,7 +986,13 @@ extern void ident_on_wield(object_type *o_ptr)
 			notice = TRUE;
 		}
 	}
-	
+
+    // identify true sight if it cures blindness
+	if (p_ptr->blind && (f2 & (TR2_SEE_INVIS)))
+	{
+		notice = TRUE;
+	}
+    
 	if (o_ptr->name1 || o_ptr->name2)
 	{
 		// For special items and artefacts, we need to ignore the flags that are basic 
@@ -1002,7 +1016,7 @@ extern void ident_on_wield(object_type *o_ptr)
 			notice = TRUE;
 			msg_print("It glows with a wondrous light.");
 		}
-		else if (o_ptr->timeout > 0)
+		else if ((o_ptr->sval == SV_LIGHT_FEANORIAN) || (o_ptr->sval == SV_LIGHT_LESSER_JEWEL) || (o_ptr->timeout > 0))
 		{
 			notice = TRUE;
 			msg_print("It glows very brightly.");
@@ -1364,82 +1378,82 @@ extern void ident_resist(u32b flag)
 			/* Short, pre-identification object description */
 			object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
 			
-			if ((flag == TR2_RES_COLD) && (f2 & (TR2_RES_COLD)) && ident_by_use_perception_check(5))
+			if ((flag == TR2_RES_COLD) && (f2 & (TR2_RES_COLD)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s partly protects you from the chill.", o_short_name);
 			}
-			else if ((flag == TR2_RES_FIRE) && (f2 & (TR2_RES_FIRE)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_FIRE) && (f2 & (TR2_RES_FIRE)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s partly protects you from the flame.", o_short_name);
 			}
-			else if ((flag == TR2_RES_POIS) && (f2 & (TR2_RES_POIS)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_POIS) && (f2 & (TR2_RES_POIS)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s partly protects you from the poison.", o_short_name);
 			}
-			else if ((flag == TR2_RES_COLD) && (f2 & (TR2_VUL_COLD)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_COLD) && (f2 & (TR2_VUL_COLD)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s intensifies the chill.", o_short_name);
 			}
-			else if ((flag == TR2_RES_FIRE) && (f2 & (TR2_VUL_FIRE)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_FIRE) && (f2 & (TR2_VUL_FIRE)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s intensifies the flame.", o_short_name);
 			}
-			else if ((flag == TR2_RES_POIS) && (f2 & (TR2_VUL_POIS)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_POIS) && (f2 & (TR2_VUL_POIS)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s intensifies the poison.", o_short_name);
 			}
-			else if ((flag == TR2_RES_FEAR) && (f2 & (TR2_RES_FEAR)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_FEAR) && (f2 & (TR2_RES_FEAR)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s fills you with courage.", o_short_name);
 			}
-			else if ((flag == TR2_RES_BLIND) && (f2 & (TR2_RES_BLIND)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_BLIND) && (f2 & (TR2_RES_BLIND)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s protects your sight.", o_short_name);
 			}
-			else if ((flag == TR2_RES_HALLU) && (f2 & (TR2_RES_HALLU)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_HALLU) && (f2 & (TR2_RES_HALLU)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s protects your sight.", o_short_name);
 			}
-			else if ((flag == TR2_RES_CONFU) && (f2 & (TR2_RES_CONFU)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_CONFU) && (f2 & (TR2_RES_CONFU)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s fills you with calm.", o_short_name);
 			}
-			else if ((flag == TR2_RES_STUN) && (f2 & (TR2_RES_STUN)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_RES_STUN) && (f2 & (TR2_RES_STUN)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s fills you with calm.", o_short_name);
 			}
-			else if ((flag == TR2_FREE_ACT) && (f2 & (TR2_FREE_ACT)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_FREE_ACT) && (f2 & (TR2_FREE_ACT)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s glows softly.", o_short_name);
 			}
-			else if ((flag == TR2_SUST_STR) && (f2 & (TR2_SUST_STR)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_SUST_STR) && (f2 & (TR2_SUST_STR)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s sustains your strength.", o_short_name);
 			}
-			else if ((flag == TR2_SUST_DEX) && (f2 & (TR2_SUST_DEX)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_SUST_DEX) && (f2 & (TR2_SUST_DEX)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s sustains your dexterity.", o_short_name);
 			}
-			else if ((flag == TR2_SUST_CON) && (f2 & (TR2_SUST_CON)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_SUST_CON) && (f2 & (TR2_SUST_CON)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s sustains your constitution.", o_short_name);
 			}
-			else if ((flag == TR2_SUST_GRA) && (f2 & (TR2_SUST_GRA)) && ident_by_use_perception_check(5))
+			else if ((flag == TR2_SUST_GRA) && (f2 & (TR2_SUST_GRA)))
 			{
 				notice = TRUE;
 				strnfmt(effect_string, sizeof(effect_string), "Your %s sustains your grace.", o_short_name);
@@ -1494,27 +1508,17 @@ extern void ident_passive(void)
 		
 		if (!object_known_p(o_ptr))
 		{			
-			if ((f2 & (TR2_REGEN)) && (p_ptr->chp < p_ptr->mhp) && ident_by_use_perception_check(10))
+			if ((f2 & (TR2_REGEN)) && (p_ptr->chp < p_ptr->mhp))
 			{
 				notice = TRUE;
 				my_strcpy(effect_string, "You notice that you are recovering much faster than usual.", sizeof (effect_string));
 			}
-			else if ((f2 & (TR2_HUNGER)) && ident_by_use_perception_check(10))
-			{
-				notice = TRUE;
-				my_strcpy(effect_string, "You notice that you are growing hungry much faster than before.", sizeof (effect_string));
-			}
-			else if ((f2 & (TR2_SLOW_DIGEST)) && ident_by_use_perception_check(10))
-			{
-				notice = TRUE;
-				my_strcpy(effect_string, "You notice that you are growing hungry more slowly than before.", sizeof (effect_string));
-			}
-			else if ((f2 & (TR2_AGGRAVATE)) && ident_by_use_perception_check(10))
+			else if ((f2 & (TR2_AGGRAVATE)))
 			{
 				notice = TRUE;
 				my_strcpy(effect_string, "You notice that you are enraging your enemies.", sizeof (effect_string));
 			}
-			else if ((f2 & (TR2_DANGER)) && ident_by_use_perception_check(10))
+			else if ((f2 & (TR2_DANGER)))
 			{
 				notice = TRUE;
 				my_strcpy(effect_string, "You notice that you are attracting more powerful enemies.", sizeof (effect_string));
@@ -1571,7 +1575,7 @@ extern void ident_see_invisible(const monster_type *m_ptr)
 		
 		if (!object_known_p(o_ptr))
 		{
-			if ((f2 & (TR2_SEE_INVIS)) && ident_by_use_perception_check(10))
+			if ((f2 & (TR2_SEE_INVIS)))
 			{
 				notice = TRUE;
 			}
@@ -1628,7 +1632,7 @@ extern void ident_haunted(void)
 		
 		if (!object_known_p(o_ptr))
 		{
-			if ((f2 & (TR2_HAUNTED)) && ident_by_use_perception_check(10))
+			if ((f2 & (TR2_HAUNTED)))
 			{
 				notice = TRUE;
 			}
@@ -1683,7 +1687,7 @@ extern void ident_cowardice(void)
 		
 		if (!object_known_p(o_ptr))
 		{
-			if ((f2 & (TR2_FEAR)) && ident_by_use_perception_check(5))
+			if ((f2 & (TR2_FEAR)))
 			{
 				notice = TRUE;
 			}
@@ -1710,7 +1714,65 @@ extern void ident_cowardice(void)
 	return;
 }
 
+/* 
+ * Identifies a hunger or sustenance item and prints a message
+ */
+void ident_hunger(void)
+{
+	u32b f1, f2, f3;
+	int i;
+	bool notice = FALSE;
+	char o_full_name[80];
+	char o_short_name[80];
+	object_type *o_ptr;
+    
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
 
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+
+		if (!object_known_p(o_ptr))
+		{
+			if ((f2 & (TR2_HUNGER)) && (p_ptr->hunger > 0))
+            {
+				notice = TRUE;
+            }
+                
+            if ((f2 & (TR2_SLOW_DIGEST)) && (p_ptr->hunger < 0))
+			{
+				notice = TRUE;
+			}
+		}
+
+		if (notice)
+		{
+			/* Short, pre-identification object description */
+			object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+
+			/* identify the object */
+			ident(o_ptr);
+
+			/* Full object description */
+			object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+
+			/* Print the messages */
+            if (f2 & (TR2_HUNGER))              msg_print("You notice that you are growing hungry much faster than before.");
+            else if (f2 & (TR2_SLOW_DIGEST))    msg_print("You notice that you are growing hungry slower than before.");
+            
+			msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
+
+			return;
+		}
+	}
+
+	return;
+}
 
 /*
  * Identifies a weapon from one of its slays being active and prints a message
@@ -1823,14 +1885,6 @@ void ident_bow_arrow_by_use(object_type *j_ptr, object_type *i_ptr, object_type 
 }
 
 
-/*
- * Determines if the player perceives the true nature of an item through use
- */
-extern bool ident_by_use_perception_check(int difficulty)
-{
-	return (skill_check(PLAYER, p_ptr->skill_use[S_PER], difficulty, NULL) > 0);
-}
-
 
 /*
  * Makes checks against perception to see if the weapon becomes identified
@@ -1843,7 +1897,7 @@ u32b maybe_notice_slay(const object_type *o_ptr, u32b flag)
 {
 	u32b noticed_flag = 0L;
 	
-	if (!object_known_p(o_ptr) && ident_by_use_perception_check(10))
+	if (!object_known_p(o_ptr))
 	{
 		noticed_flag = flag;
 	}
@@ -2131,10 +2185,11 @@ extern int prt_after_sharpness(const object_type *o_ptr, u32b *noticed_flag)
 				
 		if ((tval == TV_SWORD) || (tval == TV_POLEARM) || (tval == TV_ARROW))
 		{
-			protection *= 6;
-			protection /= ability_bonus(S_SNG, SNG_SHARPNESS);
+			protection -= ability_bonus(S_SNG, SNG_SHARPNESS);
 		}
 	}
+    
+    if (protection < 0) protection = 0;
 	
 	return protection;
 }
@@ -2170,12 +2225,11 @@ void search_square(int y, int x, int dist, int searching)
 		if ((dist == 1) && !(cave_info[y][x] & (CAVE_MARK))) 
 		{
 			// mark all non-floor non-trap squares
-			if (!cave_floorlike_bold(y,x))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);				
-			}
-			
+            if (!cave_floorlike_bold(y,x))
+            {
+                cave_info[y][x] |= (CAVE_MARK);
+            }
+            			
 			// mark an object, but not the square it is in
 			if (cave_o_idx[y][x] != 0)
 			{
@@ -2343,48 +2397,6 @@ extern void perceive(void)
 }
 
 
-/*
- * Determine if the object can be picked up, and either has "=g" in its inscription
- * or has the pickup flag set to true (e.g. for thrown and fired items)
- */
-static bool auto_pickup_okay(const object_type *o_ptr)
-{
-	cptr s;
-
-	/* It can't be carried */
-	if (!inven_carry_okay(o_ptr)) return (FALSE);
-
-	/*object is marked to not pickup*/
-	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) &&
-	    object_aware_p(o_ptr)) return (FALSE);
-
-	/*object is marked to not pickup*/
-	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) &&
-	    object_aware_p(o_ptr)) return (TRUE);
-		
-	/* object has pickup flag set */
-	if (o_ptr->pickup) return (TRUE);
-
-	/* No inscription */
-	if (!o_ptr->obj_note) return (FALSE);
-
-	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->obj_note), '=');
-
-	/* Process inscription */
-	while (s)
-	{
-		/* Auto-pickup on "=g" */
-		if (s[1] == 'g') return (TRUE);
-
-		/* Find another '=' */
-		s = strchr(s + 1, '=');
-	}
-
-	/* Don't auto pickup */
-	return (FALSE);
-}
-
 
 /*
  * Helper routine for py_pickup() and py_pickup_floor().
@@ -2393,7 +2405,7 @@ static bool auto_pickup_okay(const object_type *o_ptr)
  *
  * Delete the object afterwards.
  */
-static void py_pickup_aux(int o_idx)
+void py_pickup_aux(int o_idx)
 {
 	int slot;
 
@@ -2523,7 +2535,7 @@ void do_cmd_pickup_from_pile(void)
  *
  * If "pickup" is FALSE then nothing will be picked up.
  */
-void py_pickup(int pickup)
+void py_pickup(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2569,32 +2581,6 @@ void py_pickup(int pickup)
 			do_not_pickup = TRUE;
 		}
 
-		/* Test for auto-pickup */
-		if (auto_pickup_okay(o_ptr))
-		{
-			/* Pick up the object */
-			py_pickup_aux(this_o_idx);
-
-			/* Check the next object */
-			continue;
-		}
-
-		/* Describe the object */
-		if ((!pickup) || (do_not_pickup))
-		{
-			// skip notes
-			if (o_ptr->tval != TV_NOTE) msg_format("You see %s.", o_name);			
-
-			if ((o_ptr->name1 == ART_MORGOTH_3) && !(p_ptr->crown_hint))
-			{
-				msg_print("To attempt to prise a Silmaril from the crown, use the 'destroy' command (which is 'k' by default).");
-				p_ptr->crown_hint = TRUE;
-			}
-			
-			/* Check the next object */
-			continue;
-		}
-
 		/* Note that the pack is too full */
 		if (!inven_carry_okay(o_ptr))
 		{
@@ -2613,14 +2599,12 @@ void py_pickup(int pickup)
 			continue;
 		}
 
-		/* Query before picking up */
-		if (carry_query)
-		{
-			char out_val[160];
-			strnfmt(out_val, sizeof(out_val), "Pick up %s? ", o_name);
-			if (!get_check(out_val)) continue;
-		}
-
+        // store the action type
+		p_ptr->previous_action[0] = ACTION_MISC;
+        
+		/* Take a turn */
+		p_ptr->energy_use = 100;
+        
 		/* Pick up the object */
 		py_pickup_aux(this_o_idx);
 	}
@@ -2659,6 +2643,33 @@ void hit_trap(int y, int x)
 	/* Analyze XXX XXX XXX */
 	switch (feat)
 	{
+        // not really a trap, but handled here due to similarities
+		case FEAT_CHASM:
+ 		{
+			// give several messages so the player has a chance to see it happen
+			msg_print("You fall into the darkness!");
+			message_flush();
+			msg_print("...and land somewhere deeper in the Iron Hells.");
+			message_flush();
+            
+			// add to the notes file
+			do_cmd_note("Fell into a chasm", p_ptr->depth);
+            
+			// take some damage
+			falling_damage(FALSE);
+			
+			// make a note if the player loses a greater vault
+			note_lost_greater_vault();
+            
+			/* New depth */
+			p_ptr->depth = MIN(p_ptr->depth + 2, MORGOTH_DEPTH - 1);
+            
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+            
+			break;
+		}
+
 		case FEAT_TRAP_FALSE_FLOOR:
  		{			
 			// give several messages so the player has a chance to see it happen
@@ -2670,7 +2681,7 @@ void hit_trap(int y, int x)
 			message_flush();
 
 			// add to the notes file
-			do_cmd_note("Fell through a false floor.", p_ptr->depth);
+			do_cmd_note("Fell through a false floor", p_ptr->depth);
 						
 			// take some damage
 			falling_damage(FALSE);
@@ -2737,7 +2748,7 @@ void hit_trap(int y, int x)
 				/* Take the damage */
 				take_hit(net_dam, name);
 				
-				(void)set_cut(p_ptr->cut + dieroll(net_dam) + 1);
+				(void)set_cut(p_ptr->cut + (net_dam+1)/2);
 			}
 			else
 			{				
@@ -2829,7 +2840,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_GAS_MEMORY:
 		{
 			msg_print("You are surrounded by a strange mist!");
-			if (saving_throw(NULL, FALSE))
+			if (saving_throw(NULL, 0))
 			{
 				msg_print("You resist the effects!");
 			}
@@ -3067,7 +3078,7 @@ void hit_trap(int y, int x)
  * Find the attr/char pair to use for a visual hit effect
  *
  */
-static u16b hit_pict(int net_dam, int dam_type)
+static u16b hit_pict(int net_dam, int dam_type, bool fatal_blow)
 {
 	int base;
 
@@ -3083,19 +3094,23 @@ static u16b hit_pict(int net_dam, int dam_type)
 
 
 		/* Basic hit color */
-		if (net_dam == 0)
+		if (fatal_blow)
 		{
-			// only stunning overrides the default for zero damage hits
+			k = TERM_RED;
+		}
+		else if (net_dam == 0)
+		{
+			// only knock back overrides the default for zero damage hits
 			if (dam_type == GF_SOUND)
 			{
-				k = TERM_UMBER;
+				k = TERM_L_UMBER;
 			}
 			else
 			{
 				k = TERM_L_WHITE;
 			}
 		}
-		else if (net_dam < 10)
+		else
 		{
 			if (dam_type == GF_POIS)
 			{
@@ -3103,26 +3118,11 @@ static u16b hit_pict(int net_dam, int dam_type)
 			}
 			else if (dam_type == GF_SOUND)
 			{
-				k = TERM_UMBER;
-			}
-			else
-			{
-				k = TERM_L_RED;
-			}
-		}
-		else
-		{
-			if (dam_type == GF_POIS)
-			{
-				k = TERM_L_GREEN;
-			}
-			else if (dam_type == GF_SOUND)
-			{
 				k = TERM_L_UMBER;
 			}
 			else
 			{
-				k = TERM_RED;
+				k = TERM_L_RED;
 			}
 		}
 		
@@ -3159,7 +3159,7 @@ static u16b hit_pict(int net_dam, int dam_type)
 	return (PICT(a,c));
 }
 
-void display_hit(int y, int x, int net_dam, int dam_type)
+void display_hit(int y, int x, int net_dam, int dam_type, bool fatal_blow)
 {
 	u16b p;
 
@@ -3170,7 +3170,7 @@ void display_hit(int y, int x, int net_dam, int dam_type)
 	if (!display_hits) return; 
 
 	/* Obtain the hit pict */
-	p = hit_pict(net_dam, dam_type);
+	p = hit_pict(net_dam, dam_type, fatal_blow);
 
 	/* Extract attr/char */
 	a = PICT_A(p);
@@ -3196,7 +3196,7 @@ void display_hit(int y, int x, int net_dam, int dam_type)
 
 
 /*
- *  Determines the multiplier for charge attacks if any
+ *  Determines whether an attack is a charge attack
  */
 
 bool valid_charge(int fy, int fx, int attack_type)
@@ -3241,22 +3241,27 @@ void possible_follow_through(int fy, int fx, int attack_type)
 	if (p_ptr->active_ability[S_MEL][MEL_FOLLOW_THROUGH] && !(p_ptr->confused) &&
 	    ((attack_type == ATT_MAIN) || (attack_type == ATT_FLANKING) || 
 		 (attack_type == ATT_CONTROLLED_RETREAT) || (attack_type == ATT_FOLLOW_THROUGH)))
-	{ 
-		// look through adjacent squares in an anticlockwise direction
-		for (i = 1; i < 8; i++)
-		{
-			d = cycle[chome[dir_from_delta(deltay, deltax)] + i];
-			
-			y = p_ptr->py + ddy[d];
-			x = p_ptr->px + ddx[d];
-			
-			if ((cave_m_idx[y][x] > 0) && (&mon_list[cave_m_idx[y][x]])->ml)
-			{
-				msg_print("You continue your attack!");
-				py_attack_aux(y, x, ATT_FOLLOW_THROUGH);
-				return;
-			}
-		}
+	{
+        // look through adjacent squares in an anticlockwise direction
+        for (i = 1; i < 8; i++)
+        {
+            d = cycle[chome[dir_from_delta(deltay, deltax)] + i];
+            
+            y = p_ptr->py + ddy[d];
+            x = p_ptr->px + ddx[d];
+            
+            if (cave_m_idx[y][x] > 0)
+            {
+                monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+                
+                if (m_ptr->ml && (!forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT)))
+                {
+                    msg_print("You continue your attack!");
+                    py_attack_aux(y, x, ATT_FOLLOW_THROUGH);
+                    return;
+                }
+            }
+        }
 	}
 }
 
@@ -3347,6 +3352,105 @@ void attack_punctuation(char *punctuation, int net_dam, int crit_bonus_dice)
 	
 }
 
+
+bool knock_back(int y1, int x1, int y2, int x2)
+{
+    bool knocked = FALSE;
+    
+    bool monster_target = FALSE;
+    
+    int mod, d, i, y3, x3;
+    int dir;
+    
+    int dy, dx;
+    
+    // default to there being no monster
+    monster_type *m_ptr = NULL;
+    
+    // determine the main direction from the source to the target
+    dir = rough_direction(y1, x1, y2, x2);
+    
+    // extract the deltas from the direction
+    dy = ddy[dir];
+    dx = ddx[dir];
+    
+    // knocking a monster back...
+    if (cave_m_idx[y2][x2] > 0)
+    {
+        monster_target = TRUE;
+        m_ptr = &mon_list[cave_m_idx[y2][x2]];
+    }
+    
+    // first try to knock it straight back
+    if (cave_floor_bold(y2 + dy, x2 + dx) && (cave_m_idx[y2 + dy][x2 + dx] == 0))
+    {
+        monster_swap(y2, x2, y2 + dy, x2 + dx);
+        knocked = TRUE;
+    }
+    
+    // then try the adjacent directions
+    else
+    {
+        // randomize clockwise or anticlockwise
+        if (one_in_(2)) mod = -1;
+        else			mod = +1;
+        
+        // try both directions
+        for (i = 0; i < 2; i++)
+        {
+            d = cycle[chome[dir_from_delta(dy, dx)] + mod];
+            y3 = y2 + ddy[d];
+            x3 = x2 + ddx[d];
+            if (cave_floor_bold(y3, x3) && (cave_m_idx[y3][x3] == 0))
+            {
+                monster_swap(y2, x2, y3, x3);
+                knocked = TRUE;
+                break;
+            }
+            
+            // switch direction
+            mod *= -1;
+        }
+    }
+    
+    // make the target skip a turn
+    if (knocked)
+    {
+        if (monster_target)
+        {
+            m_ptr->skip_next_turn = TRUE;
+        }
+        else
+        {
+            msg_print("You are knocked back.");
+
+            p_ptr->skip_next_turn = TRUE;
+
+            // cannot stay in the air
+            p_ptr->leaping = FALSE;
+
+            // make some noise when landing
+			stealth_score -= 5;
+
+            /* Set off traps */
+            if (cave_trap_bold(p_ptr->py, p_ptr->px) || ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_CHASM)))
+            {
+                // If it is hidden
+                if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_HIDDEN))
+                {
+                    /* Reveal the trap */
+                    reveal_trap(p_ptr->py, p_ptr->px);
+                }
+                
+                /* Hit the trap */
+                hit_trap(p_ptr->py, p_ptr->px);
+            }
+        }
+    }
+    
+    return (knocked);
+}
+
 /*
  * Attack the monster at the given location
  *
@@ -3368,6 +3472,8 @@ void py_attack_aux(int y, int x, int attack_type)
 	int blows;
 	int mdd, mds;
 	int stealth_bonus = 0;
+    int monster_ripostes = 0;
+	int effective_strength;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -3378,12 +3484,13 @@ void py_attack_aux(int y, int x, int attack_type)
 	char m_name[80];
 	char punctuation[20];
 
-	bool knock_back_score = 0;
-	bool knock_back = FALSE;
+    bool abort_attack = FALSE;
+	bool do_knock_back = FALSE;
 	bool knocked = FALSE;
 	bool charge = FALSE;
 	bool rapid_attack = FALSE;
 	bool off_hand_blow = FALSE;
+	bool fatal_blow = FALSE;
 
 	u32b f1, f2, f3; // the weapon's flags
 
@@ -3393,35 +3500,6 @@ void py_attack_aux(int y, int x, int attack_type)
 	m_ptr = &mon_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
-
-	/* Reveal minics (note: mimics cannot be sneak-attacked) */
-	if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
-	{
-		/* Mimic no longer acts as a detected object */
-		m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-		/*no longer a mimic*/
-		m_ptr->mimic_k_idx = 0;
-
-		/* Get monster name ("a kobold") */
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0x88);
-
-		/* Redraw */
-		lite_spot(m_ptr->fy, m_ptr->fx);
-
-		/* Message */
-		if (!p_ptr->afraid)
-		{
-			msg_format("You find yourself fighting %s!", m_name);
-		}
-		else
-		{
-			msg_format("%^s appears, but you are too frightened to fight it!",
-				m_name);
-			return;
-		}
-
-	}
 
 	/*possibly update the monster health bar*/
 	if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTHBAR);
@@ -3441,32 +3519,70 @@ void py_attack_aux(int y, int x, int attack_type)
 	/* Target this monster */
 	if (m_ptr->ml) target_set_monster(cave_m_idx[y][x]);
 
+	/* Get the weapon */
+	o_ptr = &inventory[INVEN_WIELD];
+    
 	/* Handle player fear */
 	if (p_ptr->afraid)
 	{
 		/* Message */
 		msg_format("You are too afraid to attack %s!", m_name);
 
+		abort_attack = TRUE;
+	}
+
+    // inscribing an object with "!a" produces prompts to confirm that you with to attack with it
+    // idea and code from MarvinPA
+    if (o_ptr->obj_note && !p_ptr->truce)
+    {
+        cptr s;
+        /* Find a '!' */
+        s = strchr(quark_str(o_ptr->obj_note), '!');
+    
+        /* Process inscription */
+        while (s)
+        {
+            if ((s[1] == 'a') && !get_check("Are you sure you wish to attack? "))
+            {
+                abort_attack = TRUE;
+            }
+    	
+            /* Find another '!' */
+            s = strchr(s + 1, '!');
+        }
+    }
+    
+ 	// Warning about breaking the truce
+	if ((p_ptr->truce) && !get_check("Are you sure you wish to attack? "))
+	{
+        abort_attack = TRUE;
+	}
+	
+    // Warn about fighting with fists
+    if ((o_ptr->weight == 0) && !get_check("Are you sure you wish to attack with no weapon? "))
+    {
+        abort_attack = TRUE;
+    }
+
+    // Warn about fighting with shovel
+    if ((o_ptr->tval == TV_DIGGING) && (o_ptr->sval == SV_SHOVEL) && !get_check("Are you sure you wish to attack with your shovel? "))
+    {
+        abort_attack = TRUE;
+    }
+
+    // Cancel the attack if needed
+    if (abort_attack)
+    {
 		// reset the action type
 		p_ptr->previous_action[0] = ACTION_NOTHING;
-
+        
 		// don't take a turn
 		p_ptr->energy_use = 0;
-
+        
 		/* Done */
 		return;
-	}
-
-	// Warning about breaking the truce
-	if (p_ptr->truce && !get_check("Are you sure you wish to attack? "))
-	{
-		/* Done */
-		return;
-	}
-	
-	/* Get the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
-	
+    }
+    
 	// fighting with fists is equivalent to a 4 lb weapon for the purpose of criticals
 	weapon_weight = o_ptr->weight ? o_ptr->weight : 40;
 
@@ -3512,13 +3628,22 @@ void py_attack_aux(int y, int x, int attack_type)
 	/* Attack once for each legal blow */
 	while (num++ < blows)
 	{
-		knock_back = FALSE;
+		do_knock_back = FALSE;
 		knocked = FALSE;
 		
+		// if the previous blow was a charge, undo the charge effects for later blows
+		if (charge)
+		{
+			charge = FALSE;
+			attack_mod -= 3;
+			mds = p_ptr->mds;
+		}
+
 		// adjust for off-hand weapon if it is being used
 		if ((num == blows) && (num != 1) && (p_ptr->mds2 > 0))
 		{
 			off_hand_blow = TRUE;
+			rapid_attack = FALSE;
 			
 			attack_mod += p_ptr->offhand_mel_mod;
 			mdd = p_ptr->mdd2;
@@ -3540,14 +3665,6 @@ void py_attack_aux(int y, int x, int attack_type)
 
 			// undo strength adjustment to the attack (if any)
 			mds = total_mds(o_ptr, str_adjustment);
-		}
-		
-		// undo the charge effects for later blows
-		else if (charge)
-		{
-			charge = FALSE;
-			attack_mod -= 3;
-			mds = p_ptr->mds;
 		}
 
 		// reward melee attacks on sleeping monsters by characters with the asssassination ability
@@ -3623,28 +3740,38 @@ void py_attack_aux(int y, int x, int attack_type)
 			                     prt, prt_percent, GF_HURT, TRUE); 
 			
 			// determine the player's score for knocking an opponent backwards if they have the ability
-			knock_back_score = p_ptr->stat_use[A_STR] * 2;
-			if (two_handed_melee()) knock_back_score += 4;
-			if (charge) knock_back_score += 6;
-			if (rapid_attack) knock_back_score -= 3;
-			if (off_hand_blow) knock_back_score -= 3;
-			
+            // first calculate their strength including modifiers for this attack
+            effective_strength = p_ptr->stat_use[A_STR];
+			if (charge) effective_strength += 3;
+			if (rapid_attack) effective_strength -= 3;
+			if (off_hand_blow) effective_strength -= 3;
+            
+            // cap the value by the weapon weight
+			if (effective_strength > weapon_weight / 10) effective_strength = weapon_weight / 10;
+            if ((effective_strength < 0) && (-effective_strength > weapon_weight / 10)) effective_strength = -(weapon_weight / 10);
+            
+            // give an extra +2 bonus for using a weapon two-handed
+            if (two_handed_melee()) effective_strength += 2;
+                            
 			// check whether the effect triggers
-			if (p_ptr->active_ability[S_MEL][MEL_KNOCK_BACK] && (attack_type != ATT_OPPORTUNIST) && !(r_ptr->flags1 & (RF1_NEVER_MOVE)) && 
-			    (skill_check(PLAYER, knock_back_score, monster_con(m_ptr) * 2, m_ptr) > 0))
+			if (p_ptr->active_ability[S_MEL][MEL_KNOCK_BACK] && (attack_type != ATT_OPPORTUNIST) && !(r_ptr->flags1 & (RF1_NEVER_MOVE)) &&
+			    (skill_check(PLAYER, effective_strength * 2, monster_stat(m_ptr, A_CON) * 2, m_ptr) > 0))
 			{
 				// remember this for later when the effect is applied
-				knock_back = TRUE;
+				do_knock_back = TRUE;
 			}
 			
+			// damage, check for death
+			fatal_blow = mon_take_hit(cave_m_idx[y][x], net_dam, NULL, -1);
+
 			// use different colours depending on whether knock back triggered
-			if (knock_back)
+			if (do_knock_back)
 			{
-				display_hit(y, x, net_dam, GF_SOUND);
+				display_hit(y, x, net_dam, GF_SOUND, fatal_blow);
 			}
 			else
 			{
-				display_hit(y, x, net_dam, GF_HURT);
+				display_hit(y, x, net_dam, GF_HURT, fatal_blow);
 			}
 			
 			
@@ -3655,11 +3782,11 @@ void py_attack_aux(int y, int x, int attack_type)
 				noticed_flag = FALSE;
 			}
 						
-			/* Damage, check for death */
-			if (mon_take_hit(cave_m_idx[y][x], net_dam, NULL, -1))
+			// deal with killing blows
+			if (fatal_blow)
 			{
 				// heal with a vampiric weapon
-				if (f1 & (TR1_VAMPIRIC))
+				if ((f1 & (TR1_VAMPIRIC)) && !monster_nonliving(r_ptr))
 				{
 					if (hp_player(7, FALSE, FALSE) && !object_known_p(o_ptr))
 					{
@@ -3684,51 +3811,10 @@ void py_attack_aux(int y, int x, int attack_type)
 			else
 			{
 				// deal with knock back ability if it triggered
-				if (knock_back)
-				{					
-					int deltay = y - p_ptr->py;
-					int deltax = x - p_ptr->px;
-					
-					// first try to knock it straight back
-					if (cave_floor_bold(y + deltay, x + deltax))
-					{
-						// force the monster to  miss its next turn
-						m_ptr->skip_next_turn = TRUE;
-						
-						monster_swap(y, x, y + deltay, x + deltax);
-						knocked = TRUE;
-					}
-					
-					// then try the adjacent directions
-					else 
-					{
-						int mod, d, i, y2, x2;
-						
-						// randomize clockwise or anticlockwise
-						if (one_in_(2)) mod = -1;
-						else			mod = +1;
-
-						// try both directions
-						for (i = 0; i < 2; i++)
-						{
-							d = cycle[chome[dir_from_delta(deltay, deltax)] + mod];
-							y2 = y + ddy[d];
-							x2 = x + ddx[d];
-							if (cave_floor_bold(y2, x2))
-							{
-								// force the monster to  miss its next turn
-								m_ptr->skip_next_turn = TRUE;
-								
-								monster_swap(y, x, y2, x2);
-								knocked = TRUE;
-								break;
-							}
-							
-							// switch direction
-							mod *= -1;
-						}
-					}
-				}
+				if (do_knock_back)
+				{
+                    knocked = knock_back(p_ptr->py, p_ptr->px, y, x);
+ 				}
 
 				// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
 				if ((m_ptr->r_idx == R_IDX_MORGOTH) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
@@ -3751,7 +3837,7 @@ void py_attack_aux(int y, int x, int attack_type)
 				// Deal with cruel blow ability
 				if (p_ptr->active_ability[S_STL][STL_CRUEL_BLOW] && (crit_bonus_dice > 0) && (net_dam > 0) && !(r_ptr->flags1 & (RF1_RES_CRIT)))
 				{
-					if (skill_check(PLAYER, crit_bonus_dice * 4, monster_will(m_ptr), m_ptr) > 0)
+					if (skill_check(PLAYER, crit_bonus_dice * 4, monster_skill(m_ptr, S_WIL), m_ptr) > 0)
 					{
 						msg_format("%^s reels in pain!", m_name);
 						
@@ -3759,7 +3845,7 @@ void py_attack_aux(int y, int x, int attack_type)
 						if (!(r_ptr->flags3 & (RF3_NO_CONF)))
 						{
 							// The +1 is needed as a turn of this wears off immediately
-							m_ptr->confused = MAX(m_ptr->confused, crit_bonus_dice + 1); 
+							m_ptr->confused += crit_bonus_dice + 1;
 						}
 						
 						// cause a temporary morale penalty
@@ -3776,7 +3862,7 @@ void py_attack_aux(int y, int x, int attack_type)
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 			
 			// Occasional warning about fighting from within a pit
-			if (cave_pit(p_ptr->py,p_ptr->px) && one_in_(3))
+			if (cave_pit_bold(p_ptr->py,p_ptr->px) && one_in_(3))
 			{
 				msg_print("(It is very hard to dodge or attack from within a pit.)");
 			}
@@ -3786,7 +3872,19 @@ void py_attack_aux(int y, int x, int attack_type)
 			{
 				msg_print("(It is very hard to dodge or attack from within a web.)");
 			}
-			
+
+            // allow for ripostes
+			// treats attack a weapon weighing 2 pounds per damage die
+            if ((r_ptr->flags2 & (RF2_RIPOSTE)) &&
+                (monster_ripostes == 0) &&
+                !m_ptr->confused &&
+                !m_ptr->skip_next_turn &&
+                (hit_result <= -10 - (2 * r_ptr->blow[0].dd)))
+            {
+                msg_format("%^s ripostes!", m_name);
+                make_attack_normal(m_ptr);
+                monster_ripostes++;
+            }
 		}
 
 		// alert the monster, even if no damage was done or the player missed
@@ -3794,19 +3892,9 @@ void py_attack_aux(int y, int x, int attack_type)
 		
 		// stop attacking if you displace the creature
 		if (knocked) break;
+		
 	}
 
-	// Warning about fighting with silly weapons
-	if ((o_ptr->tval == TV_DIGGING) && (o_ptr->sval == SV_SHOVEL))
-	{
-		msg_print("(You are fighting with your shovel.)");
-	}
-	else if (!o_ptr->k_idx)
-	{
-		msg_print("(You are fighting with your bare hands.)");
-	}
-	
-		
 	// Break the truce if creatures see
 	break_truce(FALSE);
 		
@@ -3837,6 +3925,8 @@ bool whirlwind_possible(void)
 		 
 	return (TRUE);
 }
+
+
 
 
 void py_attack(int y, int x, int attack_type)
@@ -3873,9 +3963,11 @@ void py_attack(int y, int x, int attack_type)
 			
 			if (cave_m_idx[yy][xx] > 0)
 			{
-				//if (i == 0)			py_attack_aux(yy, xx, ATT_MAIN);
-				if (p_ptr->rage)		py_attack_aux(yy, xx, ATT_RAGE);
-				else					py_attack_aux(yy, xx, ATT_WHIRLWIND);
+                monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];
+                                                
+				//if (i == 0)                                                                           py_attack_aux(yy, xx, ATT_MAIN);
+				if (p_ptr->rage)                                                                        py_attack_aux(yy, xx, ATT_RAGE);
+				else if ((i == 0) || !forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT))  py_attack_aux(yy, xx, ATT_WHIRLWIND);
 			}
 		}
 	}
@@ -3909,16 +4001,16 @@ void flanking_or_retreat(int y, int x)
 	
 	if (!p_ptr->confused && (flanking || controlled_retreat))
 	{
-		// first see if the targetted monster is eligible and attack it if so
 		fy = p_ptr->target_row;
 		fx = p_ptr->target_col;
 		
+		// first see if the targetted monster is eligible and attack it if so
 		if ((cave_m_idx[fy][fx] > 0) && !p_ptr->confused && !p_ptr->afraid && !p_ptr->truce)
 		{
 			m_ptr = &mon_list[cave_m_idx[fy][fx]];
 			
 			// base conditions for an attack
-			if (m_ptr->ml && (m_ptr->alertness >= ALERTNESS_ALERT))
+			if (m_ptr->ml && (!forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT)))
 			{
 				// try a flanking attack
 				if (flanking && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) == 1))
@@ -3952,7 +4044,7 @@ void flanking_or_retreat(int y, int x)
 				m_ptr = &mon_list[cave_m_idx[fy][fx]];
 				
 				// base conditions for an attack
-				if (m_ptr->ml && (m_ptr->alertness >= ALERTNESS_ALERT))
+				if (m_ptr->ml && (!forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT)))
 				{
 					// try a flanking attack
 					if (flanking && (distance(py, px, fy, fx) == 1) && (distance(y, x, fy, fx) == 1))
@@ -3972,7 +4064,40 @@ void flanking_or_retreat(int y, int x)
 	}
 }
 
+/*
+ * Is it valid to climb from (y1,x1) to (y2,x2)
+ */
+bool climbable(int y1, int x1, int y2, int x2)
+{
+    //int i;
+    //int walls = 0;
+    //int yy, xx;
+    
+    int a = y1 + x1 + y2 + x2;  // Sil-y: soothing complilation warnings
+    a = 0;                      // Sil-y: soothing complilation warnings
+    return (FALSE);             // Sil-x: no climbing in this version
 
+    // at least one must be a chasm
+    //if ((cave_feat[y1][x1] != FEAT_CHASM) && (cave_feat[y2][x2] != FEAT_CHASM)) return (FALSE);
+                
+    /* Count adjacent walls */
+    //
+    //for (i = 0; i < 8; i++)
+    //{
+    //    yy = y2 + ddy_ddd[i];
+    //    xx = x2 + ddx_ddd[i];
+        
+        // Note that rubble doesn't count
+    //    if (cave_wall_bold(yy,xx) && (cave_feat[yy][xx] != FEAT_RUBBLE))
+    //    {
+            // count the walls
+    //        walls++;
+    //    }
+    //}
+    
+    //if (walls > 0)  return (TRUE);
+    //else            return (FALSE);
+}
 
 /*
  * Move player in the given direction, with the given "pickup" flag.
@@ -3982,13 +4107,18 @@ void flanking_or_retreat(int y, int x)
  * Note that this routine handles monsters in the destination grid,
  * and also handles attempting to move into walls/doors/rubble/etc.
  */
-void move_player(int dir, int jumping)
+void move_player(int dir)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+    int oy = p_ptr->py; // old location
+    int ox = p_ptr->px;
+    
 	int y, x;
-
+    
+    bool climb = FALSE;
+    
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
@@ -4000,17 +4130,15 @@ void move_player(int dir, int jumping)
 		return;
 	}
 
-	/* Hack -- attack monsters */
-	if (cave_m_idx[y][x] > 0)
+	/* Hack -- attack visible monsters */
+	if ((cave_m_idx[y][x] > 0) && mon_list[cave_m_idx[y][x]].ml)
 	{
-		/* Attack */
-		py_attack(y, x, ATT_MAIN);
+        /* Attack */
+        py_attack(y, x, ATT_MAIN);
 	}
 
 	/* open known doors on movement */
-	else if ((!jumping) &&
-	         (cave_info[y][x] & (CAVE_MARK)) &&
-	         cave_known_door(y, x))
+	else if ((cave_info[y][x] & (CAVE_MARK)) && cave_known_closed_door_bold(y, x))
 	{
 		/* Open */
 		do_cmd_open_aux(y, x);
@@ -4019,7 +4147,6 @@ void move_player(int dir, int jumping)
 	/* Player can not walk through "walls", but can go through traps */
 	else if (!cave_floor_bold(y, x))
 	{
-
 		/* Disturb the player */
 		disturb(0, 0);
 
@@ -4035,7 +4162,7 @@ void move_player(int dir, int jumping)
 			}
 
 			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
+			else if (cave_known_closed_door_bold(y,x))
 			{
 				message(MSG_HITWALL, 0, "You feel a door blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
@@ -4061,7 +4188,7 @@ void move_player(int dir, int jumping)
 			}
 
 			/* Closed door */
-			else if (cave_feat[y][x] < FEAT_SECRET)
+			else if (cave_known_closed_door_bold(y,x))
 			{
 				message(MSG_HITWALL, 0, "There is a door blocking your way.");
 			}
@@ -4096,36 +4223,198 @@ void move_player(int dir, int jumping)
 			return;
 		}
 		
-		/* Check before walking on known traps/doors on (non-jumping) movement */
-		if ((!jumping) && (cave_info[y][x] & (CAVE_MARK)) &&
-				 ((cave_trap_bold(y,x) && !cave_floorlike_bold(y,x)) || (cave_known_door(y,x))))
+		/* Check before walking on known traps/chasms on movement */
+		if ((!p_ptr->confused) && (cave_info[y][x] & (CAVE_MARK)))
 		{
-			/* Verify movement */
-			if (!p_ptr->confused)
-			{
-				/* Disturb the player */
-				disturb(0, 0);
-				
-				/* Flush input */
-				flush();
-				
-				if (!get_check("Are you sure you want to step on the trap? "))
-				{
-					// don't take a turn...
-					p_ptr->energy_use = 0;
-					
-					return;
-				}
-			}
+            // leapable things: chasms, known pits, known false floors
+            if (((cave_feat[y][x] == FEAT_CHASM) && !climbable(p_ptr->py, p_ptr->px, y, x)) ||
+                ((cave_pit_bold(y,x) || (cave_feat[y][x] == FEAT_TRAP_FALSE_FLOOR)) && !cave_floorlike_bold(y,x)))
+            {
+                char prompt[80];
+                int i;
+                int d;
+                bool run_up = FALSE;
+                bool confirm = TRUE;
+                
+                // test all three directions roughly towards the chasm/pit
+                for (i = -1; i <= 1; i++)
+                {
+                    d = cycle[chome[dir_from_delta(y - p_ptr->py, x - p_ptr->px)] + i];
+                    
+                    // if the last action was a move in this direction, we have a valid run_up
+                    if (p_ptr->previous_action[1] == d) run_up = TRUE;
+                }
+
+                if (p_ptr->active_ability[S_EVN][EVN_LEAPING])
+                {
+                    int y_mid, x_mid; // the midpoint of the leap
+                    int y_end, x_end; // the endpoint of the leap
+                                                            
+                    /* Get location */
+                    y_mid = p_ptr->py + ddy[dir];
+                    x_mid = p_ptr->px + ddx[dir];
+                    y_end = y_mid + ddy[dir];
+                    x_end = x_mid + ddx[dir];
+
+                    /* Disturb the player */
+                    disturb(0, 0);
+                    
+                    /* Flush input */
+                    flush();
+
+                    // Can't jump from within pits
+                    if (cave_pit_bold(p_ptr->py,p_ptr->px))
+                    {
+                        msg_print("You cannot leap from within a pit.");
+                    }
+                    
+                    // Can't jump from within webs
+                    else if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB)
+                    {
+                        msg_print("You cannot leap from within a web.");
+                    }
+                    
+                    // Can't jump without a run up
+                    else if (!run_up)
+                    {
+                        msg_print("You cannot leap without a run up.");
+                    }
+                    
+                    // need room to land
+                    else if ((cave_info[y_end][x_end] & (CAVE_MARK)) &&
+                             (cave_wall_bold(y_end, x_end) || cave_any_closed_door_bold(y_end, x_end)))
+                    {
+                        msg_print("You cannot leap over as there is no room to land.");
+                    }                    
+                    
+                    else
+                    {
+                        // confirm if the destination is unknown
+                        if (!(cave_info[y_end][x_end] & (CAVE_SEEN)) && !(cave_info[y_end][x_end] & (CAVE_MARK)))
+                        {
+                            strnfmt(prompt, sizeof(prompt), "Are you sure you wish to leap into the unknown? ");
+                        }
+                        
+                        // confirm if the destination is in the chasm
+                        else if (cave_feat[y_end][x_end] == FEAT_CHASM)
+                        {
+                            strnfmt(prompt, sizeof(prompt), "Are you sure you wish to leap into the abyss? ");
+                        }
+                        
+                        // confirm if the destination has a visible monster
+                        else if ((cave_m_idx[y_end][x_end] > 0) && (&mon_list[cave_m_idx[y_end][x_end]])->ml)
+                        {
+                            monster_type *m_ptr = &mon_list[cave_m_idx[y_end][x_end]];
+                            char m_name[80];
+                            
+                            /* Get the monster name */
+                            monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+                            
+                            strnfmt(prompt, sizeof(prompt), "Are you sure you wish to leap into %s? ", m_name);
+                        }
+                        
+                        // default confirmation
+                        else
+                        {
+                            confirm = FALSE;
+                            //strnfmt(prompt, sizeof(prompt), "Leap over the %s? ", f_name + f_info[cave_feat[y_mid][x_mid]].name);
+                        }
+                        
+                        // if you say 'yes' to the prompt, then try to leap
+                        if (!confirm || get_check(prompt))
+                        {
+                            // at this point attack any invisible monster that may be there
+                            if (cave_m_idx[y][x] > 0)
+                            {
+                                msg_print("An unseen foe blocks your way.");
+
+                                /* Attack */
+                                py_attack(y, x, ATT_MAIN);
+                                
+                                return;
+                            }
+
+                            // otherwise do the leap!
+                            else
+                            {
+                                // we generously give you your free flanking attack...
+                                flanking_or_retreat(y_mid, x_mid);
+
+                                /* Take a turn */
+                                p_ptr->energy_use = 100;
+                                
+                                // store the action type
+                                p_ptr->previous_action[0] = dir;
+                                
+                                // move player to the new position
+                                monster_swap(p_ptr->py, p_ptr->px, y_mid, x_mid);
+                                
+                                // remember that the player is in the air now
+                                p_ptr->leaping = TRUE;
+                                
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                // if the player hasn't already leapt
+                if (!p_ptr->leaping && (cave_feat[y][x] == FEAT_CHASM))
+                {
+                    /* Disturb the player */
+                    disturb(0, 0);
+                    
+                    /* Flush input */
+                    flush();
+                    
+                    if (!get_check("Step into the chasm? "))
+                    {
+                        // don't take a turn...
+                        p_ptr->energy_use = 0;
+                        
+                        return;
+                    }
+                }
+                
+            }
+            
+            // traps
+            if ((cave_trap_bold(y,x) && !cave_floorlike_bold(y,x)))
+            {
+                /* Disturb the player */
+                disturb(0, 0);
+                
+                /* Flush input */
+                flush();
+                
+                if (!get_check("Are you sure you want to step on the trap? "))
+                {
+                    // don't take a turn...
+                    p_ptr->energy_use = 0;
+                    
+                    return;
+                }
+            }
 		}
-		
+
+        // if there is an invisible monster present and you haven't yet attacked, do so now
+        if (cave_m_idx[y][x] > 0)
+        {
+            msg_print("An unseen foe blocks your way.");
+            
+            /* Attack */
+            py_attack(y, x, ATT_MAIN);
+            
+            return;
+        }
+
 		// It is hard to get out of a pit
-		if (cave_pit(py,px))
+		if (cave_pit_bold(py,px))
 		{
 			int difficulty;
 			
-			if (cave_feat[py][px] == FEAT_TRAP_PIT)  difficulty = 10;
-			else									  difficulty = 15;
+			if (cave_feat[py][px] == FEAT_TRAP_PIT)     difficulty = 10;
+			else                                        difficulty = 15;
 			 
 			/* Disturb the player */
 			disturb(0, 0);
@@ -4159,8 +4448,11 @@ void move_player(int dir, int jumping)
 		/* sound(MSG_WALK); */
 
 		// do flanking or controlled retreat attack if any
-		flanking_or_retreat(y,x);
+		flanking_or_retreat(y, x);
 
+        // check whether the player can climb to the new square
+        climb = climbable(py, px, y, x);
+        
 		/* Move player */
 		monster_swap(py, px, y, x);
 
@@ -4170,11 +4462,9 @@ void move_player(int dir, int jumping)
 		
 		/* Spontaneous Searching */
 		perceive();
-
-		/* Handle "objects" */
-		py_pickup(jumping != always_pickup);
-
-		p_ptr->previous_action[0] = dir;	
+        
+        // remember this direction of movement
+		p_ptr->previous_action[0] = dir;
 		
 		/* Discover stairs if blind */
 		if (cave_stair_bold(y,x))
@@ -4204,12 +4494,32 @@ void move_player(int dir, int jumping)
 				
 				msg_format("You enter %s %s.", article, f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
 			}
+            
 			cave_info[y][x] |= (CAVE_MARK);
 			lite_spot(y, x);
 		}
 		
+        // check for climbing
+        if (climb)
+        {
+            if ((cave_feat[oy][ox] != FEAT_CHASM) && (cave_feat[y][x] == FEAT_CHASM))
+            {
+                msg_print("You begin your climb.");
+            }
+        }
+        
+        // check for ending a climb
+        if (p_ptr->climbing)
+        {
+            if ((cave_feat[oy][ox] == FEAT_CHASM) && (cave_feat[y][x] != FEAT_CHASM))
+            {
+                msg_print("You are back to solid ground.");
+            }
+        }
+
+        
 		/* Set off traps */
-		if (cave_trap_bold(y,x))
+        if (cave_trap_bold(y,x) || ((cave_feat[y][x] == FEAT_CHASM) && !climb))
 		{
 			// If it is hidden
 			if (cave_info[y][x] & (CAVE_HIDDEN))
@@ -4634,10 +4944,7 @@ static bool run_test(void)
 				case FEAT_WALL_INNER:
 				case FEAT_WALL_OUTER:
 				case FEAT_WALL_SOLID:
-				case FEAT_PERM_EXTRA:
-				case FEAT_PERM_INNER:
-				case FEAT_PERM_OUTER:
-				case FEAT_PERM_SOLID:
+				case FEAT_WALL_PERM:
 				{
 					/* Ignore */
 					notice = FALSE;
@@ -4772,7 +5079,6 @@ static bool run_test(void)
 			
 			/* Visible monster */
 			if (m_ptr->ml && (r_ptr->flags1 & (RF1_NEVER_MOVE))) return (TRUE);
-			
 		}
 	}
 	
@@ -4926,7 +5232,7 @@ void run_step(int dir)
 	p_ptr->energy_use = 100;
 
 	/* Move the player */
-	move_player(p_ptr->run_cur_dir, FALSE);
+	move_player(p_ptr->run_cur_dir);
 }
 
 

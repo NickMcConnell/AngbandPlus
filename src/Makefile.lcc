@@ -63,6 +63,7 @@ OBJS=\
 	cmd1.obj \
 	cave.obj \
 	birth.obj \
+	automaton.obj \
 	sil.res
 
 sil.exe:	$(OBJS)
@@ -1067,6 +1068,32 @@ BIRTH_C=\
 
 birth.obj: $(BIRTH_C) $(SRCDIR)\birth.c
 	$(CC) -c $(CFLAGS) $(SRCDIR)\birth.c
+
+# Build AUTOMATON.C
+AUTOMATON_C=\
+	$(SRCDIR)\angband.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\h-config.h\
+	$(SRCDIR)\h-system.h\
+	$(SRCDIR)\h-type.h\
+	$(SRCDIR)\h-define.h\
+	$(SRCDIR)\z-util.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-virt.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-form.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-rand.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\z-term.h\
+	$(SRCDIR)\h-basic.h\
+	$(SRCDIR)\config.h\
+	$(SRCDIR)\defines.h\
+	$(SRCDIR)\types.h\
+	$(SRCDIR)\externs.h\
+
+automaton.obj: $(AUTOMATON_C) $(SRCDIR)\automaton.c
+	$(CC) -c $(CFLAGS) $(SRCDIR)\automaton.c
 
 # Build sil.res
 SIL_RC=\

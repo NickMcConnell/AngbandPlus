@@ -116,7 +116,7 @@ Moderate changes:
 - Moved to only four 'elements'
 	- Fire, Cold, Poison, Darkness
 - Poison
-	- does not direct damage, but adds to a counter and disperses 20% of the remaining damage each round
+	- does no direct damage, but adds to a counter and disperses 20% of the remaining damage each round
 - Changed monster generation
 	- can be from at most two levels deeper or two levels shallower, biased towards the current level
 - Overhauled items 
@@ -608,7 +608,8 @@ I've changed it to 1000 + 100 per level (used to be 500 + 100 per level). This m
 		- modifies your stats (+1 to Str and Con, -1 to Dex and Gra)
 		- gives you resistance to fear
 		- when you attack a creature, it attacks *all* creatures adjacent to you
-			- this is very fun, and useful when surrounded- arrows slightly more common
+			- this is very fun, and useful when surrounded
+- arrows slightly more common
 	- I want it to be possible to deliberately play an archer
 		- but had one char get to 600ft only finding 18 arrows...
 		- let me know if you have too much trouble getting them
@@ -2304,7 +2305,7 @@ Here it is, the first version with songs and abilities. Note that these are not 
 	- removed BASH_DOOR from all serpents
 		- I thought it would be more interesting to have some late game creatures
 		- that could be stopped by doors
-	- had to double Morgoth's health again because of the 3 Cottons-Barrat
+	- had to double Morgoth's health again because of three of the beta testers...
 
 - minor
 	- no more 'turns to fight!' messages during the truce

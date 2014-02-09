@@ -566,9 +566,6 @@ static long eval_max_dam(int r_idx)
 					break;
 				}
 				/*stun definitely most dangerous*/
-				case RBM_PUNCH:
-				case RBM_KICK:
-				case RBM_BUTT:
 				case RBM_CRUSH:
 				{
 					atk_dam *= 4;
@@ -743,8 +740,6 @@ static u32b mon_hp_adjust(int r_idx)
 
 	/*regeneration means slightly more hp*/
 	if (r_ptr->flags2 & RF2_REGENERATE) {hp *= 10; hp /= 9;}
-
-	if (r_ptr->flags2 & RF2_EVASIVE) 	{hp *= 3; hp /= 2;}
 
 	if (r_ptr->flags2 & RF2_INVISIBLE)
 	{

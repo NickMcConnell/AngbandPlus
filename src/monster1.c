@@ -33,7 +33,7 @@ static cptr wd_him[3] =
 #define MANY_MANY_KILLS 10000
 
 /*
- * Determine if the "armor" is known
+ * Determine if the "armour" is known
  * One kill is needed.
  */
 static bool know_armour(s32b kills)
@@ -201,6 +201,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & (RF4_SCARE))		vp[vn++] = "terrify";
 	if (l_ptr->flags4 & (RF4_CONF))			vp[vn++] = "confuse";
 	if (l_ptr->flags4 & (RF4_HOLD))			vp[vn++] = "entrance";
+	if (l_ptr->flags4 & (RF4_SLOW))			vp[vn++] = "slow";
 
 	m = vn;
 
@@ -385,29 +386,16 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		switch (method)
 		{
 			case RBM_HIT:           p = "hit"; break;
-			case RBM_TOUCH:         p = "touch"; break;
-			case RBM_PUNCH:         p = "punch"; break;
-			case RBM_KICK:          p = "kick"; break;
+			case RBM_TOUCH:         p = "touch (ignoring armour)"; break;
 			case RBM_CLAW:          p = "claw"; break;
 			case RBM_BITE:          p = "bite"; break;
 			case RBM_PECK:          p = "peck"; break;
 			case RBM_STING:         p = "sting"; break;
 			case RBM_WHIP:          p = "whip"; break;
-			case RBM_BUTT:          p = "butt"; break;
 			case RBM_CRUSH:         p = "crush"; break;
 			case RBM_ENGULF:        p = "engulf"; break;
 			case RBM_CRAWL:         p = "crawl on you"; break;
-			case RBM_DROOL:         p = "drool on you"; break;
-			case RBM_SPIT:          p = "spit"; break;
-			case RBM_SLIME:         p = "slime"; break;
-			case RBM_GAZE:          p = "gaze"; break;
-			case RBM_WAIL:          p = "wail"; break;
-			case RBM_SPORE:         p = "release spores"; break;
-			case RBM_XXX4:          break;
-			case RBM_BEG:           p = "beg"; break;
-			case RBM_INSULT:        p = "insult"; break;
-			case RBM_XXX5:          break;
-			case RBM_XXX6:			break;
+			case RBM_SPORE:         p = "release spores (ignoring evasion and armour)"; break;
 		}
 
 
@@ -475,7 +463,6 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		/* Describe the method */
 		text_out(p);
 
-
 		/* Describe the effect (if any) */
 		if (q)
 		{
@@ -540,6 +527,46 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
 
+    /* Collect Abilities */
+    vn = 0;
+    if (r_ptr->flags2 & (RF2_ELFBANE))            vp[vn++] = "elf-bane";      // elf-bane is obvious
+    if (l_ptr->flags2 & (RF2_CHARGE))             vp[vn++] = "charge";
+    if (l_ptr->flags2 & (RF2_KNOCK_BACK))         vp[vn++] = "knock back";
+    if (l_ptr->flags2 & (RF2_CRIPPLING) )         vp[vn++] = "crippling shot";
+    if (l_ptr->flags2 & (RF2_CRUEL_BLOW))         vp[vn++] = "cruel blow";
+    if (l_ptr->flags2 & (RF2_OPPORTUNIST))        vp[vn++] = "opportunist";
+    if (l_ptr->flags2 & (RF2_ZONE_OF_CONTROL))    vp[vn++] = "zone of control";
+    if (l_ptr->flags2 & (RF2_EXCHANGE_PLACES))    vp[vn++] = "exchange places";
+    if (l_ptr->flags2 & (RF2_RIPOSTE))            vp[vn++] = "riposte";
+    if (l_ptr->flags2 & (RF2_FLANKING))           vp[vn++] = "flanking";
+    if (l_ptr->flags4 & (RF4_SNG_BINDING))        vp[vn++] = "song of binding";
+    if (l_ptr->flags4 & (RF4_SNG_PIERCING))       vp[vn++] = "song of piercing";
+    if (l_ptr->flags4 & (RF4_SNG_OATHS))          vp[vn++] = "song of oaths";
+   
+    /* Describe Abilities */
+	if (vn)
+	{
+		/* Intro */
+		text_out(format("%^s", wd_he[msex]));
+        
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if ((n == 0) && (vn > 1))   text_out(" has the abilities: ");
+            else if (n == 0)            text_out(" has the ability: ");
+			else if (n < vn-1)          text_out(", ");
+			else                        text_out(" and ");
+            
+			/* Dump */
+			text_out_c(TERM_RED, vp[n]);
+		}
+        
+		/* End */
+		text_out(".  ");
+	}
+
+    
 	/* Collect special abilities. */
 	vn = 0;
 	if (r_ptr->light > 0)
@@ -549,13 +576,14 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		else vp[vn++] = "use a light source";
 	}
 	if (r_ptr->light < 0) vp[vn++] = "produce an unnatural darkness";
-	if (l_ptr->flags2 & RF2_EVASIVE) vp[vn++] = "dodge attacks";
+	if (l_ptr->flags2 & RF2_FLYING) vp[vn++] = "fly";
 	if (l_ptr->flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
 	if (l_ptr->flags2 & RF2_PASS_DOOR) vp[vn++] = "pass through doors";
 	if (l_ptr->flags2 & RF2_UNLOCK_DOOR) vp[vn++] = "unlock doors";
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
 	if (l_ptr->flags2 & RF2_KILL_WALL) vp[vn++] = "bore through walls";
+	if (l_ptr->flags2 & RF2_TUNNEL_WALL) vp[vn++] = "tunnel through walls";
 	if (l_ptr->flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";
 	if (l_ptr->flags2 & RF2_TAKE_ITEM) vp[vn++] = "pick up objects";
 	if (l_ptr->flags2 & RF2_KILL_ITEM) vp[vn++] = "destroy objects";
@@ -738,7 +766,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		/* End */
 		text_out(".  ");
 	}
-
+    
 	/* Describe escort */
 	if (l_ptr->flags1 & RF1_ESCORT)
 	{
@@ -1009,11 +1037,11 @@ static void describe_monster_skills(int r_idx, const monster_lore *l_ptr)
 					
 		if (r_ptr->sleep > 20)				// 21 +
 		{
-			act = "usually found asleep";
+			act = "is usually found asleep";
 		}
 		else if (r_ptr->sleep > 15)			// 16 to 20
 		{
-			act = "often found asleep";
+			act = "is often found asleep";
 		}
 		else if (r_ptr->sleep > 10)			// 11 to 15
 		{
@@ -1228,7 +1256,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 
 	/* End this sentence */
 	text_out(".  ");
-	
+    
 	/*note if this monster does not pursue you*/
 	if (l_ptr->flags2 & (RF2_TERRITORIAL))
 	{

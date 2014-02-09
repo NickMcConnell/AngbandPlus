@@ -39,20 +39,6 @@ static bool monster_cut_or_stun(int crit_bonus_dice, int net_dam, int effect)
 }
 
 
-#define MAX_DESC_INSULT   3
-
-/*
- * Hack -- possible "insult" messages
- */
-static cptr desc_insult[MAX_DESC_INSULT] =
-{
-	"insults you!",
-	"insults your kin!",
-	"defiles you!"
-};
-
-
-
 /*
  * Determine whether there is a bonus die for an elemental attack that
  * the player doesn't resist
@@ -113,8 +99,12 @@ extern int protection_roll(int typ, bool melee)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
+        
+        // off-hand weapons are not armour, so skip them
+		if ((i == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) continue;
+        
 		if (i >= INVEN_BODY) armour_weight += o_ptr->weight;
-
+        
 		// fire and cold and generic 'hurt' all check the shield
 		if (i == INVEN_ARM)
 		{
@@ -182,6 +172,10 @@ extern int p_min(int typ, bool melee)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
+        
+        // off-hand weapons are not armour, so skip them
+		if ((i == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) continue;
+
 		if (i >= INVEN_BODY) armour_weight += o_ptr->weight;
 
 		// fire and cold and generic 'hurt' all check the shield
@@ -249,7 +243,11 @@ extern int p_max(int typ, bool melee)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
-		if (i >= INVEN_BODY) armour_weight += o_ptr->weight;
+        
+        // off-hand weapons are not armour, so skip them
+		if ((i == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)) continue;
+
+        if (i >= INVEN_BODY) armour_weight += o_ptr->weight;
 
 		// fire and cold and generic 'hurt' all check the shield
 		if (i == INVEN_ARM)
@@ -308,6 +306,44 @@ int dodging_bonus(void)
 	}
 }
 
+/*
+ * Determine whether a monster is making a valid charge attack
+ */
+bool monster_charge(monster_type *m_ptr)
+{
+    int d, i;
+    
+    int speed;
+    
+    int deltay = p_ptr->py - m_ptr->fy;
+    int deltax = p_ptr->px - m_ptr->fx;
+    
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    
+    // paranoia
+    if (distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) > 1) return (FALSE);
+        
+    // determine the monster speed
+    speed = r_ptr->speed;
+    if (m_ptr->slowed) speed--;
+    
+    // if it has the ability and isn't slow
+    if ((r_ptr->flags2 & (RF2_CHARGE)) && (speed >= 2))
+    {
+        // try all three directions
+        for (i = -1; i <= 1; i++)
+        {
+            d = cycle[chome[dir_from_delta(deltay, deltax)] + i];
+            
+            if (m_ptr->previous_action[1] == d)
+            {
+                return (TRUE);
+            }		
+        }
+    }
+    
+    return (FALSE);
+}
 
 /*
  * Attack the player via physical attacks.
@@ -342,12 +378,6 @@ bool make_attack_normal(monster_type *m_ptr)
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
-
-	if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
-	{
-		/* Reveal it */
-		reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-	}
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -414,6 +444,12 @@ bool make_attack_normal(monster_type *m_ptr)
 
 		// determine the monster's attack score
 		total_attack_mod = total_monster_attack(m_ptr, att);
+        
+        if (monster_charge(m_ptr))
+        {
+            total_attack_mod += 3;
+            ds += 3;
+        }
 	
 		// determine the player's evasion score
 		total_evasion_mod = total_player_evasion(m_ptr, FALSE);
@@ -443,22 +479,15 @@ bool make_attack_normal(monster_type *m_ptr)
 				case RBM_HIT:
 				{
 					/* Handle special effect types */
-					if (effect == RBE_WOUND)
+					if (effect == RBE_BATTER)
 					{
-						if      (dam >= 20) act = "gouges you";
-						else if (dam >= 10) act = "slashes you";
-						else                act = "cuts you";
-					}
-					else if (effect == RBE_BATTER)
-					{
-						if      (dam >= 20) act = "batters you";
-						else if (dam >= 10) act = "bashes you";
-						else                act = "hits you";
+						act = "batters you";
 					}
 					else
 					{
 						act = "hits you";
 					}
+                    
 					do_cut = do_stun = 1;
 
 					// stopped by armor
@@ -478,32 +507,9 @@ bool make_attack_normal(monster_type *m_ptr)
 					
 					break;
 				}
-
-				case RBM_PUNCH:
-				{
-					act = "punches you";
-					do_stun = 1;
-
-					// stopped by armor
-					prt_percent = 100;
-
-					break;
-				}
-
-				case RBM_KICK:
-				{
-					act = "kicks you";
-					do_stun = 1;
-
-					// stopped by armor
-					prt_percent = 100;
-
-					break;
-				}
 				case RBM_CLAW:
 				{
-					if      (dam >= 25) act = "slashes you";
-					else                act = "claws you";
+                    act = "claws you";
 					do_cut = 1;
 
 					// stopped by armor
@@ -540,21 +546,9 @@ bool make_attack_normal(monster_type *m_ptr)
 
 					break;
 				}
-				case RBM_BUTT:
-				{
-					if (dam >= rand_range(10, 20)) act = "tramples you";
-					else                           act = "butts you";
-					do_stun = 1;
-
-					// stopped by armor
-					prt_percent = 100;
-
-					break;
-				}
 				case RBM_CRUSH:
 				{
 					if (dam >= 10) act = "crushes you";
-					else           act = "squeezes you";
 					do_stun = 1;
 
 					// stopped by armor
@@ -564,14 +558,10 @@ bool make_attack_normal(monster_type *m_ptr)
 				}
 				case RBM_ENGULF:
 				{
-					if (dam >= 20) act = "envelops you";
-					else                    act = "engulfs you";
+					act = "engulfs you";
 
 					// stopped by armor
 					prt_percent = 100;
-
-					// can't do criticals
-					no_crit = TRUE;
 
 					break;
 				}
@@ -579,63 +569,8 @@ bool make_attack_normal(monster_type *m_ptr)
 				{
 					act = "crawls on you";
 
-					// ignores half armor
-					prt_percent = 50;
-
-					break;
-				}
-				case RBM_DROOL:
-				{
-					act = "drools on you";
-
-					// ignores armor
-					prt_percent = 0;
-
-					break;
-				}
-				case RBM_SPIT:
-				{
-					act = "spits on you";
-
 					// stopped by armor
 					prt_percent = 100;
-
-					break;
-				}
-				case RBM_SLIME:
-				{
-					act = "You've been slimed!";
-
-					// ignores armor
-					prt_percent = 0;
-
-					break;
-				}
-				case RBM_GAZE:
-				{
-					if      (dam >= rand_range(20, 30))
-						act = "glares at you terribly";
-					else if (dam >= rand_range(5, 30))
-						act = "gazes upon you";
-					else act = "gazes at you";
-
-					// ignores armor
-					prt_percent = 0;
-
-					// can't do criticals
-					no_crit = TRUE;
-
-					break;
-				}
-				case RBM_WAIL:
-				{
-					act = "makes a horrible wail";
-
-					// ignores armor
-					prt_percent = 0;
-
-					// can't do criticals
-					no_crit = TRUE;
 
 					break;
 				}
@@ -660,39 +595,10 @@ bool make_attack_normal(monster_type *m_ptr)
 
 					break;
 				}
-				case RBM_XXX4:
-				case RBM_XXX5:
-				case RBM_XXX6:
-				{
-					act = "projects XXX's at you";
-
-					// ignores armor
-					prt_percent = 0;
-
-					break;
-				}
-				case RBM_BEG:
-				{
-					act = "begs you for money";
-
-					// ignores armor
-					prt_percent = 0;
-
-					break;
-				}
-				case RBM_INSULT:
-				{
-					act = desc_insult[rand_int(MAX_DESC_INSULT)];
-
-					// ignores armor
-					prt_percent = 0;
-
-					break;
-				}
 			}
 
 			/* Determine critical-hit bonus dice (if any) */
-			/* Treats attack a weapon weighing 2 pounds per damage die  */
+			// treats attack a weapon weighing 2 pounds per damage die
 			crit_bonus_dice = crit_bonus(hit_result, 20 * dd, &r_info[0], S_MEL, FALSE);
 
 			/* Determine elemental attack bonus dice (if any)  */
@@ -719,7 +625,15 @@ bool make_attack_normal(monster_type *m_ptr)
 
 				// determine the punctuation for the attack ("...", ".", "!" etc)
 				attack_punctuation(punctuation, net_dam, crit_bonus_dice);
-								
+							
+                if (monster_charge(m_ptr))
+                {
+                    // remember that the monster can do this
+                    if (m_ptr->ml)  l_ptr->flags2 |= (RF2_CHARGE);
+                    
+                    act = "charges you";
+                }
+                
 				/* Message */
 				if (act) msg_format("%^s %s%s", m_name, act, punctuation);
 			}
@@ -901,7 +815,7 @@ bool make_attack_normal(monster_type *m_ptr)
 									if (heal < 1) heal = 1;
 
 									/*give message if anything left over*/
-									if (m_ptr->mana < r_ptr->mana)
+									if (m_ptr->mana < MON_MANA_MAX)
 									{
 										if (m_ptr->ml) msg_format("%^s looks refreshed.", m_name);
 										else msg_format("%^s sounds refreshed.", m_name);
@@ -910,7 +824,7 @@ bool make_attack_normal(monster_type *m_ptr)
 									/*add mana*/
 									m_ptr->mana += heal;
 
-									if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
+									if (m_ptr->mana > MON_MANA_MAX) m_ptr->mana = MON_MANA_MAX;
 								}
 
 								/* Simple Heal */
@@ -950,7 +864,7 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Damage (mana) */
 					if (net_dam > 0 || dam == 0)
 					{
-						if (saving_throw(m_ptr, FALSE))
+						if (saving_throw(m_ptr, 0))
 						{
 							my_strcat(msg_tmp, "  You resist the effects.", sizeof(msg_tmp));
 						}
@@ -989,7 +903,7 @@ bool make_attack_normal(monster_type *m_ptr)
 					break;
 				}
 
-				/* Hit to confuse */
+				/* Hit to slow */
 				case RBE_SLOW:
 				{
 					/* Take damage */
@@ -1003,7 +917,7 @@ bool make_attack_normal(monster_type *m_ptr)
 							msg_print("You resist the effects!");
 							obvious = TRUE;
 						}
-						else if (set_slow(p_ptr->slow + 4 + dieroll(4)))
+						else if (set_slow(p_ptr->slow + damroll(2,4)))
 						{
 							obvious = TRUE;
 						}
@@ -1129,7 +1043,7 @@ bool make_attack_normal(monster_type *m_ptr)
 					if (!p_ptr->is_dead && (net_dam > 0 || dam == 0))
 					{
 						/* Message -- only if appropriate */
-						if (!saving_throw(m_ptr, FALSE))
+						if (!saving_throw(m_ptr, 0))
 						{
 							msg_print("You feel an unnatural hunger...");
 							
@@ -1294,7 +1208,7 @@ bool make_attack_normal(monster_type *m_ptr)
 							msg_print("You resist the effects.");
 							obvious = TRUE;
 						}
-						else if (set_confused(p_ptr->confused + damroll(2, 4)))
+						else if (set_confused(p_ptr->confused + damroll(2,4)))
 						{
 							obvious = TRUE;
 						}
@@ -1306,8 +1220,6 @@ bool make_attack_normal(monster_type *m_ptr)
 				/* Hit to frighten */
 				case RBE_TERRIFY:
 				{
-					int fear_amount = damroll(3, 4);
-					
 					/* Take damage */
 					take_hit(net_dam, ddesc);
 
@@ -1317,7 +1229,7 @@ bool make_attack_normal(monster_type *m_ptr)
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (set_afraid(MAX(p_ptr->afraid, fear_amount)))
+					else if (set_afraid(p_ptr->afraid + damroll(2,4)))
 					{
 						obvious = TRUE;
 					}
@@ -1341,7 +1253,7 @@ bool make_attack_normal(monster_type *m_ptr)
 						}
 						else if (!p_ptr->entranced && !p_ptr->was_entranced)
 						{
-							if (set_entranced(damroll(5, 4)))
+							if (set_entranced(damroll(4, 4)))
 							{
 								obvious = TRUE;
 							}
@@ -1517,7 +1429,7 @@ bool make_attack_normal(monster_type *m_ptr)
 
 			update_combat_rolls2(dd + crit_bonus_dice + elem_bonus_dice, ds, dam, -1, -1, prt, prt_percent, dam_type, TRUE); 
 		
-			display_hit(p_ptr->py, p_ptr->px, net_dam, dam_type);
+			display_hit(p_ptr->py, p_ptr->px, net_dam, dam_type, p_ptr->is_dead);
 
 			/* Handle character death */
 			if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
@@ -1529,21 +1441,6 @@ bool make_attack_normal(monster_type *m_ptr)
 
 				/* Leave immediately */
 				return (TRUE);
-			}
-
-			// Deal with cowardice
-			if ((p_ptr->cowardice > 0) && (net_dam >= 10))
-			{
-				if (allow_player_fear(m_ptr))
-				{
-					int fear_amount = damroll(10,4);
-					
-					set_afraid(MAX(p_ptr->afraid, fear_amount));
-					set_fast(p_ptr->fast + damroll(5,4));
-					
-					// give the player a chance to identify what is causing it
-					ident_cowardice();
-				}
 			}
 
 			/* Hack -- only one of cut or stun */
@@ -1584,6 +1481,61 @@ bool make_attack_normal(monster_type *m_ptr)
 					}
 				}
 			}
+            
+            // deal with Cruel Blow
+            if ((r_ptr->flags2 & (RF2_CRUEL_BLOW)) && (crit_bonus_dice >= 1) && (net_dam > 0))
+            {
+                // Sil-y: ideally we'd use a call to allow_player_confuse() here, but that doesn't
+                //        work as it can't take the level of the critical into account.
+                //        Sadly my solution doesn't let you ID confusion resistance items.
+                int difficulty = p_ptr->skill_use[S_WIL] + (p_ptr->resist_confu * 10);
+                
+                if (skill_check(m_ptr, crit_bonus_dice * 4, difficulty, PLAYER) > 0)
+                {
+                    // remember that the monster can do this
+                    if (m_ptr->ml)  l_ptr->flags2 |= (RF2_CRUEL_BLOW);
+                    
+                    msg_format("You reel in pain!");
+                    
+                    // confuse the player
+                    set_confused(p_ptr->confused + crit_bonus_dice);
+                }
+            }
+
+            // deal with Knock Back
+            if (r_ptr->flags2 & (RF2_KNOCK_BACK))
+            {
+                // only happens on the main attack (so that bites don't knock you back)
+                if (b == 0)
+                {
+                    // determine if the player is knocked back
+                    if (skill_check(m_ptr, monster_stat(m_ptr, A_STR) * 2, p_ptr->stat_use[A_CON] * 2, PLAYER) > 0)
+                    {
+                        // do the knocking back
+                        knock_back(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
+                        
+                        // remember that the monster can do this
+                        if (m_ptr->ml)  l_ptr->flags2 |= (RF2_KNOCK_BACK);
+                    }
+                }
+            }
+            
+            // deal with cowardice
+			if ((p_ptr->cowardice > 0) && (net_dam >= 10 / p_ptr->cowardice))
+			{
+                if (!p_ptr->afraid)
+                {
+                    if (allow_player_fear(m_ptr))
+                    {
+                        set_afraid(p_ptr->afraid + damroll(10,4));
+                        set_fast(p_ptr->fast + damroll(5,4));
+                        
+                        // give the player a chance to identify what is causing it
+                        ident_cowardice();
+                    }
+                }
+			}
+
 		}
 
 		/* Monster missed player */
@@ -1594,14 +1546,11 @@ bool make_attack_normal(monster_type *m_ptr)
 			{
 				case RBM_HIT:
 				case RBM_TOUCH:
-				case RBM_PUNCH:
-				case RBM_KICK:
 				case RBM_CLAW:
 				case RBM_BITE:
 				case RBM_PECK:
 				case RBM_STING:
 				case RBM_WHIP:
-				case RBM_BUTT:
 				case RBM_CRUSH:
 
 				/* Visible monsters */
@@ -1888,7 +1837,7 @@ extern void shriek(monster_type *m_ptr)
 	disturb(0, 0);
 	
 	/* Make a lot of noise */
-	update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+	update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
 	monster_perception(FALSE, FALSE, -10);
 	
 	// makes monster noise too
@@ -1929,18 +1878,13 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	/* Can the player see the monster casting the spell? */
 	bool seen = (!blind && m_ptr->ml);
 
-	bool powerful;
-
-	if (r_ptr->flags2 & (RF2_POWERFUL)) powerful = TRUE;
-	else powerful = FALSE;
-
 	/* Determine mana cost */
 	if (attack >= 128) return (FALSE);
 	else if (attack >=  96) manacost = spell_info_RF4[attack- 96][COL_SPELL_MANA_COST];
 	else return (FALSE);
 
-	/* Spend mana */
-	m_ptr->mana -= manacost;
+	/* Spend mana (for non-songs) */
+    if (attack < 96 + RF4_SNG_HEAD)   m_ptr->mana -= manacost;  // Sil-x: this is a hack to only have you pay mana for things other than songs
 
 	/*** Get some info. ***/
 
@@ -1956,30 +1900,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	/* Hack -- Get the "died from" name */
 	monster_desc(ddesc, sizeof(m_name), m_ptr, 0x88);
 
-	/* Hack -- a visible monster loses any hidden mimic status */
-	if ((m_ptr->ml) && (m_ptr->mimic_k_idx))
-	{
-
-		/* Reveal it */
-		reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-		/* Get monster name */
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
-
-		/* Notice monster */
-		msg_format("%^s appears.", m_name);
-
-		/* Focus on this monster, unless otherwise occupied */
-		if (!p_ptr->health_who)
-		{
-			p_ptr->health_who = cave_m_idx[m_ptr->fy][m_ptr->fx];
-			p_ptr->redraw |= (PR_HEALTHBAR);
-		}
-	}
-
 	/* Get the summon level */
-	if (r_ptr->d_char == 'Q') summon_lev = r_ptr->level + 3;
-	else                      summon_lev = r_ptr->level - 1;
+	summon_lev = r_ptr->level - 1;
 
 	// Sil-y: no chance of spell failure anymore
 	
@@ -1993,6 +1915,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 96+0:
 		case 96+1:
 		{
+            int dd = (attack == 96+0) ? 1 : 2;
+            
 			disturb(1, 0);
 			if (spower < 2)
 			{
@@ -2005,7 +1929,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				else msg_format("%^s fires an arrow.", m_name);
 			}
 			
-			mon_bolt(m_idx, GF_ARROW, 1, get_sides(attack), -1);
+			mon_bolt(m_idx, GF_ARROW, dd, get_sides(attack), -1);
 			
 			break;
 		}
@@ -2033,7 +1957,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			        r_ptr->spell_power/2, 60);
 			
 			/* Make a lot of noise */
-			update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+			update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
 			monster_perception(FALSE, FALSE, -10);
 			
 			break;
@@ -2049,7 +1973,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 					r_ptr->spell_power/2, 60);
 			
 			/* Make a lot of noise */
-			update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+			update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
 			monster_perception(FALSE, FALSE, -10);
 			
 			break;
@@ -2065,7 +1989,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			        r_ptr->spell_power/2, 90);
 			
 			/* Make a lot of noise */
-			update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+			update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
 			monster_perception(FALSE, FALSE, -10);
 			
 			break;
@@ -2081,7 +2005,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 					r_ptr->spell_power/2, 60);
 
 			/* Make a lot of noise */
-			update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+			update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
 			monster_perception(FALSE, FALSE, -10);
 						
 			break;
@@ -2151,12 +2075,11 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			
 			if (allow_player_fear(m_ptr))
 			{
-				int fear_amount = damroll(2, 4);
-				(void)set_afraid(MAX(p_ptr->afraid, fear_amount));
+				(void)set_afraid(p_ptr->afraid + damroll(2,4));
 			}
 			
 			/* Make a lot of noise */
-			update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+			update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
 			monster_perception(FALSE, FALSE, -20);
 			
 			break;
@@ -2167,7 +2090,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			disturb(0, 0);
 			
-			if (blind) msg_format("%^s mumbles.", m_name);
+			if (blind) msg_format("%^s mutters.", m_name);
 			else msg_format("%^s gestures in shadow.", m_name);
 			
 			(void)darken_area(0, 0, 3);
@@ -2190,7 +2113,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				msg_format("%^s tries to blank your mind.", m_name);
 			}
 			
-			if (saving_throw(m_ptr, FALSE))
+			if (saving_throw(m_ptr, 0))
 			{
 				msg_print("You resist!");
 			}
@@ -2211,7 +2134,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				msg_format("%^s lets out a terrible cry.", m_name);
 				
 				/* Make a lot of noise */
-				update_noise(m_ptr->fy, m_ptr->fx, FLOW_MON_NOISE);
+				update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
 				monster_perception(FALSE, FALSE, -10);
 			}
 			else
@@ -2224,8 +2147,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			}
 			else
 			{
-				int fear_amount = damroll(3, 4);
-				(void)set_afraid(MAX(p_ptr->afraid, fear_amount));
+				(void)set_afraid(p_ptr->afraid + damroll(3,4));
 			}
 			break;
 		}
@@ -2234,11 +2156,11 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 96+13:
 		{
 			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
+			if (blind) msg_format("%^s mutters.", m_name);
 			else msg_format("%^s glares at you.", m_name);
 			if (allow_player_confusion(m_ptr))
 			{
-				(void)set_confused(p_ptr->confused + damroll(2, 4));
+				(void)set_confused(p_ptr->confused + damroll(2,4));
 			}
 			break;
 		}
@@ -2247,8 +2169,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 96+14:
 		{
 			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s stares deep into your eyes!", m_name);
+			if (blind) msg_format("%^s mutters.", m_name);
+				else msg_format("%^s stares deep into your eyes.", m_name);
 				
 			if (!allow_player_entrancement(m_ptr))
 			{
@@ -2257,8 +2179,51 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			// Must not already be entranced or entranced last round, as chaining entrancement is too nasty
 			else if (!p_ptr->entranced && !p_ptr->was_entranced)
 			{
-				(void)set_entranced(damroll(5, 4));
+				(void)set_entranced(damroll(4, 4));
 			}
+			break;
+		}
+
+        /* RF4_SLOW */
+		case 96+15:
+		{
+			disturb(1, 0);
+			msg_format("%^s whispers of fading and decay.", m_name);
+            
+			if (!allow_player_slow(m_ptr))
+			{
+				msg_print("You resist.");
+			}
+			else
+			{
+				(void)set_slow(p_ptr->slow + damroll(2, 4));
+			}
+			break;
+		}
+            
+        // Sil-x: only songs after this point as 96+RF4_SNG_HEAD is used in the spell code to distinguish songs from non-songs
+            
+        /* RF4_SNG_BINDING */
+		case 96+16:
+		{
+            song_of_binding(m_ptr);
+
+			break;
+		}
+            
+        /* RF4_SNG_PIERCING */
+		case 96+17:
+		{
+            song_of_piercing(m_ptr);
+            
+			break;
+		}
+
+        /* RF4_SNG_OATHS */
+		case 96+18:
+		{
+            song_of_oaths(m_ptr);
+            
 			break;
 		}
 

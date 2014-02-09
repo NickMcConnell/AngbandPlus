@@ -154,9 +154,8 @@ void write_r_info_txt(void)
 		}
 
 		/* Write I: line */
-		fprintf(fff, "I:%d:%d:%dd%d:%d:%d:%d\n", i,
-		r_ptr->speed, r_ptr->hdice, r_ptr->hside,
-		r_ptr->mana, r_ptr->light);
+		fprintf(fff, "I:%d:%dd%d:%d\n", i,
+		r_ptr->speed, r_ptr->hdice, r_ptr->hside, r_ptr->light);
 
 
 		/* Write A: line */

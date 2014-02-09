@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.2.0
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -138,7 +138,7 @@ F:INSTA_ART
 N:4:& Pearl~
 G:":w
 I:40:13:1
-W:1:0:3:100000
+W:1:0:1:100000
 P:0:0d0:0:0d0
 F:INSTA_ART
 
@@ -148,7 +148,7 @@ F:INSTA_ART
 N:5:& Jewel~
 G:":g
 I:40:16:1
-W:1:0:3:50000
+W:1:0:1:50000
 P:0:0d0:0:0d0
 F:INSTA_ART
 
@@ -158,7 +158,7 @@ F:INSTA_ART
 N:6:& Necklace~
 G:":y
 I:40:12:1
-W:1:0:3:75000
+W:1:0:1:75000
 P:0:0d0:0:0d0
 F:INSTA_ART
 
@@ -178,7 +178,7 @@ F:INSTA_ART
 N:11:& Amulet~
 G:":W
 I:40:40:0
-W:1:0:3:1000
+W:1:0:1:1000
 P:0:0d0:0:0d0
 F:INSTA_ART
 
@@ -268,16 +268,16 @@ I:37:6:0
 W:7:0:350:900
 P:-2:0d0:-4:2d5
 A:7/3:17/2
-D:A shirt of armour formed from linked rings.
+D:A long-sleeved shirt of armour formed from linked rings.
 D: It comes down to the thigh.
 
 
 N:38:& Mithril Corslet~
 G:[:B
 I:37:20:0
-W:15:0:150:7000
+W:7:0:150:7000
 P:0:0d0:-2:2d4
-A:15/30
+A:7/80:15/30
 F:IGNORE_ALL | MITHRIL
 D:A shirt of armour formed from linked rings.
 
@@ -303,9 +303,9 @@ A:6/1
 N:46:& Mithril Shield~
 G:):B
 I:34:10:0
-W:14:0:40:10000
+W:8:0:40:10000
 P:-1:0d0:0:1d6
-A:14/15
+A:8/80:14/15
 F:IGNORE_ALL | MITHRIL
 
 
@@ -325,7 +325,7 @@ A:1/2
 N:56:& Dagger~
 G:|:w
 I:23:4:0
-W:1:0:8:10
+W:1:0:5:10
 P:0:1d5:0:0d0
 A:1/2:10/1
 F:THROWING
@@ -353,7 +353,7 @@ A:2/1:12/1
 # for each time it came up heads.
 #
 # They are not very Tolkienian, but are a homage to Dungeons of Doom
-# (an ancient roguelike for Mac)
+# (an ancient roguelike for Mac that everyone else seems to have forgotten)
 
 N:63:& Deathblade~
 G:|:D
@@ -392,18 +392,18 @@ F:TWO_HANDED
 N:69:& Mithril Longsword~
 G:|:B
 I:23:28:0
-W:14:0:20:5000
+W:5:0:20:5000
 P:1:2d5:1:0d0
-A:14/10
+A:5/80:14/10
 F:IGNORE_ALL | MITHRIL
 
 
 N:70:& Mithril Greatsword~
 G:|:B
 I:23:30:0
-W:16:0:40:7000
+W:6:0:40:7000
 P:-1:3d5:1:0d0
-A:16/15
+A:6/80:16/15
 F:IGNORE_ALL | TWO_HANDED | MITHRIL
 
 
@@ -544,7 +544,7 @@ G:]:s
 I:32:7:0
 W:10:0:80:300
 P:0:0d0:-2:1d2
-A:10/10
+A:10/8:16/8
 F:RES_FIRE
 D:A full faced helm, wrought in a fearsome visage.
 
@@ -552,9 +552,9 @@ D:A full faced helm, wrought in a fearsome visage.
 N:103:& Mithril Helm~
 G:]:B
 I:32:8:0
-W:10:0:35:500
+W:7:0:35:500
 P:0:0d0:-1:1d3
-A:10/10
+A:7/80:12/10
 F:IGNORE_ALL | MITHRIL
 
 
@@ -617,26 +617,26 @@ F:INSTA_ART
 N:110:& Shortbow~
 G:}:u
 I:19:12:0
-W:2:0:15:50
+W:1:0:15:50
 P:0:1d7:0:0d0
-A:2/2:10/2
+A:1/2:11/2
 
 
 N:111:& Longbow~
 G:}:U
 I:19:13:0
-W:7:0:30:120
-P:0:2d5:-1:0d0
-A:7/2:15/1
+W:3:0:30:120
+P:0:2d5:0:0d0
+A:3/2:13/2
 
 
 # Modelled on Earendil's bow
 
-N:112:& Dragon-horn Longbow~
+N:112:& Dragon-horn Bow~
 G:}:U1
 I:19:14:0
-W:15:0:45:120
-P:0:3d3:-1:0d0
+W:15:0:20:500
+P:0:1d9:0:0d0
 A:15/8
 F:NO_SMITHING
 
@@ -673,9 +673,9 @@ F:IGNORE_FIRE
 N:124:& Pair~ of Mithril Greaves
 G:]:B
 I:30:3:0
-W:12:0:40:50
+W:6:0:40:50
 P:0:0d0:0:1d2
-A:12/10
+A:6/80:12/10
 F:IGNORE_ALL | MITHRIL
 
 
@@ -701,9 +701,9 @@ F:IGNORE_FIRE
 N:127:& Set~ of Mithril Gauntlets
 G:]:B
 I:31:3:0
-W:12:0:15:100
+W:5:0:15:100
 P:0:0d0:0:1d1
-A:12/20
+A:5/80:12/20
 F:IGNORE_ALL | MITHRIL
 
 
@@ -750,7 +750,7 @@ D: It will shine forever.
 N:131:& Silmaril~
 G:*:w
 I:39:9:0
-W:25:0:2:100000
+W:25:0:1:100000
 P:0:0d0:0:0d0
 F:SEE_INVIS | SUST_GRA | EASY_KNOW
 F:IGNORE_ALL | NO_SMITHING
@@ -764,7 +764,7 @@ D: It will shine forever.
 N:132:Adornment
 G:":d
 I:40:0:0
-W:7:0:3:20
+W:7:0:1:20
 P:0:0d0:0:0d0
 A:7/3
 F:EASY_KNOW
@@ -774,7 +774,7 @@ D:It is very beautiful and finely wrought.
 N:133:Constitution
 G:":d
 I:40:1:0
-W:8:0:3:500
+W:8:0:1:500
 P:0:0d0:0:0d0
 A:8/3
 F:CON | SUST_CON
@@ -783,7 +783,7 @@ F:CON | SUST_CON
 N:134:Grace
 G:":d
 I:40:2:0
-W:10:0:3:500
+W:10:0:1:500
 P:0:0d0:0:0d0
 A:10/3
 F:GRA | SUST_GRA
@@ -792,7 +792,7 @@ F:GRA | SUST_GRA
 N:135:Regeneration
 G:":d
 I:40:3:0
-W:12:0:3:600
+W:12:0:1:600
 P:0:0d0:0:0d0
 A:12/3
 F:REGEN | EASY_KNOW
@@ -801,7 +801,7 @@ F:REGEN | EASY_KNOW
 N:136:Preservation
 G:":d
 I:40:4:0
-W:14:0:3:20000
+W:14:0:1:20000
 P:0:0d0:0:0d0
 A:14/3
 F:SUST_CON
@@ -812,7 +812,7 @@ F:EASY_KNOW
 N:137:the Blessed Realm
 G:":d
 I:40:5:0
-W:16:0:3:30000
+W:16:0:1:30000
 P:0:0d0:0:0d0
 A:16/6
 F:GRA | SUST_GRA | LIGHT
@@ -824,7 +824,7 @@ F:GRA | SUST_GRA | LIGHT
 N:138:Haunted Dreams
 G:":d
 I:40:6:0
-W:9:0:3:0
+W:9:0:1:0
 P:0:0d0:0:0d0
 A:9/3
 F:HAUNTED | SEE_INVIS | EASY_KNOW
@@ -1125,52 +1125,58 @@ A:9/6
 D:It produces 2d4 new traps on the current level. 
 
 
-##### Trumpets #####
+##### Horns #####
 
 N:240:Terror
 G:?:d
 I:66:0:0
-W:7:0:70:100
+W:7:0:10:100
 P:0:0d0:0:0d0
 A:7/6
 F:EASY_KNOW
-D:A straight trumpet in the heraldic style.
-D: Its sound brings terror to your enemies.
+D:Its sound brings terror to your enemies.
 
 
 N:241:Thunder
 G:?:d
 I:66:1:0
-W:10:0:70:100
+W:10:0:10:100
 P:0:0d0:0:0d0
 A:10/6
 F:EASY_KNOW
-D:A straight trumpet in the heraldic style.
-D: Its sound stuns your enemies. 
+D:Its sound stuns your enemies. 
 
 
-N:242:Blasting
+N:242:Force
 G:?:d
 I:66:2:0
-W:13:0:70:100
+W:12:0:10:100
+P:0:0d0:0:0d0
+A:12/6
+F:EASY_KNOW
+D:Its sound blows your enemies back. 
+
+
+N:243:Blasting
+G:?:d
+I:66:3:0
+W:13:0:10:100
 P:0:0d0:0:0d0
 A:13/6
 F:EASY_KNOW
-D:A straight trumpet in the heraldic style.
-D: Its sound can shatter stone.
+D:Its sound can shatter stone.
 D: In addition to the compass directions, brave souls can
 D: aim it up (<) or down (>).
 
 
 N:250:Warning
 G:?:d
-I:66:3:0
-W:7:0:70:0
+I:66:4:0
+W:7:0:10:0
 P:0:0d0:0:0d0
 A:7/12
 F:EASY_KNOW
-D:A straight trumpet in the heraldic style.
-D: It rings out a challenge to your foes. 
+D:It rings out a challenge to your foes. 
 
 
 ##### Potions #####
@@ -1179,18 +1185,19 @@ D: It rings out a challenge to your foes.
 N:313:Miruvor
 G:!:d
 I:75:0:100
-W:11:0:4:1000
+W:11:0:5:1000
 P:0:0d0:0:0d0
-A:11/2:17/1
+A:11/2:17/2
 F:EASY_KNOW
 D:It cures stunning, confusion, hallucination, poison,
-D: blindness, cuts, fear, and half your health.
+D: blindness, cuts, and fear. It restores half your health, and
+D: all your voice.
 
 
 N:315:Orcish Liquor
 G:!:d
 I:75:2:100
-W:3:0:4:100
+W:3:0:5:100
 P:0:0d0:0:0d0
 A:3/1:7/1
 F:EASY_KNOW
@@ -1201,7 +1208,7 @@ D: (for 2d4 turns).
 N:317:Clarity
 G:!:d
 I:75:4:100
-W:6:0:4:100
+W:6:0:5:100
 P:0:0d0:0:0d0
 A:6/2:13/1
 F:EASY_KNOW
@@ -1212,7 +1219,7 @@ D: your rage.
 N:318:Healing
 G:!:d
 I:75:5:100
-W:9:0:4:300
+W:9:0:5:300
 P:0:0d0:0:0d0
 A:9/1:15/1
 F:EASY_KNOW
@@ -1222,7 +1229,7 @@ D:It heals all cuts and restores half your health.
 N:319:Voice
 G:!:d
 I:75:6:100
-W:13:0:4:300
+W:13:0:5:300
 P:0:0d0:0:0d0
 A:13/1
 F:EASY_KNOW
@@ -1232,7 +1239,7 @@ D:It renews your voice.
 N:320:True Sight
 G:!:d
 I:75:7:100
-W:7:0:4:100
+W:7:0:5:100
 P:0:0d0:0:0d0
 A:7/1
 F:EASY_KNOW
@@ -1244,7 +1251,7 @@ D: invisible creatures for 10d4 turns.
 N:321:Slow Poison
 G:!:d
 I:75:8:100
-W:2:0:4:100
+W:2:0:5:100
 P:0:0d0:0:0d0
 A:2/1:12/1
 F:EASY_KNOW
@@ -1254,7 +1261,7 @@ D:It halves the severity of any current poisoning.
 N:322:Quickness
 G:!:d
 I:75:9:100
-W:5:0:4:200
+W:5:0:5:200
 P:0:0d0:0:0d0
 A:5/1:15/1
 F:EASY_KNOW
@@ -1264,7 +1271,7 @@ D:It makes you move more quickly (+1 to speed) for 10d4 turns.
 N:323:Elemental Resistance
 G:!:d
 I:75:10:100
-W:12:0:4:100
+W:12:0:5:100
 P:0:0d0:0:0d0
 A:12/1
 F:EASY_KNOW
@@ -1274,9 +1281,9 @@ D:It grants you temporary resistance to fire and cold for 20d4 turns.
 N:327:Strength
 G:!:d
 I:75:14:100
-W:6:0:4:200
+W:6:0:5:200
 P:0:0d0:0:0d0
-A:6/2:12/1
+A:6/2:12/2
 F:EASY_KNOW
 D:It grants a bonus of +3 to strength for 20d4 turns,
 D: restoring strength in the process.
@@ -1285,9 +1292,9 @@ D: restoring strength in the process.
 N:328:Dexterity
 G:!:d
 I:75:15:100
-W:7:0:4:200
+W:7:0:5:200
 P:0:0d0:0:0d0
-A:7/2:13/1
+A:7/2:13/2
 F:EASY_KNOW
 D:It grants a bonus of +3 to dexterity for 20d4 turns,
 D: restoring dexterity in the process.
@@ -1296,9 +1303,9 @@ D: restoring dexterity in the process.
 N:329:Constitution
 G:!:d
 I:75:16:100
-W:8:0:4:200
+W:8:0:5:200
 P:0:0d0:0:0d0
-A:8/2:14/1
+A:8/2:14/2
 F:EASY_KNOW
 D:It grants a bonus of +3 to constitution for 20d4 turns,
 D: restoring constitution in the process.
@@ -1307,9 +1314,9 @@ D: restoring constitution in the process.
 N:330:Grace
 G:!:d
 I:75:17:100
-W:9:0:4:200
+W:9:0:5:200
 P:0:0d0:0:0d0
-A:9/2:15/1
+A:9/2:15/2
 F:EASY_KNOW
 D:It grants a bonus of +3 to grace for 20d4 turns,
 D: restoring grace in the process.
@@ -1321,7 +1328,7 @@ D: restoring grace in the process.
 N:343:Slowness
 G:!:d
 I:75:22:100
-W:2:0:4:0
+W:2:0:5:0
 P:0:0d0:0:0d0
 A:2/3
 F:EASY_KNOW
@@ -1331,7 +1338,7 @@ D:It slows you down (-1 to speed) for 10d4 turns.
 N:344:Poison
 G:!:d
 I:75:23:100
-W:3:0:4:0
+W:3:0:5:0
 P:0:0d0:0:0d0
 A:3/3
 F:EASY_KNOW
@@ -1341,7 +1348,7 @@ D:It causes 5d4 points of poison.
 N:345:Blindness
 G:!:d
 I:75:24:100
-W:4:0:4:0
+W:4:0:5:0
 P:0:0d0:0:0d0
 A:4/3
 F:EASY_KNOW
@@ -1351,7 +1358,7 @@ D:It induces blindness for 10d4 turns.
 N:346:Confusion
 G:!:d
 I:75:25:100
-W:6:0:4:0
+W:6:0:5:0
 P:0:0d0:0:0d0
 A:6/3
 F:EASY_KNOW
@@ -1361,7 +1368,7 @@ D:It induces confusion for 5d4 turns.
 N:348:Awkwardness
 G:!:d
 I:75:27:100
-W:9:0:4:0
+W:9:0:5:0
 P:0:0d0:0:0d0
 A:9/3
 F:EASY_KNOW
@@ -1371,7 +1378,7 @@ D:It reduces your dexterity by one point.
 N:350:Disconnection
 G:!:d
 I:75:29:100
-W:11:0:4:0
+W:11:0:5:0
 P:0:0d0:0:0d0
 A:11/3
 F:EASY_KNOW
@@ -1452,7 +1459,7 @@ G:,:d
 I:80:0:250
 W:3:0:1:25
 P:0:0d0:0:0d0
-A:3/2:9/1:15/1
+A:3/2:9/1:15/4
 F:EASY_KNOW
 D:It sends you into a dark rage
 D: (+1 Str/Con, -1 Dex/Gra, special melee attack, resistance to fear)
@@ -1490,7 +1497,7 @@ G:,:d
 I:80:3:250
 W:7:0:1:75
 P:0:0d0:0:0d0
-A:7/2:17/1
+A:7/2:17/2
 F:EASY_KNOW
 D:It cures all cuts and heals half of your health.
 D:  Herbs provide nourishment for
@@ -1616,7 +1623,7 @@ D: up to a maximum of 7,000 turns of light.
 N:410:& Piece~ of Mithril
 G:~:B
 I:4:0:0
-W:10:5:1:100
+W:15:5:1:100
 P:0:0d0:0:0d0
 A:15/20
 F:EASY_KNOW
@@ -2069,7 +2076,7 @@ W:0:1:1:0
 P:0:0d0:0:0d0
 F:EASY_KNOW
 D:The corridor ahead is completely blocked, but there is a shovel here.
-D: To use it, press (u) to wield it, then with it in hand, you can use Control
+D: If you are carrying a shovel, you can use Control
 D: (or (/)) to tunnel through the rubble. Deeper down you might find mattocks
 D: which can dig through quartz veins, and even some ways to dig through
 D: granite. It is strongly recommended that you carry some means of digging
@@ -2184,7 +2191,7 @@ D:40.
 N:500:& Lesser Jewel~
 G:*:B
 I:39:2:0
-W:3:20:2:1000
+W:3:20:1:1000
 P:0:0d0:0:0d0:0
 A:3/20
 D:An enchanted glowing jewel, akin to a Silmaril, but much less

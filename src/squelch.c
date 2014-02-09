@@ -53,7 +53,7 @@ byte squelch_level[SQUELCH_BYTES];
 #define TYPE_RING    11
 #define TYPE_STAFF   12
 #define TYPE_WAND    13
-#define TYPE_ROD     14
+#define TYPE_HORN    14
 #define TYPE_SCROLL  15
 #define TYPE_POTION  16
 #define TYPE_AMULET  17
@@ -102,7 +102,7 @@ static tval_desc typevals[] =
   {TYPE_AMULET, "Amulets"},
   {TYPE_RING, "Rings"},
   {TYPE_STAFF, "Staves"},
-  {TYPE_ROD, "Trumpets"},
+  {TYPE_HORN, "Horns"},
   {TYPE_POTION, "Potions"},
   {TYPE_FOOD, "Food Items"},
   {TYPE_MISC, "Miscellaneous"},
@@ -1066,7 +1066,7 @@ static tval_desc raw_tvals[] =
 	{TV_AMULET, "Amulets"},
 	{TV_RING, "Rings"},
 	{TV_STAFF, "Staves"},
-	{TV_TRUMPET, "Trumpets"},
+	{TV_HORN, "Horns"},
 	{TV_POTION, "Potions"},
 	{TV_FLASK, "Flasks"},
 	{TV_FOOD, "Food"},
@@ -1469,7 +1469,7 @@ void init_tv_to_type(void)
   tv_to_type[TV_AMULET]=TYPE_AMULET;
   tv_to_type[TV_RING]=TYPE_RING;
   tv_to_type[TV_STAFF]=TYPE_STAFF;
-  tv_to_type[TV_TRUMPET]=TYPE_ROD;
+  tv_to_type[TV_HORN]=TYPE_HORN;
   tv_to_type[TV_POTION]=TYPE_POTION;
   tv_to_type[TV_FLASK]=TYPE_MISC;
   tv_to_type[TV_FOOD]=TYPE_FOOD;
@@ -1828,7 +1828,7 @@ void unapply_autoinscription(object_type *o_ptr, cptr note)
 }
 
 /*
- *  Removes an autoinscription from the database and from all objects
+ *  Removes an autoinscription from the database and from all objects of that kind
  */
 extern void obliterate_autoinscription(s16b kind)
 {
@@ -1846,17 +1846,17 @@ extern void obliterate_autoinscription(s16b kind)
 		/* Get the next object from the dungeon */
 		o_ptr = &o_list[i];
 		
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-		
+		// Don't remove inscriptions from different object kinds.
+		if (o_ptr->k_idx != kind) continue;
+        
 		/* Apply an autoinscription */
 		unapply_autoinscription(o_ptr, note);
 	}
 	for (i = INVEN_PACK; i > 0; i--)
 	{
-		/* Skip empty items */
-		if(!inventory[i].k_idx) continue;
-		
+		// Don't remove inscriptions from different object kinds.
+		if (inventory[i].k_idx != kind) continue;
+        
 		unapply_autoinscription(&inventory[i], note);
 	}
 	

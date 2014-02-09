@@ -159,7 +159,7 @@
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.2.0
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -206,15 +206,15 @@ D: Above all else, she is famed for her insight.
 
 ## The Amulet of Tinfang Gelion
 ## 1st age namesake
-## (ability 7/12 is Woven Themes)
+## (ability 7/11 is Woven Themes)
 
 N:3:of Tinfang Gelion
 I:40:10:2
-W:12:20:3:5000
+W:12:20:1:5000
 P:0:0d0:0:0d0
 F:SONG
 F:INSTA_ART
-B:7/12
+B:7/11
 D:A delicate necklace traced with intricate designs.
 D: Clasping it around your neck fills you memories of
 D: great heroes and a desire to sing of their deeds.
@@ -225,7 +225,7 @@ D: great heroes and a desire to sing of their deeds.
 
 N:4:'Nimphelos'
 I:40:13:2
-W:12:20:3:5000
+W:12:20:1:5000
 P:0:0d0:0:0d0
 F:GRA | SUST_GRA
 F:INSTA_ART
@@ -240,7 +240,7 @@ D: by Thingol Greycloak, King of Doriath.
 
 N:5:'Elessar'
 I:40:16:1
-W:14:20:3:7000
+W:14:20:1:7000
 P:0:0d0:0:0d0
 F:CON | REGEN
 F:INSTA_ART
@@ -255,7 +255,7 @@ D: can see the withered and old as if they were young and supple once more.
 
 N:6:of the Dwarves
 I:40:12:1
-W:16:30:3:10000
+W:16:30:1:10000
 P:0:0d0:0:0d0
 F:CON | GRA
 F:INSTA_ART
@@ -343,14 +343,14 @@ D: and quick to anger.
 
 
 ## The Leather Armour, 'Catskin'
-## (ability 2/5 is Flanking)
+## (ability 2/6 is Flanking)
 ## (ability 4/2 is Keen Senses)
 
 N:26:'Catskin'
 I:36:4:0
 W:10:30:50:45000
 P:0:0d0:0:1d4
-B:2/5:4/2
+B:2/6:4/2
 D:This leather looks strangely proportioned, but when you
 D: don it it fits perfectly. You feel a desire to hunt.
 
@@ -408,7 +408,7 @@ D: and given as a gift to his son, Maeglin.
 ## The Mail Corslet of Fingon
 ## 1st age namesake
 
-N:35:of Fingon
+N:34:of Fingon
 I:37:4:1
 W:8:25:260:105000
 P:0:0d0:-3:2d4
@@ -419,7 +419,7 @@ D:A bright mail corslet worn by Fingon, the eldest son of Fingolfin.
 ## The Mail Corslet of Durin
 ## 1st age namesake
 
-N:36:of Durin
+N:35:of Durin
 I:37:4:0
 W:13:30:280:105000
 P:-1:0d0:-3:3d3
@@ -432,7 +432,7 @@ D: exquisite suits of mail, armour to protect a King.
 ## The Hauberk of Maedhros
 ## 1st age namesake
 
-N:38:of Maedhros
+N:36:of Maedhros
 I:37:6:0
 W:13:12:330:105000
 P:-2:0d0:-3:2d6
@@ -447,7 +447,7 @@ D: stripped from him and stored in Morgoth's iron vaults.
 ## 1st age namesake
 ## (ability 5/8 is Critical Resistance)
 
-N:39:of Amon Rudh
+N:37:of Amon Rudh
 I:37:6:0
 W:13:15:300:25000
 P:-1:0d0:-4:2d6
@@ -460,7 +460,7 @@ D: Rudh, and hard is the armour they wear.
 ## 1st age
 ## (ability 2/3 is Crowd Fighting)
 
-N:40:of Gundor
+N:39:of Gundor
 I:37:4:1
 W:5:30:350:25000
 P:-1:0d0:-1:2d4
@@ -473,7 +473,7 @@ D: strength to walk among a host of foes.
 ## The Hauberk of Nevrast
 ## 1st age (Vinyamar set)
 
-N:41:of Nevrast
+N:40:of Nevrast
 I:37:6:0
 W:11:18:500:25000
 P:-2:0d0:-4:2d8
@@ -482,6 +482,21 @@ D:When Turgon departed Vinyamar in Nevrast, he left this armour, and
 D: strange destiny has led it far from those halls. Its is crafted with a
 D: double layer of mail, which makes it too heavy for many, but turns
 D: many a blow that might cleave through a lesser suit.
+
+
+## The Mithril Corslet 'Starlight'
+## (ability 7/0 is Song of Elbereth)
+
+N:41:'Starlight'
+I:37:20:1
+W:16:1:120:50000
+P:0:0d0:-1:2d4
+F:RES_FEAR | RES_BLIND
+F:PERCEPTION | SONG
+B:7/0
+D:This exquisite coat is wrought from tiny rings of mithril,
+D: almost too small to see, that twinkle in torchlight just
+D: as the stars of Varda twinkle in the night sky.
 
 
 ##### Shields #####
@@ -621,7 +636,7 @@ D: was at first believed to be mortally wounded.
 
 N:54:'Angrist'
 I:23:4:0
-W:14:4:8:100000
+W:14:4:5:100000
 P:0:1d5:0:0d0
 F:SHARPNESS2
 F:THROWING
@@ -656,14 +671,14 @@ D:The 'dark-slayer'; a short blade borne by Beren, son of Barahir.
 
 ## The Shortsword of Galadriel
 ## 1st age namesake
-## (ability 2/7 is Riposte)
+## (ability 2/8 is Riposte)
 
 N:60:of Galadriel
 I:23:10:0
-W:9:20:20:30000
+W:9:30:20:30000
 P:0:1d8:3:0d0
 F:SUST_GRA
-B:2/7
+B:2/8
 D:This sword was taken up by Galadriel, princess
 D: of the Noldor, in defence of her kinsfolk the Teleri
 D: when the Feanorians turned on them for their ships
@@ -675,7 +690,7 @@ D: at far-off Alqualonde.
 
 N:64:'Orcrist'
 I:23:17:2
-W:10:20:33:40000
+W:10:20:30:40000
 P:2:2d5:2:0d0
 F:SLAY_ORC | SLAY_TROLL | PERCEPTION
 D:This gleaming blade, mate to Glamdring, is called simply
@@ -687,7 +702,7 @@ D: "Biter" by orcs who came to know its power all too well.
 
 N:65:'Glamdring'
 I:23:17:2
-W:14:20:33:40000
+W:14:20:30:40000
 P:2:2d5:2:0d0
 F:SLAY_ORC | SLAY_TROLL | SLAY_DRAGON | SLAY_RAUKO | WILL
 D:This bright blade was forged by Enerdhil of Gondolin
@@ -768,8 +783,8 @@ D:The long deadly blade of Nan, the Giant.
 N:75:of Saithnar
 I:23:25:0
 W:17:15:70:100000
-P:+1:3d5:1:0d0
-F:SHARPNESS | SLAY_UNDEAD | FREE_ACT | HAUNTED | SEE_INVIS
+P:0:3d5:1:0d0
+F:SHARPNESS | SLAY_UNDEAD | HAUNTED | SEE_INVIS
 D:A shining greatsword, inlaid with runes of silver.
 
 
@@ -1043,7 +1058,7 @@ D: and enchanted for both battle and mine.
 N:118:of Curufin
 I:32:5:2
 W:15:10:45:45000
-P:-1:0d0:0:1d2
+P:0:0d0:-1:1d2
 F:PERCEPTION | STEALTH | RES_CONFU | DANGER
 B:4/7
 D:A helm worn by Curufin, son of Feanor, whose dark schemes
@@ -1161,7 +1176,7 @@ D: well-bought.  For the price could be no other."
 
 ## The Cloak of Maglor
 ## 1st age namesake
-## (ability 7/11 is Unwavering Voice)
+## (ability 7/4 is Song of the Trees)
 
 N:131:of Maglor
 G:(:b
@@ -1169,7 +1184,7 @@ I:35:1:2
 W:13:10:20:35000
 P:0:0d0:1:0d0
 F:SONG
-B:7/11
+B:7/4
 D:A cloak worn by Maglor, the mighty singer, and gentlest of Feanor's sons.
 
 
@@ -1192,7 +1207,7 @@ D: to the hoards of Angband, you cannot say.
 
 N:134:of Luthien
 I:35:6:4
-W:13:10:7:45000
+W:13:10:10:45000
 P:0:0d0:4:0d0
 F:STEALTH | DARKNESS | SUST_GRA
 B:7/7
@@ -1268,7 +1283,7 @@ N:145:'Belthronding'
 G:}:D
 I:19:13:1
 W:14:10:30:35000
-P:1:2d7:-1:0d0
+P:1:2d7:0:0d0
 F:PERCEPTION
 D:The great bow of Beleg Cuthalion, made of black yew and strung with
 D: elven hair that faintly shimmers a pale clear gold.
@@ -1281,7 +1296,7 @@ D: elven hair that faintly shimmers a pale clear gold.
 N:146:'Wyrm's End'
 I:19:13:0
 W:16:25:60:35000
-P:0:2d7:-2:0d0
+P:0:2d7:0:0d0
 B:1/5
 D:A massive longbow, almost too large to draw. But when it does
 D: release an arrow it flies with great force -- and with fire.
@@ -1293,11 +1308,11 @@ D: release an arrow it flies with great force -- and with fire.
 
 N:148:of Avernien
 I:19:14:0
-W:20:3:45:35000
-P:1:3d3:-1:0d0
+W:20:3:20:35000
+P:1:1d9:0:0d0
 F:RADIANCE | SLAY_DRAGON
 D:A large exquisite bow fashioned from a single horn of a slain
-D: dragon. Many are the blessings of the Eldar are laid over it.
+D: dragon. Many are the blessings of the Eldar laid over it.
 
 
 ##### Arrows #####
@@ -1336,7 +1351,7 @@ D: the ground, letting you pass through combat as a dance.
 
 N:155:of Taur-nu-Fuin
 I:30:1:2
-W:12:15:18:25000
+W:12:15:20:25000
 P:0:0d0:1:1d1
 F:STEALTH | PERCEPTION
 B:4/8
@@ -1391,7 +1406,7 @@ D: of the ice of the Helcaraxe.
 
 N:162:of Celebrimbor
 I:31:1:4
-W:10:15:3:36000
+W:10:15:5:36000
 P:0:0d0:0:1d1
 F:SMITHING | FREE_ACT
 D:A pair of gloves worn by the great Celebrimbor, jewelsmith of Nargothrond,
@@ -1403,7 +1418,7 @@ D: who would one day forge the rings of power.
 
 N:163:of Rumil
 I:31:1:1
-W:8:25:4:36000
+W:8:25:5:36000
 P:0:0d0:0:1d0
 F:GRA
 B:0/7
@@ -1423,8 +1438,7 @@ F:SUST_DEX
 B:0/2
 D:The fabled hunting gloves of the forest of Brethil.
 D: They are little to look at, but when you don them
-D: your hand is swift and accurate
-D: thrown dagger or spear.
+D: your hand is swift and accurate.
 
 
 ## The Set of Gauntlets of Gamil Zirak
@@ -1439,6 +1453,20 @@ D:The iron-shod gauntlets of Gamil Zirak, dwarf-smith of old, who
 D: taught Telchar the arts of the forge.
 
 
+## The Mithril Gauntlets 'Silverhand'
+## (ability 6/2 is Jeweller)
+
+N:167:'Silverhand'
+I:31:3:1
+W:15:1:10:20000
+P:0:0d0:0:1d2
+F:DEX
+B:6/2
+D:These wondrous gloves are as hard as iron, yet as
+D: supple as fine leather. The hands that wear them
+D: can move more delicately and swiftly than if bare.
+
+
 ##### Lights #####
 
 ## The Lesser Jewel of Finwe
@@ -1447,7 +1475,7 @@ D: taught Telchar the arts of the forge.
 N:170:of Finwe
 G:*:o
 I:39:2:2
-W:6:10:2:10000
+W:6:10:1:10000
 P:0:0d0:0:0d0
 F:RES_FIRE | LIGHT
 D:When Morgoth slew Finwe, High King of the Noldor, he
@@ -1464,7 +1492,7 @@ D: lost to the Unlight, but this one shines yet pure.
 
 N:175:of Morgoth
 I:33:50:0
-W:20:1:3994:10000000
+W:20:1:4000:10000000
 P:0:0d0:0:0d0:0
 F:INDESTRUCTIBLE
 F:INSTA_ART 
@@ -1479,7 +1507,7 @@ D: holes where should be stars.
 
 N:176:of Morgoth
 I:33:50:4
-W:20:1:3996:10000000
+W:20:1:4000:10000000
 P:0:0d0:0:0d0:0
 F:INDESTRUCTIBLE
 F:INSTA_ART 
@@ -1494,7 +1522,7 @@ D: Silmaril, greatest treasure of Middle-Earth.
 
 N:177:of Morgoth
 I:33:50:5
-W:20:1:3998:10000000
+W:20:1:4000:10000000
 P:0:0d0:0:0d0:0
 F:INDESTRUCTIBLE
 F:INSTA_ART 

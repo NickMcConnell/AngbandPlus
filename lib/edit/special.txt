@@ -45,14 +45,14 @@
 # * Note that several special item types may share the same 'textual Name',
 #   such as with 'Armor of Protection' and 'Shield of Protection'.
 #
-# There should always be at least one valid special type at each depth for each
-# base item type. This is currently not true for Shovels, so any attempt to
-# generate a special shovel will just generate a fine one instead.
+# * There should always be at least one valid special type at each depth for each
+#   base item type. This is currently not true for Shovels, so any attempt to
+#   generate a special shovel will just generate a fine one instead.
 
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.2.0
 
 
 
@@ -206,75 +206,73 @@ T:23:0:99
 F:SLAY_UNDEAD | FREE_ACT
 
 
-# Blades, axes, and polearms
+# Blades, axes, and polearms (except throwing axes)
 
 N:25:(Vampiric)
 W:7:4:0:3000
 C:0:0:0:0:0:0:0
-T:22:0:99
-T:23:0:99
+T:22:1:4
+T:22:12:99
+T:23:1:99
 F:VAMPIRIC | HUNGER | LIGHT_CURSE
 
 
-# Blades and glaives
+## T:22:2:4
+## T:22:12:99
+## T:23:7:99
+
+# Swords and glaives
 
 N:26:(Defender)
 W:0:2:0:1000
 C:0:0:0:1:0:0:0
 T:22:4:4
-T:23:0:99
+T:23:7:99
 F:IGNORE_ALL
 
 
-# All but broken swords, daggers, curved swords, quarterstaves, sceptres
+# All but broken swords, daggers, curved swords, quarterstaves, sceptres, throwing axes
 # (ability 0/5 is Follow-Through)
 
 N:27:of Hador's House
 W:8:3:0:3000
 C:0:0:1:0:0:0:0
 T:21:8:8
-T:22:0:99
+T:22:1:4
+T:22:12:99
 T:23:10:99
 B:0/5
 
 
-# All but broken swords, daggers, curved swords, quarterstaves, sceptres
+# All but broken swords, daggers, curved swords, quarterstaves, sceptres, throwing axes
 # (ability 0/12 is Whirlwind Attack)
 
 N:28:of Fury
 W:10:2:0:2000
 C:0:0:1:0:0:0:0
 T:21:8:8
-T:22:0:99
+T:22:1:4
+T:22:12:99
 T:23:10:99
 B:0/12
 F:AGGRAVATE | LIGHT_CURSE
 
 
-# Blades only
-
-#N:29:of Brilliance
-#W:0:3:0:1000
-#C:0:0:0:0:0:0:0
-#T:23:0:99
-#F:LIGHT
-
-
-# Blades only
+# Swords only
 
 N:30:of Shadows
 W:6:5:0:1000
 C:0:0:0:0:0:0:3
-T:23:0:99
+T:23:7:99
 F:DARKNESS | SONG
 
 
-# Blades only
+# Swords only
 
 N:31:of the Feanorians
 W:11:5:0:1000
 C:0:0:0:0:0:0:1
-T:23:0:99
+T:23:7:99
 F:GRA | DEX | DANGER
 
 
@@ -518,11 +516,20 @@ F:FREE_ACT
 
 
 # boots only
-# (ability 2/4 is Sprinting)
+# (ability 2/5 is Sprinting)
 
 N:113:of Speed
 W:10:4:0:5000
-C:0:0:0:0:0:0:10
+C:0:0:0:0:0:0:0
+T:30:1:1
+B:2/5
+
+# boots only
+# (ability 2/4 is Leaping)
+
+N:114:of Leaping
+W:7:4:0:4000
+C:0:0:0:0:0:0:0
 T:30:1:1
 B:2/4
 

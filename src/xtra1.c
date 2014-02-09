@@ -38,7 +38,7 @@ byte total_mdd(const object_type *o_ptr)
  * Determines the strength modified damage sides for a melee or thrown weapon
  * Includes factors for strength and weight, but not bonuses from ring of damage etc
  */
- extern byte strength_modified_ds(const object_type *o_ptr, int str_adjustment)
+byte strength_modified_ds(const object_type *o_ptr, int str_adjustment)
 {
 	byte mds;
 	int int_mds; /* to allow negative values in the intermediate stages */
@@ -216,7 +216,7 @@ int polearm_bonus(const object_type *o_ptr)
 
 /*
  * Determines the total damage side for archery
- * based on the weight of the bow, strength, and the sides of the arrow
+ * based on the weight of the bow, strength, and the sides of the bow
  */
  
 extern byte total_ads(const object_type *j_ptr, bool single_shot)
@@ -415,8 +415,9 @@ static void prt_hp(void)
 	int len;
 	byte color;
 
-	put_str("Health      ", ROW_HP, COL_HP);
-
+	if (p_ptr->mhp >= 100)  put_str("Hth        ", ROW_HP, COL_HP);
+	else                    put_str("Health      ", ROW_HP, COL_HP);
+    
 	len = sprintf(tmp, "%d:%d", p_ptr->chp, p_ptr->mhp);
 
 	c_put_str(TERM_L_GREEN, tmp, ROW_HP, COL_HP + 12 - len);
@@ -449,7 +450,8 @@ static void prt_sp(void)
 	byte color;
 	int len;
 
-	put_str("Voice       ", ROW_SP, COL_SP);
+	if (p_ptr->msp >= 100)  put_str("Vce         ", ROW_SP, COL_SP);
+	else                    put_str("Voice       ", ROW_SP, COL_SP);
 
 	len = sprintf(tmp, "%d:%d", p_ptr->csp, p_ptr->msp);
 
@@ -815,12 +817,18 @@ static void prt_state(void)
 		}
 	}
 
-	/* Searching */
+	/* Stealth mode */
 	else if (p_ptr->stealth_mode)
 	{
 		my_strcpy(text, "Stealth   ", sizeof (text));
 	}
 
+	/* Climbing */
+	//else if (p_ptr->climbing)
+	//{
+	//	my_strcpy(text, "Climbing  ", sizeof (text));
+	//}
+    
 	/* Nothing interesting */
 	else
 	{
@@ -859,6 +867,27 @@ static void prt_speed(void)
 	/* Display the speed */
 	c_put_str(attr, format("%-4s", buf), ROW_SPEED, COL_SPEED);
 }
+
+
+/*
+ * Prints message regarding difficult terrain
+ */
+static void prt_terrain(void)
+{
+	if (cave_pit_bold(p_ptr->py, p_ptr->px))
+	{
+		c_put_str(TERM_ORANGE, "Pit", ROW_TERRAIN, COL_TERRAIN);
+	}
+    else if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TRAP_WEB)
+    {
+		c_put_str(TERM_ORANGE, "Web", ROW_TERRAIN, COL_TERRAIN);
+    }
+	else
+	{
+		put_str("   ", ROW_TERRAIN, COL_TERRAIN);
+	}
+}
+
 
 
 
@@ -1053,6 +1082,13 @@ static void health_redraw(void)
 					my_strcpy(tmp, "Aggress", sizeof(tmp));
 					attr = TERM_L_WHITE;
 				}
+                
+                // sometimes (only in debugging?) we are looking at a monster before it has a stance
+                // in this case just exit and don't do anything (to avoid printing uninitialised strings!)
+                else
+                {
+					return;
+                }
 				
 				if (m_ptr->morale >= 0)	sprintf(buf, "%s %d", tmp, (m_ptr->morale + 9) / 10);
 				else					sprintf(buf, "%s %d", tmp, m_ptr->morale / 10);
@@ -1130,7 +1166,8 @@ static void prt_frame_extra(void)
 	prt_confused();
 	prt_afraid();
 	prt_poisoned();
-
+    prt_terrain();
+    
 	/* State */
 	prt_state();
 
@@ -1553,7 +1590,7 @@ int hate_level(int y, int x, int multiplier)
 	int dist;
 	
 	// check distance of monster from player (by noise)
-	dist = get_noise_dist(FLOW_MON_NOISE, y, x);
+	dist = flow_dist(FLOW_MONSTER_NOISE, y, x);
 	
 	// Avoid a division by zero
 	if (dist == 0) dist = 1;
@@ -1605,7 +1642,7 @@ bool weapon_glows(object_type *o_ptr)
 	if (!viewable) return (FALSE);
 	
 	// create a 'flow' around the object
-	update_noise(iy, ix, FLOW_MON_NOISE);
+	update_flow(iy, ix, FLOW_MONSTER_NOISE);
 		
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1838,7 +1875,7 @@ int ability_bonus(int skilltype, int abilitynum)
 	if (skilltype == S_SNG)
 	{
 		// penalize minor themes
-		if (p_ptr->song1 != abilitynum) skill -= 5;
+		if (p_ptr->song1 != abilitynum) skill /= 2;
 		
 		switch (abilitynum)
 		{
@@ -1890,8 +1927,7 @@ int ability_bonus(int skilltype, int abilitynum)
 			}
 			case SNG_SHARPNESS:
 			{
-				bonus = skill;
-				if (bonus < 6) bonus = 6;
+				bonus = skill * 2;
 				break;
 			}
 			case SNG_MASTERY:
@@ -2104,22 +2140,24 @@ static void calc_bonuses(void)
 	p_ptr->aggravate = 0;
 	p_ptr->cowardice = 0;
 	p_ptr->haunted = 0;
-	p_ptr->see_inv = FALSE;
-	p_ptr->free_act = FALSE;
-	p_ptr->regenerate = FALSE;
-	p_ptr->telepathy = FALSE;
-	p_ptr->sustain_str = FALSE;
-	p_ptr->sustain_con = FALSE;
-	p_ptr->sustain_dex = FALSE;
-	p_ptr->sustain_gra = FALSE;
+	p_ptr->see_inv = 0;
+	p_ptr->free_act = 0;
+	p_ptr->regenerate = 0;
+	p_ptr->telepathy = 0;
+	p_ptr->sustain_str = 0;
+	p_ptr->sustain_con = 0;
+	p_ptr->sustain_dex = 0;
+	p_ptr->sustain_gra = 0;
 	p_ptr->resist_fire = 1;
 	p_ptr->resist_cold = 1;
 	p_ptr->resist_pois = 1;
-	p_ptr->resist_fear = FALSE;
-	p_ptr->resist_blind = FALSE;
-	p_ptr->resist_confu = FALSE;
-	p_ptr->resist_stun = FALSE;
-	p_ptr->resist_hallu = FALSE;
+	p_ptr->resist_fear = 0;
+	p_ptr->resist_blind = 0;
+	p_ptr->resist_confu = 0;
+	p_ptr->resist_stun = 0;
+	p_ptr->resist_hallu = 0;
+    
+    p_ptr->climbing = FALSE;
 
 	/* Clear the item granted abilities */
 	for (i = 0; i < S_MAX; i++)
@@ -2131,9 +2169,6 @@ static void calc_bonuses(void)
 	}
 	
 	/*** Extract race/house info ***/
-
-	/* Base digging */
-	p_ptr->dig = 0;
 
 	// Recalculate total weight
 	p_ptr->total_weight = 0;
@@ -2179,9 +2214,6 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_SMT)) p_ptr->skill_equip_mod[S_SMT] += o_ptr->pval;
 		if (f1 & (TR1_SNG)) p_ptr->skill_equip_mod[S_SNG] += o_ptr->pval;
 
-		/* Affect digging */
-		if (f1 & (TR1_TUNNEL)) p_ptr->dig += o_ptr->pval;
-
 		/* Affect Damage Sides */
 		if (f1 & (TR1_DAMAGE_SIDES))
 		{
@@ -2191,14 +2223,14 @@ static void calc_bonuses(void)
 		
 		/* Good flags */
 		if (f2 & (TR2_SLOW_DIGEST)) p_ptr->hunger -= 1;
-		if (f2 & (TR2_REGEN)) p_ptr->regenerate = TRUE;
+		if (f2 & (TR2_REGEN)) p_ptr->regenerate += 1;
 				
 		if (f2 & (TR2_SEE_INVIS)) 
 		{
 			(void) set_blind(0);
-			p_ptr->see_inv = TRUE;
+			p_ptr->see_inv += 1;
 		}
-		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
+		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act += 1;
 		if (f2 & (TR2_SPEED))
 		{ 
 			p_ptr->pspeed += 1;
@@ -2225,17 +2257,17 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_VUL_FIRE)) p_ptr->resist_fire -= 1;
 		if (f2 & (TR2_VUL_POIS)) p_ptr->resist_pois -= 1;
 		
-		if (f2 & (TR2_RES_FEAR))  p_ptr->resist_fear = TRUE;
-		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
-		if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
-		if (f2 & (TR2_RES_STUN))  p_ptr->resist_stun = TRUE;
-		if (f2 & (TR2_RES_HALLU))  p_ptr->resist_hallu = TRUE;
+		if (f2 & (TR2_RES_FEAR))  p_ptr->resist_fear   += 1;
+		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind  += 1;
+		if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu  += 1;
+		if (f2 & (TR2_RES_STUN))  p_ptr->resist_stun   += 1;
+		if (f2 & (TR2_RES_HALLU))  p_ptr->resist_hallu += 1;
 
 		/* Sustain flags */
-		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-		if (f2 & (TR2_SUST_GRA)) p_ptr->sustain_gra = TRUE;
+		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str += 1;
+		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex += 1;
+		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con += 1;
+		if (f2 & (TR2_SUST_GRA)) p_ptr->sustain_gra += 1;
 
 		/* Apply the bonus to evasion */
 		p_ptr->skill_equip_mod[S_EVN] += o_ptr->evn;
@@ -2299,7 +2331,7 @@ static void calc_bonuses(void)
 
 	if (p_ptr->active_ability[S_WIL][WIL_STRENGTH_IN_ADVERSITY])
 	{
-		// if <= 50% health, give a bonus to strerngth and grace
+		// if <= 50% health, give a bonus to strength and grace
 		if (health_level(p_ptr->chp, p_ptr->mhp) <= HEALTH_BADLY_WOUNDED)
 		{
 			p_ptr->stat_misc_mod[A_STR]++;
@@ -2355,33 +2387,34 @@ static void calc_bonuses(void)
 		p_ptr->stat_misc_mod[A_DEX] -= 1;
 		p_ptr->stat_misc_mod[A_CON] += 1;
 		p_ptr->stat_misc_mod[A_GRA] -= 1;
-
-		/* Hack */
-		p_ptr->resist_fear = TRUE;
 	}
 
 	/* Temporary Strength */
 	if (p_ptr->tmp_str)
 	{
 		p_ptr->stat_misc_mod[A_STR] += 3;
+        p_ptr->sustain_str += 1;
 	}
 
 	/* Temporary Dexterity */
 	if (p_ptr->tmp_dex)
 	{
 		p_ptr->stat_misc_mod[A_DEX] += 3;
+        p_ptr->sustain_dex += 1;
 	}
 
 	/* Temporary Constitution */
 	if (p_ptr->tmp_con)
 	{
 		p_ptr->stat_misc_mod[A_CON] += 3;
+        p_ptr->sustain_con += 1;
 	}
 
 	/* Temporary Grace */
 	if (p_ptr->tmp_gra)
 	{
 		p_ptr->stat_misc_mod[A_GRA] += 3;
+        p_ptr->sustain_gra += 1;
 	}
 
 	/* Temporary "fast" */
@@ -2400,13 +2433,13 @@ static void calc_bonuses(void)
 	if (p_ptr->tim_invis)
 	{
 		/* Hack */
-		p_ptr->see_inv = TRUE;
+		p_ptr->see_inv += 1;
 
 		/* Hack */
-		p_ptr->resist_blind = TRUE;
+		p_ptr->resist_blind += 1;
 
 		/* Hack */
-		p_ptr->resist_hallu = TRUE;
+		p_ptr->resist_hallu += 1;
 	}
 
 	/* Weak with hunger */
@@ -2424,9 +2457,9 @@ static void calc_bonuses(void)
 	// provide resist_confusion, resist_stunning and resist_hallucinaton with 'clarity' ability
 	if (p_ptr->active_ability[S_WIL][WIL_CLARITY])
 	{
-		p_ptr->resist_confu = TRUE;
-		p_ptr->resist_stun = TRUE;
-		p_ptr->resist_hallu = TRUE;
+		p_ptr->resist_confu += 1;
+		p_ptr->resist_stun += 1;
+		p_ptr->resist_hallu += 1;
 	}
 
 	/*** Handle stats ***/
@@ -2456,14 +2489,22 @@ static void calc_bonuses(void)
 	/* Apply "encumbrance" from weight */
 	if (j > i) p_ptr->pspeed -= 1;
 
-	/* Stealth slows the player down */
+    // climbing slows the player down (and is incompatible with stealth)
+    if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_CHASM) && !p_ptr->leaping)
+    {
+        p_ptr->climbing = TRUE;
+        p_ptr->pspeed -= 1;
+    }
+    
+	/* Stealth slows the player down (unless they are passing) */
 	if (p_ptr->stealth_mode)
 	{
-		p_ptr->pspeed -= 1;
-	    p_ptr->skill_misc_mod[S_STL] += STEALTH_MODE_BONUS;
+		if (p_ptr->previous_action[0] != 5) p_ptr->pspeed -= 1;
+ 	    p_ptr->skill_misc_mod[S_STL] += STEALTH_MODE_BONUS;
 	}
 
-	if (sprinting())
+    // sprinting speed the player up
+	if (sprinting() && !p_ptr->climbing)
 	{
 		p_ptr->pspeed += 1;
 	}
@@ -2473,7 +2514,6 @@ static void calc_bonuses(void)
 	if (p_ptr->pspeed > 3) p_ptr->pspeed = 3;
 	
 	// Increase food consumption if regenerating
-	// note that each item with the speed flag has already increased hunger
 	if (p_ptr->regenerate) p_ptr->hunger += 1;
 
 	/* armour weight (not inventory weight reduces stealth */
@@ -2571,7 +2611,7 @@ static void calc_bonuses(void)
 	}
 	if (singing(SNG_FREEDOM))
 	{
-		p_ptr->free_act = TRUE;
+		p_ptr->free_act += 1;
 	}
 
 	
@@ -2627,6 +2667,7 @@ static void calc_bonuses(void)
 	p_ptr->mdd = total_mdd(o_ptr);
 	p_ptr->mds = total_mds(o_ptr, p_ptr->active_ability[S_MEL][MEL_RAPID_ATTACK] ? -3 : 0);
 	
+    // determine the off-hand melee score, damage and sides
 	if (p_ptr->active_ability[S_MEL][MEL_TWO_WEAPON] && 
 	    (((&inventory[INVEN_ARM])->tval != TV_SHIELD) && ((&inventory[INVEN_ARM])->tval != 0)))
 	{
@@ -2636,7 +2677,7 @@ static void calc_bonuses(void)
 		
 		// add off-hand specific bonuses
 		o_ptr = &inventory[INVEN_ARM];
-		p_ptr->offhand_mel_mod += o_ptr->att + blade_bonus(o_ptr) + axe_bonus(o_ptr) + polearm_bonus(o_ptr) - 2;	
+		p_ptr->offhand_mel_mod += o_ptr->att + blade_bonus(o_ptr) + axe_bonus(o_ptr) + polearm_bonus(o_ptr) - 3;
 
 		p_ptr->mdd2 = total_mdd(o_ptr);
 		p_ptr->mds2 = total_mds(o_ptr, -3);
@@ -2668,9 +2709,6 @@ static void calc_bonuses(void)
 	}
 
 
-	/* Limit digging from 0 up */
-	if (p_ptr->dig < 0) p_ptr->dig = 0;
-	
 	/*** Notice changes ***/
 
 	/* Analyze stats */
@@ -2729,6 +2767,9 @@ static void calc_bonuses(void)
 		p_ptr->redraw |= (PR_SPEED);
 	}
 
+    /* Always redraw terrain */
+    p_ptr->redraw |= (PR_TERRAIN);
+    
 	/* Redraw melee (if needed) */
 	if ((p_ptr->skill_use[S_MEL] != old_skill_use[S_MEL]) || (p_ptr->mdd != old_mdd) || (p_ptr->mds != old_mds) || 
 															 (p_ptr->mdd2 != old_mdd2) || (p_ptr->mds2 != old_mds2))
@@ -2816,7 +2857,8 @@ void notice_stuff(void)
 void update_lore_aux(object_type *o_ptr)
 {
 	// identify seen items with Lore-Master
-	if (!object_known_p(o_ptr) && p_ptr->active_ability[S_PER][PER_LORE2])
+	if (!object_known_p(o_ptr) && p_ptr->active_ability[S_PER][PER_LORE2] &&
+        (o_ptr->tval != TV_CHEST))
 	{
 		ident(o_ptr);
 	}
@@ -2837,7 +2879,7 @@ void update_lore_aux(object_type *o_ptr)
 				a_ptr->found_num = 1;
 				
 				// gain experience for identification
-				new_exp = 200;
+				new_exp = 100;
 				gain_exp(new_exp);
 				p_ptr->ident_exp += new_exp;
 				
@@ -2974,18 +3016,6 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_UPDATE_VIEW);
 		update_view();
-	}
-
-	if (p_ptr->update & (PU_NOISE_STRONG))
-	{
-		p_ptr->update &= ~(PU_NOISE_STRONG);
-		update_noise(p_ptr->py, p_ptr->px, FLOW_PASS_DOORS);
-
-	}
-	if (p_ptr->update & (PU_NOISE_WEAK))
-	{
-		p_ptr->update &= ~(PU_NOISE_WEAK);
-		update_noise(p_ptr->py, p_ptr->px, FLOW_NO_DOORS);
 	}
 
 	if (p_ptr->update & (PU_DISTANCE))
@@ -3190,6 +3220,12 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_SPEED);
 		prt_speed();
+	}
+    
+	if (p_ptr->redraw & (PR_TERRAIN))
+	{
+		p_ptr->redraw &= ~(PR_TERRAIN);
+        prt_terrain();
 	}
 }
 

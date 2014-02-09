@@ -114,21 +114,21 @@ const byte chest_traps[25+1] =
 	0,
 	(CHEST_NEEDLE_ENTRANCE),
 	(CHEST_NEEDLE_ENTRANCE),
-	(CHEST_FLAME),
-	0,
-	(CHEST_FLAME),
-	(CHEST_NEEDLE_HALLU),
 	(CHEST_NEEDLE_HALLU),
 	0,
+	(CHEST_NEEDLE_HALLU),
 	(CHEST_NEEDLE_LOSE_STR),
 	(CHEST_NEEDLE_LOSE_STR),
+	0,
+	(CHEST_GAS_CONF | CHEST_NEEDLE_HALLU),
+	(CHEST_GAS_CONF | CHEST_NEEDLE_HALLU),
+	(CHEST_GAS_STUN | CHEST_NEEDLE_LOSE_STR),
+	0,
+	(CHEST_GAS_STUN | CHEST_NEEDLE_LOSE_STR),
+	(CHEST_GAS_POISON | CHEST_NEEDLE_ENTRANCE),
 	(CHEST_GAS_POISON | CHEST_NEEDLE_ENTRANCE),
 	0,
-	(CHEST_GAS_POISON | CHEST_NEEDLE_ENTRANCE),
-	(CHEST_GAS_STUN | CHEST_NEEDLE_LOSE_STR),
-	(CHEST_GAS_STUN | CHEST_NEEDLE_LOSE_STR),
-	0,
-	(CHEST_FLAME | CHEST_NEEDLE_LOSE_STR),			/* 25 == best */
+	(CHEST_GAS_POISON | CHEST_NEEDLE_ENTRANCE),			/* 25 == best */
 };
 
 
@@ -269,10 +269,10 @@ cptr option_text[OPT_MAX] =
 	"hjkl_movement",			/* OPT_hjkl_movement */
 	"quick_messages",			/* OPT_quick_messages */
 	"angband_keyset",			/* OPT_angband_keyset */
-	"carry_query",				/* OPT_carry_query */
+	NULL,                       /* xxx carry_query */
 	"stop_singing_on_rest",		/* OPT_stop_singing_on_rest */
-	"always_pickup",			/* OPT_always_pickup */
-	NULL,						/* xxx always_repeat */
+	NULL,                       /* xxx always_pickup */
+	"forgo_attacking_unwary",	/* OPT_forgo_attacking_unwary */
 	NULL,						/* xxx depth_in_feet */
 	NULL,						/* xxx stack_force_notes */
 	NULL,						/* xxx stack_force_costs */
@@ -530,21 +530,21 @@ cptr option_text[OPT_MAX] =
  */
 cptr option_desc[OPT_MAX] =
 {
-	"Move with hjkl etc. (use ^ for underlying keys)",		/* OPT_hjkl_movement */
+	"Move with hjkl etc. (use ^ for underlying keys)",	/* OPT_hjkl_movement */
 	"Dismiss '-more-' and 'y/n' prompts with any key",	/* OPT_quick_messages */
 	"Use a keyset more closely based on Angband",		/* OPT_angband_keyset */
-	"Prompt before picking things up",			/* OPT_carry_query */
-	"Stop singing when you use the rest command",	/* OPT_stop_singing_on_rest */
-	"Pick things up by default",				/* OPT_always_pickup */
-	NULL,										/* xxx always_repeat */
-	NULL,										/* xxx depth_in_feet */
-	NULL,										/* xxx stack_force_notes */
-	NULL,										/* xxx stack_force_costs */
-	NULL,										/* xxx show_labels */
-	NULL,										/* xxx show_weights */
-	NULL,										/* xxx show_choices */
-	NULL,										/* xxx show_details */
-	"Audible beep (on errors/warnings)",		/* OPT_system_beep */
+	NULL,                                               /* xxx carry_query */
+	"Stop singing when you use the rest command",       /* OPT_stop_singing_on_rest */
+	NULL,                                               /* xxx always_pickup */
+	"Forgo bonus attacks on non-alert enemies",         /* OPT_forgo_attacking_unwary */
+	NULL,                                               /* xxx depth_in_feet */
+	NULL,												/* xxx stack_force_notes */
+	NULL,												/* xxx stack_force_costs */
+	NULL,												/* xxx show_labels */
+	NULL,												/* xxx show_weights */
+	NULL,												/* xxx show_choices */
+	NULL,												/* xxx show_details */
+	"Audible beep (on errors/warnings)",				/* OPT_system_beep */
 	NULL,										/* xxx show_flacors */
 	NULL,										/* xxx run_ignore_stairs */
 	NULL,										/* xxx run_ignore_doors */
@@ -797,10 +797,10 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_hjkl_movement */
 	TRUE,		/* OPT_quick_messages */
 	FALSE,		/* OPT_angband_keyset */
-	FALSE,		/* OPT_carry_query */
+	FALSE,		/* xxx carry_query */
 	TRUE,		/* OPT_stop_singing_on_rest */
-	FALSE,		/* OPT_always_pickup */
-	FALSE,		/* xxx always_repeat */
+	FALSE,		/* xxx always_pickup */
+	TRUE,		/* OPT_forgo_attacking_unwary */
 	FALSE,		/* xxx depth_in_feet */
 	FALSE,		/* xxx stack_force_notes */
 	FALSE,		/* xxx stack_force_costs */
@@ -1061,8 +1061,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** User-Interface ***/
 
 	{
-		OPT_always_pickup,
-		OPT_carry_query,
+		OPT_forgo_attacking_unwary,
 		OPT_stop_singing_on_rest,
 		OPT_system_beep,
 		OPT_quick_messages,
@@ -1071,6 +1070,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_hjkl_movement,
 		OPT_angband_keyset,
 		OPT_hitpoint_warning,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -1257,50 +1257,46 @@ cptr inscrip_text[MAX_INSCRIP] =
  * First column is Mana Cost
  * Second column is number of sides of damage
  * Third column is Optimal Ranges for various spells.
- *   6 is optimal for Breath Weapons, Beams, and Arcs.
- *   3 is hard maximum for Lash/Spit.
- *   0 indicates no range limitation for other spells.
- *
- *   This range is considered a preference if d_range in spell_desire is > 0.
- *   It is a hard limit if d_range = 0.
+ *   - the degree of preference for a range is given in the next table
  */
 
 // {Mana_cost,  dam_sides,  best_range}
 byte spell_info_RF4[32][3]=
 {
-	{ 0,     7,     4},        /* RF4_ARROW1 */
-	{ 0,    11,     4},        /* RF4_ARROW2 */
-	{ 0,     4,     4},        /* RF4_BOULDER */
-	{20,     4,     2},        /* RF4_BRTH_FIRE */
-	{20,     4,     2},        /* RF4_BRTH_COLD */
-	{20,     4,     2},        /* RF4_BRTH_POIS */
-	{20,     4,     2},        /* RF4_BRTH_DARK */
-	{20,     4,     2},        /* RF4_EARTHQUAKE */
-	{20,     0,     0},        /* RF4_SHRIEK */
-	{ 0,     1,     2},        /* RF4_SCREECH */
-	{20,     0,     0},        /* RF4_DARKNESS */
-	{20,     0,     0},        /* RF4_FORGET */
-	{20,     0,     0},        /* RF4_SCARE */
-	{20,     0,     0},        /* RF4_CONF */
-	{20,     0,     0},        /* RF4_HOLD */
+	{             0,     7,     4},        /* RF4_ARROW1 */
+	{             0,     7,     4},        /* RF4_ARROW2 */
+	{             0,     4,     4},        /* RF4_BOULDER */
+	{ MON_MANA_COST,     4,     2},        /* RF4_BRTH_FIRE */
+	{ MON_MANA_COST,     4,     2},        /* RF4_BRTH_COLD */
+	{ MON_MANA_COST,     4,     2},        /* RF4_BRTH_POIS */
+	{ MON_MANA_COST,     4,     2},        /* RF4_BRTH_DARK */
+	{ MON_MANA_COST,     4,     2},        /* RF4_EARTHQUAKE */
+	{ MON_MANA_COST,     0,     0},        /* RF4_SHRIEK */
+	{             0,     1,     2},        /* RF4_SCREECH */
+	{ MON_MANA_COST,     0,     0},        /* RF4_DARKNESS */
+	{ MON_MANA_COST,     0,     0},        /* RF4_FORGET */
+	{ MON_MANA_COST,     0,     0},        /* RF4_SCARE */
+	{ MON_MANA_COST,     0,     0},        /* RF4_CONF */
+	{ MON_MANA_COST,     0,     0},        /* RF4_HOLD */
+	{ MON_MANA_COST,     0,     0},        /* RF4_SLOW */
 	
-	{ 0,     0,     0},        /* RF4_XXX16 */
-	{ 0,     0,     0},        /* RF4_XXX17 */
-	{ 0,     0,     0},        /* RF4_XXX18 */
-	{ 0,     0,     0},        /* RF4_XXX19 */
-	{ 0,     0,     0},        /* RF4_XXX20 */
-	{ 0,     0,     0},        /* RF4_XXX21 */
-	{ 0,     0,     0},        /* RF4_XXX22 */
-	{ 0,     0,     0},        /* RF4_XXX23 */
-	{ 0,     0,     0},        /* RF4_XXX24 */
-	{ 0,     0,     0},        /* RF4_XXX25 */
-	{ 0,     0,     0},        /* RF4_XXX26 */
-	{ 0,     0,     0},        /* RF4_XXX27 */
-	{ 0,     0,     0},        /* RF4_XXX28 */
-	{ 0,     0,     0},        /* RF4_XXX29 */
-	{ 0,     0,     0},        /* RF4_XXX30 */
-	{ 0,     0,     0},        /* RF4_XXX31 */
-	{ 0,     0,     0}         /* RF4_XXX32 */
+	{ MON_MANA_COST,     0,     0},        /* RF4_SNG_BINDING */
+	{ MON_MANA_COST,     0,     0},        /* RF4_SNG_PIERCING */
+    { MON_MANA_COST,     0,     0},        /* RF4_SNG_OATHS */
+    
+	{             0,     0,     0},        /* RF4_XXX20 */
+	{             0,     0,     0},        /* RF4_XXX21 */
+	{             0,     0,     0},        /* RF4_XXX22 */
+	{             0,     0,     0},        /* RF4_XXX23 */
+	{             0,     0,     0},        /* RF4_XXX24 */
+	{             0,     0,     0},        /* RF4_XXX25 */
+	{             0,     0,     0},        /* RF4_XXX26 */
+	{             0,     0,     0},        /* RF4_XXX27 */
+	{             0,     0,     0},        /* RF4_XXX28 */
+	{             0,     0,     0},        /* RF4_XXX29 */
+	{             0,     0,     0},        /* RF4_XXX30 */
+	{             0,     0,     0},        /* RF4_XXX31 */
+	{             0,     0,     0}         /* RF4_XXX32 */
 };	
 
 
@@ -1309,7 +1305,7 @@ byte spell_info_RF4[32][3]=
  * usefulness past range:   % of spell desirability retained for each step past 'range'
  */
 
-byte spell_desire_RF4[32][3] =
+byte spell_desire_RF4[32][2] =
 {
 /*  { desirability,  usefulness past range }  */
 	{ 100,  100}, /* RF4_ARROW1	    */
@@ -1327,11 +1323,12 @@ byte spell_desire_RF4[32][3] =
 	{  50,  100}, /* RF4_SCARE	 */
 	{  50,  100}, /* RF4_CONF	  */
 	{  50,  100}, /* RF4_HOLD	*/
+	{  50,  100}, /* RF4_SLOW	*/
 	
-	{ 0,   100}, /* RF4_XXX16 */
-	{ 0,   100}, /* RF4_XXX17 */
-	{ 0,   100}, /* RF4_XXX18 */
-	{ 0,   100}, /* RF4_XXX19 */
+	{  50,  100}, /* RF4_SNG_BINDING */
+	{   0,    0}, /* RF4_SNG_PIERCING */
+	{  50,  100}, /* RF4_SNG_OATHS */
+    
 	{ 0,   100}, /* RF4_XXX20 */
 	{ 0,   100}, /* RF4_XXX21 */
 	{ 0,   100}, /* RF4_XXX22 */

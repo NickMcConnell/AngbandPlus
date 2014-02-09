@@ -119,7 +119,6 @@ struct maxima
 	u16b q_max;				/* Max size for "q_info[]" */
 	u16b flavor_max;		/* Max size for "flavor_info[]" */
 	u16b o_max;				/* Max size for "o_list[]" */
-	u16b m_max;				/* Max size for "mon_list[]" */
 	u16b ghost_other_max;	/* Max maintainer player ghost templates */
 	u16b art_spec_max;		/* Max number of special artefacts */
 	u16b art_norm_max;		/* Max number for normal artefacts (special - normal) */
@@ -388,7 +387,6 @@ struct monster_race
 	s16b extra;				/* Unused (for now) */
 
 	byte freq_ranged;		/* Ranged attack frequency */
-	byte mana;				/* Max mana */
 	byte spell_power;		/* Power of (damage-dealing) spells */
 	u32b mon_power;        	/* Monster Power Rating */
 
@@ -609,16 +607,19 @@ struct monster_type
 	byte target_y;		/* Monster target */
 	byte target_x;
 	
-	byte wandering_idx;	/* Where the monster is wandering while unwary (if anywhere) */
+	s16b wandering_idx;	/* Where the monster is wandering while unwary (if anywhere) */
 	byte wandering_dist;/* The distance to the destination */
 
 	byte min_range;		/* What is the closest we want to be? */  /* Not saved */
 	byte best_range;	/* How close do we want to be? */  /* Not saved */
 
 	byte mana;          /* Current mana level */
+    byte song;          /* Current song */
 
-	s16b mimic_k_idx;	/* type of mimic code */
-
+    s16b consecutive_attacks;               /* How many times it has attacked the player in a row immediately prior to now */
+    s16b turns_stationary;                  /* How many times it has stayed still in a row immediately prior to now */
+    byte previous_action[ACTION_MAX];       /* What the monster did on its previous turns */
+    
 };
 
 
@@ -893,6 +894,7 @@ struct player_type
 	u16b forge_count;	/* The number of forges that have been generated */
 
 	byte stealth_mode;	/* Stealth mode */
+	byte climbing;      /* The player is climbing over a chasm */
 
 	byte self_made_arts;	/* Number of self-made artefacts so far */
 
@@ -930,9 +932,12 @@ struct player_type
 
 	/*** Temporary fields ***/
 	
+	bool leaping;           // the player is currently in the air
+
 	byte ripostes;			// number of ripostes since your last turn (should have a max of one)
 
 	byte was_entranced;		// stores whether you have just woken up from entrancement
+	byte skip_next_turn;	// stores whether you need to skip your next turn
 
 	byte have_ability[S_MAX][ABILITIES_MAX];	/* Whether or not you have each ability (including from items) */
 
@@ -970,6 +975,7 @@ struct player_type
 	s16b resting;			/* Resting counter */
 	s16b smithing;			/* Smithing counter */
 	s16b running;			/* Running counter */
+	bool automaton;         /* Player is AI controlled? */
 
 	s16b run_cur_dir;		/* Direction we are running */
 	s16b run_old_dir;		/* Direction we came from */
@@ -1020,26 +1026,26 @@ struct player_type
 	int resist_fire;	/* Resist fire */
 	int resist_pois;	/* Resist poison */
 
-	bool resist_fear;	/* Resist fear */
-	bool resist_blind;	/* Resist blindness */
-	bool resist_confu;	/* Resist confusion */
-	bool resist_stun;	/* Resist stunning */
-	bool resist_hallu;	/* Resist hallucination */
+	int resist_fear;	/* Resist fear */
+	int resist_blind;	/* Resist blindness */
+	int resist_confu;	/* Resist confusion */
+	int resist_stun;	/* Resist stunning */
+	int resist_hallu;	/* Resist hallucination */
 
-	bool sustain_str;	/* Keep strength */
-	bool sustain_dex;	/* Keep dexterity */
-	bool sustain_con;	/* Keep constitution */
-	bool sustain_gra;	/* Keep grace */
+	int sustain_str;	/* Keep strength */
+	int sustain_dex;	/* Keep dexterity */
+	int sustain_con;	/* Keep constitution */
+	int sustain_gra;	/* Keep grace */
 
-	bool regenerate;	/* Regeneration */
-	bool telepathy;		/* Telepathy */
-	bool see_inv;		/* See invisible */
-	bool free_act;		/* Free action */
+	int regenerate;     /* Regeneration */
+	int telepathy;		/* Telepathy */
+	int see_inv;		/* See invisible */
+	int free_act;		/* Free action */
 
-	s16b danger;		/* Dangerous monster creation */
-	s16b aggravate;		/* Aggravate monsters */
-	s16b cowardice;		/* Occasionally become afraid on taking damage */
-	s16b haunted;		/* Occasionally attract wraiths to your level */
+	int danger;		/* Dangerous monster creation */
+	int aggravate;		/* Aggravate monsters */
+	int cowardice;		/* Occasionally become afraid on taking damage */
+	int haunted;		/* Occasionally attract wraiths to your level */
 
 	s16b to_mdd;		/* Bonus to melee damage dice */
 	s16b mdd;			/* Total melee damage dice */

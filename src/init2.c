@@ -270,6 +270,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"invalid number of items (0-99)",
 	"too many entries",
 	"vault too big",
+	"vault not rectangular (check spaces at end of line?)",
 	NULL,
 };
 
@@ -1098,12 +1099,6 @@ extern void re_init_some_things(void)
 	FREE(cave_when);
 	C_MAKE(cave_when, MAX_DUNGEON_HGT, byte_wid);
 
-	/*start with cost at center 0*/
-	for (i = 0; i < MAX_FLOWS; i++)
-	{
-		cost_at_center[i] = 0;
-	}
-
 	/*** Prepare "vinfo" array ***/
 
 	/* Used by "update_view()" */
@@ -1118,7 +1113,7 @@ extern void re_init_some_things(void)
 
 	/* Monsters */
 	FREE(mon_list);
-	C_MAKE(mon_list, z_info->m_max, monster_type);
+	C_MAKE(mon_list, MAX_MONSTERS, monster_type);
 
 
 	/*** Prepare lore array ***/
@@ -1222,12 +1217,6 @@ static errr init_other(void)
 	/* Flow arrays */
 	C_MAKE(cave_when, MAX_DUNGEON_HGT, byte_wid);
 
-	/*start with cost at center 0*/
-	for (i = 0; i < MAX_FLOWS; i++)
-	{
-		cost_at_center[i] = 0;
-	}
-
 	/*** Prepare "vinfo" array ***/
 
 	/* Used by "update_view()" */
@@ -1240,7 +1229,7 @@ static errr init_other(void)
 	C_MAKE(o_list, z_info->o_max, object_type);
 
 	/* Monsters */
-	C_MAKE(mon_list, z_info->m_max, monster_type);
+	C_MAKE(mon_list, MAX_MONSTERS, monster_type);
 
 
 	/*** Prepare lore array ***/

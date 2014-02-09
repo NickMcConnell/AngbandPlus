@@ -142,11 +142,6 @@
 
 
 
-/*
- * OPTION: Hack -- Compile in support for "Borg mode"
- */
-/* #define ALLOW_BORG */
-
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
@@ -204,9 +199,9 @@
 #define SCORE_WIZARDS
 
 /*
- * OPTION: Allow "Borgs" to yield "high scores"
+ * OPTION: Allow "automata" to yield "high scores"
  */
-/* #define SCORE_BORGS */
+#define SCORE_AUTOMATON
 
 /*
  * OPTION: Allow "Cheaters" to yield "high scores"
@@ -413,7 +408,6 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef ALLOW_TERROR
-# undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
@@ -437,11 +431,3 @@
 #endif
 
 
-/*
- * Allow the Borg to use graphics.
- */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-#  /* define ALLOW_BORG_GRAPHICS */
-# endif /* USE_GRAPHICS */
-#endif /* ALLOW_BORG */

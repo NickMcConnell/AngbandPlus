@@ -90,7 +90,7 @@ void display_scent_map(void)
 				// do nothing
 			}
 			// ignore closed doors
-			else if (cave_closed_door(y,x))
+			else if (cave_any_closed_door_bold(y,x))
 			{
 				// do nothing
 			}
@@ -115,8 +115,9 @@ void display_noise_map(void)
 {
 	int y, x;
 	byte a;
-	int nd;
-
+	int dist;
+    int d;
+    
 	/* Redraw map */
 	prt_map();
 		
@@ -125,20 +126,42 @@ void display_noise_map(void)
 	{
 		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
-			nd = get_noise_dist(FLOW_REAL_NOISE, y, x);
-			//nd = cave_cost[FLOW_PASS_DOORS][y][x] - 100; // switch this in to see another flow
+            if (!in_bounds(y,x)) continue;
+            
+            // default to player noise (i.e. the distance from the player in terms of how much sound decays)
+			dist = flow_dist(FLOW_PLAYER_NOISE, y, x);
+            
+            // if a monster is targetted, then use a monster relevant flow
+            if (p_ptr->health_who > 0)
+            {
+                monster_type *m_ptr = &mon_list[p_ptr->health_who];
+                
+                // if it is unwary, use its distance in turns to its wandering monster destination
+                if (m_ptr->alertness < ALERTNESS_ALERT)     dist = flow_dist(m_ptr->wandering_idx, y, x);
+                
+                // otherwise, use its distance in turns to the player
+                else                                        dist = flow_dist(p_ptr->health_who, y, x);
+            }
 
-			if (nd == 0) continue;
-			else if (nd < 10) a = TERM_RED;
-			else if (nd < 20) a = TERM_L_RED;
-			else if (nd < 30) a = TERM_ORANGE;
-			else if (nd < 40) a = TERM_YELLOW;
-			else if (nd < 50) a = TERM_L_GREEN;
-			else if (nd < 60) a = TERM_GREEN;
-			else if (nd < 70) a = TERM_L_BLUE;
-			else a = TERM_BLUE;
+            if (dist <= 0) continue;
+            
+            d = (dist % 100) / 10;
+            
+            switch (d)
+            {
+                case 0: a = TERM_RED;                   break;
+                case 1: a = TERM_RED + TERM_SHADE;      break;
+                case 2: a = TERM_ORANGE;                break;
+                case 3: a = TERM_YELLOW;                break;
+                case 4: a = TERM_L_GREEN;               break;
+                case 5: a = TERM_GREEN;                 break;
+                case 6: a = TERM_L_BLUE;                break;
+                case 7: a = TERM_BLUE + TERM_SHADE;     break;
+                case 8: a = TERM_BLUE;                  break;
+                case 9: a = TERM_VIOLET + TERM_SHADE;   break;
+            }
 			
-			if (nd < NOISE_MAX_DIST)
+			if (dist < FLOW_MAX_DIST)
 			{
 				/* Display player/floors/walls */
 				if ((y == p_ptr->py) && (x == p_ptr->px))
@@ -146,7 +169,7 @@ void display_noise_map(void)
 					// do nothing
 				}
 				// ignore closed doors
-				else if (cave_closed_door(y,x))
+				else if (cave_any_closed_door_bold(y,x))
 				{
 					// do nothing
 				}
@@ -157,7 +180,7 @@ void display_noise_map(void)
 				}
 				else
 				{
-					print_rel('0' + (nd % 10), a, y, x);
+					print_rel('0' + (dist % 10), a, y, x);
 				}
 			}
 		}
@@ -197,7 +220,7 @@ static void prt_binary(u32b flags, int row, int col)
 static void do_cmd_wiz_bamf(void)
 {
 	/* Must have a target */
-	if (target_okay())
+	if (target_okay(0))
 	{
 		/* Teleport to the target */
 		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
@@ -437,7 +460,7 @@ static const tval_desc tvals[] =
 	{ TV_RING,              "Ring"                 },
 	{ TV_AMULET,            "Amulet"               },
 	{ TV_LIGHT,             "Light"                },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ TV_SOFT_ARMOR,        "Soft Armour"           },
 	{ TV_MAIL,				"Mail"                 },
 	{ TV_CLOAK,             "Cloak"                },
 	{ TV_SHIELD,            "Shield"               },
@@ -448,7 +471,7 @@ static const tval_desc tvals[] =
 	{ TV_FOOD,              "Food"                 },
 	{ TV_POTION,            "Potion"               },
 	{ TV_STAFF,             "Staff"                },
-	{ TV_TRUMPET,           "Trumpet"              },
+	{ TV_HORN,              "Horn"                 },
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FLASK,             "Flask"                },
 	{ TV_USELESS,           "Useless"              },
@@ -877,12 +900,6 @@ static void wiz_quantity_item(object_type *o_ptr)
 		/* Paranoia */
 		if (tmp_int < 1) tmp_int = 1;
 		if (tmp_int > 99) tmp_int = 99;
-
-		/* Adjust charge for trumpets */
-		if (o_ptr->tval == TV_TRUMPET)
-		{
-			o_ptr->pval = (o_ptr->pval / o_ptr->number) * tmp_int;
-		}
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;

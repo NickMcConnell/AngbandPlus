@@ -478,6 +478,8 @@ static errr rd_item(object_type *o_ptr)
  */
 static void rd_monster(monster_type *m_ptr)
 {
+    int i;
+    
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
@@ -502,12 +504,23 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->encountered);
 	rd_byte(&m_ptr->target_y);
 	rd_byte(&m_ptr->target_x);
-	rd_byte(&m_ptr->wandering_idx);
+	rd_s16b(&m_ptr->wandering_idx);
 	rd_byte(&m_ptr->wandering_dist);
 	rd_byte(&m_ptr->mana);
-	rd_s16b(&m_ptr->mimic_k_idx);
+	rd_byte(&m_ptr->song);
+    
+	// 2 spare bytes
+	strip_bytes(2);
+    
+	rd_s16b(&m_ptr->consecutive_attacks);
+	rd_s16b(&m_ptr->turns_stationary);
 	rd_u32b(&m_ptr->mflag);
-	
+    
+    for (i = 0; i < ACTION_MAX; i++)
+    {
+        rd_byte(&m_ptr->previous_action[i]);
+    }
+
 	// 8 spare bytes
 	strip_bytes(8);
 }
@@ -844,9 +857,10 @@ static errr rd_extra(void)
 
 	rd_byte(&p_ptr->stealth_mode);
 	rd_byte(&p_ptr->self_made_arts);
+	rd_byte(&p_ptr->climbing);
 
-	// 20 spare bytes
-	strip_bytes(20);
+	// 19 spare bytes
+	strip_bytes(19);
 
 		
 	/* Read item-quality squelch sub-menu */
@@ -1456,7 +1470,7 @@ static errr rd_dungeon(void)
 	rd_u16b(&limit);
 
 	/* Hack -- verify */
-	if (limit > z_info->m_max)
+	if (limit > MAX_MONSTERS)
 	{
 		note(format("Too many (%d) monster entries!", limit));
 		return (-1);
@@ -1510,7 +1524,7 @@ static errr rd_dungeon(void)
 		if (!o_ptr->held_m_idx) continue;
 
 		/* Verify monster index */
-		if (o_ptr->held_m_idx > z_info->m_max)
+		if (o_ptr->held_m_idx > MAX_MONSTERS)
 		{
 			note("Invalid monster index");
 			return (-1);
@@ -1527,13 +1541,13 @@ static errr rd_dungeon(void)
 	}
 
 	// dump the wandering monster information
-	for (i = FLOW_WANDERING_HEAD; i < MAX_FLOWS; i++)
+	for (i = FLOW_WANDERING_HEAD; i <= FLOW_WANDERING_TAIL; i++)
 	{
 		rd_byte(&flow_center_y[i]);
 		rd_byte(&flow_center_x[i]);
 		rd_s16b(&wandering_pause[i]);
 		
-		update_noise(flow_center_y[i], flow_center_x[i], i);
+		update_flow(flow_center_y[i], flow_center_x[i], i);
 	}
 	
 		
@@ -2074,7 +2088,7 @@ bool load_player(void)
 
 		// count the artefacts seen for the player
 		p_ptr->artefacts = artefact_count();
-
+        
 		/* Success */
 		return (TRUE);
 	}

@@ -32,8 +32,8 @@
 #define PARSE_ERROR_INVALID_ITEM_NUMBER     13
 #define PARSE_ERROR_TOO_MANY_ENTRIES        14
 #define PARSE_ERROR_VAULT_TOO_BIG           15
-/* xxx PARSE_ERROR_NON_SEQUENTIAL_QUESTS */
-#define PARSE_ERROR_MAX                     17
+#define PARSE_ERROR_VAULT_NOT_RECTANGULAR   16
+#define PARSE_ERROR_MAX                     18
 
 
 typedef struct header header;

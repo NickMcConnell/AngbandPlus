@@ -492,9 +492,13 @@ static void player_wipe(void)
 		height = p_ptr->ht;
 		weight = p_ptr->wt;
 		sprintf(history, "%s", p_ptr->history);
+        
 		for (i = 0; i < A_MAX; i++)
 		{
-			stat[i] = p_ptr->stat_base[i] - (rp_ptr->r_adj[i] + hp_ptr->h_adj[i]);
+			if (!(p_ptr->noscore & 0x0008))
+                stat[i] = p_ptr->stat_base[i] - (rp_ptr->r_adj[i] + hp_ptr->h_adj[i]);
+            else
+                stat[i] = 0;
 		}
 	}
 
@@ -1965,7 +1969,7 @@ void player_birth()
 	/* Add in "character start" information */
 	my_strcat(notes_buffer, format("%s of the %s\n", op_ptr->full_name, p_name + rp_ptr->name), sizeof(notes_buffer));
 	my_strcat(notes_buffer, format("Entered Angband on %s\n", clean_date), sizeof(notes_buffer));
-	my_strcat(notes_buffer, "\n    Turn     Depth    Note\n\n", sizeof(notes_buffer));
+	my_strcat(notes_buffer, "\n   Turn     Depth   Note\n\n", sizeof(notes_buffer));
 	
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);

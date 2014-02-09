@@ -887,7 +887,7 @@ static s32b object_value_base(const object_type *o_ptr)
 			case TV_STAFF: return (70L);
 
 			/* Un-aware Rods */
-			case TV_TRUMPET: return (90L);
+			case TV_HORN: return (90L);
 
 			/* Un-aware Rings */
 			case TV_RING: return (45L);
@@ -1218,8 +1218,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			return(FALSE);
 		}
 
-		/* Trumpets */
-		case TV_TRUMPET:
+		/* Horns */
+		case TV_HORN:
 		{
 			/* Assume okay */
 			break;
@@ -1508,10 +1508,14 @@ void object_prep(object_type *o_ptr, int k_idx)
 		{
 			o_ptr->weight = Rand_normal(k_ptr->weight, k_ptr->weight/6 + 1);
 			
-			// restrict weight to within [2/3, 3/2]
-			if (o_ptr->weight < (k_ptr->weight*2 / 3)) o_ptr->weight = k_ptr->weight*2 / 3;
-			if (o_ptr->weight > (k_ptr->weight*3 / 2)) o_ptr->weight = k_ptr->weight*3 / 2;
-			
+            // round to the nearest multiple of 0.5 lb
+            o_ptr->weight = div_round(o_ptr->weight*2, 10);
+            o_ptr->weight *= 5;
+            
+			// restrict weight to within [2/3, 3/2] of the standard
+            while (o_ptr->weight*3 < k_ptr->weight*2) o_ptr->weight += 5;
+            while (o_ptr->weight*2 > k_ptr->weight*3) o_ptr->weight -= 5;
+            
 			break;
 		}
 		default:
@@ -1606,7 +1610,7 @@ static int make_special_item(object_type *o_ptr, bool only_good)
 	if (level > 0)
 	{
 		/* Occasional "boost" */
-		if (one_in_(GREAT_OBJ))
+		if (one_in_(GREAT_SPECIAL))
 		{
 			// most of the time, choose a new deeper depth, weighted towards the current depth
 			if (level < MORGOTH_DEPTH)
@@ -1918,22 +1922,22 @@ static void charge_staff(object_type *o_ptr)
 static int choose_chest_contents(void)
 {
 	/*
-	 * chest theme # 1 is potions  (+ herbs of restoring)
-	 * chest theme # 2 is staffs
-	 * chest theme # 3 is shields
-	 * chest theme # 4 is weapons
-	 * chest theme # 5 is armor
-	 * chest theme # 6 is boots
-	 * chest theme # 7 is bow
-	 * chest theme # 8 is cloak
-	 * chest theme # 9 is gloves
-	 * chest theme #10 is edged weapons
-	 * chest theme #11 is polearms
-	 * chest theme #12 is helms and crowns
-	 * chest theme #13 is jewelry
+	 * chest theme # 2 is potions  (+ herbs of restoring)
+	 * chest theme # 3 is staffs
+	 * chest theme # 4 is shields
+	 * chest theme # 5 is weapons
+	 * chest theme # 6 is armor
+	 * chest theme # 7 is boots
+	 * chest theme # 8 is bow
+	 * chest theme # 9 is cloak
+	 * chest theme #10 is gloves
+	 * chest theme #11 is edged weapons
+	 * chest theme #12 is polearms
+	 * chest theme #13 is helms and crowns
+	 * chest theme #14 is jewellery
 	 */
 
-	return (dieroll(13));
+	return (dieroll(13) + 1);
 }
 
 /*
@@ -1951,7 +1955,7 @@ static void a_m_aux_1(object_type *o_ptr, int level)
 		o_ptr->att += 3;
 		return;	
 	}
-	
+    
 	else
 	{
 		// small chance of boosting both
@@ -2302,7 +2306,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, bool fine, bool special)
 			break;
 		}
 
-		case TV_TRUMPET:
+		case TV_HORN:
 		{
 			/* Transfer the pval. */
 			o_ptr->pval = k_ptr->pval;
@@ -2331,7 +2335,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, bool fine, bool special)
 
 			/*save the chest theme in xtra1, used in chest death*/
 			o_ptr->xtra1 = choose_chest_contents();
-
+			
 			break;
 		}
 	}
@@ -2605,7 +2609,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 				// and often come in multiples
 				if (one_in_(2))
 				{
-					o_ptr->number = rand_range(1,4);
+					o_ptr->number = rand_range(2,5);
 				}
 			}
 
@@ -3174,16 +3178,25 @@ static bool kind_is_jewelry(int k_idx)
 			return (TRUE);
 		}
 
-		/*  Rings of Speed or the Ring of Barahir are suitable for a chest */
+		/* Sceptres are suitable for a chest */
+		case TV_HAFTED:
+		{
+			if (k_ptr->sval == SV_SCEPTRE) return (TRUE);
+			return (FALSE);
+		}
+			
+		/*  Artefact rings are suitable for a chest */
 		case TV_RING:
 		{
 			if (k_ptr->sval == SV_RING_BARAHIR) return (TRUE);
+			if (k_ptr->sval == SV_RING_MELIAN) return (TRUE);
 			return (FALSE);
 		}
 
-		/*  Rings of Speed or the Ring of Barahir are suitable for a chest */
+		/*  Artefact amulets and Blessed Realm are suitable for a chest */
 		case TV_AMULET:
 		{
+			if (k_ptr->sval == SV_AMULET_TINFANG_GELION) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_NIMPHELOS) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_ELESSAR) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_DWARVES) return (TRUE);
@@ -3641,8 +3654,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 	/* Describe object */
 	object_desc(o_name, sizeof(o_name), j_ptr, FALSE, 0);
-
-
+    
 	/* Handle normal "breakage" */
 	if (!artefact_p(j_ptr) && percent_chance(chance))
 	{
@@ -3679,6 +3691,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		for (dx = -3; dx <= 3; dx++)
 		{
 			bool comb = FALSE;
+            ////int path_n;
+            ////u16b path_g[256];
+            ////int ty2, tx2; // store a copy of the target grid that can get changed by project_path()
 
 			/* Calculate actual distance */
 			d = (dy * dy) + (dx * dx);
@@ -3689,13 +3704,23 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Location */
 			ty = y + dy;
 			tx = x + dx;
+            
+            // copy of the variables
+            ////ty2 = ty;
+            ////tx2 = tx;
 
 			/* Skip illegal grids */
 			if (!in_bounds_fully(ty, tx)) continue;
 
 			/* Require line of sight */
 			if (!los(y, x, ty, tx)) continue;
-
+            
+            /* Calculate the path */
+            ////path_n = project_path(path_g, 10, p_ptr->py, p_ptr->px, &ty2, &tx2, PROJECT_NO_CHASM);
+            
+            // if there was a chasm in the way, skip this spot
+            ////if ((ty != ty2) || (tx != tx2)) continue;
+            
 			/* Require floor space */
 			if (cave_feat[ty][tx] != FEAT_FLOOR) continue;
 
@@ -3964,9 +3989,13 @@ void place_trap(int y, int x)
 			}
 			case FEAT_TRAP_GAS_MEMORY:
 			{
-				// 14-
-				if (p_ptr->depth < 14) continue;
-				break;
+                // removed these for now due to player frustration
+                continue;
+                
+ 				// 14-
+               
+				//if (p_ptr->depth < 14) continue;
+				//break;
 			}
 			case FEAT_TRAP_ALARM:
 			{
@@ -4399,7 +4428,7 @@ void floor_item_charges(int item)
 
 
 /*
- * Describe an item in the inventory.
+ * Describe an item on the floor.
  */
 void floor_item_describe(int item)
 {

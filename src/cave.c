@@ -648,10 +648,7 @@ bool feat_supports_lighting(int feat)
 		case FEAT_WALL_INNER:
 		case FEAT_WALL_OUTER:
 		case FEAT_WALL_SOLID:
-		case FEAT_PERM_EXTRA:
-		case FEAT_PERM_INNER:
-		case FEAT_PERM_OUTER:
-		case FEAT_PERM_SOLID:
+		case FEAT_WALL_PERM:
 			return TRUE;
 		default:
 			return FALSE;
@@ -663,18 +660,19 @@ static byte darken(byte a, byte c)
 	// don't darken the symbols for traps
 	if (c == '^') return (a);
 
-	if (a == TERM_WHITE)    return (TERM_SLATE);
-	if (a == TERM_L_WHITE)  return (TERM_L_DARK);
-	if (a == TERM_SLATE)    return (TERM_L_DARK);
-	if (a == TERM_L_UMBER)  return (TERM_UMBER);
-	if (a == TERM_L_BLUE)   return (TERM_BLUE);
-	if (a == TERM_L_GREEN)  return (TERM_GREEN);
-	if (a == TERM_L_WHITE + 16)  return (TERM_L_DARK + 16);
+	if (a == TERM_WHITE)                    return (TERM_SLATE);
+	if (a == TERM_L_WHITE)                  return (TERM_L_DARK);
+	if (a == TERM_SLATE)                    return (TERM_L_DARK);
+	if (a == TERM_L_DARK)                   return (TERM_DARK + TERM_SHADE);
+	if (a == TERM_L_UMBER)                  return (TERM_UMBER);
+	if (a == TERM_L_BLUE)                   return (TERM_BLUE);
+	if (a == TERM_L_GREEN)                  return (TERM_GREEN);
+	if (a == TERM_L_WHITE + TERM_SHADE)     return (TERM_L_DARK + TERM_SHADE);
 	
 	return (a);
 }
 
-static void special_lighting_floor(byte *a, char *c, int info)
+static void special_lighting_floor(byte *a, char *c, int info, int light)
 {
 	/* Handle "seen" grids */
 	if (info & (CAVE_SEEN))
@@ -683,15 +681,15 @@ static void special_lighting_floor(byte *a, char *c, int info)
 	}
 	
 	/* Handle "dark" grids and "blindness" */
-	else if ((p_ptr->blind) || (!(info & (CAVE_GLOW))))
+	else if (p_ptr->blind || (light <= 0))
 	{
 		/* Use a dark tile */
 		switch (use_graphics)
 		{
 			case GRAPHICS_NONE:
 			case GRAPHICS_PSEUDO:
-				/* darken the colour */
-				*a = darken(*a,*c);
+				/* special darkening */
+				*a = TERM_DARK + TERM_SHADE;
 				break;
 			case GRAPHICS_ADAM_BOLT:
 			case GRAPHICS_DAVID_GERVAIS:
@@ -830,11 +828,6 @@ static void special_lighting_wall(byte *a, char *c, int feat, int info)
  * used to provide "special" attr/char codes, with "monster zero" being
  * used for the player attr/char, "object zero" being used for the "pile"
  * attr/char, and "feature zero" being used for the "darkness" attr/char.
- *
- * Note that eventually we may want to use the "&" symbol for embedded
- * treasure, and use the "*" symbol to indicate multiple objects, but
- * currently, we simply use the attr/char of the first "marked" object
- * in the stack, if any, and so "object zero" is unused.  XXX XXX XXX
  *
  * Note the assumption that doing "x_ptr = &x_info[x]" plus a few of
  * "x_ptr->xxx", is quicker than "x_info[x].xxx", even if "x" is a fixed
@@ -975,8 +968,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		/* Normal char */
 		c = f_ptr->x_char;
 	}
+    
 	/* Hack -- rare random hallucination on non-outer walls */
-	else if ((image) && (feat < FEAT_PERM_SOLID) && (image_count-- <= 0))
+	else if ((image) && (feat < FEAT_WALL_PERM) && (image_count-- <= 0))
 	{
 		int i;
 
@@ -991,6 +985,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			c = PICT_C(i);
 		}
 	}
+    
+    // hiding squares out of line of sight during rage
 	else if (hide_square)
 	{
 		/* Get the darkness feature */
@@ -1002,6 +998,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		/* Normal char */
 		c = f_ptr->x_char;
 	}
+    
 	/* Boring grids (floors, etc) */
 	else if (cave_floorlike_bold(y,x))
 	{
@@ -1019,7 +1016,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			c = f_ptr->x_char;
 
 			/* Special lighting effects */
-			special_lighting_floor(&a, &c, info);
+			special_lighting_floor(&a, &c, info, cave_light[y][x]);
 		}
 
 		/* Unknown */
@@ -1124,11 +1121,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	if ((m_idx > 0) && !hide_square)
 	{
 		monster_type *m_ptr = &mon_list[m_idx];
+        monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Visible monster*/
 		if (m_ptr->ml)
 		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			byte da;
 			char dc;
@@ -1144,17 +1141,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 			/* Desired char */
 			dc = r_ptr->x_char;
-
-			/*make mimics look like an object*/
-			if (m_ptr->mimic_k_idx)
-			{
-				/* Normal attr */
-				da = object_type_attr(m_ptr->mimic_k_idx);
-
-				/* Normal char */
-				dc = object_type_char(m_ptr->mimic_k_idx);
-
-			}
 
 			/* Special attr/char codes */
 			if ((da & 0x80) && (dc & 0x80))
@@ -1311,7 +1297,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	info = cave_info[y][x];
 
 	/* Hack -- rare random hallucination on non-outer walls */
-	if ((image) && (feat < FEAT_PERM_SOLID) && (image_count-- <= 0))
+	if ((image) && (feat < FEAT_WALL_PERM) && (image_count-- <= 0))
 	{
 		int i = image_random();
 
@@ -1714,7 +1700,7 @@ void print_rel(char c, byte a, int y, int x)
  *
  * Note that the memorization of objects is completely separate from the
  * memorization of terrain features, preventing annoying floor memorization
-  * when a detected object is picked up from a dark floor, and object
+ * when a detected object is picked up from a dark floor, and object
  * memorization when an object is dropped into a floor grid which is
  * memorized but out-of-sight.
  *
@@ -2067,8 +2053,8 @@ void display_map(int *cy, int *cx)
 				/* Sil-y: this may need some tweaking */
 				tp = MAX(20, (int)r_ptr->level - p_ptr->depth + 20);
 
-				/* Ignore invisible monsters and mimics*/
-				if ((!m_ptr->ml) || (m_ptr->mimic_k_idx)) tp = 20;
+				/* Ignore invisible monsters */
+				if (!m_ptr->ml) tp = 20;
 			}
 
 			/* Save "best" */
@@ -2937,8 +2923,7 @@ void update_view(void)
 	int player_light = p_ptr->cur_light;
 	int player_rad = ABS(player_light);
 
-	/*used for monster lite patch*/
-	int fy,fx,k;
+	int fy, fx, k;
 
 	int fast_view_n = view_n;
 	u16b *fast_view_g = view_g;
@@ -2950,11 +2935,10 @@ void update_view(void)
 
 	u16b info;
 	
-	bool in_pit = cave_pit(p_ptr->py, p_ptr->px);
+	bool in_pit = cave_pit_bold(p_ptr->py, p_ptr->px) && !p_ptr->leaping;
 
 	/*** Step 0 -- Begin ***/
 	
-
 	/* Save the old "view" grids for later */
 	for (i = 0; i < fast_view_n; i++)
 	{
@@ -2965,7 +2949,7 @@ void update_view(void)
 		info = fast_cave_info[g];
 
 		/* Save "CAVE_SEEN" grids */
-		if (info & (CAVE_SEEN))
+        if (info & (CAVE_SEEN))
 		{
 			/* Set "CAVE_TEMP" flag */
 			info |= (CAVE_TEMP);
@@ -3281,7 +3265,7 @@ void update_view(void)
 	
 	
 	// Sil: generate darkness or light for the all the monsters
-    for ( k = 1; k < z_info->m_max; k++)
+    for ( k = 1; k < mon_max; k++) // Sil-x: changed to mon_max from z_info->m_max. I think I'm right about this
     {
         /* Check the k'th monster */
         monster_type *m_ptr = &mon_list[k];
@@ -3494,11 +3478,7 @@ void update_view(void)
 		}
     }
 	
-	
-	
-
 		
-	
 	
 	// Sil: this removes the 'seen' flag from squares that have zero or less light
 	for (i = 0; i < fast_view_n; i++)
@@ -3712,49 +3692,46 @@ void update_view(void)
 }
 
 /*
- * Determines how far a grid is from the source using the given flow
+ * Determines how far a grid is from the source using the given flow.
+ *
+ * Given some changes to the code, it is currently a rather unnecessary
+ * abstraction which could be replaced with a direct array reference if desired.
  */
-
-int get_noise_dist(byte which_flow, int y, int x)
+int flow_dist(int which_flow, int y, int x)
 {
-	int noise_dist;
+	int dist;
 	
-	noise_dist = cave_cost[which_flow][y][x] - cost_at_center[which_flow];
-	
-	if (noise_dist < 0) noise_dist = NOISE_MAX_DIST;
-	
-	return (noise_dist);
+	dist = cave_cost[which_flow][y][x];
+		
+	return (dist);
 }
 
 
 /*
- * Monsters can use the player's noise to home in on him or her.
- * 
- * There are four different noise flows that are calculated.
+ * Sil needs various 'flows', which are arrays of the same size as the map,
+ * with a number for each map square.
  *
- *   FLOW_PASS_DOORS - pathfinding for monsters that can open/bash doors
- *   FLOW_NO_DOORS   - pathfinding for other monsters
+ * One of these flows is used to represent the from the player noise at each location.
+ * Another is used to represent the noise from a particular monster.
  *
- * For the above two flows, each square gets marked with the number of steps
- * it is away from the player (taking doors into account...)
+ * 200 of them are used for alert monster pathfinding, representing the shortest route
+ * each monster could take to get to the player.
  *
- *   FLOW_REAL_NOISE - used for stealth calculations (partly damped by doors)
- *   FLOW_MON_NOISE  - used for stealth when *monsters* make the noise
+ * 100 of them are used for the pathfinding of unwary monsters who move in their
+ * initial groups to various locations around the map.
  *
- * For the above two flows, each square gets marked with it's noise value
- * which passes through closed doors, but at a penalty of 5 units.
- *
- * The flow table is three-dimensional.  The first dimension allows the
+ * There is an intermediate data-structure called the flow table, which is 3-dimensional.
+ * The first dimension allows the
  * table to both store and overwrite grids safely.  The second indicates
  * whether this value is that for x or for y.  The third is the number
  * of grids able to be stored at any flow distance.
  *
  * Note that the noise is generated around the centre cy, cx
- * This is often the player, but can be a monster (for FLOW_MON_NOISE)
+ * This is often the player, but can be a monster (for FLOW_MONSTER_NOISE)
+ *
  */
 
-
-void update_noise(int cy, int cx, byte which_flow)
+void update_flow(int cy, int cx, int which_flow)
 {
 	int cost;
 
@@ -3766,17 +3743,59 @@ void update_noise(int cy, int cx, byte which_flow)
 	/* Note where we get information from, and where we overwrite */
 	int this_cycle = 0;
 	int next_cycle = 1;
+    
+    bool monster_flow = FALSE;
+    bool bash = FALSE;
+    bool found = FALSE;
+    
+    monster_type *m_ptr = NULL; // default to soothe compiler warnings
+    monster_race *r_ptr = NULL; // default to soothe compiler warnings
 
-	byte flow_table[2][2][8 * NOISE_STRENGTH];
+	byte flow_table[2][2][8 * FLOW_MAX_DIST];
 
-	/*
-	 * Set the initial cost to 100; updates will progressively
-	 * lower this value.  When it reaches zero, another full
-	 * rebuild has to be done.
-	 */
-	cost_at_center[which_flow] = BASE_FLOW_CENTER;
+    // paranoia
+    if (which_flow == FLOW_AUTOMATON)
+    {
+        msg_debug("Tried to use update_flow() with FLOW_AUTOMATON.");
+        return;
+    }
 
-	/* Save the new noise epicenter */
+    // pull out the relevant monster info for the monster flows
+    if (which_flow < MAX_MONSTERS)
+    {
+        monster_flow = TRUE;
+        
+        m_ptr = &mon_list[which_flow];
+        r_ptr = &r_info[m_ptr->r_idx];
+    }
+    
+    // pull out the relevant monster info for the wandering monster flows
+    else if (which_flow <= FLOW_WANDERING_TAIL)
+    {
+        monster_flow = TRUE;
+        
+        // search the monsters to find one with that flow
+        for (i = 1; i < mon_max; i++)
+        {
+            m_ptr = &mon_list[i];
+            
+            // Skip dead monsters
+            if (!m_ptr->r_idx) continue;
+
+            r_ptr = &r_info[m_ptr->r_idx];
+
+            // find the first monster with this flow
+            if (m_ptr->wandering_idx == which_flow) found = TRUE;
+            
+            if (found) break;
+        }
+        
+        // stop if this is just a vestigial flow left after the monsters died
+        // (these are attempted to be reprocessed on save game load)
+        if (!found) return;
+    }
+
+	/* Save the new flow epicenter */
 	flow_center_y[which_flow] = cy;
 	flow_center_x[which_flow] = cx;
 	update_center_y[which_flow] = cy;
@@ -3787,14 +3806,14 @@ void update_noise(int cy, int cx, byte which_flow)
 	{
 		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
-			cave_cost[which_flow][y][x] = 0;
+			cave_cost[which_flow][y][x] = FLOW_MAX_DIST;
 		}
 	}
 
 	/*** Update or rebuild the flow ***/
 
 	/* Store base cost at the character location */
-	cave_cost[which_flow][cy][cx] = cost_at_center[which_flow];
+	cave_cost[which_flow][cy][cx] = 0;
 
 	/* Store this grid in the flow table, note that we've done so */
 	flow_table[this_cycle][0][0] = cy;
@@ -3802,9 +3821,7 @@ void update_noise(int cy, int cx, byte which_flow)
 	grid_count = 1;
 
 	/* Extend the noise burst out to its limits */
-	for (cost = cost_at_center[which_flow] + 1;
-		 cost <= cost_at_center[which_flow] + NOISE_STRENGTH;
-		 cost++)
+	for (cost = 1; cost <= FLOW_MAX_DIST; cost++)
 	{
 		/* Get the number of grids we'll be looking at */
 		last_index = grid_count;
@@ -3823,7 +3840,7 @@ void update_noise(int cy, int cx, byte which_flow)
 			x = flow_table[this_cycle][1][i];
 			
 			// Some grids are not ready to process immediately.
-			// For now, this is just doors, which add 5 cost to noise, 3 cost to movement.
+			// For example doors, which add 5 cost to noise, 3 cost to movement.
 			// They keep getting put back on the queue until ready.
 			if (cave_cost[which_flow][y][x] >= cost)
 			{
@@ -3841,6 +3858,8 @@ void update_noise(int cy, int cx, byte which_flow)
 				/* Look at all adjacent grids */
 				for (d = 0; d < 8; d++)
 				{
+                    int extra_cost = 0;
+                    
 					/* Child location */
 					y2 = y + ddy_ddd[d];
 					x2 = x + ddx_ddd[d];
@@ -3849,80 +3868,74 @@ void update_noise(int cy, int cx, byte which_flow)
 					if (!in_bounds(y2, x2)) continue;
 					
 					/* Ignore previously marked grids, unless this is a shorter distance */
-					if (cave_cost[which_flow][y2][x2]) continue;
-					
-					/* Ignore walls (and doors for FLOW_NO_DOORS) */
-					if (cave_info[y2][x2] & (CAVE_WALL))
-					{
-						/* most flows only ignore walls */
-						if (which_flow != FLOW_NO_DOORS)
-						{
-							if ((cave_feat[y2][x2] > FEAT_WALL_HEAD) &&
-								(cave_feat[y2][x2] <= FEAT_WALL_TAIL)) continue;
-						}
-						
-						/* FLOW_NO_DOORS ignores doors too */
-						else
-						{
-							if ((cave_feat[y2][x2] >= FEAT_DOOR_HEAD) &&
-								(cave_feat[y2][x2] <= FEAT_WALL_TAIL)) continue;
-						}
-					}
-					
-					// Ignore immoveable monsters for the pathfinding flows
-					if ((which_flow != FLOW_REAL_NOISE) && (which_flow != FLOW_MON_NOISE))
-					{
-						int m_idx = cave_m_idx[y2][x2];
-						
-						// if it is a monster
-						if (m_idx > 0)
-						{
-							// if it is immoveable
-							if ((&r_info[(&mon_list[cave_m_idx[y2][x2]])->r_idx])->flags1 & (RF1_NEVER_MOVE))
-							{
-								continue;
-							}
-						}
-					}
-					
-					/* Store cost at this location */
-					cave_cost[which_flow][y2][x2] = cost;
-
-					// penalize doors by 5 when calculating the real noise
-					if (((which_flow == FLOW_REAL_NOISE) || (which_flow == FLOW_MON_NOISE)) && cave_closed_door(y2,x2))
-					{
-						cave_cost[which_flow][y2][x2] += 5;
-					}
-
-					// penalize doors by 3 when calculating the pass door flow
-					if ((which_flow == FLOW_PASS_DOORS) && cave_closed_door(y2,x2))
-					{
-						cave_cost[which_flow][y2][x2] += 3;
-					}
-					
-					// penalize monsters in the way
-					if (((which_flow == FLOW_PASS_DOORS) || (which_flow == FLOW_NO_DOORS)) && (cave_m_idx[y2][x2] > 0))
-					{
-						// Sil-y:
-						// Could put something in here, but it is tricky and needs to be tested!
-						// In particular, the penalty might apply to the creature's own square
-						// Also, maybe only intelligent creatures should circle around behind...
-					}
-
-					
-					/*Monsters at this site need to re-consider their targets*/
+					if (cave_cost[which_flow][y2][x2] < FLOW_MAX_DIST) continue;
+					               
+                    // Deal with monster pathfinding
+                    if (monster_flow)
+                    {
+                        // get the percentage chance of the monster being able to move onto that square
+                        int chance = cave_passable_mon(m_ptr, y2, x2, &bash);
+                        
+                        // if there is any chance, then convert it to a number of turns
+                        if (chance > 0)
+                        {
+                            extra_cost += (100 / chance) - 1;
+                            
+                            // add an extra turn for unlocking/opening doors as this action doesn't move the monster
+                            if (cave_any_closed_door_bold(y2, x2) && !bash)
+                            {
+                                if (!((r_ptr->flags2 & (RF2_PASS_DOOR)) || (r_ptr->flags2 & (RF2_PASS_WALL))))
+                                {
+                                    extra_cost += 1;
+                                }
+                            }
+                            
+                            // add extra turn(s) for tunneling through rubble/walls as this action doesn't move the monster
+                            else if (cave_wall_bold(y2, x2) && (r_ptr->flags2 & (RF2_TUNNEL_WALL)))
+                            {
+                                if (cave_feat[y2][x2] == FEAT_RUBBLE)   extra_cost += 1; // an extra turn to dig through
+                                else                                    extra_cost += 2; // two extra turns to dig through granite/quartz
+                            }
+                            
+                            else if (cave_wall_bold(y2, x2) && (r_ptr->flags2 & (RF2_KILL_WALL)))
+                            {
+                                extra_cost += 1; // pretend it would take an extra turn (to prefer routes with less wall destruction
+                            }
+                        }
+                        
+                        // if there is no chance, just skip this square
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    
+                    // Deal with noise flows
+                    else
+                    {
+                        // ignore walls
+                        if (cave_wall_bold(y2,x2) && (cave_feat[y2][x2] != FEAT_SECRET)) continue;
+ 
+                        // penalize doors by 5 when calculating the real noise
+                        if (cave_any_closed_door_bold(y2,x2))
+                        {                                    
+                            extra_cost += 5;
+                        }
+                    }
+										
+					/* Monsters at this site need to re-consider their targets */
+                    
 					if (cave_m_idx[y2][x2] > 0)
 					{
-						monster_type *m_ptr = &mon_list[cave_m_idx[y2][x2]];
+						monster_type *n_ptr = &mon_list[cave_m_idx[y2][x2]];
 						
-						/*always a target Y for each target x*/
-						if (m_ptr->target_x)
-						{
-							/*We need to re-evaluate target*/
-							m_ptr->target_x = m_ptr->target_y = 0;
-						}
+                        n_ptr->target_x = 0;
+                        n_ptr->target_y = 0;
 					}
-					
+
+                    /* Store cost at this location */
+					cave_cost[which_flow][y2][x2] = cost + extra_cost;
+
 					/* Store this grid in the flow table */
 					flow_table[next_cycle][0][grid_count] = y2;
 					flow_table[next_cycle][1][grid_count] = x2;
@@ -4056,17 +4069,17 @@ void map_area(void)
 			{
 				/* All non-walls are "checked", including rubble */
 				if ((cave_feat[y][x] < FEAT_WALL_HEAD) ||
-					(cave_stair_bold(y,x)) || (cave_feat[y][x] == FEAT_RUBBLE) || cave_forge_bold(y,x))
+					(cave_stair_bold(y,x)) || (cave_feat[y][x] == FEAT_RUBBLE) || cave_forge_bold(y,x) || (cave_feat[y][x] == FEAT_CHASM)) 
 				{
 					/* Memorize normal features */
 					if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) ||
-						(cave_stair_bold(y,x)) || (cave_feat[y][x] == FEAT_RUBBLE) || cave_forge_bold(y,x))
+						(cave_stair_bold(y,x)) || (cave_feat[y][x] == FEAT_RUBBLE) || cave_forge_bold(y,x) || (cave_feat[y][x] == FEAT_CHASM))
 					{
-						/* Memorize the object */
+						/* Memorize the feature */
 						cave_info[y][x] |= (CAVE_MARK);
 					}
 					
-					/* Memorize known walls */
+					/* Memorize adjacent walls */
 					for (i = 0; i < 8; i++)
 					{
 						int yy = y + ddy_ddd[i];
@@ -4157,7 +4170,7 @@ void wiz_light(void)
 
 
 /*
- * Forget the dungeon map (ala "Thinking of Maud...").
+ * Forget the dungeon map (a la "Thinking of Maud...").
  */
 void wiz_dark(void)
 {
@@ -4192,6 +4205,21 @@ void wiz_dark(void)
 
 		/* Forget the object */
 		o_ptr->marked = FALSE;
+	}
+
+	/* Process monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		
+        // unmoving mindless monsters need to be forgotten too
+        if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) && (r_ptr->flags2 & (RF2_MINDLESS)) && m_ptr->encountered)
+        {
+            // Sil-y: this is a bit of a hack as it means you can get the experience for seeing them again
+            // but it will only be at most an extra 50 experience per game, more likely about 10
+            m_ptr->encountered = FALSE;
+        }
 	}
 
 	/* Fully update the visuals */
@@ -4269,25 +4297,13 @@ void gates_illuminate(bool daytime)
 void cave_set_feat(int y, int x, int feat)
 {
 
-	if ((cave_feat[y][x] > FEAT_DOOR_HEAD)  &&
-		(cave_feat[y][x] <= FEAT_WALL_TAIL))
-	{
-		/* Update the visuals, and door code */
-		p_ptr->update |= (PU_NOISE_STRONG | PU_NOISE_WEAK);
-	}
-
 	/* Change the feature */
 	cave_feat[y][x] = feat;
 
-	/* Handle "wall/door" grids
-	 *Hack - monster traps have a hihger number than walls
-	 */
+	/* Handle "wall/door" grids */
 	if ((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_WALL_TAIL))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
-
-		/* Update the visuals, and door code */
-		p_ptr->update |= (PU_NOISE_STRONG | PU_NOISE_WEAK);
 	}
 
 	/* Handle "floor"/etc grids */
@@ -4622,6 +4638,19 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 				bits3 &= ~(p->bits_3);
 			}
 		}
+        
+        /*
+         * Handle chasms if they are designated to block the line
+         */
+		if ((flg & (PROJECT_NO_CHASM)) && (cave_feat[y][x] & (FEAT_CHASM)))
+		{
+            /* Clear any lines of sight passing through this grid */
+            bits0 &= ~(p->bits_0);
+            bits1 &= ~(p->bits_1);
+            bits2 &= ~(p->bits_2);
+            bits3 &= ~(p->bits_3);
+		}
+        
 	}
 
 	/* Scan the grids along the line(s) of fire */
@@ -4975,6 +5004,9 @@ void monster_race_track(int r_idx)
 {
 	// don't track when hallucinating
 	if (p_ptr->image) return;
+
+    // don't track when raging
+	if (p_ptr->rage) return;
 
 	/* Save this monster ID */
 	p_ptr->monster_race_idx = r_idx;

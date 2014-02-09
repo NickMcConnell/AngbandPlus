@@ -125,15 +125,15 @@ static cptr desc_stat_neg[] =
  */
 bool do_dec_stat(int stat, monster_type *m_ptr)
 {
-	bool resistance = FALSE;
+	bool resistance = FALSE; // default to soothe compiler warnings
 	
 	/* Get the "sustain" */
 	switch (stat)
 	{
-		case A_STR: if (p_ptr->sustain_str || p_ptr->tmp_str) resistance = TRUE; break;
-		case A_DEX: if (p_ptr->sustain_dex || p_ptr->tmp_dex) resistance = TRUE; break;
-		case A_CON: if (p_ptr->sustain_con || p_ptr->tmp_con) resistance = TRUE; break;
-		case A_GRA: if (p_ptr->sustain_gra || p_ptr->tmp_gra) resistance = TRUE; break;
+		case A_STR: resistance = p_ptr->sustain_str; break;
+		case A_DEX: resistance = p_ptr->sustain_dex; break;
+		case A_CON: resistance = p_ptr->sustain_con; break;
+		case A_GRA: resistance = p_ptr->sustain_gra; break;
 	}
 
 	/* Saving throw */
@@ -370,20 +370,40 @@ bool remove_curse(bool star_curse)
 void self_knowledge(void)
 {
 	int i = 0, j, k;
-	int abilities = 0;
 	
 	u32b f1 = 0L, f2 = 0L, f3 = 0L;
 
 	object_type *o_ptr;
 
-	char buf[10][80];
-	cptr info[128];
-	char tmp1[80];
-	char tmp2[80];
-		
-	int resistance;
+	char s[100][80];
+	char t[100][80];
+    bool good[100];
+    
+    bool identify[INVEN_TOTAL];
+    
+    int level;
+    
+    int light = 0;
+    int mel = 0;
+    int arc = 0;
+    int stl = 0;
 
-
+    // initialise the arrays
+    for (i = 0; i < 100; i++)
+    {
+        s[i][0] = '\0';
+        t[i][0] = '\0';
+    }
+    
+    // initialise the identification array
+    for (i = 0; i < INVEN_TOTAL; i++)
+    {
+        identify[i] = FALSE;
+    }
+    
+    // reinitialise index i
+    i = 0;
+    
 	/* Get item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
@@ -401,318 +421,418 @@ void self_knowledge(void)
 		f1 |= t1;
 		f2 |= t2;
 		f3 |= t3;
+        
+        if (t2 & (TR2_LIGHT)) light++;
+        if (t2 & (TR2_DARKNESS)) light--;
+        
+        if (t1 & (TR1_MEL)) mel += o_ptr->pval;
+        if (t1 & (TR1_ARC)) arc += o_ptr->pval;
+        if (t1 & (TR1_STL)) stl += o_ptr->pval;
 	}
 
 
 	if (p_ptr->pspeed < 2)
 	{
-		info[i++] = "You are moving slowly.";
+        strnfmt(s[i], 80, "You are moving slowly");
+        strnfmt(t[i], 80, "(speed %d)", p_ptr->pspeed);
+        good[i] = FALSE;
+        i++;
 	}
 	if (p_ptr->pspeed > 2)
 	{
-		info[i++] = "You are moving quickly.";
+        strnfmt(s[i], 80, "You are moving quickly");
+        strnfmt(t[i], 80, "(speed %d)", p_ptr->pspeed);
+        good[i] = TRUE;
+        i++;
 	}
-	
-	// This is a hack, but I couldn't find a neater way...
-	switch (p_ptr->hunger)
+	if (p_ptr->stealth_mode)
 	{
-		case -5: info[i++] = "You grow hungry at only 1/243 the normal rate."; break;
-		case -4: info[i++] = "You grow hungry at only 1/81 the normal rate."; break;
-		case -3: info[i++] = "You grow hungry at only 1/27 the normal rate."; break;
-		case -2: info[i++] = "You grow hungry at only 1/9 the normal rate."; break;
-		case -1: info[i++] = "You grow hungry at only 1/3 the normal rate."; break;
-		// case 0:
-		case  1: info[i++] = "You burn with an unnatural hunger (3 times the normal rate)."; break;
-		case  2: info[i++] = "You burn with an unnatural hunger (9 times the normal rate)."; break;
-		case  3: info[i++] = "You burn with an unnatural hunger (27 times the normal rate)."; break;
-		case  4: info[i++] = "You burn with an unnatural hunger (81 times the normal rate)."; break;
-		case  5: info[i++] = "You burn with an unnatural hunger (243 times the normal rate)."; break;
+        strnfmt(s[i], 80, "You are moving carefully");
+        strnfmt(t[i], 80, "(+5 Stealth)");
+        good[i] = TRUE;
+        i++;
 	}
 	
+    if (p_ptr->hunger < 0)
+    {
+        strnfmt(s[i], 80, "You grow hungry %sslowly", (p_ptr->hunger < -1) ? "very " : "");
+        strnfmt(t[i], 80, "(1/%d the normal rate)", int_exp(3, -p_ptr->hunger));
+        good[i] = TRUE;
+        i++;
+   }
+    if (p_ptr->hunger > 0)
+    {
+        strnfmt(s[i], 80, "You burn with a%s unnatural hunger", (p_ptr->hunger > 1) ? " most" : "n");
+        strnfmt(t[i], 80, "(%d times the normal rate)", int_exp(3, p_ptr->hunger));
+        good[i] = FALSE;
+        i++;
+    }
+    
 	if (p_ptr->blind)
 	{
-		info[i++] = "You cannot see.";
-	}
-	if (p_ptr->confused)
-	{
-		info[i++] = "You are confused.";
-	}
-	if (p_ptr->afraid)
-	{
-		info[i++] = "You are terrified.";
-	}
-	if (p_ptr->cut)
-	{
-		info[i++] = "You are bleeding.";
-	}
-	if (p_ptr->stun)
-	{
-		info[i++] = "You are stunned.";
-	}
-	if (p_ptr->poisoned)
-	{
-		info[i++] = "You are poisoned.";
+        strnfmt(s[i], 80, "You cannot see");
+        i++;
 	}
 	if (p_ptr->image)
 	{
-		info[i++] = "You are hallucinating.";
+        strnfmt(s[i], 80, "You are hallucinating");
+        i++;
+	}
+	if (p_ptr->confused)
+	{
+        strnfmt(s[i], 80, "You are confused");
+        i++;
+	}
+	if (p_ptr->afraid)
+	{
+        strnfmt(s[i], 80, "You are terrified");
+        i++;
+	}
+	if (p_ptr->cut)
+	{
+        strnfmt(s[i], 80, "You are bleeding");
+        i++;
+	}
+	if (p_ptr->poisoned)
+	{
+        strnfmt(s[i], 80, "You are poisoned");
+        i++;
+	}
+	if (p_ptr->stun)
+	{
+        strnfmt(s[i], 80, "You are %sstunned", (p_ptr->stun <= 50) ? "heavily " : "");
+        strnfmt(t[i], 80, "(-%d to all skills)", (p_ptr->stun <= 50) ? 2 : 4);
+        good[i] = FALSE;
+        i++;
+	}
+
+    if (p_ptr->rage)
+	{
+        strnfmt(s[i], 80, "You are in a dark rage");
+        i++;
+	}
+	if (p_ptr->tmp_str)
+	{
+        strnfmt(s[i], 80, "You feel stronger");
+        strnfmt(t[i], 80, "(+3 Strength)");
+        good[i] = TRUE;
+        i++;
+	}
+	if (p_ptr->tmp_dex)
+	{
+        strnfmt(s[i], 80, "You feel more agile");
+        strnfmt(t[i], 80, "(+3 Dexterity)");
+        good[i] = TRUE;
+        i++;
+	}
+	if (p_ptr->tmp_con)
+	{
+        strnfmt(s[i], 80, "You feel more resilient");
+        strnfmt(t[i], 80, "(+3 Constitution)");
+        good[i] = TRUE;
+        i++;
+	}
+	if (p_ptr->tmp_gra)
+	{
+        strnfmt(s[i], 80, "You feel more attuned to the world");
+        strnfmt(t[i], 80, "(+3 Grace)");
+        good[i] = TRUE;
+        i++;
 	}
 
 	if (p_ptr->cowardice > 0)
 	{
-		info[i++] = "You occasionally become terrified in combat.";
+        strnfmt(s[i], 80, "You occasionally become terrified in combat");
+        strnfmt(t[i], 80, "(when hit for %d+ damage)", 10 / p_ptr->cowardice);
+        good[i] = FALSE;
+        i++;
 	}
-
 	if (p_ptr->haunted > 0)
 	{
-		info[i++] = "You are haunted by wraiths.";
+        strnfmt(s[i], 80, "You are %shaunted by wraiths", (p_ptr->danger > 1) ? "intensely " : "");
+        strnfmt(t[i], 80, "(%d%% chance each turn)", p_ptr->haunted);
+        good[i] = FALSE;
+        i++;
 	}
-	
-	// This is a hack, but I couldn't find a neater way...
 	if (p_ptr->danger)
 	{
-		sprintf(tmp1, "You encounter more dangerous creatures (+%d ft).", p_ptr->danger * 50);
-		info[i++] = tmp1;
+		strnfmt(s[i], 80, "You encounter %smore dangerous creatures", (p_ptr->danger > 1) ? "much " : "");
+        strnfmt(t[i], 80, "(+%d ft)", p_ptr->danger * 50);
+        good[i] = FALSE;
+        i++;
 	}
 	if (p_ptr->aggravate)
 	{		
-		if (p_ptr->aggravate == 1)
-		{
-			info[i++] = "You enrage nearby creatures.";
-		}
-		else
-		{
-			sprintf(tmp2, "You enrage nearby creatures (x%d).", p_ptr->aggravate);
-			info[i++] = tmp2;
-		}
+        strnfmt(s[i], 80, "You %senrage nearby creatures", (p_ptr->aggravate > 1) ? "greatly ": "");
+        strnfmt(t[i], 80, "(+%d to their perception)", p_ptr->aggravate * 10);
+        good[i] = FALSE;
+        i++;
 	}
-	if (p_ptr->rage)
-	{
-		info[i++] = "You are in a dark rage.";
-	}
-	if (p_ptr->tmp_str)
-	{
-		info[i++] = "You feel stronger.";
-	}
-	if (p_ptr->tmp_dex)
-	{
-		info[i++] = "You feel more agile.";
-	}
-	if (p_ptr->tmp_con)
-	{
-		info[i++] = "You feel more resilient.";
-	}
-	if (p_ptr->tmp_gra)
-	{
-		info[i++] = "You feel more attuned to the world.";
-	}
-	if (p_ptr->stealth_mode)
-	{
-		info[i++] = "You are creeping around very carefully.";
-	}
-	if (p_ptr->word_recall)
-	{
-		info[i++] = "You will soon be recalled.";
-	}
+    
 	if (p_ptr->regenerate)
 	{
-		info[i++] = "You regenerate quickly.";
+		strnfmt(s[i], 80, "You regenerate %squickly", (p_ptr->regenerate > 1) ? "very " : "");
+        strnfmt(t[i], 80, "(%d times the normal rate)", p_ptr->regenerate + 1);
+        good[i] = TRUE;
+        i++;
 	}
-	if (p_ptr->telepathy)
+    
+    level = p_ptr->see_inv * 10 + (p_ptr->active_ability[S_PER][PER_KEEN_SENSES] ? 5 : 0);
+	if (level > 0)
 	{
-		info[i++] = "You have telepathy.";
+		strnfmt(s[i], 80, "You are %sadept at locating invisible creatures", (level > 10) ? "very " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", level);
+        good[i] = TRUE;
+        i++;
 	}
-	if (p_ptr->see_inv)
-	{
-		info[i++] = "You can see invisible creatures.";
-	}
+    
 	if (p_ptr->free_act)
 	{
-		info[i++] = "Your movement is rarely hindered.";
+		strnfmt(s[i], 80, "Your movement is %srarely hindered", (p_ptr->free_act > 1) ? "very " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->free_act * 10);
+        good[i] = TRUE;
+        i++;
 	}
 
-	resistance = resist_cold();
-	if (resistance <= -4)
-	{
-		info[i++] = "You are exceptionally vulnerable to cold.";
-	}
-	else if (resistance == -3)
-	{
-		info[i++] = "You are very vulnerable to cold.";
-	}
-	else if (resistance == -2)
-	{
-		info[i++] = "You are vulnerable to cold.";
-	}
-	
-	else if (resistance == 2)
-	{
-		info[i++] = "You are resistant to cold.";
-	}
-	else if (resistance == 3)
-	{
-		info[i++] = "You are very resistant to cold.";
-	}
-	else if (resistance >= 4)
-	{
-		info[i++] = "You are exceptionally resistant to cold.";
-	}
+    
+	level = resist_cold();
+    if (level < -1)
+    {
+        strnfmt(s[i], 80, "You are %svulnerable to cold", (level < -2) ? "highly " : "");
+        strnfmt(t[i], 80, "(damage x %d)", -level);
+        good[i] = FALSE;
+        i++;
+    }
+    if (level > 1)
+    {
+        strnfmt(s[i], 80, "You are %sresistant to cold", (level > 2) ? "highly " : "");
+        strnfmt(t[i], 80, "(damage / %d)", level);
+        good[i] = TRUE;
+        i++;
+    }
+    
+	level = resist_fire();
+    if (level < -1)
+    {
+        strnfmt(s[i], 80, "You are %svulnerable to fire", (level < -2) ? "highly " : "");
+        strnfmt(t[i], 80, "(damage x %d)", -level);
+        good[i] = FALSE;
+        i++;
+    }
+    if (level > 1)
+    {
+        strnfmt(s[i], 80, "You are %sresistant to fire", (level > 2) ? "highly " : "");
+        strnfmt(t[i], 80, "(damage / %d)", level);
+        good[i] = TRUE;
+        i++;
+    }
+    
+    level = resist_pois();
+    if (level < -1)
+    {
+        strnfmt(s[i], 80, "You are %svulnerable to poison", (level < -2) ? "highly " : "");
+        strnfmt(t[i], 80, "(damage x %d)", -level);
+        good[i] = FALSE;
+        i++;
+    }
+    if (level > 1)
+    {
+        strnfmt(s[i], 80, "You are %sresistant to poison", (level > 2) ? "highly " : "");
+        strnfmt(t[i], 80, "(damage / %d)", level);
+        good[i] = TRUE;
+        i++;
+    }
 
-	resistance = resist_fire();
-	if (resistance <= -4)
-	{
-		info[i++] = "You are exceptionally vulnerable to fire.";
-	}
-	else if (resistance == -3)
-	{
-		info[i++] = "You are very vulnerable to fire.";
-	}
-	else if (resistance == -2)
-	{
-		info[i++] = "You are vulnerable to fire.";
-	}
 	
-	else if (resistance == 2)
+	if (p_ptr->resist_fear > 0)
 	{
-		info[i++] = "You are resistant to fire.";
+        strnfmt(s[i], 80, "You are %sresistant to fear", (p_ptr->resist_fear > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->resist_fear * 10);
+        good[i] = TRUE;
+        i++;
 	}
-	else if (resistance == 3)
-	{
-		info[i++] = "You are very resistant to fire.";
-	}
-	else if (resistance >= 4)
-	{
-		info[i++] = "You are exceptionally resistant to fire.";
-	}
-
-	resistance = resist_pois();
-	if (resistance <= -4)
-	{
-		info[i++] = "You are exceptionally vulnerable to poison.";
-	}
-	else if (resistance == -3)
-	{
-		info[i++] = "You are very vulnerable to poison.";
-	}
-	else if (resistance == -2)
-	{
-		info[i++] = "You are vulnerable to poison.";
-	}
-	
-	else if (resistance == 2)
-	{
-		info[i++] = "You are resistant to poison.";
-	}
-	else if (resistance == 3)
-	{
-		info[i++] = "You are very resistant to poison.";
-	}
-	else if (resistance >= 4)
-	{
-		info[i++] = "You are exceptionally resistant to poison.";
-	}
-	
-	if (p_ptr->resist_fear)
-	{
-		info[i++] = "You are fearless.";
-	}
+    
 	if (p_ptr->resist_blind)
 	{
-		info[i++] = "Your eyes are resistant to blindness.";
+        strnfmt(s[i], 80, "You are %sresistant to blindness", (p_ptr->resist_blind > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->resist_blind * 10);
+        good[i] = TRUE;
+        i++;
 	}
 	if (p_ptr->resist_confu)
 	{
-		info[i++] = "You are resistant to confusion attacks.";
+        strnfmt(s[i], 80, "You are %sresistant to confusion", (p_ptr->resist_confu > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->resist_confu * 10);
+        good[i] = TRUE;
+        i++;
 	}
 	if (p_ptr->resist_stun)
 	{
-		info[i++] = "You are resistant to stunning blows.";
+        strnfmt(s[i], 80, "You are %sresistant to stunning", (p_ptr->resist_stun > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->resist_stun * 10);
+        good[i] = TRUE;
+        i++;
 	}
 	if (p_ptr->resist_hallu)
 	{
-		info[i++] = "You are resistant to hallucination.";
+        strnfmt(s[i], 80, "You are %sresistant to hallucination", (p_ptr->resist_hallu > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->resist_hallu * 10);
+        good[i] = TRUE;
+        i++;
 	}
 	
 	if (p_ptr->sustain_str)
 	{
-		info[i++] = "Your strength is sustained.";
-	}
-	if (p_ptr->sustain_con)
-	{
-		info[i++] = "Your constitution is sustained.";
+        strnfmt(s[i], 80, "You are %sresistant to strength draining", (p_ptr->sustain_str > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->sustain_str * 10);
+        good[i] = TRUE;
+        i++;
 	}
 	if (p_ptr->sustain_dex)
 	{
-		info[i++] = "Your dexterity is sustained.";
+        strnfmt(s[i], 80, "You are %sresistant to dexterity draining", (p_ptr->sustain_dex > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->sustain_dex * 10);
+        good[i] = TRUE;
+        i++;
+	}
+	if (p_ptr->sustain_con)
+	{
+        strnfmt(s[i], 80, "You are %sresistant to constitution draining", (p_ptr->sustain_con > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->sustain_con * 10);
+        good[i] = TRUE;
+        i++;
 	}
 	if (p_ptr->sustain_gra)
 	{
-		info[i++] = "Your grace is sustained.";
+        strnfmt(s[i], 80, "You are %sresistant to grace draining", (p_ptr->sustain_gra > 1) ? "highly " : "");
+        strnfmt(t[i], 80, "(+%d to skill check)", p_ptr->sustain_gra * 10);
+        good[i] = TRUE;
+        i++;
 	}
 
-	if ((f1 & (TR1_STR)) || (f1 & (TR1_NEG_STR)))
+	if (p_ptr->stat_equip_mod[A_STR] != 0)
 	{
-		info[i++] = "Your strength is affected by your equipment.";
+        strnfmt(s[i], 80, "Your strength is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Strength)", p_ptr->stat_equip_mod[A_STR]);
+        good[i] = (p_ptr->stat_equip_mod[A_STR] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if ((f1 & (TR1_DEX)) || (f1 & (TR1_NEG_DEX)))
+	if (p_ptr->stat_equip_mod[A_DEX] != 0)
 	{
-		info[i++] = "Your dexterity is affected by your equipment.";
+        strnfmt(s[i], 80, "Your dexterity is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Dexterity)", p_ptr->stat_equip_mod[A_DEX]);
+        good[i] = (p_ptr->stat_equip_mod[A_DEX] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if ((f1 & (TR1_CON)) || (f1 & (TR1_NEG_CON)))
+	if (p_ptr->stat_equip_mod[A_CON] != 0)
 	{
-		info[i++] = "Your constitution is affected by your equipment.";
+        strnfmt(s[i], 80, "Your constitution is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Constitution)", p_ptr->stat_equip_mod[A_CON]);
+        good[i] = (p_ptr->stat_equip_mod[A_CON] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if ((f1 & (TR1_GRA)) || (f1 & (TR1_NEG_GRA)))
+	if (p_ptr->stat_equip_mod[A_GRA] != 0)
 	{
-		info[i++] = "Your grace is affected by your equipment.";
+        strnfmt(s[i], 80, "Your grace is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Grace)", p_ptr->stat_equip_mod[A_GRA]);
+        good[i] = (p_ptr->stat_equip_mod[A_GRA] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_DAMAGE_SIDES))
+    
+	if (mel != 0)
 	{
-		info[i++] = "Your melee/archery damage sides are specially affected by your equipment.";
+        strnfmt(s[i], 80, "Your melee is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Melee)", mel);
+        good[i] = (mel > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_MEL))
+	if (arc != 0)
 	{
-		info[i++] = "Your melee ability is specially affected by your equipment.";
+        strnfmt(s[i], 80, "Your archery is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Archery)", arc);
+        good[i] = (arc > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_ARC))
+	if (stl != 0)
 	{
-		info[i++] = "Your archery ability is specially affected by your equipment.";
+        strnfmt(s[i], 80, "Your stealth is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Stealth)", stl);
+        good[i] = (stl > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_STL))
+	if (p_ptr->skill_equip_mod[S_PER] != 0)
 	{
-		info[i++] = "Your stealth is affected by your equipment.";
+        strnfmt(s[i], 80, "Your perception is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Perception)", p_ptr->skill_equip_mod[S_PER]);
+        good[i] = (p_ptr->skill_equip_mod[S_PER] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_PER))
+	if (p_ptr->skill_equip_mod[S_WIL] != 0)
 	{
-		info[i++] = "Your perception is affected by your equipment.";
+        strnfmt(s[i], 80, "Your will is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Will)", p_ptr->skill_equip_mod[S_WIL]);
+        good[i] = (p_ptr->skill_equip_mod[S_WIL] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_WIL))
+	if (p_ptr->skill_equip_mod[S_SMT] != 0)
 	{
-		info[i++] = "Your will is affected by your equipment.";
+        strnfmt(s[i], 80, "Your smithing is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Smithing)", p_ptr->skill_equip_mod[S_SMT]);
+        good[i] = (p_ptr->skill_equip_mod[S_SMT] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_SMT))
+	if (p_ptr->skill_equip_mod[S_SNG] != 0)
 	{
-		info[i++] = "Your smithing is affected by your equipment.";
+        strnfmt(s[i], 80, "Your singing is affected by your equipment");
+        strnfmt(t[i], 80, "(%+d Song)", p_ptr->skill_equip_mod[S_SNG]);
+        good[i] = (p_ptr->skill_equip_mod[S_SNG] > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_SNG))
+    
+	if (p_ptr->to_mds)
 	{
-		info[i++] = "Your singing is affected by your equipment.";
+        strnfmt(s[i], 80, "Your combat damage sides are specially affected by your equipment");
+        strnfmt(t[i], 80, "(%+d side%s)", p_ptr->to_mds, (ABS(p_ptr->to_mds) > 1) ? "s" : "");
+        good[i] = (p_ptr->to_mds > 0) ? TRUE : FALSE;
+        i++;
 	}
-	if (f1 & (TR1_TUNNEL))
+    
+	if (light > 0)
 	{
-		info[i++] = "Your digging ability is affected by your equipment.";
+        strnfmt(s[i], 80, "Your equipment glows with an inner light");
+        strnfmt(t[i], 80, "(%+d radius)", light);
+        good[i] = TRUE;
+        i++;
 	}
-	if (f2 & (TR2_LIGHT))
+	if (light < 0)
 	{
-		info[i++] = "Some of your equipment glows with an inner light.";
+        strnfmt(s[i], 80, "Your equipment radiates an unnatural darkness");
+        strnfmt(t[i], 80, "(%+d radius)", light);
+        good[i] = FALSE;
+        i++;
 	}
+    
 	if (f2 & (TR2_RADIANCE))
 	{
-		info[i++] = "Your arrows illuminate the dungeon.";
-	}
-	if (f2 & (TR2_DARKNESS))
-	{
-		info[i++] = "Some of your equipment radiates an unnatural darkness.";
+        u32b ff1 = 0L, ff2 = 0L, ff3 = 0L;
+        
+		object_flags(&inventory[INVEN_BOW], &ff1, &ff2, &ff3);
+        if (ff2 & (TR2_RADIANCE))
+        {
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow fires shining arrows");
+            i++;
+        }
+
+
+		object_flags(&inventory[INVEN_FEET], &ff1, &ff2, &ff3);
+        if (ff2 & (TR2_RADIANCE))
+        {
+            identify[INVEN_FEET] = TRUE;
+            strnfmt(s[i], 80, "Your footsteps illuminate the dungeon");
+            i++;
+        }
+        
 	}
 
 	// *******************************************
@@ -730,62 +850,120 @@ void self_knowledge(void)
 		/* Special "Attack Bonuses" */
 		if (f1 & (TR1_SHARPNESS))
 		{
-			info[i++] = "Your weapon cuts easily through armour.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon cuts easily through armour");
+            strnfmt(t[i], 80, "(ignore 50% of protection)");
+            good[i] = TRUE;
+            i++;
 		}
+        
 		if (f1 & (TR1_SHARPNESS2))
 		{
-			info[i++] = "Your weapon cuts exceptionally easily through armour.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon cuts exceptionally easily through armour");
+            strnfmt(t[i], 80, "(ignore 100% of protection)");
+            good[i] = TRUE;
+            i++;
 		}
+        
 		if (f1 & (TR1_VAMPIRIC))
 		{
-			info[i++] = "Your weapon drains life from your enemies.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon drains life from your enemies");
+            strnfmt(t[i], 80, "(+7 health per kill)");
+            good[i] = TRUE;
+            i++;
 		}
 
 		if (f1 & (TR1_BRAND_ELEC))
 		{
-			info[i++] = "Your weapon shocks your foes.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon shocks your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_FIRE))
 		{
-			info[i++] = "Your weapon burns your foes.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon burns your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_COLD))
 		{
-			info[i++] = "Your weapon freezes your foes.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon freezes your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_POIS))
 		{
-			info[i++] = "Your weapon poisons your foes.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon poisons your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_WOLF))
-		{
-			info[i++] = "Your weapon is especially deadly against wolves.";
-		}
-		if (f1 & (TR1_SLAY_SPIDER))
-		{
-			info[i++] = "Your weapon is especially deadly against spiders.";
-		}
-		if (f1 & (TR1_SLAY_UNDEAD))
-		{
-			info[i++] = "Your weapon is especially effective against the undead.";
-		}
-		if (f1 & (TR1_SLAY_RAUKO))
-		{
-			info[i++] = "Your weapon is especially deadly against raukar.";
-		}
 		if (f1 & (TR1_SLAY_ORC))
 		{
-			info[i++] = "Your weapon is especially deadly against orcs.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially deadly against orcs");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
-			info[i++] = "Your weapon is especially deadly against trolls.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially deadly against trolls");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_WOLF))
+		{
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially deadly against wolves");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_SPIDER))
+		{
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially deadly against spiders");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_RAUKO))
+		{
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially deadly against raukar");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_SLAY_DRAGON))
 		{
-			info[i++] = "Your weapon is especially deadly against dragons.";
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially deadly against dragons");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_UNDEAD))
+		{
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially effective against the undead");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 	}
 
@@ -804,64 +982,120 @@ void self_knowledge(void)
 		/* Special "Attack Bonuses" */
 		if (f1 & (TR1_SHARPNESS))
 		{
-			info[i++] = "Your off-hand weapon cuts easily through armour.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon cuts easily through armour");
+            strnfmt(t[i], 80, "(ignore 50% of protection)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_SHARPNESS2))
 		{
-			info[i++] = "Your off-hand weapon cuts exceptionally easily through armour.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon cuts exceptionally easily through armour");
+            strnfmt(t[i], 80, "(ignore 100% of protection)");
+            good[i] = TRUE;
+            i++;
 		}
+        
 		if (f1 & (TR1_VAMPIRIC))
 		{
-			info[i++] = "Your off-hand weapon drains life from your enemies.";
-		}
-		
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon drains life from your enemies");
+            strnfmt(t[i], 80, "(+7 health per kill)");
+            good[i] = TRUE;
+            i++;
+        }
+        
 		if (f1 & (TR1_BRAND_ELEC))
 		{
-			info[i++] = "Your off-hand weapon shocks your foes.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon shocks your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_FIRE))
 		{
-			info[i++] = "Your off-hand weapon burns your foes.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon burns your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_COLD))
 		{
-			info[i++] = "Your off-hand weapon freezes your foes.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon freezes your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_POIS))
 		{
-			info[i++] = "Your off-hand weapon poisons your foes.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon poisons your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
-		
+        
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_WOLF))
-		{
-			info[i++] = "Your off-hand weapon is especially deadly against wolves.";
-		}
-		if (f1 & (TR1_SLAY_SPIDER))
-		{
-			info[i++] = "Your off-hand weapon is especially deadly against spiders.";
-		}
-		if (f1 & (TR1_SLAY_UNDEAD))
-		{
-			info[i++] = "Your off-hand weapon is especially effective against the undead.";
-		}
-		if (f1 & (TR1_SLAY_RAUKO))
-		{
-			info[i++] = "Your off-hand weapon is especially deadly against raukar.";
-		}
 		if (f1 & (TR1_SLAY_ORC))
 		{
-			info[i++] = "Your off-hand weapon is especially deadly against orcs.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially deadly against orcs");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
-			info[i++] = "Your off-hand weapon is especially deadly against trolls.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially deadly against trolls");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_WOLF))
+		{
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially deadly against wolves");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_SPIDER))
+		{
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially deadly against spiders");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_RAUKO))
+		{
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially deadly against raukar");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_SLAY_DRAGON))
 		{
-			info[i++] = "Your off-hand weapon is especially deadly against dragons.";
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially deadly against dragons");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
-	}
+		if (f1 & (TR1_SLAY_UNDEAD))
+		{
+            identify[INVEN_ARM] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially effective against the undead");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}	}
 	
 	// *******************************************
 	// Do some analysis just on the wielded bow
@@ -875,55 +1109,100 @@ void self_knowledge(void)
 		// get the flags just for the wielded weapon
 		object_flags(o_ptr, &f1, &f2, &f3);
 		
-		/* Special "Attack Bonuses" */		
 		if (f1 & (TR1_BRAND_ELEC))
 		{
-			info[i++] = "Your bow shocks your foes.";
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow shocks your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_FIRE))
 		{
-			info[i++] = "Your bow burns your foes.";
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow burns your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_COLD))
 		{
-			info[i++] = "Your bow freezes your foes.";
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow freezes your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_BRAND_POIS))
 		{
-			info[i++] = "Your bow poisons your foes.";
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow poisons your foes");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
-		
+        
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_WOLF))
-		{
-			info[i++] = "Your bow is especially deadly against wolves.";
-		}
-		if (f1 & (TR1_SLAY_SPIDER))
-		{
-			info[i++] = "Your bow is especially deadly against spiders.";
-		}
-		if (f1 & (TR1_SLAY_UNDEAD))
-		{
-			info[i++] = "Your bow is especially effective against the undead.";
-		}
-		if (f1 & (TR1_SLAY_RAUKO))
-		{
-			info[i++] = "Your bow is especially deadly against raukar.";
-		}
 		if (f1 & (TR1_SLAY_ORC))
 		{
-			info[i++] = "Your bow is especially deadly against orcs.";
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially deadly against orcs");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
-			info[i++] = "Your bow is especially deadly against trolls.";
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially deadly against trolls");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_WOLF))
+		{
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially deadly against wolves");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_SPIDER))
+		{
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially deadly against spiders");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_RAUKO))
+		{
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially deadly against raukar");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 		if (f1 & (TR1_SLAY_DRAGON))
 		{
-			info[i++] = "Your bow is especially deadly against dragons.";
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially deadly against dragons");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_UNDEAD))
+		{
+            identify[INVEN_BOW] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially effective against the undead");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
 		}
 	}
 	
+    // Sil-y: add info for songs?
+    
 	// *******************************************
 	// Back to generic analysis
 	
@@ -934,9 +1213,7 @@ void self_knowledge(void)
 		{
 			if (p_ptr->have_ability[j][k] && !p_ptr->innate_ability[j][k])
 			{
-				strnfmt(buf[abilities], 80, "You have been granted the ability: %s.", b_name + (&b_info[ability_index(j, k)])->name);
-				info[i++] = buf[abilities];
-				abilities++;
+                strnfmt(s[i++], 80, "Your equipment grants you the ability: %s", b_name + (&b_info[ability_index(j, k)])->name);
 			}
 		}
 	}
@@ -944,30 +1221,33 @@ void self_knowledge(void)
 	/* Save screen */
 	screen_save();
 
-
 	/* Clear the screen */
 	Term_clear();
 
 	/* Label the information */
-	prt("     Your Attributes:", 1, 0);
+    Term_putstr(1, 0, -1, TERM_L_WHITE + TERM_SHADE, "Your Attributes:");
 
 	/* Dump the info */
 	for (k = 2, j = 0; j < i; j++)
 	{
 		/* Show the info */
-		prt(info[j], k++, 0);
+//		prt(info[j], k++, 0);
+        Term_putstr(1,                k, -1, TERM_WHITE, s[j]);
+        Term_putstr(3 + strlen(s[j]), k, -1, good[j] ? TERM_GREEN : TERM_L_RED, t[j]);
+        k++;
 
 		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
+		if ((k == 21) && (j+1 < i))
 		{
-			prt("-- more --", k, 0);
-			inkey();
+            /* Pause */
+            Term_putstr(1, k+1, -1, TERM_L_WHITE, "(press any key)");
+            (void)inkey();
 
 			/* Clear the screen */
 			Term_clear();
 
 			/* Label the information */
-			prt("     Your Attributes:", 1, 0);
+            Term_putstr(1, 0, -1, TERM_L_WHITE + TERM_SHADE, "Your Attributes:");
 
 			/* Reset */
 			k = 2;
@@ -975,12 +1255,39 @@ void self_knowledge(void)
 	}
 
 	/* Pause */
-	prt("(press any key)", k, 0);
+	Term_putstr(1, k+1, -1, TERM_L_WHITE, "(press any key)");
 	(void)inkey();
-
 
 	/* Load screen */
 	screen_load();
+    
+    // identify the items that are now obvious
+    for (i = 0; i < INVEN_TOTAL; i++)
+    {
+        char o_short_name[80];
+        char o_full_name[80];
+        
+        // if it is due to be identified...
+        if (identify[i])
+        {
+            o_ptr = &inventory[i];
+            
+            if (!object_known_p(o_ptr))
+            {
+                /* Short, pre-identification object description */
+                object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+                
+                /* identify the object */
+                ident(o_ptr);
+                
+                /* Full object description */
+                object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+                
+                /* Print the message */
+                msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
+            }
+        }
+    }
 }
 
 
@@ -1200,7 +1507,7 @@ bool detect_objects_normal(void)
 		detect = TRUE;
 	}
 
-	/* Scan monsters, looking for mimics */
+	/* Scan monsters, looking for object-like ones */
 	for (i = 1; i < mon_max; i++)
 	{
 		monster_type *m_ptr = &mon_list[i];
@@ -1209,23 +1516,15 @@ bool detect_objects_normal(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/*we want to detect mimics of objects,
-		 *note I did not include all possible magic items
-		 */
+		/* we want to detect object-like monsters */
 		if (!(strchr("|!?-_=~", r_ptr->d_char))) continue;
-
-		/* XXX XXX - Mimics aren't detected */
-		if (!m_ptr->mimic_k_idx) continue;
 
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
-
-		/*mark them as a mimic*/
-		m_ptr->mflag |= (MFLAG_MIMIC | MFLAG_MARK | MFLAG_SHOW);
+		/*mark them*/
+		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
 		/* Optimize -- Repair flags */
 		repair_mflag_mark = TRUE;
@@ -1286,7 +1585,7 @@ bool detect_objects_magic(void)
 		/* Artefacts, misc magic items, or ego items */
 		if (artefact_p(o_ptr) || ego_item_p(o_ptr) ||
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
-		    (tv == TV_STAFF) || (tv == TV_TRUMPET) ||
+		    (tv == TV_STAFF) || (tv == TV_HORN) ||
 		    (tv == TV_POTION) ||
 		    o_ptr->name2)
 		{
@@ -1299,46 +1598,6 @@ bool detect_objects_magic(void)
 			/* Detect */
 			detect = TRUE;
 		}
-	}
-
-	/* Scan monsters, looking for mimics */
-	for (i = 1; i < mon_max; i++)
-	{
-		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/*
-		 *we want to detect magical appearing mimics,
-		 *note I did not include all possible magic items
-		 */
-		if (!(strchr("!?-_=|", r_ptr->d_char))) continue;
-
-		/* XXX XXX - Mimics aren't detected */
-		if (!m_ptr->mimic_k_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
-
-		/*mark them as a mimic*/
-		m_ptr->mflag |= (MFLAG_MIMIC | MFLAG_MARK | MFLAG_SHOW);
-
-		/* Optimize -- Repair flags */
-		repair_mflag_mark = TRUE;
-		repair_mflag_show = TRUE;
-
-		/* Update the monster */
-		update_mon(i, FALSE);
-
-		/* Detect */
-		detect = TRUE;
-
 	}
 
 	/* Describe */
@@ -1368,9 +1627,6 @@ bool detect_monsters(void)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
-
-		/* XXX XXX - Unknown Mimics stay hidden */
-		if (m_ptr->mimic_k_idx) continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -1431,9 +1687,6 @@ bool detect_monsters_invis(void)
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
 		{
-			/* XXX XXX - Mimics stay hidden */
-			if (m_ptr->mimic_k_idx) continue;
-
 			/* Take note that they are invisible */
 			l_ptr->flags2 |= (RF2_INVISIBLE);
 
@@ -1512,6 +1765,24 @@ void stair_creation(void)
 
 	place_random_stairs(py, px);
 }
+
+/*
+ * Hook to specify "weapon"
+ */
+bool item_tester_hook_digger(const object_type *o_ptr)
+{
+    u32b f1, f2, f3;
+    
+    object_flags(o_ptr, &f1, &f2, &f3);
+    
+    if ((f1 & (TR1_TUNNEL)) && (o_ptr->pval > 0))
+    {
+        return (TRUE);
+    }
+    
+	return (FALSE);
+}
+
 
 /*
  * Hook to specify "weapon"
@@ -1683,76 +1954,6 @@ static bool item_tester_unknown(const object_type *o_ptr)
 		return FALSE;
 	else
 		return TRUE;
-}
-
-
-/*
- * Enchant an item (in the inventory or on the floor)
- * Note that "num_ac" requires armour, else weapon
- * Returns TRUE if attempted, FALSE if cancelled
- */
-bool enchant_spell(int num_hit, int num_dam, int num_ac)
-{
-	int item;
-	bool okay = FALSE;
-
-	object_type *o_ptr;
-
-	char o_name[80];
-
-	cptr q, s;
-
-	// Sil-y: assignments to soothe compilation warnings
-	num_hit = num_hit;
-	num_dam = num_dam;
-
-	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon;
-
-	/* Enchant armor if requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
-
-	/* Get an item */
-	q = "Enchant which item? ";
-	s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Description */
-	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
-
-	/* Describe */
-	msg_format("%s %s glow%s brightly!",
-	           ((item >= 0) ? "Your" : "The"), o_name,
-	           ((o_ptr->number > 1) ? "" : "s"));
-
-	/* Enchant */
-	/* Sil-y: currently no enchantment occurs */
-
-	/* Failure */
-	if (!okay)
-	{
-		/* Flush */
-		flush();
-
-		/* Message */
-		msg_print("The enchantment failed.");
-	}
-
-	/* Something happened */
-	return (TRUE);
 }
 
 
@@ -1962,7 +2163,7 @@ bool project_ball(int who, int rad, int y0, int x0, int y1, int x1, int dd, int 
 
 	/* Add the STOP flag if appropriate */
 	if ((who < 0) &&
-	    (!target_okay() || y1 != p_ptr->target_row || x1 != p_ptr->target_col))
+	    (!target_okay(0) || y1 != p_ptr->target_row || x1 != p_ptr->target_col))
 	{
 		flg |= (PROJECT_STOP);
 	}
@@ -2053,7 +2254,7 @@ bool project_arc(int who, int rad, int y0, int x0, int y1, int x1, int dd, int d
 static void adjust_target(int dir, int y0, int x0, int *y1, int *x1)
 {
 	/* If no direction is given, and a target is, use the target. */
-	if ((dir == 5) && target_okay())
+	if ((dir == 5) && target_okay(0))
 	{
 		*y1 = p_ptr->target_row;
 		*x1 = p_ptr->target_col;
@@ -2341,9 +2542,10 @@ void wake_all_monsters(int who)
 /*
  * Set the aggressive flag on nearby monsters (using the sound metric).
  */
-void make_aggressive(void)
+bool make_aggressive(void)
 {
 	int i;
+    int notice = FALSE;
 	
 	for (i = 1; i < mon_max; i++)
 	{
@@ -2351,10 +2553,13 @@ void make_aggressive(void)
 		monster_type *m_ptr = &mon_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 		
-		if ((m_ptr->alertness >= ALERTNESS_ALERT) && (get_noise_dist(FLOW_REAL_NOISE,m_ptr->fy,m_ptr->fx) <= 10))
+		if ((m_ptr->alertness >= ALERTNESS_ALERT) && (flow_dist(FLOW_PLAYER_NOISE,m_ptr->fy,m_ptr->fx) <= 10))
 		{
 			m_ptr->mflag |= (MFLAG_AGGRESSIVE);
-			
+            
+            // notice if the monster is visible
+            if (m_ptr->ml) notice = TRUE;
+            
 			if ((r_ptr->flags2 & (RF2_SMART)) &&
 			    ((r_ptr->flags1 & (RF1_FRIENDS)) ||
 				 (r_ptr->flags1 & (RF1_FRIEND)) ||
@@ -2364,9 +2569,14 @@ void make_aggressive(void)
 				 (r_ptr->flags4 & (RF4_SHRIEK))))
 			{
 				tell_allies(m_ptr->fy, m_ptr->fx, MFLAG_AGGRESSIVE);
+                
+                // notice if you hear them shout
+                notice = TRUE;
 			}
 		}
 	}
+    
+    return (notice);
 }
 
 
@@ -2554,7 +2764,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		if (allow_player_blind(NULL))
 		{
 			/* Become blind */
-			(void)set_blind(p_ptr->blind + 10 + dieroll(10));
+			(void)set_blind(p_ptr->blind + damroll(4,4));
 		}
 	}
 
@@ -2595,7 +2805,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 {
 	int i, t;
-	int y, x, dy, dx;
+	int y, x, dy, dx, yy, xx;
 	
 	int dd, ds, damage, net_dam, prt;
 
@@ -2638,7 +2848,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 	if (in_bounds_fully(pit_y, pit_x))
 	{
 		// can't dodge out of a pit
-		if (cave_pit(p_ptr->py,p_ptr->px))
+		if (cave_pit_bold(p_ptr->py,p_ptr->px))
 		{
 			already_in_pit = TRUE;
 		}
@@ -2795,7 +3005,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 						
 						else
 						{
-							m_ptr->stunned = m_ptr->stunned + net_dam * 4;
+							m_ptr->stunned += net_dam * 4;
 						}
 						
 						// Alert it
@@ -2814,39 +3024,79 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 			{
 				/* Destroy location (if valid) */
 				if (cave_valid_bold(y, x))
-				{					
+				{
+                    int adj_chasms = 0;
+                    
 					/* Delete objects */
 					delete_object(y, x);
-					
+
+                    // count adjacent chasm squares
+                    for (i = 0; i < 8; i++)
+                    {
+                        /* Get the location */
+                        yy = y + ddy_ddd[i];
+                        xx = x + ddx_ddd[i];
+                        
+                        // count the chasms
+                        if (cave_feat[yy][xx] == FEAT_CHASM) adj_chasms++;
+                    }
+
 					/* Wall (or floor) type */
 					t = rand_int(100);
 					
+                    // if we started with a chasm
+                    if (cave_feat[y][x] == FEAT_CHASM)
+                    {
+                        // mostly leave it unchanged
+                        if (one_in_(10))
+                        {
+                            if (t < 10)         feat = FEAT_RUBBLE;
+                            else if (t < 70)    feat = FEAT_WALL_EXTRA;
+                            else                feat = FEAT_QUARTZ;
+                        }
+                        else
+                        {
+                            feat = FEAT_CHASM;
+                        }
+                    }
+                    
 					// if we started with open floor
-					if (cave_floor_bold(y, x))
+					else if (cave_floor_bold(y, x))
 					{
-						if (t < 40)			feat = FEAT_RUBBLE;
-						else if (t < 80)	feat = FEAT_WALL_EXTRA;
-						else				feat = FEAT_QUARTZ;
+                        if (dieroll(8) <= adj_chasms + 1)  feat = FEAT_CHASM;
+                        
+						else if (t < 40)                    feat = FEAT_RUBBLE;
+						else if (t < 80)                    feat = FEAT_WALL_EXTRA;
+						else                                feat = FEAT_QUARTZ;
 					}
 					
 					// if we started with rubble
 					else if (cave_feat[y][x] == FEAT_RUBBLE)
 					{
-						if (t < 40)			feat = FEAT_FLOOR;
-						else if (t < 70)	feat = FEAT_WALL_EXTRA;
-						else				feat = FEAT_QUARTZ;
+                        if (dieroll(32) <= adj_chasms)  feat = FEAT_CHASM;
+                        
+						else if (t < 40)                feat = FEAT_FLOOR;
+						else if (t < 70)                feat = FEAT_WALL_EXTRA;
+						else                            feat = FEAT_QUARTZ;
 					}
 					
 					// if we started with a wall of some sort
 					else
 					{
-						if (t < 80)			feat = FEAT_RUBBLE;
-						else				feat = FEAT_FLOOR;
+                        if (dieroll(32) <= adj_chasms)  feat = FEAT_CHASM;
+
+						if (t < 80)                     feat = FEAT_RUBBLE;
+						else                            feat = FEAT_FLOOR;
 					}
 					
-					/* Change the feature */
-					cave_info[y][x] &= ~(CAVE_MARK);
-					cave_set_feat(y, x, feat);
+                    
+                    // change the feature (unless it would be making a chasm at 950 or 1000 ft)
+                    if (!((feat == FEAT_CHASM) && (p_ptr->depth >= MORGOTH_DEPTH - 1)))
+                    {
+                        cave_info[y][x] &= ~(CAVE_MARK);
+                        
+                        cave_set_feat(y, x, feat);
+                    }
 				}
 			}
 		}
@@ -2856,7 +3106,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 	// Miscellaneous stuff
 	
 	// Fall into the pit if there were no safe squares to jump to
-	if (fall_into_pit && cave_pit(p_ptr->py,p_ptr->px))
+	if (fall_into_pit && cave_pit_bold(p_ptr->py,p_ptr->px))
 	{
 		// Store information for the combat rolls window
 		combat_roll_special_char = (&f_info[FEAT_TRAP_PIT])->d_char;
@@ -3338,7 +3588,7 @@ bool curse_armor(void)
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your armor", o_name);
+		           "terrible black aura", "surround your armour", o_name);
 	}
 
 	/* not artefact or failed save... */

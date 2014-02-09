@@ -157,7 +157,7 @@ void do_cmd_use_item(void)
 			do_cmd_activate_staff(o_ptr, item);
 			break;
 		}
-		case TV_TRUMPET:
+		case TV_HORN:
 		{
 			do_cmd_play_instrument(o_ptr, item);
 			break;
@@ -392,7 +392,7 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 	if ((p_ptr->active_ability[S_MEL][MEL_TWO_WEAPON] || grants_two_weapon) && 
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_DIGGING)))
 	{
-		if (!(k_info[o_ptr->k_idx].flags3 & (TR3_TWO_HANDED)))
+		if (!(k_info[o_ptr->k_idx].flags3 & (TR3_TWO_HANDED)) && !(k_info[o_ptr->k_idx].flags3 & (TR3_HAND_AND_A_HALF)))
 		{
 			if (get_check("Do you wish to wield it in your off-hand? "))
 			{
@@ -408,7 +408,7 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
 		
 		/* Message */
-		msg_format("The %s you are %s appears to be cursed.",
+		msg_format("You cannot bear to give up the %s you are %s.",
 		           o_name, describe_use(slot));
 		
 		/* Cancel the command */
@@ -422,11 +422,11 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 		{
 			if (inventory[INVEN_ARM].tval == TV_SHIELD)
 			{
-				msg_print("You would need to remove your shield, but it appears to be cursed.");
+				msg_print("You would need to remove your shield, but cannot bear to part with it.");
 			}
 			else
 			{
-				msg_print("You would need to put down your off-hand weapon, but it appears to be cursed.");
+				msg_print("You would need to remove your off-hand weapon, but cannot bear to part with it.");
 			}
 			
 			/* Cancel the command */
@@ -464,7 +464,7 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 	{
 		if (cursed_p(&inventory[INVEN_WIELD]))
 		{
-			msg_print("You would need to put down your weapon, but it appears to be cursed.");
+            msg_print("You would need to put down your weapon, but cannot bear to part with it.");
 			
 			/* Cancel the command */
 			return;
@@ -635,7 +635,7 @@ void do_cmd_wield(object_type *default_o_ptr, int default_item)
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
-		msg_print("You have a very bad feeling about this...");
+		msg_print("You have a bad feeling about this...");
 		
 		/* Remove special inscription, if any */
 		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -736,7 +736,7 @@ void do_cmd_takeoff(object_type *default_o_ptr, int default_item)
 		else
 		{
 			/* Oops */
-			msg_print("It seems to be cursed, preventing you from removing it.");
+			msg_print("You cannot bear to part with it.");
 			
 			/* Nope */
 			return;
@@ -817,7 +817,7 @@ void do_cmd_drop(void)
 		else
 		{
 			/* Oops */
-			msg_print("It seems to be cursed, preventing you from removing it.");
+			msg_print("You cannot bear to part with it.");
 			
 			/* Nope */
 			return;
@@ -1931,7 +1931,7 @@ static cptr ident_info[] =
 	"%:A quartz vein",
 	/* "&:unused", */
 	"':An open door",
-	"(:Soft armor",
+	"(:Soft armour",
 	"):A shield",
 	"*:A gem (or unseen monster)", 
 	"+:A closed door",
@@ -1984,7 +1984,7 @@ static cptr ident_info[] =
 	/* "Z:unused", */
 	"[:Mail",
 	"\\:A blunt weapon (or digger)",
-	"]:Misc. armor",
+	"]:Misc. armour",
 	"^:A trap",
 	"_:A staff",
 	/* "`:unused", */
@@ -2288,7 +2288,7 @@ void do_cmd_query_symbol(void)
 		/* Interact */
 		while (1)
 		{
-			/* Recall */
+			/* Recall (raging players don't get recall) */
 			if (recall)
 			{
 				/* Save screen */

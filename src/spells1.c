@@ -676,7 +676,6 @@ bool hates_elec(const object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_RING:
-		case TV_TRUMPET:
 		{
 			return (TRUE);
 		}
@@ -860,7 +859,7 @@ static int inven_damage(inven_func typ, int perc, int resistance)
 				int old_charges = 0;
 
 				/*hack, make sure the proper number of charges is displayed in the message*/
-				if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_TRUMPET)) && (amt < o_ptr->number))
+				if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_HORN)) && (amt < o_ptr->number))
 				{
 					/*save the number of charges*/
 					old_charges = o_ptr->pval;
@@ -1238,7 +1237,7 @@ void dark_dam_pure(int dd, int ds, bool update_rolls, cptr kb_str)
 	// 'pure' darkness attacks can also blind
 	if (one_in_(resistance) && allow_player_blind(NULL))
 	{  
-		(void)set_blind(p_ptr->blind + 4 + dieroll(4));
+		(void)set_blind(p_ptr->blind + damroll(2,4));
 	}
 	
 	/* Abort if no damage to receive */
@@ -1558,24 +1557,58 @@ static int project_m_x;
 static int project_m_y;
 
 
-/*reveal a mimic, re-light the spot, and print a message if asked for*/
-void reveal_mimic(int y, int x, bool message)
+/*
+ * Magically close/lock/restore a door at a particular grid
+ */
+bool lock_door(int y, int x, int power)
 {
-	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-
-	/*no longer a mimic*/
-	m_ptr->mimic_k_idx = 0;
-
-	/* Mimic no longer acts as a detected object */
-	m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-	/* Message  XXX */
-	if (message) msg_print("There is a mimic!");
-
-	/* Redraw */
-	lite_spot(y, x);
-
-
+    int lock_level;
+    int obvious = FALSE;
+    
+    if (cave_feat[y][x] == FEAT_BROKEN)  power -= 10;
+    
+    if ((power > 0) && (cave_m_idx[y][x] == 0))
+    {
+        if (cave_known_closed_door_bold(y,x) ||
+            (cave_feat[y][x] == FEAT_OPEN) || (cave_feat[y][x] == FEAT_BROKEN) )
+        {
+            if ((cave_feat[y][x] == FEAT_OPEN) || (cave_feat[y][x] == FEAT_BROKEN))
+            {
+                cave_set_feat(y, x, FEAT_DOOR_HEAD);
+                
+                obvious = TRUE;
+                
+                if (cave_info[y][x] & (CAVE_SEEN))
+                {
+                    msg_print("The door slams shut.");
+                }
+                else
+                {
+                    msg_print("You hear a door slam shut.");
+                }
+            }
+            
+            // lock the door more firmly than it was before
+            lock_level = cave_feat[y][x] - FEAT_DOOR_HEAD + power/2;
+            if (lock_level > 7)
+            {
+                lock_level = 7;
+            }
+            
+            if (cave_feat[y][x] != FEAT_DOOR_HEAD + lock_level)
+            {
+                cave_set_feat(y, x, FEAT_DOOR_HEAD + lock_level);
+                
+                msg_print("You hear a 'click'.");
+            }
+            
+            /* Update the flow code and visuals */
+            p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+            
+        }
+    }
+    
+    return (obvious);
 }
 
 
@@ -1637,7 +1670,7 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 		/* unlock/open/break Doors */
 		case GF_KILL_DOOR:
 		{
-			if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+			if (cave_known_closed_door_bold(y,x))
 			{
 				int result = skill_check(who_ptr, dif, 0, NULL);
 				
@@ -1661,7 +1694,7 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 					cave_set_feat(y, x, FEAT_OPEN);		
 							
 					/* Update the flow code */
-					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
+					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 				
 					obvious = TRUE;
 
@@ -1676,14 +1709,11 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 				}
 				else
 				{
-					/* Forget the door */
-					//cave_info[y][x] &= ~(CAVE_MARK);
-					
 					/* Break the door */
 					cave_set_feat(y, x, FEAT_BROKEN);
 									
 					/* Update the flow code */
-					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
+					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 				
 					obvious = TRUE;
 
@@ -1696,7 +1726,6 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 						msg_print("You hear a door burst open.");
 					}
 				}
-
 			}
 
 			if (cave_feat[y][x] == FEAT_RUBBLE)
@@ -1706,22 +1735,17 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 				if (result <= 0)
 				{
 					/* Do nothing */
-					
-					if (cave_info[y][x] & (CAVE_SEEN))
-					{
-						msg_print("The rubble shakes a little.");
-					}
-				} 
+				}
 				
 				else
 				{
-					/* Disburse the rubble */
+					/* Disperse the rubble */
 					cave_set_feat(y, x, FEAT_FLOOR);
 					
 					obvious = TRUE;
 					
 					/* Update the flow code */
-					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
+					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 					
 					if (cave_info[y][x] & (CAVE_SEEN))
 					{
@@ -1744,7 +1768,7 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 			if (cave_floor_bold(y, x)) break;
 
 			/* Permanent walls */
-			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) break;
+			if (cave_feat[y][x] == FEAT_WALL_PERM) break;
 
 			/* Granite */
 			if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
@@ -1798,8 +1822,7 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 			}
 
 			/* Destroy doors (and secret doors) */
-			else if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
-			         (cave_feat[y][x] == FEAT_SECRET))
+			else if (cave_any_closed_door_bold(y,x))
 			{
 				/* Hack -- special message */
 				if (cave_info[y][x] & (CAVE_MARK))
@@ -1816,7 +1839,7 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 			}
 
 			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK | PU_NOISE_STRONG);
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			break;
 		}
@@ -1824,54 +1847,7 @@ static bool project_f(int who, int y, int x, int dist, int dd, int ds, int dif, 
 		/* Lock Doors */
 		case GF_LOCK_DOOR:
 		{
-			int result = skill_check(who_ptr, dif, 0, NULL);
-			int lock_level;
-			
-			if (cave_feat[y][x] == FEAT_BROKEN)  result -= 10;
-			
-			if ((result > 0) && (cave_m_idx[y][x] == 0))
-			{
-				if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) && (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
-					(cave_feat[y][x] == FEAT_OPEN) || (cave_feat[y][x] == FEAT_BROKEN) )
-				{
-					if ((cave_feat[y][x] == FEAT_OPEN) || (cave_feat[y][x] == FEAT_BROKEN))
-					{
-						cave_set_feat(y, x, FEAT_DOOR_HEAD);
-						
-						/* Forget the door */
-						//cave_info[y][x] &= ~(CAVE_MARK);
-						
-						obvious = TRUE;
-
-						if (cave_info[y][x] & (CAVE_SEEN))
-						{
-							msg_print("The door slams shut.");
-						}
-						else
-						{
-							msg_print("You hear a door slam shut.");
-						}
-					}
-					
-					// lock the door more firmly than it was before
-					lock_level = cave_feat[y][x] - FEAT_DOOR_HEAD + result/2;
-					if (lock_level > 7)
-					{
-						lock_level = 7;
-					}
-					
-					if (cave_feat[y][x] != FEAT_DOOR_HEAD + lock_level)
-					{
-						cave_set_feat(y, x, FEAT_DOOR_HEAD + lock_level);
-						
-						msg_print("You hear a 'click'.");
-					}
-										
-					/* Update the flow code and visuals */
-					p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
-										
-				}
-			}
+            obvious = lock_door(y, x, skill_check(who_ptr, dif, 0, NULL));
 
 			break;
 		}
@@ -2016,7 +1992,7 @@ static bool project_o(int who, int y, int x, int dd, int ds, int dif, int typ)
 				break;
 			}
 
-			/* Elec -- Rings, Trumpets */
+			/* Elec -- Rings */
 			case GF_ELEC:
 			{
 				if (hates_elec(o_ptr))
@@ -2435,7 +2411,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 		{		
 			if (seen) obvious = TRUE;
 			
-			resistance = monster_will(m_ptr);
+			resistance = monster_skill(m_ptr, S_WIL);
 			if (r_ptr->flags3 & (RF3_NO_SLOW))  resistance += 100;
 
 			// adjust difficulty by the distance to the monster
@@ -2469,7 +2445,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 		{
 			if (seen) obvious = TRUE;
 			
-			resistance = monster_will(m_ptr);
+			resistance = monster_skill(m_ptr, S_WIL);
 			if (r_ptr->flags3 & (RF3_NO_SLEEP))  resistance += 100;
 
 			// adjust difficulty by the distance to the monster
@@ -2503,7 +2479,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 		{
 			if (seen) obvious = TRUE;
 			
-			resistance = monster_will(m_ptr);
+			resistance = monster_skill(m_ptr, S_WIL);
 			if (r_ptr->flags3 & (RF3_NO_CONF))  resistance += 100;
 
 			// adjust difficulty by the distance to the monster
@@ -2548,7 +2524,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 					if (seen) l_ptr->flags3 |= (RF3_HURT_LITE);
 					
 					// do stunning
-					m_ptr->stunned = MAX(m_ptr->stunned, dam);
+					m_ptr->stunned += dam;
 					
 					/*possibly update the monster health bar*/
 					if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])
@@ -2636,7 +2612,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 		/* Fear (Use "dif" as difficulty and for duration) */
 		case GF_FEAR:
 		{
-			resistance = monster_will(m_ptr);
+			resistance = monster_skill(m_ptr, S_WIL);
 			if (r_ptr->flags3 & (RF3_NO_FEAR))  resistance += 100;
 			
 			// adjust difficulty by the distance to the monster
@@ -2776,8 +2752,8 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 		if (m_ptr->stunned) note = " is more dazed.";
 		else                note = " is dazed.";
 
-		tmp = MAX(m_ptr->stunned, do_stun);
-
+        tmp = m_ptr->stunned + do_stun;
+        
 		/*some creatures are resistant to stunning*/
 		if (r_ptr->flags3 & RF3_NO_STUN)
 		{
@@ -2789,7 +2765,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 		}
 
 		/* Apply stun */
-		else m_ptr->stunned = (tmp < 200) ? tmp : 200;
+		else m_ptr->stunned += (tmp < 200) ? tmp : 200;
 
 		/*possibly update the monster health bar*/
 		if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])
@@ -2806,10 +2782,10 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 		if (m_ptr->confused)  note = " looks more confused.";
 		else                  note = " looks confused.";
 
-		tmp = MAX(m_ptr->confused, do_conf);
+		tmp = m_ptr->confused + do_conf;
 
 		/* Apply confusion */
-		m_ptr->confused = (tmp < 200) ? tmp : 200;
+		m_ptr->confused += (tmp < 200) ? tmp : 200;
 
 		if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])
 		p_ptr->redraw |= (PR_HEALTHBAR);
@@ -2819,7 +2795,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 	else if (do_slow)
 	{
 		/* Increase slowing */
-		tmp = MAX(m_ptr->slowed, do_slow);
+		tmp = m_ptr->slowed + do_slow;
 
 		/* set or add to slow counter */
 		set_monster_slow(cave_m_idx[m_ptr->fy][m_ptr->fx],
@@ -2830,7 +2806,7 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 	else if (do_haste)
 	{
 		/* Increase haste */
-		tmp = MAX(m_ptr->hasted, do_haste);
+		tmp = m_ptr->hasted + do_haste;
 
 		/* set or add to slow counter */
 		set_monster_haste(cave_m_idx[m_ptr->fy][m_ptr->fx],
@@ -2871,56 +2847,14 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 			/* Generate treasure, etc */
 			monster_death(cave_m_idx[y][x]);
 
-			/* Uniques stay dead */
-			if (r_ptr->flags1 & (RF1_UNIQUE))
-			{
-				r_ptr->max_num = 0;
-			}
-			
-			/* Count kills this life */
-			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
-			
-			/* Count kills in all lives */
-			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
-			
-			// since it was killed, it was definitely encountered
-			if (!m_ptr->encountered)
-			{
-				int new_exp;
-				
-				new_exp = adjusted_mon_exp(r_ptr, FALSE);
-				
-				// gain experience for encounter
-				gain_exp(new_exp);	
-				p_ptr->encounter_exp += new_exp;	
-				
-				// update stats
-				m_ptr->encountered = TRUE;
-				l_ptr->psights++;
-				if (l_ptr->tsights < MAX_SHORT) l_ptr->tsights++;
-			}
-
 			/* Delete the monster */
 			delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Give detailed messages if destroyed */
 			if ((note) && (seen))
 			{
-
-				if (m_ptr->mimic_k_idx)
-				{
-
-					/* Reveal it */
-					reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
-
-					/* Get the actualmonster name */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-				}
-
 				/* dump the note*/
 				if (!suppress_message) msg_format("%^s%s", m_name, note);
-
 			}
 
 			else death_count++;
@@ -2935,20 +2869,8 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen)
 			{
-
-				if (m_ptr->mimic_k_idx)
-				{
-					/* Reveal it */
-					reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
-
-					/* Get the actualmonster name */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-				}
-
 				/* dump the note*/
 				if (!suppress_message) msg_format("%^s%s", m_name, note);
-
 			}
 
 			/* Hack -- Pain message */
@@ -2985,15 +2907,6 @@ static bool project_m(int who, int y, int x, int dd, int ds, int dif, int typ, u
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen)
 			{
-				if (m_ptr->mimic_k_idx)
-				{
-					/* Reveal it */
-					reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
-
-					/* Get the actualmonster name */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-				}
 				if (!suppress_message) msg_format("%^s%s", m_name, note);
 			}
 
@@ -3246,11 +3159,33 @@ static bool project_p(int who, int y, int x, int dd, int ds, int dif, int typ)
 				}
 
 				update_combat_rolls2(total_dd, total_ds, dam, -1, -1, prt, 100, GF_HURT, FALSE);
-				display_hit(p_ptr->py, p_ptr->px, net_dam, GF_HURT);
+				display_hit(p_ptr->py, p_ptr->px, net_dam, GF_HURT, p_ptr->is_dead);
 
 				if (net_dam)
 				{
 					take_hit(net_dam, killer);
+                    
+                    // deal with crippling shot ability
+                    if ((r_ptr->flags2 & (RF2_CRIPPLING)) && (crit_bonus_dice >= 1) && (net_dam > 0))
+                    {
+                        // Sil-y: ideally we'd use a call to allow_player_slow() here, but that doesn't
+                        //        work as it can't take the level of the critical into account.
+                        //        Sadly my solution doesn't let you ID free action items.
+                        int difficulty = p_ptr->skill_use[S_WIL] + (p_ptr->free_act * 10);
+                        
+                        if (skill_check(m_ptr, crit_bonus_dice * 4, difficulty, PLAYER) > 0)
+                        {
+                            monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+                            // remember that the monster can do this
+                            if (m_ptr->ml)  l_ptr->flags2 |= (RF2_CRIPPLING);
+
+                            msg_format("The shot tears into your thigh!");
+
+                            // slow the player
+                            set_slow(p_ptr->slow + crit_bonus_dice);
+                        }
+                    }
 				}
 
 				/* Make some noise */
@@ -3311,7 +3246,7 @@ static bool project_p(int who, int y, int x, int dd, int ds, int dif, int typ)
 				}
 
 				update_combat_rolls2(total_dd, total_ds, dam, -1, -1, prt, 100, GF_HURT, FALSE);
-				display_hit(p_ptr->py, p_ptr->px, net_dam, GF_HURT);
+				display_hit(p_ptr->py, p_ptr->px, net_dam, GF_HURT, p_ptr->is_dead);
 
 				if (net_dam)
 				{
@@ -4284,6 +4219,443 @@ int slaying_song_bonus(void)
 }
 
 /*
+ *  Do the effects of Song of Freedom
+ */
+void song_of_freedom(int score)
+{
+    int y, x;
+    int base_difficulty, difficulty;
+    int result;
+    int new_feat;
+    object_type *o_ptr;
+        
+    // set the base difficulty
+    if (p_ptr->depth > 0)
+    {
+        base_difficulty = p_ptr->depth / 2;
+    }
+    else
+    {
+        base_difficulty = 10;
+    }
+    
+    /* Scan the map */
+    for (y = 0; y < p_ptr->cur_map_hgt; y++)
+    {
+        for (x = 0; x < p_ptr->cur_map_wid; x++)
+        {
+            if (!in_bounds_fully(y, x)) continue;
+            
+            // get the object present (if any)
+            o_ptr = &o_list[cave_o_idx[y][x]];
+            
+            /* Locked/trapped chest */
+            if (o_ptr->tval == TV_CHEST)
+            {
+                /* Disarm/Unlock traps */
+                if (o_ptr->pval > 0)
+                {
+                    difficulty = base_difficulty + 5 + flow_dist(FLOW_PLAYER_NOISE, y, x);
+                    if (skill_check(PLAYER, score, difficulty, NULL) > 0)
+                    {
+                        /* Disarm or Unlock */
+                        o_ptr->pval = (0 - o_ptr->pval);
+                        
+                        /* Identify */
+                        object_known(o_ptr);
+                    }
+                }
+            }
+            
+            /* Invisible trap */
+            else if (cave_trap_bold(y, x) && (cave_info[y][x] & (CAVE_HIDDEN)))
+            {
+                difficulty = base_difficulty + 5 + flow_dist(FLOW_PLAYER_NOISE, y, x);
+                if (skill_check(PLAYER, score, difficulty, NULL) > 0)
+                {
+                    /* Remove the trap */
+                    cave_feat[y][x] = FEAT_FLOOR;
+                }
+            }
+            
+            /* Visible trap */
+            else if (cave_trap_bold(y,x))
+            {
+                difficulty = base_difficulty + 5 + flow_dist(FLOW_PLAYER_NOISE, y, x);
+                if (skill_check(PLAYER, score, difficulty, NULL) > 0)
+                {
+                    /* Remove the trap */
+                    cave_feat[y][x] = FEAT_FLOOR;
+                    
+                    if (cave_info[y][x] & (CAVE_SEEN))
+                    {
+                        lite_spot(y, x);
+                    }
+                }
+            }
+            
+            /* Secret door */
+            else if (cave_feat[y][x] == FEAT_SECRET)
+            {
+                difficulty = base_difficulty + 0 + flow_dist(FLOW_PLAYER_NOISE, y, x);
+                if (skill_check(PLAYER, score, difficulty, NULL) > 0)
+                {
+                    /* Pick a door */
+                    place_closed_door(y, x);
+                    
+                    if (cave_info[y][x] & (CAVE_SEEN))
+                    {
+                        /* Message */
+                        msg_print("You have found a secret door.");
+                        
+                        /* Disturb */
+                        disturb(0, 0);
+                    }
+                }
+            }
+            
+            /* Stuck door */
+            else if ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x08) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+            {
+                difficulty = base_difficulty + 0 + flow_dist(FLOW_PLAYER_NOISE, y, x);
+                result = skill_check(PLAYER, score, difficulty, NULL);
+                if (result > 0)
+                {
+                    new_feat = cave_feat[y][x] - result;
+                    
+                    if (new_feat <= FEAT_DOOR_HEAD + 0x08) new_feat = FEAT_DOOR_HEAD;
+                    
+                    cave_feat[y][x] = new_feat;
+                }
+            }
+            
+            /* Locked door */
+            else if ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01) && (cave_feat[y][x] <= FEAT_DOOR_HEAD + 0x07))
+            {
+                difficulty = base_difficulty + 0 + flow_dist(FLOW_PLAYER_NOISE, y, x);
+                result = skill_check(PLAYER, score, difficulty, NULL);
+                if (result > 0)
+                {
+                    new_feat = cave_feat[y][x] - result;
+                    
+                    if (new_feat < FEAT_DOOR_HEAD) new_feat = FEAT_DOOR_HEAD;
+                    
+                    cave_feat[y][x] = new_feat;
+                }
+            }
+            
+            /* Rubble */
+            else if (cave_feat[y][x] == FEAT_RUBBLE)
+            {
+                int noise_dist = 100;
+                int d, dir;
+                
+                // check adjacent squares for valid noise distances, since rubble is impervious to sound
+                for (d = 0; d < 8; d++)
+                {
+                    dir = cycle[d];
+                    noise_dist = MIN(noise_dist, flow_dist(FLOW_PLAYER_NOISE, y + ddy[dir], x + ddx[dir]));
+                }
+                noise_dist++;
+                
+                difficulty = base_difficulty + 5 + noise_dist;
+                result = skill_check(PLAYER, score, difficulty, NULL);
+                if (result > 0)
+                {
+                    /* Disperse the rubble */
+                    cave_set_feat(y, x, FEAT_FLOOR);
+                    
+                    /* Update the flow code */
+                    p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+                } 
+            }
+        }
+    }
+}
+
+
+/*
+ *  Do the effects of (the monster song) Song of Binding
+ */
+void song_of_binding(monster_type *m_ptr)
+{
+    int y, x;
+    int resistance;
+    int result;
+    int dist = flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx);
+    char m_name[80];
+    cptr description;
+    
+    /* Get the monster name */
+    monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
+
+    // messages for beginning a new song
+    if (m_ptr->song != SNG_BINDING)
+    {
+        msg_format("%^s begins a song of binding.", m_name);
+
+        // and remember the monsters is now singing this song
+        m_ptr->song = SNG_BINDING;
+        
+        // disturb if message printed
+        disturb(1, 0);
+    }
+    
+    // messages for continuing a song
+    else
+    {
+        switch (dieroll(8))
+        {
+            case 1:     description = "durance";                break;
+            case 2:     description = "chains";                 break;
+            case 3:     description = "thralls";                break;
+            case 4:     description = "prison walls";           break;
+            case 5:     description = "locks without keys";     break;
+            default:    description = "binding";
+        }
+        
+        if (m_ptr->ml)          msg_format("%^s sings of %s.", m_name, description);
+        else if (dist <= 20)    msg_format("You hear a song of %s.", description);
+        else if (dist <= 30)    msg_print("You hear singing in the distance.");
+
+        // disturb if message printed
+        if (m_ptr->ml || (dist <= 30)) disturb(1, 0);
+    }
+
+    // use the monster noise flow to represent the song levels at each square
+    update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
+
+    // scan the map, closing doors
+    for (y = 0; y < p_ptr->cur_map_hgt; y++)
+    {
+        for (x = 0; x < p_ptr->cur_map_wid; x++)
+        {
+            if (!in_bounds_fully(y, x)) continue;
+
+            // if there is no player/monster in the square
+            if (cave_m_idx[y][x] == 0)
+            {
+                // if it is a door
+                if ((cave_feat[y][x] == FEAT_OPEN) || (cave_feat[y][x] == FEAT_BROKEN) || cave_known_closed_door_bold(y,x))
+                {
+                    // if the door isn't between the monster and the player
+                    if (!(ORDERED(m_ptr->fy, y, p_ptr->py) && ORDERED(m_ptr->fx, x, p_ptr->px)))
+                    {
+                        result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), 15 + flow_dist(FLOW_MONSTER_NOISE, y, x), NULL);
+                        
+                        (void) lock_door(y, x, result);
+                    }
+                }
+            }
+        }
+    }
+    
+    /*
+    // scan the map, slowing monsters
+    for (y = 0; y < p_ptr->cur_map_hgt; y++)
+    {
+        for (x = 0; x < p_ptr->cur_map_wid; x++)
+        {
+            if (!in_bounds_fully(y, x)) continue;
+            
+            // if there is a monster in the square
+            if ((cave_m_idx[y][x] > 0) && !((y == m_ptr->fy) && (x == m_ptr->fx)))
+            {
+                monster_type *n_ptr = &mon_list[cave_m_idx[y][x]];
+                
+                resistance = monster_skill(n_ptr, S_WIL) + 5 + flow_dist(FLOW_MONSTER_NOISE, y, x);
+
+                result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), resistance, n_ptr);
+                
+                // if the check succeeds, the monster is slowed for at least 2 rounds
+                if (result > 0)
+                {
+                    set_monster_slow(cave_m_idx[y][x], MAX(m_ptr->slowed, 2), mon_list[cave_m_idx[y][x]].ml);
+                }
+            }
+        }
+    }
+    */
+
+    // determine the player's resistance
+    // Sil-y: might want to add in the same +5 bonus as against Mastery and Lorien
+    resistance = p_ptr->skill_use[S_WIL] + (p_ptr->free_act * 10) + flow_dist(FLOW_MONSTER_NOISE, p_ptr->py, p_ptr->px);
+
+    // Sil-y: ideally we'd use a call to allow_player_slow() here, but that doesn't
+    //        work as it can't take the noise distance into account.
+    //        Sadly my solution doesn't let you ID free action items.
+    result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), resistance, PLAYER);
+    
+    // if the check succeeds, the player is slowed for at least 2 rounds
+    if (result > 0)
+    {
+        set_slow(MAX(p_ptr->slow, 2));
+    }
+}
+
+/*
+ *  Do the effects of (the monster song) Song of Piercing
+ */
+void song_of_piercing(monster_type *m_ptr)
+{
+    int resistance;
+    int result;
+    int dist = flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx);
+    char m_name[80];
+    cptr description;
+    
+    /* Get the monster name */
+    monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
+    
+    // messages for beginning a new song
+    if ((m_ptr->song != SNG_PIERCING) && m_ptr->ml)
+    {
+        msg_format("%^s begins a song of piercing.", m_name);
+        
+        // and remember the monsters is now singing this song
+        m_ptr->song = SNG_PIERCING;
+        
+        // disturb if message printed
+        disturb(1, 0);
+    }
+    
+    // messages for continuing a song
+    else
+    {
+        switch (dieroll(8))
+        {
+            case 1:     description = "opening";    break;
+            case 2:     description = "treachery";  break;
+            case 3:     description = "revealing";  break;
+            case 4:     description = "uncovering"; break;
+            case 5:     description = "betraying";  break;
+            default:    description = "piercing";
+        }
+        
+        if (m_ptr->ml)          msg_format("%^s sings of %s.", m_name, description);
+        else if (dist <= 20)    msg_format("You hear a song of %s.", description);
+        else if (dist <= 30)    msg_print("You hear singing in the distance.");
+
+        // disturb if message printed
+        if (m_ptr->ml || (dist <= 30)) disturb(1, 0);
+    }
+    
+    // determine the player's resistance
+    resistance = p_ptr->skill_use[S_WIL] + dist;
+    
+    // perform the skill check
+    result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), resistance, PLAYER);
+    
+    // if the check succeeds, Morgoth knows the player's location
+    if (result > 0)
+    {
+        msg_print("You feel your mind laid bare before Morgoth's will.");
+        set_alertness(m_ptr, MIN(result, ALERTNESS_VERY_ALERT));
+    }
+    
+    else if (result > -5)
+    {
+        msg_print("You feel the force of Morgoth's will searching for the intruder.");
+    }
+}
+
+
+/*
+ *  Do the effects of (the monster song) Song of Oaths
+ */
+void song_of_oaths(monster_type *m_ptr)
+{
+    int y, x;
+    int result;
+    int range;
+    int dist = flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx);
+    char m_name[80];
+    cptr description;
+    
+    /* Get the monster name */
+    monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
+    
+    // messages for beginning a new song
+    if (m_ptr->song != SNG_OATHS)
+    {
+        msg_format("%^s begins a song of oaths.", m_name);
+        
+        // and remember the monsters is now singing this song
+        m_ptr->song = SNG_OATHS;
+        
+        // disturb if message printed
+        disturb(1, 0);
+    }
+    
+    // messages for continuing a song
+    else
+    {
+        switch (dieroll(8))
+        {
+            case 1:     description = "vows broken";        break;
+            case 2:     description = "promises";           break;
+            case 3:     description = "duty";               break;
+            case 4:     description = "tasks forgotten";    break;
+            case 5:     description = "redemption";         break;
+            default:    description = "oaths";
+        }
+        
+        if (m_ptr->ml)          msg_format("%^s sings of %s.", m_name, description);
+        else if (dist <= 20)    msg_format("You hear a song of %s.", description);
+        else if (dist <= 30)    msg_print("You hear singing in the distance.");
+
+        // Disturb if message printed
+        if (m_ptr->ml || (dist <= 30)) disturb(1, 0);
+    }
+
+    // use the monster noise flow to represent the song levels at each square
+    update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
+    
+    // perform the skill check
+    result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), 15, PLAYER);
+    
+    // if the check was successful, summon an oathwraith to a nearby square
+    if (result > 0)
+    {
+        // the greatest distance away the wraith can be summoned -- smaller is typically better
+        range = MAX(15 - result, 3);
+        
+        while (TRUE)
+        {
+            // choose a random square
+            y = rand_int(p_ptr->cur_map_hgt);
+            x = rand_int(p_ptr->cur_map_wid);
+            
+            if (!in_bounds(y,x)) continue;
+            
+            // check the square is empty and close enough
+            if (cave_empty_bold(y,x) && flow_dist(FLOW_MONSTER_NOISE, y, x) <= range)
+            {
+                monster_type *n_ptr;
+                
+                // place it
+                place_monster_one(y, x, R_IDX_OATHWRAITH, TRUE, FALSE, NULL);
+                
+                n_ptr = &mon_list[cave_m_idx[y][x]];
+                
+                // message if visible
+                if (n_ptr->ml)  msg_print("An Oathwraith appears.");
+                
+                // mark the wraith as having been summoned
+                n_ptr->mflag |= (MFLAG_SUMMONED);
+
+                // let it know where the player is
+                set_alertness(n_ptr, ALERTNESS_QUITE_ALERT);
+                
+                break;
+            }
+        }
+    }
+
+}
+
+
+/*
  *  Allows you to change the song you are singing to a new one.
  *  If you have the ability 'woven themes' and try to sing a different song, 
  *  it will add it as a theme or change the current theme.
@@ -4648,7 +5020,7 @@ void sing(void)
 					/* Ignore dead monsters */
 					if (!m_ptr->r_idx) continue;
 					
-					resistance = monster_will(m_ptr);
+					resistance = monster_skill(m_ptr, S_WIL);
 					
 					// only intelligent monsters are affected
 					if (!(r_ptr->flags2 & (RF2_SMART)))  resistance += 100;
@@ -4657,7 +5029,7 @@ void sing(void)
 					if (m_ptr->r_idx == R_IDX_MORGOTH)   resistance += 100;
 					
 					// adjust difficulty by the distance to the monster
-					result = skill_check(PLAYER, score, resistance + get_noise_dist(FLOW_REAL_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
+					result = skill_check(PLAYER, score, resistance + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
 										
 					/* If successful, cause fear in the monster */
 					if (result > 0)
@@ -4680,157 +5052,8 @@ void sing(void)
 			}
 			case SNG_FREEDOM:
 			{
-				int y, x;
-				int base_difficulty, difficulty;
-				int result;
-				int new_feat;
-				object_type *o_ptr;
-
 				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
-				
-				// set the base difficulty
-				if (p_ptr->depth > 0)
-				{
-					base_difficulty = p_ptr->depth / 2;
-				}
-				else
-				{
-					base_difficulty = 10;
-				}
-
-				/* Scan the map */
-				for (y = 0; y < p_ptr->cur_map_hgt; y++)
-				{
-					for (x = 0; x < p_ptr->cur_map_wid; x++)
-					{
-						if (!in_bounds_fully(y, x)) continue;
-						
-						// get the object present (if any)
-						o_ptr = &o_list[cave_o_idx[y][x]];
-						
-						/* Locked/trapped chest */
-						if (o_ptr->tval == TV_CHEST)
-						{
-							/* Disarm/Unlock traps */
-							if (o_ptr->pval > 0)
-							{
-								difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
-								if (skill_check(PLAYER, score, difficulty, NULL) > 0)
-								{
-									/* Disarm or Unlock */
-									o_ptr->pval = (0 - o_ptr->pval);
-									
-									/* Identify */
-									object_known(o_ptr);
-								}
-							}
-						}
-							
-						/* Invisible trap */
-						else if (cave_trap_bold(y, x) && (cave_info[y][x] & (CAVE_HIDDEN)))
-						{
-							difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
-							if (skill_check(PLAYER, score, difficulty, NULL) > 0)
-							{
-								/* Remove the trap */
-								cave_feat[y][x] = FEAT_FLOOR;
-							}
-						}
-						
-						/* Visible trap */
-						else if (cave_trap_bold(y,x))
-						{
-							difficulty = base_difficulty + 5 + get_noise_dist(FLOW_REAL_NOISE, y, x);
-							if (skill_check(PLAYER, score, difficulty, NULL) > 0)
-							{
-								/* Remove the trap */
-								cave_feat[y][x] = FEAT_FLOOR;
-								
-								if (cave_info[y][x] & (CAVE_SEEN))
-								{
-									lite_spot(y, x);
-								}
-							}
-						}
-						
-						/* Secret door */
-						else if (cave_feat[y][x] == FEAT_SECRET)
-						{
-							difficulty = base_difficulty + 0 + get_noise_dist(FLOW_REAL_NOISE, y, x);
-							if (skill_check(PLAYER, score, difficulty, NULL) > 0)
-							{
-								/* Pick a door */
-								place_closed_door(y, x);
-								
-								if (cave_info[y][x] & (CAVE_SEEN))
-								{
-									/* Message */
-									msg_print("You have found a secret door.");
-									
-									/* Disturb */
-									disturb(0, 0);
-								}
-							}
-						}
-						
-						/* Stuck door */
-						else if ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x08) && (cave_feat[y][x] <= FEAT_DOOR_TAIL))
-						{
-							difficulty = base_difficulty + 0 + get_noise_dist(FLOW_REAL_NOISE, y, x);
-							result = skill_check(PLAYER, score, difficulty, NULL);
-							if (result > 0)
-							{
-								new_feat = cave_feat[y][x] - result;
-								
-								if (new_feat <= FEAT_DOOR_HEAD + 0x08) new_feat = FEAT_DOOR_HEAD;
-								
-								cave_feat[y][x] = new_feat;
-							}
-						}
-						
-						/* Locked door */
-						else if ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01) && (cave_feat[y][x] <= FEAT_DOOR_HEAD + 0x07))
-						{
-							difficulty = base_difficulty + 0 + get_noise_dist(FLOW_REAL_NOISE, y, x);
-							result = skill_check(PLAYER, score, difficulty, NULL);
-							if (result > 0)
-							{
-								new_feat = cave_feat[y][x] - result;
-								
-								if (new_feat < FEAT_DOOR_HEAD) new_feat = FEAT_DOOR_HEAD;
-								
-								cave_feat[y][x] = new_feat;
-							}
-						}
-						
-						/* Rubble */
-						else if (cave_feat[y][x] == FEAT_RUBBLE)
-						{
-							int noise_dist = 100;
-							int d, dir;
-							
-							// check adjacent squares for valid noise distances, since rubble is impervious to sound
-							for (d = 0; d < 8; d++)
-							{
-								dir = cycle[d];
-								noise_dist = MIN(noise_dist, get_noise_dist(FLOW_REAL_NOISE, y + ddy[dir], x + ddx[dir]));
-							}
-							noise_dist++;
-														
-							difficulty = base_difficulty + 5 + noise_dist;
-							result = skill_check(PLAYER, score, difficulty, NULL);
-							if (result > 0)
-							{
-								/* Disburse the rubble */
-								cave_set_feat(y, x, FEAT_FLOOR);
-																
-								/* Update the flow code */
-								p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
-							} 
-						}
-					}
-				}
-				
+                song_of_freedom(score);
 				break;
 			}
 			case SNG_TREES:
@@ -4866,18 +5089,17 @@ void sing(void)
 					/* Ignore dead monsters */
 					if (!m_ptr->r_idx) continue;
 					
-					resistance = monster_will(m_ptr);
+					resistance = monster_skill(m_ptr, S_WIL);
 					
 					// Deal with sleep resistance
 					if (r_ptr->flags3 & (RF3_NO_SLEEP))
 					{
-					
 						resistance += 100;
 						if (m_ptr->ml) l_ptr->flags3 |= (RF3_NO_SLEEP);
 					}
 
 					// adjust difficulty by the distance to the monster
-					result = skill_check(PLAYER, score, resistance + 5 + get_noise_dist(FLOW_REAL_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
+					result = skill_check(PLAYER, score, resistance + 5 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
 					
 					/* If successful, (partially) put the monster to sleep */
 					if (result > 0)

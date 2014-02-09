@@ -514,8 +514,7 @@ static void wr_item(const object_type *o_ptr)
 /*
  * Special monster flags that get saved in the savefile
  */
-#define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_ACTV | MFLAG_ALWAYS_CAST | \
-						MFLAG_AGGRESSIVE | \
+#define SAVE_MON_FLAGS (MFLAG_ACTV | MFLAG_ALWAYS_CAST | MFLAG_AGGRESSIVE | MFLAG_SUMMONED | \
 						MFLAG_HIT_BY_RANGED | MFLAG_HIT_BY_MELEE | MFLAG_CHARGED)
 
 
@@ -525,7 +524,8 @@ static void wr_item(const object_type *o_ptr)
 static void wr_monster(const monster_type *m_ptr)
 {
 	u32b tmp32u;
-
+    int i;
+    
 	wr_s16b(m_ptr->r_idx);
 	wr_s16b(m_ptr->image_r_idx);
 	wr_byte(m_ptr->fy);
@@ -547,14 +547,25 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->encountered);
 	wr_byte(m_ptr->target_y);
 	wr_byte(m_ptr->target_x);
-	wr_byte(m_ptr->wandering_idx);
+	wr_s16b(m_ptr->wandering_idx);
 	wr_byte(m_ptr->wandering_dist);
 	wr_byte(m_ptr->mana);
-	wr_s16b(m_ptr->mimic_k_idx);
-	
-	/*save the temporary flags*/
+	wr_byte(m_ptr->song);
+    
+	wr_s16b(0); // previously mimic_k_idx
+    
+    wr_s16b(m_ptr->consecutive_attacks);
+    wr_s16b(m_ptr->turns_stationary);
+
+    /*save the temporary flags*/
 	tmp32u = m_ptr->mflag & (SAVE_MON_FLAGS);
 	wr_u32b(tmp32u);
+    
+    for (i = 0; i < ACTION_MAX; i++)
+    {
+        wr_byte(m_ptr->previous_action[i]);
+    }
+
 	
 	// 8 spare bytes
 	wr_u32b(0L);
@@ -856,8 +867,9 @@ static void wr_extra(void)
 	wr_byte(p_ptr->stealth_mode);
 	wr_byte(p_ptr->self_made_arts);
 
-	// 20 spare bytes
-	wr_byte(0);
+	wr_byte(p_ptr->climbing);
+
+	// 19 spare bytes
 	wr_byte(0);
 	wr_byte(0);
 	wr_byte(0);
@@ -1190,7 +1202,7 @@ static void wr_dungeon(void)
 	}
 	
 	// dump the wandering monster information
-	for (i = FLOW_WANDERING_HEAD; i < MAX_FLOWS; i++)
+	for (i = FLOW_WANDERING_HEAD; i <= FLOW_WANDERING_TAIL; i++)
 	{
 		wr_byte(flow_center_y[i]);
 		wr_byte(flow_center_x[i]);

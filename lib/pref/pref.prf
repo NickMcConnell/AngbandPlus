@@ -5,8 +5,16 @@
 #
 # This file includes, if appropriate, various "sub-files"
 #
-# See "lib/help/command.txt" and "src/files.c" for more information.
+# See "src/files.c" for more information.
 #
+# Keyset mappings take the form:
+# A: action
+# C: keyset : key
+#
+# There are 4 keysets (0, 1, 2, 3), representing the Sil and Angband-style sets
+#   without and with the hjkl movement
+#
+# When you press the 'key', the underlying 'action' is triggered. 
 
 
 ##### Force certain options #####
@@ -169,6 +177,10 @@ C:2:I
 A:t
 C:2:v
 
+# Throw (auto-target)
+A:^t
+C:2:^v
+
 # Universal Use
 A:u
 C:2:U
@@ -236,6 +248,8 @@ A:A
 C:2:O
 A:A
 C:2:/
+A:A
+C:2:^t
 
 ##### Angband-like Keyset Mappings with hjkl movement #####
 
@@ -327,6 +341,10 @@ C:3:I
 A:t
 C:3:v
 
+# Throw (auto-target)
+A:^t
+C:3:^v
+
 # Remove
 A:r
 C:3:t
@@ -380,6 +398,8 @@ A:A
 C:3:O
 A:A
 C:3:/
+A:A
+C:3:^t
 
 # Message colors
 %:message.prf

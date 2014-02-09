@@ -119,6 +119,8 @@ s16b mon_cnt = 0;	/* Number of live monsters */
  *  Most of the extra Sil variables...
  */
 
+bool waiting_for_command = FALSE; // whether we are currently waiting for a command
+
 bool skill_gain_in_progress = FALSE; // whether we are currently in the skill-gain screen
 
 bool save_game_quietly = FALSE; // whether we are currently trying to save the game without displaying a message
@@ -129,6 +131,7 @@ char mini_screenshot_char[7][7];  // Characters in a mini-screenshot array
 byte mini_screenshot_attr[7][7];  // Colours in a mini-screenshot array
 
 bool use_background_colors = FALSE;
+
 
 
 /*
@@ -233,7 +236,7 @@ byte angband_color_table[256][4] =
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER */
 
-	{0x00, 0x38, 0x38, 0x38},	/* TERM_DARK1 */
+	{0x00, 0x30, 0x30, 0x30},	/* TERM_DARK1 */
 	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_WHITE1 */
 	{0x00, 0xA0, 0xA0, 0xA0},	/* TERM_SLATE1 */
 	{0x00, 0xDC, 0x64, 0x00},	/* TERM_ORANGE1 */
@@ -384,11 +387,6 @@ byte update_center_y[MAX_FLOWS];
 byte update_center_x[MAX_FLOWS];
 
 /*
- * Flow cost at the center grid of the current update.
- */
-int cost_at_center[MAX_FLOWS];
-
-/*
  * Wandering monsters will often pause at their destination for a while
  */
 s16b wandering_pause[MAX_FLOWS];
@@ -412,7 +410,7 @@ bool attacked_player = FALSE;
 object_type *o_list;
 
 /*
- * Array[z_info->m_max] of dungeon monsters
+ * Array[MAX_MONSTERS] of dungeon monsters
  */
 monster_type *mon_list;
 

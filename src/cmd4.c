@@ -719,6 +719,24 @@ void wipe_screen_from(int col)
 	}
 }
 
+
+int elf_bane_bonus(monster_type *m_ptr)
+{
+    monster_race *r_ptr;
+    
+    if (m_ptr == NULL)  return (0);
+    else                r_ptr = &r_info[m_ptr->r_idx];
+    
+    // Sil-x: a bit of a hack. Noldor and Sindar are coded as races 0 and 1 in the races.txt file
+    if ((r_ptr->flags2 & (RF2_ELFBANE)) && ((p_ptr->prace == 0) || (p_ptr->prace == 1)))
+    {
+        // Dagohir must have killed between 32 and 63 elves
+        return (5);
+    }
+    
+    return (0);
+}
+
 #define BANE_TYPES 9
 
 static u32b bane_flag[] =
@@ -913,7 +931,7 @@ int bane_menu(int *highlight)
 		return (BANE_TYPES+1);
 	}
 	
-	if ((ch == '\t'))
+	if (ch == '\t')
 	{
 		return (BANE_TYPES+2);
 	}
@@ -1131,14 +1149,14 @@ int abilities_menu2(int skilltype, int *highlight)
 			if (!p_ptr->have_ability[skilltype][b_ptr->abilitynum])
 			{
 				// print the prerequisites
-				Term_putstr(COL_DESCRIPTION,  9, -1, attr, "Prerequisites:");
+				Term_putstr(COL_DESCRIPTION,  10, -1, attr, "Prerequisites:");
 				
 				strnfmt(buf, 80, "%d skill points (you have %d)", b_ptr->level, p_ptr->skill_base[skilltype]);
-				Term_putstr(COL_DESCRIPTION + 2, 11, -1, TERM_L_DARK, buf);
+				Term_putstr(COL_DESCRIPTION + 2, 12, -1, TERM_L_DARK, buf);
 				if (b_ptr->level <= p_ptr->skill_base[skilltype])
 				{
 					strnfmt(buf, 80, "%d skill points", b_ptr->level);
-					Term_putstr(COL_DESCRIPTION + 2, 11, -1, TERM_SLATE, buf);
+					Term_putstr(COL_DESCRIPTION + 2, 12, -1, TERM_SLATE, buf);
 				}
 				for (j = 0; j < b_ptr->prereqs; j++)
 				{
@@ -1150,17 +1168,17 @@ int abilities_menu2(int skilltype, int *highlight)
 					{
 						strnfmt(buf, 80, "or %s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
 					}
-					Term_putstr(COL_DESCRIPTION + 2, 12 + j, -1, TERM_L_DARK, buf);
+					Term_putstr(COL_DESCRIPTION + 2, 13 + j, -1, TERM_L_DARK, buf);
 					if (p_ptr->innate_ability[b_ptr->prereq_skilltype[j]][b_ptr->prereq_abilitynum[j]])
 					{
 						strnfmt(buf, 80, "%s", b_name + (&b_info[ability_index(b_ptr->prereq_skilltype[j], b_ptr->prereq_abilitynum[j])])->name);
 						if (j == 0)
 						{
-							Term_putstr(COL_DESCRIPTION + 2, 12 + j, -1, TERM_SLATE, buf);
+							Term_putstr(COL_DESCRIPTION + 2, 13 + j, -1, TERM_SLATE, buf);
 						}
 						else
 						{
-							Term_putstr(COL_DESCRIPTION + 5, 12 + j, -1, TERM_SLATE, buf);
+							Term_putstr(COL_DESCRIPTION + 5, 13 + j, -1, TERM_SLATE, buf);
 						}
 					}
 				}
@@ -1174,15 +1192,15 @@ int abilities_menu2(int skilltype, int *highlight)
 					if (exp_cost < 0) exp_cost = 0;
 					
 					// print the cost
-					Term_putstr(COL_DESCRIPTION,  15, -1, TERM_L_DARK, "Current price:");
+					Term_putstr(COL_DESCRIPTION,  16, -1, TERM_L_DARK, "Current price:");
 					strnfmt(buf, 80, "%d experience (you have %d)", exp_cost, p_ptr->new_exp);
-					Term_putstr(COL_DESCRIPTION + 2, 17, -1, TERM_L_DARK, buf);
+					Term_putstr(COL_DESCRIPTION + 2, 18, -1, TERM_L_DARK, buf);
 
 					if (exp_cost <= p_ptr->new_exp)
 					{
-						Term_putstr(COL_DESCRIPTION,  15, -1, TERM_SLATE, "Current price:");
+						Term_putstr(COL_DESCRIPTION,  16, -1, TERM_SLATE, "Current price:");
 						strnfmt(buf, 80, "%d experience", exp_cost, p_ptr->new_exp);
-						Term_putstr(COL_DESCRIPTION + 2, 17, -1, TERM_SLATE, buf);
+						Term_putstr(COL_DESCRIPTION + 2, 18, -1, TERM_SLATE, buf);
 					}
 				}
 			}
@@ -1190,8 +1208,8 @@ int abilities_menu2(int skilltype, int *highlight)
 			// if you have the ability and it is Bane...
 			else if ((skilltype == S_PER) && (b_ptr->abilitynum == PER_BANE) && (p_ptr->bane_type > 0))
 			{
-				Term_putstr(COL_DESCRIPTION,  9, -1, TERM_WHITE, format("%s-Bane:", bane_name[p_ptr->bane_type]));
-				Term_putstr(COL_DESCRIPTION,  11, -1, TERM_WHITE, 
+				Term_putstr(COL_DESCRIPTION,  10, -1, TERM_WHITE, format("%s-Bane:", bane_name[p_ptr->bane_type]));
+				Term_putstr(COL_DESCRIPTION,  12, -1, TERM_WHITE,
 				            format("  %d slain, giving a %+d bonus", bane_type_killed(p_ptr->bane_type), bane_bonus_aux()));
 			}
 		}
@@ -1234,7 +1252,7 @@ int abilities_menu2(int skilltype, int *highlight)
 		return (ABILITIES_MAX+1);
 	}
 	
-	if ((ch == '\t'))
+	if (ch == '\t')
 	{
 		return (ABILITIES_MAX+2);
 	}
@@ -1508,7 +1526,7 @@ smithing_cost_type smithing_cost;
 #define CAT_ARMOUR  1
 #define CAT_JEWELRY 2
 
-#define MAX_SMITHING_TVALS 17
+#define MAX_SMITHING_TVALS 18
 
 #define SMT_MENU_CREATE   1
 #define SMT_MENU_ENCHANT  2
@@ -1555,7 +1573,8 @@ static const smithing_tval_desc smithing_tvals[MAX_SMITHING_TVALS] =
 	{ CAT_JEWELRY, TV_RING,              "Ring"                 },
 	{ CAT_JEWELRY, TV_AMULET,            "Amulet"               },
 	{ CAT_JEWELRY, TV_LIGHT,             "Light"                },
-	{ CAT_ARMOUR,  TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ CAT_JEWELRY, TV_HORN,              "Horn"                 },
+	{ CAT_ARMOUR,  TV_SOFT_ARMOR,        "Soft Armour"           },
 	{ CAT_ARMOUR,  TV_MAIL,              "Mail"                 },
 	{ CAT_ARMOUR,  TV_CLOAK,             "Cloak"                },
 	{ CAT_ARMOUR,  TV_SHIELD,            "Shield"               },
@@ -1730,7 +1749,7 @@ int att_max(void)
 		{
 			att = 0;
 			if (p_ptr->active_ability[S_SMT][SMT_FINE])	att += 3;
-			if (smith_o_ptr->name1) att += 4;
+			if (smith_o_ptr->name1) att += 8;
 			if (smith_o_ptr->name2) att = 0;
 			break;
 		}
@@ -1942,7 +1961,7 @@ int evn_max(void)
 	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
 	ego_item_type *e_ptr = &e_info[smith_o_ptr->name2];
 	int evn = 0;
-	
+    
 	switch (smith_o_ptr->tval)
 	{
 		case TV_BOOTS:
@@ -2248,6 +2267,7 @@ int wgt_valid(void)
 		case TV_RING:
 		case TV_AMULET:
 		case TV_LIGHT:
+		case TV_HORN:
 		{
 			return (FALSE);
 		}
@@ -2274,8 +2294,9 @@ int wgt_max(void)
 int wgt_min(void)
 {
 	object_kind *k_ptr = &k_info[smith_o_ptr->k_idx];
-	
-	return ((k_ptr->weight + 1) / 2);
+    int weight = div_round(k_ptr->weight, 10) * 5;
+    
+	return (weight);
 }
 
 
@@ -2556,7 +2577,15 @@ int object_difficulty(object_type *o_ptr)
 	// extract object flags
 	object_flags(o_ptr, &f1, &f2, &f3);
 	
-	if (!((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
+    // special rules for horns
+    if (o_ptr->tval == TV_HORN)
+    {
+        dif_inc += k_ptr->level;
+        smithing_cost.gra += 1;
+    }
+    
+    // different rules for most other items
+	else if (!((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)))
 	{
 		// We need to ignore the flags that are basic 
 		// to the object type and focus on the special/artefact ones. We can do this by 
@@ -2576,14 +2605,15 @@ int object_difficulty(object_type *o_ptr)
 	}
 		
 	// unsual weight
-	if (o_ptr->weight > k_ptr->weight)	weight_factor = 100 * o_ptr->weight / k_ptr->weight;
-	else								weight_factor = 100 * k_ptr->weight / o_ptr->weight;
+    if (o_ptr->weight == 0)                 weight_factor = 1100;
+	else if (o_ptr->weight > k_ptr->weight)	weight_factor = 100 * o_ptr->weight / k_ptr->weight;
+	else                                    weight_factor = 100 * k_ptr->weight / o_ptr->weight;
 	dif_inc += (weight_factor - 100) / 10;
 
 	// attack bonus
 	x = o_ptr->att - k_ptr->att;
 
-	// special costs for arrows (half difficulty modifier)
+	// special costs for attack bonus for arrows (half difficulty modifier)
 	if ((o_ptr->tval == TV_ARROW) && (x > 0))
 	{	
 		int old_di = dif_inc;
@@ -2592,7 +2622,7 @@ int object_difficulty(object_type *o_ptr)
 		dif_inc = (dif_inc - old_di) / 2;
 	}
 	
-	// other items
+	// normal costs for other items
 	else
 	{
 		dif_mod(x, 5, &dif_inc);
@@ -2613,13 +2643,13 @@ int object_difficulty(object_type *o_ptr)
 	dif_mod(x, 4, &dif_inc);
 
 	// weapon modifiers
-	if (f1 & TR1_SLAY_ORC)			{	dif_inc += 5;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_TROLL)		{	dif_inc += 5;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_WOLF)			{	dif_inc += 6;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_SPIDER)		{	dif_inc += 6;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_UNDEAD)		{	dif_inc += 6;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_RAUKO)		{	dif_inc += 7;	smithing_cost.str += 1;	}
-	if (f1 & TR1_SLAY_DRAGON)		{	dif_inc += 7;	smithing_cost.str += 1;	}
+	if (f1 & TR1_SLAY_ORC)			{	dif_inc += 5;	}
+	if (f1 & TR1_SLAY_TROLL)		{	dif_inc += 5;	}
+	if (f1 & TR1_SLAY_WOLF)			{	dif_inc += 6;	}
+	if (f1 & TR1_SLAY_SPIDER)		{	dif_inc += 6;	}
+	if (f1 & TR1_SLAY_UNDEAD)		{	dif_inc += 6;	}
+	if (f1 & TR1_SLAY_RAUKO)		{	dif_inc += 7;	}
+	if (f1 & TR1_SLAY_DRAGON)		{	dif_inc += 7;	}
 	
 	if (f1 & TR1_BRAND_COLD)		{	dif_inc += 24;	smithing_cost.str += 2;	brands++; }
 	if (f1 & TR1_BRAND_FIRE)		{	dif_inc += 20;	smithing_cost.str += 2;	brands++; }
@@ -2627,7 +2657,7 @@ int object_difficulty(object_type *o_ptr)
 	if (brands > 1)					{	dif_inc += (brands-1) * 20;						  }
 	
 	if (f1 & TR1_SHARPNESS)			{	dif_inc += 20;	smithing_cost.str += 2;	}
-	if (f1 & TR1_SHARPNESS2)		{	dif_inc += 40;	smithing_cost.str += 5;	} // not available in smithing
+	if (f1 & TR1_SHARPNESS2)		{	dif_inc += 40;	smithing_cost.str += 4;	} // not available in smithing
 	if (f1 & TR1_VAMPIRIC)			{	dif_inc += 10;	smithing_cost.str += 2;	}
 	
 	// pval dependent bonuses
@@ -2743,7 +2773,7 @@ int object_difficulty(object_type *o_ptr)
 			break;
 		}
 	}
-	
+    
 	// Decreased difficulties for easily enchatable items
 	if (k_ptr->flags3 & (TR3_ENCHANTABLE))
 	{
@@ -2752,7 +2782,10 @@ int object_difficulty(object_type *o_ptr)
 	
 	// Apply the difficulty multiplier
 	dif = dif * dif_mult / 100;
-	
+
+    // Artefact arrows are much easier
+    if ((o_ptr->tval == TV_ARROW) && (o_ptr->number == 1)) dif /= 2;
+        
 	// Deal with masterpiece
 	if ((dif > p_ptr->skill_use[S_SMT] + forge_bonus(p_ptr->py, p_ptr->px)) && p_ptr->active_ability[S_SMT][SMT_MASTERPIECE])
 	{
@@ -3427,8 +3460,8 @@ void modify_numbers(int choice)
 		case SMT_NUM_MENU_D_PS:		smith_o_ptr->ps--;		break;
 		case SMT_NUM_MENU_I_PVAL:	smith_o_ptr->pval++;	break;
 		case SMT_NUM_MENU_D_PVAL:	smith_o_ptr->pval--;	break;
-		case SMT_NUM_MENU_I_WGT:	smith_o_ptr->weight++;	break;
-		case SMT_NUM_MENU_D_WGT:	smith_o_ptr->weight--;	break;
+		case SMT_NUM_MENU_I_WGT:	smith_o_ptr->weight += 5;	break;
+		case SMT_NUM_MENU_D_WGT:	smith_o_ptr->weight -= 5;	break;
 	}
 	
 	return;
@@ -3460,9 +3493,8 @@ int numbers_menu_aux(int *highlight)
 	valid[SMT_NUM_MENU_D_PS-1]    = ps_valid() && (smith_o_ptr->ps > ps_min());
 	valid[SMT_NUM_MENU_I_PVAL-1]  = pval_valid() && (smith_o_ptr->pval < pval_max());
 	valid[SMT_NUM_MENU_D_PVAL-1]  = pval_valid() && (smith_o_ptr->pval > pval_min());
-	valid[SMT_NUM_MENU_I_WGT-1]   = wgt_valid() && (smith_o_ptr->weight < wgt_max());
-	valid[SMT_NUM_MENU_D_WGT-1]   = wgt_valid() && (smith_o_ptr->weight > wgt_min());
-	
+	valid[SMT_NUM_MENU_I_WGT-1]   = wgt_valid() && ((smith_o_ptr->weight + 5) <= wgt_max());
+	valid[SMT_NUM_MENU_D_WGT-1]   = wgt_valid() && ((smith_o_ptr->weight - 5) >= wgt_min());
 	
 	// retrieve a super backup of the object
 	object_copy(smith3_o_ptr, smith_o_ptr);
@@ -4178,7 +4210,7 @@ bool applicable_ability(ability_type *b_ptr, object_type *o_ptr)
 		}
 	}
 	
-	// Perfect Balance is OK for throwing items
+	// Throwing Mastery is OK for throwing items
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_THROWING)
 	{
@@ -4239,7 +4271,7 @@ void add_artefact_ability(int skilltype, int abilitynum)
 
 
 /*
- * Removes a given ability to the dummy artefact.
+ * Removes a given ability from the dummy artefact.
  */
 void remove_artefact_ability(int skilltype, int abilitynum)
 {	
@@ -4703,13 +4735,13 @@ void artefact_menu(void)
 		smith2_a_ptr->flags3 |= (TR3_IGNORE_MASK);
 	}
 	
-	// change the SV for artefact rings and amulets
-	if (smith_o_ptr->tval == TV_RING)
+	// change the SV for rings and amulets when they start to get made into artefacts
+	if ((smith_o_ptr->tval == TV_RING) && !smith_o_ptr->name1)
 	{
 		create_base_object(TV_RING, SV_RING_SELF_MADE);
 		object_copy(smith2_o_ptr, smith_o_ptr);
 	}
-	if (smith_o_ptr->tval == TV_AMULET)
+	if ((smith_o_ptr->tval == TV_AMULET) && !smith_o_ptr->name1)
 	{
 		create_base_object(TV_AMULET, SV_AMULET_SELF_MADE);
 		object_copy(smith2_o_ptr, smith_o_ptr);
@@ -4917,12 +4949,16 @@ int smithing_menu_aux(int *highlight)
 							      p_ptr->active_ability[S_SMT][SMT_ARMOURSMITH] ||
 						 	      p_ptr->active_ability[S_SMT][SMT_JEWELLER]);
 	valid[SMT_MENU_ENCHANT-1]  = (p_ptr->active_ability[S_SMT][SMT_ENCHANTMENT] &&
+                                  (!smith_o_ptr->name1) &&
 								  (smith_o_ptr->tval != 0) &&
 								  (smith_o_ptr->tval != TV_RING) &&
 								  (smith_o_ptr->tval != TV_AMULET) &&
+								  (smith_o_ptr->tval != TV_HORN) &&
 								  !((smith_o_ptr->tval == TV_DIGGING) && (smith_o_ptr->sval == SV_SHOVEL)));
 	valid[SMT_MENU_ARTEFACT-1] = (p_ptr->active_ability[S_SMT][SMT_ARTEFACT] &&
+                                  (!smith_o_ptr->name2) &&
 								  (smith_o_ptr->tval != 0) &&
+								  (smith_o_ptr->tval != TV_HORN) &&
 								  (p_ptr->self_made_arts < z_info->art_self_made_max - z_info->art_rand_max - 2));
 	valid[SMT_MENU_NUMBERS-1]  = (smith_o_ptr->tval != 0);
 	valid[SMT_MENU_MELT-1]     = mithril_items_carried() && cave_forge_bold(p_ptr->py, p_ptr->px) && (forge_uses(p_ptr->py, p_ptr->px) > 0);
@@ -4961,17 +4997,22 @@ int smithing_menu_aux(int *highlight)
 	// display information about the selected item
 	switch (*highlight)
 	{
-		case SMT_MENU_CREATE:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Choose the base item to be created."); break;	}
+		case SMT_MENU_CREATE:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Start with a new base item."); break;	}
 		case SMT_MENU_ENCHANT:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Choose a special enchantment to add");
-									Term_putstr(COL_SMT2+2, 3, -1, TERM_SLATE, "to the base item."); break;	}
-		case SMT_MENU_ARTEFACT:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Design your own artefact."); break;	}
+                                    Term_putstr(COL_SMT2+2, 3, -1, TERM_SLATE, "to the base item.");
+                                    if (smith_o_ptr->name1)
+                                        Term_putstr(COL_SMT2+2, 5, -1, TERM_L_DARK, "(not compatible with Artifice)"); break;	}
+		case SMT_MENU_ARTEFACT:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Design your own artefact.");
+                                    if (smith_o_ptr->name2)
+                                        Term_putstr(COL_SMT2+2, 4, -1, TERM_L_DARK, "(not compatible with Enchant)"); break;	}
 		case SMT_MENU_NUMBERS:	{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Change the item's key numbers."); break;	}
 		case SMT_MENU_MELT:		{	Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Choose a mithril item to melt down."); break;	}
 		case SMT_MENU_ACCEPT:
 		{
 			if (forge_uses(p_ptr->py, p_ptr->px) > 0)
 			{
-				Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Create the item you have designed."); 
+				Term_putstr(COL_SMT2+2, 2, -1, TERM_SLATE, "Create the item you have designed.");
+                Term_putstr(COL_SMT2+2, 4, -1, TERM_SLATE, "(to cancel it instead, just press Escape)");
 			}
 			else if (cave_forge_bold(p_ptr->py, p_ptr->px))
 			{
@@ -5121,6 +5162,42 @@ void do_cmd_smithing_screen(void)
 				
 				break;
 			}
+			case SMT_MENU_ENCHANT:
+			{
+				if (smith_o_ptr->tval)
+				{
+					// this is not a resumption of smithing an item
+					p_ptr->smithing_leftover = 0;
+                    
+					if (!enchant_menu())
+					{
+						// restore the smithing object
+						object_copy(smith_o_ptr, smith2_o_ptr);
+					}
+				}
+				else
+				{
+					bell("You must first select a base item.");
+				}
+				
+				break;
+			}
+			case SMT_MENU_ARTEFACT:
+			{
+				if (smith_o_ptr->tval)
+				{
+					// this is not a resumption of smithing an item
+					p_ptr->smithing_leftover = 0;
+                    
+					artefact_menu();
+				}
+				else
+				{
+					bell("You must first select a base item.");
+				}
+                
+				break;
+			}
 			case SMT_MENU_NUMBERS:
 			{
 				if (smith_o_ptr->tval)
@@ -5154,42 +5231,6 @@ void do_cmd_smithing_screen(void)
 					bell("You don't have any mithril items.");
 				}
 				
-				break;
-			}
-			case SMT_MENU_ENCHANT:
-			{
-				if (smith_o_ptr->tval)
-				{
-					// this is not a resumption of smithing an item
-					p_ptr->smithing_leftover = 0;
-
-					if (!enchant_menu())
-					{
-						// restore the smithing object
-						object_copy(smith_o_ptr, smith2_o_ptr);
-					}
-				}
-				else
-				{
-					bell("You must first select a base item.");
-				}
-				
-				break;
-			}
-			case SMT_MENU_ARTEFACT:
-			{
-				if (smith_o_ptr->tval)
-				{
-					// this is not a resumption of smithing an item
-					p_ptr->smithing_leftover = 0;
-
-					artefact_menu();
-				}
-				else
-				{
-					bell("You must first select a base item.");
-				}
-
 				break;
 			}
 			case SMT_MENU_ACCEPT:
@@ -8429,7 +8470,7 @@ void do_cmd_note(char *note, int what_depth)
  	/* If a note is passed, use that, otherwise accept user input. */
  	if (streq(note, ""))
 	{
- 	  	if (!term_get_string("Note: ", buf, 70)) return;
+ 	  	if (!term_get_string("Note: ", buf, 57)) return;
  	}
 	else
 	{
@@ -8462,7 +8503,7 @@ void do_cmd_note(char *note, int what_depth)
 	comma_number(turn_string, playerturn);
 
 	/* Make preliminary part of note */
-	strnfmt(info_note, sizeof(info_note), "%8s  %s    ", turn_string, depths);
+	strnfmt(info_note, sizeof(info_note), "%7s  %s   ", turn_string, depths);
 
 	/*write the info note*/
 	my_strcat(notes_buffer, info_note, sizeof(notes_buffer));
@@ -8511,7 +8552,7 @@ void do_cmd_note(char *note, int what_depth)
 			}
 
 			/*make a continued note if applicable*/
-			if (startpoint) my_strcat(notes_buffer, "                      ", sizeof(notes_buffer));
+			if (startpoint) my_strcat(notes_buffer, "                    ", sizeof(notes_buffer));
 
 			/* Write that line to file */
 			for (n = startpoint; n <= endpoint; n++)
@@ -8687,7 +8728,7 @@ static cptr object_group_text[] =
 	"Rings",
 	"Amulets",
 	"Staves",
-	"Trumpets",
+	"Horns",
 	"Swords",
 	"Axes & Polearms",
 	"Blunt Weapons",
@@ -8695,7 +8736,7 @@ static cptr object_group_text[] =
 	"Bows",
 //	"Arrows",
 	"Light Sources",
-	"Soft Armor",
+	"Soft Armour",
 	"Mail",
 	"Shields",
 	"Cloaks",
@@ -8719,7 +8760,7 @@ static byte object_group_tval[] =
 	TV_RING,
 	TV_AMULET,
 	TV_STAFF,
-	TV_TRUMPET,
+	TV_HORN,
 	TV_SWORD,
 	TV_POLEARM,
 	TV_HAFTED,
@@ -10015,26 +10056,26 @@ static void display_object_list(int col, int row, int per_page, object_list_entr
 				if (obj->sval == -1)
 				{
 					buf[0] = '\0';
-					strncat(buf, "  ", sizeof(buf));
-					strncat(buf, &e_name[e_ptr->name], sizeof(buf));
+                    snprintf(buf, sizeof(buf), "  %s", &e_name[e_ptr->name]);
 				}
 				else
 				{
 					int j;
+                    char buf2[80];
 
 					/* Find the specific type */
 					buf[0] = '\0';
+					buf2[0] = '\0';
 					for (j = 0; j < z_info->k_max; ++j)
 					{
 						if ((k_info[j].tval == obj->tval) && (k_info[j].sval == obj->sval))
-							{
-							strip_name(buf, j);
+                        {
+							strip_name(buf2, j);
 							break;
 						}
 					}
-
-					strncat(buf, " ", sizeof(buf));
-					strncat(buf, &e_name[e_ptr->name], sizeof(buf));
+                    
+                    snprintf(buf, sizeof(buf), "%s %s", buf2, &e_name[e_ptr->name]);
 				}
 
 				c_prt(attr, buf, row + i, col);

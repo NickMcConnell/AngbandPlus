@@ -39,9 +39,7 @@
 #     thus the monster will appear to be an empty black space if its
 #     color is d.
 #
-# 'I' is for information - speed, health, 'mana': casting a spell uses 20
-#     and all the 'mana' regenerates every 10 rounds,
-#     light radius in squares.
+# 'I' is for information - speed, health, light radius in squares.
 #
 # 'A' is for alertness - their maximum sleep value, their perception score, 
 #     their stealth score, and their will score.
@@ -214,7 +212,7 @@
 #     - nasty attacks
 #     - immune to most things
 #     - resistant to criticals
-#     - wights: cast darkness, territorial, have hoards
+#     - wights: 3d4 prot, 4d4 health, cast darkness and slow, territorial, hoards
 #
 # - T   (trolls)
 #     - groups
@@ -295,11 +293,13 @@
 #
 # - elves (prisoners who have been driven mad or to evil)
 # - another, more powerful, giant type
-# - an animated treasure chest (?)
+# - a unique wraith?
+# - an animated treasure chest
+#   - too out of theme, but would be great fun in crawl or NetHack...
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.2.0
 
 
 ##### Non-race (contains the player picture) #####
@@ -320,7 +320,7 @@ G:@:w
 N:11:Orc scout
 W:1:4
 G:o:D
-I:2:5d4:20:0
+I:2:5d4:0
 A:15:5:5:1
 P:[+1,1d4]
 B:HIT:HURT:(+1,2d5)
@@ -336,7 +336,7 @@ D: attract attention. It has a crude sword.
 N:12:Wolf
 W:1:1
 G:C:u
-I:3:6d4:0:0
+I:3:6d4:0
 A:20:4:3:1
 P:[+2,1d4]
 B:BITE:HURT:(+1,2d4)
@@ -347,7 +347,7 @@ D:This ragged wolf is part of the orcish packs.
 N:13:Grey mold
 W:1:1
 G:m:s
-I:2:8d4:0:0
+I:2:8d4:0
 A:0:0:0:0
 P:[-5,2d4]
 B:SPORE:HURT:(+0,1d4)
@@ -363,21 +363,21 @@ D:It is a strange growth on the dungeon floor.
 N:21:Giant bat
 W:2:1
 G:b:D1
-I:4:2d4:0:0
+I:4:2d4:0
 A:30:2:4:1
 P:[+7,1d4]
 B:BITE:HURT:(+6,2d3)
-F:RAND_50 | TERRITORIAL
+F:FLYING | RAND_50 | TERRITORIAL
 D:It screeches as it flutters towards you.
 
 
 N:22:White worm mass
 W:2:1
 G:w:w
-I:1:6d4:0:0
+I:1:6d4:0
 A:10:0:5:1
 P:[+0]
-B:CRAWL:POISON:(+2,1d5)
+B:CRAWL:POISON:(+2,1d6)
 F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:FRIEND | RES_POIS | NO_FEAR | NO_CONF | RES_CRIT
 F:TERRITORIAL
@@ -391,7 +391,7 @@ D: on the floor.
 N:31:Orc soldier
 W:3:1
 G:o:s
-I:2:8d4:0:0
+I:2:8d4:0
 A:15:3:1:2
 P:[+2,2d4]
 B:HIT:HURT:(+1,2d7)
@@ -404,7 +404,7 @@ D: He wears black leathers with a crude sword and shield.
 N:32:Brown mold
 W:3:1
 G:m:u
-I:2:8d4:0:0
+I:2:8d4:0
 A:0:0:0:1
 P:[-5,2d4]
 B:SPORE:CONFUSE:(+0,1d4)
@@ -416,7 +416,7 @@ D:It is a strange growth on the dungeon floor.
 N:33:Metallic green centipede
 W:3:1
 G:c:g
-I:3:2d4:0:0
+I:3:2d4:0
 A:15:2:3:1
 P:[+3,4d4]
 B:BITE:HURT:(+4,2d4)
@@ -431,7 +431,7 @@ D: It is protected by a thick, metallic green carapace.
 N:41:White wolf
 W:4:1
 G:C:w
-I:3:8d4:0:0
+I:3:8d4:0
 A:20:5:3:1
 P:[+5,1d4]
 B:BITE:HURT:(+4,2d5)
@@ -442,11 +442,11 @@ D:A large and fierce wolf from the northern wastes.
 N:42:Crebain
 W:4:2
 G:b:s
-I:4:1d4:30:0
+I:4:1d4:0
 A:15:6:4:2
 P:[+9]
 B:PECK:WOUND:(+10,1d3)
-F:FRIENDS | RAND_25
+F:FRIENDS | FLYING | RAND_25
 S:SPELL_PCT_15
 S:SHRIEK
 D:A type of crow, specially bred by the forces of evil as spies.
@@ -455,10 +455,10 @@ D:A type of crow, specially bred by the forces of evil as spies.
 N:43:Green worm mass
 W:4:2
 G:w:g
-I:1:6d4:0:0
+I:1:6d4:0
 A:10:1:5:2
 P:[+0]
-B:CRAWL:ACID:(+4,2d5)
+B:CRAWL:ACID:(+4,2d6)
 F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:FRIEND | NO_FEAR | NO_CONF | RES_CRIT
 F:TERRITORIAL
@@ -474,7 +474,7 @@ D: on the floor.
 N:51:Orc archer
 W:5:3
 G:o:U
-I:2:7d4:0:0
+I:2:7d4:0
 A:15:3:3:3
 P:[+4,1d4]
 B:HIT:HURT:(+5,2d5)
@@ -489,7 +489,7 @@ D: He carries a crude sword and bow.
 N:52:Violet mold
 W:5:4
 G:m:v1
-I:2:8d4:0:0
+I:2:8d4:0
 A:0:0:0:3
 P:[-5,2d4]
 B:SPORE:LOSE_CON:(+0,1d4)
@@ -501,7 +501,7 @@ D:It is a strange growth on the dungeon floor.
 N:53:Sword spider
 W:5:1
 G:M:s
-I:3:12d4:0:0
+I:3:12d4:0
 A:15:3:2:3
 P:[+6,1d4]
 B:BITE:HURT:(+7,2d9)
@@ -513,18 +513,18 @@ D: It skitters back and forth.
 N:54:Hummerhorn
 W:5:3
 G:I:y
-I:4:2d4:0:0
+I:4:2d4:0
 A:5:5:1:3
 P:[+11]
 B:STING:CONFUSE:(+10,1d7)
-F:RAND_25 | RAND_50 | FRIENDS | TERRITORIAL
+F:FLYING | RAND_25 | RAND_50 | FRIENDS | TERRITORIAL
 D:A giant buzzing wasp, its stinger drips venom.
 
 
 N:55:Gorgol, the Butcher
 W:5:10
 G:o:G
-I:2:12d4:0:0
+I:2:12d4:0
 A:15:4:1:5
 P:[+4,3d4]
 B:HIT:HURT:(+6,3d7)
@@ -541,24 +541,25 @@ D: order with displays of violence.
 N:61:Orc warrior
 W:6:1
 G:o:W
-I:2:9d4:0:0
+I:2:9d4:0
 A:15:4:1:4
 P:[+5,2d4]
-B:HIT:HURT:(+3,3d7)
+B:HIT:HURT:(+3,3d6)
 F:MALE | DROP_33 | OPEN_DOOR | BASH_DOOR
-F:ORC | HURT_LITE | FRIENDS | SMART
+F:ORC | HURT_LITE | FRIEND | SMART
+F:CHARGE
 D:He is one of Morgoth's grim mockeries of the firstborn.
-D: He wears hardened leathers and wields a battle axe.
+D: He wears hardened leathers and runs towards you with axe in hand.
 
 
 N:62:Gorcrow
 W:6:2
 G:b:D
-I:4:1d4:0:0
+I:4:1d4:0
 A:15:4:3:3
 P:[+11]
 B:PECK:BLIND:(+12,1d5)
-F:FRIEND | RAND_25
+F:FRIEND | FLYING | RAND_25
 D:A dark creature, related to the crow. It pecks at any exposed flesh,
 D: especially the face and eyes.
 
@@ -566,10 +567,10 @@ D: especially the face and eyes.
 N:63:Clear worm mass
 W:6:4
 G:w:W
-I:1:6d4:0:0
+I:1:6d4:0
 A:10:2:5:3
 P:[+1]
-B:CRAWL:POISON:(+6,1d5)
+B:CRAWL:POISON:(+6,1d6)
 F:ATTR_CLEAR | RAND_25 | RAND_50 | MINDLESS | INVISIBLE
 F:MULTIPLY | FRIEND | RES_POIS
 F:NO_FEAR | NO_CONF | RES_CRIT
@@ -581,7 +582,7 @@ D: on the floor.
 N:64:Mewlip
 W:6:3
 G:H:u
-I:2:14d4:20:0
+I:2:14d4:0
 A:15:5:3:6
 P:[+4,2d4]
 B:CLAW:WOUND:(+8,3d4)
@@ -599,7 +600,7 @@ D: of those who draw near.
 N:71:Orc thief
 W:7:3
 G:o:g
-I:2:7d4:0:0
+I:2:7d4:0
 A:10:6:10:4
 P:[+10,1d4]
 B:HIT:HURT:(+10,1d8)
@@ -612,7 +613,7 @@ D:He is one of Morgoth's grim mockeries of the firstborn.
 N:72:Shadow mold
 W:7:1
 G:m:D
-I:2:8d4:0:-2
+I:2:8d4:-2
 A:0:0:0:4
 P:[-5,2d4]
 B:SPORE:DARK:(+0,2d4)
@@ -624,7 +625,7 @@ D:A strange dark growth on the dungeon floor.
 N:73:Metallic red centipede
 W:7:1
 G:c:r
-I:3:2d4:0:0
+I:3:2d4:0
 A:10:3:3:2
 P:[+7,4d4]
 B:BITE:HURT:(+8,2d6)
@@ -638,7 +639,7 @@ D: It is protected by a thick, metallic red carapace.
 N:74:Easterling spy
 W:7:3
 G:@:D
-I:2:6d4:20:1
+I:2:6d4:1
 A:15:7:7:7
 P:[+8,1d4]
 B:HIT:HURT:(+7,1d8)
@@ -661,23 +662,23 @@ D: Morgoth's sway.
 N:81:Orc champion
 W:8:2
 G:o:b
-I:2:11d4:0:0
+I:2:11d4:0
 A:15:4:1:5
 P:[+5,3d4]
 B:HIT:HURT:(+6,3d8)
 F:MALE | DROP_100 | OPEN_DOOR | BASH_DOOR
 F:ORC | HURT_LITE | SMART
-D:A champion of the orc hordes. He wears well-fitting armor and
+D:A champion of the orc hordes. He wears well-fitting armour and
 D: wields a battle axe.
 
 
 N:82:Violet worm mass
 W:8:3
 G:w:v1
-I:1:6d4:0:0
+I:1:6d4:0
 A:10:2:5:5
 P:[+3]
-B:CRAWL:LOSE_STR:(+5,3d5)
+B:CRAWL:LOSE_STR:(+5,3d6)
 F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:FRIEND | NO_FEAR | NO_CONF | RES_CRIT
 F:TERRITORIAL
@@ -688,28 +689,29 @@ D: on the floor.
 N:83:Mountain troll
 W:8:1
 G:T:W
-I:2:14d4:0:0
+I:2:14d4:0
 A:15:2:0:2
 P:[+4,2d4]
 B:HIT:BATTER:(+7,4d5)
 F:MALE | FRIEND | DROP_33 | REGENERATE | OPEN_DOOR
 F:BASH_DOOR | TROLL | HURT_LITE | SMART | NO_FEAR
+F:KNOCK_BACK
 D:A tall troll from the mountains of the north.
 
 
 N:84:Grave wight
 W:8:2
 G:W:U
-I:2:4d4:20:0
+I:2:4d4:0
 A:10:8:5:5
-P:[+6,2d4]
+P:[+6,3d4]
 B:HIT:HURT:(+10,2d9)
-B:TOUCH:SLOW:(+10)
+B:TOUCH:LOSE_STR:(+10)
 F:DROP_100 | OPEN_DOOR
 F:UNDEAD | HURT_LITE | RES_COLD | SMART | TERRITORIAL
 F:NO_FEAR | RES_POIS | NO_CONF | NO_SLEEP | RES_CRIT
-S:SPELL_PCT_15
-S:DARKNESS
+S:SPELL_PCT_20
+S:DARKNESS | SLOW
 D:It is a ghostly form, wrapped in a stained shroud.
 D: It protects that with which is was buried.
 
@@ -717,12 +719,13 @@ D: It protects that with which is was buried.
 N:85:Easterling warrior
 W:8:2
 G:@:W
-I:2:10d4:0:1
+I:2:10d4:1
 A:15:4:1:7
 P:[+5,3d4]
 B:HIT:HURT:(+7,2d8)
 F:MALE | DROP_33 | OPEN_DOOR | BASH_DOOR | FRIENDS
 F:SMART
+F:FLANKING
 D:Yet neither by wolf, nor by Balrog, nor by Dragon, would
 D: Morgoth have achieved his end, but for the treachery of Men.
 D: He is of a people who have come recently to
@@ -733,7 +736,7 @@ D: Morgoth's sway.
 N:86:Boldog, the Merciless
 W:8:20
 G:o:y
-I:2:13d4:0:0
+I:2:13d4:0
 A:15:5:1:6
 P:[+7,3d4]
 B:HIT:HURT:(+13,1d15)
@@ -755,7 +758,7 @@ D: lands of the elves.
 N:91:Orc captain
 W:9:3
 G:o:r
-I:2:10d4:0:0
+I:2:10d4:0
 A:15:5:1:6
 P:[+7,3d4]
 B:HIT:HURT:(+10,2d8)
@@ -769,7 +772,7 @@ D: He leads a patrol of lesser orcs.
 N:92:Distended spider
 W:9:1
 G:M:u
-I:2:18d4:0:0
+I:2:18d4:0
 A:15:5:3:5
 P:[+6]
 B:BITE:POISON:(+6,2d11)
@@ -780,18 +783,18 @@ D:It is a vast spider whose bulbous body is bloated with poison.
 N:93:Giant green dragonfly
 W:9:2
 G:I:G
-I:4:2d4:0:0
+I:4:2d4:0
 A:5:6:3:6
 P:[+15]
 B:STING:HALLU:(+15,1d7)
-F:RAND_25 | RAND_50 | ATTR_MULTI | TERRITORIAL
+F:FLYING | RAND_25 | RAND_50 | ATTR_MULTI | TERRITORIAL
 D:A vast, iridescent green dragonfly.
 
 
 N:94:Easterling archer
 W:9:5
 G:@:u
-I:2:9d4:0:1
+I:2:9d4:1
 A:15:5:3:7
 P:[+8,2d4]
 B:HIT:HURT:(+8,1d7)
@@ -812,10 +815,10 @@ D: Morgoth's sway.
 N:101:Shadow worm mass
 W:10:1
 G:w:s
-I:1:6d4:0:-1
+I:1:6d4:-1
 A:10:3:5:5
 P:[+5]
-B:CRAWL:DARK:(+6,2d5)
+B:CRAWL:DARK:(+6,2d6)
 F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:FRIEND | NO_FEAR | NO_CONF | RES_CRIT | HURT_LITE
 F:TERRITORIAL
@@ -826,7 +829,7 @@ D: on the floor. Darkness enshrouds it.
 N:102:Warg
 W:10:1
 G:C:s
-I:3:10d4:0:0
+I:3:10d4:0
 A:20:8:4:6
 P:[+11,1d4]
 B:BITE:HURT:(+10,2d7)
@@ -839,16 +842,16 @@ D:It is a great wolf with eyes full of cunning.
 N:103:Barrow wight
 W:10:100
 G:W:W
-I:2:12d4:20:0
+I:2:4d4:0
 A:10:9:5:6
-P:[+7,2d4]
+P:[+7,3d4]
 B:HIT:HURT:(+12,2d9)
-B:TOUCH:ENTRANCE:(+12)
-F:DROP_100 | OPEN_DOOR
+B:TOUCH:LOSE_GRA:(+12)
+F:DROP_100 | OPEN_DOOR | SPECIAL_GEN
 F:UNDEAD | HURT_LITE | RES_COLD | SMART | TERRITORIAL
 F:NO_FEAR | RES_POIS | NO_CONF | NO_SLEEP | RES_CRIT
-S:SPELL_PCT_15
-S:DARKNESS
+S:SPELL_PCT_20
+S:DARKNESS | SLOW
 D:This ghostly, shrouded form dwells within its burial
 D: chamber, unable to find release.
 
@@ -856,23 +859,26 @@ D: chamber, unable to find release.
 N:104:Giant violet dragonfly
 W:10:1
 G:I:v1
-I:4:2d4:0:0
+I:4:2d4:0
 A:5:6:3:6
 P:[+16]
 B:STING:LOSE_DEX:(+16,1d7)
-F:RAND_25 | RAND_50 | TERRITORIAL
+F:FLYING | RAND_25 | RAND_50 | TERRITORIAL
 D:A vast, iridescent violet dragonfly.
 
 
 N:105:Uldor, the Accursed
 W:10:10
 G:@:U1
-I:2:14d4:0:1
+I:2:14d4:1
 A:15:6:1:9
-P:[+8,5d4]
-B:HIT:HURT:(+15,2d8)
+P:[+12,3d4]
+B:HIT:HURT:(+15,2d7)
+S:SPELL_PCT_75 | POW_20
+S:ARROW1
 F:UNIQUE | MALE | DROP_100 | ESCORT | SMART
 F:DROP_GOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | UNLOCK_DOOR
+F:CRIPPLING
 D:Son of Ulfang, the Black, and the leader in the treason against
 D: the elves in the Battle of Unnumbered Tears.
 
@@ -880,7 +886,7 @@ D: the elves in the Battle of Unnumbered Tears.
 N:106:Orcobal, Champion of the Orcs
 W:10:15
 G:o:B
-I:2:15d4:0:0
+I:2:15d4:0
 A:15:6:1:7
 P:[+9,3d4]
 B:HIT:HURT:(+11,3d10)
@@ -896,26 +902,26 @@ D:The chief champion of the orcs of Morgoth.
 N:111:Snow troll
 W:11:1
 G:T:w
-I:2:16d4:0:0
+I:2:16d4:0
 A:15:3:0:3
 P:[+7,2d4]
 B:HIT:BATTER:(+9,4d6)
 B:BITE:COLD:(+8,2d9)
 F:MALE | FRIEND | DROP_33 | REGENERATE | OPEN_DOOR
 F:BASH_DOOR | TROLL | HURT_LITE | RES_COLD | HURT_FIRE
-F:SMART
-F:NO_FEAR
+F:SMART | NO_FEAR
+F:KNOCK_BACK
 D:He is a white troll with powerfully clawed hands.
 
 
 N:112:Giant bronze dragonfly
 W:11:2
 G:I:U
-I:4:2d4:0:0
+I:4:2d4:0
 A:5:6:3:7
 P:[+17]
 B:STING:CONFUSE:(+17,1d7)
-F:RAND_25 | RAND_50 | ATTR_MULTI | TERRITORIAL
+F:FLYING | RAND_25 | RAND_50 | ATTR_MULTI | TERRITORIAL
 D:This vast gleaming bronze dragonfly has wings
 D: which beat mesmerically fast.
 
@@ -923,7 +929,7 @@ D: which beat mesmerically fast.
 N:113:Lurking horror
 W:11:5
 G:H:D
-I:2:10d4:20:-2
+I:2:10d4:-2
 A:1:7:3:9
 P:[+11,1d4]
 B:BITE:ENTRANCE:(+10,2d9)
@@ -937,7 +943,7 @@ D: It seems to be made entirely of claws and of teeth.
 N:114:Giant
 W:11:1
 G:G:U
-I:2:30d4:0:2
+I:2:30d4:2
 A:15:2:0:7
 P:[+5,1d4]
 B:HIT:HURT:(+6,4d9)
@@ -952,13 +958,14 @@ D: armed with a great club.
 N:115:Ulfang the Black
 W:11:10
 G:@:s
-I:2:15d4:0:1
+I:2:15d4:1
 A:15:6:1:10
 P:[+12,4d4]
 B:HIT:HURT:(+18,2d8)
 F:UNIQUE | MALE | DROP_2D2 | ESCORT | SMART
 F:DROP_GOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
-D: Ulfang was a great leader of the Easterlings and led them in
+F:OPPORTUNIST
+D:Ulfang was a great leader of the Easterlings and led them in
 D: their treachery. He and his sons once openly swore allegiance
 D: to the High Elves, but were secretly in the pay of Morgoth.
 
@@ -966,7 +973,7 @@ D: to the High Elves, but were secretly in the pay of Morgoth.
 N:116:Othrod, the Orc Lord
 W:11:10
 G:o:R
-I:2:15d4:0:0
+I:2:15d4:0
 A:15:6:1:8
 P:[+10,4d4]
 B:HIT:HURT:(+16,2d9)
@@ -979,16 +986,37 @@ D: the intelligence that has kept him a favourite
 D: of the black enemy for many years.
 
 
+# need to leave Aldor at location 117
+
+N:117:Aldor, the Risen King
+W:11:100
+G:W:R
+I:2:8d4:0
+A:10:12:5:10
+P:[+8,3d4]
+B:TOUCH:LOSE_CON:(+15)
+B:HIT:HURT:(+15,2d9)
+F:DROP_100 | DROP_GREAT | OPEN_DOOR | SPECIAL_GEN
+F:UNDEAD | HURT_LITE | RES_COLD | SMART | TERRITORIAL
+F:NO_FEAR | RES_POIS | NO_CONF | NO_SLEEP | RES_CRIT
+S:SPELL_PCT_20
+S:SLOW | HOLD
+D:A king of men before the Noldor returned to Middle-earth,
+D: the black power of Morgoth has kept his spirit bound to
+D: this place, far from Mandos' halls. He is arrayed in
+D: finery and holds a long blade in ghostly fingers.
+
+
 ##### 12 #####
 
 
 N:121:Nether worm mass
 W:12:4
 G:w:D
-I:1:6d4:0:0
+I:1:6d4:0
 A:10:4:5:8
 P:[+7]
-B:CRAWL:LOSE_GRA:(+11,3d5)
+B:CRAWL:LOSE_GRA:(+11,3d6)
 F:RAND_25 | RAND_50 | MINDLESS | MULTIPLY
 F:BASH_DOOR | FRIEND | KILL_WALL
 F:NO_FEAR | NO_CONF | RES_CRIT | TERRITORIAL
@@ -999,22 +1027,23 @@ D: the air, you....
 N:122:Shadow bat
 W:12:4
 G:b:D1
-I:4:2d4:0:-2
+I:4:2d4:-2
 A:15:10:4:7
 P:[+19,1d4]
 B:BITE:HURT:(+17,2d5)
-F:RAND_50 | TERRITORIAL | HURT_LITE
+F:FLYING | RAND_50 | TERRITORIAL | HURT_LITE
 D:A screeching flutter of darkness.
 
 
 N:123:Sulrauko
 W:12:2
 G:R:W
-I:2:5d4:0:0
+I:2:5d4:0
 A:10:6:5:10
-P:[+15,3d4]
+P:[+14,2d4]
 B:HIT:BATTER:(+14,3d5)
-F:BASH_DOOR | INVISIBLE | RES_CRIT | RES_POIS | RAND_50
+F:BASH_DOOR | INVISIBLE | RES_CRIT | RES_POIS
+F:FLYING | RAND_50
 F:RAUKO | SMART
 D:A wind spirit, bent to Morgoth's will.
 
@@ -1022,7 +1051,7 @@ D:A wind spirit, bent to Morgoth's will.
 N:124:Fire-drake hatchling
 W:12:6
 G:d:R
-I:2:10d4:20:0
+I:2:10d4:0
 A:30:5:2:8
 P:[+11,1d4]
 B:BITE:FIRE:(+13,2d5)
@@ -1038,7 +1067,7 @@ D: its fearsome breath.
 N:125:Gilim, the Giant of Eruman
 W:12:10
 G:G:w
-I:2:35d4:0:2
+I:2:35d4:2
 A:15:4:0:9
 P:[+8,1d4]
 B:HIT:COLD:(+9,4d9)
@@ -1056,7 +1085,7 @@ D: he is tall even among giants, and his name is cursed in many lands.
 N:126:Duruin, Least of the Balrogs
 W:12:30
 G:R:o
-I:2:28d4:0:-3
+I:2:28d4:-3
 A:5:6:1:11
 P:[+13,4d4]
 B:HIT:FIRE:(+18,2d12)
@@ -1077,7 +1106,7 @@ D: and shadow. He wields fiery sword and whip.
 N:131:Werewolf
 W:13:1
 G:C:U
-I:3:12d4:0:0
+I:3:12d4:0
 A:15:9:7:8
 P:[+14,2d4]
 B:CLAW:WOUND:(+16,3d5)
@@ -1091,10 +1120,10 @@ D: those glowing eyes.
 N:132:Shadow spider
 W:13:1
 G:M:D
-I:3:13d4:0:-2
+I:3:12d4:-2
 A:15:6:3:7
-P:[+13,1d4]
-B:BITE:BLIND:(+12,2d9)
+P:[+10,1d4]
+B:BITE:BLIND:(+11,2d9)
 F:SPIDER | RES_POIS
 F:HURT_LITE | TERRITORIAL
 D:It is a great black spider wreathed in shadow.
@@ -1103,7 +1132,7 @@ D:It is a great black spider wreathed in shadow.
 N:133:Shadow
 W:13:3
 G:W:d
-I:2:3d4:0:0
+I:2:3d4:0
 A:0:8:10:8
 P:[+13,3d4]
 B:TOUCH:DARK:(+16,2d5)
@@ -1117,7 +1146,7 @@ D: the room, and yet it stalks you.
 N:134:Sapphire serpent
 W:13:3
 G:s:b
-I:2:8d4:30:0
+I:2:8d4:0
 A:15:6:3:6
 P:[+9,5d4]
 B:BITE:COLD:(+13,2d6)
@@ -1132,7 +1161,7 @@ D: An icy chill surrounds it.
 N:135:Nan, the Giant
 W:13:30
 G:G:G
-I:2:40d4:0:2
+I:2:40d4:2
 A:15:5:0:9
 P:[+10,1d4]
 B:HIT:HURT:(+14,3d13)
@@ -1152,13 +1181,14 @@ D: sword you have ever beheld.
 N:141:Cave troll
 W:14:1
 G:T:u
-I:2:18d4:0:0
+I:2:18d4:0
 A:15:4:0:4
 P:[+10,2d4]
 B:HIT:BATTER:(+12,4d7)
 B:BITE:WOUND:(+11,2d11)
 F:MALE | FRIEND | DROP_33 | REGENERATE | OPEN_DOOR
 F:BASH_DOOR | TROLL | HURT_LITE | SMART | NO_FEAR
+F:KNOCK_BACK
 D:A great brute of a troll, it seems to have come
 D: from the depths of the very earth.
 
@@ -1166,7 +1196,7 @@ D: from the depths of the very earth.
 N:142:Ruby serpent
 W:14:3
 G:s:r
-I:2:8d4:30:0
+I:2:8d4:0
 A:15:6:3:7
 P:[+10,5d4]
 B:BITE:FIRE:(+14,2d6)
@@ -1181,7 +1211,7 @@ D: An intense heat radiates from it.
 N:143:Creeping horror
 W:14:4
 G:H:g
-I:1:14d4:20:-2
+I:1:14d4:-2
 A:10:8:5:11
 P:[+13,2d4]
 B:CLAW:ACID:(+18,3d10)
@@ -1195,10 +1225,10 @@ D: The thought of it catching you tears at your mind.
 N:144:Ringrauko
 W:14:1
 G:R:B
-I:2:10d4:0:0
+I:2:10d4:0
 A:10:6:3:11
 P:[+14,2d4]
-B:HIT:COLD:(+15,2d8)
+B:HIT:COLD:(+15,2d10)
 F:BASH_DOOR | SMART
 F:RES_COLD | HURT_FIRE | RAUKO
 D:A chill hangs in the air around this figure which is
@@ -1210,7 +1240,7 @@ D: almost that of a person. A cold gleaming blade is in its hand.
 N:145:Delthaur, Balrog of Terror
 W:14:20
 G:R:g
-I:2:32d4:30:-3
+I:2:32d4:-3
 A:5:7:1:12
 P:[+15,4d4]
 B:HIT:FIRE:(+20,3d10)
@@ -1232,7 +1262,7 @@ D: is filled with menace.
 N:151:Emerald serpent
 W:15:3
 G:s:g
-I:2:8d4:30:0
+I:2:8d4:0
 A:15:7:3:8
 P:[+11,5d4]
 B:BITE:POISON:(+15,2d6)
@@ -1247,7 +1277,7 @@ D: Noxious vapours surround it.
 N:152:Oathwraith
 W:15:4
 G:W:D
-I:2:12d4:30:0
+I:2:12d4:0
 A:10:11:10:10
 P:[+14,3d4]
 B:TOUCH:HUNGER:(+19)
@@ -1263,7 +1293,7 @@ D: in shadow.  It reaches out at you.
 N:153:Deathblade
 W:15:8
 G:|:D
-I:3:10d4:0:0
+I:3:10d4:0
 A:0:10:20:10
 P:[+18,5d4]
 B:HIT:HURT:(+25,1d9)
@@ -1278,12 +1308,13 @@ D:A black blade, wreathed in shadow.
 N:154:Cat warrior
 W:15:1
 G:f:U
-I:3:8d4:0:0
+I:3:8d4:0
 A:20:10:10:3
-P:[+17,1d4]
-B:CLAW:WOUND:(+20,1d9)
+P:[+15,1d4]
+B:CLAW:WOUND:(+18,1d9)
 F:FRIENDS | OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR | SMART
 F:DROP_33
+F:EXCHANGE_PLACES
 D:It is as though a great cat stood like a man.
 D: You cannot tell whether its long scything claws
 D: could be natural. It moves with astonishing
@@ -1297,7 +1328,7 @@ D: speed and agility.
 N:161:Greater werewolf
 W:16:1
 G:C:D1
-I:3:14d4:0:0
+I:3:14d4:0
 A:15:10:5:10
 P:[+17,2d4]
 B:CLAW:WOUND:(+19,3d7)
@@ -1310,7 +1341,7 @@ D:It is a huge wolf with eyes that glow with manly intelligence.
 N:162:Amethyst serpent
 W:16:3
 G:s:v1
-I:2:8d4:30:-2
+I:2:8d4:-2
 A:15:7:3:8
 P:[+12,5d4]
 B:BITE:DARK:(+16,2d6)
@@ -1325,9 +1356,9 @@ D: Shadows darken as it approaches.
 N:163:Kemenrauko
 W:16:2
 G:R:s
-I:2:10d4:0:0
+I:2:10d4:0
 A:10:7:0:12
-P:[+14,4d4]
+P:[+12,4d4]
 B:HIT:SHATTER:(+11,4d8)
 F:BASH_DOOR | KILL_WALL | STONE | RAUKO | SMART
 F:RES_COLD | RES_FIRE
@@ -1341,7 +1372,7 @@ D: now opposes you.
 N:164:Young cold-drake
 W:16:6
 G:d:w
-I:2:30d4:30:0
+I:2:30d4:0
 A:30:8:2:13
 P:[+11,2d4]
 B:CLAW:HURT:(+16,3d11)
@@ -1359,7 +1390,7 @@ D: teeth, and the mesmerising eyes...
 N:165:Grotesque
 W:16:5
 G:H:W
-I:4:10d4:0:0
+I:4:10d4:0
 A:0:10:10:10
 P:[-5,8d4]
 B:CLAW:WOUND:(+16,3d9)
@@ -1378,7 +1409,7 @@ D: in fitful glares that leaped and died.'
 N:166:Umuiyan, the Doorkeeper
 W:16:15
 G:f:y
-I:3:12d4:0:0
+I:3:12d4:0
 A:20:13:10:6
 P:[+20,1d4]
 B:CLAW:WOUND:(+25,1d11)
@@ -1395,7 +1426,7 @@ D: He has long guarded the entrance to the fortress of Tevildo.
 N:167:Belegwath, Balrog of Shadow
 W:16:20
 G:R:v
-I:2:36d4:0:-5
+I:2:36d4:-5
 A:5:8:1:13
 P:[+17,4d4]
 B:HIT:FIRE:(+22,2d14)
@@ -1416,7 +1447,7 @@ D: final vision.
 N:171:Spider of Gorgoroth
 W:17:1
 G:M:r
-I:2:16d4:0:-1
+I:2:16d4:-1
 A:15:7:3:11
 P:[+14,1d4]
 B:BITE:ENTRANCE:(+14,2d13)
@@ -1433,12 +1464,13 @@ D: to the very darkest parts of the stronghold.
 N:172:Troll guard
 W:17:1
 G:T:s
-I:2:20d4:0:0
+I:2:20d4:0
 A:15:5:0:5
 P:[+12,3d4]
 B:HIT:BATTER:(+16,4d8)
 F:FRIENDS | DROP_33 | REGENERATE | NO_FEAR
 F:OPEN_DOOR | BASH_DOOR | TROLL | HURT_LITE | SMART
+F:KNOCK_BACK
 D:The very largest and toughest of the trolls are
 D: taken into the train of Gothmog. They are trained
 D: for war and given dark armour and great vicious weapons.
@@ -1447,7 +1479,7 @@ D: for war and given dark armour and great vicious weapons.
 N:173:Adamant serpent
 W:17:3
 G:s:v
-I:2:8d4:30:0
+I:2:8d4:0
 A:15:8:3:9
 P:[+13,5d4]
 B:BITE:WOUND:(+17,3d6)
@@ -1462,12 +1494,13 @@ D: It sparkles with prismatic hues.
 N:174:Lesser vampire
 W:17:1
 G:v:s
-I:3:8d4:0:0
+I:3:8d4:0
 A:20:9:7:11
 P:[+21,1d4]
 B:CLAW:WOUND:(+22,3d5)
 B:BITE:LOSE_CON:(+17,2d7)
-F:RAND_25 | OPEN_DOOR | UNLOCK_DOOR | HURT_LITE | SMART
+F:FLYING | RAND_25 | OPEN_DOOR | UNLOCK_DOOR
+F:HURT_LITE | SMART
 D:It flits quickly back and forth, like a great bat,
 D: although surely no bat could harbour so much malice
 D: behind its eyes.
@@ -1478,7 +1511,7 @@ D: behind its eyes.
 N:175:Cat assassin
 W:17:3
 G:f:D
-I:3:8d4:0:0
+I:3:8d4:0
 A:5:12:15:5
 P:[+19,1d4]
 B:CLAW:WOUND:(+20,1d11)
@@ -1513,7 +1546,7 @@ D: treachery his hoard is large for a young worm.
 N:177:Oikeroi, Guard of Tevildo
 W:17:15
 G:f:o
-I:3:18d4:0:0
+I:3:18d4:0
 A:15:13:10:7
 P:[+21,1d4]
 B:CLAW:WOUND:(+28,1d11)
@@ -1531,7 +1564,7 @@ D: and ever at his side.
 N:181:Young fire-drake
 W:18:6
 G:d:r
-I:2:30d4:30:0
+I:2:30d4:0
 A:30:9:2:15
 P:[+13,2d4]
 B:CLAW:HURT:(+18,3d11)
@@ -1553,7 +1586,7 @@ D: his bones were ashes in the hot mire.
 N:182:Darting horror
 W:18:5
 G:H:r
-I:4:6d4:20:0
+I:4:6d4:0
 A:10:15:3:14
 P:[+20,2d4]
 B:BITE:HALLU:(+22,2d9)
@@ -1569,7 +1602,7 @@ D: You would prefer not to see it any closer.
 N:183:Unmourned
 W:18:6
 G:W:v1
-I:1:12d4:0:0
+I:1:12d4:0
 A:10:13:10:12
 P:[+17,3d4]
 B:TOUCH:HUNGER:(+22)
@@ -1583,7 +1616,7 @@ D: forgotten, in the deep dungeons of Angband.
 N:184:Ururauko
 W:18:1
 G:R:R
-I:2:4d4:0:3
+I:2:4d4:3
 A:10:8:2:14
 P:[+15,2d4]
 B:HIT:FIRE:(+26,4d10)
@@ -1599,7 +1632,7 @@ D: yet young.
 N:185:The Deathblade 'Delmereth'
 W:18:50
 G:|:D
-I:3:10d4:0:0
+I:3:10d4:0
 A:0:10:20:13
 P:[+22,5d4]
 B:HIT:HURT:(+33,1d9)
@@ -1614,12 +1647,13 @@ D: 'Horror-feast' is its name. You can feel its hunger.
 N:186:Tevildo, Prince of Cats
 W:18:10
 G:f:u
-I:3:14d4:0:0
+I:3:14d4:0
 A:15:14:10:8
 P:[+22,1d4]
-B:CLAW:WOUND:(+28,1d13)
+B:CLAW:WOUND:(+26,1d13)
 F:UNIQUE | MALE | OPEN_DOOR | BASH_DOOR | SMART
 F:UNLOCK_DOOR | UNIQUE_FRIEND | DROP_1D2 | DROP_GREAT
+F:CRUEL_BLOW
 D:Renowned for his cruelty even among the cruel
 D: cat-people, is it a wonder that this fierce
 D: warrior is royalty?
@@ -1630,7 +1664,7 @@ D: warrior is royalty?
 N:187:Turkano, Balrog of the Hosts
 W:18:20
 G:R:b
-I:2:40d4:30:-3
+I:2:40d4:-3
 A:5:9:1:15
 P:[+19,5d4]
 B:HIT:FIRE:(+24,2d16)
@@ -1653,7 +1687,7 @@ D: glory after glory for his fell master.
 N:191:Ancient sapphire serpent
 W:19:6
 G:S:b
-I:2:10d4:30:0
+I:2:10d4:0
 A:15:8:2:10
 P:[+15,6d4]
 B:BITE:COLD:(+19,2d9)
@@ -1668,19 +1702,20 @@ D: Frost covers it from head to tail.
 N:192:Vampire
 W:19:1
 G:v:W
-I:3:10d4:0:0
+I:3:10d4:0
 A:20:10:7:12
 P:[+24,1d4]
 B:CLAW:WOUND:(+25,3d5)
 B:BITE:LOSE_STR_CON:(+20,2d9)
-F:RAND_25 | OPEN_DOOR | HURT_LITE | SMART | UNLOCK_DOOR
+F:FLYING | RAND_25 | OPEN_DOOR | UNLOCK_DOOR
+F:HURT_LITE | SMART
 D:A nightmarish bat-like form, the size of a man.
 
 
 N:193:Nameless thing
 W:19:1
 G:N:s
-I:1:70d4:0:0
+I:1:70d4:0
 A:5:5:0:12
 P:[+7,6d4]
 B:CRUSH:ACID:(+17,5d10)
@@ -1694,25 +1729,27 @@ D: eating its way through the roots of the earth.
 N:194:Dagorhir, the Elfbane
 W:19:15
 G:T:r
-I:2:24d4:0:0
-A:15:6:0:8
-P:[+17,4d4]
-B:HIT:BATTER:(+17,4d10)
+I:2:24d4:0
+A:15:6:0:8C
+P:[+15,4d4]
+B:HIT:BATTER:(+15,4d10)
 F:UNIQUE | ESCORT | DROP_1D2 | DROP_GOOD | REGENERATE | NO_FEAR
-F:OPEN_DOOR | BASH_DOOR | TROLL | HURT_LITE | SMART
-D:A mountain of a troll, clad in deep-red iron plates.
+F:OPEN_DOOR | BASH_DOOR | TROLL | MALE | HURT_LITE | SMART
+F:ELFBANE | KNOCK_BACK
+D:A mountain of a troll, clad in rusted iron plates.
 D: He leads a patrol of the feared Troll Guard.
 
 
 N:195:Maeglin, Betrayer of Gondolin
 W:19:100
 G:@:D1
-I:2:15d4:0:2
+I:2:15d4:2
 A:15:15:5:18
 P:[+23,5d4]
 B:HIT:HURT:(+33,2d8)
 F:UNIQUE | MALE | DROP_1D2 | UNLOCK_DOOR | DROP_CHOSEN
 F:DROP_GREAT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | SMART
+F:RIPOSTE
 D:Named "sharp-glance" by his father Eol, the dark elf. Maeglin
 D: was close in the counsels of Turgon, King of Gondolin, but
 D: betrayed him to the black enemy Morgoth Bauglir.
@@ -1729,7 +1766,7 @@ D: to that dark king's deep halls?
 N:201:Ancient ruby serpent
 W:20:3
 G:S:r
-I:2:10d4:30:0
+I:2:10d4:0
 A:15:8:2:11
 P:[+16,6d4]
 B:BITE:FIRE:(+20,2d9)
@@ -1764,7 +1801,7 @@ D: the understanding of mortals.
 N:203:Silent watcher
 W:20:10
 G:H:s
-I:2:10d4:0:0
+I:2:10d4:0
 A:5:0:20:13
 P:[-5,8d4]
 F:NEVER_MOVE | RES_COLD | RES_FIRE
@@ -1786,7 +1823,7 @@ D: or his escape.
 N:204:Gwathrauko
 W:20:1
 G:R:D
-I:2:8d4:0:-3
+I:2:8d4:-3
 A:10:8:5:15
 P:[+18,3d4]
 B:HIT:DARK:(+18,2d8)
@@ -1799,7 +1836,7 @@ D: side when his black banner was raised in defiance of Iluvatar.
 N:205:Draugluin, Sire of Werewolves
 W:20:15
 G:C:W
-I:3:22d4:0:0
+I:3:22d4:0
 A:20:14:5:13
 P:[+24,3d4]
 B:CLAW:WOUND:(+26,3d9)
@@ -1817,7 +1854,7 @@ D: kind.
 N:206:Vallach, Balrog of Sudden Flame
 W:20:20
 G:R:y
-I:3:44d4:30:-3
+I:3:44d4:-3
 A:5:10:1:16
 P:[+21,5d4]
 B:HIT:FIRE:(+26,3d12)
@@ -1837,7 +1874,7 @@ D: such a being.
 N:211:Ancient spider
 W:21:3
 G:M:g
-I:2:20d4:0:0
+I:2:20d4:0
 A:15:8:3:14
 P:[+19,1d4]
 B:BITE:POISON:(+22,2d19)
@@ -1850,7 +1887,7 @@ D: drips with venom.
 N:212:Ancient emerald serpent
 W:21:3
 G:S:g
-I:2:10d4:30:0
+I:2:10d4:0
 A:15:9:2:12
 P:[+17,6d4]
 B:BITE:POISON:(+21,2d9)
@@ -1865,13 +1902,13 @@ D: It is enveloped in clouds of poisonous vapour.
 N:213:Vampire lord
 W:21:2
 G:v:v1
-I:3:12d4:0:0
+I:3:12d4:0
 A:20:11:7:14
 P:[+26,1d4]
 B:CLAW:WOUND:(+29,3d7)
 B:BITE:LOSE_ALL:(+24,2d9)
-F:OPEN_DOOR | BASH_DOOR | SMART | UNLOCK_DOOR | RAND_25
-F:HURT_LITE
+F:FLYING | OPEN_DOOR | BASH_DOOR | UNLOCK_DOOR | RAND_25
+F:SMART | HURT_LITE
 D:Like a graceful, humanoid bat. Its black eyes regard
 D: everything around it as prey.
 
@@ -1883,7 +1920,7 @@ D: everything around it as prey.
 N:221:Ancient amethyst serpent
 W:22:3
 G:S:v1
-I:2:10d4:30:-3
+I:2:10d4:-3
 A:15:9:2:12
 P:[+18,6d4]
 B:BITE:DARK:(+22,2d9)
@@ -1898,7 +1935,7 @@ D: It is wreathed in shadow.
 N:222:Great fire-drake
 W:22:6
 G:D:r
-I:2:50d4:30:0
+I:2:50d4:0
 A:30:10:0:18
 P:[+14,2d4]
 B:CLAW:HURT:(+23,3d13)
@@ -1917,11 +1954,12 @@ D: them, who could ever compare with the flames of a Dragon?
 N:223:Hithrauko
 W:22:2
 G:R:B1
-I:3:4d4:0:0
+I:3:4d4:0
 A:10:9:3:16
 P:[+17,4d4]
 B:ENGULF:HALLU:(+27,4d5)
-F:PASS_DOOR | INVISIBLE | RES_CRIT | RES_POIS | RAND_50
+F:PASS_DOOR | INVISIBLE | RES_CRIT | RES_POIS
+F:FLYING | RAND_50
 F:RAUKO | SMART
 D:There are many smokes and strange airs in the depths
 D: of Angband, and not a few are unwholesome, but rarely
@@ -1931,7 +1969,7 @@ D: do they move with such active malice...
 N:224:Shelob, Spider of Darkness
 W:22:30
 G:M:D1
-I:2:22d4:0:-3
+I:2:22d4:-3
 A:10:9:3:14
 P:[+20,2d4]
 B:BITE:ENTRANCE:(+25,2d15)
@@ -1946,13 +1984,13 @@ D: of its light, that she takes to weave her deadly webs.
 N:225:Smaug the Golden
 W:22:30
 G:d:y1
-I:3:35d4:30:0
+I:3:35d4:0
 A:30:10:2:18
 P:[+15,2d4]
 B:CLAW:HURT:(+26,3d11)
 B:BITE:FIRE:(+22,2d21)
 F:UNIQUE | MALE
-F:DROP_2D2 | DROP_GOOD | SMART | TERRITORIAL
+F:DROP_2D2 | DROP_GOOD | SMART | FLYING | TERRITORIAL
 F:BASH_DOOR | DRAGON
 F:RES_FIRE | HURT_COLD
 S:SPELL_PCT_20 | POW_20
@@ -1967,7 +2005,7 @@ D: this one flies through the dark halls on great wings.
 N:226:Lungorthin, Lord of Balrogs
 W:22:20
 G:R:w
-I:2:48d4:30:-3
+I:2:48d4:-3
 A:5:11:1:18
 P:[+23,5d4]
 B:HIT:FIRE:(+28,2d18)
@@ -1989,7 +2027,7 @@ D: scorched by the heat of his body.
 N:231:Ancient adamant serpent
 W:23:3
 G:S:v
-I:2:10d4:30:0
+I:2:10d4:0
 A:15:9:2:13
 P:[+19,6d4]
 B:BITE:WOUND:(+23,3d9)
@@ -2004,7 +2042,7 @@ D: Prismatic colours gleam in its scales. Few live to see another.
 N:232:Unrelenting horror
 W:23:2
 G:H:G1
-I:1:100d4:20:0
+I:1:100d4:0
 A:5:9:2:15
 P:[+11,3d4]
 B:BITE:POISON:(+24,6d5)
@@ -2021,14 +2059,14 @@ D: clear how one could ever slay such a thing.
 N:233:Ancalagon the Black
 W:23:6
 G:d:D
-I:3:35d4:30:0
+I:3:35d4:0
 A:30:10:2:19
 P:[+17,2d4]
 B:CLAW:HURT:(+29,3d11)
 B:BITE:FIRE:(+25,2d21)
 F:UNIQUE | MALE
 F:DROP_2D2
-F:DROP_GREAT | SMART | BASH_DOOR | TERRITORIAL
+F:DROP_GREAT | SMART | BASH_DOOR | FLYING | TERRITORIAL
 F:DRAGON | RES_FIRE | HURT_COLD
 S:SPELL_PCT_30 | POW_20
 S:BRTH_FIRE
@@ -2041,15 +2079,15 @@ D: with great thunder, and lightning, and a tempest of fire.
 
 N:234:Thuringwethil, the Vampire Messenger
 W:23:3
-G:v:D1
-I:4:16d4:0:0
+G:v:r
+I:4:16d4:0
 A:10:13:7:16
 P:[+30,1d4]
 B:CLAW:WOUND:(+35,3d7)
 B:BITE:LOSE_ALL:(+29,2d9)
 F:UNIQUE | FEMALE
-F:DROP_2D2 | DROP_GOOD | DROP_CHOSEN | SMART | RAND_25
-F:OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
+F:DROP_2D2 | DROP_GOOD | DROP_CHOSEN | SMART
+F:FLYING | RAND_25 | OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
 F:HURT_LITE
 D:Chief messenger between Sauron and Morgoth, she is surely the most
 D: deadly of her vampire race.  At first she is charming to meet, but
@@ -2064,7 +2102,7 @@ D: her wings and eyes give away her true form.
 N:241:Gothmog, High Captain of Balrogs
 W:24:3
 G:R:r
-I:2:52d4:0:-3
+I:2:52d4:-3
 A:5:12:1:20
 P:[+25,6d4]
 B:HIT:FIRE:(+30,3d14)
@@ -2085,7 +2123,7 @@ D: Ungoliant's rage.
 N:242:Ungoliant, the Gloomweaver
 W:24:3
 G:M:D
-I:2:36d4:30:-4
+I:2:36d4:-4
 A:10:10:3:17
 P:[+20,3d4]
 B:BITE:POISON:(+24,2d21)
@@ -2106,7 +2144,7 @@ D: eat herself to avoid starvation.
 N:243:Glaurung, the Deceiver
 W:24:3
 G:D:y1
-I:2:60d4:30:0
+I:2:60d4:0
 A:20:10:0:21
 P:[+16,2d4]
 B:CLAW:HURT:(+29,3d15)
@@ -2129,7 +2167,7 @@ D: hoard he has gathered around him.
 N:244:Gorthaur, Servant of Morgoth
 W:24:3
 G:C:u
-I:3:30d4:30:0
+I:3:30d4:0
 A:10:18:5:21
 P:[+29,3d4]
 B:CLAW:WOUND:(+31,3d11)
@@ -2139,11 +2177,13 @@ F:DROP_2D2
 F:DROP_GREAT | SMART
 F:OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
 F:WOLF | ESCORT
-S:SPELL_PCT_15
-S:SCARE | HOLD
-D:He is Morgoth's most powerful servant.  His eyes glow with power and
-D: his gaze seeks to destroy your soul.  He has many servants, and
-D: rarely fights without them.
+S:SPELL_PCT_25
+S:HOLD | SNG_OATHS
+D:He is Morgoth's most powerful servant, and marshals great
+D: forces of his own. Also known as Thu or Sauron, he is a
+D: powerful maia, able to take on many forms. He appears
+D: now before you as a great wolf with matted fur and glowing
+D: eyes.
 
 
 
@@ -2155,17 +2195,18 @@ D: rarely fights without them.
 N:251:Morgoth, Lord of Darkness
 W:25:1
 G:V:D
-I:2:200d4:20:7
+I:2:240d4:7
 A:10:10:0:20
 P:[+20,6d4]
 B:HIT:SHATTER:(+20,6d10)
 F:UNIQUE | QUESTOR | MALE
 F:OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR
+F:TUNNEL_WALL
 F:DROP_3D2 | DROP_GREAT | DROP_CHOSEN
 F:SMART | REGENERATE
 F:NO_FEAR
 S:SPELL_PCT_25
-S:EARTHQUAKE
+S:EARTHQUAKE | SNG_BINDING | SNG_PIERCING
 D:He is the Master of the Pits of Angband. He rages with everlasting
 D: anger, seeking forever to dominate all that is light
 D: and good in the world. He is the origin of man's fear of darkness
@@ -2186,7 +2227,7 @@ D: burning him. You need to get to that crown.
 N:253:Carcharoth, the Jaws of Thirst
 W:25:1
 G:C:r
-I:4:30d4:0:0
+I:4:30d4:0
 A:20:20:5:17
 P:[+30,2d4]
 B:BITE:POISON:(+29,2d17)

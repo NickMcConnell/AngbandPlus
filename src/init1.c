@@ -56,28 +56,28 @@ static cptr r_info_blow_method[] =
 	"",
 	"HIT",
 	"TOUCH",
-	"PUNCH",
-	"KICK",
+	"XXX",
+	"XXX",
 	"CLAW",
 	"BITE",
 	"STING",
 	"PECK",
 	"WHIP",
-	"BUTT",
+	"XXX",
 	"CRUSH",
 	"ENGULF",
 	"CRAWL",
-	"DROOL",
-	"SPIT",
-	"SLIME",
-	"GAZE",
-	"WAIL",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
 	"SPORE",
-	"XXX4",
-	"BEG",
-	"INSULT",
-	"XXX5",
-	"XXX6",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
 	NULL
 };
 
@@ -160,11 +160,11 @@ static flag_name info_flags[] =
 	{"MALE", RF1, RF1_MALE},
 	{"FEMALE", RF1, RF1_FEMALE},
 	{"CHAR_CLEAR", RF1, RF1_CHAR_CLEAR},
-	{"CHAR_MIMIC", RF1, RF1_CHAR_MIMIC},
+	{"RF1XXX1", RF1, RF1_RF1XXX1},
 	{"ATTR_CLEAR", RF1, RF1_ATTR_CLEAR},
 	{"ATTR_MULTI", RF1, RF1_ATTR_MULTI},
 	{"FORCE_DEPTH", RF1, RF1_FORCE_DEPTH},
-	{"RF1XXX1", RF1, RF1_RF1XXX1},
+	{"SPECIAL_GEN", RF1, RF1_SPECIAL_GEN},
 	{"FRIEND", RF1, RF1_FRIEND},
 	{"FRIENDS", RF1, RF1_FRIENDS},
 	{"ESCORT", RF1, RF1_ESCORT},
@@ -208,32 +208,32 @@ static flag_name info_flags[] =
 	{"SHORT_SIGHTED", RF2, RF2_SHORT_SIGHTED},
 	{"INVISIBLE", RF2, RF2_INVISIBLE},
 	{"GLOW", RF2, RF2_GLOW},
-	{"RF2_RF2XXX1", RF2, RF2_RF2XXX1},
-	{"RF2_RF2XXX2", RF2, RF2_RF2XXX2},
+	{"CRUEL_BLOW", RF2, RF2_CRUEL_BLOW},
+	{"EXCHANGE_PLACES", RF2, RF2_EXCHANGE_PLACES},
 	{"MULTIPLY", RF2, RF2_MULTIPLY},
 	{"REGENERATE", RF2, RF2_REGENERATE},
-	{"RF2XXX3", RF2, RF2_RF2XXX3},
-	{"EVASIVE", RF2, RF2_EVASIVE},
+	{"RIPOSTE", RF2, RF2_RIPOSTE},
+	{"FLANKING", RF2, RF2_FLANKING},
 	{"CLOUD_SURROUND", RF2, RF2_CLOUD_SURROUND},
-	{"RF2XXX5", RF2, RF2_RF2XXX5},
+	{"FLYING", RF2, RF2_FLYING},
 	{"PASS_DOOR", RF2, RF2_PASS_DOOR},
 	{"UNLOCK_DOOR", RF2, RF2_UNLOCK_DOOR},
 	{"OPEN_DOOR", RF2, RF2_OPEN_DOOR},
 	{"BASH_DOOR", RF2, RF2_BASH_DOOR},
 	{"PASS_WALL", RF2, RF2_PASS_WALL},
 	{"KILL_WALL", RF2, RF2_KILL_WALL},
-	{"RF2XXX7", RF2, RF2_RF2XXX7},
+	{"TUNNEL_WALL", RF2, RF2_TUNNEL_WALL},
 	{"KILL_BODY", RF2, RF2_KILL_BODY},
 	{"TAKE_ITEM", RF2, RF2_TAKE_ITEM},
 	{"KILL_ITEM", RF2, RF2_KILL_ITEM},
-	{"BRAIN_1", RF2, RF2_BRAIN_1},
+	{"RF2XXX6", RF2, RF2_RF2XXX6},
 	{"LOW_MANA_RUN", RF2, RF2_LOW_MANA_RUN},
-	{"BRAIN_2", RF2, RF2_BRAIN_2},
-	{"POWERFUL", RF2, RF2_POWERFUL},
-	{"RF2XXX8", RF2, RF2_RF2XXX8},
-	{"RF2XXX9", RF2, RF2_RF2XXX9},
-	{"RF2XX10", RF2, RF2_RF2XX10},
-	{"BRAIN_3", RF2, RF2_BRAIN_3},
+	{"CHARGE", RF2, RF2_CHARGE},
+	{"ELFBANE", RF2, RF2_ELFBANE},
+	{"KNOCK_BACK", RF2, RF2_KNOCK_BACK},
+	{"CRIPPLING", RF2, RF2_CRIPPLING},
+	{"OPPORTUNIST", RF2, RF2_OPPORTUNIST},
+	{"ZONE_OF_CONTROL", RF2, RF2_ZONE_OF_CONTROL},
 
 
 
@@ -303,11 +303,11 @@ static flag_name info_flags[] =
 	{"SCARE", RF4, RF4_SCARE},
 	{"CONF", RF4, RF4_CONF},
 	{"HOLD", RF4, RF4_HOLD},
-
-	{"RF4XXX16", RF4, RF4_RF4XXX16},
-	{"RF4XXX17", RF4, RF4_RF4XXX17},
-	{"RF4XXX18", RF4, RF4_RF4XXX18},
-	{"RF4XXX19", RF4, RF4_RF4XXX19},
+	{"SLOW", RF4, RF4_SLOW},
+	{"SNG_BINDING", RF4, RF4_SNG_BINDING},
+	{"SNG_PIERCING", RF4, RF4_SNG_PIERCING},
+	{"SNG_OATHS", RF4, RF4_SNG_OATHS},
+    
 	{"RF4XXX20", RF4, RF4_RF4XXX20},
 	{"RF4XXX21", RF4, RF4_RF4XXX21},
 	{"RF4XXX22", RF4, RF4_RF4XXX22},
@@ -879,18 +879,6 @@ errr parse_z_info(char *buf, header *head)
 		z_info->o_max = max;
 	}
 
-	/* Process 'M' for "Maximum mon_list[] index" */
-	else if (buf[2] == 'M')
-	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->m_max = max;
-	}
-
 	/* Process 'N' for "Fake name size" */
 	else if (buf[2] == 'N')
 	{
@@ -973,52 +961,66 @@ errr parse_v_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
+	/* Process 'X' for "Extra info" (one line only) */
+	else if (buf[0] == 'X')
+	{
+		int typ, depth, rarity;
+		
+		/* There better be a current v_ptr */
+		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+        
+		/* Scan for the values */
+		if (3 != sscanf(buf+2, "%d:%d:%d", &typ, &depth, &rarity)) return (PARSE_ERROR_GENERIC);
+        
+		/* Save the values */
+		v_ptr->typ = typ;
+		v_ptr->depth = depth;
+		v_ptr->rarity = rarity;
+		v_ptr->hgt = 0;
+		v_ptr->wid = 0;
+	}
+
 	/* Process 'D' for "Description" */
 	else if (buf[0] == 'D')
 	{
+        
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Get the text */
 		s = buf+2;
 
+        if (v_ptr->wid == 0)
+        {
+            v_ptr->wid = strlen(buf+2);
+        }
+        else if (v_ptr->wid != strlen(buf+2))
+        {
+            return (PARSE_ERROR_VAULT_NOT_RECTANGULAR);
+        }
+            
+            
 		/* Store the text */
 		if (!add_text(&v_ptr->text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
-		// Note if there is a forge in the vault
+		// note if there is a forge in the vault
 		if (strchr(buf, '0')) v_ptr->forge = TRUE;
-	}
-
-	/* Process 'X' for "Extra info" (one line only) */
-	else if (buf[0] == 'X')
-	{
-		int typ, depth, rarity, hgt, wid;
-		
-		/* There better be a current v_ptr */
-		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-			            &typ, &depth, &rarity, &hgt, &wid)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		v_ptr->typ = typ;
-		v_ptr->depth = depth;
-		v_ptr->rarity = rarity;
-		v_ptr->hgt = hgt;
-		v_ptr->wid = wid;
-
-		/* Check for maximum vault sizes */
+        
+        // we've added another row of the vault
+        v_ptr->hgt++;
+        
+        /* Check for maximum vault sizes */
 		if ((v_ptr->typ == 6) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
 			return (PARSE_ERROR_VAULT_TOO_BIG);
-
+        
 		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
 			return (PARSE_ERROR_VAULT_TOO_BIG);
-
+        
 		if ((v_ptr->typ == 8) && ((v_ptr->wid > 66) || (v_ptr->hgt > 44)))
 			return (PARSE_ERROR_VAULT_TOO_BIG);
 	}
+    
 	else
 	{
 		/* Oops */
@@ -2377,20 +2379,19 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int spd, hp1, hp2, mana, light;
+		int spd, hp1, hp2, light;
 
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (5 != sscanf(buf+2, "%d:%dd%d:%d:%d",
-			            &spd, &hp1, &hp2, &mana, &light)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%dd%d:%d",
+			            &spd, &hp1, &hp2, &light)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		r_ptr->speed = spd;
 		r_ptr->hdice = hp1;
 		r_ptr->hside = hp2;
-		r_ptr->mana  = mana;
 		r_ptr->light = light;
 	}
 

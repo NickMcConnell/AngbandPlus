@@ -1355,7 +1355,7 @@ void display_player_xtra_info(int mode)
 	
 	/* Total Armor */
 	strnfmt(buf, sizeof(buf), " [%+d,%d-%d]", p_ptr->skill_use[S_EVN], p_min(GF_HURT, TRUE), p_max(GF_HURT, TRUE));
-	Term_putstr(col, 7+attacks+shots, -1, TERM_WHITE, "Armor");
+	Term_putstr(col, 7+attacks+shots, -1, TERM_WHITE, "Armour");
 	Term_putstr(col+5, 7+attacks+shots, -1, TERM_L_BLUE, format("%11s", buf));
 
 	// limit the amount we will move the fields around to 4 lines
@@ -2642,6 +2642,9 @@ void show_help_screen(int i)
 			c_put_str(TERM_WHITE, " S",                      row, col);
 			c_put_str(TERM_SLATE, "stealth mode",            row, col + 3);
 			row++;
+			c_put_str(TERM_WHITE, " n",                      row, col);
+			c_put_str(TERM_SLATE, "repeat last command",     row, col + 3);
+			row++;
 			if (angband_keyset)	c_put_str(TERM_WHITE, " 0",  row, col);
 			else				c_put_str(TERM_WHITE, " R",  row, col);
 			c_put_str(TERM_SLATE, "repeat next command",     row, col + 3);
@@ -2815,6 +2818,10 @@ void show_help_screen(int i)
 			if (angband_keyset)	c_put_str(TERM_WHITE, "v",  row, col);
 			else				c_put_str(TERM_WHITE, "t",  row, col);
 			c_put_str(TERM_SLATE, "throw",                  row, col + 2);
+			row++;
+			if (angband_keyset)	c_put_str(TERM_WHITE, "^v",  row, col - 1);
+			else				c_put_str(TERM_WHITE, "^t",  row, col - 1);
+			c_put_str(TERM_SLATE, "throw (auto-target)", row, col + 2);
 			row++;
 			c_put_str(TERM_WHITE, "k",                      row, col);
 			c_put_str(TERM_SLATE, "destroy",                row, col + 2);
@@ -3739,6 +3746,10 @@ extern void display_single_score(byte attr, int row, int col, int place, int fak
 		{
 			my_strcat(out_val, ", who freed all three Silmarils", sizeof(out_val));
 		}
+		if (the_score->silmarils[0] > '3')
+		{
+			my_strcat(out_val, ", who freed suspiciously many Silmarils", sizeof(out_val));
+		}
 	}
 
 	/* Dump the first line */
@@ -4088,7 +4099,6 @@ static errr enter_score(high_score *the_score)
 	}
 
 #ifndef SCORE_WIZARDS
-
 	/* Wizard-mode pre-empts scoring */
 	if (p_ptr->noscore & 0x000F)
 	{
@@ -4096,19 +4106,17 @@ static errr enter_score(high_score *the_score)
 		score_idx = -1;
 		return (0);
 	}
-
 #endif
 
-#ifndef SCORE_BORGS
-
-	/* Borg-mode pre-empts scoring */
+#ifndef SCORE_AUTOMATONS
+	/* automaton-mode pre-empts scoring */
 	if (p_ptr->noscore & 0x00F0)
 	{
-		Term_putstr(15, 8, -1, TERM_L_DARK, "(no high score for borg)");
+		Term_putstr(15, 8, -1, TERM_L_DARK, "(no high score for automaton)");
 		score_idx = -1;
 		return (0);
 	}
-#endif /* SCORE_BORGS */
+#endif /* SCORE_AUTOMATONS */
 
 	/* Hack -- Interupted */
 	if (!p_ptr->escaped && streq(p_ptr->died_from, "Interrupting"))
@@ -4127,7 +4135,6 @@ static errr enter_score(high_score *the_score)
 	}
 
 #ifndef SCORE_CHEATERS
-
 	/* Cheaters are not scored */
 	for (j = OPT_SCORE; j < OPT_MAX; ++j)
 	{
@@ -4301,83 +4308,6 @@ void show_scores(void)
 		/* Hack - Flush it */
 		Term_fresh();
 	}
-}
-
-/*
- * Deal with those who have escaped Angband
- */
-static void escapee(void)
-{
-	int silmarils = 0;
-
-	/* Hack -- retire on the surface */
-	p_ptr->depth = 0;
-
-	/* Fake death */
-	my_strcpy(p_ptr->died_from, "Ripe Old Age", sizeof(p_ptr->died_from));
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Display a crown */
-	put_str("#", 1, 34);
-	put_str("#####", 2, 32);
-	put_str("#", 3, 34);
-	put_str(",,,  $$$  ,,,", 4, 28);
-	put_str(",,=$   \"$$$$$\"   $=,,", 5, 24);
-	put_str(",$$        $$$        $$,", 6, 22);
-	put_str("*>         <*>         <*", 7, 22);
-	put_str("$$         $$$         $$", 8, 22);
-	put_str("\"$$        $$$        $$\"", 9, 22);
-	put_str("\"$$       $$$       $$\"", 10, 23);
-	put_str("*#########*#########*", 11, 24);
-	put_str("*#########*#########*", 12, 24);
-
-	/* Display a message based on the number of Silmarils */
-
-	silmarils = silmarils_possessed();
-
-	/* A message for having killed Morgoth */
-	if (p_ptr->morgoth_slain)
-	{
-		put_str("You defeated Morgoth, Lord of Darkness, dark enemy of the elves.", 19, 12);
-		put_str("The world shall not be the same.", 20, 12);	
-	}
-	else
-	{
-		switch (silmarils)
-		{
-			case 0:
-				put_str("You escaped the pits of Angband,", 17, 12);	
-				put_str("but failed to retrieve a Silmaril.", 18, 12);	
-				break;
-			case 1:
-				put_str("You freed a Silmaril from the pits of Angband,", 17, 12);	
-				put_str("and your name has gone down in legend.", 18, 12);	
-				break;
-			case 2:
-				put_str("You freed two Silmarils from the pits of Angband,", 17, 12);	
-				put_str("and your name has gone down in legend.", 18, 12);	
-				break;
-			case 3:
-				put_str("You freed all three Silmarils from the pits of Angband,", 17, 12);	
-				put_str("and your name has gone down in legend.", 18, 12);	
-				break;
-			default:
-				put_str("You freed suspiciously many Silmarils from the pits of Angband,", 17, 12);	
-				put_str("and your name has gone down in infamy.", 18, 12);	
-				break;
-		}
-	}
-
-
-
-
-	/* Flush input */
-	flush();
-
-	/* Wait for response */
-	pause_line(Term->hgt - 1);
 }
 
 
@@ -4643,11 +4573,14 @@ errr file_character(cptr name, bool full)
 static int final_menu(int *highlight)
 {
 	char ch;
-	char buf[80];
 	
-	if (p_ptr->noscore & 0x0008) sprintf(buf, "Debugging info: %d forges generated", p_ptr->forge_count);
+	//char buf[80];
 	
-	Term_putstr(15, 21, -1, TERM_WHITE, buf);
+	//if (p_ptr->noscore & 0x0008)
+	//{
+	//	sprintf(buf, "Debugging info: %d forges generated", p_ptr->forge_count);
+	//	Term_putstr(15, 21, -1, TERM_WHITE, buf);
+	//}
 	
 	Term_putstr( 3, 10, -1, TERM_L_DARK, "____________________________________________________");
 	Term_putstr(15, 12, -1, (*highlight == 1) ? TERM_L_BLUE : TERM_WHITE, "a) View scores");
@@ -4670,43 +4603,43 @@ static int final_menu(int *highlight)
 	ch = inkey();
 	hide_cursor = FALSE;
 	
-	if ((ch == 'a'))
+	if (ch == 'a')
 	{
 		*highlight = 1;
 		return (1);
 	}
 
-	if ((ch == 'b'))
+	if (ch == 'b')
 	{
 		*highlight = 2;
 		return (2);
 	}
 
-	if ((ch == 'c'))
+	if (ch == 'c')
 	{
 		*highlight = 3;
 		return (3);
 	}
 	
-	if ((ch == 'd'))
+	if (ch == 'd')
 	{
 		*highlight = 4;
 		return (4);
 	}
 
-	if ((ch == 'e'))
+	if (ch == 'e')
 	{
 		*highlight = 5;
 		return (5);
 	}
 
-	if ((ch == 'f'))
+	if (ch == 'f')
 	{
 		*highlight = 6;
 		return (6);
 	}
 
-	if ((ch == 'g'))
+	if (ch == 'g')
 	{
 		*highlight = 7;
 		return (7);
@@ -4754,12 +4687,6 @@ static void close_game_aux(void)
 
     /* Dump bones file */
 	//make_bones();
-
-	/* Handle retirement */
- 	if (p_ptr->escaped)
-    {
- 		 escapee();
-    }
 
 	/* Save dead player */
 	if (!save_player())

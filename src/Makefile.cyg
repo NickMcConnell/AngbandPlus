@@ -54,6 +54,7 @@ EXOBJS = \
 	z-util.o \
 	z-virt.o \
 	use-obj.o \
+	automaton.o \
 
 HDRS = \
 	h-basic.h \
@@ -235,6 +236,9 @@ xtra1.o: xtra1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 xtra2.o: xtra2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+automaton.o: automaton.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h

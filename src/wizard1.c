@@ -94,7 +94,7 @@ static const grouper group_item[] =
 	{ TV_POTION,		"Potions" },
 	{ TV_FOOD,			"Food" },
 
-	{ TV_TRUMPET,		"Trumpets" },
+	{ TV_HORN,	    	"Horns" },
 	{ TV_STAFF,			"Staffs" },
 
 	{ TV_CHEST,			"Chests" },
@@ -303,7 +303,7 @@ static const grouper group_artefact[] =
 	{ TV_BOW,           "Bows" },
 	{ TV_DIGGING,       "Diggers" },
 
-	{ TV_SOFT_ARMOR,    "Body Armor" },
+	{ TV_SOFT_ARMOR,    "Body Armour" },
 	{ TV_MAIL,			NULL },
 
 	{ TV_CLOAK,         "Cloaks" },

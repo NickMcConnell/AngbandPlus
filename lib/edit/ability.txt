@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.2.0
 
 # Melee ---------------------------------------------
 
@@ -52,13 +52,13 @@ T:31:0:99  # Gloves
 
 N:2:Throwing Mastery
 I:0:2:3
-D:Gives a +5 bonus to throwing attacks.
+D:Gives a +5 bonus to throwing attacks and prevents thrown items breaking.
 T:31:0:99  # Gloves
 #          # + all throwing items (hard coded)
 
 N:3:Polearm Mastery
 I:0:3:4
-D:Gives you +1 to attack with polearms (spears, tridents, glaives)
+D:Gives you +1 to attack with polearms (spears & glaives)
 D: and lets you set them to receive free attacks on advancing enemies
 D: when you wait (z or 5).
 T:31:0:99  # Gloves
@@ -128,7 +128,7 @@ T:31:0:99  # Gloves
 N:10:Two Weapon Fighting
 I:0:10:11
 P:0/1
-D:Allows you to wield a weapon in your off-hand for an extra attack
+D:Allows you to wield a one-handed weapon in your off-hand for an extra attack
 D: (calculated as if you had 3 points less strength and dexterity).
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
@@ -139,7 +139,7 @@ N:11:Knock Back
 I:0:11:12
 P:0/0:0/4
 D:You have a chance to knock enemies back a square in melee depending
-D: upon your strength and your opponent's constitution.
+D: upon your effective strength and your opponent's constitution.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -179,7 +179,7 @@ T:31:1:1   # Gloves (leather gloves only)
 N:22:Point Blank Archery
 I:1:2:4
 P:1/0
-D:Lets you avoid provoking attacks of opportunity half the time.
+D:The monster you are firing at cannot get an attack of opportunity.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
 
@@ -221,19 +221,19 @@ D:You gain a point of dexterity.
 # Evasion ---------------------------------------------
 
 N:40:Dodging
-I:2:0:3
+I:2:0:2
 D:Gives you a +3 bonus to evasion if you moved on your last
 D: turn.
 T:30:0:99  # Boots
 
 N:41:Blocking
-I:2:1:4
+I:2:1:3
 D:Doubles the protection roll for your shield against all ranged
 D: attacks, and against melee as well if you waited last turn (z or 5).
 T:34:0:99  # Shields
 
 N:42:Parry
-I:2:2:5
+I:2:2:4
 D:Doubles the evasion bonus granted by your weapon.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
@@ -241,23 +241,29 @@ T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
 N:43:Crowd Fighting
-I:2:3:6
+I:2:3:5
 D:Halves the bonus opponents get for surrounding you.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:44:Sprinting
-I:2:4:7
+N:44:Leaping
+I:2:4:6
+P:2/0
+D:You can leap over a chasm, pit, or false floor if you moved
+D: towards it the previous turn.
+T:30:0:99  # Boots
+
+N:45:Sprinting
+I:2:5:7
 P:2/0
 D:You start moving more quickly if you run four or more squares
 D: in roughly the same direction.
 T:30:0:99  # Boots
 
-N:45:Flanking
-I:2:5:8
-P:2/0
+N:46:Flanking
+I:2:6:8
 D:Gives you a free attack on an opponent if you step from a square
 D: which is adjacent to it, to another square which is adjacent
 D: to it.
@@ -266,16 +272,16 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:46:Heavy Armour Use
-I:2:6:9
-P:2/1
-D:Gives you a bonus to protection for every 15lb of armour you
-D: are wearing.
+N:47:Heavy Armour Use
+I:2:7:9
+P:2/1:2/3
+D:Gives you [1dX] protection, where X is your total armour weight
+D: divided by 15 lbs.
 T:36:0:99  # Soft Armour
 T:37:0:99  # Mail
 
-N:47:Riposte
-I:2:7:10
+N:48:Riposte
+I:2:8:10
 P:2/2
 D:It gives you a free attack on an opponent who misses you by
 D: at least 10 + the weight of your weapon (only once
@@ -285,9 +291,9 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:48:Controlled Retreat
-I:2:8:11
-P:2/1:2/5
+N:49:Controlled Retreat
+I:2:9:11
+P:2/1:2/6
 D:Gives you a free attack on an opponent when you step away
 D: from it, but only if you did not move the previous round.
 T:21:0:99  # Hafted
@@ -295,8 +301,8 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:49:Dexterity
-I:2:9:20
+N:50:Dexterity
+I:2:10:20
 D:You gain a point of dexterity.
 
 # Stealth ---------------------------------------------
@@ -391,7 +397,7 @@ N:84:Concentration
 I:4:4:5
 P:4/1
 D:Gives you a +1 bonus to attack for every consecutive round
-D: spent attacking an enemy (to a maximum of perception/2).
+D: spent attacking the same enemy (to a maximum of Perception/2).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 
@@ -421,7 +427,7 @@ N:88:Master Hunter
 I:4:8:9
 P:4/4:4/5
 D:Gives you an attack bonus of +1 for each time you have killed
-D: an opponent of the same type (up to a maximum of perception/4).
+D: an opponent of the same type (up to a maximum of Perception/4).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 
@@ -451,7 +457,8 @@ T:33:0:99  # Crown
 
 N:103:Inner Light
 I:5:3:5
-D:Strengthens your light against unnatural darkness.
+D:Increases the intensity of light within your light radius by 1 point
+D: (without increasing the radius).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:39:0:99  # Light Source
@@ -464,7 +471,7 @@ T:33:0:99  # Crown
 
 N:105:Hardiness
 I:5:5:6
-D:Gives you [1dX] additional protection, where X = will/6.
+D:Gives you [1dX] additional protection, where X = Will/6.
 
 N:106:Poison Resistance
 I:5:6:7
@@ -496,7 +503,7 @@ T:40:0:99  # Amulet
 N:109:Majesty
 I:5:9:9
 P:5/2:5/3
-D:Lowers monster morale by 1 per 4 points of Will.
+D:Lowers monster morale by half the difference between your Will and theirs.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 
@@ -583,13 +590,14 @@ T:40:0:99  # Amulet
 N:143:Song of Freedom
 I:7:3:4
 P:7/0
-D:Discovers and overcomes nearby doors and traps.
+D:Discovers and overcomes nearby doors, traps, and rubble.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
 N:144:Song of the Trees
 I:7:4:5
-D:Increases your light level.
+D:Increases your light level by 1 point per 5 points
+D: of Song.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
@@ -603,8 +611,8 @@ T:40:0:99  # Amulet
 N:146:Song of Staying
 I:7:6:7
 P:7/1:7/4
-D:Provides protection from opponents' blows and
-D: strengthens your will.
+D:Gives you a bonus of +X to Will and [1dX] protection,
+D: where X = Song/3.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
@@ -618,40 +626,35 @@ T:40:0:99  # Amulet
 N:148:Song of Este
 I:7:8:9
 P:7/4
-D:Significantly speeds your regeneration and your recovery
-D: from all negative timed effects (such as confusion or poison).
+D:Provides a bonus to your regeneration and your recovery
+D: from all negative timed effects (such as confusion or poison)
+D: with every 4 points of Song.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
 N:149:Song of Sharpness
 I:7:9:10
 P:7/1:7/5
-D:Helps your attacks cut through your opponents' armour.
+D:Your attacks ignore 2% of your opponent's armour per point of Song.
 D: Works for edged weapons, axes, polearms, and arrows.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
 N:150:Song of Mastery
-I:7:10:13
+I:7:10:11
 P:7/0:7/7
 D:Occasionally prevents nearby opponents from moving or acting.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
-N:151:Unwavering Voice
-I:7:11:5
-D:Doubles the length of time you can sing.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
-
-N:152:Woven Themes
-I:7:12:10
+N:151:Woven Themes
+I:7:11:12
 D:Allows you to add a 'minor theme' to your song. This means you
-D: can have the effect of a second song, but with a -5 penalty to it.
+D: can have the effect of a second song, but at half your normal Song score.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
-N:153:Grace
-I:7:13:13
+N:152:Grace
+I:7:12:13
 D:You gain a point of grace.
 
