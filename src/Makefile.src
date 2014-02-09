@@ -6,7 +6,7 @@
 #
 
 NAME = FAangband
-VERSION = 1.4.1
+VERSION = 1.4.2
 COPYRIGHT = (c) 2005-2013 Nick McConnell and contributors
 PROG = faangband
 
@@ -14,8 +14,8 @@ HEADERS = \
 	angband.h \
 	birth.h \
 	buildid.h \
-	button.h \
 	cave.h \
+	charattr.h \
 	cmds.h \
 	config.h \
 	defines.h \
@@ -32,15 +32,18 @@ HEADERS = \
 	jewel.h \
 	keymap.h \
 	main.h \
+	mapmode.h \
 	monster.h \
 	object.h \
 	option.h \
 	parser.h \
 	player.h \
 	prefs.h \
+	quest.h \
 	savefile.h \
 	spells.h \
 	squelch.h \
+	store.h \
 	target.h \
 	textui.h \
 	trap.h \
@@ -81,7 +84,6 @@ ANGFILES = \
 	attack.o \
 	birth.o \
 	buildid.o \
-	button.o \
 	cave.o \
 	charattr.o \
 	cmd0.o \
@@ -111,6 +113,7 @@ ANGFILES = \
 	keymap.o \
 	load.o \
 	load-old.o \
+	mapmode.o \
 	monattk.o \
 	monmove.o \
 	monster1.o \
@@ -128,6 +131,7 @@ ANGFILES = \
 	play-timed.o \
 	play-util.o \
 	prefs.o \
+	quest.o \
 	randart.o \
 	randname.o \
 	save.o \

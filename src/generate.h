@@ -3,6 +3,9 @@
 #ifndef GENERATE_H
 #define GENERATE_H
 
+#include "mapmode.h"
+#include "quest.h"
+
 #if 0
 struct tunnel_profile {
 	const char *name;
@@ -64,6 +67,29 @@ struct room_profile {
 	int cutoff; /* Upper limit of 1-100 random roll for room generation */
 };
 #endif
+
+/**
+ * Information about "vault generation"
+ */
+struct vault {
+    struct vault *next;
+    unsigned int vidx;
+    char *name;
+    char *message;
+    char *text;
+
+    byte typ;		/**< Vault type */
+
+    byte rat;		/**< Vault rating */
+
+    byte hgt;		/**< Vault height */
+    byte wid;		/**< Vault width */
+
+    byte min_lev;	/**< Minimum allowable level, if specified. */
+    byte max_lev;	/**< Maximum allowable level, if specified. */
+};
+
+
 
 /**
  * Determine if a "legal" grid is a "naked" grid
@@ -170,6 +196,22 @@ struct room_profile {
 #define WALL_MAX	40
 #define TUNN_MAX	300
 #define STAIR_MAX	30
+
+/**
+ * Normal levels get at least 16 monsters
+ */
+#define MIN_M_ALLOC_LEVEL	16
+
+/**
+ * The town starts out with 4 residents during the day
+ */
+#define MIN_M_ALLOC_TD		4
+
+/**
+ * The town starts out with 8 residents during the night
+ */
+#define MIN_M_ALLOC_TN		8
+
 
 /**
  * Tree type chances 

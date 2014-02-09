@@ -8,12 +8,6 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#ifdef _WIN32_WCE
-# ifndef WINDOWS
-#  define WINDOWS 1
-# endif
-#endif
-
 #ifndef INCLUDED_ANGBAND_H
 #define INCLUDED_ANGBAND_H
 
@@ -40,12 +34,16 @@
  */
 #include "config.h"
 #include "defines.h"
+
+#include "cave.h"
 #include "game-cmd.h"
-#include "types.h"
-#include "cmds.h"
+#include "init.h"
+#include "monster.h"
 #include "object.h"
-#include "parser.h"
+#include "option.h"
 #include "player.h"
+#include "store.h"
+
 #include "ui.h"
 #include "z-type.h"
 #include "externs.h"

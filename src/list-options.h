@@ -19,8 +19,6 @@ OP(show_menus,            "Enter key brings up command menu",
 INTERFACE, TRUE)
 OP(mouse_movement,        "Allow mouse clicks to move the player",
 INTERFACE, FALSE)
-OP(mouse_buttons,         "Mouse commands are enabled",
-INTERFACE, TRUE)
 OP(show_flavors,          "Show flavors in object descriptions",
 INTERFACE, TRUE)
 OP(show_detect,           "Show detection region",
@@ -67,6 +65,8 @@ OP(disturb_detect,        "Disturb when leaving trap detect area",
 GAMEPLAY, TRUE)
 OP(notify_recharge,       "Notify on object recharge",
 GAMEPLAY, FALSE)
+OP(show_target,           "Highlight target with cursor",
+GAMEPLAY, TRUE)
 OP(cheat_peek,            "Cheat: Peek into object creation",
 CHEAT, FALSE)
 OP(score_peek,            "Score: Peek into object creation",

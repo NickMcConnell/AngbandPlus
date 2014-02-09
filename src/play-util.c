@@ -1,4 +1,5 @@
 #include "angband.h"
+#include "birth.h"				/* find_roman_suffix_start */
 #include "tvalsval.h"
 
 /**
@@ -18,33 +19,34 @@ s16b modify_stat_value(int value, int amount)
 	int i;
 
 	/* Reward */
-	if (amount > 0)
-	{
+	if (amount > 0) {
 		/* Apply each point */
-		for (i = 0; i < amount; i++)
-		{
+		for (i = 0; i < amount; i++) {
 			/* One point at a time */
-			if (value < 18) value++;
+			if (value < 18)
+				value++;
 
 			/* Ten "points" at a time */
-			else value += 10;
+			else
+				value += 10;
 		}
 	}
 
 	/* Penalty */
-	else if (amount < 0)
-	{
+	else if (amount < 0) {
 		/* Apply each point */
-		for (i = 0; i < (0 - amount); i++)
-		{
+		for (i = 0; i < (0 - amount); i++) {
 			/* Ten points at a time */
-			if (value >= 18+10) value -= 10;
+			if (value >= 18 + 10)
+				value -= 10;
 
 			/* Hack -- prevent weirdness */
-			else if (value > 18) value = 18;
+			else if (value > 18)
+				value = 18;
 
 			/* One point at a time */
-			else if (value > 3) value--;
+			else if (value > 3)
+				value--;
 		}
 	}
 
@@ -55,30 +57,28 @@ s16b modify_stat_value(int value, int amount)
 /* Is the player capable of casting a spell? */
 bool player_can_cast(void)
 {
-    if (player_has(PF_PROBE)) {
-	if (p_ptr->lev < 35) {
-	    msg("You do not know how to probe monsters yet.");
-	    return FALSE;
+	if (player_has(PF_PROBE)) {
+		if (p_ptr->lev < 35) {
+			msg("You do not know how to probe monsters yet.");
+			return FALSE;
+		} else if ((p_ptr->timed[TMD_CONFUSED])
+				   || (p_ptr->timed[TMD_IMAGE])) {
+			msg("You feel awfully confused.");
+			return FALSE;
+		}
 	}
-	else if ((p_ptr->timed[TMD_CONFUSED]) || (p_ptr->timed[TMD_IMAGE])) {
-	    msg("You feel awfully confused.");
-	    return FALSE;
-	}
-    }
 
-    if (p_ptr->timed[TMD_BLIND] || no_light())
-    {
-	msg("You cannot see!");
-	return FALSE;
-    }
-    
-    if (p_ptr->timed[TMD_CONFUSED])
-    {
-	msg("You are too confused!");
-	return FALSE;
-    }
-    
-    return TRUE;
+	if (p_ptr->timed[TMD_BLIND] || no_light()) {
+		msg("You cannot see!");
+		return FALSE;
+	}
+
+	if (p_ptr->timed[TMD_CONFUSED]) {
+		msg("You are too confused!");
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 /* Is the player capable of studying? */
@@ -87,8 +87,7 @@ bool player_can_study(void)
 	if (!player_can_cast())
 		return FALSE;
 
-	if (!p_ptr->new_spells)
-	{
+	if (!p_ptr->new_spells) {
 		const char *p = magic_desc[mp_ptr->spell_realm][SPELL_NOUN];
 		msg("You cannot learn any new %ss!", p);
 		return FALSE;
@@ -100,20 +99,17 @@ bool player_can_study(void)
 /* Determine if the player can read scrolls. */
 bool player_can_read(void)
 {
-	if (p_ptr->timed[TMD_BLIND])
-	{
+	if (p_ptr->timed[TMD_BLIND]) {
 		msg("You can't see anything.");
 		return FALSE;
 	}
 
-	if (no_light())
-	{
+	if (no_light()) {
 		msg("You have no light to read by.");
 		return FALSE;
 	}
 
-	if (p_ptr->timed[TMD_CONFUSED])
-	{
+	if (p_ptr->timed[TMD_CONFUSED]) {
 		msg("You are too confused to read!");
 		return FALSE;
 	}
@@ -127,8 +123,7 @@ bool player_can_fire(void)
 	object_type *o_ptr = &p_ptr->inventory[INVEN_BOW];
 
 	/* Require a usable launcher */
-	if (!o_ptr->tval || !p_ptr->state.ammo_tval)
-	{
+	if (!o_ptr->tval || !p_ptr->state.ammo_tval) {
 		msg("You have nothing to fire with.");
 		return FALSE;
 	}
@@ -139,16 +134,25 @@ bool player_can_fire(void)
 /**
  * Return a version of the player's name safe for use in filesystems.
  */
-const char *player_safe_name(struct player *p)
+const char *player_safe_name(struct player *p, bool strip_suffix)
 {
 	static char buf[40];
-
 	int i;
-	for (i = 0; op_ptr->full_name[i]; i++) {
+	int limit = 0;
+
+	if (op_ptr->full_name[0]) {
+		char *suffix = find_roman_suffix_start(op_ptr->full_name);
+		if (suffix)
+			limit = suffix - op_ptr->full_name - 1;	/* -1 for preceding space */
+		else
+			limit = strlen(op_ptr->full_name);
+	}
+
+	for (i = 0; i < limit; i++) {
 		char c = op_ptr->full_name[i];
 
 		/* Convert all non-alphanumeric symbols */
-		if (!isalpha((unsigned char)c) && !isdigit((unsigned char)c))
+		if (!isalpha((unsigned char) c) && !isdigit((unsigned char) c))
 			c = '_';
 
 		/* Build "base_name" */
