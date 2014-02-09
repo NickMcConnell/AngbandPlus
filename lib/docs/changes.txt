@@ -1,3 +1,71 @@
+- Sil 1.2.1 ----------------------------------------------------------------------------------------------
+
+- monster songs
+	- made Morgoth's Song of Piercing a bit easier to resist (+5 bonus)
+	- fixed Morgoth's Song score to 20
+		- it no longer increases by 5 when his crown comes off like his Will does
+	- the Song of Silence now reduces monsters' Song Score by a quarter of the Player's Song Score
+
+- abilities
+	- reworked some of the pre-requisites for the Will Abilities
+		- notably Hardiness is less essential and Constitution is a bit harder to get
+	- added Parry as an alternate pre-req for Two Weapon Fighting
+	- increased the Song skill requirement for the point of Grace from 13 to 15
+
+- smithing
+	- you can now try out creating any item without the required smithing abilities
+		- things that you can't do without an additional ability are shown in red
+	- there are no known bugs with smithing remaining
+	- modified the stat costs for horns (used to all cost grace)
+
+- dungeon generation
+	- significantly more flexibility in vault generation
+		- vaults can now appear rotated as well as reflected
+		- vaults now can have flags for extra traps, webs, rotation, debugging
+	- improved trap placement
+		- now much more likely to appear in interesting places
+		- so it can now be worth actually searching for them in some cases
+	- chasms can no longer be generated before 150 ft 
+		- (to make sure you can get to the guaranteed forge!)
+	- halved the chance of locked doors
+		- now 8% of all doors are locked, 4% are jammed
+
+- dungeon features
+	- chasms
+		- staffs of freedom and song of freedom can now close chasms
+			- but the difficulty is extremely high: 
+				- 20 + number of adjacent chasm squares for the staff
+				- 25 + number of adjacent chasm squares for the song
+			- it therefore tends to close in from the edges
+	- secret doors
+		- tunnelling into them now gives you a (random) closed door instead of a broken door
+		- to avoid it sometimes being better to not find a secret door than to find it
+	- broken doors
+		- changed their symbol to '.', so they are more distinct from open doors and less confusing
+
+- objects
+	- made herbs of restoration a bit more common early
+
+- artefacts
+	- made the new mithril artefacts (Starlight and Silverhand) more rare (as originally intended)
+
+- bugfixes
+	- fixed two smithing bugs
+		- one had to do with re-choosing an enchantment after modifying the numbers
+		- one had to do with abilities disappearing or duplicating on artefacts
+	- fixed a terrible bug with the monster ability 'Exchange Places' 
+		- which could cause you to be sent out of the dungeon if you killed the cat warrior who was exchanging
+	- removed one of the messages when automatically picking up a thrown/fired item
+	- fixed a bug where cancelling some but not all free attacks with a '!a' weapon didn't use up any time
+	- fixed a bug where Woven Themes was having the effect of the removed ability Unwavering Voice
+	- players were (again) getting the Opportunist free attack when an enemy was pushed with Knock Back
+	- no longer takes any time to tunnel if you aren't going to be successful
+		- i.e. it is more like realising you can't, than like trying and failing
+	- fleeing monsters can no longer get free attacks of any kind
+	- monsters that are frozen by song of mastery no longer get free attacks of any kind
+	- can now automatically identify the Ring of Barahir (and perhaps others) by the Ability it grants
+
+
 - Sil 1.2.0 ----------------------------------------------------------------------------------------------
 
 - broke savefile compatibility
@@ -11,6 +79,9 @@
 	- monsters can now have some of the abilities that the player can get
 		- such as Charge, Cruel Blow, etc.
 	- Morgoth and Gorthaur have songs of power
+
+- added chasms to the dungeon
+	- these block movement of you and most enemies, but not sight or line of fire
 
 - abilities
 	- Throwing Mastery now prevents thrown items from breaking
@@ -42,6 +113,8 @@
 		- made slightly more expensive to make the skill point progression simpler
 
 - smithing
+	- can now create horns using 'Jeweller'
+	- the difficulties of making mithril items have been reduced a lot
 	- 'slays' no longer cost a strength point to add to a weapon
 		- it was too steep a cost for the early game, making no-one add them
 	- artefact arrows now have half the difficulty

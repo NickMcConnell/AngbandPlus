@@ -1443,9 +1443,7 @@ extern void calc_voice(void)
 	// 20 + a compounding 20% bonus per point of gra
 	
 	tmp = 20 * 100;
-	
-	if (p_ptr->active_ability[S_SNG][SNG_VOICE]) tmp *= 2;
-	
+		
 	if (p_ptr->stat_use[A_GRA] >= 0)
 	{
 		for (i = 0; i < p_ptr->stat_use[A_GRA]; i++)

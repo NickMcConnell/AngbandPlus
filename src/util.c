@@ -3832,8 +3832,8 @@ s16b get_quantity(cptr prompt, int max)
 		/* Extract a number */
 		amt = atoi(buf);
 
-		/* A letter means "all" */
-		if (isalpha((unsigned char)buf[0])) amt = max;
+		/* A non-number means "all" */
+		if (!isdigit((unsigned char)buf[0])) amt = max;
 	}
 
 	/* Enforce the maximum */

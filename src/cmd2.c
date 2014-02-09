@@ -1785,12 +1785,11 @@ static bool twall(int y, int x)
 	}
     
 	/* Secret doors */
-	/* Doors */
 	else
 	{
-		/* Leave a broken door */
-		cave_set_feat(y, x, FEAT_BROKEN);
-	}
+        /* Leave a closed door */
+        place_closed_door(y, x);
+    }
 
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -1886,6 +1885,13 @@ static bool do_cmd_tunnel_aux(int y, int x)
     if (digging_score == 0)
     {
         msg_print("You are not carrying a shovel or mattock.");
+
+        // reset the action type
+        p_ptr->previous_action[0] = ACTION_NOTHING;
+        
+        // don't take a turn
+        p_ptr->energy_use = 0;
+        
         return (FALSE);
     }
     
@@ -1941,7 +1947,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else
 	{
 		difficulty = 3;
-		my_strcpy(success_message, "You smash through a secret door.", sizeof (success_message));
+		my_strcpy(success_message, "You uncover a secret door.", sizeof (success_message));
 
         if (difficulty > digging_score)
         {
@@ -1987,10 +1993,15 @@ static bool do_cmd_tunnel_aux(int y, int x)
     
 	else
 	{		
-		/* Make some noise */
-		monster_perception(TRUE, FALSE, -5);
-		
+        // reset the action type
+        p_ptr->previous_action[0] = ACTION_NOTHING;
+        
+        // don't take a turn
+        p_ptr->energy_use = 0;
+        
 		msg_print(failure_message);
+        
+        return (FALSE);
 	}
 
 	// Break the truce if creatures see
@@ -2899,8 +2910,6 @@ bool do_cmd_walk_test(int y, int x)
 void do_cmd_walk(void)
 {
 	int y, x, dir;
-    int py = p_ptr->py;
-    int px = p_ptr->px;
     
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -3259,9 +3268,8 @@ void attacks_of_opportunity(int neutralized_y, int neutralized_x)
     
     monster_type *m_ptr;
     monster_race *r_ptr;
-    
-    // archery provokes attacks of opportunity from adjacent monsters...
-	start = rand_int(8);
+	
+    start = rand_int(8);
 	
     /* Look for adjacent monsters */
     for (i = start; i < 8 + start; i++)
@@ -3282,7 +3290,8 @@ void attacks_of_opportunity(int neutralized_y, int neutralized_x)
             r_ptr = &r_info[m_ptr->r_idx];
             
             // the monster must be alert, not confused, and not mindless
-            if ((m_ptr->alertness >= ALERTNESS_ALERT) && !m_ptr->confused && !(r_ptr->flags2 & (RF2_MINDLESS)))
+            if ((m_ptr->alertness >= ALERTNESS_ALERT) && !m_ptr->confused && (m_ptr->stance != STANCE_FLEEING) && !(r_ptr->flags2 & (RF2_MINDLESS))
+                && !m_ptr->skip_next_turn && !m_ptr->skip_this_turn)
             {
                 opportunity_attacks++;
                 

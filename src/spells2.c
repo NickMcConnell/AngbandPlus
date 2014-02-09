@@ -3143,6 +3143,85 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 }
 
 
+/*
+ * Attempt to close a single square of chasm.
+ * Used by the function below (for Staff of Freedom) and by the Song of Freedom.
+ */
+bool close_chasm(int y, int x, int power)
+{
+    int adj_chasms = 0;
+    int yy, xx;
+    bool effect = FALSE;
+    
+    for (yy = y - 1; yy <= y + 1; yy++)
+    {
+        for (xx = x - 1; xx <= x + 1; xx++)
+        {
+            if (!((yy==y) && (xx==x)) && in_bounds(yy,xx) && (cave_feat[yy][xx] == FEAT_CHASM))    adj_chasms++;
+        }
+    }
+    
+    // cannot close chasms that are completely surrounded
+    if (adj_chasms < 8)
+    {
+        if (skill_check(PLAYER, power, 20 + adj_chasms, NULL) > 0)
+        {
+            cave_info[y][x] |= (CAVE_TEMP);
+            effect = TRUE;
+        }
+    }
+    
+    return (effect);
+}
+
+
+/*
+ * Attempt to close chasms.
+ * Can't be done with project as it would depend on the order the grids are processed.
+ */
+bool close_chasms(int power)
+{
+    int y, x;
+    bool effect = FALSE;
+    
+    // first find all chasms and mark those that are being closed
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	{
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
+		{
+            if ((cave_feat[y][x] == FEAT_CHASM) && (cave_info[y][x] & (CAVE_VIEW)))
+            {
+                effect |= close_chasm(y, x, power);
+            }
+		}
+	}
+    
+    // then, if any were marked, do the closing
+    if (effect)
+    {
+        for (y = 0; y < p_ptr->cur_map_hgt; y++)
+        {
+            for (x = 0; x < p_ptr->cur_map_wid; x++)
+            {
+                if ((cave_feat[y][x] == FEAT_CHASM) && (cave_info[y][x] & (CAVE_TEMP)))
+                {
+                   // remove the temporary marking
+                    cave_info[y][x] &= ~(CAVE_TEMP);
+                    
+                    // close the chasm
+                    cave_set_feat(y, x, FEAT_FLOOR);
+                    
+                    // update the visuals
+                    p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+                }
+            }
+        }
+    }
+    
+	return (effect);
+}
+
+
 
 /*
  * This routine clears the entire "temp" set.

@@ -508,9 +508,10 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->wandering_dist);
 	rd_byte(&m_ptr->mana);
 	rd_byte(&m_ptr->song);
+    rd_byte(&m_ptr->skip_this_turn);
     
-	// 2 spare bytes
-	strip_bytes(2);
+	// 1 spare bytes
+	strip_bytes(1);
     
 	rd_s16b(&m_ptr->consecutive_attacks);
 	rd_s16b(&m_ptr->turns_stationary);

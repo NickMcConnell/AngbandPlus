@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.2.0
+V:1.2.1
 
 # Melee ---------------------------------------------
 
@@ -127,7 +127,7 @@ T:31:0:99  # Gloves
 
 N:10:Two Weapon Fighting
 I:0:10:11
-P:0/1
+P:0/1:2/2
 D:Allows you to wield a one-handed weapon in your off-hand for an extra attack
 D: (calculated as if you had 3 points less strength and dexterity).
 T:21:0:99  # Hafted
@@ -439,7 +439,7 @@ D:You gain a point of grace.
 
 N:100:Channeling
 I:5:0:2
-D:Gives you a bonus of +5 to using staves and trumpets, and lets
+D:Gives you a bonus of +5 to using staves and horns, and lets
 D: you know how many charges staves have.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
@@ -491,7 +491,7 @@ T:40:0:99  # Amulet
 
 N:108:Critical Resistance
 I:5:8:9
-P:5/5
+P:5/2:5/5
 D:Raises the base number enemies need to get critical hits against
 D: you by 1 per 5 points of Will.
 T:32:0:99  # Helm
@@ -502,14 +502,14 @@ T:40:0:99  # Amulet
 
 N:109:Majesty
 I:5:9:9
-P:5/2:5/3
+P:5/0:5/3
 D:Lowers monster morale by half the difference between your Will and theirs.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 
 N:110:Constitution
 I:5:10:12
-P:5/5
+P:5/6:5/8
 D:You gain a point of constitution.
 
 # Smithing ---------------------------------------------
@@ -655,6 +655,6 @@ T:33:0:99  # Crown
 T:40:0:99  # Amulet
 
 N:152:Grace
-I:7:12:13
+I:7:12:15
 D:You gain a point of grace.
 

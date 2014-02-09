@@ -154,11 +154,12 @@ void new_wandering_destination(monster_type *m_ptr, monster_type *leader_ptr)
 		new_wandering_flow(m_ptr, 0, 0);
 	}
 
-	// if we can't store any more indices, then just set it to zero
-	// Sil-y: this is only really a problem on the Gates level
+	// if we can't store any more indices, then just set it to zero, which means
+    // that the monster will just move randomly and won't wander properly
+	// this is very rare, but does occasionally happen (1 in 100 deep levels?)
 	else
 	{
-        msg_debug("out of wandering indices");
+        //msg_debug("Out of wandering monster indices.");
 		m_ptr->wandering_idx = 0;
 		m_ptr->wandering_dist = MON_WANDER_RANGE;
 	}
@@ -1258,9 +1259,35 @@ extern void ident_on_wield(object_type *o_ptr)
 		}
 	}
 
+	// identify the special item types that grant abilities
+	else if (o_ptr->name2)
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			
+		if (e_ptr->abilities > 0)
+		{
+			notice = TRUE;
+			msg_format("You have gained the ability '%s'.", 
+			           b_name + (&b_info[ability_index(e_ptr->skilltype[0], e_ptr->abilitynum[0])])->name);
+		}
+	}
+
+	// identify the artefacts that grant abilities
+	else if (o_ptr->name1)
+	{
+		artefact_type *a_ptr = &a_info[o_ptr->name1];
+		
+		if (a_ptr->abilities > 0)
+		{
+			notice = TRUE;
+			msg_format("You have gained the ability '%s'.", 
+					   b_name + (&b_info[ability_index(a_ptr->skilltype[0], a_ptr->abilitynum[0])])->name);
+		}
+	}
+	
+    // can identify <+0> items if you already know the flavour
 	else if (k_info[o_ptr->k_idx].flavor)
 	{
-		// can identify <+0> items if you already know the flavour
 		if (object_aware_p(o_ptr))
 		{
 			notice = TRUE;
@@ -1291,33 +1318,7 @@ extern void ident_on_wield(object_type *o_ptr)
 			msg_print("You somehow feel more protected.");
 		}
 	}
-
-	// identify the special item types that grant abilities
-	else if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
-			
-		if (e_ptr->abilities > 0)
-		{
-			notice = TRUE;
-			msg_format("You have gained the ability '%s'.", 
-			           b_name + (&b_info[ability_index(e_ptr->skilltype[0], e_ptr->abilitynum[0])])->name);
-		}
-	}
-
-	// identify the artefacts that grant abilities
-	else if (o_ptr->name1)
-	{
-		artefact_type *a_ptr = &a_info[o_ptr->name1];
-		
-		if (a_ptr->abilities > 0)
-		{
-			notice = TRUE;
-			msg_format("You have gained the ability '%s'.", 
-					   b_name + (&b_info[ability_index(a_ptr->skilltype[0], a_ptr->abilitynum[0])])->name);
-		}
-	}
-	
+    
 				
 				 
 	if (notice)
@@ -3359,7 +3360,8 @@ bool knock_back(int y1, int x1, int y2, int x2)
     
     bool monster_target = FALSE;
     
-    int mod, d, i, y3, x3;
+    int mod, d, i;
+    int y3, x3; // the location to get knocked to
     int dir;
     
     int dy, dx;
@@ -3384,7 +3386,8 @@ bool knock_back(int y1, int x1, int y2, int x2)
     // first try to knock it straight back
     if (cave_floor_bold(y2 + dy, x2 + dx) && (cave_m_idx[y2 + dy][x2 + dx] == 0))
     {
-        monster_swap(y2, x2, y2 + dy, x2 + dx);
+        y3 = y2 + dy;
+        x3 = x2 + dx;
         knocked = TRUE;
     }
     
@@ -3403,7 +3406,6 @@ bool knock_back(int y1, int x1, int y2, int x2)
             x3 = x2 + ddx[d];
             if (cave_floor_bold(y3, x3) && (cave_m_idx[y3][x3] == 0))
             {
-                monster_swap(y2, x2, y3, x3);
                 knocked = TRUE;
                 break;
             }
@@ -3419,12 +3421,18 @@ bool knock_back(int y1, int x1, int y2, int x2)
         if (monster_target)
         {
             m_ptr->skip_next_turn = TRUE;
+            
+            // actually move the monster
+            monster_swap(y2, x2, y3, x3);
         }
         else
         {
             msg_print("You are knocked back.");
 
             p_ptr->skip_next_turn = TRUE;
+
+            // actually move the player
+            monster_swap(y2, x2, y3, x3);
 
             // cannot stay in the air
             p_ptr->leaping = FALSE;
@@ -3573,14 +3581,17 @@ void py_attack_aux(int y, int x, int attack_type)
     // Cancel the attack if needed
     if (abort_attack)
     {
-		// reset the action type
-		p_ptr->previous_action[0] = ACTION_NOTHING;
+        if (!player_attacked)
+        {
+            // reset the action type
+            p_ptr->previous_action[0] = ACTION_NOTHING;
+            
+            // don't take a turn
+            p_ptr->energy_use = 0;
+        }
         
-		// don't take a turn
-		p_ptr->energy_use = 0;
-        
-		/* Done */
-		return;
+        /* Done */
+        return;
     }
     
 	// fighting with fists is equivalent to a 4 lb weapon for the purpose of criticals
@@ -3878,6 +3889,8 @@ void py_attack_aux(int y, int x, int attack_type)
             if ((r_ptr->flags2 & (RF2_RIPOSTE)) &&
                 (monster_ripostes == 0) &&
                 !m_ptr->confused &&
+                (m_ptr->stance != STANCE_FLEEING) &&
+                !m_ptr->skip_this_turn &&
                 !m_ptr->skip_next_turn &&
                 (hit_result <= -10 - (2 * r_ptr->blow[0].dd)))
             {

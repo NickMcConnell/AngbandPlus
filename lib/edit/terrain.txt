@@ -36,7 +36,7 @@
 
 # Version stamp (required)
 
-V:1.2.0
+V:1.2.1
 
 
 # 0x00 --> <darkness>
@@ -68,7 +68,7 @@ G:':U
 # 0x05 --> broken door
 
 N:5:broken door
-G:':u1
+G:.:U
 
 # 0x06 --> unused
 

@@ -1355,7 +1355,7 @@ void display_player_xtra_info(int mode)
 	
 	/* Total Armor */
 	strnfmt(buf, sizeof(buf), " [%+d,%d-%d]", p_ptr->skill_use[S_EVN], p_min(GF_HURT, TRUE), p_max(GF_HURT, TRUE));
-	Term_putstr(col, 7+attacks+shots, -1, TERM_WHITE, "Armour");
+	Term_putstr(col, 7+attacks+shots, -1, TERM_WHITE, "Armor");
 	Term_putstr(col+5, 7+attacks+shots, -1, TERM_L_BLUE, format("%11s", buf));
 
 	// limit the amount we will move the fields around to 4 lines

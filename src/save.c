@@ -551,8 +551,9 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->wandering_dist);
 	wr_byte(m_ptr->mana);
 	wr_byte(m_ptr->song);
+	wr_byte(m_ptr->skip_this_turn);
     
-	wr_s16b(0); // previously mimic_k_idx
+	wr_byte(0); // spare
     
     wr_s16b(m_ptr->consecutive_attacks);
     wr_s16b(m_ptr->turns_stationary);

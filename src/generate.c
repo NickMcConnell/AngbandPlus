@@ -710,7 +710,7 @@ static void build_chasms(void)
     int panels = (p_ptr->cur_map_hgt / PANEL_HGT) * (p_ptr->cur_map_wid / PANEL_WID_FIXED);
     
     // determine whether to add chasms, and how many
-    if ((p_ptr->depth > 1) && (p_ptr->depth < MORGOTH_DEPTH - 1) && percent_chance(p_ptr->depth + 32))
+    if ((p_ptr->depth > 2) && (p_ptr->depth < MORGOTH_DEPTH - 1) && percent_chance(p_ptr->depth + 30))
     {
         // add some chasms
         chasms += damroll(1, panels / 3);
@@ -1506,6 +1506,10 @@ bool feat_within_los(int y0, int x0, int feat)
 
 } 
 
+
+/*
+ * Are there any stairs within line of sight?
+ */
 bool stairs_within_los(int y, int x)
 {
 	if (feat_within_los(y, x, FEAT_LESS)) return (TRUE);
@@ -1518,9 +1522,74 @@ bool stairs_within_los(int y, int x)
 	return (FALSE);
 }
 
-static bool place_traps_rubble_player(void)
+
+/*
+ * Determines the chance (out of 1000) that a trap will be placed in a given square.
+ */
+static int trap_placement_chance(int y, int x)
 {
-	int t;
+    int yy, xx;
+    
+    int chance = 0;
+    
+    // extra chance of having a trap for certain squares inside rooms
+    if (cave_clean_bold(y,x) && (cave_info[y][x] & (CAVE_ROOM)))
+    {
+        chance = 1;
+        
+        // check the squares that neighbour (y,x)
+        for (yy = y - 1; yy <= y + 1; yy++)
+        {
+            for (xx = x - 1; xx <= x + 1; xx++)
+            {
+                if (!((yy==y) && (xx==x)))
+                {
+                    // item
+                    if (cave_o_idx[yy][xx] != 0)              chance += 10;
+                    
+                    // stairs
+                    if (cave_stair_bold(yy,xx))               chance += 10;
+                    
+                    // closed doors (including secret)
+                    if (cave_any_closed_door_bold(yy,xx))     chance += 10;
+                }
+            }
+        }
+        
+        // opposing impassable squares (chasm or wall)
+        if (cave_impassable_bold(y-1,x) && cave_impassable_bold(y+1,x)) chance += 10;
+        if (cave_impassable_bold(y,x-1) && cave_impassable_bold(y,x+1)) chance += 10;
+    }
+    
+    return (chance);
+}
+
+
+/*
+ * Place traps randomly on the level.
+ * Biased towards certain sneaky locations.
+ */
+static void place_traps(void)
+{
+    int y, x;
+    
+	// scan the map
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	{
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
+		{
+            // randomly determine whether to place a trap based on the above
+            if (dieroll(1000) <= trap_placement_chance(y, x))
+            {
+                place_trap(y,x);
+            }
+		}
+	}
+}
+
+
+static bool place_rubble_player(void)
+{
 	int r;
 	int y, x;
 	int i, panels;
@@ -1530,16 +1599,12 @@ static bool place_traps_rubble_player(void)
 	panels = (p_ptr->cur_map_hgt / PANEL_HGT) * (p_ptr->cur_map_wid / PANEL_WID_FIXED);
 	
 	r = dieroll(panels / 3); 
-	t = dieroll((p_ptr->depth + 10) * panels / 40);
-
+    
 	// occasionally produce much more rubble on deep levels
 	if ((p_ptr->depth >= 10) && one_in_(10)) r += panels * 2;
 
 	/* Put some rubble in corridors */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_RUBBLE, r, FALSE);
-
-	/* Place some traps in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, t, FALSE);
 
 	/* simple way to place player */
 	for (i = 0; i <= 100; i++)
@@ -1562,8 +1627,7 @@ static bool place_traps_rubble_player(void)
 				}
 			}
 		}
-		if (i == 100)
-			return (FALSE);
+		if (i == 100)   return (FALSE);
 	}
 	
 	return (TRUE);
@@ -2107,12 +2171,16 @@ void place_monster_by_letter(int y, int x, char c, bool allow_unique, int max_de
 /*
  * Hack -- fill in "vault" rooms
  */
-static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
+static bool build_vault(int y0, int x0, vault_type *v_ptr, bool flip_d)
 {
+    int ymax = v_ptr->hgt;
+    int xmax = v_ptr->wid;
+    cptr data = v_text + v_ptr->text;
 	int dx, dy, x, y;
 	int ax, ay;
 	bool flip_v = FALSE;
 	bool flip_h = FALSE;
+    int multiplier;
 
 	int original_object_level = object_level;
 	int original_monster_level = monster_level;
@@ -2139,26 +2207,37 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 		}
 	}
 
-	/* Flip the vault (sometimes) */
-	if (one_in_(2) && (p_ptr->depth > 0) && (p_ptr->depth < MORGOTH_DEPTH)) flip_v = TRUE;
-	if (one_in_(2) && (p_ptr->depth > 0) && (p_ptr->depth < MORGOTH_DEPTH)) flip_h = TRUE;
+    // reflections
+    if ((p_ptr->depth > 0) && (p_ptr->depth < MORGOTH_DEPTH))
+    {
+        // reflect it vertically half the time
+        if (one_in_(2)) flip_v = TRUE;
+        
+        // reflect it horizontally half the time
+        if (one_in_(2)) flip_h = TRUE;
+    }
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
-
 		if (flip_v) ay = ymax - 1 - dy;
 		else ay = dy;
 
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
-
 			if (flip_h) ax = xmax - 1 - dx;
 			else ax = dx;
 
 			/* Extract the location */
 			x = x0 - (xmax / 2) + ax;
 			y = y0 - (ymax / 2) + ay;
+            
+            // diagonal flipping
+            if (flip_d)
+            {
+                x = x0 - (ymax / 2) + ay;
+                y = y0 - (xmax / 2) + ax;
+            }
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -2242,23 +2321,6 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
-				/* Web */
-				case 'w':
-				{
-					if (one_in_(2))
-					{
-						/* Place a web trap */
-						cave_set_feat(y, x, FEAT_TRAP_WEB);
-						
-						// Hide it half the time
-						if (one_in_(2))
-						{
-							cave_info[y][x] |= (CAVE_HIDDEN);
-						}
-					}
-					break;
-				}
-
 				/* Forge */
 				case '0':
 				{
@@ -2298,6 +2360,13 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 			/* Extract the grid */
 			x = x0 - (xmax/2) + ax;
 			y = y0 - (ymax/2) + ay;
+
+            // diagonal flipping
+            if (flip_d)
+            {
+                x = x0 - (ymax / 2) + ay;
+                y = y0 - (xmax / 2) + ax;
+            }
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -2591,6 +2660,62 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 		}
 	}
 	
+	/* Place dungeon features and objects */
+	for (t = data, dy = 0; dy < ymax; dy++)
+	{
+		if (flip_v) ay = ymax - 1 - dy;
+		else ay = dy;
+        
+		for (dx = 0; dx < xmax; dx++, t++)
+		{
+			if (flip_h) ax = xmax - 1 - dx;
+			else ax = dx;
+            
+			/* Extract the location */
+			x = x0 - (xmax / 2) + ax;
+			y = y0 - (ymax / 2) + ay;
+            
+            // diagonal flipping
+            if (flip_d)
+            {
+                x = x0 - (ymax / 2) + ay;
+                y = y0 - (xmax / 2) + ax;
+            }
+            
+			/* Hack -- skip "non-grids" */
+			if (*t == ' ') continue;
+            
+            // some vaults are always lit
+            if (v_ptr->flags & (VLT_LIGHT))
+            {
+                cave_info[y][x] |= (CAVE_GLOW);
+            }
+            
+            // traps are usually 5 times as likely in vaults, but are 10 times as likely if the TRAPS flag is set
+            multiplier = (v_ptr->flags & (VLT_TRAPS)) ? 10 : 5;
+            
+            // another chance to place traps, with 4 times the normal chance
+            // so traps in interesting rooms and vaults are a total of 5 times more likely
+            if (dieroll(1000) <= trap_placement_chance(y, x) * (multiplier-1))
+            {
+                place_trap(y,x);
+            }
+            
+            // webbed vaults also have a large chance of receiving webs
+            else if ((v_ptr->flags & (VLT_WEBS)) && cave_naked_bold(y,x) && one_in_(20))
+            {
+                /* Place a web trap */
+                cave_set_feat(y, x, FEAT_TRAP_WEB);
+                
+                // Hide it half the time
+                if (one_in_(2))
+                {
+                    cave_info[y][x] |= (CAVE_HIDDEN);
+                }
+            }
+        }
+    }
+
 	return (TRUE);
 }
 
@@ -2603,32 +2728,55 @@ static bool build_type6(int y0, int x0)
 	vault_type *v_ptr;
 	int tries = 0;
 	int y1, x1, y2, x2;
+    bool flip_d;
 
 	/* Pick an interesting room */
 	while (TRUE)
 	{
+		tries++;
+
 		/* Get a random vault record */
 		v_ptr = &v_info[rand_int(z_info->v_max)];
 		
 		// if forcing a forge, then skip vaults without forges in them
 		if (p_ptr->force_forge && !v_ptr->forge) continue;
-				
-		/* Accept the first interesting room */
+        
+        // unless forcing a forge, try additional times to place any vault marked TEST
+        if ((tries < 1000) && !(v_ptr->flags & (VLT_TEST)) && !p_ptr->force_forge) continue;
+
+        /* Accept the first interesting room */
 		if ((v_ptr->typ == 6) && (v_ptr->depth <= p_ptr->depth) && (one_in_(v_ptr->rarity))) break;
 		
-		tries++;
-		if (tries > 1000)
+		if (tries > 2000)
 		{
 			msg_format("Bug: Could not find a record for an Interesting Room in vault.txt");
 			return (FALSE);
 		}
 	}
+    
+    // choose whether to rotate (flip diagonally)
+    flip_d = one_in_(3);
+    
+    // some vaults ask not be be rotated
+    if (v_ptr->flags & (VLT_NO_ROTATION)) flip_d = FALSE;
 
-	/* determine the coordinates */
-	y1 = y0 - (v_ptr->hgt / 2);
-	x1 = x0 - (v_ptr->wid / 2);
-	y2 = y1 + v_ptr->hgt - 1;
-	x2 = x1 + v_ptr->wid - 1;
+    if (flip_d)
+    {
+        /* determine the coordinates with hight/width flipped */
+        y1 = y0 - (v_ptr->wid / 2);
+        x1 = x0 - (v_ptr->hgt / 2);
+        y2 = y1 + v_ptr->wid - 1;
+        x2 = x1 + v_ptr->hgt - 1;
+    }
+    
+    else
+    {
+        /* determine the coordinates */
+        y1 = y0 - (v_ptr->hgt / 2);
+        x1 = x0 - (v_ptr->wid / 2);
+        y2 = y1 + v_ptr->hgt - 1;
+        x2 = x1 + v_ptr->wid - 1;
+    }
 
 	/* make sure that the location is within the map bounds */
 	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
@@ -2642,7 +2790,7 @@ static bool build_type6(int y0, int x0)
 	}
 
 	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text))
+	if (!build_vault(y0, x0, v_ptr, flip_d))
 	{
 		return (FALSE);
 	}
@@ -2674,30 +2822,53 @@ static bool build_type7(int y0, int x0)
 {
 	vault_type *v_ptr;
 	int tries = 0;
-	
 	int y1, x1, y2, x2;
+    bool flip_d;
 
 	/* Pick a lesser vault */
 	while (TRUE)
 	{
+		tries++;
+
 		/* Get a random vault record */
 		v_ptr = &v_info[rand_int(z_info->v_max)];
 
+        // try additional times to place any vault marked TEST
+        if ((tries < 1000) && !(v_ptr->flags & (VLT_TEST))) continue;
+        
 		/* Accept the first lesser vault */
 		if ((v_ptr->typ == 7) && (v_ptr->depth <= p_ptr->depth) && (one_in_(v_ptr->rarity))) break;
 		
-		tries++;
-		if (tries > 1000)
+		if (tries > 2000)
 		{
 			msg_format("Bug: Could not find a record for a Lesser Vault in vault.txt");
 			return (FALSE);
 		}
 	}
 
-	y1 = y0 - (v_ptr->hgt / 2);
-	x1 = x0 - (v_ptr->wid / 2);
-	y2 = y1 + v_ptr->hgt - 1;
-	x2 = x1 + v_ptr->wid - 1;
+    // choose whether to rotate (flip diagonally)
+    flip_d = one_in_(3);
+    
+    // some vaults ask not be be rotated
+    if (v_ptr->flags & (VLT_NO_ROTATION)) flip_d = FALSE;
+    
+    if (flip_d)
+    {
+        /* determine the coordinates with hight/width flipped */
+        y1 = y0 - (v_ptr->wid / 2);
+        x1 = x0 - (v_ptr->hgt / 2);
+        y2 = y1 + v_ptr->wid - 1;
+        x2 = x1 + v_ptr->hgt - 1;
+    }
+    
+    else
+    {
+        /* determine the coordinates */
+        y1 = y0 - (v_ptr->hgt / 2);
+        x1 = x0 - (v_ptr->wid / 2);
+        y2 = y1 + v_ptr->hgt - 1;
+        x2 = x1 + v_ptr->wid - 1;
+    }
 
 	/* make sure that the location is within the map bounds */
 	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
@@ -2711,7 +2882,7 @@ static bool build_type7(int y0, int x0)
 	}
 
 	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text))
+	if (!build_vault(y0, x0, v_ptr, flip_d))
 	{
 		return (FALSE);
 	}
@@ -2776,6 +2947,7 @@ static bool build_type8(int y0, int x0)
 	int i;
 	int y1, x1, y2, x2;
 	s16b v_idx;
+    bool flip_d;
 
 	// Can only have one greater vault per level
 	if (g_vault_name[0] != '\0')
@@ -2786,10 +2958,15 @@ static bool build_type8(int y0, int x0)
 	/* Pick a greater vault */
 	while (!found)
 	{
+		tries++;
+
 		/* Get a random vault record */
 		v_idx = rand_int(z_info->v_max);
 		v_ptr = &v_info[v_idx];
 
+        // try additional times to place any vault marked TEST
+        if ((tries < 1000) && !(v_ptr->flags & (VLT_TEST))) continue;
+        
 		/* Accept the first greater vault */
 		if ((v_ptr->typ == 8) && (v_ptr->depth <= p_ptr->depth) && (one_in_(v_ptr->rarity))) 
 		{
@@ -2805,19 +2982,36 @@ static bool build_type8(int y0, int x0)
 			if (!repeated) found = TRUE;
 		}
 					
-		tries++;
-		if (tries > 1000)
+		if (tries > 2000)
 		{
 			//if (!repeated) msg_debug("Bug: Could not find a record for a Greater Vault in vault.txt");
 			return (FALSE);
 		}
 	}
 
-	/* determine the coordinates */
-	y1 = y0 - (v_ptr->hgt / 2);
-	x1 = x0 - (v_ptr->wid / 2);
-	y2 = y1 + v_ptr->hgt - 1;
-	x2 = x1 + v_ptr->wid - 1;
+    // choose whether to rotate (flip diagonally)
+    flip_d = one_in_(3);
+    
+    // some vaults ask not be be rotated
+    if (v_ptr->flags & (VLT_NO_ROTATION)) flip_d = FALSE;
+    
+    if (flip_d)
+    {
+        /* determine the coordinates with hight/width flipped */
+        y1 = y0 - (v_ptr->wid / 2);
+        x1 = x0 - (v_ptr->hgt / 2);
+        y2 = y1 + v_ptr->wid - 1;
+        x2 = x1 + v_ptr->hgt - 1;
+    }
+    
+    else
+    {
+        /* determine the coordinates */
+        y1 = y0 - (v_ptr->hgt / 2);
+        x1 = x0 - (v_ptr->wid / 2);
+        y2 = y1 + v_ptr->hgt - 1;
+        x2 = x1 + v_ptr->wid - 1;
+    }
 
 	/* make sure that the location is within the map bounds */
 	if ((y1 <= 3) || (x1 <=3) || (y2 >= p_ptr->cur_map_hgt-3) || (x2 >= p_ptr->cur_map_wid-3))
@@ -2831,7 +3025,7 @@ static bool build_type8(int y0, int x0)
 	}
 
 	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text))
+	if (!build_vault(y0, x0, v_ptr, flip_d))
 	{
 		return (FALSE);
 	}
@@ -2902,7 +3096,7 @@ static bool build_type9(int y0, int x0)
 	x2 = x1 + v_ptr->wid - 1;
 
 	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text))
+	if (!build_vault(y0, x0, v_ptr, FALSE))
 	{
 		return (FALSE);
 	}
@@ -2937,7 +3131,7 @@ static bool build_type10(int y0, int x0)
 	x2 = x1 + v_ptr->wid - 1;
 
 	/* Try building the vault */
-	if (!build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text))
+	if (!build_vault(y0, x0, v_ptr, FALSE))
 	{
 		return (FALSE);
 	}
@@ -3216,9 +3410,9 @@ static bool cave_gen(void)
 		}
 	
 	/* place the stairs, traps, rubble, secret doors */
-	if (!place_traps_rubble_player())
+	if (!place_rubble_player())
 	{
-		if (cheat_room) msg_format("Couldn't place traps, rubble, or player.");
+		if (cheat_room) msg_format("Couldn't place, rubble, or player.");
 		return (FALSE);
 	}
 
@@ -3240,6 +3434,17 @@ static bool cave_gen(void)
 		mon_gen = (dun->cent_n + dieroll(dun->cent_n)) / 2;
 	}
 
+	/* Put some objects in rooms */
+	obj_room_gen = 3 * mon_gen / 4;
+	if (obj_room_gen > 0)
+	{
+		// currently ignoring the above...
+		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, obj_room_gen, FALSE);
+	}
+	
+    // place the traps
+    place_traps();
+    
 	/* Put some monsters in the dungeon */
 	for (i = mon_gen; i > 0; i--)
 	{
@@ -3263,14 +3468,6 @@ static bool cave_gen(void)
 		}
 	}
 
-	/* Put some objects in rooms */	
-	obj_room_gen = 3 * mon_gen / 4;
-	if (obj_room_gen > 0) 
-	{
-		// currently ignoring the above...
-		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, obj_room_gen, FALSE);
-	}
-	
 	// add a curved sword near the player if this is the beginning of the game
 	if (playerturn == 0)
 	{

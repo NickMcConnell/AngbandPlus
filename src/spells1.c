@@ -4228,6 +4228,7 @@ void song_of_freedom(int score)
     int result;
     int new_feat;
     object_type *o_ptr;
+    bool closed_chasm = FALSE;
         
     // set the base difficulty
     if (p_ptr->depth > 0)
@@ -4265,6 +4266,12 @@ void song_of_freedom(int score)
                         object_known(o_ptr);
                     }
                 }
+            }
+            
+            // Chasm
+            else if (cave_feat[y][x] == FEAT_CHASM)
+            {
+                closed_chasm |= close_chasm(y, x, score - flow_dist(FLOW_PLAYER_NOISE, y, x) - 5);
             }
             
             /* Invisible trap */
@@ -4371,6 +4378,28 @@ void song_of_freedom(int score)
             }
         }
     }
+    
+    // then, if any chasms were marked to be closed, do the closing
+    if (closed_chasm)
+    {
+        for (y = 0; y < p_ptr->cur_map_hgt; y++)
+        {
+            for (x = 0; x < p_ptr->cur_map_wid; x++)
+            {
+                if ((cave_feat[y][x] == FEAT_CHASM) && (cave_info[y][x] & (CAVE_TEMP)))
+                {
+                    // remove the temporary marking
+                    cave_info[y][x] &= ~(CAVE_TEMP);
+                    
+                    // close the chasm
+                    cave_set_feat(y, x, FEAT_FLOOR);
+                    
+                    // update the visuals
+                    p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+                }
+            }
+        }
+    }
 }
 
 
@@ -4385,6 +4414,8 @@ void song_of_binding(monster_type *m_ptr)
     int dist = flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx);
     char m_name[80];
     cptr description;
+    
+    int song_skill = 20; // Morgoth's song skill. If more monsters get songs I'll put this in monster.txt
     
     /* Get the monster name */
     monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
@@ -4441,7 +4472,7 @@ void song_of_binding(monster_type *m_ptr)
                     // if the door isn't between the monster and the player
                     if (!(ORDERED(m_ptr->fy, y, p_ptr->py) && ORDERED(m_ptr->fx, x, p_ptr->px)))
                     {
-                        result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), 15 + flow_dist(FLOW_MONSTER_NOISE, y, x), NULL);
+                        result = skill_check(m_ptr, song_skill, 15 + flow_dist(FLOW_MONSTER_NOISE, y, x), NULL);
                         
                         (void) lock_door(y, x, result);
                     }
@@ -4465,7 +4496,7 @@ void song_of_binding(monster_type *m_ptr)
                 
                 resistance = monster_skill(n_ptr, S_WIL) + 5 + flow_dist(FLOW_MONSTER_NOISE, y, x);
 
-                result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), resistance, n_ptr);
+                result = skill_check(m_ptr, song_skill, resistance, n_ptr);
                 
                 // if the check succeeds, the monster is slowed for at least 2 rounds
                 if (result > 0)
@@ -4477,6 +4508,9 @@ void song_of_binding(monster_type *m_ptr)
     }
     */
 
+    // if the player is singing the song of silence, then the  monster suffers a penalty
+	if (singing(SNG_SILENCE)) song_skill -= ability_bonus(S_SNG, SNG_SILENCE) / 2;
+    
     // determine the player's resistance
     // Sil-y: might want to add in the same +5 bonus as against Mastery and Lorien
     resistance = p_ptr->skill_use[S_WIL] + (p_ptr->free_act * 10) + flow_dist(FLOW_MONSTER_NOISE, p_ptr->py, p_ptr->px);
@@ -4484,9 +4518,10 @@ void song_of_binding(monster_type *m_ptr)
     // Sil-y: ideally we'd use a call to allow_player_slow() here, but that doesn't
     //        work as it can't take the noise distance into account.
     //        Sadly my solution doesn't let you ID free action items.
-    result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), resistance, PLAYER);
+    result = skill_check(m_ptr, song_skill, resistance, PLAYER);
     
     // if the check succeeds, the player is slowed for at least 2 rounds
+    // note that only the first of these affects you as you aren't slow on the round it wears off
     if (result > 0)
     {
         set_slow(MAX(p_ptr->slow, 2));
@@ -4504,6 +4539,8 @@ void song_of_piercing(monster_type *m_ptr)
     char m_name[80];
     cptr description;
     
+    int song_skill = 20; // Morgoth's song skill. If more monsters get songs I'll put this in monster.txt
+
     /* Get the monster name */
     monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
     
@@ -4540,11 +4577,14 @@ void song_of_piercing(monster_type *m_ptr)
         if (m_ptr->ml || (dist <= 30)) disturb(1, 0);
     }
     
+    // if the player is singing the song of silence, then the  monster suffers a penalty
+	if (singing(SNG_SILENCE)) song_skill -= ability_bonus(S_SNG, SNG_SILENCE) / 2;
+    
     // determine the player's resistance
-    resistance = p_ptr->skill_use[S_WIL] + dist;
+    resistance = p_ptr->skill_use[S_WIL] + dist + 5;
     
     // perform the skill check
-    result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), resistance, PLAYER);
+    result = skill_check(m_ptr, song_skill, resistance, PLAYER);
     
     // if the check succeeds, Morgoth knows the player's location
     if (result > 0)
@@ -4571,7 +4611,9 @@ void song_of_oaths(monster_type *m_ptr)
     int dist = flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx);
     char m_name[80];
     cptr description;
-    
+
+    int song_skill = 21; // Gorthaur's song skill. If more monsters get songs I'll put this in monster.txt
+
     /* Get the monster name */
     monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
     
@@ -4611,8 +4653,11 @@ void song_of_oaths(monster_type *m_ptr)
     // use the monster noise flow to represent the song levels at each square
     update_flow(m_ptr->fy, m_ptr->fx, FLOW_MONSTER_NOISE);
     
+    // if the player is singing the song of silence, then the  monster suffers a penalty
+	if (singing(SNG_SILENCE)) song_skill -= ability_bonus(S_SNG, SNG_SILENCE) / 2;
+    
     // perform the skill check
-    result = skill_check(m_ptr, monster_skill(m_ptr, S_WIL), 15, PLAYER);
+    result = skill_check(m_ptr, song_skill, 15, PLAYER);
     
     // if the check was successful, summon an oathwraith to a nearby square
     if (result > 0)

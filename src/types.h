@@ -474,6 +474,8 @@ struct vault_type
 	byte wid;			/* Vault width */
 
 	byte forge;			/* Is there a forge in it? */
+    
+	u32b flags;			/* Vault Flags (ie VLT flags) */
 };
 
 
@@ -579,6 +581,7 @@ struct monster_type
 
 	s16b alertness;		/* Positive numbers can move and act, negative are unwary or asleep */
 	byte skip_next_turn;/* used to skip the monster's next turn in various circumstances */
+	byte skip_this_turn;/* used to make sure the monster doesn't do anything this turn (Song of Mastery) */
 
 	byte mspeed;		/* Monster "speed" */
 	byte energy;		/* Monster "energy" */

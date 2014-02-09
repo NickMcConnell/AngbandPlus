@@ -7,7 +7,6 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 #
 #
-#
 # === Understanding artefact.txt ===
 #
 # N: serial number : item name
@@ -96,17 +95,17 @@
 #   * Finrod		(boots - good evasion, free action)
 #   * Angrod		(round shield - res stun, res conf, res fire)
 #     * Orodreth	(greaves - dex, res fire)
-#   - Aegnor
-#   - Galadriel
+#   * Aegnor
+#   * Galadriel
 # * Thingol		(cloak - grey, rfire, rcold, free act) (Aranruth - will, rfear, danger)
 #   * Luthien		(shadow cloak - res dark, sust gra, stealth)
-# - also...
-#   - Daeron		(? - song, hunger)
+# * also...
+#   * Daeron		(? - song, hunger)
 #   - Celeborn
 #   * Beleg		(Dailir - bonuses) (Belthronding - dex, stealth, shot)
 #   * Eol		('Ang' - sharpness, danger) ('Ang' - sharpness, hunger)
-#   - Ecthelion
-#   - Tinfang Gelion	(? - song)
+#   * Ecthelion
+#   * Tinfang Gelion	(? - song)
 #
 # Men
 # * Beor		(studded leather - resist poison, resist dark)
@@ -127,19 +126,18 @@
 # * Gamil Zirak		(gloves - smithing, res fire)
 #
 # Powers
-# - Melian
+# * Melian
 #
 # Places
-# - Eithel Sirion
-# - Tol Sirion
-# - Taur-nu-fuin
-# - Belegost
+# * Sirion
+# * Taur-nu-fuin
+# * Belegost
 # * Nogrod		(great axe - slay orc/troll/rauko, res fire)
-# - Amon Rudh
+# * Amon Rudh
 # - Taur-im-Duinath
-# - Nargothrond
+# * Nargothrond
 # - Mithrim
-# - Brethil
+# * Brethil
 # - Ossiriand
 # - Gorgoroth
 # - Khazad-Dum
@@ -159,7 +157,7 @@
 
 # Version stamp (required)
 
-V:1.2.0
+V:1.2.1
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -489,7 +487,7 @@ D: many a blow that might cleave through a lesser suit.
 
 N:41:'Starlight'
 I:37:20:1
-W:16:1:120:50000
+W:16:10:120:50000
 P:0:0d0:-1:2d4
 F:RES_FEAR | RES_BLIND
 F:PERCEPTION | SONG
@@ -1458,7 +1456,7 @@ D: taught Telchar the arts of the forge.
 
 N:167:'Silverhand'
 I:31:3:1
-W:15:1:10:20000
+W:15:10:10:20000
 P:0:0d0:0:1d2
 F:DEX
 B:6/2

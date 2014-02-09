@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.2.0"
+#define VERSION_STRING	"1.2.1"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	2
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -559,9 +559,8 @@
 #define	SNG_ESTE					 8
 #define	SNG_SHARPNESS				 9
 #define	SNG_MASTERY					10
-#define	SNG_VOICE					11
-#define	SNG_WOVEN_THEMES			12
-#define	SNG_GRA						13
+#define	SNG_WOVEN_THEMES			11
+#define	SNG_GRA						12
 
 #define	SNG_BINDING					50 /* monster songs */
 #define	SNG_PIERCING				51 /* monster songs */
@@ -2057,6 +2056,42 @@
 #define RHF_RHFXXX32			0x80000000L
 
 
+/*** Vault flags ***/
+
+#define VLT_TEST                0x00000001L /* Vault must be generated (for debugging) */
+#define VLT_NO_ROTATION         0x00000002L /* Vault cannot be rotated */
+#define VLT_TRAPS               0x00000004L /* Vault has more traps than usual */
+#define VLT_WEBS                0x00000008L /* Vault has spider webs */
+#define VLT_LIGHT               0x00000010L /* Vault is always generated with light */
+#define VLT_VLTXXXX6			0x00000020L
+#define VLT_VLTXXXX7            0x00000040L
+#define VLT_VLTXXXX8			0x00000080L
+#define VLT_VLTXXXX9            0x00000100L
+#define VLT_VLTXXX10			0x00000200L
+#define VLT_VLTXXX11            0x00000400L
+#define VLT_VLTXXX12			0x00000800L
+#define VLT_VLTXXX13            0x00001000L
+#define VLT_VLTXXX14			0x00002000L
+#define VLT_VLTXXX15            0x00004000L
+#define VLT_VLTXXX16			0x00008000L
+#define VLT_VLTXXX17            0x00010000L
+#define VLT_VLTXXX18			0x00020000L
+#define VLT_VLTXXX19			0x00040000L
+#define VLT_VLTXXX20			0x00080000L
+#define VLT_VLTXXX21			0x00100000L
+#define VLT_VLTXXX22			0x00200000L
+#define VLT_VLTXXX23			0x00400000L
+#define VLT_VLTXXX24			0x00800000L
+#define VLT_VLTXXX25			0x01000000L
+#define VLT_VLTXXX26			0x02000000L
+#define VLT_VLTXXX27			0x04000000L
+#define VLT_VLTXXX28			0x08000000L
+#define VLT_VLTXXX29			0x10000000L
+#define VLT_VLTXXX30			0x20000000L
+#define VLT_VLTXXX31			0x40000000L
+#define VLT_VLTXXX32			0x80000000L
+
+
 
 #define MONSTER_BLOW_MAX 4
 
@@ -3121,6 +3156,15 @@
 #define cave_wall_bold(Y,X) \
 	 ((cave_feat[Y][X] >= FEAT_WALL_HEAD) && \
 	  (cave_feat[Y][X] <= FEAT_WALL_TAIL))
+
+/*
+ * Determine if a "legal" grid is an "impassable" grid
+ */
+#define cave_impassable_bold(Y,X) \
+    (((cave_feat[Y][X] >= FEAT_WALL_HEAD) && \
+      (cave_feat[Y][X] <= FEAT_WALL_TAIL)) || \
+     (cave_feat[Y][X] == FEAT_CHASM))
+
 
 /*
  * Determine if a "legal" grid is an up stairs.

@@ -788,6 +788,8 @@ extern bool banishment(void);
 extern bool mass_banishment(void);
 extern void destroy_area(int y1, int x1, int r, bool full);
 extern void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who);
+extern bool close_chasm(int y, int x, int power);
+extern bool close_chasms(int power);
 extern void light_room(int y1, int x1);
 extern void darken_room(int y1, int x1);
 extern bool light_area(int dd, int ds, int rad);

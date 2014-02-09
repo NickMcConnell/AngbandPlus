@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.2.0
+V:1.2.1
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -1507,9 +1507,9 @@ D: about 250 turns under normal conditions.
 N:384:Restoration
 G:,:d
 I:80:4:250
-W:9:0:1:1000
+W:5:0:1:1000
 P:0:0d0:0:0d0
-A:9/2:19/2
+A:5/4:9/2:19/2
 F:EASY_KNOW
 D:It restores all of your statistics by up to 3 points each. 
 D: Herbs provide nourishment for about 250 turns under normal

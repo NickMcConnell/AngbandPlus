@@ -114,7 +114,7 @@ void display_scent_map(void)
 void display_noise_map(void)
 {
 	int y, x;
-	byte a;
+	byte a = TERM_DARK; // default to soothe compilation warnings
 	int dist;
     int d;
     

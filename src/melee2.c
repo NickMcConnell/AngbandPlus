@@ -3467,16 +3467,19 @@ void monster_exchange_places(monster_type *m_ptr)
     /* Message */
     msg_format("%^s exchanges places with you.", m_name1);
     
+    // swap positions with the player
+    monster_swap(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
+    
+    // update some things
+    update_view();
+
     // attack of opportunity
     if (!p_ptr->afraid && !p_ptr->entranced && (p_ptr->stun <= 100))
     {
         // this might be the most complicated auto-grammatical message in the game...
         msg_format("You attack %s as %s slips past.", m_name2, m_name3);
-        make_attack_normal(m_ptr);
+        py_attack_aux(m_ptr->fy, m_ptr->fx, ATT_OPPORTUNITY);
     }
-    
-    // swap positions with the player
-    monster_swap(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
     
     // remember that the monster can do this
     if (m_ptr->ml)  l_ptr->flags2 |= (RF2_EXCHANGE_PLACES);
@@ -4337,7 +4340,11 @@ void wander(monster_type *m_ptr)
     // to take account of changes in the dungeon (new glyphs of warding, doors closed etc)
     if (one_in_(10))
     {
-        update_flow(flow_center_y[m_ptr->wandering_idx], flow_center_x[m_ptr->wandering_idx], m_ptr->wandering_idx);
+        // only do this if they have a real wandering index (not a zero due to too many wandering monster groups)
+        if (m_ptr->wandering_idx >= FLOW_WANDERING_HEAD)
+        {
+            update_flow(flow_center_y[m_ptr->wandering_idx], flow_center_x[m_ptr->wandering_idx], m_ptr->wandering_idx);
+        }
     }
     
 	/* Choose a pair of target grids, or cancel the move. */
@@ -4377,6 +4384,9 @@ static void process_monster(monster_type *m_ptr)
 
 	/* Will the monster move randomly? */
 	bool random_move = FALSE;
+    
+    // assume we are not under the influence of the Song of Mastery
+    m_ptr->skip_this_turn = FALSE;
 
 	// first work out if the song of mastery stops the monster's turn
 	if (singing(SNG_MASTERY))
@@ -4386,7 +4396,12 @@ static void process_monster(monster_type *m_ptr)
 			            monster_skill(m_ptr, S_WIL) + 5 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx),
 						m_ptr) > 0)
 		{
-			return;
+            
+            // make sure the monster doesn't do any free attacks before its next turn
+            m_ptr->skip_this_turn = TRUE;
+			
+            // end the monster's turn
+            return;
 		}
 	}
 
@@ -4835,6 +4850,7 @@ static void process_monster(monster_type *m_ptr)
 				}
 				
 				// if adjacent, you get a chance for an opportunist attack, which might kill them
+                // (skip_next_turn is there to stop you getting opportunist attacks afer knocking someone back)
 				if (p_ptr->active_ability[S_STL][STL_OPPORTUNIST] && m_ptr->ml && !m_ptr->skip_next_turn && (m_ptr->alertness >= ALERTNESS_ALERT) && !p_ptr->truce &&
 					!p_ptr->confused && !p_ptr->afraid && !p_ptr->entranced && (p_ptr->stun <= 100))
 				{
@@ -5406,7 +5422,7 @@ void process_monsters(s16b minimum_energy)
 		/* Sleeping monsters don't get a move */
 		if (m_ptr->alertness < ALERTNESS_UNWARY) continue;
 		
-		// Monsters who have just noticed you miss their turns
+		// Monsters who have just noticed you miss their turns (as do those who have been knocked back...)
 		if (m_ptr->skip_next_turn)
 		{
 			m_ptr->skip_next_turn = FALSE;

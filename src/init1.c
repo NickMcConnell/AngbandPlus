@@ -141,7 +141,8 @@ struct flag_name
 #define RF3 5
 #define RF4 6
 #define RHF 7
-#define MAX_FLAG_SETS	8
+#define VLT 8
+#define MAX_FLAG_SETS	9
 
 
 
@@ -477,7 +478,46 @@ static flag_name info_flags[] =
 	{"RHFXXX29",  RHF, RHF_RHFXXX29},
 	{"RHFXXX30",  RHF, RHF_RHFXXX30},
 	{"RHFXXX31",  RHF, RHF_RHFXXX31},
-	{"RHFXXX32",  RHF, RHF_RHFXXX32}
+	{"RHFXXX32",  RHF, RHF_RHFXXX32},
+
+
+    /*
+     * Vault flags
+     */
+	{"TEST",            VLT, VLT_TEST},
+	{"NO_ROTATION",     VLT, VLT_NO_ROTATION},
+	{"TRAPS",           VLT, VLT_TRAPS},
+	{"WEBS",            VLT, VLT_WEBS},
+	{"LIGHT",           VLT, VLT_LIGHT},
+	{"VLTXXXX6",  VLT, VLT_VLTXXXX6},
+	{"VLTXXXX7",  VLT, VLT_VLTXXXX7},
+	{"VLTXXXX8",  VLT, VLT_VLTXXXX8},
+	{"VLTXXXX9",  VLT, VLT_VLTXXXX9},
+	{"VLTXXX10",  VLT, VLT_VLTXXX10},
+	{"VLTXXX11",  VLT, VLT_VLTXXX11},
+	{"VLTXXX12",  VLT, VLT_VLTXXX12},
+	{"VLTXXX13",  VLT, VLT_VLTXXX13},
+	{"VLTXXX14",  VLT, VLT_VLTXXX14},
+	{"VLTXXX15",  VLT, VLT_VLTXXX15},
+	{"VLTXXX16",  VLT, VLT_VLTXXX16},
+	{"VLTXXX17",  VLT, VLT_VLTXXX17},
+	{"VLTXXX18",  VLT, VLT_VLTXXX18},
+	{"VLTXXX19",  VLT, VLT_VLTXXX19},
+	{"VLTXXX20",  VLT, VLT_VLTXXX20},
+	{"VLTXXX21",  VLT, VLT_VLTXXX21},
+	{"VLTXXX22",  VLT, VLT_VLTXXX22},
+	{"VLTXXX23",  VLT, VLT_VLTXXX23},
+	{"VLTXXX24",  VLT, VLT_VLTXXX24},
+	{"VLTXXX21",  VLT, VLT_VLTXXX25},
+	{"VLTXXX25",  VLT, VLT_VLTXXX26},
+	{"VLTXXX26",  VLT, VLT_VLTXXX27},
+	{"VLTXXX27",  VLT, VLT_VLTXXX28},
+	{"VLTXXX28",  VLT, VLT_VLTXXX29},
+	{"VLTXXX29",  VLT, VLT_VLTXXX29},
+	{"VLTXXX30",  VLT, VLT_VLTXXX30},
+	{"VLTXXX31",  VLT, VLT_VLTXXX31},
+	{"VLTXXX32",  VLT, VLT_VLTXXX32}
+
 };
 
 
@@ -902,125 +942,6 @@ errr parse_z_info(char *buf, header *head)
 		/* Save the value */
 		z_info->fake_text_size = max;
 	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Initialize the "v_info" array, by parsing an ascii "template" file
- */
-errr parse_v_info(char *buf, header *head)
-{
-	int i;
-
-	char *s;
-
-	/* Current entry */
-	static vault_type *v_ptr = NULL;
-
-
-	/* Process 'N' for "New/Number/Name" */
-	if (buf[0] == 'N')
-	{
-		/* Find the colon before the name */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*s++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*s) return (PARSE_ERROR_GENERIC);
-
-		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		v_ptr = (vault_type*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(v_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
-	/* Process 'X' for "Extra info" (one line only) */
-	else if (buf[0] == 'X')
-	{
-		int typ, depth, rarity;
-		
-		/* There better be a current v_ptr */
-		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-        
-		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d", &typ, &depth, &rarity)) return (PARSE_ERROR_GENERIC);
-        
-		/* Save the values */
-		v_ptr->typ = typ;
-		v_ptr->depth = depth;
-		v_ptr->rarity = rarity;
-		v_ptr->hgt = 0;
-		v_ptr->wid = 0;
-	}
-
-	/* Process 'D' for "Description" */
-	else if (buf[0] == 'D')
-	{
-        
-		/* There better be a current v_ptr */
-		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Get the text */
-		s = buf+2;
-
-        if (v_ptr->wid == 0)
-        {
-            v_ptr->wid = strlen(buf+2);
-        }
-        else if (v_ptr->wid != strlen(buf+2))
-        {
-            return (PARSE_ERROR_VAULT_NOT_RECTANGULAR);
-        }
-            
-            
-		/* Store the text */
-		if (!add_text(&v_ptr->text, head, s))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-
-		// note if there is a forge in the vault
-		if (strchr(buf, '0')) v_ptr->forge = TRUE;
-        
-        // we've added another row of the vault
-        v_ptr->hgt++;
-        
-        /* Check for maximum vault sizes */
-		if ((v_ptr->typ == 6) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
-			return (PARSE_ERROR_VAULT_TOO_BIG);
-        
-		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
-			return (PARSE_ERROR_VAULT_TOO_BIG);
-        
-		if ((v_ptr->typ == 8) && ((v_ptr->wid > 66) || (v_ptr->hgt > 44)))
-			return (PARSE_ERROR_VAULT_TOO_BIG);
-	}
-    
 	else
 	{
 		/* Oops */
@@ -1462,6 +1383,163 @@ errr parse_k_info(char *buf, header *head)
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
 
+	/* Success */
+	return (0);
+}
+
+/*
+ * Grab one flag in a vault from a textual string
+ *
+ */
+static errr grab_one_vault_flag(vault_type *ptr, cptr what)
+{
+	u32b *f[MAX_FLAG_SETS];
+	C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+	f[VLT] = &(ptr->flags);
+	return grab_one_flag(f, "vault", what);
+}
+
+/*
+ * Initialize the "v_info" array, by parsing an ascii "template" file
+ */
+errr parse_v_info(char *buf, header *head)
+{
+	int i;
+    
+	char *s, *t;
+    
+	/* Current entry */
+	static vault_type *v_ptr = NULL;
+    
+    
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf+2, ':');
+        
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+        
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+        
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+        
+		/* Get the index */
+		i = atoi(buf+2);
+        
+		/* Verify information */
+		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+        
+		/* Verify information */
+		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+        
+		/* Save the index */
+		error_idx = i;
+        
+		/* Point at the "info" */
+		v_ptr = (vault_type*)head->info_ptr + i;
+        
+		/* Store the name */
+		if (!(v_ptr->name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+    
+	/* Process 'X' for "Extra info" (one line only) */
+	else if (buf[0] == 'X')
+	{
+		int typ, depth, rarity;
+		
+		/* There better be a current v_ptr */
+		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+        
+		/* Scan for the values */
+		if (3 != sscanf(buf+2, "%d:%d:%d", &typ, &depth, &rarity)) return (PARSE_ERROR_GENERIC);
+        
+		/* Save the values */
+		v_ptr->typ = typ;
+		v_ptr->depth = depth;
+		v_ptr->rarity = rarity;
+		v_ptr->hgt = 0;
+		v_ptr->wid = 0;
+	}
+    
+	/* Hack -- Process 'F' for flags */
+	else if (buf[0] == 'F')
+	{
+		/* There better be a current k_ptr */
+		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+        
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+            
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+            
+			/* Parse this entry */
+			if (0 != grab_one_vault_flag(v_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+            
+			/* Start the next entry */
+			s = t;
+		}
+	}
+    
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+        
+		/* There better be a current v_ptr */
+		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+        
+		/* Get the text */
+		s = buf+2;
+        
+        if (v_ptr->wid == 0)
+        {
+            v_ptr->wid = strlen(buf+2);
+        }
+        else if (v_ptr->wid != strlen(buf+2))
+        {
+            return (PARSE_ERROR_VAULT_NOT_RECTANGULAR);
+        }
+        
+        
+		/* Store the text */
+		if (!add_text(&v_ptr->text, head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+        
+		// note if there is a forge in the vault
+		if (strchr(buf, '0')) v_ptr->forge = TRUE;
+        
+        // we've added another row of the vault
+        v_ptr->hgt++;
+        
+        /* Check for maximum vault sizes */
+		if ((v_ptr->typ == 6) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
+			return (PARSE_ERROR_VAULT_TOO_BIG);
+        
+		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
+			return (PARSE_ERROR_VAULT_TOO_BIG);
+        
+		if ((v_ptr->typ == 8) && ((v_ptr->wid > 66) || (v_ptr->hgt > 44)))
+			return (PARSE_ERROR_VAULT_TOO_BIG);
+	}
+    
+	else
+	{
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+    
 	/* Success */
 	return (0);
 }

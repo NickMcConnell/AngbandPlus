@@ -28,7 +28,7 @@
 		A9BB7A4D087416CD00E8B486 /* h-system.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "h-system.h"; path = "src/h-system.h"; sourceTree = "<group>"; };
 		A9BB7A4E087416CD00E8B486 /* h-type.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "h-type.h"; path = "src/h-type.h"; sourceTree = "<group>"; };
 		A9BB7A4F087416CD00E8B486 /* init.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = init.h; path = src/init.h; sourceTree = "<group>"; };
-		A9BB7A50087416CD00E8B486 /* init1.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = init1.c; path = src/init1.c; sourceTree = "<group>"; };
+		A9BB7A50087416CD00E8B486 /* init1.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = init1.c; path = src/init1.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		A9BB7A51087416CD00E8B486 /* init2.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = init2.c; path = src/init2.c; sourceTree = "<group>"; };
 		A9BB7A52087416CD00E8B486 /* load.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = load.c; path = src/load.c; sourceTree = "<group>"; };
 		A9BB7A53087416CD00E8B486 /* main-crb.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = "main-crb.c"; path = "src/main-crb.c"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };

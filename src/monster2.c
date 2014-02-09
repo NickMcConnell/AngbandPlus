@@ -1093,7 +1093,8 @@ int monster_skill(monster_type *m_ptr, int skill_type)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	int skill = 0;
 	
-    switch (skill_type) {
+    switch (skill_type)
+    {
         case S_MEL:
             msg_debug("Can't determine the monster's Melee score.");
             break;
@@ -1790,11 +1791,19 @@ void describe_floor_object(void)
     {
         // do nothing
     }
+
     // skip notes
     else if (o_ptr->tval == TV_NOTE)
     {
         // do nothing
     }
+
+    // skip fired/thrown items
+    else if (o_ptr->pickup)
+    {
+        // do nothing
+    }
+    
     // arms and armour show weight
     else if (((wield_slot(o_ptr) >= INVEN_WIELD) && (wield_slot(o_ptr) <= INVEN_BOW)) ||
              ((wield_slot(o_ptr) >= INVEN_BODY)  && (wield_slot(o_ptr) <= INVEN_FEET)))
@@ -1805,6 +1814,7 @@ void describe_floor_object(void)
         /* Disturb */
         disturb(0,0);
     }
+
     // other things just show description
     else
     {
@@ -1849,6 +1859,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
+        // (skip_next_turn is there to stop you getting opportunist attacks afer knocking someone back)
         if (m_ptr->ml && !m_ptr->skip_next_turn && !p_ptr->truce && !p_ptr->confused && !p_ptr->afraid && !p_ptr->entranced && (p_ptr->stun <= 100))
         {
             if (!forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT))
@@ -1903,7 +1914,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
                     l_ptr = &l_list[m_ptr->r_idx];
                     monster_desc(m_name, sizeof(m_name), m_ptr, 0);
                                         
-                    if ((m_ptr->alertness >= ALERTNESS_ALERT) && !m_ptr->confused && !m_ptr->skip_next_turn)
+                    if ((m_ptr->alertness >= ALERTNESS_ALERT) && !m_ptr->confused && (m_ptr->stance != STANCE_FLEEING) &&
+                        !m_ptr->skip_next_turn && !m_ptr->skip_this_turn)
                     {
                         // Opportunist
                         if ((r_ptr->flags2 & (RF2_OPPORTUNIST)) && (distance(m_ptr->fy, m_ptr->fx, y2, x2) > 1))
@@ -2392,8 +2404,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool ignore_depth, mon
 	/* Give almost no starting energy (avoids clumped movement) */
 	// Same as old FORCE_SLEEP flag, which is now the default behaviour
 	n_ptr->energy = (byte)rand_int(10);
-
-	//n_ptr->skip_next_turn = TRUE; // Sil-y: I don't seem to need this
 
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);

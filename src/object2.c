@@ -4111,14 +4111,14 @@ void place_closed_door(int y, int x)
 	// vault generation
 	if (cave_info[y][x] & (CAVE_ICKY))
 	{
-		/* Closed doors (80%) */
-		if (tmp < 80)
+		/* Closed doors (88%) */
+		if (tmp < 88)
 		{
 			/* Create closed door */
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
 		}
 
-		/* Locked doors (16%) */
+		/* Locked doors (8%) */
 		else if (tmp < 96)
 		{
 			/* Create locked door */
