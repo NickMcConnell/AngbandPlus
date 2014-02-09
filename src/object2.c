@@ -774,6 +774,7 @@ static int choose_chest_contents (void)
 		else if (one_in_(3)) 	chest_theme = DROP_TYPE_MORIA_WEAPONS;
 		else if (one_in_(2)) 	chest_theme = DROP_TYPE_MORIA_ARMOR_BODY;
 		else 					chest_theme = DROP_TYPE_MORIA_ARMOR_OTHER;
+		return(chest_theme);
 	}
 
 	/*now determine the chest theme*/
@@ -1670,7 +1671,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 	/*
 	 * Get four rolls if good and great flags are true,
-	 * only 2 for quests ince they are so repetitive
+	 * only 1 for quests since they are so repetitive
 	 */
 	if ((good) && (great))
 	{

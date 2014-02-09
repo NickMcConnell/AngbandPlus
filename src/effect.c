@@ -419,12 +419,10 @@ bool set_effect_permanent_cloud(int f_idx, byte y, byte x,	u16b power, u16b flag
 bool set_effect_trap_passive(int f_idx, byte y, byte x)
 {
 	int x_idx = x_pop();
-	u16b flags = 0L;
+	u16b flags = (EF1_TRAP_DUMB | EF1_PERMANENT | EF1_SKIP | EF1_HIDDEN | EF1_HURT_PLAY);
 
 	/*All full*/
 	if (!x_idx) return (FALSE);
-
-	flags |= (EF1_TRAP_DUMB | EF1_PERMANENT | EF1_SKIP | EF1_HIDDEN | EF1_HURT_PLAY);
 
 	effect_prep(x_idx, EFFECT_TRAP_DUMB, f_idx, y, x, 1, 1, 0, SOURCE_TRAP, flags);
 
@@ -471,12 +469,10 @@ bool set_effect_trap_smart(int f_idx, byte y, byte x, u16b flags)
 bool set_effect_trap_player(int f_idx, byte y, byte x)
 {
 	int x_idx = x_pop();
-	u16b flags = 0L;
+	u16b flags = (EF1_TRAP_PLAYER | EF1_PERMANENT | EF1_SKIP);
 
 	/*All full*/
 	if (!x_idx) return (FALSE);
-
-	flags |= (EF1_TRAP_PLAYER | EF1_PERMANENT | EF1_SKIP);
 
 	effect_prep(x_idx, EFFECT_TRAP_PLAYER, f_idx, y, x, 1, 1, 0, SOURCE_TRAP, flags);
 
@@ -493,12 +489,10 @@ bool set_effect_trap_player(int f_idx, byte y, byte x)
 bool set_effect_glyph(byte y, byte x)
 {
 	int x_idx = x_pop();
-	u16b flags = 0L;
+	u16b flags = (EF1_GLYPH | EF1_PERMANENT | EF1_SKIP);
 
 	/*All full*/
 	if (!x_idx) return (FALSE);
-
-	flags |= (EF1_GLYPH | EF1_PERMANENT | EF1_SKIP);
 
 	effect_prep(x_idx, EFFECT_GLYPH, FEAT_GLYPH, y, x, 1, 1, 0, SOURCE_TRAP, flags);
 
@@ -638,9 +632,7 @@ void pick_and_set_trap(int y, int x, int mode)
 	/* Set either set a smart or dumb trap*/
 	if (feat_ff2_match(feat, FF2_TRAP_SMART))
 	{
-		u16b flags = 0L;
-
-		flags |= (fire_trap_smart(feat, y, x, MODE_FLAGS));
+		u16b flags = fire_trap_smart(feat, y, x, MODE_FLAGS);
 
 		set_effect_trap_smart(feat, y, x, flags);
 	}

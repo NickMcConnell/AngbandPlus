@@ -4,7 +4,7 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-VERSION = 7.0.0
+VERSION = 7.1.0
 COPYRIGHT = (c) 1995-2015 NPPAngband and Angband contributors
 
 HEADERS = \

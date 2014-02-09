@@ -301,7 +301,7 @@ void show_inven(byte mode)
 		o_ptr = &inventory[i];
 
 		/* Acceptable items get a label */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, i))
 			strnfmt(labels[num_obj], sizeof(labels[num_obj]), "%c) ", index_to_label(i));
 
 		/* Unacceptable items are still displayed in term windows */
@@ -582,7 +582,7 @@ void display_equip(void)
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
 		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, i))
 		{
 			/* Prepare an "index" */
 			tmp_val[0] = index_to_label(i);
@@ -696,7 +696,7 @@ void show_equip(byte mode)
 			for (j = i; j < last_slot; j++)
 			{
 				o_ptr = &inventory[j];
-				if (item_tester_okay(o_ptr)) need_spacer = TRUE;
+				if (item_tester_okay(o_ptr, i)) need_spacer = TRUE;
 			}
 
 			/* Add a spacer between equipment and quiver */
@@ -711,7 +711,7 @@ void show_equip(byte mode)
 		}
 
 		/* Acceptable items get a label */
-		if (item_tester_okay(o_ptr))
+		if (item_tester_okay(o_ptr, i))
 			strnfmt(labels[num_obj], sizeof(labels[num_obj]), "%c) ", index_to_label(i));
 
 		/* Unacceptable items are still displayed in term windows */
@@ -770,7 +770,7 @@ void show_floor(const int *floor_list, int floor_num, byte mode)
 		 * only test items that are not gold.
 		 */
 		if ((o_ptr->tval != TV_GOLD || !(mode & OLIST_GOLD)) &&
-		    !item_tester_okay(o_ptr))
+		    !item_tester_okay(o_ptr, i))
 			continue;
 
 		strnfmt(labels[num_obj], sizeof(labels[num_obj]),
@@ -1952,8 +1952,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
-	/* Forger the item tester_swap restriction */
-	item_tester_swap = TRUE;
+	/* Forget the item tester_swap restriction */
+	item_tester_swap = FALSE;
 
 	/* Make sure the equipment/inventory windows are up to date */
 	p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
@@ -2009,7 +2009,7 @@ bool get_item_beside(int *cp, cptr pmt, cptr str, int sq_y, int sq_x)
 	item_tester_tval = 0;
 
 	/* Forger the item tester_swap restriction */
-	item_tester_swap = TRUE;
+	item_tester_swap = FALSE;
 
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
@@ -2349,7 +2349,8 @@ static void collect_commands(const object_type *o_ptr, int item)
 		/*  Check if the object can be activated and it isn't charging */
 		if (obj_can_activate(o_ptr))
 		{
-			if ((!adult_swap_weapons) && (item != INVEN_SWAP_WEAPON))
+
+			if ((!adult_swap_weapons) || (item != INVEN_SWAP_WEAPON))
 			{
 				add_command(CMD_ACTIVATE);
 				button_add("|ACTIVATE", 'A');
@@ -2552,7 +2553,7 @@ void cmd_use_item(void)
 	/* We want to use all objects */
 	item_tester_tval = 0;
 	item_tester_hook = NULL;
-	item_tester_swap = TRUE;
+	item_tester_swap = FALSE;
 
 	/* Get item */
 	q = "Select an item.";

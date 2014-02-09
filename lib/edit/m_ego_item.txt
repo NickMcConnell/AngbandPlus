@@ -62,7 +62,7 @@
 # Lothl['o]rien or Lothl[oacute]rien are both valid ways to get an acute accent
 # on the o in Lothlorien . All valid codes can be found in util.c.
 
-V:7.0.0
+V:7.1.0
 
 
 
@@ -520,7 +520,7 @@ X:10:0
 W:0:2:0:1500
 C:0:0:10:0
 T:35:0:99
-F:RES_SHARD | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 
 N:57:of Stealth

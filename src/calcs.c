@@ -1729,6 +1729,14 @@ void calc_bonuses(object_type calc_inven[], player_state *new_state, bool id_onl
 					break;
 				}
 
+				/* Composite Bow and Arrow */
+				case SV_COMPOSITE_BOW:
+				{
+					new_state->ammo_tval = TV_ARROW;
+					new_state->ammo_mult = 4;
+					break;
+				}
+
 				/* Light Crossbow and Bolt */
 				case SV_LIGHT_XBOW:
 				{

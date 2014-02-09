@@ -1303,7 +1303,7 @@ static int find_resist(int m_idx, int spell_lrn)
 			if (smart & (SM_RES_CONFU)) a += 10;
 			if (smart & (SM_PERF_SAVE)) a += 10;
 			else if (smart & (SM_GOOD_SAVE)) a += 5;
-			else return (a);
+			return (a);
 		}
 		/* Irresistible, but sound prevents stun */
 		case LRN_SOUND2:
@@ -1342,7 +1342,7 @@ static int find_resist(int m_idx, int spell_lrn)
 			if (smart & (SM_RES_CHAOS)) return(30);
 			if (smart & (SM_RES_NETHR))  a += 10;
 			if (smart & (SM_RES_CONFU))  a += 10;
-			else return (a);
+			return (a);
 		}
 		/* Disenchantment Spells */
 		case LRN_DISEN:

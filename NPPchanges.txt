@@ -1,3 +1,21 @@
+NPP 7.1.0:
+(Moria) Use words to show the players speed ("fast", "slow") rather than numbers (+1, -1)
+Misc code cleanup found by "Runningaway".
+Bugfix (Moria): Composite bows were not working properly.
+Bugfix: Fix swap weapons with the roguelike keyset
+Bugfix(Moria): Fix height and weight rangess for all Moria races.
+Bugfix(Moria): Fix shortened names for Orcs ad Orc Warriors
+Bugfix(Moria): Rangers could not read or cast from the mage spellset.
+Bugfix(Moria): Create food spell was broken.
+Bugfix(Moria): Equipment activations for were not working.
+Bugfix(Moria): Cloaks of protection had the resist shards flag (no shard attacks in Moria).
+Bugfix(Moria): Elves resisted light and half-orcs resisted darkness (neither attack exists in Moria)
+Bugfix(Moria): 10 Monsters who should have had the "teleport player to monster" spell had the "teleport monster to player" spell.
+Bugfix: The spit acid attack and last attack description was occasionally mixed up (found by "Runningaway")
+Bugfix: Several defective break statements allowed the monsters to learning about player resisistance to sound and chaos a little too quickly.
+Bugfix(Moria): The themes themed chests were not being calcualted correctly (found by "Runningaway").
+Bugfix: Uniques marked for a guild quest could still be placed outside of the quest level, potentially causing game crashes.
+
 NPP 7.0.0:
 Add moria game mode, based on Moria 5.5.2.
 Added opportunity to do a shield bash on a monster as in Moria.

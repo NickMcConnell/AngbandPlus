@@ -498,6 +498,42 @@ static void prt_health(int row, int col, const monster_type *m_ptr)
 	}
 }
 
+void moria_speed_labels(char *buf, int speed, size_t len)
+{
+	if (speed < NPPMORIA_LOWEST_SPEED) speed = NPPMORIA_LOWEST_SPEED;
+	else if (speed > NPPMORIA_MAX_SPEED) speed = NPPMORIA_MAX_SPEED;
+
+	switch (speed)
+	{
+		case NPPMORIA_LOWEST_SPEED:
+		{
+			my_strcpy (buf, "Very slow", len);
+			return;
+		}
+		case (NPPMORIA_LOWEST_SPEED + 1):
+		{
+			my_strcpy (buf, "Slow", len);
+			return;
+		}
+		case NPPMORIA_MAX_SPEED:
+		{
+			my_strcpy (buf, "Max speed", len);
+			return;
+		}
+		case (NPPMORIA_MAX_SPEED - 1):
+		{
+			my_strcpy (buf, "Very fast", len);
+			return;
+		}
+		case (NPPMORIA_MAX_SPEED - 2):
+		{
+			my_strcpy (buf, "Fast", len);
+			return;
+		}
+		default: my_strcpy (buf, "Normal", len);
+	}
+}
+
 
 /*
  * Hack - Modify the color based on speed bonuses. -DG-
@@ -529,20 +565,25 @@ static void prt_speed(int row, int col)
 	/* Boundry Control */
 	if (game_mode == GAME_NPPMORIA)
 	{
-		if (i < NPPMORIA_LOWEST_SPEED) i = NPPMORIA_LOWEST_SPEED;
-		else if (i > NPPMORIA_MAX_SPEED) i = NPPMORIA_MAX_SPEED;
+		attr = analyze_speed_bonuses(TERM_L_GREEN);
+		moria_speed_labels(buf, i, sizeof(buf));
+
+		/* Display the speed */
+		c_put_str(attr, buf, row, col);
+
+		return;
 	}
 
 	/* Fast */
-	if (i > (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
+	else if (i > 110)
 	{
 		attr = analyze_speed_bonuses(TERM_L_GREEN);
-		sprintf(buf, "Fast (+%d)", (i - (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110)));
+		sprintf(buf, "Fast (+%d)", (i - 110));
 	}
-	else if (i < (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
+	else if (i < 110)
 	{
 		attr = analyze_speed_bonuses(TERM_L_UMBER);
-		sprintf(buf, "Slow (-%d)", ((game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110) - i));
+		sprintf(buf, "Slow (-%d)", (110 - i));
 	}
 
 	/* Display the speed */

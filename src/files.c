@@ -474,20 +474,20 @@ void display_player_xtra_info(void)
 	/* Boundry Control */
 	if (game_mode == GAME_NPPMORIA)
 	{
-		if (i < NPPMORIA_LOWEST_SPEED) i = NPPMORIA_LOWEST_SPEED;
-		else if (i > NPPMORIA_MAX_SPEED) i = NPPMORIA_MAX_SPEED;
+		moria_speed_labels(buf, i, sizeof(buf));
+
 	}
 
 	/* Fast */
-	if (i > (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
+	else if (i > 110)
 	{
-		sprintf(buf, "+%d", (i - (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110)));
+		sprintf(buf, "+%d", (i - 110));
 	}
 
 	/* Slow */
-	else if (i < (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
+	else if (i < 110)
 	{
-		sprintf(buf, "-%d", ((game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110) - i));
+		sprintf(buf, "-%d", (110 - i));
 	}
 
 	else

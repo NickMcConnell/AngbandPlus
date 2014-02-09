@@ -7697,7 +7697,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 				/* Standard ball spell -- accept all grids in LOS. */
 				else
 				{
-					if (flg & (PROJECT_PASS) || generic_los(y2, x2, y, x, CAVE_PROJECT))
+					if ((flg & (PROJECT_PASS)) || generic_los(y2, x2, y, x, CAVE_PROJECT))
 					{
 						gy[grids] = y;
 						gx[grids] = x;

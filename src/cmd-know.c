@@ -744,16 +744,17 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 			}
 
 			case EVT_SELECT:
-			{
-				if (panel == 1 && oid >= 0 && o_cur == active_menu->cursor)
-				{
-					o_funcs.lore(oid);
-					redraw = TRUE;
-				}
-			}
-
 			case EVT_MOVE:
 			{
+				if (ke.type == EVT_SELECT)
+				{
+					if (panel == 1 && oid >= 0 && o_cur == active_menu->cursor)
+					{
+						o_funcs.lore(oid);
+						redraw = TRUE;
+					}
+				}
+
 				*active_cursor = active_menu->cursor;
 				continue;
 			}
@@ -762,6 +763,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 			{
 				if (panel == 1)
 					do_swap = TRUE;
+				continue;
 			}
 
 			/* XXX Handle EVT_RESIZE */
@@ -1101,6 +1103,8 @@ static bool visual_mode_command(ui_event_data ke, bool *visual_list_ptr,
 					return TRUE;
 				}
 			}
+
+			break;
 		}
 	}
 

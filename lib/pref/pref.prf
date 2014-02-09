@@ -56,7 +56,6 @@ A:w0
 C:0:X
 
 
-
 ##### Roguelike Keyset Mappings #####
 
 # Stay still (numerical)
@@ -209,7 +208,7 @@ A:Q
 C:1:^C
 
 # Hack -- Swap equipment
-A:w0
+A:x
 C:1:X
 
 # Roguelike keymap: Repeat last command

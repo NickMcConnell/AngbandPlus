@@ -731,7 +731,7 @@ s16b get_mon_num(int level, int y, int x, byte mp_flags)
 				/* Check quests for uniques*/
 				for (k = 0; k < z_info->q_max; k++)
 				{
-					if (quest_slot_fixed(k))
+					if (quest_slot_single_r_idx(k))
 					{
 						/* Is this unique marked for a quest? */
 						if (q_info[k].mon_idx == table[i].index)

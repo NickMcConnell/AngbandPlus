@@ -3802,7 +3802,7 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 	/* track the object used */
 	track_object(item);
 
-	/* If the item requires a direction, get one (allow cancelling) */
+	/* If the item requires a direction, get one (allow canceling) */
 	if (obj_needs_aim(o_ptr))
 		dir = args[1].direction;
 
@@ -3817,6 +3817,9 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 			sound(snd);
 		}
 
+		/* mark the item (the place in the inventory might shift) */
+		o_ptr->obj_in_use = TRUE;
+
 		/* Do effect */
 		used = use_object(o_ptr, &ident, was_aware, dir);
 
@@ -3825,6 +3828,9 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 		{
 			o_ptr = object_from_item_idx(item);
 		}
+
+		/* Clear the item mark */
+		o_ptr->obj_in_use = FALSE;
 
 		/* Quit if the item wasn't used and no knowledge was gained */
 		if (!used && (was_aware || !ident)) return;
@@ -4093,13 +4099,14 @@ static void do_item(item_act act)
 	/* Don't allow activation of swap weapons */
 	if (adult_swap_weapons)
 	{
-		if (item_actions[act].command == CMD_ACTIVATE)  item_tester_swap = FALSE;
+		if (item_actions[act].command == CMD_ACTIVATE)  item_tester_swap = TRUE;
 	}
 
 	/* Get item */
 	q = item_actions[act].prompt;
 	s = item_actions[act].noop;
 	item_tester_hook = item_actions[act].filter;
+
 	if (!get_item(&item, q, s, item_actions[act].mode)) return;
 
 	/* Get the item */

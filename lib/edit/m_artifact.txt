@@ -69,7 +69,7 @@
 
 # Version stamp (required)
 
-V:7.0.0
+V:7.1.0
 
 
 # Here is the list of 'Special' artifacts - The Phial

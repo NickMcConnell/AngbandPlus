@@ -617,7 +617,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 
 	if (l_ptr->r_l_flags4 & (RF4_LASH))
 	{
-		if (l_ptr->r_l_flags3 & (RF3_ANIMAL) || (r_ptr->blow[0].effect == RBE_ACID))
+		if ((l_ptr->r_l_flags3 & (RF3_ANIMAL)) || (r_ptr->blow[0].effect == RBE_ACID))
 			vp[vn++] = "spit at you from a distance";
 		else
 			vp[vn++] = "lash you if nearby";

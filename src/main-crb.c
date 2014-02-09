@@ -3906,6 +3906,10 @@ int main(void)
 	/* Initialise the cursor and turn it into an "arrow" */
 	InitCursor();
 
+	/* init empty game mode before switches (which might set it) */
+	game_mode = 0;
+
+
 	/*
 	 * Remember Mac OS version, in case we have to cope with version-specific
 	 * problems

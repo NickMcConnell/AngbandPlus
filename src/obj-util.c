@@ -1117,7 +1117,7 @@ cptr describe_use(int i)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(const object_type *o_ptr)
+bool item_tester_okay(const object_type *o_ptr, int obj_num)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);
@@ -1126,7 +1126,7 @@ bool item_tester_okay(const object_type *o_ptr)
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Don't allow this choice for swap weapons */
-	if (!item_tester_swap) return (FALSE);
+	if ((item_tester_swap) && (obj_num == INVEN_SWAP_WEAPON)) return (FALSE);
 
 	/* Hack -- ignore "gold" */
 	if (o_ptr->tval == TV_GOLD) return (FALSE);
@@ -1181,7 +1181,7 @@ int scan_floor(int *items, int size, int y, int x, int mode)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Verify item tester */
-		if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
+		if ((mode & 0x01) && !item_tester_okay(o_ptr, this_o_idx)) continue;
 
 		/* Marked items only */
 		if ((mode & 0x02) && !o_ptr->marked) continue;
@@ -3103,7 +3103,8 @@ void acquirement(int y1, int x1, int num, bool great)
 }
 
 /*
- * Scatter some "great" objects near the player
+ * Create a pint of fine grade mush and either put
+ * it in the player's inventory or on the floor
  */
 void create_food(void)
 {
@@ -3121,12 +3122,12 @@ void create_food(void)
 	/* Remember history */
 	object_history(i_ptr, ORIGIN_MAGIC, 0);
 
-	/* First try to put it in the inventory */
-	if (put_object_in_inventory(i_ptr)) return;
-
-	/* If that fails, drop it on the floor Drop the object */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
-
+	/* Either put it in the inventory or on the floor */
+	if (inven_carry_okay(i_ptr))
+	{
+		put_object_in_inventory(i_ptr);
+	}
+	else drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 }
 
 
@@ -5784,7 +5785,7 @@ bool obj_can_activate(const object_type *o_ptr)
 bool get_item_okay(int item)
 {
 	/* Verify the item */
-	return (item_tester_okay(object_from_item_idx(item)));
+	return (item_tester_okay(object_from_item_idx(item), item));
 }
 
 
@@ -5856,7 +5857,7 @@ int scan_items(int *item_list, size_t item_list_max, int mode)
 	/* Forget the item_tester_tval and item_tester_hook  restrictions */
 	item_tester_tval = 0;
 	item_tester_hook = NULL;
-	item_tester_swap = TRUE;
+	item_tester_swap = FALSE;
 
 
 	return item_list_num;
@@ -5876,7 +5877,7 @@ bool item_is_available(int item, bool (*tester)(const object_type *), int mode)
 
 	item_tester_hook = tester;
 	item_tester_tval = 0;
-	item_tester_swap = TRUE;
+	item_tester_swap = FALSE;
 	item_num = scan_items(item_list, N_ELEMENTS(item_list), mode);
 
 	for (i = 0; i < item_num; i++)
