@@ -346,8 +346,9 @@ static enum birth_stage get_map_command(void)
  * Get the game mode (formerly birth options)
  * ------------------------------------------------------------------------ */
 #define MODE_TEXT \
-    "Toggle any of the permanent game modes, '{light green}?{/}'" \
-    "for help,\naccept or quit; selected modes appear {red}red{/}:"
+    "Use the arrows to navigate; accept, quit or toggle any of the\n" \
+    "permanent game modes with enter; '{light green}?{/}' for help.\n" \
+    "Selected modes appear {red}red{/}:"
 
 
 /* Show the mode instructions */
@@ -407,7 +408,7 @@ struct mode_menu_data {
 	const char *modes[GAME_MODE_MAX + 2];
 	const char *description[GAME_MODE_MAX + 2];
 
-	bool mode_settings[GAME_MODE_MAX + 1];
+	bool mode_settings[GAME_MODE_MAX + 2];
 };
 
 /**
