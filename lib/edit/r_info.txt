@@ -5234,9 +5234,11 @@ I:110:10d8:12:55:10:10
 W:22:1:60:40:0:0
 B:ENGULF:EXP_VAMP:2d6
 F:RAND_25 | 
-F:RES_COLD | IM_POIS | RES_ACID | RES_NETH | WILD_SWAMP |
+F:RES_COLD | IM_POIS | RES_ACID | RES_NETH | WILD_SWAMP | 
+F:PASS_WALL | CAN_FLY | NONLIVING
 F:EVIL | EMPTY_MIND | COLD_BLOOD | FRIENDS
 D:A cloud of evil, sentient mist.
+P:Body:Vampire
 
 N:366:Killer stag beetle
 G:K:s
@@ -5624,6 +5626,7 @@ F:RAND_50 | COLD_BLOOD | REGENERATE | CAN_FLY |
 F:EVIL | ANIMAL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | 
 D:An undead bat that flies at your neck hungrily.
+P:Body:Vampire Bat
 
 N:392:Sangahyando of Umbar
 G:p:o
@@ -6269,6 +6272,7 @@ S:1_IN_9 |
 S:TELE_TO | HOLD | SCARE | CAUSE_2 | MIND_BLAST | FORGET | DARKNESS
 D:It is a humanoid with an aura of power.  You notice a sharp set of front 
 D:teeth.
+P:Body:Vampire
 
 N:433:Gorgimera
 G:H:D
@@ -7744,6 +7748,7 @@ S:TELE_TO | HOLD | CONF | SCARE | CAUSE_3 | MIND_BLAST | FORGET |
 S:DARKNESS | BO_NETH
 D:It is a humanoid form dressed in robes.  Power emanates from its chilling 
 D:frame.
+P:Body:Vampire
 
 N:521:Oriental vampire
 G:V:g
@@ -9546,6 +9551,7 @@ S:1_IN_7 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | DARKNESS | BO_NETH
 D:A foul wind chills your bones as this ghastly figure approaches.
+P:Body:Vampire
 
 N:624:Ancient black dragon
 G:D:D
@@ -17786,11 +17792,12 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH | RES_DARK | HURT_LITE |
 F:NO_CONF | NO_SLEEP |
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | BA_NETH
-S:BRAIN_SMASH | DARKNESS | BO_NETH | S_UNDEAD
+S:BRAIN_SMASH | DARKNESS | BO_NETH | S_UNDEAD | BA_DARK
 D:A terrible robed undead figure, this creature has existed in its 
 D:unlife for many centuries by stealing the life of others. It can 
 D:summon the very shades of its victims from beyond the grave to 
 D:come enslaved to its aid. 
+P:Body:Vampire
 
 N:1059:Noborta Kesyta, the Yeek President
 G:y:w

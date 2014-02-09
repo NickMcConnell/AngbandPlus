@@ -72,6 +72,7 @@ static void _races_help(FILE* fff)
     {
         race_t *race_ptr = get_race_t_aux(i, 0);
         if (race_ptr->flags & RACE_IS_MONSTER) continue;
+        /*if (race_ptr->flags & RACE_IS_DEPRECATED) continue;*/
         _race_help(fff, i);
     }
 
@@ -82,6 +83,7 @@ static void _races_help(FILE* fff)
     {
         race_t *race_ptr = get_race_t_aux(i, 0);
         if (race_ptr->flags & RACE_IS_MONSTER) continue;
+        /*if (race_ptr->flags & RACE_IS_DEPRECATED) continue;*/
 
         if (r % 20 == 0)
             fprintf(fff, "[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp\n");    
@@ -101,6 +103,7 @@ static void _races_help(FILE* fff)
     {
         race_t *race_ptr = get_race_t_aux(i, 0);
         if (race_ptr->flags & RACE_IS_MONSTER) continue;
+        /*if (race_ptr->flags & RACE_IS_DEPRECATED) continue;*/
 
         if (r % 20 == 0)
             fprintf(fff, "[[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");

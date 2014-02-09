@@ -80,7 +80,6 @@ extern byte adj_dex_safe[];
 extern byte adj_con_fix[];
 extern byte adj_con_mhp[];
 extern byte adj_chr_chm[];
-extern byte blows_table[12][12];
 extern arena_type arena_info[MAX_ARENA_MONS + 2];
 extern owner_type owners[MAX_STORES][MAX_OWNERS];
 extern byte extract_energy[200];
@@ -268,6 +267,7 @@ extern bool show_weights;    /* Show weights in object listings */
 extern bool show_discounts;
 extern bool show_item_graph;    /* Show items graphics */
 extern bool equippy_chars;    /* Display 'equippy' chars */
+extern bool display_food_bar;    /* Like the monster health bar, only tastier! */
 extern bool display_mutations;    /* Display mutations in 'C'haracter Display */
 extern bool compress_savefile;    /* Compress messages in savefiles */
 extern bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation */
@@ -2005,31 +2005,50 @@ extern race_t *mon_quylthulg_get_race_t(void);
 extern race_t *mon_spider_get_race_t(void);
 extern race_t *mon_sword_get_race_t(void);
 extern race_t *mon_troll_get_race_t(void);
+extern race_t *mon_vampire_get_race_t(void);
 extern race_t *mon_xorn_get_race_t(void);
+
+extern void    hound_calc_innate_attacks(void);
+extern void    hound_sniff_spell(int cmd, variant *res);
+extern void    hound_stalk_spell(int cmd, variant *res);
+extern void    hound_run_spell(int cmd, variant *res);
+extern void    hound_leap_spell(int cmd, variant *res);
 
 extern bool    possessor_can_gain_exp(void);
 extern int     possessor_get_toggle(void);
 extern s32b    possessor_max_exp(void);
 extern void    possessor_on_take_hit(void);
+
 extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    jelly_eat_object(object_type *o_ptr);
+
 extern void    blink_toggle_spell(int cmd, variant *res);
 extern bool    leprechaun_steal(int m_idx);
 extern int     leprechaun_get_toggle(void);
+
 extern void    sword_absorb_object(object_type *o_ptr);
 extern int     sword_calc_torch(void);
 extern bool    sword_disenchant(void);
 
+extern bool    vampiric_drain_hack;
+extern void    vampire_feed(int amt);
+extern void    vampire_check_light_status(void);
+extern void    vampire_take_light_damage(int amt);
+extern void    vampire_take_dark_damage(int amt);
+
 /* Mimic Forms */
+extern race_t *bat_get_race_t(void);
 extern race_t *clay_golem_get_race_t(void);
 extern race_t *colossus_get_race_t(void);
 extern race_t *demon_get_race_t(void);
 extern race_t *demon_lord_get_race_t(void);
 extern race_t *iron_golem_get_race_t(void);
+extern race_t *mist_get_race_t(void);
 extern race_t *mithril_golem_get_race_t(void);
 extern race_t *vampire_lord_get_race_t(void);
 extern race_t *small_kobold_get_race_t(void);
 extern race_t *mangy_leper_get_race_t(void);
+extern race_t *wolf_get_race_t(void);
 
 
 /* classes.c */

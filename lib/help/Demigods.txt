@@ -198,4 +198,4 @@
 
 
 
-[[[[s|  Automatically generated for PosChengband 3.0.0.
+[[[[s|  Automatically generated for PosChengband 3.0.4.

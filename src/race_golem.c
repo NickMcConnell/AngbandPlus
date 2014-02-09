@@ -84,6 +84,12 @@ static void _calc_innate_attacks(void)
         a.to_h = l;
         a.to_d = l + l*l/50 + l*l*l/2500;
 
+        if (!equip_find_first(object_is_shield))
+        {
+            a.to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+            a.to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3/4;
+        }
+
         if (l >= 30)
             a.effect[1] = GF_STUN;
 
@@ -573,8 +579,8 @@ race_t *mon_golem_get_race_t(int psubrace)
     me.subname = _mon_name(p_ptr->current_r_idx);
 
     me.stats[A_STR] =  1 + rank;
-    me.stats[A_INT] = -3 + (rank+1)/2;
-    me.stats[A_WIS] = -3 + (rank+1)/2;
+    me.stats[A_INT] = -2 - (rank+1)/2;
+    me.stats[A_WIS] = -2 - (rank+1)/2;
     me.stats[A_DEX] = -1 - (rank+1)/2;
     me.stats[A_CON] =  1 + rank;
     me.stats[A_CHR] =  0 + (rank+1)/2;

@@ -771,10 +771,10 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
         {RACE_DARK_ELF, RACE_HIGH_ELF, -1} },
     { "Hobbit/Dwarf", "Races.txt#Tables", 
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
-    { "Fairy", 
-        "Races.txt#Tables", {RACE_SHADOW_FAIRY, RACE_SPRITE, -1} },
-    { "Angel/Demon", 
-        "Races.txt#Tables", {RACE_ARCHON, RACE_BALROG, RACE_IMP, -1} },
+    { "Fairy", "Races.txt#Tables", 
+        {RACE_SHADOW_FAIRY, RACE_SPRITE, -1} },
+    { "Angel/Demon",  "Races.txt#Tables", 
+        {RACE_ARCHON, RACE_BALROG, RACE_IMP, -1} },
     { "Orc/Troll/Giant", "Races.txt#Tables", 
         {RACE_CYCLOPS, RACE_KOBOLD, RACE_HALF_GIANT, RACE_HALF_OGRE, 
          RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_SNOTLING, -1} },
@@ -787,8 +787,9 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
         {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_SWORD, RACE_MON_DEMON, 
             RACE_MON_DRAGON, RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_GOLEM, RACE_MON_HOUND, 
             RACE_MON_HYDRA, RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_POSSESSOR,
-            RACE_MON_QUYLTHULG, RACE_MON_SPIDER, RACE_MON_TROLL, RACE_MON_XORN, -1} },
+            RACE_MON_QUYLTHULG, RACE_MON_SPIDER, RACE_MON_TROLL, RACE_MON_VAMPIRE, RACE_MON_XORN, -1} },
 };
+
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
     switch (cmd)
@@ -2259,10 +2260,11 @@ static void init_dungeon_quests(void)
  */
 static void init_turn(void)
 {
-    if ((p_ptr->prace == RACE_VAMPIRE) ||
-        (p_ptr->prace == RACE_SKELETON) ||
-        (p_ptr->prace == RACE_ZOMBIE) ||
-        (p_ptr->prace == RACE_SPECTRE))
+    if ( p_ptr->prace == RACE_VAMPIRE
+      || p_ptr->prace == RACE_MON_VAMPIRE
+      || p_ptr->prace == RACE_SKELETON
+      || p_ptr->prace == RACE_ZOMBIE
+      || p_ptr->prace == RACE_SPECTRE )
     {
         /* Undead start just after midnight */
         turn = (TURNS_PER_TICK*3 * TOWN_DAWN) / 4 + 1;
@@ -2654,6 +2656,7 @@ void player_outfit(void)
     switch (p_ptr->prace)
     {
     case RACE_VAMPIRE:
+    case RACE_MON_VAMPIRE:
         /* Nothing! */
         /* Vampires can drain blood of creatures */
         break;
@@ -2707,7 +2710,10 @@ void player_outfit(void)
     {
         _birth_object(TV_SCROLL, SV_SCROLL_DARKNESS, rand_range(2, 5));
     }
-    else if (p_ptr->prace == RACE_MON_JELLY || p_ptr->prace == RACE_MON_SPIDER || p_ptr->prace == RACE_MON_SWORD)
+    else if ( p_ptr->prace == RACE_MON_JELLY 
+           || p_ptr->prace == RACE_MON_SPIDER 
+           || p_ptr->prace == RACE_MON_VAMPIRE
+           || p_ptr->prace == RACE_MON_SWORD)
     {
     }
     else if (p_ptr->pclass != CLASS_NINJA)

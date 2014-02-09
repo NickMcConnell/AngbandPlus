@@ -1,0 +1,961 @@
+#include "angband.h"
+
+#include <assert.h>
+
+static const char * _desc = 
+    "One of the mightier undead creatures, the Vampire is an awe-inspiring sight. Yet this "
+    "dread creature has a serious weakness: the bright rays of sun are its bane, and it "
+    "will need to flee the surface to the deep recesses of earth until the sun finally "
+    "sets. Darkness, on the other hand, (eventually) only makes the Vampire stronger. "
+    "As undead, the Vampire has a firm hold on its life force, and resists nether attacks. "
+    "The Vampire also resists cold and poison based attacks. It is, however, susceptible to its "
+    "perpetual hunger for fresh blood, which can only be satiated by sucking the blood "
+    "from a nearby monster.\n \n"
+    "The Vampire is a monster race and cannot choose a normal class. Instead, the vampire gains "
+    "access to various dark powers as they evolve. Of course, they gain a vampiric bite at a "
+    "very early stage, as they must use this power to feed on the living. Killing humans with this "
+    "power also is a means of perpetuating the vampire species, and many are the servants of "
+    "true prince of darkness! Vampires are also rumored to have limited shapeshifting abilities "
+    "and a powerful, hypnotic gaze.";
+
+bool vampiric_drain_hack = FALSE;
+
+/******************************************************************************
+ *                  25                35              45
+ * Vampire: Vampire -> Master Vampire -> Vampire Lord -> Elder Vampire
+ ******************************************************************************/
+static void _birth(void) 
+{ 
+    object_type    forge;
+
+    p_ptr->current_r_idx = MON_VAMPIRE;
+    equip_on_change_race();
+    
+    object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
+    add_outfit(&forge);
+
+    object_prep(&forge, lookup_kind(TV_SWORD, SV_DAGGER));
+    forge.name2 = EGO_WEAPON_DEATH;
+    add_outfit(&forge);
+
+    /* Encourage shapeshifting! */
+    object_prep(&forge, lookup_kind(TV_RING, 0));
+    forge.name2 = EGO_RING_COMBAT;
+    forge.to_d = 4;
+    add_outfit(&forge);
+}
+
+static void _gain_level(int new_level) 
+{
+    if (p_ptr->current_r_idx == MON_VAMPIRE && new_level >= 25)
+    {
+        p_ptr->current_r_idx = MON_MASTER_VAMPIRE;
+        msg_print("You have evolved into a Master Vampire.");
+        p_ptr->redraw |= PR_MAP;
+    }
+    if (p_ptr->current_r_idx == MON_MASTER_VAMPIRE && new_level >= 35)
+    {
+        p_ptr->current_r_idx = MON_VAMPIRE_LORD;
+        msg_print("You have evolved into a Vampire Lord.");
+        p_ptr->redraw |= PR_MAP;
+    }
+    if (p_ptr->current_r_idx == MON_VAMPIRE_LORD && new_level >= 45)
+    {
+        p_ptr->current_r_idx = MON_ELDER_VAMPIRE;
+        msg_print("You have evolved into an Elder Vampire.");
+        p_ptr->redraw |= PR_MAP;
+    }
+}
+
+/******************************************************************************
+ * Powers
+ ******************************************************************************/
+static int _bite_amt(void)
+{
+    int l = p_ptr->lev;
+    return 5 + l + l*l/25 + l*l*l*3/2500; /* 5 + 50 + 100 + 150 = 305 */
+}
+static void _bite_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Vampiric Bite");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "As a vampire, you must feed on fresh blood in order to sustain your unlife!");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(0, 0, _bite_amt()));
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
+        {
+            msg_print("Something prevents you from attacking.");
+            return;
+        }
+        else
+        {
+            int x = 0, y = 0, amt, m_idx = 0;
+            int dir = 0;
+
+            if (use_old_target && target_okay())
+            {
+                y = target_row;
+                x = target_col;
+                m_idx = cave[y][x].m_idx;
+                if (m_idx)
+                {
+                    if (m_list[m_idx].cdis > 1)
+                        m_idx = 0;
+                    else
+                        dir = 5;
+                }
+            }
+
+            if (!m_idx)
+            {
+                if (!get_rep_dir2(&dir)) return;
+                if (dir == 5) return;
+                y = py + ddy[dir];
+                x = px + ddx[dir];
+                m_idx = cave[y][x].m_idx;
+
+                if (!m_idx)
+                {
+                    msg_print("There is no monster there.");
+                    return;
+                }
+            }
+
+            var_set_bool(res, TRUE);
+
+            msg_print("You grin and bare your fangs...");
+            amt = _bite_amt();
+
+            vampiric_drain_hack = TRUE;
+            if (project(0, 0, y, x, amt, GF_OLD_DRAIN, PROJECT_STOP | PROJECT_KILL | PROJECT_THRU, -1))
+            {
+                vampire_feed(amt);
+            }
+            else
+                msg_print("Yechh. That tastes foul.");
+            vampiric_drain_hack = FALSE;
+        }
+        break;
+    case SPELL_COST_EXTRA:
+        var_set_int(res, MIN(_bite_amt() / 10, 29));
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+static int _gaze_power(void)
+{
+    int power = p_ptr->lev;
+    if (p_ptr->lev > 40)
+        power += p_ptr->lev - 40;
+    power += adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1;
+    return power;
+}
+void _gaze_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Vampiric Gaze");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to dominate an intelligent foe causing stunning, confusion, fear or perhaps even enslavement.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_power(_gaze_power()));
+        break;
+    case SPELL_CAST:
+    {
+        int dir = 0;
+        var_set_bool(res, FALSE);
+        if (!get_aim_dir(&dir)) return;
+        fire_ball(GF_DOMINATION, dir, _gaze_power(), 0);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+void _grasp_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Vampiric Grasp");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Pulls a target creature to you.");
+        break;
+    case SPELL_CAST:
+    {
+        int           m_idx;
+        bool          fear = FALSE;
+        monster_type *m_ptr;
+        monster_race *r_ptr;
+        char m_name[MAX_NLEN];
+
+        var_set_bool(res, FALSE);
+
+        if (!target_set(TARGET_KILL)) break;
+        if (!cave[target_row][target_col].m_idx) break;
+        if (!player_has_los_bold(target_row, target_col)) break;
+        if (!projectable(py, px, target_row, target_col)) break;
+
+        var_set_bool(res, TRUE);
+
+        m_idx = cave[target_row][target_col].m_idx;
+        m_ptr = &m_list[m_idx];
+        r_ptr = &r_info[m_ptr->r_idx];
+        monster_desc(m_name, m_ptr, 0);
+        if (r_ptr->flagsr & RFR_RES_TELE)
+        {
+            if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flagsr & RFR_RES_ALL))
+            {
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+                msg_format("%s is unaffected!", m_name);
+                break;
+            }
+            else if (r_ptr->level > randint1(100))
+            {
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+                msg_format("%s resists!", m_name);
+                break;
+            }
+        }
+        msg_format("You grasp %s.", m_name);
+        teleport_monster_to(m_idx, py, px, 100, TELEPORT_PASSIVE);
+        mon_take_hit(m_idx, damroll(10, 10), &fear, extract_note_dies(real_r_ptr(m_ptr)));
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _equip_shuffle(cptr tag)
+{
+    int i;
+    for (i = INVEN_PACK - 1; i >= 0; i--)
+    {
+        object_type *o_ptr = &inventory[i];
+        cptr         inscription;
+        int          slot;
+
+        if (!o_ptr->k_idx) continue;
+        if (!o_ptr->inscription) continue;
+        
+        inscription = quark_str(o_ptr->inscription);
+        if (!strstr(inscription, tag)) continue;
+        
+        slot = equip_first_empty_slot(o_ptr);
+        if (slot && o_ptr->number == 1)
+        {
+            object_type copy;
+
+            object_copy(&copy, o_ptr);
+            copy.number = 1;
+
+            inven_item_increase(i, -1);
+            inven_item_optimize(i);
+
+            equip_wield_aux(&copy, slot);
+        }
+    }
+}
+
+static void _set_mimic_form(int which)
+{
+    p_ptr->mimic_form = which;
+    equip_on_change_race();
+
+    if (p_ptr->action == ACTION_QUICK_WALK || p_ptr->action == ACTION_STALK) /* Wolf form ... */
+        set_action(ACTION_NONE);
+
+    p_ptr->redraw |= PR_BASIC | PR_STATUS | PR_MAP | PR_EQUIPPY;
+    p_ptr->update |= PU_BONUS | PU_HP;
+    handle_stuff();
+}
+
+static void _polymorph_undo_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Return to Vampire");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "You stop assuming your current form and revert to your natural, vampiric self.");
+        break;
+    case SPELL_CAST:
+        _set_mimic_form(MIMIC_NONE);
+        _equip_shuffle("vampire");
+        msg_print("You revert to your natural form.");
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _polymorph_bat_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Polymorph Bat");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "You assume the form of a giant bat. This grants incredible speed, stealth and sensory awareness, but makes you extremely fragile. Also, bats have very restricted equipment options!");
+        break;
+    case SPELL_CAST:
+        _set_mimic_form(MIMIC_BAT);
+        _equip_shuffle("bat");
+        msg_print("You transform into a vampire bat!");
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _polymorph_mist_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Polymorph Mist");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "You lose your corporeal form to assume a cloud of evil sentient mist!");
+        break;
+    case SPELL_CAST:
+        _set_mimic_form(MIMIC_MIST);
+        _equip_shuffle("mist");
+        msg_print("You transform into vampiric mist!");
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _polymorph_wolf_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Polymorph Wolf");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "You assume the form of a wolf, hungry for prey.");
+        break;
+    case SPELL_CAST:
+        _set_mimic_form(MIMIC_WOLF);
+        _equip_shuffle("wolf");
+        msg_print("You transform into a dire wolf!");
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void _repose_of_the_dead_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Repose of the Dead");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death.  When (if?) you wake up, you will be thoroughly refreshed!");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (!get_check("You will enter a deep slumber. Are you sure?")) return;
+        repose_of_the_dead = TRUE;
+        set_paralyzed(4 + randint1(4), FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static spell_info _spells[] = 
+{
+    {  2,  1, 30, _bite_spell },
+    {  5,  3, 30, detect_life_spell },
+    {  7,  4, 30, _polymorph_bat_spell },
+    { 11,  7, 35, _polymorph_wolf_spell },
+    { 15, 12, 40, _gaze_spell },
+    { 20, 15, 40, create_darkness_spell },
+    { 25,  7, 40, nether_bolt_spell },       /* Master Vampire */
+    { 25, 10, 50, mind_blast_spell },
+    { 25, 20, 50, _polymorph_mist_spell },
+    { 35, 25, 50, nether_ball_spell },       /* Vampire Lord */
+    { 35, 30, 60, _grasp_spell },
+    { 40, 50, 70, _repose_of_the_dead_spell },
+    { 45, 50, 80, darkness_storm_II_spell }, /* Elder Vampire */
+    { -1, -1, -1, NULL}
+};
+
+static int _get_spells(spell_info* spells, int max) 
+{
+    return get_spells_aux(spells, max, _spells);
+}
+
+static caster_info * _caster_info(void) 
+{
+    static caster_info me = {0};
+    static bool init = FALSE;
+    if (!init)
+    {
+        me.magic_desc = "dark power";
+        me.which_stat = A_CHR;
+        me.weight = 450;
+        init = TRUE;
+    }
+    return &me;
+}
+
+/******************************************************************************
+ * Bonuses (... and Penalties!)
+ ******************************************************************************/
+static int _light_penalty = 0;
+
+static void _calc_bonuses(void) 
+{
+    p_ptr->align -= 200;
+
+    res_add(RES_DARK);
+    res_add(RES_NETHER);
+    res_add(RES_COLD);
+    res_add(RES_POIS);
+    res_add_vuln(RES_LITE);
+    p_ptr->hold_life = TRUE;
+    p_ptr->see_nocto = TRUE;
+
+    if (p_ptr->lev >= 35)
+    {
+        res_add(RES_DARK);
+        p_ptr->levitation = TRUE;
+        p_ptr->pspeed += 1;
+        p_ptr->regenerate = TRUE;
+    }
+
+    if (p_ptr->lev >= 45)
+    {
+        res_add_immune(RES_DARK);
+        p_ptr->pspeed += 2;
+    }
+
+    if (_light_penalty)
+    {
+        p_ptr->to_a -= 5*_light_penalty;
+        p_ptr->dis_to_a -= 5*_light_penalty;
+
+        p_ptr->life -= 3*_light_penalty;
+    }
+}
+
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+    if (_light_penalty)
+    {
+        info_ptr->dis_to_h -= 3*_light_penalty;
+        info_ptr->to_h -= 3*_light_penalty;
+    }
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
+{
+    add_flag(flgs, TR_RES_NETHER);
+    add_flag(flgs, TR_RES_COLD);
+    add_flag(flgs, TR_RES_POIS);
+    add_flag(flgs, TR_RES_DARK);
+    add_flag(flgs, TR_HOLD_LIFE);
+    if (p_ptr->lev >= 35)
+    {
+        add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, TR_REGEN);
+    }
+}
+
+static void _get_immunities(u32b flgs[TR_FLAG_SIZE])
+{
+    if (p_ptr->lev >= 45)
+    {
+        add_flag(flgs, TR_RES_DARK);
+    }
+}
+
+static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
+{
+    add_flag(flgs, TR_RES_LITE);
+}
+
+static void _move_player(void)
+{
+    vampire_check_light_status();
+}
+
+/******************************************************************************
+ * Public
+ ******************************************************************************/
+race_t *mon_vampire_get_race_t(void)
+{
+    static race_t me = {0};
+    static bool init = FALSE;
+    static cptr titles[4] =  {"Vampire", "Master Vampire", "Vampire Lord", "Elder Vampire"};    
+    int         rank = 0;
+
+    if (p_ptr->lev >= 25) rank++;
+    if (p_ptr->lev >= 35) rank++;
+    if (p_ptr->lev >= 45) rank++;
+
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 25,  37,  36,   0,  32,  25,  60,  35};
+    skills_t xs = {  7,  12,  10,   0,   0,   0,  21,  11};
+
+        me.name = "Vampire";
+        me.desc = _desc;
+
+        me.skills = bs;
+        me.extra_skills = xs;
+
+        me.base_hp = 20;
+        me.exp = 250;
+        me.infra = 5;
+
+        me.birth = _birth;
+        me.gain_level = _gain_level;
+        me.move_player = _move_player;
+
+        me.get_spells = _get_spells;
+        me.caster_info = _caster_info;
+        me.calc_bonuses = _calc_bonuses;
+        me.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me.get_flags = _get_flags;
+        me.get_immunities = _get_immunities;
+        me.get_vulnerabilities = _get_vulnerabilities;
+
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+        me.pseudo_class_idx = CLASS_ROGUE;
+
+        me.boss_r_idx = MON_VLAD;
+
+        init = TRUE;
+    }
+
+    me.subname = titles[rank];
+    me.stats[A_STR] =  2 + rank;
+    me.stats[A_INT] =  1;
+    me.stats[A_WIS] = -1 - rank;
+    me.stats[A_DEX] =  0 + rank;
+    me.stats[A_CON] = -2;
+    me.stats[A_CHR] =  1 + 3*rank/2;
+    me.life = 90 + 3*rank;
+
+    me.skills.stl = 7 + 4*rank/3; /* 7, 8, 9, 11 */
+
+    me.equip_template = mon_get_equip_template();
+
+    return &me;
+}
+
+void vampire_feed(int amt)
+{
+    int food;
+    int div = 4;
+
+    if (prace_is_(MIMIC_BAT))
+        div = 16;
+
+    if (p_ptr->food < PY_FOOD_FULL)
+        hp_player(amt);
+    else
+        msg_print("You were not hungry.");
+
+    /* Experimental: Scale the feeding asymptotically. Historically, vampiric feeding
+        was too slow in the early game (low damage) hence tedious. But by the end game,
+        a mere two bites would fill the vampire, rendering the talent rather useless. */
+    if (p_ptr->food < PY_FOOD_VAMP_MAX)
+        food = p_ptr->food + (PY_FOOD_VAMP_MAX - p_ptr->food) / div;
+    /* Exceeding PY_FOOD_VAMP_MAX is unlikely, but possible (eg. eating rations of food?!) */
+    else if (p_ptr->food < PY_FOOD_MAX)
+        food = p_ptr->food + (PY_FOOD_MAX - p_ptr->food) / div;
+    else
+        food = p_ptr->food + amt;
+
+    assert(food >= p_ptr->food);
+    set_food(food);
+}
+
+void vampire_check_light_status(void)
+{
+    static int _last_light_penalty = -1;
+
+    if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
+    {
+        _light_penalty = 1;
+        if (!dun_level && is_daytime())
+            _light_penalty++;
+        if (res_pct(RES_LITE) < 0)
+            _light_penalty++;
+    }
+    else
+        _light_penalty = 0;
+
+    if (_light_penalty != _last_light_penalty)
+    {
+        _last_light_penalty = _light_penalty;
+        if (_light_penalty)
+        {
+            int n = _light_penalty * _light_penalty * _light_penalty * MAX(1, dun_level/5);
+            if (!fear_save_p(n))
+            {
+                if (disturb_minor)
+                    msg_print("You fear the light!");
+                fear_add_p(FEAR_SCARED);
+            }
+            else if (disturb_minor)
+                msg_print("The light weakens you!");
+        }
+        else if (disturb_minor)
+            msg_print("You are comfortable in the dark.");
+        p_ptr->update |= PU_BONUS;
+        p_ptr->redraw |= PR_STATUS;
+    }
+}
+
+void vampire_take_light_damage(int amt)
+{
+    if (!fear_save_p(amt))
+    {
+        msg_print("You fear the light!");
+        fear_add_p(FEAR_SCARED);
+    }
+
+    if (randint1(p_ptr->chp) < amt && !res_save_default(RES_LITE))
+    {
+        int k = 0;
+        cptr act = NULL;
+
+        switch (randint1(12))
+        {
+        case 1: case 2: case 3: case 4: case 5:
+            msg_print("You feel your unlife force diminish.");
+            lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+            break;
+
+        case 6: case 7: case 8: case 9:
+            switch (randint1(6))
+            {
+                case 1: k = A_STR; act = "strong"; break;
+                case 2: k = A_INT; act = "bright"; break;
+                case 3: k = A_WIS; act = "wise"; break;
+                case 4: k = A_DEX; act = "agile"; break;
+                case 5: k = A_CON; act = "hale"; break;
+                case 6: k = A_CHR; act = "confident"; break;
+            }
+            msg_format("You're not as %s as you used to be.", act);
+            p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+            if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+            break;
+
+        case 10:
+            msg_print("You're not as powerful as you used to be.");
+            for (k = 0; k < 6; k++)
+            {
+                p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 7) / 8;
+                if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+            }
+            break;
+
+        case 11: case 12:
+            if (disenchant_player())
+                msg_print("You feel diminished!");
+            break;
+        }
+
+        p_ptr->update |= PU_BONUS;
+    }
+}
+
+void vampire_take_dark_damage(int amt)
+{
+    if (randint1(p_ptr->chp) < amt)
+    {
+        /* TODO */
+    }
+}
+
+/****************************************************************
+ * Vampire Shapeshifting (Bat, Mist, Wolf, ...)
+ *
+ * The vampire can maintain their form for as long as they like
+ * since equipment juggling is rather tedious. However, they can
+ * only feed as a bat or as a vampire, so they will quickly grow
+ * hungry for fresh blood!
+ ****************************************************************/
+static spell_info _mimic_spells[] = 
+{
+    { 1,  0,  0, _polymorph_undo_spell }, 
+    {-1, -1, -1, NULL }
+};
+
+static int _mimic_get_spells(spell_info* spells, int max) 
+{
+    return get_spells_aux(spells, max, _mimic_spells);
+}
+
+/****************************************************************
+ * Bat
+ ****************************************************************/
+static void _bat_calc_innate_attacks(void) 
+{
+    innate_attack_t    a = {0};
+
+    a.dd = 1 + p_ptr->lev/12;
+    a.ds = 4 + p_ptr->lev/15;
+    a.weight = 50;
+    a.to_h = p_ptr->lev;
+
+    a.effect[0] = GF_OLD_DRAIN;
+    calc_innate_blows(&a, 400);
+
+    a.msg = "You bite %s.";
+    a.name = "Bite";
+
+    p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+}
+static void _bat_calc_bonuses(void)
+{
+    p_ptr->levitation = TRUE;
+    p_ptr->see_inv = TRUE;
+    p_ptr->regenerate = TRUE;
+    res_add(RES_DARK);
+    res_add(RES_COLD);
+    res_add(RES_POIS);
+    p_ptr->see_nocto = TRUE;
+    p_ptr->pspeed += 5 + p_ptr->lev * 3 / 10;
+    p_ptr->hold_life = TRUE;
+}
+static void _bat_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    add_flag(flgs, TR_LEVITATION);
+    add_flag(flgs, TR_SEE_INVIS);
+    add_flag(flgs, TR_REGEN);
+    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, TR_RES_DARK);
+    add_flag(flgs, TR_RES_COLD);
+    add_flag(flgs, TR_RES_POIS);
+    add_flag(flgs, TR_HOLD_LIFE);
+}
+race_t *bat_get_race_t(void)
+{
+    static race_t me = {0};
+    static bool init = FALSE;
+
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 30,  45,  38,  10,  24,  16,  48,  30 };
+    skills_t xs = { 12,  18,  11,   1,   0,   0,  13,  10 };
+
+        me.skills = bs;
+        me.extra_skills = xs;
+
+        me.name = "Vampire Bat";
+        me.desc = "";
+
+        me.stats[A_STR] = -3;
+        me.stats[A_INT] =  0;
+        me.stats[A_WIS] =  0;
+        me.stats[A_DEX] =  4;
+        me.stats[A_CON] = -3;
+        me.stats[A_CHR] = -3;
+        
+        me.life = 75;
+        me.base_hp = 10;
+        me.exp = 75;
+        me.infra = 10;
+
+        me.get_spells = _mimic_get_spells;
+        me.calc_innate_attacks = _bat_calc_innate_attacks;
+        me.calc_bonuses = _bat_calc_bonuses;
+        me.get_flags = _bat_get_flags;
+        me.caster_info = _caster_info;
+
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+
+        me.equip_template = &b_info[r_info[MON_VAMPIRE_BAT].body.body_idx];
+        init = TRUE;
+    }
+
+    return &me;
+}
+
+/****************************************************************
+ * Mist
+ ****************************************************************/
+static void _mist_calc_bonuses(void)
+{
+    p_ptr->levitation = TRUE;
+    p_ptr->pass_wall = TRUE;
+    p_ptr->no_passwall_dam = TRUE;
+    p_ptr->see_inv = TRUE;
+    p_ptr->see_nocto = TRUE;
+    p_ptr->hold_life = TRUE;
+
+    res_add(RES_ACID);
+    res_add(RES_COLD);
+    res_add(RES_POIS);
+    res_add(RES_NETHER);
+
+    p_ptr->magic_resistance = 50;
+}
+static void _mist_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    add_flag(flgs, TR_LEVITATION);
+    add_flag(flgs, TR_SEE_INVIS);
+    add_flag(flgs, TR_HOLD_LIFE);
+
+    add_flag(flgs, TR_RES_COLD);
+    add_flag(flgs, TR_RES_POIS);
+    add_flag(flgs, TR_RES_ACID);
+    add_flag(flgs, TR_RES_NETHER);
+
+    add_flag(flgs, TR_MAGIC_RESISTANCE);
+}
+race_t *mist_get_race_t(void)
+{
+    static race_t me = {0};
+    static bool init = FALSE;
+
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 20,  20,  40,  10,  10,   7,  0,  0};
+    skills_t xs = {  6,   7,  10,   1,   0,   0,  0,  0};
+
+        me.skills = bs;
+        me.extra_skills = xs;
+
+        me.name = "Vampiric Mist";
+        me.desc = "You are a cloud of evil, sentient mist. As such you are incorporeal and are "
+            "unable to attack enemies directly. Conversely, you are resistant to material damage "
+            "and may pass through walls. Probably, you should run away upon assuming this form.";
+
+        me.stats[A_STR] = -3;
+        me.stats[A_INT] = -3;
+        me.stats[A_WIS] = -3;
+        me.stats[A_DEX] = -3;
+        me.stats[A_CON] = -3;
+        me.stats[A_CHR] = -3;    
+
+        me.life = 80;
+        me.base_hp = 15;
+        me.exp = 75;
+        me.infra = 10;
+
+        me.get_spells = _mimic_get_spells;
+        me.calc_bonuses = _mist_calc_bonuses;
+        me.get_flags = _mist_get_flags;
+        me.caster_info = _caster_info;
+
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+
+        me.equip_template = &b_info[r_info[MON_VAMPIRIC_MIST].body.body_idx];
+        init = TRUE;
+    }
+
+    return &me;
+}
+
+/****************************************************************
+ * Wolf
+ ****************************************************************/
+static power_info _wolf_powers[] = 
+{
+    { A_DEX, {  1,  1, 30, hound_sniff_spell } },
+    { A_DEX, { 10,  0,  0, hound_stalk_spell}},
+    { A_DEX, { 15,  0,  0, hound_run_spell}},
+    { A_DEX, { 20, 10, 30, hound_leap_spell}},
+    {    -1, { -1, -1, -1, NULL}}
+};
+
+static int _wolf_get_powers(spell_info* spells, int max) 
+{
+    return get_powers_aux(spells, max, _wolf_powers);
+}
+static void _wolf_calc_bonuses(void)
+{
+    p_ptr->see_nocto = TRUE;
+    p_ptr->pspeed += 2 + p_ptr->lev / 10;
+}
+static void _wolf_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    add_flag(flgs, TR_SPEED);
+}
+race_t *wolf_get_race_t(void)
+{
+    static race_t me = {0};
+    static bool init = FALSE;
+
+    if (!init)
+    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
+    skills_t bs = { 25,  20,  31,   4,  20,  15,  56,  30};
+    skills_t xs = {  8,   8,  10,   1,   0,   0,  20,   7};
+
+        me.skills = bs;
+        me.extra_skills = xs;
+
+        me.name = "Dire Wolf";
+        me.desc = "";
+
+        me.life = 100;
+        me.base_hp = 22;
+        me.exp = 120;
+        me.infra = 5;
+
+        me.get_spells = _mimic_get_spells;
+        me.get_powers = _wolf_get_powers;
+        me.calc_innate_attacks = hound_calc_innate_attacks;
+        me.calc_bonuses = _wolf_calc_bonuses;
+        me.get_flags = _wolf_get_flags;
+        me.caster_info = _caster_info;
+
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
+
+        me.equip_template = &b_info[73];
+        init = TRUE;
+    }
+    me.stats[A_STR] =  1 + p_ptr->lev/12;
+    me.stats[A_INT] = -3;
+    me.stats[A_WIS] = -5;
+    me.stats[A_DEX] =  2 + p_ptr->lev/15;
+    me.stats[A_CON] =  1 + p_ptr->lev/15;
+    me.stats[A_CHR] =  0 + p_ptr->lev/25;
+
+    return &me;
+}
+

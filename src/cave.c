@@ -13,6 +13,7 @@
 
 #include "angband.h"
 
+#include <assert.h>
 
 /*
  * Support for Adam Bolt's tileset, lighting and transparency effects
@@ -1341,7 +1342,23 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
     /* Handle "player" */
     if (player_bold(y, x))
     {
-        monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+        monster_race *r_ptr;
+
+        switch (p_ptr->mimic_form)
+        {
+        case MIMIC_BAT:
+            r_ptr = &r_info[MON_VAMPIRE_BAT];
+            break;
+        case MIMIC_MIST:
+            r_ptr = &r_info[MON_VAMPIRIC_MIST];
+            break;
+        case MIMIC_WOLF:
+            r_ptr = &r_info[196];
+            break;
+        default:
+            r_ptr = &r_info[p_ptr->current_r_idx];
+        }
+        assert(r_ptr);
 
         /* Get the "player" attr */
         *ap = r_ptr->x_attr;

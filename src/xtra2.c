@@ -863,6 +863,7 @@ void monster_death(int m_idx, bool drop_item)
     int i, j, y, x;
 
     int number = 0;
+    int attempt = 0;
     int dump_item = 0;
     int dump_gold = 0;
 
@@ -874,6 +875,8 @@ void monster_death(int m_idx, bool drop_item)
     u32b mo_mode = 0L;
 
     bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
+    bool do_vampire_servant = FALSE;
+    char m_name[MAX_NLEN];
     int corpse_chance = 3;
 
     object_type forge;
@@ -881,6 +884,9 @@ void monster_death(int m_idx, bool drop_item)
 
     bool drop_chosen_item = drop_item && !cloned && !p_ptr->inside_arena
         && !p_ptr->inside_battle && !is_pet(m_ptr);
+
+
+    monster_desc(m_name, m_ptr, MD_TRUE_NAME);
 
     /* The caster is dead? */
     if (world_monster && world_monster == m_idx) world_monster = 0;
@@ -970,16 +976,26 @@ void monster_death(int m_idx, bool drop_item)
         }
     }
 
+    if ( vampiric_drain_hack 
+      && (r_ptr->flags2 & RF2_HUMAN) 
+      && !is_pet(m_ptr)
+      && randint1(p_ptr->lev) >= 15 )
+    {
+        do_vampire_servant = TRUE;
+    }
+
     /* Drop a dead corpse? */
     if (p_ptr->prace == RACE_MON_POSSESSOR && p_ptr->current_r_idx == MON_POSSESSOR_SOUL)
         corpse_chance = 2;
 
-    if ( (_mon_is_wanted(m_idx) || one_in_(corpse_chance))
+    if ( (_mon_is_wanted(m_idx) || (one_in_(corpse_chance) && !do_vampire_servant))
       && (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) 
       && !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
     {
         /* Assume skeleton */
         bool corpse = FALSE;
+
+        do_vampire_servant = FALSE;
 
         /*
          * We cannot drop a skeleton? Note, if we are in this check,
@@ -1756,6 +1772,10 @@ void monster_death(int m_idx, bool drop_item)
             a_idx = ART_DESTROYER;
             chance = 5;
             break;
+        case MON_VLAD:
+            a_idx = ART_STONEMASK;
+            chance = 0; /* This traditionally belongs to Dio Brando but Vlad is the Vampire boss! */
+            break;
         }
 
         /* I think the bug is Kill Amberite, get Blood Curse, entomb said Amberite,
@@ -1898,9 +1918,10 @@ void monster_death(int m_idx, bool drop_item)
     number = m_ptr->drop_ct - m_ptr->stolen_ct;
 
     if (!drop_item && (r_ptr->d_char != '$')) number = 0;
+    if (is_pet(m_ptr)) number = 0;
 
     /* Drop some objects */
-    for (j = 0; j < number; )
+    for (attempt = 0, j = 0; j < number && attempt < 1000; attempt++)
     {
         if (get_monster_drop(m_idx, &forge))
         {
@@ -1916,6 +1937,35 @@ void monster_death(int m_idx, bool drop_item)
 
     if (visible && (dump_item || dump_gold))
         lore_treasure(m_idx, dump_item, dump_gold);
+
+    if (do_vampire_servant)
+    {
+        int r_idx = MON_VAMPIRE;
+        int r_lvl = r_ptr->level;
+        int mode = PM_FORCE_PET;
+
+        if (!one_in_(3))
+        {
+            mode = PM_FORCE_FRIENDLY;
+            msg_format("%^s is transformed in undeath!", m_name);
+        }
+        else
+            msg_format("%^s rises to serve you!", m_name);
+
+        if (r_ptr->flags1 & RF1_UNIQUE)
+            r_lvl += 10;
+
+        if (r_lvl >= 30)
+            r_idx = MON_MASTER_VAMPIRE;
+        if (r_lvl >= 40 && one_in_(2))
+            r_idx = MON_VAMPIRE_LORD;
+        if (r_lvl >= 60 && one_in_(3))
+            r_idx = MON_ELDER_VAMPIRE;
+        if (r_lvl >= 80)
+            r_idx = MON_ELDER_VAMPIRE;
+
+        summon_named_creature(0, y, x, r_idx, mode);
+    }
 
     /* Only process "Quest Monsters" */
     if (!(r_ptr->flags1 & RF1_QUESTOR)) return;
@@ -2282,7 +2332,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     /* It is dead now */
     if (m_ptr->hp < 0)
     {
-        char m_name[80];
+        char m_name[MAX_NLEN];
+
+        monster_desc(m_name, m_ptr, MD_TRUE_NAME);
 
         if (p_ptr->tim_killing_spree)
             set_fast(p_ptr->fast + 5, FALSE);
@@ -2385,9 +2437,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
             /* Hack -- Auto-recall */
             monster_race_track(m_ptr->ap_r_idx);
         }
-
-        /* Extract monster name */
-        monster_desc(m_name, m_ptr, MD_TRUE_NAME);
 
         /* Don't kill Amberites */
         if ((r_ptr->flags3 & RF3_AMBERITE) && one_in_(2))

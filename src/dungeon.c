@@ -1395,7 +1395,7 @@ static void process_world_aux_hp_and_sp(void)
     /* (Vampires) Take damage from sunlight. Note, Vampires are vulnerable
        to light so start with -50% resistance. Rather than res_save(RES_LIGHT)
        we will simply take damage so long as there is light vulnerability. */
-    if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
+    if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE)
     {
         int slot;
         if (!dun_level && res_pct(RES_LITE) < 0 && !IS_INVULN() && is_daytime())
@@ -6151,6 +6151,7 @@ s32b turn_real(s32b hoge)
     switch (p_ptr->start_race)
     {
     case RACE_VAMPIRE:
+    case RACE_MON_VAMPIRE:
     case RACE_SKELETON:
     case RACE_ZOMBIE:
     case RACE_SPECTRE:

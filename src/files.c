@@ -2054,6 +2054,8 @@ static void display_player_equippy(int y, int x, u16b mode)
 
     object_type *o_ptr;
 
+    Term_erase(x, y, 12);
+
     /* Dump equippy chars */
     for (i = 0; i < equip_count(); i++)
     {

@@ -376,7 +376,9 @@ static void do_cmd_eat_food_aux(int item)
 
 
     /* Food can feed the player */
-    if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
+    if ( prace_is_(RACE_VAMPIRE) 
+      || prace_is_(RACE_MON_VAMPIRE) 
+      || p_ptr->mimic_form == MIMIC_VAMPIRE )
     {
         /* Reduced nutritional benefit */
         (void)set_food(p_ptr->food + (o_ptr->pval / 10));
@@ -754,6 +756,7 @@ static void do_cmd_quaff_potion_aux(int item)
         switch (p_ptr->prace)
         {
             case RACE_VAMPIRE:
+            case RACE_MON_VAMPIRE:
                 (void)set_food(p_ptr->food + (q_ptr->pval / 10));
                 break;
             case RACE_SKELETON:

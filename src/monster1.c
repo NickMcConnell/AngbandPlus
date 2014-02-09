@@ -2024,9 +2024,12 @@ static bool mon_hook_floor(int r_idx)
 
 monster_hook_type get_wilderness_monster_hook(int x, int y)
 {
+    if (wilderness[y][x].town)
+        return mon_hook_town;
+
     switch (wilderness[y][x].terrain)
     {
-    case TERRAIN_TOWN:
+    case TERRAIN_TOWN: /* Probably no longer used ... ? */
         return mon_hook_town;
     case TERRAIN_DEEP_WATER:
         return mon_hook_ocean;

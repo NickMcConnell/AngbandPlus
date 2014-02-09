@@ -265,16 +265,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
     if (smart & (SM_RES_DARK))
     {
-        if (prace_is_(RACE_VAMPIRE))
-        {
-            f4 &= ~(RF4_BR_DARK);
-            f5 &= ~(RF5_BA_DARK);
-        }
-        else
-        {
-            if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_DARK);
-            if (int_outof(r_ptr, 50)) f5 &= ~(RF5_BA_DARK);
-        }
+        if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_DARK);
+        if (int_outof(r_ptr, 50)) f5 &= ~(RF5_BA_DARK);
     }
 
     if (smart & (SM_RES_FEAR))
@@ -1606,8 +1598,10 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
             /* Hack: Is player hiding in walls? Note MONSTER_FLOW_DEPTH is cranked up
                to 100 but is still might be possible that there exists a viable path
-               to the player that is longer (e.g. inside of certain vaults). */
-            if (current_flow_depth < MONSTER_FLOW_DEPTH && !cave[m_ptr->fy][m_ptr->fx].dist)
+               to the player that is longer */
+            if ( current_flow_depth < MONSTER_FLOW_DEPTH 
+              && !cave[m_ptr->fy][m_ptr->fx].dist
+              && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY) )
             {
                 y = m_ptr->fy;
                 x = m_ptr->fx;
@@ -2007,7 +2001,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 default:
                     for (;;)
                     {
-                        which = randint0(RACE_MON_JELLY);
+                        which = randint0(MAX_RACES);
                         if ( which != RACE_HUMAN 
                           && which != RACE_DEMIGOD 
                           && which != RACE_ANDROID 

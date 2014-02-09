@@ -4010,6 +4010,13 @@ bool do_cmd_fire(void)
         return FALSE;
     }
 
+    if (prace_is_(MIMIC_MIST))
+    {
+        msg_print("You cannot shoot while incorporeal.");
+        flush();
+        return FALSE;
+    }
+
     bow = equip_obj(slot);
 
     if (bow->sval == SV_CRIMSON || bow->sval == SV_RAILGUN)

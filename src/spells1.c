@@ -1335,6 +1335,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                 {
                     if (player_bold(y, x)) set_superstealth(FALSE);
                 }
+                if (prace_is_(RACE_MON_VAMPIRE))
+                    vampire_check_light_status();
             }
 
             break;
@@ -1395,6 +1397,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                 /* Mega-Hack -- Update the monster in the affected grid */
                 /* This allows "spear of light" (etc) to work "correctly" */
                 if (c_ptr->m_idx) update_mon(c_ptr->m_idx, FALSE);
+
+                if (prace_is_(RACE_MON_VAMPIRE))
+                    vampire_check_light_status();
             }
 
             /* All done */
@@ -3279,31 +3284,24 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
         case GF_DOMINATION:
         {
-            if (!is_hostile(m_ptr)) break;
+            int power = dam;
 
+            /* No "real" damage */
+            dam = 0;
+
+            if (!is_hostile(m_ptr)) break;
             if (seen) obvious = TRUE;
 
             if (r_ptr->flagsr & RFR_RES_ALL)
             {
                 note = " is immune.";
-                dam = 0;
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
                 break;
             }
+
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ||
-                (r_ptr->flags3 & RF3_NO_CONF) ||
-                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (randint1(r_ptr->level) > randint1(power))
             {
-                /* Memorize a flag */
-                if (r_ptr->flags3 & RF3_NO_CONF)
-                {
-                    if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
-                }
-
-                /* Resist */
-                do_conf = 0;
-
                 /*
                  * Powerful demons & undead can turn a mindcrafter's
                  * attacks back on them
@@ -3328,10 +3326,10 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                         switch (randint1(4))
                         {
                             case 1:
-                                set_stun(p_ptr->stun + dam / 2, FALSE);
+                                set_stun(p_ptr->stun + power / 2, FALSE);
                                 break;
                             case 2:
-                                set_confused(p_ptr->confused + dam / 2, FALSE);
+                                set_confused(p_ptr->confused + power / 2, FALSE);
                                 break;
                             default:
                             {
@@ -3339,45 +3337,63 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                                     note = " is unaffected.";
 
                                 else
-                                    fear_add_p(dam);
+                                    fear_add_p(power);
                             }
                         }
                     }
                 }
                 else
                 {
-                    /* No obvious effect */
                     note = " is unaffected!";
-
                     obvious = FALSE;
                 }
             }
             else
             {
-                if ((dam > 29) && (randint1(100) < dam))
+                bool unique = (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ? TRUE : FALSE;
+
+                if (!unique && power > 29 && randint1(100) < power)
                 {
                     note = " is in your thrall!";
-
                     set_pet(m_ptr);
                 }
                 else
                 {
                     switch (randint1(4))
                     {
-                        case 1:
-                            do_stun = dam / 2;
+                    case 1:
+                        do_stun = power / 2;
+                        break;
+                    case 2:
+                        if (r_ptr->flags3 & RF3_NO_CONF)
+                        {
+                            if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
+                            note = " is unaffected.";
                             break;
-                        case 2:
-                            do_conf = dam / 2;
+                        }
+                        else if (!unique)
+                        {
+                            do_conf = power / 2;
                             break;
-                        default:
-                            do_fear = dam;
+                        }
+                    default:
+                        if (prace_is_(RACE_MON_VAMPIRE))
+                        {
+                            if (!unique && randint1(r_ptr->level) < randint1(power))
+                            {
+                                note = " is frozen in terror!";
+                                do_sleep = 500;
+                            }
+                            else
+                            {
+                                project_m(who, r, y, x, power, GF_AMNESIA, flg, see_s_msg);
+                            }
+                            break;
+                        }
+                        do_fear = power;
                     }
                 }
             }
-
-            /* No "real" damage */
-            dam = 0;
             break;
         }
 
@@ -5947,6 +5963,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         /* Damaged monster */
         else
         {
+            if (note == note_dies) /* Hack around crap code design ... Above we assumed monster would die but alas, we were wrong! */
+                note = NULL;
+
             /* HACK - anger the monster before showing the sleep message */
             if (do_sleep) anger_monster(m_ptr);
 
@@ -6639,6 +6658,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
                 (void)set_blind(p_ptr->blind + randint1(5) + 2, FALSE);
 
             get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+            if (prace_is_(RACE_MON_VAMPIRE))
+                vampire_take_light_damage(dam);
 
             if (IS_WRAITH() && !CHECK_MULTISHADOW())
             {
@@ -6659,6 +6680,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
             if (!blind && !res_save_default(RES_DARK) && !res_save_default(RES_BLIND) && !CHECK_MULTISHADOW())
                 (void)set_blind(p_ptr->blind + randint1(5) + 2, FALSE);
             get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+            if (prace_is_(RACE_MON_VAMPIRE))
+                vampire_take_dark_damage(dam);
             break;
         }
         case GF_AMNESIA:

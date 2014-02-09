@@ -35,6 +35,7 @@ int get_race_idx(cptr name)
             case RACE_MON_GOLEM:
             case RACE_MON_QUYLTHULG:
             case RACE_MON_POSSESSOR:
+            case RACE_MON_VAMPIRE:
                 continue;
             }
         }
@@ -191,6 +192,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
     case RACE_MON_TROLL:
         result = mon_troll_get_race_t();
         break;
+    case RACE_MON_VAMPIRE:
+        result = mon_vampire_get_race_t();
+        break;
     case RACE_MON_XORN:
         result = mon_xorn_get_race_t();
         break;
@@ -230,6 +234,15 @@ race_t *get_race_t_aux(int prace, int psubrace)
         break;
     case MIMIC_COLOSSUS:
         result = colossus_get_race_t();
+        break;
+    case MIMIC_BAT:
+        result = bat_get_race_t();
+        break;
+    case MIMIC_MIST:
+        result = mist_get_race_t();
+        break;
+    case MIMIC_WOLF:
+        result = wolf_get_race_t();
         break;
     case MIMIC_DEMON:
         result = demon_get_race_t();

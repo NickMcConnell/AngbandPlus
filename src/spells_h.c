@@ -400,8 +400,13 @@ void hypnotic_gaze_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (get_aim_dir(&dir))
         {
+            int power = p_ptr->lev;
+            
+            if (prace_is_(RACE_MON_VAMPIRE))
+                power *= 2;
+
             msg_print("Your eyes look mesmerizing...");
-            charm_monster(dir, p_ptr->lev);
+            charm_monster(dir, power);
             var_set_bool(res, TRUE);
         }
         break;

@@ -865,6 +865,7 @@ static void rd_extra(savefile_ptr file)
     switch (p_ptr->start_race)
     {
     case RACE_VAMPIRE:
+    case RACE_MON_VAMPIRE:
     case RACE_SKELETON:
     case RACE_ZOMBIE:
     case RACE_SPECTRE:

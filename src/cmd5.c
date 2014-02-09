@@ -1615,6 +1615,9 @@ int calculate_upkeep(void)
         if (prace_is_(RACE_MON_QUYLTHULG))
             div = 7;
 
+        if (prace_is_(RACE_MON_VAMPIRE))
+            div = 10;
+
         upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / div));
 
         if (upkeep_factor < 0) upkeep_factor = 0;

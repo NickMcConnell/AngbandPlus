@@ -125,6 +125,8 @@ race_t *kobold_get_race_t(void)
         me.calc_bonuses = _kobold_calc_bonuses;
         me.get_powers = _kobold_get_powers;
         me.get_flags = _kobold_get_flags;
+        me.flags = RACE_IS_DEPRECATED;
+
         init = TRUE;
     }
 
@@ -466,7 +468,7 @@ race_t *skeleton_get_race_t(void)
         me.base_hp = 21;
         me.exp = 115;
         me.infra = 2;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
 
         me.calc_bonuses = _skeleton_calc_bonuses;
         me.get_powers = _skeleton_get_powers;
@@ -557,6 +559,8 @@ race_t *snotling_get_race_t(void)
         me.calc_bonuses = _snotling_calc_bonuses;
         me.get_powers = _snotling_get_powers;
         me.get_flags = _snotling_get_flags;
+
+        me.flags = RACE_IS_DEPRECATED;
         init = TRUE;
     }
 
@@ -633,7 +637,7 @@ race_t *spectre_get_race_t(void)
         me.base_hp = 13;
         me.exp = 250;
         me.infra = 5;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
 
         me.calc_bonuses = _spectre_calc_bonuses;
         me.get_powers = _spectre_get_powers;
@@ -863,7 +867,7 @@ race_t *vampire_get_race_t(void)
         me.base_hp = 22;
         me.exp = 200;
         me.infra = 5;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
 
         me.calc_bonuses = _vampire_calc_bonuses;
         me.get_powers = _vampire_get_powers;
@@ -1012,7 +1016,7 @@ race_t *zombie_get_race_t(void)
         me.base_hp = 24;
         me.exp = 180;
         me.infra = 2;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
 
         me.calc_bonuses = _zombie_calc_bonuses;
         me.get_powers = _zombie_get_powers;

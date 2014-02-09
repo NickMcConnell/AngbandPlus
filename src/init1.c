@@ -4296,6 +4296,8 @@ static errr parse_line_building(char *buf)
                     if (idx < 0 || idx >= MAX_RACES)
                         return PARSE_ERROR_GENERIC;
                     building[index].member_race[idx] = c;
+                    if (idx == RACE_VAMPIRE) /* We have 2 races with the same name! */
+                        building[index].member_race[RACE_MON_VAMPIRE] = c;
                 }
                 break;
             }

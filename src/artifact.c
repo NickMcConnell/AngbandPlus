@@ -2832,6 +2832,16 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
             return;
         }
     }
+    if (o_ptr->name1 == ART_STONEMASK)
+    {
+        if (p_ptr->prace == RACE_MON_VAMPIRE)
+        {
+            add_flag(o_ptr->art_flags, TR_CHR);
+            o_ptr->to_a = 20;
+        }
+        else
+            add_flag(o_ptr->art_flags, TR_VULN_LITE);
+    }
 
     if (o_ptr->name1 == ART_MURAMASA)
     {

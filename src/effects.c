@@ -694,11 +694,10 @@ bool set_mimic(int v, int p, bool do_dec)
         disturb(0, 0);
 
     /* Redraw title */
-    p_ptr->redraw |= (PR_BASIC | PR_STATUS);
+    p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP | PR_EQUIPPY);
 
     /* Recalculate bonuses */
     p_ptr->update |= (PU_BONUS | PU_HP);
-
     handle_stuff();
 
     /* Result */
@@ -4920,11 +4919,17 @@ bool set_cut(int v, bool do_dec)
 bool set_food(int v)
 {
     int old_aux, new_aux;
+    int old_pct;
+    int new_pct;
 
     bool notice = FALSE;
 
     /* Hack -- Force good values */
     v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
+
+    /* CTK: I added a "food bar" to track hunger ... */
+    old_pct = MIN(10, p_ptr->food * 10 / PY_FOOD_FULL);
+    new_pct = MIN(10, v * 10 / PY_FOOD_FULL);
 
     /* Fainting / Starving */
     if (p_ptr->food < PY_FOOD_FAINT)
@@ -5006,6 +5011,9 @@ bool set_food(int v)
         virtue_add(VIRTUE_TEMPERANCE, 1);
     if (old_aux == 0)
         virtue_add(VIRTUE_TEMPERANCE, -1);
+
+    if (display_food_bar && new_pct != old_pct)
+        notice = TRUE;
 
     /* Food increase */
     if (new_aux > old_aux)
@@ -5103,11 +5111,14 @@ bool set_food(int v)
     /* Nothing to notice */
     if (!notice) return (FALSE);
 
-    /* Disturb */
-    if (disturb_state) disturb(0, 0);
+    if (new_aux != old_aux)
+    {
+        /* Disturb */
+        if (disturb_state) disturb(0, 0);
 
-    /* Recalculate bonuses */
-    p_ptr->update |= (PU_BONUS);
+        /* Recalculate bonuses */
+        p_ptr->update |= (PU_BONUS);
+    }
 
     /* Redraw hunger */
     p_ptr->redraw |= (PR_HUNGER);

@@ -382,6 +382,9 @@ static int _calc_innate_blows_aux(innate_attack_ptr a, int max, int str_idx, int
     if (prace_is_(RACE_MON_LEPRECHAUN))
         result /= 2;
 
+    if (prace_is_(RACE_MON_HYDRA))
+        result *= 2;
+
     if (result < 100)
         result = 100;
     if (result > max)

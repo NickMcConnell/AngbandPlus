@@ -2209,6 +2209,10 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
     }
     switch (o_ptr->name2)
     {
+    case EGO_RING_NAZGUL:
+        o_ptr->to_d += 6;
+        o_ptr->to_h += 6;
+        break;
     case EGO_RING_COMBAT:
         for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
         {

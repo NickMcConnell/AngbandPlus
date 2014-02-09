@@ -123,7 +123,7 @@ static int _bite_effect(void)
     return GF_MISSILE;
 }
 
-static void _calc_innate_attacks(void)
+void hound_calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
     int to_d = l/10 + l*l/500 + l*l*l/25000;
@@ -284,7 +284,7 @@ static void _breathe_spell(int cmd, variant *res)
     }
 }
 
-static void _leap_spell(int cmd, variant *res)
+void hound_leap_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -300,7 +300,7 @@ static void _leap_spell(int cmd, variant *res)
     }
 }
 
-void _run_spell(int cmd, variant *res)
+void hound_run_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -316,7 +316,7 @@ void _run_spell(int cmd, variant *res)
     }
 }
 
-static void _sniff_spell(int cmd, variant *res)
+void hound_sniff_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -336,7 +336,7 @@ static void _sniff_spell(int cmd, variant *res)
     }
 }
 
-void _stalk_spell(int cmd, variant *res)
+void hound_stalk_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -364,11 +364,11 @@ void _stalk_spell(int cmd, variant *res)
  * Hounds: Evolution is tier based with a random choice from each tier.
  **********************************************************************/
 static power_info _powers[] = {
-    { A_DEX, {  1,  1, 30, _sniff_spell } },
+    { A_DEX, {  1,  1, 30, hound_sniff_spell } },
     { A_CON, {  8,  5, 30, _breathe_spell}},
-    { A_DEX, { 10,  0,  0, _stalk_spell}},
-    { A_DEX, { 15,  0,  0, _run_spell}},
-    { A_DEX, { 20, 10, 30, _leap_spell}},
+    { A_DEX, { 10,  0,  0, hound_stalk_spell}},
+    { A_DEX, { 15,  0,  0, hound_run_spell}},
+    { A_DEX, { 20, 10, 30, hound_leap_spell}},
     {    -1, { -1, -1, -1, NULL}}
 };
 static power_info _tindalos_powers[] = {
@@ -376,6 +376,7 @@ static power_info _tindalos_powers[] = {
     { A_DEX, { 25, 15, 50, teleport_to_spell}},
     {    -1, { -1, -1, -1, NULL}}
 };
+
 static int _get_powers(spell_info* spells, int max) {
     int ct = get_powers_aux(spells, max, _powers);
     if (p_ptr->current_r_idx == MON_HOUND_OF_TINDALOS)
@@ -717,7 +718,7 @@ race_t *mon_hound_get_race_t(void)
         me.life = 100;
         me.base_hp = 22;
 
-        me.calc_innate_attacks = _calc_innate_attacks;
+        me.calc_innate_attacks = hound_calc_innate_attacks;
         me.calc_bonuses = _calc_bonuses;
         me.get_powers = _get_powers;
         me.get_flags = _get_flags;

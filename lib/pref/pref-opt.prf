@@ -59,6 +59,7 @@ Y:show_labels
 Y:show_weights
 Y:show_item_graph
 Y:equippy_chars
+X:display_food_bar
 X:display_mutations
 X:compress_savefile
 Y:abbrev_extra

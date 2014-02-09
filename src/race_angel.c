@@ -30,7 +30,7 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     add_outfit(&forge);
 
-    object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
+    object_prep(&forge, lookup_kind(TV_HAFTED, SV_MACE));
     add_outfit(&forge);
 }
 

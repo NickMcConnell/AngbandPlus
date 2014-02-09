@@ -212,6 +212,7 @@ race_t *archon_get_race_t(void)
 
         me.calc_bonuses = _archon_calc_bonuses;
         me.get_flags = _archon_get_flags;
+        me.flags = RACE_IS_DEPRECATED;
         init = TRUE;
     }
 
@@ -282,7 +283,7 @@ race_t *balrog_get_race_t(void)
         me.base_hp = 24;
         me.exp = 180;
         me.infra = 5;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON | RACE_IS_DEPRECATED;
 
         me.calc_bonuses = _balrog_calc_bonuses;
         me.get_powers = _balrog_get_powers;
@@ -640,6 +641,7 @@ race_t *cyclops_get_race_t(void)
         me.calc_bonuses = _cyclops_calc_bonuses;
         me.get_powers = _cyclops_get_powers;
         me.get_flags = _cyclops_get_flags;
+        me.flags = RACE_IS_DEPRECATED;
         init = TRUE;
     }
 
@@ -970,6 +972,7 @@ race_t *ent_get_race_t(void)
         me.get_powers = _ent_get_powers;
         me.get_flags = _ent_get_flags;
         me.get_vulnerabilities = _ent_get_vulnerabilities;
+        me.flags = RACE_IS_DEPRECATED;
         init = TRUE;
     }
 
@@ -1139,7 +1142,7 @@ race_t *golem_get_race_t(void)
         me.base_hp = 23;
         me.exp = 185;
         me.infra = 4;
-        me.flags = RACE_IS_NONLIVING;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_DEPRECATED;
 
         me.get_powers = _golem_get_powers;
         me.calc_bonuses = _golem_calc_bonuses;

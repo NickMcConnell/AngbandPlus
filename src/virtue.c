@@ -414,6 +414,7 @@ void virtue_init(void)
         break;
     case RACE_ZOMBIE: case RACE_SKELETON:
     case RACE_VAMPIRE: case RACE_SPECTRE:
+    case RACE_MON_VAMPIRE:
         p_ptr->vir_types[i++] = VIRTUE_UNLIFE;
         break;
     case RACE_BEASTMAN:

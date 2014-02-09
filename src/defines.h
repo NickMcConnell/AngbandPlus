@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 0
-#define VER_PATCH 3
+#define VER_PATCH 4
 #define VER_EXTRA 0
 
 
@@ -463,12 +463,13 @@
 /*
  * Player "food" crucial values
  */
-#define PY_FOOD_MAX     15000   /* Food value (Bloated) */
-#define PY_FOOD_FULL    10000   /* Food value (Normal) */
-#define PY_FOOD_ALERT   2000    /* Food value (Hungry) */
-#define PY_FOOD_WEAK    1000    /* Food value (Weak) */
-#define PY_FOOD_FAINT   500     /* Food value (Fainting) */
-#define PY_FOOD_STARVE  100     /* Food value (Starving) */
+#define PY_FOOD_MAX      15000   /* Food value (Bloated) */
+#define PY_FOOD_VAMP_MAX 11000   /* cf race_vampire.c */
+#define PY_FOOD_FULL     10000   /* Food value (Normal) */
+#define PY_FOOD_ALERT     2000   /* Food value (Hungry) */
+#define PY_FOOD_WEAK      1000   /* Food value (Weak) */
+#define PY_FOOD_FAINT      500   /* Food value (Fainting) */
+#define PY_FOOD_STARVE     100   /* Food value (Starving) */
 
 /*
  * Player regeneration constants
@@ -615,7 +616,7 @@
 #define RACE_HOBBIT              3
 #define RACE_GNOME               4
 #define RACE_DWARF               5
-#define RACE_SNOTLING            6
+#define RACE_SNOTLING            6   /* Deprecated */
 #define RACE_HALF_TROLL          7
 #define RACE_AMBERITE            8
 #define RACE_HIGH_ELF            9
@@ -623,25 +624,25 @@
 #define RACE_HALF_OGRE          11
 #define RACE_HALF_GIANT         12
 #define RACE_HALF_TITAN         13
-#define RACE_CYCLOPS            14
+#define RACE_CYCLOPS            14   /* Deprecated */
 #define RACE_YEEK               15
 #define RACE_KLACKON            16
-#define RACE_KOBOLD             17
+#define RACE_KOBOLD             17   /* Deprecated */
 #define RACE_NIBELUNG           18
 #define RACE_DARK_ELF           19
 #define RACE_DRACONIAN          20
 #define RACE_MIND_FLAYER        21
 #define RACE_IMP                22
-#define RACE_GOLEM              23
-#define RACE_SKELETON           24
-#define RACE_ZOMBIE             25
-#define RACE_VAMPIRE            26
-#define RACE_SPECTRE            27
+#define RACE_GOLEM              23   /* Deprecated */
+#define RACE_SKELETON           24   /* Deprecated */
+#define RACE_ZOMBIE             25   /* Deprecated */
+#define RACE_VAMPIRE            26   /* Deprecated */
+#define RACE_SPECTRE            27   /* Deprecated */
 #define RACE_SPRITE             28
 #define RACE_BEASTMAN           29
-#define RACE_ENT                30
-#define RACE_ARCHON             31
-#define RACE_BALROG             32
+#define RACE_ENT                30   /* Deprecated */
+#define RACE_ARCHON             31   /* Deprecated */
+#define RACE_BALROG             32   /* Deprecated */
 #define RACE_DUNADAN            33
 #define RACE_SHADOW_FAIRY       34
 #define RACE_KUTAR              35
@@ -666,12 +667,12 @@
 #define RACE_MON_GOLEM          54
 #define RACE_MON_QUYLTHULG      55
 #define RACE_MON_POSSESSOR      56
-
-/*
- * Maximum number of player "race" types (see "table.c", etc)
- * Note other races exist, and use constants beginning at MIMIC_MIN
- */
-#define MAX_RACES               57
+#define RACE_MON_VAMPIRE        57
+/* TODO: New races are in progress! ... */
+    #define RACE_MON_GHOST          58
+    #define RACE_MON_ZOMBIE         59
+    #define RACE_MON_CENTIPEDE      60
+    #define MAX_RACES               58 /* TODO: Bump me!! */
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -746,23 +747,27 @@
 #define RACE_IS_UNDEAD       0x0004
 #define RACE_IS_MONSTER      0x0008
 #define RACE_IS_ILLITERATE   0x0010
+#define RACE_IS_DEPRECATED   0x0020
 
 /* Mimicry uses races too ... Its just that players
    cannot choose these races during birth. */
 #define MIMIC_NONE            -1                  /* RACE_HUMAN is 0 and Dopplegangers can mimic humans! */
 
-#define MIMIC_MIN            1000
-#define MIMIC_DEMON            MIMIC_MIN + 0
-#define MIMIC_DEMON_LORD    MIMIC_MIN + 1
-#define MIMIC_VAMPIRE        MIMIC_MIN + 2
-#define MIMIC_CLAY_GOLEM    MIMIC_MIN + 3
-#define MIMIC_IRON_GOLEM    MIMIC_MIN + 4
-#define MIMIC_MITHRIL_GOLEM    MIMIC_MIN + 5
-#define MIMIC_COLOSSUS        MIMIC_MIN + 6
-#define MIMIC_SMALL_KOBOLD  MIMIC_MIN + 7
-#define MIMIC_MANGY_LEPER   MIMIC_MIN + 8
-#define MIMIC_MAX           MIMIC_MIN + 8
-
+enum _mimic_types {
+    MIMIC_DEMON = 1000,
+    MIMIC_DEMON_LORD,
+    MIMIC_VAMPIRE,
+    MIMIC_CLAY_GOLEM,
+    MIMIC_IRON_GOLEM,
+    MIMIC_MITHRIL_GOLEM,
+    MIMIC_COLOSSUS,
+    MIMIC_SMALL_KOBOLD,
+    MIMIC_MANGY_LEPER,
+    /* Vampires only, please :) */
+    MIMIC_BAT,
+    MIMIC_MIST,
+    MIMIC_WOLF
+};
 
 #define prace_is_(A) (p_ptr->mimic_form == (A) || (p_ptr->mimic_form == MIMIC_NONE && p_ptr->prace == (A)))
 #define psubclass_is_(A, B) (p_ptr->pclass == (A) && p_ptr->psubclass == (B))
@@ -949,6 +954,9 @@
 
 #define ROW_FEAR                 21
 #define COL_FEAR                0  
+
+#define ROW_FOOD                 25
+#define COL_FOOD                0  
 
 #define ROW_SPEED               (-1)
 #define COL_SPEED               (-24)      /* "Slow (-NN)" or "Fast (+NN)" */
@@ -4805,6 +4813,7 @@ extern int PlayerUID;
 #define MON_ARCH_VILE           357
 #define MON_COLD_VOR            358
 #define MON_ENERGY_VOR          359
+#define MON_VAMPIRIC_MIST       365
 #define MON_IRON_GOLEM          367
 #define MON_JADE_MONK           370
 #define MON_BLACK_OOZE          371
@@ -4814,6 +4823,7 @@ extern int PlayerUID;
 #define MON_MENELDOR            384
 #define MON_PHANTOM_B           385
 #define MON_FOUR_HEADED_HYDRA   387
+#define MON_VAMPIRE_BAT         391
 #define MON_C_CRAWLER           395
 #define MON_XICLOTLAN           396
 #define MON_D_ELF_DRUID         400
@@ -4826,6 +4836,7 @@ extern int PlayerUID;
 #define MON_ALGROTH             424
 #define MON_VIBRATION_HOUND     428
 #define MON_NEXUS_HOUND         429
+#define MON_VAMPIRE             432
 #define MON_SPIRIT_NAGA   436
 #define MON_FIVE_HEADED_HYDRA 440
 #define MON_GACHAPIN      441
@@ -4859,10 +4870,11 @@ extern int PlayerUID;
 #define MON_WATER_ELEMENTAL 512
 #define MON_WATER_ELEM    512
 #define MON_MULTI_HUED_HOUND  513
-#define MON_JURT          517
-#define MON_LICH          518
-#define MON_GREATER_MUMMY 522
-#define MON_BLOODLETTER   523
+#define MON_JURT           517
+#define MON_LICH           518
+#define MON_MASTER_VAMPIRE 520
+#define MON_GREATER_MUMMY  522
+#define MON_BLOODLETTER    523
 #define MON_BLOODLETTER_KHORNE 523
 #define MON_EARTH_ELEMENTAL 525
 #define MON_AIR_ELEMENTAL   526
@@ -4990,6 +5002,7 @@ extern int PlayerUID;
 #define MON_GREATER_KRAKEN      775
 #define MON_ARCHLICH            776
 #define MON_CHAOS_HOUND         779
+#define MON_VLAD                780
 #define MON_ULT_BEHOLDER        781
 #define MON_ULTIMATE_BEHOLDER   781
 #define MON_GREAT_WYRM_OF_CHAOS 783
@@ -5121,6 +5134,7 @@ extern int PlayerUID;
 #define MON_STEEL_DRAGON        1049
 #define MON_ATLAS               1050
 #define MON_KRONOS              1051
+#define MON_ELDER_VAMPIRE       1058
 #define MON_NOBORTA             1059
 #define MON_MORI_TROLL          1060
 #define MON_BARNEY              1061

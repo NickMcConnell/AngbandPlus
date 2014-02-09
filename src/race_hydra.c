@@ -65,27 +65,6 @@ static int _bite_effect(void)
     return 0;
 }
 
-static void _calc_innate_blows(innate_attack_ptr a)
-{
-    int str_index, dex_index;
-    int mul = 5, div = a->weight;
-    int max = _head_count();
-
-    str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
-    if (str_index > 11) str_index = 11;
-
-    dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-    if (dex_index > 11) dex_index = 11;
-
-    a->blows = blows_table[str_index][dex_index]*2;  /* This will allow up to 14 blows ... */
-    if (a->blows < 1)
-        a->blows = 1;
-    if (a->blows > max)
-        a->blows = max;
-
-    a->blows *= 100; /* TODO: Fractional Blows! */
-}
-
 static void _calc_innate_attacks(void)
 {
     innate_attack_t    a = {0};
@@ -98,7 +77,7 @@ static void _calc_innate_attacks(void)
     a.effect[0] = GF_MISSILE;
     a.effect[1] = _bite_effect();
 
-    _calc_innate_blows(&a);
+    calc_innate_blows(&a, _head_count() * 100);
     
     a.msg = "You bite %s.";
     a.name = "Bite";

@@ -524,7 +524,6 @@ race_t *small_kobold_get_race_t(void)
     return &me;
 }
 
-
 /****************************************************************
  * Vampire-Lord (cf Polymorph Vampire)
  ****************************************************************/
@@ -578,7 +577,7 @@ race_t *vampire_lord_get_race_t(void)
 
     if (!init)
     {
-        me.name = "Vampire-Lord";
+        me.name = "Vampire";
         me.desc = "";
 
         me.stats[A_STR] =  4;

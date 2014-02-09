@@ -4335,6 +4335,7 @@ bool multiply_monster(int m_idx, bool clone, u32b mode)
     {
         m_list[hack_m_idx_ii].mspeed += MIN(5 * num_repro_kill / 50, 20);
         m_list[hack_m_idx_ii].maxhp += MIN(m_list[hack_m_idx_ii].maxhp * num_repro_kill / 50, 2000);
+        m_list[hack_m_idx_ii].max_maxhp += MIN(m_list[hack_m_idx_ii].max_maxhp * num_repro_kill / 50, 2000);
         m_list[hack_m_idx_ii].hp = m_list[hack_m_idx_ii].maxhp;
         m_list[hack_m_idx_ii].ac_adj += MIN(10 * num_repro_kill / 50, 100);
         m_list[hack_m_idx_ii].melee_adj += MIN(5 * num_repro_kill / 50, 100);

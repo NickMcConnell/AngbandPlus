@@ -141,6 +141,7 @@ void extract_day_hour_min(int *day, int *hour, int *min)
     switch (p_ptr->start_race)
     {
     case RACE_VAMPIRE:
+    case RACE_MON_VAMPIRE:
     case RACE_SKELETON:
     case RACE_ZOMBIE:
     case RACE_SPECTRE:
@@ -413,6 +414,8 @@ static void prt_stat(int stat)
 #define BAR_BLINK 160
 #define BAR_DTRAP 161
 #define BAR_DTRAP_EDGE 162
+#define BAR_VAMPIRE_LIGHT 163
+#define BAR_VAMPIRE_DARK  164
 
 static struct {
     byte attr;
@@ -584,6 +587,8 @@ static struct {
     {TERM_L_BLUE, "Bl", "Blink"},
     {TERM_L_GREEN, "DT", "DTrap"},
     {TERM_YELLOW, "DT", "DTrap"},
+    {TERM_YELLOW, "Lt", "Light"},
+    {TERM_L_DARK, "Dk", "Dark"},
     {0, NULL, NULL}
 };
 
@@ -616,6 +621,14 @@ static void prt_status(void)
             ADD_FLG(BAR_DTRAP_EDGE);
         else if (cave[py][px].info & CAVE_IN_DETECT)
             ADD_FLG(BAR_DTRAP);
+    }
+
+    if (prace_is_(RACE_MON_VAMPIRE))
+    {
+        if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
+            ADD_FLG(BAR_VAMPIRE_LIGHT);
+        else
+            ADD_FLG(BAR_VAMPIRE_DARK);
     }
 
     /* Tsuyoshi  */
@@ -1364,12 +1377,42 @@ static void prt_depth(void)
     c_prt(attr, format("%7s", depths), row_depth, col_depth);
 }
 
+static void food_redraw(void)
+{
+    byte attr;
+    int  pct;
+    int  len;
+
+    if (!display_food_bar) /* user might toggle option on and off ... */
+    {
+        Term_erase(COL_FOOD, ROW_FOOD, 12);
+        Term_erase(COL_FOOD, ROW_FOOD + 1, 12);
+        return;
+    }
+
+    pct = 100 * p_ptr->food / PY_FOOD_FULL;
+    len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
+
+    if (pct >= 100) attr = TERM_L_GREEN;
+    else if (pct >= 50) attr = TERM_WHITE;
+    else if (pct >= 30) attr = TERM_YELLOW;
+    else if (pct >= 20) attr = TERM_ORANGE;
+    else if (pct >= 10) attr = TERM_L_RED;
+    else attr = TERM_VIOLET;
+
+    Term_putstr(COL_FOOD, ROW_FOOD, 5, TERM_WHITE, "Food:");
+    Term_putstr(COL_FOOD, ROW_FOOD + 1, 12, attr, "[----------]");
+    Term_putstr(COL_FOOD + 1, ROW_FOOD + 1, len, attr, "**********");
+}
+
 
 /*
  * Prints status of hunger
  */
 static void prt_hunger(void)
 {
+    food_redraw();
+
     /* Fainting / Starving */
     if (p_ptr->food < PY_FOOD_FAINT)
     {
@@ -1849,8 +1892,6 @@ static void health_redraw(bool riding)
             Term_putstr(col + 1, row, len, attr, "**********");
     }
 }
-
-
 
 /*
  * Display basic info (mostly left of map)
@@ -4793,8 +4834,12 @@ void calc_bonuses(void)
     */
 
     /* Apply some maximums ... */
-    if (p_ptr->magic_resistance > 15 && !prace_is_(RACE_MON_GOLEM))
+    if ( p_ptr->magic_resistance > 15 
+      && !prace_is_(RACE_MON_GOLEM) 
+      && !prace_is_(MIMIC_MIST) )
+    {
         p_ptr->magic_resistance = 15;
+    }
 
     /* Hack: Vicious Strike should not put AC below 0, but I can't find out a better
        way to achieve this! */

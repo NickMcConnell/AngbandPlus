@@ -174,9 +174,11 @@
     <ClCompile Include="races_mimic.c" />
     <ClCompile Include="race_angel.c" />
     <ClCompile Include="race_beholder.c" />
+    <ClCompile Include="race_centipede.c" />
     <ClCompile Include="race_demon.c" />
     <ClCompile Include="race_dragon.c" />
     <ClCompile Include="race_elemental.c" />
+    <ClCompile Include="race_ghost.c" />
     <ClCompile Include="race_giant.c" />
     <ClCompile Include="race_golem.c" />
     <ClCompile Include="race_hound.c" />
@@ -189,7 +191,9 @@
     <ClCompile Include="race_spider.c" />
     <ClCompile Include="race_sword.c" />
     <ClCompile Include="race_troll.c" />
+    <ClCompile Include="race_vampire.c" />
     <ClCompile Include="race_xorn.c" />
+    <ClCompile Include="race_zombie.c" />
     <ClCompile Include="racial.c" />
     <ClCompile Include="rage-mage.c" />
     <ClCompile Include="ranger.c" />

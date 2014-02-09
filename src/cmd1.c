@@ -13,7 +13,12 @@
 #include "angband.h"
 #include "equip.h"
 
-#define MAX_VAMPIRIC_DRAIN 50
+static int _max_vampiric_drain(void)
+{
+    if (prace_is_(RACE_MON_VAMPIRE) || prace_is_(MIMIC_BAT))
+        return 100;
+    return 50;
+}
 
 static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 {
@@ -233,6 +238,7 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
                 case RACE_SKELETON:
                 case RACE_ZOMBIE:
                 case RACE_VAMPIRE:
+                case RACE_MON_VAMPIRE:
                 case RACE_SPECTRE:
                 case RACE_BALROG:
                 case RACE_DRACONIAN:
@@ -2187,7 +2193,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     bool            delay_quake = FALSE;
     int             drain_amt = 0;
     int             steal_ct = 0;
-    const int       max_drain_amt = MAX_VAMPIRIC_DRAIN;
+    const int       max_drain_amt = _max_vampiric_drain();
 
     set_monster_csleep(m_idx, 0);
     monster_desc(m_name, m_ptr, 0);
@@ -2346,8 +2352,15 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         if (project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1))
                         {
                             int amt = MIN(base_dam, max_drain_amt - drain_amt);
-                            msg_format("You drain life from %s!", m_name);
-                            hp_player(amt);
+                            if (prace_is_(MIMIC_BAT))
+                            {
+                                vampire_feed(amt);
+                            }
+                            else
+                            {
+                                msg_format("You drain life from %s!", m_name);
+                                hp_player(amt);
+                            }
                             drain_amt += amt;
                         }
                         *mdeath = (m_ptr->r_idx == 0);
@@ -2405,7 +2418,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
  * If no "weapon" is available, then "punch" the monster one time.
  */
 
-static int drain_left = MAX_VAMPIRIC_DRAIN;
+static int drain_left = 0;
 bool melee_hack = FALSE;
 static bool fear_stop = FALSE;
 
@@ -3596,6 +3609,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
                         /* Hex */
                         if (hex_spelling(HEX_VAMP_BLADE)) drain_heal *= 2;
+                        if (prace_is_(RACE_MON_VAMPIRE)) drain_heal *= 2;
 
                         if (drain_left)
                         {
@@ -3905,7 +3919,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (weak && !(*mdeath))
         msg_format("%^s seems weakened.", m_name);
 
-    if (drain_left != MAX_VAMPIRIC_DRAIN)
+    if (drain_left != _max_vampiric_drain())
     {
         if (one_in_(4))
             virtue_add(VIRTUE_UNLIFE, 1);
@@ -3966,7 +3980,14 @@ bool py_attack(int y, int x, int mode)
 
     if (!p_ptr->weapon_ct && !p_ptr->innate_attack_ct)
     {
-        msg_print("You cannot do attacking.");
+        msg_print("You have no melee attacks.");
+        energy_use = 0;
+        return FALSE;
+    }
+
+    if (prace_is_(MIMIC_MIST))
+    {
+        msg_print("You cannot attack while incorporeal.");
         energy_use = 0;
         return FALSE;
     }
@@ -4051,7 +4072,7 @@ bool py_attack(int y, int x, int mode)
 
     riding_t_m_idx = c_ptr->m_idx;
 
-    drain_left = MAX_VAMPIRIC_DRAIN;
+    drain_left = _max_vampiric_drain();
     retaliation_count = 0;
     melee_hack = TRUE;
     fear_stop = FALSE;
@@ -4064,7 +4085,7 @@ bool py_attack(int y, int x, int mode)
 
         for (i = 0; i < MAX_HANDS && !stop; i++)
         {
-            drain_left = MAX_VAMPIRIC_DRAIN;
+            drain_left = _max_vampiric_drain();
             if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && !mdeath && !fear_stop)
             {
                 object_type *o_ptr = equip_obj(p_ptr->weapon_info[i].slot);
@@ -4104,7 +4125,7 @@ bool py_attack(int y, int x, int mode)
 
         for (i = 0; i < MAX_HANDS; i++)
         {
-            drain_left = MAX_VAMPIRIC_DRAIN;
+            drain_left = _max_vampiric_drain();
             if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && !mdeath && !fear_stop)
             {
                 object_type *o_ptr = equip_obj(p_ptr->weapon_info[i].slot);
@@ -4162,7 +4183,7 @@ bool py_attack(int y, int x, int mode)
             for (i = 0; i < MAX_HANDS; i++)
             {
                 int j;
-                drain_left = MAX_VAMPIRIC_DRAIN;
+                drain_left = _max_vampiric_drain();
                 if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && !mdeath && !fear_stop)
                 {
                     int num_blow = _get_num_blow(i);
@@ -4233,7 +4254,7 @@ bool py_attack(int y, int x, int mode)
     {
         for (i = 0; i < MAX_HANDS; i++)
         {
-            drain_left = MAX_VAMPIRIC_DRAIN;
+            drain_left = _max_vampiric_drain();
             if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && !mdeath && !fear_stop)
             {
                 py_attack_aux(y, x, &fear, &mdeath, i, mode);

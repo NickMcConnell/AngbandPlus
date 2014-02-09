@@ -60,6 +60,7 @@ static void _khorne_birth(void)
     forge.to_d = 0;
     forge.ds = 6;
     forge.weight = 220;
+    add_flag(forge.art_flags, TR_VORPAL);
     add_outfit(&forge);
 }
 

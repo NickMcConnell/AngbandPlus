@@ -2177,7 +2177,8 @@ static cptr do_nature_spell(int spell, int mode)
             {
                 lite_area(damroll(dice, sides), rad);
 
-                if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !res_save_default(RES_LITE))
+                if ( (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE) 
+                  && !res_save_default(RES_LITE) )
                 {
                     msg_print("The daylight scorches your flesh!");
                     take_hit(DAMAGE_NOESCAPE, damroll(2, 2), "daylight", -1);
@@ -2517,7 +2518,8 @@ static cptr do_nature_spell(int spell, int mode)
                 virtue_add(VIRTUE_ENLIGHTENMENT, 1);
                 wiz_lite(FALSE);
 
-                if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !res_save_default(RES_LITE))
+                if ( (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE) 
+                  && !res_save_default(RES_LITE) )
                 {
                     msg_print("The sunlight scorches your flesh!");
                     take_hit(DAMAGE_NOESCAPE, 50, "sunlight", -1);

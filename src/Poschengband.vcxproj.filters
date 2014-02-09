@@ -546,6 +546,18 @@
     <ClCompile Include="skills.c">
       <Filter>Player</Filter>
     </ClCompile>
+    <ClCompile Include="race_centipede.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
+    <ClCompile Include="race_ghost.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
+    <ClCompile Include="race_vampire.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
+    <ClCompile Include="race_zombie.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
