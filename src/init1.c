@@ -652,7 +652,7 @@ static cptr r_info_flagsr[] =
 /*
  * Object flags
  */
-static cptr k_info_flags[] =
+static cptr k_info_flags[TR_FLAG_MAX] =
 {
     "STR",
     "INT",
@@ -817,6 +817,9 @@ static cptr k_info_flags[] =
     "DEC_MAGIC_MASTERY",
     "DEC_SPELL_CAP",
     "DEC_SPELL_POWER",
+    "SLAY_LIVING",
+
+    "STUN",
 };
 
 

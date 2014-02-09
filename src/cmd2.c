@@ -316,7 +316,8 @@ void do_cmd_go_down(void)
             {
                 /* Create a way back ... maybe */
                 if ( p_ptr->enter_dungeon 
-                  && down_num >= 20  
+                  && down_num >= 20 
+                  && !ironman_rooms 
                   && !(d_info[dungeon_type].flags1 & DF1_RANDOM) 
                   && one_in_(14) )
                 {

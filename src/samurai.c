@@ -454,7 +454,7 @@ cptr do_hissatsu_spell(int spell, int mode)
     
         if (cast)
         {
-            if (!rush_attack(NULL)) return NULL;
+            if (!rush_attack(5, NULL)) return NULL;
         }
         break;
 
@@ -705,7 +705,7 @@ cptr do_hissatsu_spell(int spell, int mode)
 
             do
             {
-                if (!rush_attack(&mdeath)) break;
+                if (!rush_attack(5, &mdeath)) break;
                 if (new)
                 {
                     /* Reserve needed mana point */

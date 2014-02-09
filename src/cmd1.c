@@ -703,6 +703,11 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 if (mult < 20) mult = 20;
             }
 
+            if (monster_living(r_ptr) && have_flag(flgs, TR_SLAY_LIVING))
+            {
+                if (mult < 20) mult = 20;
+            }
+
             if (r_ptr->flags3 & RF3_ANIMAL)
             {
                 if (chaos_slay == TR_SLAY_ANIMAL)
@@ -2909,6 +2914,20 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     do_quake = TRUE;
                     if ( k <= 50
                       || (r_ptr->flagsr & RFR_RES_ALL)
+                      || (r_ptr->flags3 & RF3_NO_STUN)
+                      || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_STR)) )
+                    {
+                    }
+                    else
+                    {
+                        msg_format("%^s is stunned.", m_name);
+                        set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 3 + randint1(3)));
+                    }
+                }
+
+                if (have_flag(flgs, TR_STUN) && randint1(100) < k)
+                {
+                    if ( (r_ptr->flagsr & RFR_RES_ALL)
                       || (r_ptr->flags3 & RF3_NO_STUN)
                       || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_STR)) )
                     {

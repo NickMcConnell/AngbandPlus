@@ -1393,7 +1393,7 @@ void rush_attack_spell(int cmd, variant *res)
         var_set_string(res, "Charge a nearby monster and attack with your weapons.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, rush_attack(NULL));
+        var_set_bool(res, rush_attack(5, NULL));
         break;
     default:
         default_spell(cmd, res);

@@ -28,7 +28,7 @@ M:ROOMS:750
 M:F:255
 
 # Maximum number of artifacts in a_info.txt
-M:A:322
+M:A:327
 
 # Maximum number of ego-items in e_info.txt
 M:E:500

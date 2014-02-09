@@ -332,7 +332,7 @@ static void _nyusin_spell(int cmd, variant *res)
         var_set_string(res, "Steps close to a monster and attacks at a time.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, rush_attack(NULL));
+        var_set_bool(res, rush_attack(5, NULL));
         break;
     default:
         default_spell(cmd, res);

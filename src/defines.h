@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 0
-#define VER_PATCH 4
+#define VER_PATCH 5
 #define VER_EXTRA 0
 
 
@@ -1428,6 +1428,7 @@ enum _mimic_types {
 #define ART_KAMUI               198
 #define ART_GOURYU              207
 #define ART_EOWYN               216
+#define ART_SPECTRAL_DSM        226
 #define ART_BLOODRIP            243
 #define ART_MAGLOR                245
 #define ART_DAERON                246
@@ -3174,8 +3175,11 @@ enum summon_specific_e {
 #define TR_DEC_MAGIC_MASTERY   156
 #define TR_DEC_SPELL_CAP       157
 #define TR_DEC_SPELL_POWER     158
+#define TR_SLAY_LIVING         159
 
-#define TR_FLAG_MAX            159
+#define TR_STUN                160
+
+#define TR_FLAG_MAX            161
 #define TR_FLAG_SIZE           6
 
 #define TRG_INSTA_ART           0x00000001     /* Item must be an artifact */
@@ -6059,6 +6063,10 @@ enum ego_weapon_e {
     EGO_WEAPON_WESTERNESSE,
     EGO_WEAPON_NOLDOR,
     EGO_WEAPON_GONDOLIN = 249,
+
+    EGO_WEAPON_JOUSTING = 290,
+    EGO_WEAPON_HELL_LANCE,
+    EGO_WEAPON_HOLY_LANCE = 292,
 };
 
 enum ego_ring_e {
@@ -6288,6 +6296,7 @@ enum effect_e
     EFFECT_FISHING,
     EFFECT_AGGRAVATE,
     EFFECT_PIERCING_SHOT,
+    EFFECT_CHARGE,
 
     /* Specific Artifacts ... Try to minimize! */
     EFFECT_JEWEL = 1000,
@@ -6326,4 +6335,5 @@ enum effect_e
 #define BIAS_MAGE            0x00010000
 #define BIAS_WARRIOR         0x00020000
 #define BIAS_RANGER          0x00040000
+#define BIAS_DEMON           0x00080000
 

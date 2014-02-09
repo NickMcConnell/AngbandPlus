@@ -1708,14 +1708,20 @@ void monster_death(int m_idx, bool drop_item)
         case MON_YMIR:
             a_idx = ART_YMIR;
             chance = 5;
+            if (p_ptr->pclass == CLASS_MAULER)
+                chance = 50;
             break;
         case MON_TYPHOEUS:
             a_idx = ART_TYPHOEUS;
             chance = 5;
+            if (p_ptr->pclass == CLASS_MAULER)
+                chance = 50;
             break;
         case MON_ATLAS:
             a_idx = ART_ATLAS;
             chance = 5;
+            if (p_ptr->pclass == CLASS_MAULER)
+                chance = 25;
             break;
         case MON_KRONOS:
             a_idx = ART_KRONOS;
@@ -1738,7 +1744,7 @@ void monster_death(int m_idx, bool drop_item)
             chance = 5;
             break;
         case MON_MEPHISTOPHELES:
-            if (demon_is_(DEMON_KHORNE))
+            if (demon_is_(DEMON_KHORNE) || p_ptr->pclass == CLASS_MAULER)
                 a_idx = ART_KHORNE;
             else
                 a_idx = ART_MEPHISTOPHELES;
@@ -1747,6 +1753,8 @@ void monster_death(int m_idx, bool drop_item)
         case MON_ULIK:
             a_idx = ART_ULIK;
             chance = 5;
+            if (p_ptr->pclass == CLASS_MAULER)
+                chance = 75;
             break;
         case MON_QUAKER:
             a_idx = ART_QUAKER;

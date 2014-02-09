@@ -573,6 +573,9 @@ int display_weapon_info(int hand, int row, int col)
     if (have_flag(flgs, TR_SLAY_GOOD))
         _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Good", TERM_YELLOW, r++, c);
 
+    if (have_flag(flgs, TR_SLAY_LIVING))
+        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Living", TERM_YELLOW, r++, c);
+
     if (have_flag(flgs, TR_KILL_HUMAN))
         _display_weapon_slay(mult, 400, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, r++, c);
     else if (have_flag(flgs, TR_SLAY_HUMAN))

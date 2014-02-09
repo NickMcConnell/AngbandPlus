@@ -276,6 +276,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
     int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, -1 };
     int i, j;
     int counts[1024];
+    int max = 0;
 
     fprintf(file, "Lv\tEgo\tCt\n");
 
@@ -297,17 +298,22 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
             object_type forge;
 
             object_prep(&forge, k_idx);
-            apply_magic(&forge, depth, 0);
+            apply_magic(&forge, depth, AM_GREAT);
 
-            if (forge.name2 == EGO_RING_PROTECTION)
+            if ( forge.name2 == EGO_WEAPON_JOUSTING
+              || forge.name2 == EGO_WEAPON_HELL_LANCE
+              || forge.name2 == EGO_WEAPON_HOLY_LANCE )
             {
                 char buf[MAX_NLEN];
+
+                if (forge.weight > max)
+                    max = forge.weight;
 
                 identify_item(&forge);
                 forge.ident |= (IDENT_MENTAL); 
                 object_desc(buf, &forge, 0);
-                fprintf(file, "%s\n", buf);
-                /* msg_print(buf); */
+                fprintf(file, "%s %d.%d lbs\n", buf, forge.weight/10, forge.weight%10);
+                /*msg_print(buf);*/
                 /*drop_near(&forge, -1, py, px);*/
             }
 
@@ -322,6 +328,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
             }
         }
     }
+    fprintf(file, "Max Weight: %d.%d lbs\n", max/10, max%10);
 }
 
 static void do_cmd_wiz_hack_chris3(void)

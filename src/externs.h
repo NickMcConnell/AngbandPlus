@@ -1102,6 +1102,7 @@ extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
 /* object2.c */
 extern bool add_esp_strong(object_type *o_ptr);
 extern void add_esp_weak(object_type *o_ptr, bool extra);
+extern void adjust_weapon_weight(object_type *o_ptr);
 extern void excise_object_idx(int o_idx);
 extern void delete_object_idx(int o_idx);
 extern void delete_object(int y, int x);
@@ -1308,7 +1309,7 @@ extern bool project_hack(int typ, int dam);
 extern bool eat_magic(int power);
 extern void discharge_minion(void);
 extern bool kawarimi(bool success);
-extern bool rush_attack(bool *mdeath);
+extern bool rush_attack(int rng, bool *mdeath);
 
 
 /* spells3.c */
@@ -1692,6 +1693,7 @@ extern void one_high_resistance(object_type *o_ptr);
 extern bool one_high_vulnerability(object_type *o_ptr);
 extern void one_undead_resistance(object_type *o_ptr);
 extern void one_demon_resistance(object_type *o_ptr);
+extern void one_holy_resistance(object_type *o_ptr);
 extern void one_lordly_high_resistance(object_type *o_ptr);
 extern void one_ele_slay(object_type *o_ptr);
 extern void one_ele_resistance(object_type *o_ptr);
@@ -1865,7 +1867,6 @@ extern bool object_is_artifact(object_type *o_ptr);
 extern bool object_is_dragon_armor(object_type *o_ptr);
 extern bool object_is_nameless(object_type *o_ptr);
 extern bool object_allow_two_hands_wielding(object_type *o_ptr);
-extern bool object_can_activate(object_type *o_ptr);
 
 /* wild.c */
 extern rect_t rect_create(int x, int y, int cx, int cy);

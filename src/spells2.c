@@ -5084,7 +5084,7 @@ bool kawarimi(bool success)
  * Return value is for checking "done"
  * Hacked up for Duelist as well.
  */
-bool rush_attack(bool *mdeath)
+bool rush_attack(int rng, bool *mdeath)
 {
     int dir;
     int tx, ty;
@@ -5096,10 +5096,7 @@ bool rush_attack(bool *mdeath)
 
     if (mdeath) *mdeath = FALSE;
 
-    project_length = 5;
-
-    if (p_ptr->pclass == CLASS_MAULER)
-        project_length = 2;
+    project_length = rng;
 
     /* Mega Hack for the Duelist */
     if (p_ptr->pclass == CLASS_DUELIST)

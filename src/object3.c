@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 /* New code for object values.  Designed by Dave.
    p is price
    q is ???
@@ -32,197 +34,11 @@ static double _check_flag_and_score(u32b flgs[TR_FLAG_SIZE], u32b flg, u32b scor
 
 static s32b _activation_p(object_type *o_ptr)
 {
-    if (o_ptr->art_name && (have_flag(o_ptr->art_flags, TR_ACTIVATE)))
+    if (obj_has_effect(o_ptr))
     {
         effect_t effect = obj_get_effect(o_ptr);
-        if (effect.type)
-            return effect_value(&effect);
-    }
-    else if (object_is_fixed_artifact(o_ptr))
-    {
-        switch (o_ptr->name1)
-        {
-        case ART_GALADRIEL: return 2500;
-        case ART_STONE_LORE: return 15000;
-        case ART_ELENDIL: return 5000;
-        case ART_JUDGE: return 20000;
-        case ART_CARLAMMAS: return 10000;
-        case ART_INGWE: return 2000;
-        case ART_YATA: return 2000;
-        case ART_FRAKIR: return 1000;
-        case ART_TULKAS: return 15000;
-        case ART_NARYA: return 10000;
-        case ART_NENYA: return 10000;
-        case ART_VILYA: return 12000;
-        case ART_GOURYU: return 12000;
-        case ART_POWER: return 20000;
-        case ART_AHO: return 20000;
-        case ART_RAZORBACK: return 10000;
-        case ART_BLADETURNER: return 25000;
-        case ART_SOULKEEPER: return 20000;
-        case ART_DUELIST: return 2000;
-        case ART_LOHENGRIN: return 20000;
-        case ART_DAERON: return 20000;
-        case ART_JULIAN: return 10000;
-        case ART_CASPANION: return 400;
-        case ART_DOR:
-        case ART_TERROR:
-        case ART_STONEMASK: return 100;
-        case ART_HOLHENNETH: return 1000;
-        case ART_AMBER: return 20000;
-        case ART_SARUMAN: return 20000;
-        case ART_COLLUIN: return 20000;
-        case ART_SEIRYU: return 20000;
-        case ART_MAGLOR: return 30000;
-        case ART_BLOODRIP: return 5000;
-        case ART_HOLCOLLETH: return 200;
-        case ART_THINGOL: return 1000;
-        case ART_COLANNON: return 2000;
-        case ART_LUTHIEN: return 2000;
-        case ART_HEAVENLY_MAIDEN: return 1000;
-        case ART_CAMMITHRIM: return 300;
-        case ART_FINGOLFIN: return 1000;
-        case ART_FEANOR: return 15000;
-        case ART_FLORA: return 400;
-        case ART_NARTHANC: return 300;
-        case ART_NIMTHANC: return 300;
-        case ART_DETHANC: return 300;
-        case ART_RILIA: return 400;
-        case ART_NUMAHOKO: return 1000;
-        case ART_FIONA: return 400;
-        case ART_KUSANAGI: return 1500;
-        case ART_WEREWINDLE: return 3000;
-        case ART_KAMUI: return 1500;
-        case ART_RINGIL: return 1000;
-        case ART_DAWN: return 2000;
-        case ART_ANDURIL: return 500;
-        case ART_THEODEN: return 1000;
-        case ART_RUNESPEAR: return 1000;
-        case ART_AEGLOS: return 1000;
-        case ART_DESTINY: return 3000;
-        case ART_NAIN: return 3000;
-        case ART_EONWE: return 25000;
-        case ART_LOTHARANG: return 200;
-        case ART_ULMO: return 2500;
-        case ART_AVAVIR: return 1500;
-        case ART_MAGATAMA: return 1500;
-        case ART_TOTILA: return 300;
-        case ART_FIRESTAR: return 500;
-        case ART_AEGIR: return 25000;
-        case ART_DEFENDER_OF_THE_CROWN: return 10000;
-        case ART_MONKEY_KING: return 30000;
-        case ART_MAUL_OF_VICE: return 60000;
-        case ART_GOTHMOG: return 500;
-        case ART_TARATOL: return 15000;
-        case ART_ERIRIL: return 1200;
-        case ART_GANDALF: return 10000;
-        case ART_TURMIL: return 800;
-        case ART_CRIMSON: return 2000;
-        case ART_PALANTIR: return 12000;
-        case ART_BOROMIR: return 1000;
-        case ART_FARAMIR: return 1000;
-        case ART_HIMRING: return 10000;
-        case ART_ICANUS: return 1200;
-        case ART_HURIN: return 17000;
-        case ART_GIL_GALAD: return 3000;
-        case ART_YENDOR: return 1200;
-        case ART_MURAMASA: return 50000;
-        case ART_FLY_STONE: return 4000;
-        case ART_TAIKOBO: return 2;
-        case ART_JONES: return 700;
-        case ART_ARRYU: return 1500;
-        case ART_GAEBOLG: return 1200;
-        case ART_INROU: return 15000;
-        case ART_HYOUSIGI: return -2000;
-        case ART_MATOI:
-        case ART_AEGISFANG: return 3000;
-        case ART_EARENDIL: return 2000;
-        case ART_BOLISHOI: return 400;
-        case ART_ARUNRUTH: return 300;
-        case ART_BLOOD: return 20000;
-        case ART_KESHO: return 7000;
-        case ART_MOOK: return 5000;
-        case ART_HERMIT: return 10000;
-        case ART_JIZO: return 2000;
-        case ART_FUNDIN: return 1500;
-        case ART_AESCULAPIUS: return 12000;
-        case ART_NIGHT: return 3000;
-        case ART_HELL: return 3000;
-        case ART_SACRED_KNIGHTS: return 1111;
-        case ART_CHARMED: return 15000;
-        case ART_ZEUS: return 10000;
-        case ART_HOLY_GRAIL: return 5000;
-        case ART_POSEIDON: return 5000;
-        case ART_HADES: return 12000;
-        case ART_ATHENA: return 7000;
-        case ART_ARES: return 3000;
-        case ART_HERMES: return 50000;
-        case ART_APOLLO: return 10000;
-        case ART_ARTEMIS: return 3000;
-        case ART_HEPHAESTUS: return 4000;
-        case ART_HERA: return 17000;
-        case ART_DEMETER: return 20000;
-        case ART_APHRODITE: return 5000;
-        case ART_BALLISTA: return 6000;
-        case ART_KAMIKAZE_ROBE: return 9000;
-        case ART_RAILGUN: return 20000;
-        case ART_STOMPER: return 4000; 
-        case ART_GONG: return 5000;
-        case ART_STONE_OF_WAR: return 7000;
-        case ART_LERNEAN: return 25000;
-        /* Hack: These activate, but also have *very* valuable hidden powers */
-        case ART_STONE_OF_NATURE: return 30000;
-        case ART_STONE_OF_LIFE: return 30000;
-        case ART_STONE_OF_SORCERY: return 30000;
-        case ART_STONE_OF_CHAOS: return 30000;
-        case ART_STONE_OF_DEATH: return 30000;
-        case ART_STONE_OF_TRUMP: return 30000;
-        case ART_STONE_OF_DAEMON: return 30000;
-        case ART_STONE_OF_CRUSADE: return 30000;
-        case ART_STONE_OF_CRAFT: return 45000;
-        case ART_STONE_OF_ARMAGEDDON: return 45000;
-        }
-    }
-    
-    switch (o_ptr->name2)
-    {
-    case EGO_WEAPON_TRUMP: return 1500;
-    case EGO_LITE_ILLUMINATION: return 200;
-    case EGO_WEAPON_EARTHQUAKES: return 700;
-    case EGO_BOOTS_GNOMISH: return 1000;
-    case EGO_WEAPON_DAEMON: return 8000;
-    }
-
-    if (o_ptr->tval == TV_DRAG_ARMOR)
-    {
-        switch (o_ptr->sval)
-        {
-        case SV_DRAGON_BLUE:
-        case SV_DRAGON_WHITE:
-        case SV_DRAGON_BLACK:
-        case SV_DRAGON_GREEN:
-        case SV_DRAGON_RED: return 7000;
-        case SV_DRAGON_MULTIHUED: return 12000;
-        case SV_DRAGON_BRONZE: return 7000;
-        case SV_DRAGON_GOLD: return 8000;
-        case SV_DRAGON_CHAOS: return 9000;
-        case SV_DRAGON_LAW: return 10000;
-        case SV_DRAGON_BALANCE: return 12000;
-        case SV_DRAGON_SHINING: return 7000;
-        case SV_DRAGON_POWER: return 20000;
-        }
-    }
-    else if (o_ptr->tval == TV_RING)
-    {
-        if (object_is_ego(o_ptr))
-        {
-        }
-    }
-    else if (o_ptr->tval == TV_AMULET)
-    {
-        if (object_is_ego(o_ptr))
-        {
-        }
+        assert(effect.type);
+        return effect_value(&effect);
     }
     return 0;
 }
@@ -1199,7 +1015,8 @@ s32b weapon_cost(object_type *o_ptr)
         if (have_flag(flgs, TR_KILL_EVIL)) s += (2.5 * 0.8);
         else if (have_flag(flgs, TR_SLAY_EVIL)) s += (1.0 * 0.8);
 
-        if (have_flag(flgs, TR_SLAY_GOOD)) s += (2.5 * 0.20);
+        if (have_flag(flgs, TR_SLAY_GOOD)) s += (1.0 * 0.20);
+        if (have_flag(flgs, TR_SLAY_LIVING)) s += (1.0 * 0.70);
 
         if (have_flag(flgs, TR_FORCE_WEAPON))
         {
@@ -1210,6 +1027,9 @@ s32b weapon_cost(object_type *o_ptr)
             s *= 1.67;
         else if (have_flag(flgs, TR_VORPAL))
             s *= 1.22;
+
+        if (have_flag(flgs, TR_STUN))
+            s *= 1.10;
 
         d = d*s + (double)o_ptr->to_d;
         if (d < 1.0)

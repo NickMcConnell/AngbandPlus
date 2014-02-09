@@ -1292,6 +1292,12 @@ void equip_calc_bonuses(void)
             }
         }
 
+        if (o_ptr->name1 == ART_SPECTRAL_DSM)
+        {
+            p_ptr->pass_wall = TRUE;
+            p_ptr->no_passwall_dam = TRUE;
+        }
+
         if (have_flag(flgs, TR_EASY_SPELL)) p_ptr->easy_spell = TRUE;
 
         if (o_ptr->curse_flags & TRC_LOW_MAGIC)

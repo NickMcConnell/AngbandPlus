@@ -14,6 +14,8 @@
 
 #include "kajitips.h"
 
+#include <assert.h>
+
 #define ACTIVATION_CHANCE 5
 
 /*
@@ -993,7 +995,6 @@ s32b flag_cost(object_type *o_ptr, int plusses, bool hack)
     if (have_flag(flgs, TR_IGNORE_ELEC)) total += 100;
     if (have_flag(flgs, TR_IGNORE_FIRE)) total += 100;
     if (have_flag(flgs, TR_IGNORE_COLD)) total += 100;
-    if (have_flag(flgs, TR_ACTIVATE)) total += 100;
     if (have_flag(flgs, TR_DRAIN_EXP)) total -= 12500;
     if (have_flag(flgs, TR_TELEPORT))
     {
@@ -1009,9 +1010,11 @@ s32b flag_cost(object_type *o_ptr, int plusses, bool hack)
     if (o_ptr->curse_flags & TRC_PERMA_CURSE) total -= 15000;
 
     /* Also, give some extra for activatable powers... */
-    if (o_ptr->art_name && (have_flag(o_ptr->art_flags, TR_ACTIVATE)))
+    if (obj_has_effect(o_ptr))
     {
-        /* TODO: total += effect_value(...); */
+        effect_t effect = obj_get_effect(o_ptr);
+        assert(effect.type);
+        total += effect_value(&effect);
     }
 
     return total;
@@ -2946,7 +2949,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
         if (o_ptr->to_h > 20) o_ptr->to_h = 20;
         if (o_ptr->to_d > 16) o_ptr->to_d = 16;
         if (one_in_(ACTIVATION_CHANCE))
-            effect_add_random(o_ptr, BIAS_NECROMANTIC); /* TODO: BIAS_DEMONIC */
+            effect_add_random(o_ptr, BIAS_DEMON);
         break;
     case EGO_AMULET_ELEMENTAL:
         if (abs(power) >= 2)
@@ -3036,6 +3039,59 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
     /* Be sure to cursify later! */
     if (power == -1)
         power--;
+}
+
+void adjust_weapon_weight(object_type *o_ptr)
+{
+    /* Experimental: Maulers need heavy weapons!
+        Anything that dice boosts gets heavier. */
+    if (object_is_melee_weapon(o_ptr) && p_ptr->pclass == CLASS_MAULER)
+    {
+    object_kind *k_ptr = &k_info[o_ptr->k_idx];
+    int          dice = o_ptr->dd * o_ptr->ds;
+    int          orig = k_ptr->dd * k_ptr->ds;
+        
+        if (dice > orig)
+        {
+            int wgt = o_ptr->weight;
+            int xtra = k_ptr->weight;
+            int mult = (dice - orig) * 100 / orig;
+
+            while (mult >= 100)
+            {
+                xtra = xtra * 3 / 4;
+                wgt += xtra;
+                mult -= 100;
+            }
+            if (mult > 0)
+            {
+                xtra = xtra * 3 / 4;
+                wgt += xtra * mult / 100;
+            }
+
+            o_ptr->weight = wgt;
+
+            /*  a Bo Staff (1d11) ... 16.0 lbs
+                a Bo Staff (2d12) ... 29.6 lbs
+                a Bo Staff (3d12) ... 38.8 lbs
+                a Bo Staff (4d12) ... 45.5 lbs
+                a Bo Staff (5d12) ... 50.3 lbs
+                a Bo Staff (6d12) ... 53.8 lbs
+                a Bo Staff (7d12) ... 56.3 lbs
+
+                a Heavy Lance (4d8) ... 40.0 lbs
+                a Heavy Lance (5d8) ... 47.5 lbs
+                a Heavy Lance (6d8) ... 55.0 lbs
+                a Heavy Lance (8d8) ... 70.0 lbs
+                a Heavy Lance (8d9) ... 75.6 lbs
+
+                a Dagger (1d4) ... 1.2 lbs
+                a Dagger (2d4) ... 2.1 lbs
+                a Dagger (3d4) ... 2.7 lbs
+                a Dagger (7d5) ... 3.7 lbs
+            */
+        }
+    }
 }
 
 static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
@@ -3299,6 +3355,8 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
             case EGO_WEAPON_CRUSADE:
                 if (one_in_(4) && (level > 40))
                     add_flag(o_ptr->art_flags, TR_BLOWS);
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_PRIESTLY);
                 break;
             case EGO_WEAPON_DEATH:
                 if (one_in_(5))
@@ -3310,6 +3368,8 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                     o_ptr->curse_flags |= TRC_CURSED;
                     o_ptr->curse_flags |= get_curse(2, o_ptr); */
                 }
+                if (one_in_(ACTIVATION_CHANCE))
+                    effect_add_random(o_ptr, BIAS_NECROMANTIC);
                 break;
             case EGO_WEAPON_DEFENDER:
                 o_ptr->to_a = 5;
@@ -3416,15 +3476,66 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 o_ptr->ds = o_ptr->dd * o_ptr->ds;
                 o_ptr->dd = 1;
                 break;
+            case EGO_WEAPON_JOUSTING:
+                if ( !object_is_(o_ptr, TV_POLEARM, SV_LANCE)
+                  && !object_is_(o_ptr, TV_POLEARM, SV_HEAVY_LANCE) )
+                {
+                    done = FALSE;
+                }
+                else
+                {
+                    while (one_in_(o_ptr->dd * 3)) { o_ptr->dd++; }
+                    if (one_in_(3))
+                        add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
+                }
+                break;
+            case EGO_WEAPON_HELL_LANCE:
+                if ( !object_is_(o_ptr, TV_POLEARM, SV_LANCE)
+                  && !object_is_(o_ptr, TV_POLEARM, SV_HEAVY_LANCE) )
+                {
+                    done = FALSE;
+                }
+                else
+                {
+                    while (one_in_(o_ptr->dd * 4)) { o_ptr->dd++; }
+                    one_demon_resistance(o_ptr);
+                    if (one_in_(16))
+                        add_flag(o_ptr->art_flags, TR_VAMPIRIC);
+                    if (one_in_(ACTIVATION_CHANCE))
+                        effect_add_random(o_ptr, BIAS_DEMON);
+                }
+                break;
+            case EGO_WEAPON_HOLY_LANCE:
+                if ( !object_is_(o_ptr, TV_POLEARM, SV_LANCE)
+                  && !object_is_(o_ptr, TV_POLEARM, SV_HEAVY_LANCE) )
+                {
+                    done = FALSE;
+                }
+                else
+                {
+                    while (one_in_(o_ptr->dd * 5)) { o_ptr->dd++; }
+                    one_holy_resistance(o_ptr);
+                    if (one_in_(77))
+                    {
+                        o_ptr->dd = o_ptr->dd * o_ptr->ds;
+                        o_ptr->ds = 1;
+                        add_flag(o_ptr->art_flags, TR_ORDER);
+
+                    }
+                    if (one_in_(ACTIVATION_CHANCE))
+                        effect_add_random(o_ptr, BIAS_PRIESTLY);
+                }
+                break;
             }
         }
+        /* Hack -- Super-charge the damage dice, but only if they haven't already
+           been boosted/altered by the ego type (e.g., Armageddon, Hell Lance, Wild, Order, etc) */
         if ( !o_ptr->art_name 
           && o_ptr->name2 /* These first two checks are paranoia, pure and simple! */
-          && o_ptr->name2 != EGO_WEAPON_WILD 
-          && o_ptr->name2 != EGO_WEAPON_ORDER 
+          && o_ptr->dd == k_info[o_ptr->k_idx].dd
+          && o_ptr->ds == k_info[o_ptr->k_idx].ds
           && o_ptr->name2 != EGO_WEAPON_EXTRA_ATTACKS )
         {
-            /* Hack -- Super-charge the damage dice */
             if (o_ptr->dd * o_ptr->ds > 0 && one_in_(5 + 200/MAX(level, 1)))
             {
                 do
@@ -3434,6 +3545,9 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 while (one_in_(o_ptr->dd * o_ptr->ds / 2));
             }
         }
+
+        if (done)
+            adjust_weapon_weight(o_ptr);
         break;
     }
 }

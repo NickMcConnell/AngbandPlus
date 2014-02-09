@@ -284,13 +284,6 @@ bool object_is_device(object_type *o_ptr)
     return FALSE;
 }
 
-bool object_can_activate(object_type *o_ptr)
-{
-    u32b flgs[TR_FLAG_SIZE];
-    object_flags(o_ptr, flgs);
-    return have_flag(flgs, TR_ACTIVATE);
-}
-
 /*
  * Check if an object is weapon (including bows and ammo)
  */

@@ -634,15 +634,10 @@ void vampire_check_light_status(void)
             int n = _light_penalty * _light_penalty * _light_penalty * MAX(1, dun_level/5);
             if (!fear_save_p(n))
             {
-                if (disturb_minor)
-                    msg_print("You fear the light!");
+                msg_print("You fear the light!");
                 fear_add_p(FEAR_SCARED);
             }
-            else if (disturb_minor)
-                msg_print("The light weakens you!");
         }
-        else if (disturb_minor)
-            msg_print("You are comfortable in the dark.");
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
     }

@@ -2972,7 +2972,7 @@ W:60:0:0:200:30000
 A:60/8
 P:40:2d4:-2:0:10
 F:RES_ACID |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ACID:30:30:130
 E:You breathe acid.
 D:A suit of utterly black scales, against which no metal or wood can rest.
@@ -2984,7 +2984,7 @@ W:40:0:0:200:35000
 A:40/8
 P:40:2d4:-2:0:10
 F:RES_ELEC |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ELEC:30:30:100
 E:You breathe lightning.
 D:A suit of scales as blue as sapphires, emitting eerie sparks and flashes as 
@@ -2997,7 +2997,7 @@ W:50:0:0:200:40000
 A:50/8
 P:40:2d4:-2:0:10
 F:RES_COLD |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_COLD:30:30:110
 E:You breathe frost.
 D:A suit of scales, coldly gleaming in frosty white.  A shiver runs down 
@@ -3010,7 +3010,7 @@ W:80:0:0:200:100000
 A:80/8
 P:40:2d4:-2:0:10
 F:RES_FIRE |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_FIRE:30:50:200
 E:You breathe fire.
 D:A suit of scales, with all the reds of every fire ever lit.  The scar 
@@ -3023,7 +3023,7 @@ W:70:0:0:200:80000
 A:70/8
 P:40:2d4:-2:0:10
 F:RES_POIS |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_POIS:30:40:150
 E:You breathe poison gas.
 D:A suit of scales, glistening in sickly green.
@@ -3035,7 +3035,7 @@ W:100:0:0:200:150000
 A:100/16
 P:40:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_MULTIHUED:40:70:250
 D:A suit of scales that throbs with angry energies; it takes all your energy 
 D:to master the Elements fighting an endless war trapped inside.
@@ -3047,7 +3047,7 @@ W:65:0:0:200:60000
 A:65/16
 P:40:2d4:-2:0:10
 F:RES_LITE | RES_DARK |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_SHINING:40:50:200
 
 N:407:Law Dragon Scale Mail~
@@ -3057,7 +3057,7 @@ W:80:0:0:200:80000
 A:80/16
 P:40:2d4:-2:0:10
 F:RES_SOUND | RES_SHARDS |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_LAW:50:100:230
 D:A suit of scales in stern blue and silver.  You feel the slightest tremor 
 D:as you touch it, like massed trumpets heard and cyclones felt from afar.
@@ -3069,7 +3069,7 @@ W:55:0:0:200:30000
 A:55/8
 P:40:2d4:-2:0:10
 F:RES_CONF |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_CONF:30:40:120
 E:You breathe confusion.
 D:A suit of scales, gleaming in rich engraved bronze.  The more you look at 
@@ -3083,7 +3083,7 @@ W:65:0:0:200:40000
 A:65/8
 P:40:2d4:-2:0:10
 F:RES_SOUND |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_SOUND:30:40:130
 E:You breathe sound.
 D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
@@ -3097,7 +3097,7 @@ W:75:0:0:200:70000
 A:75/16
 P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_CHAOS:50:100:220
 D:A suit of scales.  Every shape, in every color imaginable, riot and 
 D:contend upon its surface as you stare in fascination.
@@ -3109,7 +3109,7 @@ W:90:0:0:200:100000
 A:90/16
 P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_BALANCE:50:100:250
 D:A suit of scales.  Featureless grey to casual inspection, yet a closer 
 D:look reveals patterns within patterns of iridescence that throb with 
@@ -3124,7 +3124,7 @@ P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ELEMENTS:50:100:300
 E:You breathe the elements!
 D:A suit with scales of every color, surrounded in a nimbus of perfectly 
@@ -3990,7 +3990,6 @@ I:11:0:0
 W:15:0:0:120:1000
 A:15/4
 P:0:1d1:0:0:0
-F:ACTIVATE
 E:CAPTURE_PET:15
 
 N:594:& Death Scythe~
@@ -4341,7 +4340,6 @@ G:~:o
 I:4:1:0
 W:15:0:60:3:1000
 A:15/2
-F:ACTIVATE
 E:RETURN_PETS:15:150
 
 N:653:Black Clothes

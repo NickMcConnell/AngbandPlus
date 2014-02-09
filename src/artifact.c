@@ -145,6 +145,16 @@ void one_demon_resistance(object_type *o_ptr)
     }
 }
 
+void one_holy_resistance(object_type *o_ptr)
+{
+    switch (randint1(4))
+    {
+        case 1: add_flag(o_ptr->art_flags, TR_RES_LITE);   break;
+        case 2: add_flag(o_ptr->art_flags, TR_RES_SOUND);  break;
+        case 3: add_flag(o_ptr->art_flags, TR_RES_SHARDS); break;
+        case 4: add_flag(o_ptr->art_flags, TR_RES_DISEN);  break;
+    }
+}
 
 /*
  * Choose one random high resistance ( except poison and disenchantment )
@@ -2622,6 +2632,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
        only way an object is marked as a rand-art is via the art_name field. */
     if (o_ptr->tval == TV_LITE)
         o_ptr->art_name = quark_add("Temp");
+
+    if (object_is_melee_weapon(o_ptr))
+        adjust_weapon_weight(o_ptr);
 
     total_flags = new_object_cost(o_ptr);
     if (cheat_peek) msg_format("Score: %d", total_flags);

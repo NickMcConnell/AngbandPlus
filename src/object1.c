@@ -223,22 +223,18 @@ void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
         else if (add == ESSENCE_TMP_RES_ACID)
         {
             add_flag(flgs, TR_RES_ACID);
-            add_flag(flgs, TR_ACTIVATE);
         }
         else if (add == ESSENCE_TMP_RES_ELEC)
         {
             add_flag(flgs, TR_RES_ELEC);
-            add_flag(flgs, TR_ACTIVATE);
         }
         else if (add == ESSENCE_TMP_RES_FIRE)
         {
             add_flag(flgs, TR_RES_FIRE);
-            add_flag(flgs, TR_ACTIVATE);
         }
         else if (add == ESSENCE_TMP_RES_COLD)
         {
             add_flag(flgs, TR_RES_COLD);
-            add_flag(flgs, TR_ACTIVATE);
         }
         else if (add == ESSENCE_SH_FIRE)
         {
@@ -264,7 +260,6 @@ void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
         }
         else if (add == TR_IMPACT)
         {
-            add_flag(flgs, TR_ACTIVATE);
         }
     }
 }
@@ -440,11 +435,18 @@ bool screen_object(object_type *o_ptr, u32b mode)
     }
     else
     {
-        roff_to_buf(o_ptr->name1 ? (a_text + a_info[o_ptr->name1].text) :
-                (k_text + k_info[o_ptr->k_idx].text),
-                77 - 15, block1, sizeof(block1));
-        for (j = 0; block1[j]; j += 1 + strlen(&block1[j]))
-        { info[i] = &block1[j]; i++;}
+        cptr text;
+        if (o_ptr->name1)
+            text = a_text + a_info[o_ptr->name1].text;
+        else
+            text = k_text + k_info[o_ptr->k_idx].text;
+        if (strlen(text))
+        {
+            roff_to_buf(text, 77 - 15, block1, sizeof(block1));
+            for (j = 0; block1[j]; j += 1 + strlen(&block1[j]))
+            { info[i] = &block1[j]; i++;}
+            info[i++] = "";
+        }
     }
     if ( p_ptr->prace == RACE_MON_POSSESSOR 
       && o_ptr->tval == TV_CORPSE 
@@ -469,13 +471,13 @@ bool screen_object(object_type *o_ptr, u32b mode)
         for (j = 0; block2[j]; j += 1 + strlen(&block2[j]))
         { info[i] = &block2[j]; i++;}
     }
-    if (have_flag(flgs, TR_ACTIVATE))
+    if (obj_has_effect(o_ptr))
     {
         char     scratch[70 * 20];
         effect_t e = obj_get_effect(o_ptr);
         cptr     res = do_effect(&e, SPELL_NAME, 0);
 
-        strcpy(scratch, " \nActivation: ");
+        strcpy(scratch, "Activation: ");
         strcat(scratch, res);
 
         if (o_ptr->ident & IDENT_MENTAL)
@@ -789,6 +791,8 @@ bool screen_object(object_type *o_ptr, u32b mode)
     else if (have_flag(flgs, TR_VORPAL))
         info[i++] = "It is very sharp and can cut your foes.";
 
+    if (have_flag(flgs, TR_STUN))
+        info[i++] = "It stuns your enemies.";
 
     if (have_flag(flgs, TR_ORDER))
         info[i++] = "It is a weapon of order.";
@@ -833,6 +837,9 @@ bool screen_object(object_type *o_ptr, u32b mode)
 
     if (have_flag(flgs, TR_SLAY_GOOD))
         info[i++] = "It fights against good with hellish glee.";
+
+    if (have_flag(flgs, TR_SLAY_LIVING))
+        info[i++] = "It destroys living creatures.";
 
     if (have_flag(flgs, TR_KILL_ANIMAL))
         info[i++] = "It is a great bane of natural creatures.";
@@ -1230,8 +1237,6 @@ bool screen_object(object_type *o_ptr, u32b mode)
         Term_queue_bigchar(18 + namelen, 1, r_ptr->x_attr, r_ptr->x_char, 0, 0);
         prt("'", 1, (use_bigtile ? 20 : 19) + namelen);
     }
-    else
-    prt("     Item Attributes:", 1, 15);
 
     /* We will print on top of the map (column 13) */
     for (k = 2, j = 0; j < i; j++)

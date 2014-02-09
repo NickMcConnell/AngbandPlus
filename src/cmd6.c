@@ -1955,7 +1955,7 @@ static bool item_tester_hook_use(object_type *o_ptr)
         {
             if (!object_is_known(o_ptr)) return FALSE;    
             if (!equip_is_worn(o_ptr)) return FALSE;
-            if (object_can_activate(o_ptr)) return TRUE;
+            if (obj_has_effect(o_ptr)) return TRUE;
         }
     }
 

@@ -192,7 +192,7 @@ static void _close_in_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         bool dummy;
-        rush_attack(&dummy);
+        rush_attack(2, &dummy);
         var_set_bool(res, TRUE);
         break;
     }

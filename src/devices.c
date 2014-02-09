@@ -2732,11 +2732,11 @@ static _effect_info_t _effect_info[] =
 
     {"STONE_TO_MUD",    EFFECT_STONE_TO_MUD,        15,  20,  1, 0},
     {"EARTHQUAKE",      EFFECT_EARTHQUAKE,          25, 100,  1, 0},
-    {"DESTRUCTION",     EFFECT_DESTRUCTION,         50, 250,  6, 0},
+    {"DESTRUCTION",     EFFECT_DESTRUCTION,         50, 250,  6, BIAS_DEMON},
     {"GENOCIDE",        EFFECT_GENOCIDE,            70, 500, 32, BIAS_NECROMANTIC},
     {"MASS_GENOCIDE",   EFFECT_MASS_GENOCIDE,       80, 750, 64, BIAS_NECROMANTIC},
 
-    {"RECHARGING",      EFFECT_RECHARGING,          35, 500,  6, BIAS_MAGE},
+    {"RECHARGING",      EFFECT_RECHARGING,          35, 500,  6, BIAS_MAGE | BIAS_DEMON},
     {"ENCHANTMENT",     EFFECT_ENCHANTMENT,         30, 900, 64, 0},
     {"IDENTIFY",        EFFECT_IDENTIFY,            15,  50,  1, BIAS_ROGUE | BIAS_MAGE},
     {"IDENTIFY_FULL",   EFFECT_IDENTIFY_FULL,       50, 200,  6, BIAS_ROGUE | BIAS_MAGE},
@@ -2759,7 +2759,7 @@ static _effect_info_t _effect_info[] =
     {"STONE_SKIN",      EFFECT_STONE_SKIN,          25, 150,  8, BIAS_WARRIOR},
     {"RESIST_ACID",     EFFECT_RESIST_ACID,         15, 100,  2, BIAS_ACID},
     {"RESIST_ELEC",     EFFECT_RESIST_ELEC,         15, 100,  2, BIAS_ELEC},
-    {"RESIST_FIRE",     EFFECT_RESIST_FIRE,         15, 100,  2, BIAS_FIRE},
+    {"RESIST_FIRE",     EFFECT_RESIST_FIRE,         15, 100,  2, BIAS_FIRE | BIAS_DEMON},
     {"RESIST_COLD",     EFFECT_RESIST_COLD,         15, 100,  2, BIAS_COLD},
     {"RESIST_POIS",     EFFECT_RESIST_POIS,         30, 150,  4, BIAS_POIS},
     {"RESISTANCE",      EFFECT_RESISTANCE,          35, 200, 16, BIAS_RANGER},
@@ -2789,13 +2789,13 @@ static _effect_info_t _effect_info[] =
     {"SUMMON_ELEMENTAL",EFFECT_SUMMON_ELEMENTAL,    30, 150,  2, BIAS_MAGE},
     {"SUMMON_DRAGON",   EFFECT_SUMMON_DRAGON,       60, 600, 16, 0},
     {"SUMMON_UNDEAD",   EFFECT_SUMMON_UNDEAD,       60, 600,  8, BIAS_NECROMANTIC},
-    {"SUMMON_DEMON",    EFFECT_SUMMON_DEMON,        66, 666,  8, BIAS_CHAOS},
+    {"SUMMON_DEMON",    EFFECT_SUMMON_DEMON,        66, 666,  8, BIAS_CHAOS | BIAS_DEMON},
     {"SUMMON_CYBERDEMON",EFFECT_SUMMON_CYBERDEMON,  90, 900, 64, BIAS_CHAOS},
     {"SUMMON_ANGEL",    EFFECT_SUMMON_ANGEL,        70, 777, 32, BIAS_PRIESTLY},
     {"SUMMON_KRAKEN",   EFFECT_SUMMON_KRAKEN,       90, 900, 99, 0},
 
     {"CHARM_ANIMAL",    EFFECT_CHARM_ANIMAL,        30, 200,  2, BIAS_RANGER},
-    {"CHARM_DEMON",     EFFECT_CHARM_DEMON,         50, 500,  3, BIAS_CHAOS},
+    {"CHARM_DEMON",     EFFECT_CHARM_DEMON,         50, 500,  3, BIAS_CHAOS | BIAS_DEMON},
     {"CHARM_UNDEAD",    EFFECT_CHARM_UNDEAD,        50, 500,  3, BIAS_NECROMANTIC},
 
     {"RETURN_PETS",     EFFECT_RETURN_PETS,         10,   0,  0, 0},
@@ -2821,13 +2821,13 @@ static _effect_info_t _effect_info[] =
     {"BOLT_MISSILE",    EFFECT_BOLT_MISSILE,         1,  10,  1, BIAS_MAGE},
     {"BOLT_ACID",       EFFECT_BOLT_ACID,           15,  20,  1, BIAS_ACID},
     {"BOLT_ELEC",       EFFECT_BOLT_ELEC,           15,  20,  1, BIAS_ELEC},
-    {"BOLT_FIRE",       EFFECT_BOLT_FIRE,           15,  20,  1, BIAS_FIRE},
+    {"BOLT_FIRE",       EFFECT_BOLT_FIRE,           15,  20,  1, BIAS_FIRE | BIAS_DEMON},
     {"BOLT_COLD",       EFFECT_BOLT_COLD,           15,  20,  1, BIAS_COLD},
     {"BOLT_POIS",       EFFECT_BOLT_POIS,           10,  10,  1, BIAS_POIS},
     {"BOLT_LITE",       EFFECT_BOLT_LITE,           20,  25,  2, 0},
     {"BOLT_DARK",       EFFECT_BOLT_DARK,           20,  25,  2, BIAS_NECROMANTIC},
     {"BOLT_CONF",       EFFECT_BOLT_CONF,           30,  50,  4, 0},
-    {"BOLT_NETHER",     EFFECT_BOLT_NETHER,         20,  25,  2, BIAS_NECROMANTIC},
+    {"BOLT_NETHER",     EFFECT_BOLT_NETHER,         20,  25,  2, BIAS_NECROMANTIC | BIAS_DEMON},
     {"BOLT_NEXUS",      EFFECT_BOLT_NEXUS,          20,  25,  8, 0},
     {"BOLT_SOUND",      EFFECT_BOLT_SOUND,          40,  50,  8, BIAS_LAW},
     {"BOLT_SHARDS",     EFFECT_BOLT_SHARDS,         40,  50,  8, BIAS_LAW},
@@ -2844,13 +2844,13 @@ static _effect_info_t _effect_info[] =
     /* Offense: Balls                               Lv    T   R  Bias */
     {"BALL_ACID",       EFFECT_BALL_ACID,           25,  50,  2, BIAS_ACID},
     {"BALL_ELEC",       EFFECT_BALL_ELEC,           25,  50,  2, BIAS_ELEC},
-    {"BALL_FIRE",       EFFECT_BALL_FIRE,           25,  50,  2, BIAS_FIRE},
+    {"BALL_FIRE",       EFFECT_BALL_FIRE,           25,  50,  2, BIAS_FIRE | BIAS_DEMON},
     {"BALL_COLD",       EFFECT_BALL_COLD,           25,  50,  2, BIAS_COLD},
     {"BALL_POIS",       EFFECT_BALL_POIS,           10,   5,  2, BIAS_POIS},
     {"BALL_LITE",       EFFECT_BALL_LITE,           65, 100,  4, 0},
     {"BALL_DARK",       EFFECT_BALL_DARK,           66, 100,  4, BIAS_NECROMANTIC},
     {"BALL_CONF",       EFFECT_BALL_CONF,           50, 150,  8, 0},
-    {"BALL_NETHER",     EFFECT_BALL_NETHER,         40,  50,  4, BIAS_NECROMANTIC},
+    {"BALL_NETHER",     EFFECT_BALL_NETHER,         40,  50,  4, BIAS_NECROMANTIC | BIAS_DEMON},
     {"BALL_NEXUS",      EFFECT_BALL_NEXUS,          50, 100, 16, 0},
     {"BALL_SOUND",      EFFECT_BALL_SOUND,          60, 100, 16, BIAS_LAW},
     {"BALL_SHARDS",     EFFECT_BALL_SHARDS,         60, 100, 16, BIAS_LAW},
@@ -2863,13 +2863,13 @@ static _effect_info_t _effect_info[] =
     /* Offense: Breaths                             Lv    T   R  Bias */
     {"BREATHE_ACID",    EFFECT_BREATHE_ACID,        40, 100, 16, BIAS_ACID},
     {"BREATHE_ELEC",    EFFECT_BREATHE_ELEC,        40, 100, 16, BIAS_ELEC},
-    {"BREATHE_FIRE",    EFFECT_BREATHE_FIRE,        40, 100, 16, BIAS_FIRE},
+    {"BREATHE_FIRE",    EFFECT_BREATHE_FIRE,        40, 100, 16, BIAS_FIRE | BIAS_DEMON},
     {"BREATHE_COLD",    EFFECT_BREATHE_COLD,        40, 100, 16, BIAS_COLD},
     {"BREATHE_POIS",    EFFECT_BREATHE_POIS,        40, 100, 16, BIAS_POIS},
     {"BREATHE_LITE",    EFFECT_BREATHE_LITE,        50, 125, 32, 0},
     {"BREATHE_DARK",    EFFECT_BREATHE_DARK,        50, 125, 32, BIAS_NECROMANTIC},
     {"BREATHE_CONF",    EFFECT_BREATHE_CONF,        60, 200, 64, 0},
-    {"BREATHE_NETHER",  EFFECT_BREATHE_NETHER,      50,  75, 32, BIAS_NECROMANTIC},
+    {"BREATHE_NETHER",  EFFECT_BREATHE_NETHER,      50,  75, 32, BIAS_NECROMANTIC | BIAS_DEMON},
     {"BREATHE_NEXUS",   EFFECT_BREATHE_NEXUS,       60, 150, 64, 0},
     {"BREATHE_SOUND",   EFFECT_BREATHE_SOUND,       70, 200, 64, BIAS_LAW},
     {"BREATHE_SHARDS",  EFFECT_BREATHE_SHARDS,      70, 200, 64, BIAS_LAW},
@@ -2894,7 +2894,7 @@ static _effect_info_t _effect_info[] =
     {"DISPEL_MONSTERS", EFFECT_DISPEL_MONSTERS,     70, 250, 32, 0},
     {"DRAIN_LIFE",      EFFECT_DRAIN_LIFE,          40, 100,  8, BIAS_NECROMANTIC},
     {"STAR_BALL",       EFFECT_STAR_BALL,           80, 900,200, 0},
-    {"ROCKET",          EFFECT_ROCKET,              70, 200, 99, 0},
+    {"ROCKET",          EFFECT_ROCKET,              70, 200, 99, BIAS_DEMON},
     {"MANA_STORM",      EFFECT_MANA_STORM,          80, 250, 99, BIAS_MAGE},
     {"CONFUSING_LITE",  EFFECT_CONFUSING_LITE,      60, 100, 32, BIAS_CHAOS},
     {"ARROW",           EFFECT_ARROW,               30, 100,  8, BIAS_RANGER},
@@ -2908,8 +2908,9 @@ static _effect_info_t _effect_info[] =
     {"STASIS_MONSTERS", EFFECT_STASIS_MONSTERS,     50, 250, 32, 0},
     {"CONFUSE_MONSTERS",EFFECT_CONFUSE_MONSTERS,    25, 100,  2, 0},
     {"FISHING",         EFFECT_FISHING,             10,   0,  0, 0},
-    {"AGGRAVATE",       EFFECT_AGGRAVATE,           10, 100,  1, 0},
+    {"AGGRAVATE",       EFFECT_AGGRAVATE,           10, 100,  1, BIAS_DEMON},
     {"PIERCING_SHOT",   EFFECT_PIERCING_SHOT,       30, 100,  0, 0},
+    {"CHARGE",          EFFECT_CHARGE,              15, 100,  0, 0},
 
     /* Specific Artifacts                           Lv    T   R  Bias */
     {"JEWEL",           EFFECT_JEWEL,                0,   0,  0, 0},
@@ -2997,7 +2998,6 @@ static void _add_index(object_type *o_ptr, int index)
         o_ptr->activation.level = _effect_info[index].level;
         o_ptr->activation.timeout = _effect_info[index].timeout;
         o_ptr->activation.extra = 0;
-        add_flag(o_ptr->art_flags, TR_ACTIVATE); /* TODO: This flag is no longer needed! */
         o_ptr->timeout = 0;
     }
 }
@@ -5664,6 +5664,26 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             set_action(ACTION_FISH);
             p_ptr->redraw |= (PR_STATE);
             device_noticed = TRUE;
+        }
+        break;
+    case EFFECT_CHARGE:
+        if (name) return "Charge";
+        if (desc) return "If riding, you charge a chosen foe doing extra damage.";
+        if (value) return format("%d", 5000);
+        if (cast)
+        {
+            bool charged = FALSE;
+            /* For the lance activation, the player really should be riding.
+               At the moment, only the Heavy Lance 'Impaler' has this effect. */
+            if (!p_ptr->riding)
+            {
+                msg_print("You need to be mounted in order to charge.");
+                return NULL;
+            }
+            p_ptr->weapon_info[0].to_d += 2;
+            charged = rush_attack(7, NULL);
+            p_ptr->weapon_info[0].to_d -= 2;
+            if (!charged) return NULL;
         }
         break;
     case EFFECT_AGGRAVATE:

@@ -503,6 +503,7 @@ void wilderness_move_player(int old_x, int old_y)
     _set_boundary();
 
     if (do_disturb) disturb(0, 0);
+    p_ptr->redraw |= PR_BASIC; /* In case the user left/entered a town ... */
     handle_stuff();  /* Is this necessary?? */
 
 #ifdef _DEBUG
@@ -1068,7 +1069,7 @@ static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
         if ( wilderness[y][x].entrance 
          && !wilderness[y][x].town 
          && (p_ptr->total_winner || !(d_info[wilderness[y][x].entrance].flags1 & DF1_WINNER))
-         && !(dungeon_flags[wilderness[y][x].entrance] & DUNGEON_NO_ENTRANCE) )
+         && (ironman_rooms || !(dungeon_flags[wilderness[y][x].entrance] & DUNGEON_NO_ENTRANCE) ) )
         {
             int y2, x2;
             int which = wilderness[y][x].entrance;
