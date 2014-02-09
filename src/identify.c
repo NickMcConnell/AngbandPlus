@@ -182,6 +182,8 @@ bool can_be_pseudo_ided(const object_type *o_ptr)
       	}
     	case TV_LIGHT:
       	{
+      		if (game_mode == GAME_NPPMORIA) return (FALSE);
+
 			if (o_ptr->sval == SV_LIGHT_LANTERN)
 	  		return (TRUE);
 			break;
@@ -239,6 +241,9 @@ void sense_inventory(void)
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
+
+		/* Sensing the swap weapon is kind of cheating */
+		if (adult_swap_weapons && (i == INVEN_SWAP_WEAPON))	continue;
 
 		/* Skip non-sense machines */
 		if (!can_be_pseudo_ided(o_ptr)) continue;

@@ -72,6 +72,11 @@ void cnv_stat(int val, char *out_val, size_t out_len)
 	{
 		int bonus = (val - 18);
 
+		if (game_mode == GAME_NPPMORIA)
+		{
+			if (bonus > 99) bonus = 100;
+		}
+
 		if (bonus >= 220)
 			strnfmt(out_val, out_len, "18/***");
 		else if (bonus >= 100)
@@ -134,6 +139,17 @@ void prt_stat(int stat, int row, int col)
 	}
 }
 
+cptr get_player_title(void)
+{
+	if (game_mode == GAME_NPPMORIA)
+	{
+		return (c_text + cp_ptr->p_title[p_ptr->lev-1]);
+	}
+
+	return (c_text + cp_ptr->p_title[(p_ptr->lev - 1) / 5]);
+}
+
+
 
 /*
  * Prints "title", including "wizard" or "winner" as needed.
@@ -149,7 +165,7 @@ void prt_title(int row, int col)
 	}
 
 	/* Winner */
-	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	else if (p_ptr->total_winner || (p_ptr->lev > z_info->max_level))
 	{
 		p = "***WINNER***";
 	}
@@ -157,7 +173,7 @@ void prt_title(int row, int col)
 	/* Normal */
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		p = get_player_title();
 	}
 
 	prt_field(p, row, col);
@@ -192,14 +208,14 @@ void prt_level(int row, int col)
 void prt_exp(int row, int col)
 {
 	char out_val[32];
-	bool lev50 = (p_ptr->lev == 50);
+	bool max_lev = (p_ptr->lev == z_info->max_level);
 
 	long xp = (long)p_ptr->exp;
 
 
 	/* Calculate XP for next level */
-	if (!lev50)
-		xp = (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp;
+	if (!max_lev)
+		xp = (long)(get_experience_by_level(p_ptr->lev-1) * p_ptr->expfact / 100L) - p_ptr->exp;
 
 	/* Format XP */
 	strnfmt(out_val, sizeof(out_val), "%8ld", (long)xp);
@@ -207,12 +223,12 @@ void prt_exp(int row, int col)
 
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
-		put_str((lev50 ? "EXP" : "NXT"), row, col);
+		put_str((max_lev ? "EXP" : "NXT"), row, col);
 		c_put_str(TERM_L_GREEN, out_val, row, col + 4);
 	}
 	else
 	{
-		put_str((lev50 ? "Exp" : "Nxt"), row, col);
+		put_str((max_lev ? "Exp" : "Nxt"), row, col);
 		c_put_str(TERM_YELLOW, out_val, row, col + 4);
 	}
 }
@@ -379,6 +395,26 @@ static byte monster_health_attr(const monster_type *m_ptr)
 	return attr;
 }
 
+static byte monster_hilite_attr(const monster_type *m_ptr)
+{
+	if (m_ptr == (&mon_list[p_ptr->health_who]))
+	{
+		if (m_ptr->project)
+		{
+			return TERM_ORANGE;
+		}
+		else
+		{
+			return TERM_UMBER;
+		}
+	}
+	else if (m_ptr->project)
+	{
+		return TERM_WHITE;
+	}
+	return TERM_L_DARK;
+}
+
 /*
  * Redraw the "monster health bar"
  *
@@ -440,6 +476,8 @@ static void prt_health(int row, int col, const monster_type *m_ptr)
 		Term_putstr(col, row, 12, TERM_WHITE, "----------]");
 
 		Term_putstr(col, row, 11, TERM_WHITE, "----------]");
+				
+		Term_putstr(col+10, row, 1, monster_hilite_attr(m_ptr), "]");
 
 		/* Dump the current "health" (handle monster stunning, confusion) */
 		if (m_ptr->m_timed[MON_TMD_CONF])
@@ -482,21 +520,29 @@ static void prt_speed(int row, int col)
 	byte attr = TERM_WHITE;
 	char buf[32] = "";
 
-	/* Hack -- Visually "undo" the Search Mode Slowdown */
-	if (p_ptr->searching) i += 10;
+	/* Erase the current display */
+	Term_erase(col, row, 12);
 
-	/* Fast */
-	if (i > 110)
+	/* Hack -- Visually "undo" the Search Mode Slowdown */
+	if (p_ptr->searching) i += ((game_mode == GAME_NPPMORIA) ? 1 : 10);
+
+	/* Boundry Control */
+	if (game_mode == GAME_NPPMORIA)
 	{
-		attr = analyze_speed_bonuses(TERM_L_GREEN);
-		sprintf(buf, "Fast (+%d)", (i - 110));
+		if (i < NPPMORIA_LOWEST_SPEED) i = NPPMORIA_LOWEST_SPEED;
+		else if (i > NPPMORIA_MAX_SPEED) i = NPPMORIA_MAX_SPEED;
 	}
 
-	/* Slow */
-	else if (i < 110)
+	/* Fast */
+	if (i > (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
+	{
+		attr = analyze_speed_bonuses(TERM_L_GREEN);
+		sprintf(buf, "Fast (+%d)", (i - (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110)));
+	}
+	else if (i < (game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110))
 	{
 		attr = analyze_speed_bonuses(TERM_L_UMBER);
-		sprintf(buf, "Slow (-%d)", (110 - i));
+		sprintf(buf, "Slow (-%d)", ((game_mode == GAME_NPPMORIA ? NPPMORIA_NORMAL_SPEED : 110) - i));
 	}
 
 	/* Display the speed */
@@ -508,6 +554,8 @@ static void prt_quest_st(int row, int col)
 
 	char quest_msg[16];
 	byte attr = TERM_WHITE;
+
+	if (adult_no_quests) return;
 
 	/* Get the quest indicator */
 	format_quest_indicator(quest_msg, sizeof(quest_msg), &attr);
@@ -524,6 +572,9 @@ static void prt_feeling(int row, int col)
 {
 	char feel[16];
 	byte attr = TERM_WHITE;
+
+	/* No sensing things in Moria */
+	if (game_mode == GAME_NPPMORIA) return;
 
 	/* No useful feeling in town, or no feeling yet */
 	if ((!p_ptr->depth) || (!feeling) || (!do_feeling))
@@ -608,7 +659,8 @@ static void prt_depth(int row, int col)
  */
 static void prt_mon_mana(int row, int col, const monster_type *m_ptr)
 {
-
+	byte hilite = monster_hilite_attr(m_ptr);
+	
 	/* Not alive, or no mana */
 	if (!m_ptr->r_idx)
 	{
@@ -663,6 +715,9 @@ static void prt_mon_mana(int row, int col, const monster_type *m_ptr)
 
 		/* Default to "unknown" */
 		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
+		
+		Term_putstr(col+11, row, 1, hilite, "]");
+		Term_putstr(col, row, 1, hilite, "[");
 
 		/* Dump the current "mana"*/
 		Term_putstr(col + 1, row, len, TERM_L_GREEN, "**********");
@@ -2003,8 +2058,8 @@ static void show_splashscreen(game_event_type type, game_event_data *data, void 
 	char buf[1024];
 
 	/*** Verify the "news" file ***/
-
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	if (game_mode == GAME_NPPANGBAND) path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	else path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "m_news.txt"); /*game_mode == GAME_MORIA*/
 	if (!file_exists(buf))
 	{
 		char why[1024];
@@ -2020,7 +2075,8 @@ static void show_splashscreen(game_event_type type, game_event_data *data, void 
 	Term_clear();
 
 	/* Open the News file */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	if (game_mode == GAME_NPPANGBAND) path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
+	else path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "m_news.txt"); /*game_mode == GAME_MORIA*/
 	fp = file_open(buf, MODE_READ, -1);
 
 	text_out_hook = text_out_to_screen;
@@ -2146,7 +2202,6 @@ static void ui_remove_statusline(game_event_type type, game_event_data *data, vo
 
 errr textui_get_cmd(cmd_context context, bool wait)
 {
-
 	if (context == CMD_BIRTH)
 		return get_birth_command(wait);
 	else if (context == CMD_GAME)

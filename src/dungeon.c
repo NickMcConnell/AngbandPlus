@@ -38,9 +38,9 @@ void dungeon_change_level(int dlev)
 
 			strnfmt(note, sizeof(note), fmt, g_vault_name);
 			do_cmd_note(note, p_ptr->depth);
-	 	}
+		}
 
-	  	g_vault_name[0] = '\0';
+		g_vault_name[0] = '\0';
 	}
 
 	/* New depth */
@@ -53,9 +53,7 @@ void dungeon_change_level(int dlev)
 	p_ptr->autosave = TRUE;
 
 	p_ptr->redraw |= (PR_DEPTH | PR_QUEST_ST | PR_FEELING);
-
 }
-
 
 
 /*
@@ -87,10 +85,9 @@ static void remove_ironman_ego_items(void)
 			table[i].prob2 = 0;
 			table[i].prob3 = 0;
 		}
-
 	}
-
 }
+
 
 /*
  * Remove the ironman items of the probability tables.
@@ -120,18 +117,13 @@ static void remove_ironman_items(void)
 			 */
 			if ((k_ptr->tval == cp_ptr->spell_book) && (k_ptr->tried == FALSE))
 			{
-				byte realm, j;
-
-				/*Get the player spell realm*/
-				realm =  get_player_spell_realm();
+				byte j;
 
 				/* Extract spells */
 				for (j = 0; j < SPELLS_PER_BOOK; j++)
 				{
 
-					byte sval = k_ptr->sval;
-
-					s16b spell = spell_list[realm][sval][j];
+					s16b spell = get_spell_from_list(k_ptr->sval, j);
 
 					/*skip blank spell slots*/
 					if (spell == -1) continue;
@@ -144,8 +136,6 @@ static void remove_ironman_items(void)
 		}
 	}
 }
-
-
 
 
 /*
@@ -161,7 +151,7 @@ static void regenhp(int percent)
 
 	/* Extract the new hitpoints */
 	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
-	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
+	p_ptr->chp += (s16b)(new_chp >> 16);	/* div 65536 */
 
 	/* check for overflow */
 	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
@@ -188,7 +178,6 @@ static void regenhp(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
-
 	}
 }
 
@@ -232,18 +221,13 @@ static void regenmana(int percent)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
-
 	}
 }
-
-
-
 
 
 /*
  * Give the monsters terrain damage (once per 10 game turns)
  */
-
 static void monster_terrain_damage(void)
 {
 	int i;
@@ -264,7 +248,7 @@ static void monster_terrain_damage(void)
 		/* Monsters in non-native terrain take damage, and isn't flying */
 		if ((f_ptr->dam_non_native > 0) &&
 			!is_monster_native(m_ptr->fy, m_ptr->fx, r_ptr) &&
-                       !MONSTER_CAN_FLY(m_ptr, feat))
+            !MONSTER_CAN_FLY(m_ptr, feat))
  		{
 			int gf_type = 0;
 
@@ -303,13 +287,9 @@ static void monster_terrain_damage(void)
 }
 
 
-
-
-
 /*
  * Regenerate the monsters (once per 100 game turns)
  */
-
 static void regen_monsters(void)
 {
 	int i, frac;
@@ -349,7 +329,6 @@ static void regen_monsters(void)
 
 			/* Fully healed -> flag minimum range for recalculation */
 			if (m_ptr->mana == r_ptr->mana) m_ptr->min_range = 0;
-
 		}
 
 		/* Allow hp regeneration, if needed. */
@@ -375,7 +354,6 @@ static void regen_monsters(void)
 
 	}
 }
-
 
 
 /*
@@ -440,6 +418,7 @@ static void recharged_notice(object_type *o_ptr, bool all)
 	}
 }
 
+
 /*
  * Helper function for process_guild_quests
  * Count the number of quest monsters hiding as mimic objects
@@ -495,29 +474,29 @@ static s16b get_arena_obj_num(void)
 	/* 35% chance of a potion */
 	if (tval_type < 35)
 	{
-		if (level <= 20) 		k_idx = lookup_kind(TV_POTION, SV_POTION_CURE_CRITICAL);
-		else if (level <= 40) 	k_idx = lookup_kind(TV_POTION, SV_POTION_SPEED);
-		else if (level <= 70) 	k_idx = lookup_kind(TV_POTION, SV_POTION_HEALING);
-		else if (level <= 85) 	k_idx = lookup_kind(TV_POTION, SV_POTION_STAR_HEALING);
-		else 				 	k_idx = lookup_kind(TV_POTION, SV_POTION_LIFE);
+		if (level <= 20)		k_idx = lookup_kind(TV_POTION, SV_POTION_CURE_CRITICAL);
+		else if (level <= 40)	k_idx = lookup_kind(TV_POTION, SV_POTION_SPEED);
+		else if (level <= 70)	k_idx = lookup_kind(TV_POTION, SV_POTION_HEALING);
+		else if (level <= 85)	k_idx = lookup_kind(TV_POTION, SV_POTION_STAR_HEALING);
+		else 					k_idx = lookup_kind(TV_POTION, SV_POTION_LIFE);
 	}
 	/* 20% chance of a scroll */
 	else if (tval_type <= 55)
 	{
-		if (level <= 10) 		k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_PHASE_DOOR);
-		else if (level <= 20) 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_HOLY_PRAYER);
-		else if (level <= 40) 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_RECHARGING);
-		else if (level <= 60) 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL);
-		else 				 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_MASS_BANISHMENT);
+		if (level <= 10)		k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_PHASE_DOOR);
+		else if (level <= 20)	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_HOLY_PRAYER);
+		else if (level <= 40)	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_RECHARGING);
+		else if (level <= 60)	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL);
+		else 					k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_MASS_BANISHMENT);
 	}
 	/* 25% chance of a staff/wand */
 	else if (tval_type <= 80)
 	{
-		if (level <= 20) 		k_idx = lookup_kind(TV_WAND, SV_WAND_TELEPORT_AWAY);
-		else if (level <= 40) 	k_idx = lookup_kind(TV_WAND, SV_WAND_ANNIHILATION);
-		else if (level <= 60) 	k_idx = lookup_kind(TV_STAFF, SV_STAFF_HEALING);
-		else if (level <= 85) 	k_idx = lookup_kind(TV_STAFF, SV_STAFF_HOLINESS);
-		else 				 	k_idx = lookup_kind(TV_STAFF, SV_STAFF_SPEED);
+		if (level <= 20)		k_idx = lookup_kind(TV_WAND, SV_WAND_TELEPORT_AWAY);
+		else if (level <= 40)	k_idx = lookup_kind(TV_WAND, SV_WAND_ANNIHILATION);
+		else if (level <= 60)	k_idx = lookup_kind(TV_STAFF, SV_STAFF_HEALING);
+		else if (level <= 85)	k_idx = lookup_kind(TV_STAFF, SV_STAFF_HOLINESS);
+		else 					k_idx = lookup_kind(TV_STAFF, SV_STAFF_SPEED);
 	}
 	/* 20% chance of a custom item for that specific class */
 	else
@@ -539,8 +518,8 @@ static s16b get_arena_obj_num(void)
 		{
 			byte sval;
 			byte tval = p_ptr->state.ammo_tval;
-			if (level <= 30) 		sval = SV_AMMO_LIGHT;
-			else if (level <= 75) 	sval = SV_AMMO_NORMAL;
+			if (level <= 30)		sval = SV_AMMO_LIGHT;
+			else if (level <= 75)	sval = SV_AMMO_NORMAL;
 			else 					sval = SV_AMMO_HEAVY;
 
 			/* Hack - the svals for shots are slightly different than bows and bolts */
@@ -554,7 +533,7 @@ static s16b get_arena_obj_num(void)
 }
 
 /*
- * Determine if a monster is suitable for the arena"
+ * Determine if a monster is suitable for the arena
  */
 static bool monster_arena_labyrinth_okay(int r_idx)
 {
@@ -566,15 +545,16 @@ static bool monster_arena_labyrinth_okay(int r_idx)
 	/* No breeders */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) return (FALSE);
 
-	/*no mimics */
+	/* no mimics */
 	if (r_ptr->flags1 & (RF1_CHAR_MIMIC)) return (FALSE);
 
-	/*no mimics */
+	/* no stationary */
 	if (r_ptr->flags1 & (RF1_NEVER_MOVE)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
 }
+
 
 /*
  * Helper function for process_arena_level.
@@ -769,7 +749,7 @@ static void process_arena_quest(void)
 
 	int cur_quest_monsters = count_quest_monsters(q_ptr);
 
-	/* Boundry Control */
+	/* Boundary Control */
 	if (current_mon_phase > q_ptr->q_max_num) current_mon_phase = q_ptr->q_max_num;
 	if (prev_lev_phase < 0) prev_lev_phase = 0;
 
@@ -848,6 +828,7 @@ static int count_labrynth_objects(void)
 	return (item_count);
 }
 
+
 /*
  * Helper function for process_labyrnth_level.
  * Add a monster to the dungeon.
@@ -906,7 +887,6 @@ static bool add_labyrinth_monster_object(bool add_object, bool add_parchment)
 	/* Prepare allocation table */
 	get_mon_num_hook = monster_arena_labyrinth_okay;
 	get_mon_num_prep();
-
 
 	/* Pick a monster, using the given level */
 	r_idx = get_mon_num(mon_lev, y, x, 0L);
@@ -978,9 +958,8 @@ static bool add_labyrinth_monster_object(bool add_object, bool add_parchment)
 }
 
 
-
 /*
- * This function assumes it is called every 10 game turns during a labrynth level.
+ * This function assumes it is called every 10 game turns during a labyrinth level.
  */
 static void process_labyrinth_quest(void)
 {
@@ -1066,7 +1045,7 @@ static void process_greater_vault_quest(void)
 		{
 			monster_type *m_ptr = &mon_list[i];
 
-			/* Ignore non-existant monsters */
+			/* Ignore non-existent monsters */
 			if (!m_ptr->r_idx) continue;
 
 			/*
@@ -1152,6 +1131,7 @@ static void process_greater_vault_quest(void)
 
 }
 
+
 /*
  * Clear a square of any objects, effects and monsters that may be there.
  */
@@ -1225,8 +1205,9 @@ static void clear_square(int y, int x, bool do_wall, u16b feat)
 	if (cave_x_idx[y][x]) delete_effects(y, x);
 }
 
+
 /*
- *
+ * Alter terrain during wilderness quest
  */
 static void process_wilderness_quest(void)
 {
@@ -1336,8 +1317,8 @@ static void process_wilderness_quest(void)
 			/* Ice level */
 			if (ice_or_mud > 0)
 			{
-				if (do_wall) 	new_feat =  FEAT_BWATER_WALL;
-				else 			new_feat =  FEAT_BWATER;
+				if (do_wall)	new_feat =  FEAT_BWATER_WALL;
+				else			new_feat =  FEAT_BWATER;
 			}
 			/* Boiling Mud */
 			else
@@ -1579,6 +1560,9 @@ static void recharge_objects(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Skip the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
+
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0 && !fuelable_light_p(o_ptr))
 		{
@@ -1589,7 +1573,7 @@ static void recharge_objects(void)
 			if (!(o_ptr->timeout))
 			{
 				/* Update window */
-		    	j++;
+				j++;
 
 				/* Message if item is recharged, if inscribed !! */
 				if (!(o_ptr->timeout)) recharged_notice(o_ptr, TRUE);
@@ -1616,7 +1600,6 @@ static void recharge_objects(void)
 		/* Examine all charging rods or stacks of charging rods. */
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
-
 			/* Determine how many rods are charging. */
 			s16b temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 
@@ -1711,7 +1694,6 @@ static void recharge_objects(void)
 			/* Boundary control. */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 
-
 		}
 		else if ((o_ptr->art_num) && (o_ptr->timeout))
 		{
@@ -1723,6 +1705,7 @@ static void recharge_objects(void)
 		}
 	}
 }
+
 
 static void play_ambient_sound(void)
 {
@@ -1773,6 +1756,7 @@ static void play_ambient_sound(void)
 		sound(MSG_AMBIENT_DNG5);
 	}
 }
+
 
 /*
  * This function randomly extinguish fires near the player location
@@ -1829,6 +1813,7 @@ static void put_out_fires(void)
 	update_level_flag();
 }
 
+
 /*
  * Helper for process_world -- decrement p_ptr->timed[] fields.
  */
@@ -1866,6 +1851,7 @@ static void decrease_timeouts(void)
 
 	return;
 }
+
 
 /*
  * Handle certain things once every 10 game turns
@@ -2021,7 +2007,7 @@ static void process_world(void)
 	}
 
 	/* Occasionally have the ghost give a challenge */
-	if (turn % 100)
+	if (turn % 500)
 	{
 		if (one_in_(50)) ghost_challenge();
 	}
@@ -2115,7 +2101,7 @@ static void process_world(void)
 		if (!(turn % 100))
 		{
 			/* Basic digestion rate based on speed */
-			i = extract_energy[p_ptr->state.p_speed] * 2;
+			i = calc_energy_gain(p_ptr->state.p_speed) * 2;
 
 			/* Regeneration takes more food */
 			if (p_ptr->state.regenerate) i += 30;
@@ -2305,7 +2291,6 @@ static void process_world(void)
 				disturb(0, 0);
 			}
 		}
-
 	}
 
 	/* Native to Mud */
@@ -2447,7 +2432,6 @@ static void process_world(void)
 	/* Delayed level feelings */
 	if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100)))
 	{
-
 		int chance;
 
 		/*players notice arena levels almost instantly */
@@ -2485,6 +2469,7 @@ static void process_world(void)
 	notice_stuff();
 
 }
+
 
 /*
  * Verify use of "wizard" mode
@@ -2594,6 +2579,7 @@ static void process_player_aux(void)
 		}
 	}
 }
+
 
 /*
  * Process the player terrain damage
@@ -2763,7 +2749,6 @@ void process_player(void)
 	/* Repeat until energy is reduced */
 	do
 	{
-
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();
 
@@ -2858,7 +2843,6 @@ void process_player(void)
 			{
 				cmd_use_item();
 				process_command(CMD_GAME, TRUE);
-
 			}
 
 			/* Get and process a command */
@@ -2869,10 +2853,10 @@ void process_player(void)
 
 		/*** Clean up ***/
 
-		/*hack - check for secret squares*/
+		/* hack - check for secret squares */
 		if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_MARKED))
 		{
-			/*increase chance of altered inventory for around 100 turns*/
+			/* increase chance of altered inventory for around 100 turns*/
 			altered_inventory_counter += 1;
 
 			/*unmark the square*/
@@ -2887,16 +2871,16 @@ void process_player(void)
 
 			if (adult_take_notes)
 			{
-		    	char note[120];
-		    	const char *fmt = "You enter the %s";
+				char note[120];
+				const char *fmt = "You enter the %s";
 
-		    	strnfmt(note, sizeof(note), fmt, g_vault_name);
+				strnfmt(note, sizeof(note), fmt, g_vault_name);
 
-		    	do_cmd_note(note, p_ptr->depth);
-		  	}
+				do_cmd_note(note, p_ptr->depth);
+			}
 
-		  	g_vault_name[0] = '\0';
-		  	p_ptr->redraw |= (PR_QUEST_ST);
+			g_vault_name[0] = '\0';
+			p_ptr->redraw |= (PR_QUEST_ST);
 		}
 
 		/* Significant */
@@ -3101,7 +3085,7 @@ void process_player(void)
 
 	if (guild_quest_active())
 	{
-		if (quest_slot_timed(GUILD_QUEST_SLOT)) 	p_ptr->redraw |= (PR_QUEST_ST);
+		if (quest_slot_timed(GUILD_QUEST_SLOT))	p_ptr->redraw |= (PR_QUEST_ST);
 	}
 
 	/* Notice stuff (if needed) */
@@ -3118,8 +3102,8 @@ void process_player(void)
 
 	/* Refresh */
 	(void)Term_fresh();
-
 }
+
 
 /*
  * Checks if multi-color monsters onscreen.
@@ -3244,7 +3228,7 @@ static void dungeon(void)
 	{
 		if ((p_ptr->create_stair == FEAT_MORE) ||
 			(p_ptr->create_stair == FEAT_MORE_SHAFT))
-	   		 p_ptr->create_stair = FALSE;
+			 p_ptr->create_stair = FALSE;
 	}
 
 	/* No stairs from town or if not allowed */
@@ -3382,7 +3366,6 @@ static void dungeon(void)
 	/* Main loop */
 	while (TRUE)
 	{
-
 		/* Hack -- Compact the monster list occasionally */
 		if (mon_cnt + 32 > z_info->m_max) compact_monsters(64);
 
@@ -3447,7 +3430,6 @@ static void dungeon(void)
 	/* Kill the mouse buttons */
 	(void) button_kill_all();
 }
-
 
 
 /*
@@ -3678,6 +3660,9 @@ void play_game(void)
 	/* Start with normal object generation mode */
 	object_generation_mode = OB_GEN_MODE_NORMAL;
 
+	/* Start with the item_tester_swap variable as true */
+	item_tester_swap = TRUE;
+
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
 
@@ -3689,7 +3674,6 @@ void play_game(void)
 
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
-
 
 	/* Process */
 	while (TRUE)
@@ -3819,7 +3803,6 @@ void play_game(void)
 
 		/* Make a new level */
 		generate_cave();
-
 	}
 
 	/* Tell the UI we're done with the game state */

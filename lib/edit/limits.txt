@@ -1,19 +1,17 @@
 # File: limits.txt
 
 
-# This file is used to initialize the "lib/data/limits.raw" file, which is
-# used to initialize the "array sizes" information for the Angband game.
+# This file is used to initialize the "array sizes" information for the NPPAngband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/limits.raw" file.
 #
 # These numbers are all actually the maximum + 1, not counting the artifact non-total numbers
 
 
 # Version stamp (required)
 
-V:6.1.0
+V:7.0.0
 
 
 
@@ -45,7 +43,7 @@ M:X:750
 
 # Maximum number of permanant maintainer ghost templates (in *angband/lib/bones)
 # followed by the max number of player ghost templates
-M:G:24:20
+M:G:25:20
 
 # Maximum number of vaults
 M:V:61

@@ -34,6 +34,16 @@ bool allow_player_confusion(void)
 	return (TRUE);
 }
 
+s32b get_experience_by_level(int level)
+{
+	if (game_mode == GAME_NPPMORIA)
+	{
+		return (player_exp_nppmoria[level]);
+	}
+
+	return (player_exp_nppangband[level]);
+}
+
 
 /*
  * Advance experience levels and print experience
@@ -63,8 +73,7 @@ void check_experience(void)
 
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
-	                      p_ptr->expfact / 100L)))
+	       (p_ptr->exp < (get_experience_by_level(p_ptr->lev-2) * p_ptr->expfact / 100L)))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
@@ -80,9 +89,8 @@ void check_experience(void)
 	}
 
 	/* Gain levels while possible */
-	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
-	                       p_ptr->expfact / 100L)))
+	while ((p_ptr->lev < z_info->max_level) &&
+	       (p_ptr->exp >= (get_experience_by_level(p_ptr->lev-1) * p_ptr->expfact / 100L)))
 	{
 		/* Gain a level */
 		p_ptr->lev++;
@@ -123,10 +131,10 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 	}
-
+	
 	/* Gain max levels while possible */
-	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
-	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
+	while ((p_ptr->max_lev < z_info->max_level) &&
+	       (p_ptr->max_exp >= (get_experience_by_level(p_ptr->max_lev-1) *
 	                           p_ptr->expfact / 100L)))
 	{
 		/* Gain max level */
@@ -627,7 +635,7 @@ void monster_death(int m_idx, int who)
 
 	/* If the player kills a Unique, and the notes option is on, write a note.
 	 * If the unique is a guild questor, the note was already written */
-   	if ((r_ptr->flags1 & RF1_UNIQUE) && (adult_take_notes) && (writenote))
+   	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (adult_take_notes) && (writenote))
 	{
 
 		char note2[120];
@@ -663,6 +671,20 @@ void monster_death(int m_idx, int who)
 
 	/* Only process dungeon kills */
 	if (!p_ptr->depth) return;
+
+	/* Hack, check if the Balrog of Moria just died in NPPMoria */
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Only the Balrog of Moria should have this flag */
+		if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
+
+		/* Set the variables so the game knows we are done */
+		questlevel = TRUE;
+		completed = TRUE;
+		fixedquest = TRUE;
+		total = FALSE;
+	}
+
 
 	/* Require a quest level */
 	if (!questlevel) return;
@@ -719,7 +741,8 @@ void monster_death(int m_idx, int who)
  			char long_day[25];
 			file_putf(notes_file, "============================================================\n");
   		    (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-			file_putf(notes_file, "{{full_character_name}} slew Morgoth on %s.\n", long_day);
+  		    if (game_mode == GAME_NPPMORIA) file_putf(notes_file, "{{full_character_name}} slew The Balrog of Moria on %s.\n", long_day);
+  		    else file_putf(notes_file, "{{full_character_name}} slew Morgoth on %s.\n", long_day);
  			file_putf(notes_file, "Long live {{full_character_name}}!\n");
  		    file_putf(notes_file, "Long live {{full_character_name}}!\n");
 			file_putf(notes_file, "============================================================\n");
@@ -743,7 +766,7 @@ static s32b calc_mon_exp(const monster_race *r_ptr)
 	 * Check to make sure player is at level 50, so no adjustmetn necessary,
 	 * also prevents next line from crashing the game
 	 */
-	while (new_level < PY_MAX_LEVEL)
+	while (new_level < z_info->max_level)
 	{
 		s32b remaining_exp;
 		s32b net_exp_gain;
@@ -752,15 +775,13 @@ static s32b calc_mon_exp(const monster_race *r_ptr)
 		 * Player is not gaining a new max level
 		 * (in the player_exp chart level 1 exp-to-gain-next-level is at slot 0)
 		 */
-		if ((p_ptr->exp + new_exp) <=
-		    (player_exp[new_level - 1] * p_ptr->expfact / 100L)) break;
+		if ((p_ptr->exp + new_exp) <= (get_experience_by_level(new_level-1)) * p_ptr->expfact / 100L) break;
 
 		/*just checking this again*/
 		if (new_exp < 1) break;
 
 		/*figure out the remainder*/
-		net_exp_gain = (p_ptr->exp + new_exp) -
-					   (player_exp[new_level - 1] * p_ptr->expfact / 100L);
+		net_exp_gain = (p_ptr->exp + new_exp) - (get_experience_by_level(new_level-1) * p_ptr->expfact / 100L);
 
 		/*add one level*/
 		new_level++;
@@ -932,7 +953,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-	    	r_ptr->max_num = 0;
+			/* This is the "evil iggy" exception in Moria */
+			if ((r_ptr->flags2 & (RF2_SPECIAL)) && !(r_ptr->flags1 & (RF1_QUESTOR)))
+			{
+				/* Do nothing.....yes, I know this is bad coding */
+			}
+
+			else r_ptr->max_num = 0;
 
 			/* reputation bonus, except for the town unique */
 	    	if ((who == SOURCE_PLAYER) || (who == SOURCE_TRAP))

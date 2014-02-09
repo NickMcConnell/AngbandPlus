@@ -10,9 +10,9 @@ combat, by using missile weapons, or by throwing things at them.
 strength.  If you are using a weapon, things are a bit different.
 
 Basic Calculation:
-     1) roll the weapon's damage dice
-     2) apply any slay or brand multiplier
-     3) apply any critical hit bonuses
+     1) increase damage dice for apply any slay or brand multiplier
+     2) increase damage dice and bonus damage for apply any critical hit bonuses
+     3) roll the weapon's damage dice
      4) apply bonuses to damage from all equipped items
      5) repeat for all the blows you get
 
@@ -73,11 +73,11 @@ a weapon to find out how many blows you would get if you wielded that weapon.
 at a safe distance.
 
 Basic Calculation:
-     1) roll the missile's damage dice
-     2) add the damage bonuses from both the missile weapon and the ammunition,
-        but not from anything else
-     3) apply the missile launcher multiplier
-     4) apply any slay or brand multiplier
+     
+     1) increase damage dice and bonus damage for apply any critical hit bonuses
+     2) increase damage dice and bonuse damage for apply any slay or brand multiplier
+     3) roll the missile's damage dice
+     4) add in any bonus damages from classes with the ROGUE_COMBAT flag (rogues, brigands)
      5) apply any critical hit bonuses
 
 Setting up to Shoot:
@@ -103,9 +103,9 @@ applied after the bonus to damage, which is applied directly to the result of
 the base damage dice.
 
 Launcher Multiplier:
-     All missile launchers have a multiplier to damage:  for example, a Longbow
-(x3) would multiply the normal damage of the ammo it fires by three.  Some
-special weapons have a higher than normal multiplier.
+     All missile launchers have a multiplier to damage dice:  for example, a 
+Longbow (x3) would multiply the normal damage of the ammo it fires by three.  
+Some special weapons have a higher than normal multiplier.
 
 Brands and Slays:
      Ammunition occasionally possesses the same kinds of slays and brands found
@@ -135,8 +135,8 @@ on a monster if the potion hits them.  Rogues and brigands get extra damage
 from thrown weapons.
 
 Basic Calculation:
-     1) Roll the object's base damage dice.
-     2) Add any bonus to damage (only wargear will have such a bonus).
+     1) increase damage dice and bonus damage for apply any critical hit bonuses
+     2) increase damage dice and bonuse damage for apply any slay or brand multiplier
      3) Apply any slay or brand multiplier.
      4) Apply any critical hit.
 

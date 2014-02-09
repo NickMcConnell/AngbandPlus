@@ -1,0 +1,25 @@
+                               The Basics
+
+
+    (a) Character Birth                               (m_birth.txt)
+    (b) Quick Tutorial                                (m_tutorial.txt)
+    (c) Overview of the Game                          (overview.txt)
+    (d) Saving, Loading, Winning, Cheating, and Dying (m_basctask.txt)
+    (e) Internet Resources                            (resource.txt)
+    (f) History and Copyrights                        (angdesc.txt)
+
+
+
+
+Help Commands:
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sensitivity 
+
+***** [a] m_birth.txt
+***** [b] m_tutorial.txt
+***** [c] overview.txt
+***** [d] m_basctask.txt
+***** [e] resource.txt
+***** [f] angdesc.txt

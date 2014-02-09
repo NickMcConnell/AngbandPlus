@@ -57,6 +57,30 @@ const char hexsym[16] =
 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
 
+const byte moria_class_level_adj[MORIA_MAX_CLASS][MORIA_MAX_LEV_ADJ] =
+{
+/*	       bth    bthb   device  disarm   save/misc hit  */
+/* Warrior */ {	4,	4,	2,	2,	3 },
+/* Mage    */ { 2,	2,	4,	3,	3 },
+/* Priest  */ { 2,	2,	4,	3,	3 },
+/* Rogue   */ { 3,	4,	3,	4,	3 },
+/* Ranger  */ { 3,	4,	3,	3,	3 },
+/* Paladin */ { 3,	3,	3,	2,	3 }
+};
+
+/* used to calculate the number of blows the player gets in combat */
+const byte moria_blows_table[MORIA_MAX_STR_ADJ][MORIA_MAX_DEX_ADJ] =
+{
+/* STR/W:	   9  18  67 107 117 118   : DEX */
+/* <2 */	{  1,  1,  1,  1,  1,  1 },
+/* <3 */	{  1,  1,  1,  1,  2,  2 },
+/* <4 */	{  1,  1,  1,  2,  2,  3 },
+/* <5 */	{  1,  1,  2,  2,  3,  3 },
+/* <7 */	{  1,  2,  2,  3,  3,  4 },
+/* <9 */	{  1,  2,  2,  3,  4,  4 },
+/* >9 */	{  2,  2,  3,  3,  4,  4 }
+};
+
 
 /*
  * Stat Table (INT/WIS) -- Number of half-spells per level
@@ -336,7 +360,6 @@ const s16b adj_chr_charm[] =
 	13	/* 18/210-18/219 */,
 	15	/* 18/220+ */
 };
-
 
 
 /*
@@ -1169,7 +1192,18 @@ const byte blows_table[12][12] =
  * the (compiled out) small random energy boost code.  It may
  * also tend to cause more "clumping" at high speeds.
  */
-const byte extract_energy[200] =
+
+const byte extract_energy_nppmoria[6] =
+{
+	2,  /* 9 speed - slow + temporary slow */
+	5,  /* 10 speed - slow */
+	10, /* 11 speed - normal speed */
+	20, /* 12 speed - +1 */
+	40, /* 13 speed - +2 */
+	80, /* 14 speed - +3  */
+};
+
+const byte extract_energy_nppangband[200] =
 {
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -1193,11 +1227,55 @@ const byte extract_energy[200] =
 	/* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
 };
 
+const s32b player_exp_nppmoria[PY_MAX_LEVEL_MORIA] =
+{
+      10,			/* Experience needed to gain level 2 */
+      25,			/* Experience needed to gain level 3 */
+      45,			/* Experience needed to gain level 4 */
+      70,			/* Experience needed to gain level 5 */
+      100,			/* Experience needed to gain level 6 */
+      140,			/* Experience needed to gain level 7 */
+      200,			/* Experience needed to gain level 8 */
+      280,			/* Experience needed to gain level 9 */
+      380,			/* Experience needed to gain level 10 */
+      500,			/* Experience needed to gain level 11 */
+      650,			/* Experience needed to gain level 12 */
+      850,	 		/* Experience needed to gain level 13 */
+      1100,	   		/* Experience needed to gain level 14 */
+      1400,     	/* Experience needed to gain level 15 */
+      1800,     	/* Experience needed to gain level 16 */
+      2300,			/* Experience needed to gain level 17 */
+      2900,    		/* Experience needed to gain level 18 */
+      3600,    		/* Experience needed to gain level 19 */
+      4400,    		/* Experience needed to gain level 20 */
+      5400,	 		/* Experience needed to gain level 21 */
+      6800,	   		/* Experience needed to gain level 22 */
+      8400,    		/* Experience needed to gain level 23 */
+      10200,    	/* Experience needed to gain level 24 */
+      12500,		/* Experience needed to gain level 25 */
+      17500,   		/* Experience needed to gain level 26 */
+      25000,  		/* Experience needed to gain level 27 */
+      35000L,  		/* Experience needed to gain level 28 */
+      50000L,   	/* Experience needed to gain level 29 */
+      75000L,		/* Experience needed to gain level 30 */
+      100000L,  	/* Experience needed to gain level 31 */
+      150000L,  	/* Experience needed to gain level 32 */
+      200000L,		/* Experience needed to gain level 33 */
+      300000L, 		/* Experience needed to gain level 34 */
+      400000L, 		/* Experience needed to gain level 35 */
+      500000L, 		/* Experience needed to gain level 36 */
+      750000L, 		/* Experience needed to gain level 37 */
+      1500000L, 	/* Experience needed to gain level 38 */
+      2500000L, 	/* Experience needed to gain level 39 */
+      5000000L, 	/* Experience needed to gain level 40 */
+      10000000L		/* Level 40 */
+};
+
 
 /*
  * Base experience levels, may be adjusted up for race and/or class
  */
-const s32b player_exp[PY_MAX_LEVEL] =
+const s32b player_exp_nppangband[PY_MAX_LEVEL] =
 {
 		10,			/* Experience needed to gain level 2 */
 		25,			/* Experience needed to gain level 3 */
@@ -1274,370 +1352,485 @@ const player_sex sex_info[MAX_SEXES] =
 /*
  * Spells in each book (mage spells, priest and druid spells)
  */
-const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
+const s16b spell_list_nppmoria_mage[BOOKS_PER_REALM_MORIA][SPELLS_PER_BOOK] =
 {
-		{
-		/* Magic for Beginners */
-		{
-			SPELL_MAGIC_MISSILE,
-			SPELL_DETECT_MONSTERS,
-			SPELL_PHASE_DOOR,
-			SPELL_LIGHT_AREA,
-			SPELL_TREASURE_DETECTION,
-			SPELL_CURE_LIGHT_WOUNDS,
-			SPELL_OBJECT_DETECTION,
-			SPELL_FIND_TRAPS_DOORS,
-			SPELL_STINKING_CLOUD,
-		},
-
-		/* Conjurings and Tricks */
-		{
-			SPELL_CONFUSE_MONSTER,
-			SPELL_SHOCK_WAVE,
-			SPELL_TRAP_DOOR_DESTRUCTION,
-			SPELL_CURE_POISON,
-			SPELL_SLEEP_MONSTER,
-			SPELL_TELEPORT_SELF,
-			SPELL_SPEAR_OF_LIGHT,
-			SPELL_ICE_BOLT,
-			SPELL_WAIL_OF_THE_BANSHEE,
-		},
-
-		/* Incantations and Illusions */
-		{
-			SPELL_SATISFY_HUNGER,
-	    	SPELL_RECHARGE_ITEM_I,
-			SPELL_TURN_STONE_TO_MUD,
-			SPELL_SHARD_STORM,
-			SPELL_POLYMORPH_OTHER,
-			SPELL_IDENTIFY,
-			SPELL_DETECT_INVISIBLE,
-			SPELL_HURRICANE,
-			SPELL_SLOW_MONSTER,
-		},
-
-		/* Sorcery and Evocations */
-		{
-			SPELL_CALL_LIGHTNING,
-			SPELL_TELEPORT_OTHER,
-			SPELL_HASTE_SELF,
-			SPELL_MASS_SLEEP,
-			SPELL_WATER_BOLT,
-			SPELL_DETECT_ENCHANTMENT,
-			SPELL_MASS_IDENTIFY,
-			-1,
-			-1,
-		},
-
-		/* Resistances of Scarabtarices */
-		{
-			SPELL_RESIST_COLD,
-			SPELL_RESIST_FIRE,
-			SPELL_RESIST_POISON,
-			SPELL_RESISTANCE,
-			SPELL_SHIELD,
-			-1,
-			-1,
-			-1,
-			-1,
-		},
-
-		/* Raal's Tome of Destruction */
-		{
-			SPELL_NOVA,
-			SPELL_REND_SOUL,
-			SPELL_PRISMATIC_SPRAY,
-			SPELL_CLOUD_KILL,
-			SPELL_ICE_STORM,
-			SPELL_PLASMA_BOLT,
-			SPELL_METEOR_STORM,
-			SPELL_RIFT,
-			-1,
-		},
-
-		/* Mordenkainen's Escapes */
-		{
-			SPELL_DOOR_CREATION,
-			SPELL_STAIR_CREATION,
-			SPELL_TELEPORT_LEVEL,
-			SPELL_WORD_OF_RECALL,
-			SPELL_RUNE_OF_PROTECTION,
-			SPELL_FLIGHT,
-			-1,
-			-1,
-			-1,
-		},
-
-		/* Tenser's transformations */
-		{
-			SPELL_BERSERKER,
-			SPELL_ENCHANT_ARMOR,
-			SPELL_ENCHANT_WEAPON,
-			SPELL_RECHARGE_ITEM_II,
-			SPELL_ELEMENTAL_BRAND,
-			-1,
-			-1,
-			-1,
-			-1,
-		},
-
-		/* Kelek's Grimoire of Power */
-		{
-			SPELL_EARTHQUAKE,
-			SPELL_BEDLAM,
-			SPELL_BANISHMENT,
-			SPELL_WORD_OF_DESTRUCTION,
-			SPELL_MASS_BANISHMENT,
-			SPELL_DARKNESS_STORM,
-			SPELL_MANA_BOLT,
-			SPELL_MANA_STORM,
-			-1,
-		},
+	/* Beginners-Magick */
+	{
+		SPELL_MAGIC_MISSILE,
+		SPELL_DETECT_MONSTERS,
+		SPELL_PHASE_DOOR,
+		SPELL_LIGHT_AREA,
+		SPELL_CURE_LIGHT_WOUNDS,
+		SPELL_FIND_TRAPS_DOORS,
+		SPELL_STINKING_CLOUD,
+		-1,
+		-1,
 	},
 
+	/* Magick I */
 	{
-		/*** Priest spell books ***/
+		SPELL_CONFUSE_MONSTER,
+		SPELL_LIGHTNING_BOLT,
+		SPELL_TRAP_DOOR_DESTRUCTION,
+		SPELL_SLEEP_MONSTER,
+		SPELL_CURE_POISON,
+		SPELL_TELEPORT_SELF,
+		SPELL_REMOVE_CURSE,
+		SPELL_FROST_BOLT,
+		SPELL_TURN_STONE_TO_MUD,
+	},
 
+	/* Magick II */
+	{
+		SPELL_CREATE_FOOD,
+	   	SPELL_RECHARGE_ITEM_I,
+	   	SPELL_SLEEP_II,
+		SPELL_POLYMORPH_OTHER,
+		SPELL_IDENTIFY,
+		SPELL_MASS_SLEEP,
+		SPELL_FIRE_BOLT,
+		SPELL_SLOW_MONSTER,
+		-1,
+	},
+
+	/* The Mages' Guide to Power */
+	{
+		SPELL_FROST_BALL,
+		SPELL_RECHARGE_ITEM_II,
+		SPELL_TELEPORT_OTHER,
+		SPELL_HASTE_SELF,
+		SPELL_FIRE_BALL,
+		SPELL_WORD_OF_DESTRUCTION,
+		SPELL_BANISHMENT,
+		-1,
+		-1,
+	},
+};
+
+const s16b spell_list_nppmoria_priest[BOOKS_PER_REALM_MORIA][SPELLS_PER_BOOK] =
+{
+	/*** Priest spell books ***/
+
+	/*Beginner's Handbook*/
+	{
+		PRAYER_DETECT_EVIL,
+		PRAYER_CURE_LIGHT_WOUNDS,
+		PRAYER_BLESS,
+		PRAYER_REMOVE_FEAR,
+		PRAYER_CALL_LIGHT,
+		PRAYER_FIND_TRAPS,
+		PRAYER_DETECT_DOORS_STAIRS,
+		PRAYER_SLOW_POISON,
+		-1,
+	},
+
+	/*Words of Wisdom*/
+	{
+		PRAYER_CONFUSE_MONSTER,
+		PRAYER_PORTAL,
+		PRAYER_CURE_SERIOUS_WOUNDS,
+		PRAYER_CHANT,
+		PRAYER_SANCTUARY,
+		PRAYER_CREATE_FOOD,
+		PRAYER_REMOVE_CURSE,
+		PRAYER_RESIST_HEAT_COLD,
+		-1,
+	},
+
+	/*Chants and Blessings*/
+	{
+		PRAYER_NEUTRALIZE_POISON,
+		PRAYER_ORB_OF_DRAINING,
+		PRAYER_CURE_CRITICAL_WOUNDS,
+		PRAYER_SENSE_INVISIBLE,
+		PRAYER_PROTECTION_FROM_EVIL,
+		PRAYER_EARTHQUAKE,
+		PRAYER_SENSE_SURROUNDINGS,
+		PRAYER_CURE_MORTAL_WOUNDS,
+		PRAYER_TURN_UNDEAD,
+
+	},
+
+	/*Exorcism and Dispelling*/
+	{
+		PRAYER_PRAYER,
+		PRAYER_DISPEL_UNDEAD,
+		PRAYER_HEAL,
+		PRAYER_DISPEL_EVIL,
+		PRAYER_GLYPH_OF_WARDING,
+		PRAYER_HOLY_WORD,
+		-1,
+		-1,
+		-1,
+	},
+};
+
+
+
+/*
+ * Spells in each book (mage spells, priest and druid spells)
+ */
+const s16b spell_list_nppangband_mage[BOOKS_PER_REALM_ANGBAND][SPELLS_PER_BOOK] =
+{
+
+	/* Magic for Beginners */
+	{
+		SPELL_MAGIC_MISSILE,
+		SPELL_DETECT_MONSTERS,
+		SPELL_PHASE_DOOR,
+		SPELL_LIGHT_AREA,
+		SPELL_TREASURE_DETECTION,
+		SPELL_CURE_LIGHT_WOUNDS,
+		SPELL_OBJECT_DETECTION,
+		SPELL_FIND_TRAPS_DOORS,
+		SPELL_STINKING_CLOUD,
+	},
+
+	/* Conjurings and Tricks */
+	{
+		SPELL_CONFUSE_MONSTER,
+		SPELL_SHOCK_WAVE,
+		SPELL_TRAP_DOOR_DESTRUCTION,
+		SPELL_CURE_POISON,
+		SPELL_SLEEP_MONSTER,
+		SPELL_TELEPORT_SELF,
+		SPELL_SPEAR_OF_LIGHT,
+		SPELL_ICE_BOLT,
+		SPELL_WAIL_OF_THE_BANSHEE,
+	},
+
+	/* Incantations and Illusions */
+	{
+		SPELL_SATISFY_HUNGER,
+    	SPELL_RECHARGE_ITEM_I,
+		SPELL_TURN_STONE_TO_MUD,
+		SPELL_SHARD_STORM,
+		SPELL_POLYMORPH_OTHER,
+		SPELL_IDENTIFY,
+		SPELL_DETECT_INVISIBLE,
+		SPELL_HURRICANE,
+		SPELL_SLOW_MONSTER,
+	},
+
+	/* Sorcery and Evocations */
+	{
+		SPELL_CALL_LIGHTNING,
+		SPELL_TELEPORT_OTHER,
+		SPELL_HASTE_SELF,
+		SPELL_MASS_SLEEP,
+		SPELL_WATER_BOLT,
+		SPELL_DETECT_ENCHANTMENT,
+		SPELL_MASS_IDENTIFY,
+		-1,
+		-1,
+	},
+
+	/* Resistances of Scarabtarices */
+	{
+		SPELL_RESIST_COLD,
+		SPELL_RESIST_FIRE,
+		SPELL_RESIST_POISON,
+		SPELL_RESISTANCE,
+		SPELL_SHIELD,
+		-1,
+		-1,
+		-1,
+		-1,
+	},
+
+	/* Raal's Tome of Destruction */
+	{
+		SPELL_NOVA,
+		SPELL_REND_SOUL,
+		SPELL_PRISMATIC_SPRAY,
+		SPELL_CLOUD_KILL,
+		SPELL_ICE_STORM,
+		SPELL_PLASMA_BOLT,
+		SPELL_METEOR_STORM,
+		SPELL_RIFT,
+		-1,
+	},
+
+	/* Mordenkainen's Escapes */
+	{
+		SPELL_DOOR_CREATION,
+		SPELL_STAIR_CREATION,
+		SPELL_TELEPORT_LEVEL,
+		SPELL_WORD_OF_RECALL,
+		SPELL_RUNE_OF_PROTECTION,
+		SPELL_FLIGHT,
+		-1,
+		-1,
+		-1,
+	},
+
+	/* Tenser's transformations */
+	{
+		SPELL_BERSERKER,
+		SPELL_ENCHANT_ARMOR,
+		SPELL_ENCHANT_WEAPON,
+		SPELL_RECHARGE_ITEM_II,
+		SPELL_ELEMENTAL_BRAND,
+		-1,
+		-1,
+		-1,
+		-1,
+	},
+
+	/* Kelek's Grimoire of Power */
+	{
+		SPELL_EARTHQUAKE,
+		SPELL_BEDLAM,
+		SPELL_BANISHMENT,
+		SPELL_WORD_OF_DESTRUCTION,
+		SPELL_MASS_BANISHMENT,
+		SPELL_DARKNESS_STORM,
+		SPELL_MANA_BOLT,
+		SPELL_MANA_STORM,
+		-1,
+	},
+};
+
+/*** Priest spell books ***/
+const s16b spell_list_nppangband_priest[BOOKS_PER_REALM_ANGBAND][SPELLS_PER_BOOK] =
+{
 		/*Beginner's Handbook*/
-		{
-			PRAYER_DETECT_EVIL,
-			PRAYER_CURE_LIGHT_WOUNDS,
-			PRAYER_BLESS,
-			PRAYER_REMOVE_FEAR,
-			PRAYER_CALL_LIGHT,
-			PRAYER_FIND_TRAPS_DOORS_STAIRS,
-			PRAYER_SHOCK_BOLT,
-			PRAYER_SLOW_POISON,
-			-1,
-		},
-
-		/*Words of Wisdom*/
-		{
-			PRAYER_SCARE_MONSTER,
-			PRAYER_PORTAL,
-			PRAYER_CURE_SERIOUS_WOUNDS,
-			PRAYER_CHANT,
-			PRAYER_SANCTUARY,
-			PRAYER_SATISFY_HUNGER,
-			PRAYER_REMOVE_CURSE,
-			PRAYER_RESIST_HEAT_COLD,
-			-1,
-		},
-
-		/*Chants and Blessings*/
-		{
-			PRAYER_NEUTRALIZE_POISON,
-			PRAYER_CURE_CRITICAL_WOUNDS,
-			PRAYER_SENSE_INVISIBLE,
-			PRAYER_PROTECTION_FROM_EVIL,
-			PRAYER_EARTHQUAKE,
-			PRAYER_SENSE_SURROUNDINGS,
-			PRAYER_CURE_MORTAL_WOUNDS,
-			PRAYER_TURN_UNDEAD,
-			PRAYER_ORB_OF_DRAINING,
-		},
-
-		/*Exorcism and Dispelling*/
-		{
-			PRAYER_PRAYER,
-			PRAYER_SUN_BEAM,
-			PRAYER_HEAL,
-			PRAYER_DISPEL_EVIL,
-			PRAYER_GLYPH_OF_WARDING,
-			PRAYER_HOLY_WORD,
-			-1,
-			-1,
-			-1,
-		},
-
-		/*Ethereal Openings*/
-		{
-			PRAYER_BLINK,
-			PRAYER_UNBARRING_WAYS,
-			PRAYER_TELEPORT_SELF,
-			PRAYER_TELEPORT_OTHER,
-			PRAYER_TELEPORT_LEVEL,
-			PRAYER_WORD_OF_RECALL,
-			PRAYER_ALTER_REALITY,
-			-1,
-			-1,
-		},
-
-		/*Godly Insights*/
-		{
-			PRAYER_DETECT_MONSTERS,
-			PRAYER_DETECTION,
-			PRAYER_RECHARGING,
-			PRAYER_PERCEPTION,
-			PRAYER_PROBING,
-			PRAYER_CLAIRVOYANCE,
-			PRAYER_MASS_IDENTIFY,
-			-1,
-			-1,
-		},
-
-		/*Purifications and Healing*/
-		{
-			PRAYER_CURE_SERIOUS_WOUNDS2,
-			PRAYER_CURE_MORTAL_WOUNDS2,
-			PRAYER_HEALING,
-			PRAYER_RESTORATION,
-			PRAYER_REMEMBRANCE,
-			-1,
-			-1,
-			-1,
-			-1,
-		},
-
-		/*Holy Infusions*/
-		{
-			PRAYER_DISPEL_CURSE,
-			PRAYER_ENCHANT_WEAPON,
-			PRAYER_ENCHANT_ARMOUR,
-			PRAYER_ELEMENTAL_BRAND,
-			-1,
-			-1,
-			-1,
-			-1,
-			-1,
-		},
-
-		/*Wrath of God*/
-		{
-			PRAYER_SUN_BURST,
-			PRAYER_DISPEL_EVIL2,
-			PRAYER_BANISH_EVIL,
-			PRAYER_WORD_OF_DESTRUCTION,
-			PRAYER_JUDGEMENT_OF_MANDOS,
-			-1,
-			-1,
-			-1,
-			-1,
-		}
+	{
+		PRAYER_DETECT_EVIL,
+		PRAYER_CURE_LIGHT_WOUNDS,
+		PRAYER_BLESS,
+		PRAYER_REMOVE_FEAR,
+		PRAYER_CALL_LIGHT,
+		PRAYER_FIND_TRAPS_DOORS_STAIRS,
+		PRAYER_SHOCK_BOLT,
+		PRAYER_SLOW_POISON,
+		-1,
 	},
 
+	/*Words of Wisdom*/
 	{
-		/*** Druid spell books ***/
+		PRAYER_SCARE_MONSTER,
+		PRAYER_PORTAL,
+		PRAYER_CURE_SERIOUS_WOUNDS,
+		PRAYER_CHANT,
+		PRAYER_SANCTUARY,
+		PRAYER_SATISFY_HUNGER,
+		PRAYER_REMOVE_CURSE,
+		PRAYER_RESIST_HEAT_COLD,
+		-1,
+	},
 
-		/*Call of the Wild*/
-		{
-			DRUID_ACID_BOLT,
-			DRUID_CURE_LIGHT_WOUNDS,
-			DRUID_DETECT_LIFE,
-			DRUID_CALL_LIGHT,
-			DRUID_FIND_TRAPS_DOORS,
-			DRUID_SLOW_POISON,
-			DRUID_POISON_CLOUD,
-			DRUID_NATURAL_ESCAPE,
-			DRUID_BARKSKIN,
-		},
+	/*Chants and Blessings*/
+	{
+		PRAYER_NEUTRALIZE_POISON,
+		PRAYER_CURE_CRITICAL_WOUNDS,
+		PRAYER_SENSE_INVISIBLE,
+		PRAYER_PROTECTION_FROM_EVIL,
+		PRAYER_EARTHQUAKE,
+		PRAYER_SENSE_SURROUNDINGS,
+		PRAYER_CURE_MORTAL_WOUNDS,
+		PRAYER_TURN_UNDEAD,
+		PRAYER_ORB_OF_DRAINING,
+	},
 
-		/* Environmental Adjurations */
-		{
-			DRUID_NOURISHMENT,
- 			DRUID_TURN_STONE_TO_MUD,
- 			DRUID_FROST_BEAM,
- 			DRUID_CURE_POISON,
- 			DRUID_TRAP_DOOR_DESTRUCTION,
- 			DRUID_RESIST_HEAT_COLD,
- 			DRUID_SPEAR_OF_LIGHT,
- 			DRUID_FIRE_BEAM,
-			DRUID_STERILIZE,
-		},
+	/*Exorcism and Dispelling*/
+	{
+		PRAYER_PRAYER,
+		PRAYER_SUN_BEAM,
+		PRAYER_HEAL,
+		PRAYER_DISPEL_EVIL,
+		PRAYER_GLYPH_OF_WARDING,
+		PRAYER_HOLY_WORD,
+		-1,
+		-1,
+		-1,
+	},
 
-		/* Commanding Nature */
-		{
-			DRUID_EXTINGUISH,
-			DRUID_CLEAR_AREA,
-			DRUID_CURE_CRITICAL_WOUNDS,
-			DRUID_IDENTIFY,
-			DRUID_CLEAR_AIR,
-			DRUID_DETECT_TERRAIN,
-			DRUID_EARTHQUAKE,
-			DRUID_LIFE_DRAIN_BURST,
-			DRUID_CREATE_ELEMENTS,
-		},
+	/*Ethereal Openings*/
+	{
+		PRAYER_BLINK,
+		PRAYER_UNBARRING_WAYS,
+		PRAYER_TELEPORT_SELF,
+		PRAYER_TELEPORT_OTHER,
+		PRAYER_TELEPORT_LEVEL,
+		PRAYER_WORD_OF_RECALL,
+		PRAYER_ALTER_REALITY,
+		-1,
+		-1,
+	},
 
-		/* Lore of Engagement */
-		{
-			DRUID_ELEMENTAL_BRAND,
-			DRUID_FROST_BALL,
-			DRUID_HEAL,
-			DRUID_DISPEL_LIFE,
-			DRUID_FIRE_BALL,
-			DRUID_DRAIN_LIFE_ARC,
-			DRUID_MASS_IDENTIFY,
-			-1,
-			-1,
-		},
+	/*Godly Insights*/
+	{
+		PRAYER_DETECT_MONSTERS,
+		PRAYER_DETECTION,
+		PRAYER_RECHARGING,
+		PRAYER_PERCEPTION,
+		PRAYER_PROBING,
+		PRAYER_CLAIRVOYANCE,
+		PRAYER_MASS_IDENTIFY,
+		-1,
+		-1,
+	},
 
-		/* Radagast's Protections */
-		{
-			DRUID_RESIST_ELEC,
-			DRUID_RESIST_ACID,
-			DRUID_RESIST_POISON,
-			DRUID_RESISTANCE,
-			DRUID_HASTE_SELF,
-			DRUID_GLACIER,
-			-1,
-			-1,
-			-1,
-		},
+	/*Purifications and Healing*/
+	{
+		PRAYER_CURE_SERIOUS_WOUNDS2,
+		PRAYER_CURE_MORTAL_WOUNDS2,
+		PRAYER_HEALING,
+		PRAYER_RESTORATION,
+		PRAYER_REMEMBRANCE,
+		-1,
+		-1,
+		-1,
+		-1,
+	},
 
-		/* Melian's Reformations */
-		{
-			DRUID_FLICKER,
-			DRUID_WORD_OF_RECALL,
-			DRUID_HEALING,
-			DRUID_RESTORATION,
-			DRUID_REMEMBRANCE,
-			DRUID_SANDSTORM,
-			-1,
-			-1,
-			-1,
-		},
+	/*Holy Infusions*/
+	{
+		PRAYER_DISPEL_CURSE,
+		PRAYER_ENCHANT_WEAPON,
+		PRAYER_ENCHANT_ARMOUR,
+		PRAYER_ELEMENTAL_BRAND,
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+	},
 
-		/* Arda's Habitats */
-		{
-			DRUID_NATIVE_SAND,
-			DRUID_NATIVE_MUD,
-			DRUID_NATIVE_WATER,
-			DRUID_NATIVE_OIL,
-			DRUID_NATIVE_LAVA,
-			DRUID_CHANNEL_LIGHTNING,
-			-1,
-			-1,
-			-1,
-		},
+	/*Wrath of God*/
+	{
+		PRAYER_SUN_BURST,
+		PRAYER_DISPEL_EVIL2,
+		PRAYER_BANISH_EVIL,
+		PRAYER_WORD_OF_DESTRUCTION,
+		PRAYER_JUDGEMENT_OF_MANDOS,
+		-1,
+		-1,
+		-1,
+		-1,
+	},
+};
 
-		/* Natural Infusions */
-		{
-			DRUID_DISPEL_CURSE,
-			DRUID_RECHARGE_ITEM,
-			DRUID_BRAND_AMMUNITION,
-			DRUID_ENCHANT_ARMOUR,
-			DRUID_BRAND_WEAPON,
-			-1,
-			-1,
-			-1,
-			-1,
-		},
+/*** Druid spell books ***/
+const s16b spell_list_nppangband_druid[BOOKS_PER_REALM_ANGBAND][SPELLS_PER_BOOK] =
+{
+	/*Call of the Wild*/
+	{
+		DRUID_ACID_BOLT,
+		DRUID_CURE_LIGHT_WOUNDS,
+		DRUID_DETECT_LIFE,
+		DRUID_CALL_LIGHT,
+		DRUID_FIND_TRAPS_DOORS,
+		DRUID_SLOW_POISON,
+		DRUID_POISON_CLOUD,
+		DRUID_NATURAL_ESCAPE,
+		DRUID_BARKSKIN,
+	},
 
+	/* Environmental Adjurations */
+	{
+		DRUID_NOURISHMENT,
+		DRUID_TURN_STONE_TO_MUD,
+		DRUID_FROST_BEAM,
+		DRUID_CURE_POISON,
+		DRUID_TRAP_DOOR_DESTRUCTION,
+		DRUID_RESIST_HEAT_COLD,
+		DRUID_SPEAR_OF_LIGHT,
+		DRUID_FIRE_BEAM,
+		DRUID_STERILIZE,
+	},
 
-		/* Nature's Fury */
-		{
-			DRUID_WATER_CHAIN,
-			DRUID_CALL_HUORNS,
-			DRUID_MASTER_ELEMENTS,
-			DRUID_STEAL_POWERS,
-			-1,
-			-1,
-			-1,
-			-1,
-			-1,
-		}
-	}
+	/* Commanding Nature */
+	{
+		DRUID_EXTINGUISH,
+		DRUID_CLEAR_AREA,
+		DRUID_CURE_CRITICAL_WOUNDS,
+		DRUID_IDENTIFY,
+		DRUID_CLEAR_AIR,
+		DRUID_DETECT_TERRAIN,
+		DRUID_EARTHQUAKE,
+		DRUID_LIFE_DRAIN_BURST,
+		DRUID_CREATE_ELEMENTS,
+	},
 
+	/* Lore of Engagement */
+	{
+		DRUID_ELEMENTAL_BRAND,
+		DRUID_FROST_BALL,
+		DRUID_HEAL,
+		DRUID_DISPEL_LIFE,
+		DRUID_FIRE_BALL,
+		DRUID_DRAIN_LIFE_ARC,
+		DRUID_MASS_IDENTIFY,
+		-1,
+		-1,
+	},
+
+	/* Radagast's Protections */
+	{
+		DRUID_RESIST_ELEC,
+		DRUID_RESIST_ACID,
+		DRUID_RESIST_POISON,
+		DRUID_RESISTANCE,
+		DRUID_HASTE_SELF,
+		DRUID_GLACIER,
+		-1,
+		-1,
+		-1,
+	},
+
+	/* Melian's Reformations */
+	{
+		DRUID_FLICKER,
+		DRUID_WORD_OF_RECALL,
+		DRUID_HEALING,
+		DRUID_RESTORATION,
+		DRUID_REMEMBRANCE,
+		DRUID_SANDSTORM,
+		-1,
+		-1,
+		-1,
+	},
+
+	/* Arda's Habitats */
+	{
+		DRUID_NATIVE_SAND,
+		DRUID_NATIVE_MUD,
+		DRUID_NATIVE_WATER,
+		DRUID_NATIVE_OIL,
+		DRUID_NATIVE_LAVA,
+		DRUID_CHANNEL_LIGHTNING,
+		-1,
+		-1,
+		-1,
+	},
+
+	/* Natural Infusions */
+	{
+		DRUID_DISPEL_CURSE,
+		DRUID_RECHARGE_ITEM,
+		DRUID_BRAND_AMMUNITION,
+		DRUID_ENCHANT_ARMOUR,
+		DRUID_BRAND_WEAPON,
+		-1,
+		-1,
+		-1,
+		-1,
+	},
+
+	/* Nature's Fury */
+	{
+		DRUID_WATER_CHAIN,
+		DRUID_CALL_HUORNS,
+		DRUID_MASTER_ELEMENTS,
+		DRUID_STEAL_POWERS,
+		-1,
+		-1,
+		-1,
+		-1,
+		-1,
+	},
 };
 
 
@@ -2004,7 +2197,7 @@ option_entry options[OPT_MAX] =
 	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
 	{"birth_money",             "Birth: Start with more money and no equipment",FALSE },/* OPT_birth_money */
 	{"birth_simple_dungeons",   "Birth: Prevent unusual terrains or dungeons",	FALSE },/* OPT_birth_birth_simple_dungeons */
-	{NULL,NULL,FALSE},/* xxx */
+	{"birth_swap_weapons",   	"Birth: Replace bow slot with swap weapon slot",	FALSE },/* OPT_birth_swap_weapons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2068,7 +2261,7 @@ option_entry options[OPT_MAX] =
 	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
 	{"adult_birth_money",      	"Adult: Start with more money and no equipment",FALSE },/* OPT_adult_birth_money*/
 	{"adult_simple_dungeons",   "Adult: Prevent unusual terrains or dungeons",	FALSE },/* OPT_adult_birth_simple_dungeons */
-	{NULL,NULL,FALSE},/* xxx */
+	{"adult_swap_weapons",   	"Adult: Replace bow slot with swap weapon slot",	FALSE },/* OPT_adult_swap_weapons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2119,7 +2312,7 @@ option_entry options[OPT_MAX] =
 /*
  * Option screen interface
  */
-const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
+const byte option_page_nppangband[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
 	/*** Interface/Gameplay ***/
 
@@ -2216,6 +2409,137 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_xtra_artifacts,
 		OPT_birth_no_selling,
 		OPT_birth_simple_dungeons,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
+	},
+
+	/*** Cheat ***/
+
+	{
+		OPT_cheat_peek,
+		OPT_cheat_hear,
+		OPT_cheat_room,
+		OPT_cheat_xtra,
+		OPT_cheat_know,
+		OPT_cheat_live,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
+	}
+};
+
+/*
+ * Option screen interface
+ */
+const byte option_page_nppmoria[OPT_PAGE_MAX][OPT_PAGE_PER] =
+{
+	/*** Interface/Gameplay ***/
+
+	{
+		OPT_use_sound,
+		OPT_rogue_like_commands,
+		OPT_floor_query_flag,
+		OPT_carry_query_flag,
+		OPT_use_old_target,
+		OPT_always_pickup,
+		OPT_stack_force_notes,
+		OPT_stack_force_costs,
+		OPT_auto_display_lists,
+		OPT_easy_open,
+		OPT_easy_alter,
+		OPT_expand_inscribe,
+		OPT_mouse_movement,
+		OPT_mouse_buttons,
+		OPT_smart_cheat,
+		OPT_xchars_to_file,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
+	},
+
+	/*** Display ***/
+
+	{
+		OPT_hp_changes_color,
+		OPT_hilight_player,
+		OPT_center_player,
+		OPT_show_piles,
+		OPT_show_flavors,
+		OPT_view_yellow_light,
+		OPT_view_bright_light,
+		OPT_view_granite_light,
+		OPT_view_special_light,
+		OPT_view_perma_grids,
+		OPT_view_torch_grids,
+		OPT_mark_squelch_items,
+		OPT_animate_flicker,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
+	},
+
+	/* Warning */
+
+	{
+		OPT_disturb_move,
+		OPT_disturb_near,
+		OPT_disturb_detect,
+		OPT_disturb_state,
+		OPT_quick_messages,
+		OPT_auto_more,
+		OPT_ring_bell,
+		OPT_flush_failure,
+		OPT_flush_disturb,
+		OPT_verify_destroy,
+		OPT_notify_recharge,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
+	},
+
+	/*** Birth ***/
+
+	{
+		OPT_birth_money,
+		OPT_birth_take_notes,
+		OPT_birth_ironman,
+		OPT_birth_no_stores,
+		OPT_birth_no_stacking,
+		OPT_birth_no_selling,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE
@@ -3003,8 +3327,22 @@ cptr roguelike_home_letters =  "acfhmnoqruvyz13456790ABD";
 cptr standard_equip_letters =  "abcdefghijklmnopqrstuvw";
 cptr roguelike_equip_letters = "acdefgimopqrstuwvxzABCD";
 
+const brands_structure brands_info_nppangband[10] =
+{
+	{TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, 1, 1, "resist poison"},
+	{TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 4, 5, 1, "resist acid"},
+	{TR1_BRAND_ELEC, 3, RF3_IM_ELEC, (ELEMENT_WATER | ELEMENT_BWATER), 4, 5, 1, "resist electricity"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_LAVA), 5, 5, 1, "resist fire"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_FIRE | ELEMENT_BWATER), 4, 4, 1, "resist fire"},
+	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_WATER), 1, 1, 2, "resist fire"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_ICE), 5, 5, 1, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_WATER), 4, 4, 1, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_LAVA), 1, 1, 2, "resist cold"},
+	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_BMUD | ELEMENT_BWATER), 1, 1, 2,"resist cold"}
+};
 
-const slays_structure slays_info[11] =
+
+const slays_structure slays_info_nppangband[11] =
 {
 	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL, 	"animals"},
 	{TR1_SLAY_EVIL, 2, RF3_EVIL, 		"evil creatures"},
@@ -3020,23 +3358,33 @@ const slays_structure slays_info[11] =
 
 };
 
-
-const brands_structure brands_info[10] =
+/*
+ * This table is a hack, as it works differently than brands info for Angband.
+ * Only creatures who are succeptible to the element take extra damage.
+ */
+const slays_structure brands_info_nppmoria[4] =
 {
-	{TR1_BRAND_POIS, 3, RF3_IM_POIS, 0L, 1, 1, 1, "resist poison"},
-	{TR1_BRAND_ACID, 3, RF3_IM_ACID, ELEMENT_ACID, 4, 5, 1, "resist acid"},
-	{TR1_BRAND_ELEC, 3, RF3_IM_ELEC, (ELEMENT_WATER | ELEMENT_BWATER), 4, 5, 1, "resist electricity"},
-	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_LAVA), 5, 5, 1, "resist fire"},
-	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_FIRE | ELEMENT_BWATER), 4, 4, 1, "resist fire"},
-	{TR1_BRAND_FIRE, 3, RF3_IM_FIRE, (ELEMENT_WATER), 1, 1, 2, "resist fire"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_ICE), 5, 5, 1, "resist cold"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_WATER), 4, 4, 1, "resist cold"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_LAVA), 1, 1, 2, "resist cold"},
-	{TR1_BRAND_COLD, 3, RF3_IM_COLD, (ELEMENT_BMUD | ELEMENT_BWATER), 1, 1, 2,"resist cold"}
+	{TR1_BRAND_FIRE, 2, RF3_HURT_FIRE, "are susceptible to fire"},
+	{TR1_BRAND_COLD, 2, RF3_HURT_COLD, "are susceptible to cold"},
+	{TR1_BRAND_ACID, 2, RF3_HURT_ACID, "are susceptible to acid"},
+	{TR1_BRAND_POIS, 2, RF3_HURT_POIS, "are susceptible to poison"},
 };
 
-const mon_susceptibility_struct mon_suscept[2] =
+
+const slays_structure slays_info_nppmoria[4] =
+{
+	{TR1_SLAY_ANIMAL, 2, RF3_ANIMAL, 	"animals"},
+	{TR1_SLAY_EVIL, 2, RF3_EVIL, 		"evil creatures"},
+	{TR1_SLAY_UNDEAD, 3, RF3_UNDEAD,	"the undead"},
+	{TR1_SLAY_DRAGON, 4, RF3_DRAGON, 	"dragons"},
+};
+
+
+
+const mon_susceptibility_struct mon_suscept[4] =
 {
 	{TR1_BRAND_FIRE, RF3_HURT_FIRE, "fire"},
 	{TR1_BRAND_COLD, RF3_HURT_COLD, "cold"},
+	{TR1_BRAND_ACID, RF3_HURT_ACID, "acid"},
+	{TR1_BRAND_POIS, RF3_HURT_COLD, "poison"},
 };

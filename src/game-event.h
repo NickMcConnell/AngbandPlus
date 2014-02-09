@@ -7,27 +7,26 @@ typedef enum game_event_type
 {
 	EVENT_MAP = 0,		/* Some part of the map has changed. */
 
-	EVENT_STATS,  		/* One or more of the stats. */
-	EVENT_HP,	   	/* HP or MaxHP. */
-	EVENT_MANA,		/* Mana or MaxMana. */
-	EVENT_AC,		/* Armour Class. */
+	EVENT_STATS,		/* One or more of the stats. */
+	EVENT_HP,			/* HP or MaxHP. */
+	EVENT_MANA,			/* Mana or MaxMana. */
+	EVENT_AC,			/* Armour Class. */
 	EVENT_EXPERIENCE,	/* Experience or MaxExperience. */
 	EVENT_PLAYERLEVEL,	/* Player's level has changed */
 	EVENT_PLAYERTITLE,	/* Player's title has changed */
-	EVENT_GOLD,		/* Player's gold amount. */
+	EVENT_GOLD,			/* Player's gold amount. */
 	EVENT_MONSTERHEALTH,	/* Observed monster's health level. */
 	EVENT_DUNGEONLEVEL,	/* Dungeon depth */
-	EVENT_QUEST_TICKER, /* Update status of quest */
-	EVENT_FEELING, /* Update status of quest */
+	EVENT_QUEST_TICKER,	/* Update status of quest */
+	EVENT_FEELING,		/* Update status of quest */
 	EVENT_PLAYERSPEED,	/* Player's speed */
 	EVENT_RACE_CLASS,	/* Race or Class */
 	EVENT_STUDYSTATUS,	/* "Study" availability */
 	EVENT_STATUS,		/* Status */
 	EVENT_DETECTIONSTATUS,	/* Trap detection status */
-	EVENT_STATE,		/* The three 'R's: Resting, Repeating and
-				   Searching */
+	EVENT_STATE,		/* The three 'R's: Resting, Repeating and Searching */
 	EVENT_RESISTANCES,	/*Player resistances */
-	EVENT_MOUSEBUTTONS,     /* Displayed mouse buttons need changing */
+	EVENT_MOUSEBUTTONS,	/* Displayed mouse buttons need changing */
 
 	EVENT_PLAYERMOVED,
 

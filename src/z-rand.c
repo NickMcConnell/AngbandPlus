@@ -47,7 +47,7 @@
  */
 
 
-
+#include "angband.h"
 #include "z-rand.h"
 
 
@@ -517,10 +517,8 @@ s16b m_bonus(int max, int level)
 {
 	int bonus, stand, extra, value;
 
-
 	/* Paranoia -- enforce maximal "level" */
 	if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
-
 
 	/* The "bonus" moves towards the max */
 	bonus = ((max * level) / MAX_DEPTH);

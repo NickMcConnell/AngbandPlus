@@ -706,6 +706,9 @@ s16b get_mon_num(int level, int y, int x, byte mp_flags)
 				if (mp_flags & (MPLACE_NO_MIMIC)) continue;
 			}
 
+			/* Hack -- some monsters can only be placed via treatment */
+			if (r_ptr->flags2 & (RF2_SPECIAL)) continue;
+
 			/* Hack -- "unique" monsters must be "unique" */
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
@@ -933,11 +936,15 @@ void update_mon_sidebar_list(void)
 	/* First list the targeted monster, if there is one */
 	if (p_ptr->health_who)
 	{
-		sidebar_monsters[sidebar_count] = p_ptr->health_who;
-		sidebar_count++;
+		/* Must be visible */
+	 	if (mon_list[p_ptr->health_who].ml)
+	 	{
+	 		sidebar_monsters[sidebar_count] = p_ptr->health_who;
+	 		sidebar_count++;
 
-		/* We are tracking this one */
-		mon_list[p_ptr->health_who].sidebar = TRUE;
+	 		/* We are tracking this one */
+	 		mon_list[p_ptr->health_who].sidebar = TRUE;
+	 	}
 	}
 
 	/* Scan the list of monsters on the level */
@@ -1142,11 +1149,10 @@ void display_monlist(void)
 			clear_from(0);
 		Term_gotoxy(0, 0);
 		text_out_to_screen(TERM_ORANGE,
-			"Your hallucinations are too wild to see things clearly.");
+			"You can't believe what you are seeing! It's like a dream!");
 
 		return;
 	}
-
 
 	/* Clear the term if in a subwindow, set x otherwise */
 	if (in_term)
@@ -1213,8 +1219,14 @@ void display_monlist(void)
 	/* Note no visible monsters at all */
 	if (!total_count)
 	{
+		/* Player is Blind */
+		if (p_ptr->timed[TMD_BLIND])
+		{
+			c_prt(TERM_ORANGE, "You can't see anything!", 0, 0);
+		}
+
 		/* Clear display and print note */
-		c_prt(TERM_SLATE, "You see no monsters.", 0, 0);
+		else c_prt(TERM_SLATE, "You see no monsters.", 0, 0);
 		if (!in_term)
 		    Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 
@@ -2284,20 +2296,25 @@ static s16b get_mimic_k_idx(int r_idx)
 
 		case '$':
 		{
-			cptr name = r_ptr->name_full;
+			char mon_name[MAX_MON_LONG_NAME];
+
+			my_strcpy(mon_name, r_ptr->name_full, sizeof(mon_name));
+
+			/* make it all lowecase for simplicity of checking */
+			string_lower(mon_name);
 
 			/* Look for textual clues */
-			if (strstr(name, " copper "))     	return (lookup_kind(TV_GOLD, SV_GOLD_COPPER));
-			if (strstr(name, " silver "))     	return (lookup_kind(TV_GOLD, SV_GOLD_SILVER));
-			if (strstr(name, " garnet"))       	return (lookup_kind(TV_GOLD, SV_GOLD_GARNET));
-			if (strstr(name, " gold"))       	return (lookup_kind(TV_GOLD, SV_GOLD_GOLD));
-			if (strstr(name, " mithril"))    	return (lookup_kind(TV_GOLD, SV_GOLD_MITHRIL));
-			if (strstr(name, " opal"))    		return (lookup_kind(TV_GOLD, SV_GOLD_OPALS));
-			if (strstr(name, " sapphire"))    	return (lookup_kind(TV_GOLD, SV_GOLD_SAPPHIRES));
-			if (strstr(name, " ruby"))    		return (lookup_kind(TV_GOLD, SV_GOLD_RUBIES));
-			if (strstr(name, " emerald"))    	return (lookup_kind(TV_GOLD, SV_GOLD_EMERALD));
-			if (strstr(name, " diamond"))    	return (lookup_kind(TV_GOLD, SV_GOLD_DIAMOND));
-			if (strstr(name, " adamantite ")) 	return (lookup_kind(TV_GOLD, SV_GOLD_ADAMANTITE));
+			if (strstr(mon_name, " copper "))     	return (lookup_kind(TV_GOLD, SV_GOLD_COPPER));
+			if (strstr(mon_name, " silver "))     	return (lookup_kind(TV_GOLD, SV_GOLD_SILVER));
+			if (strstr(mon_name, " garnet"))       	return (lookup_kind(TV_GOLD, SV_GOLD_GARNET));
+			if (strstr(mon_name, " gold"))       	return (lookup_kind(TV_GOLD, SV_GOLD_GOLD));
+			if (strstr(mon_name, " mithril"))    	return (lookup_kind(TV_GOLD, SV_GOLD_MITHRIL));
+			if (strstr(mon_name, " opal"))    		return (lookup_kind(TV_GOLD, SV_GOLD_OPALS));
+			if (strstr(mon_name, " sapphire"))    	return (lookup_kind(TV_GOLD, SV_GOLD_SAPPHIRES));
+			if (strstr(mon_name, " ruby"))    		return (lookup_kind(TV_GOLD, SV_GOLD_RUBIES));
+			if (strstr(mon_name, " emerald"))    	return (lookup_kind(TV_GOLD, SV_GOLD_EMERALD));
+			if (strstr(mon_name, " diamond"))    	return (lookup_kind(TV_GOLD, SV_GOLD_DIAMOND));
+			if (strstr(mon_name, " adamantite ")) 	return (lookup_kind(TV_GOLD, SV_GOLD_ADAMANTITE));
 			break;
 		}
 
@@ -3242,21 +3259,31 @@ void calc_monster_speed(int y, int x)
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] == 0) return;
 
+	if (game_mode == GAME_NPPMORIA)
+	{
+		speed = r_ptr->r_speed;
+		if (m_ptr->m_timed[MON_TMD_SLOW]) speed--;
+		if (m_ptr->m_timed[MON_TMD_FAST]) speed++;
+		m_ptr->m_speed = speed;
+
+		return;
+	}
+
 	/* Get the monster base speed */
-	speed = r_ptr->speed;
+	speed = r_ptr->r_speed;
 
 	/*note: a monster should only have one of these flags*/
 	if (m_ptr->mflag & (MFLAG_SLOWER))
 	{
 		/* Allow some small variation each time to make pillar dancing harder */
-		i = extract_energy[r_ptr->speed] / 10;
-		speed -= rand_spread(0, i);
+		i = calc_energy_gain(r_ptr->r_speed) / 10;
+		speed -= rand_range(0, i);
 	}
 	else if (m_ptr->mflag & (MFLAG_FASTER))
 	{
 		/* Allow some small variation each time to make pillar dancing harder */
-		i = extract_energy[r_ptr->speed] / 10;
-		speed += rand_spread(0, i);
+		i = calc_energy_gain(r_ptr->r_speed) / 10;
+		speed += rand_range(0, i);
 	}
 
 	/*factor in the hasting and slowing counters*/
@@ -3264,7 +3291,7 @@ void calc_monster_speed(int y, int x)
 	if (m_ptr->m_timed[MON_TMD_SLOW]) speed -= 10;
 
 	/*set the speed and return*/
-	m_ptr->mspeed = speed;
+	m_ptr->m_speed = speed;
 
 	return;
 }
@@ -3335,7 +3362,7 @@ static bool place_monster_one(int y, int x, int r_idx, byte mp_flags)
 	if (!cave_exist_mon(r_ptr, y, x, FALSE, FALSE, FALSE)) return (FALSE);
 
 	/* Paranoia */
-	if (!r_ptr->speed) return (FALSE);
+	if (!r_ptr->r_speed) return (FALSE);
 
 	/* Limit the population */
 	if (r_ptr->cur_num >= r_ptr->max_num)
@@ -3362,7 +3389,13 @@ static bool place_monster_one(int y, int x, int r_idx, byte mp_flags)
 				if (q_ptr->mon_idx == r_idx)
 				{
 					/*Is it at the proper depth?*/
-					if(p_ptr->depth != q_ptr->base_level)  return (FALSE);
+					/* Special placement of the moria monsters */
+					if (game_mode == GAME_NPPMORIA)
+					{
+						if(p_ptr->depth < q_ptr->base_level)	return (FALSE);
+					}
+
+					else if(p_ptr->depth != q_ptr->base_level)  return (FALSE);
 
 				}
 			}
@@ -3970,7 +4003,7 @@ bool alloc_monster(int dis, byte mp_flags)
 			msg_print("Warning! Could not allocate a new monster.");
 		}
 
-		return FALSE;
+		return (FALSE);
 	}
 
 	/* Pick a monster */
@@ -4477,6 +4510,7 @@ static const char *msg_repository[MAX_MON_MSG + 1] =
 	/* From project_m */ 		/* MON_MSG_DIE */
 	"die[s].",   				/* MON_MSG_DIE  */
 	"[is|are] destroyed.",		/* MON_MSG_DESTROYED */
+	"[is|are] embedded in the wall.",	/* MON_MSG_BURIED_ROCK */
 	"resist[s] a lot.",			/* MON_MSG_RESIST_A_LOT */
 	"[is|are] hit hard.",		/* MON_MSG_HIT_HARD */
 	"resist[s].",				/* MON_MSG_RESIST */
@@ -4494,6 +4528,8 @@ static const char *msg_repository[MAX_MON_MSG + 1] =
 	"dissolve[s]!",				/* MON_MSG_DISSOLVE */
 	"catch[es] fire!",			/* MON_MSG_CATCH_FIRE */
 	"[is|are] badly frozen.", 	 /* MON_MSG_BADLY_FROZEN */
+	"[is|are] badly burned.", 	 /* MON_MSG_BADLY_BURNED */
+	"[is|are] severely poisoned.", 	 /* MON_MSG_BADLY_POISONED */
 	"shudder[s].",				/* MON_MSG_SHUDDER */
 	"become[s] aware of your crafty abilities.",/* MON_MSG_AWARE_OF_CRAFTY_ABILITIES */
 	"take[s] heed of your cunning tactics.",/* MON_MSG_AWARE_OF_CUNNING_TACTICS  */
@@ -4517,8 +4553,10 @@ static const char *msg_repository[MAX_MON_MSG + 1] =
 	"flee[s] in terror!",		/* MON_MSG_FLEE_IN_TERROR */
 	"[is|are] no longer afraid.",/* MON_MSG_NOT_AFRAID */
 	"~You hear [a|several] scream[|s] of agony!",/* MON_MSG_MORIA_DEATH */
-	"disintegrates!",		/* MON_MSG_DISENTEGRATES */
+	"disintegrate[s]!",		/* MON_MSG_DISENTEGRATES */
+	"melt[s] away.",		/* MON_MSG_MELTS_AWAY */
 	"freeze[s] and shatter[s].",  /* MON_MSG_FREEZE_SHATTER */
+	"choke[s] and die[s].",  /* MON_MSG_CHOKE_DIE */
 	"lose[s] some mana!",		/* MON_MSG_MANA_DRAIN */
 	"~There [is|are] [a|several] mimic[|s]!",		/* MON_MSG_MIMIC_REVEAL */
 	"appear[s]!",				/* MON_MSG_MIMIC_APPEARS */
@@ -4538,6 +4576,15 @@ void message_pain(int m_idx, int dam)
 {
 	long oldhp, newhp, tmp;
 	int percentage;
+	bool is_jelly = FALSE;
+	bool is_hound = FALSE;
+	bool is_reptile = FALSE;
+	bool is_feline = FALSE;
+	bool is_insect = FALSE;
+	bool is_bird = FALSE;
+	bool is_skeleton = FALSE;
+	bool is_zombie = FALSE;
+	bool is_other = FALSE;
 
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -4563,9 +4610,34 @@ void message_pain(int m_idx, int dam)
 	tmp = (newhp * 100L) / oldhp;
 	percentage = (int)(tmp);
 
+	/* Figure out which type of creature this is */
+	if (game_mode == GAME_NPPMORIA)
+	{
+		if (strchr("eJmQCOw", r_ptr->d_char)) is_jelly = TRUE;
+		if (strchr("j", r_ptr->d_char)) is_hound = TRUE;
+		if (strchr("cfR", r_ptr->d_char)) is_reptile = TRUE;
+		if (r_ptr->flags1 & (RF1_CHAR_MIMIC)) is_reptile = TRUE;
+		if (strchr("AaFKltS", r_ptr->d_char)) is_insect = TRUE;
+		if (strchr("s", r_ptr->d_char)) is_skeleton = TRUE;
+		if (strchr("zM", r_ptr->d_char)) is_zombie = TRUE;
+		if (strchr("XUbqr,", r_ptr->d_char)) is_other = TRUE;
+	}
+	else
+	{
+		if (strchr("ejmvQw", r_ptr->d_char)) is_jelly = TRUE;
+		if (strchr("CZ", r_ptr->d_char)) is_hound = TRUE;
+		if (strchr("cR", r_ptr->d_char)) is_reptile = TRUE;
+		if (r_ptr->flags1 & (RF1_CHAR_MIMIC)) is_reptile = TRUE;
+		if (strchr("f", r_ptr->d_char)) is_feline = TRUE;
+		if (strchr("alFIKS", r_ptr->d_char)) is_insect = TRUE;
+		if (strchr("B", r_ptr->d_char)) is_bird = TRUE;
+		if (strchr("s", r_ptr->d_char)) is_skeleton = TRUE;
+		if (strchr("z", r_ptr->d_char)) is_zombie = TRUE;
+		if (strchr("XMbqr,", r_ptr->d_char)) is_other = TRUE;
+	}
 
 	/* Floating Eyes, Jelly's, Mold's, Vortex's, Quthl's */
-	if (strchr("ejmvQ", r_ptr->d_char))
+	if (is_jelly)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_BARELY_NOTICE;
@@ -4584,7 +4656,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Dogs and Hounds */
-	else if (strchr("CZ", r_ptr->d_char))
+	else if (is_hound)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_SHRUG_OFF;
@@ -4603,8 +4675,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Snakes, Reptiles, Centipedes, Mimics */
-	else if (strchr("cJR", r_ptr->d_char) ||
-	         r_ptr->flags1 & (RF1_CHAR_MIMIC))
+	else if (is_reptile)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_BARELY_NOTICE;
@@ -4623,7 +4694,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Felines */
-	else if (strchr("f", r_ptr->d_char))
+	else if (is_feline)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_SHRUG_OFF;
@@ -4642,7 +4713,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Ants, Lice, Flies, Insects, Beetles, Spiders */
-	else if (strchr("alFIKS", r_ptr->d_char))
+	else if (is_insect)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_IGNORE_ATTACK;
@@ -4661,7 +4732,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Birds */
-	else if (strchr("B", r_ptr->d_char))
+	else if (is_bird)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_SHRUG_OFF;
@@ -4680,7 +4751,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Skeletons (ignore, rattle, stagger) */
-	else if (strchr("s", r_ptr->d_char))
+	else if (is_skeleton)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_IGNORE_ATTACK;
@@ -4699,7 +4770,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Zombies and Mummies (ignore, groan, stagger) */
-	else if (strchr("z", r_ptr->d_char))
+	else if (is_zombie)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_IGNORE_ATTACK;
@@ -4718,7 +4789,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
-	else if (strchr("XMbqrt", r_ptr->d_char))
+	else if (is_other)
 	{
 		if (percentage > 95)
 			msg_code = MON_MSG_IGNORE_ATTACK;
@@ -5350,6 +5421,7 @@ void flush_monster_messages(void)
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->state.skills[SKILL_SAVE] >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
+			break;
 		}
 
 		/* Archery attacks don't learn anything */
@@ -5420,6 +5492,7 @@ void flush_monster_messages(void)
 			else m_ptr->smart &= ~(SM_RES_SOUND);
 			if (p_ptr->state.resist_confu) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
+			break;
 		}
 
 		/*

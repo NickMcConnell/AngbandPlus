@@ -30,10 +30,10 @@ static void dump_flags(FILE *fff, u32b flag, int whatflag, int counter)
 
 	u32b is_true = 0x00000001;
 
-	/*dump the monster/object/artifact number*/
+	/* dump the monster/object/artifact number */
 	fprintf(fff, "flags%d:%d:", whatflag, counter);
 
-	/* using 32 assumes a u32b flag size*/
+	/* using 32 assumes a u32b flag size */
 	for (i = 1; i <= 32; i++)
 	{
 
@@ -139,7 +139,7 @@ void write_r_info_txt(void)
 		/* Write New/Number/Name */
 		fprintf(fff, "N:%d:%d:%s\n", i, i, r_name + r_ptr->name);
 
-		/*get the color name*/
+		/* get the color name */
 		color_name = get_ext_color_name(r_ptr->d_attr);
 
 		/* Write G: line */
@@ -155,7 +155,6 @@ void write_r_info_txt(void)
 			continue;
 		}
 
-
 		/* Write I: line */
 		fprintf(fff, "I:%d:%d:%dd%d:%d:%d:%d\n", i,
 		r_ptr->speed, r_ptr->hdice, r_ptr->hside,
@@ -168,7 +167,6 @@ void write_r_info_txt(void)
 		/* Write blows */
 		for(j = 0; j < 4; j++)
 		{
-
 			/* Write this blow */
 			fprintf(fff, format("B-%d:%d:%d:%d:%dd%d\n", j, i,
 				r_ptr->blow[j].method, r_ptr->blow[j].effect,
@@ -199,7 +197,6 @@ void write_r_info_txt(void)
 
 		dump_flags(fff, r_ptr->flags7, 7, i);
 
-
 		/* Acquire the description */
 		desc = r_text + r_ptr->text;
 		dlen = strlen(desc);
@@ -207,7 +204,6 @@ void write_r_info_txt(void)
 		/* Write Description */
 		for (j = 0; j < dlen;)
 		{
-
 			char buf[160], *t;
 
 			/* Initialize */
@@ -269,6 +265,7 @@ void write_r_info_txt(void)
 	fclose(fff);
 }
 
+
 /*
  * Dump the object information a format easily parsed by a spreadsheet.
  *
@@ -324,7 +321,6 @@ void write_o_info_txt(void)
 	/* Read and print out all the objects */
 	for (i = 0; i < z_info->k_max; i++)
 	{
-
 		int counter = 1;
 
 		cptr color_name;
@@ -353,7 +349,6 @@ void write_o_info_txt(void)
 		/*don't do the rest for the pile symbol*/
 		if (i == 0)
 		{
-
 			/* Write G: line */
 			fprintf(fff, "\n\n\n");
 			continue;
@@ -397,7 +392,6 @@ void write_o_info_txt(void)
 		/* Write Description */
 		for (j = 0; j < dlen;)
 		{
-
 			char buf[160], *t;
 
 			/* Initialize */
@@ -459,6 +453,7 @@ void write_o_info_txt(void)
 	fclose(fff);
 }
 
+
 /*
  * Dump the ego-item information in a format easily parsed by a spreadsheet.
  *
@@ -514,7 +509,6 @@ void write_e_info_txt(void)
 	/* Read and print out all the objects */
 	for (i = 0; i < z_info->e_max; i++)
 	{
-
 		int counter = 1;
 
 		/* Get the ego-item */
@@ -570,7 +564,6 @@ void write_e_info_txt(void)
 		/* Write Description */
 		for (j = 0; j < dlen;)
 		{
-
 			char buf[160], *t;
 
 			/* Initialize */
@@ -632,6 +625,7 @@ void write_e_info_txt(void)
 	fclose(fff);
 }
 
+
 /*
  * Use the monster racial information to a format easily parsed by a spreadsheet.
  *
@@ -688,7 +682,6 @@ void write_f_info_txt(void)
 	/* Read and print out all the features */
 	for (i = 0; i < z_info->f_max; i++)
 	{
-
 		cptr color_name;
 
 		int counter = 1;
@@ -807,7 +800,6 @@ void write_f_info_txt(void)
 		/* Write Description */
 		for (j = 0; j < dlen;)
 		{
-
 			char buf[160], *t;
 
 			/* Initialize */
@@ -881,8 +873,6 @@ void write_a_info_txt(void)
 	int dlen;
 
 	char buf[1024];
-
-
 
 	int fd;
 	FILE *fff = NULL;
@@ -1003,7 +993,6 @@ void write_a_info_txt(void)
 		/* Write Description */
 		for (j = 0; j < dlen;)
 		{
-
 			char buf[160], *t;
 
 			/* Initialize */
@@ -1065,7 +1054,10 @@ void write_a_info_txt(void)
 	fclose(fff);
 }
 
-/*used to check the power of artifacts.  Currently unused*/
+
+/*
+ * used to check the power of artifacts.  Currently unused
+ */
 void dump_artifact_power(void)
 {
 	int i;
@@ -1143,13 +1135,12 @@ void dump_artifact_power(void)
 
 		/*dump the information*/
 		fprintf(fff, "%9d is the power of %55s, tval is %6d \n", power, o_name, a_ptr->tval);
-
 	}
 
 	/* Done */
 	fclose(fff);
-
 }
+
 
 /*
  * Use the monster racial information to a format easily parsed by a spreadsheet.
@@ -1203,7 +1194,6 @@ void write_mon_power(void)
 	/* Read and print out all the monsters */
 	for (i = 0; i < z_info->r_max; i++)
 	{
-
 		/* Get the monster */
 		r_ptr = &r_info[i];
 
@@ -1225,7 +1215,7 @@ void write_mon_power(void)
 	fprintf(fff, "\n\n");
 
 	/*first clear the tables*/
-	for (i = 0; i < MAX_DEPTH; i++)
+	for (i = 0; i < MAX_DEPTH_ALL; i++)
 	{
 		/* Write New/Number/Name */
 		fprintf(fff, "lvl: %3d unique_ave_power:%9d creature_ave_power:%9d \n", i,
@@ -1236,7 +1226,6 @@ void write_mon_power(void)
 	/* Done */
 	fclose(fff);
 }
-
 
 
 #endif /*ALLOW_DATA_DUMP*/

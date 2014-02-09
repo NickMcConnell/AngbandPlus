@@ -138,7 +138,7 @@
 
 # Version stamp (required)
 
-V:6.1.0
+V:7.0.0
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -6319,7 +6319,7 @@ D:It is a towering glowing form of molten hate.
 N:443:Alatar the Blue
 A:AlatarTBlue
 G:A:b
-I:125:48d100:100:100:0
+I:125:48d100:40:100:10
 W:65:1:150:34000
 B:HIT:WOUND:8d8
 B:HIT:WOUND:8d8
@@ -7374,7 +7374,7 @@ D:A massive elephantine form with eyes twisted by madness.
 N:501:Pallando the Blue
 A:PallandoBlue
 G:A:b
-I:120:40d100:100:100:0
+I:120:40d100:40:100:10
 W:55:2:135:32000
 B:HIT:EXP_80:8d5
 B:HIT:EXP_80:8d5
@@ -7678,7 +7678,7 @@ D: down its length.
 N:517:Radagast the Brown
 A:Radagast
 G:A:u1
-I:115:30d100:100:100:0
+I:115:30d100:60:100:10
 W:45:4:120:30000
 B:HIT:UN_BONUS:8d4
 B:HIT:UN_BONUS:8d4
@@ -11421,7 +11421,7 @@ D: adventurers realise of the deception is when the book opens and
 D: starts casting deadly spells at them.
 
 
-N:694:Dragon armor Mimic
+N:694:Dragon armor mimic
 A:DragArmMimic
 G:[:v1
 I:130:50d100:5:175:10

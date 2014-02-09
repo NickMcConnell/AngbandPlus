@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:6.1.0
+V:7.0.0
 
 # Plain Gold Ring     Fixed - The One Ring
 N:1:45:37

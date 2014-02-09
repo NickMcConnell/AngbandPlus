@@ -21,7 +21,6 @@
 #include "cmds.h"
 
 
-
 /*** Utility bits and bobs ***/
 
 /*
@@ -68,9 +67,13 @@ static int check_devices(object_type *o_ptr)
 	return TRUE;
 }
 
+
 /*** Inscriptions ***/
 
-/* Remove inscription */
+
+/*
+ * Remove inscription
+ */
 void do_cmd_uninscribe(cmd_code code, cmd_arg args[])
 {
 	object_type *o_ptr = object_from_item_idx(args[0].item);
@@ -115,7 +118,6 @@ void do_cmd_uninscribe(cmd_code code, cmd_arg args[])
 		if (get_check(tmp_val)) remove_autoinscription(o_ptr->k_idx);
 	}
 
-
 	msg_print("Inscription removed.");
 
 	o_ptr->obj_note = 0;
@@ -124,7 +126,10 @@ void do_cmd_uninscribe(cmd_code code, cmd_arg args[])
 	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
 }
 
-/* Add inscription */
+
+/*
+ * Add inscription
+ */
 void do_cmd_inscribe(cmd_code code, cmd_arg args[])
 {
 	object_type *o_ptr = object_from_item_idx(args[0].item);
@@ -135,22 +140,14 @@ void do_cmd_inscribe(cmd_code code, cmd_arg args[])
 	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
 }
 
-void obj_inscribe(object_type *o_ptr, int item)
+
+/*
+ * Inscribe a given item
+ */
+static void obj_inscribe_aux(object_type *o_ptr)
 {
 	char o_name[80];
 	char tmp[80] = "";
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
 
 	/* Describe the activity */
 	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
@@ -218,6 +215,28 @@ void obj_inscribe(object_type *o_ptr, int item)
 }
 
 
+/*
+ * Inscribe an item
+ */
+void obj_inscribe(object_type *o_ptr, int item)
+{
+	/* FIXME The passed value of o_ptr is always overwritten before use */
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* inscribe the item */
+	obj_inscribe_aux(o_ptr);
+}
 
 
 /*** Examination ***/
@@ -230,9 +249,13 @@ void obj_examine(object_type *o_ptr, int item)
 	object_info_screen(o_ptr);
 }
 
+
 /*** Taking off/putting on ***/
 
-/* Take off an item */
+
+/*
+ * Take off an item
+ */
 void do_cmd_takeoff(cmd_code code, cmd_arg args[])
 {
 	int item = args[0].item;
@@ -254,7 +277,10 @@ void do_cmd_takeoff(cmd_code code, cmd_arg args[])
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE / 2;
 }
 
-/* Wield or wear an item */
+
+/*
+ * Wield or wear an item
+ */
 void do_cmd_wield(cmd_code code, cmd_arg args[])
 {
 	object_type *equip_o_ptr;
@@ -353,7 +379,10 @@ void do_cmd_wield(cmd_code code, cmd_arg args[])
 
 }
 
-/* Drop an item */
+
+/*
+ * Drop an item
+ */
 void do_cmd_drop(cmd_code code, cmd_arg args[])
 {
 	int item = args[0].item;
@@ -451,7 +480,142 @@ static void obj_wield(object_type *o_ptr, int item)
 	cmd_insert(CMD_WIELD, item, slot);
 }
 
-/* Peruse spells in a book */
+static void swap_weapons(void)
+{
+	object_type *o_ptr = &inventory[INVEN_MAIN_WEAPON];
+	object_type *j_ptr = &inventory[INVEN_SWAP_WEAPON];
+	object_type object_type_body;
+	object_type *i_ptr = & object_type_body;
+	char o_name[80];
+	cptr act;
+
+	/* Not holding anything */
+	if ((!o_ptr->k_idx) && (!j_ptr->k_idx))
+	{
+		msg_print("But you are wielding no weapons.");
+		return;
+	}
+
+	/* Can't swap because of a cursed weapon */
+	if (cursed_p(o_ptr))
+	{
+		object_desc(o_name, sizeof(o_name), o_ptr,  ODESC_BASE);
+		msg_format("The %s you are %s appears to be cursed.", o_name,  describe_use(INVEN_MAIN_WEAPON));
+		return;
+	}
+
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+
+	/* Give the player a message for teh item they are taking off */
+	if (o_ptr->k_idx)
+	{
+		/* The player took off a bow */
+		if (obj_is_bow(o_ptr))
+		{
+			act = "You were shooting";
+		}
+
+		/* Took off weapon */
+		else act = "You were wielding";
+
+		/* Describe the object */
+		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+		msg_format("%s %s (%c).", act, o_name, index_to_label(INVEN_SWAP_WEAPON));
+	}
+
+	/* Make a record of the primary weapon, and wipe it */
+	object_copy(i_ptr, o_ptr);
+	object_wipe(o_ptr);
+
+	/* Insert the swap weapon if there is one */
+	if (j_ptr->k_idx)
+	{
+		wield_item(j_ptr, INVEN_SWAP_WEAPON, INVEN_MAIN_WEAPON);
+	}
+
+	/* if a previous weapon, place it in the secondary weapon slot */
+	if (i_ptr->k_idx)
+	{
+		object_copy(j_ptr, i_ptr);
+	}
+
+	/* Recalculate bonuses, torch, mana */
+	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA | PU_NATIVE);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
+}
+
+/* Search the backpack for a weapon with @x and wield it*/
+static void wield_swap_weapon(void)
+{
+	int i;
+
+	object_type *o_ptr = &inventory[INVEN_MAIN_WEAPON];
+
+	/* Can't swap because of a cursed weapon */
+	if (cursed_p(o_ptr))
+	{
+		char o_name[80];
+
+		object_desc(o_name, sizeof(o_name), o_ptr,  ODESC_BASE);
+		msg_format("The %s you are %s appears to be cursed.", o_name,  describe_use(INVEN_MAIN_WEAPON));
+		return;
+	}
+
+	/* Check every object */
+	for (i = 0; i < INVEN_MAX_PACK; ++i)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->obj_note) continue;
+
+		if(!obj_is_weapon(o_ptr)) continue;
+
+		/* Look for '@x' */
+		if(!strstr(quark_str(o_ptr->obj_note), "@x")) continue;
+
+		/* Wield it */
+		wield_item(o_ptr, i, INVEN_MAIN_WEAPON);
+
+		p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+
+		/* Recalculate bonuses, torch, mana */
+		p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA | PU_NATIVE);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
+
+		/* We are done */
+		return;
+	}
+
+	/* Didn't find anything */
+	msg_print("Please inscribe a weapon with '@x' in order to swap it.");
+}
+
+/*
+ * Depending on game options, either swap weapons between the main weapon
+ * slot and the swap weapon slot, or search for weapon with the @x inscription and wield it
+ */
+void do_cmd_swap_weapon(cmd_code code, cmd_arg args[])
+{
+	(void)code;
+	(void)args;
+
+	if (adult_swap_weapons) swap_weapons();
+	else wield_swap_weapon();
+}
+
+void textui_cmd_swap_weapon(void)
+{
+	cmd_insert(CMD_SWAP);
+}
+
+
+/*
+ * Peruse spells in a book
+ */
 void obj_browse(object_type *o_ptr, int item)
 {
 	(void)item;
@@ -460,8 +624,9 @@ void obj_browse(object_type *o_ptr, int item)
 }
 
 
-
-/* Study a book to gain a new spell */
+/*
+ * Study a book to gain a new spell
+ */
 void obj_study(object_type *o_ptr, int item)
 {
 	/* Track the object kind */
@@ -485,7 +650,9 @@ void obj_study(object_type *o_ptr, int item)
 }
 
 
-/* Helper function to help spells that target traps (disarming, etc...) */
+/*
+ * Helper function to help spells that target traps (disarming, etc...)
+ */
 static bool is_trap_spell(byte spell_book, int spell)
 {
 	if (spell_book == TV_MAGIC_BOOK)
@@ -528,11 +695,12 @@ void obj_cast(object_type *o_ptr, int item)
 		return;
 
 	cmd_insert(CMD_CAST, spell, dir);
-
 }
 
 
-/* Determine if the player can read scrolls. */
+/*
+ * Determine if the player can read scrolls.
+ */
 static bool player_can_read(void)
 {
 	if (p_ptr->timed[TMD_BLIND])
@@ -557,6 +725,9 @@ static bool player_can_read(void)
 	return TRUE;
 }
 
+/*
+ * Eat something
+ */
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
 	/* Analyze the food */
@@ -735,8 +906,38 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+		case SV_FOOD_FIRST_AID:
+		{
+			if (hp_player(damroll(1, 6))) *ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_MINOR_CURES:
+		{
+			if (hp_player(damroll(2, 6))) *ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_LIGHT_CURES:
+		{
+			if (hp_player(damroll(3, 6))) *ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_RESTORATION:
+		{
+			if (hp_player(damroll(3, 6))) *ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_MAJOR_CURES:
+		{
+			if (hp_player(damroll(3, 12))) *ident = TRUE;
+			break;
+		}
 
 		case SV_FOOD_RATION:
+		case SV_FOOD_FINE_MUSH:
 		case SV_FOOD_SLIME_MOLD:
 		{
 			msg_print("That tastes good.");
@@ -762,10 +963,11 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 }
 
 
+/*
+ * Quaff a potion
+ */
 static bool quaff_potion(object_type *o_ptr, bool *ident)
 {
-
-
 	/* Analyze the potion */
 	switch (o_ptr->sval)
 	{
@@ -1002,14 +1204,31 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_HEROISM:
 		{
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if (!p_ptr->timed[TMD_HERO])
+				{
+					p_ptr->chp +=10;
+					p_ptr->mhp +=10;
+				}
+			}
 			if (hp_player(10)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
 			if (inc_timed(TMD_HERO, randint(25) + 25, TRUE)) *ident = TRUE;
+
 			break;
 		}
 
 		case SV_POTION_BERSERK_STRENGTH:
 		{
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if (!p_ptr->timed[TMD_SHERO])
+				{
+					p_ptr->mhp +=15;
+					p_ptr->chp +=15;
+				}
+			}
 			if (hp_player(30)) *ident = TRUE;
 			if (clear_timed(TMD_AFRAID, TRUE)) *ident = TRUE;
 			if (inc_timed(TMD_SHERO, randint(25) + 25, TRUE)) *ident = TRUE;
@@ -1018,7 +1237,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(3, 8))) *ident = TRUE;
+			int dam_dice = 3;
+			int dam_side = 8;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam_dice = 2;
+				dam_side = 7;
+			}
+
+			if (hp_player(damroll(dam_dice, dam_side))) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
 			if (set_cut(p_ptr->timed[TMD_CUT] - 10)) *ident = TRUE;
 			break;
@@ -1026,7 +1254,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(5, 10))) *ident = TRUE;
+			int dam_dice = 5;
+			int dam_side = 10;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam_dice = 4;
+				dam_side = 7;
+			}
+
+			if (hp_player(damroll(dam_dice, dam_side))) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED, TRUE)) *ident = TRUE;
 			if (set_cut((p_ptr->timed[TMD_CUT] / 2) - 50)) *ident = TRUE;
@@ -1035,7 +1272,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(8, 10))) *ident = TRUE;
+			int dam_dice = 8;
+			int dam_side = 10;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam_dice = 6;
+				dam_side = 7;
+			}
+
+			if (hp_player(damroll(dam_dice, dam_side))) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED, TRUE)) *ident = TRUE;
 			if (clear_timed(TMD_POISONED, TRUE)) *ident = TRUE;
@@ -1046,7 +1292,14 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(325)) *ident = TRUE;
+			int heal = 325;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				heal = 1000;
+			}
+
+			if (hp_player(heal)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED, TRUE)) *ident = TRUE;
 			if (clear_timed(TMD_POISONED, TRUE)) *ident = TRUE;
@@ -1274,6 +1527,16 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+		case SV_POTION_INVULNERABILITY:
+		{
+			if (p_ptr->timed[TMD_INVULN])
+			{
+				if (inc_timed(TMD_INVULN, 5, TRUE)) *ident = TRUE;
+			}
+			else if (inc_timed(TMD_INVULN, randint(10) + 10, TRUE)) *ident = TRUE;
+			break;
+		}
+
 	}
 
 	/*
@@ -1296,6 +1559,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 }
 
 
+/*
+ * Read a scroll
+ */
 static bool read_scroll(object_type *o_ptr, bool *ident)
 {
 	int py = p_ptr->py;
@@ -1491,7 +1757,11 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_LIGHT:
 		{
-			if (light_area(damroll(2, 8), 2)) *ident = TRUE;
+			int dam_dice = 2;
+
+			if (game_mode == GAME_NPPMORIA) dam_dice = 1;
+
+			if (light_area(damroll(dam_dice, 8), 2)) *ident = TRUE;
 			break;
 		}
 
@@ -1613,7 +1883,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 			int item;
 
-			/*artifact power is based on depth*/
+			/* artifact power is based on depth */
 			int randart_power = 10 + effective_depth(p_ptr->depth);
 
 			/* Get an item */
@@ -1624,7 +1894,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) break;
 
-			/*Got the item*/
+			/* Got the item */
 			o_ptr = &inventory[item];
 
 			if ((adult_no_artifacts) || (adult_no_xtra_artifacts))
@@ -1633,7 +1903,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 				break;
 			}
 
-			/*occasional power boost*/
+			/* occasional power boost */
 			while (one_in_(25)) randart_power += 25;
 
 			if (make_one_randart(o_ptr, randart_power, FALSE))
@@ -1650,7 +1920,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 				object_history(o_ptr, ORIGIN_ACQUIRE, 0);
 
-				/*Let the player know what they just got*/
+				/* Let the player know what they just got */
 				object_info_screen(o_ptr);
 
 			}
@@ -1685,12 +1955,33 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			*ident = TRUE;
 			break;
 		}
+		case SV_SCROLL_CREATE_FOOD:
+		{
+			create_food();
+			*ident = TRUE;
+			break;
+		}
+		case SV_SCROLL_CREATE_DOORS:
+		{
+			door_creation();
+			*ident = TRUE;
+			break;
+		}
+		case SV_SCROLL_SLEEP_MONSTER:
+		{
+			sleep_monsters_touch();
+			*ident = TRUE;
+			break;
+		}
 	}
 
 	return (used_up);
 }
 
 
+/*
+ * Use a staff
+ */
 static bool use_staff(object_type *o_ptr, bool *ident)
 {
 	int py = p_ptr->py;
@@ -1754,11 +2045,14 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_STARLIGHT:
 		{
+			int dam_dice = 6; /* (game_mode == GAME_NPPANGBAND) */
+			if (game_mode == GAME_NPPMORIA) dam_dice = 2;
+
 			if (!p_ptr->timed[TMD_BLIND])
 			{
 				msg_print("The end of the staff glows brightly...");
 			}
-			for (k = 0; k < 8; k++) light_line(ddd[k], damroll(6, 8));
+			for (k = 0; k < 8; k++) light_line(ddd[k], damroll(dam_dice, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -1815,7 +2109,16 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 10))) *ident = TRUE;
+			int dam_dice = 2;  /* (game_mode == GAME_NPPANGBAND) */
+			int dam_side = 10;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam_dice = 1;
+				dam_side = 8;
+			}
+
+			if (hp_player(damroll(dam_dice, dam_side))) *ident = TRUE;
 			break;
 		}
 
@@ -1853,7 +2156,11 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters(damroll(3, p_ptr->lev))) *ident = TRUE;
+			if (game_mode == GAME_NPPMORIA)
+			{
+				if (sleep_monsters(500)) *ident = TRUE;
+			}
+			else if (sleep_monsters(damroll(3, p_ptr->lev))) *ident = TRUE; /* (game_mode == GAME_NPPANGBAND) */
 			break;
 		}
 
@@ -1886,6 +2193,18 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		case SV_STAFF_DISPEL_EVIL:
 		{
 			if (dispel_evil(60)) *ident = TRUE;
+			break;
+		}
+
+		case SV_STAFF_MASS_POLYMORPH:
+		{
+			if (mass_polymorph()) *ident = TRUE;
+			break;
+		}
+
+		case SV_STAFF_REMOVE_CURSE:
+		{
+			if (remove_curse(FALSE)) *ident = TRUE;
 			break;
 		}
 
@@ -1942,18 +2261,21 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 }
 
 
+/*
+ * Aim a wand
+ */
 static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 {
 	int sval;
 
 
-	/*Special allowance for disarming and traps*/
+	/* Special allowance for disarming and traps */
 	bool is_disarm = FALSE;
 
 	if ((object_aware_p(o_ptr)) && ((o_ptr->sval == SV_WAND_DISARMING) ||
 			(o_ptr->sval == SV_WAND_TRAP_DOOR_DEST))) is_disarm = TRUE;
 
-	/* Allow direction to be cancelled for free */
+	/* Allow direction to be canceled for free */
 	if (!dir)
 	{
 		if (!get_aim_dir(&dir, is_disarm)) return (FALSE);
@@ -2022,8 +2344,12 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_WAND_LIGHT:
 		{
+			int dam_dice = 6;
+
+			if (game_mode == GAME_NPPMORIA) dam_dice = 2;
+
 			msg_print("A line of blue shimmering light appears.");
-			light_line(dir, damroll(6, 8));
+			light_line(dir, damroll(dam_dice, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -2054,7 +2380,11 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 150)) *ident = TRUE;
+			int dam = 150;
+
+			if (game_mode == GAME_NPPMORIA) dam = 75;
+
+			if (drain_life(dir, dam)) *ident = TRUE;
 			break;
 		}
 
@@ -2087,14 +2417,31 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(6, 6));
+			int dam_dice = 6;
+			int dam_side = 6;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam_dice = 4;
+				dam_side = 8;
+			}
+
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(dam_dice, dam_side));
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(12, 8));
+			int dam_dice = 12;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam_dice = 9;
+			}
+
+
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(dam_dice, 8));
 			*ident = TRUE;
 			break;
 		}
@@ -2108,28 +2455,56 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 120, 2);
+			int dam = 120;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam = 60;
+			}
+
+			fire_ball(GF_ACID, dir, dam, 2);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 64, 2);
+			int dam = 64;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam = 32;
+			}
+
+			fire_ball(GF_ELEC, dir, dam, 2);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 144, 2);
+			int dam = 144;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam = 72;
+			}
+
+			fire_ball(GF_FIRE, dir, dam, 2);
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 96, 2);
+			int dam = 96;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam = 48;
+			}
+
+			fire_ball(GF_COLD, dir, dam, 2);
 			*ident = TRUE;
 			break;
 		}
@@ -2198,6 +2573,12 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 			if (drain_life(dir, 250)) *ident = TRUE;
 			break;
 		}
+
+		case SV_WAND_WALL_BUILDING:
+		{
+			if (build_wall(dir, damroll(4, 8))) *ident = TRUE;
+			break;
+		}
 	}
 
 
@@ -2205,6 +2586,9 @@ static bool aim_wand(object_type *o_ptr, bool *ident, int dir)
 }
 
 
+/*
+ * Zap a rod
+ */
 static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 {
 	bool used_charge = TRUE;
@@ -2456,8 +2840,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 
 	}
 
-
-
 	return TRUE;
 }
 
@@ -2591,6 +2973,14 @@ static bool activate_object(object_type *o_ptr, int dir)
 			{
 				int act_time = randint(50) + 50;
 				msg_format("Your %s glows many colours...", o_name);
+				if (game_mode == GAME_NPPMORIA)
+				{
+					if (!p_ptr->timed[TMD_SHERO])
+					{
+						p_ptr->mhp +=15;
+						p_ptr->chp +=15;
+					}
+				}
 				(void)hp_player(30);
 				(void)clear_timed(TMD_AFRAID, TRUE);
 				(void)inc_timed(TMD_SHERO, randint(50) + 50, TRUE);
@@ -2782,7 +3172,6 @@ static bool activate_object(object_type *o_ptr, int dir)
 				break;
 			}
 
-
 			case ACT_FIRE2:
 			{
 				msg_format("Your %s rages in fire...", o_name);
@@ -2885,33 +3274,46 @@ static bool activate_object(object_type *o_ptr, int dir)
 			case ACT_BERSERKER:
 			{
 				msg_format("Your %s glows in anger...", o_name);
+				if (game_mode == GAME_NPPMORIA)
+				{
+					if (!p_ptr->timed[TMD_SHERO])
+					{
+						p_ptr->mhp +=15;
+						p_ptr->chp +=15;
+					}
+				}
 				inc_timed(TMD_SHERO, randint(50) + 50, TRUE);
 				break;
 			}
+
 			case ACT_RES_ACID:
 			{
 				msg_format("Your %s glows light gray...", o_name);
 				(void)inc_timed(TMD_OPP_ACID, randint(20) + 20, TRUE);
 				break;
 			}
+
 			case ACT_RES_ELEC:
 			{
 				msg_format("Your %s glows light blue...", o_name);
 				(void)inc_timed(TMD_OPP_ELEC, randint(20) + 20, TRUE);
 				break;
 			}
+
 			case ACT_RES_FIRE:
 			{
 				msg_format("Your %s glows light red...", o_name);
 				(void)inc_timed(TMD_OPP_FIRE, randint(20) + 20, TRUE);
 				break;
 			}
+
 			case ACT_RES_COLD:
 			{
 				msg_format("Your %s glows bright white...", o_name);
 				(void)inc_timed(TMD_OPP_COLD, randint(20) + 20, TRUE);
 				break;
 			}
+
 			case ACT_RES_POIS:
 			{
 				msg_format("Your %s glows light green...", o_name);
@@ -2920,10 +3322,12 @@ static bool activate_object(object_type *o_ptr, int dir)
 			}
 
 			default:
-		   	{
+			{
 				if ((a_ptr->tval != TV_DRAG_ARMOR) &&
 					(a_ptr->tval != TV_DRAG_SHIELD)) return (FALSE);
 				else did_activation = FALSE;
+
+				break;
 			}
 		}
 
@@ -2942,7 +3346,6 @@ static bool activate_object(object_type *o_ptr, int dir)
 			return FALSE;
 		}
 	}
-
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if ((o_ptr->tval == TV_DRAG_ARMOR) ||
@@ -3225,8 +3628,9 @@ static bool activate_object(object_type *o_ptr, int dir)
 }
 
 
-
-
+/*
+ * Use an object
+ */
 static bool use_object(object_type *o_ptr, bool *ident, bool aware, int dir)
 {
 	bool used;
@@ -3282,26 +3686,12 @@ static bool use_object(object_type *o_ptr, bool *ident, bool aware, int dir)
 }
 
 
-
-
-
 /*** Using items the traditional way ***/
 
+
 /*
- * Use an object the right way.
+ * Use an object.
  *
- * There may be a BIG problem with any "effect" that can cause "changes"
- * to the inventory.  For example, a "scroll of recharging" can cause
- * a wand/staff to "disappear", moving the inventory up.  Luckily, the
- * scrolls all appear BEFORE the staffs/wands, so this is not a problem.
- * But, for example, a "staff of recharging" could cause MAJOR problems.
- * In such a case, it will be best to either (1) "postpone" the effect
- * until the end of the function, or (2) "change" the effect, say, into
- * giving a staff "negative" charges, or "turning a staff into a stick".
- * It seems as though a "rod of recharging" might in fact cause problems.
- * The basic problem is that the act of recharging (and destroying) an
- * item causes the inducer of that action to "move", causing "o_ptr" to
- * no longer point at the correct item, with horrifying results.
  */
 void do_cmd_use(cmd_code code, cmd_arg args[])
 {
@@ -3430,6 +3820,12 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 		/* Do effect */
 		used = use_object(o_ptr, &ident, was_aware, dir);
 
+		/* make sure we still have the right item if the inventory was moved around */
+		if (find_object_in_use(&item))
+		{
+			o_ptr = object_from_item_idx(item);
+		}
+
 		/* Quit if the item wasn't used and no knowledge was gained */
 		if (!used && (was_aware || !ident)) return;
 
@@ -3457,7 +3853,6 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 			gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 			apply_autoinscription(o_ptr);
 		}
-
 	}
 
 	/* If the item is a null pointer or has been wiped, be done now */
@@ -3519,13 +3914,11 @@ void do_cmd_use(cmd_code code, cmd_arg args[])
 		/* Delete the "moved" objects from their original position */
 		delete_object(py, px);
 	}
-
 }
 
 
-
-
 /*** Handling bits ***/
+
 
 /* Item "action" type */
 typedef struct
@@ -3679,7 +4072,10 @@ static bool trap_related_object(object_type *o_ptr)
 
 /*** Old-style noun-verb functions ***/
 
-/* Generic "do item action" function */
+
+/*
+ * Generic "do item action" function
+ */
 static void do_item(item_act act)
 {
 	int item;
@@ -3692,6 +4088,12 @@ static void do_item(item_act act)
 	{
 		if (!item_actions[act].prereq())
 			return;
+	}
+
+	/* Don't allow activation of swap weapons */
+	if (adult_swap_weapons)
+	{
+		if (item_actions[act].command == CMD_ACTIVATE)  item_tester_swap = FALSE;
 	}
 
 	/* Get item */

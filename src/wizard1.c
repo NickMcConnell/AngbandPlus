@@ -422,7 +422,7 @@ static void spoil_artifact(cptr fname)
 
 	/* Dump the header */
 	spoiler_underline(format("Artifact Spoilers for %s %s",
-	                         VERSION_NAME, VERSION_STRING), '=');
+			VERSION_MODE_NAME, VERSION_STRING), '=');
 
 	/* List the artifacts by tval */
 	for (i = 0; group_artifact[i].tval; i++)
@@ -529,7 +529,7 @@ static void spoil_mon_desc(cptr fname)
 
 	/* Dump the header */
 	x_file_putf(fh, encoding, "Monster Spoilers for %s Version %s\n",
-	        VERSION_NAME, VERSION_STRING);
+			VERSION_MODE_NAME, VERSION_STRING);
 	x_file_putf(fh, encoding, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -547,7 +547,7 @@ static void spoil_mon_desc(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->speed) who[n++] = (u16b)i;
+		if (r_ptr->r_speed) who[n++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -586,10 +586,10 @@ static void spoil_mon_desc(cptr fname)
 		strnfmt(rar, sizeof(rar), "%d", r_ptr->rarity);
 
 		/* Speed */
-		if (r_ptr->speed >= 110)
-			strnfmt(spd, sizeof(spd), "+%d", (r_ptr->speed - 110));
+		if (calc_energy_gain(r_ptr->r_speed) >= STANDARD_ENERGY_GAIN)
+			strnfmt(spd, sizeof(spd), "+%d", (calc_energy_gain(r_ptr->r_speed) - STANDARD_ENERGY_GAIN));
 		else
-			strnfmt(spd, sizeof(spd), "-%d", (110 - r_ptr->speed));
+			strnfmt(spd, sizeof(spd), "-%d", (STANDARD_ENERGY_GAIN - calc_energy_gain(r_ptr->r_speed)));
 
 		/* Armor Class */
 		strnfmt(ac, sizeof(ac), "%d", r_ptr->ac);
@@ -667,7 +667,7 @@ static void spoil_mon_info(cptr fname)
 
 	/* Dump the header */
 	text_out("Monster Spoilers for %s Version %s\n",
-	        VERSION_NAME, VERSION_STRING);
+			VERSION_MODE_NAME, VERSION_STRING);
 	text_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
@@ -679,7 +679,7 @@ static void spoil_mon_info(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->speed) who[count++] = (u16b)i;
+		if (r_ptr->r_speed) who[count++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -734,13 +734,13 @@ static void spoil_mon_info(cptr fname)
 		text_out("Rar:%d  ", r_ptr->rarity);
 
 		/* Speed */
-		if (r_ptr->speed >= 110)
+		if (calc_energy_gain(r_ptr->r_speed) >= STANDARD_ENERGY_GAIN)
 		{
-			text_out("Spd:+%d  ", (r_ptr->speed - 110));
+			text_out("Spd:+%d  ", (calc_energy_gain(r_ptr->r_speed) - STANDARD_ENERGY_GAIN));
 		}
 		else
 		{
-			text_out("Spd:-%d  ", (110 - r_ptr->speed));
+			text_out("Spd:-%d  ", (STANDARD_ENERGY_GAIN - calc_energy_gain(r_ptr->r_speed)));
 		}
 
 		/* Hitpoints */
@@ -803,7 +803,7 @@ static void spoil_features(cptr fname)
 
 	/* Dump the header */
 	strnfmt(buf, sizeof(buf), "Feature Spoilers for %s Version %s\n",
-	        VERSION_NAME, VERSION_STRING);
+			VERSION_MODE_NAME, VERSION_STRING);
 	text_out(buf);
 	text_out("------------------------------------------\n\n");
 

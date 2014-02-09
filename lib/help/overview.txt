@@ -6,7 +6,7 @@
 
      When you start up the game, a title screen appears, bearing the game name,
 version, and some credits.  Also on this screen are the three most important
-Angband resources:
+Angband and Moria resources:
      The Angband home page at "http://rephial.org/" contains the
 current source and executables, special files, helpful comments, hints, and
 links, and the latest Angband news.  The NPPAngband home page is 

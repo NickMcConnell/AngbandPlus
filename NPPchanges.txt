@@ -1,3 +1,17 @@
+NPP 7.0.0:
+Add moria game mode, based on Moria 5.5.2.
+Added opportunity to do a shield bash on a monster as in Moria.
+Reduced frequency of ghost challenges.
+Multiple sidebar and ui improvements by 'kaypy'.
+Code cleanup provided by dlevin.
+Reduced alertness for several Ainu uniques.
+Bugfix:  Fix inconcistency when describing damage from ammo.
+Bugfix:  Fix display of equipment flags on equipment screen.
+Bugfix:  Fix bug in calculating monster speed variances (found by kaypy).
+Bugfix:  Commands could sucessfully be repeated while confused.
+Bugfix:  Fix multiple missing 'break' statements (found by "runningaway").
+Bugfix:  When using the look command, the cursor did not display when animate flicker option was on.
+
 
 NPP6.1.2 changes:
 Misc code cleanup, provided by levind on Github ("runningaway") on the NPP forums.

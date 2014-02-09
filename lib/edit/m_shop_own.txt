@@ -1,0 +1,78 @@
+# File: shop_own.txt
+# This file is used to initialize the "shop owner" information for Angband.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+
+# Format:
+# N:store number
+# S:purse:owner name
+
+
+# Version stamp (required)
+
+V:7.0.0
+
+# General Store
+N:0
+S:250:Erick the Honest (Human)
+S:250:Andy the Friendly (Halfling)
+S:300:Lyar-el the Comley (Elf)
+
+
+# Armoury
+N:1
+S:3000:Mauglim the Horrible (Half-Orc)
+S:10000:Darg-Low the Grim (Human)
+S:32000:Mauglin the Grumpy (Dwarf)
+
+# Weapon Smith
+N:2
+S:3000:Ithyl-Mak the Beastly (Half-Troll)
+S:10000:Arndal Beast-Slayer (Half-Elf)
+S:32000:Oglign Dragon-Slayer (Dwarf)
+
+# Temple
+N:3
+S:3500:Hardblow the Humble  (Human)
+S:5000:Gunnar the Paladin (Human)
+S:25000:Delilah the Pure (Half-Elf)
+
+
+# Alchemist
+N:4
+S:10000:Mauser the Chemist (Half-Elf)
+S:10000:Wizzle the Chaotic (Halfling)
+S:12000:Ga-nat the Greedy (Gnome)
+
+
+# Magic Shop
+N:5
+S:20000:Gopher the Great! (Gnome)
+S:32000:Inglorian the Mage (Human)
+S:32000:Valeria Starshine (Elf)
+
+
+# THe rest are unused, but are there just to keep the game from crashing.
+
+# Black Market
+N:6
+S:15000:Lo-Hak the Awful (Half-Troll)
+S:20000:Buzzkill the Infamous (Dwarf)
+S:25000:Durwin the Shifty (Half-Orc)
+
+# Home
+N:7
+S:0:Your home
+S:0:Your home
+S:0:Your home
+
+# 8 is the Adventurer's Guild
+
+# Bookshop
+N:9
+S:20000:Nastra the Dusty (High-Elf)
+S:5000:Gabberam the Sage (Half-Elf)
+S:15000:Barnus the Tome-master (Hobbit)
+

@@ -1,0 +1,296 @@
+
+====== Basic Command Information ======
+
+Canceling a Command:
+     Virtually all commands can be canceled at any point before execution by hitting the ESC key.
+
+Command Counts:
+     Any command that can be repeated, or that can manipulate more than one object, can take a count.  By default, most that do are automatically given a count of 99.  Although most commands that usually need a quantity will ask for one, for other commands a quantity is only sometimes desired.  Hence command counts.  For example, to tunnel into a wall exactly 50 times, you would type a zero ("0"), then "50", followed by a return.  Then use the tunnel command.  All commands that use quantities will stop if you are disturbed, accomplish your intended task, hit any key, or when the count expires.
+
+Doing More with Less Effort:
+     The section on making macros describes how to:
+     - quickly switch to a shovel or backup weapon,
+     - fire a missile or cast commonly used spells with a single keystroke,
+     - prevent accidental use of valuable equipment,
+     - and many other things
+
+Interfaces:
+     See the "interfaces" section for more details about powerful and complex commands.
+
+
+
+====== Command Descriptions ======
+
+     Command names are followed by one or two characters:  the first is that used in the original keyset; the second, that used in the roguelike keyset (if different).
+
+
+--- Movement Commands ---
+
+Stay still -- with normal pickup (,) / (.) :
+     Stay in the same square for one move.  If you normally pick up objects you encounter, you will pick up whatever you are standing on.  You may also use the "5" key (both keysets).  This command takes a full turn.
+
+Walk -- with normal pickup (;) :
+     This command activates every time you press a direction key; it moves you one step in the given direction.  This command takes a full turn.
+
+Walk -- flip pickup (-) :
+     Walk.  If you normally pick things up, don't.  Otherwise, do.  This command takes a full turn.
+
+Run (.) / (,) :
+     This command is very useful for rapid dungeon exploration.  It will move you in the given direction, following any bends in the corridor, until you either have to make a choice between two directions or are disturbed.  Most players run by holding down Shift and pressing a direction key.
+
+Go up staircase (<) :
+     Ascend an up staircase.  Going up a staircase will take you to a new dungeon level unless you are at 50 feet (level 1), in which case you will return to the town.  This command takes a full turn.
+
+
+Go down staircase (>) :
+     Descend a down staircase.  Going down a staircase will take you to a new dungeon level.  This command takes a full turn.
+
+--- Object Commands ---
+
+Inventory list (i) :
+     Display a list of objects in your backpack.
+
+Equipment list (e) :
+     Display a list of objects you are currently wielding, wearing, or otherwise have immediately to hand.
+
+Drop an item (d) :
+     Drop an item from your inventory or equipment onto the floor.  If the grid you are standing on has objects in it already, or cannot hold objects, the object will end up nearby.  Be warned that if the floor is very full, and you attempt to drop something, it may disappear and be destroyed.  This command takes half a turn.
+
+Destroy an item (k) / (Ctrl-D) :
+     Destroy an object in your inventory or on the dungeon floor.  If the "verify destroy" option is ON, you must verify this command.  This command takes a full turn, and also gives you an option to squelch all of these object types in the future.
+
+Wear/Wield equipment (w) :
+     Wear or wield an object in your inventory or from the floor.  Since only one object can be in each slot at a time, if you wear or wield an item into a slot that is already occupied, the old item will first be taken off.  If there is no room in your inventory, it drops to the floor.  This command takes a full turn.
+
+Take off equipment (t) / (T) :
+     Take off a (uncursed) piece of equipment and return it to your inventory.  If there is no room in your inventory for the item, your pack will overflow and you will drop the item after taking it off.  This command takes half a turn.
+
+Switch primary and secondary weapon (X) :
+     Exchange whatever weapon you have wielded with the weapon in your the secondary weapon slot.  This command takes a half turn.
+
+Inscribe an object ({) :
+     Inscribe an object.  The inscription appears inside curly braces after the object description.  The inscription is limited to the particular object (or pile) and is not automatically transferred to all similar objects, unless the "Merge Inscriptions when Stacking" option is on.
+
+Uninscribe an object (}) :
+     Remove the inscription on an object.  This command will have no effect on inscriptions added by the game itself (such as "{cursed}").
+
+
+--- Object Usage Commands ---
+
+Eat some food (E) :
+     Eat some food or a mushroom.  This command takes a full turn.
+
+Fuel your lantern/torch (F) :
+     You can refuel lanterns with flasks of oil and torches with other torches. In general, two flasks will fully fuel a lantern and two torches will fully fuel a torch.  This command takes half a turn.
+
+Quaff a potion (q) :
+     Drink a potion.  This command takes a full turn.
+
+Read a scroll (r) :
+     Read a scroll.  Most scrolls which prompt for more information can be aborted (by pressing escape), which will stop reading the scroll before it disintegrates.  This command takes a full turn.
+
+Activate an object (A) :
+     You have heard rumours of special wearable items deep in the MinesShould you ever be lucky enough to find such an item, this command will let you activate its special power.  This command takes a full turn.
+
+Aim a wand (a) / (z) :
+Use a staff (u) / (Z) :
+
+     Uses the indicated kind of magical device.  This command takes a full turn.
+
+Object menu (|)
+     This interactive menu lets the player go through the objects in the player's inventory, equipment, and on the floor and select from a menu of allowable commands for that item.
+
+
+--- Dungeon and Object Alteration Commands ---
+
+Tunnel (T) / (Ctrl-T) :
+     Dig through barriers, mine treasure found in wall seams, and otherwise alter the dungeon to your liking.  This command may take a count and requires a full turn.  This command also makes alot of noise.
+
+Open a door or chest (o) :
+     Open a door or chest.  If locked, you will attempt to pick the lock based on your disarming ability.  If you open a trapped chest without disarming the traps first, they will activate.  Some doors will be jammed shut and may have to be bashed open.  This command takes a full turn.
+     You may set the "easy_open" option to open doors that you walk into.
+
+Close a door (c) :
+     Close a door.  Some monsters cannot open doors, so shutting them can be quite useful.  Broken doors cannot be closed.  This command takes a full turn.
+
+Jam a door (j) / (S) :
+     Jam a door (so that it needs to be bashed down).  Many monsters can simply open closed doors, and can eventually get through a locked door.  You may therefore occasionally want to jam a door shut with iron spikes.  Each spike used on the door will make it harder to bash down the door, up to a limit of eight.  This command takes a full turn.
+
+Bash a door or Monster (B) / (f) :
+     Bash down jammed doors.  Your door bashing ability increases with strength.  Bashing open a door can (briefly) throw you off balance and sometimes ruins the door.  All doors can be bashed; jammed or spiked doors will not open any other way.  Bashing a monster can damage the monster and paralyze it for a half turn, however if the player misses, he can be paralyzed for 3-4 turns.
+
+This command takes a full turn.
+
+Disarm a trap or chest (D) :
+     You can attempt to disarm known traps on the floor or on chests.  If you fail, there is a chance that you will blunder and set it off.  This command takes a full turn.
+
+Alter (+) :
+     This special command allows the use of a single keypress to select any of the dungeon alteration commands above (attack, tunnel, bash, open, disarm, close), and, by using macros or keymaps, to combine this keypress with directions.  This command takes a full turn.  
+
+Get objects off of the dungeon floor ('g') :
+     Sort through and pick up selected objects off the floor grid the player is standing on, regardless of squelch settings or the order of items on the floor.  This command takes no time.
+
+--- Mouse Commands ---
+You can play most of the game using only mouseclicks.   Here are some of the ways the mouse can be used:
+
+Clicking on sidebar:
+*Click on the player race to access help information for that race.
+*Click on the player class to access help information for that class.
+*Click on the player stats to bring up the character screen.
+*Click on player hit points to rest.
+*Click on monster hit points or mana to pull up information on that character.
+*Click on the top (message) line of the screen to see a list of recent messages.
+*Click on the equipment characters to see a list of your equipment.
+
+Other mouse commands:
+Click on the player to see a list of commands
+Click on a part of the dungeon to walk in that direction.
+
+Mouse buttons:
+The status bar will have buttons that you can click to enter that command.  The buttons update as the game status changes or if you enter a game menu.
+
+
+
+--- Special Action Commands ---
+
+Rest (R) :
+     You recover from wounds twice as quickly by resting than by repeatedly staying still.  This command can be told to stop automatically after a certain amount of time, or when various conditions are met.  In either case, you always wake up when anything disturbs you, or when you press any key.
+     After typing 'R', use "*" to rest until your hitpoints and mana are restored, and "&" to rest until you are fully "healed".  This command may accept a command count (used for the number of turns to rest), and takes a full turn.
+
+Search (s) :
+     Search for hidden traps and secret doors adjacent to you.  More than a single turn of searching will be required in most cases.  This command can take a count, which is useful if you are confident of finding something eventually, since the command stops as soon as anything is found.  This command takes a full turn.
+
+Turn searching mode on and off (S) :
+     In searching mode, you search every time you move.  You therefore move more slowly.  Search mode will automatically turn off if you are disturbed.
+
+
+--- Spell and Prayer Commands ---
+
+Browse a book (b) / (P) :
+     Open a readable book and read the spells or prayer in it, learning
+information such as their level, cost to cast, etc.  This command takes no time.
+
+Gain new spells or prayers (G) :
+     When you are able to learn new spells or prayers, the word "Study" will appear on the status line at the bottom of the screen.  You then issue this command and choose a book with unlearnt magics.  Priests and Paladins get a prayer at random; other magic-using classes may choose.  This command takes a full turn.
+
+Cast a spell or Pray a prayer (m and p) :
+     Cast a known spell or prayer.  This command takes a full turn.
+
+
+--- Throwing and Missile Weapons ---
+
+Fire an item (f) / (t) :
+     You may fire ammunition if you are wielding a missile weapon that uses it. See the non-magical combat section for more information.  This command takes a full turn, unless you get extra shots.
+
+Throw an item (v) :
+     You may throw any object carried by your character.  See the non-magical combat section for more information.  This command takes a full turn.
+
+Targeting (*) :
+     Aim directly at a specific monster or grid.  See the interfaces section for more information.
+
+
+--- Information Commands ---
+
+Help (?) :
+     Brings up the on-line help system.
+
+Observe an object (I) :
+     Display extra information about a specific object, especially if you have fully identified it.  This command takes no time.
+
+Character Description (C) :
+     Display extra information about your character.  From this screen, you can change names, review attributes, or save your character information ("character dumps") to file.
+
+Look around (l) / (x) :
+     Look around at nearby monsters (to determine their type, health, and carried objects) and objects (to determine their type).  This command can also be used to find out what objects (if any) are under monsters, what terrain a monster is in, and what is under the character.  See the interfaces section for more information.  This command takes no time.
+
+Check knowledge (~) :
+     This command allows you to review what you know about artifacts, unique monsters, features, terrain, and objects.  You can also review the contents of  your home, total kill count for each monster, view your player notes file, or view the player hall of fame.
+
+Identify Symbol (/) :
+     Find out what a character represents.  For instance, by pressing '/', then '.', you will learn that the "." symbol stands for a floor.
+     If you ask about a type of monsters, such as 'r' - rodents, and you have knowledge of any, the game will offer to show monster recall.  Type 'y' to display an unsorted list, 'p' to list by monster level, 'k' to list by number of kills, and any other key to cancel.
+     You may also use this command to ask about all monsters (type Control-A), unique monsters (Control-U), or non-unique monsters (Control-N).
+     This command takes no time.
+
+Full screen map (M) :
+     Show a map of the entire dungeon on screen.  Only the major dungeon features will be visible because of the scale, so even some important things may not show up.  This command is particularly useful in locating where the stairs are relative to your current position, or for identifying unexplored areas of the dungeon.  This command takes no time.
+
+Locate player on map (L) / (W) :
+     This command lets you scroll your map around, looking at all sectors of the current dungeon level, until you press escape, at which point the map will be re-centered on the player if necessary.  To scroll the map around, press any of the direction keys.  The top line will display the sector location, and the offset from your current sector.  This command takes no time.
+
+Game Version (V) :
+     Learn what version of the game you are playing.
+
+
+--- Message Commands ---
+
+
+View previous messages (Ctrl-P) :
+     Shows you all the recent messages.  You can scroll through them or exit with ESCAPE.  This command takes no time.
+
+View previous message (Ctrl-O) :
+     Shows you the most recent message.  This command takes no time.
+
+Take notes (:) :
+     Allows you to take notes, which will then appear in your notes file.  This command takes no time.
+
+
+--- Saving and Exiting Commands ---
+
+Save and Quit (Ctrl-X) :
+     Save your character to file and exits the game.
+
+Save (Ctrl-S) :
+     Save the game but don't exit it.  Use this frequently if you are paranoid about having your computer crash (or your power go out) while you are playing.
+
+Quit (commit suicide) (Q or Ctrl-K) :
+     Kill or retire your character and exit the game.  You will be prompted to make sure you really want to do this, and then asked to verify that choice.  Note that dead characters are dead forever.
+     This is also how you retire after slaying The Balrog of Moria.
+
+
+--- Preferences Commands ---
+
+Interact with options (=) :
+     Set and review options, window settings, squelch settings, base delay factor, hitpoint warning, movement delay, load a user pref file, save a pref file.  See the options section for more information.
+
+Interact with macros (@) :
+     Create, load, and save macros and keymaps.  See the macro and keymaps section for more information.
+
+Interact with visuals (%) :
+     Change, load, and save visual preferences that determine how objects, monsters, and dungeon features display.  See the visuals section for more information.
+
+Interact with colors (&) :
+     Change the basic colors used by the game.  This command only works on some systems.  See the visuals section for more information.
+
+Interact with multimedia (!) :
+     Adjust sound volume, change between graphics and text, and any other things that the port of the game you are using allows.  This command only works on some systems.  See the visuals section for more information.
+
+
+--- Extra Commands ---
+
+Toggle Choice Window (Ctrl-E) :
+     Toggle the display in any special windows (if available) which are
+displaying your inventory or equipment.
+
+Redraw Screen (Ctrl-R) :
+     Update the screen to adapt to various changes in global options, and redraws all of the windows.  It is normally only necessary in abnormal situations, such as after changing the visual preferences or changing display modes.
+
+Save screen dump (right-parenthesis) :
+     Dump a "snap-shot" of the current screen to an HTML file, including encoded color information.
+
+Repeat last command (n) / (CTRL-V) :
+     Repeat the previous command, selecting the same objects or spells you choose last time.
+
+
+--- Special Notes ---
+
+Special Keys:
+     Certain special keys may be intercepted by the operating system or the host machine, causing unexpected results.  In general, these special keys are control keys; often you can disable their special effects.
+
+     It is often possible to specify "control-keys" without actually pressing the control key, by typing a caret ("^") followed by the key.  This is useful for specifying control-key commands that might be caught by the operating system.
+
+     Pressing backslash ("\") before a command will bypass all keymaps, and the next keypress will be interpreted as an underlying command key.  The backslash key is useful for creating macro actions which are not affected by any keymap definitions that may be in force.  For example, the three-character sequence "\.6" will always mean "run east", even if the "." key has been mapped to a different underlying command.
+
+UNIX-specific notes:
+     If you are playing on a UNIX or similar system, then Ctrl-C will interrupt the game.  The second and third interrupt will induce a warning bell, and the fourth will induce both a warning bell and a special message, since the fifth will quit the game, after killing your character.  Also, Ctrl-Z will suspend the game, and return you to the original command shell, until you resume the game with the "fg" command.  There is now a compilation option to force the game to
+prevent the "double ctrl-z escape death trick".  The Ctrl-\ and Ctrl-D and Ctrl-S keys should not be intercepted.

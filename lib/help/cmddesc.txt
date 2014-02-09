@@ -179,11 +179,14 @@ therefore occasionally want to jam a door shut with iron spikes.  Each spike
 used on the door will make it harder to bash down the door, up to a limit of
 eight.  This command takes a full turn.
 
-Bash a door (B) / (f) :
+Bash a door or Monster (B) / (f) :
      Bash down jammed doors.  Your door bashing ability increases with strength.
 Bashing open a door can (briefly) throw you off balance and sometimes ruins the
 door.  All doors can be bashed; jammed or spiked doors will not open any other
-way.  This command takes a full turn.
+way.  Bashing a monster can damage the monster and paralyze it for a half turn, 
+however if the player misses, he can be paralyzed for 3-4 turns.
+
+This command takes a full turn.
 
 Disarm a trap or chest (D) :
      You can attempt to disarm known traps on the floor or on chests.  If you
@@ -217,13 +220,13 @@ ways the mouse can be used:
 Clicking on sidebar:
 *Click on the player race to access help information for that race.
 *Click on the player class to access help information for that class.
-*Cick on the player stats to bring up the character screen.
+*Click on the player stats to bring up the character screen.
 *Click on player hit points to rest.
-*Click on monster hit poitns or mana to pull up information on that character.
-*Click on the top (mesage) line of the screen to see a list of recent messages.
-*CLick on level feeling to see the player feeling (same as hitting CTRL-F).
-*CLick on your quest status to see the quest status (same as hitting CTRL-Q)
-*CLick on the equipment characters to see a list of your equipment.
+*Click on monster hit points or mana to pull up information on that character.
+*Click on the top (message) line of the screen to see a list of recent messages.
+*Click on level feeling to see the player feeling (same as hitting CTRL-F).
+*Click on your quest status to see the quest status (same as hitting CTRL-Q)
+*Click on the equipment characters to see a list of your equipment.
 
 Other mouse commands:
 Click on the player to see a list of commands
@@ -426,7 +429,7 @@ Save screen dump (right-parenthesis) :
      Dump a "snap-shot" of the current screen to an HTML file, including encoded
 color information.
 
-Repeat last command (Ctrl-V), also (n) / (') :
+Repeat last command (n) / (CTRL-V) :
      Repeat the previous command, selecting the same objects or spells you
 choose last time.
 

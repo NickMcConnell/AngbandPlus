@@ -1,0 +1,88 @@
+# File: limits.txt
+
+
+# This file is used to initialize the "array sizes" information for the NPPMoria game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+#
+# These numbers are all actually the maximum + 1, not counting the artifact non-total numbers
+
+
+# Version stamp (required)
+
+V:7.0.0
+
+
+
+# Maximum number of feature types
+M:F:207
+
+# Maximum number of object kinds
+M:K:408
+
+# 
+# Maximum number of total artifacts (special + normal + pre-made random + in-game random)
+# special artifacts (1 to this number - 1)
+# normal artifacts ((special) to (special + this number - 1))
+# max random artfiacts ((normal artifacts) to (normal artfiacts + this number - 1))
+# total artifacts will equal special + normal + random + 1 slot for a fake quest artifact
+# reads M:A:special:normal:random
+# changing these numbers will almost always break savefile compatibility
+#
+M:A:2:2:2
+
+# Maximum number of ego-item types
+M:E:69
+
+# Maximum number of monster races
+M:R:282
+
+# Maximum number of effects
+M:X:750
+
+# Maximum number of permanant maintainer ghost templates (in *angband/lib/bones)
+# followed by the max number of player ghost templates
+M:G:25:20
+
+# Maximum number of vaults
+M:V:61
+
+# Maximum number of player races
+M:P:8
+
+
+# For Moria only, this number is also hard-coded in player.h, and will need to be changed if changed here.
+# Maximum number of player classes
+M:C:6
+
+# Maximum number of player history lines
+M:H:128
+
+# Maximum number of owners per store
+M:B:3
+
+# Maximum number of quests (including a slot for random quests)
+M:Q:2
+
+# Maximum number of flavors
+M:L:348
+
+# Maximum number of objects on the level
+M:O:1024
+
+# Maximum number of monsters on the level
+M:M:1024
+
+#
+# Array sizes (in bytes) for some initialization stuff
+#
+
+# Size of the "fake" array for reading in names of monsters, objects,
+# artifacts, store-owners, player-races, ...
+M:N:20480
+
+# Size of the "fake" array for reading in the descriptions of monsters,
+# vaults, and the player-histories
+M:T:72500
+

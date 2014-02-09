@@ -61,7 +61,7 @@ static cptr r_info_blow_method[] =
 	"BITE",
 	"STING",
 	"PECK",
-	"XXX1",
+	"BREATHE",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
@@ -72,7 +72,7 @@ static cptr r_info_blow_method[] =
 	"GAZE",
 	"WAIL",
 	"SPORE",
-	"XXX4",
+	"TRAMPLE",
 	"BEG",
 	"INSULT",
 	"XXX5",
@@ -223,7 +223,7 @@ static flag_name info_flags[] =
 	{"WEIRD_MIND", RF2, RF2_WEIRD_MIND},
 	{"MULTIPLY", RF2, RF2_MULTIPLY},
 	{"REGENERATE", RF2, RF2_REGENERATE},
-	{"RF2XXX4", RF2, RF2_RF2XXX4},
+	{"SPECIAL", RF2, RF2_SPECIAL},
 	{"EVASIVE", RF2, RF2_EVASIVE},
 	{"CLOUD_SURROUND", RF2, RF2_CLOUD_SURROUND},
 	{"RF2XXX5", RF2, RF2_RF2XXX5},
@@ -262,8 +262,8 @@ static flag_name info_flags[] =
 	{"ANIMAL", RF3, RF3_ANIMAL},
 	{"FLYING", RF3, RF3_FLYING},
 	{"RF3XXX2", RF3, RF3_RF3XXX2},
-	{"RF3XXX3", RF3, RF3_RF3XXX3},
-	{"RF3XXX4", RF3, RF3_RF3XXX4},
+	{"HURT_POIS", RF3, RF3_HURT_POIS},
+	{"HURT_ACID", RF3, RF3_HURT_ACID},
 	{"HURT_LIGHT", RF3, RF3_HURT_LIGHT},
 	{"HURT_ROCK", RF3, RF3_HURT_ROCK},
 	{"HURT_FIRE", RF3, RF3_HURT_FIRE},
@@ -564,7 +564,7 @@ static flag_name info_flags[] =
 	{"HOLD_LIFE", TR3, TR3_HOLD_LIFE},
 	{"NEVER_PICKUP", TR3, TR3_NEVER_PICKUP},
 	{"IRONMAN_ONLY", TR3, TR3_IRONMAN_ONLY},
-	{"TR3XXX3", TR3, TR3_TR3XXX3},
+	{"STORE_ONLY", TR3, TR3_STORE_ONLY},
 	{"TR3XXX4", TR3, TR3_TR3XXX4},
 	{"IMPACT", TR3, TR3_IMPACT},
 	{"TELEPORT", TR3, TR3_TELEPORT},
@@ -2763,7 +2763,7 @@ errr parse_r_info(char *buf, header *head)
 			            &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		r_ptr->speed = spd;
+		r_ptr->r_speed = spd;
 		r_ptr->hdice = hp1;
 		r_ptr->hside = hp2;
 		r_ptr->aaf = aaf;
@@ -3457,14 +3457,14 @@ errr parse_c_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&pc_ptr->title[cur_title], head, s))
+		if (!add_text(&pc_ptr->p_title[cur_title], head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Next title */
 		cur_title++;
 
 		/* Limit number of titles */
-		if (cur_title > PY_MAX_LEVEL / 5)
+		if (cur_title > z_info->max_titles)
 			return (PARSE_ERROR_TOO_MANY_ARGUMENTS);
 	}
 

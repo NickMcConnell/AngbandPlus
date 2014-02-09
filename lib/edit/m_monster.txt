@@ -1,0 +1,3704 @@
+# File: monster.txt
+
+
+# This file is used to initialize the monster race information for the NPPAngband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding monster.txt ===
+
+# N: serial number : long monster name
+# A: abbreviated monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : maximum mana : experience for kill
+# B: attack method : attack effect : damage
+# S: spell frequency | spell power
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. Entry 0 is used for the player.
+
+# 'A' is for abbreviated monster name - must be 12 characters or less.
+
+# 'G' is for graphics - symbol and color.  There are 37 colors, 
+# with up to 256 customizable colors, as follows:
+
+# b  - Blue
+# b1 - Navy Blue 
+# B  - Light Blue 
+# B1 - Deep Sky Blue
+# d  - Black(default background)
+# D  - Dark Gray (Light Dark)
+# D1 - Taupe (Light Gray Shaded
+# g  - Green
+# G  - Light Green
+# g1 - Jungle Green
+# G1 - Lime Green (bright green)
+# o  - Orange
+# o1 - Light Orange (Orange Peel)
+# 02 - Mahagony
+# r  - Red
+# R  - Light Red
+# r1 - Lava Red
+# R1 - Light Red (raspberry)
+# R2 - Pink
+# s  - Slate (gray)
+# s1 - Slate Gray (light slate)
+# s2 - Silver
+# u  - Brown
+# U  - Light Brown
+# u1 - Auburn (brown shaded)
+# U1 - Fallow (light brown shaded)
+# u2 - Copper
+# v  - Violet
+# v1 - Violet shaded
+# w  - White
+# W  - Light gray (white shaded)
+# w1 - Snow White
+# W1 - Light White (Light Gray shaded)
+# y  - yellow
+# y1 - Maize (yellow shaded)
+# y2 - Gold
+#       
+# (note that black is the same color as the screen background, and
+# thus anything will appear to be an empty black space if its
+# color is d.)
+
+# 'I' is for information - speed, health, vision in tens of feet,
+# armor class, and alertness. 110 is normal speed. Alertness ranges
+# from 0 (ever vigilant for intruders) to 255 (prefers to ignore
+# intruders).
+
+# 'W' is for more information - level, rarity, maximum mana and
+# experience for killing.
+
+# 'B' is for blows - method of attack, effect of attack, and damage
+# from attack. There may be up to four of these lines; effect and
+# damage are optional.
+
+# 'S' is for spells. The first S: line must be S:1_IN_X with X the
+# number of monster turns, on average, before the monster will cast
+# one of its spells. X must not be zero. If X is 1, the monster will
+# never move while the player is in sight, and will thus never attack
+# in melee, as it will cast spells every turn: if the monster is to use
+# a melee attack, then X must be 2 or greater.  Power determines the 
+# damage and intensity of the attacks.  The format is POW_X with X being
+# the spell power.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'D' is for description. As many D: lines may be used as are needed
+# to describe the monster.
+
+# Note: Accented characters may be used in a monster's name or description.
+# Use the proper code, enclosed between square brackets, to enter an accented
+# character. For example: Sm['e]agol or Sm[eacute]agol are both valid ways to
+# get an acute accent on the e in Smeagol. All valid codes can be found in
+# util.c.
+
+# === Understanding monster.txt flags ===
+
+# UNIQUE monsters are just special monster races, with the requirement
+# that only one monster of that race can exist at a time, and when it is
+# killed, it can never again be generated.
+
+# ATTR_CLEAR monsters appear the same color as the floor, terrain feature or
+# object underneath them.
+
+# ATTR_MULTI monsters are multi - hued - they change color, every player turn.
+
+# CHAR_CLEAR monsters are totally invisible: the symbol shown on the screen
+# is the same as the floor (or other terrain feature) below it, or the item
+# that is lying on that floor. These monsters can currently be targetted as
+# normal monsters: perhaps this can be changed so that the player must KNOW
+# the monster is there (by bumping into it, or having the monster wake up
+# and attack the player?)
+
+# CHAR_MULTI monsters are those which look like objects, and use the symbols
+# of objects. They are in plain sight, but the character should not know that
+# a monster is there. At the moment, such monsters can be targetted normally
+# (which means that this flag currently has no effect), but this may change
+# in the future, as with CHAR_CLEAR monsters.
+
+# (Note that currently both CHAR_CLEAR and CHAR_MULTI monsters are treated
+# as normal monsters that are just a little hard to see... if you look
+# for them, you will find them unless they are invisible and you cannot
+# see invisible, and if you use the * command for targetting mode you
+# can pick them as a target.)
+
+# ToDo: Explain the other monster and spell flags.  But maybe in another file.
+
+# Version stamp (required)
+
+V:7.0.0
+
+##### Non-race (contains the player picture) #####
+N:0:<player>
+G:@:w
+
+
+##### Town monsters #####
+
+
+N:1:Filthy Street Urchin
+A:StreetUrchin
+G:p:D
+I:11:1d4:4:1:40
+W:0:1:0:0
+B:BEG
+B:TOUCH:EAT_GOLD
+F:MALE | OPEN_DOOR | TAKE_ITEM | EVIL | HURT_FIRE
+F:HURT_COLD
+D:He looks squalid and thoroughly revolting.
+
+
+N:2:Blubbering Idiot
+A:BlubberIdiot
+G:p:W
+I:11:1d2:6:1:0
+W:0:1:0:0
+B:DROOL:HURT
+F:MALE | OPEN_DOOR | TAKE_ITEM | HURT_FIRE | HURT_COLD
+D:He tends to blubber a lot.
+
+
+N:3:Pitiful-Looking Beggar
+A:PitifulBeggr
+G:p:U
+I:11:1d4:10:1:40
+W:0:1:0:0
+B:BEG
+F:MALE | OPEN_DOOR | TAKE_ITEM | HURT_FIRE | HURT_COLD
+D:You just can't help feeling sorry for him.
+
+
+N:4:Mangy-Looking Leper
+A:Mangy leper
+G:p:u
+I:11:1d1:10:1:50
+W:0:1:0:0
+B:BEG
+F:MALE | OPEN_DOOR | TAKE_ITEM | HURT_FIRE | HURT_COLD
+D:You feel it isn't safe to touch him.
+
+
+N:5:Squint-Eyed Rogue
+A:Street rogue
+G:p:b
+I:11:2d8:10:8:99
+W:0:1:0:0
+B:HIT:HURT:1d6
+B:TOUCH:EAT_ITEM
+F:MALE | DROP_60 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | HURT_FIRE | HURT_COLD
+D:A hardy, street-wise crook that knows an easy catch when it sees one.
+
+
+N:6:Singing, Happy Drunk
+A:Happy drunk
+G:p:y
+I:11:2d3:10:1:0
+W:0:1:0:0
+B:BEG
+F:MALE | RAND_25 | RAND_50 | ONLY_GOLD | DROP_60
+F:HAS_LIGHT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | HURT_FIRE
+F:HURT_COLD
+D:He makes you glad to be sober.
+
+
+N:7:Mean-Looking Mercenary
+A:Mercenary
+G:p:r
+I:11:5d8:10:20:250
+W:0:1:0:0
+B:HIT:HURT:1d10
+F:MALE | DROP_90 | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
+F:TAKE_ITEM | EVIL | HURT_FIRE | HURT_COLD
+D:No job is too low for him.
+
+
+N:8:Battle-Scarred Veteran
+A:Scarred vet
+G:p:B
+I:11:7d8:10:30:250
+W:0:1:0:0
+B:HIT:HURT:2d6
+F:MALE | DROP_90 | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
+F:TAKE_ITEM | HURT_FIRE | HURT_COLD
+D:He doesn't take to strangers kindly.
+
+
+
+##### Dungeon monsters #####
+
+N:9:Grey Mushroom patch
+A:GreyMushroom
+G:':s
+I:11:1d2:2:1:0
+W:1:1:0:1
+B:SPORE:CONFUSE:1d4
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:Yum!  It looks quite tasty.
+
+
+N:10:Giant Yellow Centipede
+A:GtYellowCent
+G:c:y
+I:11:2d6:8:12:30
+W:1:1:0:2
+B:BITE:HURT:1d3
+B:STING:HURT:1d3
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:11:Giant White Centipede
+A:GtWhiteCent
+G:c:w
+I:11:3d5:7:10:40
+W:1:1:0:2
+B:BITE:HURT:1d2
+B:STING:HURT:1d2
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:12:White Icky-Thing
+A:WhiIckyThing
+G:i:w
+I:11:3d5:12:7:10
+W:1:1:0:2
+B:TOUCH:HURT:1d2
+F:RAND_25 | EMPTY_MIND | HURT_FIRE
+D:It is a smallish, slimy, icky creature.
+
+
+N:13:Clear Icky-Thing
+A:ClrIckyThing
+G:i:w1
+I:11:2d5:12:6:10
+W:1:1:0:1
+B:TOUCH:HURT:1d2
+F:ATTR_CLEAR | RAND_25 | INVISIBLE | EMPTY_MIND | HURT_FIRE
+D:It is a smallish, slimy, icky, blobby creature.
+
+
+N:14:Giant White Mouse
+A:GtWhiteMouse
+G:r:w
+I:11:1d3:8:4:20
+W:1:1:0:1
+B:BITE:HURT:1d2
+F:MULTIPLY | ANIMAL | HURT_FIRE | HURT_COLD
+D:It is about three feet long with large teeth.
+
+
+N:15:Large Brown Snake
+A:LgBrownSnake
+G:R:u
+I:10:4d6:4:35:99
+W:1:1:0:3
+B:BITE:HURT:1d3
+B:CRUSH:HURT:1d4
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE | HURT_COLD
+D:It is about eight feet long.
+
+
+N:16:Large White Snake
+A:LGWhiteSnake
+G:R:w
+I:11:3d6:4:30:99
+W:1:1:0:2
+B:BITE:HURT:1d1
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS
+F:HURT_ACID | HURT_FIRE | HURT_COLD
+D:It is about eight feet long.
+
+
+N:17:Kobold
+A:Kobold
+G:k:G
+I:11:3d7:20:16:10
+W:1:1:0:5
+B:HIT:HURT:1d6
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | HURT_FIRE | HURT_COLD
+D:It is a small, dog-headed humanoid.
+
+
+N:18:White Worm mass
+A:WhteWormMass
+G:w:w
+I:10:4d4:7:1:10
+W:1:1:0:2
+B:CRAWL:POISON:1d2
+F:RAND_50 | STUPID | WEIRD_MIND | MULTIPLY | ANIMAL
+F:HURT_POIS | HURT_ACID | HURT_LIGHT | HURT_FIRE | HURT_COLD
+D:It is a large slimy mass of worms.
+
+
+N:19:Floating Eye
+A:Floating eye
+G:e:o
+I:11:3d6:2:6:10
+W:1:1:10:1
+B:GAZE:PARALYZE
+F:NEVER_MOVE | FLYING | HURT_LIGHT
+S:SPELL_PCT_8 | POW_2
+S:DRAIN_MANA
+D:A disembodied eye, floating a few feet above the ground.
+
+
+N:20:Shrieker Mushroom patch
+A:ShriekMushrm
+G:':R
+I:11:1d1:2:1:0
+W:2:1:7:1
+F:FORCE_EXTRA | NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS
+F:HURT_ACID | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_10 | POW_0
+S:SHRIEK
+D:Yum!  It looks quite tasty.  It doesn't sound so nice, though...
+
+
+N:21:Blubbering Icky-Thing
+A:BlubberrIcky
+G:i:W
+I:11:5d8:14:4:10
+W:2:1:0:8
+B:CRAWL:POISON:1d4
+B:CRAWL:EAT_FOOD
+F:RAND_25 | DROP_90 | EMPTY_MIND | KILL_BODY | TAKE_ITEM
+F:HURT_FIRE
+D:It is a smallish, slimy, icky, hungry creature.
+
+
+N:22:Metallic Green Centipede
+A:GreenCentipe
+G:c:g
+I:12:4d4:5:4:10
+W:2:1:0:3
+B:CRAWL:HURT:1d1
+F:RAND_25 | WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:23:Novice Warrior
+A:NoviceWarior
+G:p:u
+I:11:9d4:20:16:5
+W:2:1:0:6
+B:HIT:HURT:1d7
+F:MALE | DROP_60 | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
+F:HURT_FIRE | HURT_COLD
+D:He looks inexperienced but tough.
+
+
+N:24:Novice Rogue
+A:Novice rogue
+G:p:b
+I:11:8d4:20:12:5
+W:2:1:0:6
+B:HIT:HURT:1d6
+B:TOUCH:EAT_GOLD
+F:MALE | DROP_60 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | HURT_FIRE | HURT_COLD
+D:A rather shifty individual.
+
+
+N:25:Novice Priest
+A:NovicePriest
+G:p:g
+I:11:7d4:20:10:5
+W:2:1:23:7
+B:HIT:HURT:1d5
+F:MALE | FORCE_EXTRA | DROP_60 | HAS_LIGHT | OPEN_DOOR
+F:BASH_DOOR | LOW_MANA_RUN | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_8 | POW_2
+S:WOUND | SCARE
+D:He is tripping over his priestly robes.
+
+
+N:26:Novice Mage
+A:Novice mage
+G:p:r
+I:11:6d4:20:6:5
+W:2:1:23:7
+B:HIT:HURT:1d4
+F:MALE | FORCE_EXTRA | DROP_60 | HAS_LIGHT | OPEN_DOOR
+F:BASH_DOOR | LOW_MANA_RUN | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_8 | POW_2
+S:BLINK | WOUND
+D:He is leaving behind a trail of dropped spell components.
+
+
+N:27:Yellow Mushroom patch
+A:YellowMushrm
+G:':y
+I:11:1d1:2:1:0
+W:2:1:0:2
+B:SPORE:TERRIFY:1d6
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:Yum!  It looks quite tasty.
+
+
+N:28:White Jelly
+A:White jelly
+G:J:w
+I:12:8d8:2:1:99
+W:2:1:0:10
+B:TOUCH:POISON:1d2
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:Its a large pile of white flesh.
+
+
+N:29:Giant Green Frog
+A:GtGreenFrog
+G:f:g
+I:11:2d8:12:8:30
+W:2:1:0:6
+B:BITE:HURT:1d3
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE
+D:It is as big as a wolf, and an ugly shade of green.
+
+
+N:30:Giant Black Ant
+A:Gt black ant
+G:a:D
+I:11:3d6:8:20:80
+W:2:1:0:8
+B:BITE:HURT:1d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:A giant black ant with a caustic bite.
+
+
+N:31:White Harpy
+A:White harpy
+G:h:w
+I:11:2d5:16:17:10
+W:2:1:0:5
+B:CLAW:HURT:1d1
+B:CLAW:HURT:1d1
+B:BITE:HURT:1d2
+F:FEMALE | RAND_25 | EVIL | FLYING | HURT_FIRE
+F:HURT_COLD
+D:A flying, screeching bird with a woman's face.
+
+
+N:32:Blue Yeek
+A:Blue yeek
+G:y:b
+I:11:2d6:18:14:10
+W:2:1:0:4
+B:HIT:HURT:1d5
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | HURT_FIRE | HURT_COLD
+D:A small humanoid figure.
+
+
+N:33:Green Worm mass
+A:GreenWormMs
+G:w:g
+I:10:6d4:7:3:10
+W:2:1:0:3
+B:CRAWL:ACID:1d3
+F:RAND_50 | STUPID | WEIRD_MIND | MULTIPLY | ANIMAL
+F:HURT_LIGHT | HURT_FIRE | HURT_COLD
+D:It is a large slimy mass of worms.
+
+
+N:34:Large Black Snake
+A:LgBlackSnake
+G:R:s
+I:10:4d8:5:38:75
+W:2:1:0:9
+B:BITE:HURT:1d4
+B:CRUSH:HURT:1d6
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE | HURT_COLD
+D:It is about eight feet long.
+
+
+N:35:Poltergeist
+A:Poltergeist
+G:G:W
+I:13:2d5:8:15:10
+W:3:1:23:6
+B:HIT:TERRIFY:1d1
+F:RAND_25 | RAND_50 | DROP_60 | DROP_90 | INVISIBLE
+F:COLD_BLOOD | PASS_WALL | TAKE_ITEM | UNDEAD | EVIL
+F:FLYING | HURT_LIGHT | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_7 | POW_2
+S:BLINK
+D:It is a ghastly, ghostly form.
+
+
+N:36:Metallic Blue Centipede
+A:BlueCentiped
+G:c:b
+I:12:4d5:6:6:15
+W:3:1:0:7
+B:CRAWL:HURT:1d2
+F:RAND_25 | WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:37:Giant White Louse
+A:GtWhiteLouse
+G:l:w
+I:12:1d1:6:5:10
+W:3:1:0:1
+B:BITE:HURT:1d1
+F:RAND_50 | WEIRD_MIND | MULTIPLY | ANIMAL | HURT_POIS
+F:HURT_ACID | HURT_LIGHT | HURT_FIRE | HURT_COLD
+D:It is six inches long.
+
+
+N:38:Black Naga
+A:Black naga
+G:n:D
+I:11:6d8:16:40:120
+W:3:1:0:20
+B:CRUSH:HURT:1d8
+F:FEMALE | DROP_60 | BASH_DOOR | TAKE_ITEM | EVIL
+F:HURT_POIS | HURT_ACID | HURT_FIRE
+D:A large black serpent's body with a female torso.
+
+
+N:39:Spotted Mushroom patch
+A:SpottedMshrm
+G:':o
+I:11:1d1:2:1:0
+W:3:1:0:3
+B:SPORE:POISON:2d4
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:Yum!  It looks quite tasty.
+
+
+N:40:Yellow Jelly
+A:Yellow jelly
+G:J:y
+I:12:10d8:2:1:99
+W:3:1:10:12
+B:TOUCH:POISON:1d3
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_7 | POW_2
+S:DRAIN_MANA
+D:It's a large pile of yellow flesh.
+
+
+N:41:Scruffy-Looking Hobbit
+A:Scruf.hobbit
+G:p:b1
+I:11:3d5:16:8:10
+W:3:1:0:4
+B:HIT:HURT:1d4
+B:TOUCH:EAT_GOLD
+F:MALE | DROP_60 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | HURT_FIRE | HURT_COLD
+D:A short little guy, in bedraggled clothes.  He appears to be looking
+D: for a good tavern.
+
+
+N:42:Huge Brown Bat
+A:Gt brown bat
+G:b:u
+I:13:2d6:8:12:40
+W:3:1:0:4
+B:BITE:HURT:1d2
+F:RAND_50 | EVASIVE | ANIMAL | FLYING | HURT_LIGHT
+F:HURT_FIRE
+D:It screeches loudly as it attacks.
+
+
+N:43:Giant White Ant
+A:Gt White ant
+G:a:w
+I:11:3d6:8:16:80
+W:3:1:0:7
+B:BITE:HURT:1d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about two feet long and has sharp pincers.
+
+
+N:44:Yellow Mold
+A:Yellow mold
+G:m:y
+I:11:8d8:2:10:99
+W:3:1:0:9
+B:HIT:HURT:1d4
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a strange yellow growth on the dungeon floor.
+
+
+N:45:Metallic Red Centipede
+A:MetalRedCent
+G:c:r
+I:12:4d8:8:9:20
+W:3:1:0:12
+B:CRAWL:HURT:1d2
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:46:Yellow Worm mass
+A:Yellow worm
+G:w:y
+I:10:4d8:7:4:10
+W:3:1:0:4
+B:CRAWL:LOSE_DEX:1d3
+F:RAND_50 | STUPID | WEIRD_MIND | MULTIPLY | ANIMAL
+F:HURT_POIS | HURT_ACID | HURT_LIGHT | HURT_FIRE | HURT_COLD
+D:It is a large slimy mass of worms.
+
+
+N:47:Large Green Snake
+A:LgGreenSnake
+G:R:G
+I:10:6d8:5:40:70
+W:3:1:0:10
+B:BITE:HURT:1d4
+B:CRUSH:HURT:1d6
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE | HURT_COLD
+D:It is about eight feet long.
+
+
+N:48:Radiation Eye
+A:RadiationEye
+G:e:R2
+I:11:3d6:2:6:10
+W:3:1:10:6
+B:GAZE:LOSE_STR:1d6
+F:NEVER_MOVE | FLYING | HURT_LIGHT
+S:SPELL_PCT_9 | POW_2
+S:DRAIN_MANA
+D:A disembodied eye, crackling with energy.
+
+
+N:49:Drooling Harpy
+A:DroolngHarpy
+G:h:w1
+I:11:2d8:16:22:10
+W:3:1:0:7
+B:CLAW:HURT:1d1
+B:CLAW:HURT:1d1
+B:BITE:HURT:1d2
+B:DROOL
+F:FEMALE | RAND_25 | EVIL | FLYING | HURT_FIRE
+F:HURT_COLD
+D:An unsavory woman's face on the body of a vicious bird.
+
+
+N:50:Silver Mouse
+A:Silver mouse
+G:r:s2
+I:11:1d1:8:5:10
+W:4:1:0:1
+B:HIT:EAT_LIGHT:1d1
+F:MULTIPLY | ANIMAL | HURT_FIRE | HURT_COLD
+D:It is about three feet long with large teeth.  As the light of your
+D: lamp falls on it, it seems to grow stronger.
+
+
+N:51:Black Mushroom patch
+A:BlkMshrmPtch
+G:':s
+I:11:8d8:2:1:0
+W:4:1:0:8
+B:SPORE:HURT:1d3
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:Yum!  It looks quite tasty.
+
+
+N:52:Blue Jelly
+A:Blue jelly
+G:J:b
+I:11:12d8:2:1:99
+W:4:1:0:14
+B:TOUCH:COLD:1d6
+F:NEVER_MOVE | STUPID | COLD_BLOOD | EMPTY_MIND | HURT_POIS
+F:HURT_ACID | HURT_LIGHT | HURT_FIRE | IM_COLD | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It's a large pile of pulsing blue flesh.
+
+
+N:53:Creeping copper Coins
+A:Copper coins
+G:$:u2
+I:10:7d8:3:24:10
+W:4:1:0:9
+B:HIT:HURT:1d4
+B:TOUCH:POISON:2d4
+F:CHAR_MIMIC | ONLY_GOLD | DROP_1D2 | COLD_BLOOD | EMPTY_MIND
+F:BASH_DOOR | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It appears to be a pile of copper coins.
+
+
+N:54:Giant White Rat
+A:Gt white rat
+G:r:W
+I:11:2d2:8:7:30
+W:4:1:0:1
+B:BITE:POISON:1d3
+F:MULTIPLY | ANIMAL | HURT_FIRE | HURT_COLD
+D:It is a very vicious rodent.
+
+
+N:55:Giant Black Centipede
+A:BlkCentipede
+G:c:s
+I:11:5d8:8:20:30
+W:4:1:0:11
+B:BITE:HURT:1d2
+B:STING:HURT:1d2
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:56:Giant Blue Centipede
+A:BluCentipede
+G:c:B
+I:11:4d8:8:20:50
+W:4:1:0:10
+B:BITE:HURT:1d3
+B:STING:HURT:1d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:57:Blue Worm mass
+A:BlueWormMass
+G:w:b
+I:10:5d8:7:12:10
+W:4:1:0:5
+B:CRAWL:COLD:1d4
+F:RAND_50 | STUPID | COLD_BLOOD | WEIRD_MIND | MULTIPLY
+F:ANIMAL | HURT_POIS | HURT_ACID | HURT_LIGHT | HURT_FIRE
+F:IM_COLD
+D:It is a large slimy mass of worms.
+
+
+N:58:Large Grey Snake
+A:Lg GreySnake
+G:R:s
+I:10:6d8:6:41:50
+W:4:1:0:14
+B:BITE:HURT:1d5
+B:CRUSH:HURT:1d8
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE | HURT_COLD
+D:It is about ten feet long.
+
+
+N:59:Jackal
+A:Jackal
+G:j:U
+I:11:3d8:12:16:30
+W:4:1:0:8
+B:BITE:HURT:1d6
+F:RAND_25 | ANIMAL | HURT_FIRE | HURT_COLD
+D:It is a yapping snarling dog, dangerous when in a pack.
+
+
+N:60:Green Naga
+A:Green naga
+G:n:g
+I:11:9d8:18:40:120
+W:5:1:0:30
+B:CRUSH:HURT:1d8
+B:SPIT:ACID:2d6
+F:FEMALE | DROP_60 | BASH_DOOR | TAKE_ITEM | EVIL
+F:HURT_FIRE | IM_ACID
+D:A large green serpent with a female's torso.  Her green skin glistens
+D: with acid.
+
+
+N:61:Green Glutton Ghost
+A:GrGlutnGhost
+G:G:g
+I:13:3d6:10:20:10
+W:5:1:15:15
+B:SLIME:EAT_FOOD:1d1
+F:RAND_25 | RAND_50 | DROP_60 | DROP_90 | INVISIBLE
+F:COLD_BLOOD | PASS_WALL | TAKE_ITEM | UNDEAD | EVIL
+F:FLYING | HURT_LIGHT | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_7 | POW_2
+S:BLINK | TPORT
+D:It is a very ugly green ghost with a voracious appetite.
+
+
+N:62:White Mushroom patch
+A:WhtMshrmPtch
+G:':w1
+I:11:1d1:2:1:0
+W:5:1:0:5
+B:SPORE:PARALYZE:2d4
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:Yum!  It looks quite tasty.
+
+
+N:63:Green Jelly
+A:Green jelly
+G:J:g1
+I:12:22d8:2:1:99
+W:5:1:0:18
+B:TOUCH:ACID:1d2
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_LIGHT | HURT_FIRE
+F:IM_ACID | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a large pile of pulsing green flesh.
+
+
+N:64:Skeleton Kobold
+A:SkeltnKobold
+G:s:w
+I:11:5d8:20:26:40
+W:5:1:0:12
+B:HIT:HURT:1d6
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | UNDEAD
+F:EVIL | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a small animated kobold skeleton.
+
+
+N:65:Silver Jelly
+A:Silver jelly
+G:J:s2
+I:11:20d8:2:25:40
+W:5:1:0:15
+B:TOUCH:EAT_LIGHT:1d3
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a large pile of silver flesh that sucks all light from its
+D: surroundings.
+
+
+N:66:Giant Black Frog
+A:GtBlackFrog
+G:f:s
+I:11:4d8:12:18:40
+W:5:1:0:12
+B:BITE:HURT:1d6
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE
+D:It is as big as a wolf, and with dark slimy rubbery skin.
+
+
+N:67:Grey Icky-Thing
+A:GreyIckyThin
+G:i:s
+I:11:4d8:14:12:15
+W:5:1:0:10
+B:TOUCH:HURT:1d5
+F:RAND_25 | EMPTY_MIND | HURT_FIRE
+D:It is a smallish, slimy, icky, nasty creature.
+
+
+N:68:Disenchanter Eye
+A:DisenchanEye
+G:e:v
+I:10:7d8:2:10:10
+W:5:1:10:20
+B:GAZE:UN_BONUS
+F:ATTR_MULTI | NEVER_MOVE | FLYING | HURT_LIGHT
+S:SPELL_PCT_11 | POW_2
+S:DRAIN_MANA
+D:A disembodied eye, crackling with magic.
+
+
+N:69:Black Yeek
+A:Black Yeek
+G:y:s
+I:11:2d8:18:16:10
+W:5:1:0:8
+B:HIT:HURT:1d5
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | HURT_FIRE | HURT_COLD
+D:A small humanoid figure.
+
+
+N:70:Red Worm mass
+A:Red WormMass
+G:w:r
+I:10:5d8:7:12:10
+W:5:1:0:6
+B:CRAWL:FIRE:1d6
+F:RAND_50 | STUPID | EMPTY_MIND | MULTIPLY | BASH_DOOR
+F:ANIMAL | HURT_POIS | HURT_ACID | HURT_LIGHT | HURT_COLD
+F:IM_FIRE
+D:It is a large slimy mass of worms.
+
+
+N:71:Giant House Fly
+A:GtHouseFly
+G:F:s
+I:13:3d8:12:16:20
+W:5:1:0:10
+B:BITE:HURT:1d2
+F:RAND_50 | WEIRD_MIND | ANIMAL | FLYING | HURT_FIRE
+D:An annoying pest.
+
+
+N:72:Copperhead Snake
+A:Cpprhd Snake
+G:R:o
+I:11:4d6:6:20:1
+W:5:1:0:15
+B:BITE:POISON:2d4
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS
+F:HURT_ACID | HURT_FIRE | HURT_COLD
+D:It has a copper head and sharp venomous fangs.
+
+
+N:73:Rot Jelly
+A:Rot jelly
+G:J:u
+I:11:20d8:2:30:99
+W:5:1:0:15
+B:TOUCH:EAT_FOOD:2d3
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a large pile of rotting flesh, whose touch spoils your food. The
+D: terrible smell it exudes is also very hard to get rid of.
+
+
+N:74:Purple Mushroom patch
+A:PrpMshrmPtch
+G:':v
+I:12:1d1:2:1:0
+W:6:1:0:12
+B:SPORE:LOSE_CON:1d2
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:Yum!  It looks quite tasty.
+
+
+N:75:Brown Mold
+A:Brown mold
+G:m:u
+I:11:15d8:2:12:99
+W:6:1:0:20
+B:HIT:CONFUSE:1d4
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:A strange brown growth on the dungeon floor.
+
+
+N:76:Giant Brown Bat
+A:GtBrownBat
+G:b:u
+I:13:3d8:10:15:30
+W:6:1:0:10
+B:BITE:HURT:1d3
+F:RAND_25 | EVASIVE | ANIMAL | FLYING | HURT_LIGHT
+F:HURT_FIRE
+D:A giant brown bat, the beating of whose wings produces a strangely
+D: unnerving noise.
+
+
+N:77:Creeping silver Coins
+A:Silver coins
+G:$:s2
+I:10:12d8:4:30:10
+W:6:1:0:18
+B:HIT:HURT:1d6
+B:TOUCH:POISON:2d6
+F:CHAR_MIMIC | ONLY_GOLD | DROP_60 | DROP_1D2 | COLD_BLOOD
+F:EMPTY_MIND | BASH_DOOR | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It appears to be a pile of silver coins.
+
+
+N:78:Orc
+A:Hill orc
+G:o:u
+I:11:9d8:20:32:30
+W:6:1:0:16
+B:HIT:HURT:1d8
+F:MALE | DROP_90 | OPEN_DOOR | BASH_DOOR | ORC
+F:EVIL | HURT_FIRE | HURT_COLD
+D:He is a hardy well-weathered survivor.
+
+
+N:79:Grey Harpy
+A:Grey Harpy
+G:h:s1
+I:12:3d8:16:20:10
+W:6:1:0:14
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+B:BITE:HURT:1d2
+F:FEMALE | RAND_25 | EVIL | FLYING | HURT_FIRE
+F:HURT_COLD
+D:A woman's face on the body of a vicious gray feathered bird.
+
+
+N:80:Blue Icky-Thing
+A:BlueIckyThng
+G:i:b
+I:11:4d8:14:14:20
+W:6:1:0:12
+B:TOUCH:COLD:2d3
+F:FORCE_EXTRA | RAND_25 | BASH_DOOR | HURT_FIRE | IM_COLD
+D:It is a strange, slimy, icky creature, with rudimentary intelligence,
+D: but evil cunning.  It hungers for food, and you look tasty.
+
+
+N:81:Rattlesnake
+A:Rattlesnake
+G:R:r
+I:11:6d7:6:24:1
+W:6:1:0:20
+B:BITE:POISON:2d5
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS
+F:HURT_ACID | HURT_FIRE | HURT_COLD
+D:It is recognized by the hard-scaled end of its body that is often
+D: rattled to frighten its prey.
+
+
+N:82:Bloodshot Eye
+A:BloodshotEye
+G:e:r
+I:11:4d8:2:6:10
+W:7:1:10:15
+B:GAZE:BLIND:2d6
+F:NEVER_MOVE | FLYING | HURT_LIGHT
+S:SPELL_PCT_14 | POW_2
+S:DRAIN_MANA
+D:A disembodied eye, bloodshot and nasty.
+
+
+N:83:Red Naga
+A:Red naga
+G:n:r
+I:11:11d8:20:40:120
+W:7:1:0:40
+B:CRUSH:HURT:1d10
+B:BITE:LOSE_STR:1d4
+F:FEMALE | DROP_60 | BASH_DOOR | TAKE_ITEM | EVIL
+F:HURT_POIS | HURT_ACID | HURT_FIRE
+D:A large red snake with a woman's torso.
+
+
+N:84:Red Jelly
+A:Red jelly
+G:J:r
+I:11:26d8:2:1:99
+W:7:1:0:26
+B:TOUCH:LOSE_STR:1d5
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It is a large pulsating mound of red flesh.
+
+
+N:85:Giant Red Frog
+A:Gt red frog
+G:f:r
+I:11:5d8:12:16:50
+W:7:1:0:16
+B:BITE:LOSE_STR:2d4
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE
+D:It looks poisonous.
+
+
+N:86:Green Icky-Thing
+A:GrnIckyThing
+G:i:g
+I:11:5d8:14:12:20
+W:7:1:0:18
+B:TOUCH:ACID:2d5
+F:RAND_25 | EMPTY_MIND | HURT_FIRE
+D:It is a smallish, slimy, icky, acidic creature.
+
+
+N:87:Zombie Kobold
+A:ZombfdKobold
+G:z:s
+I:11:6d8:20:14:30
+W:7:1:0:14
+B:HIT:HURT:1d2
+B:HIT:HURT:1d2
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | UNDEAD
+F:EVIL | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It is an animated kobold corpse.  Flesh falls off in large chunks as
+D: it shambles forward.
+
+
+N:88:Lost Soul
+A:Lost soul
+G:G:B
+I:11:2d8:12:10:10
+W:7:1:26:18
+B:HIT:HURT:2d2
+B:TOUCH:LOSE_WIS
+F:RAND_25 | DROP_60 | DROP_90 | INVISIBLE | COLD_BLOOD
+F:PASS_WALL | TAKE_ITEM | UNDEAD | EVIL | FLYING
+F:HURT_LIGHT | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:SPELL_PCT_7 | POW_2
+S:TPORT | DRAIN_MANA
+D:It is almost insubstantial.
+
+
+N:89:Greedy Little Gnome
+A:GreedyGnome
+G:p:b1
+I:11:3d8:18:14:10
+W:7:1:0:13
+B:HIT:HURT:1d7
+B:TOUCH:EAT_ITEM
+F:DROP_90 | SMART | OPEN_DOOR | TAKE_ITEM | EVIL
+F:HURT_FIRE | HURT_COLD
+D:A small humaniod with quick and nimble fingers.
+
+
+N:90:Giant Green Fly
+A:GtGreenFly
+G:F:g
+I:12:3d8:12:14:20
+W:7:1:0:15
+B:BITE:HURT:1d4
+F:RAND_50 | WEIRD_MIND | ANIMAL | FLYING | HURT_FIRE
+D:A large green, fast-breeding, annoying pest.
+
+
+N:91:Brown Yeek
+A:Brown yeek
+G:y:u
+I:11:3d8:18:18:10
+W:8:1:0:11
+B:HIT:HURT:1d6
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | HURT_FIRE | HURT_COLD
+D:It is a strange small humanoid.
+
+
+N:92:Green Mold
+A:Green mold
+G:m:g
+I:11:21d8:2:14:75
+W:8:1:0:28
+B:HIT:TERRIFY:1d4
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a strange growth on the dungeon floor.
+
+
+N:93:Skeleton Orc
+A:Skeleton orc
+G:s:w
+I:11:10d8:20:36:40
+W:8:1:0:26
+B:HIT:HURT:2d5
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | ORC
+F:UNDEAD | EVIL | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It is an animated orc skeleton.
+
+
+N:94:Seedy Looking Human
+A:Seedy Human
+G:p:b
+I:11:8d8:20:26:20
+W:8:1:0:22
+B:HIT:HURT:3d4
+F:MALE | DROP_1D2 | OPEN_DOOR | BASH_DOOR | EVIL
+F:HURT_FIRE | HURT_COLD
+D:A thief of great power and shifty speed.
+
+
+N:95:Red Icky-Thing
+A:RedIckyThing
+G:i:r
+I:12:4d8:14:18:20
+W:8:1:0:22
+B:TOUCH:HURT:1d3
+B:BREATHE:ACID:1d5
+F:RAND_25 | HURT_FIRE | IM_ACID
+D:It is a smallish, slimy, icky, red creature.
+
+
+N:96:Bandit
+A:Bandit
+G:p:b
+I:11:8d8:20:24:10
+W:8:1:0:26
+B:HIT:HURT:2d4
+B:TOUCH:EAT_GOLD
+F:MALE | DROP_1D2 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | HURT_FIRE | HURT_COLD
+D:He is after your cash!
+
+
+N:97:Yeti
+A:Yeti
+G:Y:w
+I:11:11d8:20:24:10
+W:9:1:0:30
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d4
+F:OPEN_DOOR | BASH_DOOR | EVIL | HURT_FIRE | IM_COLD
+D:A large white figure covered in shaggy fur.
+
+
+N:98:Bloodshot Icky-Thing
+A:BloodshtIcky
+G:i:r
+I:11:7d8:14:18:20
+W:9:1:23:24
+B:TOUCH:HURT:1d4
+B:BREATHE:ACID:2d4
+F:RAND_25 | EMPTY_MIND | HURT_FIRE
+S:SPELL_PCT_9 | POW_2
+S:DRAIN_MANA
+D:It is a strange, slimy, icky creature.
+
+
+N:99:Giant Grey Rat
+A:Gt grey rat
+G:r:s
+I:11:2d3:8:12:20
+W:9:1:0:2
+B:BITE:POISON:1d4
+F:MULTIPLY | ANIMAL | HURT_FIRE | HURT_COLD
+D:It is a rodent of unusual size.
+
+
+N:100:Black Harpy
+A:Black harpy
+G:h:D
+I:12:3d8:16:22:10
+W:9:1:0:19
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+B:BITE:HURT:1d3
+F:FEMALE | EVIL | FLYING | HURT_FIRE | HURT_COLD
+D:A woman's face on the body of a vicious black bird.
+
+
+N:101:Giant Black Bat
+A:GtBlackBat
+G:b:s
+I:13:2d8:12:18:25
+W:9:1:0:16
+B:BITE:HURT:1d6
+F:RAND_25 | EVASIVE | ANIMAL | FLYING | HURT_LIGHT
+F:HURT_FIRE
+D:A giant black bat, the beating of whose wings produces a strangely
+D: unnerving noise.
+
+
+N:102:Clear Yeek
+A:Clear Yeek
+G:y:w1
+I:11:3d6:18:24:10
+W:9:1:0:14
+B:HIT:HURT:1d5
+F:DROP_60 | INVISIBLE | OPEN_DOOR | BASH_DOOR | HURT_FIRE
+F:HURT_COLD
+D:A small, hard-to-see humanoid figure.
+
+
+N:103:Orc Shaman
+A:Orc shaman
+G:o:r
+I:11:7d8:20:15:20
+W:9:1:23:30
+B:HIT:HURT:1d6
+F:MALE | FORCE_EXTRA | DROP_90 | OPEN_DOOR | BASH_DOOR
+F:ORC | EVIL | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_20 | POW_5
+S:WOUND
+D:An orc dressed in skins who gestures wildly.
+
+
+N:104:Giant Red Ant
+A:GiantRedAnt
+G:a:r
+I:11:4d8:12:34:60
+W:9:1:0:22
+B:BITE:HURT:1d4
+B:STING:LOSE_STR:1d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is large and has venomous mandibles.
+
+
+N:105:King Cobra
+A:King cobra
+G:R:g
+I:11:8d8:8:30:1
+W:9:1:0:28
+B:SPIT:BLIND:1d2
+B:BITE:POISON:3d4
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS
+F:HURT_ACID | HURT_FIRE | HURT_COLD
+D:It is a large snake with a hooded face.
+
+
+N:106:Clear Mushroom patch
+A:ClrMshrmPtch
+G:':w
+I:12:1d1:4:1:0
+W:10:1:0:1
+B:SPORE:HURT:1d1
+F:ATTR_CLEAR | NEVER_MOVE | STUPID | INVISIBLE | COLD_BLOOD
+F:EMPTY_MIND | MULTIPLY | HURT_POIS | HURT_ACID | HURT_FIRE
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:Yum!  It looks quite tasty.
+
+
+N:107:Giant White Tick
+A:GtWhitetick
+G:t:w
+I:10:15d8:12:40:20
+W:10:1:0:27
+B:BITE:POISON:2d6
+F:WEIRD_MIND | BASH_DOOR | ANIMAL | HURT_FIRE
+D:It is moving slowly towards you.
+
+
+N:108:Hairy Mold
+A:Hairy mold
+G:m:o
+I:11:15d8:2:15:70
+W:10:1:0:32
+B:HIT:POISON:1d3
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a strange hairy growth on the dungeon floor.
+
+
+N:109:Disenchanter Mold
+A:DisenchaMold
+G:m:v
+I:11:16d8:2:20:70
+W:10:1:15:40
+B:TOUCH:UN_BONUS:1d6
+F:ATTR_MULTI | NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS
+F:HURT_ACID | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_9 | POW_4
+S:DRAIN_MANA
+D:It is a strange glowing growth on the dungeon floor.
+
+
+N:110:Giant Red Centipede
+A:RedCentipede
+G:c:r
+I:12:3d8:12:26:50
+W:10:1:0:24
+B:BITE:HURT:1d2
+B:STING:POISON:1d2
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:111:Creeping gold Coins
+A:CreepingGold
+G:$:y2
+I:10:18d8:5:36:10
+W:10:1:0:32
+B:HIT:HURT:2d5
+B:TOUCH:POISON:3d5
+F:CHAR_MIMIC | ONLY_GOLD | DROP_90 | DROP_1D2 | COLD_BLOOD
+F:EMPTY_MIND | BASH_DOOR | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It appears to be a pile of gold coins, until it starts crawling
+D: towards you on tiny legs.
+
+
+N:112:Giant Fruit Fly
+A:Gt fruit fly
+G:F:G
+I:12:2d2:8:14:10
+W:10:1:0:4
+B:BITE:HURT:1d2
+F:RAND_50 | WEIRD_MIND | MULTIPLY | ANIMAL | FLYING
+F:HURT_FIRE
+D:A fast-breeding, annoying pest.
+
+
+N:113:Brigand
+A:Brigand
+G:p:b1
+I:11:9d8:20:32:10
+W:10:1:0:35
+B:HIT:HURT:2d4
+B:TOUCH:EAT_ITEM
+F:MALE | DROP_1D2 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | HURT_FIRE | HURT_COLD
+D:He is eyeing your backpack.
+
+
+N:114:Orc Zombie
+A:ZombifiedOrc
+G:z:s
+I:11:11d8:20:24:25
+W:11:1:0:30
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | ORC
+F:UNDEAD | EVIL | HURT_FIRE | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+D:It is a shambling orcish corpse leaving behind a trail of flesh.
+
+
+N:115:Orc Warrior
+A:Orc captain
+G:o:o
+I:11:11d8:20:36:25
+W:11:1:0:34
+B:HIT:HURT:2d6
+F:MALE | DROP_90 | OPEN_DOOR | BASH_DOOR | ORC
+F:EVIL | HURT_FIRE | HURT_COLD
+D:An armoured orc with an air of authority.
+
+
+N:116:Vorpal Bunny
+A:Vorpal bunny
+G:r:U
+I:12:2d3:8:10:30
+W:11:1:0:2
+B:BITE:HURT:1d5
+F:MULTIPLY | ANIMAL | HURT_FIRE | HURT_COLD
+D:A fast-breeding, fast-moving vermin with light brown fur and big dark
+D: eyes.  Nothing that looks so innocent has ever been so dangerous.
+
+
+N:117:Nasty Little Gnome
+A:Nasty Gnome
+G:p:R
+I:11:4d8:18:10:10
+W:11:1:45:32
+B:HIT:HURT:1d5
+F:DROP_1D2 | SMART | OPEN_DOOR | EVIL | HURT_FIRE
+F:HURT_COLD
+S:SPELL_PCT_20 | POW_6
+S:BLINK | TPORT | WOUND | S_MONSTER
+D:A small humaniod who likes to fight.
+
+
+N:118:Hobgoblin
+A:Hobgoblin
+G:H:U
+I:11:12d8:20:38:30
+W:11:1:0:38
+B:HIT:HURT:1d10
+F:MALE | DROP_60 | DROP_90 | OPEN_DOOR | BASH_DOOR
+F:ORC | EVIL | HURT_FIRE | HURT_COLD
+D:A smallish, but nasty orc.
+
+
+N:119:Black Mamba
+A:Black mamba
+G:R:D
+I:12:10d8:10:32:1
+W:12:1:0:40
+B:BITE:POISON:4d4
+F:RAND_25 | COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS
+F:HURT_ACID | HURT_FIRE | HURT_COLD
+D:It has glistening black skin, a sleek body and highly venomous fangs.
+
+
+N:120:Grape Jelly
+A:Grape jelly
+G:J:v
+I:11:52d8:2:1:99
+W:12:1:20:60
+B:TOUCH:EXP_10:5d8
+F:NEVER_MOVE | STUPID | HAS_LIGHT | EMPTY_MIND | HURT_POIS
+F:HURT_ACID | HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_9 | POW_2
+S:DRAIN_MANA
+D:Yum!  It looks quite tasty.  It is a pulsing mound of glowing flesh.
+
+
+N:121:Master Yeek
+A:Master yeek
+G:y:U
+I:11:5d8:18:24:10
+W:12:1:35:28
+B:HIT:HURT:1d8
+F:FORCE_EXTRA | DROP_60 | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN
+F:HURT_FIRE | HURT_COLD
+S:SPELL_PCT_13 | POW_2
+S:BLINK
+D:A small humanoid that radiates some power.
+
+
+N:122:Priest
+A:Priest
+G:p:g1
+I:11:7d8:20:22:40
+W:12:1:50:36
+B:HIT:HURT:2d3
+F:MALE | FORCE_EXTRA | DROP_1D2 | SMART | HAS_LIGHT
+F:OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_20 | POW_6
+S:WOUND | HOLD
+D:A robed man, dedicated to his god.
+
+
+N:123:Giant Clear Ant
+A:GtClearAnt
+G:a:w1
+I:11:3d7:12:18:60
+W:12:1:0:24
+B:BITE:HURT:1d4
+F:ATTR_CLEAR | INVISIBLE | WEIRD_MIND | BASH_DOOR | ANIMAL
+D:A giant clear ant with a caustic bite.
+
+
+N:124:Air Spirit
+A:Air spirit
+G:E:B
+I:13:5d8:12:20:20
+W:12:1:0:40
+B:HIT:HURT:1d3
+F:RAND_50 | INVISIBLE | COLD_BLOOD | EMPTY_MIND | EVASIVE
+F:OPEN_DOOR | BASH_DOOR | FLYING | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+D:A whirlwind of sentient air.
+
+
+N:125:Skeleton Human
+A:Skeltn Human
+G:s:w
+I:11:12d8:20:30:30
+W:12:1:0:38
+B:HIT:HURT:1d8
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | UNDEAD
+F:EVIL | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is an animated human skeleton.
+
+
+N:126:Human Zombie
+A:Zombie human
+G:z:s1
+I:11:11d8:20:24:20
+W:12:1:0:34
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | UNDEAD
+F:EVIL | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It is a shambling human corpse dropping chunks of flesh behind it.
+
+
+N:127:Moaning Spirit
+A:Moaning Sprt
+G:G:u
+I:11:4d8:14:20:10
+W:12:1:35:44
+B:WAIL:TERRIFY
+B:TOUCH:LOSE_DEX:1d8
+F:FORCE_EXTRA | DROP_60 | DROP_90 | INVISIBLE | COLD_BLOOD
+F:PASS_WALL | TAKE_ITEM | UNDEAD | EVIL | FLYING
+F:HURT_LIGHT | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:SPELL_PCT_7 | POW_6
+S:TPORT | DRAIN_MANA
+D:A ghostly apparition that shrieks horribly.
+
+
+N:128:Swordsman
+A:Swordsman
+G:p:u1
+I:11:11d8:20:34:20
+W:12:1:0:40
+B:HIT:HURT:3d5
+F:MALE | DROP_1D2 | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
+F:HURT_FIRE | HURT_COLD
+D:A warrior of considerable skill.
+
+
+N:129:Killer Brown Beetle
+A:Brown beetle
+G:K:u
+I:11:13d8:10:40:30
+W:13:1:0:38
+B:BITE:HURT:3d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a vicious insect with a tough carapace.
+
+
+N:130:Ogre
+A:Ogre
+G:o:U
+I:11:13d8:20:32:30
+W:13:1:0:42
+B:HIT:HURT:2d8
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | GIANT | EVIL
+F:HURT_FIRE | HURT_COLD
+D:A hideous, smallish giant that is often found near or with orcs.
+
+
+N:131:Giant Red Speckled Frog
+A:RedSpeckFrog
+G:f:r1
+I:11:6d8:12:20:30
+W:13:1:0:32
+B:BITE:HURT:3d4
+F:COLD_BLOOD | BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID
+F:HURT_FIRE
+D:It is as big as a wolf, and with red spotted skin.
+
+
+N:132:Magic User
+A:Magic User
+G:p:R
+I:11:7d8:20:10:10
+W:13:1:37:35
+B:HIT:HURT:2d2
+F:MALE | FORCE_EXTRA | DROP_1D2 | SMART | HAS_LIGHT
+F:OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_33 | POW_5
+S:BLINK | BLIND | S_MONSTER
+D:A deceptive spell caster.
+
+
+N:133:Black Orc
+A:Black orc
+G:o:D
+I:11:12d8:20:36:20
+W:13:1:0:40
+B:HIT:HURT:3d4
+F:MALE | DROP_90 | OPEN_DOOR | BASH_DOOR | ORC
+F:EVIL | HURT_FIRE | HURT_COLD
+D:He is a large orc with powerful arms and deep black skin.
+
+
+N:134:Giant Long-Eared Bat
+A:LongEaredBat
+G:b:s
+I:13:5d8:12:20:20
+W:13:1:0:20
+B:BITE:HURT:1d4
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+F:RAND_25 | EVASIVE | ANIMAL | FLYING | HURT_LIGHT
+F:HURT_FIRE
+D:A giant bat with sparks shooting out of its nostrils.
+
+
+N:135:Giant Gnat
+A:Giant Gnat
+G:F:s
+I:13:1d2:8:4:10
+W:13:1:0:1
+B:BITE:HURT:1d1
+F:RAND_50 | WEIRD_MIND | MULTIPLY | ANIMAL | FLYING
+F:HURT_FIRE
+D:A large annoying insect.
+
+
+N:136:Killer Green Beetle
+A:KlrGreenBeet
+G:K:g
+I:11:16d8:12:45:30
+W:14:1:0:46
+B:BITE:HURT:4d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant green beetle.
+
+
+N:137:Giant Flea
+A:Giant flea
+G:F:s
+I:12:2d2:8:25:10
+W:14:1:0:1
+B:BITE:HURT:1d2
+F:RAND_50 | WEIRD_MIND | MULTIPLY | BASH_DOOR | ANIMAL
+F:HURT_FIRE
+D:It makes you itch just to look at it.
+
+
+N:138:Giant White Dragon Fly
+A:GtWhiteDrFly
+G:F:w
+I:11:5d8:20:20:50
+W:14:1:0:54
+B:BITE:COLD:1d6
+F:FORCE_EXTRA | RAND_25 | WEIRD_MIND | EVASIVE | BASH_DOOR
+F:ANIMAL | FLYING | HURT_FIRE | IM_COLD
+S:SPELL_PCT_10 | POW_2
+S:BRTH_COLD
+D:It is a large fly that drips frost.
+
+
+N:139:Hill Giant
+A:Hill giant
+G:P:U
+I:11:16d8:20:36:50
+W:14:1:0:52
+B:HIT:HURT:3d6
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | GIANT | EVIL
+F:HURT_FIRE | HURT_COLD
+D:A ten foot tall humanoid with powerful muscles.
+
+
+N:140:Skeleton Hobgoblin
+A:SkelHobgobln
+G:s:w
+I:11:13d8:20:34:30
+W:14:1:0:46
+B:HIT:HURT:2d5
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | ORC
+F:UNDEAD | EVIL | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It is an animated skeleton of a small orc.
+
+
+N:141:Flesh Golem
+A:Flesh golem
+G:g:R
+I:11:12d8:12:10:10
+W:14:1:0:48
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:EMPTY_MIND | BASH_DOOR | HURT_FIRE | HURT_COLD | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:A shambling humanoid monster with long scars.
+
+
+N:142:White Dragon Bat
+A:WhiteDragBat
+G:b:w
+I:13:2d6:12:20:50
+W:14:1:0:40
+B:BITE:COLD:1d3
+F:RAND_25 | EVASIVE | ANIMAL | FLYING | HURT_LIGHT
+F:HURT_FIRE | IM_COLD
+S:SPELL_PCT_25 | POW_2
+S:BRTH_COLD
+D:It is a sharp-tailed bat, wreathed in frost.
+
+
+N:143:Giant Black Louse
+A:GtBlackLouse
+G:l:D
+I:12:1d1:6:7:10
+W:14:1:0:1
+B:BITE:HURT:1d2
+F:RAND_25 | WEIRD_MIND | MULTIPLY | ANIMAL | HURT_POIS
+F:HURT_ACID | HURT_LIGHT | HURT_FIRE | HURT_COLD
+D:It makes you itch just to look at it.
+
+
+N:144:Guardian Naga
+A:GuardianNaga
+G:n:B
+I:11:24d8:20:50:120
+W:15:1:0:60
+B:CRUSH:HURT:2d8
+B:BITE:HURT:1d8
+F:FEMALE | DROP_60 | DROP_1D2 | BASH_DOOR | TAKE_ITEM
+F:EVIL | HURT_POIS | HURT_ACID | HURT_FIRE
+D:A giant snake-like figure with a woman's torso.
+
+
+N:145:Giant Grey Bat
+A:GtGreyBat
+G:b:s
+I:13:4d8:12:22:15
+W:15:1:0:22
+B:BITE:HURT:1d6
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+F:FORCE_EXTRA | RAND_25 | EVASIVE | ANIMAL | FLYING
+F:HURT_LIGHT | HURT_FIRE
+D:A giant grey bat, the beating of whose wings produces a strangely
+D: unnerving noise.
+
+
+N:146:Giant Clear Centipede
+A:GtClearCenti
+G:c:w1
+I:11:5d8:12:30:30
+W:15:1:0:30
+B:BITE:HURT:2d4
+B:STING:HURT:2d4
+F:ATTR_CLEAR | INVISIBLE | WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is about four feet long and carnivorous.
+
+
+N:147:Giant Yellow Tick
+A:GtYellowTick
+G:t:y
+I:10:20d8:12:48:20
+W:15:1:0:48
+B:BITE:POISON:3d9
+F:WEIRD_MIND | BASH_DOOR | ANIMAL | HURT_FIRE
+D:It is moving slowly towards you.
+
+
+N:148:Giant Ebony Ant
+A:GtEbonyAnt
+G:a:D
+I:11:3d4:12:24:60
+W:15:1:0:3
+B:BITE:HURT:2d3
+F:WEIRD_MIND | MULTIPLY | BASH_DOOR | ANIMAL
+D:A giant black ant with a caustic bite.
+
+
+N:149:Frost Giant
+A:Frost giant
+G:P:w
+I:11:17d8:20:38:50
+W:15:1:0:54
+B:HIT:COLD:3d6
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | GIANT | EVIL
+F:HURT_FIRE | IM_COLD
+D:A twelve foot tall giant covered in furs.
+
+
+N:150:Clay Golem
+A:Clay golem
+G:g:U
+I:11:14d8:12:20:10
+W:15:1:0:50
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR | HURT_ROCK | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is a massive animated statue made out of hardened clay.
+
+
+N:151:Huge White Bat
+A:HugeWhiteBat
+G:b:w
+I:12:3d8:7:12:40
+W:15:1:0:3
+B:BITE:HURT:1d6
+F:FORCE_EXTRA | RAND_25 | MULTIPLY | EVASIVE | ANIMAL
+F:FLYING | HURT_LIGHT | HURT_FIRE
+D:It screeches as it attacks.
+
+
+N:152:Giant Tan Bat
+A:GiantTanBat
+G:b:U
+I:12:3d8:12:18:40
+W:15:1:0:18
+B:BITE:TERRIFY:1d2
+B:CLAW:HURT:1d1
+B:CLAW:HURT:1d1
+F:FORCE_EXTRA | RAND_25 | EVASIVE | ANIMAL | FLYING
+F:HURT_LIGHT | HURT_FIRE
+D:A giant bat, the beating of whose wings produces a strangely unnerving
+D: noise.
+
+
+N:153:Violet Mold
+A:Violet Mold
+G:m:v
+I:11:17d8:2:15:70
+W:15:1:15:50
+B:HIT:PARALYZE:1d2
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:SPELL_PCT_11 | POW_2
+S:DRAIN_MANA
+D:It is a strange purple growth on the dungeon floor.
+
+
+N:154:Umber Hulk
+A:Umber hulk
+G:U:U
+I:11:20d8:20:20:10
+W:16:1:0:75
+B:GAZE:CONFUSE
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:HURT:2d6
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | PASS_WALL
+F:KILL_WALL | EVIL | HURT_LIGHT | HURT_FIRE
+D:This bizarre creature has glaring eyes and large mandibles capable of
+D: slicing through rock.
+
+
+N:155:Gelatinous Cube
+A:GelatnosCube
+G:C:G
+I:10:45d8:12:18:1
+W:16:1:0:36
+B:TOUCH:ACID:1d10
+F:DROP_60 | DROP_90 | DROP_2D2 | STUPID | COLD_BLOOD
+F:EMPTY_MIND | BASH_DOOR | KILL_BODY | TAKE_ITEM | HURT_FIRE
+F:IM_ACID | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a strange, vast gelatinous structure that assumes cubic
+D: proportions as it lines all four walls of the corridors it patrols.
+D: Through its transparent jelly structure you can see treasures it has
+D: engulfed, and a few corpses as well.
+
+
+N:156:Giant Black Rat
+A:GtBlackRat
+G:r:s
+I:11:3d4:8:16:20
+W:16:1:0:3
+B:BITE:POISON:1d5
+F:COLD_BLOOD | MULTIPLY | ANIMAL | HURT_FIRE | HURT_COLD
+D:It is a black rodent of unusual size.
+
+
+N:157:Giant Green Dragon Fly
+A:GtGreenDrFly
+G:F:g
+I:11:5d8:20:20:50
+W:16:1:0:58
+B:BITE:POISON:1d6
+F:FORCE_EXTRA | RAND_25 | WEIRD_MIND | EVASIVE | BASH_DOOR
+F:ANIMAL | FLYING | HURT_FIRE | HURT_COLD | IM_POIS
+S:SPELL_PCT_10 | POW_2
+S:BRTH_POIS
+D:A vast, foul-smelling dragonfly.
+
+
+N:158:Fire Giant
+A:Fire giant
+G:P:r
+I:11:20d8:20:40:50
+W:16:1:0:62
+B:HIT:FIRE:3d7
+F:DROP_60 | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | GIANT
+F:EVIL | HURT_COLD | IM_FIRE
+D:A glowing fourteen foot tall giant.  Flames drip from its red skin.
+
+
+N:159:Green Dragon Bat
+A:GreenDragBat
+G:b:g
+I:13:2d7:12:22:50
+W:16:1:0:44
+B:BITE:POISON:1d3
+F:FORCE_EXTRA | RAND_25 | EVASIVE | ANIMAL | FLYING
+F:HURT_LIGHT | HURT_COLD | IM_POIS
+S:SPELL_PCT_25 | POW_2
+S:BRTH_POIS
+D:It is a glowing green bat with a sharp tail.
+
+
+N:160:Quasit
+A:Quasit
+G:q:o
+I:11:5d8:20:30:20
+W:16:1:48:48
+B:BITE:LOSE_DEX:1d6
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+F:FORCE_EXTRA | ONLY_ITEM | DROP_1D2 | SMART | INVISIBLE
+F:OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | DEMON | EVIL
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_10 | POW_5
+S:BLINK | TPORT | TELE_SELF_TO | WOUND | SCARE
+D:The chaotic evil master's favourite pet.
+
+
+N:161:Troll
+A:Troll
+G:T:r
+I:11:17d8:20:40:40
+W:17:1:0:64
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+B:BITE:HURT:1d6
+F:DROP_60 | DROP_90 | OPEN_DOOR | BASH_DOOR | TROLL
+F:EVIL | HURT_FIRE
+D:A massive troll, larger and stronger than many men together.
+
+
+N:162:Water Spirit
+A:Water spirit
+G:E:b
+I:12:8d8:12:28:40
+W:17:1:0:58
+B:HIT:HURT:2d4
+F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR | FLYING | HURT_FIRE
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:A whirlpool of sentient liquid.
+
+
+N:163:Giant Brown Scorpion
+A:GtBrownScrpn
+G:S:u
+I:11:11d8:12:44:20
+W:17:1:0:62
+B:BITE:HURT:2d4
+B:STING:LOSE_STR:1d7
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is fast and poisonous.
+
+
+N:164:Earth Spirit
+A:Earth spirit
+G:E:u
+I:11:13d8:10:40:50
+W:17:1:0:64
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | PASS_WALL | TAKE_ITEM
+F:HURT_ROCK | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:A whirling form of sentient rock.
+
+
+N:165:Fire Spirit
+A:Fire spirit
+G:E:r
+I:12:10d8:16:30:20
+W:18:1:0:66
+B:HIT:FIRE:2d6
+F:HAS_LIGHT | EMPTY_MIND | BASH_DOOR | FLYING | HURT_COLD
+F:IM_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:A whirlwind of sentient flame.
+
+
+N:166:Uruk-Hai Orc
+A:Uruk-Hai Orc
+G:o:B
+I:11:14d8:20:42:20
+W:18:1:0:68
+B:HIT:HURT:3d5
+F:MALE | DROP_90 | OPEN_DOOR | BASH_DOOR | ORC
+F:EVIL | HURT_FIRE | HURT_COLD
+D:A cunning orc of power, as tall as a man, and stronger.  It fears
+D: little.
+
+
+N:167:Stone Giant
+A:Stone giant
+G:P:W
+I:11:22d8:20:40:50
+W:18:1:0:80
+B:HIT:HURT:3d8
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | GIANT | EVIL
+F:HURT_ROCK
+D:It is eighteen feet tall and looking at you.
+
+
+N:168:Stone Golem
+A:Stone Golem
+G:g:W
+I:10:28d8:12:75:10
+W:19:1:0:100
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
+F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR | HURT_ROCK | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is a massive animated statue.
+
+
+N:169:Grey Ooze
+A:Grey Ooze
+G:O:s
+I:11:6d8:15:10:1
+W:19:1:0:40
+B:TOUCH:COLD:2d6
+F:RAND_50 | DROP_60 | STUPID | KILL_BODY | TAKE_ITEM
+F:HURT_POIS | HURT_ACID | HURT_FIRE | IM_COLD | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It's grey and it's oozing.
+
+
+N:170:Disenchanter Ooze
+A:DisnchanOoze
+G:O:v
+I:11:6d8:15:15:1
+W:19:1:0:50
+B:TOUCH:UN_BONUS
+F:RAND_50 | DROP_60 | STUPID | KILL_BODY | TAKE_ITEM
+F:HURT_POIS | HURT_ACID | HURT_FIRE | HURT_COLD | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It's green and it's oozing.
+
+
+N:171:Giant Spotted Rat
+A:GtSpottedRat
+G:r:s1
+I:11:4d3:8:20:20
+W:19:1:0:3
+B:BITE:POISON:1d5
+F:COLD_BLOOD | MULTIPLY | ANIMAL | HURT_FIRE | HURT_COLD
+D:It is a spotted rodent of unusual size.
+
+
+N:172:Mummified Kobold
+A:KoboldMummy
+G:M:w
+I:11:13d8:20:24:75
+W:19:1:0:46
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:ONLY_ITEM | DROP_90 | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR
+F:BASH_DOOR | UNDEAD | EVIL | HURT_FIRE | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is a kobold figure covered in wrappings.
+
+
+N:173:Killer Black Beetle
+A:Black beetle
+G:K:s
+I:11:18d8:12:46:30
+W:19:1:0:75
+B:BITE:HURT:4d5
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant black beetle.
+
+
+N:174:Red Mold
+A:Red mold
+G:m:r
+I:11:17d8:2:16:70
+W:19:1:0:64
+B:TOUCH:FIRE:4d4
+F:NEVER_MOVE | STUPID | HAS_LIGHT | EMPTY_MIND | HURT_POIS
+F:HURT_ACID | HURT_COLD | IM_FIRE | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+D:It is a strange red growth on the dungeon floor; it seems to burn with
+D: flame.
+
+
+N:175:Quylthulg
+A:Quylthulg
+G:Q:y
+I:11:4d8:10:1:0
+W:20:1:78:200
+F:FORCE_MAXHP | FORCE_EXTRA | NEVER_MOVE | INVISIBLE | EMPTY_MIND
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_14 | POW_2
+S:BLINK | S_MONSTER
+D:It is a strange pulsing mound of flesh.
+
+
+N:176:Giant Red Bat
+A:GiantRedBat
+G:b:r
+I:12:5d8:12:24:20
+W:20:1:0:40
+B:BITE:HURT:1d7
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+F:FORCE_EXTRA | RAND_25 | EVASIVE | ANIMAL | FLYING
+F:HURT_LIGHT | HURT_FIRE
+D:A giant red bat, the beating of whose wings produces a strangely
+D: unnerving noise.
+
+
+N:177:Giant Black Dragon Fly
+A:GtBlackDrFly
+G:F:s
+I:11:4d8:20:22:50
+W:20:1:0:58
+B:BITE:BLIND:1d6
+F:FORCE_EXTRA | RAND_25 | WEIRD_MIND | EVASIVE | BASH_DOOR
+F:ANIMAL | FLYING | HURT_FIRE | HURT_COLD | IM_ACID
+S:SPELL_PCT_11 | POW_2
+S:BRTH_ACID
+D:The size of a large bird, this fly drips caustic acid.
+
+
+N:178:Cloud Giant
+A:Cloud giant
+G:P:b
+I:11:24d8:20:44:50
+W:20:1:0:125
+B:HIT:ELEC:3d8
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | GIANT | EVIL
+F:HURT_FIRE | HURT_COLD | IM_ELEC
+D:It is a twenty foot tall giant wreathed in clouds.
+
+
+N:179:Black Dragon Bat
+A:BlackDragBat
+G:b:s
+I:13:2d8:12:24:50
+W:21:1:0:50
+B:BITE:ACID:1d3
+F:FORCE_EXTRA | RAND_25 | EVASIVE | BASH_DOOR | ANIMAL
+F:FLYING | HURT_LIGHT | HURT_COLD | IM_ACID
+S:SPELL_PCT_25 | POW_2
+S:BRTH_ACID
+D:It is a glowing black bat with a sharp tail.
+
+
+N:180:Blue Dragon Bat
+A:BlueDragBat
+G:b:b
+I:13:3d6:12:26:50
+W:21:1:0:54
+B:BITE:ELEC:1d3
+F:FORCE_EXTRA | RAND_25 | EVASIVE | BASH_DOOR | ANIMAL
+F:FLYING | HURT_COLD | IM_ELEC
+S:SPELL_PCT_25 | POW_2
+S:BRTH_ELEC
+D:It is a glowing blue bat with a sharp tail.
+
+
+N:181:Mummified Orc
+A:MummifiedOrc
+G:M:w
+I:11:14d8:20:28:75
+W:21:1:0:56
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:DROP_90 | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR
+F:ORC | UNDEAD | EVIL | HURT_FIRE | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is an orcish figure covered in wrappings.
+
+
+N:182:Killer Boring Beetle
+A:BoringBeetle
+G:K:w
+I:11:18d8:12:48:30
+W:21:1:0:70
+B:BITE:HURT:4d5
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is looking for prey.
+
+
+N:183:Killer Stag Beetle
+A:KlrStagBtle
+G:K:g
+I:11:20d8:12:50:30
+W:22:1:0:80
+B:BITE:HURT:3d4
+B:HIT:HURT:1d12
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant beetle with vicious claws.
+
+
+N:184:Black Mold
+A:Black Mold
+G:m:s
+I:11:15d8:2:18:50
+W:22:1:0:68
+B:HIT:HURT:4d3
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a strange dark growth on the dungeon floor.
+
+
+N:185:Iron Golem
+A:Iron golem
+G:g:s
+I:9:80d8:12:99:10
+W:22:1:0:160
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+F:FORCE_EXTRA | COLD_BLOOD | EMPTY_MIND | BASH_DOOR | HURT_POIS
+F:HURT_ACID | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a massive metal statue that moves steadily towards you.
+
+
+N:186:Giant Yellow Scorpion
+A:Gt YllwScorp
+G:S:y
+I:11:12d8:12:38:20
+W:22:1:0:60
+B:BITE:HURT:1d8
+B:STING:POISON:2d5
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant scorpion with a sharp stinger.
+
+
+N:187:Green Ooze
+A:Green ooze
+G:O:g
+I:10:4d8:15:5:1
+W:22:1:0:6
+B:TOUCH:ACID:2d3
+F:RAND_25 | DROP_60 | STUPID | EMPTY_MIND | MULTIPLY
+F:OPEN_DOOR | KILL_BODY | TAKE_ITEM | HURT_FIRE | HURT_COLD
+F:IM_ACID | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It's green and it's oozing.
+
+
+N:188:Black Ooze
+A:Black ooze
+G:O:D1
+I:9:6d8:10:6:1
+W:23:1:15:7
+B:TOUCH:ACID:2d6
+F:RAND_25 | DROP_60 | STUPID | EMPTY_MIND | MULTIPLY
+F:OPEN_DOOR | KILL_BODY | TAKE_ITEM | HURT_FIRE | HURT_COLD
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_9 | POW_6
+S:DRAIN_MANA
+D:It is a strangely moving puddle.
+
+
+N:189:Warrior
+A:Warrior
+G:p:U
+I:11:15d8:20:40:40
+W:23:1:0:60
+B:HIT:HURT:3d5
+F:MALE | DROP_1D2 | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
+F:HURT_FIRE | HURT_COLD
+D:A scarred warrior who moves with confidence.
+
+
+N:190:Red Dragon Bat
+A:RedDragonBat
+G:b:r
+I:13:3d8:12:28:50
+W:23:1:0:60
+B:BITE:FIRE:1d3
+F:FORCE_EXTRA | RAND_25 | HAS_LIGHT | EVASIVE | BASH_DOOR
+F:ANIMAL | FLYING | HURT_LIGHT | HURT_COLD | IM_FIRE
+S:SPELL_PCT_25 | POW_2
+S:BRTH_FIRE
+D:It is a sharp-tailed bat, wreathed in fire.
+
+
+N:191:Killer Blue Beetle
+A:Blue Beetle
+G:K:b
+I:11:20d8:14:50:30
+W:23:1:0:85
+B:BITE:HURT:4d5
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant blue beetle.
+
+
+N:192:Giant Silver Ant
+A:GtSilverAnt
+G:a:s2
+I:11:6d8:10:38:60
+W:23:1:0:45
+B:BITE:ACID:4d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL | IM_ACID
+D:A giant silver ant with a caustic bite.
+
+
+N:193:Crimson Mold
+A:Crimson Mold
+G:m:R1
+I:11:16d8:2:18:50
+W:23:1:0:65
+B:HIT:HURT:1d3
+B:TOUCH:TERRIFY
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a strange reddish growth on the dungeon floor.
+
+
+N:194:Forest Wight
+A:Forest wight
+G:W:g
+I:11:12d8:20:30:30
+W:24:1:21:140
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:TOUCH:EXP_10:12d8
+F:FORCE_EXTRA | DROP_60 | DROP_90 | COLD_BLOOD | OPEN_DOOR
+F:BASH_DOOR | UNDEAD | EVIL | HURT_LIGHT | HURT_FIRE
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_7 | POW_8
+S:SCARE
+D:It is a ghostly apparition with a humanoid form.
+
+
+N:195:Berzerker
+A:Berserker
+G:p:u
+I:11:15d8:20:20:10
+W:24:1:0:65
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:MALE | ONLY_ITEM | DROP_1D2 | HAS_LIGHT | OPEN_DOOR
+F:BASH_DOOR | HURT_FIRE | HURT_COLD
+D:Even the strongest of normal human warriors fears the Berserker - the
+D: one who can drive himself into such a terrible battle-frenzy that he
+D: can survive blows which should kill him, and still apparently feel no
+D: pain.  He tramples weaker creatures underfoot
+
+
+N:196:Mummified Human
+A:Mummy Human
+G:M:w
+I:11:17d8:20:34:60
+W:24:1:0:70
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:ONLY_ITEM | DROP_90 | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR
+F:BASH_DOOR | UNDEAD | EVIL | HURT_FIRE | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is a human form encased in mouldy wrappings.
+
+
+N:197:Banshee
+A:Banshee
+G:G:b
+I:12:6d8:20:24:10
+W:24:1:60:60
+B:WAIL:TERRIFY
+B:TOUCH:EXP_10:14d8
+F:FEMALE | RAND_25 | DROP_60 | DROP_90 | INVISIBLE
+F:COLD_BLOOD | PASS_WALL | TAKE_ITEM | UNDEAD | EVIL
+F:FLYING | HURT_LIGHT | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_7 | POW_8
+S:TPORT | DRAIN_MANA
+D:It is a ghostly woman's form that wails mournfully.
+
+
+N:198:Giant Troll
+A:Cave troll
+G:T:u
+I:11:19d8:20:40:50
+W:25:1:0:85
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:HURT:3d4
+F:MALE | DROP_60 | DROP_90 | REGENERATE | OPEN_DOOR
+F:BASH_DOOR | TROLL | EVIL | HURT_FIRE
+D:He is a vicious monster, feared for his ferocity.
+
+
+N:199:Giant Brown Tick
+A:GtBrownTick
+G:t:u
+I:10:18d8:12:50:20
+W:25:1:0:70
+B:BITE:POISON:1d10
+B:STING:BLIND:1d1
+F:WEIRD_MIND | BASH_DOOR | ANIMAL | HURT_FIRE
+D:It is moving slowly towards you.
+
+
+N:200:Killer Red Beetle
+A:KlrRedBeetle
+G:K:r
+I:11:20d8:14:50:30
+W:25:1:0:85
+B:BITE:LOSE_STR:4d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant beetle with poisonous mandibles.
+
+
+N:201:Wooden Mold
+A:Wooden Mold
+G:m:U
+I:11:25d8:2:50:50
+W:25:1:0:100
+B:TOUCH:POISON:2d6
+F:NEVER_MOVE | STUPID | EMPTY_MIND | HURT_POIS | HURT_ACID
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It is a strange wooden growth on the dungeon floor.
+
+
+N:202:Giant Blue Dragon Fly
+A:BlueDragnFly
+G:F:b
+I:11:6d8:20:24:50
+W:25:1:0:75
+B:BITE:HURT:1d6
+F:FORCE_EXTRA | RAND_25 | HAS_LIGHT | WEIRD_MIND | EVASIVE
+F:BASH_DOOR | ANIMAL | FLYING | HURT_FIRE | HURT_COLD
+F:IM_ELEC
+S:SPELL_PCT_11 | POW_2
+S:BRTH_ELEC
+D:The size of a large bird, this fly is surrounded by sparks.
+
+
+N:203:Giant Grey Ant Lion
+A:GreyAntLion
+G:A:s1
+I:11:19d8:10:40:40
+W:26:1:0:90
+B:BITE:HURT:2d12
+F:WEIRD_MIND | KILL_BODY | ANIMAL | HURT_FIRE | HURT_COLD
+D:A grey black insect with shart pincers.
+
+
+N:204:Disenchanter Bat
+A:DisenchanBat
+G:b:v
+I:13:4d8:14:24:1
+W:26:1:0:75
+B:HIT:UN_BONUS
+F:ATTR_MULTI | FORCE_EXTRA | RAND_25 | EVASIVE | BASH_DOOR
+F:ANIMAL | FLYING | HURT_LIGHT | HURT_FIRE
+D:A giant bat which feeds on raw magical energy.
+
+
+N:205:Giant Fire Tick
+A:GtFireTick
+G:t:R
+I:11:16d8:14:54:20
+W:26:1:0:90
+B:SPIT:FIRE:3d7
+F:HAS_LIGHT | WEIRD_MIND | BASH_DOOR | ANIMAL | HURT_COLD
+F:IM_FIRE
+D:It is smoking and burning with great heat.
+
+
+N:206:White Wraith
+A:White wraith
+G:W:w
+I:11:15d8:20:40:10
+W:26:1:26:165
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:TOUCH:EXP_10:15d8
+F:FORCE_EXTRA | DROP_60 | DROP_90 | COLD_BLOOD | OPEN_DOOR
+F:BASH_DOOR | POWERFUL | UNDEAD | EVIL | FLYING
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_8 | POW_8
+S:SCARE
+D:It is a tangible but ghostly form made of white fog.
+
+
+N:207:Giant Black Scorpion
+A:BlackScorpn
+G:S:s
+I:11:13d8:12:50:20
+W:26:1:0:85
+B:BITE:HURT:1d10
+B:STING:POISON:2d5
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is fast and poisonous.
+
+
+N:208:Clear Ooze
+A:Clear Ooze
+G:O:w1
+I:11:4d8:10:14:1
+W:26:1:0:12
+B:TOUCH:CONFUSE:1d8
+F:ATTR_CLEAR | DROP_60 | STUPID | INVISIBLE | EMPTY_MIND
+F:KILL_BODY | TAKE_ITEM | HURT_POIS | HURT_ACID | HURT_FIRE
+F:HURT_COLD | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+D:It's clear and it's oozing.
+
+
+N:209:Killer Fire Beetle
+A:KlrFireBeetl
+G:K:R
+I:11:13d8:14:45:30
+W:27:1:0:95
+B:BITE:HURT:3d4
+B:SPIT:FIRE:4d5
+F:HAS_LIGHT | WEIRD_MIND | BASH_DOOR | ANIMAL | HURT_COLD
+F:IM_FIRE
+D:It is a giant beetle wreathed in flames.
+
+
+N:210:Vampire
+A:Vampire
+G:V:W
+I:11:20d8:20:45:10
+W:27:1:78:175
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:TOUCH:EXP_10:18d8
+F:FORCE_EXTRA | DROP_60 | DROP_1D2 | COLD_BLOOD | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | UNDEAD | EVIL | HURT_LIGHT
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:SPELL_PCT_11 | POW_2
+S:SCARE | HOLD
+D:It is a humanoid with an aura of power.  You notice a sharp set of
+D: front teeth.
+
+
+N:211:Giant Red Dragon Fly
+A:GtRedDragFly
+G:F:r
+I:11:7d8:20:24:50
+W:27:1:0:75
+B:BITE:TERRIFY:1d6
+F:FORCE_EXTRA | RAND_25 | HAS_LIGHT | WEIRD_MIND | EVASIVE
+F:BASH_DOOR | ANIMAL | FLYING | HURT_COLD | IM_FIRE
+S:SPELL_PCT_13 | POW_2
+S:BRTH_FIRE
+D:The size of a large bird, this fly has flames coming out of his mouth.
+
+
+N:212:Shimmering Mold
+A:ShimerngMold
+G:m:b
+I:11:32d8:2:24:50
+W:27:1:0:180
+B:TOUCH:ELEC:5d4
+F:NEVER_MOVE | STUPID | HAS_LIGHT | EMPTY_MIND | HURT_POIS
+F:HURT_ACID | HURT_FIRE | IM_ELEC | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+D:It is a strange growth on the dungeon floor, glowing and crackling
+D: with sparks.
+
+
+N:213:Black Knight
+A:Black knight
+G:p:s
+I:11:25d8:20:60:10
+W:28:1:50:140
+B:HIT:HURT:5d5
+F:MALE | FORCE_EXTRA | DROP_1D2 | EVASIVE | OPEN_DOOR
+F:BASH_DOOR | EVIL | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_7 | POW_10
+S:WOUND
+D:He is a figure encased in deep black plate armour; he looks at you
+D: menacingly.
+
+
+N:214:Mage
+A:Mage
+G:p:o2
+I:11:10d8:20:30:10
+W:28:1:84:150
+B:HIT:HURT:2d5
+F:MALE | FORCE_EXTRA | ONLY_ITEM | DROP_1D2 | SMART
+F:HAS_LIGHT | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | HURT_FIRE
+F:HURT_COLD
+S:SPELL_PCT_33 | POW_10
+S:BLINK | TPORT | TELE_SELF_TO | BLIND | CONF
+S:S_MONSTER
+D:A mage of some power - you can tell by the size of his hat.
+
+
+N:215:Ice Troll
+A:Ice troll
+G:T:w
+I:11:22d8:20:46:50
+W:28:1:0:160
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
+B:BITE:COLD:3d6
+F:MALE | DROP_60 | DROP_90 | REGENERATE | OPEN_DOOR
+F:BASH_DOOR | TROLL | EVIL | HURT_FIRE | IM_COLD
+D:He is a white troll with powerfully clawed hands.
+
+
+N:216:Giant Purple Worm
+A:Purple worm
+G:w:v
+I:11:65d8:14:65:30
+W:29:1:0:400
+B:HIT:HURT:1d8
+B:BITE:ACID:2d8
+B:STING:POISON:1d8
+F:BASH_DOOR | ANIMAL | HURT_FIRE | HURT_COLD | IM_ACID
+D:It is a massive worm form, many feet in length.  Its vast maw drips
+D: acid and poison.
+
+
+N:217:Young Blue Dragon
+A:YoungBlueDr
+G:d:b
+I:11:33d8:20:50:70
+W:29:1:17:300
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:FORCE_EXTRA | DROP_60 | DROP_90 | DROP_1D2 | BASH_DOOR
+F:DRAGON | EVIL | IM_ELEC
+S:SPELL_PCT_9 | POW_7
+S:BRTH_ELEC | SCARE
+D:It has a form that legends are made of.  Its still-tender scales are a
+D: deep blue in hue.  Sparks crackle along its length.
+
+
+N:218:Young White Dragon
+A:YoungWhiteDr
+G:d:w
+I:11:32d8:20:50:70
+W:29:1:17:275
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:FORCE_EXTRA | DROP_60 | DROP_90 | DROP_1D2 | BASH_DOOR
+F:DRAGON | EVIL | HURT_FIRE | IM_COLD
+S:SPELL_PCT_9 | POW_7
+S:BRTH_COLD | SCARE
+D:It has a form that legends are made of.  Its still-tender scales are a
+D: frosty white in hue.  Icy blasts of cold air come from it as it
+D: breathes.
+
+
+N:219:Young Green Dragon
+A:YoungGreenDr
+G:d:g
+I:11:32d8:20:50:70
+W:29:1:17:290
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:FORCE_EXTRA | DROP_60 | DROP_90 | DROP_1D2 | BASH_DOOR
+F:DRAGON | EVIL | IM_POIS
+S:SPELL_PCT_9 | POW_7
+S:BRTH_POIS | SCARE
+D:It has a form that legends are made of.  Its still-tender scales are a
+D: deep green in hue.  Foul gas seeps through its scales.
+
+
+N:220:Giant Fire Bat
+A:GtFireBat
+G:b:R
+I:12:5d8:14:30:10
+W:29:1:0:85
+B:BITE:FIRE:3d6
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+F:FORCE_EXTRA | RAND_25 | HAS_LIGHT | EVASIVE | BASH_DOOR
+F:ANIMAL | FLYING | HURT_LIGHT | HURT_COLD | IM_FIRE
+D:A giant bat with flames shooting out of its nostrils.
+
+
+N:221:Giant Glowing Rat
+A:GtGlowingRat
+G:r:R
+I:11:3d3:8:24:20
+W:29:1:0:4
+B:BITE:ELEC:2d6
+F:HAS_LIGHT | COLD_BLOOD | MULTIPLY | ANIMAL | HURT_FIRE
+F:HURT_COLD | IM_ELEC
+D:It is a nasty, glowing rodent of unusual size.
+
+
+N:222:Skeleton Troll
+A:SkeltonTroll
+G:s:w
+I:11:14d8:20:55:20
+W:30:1:0:225
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:HURT:3d4
+F:FORCE_MAXHP | COLD_BLOOD | EMPTY_MIND | REGENERATE | OPEN_DOOR
+F:BASH_DOOR | TROLL | UNDEAD | EVIL | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is a troll skeleton animated by dark dweomers.
+
+
+N:223:Giant Lightning Bat
+A:GrLightngBat
+G:b:b
+I:12:8d8:15:34:10
+W:30:1:0:80
+B:BITE:ELEC:3d8
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+F:FORCE_EXTRA | RAND_25 | HAS_LIGHT | EVASIVE | BASH_DOOR
+F:ANIMAL | FLYING | IM_ELEC
+D:A giant bat with flames shooting out of its nostrils.
+
+
+N:224:Giant Static Ant
+A:GtStaticAnt
+G:a:w
+I:11:8d8:10:40:60
+W:30:1:0:80
+B:BITE:ELEC:5d5
+F:WEIRD_MIND | BASH_DOOR | ANIMAL | IM_ELEC
+D:A giant ant with a sharp bite and a small shock.
+
+
+N:225:Grave Wight
+A:Grave wight
+G:W:b
+I:11:12d8:20:35:30
+W:30:1:26:325
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+B:TOUCH:EXP_10:20d8
+F:FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_60 | DROP_90
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | UNDEAD | EVIL
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_10 | POW_13
+S:WOUND | SCARE
+D:It is a ghostly form with eyes that haunt you.
+
+
+N:226:Killer Slicer Beetle
+A:KlrSlicerBtl
+G:K:y
+I:11:22d8:14:55:30
+W:30:1:0:200
+B:BITE:HURT:5d8
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a beetle with deadly sharp cutting mandibles and a rock-hard
+D: carapace.
+
+
+N:227:Giant White Ant Lion
+A:WhiteAntLion
+G:A:w
+I:11:20d8:12:45:40
+W:30:1:0:175
+B:BITE:COLD:3d10
+F:WEIRD_MIND | KILL_BODY | ANIMAL | HURT_FIRE | IM_COLD
+D:A giant white insect with shart pincers.
+
+
+N:228:Ghost
+A:Ghost
+G:G:w
+I:12:13d8:20:30:10
+W:31:1:56:350
+B:WAIL:TERRIFY
+B:TOUCH:EXP_10:22d8
+B:CLAW:LOSE_INT:1d10
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_1D2 | INVISIBLE
+F:COLD_BLOOD | PASS_WALL | TAKE_ITEM | UNDEAD | EVIL
+F:FLYING | HURT_LIGHT | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_7 | POW_9
+S:TPORT | DRAIN_MANA
+D:You don't believe in it.  But it believes in you...
+
+
+N:229:Giant Black Ant Lion
+A:BlackAntLion
+G:A:s
+I:11:23d8:14:45:40
+W:31:1:0:170
+B:BITE:HURT:2d12
+B:SPIT:ACID:3d6
+F:WEIRD_MIND | KILL_BODY | ANIMAL | HURT_FIRE | HURT_COLD
+F:IM_ACID
+D:A giant black insect with shart pincers.
+
+
+N:230:Death Watch Beetle
+A:DeathWatchBt
+G:K:D
+I:11:25d8:16:60:30
+W:31:1:0:190
+B:BITE:HURT:5d4
+B:WAIL:HURT:5d6
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant beetle that produces a chilling sound.
+
+
+N:231:Ogre Mage
+A:Ogre mage
+G:o:R
+I:11:14d8:20:42:30
+W:31:1:50:250
+B:HIT:HURT:3d6
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_90 | OPEN_DOOR | BASH_DOOR
+F:GIANT | EVIL | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_20 | POW_9
+S:BLINK | TELE_SELF_TO | WOUND | SLOW | HOLD
+S:S_MONSTER
+D:A hideous ogre wrapped in black sorcerous robes.
+
+
+N:232:Two-Headed Troll
+A:2HeadedTroll
+G:T:b
+I:11:14d8:20:48:50
+W:32:1:0:275
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+F:FORCE_MAXHP | ONLY_ITEM | DROP_60 | DROP_90 | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | TROLL | EVIL | HURT_FIRE
+D:A massive two-headed troll of huge strength, ettins are stupid but
+D: violent. They are also living proof that two heads are not more
+D: intelligent than one...
+
+
+N:233:Invisible Stalker
+A:InvisStalker
+G:E:y
+I:13:19d8:20:46:20
+W:32:1:0:200
+B:HIT:HURT:1d6
+F:RAND_50 | INVISIBLE | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR
+F:BASH_DOOR | POWERFUL | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It is impossible to define its form but its violence is legendary.
+
+
+N:234:Giant Hunter Ant
+A:GtHunterAnt
+G:a:y
+I:11:12d8:16:40:1
+W:32:1:0:150
+B:BITE:HURT:4d8
+F:WEIRD_MIND | ANIMAL
+D:A giant, hungry ant searching for food.
+
+
+N:235:Ninja
+A:Ninja
+G:p:y
+I:11:15d8:20:65:10
+W:32:1:0:300
+B:HIT:POISON:3d4
+B:HIT:LOSE_STR:3d4
+F:MALE | FORCE_MAXHP | DROP_1D2 | OPEN_DOOR | BASH_DOOR
+F:EVIL | HURT_FIRE | HURT_COLD
+D:A humanoid clothed in black who moves quietly, and with deadly intent.
+
+
+N:236:Barrow Wight
+A:Barrow wight
+G:W:v
+I:11:13d8:20:40:10
+W:33:1:28:375
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+B:TOUCH:EXP_10:26d8
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | COLD_BLOOD
+F:OPEN_DOOR | BASH_DOOR | UNDEAD | EVIL | HURT_LIGHT
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:SPELL_PCT_13 | POW_13
+S:WOUND | SCARE | HOLD
+D:It is a ghostly nightmare of a entity.
+
+
+N:237:Skeleton 2-Headed Troll
+A:Skel2HeadTrl
+G:s:w
+I:11:20d8:20:48:20
+W:33:1:0:325
+B:HIT:HURT:1d9
+B:HIT:HURT:1d9
+B:BITE:HURT:1d5
+B:BITE:HURT:1d5
+F:FORCE_MAXHP | COLD_BLOOD | EMPTY_MIND | REGENERATE | OPEN_DOOR
+F:BASH_DOOR | TROLL | UNDEAD | EVIL | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is the animated form of a massive two-headed troll.
+
+
+N:238:Water Elemental
+A:WaterElemtl
+G:E:b
+I:11:25d8:12:36:50
+W:33:1:0:325
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
+F:FORCE_EXTRA | COLD_BLOOD | EMPTY_MIND | BASH_DOOR | KILL_BODY
+F:KILL_ITEM | POWERFUL | HURT_FIRE | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+D:It is a towering tempest of water.
+
+
+N:239:Fire Elemental
+A:FireElementl
+G:E:r
+I:10:25d8:16:40:70
+W:33:1:0:350
+B:HIT:FIRE:4d6
+F:FORCE_EXTRA | HAS_LIGHT | EMPTY_MIND | BASH_DOOR | KILL_BODY
+F:KILL_ITEM | POWERFUL | HURT_COLD | IM_FIRE | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is a towering inferno of flames.
+
+
+N:240:Lich
+A:Lich
+G:L:o
+I:11:25d8:20:50:60
+W:34:1:63:750
+B:TOUCH:LOSE_DEX:2d8
+B:TOUCH:EXP_10:30d8
+B:TOUCH:UN_POWER
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_1D2
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | UNDEAD
+F:EVIL | HURT_LIGHT | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_20 | POW_11
+S:BLINK | TPORT | TELE_SELF_TO | DRAIN_MANA | WOUND
+S:SCARE | BLIND | CONF | SLOW | HOLD
+D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
+
+
+N:241:Master Vampire
+A:MastrVampire
+G:V:g
+I:11:23d8:20:55:10
+W:34:1:60:700
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:TOUCH:EXP_10:32d8
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_1D2 | COLD_BLOOD
+F:REGENERATE | OPEN_DOOR | BASH_DOOR | UNDEAD | EVIL
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_14 | POW_13
+S:WOUND | SCARE | HOLD
+D:It is a humanoid form dressed in robes.  Power emanates from its
+D: chilling frame.
+
+
+N:242:Spirit Troll
+A:Spirit troll
+G:G:G
+I:11:15d8:20:40:10
+W:34:1:0:425
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+B:BITE:HURT:1d6
+B:TOUCH:LOSE_WIS
+F:FORCE_MAXHP | DROP_60 | DROP_1D2 | INVISIBLE | COLD_BLOOD
+F:REGENERATE | PASS_WALL | TAKE_ITEM | TROLL | UNDEAD
+F:EVIL | FLYING | HURT_LIGHT | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+D:A weird ghostly troll-like being from the ethereal plane.
+
+
+N:243:Giant Red Scorpion
+A:GtRedScorpn
+G:S:r
+I:12:18d8:12:50:40
+W:34:1:0:275
+B:BITE:HURT:1d6
+B:STING:POISON:1d4
+F:WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is fast and poisonous.
+
+
+N:244:Earth Elemental
+A:EarthElemntl
+G:E:U
+I:10:30d8:10:60:90
+W:34:1:0:375
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+F:FORCE_EXTRA | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | PASS_WALL
+F:KILL_BODY | TAKE_ITEM | KILL_ITEM | POWERFUL | HURT_ROCK
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:It is a towering form composed of rock with fists of awesome power.
+
+
+N:245:Young Black Dragon
+A:YoungBlackDr
+G:d:s
+I:11:32d8:20:55:50
+W:35:1:21:600
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+B:BITE:HURT:1d6
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_1D2
+F:BASH_DOOR | DRAGON | EVIL | IM_ACID
+S:SPELL_PCT_9 | POW_7
+S:BRTH_ACID | SCARE
+D:It has a form that legends are made of.  Its still-tender scales are a
+D: darkest black hue.  Acid drips from its body.
+
+
+N:246:Young Red Dragon
+A:YoungRedDrag
+G:d:r
+I:11:36d8:20:60:50
+W:35:1:21:650
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d8
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_1D2
+F:HAS_LIGHT | BASH_DOOR | DRAGON | EVIL | HURT_COLD
+F:IM_FIRE
+S:SPELL_PCT_10 | POW_7
+S:BRTH_FIRE | SCARE
+D:It has a form that legends are made of.  Its still-tender scales are a
+D: deepest red hue.  Heat radiates from its form.
+
+
+N:247:Necromancer
+A:Necromancer
+G:p:r1
+I:11:17d8:20:40:10
+W:35:1:63:600
+B:HIT:HURT:2d6
+F:MALE | FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_1D2
+F:SMART | HAS_LIGHT | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN
+F:HURT_FIRE | HURT_COLD
+S:SPELL_PCT_33 | POW_13
+S:TPORT | TELE_SELF_TO | WOUND | SCARE | BLIND
+S:HOLD | S_UNDEAD
+D:A gaunt figure, clothed in black robes.
+
+
+N:248:Mummified Troll
+A:Mummy troll
+G:M:w
+I:11:18d8:20:38:50
+W:35:1:0:400
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:FORCE_MAXHP | DROP_60 | DROP_90 | COLD_BLOOD | EMPTY_MIND
+F:REGENERATE | OPEN_DOOR | BASH_DOOR | TROLL | UNDEAD
+F:EVIL | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+D:It is a massive figure clothed in wrappings.  You are wary of its
+D: massive fists.
+
+
+N:249:Giant Red Ant Lion
+A:RedAntLion
+G:A:r
+I:11:23d8:14:48:40
+W:35:1:0:350
+B:BITE:FIRE:3d12
+F:WEIRD_MIND | KILL_BODY | ANIMAL | HURT_COLD | IM_FIRE
+D:A giant red insect with shart pincers.
+
+
+N:250:Mature White Dragon
+A:MatWhiteDrag
+G:d:w1
+I:11:48d8:20:65:70
+W:35:1:21:1000
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d8
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_2D2
+F:BASH_DOOR | DRAGON | EVIL | FLYING | HURT_FIRE
+F:IM_COLD
+S:SPELL_PCT_10 | POW_12
+S:BRTH_COLD | SCARE
+D:A large dragon, scales gleaming bright white.
+
+
+N:251:Xorn
+A:Xorn
+G:X:u
+I:11:20d8:20:80:10
+W:36:1:0:650
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:FORCE_MAXHP | COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | PASS_WALL
+F:TAKE_ITEM | KILL_ITEM | HURT_ROCK
+D:A huge creature of the element Earth.  Able to merge with its element,
+D: it has four huge arms protruding from its enormous torso.
+
+
+N:252:Giant Mottled Ant Lion
+A:MotldAntLion
+G:A:o
+I:12:24d8:14:50:40
+W:36:1:0:350
+B:BITE:HURT:2d10
+F:WEIRD_MIND | KILL_BODY | ANIMAL | HURT_FIRE | HURT_COLD
+D:A grey spotted insect with shart pincers.
+
+
+N:253:Grey Wraith
+A:Grey wraith
+G:W:s
+I:11:23d8:20:50:10
+W:36:1:43:700
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
+B:TOUCH:EXP_10:34d8
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | COLD_BLOOD
+F:OPEN_DOOR | BASH_DOOR | UNDEAD | EVIL | FLYING
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_13 | POW_17
+S:WOUND | SCARE | HOLD
+D:A tangible but ghostly form, made of grey fog.  The air around it
+D: feels deathly cold.
+
+
+N:254:Young Chromatic Dragon
+A:YoungChromDr
+G:d:v
+I:11:40d8:20:55:50
+W:36:1:21:1250
+B:CLAW:HURT:1d9
+B:CLAW:HURT:1d9
+B:BITE:HURT:2d10
+F:ATTR_MULTI | FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90
+F:DROP_4D2 | BASH_DOOR | DRAGON | EVIL | IM_ACID
+F:IM_ELEC | IM_FIRE | IM_COLD | IM_POIS
+S:SPELL_PCT_20 | POW_8
+S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
+S:SCARE
+D:It has a form that legends are made of.  Beautiful scales of
+D: shimmering and magical colours cover it.
+
+
+N:255:Mature Blue Dragon
+A:MatBlueDragn
+G:d:b1
+I:11:48d8:20:75:70
+W:36:1:21:1200
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d10
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_2D2
+F:BASH_DOOR | DRAGON | EVIL | FLYING | IM_ELEC
+S:SPELL_PCT_11 | POW_12
+S:BRTH_ELEC | SCARE
+D:A large dragon, scales tinted deep blue.
+
+
+N:256:Mature Green Dragon
+A:MatGreenDrag
+G:d:G1
+I:11:48d8:20:70:70
+W:36:1:21:1100
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_2D2
+F:BASH_DOOR | DRAGON | EVIL | FLYING | IM_POIS
+S:SPELL_PCT_10 | POW_12
+S:BRTH_POIS | SCARE
+D:A large dragon, scales tinted deep green.
+
+
+N:257:Iridescent Beetle
+A:IridesBeetle
+G:K:v
+I:11:32d8:16:60:30
+W:37:1:0:850
+B:BITE:HURT:4d6
+B:HIT:HURT:1d12
+B:GAZE:PARALYZE
+F:ATTR_MULTI | WEIRD_MIND | BASH_DOOR | ANIMAL
+D:It is a giant beetle, whose carapace shimmers with vibrant energies.
+
+
+N:258:King Vampire
+A:KingVampire
+G:V:r
+I:11:38d8:20:65:10
+W:37:1:78:1000
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:TOUCH:EXP_10:38d8
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_1D2 | COLD_BLOOD
+F:REGENERATE | OPEN_DOOR | BASH_DOOR | UNDEAD | EVIL
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_14 | POW_15
+S:WOUND | SCARE | HOLD
+D:A terrible robed undead figure, this creature has existed in its
+D: unlife for many centuries by stealing the life of others.  It can
+D: summon the very shades of its victims from beyond the grave to come
+D: enslaved to its aid.
+
+
+N:259:King Lich
+A:King Lich
+G:L:B
+I:11:52d8:20:65:50
+W:37:1:113:1400
+B:TOUCH:LOSE_DEX:2d10
+B:TOUCH:EXP_10:36d8
+B:TOUCH:UN_POWER
+F:FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_60 | DROP_90
+F:DROP_1D2 | SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:UNDEAD | EVIL | HURT_LIGHT | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_33 | POW_15
+S:BLINK | TPORT | TELE_SELF_TO | DRAIN_MANA | WOUND
+S:SCARE | BLIND | CONF | SLOW | HOLD
+D:A lich who has reached its ultimate evolutionary stage: a completely
+D: immaterial state.
+
+
+N:260:Mature Red Dragon
+A:MatRedDragon
+G:d:r1
+I:11:60d8:20:80:30
+W:37:1:35:1400
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+B:BITE:HURT:2d12
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_2D2
+F:HAS_LIGHT | BASH_DOOR | DRAGON | EVIL | FLYING
+F:HURT_COLD | IM_FIRE
+S:SPELL_PCT_13 | POW_12
+S:BRTH_FIRE | SCARE
+D:A large dragon, scales tinted deep red.
+
+
+N:261:Mature Black Dragon
+A:MatBlackDrgn
+G:d:s1
+I:11:58d8:20:55:30
+W:37:1:35:1350
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d10
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_2D2
+F:BASH_DOOR | DRAGON | EVIL | FLYING | IM_ACID
+S:SPELL_PCT_11 | POW_12
+S:BRTH_ACID | SCARE
+D:A large dragon, with scales of deepest black.
+
+
+N:262:Mature Chromatic Dragon
+A:MatChromDrag
+G:d:v
+I:11:80d8:20:65:50
+W:38:1:39:1650
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+B:BITE:HURT:2d12
+F:ATTR_MULTI | FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90
+F:DROP_2D2 | DROP_4D2 | BASH_DOOR | DRAGON | EVIL
+F:FLYING | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD
+F:IM_POIS
+S:SPELL_PCT_20 | POW_12
+S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
+S:SCARE | CONF | HOLD
+D:A large dragon, scales shimmering many colours.
+
+
+N:263:Ancient White Dragon
+A:AncWhiteDrag
+G:D:w
+I:12:88d8:20:80:80
+W:38:1:39:1500
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d8
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_4D2
+F:SMART | BASH_DOOR | POWERFUL | DRAGON | EVIL
+F:FLYING | HURT_FIRE | IM_COLD
+S:SPELL_PCT_11 | POW_15
+S:BRTH_COLD | SCARE | CONF | HOLD
+D:A huge draconic form.  Frost covers it from head to tail.
+
+
+N:264:Emperor Wight
+A:EmperorWight
+G:W:r
+I:12:48d8:20:40:10
+W:38:1:63:1600
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+B:TOUCH:EXP_10:42d8
+F:FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_90 | DROP_1D2
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | UNDEAD | EVIL
+F:HURT_LIGHT | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_17 | POW_17
+S:WOUND | SCARE | HOLD
+D:Your life force is torn from your body as this powerful unearthly
+D: being approaches.
+
+
+N:265:Black Wraith
+A:Black wraith
+G:W:D
+I:11:50d8:20:55:10
+W:38:1:63:1700
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+B:TOUCH:EXP_10:44d8
+F:FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_60 | DROP_90
+F:DROP_1D2 | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | UNDEAD
+F:EVIL | FLYING | HURT_LIGHT | HURT_FIRE | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_14 | POW_18
+S:WOUND | SCARE | HOLD
+D:A figure that seems made of void, its strangely human shape is cloaked
+D: in shadow.  It reaches out at you.
+
+
+N:266:Nether Wraith
+A:NetherWraith
+G:W:G
+I:11:58d8:20:55:10
+W:39:1:71:2100
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+B:TOUCH:EXP_10:52d8
+F:FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_60 | DROP_90
+F:DROP_1D2 | INVISIBLE | COLD_BLOOD | OPEN_DOOR | PASS_WALL
+F:UNDEAD | EVIL | FLYING | HURT_LIGHT | HURT_FIRE
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_17 | POW_18
+S:BLINK | WOUND | SCARE | HOLD | S_UNDEAD
+D:A form that hurts the eye, death permeates the air around it.  As it
+D: nears you, a coldness saps your soul.
+
+
+N:267:Sorcerer
+A:Sorcerer
+G:p:R1
+I:12:30d8:20:50:10
+W:39:1:106:2150
+B:HIT:HURT:2d8
+F:MALE | FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_60
+F:DROP_90 | DROP_1D2 | HAS_LIGHT | OPEN_DOOR | BASH_DOOR
+F:LOW_MANA_RUN | HURT_FIRE | HURT_COLD
+S:SPELL_PCT_33 | POW_6
+S:BLINK | TPORT | TELE_SELF_TO | WOUND | SCARE
+S:BLIND | CONF | SLOW | HOLD | S_MONSTER
+S:S_UNDEAD
+D:A human figure in robes, he moves with magically improved speed, and
+D: his hands are ablur with spell casting.
+
+
+N:268:Ancient Blue Dragon
+A:AncBlueDragn
+G:D:b
+I:12:87d8:20:90:80
+W:39:1:39:2500
+B:CLAW:HURT:1d9
+B:CLAW:HURT:1d9
+B:BITE:HURT:2d12
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_4D2
+F:SMART | BASH_DOOR | POWERFUL | DRAGON | EVIL
+F:FLYING | IM_ELEC
+S:SPELL_PCT_13 | POW_15
+S:BRTH_ELEC | SCARE | CONF | HOLD
+D:A huge draconic form.  Lightning crackles along its length.
+
+
+N:269:Ancient Green Dragon
+A:AncGreenDrag
+G:D:g
+I:12:90d8:20:85:80
+W:39:1:39:2400
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d10
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_4D2
+F:SMART | BASH_DOOR | POWERFUL | DRAGON | EVIL
+F:FLYING | IM_POIS
+S:SPELL_PCT_11 | POW_15
+S:BRTH_POIS | SCARE | CONF | HOLD
+D:A huge draconic form enveloped in clouds of poisonous vapour.
+
+
+N:270:Ancient Black Dragon
+A:AncBlackDrag
+G:D:s
+I:12:90d8:20:90:70
+W:39:1:35:2500
+B:CLAW:HURT:1d9
+B:CLAW:HURT:1d9
+B:BITE:HURT:2d10
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_4D2
+F:SMART | BASH_DOOR | POWERFUL | DRAGON | EVIL
+F:FLYING | IM_ACID
+S:SPELL_PCT_14 | POW_15
+S:BRTH_ACID | SCARE | CONF | HOLD
+D:A huge draconic form.  Pools of acid melt the floor around it.
+
+
+N:271:Crystal Ooze
+A:CrystalOoze
+G:O:W
+I:9:12d8:10:30:1
+W:40:1:0:8
+B:TOUCH:COLD:4d4
+F:ATTR_CLEAR | DROP_60 | STUPID | INVISIBLE | EMPTY_MIND
+F:MULTIPLY | OPEN_DOOR | KILL_BODY | TAKE_ITEM | HURT_POIS
+F:HURT_ACID | HURT_FIRE | IM_COLD | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+D:It's crystal clear and it's oozing.
+
+
+N:272:Disenchanter Worm
+A:DisenchnWorm
+G:w:v1
+I:10:10d8:7:5:10
+W:40:1:0:30
+B:CRAWL:UN_BONUS:1d4
+F:ATTR_MULTI | RAND_50 | STUPID | WEIRD_MIND | MULTIPLY
+F:BASH_DOOR | ANIMAL | HURT_POIS | HURT_ACID | HURT_LIGHT
+F:HURT_FIRE | HURT_COLD
+D:It is a strange mass of squirming worms.  Magical energy crackles
+D: around its disgusting form.
+
+
+N:273:Rotting Quylthulg
+A:RottingQlthg
+G:Q:u
+I:12:12d8:20:1:0
+W:40:1:91:1000
+F:FORCE_MAXHP | FORCE_EXTRA | NEVER_MOVE | INVISIBLE | EMPTY_MIND
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_25 | POW_2
+S:BLINK | S_UNDEAD
+D:It is a pulsing flesh mound that reeks of death and putrefaction.
+
+
+N:274:Ancient Red Dragon
+A:AncRedDragon
+G:D:r
+I:12:105d8:20:100:70
+W:40:1:39:2750
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+B:BITE:HURT:2d14
+F:FORCE_MAXHP | FORCE_EXTRA | DROP_60 | DROP_90 | DROP_2D2
+F:DROP_4D2 | SMART | HAS_LIGHT | BASH_DOOR | POWERFUL
+F:DRAGON | EVIL | FLYING | HURT_COLD | IM_FIRE
+S:SPELL_PCT_17 | POW_15
+S:BRTH_FIRE | SCARE | BLIND | CONF | HOLD
+D:A huge draconic form.  Wisps of smoke steam from its nostrils and the
+D: extreme heat surrounding it makes you gasp for breath.
+
+
+N:275:Death Quasit
+A:Death quasit
+G:q:D
+I:13:55d8:20:80:0
+W:40:1:50:1000
+B:BITE:LOSE_DEX:3d6
+B:CLAW:HURT:3d3
+B:CLAW:HURT:3d3
+F:FORCE_EXTRA | ONLY_ITEM | DROP_1D2 | SMART | INVISIBLE
+F:OPEN_DOOR | DEMON | EVIL | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_10 | POW_5
+S:BLINK | TPORT | TELE_SELF_TO | WOUND | SCARE
+D:It is a demon of small stature, but its armoured frame moves with
+D: lightning speed and its powers make it a tornado of death and
+D: destruction.
+
+
+N:276:Emperor Lich
+A:Emperor Lich
+G:L:r
+I:12:38d40:20:75:50
+W:40:1:91:10000
+B:TOUCH:LOSE_DEX:2d12
+B:TOUCH:EXP_10:46d8
+B:TOUCH:UN_POWER
+F:FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_60 | DROP_90
+F:DROP_2D2 | SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:UNDEAD | EVIL | HURT_LIGHT | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_50 | POW_17
+S:BLINK | TPORT | TELE_SELF_TO | DRAIN_MANA | WOUND
+S:SCARE | BLIND | CONF | SLOW | HOLD
+D:A skeletal form wrapped in robes.  Powerful magic crackles along its
+D: bony fingers.
+
+
+N:277:Ancient Chromatic Dragon
+A:AncChromDrag
+G:D:v
+I:12:52d40:20:100:70
+W:40:1:50:12000
+B:CLAW:HURT:1d12
+B:CLAW:HURT:1d12
+B:BITE:HURT:3d12
+F:ATTR_MULTI | FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM | DROP_60
+F:DROP_90 | DROP_1D2 | DROP_2D2 | DROP_4D2 | SMART
+F:BASH_DOOR | POWERFUL | DRAGON | EVIL | FLYING
+F:IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS
+S:SPELL_PCT_20 | POW_20
+S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
+S:SCARE | BLIND | CONF | SLOW | HOLD
+D:A huge draconic form.  Many colours ripple down its massive frame. Few
+D: live to see another.
+
+
+N:278:Evil Iggy
+A:Evil Iggy
+G:p:v1
+I:12:60d40:30:80:0
+W:50:1:134:18000
+B:HIT:LOSE_STR:4d6
+B:INSULT:EAT_ITEM
+F:UNIQUE | MALE | FORCE_MAXHP | FORCE_EXTRA | ONLY_ITEM
+F:DROP_60 | DROP_90 | DROP_1D2 | DROP_2D2 | DROP_4D2
+F:SMART | SPECIAL | INVISIBLE | OPEN_DOOR
+F:BASH_DOOR | TAKE_ITEM | LOW_MANA_RUN | POWERFUL | EVIL
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_33 | POW_30
+S:BLINK | DRAIN_MANA | WOUND | SCARE | BLIND
+S:SLOW | HOLD | S_UNDEAD
+D:You have tales of him from a previous generation.  Old-timers speak of
+D: this pest with both loathing and fondness, cursing his name with a
+D: smile on their face as they reminisce about battling this nuisance.
+
+
+# The Balrog is the final Quest (thus the QUESTOR flag).
+# You must kill him to complete the final quest, and win the game.
+
+N:279:The Balrog of Moria
+A:BalrogOMoria
+G:B:v1
+I:13:75d40:40:125:0
+W:50:1:155:55000
+B:HIT:FIRE:10d12
+B:TRAMPLE:HURT:8d12
+B:TOUCH:UN_POWER
+F:UNIQUE | QUESTOR | MALE | FORCE_MAXHP | FORCE_EXTRA
+F:ONLY_ITEM | DROP_60 | DROP_90 | DROP_1D2 | DROP_2D2
+F:DROP_4D2 | DROP_GOOD | DROP_GREAT | HAS_LIGHT | SPECIAL | INVISIBLE
+F:OPEN_DOOR | BASH_DOOR | PASS_WALL | KILL_BODY | TAKE_ITEM
+F:POWERFUL | DEMON | EVIL | IM_FIRE | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_40 | POW_35
+S:LASH | BRTH_FIRE | ADD_MANA | TELE_SELF_TO | DRAIN_MANA
+S:WOUND | BLIND | SLOW | HOLD | S_UNDEAD
+D:A huge Balrog surrounded by raging pillars of fire, this is indeed a
+D: terrible opponent.  Wielding a great whip of fire and a blazing
+D: sword, his fury blisters your skin and melts your flesh!
+
+
+N:280:Sm['e]agol
+A:Sm['e]agol
+G:p:B
+I:13:10d10:20:12:5
+W:3:2:0:50
+B:TOUCH:EAT_GOLD:1d4
+F:UNIQUE | ATTR_CLEAR | FORCE_MAXHP | RAND_50 | ONLY_ITEM
+F:DROP_1D2 | DROP_GOOD | INVISIBLE | OPEN_DOOR | BASH_DOOR
+F:TAKE_ITEM | EVIL | NO_SLEEP
+D:Usually known as Gollum.  He's been sneaking, and he wants his
+D: 'precious.'
+
+

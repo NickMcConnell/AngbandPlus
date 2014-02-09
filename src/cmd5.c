@@ -21,6 +21,24 @@
 #include "ui-menu.h"
 #include "game-event.h"
 
+/* Adjustment to minimum failure rates for wisdom/intelligence in moria */
+int spell_failure_min_moria(int stat)
+{
+
+
+	int value = p_ptr->state.stat_use[stat];
+
+	if (value > 117) 		return(0);
+	else if (value > 107)	return(1);
+	else if (value > 87)	return(2);
+	else if (value > 67)	return(3);
+	else if (value > 17)	return(4);
+	else if (value > 14)	return(7);
+	else if (value > 7)		return(10);
+	else	return(25);
+}
+
+
 
 /*
  * Returns chance of failure for a spell
@@ -45,7 +63,12 @@ s16b spell_chance(int spell)
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= adj_mag_stat[SPELL_STAT_SLOT];
+	/* Extract the minimum failure rate */
+	if (game_mode == GAME_NPPMORIA)
+	{
+		chance -= 3 * (stat_adj_moria(MORIA_SPELL_STAT)-1);
+	}
+	else chance -= adj_mag_stat[SPELL_STAT_SLOT];
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -54,7 +77,8 @@ s16b spell_chance(int spell)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[SPELL_STAT_SLOT];
+	if (game_mode == GAME_NPPMORIA) minfail = spell_failure_min_moria(MORIA_SPELL_STAT);
+	else minfail = adj_mag_fail[SPELL_STAT_SLOT];
 
 	/* Non mage/priest characters never get better than 5 percent */
 	if (!(cp_ptr->flags & CF_ZERO_FAIL))
@@ -81,6 +105,7 @@ s16b spell_chance(int spell)
 	/* Return the chance */
 	return (chance);
 }
+
 
 /*
  * Determine if a spell is "okay" for the player to cast or study
@@ -144,7 +169,7 @@ static byte update_spells(const object_type *o_ptr)
 	/* Make sure it is the right spellcasting realm. */
 	if (cp_ptr->spell_book != o_ptr->tval) return (0);
 
-	/* Clear everthing to start */
+	/* Clear everything to start */
 	for (i = 0;  i < SPELLS_PER_BOOK; i++)
 	{
 		spells[i] = -1;
@@ -162,7 +187,6 @@ static byte update_spells(const object_type *o_ptr)
 
 	return (count);
 }
-
 
 
 static void spell_menu_hook(int oid, void *db, const region *loc)
@@ -192,6 +216,7 @@ static void spell_menu_hook(int oid, void *db, const region *loc)
 	text_out_c(TERM_L_BLUE, out_val);
 	text_out_indent = 0;
 }
+
 
 /**
  * Display an entry on the gain specialty menu
@@ -269,6 +294,7 @@ static void get_spell_display(menu_type *menu, int oid, bool cursor, int row,
 	c_prt(line_attr, out_val, row, col);
 }
 
+
 static bool spell_cast_action(char cmd, void *db, int oid)
 {
 	int i = A2I(cmd);
@@ -316,6 +342,7 @@ static bool spell_cast_action(char cmd, void *db, int oid)
 
 	return (TRUE);
 }
+
 
 static bool spell_study_action(char cmd, void *db, int oid)
 {
@@ -366,9 +393,9 @@ static bool spell_study_action(char cmd, void *db, int oid)
 	return (TRUE);
 }
 
+
 static bool spell_browse_action(char cmd, void *db, int oid)
 {
-
 	(void) oid;
 	(void) db;
 
@@ -384,7 +411,6 @@ static bool spell_browse_action(char cmd, void *db, int oid)
 }
 
 
-
 static bool get_spell_action(char cmd, void *db, int oid)
 {
 	if (spell_mode == BOOK_CAST) return (spell_cast_action(cmd, db, oid));
@@ -392,7 +418,6 @@ static bool get_spell_action(char cmd, void *db, int oid)
 	/* MODE_BROWSE */
 	else return (spell_browse_action(cmd, db, oid));
 }
-
 
 
 /**
@@ -574,7 +599,9 @@ int get_spell_menu(const object_type *o_ptr, int mode_dummy)
 }
 
 
-/* Is the player capable of casting a spell? */
+/*
+ * Is the player capable of casting a spell?
+ */
 bool player_can_cast(void)
 {
 	if (!cp_ptr->spell_book)
@@ -598,7 +625,10 @@ bool player_can_cast(void)
 	return TRUE;
 }
 
-/* Is the player capable of studying? */
+
+/*
+ * Is the player capable of studying?
+ */
 bool player_can_study(void)
 {
 	if (!player_can_cast())
@@ -614,7 +644,10 @@ bool player_can_study(void)
 	return TRUE;
 }
 
-/* Check if the given spell is in the given book. */
+
+/*
+ * Check if the given spell is in the given book.
+ */
 static bool spell_in_book(int spell, int book)
 {
 	int i;
@@ -628,7 +661,10 @@ static bool spell_in_book(int spell, int book)
 	return FALSE;
 }
 
-/* Gain a specific spell, specified by spell number (for mages). */
+
+/*
+ * Gain a specific spell, specified by spell number (for mages).
+ */
 void do_cmd_study_spell(cmd_code code, cmd_arg args[])
 {
 	int spell = args[0].choice;
@@ -668,8 +704,9 @@ void do_cmd_study_spell(cmd_code code, cmd_arg args[])
 }
 
 
-
-/* See if we can cast or study from a book */
+/*
+ * See if we can cast or study from a book
+ */
 bool player_can_use_book(const object_type *o_ptr, bool known)
 {
 	int i;
@@ -698,11 +735,9 @@ bool player_can_use_book(const object_type *o_ptr, bool known)
 }
 
 
-
-
-
-
-/* Gain a random spell from the given book (for priests) */
+/*
+ * Gain a random spell from the given book (for priests)
+ */
 void do_cmd_study_book(cmd_code code, cmd_arg args[])
 {
 	int book = args[0].item;
@@ -756,9 +791,9 @@ void do_cmd_study_book(cmd_code code, cmd_arg args[])
 }
 
 
-
-
-/* Cast a spell from a book */
+/*
+ * Cast a spell from a book
+ */
 void do_cmd_cast(cmd_code code, cmd_arg args[])
 {
 	int spell = args[0].choice;
@@ -774,7 +809,7 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
-	/* Verify "dangerous" spells */
+	/* Verify insufficient mana */
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
@@ -786,7 +821,6 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
 	}
-
 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
@@ -862,7 +896,6 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
-
 }
 
 
@@ -905,5 +938,43 @@ void spell_learn(int spell)
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY | PR_OBJECT);
 }
+
+s16b get_spell_from_list(s16b book, s16b spell)
+{
+	int realm = get_player_spell_realm();
+
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Check bounds */
+		if ((spell < 0) || (spell >= SPELLS_PER_BOOK)) return (-1);
+		if ((book < 0) || (book >= BOOKS_PER_REALM_MORIA)) return (-1);
+
+		if (realm == MAGE_REALM) return (spell_list_nppmoria_mage[book][spell]);
+		if (realm == PRIEST_REALM) return (spell_list_nppmoria_priest[book][spell]);
+	}
+	else
+	{
+		/* Check bounds */
+		if ((spell < 0) || (spell >= SPELLS_PER_BOOK)) return (-1);
+		if ((book < 0) || (book >= BOOKS_PER_REALM_ANGBAND)) return (-1);
+
+		if (realm == MAGE_REALM) return (spell_list_nppangband_mage[book][spell]);
+		if (realm == PRIEST_REALM) return (spell_list_nppangband_priest[book][spell]);
+		if (realm == DRUID_REALM) return (spell_list_nppangband_druid[book][spell]);
+	}
+
+
+	/* Whoops! */
+	return (-1);
+}
+
+
+
+int get_spell_index(const object_type *o_ptr, int index)
+{
+	return get_spell_from_list(o_ptr->sval,index);
+}
+
+
 
 

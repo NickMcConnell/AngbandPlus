@@ -74,6 +74,7 @@ int scan_effects_grid(int *effects, int size, int y, int x)
 	return (num);
 }
 
+
 /*
  * Determine if an effect can "absorb" a second effect
  *
@@ -82,23 +83,22 @@ int scan_effects_grid(int *effects, int size, int y, int x)
  */
 static bool effect_similar(const effect_type *x_ptr, const effect_type *x2_ptr)
 {
-
 	/*Require identical coordinates*/
-	if (x_ptr->x_cur_y != x2_ptr->x_cur_y) return (FALSE);
-	if (x_ptr->x_cur_x != x2_ptr->x_cur_x) return (FALSE);
+	if (x_ptr->x_cur_y != x2_ptr->x_cur_y)		return (FALSE);
+	if (x_ptr->x_cur_x != x2_ptr->x_cur_x)		return (FALSE);
 
 	/* Require certain types */
-	if (x_ptr->x_type != x2_ptr->x_type) 		return (FALSE);
-	if (x_ptr->x_type == EFFECT_TRAP_SMART) 	return (FALSE);
-	if (x_ptr->x_type == EFFECT_TRAP_DUMB) 		return (FALSE);
-	if (x_ptr->x_type == EFFECT_TRAP_PLAYER) 	return (FALSE);
-	if (x_ptr->x_type == EFFECT_GLYPH) 			return (FALSE);
+	if (x_ptr->x_type != x2_ptr->x_type)		return (FALSE);
+	if (x_ptr->x_type == EFFECT_TRAP_SMART)		return (FALSE);
+	if (x_ptr->x_type == EFFECT_TRAP_DUMB)		return (FALSE);
+	if (x_ptr->x_type == EFFECT_TRAP_PLAYER)	return (FALSE);
+	if (x_ptr->x_type == EFFECT_GLYPH)			return (FALSE);
 
 	/* Require identical terrain types (this check also assures similar gf types) */
-	if (x_ptr->x_f_idx != x2_ptr->x_f_idx) return (FALSE);
+	if (x_ptr->x_f_idx != x2_ptr->x_f_idx)		return (FALSE);
 
 	/* Require identical sources types */
-	if (x_ptr->x_source != x2_ptr->x_source) return (FALSE);
+	if (x_ptr->x_source != x2_ptr->x_source)	return (FALSE);
 
 	/* They match, so they must be similar */
 	return (TRUE);
@@ -117,7 +117,7 @@ static void effect_absorb(effect_type *x_ptr, const effect_type *x2_ptr)
 	{
 		case EFFECT_PERMANENT_CLOUD:
 		{
-			/*Simply increase the power*/
+			/* Simply increase the power */
 			x_ptr->x_power += x2_ptr->x_power;
 
 			if (x_ptr->x_power > EFFECT_POWER_MAX) x_ptr->x_power = EFFECT_POWER_MAX;
@@ -129,18 +129,18 @@ static void effect_absorb(effect_type *x_ptr, const effect_type *x2_ptr)
 			u32b power =  (MAX(x_ptr->x_power,  1) * MAX(x_ptr->x_countdown,  1));
 			u32b power2 = (MAX(x2_ptr->x_power, 1) * MAX(x2_ptr->x_countdown, 1));
 
-			/* Add the countdown, and extract the power*/
+			/* Add the countdown, and extract the power */
 			int new_countdown = x_ptr->x_countdown + x2_ptr->x_countdown;
 			if (new_countdown > MAX_UCHAR) new_countdown = MAX_UCHAR;
 			x_ptr->x_countdown = (byte)new_countdown;
 
 			x_ptr->x_power = ((power + power2) / (x_ptr->x_countdown));
 
-			/* Calculate repeats*/
+			/* Calculate repeats */
 			power =  (power * MAX(x_ptr->x_repeats,  1));
 			power2 = (power * MAX(x_ptr->x_repeats,  1));
 
-			/* Calc a new time to repeat*/
+			/* Calc a new time to repeat */
 			x_ptr->x_repeats = ((power + power2) / (x_ptr->x_countdown * x_ptr->x_power));
 
 			if (x_ptr->x_power > EFFECT_POWER_MAX) x_ptr->x_power = EFFECT_POWER_MAX;
@@ -153,27 +153,31 @@ static void effect_absorb(effect_type *x_ptr, const effect_type *x2_ptr)
 			u32b power =  (MAX(x_ptr->x_power,  1) * MAX(x_ptr->x_countdown,  1));
 			u32b power2 = (MAX(x2_ptr->x_power, 1) * MAX(x2_ptr->x_countdown, 1));
 
-			/* Add the countdown, and extract the power*/
+			/* Add the countdown, and extract the power */
 			int new_countdown = x_ptr->x_countdown + x2_ptr->x_countdown;
 			if (new_countdown > MAX_UCHAR) new_countdown = MAX_UCHAR;
 			x_ptr->x_countdown = (byte)new_countdown;
 
 			x_ptr->x_power = ((power + power2) / (x_ptr->x_countdown));
 
-
 			if (x_ptr->x_power > EFFECT_POWER_MAX) x_ptr->x_power = EFFECT_POWER_MAX;
 
 			break;
 		}
 		/* Oops! */
-		default: msg_print(" Error: Unknown effect type.");
+		default:
+			msg_print(" Error: Unknown effect type.");
+
+			break;
 	}
 }
 
-/*Place the effect in a stack of effects.*/
+
+/*
+ * Place the effect in a stack of effects.
+ */
 static void place_effect_idx(int x_idx, int y, int x)
 {
-
 	/* Get this effect */
 	effect_type *x_ptr = &x_list[x_idx];
 
@@ -199,8 +203,8 @@ static void place_effect_idx(int x_idx, int y, int x)
 	{
 		light_spot(y, x);
 	}
-
 }
+
 
 /*
  * Should always be called only after x_pop();
@@ -261,7 +265,6 @@ void effect_prep(int x_idx, byte type, u16b f_idx, byte y, byte x, byte countdow
 
 	/*Put it in the proper order*/
 	place_effect_idx(x_idx, y, x);
-
 }
 
 
@@ -294,6 +297,7 @@ bool set_effect_lingering_cloud(int f_idx, byte y, byte x,	u16b power, s16b sour
 	return (TRUE);
 }
 
+
 /*
  * Set a glacier effect.  Return false if it could not be set.
  */
@@ -319,6 +323,7 @@ bool set_effect_glacier(int f_idx, byte y, byte x, s16b source, u16b flag)
 
 	return (TRUE);
 }
+
 
 /*
  * Set an inscription effect. Return TRUE on success
@@ -388,6 +393,7 @@ bool set_effect_shimmering_cloud(int f_idx, byte y, byte x, byte repeats, u16b p
 	return (TRUE);
 }
 
+
 /*
  * Set a permanent cloud effect.  Return false if it could not be set.
  * Currently assumes neither players nor monsters can set permanent effects (use of SOURCE_EFFECT)
@@ -404,8 +410,8 @@ bool set_effect_permanent_cloud(int f_idx, byte y, byte x,	u16b power, u16b flag
 	effect_prep(x_idx, EFFECT_PERMANENT_CLOUD, f_idx, y, x, 1, 1, power, SOURCE_EFFECT, flag);
 
 	return (TRUE);
-
 }
+
 
 /*
  * Set a passive trap effect.  Return false if it could not be set.
@@ -424,6 +430,7 @@ bool set_effect_trap_passive(int f_idx, byte y, byte x)
 
 	return (TRUE);
 }
+
 
 /*
  * Set a smart trap effect.  Return false if it could not be set.
@@ -457,6 +464,7 @@ bool set_effect_trap_smart(int f_idx, byte y, byte x, u16b flags)
 	return (TRUE);
 }
 
+
 /*
  * Set a monster trap effect.  Return false if it could not be set.
  */
@@ -477,6 +485,7 @@ bool set_effect_trap_player(int f_idx, byte y, byte x)
 
 	return (TRUE);
 }
+
 
 /*
  * Set a glyph.  Return false if it could not be set.
@@ -500,33 +509,31 @@ bool set_effect_glyph(byte y, byte x)
 }
 
 
-
 /*
  * Move an effect from index i1 to index i2 in the effect list
  */
-static void compact_effects_aux(int old, int new)
+static void compact_effects_aux(int effect_old, int effect_new)
 {
 	int i;
 
 	int y, x;
 
-	effect_type *x_ptr = &x_list[old];
+	effect_type *x_ptr = &x_list[effect_old];
 
 	/* Do nothing */
-	if (old == new) return;
+	if (effect_old == effect_new) return;
 
 	/* Repair effects */
 	for (i = 1; i < x_max; i++)
 	{
-
 		/* Skip "dead" effects */
 		if (!x_list[i].x_type) continue;
 
 		/* Repair "next" pointers */
-		if (x_list[i].next_x_idx == old)
+		if (x_list[i].next_x_idx == effect_old)
 		{
 			/* Repair */
-			x_list[i].next_x_idx = new;
+			x_list[i].next_x_idx = effect_new;
 		}
 	}
 
@@ -535,18 +542,19 @@ static void compact_effects_aux(int old, int new)
 	x = x_ptr->x_cur_x;
 
 	/* Hack -- move effect */
-	COPY(&x_list[new], &x_list[old], effect_type);
+	COPY(&x_list[effect_new], &x_list[effect_old], effect_type);
 
 	/* Hack -- wipe hole */
 	effect_wipe(x_ptr);
 
 	/* Repair grid */
-	if (cave_x_idx[y][x] == old)
+	if (cave_x_idx[y][x] == effect_old)
 	{
 		/* Repair */
-		cave_x_idx[y][x] = new;
+		cave_x_idx[y][x] = effect_new;
 	}
 }
+
 
 /*
  * Simple routine to compact effects
@@ -555,7 +563,7 @@ void compact_effects(void)
 {
 	int i;
 
-	/* Excise dead effectss (backwards!) */
+	/* Excise dead effects (backwards!) */
 	for (i = x_max - 1; i >= 1; i--)
 	{
 		effect_type *x_ptr = &x_list[i];
@@ -571,12 +579,15 @@ void compact_effects(void)
 	}
 }
 
-/* Make sure there is no smart trap projectable to a square within 6 squares. */
+
+/*
+ * Make sure there is no smart trap projectable to a square within 6 squares.
+ */
 static bool found_smart_trap(int orig_y, int orig_x)
 {
 	int begin_y, end_y, begin_x, end_x, y, x;
 
-	/* For efficiency, set the boundries first, make sure they are in bounds. */
+	/* For efficiency, set the boundaries first, make sure they are in bounds. */
 	begin_y = orig_y - 10;
 	if (begin_y < 0) begin_y = 0;
 	begin_x = orig_x - 10;
@@ -602,6 +613,7 @@ static bool found_smart_trap(int orig_y, int orig_x)
 	/* No projectable smart trap found*/
 	return (FALSE);
 }
+
 
 void pick_and_set_trap(int y, int x, int mode)
 {
@@ -638,6 +650,7 @@ void pick_and_set_trap(int y, int x, int mode)
 	}
 }
 
+
 /*
  * Places a random trap at the given location.
  *
@@ -656,6 +669,7 @@ void place_trap(int y, int x, byte mode)
 	pick_and_set_trap(y, x, mode);
 }
 
+
 /*
  * Let an effect appear near a location.
  *
@@ -672,7 +686,6 @@ void effect_near(int feat, int y, int x, byte effect_type)
 	int by, bx;
 	int dy, dx;
 	int ty, tx;
-
 
 	bool flag = FALSE;
 
@@ -743,8 +756,6 @@ void effect_near(int feat, int y, int x, byte effect_type)
 }
 
 
-
-
 /*
  * Wipe the current effect.
  * This function should be called whenever an effect is terminated.
@@ -755,6 +766,7 @@ void effect_wipe(effect_type *x_ptr)
 	WIPE(x_ptr, effect_type);
 
 }
+
 
 /*
  * Delete all the effects when player leaves the level
@@ -793,6 +805,7 @@ void wipe_x_list(void)
 	x_cnt = 0;
 }
 
+
 /*
  * Delete a dungeon effect
  *
@@ -805,7 +818,7 @@ void delete_effect_idx(int x_idx)
 	int y = x_ptr->x_cur_y;
 	int x = x_ptr->x_cur_x;
 
-	/*Glyphs and traps affect monster movement.  The monsters need to re-think things. */
+	/* Glyphs and traps affect monster movement.  The monsters need to re-think things. */
 	if ((x_ptr->x_type == EFFECT_GLYPH) || (x_ptr->x_type == EFFECT_TRAP_PLAYER))
 	{
 		/* RE-do the flow */
@@ -870,7 +883,6 @@ void delete_effects(int y, int x)
 }
 
 
-
 /*
  * Excise an effect from a stack of effectss
  */
@@ -909,7 +921,6 @@ void excise_effect_idx(int x_idx)
 			{
 				/* Remove from list */
 				cave_x_idx[y][x] = next_x_idx;
-
 			}
 
 			/* Real previous */
@@ -935,6 +946,7 @@ void excise_effect_idx(int x_idx)
 		prev_x_idx = this_x_idx;
 	}
 }
+
 
 /*
  * Get and return the index of a "free" effect.  Assumes
@@ -966,7 +978,7 @@ s16b x_pop(void)
 	}
 
 	/*
-	 * We didnt' find an empty slot
+	 * We didn't find an empty slot
 	 * Initial allocation
 	 */
 	if (x_max < z_info->x_max)
@@ -1034,6 +1046,7 @@ static bool effect_burst(const effect_type *x_ptr)
 	/* Make a effect 1 square */
 	return (project(x_ptr->x_source, 1, y, x, y, x, x_ptr->x_power, f_ptr->x_gf_type, flg, 0, 0));
 }
+
 
 /* Hit the monster or player at one spot*/
 static void effect_damage(const effect_type *x_ptr)
@@ -1114,6 +1127,7 @@ static void effect_damage(const effect_type *x_ptr)
 
 				/*Most cases*/
 				default: kb_str = format("breathing in %s", name);
+				break;
 			}
 
 			/* Show a message */
@@ -1194,6 +1208,7 @@ static void process_effect(int x_idx)
 					else x_ptr->x_countdown += randint(3);
 				}
 
+				break;
 			}
 
 			default: break;
@@ -1241,11 +1256,10 @@ static void process_effect(int x_idx)
 					else x_ptr->x_countdown += randint(3);
 
 					return;
-
 				}
 
-				if (x_ptr->x_flags & (EF1_SM_TRAP_LOS)) fire = TRUE;
-
+				if (x_ptr->x_flags & (EF1_SM_TRAP_LOS))
+					fire = TRUE;
 				else
 				{
 					/* Check what kinds of spells can hit player */
@@ -1270,7 +1284,6 @@ static void process_effect(int x_idx)
 				/* Fire! */
 				if (fire)
 				{
-
 					fire_trap_smart(x_ptr->x_f_idx, x_ptr->x_cur_y, x_ptr->x_cur_x, MODE_ACTION);
 
 					/*Disturb the player*/
@@ -1279,7 +1292,6 @@ static void process_effect(int x_idx)
 					/* Hack - Special handling for smart traps*/
 					x_ptr->x_countdown = f_info[x_ptr->x_f_idx].x_timeout_set +
 								 randint(f_info[x_ptr->x_f_idx].x_timeout_rand);
-
 				}
 
 				/* Hack - Special exit for smart traps*/
@@ -1327,7 +1339,7 @@ static void show_burst_effects(void)
 			int y = burst_y[i];
 			int x = burst_x[i];
 
-			/* Get grapchis */
+			/* Get graphics */
 			u16b p = bolt_pict(y, x, y, x, burst_gf[i], 0L);
 
 			/* Extract attr/char */
@@ -1405,5 +1417,4 @@ void process_effects(void)
 	if ((x_cnt + 30) > x_max) compact_effects();
 	else if ((x_max + 20) > z_info->x_max) compact_effects();
 }
-
 

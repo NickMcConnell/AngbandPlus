@@ -82,6 +82,7 @@ void feature_desc(char *buf, size_t max, u16b feat, bool add_prefix, bool get_mi
 	*pbuf = '\0';
 }
 
+
 /*
  * Provide adjustments to combat chances based on the player position and
  * nativity.
@@ -101,7 +102,7 @@ int feat_adjust_combat_for_player(int chance, bool being_attacked)
 	/*No adjustments when the player is flying. */
 	if (p_ptr->timed[TMD_FLYING]) return chance;
 
-	/*native player adjustment to combat*/
+	/* Native player adjustment to combat */
 	if (is_player_native(p_ptr->py, p_ptr->px))
 	{
 		/* Raw bonus to hit */
@@ -113,6 +114,7 @@ int feat_adjust_combat_for_player(int chance, bool being_attacked)
 			f_l_ptr->f_l_native_to_hit_adj++;
 		}
 	}
+
 	/*Non_native player adjustment to combat*/
 	else
 	{
@@ -137,6 +139,7 @@ int feat_adjust_combat_for_player(int chance, bool being_attacked)
 
 	return (chance);
 }
+
 
 /*
  * Provide adjustments to combat chances based on the player position and
@@ -163,13 +166,13 @@ int feat_adjust_combat_for_monster(const monster_type *m_ptr, int chance,
 	{
 		return (chance);
 	}
-	/*Monster_native adjustment to combat*/
+	/* Monster_native adjustment to combat */
 	else if (is_monster_native(m_ptr->fy, m_ptr->fx, r_ptr))
 	{
 		/* Raw bonus to hit */
 		bonus = f_ptr->native_to_hit_adj - 100;
 
-		/*Mark the mosnter lore*/
+		/* Mark the monster lore */
 		if((m_ptr->ml) && player_can_observe())
 		{
 			u32b native = f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3;
@@ -177,13 +180,13 @@ int feat_adjust_combat_for_monster(const monster_type *m_ptr, int chance,
 			l_ptr->r_l_native |= native;
 		}
 
-		/*Mark the feature lore if the player understands*/
+		/* Mark the feature lore if the player understands */
 		if ((player_can_observe()) && (f_l_ptr->f_l_native_to_hit_adj < MAX_UCHAR))
 		{
 			f_l_ptr->f_l_native_to_hit_adj++;
 		}
 	}
-	/*Non_native monster adjustment to combat*/
+	/* Non_native monster adjustment to combat */
 	else
 	{
 		/* Raw bonus to hit */
@@ -207,6 +210,7 @@ int feat_adjust_combat_for_monster(const monster_type *m_ptr, int chance,
 
 	return (chance);
 }
+
 
 /*
  * Find a secret at the specified location and change it according to
@@ -631,7 +635,10 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
 
 
 		/*Oops!*/
-		default: msg_print("unknown trap type");
+		default:
+			msg_print("unknown trap type");
+
+			break;
 	}
 
 	return(TRUE);
@@ -764,6 +771,8 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 		{
 			dice = 2;
 			sides = 6;
+
+			if (game_mode == GAME_NPPMORIA) sides = 8;
 
 			if (mode == MODE_DESCRIBE)
 			{
@@ -1138,6 +1147,8 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			int base = 25;
 			int rand_base = 50;
 
+			if (game_mode == GAME_NPPMORIA) base = 50;
+
 			if (mode == MODE_DESCRIBE)
 			{
 				text_out(format("  This trap releases black gas that can blind you for %d + %dd turns.", base, rand_base));
@@ -1160,6 +1171,13 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			int base = 10;
 			int rand_base = 20;
 
+			if (game_mode == GAME_NPPMORIA)
+			{
+				base = 15;
+				rand_base = 15;
+			}
+
+
 			if (mode == MODE_DESCRIBE)
 			{
 				text_out(format("  This trap releases gas that can confuse you for %d + %dd turns.", base, rand_base));
@@ -1181,6 +1199,12 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 		{
 			int base = 10;
 			int rand_base = 30;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				base = 2;
+				rand_base = 10;
+			}
 
 			if (mode == MODE_DESCRIBE)
 			{
@@ -1205,6 +1229,12 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			int base = 5;
 			int rand_base = 20;
 
+			if (game_mode == GAME_NPPMORIA)
+			{
+				base = 4;
+				rand_base = 10;
+			}
+
 			if (mode == MODE_DESCRIBE)
 			{
 				text_out(format("  This trap releases a white mist that can paralyze you for %d + %dd turns.",
@@ -1223,11 +1253,15 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 		}
 
 		/*Oops!*/
-		default: msg_print("unknown trap type");
+		default:
+			msg_print("unknown trap type");
+
+			break;
 	}
 
 	if (mode == MODE_ACTION) disturb(0,0);
 }
+
 
 /*
  * Let an feature appear near a location.
@@ -1279,7 +1313,7 @@ void feat_near(int feat, int y, int x)
 			/* Require line of sight */
 			if (!los(y, x, ty, tx)) continue;
 
-			/* Prevent overwriting permanets */
+			/* Prevent overwriting permanents */
 			if (f_info[cave_feat[ty][tx]].f_flags1 & (FF1_PERMANENT)) continue;
 
 			/* Don't like non-floor space */
@@ -1317,7 +1351,6 @@ void feat_near(int feat, int y, int x)
 }
 
 
-
 /*
  * Count which terrain has been seen on this level.
  * Clear the everseen flag for the next level.
@@ -1344,6 +1377,7 @@ void count_feat_everseen(void)
 	}
 }
 
+
 /*
  * Helper function to find a smart trap
  */
@@ -1366,6 +1400,7 @@ static bool vault_trap_smart(int f_idx)
 	/* Okay */
 	return (TRUE);
 }
+
 
 /*
  * Helper function to find a passive trap
@@ -1390,6 +1425,7 @@ static bool vault_trap_passive(int f_idx)
 	return (TRUE);
 }
 
+
 /*
  * Helper function to find any dungeon trap
  */
@@ -1410,6 +1446,7 @@ static bool vault_trap_all(int f_idx)
 	return (TRUE);
 }
 
+
 /*
  * Helper function for "jammed doors"
  */
@@ -1426,6 +1463,7 @@ static bool vault_jammed_door(int f_idx)
 	/* Decline everything else */
 	return (FALSE);
 }
+
 
 /*
  * Helper function for "secret doors"
@@ -1444,6 +1482,7 @@ static bool vault_secret_door(int f_idx)
 	return (FALSE);
 }
 
+
 /*
  * Helper function for "closed doors"
  */
@@ -1460,6 +1499,7 @@ static bool vault_closed_door(int f_idx)
 	/* Decline everything else */
 	return (FALSE);
 }
+
 
 /*
  * Helper function for "opened doors"
@@ -1478,6 +1518,7 @@ static bool vault_open_door(int f_idx)
 	return (FALSE);
 }
 
+
 /*
  * Helper function for "broken doors"
  */
@@ -1495,6 +1536,7 @@ static bool vault_broken_door(int f_idx)
 	return (FALSE);
 }
 
+
 /*
  * Helper function for "locked doors"
  */
@@ -1511,6 +1553,7 @@ bool vault_locked_door(int f_idx)
 	/* Decline everything else */
 	return (FALSE);
 }
+
 
 /*
  * Helper function for boring "closed doors"
@@ -1569,7 +1612,6 @@ errr get_feat_num_prep(void)
 }
 
 
-
 /*
  * Choose an feature type that seems "appropriate" to the given level
  *
@@ -1614,7 +1656,6 @@ s16b get_feat_num(int level)
 		}
 	}
 
-
 	/* Reset total */
 	total = 0L;
 
@@ -1635,7 +1676,6 @@ s16b get_feat_num(int level)
 		 if ((f_info[f_idx].f_level > (old_level + 10)) &&
 			 (!feat_ff2_match(f_idx, FF2_LAKE | FF2_RIVER) ||
 			(f_info[f_idx].dam_non_native > (p_ptr->mhp / 2)))) continue;
-
 
 		/*
 		 * Mega-Hack -- No summoning traps in themed levels,
@@ -1705,7 +1745,6 @@ s16b get_feat_num(int level)
 		value = value - table[i].prob3;
 	}
 
-
 	/* Power boost */
 	p = rand_int(100);
 
@@ -1755,7 +1794,6 @@ s16b get_feat_num(int level)
 		if (table[i].level < table[j].level) i = j;
 	}
 
-
 	/* Result */
 	return (table[i].index);
 }
@@ -1769,6 +1807,9 @@ s16b get_feat_num(int level)
 u16b pick_trap(int y, int x, byte mode)
 {
 	u16b feat = 0;
+
+	/* No smart traps in Moria */
+	if (game_mode == GAME_NPPMORIA) mode = EFFECT_TRAP_DUMB;
 
 	/* Set hook*/
 
@@ -1801,7 +1842,6 @@ u16b pick_trap(int y, int x, byte mode)
 		break;
 	}
 
-
 	/* Clear hook */
 	get_feat_num_hook = NULL;
 
@@ -1811,6 +1851,7 @@ u16b pick_trap(int y, int x, byte mode)
 	return (feat);
 
 }
+
 
 u16b get_secret_door_num(void)
 {
@@ -1831,6 +1872,7 @@ u16b get_secret_door_num(void)
 
 	return (feat);
 }
+
 
 /*
  * Place a secret door at the given location
@@ -1930,6 +1972,7 @@ void place_open_door(int y, int x)
 	cave_set_feat(y, x, feat);
 }
 
+
 /*
  * Place a random type of closed door at the given location.
  */
@@ -1957,6 +2000,7 @@ void place_broken_door(int y, int x)
 	cave_set_feat(y, x, feat);
 }
 
+
 /*
  * Place a random type of closed door at the given location.
  */
@@ -1983,7 +2027,6 @@ void place_locked_door(int y, int x)
 	/* Set the door */
 	cave_set_feat(y, x, feat);
 }
-
 
 
 /*
@@ -2052,6 +2095,7 @@ void place_random_door(int y, int x)
 		place_closed_door(y, x);
 	}
 }
+
 
 void lore_do_probe_feature(int f_idx)
 {
@@ -2131,8 +2175,6 @@ void lore_do_probe_feature(int f_idx)
 }
 
 
-
-
 /*
  * Learn everything about a feature (by cheating)
  */
@@ -2176,6 +2218,7 @@ static void cheat_feature_lore(int f_idx, feature_lore *f_l_ptr)
 
 }
 
+
 /*
  * Return a string that describes the type of a feature
  */
@@ -2195,11 +2238,13 @@ static cptr get_feature_type(const feature_lore *f_l_ptr)
 	else return (" feature");
 }
 
+
 /* Describe and print on the screen the type of feature */
 static void describe_feature_type(const feature_lore *f_l_ptr)
 {
 	text_out(get_feature_type(f_l_ptr));
 }
+
 
 /*
  * Return TRUE if the given string start with a vowel
@@ -2216,6 +2261,7 @@ static bool begins_with_vowel(cptr str)
 	return (my_is_vowel(str[i]));
 }
 
+
 static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 {
 	const feature_type *f_ptr = &f_info[f_idx];
@@ -2228,20 +2274,20 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 
 	/* Collect some flags */
 	if (f_l_ptr->f_l_flags2 & FF2_SHALLOW)		if (n < N_ELEMENTS(flags)) flags[n++] = " shallow";
-	if (f_l_ptr->f_l_flags2 & FF2_DEEP) 		if (n < N_ELEMENTS(flags)) flags[n++] = " deep";
+	if (f_l_ptr->f_l_flags2 & FF2_DEEP)			if (n < N_ELEMENTS(flags)) flags[n++] = " deep";
 
 	if ((f_l_ptr->f_l_flags2 & FF2_GLOW) &&
 	     (!(f_l_ptr->f_l_flags1 & FF1_SHOP)))	if (n < N_ELEMENTS(flags)) flags[n++] = " glowing";
 
-	if (f_l_ptr->f_l_flags3 & FF3_LAVA) 		if (n < N_ELEMENTS(flags)) flags[n++] = " lava";
-	if (f_l_ptr->f_l_flags3 & FF3_ICE) 		if (n < N_ELEMENTS(flags)) flags[n++] = " icy";
-	if (f_l_ptr->f_l_flags3 & FF3_OIL) 		if (n < N_ELEMENTS(flags)) flags[n++] = " oil";
-	if (f_l_ptr->f_l_flags3 & FF3_FIRE) 		if (n < N_ELEMENTS(flags)) flags[n++] = " fire";
-	if (f_l_ptr->f_l_flags3 & FF3_SAND) 		if (n < N_ELEMENTS(flags)) flags[n++] = " sandy";
-	if (f_l_ptr->f_l_flags3 & FF3_FOREST) 		if (n < N_ELEMENTS(flags)) flags[n++] = " forest";
-	if (f_l_ptr->f_l_flags3 & FF3_WATER) 		if (n < N_ELEMENTS(flags)) flags[n++] = " water";
-	if (f_l_ptr->f_l_flags3 & FF3_ACID) 		if (n < N_ELEMENTS(flags)) flags[n++] = " acid";
-	if (f_l_ptr->f_l_flags3 & FF3_MUD) 		if (n < N_ELEMENTS(flags)) flags[n++] = " mud";
+	if (f_l_ptr->f_l_flags3 & FF3_LAVA)			if (n < N_ELEMENTS(flags)) flags[n++] = " lava";
+	if (f_l_ptr->f_l_flags3 & FF3_ICE)			if (n < N_ELEMENTS(flags)) flags[n++] = " icy";
+	if (f_l_ptr->f_l_flags3 & FF3_OIL)			if (n < N_ELEMENTS(flags)) flags[n++] = " oil";
+	if (f_l_ptr->f_l_flags3 & FF3_FIRE)			if (n < N_ELEMENTS(flags)) flags[n++] = " fire";
+	if (f_l_ptr->f_l_flags3 & FF3_SAND)			if (n < N_ELEMENTS(flags)) flags[n++] = " sandy";
+	if (f_l_ptr->f_l_flags3 & FF3_FOREST)		if (n < N_ELEMENTS(flags)) flags[n++] = " forest";
+	if (f_l_ptr->f_l_flags3 & FF3_WATER)		if (n < N_ELEMENTS(flags)) flags[n++] = " water";
+	if (f_l_ptr->f_l_flags3 & FF3_ACID)			if (n < N_ELEMENTS(flags)) flags[n++] = " acid";
+	if (f_l_ptr->f_l_flags3 & FF3_MUD)			if (n < N_ELEMENTS(flags)) flags[n++] = " mud";
 
 	/* Print the collected flags */
 	for (i = 0; i < n; i++)
@@ -2264,7 +2310,7 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 	/* Describe location */
 	if (f_ptr->f_flags1 & FF2_EFFECT)
 	{
-		/* Do nothing*/
+		/* Do nothing */
 	}
 
 	else if (f_l_ptr->f_l_flags1 & FF1_SHOP)
@@ -2305,7 +2351,7 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 
 	}
 
-	/*Little Information Yet*/
+	/* Little Information Yet */
 	else
 	{
 		text_out_c(TERM_L_GREEN, " that is found in the dungeon");
@@ -2314,7 +2360,7 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 	/* End this sentence */
 	text_out(".");
 
-	/*More misc info*/
+	/* More misc info */
 	if (f_l_ptr->f_l_flags1 & FF1_DROP)
 	{
 		text_out("  This");
@@ -2334,7 +2380,6 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 		describe_feature_type(f_l_ptr);
 		text_out(" may be hiding an object.");
 	}
-
 }
 
 
@@ -2398,31 +2443,27 @@ static void describe_feature_move_see_cast(int f_idx, const feature_lore *f_l_pt
 	}
 }
 
+
 static void describe_feature_stairs(const feature_lore *f_l_ptr)
 {
-
 	text_out("  This");
 
-	if (f_l_ptr->f_l_flags2 & FF2_SHAFT) 	text_out_c(TERM_L_BLUE, " shaft");
+	if (f_l_ptr->f_l_flags2 & FF2_SHAFT)	text_out_c(TERM_L_BLUE, " shaft");
 	else text_out_c(TERM_L_BLUE, " staircase");
 
 	text_out(" will take you");
 
+	if (f_l_ptr->f_l_flags1 & FF1_LESS)		text_out_c(TERM_L_BLUE, " up");
+	if (f_l_ptr->f_l_flags1 & FF1_MORE)		text_out_c(TERM_L_BLUE, " down");
 
-	if (f_l_ptr->f_l_flags1 & FF1_LESS) 	text_out_c(TERM_L_BLUE, " up");
-	if (f_l_ptr->f_l_flags1 & FF1_MORE) 	text_out_c(TERM_L_BLUE, " down");
-
-	if (f_l_ptr->f_l_flags2 & FF2_SHAFT) 	text_out_c(TERM_L_BLUE, " two levels.");
+	if (f_l_ptr->f_l_flags2 & FF2_SHAFT)	text_out_c(TERM_L_BLUE, " two levels.");
 	else text_out_c(TERM_L_BLUE, " one level.");
-
 }
 
 
 static void describe_feature_trap(int f_idx, const feature_lore *f_l_ptr)
 {
-
-
-    /*Describe passive traps the player can set off*/
+	/*Describe passive traps the player can set off*/
 	if (f_l_ptr->f_l_flags2 & FF2_TRAP_PASSIVE) hit_trap(f_idx, 0, 0, MODE_DESCRIBE);
 
 	/*Describe passive traps the player can set off*/
@@ -2430,8 +2471,8 @@ static void describe_feature_trap(int f_idx, const feature_lore *f_l_ptr)
 
 	/*Describe smart traps */
 	if (f_l_ptr->f_l_flags2 & FF2_TRAP_SMART)fire_trap_smart(f_idx, 0, 0, MODE_DESCRIBE);
-
 }
+
 
 static void describe_feature_interaction(int f_idx, const feature_lore *f_l_ptr)
 {
@@ -2447,7 +2488,7 @@ static void describe_feature_interaction(int f_idx, const feature_lore *f_l_ptr)
 
 	/*
 	 * First get rid of redundant messages, if they are to be
-	 * fescribed later in describe_feature_transitions.
+	 * described later in describe_feature_transitions.
 	 */
 	for (i = 0; i < MAX_FEAT_STATES; i++)
 	{
@@ -2504,6 +2545,7 @@ static void describe_feature_interaction(int f_idx, const feature_lore *f_l_ptr)
 	}
 }
 
+
 static void describe_feature_vulnerabilities(const feature_lore *f_l_ptr)
 {
 
@@ -2553,11 +2595,12 @@ static void describe_feature_vulnerabilities(const feature_lore *f_l_ptr)
 	}
 }
 
+
 /*
  * Returns true if special language is used
- * returns false if the standard outputshould follow this.
+ * returns false if the standard output should follow this.
  * This function assumes it is the start of the sentence.
- * Returning slase follows this function by "causes this feature to change to"
+ * Returning false follows this function by "causes this feature to change to"
  */
 
 static bool describe_transition_action(int action)
@@ -2595,6 +2638,7 @@ static bool describe_transition_action(int action)
 	return (FALSE);
 }
 
+
 static void describe_feature_transitions(int f_idx, const feature_lore *f_l_ptr)
 {
 	feature_type *f_ptr = &f_info[f_idx];
@@ -2614,7 +2658,7 @@ static void describe_feature_transitions(int f_idx, const feature_lore *f_l_ptr)
 	/*Mention the mimic, if known*/
 	if (f_ptr->f_mimic != f_idx)
 	{
-		/*Rember we have a transition we are reporting*/
+		/* Remember we have a transition we are reporting */
 		other_trans = TRUE;
 
 		/*Describe it*/
@@ -2623,10 +2667,10 @@ static void describe_feature_transitions(int f_idx, const feature_lore *f_l_ptr)
 		text_out(format("%s.", feature_name));
 	}
 
-	/* Search the action  */
+	/* Search the action */
 	for (i = 0; i < MAX_FEAT_STATES; i++)
 	{
-		/*There isn't a recorded action here*/
+		/* There isn't a recorded action here */
 		if (f_ptr->state[i].fs_action == FS_FLAGS_END) continue;
 
 		/* The feature isn't changing */
@@ -2645,10 +2689,10 @@ static void describe_feature_transitions(int f_idx, const feature_lore *f_l_ptr)
 		/* Have we seen it yet? */
 		if (f_l_ptr->f_l_state[i] == 0) continue;
 
-		/*Rember we have a transition we are reporting*/
+		/* Remember we have a transition we are reporting */
 		other_trans = TRUE;
 
-		/*Describe it, followed by standard output */
+		/* Describe it, followed by standard output */
 		if(!describe_transition_action(f_ptr->state[i].fs_action))
 		{
 			text_out(" changes this");
@@ -2658,7 +2702,6 @@ static void describe_feature_transitions(int f_idx, const feature_lore *f_l_ptr)
 
 		feature_desc(feature_name, sizeof(feature_name), f_ptr->state[i].fs_result, TRUE, FALSE);
 		text_out(format("%s.", feature_name));
-
 	}
 
 	/*Mention the default if it is different*/
@@ -2675,8 +2718,8 @@ static void describe_feature_transitions(int f_idx, const feature_lore *f_l_ptr)
 		feature_desc(feature_name, sizeof(feature_name), f_ptr->defaults, TRUE, FALSE);
 		text_out(format("%s.", feature_name));
 	}
-
 }
+
 
 static void describe_feature_damage(int f_idx, const feature_lore *f_l_ptr)
 {
@@ -2684,7 +2727,7 @@ static void describe_feature_damage(int f_idx, const feature_lore *f_l_ptr)
 
 	cptr action = "hurts";
 
-	/*No damage , or no damage seen yet*/
+	/* No damage, or no damage seen yet */
 	if (f_ptr->dam_non_native == 0) return;
 	if (!f_l_ptr->f_l_dam_non_native) return;
 
@@ -2703,14 +2746,15 @@ static void describe_feature_damage(int f_idx, const feature_lore *f_l_ptr)
 	describe_feature_type(f_l_ptr);
 	text_out(format(" %s any non-native creature", action));
 
-	/*Slightly more information when the player has seen it several times*/
+	/* Slightly more information when the player has seen it several times */
 	if (f_l_ptr->f_l_dam_non_native > 10)
 	{
 		text_out(format(" for %d damage", f_ptr->dam_non_native));
 	}
-	text_out(" who stays on this feature for one turn at normal speed.");
 
+	text_out(" who stays on this feature for one turn at normal speed.");
 }
+
 
 static void describe_feature_movement_effects(int f_idx, const feature_lore *f_l_ptr)
 {
@@ -2775,19 +2819,19 @@ static void describe_feature_movement_effects(int f_idx, const feature_lore *f_l
 	}
 }
 
+
 static void describe_feature_combat_effects(int f_idx, const feature_lore *f_l_ptr)
 {
 	feature_type *f_ptr = &f_info[f_idx];
 
 	if (feat_ff2_match(f_idx, FF2_EFFECT)) return;
 
-	/*Describe movement by native creatures*/
+	/* Describe movement by native creatures */
 	if ((f_ptr->native_to_hit_adj != 100) && (f_l_ptr->f_l_native_to_hit_adj > 0))
 	{
-
 		text_out("  A native creature is");
 
-		/*More information for who have observed movement more*/
+		/* More information for who have observed movement more */
 		if (f_l_ptr->f_l_native_to_hit_adj > 100)
 		{
 			if (f_ptr->native_to_hit_adj  > 100)
@@ -2807,13 +2851,12 @@ static void describe_feature_combat_effects(int f_idx, const feature_lore *f_l_p
 
 		}
 
-		text_out(" sucessful in attacking and defending while fighting in this terrain.");
+		text_out(" successful in attacking and defending while fighting in this terrain.");
 	}
 
 	/*Describe movement by non_native creatures*/
 	if ((f_ptr->non_native_to_hit_adj != 100) && (f_l_ptr->f_l_non_native_to_hit_adj > 0))
 	{
-
 		text_out("  A non-native creature is");
 
 		/*More information for who have observed movement more*/
@@ -2836,9 +2879,10 @@ static void describe_feature_combat_effects(int f_idx, const feature_lore *f_l_p
 
 		}
 
-		text_out(" sucessful in attacking and defending while fighting in this terrain.");
+		text_out(" successful in attacking and defending while fighting in this terrain.");
 	}
 }
+
 
 static void describe_feature_stealth_effects(int f_idx, const feature_lore *f_l_ptr)
 {
@@ -2867,9 +2911,10 @@ static void describe_feature_stealth_effects(int f_idx, const feature_lore *f_l_
 	}
 }
 
+
 /*
  * This section describes dynamic features.
- * The description for each feature needs to be described ona case-by-case basis.
+ * The description for each feature needs to be described on a case-by-case basis.
  * This function should be consistent with process_dynamic_terrain_aux for its output.
  */
 static void describe_feature_dynamic(int f_idx, const feature_lore *f_l_ptr)
@@ -2877,7 +2922,7 @@ static void describe_feature_dynamic(int f_idx, const feature_lore *f_l_ptr)
 	feature_type *f_ptr = &f_info[f_idx];
 
 	/*
-	 * Hack - describe Etheral WallTeleport player
+	 * Hack - describe Ethereal WallTeleport player
 	 * TODO - figure out how to remember this in feature_lore.
 	 */
 	if (f_idx == FEAT_ETHEREAL_WALL)
@@ -3019,11 +3064,7 @@ void describe_feature(int f_idx, bool spoilers)
 
 	/* All done */
 	text_out("\n");
-
 }
-
-
-
 
 
 /*
@@ -3071,7 +3112,6 @@ void feature_roff_top(int f_idx)
 }
 
 
-
 /*
  * Hack -- describe the given feature at the top of the screen
  */
@@ -3091,8 +3131,8 @@ void screen_feature_roff(int f_idx)
 
 	/* Describe feature */
 	feature_roff_top(f_idx);
-
 }
+
 
 /*
  * Hack -- describe the given feature in the current "term" window
@@ -3138,6 +3178,7 @@ void wipe_dynamic_terrain(void)
 	dyna_center_x = 255;
 }
 
+
 /*
  * Returns a pointer to a dyna_g entry given its coordinates.
  * Returns NULL if the entry was not found.
@@ -3162,6 +3203,7 @@ dynamic_grid_type *get_dynamic_terrain(byte y, byte x)
 	/* Failure */
 	return (NULL);
 }
+
 
 /*
  * Some dynamic features use a timer. Returns the value of that timer.
@@ -3269,6 +3311,7 @@ bool add_dynamic_terrain(byte y, byte x)
 	return (TRUE);
 }
 
+
 /*
  * Remove a grid from the dyna_g array given its coordinates
  */
@@ -3288,10 +3331,12 @@ void remove_dynamic_terrain(byte y, byte x)
 	}
 }
 
+
 /*
  * Size of the "visited" array
  */
 #define MAX_VISITED ((MAX_SIGHT + 10) * 2 + 1)
+
 
 /*
  * Reset the dyna_g array and fill it with as many dynamic features close
@@ -3528,6 +3573,7 @@ static void collect_dynamic_terrain(void)
 	dyna_next = dyna_cnt;
 }
 
+
 /*
  * Apply the effect of *one* dynamic feature.
  * We mark the terrain lore if the dynamic terrain change is observed.
@@ -3763,7 +3809,7 @@ static void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 			}
 		}
 
-		/* A wave dissapears eventually */
+		/* A wave disappears eventually */
 		if (kill && feat_ff2_match(feat, FF2_HURT_FIRE))
 		{
 			/* Get the next feature to avoid messages */
@@ -3922,6 +3968,7 @@ static void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 	}
 }
 
+
 /*
  * Traverse the dynamic features stored in dyna_g and apply their effects.
  */
@@ -4047,13 +4094,11 @@ void process_dynamic_terrain(void)
 }
 
 
-
-
 #define MAX_RACES 10
 
 /*
- * Randomly select and return a monster race. The race is guaranted to be one of the
- * most powerful races in the current level.
+ * Randomly select and return a monster race. The race is guaranteed to be one
+ * of the most powerful races in the current level.
  * Return 0 if an error occurs
  */
 s16b select_powerful_race(void)
@@ -4080,7 +4125,7 @@ s16b select_powerful_race(void)
 			r_ptr = &r_info[r_idx];
 
 			/* Ignore empty races */
-			if (!r_ptr->speed) continue;
+			if (!r_ptr->r_speed) continue;
 
 			/* Ignore player ghosts (no name) */
 			if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
@@ -4287,6 +4332,7 @@ void format_monster_inscription(s16b r_idx, char inscr[], size_t max)
 	}
 }
 
+
 /*
  * Display a message spoiling the presence of the most powerful monsters in the current level
  * x_idx is the index of the effect that triggered this action
@@ -4308,7 +4354,7 @@ void decipher_strange_inscription(int x_idx)
 		msg_print("You try to decipher another part of the inscription.");
 	}
 
-	/* Hurt the player in rare occassions */
+	/* Hurt the player in rare occasions */
 	if ((effective_depth(p_ptr->depth) > 10) && one_in_(75))
 	{
 		/* Get the feature under the effect */
@@ -4553,6 +4599,7 @@ bool hit_wall(int y, int x, bool do_action)
 	return (FALSE);
 }
 
+
 /*
  * Clear level_flag and then rescan the current level searching for elemental features.
  * Update level_flag for each element found.
@@ -4589,8 +4636,9 @@ void update_level_flag(void)
 	}
 }
 
+
 /*
- * Return ONLY ONE of the LF1_* flags that represents the given fetaure.
+ * Return ONLY ONE of the LF1_* flags that represents the given feature.
  * Return 0 if there isn't none.
  */
 u32b get_level_flag(u16b feat)
@@ -4598,7 +4646,7 @@ u32b get_level_flag(u16b feat)
 	/* Get the elemental flags */
 	u32b element_flags = feat_ff3_match(feat, TERRAIN_MASK);
 
-	/* Analyize the type of the flags */
+	/* Analyze the type of the flags */
 	switch (element_flags)
 	{
 		/* Special case. Boiling mud (hybrid element) */
@@ -4621,6 +4669,7 @@ u32b get_level_flag(u16b feat)
 
 	}
 }
+
 
 /*
  * Return ALL the LF1_* flags that represents the nativity settings of the
@@ -4652,6 +4701,7 @@ u32b get_level_flag_from_race(monster_race *r_ptr)
 	return (element_flags);
 }
 
+
 /*
  * Paste the name of the element given in flag into buf.
  * max is the maximum size of buf.
@@ -4681,6 +4731,7 @@ void describe_one_level_flag(char *buf, size_t max, u32b flag)
 	/* Copy the name */
 	my_strcpy(buf, name, max);
 }
+
 
 /*
  * Show several messages describing all the LF1_* flags contained in the

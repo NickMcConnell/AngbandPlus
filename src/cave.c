@@ -121,10 +121,8 @@ bool generic_los(int y1, int x1, int y2, int x2, u16b flg)
 	ay = ABS(dy);
 	ax = ABS(dx);
 
-
 	/* Handle adjacent (or identical) grids */
 	if ((ax < 2) && (ay < 2)) return (TRUE);
-
 
 	/* Directly South/North */
 	if (!dx)
@@ -176,11 +174,9 @@ bool generic_los(int y1, int x1, int y2, int x2, u16b flg)
 		return (TRUE);
 	}
 
-
 	/* Extract some signs */
 	sx = (dx < 0) ? -1 : 1;
 	sy = (dy < 0) ? -1 : 1;
-
 
 	/* Vertical "knights" */
 	if (ax == 1)
@@ -199,7 +195,6 @@ bool generic_los(int y1, int x1, int y2, int x2, u16b flg)
 			if (cave_flag_bold(y1, x1 + sx, flg)) return (TRUE);
 		}
 	}
-
 
 	/* Calculate scale factor div 2 */
 	f2 = (ax * ay);
@@ -307,8 +302,6 @@ bool generic_los(int y1, int x1, int y2, int x2, u16b flg)
 }
 
 
-
-
 /*
  * Returns true if the player's grid is dark
  */
@@ -316,8 +309,6 @@ bool no_light(void)
 {
 	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
-
-
 
 
 /*
@@ -342,6 +333,7 @@ bool cave_valid_bold(int y, int x)
 	/* Accept */
 	return (TRUE);
 }
+
 
 /*
  * Table of breath colors.  Must match listings in a single set of
@@ -610,6 +602,7 @@ byte multi_hued_attr(monster_race *r_ptr)
 	return (allowed_attrs[rand_int(stored_colors)]);
 }
 
+
 /*
  * Hack -- Hallucinatory monster
  */
@@ -626,7 +619,7 @@ static u16b image_monster(bool use_default)
 		r_ptr = &r_info[rand_int(z_info->r_max)];
 
 		/* Skip non-entries */
-		if (!r_ptr->speed) continue;
+		if (!r_ptr->r_speed) continue;
 
 		/* Retrieve attr/char */
 		if (use_default)
@@ -647,7 +640,6 @@ static u16b image_monster(bool use_default)
 	/*just to avoid compiler warnings*/
 	return (TRUE);
 }
-
 
 
 /*
@@ -711,6 +703,7 @@ static u16b image_random(bool use_default)
 	}
 }
 
+
 /*
  * Specify which of the 32x32 tiles support lighting
  */
@@ -722,8 +715,9 @@ static bool feat_supports_lighting_dvg(u16b feat)
 		return TRUE;
 	}
 	/* All water, lava, ice, acid, oil, forest, sand, mud and terrains support lighting*/
-	if (f_info[feat].f_flags3 & (FF3_WATER | FF3_LAVA | FF3_ICE | FF3_ACID | \
-								 FF3_OIL | FF3_FOREST | FF3_SAND | FF3_MUD | FF3_FIRE))
+	if (f_info[feat].f_flags3 & (FF3_WATER | FF3_LAVA | FF3_ICE | FF3_ACID |
+								 FF3_OIL | FF3_FOREST | FF3_SAND | FF3_MUD |
+								 FF3_FIRE))
 	{
 		return TRUE;
 	}
@@ -752,6 +746,7 @@ static bool feat_supports_lighting_dvg(u16b feat)
 
 	return (FALSE);
 }
+
 
 /*
  * Determine whether a tile of the terrain supports lighting
@@ -952,6 +947,7 @@ static void special_lighting_wall(byte *a, char *c, u16b feat, int info)
 	}
 }
 
+
 /*
  * Table of complementary colors (used for shimmering traps).
  * Note the color selected for TERM_VIOLET.
@@ -976,6 +972,7 @@ static byte shimmer_color_table[] =
 	TERM_UMBER		/* TERM_L_UMBER	*/
 };
 
+
 /*
  * Returns the given color or a complementary color (shimmering effects)
  */
@@ -998,13 +995,12 @@ static byte shimmer_color(byte x_attr)
 	return (x_attr);
 }
 
+
 /*
  * Checks if a square is at the (inner) edge of a trap detect area
  */
 bool dtrap_edge(int y, int x)
 {
-
-
 	/* Check if the square is a dtrap in the first place */
  	if (!(cave_info[y][x] & (CAVE_DTRAP))) return FALSE;
 
@@ -1058,6 +1054,7 @@ static void map_hidden_monster(monster_type *m_ptr, byte *ap, char *cp)
 	/* Set attribute */
 	if (use_graphics) *ap = r_ptr->d_attr;
 }
+
 
 static void get_dtrap_edge_char(byte *a, char *c)
 {
@@ -1475,7 +1472,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp, bool use_d
 			{
 				if (use_graphics)
 				{
-					/* Unused voilet cloud symbol */
+					/* Unused violet cloud symbol */
 					if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 					{
 						a = (byte)0x9A;
@@ -1490,8 +1487,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp, bool use_d
 						/* Symbol of floor */
 						c = k_info[GRAF_BROKEN_BONE].x_char;
 					}
-
-
 				}
 				else
 				{
@@ -1816,10 +1811,16 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp, bool use_d
 
 		if ((hp_changes_color) && (arg_graphics == GRAPHICS_NONE))
 		{
+			/* check for hunger first */
+			a = TERM_WHITE;
+			if (p_ptr->food < PY_FOOD_ALERT)
+			{
+				a = TERM_L_UMBER;
+			}
+			
+			/* overwrite with health check */
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
 			{
-				case 10:
-				case  9:	a = TERM_WHITE  ;	break;
 				case  8:
 				case  7:	a = TERM_YELLOW ;	break;
 				case  6:
@@ -1829,7 +1830,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp, bool use_d
 				case  2:
 				case  1:
 				case  0:	a = TERM_RED    ;	break;
-				default:	a = TERM_WHITE  ;	break;
 			}
 
 			default_a = a;
@@ -1905,8 +1905,6 @@ static void move_cursor_relative_map(int y, int x)
 }
 
 
-
-
 /*
  * Move the cursor to a given map location.
  *
@@ -1943,7 +1941,6 @@ void move_cursor_relative(int y, int x)
 	/* Go there */
 	(void)Term_gotoxy(vx, vy);
 }
-
 
 
 /*
@@ -2057,8 +2054,6 @@ void print_rel(char c, byte a, int y, int x)
 }
 
 
-
-
 /*
  * Memorize interesting viewable object/features in the given grid
  *
@@ -2164,9 +2159,6 @@ void note_spot(int y, int x)
 			/* Memorize */
 			cave_info[y][x] |= (CAVE_MARK);
 		}
-
-
-
 	}
 }
 
@@ -2226,7 +2218,6 @@ static void light_spot_map(int y, int x)
 		p_ptr->redraw |= (PR_MAP);
 	}
 }
-
 
 
 /*
@@ -2359,6 +2350,7 @@ static void prt_map_aux(void)
 		p_ptr->redraw |= (PR_MAP);
 	}
 }
+
 
 /*
  * Redraw (on the screen) the current map panel
@@ -2586,7 +2578,6 @@ void display_map(int *cy, int *cx)
 		}
 	}
 
-
 	/* Player location */
 	row = (p_ptr->py * map_hgt / p_ptr->cur_map_hgt);
 	col = (p_ptr->px * map_wid / p_ptr->cur_map_wid);
@@ -2654,8 +2645,6 @@ void do_cmd_view_map(void)
 }
 
 
-
-
 /*
  * Maximum number of grids in a single octant
  */
@@ -2712,13 +2701,10 @@ struct vinfo_type
 };
 
 
-
 /*
  * The array of "vinfo" objects, initialized by "vinfo_init()"
  */
 static vinfo_type vinfo[VINFO_MAX_GRIDS];
-
-
 
 
 /*
@@ -2861,12 +2847,10 @@ static vinfo_type vinfo[VINFO_MAX_GRIDS];
 /* 125 :    100000      13 */
 
 
-
 /*
  * Forward declare
  */
 typedef struct vinfo_hack vinfo_hack;
-
 
 
 /*
@@ -2887,7 +2871,6 @@ struct vinfo_hack
 	long slopes_min[MAX_SIGHT+1][MAX_SIGHT+1];
 	long slopes_max[MAX_SIGHT+1][MAX_SIGHT+1];
 };
-
 
 
 /*
@@ -3061,7 +3044,6 @@ errr vinfo_init(void)
 			hack->num_slopes, VINFO_MAX_SLOPES);
 	}
 
-
 	/* Sort slopes numerically */
 	ang_sort_comp = ang_sort_comp_hook_longs;
 
@@ -3089,7 +3071,6 @@ errr vinfo_init(void)
 		/* Location */
 		y = GRID_Y(g);
 		x = GRID_X(g);
-
 
 		/* Compute grid offsets */
 		vinfo[e].grid[0] = GRID(+y,+x);
@@ -3231,7 +3212,6 @@ errr vinfo_init(void)
 }
 
 
-
 /*
  * Forget the "CAVE_VIEW" grids, redrawing as needed
  */
@@ -3288,9 +3268,7 @@ void forget_view(void)
 
 	/* None left */
 	fire_n = 0;
-
 }
-
 
 
 /*
@@ -3528,7 +3506,6 @@ void update_view(void)
 	{
 		/* Mark as "CAVE_SEEN" */
 		info |= (CAVE_SEEN);
-
 	}
 
 	/* Perma-lit grid */
@@ -3578,7 +3555,6 @@ void update_view(void)
 		/* Process queue */
 		while (queue_head < queue_tail)
 		{
-
 			/* Dequeue next grid */
 			p = queue[queue_head++];
 
@@ -3631,11 +3607,11 @@ void update_view(void)
 
 							/* Check for "complex" illumination */
 							if (((cave_info[yy][xx] & (CAVE_LOS)) &&
-							      (cave_info[yy][xx] & (CAVE_GLOW))) ||
-							    ((cave_info[y][xx] & (CAVE_LOS)) &&
-							      (cave_info[y][xx] & (CAVE_GLOW))) ||
-							    ((cave_info[yy][x] & (CAVE_LOS)) &&
-							      (cave_info[yy][x] & (CAVE_GLOW))))
+								 (cave_info[yy][xx] & (CAVE_GLOW))) ||
+								((cave_info[y][xx] & (CAVE_LOS)) &&
+								 (cave_info[y][xx] & (CAVE_GLOW))) ||
+								((cave_info[yy][x] & (CAVE_LOS)) &&
+								 (cave_info[yy][x] & (CAVE_GLOW))))
 							{
 								/* Mark as seen */
 								info |= (CAVE_SEEN);
@@ -3909,11 +3885,8 @@ void update_view(void)
 }
 
 
-
-
 static int get_energy_no_doors(int y, int x, byte which_flow, u32b elem_flag)
 {
-
 	/*Quick pointer*/
 	feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
@@ -3932,7 +3905,6 @@ static int get_energy_no_doors(int y, int x, byte which_flow, u32b elem_flag)
 	{
 		/*Monsters don't want to suffer damage going to this square*/
 		if (f_ptr->dam_non_native) return (0);
-
 	}
 
 	/*Use non-native energy movement*/
@@ -3971,7 +3943,6 @@ static int get_energy_pass_doors(int y, int x, byte which_flow, u32b elem_flag)
 
 		/*Monsters don't want to suffer damage going to this square*/
 		if (f_ptr->dam_non_native) return (0);
-
 	}
 
 	/*Use non-native energy movement*/
@@ -3981,7 +3952,6 @@ static int get_energy_pass_doors(int y, int x, byte which_flow, u32b elem_flag)
 
 static int get_energy_elemental_flow(int y, int x, byte which_flow, u32b elem_flag)
 {
-
 	/*Quick pointer*/
 	feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
@@ -4011,13 +3981,11 @@ static int get_energy_elemental_flow(int y, int x, byte which_flow, u32b elem_fl
 
 	/*Use non-native energy movement*/
 	return(f_ptr->non_native_energy_move);
-
 }
 
 
 static int get_energy_elemental_flow_no_doors(int y, int x, byte which_flow, u32b elem_flag)
 {
-
 	/*Quick pointer*/
 	feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
@@ -4188,7 +4156,6 @@ static void update_flow_partial(byte which_flow, u32b elem_flag)
 	/* Extend the noise burst out to its limits */
 	for (k = 0; k < FLOW_LENGTH_PARTIAL; k++)
 	{
-
 		/* Get the number of grids we'll be looking at */
 		last_index = grid_count;
 
@@ -4201,7 +4168,6 @@ static void update_flow_partial(byte which_flow, u32b elem_flag)
 		/* Get each valid entry in the flow table in turn. */
 		for (i = 0; i < last_index; i++)
 		{
-
 			/* Get this grid */
 			y = flow_table[this_cycle][0][i];
 			x = flow_table[this_cycle][1][i];
@@ -4209,7 +4175,6 @@ static void update_flow_partial(byte which_flow, u32b elem_flag)
 			/* Look at all adjacent grids */
 			for (d = 0; d < 8; d++)
 			{
-
 				int new_cave_cost;
 				int energy_to_move;
 
@@ -4261,7 +4226,6 @@ static void update_flow_partial(byte which_flow, u32b elem_flag)
 		/* Swap write and read portions of the table */
 		if (this_cycle == 0)
 		{
-
 			this_cycle = 1;
 			next_cycle = 0;
 		}
@@ -4271,16 +4235,14 @@ static void update_flow_partial(byte which_flow, u32b elem_flag)
 			next_cycle = 1;
 		}
 	}
-
 }
 
+
 /*
- *
  *Clear the monster_flow for partial updating
  */
 static void update_flows_partial_prep(void)
 {
-
 	int i, j, d, k;
 	byte y, x, y2, x2;
 	int last_index;
@@ -4324,7 +4286,6 @@ static void update_flows_partial_prep(void)
 	/* Extend the noise burst out to its limits */
 	for (k = 0; k < FLOW_LENGTH_PARTIAL; k++)
 	{
-
 		/* Get the number of grids we'll be looking at */
 		last_index = grid_count;
 
@@ -4337,7 +4298,6 @@ static void update_flows_partial_prep(void)
 		/* Get each valid entry in the flow table in turn. */
 		for (i = 0; i < last_index; i++)
 		{
-
 			/* Get this grid */
 			y = flow_table[this_cycle][0][i];
 			x = flow_table[this_cycle][1][i];
@@ -4345,7 +4305,6 @@ static void update_flows_partial_prep(void)
 			/* Look at all adjacent grids */
 			for (d = 0; d < 8; d++)
 			{
-
 				/* Child location */
 				y2 = y + ddy_ddd[d];
 				x2 = x + ddx_ddd[d];
@@ -4380,7 +4339,6 @@ static void update_flows_partial_prep(void)
 		/* Swap write and read portions of the table */
 		if (this_cycle == 0)
 		{
-
 			this_cycle = 1;
 			next_cycle = 0;
 		}
@@ -4390,9 +4348,7 @@ static void update_flows_partial_prep(void)
 			next_cycle = 1;
 		}
 	}
-
 }
-
 
 
 /*
@@ -4411,7 +4367,6 @@ static void update_flows_partial_prep(void)
 
 static void update_flow_full(byte which_flow, u32b elem_flag)
 {
-
 	int i, d, k;
 	byte y, x, y2, x2;
 	int last_index;
@@ -4467,7 +4422,6 @@ static void update_flow_full(byte which_flow, u32b elem_flag)
 		/* Get each valid entry in the flow table in turn. */
 		for (i = 0; i < last_index; i++)
 		{
-
 			/* Get this grid */
 			y = flow_table[this_cycle][0][i];
 			x = flow_table[this_cycle][1][i];
@@ -4475,7 +4429,6 @@ static void update_flow_full(byte which_flow, u32b elem_flag)
 			/* Look at all adjacent grids */
 			for (d = 0; d < 8; d++)
 			{
-
 				int new_cave_cost;
 				int energy_to_move;
 
@@ -4489,7 +4442,7 @@ static void update_flow_full(byte which_flow, u32b elem_flag)
 				/*Use a functional pointer for speed to get the proper energy*/
 				energy_to_move = (*get_energy_to_move)(y2, x2, which_flow, elem_flag);
 
-				/*Not a useable square*/
+				/*Not a usable square*/
 				if (energy_to_move == 0) continue;
 
 				/*
@@ -4530,7 +4483,6 @@ static void update_flow_full(byte which_flow, u32b elem_flag)
 		/* Swap write and read portions of the table */
 		if (this_cycle == 0)
 		{
-
 			this_cycle = 1;
 			next_cycle = 0;
 		}
@@ -4542,13 +4494,12 @@ static void update_flow_full(byte which_flow, u32b elem_flag)
 	}
 }
 
+
 /*
  * Clear the flow information and prepare to build completely new flow information
  */
-
 static void update_flows_full_prep(void)
 {
-
 	int i;
 
 	/* Clear the cost at centers */
@@ -4625,7 +4576,6 @@ static void update_flows_full_prep(void)
 		}
 	}
 }
-
 
 
 /*
@@ -4789,7 +4739,6 @@ void update_flows(bool full)
  */
 void update_smell(void)
 {
-
 	int i, j;
 	int y, x;
 	int py = p_ptr->py;
@@ -4866,10 +4815,6 @@ void update_smell(void)
 }
 
 #endif /*MONSTER_SMELL*/
-
-
-
-
 
 /*
  * Light up the dungeon using "claravoyance"
@@ -5078,7 +5023,6 @@ void town_illuminate(bool daytime)
 			}
 		}
 	}
-
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
@@ -5336,10 +5280,10 @@ static void cave_set_feat_aux(int y, int x, u16b feat)
 	{
 		/* Hack -- Forget most of the new features */
 		/*
-                if (!_feat_ff1_match(f2_ptr, FF1_DOOR))
-                {
-                        cave_info[y][x] &= ~(CAVE_MARK);
-                }
+		if (!_feat_ff1_match(f2_ptr, FF1_DOOR))
+		{
+			cave_info[y][x] &= ~(CAVE_MARK);
+			}
 		*/
 
 		/* Notice */
@@ -5349,8 +5293,6 @@ static void cave_set_feat_aux(int y, int x, u16b feat)
 		light_spot(y, x);
 	}
 }
-
-
 
 
 /*
@@ -5405,7 +5347,6 @@ void cave_alter_feat(int y, int x, int action)
 	/* Invisible trap */
 	if (newfeat == oldfeat)
 	{
-
 		if (feat_ff3_match(oldfeat, FF3_PICK_TRAP))
 		{
 			/*Mark the lore*/
@@ -5428,7 +5369,6 @@ void cave_alter_feat(int y, int x, int action)
 
 			/* Disturb */
 			disturb(0, 0);
-
 		}
 		else
 		{
@@ -5452,8 +5392,6 @@ void cave_alter_feat(int y, int x, int action)
 		/* Set the new feature */
 		cave_set_feat(y, x, newfeat);
 	}
-
-
 }
 
 
@@ -5613,7 +5551,7 @@ void cave_set_feat(int y, int x, u16b feat)
 			 * We have a 50% (or 25% for dense trees) chance to
 			 * ignore the grid
 			 */
-			if (k & (1 << i) && (!dense_tree ||
+			if ((k & (1 << i)) && (!dense_tree ||
 				(k & (1 << (i + 8))))) continue;
 
 			/* Convert to branch */
@@ -5718,7 +5656,7 @@ void cave_set_feat(int y, int x, u16b feat)
  * The projection will always start one grid from the grid (y1,x1), and will
  * travel towards the grid (y2,x2), touching one grid per unit of distance
  * along the major axis, and stopping when it satisfies certain conditions
- * or has travelled the maximum legal distance of "range".  Projections
+ * or has traveled the maximum legal distance of "range".  Projections
  * cannot extend further than MAX_SIGHT (at least at present).
  *
  * A projection only considers those grids which contain the line(s) of fire
@@ -5751,7 +5689,8 @@ void cave_set_feat(int y, int x, u16b feat)
  * This function returns the number of grids (if any) in the path.  This
  * may be zero if no grids are legal except for the starting one.
  */
-int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2, int *x2, u32b flg)
+int project_path(u16b *path_g, u16b *path_gx, int range,
+		int y1, int x1, int *y2, int *x2, u32b flg)
 {
 	int i, j;
 	int dy, dx;
@@ -5790,7 +5729,6 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 	/* Line of fire slope(s) to each legal grid */
 	byte tmp_slope_fire1[160];
 	byte tmp_slope_fire2[160];
-
 
 	/* Count of grids in projection path */
 	int step;
@@ -5949,9 +5887,9 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 
 		/* See if any lines of sight pass through this grid */
 		if (!((bits0 & (p->bits_0)) ||
-			   (bits1 & (p->bits_1)) ||
-			   (bits2 & (p->bits_2)) ||
-			   (bits3 & (p->bits_3))))
+			  (bits1 & (p->bits_1)) ||
+			  (bits2 & (p->bits_2)) ||
+			  (bits3 & (p->bits_3))))
 		{
 			continue;
 		}
@@ -6032,8 +5970,8 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 		}
 
 		/*
-		 * Check for all terrain taht won't support projection.  They can be in a projection path,
-		 * but the path usually cannot pass through them.
+		 * Check for all terrain that won't support projection.  They can be in
+		 * a projection path, but the path usually cannot pass through them.
 		 */
 		if (!(flg & (PROJECT_PASS)) && !cave_project_bold(y, x))
 		{
@@ -6063,7 +6001,6 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 			y_b = -1;
 			x_b = -1;
 		}
-
 
 		/*
 		 * We always have at least one legal grid, and may have two.  Allow
@@ -6133,7 +6070,7 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 				if (!cave_project_bold(y, x)) blockage[i] = PATH_G_WALL;
 			}
 
-						/* If we don't stop at wall grids, we explicitly check legality */
+			/* If we don't stop at wall grids, we explicitly check legality */
 			else if (!in_bounds_fully(y, x))
 			{
 				/* End of projection */
@@ -6141,12 +6078,10 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 			}
 
 			/* Hidden monsters cannot stop projections */
-
 			if ((cave_m_idx[y][x] > 0) && (mon_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE)))
 			{
 				/* Blank test */
 			}
-
 
 			/* Try to avoid occupied grids */
 			else if ((cave_m_idx[y][x] != 0) && (blockage[i] < PATH_G_WALL))
@@ -6165,7 +6100,6 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 				}
 			}
 		}/* Grids have been scanned */
-
 
 		/* Prefer the 1st grid */
 		if ((num == 1) || (blockage[0] <= blockage[1]))
@@ -6213,9 +6147,6 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 			/* If we don't stop, we note the potential blockage */
 			else monster_in_way = TRUE;
 		}
-
-
-
 
 		/*
 		 * Hack -- If we require orthogonal movement, but are moving
@@ -6301,7 +6232,6 @@ int project_path(u16b *path_g, u16b *path_gx, int range, int y1, int x1, int *y2
 }
 
 
-
 /*
  * Determine if a spell cast from (y1,x1) to (y2,x2) will arrive
  * at the final destination.
@@ -6326,7 +6256,6 @@ byte projectable(int y1, int x1, int y2, int x2, u32b flg)
 	int px = p_ptr->px;
 
 	int y, x;
-
 
 	int path_n;
 	u16b path_g[PATH_SIZE];
@@ -6385,9 +6314,7 @@ byte projectable(int y1, int x1, int y2, int x2, u32b flg)
 
 	/* Assume projectable, but make no promises about clear shots */
 	return (PROJECT_NOT_CLEAR);
-
 }
-
 
 
 /*
@@ -6432,10 +6359,6 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 }
 
 
-
-
-
-
 /*
  * Track a new monster
  */
@@ -6448,6 +6371,7 @@ void health_track(int m_idx)
 	p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 }
 
+
 /*
  * Hack -- track the given object kind
  */
@@ -6456,8 +6380,6 @@ void track_object(int item)
 	p_ptr->object_idx = item;
 	p_ptr->object_kind_idx = 0;
 	p_ptr->redraw |= (PR_OBJECT);
-
-
 }
 
 void track_object_kind(int k_idx)
@@ -6465,8 +6387,8 @@ void track_object_kind(int k_idx)
 	p_ptr->object_idx = 0;
 	p_ptr->object_kind_idx = k_idx;
 	p_ptr->redraw |= (PR_OBJECT);
-
 }
+
 
 /*
  * Hack -- track the given monster race
@@ -6542,7 +6464,6 @@ void disturb(int stop_search, int unused_flag)
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
-
 	}
 
 	/* Cancel searching if requested */
@@ -6564,5 +6485,4 @@ void disturb(int stop_search, int unused_flag)
 	/* Flush the input if requested */
 	if (flush_disturb) flush();
 }
-
 

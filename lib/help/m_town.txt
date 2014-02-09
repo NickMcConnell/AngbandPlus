@@ -1,0 +1,73 @@
+
+====== The Town ======
+
+     You begin your adventures in the town.  It consists of six buildings,
+each with a shop entranceway, and is well populated.  The first time you are in
+town it will be daytime, but the sun rises and sets as time passes.
+
+Townspeople:
+     Most townsfolk are fairly harmless.  However, there are slippery-fingered
+thieves and armed killers that you need to avoid.  Fights will break out,
+though, so be prepared.  Since your character grew up in this world of intrigue,
+no experience is awarded for killing the town inhabitants, though you may
+acquire treasure.
+
+
+--- Stores ---
+
+     You enter buildings by walking onto their entranceways, which (in text
+mode) are represented by numbers from 1 to 6.
+     A new display then replaces the old.  You see the name and race of the
+store owner, the name of the store, and the maximum number of gold pieces that
+the store owner will pay for any one item.  Below it is displayed the inventory;
+if it is numerous, you may display another page by typing space.  Near the
+bottom of the screen is displayed a list of commonly-used commands.
+     - ESC:  leave the store.
+     - 'g' or 'p': get/purchase an item.
+     - 'd' or 's': drop/sell an item.
+     - 'l': look at an item (display any special properties, read spellbooks)
+     - 'v': Toggle between store inventory and services
+
+The General Store ("1"):
+     Sells foods, drinks, cloaks, torches, lamps, oil, shovels, picks, spikes,
+and ammunition for missile launchers.  Buys items of these types and some
+others.
+
+The Armoury ("2"):
+     Buys and sells every kind of armour.
+    
+
+The Weaponsmith's Shop ("3"):
+     Buys and sells melee weapons, missile launchers, and ammunition.
+
+The Temple ("4"):
+     Buys and sells blunt weapons, healing and restoration supplies, and various 
+other holy items.
+
+ 
+The Alchemy Shop ("5"):
+     Buys and sells potions and scrolls.
+ 
+
+The Magic Shop ("6"):
+     Buys and sells rings, amulets, wands, and staffs.  Also
+     buys potions and scrolls.
+ 
+--- Buying and Selling ---
+
+The Price of Items:
+     The price of items that change hands depends on their base cost and 
+your Charisma. 
+
+
+Store Stocks:
+     Stores never have everything in stock; as time passes, their inventory
+slowly changes (but only when you are in the dungeon).  The store owner fully
+identifies everything you sell him, and recharges wands and staves. 
+
+Shopkeepers can retire and be replaced:
+     Shopkeepers do retire, but only rarely.  He puts everything in the 
+store on sale.
+
+
+

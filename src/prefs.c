@@ -202,32 +202,6 @@ static void autoinsc_dump(ang_file *fff)
 }
 
 /*
- * Save squelch data to a pref file.
- */
-static void squelch_dump(ang_file *fff)
-{
-
-
-	int i;
-	file_putf(fff, "# Squelch settings\n");
-
-	for (i = 1; i < z_info->k_max; i++)
-	{
-		int tval = k_info[i].tval;
-		int sval = k_info[i].sval;
-		bool squelch = k_info[i].squelch;
-
-		/* Dump the squelch info */
-		if (tval || sval)
-			file_putf(fff, "Q:%d:%d:%d:%d\n", i, tval, sval, squelch);
-	}
-
-	file_putf(fff, "\n");
-}
-
-
-
-/*
  * Write all current options to a user preference file.
  */
 void option_dump(ang_file *fff)
@@ -281,10 +255,6 @@ void option_dump(ang_file *fff)
 	}
 
 	autoinsc_dump(fff);
-#if 0
-	/* Dumping squelch settings caused problems, see #784 */
-	squelch_dump(fff);
-#endif
 }
 
 
@@ -384,7 +354,7 @@ void dump_monsters(ang_file *fff)
 		byte chr = r_ptr->x_char;
 
 		/* Skip non-entries */
-		if (!r_ptr->speed) continue;
+		if (!r_ptr->r_speed) continue;
 
 		file_putf(fff, "# Monster: %s\n", r_ptr->name_full);
 		file_putf(fff, "R:%d:0x%02X:0x%02X\n", i, attr, chr);

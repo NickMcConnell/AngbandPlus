@@ -901,8 +901,12 @@ errr get_birth_command(bool wait)
 	{
 		case BIRTH_RESET:
 		{
+
+
 			cmd_insert(CMD_BIRTH_RESET, TRUE);
 			roller = BIRTH_RESET;
+
+
 
 			if (quickstart_allowed)
 				next = BIRTH_QUICKSTART;
@@ -914,7 +918,9 @@ errr get_birth_command(bool wait)
 
 		case BIRTH_QUICKSTART:
 		{
+
 			display_player(0, TRUE);
+
 			next = get_quickstart_command();
 			break;
 		}

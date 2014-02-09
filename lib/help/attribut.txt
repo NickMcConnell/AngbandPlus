@@ -219,7 +219,7 @@ Speed:
 It is vital not to become too slow.  As you descend into the dungeon, you need
 to find ways to hasten yourself temporarily and permanently.
      A speed of +10 is double speed ("fast"), and one of +20 is triple speed
-("very fast").  A speed of 10 is half speed ("slow"), and one of -20 is one
+("very fast").  A speed of -10 is half speed ("slow"), and one of -20 is one
 third speed ("very slow").
      Permanent speed bonuses add to your base speed.  Temporary effects may
 increase or reduce speed by 10.  
@@ -248,7 +248,7 @@ Stun:
      Indicates that you are stunned.  This affects your combat and spellcasting
 ability.  If you are heavily stunned, you are close to being knocked out.  A 
 knocked out character cannot move or attack, and are usually killed before they 
-wake up.  It si important to heal as soon as possible if heavily stunned.
+wake up.  It is important to heal as soon as possible if heavily stunned.
 
 Hunger:
      You need to eat every so often.  If you eat too much, you become bloated 

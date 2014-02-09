@@ -1522,11 +1522,11 @@ static void do_cmd_rerate(void)
 {
 	int min_value, max_value, i, percent;
 
-	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
-	min_value += PY_MAX_LEVEL;
+	min_value = (z_info->max_level * 3 * (p_ptr->hitdie - 1)) / 8;
+	min_value += z_info->max_level;
 
-	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
-	max_value += PY_MAX_LEVEL;
+	max_value = (z_info->max_level * 5 * (p_ptr->hitdie - 1)) / 8;
+	max_value += z_info->max_level;
 
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
@@ -1534,19 +1534,19 @@ static void do_cmd_rerate(void)
 	while (1)
 	{
 		/* Collect values */
-		for (i = 1; i < PY_MAX_LEVEL; i++)
+		for (i = 1; i < z_info->max_level; i++)
 		{
 			p_ptr->player_hp[i] = randint(p_ptr->hitdie);
 			p_ptr->player_hp[i] += p_ptr->player_hp[i - 1];
 		}
 
 		/* Legal values */
-		if ((p_ptr->player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (p_ptr->player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
+		if ((p_ptr->player_hp[z_info->max_level - 1] >= min_value) &&
+		    (p_ptr->player_hp[z_info->max_level - 1] <= max_value)) break;
 	}
 
-	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
+	percent = (int)(((long)p_ptr->player_hp[z_info->max_level - 1] * 200L) /
+	                (p_ptr->hitdie + ((z_info->max_level - 1) * p_ptr->hitdie)));
 
 	/* Update and redraw hitpoints */
 	p_ptr->update |= (PU_HP);
@@ -1839,7 +1839,7 @@ static void do_cmd_wiz_monster(void)
 	r_ptr = &r_info[r_idx];
 
 	/* Check sanity */
-	if ((r_idx < 1) || (r_idx >= z_info->r_max) || (!r_ptr->speed))
+	if ((r_idx < 1) || (r_idx >= z_info->r_max) || (!r_ptr->r_speed))
 	{
 		msg_print("Invalid monster number");
 

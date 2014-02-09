@@ -31,7 +31,8 @@ birth interface.  The new character inherits the monster knowledge of his
 ancestor.
 
 Savefile compatibility report:
-     NPPAngband 0.4.0 breaks savefile compatability.  NPP 0.5.3 loads 0.4.0 savefiles.
+     NPPAngband 7.0.0 and NPPMoria 7.0.0 break savefile compatbility.,  
+     NPPAngband 0.4.0 breaks savefile compatability. NPP 0.5.4 loads 0.4.0 savefiles.
      NPPAngband 0.3.4 and before loads files from Angband 2.9.0 and later.  To use earlier
 savefiles, import it into Angband 2.9.3, resave, and then open it up with the
 current version.

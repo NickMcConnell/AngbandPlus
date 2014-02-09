@@ -25,7 +25,7 @@
 #  as well.
 
 
-V:6.1.0
+V:7.0.0
 
 ##### Player Ghost information #####
 
@@ -101,4 +101,7 @@ N:22:Antoine
 I:1:99:99:255
 
 N:23:Rob Fiala
+I:1:99:99:255
+
+N:24:Cameron Browne
 I:1:99:99:255

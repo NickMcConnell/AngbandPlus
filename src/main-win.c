@@ -4646,49 +4646,82 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Unused parameter */
 	(void)nCmdShow;
 
-#ifdef USE_SAVER
+	/* init empty game mode before switches (which might set it) */
+	game_mode = 0;
+
 	if (lpCmdLine && ((*lpCmdLine == '-') || (*lpCmdLine == '/')))
 	{
 		lpCmdLine++;
-
-		switch (*lpCmdLine)
+		
+		/* process all switches */
+		while (*lpCmdLine != ' ')
 		{
-			case 's':
-			case 'S':
+			switch (*lpCmdLine)
 			{
-				screensaver = TRUE;
-
-				/* Only run one screensaver at the time */
-				screensaverSemaphore = CreateSemaphore(NULL, 0, 1, "AngbandSaverSemaphore");
-
-				if (!screensaverSemaphore) exit(0);
-
-				if (GetLastError() == ERROR_ALREADY_EXISTS)
+				#ifdef USE_SAVER
+				case 's':
+				case 'S':
 				{
-					CloseHandle(screensaverSemaphore);
+					screensaver = TRUE;
+	
+					/* Only run one screensaver at the time */
+					screensaverSemaphore = CreateSemaphore(NULL, 0, 1, "AngbandSaverSemaphore");
+	
+					if (!screensaverSemaphore) exit(0);
+	
+					if (GetLastError() == ERROR_ALREADY_EXISTS)
+					{
+						CloseHandle(screensaverSemaphore);
+						exit(0);
+					}
+	
+					break;
+				}
+	
+				case 'P':
+				case 'p':
+				case 'C':
+				case 'c':
+				case 'A':
+				case 'a':
+				{
+					/*
+					 * ToDo: implement preview, configuration, and changing
+					 * the password (as well as checking it).
+					 */
 					exit(0);
 				}
-
-				break;
+				#endif /* USE_SAVER */
+				
+				/* m for moria */
+				case 'm':
+				case 'M':
+				{
+					game_mode = GAME_NPPMORIA;
+					break;	
+				}
+				
+				/* o for original ? */
+				/* a is taken by screensaver... */
+				case 'o':
+				case 'O':
+				{
+					game_mode = GAME_NPPANGBAND;
+					break;			
+				}
 			}
-
-			case 'P':
-			case 'p':
-			case 'C':
-			case 'c':
-			case 'A':
-			case 'a':
-			{
-				/*
-				 * ToDo: implement preview, configuration, and changing
-				 * the password (as well as checking it).
-				 */
-				exit(0);
-			}
+			
+			lpCmdLine++;
+		}
+		
+		/* skip whitespace */
+		while (*lpCmdLine == ' ')
+		{
+			lpCmdLine++;
 		}
 	}
 
-#endif /* USE_SAVER */
+
 
 	/* Initialize */
 	if (hPrevInst == NULL)

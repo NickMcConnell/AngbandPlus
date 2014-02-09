@@ -151,27 +151,6 @@ static void cast_prismatic_spray(int dir, int dam)
 
 
 
-int get_spell_index(const object_type *o_ptr, int index)
-{
-
-	/* Get the item's sval */
-	int sval = o_ptr->sval;
-
-	int realm;
-
-	/* Check bounds */
-	if ((index < 0) || (index >= SPELLS_PER_BOOK)) return (-1);
-	if ((sval < 0) || (sval >= BOOKS_PER_REALM)) return (-1);
-
-	/*Get the right spell realm*/
-	realm = get_player_spell_realm();
-
-	return spell_list[realm][sval][index];
-}
-
-
-
-
 static int beam_chance(void)
 {
 	int plev = p_ptr->lev;
@@ -192,6 +171,11 @@ bool spell_needs_aim(int tval, int spell)
 			case SPELL_STINKING_CLOUD:
 			case SPELL_CONFUSE_MONSTER:
 			case SPELL_SHOCK_WAVE:
+			case SPELL_LIGHTNING_BOLT:
+			case SPELL_FROST_BOLT:
+			case SPELL_FROST_BALL:
+			case SPELL_FIRE_BOLT:
+			case SPELL_FIRE_BALL:
 			case SPELL_TRAP_DOOR_DESTRUCTION:
 			case SPELL_SLEEP_MONSTER:
 			case SPELL_SPEAR_OF_LIGHT:
@@ -259,6 +243,7 @@ bool spell_needs_aim(int tval, int spell)
 		{
 			case PRAYER_SHOCK_BOLT:
 			case PRAYER_SCARE_MONSTER:
+			case PRAYER_CONFUSE_MONSTER:
 			case PRAYER_SUN_BEAM:
 			case PRAYER_ORB_OF_DRAINING:
 			case PRAYER_SUN_BURST:
@@ -315,6 +300,12 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dice = 3 + ((plev - 1) / 5);
 			sides = 4;
 
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 2;
+				sides = 6;
+			}
+
 			if (name) return ("Magic Missile");
 			if (desc) return (format("Fires a magic missile for %dd%d hp damage.", dice, sides));
 			if (desc_short) return (format("dam %dd%d", dice, sides));
@@ -360,6 +351,8 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			sides = (plev / 2);
 			rad = (plev / 10) + 1;
 
+			if (game_mode == GAME_NPPMORIA) sides = (plev / 4);
+
 			if (name) return ("Light Area");
 			if (desc) return (format("Permanently lights up a room or a radius %d area.", rad));
 			if (desc_short) return (format("radius %d", rad));
@@ -388,6 +381,12 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			dice = 2;
 			sides = 10;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 4;
+				sides = 4;
+			}
 
 			if (name) return ("Cure Light Wounds");
 			if (desc) return (format("Reduces cuts and heals %dd%d hp", dice, sides));
@@ -430,6 +429,8 @@ cptr do_mage_spell(int mode, int spell, int dir)
 		{
 			rad = 2;
 			dam = 10 + (plev / 2);
+
+			if (game_mode == GAME_NPPMORIA) dam = 12;
 
 			if (name) return ("Stinking Cloud");
 			if (desc) return (format("Fires a radius %d cloud of poison for %d hp damage.", rad, dam));
@@ -674,7 +675,11 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_MASS_SLEEP:
 		{
-			if (name) return ("Mass Sleep");
+			if (name)
+			{
+				if (game_mode == GAME_NPPMORIA) return ("Sleep III");
+				else return ("Mass Sleep");
+			}
 			if (desc) return ("Attempts to sleep all monsters in LOS.");
 			if (desc_short) return ("");
 			if (cast)
@@ -759,12 +764,15 @@ cptr do_mage_spell(int mode, int spell, int dir)
 
 		case SPELL_RECHARGE_ITEM_II:
 		{
+			rad = 50 + plev;
+			if (game_mode == GAME_NPPMORIA) rad = 60;
+
 			if (name) return ("Greater Recharging");
 			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
 			if (desc_short) return ("");
 			if (cast)
 			{
-				(void)recharge(50 + plev, FALSE, 25 + (plev / 2));
+				(void)recharge(rad, FALSE, 25 + (plev / 2));
 			}
 
 			break;
@@ -1406,6 +1414,121 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			break;
 		}
 
+ 		case SPELL_LIGHTNING_BOLT:
+ 		{
+ 			dice =  4;
+ 			sides = 8;
+
+ 			if (name) return ("Lightning Bolt");
+ 			if (desc) return (format("Fires a bolt or beam of lightning for %dd%d hp damage.", dice, sides));
+ 			if (desc_short) return (format("dam %dd%d", dice, sides));
+ 			if (cast)
+ 			{
+ 				fire_bolt_or_beam(beam, GF_ELEC, dir, damroll(dice, sides));
+ 			}
+
+ 			break;
+ 		}
+
+ 		case SPELL_REMOVE_CURSE:
+ 		{
+ 			if (name) return ("Remove Curse");
+ 			if (desc) return ("Removes standard curses.");
+ 			if (desc_short) return ("");
+ 			if (cast)
+ 			{
+ 				remove_curse(FALSE);
+ 			}
+
+			break;
+		}
+ 		case SPELL_SLEEP_II:
+ 		{
+
+ 			if (name) return ("Sleep II");
+ 			if (desc) return ("Attempts to sleep all adjacent monsters.");
+ 			if (desc_short) return ("");
+ 			if (cast)
+ 			{
+ 				(void)sleep_monsters_touch();
+ 			}
+
+ 			break;
+ 		}
+
+ 		case SPELL_FROST_BOLT:
+ 		 {
+ 		 	dice =  6;
+ 		 	sides = 8;
+
+ 		 	if (name) return ("Frost Bolt");
+ 		 	if (desc) return (format("Fires a bolt or beam of cold for %dd%d hp damage.", dice, sides));
+ 		 	if (desc_short) return (format("dam %dd%d", dice, sides));
+ 		 	if (cast)
+ 		 	{
+ 		 		fire_bolt_or_beam(beam, GF_COLD, dir, damroll(dice, sides));
+ 		 	}
+
+ 		 	break;
+ 		 }
+
+ 		case SPELL_CREATE_FOOD:
+ 		{
+ 			if (name) return ("Create Food");
+ 			if (desc) return ("Magically creates one ration of food.");
+ 			if (desc_short) return ("");
+ 			if (cast)
+ 			{
+ 				create_food();
+ 			}
+			break;
+		}
+
+ 		case SPELL_FIRE_BOLT:
+ 		{
+ 		 	dice =  9;
+ 		 	sides = 8;
+
+ 		 	if (name) return ("Fire Bolt");
+ 		 	if (desc) return (format("Fires a bolt or beam of fire for %dd%d hp damage.", dice, sides));
+ 		 	if (desc_short) return (format("dam %dd%d", dice, sides));
+ 		 	if (cast)
+ 		 	{
+ 		 		fire_bolt_or_beam(beam, GF_FIRE, dir, damroll(dice, sides));
+ 		 	}
+
+ 		 	break;
+ 		}
+ 		case SPELL_FROST_BALL:
+ 		{
+ 			dam = 48;
+ 			rad = 2;
+
+ 			if (name) return ("Frost Ball");
+ 			if (desc) return (format("Fire a radius %d ball of frost for %d hp damage.", rad, dam));
+ 			if (desc_short) return (format("rad %d dam %d", rad, dam));
+ 			if (cast)
+ 			{
+ 				fire_ball(GF_COLD, dir, dam, rad);
+ 			}
+
+ 			break;
+ 		}
+ 		case SPELL_FIRE_BALL:
+ 		{
+ 			dam = 72;
+ 			rad = 2;
+
+ 			if (name) return ("Fire Ball");
+ 			if (desc) return (format("Fire a radius %d ball of fire for %d hp damage.", rad, dam));
+ 			if (desc_short) return (format("rad %d dam %d", rad, dam));
+ 			if (cast)
+ 			{
+ 				fire_ball(GF_FIRE, dir, dam, rad);
+ 			}
+
+ 			break;
+ 		}
 
 	}
 
@@ -2541,6 +2664,12 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dice = 3;
 			sides = 8;
 
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 3;
+				sides = 3;
+			}
+
 			if (name) return ("Cure Light Wounds");
 			if (desc) return (format("Reduces cuts and heals %dd%d hp.", dice, sides));
 			if (desc_short) return (format("heal %dd%d", dice, sides));
@@ -2683,7 +2812,17 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dice = 5;
 			sides = 10;
 
-			if (name) return ("Cure Serious Wounds");
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 4;
+				sides = 4;
+			}
+
+			if (name)
+			{
+				if (game_mode == GAME_NPPMORIA)	return ("Cure Medium Wounds");
+				else return ("Cure Serious Wounds");
+			}
 			if (desc) return (format("Reduces cuts and heals %dd%d hp.", dice, sides));
 			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
@@ -2796,6 +2935,13 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dam = plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2);
 			rad = 2;
 
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 3;
+				sides = 6;
+				dam = plev;
+			}
+
 			if (name) return ("Orb of Draining");
 			if (desc) return (format("Fires a radius %d orb of holy force that does %d+%dd%d damage.", rad, dam, dice, sides));
 			if (desc_short) return (format("rad %d dam %d+%dd%d ", rad, dam, dice, sides));
@@ -2812,7 +2958,18 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dice = 8;
 			sides = 10;
 
-			if (name) return ("Cure Critical Wounds");
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 8;
+				sides = 4;
+			}
+
+			if (name)
+			{
+				if (game_mode == GAME_NPPMORIA)	return ("Cure Serious Wounds");
+				else return ("Cure Critical Wounds");
+			}
+
 			if (desc) return (format("Eliminates cuts and heals %dd%d hp.", dice, sides));
 			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
@@ -2899,7 +3056,18 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dice = 12;
 			sides = 10;
 
-			if (name) return ("Cure Mortal Wounds");
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dice = 16;
+				sides = 4;
+			}
+
+			if (name)
+			{
+				if (game_mode == GAME_NPPMORIA)	return ("Cure Critical Wounds");
+				else return ("Cure Mortal Wounds");
+			}
+
 			if (desc) return (format("Eliminates stunning and cuts and heals %dd%d hp.", dice, sides));
 			if (desc_short) return (format("heal %dd%d", dice, sides));
 			if (cast)
@@ -2969,6 +3137,8 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			dam = 325;
 
+			if (game_mode == GAME_NPPMORIA) dam = 200;
+
 			if (name) return ("Heal");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
 			if (desc_short) return (format("heal %d hp.", dam));
@@ -3012,15 +3182,22 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_HOLY_WORD:
 		{
-			dam = 150;
+
+			dam = dice = 150;
+
+			if (game_mode == GAME_NPPMORIA)
+			{
+				dam = plev * 4;
+				dice = 1000;
+			}
 
 			if (name) return ("Holy Word");
-			if (desc) return (format("Dispels evil with %d hp damage, and Eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dam));
-			if (desc_short) return (format("dam %d, heal %d", dam, dam));
+			if (desc) return (format("Dispels evil with %d hp damage, and eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dice));
+			if (desc_short) return (format("dam %d, heal %d", dam, dice));
 			if (cast)
 			{
 				(void)dispel_evil(dam);
-				(void)hp_player(dam);
+				(void)hp_player(dice);
 				(void)clear_timed(TMD_AFRAID, TRUE);
 				(void)clear_timed(TMD_POISONED, TRUE);
 				(void)set_stun(0);
@@ -3453,6 +3630,73 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			if (cast)
 			{
 				mass_identify(rad);
+			}
+
+			break;
+		}
+
+		case PRAYER_FIND_TRAPS:
+		{
+			if (name) return ("Find Traps");
+			if (desc) return ("Detects nearby traps.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
+			if (cast)
+			{
+				(void)detect(DETECT_RADIUS, DETECT_TRAPS);
+			}
+
+			break;
+		}
+
+		case PRAYER_DETECT_DOORS_STAIRS:
+		{
+			if (name) return ("Detect Doors/Stairs");
+			if (desc) return ("Detects nearby doors and stairs.");
+			if (desc_short) return (format("rad %d", DETECT_RADIUS));
+			if (cast)
+			{
+				(void)detect(DETECT_RADIUS, DETECT_DOORS_STAIRS);
+			}
+
+			break;
+		}
+
+		case PRAYER_CONFUSE_MONSTER:
+		{
+			if (name) return ("Confuse Monster");
+			if (desc) return ("Attempts to confuse one monster.");
+			if (desc_short) return (format(""));
+			if (cast)
+			{
+				(void)confuse_monster(dir, plev);
+			}
+
+			break;
+		}
+
+		case PRAYER_CREATE_FOOD:
+		 {
+		 	if (name) return ("Create Food");
+		 	if (desc) return ("Magically creates one ration of food.");
+		 	if (desc_short) return ("");
+		 	if (cast)
+		 	{
+		 		create_food();
+		 	}
+			break;
+		}
+
+		case PRAYER_DISPEL_UNDEAD:
+		{
+			dice = 1;
+			sides = plev * 3;
+
+			if (name) return ("Dispel Undead");
+			if (desc) return (format("Does %dd%d damage to all evil creatures in line of sight.", dice, sides));
+			if (desc_short) return (format("dam %dd%d", dice, sides));
+			if (cast)
+			{
+				(void)dispel_undead(damroll(dice, sides));
 			}
 
 			break;

@@ -1,0 +1,91 @@
+
+     Saving and loading your character should be easy.  So, sadly, 
+is getting him killed.  Winning is a little harder, but the 
+novice player can take advantage of various cheats to improve 
+his chances down in the dungeon.
+
+
+--- Saving your Game ---
+
+     Saving your game is usually easy.  You can use the save game command, or
+(on some systems) a menu option.  The game is auto-saved whenever you enter
+a new level.  If you cannot save your game, you probably
+have one of two problems:
+1) The folder "<<game>>/lib/save" does not exist.  Create this directory and
+   any others that are missing.
+2) You are using a multi-user machine and do not have write permission to
+   that file or directory.
+
+
+--- Loading your Game ---
+
+
+Macintosh, Windows:
+     You choose the menu option "file -> open", which allows you to load
+savefiles from almost any directory.  With suitable use of option files, the
+Macintosh can also save to almost any directory.
+
+Loading dead characters:
+     If you load a dead character, the game will start up with the character
+birth interface.  The new character inherits the monster knowledge of his
+ancestor.
+
+Savefile compatibility report:
+     NPPAngband 7.0.0 and NPPMoria 7.0.0 break savefile compatbility.,  
+     NPPAngband 0.4.0 breaks savefile compatability. NPP 0.5.4 loads 0.4.0 savefiles.
+     NPPAngband 0.3.4 and before loads files from Angband 2.9.0 and later.  To use earlier
+savefiles, import it into Angband 2.9.3, resave, and then open it up with the
+current version.
+
+
+--- Winning The Game ---
+
+     The Balrog of Moria can be found at adepth of 2500' or greater.  Kill it to 
+win the game.
+
+     The Balrog of Moria cannot be killed by some of the easier methods used on normal
+creatures.  The Balrog, like all other unique monsters, will simply teleport away
+to another region of the level if you attempt to use a spell such as destruction
+upon him.  He also cannot be polymorphed or genocided.  
+
+     If you should actually survive the attempt of killing the Balrog, you will
+receive the status of WINNER.  You may continue to explore, and may even save
+the game and play more later, but since you have defeated the toughest creature
+alive, there is really not much point.  Unless you wish to listen to the rumours
+of a powerful ring buried somewhere in the dungeon...
+
+     When you are ready to retire, simply "commit suicide" (using the "Q" key)
+to have your character entered into the high score list as a winner.  Note that
+until you retire, you can still be killed, so you may want to retire before
+wandering into a room with 95 Death Molds crammed inside...
+
+
+--- Upon Death and Dying ---
+
+     If your character's hit points fall below zero, he dies.  The dreaded
+tombstone will appear, and you may check out his attributes and possessions one
+last time.
+
+     Your character will leave behind a reduced save file, which contains only
+the monster memory and your option choices, both of which new characters may
+use.  It is very helpful to know something about the monster that slew your
+ancestor!
+
+
+--- Cheating Death ---
+
+     One of the most important things about this game is that your character's
+life is so important.  Let him die, and you start over from scratch.  This is
+one of the secrets to this game's fascination; anyone who cheats death is really
+not getting the full experience, and any Morgoth-slayers yanked from the jaws of
+death are not full winners.  But what if your characters seem to die all the
+time (like mine!), and you really want to keep playing with the same guy?  Well,
+the game has a few answers for that too.  You may cheat death by:
+
+     - Toggling on the "cheat death" option.  This keeps your character ticking,
+       and is even kind enough to give you a running tally of your deaths by
+       setting the character's age to zero when first used, and increasing it by
+       one each time thereafter.  Trying to keep this number low is a great way
+       to learn the game.
+     - Making backup savefiles.
+     - Aborting the game just as the tombstone appears or before.

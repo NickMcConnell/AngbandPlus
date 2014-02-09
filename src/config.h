@@ -94,7 +94,7 @@
 
 /*
  * Used for getting edit files in a parsable format,
- * and for guaging monster and artifact strength.
+ * and for gauging monster and artifact strength.
  *
  */
 

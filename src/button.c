@@ -67,7 +67,7 @@ button_kill_f button_kill_hook;
 /*** Code ***/
 
 /*
- * The mousebutton code. Buttons should be created when neccessary and
+ * The mousebutton code. Buttons should be created when necessary and
  * destroyed when no longer necessary.  By default, buttons occupy the section
  * of the bottom line between the status display and the location display
  * in normal screen mode, and the bottom line after any prompt in alternate
@@ -258,6 +258,7 @@ void button_init(button_add_f add, button_kill_f kill)
 	button_add_hook = add;
 	button_kill_hook = kill;
 }
+
 
 /*
  * Free buttons.

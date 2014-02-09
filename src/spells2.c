@@ -340,6 +340,32 @@ static cptr desc_stat_neg[] =
 	"ugly"
 };
 
+/*
+ * Array of stat "descriptions"
+ */
+static cptr moria_desc_stat_sus_pos[] =
+{
+	"You feel weaker for a moment, but it passes.",
+	"You have trouble thinking clearly.  But your mind quickly clears.",
+	"Your wisdom is sustained.",
+	"You feel clumsy for a moment, but it passes.",
+	"Your body resists the effects of the disease.",
+	"Your skin starts to itch, but instantly feels better."
+};
+
+/*
+ * Array of stat "descriptions"
+ */
+static cptr moria_desc_stat_dec_pos[] =
+{
+	"You feel weaker.",
+	"You have trouble thinking clearly.",
+	"Your wisdom is drained.",
+	"You feel more clumsy.",
+	"Your health is damaged!",
+	"Your skin starts to itch."
+};
+
 
 /*
  * Lose a "point"
@@ -363,8 +389,8 @@ bool do_dec_stat(int stat)
 	if (sust)
 	{
 		/* Message */
-		msg_format("You feel very %s for a moment, but the feeling passes.",
-		           desc_stat_neg[stat]);
+		if (game_mode == GAME_NPPMORIA) msg_format("%s", moria_desc_stat_sus_pos[stat]);
+		else msg_format("You feel very %s for a moment, but the feeling passes.", desc_stat_neg[stat]);
 
 		/* Notice effect */
 		return (TRUE);
@@ -374,7 +400,8 @@ bool do_dec_stat(int stat)
 	if (dec_stat(stat, 10, FALSE))
 	{
 		/* Message */
-		message_format(MSG_DRAIN_STAT, stat, "You feel very %s.", desc_stat_neg[stat]);
+		if (game_mode == GAME_NPPMORIA) msg_format("%s", moria_desc_stat_dec_pos[stat]);
+		else message_format(MSG_DRAIN_STAT, stat, "You feel very %s.", desc_stat_neg[stat]);
 
 		/* Notice effect */
 		return (TRUE);
@@ -383,6 +410,20 @@ bool do_dec_stat(int stat)
 	/* Nothing obvious */
 	return (FALSE);
 }
+
+/*
+ * Array of stat "descriptions"
+ */
+static cptr moria_desc_stat_res_pos[] =
+{
+	"You feel your strength returning.",
+	"Your head spins a moment.",
+	"You feel your wisdom returning.",
+	"You feel more dextrous.",
+	"You feel your health returning.",
+	"You feel your looks returning."
+};
+
 
 
 /*
@@ -394,7 +435,8 @@ bool do_res_stat(int stat)
 	if (res_stat(stat))
 	{
 		/* Message */
-		msg_format("You feel less %s.", desc_stat_neg[stat]);
+		if (game_mode == GAME_NPPMORIA) msg_format("%s", moria_desc_stat_res_pos[stat]);
+		else msg_format("You feel less %s.", desc_stat_neg[stat]);
 
 		/* Notice */
 		return (TRUE);
@@ -403,6 +445,20 @@ bool do_res_stat(int stat)
 	/* Nothing obvious */
 	return (FALSE);
 }
+
+/*
+ * Array of stat "descriptions"
+ */
+static cptr moria_desc_stat_inc_pos[] =
+{
+	"Wow!  What bulging muscles!",
+	"Aren't you brilliant!",
+	"You suddenly have a profound thought!",
+	"You feel more limber!",
+	"You feel tingly for a moment.",
+	"Gee, ain't you cute!"
+};
+
 
 
 /*
@@ -419,7 +475,8 @@ bool do_inc_stat(int stat)
 	if (inc_stat(stat))
 	{
 		/* Message */
-		msg_format("You feel very %s!", desc_stat_pos[stat]);
+		if (game_mode == GAME_NPPMORIA) msg_format("%s", moria_desc_stat_inc_pos[stat]);
+		else msg_format("You feel very %s!", desc_stat_pos[stat]);
 
 		/* Notice */
 		return (TRUE);
@@ -671,6 +728,8 @@ void self_knowledge(void)
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
+
+		if ((adult_swap_weapons) && (k == INVEN_SWAP_WEAPON)) continue;
 
 		/* Extract the flags */
 		object_flags(o_ptr, &t1, &t2, &t3, &tn);
@@ -1102,7 +1161,7 @@ void self_knowledge(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Analyze the weapon */
-	if (o_ptr->k_idx)
+	if (obj_is_weapon(o_ptr))
 	{
 		/* Special "Attack Bonuses" */
 		if (f1 & (TR1_BRAND_ACID))
@@ -1266,7 +1325,7 @@ bool set_recall(void)
 	if (!p_ptr->word_recall)
 	{
 		/* Reset recall depth */
-		if ((p_ptr->depth > 0) && (p_ptr->depth != p_ptr->recall_depth))
+		if ((p_ptr->depth > 0) && (p_ptr->depth != p_ptr->recall_depth) && (game_mode != GAME_NPPMORIA))
 		{
 			/*
 			 * ToDo: Add a new player_type field "recall_depth"
@@ -2817,7 +2876,10 @@ bool project_ball(int who, int rad, int y0, int x0, int y1, int x1, int dam,
 	/* Hurt the character unless he controls the spell */
 	if (who != SOURCE_PLAYER) flg |= (PROJECT_PLAY);
 	/*Hack - poison cloud poison spells have a lingering cloud */
-	else if (typ == GF_POIS) flg |= (PROJECT_CLOUD);
+	else if (typ == GF_POIS)
+	{
+		if (game_mode != GAME_NPPMORIA) flg |= (PROJECT_CLOUD);
+	}
 
 	/* Limit radius to nine (up to 256 grids affected) */
 	if (rad > 9) rad = 9;
@@ -3207,6 +3269,15 @@ bool dispel_evil(int dam)
 bool dispel_monsters(int dam)
 {
 	return (project_los(p_ptr->py, p_ptr->px, dam, GF_DISP_ALL));
+}
+
+/*
+ * Polymorph all monsters in LOS
+ */
+bool mass_polymorph(void)
+{
+	/* damage figure of 100 isn't used */
+	return (project_los(p_ptr->py, p_ptr->px, 100, GF_OLD_POLY));
 }
 
 
@@ -4782,6 +4853,13 @@ bool drain_life(int dir, int dam)
 	return (fire_bolt_beam_special(GF_LIFE_DRAIN, dir, dam, MAX_RANGE, flg));
 }
 
+bool build_wall(int dir, int dam)
+{
+	u32b flg = (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_WALL);
+	return (fire_beam(GF_MAKE_WALL, dir, dam, flg));
+}
+
+
 bool wall_to_mud(int dir, int dam)
 {
 	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
@@ -4891,9 +4969,13 @@ bool sleep_monsters_touch(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	int dam = damroll(3, p_ptr->lev);
 
 	u32b flg = PROJECT_BOOM | PROJECT_KILL | PROJECT_HIDE;
-	return (project(SOURCE_PLAYER, 1, py, px, py, px, damroll(3, p_ptr->lev), GF_OLD_SLEEP, flg, 0, 20));
+
+	if (game_mode == GAME_NPPMORIA) dam = 500;
+
+	return (project(SOURCE_PLAYER, 1, py, px, py, px, dam, GF_OLD_SLEEP, flg, 0, 20));
 }
 
 
@@ -4971,6 +5053,14 @@ bool curse_weapon(void)
 
 	/* Curse the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
+
+	/* Handle swap weapons */
+	if (!obj_is_weapon(o_ptr))
+	{
+		o_ptr = &inventory[INVEN_SWAP_WEAPON];
+
+		if (!obj_is_weapon(o_ptr)) return (FALSE);
+	}
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -5115,6 +5205,12 @@ bool brand_weapon(bool enchant)
 	byte brand_type;
 
 	o_ptr = &inventory[INVEN_WIELD];
+
+	/* Handle swap weapons */
+	if (!obj_is_weapon(o_ptr))
+	{
+		if (!obj_is_weapon(o_ptr)) return (FALSE);
+	}
 
 	/* Select a brand */
 	if (one_in_(3))
@@ -5422,6 +5518,9 @@ int do_ident_item(int item, object_type *o_ptr)
 	char o_name[80];
 	u16b msgt = MSG_GENERIC;
 	int squelch = SQUELCH_NO;
+
+	/* In Moria, mark the item as fully known */
+	if (game_mode == GAME_NPPMORIA) o_ptr->ident |= (IDENT_MENTAL);
 
 	/* Identify it */
 	object_aware(o_ptr);

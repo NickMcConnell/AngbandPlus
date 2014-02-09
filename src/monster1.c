@@ -27,8 +27,6 @@ static cptr wd_his[3] =
 #define plural(c,s,p) \
 	(((c) == 1) ? (s) : (p))
 
-#define PLAYER_GHOST_TRIES_MAX 30
-
 
 typedef struct
 {
@@ -128,6 +126,7 @@ static int mon_resist_effect(int m_idx, int idx, u16b flag)
 		/* 2 changes to resist */
 		if (randint0(100) < resist_chance) return (FULL_RESIST);
 		if (randint0(100) < resist_chance) return (FULL_RESIST);
+
 	}
 
 	/* Uniques are doubly hard to affect */
@@ -1335,7 +1334,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_BITE:          p = "bite"; break;
 			case RBM_PECK:          p = "peck"; break;
 			case RBM_STING:         p = "sting"; break;
-			case RBM_XXX1:          break;
+			case RBM_BREATHE:       p = "breathe";  break;
 			case RBM_BUTT:          p = "butt"; break;
 			case RBM_CRUSH:         p = "crush"; break;
 			case RBM_ENGULF:        p = "engulf"; break;
@@ -1346,7 +1345,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_GAZE:          p = "gaze"; break;
 			case RBM_WAIL:          p = "wail"; break;
 			case RBM_SPORE:         p = "release spores"; break;
-			case RBM_XXX4:          break;
+			case RBM_TRAMPLE:       p = "tramples you"; break;break;
 			case RBM_BEG:           p = "beg"; break;
 			case RBM_INSULT:        p = "insult"; break;
 			case RBM_XXX5:          break;
@@ -1591,6 +1590,8 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Collect susceptibilities */
 	vn = 0;
+	if (l_ptr->r_l_flags3 & RF3_HURT_POIS) vp[vn++] = "poison";
+	if (l_ptr->r_l_flags3 & RF3_HURT_ACID) vp[vn++] = "acid";
 	if (l_ptr->r_l_flags3 & RF3_HURT_ROCK) vp[vn++] = "rock remover";
 	if (l_ptr->r_l_flags3 & RF3_HURT_LIGHT) vp[vn++] = "bright light";
 	if (l_ptr->r_l_flags3 & RF3_HURT_FIRE) vp[vn++] = "fire";
@@ -1987,6 +1988,7 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
+	byte energy_gain = calc_energy_gain(r_ptr->r_speed);
 
 	bool old = FALSE;
 
@@ -2085,25 +2087,25 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		text_out(" erratically");
 
 		/* Hack -- Occasional conjunction */
-		if (r_ptr->speed != 110) text_out(", and");
+		if (energy_gain != STANDARD_ENERGY_GAIN) text_out(", and");
 	}
 
 	/* Speed */
-	if (r_ptr->speed > 110)
+	if (energy_gain > STANDARD_ENERGY_GAIN)
 	{
 
-		if (r_ptr->speed > 139) text_out_c(TERM_GREEN, " incredibly");
-		else if (r_ptr->speed > 134) text_out_c(TERM_GREEN, " extremely");
-		else if (r_ptr->speed > 129) text_out_c(TERM_GREEN, " very");
-		else if (r_ptr->speed > 124) text_out_c(TERM_GREEN, " exceedingly");
-		else if (r_ptr->speed < 120) text_out_c(TERM_GREEN, " somewhat");
+		if (energy_gain > extract_energy_nppangband[139]) text_out_c(TERM_GREEN, " incredibly");
+		else if (energy_gain > extract_energy_nppangband[134]) text_out_c(TERM_GREEN, " extremely");
+		else if (energy_gain > extract_energy_nppangband[129]) text_out_c(TERM_GREEN, " very");
+		else if (energy_gain > extract_energy_nppangband[124]) text_out_c(TERM_GREEN, " exceedingly");
+		else if (energy_gain < extract_energy_nppangband[120]) text_out_c(TERM_GREEN, " somewhat");
 		text_out_c(TERM_GREEN, " quickly");
 
 	}
-	else if (r_ptr->speed < 110)
+	else if (energy_gain < STANDARD_ENERGY_GAIN)
 	{
-		if (r_ptr->speed < 90) text_out_c(TERM_GREEN, " incredibly");
-		else if (r_ptr->speed < 100) text_out_c(TERM_GREEN, " very");
+		if (energy_gain < extract_energy_nppangband[90]) text_out_c(TERM_GREEN, " incredibly");
+		else if (energy_gain < extract_energy_nppangband[100]) text_out_c(TERM_GREEN, " very");
 		text_out_c(TERM_GREEN, " slowly");
 	}
 	else

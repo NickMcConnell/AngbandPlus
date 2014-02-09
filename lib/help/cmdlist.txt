@@ -10,7 +10,7 @@
 Command Summary -- Original keyset
 
      a  Aim a wand                           A  Activate an artifact
-     b  Browse a book                        B  Bash a door
+     b  Browse a book                        B  Bash a door/Monster
      c  Close a door                         C  Character description
      d  Drop an item                         D  Disarm a trap
      e  Equipment list                       E  Eat some food
@@ -32,7 +32,7 @@ Command Summary -- Original keyset
      u  Use a staff                          U  (unused)
      v  Throw an item                        V  Version info
      w  Wear/wield equipment                 W  (unused)
-     x  (unused)                             X  (switch weapon macro)
+     x  Swap Weapons                         X  (switch weapon macro)
      y  (unused)                             Y  (unused)
      z  Zap a rod                            Z  (unused)
      !  Interact with system                ^A  (special - debug command)
@@ -56,7 +56,7 @@ Command Summary -- Original keyset
      ;  Walk (normal pickup)                ^S  Save and don't quit
      :  Take notes                          ^T  (unused)
      '  Target closest monster              ^U  (unused)
-     "  Enter a user pref command           ^V  Repeat last command
+     "  Enter a user pref command           ^V  (unused)
      ,  Stay still (normal pickup)          ^W  (special - wizard mode)
      <  Go up staircase                     ^X  Save and quit
      .  Run                                 ^Y  (unused)
@@ -84,7 +84,7 @@ Command Summary -- Roguelike keyset
      c  Close a door                         C  Character description
      d  Drop an item                         D  Disarm a trap or chest
      e  Equipment list                       E  Eat some food
-     f  Bash a door (force)                  F  Fuel your lantern/torch
+     f  Bash a door/monster                  F  Fuel your lantern/torch
      g  Stay still (flip pickup)             G  Gain new spells/prayers
      h  (walk - west)                        H  (run - west)
      i  Inventory list                       I  Observe an item

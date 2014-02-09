@@ -1,0 +1,119 @@
+
+====== The character screen (in detail) ======
+
+     The character information display allows you to review attributes, change
+names, and save character dumps to file.  The save character to file command
+saves the character screen, character background, inventory and equipment, skill
+levels, and the contents of the home.
+
+     This interface has five modes, which you may cycle through by typing '+/-'.
+
+
+--- Main character screen ---
+
+First row:
+     - Name : character's full name
+     - Gender, race, class, class title
+     - Hitpoints : current and maximum
+     - Spellpoints : current and maximum
+
+     - Age : in years
+     - Height : in inches
+     - Weight : in pounds
+     - Status : social class (affects starting gold)
+     - {Blank)
+     - Level : goes from 1 to 50
+
+     - Internal values for each vital statistic, racial modifiers, class
+       modifiers, total modifiers from equipment, and maximum and current
+       values.
+
+Second row:
+     - Game turn - note there are 10 game turns in one player turn at normal speed
+     - Player Turn - number of player turns in the current game
+     - Max Exp : maximum experience (undrained value)
+     - Cur Exp : current experience (is different from maximum only if drained)
+     - Adv Exp : total experience needed to advance to the next level.  With the 
+                 toggle_xp option on, this line displays the total remaining
+                 experience needed to gain the next level
+     - MaxDepth : The deepest the palyer has been in the dungeon
+     - Gold : money on hand (in gold pieces)
+     - Burden : total carried weight (equipment and backpack combined).  Helps
+       you learn how much you can carry without being slowed down.  You begin
+       to be slowed at 50% of your maximum carrying weight.	
+     - % burden : shows the percentage of your max carrying weight.	
+     - Armour : your actual base armour, plus what you think your armour bonus
+       is (will be accurate if all of your equipment is identified)
+     - Fight : plusses to hit chance and damage, before any weapon bonuses
+     - Melee : total plusses to hit chance and damage in melee combat, including
+       any known weapon bonuses.  See the combat section for more on how this
+       works.
+     - Shoot : total plusses to hit chance and damage in missile combat,
+       including any known weapon bonuses
+     - Blows : the number of blows you get with your current melee weapon
+     - Shots : the number of shots you get with your current missile weapon
+     - Speed : your base speed, not counting any temporary effects (temporary 
+       hasting or slowing)
+     - Infra : how far you can see warm-blooded creatures, even when invisible
+       or in darkness
+
+     - Saving Throw : your resistance to magic
+     - Stealth : how naturally quiet you are
+     - Fighting : your hand-to-hand combat skill (inherent skill, plus bonuses)
+     - Shooting : your missile combat skill (inherent skill, plus bonuses)
+     - Disarming : your ability to disarm traps and unlock doors
+     - Magical Device : your ability to use magical devices and activatable
+       items
+     - Perception : your ability to find traps and hidden doors automatically
+     - Searching : your ability to find traps and hidden doors by searching for
+       them
+
+     Descriptions of abilities can be quantified in numbers, or can go from 
+very bad -> bad -> poor -> fair -> good -> very good -> excellent -> superb ->
+heroic -> legendary.
+
+
+--- Attributes screen ---
+
+     Press '+/-', and your character screens display attributes of known
+(identified) equipped objects, and objects stored in the home, shown under 
+the same indexes that are used when displaying your equipment.  The '@' lists 
+attributes and modifiers that you possess intrinsically.  If you are an Elf, 
+for example, you will always resist light.
+
+Vital Statistics:
+     The top-center of this display lists modifiers to stats.  They are light
+green if the object does not also sustain that stat and green if it does.  If
+the object sustains a stat without affecting it, a green 's' is displayed.  
+Because character dumps in not in color, the stat sustains are displayed
+in a separated chart from the modifiers.
+
+Attributes:
+     The bottom of the screen displays most other non-combat attributes.  Blue
+'+' and green '*'s indicate the presence of the attribute.
+     - Acid  : plus = resist acid
+     - Elec  : plus = resist electricity
+     - Fire  : plus = resist fire
+     - Cold  : plus = resist cold
+     - Blind : plus = resist blindness
+     - S.Dig : plus = slow digestion
+     - Feath : plus = resist
+     - PLite : plus = shining object.  +1 to total light radius
+     - Regen : plus = faster regeneration of hitpoints and mana
+     - Telep : plus = telepathy (see all nearby monsters with minds)
+     - Invis : plus = see invisible
+     - FrAct : plus = free action (no paralyzation, protection against slowing)
+     - HLife : plus = hold life (you lose less to drain-exp attacks)
+     - Stea. : plus = affects stealth
+     - Sear. : plus = affects searching
+     - Aggr. : plus = equipment aggravates creatures in the dungeon
+     - Speed : plus = affects speed
+     - Blows : plus = affects the number of melee blows you get
+     - Shots : plus = affects the speed at which you fire missiles
+     - Might : plus = increases your missile weapon damage multiplier
+
+The fifth mode tells you any temporary spell effects you 
+may be under (such as being temporarily resistant to 
+fire, cold, etc...).
+
+

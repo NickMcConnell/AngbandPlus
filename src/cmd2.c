@@ -23,9 +23,8 @@
 
 
 /*
- * Check if action permissable here.
+ * Check if action permissible here.
  */
-
 bool do_cmd_test(int y, int x, int action, bool message)
 {
 	u32b bitzero = 0x01;
@@ -52,7 +51,7 @@ bool do_cmd_test(int y, int x, int action, bool message)
 
 	switch (action)
 	{
-		case FS_SECRET:					break;
+		case FS_SECRET:							break;
 		case FS_OPEN:	act = " to open";		break;
 		case FS_CLOSE:	act = " to close";		break;
 		case FS_BASH:	act = " to bash";		break;
@@ -101,7 +100,6 @@ bool do_cmd_test(int y, int x, int action, bool message)
  */
 void do_cmd_go_up(cmd_code code, cmd_arg args[])
 {
-
 	char out_val[160];
 	byte quest;
 
@@ -143,6 +141,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 
 	/* Success */
 	message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
+	if (game_mode == GAME_NPPMORIA) msg_print("You pass through a one-way door.");
 
 	/* Create a way back */
 	if (adult_connected_stairs) p_ptr->create_stair = FEAT_MORE;
@@ -156,7 +155,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 	/*go up another level if it is a shaft*/
 	if ((f_ptr->f_flags2 & (FF2_SHAFT)) &&
 	    (!quest) && (p_ptr->depth > 0))
-  	{
+	{
 		decrease++;
 
 		/* Create a way back (usually) */
@@ -209,6 +208,7 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
 
 	/* Success */
 	message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
+	if (game_mode == GAME_NPPMORIA) msg_print("You pass through a one-way door.");
 
 	/* Create a way back (usually) */
 	if (adult_connected_stairs) p_ptr->create_stair = FEAT_LESS;
@@ -291,7 +291,6 @@ void do_cmd_toggle_search(cmd_code code, cmd_arg args[])
 		p_ptr->redraw |= (PR_STATE | PR_SPEED | PR_STATUS);
 	}
 }
-
 
 
 /*
@@ -407,12 +406,15 @@ static void chest_death(int y, int x, s16b o_idx)
 	 	 */
 		quality = randint (num) + minlevel;
 
+		/* Moria has less levels */
+		if (game_mode == GAME_NPPMORIA) quality += quality / 5;
+
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
 		/*theme 1 is gold, themes 2-15 are objects*/
 
-		if (chesttheme == 1) make_gold(i_ptr);
+		if (chesttheme == DROP_TYPE_GOLD) make_gold(i_ptr);
 
 		else if (chesttheme >= 2)
 		{
@@ -423,7 +425,7 @@ static void chest_death(int y, int x, s16b o_idx)
 			 * All items with i > 50 are guaranteed great,
 			 * all items with i > 80  get 4 chances
 			 * to become an artifact.
-		 	 * Chests should be extremely lucritive
+		 	 * Chests should be extremely lucrative
 			 * as a player approaches 5000'.
 			 * For potions, scrolls, and wands, having the
 			 * good and great flags checked increase the
@@ -880,6 +882,7 @@ int count_chests(int *y, int *x, bool trapped)
 	return count;
 }
 
+
 /*
  * Extract a "direction" which will move one step from the player location
  * towards the given "target" location (or "5" if no motion necessary).
@@ -998,7 +1001,6 @@ static bool do_cmd_open_aux(int y, int x)
 	/* Result */
 	return (more);
 }
-
 
 
 /*
@@ -1136,7 +1138,6 @@ void textui_cmd_open(void)
 }
 
 
-
 /*
  * Perform the basic "close" command
  *
@@ -1247,6 +1248,7 @@ void do_cmd_close(cmd_code code, cmd_arg args[])
 	if (!more) disturb(0, 0);
 }
 
+
 void textui_cmd_close(void)
 {
 	int y, x, dir = DIR_UNKNOWN;
@@ -1271,6 +1273,7 @@ void textui_cmd_close(void)
 
 	cmd_insert(CMD_CLOSE, dir);
 }
+
 
 /*
  * Perform the basic "tunnel" command
@@ -1369,7 +1372,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			/* Get the name */
 			feature_desc(name, sizeof(name), feat, FALSE, TRUE);
 
-			/* We may continue tunelling */
+			/* We may continue tunneling */
 			msg_format("You dig into the %s.", name);
 
 			more = TRUE;
@@ -1462,6 +1465,7 @@ void do_cmd_tunnel(cmd_code code, cmd_arg args[])
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0, 0);
 }
+
 
 void textui_cmd_tunnel(void)
 {
@@ -1556,12 +1560,12 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 
 		/* Forget the trap */
 
- 		cave_info[y][x] &= ~(CAVE_MARK);
+		cave_info[y][x] &= ~(CAVE_MARK);
 
- 		/* Check if the grid is still viewable */
- 		note_spot(y, x);
+		/* Check if the grid is still viewable */
+		note_spot(y, x);
 
- 		light_spot(y, x);
+		light_spot(y, x);
 
 	}
 
@@ -1754,6 +1758,7 @@ void do_cmd_disarm(cmd_code code, cmd_arg args[])
 	if (!more) disturb(0, 0);
 }
 
+
 void textui_cmd_disarm(void)
 {
 	int y, x, dir;
@@ -1789,6 +1794,76 @@ void textui_cmd_disarm(void)
 
 	cmd_insert(CMD_DISARM, dir);
 }
+
+static bool player_bash(int y, int x)
+{
+	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+	monster_race *r_ptr;
+	char m_name[80];
+	object_type *o_ptr = &inventory[INVEN_ARM];
+
+	/* Chance to hit based on strength and weight */
+	int base_to_hit = p_ptr->state.stat_ind[A_STR] + o_ptr->weight / 2 + p_ptr->total_weight/10;
+
+	/* Paranoia */
+	if (!(cave_m_idx[y][x] > 0)) return (FALSE);
+
+	m_ptr = &mon_list[cave_m_idx[y][x]];
+	r_ptr = &r_info[m_ptr->r_idx];
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+	/* Boundry control */
+	if (base_to_hit < 4)  base_to_hit = 4;
+
+	if (test_hit(base_to_hit, r_ptr->ac, m_ptr->ml))
+	{
+		int dd = 4;
+		int ds = (base_to_hit / 4);
+		int plus = p_ptr->state.to_d;
+		int damage;
+		bool fear = FALSE;
+
+		msg_print(format("You bash %s.", m_name));
+
+		/* Allow for a critical hit */
+		(void)critical_hit_check(o_ptr, &dd, &plus);
+
+		damage = damroll(dd, ds) + plus;
+
+		/* Monster is still alive */
+		if (!mon_take_hit(cave_m_idx[y][x], damage, &fear, NULL, SOURCE_PLAYER))
+		{
+			/* Reduce its energy (half-paralysis) */
+			m_ptr->m_energy = BASE_ENERGY_MOVE / 2;
+			if (!m_ptr->m_timed[MON_TMD_STUN])
+			{
+				(void)mon_inc_timed(cave_m_idx[y][x], MON_TMD_STUN, (randint(3) + 1), MON_TMD_FLG_NOTIFY);
+			}
+		}
+
+		return (TRUE);
+	}
+
+	else msg_print(format("You miss %s.", m_name));
+
+	/* High dexterity yields coolness */
+	if (randint1(150) < p_ptr->state.stat_ind[A_DEX])
+	{
+		/* Message */
+		msg_print("You retain your balance.");
+	}
+	else
+	{
+		/* Message */
+		msg_print("You are off-balance.");
+
+		/* Hack -- Lose balance aka paralysis */
+		(void)set_timed(TMD_PARALYZED, 2 + randint(2), FALSE);
+	}
+
+	return (FALSE);
+}
+
 
 /*
  * Perform the basic "bash" command
@@ -1957,8 +2032,14 @@ void do_cmd_bash(cmd_code code, cmd_arg args[])
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
 
+	/* In Moria, possibly bash a monster */
+	if ((cave_m_idx[y][x] > 0) && (game_mode == GAME_NPPMORIA))
+	{
+		/* Do nothing except avoid the next check */
+	}
+
 	/* Verify legality */
-	if (!do_cmd_test(y, x, FS_BASH, TRUE)) return;
+	else if (!do_cmd_test(y, x, FS_BASH, TRUE)) return;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -1987,11 +2068,7 @@ void do_cmd_bash(cmd_code code, cmd_arg args[])
 	/* Monster */
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Message */
-		msg_print("There is a monster in the way!");
-
-		/* Attack */
-		py_attack(y, x);
+		player_bash(y, x);
 	}
 
 	/* Door */
@@ -2005,6 +2082,7 @@ void do_cmd_bash(cmd_code code, cmd_arg args[])
 		}
 	}
 }
+
 
 void textui_cmd_bash(void)
 {
@@ -2057,13 +2135,11 @@ void do_cmd_make_trap(cmd_code code, cmd_arg args[])
 
 			/* Take a turn */
 			p_ptr->p_energy_use = BASE_ENERGY_MOVE;
-
 		}
 		else
 		{
-
 			/*give a message and don't burn any energy*/
-		    msg_print("You must disarm an existing trap to free up your equipment.");
+			msg_print("You must disarm an existing trap to free up your equipment.");
 
 			return;
 		}
@@ -2141,12 +2217,11 @@ void do_cmd_steal(cmd_code code, cmd_arg args[])
 		}
 
 		else msg_print("You don't see anything to steal from.");
-
 	}
 
 	else msg_print("You don't see anything to steal from.");
-
 }
+
 
 void textui_cmd_steal(void)
 {
@@ -2156,6 +2231,7 @@ void textui_cmd_steal(void)
 
 	cmd_insert(CMD_STEAL, dir);
 }
+
 
 /*
  * Manipulate an adjacent grid in some way
@@ -2172,6 +2248,7 @@ void do_cmd_alter(cmd_code code, cmd_arg args[])
 {
 	do_cmd_alter_aux(args[0].direction);
 }
+
 
 void do_cmd_alter_aux(int dir)
 {
@@ -2204,7 +2281,6 @@ void do_cmd_alter_aux(int dir)
 		y = p_ptr->py + ddy[dir];
 		x = p_ptr->px + ddx[dir];
 	}
-
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -2275,6 +2351,7 @@ void do_cmd_alter_aux(int dir)
 	if (!more) disturb(0, 0);
 }
 
+
 void textui_cmd_alter(void)
 {
 	int dir;
@@ -2284,6 +2361,7 @@ void textui_cmd_alter(void)
 
 	cmd_insert(CMD_ALTER, dir);
 }
+
 
 /*
  * Find the index of some "spikes", if possible.
@@ -2408,6 +2486,7 @@ void do_cmd_spike(cmd_code code, cmd_arg args[])
 	}
 }
 
+
 void textui_cmd_spike(void)
 {
 	int dir;
@@ -2462,12 +2541,12 @@ static bool do_cmd_walk_test(int y, int x)
 
 		/* Nope */
 		return (FALSE);
-
 	}
 
 	/* Okay */
 	return (TRUE);
 }
+
 
 /*
  * Return TRUE if the feature located in the given location is dangerous for the
@@ -2504,6 +2583,7 @@ static bool found_dangerous_grid(int y, int x)
 	/* Dangerous */
 	return (TRUE);
 }
+
 
 /*
  * Helper function for the "walk" and "jump" commands.
@@ -2570,6 +2650,7 @@ void do_cmd_walk(cmd_code code, cmd_arg args[])
 	do_cmd_walk_or_jump(FALSE);
 }
 
+
 /*
  * Tell the game we want to walk - in future we might want to supply
  * directions here rather than rely on keymap/macro things.
@@ -2632,6 +2713,7 @@ void do_cmd_run(cmd_code code, cmd_arg args[])
 	run_step(dir);
 }
 
+
 void textui_cmd_run(void)
 {
 	int dir;
@@ -2682,6 +2764,7 @@ void do_cmd_hold(cmd_code code, cmd_arg args[])
 	}
 }
 
+
 /*
  * Start running with pathfinder.
  *
@@ -2704,11 +2787,7 @@ void do_cmd_pathfind(cmd_code code, cmd_arg args[])
 		p_ptr->running_withpathfind = TRUE;
 		run_step(0);
 	}
-
 }
-
-
-
 
 
 /*
@@ -2727,8 +2806,8 @@ void do_cmd_pickup(cmd_code code, cmd_arg args[])
 	 * the player is intentionally using a turn.
 	 */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
-
 }
+
 
 /*
  * Rest (restores hit points and mana and such)
@@ -2765,6 +2844,7 @@ void do_cmd_rest(cmd_code code, cmd_arg args[])
 		default:
 		{
 			p_ptr->resting = p_ptr->command_arg;
+			break;
 		}
 	}
 
@@ -2839,7 +2919,6 @@ void textui_cmd_rest(void)
 			cmd_insert(CMD_REST, REST_SP_MAXED);
 		}
 
-
 		/* Rest some */
 		else
 		{
@@ -2903,10 +2982,9 @@ void textui_cmd_suicide(void)
 	cmd_insert(CMD_SUICIDE);
 }
 
+
 void do_cmd_save_game(cmd_code code, cmd_arg args[])
 {
 	save_game();
 }
-
-
 

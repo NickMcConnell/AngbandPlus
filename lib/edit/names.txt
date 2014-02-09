@@ -13,7 +13,7 @@
 # Format:
 # N:name
 
-V:6.1.0
+V:7.0.0
 
 N:adanedhel
 N:adurant

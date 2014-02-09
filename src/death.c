@@ -26,7 +26,7 @@
 static time_t death_time = (time_t)0;
 
 /*
- * Write formatted string `fmt` on line `y`, centred between points x1 and x2.
+ * Write formatted string `fmt` on line `y`, centered between points x1 and x2.
  */
 static void put_str_centred(int y, int x1, int x2, const char *fmt, ...)
 {
@@ -79,7 +79,7 @@ static void print_tomb(void)
 	if (p_ptr->total_winner)
 		put_str_centred(line++, 8, 8+31, "Magnificent");
 	else
-		put_str_centred(line++, 8, 8+31, "%s", c_text + cp_ptr->title[(p_ptr->lev - 1) / 5]);
+		put_str_centred(line++, 8, 8+31, "%s", get_player_title());
 
 	line++;
 
@@ -94,7 +94,6 @@ static void print_tomb(void)
 
 	put_str_centred(line++, 8, 8+31, "on %-.24s", ctime(&death_time));
 }
-
 
 
 /*
@@ -134,7 +133,6 @@ static void death_knowledge(void)
 	p_ptr->update |= (PU_BONUS);
 	handle_stuff();
 }
-
 
 
 /*
@@ -210,6 +208,7 @@ static void death_file(void *unused, const char *title)
 		message_flush();
 	}
 }
+
 
 /*
  * Menu command: view character dump and inventory.
@@ -315,6 +314,7 @@ static void death_info(void *unused, const char *title)
 	screen_load();
 }
 
+
 /*
  * Menu command: peruse pre-death messages.
  */
@@ -328,6 +328,7 @@ static void death_messages(void *unused, const char *title)
 	screen_load();
 }
 
+
 /*
  * Menu command: see top twenty scores.
  */
@@ -340,6 +341,7 @@ static void death_scores(void *unused, const char *title)
 	show_scores();
 	screen_load();
 }
+
 
 /*
  * Menu command: examine items in the inventory.
@@ -369,6 +371,7 @@ static void death_examine(void *unused, const char *title)
 	}
 }
 
+
 /*
  * Menu command: allow spoiler generation (mainly for randarts).
  */
@@ -382,6 +385,7 @@ static void death_notes(void *unused, const char *title)
 	screen_load();
 }
 
+
 /*
  * Menu command: allow spoiler generation (mainly for randarts).
  */
@@ -393,6 +397,7 @@ static void death_spoilers(void *unused, const char *title)
 	do_cmd_spoilers();
 }
 
+
 /*
  * Menu structures for the death menu. Note that Quit must always be the
  * last option, due to a hard-coded check in death_screen
@@ -400,15 +405,16 @@ static void death_spoilers(void *unused, const char *title)
 static menu_type death_menu;
 static menu_action death_actions[] =
 {
-	{ 'i', "Information",   death_info,     NULL },
-	{ 'm', "Messages",      death_messages, NULL },
-	{ 'f', "File dump",     death_file,     NULL },
-	{ 'v', "View scores",   death_scores,   NULL },
-	{ 'x', "Examine items", death_examine,  NULL },
-	{ 'n', "Notes",       	death_notes,  	NULL },
-	{ 's', "Spoilers",	death_spoilers,	NULL },
-	{ 'q', "Quit",          death_examine,  NULL },
+	{ 'i', "Information",	death_info,		NULL },
+	{ 'm', "Messages",		death_messages,	NULL },
+	{ 'f', "File dump",		death_file,		NULL },
+	{ 'v', "View scores",	death_scores,	NULL },
+	{ 'x', "Examine items",	death_examine,	NULL },
+	{ 'n', "Notes",			death_notes,	NULL },
+	{ 's', "Spoilers",		death_spoilers,	NULL },
+	{ 'q', "Quit",			death_examine,	NULL },
 };
+
 
 /* Return the tag for a menu entry */
 static char death_menu_tag(menu_type *menu, int oid)
@@ -416,6 +422,7 @@ static char death_menu_tag(menu_type *menu, int oid)
 	(void)menu;
 	return death_actions[oid].id;
 }
+
 
 /* Display a menu entry */
 static void death_menu_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
@@ -426,6 +433,7 @@ static void death_menu_display(menu_type *menu, int oid, bool cursor, int row, i
 	c_prt(attr, death_actions[oid].name, row, col);
 }
 
+
 static const menu_iter death_iter =
 {
 	death_menu_tag,
@@ -433,8 +441,6 @@ static const menu_iter death_iter =
 	death_menu_display,
 	NULL
 };
-
-
 
 
 /*
@@ -480,7 +486,6 @@ void death_screen(void)
 	/* Flush all input and output */
 	flush();
 	message_flush();
-
 
 	/* Initialize the menu */
 	menu = &death_menu;

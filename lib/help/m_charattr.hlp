@@ -1,0 +1,20 @@
+                                Your Character
+
+
+    (a) Races and Classes                            (m_raceclas.txt)
+    (b) Attributes, Stats, Abilities                 (m_attribut.txt)
+    (c) The Character Screen                         (m_charscrn.txt)
+
+
+
+
+
+Help Commands:
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sensitivity 
+
+***** [a] m_raceclas.txt
+***** [b] m_attribut.txt
+***** [c] m_charscrn.txt

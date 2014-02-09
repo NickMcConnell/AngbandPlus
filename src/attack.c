@@ -30,6 +30,8 @@ bool test_hit(int chance, int ac, int vis)
 {
 	int k;
 
+	int numerator = (game_mode == GAME_NPPMORIA ? 4 : 3);
+
 	/* Percentile dice */
 	k = randint0(100);
 
@@ -40,7 +42,7 @@ bool test_hit(int chance, int ac, int vis)
 	if (!vis) chance = chance / 2;
 
 	/* Power competes against armor */
-	if ((chance > 0) && (randint0(chance) >= (ac * 3 / 4))) return (TRUE);
+	if ((chance > 0) && (randint0(chance) >= (ac * numerator / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -51,10 +53,15 @@ static void mod_dd_slays(u32b f1, u32b r3, u32b *r_l3, int *mult, bool seen)
 	u16b i;
 	int max_mult = 1;
 
+	u16b counter = N_ELEMENTS(slays_info_nppangband);
+	if (game_mode == GAME_NPPMORIA) counter = N_ELEMENTS(slays_info_nppmoria);
+
 	/* Go through each slay/kill and get the best multiplier */
-	for (i = 0; i < N_ELEMENTS(slays_info); i++)
+	for (i = 0; i < counter; i++)
 	{
-		const slays_structure *si = &slays_info[i];
+		const slays_structure *si;
+		if (game_mode == GAME_NPPMORIA) si = &slays_info_nppmoria[i];
+		else si = &slays_info_nppangband[i];
 
 		/* See if any of the weapons's slays flag matches the monster race flags */
 		if ((f1 & (si->slay_flag)) &&
@@ -81,10 +88,37 @@ static int mod_dd_brands(u32b f1, u32b r3, u32b *r_l3, byte *divider, bool deep,
 	int max_mult = 1;
 	int terrain_flag = 0;
 
-	/* Go through each brand and look for a better multiplier, also factor in terrain */
-	for (i = 0; i < N_ELEMENTS(brands_info); i++)
+	u16b counter = N_ELEMENTS(brands_info_nppangband);
+	if (game_mode == GAME_NPPMORIA) counter = N_ELEMENTS(brands_info_nppmoria);
+
+	/* Use the hackish slays info to find succeptibilities in Moria */
+	if (game_mode == GAME_NPPMORIA)
 	{
-		const brands_structure *bi = &brands_info[i];
+		for (i = 0; i < counter; i++)
+		{
+			const slays_structure *si = &brands_info_nppmoria[i];
+
+			/* See if any of the weapons's slays flag matches the monster race flags */
+			if ((f1 & (si->slay_flag)) &&
+						(r3 & (si->mon_flag)))
+			{
+
+				/* If the player can see the monster, mark the lore */
+				if (seen)
+				{
+					*r_l3 |= (si->mon_flag);
+				}
+
+				/* Use the highest possible multiplier */
+				if (max_mult < si->multiplier) max_mult = si->multiplier;
+			}
+		}
+	}
+
+	/* Go through each brand and look for a better multiplier, also factor in terrain */
+	else for (i = 0; i < counter; i++)
+	{
+		const brands_structure *bi = &brands_info_nppangband[i];
 
 		if (f1 & (bi->brand_flag))
 		{
@@ -147,6 +181,9 @@ static int mod_dd_succept(u32b f1, u32b r3, u32b *r_l3, bool seen)
 {
 	u16b i;
 	int extra_dam = 0;
+
+	/* Moria doesn't have succeptabilities */
+	if (game_mode == GAME_NPPMORIA) return 0;
 
 	/* Check for increased damage due to monster susceptibility */
 	for (i = 0; i < N_ELEMENTS(mon_suscept); i++)
@@ -359,19 +396,19 @@ int critical_shot_chance(const object_type *o_ptr, player_state a_state, bool th
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level, bow skill.
  */
-static int critical_shot_check(const object_type *o_ptr, int *dd, int *plus, bool throw, u32b f3)
+static int critical_shot_check(const object_type *o_ptr, int *dd, int *plus, bool throwing, u32b f3)
 {
-	int i = critical_shot_chance(o_ptr, p_ptr->state, throw, FALSE, f3);
+	int i = critical_shot_chance(o_ptr, p_ptr->state, throwing, FALSE, f3);
 
 	/* Critical hit */
 	if (randint(CRIT_HIT_CHANCE) <= i)
 	{
 		int k;
-		int crit_hit_bonus = 250 + (throw ? p_ptr->state.skills[SKILL_TO_HIT_THROW] : p_ptr->state.skills[SKILL_TO_HIT_BOW]);
+		int crit_hit_bonus = 250 + (throwing ? p_ptr->state.skills[SKILL_TO_HIT_THROW] : p_ptr->state.skills[SKILL_TO_HIT_BOW]);
 		crit_hit_bonus += (p_ptr->state.to_h + o_ptr->to_h) * 2;
 
 		/* Rogues are especially good at throwing weapons */
-		if ((throw) && (cp_ptr->flags & (CF_ROGUE_COMBAT)) && (f3 & (TR3_THROWING)))
+		if ((throwing) && (cp_ptr->flags & (CF_ROGUE_COMBAT)) && (f3 & (TR3_THROWING)))
 		{
 			i += p_ptr->lev * 5;
 		}
@@ -471,7 +508,7 @@ int critical_hit_chance(const object_type *o_ptr, player_state a_state, bool id_
  *
  * Factor in weapon weight, total plusses, player level.
  */
-static int critical_hit_check(const object_type *o_ptr, int *dd, int *plus)
+int critical_hit_check(const object_type *o_ptr, int *dd, int *plus)
 {
 	int i = critical_hit_chance(o_ptr, p_ptr->state, FALSE);
 
@@ -609,6 +646,29 @@ void py_attack(int y, int x)
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
+	/* Make sure we are using a weapon instead of a bow/shovel */
+	if (adult_swap_weapons)
+	{
+		if (obj_is_bow(o_ptr) || obj_is_shovel(o_ptr))
+		{
+			/* Only check if the bow/shovel has not yet been confirmed */
+			if (!(o_ptr->ident & (IDENT_CONFIRMED_USE)))
+			{
+				char o_name[80];
+
+				object_desc(o_name, sizeof(o_name), o_ptr, (ODESC_BASE));
+
+				if (!get_check(format("Really attack with your %s? ", o_name)))
+				{
+					p_ptr->p_energy_use = 0;
+					return;
+				}
+				/* Mark it as OK to use in melee so we don't check every time*/
+				else o_ptr->ident |= IDENT_CONFIRMED_USE;
+			}
+		}
+	}
+
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->state.to_h + o_ptr->to_h;
 
@@ -694,8 +754,8 @@ void py_attack(int y, int x)
 			hits++;
 			if (hits == 1) add_wakeup_chance += p_ptr->base_wakeup_chance;
 
-			/* No weapon wielded */
-			if (!obj_is_weapon(o_ptr))
+			/* Nothing wielded */
+			if (!o_ptr->k_idx)
 			{
 				dd = ds = 1;
 				plus = 0;
@@ -820,6 +880,18 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
 
+	/* Make sure we are using a weapon instead of a bow/shovel */
+	if (adult_swap_weapons)
+	{
+		j_ptr = &inventory[INVEN_MAIN_WEAPON];
+
+		if (!obj_is_bow(j_ptr) && (j_ptr->tval))
+		{
+			msg_print("You must first wield a weapon you can fire with.");
+			return;
+		}
+	}
+
 	/* Require a usable launcher */
 	if (!j_ptr->tval || !p_ptr->state.ammo_tval)
 	{
@@ -894,7 +966,7 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 	sound(MSG_SHOOT);
 
 	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_FULL | ODESC_SINGULAR);
+	object_desc(o_name, sizeof(o_name), i_ptr, (ODESC_FULL | ODESC_SINGULAR));
 
 	/* Cursed ammunition can hurt the player sometimes */
 	if (IS_QUIVER_SLOT(item) && cursed_p(i_ptr) && (rand_int(100) < 70))
@@ -1174,6 +1246,18 @@ void textui_cmd_fire(void)
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
 
+	/* Make sure we are using a weapon instead of a bow/shovel */
+	if (adult_swap_weapons)
+	{
+		j_ptr = &inventory[INVEN_MAIN_WEAPON];
+
+		if (!obj_is_bow(j_ptr) && (j_ptr->tval))
+		{
+			msg_print("You must first wield a weapon you can fire with.");
+			return;
+		}
+	}
+
 	/* Require a usable launcher */
 	if (!j_ptr->tval || !p_ptr->state.ammo_tval)
 	{
@@ -1196,12 +1280,25 @@ void textui_cmd_fire(void)
 
 void textui_cmd_fire_at_nearest(void)
 {
+	object_type *j_ptr = &inventory[INVEN_BOW];
 
 	/* the direction '5' means 'use the target' */
 	int i, dir = 5, item = -1;
 
+	/* Make sure we are using a weapon instead of a bow/shovel */
+	if (adult_swap_weapons)
+	{
+		j_ptr = &inventory[INVEN_MAIN_WEAPON];
+
+		if (!obj_is_bow(j_ptr) && (j_ptr->tval))
+		{
+			msg_print("You must first wield a weapon you can fire with.");
+			return;
+		}
+	}
+
 	/* Require a usable launcher */
-	if (!inventory[INVEN_BOW].tval || !p_ptr->state.ammo_tval)
+	if (!j_ptr->tval || !p_ptr->state.ammo_tval)
 	{
 		msg_print("You have nothing to fire with.");
 		return;
@@ -1687,7 +1784,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 		object_known(o_ptr);
 
 		/* Description */
-		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_FULL | ODESC_SINGULAR);
+		object_desc(o_name, sizeof(o_name), o_ptr, (ODESC_FULL | ODESC_SINGULAR));
 
 		/* Describe the potion */
 		msg_format("You threw %s.", o_name);

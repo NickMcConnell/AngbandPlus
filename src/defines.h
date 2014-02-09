@@ -50,17 +50,19 @@
 #define VERSION_NAME "NPPAngband"
 #define SAVEFILE_NAME  "VNLA"
 
+#define VERSION_MODE_NAME (game_mode == GAME_NPPMORIA ? "NPPMoria" : "NPPAngband")
+
 /*
  * Current version string
  */
-#define VERSION_STRING	"6.1.2"
+#define VERSION_STRING	"7.0.0"
 
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	6
-#define VERSION_MINOR	1
+#define VERSION_MAJOR	7
+#define VERSION_MINOR	0
 #define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
@@ -68,9 +70,13 @@
 /*
  * Oldest version number that can still be imported
  */
-#define OLD_VERSION_MAJOR	0
-#define OLD_VERSION_MINOR	6
+#define OLD_VERSION_MAJOR	7
+#define OLD_VERSION_MINOR	0
 #define OLD_VERSION_PATCH	0
+
+/* Various game modes */
+#define GAME_NPPANGBAND		1
+#define GAME_NPPMORIA		2
 
 
 /*
@@ -84,7 +90,6 @@
  * Probably hard-coded to 11, see "generate.c"
  */
 #define BLOCK_WID	11
-
 
 /*
  * Number of grids in each panel (vertically)
@@ -104,10 +109,8 @@
 #define PANEL_WID	(use_bigtile ? 16 : PANEL_WID_FIXED)
 
 
-
 #define ROW_MAP			1
 #define COL_MAP			13
-
 
 /*
  * Number of grids in each screen (vertically)
@@ -120,6 +123,11 @@
  * Must be a multiple of PANEL_WID (at least 2x)
  */
 #define SCREEN_WID	((Term->wid - COL_MAP - 1) / (use_bigtile ? 2 : 1))
+
+/*
+ * The last row of the main window
+ */
+#define TERM_LAST_ROW (Term->hgt - 1)
 
 
 /*
@@ -136,7 +144,11 @@
  */
 #define MAX_DUNGEON_WID		198
 
+/*
+ * Total number of grids in the dungeon
+ */
 #define MAX_DUNGEON_AREA	(MAX_DUNGEON_HGT * MAX_DUNGEON_WID)
+
 
 /*
  * Number of rooms to attempt to generate in dungeon.
@@ -174,31 +186,29 @@
 
 #define SIDEBAR_MONSTER_MAX	25
 
+
 /*
  * Mouse click region names
  */
-#define MOUSE_NULL    		SIDEBAR_MAX_TYPES + 0
-#define MOUSE_MAP     		SIDEBAR_MAX_TYPES + 1
-#define MOUSE_MESSAGE 		SIDEBAR_MAX_TYPES + 2
+#define MOUSE_NULL			SIDEBAR_MAX_TYPES + 0
+#define MOUSE_MAP			SIDEBAR_MAX_TYPES + 1
+#define MOUSE_MESSAGE		SIDEBAR_MAX_TYPES + 2
 #define MOUSE_STATUS_BAR	SIDEBAR_MAX_TYPES + 3
 
-
-
-/* mouseclick */
+/* Mouse click */
 #define DEFINED_XFF	'\xff'
+
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
  */
-#define MAX_SEXES            2
+#define MAX_SEXES		2
 
 /*
  * Player sex constants (hard-coded by save-files, arrays, etc)
  */
 #define SEX_FEMALE		0
 #define SEX_MALE		1
-
-
 
 
 /*
@@ -210,10 +220,13 @@
 /*
  * Maximum dungeon level.  The player can never reach this level
  * in the dungeon, and this value is used for various calculations
- * involving object and monster creation.  It must be at least 100.
+ * involving object and monster creation.  In Angband, it must be at least 100.
+ * In Moria, it must be above 50
  * Setting it below 128 may prevent the creation of some objects.
  */
-#define MAX_DEPTH	128
+#define MAX_DEPTH_ALL	128
+#define MAX_DEPTH  		((game_mode == GAME_NPPMORIA) ? 64: 128)
+#define MORIA_QUEST_DEPTH	50
 
 
 /*
@@ -243,9 +256,9 @@
 #define DF1_NEW_BORN 0x02	/* The dynamic feature was created recently */
 
 
-#define ENERGY_TO_MOVE  	200
-#define BASE_ENERGY_MOVE 	100
-#define BASE_ENERGY_FLYING 	BASE_ENERGY_MOVE
+#define ENERGY_TO_MOVE		200
+#define BASE_ENERGY_MOVE	100
+#define BASE_ENERGY_FLYING	BASE_ENERGY_MOVE
 
 
 /*
@@ -284,27 +297,31 @@
  */
 #define MAX_SHORT_UNSIGNED	65535
 
+
 /*
  * Store constants
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
-#define STORE_TURNOVER	12		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	8		/* Min slots to "always" keep full */
-#define STORE_MAX_KEEP	20		/* Max slots to "always" keep full */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
+#define STORE_TURNOVER_NPPANGBAND	12		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP_NPPANGBAND	8		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP_NPPANGBAND	20		/* Max slots to "always" keep full */
+#define STORE_TURNOVER_NPPMORIA		9		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP_NPPMORIA		10		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP_NPPMORIA		18		/* Max slots to "always" keep full */
 
 /*
  * Misc constants
  */
 #define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
 #define BREAK_GLYPH		400		/* Rune of protection resistance */
-#define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
+#define BTH_PLUS_ADJ	3		/* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
-#define QUEST_TURNS	    1200	/* Number of turns between quest failure checks */
+#define QUEST_TURNS		1200	/* Number of turns between quest failure checks */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
-#define USE_DEVICE      3		/* x> Harder devices x< Easier devices */
-#define INTEREST_OFFSET 10              /* Amount of levels OOD before a history is interesting */
+#define USE_DEVICE		3		/* x> Harder devices x< Easier devices */
+#define INTEREST_OFFSET	10		/* Amount of levels OOD before a history is interesting */
 
 
 /*
@@ -314,13 +331,11 @@
 #define WAKEUP_ADJ      20
 
 
-
 /*
  * More maximum values
  */
 #define MAX_SIGHT	20	/* Maximum view distance */
 #define MAX_RANGE	20	/* Maximum range (spells, etc) */
-
 
 
 /*
@@ -356,13 +371,13 @@
 /*
  * A "stack" of items is limited to less than 100 items (hard-coded).
  */
-#define MAX_STACK_SIZE			100
+#define MAX_STACK_SIZE	100
 
 /*
  * An item's pval (for charges, amount of gold, etc) is limited to s16b
  */
-#define MAX_PVAL  32767
-#define MIN_PVAL -32768
+#define MAX_PVAL	 32767
+#define MIN_PVAL	-32768
 
 
 /*
@@ -374,43 +389,40 @@
 #define MAX_FLOOR_STACK			23
 
 
-
-
-
 /*
  * Spell types used by project(), and related functions.
  */
 #define GF_XXX1			1
-#define GF_ARROW        2
-#define GF_MISSILE      3
-#define GF_MANA         4
-#define GF_HOLY_ORB     5
+#define GF_ARROW		2
+#define GF_MISSILE		3
+#define GF_MANA			4
+#define GF_HOLY_ORB		5
 #define GF_LIGHT_WEAK	6
 #define GF_DARK_WEAK	7
-#define GF_WATER        8
-#define GF_PLASMA       9
-#define GF_METEOR       10
-#define GF_ICE          11
-#define GF_GRAVITY      12
-#define GF_INERTIA      13
-#define GF_FORCE        14
-#define GF_TIME         15
-#define GF_ACID         16
-#define GF_ELEC         17
-#define GF_FIRE         18
-#define GF_COLD         19
-#define GF_POIS         20
+#define GF_WATER		8
+#define GF_PLASMA		9
+#define GF_METEOR		10
+#define GF_ICE			11
+#define GF_GRAVITY		12
+#define GF_INERTIA		13
+#define GF_FORCE		14
+#define GF_TIME			15
+#define GF_ACID			16
+#define GF_ELEC			17
+#define GF_FIRE			18
+#define GF_COLD			19
+#define GF_POIS			20
 #define GF_STATIC		21
-#define GF_LIGHT        22
-#define GF_DARK         23
+#define GF_LIGHT		22
+#define GF_DARK			23
 #define GF_EXTINGUISH	24
-#define GF_CONFUSION    25
-#define GF_SOUND        26
-#define GF_SHARD        27
-#define GF_NEXUS        28
-#define GF_NETHER       29
-#define GF_CHAOS        30
-#define GF_DISENCHANT   31
+#define GF_CONFUSION	25
+#define GF_SOUND		26
+#define GF_SHARD		27
+#define GF_NEXUS		28
+#define GF_NETHER		29
+#define GF_CHAOS		30
+#define GF_DISENCHANT	31
 #define GF_CLEAR_AIR	32
 #define GF_KILL_WALL	33
 #define GF_KILL_DOOR	34
@@ -441,10 +453,10 @@
 #define GF_LIFE_DRAIN	58
 #define GF_SPORE		59
 #define GF_MASS_IDENTIFY 60
-#define GF_BRIDGE       61
-#define GF_LAVA  		62
-#define GF_BWATER  		63
-#define GF_BMUD  		64
+#define GF_BRIDGE		61
+#define GF_LAVA			62
+#define GF_BWATER		63
+#define GF_BMUD			64
 #define GF_LOCK_DOOR	92
 
 #define GF_FEATURE		95
@@ -459,41 +471,40 @@
  * Some constants for the "learn" code.  These generalized from the
  * old DRS constants.
  */
-#define LRN_FREE_SAVE     14
-#define LRN_MANA          15
-#define LRN_ACID          16
-#define LRN_ELEC          17
-#define LRN_FIRE          18
-#define LRN_COLD          19
-#define LRN_POIS          20
-#define LRN_FEAR_SAVE     21
-#define LRN_LIGHT         22
-#define LRN_DARK          23
-#define LRN_BLIND         24
-#define LRN_CONFU         25
-#define LRN_SOUND         26
-#define LRN_SHARD         27
-#define LRN_NEXUS         28
-#define LRN_NETHR         29
-#define LRN_CHAOS         30
-#define LRN_DISEN         31
-#define LRN_SAVE          39
-#define LRN_ARCH          40
-#define LRN_PARCH         41
-#define LRN_ICE           42
-#define LRN_PLAS          43
-#define LRN_SOUND2        44 /* attacks which aren't resisted, but res sound prevent stun */
-#define LRN_STORM         45
-#define LRN_WATER         46
-#define LRN_NEXUS_SAVE    47 /* Both resist Nexus and Saves apply */
-#define LRN_BLIND_SAVE    48 /* Both resist Blind and Saves apply */
-#define LRN_CONFU_SAVE    49 /* Both resist Confusion and Saves apply */
-#define LRN_DARK_SAVE     50
-#define LRN_HOLY_SAVE     51
-#define LRN_LAVA  		  62
+#define LRN_FREE_SAVE	14
+#define LRN_MANA		15
+#define LRN_ACID		16
+#define LRN_ELEC		17
+#define LRN_FIRE		18
+#define LRN_COLD		19
+#define LRN_POIS		20
+#define LRN_FEAR_SAVE	21
+#define LRN_LIGHT		22
+#define LRN_DARK		23
+#define LRN_BLIND		24
+#define LRN_CONFU		25
+#define LRN_SOUND		26
+#define LRN_SHARD		27
+#define LRN_NEXUS		28
+#define LRN_NETHR		29
+#define LRN_CHAOS		30
+#define LRN_DISEN		31
+#define LRN_SAVE		39
+#define LRN_ARCH		40
+#define LRN_PARCH		41
+#define LRN_ICE			42
+#define LRN_PLAS		43
+#define LRN_SOUND2		44 /* attacks which aren't resisted, but res sound prevent stun */
+#define LRN_STORM		45
+#define LRN_WATER		46
+#define LRN_NEXUS_SAVE	47 /* Both resist Nexus and Saves apply */
+#define LRN_BLIND_SAVE	48 /* Both resist Blind and Saves apply */
+#define LRN_CONFU_SAVE	49 /* Both resist Confusion and Saves apply */
+#define LRN_DARK_SAVE	50
+#define LRN_HOLY_SAVE	51
+#define LRN_LAVA  		62
 
-#define LRN_MAX           63
-
+#define LRN_MAX			63
 
 
 /*
@@ -508,13 +519,11 @@ enum
 };
 
 
-
-
 /*** Function flags ***/
 
-#define PROJECT_NO          0
-#define PROJECT_NOT_CLEAR   1
-#define PROJECT_CLEAR       2
+#define PROJECT_NO			0
+#define PROJECT_NOT_CLEAR	1
+#define PROJECT_CLEAR		2
 
 
 /*
@@ -541,63 +550,64 @@ enum
  */
 
 /* Projection types */
-#define PROJECT_NONE		 0x00000000
-#define PROJECT_BEAM         0x00000001
-#define PROJECT_ARC          0x00000002
-#define PROJECT_STAR         0x00000004
-#define PROJECT_ROCK         0x00000008 /* A boulder is being thrown, use rock graphic (affects visuals only) */
-#define PROJECT_SHOT         0x00000010 /* A rock is being thrown/fired, use shot graphic (affects visuals only) */
-#define PROJECT_AMMO         0x00000020 /* A bolt/arrow is being thrown/fired, use shot graphic (affects visuals only) */
+#define PROJECT_NONE		0x00000000
+#define PROJECT_BEAM		0x00000001
+#define PROJECT_ARC			0x00000002
+#define PROJECT_STAR		0x00000004
+#define PROJECT_ROCK		0x00000008 /* A boulder is being thrown, use rock graphic (affects visuals only) */
+#define PROJECT_SHOT		0x00000010 /* A rock is being thrown/fired, use shot graphic (affects visuals only) */
+#define PROJECT_AMMO		0x00000020 /* A bolt/arrow is being thrown/fired, use shot graphic (affects visuals only) */
 
 /* What projections do */
-#define PROJECT_BOOM         0x00000040
-#define PROJECT_WALL         0x00000080
-#define PROJECT_PASS         0x00000100  /*Ignore walls*/
-#define PROJECT_ROOM         0x00000200  /* Create a room as you kill_wall */
-#define PROJECT_SAME         0x00000400  /* Don't damage similar monsters */
+#define PROJECT_BOOM		0x00000040
+#define PROJECT_WALL		0x00000080
+#define PROJECT_PASS		0x00000100  /*Ignore walls*/
+#define PROJECT_ROOM		0x00000200  /* Create a room as you kill_wall */
+#define PROJECT_SAME		0x00000400  /* Don't damage similar monsters */
 
 /* What projections affect */
-#define PROJECT_GRID         0x00000800
-#define PROJECT_ITEM         0x00001000
-#define PROJECT_KILL         0x00002000 /* Hurt the monsters*/
-#define PROJECT_PLAY         0x00004000 /* Hurt the player*/
-#define PROJECT_EFCT		 0x00008000 /* Use Effects*/
-#define PROJECT_CLOUD		 0x00010000 /* Always set the effect regardless of damage*/
-#define PROJECT_NO_EFCT      0x00020000 /* Cancel effects */
+#define PROJECT_GRID		0x00000800
+#define PROJECT_ITEM		0x00001000
+#define PROJECT_KILL		0x00002000 /* Hurt the monsters*/
+#define PROJECT_PLAY		0x00004000 /* Hurt the player*/
+#define PROJECT_EFCT		0x00008000 /* Use Effects*/
+#define PROJECT_CLOUD		0x00010000 /* Always set the effect regardless of damage*/
+#define PROJECT_NO_EFCT		0x00020000 /* Cancel effects */
 
 /* Graphics */
-#define PROJECT_HIDE         0x00040000
-#define PROJECT_NO_REDRAW    0x00080000
-#define PROJECT_XXX9         0x00100000
+#define PROJECT_HIDE		0x00040000
+#define PROJECT_NO_REDRAW	0x00080000
+#define PROJECT_XXX9		0x00100000
 
 /* How projections travel */
-#define PROJECT_STOP         0x00200000
-#define PROJECT_JUMP         0x00400000
-#define PROJECT_THRU         0x00800000
-#define PROJECT_CHCK         0x01000000
-#define PROJECT_ORTH         0x02000000 /*(unused)*/
-#define PROJECT_XX10         0x04000000
+#define PROJECT_STOP		0x00200000
+#define PROJECT_JUMP		0x00400000
+#define PROJECT_THRU		0x00800000
+#define PROJECT_CHCK		0x01000000
+#define PROJECT_ORTH		0x02000000 /*(unused)*/
+#define PROJECT_XX10		0x04000000
 
 /* Projection blockage indicators */
-#define PATH_G_FULL          0
-#define PATH_G_BLCK          1
-#define PATH_G_WALL          2
-#define PATH_G_NONE        100
+#define PATH_G_FULL			0
+#define PATH_G_BLCK			1
+#define PATH_G_WALL			2
+#define PATH_G_NONE			100
 
 #define PATH_SIZE			512
 
 /*Who caused the projection? */
-#define SOURCE_PLAYER			-1  /*player is the source of projection*/
+#define SOURCE_PLAYER			-1	/*player is the source of projection*/
 #define SOURCE_TRAP				-2	/*Trap*/
-#define SOURCE_EFFECT			-3  /*Effect*/
+#define SOURCE_EFFECT			-3	/*Effect*/
 #define SOURCE_OTHER			-4	/*Terrain, something other than player or monster*/
-#define SOURCE_MONSTER_START	0 /*Greater than 0 monster is the source*/
+#define SOURCE_MONSTER_START	 0	/*Greater than 0 monster is the source*/
 
 
-/*Mode whether to descrive traps/spells or set off/cast them*/
+/*Mode whether to describe traps/spells or set off/cast them*/
 #define MODE_DESCRIBE	1
 #define MODE_ACTION		2
 #define MODE_FLAGS		3
+
 
 /*
  * An arc with a width (in degrees) less than this value will lose less
@@ -609,9 +619,9 @@ enum
 /*
  * Bit flags for the "enchant()" function
  */
-#define ENCH_TOHIT   0x01
-#define ENCH_TODAM   0x02
-#define ENCH_TOAC    0x04
+#define ENCH_TOHIT	0x01
+#define ENCH_TODAM	0x02
+#define ENCH_TOAC	0x04
 
 
 /*
@@ -632,12 +642,11 @@ enum
 #define TARGET_PROBE	0x40
 
 
-
 #define LEV_THEME_HEAD				11
-#define LEV_THEME_CREEPING_COIN		0   /*creeping coins*/
-#define LEV_THEME_ORC				1   /*orc*/
+#define LEV_THEME_CREEPING_COIN		0	/*creeping coins*/
+#define LEV_THEME_ORC				1	/*orc*/
 #define LEV_THEME_TROLL				2	/*troll*/
-#define LEV_THEME_OGRE				3 	/*ogre*/
+#define LEV_THEME_OGRE				3	/*ogre*/
 #define LEV_THEME_HOUND				4	/*hound*/
 #define LEV_THEME_GIANT				5	/*giant*/
 #define LEV_THEME_DRAGON_YOUNG		6	/*young dragon*/
@@ -650,7 +659,7 @@ enum
 #define LEV_THEME_DRAGON_MISC		13	/*dragon*/
 #define LEV_THEME_DRAGON_ANCIENT	14	/*ancient dragon*/
 #define LEV_THEME_JELLY				15	/*jelly*/
-#define LEV_THEME_ORC_NAGA_YEEK_KOBOLD	16 /*kobold, yeek, ork, and naga*/
+#define LEV_THEME_ORC_NAGA_YEEK_KOBOLD	16 /*kobold, yeek, orc, and naga*/
 #define LEV_THEME_ANIMAL			17	/*animal*/
 #define LEV_THEME_HUMANOID			18	/*humanoid*/
 #define LEV_THEME_DEMON_MINOR		19	/*minor demon*/
@@ -658,8 +667,8 @@ enum
 #define LEV_THEME_DEMON_MAJOR		21	/*major demon*/
 #define LEV_THEME_CAVE_DWELLER		22	/*cave dweller*/
 #define LEV_THEME_UNDEAD			23	/*undead*/
-#define LEV_THEME_DRAGON_ELEMENTAL  24  /*Elemental Dragons*/
-#define LEV_THEME_VALAR_SERVANTS	25  /* Servants of the Valar*/
+#define LEV_THEME_DRAGON_ELEMENTAL	24	/*Elemental Dragons*/
+#define LEV_THEME_VALAR_SERVANTS	25	/* Servants of the Valar*/
 #define LEV_THEME_TAIL				26
 
 #define PIT_LEVEL_BOOST				6
@@ -679,9 +688,9 @@ enum
  * These values are hard-coded by savefiles (and various pieces of code).
  */
 #define OPT_USER_INTERFACE			0
-#define OPT_DISTURBANCE			    16
-#define OPT_GAME_PLAY			    32
-#define OPT_EFFICIENCY			    48
+#define OPT_DISTURBANCE				16
+#define OPT_GAME_PLAY				32
+#define OPT_EFFICIENCY				48
 #define OPT_BIRTH					128
 #define OPT_CHEAT					160
 #define OPT_ADULT					192
@@ -705,7 +714,7 @@ enum
 /* xxx */
 #define OPT_stack_force_notes		8
 #define OPT_stack_force_costs		9
-#define OPT_expand_inscribe         10
+#define OPT_expand_inscribe			10
 #define OPT_disturb_detect			11
 /* xxx */
 /* xxx */
@@ -775,24 +784,25 @@ enum
 /* xxx */
 /* xxx */
 /* xxx xxx */
-/* xxx xxx */       				/*(OPT_BIRTH+0)*/
+/* xxx xxx */						/*(OPT_BIRTH+0)*/
 #define OPT_birth_no_selling		(OPT_BIRTH+1)
-#define OPT_birth_maximize          (OPT_BIRTH+2)
-#define OPT_birth_preserve          (OPT_BIRTH+3)
-#define OPT_birth_ironman           (OPT_BIRTH+4)
-#define OPT_birth_no_stores         (OPT_BIRTH+5)
-#define OPT_birth_no_artifacts      (OPT_BIRTH+6)
-#define OPT_birth_rand_artifacts    (OPT_BIRTH+7)
-#define OPT_birth_no_stacking       (OPT_BIRTH+8)
-#define OPT_birth_take_notes        (OPT_BIRTH+9)
+#define OPT_birth_maximize			(OPT_BIRTH+2)
+#define OPT_birth_preserve			(OPT_BIRTH+3)
+#define OPT_birth_ironman			(OPT_BIRTH+4)
+#define OPT_birth_no_stores			(OPT_BIRTH+5)
+#define OPT_birth_no_artifacts		(OPT_BIRTH+6)
+#define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
+#define OPT_birth_no_stacking		(OPT_BIRTH+8)
+#define OPT_birth_take_notes		(OPT_BIRTH+9)
 #define OPT_birth_force_small_lev	(OPT_BIRTH+10)
 #define OPT_birth_connected_stairs	(OPT_BIRTH+11)
 #define OPT_birth_no_quests			(OPT_BIRTH+12)
 #define OPT_birth_no_player_ghosts	(OPT_BIRTH+13)
 #define OPT_birth_no_store_services	(OPT_BIRTH+14)
-#define OPT_birth_no_xtra_artifacts (OPT_BIRTH+15)
-#define OPT_birth_money             (OPT_BIRTH+16)
+#define OPT_birth_no_xtra_artifacts	(OPT_BIRTH+15)
+#define OPT_birth_money				(OPT_BIRTH+16)
 #define OPT_birth_simple_dungeons	(OPT_BIRTH+17)
+#define OPT_birth_swap_weapons		(OPT_BIRTH+18)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -803,7 +813,7 @@ enum
 #define OPT_cheat_live				(OPT_CHEAT+5)
 /* xxx xxx */
 /* xxx xxx */       				/*(OPT_ADULT+0)*/
-#define OPT_adult_no_selling       	(OPT_ADULT+1)
+#define OPT_adult_no_selling		(OPT_ADULT+1)
 #define OPT_adult_maximize			(OPT_ADULT+2)
 #define OPT_adult_preserve			(OPT_ADULT+3)
 #define OPT_adult_ironman			(OPT_ADULT+4)
@@ -811,15 +821,16 @@ enum
 #define OPT_adult_no_artifacts		(OPT_ADULT+6)
 #define OPT_adult_rand_artifacts	(OPT_ADULT+7)
 #define OPT_adult_no_stacking		(OPT_ADULT+8)
-#define OPT_adult_take_notes        (OPT_ADULT+9)
-#define OPT_adult_force_small_lev   (OPT_ADULT+10)
+#define OPT_adult_take_notes		(OPT_ADULT+9)
+#define OPT_adult_force_small_lev	(OPT_ADULT+10)
 #define OPT_adult_connected_stairs	(OPT_ADULT+11)
 #define OPT_adult_no_quests			(OPT_ADULT+12)
 #define OPT_adult_no_player_ghosts	(OPT_ADULT+13)
 #define OPT_adult_no_store_services	(OPT_ADULT+14)
-#define OPT_adult_no_xtra_artifacts (OPT_ADULT+15)
-#define OPT_adult_birth_money       (OPT_ADULT+16)
+#define OPT_adult_no_xtra_artifacts	(OPT_ADULT+15)
+#define OPT_adult_birth_money		(OPT_ADULT+16)
 #define OPT_adult_simple_dungeons	(OPT_ADULT+17)
+#define OPT_adult_swap_weapons		(OPT_ADULT+18)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -843,7 +854,7 @@ enum
 /* xxx */
 #define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
 #define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
-#define expand_inscribe         op_ptr->opt[OPT_expand_inscribe]
+#define expand_inscribe			op_ptr->opt[OPT_expand_inscribe]
 /* xxx */
 /* xxx */
 /* xxx */
@@ -916,16 +927,17 @@ enum
 #define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
 #define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
-#define birth_no_stacking       op_ptr->opt[OPT_birth_no_stacking]
-#define birth_take_notes        op_ptr->opt[OPT_birth_take_notes]
+#define birth_no_stacking		op_ptr->opt[OPT_birth_no_stacking]
+#define birth_take_notes		op_ptr->opt[OPT_birth_take_notes]
 #define	birth_force_small_lev	op_ptr->opt[OPT_birth_force_small_lev]
 #define	birth_connected_stairs	op_ptr->opt[OPT_birth_connected_stairs]
 #define birth_no_quests			op_ptr->opt[OPT_birth_no_quests]
-#define birth_no_player ghosts	op_ptr->opt[OPT_birth_no_player_ghosts]
+#define birth_no_player_ghosts	op_ptr->opt[OPT_birth_no_player_ghosts]
 #define birth_no_store_services	op_ptr->opt[OPT_birth_no_store_services]
 #define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
 #define birth_money				op_ptr->opt[OPT_birth_money]
 #define birth_simple_dungeons	op_ptr->opt[OPT_birth_simple_dungeons]
+#define birth_swap_weapons		op_ptr->opt[OPT_birth_swap_weapons]
 
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -953,15 +965,14 @@ enum
 #define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
 #define adult_money				op_ptr->opt[OPT_adult_money]
 #define adult_simple_dungeons	op_ptr->opt[OPT_adult_simple_dungeons]
+#define adult_swap_weapons		op_ptr->opt[OPT_adult_swap_weapons]
 
-
-#define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]
-#define verify_leave_quest 		op_ptr->opt[OPT_verify_leave_quest]
+#define hp_changes_color		op_ptr->opt[OPT_hp_changes_color]
+#define verify_leave_quest		op_ptr->opt[OPT_verify_leave_quest]
 #define mark_squelch_items		op_ptr->opt[OPT_mark_squelch_items]
-#define mouse_movement	 		op_ptr->opt[OPT_mouse_movement]
-#define mouse_buttons	 		op_ptr->opt[OPT_mouse_buttons]
+#define mouse_movement			op_ptr->opt[OPT_mouse_movement]
+#define mouse_buttons			op_ptr->opt[OPT_mouse_buttons]
 #define notify_recharge			op_ptr->opt[OPT_notify_recharge]
-
 
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]
@@ -975,8 +986,8 @@ enum
 /*
  * Information for "do_cmd_options()".
  */
-#define OPT_PAGE_MAX				5
-#define OPT_PAGE_PER				20
+#define OPT_PAGE_MAX			5
+#define OPT_PAGE_PER			20
 
 
 
@@ -987,8 +998,6 @@ enum
  * Hack -- The main "screen"
  */
 #define term_screen	(angband_term[0])
-
-
 
 /*
  * Convert an "attr"/"char" pair into a "pict" (P)
@@ -1055,8 +1064,6 @@ enum
 	 ((unsigned)((X) - Term->offset_x) < (unsigned)(SCREEN_WID)))
 
 
-
-
 /*
  * Determine if a "legal" grid is within "los" of the player
  *
@@ -1071,7 +1078,6 @@ enum
 
 #define player_can_observe() \
 	((!p_ptr->timed[TMD_BLIND]) && (!p_ptr->timed[TMD_CONFUSED]) && (!p_ptr->timed[TMD_IMAGE]) && (!p_ptr->timed[TMD_PARALYZED]))
-
 
 
 /*
@@ -1107,18 +1113,18 @@ enum
 /*
  * Maximum number of macro trigger names
  */
-#define MAX_MACRO_TRIGGER 200
-#define MAX_MACRO_MOD 12
+#define MAX_MACRO_TRIGGER	200
+#define MAX_MACRO_MOD		12
 
 
 /*
  * Available graphic modes
  */
-#define GRAPHICS_NONE           0
-#define GRAPHICS_ORIGINAL       1
-#define GRAPHICS_ADAM_BOLT      2
-#define GRAPHICS_DAVID_GERVAIS  3
-#define GRAPHICS_PSEUDO         4
+#define GRAPHICS_NONE			0
+#define GRAPHICS_ORIGINAL		1
+#define GRAPHICS_ADAM_BOLT		2
+#define GRAPHICS_DAVID_GERVAIS	3
+#define GRAPHICS_PSEUDO			4
 
 
 /*
@@ -1189,7 +1195,8 @@ enum
 #define ACT_RES_COLD			53
 #define ACT_RES_POIS			54
 
-#define ACT_MAX                 55
+#define ACT_MAX					55
+
 
 /*
  * HACK - define if the source contains the cleanup_angband() function.
@@ -1203,7 +1210,6 @@ enum
 #define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
 
 
-
 /*
  * There is a 1/40 (2.5%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
@@ -1215,8 +1221,6 @@ enum
  * Special note used to mark the end of the notes section in the savefile
  */
 #define NOTES_MARK "@@@@@@@ No more notes @@@@@@@"
-
-
 
 
 /*
@@ -1246,7 +1250,7 @@ enum
 /*
  * Maximum number of colours, and number of "basic" Angband colours
  */
-#define MAX_COLORS        	128
+#define MAX_COLORS			128
 #define MAX_COLOR_USED		(TERM_EARTH_YELLOW + 1)
 
 /* For the colors to tiles table */
@@ -1257,20 +1261,21 @@ enum
  * Number of base colors. These are the TERM_* constants
  */
 
-#define MAX_BASE_COLORS 16
-#define BASIC_COLORS    MAX_BASE_COLORS
+#define MAX_BASE_COLORS	16
+#define BASIC_COLORS	MAX_BASE_COLORS
 
 /*
  * Number of shades, including the shade 0 (base colors)
  */
-#define MAX_SHADES 8
+#define MAX_SHADES		8
+
 
 /*
  * These are the return values of squelch_itemp()
  */
-#define SQUELCH_FAILED -1
-#define SQUELCH_NO      0
-#define SQUELCH_YES     1
+#define SQUELCH_FAILED	-1
+#define SQUELCH_NO		0
+#define SQUELCH_YES		1
 
 
 /* Utilitary macros for the grid queue type */
@@ -1306,12 +1311,6 @@ enum
 
 
 /*
- * The last row of the main window
- */
-#define TERM_LAST_ROW (Term->hgt - 1)
-
-
-/*
  * Return TRUE if the player activated debug mode
  */
 #define DEBUG_MODE_ACTIVATED ((p_ptr->noscore & 0x0008) != 0)
@@ -1330,12 +1329,9 @@ enum
 #define MIN_PANEL_CHANGE_OFFSET_X 4
 
 
-
-
-
 /*
  * Hack -- The quest indicator timer is compacted along with a bit that indicates
- * whether the current quest was succesfully completed or not.
+ * whether the current quest was successfully completed or not.
  * The value of the bit is 0 if the quest was failed.
  */
 #define QUEST_INDICATOR_COMPLETE_BIT 0x8000
@@ -1360,14 +1356,12 @@ enum
 #define NOSCORE_DEBUG		0x0008
 
 
+#define SCAN_INSTANT	((u32b) -1)
+#define SCAN_OFF		0
+#define SCAN_MACRO		45
 
-#define SCAN_INSTANT ((u32b) -1)
-#define SCAN_OFF 0
-#define SCAN_MACRO 45
 
-
-#define MAX_ITEMLIST 1024
-
+#define MAX_ITEMLIST	1024
 
 
 #endif /* INCLUDED_DEFINES_H */

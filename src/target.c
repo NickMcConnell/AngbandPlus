@@ -1592,6 +1592,10 @@ bool target_set_interactive(int mode, int x, int y)
 	char path_char[MAX_RANGE];
 	byte path_attr[MAX_RANGE];
 
+	/* Temporarily turn off animate_flicker, must be re-set before exiting the function  */
+	bool temp_animate_flicker = animate_flicker;
+	animate_flicker = FALSE;
+
 	/* If we haven't been given an initial location, start on the
 	   player. */
 	if (x == -1 || y == -1)
@@ -1759,6 +1763,7 @@ bool target_set_interactive(int mode, int x, int y)
 
 					y = py;
 					x = px;
+					break;
 				}
 
 				case 'o':
@@ -1976,6 +1981,8 @@ bool target_set_interactive(int mode, int x, int y)
 
 					y = py;
 					x = px;
+
+					break;
 				}
 
 				case 'o':
@@ -2156,6 +2163,9 @@ bool target_set_interactive(int mode, int x, int y)
 
 	/* Handle stuff */
 	handle_stuff();
+
+	/* Re-set animate flicker */
+	animate_flicker = temp_animate_flicker;
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);

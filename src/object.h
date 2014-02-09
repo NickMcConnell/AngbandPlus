@@ -103,6 +103,10 @@
 #define DROP_TYPE_EDGED					20
 #define DROP_TYPE_POLEARM				21
 #define DROP_TYPE_DIGGING				22
+#define DROP_TYPE_MORIA_ITEMS			23
+#define DROP_TYPE_MORIA_WEAPONS			24
+#define DROP_TYPE_MORIA_ARMOR_BODY		25
+#define DROP_TYPE_MORIA_ARMOR_OTHER		26
 
 
 /*** Object "tval" and "sval" codes ***/
@@ -162,7 +166,18 @@
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 /* The "sval" codes for TV_JUNK */
-#define SV_SKELETON_BROKEN_BONE		2
+#define SV_SKELETON_RAT				1
+#define SV_SKELETON_CENTIPEDE		2
+#define SV_EMPTY_BOTTLE				4
+#define SV_POTTERY_SHARDS			5
+#define SV_SKELETON_HUMAN			7
+#define SV_SKELETON_DWARF			8
+#define SV_SKELETON_ELF				9
+#define SV_SKELETON_GNOME			10
+#define SV_BROKEN_TEETH				11
+#define SV_BROKEN_BONE				12
+#define SV_BROKEN_STICK				13
+
 
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
@@ -175,17 +190,21 @@
 #define SV_SLING			2	/* (x2) */
 #define SV_SHORT_BOW		12	/* (x2) */
 #define SV_LONG_BOW			13	/* (x3) */
+#define SV_COMPOSITE_BOW	14	/* (x3) */
 #define SV_LIGHT_XBOW		23	/* (x3) */
 #define SV_HEAVY_XBOW		24	/* (x4) */
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL			1
+#define SV_PICK_DWARVEN		2
 #define SV_PICK				4
 #define SV_MATTOCK			7
 
 /* The "sval" values for TV_HAFTED */
+#define SV_CAT_NINE_TAILS		1	/* 1d3 */
 #define SV_WHIP					2	/* 1d6 */
 #define SV_QUARTERSTAFF			3	/* 1d9 */
+#define SV_CLUB_WOODEN			4	/* 1d9 */
 #define SV_MACE					5	/* 2d4 */
 #define SV_BALL_AND_CHAIN		6	/* 2d4 */
 #define SV_WAR_HAMMER			8	/* 3d3 */
@@ -193,22 +212,28 @@
 #define SV_THROWING_HAMMER		11	/* 2d5 */
 #define SV_MORNING_STAR			12	/* 2d6 */
 #define SV_FLAIL				13	/* 2d6 */
+#define SV_FLAIL_TWO_HANDED		14	/* 3d6 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
 #define SV_MACE_OF_DISRUPTION	20	/* 5d8 */
 #define SV_GROND				50	/* 3d4 */
 
 /* The "sval" values for TV_POLEARM */
 #define SV_SPEAR				2	/* 1d6 */
+#define SV_JAVELIN				3	/* 1d6 */
 #define SV_AWL_PIKE				4	/* 1d8 */
 #define SV_TRIDENT				5	/* 1d9 */
+#define SV_LANCE				6	/* 1d9 */
 #define SV_PIKE					8	/* 2d5 */
+#define SV_LUCERNE_HAMMER		9	/* 2d5 */
 #define SV_BEAKED_AXE			10	/* 2d6 */
 #define SV_BROAD_AXE			11	/* 2d6 */
 #define SV_THROWING_AXE			12	/* 2d4 */
 #define SV_GLAIVE				13	/* 2d6 */
 #define SV_HALBERD				15	/* 3d4 */
+#define SV_FAUCHARD				16	/* 3d4 */
 #define SV_SCYTHE				17	/* 5d3 */
 #define SV_BATTLE_AXE			22	/* 2d8 */
+#define SV_BATTLE_AXE_EUROPEAN	23	/* 3d4 */
 #define SV_GREAT_AXE			25	/* 4d4 */
 #define SV_LOCHABER_AXE			28	/* 3d8 */
 #define SV_SCYTHE_OF_SLICING	30	/* 8d4 */
@@ -216,42 +241,57 @@
 /* The "sval" codes for TV_SWORD */
 #define SV_BROKEN_DAGGER		1	/* 1d1 */
 #define SV_BROKEN_SWORD			2	/* 1d2 */
+#define SV_DAGGER_STILLETO		3	/* 1d4 */
 #define SV_DAGGER				4	/* 1d4 */
 #define SV_MAIN_GAUCHE			5	/* 1d5 */
+#define SV_DAGGER_MISERICORDE	6	/* 1d4 */
 #define SV_RAPIER				7	/* 1d6 */
 #define SV_SMALL_SWORD			8	/* 1d6 */
 #define SV_SHORT_SWORD			10	/* 1d7 */
 #define SV_SABRE				11	/* 1d7 */
 #define SV_CUTLASS				12	/* 1d7 */
+#define SV_SWORD_THRUSTING		13	/* 1d6 */
+#define SV_FOIL					14	/* 1d5 */
+#define SV_SWORD_THRUSTING_BASELARD	15	/* 1d7 */
 #define SV_BROAD_SWORD			16	/* 2d5 */
 #define SV_LONG_SWORD			17	/* 2d5 */
 #define SV_SCIMITAR				18	/* 2d5 */
 #define SV_KATANA				20	/* 3d4 */
 #define SV_BASTARD_SWORD		21	/* 3d4 */
+#define SV_BACKSWORD			24  /* 1d9 */
 #define SV_TWO_HANDED_SWORD		25	/* 3d6 */
+#define SV_TWO_HANDED_SWORD_ESPADON		26	/* 3d6 */
+#define SV_TWO_HANDED_SWORD_FLAMBERGE		27	/* 3d6 */
 #define SV_EXECUTIONERS_SWORD	28	/* 4d5 */
+#define SV_TWO_HANDED_SWORD_NO_DACHI		29	/* 4d4 */
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
+#define SV_TWO_HANDED_SWORD_ZWEIHANDER		31	/* 4d6 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD		2
 #define SV_SMALL_METAL_SHIELD		3
 #define SV_LARGE_LEATHER_SHIELD		4
 #define SV_LARGE_METAL_SHIELD		5
+#define SV_MEDIUM_LEATHER_SHIELD	6
+#define SV_MEDIUM_METAL_SHIELD		7
 #define SV_SHIELD_OF_DEFLECTION		10
 
 /* The "sval" codes for TV_HELM */
+#define SV_SOFT_LEATHER_CAP		1
 #define SV_HARD_LEATHER_CAP		2
 #define SV_METAL_CAP			3
 #define SV_IRON_HELM			5
 #define SV_STEEL_HELM			6
+#define SV_SILVER_CROWN			9
 #define SV_IRON_CROWN			10
 #define SV_GOLDEN_CROWN			11
 #define SV_JEWELED_CROWN		12
 #define SV_MORGOTH				50
 
 /* The "sval" codes for TV_BOOTS */
+#define SV_PAIR_OF_SOFT_LEATHER_SHOES	1
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
-#define SV_PAIR_OF_HARD_LEATHER_BOOTS	3
+#define SV_PAIR_OF_HARD_LEATHER_BOOTS	4
 #define SV_PAIR_OF_METAL_SHOD_BOOTS		6
 
 /* The "sval" codes for TV_CLOAK */
@@ -271,6 +311,9 @@
 #define SV_HARD_LEATHER_ARMOR		6
 #define SV_HARD_STUDDED_LEATHER		7
 #define SV_LEATHER_SCALE_MAIL		11
+#define SV_LEATHER_RING_MAIL_HARD	12
+#define SV_LEATHER_RING_MAIL_SOFT	13
+#define SV_WOVEN_CORD_ARMOR			14
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL			1	/* 14- */
@@ -284,6 +327,8 @@
 #define SV_FULL_PLATE_ARMOUR		15	/* 25 */
 #define SV_RIBBED_PLATE_ARMOUR		18	/* 28 */
 #define SV_MITHRIL_CHAIN_MAIL		20	/* 28+ */
+#define SV_BAR_CHAIN_MAIL			21	/* 28+ */
+#define SV_LAMINATED_ARMOR			22	/* 28+ */
 #define SV_MITHRIL_PLATE_MAIL		25	/* 35+ */
 #define SV_ADAMANTITE_PLATE_MAIL	30	/* 40+ */
 
@@ -345,6 +390,7 @@
 #define SV_AMULET_TRICKERY		20
 #define SV_AMULET_INFRAVISION		21
 #define SV_AMULET_RESIST_LIGHTNING  22
+#define SV_AMULET_WOE				23
 
 
 /* The sval codes for TV_RING */
@@ -354,6 +400,7 @@
 #define SV_RING_STUPIDITY		3
 #define SV_RING_TELEPORTATION	4
 /* xxx */
+
 #define SV_RING_SLOW_DIGESTION	6
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
@@ -388,6 +435,10 @@
 #define SV_RING_POWER			37
 #define SV_RING_LIGHTNING		38
 #define SV_RING_RESIST_NETHER	39
+#define SV_RING_LORD_PROT_ACID	40
+#define SV_RING_LORD_PROT_FIRE	41
+#define SV_RING_LORD_PROT_COLD	42
+#define SV_RING_ADORNMENT		43
 
 
 /* The "sval" codes for TV_STAFF */
@@ -422,6 +473,8 @@
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
 #define SV_STAFF_MASS_IDENTIFY	30
+#define SV_STAFF_MASS_POLYMORPH	31
+#define SV_STAFF_REMOVE_CURSE	32
 
 
 /* The "sval" codes for TV_WAND */
@@ -454,6 +507,9 @@
 #define SV_WAND_DRAGON_FIRE		26
 #define SV_WAND_DRAGON_COLD		27
 #define SV_WAND_DRAGON_BREATH	28
+#define SV_WAND_WALL_BUILDING	29
+
+
 
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP		0
@@ -538,6 +594,9 @@
 #define SV_SCROLL_MASS_BANISHMENT		45
 #define SV_SCROLL_ACQUIREMENT			46
 #define SV_SCROLL_STAR_ACQUIREMENT		47
+#define SV_SCROLL_CREATE_FOOD			48
+#define SV_SCROLL_CREATE_DOORS			49
+#define SV_SCROLL_SLEEP_MONSTER			50
 
 #define SV_PARCHMENT_FRAGMENT			1
 
@@ -596,7 +655,7 @@
 #define SV_POTION_INC_DEX			51
 #define SV_POTION_INC_CON			52
 #define SV_POTION_INC_CHR			53
-/* xxx */
+#define SV_POTION_INVULNERABILITY	54
 #define SV_POTION_AUGMENTATION			55
 #define SV_POTION_ENLIGHTENMENT			56
 #define SV_POTION_STAR_ENLIGHTENMENT	57
@@ -606,6 +665,7 @@
 #define SV_POTION_RESIST_ELECTRICITY	61
 #define SV_POTION_RESIST_POISON			62
 #define SV_POTION_RESISTANCE			63
+
 
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON			0
@@ -628,11 +688,19 @@
 #define SV_FOOD_RESTORE_STR		17
 #define SV_FOOD_RESTORE_CON		18
 #define SV_FOOD_RESTORING		19
-/* many missing mushrooms */
+#define SV_FOOD_FIRST_AID		20
+#define SV_FOOD_MINOR_CURES		21
+#define SV_FOOD_LIGHT_CURES		22
+#define SV_FOOD_RESTORATION		23
+#define SV_FOOD_MAJOR_CURES		24
 #define SV_FOOD_RATION			35
 #define SV_FOOD_SLIME_MOLD		36
 #define SV_FOOD_WAYBREAD		37
-
+#define SV_FOOD_BISCUIT			38
+#define SV_FOOD_BEEF_JERKY		39
+#define SV_FOOD_FINE_ALE		40
+#define SV_FOOD_FINE_WINE		41
+#define SV_FOOD_FINE_MUSH		42
 
 /*gold, incomplete list defined primarily for the mimics*/
 
@@ -683,8 +751,8 @@
 /*
  * Special "k_info" hard coded values -
  */
-#define MAX_GOLD		18	/* Number of "gold" entries */
-
+#define MAX_GOLD_NPPANGBAND		18	/* Number of "gold" entries */
+#define MAX_GOLD_NPPMORIA		17	/* Number of "gold" entries */
 
 
 /*Squelch Modes for k_info->squelch*/
@@ -760,7 +828,7 @@
  * Special object flags
  */
 #define IDENT_SENSE     		0x00000001	/* Item has been "sensed" */
-#define IDENT_UNUSED_XXXXXXX2	0x00000002	/* Unused */
+#define IDENT_CONFIRMED_USE		0x00000002	/* Weapon is confirmed to be used (for swap weapons, attacking with bow, shovel, etc )*/
 #define IDENT_EMPTY     		0x00000004	/* Item charges are known */
 #define IDENT_KNOWN     		0x00000008	/* Item abilities are known */
 #define IDENT_STORE     		0x00000010	/* Item is in the inventory of a store */
@@ -913,7 +981,7 @@
 #define TR3_HOLD_LIFE       0x00000080L /* Hold life */
 #define TR3_NEVER_PICKUP    0x00000100L /* monsters can't pickup*/
 #define TR3_IRONMAN_ONLY    0x00000200L	/* Ironman object */
-#define TR3_TR3XXX3         0x00000400L
+#define TR3_STORE_ONLY      0x00000400L /* Do not generate object in a dungeon */
 #define TR3_TR3XXX4         0x00000800L
 #define TR3_IMPACT          0x00001000L /* Earthquake blows */
 #define TR3_TELEPORT        0x00002000L /* Random teleportation */
@@ -979,7 +1047,7 @@
 
 #define TR2_STAT_MOD_MASK \
 	(TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS | TR2_SUST_DEX | \
-		  TR2_SUST__CON | TR2_SUST_CHR)
+		  TR2_SUST_CON | TR2_SUST_CHR)
 
 #define TR3_STAT_MOD_MASK \
 	(0L)
@@ -1480,6 +1548,7 @@ object_aware_p(o_ptr) && \
 #define ORIGIN_CHEAT            9
 #define ORIGIN_MIXED            10
 #define ORIGIN_CHEST            11
+#define ORIGIN_MAGIC			12
 
 /*
  * Return TRUE if the given artifact is enabled to use the "easy mental" feature
@@ -1494,7 +1563,7 @@ object_aware_p(o_ptr) && \
 /*
  * Max sizes of the following arrays.
  */
-#define MAX_TITLES     50       /* Used with scrolls (min 48) */
+#define MAX_TITLES     55       /* Used with scrolls (min 48) */
 
 
 /** The titles of scrolls, ordered by sval. */
@@ -1517,50 +1586,40 @@ extern char scroll_adj[MAX_TITLES][16];
 /**
  * Modes for object_desc().
  */
-typedef enum
-{
-	ODESC_BASE   = 0x00,   /*!< Only describe the base name */
-	ODESC_COMBAT = 0x01,   /*!< Also show combat bonuses */
-	ODESC_EXTRA  = 0x02,   /*!< Show charges/inscriptions/pvals */
+#define		ODESC_BASE   0x00   	/*!< Only describe the base name */
+#define		ODESC_COMBAT 0x01   	/*!< Also show combat bonuses */
+#define		ODESC_EXTRA  0x02   	/*!< Show charges/inscriptions/pvals */
+#define		ODESC_STORE  0x04   	/*!< This is an in-store description */
+#define		ODESC_PLURAL 0x08   	/*!< Always pluralise */
+#define		ODESC_SINGULAR    0x10    /*!< Always singular */
+#define		ODESC_SPOIL  0x20    /*!< Display regardless of player knowledge */
+#define		ODESC_PREFIX 0x40   	/* */
 
-	ODESC_FULL   = ODESC_COMBAT | ODESC_EXTRA,
-	                       /*!< Show entire description */
-
-	ODESC_STORE  = 0x04,   /*!< This is an in-store description */
-	ODESC_PLURAL = 0x08,   /*!< Always pluralise */
-	ODESC_SINGULAR    = 0x10,    /*!< Always singular */
-	ODESC_SPOIL  = 0x20,    /*!< Display regardless of player knowledge */
-	ODESC_PREFIX = 0x40   /* */
-} odesc_detail_t;
+#define		ODESC_FULL   (ODESC_COMBAT | ODESC_EXTRA)  /*!< Show entire description */
 
 
 /**
  * Modes for item lists in "show_inven()"  "show_equip()" and "show_floor()"
  */
-typedef enum
-{
-	OLIST_NONE   = 0x00,   /* No options */
-   OLIST_WINDOW = 0x01,   /* Display list in a sub-term (left-align) */
-   OLIST_QUIVER = 0x02,   /* Display quiver lines */
-   OLIST_GOLD   = 0x04,   /* Include gold in the list */
-	OLIST_WEIGHT = 0x08,   /* Show item weight */
-	OLIST_PRICE  = 0x10,   /* Show item price */
-	OLIST_FAIL   = 0x20    /* Show device failure */
+#define		OLIST_NONE   0x00   /* No options */
+#define   	OLIST_WINDOW 0x01   /* Display list in a sub-term (left-align) */
+#define   	OLIST_QUIVER 0x02   /* Display quiver lines */
+#define   	OLIST_GOLD   0x04   /* Include gold in the list */
+#define		OLIST_WEIGHT 0x08   /* Show item weight */
+#define		OLIST_PRICE  0x10   /* Show item price */
+#define		OLIST_FAIL   0x20    /* Show device failure */
 
-} olist_detail_t;
 
 
 /**
  * Modes for object_info()
  */
-typedef enum
-{
-	OINFO_NONE   = 0x00, /* No options */
-	OINFO_TERSE  = 0x01, /* Keep descriptions brief, e.g. for dumps */
-	OINFO_SUBJ   = 0x02, /* Describe object from the character's POV */
-	OINFO_FULL   = 0x04, /* Treat object as if fully IDd */
-	OINFO_DUMMY  = 0x08 /* Object does not exist (e.g. knowledge menu) */
-} oinfo_detail_t;
+#define	OINFO_NONE   = 0x00 /* No options */
+#define	OINFO_TERSE  = 0x00 /* Keep descriptions brief, e.g. for dumps */
+#define	OINFO_SUBJ   = 0x02 /* Describe object from the character's POV */
+#define	OINFO_FULL   = 0x04 /* Treat object as if fully IDd */
+#define	OINFO_DUMMY  = 0x08 /* Object does not exist (e.g. knowledge menu) */
+
 
 
 /**

@@ -350,13 +350,16 @@ static void stat_display(menu_type *menu, int oid, bool cursor, int row, int col
 	cnv_stat(p_ptr->stat_max[pr_stat], buf, sizeof(buf));
 	c_put_str(TERM_L_GREEN, buf, row, col+5);
 
-	/* Race Bonus */
-	strnfmt(buf, sizeof(buf), "%+3d", (rp_ptr->r_adj[pr_stat] + p_ptr->stat_quest_add[pr_stat]));
-	c_put_str(TERM_L_BLUE, buf, row, col+11);
+	if (!adult_maximize)
+	{
+		/* Race Bonus */
+		strnfmt(buf, sizeof(buf), "%+3d", (rp_ptr->r_adj[pr_stat] + p_ptr->stat_quest_add[pr_stat]));
+		c_put_str(TERM_L_BLUE, buf, row, col+11);
 
-	/* Class Bonus */
-	strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[pr_stat]);
-	c_put_str(TERM_L_BLUE, buf, row, col+14);
+		/* Class Bonus */
+		strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[pr_stat]);
+		c_put_str(TERM_L_BLUE, buf, row, col+14);
+	}
 
 	/* Equipment Bonus */
 	strnfmt(buf, sizeof(buf), "%+3d", p_ptr->state.stat_add[pr_stat]);
@@ -422,7 +425,8 @@ static int stats_menu(int service)
 	/* Set up the menu */
 	WIPE(&menu, menu);
 	menu.count = count;
-	menu.title = "              Self RB CB  EB   Best";
+	if (!adult_maximize) menu.title = "              Self        EB   Best";
+	else menu.title = "              Self RB CB  EB   Best";
 	menu.menu_data = stats;
 	if (service == SERVICE_RESTORE_STAT)
 	{
@@ -544,7 +548,7 @@ static void prt_welcome(const owner_type *ot_ptr)
 
 
 		/* Get a title for the character */
-		if ((i % 2) && randint0(2)) player_name = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		if ((i % 2) && randint0(2)) player_name = get_player_title();
 		else if (randint0(2))       player_name = op_ptr->full_name;
 		else                        player_name = (p_ptr->psex == SEX_MALE ? "sir" : "lady");
 
@@ -635,6 +639,39 @@ static bool check_gold(s32b price)
 
 	return (TRUE);
 }
+
+/* Percent decrease or increase in price of goods		 */
+int moria_chr_adj()
+{
+	int charisma  = p_ptr->state.stat_use[A_CHR];
+
+	if (charisma > 117) 		return(90);
+	else if (charisma > 107) 	return(92);
+	else if (charisma > 87)		return(94);
+	else if (charisma > 67)		return(96);
+	else if (charisma > 18)		return(98);
+	else switch(charisma)
+    {
+		case 18:	return(100);
+		case 17:	return(101);
+		case 16:	return(102);
+		case 15:	return(103);
+		case 14:	return(104);
+		case 13:	return(106);
+		case 12:	return(108);
+		case 11:	return(110);
+		case 10:	return(112);
+		case 9:  return(114);
+		case 8:  return(116);
+		case 7:  return(118);
+		case 6:  return(120);
+		case 5:  return(122);
+		case 4:  return(125);
+		case 3:  return(130);
+		default: return(100);
+    }
+}
+
 
 static void init_services_and_quests(int store_num)
 {
@@ -780,7 +817,11 @@ static u32b price_services(int store_num, int choice)
 	if (store_num != STORE_GUILD)
 	{
 		/* Extract the "minimum" price */
-		price = ((price * adj_chr_gold[p_ptr->state.stat_ind[A_CHR]]) / 100L);
+		if (game_mode == GAME_NPPMORIA)
+		{
+			price = ((price * moria_chr_adj()) / 100L);
+		}
+		else price = ((price * adj_chr_gold[p_ptr->state.stat_ind[A_CHR]]) / 100L);
 	}
 
 	/*Guild price factoring*/
@@ -1757,6 +1798,10 @@ s32b price_item(const object_type *o_ptr, bool store_buying)
 
 	/* Add in the charisma factor */
 	if (this_store == STORE_B_MARKET) adjust = 175;
+	else if (game_mode == GAME_NPPMORIA)
+	{
+		adjust = moria_chr_adj();
+	}
 	else adjust = adj_chr_gold[p_ptr->state.stat_ind[A_CHR]];
 
 
@@ -2091,6 +2136,13 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 	/* Hack -- The Home and guild are simple */
 	if (store_num == STORE_HOME) return (TRUE);
 	if (store_num == STORE_GUILD) return (FALSE);
+
+	/* Some results are slightly different for Moria */
+	if (game_mode == GAME_NPPMORIA)
+	{
+		if ((store_num == STORE_TEMPLE) && (o_ptr->tval == TV_PRAYER_BOOK)) return (TRUE);
+		if ((store_num == STORE_MAGIC) &&  (o_ptr->tval == TV_MAGIC_BOOK)) 	return (TRUE);
+	}
 
 	/* Switch on the store */
 	switch (store_num)
@@ -2589,7 +2641,7 @@ static bool black_market_ok(const object_type *o_ptr)
 /*
  * Keep certain objects (undiscounted only).
  *
- * Note if this list is greatly expanded, teh store_maint function
+ * Note if this list is greatly expanded, the store_maint function
  * could get caught in an eternal loop.  Be mindful of the fixed
  * variable STORE_MAX_KEEP and STORE_MIN_KEEP when making this list.
  */
@@ -2597,6 +2649,8 @@ bool keep_in_stock(const object_type *o_ptr, int which)
 {
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	if (game_mode == GAME_NPPMORIA) return (FALSE);
 
 	/*Discounted items, ego items, or artifacts don't stay in stock*/
 	if (o_ptr->discount) return (FALSE);
@@ -2962,13 +3016,30 @@ void store_maint(int which)
 	j = st_ptr->stock_num;
 
 	/* Sell a few items */
-	j = j - randint(STORE_TURNOVER);
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Sell a few items */
+		j = j - randint(STORE_TURNOVER_NPPMORIA);
 
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
+		/* Never keep more than "STORE_MAX_KEEP" slots */
+		if (j > STORE_MAX_KEEP_NPPMORIA) j = STORE_MAX_KEEP_NPPMORIA;
 
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
+		/* Always "keep" at least "STORE_MIN_KEEP" items */
+		if (j < STORE_MIN_KEEP_NPPMORIA) j = STORE_MIN_KEEP_NPPMORIA;
+	}
+	else
+	{
+		/* Sell a few items */
+		j = j - randint(STORE_TURNOVER_NPPANGBAND);
+
+		/* Never keep more than "STORE_MAX_KEEP" slots */
+		if (j > STORE_MAX_KEEP_NPPANGBAND) j = STORE_MAX_KEEP_NPPANGBAND;
+
+		/* Always "keep" at least "STORE_MIN_KEEP" items */
+		if (j < STORE_MIN_KEEP_NPPANGBAND) j = STORE_MIN_KEEP_NPPANGBAND;
+	}
+
+
 
 	/* Count how many items must be kept*/
 	alt_min = st_ptr->stock_num - count_nonstandard_inven(which);
@@ -2988,14 +3059,29 @@ void store_maint(int which)
 	/* Choose the number of slots to fill */
 	j = st_ptr->stock_num;
 
-	/* Buy some more items */
-	j = j + randint(STORE_TURNOVER);
+	/* Sell a few items */
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Buy some more items */
+			j = j + randint(STORE_TURNOVER_NPPMORIA);
 
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
+			/* Never keep more than "STORE_MAX_KEEP" slots */
+			if (j > STORE_MAX_KEEP_NPPMORIA) j = STORE_MAX_KEEP_NPPMORIA;
 
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
+			/* Always "keep" at least "STORE_MIN_KEEP" items */
+			if (j < STORE_MIN_KEEP_NPPMORIA) j = STORE_MIN_KEEP_NPPMORIA;
+	}
+	else
+	{
+		/* Buy some more items */
+			j = j + randint(STORE_TURNOVER_NPPANGBAND);
+
+			/* Never keep more than "STORE_MAX_KEEP" slots */
+			if (j > STORE_MAX_KEEP_NPPANGBAND) j = STORE_MAX_KEEP_NPPANGBAND;
+
+			/* Always "keep" at least "STORE_MIN_KEEP" items */
+			if (j < STORE_MIN_KEEP_NPPANGBAND) j = STORE_MIN_KEEP_NPPANGBAND;
+	}
 
 	/*
 	 * Paranoia - should never happen unless the items in
@@ -3290,7 +3376,7 @@ static bool object_ident_changed(object_type *o_ptr)
 static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, int col, int width)
 {
 	s32b x;
-	odesc_detail_t desc = ODESC_PREFIX;
+	byte desc = ODESC_PREFIX;
 	int entry_type;
    	int entry_num;
 
@@ -3997,13 +4083,12 @@ void do_cmd_reward(cmd_code code, cmd_arg args[])
 	/*It's an ironman spellbook, so make the spells available. */
 	if ((k_ptr->k_flags3 & (TR3_IRONMAN_ONLY)) && (cp_ptr->spell_book == k_ptr->tval))
 	{
-		byte realm, j;
-		realm = get_player_spell_realm();
+		byte j;
 
 		/* Extract spells */
 		for (j = 0; j < SPELLS_PER_BOOK; j++)
 		{
-			s16b spell = spell_list[realm][k_ptr->sval][j];
+			s16b spell = get_spell_from_list(k_ptr->sval, j);
 
 			/*skip blank spell slots*/
 			if (spell == -1) continue;
@@ -4927,15 +5012,13 @@ static bool store_process_command(char cmd, void *db, int oid)
 			break;
 		}
 
-		/* Equipment list */
+		/* Equipment and inventory list */
 		case 'e':
-		{
-			equip_toggle = TRUE;
-		}
-
-		/* Inventory list */
 		case 'i':
 		{
+			/* Handle equipment command */
+			if (cmd == 'e') equip_toggle = TRUE;
+
 			/* Display the right thing until the user escapes */
 			do
 			{

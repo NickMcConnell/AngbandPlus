@@ -161,7 +161,7 @@
 #define RBM_BITE          6
 #define RBM_STING         7
 #define RBM_PECK          8
-#define RBM_XXX1          9
+#define RBM_BREATHE       9
 #define RBM_BUTT         10
 #define RBM_CRUSH        11
 #define RBM_ENGULF       12
@@ -172,7 +172,7 @@
 #define RBM_GAZE         17
 #define RBM_WAIL         18
 #define RBM_SPORE        19
-#define RBM_XXX4         20
+#define RBM_TRAMPLE      20
 #define RBM_BEG          21
 #define RBM_INSULT       22
 #define RBM_XXX5         23
@@ -329,7 +329,7 @@
 #define RF2_WEIRD_MIND		0x00000080	/* Monster avoids telepathy sometimes */
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates especially quickly */
-#define RF2_RF2XXX4		0x00000400	/* (?) */
+#define RF2_SPECIAL			0x00000400	/* Certain Moria Monsters require special treatment */
 #define RF2_EVASIVE		0x00000800	/* Monster often avoids blows */
 #define RF2_CLOUD_SURROUND	0x00001000	/* Surrounded by gas/spores/darkness */
 #define RF2_RF2XXX5		0x00002000	/* (?) */
@@ -366,8 +366,8 @@
 #define RF3_ANIMAL			0x00000080	/* Animal */
 #define RF3_FLYING			0x00000100	/* Monster flies */
 #define RF3_RF3XXX2			0x00000200	/* (?) */
-#define RF3_RF3XXX3			0x00000400	/* Non-Vocal (?) */
-#define RF3_RF3XXX4			0x00000800	/* Non-Living (?) */
+#define RF3_HURT_POIS		0x00000400	/* Hurt badly by Poison (?) */
+#define RF3_HURT_ACID		0x00000800	/* Hurt badly by Acid (?) */
 #define RF3_HURT_LIGHT		0x00001000	/* Hurt by light */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
 #define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire */
@@ -963,6 +963,7 @@ enum {
 	/* project_m */
 	MON_MSG_DIE,
 	MON_MSG_DESTROYED,
+	MON_MSG_BURIED_ROCK,
 	MON_MSG_RESIST_A_LOT,
 	MON_MSG_HIT_HARD,
 	MON_MSG_RESIST,
@@ -980,6 +981,8 @@ enum {
 	MON_MSG_DISSOLVE,
 	MON_MSG_CATCH_FIRE,
 	MON_MSG_BADLY_FROZEN,
+	MON_MSG_BADLY_BURNED,
+	MON_MSG_BADLY_POISONED,
 	MON_MSG_SHUDDER,
 	MON_MSG_AWARE_OF_CRAFTY_ABILITIES,
 	MON_MSG_AWARE_OF_CUNNING_TACTICS,
@@ -1004,7 +1007,9 @@ enum {
 	MON_MSG_NOT_AFRAID,
 	MON_MSG_MORIA_DEATH,
 	MON_MSG_DISENTEGRATES,
+	MON_MSG_MELTS_AWAY,
 	MON_MSG_FREEZE_SHATTER,
+	MON_MSG_CHOKE_DIE,
 	MON_MSG_MANA_DRAIN,
 	MON_MSG_MIMIC_REVEAL,
 	MON_MSG_MIMIC_APPEARS,

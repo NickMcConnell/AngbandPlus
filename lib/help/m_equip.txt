@@ -1,0 +1,186 @@
+
+====== Object Attributes ======
+
+
+     All effective combat methods require equipment, and all benefit greatly
+from various qualities that your equipped items may possess.  Defence is
+similarly equipment-dependent.
+     Attacks can also benefit or be hindered depending on the terrain in which 
+the player or creature is standing.
+
+
+
+--- Ordinary Attributes ---
+
+Example 1:  A Battle Axe (2d8) (+6,+4)
+
+Damage dice:
+     The weapon above rolls two eight-sided dice in battle, for an average base
+damage of: 2 * (8 + 1) / 2  =>  2 * 9 / 2  =>  9.
+
+Bonus to hit:
+     The weapon above has a bonus to hit of 6.  This bonus improves your chance
+to hit monsters.  Apart from rare gloves, armours seldom have bonuses to combat.
+Some have small penalties (see below).
+
+Bonus to damage:
+     The weapon above gets a bonus to damage of 4, and so does 2d8 + 4 points of
+damage on most hits.  Apart from rare gloves, armours seldom have bonuses to
+Deadliness.
+
+
+Example 2:  A Hard Leather Armour (-1) [6,+5]
+
+Base Armour Class (AC):
+     This armour has a base AC of 6.  All armours have a base armour class; very
+few weapons do.
+
+Bonus to Armour Class:
+     This armour has a bonus to AC of 5, which gives it a total protective value
+of 11.  Armour of unusually good quality or that is magical also increases your
+bonus to armour class.  Only rare weapons do the same.
+
+
+Example 3:  A Mace (Holy Avenger) (2d4) (+7,+5) [+3] (+1)
+
+     This weapon is a Holy Avenger (one of the more powerful ego-items).  It
+rolls 2 four-sided dice when attacking and has +7 to hit and +5 to damage.  It
+increases your AC by 3, and increases a numerical attribute (Wisdom, in this
+case) by 1.
+
+
+--- Adjustments to Vital statistics and Abilities ---
+
+Stat Bonuses:
+     Any kind of wearable item may affect one or more stats.  See the section on
+your character to find out more about what altering a stat does.
+
+Sustain Stats:
+     Any kind of wearable item may sustain one or more stats.  This ensures that
+the attacks of your foes never lower that stat.
+
+Stealth:
+     Certain cloaks, boots, and (more rarely) other items lessen the amount of
+noise you make when moving around the dungeon.  This is very handy for avoiding
+fights and getting in the first hit, which causes extra damage on a sleeping
+monster in NPPMoria.  If the player is flying, their stealth is also increased.
+
+Searching:
+     Some rings, headgear, and various other items improve your chances to
+reveal secret doors and find traps before they find you.  Bonuses to searching
+improve both automatic and manual searching.
+
+Infravision:
+     Some headgear and (more rarely) other items increase the range at which you
+can see warm-blooded creatures, even those that would otherwise be invisible.
+
+Tunneling:
+     Some gloves and weapons allow you to dig through rock more effectively.
+All special digging tools have a bonus to tunneling.
+
+Speed:
+     Boots, rings, and weapons that hasten you are rare and powerful, for a fast
+player can perform several actions in the time it used to take to do just one.
+Players moving at speed -1 is half as fast as normal, at +1 are twice as fast
+as normal, and at +2 are four times as fast as normal.  The maximum 
+speed is +3.
+
+
+--- Weapon Attributes ---
+
+Damage multipliers  (only the best applies):
+     Slay Evil      :  x2 against evil
+     Slay Animal    :  x2 against animals
+     Slay Undead    :  x3 against undead
+     Slay Dragon    :  x4 against dragons
+
+     Brand Acid     :  x2 against everything susceptable to acid
+     Brand Fire     :  x2 against everything susceptable to fire
+     Brand Cold     :  x2 against everything susceptable to cold
+     Brand Pois     :  x2 against everything susceptable to poison
+
+
+--- Resistances ---
+
+     Resistances from equipment cannot be combined; you either have it or you
+don't.  You can, however, temporarily oppose the elements and poison for an
+additional 2/3rds reduction in damage.
+     Resistances and oppositions also help reduce the amount of damage
+elemental attacks do to items in your backpack.
+
+Resist Acid:
+     You take one-thirds damage from acid.
+
+Resist Electricity:
+     You take one-thirds damage from electricity.
+
+Resist Cold:
+     You take one thirds damage from cold.
+
+Resist Fire:
+     You take one-thirds damage from fire.
+
+Ignore acid, electricity, fire, and cold:
+     Some objects cannot be damaged or destroyed by elemental attacks.
+
+
+--- Survival Attributes ---
+
+Resist Blindness:
+     Protects you from being blinded.
+
+
+--- Character Qualities ---
+
+Slow Digestion:
+     Reduces your need to consume food.
+
+Feather Fall:
+     Renders pit traps and trap doors harmless.
+
+Light:
+     Some weapons and helms shine with inner light.  Each such object increases
+your illumination radius by one.
+
+Regeneration:
+     Players who regenerate recover hitpoints and mana twice as quickly as
+normal.  They also need to eat more.
+
+Telepathy (ESP):
+     It is not easy to acquire this, but players who do can see intelligent
+monsters nearby.  Mindless monsters never appear, and semi-intelligent monsters
+only appear occasionally.
+
+See Invisible:
+     Allows you to see and target monsters invisible to ordinary sight.
+
+Free Action:
+     Protects you from paralyzation and most slowing attacks.  Because
+paralyzation can instantly kill you, keep an eye out for this important survival
+aid.
+
+Hold Life:
+     Offers a high degree of protection from attacks (but not items) that reduce
+experience.
+
+
+--- Curses and other Nastiness ---
+
+Random Teleportation:
+     Some foul rings, amulets, and boots randomly take control of your movement
+and whisk you around the dungeon.
+
+Aggravate:
+     Aggravation effectively reduces your stealth to nil, immediately waking up
+all monsters nearby.  Some rings and amulets possess curses that aggravate, and
+some weapons and armours are so powerful that no creature can ignore them.
+
+Drain Exp:
+     Objects that drain experience are perilous, because they slowly but surely
+erase your accumulated memories.  Of course, you can keep killing monsters to
+replace the experience which you lose.
+
+Light (Normal) Curse:
+     Many objects have light curses.  If you should wear or wield one, read a
+scroll of remove curse.
+

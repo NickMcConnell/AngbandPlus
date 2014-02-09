@@ -55,9 +55,6 @@ C:0:^C
 A:w0
 C:0:X
 
-# Original keymap: Repeat last command
-A:^V
-C:0:n
 
 
 ##### Roguelike Keyset Mappings #####
@@ -145,6 +142,11 @@ A:+8
 C:1:^K
 A:+9
 C:1:^U
+
+# Original keymap: Repeat last command
+A:n
+C:1:^V
+
 
 # Allow use of the "tunnel" command
 A:T

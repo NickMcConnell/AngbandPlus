@@ -78,7 +78,7 @@ heroic -> legendary.
      Press '+/-', and your character screens display attributes of known
 (identified) equipped objects, and objects stored in the home, shown under 
 the same indexes that are used when displaying your equipment.  The '@' lists 
-attributes and modifiers that you posses intrinsically.  If you are an Elf, 
+attributes and modifiers that you possess intrinsically.  If you are an Elf, 
 for example, you will always resist light.
 
 Vital Statistics:

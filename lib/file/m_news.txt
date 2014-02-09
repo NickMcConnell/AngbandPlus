@@ -1,0 +1,23 @@
+
+{yellow}         _   _ ____  ____   _    _              _        {/}
+{yellow}        | \ | | '_ \| '_ \ | \  / |  ___   ___ |_|  __ _ {/}
+{yellow}        |  \| | |_) | |_) ||  \/  | / _ \ |  _| _  / _` |{/}
+{yellow}        | , ' | .__/| .__/ |  __  || |_| || |  | || (_| |{/}
+{yellow}        | |\  | |   | |    | |  | | \___/ |_|  |_| \__,_|{/}
+{yellow}        |_| \_|_|   |_|    |_|  |_|                      {/}
+                              Version $VERSION
+                Bug reports to <nppangbanddev@verizon.net>
+
+    NPPMoria =  Copyright (c) 2013-2015 Jeff Greene 
+   For resources and links to places you can talk about the game, please see:
+                    http://forum.nppangband.org/ -- the NPPAngband Forums                  
+   Based on:NPPAngband Copyright (c) 2003-2015 Jeff Greene and Diego Gonz['a]lez
+            Moria:   Copyright (c) 1985 Robert Alan Koeneke
+                and Umoria:   Copyright (c) 1989 James E. Wilson, David Grabiner
+            Angband 2.6.2:   Alex Cutler, Andy Astrand, Sean Marsh,
+                             Geoff Hill, Charles Teague, Charles Swiger
+            2.7.0 - 2.8.5:   Ben Harrison 2.9.0 - 3.0.6: Robert Ruehlmann
+            3.0.7 - 3.4.0:   Andrew Sidwell
+            Oangband 0.6.0 Copyright 1998-2003 Leon Marrick, Bahman Rabii
+            EYAngband 0.5.2 By Eytan Zweig, UNAngband by Andrew Doull
+            Sangband 0.9.9 and Demoband by Leon Marrick

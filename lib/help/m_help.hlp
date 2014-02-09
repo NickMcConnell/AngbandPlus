@@ -1,0 +1,25 @@
+                   Adventuring in the Mines of Moria
+
+
+    (a) The Basics                                     (m_general.hlp)
+    (b) Your Character                                 (m_charattr.hlp)
+    (c) The World                                      (m_explore.hlp)
+    (d) Interacting with the Game                      (m_command.hlp)
+    (e) Combat and Magic                               (m_combat.hlp)
+    (f) Review Commands                                (m_cmdlist.txt)
+
+
+
+
+Help Commands:
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sensitivity 
+
+***** [a] m_general.hlp
+***** [b] m_charattr.hlp
+***** [c] m_explore.hlp
+***** [d] m_command.hlp
+***** [e] m_combat.hlp
+***** [f] m_cmdlist.txt

@@ -1,0 +1,20 @@
+                           Interacting with the Game
+
+
+    (a) List of Commands                                (m_cmdlist.txt)
+    (b) Command Descriptions                            (m_cmddesc.txt)
+    (c) Options                                         (m_options.txt)
+    (d) Inscriptions and Macros                         (insc-macro.txt)
+    (e) Preferences                                     (pref.txt)
+
+
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sensitivity 
+
+***** [a] m_cmdlist.txt
+***** [b] m_cmddesc.txt
+***** [c] m_options.txt
+***** [d] insc_macro.txt
+***** [e] pref.txt

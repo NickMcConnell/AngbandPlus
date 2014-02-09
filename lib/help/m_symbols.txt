@@ -1,0 +1,71 @@
+
+====== Symbols on your Map ======
+
+Special
+     @   The character
+
+Features that usually do not block line of sight
+     .   A floor space or soil            1   Entrance to General Store
+     .   A trap or rune (hidden)          2   Entrance to Armoury
+     ^   A trap or rune (known)           3   Entrance to Weapon Smith
+     ;   A glyph of warding               4   Entrance to Temple
+     '   An open door                     5   Entrance to Alchemy Shop
+     '   A broken door                    6   Entrance to Magic Shop
+     <   A staircase up         
+     >   A staircase down        
+  
+
+Features that usually block line of sight
+     #   A secret door                    #   A wall
+     +   A closed door                    %   A mineral vein
+     +   A locked door                    *   A mineral vein with treasure
+     +   A jammed door                    :   A pile of rubble
+    
+
+Objects
+     !   A potion (or flask)              /   A pole-arm
+     ?   A scroll (or book)               |   An edged weapon
+     ,   A mushroom (or food)             \   A hafted weapon
+     -   A wand                           }   A sling, bow, or x-bow
+     _   A staff                          {   A shot, arrow, or bolt
+     =   A ring                           (   Soft armour
+     "   An amulet                        [   Hard armour
+     $   Gold or gems                     ]   Misc. armour
+     ~   Light sources, Tools, Chests     )   A shield
+     &   (pile)
+
+Monsters
+     $   Creeping Coins                   ,   Mushroom Patch
+     !   Mimic (also ?)
+     a   Giant Ant                        A   Ant Lion
+     b   Giant Bat                        B   Balrog of Moria
+     c   Giant Centipede                  C   Gelatinous Cube
+     d   Dragon                           D   Ancient Dragon
+     e   Floating Eye                     E   Elemental/Spirits
+     f   Frogs                            F   FLying Insects
+     g   Golem                            G   Ghost
+     h   Harpies                          H   Humaniod
+     i   Icky-Thing                       I   (unused)
+     j   Jackals                          J   Jackals
+     k   Kobold                           K   Killer Beetle
+     l   Giant Louse                      L   Lich
+     m   Mold                             M   Mummies
+     n   Naga                             N   (unused)
+     o   Orc                              O   Oozes
+     p   People/Humanoid                  P   Giants
+     q   Quasits                          Q   Quylthulg (Pulsing Flesh Mound)
+     r   Rodent                           R   Snake
+     s   Skeleton                         S   Scorpion
+     t   Ticks                            T   Troll
+     u   (unused)                         U   Umber Hulk
+     v   (unused)                         V   Vampire
+     w   Worm or Worm Mass                W   Wight/Wraith
+     x   (unused)                         X   Xorn
+     y   Yeek                             Y   Yeti
+     z   Zombie/Mummy                     Z   (unused)
+
+     Any of these symbols may be changed using preference files, accessed using
+the command '=' followed by 'v'.  You may review what a symbol means by typing '/' or '~'.
+
+     Moria can also use graphics instead of text to display your surroundings;
+unfortunately, no convenient listing of them yet exists.

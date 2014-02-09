@@ -1,0 +1,250 @@
+
+====== Objects ======
+
+     The mines far below the surface are full of objects just waiting to be
+picked up and used.  The treasures of long-forgotten kingdoms, dragon's hordes,
+heirlooms, wizard's stashes, and the plunder from every age of the world unite
+with the scattered earthly possessions of all the foolish adventurers who died
+before you to offer unimaginable wealth for those bold enough to seize it.
+
+
+--- Learning about objects ---
+
+Learning about objects:
+     When you begin the game, most objects are unknown to you, and an important
+task is to learn more about them so that you can use them reliably.  The
+standard way to learn about an object is to identify it, but scrolls of Identify
+and Staffs of Perception are too expensive to use on everything.
+
+Full identification:
+     Some items have special powers.  Ego-item descriptions usually tell you
+everything.  You can also try using the object a lot and inscribing it.
+
+Scanning wargear automatically (Pseudo-ID):
+     Every so often, you automatically scan un-identified wargear (weapons and
+armour).  If you learn something, the item is inscribed.
+
+     Item description               weak sensing            strong sensing
+     average item:                  (item is identified)    (item is identified)
+     item with plusses              "good"                  "good"
+     ego-item (weapon of flame)     "good"                  "excellent"
+     cursed ego-item                "cursed"                "worthless"
+     cursed ordinary object         "cursed"                "cursed"
+
+
+--- Object information ---
+
+     'I'nspecting a specific object will pop up a special display that may tell
+you useful things about it.  If the item is fully identified, you see all of its
+attributes.
+     Known attributes of equipped items are displayed in the character screen
+display (type 'C' to bring up the character screen, then press '+/-' to cycle
+through the information).  This interface is helpful when you want to optimize
+your equipment.
+
+
+--- Inventory, quiver and equipment ---
+
+Your inventory (backpack), quiver, and equipment (your person):
+     You pick up objects by moving on top on them or staying still (if you have
+the "auto_pickup" option on), or by using various pickup commands.  You
+may carry up to 23 different items or piles of items,, and have 12 areas of your
+body where wearable equipment may go.  Press 'i', and you see the contents of
+your backpack; press 'e' and you see what you are wearing.  Both listings toggle
+open and closed when you press the space key.  
+     When choosing items, you switch between inventory and equipment by pressing
+'/', and switch between the floor and either of these two by pressing '-'.
+
+Burden:
+     Carry too much weight, and you will begin to slow down, making it easier
+for monsters to kill you.  The point at which your load thus hinders you depends
+on your strength.  You begin to slow down at 50% of your max carrying capacity.
+
+Floor items:
+     If objects are allowed to stack (which they are by default), up to 23
+objects or piles of objects may stack in a single floor grid.
+
+Quiver:
+     Your equipment also has a quiver, which may hold up to ten different kinds
+of ammo or throwing weapons. You have to 'w'ield your ammo and a proper missile 
+launcher in order to use the quiver. Ammo is shot with the 'f'ire command and 
+it's usually sorted like the inventory. The quiver occupies pack space and 
+every 99 missiles it will consume one inventory slot.
+     To speed up shooting, the game gives a pseudo-tag to each quiver slot.
+This pseudo-tag is shown before the ammo's name when you browse your equipment
+and usually appears as "f0", "f1", etc. When the 'f'ire command asks you to
+choose an ammo slot you can type the number which appears in the pseudo-tag
+instead of the slot label.
+     Ammo in NPPMoria is divided in three groups: ammo for crossbows, bows
+and slings. Each group has a different set of pseudo-tags, each one starting
+from "f0". This allows you to easily change your missile launcher without
+having to reorganize your quiver or reinscribe ammo.
+     Players who use macros will find this useful:
+You can give ammo a specific pseudo-tag by using inscriptions like {@1}, {@f1},
+{@f9}, etc. It means that the pseudo-tag will be fixed and it won't change when
+the quiver is reorganized (example: when you shot a whole stack of ammo or
+when you wield new ammo) Fixed pseudo-tags appears as "@f1", "@f7", etc.
+     Players who use the CTRL-V command (repeat last command) instead of macros
+to deal with shooting will note that the 'f'ire command is more careful now and
+it doesn't use the next slot automatically when a whole stack of ammo is shot.
+     You'll notice that ammo on the floor is automatically wielded if it has
+been fired from, or can be merged with ith existing ammo in the quiver. 
+     
+
+--- Object types ---
+
+Magical devices:
+     Wands and staves stack, and don't unstack when used.
+
+Chests:
+     Chests are difficult and dangerous to open, as they usually contain both
+traps and locks.  They can be safely opened after using a disarming spell 
+on them.  If you succeed, you may be rewarded handsomely.  Chests in
+NPPMoria are themed, ranging from large amounts of gold to all kinds of
+weapons and armor, and some of the most powerful items in the game.
+
+Scroll of Word of Recall:
+     The Scroll of Word of Recall deserves special mention.  Read in the
+dungeon, it brings you back to the town.  Read in the town, it takes you back to
+your previous recall depth.  This spell takes a little time to take effect, so
+don't expect it to save you in a crisis.  Should you mistakenly read a Scroll of
+Word of Recall, you may cancel it by reading another.
+     If you read this scroll above your current recall depth, you get a special
+message asking you if you want to reset it.  If you say yes, the level you are
+on becomes the new recall depth.
+
+Ego-Weapons and Armours:
+     Some rare weapons and armours have special abilities.  These are called ego
+items, and are feared by great and meek.
+
+
+--- Object enhancement ---
+
+     Weapons and armour may have bonuses to hit chance, damage, and armour
+class; it can be very useful indeed to increase these values by reading scrolls
+of Enchant Weapon and Enchant Armour.
+     - The higher the plusses are, the harder it is to raise them further.  It
+       is especially difficult to raise them above 9 or 10.
+     - The larger the pile of objects you try to enchant, the more likely it is
+       that you will fail.  However, ammunition is unusually easy to enchant.
+     - You can sometimes break curses on objects by enchanting them.
+
+
+--- Object destruction ---
+
+     Objects may be damaged or destroyed on the floor, in your backpack, and
+(sometimes) even damaged while you are wearing them.
+
+     - Acid destroys armour, weapons, missile launchers, ammunition, scrolls,
+       staffs, and chests.  It may damage equipped armour that does not ignore
+       acid.
+     - Electricity destroys rings, amulets, rods, and wands.
+     - Fire destroys torches, arrows, missile launchers, hafted weapons and
+       polearms, gloves, boots, cloaks, shields, soft body armour, spellbooks,
+       scrolls, staffs, and chests.
+     - Frost destroys potions and empty bottles.
+     - Equipped items with plusses can be disenchanted.
+     - Wands and staffs can be destroyed by failed recharges.
+
+
+--- Cursed Objects ---
+
+     Many cursed items exist in the Mines -- either left behind as the result of
+failed attempts to create magic items, or deliberately placed by gleeful evil
+sorcerers who enjoy a good joke when it gets you killed.
+     These horrible objects look perfectly innocent, but will detract from your
+character's stats or abilities if worn.  You cannot remove them without breaking
+the curse first.  In fact, some are so badly cursed that even this will not
+work, and more potent methods are needed.
+     If you wear or wield a cursed item, you will immediately feel deathly cold,
+and the item will be marked "cursed".
+     Shopkeepers will refuse to buy any item that is known to be cursed.
+
+
+====== Monsters ======
+
+
+Monsters are worth experience:
+     Defeat a monster, and you will gain experience.  The amount you gain
+depends on the base monster value, multiplied by its native depth, divided by
+your level.
+
+Your Monster Memory:
+     When you see a monster for the first time, all you know are its physical
+attributes and whatever information the monster description may provide.  As you
+fight and kill monsters, use various attacks on them, probe them with magic, and
+get killed by them, you learn more about their strengths and weaknesses.
+     You recall this memory in one of three ways:  'l'ooking at/e'x'amining the
+monster and then pressing 'r' for recall, or by pressing '/' and typing the
+monster's letter, or by pressing '~' and going to the monster knowlesge section.
+     Unlike object memory, monster memory can be passed on even after your
+character dies.  You may use menu commands or command-line options to open up a
+specific file that contains a character with a monster memory.
+
+The Monster Health Bar:
+     A good way to keep track of a specific monster is to target it.  When you
+do so, its health bar appears on the left side of the main screen, just below
+the hitpoint and mana indicators.  Similar health bars are also used when
+looking around and when displaying the closest monsters.
+The health bar uses several letter and colors to tell you more about the monster.
+Confused - "c", Stunned - "s", Sleeping - "z", and "* when
+the monster is none of the above.  Otherwise - green when healthy, and yellow,
+orange, and red when wounded, and if frightened - violet,.
+
+The Monster Mana Bar:
+     A good way to keep track of a specific monster's mana is to target it.  When
+you do so, its health bar appears on the left side of the main screen, just below
+the hitpoint and mana indicators.  Similar health bars are also used when
+looking around and when displaying the closest monsters.
+
+Monster attributes:
+     The special attributes of monsters can make all the difference to the
+danger they pose to you.  Some of the more interesting are listed and described.
+
+     - Hitpoints : Some monsters die easily, others can withstand almost
+       anything.
+     - Armour : Some monsters are easy to hit with melee blows or missiles,
+       others evade or block them quite often.
+     - Awareness : Some monsters will stay asleep even if you dance in front of
+       them, others are ever vigilant.  The distance that monsters can
+       perceive you (if you are not in line of sight) also varies greatly.
+     - Color : The color of a monster can be a valuable hint.
+     - Chromatic : Changes colors randomly.
+     - Invisible : Cannot be seen with normal sight.
+     - Warm-blooded : Some monsters can be seen with infravision, others can't.
+     - Telepathy : Some monsters are always visible with telepathy, others are
+       rarely visible, and others still never visible.
+     - Uses symbol : Appears exactly like whatever terrain it is on.
+     - Multiply : Monster breeds explosively.
+     - Drops : Monsters may drop anything from nothing at all to many excellent
+       objects.
+     - Experience : The experience you get from killing monsters varies greatly.
+     - Evasive: They can frequently dodge an attack at them.
+     - Bash Door : Most monsters (but not all) can either bash down or open
+       doors.  Everyone can close doors, and some characters can spike doors to
+       delay their foes.
+     - Pass Wall : Ghosts and some other creatures can float right through
+       ordinary walls.
+     - Hurt by ... : Monsters may be especially susceptible to light or rock
+       remover.
+     - Resistant to ... : Monsters can be especially resistant to any or all of
+       the elements or poison, or any of the esoteric magics.
+     - Cannot be ... : Monsters may be immune to fear, slowing, stunning,
+       sleeping, or confusion.
+     - Regenerate : Recovers battle damage unusually quickly.
+     - Spells : Monsters may fire physical missiles, breathe, cast spells to
+       hurt and hinder you, blink and teleport you and themselves, heal them-
+       selves, haste themselves or other monsters, summon more opponents,
+       and many other things!
+     - Casting speed : Be careful of monsters that cast spells very often,
+       especially if they also move quickly.
+     - Mana - monsters have mana limitations.  When they are out, they can't
+       cast most spells.  Note that the dangerous breath attacks do not use
+       any mana.
+     - Spell power - affects how much damage a monster spell does
+     - Smart : Monsters may be skilled at choosing spells, somewhat skilled, or
+       unskilled
+     - Blows : Monsters can do great damage and inflict nasty effects in melee.
+ 
+
+

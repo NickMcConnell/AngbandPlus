@@ -1,0 +1,32 @@
+# File: graf.prf
+
+#
+# This file defines special attr/char mappings for use in "graphics" mode
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+##### Standard font file #####
+
+%:font-xxx.prf
+
+
+##### System Specific Subfiles #####
+
+?:[EQU $SYS sdl]
+%:m_graf-sdl.prf
+
+?:[EQU $SYS gcu]
+%:graf-gcu.prf
+
+?:[EQU $SYS mac]
+%:m_graf-mac.prf
+
+?:[EQU $SYS win]
+%:m_graf-win.prf
+
+?:1
+

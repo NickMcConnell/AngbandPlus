@@ -1,0 +1,126 @@
+
+====== The Dungeon ======
+
+     All levels other than 0 (the town) lie within the dungeon.  Each level
+of the dungeon is fifty feet high, and is divided into rectangular regions
+(that range from small to several times larger than the screen) 
+by impenetrable walls.  Once you leave a
+level, you will never again find your way back to that region of that level, but
+there are an infinite number of other regions at that same depth that you can
+explore later.  Monsters move about just as you do, and you may see them again.
+
+
+--- Terrain ---
+
+Rubble:
+     Blocks movement, but is relatively easy to dig through.  Rubble may contain
+hidden objects.
+
+Permanent walls:
+     You can dig through most walls but some are impenetrable.  The dungeon is
+surrounded by these kinds of walls and some special rooms are made of them.
+
+Staircases:
+     Staircases allow your character to ascend or descend from one level to
+another, and are represented by white "<" (up) and ">" (down).  Each level has at
+least one up staircase, and two down staircases.  Otherwise, the staircases are 
+guaranteed, but they may be difficult to find.  Once you leave a level, 
+you can never return to it. Watch out for spells and traps that can suddenly 
+force you off the level.
+
+Secret doors:
+     Many secret doors exist in the dungeon, and may lead to anything from a new
+section of the dungeon level to an empty closet.  As your familiarity with the
+dungeon grows, you will know where many secret doors are likely to be.  Secret
+doors always look like granite until found.
+     You find secret doors by using the 's'earch command.  Many classes can
+also use magic and everyone can use the appropriate magical device.
+
+Traps:
+     Traps also await you in the dungeon.  They look like normal floor squares 
+until found, too often by your being caught by one.
+     You find traps by using the 's'earch command.  
+Many classes can also use magic and everyone can use the appropriate magical device.
+
+
+Rooms:
+     The Mines of Moria contain many kinds of rooms, including some that house
+many monsters, contain extraordinary items, or are filled with deadly
+traps.  
+
+Mining:
+     There is much treasure in the walls of the dungeon, just waiting for an
+industrious adventurer to come and dig it out.  Once you can afford it, and if
+you can handle the weight, bring a shovel or pick along.  Your ability to tunnel
+depends on strength, weapon weight, and any special digging bonus it provides.
+Your success depends on these factors and the strength of the wall:  granite is
+very hard, quartz is hard, magma is soft, and rubble is very soft.
+     As you get richer, the treasures in the wall won't seem so appealing
+anymore, but keep an item or spell of tunneling handy.
+
+
+
+--- Exploring ---
+
+Light:
+     Your character must have some source of light in order to see, unless the
+area around him is magically lit.  Depending on the items he has equipped, he
+may have a light radius of one (a torch), two (a lantern), or more, up to a
+rarely-attained maximum of five.  Never risk being without light.
+     A torch or lantern burns fuel, and may be refilled (use the 'F'uel command)
+with other torches or flasks of oil respectively.  It is rumoured that other
+light sources exist which never need replenishing.
+     In addition you may get access to spells which permanently light up areas
+of the dungeon; these can be truly handy, because a monster you can see coming
+is much less dangerous.
+
+Food and Regeneration:
+     Never risk being without food.  You must eat every so often in order to
+avoid starvation.  The speed at which you consume food depends on your race
+(trolls need to eat a lot) and the items you wear.
+     The speed at which you regenerate is doubled when you are resting (so rest
+in place instead of staying in place whenever possible), and is also affected by
+various object attributes and temporary conditions.
+
+Stealth:
+     The higher your stealth, and the further away you are, the less you disturb
+the rest of sleeping monsters.
+
+Searching and Detection:
+     There are two ways to find hidden areas of the dungeon, doors, traps,
+objects, and monsters; manual searching and magic.  At the beginning of the
+game, you find everything manually.  If you suspect the existence of secret
+doors or traps, press 's' to search the grids around you for one turn.  Later
+on, you get access to objects and spells that do this for you, and very handy
+they are.
+
+
+--- The Passage of Time ---
+
+     Both monsters and characters gain energy each turn and use it to perform
+actions.  Any creature that moves at normal speed gains 10 energy per game turn;
+any monster move and most character actions take 100 energy.  Some monsters move
+at double speed and you can too, if you quaff a Potion of Speed.  Actions still
+take the same amount of energy, but they and you gain twice the energy each
+turn.  Further down, monsters lurk that move even faster, and rare items exist
+that enable you to keep pace.  If you can, avoid being slower than your foes.
+
+An abbreviated speed-to-energy table:
+
+
+      -2      :  2
+      -1      :  5
+     normal   : 10
+      +1      : 20
+      +2      : 40
+      +3      : 80
+
+
+Regeneration and recovery:
+     Every 10 game turns, you regenerate some hitpoints and mana (unless you are
+ill or wounded), and get hurt by cuts and poison.  Temporary conditions count
+down, rods recharge, and light sources use fuel.  Every 100 game turns, you
+digest some food.  Every hundred thousand game turns equals one day; the town
+spends half that time in darkness and the other half in light.
+     Every time it takes a turn, every monster aware of you recovers from
+temporary conditions.  Every 100 game turns, they regenerate hitpoints.

@@ -21,7 +21,7 @@ You may start the entire process over at any time.
 Once you have accepted a character you will asked to provide a name for the
 character.  In general, the actual choice of a name is not important, but do
 keep in mind that it may have some effect on the game itself.  For example,
-on some machines, the chatacter name determines the filename that will be
+on some machines, the character name determines the filename that will be
 used to save the character to disk.  On others, the character name specifies
 special "pref" files.  And the character name is used on the high score list.
 
@@ -252,7 +252,7 @@ have intrinsic abilities.
 === Classes ===
  
  
-          Once a race has been chosen, you will need to pick one of seven 
+          Once a race has been chosen, you will need to pick one of eight 
           classes.  
  
           Warrior

@@ -1,6 +1,6 @@
 === Version Information ===
 
-This file was last updated for Angband 3.1.2. and NPPAngband 6.0.0
+This file was last updated for Angband 3.1.2. and NPPAngband/NPPMoria 7.0.0
 
 Make sure to read the newsgroup ("http://angband.oook.cz/"), and to visit
 
@@ -26,10 +26,8 @@ First came "VMS Moria", by Robert Alan Koeneke (1985).
 
 Then came "Umoria" (Unix Moria), by James E. Wilson (1989).
 
-Details about the history of the various flavors of "Moria", the direct
-ancestor to Angband, can be found elsewhere, and a note from Robert Alan
-Koeneke is included in this file.  Note that "Moria" has been ported to
-a variety of platforms, and has its own newsgroup, and its own fans.
+NPPMoria is based on the NPPAngband codebas, and Moria 5.5.2, maintained by 
+David Grabner. 
 
 In 1990, Alex Cutler and Andy Astrand, with the help of other students
 at the University of Warwick, created Angband 1.0, based on the existing

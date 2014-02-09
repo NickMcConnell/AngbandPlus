@@ -1,0 +1,90 @@
+# File: artifact.txt
+
+
+# This file is used to initialize the 'artifact' information for the NPPMoria game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# The artifact indexes are defined in 'defines.h', and must not be changed.
+
+
+# === Understanding artifact.txt ===
+
+# N: serial number : item name
+# I: tval : sval : pval
+# W: depth : rarity : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# F: flag | flag | etc
+# A: activation : recharge time : recharge time dice
+# D: Description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable.
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the item's value.
+
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'A' is for activation.  Activation is the effect the artifact
+# activates for. The recharge time calculates from the recharge time
+# plus a random value between 1 and the recharge time dice (if not 0).
+# If an activation is given then the artifact must also have the
+# ACTIVATE flag.
+
+# 'D' is for description. As many D: lines may be used as needed to get a
+# complete description of the artifact. The description will be shown
+# if an identified artifact is 'I'nspected.
+
+### IMPORTANT NOTES ###
+# (1.) Any changes or additions to the file will have influence on randarts
+# and may break savefile compatibility for old savegames with randarts.  If
+# using random artifacts, finish your existing game before making any
+# changes to the artifact.txt file at all.
+# (2.) Removing any artifact, or changing its 'base' type (as defined by
+# the tval and sval entries in the 'I:' line), will break savefile
+# compatibility for ALL savefiles.
+# (3.) Adding a new artifact, or changing the powers of existing ones, will
+# NOT affect savefile compatibility for games with the standard artifact set:
+# it is perfectly safe to do this. (If your new artifact is a new kind of
+# object, or a new one at the end of the file, you must also amend object.txt
+# or limits.txt.)
+
+# (4.) Accented characters may be used in an artifact's name or description.
+# Use the proper code, enclosed between square brackets, to enter an accented
+# character. For example: L['u]thien or L[uacute]thien are both valid ways to
+# get an acute accent on the u in Luthien. All valid codes can be found in
+# util.c.
+
+# Version stamp (required)
+
+V:7.0.0
+
+
+# Here is the list of 'Special' artifacts - The Phial
+
+
+# The Phial of Galadriel
+
+N:1:of Galadriel
+I:39:4:0
+W:3:3:10:10000
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
+F:INSTA_ART
+A:ILLUMINATION:10:10
+D:A small crystal phial, with the light of E["a]rendil's Star contained
+D: inside.  Its light is imperishable, and near it darkness cannot
+D: endure.
+

@@ -1,0 +1,26 @@
+# File: quest.txt
+
+# This file is used to initialize the "quest" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Note that you can either put in a monster index, OR a unique index.
+# Inserting both means that the unique index will be ignored.
+
+# Format:
+# N:<quest index>:<quest name>
+# W:<level>:<monster>:UNUSED:<number>
+
+# Version stamp (required)
+
+V:7.0.0
+
+# This slot for the adventurer's guild quests.  This must be 0, as it is hard coded in 
+# the source code
+N:0:Guild quest
+W:0:0:0:0
+
+N:1:Balrog
+W:50:279:0:1
+

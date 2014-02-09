@@ -1143,11 +1143,14 @@ static void quality_squelch_hook(int oid, void *db, const region *loc)
 	text_out("Use the ");
 	text_out_c(TERM_L_GREEN, "movement keys or mouse");
 	text_out(" to navigate.  Use  ");
-	text_out_c(TERM_L_GREEN, "ncvgwa");
+	if (game_mode == GAME_NPPMORIA) text_out_c(TERM_L_GREEN, "ncvgw");
+	else text_out_c(TERM_L_GREEN, "ncvgwa");
 	text_out(" to change the highlighted setting.  ");
-	text_out_c(TERM_L_GREEN, "NCVGWA" );
+	if (game_mode == GAME_NPPMORIA) text_out_c(TERM_L_GREEN, "NCVGW" );
+	else text_out_c(TERM_L_GREEN, "NCVGWA" );
 	text_out(" changes settings for all items.  For Rings and Amulets, only ");
-	text_out_c(TERM_L_GREEN, "nca");
+	if (game_mode == GAME_NPPMORIA) text_out_c(TERM_L_GREEN, "nc");
+	else text_out_c(TERM_L_GREEN, "nca");
 	text_out(" are applicable settings.");
 }
 
@@ -1168,9 +1171,81 @@ static void quality_display(menu_type *menu, int oid, bool cursor, int row, int 
 
 }
 
+
+/* Increase or decrease the squelch quality level by one for moria objects (no artifacts) */
+static void change_squelch_level_moria(int index, int change)
+{
+	/* only allowable options to be toggled through*/
+
+	/*first do the rings and amulets*/
+	if ((index == PS_TYPE_AMULET) || (index == PS_TYPE_RING))
+	{
+		/*
+		 * Move up to the next squelch setting, or go back down to the lowest setting if
+		 * we are at the top.
+		 */
+		if (squelch_level[index] == SQUELCH_NONE) squelch_level[index] = SQUELCH_CURSED;
+		else squelch_level[index] = SQUELCH_NONE;
+	}
+
+
+	/*
+	 * Move up to the next squelch setting, or go back down to the lowest setting if
+	 * we are at the top.
+	 */
+	else if (change > 0)
+	{
+		/* Weak Pseudo ID */
+
+		if (!(cp_ptr->flags & (CF_PSEUDO_ID_HEAVY)))
+		{
+			if (squelch_level[index] == SQUELCH_GOOD_STRONG) squelch_level[index] = SQUELCH_NONE;
+			else if (squelch_level[index] == SQUELCH_AVERAGE) squelch_level[index] = SQUELCH_GOOD_WEAK;
+			else if (squelch_level[index] == SQUELCH_GOOD_WEAK) squelch_level[index] = SQUELCH_GOOD_STRONG;
+			else squelch_level[index]++;
+
+			return;
+		}
+		/* Strong Pseudo ID */
+		else
+		{
+			if (squelch_level[index] == SQUELCH_GOOD_STRONG) squelch_level[index] = SQUELCH_NONE;
+			else squelch_level[index]++;
+		}
+	}
+	else /* (change <=0) */
+	{
+
+		/* Weak Pseudo ID */
+		if (!(cp_ptr->flags & (CF_PSEUDO_ID_HEAVY)))
+		{
+			if (squelch_level[index] == SQUELCH_GOOD_STRONG) squelch_level[index] = SQUELCH_GOOD_WEAK;
+			else if (squelch_level[index] == SQUELCH_GOOD_WEAK) squelch_level[index] = SQUELCH_AVERAGE;
+			else if (squelch_level[index] == SQUELCH_NONE) squelch_level[index] = SQUELCH_GOOD_STRONG;
+			else squelch_level[index]--;
+		}
+		else
+		{
+			/* Strong Pseudo ID */
+			if (squelch_level[index] == SQUELCH_NONE) squelch_level[index] = SQUELCH_GOOD_STRONG;
+			else squelch_level[index]--;
+		}
+	}
+
+	return;
+}
+
+
 /* Increase or decrease the squelch quality level by one */
 static void change_squelch_level(int index, int change)
 {
+	/* Slightly different handling for Moria */
+	if (game_mode == GAME_NPPMORIA)
+	{
+		change_squelch_level_moria(index, change);
+		return;
+	}
+
 	/* only allowable  options to be toggled through*/
 
 	/*first do the rings and amulets*/
@@ -1198,6 +1273,7 @@ static void change_squelch_level(int index, int change)
 	/* Everything else*/
 	else
 	{
+
 		/*
 		 * Move up to the next squelch setting, or go back down to the lowest setting if
 		 * we are at the top.
@@ -1231,6 +1307,12 @@ static bool quality_action(char cmd, void *db, int oid)
 	int i;
 
 	(void)db;
+
+	if (game_mode == GAME_NPPMORIA)
+	{
+		if (cmd == 'a') cmd = 'w';
+		else if (cmd == 'A') cmd = 'W';
+	}
 
 	/* Analyze */
 	switch (cmd)
@@ -1379,7 +1461,9 @@ static void quality_menu(void *unused, const char *also_unused)
 	/* Set up the menu */
 	WIPE(&menu, menu);
 
-	menu.cmd_keys = "nNcCvVgGwWaA+-\n\r";
+	if (game_mode == GAME_NPPMORIA) menu.cmd_keys = "nNcCvVgGwW+-\n\r";
+	else menu.cmd_keys = "nNcCvVgGwWaA+-\n\r";
+
 	menu.selections = "bdefhijklmopqrstuwxyz";
 	menu.browse_hook = quality_squelch_hook;
 	menu.count = PS_TYPE_MAX;
@@ -1402,7 +1486,7 @@ static void quality_menu(void *unused, const char *also_unused)
 			if (!(cp_ptr->flags & (CF_PSEUDO_ID_HEAVY)))	button_add("SQ_WEAK|", 'w');
 			button_add("SQ_GOOD|", 'g');
 		}
-		button_add("SQ_GREAT", 'a');
+		if (game_mode != GAME_NPPMORIA) button_add("SQ_GREAT", 'a');
 		button_add("[+]", '+');
 		button_add("[-]", '-');
 		event_signal(EVENT_MOUSEBUTTONS);

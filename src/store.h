@@ -10,6 +10,8 @@
  */
 #define MAX_STORES	10
 
+#define MAX_STORES_MORIA	6
+
 /*
  * Total number of stores (see "store.c", etc)
  */

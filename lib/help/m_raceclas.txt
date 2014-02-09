@@ -1,0 +1,202 @@
+
+====== Races ======
+
+     There are eleven different races that you may choose among, representing
+most of the speaking peoples found in Tolkien's books, plus Gnomes and Kobolds.
+Races differ in vital statistics, and tend to be better at some abilities than
+at others.
+     Good races for new players are Dunedain and High-Elves (powerful but slow
+at gaining levels), and Elves and Dwarves (good abilities, not too slow at
+gaining levels).
+
+***** <Human>
+Human:
+     A flexible and adaptive race, humans are found all over Middle-Earth, from
+desert Harad to icy Horodwaith.  They have no special adjustments to stats, and
+no special strengths or weaknesses.  This, combined with their solid hitpoints,
+makes them flexible but not powerful adventurers.  They probably get the best
+prices in stores, on average.  Humans may choose any class.
+
+***** <Half-Elf>
+Half-Elf:
+     The descendants of Elves and Humans, Half-elves are more intelligent and
+dexterous than humans, and are slightly better at many abilities, but are not so
+strong, tough, or good at melee.  Half-elves sustain dexterity inherently, and
+have some infravision.
+
+***** <Elf>
+Elf:
+     Known as the Elder Race, and as the First-Born, Elves are famed for their
+knowledge and craftsmanship.  They are somewhat weaker, less wise, and less
+robust than humans, but have superior intelligence and strong magical abilities.
+They are fond of bows, somewhat weak in melee, and have some infravision.  They
+sustain dexterity and resist light inherently.  
+
+***** <Halfling>
+Hobbit:
+     Hobbits are shy, retiring folk with enough good sense to share.  
+Although they are weak, have perilously few hitpoints, and are very poor at melee, 
+all of their other abilities are extraordinary.  Hobbits are highly intelligent, 
+dexterous, and hardy, have innate infravision, and resist attacks on 
+their life force.  
+
+***** <Gnome>
+Gnome:
+     Gnomes are the pudgy pranksters of the dungeon; if they can kill something
+in a humorous way, so much the better.  They may be small and ugly, but can
+outbargain and outwit just about anyone.  They are among the frailer races, and
+not powerful in combat, but have solid basic abilities, are highly intelligent
+and dexterous, have innate infravision, and -- most importantly -- are immune to
+paralyzation.
+
+***** <Dwarf>
+Dwarf:
+     Dwarves are the headstrong miners and fighters of legend.  They are strong,
+wise, tough, and have pretty good basic skills; although not very good at
+casting spells, they make excellent priests.  Dwarves are quite good at melee
+combat, have innate infravision, and -- a major advantage -- can never be
+blinded.  They do have one big drawback, though:  Dwarves are loudmouthed and
+proud, singing in loud voices, arguing with themselves for no good reason,
+screaming out challenges at imagined foes.  In other words, dwarves have a
+miserable stealth.
+
+***** <Half-Orc>
+Half-Orc:
+     The bastard offspring of humans and orcs, half-orcs are ugly, strong, and
+have very bad attitudes.  Their magic is a little suspect, as are most of their
+skills, but they know how to fight and can take as much damage as they dish out.
+Most other races dislike them and so they have a hard time in stores.  Half-orcs
+have innate infravision and, like orcs themselves, resist darkness and its
+effects.
+
+***** <Half-Troll>
+Half-Troll:
+     Half-trolls are built like blocks of granite; no other race can match their
+strength or recover hitpoints as quickly.  Their hand-to-hand combat prowess is
+fearsome and they are amazingly tough.  Unfortunately, they do poorly at almost
+everything else, are very noisy, need to eat a lot, and have a hard time in
+stores.  Half-trolls will be bad at anything that requires heavy thinking.  They
+have innate infravision and always have their strength sustained.  
+
+
+====== Classes ======
+
+     Your choice of class makes all the difference to how the game plays.  They
+vary greatly in toughness, combat and magic power, and ability to notice,
+detect, and avoid things.  Some suggested classes for new players are warriors
+and paladins.
+
+***** <Warrior>
+Warrior:
+     A hack-and-slash character who solves most of his problems by cutting them
+to pieces.  He is unchallengeable with melee weapons, and is also good with all
+missile launchers.  He becomes resistant to fear at level 30, and gets an extra
+attack at level 26.  Although a warrior gets a lot of hitpoints, he is 
+poor at the dungeon survival skills, vulnerable to magic, and suffers greatly 
+from his ignorance of spells and many magical devices.  He gets fast, detailed 
+feelings on weapons and armour (pseudo-ID).
+
+***** <Mage>
+Mage:
+     A Mage must live by his wits.  He cannot hope to simply hack his way
+through the dungeon, and so must therefore use his magic to defeat, deceive,
+baffle, and escape.  A mage excels in the use of magical devices, and finds them
+very handy when his mana runs low.  He has excellent magical defences, but
+dangerously poor physical ones.  He has almost no chance of sensing wargear.
+There is no rule that says a mage cannot become a good fighter, but spells are
+his true realm.  Intelligence is his spell stat.
+
+***** <Priest>
+Priest:
+     Covenanted with a mighty and generous god.  He explores the dungeon only to
+cleanse the evil that lurks within, and if treasure just happens to fall into
+his pack, well, so much more to the glory of the Church!  A Priest is familiar
+with magical devices, preferring to call them "Instruments of God", but is not
+as good as a mage in their use.  A priest can be a decent fighter, especially
+when sanctified, but only with blunt or blessed weapons.  Unblessed edged
+weapons (swords and polearms) violate the Church's strictures about shedding
+blood, and wielding one will hurt his ability to pray successfully.  A Priest
+has fast but weak pseudo-ID.  Wisdom is his prayer stat.
+
+***** <Rogue>
+Rogue:
+     A Rogue is a character that prefers to live by his cunning, but is capable
+of fighting his way out of a tight spot.  He is a master of traps and locks, no
+device being impossible for him to overcome, and his stealth often lets him
+choose his fights.  A rogue's perception is higher than that of any other class,
+and ofttimes he will notice a trap or secret door without having to search.
+Rogues can also learn a few spells, but not the powerful offensive magic mages
+wield.  A rogue has moderately fast, detailed pseudo-ID.  Intelligence is his
+spell stat.  The 'P' command allows a rogue to attempt to steal from 
+monsters, and the 'O' command can set traps for unsuspecting monsters.  
+As the brigand gains levels, he can create an increasing variety of traps by 
+using the 'O' command on an existing monster trap.  He is exceptionally gifted 
+with a sling, and gets an extra shot with a sling when he reaches level 26.
+
+***** <Ranger>
+Ranger:
+     The greatest of bowsmen, capable of eventually firing a bow twice as 
+fast than most.  He can also hold his own in melee, and has some useful
+spells to aid him in need; rangers have many talents.  His dungeon survival
+skills are better than average.  A ranger has average-speed, weak pseudo-ID.
+Intelligence is his spell stat.  He gets an extra show with a bow at level
+26.
+
+
+
+====== Modifier Tables ======
+
+Vital statistics:
+
+                  STR  INT  WIS  DEX  CON  CHR  HD (base)   XP/level  Infra
+      Human        0    0    0    0    0    0      10          +0%    None
+      Half-Elf     1   +1    0   +1   -1   +1       9         +10%   20 feet
+      Elf         -1   +2   +1   +1   -2   +1       8         +20%   30 feet
+      Halfling    -2   +2   +1   +3   +1   +1       7         +10%   40 feet
+      Gnome       -1   +2    0   +2   +1   -2       8         +25%   40 feet
+      Dwarf       +2   -3   +1   -2   +2   -3      11         +20%   50 feet
+      Half-Orc    +2   -1    0    0   +1   -4      10         +10%   30 feet
+      Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%   30 feet
+  
+                  STR  INT  WIS  DEX  CON  CHR  HD (bonus)  XP/level
+      Warrior     +5   -2   -2   +2   +2   -1       9          +0%
+      Mage        -5   +3    0   +1   -2   +1       0         +30%
+      Priest      -3   -3   +3   -1    0   +2       2         +20%
+      Rogue       +2   +1   -2   +3   +1   -1       6          +0%
+      Ranger      +2   +2    0   +1   +1   +1       4         +40%
+      Paladin     +3   -3   +1    0   +2   +2       6         +35%
+
+     To get the total hit dice and experience modifier, add the race and class
+numbers together.  For example:  A Dwarven Priest has a hit die of 11 + 2 = 13,
+so will get 1d13 extra hit points per level before constitution bonuses.  He has
+an experience modifier of 20% + 20% = 40%, so will take 40% more experience to
+advance than a human warrior.
+
+
+Abilities:
+
+             Disarm  Device   Save  Stealth  Search  Percep   Fight   Bows 
+  Human         0       0       0       0       0       0       0       0
+  Half-Elf      2       3       3       1       6      -1      -1      5
+  Elf           5       6       6       1       8      -2      -5      15
+  Halfling     15      18      18       4      12      -5     -10      20
+  Gnome        10      12      12       3       6      -3      -8      12
+  Dwarf         2       9       9      -1       7       0      15       0
+  Half-Orc     -3      -3      -3      -1       0       7      12      -5
+  Half-Troll   -5      -8      -8      -2      -1       5      20     -10
+
+ 
+             Disarm  Device   Save  Stealth  Search  Percep   Fight   Bows 
+ 
+  Warrior    25(+2)  18(+2)   18(+3)   1      14      38      70(+4)  55(+4)
+  Mage       30(+3)  36(+4)   36(+3)   2      16      20      34(+2)  20(+2)
+  Priest     25(+3)  30(+4)   30(+3)   2      16      32      48(+3)  35(+3)
+  Rogue      45(+4)  32(+3)   30(+3)   5      32      16      60(+4)  66(+3)
+  Ranger     30(+3)  32(+3)   30(+3)   3      24      24      56(+3)  72(+3)
+  Paladin    20(+3)  24(+2)   24(+3)   1      12      38      68(+3)  40(+3)
+
+     Value for classes are starting ability - final ability.  Note that prayers
+and spells can improve many of these skills dramatically.
+     Melee blows:  All classes can get up to 4 blows.  Warriors get an additional
+blow at level 26, for a max of 5 blows.
+

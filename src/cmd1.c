@@ -58,7 +58,7 @@ void search(void)
 					 !feat_ff1_match(feat, FF1_MOVE)))
 				{
 					find_secret(y, x);
-		   		}
+				}
 
 				/* Find hidden player traps */
 				if (cave_player_trap_bold(y, x))
@@ -117,6 +117,7 @@ void search(void)
 	}
 }
 
+
 /*
  * Helper function for do_cmd_pickup_from_pile.
  * Counts the number of objects that could be picked up.
@@ -159,8 +160,6 @@ static int count_possible_pickups(void)
 	if (num_items <= max_pickups) return (num_items);
 	/*else*/
 	return (max_pickups);
-
-
 }
 
 
@@ -190,6 +189,7 @@ static bool auto_pickup_inscrip(const object_type *o_ptr)
 	/* Don't auto pickup */
 	return (FALSE);
 }
+
 
 /*
  * Add an object to the inventory.
@@ -221,7 +221,7 @@ static bool put_object_in_quiver(object_type *o_ptr)
 	/* Try to put the quiver in the slot */
 	slot = quiver_carry(o_ptr);
 
-	/* Unsucessful */
+	/* Unsuccessful */
 	if (slot == -1) return (FALSE);
 
 	/* Get the object again */
@@ -259,8 +259,8 @@ static bool put_object_in_quiver(object_type *o_ptr)
 	handle_stuff();
 
 	return (TRUE);
-
 }
+
 
 /*
  * Add an object to the inventory.
@@ -467,8 +467,8 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 	/* Just be sure all inventory management is done. */
 	notice_stuff();
 	handle_stuff();
-
 }
+
 
 void py_pickup_gold(void)
 {
@@ -524,6 +524,7 @@ void py_pickup_gold(void)
 	return;
 }
 
+
 /*
  * Handle picking up objects from a given square.
  * First anything marked always squelch is destroyed.
@@ -533,9 +534,8 @@ void py_pickup_gold(void)
  *
  * The function stops at that point if pickup is false.
  *
- * This function has been re-writtten to be more linear,
- * and it sacrifices efficiency for clarity and flexability.
- *
+ * This function has been re-written to be more linear,
+ * and it sacrifices efficiency for clarity and flexibility.
  *
  */
 void py_pickup(bool pickup)
@@ -719,10 +719,8 @@ void py_pickup(bool pickup)
 			/* Put it in the quiver */
 			if (put_object_in_inventory(o_ptr))
 			{
-
 				/* Delete the object */
 				delete_object_idx(this_o_idx);
-
 			}
 		}
 	}
@@ -779,9 +777,7 @@ void py_pickup(bool pickup)
 	}
 
 	/* Done */
-
 }
-
 
 
 /*
@@ -949,7 +945,6 @@ s16b move_player(int dir, int jumping)
 			light_spot(y, x);
 		}
 
-
 		/* Get the feature name */
 		feature_desc(name, sizeof(name), feat, TRUE, TRUE);
 
@@ -1029,7 +1024,7 @@ s16b move_player(int dir, int jumping)
 
 		/* Spontaneous Searching */
 		if ((p_ptr->state.skills[SKILL_SEARCH_FREQUENCY] >= 50) ||
-		    (0 == rand_int(50 - p_ptr->state.skills[SKILL_SEARCH_FREQUENCY])))
+			(0 == rand_int(50 - p_ptr->state.skills[SKILL_SEARCH_FREQUENCY])))
 		{
 			search();
 		}
@@ -1061,7 +1056,6 @@ s16b move_player(int dir, int jumping)
 		{
 			/* Hit the trap */
  			hit_trap(x_list[cave_x_idx[p_ptr->py][p_ptr->px]].x_f_idx, y, x, MODE_ACTION);
-
 		}
 
 		/* Discover secrets */
@@ -1079,7 +1073,7 @@ s16b move_player(int dir, int jumping)
 
 		/* Reveal when you are on shallow or deep  terrain */
 		else if (!(cave_info[y][x] & (CAVE_MARK)) &&
-		     _feat_ff3_match(f_ptr, FF2_SHALLOW | FF2_DEEP))
+				_feat_ff3_match(f_ptr, FF2_SHALLOW | FF2_DEEP))
 		{
 			/* Get the name */
 			feature_desc(name, sizeof(name), f_ptr - f_info,
@@ -1103,6 +1097,4 @@ s16b move_player(int dir, int jumping)
 
 	return (used_energy);
 }
-
-
 

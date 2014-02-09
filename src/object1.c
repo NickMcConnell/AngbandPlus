@@ -186,7 +186,7 @@ static const char *obj_desc_get_basename(const object_type *o_ptr, bool aware)
  * in the place indicated by '~' if required, or using alterate...
  */
 static size_t obj_desc_name(char *buf, size_t max, size_t end,
-		const object_type *o_ptr, bool prefix, odesc_detail_t mode,
+		const object_type *o_ptr, bool prefix, byte mode,
 		bool spoil)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -716,7 +716,7 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
 	else if (o_ptr->discount > 0)
 	{
 		char buf[80];
-		my_strcpy(buf, format("%d%% off", o_ptr->discount), sizeof(buf));
+		my_strcpy(buf, format("%d pct off", o_ptr->discount), sizeof(buf));
 
 		u[n++] = buf;
 	}
@@ -771,7 +771,7 @@ static size_t obj_desc_inscrip(const object_type *o_ptr, char *buf, size_t max, 
  *
  * \returns The number of bytes used of the buffer.
  */
-size_t object_desc(char *buf, size_t max, const object_type *o_ptr, odesc_detail_t mode)
+size_t object_desc(char *buf, size_t max, const object_type *o_ptr, byte mode)
 {
 	bool prefix = mode & ODESC_PREFIX;
 	bool spoil = (mode & ODESC_SPOIL);

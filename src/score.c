@@ -86,7 +86,8 @@ static size_t highscore_read(high_score scores[], size_t sz)
 	/* Wipe current scores */
 	C_WIPE(scores, sz, high_score);
 
-	path_build(fname, sizeof(fname), ANGBAND_DIR_APEX, "scores.raw");
+	if(game_mode == GAME_NPPMORIA) path_build(fname, sizeof(fname), ANGBAND_DIR_APEX, "m_scores.raw");
+	else path_build(fname, sizeof(fname), ANGBAND_DIR_APEX, "scores.raw");
 	scorefile = file_open(fname, MODE_READ, -1);
 
 	if (!scorefile) return TRUE;
@@ -165,11 +166,21 @@ static void highscore_write(const high_score scores[], size_t sz)
 	char new_name[1024];
 	char lok_name[1024];
 
-	path_build(old_name, sizeof(old_name), ANGBAND_DIR_APEX, "scores.old");
-	path_build(cur_name, sizeof(cur_name), ANGBAND_DIR_APEX, "scores.raw");
-	path_build(new_name, sizeof(new_name), ANGBAND_DIR_APEX, "scores.new");
-	path_build(lok_name, sizeof(lok_name), ANGBAND_DIR_APEX, "scores.lok");
-
+	if(game_mode == GAME_NPPMORIA)
+	{
+		path_build(old_name, sizeof(old_name), ANGBAND_DIR_APEX, "m_scores.old");
+		path_build(cur_name, sizeof(cur_name), ANGBAND_DIR_APEX, "m_scores.raw");
+		path_build(new_name, sizeof(new_name), ANGBAND_DIR_APEX, "m_scores.new");
+		path_build(lok_name, sizeof(lok_name), ANGBAND_DIR_APEX, "m_scores.lok"
+				"scores.lok");
+	}
+	else
+	{
+		path_build(old_name, sizeof(old_name), ANGBAND_DIR_APEX, "scores.old");
+		path_build(cur_name, sizeof(cur_name), ANGBAND_DIR_APEX, "scores.raw");
+		path_build(new_name, sizeof(new_name), ANGBAND_DIR_APEX, "scores.new");
+		path_build(lok_name, sizeof(lok_name), ANGBAND_DIR_APEX, "scores.lok");
+	}
 
 	/* Read in and add new score */
 	n = highscore_count(scores, sz);
@@ -251,7 +262,6 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 	if (to < 0) to = 10;
 	if (to > MAX_HISCORES) to = MAX_HISCORES;
 
-
 	/* Hack -- Count the high scores */
 	for (count = 0; count < MAX_HISCORES; count++)
 	{
@@ -275,12 +285,11 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 		Term_clear();
 
 		/* Title */
-		put_str(format("%s Hall of Fame", VERSION_NAME), 0, 26);
+		put_str(format("%s Hall of Fame", VERSION_MODE_NAME), 0, 26);
 
 		/* Indicate non-top scores */
 		if (k > 0)
 			put_str(format("(from position %d)", place), 0, 40);
-
 
 		/* Dump 5 entries */
 		for (n = 0; j < count && n < 5; place++, j++, n++)
@@ -338,7 +347,6 @@ static void display_scores_aux(const high_score scores[], int from, int to, int 
 
 			/* Dump the info */
 			c_put_str(attr, out_val, n*4 + 3, 15);
-
 
 			/* Clean up standard encoded form of "when" */
 			if ((*when == '@') && strlen(when) == 9)
@@ -479,15 +487,17 @@ void predict_score(void)
 
 	high_score scores[MAX_HISCORES];
 
-
 	/* Read scores, place current score */
 	highscore_read(scores, N_ELEMENTS(scores));
 	build_score(&the_score, "nobody (yet!)", NULL);
 
 	if (p_ptr->is_dead)
 		j = highscore_where(&the_score, scores, N_ELEMENTS(scores));
-	else
+	else if (!(p_ptr->noscore & (NOSCORE_WIZARD | NOSCORE_DEBUG)))
+	{
 		j = highscore_add(&the_score, scores, N_ELEMENTS(scores));
+	}
+	else j = highscore_count(&the_score, N_ELEMENTS(scores));
 
 	/* Hack -- Display the top fifteen scores */
 	if (j < 10)

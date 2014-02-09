@@ -55,14 +55,15 @@
 /*
  * Maximum number of players spells
  */
-#define PY_MAX_SPELLS 66
+#define PY_MAX_SPELLS 74
 
 /*
  * Number of spells per book
  */
 #define SPELLS_PER_BOOK 9
 
-#define BOOKS_PER_REALM 9
+#define BOOKS_PER_REALM_MORIA 	4
+#define BOOKS_PER_REALM_ANGBAND 9
 #define MAGE_REALM		0
 #define PRIEST_REALM	1
 #define DRUID_REALM		2
@@ -77,6 +78,21 @@
 		((cp_ptr->spell_book == TV_DRUID_BOOK) ? \
 		 ((p_ptr->state.stat_ind[A_INT] + p_ptr->state.stat_ind[A_WIS]) / 2) : \
 		 ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? p_ptr->state.stat_ind[A_INT] : p_ptr->state.stat_ind[A_WIS]))
+
+/*Define the spell stat for the various classes (Note, can't handle druids) */
+#define MORIA_SPELL_STAT ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? A_INT : A_WIS)
+
+#define MORIA_MAX_CLASS		6
+#define MORIA_MAX_LEV_ADJ	7
+#define MORIA_MAX_STR_ADJ	7
+#define MORIA_MAX_DEX_ADJ	6
+
+/* class level adjustment constants */
+#define MORIA_CLA_BTH		0
+#define MORIA_CLA_BTHB		1
+#define MORIA_CLA_DEVICE	2
+#define MORIA_CLA_DISARM	3
+#define MORIA_CLA_SAVE		4
 
 
 /*Magic for Beginners*/
@@ -99,7 +115,7 @@
 #define SPELL_TELEPORT_SELF             14
 #define SPELL_SPEAR_OF_LIGHT            15
 #define SPELL_ICE_BOLT                  16
-#define SPELL_WAIL_OF_THE_BANSHEE	65
+#define SPELL_WAIL_OF_THE_BANSHEE		65
 
 /* Incantations and Illusions */
 #define SPELL_SATISFY_HUNGER            18
@@ -154,6 +170,7 @@
 #define SPELL_ELEMENTAL_BRAND           55
 
 
+
 /* Kelek's Grimoire of Power */
 #define SPELL_EARTHQUAKE                56
 #define SPELL_BEDLAM                    57
@@ -163,6 +180,17 @@
 #define SPELL_DARKNESS_STORM            61
 #define SPELL_MANA_BOLT                 62
 #define SPELL_MANA_STORM                63
+
+
+/* Moria Mage Spells */
+#define SPELL_REMOVE_CURSE				66
+#define SPELL_FROST_BOLT				67
+#define SPELL_CREATE_FOOD				68
+#define SPELL_SLEEP_II					69
+#define SPELL_FIRE_BOLT					70
+#define SPELL_FROST_BALL				71
+#define SPELL_FIRE_BALL					72
+#define SPELL_LIGHTNING_BOLT			73
 
 
 /* Beginners Handbook */
@@ -224,7 +252,7 @@
 #define PRAYER_DISPEL_EVIL2            42
 #define PRAYER_BANISH_EVIL             43
 #define PRAYER_WORD_OF_DESTRUCTION     44
-#define PRAYER_JUDGEMENT_OF_MANDOS      45
+#define PRAYER_JUDGEMENT_OF_MANDOS     45
 
 /* Holy Infusions */
 #define PRAYER_UNBARRING_WAYS          46
@@ -241,6 +269,14 @@
 #define PRAYER_TELEPORT_LEVEL          55
 #define PRAYER_WORD_OF_RECALL          56
 #define PRAYER_ALTER_REALITY           57
+
+/* Moria Priest Spells */
+#define PRAYER_FIND_TRAPS				59
+#define PRAYER_DETECT_DOORS_STAIRS		60
+#define PRAYER_CONFUSE_MONSTER				61
+#define PRAYER_CREATE_FOOD				62
+#define PRAYER_DISPEL_UNDEAD			63
+
 
 
 /* Call of the Wild */
@@ -338,7 +374,9 @@
  */
 #define PY_MAX_EXP	99999999L	/* Maximum exp */
 #define PY_MAX_GOLD	999999999L	/* Maximum gold */
-#define PY_MAX_LEVEL	50		/* Maximum level */
+#define PY_MAX_LEVEL		50		/* Maximum level */
+#define PY_MAX_LEVEL_MORIA	40		/* Maximum level */
+
 
 /*
  * Player "food" crucial values
@@ -429,6 +467,9 @@
  */
 #define INVEN_TOTAL		36
 
+/* Used for the swap_weapons option */
+#define INVEN_MAIN_WEAPON	INVEN_WIELD
+#define INVEN_SWAP_WEAPON	INVEN_BOW
 
 /*
  *Quiver
@@ -822,6 +863,11 @@ enum
 #define player_on_guild_quest_level() \
        ((q_info[GUILD_QUEST_SLOT].base_level == p_ptr->depth) && \
     	(guild_quest_level()))
+
+#define NPPMORIA_LOWEST_SPEED	9
+#define NPPMORIA_MAX_SPEED		14
+#define NPPMORIA_NORMAL_SPEED	11
+#define STANDARD_ENERGY_GAIN	10
 
 #endif /*INCLUDED_PLAYER_H*/
 

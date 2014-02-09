@@ -18,11 +18,125 @@
  */
 
 #include "angband.h"
-
+#include "ui.h"
+#include "ui-menu.h"
 #include "init.h"
 #include "cmds.h"
 #include "game-event.h"
 #include "game-cmd.h"
+
+/* We are going to play NPPAngband*/
+static void cmd_game_nppangband(void *unused)
+{
+	game_mode = GAME_NPPANGBAND;
+}
+
+/* We are going to play NPPMoria*/
+static void cmd_game_nppmoria(void *unused)
+{
+	game_mode = GAME_NPPMORIA;
+}
+
+
+/* Extra options on the "item options" menu */
+struct
+{
+	char tag;
+	const char *name;
+	void (*action)(void *unused);
+} game_mode_menu[] =
+{
+	{ '1', "Play NPPAngband", cmd_game_nppangband },
+	{ '2', "Play NPPMoria", cmd_game_nppmoria },
+};
+
+static char tag_game_mode_item(menu_type *menu, int oid)
+{
+	size_t line = (size_t) oid;
+
+	if (line < N_ELEMENTS(game_mode_menu)) return game_mode_menu[line].tag;
+
+	return 0;
+}
+
+static int valid_game_mode_item(menu_type *menu, int oid)
+{
+	size_t line = (size_t) oid;
+
+	if (line < N_ELEMENTS(game_mode_menu))
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+static void display_game_mode_item(menu_type *menu, int oid, bool cursor, int row, int col, int width)
+{
+	size_t line = (size_t) oid;
+
+	c_prt(TERM_WHITE, game_mode_menu[line].name, row, col);
+}
+
+
+/*
+ * Have the player decide, before the game is started, if they are playing NPP Moria or NPPAngband
+ */
+static void get_game_mode(void)
+{
+	int cursor = 0;
+	ui_event_data c = EVENT_EMPTY;
+	const char cmd_keys[] = { ARROW_LEFT, ARROW_RIGHT, '\0' };
+	menu_type menu;
+	menu_iter menu_f = { tag_game_mode_item , valid_game_mode_item, display_game_mode_item, NULL};
+
+	WIPE(&menu, menu_type);
+	menu.cmd_keys = cmd_keys;
+	menu.title = "Please select a game to play.";
+	menu.count = N_ELEMENTS(game_mode_menu),
+	menu_init(&menu, MN_SKIN_SCROLL, &menu_f, &SCREEN_REGION);
+
+	/* Start with a blank screen */
+	game_mode = 0;
+
+	while (game_mode == 0)
+	{
+		clear_from(0);
+
+		c = menu_select(&menu, &cursor, 0);
+
+		if (c.type == EVT_SELECT)
+		{
+			if ((size_t) cursor < N_ELEMENTS(game_mode_menu))
+			{
+				game_mode_menu[cursor].action(NULL);
+			}
+		}
+	}
+
+	/* Clear the screen */
+	clear_from(0);
+}
+
+/* We are going to play NPPAngband*/
+static void init_nppangband(void)
+{
+	z_info->max_level = 50;
+	z_info->max_titles = z_info->max_level  / 5;
+}
+
+/* We are going to play NPPMoria*/
+static void init_nppmoria(void)
+{
+	z_info->max_level = z_info->max_titles = PY_MAX_LEVEL_MORIA;
+}
+
+static void init_game_mode(void)
+{
+	if (game_mode == GAME_NPPMORIA) init_nppmoria();
+	else init_nppangband();
+}
+
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -393,7 +507,8 @@ static errr init_z_info(void)
 	/* Save a pointer to the parsing function */
 	z_head.parse_info_txt = parse_z_info;
 
-	err = init_info("limits", &z_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("limits", &z_head);
+	else err = init_info("m_limits", &z_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	z_info = z_head.info_ptr;
@@ -439,7 +554,8 @@ static errr init_k_info(void)
 	/* Save a pointer to the parsing function */
 	k_head.parse_info_txt = parse_k_info;
 
-	err = init_info("object", &k_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("object", &k_head);
+	else err = init_info("m_object", &k_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	k_info = k_head.info_ptr;
@@ -488,7 +604,8 @@ static errr init_a_info(void)
 	/* Save a pointer to the parsing function */
 	a_head.parse_info_txt = parse_a_info;
 
-	err = init_info("artifact", &a_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("artifact", &a_head);
+	else err = init_info("m_artifact", &a_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	a_info = a_head.info_ptr;
@@ -513,7 +630,8 @@ static errr init_e_info(void)
 	/* Save a pointer to the parsing function */
 	e_head.parse_info_txt = parse_e_info;
 
-	err = init_info("ego_item", &e_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("ego_item", &e_head);
+	else err = init_info("m_ego_item", &e_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	e_info = e_head.info_ptr;
@@ -536,7 +654,8 @@ static errr init_r_info(void)
 	/* Save a pointer to the parsing function */
 	r_head.parse_info_txt = parse_r_info;
 
-	err = init_info("monster", &r_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("monster", &r_head);
+	else err = init_info("m_monster", &r_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	r_info = r_head.info_ptr;
@@ -585,7 +704,8 @@ static errr init_p_info(void)
 	/* Save a pointer to the parsing function */
 	p_head.parse_info_txt = parse_p_info;
 
-	err = init_info("p_race", &p_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("p_race", &p_head);
+	else err = init_info("m_p_race", &p_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	p_info = p_head.info_ptr;
@@ -609,7 +729,8 @@ static errr init_c_info(void)
 	/* Save a pointer to the parsing function */
 	c_head.parse_info_txt = parse_c_info;
 
-	err = init_info("p_class", &c_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("p_class", &c_head);
+	else err = init_info("m_p_class", &c_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	c_info = c_head.info_ptr;
@@ -634,7 +755,8 @@ static errr init_h_info(void)
 	/* Save a pointer to the parsing function */
 	h_head.parse_info_txt = parse_h_info;
 
-	err = init_info("p_hist", &h_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("p_hist", &h_head);
+	else err = init_info("m_p_hist", &h_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	h_info = h_head.info_ptr;
@@ -658,7 +780,9 @@ static errr init_b_info(void)
 	/* Save a pointer to the parsing function */
 	b_head.parse_info_txt = parse_b_info;
 
-	err = init_info("shop_own", &b_head);
+
+	if (game_mode == GAME_NPPANGBAND) err = init_info("shop_own", &b_head);
+	else err = init_info("m_shop_own", &b_head);
 
 	/* Set the global variables */
 	b_info = b_head.info_ptr;
@@ -682,7 +806,8 @@ static errr init_q_info(void)
 	/* Save a pointer to the parsing function */
 	q_head.parse_info_txt = parse_q_info;
 
-	err = init_info("quest", &q_head);
+	if (game_mode == GAME_NPPANGBAND) err = init_info("quest", &q_head);
+	else err = init_info("m_quest", &q_head);  /* game_mode == NPPMORIA */
 
 	/* Set the global variables */
 	q_info = q_head.info_ptr;
@@ -951,18 +1076,18 @@ static errr init_alloc(void)
 
 	alloc_entry *table;
 
-	s16b num[MAX_DEPTH];
+	s16b num[MAX_DEPTH_ALL];
 
-	s16b aux[MAX_DEPTH];
+	s16b aux[MAX_DEPTH_ALL];
 
 
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(aux, MAX_DEPTH_ALL, s16b);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(num, MAX_DEPTH, s16b);
+	(void)C_WIPE(num, MAX_DEPTH_ALL, s16b);
 
 	/* Size of "alloc_kind_table" */
 	alloc_kind_size = 0;
@@ -988,7 +1113,7 @@ static errr init_alloc(void)
 	}
 
 	/* Collect the level indexes */
-	for (i = 1; i < MAX_DEPTH; i++)
+	for (i = 1; i < MAX_DEPTH_ALL; i++)
 	{
 		/* Group by level */
 		num[i] += num[i-1];
@@ -1047,10 +1172,10 @@ static errr init_alloc(void)
 	/*** Analyze feature allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(&aux, MAX_DEPTH_ALL, s16b);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+	(void)C_WIPE(&num, MAX_DEPTH_ALL, s16b);
 
 	/* Size of "alloc_feat_table" */
 	alloc_feat_size = 0;
@@ -1073,7 +1198,7 @@ static errr init_alloc(void)
 	}
 
 	/* Collect the level indexes */
-	for (i = 1; i < MAX_DEPTH; i++)
+	for (i = 1; i < MAX_DEPTH_ALL; i++)
 	{
 		/* Group by level */
 		num[i] += num[i-1];
@@ -1128,10 +1253,10 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(aux, MAX_DEPTH_ALL, s16b);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(num, MAX_DEPTH, s16b);
+	(void)C_WIPE(num, MAX_DEPTH_ALL, s16b);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
@@ -1154,7 +1279,7 @@ static errr init_alloc(void)
 	}
 
 	/* Collect the level indexes */
-	for (i = 1; i < MAX_DEPTH; i++)
+	for (i = 1; i < MAX_DEPTH_ALL; i++)
 	{
 		/* Group by level */
 		num[i] += num[i-1];
@@ -1210,10 +1335,10 @@ static errr init_alloc(void)
 	/*** Analyze ego_item allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(aux, MAX_DEPTH_ALL, s16b);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(num, MAX_DEPTH, s16b);
+	(void)C_WIPE(num, MAX_DEPTH_ALL, s16b);
 
 	/* Size of "alloc_ego_table" */
 	alloc_ego_size = 0;
@@ -1236,7 +1361,7 @@ static errr init_alloc(void)
 	}
 
 	/* Collect the level indexes */
-	for (i = 1; i < MAX_DEPTH; i++)
+	for (i = 1; i < MAX_DEPTH_ALL; i++)
 	{
 		/* Group by level */
 		num[i] += num[i-1];
@@ -1338,6 +1463,18 @@ static errr init_alloc(void)
  */
 bool init_angband(void)
 {
+	
+	/* If we have a savefile, use that for game mode instead */
+	if (savefile[0])
+	{
+		load_gamemode();
+	}
+		
+	/* Which game are we playing? */
+	if (game_mode == 0)
+	{
+		get_game_mode();
+	}
 
 	event_signal(EVENT_ENTER_INIT);
 
@@ -1346,6 +1483,9 @@ bool init_angband(void)
 	/* Initialize size info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing array sizes...");
 	if (init_z_info()) quit("Cannot initialize sizes");
+
+	/* Prepare some things according to the game being played */
+	init_game_mode();
 
 	/* Initialize feature info */
 	event_signal_string(EVENT_INITSTATUS, "Initializing arrays... (features)");
@@ -1452,8 +1592,6 @@ bool init_angband(void)
 			return FALSE;
 		}
 	}
-
-	return (FALSE);
 }
 
 

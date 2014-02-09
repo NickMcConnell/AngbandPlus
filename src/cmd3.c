@@ -50,7 +50,6 @@ void do_cmd_inven(void)
 	/* Load screen */
 	screen_load();
 
-
 	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
@@ -118,7 +117,6 @@ static int quiver_wield(int item, object_type *o_ptr)
 		msg_print("Your quiver needs more space.");
 		return 0;
  	}
-
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -300,10 +298,12 @@ void wield_item(object_type *o_ptr, int item, int slot)
 	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* Where is the item now */
-	if (slot == INVEN_WIELD)
-		fmt = "You are wielding %s (%c).";
-	else if (slot == INVEN_BOW)
-		fmt = "You are shooting with %s (%c).";
+	if ((slot == INVEN_WIELD) || (slot == INVEN_BOW))
+	{
+		if (obj_is_bow(o_ptr)) fmt = "You are shooting with %s (%c).";
+		else fmt = "You are wielding %s (%c).";
+
+	}
 	else if (slot == INVEN_LIGHT)
 		fmt = "Your light source is %s (%c).";
 
@@ -363,8 +363,6 @@ bool item_tester_hook_activate(const object_type *o_ptr)
 	/* Assume not */
 	return (FALSE);
 }
-
-
 
 
 /*
@@ -493,7 +491,7 @@ void destroy_item(int item)
 
 		/* Check for aware objects */
 		else if (object_aware_p(o_ptr) &&
-		    	!(k_info[o_ptr->k_idx].k_flags3 & (TR3_INSTA_ART)))
+				!(k_info[o_ptr->k_idx].k_flags3 & (TR3_INSTA_ART)))
 		{
 
 			object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -529,7 +527,6 @@ void destroy_item(int item)
 			/*return of 2 sets item to squelch*/
 			else if (result == 2)
 			{
-
 				/*set to squelch*/
 				k_ptr->squelch = SQUELCH_ALWAYS;
 
@@ -609,8 +606,8 @@ void destroy_item(int item)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
-
 }
+
 
 void textui_cmd_destroy(void)
 {
@@ -627,23 +624,18 @@ void textui_cmd_destroy(void)
 }
 
 
-
-
 static void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 {
 
-	/* Refuel from a latern */
+	/* Refuel from a lantern */
 	if (o_ptr->sval == SV_LIGHT_LANTERN)
 	{
-
 		j_ptr->timeout += o_ptr->timeout;
-
 	}
 	/* Refuel from a flask */
 	else
 	{
 		j_ptr->timeout += o_ptr->pval;
-
 	}
 
 	/* Message */
@@ -706,7 +698,6 @@ static void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
 	/* Refilled from a flask */
 	else
 	{
-
 		/* Decrease the item (from the pack) */
 		if (item >= 0)
 		{
@@ -894,7 +885,6 @@ void do_cmd_refill(cmd_code code, cmd_arg args[])
 }
 
 
-
 /*
  * Target command
  */
@@ -904,6 +894,8 @@ void do_cmd_target(void)
 	if (target_set_interactive(TARGET_KILL, -1, -1))
 	{
 		msg_print("Target Selected.");
+		p_ptr->redraw |= (PR_MONLIST);
+		redraw_stuff();
 	}
 
 	/* Target aborted */
@@ -919,7 +911,6 @@ void do_cmd_target_closest(void)
 }
 
 
-
 /*
  * Look command
  */
@@ -929,9 +920,10 @@ void do_cmd_look(void)
 	if (target_set_interactive(TARGET_LOOK, -1, -1))
 	{
 		msg_print("Target Selected.");
+		p_ptr->redraw |= (PR_MONLIST);
+		redraw_stuff();
 	}
 }
-
 
 
 /*
@@ -1015,13 +1007,115 @@ void do_cmd_locate(void)
 	verify_panel();
 }
 
+/*
+ * The table of "symbol info" -- each entry is a string of the form
+ * "X:desc" where "X" is the trigger, and "desc" is the "info".
+ */
+static cptr ident_info_nppmoria[] =
+{
+	" :A dark grid",
+	"!:A potion (or oil)",
+	"\":An amulet (or necklace)",
+	"#:A wall (or secret door)",
+	"$:Treasure (gold or gems)",
+	"%:A vein (magma or quartz)",
+	/* "&:unused", */
+	"':An open door",
+	"(:Soft armor",
+	"):A shield",
+	"*:A vein with treasure",
+	"+:A closed door",
+	",:Food (or mushroom patch)",
+	"-:A wand (or rod)",
+	".:Floor",
+	"/:A polearm (Axe/Pike/etc)",
+	/* "0:unused", */
+	"1:Entrance to General Store",
+	"2:Entrance to Armory",
+	"3:Entrance to Weaponsmith",
+	"4:Entrance to Temple",
+	"5:Entrance to Alchemy shop",
+	"6:Entrance to Magic store",
+	"::Rubble",
+	";:A glyph of warding or glacier",
+	"<:An up staircase",
+	"=:A ring",
+	">:A down staircase",
+	"?:A scroll",
+	"@:You",
+	"A:Ant Lion",
+	"B:Balrog",
+	"C:Gelatinous Cube",
+	"D:Ancient Dragon (Beware)",
+	"E:Elemental/Spirit",
+	"F:Fly/Dragon Fly/Insect",
+	"G:Ghost",
+	"H:Hobgoblin",
+	/* "I:unused", */
+	"J:Jelly",
+	"K:Killer Beetle",
+	"L:Lich",
+	"M:Mummy",
+	/* "N:unused", */
+	"O:Ooze",
+	"P:Giant",
+	"Q:Quylthulg (Pulsing Flesh Mound)",
+	"R:Snake",
+	"S:Scorpions",
+	"T:Troll",
+	"U:Umber Hulk",
+	"V:Vampire",
+	"W:Wight/Wraith",
+	"X:Xorn",
+	"Y:Yeti",
+	/* "Z:unused", */
+	"[:Hard armor",
+	"\\:A hafted weapon (mace/whip/etc)",
+	"]:Misc. armor",
+	"^:A trap",
+	"_:A staff",
+	/* "`:unused", */
+	"a:Ant",
+	"b:Bat",
+	"c:Centipede",
+	"d:Dragon",
+	"e:Floating Eye",
+	"f:Frogs",
+	"g:Golem",
+	"h:harpy",
+	"i:Icky Thing",
+	"j:Jackal",
+	"k:Kobold",
+	"l:Louse",
+	"m:Mold",
+	"n:Naga",
+	"o:Orc",
+	"p:Person/Humanoid",
+	"q:Quasit",
+	"r:Rodent",
+	"s:Skeleton",
+	"t:Tick",
+	/* "u:unused", */
+	/* "v:unused", */
+	"w:Worm/Worm-Mass",
+	/* "x:unused", */
+	"y:Yeek",
+	"z:Zombie",
+	"{:A missile (arrow/bolt/shot)",
+	"|:An edged weapon (sword/dagger/etc)",
+	"}:A launcher (bow/crossbow/sling)",
+	"~:A chest (or miscellaneous item)",
+	NULL
+};
+
+
 
 
 /*
  * The table of "symbol info" -- each entry is a string of the form
  * "X:desc" where "X" is the trigger, and "desc" is the "info".
  */
-static cptr ident_info[] =
+static cptr ident_info_nppangband[] =
 {
 	" :A dark grid",
 	"!:A potion (or oil)",
@@ -1261,10 +1355,19 @@ void do_cmd_query_symbol(void)
 	/* Get a character, or abort */
 	if (!get_com("Enter character to be identified, or control+[ANU]: ", &sym)) return;
 
-	/* Find that character info, and describe it */
-	for (i = 0; ident_info[i]; ++i)
+	if (game_mode == GAME_NPPMORIA)
 	{
-		if (sym == ident_info[i][0]) break;
+		/* Find that character info, and describe it */
+		for (i = 0; ident_info_nppmoria[i]; ++i)
+		{
+			if (sym == ident_info_nppmoria[i][0]) break;
+		}
+	}
+
+	/* Find that character info, and describe it */
+	else for (i = 0; ident_info_nppangband[i]; ++i)
+	{
+		if (sym == ident_info_nppangband[i][0]) break;
 	}
 
 	/* Describe */
@@ -1283,9 +1386,9 @@ void do_cmd_query_symbol(void)
 		all = norm = TRUE;
 		my_strcpy(buf, "Non-unique monster list.", sizeof(buf));
 	}
-	else if (ident_info[i])
+	else if ((game_mode == GAME_NPPMORIA) ? ident_info_nppmoria[i] : ident_info_nppangband[i])
 	{
-		strnfmt(buf, sizeof(buf), "%c - %s.", sym, ident_info[i] + 2);
+		strnfmt(buf, sizeof(buf), "%c - %s.", sym, (game_mode == GAME_NPPMORIA) ? ident_info_nppmoria[i] + 2 : ident_info_nppangband[i] + 2);
 	}
 	else
 	{
@@ -1565,7 +1668,7 @@ void py_steal(int y, int x)
 	if (m_ptr->m_timed[MON_TMD_STUN]) theft_protection /= 5;
 
 	/* now adjust for speed*/
-	theft_protection += (m_ptr->mspeed - p_ptr->state.p_speed);
+	theft_protection += (m_ptr->m_speed - p_ptr->state.p_speed) * (game_mode == GAME_NPPMORIA ? 10 : 1);
 
 	/*enforce a minimum - should almost never be necessary*/
 	if (theft_protection < 1) theft_protection = 1;
@@ -1573,7 +1676,7 @@ void py_steal(int y, int x)
 	/* Send a thief to catch a thief. */
 	for (i = 0; i < MONSTER_BLOW_MAX; i++)
 	{
-		/* Extract infomation about the blow effect */
+		/* Extract information about the blow effect */
 		effect = r_ptr->blow[i].effect;
 		if (effect == RBE_EAT_GOLD) thief = TRUE;
 		else if (effect == RBE_EAT_ITEM) thief = TRUE;
@@ -1676,11 +1779,9 @@ void py_steal(int y, int x)
 }
 
 
-
-
-
-/*create a monster trap, currently used from a scroll*/
-
+/*
+ * create a monster trap, currently used from a scroll
+ */
 bool make_monster_trap(void)
 {
 	int y, x, dir;
@@ -1705,6 +1806,7 @@ bool make_monster_trap(void)
 
 	return(TRUE);
 }
+
 
 /*
  * Rogues may set traps, or they can be set from a scroll.
@@ -1745,6 +1847,7 @@ void py_set_trap(int y, int x)
 	num_trap_on_level++;
 
 }
+
 
 /*
  * Choose advanced monster trap type
@@ -1802,17 +1905,17 @@ static bool choose_mtrap(int *choice)
 			}
 		}
 
-		/* Allow user to exit the fuction */
-        else if (c == ESCAPE)
-        {
+		/* Allow user to exit the function */
+		else if (c == ESCAPE)
+		{
 			/* Load screen */
 			screen_load();
 
 			return (FALSE);
-        }
+		}
 
-         /* Invalid input */
-         else bell("Illegal response to question!");
+		/* Invalid input */
+		else bell("Illegal response to question!");
 	}
 
 	/* Load screen */
@@ -1821,6 +1924,7 @@ static bool choose_mtrap(int *choice)
 	/* Return */
 	return (TRUE);
 }
+
 
 /*
  * Turn a basic monster trap into an advanced one -BR-
@@ -1863,7 +1967,9 @@ bool py_modify_trap(int y, int x)
 }
 
 
-/* Centers the map on the player */
+/*
+ * Centers the map on the player
+ */
 void do_cmd_center_map(void)
 {
 	center_panel();

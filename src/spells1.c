@@ -1831,6 +1831,9 @@ static int inven_drain(int dam)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Ignore the swap weapon */
+		if ((adult_swap_weapons) && (i == INVEN_SWAP_WEAPON)) continue;
+
 		/*
 		 * No messages needed.
 		 * We do not notice this with objects sitting on the ground.
@@ -2535,16 +2538,28 @@ bool apply_disenchant(int mode)
 	char o_name[80];
 
 	/* Pick a random slot */
-	switch (randint(8))
+	/* Ignore the swap weapon */
+	if (adult_swap_weapons) switch (randint(7))
 	{
-		case 1: t = INVEN_WIELD; break;
-		case 2: t = INVEN_BOW; break;
-		case 3: t = INVEN_BODY; break;
-		case 4: t = INVEN_OUTER; break;
-		case 5: t = INVEN_ARM; break;
-		case 6: t = INVEN_HEAD; break;
-		case 7: t = INVEN_HANDS; break;
-		case 8: t = INVEN_FEET; break;
+		case 1: {t = INVEN_WIELD; break;}
+		case 2: {t = INVEN_BODY; break;}
+		case 3: {t = INVEN_OUTER; break;}
+		case 4: {t = INVEN_ARM; break;}
+		case 5: {t = INVEN_HEAD; break;}
+		case 6: {t = INVEN_HANDS; break;}
+		default:{t = INVEN_FEET; break;}
+	}
+
+	else switch (randint(8))
+	{
+		case 1: {t = INVEN_WIELD; break;}
+		case 2: {t = INVEN_BOW; break;}
+		case 3: {t = INVEN_BODY; break;}
+		case 4: {t = INVEN_OUTER; break;}
+		case 5: {t = INVEN_ARM; break;}
+		case 6: {t = INVEN_HEAD; break;}
+		case 7: {t = INVEN_HANDS; break;}
+		default:{t = INVEN_FEET; break;}
 	}
 
 	/* Get the item */
@@ -3345,6 +3360,34 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ, int flg
 
 			break;
 		}
+		case GF_MAKE_WALL:
+		{
+			int feat = FEAT_WALL_INNER;
+
+			obvious = TRUE;
+
+			/* If a monster there, leave it alone */
+			if (cave_m_idx[y][x] > 0) break;
+
+			/* First clear all effects */
+			delete_effects(y, x);
+
+			/* Now make it a wall, depending on the terrain below it */
+			if (cave_ff3_match(y, x, FF3_WATER)) feat = FEAT_LIMESTONE;
+			if (cave_ff3_match(y, x, FF3_SAND)) feat = FEAT_SANDSTONE;
+			if (cave_ff3_match(y, x, FF3_ICE)) feat = FEAT_ICE_WALL;
+			if (cave_ff3_match(y, x, FF3_OIL)) feat = FEAT_SHALE;
+			if (cave_ff3_match(y, x, FF3_LAVA)) feat = FEAT_LAVA_W;
+			if (cave_ff3_match(y, x, FF3_FOREST)) feat = FEAT_VINES;
+			if (cave_ff3_match(y, x, FF3_ACID)) feat = FEAT_ACID_WALL;
+			if (cave_ff3_match(y, x, (FF3_LAVA | FF3_WATER)) == (FF3_LAVA | FF3_WATER)) feat = FEAT_BWATER_WALL;
+			if (cave_ff3_match(y, x, (FF3_LAVA | FF3_MUD)) == (FF3_LAVA | FF3_MUD)) feat = FEAT_BMUD_WALL;
+
+			cave_set_feat(y, x, feat);
+
+			break;
+		}
+
 		case GF_BMUD:
 		{
 			/*Do nothing??*/
@@ -3781,6 +3824,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 		bool ignore = FALSE;
 		bool plural = FALSE;
 		bool do_kill = FALSE;
+		bool kill_art = FALSE;
 
 		cptr note_kill = NULL;
 
@@ -4031,6 +4075,15 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 				break;
 			}
 
+			/* Make wall kills everything, even artifacts */
+			case GF_MAKE_WALL:
+			{
+				do_kill = TRUE;
+				kill_art = TRUE;
+				note_kill = (plural ? " are destroyed!" : " is destroyed!");
+				break;
+			}
+
 			case GF_BWATER:
 			{
 				if (hates_boiling_water(o_ptr) && dam > rand_int(150))
@@ -4065,7 +4118,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 			}
 
 			/* Artifacts, and other objects, get to resist */
-			if (is_art || ignore)
+			if ((is_art || ignore) && (!kill_art))
 			{
 				/* Observe the resist */
 				if (o_ptr->marked)
@@ -4315,6 +4368,14 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 				damage /= 9;
 				if (seen) l_ptr->r_l_flags3 |= (RF3_IM_ACID);
 			}
+			else if (r_ptr->flags3 & (RF3_HURT_ACID))
+			{
+				m_note = MON_MSG_BADLY_BURNED;
+				note_dies = MON_MSG_MELTS_AWAY;
+				if (game_mode == GAME_NPPMORIA) damage = damage * 3 / 2;
+				else damage = damage * 4 / 3;
+				if (seen) l_ptr->r_l_flags3 |= (RF3_HURT_ACID);
+			}
 			break;
 		}
 
@@ -4349,7 +4410,8 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			{
 				m_note = MON_MSG_CATCH_FIRE;
 				note_dies = MON_MSG_DISENTEGRATES;
-				damage = damage * 4 / 3;
+				if (game_mode == GAME_NPPMORIA) damage = damage * 3 / 2;
+				else damage = damage * 4 / 3;
 				if (seen) l_ptr->r_l_flags3 |= (RF3_HURT_FIRE);
 			}
 			break;
@@ -4369,7 +4431,8 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			{
 				m_note = MON_MSG_BADLY_FROZEN;
 				note_dies = MON_MSG_FREEZE_SHATTER;
-				damage  = (damage * 4) / 3;
+				if (game_mode == GAME_NPPMORIA) damage = damage * 3 / 2;
+				else damage = damage * 4 / 3;
 				if (seen) l_ptr->r_l_flags3 |= (RF3_HURT_COLD);
 			}
 			break;
@@ -4384,6 +4447,14 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 				m_note = MON_MSG_RESIST_A_LOT;
 				damage /= 9;
 				if (seen) l_ptr->r_l_flags3 |= (RF3_IM_POIS);
+			}
+			else if (r_ptr->flags3 & (RF3_HURT_POIS))
+			{
+				m_note = MON_MSG_BADLY_POISONED;
+				note_dies = MON_MSG_CHOKE_DIE;
+				if (game_mode == GAME_NPPMORIA) damage = damage * 3 / 2;
+				else damage = damage * 4 / 3;
+				if (seen) l_ptr->r_l_flags3 |= (RF3_HURT_POIS);
 			}
 			break;
 		}
@@ -4941,7 +5012,6 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 		}
 
 
-
 		/*
 		 * Lite -- opposite of Dark
 		 * Different kinds of light sensitive
@@ -5034,6 +5104,85 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 				/* No damage */
 				damage = 0;
 			}
+
+			break;
+		}
+
+		case GF_MAKE_WALL:
+		{
+			/* Healed by make wall */
+			if (r_ptr->flags2 & (RF2_KILL_WALL))
+			{
+				bool healed = TRUE;
+
+				/*does monster need healing?*/
+				if (m_ptr->hp == m_ptr->maxhp) healed = FALSE;
+
+				/* Notice effect */
+				if (seen) obvious = TRUE;
+
+				/* Memorize the effects */
+				if (seen) l_ptr->r_l_flags2 |= (RF2_KILL_WALL);
+
+				/* Wake up */
+				wake_monster_attack(m_ptr, MON_TMD_FLG_NOTIFY);
+
+				/* Monster goes active */
+				m_ptr->mflag |= (MFLAG_ACTV);
+
+				/* Heal */
+				m_ptr->hp += damage;
+
+				/* No overflow */
+				if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+				/* Redraw (later) if needed */
+				if ((p_ptr->health_who == mon_idx)  || (m_ptr->sidebar)) p_ptr->redraw |= (PR_HEALTH);
+
+				/*monster was at full hp to begin*/
+				if (!healed)
+				{
+					m_note = MON_MSG_UNAFFECTED;
+				}
+
+				/* Message */
+				else m_note = MON_MSG_HEALTHIER;
+
+				/* No "real" damage */
+				damage = 0;
+
+				/* If it just woke up, update the monster list */
+				p_ptr->redraw |= PR_MONLIST;
+				break;
+			}
+
+			/* Monsters who pass wall are unaffected */
+			else if (r_ptr->flags2 & (RF2_PASS_WALL))
+			{
+				m_note = MON_MSG_UNAFFECTED;
+
+				/* No "real" damage */
+				damage = 0;
+
+				/* Notice effect */
+				if (seen) obvious = TRUE;
+
+				/* Memorize the effects */
+				if (seen) l_ptr->r_l_flags2 |= (RF2_PASS_WALL);
+
+				/* Wake up */
+				wake_monster_attack(m_ptr, MON_TMD_FLG_NOTIFY);
+
+				/* Monster goes active */
+				m_ptr->mflag |= (MFLAG_ACTV);
+
+				break;
+			}
+
+			/* Normal monsters */
+			if (seen) obvious = TRUE;
+
+			note_dies = MON_MSG_BURIED_ROCK;
 
 			break;
 		}
@@ -6599,6 +6748,12 @@ static bool project_x(int who, int y, int x, int dam, int typ, u32b project_flg)
 
 	/*We can't see this square*/
 	if (!player_can_see_bold(y, x)) obvious = FALSE;
+
+	if (game_mode == GAME_NPPMORIA)
+	{
+		/* Allow traps, but that's all */
+		if (typ != GF_MAKE_TRAP) return FALSE;
+	}
 
 	/*
 	 * Apply bonuses/penalties from terrain, only if damage doesn't come

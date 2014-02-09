@@ -1,0 +1,26 @@
+                             The World of Moria
+
+
+    (a) Symbols on your Map                            (m_symbols.txt)
+    (b) The Town                                       (m_town.txt)
+    (c) The Dungeon                                    (m_dungeon.txt)
+    (d) Objects and Monsters                           (m_objs-mon.txt)
+		
+
+
+
+
+
+
+
+Help Commands:
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sensitivity 
+
+***** [a] m_symbols.txt
+***** [b] m_town.txt
+***** [c] m_dungeon.txt
+***** [d] m_objs-mon.txt
+
