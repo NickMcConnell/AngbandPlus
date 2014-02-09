@@ -3992,7 +3992,7 @@ P:0:1d1:0:0:0
 F:ACTIVATE
 E:CAPTURE_PET:15
 
-N:594:& Death Scythe~ 
+N:594:& Death Scythe~
 G:/:R
 I:22:50:0
 W:70:0:0:350:10000

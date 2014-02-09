@@ -535,6 +535,26 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
     return (TRUE);
 }
 
+bool _summon_possible(int candidate_y, int candidate_x)
+{
+    int y, x;
+
+    /* TODO: Target monster will be moving from (m_ptr->fx, m_ptr->fy) to (candidate_x, candidate_y).
+       We should not insist that (m_ptr->fx, m_ptr->fy) be empty ... */
+    for (y = py - 2; y <= py + 2; y++)
+    {
+        for (x = px - 2; x <= px + 2; x++)
+        {
+            if (!in_bounds(y, x)) continue;
+            if (distance(py, px, y, x) > 2) continue;
+            if (pattern_tile(y, x)) continue;
+            if (y == candidate_y && x == candidate_x) continue;
+            if (cave_empty_bold(y, x) && projectable(py, px, y, x) && projectable(y, x, py, px)) return TRUE;
+        }
+    }
+
+    return FALSE;
+}
 
 /*
  * Choose the "best" direction for "flowing"
@@ -653,12 +673,13 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
                TODO: Don't flow into squares that the monster can't move into.
             */
             if (c_ptr->m_idx && !(r_ptr->flags2 & (RF2_MOVE_BODY|RF2_KILL_BODY))) continue;
+
             best = cost;
         }
 
         /* Hack -- Save the "twiddled" location */
-        (*yp) = py + 16 * ddy_ddd[i];
-        (*xp) = px + 16 * ddx_ddd[i];
+        (*yp) = py + MAX(16, r_ptr->aaf) * ddy_ddd[i];
+        (*xp) = px + MAX(16, r_ptr->aaf) * ddx_ddd[i];
     }
 
     /* No legal move (?) */
@@ -2822,6 +2843,25 @@ static void process_monster(int m_idx)
 
         /* Ignore locations off of edge */
         if (!in_bounds2(ny, nx)) continue;
+
+        /* Monsters that may summon won't walk into anti-summoning situations unless they
+           are angered by distance attacks by the player. Note, RF2_SMART is too rare for
+           this behavior so, for now, everybody gets it. */
+        if (!player_bold(ny, nx) && player_has_los_bold(ny, nx) && projectable(py, px, ny, nx))
+        {
+            if ( (r_ptr->flags4 & RF4_SUMMON_MASK)
+              || (r_ptr->flags5 & RF5_SUMMON_MASK)
+              || (r_ptr->flags6 & RF6_SUMMON_MASK) )
+            {
+                if (!_summon_possible(ny, nx))
+                {
+                    if (!(m_ptr->smart & SM_TICKED_OFF))
+                        continue;
+                    if (!one_in_(3))
+                        continue;
+                }
+            }
+        }
 
         /* Access that cave grid */
         c_ptr = &cave[ny][nx];

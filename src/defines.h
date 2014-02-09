@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 0
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 
 
@@ -2385,14 +2385,14 @@
 #define SM_OPP_FIRE             0x00040000
 #define SM_OPP_COLD             0x00080000
 #define SM_OPP_POIS             0x00100000
-#define SM_TICKED_OFF            0x00200000 /* Monster is temporarily ticked off */
-#define SM_CLONED               0x00400000 /* XXX Cloned */
-#define SM_PET                  0x00800000 /* XXX Pet */
+#define SM_TICKED_OFF           0x00200000
+#define SM_CLONED               0x00400000
+#define SM_PET                  0x00800000
 #define SM_IMM_ACID             0x01000000
 #define SM_IMM_ELEC             0x02000000
 #define SM_IMM_FIRE             0x04000000
 #define SM_IMM_COLD             0x08000000
-#define SM_FRIENDLY             0x10000000 /* XXX Friendly */
+#define SM_FRIENDLY             0x10000000
 #define SM_IMM_REFLECT          0x20000000
 #define SM_IMM_FREE             0x40000000
 #define SM_IMM_MANA             0x80000000
@@ -2516,6 +2516,7 @@
 #define PM_KAGE           0x00000200
 #define PM_MULTIPLY       0x00000400
 #define PM_ALLOW_CLONED   0x00000800
+#define PM_WALL_SCUMMER   0x00001000
 
 
 /* Bit flags for monster_desc() */
@@ -3791,6 +3792,29 @@ enum summon_specific_e {
     (RF5_SUMMON_MASK)
 
 #define RF6_INDIRECT_MASK \
+    (RF6_SUMMON_MASK | \
+     RF6_HASTE | RF6_HEAL | RF6_INVULNER | RF6_BLINK | RF6_WORLD | \
+     RF6_TPORT | RF6_RAISE_DEAD)
+
+/*
+ * When players are hiding inside the walls, we need to flush 'em out!
+ * Note: Summoning will target on the caster and tend to bring forth
+ * wall breakers, disintegraters and passwall monsters!
+ */
+#define RF4_NO_FLOW_MASK_EASY RF4_SHRIEK
+
+#define RF5_NO_FLOW_MASK_EASY 0
+
+#define RF6_NO_FLOW_MASK_EASY \
+    (RF6_HASTE | RF6_HEAL | RF6_RAISE_DEAD)
+
+#define RF4_NO_FLOW_MASK_HARD \
+    (RF4_SUMMON_MASK | RF4_SHRIEK)
+
+#define RF5_NO_FLOW_MASK_HARD \
+    (RF5_SUMMON_MASK)
+
+#define RF6_NO_FLOW_MASK_HARD \
     (RF6_SUMMON_MASK | \
      RF6_HASTE | RF6_HEAL | RF6_INVULNER | RF6_BLINK | RF6_WORLD | \
      RF6_TPORT | RF6_RAISE_DEAD)

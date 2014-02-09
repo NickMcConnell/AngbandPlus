@@ -684,6 +684,7 @@ extern void clear_mon_lite(void);
 extern void delayed_visual_update(void);
 extern void forget_flow(void);
 extern void update_flow(void);
+extern int  current_flow_depth;
 extern void update_smell(void);
 extern void map_area(int range);
 extern void wiz_lite(bool ninja);

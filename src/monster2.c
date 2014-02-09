@@ -796,6 +796,7 @@ static int summon_specific_who = 0;
 
 static bool summon_unique_okay = FALSE;
 static bool summon_cloned_okay = FALSE;
+static bool summon_wall_scummer = FALSE;
 
 
 static bool summon_specific_aux(int r_idx)
@@ -2654,6 +2655,9 @@ void update_mon(int m_idx, bool full)
         }
     }
 
+    if (p_ptr->wizard)
+        flag = TRUE;
+
     /* The monster is now visible */
     if (flag)
     {
@@ -4018,6 +4022,21 @@ static bool summon_specific_okay(int r_idx)
     /* Hack - Only summon dungeon monsters */
     if (!mon_hook_dungeon(r_idx)) return (FALSE);
 
+    if (summon_wall_scummer)
+    {
+        bool ok = FALSE;
+        if (r_ptr->flags2 & RF2_KILL_WALL)
+            ok = TRUE;
+        if (r_ptr->flags2 & RF2_PASS_WALL)
+            ok = TRUE;
+        if (r_ptr->flags4 & RF4_BR_DISI)
+            ok = TRUE;
+        if ((r_ptr->flags6 & RF6_TELE_TO) && r_ptr->level >= 40)
+            ok = TRUE;
+        if (!ok)
+            return FALSE;
+    }
+
     /* Hack -- identify the summoning monster */
     if (summon_specific_who > 0)
     {
@@ -4154,12 +4173,20 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 
     summon_unique_okay = (mode & PM_ALLOW_UNIQUE) ? TRUE : FALSE;
     summon_cloned_okay = (mode & PM_ALLOW_CLONED) ? TRUE : FALSE;
+    summon_wall_scummer = (mode & PM_WALL_SCUMMER) && one_in_(2) ? TRUE : FALSE;
 
     /* Prepare allocation table */
     get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
 
     /* Pick a monster, using the level calculation */
     r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+
+    /* No pass/kill wall monsters allowed? Well, just pick a normal one then ... */
+    if (!r_idx && summon_wall_scummer)
+    {
+        summon_wall_scummer = FALSE;
+        r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+    }
 
     /* Hack: For summoning spells, try again ignoring any 
              max depth restrictions. For example, Summon Manes

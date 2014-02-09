@@ -1517,7 +1517,9 @@ static void process_world_aux_hp_and_sp(void)
             int dam;
             cptr dam_desc;
 
-            dam = MAX(1 + (p_ptr->lev/5), 1 + p_ptr->mhp/24);
+            dam = 1 + p_ptr->lev/5;
+            /* Passwall now takes more energy ...
+            dam = MAX(1 + p_ptr->lev/5, 1 + p_ptr->mhp/24);*/
             if (p_ptr->pass_wall)
             {
                 if (p_ptr->no_passwall_dam) 

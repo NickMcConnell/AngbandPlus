@@ -4061,6 +4061,7 @@ void forget_flow(void)
             cave[y][x].when = 0;
         }
     }
+    current_flow_depth = 0;
 }
 
 
@@ -4092,6 +4093,8 @@ void update_flow(void)
     int x, y, d;
     int flow_head = 1;
     int flow_tail = 0;
+
+    current_flow_depth = 0;
 
     /* Paranoia -- make sure the array is empty */
     if (temp_n) return;
@@ -4162,6 +4165,8 @@ void update_flow(void)
             /* Save the flow cost */
             if (c_ptr->cost == 0 || c_ptr->cost > m) c_ptr->cost = m;
             if (c_ptr->dist == 0 || c_ptr->dist > n) c_ptr->dist = n;
+
+            current_flow_depth = MAX(current_flow_depth, n);
 
             /* Hack -- limit flow depth */
             if (n == MONSTER_FLOW_DEPTH) continue;

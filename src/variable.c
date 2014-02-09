@@ -177,6 +177,7 @@ s32b friend_align = 0;
 int leaving_quest = 0;
 bool reinit_wilderness = FALSE;
 
+int current_flow_depth = 0;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"

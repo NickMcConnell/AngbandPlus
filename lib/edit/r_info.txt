@@ -6710,8 +6710,8 @@ D:It is a floor tile corrupted by chaos.
 
 N:459:Young blue dragon
 G:d:b
-I:110:27d10:20:50:70:200
-W:29:1:999:300:4000:560
+I:112:27d10:20:50:70:200
+W:29:1:999:330:4000:560
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:HURT:1d6
@@ -6730,8 +6730,8 @@ D:deep blue in hue.  Sparks crackle along its length.
 
 N:460:Young white dragon
 G:d:w
-I:110:27d10:20:50:70:200
-W:29:1:999:275:4000:549
+I:112:27d10:20:50:70:200
+W:29:1:999:300:4000:549
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:HURT:1d6
@@ -6750,8 +6750,8 @@ D:frosty white in hue.  Icy blasts of cold air come from it as it breathes.
 
 N:461:Young green dragon
 G:d:g
-I:110:27d10:20:60:70:200
-W:29:1:999:290:4000:561
+I:112:27d10:20:60:70:200
+W:29:1:999:320:4000:561
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:HURT:1d6
@@ -6770,8 +6770,8 @@ D:deep green in hue.  Foul gas seeps through its scales.
 
 N:462:Young bronze dragon
 G:d:U
-I:110:27d10:20:63:150:200
-W:29:3:999:310:4000:562
+I:112:27d10:20:63:150:200
+W:29:3:999:340:4000:562
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:HURT:1d6
@@ -6912,7 +6912,7 @@ D:It is a ghostly form with eyes that haunt you.
 
 N:471:Shadow drake
 G:d:D
-I:110:30d10:25:50:30:200
+I:115:30d10:25:50:30:200
 W:33:3:70:700:15000:643
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -7410,7 +7410,7 @@ D:It is the animated form of a massive troll.
 
 N:501:Chaos drake
 G:d:v
-I:110:50d10:25:100:30:250
+I:115:50d10:25:100:30:250
 W:33:3:80:700:150000:783
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
@@ -7428,7 +7428,7 @@ D:as its form shimmers and changes in front of your eyes.
 
 N:502:Law drake
 G:d:W
-I:110:55d10:25:100:30:250
+I:115:55d10:25:100:30:250
 W:33:3:80:700:150000:784
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
@@ -7446,7 +7446,7 @@ D:disturb it.
 
 N:503:Balance drake
 G:d:s
-I:110:60d10:25:100:30:250
+I:115:60d10:25:100:30:250
 W:33:3:80:700:180000:785
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
@@ -7468,7 +7468,7 @@ D:and despises your feeble efforts to destroy evil.
 
 N:504:Ethereal drake
 G:d:o
-I:110:45d10:25:100:15:250
+I:115:45d10:25:100:15:250
 W:33:3:70:700:20000:676
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
@@ -7840,7 +7840,7 @@ D:It is a towering tornado of winds.
 
 N:527:Doom drake
 G:d:v
-I:110:40d11:25:100:30:250
+I:115:40d11:25:100:30:250
 W:34:3:999:450:3000:589
 B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
@@ -8149,8 +8149,8 @@ D:It is a towering mass of filth, an eyesore of ooze.
 
 N:546:Young black dragon
 G:d:D
-I:110:25d10:20:60:50:200
-W:35:1:999:620:4000:592
+I:112:25d10:20:60:50:200
+W:35:1:999:680:4000:592
 B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
 B:BITE:HURT:1d6
@@ -8196,8 +8196,8 @@ D:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
 
 N:549:Mature white dragon
 G:d:w
-I:110:40d10:20:65:70:250
-W:35:1:999:1000:10000:617
+I:115:40d10:20:65:70:250
+W:35:1:999:1200:10000:617
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 B:BITE:HURT:2d8
@@ -8319,8 +8319,8 @@ D:skeletal figure wearing a ruined plate mail.
 
 N:556:Young multi-hued dragon
 G:d:v
-I:110:32d10:20:60:50:200
-W:36:1:999:1320:7000:593
+I:113:32d10:20:60:50:200
+W:36:1:999:1500:7000:593
 B:CLAW:HURT:1d9
 B:CLAW:HURT:1d9
 B:BITE:HURT:2d10
@@ -8376,8 +8376,8 @@ D:power.
 
 N:559:Young gold dragon
 G:d:y
-I:110:30d10:20:63:150:200
-W:36:2:999:950:6000:590
+I:112:30d10:20:63:150:200
+W:36:2:999:1050:6000:590
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 B:BITE:HURT:2d8
@@ -8396,8 +8396,8 @@ D:tarnished gold hue, and light is reflected from its form.
 
 N:560:Mature blue dragon
 G:d:b
-I:110:40d10:20:75:70:250
-W:36:1:999:1200:10000:601
+I:115:40d10:20:75:70:250
+W:36:1:999:1400:10000:601
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 B:BITE:HURT:2d10
@@ -8415,8 +8415,8 @@ D:A large dragon, scales tinted deep blue.
 
 N:561:Mature green dragon
 G:d:g
-I:110:40d10:20:70:70:250
-W:36:1:999:1100:10000:618
+I:115:40d10:20:70:70:250
+W:36:1:999:1300:10000:618
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 B:BITE:HURT:2d10
@@ -8434,8 +8434,8 @@ D:A large dragon, scales tinted deep green.
 
 N:562:Mature bronze dragon
 G:d:U
-I:110:44d10:20:70:150:250
-W:36:2:999:1300:10000:602
+I:115:44d10:20:70:150:250
+W:36:2:999:1500:10000:602
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 B:BITE:HURT:2d10
@@ -8453,8 +8453,8 @@ D:A large dragon with scales of rich bronze.
 
 N:563:Young red dragon
 G:d:r
-I:110:29d10:20:63:50:200
-W:36:1:999:640:5000:589
+I:112:29d10:20:63:50:200
+W:36:1:999:700:5000:589
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 B:BITE:HURT:2d8
@@ -8883,8 +8883,8 @@ D:A whirlpool of intense flame, charring the stones at your feet.
 
 N:589:Mature red dragon
 G:d:r
-I:110:48d10:20:80:30:250
-W:37:1:999:1400:10000:644
+I:115:48d10:20:80:30:250
+W:37:1:999:1700:10000:644
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d10
 B:BITE:HURT:2d12
@@ -8902,8 +8902,8 @@ D:A large dragon, scales tinted deep red.
 
 N:590:Mature gold dragon
 G:d:y
-I:110:56d10:20:80:150:250
-W:37:2:999:1500:12000:645
+I:115:56d10:20:80:150:250
+W:37:2:999:1800:12000:645
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d10
 B:BITE:HURT:2d12
@@ -8941,8 +8941,8 @@ D:your eyes with spectrums of colour.
 
 N:592:Mature black dragon
 G:d:D
-I:110:46d10:20:55:30:250
-W:37:1:999:1350:10000:624
+I:115:46d10:20:55:30:250
+W:37:1:999:1600:10000:624
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 B:BITE:HURT:2d10
@@ -8960,8 +8960,8 @@ D:A large dragon, with scales of deepest black.
 
 N:593:Mature multi-hued dragon
 G:d:v
-I:110:64d10:20:65:50:250
-W:38:2:999:1700:20000:675
+I:117:64d10:20:65:50:250
+W:38:2:999:2000:20000:675
 B:CLAW:HURT:1d10
 B:CLAW:HURT:1d10
 B:BITE:HURT:2d12
@@ -10485,7 +10485,7 @@ D:A Dark Judge, reputedly so frightening that his gaze can kill.
 N:675:Ancient multi-hued dragon
 G:D:v
 I:120:21d100:20:100:70:500
-W:43:1:999:13000:300000:790
+W:43:1:999:15000:300000:790
 B:CLAW:HURT:4d12
 B:CLAW:HURT:4d12
 B:BITE:HURT:6d12
@@ -12464,7 +12464,7 @@ F:EVIL | RES_FIRE | RES_COLD |
 F:RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | POLY
-S:CAUSE_4 | MIND_BLAST | FORGET | TRAPS | ANIM_DEAD |
+S:CAUSE_4 | MIND_BLAST | FORGET | TRAPS | ANIM_DEAD | TELE_TO
 S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE | 
 S:S_UNDEAD | S_DEMON | S_DRAGON | PSY_SPEAR
 D:Originally known as the White, Saruman fell prey to Sauron's wiles. He 

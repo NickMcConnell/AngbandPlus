@@ -275,7 +275,7 @@
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
-#define MONSTER_FLOW_DEPTH 64
+#define MONSTER_FLOW_DEPTH 100
 
 
 #ifdef USE_SPECIAL

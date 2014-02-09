@@ -804,7 +804,7 @@ W:5:10:12:13000
 P:0:1d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS | THROW | XTRA_H_RES
 F:SPEED
-E:BOLT_FIRE:5:7:4
+E:BOLT_ELEC:5:7:4
 E:Your dagger is covered in sparks...
 D:A dagger covered in sparks and finely balanced for deadly throws.
 

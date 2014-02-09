@@ -4788,7 +4788,9 @@ void calc_bonuses(void)
         monk_notify_aux = monk_armour_aux;
     }
 
+    /* Can someone please explain the purpose of this?
     if (p_ptr->pass_wall && !p_ptr->kill_wall) p_ptr->no_flowed = TRUE;
+    */
 
     /* Apply some maximums ... */
     if (p_ptr->magic_resistance > 15 && !prace_is_(RACE_MON_GOLEM))

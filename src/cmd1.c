@@ -2252,19 +2252,44 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         switch (e)
                         {
                         case GF_ACID:
-                            if (r_ptr->flagsr & (RFR_RES_ACID|RFR_IM_ACID)) e = 0;
+                            if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= r_ptr->flagsr & RFR_EFF_IM_ACID_MASK;
+                                e = 0;
+                            }
                             break;
                         case GF_FIRE:
-                            if (r_ptr->flagsr & (RFR_RES_FIRE|RFR_IM_FIRE)) e = 0;
+                            if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK;
+                                e = 0;
+                            }
                             break;
                         case GF_COLD:
-                            if (r_ptr->flagsr & (RFR_RES_COLD|RFR_IM_COLD)) e = 0;
+                            if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= r_ptr->flagsr & RFR_EFF_IM_COLD_MASK;
+                                e = 0;
+                            }
                             break;
                         case GF_ELEC:
-                            if (r_ptr->flagsr & (RFR_RES_ELEC|RFR_IM_ELEC)) e = 0;
+                            if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK;
+                                e = 0;
+                            }
                             break;
                         case GF_POIS:
-                            if (r_ptr->flagsr & (RFR_RES_POIS|RFR_IM_POIS)) e = 0;
+                            if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= r_ptr->flagsr & RFR_EFF_IM_POIS_MASK;
+                                e = 0;
+                            }
                             break;
                         }
                     }
@@ -5092,13 +5117,13 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 
     if (oktomove)
     {
+        if (have_flag(f_ptr->flags, FF_CAN_PASS) && !p_can_kill_walls /*&& !elemental_is_(ELEMENTAL_EARTH)*/)
+            energy_use *= 2;
+
         if (have_flag(f_ptr->flags, FF_LAVA) && elemental_is_(ELEMENTAL_FIRE))
             energy_use /= 2;
 
         if (have_flag(f_ptr->flags, FF_WATER) && elemental_is_(ELEMENTAL_WATER))
-            energy_use /= 2;
-
-        if (have_flag(f_ptr->flags, FF_WALL) && elemental_is_(ELEMENTAL_EARTH))
             energy_use /= 2;
     }
 
