@@ -876,25 +876,47 @@ extern int make_dump(char_attr_line * line, int mode)
     bool dead = FALSE;
     bool have_home = (p_ptr->home != 0);
 
+    const char *map_name[] = 
+	{ 
+	    "Standard wilderness", 
+	    "Extended wilderness", 
+	    "Hybrid dungeon", 
+	    "Angband dungeon"
+	};
+
+    const char *mode_name[] = 
+	{ 
+	    "Thrall",
+	    "Ironman", 
+	    "Disconnected stairs", 
+	    "Small device", 
+	    "No artifacts",
+	    "No selling",
+	    "Smart cheat"
+	};
+
     /* Get the store number of the home */
-    if (have_home) {
-	if (OPT(adult_dungeon))
+    if (have_home) 
+    {
+	if ((p_ptr->map == MAP_DUNGEON) || (p_ptr->map == MAP_FANILLA))
 	    which = NUM_TOWNS_SMALL * 4 + STORE_HOME;
-	else {
-	    for (k = 0; k < NUM_TOWNS; k++) {
+	else 
+	{
+	    for (k = 0; k < NUM_TOWNS; k++) 
+	    {
 		/* Found the town */
-		if (p_ptr->home == towns[k]) {
+		if (p_ptr->home == towns[k]) 
+		{
 		    which += (k < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
 		    break;
 		}
 		/* Next town */
 		else
-		    which +=
-			(k <
-			 NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
+		    which += (k < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : 
+			      MAX_STORES_BIG);
 	    }
 	}
-
+	
 	/* Activate the store */
 	st_ptr = &store[which];
     }
@@ -1826,6 +1848,23 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
     current_line++;
     dump_ptr = (char_attr *) &line[current_line];
 
+    /* Dump game map and modes */
+    current_line++;
+    dump_ptr = (char_attr *) &line[current_line];
+    dump_put_str(TERM_WHITE, "[Map and modes]", 2);
+    current_line += 2;
+    dump_ptr = (char_attr *) &line[current_line];
+    dump_put_str(TERM_WHITE, map_name[p_ptr->map], 0);
+    current_line++;
+    for (i = 0; i < GAME_MODE_MAX; i++) 
+    {
+	if (p_ptr->game_mode[i])
+	{
+	    dump_ptr = (char_attr *) &line[current_line];
+	    dump_put_str(TERM_WHITE, mode_name[i], 0);
+	    current_line++;
+	}
+    }
 
     /* Dump options */
     current_line++;
@@ -1834,18 +1873,10 @@ sprintf(buf1, "%d feet", p_ptr->state.see_infra * 10);
     current_line += 2;
 
     /* Dump options */
-    for (i = OPT_ADULT + 4; i < OPT_SCORE; i++) {
-	if (option_desc(i)) {
-	    dump_ptr = (char_attr *) &line[current_line];
-	    sprintf(buf, "%-49s: %s (%s)", option_desc(i),
-		    op_ptr->opt[i] ? "yes" : "no ", option_name(i));
-	    dump_put_str(TERM_WHITE, buf, 0);
-	    current_line++;
-	}
-    }
-
-    for (i = OPT_SCORE; i < OPT_MAX; i++) {
-	if (option_desc(i)) {
+    for (i = 0; i < OPT_MAX; i++) 
+    {
+	if (option_type(i) == OP_SCORE) 
+	{
 	    dump_ptr = (char_attr *) &line[current_line];
 	    sprintf(buf, "%-49s: %s (%s)", option_desc(i),
 		    op_ptr->opt[i] ? "yes" : "no ", option_name(i));
@@ -2482,125 +2513,6 @@ void do_cmd_help(void)
     /* Load screen */
     screen_load();
 }
-
-
-/**
- * Process the player name.
- * Extract a clean "base name".
- * Build the savefile name if needed.
- */
-void process_player_name(bool sf)
-{
-    int i, k = 0;
-
-
-    /* Cannot be too long */
-    if (strlen(op_ptr->full_name) > 15) {
-	/* Name too long */
-	quit_fmt("The name '%s' is too long!", op_ptr->full_name);
-    }
-
-    /* Cannot contain "icky" characters */
-    for (i = 0; op_ptr->full_name[i]; i++) {
-	/* No control characters */
-	if (iscntrl(op_ptr->full_name[i])) {
-	    /* Illegal characters */
-	    quit_fmt("The name '%s' contains control chars!",
-		     op_ptr->full_name);
-	}
-    }
-
-
-#ifdef MACINTOSH
-
-    /* Extract "useful" letters */
-    for (i = 0; op_ptr->full_name[i]; i++) {
-	char c = op_ptr->full_name[i];
-
-	/* Convert "colon" and "period" */
-	if ((c == ':') || (c == '.'))
-	    c = '_';
-
-	/* Accept all the letters */
-	op_ptr->base_name[k++] = c;
-    }
-
-#else
-
-    /* Extract "useful" letters */
-    for (i = 0; op_ptr->full_name[i]; i++) {
-	char c = op_ptr->full_name[i];
-
-	/* Accept some letters */
-	if (isalpha(c) || isdigit(c))
-	    op_ptr->base_name[k++] = c;
-
-	/* Convert space, dot, and underscore to underscore */
-	else if (strchr(". _", c))
-	    op_ptr->base_name[k++] = '_';
-    }
-
-#endif
-
-
-#if defined(WINDOWS) || defined(MSDOS)
-
-    /* Hack -- max length */
-    if (k > 8)
-	k = 8;
-
-#endif
-
-    /* Terminate */
-    op_ptr->base_name[k] = '\0';
-
-    /* Require a "base" name */
-    if (!op_ptr->base_name[0])
-	strcpy(op_ptr->base_name, "PLAYER");
-
-
-#ifdef SAVEFILE_MUTABLE
-
-    /* Accept */
-    sf = TRUE;
-
-#endif
-
-    /* Change the savefile name */
-    if (sf) {
-	char temp[128];
-
-#ifdef SAVEFILE_USE_UID
-	/* Rename the savefile, using the player_uid and base_name */
-	sprintf(temp, "%d.%s", player_uid, op_ptr->base_name);
-#else
-	/* Rename the savefile, using the base name */
-	sprintf(temp, "%s", op_ptr->base_name);
-#endif
-
-#ifdef VM
-	/* Hack -- support "flat directory" usage on VM/ESA */
-	sprintf(temp, "%s.sv", op_ptr->base_name);
-#endif				/* VM */
-
-	/* Build the filename */
-#ifdef _WIN32_WCE
-	/* SJG */
-	/* Rename the savefile, using the base name + .faa */
-	sprintf(temp, "%s.faa", op_ptr->base_name);
-
-	// The common open file dialog doesn't like
-	// anything being farther up than one directory!
-	// For now hard code it. I should probably roll my
-	// own open file dailog.
-	path_build(savefile, 1024, "\\My Documents\\FA", temp);
-#else
-	path_build(savefile, 1024, ANGBAND_DIR_SAVE, temp);
-#endif
-    }
-}
-
-
 
 
 /**

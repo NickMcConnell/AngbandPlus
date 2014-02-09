@@ -62,7 +62,7 @@
  */
 /*
 #ifdef BUILD_ID
-#define VERSION_STRING	"1.3.3 (" BUILD_ID ")"
+#define VERSION_STRING	"1.4.0 (" BUILD_ID ")"
 #endif
 */
 
@@ -70,8 +70,8 @@
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	3
-#define VERSION_PATCH	3
+#define VERSION_MINOR	4
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 /**
@@ -196,6 +196,33 @@
 #define STORE_HOME 		7
 #define STORE_BOOK 		8
 #define STORE_MERCH             9
+
+/**
+ * Map modes
+ */
+#define MAP_COMPRESSED     0
+#define MAP_EXTENDED       1
+#define MAP_DUNGEON        2
+#define MAP_FANILLA        3
+#define MAP_MAX            4
+
+/**
+ * Game modes
+ */
+enum
+{
+    GAME_MODE_THRALL = 0,
+    GAME_MODE_IRONMAN,
+    GAME_MODE_NO_STAIRS,
+    GAME_MODE_SMALL_DEVICE,
+    GAME_MODE_NO_ARTIFACTS,
+    GAME_MODE_NO_SELLING,
+    GAME_MODE_AI_CHEAT,
+
+    GAME_MODE_MAX
+};
+
+#define MODE(gmode)	p_ptr->game_mode[GAME_MODE_##gmode]
 
 /**
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -477,8 +504,8 @@
 #define MAX_RANGE_LGE   20      /* Maximum projection range */
 #define MAX_SIGHT_SML   10      /* Maximum view distance (small devices) */
 #define MAX_RANGE_SML   10      /* Maximum projection range (small devices) */
-#define MAX_SIGHT (OPT(adult_small_device) ? MAX_SIGHT_SML : MAX_SIGHT_LGE)  
-#define MAX_RANGE (OPT(adult_small_device) ? MAX_RANGE_SML : MAX_RANGE_LGE)
+#define MAX_SIGHT (MODE(SMALL_DEVICE) ? MAX_SIGHT_SML : MAX_SIGHT_LGE)  
+#define MAX_RANGE (MODE(SMALL_DEVICE) ? MAX_RANGE_SML : MAX_RANGE_LGE)
 
 
 /**
@@ -2498,19 +2525,26 @@ extern int PlayerUID;
 #define DOWN                   7
 #define STAGE_TYPE             8
 
-/* Special stage numbers */
-#define ERIADOR_TOWN           (OPT(adult_compressed) ? 5 : 6)
-#define OSSIRIAND_TOWN         (OPT(adult_compressed) ? 20 : 30)
-#define ERED_LUIN_SOUTH_TOWN   (OPT(adult_compressed) ? 24 : 37)
-#define TAUR_IM_DUINATH_TOWN   (OPT(adult_compressed) ? 27 : 44)
-#define EPHEL_BRANDIR_TOWN     (OPT(adult_compressed) ? 59 : 115)
-#define GLADDEN_FIELDS_TOWN    (OPT(adult_compressed) ? 79 : 150)
-#define KHAZAD_DUM_TOWN        (OPT(adult_compressed) ? 80 : 151)
-#define BELEGOST_TOWN          (OPT(adult_compressed) ? 81 : 152)
-#define MENEGROTH_TOWN         (OPT(adult_compressed) ? 82 : 153)
-#define GONDOLIN_TOWN          (OPT(adult_compressed) ? 83 : 154)
-#define UNDERWORLD_STAGE       (OPT(adult_compressed) ? 84 : 255)
-#define MOUNTAINTOP_STAGE      (OPT(adult_compressed) ? 85 : 256)
+/* 
+ * Special stage numbers 
+ * 
+ * These need to be changed any time the maps change
+ */
+#define ERIADOR_TOWN           (p_ptr->map == MAP_COMPRESSED ? 5 : 6)
+#define OSSIRIAND_TOWN         (p_ptr->map == MAP_COMPRESSED ? 20 : 30)
+#define ERED_LUIN_SOUTH_TOWN   (p_ptr->map == MAP_COMPRESSED ? 24 : 37)
+#define TAUR_IM_DUINATH_TOWN   (p_ptr->map == MAP_COMPRESSED ? 27 : 44)
+#define EPHEL_BRANDIR_TOWN     (p_ptr->map == MAP_COMPRESSED ? 59 : 115)
+#define GLADDEN_FIELDS_TOWN    (p_ptr->map == MAP_COMPRESSED ? 79 : 150)
+#define KHAZAD_DUM_TOWN        (p_ptr->map == MAP_COMPRESSED ? 80 : 151)
+#define BELEGOST_TOWN          (p_ptr->map == MAP_COMPRESSED ? 81 : 152)
+#define MENEGROTH_TOWN         (p_ptr->map == MAP_COMPRESSED ? 82 : 153)
+#define GONDOLIN_TOWN          (p_ptr->map == MAP_COMPRESSED ? 83 : 154)
+#define UNDERWORLD_STAGE       (p_ptr->map == MAP_COMPRESSED ? 84 : 255)
+#define MOUNTAINTOP_STAGE      (p_ptr->map == MAP_COMPRESSED ? 85 : 256)
+#define THRALL_START \
+	((p_ptr->map == MAP_DUNGEON) ? 87 :	\
+	 ((p_ptr->map == MAP_COMPRESSED) ? 70 : 135))
 
 
 /*
@@ -2539,18 +2573,6 @@ extern int PlayerUID;
  * Sign of a non-racial monster
  */
 #define NON_RACIAL 255
-
-/*
- * Rune types
-#define RUNE_ELEMENTS   0
-#define RUNE_MAGDEF     1
-#define RUNE_QUAKE      2
-#define RUNE_MANA       3
-#define RUNE_PROTECT    4
-#define RUNE_POWER      5
-#define RUNE_SPEED      6
-#define MAX_RUNE        7
- */
 
 /** 
  * Maximum rune mana reserve 

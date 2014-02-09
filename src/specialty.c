@@ -133,7 +133,7 @@ static void  gain_spec_menu_browser(int oid, void *data, const region *loc)
     
     /* Redirect output to the screen */
     text_out_hook = text_out_to_screen;
-    text_out_wrap = 0;
+    text_out_wrap = 60;
     text_out_indent = loc->col - 1;
     text_out_pad = 1;
     
@@ -145,6 +145,7 @@ static void  gain_spec_menu_browser(int oid, void *data, const region *loc)
     /* XXX */
     text_out_pad = 0;
     text_out_indent = 0;
+    text_out_wrap = 0;
 }
 
 /**
@@ -203,7 +204,11 @@ bool gain_spec_menu(int *pick)
 	evt = menu_select(&menu, EVT_SELECT, TRUE);
 	done = (evt.type == EVT_ESCAPE);
 	if (!done && (d->selected_spec))
-	    done = get_check("Are you sure? ");
+	{
+    menu_layout(&menu, &loc);
+	    done = get_check(format("Definitely choose %s? ", 
+				    abilities[d->selected_spec].name));
+	}
     }
 
     if (evt.type != EVT_ESCAPE)
@@ -755,7 +760,7 @@ static void view_spec_menu_browser(int oid, void *data, const region *loc)
 
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
-	text_out_wrap = 0;
+	text_out_wrap = 60;
 	text_out_indent = loc->col - 1;
 	text_out_pad = 1;
 
@@ -769,6 +774,7 @@ static void view_spec_menu_browser(int oid, void *data, const region *loc)
 	/* XXX */
 	text_out_pad = 0;
 	text_out_indent = 0;
+	text_out_wrap = 0;
 }
 
 /**

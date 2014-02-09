@@ -1028,7 +1028,6 @@ typedef struct history {
  */
 typedef struct {
     char full_name[32];	/**< Full name */
-    char base_name[32];	/**< Base name */
 
     bool opt[OPT_MAX];	/**< Options */
 
@@ -1265,6 +1264,8 @@ typedef struct player {
     bool is_dead;	/**< Player is dead */
 
     bool wizard;	/**< Player is in wizard mode */
+    byte map;           /**< Which stage_map to use */
+    bool game_mode[GAME_MODE_MAX];  /**< Game mode (thrall, ironman, etc) */
 
   /*** Temporary fields ***/
 

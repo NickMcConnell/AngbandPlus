@@ -503,7 +503,7 @@ s16b get_mon_num(int level)
 	    }
 	}
 	/* Hard mode wilderness is hard */
-	if (OPT(hard_mode) && (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE))
+	if (OPT(night_mare) && (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE))
 	{
 	    temp_level += 5;
 	}
@@ -543,27 +543,35 @@ s16b get_mon_num(int level)
 		&& (r_ptr->cur_num >= r_ptr->max_num))
 		continue;
 
-	    /* Forced-depth monsters only appear at their level. */
+	    /* Forced-depth monsters only appear at their level. Usually. */
 	    if ((rf_has(r_ptr->flags, RF_FORCE_DEPTH))
 		&& (r_ptr->level != p_ptr->depth))
-		continue;
+	    {
+		/* Hack for questors on FAnilla map */
+		if ((p_ptr->map != MAP_FANILLA) || (r_ptr->level >= 99)
+		    || (!rf_has(r_ptr->flags, RF_QUESTOR)))
+			continue;
+	    }
 
 	    /* Hack - handle dungeon specific -NRM- */
-	    if ((rf_has(r_ptr->flags, RF_RUDH))
-		&& (stage_map[p_ptr->stage][LOCALITY] != AMON_RUDH))
-		continue;
-
-	    if ((rf_has(r_ptr->flags, RF_NARGOTHROND))
-		&& (stage_map[p_ptr->stage][LOCALITY] != NARGOTHROND))
-		continue;
-
-	    if ((rf_has(r_ptr->flags, RF_DUNGORTHEB))
-		&& (stage_map[p_ptr->stage][LOCALITY] != NAN_DUNGORTHEB))
-		continue;
-
-	    if ((rf_has(r_ptr->flags, RF_GAURHOTH))
-		&& (stage_map[p_ptr->stage][LOCALITY] != TOL_IN_GAURHOTH))
-		continue;
+	    if (p_ptr->map != MAP_FANILLA)
+	    {
+		if ((rf_has(r_ptr->flags, RF_RUDH))
+		    && (stage_map[p_ptr->stage][LOCALITY] != AMON_RUDH))
+		    continue;
+		
+		if ((rf_has(r_ptr->flags, RF_NARGOTHROND))
+		    && (stage_map[p_ptr->stage][LOCALITY] != NARGOTHROND))
+		    continue;
+		
+		if ((rf_has(r_ptr->flags, RF_DUNGORTHEB))
+		    && (stage_map[p_ptr->stage][LOCALITY] != NAN_DUNGORTHEB))
+		    continue;
+		
+		if ((rf_has(r_ptr->flags, RF_GAURHOTH))
+		    && (stage_map[p_ptr->stage][LOCALITY] != TOL_IN_GAURHOTH))
+		    continue;
+	    }
 
 	    if ((rf_has(r_ptr->flags, RF_ANGBAND))
 		&& (stage_map[p_ptr->stage][LOCALITY] != ANGBAND))
@@ -1707,7 +1715,6 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * or viewed directly, but old targets will remain set.   XXX XXX
  *
  * The player can choose to be disturbed by several things, including
- * disturb_move (monster which is viewable moves in some way), and
  * disturb_near (monster which is "easily" viewable moves in some
  * way).  Note that "moves" includes "appears" and "disappears".
  */
@@ -1879,10 +1886,6 @@ void update_mon(int m_idx, bool full)
 	    if (l_ptr->sights < MAX_SHORT)
 		l_ptr->sights++;
 
-	    /* Disturb on appearance */
-	    if (OPT(disturb_move) && (m_ptr->hostile == -1))
-		disturb(1, 0);
-
 	    /* Redraw stuff */
 	    p_ptr->redraw |= PR_MONLIST;
 
@@ -1903,10 +1906,6 @@ void update_mon(int m_idx, bool full)
 	    if (p_ptr->health_who == m_idx)
 		p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
-	    /* Disturb on disappearance */
-	    if (OPT(disturb_move) && (m_ptr->hostile == -1))
-		disturb(1, 0);
-
 	    /* Redraw stuff */
 	    p_ptr->redraw |= PR_MONLIST;
 
@@ -1920,10 +1919,6 @@ void update_mon(int m_idx, bool full)
 	if (!(m_ptr->mflag & (MFLAG_VIEW))) {
 	    /* Mark as easily visible */
 	    m_ptr->mflag |= (MFLAG_VIEW);
-
-	    /* Disturb on appearance */
-	    if (OPT(disturb_near) && (m_ptr->hostile == -1))
-		disturb(1, 0);
 
 	    /* Re-draw monster window */
 	    p_ptr->redraw |= PR_MONLIST;
@@ -2186,7 +2181,8 @@ s16b player_place(int y, int x)
 	return (0);
 
     /* No stairs if we don't do that */
-    if (OPT(adult_no_stairs) && !p_ptr->themed_level && p_ptr->depth && !(OPT(adult_thrall) && (p_ptr->depth == 58) && (turn < 10)))
+    if (MODE(NO_STAIRS) && !p_ptr->themed_level && p_ptr->depth && 
+	!(MODE(THRALL) && (p_ptr->depth == 58) && (turn < 10)))
     {
 	if (outside)
 	    cave_set_feat(y, x, FEAT_ROAD);
@@ -4343,7 +4339,7 @@ static void build_quest_stairs(int y, int x, char *portal)
 void monster_death(int m_idx)
 {
     int i, j, y, x;
-
+    
     int dump_item = 0;
     int dump_gold = 0;
 
@@ -4594,28 +4590,32 @@ void monster_death(int m_idx)
 
 
     /* Mark quests as complete */
-    for (i = 0; i < MAX_Q_IDX; i++) {
+    for (i = 0; i < MAX_Q_IDX; i++) 
+    {
 	/* Note completed quests */
 	if (stage_map[q_list[i].stage][1] == r_ptr->level)
 	    q_list[i].stage = 0;
     }
 
-    /* Mark Sauron's other forms as dead */
-    if ((r_ptr->level == 85) && (rf_has(r_ptr->flags, RF_QUESTOR)))
+    /* Hack - mark Sauron's other forms as dead */
+    if (((r_ptr->level == 85)||(r_ptr->level == 99)) 
+	&& (rf_has(r_ptr->flags, RF_QUESTOR)))
 	for (i = 1; i < 4; i++)
 	    r_info[m_ptr->r_idx - i].max_num--;
-
-    /* Make a staircase for Morgoth */
-    if (r_ptr->level == 100)
+    
+    /* Make a staircase for Morgoth (or Sauron) */
+    if ((r_ptr->level == 100)||(r_ptr->level == 99))
 	build_quest_stairs(y, x, "staircase");
-
+    
     /* ...or a portal for ironmen wilderness games */
-    else if (OPT(adult_ironman) && !OPT(adult_dungeon) && (p_ptr->depth != 100))
+    else if (MODE(IRONMAN) && (p_ptr->map != MAP_DUNGEON) && 
+	     (p_ptr->map != MAP_FANILLA) && (p_ptr->depth != 100))
 	build_quest_stairs(y, x, "portal");
-
+    
     /* or a path out of Nan Dungortheb for wilderness games */
     else if ((r_ptr->level == 70) && (p_ptr->depth == 70)
-	     && !OPT(adult_dungeon)) {
+	     && (p_ptr->map != MAP_DUNGEON) && (p_ptr->map != MAP_FANILLA)) 
+    {
 	/* Make a path */
 	for (y = p_ptr->py; y < DUNGEON_HGT - 2; y++)
 	    cave_set_feat(y, p_ptr->px, FEAT_ROAD);

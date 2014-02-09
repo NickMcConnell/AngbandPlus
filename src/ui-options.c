@@ -28,113 +28,48 @@
 #include "files.h"
 
 
-
-
-typedef struct
-{
-    int enum_val;
-    const char *name;
-} quality_name_struct;
-
 /**
- * Names of categories.
- * Mapping of tval -> type 
+ * Prompt the user for a filename to save the pref file to.
  */
-static quality_name_struct quality_choices[TYPE_MAX] = 
-{
-    { TV_SWORD, "Swords" }, 
-    { TV_POLEARM,"Polearms"  },
-    { TV_HAFTED,"Blunt weapons"  },
-    { TV_BOW, "Missile weapons" },
-    { TV_SHOT, "Sling ammunition" },
-    { TV_ARROW,"Bow ammunition"  },
-    { TV_BOLT,"Crossbow ammunition"  },
-    { TV_SOFT_ARMOR, "Soft armor" },
-    { TV_HARD_ARMOR,"Hard armor"  },
-    { TV_DRAG_ARMOR, "Dragon Scale Mail" },
-    { TV_CLOAK,"Cloaks"  },
-    { TV_SHIELD, "Shields" },
-    { TV_HELM, "Helms" },
-    { TV_CROWN, "Crowns" },
-    { TV_GLOVES, "Gloves" },
-    { TV_BOOTS,"Boots"  },
-    { TV_DIGGING,"Diggers"  },
-    { TV_RING, "Rings" },
-    { TV_AMULET, "Amulets" },
-};
-
-byte squelch_level[TYPE_MAX];
-
-
-/**
- * The names for the various kinds of quality
- */
-static quality_name_struct quality_values[SQUELCH_MAX] =
-{
-    { SQUELCH_NONE,"none" },	
-    { SQUELCH_CURSED,"cursed (objects known to have a curse)" }, 
-    { SQUELCH_DUBIOUS,"dubious (all dubious items)" },     
-    { SQUELCH_DUBIOUS_NON,"dubious non-ego (strong pseudo-ID)" },   
-    { SQUELCH_NON_EGO,"non-ego (all but ego-items - strong pseudo-ID)" }, 
-    { SQUELCH_AVERAGE,"average (everything not good or better)" },     
-    { SQUELCH_GOOD_STRONG,"good (strong pseudo-ID or identify)" },    
-    { SQUELCH_GOOD_WEAK,"good (weak pseudo-ID)" },
-    { SQUELCH_ALL,"everything except artifacts" },	
-};
-
-/**
- * Categories for sval-dependent squelch. 
- */
-static tval_desc sval_dependent[] =
-{
-  { TV_STAFF,		"Staffs" },
-  { TV_WAND,		"Wands" },
-  { TV_ROD,		"Rods" },
-  { TV_SCROLL,		"Scrolls" },
-  { TV_POTION,		"Potions" },
-  { TV_FOOD,		"Food" },
-  { TV_MAGIC_BOOK,	"Magic books" },
-  { TV_PRAYER_BOOK,	"Prayer books" },
-  { TV_DRUID_BOOK,	"Stones of Lore" },
-  { TV_NECRO_BOOK,	"Necromantic tomes" },
-  { TV_SPIKE,		"Spikes" },
-  { TV_LIGHT,		"Lights" },
-  { TV_FLASK,           "Oil" },
-  { TV_SKELETON,        "Skeletons" },
-  { TV_BOTTLE,          "Bottles" },
-  { TV_JUNK,            "Junk" }
-};
-
-static void dump_pref_file(void (*dump)(ang_file *), const char *title, int row)
-{
+static bool get_pref_path(const char *what, int row, char *buf, size_t max) {
 	char ftmp[80];
-	char buf[1024];
+	bool ok;
 
 	screen_save();
 
 	/* Prompt */
-	prt(format("%s to a pref file", title), row, 0);
-	
-	/* Prompt */
+	prt(format("%s to a pref file", what), row, 0);
 	prt("File: ", row + 2, 0);
-	
+
 	/* Default filename */
-	strnfmt(ftmp, sizeof ftmp, "%s.prf", op_ptr->base_name);
+	strnfmt(ftmp, sizeof ftmp, "%s.prf", player_safe_name(p_ptr));
 	
 	/* Get a filename */
-	if (askfor_aux(ftmp, sizeof ftmp, NULL))
-	{
-		/* Build the filename */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
-	
-		prt("", 0, 0);
-		if (prefs_save(buf, dump, title))
-			msg(format("Dumped %s", strstr(title, " ") + 1));
-		else
-			msg("Failed");
-	}
-
+	ok = askfor_aux(ftmp, sizeof ftmp, NULL);
 	screen_load();
+
+	/* Build the filename */
+	if (ok)
+		path_build(buf, max, ANGBAND_DIR_USER, ftmp);
+
+	return ok;
+}
+
+
+static void dump_pref_file(void (*dump)(ang_file *), const char *title, int row) {
+	char buf[1024];
+
+	/* Get filename from user */
+	if (!get_pref_path(title, row, buf, sizeof(buf)))
+		return;
+
+	/* Try to save */
+	if (prefs_save(buf, dump, title))
+		msg("Saved %s.", strstr(title, " ") + 1);
+	else
+		msg("Failed to save %s.", strstr(title, " ") + 1);
+
+	message_flush();
 
 	return;
 }
@@ -231,7 +166,7 @@ static void option_toggle_menu(const char *name, int page)
 
 	/* Find the number of valid entries */
 	for (i = 0; i < OPT_PAGE_PER; i++) {
-		if (option_page[page][i] == OPT_NONE)
+		if (option_page[page][i] == OPT_none)
 			break;
 	}
 
@@ -1063,7 +998,7 @@ static void do_cmd_pref_file_hack(long row)
 	prt("File: ", row + 2, 0);
 
 	/* Default filename */
-	strnfmt(ftmp, sizeof ftmp, "%s.prf", op_ptr->base_name);
+	strnfmt(ftmp, sizeof ftmp, "%s.prf", player_safe_name(p_ptr));
 
 	/* Ask for a file (or cancel) */
 	if (askfor_aux(ftmp, sizeof ftmp, NULL))
@@ -1254,107 +1189,17 @@ static void do_cmd_options_autosave(const char *name, int row)
 }
 
 /*** Ego item squelch menu ***/
-
-static tval_desc raw_tvals[] =
-  {
-    {TV_SKELETON, "Skeletons"},
-    {TV_BOTTLE, "Bottles"},
-    {TV_JUNK, "Junk"},
-    {TV_SPIKE, "Spikes"},
-    {TV_CHEST, "Chests"},
-    {TV_SHOT, "Shots"},
-    {TV_ARROW, "Arrows"},
-    {TV_BOLT, "Bolts"},
-    {TV_BOW, "Launchers"},
-    {TV_DIGGING, "Diggers"},
-    {TV_HAFTED, "Blunt weapons"},
-    {TV_POLEARM, "Polearms"},
-    {TV_SWORD, "Swords"},
-    {TV_BOOTS, "Boots"},
-    {TV_GLOVES, "Gloves"},
-    {TV_HELM, "Helmets"},
-    {TV_CROWN, "Crowns"},
-    {TV_SHIELD, "Shields"},
-    {TV_CLOAK, "Cloaks"},
-    {TV_SOFT_ARMOR, "Soft Armor"},
-    {TV_HARD_ARMOR, "Hard Armor"},
-    {TV_DRAG_ARMOR, "DSMails"},
-    {TV_LIGHT, "Lights"},
-    {TV_AMULET, "Amulets"},
-    {TV_RING, "Rings"},
-    {TV_STAFF, "Staves"},
-    {TV_WAND, "Wands"},
-    {TV_ROD, "Rods"},
-    {TV_SCROLL, "Scrolls"},
-    {TV_POTION, "Potions"},
-    {TV_FLASK, "Flaskes"},
-    {TV_FOOD, "Food"},
-    {TV_MAGIC_BOOK, "Magic Books"},
-    {TV_PRAYER_BOOK, "Prayer Books"},
-    {TV_DRUID_BOOK, "Stones of Lore"},
-    {TV_NECRO_BOOK, "Necromantic Tomes"}
-};
-
-#ifdef _WIN32_WCE
-/**
- * WinCE has no bsearch 
- */
-typedef int (*comp_fn) (const void *, const void *);
-
-void *my_bsearch(const void *key, const void *base, size_t num, size_t size, 
-	       comp_fn my_comp);
-
-
-void *my_bsearch(const void *key, const void *base, size_t num, size_t size,
-	       int (*my_comp)(const void *, const void *))
-{
-  size_t odd_mask, bytes;
-  const char *centre, *high, *low;
-  int comp;
-  
-  odd_mask = ((size ^ (size - 1)) >> 1) + 1;
-  low = base;
-  bytes = num == 0 ? size : size + 1;
-  centre = low + num * size;
-  comp = 0;
-  while (bytes != size) 
-    {
-      if (comp > 0) 
-	{
-	  low = centre;
-	} 
-      else 
-	{
-	  high = centre;
-	}
-      bytes = high - low;
-      centre = low + ((bytes & odd_mask ? bytes - size : bytes) >> 1);
-      comp = my_comp(key, centre);
-      if (comp == 0) 
-	{
-	  return (void *)centre;
-	}
-    }
-  return NULL;
-}
-#endif
-
-#define NUM_RAW_TVALS (sizeof(raw_tvals) / sizeof(raw_tvals[0]))
-
-typedef struct ego_desc
-{
-  s16b e_idx;
-  const char *short_name;
-} ego_desc;
+#define EGO_MENU_HELPTEXT \
+"{lightgreen}Movement keys{/} scroll the list\n{lightred}ESC{/} returns to the previous menu\n{lightblue}Enter{/} toggles the current setting."
 
 /**
  * Skip common prefixes in ego-item names.
  */
 static const char *strip_ego_name(const char *name)
 {
-  if (prefix(name, "of the "))	return name + 7;
-  if (prefix(name, "of "))	return name + 3;
-  return name;
+    if (prefix(name, "of the "))	return name + 7;
+    if (prefix(name, "of "))	return name + 3;
+    return name;
 }
 
 /**
@@ -1362,9 +1207,9 @@ static const char *strip_ego_name(const char *name)
  */
 static int tval_comp_func(const void *a_ptr, const void *b_ptr)
 {
-  int a = ((tval_desc *)a_ptr)->tval;
-  int b = ((tval_desc *)b_ptr)->tval;
-  return a - b;
+    int a = ((tval_desc *)a_ptr)->tval;
+    int b = ((tval_desc *)b_ptr)->tval;
+    return a - b;
 }
 
 /**
@@ -1372,97 +1217,93 @@ static int tval_comp_func(const void *a_ptr, const void *b_ptr)
  */
 int ego_item_name(char *buf, size_t buf_size, ego_desc *d_ptr)
 {
-  byte tval_table[EGO_TVALS_MAX], i, n = 0;
-  int end;
-  size_t prefix_size;
-  const char *long_name;
+    byte tval_table[EGO_TVALS_MAX], i, n = 0;
+    int end;
+    size_t prefix_size;
+    const char *long_name;
   
-  ego_item_type *e_ptr = &e_info[d_ptr->e_idx];
+    ego_item_type *e_ptr = &e_info[d_ptr->e_idx];
   
-  /* Copy the valid tvals of this ego-item type */
-  for (i = 0; i < EGO_TVALS_MAX; i++)
+    /* Copy the valid tvals of this ego-item type */
+    for (i = 0; i < EGO_TVALS_MAX; i++)
     {
-      /* Ignore "empty" entries */
-      if (e_ptr->tval[i] < 1) continue;
+	int j;
+	bool dub = FALSE;
+
+	/* Ignore "empty" entries */
+	if (e_ptr->tval[i] < 1) continue;
+
+	/* check for doubles */
+	for (j = 0; j < n; j++)
+	    if (e_ptr->tval[i] == tval_table[j]) dub = TRUE;
+	if (dub) continue;
       
-      /* Append valid tvals */
-      tval_table[n++] = e_ptr->tval[i];
+	/* Append valid tvals */
+	tval_table[n++] = e_ptr->tval[i];
     }
   
-  /* Sort the tvals using bubble sort  */
-  for (i = 0; i < n; i++)
+    /* Sort the tvals using bubble sort  */
+    for (i = 0; i < n; i++)
     {
-      int j;
+	int j;
       
-      for (j = i + 1; j < n; j++)
+	for (j = i + 1; j < n; j++)
 	{
-	  if (tval_table[i] > tval_table[j])
+	    if (tval_table[i] > tval_table[j])
 	    {
-	      byte temp = tval_table[i];
-	      tval_table[i] = tval_table[j];
-	      tval_table[j] = temp;
+		byte temp = tval_table[i];
+		tval_table[i] = tval_table[j];
+		tval_table[j] = temp;
 	    }
 	}
     }
   
-  /* Initialize the buffer */
-  end = my_strcat(buf, "[ ] ", buf_size);
-  
-  /* Concatenate the tval' names */
-  for (i = 0; i < n; i++)
+    /* Initialize the buffer */
+    end = my_strcat(buf, "[ ] ", buf_size);
+
+    /* Concatenate the tval' names */
+    for (i = 0; i < n; i++)
     {
-      /* Fast searching */
-      tval_desc key, *result;
-      const char *tval_name;
-      
-      /* Find the tval's name using binary search */
-      key.tval = tval_table[i];
-      key.desc = NULL;
-      
-#ifdef _WIN32_WCE
-      result = my_bsearch(&key, raw_tvals, NUM_RAW_TVALS, 
-		       sizeof(raw_tvals[0]), tval_comp_func);
-#else
-      result = bsearch(&key, raw_tvals, NUM_RAW_TVALS, 
-		       sizeof(raw_tvals[0]), tval_comp_func);
-#endif
-    
-      if (result) tval_name = result->desc;
-      /* Paranoia */
-      else	tval_name = "????";
-      
-      /* Append the proper separator first, if any */
-      if (i > 0)
+	const char *tval_name;
+	int j;
+
+	for (j = 0; j < Q_TV_MAX; j++)
+	    if (quality_choices[j].tval == tval_table[i]) break;
+
+	tval_name = j < Q_TV_MAX ? quality_choices[j].desc : "????";
+     
+	/* Append the proper separator first, if any */
+	if (i > 0)
 	{
-	  end += my_strcat(buf, (i < n - 1) ? ", ": " and ", buf_size);
+	    end += my_strcat(buf, (i < n - 1) ? ", ": " and ", buf_size);
 	}
       
-      /* Append the name */
-      end += my_strcat(buf, tval_name, buf_size);
+	/* Append the name */
+	end += my_strcat(buf, tval_name, buf_size);
     }
+
+    /* Append an extra space */
+    end += my_strcat(buf, " ", buf_size);
   
-  /* Append an extra space */
-  end += my_strcat(buf, " ", buf_size);
+    /* Get the full ego-item name */
+    long_name = e_ptr->name;
   
-  /* Get the full ego-item name */
-  long_name = e_ptr->name;
+    /* Get the length of the common prefix, if any */
+    prefix_size = (d_ptr->short_name - long_name);
   
-  /* Get the length of the common prefix, if any */
-  prefix_size = (d_ptr->short_name - long_name);
-  
-  /* Found a prefix? */
-  if (prefix_size > 0)
+    /* Found a prefix? */
+    if (prefix_size > 0)
     {
-      char prefix[100];
+	char prefix[100];
       
-      /* Get a copy of the prefix */
-      my_strcpy(prefix, long_name, prefix_size + 1);
+	/* Get a copy of the prefix */
+	my_strcpy(prefix, long_name, prefix_size + 1);
       
-      /* Append the prefix */
-      end += my_strcat(buf, prefix, buf_size);
+	/* Append the prefix */
+	end += my_strcat(buf, prefix, buf_size);
     }
-  /* Set the name to the right length */
-  return end;
+    /* Set the name to the right length */
+    return end;
 }
 
 /**
@@ -1471,39 +1312,37 @@ int ego_item_name(char *buf, size_t buf_size, ego_desc *d_ptr)
  */
 static int ego_comp_func(const void *a_ptr, const void *b_ptr)
 {
-  const ego_desc *a = a_ptr;
-  const ego_desc *b = b_ptr;
+    const ego_desc *a = a_ptr;
+    const ego_desc *b = b_ptr;
   
-  /* Note the removal of common prefixes */
-  return (strcmp(a->short_name, b->short_name));
+    /* Note the removal of common prefixes */
+    return (strcmp(a->short_name, b->short_name));
 }
-
-/*** Ego squelch menu ***/
 
 /**
  * Display an entry on the sval menu
  */
 static void ego_display(menu_type *menu, int oid, bool cursor, int row, 
-			 int col, int width)
+			int col, int width)
 {
-  char buf[80] = "";
-  ego_desc *choice = (ego_desc *)menu->menu_data;
-  ego_item_type *e_ptr = &e_info[choice[oid].e_idx];
+    char buf[80] = "";
+    ego_desc *choice = (ego_desc *)menu->menu_data;
+    ego_item_type *e_ptr = &e_info[choice[oid].e_idx];
 
-  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
-  byte sq_attr = (e_ptr->squelch ? TERM_L_RED : TERM_L_GREEN);
+    byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+    byte sq_attr = (e_ptr->squelch ? TERM_L_RED : TERM_L_GREEN);
   
-  /* Acquire the "name" of object "i" */
-  (void) ego_item_name(buf, sizeof(buf), &choice[oid]);
+    /* Acquire the "name" of object "i" */
+    (void) ego_item_name(buf, sizeof(buf), &choice[oid]);
   
-  /* Print it */
-  c_put_str(attr, format("%s", buf), row, col);
+    /* Print it */
+    c_put_str(attr, format("%s", buf), row, col);
 
-  /* Show squelch mark, if any */
-  if (e_ptr->squelch) c_put_str(TERM_L_RED, "*", row, col + 1);
+    /* Show squelch mark, if any */
+    if (e_ptr->squelch) c_put_str(TERM_L_RED, "*", row, col + 1);
   
-  /* Show the stripped ego-item name using another colour */
-  c_put_str(sq_attr, choice[oid].short_name, row, col + strlen(buf));
+    /* Show the stripped ego-item name using another colour */
+    c_put_str(sq_attr, choice[oid].short_name, row, col + strlen(buf));
 }
 
 /**
@@ -1511,18 +1350,18 @@ static void ego_display(menu_type *menu, int oid, bool cursor, int row,
  */
 static bool ego_action(menu_type *menu, const ui_event *event, int oid)
 {
-  ego_desc *choice = menu->menu_data;
+    ego_desc *choice = menu->menu_data;
   
-  /* Toggle */
-  if (event->type == EVT_SELECT)
+    /* Toggle */
+    if (event->type == EVT_SELECT)
     {
-      ego_item_type *e_ptr = &e_info[choice[oid].e_idx];
-      e_ptr->squelch = !e_ptr->squelch;
+	ego_item_type *e_ptr = &e_info[choice[oid].e_idx];
+	e_ptr->squelch = !e_ptr->squelch;
       
-      return TRUE;
+	return TRUE;
     }
   
-  return FALSE;
+    return FALSE;
 }
 
 /**
@@ -1530,112 +1369,113 @@ static bool ego_action(menu_type *menu, const ui_event *event, int oid)
  */
 static void ego_menu(const char *unused, int also_unused)
 {
-  int idx, max_num = 0;
-  ego_item_type *e_ptr;
-  ego_desc *choice;
+    int idx, max_num = 0;
+    ego_item_type *e_ptr;
+    ego_desc *choice;
   
-  menu_type menu;
-  menu_iter menu_f = { 0, 0, ego_display, ego_action, 0 };
-  region area = { 1, 3, -1, -1 };
-  int cursor = 0;
+    menu_type menu;
+    menu_iter menu_f = { 0, 0, ego_display, ego_action, 0 };
+    region area = { 1, 5, -1, -1 };
+    int cursor = 0;
   
-  int i;
+    int i;
   
+    /* Hack - Used to sort the tval table for the first time */
+    static bool sort_tvals = TRUE;
   
-  /* Hack - Used to sort the tval table for the first time */
-  static bool sort_tvals = TRUE;
-  
-  /* Sort the tval table if needed */
-  if (sort_tvals)
+    /* Sort the tval table if needed */
+    if (sort_tvals)
     {
-      sort_tvals = FALSE;
+	sort_tvals = FALSE;
       
-      qsort(raw_tvals, NUM_RAW_TVALS, sizeof(raw_tvals[0]), tval_comp_func);
+	qsort(quality_choices, Q_TV_MAX, sizeof(quality_choices[0]),
+	      tval_comp_func);
     }
   
-  /* Create the array */
-  choice = C_ZNEW(alloc_ego_size, ego_desc);
+    /* Create the array */
+    choice = C_ZNEW(alloc_ego_size, ego_desc);
   
-  /* Get the valid ego-items */
-  for (i = 0; i < alloc_ego_size; i++)
+    /* Get the valid ego-items */
+    for (i = 0; i < alloc_ego_size; i++)
     {
-      idx = alloc_ego_table[i].index;
+	idx = alloc_ego_table[i].index;
       
-      e_ptr = &e_info[idx];
+	e_ptr = &e_info[idx];
       
-      /* Only valid known ego-items allowed */
-      if (!e_ptr->name || !e_ptr->everseen) continue;
+	/* Only valid known ego-items allowed */
+	if (!e_ptr->name || !e_ptr->everseen) continue;
       
-      /* Append the index */
-      choice[max_num].e_idx = idx;
-      choice[max_num].short_name = strip_ego_name(e_ptr->name);
+	/* Append the index */
+	choice[max_num].e_idx = idx;
+	choice[max_num].short_name = strip_ego_name(e_ptr->name);
       
-      ++max_num;
+	++max_num;
     }
   
-  /* Quickly sort the array by ego-item name */
-  qsort(choice, max_num, sizeof(choice[0]), ego_comp_func);
+    /* Quickly sort the array by ego-item name */
+    qsort(choice, max_num, sizeof(choice[0]), ego_comp_func);
   
-  /* Return here if there are no objects */
-  if (!max_num)
+    /* Return here if there are no objects */
+    if (!max_num)
     {
-      FREE(choice);
-      return;
+	FREE(choice);
+	return;
     }
   
   
-  /* Save the screen and clear it */
-  screen_save();
-  clear_from(0);
+    /* Save the screen and clear it */
+    screen_save();
+    clear_from(0);
   
-  /* Buttons */
-  button_add("Up", ARROW_UP);
-  button_add("Down", ARROW_DOWN);
-  button_add("Toggle", '\r');
-  
-  /* Output to the screen */
-  text_out_hook = text_out_to_screen;
-  
-  /* Indent output */
-  text_out_indent = 1;
-  text_out_wrap = 79;
-  Term_gotoxy(1, 0);
-  
-  /* Display some helpful information */
-  text_out("Use the ");
-  text_out_c(TERM_L_GREEN, "movement keys");
-  text_out(" to scroll the list or ");
-  text_out_c(TERM_L_GREEN, "ESC");
-  text_out(" to return to the previous menu.  ");
-  text_out_c(TERM_L_BLUE, "Enter");
-  text_out(" toggles the current setting.");
-  
-  text_out_indent = 0;
-  
-  /* Set up the menu */
-  WIPE(&menu, menu);
-  menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
-  menu_setpriv(&menu, max_num, choice);
-  menu_layout(&menu, &area);
-  
-  /* Select an entry */
-  (void) menu_select(&menu, cursor, FALSE);
-  
-  /* Free memory */
-  FREE(choice);
-  
-  /* Load screen */
-  screen_load();
+    /* Help text */
+    prt("Ego item squelch menu", 0, 0);
 
-  /* Buttons */
-  button_kill(ARROW_UP);
-  button_kill(ARROW_DOWN);
-  button_kill('\r');
+    /* Buttons */
+    button_add("Up", ARROW_UP);
+    button_add("Down", ARROW_DOWN);
+    button_add("Toggle", '\r');
+  
+    /* Output to the screen */
+    text_out_hook = text_out_to_screen;
+  
+    /* Indent output */
+    text_out_indent = 1;
+    text_out_wrap = 79;
+    Term_gotoxy(1, 1);
+  
+    /* Display some helpful information */
+    text_out_e(EGO_MENU_HELPTEXT);
+  
+    text_out_indent = 0;
+  
+    /* Set up the menu */
+    WIPE(&menu, menu);
+    menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
+    menu_setpriv(&menu, max_num, choice);
+    menu_layout(&menu, &area);
+  
+    /* Select an entry */
+    (void) menu_select(&menu, cursor, FALSE);
+  
+    /* Free memory */
+    FREE(choice);
+  
+    /* Load screen */
+    screen_load();
 
-  return;
+    /* Buttons */
+    button_kill(ARROW_UP);
+    button_kill(ARROW_DOWN);
+    button_kill('\r');
+
+    return;
 }
 
 /*** Quality-squelch menu ***/
+
+#define QUALITY_MENU_HELPTEXT \
+"{lightgreen}Movement keys{/} scroll the list\n{lightred}ESC{/} returns to the previous menu\n{lightblue}Enter{/} selects a type of item or toggles the current setting."
+int current_tval;
 
 /**
  * Display an entry in the menu.
@@ -1643,15 +1483,10 @@ static void ego_menu(const char *unused, int also_unused)
 static void quality_display(menu_type *menu, int oid, bool cursor, int row, 
 			    int col, int width)
 {
-  const char *name = quality_choices[oid].name;
- 
-  byte level = squelch_level[oid];
-  const char *level_name = quality_values[level].name;
-  
+  const char *name = quality_choices[oid].desc;
   byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
   
-  
-  c_put_str(attr, format("%-20s : %s", name, level_name), row, col);
+  c_put_str(attr, format("%-20s", name), row, col);
 }
 
 
@@ -1661,19 +1496,28 @@ static void quality_display(menu_type *menu, int oid, bool cursor, int row,
 static void quality_subdisplay(menu_type *menu, int oid, bool cursor, int row, 
 			       int col, int width)
 {
-  const char *name = quality_values[oid].name;
-  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+    bool heavy = (player_has(PF_PSEUDO_ID_HEAVY));
+    const char *name = heavy ? quality_strings[oid + 1].heavy_desc : 
+	quality_strings[oid + 1].light_desc;
+    byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
   
-  c_put_str(attr, name, row, col);
+    /* Print it */
+    c_put_str(attr, format("[ ] %s", name), row, col);
+    if (squelch_profile[current_tval][oid + 1])
+	c_put_str(TERM_L_RED, "*", row, col + 1);
 }
 
 /**
  * Handle "Enter".  :(
-
+  */
 static bool quality_subaction(menu_type *menu, const ui_event *e, int oid)
 {
-  return TRUE;
-} */
+    if (e->type == EVT_SELECT)
+	squelch_profile[current_tval][oid + 1] = 
+	    !squelch_profile[current_tval][oid + 1];
+
+    return TRUE;
+}  
 
 
 /**
@@ -1682,25 +1526,25 @@ static bool quality_subaction(menu_type *menu, const ui_event *e, int oid)
 static bool quality_action(menu_type *menu1, const ui_event *ev, int oid)
 {
     menu_type menu;
-    menu_iter menu_f = { 0, 0, quality_subdisplay, 0, 0 };
-    region area = { 24, 1, 44, SQUELCH_MAX };
-    ui_event evt;
+    menu_iter menu_f = { 0, 0, quality_subdisplay, quality_subaction, 0 };
+    region area = { 24, 5, 44, SQUELCH_MAX };
+    ui_event evt = EVENT_EMPTY;
     int count;
-  
+    bool heavy = (player_has(PF_PSEUDO_ID_HEAVY));
+
     /* Display at the right point */
     area.row += oid;
   
     /* Save */
     screen_save();
   
+    current_tval = oid;
+
     /* Run menu */
-    count = SQUELCH_MAX;
-    if ((quality_choices[oid].enum_val == TV_AMULET) || 
-	(quality_choices[oid].enum_val == TV_RING))
-	count = area.page_rows = SQUELCH_CURSED + 1;
+    count = heavy ? SQUELCH_MAX - 3 : SQUELCH_MAX - 1;
   
     menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
-    menu_setpriv(&menu, count, quality_values);
+    menu_setpriv(&menu, count, quality_strings + 1);
 
     /* Stop menus from going off the bottom of the screen */
     if (area.row + menu.count > Term->hgt - 1)
@@ -1711,11 +1555,10 @@ static bool quality_action(menu_type *menu1, const ui_event *ev, int oid)
     window_make(area.col - 2, area.row - 1, area.col + area.width + 2, 
 		area.row + area.page_rows);
 
-    evt = menu_select(&menu, 0, TRUE);
-  
-    /* Set the new value appropriately */
-    if (evt.type == EVT_SELECT)
-	squelch_level[oid] = menu.cursor;
+    while (evt.type != EVT_ESCAPE)
+    {
+	evt = menu_select(&menu, 0, TRUE);
+    }
   
     /* Load and finish */
     screen_load();
@@ -1727,32 +1570,41 @@ static bool quality_action(menu_type *menu1, const ui_event *ev, int oid)
  */
 static void quality_menu(const char *unused, int also_unused)
 {
-  menu_type menu;
-  menu_iter menu_f = { 0, 0, quality_display, quality_action, 0 };
-  region area = { 1, 3, -1, -1 };
+    menu_type menu;
+    menu_iter menu_f = { 0, 0, quality_display, quality_action, 0 };
+    region area = { 3, 5, -1, -1 };
   
-  /* Save screen */
-  screen_save();
-  clear_from(0);
+    /* Save screen */
+    screen_save();
+    clear_from(0);
   
-  /* Help text */
-  prt("Quality squelch menu", 0, 0);
+    /* Help text */
+    prt("Quality squelch menu", 0, 0);
+
+    /* Output to the screen */
+    text_out_hook = text_out_to_screen;
+	
+    /* Indent output */
+    text_out_indent = 1;
+    text_out_wrap = 70;
+    Term_gotoxy(1, 1);
+    text_out_e(QUALITY_MENU_HELPTEXT);
   
-  Term_gotoxy(1, 1);
-  text_out_to_screen(TERM_L_RED, "Use the movement keys to navigate, and Enter to change settings.");
+    /* Reset text_out() indentation */
+    text_out_indent = 0;
+    text_out_wrap = 0;
+
+    /* Set up the menu */
+    menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
+    menu_setpriv(&menu, Q_TV_MAX, quality_choices);
+    menu_layout(&menu, &area);
   
-  /* Set up the menu */
-  menu_init(&menu, MN_SKIN_SCROLL, &menu_f);
-  menu.title = "Quality squelch menu";
-  menu_setpriv(&menu, TYPE_MAX, quality_values);
-  menu_layout(&menu, &area);
+    /* Select an entry */
+    menu_select(&menu, 0, FALSE);
   
-  /* Select an entry */
-  menu_select(&menu, 0, FALSE);
-  
-  /* Load screen */
-  screen_load();
-  return;
+    /* Load screen */
+    screen_load();
+    return;
 }
 
 
@@ -1765,20 +1617,20 @@ static void quality_menu(const char *unused, int also_unused)
 static void sval_display(menu_type *menu, int oid, bool cursor, int row, 
 			 int col, int width)
 {
-  char buf[80];
-  const u16b *choice = menu->menu_data;
-  int idx = choice[oid];
+    char buf[80];
+    const u16b *choice = menu->menu_data;
+    int idx = choice[oid];
 
-  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+    byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
   
   
-  /* Acquire the "name" of object "i" */
-  object_kind_name(buf, sizeof(buf), idx, TRUE);
+    /* Acquire the "name" of object "i" */
+    object_kind_name(buf, sizeof(buf), idx, TRUE);
   
-  /* Print it */
-  c_put_str(attr, format("[ ] %s", buf), row, col);
-  if (k_info[idx].squelch)
-    c_put_str(TERM_L_RED, "*", row, col + 1);
+    /* Print it */
+    c_put_str(attr, format("[ ] %s", buf), row, col);
+    if (k_info[idx].squelch)
+	c_put_str(TERM_L_RED, "*", row, col + 1);
 }
 
 /**
@@ -1786,18 +1638,18 @@ static void sval_display(menu_type *menu, int oid, bool cursor, int row,
  */
 static bool sval_action(menu_type *menu, const ui_event *e, int oid)
 {
-  u16b *choice = menu->menu_data;
+    u16b *choice = menu->menu_data;
   
-  /* Toggle */
-  if (e->type == EVT_SELECT)
+    /* Toggle */
+    if (e->type == EVT_SELECT)
     {
-      int idx = choice[oid];
-      k_info[idx].squelch = !k_info[idx].squelch;
+	int idx = choice[oid];
+	k_info[idx].squelch = !k_info[idx].squelch;
       
-      return TRUE;
+	return TRUE;
     }
   
-  return FALSE;
+    return FALSE;
 }
 
 /**
@@ -1810,89 +1662,86 @@ static bool sval_action(menu_type *menu, const ui_event *e, int oid)
  */
 static bool sval_menu(int tval, const char *desc)
 {
-  menu_type *menu;
-  menu_iter menu_f = { 0, 0, sval_display, sval_action, 0 };
-  region area = { 1, 5, -1, -1 };
+    menu_type *menu;
+    menu_iter menu_f = { 0, 0, sval_display, sval_action, 0 };
+    region area = { 1, 5, -1, -1 };
   
-  int num = 0;
-  size_t i;
+    int num = 0;
+    size_t i;
   
-  u16b *choice;
+    u16b *choice;
   
   
-  /* Create the array */
-  choice = C_ZNEW(LAST_NORMAL, u16b);
+    /* Create the array */
+    choice = C_ZNEW(LAST_NORMAL, u16b);
   
-  /* Iterate over all possible object kinds, finding ones which 
-   * can be squelched */
-  for (i = 1; i < LAST_NORMAL; i++)
+    /* Iterate over all possible object kinds, finding ones which 
+     * can be squelched */
+    for (i = 1; i < LAST_NORMAL; i++)
     {
-      object_kind *k_ptr = &k_info[i];
+	object_kind *k_ptr = &k_info[i];
       
-      /* Skip empty objects, unseen objects, incorrect tvals and artifacts */
-      if (!k_ptr->name) continue;
-      if (!k_ptr->everseen) continue;
-      if (k_ptr->tval != tval) continue;
-      if (kf_has(k_ptr->flags_kind, KF_INSTA_ART)) continue;
+	/* Skip empty objects, unseen objects, incorrect tvals and artifacts */
+	if (!k_ptr->name) continue;
+	if (!k_ptr->everseen) continue;
+	if (k_ptr->tval != tval) continue;
+	if (kf_has(k_ptr->flags_kind, KF_INSTA_ART)) continue;
 
-      /* Add this item to our possibles list */
-      choice[num++] = i;
+	/* Add this item to our possibles list */
+	choice[num++] = i;
     }
   
-  /* Return here if there are no objects */
-  if (!num)
+    /* Return here if there are no objects */
+    if (!num)
     {
-      FREE(choice);
-      return FALSE;
+	FREE(choice);
+	return FALSE;
     }
   
   
-  /* Save the screen and clear it */
-  screen_save();
-  clear_from(0);
+    /* Save the screen and clear it */
+    screen_save();
+    clear_from(0);
   
-  /* Buttons */
-  button_add("Up", ARROW_UP);
-  button_add("Down", ARROW_DOWN);
-  button_add("Toggle", '\r');
-  
-  /* Output to the screen */
-  text_out_hook = text_out_to_screen;
-  
-  /* Indent output */
-  text_out_indent = 1;
-  text_out_wrap = 79;
-  Term_gotoxy(1, 0);
-  
-  /* Display some helpful information */
-  text_out("Use the ");
-  text_out_c(TERM_L_GREEN, "movement keys");
-  text_out(" to scroll the list or ");
-  text_out_c(TERM_L_GREEN, "ESC");
-  text_out(" to return to the previous menu.  ");
-  text_out_c(TERM_L_BLUE, "Enter");
-  text_out(" toggles the current setting.");
-  
-  text_out_indent = 0;
-  
-  /* Run menu */
-  menu = menu_new(MN_SKIN_COLUMNS, &menu_f);
-  menu_setpriv(menu, num, choice);
-  menu_layout(menu, &area);
-  menu_select(menu, 0, FALSE);
-  
-  /* Free memory */
-  FREE(choice);
-  
-  /* Load screen */
-  screen_load();
+    /* Help text */
+    prt("Item type squelch menu", 0, 0);
 
-  /* Buttons */
-  button_kill(ARROW_UP);
-  button_kill(ARROW_DOWN);
-  button_kill('\r');
+    /* Buttons */
+    button_add("Up", ARROW_UP);
+    button_add("Down", ARROW_DOWN);
+    button_add("Toggle", '\r');
+  
+    /* Output to the screen */
+    text_out_hook = text_out_to_screen;
+  
+    /* Indent output */
+    text_out_indent = 1;
+    text_out_wrap = 79;
+    Term_gotoxy(1, 1);
+  
+    /* Display some helpful information */
+    text_out_e(EGO_MENU_HELPTEXT);
+  
+    text_out_indent = 0;
+  
+    /* Run menu */
+    menu = menu_new(MN_SKIN_COLUMNS, &menu_f);
+    menu_setpriv(menu, num, choice);
+    menu_layout(menu, &area);
+    menu_select(menu, 0, FALSE);
+  
+    /* Free memory */
+    FREE(choice);
+  
+    /* Load screen */
+    screen_load();
 
-  return TRUE;
+    /* Buttons */
+    button_kill(ARROW_UP);
+    button_kill(ARROW_DOWN);
+    button_kill('\r');
+
+    return TRUE;
 }
 
 
@@ -1901,130 +1750,130 @@ static bool sval_menu(int tval, const char *desc)
  */
 extern bool seen_tval(int tval)
 {
-  int i;
+    int i;
   
-  for (i = 1; i < z_info->k_max; i++)
+    for (i = 1; i < z_info->k_max; i++)
     {
-      object_kind *k_ptr = &k_info[i];
+	object_kind *k_ptr = &k_info[i];
       
-      /* Skip empty objects, unseen objects, and incorrect tvals */
-      if (!k_ptr->name) continue;
-      if (!k_ptr->everseen) continue;
-      if (k_ptr->tval != tval) continue;
+	/* Skip empty objects, unseen objects, and incorrect tvals */
+	if (!k_ptr->name) continue;
+	if (!k_ptr->everseen) continue;
+	if (k_ptr->tval != tval) continue;
       
-      return TRUE;
+	return TRUE;
     }
   
   
-  return FALSE;
+    return FALSE;
 }
 
 
 /** Extra options on the "item options" menu */
 struct
 {
-  char tag;
-  char *name;
+    char tag;
+    char *name;
     void (*action)(const char *unused, int also_unused);
 } extra_item_options[] =
-  {
+{
     { 'Q', "Quality squelching options", quality_menu },
     { 'E', "Ego squelching options", ego_menu },
     { '{', "Autoinscription setup", textui_browse_object_knowledge },
-  };
+};
 
 static char tag_options_item(menu_type *menu, int oid)
 {
-  size_t line = (size_t) oid;
+    size_t line = (size_t) oid;
   
-  if (line < N_ELEMENTS(sval_dependent))
-    return I2A(oid);
+    if (line < N_ELEMENTS(sval_dependent))
+	return I2A(oid);
   
-  /* Separator - blank line. */
-  if (line == N_ELEMENTS(sval_dependent))
+    /* Separator - blank line. */
+    if (line == N_ELEMENTS(sval_dependent))
+	return 0;
+  
+    line = line - N_ELEMENTS(sval_dependent) - 1;
+  
+    if (line < N_ELEMENTS(extra_item_options))
+	return extra_item_options[line].tag;
+  
     return 0;
-  
-  line = line - N_ELEMENTS(sval_dependent) - 1;
-  
-  if (line < N_ELEMENTS(extra_item_options))
-    return extra_item_options[line].tag;
-  
-  return 0;
 }
 
 static int valid_options_item(menu_type *menu, int oid)
 {
-  size_t line = (size_t) oid;
+    size_t line = (size_t) oid;
   
-  if (line < N_ELEMENTS(sval_dependent))
-    return 1;
+    if (line < N_ELEMENTS(sval_dependent))
+	return 1;
   
-  /* Separator - blank line. */
-  if (line == N_ELEMENTS(sval_dependent))
+    /* Separator - blank line. */
+    if (line == N_ELEMENTS(sval_dependent))
+	return 0;
+  
+    line = line - N_ELEMENTS(sval_dependent) - 1;
+  
+    if (line < N_ELEMENTS(extra_item_options))
+	return 1;
+  
     return 0;
-  
-  line = line - N_ELEMENTS(sval_dependent) - 1;
-  
-  if (line < N_ELEMENTS(extra_item_options))
-    return 1;
-  
-  return 0;
 }
 
 static void display_options_item(menu_type *menu, int oid, bool cursor, 
 				 int row, int col, int width)
 {
-  size_t line = (size_t) oid;
+    size_t line = (size_t) oid;
   
-  /* First section of menu - the svals */
-  if (line < N_ELEMENTS(sval_dependent))
+    /* First section of menu - the svals */
+    if (line < N_ELEMENTS(sval_dependent))
     {
-      bool known = seen_tval(sval_dependent[line].tval);
-      byte attr = curs_attrs[known ? CURS_KNOWN: CURS_UNKNOWN][(int)cursor];
+	bool known = seen_tval(sval_dependent[line].tval);
+	byte attr = curs_attrs[known ? CURS_KNOWN: CURS_UNKNOWN][(int)cursor];
       
-      c_prt(attr, sval_dependent[line].desc, row, col);
+	c_prt(attr, sval_dependent[line].desc, row, col);
     }
-  /* Second section - the "extra options" */
-  else
+    /* Second section - the "extra options" */
+    else
     {
-      byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
+	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
       
-      line = line - N_ELEMENTS(sval_dependent) - 1;
+	line = line - N_ELEMENTS(sval_dependent) - 1;
       
-      if (line < N_ELEMENTS(extra_item_options))
-	c_prt(attr, extra_item_options[line].name, row, col);
+	if (line < N_ELEMENTS(extra_item_options))
+	    c_prt(attr, extra_item_options[line].name, row, col);
     }
 }
 
 
 bool handle_options_item(menu_type *menu, const ui_event *event, int oid)
 {
-	if (event->type == EVT_SELECT)
+    if (event->type == EVT_SELECT)
+    {
+	if ((size_t) oid < N_ELEMENTS(sval_dependent))
 	{
-		if ((size_t) oid < N_ELEMENTS(sval_dependent))
-		{
-			sval_menu(sval_dependent[oid].tval, sval_dependent[oid].desc);
-		}
-		else
-		{
-			oid = oid - (int)N_ELEMENTS(sval_dependent) - 1;
-			assert((size_t) oid < N_ELEMENTS(extra_item_options));
-			extra_item_options[oid].action(NULL, 0);
-		}
-
-		return TRUE;
+	    sval_menu(sval_dependent[oid].tval, sval_dependent[oid].desc);
+	}
+	else
+	{
+	    oid = oid - (int)N_ELEMENTS(sval_dependent) - 1;
+	    assert((size_t) oid < N_ELEMENTS(extra_item_options));
+	    extra_item_options[oid].action(NULL, 0);
 	}
 
-	return FALSE;
+	return TRUE;
+    }
+
+    return FALSE;
 }
 
 static const menu_iter options_item_iter =
 {
-  tag_options_item,
-  valid_options_item,
-  display_options_item,
-  handle_options_item,
-  NULL
+    tag_options_item,
+    valid_options_item,
+    display_options_item,
+    handle_options_item,
+    NULL
 };
 
 
@@ -2033,27 +1882,28 @@ static const menu_iter options_item_iter =
  */
 void do_cmd_options_item(const char *name, int row)
 {
-  menu_type menu;
+    menu_type menu;
   
-  menu.count = N_ELEMENTS(sval_dependent) + N_ELEMENTS(extra_item_options) + 1;
-  menu_init(&menu, MN_SKIN_SCROLL, &options_item_iter);
-  menu_setpriv(&menu, N_ELEMENTS(sval_dependent) + N_ELEMENTS(extra_item_options) + 1, NULL);
+    menu.count = N_ELEMENTS(sval_dependent) + N_ELEMENTS(extra_item_options) + 1;
+    menu_init(&menu, MN_SKIN_SCROLL, &options_item_iter);
+    menu_setpriv(&menu, N_ELEMENTS(sval_dependent) + 
+		 N_ELEMENTS(extra_item_options) + 1, NULL);
   
-  menu.title = name;
-  menu_layout(&menu, &SCREEN_REGION);
+    menu.title = name;
+    menu_layout(&menu, &SCREEN_REGION);
   
-  /* Save and clear screen */
-  screen_save();
-  clear_from(0);
+    /* Save and clear screen */
+    screen_save();
+    clear_from(0);
 
-  menu_select(&menu, 0, FALSE);
-  /* Load screen */
-  screen_load();
+    menu_select(&menu, 0, FALSE);
+    /* Load screen */
+    screen_load();
 
-  /* Notice changes */
-  p_ptr->notice |= PN_SQUELCH;
+    /* Notice changes */
+    p_ptr->notice |= PN_SQUELCH;
 
-  return;
+    return;
 
 }
 
@@ -2063,29 +1913,26 @@ void do_cmd_options_item(const char *name, int row)
 static menu_type *option_menu;
 static menu_action option_actions[] = 
 {
-	{ 0, 'a', "Interface options", option_toggle_menu },
-	{ 0, 'b', "Display options", option_toggle_menu },
-	{ 0, 'c', "Gameplay options", option_toggle_menu },
-	{ 0, 'e', "Warning and disturbance options", option_toggle_menu },
-	{ 0, 'f', "Birth (difficulty) options", option_toggle_menu },
-	{ 0, 'g', "Cheat options", option_toggle_menu },
-	{0, 0, 0, 0}, /* Load and append */
-	{ 0, 'w', "Subwindow display settings", do_cmd_options_win },
-	{ 0, 's', "Item squelch settings", do_cmd_options_item },
-	{ 0, 'd', "Set base delay factor", do_cmd_delay },
-	{ 0, 'h', "Set hitpoint warning", do_cmd_hp_warn },
-	{ 0, 'p', "Set panel change factor", do_cmd_panel_change },
-	{ 0, 'i', "Set movement delay", do_cmd_lazymove_delay },
-	{ 0, 'l', "Load a user pref file", options_load_pref_file },
-	{ 0, 'o', "Save options", do_dump_options }, 
-	{ 0, 'x', "Autosave options", do_cmd_options_autosave },
-	{0, 0, 0, 0}, /* Interact with */	
+    { 0, 'a', "Interface options", option_toggle_menu },
+    { 0, 'b', "Gameplay options", option_toggle_menu },
+    { 0, 'c', "Cheat options", option_toggle_menu },
+    {0, 0, 0, 0}, /* Load and append */
+    { 0, 'w', "Subwindow display settings", do_cmd_options_win },
+    { 0, 's', "Item squelch settings", do_cmd_options_item },
+    { 0, 'd', "Set base delay factor", do_cmd_delay },
+    { 0, 'h', "Set hitpoint warning", do_cmd_hp_warn },
+    { 0, 'p', "Set panel change factor", do_cmd_panel_change },
+    { 0, 'i', "Set movement delay", do_cmd_lazymove_delay },
+    { 0, 'l', "Load a user pref file", options_load_pref_file },
+    { 0, 'o', "Save options", do_dump_options }, 
+    { 0, 'x', "Autosave options", do_cmd_options_autosave },
+    {0, 0, 0, 0}, /* Interact with */	
 
-	{ 0, 'm', "Interact with keymaps (advanced)", do_cmd_keymaps },
-	{ 0, 'v', "Interact with visuals (advanced)", do_cmd_visuals },
+    { 0, 'm', "Interact with keymaps (advanced)", do_cmd_keymaps },
+    { 0, 'v', "Interact with visuals (advanced)", do_cmd_visuals },
 
 #ifdef ALLOW_COLORS
-	{ 0, 'c', "Interact with colours (advanced)", do_cmd_colors },
+    { 0, 'c', "Interact with colours (advanced)", do_cmd_colors },
 #endif /* ALLOW_COLORS */
 };
 
@@ -2095,24 +1942,24 @@ static menu_action option_actions[] =
  */
 void do_cmd_options(void)
 {
-	if (!option_menu)
-	{
-		/* Main option menu */
-		option_menu = menu_new_action(option_actions,
-				N_ELEMENTS(option_actions));
+    if (!option_menu)
+    {
+	/* Main option menu */
+	option_menu = menu_new_action(option_actions,
+				      N_ELEMENTS(option_actions));
 
-		option_menu->title = "Options Menu";
-		option_menu->flags = MN_CASELESS_TAGS;
-	}
+	option_menu->title = "Options Menu";
+	option_menu->flags = MN_CASELESS_TAGS;
+    }
 
 
-	screen_save();
-	clear_from(0);
+    screen_save();
+    clear_from(0);
 
-	menu_layout(option_menu, &SCREEN_REGION);
-	menu_select(option_menu, 0, FALSE);
+    menu_layout(option_menu, &SCREEN_REGION);
+    menu_select(option_menu, 0, FALSE);
 
-	screen_load();
+    screen_load();
 }
 
 

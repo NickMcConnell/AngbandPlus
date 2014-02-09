@@ -430,27 +430,26 @@ void do_cmd_destroy(cmd_code code, cmd_arg args[])
     }
 }
 
-
-void textui_cmd_destroy(void)
+void textui_cmd_destroy_menu(int item)
 {
-    int item, amt;
+    int amt, type, sq_val;
 
     object_type *o_ptr;
-
     object_type obj_to_destroy;
+    object_kind *k_ptr;
+    ego_item_type *e_ptr;
 
-    char result;
     char o_name[120];
     char out_val[160];
 
-    const char *q, *s;
+    menu_type *m;
+    region r;
+    int selected;
 
-    /* Get an item */
-    q = "Destroy which item? ";
-    s = "You have nothing to destroy.";
-    if (!get_item(&item, q, s, CMD_DESTROY, 
-		  (USE_INVEN | USE_EQUIP | USE_FLOOR | CAN_SQUELCH)))
-	return;
+    bool fullid;
+    bool sensed;
+    byte feel;
+    bool heavy = (player_has(PF_PSEUDO_ID_HEAVY));
 
     /* Deal with squelched items */
     if (item == ALL_SQUELCHED) {
@@ -459,77 +458,134 @@ void textui_cmd_destroy(void)
 	return;
     }
 
+    /* Get all the object info */
     o_ptr = object_from_item_idx(item);
-
+    k_ptr = &k_info[o_ptr->k_idx];
+    if (!k_ptr)
+	return;
+    fullid = object_known_p(o_ptr);
+    sensed = (o_ptr->ident & IDENT_SENSE) || fullid;
+    feel   = fullid ? value_check_aux1((object_type *)o_ptr) : o_ptr->feel;
+    
     /* Ask if player would prefer squelching instead of destruction */
-
+    
     /* Get a quantity */
     amt = get_quantity(NULL, o_ptr->number);
     if (amt <= 0)
 	return;
-
+    
     /* Describe the destroyed object by taking a copy with the right "amt" */
     object_copy_amt(&obj_to_destroy, o_ptr, amt);
     object_desc(o_name, sizeof(o_name), &obj_to_destroy,
 		ODESC_PREFIX | ODESC_FULL);
+    
+    m = menu_dynamic_new();
+    m->selections = lower_case;
+    
+    /* Basic ignore option */
+    menu_dynamic_add(m, "Destroy this item only", DESTROY_THIS_ITEM);
+    
+    /* Flavour-aware squelch */
+    if (squelch_tval(k_info[o_ptr->k_idx].tval) && !(k_ptr->squelch)
+	&& (k_ptr->flavor == 0 || k_ptr->aware))
+    {
+	char tmp[70];
 
-    /* Verify destruction */
-    if (OPT(verify_destroy)) {
-	/* Verify destruction */
-	strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
+	object_desc(tmp, sizeof(tmp), o_ptr, ODESC_BASE | ODESC_PLURAL);
+	strnfmt(out_val, sizeof(out_val), "Squelch all %s", tmp);
+	menu_dynamic_add(m, out_val, DESTROY_THIS_FLAVOR);
+    }
+    else
+    {    
+	/* Quality squelching */
+	type = squelch_type_of(o_ptr);
 
-      /* Give squelch as an option for aware objects */
-      if (object_aware_p(o_ptr) &&
-	  ((k_info[o_ptr->k_idx].tval < TV_SHOT) || 
-	   (k_info[o_ptr->k_idx].tval > TV_DRAG_ARMOR)) &&
-	  !kf_has(k_info[o_ptr->k_idx].flags_kind, KF_INSTA_ART))
+	for (sq_val = SQUELCH_NONE + 1; sq_val < SQUELCH_MAX; sq_val++)
 	{
-	    result = get_char(out_val, "yns", 3, 'n');
+	    if (!sensed) break;
+	    if (heavy && ((sq_val == SQUELCH_FELT_DUBIOUS) || 
+			  (sq_val == SQUELCH_FELT_GOOD)))
+		break;
+	    if (feel_to_squelch_level(feel) != sq_val)
+		continue;
 	    
-	    if (result == 's') {
-		object_kind *k_ptr = &k_info[o_ptr->k_idx];
-		char o_name2[80];
-		
-		/* make a fake object so we can give a proper message */
-		object_type *i_ptr;
-		object_type object_type_body;
-		
-		/* Get local object */
-		i_ptr = &object_type_body;
-		
-		/* Wipe the object */
-		object_wipe(i_ptr);
-		
-		/* Create the object */
-		object_prep(i_ptr, o_ptr->k_idx, RANDOMISE);
-		
-		/* make it plural */
-		i_ptr->number = 2;
-		
-		/* Obtain plural form without a quantity */
-		object_desc(o_name2, sizeof o_name2, o_ptr,
-			    ODESC_BASE | ODESC_PLURAL | ODESC_CAPITAL);
-		
-		/* set to squelch */
-		k_ptr->squelch = TRUE;
-		p_ptr->notice |= PN_SQUELCH;
-		
-		/* Message - no good routine for extracting the plain name */
-		msg("All %s will always be squelched.", o_name2);
-		
-		/* Mark the view to be updated */
-		p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW);;
-	    }
-	    else if (result != 'y')
-		return;
+	    strnfmt(out_val, sizeof(out_val), "Squelch %s %s", 
+		    quality_strings[sq_val].adjective, 
+		    quality_choices[type].desc);
+	    menu_dynamic_add(m, out_val, sq_val);
 	}
-      /* Unaware object, simple yes/no prompt */
-      else if (!get_check(out_val)) return;
+	    
+	/* Ego squelching */
+	if (has_ego_properties(o_ptr))
+	{
+	    ego_desc choice;
+	    char buf[80] = "";
+	    
+	    e_ptr = &e_info[o_ptr->name2];
+	    choice.e_idx = e_ptr->eidx;
+	    choice.short_name = "";
+	    (void) ego_item_name(buf, sizeof(buf), &choice);
+	    strnfmt(out_val, sizeof out_val, "Squelch all %s", buf + 4);
+	    menu_dynamic_add(m, out_val, DESTROY_THIS_EGO);
+	}
+    }
+	
+
+    /* work out display region */
+    r.width = menu_dynamic_longest_entry(m) + 3 + 2; /* +3 for tag, 2 for pad */
+    r.col = 80 - r.width;
+    r.row = 1;
+    r.page_rows = m->count;
+
+    screen_save();
+    menu_layout(m, &r);
+    region_erase_bordered(&r);
+
+    prt("Enter to select, ESC:", 0, 0);
+    selected = menu_dynamic_select(m);
+
+    screen_load();
+
+    if (selected == DESTROY_THIS_ITEM) 
+    {
+	cmd_insert(CMD_DESTROY);
+	cmd_set_arg_item(cmd_get_top(), 0, item);
+	cmd_set_arg_number(cmd_get_top(), 1, amt);
+    } 
+    else if (selected == DESTROY_THIS_FLAVOR) 
+    {
+	k_ptr->squelch = !k_ptr->squelch;
+    } 
+    else if (selected == DESTROY_THIS_EGO) 
+    {
+	e_ptr->squelch = !e_ptr->squelch;
+    }
+    else
+    {
+	for (sq_val = SQUELCH_NONE + 1; sq_val < SQUELCH_MAX; sq_val++)
+	{
+	    if (selected == sq_val)
+		squelch_profile[type][sq_val] = TRUE;
+	}
     }
     
-    cmd_insert(CMD_DESTROY);
-    cmd_set_arg_item(cmd_get_top(), 0, item);
-    cmd_set_arg_number(cmd_get_top(), 1, amt);
+    p_ptr->notice |= PN_SQUELCH;
+
+    menu_dynamic_free(m);
+}
+
+void textui_cmd_destroy(void)
+{
+    int item;
+
+    /* Get an item */
+    const char *q = "Destroy which item? ";
+    const char *s = "You have nothing to destroy.";
+    if (!get_item(&item, q, s, CMD_DESTROY, 
+		  (USE_INVEN | USE_EQUIP | USE_FLOOR | CAN_SQUELCH)))
+	return;
+
+    textui_cmd_destroy_menu(item);
 }
 
 /**

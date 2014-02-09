@@ -1929,7 +1929,7 @@ static void dungeon(void)
 
 
     /* No stairs from town or if not allowed */
-    if (p_ptr->depth && OPT(adult_no_stairs)) {
+    if (p_ptr->depth && MODE(NO_STAIRS)) {
 	p_ptr->create_stair = 0;
     }
 
@@ -2223,8 +2223,8 @@ static void process_some_user_pref_files(void)
     /* Process that file */
     process_pref_file(buf, TRUE, TRUE);
 
-    /* Process the "PLAYER.prf" file */
-    sprintf(buf, "%s.prf", op_ptr->base_name);
+    /* Get the "PLAYER.prf" filename */
+    (void)strnfmt(buf, sizeof(buf), "%s.prf", player_safe_name(p_ptr), TRUE);
 
     /* Process the "PLAYER.prf" file */
     (void) process_pref_file(buf, TRUE, TRUE);
@@ -2313,10 +2313,6 @@ void play_game(void)
 	character_dungeon = FALSE;
     }
 
-    /* Hack -- Default base_name */
-    if (!op_ptr->base_name[0])
-	my_strcpy(op_ptr->base_name, "PLAYER", sizeof(op_ptr->base_name));
- 
     /* Init RNG */
     if (Rand_quick) {
 	u32b seed;
@@ -2359,14 +2355,9 @@ void play_game(void)
 	player_birth(p_ptr->ht_birth ? TRUE : FALSE);
 
 	/* Start in home town - or on the stairs to Angband */
-	if (OPT(adult_thrall))
+	if (MODE(THRALL))
 	{
-	    if (OPT(adult_dungeon))
-		p_ptr->stage = 87;
-	    else if (OPT(adult_compressed))
-		p_ptr->stage = 70;
-	    else
-		p_ptr->stage = 135;
+	    p_ptr->stage = THRALL_START;
 	}
 	else
 	    p_ptr->stage = p_ptr->home;
@@ -2378,15 +2369,9 @@ void play_game(void)
 
     }
 
-    /* Normal machine (process player name) */
-    if (savefile[0]) {
-	process_player_name(FALSE);
-    }
-
-    /* Weird machine (process player name, pick savefile name) */
-    else {
-	process_player_name(TRUE);
-    }
+    /* Set the savefile name if it's not already set */
+    if (!savefile[0])
+	savefile_set_name(player_safe_name(p_ptr));
 
     /* Stop the player being quite so dead */
     p_ptr->is_dead = FALSE;
@@ -2394,14 +2379,14 @@ void play_game(void)
     /* Flash a message */
     prt("Please wait...", 0, 0);
 
+    /* Flush the message */
+    Term_fresh();
+
     /* Initialize race probabilities */
     if (init_race_probs()) quit("Cannot initialize race probs");
 
     /* Allow big cursor */
     smlcurs = FALSE;
-
-    /* Flush the message */
-    Term_fresh();
 
     /* Flavor the objects */
     flavor_init();

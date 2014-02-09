@@ -204,7 +204,8 @@ void lose_exp(s32b amount)
 void town_adjust(int *dungeon_hgt, int *dungeon_wid)
 {
     bool small_town = ((p_ptr->stage < KHAZAD_DUM_TOWN) && 
-		       (!OPT(adult_dungeon)));
+		       (p_ptr->map != MAP_DUNGEON) && 
+		       (p_ptr->map != MAP_FANILLA));
 
     (*dungeon_hgt) /= 3;
     (*dungeon_wid) /= (small_town ? 6 : 3);
@@ -250,9 +251,6 @@ bool modify_panel(term *t, int wy, int wx)
 		/* Redraw for big graphics */
 		if ((tile_width > 1) || (tile_height > 1)) redraw_stuff(p_ptr);
       
-		/* Hack -- optional disturb on "panel change" */
-		if (OPT(disturb_panel) && !OPT(center_player)) disturb(0, 0);
-  
 		/* Changed */
 		return (TRUE);
 	}

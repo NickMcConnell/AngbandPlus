@@ -48,46 +48,59 @@
 #include "ui-menu.h"
 
 
-typedef struct
-{
-    int enum_val;
-    const char *name;
-} quality_name_struct;
-
 /**
- * Names of categories.
- * Mapping of tval -> type 
+ * Categories for quality squelch
  */
-static quality_name_struct quality_choices[TYPE_MAX] = 
+tval_desc quality_choices[Q_TV_MAX] = 
 {
-    { TV_SWORD, "Swords" }, 
-    { TV_POLEARM,"Polearms"  },
-    { TV_HAFTED,"Blunt weapons"  },
-    { TV_BOW, "Missile weapons" },
-    { TV_SHOT, "Sling ammunition" },
-    { TV_ARROW,"Bow ammunition"  },
-    { TV_BOLT,"Crossbow ammunition"  },
+    { TV_SWORD,      "Swords" }, 
+    { TV_POLEARM,    "Polearms"  },
+    { TV_HAFTED,     "Blunt weapons"  },
+    { TV_BOW,        "Missile weapons" },
+    { TV_SHOT,       "Sling shots" },
+    { TV_ARROW,      "Arrows"  },
+    { TV_BOLT,       "Crossbow bolts"  },
     { TV_SOFT_ARMOR, "Soft armor" },
-    { TV_HARD_ARMOR,"Hard armor"  },
+    { TV_HARD_ARMOR, "Hard armor"  },
     { TV_DRAG_ARMOR, "Dragon Scale Mail" },
-    { TV_CLOAK,"Cloaks"  },
-    { TV_SHIELD, "Shields" },
-    { TV_HELM, "Helms" },
-    { TV_CROWN, "Crowns" },
-    { TV_GLOVES, "Gloves" },
-    { TV_BOOTS,"Boots"  },
-    { TV_DIGGING,"Diggers"  },
-    { TV_RING, "Rings" },
-    { TV_AMULET, "Amulets" },
+    { TV_CLOAK,      "Cloaks"  },
+    { TV_SHIELD,     "Shields" },
+    { TV_HELM,       "Helms" },
+    { TV_CROWN,      "Crowns" },
+    { TV_GLOVES,     "Gloves" },
+    { TV_BOOTS,      "Boots"  },
+    { TV_DIGGING,    "Diggers"  },
+    { TV_RING,       "Rings" },
+    { TV_AMULET,     "Amulets" },
 };
 
-byte squelch_level[TYPE_MAX];
+/**
+ * The names for the various kinds of quality
+ */
+quality_desc_struct quality_strings[SQUELCH_MAX] =
+{
+    { SQUELCH_NONE, "unknown", "unknown", "all unknown" },	
+    { SQUELCH_KNOWN_PERILOUS, "sensed as perilous", "identified as perilous", 
+      "all known perilous" }, 
+    { SQUELCH_KNOWN_DUBIOUS, "sensed as dubious", "identified as dubious", 
+      "all known dubious non-ego" },     
+    { SQUELCH_AVERAGE, "sensed as average", "sensed as average", 
+      "all average" },     
+    { SQUELCH_KNOWN_GOOD, "sensed as good", "identified as good",
+      "all known good non-ego" },    
+    { SQUELCH_KNOWN_EXCELLENT, "sensed as excellent", 
+      "identified as excellent", "all known excellent" }, 
+    { SQUELCH_FELT_DUBIOUS, "", "sensed as dubious", "all dubious" },   
+    { SQUELCH_FELT_GOOD, "", "sensed as good", "all good" },    
+};
+
+bool squelch_profile[Q_TV_MAX][SQUELCH_MAX];
 
 
 /**
  * Categories for sval-dependent squelch. 
  */
-static tval_desc sval_dependent[] =
+tval_desc sval_dependent[S_TV_MAX] =
 {
   { TV_STAFF,		"Staffs" },
   { TV_WAND,		"Wands" },
@@ -108,26 +121,6 @@ static tval_desc sval_dependent[] =
 };
 
 
-/*
- * Reset the player's squelch choices for a new game.
- */
-void squelch_birth_init(void)
-{
-	int i;
-
-	/* Reset squelch bits */
-	for (i = 0; i < z_info->k_max; i++)
-		k_info[i].squelch = FALSE;
-
- /* Reset ego squelch */
-  for (i = 0; i < z_info->e_max; i++)
-    e_info[i].squelch = FALSE;
-  
-	/* Clear the squelch bytes */
-	for (i = 0; i < TYPE_MAX; i++)
-		squelch_level[i] = 0;
-}
-
 /*** Autoinscription stuff ***/
 
 /**
@@ -135,15 +128,15 @@ void squelch_birth_init(void)
  */
 int get_autoinscription_index(s16b k_idx)
 {
-  int i;
+    int i;
   
-  for (i = 0; i < inscriptions_count; i++)
+    for (i = 0; i < inscriptions_count; i++)
     {
-      if (k_idx == inscriptions[i].kind_idx)
-	return i;
+	if (k_idx == inscriptions[i].kind_idx)
+	    return i;
     }
   
-  return -1;
+    return -1;
 }
 
 /**
@@ -151,15 +144,15 @@ int get_autoinscription_index(s16b k_idx)
  */
 const char *get_autoinscription(s16b kind_idx)
 {
-  int i;
+    int i;
   
-  for (i = 0; i < inscriptions_count; i++)
+    for (i = 0; i < inscriptions_count; i++)
     {
-      if (kind_idx == inscriptions[i].kind_idx)
-	return quark_str(inscriptions[i].inscription_idx);
+	if (kind_idx == inscriptions[i].kind_idx)
+	    return quark_str(inscriptions[i].inscription_idx);
     }
   
-  return 0;
+    return 0;
 }
 
 /**
@@ -167,121 +160,143 @@ const char *get_autoinscription(s16b kind_idx)
  */
 int apply_autoinscription(object_type *o_ptr)
 {
-  char o_name[80];
-  const char *note = get_autoinscription(o_ptr->k_idx);
-  const char *existing_inscription = quark_str(o_ptr->note);
+    char o_name[80];
+    const char *note = get_autoinscription(o_ptr->k_idx);
+    const char *existing_inscription = quark_str(o_ptr->note);
   
-  /* Don't inscribe unaware objects */
-  if (!note || !object_aware_p(o_ptr))
-    return 0;
+    /* Don't inscribe unaware objects */
+    if (!note || !object_aware_p(o_ptr))
+	return 0;
   
-  /* Don't re-inscribe if it's already correctly inscribed */
-  if (existing_inscription && streq(note, existing_inscription))
-    return 0;
+    /* Don't re-inscribe if it's already correctly inscribed */
+    if (existing_inscription && streq(note, existing_inscription))
+	return 0;
   
-  /* Get an object description */
-  object_desc(o_name, sizeof(o_name), o_ptr,
-	      ODESC_PREFIX | ODESC_FULL);
+    /* Get an object description */
+    object_desc(o_name, sizeof(o_name), o_ptr,
+		ODESC_PREFIX | ODESC_FULL);
   
-  if (note[0] != 0)
-    o_ptr->note = quark_add(note);
-  else
-    o_ptr->note = 0;
+    if (note[0] != 0)
+	o_ptr->note = quark_add(note);
+    else
+	o_ptr->note = 0;
   
-  msg("You autoinscribe %s.", o_name);
+    msg("You autoinscribe %s.", o_name);
+    p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
   
-  return 1;
+    return 1;
 }
 
 
 int remove_autoinscription(s16b kind)
 {
-  int i = get_autoinscription_index(kind);
+    int i = get_autoinscription_index(kind);
   
-  /* It's not here. */
-  if (i == -1) return 0;
+    /* It's not here. */
+    if (i == -1) return 0;
   
-  while (i < inscriptions_count - 1)
+    while (i < inscriptions_count - 1)
     {
-      inscriptions[i] = inscriptions[i+1];
-      i++;
+	inscriptions[i] = inscriptions[i+1];
+	i++;
     }
   
-  inscriptions_count--;
+    inscriptions_count--;
   
-  return 1;
+    return 1;
 }
 
 
 int add_autoinscription(s16b kind, const char *inscription)
 {
-  int index;
+    int index;
   
-  /* Paranoia */
-  if (kind == 0) return 0;
+    /* Paranoia */
+    if (kind == 0) return 0;
   
-  /* If there's no inscription, remove it */
-  if (!inscription || (inscription[0] == 0))
-    return remove_autoinscription(kind);
+    /* If there's no inscription, remove it */
+    if (!inscription || (inscription[0] == 0))
+	return remove_autoinscription(kind);
   
-  index = get_autoinscription_index(kind);
+    index = get_autoinscription_index(kind);
   
-  if (index == -1)
-    index = inscriptions_count;
+    if (index == -1)
+	index = inscriptions_count;
   
-  if (index >= AUTOINSCRIPTIONS_MAX)
+    if (index >= AUTOINSCRIPTIONS_MAX)
     {
-      msg("This inscription (%s) cannot be added because the inscription array is full!", inscription);
-      return 0;
+	msg("This inscription (%s) cannot be added because the inscription array is full!", inscription);
+	return 0;
     }
   
-  inscriptions[index].kind_idx = kind;
-  inscriptions[index].inscription_idx = quark_add(inscription);
+    inscriptions[index].kind_idx = kind;
+    inscriptions[index].inscription_idx = quark_add(inscription);
   
-  /* Only increment count if inscription added to end of array */
-  if (index == inscriptions_count)
-    inscriptions_count++;
+    /* Only increment count if inscription added to end of array */
+    if (index == inscriptions_count)
+	inscriptions_count++;
   
-  return 1;
+    return 1;
 }
 
 
 void autoinscribe_ground(void)
 {
-  int py = p_ptr->py;
-  int px = p_ptr->px;
-  s16b this_o_idx, next_o_idx = 0;
+    int py = p_ptr->py;
+    int px = p_ptr->px;
+    s16b this_o_idx, next_o_idx = 0;
   
-  /* Scan the pile of objects */
-  for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+    /* Scan the pile of objects */
+    for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
     {
-      /* Get the next object */
-      next_o_idx = o_list[this_o_idx].next_o_idx;
+	/* Get the next object */
+	next_o_idx = o_list[this_o_idx].next_o_idx;
       
-      /* Apply an autoinscription */
-      apply_autoinscription(&o_list[this_o_idx]);
+	/* Apply an autoinscription */
+	apply_autoinscription(&o_list[this_o_idx]);
     }
 }
 
 void autoinscribe_pack(void)
 {
-  int i;
+    int i;
   
-  /* Cycle through the inventory */
-  for (i = INVEN_PACK; i > 0; i--)
+    /* Cycle through the inventory */
+    for (i = INVEN_PACK; i >= 0; i--)
     {
-      /* Skip empty items */
-      if (!p_ptr->inventory[i].k_idx) continue;
+	/* Skip empty items */
+	if (!p_ptr->inventory[i].k_idx) continue;
       
-      /* Apply the inscription */
-      apply_autoinscription(&p_ptr->inventory[i]);
+	/* Apply the inscription */
+	apply_autoinscription(&p_ptr->inventory[i]);
     }
   
-  return;
+    return;
 }
 
 
 /*** Squelch code ***/
+
+/*
+ * Reset the player's squelch choices for a new game.
+ */
+void squelch_birth_init(void)
+{
+    int i, j;
+
+    /* Reset squelch bits */
+    for (i = 0; i < z_info->k_max; i++)
+	k_info[i].squelch = FALSE;
+
+    /* Reset ego squelch */
+    for (i = 0; i < z_info->e_max; i++)
+	e_info[i].squelch = FALSE;
+  
+    /* Clear the squelch bytes */
+    for (i = 0; i < Q_TV_MAX; i++)
+	for (j = 0; j < SQUELCH_MAX; j++)
+	    squelch_profile[i][j] = SQUELCH_NONE;
+}
 
 /**
  * Determines whether a tval is eligable for sval-squelch.
@@ -300,156 +315,114 @@ bool squelch_tval(int tval)
   return FALSE;
 }
 
+/*
+ * Find the squelch type of the object, or Q_TV_MAX if none
+ */
+int squelch_type_of(const object_type *o_ptr)
+{
+    size_t i;
+    
+    /* Find the appropriate squelch group */
+    for (i = 0; i < Q_TV_MAX; i++)
+    {
+	if (quality_choices[i].tval == o_ptr->tval)
+	    return i;
+    }
+    
+    return Q_TV_MAX;
+}
+
+int feel_to_squelch_level(int feel)
+{
+    switch (feel)
+    {
+    case FEEL_NONE: 
+	return SQUELCH_NONE;
+    case FEEL_DUBIOUS_STRONG: 
+	return SQUELCH_KNOWN_DUBIOUS;
+    case FEEL_PERILOUS: 
+	return SQUELCH_KNOWN_PERILOUS;
+    case FEEL_DUBIOUS_WEAK: 
+	return SQUELCH_FELT_DUBIOUS;
+    case FEEL_AVERAGE: 
+	return SQUELCH_AVERAGE;
+    case FEEL_GOOD_STRONG: 
+	return SQUELCH_KNOWN_GOOD;
+    case FEEL_EXCELLENT: 
+	return SQUELCH_KNOWN_EXCELLENT;
+    case FEEL_GOOD_WEAK: 
+	return SQUELCH_FELT_GOOD;
+    case FEEL_SPECIAL: 
+	return SQUELCH_NONE;
+    }
+
+    return SQUELCH_NONE;
+}
 
 /**
  * Determines if an object is eligable for squelching.
  */
 extern bool squelch_item_ok(const object_type *o_ptr)
 {
-  size_t i;
-  int num = -1;
+    size_t i;
+    int num = -1;
   
-  object_kind *k_ptr = &k_info[o_ptr->k_idx];
-  bool fullid = object_known_p(o_ptr);
-  bool sensed = (o_ptr->ident & IDENT_SENSE) || fullid;
-  byte feel   = fullid ? value_check_aux1((object_type *)o_ptr) : o_ptr->feel;
+    object_kind *k_ptr = &k_info[o_ptr->k_idx];
+    bool fullid = object_known_p(o_ptr);
+    bool sensed = (o_ptr->ident & IDENT_SENSE) || fullid;
+    byte feel   = fullid ? value_check_aux1((object_type *)o_ptr) : o_ptr->feel;
+    int quality_squelch = SQUELCH_NONE;
   
+    /* Don't squelch artifacts */
+    if (artifact_p(o_ptr)) return FALSE;
   
-  /* Don't squelch artifacts */
-  if (artifact_p(o_ptr)) return FALSE;
-  
-  /* Don't squelch stuff inscribed not to be destroyed (!k) */
-  if (check_for_inscrip(o_ptr, "!k") || check_for_inscrip(o_ptr, "!*"))
+    /* Don't squelch stuff inscribed not to be destroyed (!k) */
+    if (check_for_inscrip(o_ptr, "!k") || check_for_inscrip(o_ptr, "!*"))
     {
-      return FALSE;
+	return FALSE;
     }
   
-  /* Auto-squelch dead chests */
-  if (o_ptr->tval == TV_CHEST && o_ptr->pval == 0)
-    return TRUE;
+    /* Auto-squelch dead chests */
+    if (o_ptr->tval == TV_CHEST && o_ptr->pval == 0)
+	return TRUE;
   
-  /* Do squelching by sval, if we 'know' the flavour. */
-  if (k_ptr->squelch && (k_ptr->flavor == 0 || k_ptr->aware))
+    /* Do squelching by sval, if we 'know' the flavour. */
+    if (k_ptr->squelch && (k_ptr->flavor == 0 || k_ptr->aware))
     {
-      if (squelch_tval(k_info[o_ptr->k_idx].tval))
+	if (squelch_tval(k_info[o_ptr->k_idx].tval))
+	    return TRUE;
+    }
+  
+    /* Squelch some ego items if known */
+    if (has_ego_properties(o_ptr) && (e_info[o_ptr->name2].squelch))
+    {
 	return TRUE;
     }
   
-  /* Squelch some ego items if known */
-  if (has_ego_properties(o_ptr) && (e_info[o_ptr->name2].squelch))
+    /* Don't check pseudo-ID for nonsensed things */
+    if (!sensed) return FALSE;
+  
+    /* Find the appropriate squelch group */
+    for (i = 0; i < N_ELEMENTS(quality_choices); i++)
     {
-      return TRUE;
-    }
-
-  
-  /* Don't check pseudo-ID for nonsensed things */
-  if (!sensed) return FALSE;
-  
-  
-  
-  /* Find the appropriate squelch group */
-  for (i = 0; i < N_ELEMENTS(quality_choices); i++)
-    {
-      if (quality_choices[i].enum_val == o_ptr->tval)
+	if (quality_choices[i].tval == o_ptr->tval)
 	{
-	  num = i;
-	  break;
+	    num = i;
+	    break;
 	}
     }
   
-  /* Never squelched */
-  if (num == -1)
-    return FALSE;
+    /* Never squelched */
+    if (num == -1)
+	return FALSE;
   
-  
-  /* Get result based on the feeling and the squelch_level */
-  switch (squelch_level[num])
-    {
-    case SQUELCH_CURSED:
-      {
-	if (o_ptr->ident & IDENT_CURSED)
-	  {
-	    return TRUE;
-	  }
-	
-	break;
-      }
-      
-    case SQUELCH_DUBIOUS:
-      {
-	if ((feel == FEEL_DUBIOUS_WEAK) || (feel == FEEL_PERILOUS) ||
-	    (feel == FEEL_DUBIOUS_STRONG))
-	  {
-	    return TRUE;
-	  }
-	
-	break;
-      }
-      
-    case SQUELCH_DUBIOUS_NON:
-      {
-	if (feel == FEEL_DUBIOUS_STRONG)
-	  {
-	    return TRUE;
-	  }
-	
-	break;
-      }
-      
-    case SQUELCH_NON_EGO:
-      {
-	if ((feel == FEEL_DUBIOUS_STRONG) || (feel == FEEL_AVERAGE) || 
-	    (feel == FEEL_GOOD_STRONG))
-	  {
-	    return TRUE;
-	  }
-	
-	break;
-      }
-      
-    case SQUELCH_AVERAGE:
-      {
-	if ((feel == FEEL_DUBIOUS_WEAK) || (feel == FEEL_PERILOUS) ||
-	    (feel == FEEL_DUBIOUS_STRONG) || (feel == FEEL_AVERAGE))
-	  {
-	    return TRUE;
-	  }
-	
-	break;
-      }
-      
-    case SQUELCH_GOOD_STRONG:
-      {
-	if ((feel == FEEL_PERILOUS) || (feel == FEEL_DUBIOUS_STRONG) || 
-	    (feel == FEEL_AVERAGE) || (feel == FEEL_GOOD_STRONG))
-	  {
-	    return TRUE;
-	  }
-	
-	break;
-      }
-      
-    case SQUELCH_GOOD_WEAK:
-      {
-	if ((feel == FEEL_PERILOUS) || (feel == FEEL_DUBIOUS_STRONG) || 
-	    (feel == FEEL_AVERAGE) || (feel == FEEL_GOOD_WEAK) ||
-	    (feel == FEEL_GOOD_STRONG))
-	  {
-	    return TRUE;
-	  }
-	
-	break;
-      }
-      
-    case SQUELCH_ALL:
-      {
-	return TRUE;
-	break;
-      }
-    }
-  
-  /* Failure */
-  return FALSE;
+    /* Get result based on the feeling and the squelch_profile */
+    quality_squelch = feel_to_squelch_level(feel);
+
+    if (quality_squelch == SQUELCH_NONE)
+	return FALSE;
+    else
+	return squelch_profile[num][quality_squelch];
 }
 
 

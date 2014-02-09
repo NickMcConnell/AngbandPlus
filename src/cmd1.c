@@ -277,6 +277,8 @@ static bool auto_pickup_okay(object_type * o_ptr)
 {
 	if (!inven_carry_okay(o_ptr)) return FALSE;
 	if (OPT(pickup_always) || check_for_inscrip(o_ptr, "=g")) return TRUE;
+	if (check_for_inscrip(o_ptr, "@f") || check_for_inscrip(o_ptr, "@v")) 
+	    return TRUE;
 	if (OPT(pickup_inven) && inven_stack_okay(o_ptr)) return TRUE;
 
 	return FALSE;
@@ -525,49 +527,32 @@ byte py_pickup(int pickup, int y, int x)
 	}
 	else
 	{
-	    /* Optionally, display more information about floor items */
-	    if (OPT(pickup_detail))
-	    {
-		ui_event e;
+	    /* Display more information about floor items */
+	    ui_event e;
 
-		if (!can_pickup)
-		    p = "have no room for the following objects";
-		else if (blind)
-		    p = "feel something on the floor";
+	    if (!can_pickup)
+		p = "have no room for the following objects";
+	    else if (blind)
+		p = "feel something on the floor";
 
-		/* Scan all marked objects in the grid */
-		floor_num = scan_floor(floor_list, N_ELEMENTS(floor_list), y, x, 0x03);
+	    /* Scan all marked objects in the grid */
+	    floor_num = scan_floor(floor_list, N_ELEMENTS(floor_list), y, x, 0x03);
 
-		/* Save screen */
-		screen_save();
+	    /* Save screen */
+	    screen_save();
 
-		/* Display objects on the floor */
-		show_floor(floor_list, floor_num, (OLIST_WEIGHT));
+	    /* Display objects on the floor */
+	    show_floor(floor_list, floor_num, (OLIST_WEIGHT));
 
-		/* Display prompt */
-		prt(format("You %s: ", p), 0, 0);
+	    /* Display prompt */
+	    prt(format("You %s: ", p), 0, 0);
 
-		/* Move cursor back to character, if needed */
-		if (OPT(highlight_player)) move_cursor_relative(p_ptr->py, p_ptr->px);
+	    /* Wait for it.  Use key as next command. */
+	    e = inkey_ex();
+	    Term_event_push(&e);
 
-		/* Wait for it.  Use key as next command. */
-		e = inkey_ex();
-		Term_event_push(&e);
-
-		/* Restore screen */
-		screen_load();
-	    }
-
-	    /* Show less detail */
-	    else
-	    {
-		message_flush();
-
-		if (!can_pickup)
-		    msg("You have no room for any of the items on the floor.");
-		else
-		    msg("You %s a pile of %d items.", (blind ? "feel" : "see"), floor_num);
-	    }
+	    /* Restore screen */
+	    screen_load();
 	}
 
 	/* Done */
@@ -713,7 +698,7 @@ void fall_off_cliff(void)
 	}
 
 	/* Check for quests */
-	if (OPT(adult_dungeon) && is_quest(p_ptr->stage)
+	if ((p_ptr->map == MAP_DUNGEON) && is_quest(p_ptr->stage)
 	    && (p_ptr->depth < 100)) {
 	    int i;
 	    monster_race *r_ptr = NULL;

@@ -207,6 +207,14 @@ s32b price_item(object_type * o_ptr, int greed, bool flip)
     if (price <= 0)
 	return (0L);
 
+    /* I'm not a complete idiot */
+    if (o_ptr->feel == FEEL_PERILOUS)
+	price /= 3;
+    else if (o_ptr->feel == FEEL_DUBIOUS_STRONG)
+	price /= 10;
+    else if (o_ptr->feel == FEEL_DUBIOUS_WEAK)
+	price /= 5;
+
     /* Compute the racial factor */
     racial_factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
 
@@ -1244,6 +1252,7 @@ static void display_entry(int item)
     char out_val[160];
 
     int maxwid = 75;
+    int wgt;
 
 
     /* Must be on current "page" to get displayed */
@@ -1268,8 +1277,7 @@ static void display_entry(int item)
 	maxwid = 75;
 
 	/* Leave room for weights, if necessary -DRS- */
-	if (OPT(show_weights))
-	    maxwid -= 10;
+	maxwid -= 10;
 
 	/* Describe the object */
 	desc = ODESC_FULL;
@@ -1282,15 +1290,12 @@ static void display_entry(int item)
 	/* Display the object */
 	c_put_str(attr, o_name, y, 3);
 
-	/* Show weights */
-	if (OPT(show_weights)) {
-	    /* Only show the weight of a single object */
-	    int wgt = o_ptr->weight;
-
-	    sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
-
-	    put_str(out_val, y, 67);
-	}
+	/* Only show the weight of a single object */
+	wgt = o_ptr->weight;
+	
+	sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
+	
+	put_str(out_val, y, 67);
     }
 
     /* Describe an object (fully) in a store */
@@ -1299,11 +1304,7 @@ static void display_entry(int item)
 	byte attr;
 
 	/* Must leave room for the "price" */
-	maxwid = 65;
-
-	/* Leave room for weights, if necessary -DRS- */
-	if (OPT(show_weights))
-	    maxwid -= 7;
+	maxwid = 58;
 
 	/* Describe the object (fully) */
 	desc = ODESC_FULL | ODESC_STORE;
@@ -1317,12 +1318,9 @@ static void display_entry(int item)
 	c_put_str(attr, o_name, y, 3);
 
 	/* Show weights */
-	if (OPT(show_weights)) {
-	    /* Only show the weight of a single object */
-	    int wgt = o_ptr->weight;
-	    sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
-	    put_str(out_val, y, 61);
-	}
+	wgt = o_ptr->weight;
+	sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
+	put_str(out_val, y, 61);
 
 	/* Extract the price */
 	x = price_item(o_ptr, ot_ptr->inflate, FALSE);
@@ -1412,10 +1410,7 @@ static void display_store(void)
 	put_str("Item Description", 4, 3);
 
 	/* If showing weights, show label */
-	if (OPT(show_weights)) 
-	{
-	    put_str("Weight", 4, 70);
-	}
+	put_str("Weight", 4, 70);
     }
 
     /* Normal stores */
@@ -1439,9 +1434,7 @@ static void display_store(void)
 	put_str("Item Description", 4, 3);
 
 	/* If showing weights, show label */
-	if (OPT(show_weights)) {
-	    put_str("Weight", 4, 60);
-	}
+	put_str("Weight", 4, 60);
 
 	/* Label the asking price (in stores) */
 	put_str("Price", 4, 71);
@@ -2011,7 +2004,7 @@ static void store_sell(void)
 	char answer;
 
 	/* No selling */
-	if (!OPT(adult_no_sell)) 
+	if (!MODE(NO_SELLING)) 
 	{
 	    /* Get the price */
 	    price = price_item(i_ptr, ot_ptr->inflate, TRUE) * i_ptr->number;
@@ -2106,7 +2099,7 @@ static void store_sell(void)
 	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* No selling */
-	if (OPT(adult_no_sell)) 
+	if (MODE(NO_SELLING)) 
 	{
 	    /* Describe the result (in message buffer) */
 	    msg("You gave over %s (%c).", o_name, index_to_label(item));
@@ -2773,17 +2766,22 @@ void get_owner(bool pick)
 	return;
 
     /* Choose an owner */
-    if (pick) {
+    if (pick) 
+    {
 	byte *possible = malloc(z_info->p_max * sizeof(*possible));
 
 	for (i = 0; i < z_info->p_max; i++)
 	    possible[i] = 1;
 
 	/* See who's available */
-	for (i = 0; i < MAX_STORES; i++) {
-	    if (type_of_store[i] == type) {
-		for (j = 0; j < z_info->p_max; j++) {
-		    if (owner[i] == j) {
+	for (i = 0; i < MAX_STORES; i++) 
+	{
+	    if (type_of_store[i] == type) 
+	    {
+		for (j = 0; j < z_info->p_max; j++) 
+		{
+		    if (owner[i] == j) 
+		    {
 			possible[j] = 0;
 			out_of -= race_town_prob[town][j];
 		    }
@@ -2792,7 +2790,9 @@ void get_owner(bool pick)
 	}
 
 	/* Travelling merchant or no legal owner available */
-	if ((type == STORE_MERCH) || (out_of == 0)) {
+	if ((type == STORE_MERCH) || (out_of == 0) 
+	    || (p_ptr->map == MAP_FANILLA)) 
+	{
 	    /* Choose a random owner */
 	    i = randint0(z_info->p_max);
 
@@ -2802,12 +2802,14 @@ void get_owner(bool pick)
 	}
 
 	/* Choose a legal race */
-	else {
+	else 
+	{
 	    /* Get a random value */
 	    j = randint0(out_of);
 
 	    /* Look up the race probability */
-	    for (i = 0; i < z_info->p_max; i++) {
+	    for (i = 0; i < z_info->p_max; i++) 
+	    {
 		/* Add the probability for the legal races */
 		chance += race_town_prob[town][i] * possible[i];
 
@@ -2825,7 +2827,6 @@ void get_owner(bool pick)
 
     /* Activate the owner */
     ot_ptr = &b_info[(type * z_info->b_max) + st_ptr->owner];
-
 }
 
 /**
@@ -2928,7 +2929,7 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
     /* Oops */
     if (which == MAX_STORES) 
     {
-	if (OPT(adult_dungeon)) 
+	if ((p_ptr->map == MAP_DUNGEON) || (p_ptr->map == MAP_FANILLA)) 
 	{
 	    if (f_ptr->shopnum == STORE_MERCH)
 		which = 0;
@@ -3232,7 +3233,6 @@ void store_maint(int which)
 	}
     }
 
-
     /* Choose the number of slots to keep */
     j = st_ptr->stock_num;
 
@@ -3277,6 +3277,48 @@ void store_maint(int which)
     /* Acquire some new items */
     while (st_ptr->stock_num < j)
     {
+	/* Mega-Hack -- ensure recall */
+	if (st_ptr->type == STORE_ALCH) 
+	{
+	    int i;
+	    object_type object_type_body;
+	    int k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
+
+	    /* Check if we've got some */
+	    for (i = 0; i < STORE_INVEN_MAX; i++)
+	    {
+		object_type *o_ptr = &st_ptr->stock[i];
+		if (o_ptr->k_idx == k_idx)
+		    break;
+	    }
+
+	    if (i == STORE_INVEN_MAX)
+	    {		
+		object_type *i_ptr;
+		
+		/* Get local object */
+		i_ptr = &object_type_body;
+		
+		/* Create some scrolls */
+		object_prep(i_ptr, k_idx, RANDOMISE);
+		i_ptr->number = 10;
+
+		/* The object is "known" */
+		object_known(i_ptr);
+
+		/* Item belongs to a store */
+		i_ptr->ident |= IDENT_STORE;
+
+		/* No origin yet */ 
+		i_ptr->origin = ORIGIN_NONE;
+
+		/* Stock them */
+		store_carry(i_ptr);
+
+		continue;
+	    }
+	}
+
 	store_create();
 	giveup++;
 	if (giveup > 100) break;

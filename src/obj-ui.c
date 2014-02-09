@@ -226,24 +226,14 @@ static void build_obj_list(int first, int last, const int *floor_list,
 	else continue;
 
 	/* Special labels for equipment */
-	if (first){
+	if (first)
+	{
 	    char tmp_val[80];
 
 	    /* Show full slot labels */
-	    if (OPT(show_labels))
-	    {
-		strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(i));
-		my_strcat(items[num_obj].label, tmp_val, 
-			  sizeof(items[num_obj].label));
-	    }
-
-	    /* Otherwise only show short quiver labels */
-	    else if (i >= QUIVER_START)
-	    {
-		strnfmt(tmp_val, sizeof(tmp_val), "[f%d]: ", i - QUIVER_START);
-		my_strcat(items[num_obj].label, tmp_val, 
-			  sizeof(items[num_obj].label));
-	    }
+	    strnfmt(tmp_val, sizeof(tmp_val), "%-14s: ", mention_use(i));
+	    my_strcat(items[num_obj].label, tmp_val,
+		      sizeof(items[num_obj].label));
 	}
 
 	/* Save the object */
@@ -676,7 +666,7 @@ void item_prompt(int mode)
 	}
 
 	/* Indicate that squelched items can be selected */
-	if (can_squelch)
+	if (can_squelch && !OPT(hide_squelchable))
 	{
 	    my_strcat(out_val, " ! for squelched,", sizeof(out_val));
 	    button_add("[!]", '!');
@@ -715,7 +705,7 @@ void item_prompt(int mode)
 	/* Indicate legality of the "floor" */
 	if (allow_floor) {
 	    my_strcat(out_val, " - for floor,", sizeof(out_val));
-	    button_add("[!]", '!');
+	    button_add("[-]", '-');
 	}
     }
 
@@ -753,7 +743,7 @@ void item_prompt(int mode)
 	}
 
 	/* Indicate that squelched items can be selected */
-	if (can_squelch) {
+	if (can_squelch && !OPT(hide_squelchable)) {
 	    my_strcat(out_val, " ! for squelched,", sizeof(out_val));
 	    button_add("[!]", '!');
 	}
@@ -1121,7 +1111,8 @@ bool get_item(int *cp, const char *pmt, const char *str, cmd_code cmd, int mode)
 	allow_floor = TRUE;
 
     /* Require at least one legal choice */
-    if (!allow_inven && !allow_equip && !allow_floor) {
+    if (!allow_inven && !allow_equip && !allow_floor) 
+    {
 	/* Oops */
 	oops = TRUE;
 	done = TRUE;
@@ -1129,38 +1120,54 @@ bool get_item(int *cp, const char *pmt, const char *str, cmd_code cmd, int mode)
 
     /* Analyze choices, prepare for initial menu */
     else {
-	/* Hack -- Start on equipment if requested */
-	if ((p_ptr->command_wrk == USE_EQUIP) && use_equip){
+	/* Start where requested */
+	if ((p_ptr->command_wrk == USE_EQUIP) && allow_equip)
+	{
 	    p_ptr->command_wrk = USE_EQUIP;
 	    build_obj_list(INVEN_WIELD, e2, NULL, olist_mode);
 	}
+	else if ((p_ptr->command_wrk == USE_INVEN) && allow_inven)
+	{
+	    p_ptr->command_wrk = USE_INVEN;
+	    build_obj_list(0, i2, NULL, olist_mode);
+	}
+	else if ((p_ptr->command_wrk == USE_FLOOR) && allow_floor)
+	{
+	    p_ptr->command_wrk = USE_FLOOR;
+	    build_obj_list(0, f2, floor_list, olist_mode);
+	}
 
 	/* If we are using the quiver then start on equipment */
-	else if (use_quiver){
+	else if (use_quiver && allow_equip)
+	{
 	    p_ptr->command_wrk = USE_EQUIP;
 	    build_obj_list(INVEN_WIELD, e2, NULL, olist_mode);
 	}
 
 	/* Use inventory if allowed */
-	else if (use_inven){
+	else if (use_inven && allow_inven)
+	{
 	    p_ptr->command_wrk = USE_INVEN;
 	    build_obj_list(0, i2, NULL, olist_mode);
 	}
 
 	/* Use equipment if allowed */
-	else if (use_equip){
+	else if (use_equip && allow_equip)
+	{
 	    p_ptr->command_wrk = USE_EQUIP;
 	    build_obj_list(INVEN_WIELD, e2, NULL, olist_mode);
 	}
 
 	/* Use floor if allowed */
-	else if (use_floor){
+	else if (use_floor && allow_floor)
+	{
 	    p_ptr->command_wrk = USE_FLOOR;
 	    build_obj_list(0, f2, floor_list, olist_mode);
 	}
 
 	/* Hack -- Use (empty) inventory */
-	else {
+	else 
+	{
 	    p_ptr->command_wrk = USE_INVEN;
 	    build_obj_list(0, i2, NULL, olist_mode);
 	}
@@ -1170,13 +1177,15 @@ bool get_item(int *cp, const char *pmt, const char *str, cmd_code cmd, int mode)
     msg_flag = FALSE;
 
     /* Start out in "display" mode */
-    if (show_list) {
+    if (show_list) 
+    {
 	/* Save screen */
 	screen_save();
     }
 
     /* Repeat until done */
-    while (!done) {
+    while (!done) 
+    {
 	static bool refresh;
 	int ni = 0;
 	int ne = 0;
@@ -1303,7 +1312,7 @@ bool get_item(int *cp, const char *pmt, const char *str, cmd_code cmd, int mode)
 		}
 
 		/* There is only one item */
-		if (OPT(pickup_single) && (floor_num == 1)) 
+		if (floor_num == 1) 
 		{
 		    /* Fall through */
 		} 

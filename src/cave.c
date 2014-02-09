@@ -704,7 +704,7 @@ void grid_data_as_text(grid_data *g, int *ap, wchar_t *cp, byte *tap, wchar_t *t
 			a = object_kind_attr(g->first_k_idx);
 			c = object_kind_char(g->first_k_idx);
 			
-			if (OPT(show_piles) && g->multiple_objects)
+			if (g->multiple_objects)
 			{
 				/* Get the "pile" feature instead */
 				k_ptr = &k_info[0];
@@ -1485,7 +1485,7 @@ void display_map(int *cy, int *cx)
     dungeon_hgt = (p_ptr->depth ? DUNGEON_HGT : 2 * DUNGEON_HGT / 3);
     dungeon_wid = (p_ptr->depth ? DUNGEON_WID : 2 * DUNGEON_WID / 3);
     if (!(p_ptr->depth) && (p_ptr->stage < KHAZAD_DUM_TOWN) && 
-	(!OPT(adult_dungeon)))
+	(p_ptr->map != MAP_DUNGEON) && (p_ptr->map != MAP_FANILLA))
 	dungeon_wid = DUNGEON_WID / 2;
     top_row = (p_ptr->depth ? 0 : DUNGEON_HGT / 3);
     left_col = (p_ptr->depth ? 0 : DUNGEON_WID / 3);
@@ -3022,13 +3022,6 @@ void wiz_light(bool wizard)
 			/* Memorize the grid */
 			cave_on(cave_info[yy][xx], CAVE_MARK);
 		    }
-		    
-		    /* Optionally, memorize floors immediately */
-		    else if (OPT(view_perma_grids) && !OPT(view_torch_grids))
-		    {
-			/* Memorize the grid */
-			cave_on(cave_info[yy][xx], CAVE_MARK);
-		    }
 		}
 	    }
 	}
@@ -3092,6 +3085,8 @@ void illuminate(void)
 {
     int y, x, i;
 
+    if (stage_map[p_ptr->stage][STAGE_TYPE] == CAVE) return;
+
     /* Apply light or darkness */
     for (y = 0; y < DUNGEON_HGT; y++) {
 	for (x = 0; x < DUNGEON_WID; x++) {
@@ -3099,14 +3094,9 @@ void illuminate(void)
 	    if ((cave_feat[y][x] == FEAT_PERM_SOLID)  && !p_ptr->depth)
 	    {
 
-		/* Darken the grid */
+		/* Darken and forget the grid */
 		cave_off(cave_info[y][x], CAVE_GLOW);
-
-		/* Hack -- Forget grids */
-		if (OPT(view_perma_grids)) 
-		{
-		    cave_off(cave_info[y][x], CAVE_MARK);
-		}
+		cave_off(cave_info[y][x], CAVE_MARK);
 	    }
 
 	    /* Special case of shops */
@@ -3145,27 +3135,18 @@ void illuminate(void)
 	    /* Track shop doorways */
 	    if (tf_has(f_ptr->flags, TF_SHOP)) 
 	    {
-		/* Illuminate the grid */
+		/* Illuminate and memorise the grid */
 		cave_on(cave_info[y][x], CAVE_GLOW);
-		
-		/* Hack -- Memorize grids */
-		if (OPT(view_perma_grids)) {
-		    cave_on(cave_info[y][x], CAVE_MARK);
-		}
+		cave_on(cave_info[y][x], CAVE_MARK);
 		
 		for (i = 0; i < 8; i++) 
 		{
 		    int yy = y + ddy_ddd[i];
 		    int xx = x + ddx_ddd[i];
 
-		    /* Illuminate the grid */
+		    /* Illuminate and memorise the grid */
 		    cave_on(cave_info[yy][xx], CAVE_GLOW);
-
-		    /* Hack -- Memorize grids */
-		    if (OPT(view_perma_grids)) 
-		    {
-			cave_on(cave_info[yy][xx], CAVE_MARK);
-		    }
+		    cave_on(cave_info[yy][xx], CAVE_MARK);
 		}
 	    }
 	}
@@ -3240,7 +3221,7 @@ void cave_set_feat(int y, int x, int feat)
  * This algorithm is similar to, but slightly different from, the one used
  * by update_view_los(), and very different from the one used by los().
  */
-int project_path(u16b * gp, int range, int y1, int x1, int y2, int x2, int flg)
+int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 {
     int y, x;
 
@@ -3679,9 +3660,8 @@ void disturb(int stop_search, int unused_flag)
 	p_ptr->redraw |= (PR_STATE);
     }
 
-    /* Flush the input if requested */
-    if (OPT(flush_disturb))
-	flush();
+    /* Flush the input */
+    flush();
 }
 
 

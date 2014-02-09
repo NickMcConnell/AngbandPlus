@@ -203,11 +203,13 @@ void option_dump(ang_file *fff)
 {
 	int i, j;
 
-	/* Dump options (skip cheat, adult, score) */
-	for (i = 0; i < OPT_CHEAT; i++)
+	/* Dump interface and gameplay options */
+	for (i = 0; i < OPT_MAX; i++)
 	{
 		const char *name = option_name(i);
-		if (!name) continue;
+		int type = option_type(i);
+		if ((type != OP_GAMEPLAY) && (type != OP_INTERFACE))
+		    continue;
 
 		/* Comment */
 		file_putf(fff, "# Option '%s'\n", option_desc(i));
@@ -622,7 +624,9 @@ static const char *process_pref_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "CLASS"))
                                 v = cp_ptr->name;
 			else if (streq(b+1, "PLAYER"))
-				v = op_ptr->base_name;
+				v = player_safe_name(p_ptr);
+			else if (streq(b+1, "GENDER"))
+				v = sp_ptr->title;
 		}
 
 		/* Constant */
@@ -899,13 +903,6 @@ static enum parser_error parse_prefs_q(struct parser *p)
 
 		kind = &k_info[idx];
 		kind->squelch = parser_getint(p, "flag");
-	}
-	else
-	{
-		int idx = parser_getint(p, "idx");
-		int level = parser_getint(p, "n");
-
-		squelch_level[idx] = level;
 	}
 
 	return PARSE_ERROR_NONE;

@@ -25,6 +25,27 @@
 #include "savefile.h"
 
 
+/*
+ * Write a description of the character
+ */
+void wr_description(void)
+{
+    char buf[1024];
+
+    if (p_ptr->is_dead)
+	strnfmt(buf, sizeof buf, "%s, dead (%s)", op_ptr->full_name, 
+		p_ptr->died_from);
+    else
+	strnfmt(buf, sizeof buf, "%s, L%d %s %s",
+		op_ptr->full_name,
+		p_ptr->lev,
+		rp_ptr->name,
+		cp_ptr->name);
+
+    wr_string(buf);
+}
+
+
 /**
  * Write an "item" record
  */
@@ -257,41 +278,18 @@ void wr_options(void)
   
     /*** Normal options ***/
   
-    /* Reset */
-    for (i = 0; i < 8; i++)
-    {
-	flag[i] = 0L;
-	mask[i] = 0L;
+    for (i = 0; i < OPT_MAX; i++) {
+	const char *name = option_name(i);
+	if (!name)
+	    continue;
+
+	wr_string(name);
+	wr_byte(op_ptr->opt[i]);
     }
-  
-    /* Analyze the options */
-    for (i = 0; i < OPT_MAX; i++)
-    {
-	int os = i / 32;
-	int ob = i % 32;
-      
-	/* Process real entries */
-	if (!option_name(i)) continue;
-	
-	/* Set flag */
-	if (op_ptr->opt[i])
-	{
-	    /* Set */
-	    flag[os] |= (1L << ob);
-	}
-	  
-	/* Set mask */
-	mask[os] |= (1L << ob);
-	
-    }
-  
-    /* Dump the flags */
-    for (i = 0; i < 8; i++) wr_u32b(flag[i]);
-  
-    /* Dump the masks */
-    for (i = 0; i < 8; i++) wr_u32b(mask[i]);
-  
-  
+
+    /* Sentinel */
+    wr_byte(0);
+
     /*** Window options ***/
   
     /* Reset */
@@ -604,6 +602,12 @@ void wr_player(void)
     wr_byte(MAX_RECALL_PTS);
     for (i = 0; i < MAX_RECALL_PTS; i++) wr_s16b(p_ptr->recall[i]);
     wr_s16b(p_ptr->recall_pt);
+
+    /* Game map and modes */
+    wr_byte(p_ptr->map);
+    wr_byte(GAME_MODE_MAX);
+    for (i = 0; i < GAME_MODE_MAX; i++)
+	wr_byte(p_ptr->game_mode[i]);
   
     /* More info */
     wr_s16b(p_ptr->speed_boost);	/* Specialty Fury */
@@ -671,12 +675,13 @@ void wr_player(void)
  */
 void wr_squelch(void)
 {
-    int i;
+    int i, j;
   
-    /* Write number of squelch bytes */
-    wr_byte(TYPE_MAX);
-    for (i = 0; i < TYPE_MAX; i++)
-	wr_byte(squelch_level[i]);
+    /* Write number of quality squelch bytes */
+    wr_byte(Q_TV_MAX * SQUELCH_MAX);
+    for (i = 0; i < Q_TV_MAX; i++)
+	for (j = 0; j < SQUELCH_MAX; j++)
+	    wr_byte(squelch_profile[i][j]);
   
     /* Write ego-item squelch bits */
     wr_u16b(z_info->e_max);

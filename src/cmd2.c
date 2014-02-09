@@ -169,7 +169,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
     }
 
     /* Handle ironman */
-    if (OPT(adult_ironman))
+    if (MODE(IRONMAN))
     {
 	/* Upstairs */
 	if (tf_has(f_ptr->flags, TF_STAIR))
@@ -203,7 +203,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
     if (pstair == FEAT_LESS)
     {
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon) && (p_ptr->depth != 1)
+	if ((p_ptr->map == MAP_DUNGEON) && (p_ptr->depth != 1)
 	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[p_ptr->stage][UP]][LOCALITY])))
 	{
@@ -226,7 +226,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 	}
 
 	/* stairs */
-	msgt(MSG_STAIRS_DOWN, "You enter a maze of up staircases.");
+	msgt(MSG_STAIRS_UP, "You enter a maze of up staircases.");
 
 	/* make the way back */
 	p_ptr->create_stair = FEAT_MORE;
@@ -234,7 +234,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
     else if (pstair == FEAT_LESS_SHAFT)
     {
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon) && (p_ptr->depth != 2)
+	if ((p_ptr->map == MAP_DUNGEON) && (p_ptr->depth != 2)
 	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[stage_map[p_ptr->stage][UP]][UP]]
 		 [LOCALITY])))
@@ -258,7 +258,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 	}
 
 	/* shaft */
-	msgt(MSG_STAIRS_DOWN, "You enter a maze of up staircases.");
+	msgt(MSG_STAIRS_UP, "You enter a maze of up staircases.");
 
 	/* make the way back */
 	p_ptr->create_stair = FEAT_MORE_SHAFT;
@@ -266,7 +266,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
     else
     {
 	/* path */
-	msgt(MSG_STAIRS_DOWN, "You enter a winding path to less danger.");
+	msgt(MSG_STAIRS_UP, "You enter a winding path to less danger.");
 
 	/* make the way back */
 	p_ptr->create_stair = path_data[i].return_path;
@@ -352,12 +352,14 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
     }
 
     /* Handle ironman */
-    if (OPT(adult_ironman) && !p_ptr->depth && !OPT(adult_dungeon)) {
+    if (MODE(IRONMAN) && !p_ptr->depth && (p_ptr->map != MAP_DUNGEON)
+	&& (p_ptr->map != MAP_FANILLA))
+    {
 	int j, other;
 	int next = stage_map[p_ptr->stage][path_data[i].direction];
 
 	/* Check if this is the right way out of town */
-	for (j = NORTH; j <= WEST; i++) {
+	for (j = NORTH; j <= WEST; j++) {
 	    other = stage_map[p_ptr->stage][j];
 	    if (stage_map[next][DEPTH] < stage_map[other][DEPTH]) {
 		msg("Nothing happens.");
@@ -384,8 +386,9 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
 	int location;
 
 	/* Magical portal for ironman */
-	if (OPT(adult_ironman) && !stage_map[p_ptr->stage][DOWN]
-	    && !OPT(adult_dungeon)) {
+	if (MODE(IRONMAN) && !stage_map[p_ptr->stage][DOWN]
+	    && (p_ptr->map != MAP_DUNGEON) && (p_ptr->map != MAP_FANILLA)) 
+	{
 	    /* Get choice */
 	    if (!jump_menu(p_ptr->depth + 1, &location))
 		return;
@@ -406,7 +409,7 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
 	}
 
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon) && (p_ptr->depth)
+	if ((p_ptr->map == MAP_DUNGEON) && (p_ptr->depth)
 	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[p_ptr->stage][DOWN]][LOCALITY]))) {
 	    /* Land properly */
@@ -439,7 +442,7 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
     else if (pstair == FEAT_MORE_SHAFT)
     {
 	/* Magical portal for dungeon-only games */
-	if (OPT(adult_dungeon)
+	if ((p_ptr->map == MAP_DUNGEON)
 	    && ((stage_map[p_ptr->stage][LOCALITY]) !=
 		(stage_map[stage_map[stage_map[p_ptr->stage][DOWN]][DOWN]]
 		 [LOCALITY]))) {
@@ -516,7 +519,9 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
     p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
     /* Check for quests */
-    if (OPT(adult_dungeon) && is_quest(p_ptr->stage) && (p_ptr->depth < 100)) {
+    if ((p_ptr->map == MAP_DUNGEON) && is_quest(p_ptr->stage) && 
+	(p_ptr->depth < 100)) 
+    {
 	int i;
 	monster_race *r_ptr = NULL;
 
@@ -1388,8 +1393,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	else {
 	    /* We may continue repeating */
 	    more = TRUE;
-	    if (OPT(flush_failure))
-		flush();
+	    flush();
 	    msgt(MSG_LOCKPICK_FAIL, "You failed to pick the lock.");
 	}
     }
@@ -1472,8 +1476,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
     else if ((i > 5) && (randint1(i) > 5)) {
 	/* We may keep trying */
 	more = TRUE;
-	if (OPT(flush_failure))
-	    flush();
+	flush();
 	msg("You failed to disarm the chest.");
     }
 
@@ -1734,8 +1737,7 @@ extern bool do_cmd_open_aux(int y, int x)
 	/* Failure */
 	else {
 	    /* Failure */
-	    if (OPT(flush_failure))
-		flush();
+	    flush();
 
 	    /* Message */
 	    msgt(MSG_LOCKPICK_FAIL, "You failed to pick the lock.");
@@ -2333,8 +2335,7 @@ extern bool do_cmd_disarm_aux(int y, int x)
     else if ((i > 5) && (randint1(i) > 5)) 
     {
 	/* Failure */
-	if (OPT(flush_failure))
-	    flush();
+	flush();
 
 	/* Message */
 	msg("You failed to disarm the %s.", t_ptr->kind->name);

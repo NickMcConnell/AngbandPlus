@@ -51,6 +51,8 @@ enum birth_stage
 	BIRTH_BACK = -1,
 	BIRTH_RESET = 0,
 	BIRTH_QUICKSTART,
+	BIRTH_MAP_CHOICE,
+	BIRTH_MODE_CHOICE,
 	BIRTH_SEX_CHOICE,
 	BIRTH_RACE_CHOICE,
 	BIRTH_CLASS_CHOICE,
@@ -113,7 +115,7 @@ static enum birth_stage get_quickstart_command(void)
 		if (ke.key.code == 'N' || ke.key.code == 'n')
 		{
 			cmd_insert(CMD_BIRTH_RESET);
-			next = BIRTH_SEX_CHOICE;
+			next = BIRTH_MAP_CHOICE;
 		}
 		else if (ke.key.code == KTRL('X'))
 		{
@@ -139,6 +141,526 @@ static enum birth_stage get_quickstart_command(void)
 	clear_from(23);
 
 	return next;
+}
+
+/* ------------------------------------------------------------------------
+ * Set the map
+ * ------------------------------------------------------------------------ */
+#define MAP_TEXT \
+    "    *    \n" \
+    "  #{lightyellow}#{/} {lightyellow}#{/}#  \n" \
+    " #{lightgreen}#{/}{lightyellow}#{/} {lightyellow}#{/}{lightgreen}#{/}# \n" \
+    "/{lightyellow}##{/}{deeplightblue}/{/}{yellow}@{/}{deeplightblue}\\{/}{lightyellow}##{/}\\\n" \
+    "*  {yellow}@{/}{orange}@{/}{yellow}@{/}  *  Welcome to First Age Angband!\n" \
+    "\\{lightyellow}##{/}{deeplightblue}\\{/}{yellow}@{/}{deeplightblue}/{/}{lightyellow}##{/}/\n" \
+    " #{lightgreen}#{/}{lightyellow}#{/} {lightyellow}#{/}{lightgreen}#{/}# \n" \
+    "  #{lightyellow}#{/} {lightyellow}#{/}#  \n" \
+    "    *    \n\n"				     \
+    "There are four different ways of structuring the world\n" \
+    "of FAangband; '{lightgreen}?{/}' gives more details."
+
+/* Show the map instructions */	
+static void print_map_instructions(void)
+{
+	/* Clear screen */
+	Term_clear();
+	
+	/* Output to the screen */
+	text_out_hook = text_out_to_screen;
+	
+	/* Indent output */
+	text_out_indent = 5;
+	Term_gotoxy(5, 1);
+	
+	/* Display some helpful information */
+	text_out_e(MAP_TEXT);
+	
+	/* Reset text_out() indentation */
+	text_out_indent = 0;
+}
+
+/**
+ * Map descriptions
+ */
+const char *map_name[] = 
+{ 
+    "Standard wilderness", 
+    "Extended wilderness", 
+    "Hybrid dungeon", 
+    "Angband dungeon",
+    "Quit"
+};
+
+const char *map_description[] =
+{
+    "The standard FAangband wilderness.  You will start in a town, and need to traverse the map to find dungeons, fighting enemies as you go.  Each dungeon has a guardian at the bottom.",
+    "A more extended wilderness, which was the standard up until version 1.2.",
+    "Here you descend just through the dungeons of Beleriand, with portals at the bottom of each which will take you to the next one.  All guardians except the last are optional to fight.",
+    "An experience more like regular Angband, with a single town, a single dungeon, and two quests - Sauron on level 99, and Morgoth on level 100.",
+    "Quit FAangband."
+};
+
+/**
+ * Map menu data struct
+ */
+struct map_menu_data {
+    const char *maps[MAP_MAX + 1];
+    const char *description[MAP_MAX + 1];
+
+    int selected_map;
+};
+
+
+/**
+ * Display a row of the map menu
+ */
+static void map_menu_display(menu_type *m, int oid, bool cursor,
+			       int row, int col, int wid)
+{
+    struct map_menu_data *d = menu_priv(m);
+    int attr_name= cursor ? TERM_L_BLUE : TERM_WHITE;
+
+    /* Dump the name */
+    c_put_str(attr_name, d->maps[oid], row, col);
+}
+
+/**
+ * Handle an event on a menu row.
+ */
+static bool map_menu_handler(menu_type *m, const ui_event *e, int oid)
+{
+    struct map_menu_data *d = menu_priv(m);
+
+    if (e->type == EVT_SELECT) {
+	d->selected_map = oid;
+	return FALSE;
+    }
+    else if (e->type == EVT_ESCAPE) {
+	d->selected_map = -1;
+	return FALSE;
+    }
+    else if (e->type == EVT_KBRD)
+    {
+	if (e->key.code == '?')
+	{
+	    screen_save();
+	    show_file("mapmode.txt", NULL, 0, 0);
+	    screen_load();
+	}
+	return FALSE;
+    }
+    return TRUE;
+}
+
+/**
+ * Show map description when browsing
+ */
+static void map_menu_browser(int oid, void *data, const region *loc)
+{
+    struct map_menu_data *d = data;
+
+    /* Redirect output to the screen */
+    text_out_hook = text_out_to_screen;
+    text_out_wrap = 60;
+    text_out_indent = loc->col - 1;
+    text_out_pad = 1;
+
+    Term_gotoxy(loc->col, loc->row + loc->page_rows);
+    text_out_c(TERM_DEEP_L_BLUE, format("\n%s\n", d->description[oid]));
+
+    /* XXX */
+    text_out_pad = 0;
+    text_out_indent = 0;
+    text_out_wrap = 0;
+}
+
+static const menu_iter map_menu_iter = 
+{
+    NULL,	/* get_tag = NULL, just use lowercase selections */
+    NULL,       /* no validity hook */
+    map_menu_display,
+    map_menu_handler,
+    NULL	/* no resize hook */
+};
+
+/** Create and initialise the map menu */
+static menu_type *map_menu_new(void)
+{
+    menu_type *m = menu_new(MN_SKIN_SCROLL, &map_menu_iter);
+    struct map_menu_data *d = mem_alloc(sizeof *d);
+    int i;
+
+    region loc = { 5, 14, 70, -99 };
+
+    /* copy across private data */
+    d->selected_map = -1;
+    for (i = 0; i <= MAP_MAX; i++)
+    {
+	d->maps[i] = map_name[i];
+	d->description[i] = map_description[i];
+    }
+
+    menu_setpriv(m, MAP_MAX + 1, d);
+
+    /* set flags */
+    m->cmd_keys = "?";	 
+    m->flags = MN_CASELESS_TAGS;
+    m->selections = lower_case;
+    m->browse_hook = map_menu_browser;
+
+    /* set size */
+    loc.page_rows = MAP_MAX + 2;
+    menu_layout(m, &loc);
+
+    return m;
+}
+
+/** Clean up a map menu instance */
+static void map_menu_destroy(menu_type *m)
+{
+    struct map_menu_data *d = menu_priv(m);
+    mem_free(d);
+    mem_free(m);
+}
+
+/**
+ * Run the map menu to select a map.
+ */
+static int map_menu_select(menu_type *m)
+{
+    struct map_menu_data *d = menu_priv(m);
+
+    screen_save();
+    region_erase_bordered(&m->active);
+
+    menu_select(m, 0, TRUE);
+
+    screen_load();
+
+    return d->selected_map;
+}
+
+static enum birth_stage get_map_command(void)
+{
+    enum birth_stage next;
+    menu_type *m;
+
+    m = map_menu_new();
+    if (m) 
+    {
+	int map = map_menu_select(m);
+	if (map == -1)
+	{
+	    next = BIRTH_BACK;
+	}
+	else if (map == MAP_MAX)
+	{
+	    cmd_insert(CMD_QUIT);
+	    next = BIRTH_COMPLETE;
+	}
+	else
+	{
+	    cmd_insert(CMD_SET_MAP);
+	    cmd_set_arg_choice(cmd_get_top(), 0, m->cursor);
+	    next = BIRTH_MODE_CHOICE;
+	}
+    }
+    else
+    {
+	next = BIRTH_BACK;
+    }
+    map_menu_destroy(m);
+
+    return next;
+}
+
+/* ------------------------------------------------------------------------
+ * Get the game mode (formerly birth options)
+ * ------------------------------------------------------------------------ */
+#define MODE_TEXT \
+    "Now, toggle any of the permanent game modes,  '{lightgreen}?{/}'\n" \
+    "for help, accept or quit:"
+
+
+/* Show the mode instructions */	
+static void print_mode_instructions(void)
+{
+    /* Clear screen */
+    clear_from(11);
+    
+    /* Output to the screen */
+    text_out_hook = text_out_to_screen;
+	
+    /* Indent output */
+    text_out_indent = 5;
+    Term_gotoxy(5, 11);
+    
+    /* Display some helpful information */
+    text_out_e(MODE_TEXT);
+    
+    /* Reset text_out() indentation */
+    text_out_indent = 0;
+}
+
+/**
+ * Mode descriptions
+ */
+const char *mode_name[] = 
+{ 
+    "Accept current options",
+    "Thrall",
+    "Ironman", 
+    "Disconnected stairs", 
+    "Small device", 
+    "No artifacts",
+    "No selling",
+    "Smart cheat",
+    "Quit"
+};
+
+const char *mode_description[] =
+{
+    "Accept the current state of the game modes as printed below",
+    "Start as a thrall on the steps of Angband",
+    "Only ever go into greater danger until you win or die",
+    "Taking a dungeon stair or wilderness path will not place you on a stair or path back the way you came",
+    "Player and monster spell and view distances are halved.  This is good if you have a small screen or large tiles",
+    "Artifacts are never generated",
+    "You cannot sell items to shops for money, but you will get more money from the dungeon floor and monsters",
+    "Monsters know your weaknesses without having to learn them",
+    "Quit FAangband"
+};
+
+/**
+ * Mode menu data struct
+ */
+struct mode_menu_data 
+{
+    const char *modes[GAME_MODE_MAX + 2];
+    const char *description[GAME_MODE_MAX + 2];
+
+    bool mode_settings[GAME_MODE_MAX + 1];
+};
+
+/**
+ * Is item oid valid?
+ */
+static int mode_menu_valid(menu_type *m, int oid)
+{
+    /* No thralls in FAnilla map */
+    if ((p_ptr->map == MAP_FANILLA) && (oid == 1))
+	return 0;
+
+    return 1;
+}
+
+/**
+ * Display a row of the mode menu
+ */
+static void mode_menu_display(menu_type *m, int oid, bool cursor,
+			       int row, int col, int wid)
+{
+    struct mode_menu_data *d = menu_priv(m);
+    int attr_name = cursor ? TERM_L_BLUE : TERM_WHITE;
+
+    /* Dump the name */
+    c_put_str(attr_name, d->modes[oid], row, col);
+}
+
+/**
+ * Handle an event on a menu row.
+ */
+static bool mode_menu_handler(menu_type *m, const ui_event *e, int oid)
+{
+    struct mode_menu_data *d = menu_priv(m);
+
+    if (e->type == EVT_SELECT) {
+	/* We're done, return */
+	if (oid == 0)
+	    return FALSE;
+	/* Quitting */
+	else if (oid == GAME_MODE_MAX + 1)
+	{
+	    d->mode_settings[GAME_MODE_MAX + 1] = TRUE;
+	    return FALSE;
+	}
+	/* toggle */
+	else
+	{
+	    d->mode_settings[oid - 1] = !d->mode_settings[oid - 1];
+	}
+    }
+    else if (e->type == EVT_KBRD)
+    {
+	if (e->key.code == ESCAPE) 
+	{
+	    d->mode_settings[GAME_MODE_MAX] = TRUE;
+	}
+	else if (e->key.code == '?')
+	{
+	    const char *name = d->modes[oid];
+	    screen_save();
+	    show_file(format("mapmode.txt#%s", name), NULL, 0, 0);
+	    screen_load();
+	}
+	return FALSE;
+    }
+
+    return TRUE;
+}
+
+/**
+ * Show mode description when browsing
+ */
+static void mode_menu_browser(int oid, void *data, const region *loc)
+{
+    struct mode_menu_data *d = data;
+    int i, j;
+
+    /* Redirect output to the screen */
+    text_out_hook = text_out_to_screen;
+    text_out_wrap = 60;
+    text_out_indent = loc->col - 1;
+    text_out_pad = 1;
+
+    Term_gotoxy(loc->col, loc->row + loc->page_rows);
+    text_out_c(TERM_DEEP_L_BLUE, format("\n%s\n", d->description[oid]));
+
+    Term_gotoxy(loc->col, loc->row + loc->page_rows + 4);
+    text_out_c(TERM_L_YELLOW, "Currently true:");
+    for (i = 0, j = 0; i < GAME_MODE_MAX; i++)
+    {
+	if (d->mode_settings[i])
+	{
+	    char tag[2] = "b";
+
+	    tag[0] += i;
+	    Term_gotoxy(loc->col + 16 + 2 * j++, loc->row + loc->page_rows + 4);
+	    text_out_c(TERM_MAGENTA, tag);
+	}
+    }
+
+    /* XXX */
+    text_out_pad = 0;
+    text_out_indent = 0;
+    text_out_wrap = 0;
+}
+
+static const menu_iter mode_menu_iter = 
+{
+    NULL,	/* get_tag = NULL, just use lowercase selections */
+    mode_menu_valid,
+    mode_menu_display,
+    mode_menu_handler,
+    NULL	/* no resize hook */
+};
+
+/** Create and initialise the mode menu */
+static menu_type *mode_menu_new(void)
+{
+    menu_type *m = menu_new(MN_SKIN_SCROLL, &mode_menu_iter);
+    struct mode_menu_data *d = mem_alloc(sizeof *d);
+    int i;
+    const char cmd_keys[] = { '?', (char) ESCAPE, '\0' };
+
+    region loc = { 5, 14, 70, -99 };
+
+    /* copy across private data */
+    /* current game modes */
+    for (i = 0; i < GAME_MODE_MAX; i++)
+    {
+	d->mode_settings[i] = p_ptr->game_mode[i];
+    }
+    /* go back */
+    d->mode_settings[GAME_MODE_MAX] = FALSE;
+    /* quit */
+    d->mode_settings[GAME_MODE_MAX + 1] = FALSE;
+    /* actual modes and descriptions */
+    for (i = 0; i < GAME_MODE_MAX + 2; i++)
+    {
+	d->modes[i] = mode_name[i];
+	d->description[i] = mode_description[i];
+    }
+
+    menu_setpriv(m, GAME_MODE_MAX + 2, d);
+
+    /* set flags */
+    m->flags = MN_CASELESS_TAGS;
+    m->cmd_keys = cmd_keys;
+    m->selections = lower_case;
+    m->browse_hook = mode_menu_browser;
+
+    /* set size */
+    loc.page_rows = GAME_MODE_MAX + 3;
+    menu_layout(m, &loc);
+
+    return m;
+}
+
+/** Clean up a mode menu instance */
+static void mode_menu_destroy(menu_type *m)
+{
+    struct mode_menu_data *d = menu_priv(m);
+    mem_free(d);
+    mem_free(m);
+}
+
+/**
+ * Run the mode menu to select game modes.
+ */
+static bool *mode_menu_select(menu_type *m)
+{
+    struct mode_menu_data *d = menu_priv(m);
+
+    screen_save();
+    region_erase_bordered(&m->active);
+
+    menu_select(m, 0, TRUE);
+
+    screen_load();
+
+    return (bool *)d->mode_settings;
+}
+
+static enum birth_stage get_mode_command(void)
+{
+    enum birth_stage next;
+    menu_type *m;
+
+    m = mode_menu_new();
+    if (m) 
+    {
+	bool *selections = mode_menu_select(m);
+	if (selections[GAME_MODE_MAX] == TRUE)
+	{
+	    next = BIRTH_BACK;
+	}
+	else if (selections[GAME_MODE_MAX + 1] == TRUE)
+	{
+	    cmd_insert(CMD_QUIT);
+	    next = BIRTH_COMPLETE;
+	}
+	else
+	{
+	    char modes[GAME_MODE_MAX];
+	    int i;
+
+	    /* Write a Y/N string for game mode setting */
+	    for (i = 0; i < GAME_MODE_MAX; i++)
+		modes[i] = selections[i] ? 'Y' : 'N';
+
+	    cmd_insert(CMD_SET_MODES);
+	    cmd_set_arg_string(cmd_get_top(), 0, (const char *)modes);
+	    next = BIRTH_SEX_CHOICE;
+	}
+    }
+    else
+    {
+	next = BIRTH_BACK;
+    }
+    mode_menu_destroy(m);
+
+    return next;
 }
 
 /* ------------------------------------------------------------------------
@@ -217,7 +739,7 @@ static void race_help(int i, void *db, const region *l)
 	}
 	
 	text_out_e("Hit die: %d\n", p_info[i].r_mhp);
-	if (!OPT(adult_dungeon))
+	if ((p_ptr->map != MAP_DUNGEON) && (p_ptr->map != MAP_FANILLA))
 	  {
 	    text_out_e("Difficulty: Level %d\n", p_info[i].difficulty);
       
@@ -384,7 +906,7 @@ static void clear_question(void)
 	"Use the {lightgreen}movement keys{/} to scroll the menu, " \
 	"{lightgreen}Enter{/} to select the current menu item, '{lightgreen}*{/}' " \
 	"for a random menu item, '{lightgreen}ESC{/}' to step back through the " \
-	"birth process, '{lightgreen}={/}' for the birth options, '{lightgreen}?{/} " \
+	"birth process, '{lightgreen}?{/} " \
 	"for help, or '{lightgreen}Ctrl-X{/}' to quit."
 
 /* Show the birth instructions on an otherwise blank screen */	
@@ -398,6 +920,7 @@ static void print_menu_instructions(void)
 	
 	/* Indent output */
 	text_out_indent = QUESTION_COL;
+	text_out_wrap = 60;
 	Term_gotoxy(QUESTION_COL, HEADER_ROW);
 	
 	/* Display some helpful information */
@@ -405,6 +928,7 @@ static void print_menu_instructions(void)
 	
 	/* Reset text_out() indentation */
 	text_out_indent = 0;
+	text_out_wrap = 0;
 }
 
 /* Allow the user to select from the current menu, and return the 
@@ -412,94 +936,94 @@ static void print_menu_instructions(void)
    by the UI (displaying help text, for instance). */
 static enum birth_stage menu_question(enum birth_stage current, menu_type *current_menu, cmd_code choice_command)
 {
-	struct birthmenu_data *menu_data = menu_priv(current_menu);
-	ui_event cx;
+    struct birthmenu_data *menu_data = menu_priv(current_menu);
+    ui_event cx;
 
-	enum birth_stage next = BIRTH_RESET;
+    enum birth_stage next = BIRTH_RESET;
 	
-	/* Print the question currently being asked. */
-	clear_question();
-	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW, menu_data->hint);
+    /* Print the question currently being asked. */
+    clear_question();
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW, menu_data->hint);
 
-	current_menu->cmd_keys = "?=*\x18";	 /* ?, =, *, <ctl-X> */
+    current_menu->cmd_keys = "?*\x18";	 /* ?, *, <ctl-X> */
 
-	while (next == BIRTH_RESET)
+    while (next == BIRTH_RESET)
+    {
+	/* Display the menu, wait for a selection of some sort to be made. */
+	cx = menu_select(current_menu, EVT_KBRD, FALSE);
+
+	/* As all the menus are displayed in "hierarchical" style, we allow
+	   use of "back" (left arrow key or equivalent) to step back in 
+	   the proces as well as "escape". */
+	if (cx.type == EVT_ESCAPE)
 	{
-		/* Display the menu, wait for a selection of some sort to be made. */
-	    cx = menu_select(current_menu, EVT_KBRD, FALSE);
-
-		/* As all the menus are displayed in "hierarchical" style, we allow
-		   use of "back" (left arrow key or equivalent) to step back in 
-		   the proces as well as "escape". */
-		if (cx.type == EVT_ESCAPE)
-		{
-			next = BIRTH_BACK;
-		}
-		else if (cx.type == EVT_SELECT)
-		{
-			if (current == BIRTH_ROLLER_CHOICE)
-			{
-				cmd_insert(CMD_FINALIZE_OPTIONS);
-
-				if (current_menu->cursor)
-				{
-					/* Do a first roll of the stats */
-					cmd_insert(CMD_ROLL_STATS);
-					next = current + 2;
-				}
-				else
-				{
-					/* 
-					 * Make sure we've got a point-based char to play with. 
-					 * We call point_based_start here to make sure we get
-					 * an update on the points totals before trying to
-					 * display the screen.  The call to CMD_RESET_STATS
-					 * forces a rebuying of the stats to give us up-to-date
-					 * totals.  This is, it should go without saying, a hack.
-					 */
-					point_based_start();
-					cmd_insert(CMD_RESET_STATS);
-					cmd_set_arg_choice(cmd_get_top(), 0, TRUE);
-					next = current + 1;
-				}
-			}
-			else
-			{
-				cmd_insert(choice_command);
-				cmd_set_arg_choice(cmd_get_top(), 0, current_menu->cursor);
-				next = current + 1;
-			}
-		}
-		else if (cx.type == EVT_KBRD)
-		{
-			/* '*' chooses an option at random from those the game's provided. */
-			if (cx.key.code == '*' && menu_data->allow_random) 
-			{
-				current_menu->cursor = randint0(current_menu->count);
-				cmd_insert(choice_command);
-				cmd_set_arg_choice(cmd_get_top(), 0, current_menu->cursor);
-
-				menu_refresh(current_menu, FALSE);
-				next = current + 1;
-			}
-			else if (cx.key.code == '=') 
-			{
-				do_cmd_options();
-				next = current;
-			}
-			else if (cx.key.code == KTRL('X')) 
-			{
-				cmd_insert(CMD_QUIT);
-				next = BIRTH_COMPLETE;
-			}
-			else if (cx.key.code == '?')
-			{
-				do_cmd_help();
-			}
-		}
+	    next = BIRTH_BACK;
 	}
+	else if (cx.type == EVT_SELECT)
+	{
+	    if (current == BIRTH_ROLLER_CHOICE)
+	    {
+		cmd_insert(CMD_FINALIZE_OPTIONS);
+
+		if (current_menu->cursor)
+		{
+		    /* Do a first roll of the stats */
+		    cmd_insert(CMD_ROLL_STATS);
+		    next = current + 2;
+		}
+		else
+		{
+		    /* 
+		     * Make sure we've got a point-based char to play with. 
+		     * We call point_based_start here to make sure we get
+		     * an update on the points totals before trying to
+		     * display the screen.  The call to CMD_RESET_STATS
+		     * forces a rebuying of the stats to give us up-to-date
+		     * totals.  This is, it should go without saying, a hack.
+		     */
+		    point_based_start();
+		    cmd_insert(CMD_RESET_STATS);
+		    cmd_set_arg_choice(cmd_get_top(), 0, TRUE);
+		    next = current + 1;
+		}
+	    }
+	    else
+	    {
+		cmd_insert(choice_command);
+		cmd_set_arg_choice(cmd_get_top(), 0, current_menu->cursor);
+		next = current + 1;
+	    }
+	}
+	else if (cx.type == EVT_KBRD)
+	{
+	    /* '*' chooses an option at random from those the game's provided. */
+	    if (cx.key.code == '*' && menu_data->allow_random) 
+	    {
+		current_menu->cursor = randint0(current_menu->count);
+		cmd_insert(choice_command);
+		cmd_set_arg_choice(cmd_get_top(), 0, current_menu->cursor);
+
+		menu_refresh(current_menu, FALSE);
+		next = current + 1;
+	    }
+	    else if (cx.key.code == KTRL('X')) 
+	    {
+		cmd_insert(CMD_QUIT);
+		next = BIRTH_COMPLETE;
+	    }
+	    else if (cx.key.code == '?')
+	    {
+		const char *name = 
+		    (const char *)menu_data->items[current_menu->cursor];
+		screen_save();
+		show_file(format("raceclas.txt#%s", 
+				 name), NULL, 0, 0);
+		screen_load();
+	    }
+	}
+    }
 	
-	return next;
+    return next;
 }
 
 /* ------------------------------------------------------------------------
@@ -867,7 +1391,7 @@ errr get_birth_command(bool wait)
 			if (quickstart_allowed)
 				next = BIRTH_QUICKSTART;
 			else
-				next = BIRTH_SEX_CHOICE;
+				next = BIRTH_MAP_CHOICE;
 
 			break;
 		}
@@ -876,6 +1400,25 @@ errr get_birth_command(bool wait)
 		{
 			display_player(0);
 			next = get_quickstart_command();
+			break;
+		}
+
+		case BIRTH_MAP_CHOICE:
+		{
+			print_map_instructions();
+			next = get_map_command();
+			if (next == BIRTH_BACK)
+				next = BIRTH_RESET;
+			break;
+		}
+
+		case BIRTH_MODE_CHOICE:
+		{
+		    //print_map_instructions();
+			print_mode_instructions();
+			next = get_mode_command();
+			if (next == BIRTH_BACK)
+				next = BIRTH_MAP_CHOICE;
 			break;
 		}
 
