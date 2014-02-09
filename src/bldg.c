@@ -983,7 +983,7 @@ static bool gamble_comm(int cmd)
 
             /* Prevent savefile-scumming of the casino */
 /*            Rand_quick = TRUE; */
-            Rand_value = time(NULL);
+            Rand_value = (u32b)time(NULL);
 
             do
             {
@@ -2372,29 +2372,6 @@ static void town_history(void)
 
 
 /*
- * Hook to specify "weapon"
- */
-static bool item_tester_hook_melee_weapon(object_type *o_ptr)
-{
-    switch (o_ptr->tval)
-    {
-        case TV_HAFTED:
-        case TV_POLEARM:
-        case TV_DIGGING:
-        {
-            return (TRUE);
-        }
-        case TV_SWORD:
-        {
-            if (o_ptr->sval != SV_DOKUBARI) return (TRUE);
-        }
-    }
-
-    return (FALSE);
-}
-
-
-/*
  * Hook to specify "ammo"
  */
 static bool item_tester_hook_ammo(object_type *o_ptr)
@@ -2940,7 +2917,6 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
     object_type *o_ptr;
     cptr        q, s;
     int         maxenchant;
-    int         mul = 1;
     char        tmp_str[MAX_NLEN];
 
     clear_bldg(4, 18);

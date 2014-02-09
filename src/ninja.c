@@ -376,7 +376,7 @@ static void _rengoku_kaen_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int k, x, y;
+        int k, x = 0, y = 0;
         int num = damroll(3, 9);
 
         for (k = 0; k < num; k++)

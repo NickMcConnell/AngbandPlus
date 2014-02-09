@@ -12,7 +12,6 @@
 #include "angband.h"
 
 #include "z-term.h"
-
 #include "z-virt.h"
 
 /* Special flags in the attr data */

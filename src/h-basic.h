@@ -3,6 +3,8 @@
 #ifndef INCLUDED_H_BASIC_H
 #define INCLUDED_H_BASIC_H
 
+#include "msvc_warnings.h"
+
 /*
  * The most basic "include" file.
  *

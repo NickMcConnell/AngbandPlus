@@ -1843,7 +1843,6 @@ int show_inven(int target_item, int mode)
     /* Default "max-length" */
     len = wid - col - 1;
 
-
     /* Find the "final" slot */
     for (i = 0; i < INVEN_PACK; i++)
     {
@@ -1924,6 +1923,8 @@ int show_inven(int target_item, int mode)
     /* Output each entry */
     for (j = 0; j < k; j++)
     {
+        if (j + 1 >= hgt) break; /* out of bounds on the terminal currently = GPF! */
+
         /* Get the index */
         i = out_index[j];
 

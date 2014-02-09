@@ -1543,8 +1543,8 @@ void display_dungeon(void)
     byte a;
     char c;
 
-    byte ta;
-    char tc;
+    byte ta = 0;
+    char tc = 0;
 
     for (x = px - Term->wid / 2 + 1; x <= px + Term->wid / 2; x++)
     {
@@ -3183,8 +3183,8 @@ void update_mon_lite(void)
         }
 
         /* Add to end of temp array */
-        temp_x[temp_n] = (byte)fx;
-        temp_y[temp_n] = (byte)fy;
+        temp_x[temp_n] = fx;
+        temp_y[temp_n] = fy;
         temp_n++;
     }
 

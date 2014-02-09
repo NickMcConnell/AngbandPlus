@@ -1091,8 +1091,6 @@ s32b object_value_real(object_type *o_ptr)
     /* Ego-Item */
     else if (object_is_ego(o_ptr))
     {
-        ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
         /* Hack -- Reward the ego-item with a bonus */
         value += flag_cost(o_ptr, o_ptr->pval, FALSE);
     }
@@ -2169,11 +2167,6 @@ static int _get_random_ego(int type)
     return 0;
 }
 
-static int get_random_ego(int type, int dead_arg)
-{
-    return _get_random_ego(type);
-}
-
 static void _create_artifact(object_type *o_ptr, int power)
 {
     u32b mode = CREATE_ART_NORMAL;
@@ -3238,8 +3231,6 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 break;
             case EGO_WEAPON_ARMAGEDDON:
             {
-                int old_dam = o_ptr->dd * (o_ptr->ds+1) / 2;
-                int new_dam = 0;
                 int odds = o_ptr->dd * o_ptr->ds / 2;
                     
                 if (odds < 3) odds = 3;
@@ -4099,12 +4090,12 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
         case TV_CORPSE:
         {
             int i = 1;
-            int check;
+            int check = 0;
             int count = 0;
 
             u32b match = 0;
 
-            monster_race *r_ptr;
+            monster_race *r_ptr = 0;
 
             if (o_ptr->sval == SV_SKELETON)
             {
@@ -5357,7 +5348,7 @@ bool make_gold(object_type *j_ptr)
     base = k_info[OBJ_GOLD_LIST+i].cost;
 
     /* Determine how much the treasure is "worth" */
-    j_ptr->pval = (base + (8L * randint1(base)) + randint1(8));
+    j_ptr->pval = (base + (8 * randint1(base)) + randint1(8));
 
     if (no_selling)
     {
@@ -6295,7 +6286,7 @@ bool object_sort_comp(object_type *o_ptr, s32b o_value, object_type *j_ptr)
     }
 
     /* Objects sort by decreasing value */
-    return o_value >= object_value(j_ptr);
+    return o_value > object_value(j_ptr);
 }
 
 

@@ -1103,7 +1103,7 @@ static bool wr_savefile_new(savefile_ptr file)
 
     compact_objects(0);
     compact_monsters(0);
-    now = time((time_t *)0);
+    now = (u32b)time(0);
     sf_system = 0L;
     sf_when = now;
     sf_saves++;

@@ -191,7 +191,6 @@ void gain_chosen_stat(void)
 void check_experience(void)
 {
     bool level_inc_stat = FALSE;
-    bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
     int  old_lev = p_ptr->lev;
     race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
 
@@ -3150,8 +3149,8 @@ bool target_okay(void)
  */
 static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 {
-    byte *x = (byte*)(u);
-    byte *y = (byte*)(v);
+    s16b *x = (s16b*)(u);
+    s16b *y = (s16b*)(v);
 
     int da, db, kx, ky;
 
@@ -3181,8 +3180,8 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
  */
 static bool ang_sort_comp_importance(vptr u, vptr v, int a, int b)
 {
-    byte *x = (byte*)(u);
-    byte *y = (byte*)(v);
+    s16b *x = (s16b*)(u);
+    s16b *y = (s16b*)(v);
     cave_type *ca_ptr = &cave[y[a]][x[a]];
     cave_type *cb_ptr = &cave[y[b]][x[b]];
     monster_type *ma_ptr = &m_list[ca_ptr->m_idx];
@@ -3250,10 +3249,10 @@ static bool ang_sort_comp_importance(vptr u, vptr v, int a, int b)
  */
 static void ang_sort_swap_distance(vptr u, vptr v, int a, int b)
 {
-    byte *x = (byte*)(u);
-    byte *y = (byte*)(v);
+    s16b *x = (s16b*)(u);
+    s16b *y = (s16b*)(v);
 
-    byte temp;
+    s16b temp;
 
     /* Swap "x" */
     temp = x[a];
@@ -3444,7 +3443,7 @@ static void target_set_prepare(int mode)
 
     if (p_ptr->riding && target_pet && (temp_n > 1) && (mode & (TARGET_KILL)))
     {
-        byte tmp;
+        s16b tmp;
 
         tmp = temp_y[0];
         temp_y[0] = temp_y[1];
@@ -5012,7 +5011,7 @@ static void tgt_pt_prepare(void)
 bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
 {
     char ch = 0;
-    int d, x, y, n;
+    int d, x, y, n = 0;
     bool success = FALSE;
 
     int wid, hgt;

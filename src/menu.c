@@ -31,11 +31,6 @@ static void _describe(menu_ptr menu, int which)
     var_clear(&v);
 }
 
-static bool _owner_draw(menu_ptr menu, int which, int y, int x)
-{
-    return FALSE;
-}
-
 static void _list(menu_ptr menu, char *keys)
 {
     char temp[255];

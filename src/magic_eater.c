@@ -122,9 +122,10 @@ static void _use_charge(_spell_ptr spell)
         p_ptr->magic_num1[spell->idx] -= _EATER_CHARGE;
 }
 
+/*
 static bool _suppress(_spell_ptr spell)
 {
-/*    object_type o = {0};
+    object_type o = {0};
     int         k_idx = _lookup_kind(spell->kind);
     int         ap_idx;
 
@@ -133,9 +134,9 @@ static bool _suppress(_spell_ptr spell)
     o.ident |= IDENT_MENTAL;
     ap_idx = is_autopick(&o);
     if (ap_idx >= 0 && (autopick_list[ap_idx].action & DO_AUTODESTROY))
-        return TRUE; */
+        return TRUE; 
     return FALSE;
-}
+} */
 
 /* Grouped for Cleaner Menu Display */
 #define _MAX_PER_GROUP 20
@@ -369,7 +370,6 @@ static void _tval_menu_fn(int cmd, int which, vptr cookie, variant *res)
 static int _prompt_tval(int tval)
 {
     int idx = -1;
-    int ct = 0;
     menu_t menu = { "Use which type of device?", NULL, NULL,
                         _tval_menu_fn, 
                         NULL, 3};
@@ -646,7 +646,6 @@ void magic_eater_cast(int tval)
 {
     int chance;
     _spell_t *spell;
-    bool use_charge = TRUE;
 
     if (p_ptr->confused)
     {

@@ -65,12 +65,10 @@ void _smash_trap_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int dir, x, y;
+        int dir;
         var_set_bool(res, FALSE);
         
         if (!get_rep_dir2(&dir)) return;
-        y = py + ddy[dir];
-        x = px + ddx[dir];
         move_player(dir, easy_disarm, TRUE);
         
         var_set_bool(res, TRUE);

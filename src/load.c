@@ -1383,7 +1383,6 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         u16b max_towns_load;
         u16b max_quests_load;
         byte max_rquests_load;
-        s16b old_inside_quest = p_ptr->inside_quest;
 
         max_towns_load = savefile_read_u16b(file);
         if (max_towns_load > max_towns)

@@ -699,7 +699,6 @@ void summon_amberites_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int ct = 0;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
         msg_print("You summon a Lord of Amber!");
@@ -1095,7 +1094,6 @@ void summon_monster_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
         if (!summon_specific(-1, py, px, l, 0, PM_FORCE_PET | PM_ALLOW_GROUP))
@@ -1288,7 +1286,6 @@ void summon_uniques_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int ct = 0;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
         msg_print("You summon a special opponent!");
@@ -1481,7 +1478,7 @@ void teleport_other_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int dir;
-        int power = spell_power(p_ptr->lev);
+        int power = spell_power(p_ptr->lev*2);
 
         var_set_bool(res, FALSE);
 

@@ -415,6 +415,9 @@ void wilderness_move_player(int old_x, int old_y)
     rect_t  valid;
     bool    do_disturb = FALSE;
 
+    if (vanilla_town || lite_town)
+        return;
+
     /* There are several ways we could scroll:
        [1] Use (dx,dy) calculated above (i.e. on every "quadrant" change).
        [2] Only scroll when the user hits a boundary "quadrant".
@@ -654,6 +657,8 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     if ( !wilderness[y][x].town 
       && !wilderness[y][x].road 
       && !wilderness[y][x].entrance
+      && !vanilla_town
+      && !lite_town
       && !generate_encounter
       && one_in_(15))
     {
@@ -665,6 +670,8 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     /* Scripted Ambush? */
     if ( !wilderness[y][x].town
       && generate_encounter
+      && !vanilla_town
+      && !lite_town
       && one_in_(5))
     {
         /*room_template_t *room_ptr = choose_room_template(ROOM_AMBUSH, 0);*/
@@ -1183,7 +1190,7 @@ static s16b conv_terrain2feat[MAX_WILDERNESS];
  * Build the wilderness area.
  * -DG-
  */
-void wilderness_gen_small()
+void wilderness_gen_small(void)
 {
     int i, j;
 

@@ -379,7 +379,7 @@ int mut_gain_choice(mut_pred pred)
         msg_print("Please make a choice!");
     }
 
-    return -1;
+    /* return -1; unreachable */
 }
 
 int mut_gain_random_aux(mut_pred pred)

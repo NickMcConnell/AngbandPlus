@@ -2243,6 +2243,32 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     if (p == 0) p = 100;
                     if (!e && k == 0) e = GF_MISSILE;
 
+                    /* Hack: When I decreased monster base resistance (89% -> 50%)
+                       I inadvertantly made dragon bite attacks too strong. Let's
+                       emulate the way branded weapons work, but only when the elemental
+                       effect is added on top of some base effect (generally GF_MISSILE). */
+                    if (k)
+                    {
+                        switch (e)
+                        {
+                        case GF_ACID:
+                            if (r_ptr->flagsr & (RFR_RES_ACID|RFR_IM_ACID)) e = 0;
+                            break;
+                        case GF_FIRE:
+                            if (r_ptr->flagsr & (RFR_RES_FIRE|RFR_IM_FIRE)) e = 0;
+                            break;
+                        case GF_COLD:
+                            if (r_ptr->flagsr & (RFR_RES_COLD|RFR_IM_COLD)) e = 0;
+                            break;
+                        case GF_ELEC:
+                            if (r_ptr->flagsr & (RFR_RES_ELEC|RFR_IM_ELEC)) e = 0;
+                            break;
+                        case GF_POIS:
+                            if (r_ptr->flagsr & (RFR_RES_POIS|RFR_IM_POIS)) e = 0;
+                            break;
+                        }
+                    }
+
                     if (!e) continue;
                     if (randint1(100) > p) continue;
 
@@ -4051,7 +4077,6 @@ bool py_attack(int y, int x, int mode)
     int        msec = delay_factor * delay_factor * delay_factor;
 
         int i, j, k;
-        bool stop = FALSE;
 
         for (i = 0; i < MAX_HANDS; i++)
         {
@@ -5906,7 +5931,7 @@ void run_step(int dir)
  */
 static bool travel_test(void)
 {
-    int prev_dir, new_dir, check_dir = 0;
+    int prev_dir, new_dir;
     int row, col;
     int i, max;
     bool stop = TRUE;

@@ -159,7 +159,6 @@ static bool _create_ammo(void)
         else if ((ch == 'B' || ch == 'b') && p_ptr->lev >= 20)
             return _create_bolts();
     }
-    return FALSE;
 }
 
 void create_ammo_spell(int cmd, variant *res)

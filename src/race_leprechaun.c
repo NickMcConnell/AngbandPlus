@@ -65,7 +65,6 @@ static void _calc_innate_attacks(void)
     {
         innate_attack_t    a = {0};
         int l = p_ptr->lev;
-        int i = 0;
 
         a.dd = 1;
         a.ds = 3 + l / 15;
@@ -370,8 +369,7 @@ bool leprechaun_steal(int m_idx)
             }
             else
             {
-                int          slot = inven_carry(&loot);
-                object_type *o_ptr = &inventory[slot];
+                int slot = inven_carry(&loot);
 
                 msg_format("You steal %s (%c).", o_name, index_to_label(slot));
                 autopick_alter_item(slot, TRUE);

@@ -13,7 +13,6 @@ static void _cavern_creation_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int dir, x, y, ct = 0;
-        int count = 0;
         for (dir = 0; dir < 8; dir++)
         {
             y = py + ddy_ddd[dir];

@@ -13,7 +13,7 @@ struct _node_s
 {
     _hash_t   hash;
     int       key;
-    vptr      val;
+    void     *val;
     _node_ptr next;
 };
 
@@ -118,7 +118,7 @@ void int_map_free(int_map_ptr map)
     free(map);
 }
 
-void int_map_add(int_map_ptr map, int key, vptr val)
+void int_map_add(int_map_ptr map, int key, void *val)
 {
     _hash_t      hash = _hash(key);
     int             prime = _primes[map->prime_idx];
@@ -193,7 +193,7 @@ int int_map_delete(int_map_ptr map, int key)
     return 0;
 }
 
-vptr int_map_find(int_map_ptr map, int key)
+void * int_map_find(int_map_ptr map, int key)
 {
     if (map->count > 0)
     {
@@ -309,7 +309,7 @@ int int_map_iter_is_valid(int_map_iter_ptr iter)
     return iter->node != 0;
 }
 
-vptr int_map_iter_current(int_map_iter_ptr iter)
+void * int_map_iter_current(int_map_iter_ptr iter)
 {
     assert(int_map_iter_is_valid(iter));
     return iter->node->val;

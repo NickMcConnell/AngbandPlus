@@ -128,8 +128,6 @@ static void wiz_create_named_art(int a_idx)
 static void do_cmd_wiz_hack_chris1(void)
 {
     int a_idx = get_quantity("Which One? ", max_a_idx);
-    int k_idx = lookup_kind(a_info[a_idx].tval, a_info[a_idx].sval);
-    s16b dummy_name = quark_add("");
     int ct = get_quantity("How Many?", 10000);
     int ct_speed = 0;
     int ct_immunity = 0;
@@ -328,7 +326,6 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 
 static void do_cmd_wiz_hack_chris3(void)
 {
-    int        fd = -1;
     FILE    *fff = NULL;
     char    buf[1024];
     int old_dun_level = dun_level;
@@ -450,7 +447,6 @@ static void _wiz_dbg_hook(cptr msg)
 
 static void do_cmd_wiz_hack_chris4(void)
 {
-    int        fd = -1;
     FILE    *fff = NULL;
     char    buf[1024];
 
@@ -524,7 +520,6 @@ static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 {
     int a_idx, i;
     int ct = 30;
-    int dummy_name = quark_add("");
     double qual_tot = 0.0, qual = 0.0;
     int a_ct = 0;
     s16b old_level = object_level;
@@ -636,7 +631,6 @@ static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 
 static void do_cmd_wiz_hack_chris6(void)
 {
-    int        fd = -1;
     FILE    *fff = NULL;
     char    buf[1024];
     bool replace = get_check("Generate Replacement Artifacts?");
@@ -783,7 +777,6 @@ static void do_cmd_wiz_hack_chris7_imp(FILE* fff)
 
 static void do_cmd_wiz_hack_chris7(void)
 {
-    int        fd = -1;
     FILE    *fff = NULL;
     char    buf[1024];
     int old_dun_level = dun_level;
@@ -1184,7 +1177,7 @@ static void do_cmd_wiz_change_aux(void)
     if (!get_string("Fame: ", tmp_val, 3)) return;
     tmp_long = atol(tmp_val);
     if (tmp_long < 0) tmp_long = 0L;
-    p_ptr->fame = tmp_long;
+    p_ptr->fame = (s16b)tmp_long;
 }
 
 

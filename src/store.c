@@ -493,7 +493,6 @@ void discount(object_type *o_ptr)
 void mass_produce(object_type *o_ptr)
 {
     int size = 1;
-    s32b cost = object_value_real(o_ptr);
 
     if (object_is_artifact(o_ptr)) return;
 
@@ -1501,53 +1500,6 @@ static void store_delete(void)
     /* Actually destroy (part of) the item */
     store_item_increase(what, -num);
     store_item_optimize(what);
-}
-
-
-/*
- * Creates a random item and gives it to a store
- * This algorithm needs to be rethought.  A lot.
- * Currently, "normal" stores use a pre-built array.
- *
- * Note -- the "level" given to "obj_get_num()" is a "favored"
- * level, that is, there is a much higher chance of getting
- * items with a level approaching that of the given level...
- *
- * Should we check for "permission" to have the given item?
- */
-
-/* The old way. Probably, Vanilla Town should keep this? */
-static bool _get_store_obj1(object_type *o_ptr)
-{
-    int level, k_idx;
-    if (cur_store_num == STORE_BLACK)
-    {
-        if (one_in_(6))
-        {
-            k_idx = lookup_kind(TV_BURGLARY_BOOK, randint0(2));
-            level = rand_range(1, STORE_OBJ_LEVEL);
-        }
-        else
-        {
-            level = 25 + randint0(25);
-            k_idx = get_obj_num(level);
-            if (!k_idx) return FALSE;
-        }
-    }
-    else
-    {
-        k_idx = st_ptr->table[randint0(st_ptr->table_num)];
-        level = rand_range(1, STORE_OBJ_LEVEL);
-    }
-
-    object_prep(o_ptr, k_idx);
-    apply_magic(o_ptr, level, AM_NO_FIXED_ART);
-    if (o_ptr->tval == TV_LITE)
-    {
-        if (o_ptr->sval == SV_LITE_TORCH) o_ptr->xtra4 = FUEL_TORCH / 2;
-        if (o_ptr->sval == SV_LITE_LANTERN) o_ptr->xtra4 = FUEL_LAMP / 2;
-    }
-    return TRUE;
 }
 
 /* The new way. This is experimental ... */

@@ -5191,7 +5191,7 @@ static void do_cmd_knowledge_spell_exp(void)
  */
 static void do_cmd_knowledge_skill_exp(void)
 {
-    int i = 0, skill_exp, skill_max;
+    int skill_exp, skill_max;
     FILE *fff;
     char file_name[1024];
 
@@ -5561,7 +5561,7 @@ static void do_cmd_knowledge_kill_count(void)
     }
 
     fprintf(fff,"----------------------------------------------\n");
-    fprintf(fff,"   Total: %lu creature%s killed.\n",
+    fprintf(fff,"   Total: %d creature%s killed.\n",
         Total, (Total == 1 ? "" : "s"));
 
 

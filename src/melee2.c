@@ -1050,7 +1050,7 @@ static bool get_moves(int m_idx, int *mm)
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
     pack_info_t  *pack_ptr = pack_info_ptr(m_idx);
-    int          y, ay, x, ax;
+    int          y = 0, ay, x = 0, ax;
     int          move_val = 0;
     int          y2 = py;
     int          x2 = px;

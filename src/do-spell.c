@@ -769,7 +769,7 @@ static void cast_meteor(int dam, int rad)
 
     for (i = 0; i < b; i++)
     {
-        int y, x;
+        int y = 0, x = 0;
         int count;
 
         for (count = 0; count <= 20; count++)
@@ -1548,7 +1548,6 @@ static cptr do_sorcery_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     int dir;
     int plev = p_ptr->lev;
@@ -2078,7 +2077,6 @@ static cptr do_nature_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     static const char s_dam[] = "dam ";
     static const char s_rng[] = "rng ";
@@ -2714,7 +2712,6 @@ static cptr do_chaos_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     static const char s_dam[] = "dam ";
     static const char s_random[] = "random";
@@ -3326,7 +3323,6 @@ static cptr do_death_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     static const char s_dam[] = "dam ";
     static const char s_random[] = "random";
@@ -3982,7 +3978,6 @@ static cptr do_trump_spell(int spell, int mode)
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
     bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     static const char s_random[] = "random";
 
@@ -4649,7 +4644,6 @@ static cptr do_arcane_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     int dir;
     int plev = p_ptr->lev;
@@ -5193,7 +5187,6 @@ static cptr do_craft_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     int plev = p_ptr->lev;
 
@@ -5751,7 +5744,6 @@ static cptr do_daemon_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     static const char s_dam[] = "dam ";
 
@@ -6350,7 +6342,6 @@ static cptr do_crusade_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     int dir;
     int plev = p_ptr->lev;
@@ -6923,7 +6914,7 @@ static cptr do_crusade_spell(int spell, int mode)
                 for (i = 0; i < 12; i++)
                 {
                     int attempt = 10;
-                    int my, mx;
+                    int my = 0, mx = 0;
 
                     while (attempt--)
                     {
@@ -6958,7 +6949,6 @@ static cptr do_music_spell(int spell, int mode)
     bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
     bool cont = (mode == SPELL_CONT) ? TRUE : FALSE;
     bool stop = (mode == SPELL_STOP) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     static const char s_dam[] = "dam ";
 
@@ -7888,10 +7878,8 @@ static cptr do_hex_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
     bool cont = (mode == SPELL_CONT) ? TRUE : FALSE;
     bool stop = (mode == SPELL_STOP) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     bool add = TRUE;
 
@@ -8753,7 +8741,7 @@ void on_p_hit_m(int m_idx)
 static bool _necro_do_touch(int type, int dice, int sides, int base)
 {
     int x, y;
-    int dir;
+    int dir = 0;
     int m_idx = 0;
 
     if (!_necro_check_touch()) return FALSE;
@@ -9153,7 +9141,6 @@ static cptr do_necromancy_spell(int spell, int mode)
         if (cast)
         {
             int i;
-            int base = 25;
             int sp_sides = 20 + plev;
             int sp_base = plev;
             int power = spell_power(plev);
@@ -9436,7 +9423,6 @@ static cptr do_burglary_spell(int spell, int mode)
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
     bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     int plev = p_ptr->lev;
     int rad = DETECT_RAD_DEFAULT;
@@ -9925,8 +9911,6 @@ static cptr do_armageddon_spell(int spell, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
-    bool spoil = (mode == SPELL_SPOIL_DESC) ? TRUE : FALSE;
 
     int plev = p_ptr->lev;
     int dir;

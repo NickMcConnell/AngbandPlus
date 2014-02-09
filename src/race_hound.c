@@ -28,7 +28,7 @@ static int _count(int list[])
     {
         if (list[i] == -1) return i;
     }
-    return 0; /* error: missing sentinel */
+    /* return 0;  error: missing sentinel ... unreachable */
 }
 
 static int _random(int list[])
@@ -55,7 +55,7 @@ static int _random_weights(int list[])
         k -= list[i+1];
         if (k <= 0) return list[i];
     }
-    return 0; /* error */
+    /*return 0;  error */
 }
 
 static int _find(int what, int list[])
@@ -67,7 +67,7 @@ static int _find(int what, int list[])
         if (n == -1) return -1;
         if (n == what) return i;
     }
-    return -1; /* unreachable */
+    /* return -1;  unreachable */
 }
 
 static int _find_tier(int r_idx)

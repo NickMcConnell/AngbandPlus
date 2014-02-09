@@ -429,22 +429,22 @@ s16b mon_lite_x[MON_LITE_MAX];
  * Array of grids viewable to the player (see "cave.c")
  */
 s16b view_n;
-byte view_y[VIEW_MAX];
-byte view_x[VIEW_MAX];
+s16b view_y[VIEW_MAX];
+s16b view_x[VIEW_MAX];
 
 /*
  * Array of grids for use by various functions (see "cave.c")
  */
 s16b temp_n;
-byte temp_y[TEMP_MAX];
-byte temp_x[TEMP_MAX];
+s16b temp_y[TEMP_MAX];
+s16b temp_x[TEMP_MAX];
 
 /*
  * Array of grids for delayed visual updating (see "cave.c")
  */
 s16b redraw_n = 0;
-byte redraw_y[REDRAW_MAX];
-byte redraw_x[REDRAW_MAX];
+s16b redraw_y[REDRAW_MAX];
+s16b redraw_x[REDRAW_MAX];
 
 
 /*

@@ -2531,7 +2531,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
         case GF_ELDRITCH_CONFUSE:
         {
-            int rlev = r_ptr->level;
             if (seen) obvious = TRUE;
 
             if (r_ptr->flagsr & RFR_RES_ALL)
@@ -3398,12 +3397,20 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             if (who || !mon_save_p(m_ptr->r_idx, A_NONE))
                 do_stun = (randint1(15) + 1) / (r + 1);
+
+
             if (r_ptr->flagsr & RFR_IM_COLD)
             {
-                note = " resists a lot.";
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_IM_COLD;
+            }
+            else if (r_ptr->flagsr & RFR_RES_COLD)
+            {
+                note = " resists.";
 
-                dam /= 9;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_COLD);
+                dam /= 2;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_COLD;
             }
             else if (r_ptr->flags3 & (RF3_HURT_COLD))
             {

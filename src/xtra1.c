@@ -3138,7 +3138,7 @@ void calc_bonuses(void)
         p_ptr->weapon_info[i].bare_hands = FALSE;
         p_ptr->weapon_info[i].riding = FALSE;
         p_ptr->weapon_info[i].slot = 0;
-        p_ptr->weapon_info[i].genji = p_ptr->tim_genji;
+        p_ptr->weapon_info[i].genji = p_ptr->tim_genji > 0;
         p_ptr->weapon_info[i].dis_to_h = 0;
         p_ptr->weapon_info[i].to_h = 0;
         p_ptr->weapon_info[i].dis_to_d = 0;
@@ -4059,7 +4059,7 @@ void calc_bonuses(void)
         {
             p_ptr->pspeed = speed;
         }
-        p_ptr->pspeed += (skills_riding_current() + p_ptr->lev *160L)/3200;
+        p_ptr->pspeed += (skills_riding_current() + p_ptr->lev *160)/3200;
         if (MON_FAST(riding_m_ptr)) p_ptr->pspeed += 10;
         if (MON_SLOW(riding_m_ptr)) p_ptr->pspeed -= 10;
         riding_levitation = (riding_r_ptr->flags7 & RF7_CAN_FLY) ? TRUE : FALSE;
@@ -4199,7 +4199,6 @@ void calc_bonuses(void)
     /* Blows Calculation */
     for (i = 0; i < MAX_HANDS; i++)
     {
-        int            arm = i / 2;
         weapon_info_t *info_ptr = &p_ptr->weapon_info[i];
         int            tmp_hold = hold;        
 

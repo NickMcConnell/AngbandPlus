@@ -53,12 +53,6 @@
  * but instead use the "sval" (which is also used to sort the objects).
  */
 
-static int _device_power_hack(int pow, bool magic)
-{
-    if (magic) return spell_power(pow);
-    return device_power(pow);
-}
-
 static bool _pack_find_tval(int tval)
 {
     int i;
@@ -397,10 +391,10 @@ static void do_cmd_eat_food_aux(int item)
     else if ((prace_is_(RACE_SKELETON) ||
           prace_is_(RACE_GOLEM) || 
           prace_is_(RACE_MON_GOLEM) || 
-          prace_is_(MIMIC_CLAY_GOLEM) ||
-          prace_is_(MIMIC_IRON_GOLEM) ||
-          prace_is_(MIMIC_MITHRIL_GOLEM) ||
-          prace_is_(MIMIC_COLOSSUS) ||
+          p_ptr->mimic_form == MIMIC_CLAY_GOLEM ||
+          p_ptr->mimic_form == MIMIC_IRON_GOLEM ||
+          p_ptr->mimic_form == MIMIC_MITHRIL_GOLEM ||
+          p_ptr->mimic_form == MIMIC_COLOSSUS ||
           prace_is_(RACE_ZOMBIE) ||
           prace_is_(RACE_MON_LICH) ||
           prace_is_(RACE_SPECTRE)) &&
@@ -567,10 +561,10 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
     if (prace_is_(RACE_SKELETON) ||
         prace_is_(RACE_GOLEM) ||
         prace_is_(RACE_MON_GOLEM) || 
-        prace_is_(MIMIC_CLAY_GOLEM) ||
-        prace_is_(MIMIC_IRON_GOLEM) ||
-        prace_is_(MIMIC_MITHRIL_GOLEM) ||
-        prace_is_(MIMIC_COLOSSUS) ||
+        p_ptr->mimic_form == MIMIC_CLAY_GOLEM ||
+        p_ptr->mimic_form == MIMIC_IRON_GOLEM ||
+        p_ptr->mimic_form == MIMIC_MITHRIL_GOLEM ||
+        p_ptr->mimic_form == MIMIC_COLOSSUS ||
         prace_is_(RACE_ZOMBIE) ||
         prace_is_(RACE_MON_LICH) ||
         prace_is_(RACE_SPECTRE))
@@ -1646,27 +1640,6 @@ void do_cmd_zap_rod(void)
 
     /* Zap the rod */
     do_cmd_zap_rod_aux(item);
-}
-
-
-/*
- * Hook to determine if an object is activatable
- */
-static bool item_tester_hook_activate(object_type *o_ptr)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    /* Not known */
-    if (!object_is_known(o_ptr)) return (FALSE);
-
-    /* Extract the flags */
-    object_flags(o_ptr, flgs);
-
-    /* Check activation flag */
-    if (have_flag(flgs, TR_ACTIVATE)) return (TRUE);
-
-    /* Assume not */
-    return (FALSE);
 }
 
 

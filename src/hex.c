@@ -117,7 +117,7 @@ bool stop_hex_spell(void)
    Called from dungeon.c */
 void check_hex(void)
 {
-    magic_type *s_ptr;
+    magic_type *s_ptr = 0;
     int spell;
     s32b need_mana;
     u32b need_mana_frac;
@@ -230,7 +230,7 @@ bool hex_spell_fully(void)
     return TRUE;
 }
 
-void revenge_spell()
+void revenge_spell(void)
 {
     if (p_ptr->realm1 != REALM_HEX) return;
     if (p_ptr->magic_num2[2] <= 0) return;

@@ -35,21 +35,6 @@ static int _get_toggle(void)
     return p_ptr->magic_num1[0];
 }
 
-static int _set_toggle(s32b toggle)
-{
-    int result = p_ptr->magic_num1[0];
-
-    if (toggle == result) return result;
-
-    p_ptr->magic_num1[0] = toggle;
-
-    p_ptr->redraw |= PR_STATUS;
-    p_ptr->update |= PU_BONUS;
-    handle_stuff();
-
-    return result;
-}
-
 int possessor_get_toggle(void)
 {
     int result = TOGGLE_NONE;

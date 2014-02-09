@@ -91,7 +91,7 @@ void process_maul_of_vice(void)
 
 bool do_blow(int type)
 {
-    int x, y;
+    int x = 0, y = 0;
     int dir;
     int m_idx = 0;
 

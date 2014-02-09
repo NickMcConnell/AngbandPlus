@@ -833,7 +833,7 @@ int fd_open(cptr file, int flags)
     if (path_parse(buf, 1024, file)) return (-1);
 
     /* Attempt to open the file */
-    return (open(buf, flags | O_BINARY, 0));
+    return open(buf, flags | O_BINARY, 0);
 }
 
 
@@ -957,7 +957,7 @@ errr fd_read(int fd, char *buf, huge n)
     while (n >= 16384)
     {
         /* Read a piece */
-        if (read(fd, buf, 16384) != 16384) return (1);
+        if (_read(fd, buf, 16384) != 16384) return (1);
 
         /* Shorten the task */
         buf += 16384;
@@ -990,7 +990,7 @@ errr fd_write(int fd, cptr buf, huge n)
     while (n >= 16384)
     {
         /* Write a piece */
-        if (write(fd, buf, 16384) != 16384) return (1);
+        if (_write(fd, buf, 16384) != 16384) return (1);
 
         /* Shorten the task */
         buf += 16384;
@@ -1018,7 +1018,7 @@ errr fd_close(int fd)
     if (fd < 0) return (-1);
 
     /* Close */
-    (void)close(fd);
+    close(fd);
 
     /* XXX XXX XXX */
     return (0);
@@ -4082,7 +4082,7 @@ void request_command(int shopping)
             msg_print(NULL);
 
             /* Use auto-command */
-            cmd = command_new;
+            cmd = (char)command_new;  /* safe?? */
 
             /* Forget it */
             command_new = 0;
@@ -4263,7 +4263,7 @@ void request_command(int shopping)
     if (always_repeat && (command_arg <= 0))
     {
         /* Hack -- auto repeat certain commands */
-        if (my_strchr("TBDoc+", command_cmd))
+        if (my_strchr("TBDoc+", (char)command_cmd)) /* safe?? */
         {
             /* Repeat 99 times */
             command_arg = 99;
@@ -4760,7 +4760,7 @@ void build_gamma_table(int gamma)
          * Store the value in the table so that the
          * floating point pow function isn't needed .
          */
-        gamma_table[i] = ((long)(value / 256) * i) / 256;
+        gamma_table[i] = (byte)(((long)(value / 256) * i) / 256);
     }
 }
 

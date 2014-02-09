@@ -1,14 +1,4 @@
 /* File: angband.h */
-
-/* Main "Angband" header file */
-#ifdef MSVC
-#pragma warning (disable:4244) /* You will get tens of thousands of these ... */
-#pragma warning (disable:4996) /* Whatever ... Stop whining already! */
-#endif
-
-#ifndef INCLUDED_ANGBAND_H
-#define INCLUDED_ANGBAND_H
-
 /*
  * Copyright (c) 1989 James E. Wilson
  *
@@ -18,6 +8,9 @@
  */
 
 
+/* Main "Angband" header file */
+#ifndef INCLUDED_ANGBAND_H
+#define INCLUDED_ANGBAND_H
 
 /*
  * First, include the low-level includes.  Be sure to edit "h-config.h"

@@ -148,28 +148,6 @@ void do_cmd_equip(void)
 }
 
 
-static bool item_tester_hook_mochikae(object_type *o_ptr)
-{
-    /* Check for a usable slot */
-    if (((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD)) ||
-        (o_ptr->tval == TV_SHIELD) || (o_ptr->tval == TV_CAPTURE) ||
-        (o_ptr->tval == TV_CARD)) return (TRUE);
-
-    /* Assume not wearable */
-    return (FALSE);
-}
-
-
-static bool item_tester_hook_melee_weapon(object_type *o_ptr)
-{
-    /* Check for a usable slot */
-    if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD))return (TRUE);
-
-    /* Assume not wearable */
-    return (FALSE);
-}
-
-
 void kamaenaoshi(int item)
 {
 }
@@ -1466,19 +1444,19 @@ void do_cmd_list_monsters(void)
         const monster_type *m_ptr = &m_list[i];
         _mon_list_info_ptr  info_ptr;
         
-        if (!m_ptr->r_idx) continue;
+        if (!m_ptr->ap_r_idx) continue;
         if (!m_ptr->ml) continue;
 
-        info_ptr = int_map_find(info, m_ptr->r_idx);
+        info_ptr = int_map_find(info, m_ptr->ap_r_idx);
         if (!info_ptr)
         {
             info_ptr = malloc(sizeof(_mon_list_info_t));
-            info_ptr->r_idx = m_ptr->r_idx;
+            info_ptr->r_idx = m_ptr->ap_r_idx;
             info_ptr->ct_total = 0;
             info_ptr->ct_awake = 0;
             info_ptr->ct_los = 0;
             
-            int_map_add(info, m_ptr->r_idx, info_ptr);
+            int_map_add(info, m_ptr->ap_r_idx, info_ptr);
         }
 
         assert(info_ptr);

@@ -16,10 +16,18 @@
  *   Microsoft has no warranty obligations or liability for any
  *   Sample Application Files which are modified.
  */
+
+#include "msvc_warnings.h"
+
+#ifdef MSVC
+/*1>C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\windef.h(230): warning C4255: 'FARPROC' : no function prototype given: converting '()' to '(void)'*/
+#pragma warning (disable:4255)
+#endif
+
+
 #include <windows.h>
 
 #include "readdib.h"
-
 
 /*
  * Extract the "WIN32" flag from the compiler
@@ -247,7 +255,8 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
             goto ErrExit;
     }
 
-    if (!(nNumColors = (WORD)lpbi->biClrUsed))
+    nNumColors = (WORD)lpbi->biClrUsed;
+    if (!nNumColors)
     {
         /* no color table for 24-bit, default size otherwise */
         if (lpbi->biBitCount != 24)

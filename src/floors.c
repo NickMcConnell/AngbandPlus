@@ -91,7 +91,7 @@ void init_saved_floors(bool force)
     latest_visit_mark = 1;
 
     /* A sign to mark temporal files */
-    saved_floor_file_sign = time(NULL);
+    saved_floor_file_sign = (u32b)time(NULL);
 
     /* No next floor yet */
     new_floor_id = 0;
@@ -222,7 +222,7 @@ static void kill_saved_floor(saved_floor_type *sf_ptr)
  */
 s16b get_new_floor_id(void)
 {
-    saved_floor_type *sf_ptr;
+    saved_floor_type *sf_ptr = 0;
     int i;
 
     /* Look for empty space */
@@ -519,7 +519,7 @@ static void place_pet(void)
 
     for (i = 0; i < max_num; i++)
     {
-        int cy, cx, m_idx = 0;
+        int cy = 0, cx = 0, m_idx = 0;
 
         if (!(party_mon[i].r_idx)) continue;
 

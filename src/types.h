@@ -794,8 +794,8 @@ struct alloc_entry
 {
     s16b index;        /* The actual index */
 
-    byte level;        /* Base dungeon level */
-    byte max_level;
+    s16b level;        /* Base dungeon level */
+    s16b max_level;
     byte prob1;        /* Probability, pass 1 */
     byte prob2;        /* Probability, pass 2 */
     byte prob3;        /* Probability, pass 3 */
@@ -1940,9 +1940,9 @@ typedef struct {
 typedef void (*ang_spell)(int cmd, variant *res);
 
 typedef struct {
-    s16b level;
-    s16b cost;
-    s16b fail;
+    int level;
+    int cost;
+    int fail;
     ang_spell fn;
 } spell_info;
 

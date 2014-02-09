@@ -373,7 +373,6 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
 
     for(;;)
     {
-        spell_info* spell = NULL;
         int choice = -1;
         
         choice = _choose_spell(spells, ct, desc, 10000);

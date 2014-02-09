@@ -111,7 +111,7 @@ static spell_info _spells[] = {
     { 23, 15, 50, brain_smash_spell},
     { 25, 15, 40, nether_ball_spell},
     { 27, 15, 50, confuse_spell}, 
-    { 29, 15, 55, ice_bolt_spell},
+    { 29, 20, 55, ice_bolt_spell},
     { 30, 20, 60, dispel_life_spell}, 
     { 32, 40, 60, summon_undead_spell}, 
     { 34, 15, 50, animate_dead_spell}, 

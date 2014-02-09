@@ -99,7 +99,7 @@ bool one_high_vulnerability(object_type *o_ptr)
     int i;
     for (i = 0; i < attempts; i++)
     {
-        int good_flag, bad_flag;
+        int good_flag = 0, bad_flag = 0;
         switch (randint0(12))
         {
             case  0: bad_flag = TR_VULN_POIS; good_flag = TR_RES_POIS; break;
@@ -185,7 +185,7 @@ bool one_ele_vulnerability(object_type *o_ptr)
     int i;
     for (i = 0; i < attempts; i++)
     {
-        int good_flag, bad_flag;
+        int good_flag = 0, bad_flag = 0;
         switch (randint0(4))
         {
             case  0: bad_flag = TR_VULN_ACID; good_flag = TR_RES_ACID; break;

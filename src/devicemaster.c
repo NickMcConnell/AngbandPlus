@@ -36,7 +36,7 @@ void _desperation_spell(int cmd, variant *res)
         case DEVICEMASTER_SCROLLS: do_cmd_read_scroll(); break;
         }
         devicemaster_desperation = FALSE;
-        var_set_bool(res, energy_use);
+        var_set_bool(res, energy_use != 0);
         break;
     case SPELL_ENERGY:
         var_set_int(res, energy_use);     /* already set correctly by do_cmd_*() */

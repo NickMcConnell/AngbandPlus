@@ -325,7 +325,6 @@ static _range_t _blows_range[] =
 int calculate_base_blows(int hand, int str_idx, int dex_idx)
 {
     int            result = 0;
-    int            arm = hand / 2;
     weapon_info_t *info_ptr = &p_ptr->weapon_info[hand];
     object_type   *o_ptr = NULL;
     int            blow_str_idx;
@@ -791,7 +790,7 @@ int display_innate_attack_info(int which, int row, int col)
         char xtra[255];
         if (!a->effect[i]) break;
         if (!p)
-            sprintf(xtra, "");
+            sprintf(xtra, "%s", "");
         else
             sprintf(xtra, " (%d%%)", p);
 

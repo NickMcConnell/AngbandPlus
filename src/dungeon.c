@@ -4200,11 +4200,13 @@ static void process_command(void)
         }
 
         case '[':
-            do_cmd_list_monsters();
+            if (!p_ptr->image)
+                do_cmd_list_monsters();
             break;
 
         case ']':
-            do_cmd_list_objects();
+            if (!p_ptr->image)
+                do_cmd_list_objects();
             break;
 
         /* Target monster or location */
@@ -5709,7 +5711,7 @@ void play_game(bool new_game)
         u32b seed;
 
         /* Basic seed */
-        seed = (time(NULL));
+        seed = (u32b)time(NULL);
 
 #ifdef SET_UID
 

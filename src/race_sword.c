@@ -744,7 +744,6 @@ static object_type *_weapon(void)
 
 static void _upgrade_weapon(int tval, int sval)
 {
-    bool drained = FALSE;
     object_type *o_ptr = _weapon();
 
     object_prep(o_ptr, lookup_kind(tval, sval));

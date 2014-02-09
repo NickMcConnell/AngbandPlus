@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 0
-#define VER_PATCH 0
-#define VER_EXTRA 3
+#define VER_PATCH 1
+#define VER_EXTRA 0
 
 
 /*
@@ -175,9 +175,9 @@
 /*
  * Size of memory reserved for initialization of some arrays
  */
-#define FAKE_NAME_SIZE  40 * 1024L
-#define FAKE_TEXT_SIZE 150 * 1024L
-#define FAKE_TAG_SIZE   10 * 1024L
+#define FAKE_NAME_SIZE  40 * 1024
+#define FAKE_TEXT_SIZE 250 * 1024
+#define FAKE_TAG_SIZE   10 * 1024
 
 
 /*
@@ -338,7 +338,7 @@
  * Misc constants
  */
 #define TOWN_DAWN         10000    /* Number of ticks from dawn to dawn XXX */
-#define TURNS_PER_TICK    10L      /* Number of energy-gain-turns per ticks */
+#define TURNS_PER_TICK    10       /* Number of energy-gain-turns per ticks */
 #define MAX_DAYS          20000    /* Maximum days */
 #define BREAK_GLYPH       550      /* Rune of protection resistance */
 #define BREAK_MON_TRAP    299      /* For explosive runes */
@@ -4199,7 +4199,7 @@ enum summon_specific_e {
     time_t tmp;\
     tmp = time(NULL);\
     if (start_time)\
-        playtime += (tmp - start_time);\
+        playtime += (u32b)(tmp - start_time);\
     start_time = tmp;\
 }
 

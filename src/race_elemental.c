@@ -897,7 +897,6 @@ static void _water_process_world(void)
         object_type *o_ptr = &inventory[i];
         u32b         flgs[TR_FLAG_SIZE];
         char         o_name[MAX_NLEN];
-        int          old_ct = 0;
 
         if (!o_ptr->k_idx) continue;
         if (!object_is_armour(o_ptr)) continue;

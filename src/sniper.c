@@ -389,7 +389,6 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
 
 static bool cast_sniper_spell(int spell)
 {
-    bool flag = FALSE;
     if (!equip_find_object(TV_BOW, SV_ANY))
     {
         msg_print("You wield no bow!");
@@ -432,8 +431,6 @@ static bool cast_sniper_spell(int spell)
 void do_cmd_snipe(void)
 {
     int             n = 0;
-    int             plev = p_ptr->lev;
-    int             old_chp = p_ptr->chp;
     snipe_power     spell;
     bool            cast;
 

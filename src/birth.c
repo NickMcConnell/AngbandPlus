@@ -395,7 +395,7 @@ static int _prompt_personality(void)
         if (!_confirm_choice(seikaku_jouhou[p_ptr->personality], menu.count)) continue;
         return p_ptr->personality;
     }
-    return _BIRTH_ESCAPE; /* unreachable */
+    /*return _BIRTH_ESCAPE;  unreachable */
 }
 
 static void _realm_menu_fn(int cmd, int which, vptr cookie, variant *res)
@@ -461,7 +461,7 @@ static int _prompt_realm2(void)
         }
         return idx;
     }
-    return _BIRTH_ESCAPE;
+    /* return _BIRTH_ESCAPE; unreachable */
 }
 
 static int _prompt_realm1(void)
@@ -507,7 +507,7 @@ static int _prompt_realm1(void)
         }
         return idx;
     }    
-    return _BIRTH_ESCAPE;
+    /* return _BIRTH_ESCAPE; unreachable */
 }
 
 #define _MAX_CLASSES_PER_GROUP 20
@@ -754,7 +754,7 @@ static int _prompt_class(void)
             }
         }
     }
-    return _BIRTH_ESCAPE; /* unreachable */
+    /*return _BIRTH_ESCAPE;  unreachable */
 }
 
 #define _MAX_RACES_PER_GROUP 20
@@ -1389,7 +1389,7 @@ static int _prompt_race(void)
             }
         }
     }
-    return _BIRTH_ESCAPE; /* unreachable */
+    /*return _BIRTH_ESCAPE;  unreachable */
 }
 
 static void _sex_menu_fn(int cmd, int which, vptr cookie, variant *res)
@@ -1426,7 +1426,7 @@ static bool _prompt_sex(void)
         if (idx == _BIRTH_ESCAPE) continue;
         return TRUE;
     }
-    return FALSE; /* unreachable */
+    /*return FALSE;  unreachable */
 }
 
 static bool _prompt(void)
@@ -1732,7 +1732,6 @@ int calc_exp_factor(void)
 static void get_extra(bool roll_hitdie)
 {
     int i;
-    race_t *race_ptr = get_race_t();
 
     p_ptr->expfact = calc_exp_factor();
 
@@ -2834,7 +2833,7 @@ void player_outfit(void)
 static bool get_stat_limits(void)
 {
     int i, j, m, cs, os;
-    int mval[6], cval[6];
+    int cval[6];
     char c;
     char buf[80], cur[80];
     char inp[80];
@@ -2861,9 +2860,6 @@ static bool get_stat_limits(void)
 
         /* Obtain the "maximal" stat */
         m = adjust_stat(17, j);
-
-        /* Save the maximum */
-        mval[i] = m;
 
         if (m > 18)
             sprintf(cur, "18/%02d", (m - 18));        
@@ -3038,7 +3034,6 @@ static bool player_birth_aux(void)
 
     char c;
 
-    char p2 = ')';
     char b1 = '[';
     char b2 = ']';
 

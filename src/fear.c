@@ -483,7 +483,6 @@ bool fear_process_m(int m_idx)
             else
             {
             monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
-            int           r_level = _r_level(r_ptr);
 
                 recovered = set_monster_monfear(m_idx, 
                     MON_MONFEAR(m_ptr) - randint1(r_ptr->level / 20 + 1));

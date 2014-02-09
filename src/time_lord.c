@@ -323,46 +323,6 @@ static void _bolt_spell(int cmd, variant *res)
     }
 }
 
-static void _slow_poison_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Slow Poison");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Reduces the effects of poison.");
-        break;
-    case SPELL_CAST:
-        set_poisoned(p_ptr->poisoned / 2, TRUE);
-        var_set_bool(res, TRUE);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _slow_bleeding_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Slow Bleeding");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Reduces the effects of cuts.");
-        break;
-    case SPELL_CAST:
-        set_cut(p_ptr->cut / 2, TRUE);
-        var_set_bool(res, TRUE);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
 static void _regeneration_spell(int cmd, variant *res)
 {
     int b = spell_power(80);
@@ -514,51 +474,6 @@ static void _blast_spell(int cmd, variant *res)
     }
 }
 
-static void _devolve_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Devolve");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Attempts to reverse evolution for a single opponent.");
-        break;
-    case SPELL_CAST:
-    {
-        int y, x, m_idx, dir;
-        monster_type *m_ptr;
-
-        var_set_bool(res, FALSE);
-        if (!get_rep_dir2(&dir)) return;
-        var_set_bool(res, TRUE);
-
-        if (dir == 5) return;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        if (!in_bounds(y, x)) return;
-
-        m_idx = cave[y][x].m_idx;
-        if (!m_idx)
-        {
-            msg_print("There is no monster there!");
-            return;
-        }
-
-        m_ptr = &m_list[m_idx];
-        if (!m_ptr->r_idx) return;
-
-        devolve_monster(m_idx, TRUE);
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
 static void _back_to_origins_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -622,51 +537,6 @@ static void _haste_spell(int cmd, variant *res)
         set_fast(base + randint1(sides), FALSE);
         var_set_bool(res, TRUE);
         break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _evolve_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Evolve");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Attempts to advance evolution for a single opponent.");
-        break;
-    case SPELL_CAST:
-    {
-        int y, x, m_idx, dir;
-        monster_type *m_ptr;
-
-        var_set_bool(res, FALSE);
-        if (!get_rep_dir2(&dir)) return;
-        var_set_bool(res, TRUE);
-
-        if (dir == 5) return;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        if (!in_bounds(y, x)) return;
-
-        m_idx = cave[y][x].m_idx;
-        if (!m_idx)
-        {
-            msg_print("There is no monster there!");
-            return;
-        }
-
-        m_ptr = &m_list[m_idx];
-        if (!m_ptr->r_idx) break;
-
-        evolve_monster(m_idx, TRUE);
-        break;
-    }
     default:
         default_spell(cmd, res);
         break;

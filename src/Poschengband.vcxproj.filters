@@ -644,6 +644,9 @@
     <ClInclude Include="savefile.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="msvc_warnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ang_eng.rc">

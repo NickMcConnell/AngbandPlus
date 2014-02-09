@@ -1,6 +1,6 @@
 #include "angband.h"
 
-int _force_boost() { return p_ptr->magic_num1[0]; }
+int _force_boost(void) { return p_ptr->magic_num1[0]; }
 
 void _small_force_ball_spell(int cmd, variant *res)
 {

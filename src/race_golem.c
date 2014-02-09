@@ -77,7 +77,6 @@ static void _calc_innate_attacks(void)
     {
         innate_attack_t a = {0};
         int l = _attack_level();
-        int i = 0;
 
         a.dd = 5 + l/5 + l*l/250;
         a.ds = 5 + l/5 + l*l/250;

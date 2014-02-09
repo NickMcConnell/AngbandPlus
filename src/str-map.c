@@ -13,7 +13,7 @@ struct _node_s
 {
     _hash_t   hash;
     char     *key;
-    vptr      val;
+    void     *val;
     _node_ptr next;
 };
 
@@ -62,12 +62,12 @@ static int _primes[] = {
 
 #define _MAX_PRIME 100663319
 
-_hash_t _hash(cptr str) /* djb2 hash algorithm */
+_hash_t _hash(const char *str) /* djb2 hash algorithm */
 {
     _hash_t hash = 5381;
     int c;
 
-    while (c = *str++)
+    while ((c = *str++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;
@@ -123,7 +123,7 @@ void str_map_free(str_map_ptr map)
     free(map);
 }
 
-void str_map_add(str_map_ptr map, cptr key, vptr val)
+void str_map_add(str_map_ptr map, const char *key, void *val)
 {
     _hash_t      hash = _hash(key);
     int          prime = _primes[map->prime_idx];
@@ -168,7 +168,7 @@ void str_map_add(str_map_ptr map, cptr key, vptr val)
     map->buckets[bucket] = current;
 }
 
-int str_map_delete(str_map_ptr map, cptr key)
+int str_map_delete(str_map_ptr map, const char *key)
 {
     if (map->count > 0)
     {
@@ -204,7 +204,7 @@ int str_map_delete(str_map_ptr map, cptr key)
     return 0;
 }
 
-vptr str_map_find(str_map_ptr map, cptr key)
+void * str_map_find(str_map_ptr map, const char *key)
 {
     if (map->count > 0)
     {
@@ -227,7 +227,7 @@ vptr str_map_find(str_map_ptr map, cptr key)
     return 0;
 }
 
-int str_map_contains(str_map_ptr map, cptr key)
+int str_map_contains(str_map_ptr map, const char *key)
 {
     if (map->count > 0)
     {
@@ -316,13 +316,13 @@ int str_map_iter_is_valid(str_map_iter_ptr iter)
     return iter->node != 0;
 }
 
-vptr str_map_iter_current(str_map_iter_ptr iter)
+void * str_map_iter_current(str_map_iter_ptr iter)
 {
     assert(str_map_iter_is_valid(iter));
     return iter->node->val;
 }
 
-cptr str_map_iter_current_key(str_map_iter_ptr iter)
+const char * str_map_iter_current_key(str_map_iter_ptr iter)
 {
     assert(str_map_iter_is_valid(iter));
     return iter->node->key;

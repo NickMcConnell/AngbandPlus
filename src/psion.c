@@ -773,7 +773,6 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
     case SPELL_CAST:
     {
         int         item;
-        bool        ego = FALSE;
         bool        okay = FALSE;
         object_type *o_ptr;
         char        o_name[MAX_NLEN];

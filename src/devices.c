@@ -1659,7 +1659,7 @@ static cptr _do_staff(int sval, int mode)
         if (cast)
         {
             int num = damroll(5, 3);
-            int y, x, k;
+            int y = 0, x = 0, k;
             int attempts;
 
             if (!p_ptr->blind && !magic_eater_hack)
@@ -1924,7 +1924,7 @@ static cptr _do_wand(int sval, int mode)
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
     bool old_target_pet = target_pet;
-    int  dir;
+    int  dir = 0;
 
     if (cast)
     {
@@ -2241,7 +2241,7 @@ static cptr _do_rod(int sval, int mode)
     bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    int dir;
+    int dir = 0;
 
     if (cast)
     {
@@ -3049,7 +3049,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
     bool value = (mode == SPELL_VALUE) ? TRUE : FALSE;
-    int  dir;
+    int  dir = 0;
 
     switch (effect->type)
     {

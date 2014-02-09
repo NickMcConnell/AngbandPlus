@@ -1313,8 +1313,6 @@ void draconian_breath_spell(int cmd, variant *res)
 
 void drain_mana_spell(int cmd, variant *res)
 {
-    int dd = 8 + (p_ptr->lev - 5) / 4;
-    int ds = 8;
     switch (cmd)
     {
     case SPELL_NAME:

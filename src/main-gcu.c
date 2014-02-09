@@ -1231,8 +1231,8 @@ errr init_gcu(int argc, char *argv[])
    core_aux = hook_quit;
 
    /* Hack -- Require large screen, or Quit with message */
-   i = ((LINES < 24) || (COLS < 80));
-   if (i) quit("Angband needs an 80x24 'curses' screen");
+   i = ((LINES < 27) || (COLS < 80));
+   if (i) quit("Angband needs an 80x27 'curses' screen");
 
 
 #ifdef A_COLOR
@@ -1370,26 +1370,26 @@ errr init_gcu(int argc, char *argv[])
       switch (i)
       {
 	 /* Upper left */
-	 case 0: rows = 24;
+	 case 0: rows = 27;
 	    cols = 80;
 	    y = x = 0;
 	    break;
 	 /* Lower left */
-	 case 1: rows = LINES - 25;
+	 case 1: rows = LINES - 28;
 	    cols = 80;
-	    y = 24;
+	    y = 27;
 	    x = 0;
 	    break;
 	 /* Upper right */
-	 case 2: rows = 24;
+	 case 2: rows = 27;
 	    cols = COLS - 81;
 	    y = 0;
 	    x = 81;
 	    break;
 	 /* Lower right */
-	 case 3: rows = LINES - 25;
+	 case 3: rows = LINES - 28;
 	    cols = COLS - 81;
-	    y = 24;
+	    y = 27;
 	    x = 81;
 	    break;
 	 /* XXX */

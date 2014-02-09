@@ -3000,7 +3000,6 @@ static int _artifacts(void)
     for (i = 0; i < max_a_idx; i++)
     {
         artifact_type *a_ptr = &a_info[i];
-        bool count_it = TRUE;
         if (!a_ptr->name) continue;
         if (!a_ptr->cur_num) continue;
         if (skip[i]) continue;
@@ -3011,17 +3010,6 @@ static int _artifacts(void)
     return result;
 }
 
-static int _objects(void)
-{
-    int result = 0;
-    int i;
-    for (i = 0; i < max_k_idx; i++)
-    {
-        object_kind *kind_ptr = &k_info[i];
-        result += kind_ptr->count;
-    }
-    return result;
-}
 void display_player(int mode)
 {
     char    tmp[255], buf[255];
@@ -3411,7 +3399,7 @@ static void dump_aux_display_player(FILE *fff)
         spell_info spells[MAX_SPELLS];
         int        ct = 0; 
         race_t    *race_ptr = get_race_t();
-        class_t   *class_ptr = get_class_t();
+        /*class_t   *class_ptr = get_class_t();*/
 
         if (race_ptr->get_spells)
             ct += (race_ptr->get_spells)(spells + ct, MAX_SPELLS - ct);

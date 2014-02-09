@@ -10,7 +10,6 @@
 
 
 /* Purpose: a simple random number generator -BEN- */
-
 #include "z-rand.h"
 
 
