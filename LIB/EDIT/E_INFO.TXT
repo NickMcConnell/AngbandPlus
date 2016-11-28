@@ -7,8 +7,6 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
-# After modifying this file, delete the "lib/raw/e_info.raw" file.
-
 # The ego-item indexes are defined in "defines.h", and must not be changed.
 
 # Ego-items 1-63 are "armor", and 64-127 are "weapons"
@@ -19,6 +17,13 @@
 # is possible for several "ego-item" types to have the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
+# GSNband notes:
+
+# The file has become a little messy. A rewrite may be needed at some
+# point in the future. Here's what comes from where:
+
+# weapons/gloves of the Jesters and Insanity - from Kamband
+# Spectral, *Defender*, Unlife - from PziBand
 
 # Version stamp (required)
 
@@ -51,7 +56,7 @@ N:8:of Resistance
 X:30:20
 W:0:0:0:12500
 C:0:0:10:0
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | NOBREAK
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OnePower
@@ -60,11 +65,15 @@ N:9:of Elvenkind
 X:30:25
 W:0:0:0:15000
 C:0:0:10:3
-F:STEALTH | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:STEALTH |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 10 (unused)
+N:10:of Insanity
+X:30:20
+W:1:4:0:250
+C:0:0:0:7
+F:WEIRD_ATTACK | RES_CHAOS | WIS | CURSED
 
 # OnePower
 
@@ -72,11 +81,15 @@ N:11:of Permanence
 X:30:30
 W:0:0:0:30000
 C:0:0:10:0
-F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | 
-F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
+F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | NOBREAK
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 12 (unused)
+N:12:of the Jesters
+X:36:0
+W:0:0:0:2500
+C:0:0:10:0
+F:WEIRD_ATTACK | RES_CHAOS | RES_FEAR
 
 # 13 (unused)
 
@@ -111,7 +124,7 @@ N:20:of Resistance
 X:32:20
 W:0:0:0:12500
 C:0:0:10:0
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:21:of Reflection
@@ -121,7 +134,11 @@ C:0:0:5:0
 F:REFLECT
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE
 
-# 22 (unused)
+N:22:of Insanity
+X:32:0
+W:1:4:1:250
+C:0:0:0:7
+F:WEIRD_ATTACK | RES_CHAOS | WIS | CURSED
 
 # 23 (unused)
 
@@ -152,8 +169,7 @@ N:27:of the Magi
 X:33:15
 W:0:0:0:7500
 C:0:0:0:3
-F:INT | SUST_INT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:INT | SUST_INT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | NOBREAK
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:28:of Might
@@ -245,10 +261,9 @@ N:42:of Aman
 X:31:20
 W:0:0:0:4000
 C:0:0:20:3
-F:STEALTH | 
+F:STEALTH |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# Aura, Fire
 N:43:of Immolation
 X:31:16
 W:0:0:0:4000
@@ -273,7 +288,6 @@ W:0:0:0:0
 C:15:15:0:0
 F:AGGRAVATE | SHOW_MODS
 
-# Aura, Electricity
 N:47:of Electricity
 X:31:16
 W:0:0:0:4000
@@ -286,8 +300,8 @@ F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
 
 N:48:of Free Action
 X:34:11
-F:FREE_ACT
 W:0:0:0:1000
+F:FREE_ACT
 
 N:49:of Slaying
 X:34:17
@@ -307,7 +321,10 @@ W:0:0:0:2500
 C:5:5:0:5
 F:STR | SHOW_MODS | HIDE_TYPE
 
-# 52 (unused)
+N:52:of the Jesters
+X:31:0
+W:0:0:0:2500
+F:WEIRD_ATTACK | RES_CHAOS | RES_FEAR
 
 # 53 (unused)
 
@@ -348,7 +365,11 @@ W:0:0:0:200000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:of Jumping
+X:35:16
+W:0:0:0:500
+C:0:0:0:3
+F:ACTIVATE
 
 N:61:of Noise
 X:35:0
@@ -376,8 +397,8 @@ N:64:(Holy Avenger)
 X:24:30
 W:0:0:0:20000
 C:6:6:4:4
-F:WIS | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
+F:WIS |
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
 F:SEE_INVIS | BLESSED | RES_FEAR
 
 # OneSustain
@@ -386,9 +407,9 @@ N:65:(Defender)
 X:24:25
 W:0:0:0:15000
 C:4:4:8:4
-F:STEALTH | 
-F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:STEALTH |
+F:FREE_ACT | SEE_INVIS | FEATHER | REGEN |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OneAbility
@@ -397,31 +418,42 @@ N:66:(Blessed)
 X:24:20
 W:0:0:0:5000
 C:0:0:0:3
-F:WIS | 
+F:WIS |
 F:BLESSED
 
-# 67 (unused)
+N:67:(Serpentine)
+X:24:30
+W:0:0:0:10000
+C:2:2:0:2
+F:DEX | INT | STEALTH | FEATHER | INFRA | SEE_INVIS |
+F:RES_POIS |
+F:SLAY_ANIMAL | BRAND_POIS
 
 N:68:of Westernesse
 X:24:20
 W:0:0:0:20000
 C:5:5:0:2
-F:STR | DEX | CON | 
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
+F:STR | DEX | CON |
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
 F:FREE_ACT | SEE_INVIS
 
 N:69:of Extra Attacks
 X:24:20
 W:0:0:0:10000
 C:0:0:0:3
-F:BLOWS
+F:BLOWS | NOBREAK
 
 N:70:of Slaying
 X:24:15
 W:0:0:0:2500
 C:0:0:0:0
+F:NOBREAK
 
-# 71 (unused)
+N:71:of Insanity
+X:24:15
+W:0:0:0:250
+C:-2:-2:0:-2
+F:WEIRD_ATTACK | WIS | CURSED
 
 # The "Elemental" brands (4) (6)
 
@@ -458,7 +490,7 @@ F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
 N:78:of Sharpness
 X:24:20
 W:0:0:0:5000
-F:VORPAL | TUNNEL
+F:VORPAL | TUNNEL | NOBREAK
 
 N:79:of Earthquakes
 X:24:20
@@ -514,7 +546,7 @@ N:88:of *Slay* Animal
 X:24:20
 W:0:0:0:6000
 C:0:0:0:2
-F:INT | SLAY_ANIMAL | REGEN
+F:INT | SLAY_ANIMAL | REGEN | STEALTH
 
 N:89:of *Slay* Evil
 X:24:20
@@ -563,7 +595,14 @@ X:24:25
 W:0:0:0:10000
 F:VAMPIRIC | HOLD_LIFE
 
-# 97 (unused)
+N:97:(*Defender*)
+X:24:35
+W:0:0:0:50000
+C:0:0:20:4
+F:STEALTH | RES_POIS | DEX | CON | WIS | HOLD_LIFE |
+F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | NOBREAK
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:98:(Trump Weapon)
 X:24:22
@@ -572,22 +611,29 @@ C:4:4:0:2
 F:SLAY_EVIL | TELEPORT | FREE_ACT | SEARCH |
 F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE
 
-N:99:(Pattern Weapon)
+N:99:of Valinor
 X:24:26
 W:0:0:0:25000
 C:6:6:0:2
 F:STR | CON |
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD |
-F:FREE_ACT | SEE_INVIS |
+F:FREE_ACT | SEE_INVIS | NOBREAK
 
 N:100:of Digging
 X:24:4
 W:0:0:0:500
 C:0:0:0:5
-F:TUNNEL | BRAND_ACID | 
+F:TUNNEL | BRAND_ACID |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 101 (unused)
+N:101:of Morgul
+X:24:40
+W:0:0:0:100000
+C:10:20:0:3
+F:INFRA | SEARCH | STR | CON | INT | CHR | DEX | STEALTH | SPEED |
+F:RES_DARK | RES_CONF | RES_NETHER | RES_DISEN | NOBREAK
+F:BRAND_POIS | SLAY_ANIMAL | SLAY_UNDEAD | SEE_INVIS |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:102:of Morgul
 X:24:0
@@ -595,8 +641,11 @@ W:0:0:0:0
 C:20:20:10:0
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED
 
-# 103 (unused)
-
+N:103:(Spectral)
+X:24:30
+W:0:0:0:25000
+F:SLAY_UNDEAD | SEE_INVIS | HOLD_LIFE | ACTIVATE
+# ACTIVATE added through "hard-code"
 
 ### Missile Launchers ###
 
@@ -635,23 +684,38 @@ F:XTRA_SHOTS
 
 N:112:of Hurt Animal
 X:23:10
-W:0:0:0:25
 F:SLAY_ANIMAL
-
-N:113:of Hurt Evil
-X:23:10
 W:0:0:0:25
+
+N:113:of Hurt Undead
+X:23:10
+F:SLAY_UNDEAD
+W:0:0:0:25
+
+N:114:of Hurt Evil
+X:23:10
 F:SLAY_EVIL
+W:0:0:0:25
 
-# 114 (unused)
+N:115:of Hurt Demon
+X:23:10
+F:SLAY_DEMON
+W:0:0:0:15
 
-# 115 (unused)
+N:116:of Hurt Orc
+X:23:10
+F:SLAY_ORC
+W:0:0:0:15
 
-# 116 (unused)
+N:117:of Hurt Troll
+X:23:10
+W:0:0:0:15
+F:SLAY_TROLL
 
-# 117 (unused)
-
-# 118 (unused)
+N:118:of Hurt Giant
+X:23:10
+F:SLAY_GIANT
+W:0:0:0:15
 
 N:119:of Hurt Dragon
 X:23:10
@@ -705,3 +769,11 @@ W:0:0:0:0
 C:0:0:10:0
 
 
+###
+### Note: Special ``damaged'' ego-item for broken items.
+###
+
+N:133:(Damaged)
+X:0:0
+W:0:0:0:0
+C:2:2:0:0

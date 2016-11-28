@@ -4,7 +4,7 @@
 Q:24:N:The Rise and Fall of Micro$oft
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:24:Q:1:0:0:1:50:732:0:2
+Q:24:Q:1:0:0:1:50:765:0:2
 
 
 # Description for quest
@@ -28,7 +28,7 @@ Q:24:T:awaits you outside.
 F:t:1:8:0:0:0:0:*
 
 # Darkness, no tele
-F:s:1:12
+F:s:0:12
 
 # Wall
 F:#:56:8
@@ -41,58 +41,47 @@ F:6:85:12
 F:l:86:12
 
 # Software bug
-F:a:1:8:246
+F:a:1:8:Software bug
 
 # Novice rogue
-F:b:1:8:44
-F:c:1:8:44
+F:b:1:8:Novice rogue
+F:c:1:8:Novice rogue
 
 # Bandit
-F:d:1:8:150
+F:d:1:8:Bandit
 
 # Master rogue
-F:e:1:8:376
+F:e:1:8:Master rogue
 
 # Master thief
-F:f:1:8:516 
+F:f:1:8:Master thief
 
 # Gates himself
-F:g:1:12:732
+F:g:0:12:Bull Gates
 
 # Money
 F:$:1:8:0:488
 
 # Money + Master Thief
-F:%:1:8:516:488
+F:%:1:8:Master Thief:488
 
 # Money + Software bug
-F:&:1:8:246:488
+F:&:1:8:Software bug:488
 
 # Junk & Cursed items
 
-#F:A:1:8:0:394
-F:A:1:8
-#F:B:1:8:0:398
-F:B:1:8
+F:A:1:8:0:394
+F:B:1:8:0:398
 
-#F:C:86:12:0:57:102
-F:C:86:12
-#F:D:86:12:0:36:102
-F:D:86:12
-#F:E:86:12:0:72:102
-F:E:86:12
+F:C:86:12:0:57:102
+F:D:86:12:0:36:102
+F:E:86:12:0:72:102
 
-#F:F:86:12:0:124:46
-F:F:86:12
-#F:G:86:12:0:124:45
-F:G:86:12
-#F:H:86:12:0:98:36
-F:H:86:12
-#F:I:86:12:0:99:37
-F:I:86:12
-#F:J:86:12:0:100:36
-F:J:86:12
-
+F:F:86:12:0:124:46
+F:G:86:12:0:124:45
+F:H:86:12:0:98:36
+F:I:86:12:0:99:37
+F:J:86:12:0:100:36
 
 # Micro$oft HQ
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

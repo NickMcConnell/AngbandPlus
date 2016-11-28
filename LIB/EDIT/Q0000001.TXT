@@ -22,19 +22,25 @@ Q:1:T:awaits you outside.
 ?:1
 
 # Floor with Novice rogue
-F:a:1:8:44
+F:a:1:8:Novice rogue
+
+# Floor with Novice rogue
+F:b:1:8:Novice rogue
+
+# Floor with Novice rogue
+F:c:1:8:Novice rogue
 
 # Floor with Bandit
-F:b:1:8:150
+F:d:1:8:Bandit
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXX
-D:X....a....X..TX
-D:X.........D...X
-D:X.........Xb..X
+D:XT...c....X..TX
+D:XT........D..TX
+D:X.........Xd..X
 D:XXXXX.....XXXXX
-D:XT..D........aX
-D:X.b.X.........X
+D:XT..D........bX
+D:XTa.X.........X
 D:XXXXX.........X
 D:X<..D.........X
 D:XXXXXXXXXXXXXXX

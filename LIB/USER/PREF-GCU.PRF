@@ -68,3 +68,46 @@ A:\e
 P:\eOS
 
 
+# Macro '17'
+
+A:.4
+P:\e[4S~
+
+A:.6
+P:\e[6S~
+
+
+# Macro '18'
+
+A:.1
+P:\e[1S~
+
+
+# Macro '19'
+
+A:.8
+P:\e[8S~
+
+
+# Macro '20'
+
+A:.2
+P:\e[2S~
+
+
+# Macro '21'
+
+A:.7
+P:\e[7S~
+
+
+# Macro '22'
+
+A:.9
+P:\e[9S~
+
+
+# Macro '23'
+
+A:.3
+P:\e[3S~

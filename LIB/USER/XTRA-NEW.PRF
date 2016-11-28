@@ -31,7 +31,7 @@ R:0:0x92/0x87
 R:0:0x92/0x88
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE High-Elf] ]
 R:0:0x92/0x89
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Dunadan] ]
 R:0:0x92/0x8A
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Barbarian] ]
 R:0:0x92/0x8B
@@ -94,7 +94,7 @@ R:0:0x93/0x87
 R:0:0x93/0x88
 ?:[AND [EQU $CLASS Mage] [EQU $RACE High-Elf] ]
 R:0:0x93/0x89
-?:[AND [EQU $CLASS Mage] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Dunadan] ]
 R:0:0x93/0x8A
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Barbarian] ]
 R:0:0x93/0x8B
@@ -157,7 +157,7 @@ R:0:0x94/0x87
 R:0:0x94/0x88
 ?:[AND [EQU $CLASS Priest] [EQU $RACE High-Elf] ]
 R:0:0x94/0x89
-?:[AND [EQU $CLASS Priest] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Dunadan] ]
 R:0:0x94/0x8A
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Barbarian] ]
 R:0:0x94/0x8B
@@ -220,7 +220,7 @@ R:0:0x95/0x87
 R:0:0x95/0x88
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE High-Elf] ]
 R:0:0x95/0x89
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Dunadan] ]
 R:0:0x95/0x8A
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Barbarian] ]
 R:0:0x95/0x8B
@@ -283,7 +283,7 @@ R:0:0x96/0x87
 R:0:0x96/0x88
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE High-Elf] ]
 R:0:0x96/0x89
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Dunadan] ]
 R:0:0x96/0x8A
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Barbarian] ]
 R:0:0x96/0x8B
@@ -346,7 +346,7 @@ R:0:0x97/0x87
 R:0:0x97/0x88
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE High-Elf] ]
 R:0:0x97/0x89
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Dunadan] ]
 R:0:0x97/0x8A
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Barbarian] ]
 R:0:0x97/0x8B
@@ -409,7 +409,7 @@ R:0:0x98/0x87
 R:0:0x98/0x88
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE High-Elf] ]
 R:0:0x98/0x89
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Dunadan] ]
 R:0:0x98/0x8A
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Barbarian] ]
 R:0:0x98/0x8B
@@ -472,7 +472,7 @@ R:0:0x99/0x87
 R:0:0x99/0x88
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE High-Elf] ]
 R:0:0x99/0x89
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Dunadan] ]
 R:0:0x99/0x8A
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Barbarian] ]
 R:0:0x99/0x8B
@@ -535,7 +535,7 @@ R:0:0x9A/0x87
 R:0:0x9A/0x88
 ?:[AND [EQU $CLASS Monk] [EQU $RACE High-Elf] ]
 R:0:0x9A/0x89
-?:[AND [EQU $CLASS Monk] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE Dunadan] ]
 R:0:0x9A/0x8A
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Barbarian] ]
 R:0:0x9A/0x8B
@@ -598,7 +598,7 @@ R:0:0x9B/0x87
 R:0:0x9B/0x88
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE High-Elf] ]
 R:0:0x9B/0x89
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Dunadan] ]
 R:0:0x9B/0x8A
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Barbarian] ]
 R:0:0x9B/0x8B
@@ -661,7 +661,7 @@ R:0:0x9C/0x87
 R:0:0x9C/0x88
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE High-Elf] ]
 R:0:0x9C/0x89
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE Dunadan] ]
 R:0:0x9C/0x8A
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Barbarian] ]
 R:0:0x9C/0x8B

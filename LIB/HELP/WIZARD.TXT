@@ -1,0 +1,84 @@
+
+List of Wizard commands and their effects.  
+
+Originally written by Leon Marrick for OAngband
+
+Revised for GSNband 1.x
+
+There are two ways of fiddling with the game:  Wizard mode and debug mode.
+Both mark your savefile and prevent your character from making the high
+score list.
+
+Wizard mode does nothing else except keep your character alive, provide
+verbose information on all damage you do to monsters or receive from them,
+and explain why an object disappears. To enter wizard mode, hold down the
+CTRL key and press 'w'.
+
+Debug mode is a bit more useful. To enter debug mode for the first time,
+hold down the CTRL key and press 'a', and respond 'y' to the warning and
+question the game provides you with. Any command you type immediately after
+holding down the CTRL key and press 'a' will be processed as a debug
+command. The debug commands are:
+
+'ESC':  Oops, I didn't mean to type CTRL-a.  Ignore it.
+'"':  Generate spoilers on artifacts, objects, and monsters. The spoiler
+      files are placed in the ../lib/user directory.
+'a':  Cure everything that ails you.
+'b':  Takes you to the currently selected target.
+'c':  Create any object.  This command brings up a screen to choose a
+      general object kind, then a screen to select a specific object.
+'C':  Use the command count to create the artifact with that index.
+      Requires a command count.  Consult a_info.txt for artifact indexes.
+'d':  Detect everything.
+'e':  Edit character's internal statistics, experience, and gold.
+'f':  *Identify* an object.
+'g':  Uses a command count to generate that many good or better quality
+      objects.  May take a command count.
+'h':  Rerolls all your level bonuses to base hitpoints, and displays a
+      figure indicating how they compare to the average (the life rating).
+'i':  Identify an object.
+'I':  Print max sanity and current sanity, then decrease the latter by 1.
+'j':  Jump to any level (even below 100th).
+'k':  Self knowledge (as the potion).
+'l':  Learn about all objects with a generation level less than or equal
+      to the command count.  Requires a command count.
+'m':  Magic map the local area.
+'M':  Use with the command count to gain a mutation with that number
+      (see xtra1.c, function gain_random_mutation). If no command count,
+      gain random mutation.
+'n':  Use the command count to summon the monster with that index.
+      Requires a command count.  Consult r_info.txt for monster indexes.
+'N':  As 'n', but the monster will be your pet.
+'o':  Tweak an object's quality, pval, bonuses to hit, damage and armour
+      class, and quantity.  Don't forget to 'a'ccept the changes
+      when done.  This command also allows you to roll up a very large
+      number of objects, and find out how good your object is compared
+      to others of its type.
+'O':  Outfit the player - raises you to level ~45, gives 5 mln gold,
+      raises stats by 100, equips with some nice items (no artifacts).
+'p':  Phase door.
+'q':  Use with the command count to complete a quest with that index.
+      Requires a command count.  Consult q_info.txt for quest indexes.
+      (Note: this command is disabled by default).
+'r':  Use with the command count to gain a level reward with that
+      number, as if from a Chaos deity. If no command count, gain
+      random reward.
+'s':  Use the command count to try summoning that many random monsters
+      or monster groups.  May take a command count.
+'S':  Force shuffling of stores' inventory (useful only in town).
+'t':  Teleport.
+'u':  Either use maximum sighting range or a command count to unhide
+      all monsters up to that range.  May take a command count.
+'v':  Uses a command count to generate that many excellent or better
+      quality objects.  May take a command count.
+'w':  Fully wizard-light the level, including vaults.
+'x':  Add the command count to player experience, or double current
+      experience and add one.  May take a command count.
+'z':  Either use maximum sighting range or a command count to remove
+      all monsters up to that range.  May take a command count.
+'@':  Show current coordinates in dungeon (mainly for debugging towns).
+
+
+To enter a command count:  type '0', enter the number desired, and press
+enter.  When prompted for a command, hold down the CTRL key and type
+'a', then immediately enter a debug command.

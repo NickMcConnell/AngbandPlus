@@ -1,0 +1,15 @@
+# q_oberon.txt
+
+# Name
+Q:8:N:Sauron
+
+# Definition
+Q:8:Q:1:0:0:1:99:Sauron, Lord of the Rings:0
+
+# Description for quest
+?:[LEQ $QUEST8 2]
+Q:8:T:It is time to take the battle to the source of evil. But, before you
+Q:8:T:can reach it, you must find and kill Sauron.  Only after defeating
+Q:8:T:this powerful sorceror will the stairs leading to Morgoth's ultimate
+Q:8:T:lair be opened.
+?:1

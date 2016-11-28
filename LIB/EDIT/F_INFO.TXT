@@ -7,13 +7,23 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
-# After modifying this file, delete the "lib/raw/f_info.raw" file.
-
 # Note that the terrain feature are grouped into very regular groups,
 # such that each of the bits in the feature type conveys information.
 
 # Note that terrain feature zero contains the "darkness" picture.
 
+# GSNband notes:
+
+# I added Kamband-ish chaos fog and the six altars (there were as many as
+# 26 in versions before 1.0). Note that there are three altar colours
+# (two gods per each colour). You are not supposed to know beforehand
+# what the god of the altar is.
+
+# I also added trap names to their outward descriptions. Ideally, you
+# should be able to distinguish a particular trap only after you've 
+# experienced the effects.
+
+# This is still unstable ground and very likely to change in future.
 
 # Version stamp (required)
 
@@ -89,72 +99,72 @@ G:^:s
 
 # 0x12 --> visible trap -- spiked pit
 
-N:18:pit
+N:18:pit (spiked)
 G:^:s
 
 # 0x13 --> visible trap -- poison pit
 
-N:19:pit
+N:19:pit (poison)
 G:^:s
 
 # 0x14 --> visible trap -- rune -- summon
 
-N:20:strange rune
+N:20:strange rune (summon)
 G:^:o
 
 # 0x15 --> visible trap -- rune -- teleport
 
-N:21:strange rune
+N:21:strange rune (teleport)
 G:^:o
 
 # 0x16 --> visible trap -- spot -- fire
 
-N:22:discolored spot
+N:22:discolored spot (fire)
 G:^:u
 
 # 0x17 --> visible trap -- spot -- acid
 
-N:23:discolored spot
+N:23:discolored spot (acid)
 G:^:u
 
 # 0x18 --> visible trap -- dart -- slow
 
-N:24:dart trap
+N:24:dart trap (slow)
 G:^:r
 
 # 0x19 --> visible trap -- dart -- lose str
 
-N:25:dart trap
+N:25:dart trap (lose STR)
 G:^:r
 
 # 0x1A --> visible trap -- dart -- lose dex
 
-N:26:dart trap
+N:26:dart trap (lose DEX)
 G:^:r
 
 # 0x1B --> visible trap -- dart -- lose con
 
-N:27:dart trap
+N:27:dart trap (lose CON)
 G:^:r
 
 # 0x1C --> visible trap -- gas -- blind
 
-N:28:gas trap
+N:28:gas trap (blind)
 G:^:g
 
 # 0x1D --> visible trap -- gas -- confuse
 
-N:29:gas trap
+N:29:gas trap (confuse)
 G:^:g
 
 # 0x1E --> visible trap -- gas -- poison
 
-N:30:gas trap
+N:30:gas trap (poison)
 G:^:g
 
 # 0x1F --> visible trap -- gas -- sleep
 
-N:31:gas trap
+N:31:gas trap (sleep)
 G:^:g
 
 # 0x2x --> locked door (power 0)
@@ -345,31 +355,31 @@ M:60
 N:64:explosive rune
 G:*:R
 
-N:65:Pattern startpoint
+N:65:Straight Road startpoint
 G:*:w
 
-N:66:section of the Pattern
+N:66:section of the Straight Road
 G:*:B
 
-N:67:section of the Pattern
+N:67:section of the Straight Road
 G:*:b
 
-N:68:section of the Pattern
+N:68:section of the Straight Road
 G:*:B
 
-N:69:section of the Pattern
+N:69:section of the Straight Road
 G:*:b
 
-N:70:section of the Pattern
+N:70:section of the Straight Road
 G:*:W
 
-N:71:section of the Pattern (discharged)
+N:71:section of the Straight Road (discharged)
 G:*:W
 
-N:72:Pattern exit
+N:72:Straight Road exit
 G:*:w
 
-N:73:corrupted section of the Pattern
+N:73:corrupted section of the Straight Road
 G:*:D
 
 # 0x4A --> shop -- general store (perm)
@@ -384,7 +394,7 @@ G:2:s
 
 # 0x4C --> shop -- weapon shop (perm)
 
-N:76:Weapon Smiths
+N:76:Weaponsmith
 G:3:w
 
 # 0x4D --> shop -- temple (perm)
@@ -445,6 +455,9 @@ G:#:G
 
 N:97:mountain chain
 G:^:U
+
+N:98:chaos fog
+G:*:v
 
 N:128:Building
 G:+:U
@@ -542,3 +555,22 @@ G:+:B
 N:159:Building
 G:+:B
 
+###### Here are the altars. ######
+
+N:160:white altar
+G:0:w
+
+N:161:gray altar
+G:0:U
+
+N:162:black altar
+G:0:D
+
+N:163:white altar
+G:0:w
+
+N:164:gray altar
+G:0:U
+
+N:165:black altar
+G:0:D

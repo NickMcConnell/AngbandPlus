@@ -4,7 +4,7 @@
 Q:3:N:Druid Shop
 
 # Definition
-Q:3:Q:1:0:0:1:20:241:0:2
+Q:3:Q:1:0:0:1:20:Druid:0:2
 
 # Description for quest
 ?:[LEQ $QUEST3 2]
@@ -22,7 +22,7 @@ Q:3:T:gift that awaits you outside.
 ?:1
 
 # Floor with druid
-F:a:1:8:241
+F:a:1:8:Druid
 
 # Dungeon
 D:XXXXXXXXXXXXXXX

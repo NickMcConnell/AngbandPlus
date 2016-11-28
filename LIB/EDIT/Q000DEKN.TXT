@@ -38,16 +38,16 @@ F:3:1:8:0:332
 F:4:1:8:0:333
 
 # Floor + novice priest
-F:p:1:8:45
+F:p:1:8:Novice priest
 
 # Floor + priest
-F:P:1:8:225
+F:P:1:8:Priest
 
 # Floor + novice paladin
-F:l:1:8:97
+F:l:1:8:Novice paladin
 
 # Floor + ultra-elite paladin
-F:L:1:8:699
+F:L:1:8:Ultra-elite paladin
 
 # Castle Montsalvat
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

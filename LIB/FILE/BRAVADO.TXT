@@ -1,105 +1,249 @@
-103
+247
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
-cackles evilly.
+activates a strange artifact.
+aims a rod at you.
+asks: 'Dare you stand against me?'
+asks: 'Which kind of death do you want?'
+bellows frighteningly!
+bellows: 'Aaaaaarrrrrrgggggghhhhhhhh!!!'
 cackles diabolically.
-says: 'Surrender, miserable flea!'
-says: 'Come get some!'
-says: 'Let's rock!'
-laughs devilishly.
-says: 'Flee while you can, gnat!'
-says: 'You are about to die, maggot!'
-says: 'Read your prayers!'
+cackles evilly.
+cackles: 'I'm in good with the RNG.  You haven't a chance against me!'
+cackles: 'Look at this, a living corpse!'
+cackles: 'The dungeon knows no mercy.'
+calls on the gods to smite you.
+chants 'Die, die' over and over.
+chants strange incantations.
+charges at you screaming incoherently.
+checks the Monster AI option.
+declaims: 'Better men than you have fallen to my blade.'
+declaims: 'I give you six feet of this dungeon.  Enough for your grave!'
+declaims: 'Your sins have just caught up with you.'
+drinks from a strange bottle.
+eyes you calculatingly.
+gestures obscenely.
+gives you a contemptuous glance.
+gloats: 'Fighting's fun when you know you're going to win!'
+glows in an unholy light.
+grins evilly.
+grins sadistically.
+grins.
+grumbles: 'This puny an adventurer won't have much of a drop...'
+hisses in rage.
+hisses magical incantations.
 hisses: 'Die!'
-says: 'You don't have a chance, moron!'
+hisses: 'Do you think you can stand up to the likes of me?'
+hisses: 'Who do you think you are?'
+hisses: 'Yea, I will drink thy blood gladly.'
+howls in rage.
+hums a dirge.
+laughs at your pathetic attempts at combat.
+laughs devilishly.
+laughs fiendishly.
+laughs sadistically.
+laughs.
+laughs: 'Ai!  I shall have some fun now!'
+leaps towards you with death in its eye.
+looks around for help.
+looks at you and laughs.
+looks at you contemptuously.
+looks in a magical tome.
+marvels at your chutzpah.
+measures you by eye.  Readies the Standard size coffin.
+picks something up from the dust.
+points at you.
+pounds on the floor in rage.
+prays to a strange God.
+provides you with a copy of 'How to Make a Will in 5 Easy Steps'.
+readies for slaughter.
+reads from a scroll.
+refills a lantern.
+relights a torch.
+roars bawdy lyrics.
+roars: 'Enter my domain, will you?  The toll is death!'
+roars: 'Fight me if you dare, bastard!  You 'n me for an empire!'
+roars: 'You're dead!'
+says: 'A fray! A fray!'
+says: 'A mere mortal dares challenge *ME*?!'
+says: 'A time to die, fool!'
+says: 'Abandon all hope, ye who enter here.'
+says: 'And damn'd be him that first cries: Hold, enough!'
+says: 'And no running away, because I always find those who do.'
+says: 'Another adventurer?  I just got through picking my teeth with the last.'
+says: 'Are you threatening me?'
+says: 'Babies do not belong in the realm of Morgoth.'
+says: 'But I can do things that you can't do.'
+says: 'Come get some!'
+says: 'Come on and fight!'
+says: 'Death walks inside of you...'
+says: 'Die by my hand, in pools of blood, clutch yourself as you fall.'
+says: 'Do not challenge me, you may bite off more than you can chew.'
+says: 'Do not meddle with wizards, weakling.'
+says: 'Don't even TRY to fight me; I'm in Wizard mode!'
+says: 'Don't tread on me!'
+says: 'Don't try running away, because you're the one I'll find.'
+says: 'Don't you know that this fight's over already?'
+says: 'Draw, if you are a man!'
+says: 'Drop dead, wimp!'
+says: 'Drop that weapon, NOW!'
+says: 'Evil have been all thy ways.'
 says: 'Fear my wrath, fool!'
 says: 'Feel my fury, dolt!'
-says: 'Groo is a genius, compared to you!'
-gives you a contemptuous glance.
-says: 'Prepare to meet your Maker, fool!'
-says: 'Perish, mortal!'
-says: 'Your puny efforts make me laugh!'
-says: 'Drop dead, wimp!'
-says: 'You should have fled while you had the chance.'
-screams: 'Die by my hand!'
-says: 'Your last wish, punk?'
-says: 'Your death shall be a slow, painful one.'
-says: 'Your head shall be my next trophy.'
-screams: 'You are DOOMED!'
-grins sadistically.
-says: 'This dungeon shall be your TOMB!'
-laughs fiendishly.
-says: 'Your fate is sealed, worm.'
-says: 'Resistance is useless.'
-says: 'Hell shall soon claim your remains.'
-says: 'Thou shalt repent of thy cunning.'
-says: 'Verily, thou shalt be one dead cretin.'
-says: 'Surrender or die!'
-says: 'Savor thy breath, it be thine last.'
-says: 'Prepare do die, miscreant!'
-says: 'You're history, dude!'
+says: 'Feel the power of pure dark, weakling.'
 says: 'Feeling lucky, punk?'
-says: 'You're toast!'
-says: 'You're dead meat.'
-says: 'Make my day.'
-says: 'I shall flatten you!'
-says: 'I could spare you, but why?'
-says: 'Take this, you sissy!'
-says: 'Nothing can save you now!'
-says: 'This dungeon ain't big enough for the both of us.'
-says: 'I'm gonna break your face!'
-says: 'I hope you enjoy pain!'
+says: 'Fighting is something I always look forward to.'
+says: 'Flee while you can, gnat!'
 says: 'Give me your best blow!'
-says: 'Draw, if you are a man!'
-says: 'A time to die, fool!'
-bellows frighteningly!
-says: 'You will never leave this dungeon alive!'
-says: 'You'll leave this dungeon only in a wooden box!'
-says: 'Your mother wears army boots!'
-says: 'Drop that weapon, NOW!'
-says: 'Life ain't for you, and I'm the cure!'
-says: 'Resistance is futile. You will be terminated.'
-says: 'Sight and smell of this, it gets me going.'
-says: 'Victim is your name and you shall fall.'
-says: 'Stepping out? You'll feel our hell on your back!'
-says: 'Now I will waste my hate on you.'
-says: 'Don't tread on me!'
-says: 'So be it! Threaten no more!'
-says: 'Kill for gain or shoot to maim, but I don't need a reason.'
-says: 'You'll die as you lived, in a flash of the blade.'
-says: 'You'd better stand cos there's no turning back.'
-says: 'I just want to see your blood, I just want to stand and stare.'
-says: 'I've been looking so long for you; you won't get away from my grasp.'
-says: 'I'm coming after you; you can kiss your arse goodbye.'
-says: 'It's official; you suck!'
-sings: 'I hate you, you hate me, we're a helluva family.'
-says: 'A mere mortal dares challenge *ME*?!'
-says: 'There is no escape and that's for sure.'
-says: 'This is the end; I won't take anymore.'
-says: 'Say goodbye to the world you live in.'
-says: 'You've always been taking, but now you're giving.'
-says: 'My brain's on fire with the feeling to kill.'
-says: 'Don't try running away, because you're the one I'll find.'
-says: 'I was looking for you to start up a fight.'
-says: 'My innocent victims are slaughtered with wrath and despise!'
-says: 'I have found you, and there is no place to run.'
-says: 'My blood lust defies all my needs.'
-says: 'And damn'd be him that first cries: Hold, enough!'
-says: 'I can smell your blood, human!'
+says: 'Go back to your mommy, babe.'
+says: 'Go back to your village before it's too late!'
+says: 'Groo is a genius, compared to you!'
+says: 'Ha, ha, very funny.'
 says: 'Has your folly led to this?'
-wonders aloud how many experience points you're worth...
-says: 'Pride yourself on this, that you were slain by a champion.'
-thunders: 'May heaven have mercy on your soul, for I will have none.'
-screams for your blood!
-sighs: 'They send a poorer grade of adventurers down each year than the last.'
-says: 'Your life-blood will baptise my blade!'
-shouts: 'You will serve me in Valhalla!'
-snickers: 'Mommy's not here to save you now!'
-says: 'You're almost not worth killing...almost!'
-leaps towards you with death in its eye.
-sings: 'Cuts yer if ye stand, shoot yer if ye run.'
-says: 'Another adventurer?  I just got through picking my teeth with the last.'
-says: 'Your two ears will decorate my belt.'
-says: 'I love all that blood.'
+says: 'Hell shall soon claim your remains.'
+says: 'I am king of this domain, coming to crush this little upstart!'
+says: 'I can smell your blood, human!'
+says: 'I could spare you, but why?'
+says: 'I don't know what you're doing, but I know it won't work.'
 says: 'I don't want to hurt you, I only want to kill you.'
+says: 'I have found you, and there is no place to run.'
+says: 'I hope you enjoy pain!'
+says: 'I just want to see your blood, I just want to stand and stare.'
+says: 'I know where you will die.'
 says: 'I like killing people, because it's so much fun.'
+says: 'I love all that blood.'
+says: 'I shall flatten you!'
+says: 'I'll rip your flesh til' there's no breath.'
+says: 'I'll send you to your maker.'
+says: 'I'm coming after you; you can kiss your arse goodbye.'
+says: 'I'm gonna break your face!'
+says: 'I've been looking so long for you; you won't get away from my grasp.'
+says: 'I've slain the best; why do they send me the rest?'
+says: 'If thou wilt be slain, I will slay thee gladly.'
+says: 'It smells death around you.'
+says: 'It's official; you suck!'
+says: 'It's pointless for you to go on like this.'
+says: 'Kill for gain or shoot to maim, but I don't need a reason.'
+says: 'Leave while you can, intruder.'
+says: 'Let's rock!'
+says: 'Life ain't for you, and I'm the cure!'
+says: 'Lost, abandoned, alone, and now you're about to die.'
+says: 'Make my day.'
+says: 'Methinks we'll have fresh meat tonight!'
+says: 'Methinks you found your end, babe.'
+says: 'Methinks you have strayed too far in your travels.'
+says: 'My blood lust defies all my needs.'
+says: 'My brain's on fire with the feeling to kill.'
+says: 'My innocent victims are slaughtered with wrath and despise!'
+says: 'Nice drinking cup you got attached to your neck!'
+says: 'Nothing can save you now!'
+says: 'Now I will waste my hate on you.'
+says: 'On your trail I close the gap, one more life that soon won't be.'
+says: 'Perish, mortal!'
+says: 'Prepare to die, miscreant!'
+says: 'Prepare to meet your Maker, fool!'
+says: 'Pride yourself on this, that you were slain by a champion.'
+says: 'Read your prayers!'
+says: 'Ready or not, you're playing with the big boys now.'
+says: 'Resistance is futile. You will be terminated.'
+says: 'Resistance is useless.'
+says: 'Savor thy breath, it be thine last.'
+says: 'Say goodbye to the world you live in.'
+says: 'Say your prayers now, because there won't be time later.'
+says: 'Send my greetings to Hell.'
+says: 'Shield your face as you observe me - don't use the naked eye!'
+says: 'Shrivel in this holy light, manling!'
+says: 'Sight and smell of this, it gets me going.'
+says: 'Smell your death boiling inside of you.'
+says: 'So be it! Threaten no more!'
+says: 'Stepping out? You'll feel our hell on your back!'
+says: 'Surrender or die!'
+says: 'Surrender, miserable flea!'
+says: 'Take this, you sissy!'
+says: 'The dice have been rolled, and you lost.'
+says: 'The dungeon's no place for weaklings.'
+says: 'The only way to exit is going piece by piece.'
+says: 'There is no escape and that's for sure.'
+says: 'There will be none to sing sad songs over your bones.'
+says: 'They is comin' in stupid, sarge...'
+says: 'This dungeon ain't big enough for the both of us.'
+says: 'This dungeon shall be your TOMB!'
+says: 'This is getting boring!'
+says: 'This is the end; I won't take anymore.'
+says: 'Those who dare to fight me die, and you're no exception.'
+says: 'Thou shalt repent of thy cunning.'
+says: 'Too bad I can't turn up your difficulty level.'
+says: 'Verily, thou shalt be one dead cretin.'
+says: 'Victim is your name and you shall fall.'
+says: 'We are looking for you to start up a fight.'
+says: 'You are about to die, maggot!'
+says: 'You are out of your league, manling.'
+says: 'You clearly haven't been keeping up with your RNG sacrifices...'
+says: 'You don't have a chance, moron!'
+says: 'You know, this will be bad for you.'
+says: 'You should have fled while you had the chance.'
+says: 'You will never leave this dungeon alive!'
+says: 'You'd better stand cos there's no turning back.'
+says: 'You'll die as you lived, in a flash of the blade.'
+says: 'You'll leave this dungeon only in a wooden box!'
+says: 'You're almost not worth killing...almost!'
+says: 'You're dead meat.'
+says: 'You're history, dude!'
+says: 'You're in over your head, towndweller'
+says: 'You're toast!'
+says: 'You've always been taking, but now you're giving.'
+says: 'Your bones belong to the jackals now.'
+says: 'Your death shall be a slow, painful one.'
+says: 'Your fate is sealed, worm.'
+says: 'Your head shall be my next trophy.'
+says: 'Your last wish, punk?'
+says: 'Your life-blood will baptise my blade!'
+says: 'Your little game is over.'
+says: 'Your mother wears army boots!'
+says: 'Your puny efforts make me laugh!'
+says: 'Your two ears will decorate my belt.'
+screams for your blood!
+screams: 'Die by my hand!'
+screams: 'Die now and let the darkness have thee!'
 screams: 'I'm out to destroy and I will cut you down!'
+screams: 'Witness my fury!'
+screams: 'You are DOOMED!'
+scribbles designs on the floor.
+sends 'rm -rf *' to your shell!
+shouts for help.
+shouts: 'Choose quickly!  Will you run or die?'
+shouts: 'Die!'
+shouts: 'For my victims, no tomorrow!'
+shouts: 'Hey! You're not hurting me!'
+shouts: 'I am sending you straight to hell!'
+shouts: 'I hear your death approaching, and it is me!'
+shouts: 'I love blood!'
+shouts: 'I smell a surface creature!'
+shouts: 'You don't belong here, landcrawler!'
+shouts: 'You will serve me in Valhalla!'
+shrieks in rage.
+sighs: 'They send a poorer grade of adventurers down each year than the last.'
+sights you with a weapon.
+sings: 'Cut yer if ye stand, shoot yer if ye run.'
+sings: 'I hate you, you hate me, we're a helluva family.'
+sizes you up.
+snarls: 'I want you dead - and I'll do the job myself!'
+snickers: 'Mommy's not here to save you now!'
+snickers: 'Oh, look, a walking corpse!'
+spits in your direction.
+squints in concentration.
+stomps impatiently.
+takes a combative stance.
+taunts: 'You're just playing around with me.'
+throws a clump of mud at you.
+thunders: 'May heaven have mercy on your soul, for I will have none.'
+thunders: 'Run away, puppy, and find more resists!'
+tosses you a copper obol: 'Your ticket across the Styx!  Keep it handy!'
+traces a strange pattern in the air.
+twirls around a wand.
+whispers in an evil language.
+whispers: 'I am the emissary from the Gods...'
+whispers: 'I am the emissary of pure evil...'
+whispers: 'You have no idea who I am...'
+wonders aloud how many experience points you're worth...
+yells: 'I'm way bored!  The adventurers on this level are pathetic!'
+yells: 'Stand back boys, he's my meat!'

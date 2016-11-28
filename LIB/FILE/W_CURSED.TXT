@@ -1,41 +1,53 @@
-39
+51
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
-of Misery
-of Backbiting
-of Horror
-of Agony
-of Severe Pain
-of the Fool
-'Leech'
-'Mormegil'
-of Gates
-of Microsloth
-of Troubleseeking
-of the Kender
 'Camlost'
 'Coffin Nail'
-of Fumbling
-of Tristan
-of Seppuku
-of Suicide
-of Harakiri
-of Kamikaze
-of Breaking
-of Low Blow
-of Castration
-of Kidney Punch
-'Rotten Egg'
-of Losing
-of Master Bates
-of the Bastard
-of Friendship
-of Sadness
-of Humiliation
-of King Nothing
-of Cowardice
-of Falsehood
-of Ilitresi
+'Consuming Fear'
+'Dark Steel'
+'Fighting Cock'
 'Funeral March'
-'Unholy Avenger'
-of Woe
+'Leech'
+'Little Lion'
+'Mormegil'
 'P-Shooter'
+'Prince's Ransom'
+'Ravenslayer'
+'Rotten Egg'
+'Spirit of Verdun'
+'Unholy Avenger'
+of Agony
+of Angmar
+of Backbiting
+of Barad-dur
+of Breaking
+of Castration
+of Cowardice
+of Dol Guldur
+of Falsehood
+of Friendship
+of Fumbling
+of Gates
+of Harakiri
+of Horror
+of Humiliation
+of Ilitresi
+of Kamikaze
+of Kidney Punch
+of King Nothing
+of Losing
+of Low Blow
+of Master Bates
+of Microsloth
+of Misery
+of Princes
+of Sadness
+of Seppuku
+of Severe Pain
+of Suicide
+of the Bastard
+of the Fool
+of the Kender
+of the Necromancer
+of Tristan
+of Troubleseeking
+of Woe

@@ -35,11 +35,11 @@
 
 # Oberon
 ?:[EQU $QUEST_NUMBER 8]
-%:q_oberon.txt
+%:q_sauron.txt
 
 # Serpent of Chaos
 ?:[EQU $QUEST_NUMBER 9]
-%:q_serpen.txt
+%:q_morgot.txt
 
 # Node of Sorcery
 ?:[EQU $QUEST_NUMBER 10]
@@ -53,11 +53,13 @@
 ?:[EQU $QUEST_NUMBER 12]
 %:q000natu.txt
 
-# Quest #13 is still unfinished
+# Water poisoning
+?:[EQU $QUEST_NUMBER 13]
+%:q0000013.txt
 
-# Warg problem
+# Red dragons
 ?:[EQU $QUEST_NUMBER 14]
-%:q_warg.txt
+%:q0000014.txt
 
 # Eric's Stronghold
 ?:[EQU $QUEST_NUMBER 15]
@@ -98,6 +100,14 @@
 # The Rise and Fall of Micro$oft
 ?:[EQU $QUEST_NUMBER 24]
 %:q00000ms.txt
+
+# Trolls
+?:[EQU $QUEST_NUMBER 38]
+%:q00troll.txt
+
+# Five Armies
+?:[EQU $QUEST_NUMBER 39]
+%:q005army.txt
 
 # Random quests (always adressed with number 40)
 ?:[EQU $QUEST_NUMBER 40]

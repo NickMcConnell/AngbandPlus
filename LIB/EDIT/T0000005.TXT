@@ -23,10 +23,10 @@ F:-:1:8
 F:x:1:12:0:424
 
 # Floor + Star-Spawn
-F:c:1:8:836
+F:c:1:8:Star-spawn of Cthulhu
 
 # Floor + Cthulhu + trap
-F:C:1:8:857:0:0:0:*
+F:C:1:8:Great Cthulhu:0:0:0:*
 
 # Random trap or object
 # (25% chance for trap, 75% chance for object hardcoded)

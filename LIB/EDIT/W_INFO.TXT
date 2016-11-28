@@ -12,25 +12,25 @@
 W:F:#:0
 
 # Grass
-W:F:G:6:5
+W:F:.:6:5
 
 # Dirt
-W:F:D:5:15
+W:F:,:5:15
 
 # Forest
-W:F:F:7:20
+W:F:T:7:20
 
 # Shallow Water
-W:F:S:3:30
+W:F:_:3:30
 
 # Deep Water
-W:F:W:2:40
+W:F:=:2:40
 
 # Mountain
-W:F:M:11:50
+W:F:^:11:50
 
 # Volcano
-W:F:V:10:60
+W:F:&:10:60
 
 # Town 1
 W:F:1:1:0:1:0:Outpost
@@ -44,31 +44,40 @@ W:F:3:1:0:3:0:Morivant
 # Town 4
 W:F:4:7:4:4:0:Angwil
 
+# Sunken R'lyeh
+W:F:R:2:90:5:0:Wilderness
+
 # Town 5
-W:F:5:2:90:5:0:Wilderness
+W:F:5:1:0:5:0:Zul
 
 # Grassland with road east-west-south
-W:F:-:6:3:0:14
+W:F:-:6:3:0:12
 
 # Grassland with road north-south
 W:F:|:6:3:0:3
 
 # Wilderness layout
-W:D:##########
-W:D:#GGGGMVMM#
-W:D:#GGG3GGMM#
-W:D:#GGG|GGGG#
-W:D:#GGG1-2GG#
-W:D:#GGDD|DGG#
-W:D:#WSFF4FFS#
-W:D:#WWSSSSSS#
-W:D:#WWWW5WWW#
-W:D:##########
+W:D:###################
+W:D:#....&^^^^^^TTTTTT#
+W:D:#.....5^^^^^3T.TT,#
+W:D:#...........|....,#
+W:D:#...1-------2...,,#
+W:D:#..,,,,.....|...,,#
+W:D:#=_TTTTT_..T|.T,,,#
+W:D:#==______T.T4TTT,,#
+W:D:#====R====TTTTTTTT#
+W:D:#===========_.TTTT#
+W:D:#_==========_..TTT#
+W:D:#_____======_...TT#
+W:D:#^^.....======.TTT#
+W:D:#^^^.....======.TT#
+W:D:#^^^^&&.,,,,======#
+W:D:###################
 
 # Starting position
 W:P:4:4
 
-?:[IOR [EQU $WILDERNESS NONE] [EQU $WILDERNESS LITE] ]
+?:[EQU $WILDERNESS NONE]
 
 # Edge of the world
 W:F:#:0

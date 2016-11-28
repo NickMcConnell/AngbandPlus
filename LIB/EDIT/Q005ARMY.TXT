@@ -1,0 +1,67 @@
+# q005army.txt
+# by DarkGod
+
+# Name
+Q:39:N:The Battle of the Five Armies
+
+# Definition
+Q:39:Q:4:0:0:0:60:0:0:2
+
+# Description for quest
+?:[LEQ $QUEST39 2]
+Q:39:T:Now the things are becoming very serious. Near the Lonely Mountain,
+Q:39:T:a large conflict is brewing between the Alliance armies and the
+Q:39:T:minions of Morgoth. We'll send you here to investigate and report
+Q:39:T:to us - if you find a way to escape from the battlefield...
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST39 3]
+Q:39:T:Great, you have proved yourself as a hero!
+Q:39:T:You will be rewarded. Thanks again.
+?:1
+
+# Floor with Hill Orc
+F:o:1:8:Hill Orc
+
+# Floor with Warg
+F:w:1:8:Warg
+
+# Floor with Human warrior
+F:h:1:8:Human warrior
+
+# Floor with Elven Archer
+F:e:1:8:Elven Archer
+
+# Floor with Dwarven Warrior
+F:d:1:8:Dwarven Warrior
+
+# Floor with tree
+F:T:96:3
+
+# Quest exit
+F:<:9:8
+
+# Dungeon
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<oooo  w       o o    w eeeeeedddddddddd     w    X
+D:Xoooo     w       oeeeeee w     ddddddddddT  w www X
+D:Xoooo T        Teeeew      w       Tdddddddd    w  X
+D:Xooo      w o  o  w  o  T     w          eee  h   ^X
+D:Xo      w            o   oooooo w      eee  hh  ^^^X
+D:X    w     dT  w   o     ooooo        e hh h   ^^^^X
+D:X  T     ddodwd  o    ooo oToo  w  T e hhhh    ^^^^X
+D:X     o dddddddo    Tooo ooooo      eeh      ^^^^^^X
+D:X    w   ddddwd   w  oooo oooo w  ee h   ^^^^^^^^^^X
+D:X   o    oddd  w  oooo oTo    w  ehhh   ^^^^^^^^^^^X
+D:X       T     Toooooooo    w    ehh    ^^^^^^^^^^^^X
+D:X  o  w o owo wwww  w  ww      e h      ^^^^^^^^^^^X
+D:X  oedddddddeeeohhhhT        Tehhh    ^^^^^^^^^^^^^X
+D:X    o w w T w  o eeeeeeeeeeeeeh    ^^^^^^^^^^^^^^^X
+D:X   w    w  w w  ehhhhhhhhhhhhhh   ^^^^^^^^^^^^^^^^X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:10:39
+

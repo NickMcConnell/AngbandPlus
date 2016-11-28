@@ -1,23 +1,23 @@
 # q000eric.txt
 
 # Name
-Q:15:N:Eric's Stronghold
+Q:15:N:Klingsor's Stronghold
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:15:Q:1:0:0:1:70:813:0:2
+Q:15:Q:1:0:0:1:70:826:0:2
 
 # Description for quest
 ?:[LEQ $QUEST15 2]
-Q:15:T:When Oberon, the rightful ruler of Amber, disappeared, Eric 
-Q:15:T:did not waste much time making his claim for the throne.
-Q:15:T:Eric is waiting for his own coronation in a secure stronghold.
-Q:15:T:You must eliminate him before he is crowned, or other Amberites
-Q:15:T:may feel to obliged to obey him -- and he'll be invincible!
+Q:15:T:Klingsor, the evil master of magic, stole the holy Spear of Destiny
+Q:15:T:and hid it in a faraway castle.  It is your task to defeat him and
+Q:15:T:recover the spear - it would help us greatly in our struggle against
+Q:15:T:Morgoth
 ?:1
 
 # Description for quest reward
 ?:[EQU $QUEST15 3]
-Q:15:T:You have done well. Please accept this reward.
+Q:15:T:You have done well. Please accept this reward. You may also keep
+Q:15:T:the spear.
 ?:1
 
 # Deep water
@@ -29,32 +29,32 @@ F:T:96
 # Normal wall
 F:#:56
 
-# Floor + black knight 
-F:a:1:8:442
+# Floor + skeleton
+F:a:1:8:Skeleton human
 
 # Floor + ninja
-F:b:1:8:485
+F:b:1:8:Ninja
 
-# Floor + Logrus master
-F:c:1:8:498
+# Floor + demonologist
+F:c:1:8:Demonologist
 
 # Floor + death knight
-F:d:1:8:597
+F:d:1:8:Death Knight
 
-# Floor + enchantress
-F:e:1:8:636
+# Floor + necromancer
+F:e:1:8:Necromancer
 
 # Floor + sorcerer
-F:f:1:8:638
+F:f:1:8:Sorcerer
 
-# Floor + ultra-elite paladin
-F:g:1:8:699
+# Floor + Anti-paladin
+F:g:1:8:Anti-paladin
 
-# Floor + Lord of Chaos
-F:h:1:8:737
+# Floor + grey wraith
+F:h:1:8:Grey wraith
 
-# Floor + Eric + item
-F:E:1:8:813:*
+# Floor + Klingsor + item
+F:E:1:8:Klingsor:*
 
 # Trap
 F:^:1:8:0:0:0:0:*
@@ -62,7 +62,7 @@ F:^:1:8:0:0:0:0:*
 # Trap or OOD item
 F:$:1:8:0:*10:0:0:*
 
-# Eric's stronghold
+# Klingor's stronghold
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTX
 D:XTTTTTTTTTTT...........T..TT.TTTTTTTTTTTTTTTTTTTTTTTTT.TTT...........TTTTX
@@ -94,3 +94,4 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Starting position
 P:5:5
+
