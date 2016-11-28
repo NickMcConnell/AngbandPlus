@@ -1,89 +1,41 @@
-=== Zangband History and Information ===
+=== GSNband History and Information ===
 
-The seeds of Zangband lie in an obsolete and long ago vanished PC variant
-(somewhat misleadingly) dubbed Angband--. The variant was written by a
-hopeless Angband addict (previously Moria veteran and winner) who got 
-bored with the standard monsters and wanted to introduce some new 
-monsters. Angband-- was based on the PC Angband 1.31 sources, and 
-it was set in Roger Zelazny's 'Amber' universe.
+GSNband was written by an amateur programmer from Poland by the name
+of Gwidon S. Naskrent (hence the variant's name).  It incorporates
+several inventions found in other Angband variants (the full list is
+in the gsn_read.txt file).  It has also severed ties with the world
+of Amber (as I have not, unfortunately, read Zelazny's books) and returned
+to killing Morgoth and similar boring Tolkienesque stuff ;)
 
-Later this individual got a better computer and learned to code, and 
-produced the PC Zangband, and most Angband-- monsters survived into
-PC Zangband 1.0. PC Zangband 1.0 was the first PC Angband to introduce
-(simple, font-based) graphics, which were also used in the graphical
-PC Angband 1.40. 
-
-Yet this individual was still not cured of his addiction... his almost
-as strong addiction to the Civilization style fantasy strategy game 
-'Master of Magic' inspired him to write a new magic system. The current
-version of Zangband (2.*) incorporates this magic system, as well as
-the best features from Angband-- and PC Zangband 1.0. It is based on
-the Angband 2.8.1 sources (by Ben Harrison), and is therefore portable
-to other systems (unlike the earlier versions which were for dos-pc's
-only).
-
-Incidentally, this person (me, Topi Ylinen) also thought that the 
-standard Angband monsters were too easy, which led him to introduce
-such monsters as Death swords, Cyberdemons and Great wyrms of power...
-
-ZAngband 2.1.0c was Topi's last version, he has got a job and and
-doesn't have enough time anymore to continue work on ZAngband.
-He asked for a new maintainer and I was the one to take over the task.
-May I introduce myself, my name is Robert Ruehlmann, I'm the creator
-of the graphical Angband versions for DOS and webmaster of
-"Thangorodrim - The Angband Page" ("http://thangorodrim.angband.org").
-
-Special thanks -- The current version of Zangband might not have come into
-existence without the significant help from these excellent Angband
-programmers:
+Special thanks -- The current version of GSNband might not have come into
+existence without the significant inspiration and help from these excellent
+Angband programmers and players:
 
         Ben Harrison, for obvious reasons.
 
-        Greg Wooledge, who pointed out a bug in the dos compiler,
-        which was preventing my progress with the first 2.* version
-        of Zangband and for various patches.
+        Juriaan Kalkman, Julian Lighton, Leon Marrick and Ivan I. Tkatchev,
+        for ideas which I borrowed from A/64, S, O and Kam, their respective
+        variants.
 
-        Julian Lighton, who must have sent me more ideas, patches, and
-        bug reports, than all the others toghether.
+        DarkGod, Divia, Rylen Dreskin, Sadi Khan, Larry Owens and David Spake, 
+	for reporting some bugs.
 
-        Robert Ruehlmann, whose nice new main-dos.c enables SVGA
-        graphics and even windows in ms-dos.
+        Sadi Khan, Larry Owens and Chris Weisiger, for correcting old
+        ideas and submitting new ones.
 
-        Paul Sexton, who is responsible for about 50% of the new code
-        in 2.1.0.
+        Once more to Chris Weisiger for his interesting vaults and 
+	helpful TANG.
+	
+	Jon D. Boehnker for the whisper/yell patch.
 
-        Heino Vander Sanden, who created the quest-code and
-        Dean Anderson, whose patch showed me the quickest way to
-        implement the quests.
-
-        Adam Bolt, who created the new ZAngband tiles.
-
-        Scott Bigham, for the S-Lang patch.
-
-        Jeff Duprey for the new mutations.	
-
-        John Duffin and Leigh Silas Hanrihan for the new items.
-
-        Marten Woxberg for many new ideas.
-
-        Ken Wigle for allowing me to include his town and quest code.
-
-	Tim Baker for many patches and bugfixes and for ZAngbandTk.
-
-        Topi Ylinen, Mark Howson, Adam Horowitz, Oscar Nelson and
-        all the other regular members of the #angband chat channel
-        for giving me lots of new ideas and being good friends.
-
-        Benny S. Hofmann, Aram Harrow, Greg Harvey, Keldon Jones,
-        Graham Murray, Remco Gerlich, Tim Baker, Oscar Nelson,
-        Adam Horowitz, David A. Henry, "Strikes", Chris Hadgis,
-        David Howdon, Jenni Henzel, Stephen Lee, "John",
-        Juergen Neitzel, Gwidon S. Naskrent, Eric Wright, Bob Martin,
-        Jeff Coleburn, Ethan Sicotte, Brandon Walker, Kelly Trinh,
-        Brian Graham, James W. Sager III, John Holton, Larry Bassel,
-	Markus Linnala, Musus Umbra, Mike Hommel, Christopher Stranczek,
-        Werner Baer, Andreas Koch, Jon Boehnker and many others for
-        bugreports, patches, bugfixes, and ideas.
+	Tomasz Zawalski, for creating S/RPM packages for RedHat Linux.
+	
+	Bablos, Alexey Guzeev, Prffnof and Darin Takemoto for porting 
+	GSNband to the Amiga, Macs and OS/2.
+	
+        All the readers of rec.games.roguelike.angband, not excluding
+	those already mentioned above :), for lots of ideas and hints
+	which were never fully considered because of lack of coding time.
 
 === Brief Version History (of standard Angband) ===
 
@@ -287,7 +239,7 @@ early days of Moria.
 First of all, yes, I really am the Robert Koeneke who wrote the first
 Moria.  I had a lot of mail accussing me of pulling their leg and
 such.  I just recently connected to Internet (yes, I work for a
-company in the dark ages where Internet is concerned) and 
+company in the dark ages where Internet is concerned) and
 was real surprised to find Moria in the news groups...  Angband was an
 even bigger surprise, since I have never seen it.  I probably spoke to
 its originator though...  I have given permission to lots of people
@@ -451,7 +403,7 @@ Copyright (c) 1989 James E. Wilson, Robert A. Keoneke
 
 Umoria Version 5.2, patch level 1
 
-Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, 
+Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill,
                       Charles Teague.
 
 Angband Version 2.4   :  5/09/93

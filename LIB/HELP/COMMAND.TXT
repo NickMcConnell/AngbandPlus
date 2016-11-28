@@ -7,27 +7,29 @@ plus a variety of optional or required arguments.  You may choose how the
 two standard "keysets", the "original" keyset or the "roguelike" keyset.
 
     The original keyset is very similar to the "underlying" command set,
-with a few additions (such as the ability to use the numeric "directions" to
-"walk" or the "5" key to "stay still").  The roguelike keyset provides similar
-additions, and also allows the use of the h/j/k/l/y/u/b/n keys to "walk" (or,
-in combination with the shift or control keys, to run or tunnel), which thus
-requires a variety of key mappings to allow access to the underlying commands
-used for walking/running/tunneling.  In particular, the "roguelike" keyset
-includes many more "capital" and "control" keys, as shown below.
+with a few additions (such as the ability to use the numeric "directions"
+to "walk" or the "5" key to "stay still"). The roguelike keyset provides
+similar additions, and also allows the use of the h/j/k/l/y/u/b/n keys to
+"walk" (or, in combination with the shift or control keys, to run or
+tunnel), which thus requires a variety of key mappings to allow access to
+the underlying commands used for walking/running/tunneling. In particular,
+the "roguelike" keyset includes many more "capital" and "control" keys, as
+shown below.
 
     Note that any keys that are not required for access to the underlying
 command set may be used by the user as "command macro" triggers (see below).
-You may always specify any "underlying command" directly by pressing backslash
-("\") plus the "underlying command" key.  This is normally only used in "macro"
-definitions.  You may often enter "control-keys" as a caret ("^") plus the key
-(so "^" + "p" often yields "^P").
+You may always specify any "underlying command" directly by pressing
+backslash ("\") plus the "underlying command" key. This is normally only
+used in "macro" definitions. You may often enter "control-keys" as a caret
+("^") plus the key (so "^" + "p" often yields "^P").
 
     Some commands allow an optional "repeat count", which allows you to tell
 the game that you wish to do the command multiple times, unless you press a
-key or are otherwise disturbed.  To enter a "repeat count", type '0', followed
-by the numerical count, followed by the command.  You must type "space" before
-entering certain commands.  Skipping the numerical count yields a count of 99.
-An option allows certain commands (open, disarm, tunnel, etc) to auto-repeat.
+key or are otherwise disturbed. To enter a "repeat count", type '0',
+followed by the numerical count, followed by the command. You must type
+"space" before entering certain commands. Skipping the numerical count
+yields a count of 99. An option allows certain commands (open, disarm,
+tunnel, etc) to auto-repeat.
 
     Some commands will prompt for extra information, such as a direction, an
 inventory or equipment item, a spell, a textual inscription, the symbol of a
@@ -36,15 +38,16 @@ a file name, or various other things.  Normally you can hit return to choose
 the "default" response, or escape to cancel the command entirely.
 
     Some commands will prompt for a spell or an inventory item.  Pressing
-space (or '*') will give you a list of choices.  Pressing "-" (minus) selects
-the item on the floor.  Pressing a lowercase letter selects the given item.
-Pressing a capital letter selects the given item after verification.  Pressing
-a numeric digit '#' selects the first item (if any) whose inscription contains
-"@#" or "@x#", where "x" is the current "underlying command".  You may only
-specify items which are "legal" for the command.  Whenever an item inscription
-contains "!*" or "!x" (with "x" as above) you must verify its selection.
+space (or '?') will give you a list of choices. Pressing "-" (minus) selects
+the item on the floor. Pressing a lowercase letter selects the given item.
+Pressing a capital letter selects the given item after verification.
+Pressing a numeric digit '#' selects the first item (if any) whose
+inscription contains "@#" or "@x#", where "x" is the current "underlying
+command". You may only specify items which are "legal" for the command.
+Whenever an item inscription contains "!*" or "!x" (with "x" as above) you
+must verify its selection.
 
-    In Zangband, there are items which occasionally teleport you away, asking
+    In GSNband, there are items which occasionally teleport you away, asking
 for permission first. The recurring "Teleport (y/n)?" can be annoying, and
 this behavior can be eliminated by inscribing the object which causes the
 teleportation with "." (or any inscription containing the character ".").
@@ -64,25 +67,26 @@ that you wish to select a new target, by pressing "*" (see "Target" below).
                  4     6                           h     l
                  1  2  3                           b  j  n
 
-    Each of the standard keysets provides some short-cuts over the "underlying
-commands".  For example, both keysets allow you to "walk" by simply pressing
-an "original" direction key (or a "roguelike" direction key if you are using
-the roguelike keyset), instead of using the "walk" command plus a direction.
-The roguelike keyset allows you to "run" or "tunnel" by simply holding the
-shift or control modifier key down while pressing a "roguelike" direction key,
-instead of using the "run" or "tunnel" command plus a direction.  Both keysets
-allow the use of the "5" key to "stand still", which is most convenient when
-using the original keyset.
+    Each of the standard keysets provides some short-cuts over the
+"underlying commands". For example, both keysets allow you to "walk" by
+simply pressing an "original" direction key (or a "roguelike" direction key
+if you are using the roguelike keyset), instead of using the "walk" command
+plus a direction. The roguelike keyset allows you to "run" or "tunnel" by
+simply holding the shift or control modifier key down while pressing a
+"roguelike" direction key, instead of using the "run" or "tunnel" command
+plus a direction. Both keysets allow the use of the "5" key to "stand
+still", which is most convenient when using the original keyset.
 
     Note that on many systems, it is possible to define "macros" (or "command
-macros") to various keys, or key combinations, so that it is often possible to
-make macros which, for example, allow the use of the shift or control modifier
-keys, plus a numeric keypad key, to specify the "run" or "tunnel" command, with
-the given direction, regardless of any keymap definitions, by using the fact
-that you can always, for example, use "\" + "." + "6", to specify "run east".
+macros") to various keys, or key combinations, so that it is often possible
+to make macros which, for example, allow the use of the shift or control
+modifier keys, plus a numeric keypad key, to specify the "run" or "tunnel"
+command, with the given direction, regardless of any keymap definitions, by
+using the fact that you can always, for example, use "\" + "." + "6", to
+specify "run east".
 
 
-=== Original Keyset Command Summary (2.7.9) ===
+=== Original Keyset Command Summary ===
 
  a  Aim a wand                           A  Activate an artifact
  b  Browse a book                        B  Bash a door
@@ -96,17 +100,17 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  j  Jam a door                           J  (unused)
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
- m  Cast a spell / use mental power      M  Full dungeon map
+ m  Cast a spell / use mental powers     M  Full dungeon map
  n  (unused)                             N  (unused)
- o  Open a door or chest                 O  (unused)
- p  Command your pets                    P  (unused)
+ o  Open a door or chest                 O  Display god info
+ p  Pray to your god                     P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
  t  Take off equipment                   T  Dig a tunnel
  u  Use a staff                          U  Use bonus power (if any)
  v  Throw an item                        V  Version info
- w  Wear/wield equipment                 W  (unused)
+ w  Wear/wield equipment                 W  Worship a god on the altar
  x  (unused)                             X  (unused)
  y  (unused)                             Y  (unused)
  z  Zap a rod                            Z  (unused)
@@ -126,7 +130,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  ]  (unused)                            ^N  (unused)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  Quit to next midi song
+ +  Alter grid (steal for Rogues)       ^Q  Quit to next midi song
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
  :  Take notes                          ^T  (unused)
@@ -142,7 +146,9 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
 
 
 
-===  Roguelike Keyset Command Summary (2.7.9) ===
+===  Roguelike Keyset Command Summary ===
+
+[note: several commands listed above are missing here]
 
  a  Zap a rod (Activate)                 A  Activate an artifact
  b  (walk - south west)                  B  (run - south west)
@@ -156,10 +162,10 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  j  (walk - south)                       J  (run - south)
  k  (walk - north)                       K  (run - north)
  l  (walk - east)                        L  (run - east)
- m  Spell casting / mental power         M  Full dungeon map
+ m  Spell casting / mental powers        M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  Use bonus power (if any)
- p  Command your pets                    P  Browse a book
+ p  Pray to your deity                   P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Jam a door (Spike)
@@ -176,7 +182,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  $  (unused)                            ^D  Destroy item
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  Interact with colors                ^G  (unused)
+ &  Interact with colors                ^G  God worshipping
  *  Target monster or location          ^H  (tunnel - west)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (tunnel - south)
@@ -184,9 +190,9 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  }  Uninscribe an object                ^L  (tunnel - east)
  [  (unused)                            ^M  (tunnel - south)
  ]  (unused)                            ^N  (tunnel - south east)
- -  Walk (flip pickup)                  ^O  (unused)
+ -  Walk (flip pickup)                  ^O  Display god info
  _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  Quit to next midi song
+ +  Alter grid (steal for Rogues        ^Q  Quit to next midi song
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
  :  Take notes                          ^T  Dig a Tunnel
@@ -203,20 +209,20 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
 
 
 === Special Keys ===
- 
+
         Certain special keys may be intercepted by the operating system or
 the host machine, causing unexpected results.  In general, these special keys
 are control keys, and often, you can disable their special effects.
 
         If you are playing on a UNIX or similar system, then Ctrl-C will
-interrupt Angband.  The second and third interrupt will induce a warning
+interrupt GSNband.  The second and third interrupt will induce a warning
 bell, and the fourth will induce both a warning bell and a special message,
 since the fifth will quit the game, after killing your character.  Also,
 Ctrl-Z will suspend the game, and return you to the original command shell,
 until you resume the game with the "fg" command.  There is now a compilation
 option to force the game to prevent the "double ctrl-z escape death trick".
 The Ctrl-\ and Ctrl-D and Ctrl-S keys should not be intercepted.
- 
+
         It is often possible to specify "control-keys" without actually
 pressing the control key, by typing a caret ("^") followed by the key.
 This is useful for specifying control-key commands which might be caught
@@ -226,10 +232,10 @@ by the operating system as explained above.
 and the next keypress will be interpreted as an "underlying command" key,
 unless it is a caret ("^"), in which case the keypress after that will be
 turned into a control-key and interpreted as a command in the underlying
-angband keyset.  The backslash key is useful for creating macro actions
-which are not affected by any keymap definitions that may be in force, for
-example, the sequence "\" + "." + "6" will always mean "run east", even if
-the "." key has been mapped to a different underlying command.
+keyset.  The backslash key is useful for creating macro actions which are
+not affected by any keymap definitions that may be in force, for example,
+the sequence "\" + "." + "6" will always mean "run east", even if the "."
+key has been mapped to a different underlying command.
 
         The "0" and "^" and "\" keys all have special meaning when entered
 at the command prompt, and there is no "useful" way to specify any of them
@@ -240,10 +246,10 @@ will abort the command.  The "[y/n]" prompts may be answered with "y" or
 "n", or escape.  The "-more-" message prompts may be cleared (after reading
 the displayed message) by pressing ESCAPE, SPACE, RETURN, LINEFEED, or by
 any keypress, if the "quick_messages" option is turned on.
- 
+
 
 ===  Command Counts ===
- 
+
         Some commands can be executed a fixed number of times by preceding
 them with a count.  Counted commands will execute until the count expires,
 until you type any character, or until something significant happens, such
@@ -255,7 +261,7 @@ to be repeated will flash by on the line at the bottom of the screen.
 the command.  If you want to give a movement command and you are using the
 original command set (where the movement commands are digits), press space
 after the count and you will be prompted for the command.
- 
+
         Counted commands are very useful for searching or tunneling, as
 they automatically terminate on success, or if you are attacked.  You may
 also terminate any counted command (or resting or running), by typing any
@@ -266,10 +272,10 @@ just after the count expires.
         You can tell Angband to automatically use a repeat count of 99
 with commands you normally want to repeat (open, disarm, tunnel, bash,
 alter, etc) by setting the "always_repeat" option.
- 
- 
+
+
 ===  Selection of Objects ===
- 
+
         Many commands will also prompt for a particular object to be used.
 For example, the command to read a scroll will ask you which of the
 scrolls that you are carrying that you wish to read.  In such cases, the
@@ -281,7 +287,7 @@ windows environment and windows are turned on.  Often you will be able to
 press "/" to select an object from your equipment instead of your
 inventory.  Pressing space once will have the same effect as "*", and
 the second time will cancel the command and run the "i" or "e" command.
- 
+
         The particular object may be selected by an upper case or a lower
 case letter.  If lower case is used, the selection takes place
 immediately.  If upper case is used, then the particular option is
@@ -392,7 +398,7 @@ For example, a macro which maps Shift-KP6 to "\" + "." + "6" will induce
 the "run east" behavior, regardless of what keyset the user has chosen, and
 regardless of what keymaps have been defined.
 
-	Macros can be specified in user pref files as a pair of lines, one
+        Macros can be specified in user pref files as a pair of lines, one
 of the form "A:<str>", which defines the encoded macro action, and one of
 the form "P:<str>", which defines the encoded macro trigger.
 
@@ -409,9 +415,9 @@ keysets.  The original keyset is almost identical to the underlying keyset,
 except that "numbers" are mapped to ";" plus a direction, "5" is mapped to
 ",", and a few control-keys are mapped to various things.  See "command.txt"
 for the full set of underlying commands.  Some uses for keymaps include the
-ability to "disable" a command by mapping it to "\x00", 
+ability to "disable" a command by mapping it to "\x00",
 
-	Keymaps can be specified in user pref files as line of the form
+        Keymaps can be specified in user pref files as line of the form
 "M:<T> <key> <str>", where <T> is the keyset (0/1 for original/roguelike),
 <key> is the encoded trigger key, and <str> is the encoded keymap action.
 
@@ -435,7 +441,7 @@ and your system supports the "use_graphics" flag.
         Note that this command can be abused in various ways, and if you
 must do so, remember that you are only cheating yourself.
 
-	Keymaps can be specified in user pref files as line of the form
+        Keymaps can be specified in user pref files as line of the form
 "R:<N>:<A>/<C>" or "K:<N>:<A>/<C>" or "F:<N>:<A>/<C>" or "U:<N>:<A>/<C>".
 
 --- User Pref Files (Colors) ---
@@ -447,7 +453,7 @@ change the actual RGB values used to represent each of the 16 colors used
 by Angband, and perhaps even allow you to define new colors which are not
 currently used by Angband.
 
-	Colors can be specified in user pref files as line of the form
+        Colors can be specified in user pref files as line of the form
 "V:<N>:<V>:<R>:<G>:<B>".
 
 --- User Pref Files (Options) ---
@@ -456,7 +462,7 @@ currently used by Angband.
 on or off.  You may turn options off or on using the user pref commands
 of the form "X:<option>" or "Y:<option>" respectively.
 
- 
+
 ===  Command Descriptions ===
 
         The following command descriptions are listed as the command name
@@ -483,7 +489,7 @@ Inventory list (i)
         to set options to allow wands, staves, and other such objects to
         stack.  Each object has a weight, and if you carry more objects
         than your strength permits, you will begin to slow down.
- 
+
 Equipment list (e)
         Use this command to display a list of the objects currently being
         used by your character.  Your character has 12 slots for equipment,
@@ -686,16 +692,35 @@ Alter (+)
         "alter the terrain feature of an adjacent grid" command.  Alter
         can take a count, requires a direction, and is affected by the
         "always_repeat" option.
+        
+        If you play a Rogue, this command has a special meaning: it allows
+        you to steal gold from monsters. Only humanoids (except townfolk)
+        and dragons are worth stealing from, though; the number of thefts
+        you can commit with impunity depends on your level. High dexterity
+        and stealth help too.
+
+Command your pets (P)
+        If you have pets then this command allows you to give orders
+        to them. You can call them to you, send them out to kill other
+        monsters, dismiss them, and allow/dissallow opening doors and
+        picking up items. Your pets will drop all picked up items when you
+        disallow them to pick up anything.
+	
+	The pet commands employ a concept of the "invisible leash".
+	Normally the leash is 6 squares long, which means pet monsters 
+	will not stay behind you more than this amount. The "call pets"
+	command sets the leash to 1 square. The "seek and destroy"
+	command unbinds the leash (monsters are free to wander away).
 
 ---  Spell and Prayer Commands ---
 
-Browse a book (b) or Peruse a book (P)
-        Only mages, rogues, and rangers can read magic books, and only
-        priests and paladins can read prayer books.  Warriors cannot read
-        any books.  When this command is used, all of the spells or prayers
-        contained in the selected book are displayed, along with information
-        such as their level, the amount of mana required to cast them, and
-        whether or not you know the spell or prayer.
+Browse a book (b)
+	When this command is used, all of the spells or prayers contained 
+	in the selected book are displayed, along with information such as 
+	their level, the amount of mana required to cast them, and whether 
+	or not you know the spell or prayer. You can only browse the
+	books of the magic you specialize in, or none if you don't use
+	magic.
 
 Gain new spells or prayers (G)
         Use this command to actually learn new spells or prayers.  When you
@@ -718,15 +743,68 @@ Cast a spell / Pray a prayer (m)
         spell from a book, you cannot be blind or confused while casting,
         and there must be some light present.
 
-        To pray effectively, you must have previously learned the prayer
-        and must have in your inventory a book from which the prayer can
-        be read.  Each prayer has a chance of being ignored which starts
+        To cast a prayer effectively, you must have previously learned the 
+	prayer and must have in your inventory a book from which the prayer 
+	can be read.  Each prayer has a chance of being ignored which starts
         out fairly large but decreases as you gain levels.  If you don't
         have enough mana to cast a spell, you will be prompted for
         confirmation.  If you decide to go ahead, the chance of failure
-        is greatly increased, and you may lose a point of constitution.
+        is greatly increased, and you may lose a point of wisdom.
         Since you must read the prayer from a book, you cannot be blind
         or confused while praying, and there must be some light present.
+
+Display god info (O)
+        Shows you whom you worship, how good is your standing with him/
+        her, and how impatient the deity is.
+
+Sacrifice to your god (W)
+        There are altars scattered around the dungeon (sometimes even
+        several on the same level) which belong to some particular deity.
+        There are sixteen minor gods and goddesses, four major and elder
+        gods, and two supreme gods of being and unbeing, so 26 in total.
+        Altars of the greater gods only occur deeper in the dungeon.
+
+        You can declare your allegiance to a deity by offering him/her
+        something. Try to offer the more worthy items - each item has a
+        value assigned, which is added to the 'grace counter'. This
+        counter is decreased by some amount (depending on the particular
+        deity - evil ones are more impatient), and when it reaches -5000,
+        your deity starts worrying. They will remind you occasionally
+        about your neglected duties, and may eventually get pissed off
+        with you and punish you with a display of divine wrath. If that
+        does not persuade you to cooperate, though, they have a much
+        more powerful arsenal of means to wreck you life than you
+        expected. So don't annoy them for too long...
+
+        Deities will also do something similar to 'crowning', if you offer
+        anything really valuable, such as an artifact. They will give you
+        gifts depending on their nature - for example a deity of war could
+        increase your qualities as a warrior, while a deity of wind could
+        make you faster. The crowning is not pernament - if you do not
+        keep your grace on a high enough level, the effect will disappear.
+        Some gods have a few different levels of crowning.
+
+        Priests and paladins start alleged to a random minor god. They also
+        have some credit grace to start with.
+        
+Pray to your god (p)
+        If you think you have achieved a high enough standing with your
+        deity (for example by sacrificing a valuable item), you can pray
+        to ask them for favours. What your deity will deign to do is rather
+        random, but good luck helps to shift odds towards the more pernament
+        rewards (like stat raising).
+        
+        If you're unlucky, or if you have angered your deity by neglecting
+        to sacrifice, you'll get a warning, or even a mildly nasty effect
+        (like summoning a slightly out of depth monster). Continued attempts
+        to pray could make matters only worse, so beware! Your 'praying
+        timeout' is increased by 1 every turn. Each praying attempt
+        decreases it by 25000, so this is the minimum turn interval at which
+        praying will be effective.
+        
+        Praying is also influenced by your grace. Priests and paladins
+        might be more succesful with communicating with a deity (on the
+        average twice or half as much).
 
 ---  Object Manipulation Commands ---
 
@@ -748,7 +826,7 @@ Fuel your lantern/torch (F)
 
 Quaff a potion (q)
         Use this command to drink a potion.  Potions affect the player in
-        various ways, but the effects are not always immediately obvious. 
+        various ways, but the effects are not always immediately obvious.
 
 Read a scroll (r)
         Use this command to read a scroll.  Scroll spells usually have an
@@ -757,8 +835,8 @@ Read a scroll (r)
         takes effect.  Most scrolls which prompt for more information can be
         aborted (by pressing escape), which will stop reading the scroll
         before it disintegrates.
- 
-Inscribe an object ({) 
+
+Inscribe an object ({)
         This command inscribes a string on an object.  The inscription is
         displayed inside curly braces after the object description.  The
         inscription is limited to the particular object (or pile) and is
@@ -807,7 +885,7 @@ Use a staff (u) or Zap a staff (Z)
         to a scroll, in that they normally either have an area effect or
         affect a specific object.  Staves are magical devices, and there
         is a chance you will not be able to figure out how to use them.
- 
+
 Zap a rod (z) or Activate a rod (a)
         Rods are extremely powerful magical items, which cannot be burnt
         or shattered, and which can have either staff-like or wand-like
@@ -885,7 +963,7 @@ Targeting Mode (*)
         can often improve the effects of that attack, since ball attacks are
         not stopped by interposed monsters if the ball is launched at a target.
         This command takes no time.
-        
+
 ---  Looking Commands ---
 
 Full screen map (M)
@@ -959,7 +1037,7 @@ Check Artifacts, Uniques and Objects (~ or |)
         find, has been lost forever.  The "preserve" mode will prevent
         you from accidentally losing any artifacts, but will also prevent
         you from ever getting a "special" level feeling.  This command can
-        only be used on the town level, not inside the dungeon.       
+        only be used on the town level, not inside the dungeon.
 
         Display known uniques
         Brings up a list of known unique monsters, plus their current
@@ -1013,11 +1091,11 @@ Interact with visuals (%)
 Interact with colors (&)
         Allow the user to interact with colors.  This command only
         works on some systems.
- 
+
 Interact with the system (!)
         Allow the user to interact with the underlying visual system.
         This command is currently unused.
- 
+
 --- Help ---
 
 Help (?)
@@ -1026,7 +1104,7 @@ Help (?)
         help files may be available on the Net.  In particular, there are
         a variety of spoiler files which do not come with the standard
         distribution.  Check the place you got Angband from or ask on the
-        newsgroup rec.games.roguelike.angband about them. 
+        newsgroup rec.games.roguelike.angband about them.
 
 Identify Symbol (/)
         Use this command to find out what a character stands for.  For
@@ -1050,7 +1128,7 @@ Identify Symbol (/)
         answer "k" to see the list sorted by number of kills, or "p" to
         see the list sorted by dungeon level the monster is normally found
         on.  Pressing ESCAPE at any point will exit this command.
- 
+
 Game Version (V)
         This command will tell you what version of Angband you are using.
         For more information, see the "version.txt" help file.
@@ -1058,7 +1136,7 @@ Game Version (V)
 
 --- Extra Commands ---
 
-Toggle Choice Window (^E) 
+Toggle Choice Window (^E)
         Toggles the display in the choice window (if available) between
         your inventory and your equipment.  This command only applies if
         you are running Angband under a windowing environment and the
@@ -1069,27 +1147,17 @@ Redraw Screen (^R)
         redraws all of the windows.  This command should be used after
         changing various global properties (options, attr/char mappings,
         color definitions, etc).  When in doubt, use it.
-        
+
 Load screen dump (left-paren)
         This command loads a "snap-shot" of the current screen from the file
         "dump.txt", and displays it on the screen.
-        
+
 Save screen dump (right-paren)
         This command dumps a "snap-shot" of the current screen to the file
         "dump.txt", including encoded color information.
 
-Command your pets (p)
-        If you have pets then this command allows you to give orders
-        to your pets. You can call them to you, send them out to kill other
-        monsters, dismiss them, and allow/dissallow opening of door and
-        picking up items. Your pets will drop all picked up items when you
-        disallow them to pick up anything.
 
--- 
+--
 Original: Alexander Cutler and Andy Astrand
 Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
 Updated (2.7.9): Ben Harrison (benh@phial.com)
-Updated for Zangband 2.2.* by Robert Ruehlmann
-
-Last update: January 11th, 1999
-

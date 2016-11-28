@@ -12,7 +12,7 @@ Q:18:Q:4:0:0:0:50:0:0:2
 ?:[LEQ $QUEST18 2]
 Q:18:T:A tunnel opening has recently been exposed on
 Q:18:T:the shore of our lake. Please investigate and
-Q:18:T:discover what is inside. Be careful! The
+Q:18:T:discover what is inside. Be carefull! The
 Q:18:T:tunnel entrance does not appear to be very
 Q:18:T:stable.
 ?:1
@@ -25,35 +25,35 @@ Q:18:T:gift that awaits you outside as an reward for your
 Q:18:T:help.
 ?:1
 
-# Shallow water with Portuguese man-o-war
-F:a:84:8:160
+# Shallow water with piranha
+F:a:84:8:Piranha
 
 # Shallow water with Ixitxachitl
-F:b:84:8:220
+F:b:84:8:Ixitxachitl
 
 # Shallow water with giant octopus
-F:c:84:8:266
+F:c:84:8:Giant octopus
 
 # Shallow water with hammerhead
-F:d:84:8:292
+F:d:84:8:Hammerhand
 
 # Shallow water with electric eel
-F:e:84:8:346
+F:e:84:8:Electric eel
 
 # Deep water with Great white shark
-F:f:83:8:386
+F:f:83:8:Great white shark
 
 # Deep water with Vampiric ixitxachitl
-F:g:83:8:406
+F:g:83:8:Vampiric ixitxachitl
 
 # Deep water with Giant squid
-F:h:83:8:482
+F:h:83:8:Giant squid
 
 # Deep water with Lesser kraken
-F:i:83:8:740
+F:i:83:8:Lesser kraken
 
 # Deep water with Greater kraken
-F:j:83:8:775
+F:j:83:8:Greater kraken
 
 # Steel Helm
 F:A:84:8:0:97

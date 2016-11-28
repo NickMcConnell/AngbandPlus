@@ -1,0 +1,43 @@
+
+# Name
+Q:14:N:Red dragon nest
+
+# Definition
+Q:14:Q:6:0:0:0:50:0:0:2
+
+# Description for quest
+?:[LEQ $QUEST14 2]
+Q:14:T:A family of red dragons has set up their home in the northeast
+Q:14:T:mountains. They have been swooping down on farms and feeding
+Q:14:T:on our livestock.
+Q:14:T:Please eliminate this threat and kill all the dragons.
+Q:14:T:Scouts have reported that the dragons are of ALL ages.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST14 3]
+Q:14:T:Thank you for killing the dragons! A small reward
+Q:14:T:awaits you outside.
+?:1
+
+F:a:1:8:Baby red dragon
+
+F:b:1:8:Young red dragon
+
+F:c:1:8:Mature red dragon
+
+F:d:1:8:Ancient red dragon
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.............................X
+D:X..a......a..b..a.............X
+D:X......a......................X
+D:X.........b...XXXXXXXXXXXXXXXXX
+D:X...a.........XX.............dX
+D:X.......b.....XX.XXcXcXcXcXcXcX
+D:X....a.....b.....XXTXTXTXTXTXTX
+D:X<............XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:8:1

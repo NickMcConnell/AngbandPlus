@@ -1,0 +1,49 @@
+
+# Name
+Q:13:N:Water Poisoning
+
+# Definition
+Q:13:Q:6:0:0:0:30:0:0:2
+
+# Description for quest
+?:[LEQ $QUEST13 2]
+Q:13:T:Water trolls are poisoning the lake outside the town. As this
+Q:13:T:is the primary source of water for our fair city, you can
+Q:13:T:see the dire consequences! Hurry and eliminate the trolls
+Q:13:T:so the water can return to a normal state naturally.
+Q:13:T:Be prepared, rumor has it there approximately 20 water trolls
+Q:13:T:at the lake, and a number of other trolls are assisting them
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST13 3]
+Q:13:T:Thank you for killing the trolls! A small reward
+Q:13:T:awaits you outside.
+?:1
+
+F:a:1:8:Water Troll
+
+# Floor with Troll Chief
+F:b:1:8:Ice Troll
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..............................a.........................................X
+D:X................................VVVV...a....a...........................X
+D:X................X...........a.VVVWWVVVV......VVVV.......................X
+D:X.............................VVWWWWWWWVVVV.VVVWWVV..a...................X
+D:X................X........a...VWWWWWWWWWWWVVVWWWWWVVV....a...............X
+D:X............................VVWWWWWWWWWWWWWWWWWWWWWVVV..................X
+D:X................X.........VVVWWWWWWWWWWWWWWWWWWWWWWWWVVV.a..............X
+D:X........................aVVWWWWWWb.......b....WWWWWWVV..................X
+D:X................X........VVWWWW......WW.....b..WWWWVV.a.................X
+D:X..........................VVVWWb....bWW.......WWVVVV....................X
+D:X................X........a..VVWWW........b..WWWWV...a...................X
+D:X.............................VVWWW..b....WWWWVVVV.......................X
+D:X................X..........a..VVWWWWWWWWWWWVVV...a......................X
+D:X................................VVWWWWWWWVVV.a..........................X
+D:X..<............................a..VVVVVVVV..............................X
+D:X....................................a.....a.............................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:15:3

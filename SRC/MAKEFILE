@@ -1,0 +1,323 @@
+# This is a make file for Vanilla 2.8.3 with and without the Borg,
+# for use with GCC and "Archimedes GNU Make 1.02", etc.
+
+
+OBJS = \
+o.birth o.bldg o.cave o.cmd1 o.cmd2 o.cmd3 o.cmd4 o.cmd5 \
+o.cmd6 o.dungeon o.files o.generate o.init1 o.init2 o.load1 \
+o.load2 o.main o.main-acn o.melee1 o.melee2 o.monster1 o.monster2 \
+o.monster3 o.object1 o.object2 o.save o.spells1 o.spells2 o.store \
+o.tables o.util o.variable o.wizard1 o.wizard2 o.xtra1 o.xtra2 o.xtra3 \
+o.z-form o.z-rand o.z-term o.z-util o.z-virt
+
+LIBS = DeskLib:o.DeskLib
+
+CC = gcc
+
+CCFLAGS = -mstubs -O2 -idirafter Desklib:
+
+# The normal (non-Borg) !RunImage:
+
+^.!RunImage:	$(OBJS) $(LIBS)
+		$(CC) $(CCFLAGS) -o ^.!RunImage $(OBJS) $(LIBS)
+
+
+# Dependencies (auto generated :)
+
+o.z-virt: c.z-virt h.z-virt h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define h.z-util h.h-basic
+	$(CC) $(CCFLAGS) -c -o o.z-virt c.z-virt
+
+o.z-util: c.z-util h.z-util h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define
+	$(CC) $(CCFLAGS) -c -o o.z-util c.z-util
+
+o.z-term: c.z-term h.z-term h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define h.z-virt h.h-basic
+	$(CC) $(CCFLAGS) -c -o o.z-term c.z-term
+
+o.z-rand: c.z-rand h.z-rand h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define
+	$(CC) $(CCFLAGS) -c -o o.z-rand c.z-rand
+
+o.z-form: c.z-form h.z-form h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+          h.h-basic
+	$(CC) $(CCFLAGS) -c -o o.z-form c.z-form
+
+o.xtra3: c.xtra3 h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.xtra3 c.xtra3
+
+o.xtra2: c.xtra2 h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.xtra2 c.xtra2
+
+o.xtra1: c.xtra1 h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.xtra1 c.xtra1
+
+o.wizard2: c.wizard2 h.angband h.h-basic h.h-config \
+           h.h-system h.h-type h.h-define h.z-util \
+           h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+           h.z-rand h.h-basic h.z-term h.h-basic h.config \
+           h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.wizard2 c.wizard2
+
+o.wizard1: c.wizard1 h.angband h.h-basic h.h-config \
+           h.h-system h.h-type h.h-define h.z-util \
+           h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+           h.z-rand h.h-basic h.z-term h.h-basic h.config \
+           h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.wizard1 c.wizard1
+
+o.variable: c.variable h.angband h.h-basic h.h-config \
+            h.h-system h.h-type h.h-define h.z-util \
+            h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+            h.z-rand h.h-basic h.z-term h.h-basic h.config \
+            h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.variable c.variable
+
+
+o.util: c.util h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.util c.util
+
+o.tables: c.tables h.angband h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+          h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+          h.z-term h.h-basic h.config h.defines h.types \
+          h.externs
+	$(CC) $(CCFLAGS) -c -o o.tables c.tables
+
+o.store: c.store h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.store c.store
+
+o.spells2: c.spells2 h.angband h.h-basic h.h-config \
+           h.h-system h.h-type h.h-define h.z-util \
+           h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+           h.z-rand h.h-basic h.z-term h.h-basic h.config \
+           h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.spells2 c.spells2
+
+o.spells1: c.spells1 h.angband h.h-basic h.h-config \
+           h.h-system h.h-type h.h-define h.z-util \
+           h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+           h.z-rand h.h-basic h.z-term h.h-basic h.config \
+           h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.spells1 c.spells1
+
+o.script: c.script h.angband
+        $(CC) $(CCFLAGS) -c -o o.script c.script
+
+o.save: c.save h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.save c.save
+
+o.object2: c.object2 h.angband h.h-basic h.h-config \
+           h.h-system h.h-type h.h-define h.z-util \
+           h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+           h.z-rand h.h-basic h.z-term h.h-basic h.config \
+           h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.object2 c.object2
+
+o.object1: c.object1 h.angband h.h-basic h.h-config \
+           h.h-system h.h-type h.h-define h.z-util \
+           h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+           h.z-rand h.h-basic h.z-term h.h-basic h.config \
+           h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.object1 c.object1
+
+o.monster3: c.monster3 h.angband h.h-basic h.h-config \
+            h.h-system h.h-type h.h-define h.z-util \
+            h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+            h.z-rand h.h-basic h.z-term h.h-basic h.config \
+            h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.monster3 c.monster3
+
+o.monster2: c.monster2 h.angband h.h-basic h.h-config \
+            h.h-system h.h-type h.h-define h.z-util \
+            h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+            h.z-rand h.h-basic h.z-term h.h-basic h.config \
+            h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.monster2 c.monster2
+
+o.monster1: c.monster1 h.angband h.h-basic h.h-config \
+            h.h-system h.h-type h.h-define h.z-util \
+            h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+            h.z-rand h.h-basic h.z-term h.h-basic h.config \
+            h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.monster1 c.monster1
+
+o.melee2: c.melee2 h.angband h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+          h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+          h.z-term h.h-basic h.config h.defines h.types \
+          h.externs
+	$(CC) $(CCFLAGS) -c -o o.melee2 c.melee2
+
+o.melee1: c.melee1 h.angband h.h-basic h.h-config h.h-system \
+          h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+          h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+          h.z-term h.h-basic h.config h.defines h.types \
+          h.externs
+	$(CC) $(CCFLAGS) -c -o o.melee1 c.melee1
+
+
+o.main-acn: c.main-acn h.!!Variant h.angband h.h-basic \
+            h.h-config h.h-system h.h-type h.h-define \
+            h.z-util h.h-basic h.z-virt h.h-basic h.z-form \
+            h.h-basic h.z-rand h.h-basic h.z-term h.h-basic \
+            h.config h.defines h.types h.externs Desklib:h.Event \
+            Desklib:h.Core Desklib:h.Wimp Desklib:h.EventMsg \
+            Desklib:h.Template Desklib:h.Sprite Desklib:h.Coord \
+            Desklib:h.LinkList Desklib:h.Window Desklib:h.WimpSWIs \
+            Desklib:h.Pointer Desklib:h.Core Desklib:h.Icon \
+            Desklib:h.DragASpr Desklib:h.Window Desklib:h.Handler \
+            Desklib:h.Screen Desklib:h.Menu Desklib:h.Msgs \
+            Desklib:h.Icon Desklib:h.Resource Desklib:h.SWI \
+            Desklib:h.Time Desklib:h.Sound Desklib:h.KeyCodes \
+            Desklib:h.Kbd Desklib:h.GFX Desklib:h.ColourTran \
+            Desklib:h.Error Desklib:h.Coord Desklib:h.Slider \
+            Desklib:h.WimpSWIs Desklib:h.Sprite Desklib:h.Hourglass
+	$(CC) $(CCFLAGS) -c -o o.main-acn c.main-acn
+
+o.main: c.main h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.main c.main
+
+o.load2: c.load2 h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.load2 c.load2
+
+o.load1: c.load1 h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.load1 c.load1
+
+o.init2: c.init2 h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.init2 c.init2
+
+o.init1: c.init1 h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.init1 c.init1
+
+o.generate: c.generate h.angband h.h-basic h.h-config \
+            h.h-system h.h-type h.h-define h.z-util \
+            h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+            h.z-rand h.h-basic h.z-term h.h-basic h.config \
+            h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.generate c.generate
+
+o.files: c.files h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.files c.files
+
+
+o.dungeon: c.dungeon h.angband h.h-basic h.h-config \
+           h.h-system h.h-type h.h-define h.z-util \
+           h.h-basic h.z-virt h.h-basic h.z-form h.h-basic \
+           h.z-rand h.h-basic h.z-term h.h-basic h.config \
+           h.defines h.types h.externs
+	$(CC) $(CCFLAGS) -c -o o.dungeon c.dungeon
+
+o.cmd6: c.cmd6 h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.cmd6 c.cmd6
+
+o.cmd5: c.cmd5 h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.cmd5 c.cmd5
+
+o.cmd4: c.cmd4 h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.cmd4 c.cmd4
+
+o.cmd3: c.cmd3 h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.cmd3 c.cmd3
+
+o.cmd2: c.cmd2 h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.cmd2 c.cmd2
+
+o.cmd1: c.cmd1 h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.cmd1 c.cmd1
+
+o.cave: c.cave h.angband h.h-basic h.h-config h.h-system \
+        h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+        h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+        h.z-term h.h-basic h.config h.defines h.types \
+        h.externs
+	$(CC) $(CCFLAGS) -c -o o.cave c.cave
+
+o.bldg: c.bldg h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.bldg c.bldg
+
+o.birth: c.birth h.angband h.h-basic h.h-config h.h-system \
+         h.h-type h.h-define h.z-util h.h-basic h.z-virt \
+         h.h-basic h.z-form h.h-basic h.z-rand h.h-basic \
+         h.z-term h.h-basic h.config h.defines h.types \
+         h.externs
+	$(CC) $(CCFLAGS) -c -o o.birth c.birth
+

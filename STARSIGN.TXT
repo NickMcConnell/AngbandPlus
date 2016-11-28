@@ -1,0 +1,38 @@
+ARIES - Leadership, strong will, enthusiasm, adventuring.
++2 STR. Maximum attack number increased by one.
+
+TAURUS - Stillness of mind, artistic creativity, business flair, materialism
++2 CON. Food is more nutritious and you cannot choke on it.
+
+GEMINI - Versatility, intelligence, communication skills, temperament
++2 CHR. Higher haggling tolerance in shops.
+
+CANCER - Tradition, inner strength, strong fantasies, living on past
++2 INT. Half damage from mind attacks (incl. effects of eldritch horrors)
+
+LEO - Ambition, self-gratification, lust for fame, dominating leadership
+Always minimum two attacks in melee. Badly treated pets may stay loyal
+(chance increasing with level)
+
+VIRGO - Workaholism, dexterity, manual skills, self-discipline, critical 
+        outlook
++2 DEX. Can carry more armour than others without being encumbered. 
+	
+LIBRA - Tolerance, adaptation, diplomatic skills, acute mind
++2 CHR. 20% more HP/SP if neutral. Can charm monsters even if aggravating.
+
+SCORPIO - Aggression, violent creativity, strong passions, acute perception
++10 perception. Sometimes gets vorpal hits as if with a vorpal weapon.
+
+SAGGITARIUS - Expansion, lack of limits, ethusiasm, idealism
++3 speed. Better saving throw against paralyzing attacks.
+
+CAPRICORNIUS - Pendatry, self-discipline, hard work, caution, organizing skills
++2 CON. Can carry twice as much stuff as others
+
+AQUARIUS - Friendship, freedom of mind, independence, imagination
++1 INT, CHR. Half damage from water spells.
+
+PISCES - Sacrifice, gratuitiousness, pity, grace.
++2 WIS. Better effects when praying. Less prone to the Curse of Topi Ylinen.
+

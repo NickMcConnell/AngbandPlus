@@ -52,8 +52,6 @@
 ?:[EQU $SYS acn]
 %:font-acn.prf
 
-?:[EQU $MONOCHROME ON]
-%:font-mon.prf
-
 ?:1
+
 

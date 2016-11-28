@@ -17,7 +17,7 @@
 ##### Force certain options #####
 
 ## # Option -- Default to original commands
-## X:rogue_like_commands
+X:rogue_like_commands
 
 ## # Option -- Default to roguelike commands
 ## Y:rogue_like_commands
@@ -218,6 +218,25 @@ C:1:O
 A:^t
 C:1:'
 
+# Hack - god info
+A:O
+C:1:^O
+
+# Hack - offering
+A:W
+C:1:^G
+
+# Hack - pet commands
+A:P
+C:1:^P
+
+# Hack - Whisper -JDB
+A:y
+C:1:[
+
+# Hack - Yell -JDB
+A:Y
+C:1:]
 
 ##### System Specific Subfiles #####
 

@@ -1,0 +1,131 @@
+
+Q: So what is that GSNband game I keep hearing about?
+
+A: GSNband is my own attempt to enhance ZAngband, a well-known Angband clone
+   by Topi Ylinen and Robert Ruehlmann, with a number of features and
+   breakthrough additions (like the ARCN, see below). As it were, I also
+   went from a state of C illiteracy to a decent command of that language
+   (but not the details of each operating system I happen to work on) while
+   working on the game.
+
+Q: What is the legal status of GSNband?
+
+A: GSNband is free software; it can be distributed according to the rules
+   laid long ago by Robert A. Koeneke for his (U)Moria game. See version.txt
+   in the ../lib/help directory for details (free distribution for non-
+   commercial purposes providing the copyright notices are retained
+   throughout the game)
+   
+   If you plan to put GSNband on a cover CD-ROM or similar wide-range
+   medium, please inform me in advance. You DO NOT have to ask me for
+   permission, but it's polite anyway. Same rules apply if you write a
+   review of GSNband and put it in written press or on a Web page.
+
+Q: Can I modify GSNband?
+
+A: Yes, but if you make any significant changes, please distribute this
+   as your own variant (with the provisions regarding copyright applying
+   as above). You MAY distribute changed info files, quest definitions,
+   and anything that is easily editable without need for the source code;
+   please note, however, where the files come from.
+   
+Q: Why is GSNband so slow?
+
+A: GSNband is a complex and complicated game; the sources take well over 4 MB
+   of code. Game speed is comparable to ZAngband's, since the inside engine
+   is virtually the same. On Intel platforms, you'd probably need at least
+   8 MB to play at decent speed; lower values might work for you, but there's
+   no guarantee. The CPU should be a 486 or better; 386 is supported, but
+   probably works awfully slow.
+   
+   I don't know the specific memory/CPU requirements to run the game on
+   other platforms; could somebody help me determine this?
+
+   If you notice that the game is greatly slowed by wilderness generation,
+   you can use the vanilla-like town option at startup. It also has
+   an impact on your final score.
+   
+Q: Why are there no tiles? They used to be there in previous releases.
+
+A: The reason is that I added a lot of monsters which do not have tiles.
+   This makes gameplay weird, especially if you have a mixed group of
+   tiled and non-tiled monsters.
+   
+   Another reason is that I'm not a big fan of the tiles - as they stand
+   now. The 8x8 tiles are not even worth considering. The 16x16 tiles
+   by Adam Bolt are somewhat better, and actually playable if you strain
+   your sight a lot, but the colours are too sombre and some monsters
+   do not differ quite well.
+   
+Q: Shouldn't GSNband take place in Beleriand?
+
+A: Yes, it should (if you dispense with the inconsistent storyline and
+   cast of characters). The problem is that the maximum boundaries for
+   the wilderness are not known with any certainity, nor is their
+   impact on memory requirements. 20x20 wilderness is probably the
+   safest we can get; anything larger would drastically increase memory
+   consumption, meaning less people can play the game.
+
+Q: Ok, so what's that world there in the game?
+
+A: A fictional one. It has no name (neither has ZAngband's; it does not
+   pretend to be Amber). The idea is to have 2-3 bigger towns with
+   quests and several small villages scattered around which do not have
+   all the buildings (you start in one, for example)
+
+   Of course if you don't like the wilderness you can play the old
+   vanilla-like town (sadly, it is non-random)
+
+Q: What's the ARCN? Why isn't it in the binary game?
+
+A: Automatic Roman Character Numeration, or ARCN, is a system which
+   keeps track of the descendants your original named character has
+   spawned (as shown by the number of subsequent deaths), and appends
+   a Roman numeral each time a new character of that name is created.
+   Changing the name resets the counter.
+   
+   The ARCN isn't part of the binary releases of GSNband, because I
+   don't want people to get annoyed at the game putting weird stuff
+   in the characters' names for them. If you want to use ARCN, you
+   probably know how to compile the game anyway; #define ARCN in
+   config.h to include it in the game.
+
+Q: How is the score calculated?
+
+A: Basic score is calculated as experience + level_score * max_lvl, where 
+   level_score is the average level feeling you got, and max_lvl is
+   the deepest level reached.
+   
+   Then the basic score is multiplied by a percentage factor which is 
+   calculated as follows:
+   
+   * For each mutation, -10% (exception beastmen and CW)
+   * If using maximize mode, -10%
+   * If using preserve mode, -15%
+   * If using vanilla town, +30%
+   * If using hard quests, +30%
+   * If allowing small levels, +20% (if always generating small levels,
+     add 50% instead)
+   * If allowing arena levels, +10%
+   * If allowing unfair monsters, +50%
+   * If autoscumming, -50%
+   * If monsters are behaving stupidly, -50%
+   * Monster AI options are worth 20% each
+
+   If sum of the above would fall below 10%, 10% is used instead.
+   
+   (the highest score multiplier you can get is therefore 220%; it will
+    give the inital score of about 110 for someone who has just entered
+    the dungeon. Hm.)
+    
+   Finally, the cost of all identified and non-storebought items the
+   character is carrying, divided by 10, is added. Items possessed at
+   the start of the game are considered storebought.
+
+* (for Polish readers) Czy jest jakas dokumentacja po polsku?
+
+  Nie ma. Wychodze z zalozenia ze kazdy kto chce sie bawic w roguelike
+  zna angielski na tzw. poziomie. Tlumaczenie dokumentacji i listy zmian
+  za kazdym razem gdy cos jest dodawane strasznie wydluzyloby czas pracy
+  nad gra.
+  

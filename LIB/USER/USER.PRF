@@ -10,7 +10,7 @@
 
 
 ## Option -- Force the use of original commands
-#X:rogue_like_commands
+X:rogue_like_commands
 
 ## Option -- Force the use of roguelike commands
 #Y:rogue_like_commands

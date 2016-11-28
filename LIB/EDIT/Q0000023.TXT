@@ -11,12 +11,12 @@ Q:23:Q:6:0:0:0:65:0:0:2
 ?:[LEQ $QUEST23 2]
 Q:23:T:A great, great evil approaches, perhaps the end for our town.
 Q:23:T:Our scouts lie slaughtered, their bodies crushed and mangled
-Q:23:T:by powerful beasts.  I know not what you shall face.  
-Q:23:T:Monsters appear as if out of thin air, as if spawned by a foul  
+Q:23:T:by powerful beasts.  I know not what you shall face.
+Q:23:T:Monsters appear as if out of thin air, as if spawned by a foul
 Q:23:T:altar in a southern valley close to where you defeated the orcs.
 Q:23:T:
-Q:23:T:I am hesistant to ask for your help, knowing you may be sent 
-Q:23:T:to your doom, and yet you are the last hope for Angwil.  
+Q:23:T:I am hesistant to ask for your help, knowing you may be sent
+Q:23:T:to your doom, and yet you are the last hope for Angwil.
 Q:23:T:Approach each nook carefully, as evil lies in unexpected places.
 Q:23:T:Please prepare well, and strike hard in our names.
 ?:1
@@ -25,25 +25,25 @@ Q:23:T:Please prepare well, and strike hard in our names.
 ?:[EQU $QUEST23 3]
 Q:23:T:Your valor shall go down in our legends; your name shall be
 Q:23:T:sung by elvenkind for ages to come.  Hail the conquering hero!
-Q:23:T:May your battles with the Serpent be as successful.
+Q:23:T:May your battles with Morgoth be as successful!
 Q:23:T:
 Q:23:T:Use our gift wisely, and may the light shine on you.
 ?:1
 
 # Floor with Quylthulg
-F:a:1:8:342
+F:a:1:8:Quylthulg
 
 # Floor with Rotting quylthulg
-F:b:1:8:633
+F:b:1:8:Rotting quylthulg
 
 # Floor with Demonic quylthulg
-F:c:1:8:727
+F:c:1:8:Demonic quylthulg
 
 # Floor with Draconic quylthulg
-F:d:1:8:759
+F:d:1:8:Draconic quylthulg
 
-# Floor with Master quylthulg 
-F:e:1:8:800
+# Floor with Master quylthulg
+F:e:1:8:Master quylthulg
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

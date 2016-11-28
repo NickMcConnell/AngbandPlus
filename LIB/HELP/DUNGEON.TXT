@@ -26,10 +26,10 @@ The "slash" command ("/") will identify any character appearing on your map
 
 Note that you can use a "user pref file" to change any of these symbols to
 something you are more comfortable with.
-   
- 
+
+
                 Features that do not block line of sight
- 
+
   .   A floor space                   1   Entrance to General Store
   .   A trap (hidden)                 2   Entrance to Armoury
   ^   A trap (known)                  3   Entrance to Weapon Smith
@@ -38,7 +38,7 @@ something you are more comfortable with.
   '   A broken door                   6   Entrance to Magic Shop
   <   A staircase up                  7   Entrance to the Black Market
   >   A staircase down                8   Entrance to your Home
-
+                                      9   Entrance to the Bookshop
 
                    Features that block line of sight
 
@@ -46,10 +46,10 @@ something you are more comfortable with.
   +   A closed door                   %   A mineral vein
   +   A locked door                   *   A mineral vein + treasure / Pattern
   +   A jammed door                   :   A pile of rubble
-
+  0   An altar of some deity
 
                              Objects
- 
+
   !   A potion (or flask)             /   A pole-arm
   ?   A scroll (or book)              |   An edged weapon
   ,   A mushroom (or food)            \   A hafted weapon
@@ -60,10 +60,10 @@ something you are more comfortable with.
   $   Gold or gems                    ]   Misc. armour
   ~   Lites, Tools, Chests, etc       )   A shield
   ~   Junk, Sticks, Skeletons, etc    &   (unused)
- 
- 
+
+
                              Monsters
- 
+
             $   Creeping Coins      ,   Mushroom Patch
             a   Giant Ant           A   Angelic being
             b   Giant Bat           B   Bird
@@ -88,19 +88,18 @@ something you are more comfortable with.
             u   Minor demon         U   Major demon
             v   Vortex              V   Vampire
             w   Worm or Worm Mass   W   Wight/Wraith
-            x   (unused)            X   Xorn/Xaren
+            x   Aliens              X   Xorn/Xaren
             y   Yeek                Y   Yeti
             z   Zombie/Mummy        Z   Zephyr Hound
-            ~   Aquatic monsters
 
 
 
 === The Town Level ===
 
 The town level is where you will begin your adventure.  The town consists of
-eight buildings (each with an entrance), some townspeople, and a wall which
-surrounds the town.  The first time you are in town it will be daytime, but
-note that the sun rises and falls (rather instantly) as time passes.
+some buildings (each with an entrance), some townspeople, and the
+surrounding landscape. The first time you are in town it will be daytime,
+but note that the sun rises and falls (rather instantly) as time passes.
 
 
 === Townspeople ===
@@ -109,17 +108,17 @@ The town contains many different kinds of people.  There are the street
 urchins, young children who will mob an adventurer for money, and seem to
 come out of the woodwork when excited.  Blubbering idiots are a constant
 annoyance, but not harmful.  Public drunks wander about the town singing,
-and are of no threat to anyone.  Sneaky rogues who work for the black
-market are always greedily  eyeing  your  backpack  for  potential  new
-'purchases'. . .   And finally,  what town would be complete without  a
+and are of no threat to anyone.  Agents who work for the black market
+are always greedily  eyeing  your  backpack  for  potential  new
+'purchases'...   And finally,  what town would be complete without  a
 swarm of half drunk warriors, who take offense or become annoyed just for
 the fun of it.
 
-Most of the townspeople should be avoided by the largest possible distance
+Some of the townspeople should be avoided by the largest possible distance
 when you wander from store to store.  Fights will break out, though, so be
 prepared.  Since your character grew up in this world of intrigue, no
 experience is awarded for killing the town inhabitants, though you may
-acquire treasure.
+acquire treasure and items.
 
 
 === Town Buildings ===
@@ -171,8 +170,8 @@ Store owners will not buy harmful or useless items.  If an object is
 unidentified, they will pay you some base price for it.  Once they have
 bought it they will immediately identify the object.  If it is a good object,
 they will add it to their inventory.  If it was a bad bargain, they simply
-throw the item away.  In any case, you may receive some knowledge of the
-item if another is encountered.
+throw the item away.  In any case, you will receive some knowledge of the
+items of this particular kind.
 
 The General Store ("1")
      The General Store sells foods, drinks, some clothing, torches, lamps,
@@ -207,12 +206,12 @@ The Black Market ("7")
      not known for their tolerance...
 
 Your Home ("8")
-     This is your house where  you  can  store  objects  that you 
+     This is your house where  you  can  store  objects  that you
      cannot carry on your travels, or will need at a  later date.
 
 The Bookstore ("9")
-    The Bookstore deals in all sorts of magical books. You can purchase
-    and sell spellbooks for the spellcasters here.
+     The Bookstore deals in all sorts of magical books. You can purchase
+     and sell basic spellbooks for the spellcasters here.
 
 === Within The Dungeon ===
 
@@ -228,20 +227,20 @@ larger than the screen) by titanium walls.  Once you leave a level by a
 staircase, you will never again find your way back to that region of that
 level, but there are an infinite number of other regions at that same "depth"
 that you can explore later.  So be careful that you have found all the
-treasure before you leave a level, or you may never find it again!  The
-monsters, of course, can use the stairs, and you may eventually encounter
-them again.
+treasure before you leave a level, or you may never find it again! Monsters
+cannot use stairs, so leaving the level may be an easy way of getting rid
+of some annoying critters, at the expense of missed treasure.
 
 In the dungeon, there are many things to find, but your character must
 survive many horrible and challenging encounters to find the treasure lying
 about and take it safely back to the town to sell.
 
-There are two sources for light once inside the dungeon.  Permanent light
-which has been magically placed within rooms, and a light source carried by
-the player.  If neither is present, the character will be unable to see.
-This will affect searching, picking locks, disarming traps, reading scrolls,
-casting spells, browsing books, etc.  So be very careful not to run out of
-light!
+There are two sources for light once inside the dungeon.  Permanent daylight
+which seeps into rooms from above the ground, and a light source carried by
+the player. (Note that daylight does not reach deeper levels.) If neither
+is present, the character will be unable to see. This will affect searching,
+picking locks, disarming traps, reading scrolls, casting spells, browsing
+books, and of course fighting.  So be very careful not to run out of light!
 
 A character must wield a torch or lamp in order to supply his own light.  A
 torch or lamp burns fuel as it is used, and once it is out of fuel, it stops
@@ -251,6 +250,8 @@ oil) or your torch (with other torches), so it is a good idea to carry extra
 torches or flasks of oil, as appropriate.  There are rumours of objects of
 exceptional power which glow with their own never-ending light.
 
+The Vampire race starts with radius-1 pernament light, which represents
+their ability to move in the dark flawlessly.
 
 === Objects Found In The Dungeon ===
 
@@ -259,12 +260,13 @@ did they get there?  Well, the main source for useful items are all the
 foolish adventurers that proceeded into the dungeon before you.  They get
 killed, and the helpful creatures scatter the various treasure throughout
 the dungeon.  Most cursed items are placed there by the joyful evil
-sorcerers, who enjoy a good joke when it gets you killed.
+sorcerers, who enjoy a good joke when they get you killed.
 
-Only one object may occupy a given floor location, which may or may not also
-contain one creature.  Doors, rubble, traps, and staircases are considered
-"objects" for this purpose.  As below, any item may actually be a "pile" of
-up to 99 identical items.
+One or more objects may occupy a given floor location, which may or may
+not also contain one creature.  Doors, rubble, traps, and staircases
+are considered "objects" for this purpose, but water, lava, trees and
+the chaos fog are not.  As below, any item may actually be a "pile" of up
+to 99 identical items.
 
 You pick up objects by moving on top of them.  You can carry up to 23
 different items in your backpack while wearing and wielding up to 12 others.
@@ -304,7 +306,7 @@ take effect will cancel both scrolls.
 Since an accidental dive to a new depth (via a trapdoor, for example), may
 result in the Word of Recall dungeon depth being 'broken', so to speak
 (meaning that the next Word of Recall in town will take you back deeper
-than you would like to), there is a new feature in Zangband which allows
+than you would like to), there is a feature in GSNband which allows
 you to read a scroll of Word of Recall on a different level and 'reset'
 the recall depth to that level (instead of the deepest level).
 
@@ -319,11 +321,10 @@ possessions.  Wands and staves which are known to be empty will be inscribed
 with "empty".  Objects which have been tried at least once but haven't been
 identified yet will be inscribed with "tried".  Cursed objects are inscribed
 with "cursed".  Broken objects may be inscribed with "broken".  Also, any
-item which was purchased at a discount, implying that it is slightly
-"sub-standard", will be inscribed with the appropriate "discount", such as
-"25% off".  Note that these inscriptions are fake, and cannot be removed,
-though they can be covered up by a real inscription if you so desire.  Try
-"_" as a nice short one.
+item which was purchased at a discount  will be inscribed with the
+appropriate "discount", such as "25% off".  Note that these inscriptions
+are fake, and cannot be removed, though they can be covered up by a real
+inscription if you so desire.  Try "_" as a nice short one.
 
 Also, occasionally you will notice that something in your inventory or
 equipment list seems to be magical.  High level characters are much more
@@ -335,7 +336,7 @@ character classes.
 Warriors, Rogues, Rangers and Paladins have a special method of "sensing"
 their inventory/equipment items, which tells them not only if an item is
 "good" or "cursed", but also if it is "average", and if it is "special"
-or "excellent", or "terrible" or "worthless".
+or "great", or "terrible" or "worthless".
 
 It is rumored that rings of power and extra rare spell books may be found
 deeper in the dungeon...
@@ -350,14 +351,15 @@ potion will reach out and bite you...
 Some objects, mainly armor and weapons, have had curses laid upon them.
 These horrible objects will look like any other normal item, but will
 detract from your character's stats or abilities if worn.  They will also
-be impossible to remove until a remove curse is done.  In fact some are
-so badly cursed that even this will not work, and more potent methods are
-needed.
+be impossible to remove until a remove curse spell done is cast.  In fact
+some are so badly cursed that even this will not work, and more potent
+methods are needed.
 
 If you wear or wield a cursed item, you will immediately feel something
-wrong.  The item will also be inscribed "cursed".
+is wrong.  The item will also be inscribed "cursed".
 
-Skopkeepers will refuse to buy any known cursed item.
+Skopkeepers will refuse to buy any known cursed item (some kinds of items
+are always found cursed, though.)
 
 
 === Mining ===
@@ -365,7 +367,7 @@ Skopkeepers will refuse to buy any known cursed item.
 Much of the treasure within the dungeon can be found only by mining it out
 of the walls.  Many rich strikes exist within each level, but must be found
 and mined.  Quartz veins are the richest, yielding the most metals and gems,
-but magma veins will have some hordes hidden within.
+but magma veins will have some pennies hidden within.
 
 Mining is rather difficult without a pick or shovel.  Picks and shovels have
 an additional magical ability expressed as `(+#)'.  The higher the number,
@@ -397,9 +399,7 @@ carry some kind of digging tool, even when you are not planning on tunneling
 for treasure.
 
 There are rumors of certain incredibly profitable rooms buried deep in the
-dungeon and completely surrounded by titanium and granite walls, requiring
-a digging implement or magical means to enter.  The same rumors imply that
-these rooms are guarded by incredibly powerful monsters, so beware!
+dungeon and guarded by uncommon and powerful monsters, so beware!
 
 
 === Staircases, Secret Doors, Passages, and Rooms ===
@@ -434,27 +434,26 @@ For historical reasons, secret doors are never locked.
 
 === Winning The Game ===
 
-Once your character has killed Oberon, who lives on level 99 (4950') in the
+Once your character has killed Sauron, who lives on level 99 (4950') in the
 dungeon, a magical staircase will appear that will finally allow you to reach
-level 100.  The Serpent of Chaos lurks on this level of his dungeon, and you
-will not be able to go below his level until you have killed him.  Try to avoid
-wandering around on level 100 unless you are ready for him, since it has a
-habit of coming at you across the dungeon, to slay you for your impudence.
+level 100.  Morgoth, Lord of Darkness lurks on this level of his dungeon, and
+you will not be able to go below his level until you have killed him.  Try to
+avoid wandering around on level 100 unless you are ready for him, since it
+has a habit of coming at you across the dungeon, to slay you for your
+impudence.
 
-The Serpent of Chaos cannot be killed by some of the easier methods used on
-normal creatures.  The Serpent of Chaos, like all other "Unique" monsters,
-will simply teleport away to another region of the level if you attempt to
-use a spell such as destruction is upon it.   The Serpent of Chaos, like some
-other monsters, cannot be polymorphed, slept, charmed, or genocided.
-Magical spells like Mana Storm and Orb of Draining are effective against it,
-as are some of the more powerful weapons, but it is difficult to kill and if
-allowed to escape for a time it will heal itself rapidly.
+Morgoth cannot be killed by some of the easier methods used on normal
+creatures. Like some other powerful monsters, he cannot be polymorphed,
+slept, charmed, or genocided. Magical spells like Mana Storm and Orb of
+Draining are effective against him, as are some of the more powerful
+weapons, but it is difficult to kill and if allowed to escape for a time he
+will heal itself rapidly.
 
-If you should actually survive the attempt of killing the Serpent of Chaos,
-you will receive the status of WINNER.  You may continue to explore, and may
-even save the game and play more later, but since you have defeated the
-toughest creature alive, there is really not much point.  Unless you wish to
-listen to the rumors of a powerful ring buried somewhere in the dungeon...
+If you should actually survive the attempt of killing Morgoth, you will
+receive the status of WINNER. You may continue to explore, and may even save
+the game and play more later, but since you have defeated the toughest
+creature alive, there is really not much point. Unless you wish to listen to
+the rumors of a powerful ring buried somewhere in the dungeon...
 
 When you are ready to retire, simply "commit suicide" ("^K") to have your
 character entered into the high score list as a winner.  Note that until you
@@ -463,8 +462,8 @@ into a hoard of Cyberdemons...
 
 
 === Upon Death and Dying ===
- 
-If your character falls below 0 hit points, he has died and cannot be
+
+If your character falls below zero hit points, he has died and cannot be
 restored.  A tombstone showing information about your character will be
 displayed.  You are also permitted to get a record of your character, and
 all your equipment (identified) either on the screen or in a file.
@@ -481,5 +480,5 @@ of past incarnations.
 The newsgroup "rec.games.roguelike.angband" is a good place to ask various
 questions about both game play and game design, and you can email bug
 reports and such to (benh@phial.com).  Be sure to include the version
-number you are playing in any bug reports.  Zangband specific bug reports
-should be sent to (rr9@angband.org).
+number you are playing in any bug reports.  GSNband specific bug reports
+should be sent to (naskrent@hoth.amu.edu.pl).

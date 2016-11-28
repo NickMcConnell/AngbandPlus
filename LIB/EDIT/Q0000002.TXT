@@ -20,47 +20,47 @@ Q:2:T:A reward for your good work awaits you outside.
 ?:1
 
 # Floor with Giant white rat
-F:a:1:8:86
+F:a:1:8:Giant white rat
 
 # Floor with Snotling
-F:b:1:8:87
+F:b:1:8:Snotling
 
 # Shallow water with Giant Leech
-F:c:84:8:95
+F:c:84:8:Giant Leech
 
 # Floor with Giant slug
-F:d:1:8:120
+F:d:1:8:Giant slug
 
 # Floor with Green icky thing
-F:e:1:8:132
+F:e:1:8:Green icky thing
 
 # Floor with Giant grey rat
-F:f:1:8:156
+F:f:1:8:Giant grey rat
 
 # Floor with Giant spider
-F:g:1:8:175
+F:g:1:8:Giant spider
 
-# Floor with Gremlin
-F:h:1:8:153
+# Floor with Cloaker
+F:h:1:8:Cloaker
 
-# Floor with Metallic green centipede
-F:i:1:8:42
+# Floor with Green mold
+F:i:1:8:Green mold
 
 # Floor with Clear worm mass
-F:j:1:8:79
+F:j:1:8:Clear worm mass
 
 # Dungeon
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:Xa..<.............%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:X...<.............%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
 D:XVVVVVVVVVVVVVVVV.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
-D:Xa.....a........VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
+D:X......a........VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
 D:X%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%X
 D:X%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%X
 D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.V.........bb%%%%%%%%%%%%%h....WWWWWWW%%%%%%X
-D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVb%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V..........b%%%%%%%%%%%%%h....WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%X
 D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%X
-D:X%%%%%dVd%%%%%%%%%%%%%i........WWWWV.%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
+D:X%%%%%.Vd%%%%%%%%%%%%%i........WWWWV.%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
 D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%j..WW.%%X
 D:X%%%%%.V.%%%%%%%%%%%%..V.............%%%%%%%.WWf%%%%%%%%%%%.......%%X
 D:X%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%X
@@ -71,7 +71,7 @@ D:X%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV..................%%%%%%%%%%.%%%%X
 D:X%%%%%%%%%%%%%%%%%%..V............VVVVVVVVVVVVVVVVVV.%%%%%%%%%%.%%%%X
 D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%..................V............%%%%X
 D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVV.....X
-D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%gggggg......VVVVV.X
+D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%g...........VVVVV.X
 D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 

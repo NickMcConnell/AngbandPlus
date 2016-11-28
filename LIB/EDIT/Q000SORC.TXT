@@ -10,9 +10,9 @@ Q:10:Q:6:0:0:0:65:0:0:2
 
 # Description for quest
 ?:[LEQ $QUEST10 2]
-Q:10:T:The Wizards of Sorcery have discovered a magical Node of Sorcery 
-Q:10:T:in a damp area nearby. You must seek the Node and dispatch 
-Q:10:T:its guardians so that the Tower of Sorcery can claim the 
+Q:10:T:The Wizards of Sorcery have discovered a magical Node of Sorcery
+Q:10:T:in a damp area nearby. You must seek the Node and dispatch
+Q:10:T:its guardians so that the Tower of Sorcery can claim the
 Q:10:T:mystical energies of the Node.
 ?:1
 
@@ -22,19 +22,19 @@ Q:10:T:You have done well. A powerful spellbook awaits you outside.
 ?:1
 
 # Shallow water with Guardian naga
-F:a:84:8:269
+F:a:84:8:Guardian naga
 
 # Floor with Phantom warrior
-F:b:1:8:152
+F:b:1:8:Phantom warrior
 
 # Floor with Phantom beast
-F:c:1:8:385
+F:c:1:8:Phantom beast
 
 # Shallow water with Air elemental
-F:d:84:8:526
+F:d:84:8:Air elemental
 
 # Deep water with Sky drake
-F:e:83:8:793
+F:e:83:8:Sky drake
 
 # Normal wall
 F:#:56

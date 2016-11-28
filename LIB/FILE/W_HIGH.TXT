@@ -1,89 +1,127 @@
-87
+125
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
-of Ultimate Might
-'Slayer'
-'World Ender'
-'Destructor'
-of Destruction
-'Impulse 255'
-'Disintegrator'
-'Vanquisher'
-'BGF-9000'
-'Mjollner'
-'Hand of God'
-'Deathstorm'
-'Devil's Instrument'
-'Word of God'
-'Idkfa'
-'Quietus'
-'Wraithverge'
-'Arc of Death'
-of Death
-'Devastator'
-'Excsymyr'
-'Vorax'
-'Excalibur'
-of Muramasa
-'Heartseeker'
-'Bloodscourge'
-'Hand of Vecna'
-'Unmaker'
-'Apocalypse-Now'
-'Armageddon'
-'Devourer'
-'Soul Searer'
 'Abyss'
-'Cosmic Horror'
-'Dragon Fang'
-'Nemesis'
-'Doom!'
-'Death Wish'
-'Die Hard'
-'Exodus'
-'Terminator'
-'Exterminator'
-'Thunderstrike'
-'Bloodwych'
-'Inferno'
-'Warhead'
-'Red Storm'
-'Dominator'
-'Conqueror'
-'Secret Weapon'
-'Angel of Death'
-'Destroying Angel'
-'Black Star'
-'Turma'
-'Surma'
-'Kalma'
-'Right Hand of Justice'
-'Fat Boy'
-'Megadeath'
-of the Fourth Horseman
-'Apocalyptica'
-'Doomsday'
-'Judgement of Heaven'
-'Creeping Death'
-'Eternity's End'
-'Word of Death'
-'Weapon Omega'
-'Finalizer'
-of Fargoal
-of Bleys
-of Gerard
-of Benedict
-of Elric
-of Eric
-of Erlik
 'Aeglin'
 'Aeglos'
-of Beowulf
-of Orome
-'Fatal Destiny'
-'Jehovah's Wrath'
-'Undying Samurai'
-'Eternal Verities'
-'Durindana'
-'Joyeuse'
-of the Eagle Lord
+'All-Conquerer'
+'Angel of Death'
+'Apocalypse-Now'
+'Apocalyptica'
+'Arc of Death'
+'Armageddon'
 'Azriel's Own'
+'BGF-9000'
+'Black Star'
+'Bloodscourge'
+'Bloodwych'
+'Candessel'
+'Conqueror'
+'Cosmic Horror'
+'Creeping Death'
+'Death Wish'
+'Death's Own'
+'Deathstorm'
+'Destroying Angel'
+'Destructor'
+'Devastator'
+'Devil's Instrument'
+'Devourer'
+'Die Hard'
+'Disintegrator'
+'Dominator'
+'Doom!'
+'Doomsday'
+'Dragon Fang'
+'Durindana'
+'Eternal Verities'
+'Eternity's End'
+'Excalibur'
+'Excsymyr'
+'Exodus'
+'Exterminator'
+'Fat Boy'
+'Fatal Destiny'
+'Finalizer'
+'Guthwine'
+'Hand of God'
+'Hand of Vecna'
+'Heartseeker'
+'Hrunting'
+'Hurugrim'
+'Idkfa'
+'Impulse 255'
+'Inferno'
+'Jehovah's Wrath'
+'Joyeuse'
+'Judgement of Heaven'
+'Justicar'
+'Kalma'
+'Megadeath'
+'Menelvagor'
+'Mjollner'
+'Nemesis'
+'Perrianath'
+'Quietus'
+'Ragnarok'
+'Red Storm'
+'Right Hand of Justice'
+'Secret Weapon'
+'Slayer'
+'Slepnir'
+'Soul Searer'
+'Stenador'
+'Surma'
+'Terminator'
+'Thunderstrike'
+'Turma'
+'Undying Samurai'
+'Unmaker'
+'Vanquisher'
+'Vorax'
+'Warhead'
+'Weapon Omega'
+'Word of Death'
+'Word of God'
+'World Ender'
+'Wraithverge'
+of Amadis
+of Beorn
+of Beowulf
+of Bladorthin
+of Death
+of Destruction
+of Eldamar
+of Elric
+of Erlik
+of Fargoal
+of Gerard
+of Khazad-dum
+of Muramasa
+of Orome
+of Tasarinan
+of the Eagle Lord
+of the Fourth Horseman
+of the Tir nan Og
+of Tristram
+of Ultimate Might
+of Ben Harrison
+of Charles Swiger
+of Robert Koeneke
+of James Wilson
+of Alex Cutler
+of Andy Astrand
+of Sean Marsh
+of Geoff Hill
+of Charles Teague
+of Torbjorn Lindgren
+of Weisiger
+of Robert Ruehlmann
+of Topi Ylinen
+of Moria
+of Angband
+of Utumno
+of the Hobbits
+of the Elves
+'Trollsblood'
+'Gemma's Touch'
+'Katie's Kiss'

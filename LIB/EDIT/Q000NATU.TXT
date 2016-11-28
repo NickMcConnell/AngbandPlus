@@ -10,9 +10,9 @@ Q:12:Q:6:0:0:0:65:0:0:2
 
 # Description for quest
 ?:[LEQ $QUEST12 2]
-Q:12:T:The Wizards of Nature have discovered a magical Node of 
-Q:12:T:Nature in a nearby forest. You must seek the Node and 
-Q:12:T:dispatch its guardians so that the Tower of Nature can 
+Q:12:T:The Wizards of Nature have discovered a magical Node of
+Q:12:T:Nature in a nearby forest. You must seek the Node and
+Q:12:T:dispatch its guardians so that the Tower of Nature can
 Q:12:T:claim the mystical energies of the Node.
 ?:1
 
@@ -25,27 +25,27 @@ Q:10:T:You have done well. A powerful spellbook awaits you outside.
 F:.:89:8
 
 # Floor with War bear
-F:a:89:8:173
+F:a:89:8:War bear
 
 # Floor with Basilisk
-F:b:89:8:453
+F:b:89:8:Basilisk
 
 # Floor with Giant spider
-F:c:89:8:175
+F:c:89:8:Giant spider
 
 # Floor with Earth elemental
-F:d:89:8:525
+F:d:89:8:Earth elemental
 
 # Floor with Great storm wyrm
-F:e:89:8:728
+F:e:89:8:Great storm wyrm
 
 # Floor with Colossus
-F:g:89:8:558
+F:g:89:8:Colossus
 
 # Tree
 F:h:96:8
 
-# Node of Nature layout 
+# Node of Nature layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhX
 D:Xhhhhhh...................hhhhhhX

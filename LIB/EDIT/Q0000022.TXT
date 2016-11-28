@@ -24,25 +24,25 @@ Q:22:T:appreciation.  We may have need for your help in future, as well.
 ?:1
 
 # Floor with Snaga
-F:a:1:8:118
+F:a:1:8:Snaga
 
 # Floor with Hill orc
-F:b:1:8:149
+F:b:1:8:Hill orc
 
 # Floor with Orc shaman
-F:c:1:8:162
+F:c:1:8:Orc shaman
 
 # Floor with Golfimbul, the Hill Orc Chief
-F:d:1:8:215
+F:d:1:8:Golfimbul, the Hill Orc Chief
 
 # Floor with Black orc
-F:e:1:8:244
+F:e:1:8:Black orc
 
 # Floor with Orc captain
-F:f:1:8:285
+F:f:1:8:Orc captain
 
 # Floor with Snaga sapper
-F:g:1:8:251
+F:g:1:8:Snaga sapper
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
