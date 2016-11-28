@@ -1,4 +1,4 @@
-350
+352
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 #&%#&#%*#*&%!!!!!
 -<sob>-
@@ -51,7 +51,7 @@ CU!
 Cut it out!
 Dammit, this thing won't die!
 Death greets me warm, now I will just say goodbye.
-Death means nothing, there is no end, I'll be reborn.'
+Death means nothing, there is no end, I'll be reborn.
 Death takes my hand and captures my soul...
 Did anybody get the number of that truck..?
 Did somebody knock?
@@ -350,3 +350,5 @@ You've run out of life.
 Your body tries to leave your soul.
 Youth, I forgive thee.
 Zonk!
+You think by killing me tonight my powers will not rise!
+There'll be nowhere for you to run when my hatred comes to life!

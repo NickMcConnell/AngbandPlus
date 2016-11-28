@@ -1,40 +1,153 @@
-38
+151
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
-murder.
-arson.
-rape.
-assault and battery.
-theft.
-extortion.
-rape, assault and battery.
-embezzlement.
-embezzlement and theft.
-theft and murder.
-kidnapping.
-stealing.
-fraud.
-fraud and embezzlement.
-counterfeiting.
-smuggling.
-horse theft.
-shoplifting.
-treason.
-pillaging.
-rape and pillage.
-cruelty to animals.
-dealing drugs.
-murder for hire.
-luring souls to destruction.
-smashing holy relics.
-glorying in chaos.
-convenanting with Morgoth.
-desecration of holy places.
-conspiring to topple bastions.
+*destruction*.
+TY_cursing.
+abduction.
 abuse of self-appointed privilege.
-leaguing with the underworld.
-spawning minions of darkness.
-the desolation of kingdoms.
-lese-majesty.
-obstructing justice.
-conspiring to obstruct justice.
+adhering to the laws of physics.
+adultery.
+alliterating a-lot.
+an irritating laugh.
+arson.
+artificial insemination.
+assault and battery.
 assault with a deadlly weapon.
+associating with Elder Gods.
+attempted suicide.
+bad taste.
+bamboozlery.
+barritry.
+being a menace to society.
+believing the world is round.
+bigamy.
+black marketeering.
+bouncing checks.
+breaching the space-time continuuum.
+cannibalism.
+casting spells in public places.
+coming back from the dead.
+consorting with evil.
+conspiring to obstruct justice.
+conspiring to topple bastions.
+convenanting with Morgoth.
+corruption of innocence.
+counterfeiting.
+cross-dressing.
+cruelty to animals.
+cultural relativity.
+cursing.
+dealing drugs.
+debugging.
+deduction.
+defenestration.
+demagoguery.
+desecration of holy places.
+distributing mushrooms of hallucination to minors.
+drinking a potion of booze in public.
+dyslexia.
+eco-terrorism.
+embezzlement and theft.
+embezzlement.
+endangering a species.
+espionage.
+excessive erudition.
+extortion.
+failing to establish plausible deniability.
+forgery.
+fornication.
+fraud and embezzlement.
+fraud.
+free speech.
+genocide.
+glorying in chaos.
+having his cake and eating it, too.
+heresy.
+high treason.
+horse theft.
+hypocrisy.
+illiteracy.
+inciting to riot.
+indecent exposure.
+induction.
+infiltration.
+insinuation.
+insurance fraud.
+involuntary organ transplantation.
+jaywalking.
+kidnapping.
+leaguing with the underworld.
+lese-majesty.
+lunacy.
+luring souls to destruction.
+lycanthropy.
+making pacts with the devil.
+manslaughter.
+marrying his sister.
+mass genocide.
+murder for hire.
+murder.
+necrophilia.
+nihilism.
+non-conformity.
+not having a sense of humor.
+obstructing justice.
+off-topic remarks.
+organ harvesting.
+passive resistance.
+peddling Prozac.
+pesticide.
+philandering.
+pillaging.
+plagarism.
+possession of a vampiric weapon.
+possession of firearms.
+possession of mushrooms of hallucination.
+possession of peyotl.
+practicing the black arts.
+programming in BASIC.
+promiscuity.
+pyramid schemes.
+questioning.
+racial intolerance.
+racketeering.
+raising the dead.
+rape and pillage.
+rape, assault and battery.
+rape.
+regicide.
+reupholstering.
+running amok.
+savefile scumming.
+selling his soul.
+serial murder.
+shoplifting.
+singing off-key.
+smashing holy relics.
+smuggling.
+snicker-snacking.
+sniggering.
+sodomy.
+spamming.
+spawning minions of darkness.
+splitting atoms.
+spontaneous combustion.
+spree killing.
+stealing.
+taking advantage of software bugs.
+telepathic evangelism.
+the desolation of kingdoms.
+theft and murder.
+theft.
+thespianism.
+treason.
+trolling.
+using the Force.
+vampirism.
+violating the laws of magic.
+voyeurism.
+wholesale nuclear annihilation.
+witchcraft.
+womanslaughter.
+piracy.
+using bad puns.
+moonlighting as a mime.

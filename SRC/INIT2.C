@@ -11,10 +11,8 @@
 
 
 #ifdef CHECK_MODIFICATION_TIME
-# ifndef ACORN
-#  include <sys/types.h>
-#  include <sys/stat.h>
-# endif  /* ACORN */
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif /* CHECK_MODIFICATION_TIME */
 
 
@@ -252,7 +250,6 @@ static cptr err_str[8] =
 
 
 #ifdef CHECK_MODIFICATION_TIME
-# ifndef ACORN
 
 static errr check_modification_date(int fd, cptr template_file)
 {
@@ -287,12 +284,261 @@ static errr check_modification_date(int fd, cptr template_file)
         return (0);
 }
 
-# endif /* ACORN */
 #endif /* CHECK_MODIFICATION_TIME */
 
 
 
 /*** Initialize from binary image files ***/
+
+/*
+ * Initialize the "t_info" array, by parsing a binary "image" file
+ */
+static errr init_t_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != t_head->v_major) ||
+	    (test.v_minor != t_head->v_minor) ||
+	    (test.v_patch != t_head->v_patch) ||
+	    (test.v_extra != t_head->v_extra) ||
+	    (test.info_num != t_head->info_num) ||
+	    (test.info_len != t_head->info_len) ||
+	    (test.head_size != t_head->head_size) ||
+	    (test.info_size != t_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*t_head) = test;
+
+
+	/* Allocate the "f_info" array */
+	C_MAKE(t_info, t_head->info_num, trap_type);
+
+	/* Read the "t_info" array */
+	fd_read(fd, (char*)(t_info), t_head->info_size);
+
+
+	/* Allocate the "t_name" array */
+	C_MAKE(t_name, t_head->name_size, char);
+
+	/* Read the "t_name" array */
+	fd_read(fd, (char*)(t_name), t_head->name_size);
+
+
+#ifndef DELAY_LOAD_T_TEXT
+
+	/* Allocate the "t_text" array */
+	C_MAKE(t_text, t_head->text_size, char);
+
+	/* Read the "t_text" array */
+	fd_read(fd, (char*)(t_text), t_head->text_size);
+
+#endif /* DELAY_LOAD_T_TEXT */
+
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "t_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_t_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(t_head, header);
+
+	/* Save the "version" */
+	t_head->v_major = VERSION_MAJOR;
+	t_head->v_minor = VERSION_MINOR;
+	t_head->v_patch = VERSION_PATCH;
+	t_head->v_extra = 0;
+
+	/* Save the "record" information */
+	t_head->info_num = max_t_idx;
+	t_head->info_len = sizeof(trap_type);
+
+	/* Save the size of "t_head" and "t_info" */
+	t_head->head_size = sizeof(header);
+	t_head->info_size = t_head->info_num * t_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "tr_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_t_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+		msg_print("Ignoring obsolete/defective 'tr_info.raw' file.");
+		msg_print(NULL);
+	}
+
+	/*** Make the fake arrays ***/
+
+	/* Fake the size of "t_name" and "t_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
+
+	/* Allocate the "t_info" array */
+	C_MAKE(t_info, t_head->info_num, trap_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(t_name, fake_name_size, char);
+	C_MAKE(t_text, fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "tr_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'tr_info.txt' file.");
+
+	/* Parse the file */
+	err = init_t_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'tr_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'tr_info.txt' file.");
+	}
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(t_head), t_head->head_size);
+
+		/* Dump the "f_info" array */
+		fd_write(fd, (char*)(t_info), t_head->info_size);
+
+		/* Dump the "f_name" array */
+		fd_write(fd, (char*)(t_name), t_head->name_size);
+
+		/* Dump the "f_text" array */
+		fd_write(fd, (char*)(t_text), t_head->text_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "h_info" array */
+	C_KILL(t_info, t_head->info_num, trap_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(t_name, fake_name_size, char);
+	C_KILL(t_text, fake_text_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+#endif	/* ALLOW_TEMPLATES */
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'tr_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_t_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'tr_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
 
 
 /*
@@ -1863,28 +2109,28 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
         {
                 /* General Store */
 
-                { TV_FOOD, SV_FOOD_RATION },
-                { TV_FOOD, SV_FOOD_RATION },
-                { TV_FOOD, SV_FOOD_RATION },
-                { TV_FOOD, SV_FOOD_RATION },
+                { TV_FOOD, SV_FOOD_LARGE_RATION },
+                { TV_FOOD, SV_FOOD_IRON_RATION },
+                { TV_FOOD, SV_FOOD_IRON_RATION },
+                { TV_FOOD, SV_FOOD_IRON_RATION },
 
-                { TV_FOOD, SV_FOOD_RATION },
+                { TV_FOOD, SV_FOOD_MELON },
                 { TV_FOOD, SV_FOOD_BISCUIT },
-                { TV_FOOD, SV_FOOD_JERKY },
-                { TV_FOOD, SV_FOOD_JERKY },
-
+                { TV_FOOD, SV_FOOD_POTATO },
+                { TV_FOOD, SV_FOOD_EGG },
+                
+                { TV_FOOD, SV_FOOD_APPLE },
+                { TV_FOOD, SV_FOOD_DRY_MEAT },
                 { TV_FOOD, SV_FOOD_PINT_OF_WINE },
                 { TV_FOOD, SV_FOOD_PINT_OF_ALE },
-                { TV_LITE, SV_LITE_TORCH },
-                { TV_LITE, SV_LITE_TORCH },
 
                 { TV_LITE, SV_LITE_TORCH },
                 { TV_LITE, SV_LITE_TORCH },
+                { TV_LITE, SV_LITE_TORCH },
+                { TV_LITE, SV_LITE_TORCH },
+                
                 { TV_LITE, SV_LITE_LANTERN },
                 { TV_LITE, SV_LITE_LANTERN },
-
-                { TV_FLASK, 0 },
-                { TV_FLASK, 0 },
                 { TV_FLASK, 0 },
                 { TV_FLASK, 0 },
 
@@ -1903,10 +2149,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_CLOAK, SV_CLOAK },
                 { TV_CLOAK, SV_FUR_CLOAK },
 
-                { TV_FOOD, SV_FOOD_RATION },
-                { TV_FOOD, SV_FOOD_RATION },
-                { TV_FOOD, SV_FOOD_RATION },
-                { TV_FOOD, SV_FOOD_RATION },
+                { TV_FOOD, SV_FOOD_IRON_RATION },
+                { TV_FOOD, SV_FOOD_IRON_RATION },
+                { TV_FOOD, SV_FOOD_LARGE_RATION },
+                { TV_FOOD, SV_FOOD_LARGE_RATION },
 
                 { TV_LITE, SV_LITE_TORCH },
                 { TV_LITE, SV_LITE_TORCH },
@@ -1991,8 +2237,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
         {
                 /* Weaponsmith */
 
-                { TV_SWORD, SV_DAGGER },
-                { TV_SWORD, SV_MAIN_GAUCHE },
+                { TV_DAGGER, SV_DAGGER },
+                { TV_DAGGER, SV_MAIN_GAUCHE },
                 { TV_SWORD, SV_RAPIER },
                 { TV_SWORD, SV_SMALL_SWORD },
 
@@ -2006,17 +2252,17 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_SWORD, SV_SCIMITAR },
                 { TV_SWORD, SV_KATANA },
 
-                { TV_SWORD, SV_BASTARD_SWORD },
+                { TV_TWO_HANDED, SV_BASTARD_SWORD },
                 { TV_POLEARM, SV_SPEAR },
                 { TV_POLEARM, SV_AWL_PIKE },
                 { TV_POLEARM, SV_TRIDENT },
 
                 { TV_POLEARM, SV_PIKE },
-                { TV_POLEARM, SV_BEAKED_AXE },
-                { TV_POLEARM, SV_BROAD_AXE },
+                { TV_AXE, SV_BEAKED_AXE },
+                { TV_AXE, SV_BROAD_AXE },
                 { TV_POLEARM, SV_LANCE },
 
-                { TV_POLEARM, SV_BATTLE_AXE },
+                { TV_AXE, SV_BATTLE_AXE },
                 { TV_POLEARM, SV_HATCHET },
                 { TV_BOW, SV_SLING },
                 { TV_BOW, SV_SHORT_BOW },
@@ -2039,7 +2285,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_BOLT, SV_AMMO_NORMAL },
                 { TV_BOLT, SV_AMMO_NORMAL },
                 { TV_BOW, SV_SHORT_BOW },
-                { TV_SWORD, SV_DAGGER },
+                { TV_DAGGER, SV_DAGGER },
 
                 { TV_SWORD, SV_TANTO },
                 { TV_SWORD, SV_RAPIER },
@@ -2141,7 +2387,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
                 { TV_SCROLL, SV_SCROLL_DETECT_INVIS },
                 { TV_SCROLL, SV_SCROLL_RECHARGING },
-                { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+                { TV_SCROLL, SV_SCROLL_RECHARGING },
                 { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
                 { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
@@ -2159,8 +2405,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_POTION, SV_POTION_RES_CHR },
                 { TV_POTION, SV_POTION_SELF_KNOWLEDGE },
 
-                { TV_SCROLL, SV_SCROLL_REPAIR },
-                { TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },  /* Yep, occasionally! */
+                { TV_POTION, SV_POTION_SELF_KNOWLEDGE },
+                { TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
                 { TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
                 { TV_SCROLL, SV_SCROLL_LIGHT },
 
@@ -2174,10 +2420,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
                 { TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
 
-                { TV_SCROLL, SV_SCROLL_RECHARGING },
                 { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-                { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-                { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER }
+                { TV_SCROLL, SV_SCROLL_REPAIR },
+                { TV_SCROLL, SV_SCROLL_REPAIR },
+                { TV_SCROLL, SV_SCROLL_REPAIR },
 
         },
 
@@ -2195,44 +2441,44 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_AMULET, SV_AMULET_RESIST_ACID },
 
                 { TV_AMULET, SV_AMULET_SEARCHING },
+                { TV_AMULET, SV_AMULET_SEARCHING },
                 { TV_WAND, SV_WAND_SLOW_MONSTER },
                 { TV_WAND, SV_WAND_CONFUSE_MONSTER },
+                
                 { TV_WAND, SV_WAND_SLEEP_MONSTER },
-
+                { TV_WAND, SV_WAND_MAGIC_MISSILE },
                 { TV_WAND, SV_WAND_MAGIC_MISSILE },
                 { TV_WAND, SV_WAND_STINKING_CLOUD },
-                { TV_WAND, SV_WAND_WONDER },
-                { TV_WAND, SV_WAND_DISARMING },
 
+                { TV_WAND, SV_WAND_WONDER },
+                { TV_WAND, SV_WAND_DISARMING },
                 { TV_STAFF, SV_STAFF_LITE },
                 { TV_STAFF, SV_STAFF_MAPPING },
+
                 { TV_STAFF, SV_STAFF_DETECT_TRAP },
                 { TV_STAFF, SV_STAFF_DETECT_DOOR },
-
                 { TV_STAFF, SV_STAFF_DETECT_GOLD },
                 { TV_STAFF, SV_STAFF_DETECT_ITEM },
+
                 { TV_STAFF, SV_STAFF_DETECT_INVIS },
                 { TV_STAFF, SV_STAFF_DETECT_EVIL },
-
-                { TV_STAFF, SV_STAFF_TELEPORTATION },
-                { TV_STAFF, SV_STAFF_TELEPORTATION },
                 { TV_STAFF, SV_STAFF_TELEPORTATION },
                 { TV_STAFF, SV_STAFF_TELEPORTATION },
 
-                { TV_STAFF, SV_STAFF_IDENTIFY },
-                { TV_STAFF, SV_STAFF_IDENTIFY },
+                { TV_STAFF, SV_STAFF_TELEPORTATION },
+                { TV_STAFF, SV_STAFF_TELEPORTATION },
                 { TV_STAFF, SV_STAFF_IDENTIFY },
                 { TV_STAFF, SV_STAFF_IDENTIFY },
 
+                { TV_STAFF, SV_STAFF_IDENTIFY },
+                { TV_STAFF, SV_STAFF_IDENTIFY },
                 { TV_STAFF, SV_STAFF_IDENTIFY },
                 { TV_STAFF, SV_STAFF_REMOVE_CURSE },
+
+                { TV_STAFF, SV_STAFF_REMOVE_CURSE },
+                { TV_STAFF, SV_STAFF_CURE_LIGHT },
                 { TV_STAFF, SV_STAFF_CURE_LIGHT },
                 { TV_STAFF, SV_STAFF_PROBING },
-
-                { TV_AIR_BOOK, 0 },
-                { TV_AIR_BOOK, 0 },
-                { TV_AIR_BOOK, 1 },
-                { TV_AIR_BOOK, 1 },
 
                 { TV_ARCANE_BOOK, 0 },
                 { TV_ARCANE_BOOK, 0 },
@@ -2353,17 +2599,17 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_ARCANE_BOOK, 2 },
                 { TV_ARCANE_BOOK, 2 },
                 { TV_ARCANE_BOOK, 3 },
-                { TV_ARCANE_BOOK, 3 },
+                { TV_FOCUS, 5 },
 
                 { TV_LIFE_BOOK, 0 },
                 { TV_LIFE_BOOK, 0 },
-                { TV_LIFE_BOOK, 0 },
-                { TV_LIFE_BOOK, 0 },
+                { TV_LIFE_BOOK, 1 },
+                { TV_LIFE_BOOK, 1 },
 
-                { TV_LIFE_BOOK, 1 },
-                { TV_LIFE_BOOK, 1 },
-                { TV_LIFE_BOOK, 1 },
-                { TV_LIFE_BOOK, 1 },
+                { TV_FOCUS, 1 },
+                { TV_FOCUS, 2 },
+                { TV_FOCUS, 3 },
+                { TV_FOCUS, 4 },
         }
 };
 
@@ -2689,10 +2935,10 @@ static errr init_alloc(void)
         /*** Analyze object allocation info ***/
 
         /* Clear the "aux" array */
-        C_WIPE(&aux, MAX_DEPTH, s16b);
+        (void)C_WIPE(&aux, MAX_DEPTH, s16b);
 
         /* Clear the "num" array */
-        C_WIPE(&num, MAX_DEPTH, s16b);
+        (void)C_WIPE(&num, MAX_DEPTH, s16b);
 
         /* Size of "alloc_kind_table" */
         alloc_kind_size = 0;
@@ -2778,10 +3024,10 @@ static errr init_alloc(void)
         /*** Analyze monster allocation info ***/
 
         /* Clear the "aux" array */
-        C_WIPE(&aux, MAX_DEPTH, s16b);
+        (void)C_WIPE(&aux, MAX_DEPTH, s16b);
 
         /* Clear the "num" array */
-        C_WIPE(&num, MAX_DEPTH, s16b);
+        (void)C_WIPE(&num, MAX_DEPTH, s16b);
 
         /* Size of "alloc_race_table" */
         alloc_race_size = 0;
@@ -3098,6 +3344,10 @@ void init_angband(void)
         note("[Initializing arrays... (quests)]");
         if (init_quests()) quit("Cannot initialize quests");
 
+	/* Initialize trap info */
+	note("[Initializing arrays... (traps)]");
+	if (init_t_info()) quit("Cannot initialize traps");
+
         /* Initialize some other arrays */
         note("[Initializing arrays... (other)]");
         if (init_other()) quit("Cannot initialize other stuff");
@@ -3139,4 +3389,3 @@ void init_angband(void)
         /* Done */
         note("[Initialization complete]");
 }
-

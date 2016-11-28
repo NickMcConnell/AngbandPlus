@@ -214,24 +214,16 @@ C:1:X
 A:U
 C:1:O
 
-# Hack - race/mutation power activation
+# Hack - time
 A:^t
 C:1:'
 
-# Hack - god info
-A:O
-C:1:^O
-
-# Hack - offering
+# Hack - worship
 A:W
-C:1:^G
+C:1:^O
 
 # Hack - pet commands
 A:P
-C:1:^P
-
-# Hack - Whisper -JDB
-A:y
 C:1:[
 
 # Hack - Yell -JDB

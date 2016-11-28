@@ -32,13 +32,13 @@ F:T:96
 F:#:56
 
 # Floor + prayer books
-F:1:1:8:0:330
-F:2:1:8:0:331
-F:3:1:8:0:332
-F:4:1:8:0:333
+F:1:1:8:0:[Book of Common Prayer]
+F:2:1:8:0:[High Mass]
+F:3:1:8:0:[Book of the Unicorn]
+F:4:1:8:0:[Blessings of the Grail]
 
 # Floor + novice priest
-F:p:1:8:Novice priest
+F:p:1:8:Novice priest
 
 # Floor + priest
 F:P:1:8:Priest

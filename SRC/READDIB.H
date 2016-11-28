@@ -19,4 +19,3 @@ typedef struct {
 
 /* Read a DIB from a file */
 BOOL ReadDIB(HWND, LPSTR, DIBINIT *);
-

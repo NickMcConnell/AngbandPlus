@@ -1,3 +1,4 @@
+/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/13 20:25:18 $ */
 /* File: z-rand.h */
 
 #ifndef INCLUDED_Z_RAND_H
@@ -28,7 +29,7 @@
  * For example, if M is 100, you get "percentile dice"
  */
 #define rand_int(M) \
-	(Rand_div(M))
+	((s32b)Rand_div(M))
 
 /*
  * Generates a random long integer X where A<=X<=B
@@ -62,10 +63,17 @@
 	(rand_int(100) < (P))
 
 
+#define one_in_(X) \
+	(rand_int(X) == 0)
+
+/*
+ * Evaluate to TRUE "S" percent of the time
+ */
+#define saving_throw(S) \
+	(rand_int(100) < (S))
 
 
 /**** Available Variables ****/
-
 
 extern bool Rand_quick;
 extern u32b Rand_value;
@@ -75,16 +83,14 @@ extern u32b Rand_state[RAND_DEG];
 
 /**** Available Functions ****/
 
-
 extern void Rand_state_init(u32b seed);
 extern s32b Rand_mod(s32b m);
-extern s32b Rand_div(s32b m);
+extern s32b Rand_div(u32b m);
 extern s16b randnor(int mean, int stand);
 extern s16b damroll(int num, int sides);
 extern s16b maxroll(int num, int sides);
 
 
 #endif
-
 
 

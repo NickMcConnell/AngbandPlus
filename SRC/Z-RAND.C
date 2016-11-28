@@ -1,3 +1,4 @@
+/* CVS: Last edit by $Author: ebock $ on $Date: 1999/10/31 18:04:38 $ */
 /* File: z-rand.c */
 
 /* Purpose: a simple random number generator -BEN- */
@@ -65,7 +66,6 @@ u16b Rand_place;
  * Current "state" table for the "complex" RNG
  */
 u32b Rand_state[RAND_DEG];
-
 
 
 /*
@@ -154,7 +154,7 @@ s32b Rand_mod(s32b m)
  * This method has no bias, and is much less affected by patterns
  * in the "low" bits of the underlying RNG's.
  */
-s32b Rand_div(s32b m)
+s32b Rand_div(u32b m)
 {
 	u32b r, n;
 
@@ -271,7 +271,7 @@ static s16b randnor_table[RANDNOR_NUM] =
 /*
  * Generate a random integer number of NORMAL distribution
  *
- * The table above is used to generate a psuedo-normal distribution,
+ * The table above is used to generate a pseudo-normal distribution,
  * in a manner which is much faster than calling a transcendental
  * function to calculate a true normal distribution.
  *
@@ -349,7 +349,6 @@ s16b maxroll(int num, int sides)
 {
 	return (num * sides);
 }
-
 
 
 

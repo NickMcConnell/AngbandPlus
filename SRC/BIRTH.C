@@ -1,4 +1,3 @@
-;/* File: birth.c */
 
 /* Purpose: create a player character */
 
@@ -120,13 +119,18 @@ static hist_type bg[] =
 	{"You are one of several children ",                     60, 7, 8, 50},
 	{"You are the only child ",                                     100, 7, 8, 55},
 
-	{"of a Teleri ",                                                 75, 8, 9, 50},
-	{"of a Noldor ",                                                 95, 8, 9, 55},
-	{"of a Vanyar ",                                                100, 8, 9, 60},
+        {"of a Laiquende ",                                      20, 8, 9, 20},
+        {"of a Nando ",                                         30, 8, 9, 30},
+        {"of a Sinda ",                                         50, 8, 9, 50},
+	{"of a Tela ",                                                 75, 8, 9, 50},
+	{"of a Noldo ",                                                 95, 8, 9, 55},
+	{"of a Vanya ",                                                100, 8, 9, 60},
 
+        {"Hunter.  ",                                            20, 9,54, 80},
 	{"Ranger.  ",                                            40, 9, 54, 80},
 	{"Archer.  ",                                            70, 9, 54, 90},
 	{"Warrior.  ",                                           87, 9, 54, 110},
+        {"Scholar.  ",                                           93, 9,54,132},
 	{"Mage.  ",                                                      95, 9, 54, 125},
 	{"Prince.  ",                                            99, 9, 54, 140},
 	{"King.  ",                                                     100, 9, 54, 145},
@@ -136,21 +140,24 @@ static hist_type bg[] =
 
 	{"Bum.  ",                                                       20, 11, 3, 55},
 	{"Tavern Owner.  ",                                              30, 11, 3, 80},
-	{"Miller.  ",                                            40, 11, 3, 90},
+	{"Miller.  ",                                            	 40, 11, 3, 90},
 	{"Home Owner.  ",                                                50, 11, 3, 100},
-	{"Burglar.  ",                                           80, 11, 3, 110},
-	{"Warrior.  ",                                           95, 11, 3, 115},
-	{"Mage.  ",                                                      99, 11, 3, 125},
-	{"Clan Elder.  ",                                               100, 11, 3, 140},
+	{"Burglar.  ",                                           	 80, 11, 3, 110},
+	{"Merchant.  ",                                           	 95, 11, 3, 115},
+	{"Hotel Owner.  ",                                               99, 11, 3, 125},
+	{"Mayor.  ",                                               	100, 11, 3, 140},
 
 	{"You are one of several children of a Gnome ",          85, 13, 14, 45},
 	{"You are the only child of a Gnome ",                  100, 13, 14, 55},
 
 	{"Beggar.  ",                                            20, 14, 3, 55},
 	{"Braggart.  ",                                          50, 14, 3, 70},
-	{"Prankster.  ",                                                 75, 14, 3, 85},
+	{"Prankster.  ",                                         75, 14, 3, 85},
 	{"Warrior.  ",                                           95, 14, 3, 100},
-	{"Mage.  ",                                                     100, 14, 3, 125},
+        {"Veteran.  ",                                           80, 14, 3, 110},
+        {"Squad Leader.  ",                                      90, 14, 3, 120},
+	{"Mage.  ",                                             100, 14, 3, 125},
+        {"Warchief.  ",                                         100, 14, 3, 140},
 
 	{"You are one of two children of a Dwarven ",            25, 16, 17, 40},
 	{"You are the only child of a Dwarven ",                        100, 16, 17, 50},
@@ -179,6 +186,8 @@ static hist_type bg[] =
 	{"Your father was a Water-Troll ",                              100, 22, 23, 45},
 
 	{"Cook.  ",                                                       5, 23, 62, 60},
+        {"Butcher.  ",                                           15, 23, 62, 40},
+        {"Smith.  ",                                             45, 23, 62, 50},
 	{"Warrior.  ",                                           95, 23, 62, 55},
 	{"Shaman.  ",                                            99, 23, 62, 65},
 	{"Clan Chief.  ",                                               100, 23, 62, 80},
@@ -326,7 +335,10 @@ static hist_type bg[] =
 	{"bright red hair, ",        80, 81, 65, 50 },
 	{"colourless albino hair, ",        100, 81, 65, 50 },
 
-	{"You are one of several children of ", 100, 82, 83, 50 },
+	{"You are one of several children of ", 40, 82, 83, 30 },
+	{"You are the runt of ", 60, 82, 83, 40},
+	{"You come from ", 80, 82, 83, 50},
+	{"You are the largest of ", 100, 82, 83, 75},
 
 	{"a Small Kobold.  ",   40, 83, 80, 50 },
 	{"a Kobold.  ",         75, 83, 80, 55 },
@@ -479,7 +491,7 @@ static hist_type bg[] =
 	{"and a very fair complexion.",             100, 112, 0, 50},
 
 	{"You arose from an unmarked grave.  ", 20, 113, 114, 50 },
-	{"In life you were a simple peasant, the victim of a powerful Vampire Lord.  ", 40, 109, 110, 50 },
+	{"In life you were a simple peasant, the victim of a powerful Vampire Lord.  ", 40, 113, 110, 50 },
 	{"In life you were a Vampire Hunter, but they got you.  ", 60, 113, 114, 50 },
 	{"In life you were a Necromancer.  ", 80, 113, 114, 50 },
 	{"In life you were a powerful noble.  ", 95, 113, 114, 50 },
@@ -520,22 +532,42 @@ static hist_type bg[] =
 	{"bloodshot red eyes, ", 100, 121, 122, 50 },
 
 	{" and a deathly gray complexion. ", 100, 122, 123, 50 },
-	{"An eerie green aura surrounds you.", 100, 123, 0, 50 },
+	{"An eerie green aura surrounds you. ", 100, 123, 0, 50 },
 
-	{"Your parents were ", 100, 124, 125, 50 },
+	{"You are the lost offspring of ", 25, 124, 125, 40},
+	{"You are the wandering offspring of ", 50, 124, 125, 50},
+	{"You are the only offspring of ", 75, 124, 125, 60},
+	{"You are the beloved offspring of ", 100, 124, 125, 70},
 
-	{"pixies.  ", 20, 125, 126, 35 },
-	{"nixies.  ", 30, 125, 126, 25 },
-	{"wood sprites.  ", 75, 125, 126, 50 },
-	{"wood spirits.  ", 90, 125, 126, 75 },
-	{"noble faerie folk.  ", 100, 125, 126, 85 },
+	{"an Ent whose name you have no recollection of.  ", 10, 125, 126, 35},
+	{"a solitary Ent.  ", 35, 125, 126, 50},
+	{"a member of a farflung Entish band.  ", 55, 125, 126, 60},
+	{"a leader of a prosperous community of Ents.  ", 70, 125, 126, 70},
+	{"an Entish Forestwarden.  ", 81, 125, 126, 80},
+	{"a respected Entish sage.  ", 91, 125, 126, 90},
+	{"an Entwife whose memory men cherish.  ", 96, 125, 126, 100},
+	{"Fangorn himself.  ", 199, 125, 126, 110},
 
-	{"You have light blue wings attached to your back, ", 100, 126, 127, 50 },
+	{"You have ", 100, 126, 127, 50},
 
-	{"straight blond hair, ",                        80, 127, 128, 50},
-	{"wavy blond hair, ",                            100, 127, 128, 50},
+	{"three fingers and toes, and are covered in ", 5, 127, 128, 50},
+	{"four fingers and toes, and are covered in ", 20, 127, 128, 50},
+	{"five fingers and toes, and are covered in ", 40, 127, 128, 50},
+	{"six fingers and toes, and are covered in ", 60, 127, 128, 50},
+	{"seven fingers and toes, and are covered in ", 80, 127, 128, 50},
+	{"eight fingers and toes, and are covered in ", 95, 127, 128, 50},
+	{"nine fingers and toes, and are covered in ", 100, 127, 128, 50},
 
-	{"blue eyes, and a very fair complexion.", 100, 128, 0, 50},
+	{"scaly brown skin.", 10, 128, 0, 50},
+	{"rough brown skin.", 20, 128, 0, 50},
+	{"smooth grey skin.", 30, 128, 0, 50},
+	{"dark green skin.", 40, 128, 0, 50},
+	{"mossy skin.", 50, 128, 0, 50},
+	{"deep brown skin.", 60, 128, 0, 50},
+	{"pale brown, flaky skin.", 70, 128, 0, 50},
+	{"rich chocolate-colored skin.", 80, 128, 0, 50},
+	{"ridged black skin.", 90, 128, 0, 50},
+	{"thick, almost corky skin.", 100, 128, 0, 50},
 
 	{"You were produced by a magical experiment.  ", 30, 129, 130, 40},
 	{"In your childhood, you were stupid enough to stick your head in raw Logrus.  ",
@@ -598,6 +630,235 @@ static s32b auto_round;
  */
 static s32b last_round;
 
+/* Dwarves */
+static char *dwarf_syllable1[] =
+{
+	"B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T", "Th", "V",
+};
+
+static char *dwarf_syllable2[] =
+{
+	"a", "e", "i", "o", "oi", "u",
+};
+
+static char *dwarf_syllable3[] =
+{
+	"bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli", "nar", "nus", "rin", "ran", "sin", "sil", "sur",
+};
+
+/* Elves */
+static char *elf_syllable1[] =
+{
+	"Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow", "Ear", "F", "Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is", "Lan", "Leg", "Lom", "N", "Nal", "Nel",  "S", "Sal", "Sel", "T", "Tal", "Tel", "Thr", "Tin",
+};
+
+static char *elf_syllable2[] =
+{
+	"a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra", "ilma", "il-Ga", "ili", "o", "orfi", "u", "y",
+};
+
+static char *elf_syllable3[] =
+{
+	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd", "ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril", "riand", "rion", "s", "thien", "viel", "wen", "wyn",
+};
+
+/* Gnomes */
+static char *gnome_syllable1[] =
+{
+	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J", "Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R", "S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
+};
+
+static char *gnome_syllable2[] =
+{
+	"a", "aa",  "ai", "e", "ei", "i", "o", "uo", "u", "uu",
+};
+
+static char *gnome_syllable3[] =
+{
+	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na", "namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li", "kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka", "la", "lla", "lli", "mo", "nni",
+};
+
+/* Hobbit */
+static char *hobbit_syllable1[] =
+{
+	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler", "M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
+};
+
+static char *hobbit_syllable2[] =
+{
+	"a", "e", "i", "ia", "o", "oi", "u",
+};
+
+static char *hobbit_syllable3[] =
+{
+	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba", "lbo", "lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc", "nwise", "p", "ppin", "pper", "tho", "to",
+};
+
+/* Human */
+static char *human_syllable1[] =
+{
+	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar", "B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et", "Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha", "Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar", "Leg", "M", "Mir", "N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T", "Tr", "Th", "V", "Y", "Z", "W", "Wic",
+};
+
+static char *human_syllable2[] =
+{
+	"a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei", "ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie", "ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe", "ore", "u", "y",
+};
+
+static char *human_syllable3[] =
+{
+	"a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch", "can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g", "gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth", "ld", "ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n", "nydd", "nidd", "nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd", "p", "r", "ron", "rd", "s", "sh", "seth", "sean", "t", "th", "tha", "tlan", "trem", "tram", "v", "vudd", "w", "wan", "win", "wyn", "wyr", "wyr", "wyth",
+};
+
+/* Orc */
+static char *orc_syllable1[] =
+{
+	"B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr",
+};
+
+static char *orc_syllable2[] =
+{
+	"a", "i", "o", "oo", "u", "ui",
+};
+
+static char *orc_syllable3[] =
+{
+	"dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k", "lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk", "shnak", "mog", "mak", "rak",
+};
+
+/* Klackon */
+static char *klackon_syllable1[] =
+{
+	"K'", "K", "Kri", "Kir", "Kiri", "Iriki", "Irik", "Karik", "Iri","Akri",
+};
+
+static char *klackon_syllable2[] =
+{
+	"arak", "i", "iri", "ikki", "ki", "kiri","ikir","irak","arik","k'","r",
+};
+
+static char *klackon_syllable3[] =
+{
+	"akkak", "ak", "ik", "ikkik", "irik", "arik", "kidik", "kii", "k","ki","riki","irk",
+};
+
+static char *cthuloid_syllable1[] =
+{
+	"Cth","Az","Fth","Ts","Xo","Q'N","R'L","Ghata","L","Zz","Fl","Cl","S","Y",
+};
+
+static char *cthuloid_syllable2[] =
+{
+	"nar","loi","ul","lu","noth","thon","ath","'N","rhy","oth","aza","agn","oa","og",
+};
+
+static char *cthuloid_syllable3[] =
+{
+	"l","a","u","oa","oggua","oth","ath","aggua","lu","lo","loth","lotha","agn","axl",
+};
+
+/* Ent */
+static char *entish_syllable1[] =
+{
+	"Tree","Root","Bark","Beam","Leaf",
+};
+
+static char *entish_syllable2[] =
+{
+	"-",
+};
+
+static char *entish_syllable3[] =
+{
+	"tender","planter","shepherd","watcher","grower","warden",
+};
+
+/*
+ * Random Name Generator
+ * based on a Javascript by Michael Hensley
+ * "http://geocities.com/timessquare/castle/6274/"
+ */
+void create_random_name(int race, char *name)
+{
+	/* Paranoia */
+	if (!name) return;
+
+	/* Select the monster type */
+	switch (race)
+	{
+		/* Create the monster name */
+	case RACE_CYCLOPS:
+	case RACE_DWARF:
+	case RACE_HALF_GIANT:
+	case RACE_GOLEM:
+	case RACE_NIBELUNG:
+		strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
+		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
+		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_DARK_ELF:
+	case RACE_ELF:
+	case RACE_HALF_ELF:
+	case RACE_HIGH_ELF:
+		strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
+		strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
+		strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_GNOME:
+		strcpy(name, gnome_syllable1[rand_int(sizeof(gnome_syllable1) / sizeof(char*))]);
+		strcat(name, gnome_syllable2[rand_int(sizeof(gnome_syllable2) / sizeof(char*))]);
+		strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_HOBBIT:
+	case RACE_YEEK:
+		strcpy(name, hobbit_syllable1[rand_int(sizeof(hobbit_syllable1) / sizeof(char*))]);
+		strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
+		strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_BARBARIAN:
+	case RACE_DUNADAN:
+	case RACE_HALF_TITAN:
+	case RACE_HUMAN:
+	case RACE_SKELETON:
+	case RACE_SPECTRE:
+	case RACE_VAMPIRE:
+	case RACE_ZOMBIE:
+		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
+		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
+		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_BEASTMAN:
+	case RACE_HALF_OGRE:
+	case RACE_HALF_ORC:
+	case RACE_HALF_TROLL:
+	case RACE_KOBOLD:
+		strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
+		strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
+		strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_KLACKON:
+		strcpy(name, klackon_syllable1[rand_int(sizeof(klackon_syllable1) / sizeof(char*))]);
+		strcat(name, klackon_syllable2[rand_int(sizeof(klackon_syllable2) / sizeof(char*))]);
+		strcat(name, klackon_syllable3[rand_int(sizeof(klackon_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_ENT:
+		strcpy(name, entish_syllable1[rand_int(sizeof(entish_syllable1) / sizeof(char*))]);
+		strcat(name, entish_syllable2[rand_int(sizeof(entish_syllable2) / sizeof(char*))]);
+		strcat(name, entish_syllable3[rand_int(sizeof(entish_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_IMP:
+	case RACE_MIND_FLAYER:
+	case RACE_DRACONIAN:
+		strcpy(name, cthuloid_syllable1[rand_int(sizeof(cthuloid_syllable1) / sizeof(char*))]);
+		strcat(name, cthuloid_syllable2[rand_int(sizeof(cthuloid_syllable2) / sizeof(char*))]);
+		strcat(name, cthuloid_syllable3[rand_int(sizeof(cthuloid_syllable3) / sizeof(char*))]);
+		break;
+		/* Create an empty name */
+	default:
+		name[0] = '\0';
+		break;
+	}
+}
 byte choose_realm(byte choices)
 {
 
@@ -614,9 +875,9 @@ byte choose_realm(byte choices)
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"The realm of magic will determine which spells you can learn.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Life and Sorcery are protective, Chaos and Death are destructive.");
+		"Life and Air are protective, Fire and Death are destructive.");
 	Term_putstr(5, 17, -1, TERM_WHITE,
-		"Nature has both defensive and offensive spells.");
+		"Earth and Water have both defensive and offensive spells.");
 
 	n = 0;
 
@@ -679,10 +940,80 @@ byte choose_realm(byte choices)
 		n++;
 	}
 
+	/* Get a realm */
+	while (1)
+	{
+		sprintf(buf, "Choose a realm (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
+		put_str(buf, 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == '*')
+		{
+			k = rand_int(n);
+			break;
+		}
+		k = (islower(c) ? A2I(c) : -1);
+		if ((k >= 0) && (k < n)) break;
+		if (c == '?') do_cmd_help();
+		else if (c == '=')
+		{
+			screen_save();
+			do_cmd_options_aux(6, "Startup Options");
+			screen_load();
+		}
+		else bell();
+	}
+
+
+	/* Clean up */
+	clear_from(15);
+
+	return (picks[k]);
+}
+
+byte choose_discipline(void)
+{
+
+	int k, n;
+
+	char c;
+
+	char p2 = ')';
+
+	char buf[80];
+
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"The disciplines you can choose reflect the nature of your mind.");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"Telepathy, Clairsentience and Psychoportation contain general purpose ");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"sciences; Psychometabolism is defensive, Psychokinetic mainly offensive. ");
+		
+	n = 0;
+
+	/* Create prompt */
+	
+		sprintf(buf, "%c%c %s", I2A(n), p2, "Telepathy");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		n++;
+		sprintf(buf, "%c%c %s", I2A(n), p2, "P-portation");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		n++;
+		sprintf(buf, "%c%c %s", I2A(n), p2, "P-metabolic");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		n++;
+		sprintf(buf, "%c%c %s", I2A(n), p2, "P-kinetics");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		n++;
+		sprintf(buf, "%c%c %s", I2A(n), p2, "Clairsentience");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		n++;
+
 	/* Get a class */
 	while (1)
 	{
-		sprintf(buf, "Choose a realm (%c-%c), or * for random: ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a discipline (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
@@ -694,6 +1025,12 @@ byte choose_realm(byte choices)
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
+		else if (c == '=')
+		{
+			screen_save();
+			do_cmd_options_aux(6, "Startup Options");
+			screen_load();
+		}
 		else bell();
 	}
 
@@ -701,7 +1038,7 @@ byte choose_realm(byte choices)
 	/* Clean up */
 	clear_from(15);
 
-	return (picks[k]);
+	return (k);
 }
 
 static void get_realms()
@@ -735,13 +1072,16 @@ static void get_realms()
 	case CLASS_RANGER:
 		p_ptr->realm1 = 3;
 		break;
+	case CLASS_MINDCRAFTER:
+		p_ptr->realm1 = choose_discipline() + 1 /* Hack for foci */;
+		break;
 	default:
 		p_ptr->realm1 = choose_realm(realm_choices[pclas]);
 	}
 
 	/* Paladins, Chaos warrriors and rogues get no second realm */
 	if (pclas == CLASS_PALADIN || pclas == CLASS_ROGUE || pclas == CLASS_CHAOS_WARRIOR
-		|| pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE) return;
+		|| pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE || pclas == CLASS_MINDCRAFTER) return;
 	else
 		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
 }
@@ -900,7 +1240,7 @@ static int adjust_stat(int value, int amount, int auto_roll)
 			{
 				value++;
 			}
-			else if (p_ptr->maximize)
+			else if (maximize)
 			{
 				value += 10;
 			}
@@ -970,7 +1310,7 @@ static void get_stats(void)
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 		/* Variable stat maxes */
-		if (p_ptr->maximize)
+		if (maximize)
 		{
 			/* Start fully healed */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
@@ -988,6 +1328,10 @@ static void get_stats(void)
 			/* Save the resulting stat maximum */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
 		}
+
+		/* No temporary drain (yet...) */
+		p_ptr->stat_cnt[i] = 0;
+		p_ptr->stat_los[i] = 0;
 	}
 }
 
@@ -1021,21 +1365,41 @@ static void get_extra(void)
 	/* Initialize gods and alignment info */
 	p_ptr->grace = 0;
         p_ptr->champion = FALSE;
-	p_ptr->align = rp_ptr->align;
-	
-	/* But... */
-	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-	    p_ptr->align = ALIGN_NONE;
 
-	/* Life, death users always of opposite alignments */
+#if 0
+        set_align(0, 0, rp_ptr->align);
+
+        /* Horrible hacks */
+
+        if (p_ptr->align & ALIGN_LAWFUL)
+            p_ptr->align_law = 2000;
+        if (p_ptr->align & ALIGN_CHAOTIC)
+            p_ptr->align_law = -2000;
+        if (p_ptr->align & ALIGN_GOOD)
+            p_ptr->align_good = 2000;
+        if (p_ptr->align & ALIGN_EVIL)
+            p_ptr->align_good = -2000;
+            
+	/* But CWs are always chaotic */
+	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+	    (void)set_align (-2000, p_ptr->align_good, ALIGN_CHAOTIC);
+
+	/* Magic users always shift alignments */
 	
 	if ((p_ptr->realm1 == 1) || (p_ptr->realm2 == 1))
-	   p_ptr->align = ALIGN_GOOD;
+	    (void)set_align (p_ptr->align_law, 2000, ALIGN_GOOD);
 
 	if ((p_ptr->realm1 == 5) || (p_ptr->realm2 == 5))
-	   p_ptr->align = ALIGN_EVIL;
+	    (void)set_align (p_ptr->align_law, -2000, ALIGN_EVIL);
+
+	if ((p_ptr->realm1 == 4) || (p_ptr->realm2 == 4))
+	    (void)set_align (-2000, p_ptr->align_good, ALIGN_CHAOTIC);
+
+	if ((p_ptr->realm1 == 6) || (p_ptr->realm2 == 6))
+	    (void)set_align (2000, p_ptr->align_good, ALIGN_LAWFUL);
 	   
-	p_ptr->pgod = p_ptr->align;
+	p_ptr->pgod = 1; /* testing now */
+#endif
 	   
 	/* Give some grace */
 
@@ -1264,7 +1628,7 @@ static void get_history(void)
 			chart = 118;
 			break;
 		}
-		case RACE_SPRITE:
+		case RACE_ENT:
 		{
 			chart = 124;
 			break;
@@ -1411,10 +1775,6 @@ static void get_money(void)
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
 
-	/* She charmed the banker into it! -CJS- */
-	/* She slept with the banker.. :) -GDH-  */
-	/* if (p_ptr->psex == SEX_FEMALE) gold += 50; */
-
 	/* Save the gold */
 	p_ptr->au = gold;
 }
@@ -1468,7 +1828,7 @@ static void player_wipe(void)
 
 
 	/* Hack -- zero the struct */
-	WIPE(p_ptr, player_type);
+	(void)WIPE(p_ptr, player_type);
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
@@ -1582,6 +1942,20 @@ static void player_wipe(void)
 	p_ptr->pet_open_doors = FALSE;
 	p_ptr->pet_pickup_items = FALSE;
 
+        /* Body changing initialisation */
+        p_ptr->polymon = 0;
+        
+        /* Everything is ungenocided */
+        for (i = 0; i < max_r_idx - 1; i++)
+        {
+            r_info[i].flags2 &= ~(RF2_EXTINCT);
+        }
+
+        /* All traps are unknown */
+        for (i = 0; i < max_t_idx - 1; i++)
+        {
+            t_info[i].ident = FALSE;
+        }
 }
 
 
@@ -1592,19 +1966,22 @@ static void player_wipe(void)
  * In addition, he always has some food and a few torches.
  */
 
-static byte player_init[MAX_CLASS][3][2] =
+static byte player_init[MAX_CLASS][4][2] =
 {
 	{
 		/* Warrior */
 		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+		{ TV_HELM, SV_HARD_LEATHER_CAP }
+		
 	},
 
 	{
 		/* Mage */
 		{ TV_AIR_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_DAGGER },
+		{ TV_DAGGER, SV_DAGGER },
+  		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
@@ -1612,13 +1989,15 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Priest */
 		{ TV_AIR_BOOK, 0 }, /* Hack: for Life / Death book */
 		{ TV_HAFTED, SV_MACE },
+  		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Rogue */
 		{ TV_AIR_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_DAGGER },
+		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},
 
@@ -1626,6 +2005,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Ranger */
 		{ TV_EARTH_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_DEATH_BOOK, 0 }            /* Hack: for realm2 book */
 	},
 
@@ -1633,13 +2013,15 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Paladin */
 		{ TV_AIR_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
+		{ TV_SOFT_ARMOR, SV_SOFT_STUDDED_LEATHER }
 	},
 
 	{
 		/* Warrior-Mage */
 		{ TV_AIR_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_SHORT_SWORD },
+  		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
@@ -1647,7 +2029,8 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Chaos Warrior */
 		{ TV_AIR_BOOK, 0 }, /* Hack: For realm1 book */
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
+		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS }
 	},
 
 	{
@@ -1655,6 +2038,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_AIR_BOOK, 0 },
 		{ TV_POTION, SV_POTION_HEALING },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS }
 	},
 
 	{
@@ -1662,13 +2046,15 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_POTION, SV_POTION_RESTORE_MANA },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_FOCUS, SV_FOCUS_TELEPATHY}
 	},
 
 	{
 		/* High Mage */
 		{ TV_AIR_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_RING, SV_RING_SUSTAIN_INT}
+		{ TV_DAGGER, SV_DAGGER },
+		{ TV_RING, SV_RING_SUSTAIN_INT},
+  		{ TV_WAND, SV_WAND_MAGIC_MISSILE }
 	},
 };
 
@@ -1707,7 +2093,10 @@ static void player_outfit(void)
 	else
 	{
 		/* Hack -- Give the player some food */
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_IRON_RATION));
+		if (ironman_downward && ironman_shops)
+			q_ptr->number = (byte)rand_range(5, 10);
+		else
 		q_ptr->number = (byte)rand_range(3, 7);
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1736,7 +2125,11 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player some torches */
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-		q_ptr->number = (byte)rand_range(3, 7);
+		if (ironman_downward && ironman_shops)
+		    q_ptr->number = (byte)rand_range(5, 10);
+		else    
+		    q_ptr->number = rand_range(3, 7);
+
 		q_ptr->pval = rand_range(3, 7) * 500;
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1759,7 +2152,7 @@ static void player_outfit(void)
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
 
-		/* Hack -- Give the player some arrows */
+		/* Hack -- Give the player a bow */
 		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
 
 		/* These objects are "storebought" */
@@ -1769,23 +2162,9 @@ static void player_outfit(void)
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
 	}
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE)
-	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
-		q_ptr->number = 1;
-		q_ptr->pval = (byte)rand_range(25, 30);
 
-		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
-
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr, FALSE);
-	}
-
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	/* Hack -- Give the player four useful objects */
+	for (i = 0; i < 4; i++)
 	{
 		/* Look up standard equipment */
 		tv = player_init[p_ptr->pclass][i][0];
@@ -1799,14 +2178,20 @@ static void player_outfit(void)
 		    p_ptr->prace == RACE_BARBARIAN)
 			/* Barbarians do not need a ring of resist fear */
 			sv = SV_RING_SUSTAIN_STR;
-
+		/* High mages get a random wand */	
+		else if (tv == TV_WAND && p_ptr->pclass == CLASS_HIGH_MAGE)		
+		    sv = rand_range(4, 17);
+		/* Mindcraters get the correct focus */	
+		else if (tv == TV_FOCUS && p_ptr->pclass == CLASS_MINDCRAFTER)
+		    sv = p_ptr->realm1;
+		    
 		/* Get local object */
 		q_ptr = &forge;
 
 		/* Hack -- Give the player an object */
 		object_prep(q_ptr, lookup_kind(tv, sv));
 
-		/* Assassins begin the game with a poisoned dagger */
+		/* Assassins begin the game with a poisoned rapier */
 		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
 			p_ptr->realm1 == 5) /* Only assassins get a poisoned weapon */
 		{
@@ -1818,6 +2203,12 @@ static void player_outfit(void)
 			p_ptr->realm1 == 4) /* Only chaos w. get a chaotic weapon */
 		{
 			q_ptr->name2 = EGO_CHAOTIC;
+		}
+
+		/* Gimme some charges for random wands */
+		if (tv == TV_WAND && p_ptr->pclass == CLASS_HIGH_MAGE)
+		{
+			q_ptr->pval = rand_range (15, 25); 
 		}
 
 		/* These objects are "storebought" */
@@ -1861,10 +2252,12 @@ static bool player_birth_aux()
 
 	char buf[80];
 	char inp[80];
-	char buf2[10];
 
 #ifdef ARCN
+
 	char new_name[32] = "";
+	char buf2[10];
+
 #endif
 	bool autoroll = FALSE;
 
@@ -1921,7 +2314,7 @@ static bool player_birth_aux()
 	/* Choose */
 	while (1)
 	{
-		sprintf(buf, "Choose a sex (%c-%c), or * for random: ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a sex (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
@@ -1934,6 +2327,12 @@ static bool player_birth_aux()
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
+		else if (c == '=')
+			{
+				screen_save();
+				do_cmd_options_aux(6, "Startup Options");
+				screen_load();
+			}
 		else bell();
 	}
 
@@ -1953,7 +2352,7 @@ static bool player_birth_aux()
 
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Your 'race' determines various intrinsic factors and bonuses.");
+		"Your race determines various intrinsic factors and bonuses.");
 	hack_mutation = FALSE;
 
 	/* Dump races */
@@ -1976,14 +2375,14 @@ static bool player_birth_aux()
 	/* Choose */
 	while (1)
 	{
-	sprintf(buf, "Choose a race (%c-4), or * for a random choice: ", I2A(0));
+	sprintf(buf, "Choose a race (%c-4), * for a random choice, or = for options: ", I2A(0));
 	put_str(buf, 17, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
 		if (c == '*')
 		{
-			k = randint(RACE_BEASTMAN + 1) - 1;
+			k = rand_int(MAX_RACES);
 			if (k == RACE_BEASTMAN)
 				hack_mutation = TRUE;
 			break;
@@ -2000,7 +2399,7 @@ static bool player_birth_aux()
 	}
 	else if (c == '3')
 	{
-	    k = RACE_SPRITE;
+	    k = RACE_ENT;
 	    break;
 	}
 	else if (c == '4')
@@ -2014,6 +2413,12 @@ static bool player_birth_aux()
 	    k = (islower(c) ? A2I(c) : -1);
 	    if ((k >= 0) && (k < n)) break;
 	    if (c == '?') do_cmd_help();
+			else if (c == '=')
+			{
+				screen_save();
+				do_cmd_options_aux(6, "Startup Options");
+				screen_load();
+			}
 	    else bell();
 	}
 	}
@@ -2026,6 +2431,12 @@ static bool player_birth_aux()
 	/* Display */
 	c_put_str(TERM_L_BLUE, str, 4, 15);
 
+	/* Get a random name */
+	create_random_name(p_ptr->prace, player_name);
+
+	/* Display */
+	c_put_str(TERM_L_BLUE, player_name, 2, 15);
+
 	/* Clean up */
 	clear_from(15);
 
@@ -2034,9 +2445,9 @@ static bool player_birth_aux()
 
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Your 'class' determines various intrinsic abilities and bonuses.");
+		"Your class determines various intrinsic abilities and bonuses.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-	"Any entries in parentheses should only be used by advanced players.");
+		"Any entries in parentheses should only be used by advanced players.");
 
 	/* Dump classes */
 	for (n = 0; n < MAX_CLASS; n++)
@@ -2066,7 +2477,7 @@ static bool player_birth_aux()
 	/* Get a class */
 	while (1)
 	{
-		sprintf(buf, "Choose a class (%c-%c), or * for random: ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a class (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
 	put_str(buf, 18, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
@@ -2079,6 +2490,12 @@ static bool player_birth_aux()
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
+			else if (c == '=')
+			{
+				screen_save();
+				do_cmd_options_aux(6, "Startup Options");
+				screen_load();
+			}
 		else bell();
 	}
 
@@ -2095,7 +2512,7 @@ static bool player_birth_aux()
 
 	clear_from(15);
 
-    get_realms();
+        get_realms();
 
 	if (p_ptr->realm1 || p_ptr->realm2)
 		put_str("Magic       :", 6, 1);
@@ -2109,88 +2526,12 @@ static bool player_birth_aux()
 	clear_from(15);
 
 
-	/*** Maximize mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'maximize' mode makes the game harder at the start,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-	"but often makes it easier to win. In GSNband, 'maximize'");
-    Term_putstr(5, 17, -1, TERM_WHITE,
-	"mode is recommended for spellcasters.");
-
-	/* Ask about "maximize" mode */
-	while (1)
-	{
-		put_str("Use 'maximize' mode? (y/n/*) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == '*')
-		{
-			c = 'y';
-			if (randint(2) == 1)
-				c = 'n';
-			break;
-		}
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell();
-	}
-
-	/* Set "maximize" mode */
-	p_ptr->maximize = (c == 'y');
-
-	/* Clear */
-	clear_from(15);
-
-
-	/*** Preserve mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but eliminates the 'special' feelings about some levels.");
-
-	/* Ask about "preserve" mode */
-	while (1)
-	{
-		put_str("Use 'preserve' mode? (y/n/*) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == '*')
-		{
-			c = 'y';
-			if (randint(2) == 1)
-				c = 'n';
-			break;
-		}
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell();
-	}
-
-	/* Set "preserve" mode */
-	p_ptr->preserve = (c == 'y');
-
-	/* Initialize allow_one_death */
-	p_ptr->allow_one_death = FALSE;
-
-	/* Clear */
-	clear_from(20);
-
 	/**** Dungeon seed ****/
 
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		    "If you select 'yes', all dungeon generation will use "
-		    "the same seed. ");
+		    "If you select 'yes', all dungeon generation will use the same seed. ");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		    "This means that the structure of each level will be "
-		    "the same, though");
+		    "This means that the structure of each level will be the same, though");
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		    "monsters and items will change.");
 
@@ -2204,6 +2545,12 @@ static bool player_birth_aux()
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
 		if (c == '?') do_cmd_help();
+			else if (c == '=')
+			{
+				screen_save();
+				do_cmd_options_aux(6, "Startup Options");
+				screen_load();
+			}
 		else bell();
 	}
 
@@ -2214,38 +2561,6 @@ static bool player_birth_aux()
 	} else {
 	  seed_dungeon = 0;
 	}
-
-	/* Clear */
-	clear_from(20);
-
-	/**** Dungeon seed ****/
-
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		    "If you select 'yes', the game will be played in a "
-		    "single one-. ");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		    "screen town, similar to vanilla Angband, without "
-		    "any town quests or");
-	Term_putstr(5, 17, -1, TERM_WHITE,
-		    "wilderness.");
-
-	/* Ask about dungeon seed */
-	while (1)
-	{
-		put_str("Use vanilla-like town? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell();
-	}
-
-	if (c == 'y')
-	  vanilla_town = TRUE;
-	else
-	  vanilla_town = FALSE;
 
 	/* Clear */
 	clear_from(15);
@@ -2270,6 +2585,12 @@ static bool player_birth_aux()
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
 		if (c == '?') do_cmd_help();
+			else if (c == '=')
+			{
+				screen_save();
+				do_cmd_options_aux(6, "Startup Options");
+				screen_load();
+			}
 		else bell();
 	}
 
@@ -2383,14 +2704,14 @@ static bool player_birth_aux()
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"You can input yourself the number of quest you'd like to");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+		"perform next to two obligatory ones (Morgoth and Sauron)");
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		"In case you do not want any additional quest, just enter 0");
 
 	/* Ask the number of additional quests */
 	while (TRUE)
 	{
-		put_str(format("Number of additional quest? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
+		put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
 
 		/* Get a the number of additional quest */
 		while (TRUE)
@@ -2399,7 +2720,7 @@ static bool player_birth_aux()
 			put_str("", 20, 37);
 
 			/* Default */
-			strcpy(inp, "20");
+			strcpy(inp, "10");
 
 			/* Get a response (or escape) */
 			if (!askfor_aux(inp, 2)) inp[0] = '\0';
@@ -2467,7 +2788,8 @@ static bool player_birth_aux()
 		}
 		else
 		{
-			q_ptr->max_num = 5 + (s16b)rand_int(q_ptr->level / 3 + 5);
+			q_ptr->max_num = 5 + (s16b)rand_int(q_ptr->level / 3 + 5) /
+                               quest_r_ptr->rarity;
 		}
 	}
 
@@ -2482,58 +2804,12 @@ static bool player_birth_aux()
 	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
 	p_ptr->inside_quest = 0;
 
-	/* Only if random quests are selected */
-	if (v)
-	{
-		/* Clear */
-		clear_from(15);
-
-
-		/*** Hard quests mode ***/
-
-		/* Extra info */
-		Term_putstr(5, 14, -1, TERM_WHITE,
-			"Using 'hard quests' mode makes the random quests harder, because");
-		Term_putstr(5, 15, -1, TERM_WHITE,
-			"you have to kill all monsters at the same visit to the quest level.");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-			"If you leave the level while some quest monsters are still alive,");
-		Term_putstr(5, 17, -1, TERM_WHITE,
-			"then all killed quest monsters are revived on your next visit");
-		Term_putstr(5, 18, -1, TERM_WHITE,
-			"to this level.");
-
-		/* Ask about "hard quests" mode */
-		while (1)
-		{
-			put_str("Use 'Hard quests'? (y/n/*) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == '*')
-			{
-				c = 'y';
-				if (randint(2) == 1)
-					c = 'n';
-				break;
-			}
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help();
-			else bell();
-		}
-
-		/* Set "hard quests" mode */
-		p_ptr->hard_quests = (c == 'y');
-	}
-
-	/* Clear */
-	clear_from(15);
-
 	/*** Generate ***/
 
 	/* Get the star sign */
-	p_ptr->sign = randint(12) - 1;
+	p_ptr->sign = rand_int(12);
+	
+	p_ptr->birthday = rand_int(365);
 
 	/* Roll */
 	while (TRUE)
@@ -2664,7 +2940,7 @@ static bool player_birth_aux()
 	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
 	{
 #endif
-	    p_ptr->chaos_patron = (randint(MAX_PATRON)) - 1;
+	    p_ptr->chaos_patron = rand_int(MAX_PATRON);
 
 #if 0
 	}
@@ -2678,6 +2954,10 @@ static bool player_birth_aux()
 	p_ptr->muta1 = 0;
 	p_ptr->muta2 = 0;
 	p_ptr->muta3 = 0;
+	
+	/* Initialize allow_one_death */
+	p_ptr->allow_one_death = FALSE;
+
 
 		/* Input loop */
 		while (TRUE)
@@ -2850,7 +3130,6 @@ void player_birth(void)
 	}
 
 }
-
 
 
 

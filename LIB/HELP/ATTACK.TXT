@@ -4,7 +4,8 @@ Attacking is simple in GSNband.  If you move into a creature, you attack him.
 You can attack from a distance by firing a missile or by magical means such
 as aiming a wand.  Creatures attack in the same way.  If they move into you,
 they attack you.  Some creatures can also cast spells from a distance, and
-others can use various breath weapons such as fire on you from a distance.
+others can use various breath weapons such as fire, cold, poison, shards... 
+on you from a distance.
 
 Creatures in walls can not be attacked by wands and other magic attacks
 normally stopped by walls.  You can attack a creature in a wall normally
@@ -14,7 +15,9 @@ containing the creature.  If you just try to move into the wall, you will
 bump your head and look quite silly.
 
 If you are wielding a weapon, the damage for the weapon is used when you hit
-a creature.  Otherwise you get a single punch which does minimal damage.
+a creature.  Otherwise you get a single punch which does minimal damage based
+on your strength only (an exception is the Monk class, which knows martial
+arts).
 
 You may wield both a primary weapon for melee combat, and a bow or other
 missile launcher for launching missiles at the same time (along with a
@@ -27,11 +30,18 @@ get the "full" power out of the missile.  You may of course throw an arrow
 at a monster without shooting it, but you will find the effects may not be
 what you had hoped.
 
+You can throw some weapons specially designed for that purpose, which
+currently includes throwing daggers, throwing axes and shurikens. They then
+deliver damage as if they were wielded, whereas other things deliver damage
+based mostly on their weight.
+
 Hits and misses are determined by ability to hit versus armor class.  A hit
-is a strike that does some damage; a miss may in fact reach a target, but
-fails to do any  damage.  Higher armor classes make it harder to do damage,
-and so lead to more misses; they also reduce the damage from a strike that
-actually occurs.
+is a strike that does some damage; a strike that doesn't do any is announced
+as a miss.  Higher armor classes make it harder to do damage, and so lead to 
+more misses; they also reduce the damage from a strike that actually occurs.
+Nevertheless, you and the monsters always have a 5% chance of hitting, and
+a 5% chance of missing regardless of any other factors. This simulates the
+randomness found in combat.
 
 
 === Monster Memories ===
@@ -61,24 +71,27 @@ Carrying a weapon in your backpack does you no good.  You must wield a weapon
 before it can be used in a fight.  A secondary weapon can be kept by keeping
 it in the backpack, and switching it with the primary weapon when needed.
 
-Weapons have two main magical characteristics, their enchanted ability to hit
-and their enchanted ability to do damage, expressed as `(+#,+#)'.  A normal
-weapon would be `(+0,+0)'.  Many weapons in GSNband have bonuses to hit
-and/or do damage.  Some weapons are cursed, and have penalties that hurt the
-player.  Cursed weapons cannot be unwielded until the curse is lifted.
-Identifying a weapon will inform you of the magical bonuses and penalties
-and whether or not it is cursed.
+Weapons have two main magical characteristics, their enchanted ability
+to hit and their enchanted ability to do damage, expressed as
+`(+#,XdY+#)'.   A normal weapon is usually `(+0,+0)', but there are
+exceptions.  XdY are the  damage dice which define their capabilities.
+Any damage enchantment is added to the dice roll for that weapon.  The
+dice used for a given  weapon is displayed as "XdY".  The first number
+indicates how many dice to roll, and the second indicates how many sides
+they have.  A "2d6" weapon will give damage from 2 to 12, plus any
+damage bonus.  The weight of a weapon is also a consideration.  Heavy
+weapons may hit harder more often, but they are also harder to use. 
+Depending on your  strength, dexterity, character class, and weapon
+weight, you may get  several attacks per turn. 'slay' weapons have their
+damage dice (not the whole damage) multiplied by 2 or 3, '*slay*'
+weapons by 5. For example, a dagger of slay evil does 3d6 + bonuses of
+damage, and a blade of chaos of *slay* evil does 25d6 + bonuses!
 
-Angband assumes that your youth in the rough environment near the dungeons
-has taught you the relative merits of different weapons, and displays as
-part of their description the damage dice which define their capabilities.
-Any damage enchantment is added to the dice roll for that weapon.  The dice
-used for a given  weapon is displayed as "#d#".  The first number indicates
-how many dice to roll, and the second indicates how many sides they have.  A
-"2d6" weapon will give damage from 2 to 12, plus any damage bonus.  The
-weight of a weapon is also a consideration.  Heavy weapons may hit harder,
-but they are also harder to use.  Depending on your strength, dexterity,
-character class, and weapon weight, you may get several attacks per turn.
+Many weapons in GSNband have bonuses to hit and/or do damage.  Some
+weapons are cursed, and have penalties that hurt the player.  Cursed
+weapons cannot be unwielded until the curse is lifted. Identifying a
+weapon will inform you of the magical bonuses and penalties and whether
+or not it is cursed.
 
 Missile booster weapons, such as bows, have their characteristics added to
 those of the missile used, if the proper weapon/missile combination is used,
@@ -91,13 +104,17 @@ when you wield it, those bonuses will not be added in to the displayed
 values of to-hit and to-dam on your character sheet.  You must identify the
 weapon before the displayed values reflect the real values used.
 
-Weapons get damaged with use and can break, so check their status with
-the I command every so often to avoid having your stuff damaged when
-in the middle of an orc pit.  Collect/buy scrolls of repair to magically
-renew your weapon when it gets low on hitpoints.  Damaged weapons have
-minuses to hit and to dam, and can also be repaired with scrolls of repair.
-However, any extra enchantments or abilities the weapon might have had are
-gone forever, so be extra careful with them!
+If you choose the damage_weapons option, weapons get damaged with use
+and can break, so check their status with the 'I' command every so
+often to avoid having your stuff damaged when in the middle of an orc
+pit.  Collect/buy scrolls of repair to magically renew your weapon when
+it gets low on hitpoints.  Damaged weapons have minuses to hit and to
+dam, and can also be repaired with scrolls of repair. Artifacts are not
+subject to damage, nor are certain ego items (regardless of the base
+weapon). If you turn the show_labels option on and use damageable items,
+the status of breakable weapons will be displayed in curly brackets at
+the end of the weapon name (but preceding any inscriptions), like {worn
+out}, for example.
 
 Edged weapons have generally the longest span between breaks, followed by
 maces and polearms.  Better weapons last longer than worse ones, but it
@@ -107,23 +124,30 @@ help you assess its durability in combat.
 You cannot damage weapon artifacts, unless the damage_artifacts option is
 on, and even then they take only 1/10th the damage they normally would.
 
-Finally, some rare weapons have special abilities.  These are called ego
-weapons, and are feared by great and meek.  An ego weapon must be wielded
-to receive the benefit of its abilities.
 
-Ego weapons are denoted by the following "names": (note - these descriptions
-are more or less out of date)
+=== Ego Weapons ===
+
+Some rare weapons have special abilities.  These are called ego weapons, and 
+are feared by great and meek.  An ego weapon must be wielded to receive the 
+benefit of its abilities.
+
+Ego weapons are commonly known by the following names: 
 
 
 (Defender)
      A magical weapon that actually helps the wielder defend himself, thus
-     increasing his/her armour class, and protecting him/her against damage
-     from fire, cold, acid, lightning, and falls.  This weapon also will
-     increase your stealth, let you see invisible creatures, protect you
-     from paralyzation and some slowing attacks, and help you regenerate hit
+     increasing their armour class, and protecting their against damage
+     from fire, cold, acid, lightning, and pitfalls.  This weapon also will
+     increase their stealth, let them see invisible creatures, protect 
+     from paralyzation and some slowing attacks, and help regenerate hit
      points and mana faster.  As a result of the regeneration ability, you
      will use up food somewhat faster than normal while wielding such a
      weapon.
+
+(*Defender*)
+     In addition to an already powerful set of abilities the Defender
+     weapon possesses, a special boosted version will also protect you
+     from draining attacks and poison and increase your passive stats
 
 (Holy Avenger)
      A Holy Avenger is one of the more powerful of weapons.  A Holy Avenger
@@ -139,8 +163,9 @@ are more or less out of date)
      attacking and may infuriate your god, decreasing the chances that he
      will accept your prayers.
 
-Swords of Sharpness
-     These weapons are known to score very deadly hits.
+Weapon of Sharpness
+     These weapons are known to score very deadly hits.  Only blade weapons 
+     can become weapons of Sharpness.
 
 (Trump Weapon)
      A trump weapon is a curious object. Its full powers are not known,
@@ -148,28 +173,39 @@ Swords of Sharpness
      wielder gives it the permission for a teleport).
 
 (Chaotic)
-     These bizarre, feared weapons have been manufactured in the Courts
-     of Chaos, and they are powered by the Logrus itself. They are very
-     unpredictable in combat: the Logrus can provide a number of various
+     These bizarre, feared weapons have been manufactured in the depths
+     of chaos, and they are powered by its substance itself. They are very
+     unpredictable in combat: the chaos inside can provide a number of various
      effects when it touches your opponent.
 
 (Vampiric)
-     These foul weapons have been created by Death magic. They lust for
-     blood, and if such a weapon scores a hit, it greedily sucks life
+     These foul weapons have been created using necromantic magic. They lust 
+     for blood, and if such a weapon scores a hit, it greedily sucks life
      from the hapless victim, transferring the life energy to its
      master.
 
 Weapon of Freezing
      A magical weapon of ice that delivers a cold critical to creatures not
-     resistant to cold.  It will inflict thrice the normal damage when used
+     resistant to it.  It will inflict thrice the normal damage when used
      against such a creature. It also defends you against cold and frost
      attacks.
 
 Weapon of Burning
      A magical weapon of fire that delivers a heat critical to creatures not
-     resistant to fire.  It will inflict thrice the normal damage when used
+     resistant to it.  It will inflict thrice the normal damage when used
      against such a creature. It also defends you against fire and heat
      attacks.
+
+Weapon of Shocking
+     A magical weapon of lightning that delivers an energy critical to creatures 
+     not resistant to it.  It will inflict thrice the normal damage when used
+     against such a creature. It also defends you against electrical
+     attacks.
+
+Weapon of Melting
+     A magical weapon of acid that delivers a vitriolic critical to creatures 
+     not resistant to it.  It will inflict thrice the normal damage when used
+     against such a creature. It also defends you against melting attacks.
 
 Weapon of Poisoning
      A magical weapon, coated with poison that delivers a poison critical to
@@ -183,7 +219,7 @@ Weapon of Westernesse
      some slowing attacks.  These blades were made by the Dunedain.
 
 Weapon of Valinor
-     Those weapons have been forged in Valinor, and as a result, it is very
+     Those weapons have been forged in Valinor, and as a result, they are very
      deadly against the minions of Morgoth. A rumour has it that they are at
      least as powerful as Weapons of Westernesse, or even the weaker
      artifacts...
@@ -229,19 +265,22 @@ Weapon of Slay Giant
      giant-humanoidal form.
 
 Weapon of Slay Demon
-     A Slay Demon weapon does treble damage against anything of Hellish
-     nature such as the Minor and Major Demons.
+     A Slay Demon weapon does treble damage against anything of hellish
+     nature such as minor and major demons.
 
-Weapon of Morgul.
-     These blades are so foully cursed with evil, it is rumored that it is
-     impossible to remove them.  BEWARE!
+Weapon of Morgul
+     Some of these blades are so foully cursed with evil, it is rumored that 
+     it is impossible to remove them.  BEWARE!  Others, however, can be a 
+     great boon with many resistances, plusses to statistics, slays, see
+     invisible and poison brand.  The only notch is how to tell them from
+     their cursed counterparts...
 
-Weapon of the Jesters.
+Weapon of the Jesters
      A weapon of the Jesters does strange things when you attack with it.
      Those range from a harmless smell of overcooked sausage to powerful
      plasma balls. You have no control over what the weapon produces.
 
-Weapon of Insanity.
+Weapon of Insanity
      It behaves much like a weapon of the Jesters, but is cursed and
      decreases your wisdom.
 
@@ -250,8 +289,6 @@ dungeon with not necessarily any special abilities. These include Blades
 of Chaos, Maces of Disruption, and Scythes of Slicing.  They can also be
 ego weapons like the ones above.  For example, a Blade of Chaos (Holy
 Avenger) is much more powerful than many artifact weapons!
-
-For artifact weapons, see "rumors.hlp".
 
 
 === Body and Shield Bashes ===
@@ -263,13 +300,9 @@ rounds depending upon his dexterity.
 Doors can be broken down by bashing them.  Once a door is bashed open, it is
 forever useless and cannot be closed.
 
-Finally, a creature may be bashed.  If a shield is currently being worn,
-the bash is a shield bash and will do more damage.  In either case, a bash
-may throw an opponent off balance for a number of rounds, allowing a player
-to get in a free hit or more.  If the player is thrown off balance, his
-opponent may get free hits on him.  This is a risky attack.  It is also a
-hack.  :-)
-
+Finally, an altar may be bashed in an attempt to procure its conversion
+to your alignment. Note that the outcome is rarely succesful, and if not,
+your deity gets offended (as well)
 
 === Your Armor Class ===
 
@@ -304,33 +337,33 @@ for very light armor to (-8) for the very heaviest armor!
 Some pieces of armor will possess special abilities denoted by the following
 names:
 
-of Resist Acid.
+of Resist Acid
      A character using such an object will take only one third normal damage
      from any acid thrown upon him.  In addition, armor so enchanted will
-     resist the acid's effects and not be damaged by it.
+     resist the effects of acid attacks and not be damaged by them.
 
-of Resist Lightning.
+of Resist Lightning
      A character using a resist lightning object will take only one third
      damage from electrical attacks.
 
-of Resist Fire.
+of Resist Fire
      A character using a resist fire object will take only one third damage
      from heat and fire.
 
-of Resist Cold.
+of Resist Cold
      A character using a resist cold object will take only one third damage
      from frost and cold.
 
-of Resistance.
+of Resistance
      A character wearing armor with this ability will have resistance to
      Acid, Cold, Fire, and Lightning as explained in each part above.
 
-of Elvenkind.
+of Elvenkind
      This is the same as Resistance armour, only generally better enchanted.
      It will make you more stealthy.  This armor can also possess extra
      resistances beyond the four basic elemental ones.
 
-Robes of the Magi.
+Robes of the Magi
      These robes are designed especially for wizards.  Just like Elvenkind
      armor, they provide resistance to fire, cold, acid, and electricity and
      cannot be damaged by acid.  They sustain all of your stats and protect
@@ -379,5 +412,3 @@ dungeon with not necessarily any special abilities. These include Shields of
 Deflection, Adamantite Plate Mail, Mithril Plate Mail, Mithril Chain Mail,
 and Shadow Cloaks.  The first four cannot be damaged by acid because of the
 quality metals they contain.
-
-

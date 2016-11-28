@@ -1,6 +1,6 @@
 === GSNband History and Information ===
 
-GSNband was written by an amateur programmer from Poland by the name
+GSNband was written by an aspiring programmer from Poland by the name
 of Gwidon S. Naskrent (hence the variant's name).  It incorporates
 several inventions found in other Angband variants (the full list is
 in the gsn_read.txt file).  It has also severed ties with the world
@@ -13,12 +13,13 @@ Angband programmers and players:
 
         Ben Harrison, for obvious reasons.
 
-        Juriaan Kalkman, Julian Lighton, Leon Marrick and Ivan I. Tkatchev,
-        for ideas which I borrowed from A/64, S, O and Kam, their respective
-        variants.
+        Juriaan Kalkman, Julian Lighton, Aram Harrow, Leon Marrick and
+	Ivan I. Tkachev, for ideas which I borrowed from A/64, S, Psi, O
+	and Kam, their respective variants.
 
-        DarkGod, Divia, Rylen Dreskin, Sadi Khan, Larry Owens and David Spake, 
-	for reporting some bugs.
+        Piotr Biczyk, DarkGod, Divia, Rylen Dreskin, Steve Fisher, Benny
+	Hofmann, Sadi Khan, Andrzej A. Kozakiewicz, Larry Owens, 
+	saffire@busprod.com and David Spake, for reporting some bugs.
 
         Sadi Khan, Larry Owens and Chris Weisiger, for correcting old
         ideas and submitting new ones.
@@ -26,16 +27,31 @@ Angband programmers and players:
         Once more to Chris Weisiger for his interesting vaults and 
 	helpful TANG.
 	
-	Jon D. Boehnker for the whisper/yell patch.
+	Jonathan D. Boehnker for the whisper/yell patch.
+	
+	Matthew Graham for the 'speaking uniques' patch.
+        
+        Steven Fuerst for the 'fractal caves' patch
+        
+        Mark Kvale for the 'labirynth rooms' patch
 
+        Edward Cogburn for his corpse ideas and modified spoiler code
+
+	Leon Marrick again, for pointing out the inadequacy of some
+	OAngband code I borrowed.
+	
+	David Spake, for having first reported completing the game on
+	2 Jun 99 - if you beat him to it, tell me!
+	
 	Tomasz Zawalski, for creating S/RPM packages for RedHat Linux.
 	
-	Bablos, Alexey Guzeev, Prffnof and Darin Takemoto for porting 
-	GSNband to the Amiga, Macs and OS/2.
+	Bablos, Alexey Guzeev, Thomas Harris, Prffnof and Darin Takemoto 
+	who have been busy porting GSNband to the Amiga, Macs, Acorns and 
+	OS/2.
 	
-        All the readers of rec.games.roguelike.angband, not excluding
-	those already mentioned above :), for lots of ideas and hints
-	which were never fully considered because of lack of coding time.
+        All the readers of rec.games.roguelike.angband, for lots of ideas and 
+        hints which were never fully considered because of lack of time and
+        general sluggishness o' mine :-)
 
 === Brief Version History (of standard Angband) ===
 

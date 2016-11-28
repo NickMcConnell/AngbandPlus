@@ -1,3 +1,5 @@
+
+***** <A>
 === Using the Online Help ===
 
 You can press Escape at any time to leave the online help.
@@ -19,7 +21,7 @@ You can press Equals (=) to hilite lines containing a string (case sensitive).
 You can press Slash (/) to search for a string.  Use Slash + Return to continue
 a search.  Use Pound + Zero + Return + Slash + Return to restart a search.
 
-
+***** <B>
 === General Information ===
 
 The game of GSNband is a single player dungeon simulation.  A player
@@ -37,7 +39,7 @@ You will probably want to browse through the "help files", especially the
 one on available commands, before beginning any serious adventuring...
 
 
-
+****** <C>
 === A Note from the Maintainer (of standard Angband) ===
 
 Welcome to Angband 2.7.9v6.

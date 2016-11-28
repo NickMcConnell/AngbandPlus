@@ -1,0 +1,176 @@
+/* File: angband.rc */
+
+ANGBAND MENU 
+BEGIN
+ POPUP "&File"
+ BEGIN
+  MENUITEM "&New", 100
+  MENUITEM "&Open...", 101
+  MENUITEM SEPARATOR
+  MENUITEM "End Game", 1081
+  MENUITEM SEPARATOR
+  MENUITEM "Save", 1283
+  MENUITEM "Save And Quit", 1288
+  MENUITEM SEPARATOR
+  MENUITEM "E&xit", 121
+ END
+
+ POPUP "Inven"
+ BEGIN
+  MENUITEM "Equipment", 1101
+  MENUITEM "Inventory", 1105
+  MENUITEM SEPARATOR
+  POPUP "Magic"
+  BEGIN
+   MENUITEM "Activate", 1065
+   MENUITEM "Aim Wand", 1097
+   MENUITEM "Drink Potion", 1113
+   MENUITEM "Read Scroll", 1114
+   MENUITEM "Use Staff", 1117
+   MENUITEM "Zap Rod", 1122
+   MENUITEM SEPARATOR
+   MENUITEM "Browse", 1098
+   MENUITEM "Study", 1071
+  END
+  POPUP "Use"
+  BEGIN
+   MENUITEM "Destroy", 1107
+   MENUITEM "Drop", 1100
+   MENUITEM "Pick Up", 1103
+   MENUITEM "Take Off", 1116
+   MENUITEM "Wear/Wield", 1119
+   MENUITEM SEPARATOR
+   MENUITEM "Eat Food", 1069
+   MENUITEM "Fire Missile", 1102
+   MENUITEM "Fuel Light", 1070
+   MENUITEM "Jam Spike", 1106
+   MENUITEM "Throw", 1118
+  END
+  MENUITEM SEPARATOR
+  MENUITEM "Inspect", 1073
+  MENUITEM "Inscribe", 1123
+  MENUITEM "Uninscribe", 1125
+ END
+
+ POPUP "Action"
+ BEGIN
+  POPUP "Alter"
+  BEGIN
+   MENUITEM "Alter", 1043
+   MENUITEM "Bash", 1066
+   MENUITEM "Close", 1099
+   MENUITEM "Disarm", 1068
+   MENUITEM "Open", 1111
+   MENUITEM "Tunnel", 1084
+  END
+  POPUP "Looking"
+  BEGIN
+   MENUITEM "Identify Symbol", 1047
+   MENUITEM "Locate", 1076
+   MENUITEM "Look", 1108
+   MENUITEM "Map", 1077
+  END
+  POPUP "Movement"
+  BEGIN
+   MENUITEM "Go Down", 1062
+   MENUITEM "Go Up", 1060
+   MENUITEM "Run", 1046
+   MENUITEM "Walk (With Pickup)", 1059
+   MENUITEM "Walk (Flip Pickup)", 1045
+  END
+  POPUP "Resting"
+  BEGIN
+   MENUITEM "Rest", 1082
+   MENUITEM "Stay (With Pickup)", 1044
+  END
+  POPUP "Searching"
+  BEGIN
+   MENUITEM "Search", 1115
+   MENUITEM "Search Mode", 1083
+  END
+  POPUP "Special"
+  BEGIN
+   MENUITEM "Bypass Keymap", 1092
+   MENUITEM "Control Key", 1094
+  END
+  MENUITEM SEPARATOR
+  MENUITEM "End Shapechange", 1093
+  MENUITEM "Repeat", 1110
+  MENUITEM "Target", 1042
+ END
+
+ POPUP "Other"
+ BEGIN
+  MENUITEM "Character Info", 1067
+  MENUITEM "Feeling", 1270
+  MENUITEM "Knowledge", 1126
+  MENUITEM "Message History", 1280
+  POPUP "Preferences"
+  BEGIN
+   MENUITEM "Colors", 1038
+   MENUITEM "Macros", 1064
+   MENUITEM "Options", 1061
+   MENUITEM "Pref Command", 1034
+   MENUITEM "Visuals", 1037
+  END
+  POPUP "Screen Dump"
+  BEGIN
+   MENUITEM "Load Screen", 1040
+   MENUITEM "Dump Screen", 1041
+  END
+  MENUITEM "Note", 1058
+  MENUITEM "Redraw Screen", 1282
+  MENUITEM "Time Of Day", 1284
+  MENUITEM SEPARATOR
+  MENUITEM "&Sound", 401
+ END
+
+ POPUP "&Window"
+ BEGIN
+  POPUP "&Visibility"
+  BEGIN
+   MENUITEM "Term-0 window", 200
+   MENUITEM "Term-1 window", 201
+   MENUITEM "Term-2 window", 202
+   MENUITEM "Term-3 window", 203
+   MENUITEM "Term-4 window", 204
+   MENUITEM "Term-5 window", 205
+   MENUITEM "Term-6 window", 206
+   MENUITEM "Term-7 window", 207
+  END
+
+  POPUP "&Font File"
+  BEGIN
+   MENUITEM "Term-0 window", 210
+   MENUITEM "Term-1 window", 211
+   MENUITEM "Term-2 window", 212
+   MENUITEM "Term-3 window", 213
+   MENUITEM "Term-4 window", 214
+   MENUITEM "Term-5 window", 215
+   MENUITEM "Term-6 window", 216
+   MENUITEM "Term-7 window", 217
+  END
+
+  POPUP "Sys&tem Font"
+  BEGIN
+   MENUITEM "Term-0 window", 310
+   MENUITEM "Term-1 window", 311
+   MENUITEM "Term-2 window", 312
+   MENUITEM "Term-3 window", 313
+   MENUITEM "Term-4 window", 314
+   MENUITEM "Term-5 window", 315
+   MENUITEM "Term-6 window", 316
+   MENUITEM "Term-7 window", 317
+  END
+ END
+
+ POPUP "Help"
+ BEGIN
+  MENUITEM "Help", 1063
+  MENUITEM "Version Info", 1086
+ END
+
+END
+
+ANGBAND ICON "angband.ico"
+

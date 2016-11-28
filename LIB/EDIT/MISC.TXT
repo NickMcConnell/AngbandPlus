@@ -19,20 +19,22 @@ M:R:952
 M:K:588
 
 # Maximum number of vaults in v_info.txt
-M:V:110
+M:V:128
 
 # Maximum number of terrain features in f_info.txt
 M:F:168
 
 # Maximum number of artifacts in a_info.txt
-M:A:129
+M:A:135
 
 # Maximum number of ego-items in e_info.txt
 M:E:134
 
+# Maximum number of traps in tr_info.txt
+M:U:171
+
 # Maximum size for "o_list[]"
-M:O:256
+M:O:512
 
 # Maximum size for "m_list[]"
-M:M:512
-
+M:M:1024

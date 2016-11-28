@@ -21,7 +21,11 @@
 #include <ctype.h>
 #include <errno.h>
 
-
+#if defined(linux) || defined (__DJGPP__)
+# define HAVE_LOCALE
+# include <locale.h>
+#endif /* linux */
+  
 #if defined(NeXT)
 # include <libc.h>
 #else
@@ -103,14 +107,20 @@
 
 #ifdef SET_UID
 
-# ifdef USG
-#  include <string.h>
-# else /* USG */
-#  include <strings.h>
+#ifdef USG
+# include <string.h>
+#else
+# include <strings.h>
+# ifndef strstr
 extern char *strstr();
+# endif
+# ifndef strchr
 extern char *strchr();
+# endif
+# ifndef strrchr
 extern char *strrchr();
-# endif /* USG */
+# endif
+#endif
 
 #else /* SET_UID */
 
@@ -129,4 +139,3 @@ extern long atol();
 
 
 #endif /* INCLUDED_H_SYSTEM_H */
-

@@ -4,7 +4,7 @@
 Q:8:N:Sauron
 
 # Definition
-Q:8:Q:1:0:0:1:99:Sauron, Lord of the Rings:0
+Q:8:Q:1:0:0:1:99:Sauron, Lord of the Rings:0:0
 
 # Description for quest
 ?:[LEQ $QUEST8 2]

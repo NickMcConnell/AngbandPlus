@@ -4,7 +4,7 @@
 Q:24:N:The Rise and Fall of Micro$oft
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:24:Q:1:0:0:1:50:765:0:2
+Q:24:Q:1:0:0:1:50:Bull Gates:0:2
 
 
 # Description for quest
@@ -45,7 +45,7 @@ F:a:1:8:Software bug
 
 # Novice rogue
 F:b:1:8:Novice rogue
-F:c:1:8:Novice rogue
+F:c:1:8:Novice rogue
 
 # Bandit
 F:d:1:8:Bandit
@@ -60,28 +60,28 @@ F:f:1:8:Master thief
 F:g:0:12:Bull Gates
 
 # Money
-F:$:1:8:0:488
+F:$:1:8:0:gold
 
 # Money + Master Thief
-F:%:1:8:Master Thief:488
+F:%:1:8:Master Thief:gold
 
 # Money + Software bug
-F:&:1:8:Software bug:488
+F:&:1:8:Software bug:gold
 
 # Junk & Cursed items
 
-F:A:1:8:0:394
-F:B:1:8:0:398
+F:A:1:8:0:& Rodent Skeleton~
+F:B:1:8:0:& Gnome Skeleton~
 
-F:C:86:12:0:57:102
-F:D:86:12:0:36:102
-F:E:86:12:0:72:102
+F:C:86:12:0:& Filthy Rag~:10
+F:D:86:12:0:& Filthy Rag~:10
+F:E:86:12:0:& Filthy Rag~:10
 
-F:F:86:12:0:124:46
-F:G:86:12:0:124:45
-F:H:86:12:0:98:36
-F:I:86:12:0:99:37
-F:J:86:12:0:100:36
+F:F:86:12:0:& Shadow Cloak~:46
+F:G:86:12:0:& Shadow Cloak~:45
+F:H:86:12:0:& Iron Crown~:36
+F:I:86:12:0:& Golden Crown~:37
+F:J:86:12:0:& Jewel Encrusted Crown~:36
 
 # Micro$oft HQ
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

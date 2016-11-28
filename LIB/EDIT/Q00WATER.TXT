@@ -56,16 +56,16 @@ F:i:83:8:Lesser kraken
 F:j:83:8:Greater kraken
 
 # Steel Helm
-F:A:84:8:0:97
+F:A:84:8:0:& Steel Helm~
 
 # Metal Boots
-F:B:84:8:0:93
+F:B:84:8:0:& Pair~ of Metal Shod Boots
 
 # Cesti
-F:C:84:8:0:127
+F:C:84:8:0:& Set~ of Cesti
 
 # Blade of Chaos
-F:E:84:8:0:36
+F:E:84:8:0:& Blade~ of Chaos
 
 # Quest exit
 F:<:9:8

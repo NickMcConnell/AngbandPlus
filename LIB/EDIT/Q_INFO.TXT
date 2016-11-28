@@ -101,6 +101,22 @@
 ?:[EQU $QUEST_NUMBER 24]
 %:q00000ms.txt
 
+# The Royal Crypt
+?:[EQU $QUEST_NUMBER 25]
+%:q0000025.txt
+
+# The Killing Fields
+?:[EQU $QUEST_NUMBER 26]
+%:q0000026.txt
+
+# The Royal Crypt
+?:[EQU $QUEST_NUMBER 27]
+%:q0000027.txt
+
+# The Old Castle
+?:[EQU $QUEST_NUMBER 28]
+%:q0000028.txt
+
 # Trolls
 ?:[EQU $QUEST_NUMBER 38]
 %:q00troll.txt

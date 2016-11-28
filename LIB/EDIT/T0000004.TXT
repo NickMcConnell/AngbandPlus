@@ -13,7 +13,7 @@ F:!:1:3
 # Default for Quest 19 = entrance is tree
 F:z:96:3
 
-# Default for Quest 22 & 39 = entrance is tree
+# Default for Quest 22 = entrance is tree
 F:y:96:3
 
 # Default for Quest 23 = entrance is tree
@@ -41,7 +41,7 @@ F:b:129:3:0:0:0:0:0:22
 # Quest 22 rewarding, reward is Elven Cloak, continue with quest 19
 ?:[EQU $QUEST22 3]
 F:b:129:3:0:0:0:0:0:19
-F:!:1:3:0:90
+F:!:1:3:0:& Elven Cloak~
 
 # Quest 22 finished, continue with quest 19
 ?:[EQU $QUEST22 4]
@@ -63,7 +63,7 @@ F:b:129:3:0:0:0:0:0:19
 # Quest 19 rewarding, reward is Ring of Flames, continue with quest 38
 ?:[EQU $QUEST19 3]
 F:b:129:3:0:0:0:0:0:38
-F:!:1:3:0:146
+F:!:1:3:0:Flames
 
 # Quest 19 finished, continue with quest 38
 ?:[EQU $QUEST19 4]
@@ -134,7 +134,7 @@ F:b:129:3:0:0:0:0:0:23
 # Quest 23 rewarding, reward is Balance DSM, continue with quest 17
 ?:[EQU $QUEST23 3]
 F:b:129:3:0:0:0:0:0:17
-F:!:1:3:0:411
+F:!:1:3:0:Artifact Creation
 
 # Quest 23 finished, continue with quest 17
 ?:[EQU $QUEST23 4]

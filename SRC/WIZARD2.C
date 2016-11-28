@@ -1,4 +1,3 @@
-/* File: wizard2.c */
 
 /* The wizard & debugging commands and their effects.
  *
@@ -131,8 +130,16 @@ static void wiz_create_named_art(int a_idx)
 	q_ptr->to_d = a_ptr->to_d;
 	q_ptr->weight = a_ptr->weight;
 
+	/* Default to stats */
+	for (i=0;i<7;i++)
+	{
+	    q_ptr->to_stat[i] = a_ptr->to_stat[i];
+	}
+
 	/* Hack -- acquire "cursed" flag */
-	if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+	if (a_ptr->flags3 & (TR3_CURSED) || a_ptr->flags3 & (TR3_HEAVY_CURSE) ||
+            a_ptr->flags3 & (TR3_PERMA_CURSE)) 
+                q_ptr->ident |= (IDENT_CURSED);
 
 	random_artifact_resistance(q_ptr);
 
@@ -149,6 +156,79 @@ static void wiz_create_named_art(int a_idx)
  */
 static void do_cmd_wiz_hack_ben(void)
 {
+
+#if 0
+	int i;
+	int failed, max_failed;
+
+	max_failed = 0;
+	failed = 0;
+
+	for (i = 0; i < 1000000; i++)
+	{
+		failed = 0;
+
+		while (rand_int(100) < 5)
+		{
+			failed++;
+		}
+
+		max_failed = MAX(failed, max_failed);
+	}
+
+	msg_format("old: %d", max_failed);
+
+	max_failed = 0;
+	failed = 0;
+
+	for (i = 0; i < 1000000; i++)
+	{
+		failed = 0;
+
+		while (rand_int(100) < 5)
+		{
+			failed++;
+		}
+
+		max_failed = MAX(failed, max_failed);
+	}
+
+	msg_format("new: %d", max_failed);
+#endif
+#if 0
+	int i;
+	monster_race    *r_ptr;
+	char            name[80];
+	char buf[256];
+	FILE *fff = NULL;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "plural.txt");
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	for (i = 1; i < max_r_idx; i++)
+	{
+		r_ptr = &r_info[i];
+
+		if (!(r_ptr->flags1 & RF1_UNIQUE))
+		{
+			strcpy(name, (r_name + r_ptr->name));
+
+			plural_aux(name);
+
+			fprintf(fff, "%s -> %s\n", (r_name + r_ptr->name), name);
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+#endif
 
 #if 0
 
@@ -212,7 +292,7 @@ static void do_cmd_wiz_hack_ben(void)
 #ifdef MONSTER_HORDES
 
 /* Summon a horde of monsters */
-static void do_cmd_summon_horde()
+static void do_cmd_summon_horde(void)
 {
 	int wy = py, wx = px;
 	int attempts = 1000;
@@ -253,6 +333,7 @@ static void prt_binary(u32b flags, int row, int col)
 		}
 	}
 }
+
 
 
 /*
@@ -418,7 +499,7 @@ static void do_cmd_wiz_change(void)
 static void wiz_display_item(object_type *o_ptr)
 {
 	int i, j = 13;
-	u32b f1, f2, f3;
+	u64b f1, f2, f3;
 	char buf[256];
 
 	/* Extract the flags */
@@ -446,11 +527,11 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
 		   o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
 
-	prt(format("ident = %04x  timeout = %-d   HP = %-5d     max HP = %-5d",
+	prt(format("ident = %04x  timeout = %-d   HP = %-5d    max HP = %-5d",
 		   o_ptr->ident, o_ptr->timeout, o_ptr->chp, o_ptr->mhp), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
-	prt("AFFECT........SLAY........BRAND.", 11, j);
+	prt("EFFECT........SLAY........BRAND.", 11, j);
 	prt("              cvae      xsqpaefc", 12, j);
 	prt("siwdcc  ssidsahanvudotgddhuoclio", 13, j);
 	prt("tnieoh  trnipttmiinmrrnrrraiierl", 14, j);
@@ -495,7 +576,11 @@ static tval_desc tvals[] =
 	{ TV_SKELETON,          "Skeleton"             },
 	{ TV_BOTTLE,            "Bottle"               },
 	{ TV_SWORD,             "Sword"                },
+        { TV_DAGGER,            "Dagger"               },
+        { TV_TWO_HANDED,        "Two-handed weap"      },
 	{ TV_POLEARM,           "Polearm"              },
+        { TV_AXE,               "Axe"                  },
+        { TV_DAGGER,            "Dagger"               },
 	{ TV_HAFTED,            "Hafted Weapon"        },
 	{ TV_BOW,               "Bow"                  },
 	{ TV_ARROW,             "Arrows"               },
@@ -525,6 +610,7 @@ static tval_desc tvals[] =
 	{ TV_WATER_BOOK,        "Water Spellbook"      },
 	{ TV_DEATH_BOOK,        "Death Spellbook"      },
 	{ TV_ARCANE_BOOK,       "Arcane Spellbook",    },
+	{ TV_FOCUS,          "Psionic Focus"        },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -989,14 +1075,15 @@ static void wiz_statistics(object_type *o_ptr)
  */
 static void wiz_quantity_item(object_type *o_ptr)
 {
-	int         tmp_int;
+	int         tmp_int, tmp_qnt;
 
 	char        tmp_val[100];
 
-
+	
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr) || o_ptr->art_name) return;
 
+	tmp_qnt = o_ptr->number;
 
 	/* Default */
 	sprintf(tmp_val, "%d", o_ptr->number);
@@ -1013,8 +1100,14 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
+                total_weight += o_ptr->weight * (tmp_int - tmp_qnt);
+		
+		/* Hack -- rod pvals must change if the number in the stack does. -LM- */
+		if (o_ptr->tval == TV_ROD)
+			o_ptr->pval = o_ptr->pval * o_ptr->number / tmp_qnt;
 	}
 }
+
 
 
 
@@ -1132,6 +1225,11 @@ static void do_cmd_wiz_play(void)
 
 		/* Change */
 		object_copy(o_ptr, q_ptr);
+                
+                /* Identify */
+                object_tried(o_ptr);
+                object_aware(o_ptr);
+                object_known(o_ptr);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1360,15 +1458,20 @@ static void do_cmd_wiz_summon(int num)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named(int r_idx, bool slp)
+static void do_cmd_wiz_named(bool slp, bool friendly)
 {
-	int i, x, y;
+	int i, x, y, r_idx;
+        char tmp_val[80] = "";
+        cptr p;
+        
+        p = "Enter full name of the monster to summon: ";
+        
+        if (!get_string(p, tmp_val, 40)) return;
 
+        r_idx = test_monster_name(tmp_val);
+        
 	/* Paranoia */
 	/* if (!r_idx) return; */
-
-	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx-1) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1382,41 +1485,10 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-	if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE)) break;
+	if (place_monster_aux(y, x, r_idx, slp, TRUE, friendly, FALSE)) break;
 	}
 }
 
-
-/*
- * Summon a creature of the specified type
- *
- * XXX XXX XXX This function is rather dangerous
- */
-static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
-{
-	int i, x, y;
-
-	/* Paranoia */
-	/* if (!r_idx) return; */
-
-	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx-1) return;
-
-	/* Try 10 times */
-	for (i = 0; i < 10; i++)
-	{
-		int d = 1;
-
-		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
-
-		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
-
-		/* Place it (allow groups) */
-	if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, TRUE)) break;
-	}
-}
 
 
 
@@ -1476,7 +1548,7 @@ void do_cmd_wiz_outfit(void)
   /* maxed stats */
   /* level 50    */
   /* all cured   */
-  /* a Mace of Disruption (+20, +20) */
+  /* a Mace of Disruption (+10, +10) */
   /* a Heavy Crossbow of Xtra Might (+20,+20) */
   /* PDSM +20 */
   /* 1 ring of damage +20 */
@@ -1490,7 +1562,7 @@ void do_cmd_wiz_outfit(void)
   object_type *i_ptr;
 
 
-  if ((equip_cnt) && (!get_check("This will wipe out your current equipment!")))
+  if ((equip_cnt) && (!get_check("This will wipe out your current equipment! ")))
      return;
   for (i = 0; i < 6; i++)
   {
@@ -1504,9 +1576,9 @@ void do_cmd_wiz_outfit(void)
   i_ptr = &inventory[INVEN_WIELD];
   k_idx = lookup_kind(TV_HAFTED,SV_MACE_OF_DISRUPTION);
   object_prep(i_ptr, k_idx);
-  i_ptr->to_h = 20;
-  i_ptr->to_d = 20;
-  i_ptr->mhp = 2400; /* Hack: 2000 + 200 + 200 */
+  i_ptr->to_h = 10;
+  i_ptr->to_d = 10;
+  i_ptr->mhp = 2200; /* Hack: 2000 + 100 + 100 */
   i_ptr->chp = i_ptr->mhp;
   object_tried(i_ptr);
   object_aware(i_ptr);
@@ -1554,21 +1626,20 @@ void do_cmd_wiz_outfit(void)
   i_ptr = &inventory[INVEN_LEFT];
   k_idx = lookup_kind(TV_RING,SV_RING_DAMAGE);
   object_prep(i_ptr, k_idx);
-  i_ptr->to_d = 20;
+  i_ptr->to_d = 10;
   object_aware(i_ptr);
   object_known(i_ptr);
 
   i_ptr = &inventory[INVEN_RIGHT];
   k_idx = lookup_kind(TV_RING,SV_RING_SPEED);
   object_prep(i_ptr, k_idx);
-  i_ptr->pval = 15;
+  i_ptr->pval = 10;
   object_aware(i_ptr);
   object_known(i_ptr);
 
   i_ptr = &inventory[INVEN_FEET];
   k_idx = lookup_kind(TV_BOOTS,SV_PAIR_OF_METAL_SHOD_BOOTS);
   object_prep(i_ptr, k_idx);
-  i_ptr->to_h = 20;
   i_ptr->pval = 10;
   i_ptr->name2 = EGO_SPEED;
   object_tried(i_ptr);
@@ -1582,15 +1653,15 @@ void do_cmd_wiz_outfit(void)
   i_ptr->to_h = 5;
   i_ptr->to_d = 5;
   i_ptr->pval = 5;
+  i_ptr->to_stat[A_STR] = 5;
   i_ptr->name2 = EGO_POWER;
   object_tried(i_ptr);
   object_aware(i_ptr);
   object_known(i_ptr);
 
   i_ptr = &inventory[INVEN_LITE];
-  k_idx = lookup_kind(TV_LITE,SV_LITE_LANTERN);
+  k_idx = lookup_kind(TV_LITE,SV_LITE_FEANORIAN);
   object_prep(i_ptr, k_idx);
-  i_ptr->pval = 15000;
   object_aware(i_ptr);
   object_known(i_ptr);
 
@@ -1599,6 +1670,9 @@ void do_cmd_wiz_outfit(void)
   object_prep(i_ptr, k_idx);
   i_ptr->to_a = 20;
   i_ptr->pval = 3;
+  i_ptr->to_stat[A_STR] = 3;
+  i_ptr->to_stat[A_DEX] = 3;
+  i_ptr->to_stat[A_CON] = 3;
   i_ptr->name2 = EGO_MIGHT;
   object_tried(i_ptr);
   object_aware(i_ptr);
@@ -1620,46 +1694,65 @@ void do_cmd_wiz_outfit(void)
   update_stuff();
 }
 
-#ifdef USE_SLANG
+#if 0
 
-/*
- * Hack -- Execute a script function
- */
-static void do_cmd_wiz_script(void)
+static void count_colours(void)
 {
-	int retval, err;
-	char name[80];
+        int k, l;
 
-	/* Get name of script to execute */
-	name[0] = '\0';
+        FILE *fff;
 
-	if (!get_string("Function name: ", name, 80)) return;
+        char colours[96][16]; 
 
-	/* No name, no execute */
-	if (name[0] == '\0')
-	{
-		msg_print("Cancelled.");
-		return;
-	}
+        char file_name[1024];
 
-	/* Execute script */
-	err = execute_function(name, &retval);
+        Term_save();
 
-	/* Error */
-	if (err)
-	{
-		msg_print("Failed.");
-	}
-	/* Success */
-	else
-	{
-		msg_format("Function returned %d", retval);
-	}
+        for (k = 1; k <= 96; k++)
+        {
+                for (l = 1; l <= 16; l++)
+                {
+                      colours[k][l] = 0;
+                }
+        }
+
+        /* Temporary file */
+        if (path_temp(file_name, 1024)) return;
+
+        /* Open a new file */
+        fff = my_fopen(file_name, "w");
+
+        /* Scan the object kinds */
+        for (k = 1; k < max_r_idx; k++)
+        {
+                monster_race *r_ptr = &r_info[k];
+                colours[r_ptr->d_char - 31][r_ptr->d_attr + 1]++;
+        }
+
+        for (k = 1; k <= 96; k++)
+        {
+                fprintf (fff, "%c", (char)31+k);
+                
+                for (l = 1; l <= 16; l++)
+                {
+                    fprintf (fff, "  %d", colours[k][l]);
+                }
+                fprintf (fff, "\n");
+        }
+                    
+        /* Close the file */
+        my_fclose(fff);
+
+        /* Display the file contents */
+        show_file(file_name, "Monster Colours", 0, 0);
+
+        /* Remove the file */
+        fd_kill(file_name);
+        
+        Term_load();        
 }
 
-#endif /* USE_SLANG */
-
-
+#endif
 
 #ifdef ALLOW_SPOILERS
 
@@ -1778,7 +1871,6 @@ void do_cmd_debug(void)
 		{
 		msg_format("CSane: %d  MSane: %d", p_ptr->csane, p_ptr->msane);
 		take_sanity_hit(1, "Debug Mode");
-		msg_format("%d, %d", rating, avg_rating);
 		break;
 		}
 
@@ -1822,12 +1914,12 @@ void do_cmd_debug(void)
 
 		/* Summon _friendly_ named monster */
 		case 'N':
-			do_cmd_wiz_named_friendly(command_arg, TRUE);
+			do_cmd_wiz_named(TRUE, TRUE);
 			break;
 
 		/* Summon Named Monster */
 		case 'n':
-			do_cmd_wiz_named(command_arg, TRUE);
+			do_cmd_wiz_named(TRUE, FALSE);
 			break;
 
 		/* Object playing routines */
@@ -1843,6 +1935,11 @@ void do_cmd_debug(void)
 		/* Phase Door */
 		case 'p':
 			teleport_player(10);
+			break;
+
+		/* Phase Door */
+		case 'P':
+			polymorph_player(0);
 			break;
 
 #if 0
@@ -1868,7 +1965,14 @@ void do_cmd_debug(void)
 			break;
 		}
 
+
+                case 'q':
+                count_colours();
+                break;
 #endif
+
+                
+
 		/* Make every dungeon square "known" to test streamers -KMW- */
 		case 'R':
 		{
@@ -1948,11 +2052,29 @@ void do_cmd_debug(void)
 		do_cmd_wiz_hack_ben();
 		break;
 
-		/* Hack -- activate a script */
+		/* Hack -- show coords */
 		case '@':
 		msg_format ("Coords %d/%d", py, px);
 		break;
 
+		case '+':
+		if (command_arg)
+		{
+		  sc_time += 60*60*24*command_arg;
+		}
+		else
+		  sc_time += 60*60*24;
+		  break;
+		  
+		case '-':
+		if (command_arg)
+		{
+		  sc_time -= 60*60*24*command_arg;
+		}
+		else
+		  sc_time -= 60*60*24;
+		  break;
+		  
 		/* Not a Wizard Command */
 		default:
 		msg_print("That is not a valid debug command.");
@@ -1968,5 +2090,4 @@ static int i = 0;
 #endif
 
 #endif
-
 

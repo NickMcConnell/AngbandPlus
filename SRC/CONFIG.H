@@ -92,6 +92,11 @@
  */
 /* #define USE_NCURSES */
 
+/*
+ * allow the use of the ACS characters (block-characters)
+ * these are defined in lib/user/graf-gcu.prf
+ */
+#define USE_NCURSES_ACS
 
 /*
  * OPTION: for multi-user machines running the game setuid to some other
@@ -229,7 +234,7 @@
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
  */
-#define ALLOW_OLD_SAVEFILES
+/* #define ALLOW_OLD_SAVEFILES */
 
 
 /*
@@ -248,7 +253,7 @@
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
  */
-#define DELAY_LOAD_A_TEXT
+/* #define DELAY_LOAD_A_TEXT */
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
@@ -462,13 +467,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER      "rr9@angband.org"
-
-
-/*
- * OPTION: Default font (when using X11).
- */
-#define DEFAULT_X11_FONT                "10x20"
+#define MAINTAINER      "naskrent@artemida.amu.edu.pl"
 
 /*
  * OPTION: Default fonts (when using X11)
@@ -540,7 +539,7 @@
 #endif
 
 /* Should the player know his / her starting life rate? */
-# define SHOW_LIFE_RATE
+#define SHOW_LIFE_RATE
 
 /* Do we want different characters for different races? */
 #define VARIABLE_PLAYER_GRAPH
@@ -562,13 +561,14 @@
  */
 /* #define MONK_HACK */
 
-/* Wizard mode testing options: */
-
-/* For testing the vaults */
-/* # define FORCE_V_IDX */
-
 /* Testing upkeep */
-# define TRACK_FRIENDS
+#define TRACK_FRIENDS
+
+/*
+ * Use the new sorting routines for creation
+ * of the monster allocation table
+ */
+/* #define SORT_R_INFO */
 
 /*
  * OPTION: Repeat last command -- TNB
@@ -585,7 +585,15 @@
  */
 #define ALLOW_EASY_DISARM
 
+/*
+ * OPTION: Make floor stacks easy -- TNB
+ */
 #define ALLOW_EASY_FLOOR
+
+/*
+ * OPTION: Make item sensing easy -- TNB
+ */
+#define ALLOW_EASY_SENSE
 
 /*
  * Check the modification time of *_info.raw files
@@ -597,9 +605,15 @@
  * Automatic Roman Character Numbering (tm)
  */
 
-#define ARCN
+/* #define ARCN */
 
-/* Monsters can fall into traps */
+/* 256 colours where possible (X11 and XAW), messes up GCU! */
 
-/* #define TRAPPED_MONSTERS */
+/* #define FF_COLORS */
 
+/*
+ * OPTION: Default font (when using X11).
+ */
+#define SMALL_X11_FONT			"6x9"
+#define DEFAULT_X11_FONT		"9x15"
+#define LARGE_X11_FONT			"12x24"

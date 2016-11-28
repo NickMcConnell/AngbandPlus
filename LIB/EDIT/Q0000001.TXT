@@ -4,7 +4,11 @@
 Q:1:N:Thieves Hideout
 
 # Definition
-Q:1:Q:6:0:0:0:5:0:0:2
+Q:1:Q:6:0:0:0:5:0:0:6
+
+# Reward name:no of items:y coord:x coord:next quest:town no:terrain after
+
+#Q:1:R:& Long sword~:4:171:17:18:1:96
 
 # Description for quest
 ?:[LEQ $QUEST1 2]

@@ -1,6 +1,6 @@
 
                        **************************
-                       **      GSNband 1.0b    **
+                       **     GSNband 2.11     **
                        **************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -13,9 +13,10 @@
        ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)
                           and Robert Ruehlmann (rr9@angband.org)
 
-       GSNband code:      Gwidon S. Naskrent (naskrent@hoth.amu.edu.pl)
+       GSNband code:      Gwidon S. Naskrent (naskrent@artemida.amu.edu.pl)
 
  Visit "Thangorodrim - The Angband Page" at "http://thangorodrim.angband.org/"
- Send all comments, bug reports, patches, etc, to "naskrent@hoth.amu.edu.pl".
+  Send all comments, reports, patches, etc, to "naskrent@artemida.amu.edu.pl".
+        The GSNband page: http://artemida.amu.edu.pl/~naskrent/
 
-    Press ? for help and = for the options screen while playing
+      Press ? for help and = for the options screen while playing

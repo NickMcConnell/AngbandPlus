@@ -20,7 +20,7 @@ F:#:56
 F:-:1:8
 
 # Floor + Necronomicon
-F:x:1:12:0:424
+F:x:1:12:0:[Necronomicon]
 
 # Floor + Star-Spawn
 F:c:1:8:Star-spawn of Cthulhu

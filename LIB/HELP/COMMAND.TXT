@@ -1,4 +1,3 @@
-=== List of Commands ===
 
 
     Angband commands are entered as an "underlying command" (a single key)
@@ -33,7 +32,7 @@ tunnel, etc) to auto-repeat.
 
     Some commands will prompt for extra information, such as a direction, an
 inventory or equipment item, a spell, a textual inscription, the symbol of a
-monster race, a sub-command, a verification, an amount of time, a quantity,
+monster race, a sub-command, a verification, an amount of mana, a quantity,
 a file name, or various other things.  Normally you can hit return to choose
 the "default" response, or escape to cancel the command entirely.
 
@@ -102,17 +101,17 @@ specify "run east".
  l  Look around                          L  Locate player on map
  m  Cast a spell / use mental powers     M  Full dungeon map
  n  (unused)                             N  (unused)
- o  Open a door or chest                 O  Display god info
- p  Pray to your god                     P  (unused)
+ o  Open a door or chest                 O  (unused)
+ p  Pray to your deity                   P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
  t  Take off equipment                   T  Dig a tunnel
  u  Use a staff                          U  Use bonus power (if any)
  v  Throw an item                        V  Version info
- w  Wear/wield equipment                 W  Worship a god on the altar
+ w  Wear/wield equipment                 W  Worship a deity on altar
  x  (unused)                             X  (unused)
- y  (unused)                             Y  (unused)
+ y  (unused)                             Y  Yell at monsters
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - wizard command)
  @  Interact with macros                ^B  (unused)
@@ -133,8 +132,8 @@ specify "run east".
  +  Alter grid (steal for Rogues)       ^Q  Quit to next midi song
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
- :  Take notes                          ^T  (unused)
- '  (unused)                            ^U  (unused)
+ :  Log to file                         ^T  Show current time
+ '  Show current time                   ^U  (unused)
  "  Enter a user pref command           ^V  (unused)
  ,  Stay still (with pickup)            ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
@@ -182,20 +181,20 @@ specify "run east".
  $  (unused)                            ^D  Destroy item
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  Interact with colors                ^G  God worshipping
+ &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (tunnel - west)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (tunnel - south)
  {  Inscribe an object                  ^K  (tunnel - north)
  }  Uninscribe an object                ^L  (tunnel - east)
- [  (unused)                            ^M  (tunnel - south)
- ]  (unused)                            ^N  (tunnel - south east)
- -  Walk (flip pickup)                  ^O  Display god info
+ [  Pet commands                        ^M  (tunnel - south)
+ ]  Yell at monsters                    ^N  (tunnel - south east)
+ -  Walk (flip pickup)                  ^O  Worship a deity on altar
  _  Enter store                         ^P  Show previous messages
- +  Alter grid (steal for Rogues        ^Q  Quit to next midi song
+ +  Alter grid (steal for Rogues)       ^Q  Quit to next midi song
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
- :  Take notes                          ^T  Dig a Tunnel
+ :  Log to file                         ^T  Dig a Tunnel
  '  (unused)                            ^U  (tunnel - north east)
  "  Enter a user pref command           ^V  Examine current target
  ,  Run                                 ^W  (special - wizard mode)
@@ -635,10 +634,10 @@ Tunnel (T) or Tunnel (^T)
         granite (very hard), quartz veins (hard), magma veins (soft), and
         rubble (very soft).  Quartz and Magma veins may be displayed in a
         special way, and may sometimes contain treasure, in which case they
-        will be displayed in a different way.  Rubble sometimes covers an
-        object.  It is hard to tunnel unless you are wielding a heavy weapon
-        or a shovel or a pick.  Tunneling ability increases with strength
-        and weapon weight.  This command can take a count, requires a
+        will be displayed in a different way.  Rubble sometimes hides an
+        object.  In order to tunnel you must be wielding a digger
+        (shovel or pick).  Tunneling ability increases with strength
+        and digger weight.  This command can take a count, requires a
         direction, and is affected by the "always_repeat" option.
 
 Open a door or chest (o)
@@ -712,6 +711,11 @@ Command your pets (P)
 	command sets the leash to 1 square. The "seek and destroy"
 	command unbinds the leash (monsters are free to wander away).
 
+Yell (Y)
+	Lets you yell at all nearby monsters, waking them. Possibly useful
+	when you see a large number of friendly monsters around and want
+	to get them to fight the baddies.
+	
 ---  Spell and Prayer Commands ---
 
 Browse a book (b)
@@ -749,43 +753,30 @@ Cast a spell / Pray a prayer (m)
         out fairly large but decreases as you gain levels.  If you don't
         have enough mana to cast a spell, you will be prompted for
         confirmation.  If you decide to go ahead, the chance of failure
-        is greatly increased, and you may lose a point of wisdom.
+        is greatly increased, and you may lose a point of WIS or CON.
         Since you must read the prayer from a book, you cannot be blind
         or confused while praying, and there must be some light present.
 
-Display god info (O)
-        Shows you whom you worship, how good is your standing with him/
-        her, and how impatient the deity is.
-
-Sacrifice to your god (W)
+Offer to your god (O)
         There are altars scattered around the dungeon (sometimes even
-        several on the same level) which belong to some particular deity.
-        There are sixteen minor gods and goddesses, four major and elder
-        gods, and two supreme gods of being and unbeing, so 26 in total.
-        Altars of the greater gods only occur deeper in the dungeon.
+        several on the same level) which belong to some particular
+	deity. There are six deities, two for each alignment. Lawful
+	deities are Manwe and Iluvatar, neutral Azathoth and Cthulhu,
+	and chaotic Sauron and Morgoth. Depending on your alignment, you
+	start the game in the allegiance of an appropriate god. If you
+	are unaligned, you can declare your allegiance to a deity by 
+	offering him something. Try to offer expensive items - 
+	each item has a value assigned, which is added to the 'grace
+	counter'. This counter is decreased by some amount (depending
+	on the particular deity - evil ones are more impatient), and
+	when it reaches -5000, you can no longer get good benefits from
+	praying.
 
-        You can declare your allegiance to a deity by offering him/her
-        something. Try to offer the more worthy items - each item has a
-        value assigned, which is added to the 'grace counter'. This
-        counter is decreased by some amount (depending on the particular
-        deity - evil ones are more impatient), and when it reaches -5000,
-        your deity starts worrying. They will remind you occasionally
-        about your neglected duties, and may eventually get pissed off
-        with you and punish you with a display of divine wrath. If that
-        does not persuade you to cooperate, though, they have a much
-        more powerful arsenal of means to wreck you life than you
-        expected. So don't annoy them for too long...
+        Deities will also crown you, if you offer them enough gifts.
+	Crowning gives you immunity to the element you belong to,
+	and a random artifact (maybe nice, maybe useless, maybe real bad).
 
-        Deities will also do something similar to 'crowning', if you offer
-        anything really valuable, such as an artifact. They will give you
-        gifts depending on their nature - for example a deity of war could
-        increase your qualities as a warrior, while a deity of wind could
-        make you faster. The crowning is not pernament - if you do not
-        keep your grace on a high enough level, the effect will disappear.
-        Some gods have a few different levels of crowning.
-
-        Priests and paladins start alleged to a random minor god. They also
-        have some credit grace to start with.
+        Priests and paladins start with some credit grace.
         
 Pray to your god (p)
         If you think you have achieved a high enough standing with your
@@ -797,14 +788,13 @@ Pray to your god (p)
         If you're unlucky, or if you have angered your deity by neglecting
         to sacrifice, you'll get a warning, or even a mildly nasty effect
         (like summoning a slightly out of depth monster). Continued attempts
-        to pray could make matters only worse, so beware! Your 'praying
-        timeout' is increased by 1 every turn. Each praying attempt
-        decreases it by 25000, so this is the minimum turn interval at which
-        praying will be effective.
+        to pray could make matters only worse, so beware! 
+        Each praying attempt decreases your 'grace' by some amount. so some
+	offerings must be made before prayers can be effective again.
         
-        Praying is also influenced by your grace. Priests and paladins
-        might be more succesful with communicating with a deity (on the
-        average twice or half as much).
+        Priests and paladins might be more succesful with communicating
+	with a deity (on the average twice or half as much). So might
+	characters born under the sign of PISCES.
 
 ---  Object Manipulation Commands ---
 
@@ -815,7 +805,13 @@ Eat some food (E)
         fainting, and eventually, you may will die of starvation.  You
         may use this command to eat food in your inventory.  Note that
         you can sometimes find food in the dungeon, but it is not always
-        wise to eat strange food.
+        wise to eat strange food. Corpses of creatures can also be eaten
+	producing various effects, mostly bad (but some can restore your
+	mana or cure various afflictions, give short ESP periods etc.)
+	
+	Food consumption can be reduced by having slow digestion. On
+	the other hand regeneration and especially being invisible
+	drastically increase food consumption.
 
 Fuel your lantern/torch (F)
         If you are using a torch and have more torches in your pack,
@@ -868,7 +864,9 @@ Activate an artifact (A)
         rooms with just a thought.  Should you ever be lucky enough to
         find such an item, this command will let you activate its special
         ability.  Special abilities can only be used if you are wearing or
-        wielding the item.
+        wielding the item, and if it is not cursed.  It takes time to
+	recharge the artifact's power; again, the recharge only takes
+	place when the artifact is in use
 
 Aim a wand (a) or Zap a wand (z)
         Wands must be aimed in a direction to be used.  Wands are magical
@@ -895,6 +893,12 @@ Zap a rod (z) or Activate a rod (a)
         turns.  The recharging time varies depending on the type of rod.
         This command may require a direction (depending on the type of
         rod, and whether you are aware of its type) and can use a target.
+	
+	Note than any item inscribed with !!, whether it be a rod or
+	an activatable artifact or ego item, will give you a message as
+	soon as the recharging counter (timeout) reaches zero. This
+	spares you frantic inventory checks every turn when using a Rod
+	of Light against a bunch of orcs.
 
 ---  Throwing and Missile Weapons ---
 
@@ -926,9 +930,9 @@ Throw an item (v)
         If you throw something at a monster, your chances of hitting it
         are determined by your pluses to hit, your ability at throwing,
         and the object's pluses to hit.  If the object hits the monster,
-        it may or may not do damage.  Some objects, such as weapons, or
-        flasks of oil, can do a substantial amount of damage.  This
-        command requires a direction, and can take a target.
+        it may or may not do damage.  Some objects, such as weapons specially
+	designed for throwing, or flasks of oil, can do a substantial amount 
+	of damage.  This command requires a direction, and can take a target.
 
 Targeting Mode (*)
         This will allow you to aim your spells and such at a specific
@@ -975,7 +979,7 @@ Full screen map (M)
         position, or for identifying unexplored areas of the dungeon.
         This command takes no time.
 
-Locate player on map (L) or Where is the player (W)
+Locate player on map (L)
         This command lets you scroll your map around, looking at all sectors
         of the current dungeon level, until you press escape, at which point
         the map will be re-centered on the player if necessary.  To scroll
@@ -999,7 +1003,8 @@ Look around (l) or Examine things (x)
 Observe an item (I)
         This command lets you observe a previously *identified* item.
         This will tell you things about the special powers of the object.
-        Currently, it only makes sense for artifacts and ego-items.
+        Currently, it only makes sense for artifacts, ego-items and some
+	of the normal objects.
 
 --- Message Commands ---
 
@@ -1011,10 +1016,39 @@ View previous messages (^P)
         This command shows you all the recent messages.  You can scroll
         through them, or exit with ESCAPE.  This command takes no time.
 
-Take notes (:)
-        This command allows you to take notes, which will then appear in
-        your message list (prefixed with "Note:").  This command takes
-        no time.
+Show current time (^T)
+        Shows the current date and time. The date is based on an Elvish
+	calendar used in Beleriand in the First Age; the period names are
+	in Quenya, though equivalent Sindarin names also exist. The year
+	is divided into two periods of 72 days and four periods of 54
+	days, plus five days which do not belong to any period. Leap years
+	are not supported. Refer to LOTR Appendix D for details.
+	
+Log to file (:)
+        This command allows you to output whatever musings you want
+	to a log file, which resides in lib/save and has the same
+	name as your save file, with the extension .log. Any character
+	input is passed as is, except for %, which can be followed
+	with any of the characters below to indicate a 'metavariable'.
+	Some metavariables output additional text next to the current
+	value, so avoid repetition:
+	
+	Metavar   Expands to    Shows as, minus the ()
+	    %h    cur HP    	(x HP)
+	    %H    max HP 	(x HP)
+	    %l    cur level 	(at level x) or (at x feet)
+	    %L    max level 	(at level x) or (at x feet)
+	    %p    cur exp level	(has level x)
+	    %P    max exp level	(reached level x)
+	    %s    cur sanity   	(x sanity)
+	    %S    max sanity	(x sanity)
+	    %t    current turn  (turn x)
+	    %n    player name   (x)
+	    %c    player class  (x)
+	    %r    player race   (x)
+	    %%    (single %)
+	    	    
+	This command takes no time.
 
 --- Game Status Commands ---
 
@@ -1027,26 +1061,43 @@ Character Description (C)
         including your background, your inventory, and the contents of
         your house.
 
-Check Artifacts, Uniques and Objects (~ or |)
+Check Various Things (~ or |)
         The command opens a menu from which you can select information
-        about seen Artifacts, Unique monsters, and identified objects.
+	about various things, as below:
 
-        Display known artifacts
+        Display known artifacts (1)
         This selection lists all of the artifacts that you have encountered.
         Any artifact that appears in this list, which you cannot seem to
         find, has been lost forever.  The "preserve" mode will prevent
         you from accidentally losing any artifacts, but will also prevent
-        you from ever getting a "special" level feeling.  This command can
-        only be used on the town level, not inside the dungeon.
+        you from ever getting a "special" level feeling.  
 
-        Display known uniques
+        Display known uniques (2)
         Brings up a list of known unique monsters, plus their current
         status.  Once killed, unique monsters never show up again.
 
-        Display known objects
+        Display known objects (3)
         This list all 'flavoured' objects (such as rings, scrolls, wands,
         potions, etc.) which you have identified.
 
+	Display kill count (4)
+	Lists in detail the numbers of particular monsters you've killed
+	and provides the total.
+
+	Display mutations (5)
+	Lists mutations your character currently has, possibly showing
+	how do they influence their statistics.
+
+	Display current pets (6)
+	Shows a list of pets and total mana regeneration rate spent
+	on maintaining their control.
+	
+	Display current quests (7)
+	Shows a list of quests your character has undertaken and not
+	completed, including the 'top' random quest from the dungeon.
+	Each non-random quest also has a description and danger level
+	displayed.  The list can be scrolled as needed.
+		
 --- Saving and Exiting Commands ---
 
 Save and Quit (Ctrl-X)
@@ -1069,10 +1120,10 @@ Quit (commit suicide) (Q)
 
 Interact with options (=)
         Allow you to interact with options.  Note that using the "cheat"
-        options may mark your savefile as unsuitable for the high score
+        options will mark your savefile as unsuitable for the high score
         list.  You may change normal options using the "X" and "Y" user
-        pref commands.  You must use the "redraw" command (^R) after
-        changing certain options.
+        pref commands.  You must use the "redraw" command (^R) or make
+	a move after changing certain display options.
 
 Interact with macros (@)
         Allow you to interact with macros.  You may load or save macros
@@ -1086,7 +1137,8 @@ Interact with visuals (%)
         Allow you to interact with visuals.  You may load or save visuals
         from user pref files, or modify the attr/char mappings for the
         monsters, objects, and terrain features.  You must use the "redraw"
-        command (^R) to redraw the map after changing attr/char mappings.
+        command (^R) or make a move to redraw the map after changing 
+	attr/char mappings.
 
 Interact with colors (&)
         Allow the user to interact with colors.  This command only
@@ -1148,6 +1200,11 @@ Redraw Screen (^R)
         changing various global properties (options, attr/char mappings,
         color definitions, etc).  When in doubt, use it.
 
+Display compilation options (^V)
+	This command displays descriptions of all compile options your
+	binary of GSNband has been compiled with.  The set is usually
+	stable, unless you compiled an altered version for your own needs.
+	
 Load screen dump (left-paren)
         This command loads a "snap-shot" of the current screen from the file
         "dump.txt", and displays it on the screen.
@@ -1161,3 +1218,4 @@ Save screen dump (right-paren)
 Original: Alexander Cutler and Andy Astrand
 Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
 Updated (2.7.9): Ben Harrison (benh@phial.com)
+Updated (GSN 1.x): Gwidon S. Naskrent (naskrent@artemida.amu.edu.pl)

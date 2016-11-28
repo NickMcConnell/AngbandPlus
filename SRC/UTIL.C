@@ -2018,14 +2018,14 @@ cptr message_str(int age)
 }
 
 
-
 /*
-* Add a new message, with great efficiency
-*/
+ * Add a new message, with great efficiency
+ */
 void message_add(cptr str)
 {
-	int i, k, x, n;
+	int i, k, x, m, n;
 
+	char u[1024];
 
 	/*** Step 1 -- Analyze the message ***/
 
@@ -2042,10 +2042,69 @@ void message_add(cptr str)
 	/*** Step 2 -- Attempt to optimize ***/
 
 	/* Limit number of messages to check */
-	k = message_num() / 4;
+	m = message_num();
+
+	k = m / 4;
 
 	/* Limit number of messages to check */
 	if (k > MESSAGE_MAX / 32) k = MESSAGE_MAX / 32;
+
+	/* Check previous message */
+	for (i = message__next; m; m--)
+	{
+		int j = 1;
+
+		char buf[1024];
+		char *t;
+
+		cptr old;
+
+		/* Back up and wrap if needed */
+		if (i-- == 0) i = MESSAGE_MAX - 1;
+
+		/* Access the old string */
+		old = &message__buf[message__ptr[i]];
+
+		/* Skip small messages */
+		if (!old) continue;
+
+		strcpy(buf, old);
+
+		/* Find multiple */
+		for (t = buf; *t && (*t != '<'); t++);
+
+		if (*t)
+		{
+			/* Message is too small */
+			if (strlen(buf) < 6) break;
+
+			/* Drop the space */
+			*(t - 1) = '\0';
+
+			/* Get multiplier */
+			j = atoi(++t);
+		}
+
+		/* Limit the multiplier to 1000 */
+		if (buf && streq(buf, str) && (j < 1000))
+		{
+			j++;
+
+			/* Overwrite */
+			message__next = i;
+
+			str = u;
+
+			/* Write it out */
+			sprintf(u, "%s <%dx>", buf, j);
+
+			/* Message length */
+			n = strlen(str);
+		}
+
+		/* Done */
+		break;
+	}
 
 	/* Check the last few messages (if any to count) */
 	for (i = message__next; k; k--)
@@ -2187,6 +2246,7 @@ void message_add(cptr str)
 	/* Advance the "head" pointer */
 	message__head += n + 1;
 }
+
 
 
 
@@ -2687,7 +2747,7 @@ bool askfor_aux(char *buf, int len)
 			break;
 
 		default:
-			if ((k < len) && (isprint(i)))
+			if ((k < len) && isprint(i))
 			{
 				buf[k++] = i;
 			}
@@ -3468,6 +3528,8 @@ bool friday_13th()
 	return((bool)(lt->tm_wday == 5 /* friday */ && lt->tm_mday == 13));
 }
 
+#ifdef ARCN
+
 /*
 **        Converts long integers to Roman numerals
 **
@@ -3503,7 +3565,7 @@ static R2D RomanConvert[] = {
 **  Returns: Pointer to the buffer, else NULL if error or buffer overflow
 */
 
-char *int2roman(int val, char *buf, size_t buflen)
+cptr int2roman(int val, char *buf, size_t buflen)
 {
       size_t posn = 0;
       size_t place = 0;
@@ -3532,8 +3594,10 @@ char *int2roman(int val, char *buf, size_t buflen)
       return buf;
 }
 
+#endif /* ARCN */
+
 /* Given monster name as string, return the index in r_info array. Name
- * must exactly match (look out for commas and the like!), or else 0 is
+ * must exactly match (look out for commas and the like!), or else 0 is 
  * returned. Case doesn't matter. -GSN-
  *
  * This is used to initialize monsters in quests by calling them by name
@@ -3544,7 +3608,7 @@ char *int2roman(int val, char *buf, size_t buflen)
 extern int test_monster_name (cptr name)
 {
        int i;
-
+       
        /* Scan the monsters (except the ghost) */
 	for (i = 1; i < max_r_idx - 1; i++)
 	{
@@ -3557,3 +3621,60 @@ extern int test_monster_name (cptr name)
 	return (0);
 }
 
+/* And a similar function for objects */
+
+extern int test_object_name (cptr name)
+{
+       int i;
+       
+       /* Scan the objects */
+	for (i = 1; i < max_k_idx; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+		cptr obj_name = k_name + k_ptr->name;
+
+		/* If name matches, give us the number */
+		if (stricmp (name, obj_name) == 0) return (i);
+	}
+	return (0);
+}
+
+extern void dlog(cptr fmt, ...)
+{
+   char          buf1[1024];
+   va_list       ap;
+
+   va_start(ap, fmt);
+   vsprintf(buf1, fmt, ap);
+
+   /* if an error-logging file-pointer is present, dump the info */
+   if (errlog)
+   {
+      fprintf(errlog, "%s\n", buf1);
+      fflush(errlog);
+   }
+
+   va_end(ap);
+}
+
+/* Break scalar time */
+
+int bst (int what)
+{
+
+	switch (what)
+	{
+	case SEC:	
+	    return (sc_time % 60);
+	case MINUTE:
+	    return ((sc_time / 60) % 60);
+	case HOUR:
+	    return (sc_time / (60 * 60) % 24);
+	case DAY:
+	    return (sc_time / (60 * 60 * 24) % 365);
+	case YEAR:
+	    return (sc_time / (60 * 60 * 24 * 365));
+	default:
+	return (0);
+	}
+}	    
