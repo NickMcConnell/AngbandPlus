@@ -1,4 +1,3 @@
-/* File: cmd4.c */
 
 /* Purpose: Interface commands */
 
@@ -104,11 +103,8 @@ void do_cmd_change_name(void)
         char    tmp[160];
 
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save the screen */
-        Term_save();
+        screen_save();
 
         /* Forever */
         while (1)
@@ -116,15 +112,15 @@ void do_cmd_change_name(void)
                 /* Display the player */
                 display_player(mode);
 
-                if (mode == 6)
+                if (mode == 4)
                 {
                         mode = 0;
                         display_player(mode);
                 }
 
                 /* Prompt */
-                Term_putstr(2, 23, -1, TERM_WHITE,
-                        "['c' to change name, 'f' to file, 't' to change tactics, 'h' to change mode]");
+                Term_putstr(1, 23, -1, TERM_WHITE,
+                        "['c' to change name, 'f' to file, 't/T' to change tactics, 'h' to change mode]");
 
                 /* Query */
                 c = inkey();
@@ -159,7 +155,11 @@ void do_cmd_change_name(void)
 
                 else if (c == 't')
                 {
-                if (mode==0) (void)do_cmd_change_tactic();
+                if ((mode==0) && (p_ptr->tactic < 8)) (void)do_cmd_change_tactic(TRUE);
+                }
+                else if (c == 'T')
+                {
+                if ((mode==0) && (p_ptr->tactic > 0)) (void)do_cmd_change_tactic(FALSE);
                 }
 
                 /* Oops */
@@ -173,10 +173,7 @@ void do_cmd_change_name(void)
         }
 
         /* Restore the screen */
-        Term_load();
-
-        /* Leave "icky" mode */
-        character_icky = FALSE;
+        screen_load();
 
 
         /* Redraw everything */
@@ -236,11 +233,8 @@ void do_cmd_messages(void)
         q = 0;
 
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save the screen */
-        Term_save();
+        screen_save();
 
         /* Process requests until done */
         while (1)
@@ -405,10 +399,8 @@ void do_cmd_messages(void)
         }
 
         /* Restore the screen */
-        Term_load();
+        screen_load();
 
-        /* Leave "icky" mode */
-        character_icky = FALSE;
 }
 
 
@@ -416,7 +408,7 @@ void do_cmd_messages(void)
 /*
  * Number of cheating options
  */
-#define CHEAT_MAX 7
+#define CHEAT_MAX 8
 
 /*
  * Cheating options
@@ -442,7 +434,10 @@ static option_type cheat_info[CHEAT_MAX] =
         "cheat_live",           "Allow player to avoid death" },
 
         { &cheat_invul,          FALSE,  255,    0x40, 0x00,
-        "cheat_invul",           "Allow player to be invulnerable" }
+        "cheat_invul",           "Allow player to be invulnerable" },
+
+        { &debug_vaults,          FALSE,  255,    0x80, 0x00,
+        "debug_vaults",           "Allow player to choose vaults" }
 
 };
 
@@ -678,7 +673,7 @@ static void do_cmd_options_autosave(cptr info)
 /*
  * Interact with some options
  */
-static void do_cmd_options_aux(int page, cptr info)
+void do_cmd_options_aux(int page, cptr info)
 {
         char    ch;
 
@@ -686,7 +681,7 @@ static void do_cmd_options_aux(int page, cptr info)
 
         int     opt[24];
 
-        char    buf[80];
+        char    buf[90];
 
 
         /* Lookup the options */
@@ -969,11 +964,8 @@ void do_cmd_options(void)
         int k;
 
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save the screen */
-        Term_save();
+        screen_save();
 
 
         /* Interact */
@@ -1151,10 +1143,8 @@ void do_cmd_options(void)
 
 
         /* Restore the screen */
-        Term_load();
+        screen_load();
 
-        /* Leave "icky" mode */
-        character_icky = FALSE;
 }
 
 
@@ -1452,11 +1442,8 @@ void do_cmd_macros(void)
         FILE_TYPE(FILE_TYPE_TEXT);
 
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save screen */
-        Term_save();
+        screen_save();
 
 
         /* Process requests until done */
@@ -1812,10 +1799,8 @@ void do_cmd_macros(void)
         }
 
         /* Load screen */
-        Term_load();
+        screen_load();
 
-        /* Leave "icky" mode */
-        character_icky = FALSE;
 }
 
 
@@ -1837,11 +1822,9 @@ void do_cmd_visuals(void)
         FILE_TYPE(FILE_TYPE_TEXT);
 
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
 
         /* Save the screen */
-        Term_save();
+        screen_save();
 
 
         /* Interact until done */
@@ -2090,10 +2073,10 @@ void do_cmd_visuals(void)
                         {
                                 monster_race *r_ptr = &r_info[r];
 
-                                byte da = (r_ptr->d_attr);
-                                char dc = (r_ptr->d_char);
-                                byte ca = (r_ptr->x_attr);
-                                char cc = (r_ptr->x_char);
+                                s16b da = (byte)(r_ptr->d_attr);
+                                s16b dc = (byte)(r_ptr->d_char);
+                                s16b ca = (byte)(r_ptr->x_attr);
+                                s16b cc = (byte)(r_ptr->x_char);
 
                                 /* Label the object */
                                 Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2145,10 +2128,10 @@ void do_cmd_visuals(void)
                         {
                                 object_kind *k_ptr = &k_info[k];
 
-                                byte da = (byte)k_ptr->d_attr;
-                                char dc = (byte)k_ptr->d_char;
-                                byte ca = (byte)k_ptr->x_attr;
-                                char cc = (byte)k_ptr->x_char;
+                                s16b da = (byte)(k_ptr->d_attr);
+                                s16b dc = (byte)(k_ptr->d_char);
+                                s16b ca = (byte)(k_ptr->x_attr);
+                                s16b cc = (byte)(k_ptr->x_char);
 
                                 /* Label the object */
                                 Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2200,10 +2183,10 @@ void do_cmd_visuals(void)
                         {
                                 feature_type *f_ptr = &f_info[f];
 
-                                byte da = (byte)f_ptr->d_attr;
-                                char dc = (byte)f_ptr->d_char;
-                                byte ca = (byte)f_ptr->x_attr;
-                                char cc = (byte)f_ptr->x_char;
+                                s16b da = (byte)(f_ptr->d_attr);
+                                s16b dc = (byte)(f_ptr->d_char);
+                                s16b ca = (byte)(f_ptr->x_attr);
+                                s16b cc = (byte)(f_ptr->x_char);
 
                                 /* Label the object */
                                 Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2266,10 +2249,7 @@ void do_cmd_visuals(void)
 
 
         /* Restore the screen */
-        Term_load();
-
-        /* Leave "icky" mode */
-        character_icky = FALSE;
+        screen_load();
 }
 
 
@@ -2291,11 +2271,8 @@ void do_cmd_colors(void)
         FILE_TYPE(FILE_TYPE_TEXT);
 
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save the screen */
-        Term_save();
+        screen_save();
 
 
         /* Interact until done */
@@ -2503,31 +2480,133 @@ void do_cmd_colors(void)
 
 
         /* Restore the screen */
-        Term_load();
+        screen_load();
 
-        /* Leave "icky" mode */
-        character_icky = FALSE;
 }
 
 
 /*
- * Note something in the message recall
+ * Note something in the log file -GSN-
  */
 void do_cmd_note(void)
 {
-        char buf[80];
-
-        /* Default */
-        strcpy(buf, "");
-
+        char in_buf[80];
+        char out_buf[100];
+	char tempstring[30];
+	char *in_ptr, *out_ptr;
+	
+        strcpy (in_buf, "");
+        
         /* Input */
-        if (!get_string("Note: ", buf, 60)) return;
+        if (!get_string("Note: ", in_buf, 80)) return;
 
         /* Ignore empty notes */
-        if (!buf[0] || (buf[0] == ' ')) return;
+        if (!in_buf[0] || (in_buf[0] == ' ')) return;
 
-        /* Add the note to the message recall */
-        msg_format("Note: %s", buf);
+	/* Initialize pointers */
+	in_ptr = &in_buf[0];
+	out_ptr = &out_buf[0];
+
+        (void)memset(out_ptr, 0, sizeof(out_buf));
+        
+	/* Run through input buffer */
+	while (*in_ptr != '\0')
+	{
+	    /* Find %'s */
+	    if ((*in_ptr) == '%') 
+	    {
+	      /* Compare next char */
+	      switch (in_ptr[1])
+	      {
+		case 'h':
+		{		
+		    sprintf(tempstring, "%d HP", p_ptr->chp);
+		    break;
+		}
+		case 'H':
+		{
+		    sprintf(tempstring, "%d HP", p_ptr->mhp);
+		    break;
+		}
+		case 's':
+		{
+		    sprintf(tempstring, "%d sanity", p_ptr->csane);
+		    break;
+		}
+		case 'S':
+		{
+		    sprintf(tempstring, "%d sanity", p_ptr->msane);
+		    break;
+		}
+		case 'l':
+		{
+		    if (depth_in_feet)
+		    sprintf(tempstring, "at %d feet", dun_level * 50);
+		    else
+		    sprintf(tempstring, "at level %d", dun_level);
+		    break;
+		}
+		case 'L':
+		{
+		    if (depth_in_feet)
+		    sprintf(tempstring, "reached %d feet", p_ptr->max_dlv * 50);
+		    else
+		    sprintf(tempstring, "reached level %d", p_ptr->max_dlv * 50);
+		    break;
+		}
+		case 'p':
+		{
+		    sprintf(tempstring, "at exp level %d", p_ptr->lev);
+		    break;
+		}
+		case 'P':
+		{
+		    sprintf(tempstring, "reached exp level %d", p_ptr->max_plv);
+		    break;
+		}
+		case 't':
+		{
+		    sprintf(tempstring, "(turn %ld)", turn);
+		    break;
+		}
+		case 'n':
+		{
+		    sprintf(tempstring, "%s", player_name);
+		    break;
+		}
+		case 'c':
+		{
+		    sprintf(tempstring, "%s", class_info[p_ptr->pclass].title);
+		    break;
+		}
+		case 'r':
+		{
+		    sprintf(tempstring, "%s", race_info[p_ptr->prace].title);
+		    break;
+		}
+		case '%':
+		{
+		    strcpy(tempstring, "%");
+		    break;
+		}
+		default:
+		    break;
+	      }
+	      /* Expand the string to out_buf */
+	      strcat(out_buf, tempstring);
+	      out_ptr += strlen(tempstring);
+	      
+	      /* Increment pointer */
+	      in_ptr += 2;
+	    }
+	    else /* Copy the character */
+	    *out_ptr++ = *in_ptr++;
+	}
+	
+	*out_ptr++ = '\0'; /* Terminate the buffer */
+		
+        /* Add the note to the log file */
+        dlog(out_buf);
 }
 
 
@@ -2641,11 +2720,8 @@ void do_cmd_load_screen(void)
         if (!fff) return;
 
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save the screen */
-        Term_save();
+        screen_save();
 
         /* Clear the screen */
         Term_clear();
@@ -2714,10 +2790,8 @@ void do_cmd_load_screen(void)
 
 
         /* Restore the screen */
-        Term_load();
+        screen_load();
 
-        /* Leave "icky" mode */
-        character_icky = FALSE;
 }
 
 
@@ -2774,11 +2848,8 @@ void do_cmd_save_screen(void)
                 if (!fff) return;
 
 
-                /* Enter "icky" mode */
-                character_icky = TRUE;
-
                 /* Save the screen */
-                Term_save();
+                screen_save();
 
 
                 /* Dump the screen */
@@ -2839,10 +2910,8 @@ void do_cmd_save_screen(void)
 
 
                 /* Restore the screen */
-                Term_load();
+                screen_load();
 
-                /* Leave "icky" mode */
-                character_icky = FALSE;
         }
 }
 
@@ -2988,6 +3057,51 @@ void do_cmd_knowledge_artifacts(void)
 
 
 /*
+ * Check the status of traps
+ */
+void do_cmd_knowledge_traps(void)
+{
+        int k;
+
+	FILE *fff;
+
+        trap_type *t_ptr;
+
+	char file_name[1024];
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+        /* Scan the traps */
+        for (k = 0; k < max_t_idx; k++)
+	{
+                /* Get the trap */
+                t_ptr = &t_info[k];
+
+                /* Skip "empty" traps */
+                if (!t_ptr->name) continue;
+
+                /* Skip unidentified traps */
+                if(!t_ptr->ident) continue;
+
+                /* Hack -- Build the trap name */
+                fprintf(fff, "     %s\n", t_name + t_ptr->name);
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+        show_file(file_name, "Traps known", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+/*
  * Display known uniques
  *
  * Note that the player ghosts are ignored.  XXX XXX XXX
@@ -3012,8 +3126,8 @@ static void do_cmd_knowledge_uniques(void)
         {
                 monster_race *r_ptr = &r_info[k];
 
-                /* Only print Uniques */
-                if (r_ptr->flags1 & (RF1_UNIQUE))
+                /* Only print Uniques, but not Ghosts */
+                if (r_ptr->flags1 & (RF1_UNIQUE) && !(r_ptr->flags2 & RF2_PLAYER_GHOST))
                 {
                         bool dead = (r_ptr->max_num == 0);
 
@@ -3112,16 +3226,21 @@ void plural_aux(char * Name)
         {
                 strcpy (&(Name[NameLen-2]), "rves");
         }
-        else if (streq(&(Name[NameLen-9]), "man"))
+        else if (streq(&(Name[NameLen-3]), "man"))
         {
-                strcpy(&(Name[NameLen-9]), "men");
+                strcpy(&(Name[NameLen-3]), "men");
         }
+	else if (streq(&(Name[NameLen - 5]), "geist"))
+	{
+		strcpy(&(Name[NameLen - 5]), "geister");
+	}
         else if (streq(&(Name[NameLen-2]), "lf"))
         {
                 strcpy (&(Name[NameLen-2]), "lves");
         }
-        else if ((streq(&(Name[NameLen-2]), "ch")) || (Name[NameLen-1] == 's') ||
-	         (Name[NameLen-1] == 'x'))
+        else if ((streq(&(Name[NameLen-2]), "ch")) || (streq(&(Name[NameLen-1]),  "s")) ||
+		 (streq(&(Name[NameLen-1]),  "x")) || (streq(&(Name[NameLen-2]), "nx")) ||
+		 (streq(&(Name[NameLen-2]), "sh")))
         {
                 strcpy (&(Name[NameLen]), "es");
         }
@@ -3185,8 +3304,8 @@ static void do_cmd_knowledge_pets(void)
         {
                 show_upkeep = (t_levels);
 
-                if (show_upkeep > 100) show_upkeep = 100;
-                else if (show_upkeep < 10) show_upkeep = 10;
+                if (show_upkeep > 95) show_upkeep = 95;
+                else if (show_upkeep < 5) show_upkeep = 5;
         }
 
 
@@ -3237,7 +3356,7 @@ static void do_cmd_knowledge_kill_count(void)
                 {
                         monster_race *r_ptr = &r_info[kk];
 
-                        if (r_ptr->flags1 & (RF1_UNIQUE))
+                        if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags2 & RF2_PLAYER_GHOST))
                         {
                                 bool dead = (r_ptr->max_num == 0);
 
@@ -3271,7 +3390,7 @@ static void do_cmd_knowledge_kill_count(void)
         for (k = 1; k < max_r_idx-1; k++)
         {
                 monster_race *r_ptr = &r_info[k];
-
+		
                 if (r_ptr->flags1 & (RF1_UNIQUE))
                 {
                         bool dead = (r_ptr->max_num == 0);
@@ -3279,8 +3398,7 @@ static void do_cmd_knowledge_kill_count(void)
                         if (dead)
                         {
                                 /* Print a message */
-                                fprintf(fff, "     %s\n",
-                                    (r_name + r_ptr->name));
+                                fprintf(fff, "     %s\n", (r_name + r_ptr->name));
                                 Total++;
                         }
                 }
@@ -3294,11 +3412,15 @@ static void do_cmd_knowledge_kill_count(void)
                                 {
                                         if (strstr(r_name + r_ptr->name, "coins"))
                                         {
-                                                fprintf(fff, "     1 pile of %s\n", (r_name + r_ptr->name));
+                                                fprintf(fff, "     1 pile of %s %s\n", (r_name + r_ptr->name),
+                                                    (r_ptr->flags2 & RF2_EXTINCT) ? "(genocided)" : "");
+
                                         }
                                         else
                                         {
-                                                fprintf(fff, "     1 %s\n", (r_name + r_ptr->name));
+                                                fprintf(fff, "     1 %s %s\n", (r_name + r_ptr->name), 
+                                                  (r_ptr->flags2 & RF2_EXTINCT) ? "(genocided)" : "");
+
                                         }
                                 }
                                 else
@@ -3306,7 +3428,8 @@ static void do_cmd_knowledge_kill_count(void)
                                         char ToPlural[80];
                                         strcpy(ToPlural, (r_name + r_ptr->name));
                                         plural_aux(ToPlural);
-                                        fprintf(fff, "     %d %s\n", This, ToPlural);
+                                        fprintf(fff, "     %d %s %s\n", This, ToPlural, 
+                                        (r_ptr->flags2 & RF2_EXTINCT) ? "(genocided)" : "");
                                 }
 
                                 Total += This;
@@ -3423,11 +3546,10 @@ static void do_cmd_knowledge_quests(void)
         FILE *fff;
         char file_name[1024];
         char tmp_str[80];
-        char rand_tmp_str[80] = "\0";
+        char rand_tmp_str[110] = "\0";
         char name[80];
         monster_race *r_ptr;
         int i;
-        int rand_level = 100;
 
         /* Temporary file */
         if (path_temp(file_name, 1024)) return;
@@ -3479,13 +3601,9 @@ static void do_cmd_knowledge_quests(void)
                                         j++;
                                 }
                         }
-                        else if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-                                 (quest[i].level < rand_level))
+                        else if (quest[i].type == QUEST_TYPE_RANDOM)
                         {
-                                /* New random */
-                                rand_level = quest[i].level;
-
-                                if (p_ptr->max_dlv >= rand_level)
+                                if (p_ptr->max_dlv >= quest[i].level)
                                 {
                                         /* Print the quest info */
                                         r_ptr = &r_info[quest[i].r_idx];
@@ -3502,6 +3620,9 @@ static void do_cmd_knowledge_quests(void)
                                         {
                                                 sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %s.\n", quest[i].name, quest[i].level, name);
                                         }
+					
+    					/* Print the current random quest  */
+    					fprintf(fff, rand_tmp_str);					
                                 }
                         }
                 }
@@ -3512,9 +3633,6 @@ static void do_cmd_knowledge_quests(void)
                         fprintf(fff, tmp_str);
                 }
         }
-
-        /* Print the current random quest  */
-        fprintf(fff, rand_tmp_str);
 
         /* Close the file */
         my_fclose(fff);
@@ -3527,6 +3645,7 @@ static void do_cmd_knowledge_quests(void)
 }
 
 
+
 /*
  * Interact with "knowledge"
  */
@@ -3537,11 +3656,8 @@ void do_cmd_knowledge(void)
         /* File type is "TEXT" */
         FILE_TYPE(FILE_TYPE_TEXT);
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save the screen */
-        Term_save();
+        screen_save();
 
         /* Interact until done */
         while (1)
@@ -3556,10 +3672,11 @@ void do_cmd_knowledge(void)
                 prt("(1) Display known artifacts", 4, 5);
                 prt("(2) Display known uniques", 5, 5);
                 prt("(3) Display known objects", 6, 5);
-                prt("(4) Display kill count", 7, 5);
-                prt("(5) Display mutations", 8, 5);
-                prt("(6) Display current pets", 9, 5);
-                prt("(7) Display current quests", 10, 5);
+                prt("(4) Display known traps", 7, 5);
+                prt("(5) Display kill count", 8, 5);
+                prt("(6) Display mutations", 9, 5);
+                prt("(7) Display current pets", 10, 5);
+                prt("(8) Display current quests", 11, 5);
 
                 /* Prompt */
                 prt("Command: ", 12, 0);
@@ -3581,16 +3698,19 @@ void do_cmd_knowledge(void)
                 case '3': /* Objects */
                         do_cmd_knowledge_objects();
                         break;
-                case '4': /* Kill count  */
+                case '4': /* Traps */
+                        do_cmd_knowledge_traps();
+			break;
+                case '5': /* Kill count  */
                         do_cmd_knowledge_kill_count();
                         break;
-                case '5': /* Mutations */
+                case '6': /* Mutations */
                         do_cmd_knowledge_mutations();
                         break;
-                case '6': /* Pets */
+                case '7': /* Pets */
                         do_cmd_knowledge_pets();
                         break;
-                case '7': /* Quests */
+                case '8': /* Quests */
                         do_cmd_knowledge_quests();
                         break;
                 default: /* Unknown option */
@@ -3601,10 +3721,8 @@ void do_cmd_knowledge(void)
         }
 
         /* Restore the screen */
-        Term_load();
+        screen_load();
 
-        /* Leave "icky" mode */
-        character_icky = FALSE;
 }
 
 
@@ -3617,32 +3735,27 @@ void do_cmd_checkquest(void)
         /* File type is "TEXT" */
         FILE_TYPE(FILE_TYPE_TEXT);
 
-        /* Enter "icky" mode */
-        character_icky = TRUE;
-
         /* Save the screen */
-        Term_save();
+        screen_save();
 
         /* Quest info */
         do_cmd_knowledge_quests();
 
         /* Restore the screen */
-        Term_load();
+        screen_load();
 
-        /* Leave "icky" mode */
-        character_icky = FALSE;
 }
 
-void do_cmd_change_tactic(void)
+void do_cmd_change_tactic(bool how)
 {
    char c;
-   p_ptr->tactic++;
-   if (p_ptr->tactic>8) p_ptr->tactic = 0;
-   prt(format("During your adventures in GSNband, you behave %s. -- more --",
-       tactic_info[p_ptr->tactic].name),0,0);
+   if (how) p_ptr->tactic++;
+   else p_ptr->tactic--;
+   prt(format("During your adventures you behave %s (%+d/%+d hit/dam, %+dAC) -- more --",
+       tactic_info[p_ptr->tactic].name,tactic_info[p_ptr->tactic].to_hit,
+       tactic_info[p_ptr->tactic].to_dam, tactic_info[p_ptr->tactic].to_ac),0,0);
    c = inkey();
    p_ptr->update |= (PU_BONUS);
    update_stuff();
    prt("",0,0);
 }
-

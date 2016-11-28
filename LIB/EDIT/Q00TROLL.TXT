@@ -33,14 +33,14 @@ F:T:96:3
 # Floor with forest troll
 F:a:1:3:Forest troll
 
-# Floor with Bert the Stone Troll
-F:b:1:3:Bert the Stone Troll
+# Floor with Bert the Stone Troll
+F:b:1:3:Bert the Stone Troll
 
 # Floor with Bill
-F:i:1:3:Bill the Stone Troll
+F:i:1:3:Bill the Stone Troll
 
 # Floor with Tom
-F:t:1:3:Tom the Stone Troll
+F:t:1:3:Tom the Stone Troll
 
 # Floor with Glamdring
 F:g:1:8:0:0:0:73
@@ -50,16 +50,16 @@ F:s:1:8:0:396
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XTTTTTTTTTT..aa....s.....aaX
-D:XTTTTTTTTt..aas......TTTT..X
-D:XTTTT....s.aaa....iTTTTTTT.X
-D:XTTTTT.....aaTTTTTTTTTTTTs.X
+D:XTTTTTTTTTT.....a..s...a...X
+D:XTTTTTTTTt.a..s..a...TTTT..X
+D:XTTTT....s...a....iTTTTTTT.X
+D:XTTTTT.a.a...TTTTTTTTTTTTs.X
 D:XTgTTTT...TTTTTTTTTTTTTTT..X
-D:XT.bTT.s.TTTTT......s.TT...X
-D:XTTT...TTTTT...s.........TTX
-D:XTTTT.TTTTTT.a....s.TTTTTTTX
-D:XTTTTTTTT.s.aaa..TTTTTTTTTTX
-D:X<..........aaaaTTTTTTTTTTTX
+D:XTabTTasaTTTTT......s.TT.a.X
+D:XTTTaaaTTTTT...s.a...a...TTX
+D:XXXXXaTTTTTT.a....s.TTTTTTTX
+D:XTTTTTTTT.s......TTTTTTTTTTX
+D:X<....a...a..a..TTTTTTTTTTTX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Starting position

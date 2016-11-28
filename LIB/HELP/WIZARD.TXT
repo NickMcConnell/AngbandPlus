@@ -38,7 +38,7 @@ command. The debug commands are:
       figure indicating how they compare to the average (the life rating).
 'i':  Identify an object.
 'I':  Print max sanity and current sanity, then decrease the latter by 1.
-'j':  Jump to any level (even below 100th).
+'j':  Jump to any level (up to 127th).
 'k':  Self knowledge (as the potion).
 'l':  Learn about all objects with a generation level less than or equal
       to the command count.  Requires a command count.
@@ -54,7 +54,7 @@ command. The debug commands are:
       when done.  This command also allows you to roll up a very large
       number of objects, and find out how good your object is compared
       to others of its type.
-'O':  Outfit the player - raises you to level ~45, gives 5 mln gold,
+'O':  Outfit the player - raises you to level 45-50, gives 5 mln gold,
       raises stats by 100, equips with some nice items (no artifacts).
 'p':  Phase door.
 'q':  Use with the command count to complete a quest with that index.
@@ -77,7 +77,8 @@ command. The debug commands are:
 'z':  Either use maximum sighting range or a command count to remove
       all monsters up to that range.  May take a command count.
 '@':  Show current coordinates in dungeon (mainly for debugging towns).
-
+'+':  Increment internal calendar one day (doesn't do range checking)
+'-':  Decrement internal calendar one day (doesn't do range checking)
 
 To enter a command count:  type '0', enter the number desired, and press
 enter.  When prompted for a command, hold down the CTRL key and type

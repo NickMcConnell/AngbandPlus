@@ -32,6 +32,9 @@ W:F:^:11:50
 # Volcano
 W:F:&:10:60
 
+# Swamp
+W:F:@:4:60
+
 # Town 1
 W:F:1:1:0:1:0:Outpost
 
@@ -50,28 +53,28 @@ W:F:R:2:90:5:0:Wilderness
 # Town 5
 W:F:5:1:0:5:0:Zul
 
-# Grassland with road east-west-south
+# Grassland with road east-west
 W:F:-:6:3:0:12
 
 # Grassland with road north-south
 W:F:|:6:3:0:3
 
 # Wilderness layout
-W:D:###################
-W:D:#....&^^^^^^TTTTTT#
-W:D:#.....5^^^^^3T.TT,#
-W:D:#...........|....,#
-W:D:#...1-------2...,,#
+W:D:###################
+W:D:#....&^^...TTTTTTT#
+W:D:#.....5^...T3T.TT,#
+W:D:#...........|..^^,#
+W:D:#...1-------2..^,,#
 W:D:#..,,,,.....|...,,#
 W:D:#=_TTTTT_..T|.T,,,#
-W:D:#==______T.T4TTT,,#
-W:D:#====R====TTTTTTTT#
-W:D:#===========_.TTTT#
+W:D:#==@@@@@_T.T4TTT,,#
+W:D:#====R===_TTTTTTTT#
+W:D:#=========___.TTTT#
 W:D:#_==========_..TTT#
-W:D:#_____======_...TT#
-W:D:#^^.....======.TTT#
-W:D:#^^^.....======.TT#
-W:D:#^^^^&&.,,,,======#
+W:D:#__@@@======_...TT#
+W:D:#^^.....=====_.TTT#
+W:D:#^^^.....=====__TT#
+W:D:#^^^^&&.,,,,====_T#
 W:D:###################
 
 # Starting position

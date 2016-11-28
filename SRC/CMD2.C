@@ -23,6 +23,8 @@
 void do_cmd_go_up(void)
 {
 	bool go_up = FALSE;
+	bool go_up_many = FALSE;
+	
 	cave_type *c_ptr;
 
 	/* Player grid */
@@ -47,6 +49,7 @@ void do_cmd_go_up(void)
 		if (!p_ptr->inside_quest)
 		{
 			dun_level = 0;
+
 		}
 
 		/* Leaving */
@@ -57,7 +60,8 @@ void do_cmd_go_up(void)
 		p_ptr->oldpy = 0;
 	}
 	/* Normal up stairs */
-	else if (c_ptr->feat == FEAT_LESS)
+	else if ((c_ptr->feat == FEAT_LESS) ||
+	         (p_ptr->mind & MIND_PROB_TRAVEL))
 	{
 		if (!dun_level)
 		{
@@ -75,21 +79,37 @@ void do_cmd_go_up(void)
 				go_up = TRUE;
 			}
 		}
-
-		if (go_up)
+	 }
+	 /* Normal up stairs */
+	 else if (c_ptr->feat == FEAT_SHAFT_UP)
+	 {
+		if (dun_level == 1)
 		{
+			go_up = TRUE;
+		}
+		else
+		{
+			if (confirm_stairs)
+			{
+				if (get_check("Really leave the level? "))
+					go_up_many = TRUE;
+			}
+			else
+			{
+				go_up_many = TRUE;
+			}
+		}
+	 }
+	 else
+	 {
+		msg_print("I see no up staircase here.");
+		return;
+	 }
 
-#if 0
-	/*
-	 * I'm experimenting without this... otherwise the monsters get to
-	 * act first when we go up stairs, theoretically resulting in a possible
-	 * insta-death.
-	 */
-			/* Hack -- take a turn */
-			energy_use = 100;
-#else
+		if (go_up || go_up_many)
+		{
+		
 			energy_use = 0;
-#endif
 
 			/* Success */
 			msg_print("You enter a maze of up staircases.");
@@ -104,6 +124,14 @@ void do_cmd_go_up(void)
 
 			if (p_ptr->inside_quest)
 			{
+			   if ((quest[p_ptr->inside_quest].flags & QUEST_FLAG_ONLYONCE) &&
+			       (quest[p_ptr->inside_quest].status < 2))
+			  {
+			    quest[p_ptr->inside_quest].status = 4;
+			    msg_print("You failed on your quest!");
+			    msg_print("The entrance disappears.");
+			    msg_print(NULL);
+			   }
 				dun_level = 1;
 				leaving_quest = p_ptr->inside_quest;
 				p_ptr->inside_quest = c_ptr->special;
@@ -112,18 +140,20 @@ void do_cmd_go_up(void)
 			/* Create a way back */
 			create_down_stair = TRUE;
 
+			if (go_up)
 			/* New depth */
 			dun_level--;
-
+			else if (go_up_many)
+			dun_level -= randint(5) + 1;
+			
+			if (dun_level < 0) dun_level = 0;
+			
 			/* Leaving */
 			p_ptr->leaving = TRUE;
+                        
+                        sc_time += randint(60);
 		}
-	}
-	else
-	{
-		msg_print("I see no up staircase here.");
-		return;
-	}
+		
 }
 
 
@@ -134,12 +164,13 @@ void do_cmd_go_down(void)
 {
 	cave_type *c_ptr;
 	bool go_down = FALSE;
+	bool go_down_many = FALSE;
 	bool fall_trap = FALSE;
 
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
-	if (c_ptr->feat == (FEAT_TRAP_HEAD + 0x00)) fall_trap = TRUE;
+	if (c_ptr->t_idx == TRAP_OF_SINKING) fall_trap = TRUE;
 
 	/* Quest down stairs */
 	if (c_ptr->feat == FEAT_QUEST_DOWN)
@@ -168,21 +199,13 @@ void do_cmd_go_down(void)
 		p_ptr->oldpx = 0;
 		p_ptr->oldpy = 0;
 	}
-	/* Verify stairs */
-	else if ((c_ptr->feat != FEAT_MORE) && !(fall_trap))
-	{
-		msg_print("I see no down staircase here.");
-		return;
-	}
-	else
+	/* Normal up stairs */
+	else if ((c_ptr->feat == FEAT_MORE) ||
+	         (p_ptr->mind & MIND_PROB_TRAVEL))
 	{
 		if (!dun_level)
 		{
 			go_down = TRUE;
-
-			/* Save old player position */
-			p_ptr->oldpx = px;
-			p_ptr->oldpy = py;
 		}
 		else
 		{
@@ -196,16 +219,37 @@ void do_cmd_go_down(void)
 				go_down = TRUE;
 			}
 		}
-
-		if (go_down)
+	 }
+	 /* Normal up stairs */
+	 else if (c_ptr->feat == FEAT_SHAFT_DOWN)
+	 {
+		if (dun_level == MAX_DEPTH - 1)
+		{
+			go_down = TRUE;
+		}
+		else
+		{
+			if (confirm_stairs)
+			{
+				if (get_check("Really leave the level? "))
+					go_down_many = TRUE;
+			}
+			else
+			{
+				go_down_many = TRUE;
+			}
+		}
+	 }
+	 else
+	 {
+		msg_print("I see no down staircase here.");
+		return;
+	 }
+	 
+		if (go_down || go_down_many)
 		{
 
-#if 0
-			/* Hack -- take a turn */
-			energy_use = 100;
-#else
 			energy_use = 0;
-#endif
 
 			if (fall_trap)
 				msg_print("You deliberately jump through the trap door.");
@@ -221,9 +265,14 @@ void do_cmd_go_down(void)
 				is_autosave = FALSE;
 			}
 
+			if (go_down)
 			/* Go down */
 			dun_level++;
+			else if (go_down_many)
+			dun_level += randint(5) + 1;
 
+			if (dun_level > MAX_DEPTH) dun_level = MAX_DEPTH;
+			
 			/* Leaving */
 			p_ptr->leaving = TRUE;
 
@@ -232,8 +281,10 @@ void do_cmd_go_down(void)
 				/* Create a way back */
 				create_up_stair = TRUE;
 			}
+                        
+                        sc_time += randint(60);
+                        
 		}
-	}
 }
 
 
@@ -258,6 +309,8 @@ void do_cmd_search(void)
 
 	/* Take a turn */
 	energy_use = 100;
+
+        sc_time += randint(40);
 
 	/* Search */
 	search();
@@ -380,7 +433,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		object_wipe(q_ptr);
 
 		/* Small chests often drop gold */
-		if (small && (rand_int(100) < 75))
+		if (small && (rand_int(100) < 25))
 		{
 			/* Make some gold */
 			if (!make_gold(q_ptr)) continue;
@@ -411,6 +464,8 @@ static void chest_death(int y, int x, s16b o_idx)
 }
 
 
+
+
 /*
  * Chests have traps too.
  *
@@ -419,77 +474,28 @@ static void chest_death(int y, int x, s16b o_idx)
  */
 static void chest_trap(int y, int x, s16b o_idx)
 {
-	int  i, trap;
+	int trap;
 
 	object_type *o_ptr = &o_list[o_idx];
 
+	bool ident = FALSE;
 
 	/* Ignore disarmed chests */
 	if (o_ptr->pval <= 0) return;
 
-	/* Obtain the traps */
-	trap = chest_traps[o_ptr->pval];
-
-	/* Lose strength */
-	if (trap & (CHEST_LOSE_STR))
+	/* Obtain the trap */
+	trap = o_ptr->pval;
+	
+	/* Message */
+	msg_print("You found a trap!");
+	
+	/* Set off trap */
+	ident = player_activate_trap_type(y, x, o_ptr, o_idx);
+	if (ident)
 	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_STR);
-	}
-
-	/* Lose constitution */
-	if (trap & (CHEST_LOSE_CON))
-	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_CON);
-	}
-
-	/* Poison */
-	if (trap & (CHEST_POISON))
-	{
-		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
-		}
-	}
-
-	/* Paralyze */
-	if (trap & (CHEST_PARALYZE))
-	{
-		msg_print("A puff of yellow gas surrounds you!");
-
-		if (!p_ptr->free_act)
-		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
-		}
-	}
-
-	/* Summon monsters */
-	if (trap & (CHEST_SUMMON))
-	{
-		int num = 2 + randint(3);
-		msg_print("You are enveloped in a cloud of smoke!");
-
-		for (i = 0; i < num; i++)
-		{
-			if (randint(100)<dun_level)
-				activate_hi_summon();
-			else
-				(void)summon_specific(y, x, dun_level, 0, TRUE, FALSE, FALSE);
-		}
-	}
-
-	/* Explode */
-	if (trap & (CHEST_EXPLODE))
-	{
-		msg_print("There is a sudden explosion!");
-		msg_print("Everything inside the chest is destroyed!");
-		o_ptr->pval = 0;
-		sound(SOUND_EXPLODE);
-		take_hit(damroll(5, 8), "an exploding chest");
+		t_info[o_ptr->pval].ident = TRUE;
+		msg_format("You identified the trap as %s.",
+			   t_name + t_info[trap].name);
 	}
 }
 
@@ -511,6 +517,16 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+        if (p_ptr->polymon)
+        {
+            monster_race *r_ptr = &r_info[p_ptr->polymon];
+          
+            if (!r_ptr->r_polyinfo & HAS_HANDS)
+            {
+                  msg_print("You have no hands to handle the chest.");
+                  return(FALSE);
+            }
+        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -538,7 +554,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (rand_int(100) < j)
 		{
 			msg_print("You have picked the lock.");
-			gain_exp(1);
+			/* gain_exp(1); */
 			flag = TRUE;
 		}
 
@@ -564,6 +580,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	/* Result */
 	return (more);
+        
+        sc_time += randint(10);
+        
 }
 
 
@@ -690,6 +709,16 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 
 	bool more = FALSE;
 
+        if (p_ptr->polymon)
+        {
+            monster_race *r_ptr = &r_info[p_ptr->polymon];
+          
+            if (!r_ptr->r_polyinfo & HAS_HANDS)
+            {
+                  msg_print("You have no hands to open the door.");
+                  return(FALSE);
+            }
+        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -729,6 +758,9 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 			/* Message */
 			msg_print("You have picked the lock.");
 
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
 
@@ -737,9 +769,6 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 
 			/* Sound */
 			sound(SOUND_OPENDOOR);
-
-			/* Experience */
-			gain_exp(1);
 		}
 
 		/* Failure */
@@ -759,6 +788,9 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 	/* Closed door */
 	else
 	{
+		/* Set off trap */
+		if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+        
 		/* Open the door */
 		cave_set_feat(y, x, FEAT_OPEN);
 
@@ -862,6 +894,17 @@ void do_cmd_open(void)
 			py_attack(y, x);
 		}
 
+		/* Object in the way */
+		else if (c_ptr->o_idx && !o_idx)
+		{
+			/* Take a turn */
+			energy_use = 100;
+
+			/* Message */
+			msg_print("An object gets in the way.");
+
+		}
+
 		/* Handle chests */
 		else if (o_idx)
 		{
@@ -876,6 +919,8 @@ void do_cmd_open(void)
 			more = do_cmd_open_aux(y, x, dir);
 		}
 	}
+
+        sc_time += randint(5);
 
 	/* Cancel repeat unless we may continue */
 	if (!more) disturb(0, 0);
@@ -898,12 +943,25 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 
 	bool            more = FALSE;
 
+        if (p_ptr->polymon)
+        {
+            monster_race *r_ptr = &r_info[p_ptr->polymon];
+          
+            if (!r_ptr->r_polyinfo & HAS_HANDS)
+            {
+                  msg_print("You have no hands to close the door.");
+                  return(FALSE);
+            }
+        }
 
 	/* Take a turn */
 	energy_use = 100;
 
 	/* Get grid and contents */
 	c_ptr = &cave[y][x];
+
+	/* Set off trap */
+	if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
 
 	/* Broken door */
 	if (c_ptr->feat == FEAT_BROKEN)
@@ -998,6 +1056,17 @@ void do_cmd_close(void)
 			py_attack(y, x);
 		}
 
+		/* Monster in the way */
+		else if (c_ptr->o_idx)
+		{
+			/* Take a turn */
+			energy_use = 100;
+
+			/* Message */
+			msg_print("An object gets in the way.");
+
+		}
+
 		/* Close the door */
 		else
 		{
@@ -1005,6 +1074,8 @@ void do_cmd_close(void)
 			more = do_cmd_close_aux(y, x, dir);
 		}
 	}
+
+        sc_time += randint(5);
 
 	/* Cancel repeat unless we may continue */
 	if (!more) disturb(0, 0);
@@ -1102,7 +1173,7 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 
 	/* Get grid */
 	c_ptr = &cave[y][x];
-
+	
 	/* Sound */
 	sound(SOUND_DIG);
 
@@ -1148,6 +1219,9 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
+
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
 		}
 
 		/* Keep trying */
@@ -1320,9 +1394,17 @@ void do_cmd_tunnel(void)
 	int                     y, x, dir;
 
 	cave_type       *c_ptr;
+	object_type 	*o_ptr = &inventory[INVEN_WIELD];
 
 	bool            more = FALSE;
 
+	/* Verify digger used */
+	if ((o_ptr->tval != TV_DIGGING) && !((p_ptr->pclass == CLASS_MONK) &&
+           (p_ptr->lev >= 30)))
+	{
+	    msg_print("You need a digging tool to tunnel!");
+	    return;
+	}
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1391,6 +1473,8 @@ void do_cmd_tunnel(void)
 		}
 	}
 
+        sc_time += randint(100);
+
 	/* Cancel repetition unless we can continue */
 	if (!more) disturb(0, 0);
 }
@@ -1415,6 +1499,17 @@ bool easy_open_door(int y, int x)
 
 	cave_type *c_ptr = &cave[y][x];
 
+        if (p_ptr->polymon)
+        {
+            monster_race *r_ptr = &r_info[p_ptr->polymon];
+          
+            if (!r_ptr->r_polyinfo & HAS_HANDS)
+            {
+                  msg_print("You have no hands to open the door.");
+                  return(FALSE);
+            }
+        }
+
 	/* Must be a closed door */
 	if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
 	      (c_ptr->feat <= FEAT_DOOR_TAIL)))
@@ -1434,7 +1529,7 @@ bool easy_open_door(int y, int x)
 	else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x01)
 	{
 		/* Disarm factor */
-		i = p_ptr->skill_dis;
+       		i = p_ptr->skill_dis;
 
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
@@ -1455,6 +1550,9 @@ bool easy_open_door(int y, int x)
 			/* Message */
 			msg_print("You have picked the lock.");
 
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
 
@@ -1464,8 +1562,6 @@ bool easy_open_door(int y, int x)
 			/* Sound */
 			sound(SOUND_OPENDOOR);
 
-			/* Experience */
-			gain_exp(1);
 		}
 
 		/* Failure */
@@ -1482,6 +1578,9 @@ bool easy_open_door(int y, int x)
 	/* Closed door */
 	else
 	{
+		/* Set off trap */
+		if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 		/* Open the door */
 		cave_set_feat(y, x, FEAT_OPEN);
 
@@ -1491,6 +1590,8 @@ bool easy_open_door(int y, int x)
 		/* Sound */
 		sound(SOUND_OPENDOOR);
 	}
+
+        sc_time += randint(5);
 
 	/* Result */
 	return (TRUE);
@@ -1516,6 +1617,16 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+        if (p_ptr->polymon)
+        {
+            monster_race *r_ptr = &r_info[p_ptr->polymon];
+          
+            if (!r_ptr->r_polyinfo & HAS_HANDS)
+            {
+                  msg_print("You have no hands to disarm the chest.");
+                  return(FALSE);
+            }
+        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1576,6 +1687,8 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 		chest_trap(y, x, o_idx);
 	}
 
+        sc_time += (randint(300) / p_ptr->skill_dis) + 1;
+
 	/* Result */
 	return (more);
 }
@@ -1616,7 +1729,10 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	c_ptr = &cave[y][x];
 
 	/* Access trap name */
-	name = (f_name + f_info[c_ptr->feat].name);
+	if (t_info[c_ptr->t_idx].ident)
+		name = (t_name + t_info[c_ptr->t_idx].name);
+	else
+		name = "unknown trap";
 
 	/* Get the "disarm" factor */
 	i = p_ptr->skill_dis;
@@ -1628,7 +1744,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	/* XXX XXX XXX Variable power? */
 
 	/* Extract trap "power" */
-	power = 5 + dun_level / 4;
+	power = t_info[c_ptr->t_idx].difficulty;
 
 	/* Extract the difficulty */
 	j = i - power;
@@ -1649,17 +1765,19 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		c_ptr->info &= ~(CAVE_MARK);
 
 		/* Remove the trap */
-		cave_set_feat(y, x, FEAT_FLOOR);
+		c_ptr->t_idx = 0;
 
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 		/* Move the player onto the trap */
-		move_player(dir, easy_disarm);
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
+                        move_player(dir, easy_disarm);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
 		/* move the player onto the trap grid */
-		move_player(dir, FALSE);
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
+                        move_player(dir, FALSE);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 	}
@@ -1686,11 +1804,13 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 		/* Move the player onto the trap */
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
 		move_player(dir, easy_disarm);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Move the player onto the trap */
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
 		move_player(dir, FALSE);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
@@ -1765,8 +1885,7 @@ void do_cmd_disarm(void)
 		o_idx = chest_check(y, x);
 
 		/* Disarm a trap */
-		if (!((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-		    (c_ptr->feat <= FEAT_TRAP_TAIL)) &&
+		if ((c_ptr->t_idx == 0) &&
 		    !o_idx)
 		{
 			/* Message */
@@ -1797,6 +1916,8 @@ void do_cmd_disarm(void)
 			more = do_cmd_disarm_aux(y, x, dir);
 		}
 	}
+
+        sc_time += (randint(300) / p_ptr->skill_dis) + 1;
 
 	/* Cancel repeat unless told not to */
 	if (!more) disturb(0, 0);
@@ -1852,12 +1973,18 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		/* Break down the door */
 		if (rand_int(100) < 50)
 		{
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			cave_set_feat(y, x, FEAT_BROKEN);
 		}
 
 		/* Open the door */
 		else
 		{
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			cave_set_feat(y, x, FEAT_OPEN);
 		}
 
@@ -1889,74 +2016,17 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		/* Message */
 		msg_print("You are off-balance.");
 
-		/* Hack -- Lose balance ala paralysis */
+		/* Hack -- Lose balance a` la paralysis */
 		(void)set_paralyzed(p_ptr->paralyzed + 2 + rand_int(2));
 	}
 
+        /* Time passes */
+        sc_time += randint(15);
+        
 	/* Result */
 	return (more);
 }
 
-/* Try to bash an altar. */
-
-static bool do_cmd_bash_altar(int y, int x) {
-
-  cave_type       *c_ptr;
-
-  bool more = FALSE;
-  int pgod = p_ptr->pgod;
-  int agod = cave[y][x].feat-FEAT_ALTAR_HEAD+1;
-  int tmp = randint(100);
-  c_ptr = &cave[y][x];
-
-  msg_print("You smash into the altar!");
-
-  /* Player doesn't worship anyone -- create an explosion. */
-  if (pgod == 0) {
-    /* 5% to explode. */
-    if (randint(20) == 10) {
-      godly_wrath_blast(agod-1);
-    } else {
-      more = TRUE;
-    }
-  } else if (pgod == agod) {
-    /* Supreme blasphemy! */
-    msg_format("%s thunders: ``Enjoy your eternity in hell, mortal!",
-	       deity_info[pgod-1].name);
-    set_grace(-200000);
-    if (p_ptr->champion) p_ptr->champion = FALSE;
-    godly_wrath_blast(pgod-1);
-  } else {
-    /* 50% chance of nothing happening,
-     * 40% of explosion,
-     * 10% of consecration. */
-
-    if (tmp < 50) {
-      more = TRUE;
-    }
-    else if (tmp < 90) {
-      msg_format("%s thunders: ``Know thy place, mortal!''",
-		 deity_info[agod-1].name);
-      godly_wrath_blast(agod-1);
-      set_grace(p_ptr->grace - 10000);
-    } else {
-      msg_print("The old altar crumbles into dust, and a new one materializes in its place.");
-      msg_format("%s is pleased!",
-		 deity_info[pgod-1].name);
-      set_grace(p_ptr->grace + 1000);
-      if (p_ptr->grace > 10000)
-	 great_side_effect();
-
-      /* Forget the altar */
-      c_ptr->feat &= ~(CAVE_MARK);
-      
-      /* Change it. */
-      cave_set_feat(y, x, FEAT_ALTAR_HEAD+(pgod-1));
-    }
-  }
-
-  return more;
-}
 
 /*
  * Bash open a door, success based on character strength
@@ -2027,11 +2097,6 @@ void do_cmd_bash(void)
 			/* Attack */
 			py_attack(y, x);
 		}
-		   else if (c_ptr->feat >= FEAT_ALTAR_HEAD &&
-		   c_ptr->feat <= FEAT_ALTAR_TAIL)
-		   {
-		   more = do_cmd_bash_altar(y, x);
-		   }
 		/* Bash a closed door */
 		else
 		{
@@ -2131,9 +2196,16 @@ void do_cmd_alter(void)
 			more = do_cmd_open_aux(y, x, dir);
 		}
 
+		/* Close open doors */
+		else if ((c_ptr->feat == FEAT_OPEN) ||
+		         (c_ptr->feat == FEAT_BROKEN))
+		{
+			/* Tunnel */
+			more = do_cmd_close_aux(y, x, dir);
+		}
+
 		/* Disarm traps */
-		else if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-		    (c_ptr->feat < FEAT_MINOR_GLYPH))
+		else if (c_ptr->t_idx != 0)
 		{
 			/* Tunnel */
 			more = do_cmd_disarm_aux(y, x, dir);
@@ -2197,6 +2269,16 @@ void do_cmd_spike(void)
 
 	cave_type *c_ptr;
 
+        if (p_ptr->polymon)
+        {
+            monster_race *r_ptr = &r_info[p_ptr->polymon];
+          
+            if (!r_ptr->r_polyinfo & HAS_HANDS)
+            {
+                  msg_print("You have no hands to use the spikes.");
+                  return;
+            }
+        }
 
 	/* Get a "repeated" direction */
 	if (get_rep_dir(&dir))
@@ -2255,6 +2337,8 @@ void do_cmd_spike(void)
 			inven_item_increase(item, -1);
 			inven_item_describe(item);
 			inven_item_optimize(item);
+                        
+                        sc_time += randint(30);                        
 		}
 	}
 }
@@ -2408,7 +2492,7 @@ void do_cmd_stay(int pickup)
 			msg_print("You accomplished your quest!");
 			msg_print(NULL);
 		}
-
+		
 		leaving_quest = p_ptr->inside_quest;
 		p_ptr->inside_quest = cave[py][px].special;
 		dun_level = 0;
@@ -2463,6 +2547,8 @@ void do_cmd_rest(void)
 
 	/* Take a turn XXX XXX XXX (?) */
 	energy_use = 100;
+
+        sc_time += 10;
 
 	/* Save the rest code */
 	resting = command_arg;
@@ -2587,9 +2673,9 @@ void do_cmd_fire(void)
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
-/*        cptr q, s; */
+        cptr q, s;
 
-	u32b f1, f2, f3;
+	u64b f1, f2, f3;
 
 	int terrain_bonus = 0;
 	int sleeping_bonus = 0;
@@ -2604,8 +2690,15 @@ void do_cmd_fire(void)
 		return;
 	}
 
+        /* New code with the quiver slot */
 
-#if 0   /* Old code without the quiver slot */
+	/* Get the "ammo" (if any) */
+	o_ptr = &inventory[INVEN_AMMO];
+
+	item = INVEN_AMMO;
+
+	if(!o_ptr->k_idx)
+	{
 	/* Require proper missile */
 	item_tester_tval = p_ptr->tval_ammo;
 
@@ -2624,17 +2717,7 @@ void do_cmd_fire(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-#else   /* New code with the quiver slot */
-
-	/* Get the "ammo" (if any) */
-	o_ptr = &inventory[INVEN_AMMO];
-
-	item = INVEN_AMMO;
-
-	if(!o_ptr->k_idx)
-	{
-		msg_print("You have nothing to fire with.");
-		return;
+	
 	}
 
 	if(p_ptr->tval_ammo != o_ptr->tval)
@@ -2642,7 +2725,6 @@ void do_cmd_fire(void)
 		msg_print("You have no proper ammo to fire with.");
 		return;
 	}
-#endif
 
 
 	/* Get a direction (or cancel) */
@@ -2742,7 +2824,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Get extra "power" from "extra might" */
-	if (p_ptr->xtra_might) tmul++;
+	if (p_xtra_might) tmul++;
 
 	/* Boost the damage */
 	tdam *= tmul;
@@ -2832,12 +2914,7 @@ void do_cmd_fire(void)
 
 			fy = m_ptr->fy;
 			fx = m_ptr->fx;
-
-			/* Monsters in rubble can take advantage of cover. -LM- */
-			if (cave[fy][fx].feat == FEAT_RUBBLE)
-			{
-				terrain_bonus = r_ptr->ac / 5 + 5;
-			}
+			
 			/* Monsters in trees can take advantage of cover, except from rangers. -LM- */
 			if ((cave[fy][fx].feat == FEAT_TREES) &&
 				(p_ptr->pclass != CLASS_RANGER))
@@ -2862,10 +2939,7 @@ void do_cmd_fire(void)
 				cptr note_dies = " dies.";
 
 				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+				if (!monster_living(r_ptr))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -2920,6 +2994,9 @@ void do_cmd_fire(void)
 					msg_format("You do %d (out of %d) damage.",
 						   tdam, m_ptr->hp);
 				}
+                                
+                                /* Time passes... */
+                                sc_time += (randint(400) / p_ptr->skill_thb) + 1;
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
@@ -3002,7 +3079,7 @@ void do_cmd_throw(void)
 
 	cptr q, s;
 
-	u32b f1, f2, f3;
+	u64b f1, f2, f3;
 
 	/* Get an item */
 	q = "Throw which item? ";
@@ -3029,6 +3106,29 @@ void do_cmd_throw(void)
 
 	/* Obtain a local object */
 	object_copy(q_ptr, o_ptr);
+
+	/*
+	 * Hack -- If rods or wands are thrown, the total maximum timeout or
+	 * charges need to be allocated between the two stacks.
+	 */
+        if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
+	{
+		q_ptr->pval = o_ptr->pval / o_ptr->number;
+
+		if (o_ptr->number > 1) o_ptr->pval -= q_ptr->pval;
+
+		/* Hack -- Rods also need to have their timeouts distributed.  The
+		 * thrown rod will accept all time remaining to charge up to its
+		 * maximum.
+	         */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			if (q_ptr->pval > o_ptr->timeout) q_ptr->timeout = o_ptr->timeout;
+			else q_ptr->timeout = q_ptr->pval;
+
+			if (o_ptr->number > 1) o_ptr->timeout -= q_ptr->timeout;
+		}
+	}
 
 	/* Single object */
 	q_ptr->number = 1;
@@ -3179,10 +3279,7 @@ void do_cmd_throw(void)
 				cptr note_dies = " dies.";
 
 				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+				if (!monster_living(r_ptr))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -3227,6 +3324,9 @@ void do_cmd_throw(void)
 					msg_format("You do %d (out of %d) damage.",
 						   tdam, m_ptr->hp);
 				}
+
+                                /* Time passes... */
+                                sc_time += (randint(150) / p_ptr->skill_thb) + 1;
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
@@ -3401,6 +3501,10 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 	/* take time and pay the price */
 	energy_use = 100;
+        
+        /* Time passes... */
+        sc_time += randint(20);
+        
 	if (use_hp)
 	{
 		take_hit(((cost / 2) + (randint(cost / 2))),
@@ -3518,12 +3622,20 @@ static void cmd_racial_power_aux (s32b command)
 			{
 				if (racial_aux(30, 50, A_INT, 50))
 				{
+				/* No effect in arena or quest */
+				if (p_ptr->inside_arena || p_ptr->inside_quest)
+				{
+					msg_print("There is no effect.");
+				}
+				else
+				{
 					msg_print("You start walking around. Your surroundings change.");
 
 					if (autosave_l) do_cmd_save_game();
 
 					/* Leaving */
 					p_ptr->leaving = TRUE;
+				}
 				}
 			}
 			break;
@@ -3588,9 +3700,9 @@ static void cmd_racial_power_aux (s32b command)
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You spit acid.");
 				if (plev < 25)
-					fire_bolt(GF_ACID, dir, plev);
+					fire_bolt(GF_ACID, dir, damroll(plev/2, 6));
 				else
-					fire_ball(GF_ACID, dir, plev, 2);
+					fire_ball(GF_ACID, dir, damroll(plev/2, 6), 2);
 			}
 			break;
 
@@ -3599,7 +3711,7 @@ static void cmd_racial_power_aux (s32b command)
 			{
 				if(!get_aim_dir(&dir)) break;
 				msg_print("You throw a dart of poison.");
-				fire_bolt(GF_POIS, dir, plev);
+				fire_bolt(GF_POIS, dir, plev * 2);
 			}
 			break;
 
@@ -3726,7 +3838,7 @@ static void cmd_racial_power_aux (s32b command)
 
 				if (!get_aim_dir(&dir)) break;
 				msg_format("You breathe %s.", Type_desc);
-				fire_ball(Type, dir, plev * 2,
+				fire_ball(Type, dir, plev * 3 / 2,
 				    (plev / 15) + 1);
 			}
 			break;
@@ -3750,12 +3862,12 @@ static void cmd_racial_power_aux (s32b command)
 				if (plev >= 30)
 				{
 					msg_print("You cast a ball of fire.");
-					fire_ball(GF_FIRE, dir, plev, 2);
+					fire_ball(GF_FIRE, dir, plev * 2, 2);
 				}
 				else
 				{
 					msg_print("You cast a bolt of fire.");
-					fire_bolt(GF_FIRE, dir, plev);
+					fire_bolt(GF_FIRE, dir, damroll(3 + (plev-1)/5, 8));
 				}
 			}
 			break;
@@ -3825,14 +3937,11 @@ static void cmd_racial_power_aux (s32b command)
 			}
 			break;
 
-		case RACE_SPRITE:
-			if (racial_aux(12, 12, A_INT, 15))
+                case RACE_ENT:
+                        if (racial_aux(2, 6, A_CON, 3))
 			{
-				msg_print("You throw some magic dust...");
-				if (plev < 25)
-					sleep_monsters_touch();
-				else
-					(void)sleep_monsters();
+                                msg_print("You make trees grow!");
+                                grow_trees((plev/8<1)?1:plev/8);
 			}
 			break;
 
@@ -3998,7 +4107,7 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 		case RACE_KLACKON:
-			sprintf(power_desc[0].name, "spit acid (dam %d)", lvl);
+			sprintf(power_desc[0].name, "spit acid (dam %dd6)", lvl/2);
 			power_desc[0].level = 9;
 			power_desc[0].cost = 9;
 			power_desc[0].fail = 100 - racial_chance(9, A_DEX, 14);
@@ -4061,11 +4170,11 @@ void do_cmd_racial_power(void)
 			power_desc[0].fail = 100 - racial_chance(2, A_CON, 9);
 			has_racial = TRUE;
 			break;
-		case RACE_SPRITE:
-			strcpy(power_desc[0].name, "sleeping dust");
-			power_desc[0].level = 12;
-			power_desc[0].cost = 12;
-			power_desc[0].fail = 100 - racial_chance(12, A_INT, 15);
+                case RACE_ENT:
+			strcpy(power_desc[0].name, "tree growing");
+			power_desc[0].level = 2;
+			power_desc[0].cost = 6;
+			power_desc[0].fail = 100 - racial_chance(2, A_CON, 3);
 			has_racial = TRUE;
 			break;
 		default:
@@ -4527,16 +4636,16 @@ void mutation_power_aux(int power)
 			{
 				msg_print("You spit acid...");
 				if (get_aim_dir(&dir))
-					fire_ball(GF_ACID, dir, lvl, 1 + (lvl / 30));
+					fire_ball(GF_ACID, dir, damroll(lvl/2, 6) , 1 + (lvl / 30));
 			}
-			break;
+                        break;
 
 		case MUT1_BR_FIRE:
 			if (racial_aux(20, lvl, A_CON, 18))
 			{
 				msg_print("You breathe fire...");
 				if (get_aim_dir(&dir))
-					fire_ball(GF_FIRE, dir, lvl * 2, 1 + (lvl / 20));
+					fire_ball(GF_FIRE, dir, damroll(1 + (lvl-1)/5, 4), 1 + (lvl / 20));
 			}
 			break;
 
@@ -4767,7 +4876,7 @@ void mutation_power_aux(int power)
 		case MUT1_POLYMORPH:
 			if (racial_aux(18, 20, A_CON, 18))
 			{
-				do_poly_self();
+				polymorph_player(0);
 			}
 			break;
 
@@ -5038,103 +5147,6 @@ void mutation_power_aux(int power)
 		default:
 			energy_use = 0;
 			msg_format("Power %s not implemented. Oops.", power);
-	}
-}
-
-static bool item_tester_hook_sacrifice(object_type* o_ptr) {
-  if (object_value(o_ptr) * o_ptr->number > 0) return TRUE;
-
-  return FALSE;
-}
-
-/*
- * Handle sacrifices.
- * Grace is increased by value of sacrifice.
- */
-
-void do_cmd_sacrifice(void) {
-
-  object_type *o_ptr;
-
-  cptr q, s;
-
-  int val;
-
-  byte on_what = cave[py][px].feat;
-  byte what_god;
-
-  int item = 1;
-
-  /* Check valididty */
-
-  if (on_what < FEAT_ALTAR_HEAD || on_what > FEAT_ALTAR_TAIL) {
-    msg_print("You must be on an altar to worship.");
-    return;
-  }
-
-  what_god = on_what-FEAT_ALTAR_HEAD+1;
-
-  item_tester_hook = item_tester_hook_sacrifice;
-
-  /* Get sacrifice */
-  q = "Sacrifice what? ";
-  s = "You have nothing to sacrifice.";
-  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
-
-  o_ptr = &inventory[item];
-
-  energy_use = 100;
-
-  val = object_value(o_ptr) * o_ptr->number;
-
-  /* Modify grace */
-
-  if (p_ptr->pgod == 0) 
-  {
-    p_ptr->pgod = what_god;
-    set_grace(p_ptr->grace + val);
-    msg_format("Welcome to my service, %s!", player_name);
-  } 
-  
-  else if (p_ptr->pgod != what_god) 
-  { 
-    msg_format("%s thunders in outrage at your blasphemy!",
-	    deity_info[p_ptr->pgod-1].name);
-
-    set_grace(p_ptr->grace - val*10);
-    (void) do_dec_stat(A_LUC);
-    if (p_ptr->champion)
-    { 
-       p_ptr->champion = FALSE;
-       msg_print("You are no longer a champion!");
-    }
-    
-    if (val > 2500) 
-    {
-      msg_format("You feel %s abandon you.",
-	      deity_info[p_ptr->pgod-1].name);
-
-      p_ptr->pgod = what_god;
-      msg_format("You are now a devotee of %s.",
-	      deity_info[what_god-1].name);
-      
-      p_ptr->align = deity_info[what_god-1].align;
-      set_grace(val);
-    }
-
-  } 
-  else 
-  {
-  set_grace(p_ptr->grace + val);
-  grace_message();
-  }
-
-	/* Eliminate the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
 	}
 }
 

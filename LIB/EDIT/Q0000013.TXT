@@ -3,7 +3,7 @@
 Q:13:N:Water Poisoning
 
 # Definition
-Q:13:Q:6:0:0:0:30:0:0:2
+Q:13:Q:6:0:0:0:30:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST13 2]
@@ -12,7 +12,7 @@ Q:13:T:is the primary source of water for our fair city, you can
 Q:13:T:see the dire consequences! Hurry and eliminate the trolls
 Q:13:T:so the water can return to a normal state naturally.
 Q:13:T:Be prepared, rumor has it there approximately 20 water trolls
-Q:13:T:at the lake, and a number of other trolls are assisting them
+Q:13:T:at the lake, and a number of other trolls are assisting them.
 ?:1
 
 # Description for quest reward

@@ -422,15 +422,12 @@ have intrinsic abilities.
                weak.  Like  Golems  and  Zombies,  Spectres  gain  almost no
                nutrition from ordinary food.
 
-        Sprite
-               One  of the several fairy races, sprites are very small. They
-               have  tiny  wings,  and  can  fly over traps that may open up
-               beneath  them.  They enjoy sunlight intensely, and need worry
-               little  about  light based attacks. Although physically among
-               the  weakest  races,  Sprites are very talented in magic, and
-               can  become  highly skilled wizards. Sprites have the special
-               power  of  spraying  Sleeping Dust, and at higher levels they
-               learn to fly faster.
+        Ent
+                The Ents are a powerful race dating from the beginning of the
+                world, eldest of all animals or plants who inhabit Arda.
+                Spirits from afar, they were summoned to guard the forests of
+                Middle-earth. As the Shepherds of the Trees, they have the
+                innate power to cause trees to rise about them for protection.
 
         Beastman
                This  race is a blasphemous abomination produced by Chaos. It
@@ -495,8 +492,7 @@ have intrinsic abilities.
                trained in Life magic, and the 'evil' dark Priests who  have
                chosen to study  Death magic instead.  In addition to  their
                primary  realm  of  magic (Life or Death  magic),  they  can
-               select a secondary realm from  Arcane , Trump,  Nature,  and
-               Chaos.
+               select a secondary elemental or Arcane realm.
 
           Rogue
                A Rogue is a character that prefers to live by his  cunning,
@@ -510,31 +506,33 @@ have intrinsic abilities.
                better than warriors or paladins with magical  devices,  but
                still  can  not  rely on their performance.  Rogues can also
                learn a few spells, but not the  powerful  offensive  spells
-               magi  can use.  A rogue's primary stats are Intelligence and
+               mages can use.  A rogue's primary stats are Intelligence and
                Dexterity.
-               Rogues can  also  steal  gold  from  monsters (humanoids and
-               dragons  are  known  to  yield  the best loot), but beware -
-               too much audacity  may cause the whole level to turn on you.
-               Rogues  who  wish  to  specialize  as burglars can choose to
-               study Sorcery while Death magic is  available to rogues  who
-               wish to become Assassins.  In  the  latest  versions, Arcane
-               magic is available for 'common' thieves, and Trump magic for
-               card sharks.
+               Rogues can  also  steal  gold  from  monsters (humanoids
+               and dragons  are  known  to  yield  the best loot), but
+               beware - too much audacity  may cause the whole level to
+               turn on you. Rogues  who  wish  to  specialize  as
+               burglars can choose to study Arcane or Air while Death
+               magic is available to rogues  who wish to become
+               Assassins.  In  the  latest  versions, Arcane magic is
+               available for 'common' thieves, and Trump magic for card
+               sharks.
 
           Ranger
-               A Ranger is a warrior/mage.  He is a good fighter,  and  the
-               best  of  the  classes  with a missile weapon such as a bow.
-               The ranger learns spells much more slowly than a  mage,  but
-               is  capable  of  learning all  but the most powerful spells.
-               Because a ranger is really  a  dual  class  character,  more
-               experience  is  required for him to advance.  A ranger has a
-               good stealth, good perception, good searching, a good saving
-               throw,  and is good with magical devices.  His primary stats
-               are Intelligence and Dexterity.
-               All  rangers  are  trained  in  Nature  magic. They can also
-               select  a secondary realm of magic  (from  Sorcery,  Arcane,
-               Trump, Chaos and Death) but their skills are more limited in
-               the second realm than in their native Nature magic.
+               A Ranger is a nature-based warrior.  He is a good
+               fighter,  and  the best  of  the  classes  with a
+               missile weapon such as a bow. The ranger learns spells
+               much more slowly than a  mage,  but is  capable  of 
+               learning all  but the most powerful spells. Because a
+               ranger is really  a  dual  class  character,  more
+               experience  is  required for him to advance.  A ranger
+               has a good stealth, good perception, good searching, a
+               good saving throw,  and is good with magical devices. 
+               His primary stats are Intelligence and Dexterity.               
+               All  rangers  are  trained  in  Earth  magic. They can
+               also select  a secondary realm of magic  (from  Air,
+               Water, Fire or Death), but their skills are more limited
+               in the second realm than in their native Nature magic.
 
           Paladin
                A Paladin is a warrior/priest.  He is a very  good  fighter,
@@ -547,15 +545,15 @@ have intrinsic abilities.
                ception,  searching,  and  magical devices.  He has a decent
                saving throw due to his divine alliance.  His primary  stats
                are Strength and Charisma.
-               All paladins are trained in Life magic, and they regard  the
-               realms of magic as the Devil's work. The variant class,  the
-               "Death Knight",  is  trained in Death magic instead of  Life
-               magic.
+               All paladins are trained in Life magic, and they regard 
+               the realms of magic as the work of evil forces. The
+               variant class,  the "Death Knight",  is  trained in
+               Death magic instead of  Life magic.
 
           Warrior-Mage
                A Warrior-Mage is precisely what the name suggests: a  cross
                between the warrior  and mage classes. While their brothers,
-               the Rangers, specialize in Nature magic and survival skills,
+               the Rangers, specialize in Earth  magic and survival skills,
                true Warrior-Mages attempt to reach the best of both worlds:
                as magicians,  they are  trained  in  Arcane magic  and  can
                select  another realm,  eventually  learning every spell  in
@@ -609,17 +607,16 @@ have intrinsic abilities.
                who can learn every prayer in the realm of his choice.
 
         Mindcrafter
-               The Mindcrafter is a character who  uses  the powers of mind
-               instead of magic. These powers are unique to the Mindcrafter
-               class,  and vary from simple extrasensory powers  to  mental
-               domination  of others.  Since these powers are  developed by
-               the practice of certain disciplines,  a Mindcrafter requires
-               no spellbooks  to use them.  The available powers are simply
-               determined by the character level.  The Mindcrafter uses the
-               wisdom score to determine how well he / she can  perform the
-               psychic powers,  and in combat  a Mindcrafter is roughly the
-               equivalent  of  a  priest,  although a Mindcrafter  is never
-               penalized for wielding an edged weapon (unlike a priest).
+               The Mindcrafter is a character who  uses  the powers of
+	       mind instead of magic. These powers are unique to the
+	       Mindcrafter class, and vary from simple extrasensory
+	       powers  to  mental domination  of others.  These powers
+	       are  developed by the practice of certain disciplines, 
+	       but still need an external object, called a focus, in
+	       order to be invoked. The Mindcrafter uses the wisdom
+	       score to determine how well they can perform the psychic
+               powers. In combat a Mindcrafter is but a little better
+               than  a plain mage.
 
         High Mage
                High  Mages  are  specialist Mages  of the highest order. In
@@ -695,9 +692,11 @@ have intrinsic abilities.
                fists.  Normally  a  character  gets  a single blow from any
                weapon, but if his dexterity and strength are  high  enough,
                he  may  receive  more blows per round with lighter weapons.
-               Strength and dexterity both modify the  ability  to  hit  an
+               Strength and Dexterity both modify the  ability  to  hit  an
                opponent.  This skill increases  with the level of the char-
                acter.
+               Various classes have their preferred and shunned weapons
+               (except for warriors, who are good at everything equally).
 
           Shooting Ability
                Using  ranged  missile  weapons  (and  throwing  objects) is
@@ -799,7 +798,7 @@ Skeleton      Yes     Yes     Yes     Yes     No      No      No      No
 Zombie        Yes     No      No      No      No      No      No      No
 Vampire       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 Spectre       No      Yes     Yes     Yes     No      No      Yes     No
-Sprite        No      Yes     Yes     Yes     Yes     No      Yes     No
+Ent           Yes     No      Yes     No      No      Yes     Yes     No
 Beastman      Yes     Yes     Yes     Yes     No      No      Yes     Yes
 
 
@@ -834,7 +833,7 @@ Skeleton      Yes     Yes     Yes
 Zombie        No      No      No
 Vampire       Yes     Yes     Yes
 Spectre       Yes     Yes     Yes
-Sprite        No      Yes     Yes
+Ent           No      No      Yes
 Beastman      Yes     Yes     Yes
 
 
@@ -868,3 +867,39 @@ Beastman      Yes     Yes     Yes
                overwhelming dungeon feeling of insanity.  You die...
 
 [Stat tables removed - they belong to spoiler files now; GSN]
+
+Weapon skills for each class:
+
+              Best        So-so      Pathetic    Don't even try
+              
+Warriors:               (everything on equal level)
+Mages/H.M:    daggers     swords,    axes,       2-h
+                          hafted     polearms
+Priests:      hafted      axes,      daggers     swords, 2-h*
+                          polearms
+Rogue:        daggers     polearms,  axes,       2-h
+                          swords     hafted
+Ranger:       axes,       polearms   hafted,     2-h
+              swords                 daggers
+Paladin:      hafted,     swords,    axes, 2-h   ----
+              polearms    daggers
+Warrior-M:    daggers     swords,    axes, 2-h   ----
+                          hafted,
+                          axes
+Chaos W:      swords      axes, 2-h, polearms    hafted
+                          daggers
+Monk**:       hafted      swords,    polearms    axes, 2-h
+                          daggers
+Mindy:        daggers     swords,    polearms    axes, 2-h
+                          hafted
+
+Of course, the ratings are relative to the class' general weapon handling.
+A paladin would still handle a 2-h sword better than many mages would a
+normal sword.
+
+* Priests get NO level skill advancement in these weapon types
+** Monks are supposed to fight barehanded (or with staves = hafted weapons,
+it will be a separate weapon class in the future)
+
+(digging weapons are not included, since they're rather useless in combat
+except for warriors and maybe warrior-mages)

@@ -1,4 +1,4 @@
-50
+59
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 says 'Excuse me, but do you know the way to vanilla?'
 says 'I heard that the orcs just voted in a union'
@@ -50,3 +50,12 @@ says 'I'm hungry, look for a McMorgoth's..'
 says 'Is there a 'Monster WC' vault on this level?'
 says 'Loan me 2 quids for a drink or I'll knock your head off!'
 says 'Nice boots, mate.'
+says "You want me to wrestle WHAT?"
+says "That's an awfully big vault..."
+says "So, that's what a checkerboard looks like."
+says "What's a YASD?"
+says "Your ancestor was a yeek?!?"
+says "Azog, Lokkak, and Mim, oh my! Azog, Lokkak and Mim, oh my!"
+says "So, which one of us is the sidekick?"
+says "You know the feeling when adrenaline takes control..."
+says "The taste of blood can rip your soul apart."

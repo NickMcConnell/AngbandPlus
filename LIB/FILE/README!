@@ -8,8 +8,8 @@ The a_*.txt and w_*.txt are used when the game generates a random artifact.
 However, instead of picking a name from the appropriate file, the game may
 form a new name from syllables[].
 
-The following files were added specifically for GSNband: pfear, pshout,
-sfail, m_rnames, f_rnames, verbs, friendly
+The following files were added specifically for GSNband: pfear, pshout, dam_*,
+sfail, m_rnames, f_rnames, verbs, friendly, monspeak
 
 The following file was removed: mdeath (both monsters and player use
 death)
@@ -34,6 +34,7 @@ F_RNAMES TXT Random female names for the character
 FRIENDLY TXT Possible lines for friendly speaking uniques
 ERROR    TXT Possible random error messages (instead of "Type ? for help")
 MONFEAR  TXT Possible lines for scared speaking uniques
+MONSPEAK TXT Possible lines for uniques
 M_RNAMES TXT Random male names for the character
 NEWS     TXT The game intro screen
 README!      You are reading this file right now
@@ -44,8 +45,6 @@ RUMORS   TXT Possible rumours (for scrolls or rumour and shopkeepers)
 SAMPLE   TXT A sample file for the random line selecting function
 SFAIL    TXT Sample lines when failing a spell
 SILLY    TXT Silly monster names for hallucination
-SMEAGOL  TXT Smeagol lines
-SMEAGOLR TXT Smeagol fleeing
 W_CURSED TXT Possible names for randomly generated cursed weapon artifacts
 W_HIGH   TXT Possible names for randomly generated 'powerful' weapon artifacts
 W_LOW    TXT Possible names for randomly generated 'weak' weapon artifacts

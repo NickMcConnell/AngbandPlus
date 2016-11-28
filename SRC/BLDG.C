@@ -1,4 +1,4 @@
-/* File: bldg.c */
+;/* File: bldg.c */
 
 /*
  * Purpose: Building commands
@@ -13,13 +13,13 @@
 
 #include "angband.h"
 
+static bool reinit_wilderness = FALSE;
+
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
 
 /* remember building location */
 static int building_loc = 0;
-
-static bool reinit_wilderness = FALSE;
 
 static bool is_owner(building_type *bldg)
 {
@@ -76,37 +76,6 @@ static void clear_bldg(int min_row, int max_row)
 }
 
 
-#if 0
-
-/*
- * Places a building reward at the doorstep for the player -KMW-
- */
-static void put_reward(byte thetval, byte thesval, int dunlevel)
-{
-	object_type *q_ptr, forge;
-	int         i, choice;
-
-	choice = 0;
-
-	for(i = 1; i < max_k_idx; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-		if ((k_ptr->tval == thetval) && (k_ptr->sval == thesval))
-		{
-			choice = i;
-			break;
-		}
-	}
-	q_ptr = &forge;
-	object_prep(q_ptr, choice);
-	apply_magic(q_ptr, dunlevel, TRUE, TRUE, TRUE);
-	object_aware(q_ptr);
-	object_known(q_ptr);
-	drop_near(q_ptr, -1, py, px);
-}
-
-#endif
-
 
 /*
  * Display a building.
@@ -138,12 +107,12 @@ static void show_building(building_type* bldg)
 				else if (is_owner(bldg))
 				{
 					action_color = TERM_YELLOW;
-					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
+					sprintf(buff, "(%ldgp)", bldg->member_costs[i]);
 				}
 				else
 				{
 					action_color = TERM_YELLOW;
-					sprintf(buff, "(%dgp)", bldg->other_costs[i]);
+					sprintf(buff, "(%ldgp)", bldg->other_costs[i]);
 				}
 			}
 			else if (bldg->action_restr[i] == 1)
@@ -162,12 +131,12 @@ static void show_building(building_type* bldg)
 				else if (is_owner(bldg))
 				{
 					action_color = TERM_YELLOW;
-					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
+					sprintf(buff, "(%ldgp)", bldg->member_costs[i]);
 				}
 				else
 				{
 					action_color = TERM_YELLOW;
-					sprintf(buff, "(%dgp)", bldg->other_costs[i]);
+					sprintf(buff, "(%ldgp)", bldg->other_costs[i]);
 				}
 			}
 			else
@@ -180,7 +149,7 @@ static void show_building(building_type* bldg)
 				else if (bldg->member_costs[i] != 0)
 				{
 					action_color = TERM_YELLOW;
-					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
+					sprintf(buff, "(%ldgp)", bldg->member_costs[i]);
 				}
 				else
 				{
@@ -197,111 +166,6 @@ static void show_building(building_type* bldg)
 	prt(" ESC) Exit building", 23, 0);
 }
 
-
-/* reset timed flags */
-static void reset_tim_flags()
-{
-	p_ptr->fast = 0;            /* Timed -- Fast */
-	p_ptr->slow = 0;            /* Timed -- Slow */
-	p_ptr->blind = 0;           /* Timed -- Blindness */
-	p_ptr->paralyzed = 0;       /* Timed -- Paralysis */
-	p_ptr->confused = 0;        /* Timed -- Confusion */
-	p_ptr->afraid = 0;          /* Timed -- Fear */
-	p_ptr->image = 0;           /* Timed -- Hallucination */
-	p_ptr->poisoned = 0;        /* Timed -- Poisoned */
-	p_ptr->cut = 0;             /* Timed -- Cut */
-	p_ptr->stun = 0;            /* Timed -- Stun */
-
-	p_ptr->protevil = 0;        /* Timed -- Protection */
-	p_ptr->invuln = 0;          /* Timed -- Invulnerable */
-	p_ptr->hero = 0;            /* Timed -- Heroism */
-	p_ptr->shero = 0;           /* Timed -- Super Heroism */
-	p_ptr->shield = 0;          /* Timed -- Shield Spell */
-	p_ptr->blessed = 0;         /* Timed -- Blessed */
-	p_ptr->tim_invis = 0;       /* Timed -- Invisibility */
-	p_ptr->tim_infra = 0;       /* Timed -- Infra Vision */
-
-	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
-	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
-	p_ptr->oppose_fire = 0;     /* Timed -- oppose heat */
-	p_ptr->oppose_cold = 0;     /* Timed -- oppose cold */
-	p_ptr->oppose_pois = 0;     /* Timed -- oppose poison */
-	p_ptr->tim_res_conf = 0;
-	p_ptr->tim_res_blind = 0;
-	p_ptr->tim_invisible = 0;
-	
-	p_ptr->confusing = 0;       /* Touch of Confusion */
-}
-
-
-/*
- * arena commands
- */
-static void arena_comm(int cmd)
-{
-	char tmp_str[80];
-	monster_race *r_ptr;
-	cptr name;
-
-	switch(cmd)
-	{
-		case BACT_ARENA:
-			if (p_ptr->arena_number == MAX_ARENA_MONS)
-			{
-				clear_bldg(5,19);
-				prt("               Arena Victor!", 5, 0);
-				prt("Congratulations!  You have defeated all before you.", 7, 0);
-				prt("For that, receive the prize: 10,000 gold pieces", 8, 0);
-				prt("",10,0);
-				prt("", 11, 0);
-				p_ptr->au += 10000;
-				msg_print("Press the space bar to continue");
-				msg_print(NULL);
-				p_ptr->arena_number++;
-			}
-			else if (p_ptr->arena_number > MAX_ARENA_MONS)
-			{
-				msg_print("You enter the arena briefly and bask in your glory.");
-				msg_print(NULL);
-			}
-			else
-			{
-				p_ptr->leftbldg = TRUE;
-				p_ptr->inside_arena = TRUE;
-				p_ptr->exit_bldg = FALSE;
-				reset_tim_flags();
-				p_ptr->leaving = TRUE;
-				leave_bldg = TRUE;
-			}
-			break;
-		case BACT_POSTER:
-			if (p_ptr->arena_number == MAX_ARENA_MONS)
-				msg_print("You are victorious. Enter the arena for the ceremony.");
-			else if (p_ptr->arena_number > MAX_ARENA_MONS)
-				msg_print("You have won against all foes.");
-			else
-			{
-				r_ptr = &r_info[arena_monsters[p_ptr->arena_number]];
-				name = (r_name + r_ptr->name);
-				(void) sprintf(tmp_str,"Do I hear any challenges against: %s", name);
-				msg_print(tmp_str);
-				msg_print(NULL);
-			}
-			break;
-		case BACT_ARENA_RULES:
-
-			/* Save screen */
-			screen_save();
-
-			/* Peruse the arena help file */
-			(void)show_file("arena.txt", NULL, 0, 0);
-
-			/* Load screen */
-			screen_load();
-
-			break;
-	}
-}
 
 
 /*
@@ -403,6 +267,15 @@ static bool gamble_comm(int cmd)
 	}
 	else
 	{
+		/* No money */
+		if (p_ptr->au < 1)
+		{
+			msg_print("Hey! You don't have gold - get out of here!");
+			msg_print(NULL);
+			screen_load();
+			return FALSE;
+		}	
+
 		clear_bldg(5, 23);
 
 		/* Set maximum bet */
@@ -626,20 +499,25 @@ static bool gamble_comm(int cmd)
  */
 static bool inn_comm(int cmd)
 {
-	int dawnval;
 
 	switch(cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
 			msg_print("The barkeep gives you some gruel and a beer.");
 			msg_print(NULL);
-			(void) set_food(PY_FOOD_MAX - 1);
+			(void) set_food(p_ptr->food += 200);
 			break;
 
-		case BACT_REST: /* Rest for the night */
-			dawnval = ((turn % (10L * TOWN_DAWN)));
-			if (dawnval > 50000)
-			{  /* nighttime */
+		case BACT_REST: /* Rest for (max) half a day */
+		{
+		        int howmany;
+			
+		        if (!town_night)
+			{
+				msg_print("The rooms are available at night only");
+				break;
+			}
+		        else howmany = get_quantity("How many hours? ", 12);
 				if ((p_ptr->poisoned) || (p_ptr->cut))
 				{
 					msg_print("You need a healer, not a room.");
@@ -649,7 +527,8 @@ static bool inn_comm(int cmd)
 				}
 				else
 				{
-					turn = ((turn/50000)+1)*50000;
+/*					turn = ((turn/50000)+1)*50000; */
+					sc_time += 3600 * howmany;
 					p_ptr->chp = p_ptr->mhp;
 					set_blind(0);
 					set_confused(0);
@@ -659,19 +538,13 @@ static bool inn_comm(int cmd)
 					p_ptr->leaving = TRUE;
 				}
 			}
-			else
-			{
-				msg_print("The rooms are available only at night.");
-				msg_print(NULL);
-				return(FALSE);
-			}
-			break;
+		
 		case BACT_RUMORS: /* Listen for rumors */
 			{
 				char Rumor[90];
 
-				get_rnd_line("rumors.txt", Rumor);
-				msg_format("%s", Rumor);
+				if (!get_rnd_line("rumors.txt", Rumor))
+					msg_format("%s", Rumor);
 				msg_print(NULL);
 				break;
 			}
@@ -773,7 +646,7 @@ static void castle_quest(void)
 		get_questinfo(q_index);
 
 		reinit_wilderness = TRUE;
-	}
+       	}
 
 	/* Quest is still unfinished */
 	else if (q_ptr->status == QUEST_STATUS_TAKEN)
@@ -796,8 +669,8 @@ static void castle_quest(void)
 		return;
 		}
 	
-		else q_ptr->status = QUEST_STATUS_TAKEN;
-
+        	else q_ptr->status = QUEST_STATUS_TAKEN;
+                
 		reinit_wilderness = TRUE;
 
 		/* Assign a new quest */
@@ -839,208 +712,6 @@ static void castle_quest(void)
 
 
 /*
- * Greet the lord of the castle
- */
-static void castle_greet(void)
-{
-#if 0
-	int increment, j, oldlevel;
-	char tmp_str[80];
-
-	increment = ((p_ptr->lev - 1) / 5);
-	if (increment < 1)
-	{
-		(void) sprintf(tmp_str,"Ah, a young adventurer, return when: %s (Level %d)",
-		player_title[p_ptr->pclass][1], 6);
-		msg_print(tmp_str);
-		msg_print(NULL);
-	}
-	else if ((increment >= 5) && (p_ptr->rewards[BACT_GREET]))
-	{
-		msg_print("Your greeting is returned with reverance and respect");
-	}
-	else if (p_ptr->rewards[increment + 9])
-	{
-		(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
-		player_title[p_ptr->pclass][increment+1], ((increment*5)+6));
-		msg_print(tmp_str);
-		msg_print(NULL);
-	}
-	else
-	{ /* set last reward that hasn't been given to TRUE */
-		for (j=10;j<20;j++)
-		{
-			if (p_ptr->rewards[j] == 0)
-			{
-				p_ptr->rewards[j] = 1;
-				break;
-			}
-		}
-
-		if (j == 10)
-		{
-			msg_print("Well done! Please take up residence in the house down the street.");
-			msg_print(NULL);
-		}
-		else if (j == 11)
-		{
-			msg_print("Very good! The weaponsmaster will be able to help you now.");
-			msg_print(NULL);
-		}
-		else if (j == 12)
-		{
-			msg_print("You are proving yourself worthy. You may visit the Beastmaster.");
-			msg_print(NULL);
-		}
-		else
-		{
-			msg_print("A great gift awaits you outside!");
-			msg_print(NULL);
-			oldlevel = object_level;
-			object_level = p_ptr->lev * 4;
-			acquirement(py,px,1,0,1);
-			object_level = oldlevel;
-		}
-	}
-#endif
-}
-
-
-# if 0
-
-/*
- * greet_reward
- */
-static void greet_reward(int gclass)
-{
-	byte tval, sval;
-	int randitem = randint(5);
-
-	tval = 0;
-	sval = 0;
-
-	switch(gclass)
-	{
-		case CLASS_ROGUE:
-		case CLASS_WARRIOR:
-		case CLASS_PALADIN:
-		case CLASS_RANGER:
-			switch(randitem)
-			{
-				case 1:
-					tval = TV_BOW;
-					sval = SV_LONG_BOW;
-					break;
-				case 2:
-					tval = TV_BOOTS;
-					sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
-					break;
-				case 3:
-					tval = TV_HARD_ARMOR;
-					sval = SV_MITHRIL_CHAIN_MAIL;
-					break;
-				case 4:
-					tval = TV_HELM;
-					sval = SV_STEEL_HELM;
-					break;
-				case 5:
-					tval = TV_SWORD;
-					sval = SV_BROAD_SWORD;
-					break;
-			}
-			break;
-
-		case CLASS_MAGE:
-		case CLASS_PRIEST:
-			switch(randitem)
-			{
-				case 1:
-					tval = TV_ROD;
-					sval = 23 + randint(4);
-					break;
-				case 2:
-					tval = TV_RING;
-					sval = SV_RING_PROTECTION;
-					break;
-				case 3:
-					tval = TV_AMULET;
-					sval = SV_AMULET_THE_MAGI;
-					break;
-				case 4:
-					tval = TV_CLOAK;
-					sval = SV_SHADOW_CLOAK;
-					break;
-				case 5:
-					tval = TV_STAFF;
-					sval = SV_STAFF_POWER;
-					break;
-			}
-	}
-
-	put_reward(tval,sval,(p_ptr->lev*2));
-}
-
-#endif
-
-
-/*
- * greet_char
- */
-static void greet_char(void)
-{
-#if 0
-	int increment, j;
-	char tmp_str[80];
-
-	increment = (((p_ptr->lev - 1) / 5)/2);
-	if (p_ptr->lev == 50)
-		increment = 5;
-
-	if (increment < 1)
-	{
-		(void) sprintf(tmp_str,"You are young yet, return when: %s (Level %d)",
-		    player_title[p_ptr->pclass][2], 11);
-		msg_print(tmp_str);
-		msg_print(NULL);
-	}
-	else if ((increment == 5) && (p_ptr->rewards[increment - 1]))
-	{
-		msg_print("Your greeting is returned with reverence and respect");
-	}
-	else if (p_ptr->rewards[increment - 1])
-	{
-		if (increment == 4)
-		{
-			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
-			    player_title[p_ptr->pclass][9], 50);
-		}
-		else
-		{
-			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
-			    player_title[p_ptr->pclass][(increment+1) * 2], (((increment+1)*10)+1));
-			msg_print(tmp_str);
-			msg_print(NULL);
-		}
-	}
-	else
-	{
-		for (j=0;j<10;j++)
-		{
-			if (p_ptr->rewards[j] == FALSE)
-			{
-				p_ptr->rewards[j] = TRUE;
-				break;
-			}
-		}
-		msg_print("Take this gift as a reward for your diligence");
-		msg_print(NULL);
-		greet_reward(p_ptr->pclass);
-	}
-#endif
-}
-
-
-/*
  * Displaying town history -KMW-
  */
 static void town_history(void)
@@ -1059,7 +730,9 @@ static void town_history(void)
 /*
  * compare_weapon_aux2 -KMW-
  */
-static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, int mult, char attr[80], u32b f1, u32b f2, u32b f3, byte color)
+
+static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r,
+        int c, int mult, char attr[80], u64b f1, u64b f2, u64b f3, byte color)
 {
 	char tmp_str[80];
 
@@ -1067,7 +740,7 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, 
 	sprintf(tmp_str,"Attack: %d-%d damage, %.1f avg",
 	    mult * (numblows * (o_ptr->dd + o_ptr->to_d + p_ptr->to_d)),
 	    mult * (numblows * (o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d)),
-	    mult * (numblows * (average_dice(o_ptr->ds, o_ptr->dd) + o_ptr->to_d + p_ptr->to_d)));
+	    numblows * (average_dice(o_ptr->ds * mult, o_ptr->dd) + o_ptr->to_d + p_ptr->to_d));
 	put_str(tmp_str,r,c+8);
 	r++;
 }
@@ -1078,7 +751,7 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, 
  */
 static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 {
-	u32b f1, f2, f3;
+	u64b f1, f2, f3;
 
 	object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -1340,6 +1013,222 @@ static bool research_item(void)
 	return (TRUE);
 }
 
+static void building_prt_gold(void)
+{
+	char tmp_str[80];
+
+	prt("Gold Remaining: ", 23, 53);
+
+	sprintf(tmp_str, "%9ld", (long)p_ptr->au);
+	prt(tmp_str, 23, 68);
+}
+
+
+/*
+ * Recharge rods, wands and staves
+ *
+ * The player can select the number of charges to add
+ * (up to a limit), and the recharge never fails.
+ *
+ * The cost for rods depends on the level of the rod. The prices
+ * for recharging wands and staves are dependent on the cost of
+ * the base-item.
+ */
+static void building_recharge(void)
+{
+	int         item, lev;
+	object_type *o_ptr;
+	object_kind *k_ptr;
+	cptr        q, s;
+	int         price;
+	int         charges;
+	char        tmp_str[80];
+
+
+	/* Display some info */
+	clear_bldg(5, 18);
+	prt("  The prices of recharge depend on the type.", 6, 0);
+
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_recharge;
+
+	/* Get an item */
+	q = "Recharge which item? ";
+	s = "You have nothing to recharge.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	/*
+	 * We don't want to give the player free info about
+	 * the level of the item or the number of charges.
+	 */
+	/* The item must be "known" */
+	if (!object_known_p(o_ptr))
+	{
+		msg_format("The item must be identified first!");
+		msg_print(NULL);
+
+		if ((p_ptr->au >= 50) &&
+			get_check("Identify for 50 gold? "))
+		{
+			/* Pay the price */
+			p_ptr->au -= 50;
+
+			/* Identify it fully */
+			object_aware(o_ptr);
+			object_known(o_ptr);
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Combine / Reorder the pack (later) */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
+
+			/* Description */
+			object_desc(tmp_str, o_ptr, TRUE, 3);
+
+			msg_format("You have: %s.", tmp_str);
+
+			/* Update the gold display */
+			building_prt_gold();
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	/* Extract the object "level" */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Price for a rod */
+	if (o_ptr->tval == TV_ROD)
+	{
+		if (o_ptr->timeout > 0) 
+		{
+			/* Fully recharge */
+			price = (lev * o_ptr->timeout) / k_ptr->pval;
+		}
+		else
+		{
+			/* No recharge necessary */
+			price = 0;
+			msg_format("That doesn't need to be recharged.");
+			msg_print(NULL);
+			return;
+		}
+	}
+	else if (o_ptr->tval == TV_STAFF)
+	{
+		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
+		price = (k_info[o_ptr->k_idx].cost / 10) * o_ptr->number;
+
+		/* Pay at least 10 gold per charge */
+		price = MAX(10, price);
+	}
+	else
+	{
+		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
+		price = (k_info[o_ptr->k_idx].cost / 10);
+
+		/* Pay at least 10 gold per charge */
+		price = MAX(10, price);
+	}
+
+	/* Limit the number of charges for wands and staves */
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) &&
+	     (o_ptr->pval / o_ptr->number >= k_ptr->pval))
+	{
+		if ((o_ptr->tval == TV_WAND) && (o_ptr->number == 1))
+			msg_print("This wand is already fully charged.");
+		else if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+			msg_print("These wands are already fully charged.");
+		else if ((o_ptr->tval == TV_STAFF) && (o_ptr->number == 1))
+			msg_print("This staff is already fully charged.");
+		else if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
+			msg_print("These staffs are already fully charged.");
+
+		msg_print(NULL);
+		return;
+	}
+
+	/* Check if the player has enough money */
+	if (p_ptr->au < price)
+	{
+		object_desc(tmp_str, o_ptr, TRUE, 0);
+		msg_format("You need %d gold to recharge %s!", price, tmp_str);
+		msg_print(NULL);
+		return;
+	}
+
+	if (o_ptr->tval == TV_ROD)
+	{
+		if (get_check(format("Recharge the %s for %d gold? ",
+			((o_ptr->number > 1) ? "rods" : "rod"), price)))
+		{
+			/* Recharge fully */
+			o_ptr->timeout = 0;
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		/* Get the quantity for staves and wands */
+		charges = get_quantity(format("Add how many charges for %d gold? ",
+		              price), MIN(p_ptr->au / price, o_ptr->number * k_ptr->pval - o_ptr->pval));
+
+		/* Do nothing */
+		if (charges < 1) return;
+
+		/* Get the new price */
+		price *= charges;
+
+		/* Recharge */
+		if (o_ptr->tval == TV_WAND)
+			o_ptr->pval += charges;
+		else if (o_ptr->tval == TV_STAFF)
+			o_ptr->pval += charges / o_ptr->number;
+
+		/* We no longer think the item is empty */
+		o_ptr->ident &= ~(IDENT_EMPTY);
+	}
+
+	/* Give feedback */
+	object_desc(tmp_str, o_ptr, TRUE, 3);
+	msg_format("%^s %s recharged for %d gold.", tmp_str, ((o_ptr->number > 1) ? "were" : "was"), price);
+	msg_print(NULL);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+
+	/* Pay the price */
+	p_ptr->au -= price;
+
+	/* Finished */
+	return;
+}
 
 /*
  * Execute a building command
@@ -1392,24 +1281,13 @@ static void bldg_process_command(building_type *bldg, int i)
 			race_legends();
 			break;
 
-		case BACT_GREET_KING:
-			castle_greet();
-			break;
-
 		case BACT_QUEST:
 			castle_quest();
 			break;
 
 		case BACT_KING_LEGENDS:
-		case BACT_ARENA_LEGENDS:
 		case BACT_LEGENDS:
 			show_highclass(building_loc);
-			break;
-
-		case BACT_POSTER:
-		case BACT_ARENA_RULES:
-		case BACT_ARENA:
-			arena_comm(bact);
 			break;
 
 		case BACT_IN_BETWEEN:
@@ -1434,10 +1312,6 @@ static void bldg_process_command(building_type *bldg, int i)
 			paid = compare_weapons();
 			break;
 
-		case BACT_GREET:
-			greet_char();
-			break;
-
 		case BACT_ENCHANT_WEAPON:
 			paid = fix_item(INVEN_WIELD, INVEN_WIELD, 0, FALSE, BACT_ENCHANT_WEAPON, set_reward);
 			break;
@@ -1447,19 +1321,7 @@ static void bldg_process_command(building_type *bldg, int i)
 			break;
 
 		case BACT_RECHARGE: /* needs work */
-			if (!p_ptr->rewards[BACT_RECHARGE])
-			{
-				if (recharge(80))
-				{
-					p_ptr->rewards[BACT_RECHARGE] = TRUE;
-					paid = TRUE;
-				}
-			else
-			{
-				msg_print("Sorry, we can only recharge one item per day.");
-				msg_print(NULL);
-			}
-			}
+			building_recharge();
 			break;
 
 		case BACT_IDENTS: /* needs work */
@@ -1543,9 +1405,11 @@ static void bldg_process_command(building_type *bldg, int i)
 		    break;
 		case BACT_BRAND_CHAOS_WEAPON:
 		    brand_weapon(EGO_CHAOTIC, TRUE);
+		    paid = TRUE;
 		    break;
 		case BACT_BRAND_SLAY_WEAPON:
 		    brand_weapon(rand_range(EGO_SLAY_ANIMAL, EGO_KILL_DRAGON), TRUE);
+		    paid = TRUE;
 		    break;
 	}
 
@@ -1716,11 +1580,14 @@ void quest_discovery(int q_idx)
 	quest_type      *q_ptr = &quest[q_idx];
 	monster_race    *r_ptr = &r_info[q_ptr->r_idx];
 	int             q_num = q_ptr->max_num;
+	int		cur_num = q_ptr->cur_num;
 	char            name[80];
+	char		still[6] = ""; 
 
 	/* No quest index */
 	if (!q_idx) return;
-
+	
+	strcpy(still, ((cur_num > 0) ? " still" : ""));
 	strcpy(name, (r_name + r_ptr->name));
 
 	msg_print(find_quest[rand_range(0,4)]);
@@ -1734,8 +1601,87 @@ void quest_discovery(int q_idx)
 	else
 	{
 		/* Normal monsters */
-		plural_aux(name);
-		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
+		if ((q_num - cur_num) > 1) plural_aux(name);
+		msg_format("Be warned, this level is%s guarded by %d %s!", still, (q_num - cur_num), name);
 	}
 }
 
+
+/*
+ * Hack -- Check if a level is a "quest" level
+ */
+bool is_quest(int level)
+{
+	int i;
+
+	/* Check quests */
+	if (p_ptr->inside_quest)
+		return (TRUE);
+
+	for (i = 0; i < max_quests; i++)
+	{
+		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
+			(quest[i].status == QUEST_STATUS_TAKEN) &&
+		    (quest[i].level == level))
+			return (TRUE);
+	}
+
+	/* Check for random quest */
+	if (random_quest_number(level)) return (TRUE);
+
+	/* Nope */
+	return (FALSE);
+}
+
+
+/*
+ * Hack -- Check if a level is a "quest" level, return number
+ */
+int quest_number(int level)
+{
+	int i;
+
+	/* Check quests */
+	if (p_ptr->inside_quest)
+		return (p_ptr->inside_quest);
+
+	for (i = 0; i < max_quests; i++)
+	{
+		if (quest[i].status != QUEST_STATUS_TAKEN) continue;
+
+		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
+			!(quest[i].flags & QUEST_FLAG_PRESET) &&
+		    (quest[i].level == level))
+			return (i);
+	}
+
+	/* Check for random quest */
+	if ((i = random_quest_number(level)))
+		return (i);
+
+	/* Nope */
+	return (0);
+}
+
+
+/*
+ * Return the index of the random quest on this level
+ * (or zero)
+ */
+int random_quest_number(int level)
+{
+	int i;
+
+	for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
+	{
+		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
+		    (quest[i].status == QUEST_STATUS_TAKEN) &&
+		    (quest[i].level == level))
+		{
+			return i;
+		}
+	}
+
+	/* Nope */
+	return 0;
+}

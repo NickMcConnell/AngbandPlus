@@ -540,6 +540,14 @@ void Term_queue_char(int x, int y, byte a, char c)
 
 #endif /* USE_TRANSPARENCY */
 
+#ifndef FF_COLORS
+ 
+ 	/* Convert to one of the basic 16 colors */
+ 	if (a > 15)
+ 	  a = angband_color_table[a][0] & 0x0F;
+ 
+#endif /* FF_COLORS */
+
 	/* Save the "literal" information */
 	scr_aa[x] = a;
 	scr_cc[x] = c;
@@ -603,6 +611,14 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 		if ((oa == a) && (oc == *s)) continue;
 
 #endif /* USE_TRANSPARENCY */
+
+#ifndef FF_COLORS
+
+		/* Convert to one of the basic 16 colors */
+		if (a > 15)
+		  a = angband_color_table[a][0] & 0x0F;
+
+#endif /* FF_COLORS */
 
 		/* Save the "literal" information */
 		scr_aa[x] = a;
@@ -2485,7 +2501,7 @@ errr term_init(term *t, int w, int h, int k)
 
 
 	/* Wipe it */
-	WIPE(t, term);
+	(void)WIPE(t, term);
 
 
 	/* Prepare the input queue */
@@ -2545,6 +2561,5 @@ errr term_init(term *t, int w, int h, int k)
 	/* Success */
 	return (0);
 }
-
 
 

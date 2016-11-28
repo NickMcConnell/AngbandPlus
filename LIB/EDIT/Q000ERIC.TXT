@@ -4,7 +4,7 @@
 Q:15:N:Klingsor's Stronghold
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:15:Q:1:0:0:1:70:826:0:2
+Q:15:Q:1:0:0:1:70:Klingsor, Evil Master of Magic:0:2
 
 # Description for quest
 ?:[LEQ $QUEST15 2]
@@ -30,7 +30,7 @@ F:T:96
 F:#:56
 
 # Floor + skeleton
-F:a:1:8:Skeleton human
+F:a:1:8:Skeleton human
 
 # Floor + ninja
 F:b:1:8:Ninja
@@ -54,7 +54,7 @@ F:g:1:8:Anti-paladin
 F:h:1:8:Grey wraith
 
 # Floor + Klingsor + item
-F:E:1:8:Klingsor:*
+F:E:1:8:Klingsor, Evil Master of Magic:*
 
 # Trap
 F:^:1:8:0:0:0:0:*

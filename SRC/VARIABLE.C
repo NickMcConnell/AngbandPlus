@@ -65,6 +65,12 @@ bool arg_force_original;        /* Command arg -- Request original keyset */
 bool arg_force_roguelike;       /* Command arg -- Request roguelike keyset */
 
 /*
+ * Currently only for X11: Font size
+ */
+
+s16b font_size = 1;
+
+/*
  * Various things
  */
 
@@ -175,6 +181,9 @@ int leaving_quest = 0;
 
 byte number_of_thefts_on_level;
 
+u32b sc_time; /* Number of game seconds elapsed */
+bool town_night; /* Is it night? - for lighting the town */
+
 /*
  * Software options (set via the '=' command).  See "tables.c"
  */
@@ -228,9 +237,12 @@ bool last_words;                /* Get last words upon dying */
 bool speak_unique;              /* Speaking uniques + shopkeepers */
 bool small_levels;              /* Allow unusually small dungeon levels */
 bool always_small_levels;       /* Always the above */
+bool fractal_caves;             /* Allow convoluted and bizarre rooms */
 bool empty_levels;              /* Allow empty 'arena' levels */
-bool unfair_monsters;           /* Allow unfair monsters */
-bool damage_artifacts;          /* Damage artifacts */
+bool ironman_unfair_monsters;           /* Allow unfair monsters */
+bool ironman_damage_artifacts;          /* Damage artifacts */
+bool ironman_damage_items;          	/* Damage other items (weapons/armour) */
+bool ironman_empty_levels;
 bool flavored_attacks;          /* Flavored attacks */
 bool player_symbols;            /* Use varying symbols for the player char */
 bool equippy_chars;             /* Back by popular demand... */
@@ -314,6 +326,7 @@ bool cheat_xtra;                /* Peek into something else */
 bool cheat_know;                /* Know complete monster info */
 bool cheat_live;                /* Allow player to avoid death */
 bool cheat_invul;               /* Allow player to be invulnerable (almost) */
+bool debug_vaults;              /* Allow player to choose vaults */
 
 /* Special options */
 
@@ -559,7 +572,25 @@ byte angband_color_table[256][4] =
         {0x00, 0xFF, 0x00, 0x00},       /* TERM_L_RED */
         {0x00, 0x00, 0xFF, 0x00},       /* TERM_L_GREEN */
         {0x00, 0x00, 0xFF, 0xFF},       /* TERM_L_BLUE */
-        {0x00, 0xC0, 0x80, 0x40}        /* TERM_L_UMBER */
+        {0x00, 0xC0, 0x80, 0x40},       /* TERM_L_UMBER */
+ 	{0x0C, 0xFF, 0x3F, 0x3F},	/* defaults to TERM_RED */
+ 	{0x03, 0xFF, 0x7F, 0x3F},
+ 	{0x0F, 0xFF, 0xBF, 0x3F},	/* defaults to TERM_L_RED */
+ 	{0x0B, 0xFF, 0xFF, 0x3F},
+ 	{0x0D, 0xBF, 0xFF, 0x3F},	/* defaults to TERM_UMBER */
+ 	{0x0D, 0x7F, 0xFF, 0x3F},	/* defaults to TERM_ORANGE */
+ 	{0x0D, 0x3F, 0xFF, 0x3F},
+ 	{0x0D, 0x3F, 0xFF, 0x7F},	/* defaults to TERM_YELLOW */
+ 	{0x0E, 0x3F, 0xFF, 0xBF},
+ 	{0x0E, 0x3F, 0xFF, 0xFF},	/* defaults to TERM_L_UMBER */
+ 	{0x0E, 0x3F, 0xBF, 0xFF},	/* defaults to TERM_GREEN */
+ 	{0x06, 0x3F, 0x7F, 0xFF},
+ 	{0x06, 0x3F, 0x3F, 0xFF},	/* defaults to TERM_L_GREEN */
+ 	{0x0A, 0x7F, 0x3F, 0xFF},
+ 	{0x0A, 0xBF, 0x3F, 0xFF},	/* defaults to TERM_L_BLUE */
+ 	{0x0A, 0xFF, 0x3F, 0xFF},
+ 	{0x0A, 0xFF, 0x3F, 0xBF},	/* defaults to TERM_BLUE */
+ 	{0x0A, 0xFF, 0x3F, 0x7F}	/* defaults to TERM_VIOLET */
 };
 
 
@@ -800,6 +831,12 @@ ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
+/* jk */
+/* the trap-arrays */
+header *t_head;
+trap_type *t_info;
+char *t_name;
+char *t_text;
 
 /*
  * The monster race arrays
@@ -953,6 +990,10 @@ bool easy_disarm = TRUE;
 bool easy_floor;
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
+#ifdef ALLOW_EASY_SENSE	/* TNB */
+bool easy_sense = TRUE;
+#endif /* ALLOW_EASY_SENSE -- TNB */
+
 
 /*
  * Wilderness
@@ -1012,6 +1053,11 @@ u16b max_o_idx;
 u16b max_m_idx;
 
 /*
+ * Maximum number of traps in tr_info.txt
+ */
+u16b max_t_idx;
+
+/*
  * Maximum size of the wilderness
  */
 s32b max_wild_x;
@@ -1038,6 +1084,32 @@ int quest_text_line;
 int init_flags;
 
 byte vanilla_town;            /* Use "vanilla" town without set quests */
-
+byte ironman_shops;           /* Stores are permanently closed */
+byte ironman_small_levels;    /* Always create unusually small dungeon levels */
+byte ironman_downward;        /* Don't allow climbing upwards/recalling */
+byte ironman_hard_quests;     /* Quest monsters get reinforcements */
 byte metric;
+bool preserve;
+bool maximize;
 
+/* The bones file a restored player ghost should use to collect extra 
+ * flags, a sex, and a unique name.  This also indicates that there is 
+ * a ghost active.  -LM-
+ */
+byte bones_selector;
+
+/* 
+ * The player ghost name is stored here for quick reference by the 
+ * description function.  -LM-
+ */
+char ghost_name[80];
+
+/* Log files */
+
+char ANGBAND_ERRLOG_FILE[1024];
+FILE *errlog = NULL;
+bool make_log;
+bool center_player;
+bool avoid_center;
+
+bool can_save;       /* Game can be saved */

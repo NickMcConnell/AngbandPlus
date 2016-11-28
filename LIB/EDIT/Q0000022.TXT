@@ -5,7 +5,7 @@
 Q:22:N:Orc Camp
 
 # Definition
-Q:22:Q:6:0:0:0:15:0:0:2
+Q:22:Q:6:0:0:0:15:0:0:6
 
 # Description for quest
 ?:[LEQ $QUEST22 2]

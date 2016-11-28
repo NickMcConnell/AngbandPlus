@@ -509,6 +509,18 @@ static void wr_u32b(u32b v)
         sf_put((byte)((v >> 24) & 0xFF));
 }
 
+static void wr_u64b(u64b v)
+{
+   sf_put((byte)(v & 0xFF));
+   sf_put((byte)((v >> 8) & 0xFF));
+   sf_put((byte)((v >> 16) & 0xFF));
+   sf_put((byte)((v >> 24) & 0xFF));
+   sf_put((byte)((v >> 32) & 0xFF));
+   sf_put((byte)((v >> 40) & 0xFF));
+   sf_put((byte)((v >> 48) & 0xFF));
+   sf_put((byte)((v >> 56) & 0xFF));
+}
+
 static void wr_s32b(s32b v)
 {
         wr_u32b((u32b)v);
@@ -535,6 +547,8 @@ static void wr_string(cptr str)
  */
 static void wr_item(object_type *o_ptr)
 {
+	int j;
+	
         wr_s16b(o_ptr->k_idx);
 
         /* Location */
@@ -562,29 +576,20 @@ static void wr_item(object_type *o_ptr)
         wr_byte(o_ptr->dd);
         wr_byte(o_ptr->ds);
 
+        /* Write stat bonuses */
+        for (j = 0; j < 7; j++)
+        {
+                wr_s16b(o_ptr->to_stat[j]);
+        }
+
         wr_byte(o_ptr->ident);
 
         wr_byte(o_ptr->marked);
 
-#if 0
-        /* Old flags */
-    if (o_ptr->art_name || o_ptr->art_flags1 || o_ptr->art_flags2 ||
-        o_ptr->art_flags3)
-    {
-#endif
-    wr_u32b(o_ptr->art_flags1);
-    wr_u32b(o_ptr->art_flags2);
-    wr_u32b(o_ptr->art_flags3);
-#if 0
-    }
-    else
-    {
-        wr_u32b(0L);
-        wr_u32b(0L);
-        wr_u32b(0L);
-    }
-#endif
-
+        wr_u64b(o_ptr->art_flags1);
+        wr_u64b(o_ptr->art_flags2);
+        wr_u64b(o_ptr->art_flags3);
+        
         /* Held by monster index */
         wr_s16b(o_ptr->held_m_idx);
 
@@ -632,7 +637,7 @@ static void wr_monster(monster_type *m_ptr)
         wr_byte(m_ptr->confused);
         wr_byte(m_ptr->monfear);
         wr_u32b(m_ptr->smart);
-        wr_byte(0);
+        wr_byte(m_ptr->monpois);
 }
 
 
@@ -653,9 +658,10 @@ static void wr_lore(int r_idx)
         wr_byte(r_ptr->r_wake);
         wr_byte(r_ptr->r_ignore);
 
-        /* Extra stuff */
-        wr_byte(r_ptr->r_xtra1);
-        wr_byte(r_ptr->r_xtra2);
+        /* Extra stuff XXX XXX XXX */
+        if (r_ptr->flags2 & RF2_EXTINCT)
+        wr_s16b(1);
+        else wr_s16b(0);
 
         /* Count drops */
         wr_byte(r_ptr->r_drop_gold);
@@ -687,7 +693,7 @@ static void wr_lore(int r_idx)
         wr_byte(r_ptr->max_num);
 
         /* Later (?) */
-        wr_s16b(r_ptr->weight);
+        wr_s16b(0);
         wr_byte(0);
 }
 
@@ -804,6 +810,7 @@ static void wr_options(void)
         if (cheat_know) c |= 0x1000;
         if (cheat_live) c |= 0x2000;
         if (cheat_invul) c |= 0x4000;
+        if (debug_vaults) c |= 0x8000;
 
         wr_u16b(c);
 
@@ -908,6 +915,8 @@ static void wr_extra(void)
         /* Dump the stats (maximum and current) */
         for (i = 0; i < 7; ++i) wr_s16b(p_ptr->stat_max[i]);
         for (i = 0; i < 7; ++i) wr_s16b(p_ptr->stat_cur[i]);
+        for (i = 0; i < 7; ++i) wr_s16b(p_ptr->stat_cnt[i]);
+        for (i = 0; i < 7; ++i) wr_s16b(p_ptr->stat_los[i]);
 
         /* Ignore the transient stats */
         for (i = 0; i < 10; ++i) wr_s16b(0);
@@ -921,9 +930,10 @@ static void wr_extra(void)
 
         wr_s16b(p_ptr->town_num); /* -KMW- */
 
+        wr_s16b(p_ptr->align_law);
+        wr_s16b(p_ptr->align_good);
+
         /* Write arena and rewards information -KMW- */
-        wr_s16b(p_ptr->arena_number);
-        wr_s16b(p_ptr->inside_arena);
         wr_s16b(p_ptr->inside_quest);
         wr_byte(p_ptr->exit_bldg);
         wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
@@ -952,18 +962,18 @@ static void wr_extra(void)
         wr_s16b(p_ptr->msane);
         wr_s16b(p_ptr->csane);
         wr_u16b(p_ptr->csane_frac);
-        wr_s16b(0);     /* oops */
+        wr_byte(0);     /* oops */
+        wr_byte(town_night);  
         wr_s16b(p_ptr->sc);
         wr_byte(p_ptr->sign);     /* sign */
-        wr_byte(p_ptr->invis);     /* if invisible */
+        wr_byte(0);     
 
         wr_s16b(0);             /* old "rest" */
         wr_s16b(p_ptr->blind);
         wr_s16b(p_ptr->paralyzed);
         wr_s16b(p_ptr->confused);
         wr_s16b(p_ptr->food);
-        wr_s16b(0);     /* old "food_digested" */
-        wr_s16b(0);     /* old "protection" */
+	wr_u32b(p_ptr->mind);
         wr_s16b(p_ptr->energy);
         wr_s16b(p_ptr->fast);
         wr_s16b(p_ptr->slow);
@@ -994,23 +1004,23 @@ static void wr_extra(void)
     wr_s16b(p_ptr->tim_res_conf);
     wr_s16b(p_ptr->tim_res_blind);
     wr_s16b(p_ptr->tim_invisible);
-    wr_s16b(p_ptr->tim_xtra5);
+    wr_s16b(p_ptr->tim_polymon);
     wr_s16b(p_ptr->tim_xtra6);
     wr_s16b(p_ptr->tim_xtra7);
-    wr_s16b(p_ptr->tim_xtra8);
 
+    wr_s16b(p_ptr->polymon);
     wr_s16b(p_ptr->chaos_patron);
     wr_u32b(p_ptr->muta1);
     wr_u32b(p_ptr->muta2);
     wr_u32b(p_ptr->muta3);
 
         wr_byte(p_ptr->confusing);
-        wr_byte(p_ptr->exp_drain);  
+        wr_byte(0);
         wr_byte(p_ptr->tactic);
         wr_byte(p_ptr->align);
         wr_byte(p_ptr->searching);
-        wr_byte(p_ptr->maximize);
-        wr_byte(p_ptr->preserve);
+        wr_byte(0);
+        wr_byte(0);
         wr_byte(p_ptr->allow_one_death);   /* Used to be wr_byte(0); */
 
         /* Store the number of thefts on the level. -LM- */
@@ -1024,9 +1034,10 @@ static void wr_extra(void)
         wr_byte(vanilla_town);
         wr_byte(p_ptr->pgod);
 
-        /* Hard quests */
+        /* Last ghost created */
 
-        wr_byte(p_ptr->hard_quests);
+	if (!(death)) wr_byte(bones_selector);
+	else wr_byte(0);
 
         /* Timed precognition */
 
@@ -1035,9 +1046,14 @@ static void wr_extra(void)
         /* Future use */
         for (i = 0; i < 35; i++) wr_byte(0L);
 
+	/* Scalar time */
+	
+        wr_u32b(sc_time); 
+	
         /* Ignore some flags */
-        wr_u32b(0L);    /* oops */
-        wr_u32b(0L);    /* oops */
+	
+        wr_u16b(p_ptr->birthday);
+        wr_u16b(0L);    /* oops */
 
         /* Write the "object seeds" */
         wr_u32b(seed_dungeon);
@@ -1101,7 +1117,7 @@ static void wr_dungeon(void)
 
         /* Note that this will induce two wasted bytes */
         count = 0;
-        prev_char = 0;
+        prev_s16b = 0;
 
         /* Dump the cave */
         for (y = 0; y < cur_hgt; y++)
@@ -1112,16 +1128,16 @@ static void wr_dungeon(void)
                         c_ptr = &cave[y][x];
 
                         /* Extract a byte */
-                        tmp8u = c_ptr->info;
+                        tmp16s = c_ptr->info;
 
-                        /* If the run is broken, or too full, flush it */
-                        if ((tmp8u != prev_char) || (count == MAX_UCHAR))
-                        {
-                                wr_byte((byte)count);
-                                wr_byte((byte)prev_char);
-                                prev_char = tmp8u;
-                                count = 1;
-                        }
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
 
                         /* Continue the run */
                         else
@@ -1135,7 +1151,7 @@ static void wr_dungeon(void)
         if (count)
         {
                 wr_byte((byte)count);
-                wr_byte((byte)prev_char);
+                wr_s16b(prev_s16b);
         }
 
 
@@ -1265,6 +1281,47 @@ static void wr_dungeon(void)
         }
 
 
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+                        tmp16s = c_ptr->t_idx;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
         /* Compact the objects */
         compact_objects(0);
         /* Compact the monsters */
@@ -1300,7 +1357,6 @@ static void wr_dungeon(void)
                 wr_monster(m_ptr);
         }
 }
-
 
 
 /*
@@ -1424,6 +1480,8 @@ static bool wr_savefile_new(void)
                         wr_s16b(quest[i].max_num);
                         wr_s16b(quest[i].type);
                         wr_s16b(quest[i].r_idx);
+			wr_s16b(quest[i].k_idx);
+			wr_byte(quest[i].flags);
                 }
         }
 
@@ -1455,7 +1513,13 @@ static bool wr_savefile_new(void)
                 wr_byte(0);
         }
 
-
+        /* Hack -- Dump the traps */
+        tmp16u = max_t_idx;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+                wr_byte(t_info[i].ident);
+	}
 
         /* Write the "extra" information */
         wr_extra();
@@ -1521,7 +1585,7 @@ static bool wr_savefile_new(void)
         }
 
         /* Write the pet command settings */
-        wr_byte(p_ptr->pet_follow_distance);
+        wr_s16b(p_ptr->pet_follow_distance);
         wr_byte(p_ptr->pet_open_doors);
         wr_byte(p_ptr->pet_pickup_items);
 
@@ -1891,22 +1955,8 @@ bool load_player(void)
                 /* Clear screen */
                 Term_clear();
 
-                /* Parse "ancient" savefiles */
-                if (sf_major < 2)
-                {
-                        /* Attempt to load */
-                        err = rd_savefile_old();
-                }
-
-                /* Parse "old" savefiles */
-                else if ((sf_major == 2) && (sf_minor < 7))
-                {
-                        /* Attempt to load */
-                        err = rd_savefile_old();
-                }
-
                 /* Parse "new" savefiles */
-                else if (sf_major == 2)
+                if (sf_major == 2)
                 {
                         /* Attempt to load */
                         err = rd_savefile_new();
@@ -2039,6 +2089,5 @@ bool load_player(void)
         /* Oops */
         return (FALSE);
 }
-
 
 

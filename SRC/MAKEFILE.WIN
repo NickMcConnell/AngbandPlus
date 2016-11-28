@@ -1,0 +1,198 @@
+# File: Makefile.win
+
+# For Borland C++ 4.52 Win16 and Win32
+
+.autodepend
+
+# change this to suit your taste
+
+CC = c:\bc45\bin\bcc.exe +bccw16.cfg
+CC32 = c:\bc45\bin\bcc32.exe +bccw32.cfg
+LINK = c:\bc45\bin\tlink.exe
+LINK32 = c:\bc45\bin\tlink32.exe
+RC = c:\bc45\bin\brc.exe
+RC32 = c:\bc45\bin\brc32.exe
+LIBDIR = c:\bc45\lib
+INCLDIR = c:\bc45\include;c:\gsnband\ext-win\src
+
+# shouldn't need to change anything below
+
+SRCS = \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  variable.c tables.c util.c cave.c \
+  object1.c object2.c monster1.c monster2.c \
+  xtra1.c xtra2.c xtra3.c spells1.c spells2.c \
+  melee1.c melee2.c save.c files.c trap.c \
+  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
+  store.c bldg.c birth.c load1.c load2.c \
+  wizard1.c wizard2.c \
+  generate.c dungeon.c init1.c init2.c \
+  main-win.c readdib.c
+
+OBJS = \
+  z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
+  variable.obj tables.obj util.obj cave.obj \
+  object1.obj object2.obj monster1.obj monster2.obj \
+  xtra1.obj xtra2.obj xtra3.obj spells1.obj spells2.obj \
+  melee1.obj melee2.obj save.obj files.obj trap.obj \
+  cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
+  store.obj bldg.obj birth.obj load1.obj load2.obj \
+  wizard1.obj wizard2.obj \
+  generate.obj dungeon.obj init1.obj init2.obj \
+  main-win.obj readdib.obj
+
+OBJS32 = \
+  z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 \
+  variable.o32 tables.o32 util.o32 cave.o32 \
+  object1.o32 object2.o32 monster1.o32 monster2.o32 \
+  xtra1.o32 xtra2.o32 xtra3.o32 spells1.o32 spells2.o32 \
+  melee1.o32 melee2.o32 save.o32 files.o32 trap.o32 \
+  cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 \
+  store.o32 bldg.o32 birth.o32 load1.o32 load2.o32\
+  wizard1.o32 wizard2.o32 \
+  generate.o32 dungeon.o32 init1.o32 init2.o32 \
+  main-win.o32 readdib.o32
+
+default: bccw16.cfg gsnband cleanobj bccw32.cfg gsnband32 cleanobj32
+
+clean:
+        del *.obj
+        del ..\*.map
+        del ..\gsnband.exe
+
+cleanobj:
+        del *.obj
+        del bccw16.cfg
+
+cleanobj32:
+        del *.o32
+        del bccw32.cfg
+
+bccw16.cfg: makefile.win
+        if not exist ..\gsnband.ini copy gsnband.ini ..
+        copy &&|
+-I$(INCLDIR)
+-L$(LIBDIR)
+-ml
+-WE
+-x-
+-K
+-y-
+-v-
+-N-
+-f-
+-3
+-dc
+-Ff=8
+-r
+-b-
+-p-
+-Os
+-Oa
+-OW
+-O
+-d
+-Ob
+-Oe
+-Og
+-Ol
+-Om
+-Ot
+-Op
+-Ov
+-k-
+-Z
+-w-
+-X
+-D__STDC__=1
+| bccw16.cfg
+
+bccw32.cfg: makefile.win
+        copy &&|
+-I$(INCLDIR)
+-L$(LIBDIR)
+-WE
+-x-
+-K
+-y-
+-v-
+-N-
+-f-
+-5
+-r
+-b-
+-p-
+-Os
+-OW
+-O
+-d
+-Oa
+-Ob
+-Oe
+-Og
+-Ol
+-Om
+-Ot
+-Op
+-Ov
+-k-
+-Z
+-w-
+-X
+-D__STDC__=1
+| bccw32.cfg
+
+.c.obj:
+        $(CC) -c $<
+
+generate.obj: generate.c
+        $(CC) -c generate.c
+
+readdib.obj: readdib.c readdib.h
+        $(CC) -c readdib.c
+
+gsnband: $(OBJS) gsnband.rc
+        $(LINK) /L$(LIBDIR) @&&|
+-Twe -P -d -x -Gn -Oc -yx4096 +
+c0wl+
+z-util z-virt z-form z-rand z-term +
+variable tables util cave +
+object1 object2 monster1 monster2 +
+xtra1 xtra2 xtra3 spells1 spells2 +
+melee1 melee2 save files trap +
+cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
+store bldg birth load +
+wizard1 wizard2 +
+generate dungeon init1 init2 +
+main-win readdib,+
+..\gsnband.exe,..\gsnband.map,import cwl
+|
+        $(RC) -31 angband.rc ..\gsnband.exe
+
+.c.o32:
+        $(CC32) -c -o$@ $<
+
+# bug in BC4.5 optimizer scrambles town level
+generate.o32: generate.c
+        $(CC32) -c -ogenerate.o32 -O- generate.c
+
+readdib.o32: readdib.c readdib.h
+        $(CC32) -c -oreaddib.o32 readdib.c
+
+gsnband32: $(OBJS32) gsnband.rc
+        $(LINK32) /L$(LIBDIR) @&&|
+-aa -B:0x400000 -S:0x100000 -P -x +
+c0w32 +
+z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 +
+variable.o32 tables.o32 util.o32 cave.o32 +
+object1.o32 object2.o32 monster1.o32 monster2.o32 +
+xtra1.o32 xtra2.o32 xtra3.o32 spells1.o32 spells2.o32 +
+melee1.o32 melee2.o32 save.o32 files.o32 trap.o32 +
+cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
+store.o32 bldg.o32 birth.o32 load1.o32 load2.o32 +
+wizard1.o32 wizard2.o32 +
+generate.o32 dungeon.o32 init1.o32 init2.o32 +
+main-win.o32 readdib.o32,+
+..\gsnband32.exe,..\gsnband.map,import32 cw32
+|
+        $(RC32) -w32 angband.rc ..\gsnband32.exe

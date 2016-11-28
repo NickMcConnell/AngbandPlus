@@ -1,20 +1,21 @@
 
 === Introduction to the GSNband (since 0.5) Magic System ===
 
+(Since 1.2 - includes mindcraft explanation, see end of file)
+
 In the official releases of Angband there are only two types magic
 spells:  Magic spells and priestly prayers.  If the character is a
 mage, ranger or a rogue  (s)he can learn magic spells; if (s)he is
 a priest  or  a paladin,  (s)he  can learn prayers.  All mages can
 learn the same spells and all priests can learn the same prayers.
 
-GSNband  has  switched  to  use  a more complex  "realms of magic"
+GSNband  has  switched to using  a more complex  "realms of magic"
 system.  Priestly magic is retained as the realm of Life. There is
 also an opposite realm of Death, or necromantic magic. The bulk of
 magic  spells  is represented by four elemental realms (fire, air,
 earth,  water).  The  first three took over old Chaos, Sorcery and
 Nature  magics  from  ZAngband.  Water  is  a completely new magic
-realm,   and   probably  the  most  unbalanced  (needs  a  lot  of
-playtesting, I suppose).
+realm.
 
 Last  but  not  least,  Arcane  magic  is  viewed as "a little  of
 everything"  realm.  Arcane  users have access to the power of all
@@ -131,7 +132,7 @@ MINDCRAFTER:  Although  the  powers of a Mindcrafter may seem like
 magic,  this  is  not  --  strictly speaking -- the case. They are
 mental  powers,  independent  of  the  ordinary  sources of magic.
 Consequently,  Mindcrafters  are  not  interested  in  'magic' and
-learn no spells.
+learn no spells (but see below for their own domain, mindcraft).
 
 HIGH MAGE: High mages are mages who specialize in one particular
 field of magic  and learn it  very well --  much better than the
@@ -146,8 +147,7 @@ specialty.
 General note: all elemental realms have the following common spells,
 each tied to their respective element:
 
-  * a low-level minor bolt attack, with some chance of becoming a
-    beam
+  * a low-level minor bolt attack, with some chance of becoming a beam
   * spell giving timed resistance to the element
   * gate spell (a weak radius 2 ball + teleport)
   * a stronger bolt or ball spell(s), or both types
@@ -277,3 +277,53 @@ pick the correct spellbook to use in the game.
 If you still get confused trying to select the correct spellbook,
 try using macros (either the 'full' macros or inscriptions).
 
+=== Mindcraft ===
+
+The art of psionics, also called mindcraft, involves considerable effort
+on the part of the practicioner if unaided. Fortunately, the link between 
+the stores of mental energy and their outward display shaped by thought
+can be facilitated using the so-called foci, or small mysterious necklaces
+made of adamantite and therefore invulnerable to elements.
+
+There are five psionic disciplines from which a beginner mindcrafter can
+choose from; bonuses from wearing the corresponding focus are given
+in parentheses. You start with the focus for the discipline you choose; you
+must find the others somewhere or buy them in the library (they appear there
+from time to time).
+
+You receive some bonuses (lower failure rates and some increased effects) when
+using powers from your starting discipline. In the long run, however, you
+will need all five foci to survive in the depths of Angband.
+
+1) Telepathy - the most basic and easiest discipline, it permits contact
+with other minds, possibly in order to damage or otherwise confuse them.
+(+2 INT, WIS, CHR)
+
+2) Psychoportation - deals with transporting the player or those of his
+choice from place to place. The most powerful powers from this discipline
+can bar using it to others, resulting in total impossibility to teleport
+in the given area (one dungeon level)
+(+2 DEX)
+
+3) Psychometabolism - is able to convert internal mind reserves into
+swift healing effects, better reactions (AC), and even into an incorporeal
+state called Shadowform. Reverse effects can be applied to others, hurting
+them in the process.
+(+2 STR, CON, sustain CON)
+
+4) Psychokinetics - typically mind-damaging powers, augmented by the 
+Inertial Power barrier, which can greatly reduce damage sustained from
+monster breaths, but on the other hand can also increase damage from
+other types of attacks, so beware!
+(resist shards)
+
+5) Clairsentience - It can be used to sense surrounding dungeon features 
+with a power similar to echolocation, search for magical auras, or to inquire
+into the aura of an object already found.
+(+3 to searching, resist blindness)
+
+Note that beings which are mindless are immune to mind attacks and cannot
+be contacted with using telepathy. Minds of undead and demons can be detected 
+and striven with, but the probability of harmful backlashes is high. There
+is also a considerable chance that the monster will notice the intrusion,
+if it hasn't already.

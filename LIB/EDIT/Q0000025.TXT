@@ -1,0 +1,137 @@
+# q0000025.txt
+
+# Name
+Q:25:N:The Royal Crypt
+
+# type:num_mon:cur_num:max_num:level:r_idx:k_idx
+Q:25:Q:1:0:0:5:70:Archlich:0:6
+
+# Description for quest
+?:[LEQ $QUEST25 2]
+Q:25:T:A mysterious force has entered the tomb near the road bend and is
+Q:25:T:desecrating the graves of my noble ancestors.  Their
+Q:25:T:bodily remains have been magically animated and their spirits
+Q:25:T:enslaved and forcibly turned to evil.  You must enter the
+Q:25:T:ccrypt and seek out the Archliches.  Once they are eliminated, we
+Q:25:T:suppose the spirits will be left in peace.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST25 3]
+Q:25:T:How can I ever thank you? Let the people rejoice - a hero
+Q:25:T:of legend walks this day in Outpost. My treasurer tells me
+Q:25:T:a number of rather valuable heirlooms seem to be missing
+Q:25:T:from the crypt - how about I turn a blind eye and we call
+Q:25:T:it quits?
+?:1
+
+# Floor, dark, no teleport
+F:,:1:12
+
+# Deep water
+F:W:83:12
+
+# Locked door (power 6)
+F:+:39:12
+
+# Broken door
+F:':5:12
+
+# Trap
+F:^:1:12:0:0:0:0:*
+
+# Normal wall
+F:#:56
+
+# Flor + skeleton (junk)
+F:~:1:12:0:395
+
+# Floor + crypt creep 
+F:a:1:12:Crypt Creep
+
+# Floor + human skeleton
+F:b:1:12:Human Skeleton
+
+# Floor + mummy
+F:c:1:12:Greater mummy
+
+# Floor + grey wraith 
+F:d:1:12:Grey Wraith
+
+# Floor + master vampire 
+F:e:1:12:Master Vampire
+
+# Floor + crypt thing 
+F:f:1:12:Crypt Thing
+
+# Floor + black wraith 
+F:g:1:12:Black wraith
+
+# Floor + monastic lich 
+F:h:1:12:Monastic lich
+
+# Floor + nether wraith 
+F:i:1:12:Nether wraith
+
+# Floor + vampire lord
+F:j:1:12:Vampire lord
+
+# Floor + master lich 
+F:k:1:12:Master lich
+
+# Floor + iron lich 
+F:l:1:12:Iron lich
+
+# Floor + dread 
+F:m:1:12:Dread
+
+# Floor + dreadmaster
+F:n:1:12:Dreadmaster
+
+# Floor + lesser black reaver
+F:o:1:12:Lesser black reaver
+
+# Floor + demilich
+F:p:1:12:Demilich
+
+# Floor + eye druj
+F:q:1:12:Eye druj
+
+# Floor + skull druj
+F:r:1:12:Skull druj
+
+# Floor + shadowlord
+F:s:1:12:Shadowlord
+
+# Floor + archlich
+F:t:1:12:Archlich
+
+# Floor + black reaver
+F:u:1:12:Black reaver
+
+# The Royal Catacoombs
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:Xf,,X,XbXaaaaaX,#,,,,,X,+,,,,,,#,,#u#,,+,,,,,,,,,,,,,,,,,,,,,,,,+,,,,,X
+D:X,,,X,XbXaaaaaX,X,,s,,X,XXXXXXXX,,###,,XXXXXXXXXXXXXXXXXXXXXXXXXX,###,X
+D:XXXX',#bX#aaaXX,XX,,,XX,X##,,,,XX,,,,,XX^^^^^^^^^^^^^^^^^^XX#X#X#,#u#,X
+D:X,,,,,XbbXXaXX,,,XX,XX,,,XX,,t,,XX,,,XX^XXXXXXXXXXXXXXXXX^X#X#X#X,###,X
+D:XXXXX,X#bbX,X,,,,,X,X,,,,,X,,,,,,XXXXX^^Xt#p#p#o#o#l#l#k#^#XXXXXX,,,,,X
+D:X,X,XX,XXXX,X,,t,,X,X,,s,,X,,t,,XXqXrXX^XXXXXXXXXXXXXXXXX^XXXqXrXX,,,,X
+D:X,,,,XX,,,,,X,,,,,X,#,,,,,X,,,,XX.....XX^^^^^^^^^^^^^^^^^^XX.....XXX+XX
+D:X,,,,,XXXXX,XXXXXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXXXXX.......Xj,jX
+D:X,,,,,+,,,,,X###################.......##########<#########.......XX,XX
+D:X,,,,,XXXXX#X#XXXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXXXXX.......Xj,jX
+D:X,,,,XX,,,X,X,+,,,,,X,,,,,+,,,,XX.....XXWWWWWWWWWWWWWWWWWWXX.....XXX+XX
+D:X,X,XX,dd,X,X,X,XXX,X,X#X,X,XXX,XXrXqXXWXXXXXXXXXXXXXXXXXXWXXrXqXX,,,,X
+D:XXXXX,ggd,X,X,X,Xm#,X,Xm#,X,Xm#X,XXXXXWXX,,X,X,X,X,X,X,X,XXWXXXXX,####X
+D:X~,,+,igd,,,X,X,X#X,X,XXX,X,XnmX,+,,,+WX,t,'^s^'^n^'^n^',,#W+,,,+,#oooX
+D:XX,XX,ggd,X,X,X,,,,,+,,,,,X,XXXX,XXXXXWXX,,X,X,X,X,X,X,X,XXWXXXXX,####X
+D:X~,,XX,dd,XXX#XXXXXXXXXXXXX,,,,,XX,,,XXWXXXXXXXXXXXXXXXXXXW#X,,,XX,,,,X
+D:XXX,,XX,,,XeXeXeXeXeX^^^^^XXX+XXX,#+#,XXWWWWWWWWWWWWWWWWWWXX,#+#,XXXXXX
+D:Xb##,,XXXXX+X+X+X+X+X^,,,^Xn+,+nX,#s#,XXXXXXXXXXXXXXXXXXXXX,,#s#,,X^^^X
+D:Xbb#X,,,,,,,,,,,,,,,X^,,,^XXX,XXX,###,+^^^^^^^^^^^^^^^^^^^+,,###,,#^~^X
+D:XbbbX~X~X~X~X~X~X~X~X^^^^^#n+,+nX,,,,,XcXcXcXcXcXcXcXcXcXcX,,,,,,~X^^^X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:9:3

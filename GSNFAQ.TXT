@@ -5,8 +5,22 @@ A: GSNband is my own attempt to enhance ZAngband, a well-known Angband clone
    by Topi Ylinen and Robert Ruehlmann, with a number of features and
    breakthrough additions (like the ARCN, see below). As it were, I also
    went from a state of C illiteracy to a decent command of that language
-   (but not the details of each operating system I happen to work on) while
+   (but not the details of each operating system I happen to use) while
    working on the game.
+
+Q: You don't mind if I'm misspelling the name, do you?
+
+A: Well, I do. The rule is that the first three letters are upper- and the
+   remaining four lowercase. The first part is an acronym (initials) and
+   should not be lowercased. The second part should not be uppercased to
+   avoid the impression of having something to do with music.
+   
+   GSNband is pronounced /geh-seh-nband/, with the last syllabe close
+   to the English word (although it derives, in fact, from Sindarin).
+   
+   Why isn't it called GSNAngband? Probably because that name would be too
+   long, but also to avoid suggesting that the name of Angband is my
+   creation.
 
 Q: What is the legal status of GSNband?
 
@@ -14,12 +28,13 @@ A: GSNband is free software; it can be distributed according to the rules
    laid long ago by Robert A. Koeneke for his (U)Moria game. See version.txt
    in the ../lib/help directory for details (free distribution for non-
    commercial purposes providing the copyright notices are retained
-   throughout the game)
+   throughout the game). Source code should be made available together
+   with any compiled binaries, but this isn't strictly mandatory.
    
    If you plan to put GSNband on a cover CD-ROM or similar wide-range
    medium, please inform me in advance. You DO NOT have to ask me for
    permission, but it's polite anyway. Same rules apply if you write a
-   review of GSNband and put it in written press or on a Web page.
+   review of GSNband and put it in printed press or on a Web page.
 
 Q: Can I modify GSNband?
 
@@ -28,6 +43,9 @@ A: Yes, but if you make any significant changes, please distribute this
    as above). You MAY distribute changed info files, quest definitions,
    and anything that is easily editable without need for the source code;
    please note, however, where the files come from.
+   You may use ideas and algorithms found in the game, both those deriving
+   from me and from previous layers. You may use the actual code providing
+   you do not strip those -GSN- marks found in comments.
    
 Q: Why is GSNband so slow?
 
@@ -35,12 +53,12 @@ A: GSNband is a complex and complicated game; the sources take well over 4 MB
    of code. Game speed is comparable to ZAngband's, since the inside engine
    is virtually the same. On Intel platforms, you'd probably need at least
    8 MB to play at decent speed; lower values might work for you, but there's
-   no guarantee. The CPU should be a 486 or better; 386 is supported, but
-   probably works awfully slow.
+   no guarantee. The CPU should be a 486 or better; 386 (DX models only) is 
+   supported, but probably works awfully slow.
    
-   I don't know the specific memory/CPU requirements to run the game on
-   other platforms; could somebody help me determine this?
-
+   For the Acorn port, you need at least 5 MB of memory (4 for a squeeze).
+   For Amigas, 2 MB seems to be the absolute minimum.
+   
    If you notice that the game is greatly slowed by wilderness generation,
    you can use the vanilla-like town option at startup. It also has
    an impact on your final score.
@@ -55,23 +73,30 @@ A: The reason is that I added a lot of monsters which do not have tiles.
    now. The 8x8 tiles are not even worth considering. The 16x16 tiles
    by Adam Bolt are somewhat better, and actually playable if you strain
    your sight a lot, but the colours are too sombre and some monsters
-   do not differ quite well.
-   
+   do not differ quite well. Also, their scaling is horrible.
+
+   Nb. if you're playing on a platform other than Intel, you might have
+   tiles available; providing this a courtesy of the person who
+   compiled the binary. I can offer no help/advice with whatever
+   problems you might have due to their work.
+
 Q: Shouldn't GSNband take place in Beleriand?
 
 A: Yes, it should (if you dispense with the inconsistent storyline and
-   cast of characters). The problem is that the maximum boundaries for
-   the wilderness are not known with any certainity, nor is their
+   cast of characters). The problem is that the maximum size for
+   the wilderness is not known with any certainity, nor is their
    impact on memory requirements. 20x20 wilderness is probably the
    safest we can get; anything larger would drastically increase memory
-   consumption, meaning less people can play the game.
+   consumption, meaning less people can play the game. And it is rather
+   hard to squeeze the whole Beleriand in a 20x20 grid.
 
 Q: Ok, so what's that world there in the game?
 
 A: A fictional one. It has no name (neither has ZAngband's; it does not
    pretend to be Amber). The idea is to have 2-3 bigger towns with
    quests and several small villages scattered around which do not have
-   all the buildings (you start in one, for example)
+   all the buildings (you start in one, for example). More towns will
+   be added as the game develops.
 
    Of course if you don't like the wilderness you can play the old
    vanilla-like town (sadly, it is non-random)
@@ -88,18 +113,20 @@ A: Automatic Roman Character Numeration, or ARCN, is a system which
    don't want people to get annoyed at the game putting weird stuff
    in the characters' names for them. If you want to use ARCN, you
    probably know how to compile the game anyway; #define ARCN in
-   config.h to include it in the game.
+   config.h to include it in the game. Nb. non-Intel compilers of
+   the game might have done this for you, so direct any protests
+   to them.
 
 Q: How is the score calculated?
 
 A: Basic score is calculated as experience + level_score * max_lvl, where 
-   level_score is the average level feeling you got, and max_lvl is
+   level_score is the average level difficulty generated, and max_lvl is
    the deepest level reached.
    
    Then the basic score is multiplied by a percentage factor which is 
    calculated as follows:
    
-   * For each mutation, -10% (exception beastmen and CW)
+   * For each mutation, -10% (exception beastmen and CW), up to -80%
    * If using maximize mode, -10%
    * If using preserve mode, -15%
    * If using vanilla town, +30%
@@ -110,22 +137,84 @@ A: Basic score is calculated as experience + level_score * max_lvl, where
    * If allowing unfair monsters, +50%
    * If autoscumming, -50%
    * If monsters are behaving stupidly, -50%
-   * Monster AI options are worth 20% each
+   * Monster AI options are worth 20% each if on
+   * If using damageable items, +20%
+   * If using damageable artifacts, +120% (greater risk)
 
-   If sum of the above would fall below 10%, 10% is used instead.
+   If sum of the above would fall below 5%, 5% is used instead.
    
-   (the highest score multiplier you can get is therefore 220%; it will
-    give the inital score of about 110 for someone who has just entered
-    the dungeon. Hm.)
+   Finally, if you're playing Ironman, the final score is doubled.
+   
+   (the highest score multiplier you can get is therefore 340%; it will
+    give the inital score of about 170 for someone who has just entered
+    the dungeon. Similar results of 100-300 points depending on race and
+    class are obtained with ADOM)
     
    Finally, the cost of all identified and non-storebought items the
    character is carrying, divided by 10, is added. Items possessed at
    the start of the game are considered storebought.
 
-* (for Polish readers) Czy jest jakas dokumentacja po polsku?
+Q: My wrists hurt a lot when playing the game. Should I take precautions?
 
-  Nie ma. Wychodze z zalozenia ze kazdy kto chce sie bawic w roguelike
-  zna angielski na tzw. poziomie. Tlumaczenie dokumentacji i listy zmian
-  za kazdym razem gdy cos jest dodawane strasznie wydluzyloby czas pracy
-  nad gra.
-  
+A: Yes, you should. Repetitive strain on wrists (which results from a badly
+   placed keyboard, for example) can lead to serious injury of the wrist
+   ligaments called the Carpal Tunnel Syndrome. If you feel your wrists
+   are strained, here is an exercise posted by Jason Maskell in 
+   rec.games.roguelike.angband which might help:
+
+   ``Hold your arms out horizontally, make a fist, and then point
+   the fist towards the floor, as much as you can. This will
+   stretch one sides tendons. Hold for 5 seconds. Then make a
+   flat hand and hold it level with your arm, hold for 5 seconds.
+   Now splay your fingers and attempt to make your hand point
+   toward the ceiling (this one is hard, so don't push it too
+   much). You should feel your tendons stretching. Repeat this a
+   few times. Take frequent breaks and do this if it starts to hurt
+   a little bit. I was sliding very fast towards CTS and this
+   corrected it.''
+
+Q: (for Polish readers) Czy jest jakas dokumentacja po polsku?
+
+A: Nie ma. Wychodze z zalozenia ze kazdy kto chce sie bawic w roguelike
+   zna angielski na tzw. poziomie. Tlumaczenie dokumentacji i listy zmian
+   za kazdym razem gdy cos jest dodawane strasznie wydluzyloby czas pracy
+   nad gra. Nie mowiac juz o tym ze sporo ficzerow i innych elementow
+   Angbandowego slangu trudno oddac po polsku.
+
+Q: What are the future expansion plans?
+
+A: It is hard to tell. I'm trying to keep a balance between a standard
+   vanilla-like game and a CRPG close to ADOM. I'm much for the former
+   style; however, vanilla bores me after a while with its monotony.
+   OTOH Angband evolved into a complex scenario with plots and NPCs would
+   be a denial of the very core of the game and probably not fun either.
+   
+   Things scheduled to be done sometime include, in no particular order:
+   
+   * (Some sort of) skill system, with some skills being useful in dungeon 
+     only, some in wilderness, and some in both
+   * More types of quests, eg. "escort a friendly creature", "find a
+     specific item", "deliver an item to somewhere", "sack rival
+     town/village"
+   * Thematic dungeon levels. Towns in dungeons. Real shops and shopkeepers 
+     (very, very hard to balance due to easy escape means available)
+   * Varied terrain in vaults + more types of terrain. Improving f_info
+     to eliminate need for macros defining terrain characteristics
+   * Throwing out the seventy-five Half-foo races and adding some
+     interesting ones (but NOTHING overly weird). 
+   * Small dungeon levels should have less monsters created, no groups etc.
+     (needs making the MIN_M_ALLOC_LEVEL constant into a variable)
+   * Messages which tell the player what to expect on the level (tie
+     this to perception skill?)
+   * More slays and other egos. Ego items should probably be rarer and
+     quest rewards should not be a guaranteed ego item
+   * More inventory slots like braces, girdles, kneecaps? (note problems 
+     with equippy chars)
+   * Bags, boxes and other containers?
+   * Multiple dungeons? (note that this moves the game dangerously towards
+     CRPG)
+   * Random non-wieldable items with spell activations? (requires universal 
+     'spell index')
+   * Books (small booklets as opposed to large tomes) to learn spells from? 
+     Or maybe skills?
+ 

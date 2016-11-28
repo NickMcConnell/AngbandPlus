@@ -125,6 +125,14 @@ typedef signed long s32b;
 typedef unsigned long u32b;
 #endif
 
+/* Signed/Unsigned 64 bit value (more flags need more space - jk */
+#ifdef L64
+typedef signed long s64b;
+typedef unsigned long u64b;
+#else
+typedef signed long long s64b;
+typedef unsigned long long u64b;
+#endif
 
 
 
@@ -143,6 +151,8 @@ typedef s16b *s16b_ptr;
 typedef u16b *u16b_ptr;
 typedef s32b *s32b_ptr;
 typedef u32b *u32b_ptr;
+typedef s64b *s64b_ptr;
+typedef u64b *u64b_ptr;
 typedef vptr *vptr_ptr;
 typedef cptr *cptr_ptr;
 
@@ -183,5 +193,4 @@ typedef vptr	(*func_key)(vptr);
 
 
 #endif
-
 

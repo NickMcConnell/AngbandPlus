@@ -4,7 +4,7 @@
 Q:9:N:Morgoth
 
 # Definition
-Q:9:Q:1:0:0:1:100:Morgoth, Lord of Darkness:0
+Q:9:Q:1:0:0:1:100:Morgoth, Lord of Darkness:0:0
 
 # Description for quest
 ?:[LEQ $QUEST9 2]

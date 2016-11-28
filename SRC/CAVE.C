@@ -6,6 +6,9 @@
 #include "angband.h"
 
 
+#define ROW_MAP                   0
+#define COL_MAP                  12
+
 /* distance, LOS (and targetting), destruction of a square, legal object
  * and monster codes, hallucination, code for dungeon display, memorization
  * of objects and features, small-scale dungeon maps,  and management,
@@ -543,47 +546,9 @@ static void image_random(byte *ap, char *cp)
  */
 static bool feat_supports_lighting(byte feat)
 {
-	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL)) return TRUE;
-
-	switch (feat)
-	{
-		case FEAT_FLOOR:
-		case FEAT_INVIS:
-		case FEAT_GLYPH:
-		case FEAT_LESS:
-		case FEAT_MORE:
-		case FEAT_SECRET:
-		case FEAT_RUBBLE:
-		case FEAT_MAGMA:
-		case FEAT_QUARTZ:
-		case FEAT_MAGMA_H:
-		case FEAT_QUARTZ_H:
-		case FEAT_MAGMA_K:
-		case FEAT_QUARTZ_K:
-		case FEAT_WALL_EXTRA:
-		case FEAT_WALL_INNER:
-		case FEAT_WALL_OUTER:
-		case FEAT_WALL_SOLID:
-		case FEAT_PERM_EXTRA:
-		case FEAT_PERM_INNER:
-		case FEAT_PERM_OUTER:
-		case FEAT_PERM_SOLID:
-		case FEAT_MINOR_GLYPH:
-		case FEAT_DEEP_WATER:
-		case FEAT_SHAL_WATER:
-		case FEAT_DEEP_LAVA:
-		case FEAT_SHAL_LAVA:
-		case FEAT_DARK_PIT:
-		case FEAT_DIRT:
-		case FEAT_GRASS:
-		case FEAT_TREES:
-		case FEAT_MOUNTAIN:
-			return TRUE;
-		default:
-			return FALSE;
-	}
+	if(f_info[feat].flags1 & FF1_SUPPORT_LIGHT) return TRUE;
+	else return FALSE;
 }
-
 
 /*
  * Extract the attr/char to display at the given (legal) map location
@@ -720,7 +685,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	int feat;
 
 	byte a;
-	byte c;
+	char c;
 
 	bool graf_new = (use_graphics && (strcmp(ANGBAND_GRAF, "new") == 0));
 
@@ -731,7 +696,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	feat = c_ptr->feat;
 
 	/* Floors (etc) */
-	if (feat <= FEAT_INVIS)
+	if ((f_info[feat].flags1 & FF1_FLOOR) && !(f_info[feat].flags1 & FF1_REMEMBER))
 	{
 		/* Memorized (or visible) floor */
 		if ((c_ptr->info & (CAVE_MARK)) ||
@@ -741,13 +706,23 @@ void map_info(int y, int x, byte *ap, char *cp)
 		     !p_ptr->blind))
 		{
 			/* Access floor */
-			f_ptr = &f_info[FEAT_FLOOR];
+			f_ptr = &f_info[feat];
 
 			/* Normal char */
 			c = f_ptr->x_char;
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
+
+			/* Hack to display detected traps */
+			if ((c_ptr->t_idx) && (c_ptr->info & CAVE_TRDT))
+			{
+				/* If trap isn't on door display it */
+				if (!(f_ptr->flags1 & FF1_DOOR)) c = '^';
+
+				/* Add attr */
+				a = t_info[c_ptr->t_idx].color;
+			}
 
 			/* Special lighting effects */
 			if (view_special_lite && ((a == TERM_WHITE) || graf_new))
@@ -856,6 +831,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
+
+			/* Add trap color - Illusory wall masks everythink */
+			if ((c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT))
+				a = t_info[c_ptr->t_idx].color;
 
 			/* Special lighting effects */
 			if (view_granite_lite &&
@@ -1162,11 +1141,26 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Handle "player" */
 	if ((y == py) && (x == px))
 	{
-		monster_race *r_ptr = &r_info[0];
+		byte r_att;
+		char r_chr;
 
-		byte r_att = class_info[p_ptr->pclass].class_attr;
-		char r_chr = race_info[p_ptr->prace].race_char;
-		
+		/* Defaults to 0 */
+		monster_race *r_ptr = &r_info[p_ptr->polymon];
+
+		/* Get the "player" attr */
+		a = r_ptr->x_attr;
+
+		/* Get the "player" char */
+		c = r_ptr->x_char;
+
+		r_att = a; r_chr = c;
+
+		if (!p_ptr->polymon)
+		{
+		   r_att = class_info[p_ptr->pclass].class_attr;
+		   r_chr = race_info[p_ptr->prace].race_char;
+		}
+
 		/* Get the "player" attr */
 		(*ap) = r_ptr->x_attr;
 
@@ -1175,22 +1169,22 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		/* Process special race/shape attributes/chars. */
 
-		if (p_ptr->invis)
+		if ((p_invis) && !(p_see_invis))
 		{
 		  object_type *o_ptr;
 		  cave_type *c_ptr;
 		  feature_type *f_ptr;
-	
+
 		  c_ptr = &cave[py][px];
 		  o_ptr = &o_list[c_ptr->o_idx];
 		  f_ptr = &f_info[c_ptr->feat];
-		  
+
 		  (*ap) = object_attr(o_ptr);
 		  if (o_ptr->k_idx) (*cp) = object_char(o_ptr);
 		    else (*cp) = f_ptr->x_char;
 		}
-		
-		if (player_symbols) 
+
+		if (player_symbols && !(p_ptr->polymon))
 		{
 		  if (r_att) (*ap) = r_att;
 		  if (r_chr) (*cp) = r_chr;
@@ -1362,7 +1356,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_SPECTRE:
 							c = 241;
 							break;
-						case RACE_SPRITE:
+						case RACE_ENT:
 							c = 244;
 							break;
 						case RACE_BEASTMAN:
@@ -1502,7 +1496,8 @@ void note_spot(int y, int x)
 	if (!(c_ptr->info & (CAVE_MARK)))
 	{
 		/* Handle floor grids first */
-		if (c_ptr->feat <= FEAT_INVIS)
+		if ((f_info[c_ptr->feat].flags1 & FF1_FLOOR) &&
+		   !(f_info[c_ptr->feat].flags1 & FF1_REMEMBER))
 		{
 			/* Option -- memorize all torch-lit floors */
 			if (view_torch_grids && (c_ptr->info & (CAVE_LITE)))
@@ -1564,7 +1559,7 @@ void lite_spot(int y, int x)
 	if (panel_contains(y, x))
 	{
 		byte a;
-		byte c;
+		char c;
 
 #ifdef USE_TRANSPARENCY
 		byte ta;
@@ -1735,6 +1730,8 @@ static byte priority_table[][2] =
 	/* Stairs */
 	{ FEAT_LESS, 25 },
 	{ FEAT_MORE, 25 },
+	{ FEAT_SHAFT_UP, 25 },
+	{ FEAT_SHAFT_DOWN, 25 },
 
 	/* End */
 	{ 0, 0 }
@@ -1806,6 +1803,9 @@ void display_map(int *cy, int *cx)
 
 	bool fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm"));
 
+	int yrat = cur_hgt / SCREEN_HGT;
+	int xrat = cur_wid / SCREEN_WID;
+
 	/* Save lighting effects */
 	old_view_special_lite = view_special_lite;
 	old_view_granite_lite = view_granite_lite;
@@ -1814,11 +1814,10 @@ void display_map(int *cy, int *cx)
 	view_special_lite = FALSE;
 	view_granite_lite = FALSE;
 
-
 	/* Clear the chars and attributes */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	for (y = 0; y < SCREEN_HGT + 2; ++y)
 	{
-		for (x = 0; x < MAP_WID+2; ++x)
+		for (x = 0; x < SCREEN_WID + 2; ++x)
 		{
 			/* Nothing here */
 			ma[y][x] = TERM_WHITE;
@@ -1835,8 +1834,8 @@ void display_map(int *cy, int *cx)
 		for (j = 0; j < cur_hgt; ++j)
 		{
 			/* Location */
-			x = i / RATIO + 1;
-			y = j / RATIO + 1;
+			x = i / xrat + 1;
+			y = j / yrat + 1;
 
 			/* Extract the current attr/char at that map location */
 #ifdef USE_TRANSPARENCY
@@ -1863,10 +1862,9 @@ void display_map(int *cy, int *cx)
 		}
 	}
 
-
 	/* Corners */
-	x = MAP_WID + 1;
-	y = MAP_HGT + 1;
+	x = SCREEN_WID + 1;
+	y = SCREEN_HGT + 1;
 
 	/* Draw the corners */
 	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
@@ -1902,11 +1900,8 @@ void display_map(int *cy, int *cx)
 		}
 	}
 
-
-	/* Player location */
-	(*cy) = py / RATIO + 1;
-	(*cx) = px / RATIO + 1;
-
+	(*cy) = py / yrat + 1 + ROW_MAP;
+	(*cx) = px / xrat + 1 + COL_MAP;
 
 	/* Restore lighting effects */
 	view_special_lite = old_view_special_lite;
@@ -1923,11 +1918,8 @@ void do_cmd_view_map(void)
 {
 	int cy, cx;
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 	/* Note */
 	prt("Please wait...", 0, 0);
@@ -1951,7 +1943,7 @@ void do_cmd_view_map(void)
 	inkey();
 
 	/* Restore the screen */
-	Term_load();
+	screen_load();
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
@@ -2569,10 +2561,8 @@ static bool update_view_aux(int y, int x, int y1, int x1, int y2, int x2)
 	/* Access the grid */
 	c_ptr = &cave[y][x];
 
-
 	/* Check for walls */
-	wall = (!cave_floor_grid(c_ptr));
-
+	wall = (f_info[c_ptr->feat].flags1 & FF1_WALL);
 
 	/* Check the "ease" of visibility */
 	z1 = (v1 && (g1_c_ptr->info & (CAVE_XTRA)));
@@ -3406,7 +3396,8 @@ void map_area(void)
 			    (c_ptr->feat <= FEAT_ALTAR_TAIL)))
 			{
 				/* Memorize normal features */
-				if (c_ptr->feat > FEAT_INVIS)
+				if (!((f_info[c_ptr->feat].flags1 & FF1_FLOOR)
+				  && !(f_info[c_ptr->feat].flags1 & FF1_REMEMBER)))
 				{
 					/* Memorize the object */
 					c_ptr->info |= (CAVE_MARK);
@@ -3473,45 +3464,51 @@ void wiz_lite(void)
 		o_ptr->marked = TRUE;
 	}
 
+	/* Detect monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Repair visibility later */
+		repair_monsters = TRUE;
+
+		/* Hack -- Detect monster */
+		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+		/* Update the monster */
+		update_mon(i, FALSE);
+	}
+
 	/* Scan all normal grids */
-	for (y = 1; y < cur_hgt-1; y++)
+	for (y = 0; y < cur_hgt; y++)
 	{
 		/* Scan all normal grids */
-		for (x = 1; x < cur_wid-1; x++)
+		for (x = 0; x < cur_wid; x++)
 		{
 			cave_type *c_ptr = &cave[y][x];
 
-			/* Process all non-walls */
-			/* if (c_ptr->feat < FEAT_SECRET) */
-			if (cave_floor_bold(y,x))
+			/* Perma-lite the grid */
+			c_ptr->info |= (CAVE_GLOW);
+
+			/* Memorize normal features */
+			if (c_ptr->feat > FEAT_INVIS)
 			{
-				/* Scan all neighbors */
-				for (i = 0; i < 9; i++)
-				{
-					int yy = y + ddy_ddd[i];
-					int xx = x + ddx_ddd[i];
-
-					/* Get the grid */
-					c_ptr = &cave[yy][xx];
-
-					/* Perma-lite the grid */
-					c_ptr->info |= (CAVE_GLOW);
-
-					/* Memorize normal features */
-					if (c_ptr->feat > FEAT_INVIS)
-					{
-						/* Memorize the grid */
-						c_ptr->info |= (CAVE_MARK);
-					}
-
-					/* Normally, memorize floors (see above) */
-					if (view_perma_grids && !view_torch_grids)
-					{
-						/* Memorize the grid */
-						c_ptr->info |= (CAVE_MARK);
-					}
-				}
+				/* Memorize the grid */
+				c_ptr->info |= (CAVE_MARK);
 			}
+
+/* Inconsistent with 'magic mapping' */
+#if 0
+			/* Normally, memorize floors (see above) */
+			if (view_perma_grids && !view_torch_grids)
+			{
+				/* Memorize the grid */
+				c_ptr->info |= (CAVE_MARK);
+			}
+#endif
 		}
 	}
 
@@ -3708,36 +3705,6 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
  *
  * This is slightly (but significantly) different from "los(y1,x1,y2,x2)".
  */
-#if 0
-bool projectable(int y1, int x1, int y2, int x2)
-{
-	int dist, y, x;
-
-	/* Start at the initial location */
-	y = y1, x = x1;
-
-	/* See "project()" */
-	for (dist = 0; dist <= MAX_RANGE; dist++)
-	{
-		/* Never pass through walls */
-	if (dist && !cave_floor_bold(y, x) &&
-	    !((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-	      (cave[y][x].feat >= FEAT_MINOR_GLYPH))) break;
-
-		/* Check for arrival at "final target" */
-		if ((x == x2) && (y == y2)) return (TRUE);
-
-		/* Calculate the new location */
-		mmove2(&y, &x, y1, x1, y2, x2);
-	}
-
-
-	/* Assume obstruction */
-	return (FALSE);
-}
-
-
-#else
 
 bool projectable(int y1, int x1, int y2, int x2)
 {
@@ -3772,8 +3739,6 @@ bool projectable(int y1, int x1, int y2, int x2)
 
 
 
-
-#endif
 /*
  * Standard "find me a location" function
  *
@@ -3785,38 +3750,31 @@ bool projectable(int y1, int x1, int y2, int x2)
  *
  * Currently the "m" parameter is unused.
  */
-void scatter(int *yp, int *xp, int y, int x, int d, int m)
+void scatter(int *yp, int *xp, int y, int x, int d, int mode)
 {
-	int nx, ny;
-    int attempts_left = 5000;
+    int nx, ny;
 
-	/* Unused */
-	m = m;
-
+    mode = mode;
 
 	/* Pick a location */
-    while (--attempts_left)
+	while (TRUE)
 	{
 		/* Pick a new location */
 		ny = rand_spread(y, d);
 		nx = rand_spread(x, d);
 
-		/* Ignore illegal locations and outer walls */
+		/* Ignore annoying locations */
 		if (!in_bounds(y, x)) continue;
 
 		/* Ignore "excessively distant" locations */
 		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;
 
-		/* Require "line of sight" */
 		if (los(y, x, ny, nx)) break;
 	}
 
-    if (attempts_left>0)
-    {
 	/* Save the location */
 	(*yp) = ny;
 	(*xp) = nx;
-    }
 }
 
 
@@ -3900,6 +3858,7 @@ void disturb(int stop_search, int unused_flag)
 		/* Redraw the state (later) */
 		p_ptr->redraw |= (PR_STATE);
 
+		if (((turn - old_resting_turn) / 10) > 0)
 		msg_format("%d turns have passed.", (turn - old_resting_turn) / 10);
 	}
 
@@ -3908,6 +3867,9 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		running = 0;
+
+		/* Check for new panel if appropriate */
+		if (center_player && avoid_center) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
@@ -3929,54 +3891,3 @@ void disturb(int stop_search, int unused_flag)
 	/* Flush the input if requested */
 	if (flush_disturb) flush();
 }
-
-
-/*
- * Hack -- Check if a level is a "quest" level
- */
-bool is_quest(int level)
-{
-	int i;
-
-	/* Check quests */
-	if (p_ptr->inside_quest)
-		return (TRUE);
-
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
-			(quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].level == level))
-			return (TRUE);
-	}
-
-	/* Check for random quest */
-	if (random_quest_number(level)) return (TRUE);
-
-	/* Nope */
-	return (FALSE);
-}
-
-
-/*
- * Return the index of the random quest on this level
- * (or zero)
- */
-int random_quest_number(int level)
-{
-	int i;
-
-	for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-			(quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].level == level))
-		{
-			return i;
-		}
-	}
-
-	/* Nope */
-	return 0;
-}
-

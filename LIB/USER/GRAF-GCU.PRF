@@ -1,0 +1,42 @@
+# Graphics definition preference file.
+#
+# Generated automatically by `makepref' by Mike Marcelais
+#
+# Feature Graphic Definitions
+#
+# F:<start mtyp>:<end mtyp>:<start styp>:<end styp>:<attr>/<char>
+# used for displaying this feature
+
+#
+# floor types
+#
+
+# glyph of warding
+# F:1:1:3:3:19/96
+
+#
+# wall types
+#
+
+# pile of rubble
+# F:3:3:0:0:18/123
+# down shafts
+
+F:12:0x18:0x7a
+F:13:0x18:0x79
+
+# granite walls
+# color TERM_SLATE
+F:50:0x12:0x61
+F:51:0x18:0x61
+F:52:0x12:0x61
+F:53:0x18:0x61
+F:54:0x13:0x7E
+F:55:0x13:0x7E
+
+# granite treasure
+F:56:0x11:0x61
+F:57:0x11:0x61
+F:58:0x11:0x61
+F:59:0x11:0x61
+F:60:0x11:0x61

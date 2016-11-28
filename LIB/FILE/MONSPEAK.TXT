@@ -1,0 +1,712 @@
+# This is the file for allowing uniques to speak their "own" lines.
+# Deleting this file will have no real effect on the game.  Modifying it may
+# cause STRANGE unique lines to come up if the format's wrong, but shouldn't
+# crash anything.  The format goes like so:
+# 
+# N:45:whoever this is
+# 3
+# says bravado line 1
+# says bravado line 2
+# says bravado line 3
+# 2
+# says fear line 1
+# says fear line 2
+#
+# The number after the N: is the monster name exactly as it appears in
+# r_info.txt. The numbers on lines by themselves say the number of 
+# "bravado" and "fear" lines.  Getting these numbers wrong won't crash 
+# anything, but will produce strange lines.
+#
+# If you want monsters to get their "bravado" lines from "bravado.txt"
+# instead, then format it like N:45 below:
+#
+# N:45:foo                       N:46:bar
+# 0                              3
+# 3                              bravado lines 1-3
+# fear lines 1-3                 0
+#
+# N:46 applies if you want the monsters to get their fear lines from 
+# "monfear.txt" and their bravado lines from this file.  
+#
+# Two or more monsters can share lines; just put their N: lines in a
+# contiguous block.
+#
+# To stop a certain monster from having unique lines, put a # in front of
+# its N: line.  Then that monster will get its lines from "bravado.txt"
+# and "monfear.txt" as usual...
+#
+# Have fun with this!     --Matt G
+
+N:Bill Ferny
+3
+says, 'I'm carrying CASH!'
+smirks, 'You wouldn't kill me, would you?'
+gleefully shows off a nifty object he just bought.
+2
+screams, 'Don't hurt a poor helpless hobbit!'
+yells, 'Where are my vicious dogs when I need them?'
+
+N:Martti Ihrasaari
+3
+says, 'For a Finnish President, I sure am stupid...'
+says, 'I routinely carry nifty things...'
+says, 'I need a sauna, eh?'
+2
+yells, 'I'm a head of state!  You can't *do* this!'
+yells, 'Help! Psycho on the loose!'
+
+N:Grip, Farmer Maggot's dog
+N:Wolf, Farmer Maggot's dog
+N:Fang, Farmer Maggot's dog
+8
+chases its tail.
+barks loudly.
+froths at the mouth.
+wags its tail.
+rolls over.
+growls.
+lollops towards you.
+bares his teeth.
+
+N:Smeagol
+27
+sniggers.
+grovels.
+picks his nose.
+pines for his precious.
+searches his pockets.
+eats some slimy creatures.
+mutters, 'My precious, wheres my precious?'
+shouts, 'No Master Hobbitsisisisis!'
+cries, 'The ring was ours for agesisisisis!'
+says, 'Smeagol sneeking! ME! Shneekingsisis!'
+screams, 'Nasty Hobbitsisisisis...'
+says, 'Come on, quickly, follow Smeagol'
+says, 'Every way is guarded, silly foolsis!'
+says, 'Nasty Bagginis, stole my precious.'
+says, 'She will kill them oh yes she will precious.'
+whines, 'Weees wants some fishises.'
+says, 'Whats has its got in its pocketses, hmmm?'
+whimpers, 'We've lost itses we have.'
+says, 'He'll eastus all the world if he getsitses it.'
+says, 'No food, no rest; Smeagol a SNEAK!'
+says, 'What a dainty little dish you will be for her.'
+says, 'Hobbitses always SOOOO Polite.'
+screams, 'Stop, Thief!'
+says, 'Makeses him drop his weapon precious.'
+grovels, 'He has only four fingers on the black hand.'
+growls, 'Not nice Hobbits, not sensible!'
+says, 'If you findesis it, give it us back.'
+3
+says, 'Don't hurt us, mastersisis.'
+says, 'Poor Smeagol, poor Smeagol.'
+says, 'No AH! Don't hurtsis us.'
+
+N:Mughash the Kobold Lord
+5
+says, 'I may be a kobold, but I'll kick your arse!'
+says, 'Feel my wrath, fool!'
+says, 'Death and destruction make me happy!'
+snickers evilly.
+says, 'I'll use your head for darts practise.'
+2
+screams, 'Cowards! Why did you abandon me?'
+begs for mercy.
+
+N:Wormtongue, Agent of Saruman
+13
+whines and sniggers.
+leafs through 'Pervert Magazine.'
+whispers nasty things.
+says, 'I'll slaughter you slowly...'
+giggles as he fingers his knife.
+says, 'Now, you shall taste my wrath!'
+says, 'Lathspell I name you, Ill-news; and Ill-news is an ill guest they say.'
+says, 'Forbid his staff!'
+yells, 'You lie!'
+says, 'Let me go, let me go!  I know the way!'
+says, 'My messages are useless now!'
+says, 'No no!'
+hisses, 'You told me to; you made me do it!'
+3
+begs you to spare his miserable life.
+whines, 'This is not my fault!'
+screams, 'Help! Help!'
+
+N:Robin Hood, the Outlaw
+6
+eyes your money pouch covetously.
+says, 'You look like Nottingham's man to me!'
+says, 'I bet I can shoot better than you...'
+says, 'Give 'til it hurts!'
+says, 'Don't force me to put an arrow in your skull...'
+says, 'Kevin Costner has soiled my name!'
+says, 'I'll steal your blood as quickly as your gold!'
+curses Bryan Adams.
+cries, 'We're men... We're men in TIGHTS...'
+says, 'So you think tights are for girlies, eh?'
+asks if you think he'd look better in stockings than tights.
+3
+begs you to spare his life.
+says, 'But I'm a GOOD guy, really!'
+says, 'Money? Sure, take it all back!'
+
+N:Brodda, the Easterling
+N:Ulfast, Son of Ulfang
+3
+snarls 'You smell of hobbits...'
+clasps his sword handle and grins.
+urinates against a wall.
+1
+whimpers, 'Okay, I'll leave Morgoth for ya!'
+
+N:Orfax, Son of Boldor
+N:Boldor, King of the Yeeks
+5
+wonders aloud about your sexual orientation.
+spouts torrents of obscenities.
+shouts, 'YEEK! YEEK! YEEK!'
+says, 'I'll teach you to respect Yeeks!'
+says, 'Feeling lucky, punk?'
+2
+sobs, 'I didn't MEAN it...'
+whimpers and moans.
+
+N:Hobbes the Tiger
+6
+says, 'Why were people put here? TIGER FOOD!'
+says, 'Yum! Adventurer sandwiches!'
+says, 'I ate Calvin, now I'll eat YOU!'
+says, 'I'll make your short life nasty and brutish!'
+thumbs through a comic and rolls on the ground laughing.
+says, 'After this I deserve my own series...'
+1
+yells, 'Ow! Get me back to the comics!'
+
+N:Lagduf, the Snaga
+N:Grishnakh, the Hill Orc
+7
+says, 'Saruman is a fool, and a dirty treacherous fool.'
+says, 'I left a fool.'
+yells, 'Nazgul, Nazgul!'
+says, 'Fine leadership!  I hope the great Ugluk will lead us out again.'
+hisses, 'My dear tender little fools.'
+says, 'Well, my little ones!  Enjoying your nice rest?'
+snarls, 'Have you got it -- either of you?'
+1
+screams, 'Hey, orcs have rights too!'
+
+N:Golfimbul, the Hill Orc Chief
+N:Ufthak of Cirith Ungol
+N:Shagrat, the Orc Captain
+N:Gorbag, the Orc Captain
+N:Bolg, Son of Azog
+N:Ugluk, the Uruk
+N:Lugdush, the Uruk
+N:Azog, King of the Uruk-Hai
+20
+fingers his blade and grins evilly.
+snickers, 'Now, I strike a blow for *our* side!'
+says, 'Orcs don't get no respect... I'm gonna change that!'
+calls your mother nasty names.
+says, 'I'll bet your innards would taste real sweet...'
+belches and spits.
+scratches his armpits.
+says, 'I love the smell of fresh blood.'
+says, 'Yeeha! Another idiot to slaughter!'
+hawks a loogie in your direction.
+farts thunderously.
+wonders aloud how many experience points you're worth.
+says, 'I love being psychotic!'
+says, 'My brain's on fire with the feeling to kill!'
+says, 'I shall torture you slowly.'
+calls you a scum-sucking pig-dog.
+says, 'I shall have my way with your women!'
+says, 'You're not so tough, buttmunch!'
+says, 'Heh-heh, heh-heh, killing people is cool.'
+curses at you in Orcish.
+6
+screams, 'Hey, orcs have rights too!'
+says, 'You're just prejudiced against orc-kind, aren't you?'
+begs, 'Spare me and I'll get you Ringil! Really!'
+says, 'Next time, I'm bringing more Uruks with me!'
+says, 'Don't hate me because I'm ugly!'
+whimpers and grovels.
+
+#N:392:Sangahyando of Umbar
+#N:380:Angamaite of Umbar
+
+#This next may be unnecessarily evil... :-]
+
+N:It
+6
+says, 'Nyah, nyah, betcha can't find me!'
+says, 'Come get some!'
+magically summons mighty undead opponents!
+chuckles evilly.
+magically summons Cyberdemons!
+summons special opponents!
+2
+howls, 'I'll be back!'
+whimpers, 'They said this invisibility thing was better than it is!'
+
+N:Kharis the Powerslave
+5
+says, 'Fffeel my wratth, desssecrator!'
+says, 'My rrrevenge ssshall be sssweet!'
+says, 'On tthee I placce a cursssse...'
+emits a spine-chilling howl.
+hums Iron Maiden songs.
+1
+howls, 'Nnnnooo!'
+
+#N:413:Ulwarth, Son of Ulfang
+
+#Grendel's fear line makes sense if you've read "Beowulf"...
+
+N:Barney the Dinosaur
+11
+says, 'Cooperation! That's the magic word!'
+mutters, 'I *hate* those Teletubbies...'
+says, 'Won't you be my friend?'
+says, 'Let's all sing a HAPPY SONG!'
+mugs for the camera.
+simpers disgustingly.
+chews up a 'Tinky Winky' doll.
+says, 'I'm *KING* of Children's TV. Don't you forget it!'
+says, 'I'll show those Jurassic Park dinos violence...'
+offers to sell you a box set of videos.
+says, 'After I kill you I'll bury you in merchandise!'
+3
+begs, 'Don't! Think of the children!'
+screams, 'But I'm a big TV star!'
+sobs, 'All right! I apologize! I really really do!'
+
+#N:489:Bokrug
+
+N:Bert the Stone Troll
+N:Bill the Stone Troll
+N:Tom the Stone Troll
+11
+says, 'A burrahobbit? They good eatin'?'
+grunts alarmingly.
+grips his club and glowers.
+belches and snorts.
+says, 'Oo, a feisty bugger, eh?'
+says, 'Right, whack 'im wit' a big stick!'
+says, 'Roast 'im or boil 'im? Oi cain't decide...'
+says, 'These buggers'r better than mutton!'
+picks his nose.
+asks if you're as tasty as hobbits.
+says 'The last hobbit I caught got away. You won't be so lucky...'
+2
+yells, 'Ey, watch it, you cheeky sod!'
+screams, 'Me mates'll settle yer hash!'
+
+N:Groo the Wanderer
+1
+says, 'A fray! A fray!'
+1
+says, 'Oops... me get in big trouble!'
+
+# I have no idea what these next 4 should say, so.... --MG
+#N:506:Fasolt the Giant
+#N:517:Jurt the Living Trump
+#N:573:Lord Borel of Hendrake
+#N:598:Mandor, Master of the Logrus
+
+N:Loge, Spirit of Fire
+3
+howls, 'Burn, baby, burn!'
+says, 'I love the smell of scorched flesh...'
+says, 'Toasty!'
+1
+pants and gasps.
+
+N:Kavlax the Many-Headed
+6
+argues with itself.
+says, 'What should we breathe? Fire? Ice? GRAVITY??'
+says, 'Being schizo is kind of cool!'
+says, 'What should we breathe? Lightning? Acid? NEXUS??'
+says, 'Being schizo is kind of cool!'
+says, 'What should we breathe? Shards? Confusion? SOUND??'
+2
+says, 'This is YOUR fault!' and bites itself.
+blames its problems on the head you've managed to kill.
+
+N:Maeglin, Betrayer of Gondolin
+7
+says, 'All my life, I've wanted to be just like Eol...'
+hisses, 'Let's see what your intestines look like, shall we?'
+hisses: 'Do you think you can stand up to the likes of me?'
+hisses: 'Who do you think you are?'
+mutters, 'Killing is my business, and business is good!'
+laughs fiendishly as he plots your demise.
+idly toys with your ancestor's skull.
+2
+says, 'C'mon! I'm sure we can work this out...'
+pleads for his miserable life.
+
+N:Judge Death
+N:Judge Fear
+N:Judge Fire
+N:Judge Mortis
+9
+says, 'The sentence is PAIN!'
+says, 'Thou shalt suffer for thy sins...'
+grins sadistically.
+screams, 'Die by the hand of JUSTICE!'
+says, 'If only you knew the power of the Dark Side...'
+says, 'There's no escape from the Law...'
+says, 'My brethren shall feast on thy flesh.'
+says, 'Enjoy the remaining seconds of your life!'
+gives you a contemptuous glance.
+2
+says, 'You'll never get away with this...'
+says, 'Hey! I've got LAWYERS!'
+
+#N:687:Ariel, Queen of Air
+
+N:Smaug the Golden
+6
+says, 'My teeth are a forest of spears, my breath DEATH!'
+says, 'Bilbo WHO?'
+bellows frighteningly!
+fumes and seethes.
+says, 'I can smell your fear, worm!'
+says, 'I'll crack your bones just for the fun of it!'
+2
+howls, 'Black Arrow? NOOOO!'
+howls, 'This CAN'T be happening!'
+
+#N:712:Fafner the Dragon
+#N:713:Fangorn the Treebeard
+
+N:Glaurung, Father of the Dragons
+6
+says, 'My teeth are a forest of spears, my breath DEATH!'
+says, 'Turin was a weak fool, thou art even worse!'
+emits a hideous, fuming stench.
+says, 'Worm, thy life in measured in seconds!'
+says, 'Face my unlimited wrath, dolt!'
+lets out an ear-shattering roar!
+2
+writhes as he spouts black blood from many wounds.
+says, 'I shall be avenged!'
+
+#N:729:Ulik the Troll
+#N:730:Baphomet the Minotaur Lord
+
+N:Bull Gates
+13
+says, '640K should be enough for ANYBODY!'
+says, 'Buy Windows 2000; the filesystem rocks!'
+says, 'Linux?  Never heard of it...'
+says, 'Resistance is futile--you will be assimilated.'
+says, 'NT is the solution for ALL your needs!'
+hacks out some code and calls it a Service Pack.
+says, 'We don't have a monopoly... MacOS still exists!'
+wonders if he should buy a small country.
+says, 'Where will we let you go today?  HELL!'
+cackles diabolically.
+says, 'I use RISC OS at home. Easier to use, more stable, rocks.'
+says, 'RISC OS - so good I dare not touch it.'
+earns a few more millions.
+3
+sobs, 'OK, Linux doesn't suck. Let me live?'
+screams, 'Is megalomania THAT bad?'
+apologizes for MS-DOS.
+
+N:Santa Claus
+11
+says, 'Ho ho ho! You're gonna die!'
+says, 'You're gettin' COAL in your stocking!'
+says, 'On Smasher, on Whoop-Ass, now dash away all!'
+chortles sadistically.
+says, 'You're on the Naughty List!'
+says, 'No presents for you, ever!'
+says, 'I'll sic my man-eating reindeer on you!'
+says, 'I hate Christmas so much that I've gone psychotic!'
+says, 'Boy have I got a present for you.'
+says, 'I'll kill you like all those pesky carol singers!'
+says, 'I'll wrap your innards up and give them away!'
+3
+sobs, 'Think of the children you'll disappoint!'
+sobs, 'No, Virginia, there isn't... not any more...'
+attempts to buy you off with offers of goodies.
+
+#N:738:Khamul the Easterling
+
+#N:753:Nidhogg the Hel-Drake
+#N:754:The Lernean Hydra
+#N:755:Thuringwethil
+#N:762:Fundin Bluecloak
+#N:763:Dworkin Barimen
+
+N:Uriel, Angel of Fire
+N:Azriel, Angel of Death
+N:Gabriel, the Messenger
+11
+says, 'Repent, evildoer!'
+says, 'My righteousness shall cleanse you!'
+says, 'Don't EVER steal from the collection plate!'
+says, 'God may love you, but *I* don't!'
+says, 'I shall smite thee with extreme prejudice!'
+says, 'Hope you like eternal damnation!'
+says, 'Verily, it is too late for thee.'
+surrounds himself with a thousand tormented souls.
+stares deep into your very being.
+ponders your darkest secret.
+makes you feel guilty for not confessing EVERYTHING.
+3
+screams, 'Help! I am undone!'
+says, 'The Most High hath ordained this; I must follow.'
+screams, 'My God, my God, why hast thou forsaken me?'
+
+N:Ancalagon the Black
+6
+brags, 'My teeth are an ocean of razors, my breath INSTA-DEATH!'
+says, 'My father Glaurung shall be avenged!'
+snarls, 'Let's see what you've got, cretin!'
+hisses, 'Worm, thy life in measured in microseconds!'
+says, 'I shall grind you beneath my claws, puny mortal!'
+lets out an ear-shattering roar!
+2
+writhes as he spouts acidic blood from many wounds.
+gasps, 'My friends the Wyrms of Power will get you!'
+
+
+#N:770:Artsi the Champion of Chaos
+
+# Saruman's first line is a paraphrase from LoTR when he insults Theoden.
+# It's NOT reflective of my opinion of Zangband!
+
+N:Saruman of Many Colours
+11
+says, 'What is the House of Zangband but a crufty hack full of kludge?'
+says, 'I was White before I stopped workin' for the Man.'
+says, 'Join me, and we shall rule this dungeon!'
+says, 'My engines of destruction are unsurpassed!'
+says, 'Bow to Morgoth and thou might live.'
+says, 'Forget about seeing tomorrow, swine!'
+brags, 'I can talk my way out of anything!'
+brags, 'I'm reverse-engineering the One Ring!'
+wonders aloud why Wormtongue hadn't already got you.
+curses his pathetic assistant.
+conjectures about mighty spells he could cast.
+2
+says, 'Wait! Look behind you!'
+howls, 'Wormtongue! Where are you, you bastard?'
+
+N:Gandalf the Grey
+11
+natters on about predestination and mercy.
+ponders the wisdom of giving Rings to Hobbits.
+says, 'Fly, you fools!'
+says, 'Even Smeagol may yet have some part to play...'
+says, 'Mercy is the most important thing, really!'
+mutters darkly about the land of Mordor.
+says, 'Balrogs? No problem!'
+offers his services to you.
+blows a perfect smoke ring.
+taps the ground with his staff impatiently.
+says, 'Tempt me not with the One Ring!'
+2
+screams, 'How have things come to this... again?!'
+yells, 'Ouch!'
+
+N:Vlad Dracula, Prince of Darkness
+10
+mutters, 'I shall feast on your energies.'
+sharpens his fangs.
+glares at you darkly.
+says, 'Your pain and fear increase my delight...'
+hisses, 'I shall cull you from the Herd!'
+says, 'Huh - think you're Buffy, do you?'
+offers to give you a lovebite.
+wipes the blood from his fangs.
+says, 'The last great Slayer...the Ascension is upon us...'
+says, 'One more word from you and I'll ascend to a major demon!'
+1
+howls with pain and fear.
+
+N:The Witch-King of Angmar
+7
+thunders, 'No mortal man shall slay me!'
+thunders, 'No mortal man shall slay me!'
+thunders, 'No mortal man shall slay me!'
+hisses, 'Come not between the Nazgul and his prey!'
+says, 'Eowyn WHO?'
+says, 'My power shall shrivel thy flesh!'
+hisses, 'My legions shall crush thee.'
+1
+wails, 'Nooooo!'
+
+N:Tselakus, the Dreadlord
+9
+says, 'Be afraid, be very afraid.'
+says, 'I'm even scarier than Barney!'
+screams, 'Dread! Fear! Pestilence! DEATH!'
+looms menacingly around you.
+surrounds you with dread.
+says, 'I'm the father of all housekeepers and driving test examiners.'
+says, 'Heck - it's me or a viva voce - pick me, I'm less scary.'
+wails.
+fills your mind and heart with images of death.
+1
+moans.
+
+#N:828:Ithaqua the Windwalker
+
+N:Hela, Queen of the Dead
+N:Ymir the Ice Giant
+N:Loki the Trickster
+N:Thrym the Giant Ice Demon
+8
+says, 'By Odin's spear, I shall break thee!'
+says, 'I'll send thy carcass to Hel posthaste!'
+brags, 'You couldn't hurt me if you had Mjolnir!'
+says, 'The Norns shall feast on thy bones.'
+says, 'I'll feed you to the Midgard Serpent!'
+says, 'No glory for you, just DEATH!'
+says, 'Coward! I'll urinate on your remains!'
+screams, 'Die by my hand!'
+3
+shouts, 'Why didn't I just stay in Asgard?'
+offers you everything in exchange for life.
+yells, 'I'll be back, with a squad of Cyberdemons!'
+
+N:Surtur the Giant Fire Demon
+4
+smoulders quietly
+scorches the earth below himself.
+cracks a fiery whip.
+spits a ball of white hot flame at your feet.
+1
+pants and gasps.
+
+N:851:Nyarlathotep, the Crawling Chaos
+N:857:Great Cthulhu
+22
+slurps and gibbers disgustingly.
+shrieks fit to wake the dead.
+oozes nasty, glistening slime all over the dungeon.
+farts thunderously.
+lets off a mind-numbing stench.
+howls, 'Tekeli-li!  Tekeli-li!'
+makes a chilling slithering sound.
+howls, 'The OTHER GODS will feast on your brain!'
+hisses, 'I'll feed you to the Hounds of Tindalos...'
+hisses, 'Randolph Carter got off easy; you won't!'
+seethes and fumes sickeningly.
+hisses, 'I'll send you beyond Known Space to Azathoth!'
+waves nasty-looking tentacles about.
+picks its teeth with the bones of former players.
+opens your mind to a vista of nameless cosmic horror!
+opens your mind to a vista of endless 'Three's Company' reruns!
+snorts and slobbers with glee.
+shows you nightmarish visions of the future.
+whispers frightening dark cosmic secrets.
+burbles, 'There are worms gnawing on your brain right now...'
+slurps down the remnants of your ancestors.
+momentarily assumes the form of Brad Pitt in hopes of disorienting you.
+5
+sobs, 'I'm not bad, I was just born like this!'
+gibbers weakly.
+mumbles, 'kill -9 adventurer, kill -9 adventurer'
+oozes greenish blood from many wounds.
+burbles with terror.
+
+N:Carcharoth, the Jaws of Thirst
+N:Fenris the Wolf
+N:Draugluin, Sire of All Werewolves
+9
+barks and bellows frighteningly!
+says, 'Oh good, another chew toy!'
+says, 'Yummy! I was getting tired of chicken...'
+lets out an earsplitting howl.
+drools all over the dungeon.
+lifts his leg at the nearest wall.
+says, 'Bad adventurer! No more living for you!'
+snarls and howls.
+howls in rage.
+says,'A full moon and now this! Aren't I a lucky boy?'
+3
+cringes and whimpers.
+says, 'Look, I promise I won't bite the mailman anymore!'
+says, 'Hey, put that rolled-up newspaper down!'
+
+N:Cantoras, the Skeletal Lord
+N:Mephistopheles, Lord of Hell
+N:The Mouth of Sauron
+N:Klingsor, Evil Master of Magic
+N:Vecna, the Emperor Lich
+N:Gothmog, the High Captain of Balrogs
+N:Sauron, Lord of the Rings
+12
+brags, 'My power is beyond compare!'
+snorts, 'A mere mortal dares challenge my might? HA!'
+says, 'Not another one! I just finished chewing on the last!'
+wonders aloud how many XP you're worth.
+leafs through 'Evil Geniuses For Dummies'.
+mutters, 'Another damn loser to kill...'
+says, 'Hell shall claim your remains!'
+says, 'Another 12 skulls and I get that reward from the Boss!'
+yawns at your pathetic efforts to kill him.
+says, 'Minions, slaughter this fool!'
+says, 'Set thine house in order, for thou shalt die...'
+says, 'I'm no god... God has MERCY!'
+2
+screams, 'This CAN'T be happening!'
+shouts, 'Kill me if you want, the Boss will getcha!'
+
+N:Morgoth, Lord of Darkness
+17
+says, 'Foolish worm, you are DOOMED!'
+says, 'I'm the Big Bad Guy, and you're toast!'
+shouts, 'MOO HA HA HA! I am DEATH incarnate!'
+says, 'Prepare for your untimely demise!'
+opens up a can of Whoop-Ass (tm).
+picks its teeth with former adventurers' bones.
+says, 'Maybe I won't kill you... NOT!'
+yawns at your pathetic efforts to kill it.
+says, 'Another day, another bastard to slaughter...'
+says, 'I can't be bothered... minions, slaughter this fool!'
+says, 'If you're not a challenge then I want my money back.'
+says, 'If I had feet, I'd kick your ass...'
+says, 'Hey - your femurs will make GREAT toothpicks.'
+offers to use you to stir his Coffee Cup of Chaos (TM).
+says, 'I'm even more evil than Topi Ylinen!'
+says, 'Waddaya want me to do - wet myself laughing at you?'
+points to 'Invincible' in a dictionary.
+2
+screams, 'This CAN'T be happening!'
+screams, 'NOOOOOOOOOOOOOOOOO!!!'
+
+N:skeleton
+N:zombie
+N:spirit
+N:mummy
+N:wight
+N:ghost
+N:vampire
+N:phantom
+N:lich
+N:nether wraith
+N:nightwing
+14
+challenges you from beyond the grave!
+thunders 'Prove worthy of your traditions - or die ashamed!'.
+desires to test your mettle!
+has risen from the dead to test you!
+roars 'Fight, or know yourself for a coward!'.
+summons you to a duel of life and death!
+desires you to know that you face a mighty champion of yore!
+demands that you prove your worthiness in combat!
+calls you unworthy of your ancestors!
+challenges you to a deathmatch!
+walks Middle-Earth once more!
+challenges you to demonstrate your prowess!
+demands you prove yourself here and now!
+asks 'Can ye face the best of those who came before?'

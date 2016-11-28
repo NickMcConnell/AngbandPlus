@@ -56,7 +56,7 @@ F:i:136:3:0:0:0:0:0:10
 # Quest 10 rewarding, reward is the Grimoire of Power
 ?:[EQU $QUEST10 3]
 F:i:136:3
-F:!:1:3:0:337
+F:!:1:3:0:[Destructive Tornado]
 
 # Quest 10 finished, no new quest available
 ?:[EQU $QUEST10 4]
@@ -69,25 +69,25 @@ F:i:136:3
 
 # Quest 11 not yet assigned
 ?:[EQU $QUEST11 0]
-F:o:142:3:0:0:0:0:0:11
+F:n:141:3:0:0:0:0:0:11
 
 # Quest 11 assigned, entrance is quest entrance
 ?:[EQU $QUEST11 1]
 F:y:8:3:0:0:0:0:0:11
-F:o:142:3:0:0:0:0:0:11
+F:n:141:3:0:0:0:0:0:11
 
 # Quest 11 completed
 ?:[EQU $QUEST11 2]
-F:o:142:3:0:0:0:0:0:11
+F:n:141:3:0:0:0:0:0:11
 
 # Quest 11 rewarding, reward is Armageddon Tome, no new quest available
 ?:[EQU $QUEST11 3]
-F:o:142:3
-F:$:89:3:0:386
+F:n:141:3
+F:$:89:3:0:[Volcano of Destruction]
 
 # Quest 11 finished, no new quest available
 ?:[EQU $QUEST11 4]
-F:o:142:3
+F:n:141:3
 
 ?:1
 
@@ -96,25 +96,25 @@ F:o:142:3
 
 # Quest 12 not yet assigned
 ?:[EQU $QUEST12 0]
-F:p:143:3:0:0:0:0:0:12
+F:o:142:3:0:0:0:0:0:12
 
 # Quest 12 assigned, entrance is quest entrance
 ?:[EQU $QUEST12 1]
 F:x:8:3:0:0:0:0:0:12
-F:p:143:3:0:0:0:0:0:12
+F:o:142:3:0:0:0:0:0:12
 
 # Quest 12 completed
 ?:[EQU $QUEST12 2]
-F:p:143:3:0:0:0:0:0:12
+F:o:142:3:0:0:0:0:0:12
 
 # Quest 12 rewarding, reward is Nature's wrath no new quest available
 ?:[EQU $QUEST12 3]
-F:p:143:3
-F:":89:3:0:382
+F:o:142:3
+F:":89:3:0:[Ripe Age]
 
 # Quest 12 finished, no new quest available
 ?:[EQU $QUEST12 4]
-F:p:143:3
+F:o:142:3
 
 ?:1
 
@@ -136,7 +136,7 @@ F:b:129:3:0:0:0:0:0:20
 # Quest 20 rewarding, reward is a Rod of Detection, continue with quest 24
 ?:[EQU $QUEST20 3]
 F:b:129:3:0:0:0:0:0:24
-F:~:1:3:0:375
+F:~:1:3:0:Detection
 
 # Quest 20 finished, continue with quest 24
 ?:[EQU $QUEST20 4]
@@ -164,7 +164,7 @@ F:b:129:3:0:0:0:0:0:24
 #  Artifact Creation scrolls are flaky enough to not be an automatic
 #  huge reward.  Besides, they're cool when they turn up.)
 ?:[EQU $QUEST24 3]
-F:~:1:3:0:432
+F:~:1:3:0:Balance Dragon Scale Mail~
 
 # Continue with "Quest 21 - Doom Quest 2
 # "Quest 24 - The Rise and Fall of Micro$oft" and
@@ -196,7 +196,7 @@ F:b:129:3:0:0:0:0:0:21
 
 ?:[EQU $QUEST21 3]
 F:b:129:3
-F:~:1:3:0:205
+F:~:1:3:0:ring~ of speed
 
 # Quest 21 finished, no new quest available
 ?:[EQU $QUEST21 4]
@@ -243,7 +243,7 @@ B:7:C:2:0:0:0:0:0:0:0:0:0:0
 B:8:N:Tower of Sorcery:Tanistil:Elf
 B:8:A:0:Recharge item:75:300:r:25:0
 B:8:A:1:Identify possessions:100:800:i:26:0
-B:8:A:2:Request quest:0:0:q:6:0
+B:8:A:2:Request quest:0:0:q:6:2
 B:8:M:0:2:0:0:0:0:0
 
 B:9:N:Inner Temple:Eldore:Human
@@ -268,11 +268,13 @@ B:12:A:1:See Healers:0:500:h:28:0
 B:12:C:0:0:0:0:0:2:0:0:0:0:0
 
 B:13:N:Chaos Tower:Xeno:Beastman
-B:13:A:0:Request quest:0:0:q:6:0
+B:13:A:0:Request quest:0:0:q:6:1
+B:13:M:0:0:0:2:0:0:0
+B:13:R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:1
 B:13:M:0:0:0:2:0:0:0
 
 B:14:N:Nature Tower:Josh:Elf
-B:14:A:0:Request quest:0:0:q:6:0
+B:14:A:0:Request quest:0:0:q:6:2
 B:14:M:0:0:2:0:0:0:0
 
 

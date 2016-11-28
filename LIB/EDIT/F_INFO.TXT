@@ -32,545 +32,669 @@ V:2.8.1
 
 # 0x00 --> nothing
 
-N:0:nothing
+N:0:<darkness>
 G: :w
+F:FLOOR
 
 
 # 0x01 --> open floor
 
 N:1:open floor
 G:.:w
+F:FLOOR | SUPPORT_LIGHT
 
 # 0x02 --> invisible trap (drawn as open floor)
 
 N:2:invisible trap
 G:.:w
 M:1
+F:FLOOR | NO_NOTICE_RUNNING
 
 # 0x03 --> glyph of warding
 
 N:3:glyph of warding
 G:;:y
+F:NOTICE
 
 # 0x04 --> open door
 
 N:4:open door
 G:':U
+F:NOTICE | DOOR
 
 # 0x05 --> broken door
 
 N:5:broken door
-G:':U
+G:':u
+F:NOTICE | DOOR
 
 # 0x06 --> up stairs (perm)
 
 N:6:up staircase
 G:<:w
+F:PERMANENT | NOTICE | SUPPORT_LIGHT
 
 # 0x07 --> down stairs (perm)
 
 N:7:down staircase
 G:>:w
+F:PERMANENT | NOTICE | SUPPORT_LIGHT
 
 N:8:quest entrance
 G:>:y
+F:PERMANENT | REMEMBER | NOTICE
 
 N:9:quest exit
 G:<:y
+F:PERMANENT | REMEMBER | NOTICE
 
 N:10:quest down level
 G:>:r
+F:PERMANENT | REMEMBER | NOTICE
 
 N:11:quest up level
 G:<:r
+F:PERMANENT | REMEMBER | NOTICE
 
-N:12:town exit
-G:>:g
+N:12:down shaft
+G:>:D
+F:PERMANENT | NOTICE
+
+N:13:up shaft
+G:<:D
+F:PERMANENT | NOTICE
 
 # 0x10 --> visible trap -- trap door
 
 N:16:trap door
 G:^:w
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x11 --> visible trap -- open pit
 
 N:17:pit
 G:^:s
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x12 --> visible trap -- spiked pit
 
 N:18:pit (spiked)
 G:^:s
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x13 --> visible trap -- poison pit
 
 N:19:pit (poison)
 G:^:s
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x14 --> visible trap -- rune -- summon
 
 N:20:strange rune (summon)
 G:^:o
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x15 --> visible trap -- rune -- teleport
 
 N:21:strange rune (teleport)
 G:^:o
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x16 --> visible trap -- spot -- fire
 
 N:22:discolored spot (fire)
 G:^:u
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x17 --> visible trap -- spot -- acid
 
 N:23:discolored spot (acid)
 G:^:u
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x18 --> visible trap -- dart -- slow
 
 N:24:dart trap (slow)
 G:^:r
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x19 --> visible trap -- dart -- lose str
 
 N:25:dart trap (lose STR)
 G:^:r
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x1A --> visible trap -- dart -- lose dex
 
 N:26:dart trap (lose DEX)
 G:^:r
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x1B --> visible trap -- dart -- lose con
 
 N:27:dart trap (lose CON)
 G:^:r
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x1C --> visible trap -- gas -- blind
 
 N:28:gas trap (blind)
 G:^:g
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x1D --> visible trap -- gas -- confuse
 
 N:29:gas trap (confuse)
 G:^:g
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x1E --> visible trap -- gas -- poison
 
 N:30:gas trap (poison)
 G:^:g
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x1F --> visible trap -- gas -- sleep
 
 N:31:gas trap (sleep)
 G:^:g
+F:CAN_LEVITATE | CAN_FLY | NOTICE
 
 # 0x2x --> locked door (power 0)
 
 N:32:door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 1)
 
 N:33:locked door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 2)
 
 N:34:locked door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 3)
 
 N:35:locked door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 4)
 
 N:36:locked door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 5)
 
 N:37:locked door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 6)
 
 N:38:locked door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 7)
 
 N:39:locked door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 0)
 
 N:40:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 1)
 
 N:41:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 2)
 
 N:42:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 3)
 
 N:43:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 4)
 
 N:44:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 5)
 
 N:45:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 6)
 
 N:46:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 7)
 
 N:47:jammed door
 G:+:U
 M:32
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x30 --> secret door
 
 N:48:secret door
 G:#:w
 M:56
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | DOOR
 
 # 0x31 --> rubble
 
 N:49:pile of rubble
 G:::w
+F:CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x32 --> magma vein
 
 N:50:magma vein
 G:%:s
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
 G:%:w
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x34 --> magma vein + treasure
 
 N:52:magma vein
 G:%:s
 M:50
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x35 --> quartz vein + treasure
 
 N:53:quartz vein
 G:%:w
 M:51
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
 G:*:o
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
 G:*:o
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
 G:#:w
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x39 --> granite wall -- inner
 
 N:57:granite wall
 G:#:w
 M:56
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall
 G:#:w
 M:56
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x3B --> granite wall -- solid
 
 N:59:granite wall
 G:#:w
 M:56
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x3C --> permanent wall -- basic (perm)
 
 N:60:permanent wall
 G:#:w
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 # 0x3D --> permanent wall -- inner (perm)
 
 N:61:permanent wall
 G:#:w
 M:60
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
 G:#:w
 M:60
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
 G:#:w
 M:60
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 N:64:explosive rune
 G:*:R
+F:CAN_LEVITATE | CAN_FLY | NOTICE | SUPPORT_LIGHT
 
 N:65:Straight Road startpoint
 G:*:w
+F:REMEMBER | NOTICE
 
 N:66:section of the Straight Road
 G:*:B
+F:REMEMBER | NOTICE
 
 N:67:section of the Straight Road
 G:*:b
+F:REMEMBER | NOTICE
 
 N:68:section of the Straight Road
 G:*:B
+F:REMEMBER | NOTICE
 
 N:69:section of the Straight Road
 G:*:b
+F:REMEMBER | NOTICE
 
 N:70:section of the Straight Road
 G:*:W
+F:REMEMBER | NOTICE
 
 N:71:section of the Straight Road (discharged)
 G:*:W
+F:REMEMBER | NOTICE
 
 N:72:Straight Road exit
 G:*:w
+F:REMEMBER | NOTICE
 
 N:73:corrupted section of the Straight Road
 G:*:D
+F:REMEMBER | NOTICE
 
 # 0x4A --> shop -- general store (perm)
 
 N:74:General Store
 G:1:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x4B --> shop -- armoury (perm)
 
 N:75:Armoury
 G:2:s
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x4C --> shop -- weapon shop (perm)
 
 N:76:Weaponsmith
 G:3:w
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x4D --> shop -- temple (perm)
 
 N:77:Temple
 G:4:g
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x4E --> shop -- alchemist (perm)
 
 N:78:Alchemy Shop
 G:5:b
+F:PERMANENT | REMEMBER | NOTICE
 
 # 0x4F --> shop -- magic shop (perm)
 
 N:79:Magic Shop
 G:6:r
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x50 --> shop -- black market (perm)
 
 N:80:Black Market
 G:7:D
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x51 --> shop -- home (perm)
 
 N:81:Home
 G:8:y
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x52 --> shop -- bookstore (perm)
 
 N:82:Bookstore
 G:9:o
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x53 --> terrain -- deep water
 
 N:83:pool of deep water
 G:#:b
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER
 
 N:84:stream of shallow water
 G:#:B
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:85:pool of deep lava
 G:#:r
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:86:stream of shallow lava
 G:#:U
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:87:dark pit
 G:#:D
+F:FLOOR | CAN_LEVITATE | NO_WALK | REMEMBER | SUPPORT_LIGHT
 
 N:88:dirt
-G:.:u
+G:.:U
+F:NO_NOTICE_RUNNING | SUPPORT_LIGHT
 
 N:89:patch of grass
 G:.:g
+F:NO_NOTICE_RUNNING | SUPPORT_LIGHT
+
+N:90:swamp
+G:#:g
+F:CAN_LEVITATE
 
 N:96:tree
 G:#:G
+F:CAN_FLY | NO_VISION | SUPPORT_LIGHT | CAN_RUN
 
 N:97:mountain chain
 G:^:U
+F:CAN_FLY | CAN_PASS | WALL | NO_WALK | NO_VISION | SUPPORT_LIGHT
 
 N:98:chaos fog
 G:*:v
+F:NO_VISION | SUPPORT_LIGHT
 
 N:128:Building
 G:+:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:129:Building
 G:+:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:130:Building
 G:+:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:131:Building
 G:+:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:132:Building
 G:+:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:133:Building
 G:+:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:134:Building
 G:+:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:135:Building
 G:+:o
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:136:Building
 G:+:R
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:137:Building
 G:+:G
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:138:Building
 G:+:v
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:139:Building
 G:+:u
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:140:Building
 G:+:w
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:141:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:142:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:143:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:144:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:145:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:146:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:147:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:148:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:149:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:150:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:151:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:152:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:153:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:154:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:155:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:156:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:157:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:158:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:159:Building
 G:+:B
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 ###### Here are the altars. ######
 
 N:160:white altar
 G:0:w
+F:FLOOR | REMEMBER | NOTICE
 
 N:161:gray altar
 G:0:U
+F:FLOOR | REMEMBER | NOTICE
 
 N:162:black altar
 G:0:D
-
-N:163:white altar
-G:0:w
-
-N:164:gray altar
-G:0:U
-
-N:165:black altar
-G:0:D
+F:FLOOR | REMEMBER | NOTICE

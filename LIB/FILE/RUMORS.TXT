@@ -1,4 +1,4 @@
-299
+605
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.
 You have no more Black Potions of Death.
@@ -151,7 +151,7 @@ Wotan (Odin) carved his Runespear from a branch of the World-Tree Ash.
 Groo may be as dumb as an amoeba, but he knows a good sword when he sees one.
 Powerful spells are bound in the Runes of Wotan's Spear.
 Gurnemanz' Helmet will let you see holy mysteries hidden from men's eyes.
-Weapons of Flame will light your way.
+Weapons of Burning will light your way.
 Want to invest some money? Contact $crooge McDuck, 1300'.
 Need a loan? Contact $crooge McDuck, 1300'.
 They say that the gods get angry if you pray too much.
@@ -261,7 +261,7 @@ You! You are a very secretive person, even in that incarnation. Paradoxical, too
 Increase your pace to catch up with your thoughtlessness?
 Ya laik da show off a lott - how strong ya are, how fast ya are, ha!
 Solve your pattern, push on ahead, take mental notes as you proceed.
-Since the confrontaion is inevitable give yourself a crash course of the code.
+Since the confrontation is inevitable give yourself a crash course of the code.
 It strucks you as something similar to color blindness. Contagious trap!
 Hey young magic coder adept, you still owe some contributions.
 Yes, timing is definitely against you today. Never mind.
@@ -282,12 +282,12 @@ From the standpoints of reason, business, caution you are probably wrong?
 Sing: "You're not asking for the world, I'm not asking for perfection."
 Be (n)ever hopeful the poison will wear off eventually.
 A new arrival such as yours should perhaps be cautioned. Kiss off!
+A new arrival such as yours should perhaps be cautioned. No mercy to weaklings.
 Drifting bits of memory are drawn together, assemble them into an entire fabric.
 A crystal plate mail will not rust.
 A priest can get the gods to listen easily.
 A short sword is not as good as a long sword.
 Jellies should be attacked bare-handed.
-Afraid of your valuables being stolen?  Carry more junk!
 Ever tried reading while confused?
 I once knew a hacker who ate too much and choked to death.
 I smell a maze of twisty little passages, all alike.
@@ -299,3 +299,309 @@ The orc swings his two handed sword named Elfrist at you.  You die...
 They say a gelatinous cube can paralyze you...
 They say a certain amulet will block bolts.
 They say a xorn knows of no obstacles when pursuing you.
+From the standpoints of reason, business, caution you are wrong? Who cares!
+If the fogs are but slowly broken, they better were not vampiric!
+Heroes? What them are needed for: imagination, grave-garlands and necromancy.
+After some encounters with jellies you might feel like overnarcotized, lame.
+It came to assail me: no escape? Yet another crawl from the Pit of Creation?
+If in good enough shape you'd better throw your legs over the edge...
+While standing in the shadows to regain stamina have visions of sugar plums...
+Encounter them orcs!, know they are countless: no rest for you for hours!
+A monk might have a very foul blow, about four inches below the belt buckle.
+Are you really suffering withdrawal symptoms and want something crushable?
+Smaug and alcohol may disturb your ... was it sanity, courage or boredom?
+Ha treasures! Like all vaults it was full of depths and dangers.
+The benefits of alchemy are my marriage, danger is my passion.
+Any dungeons offer mazes. But don't they lack the Angband sense of humor?
+Bodychecks, bodycounts itching all my ways but the awful software bugs...
+Be constantly on guard, joker, don't take anything at face value.
+Which is better: mind blast or mind wash? Will lost memories return gradually?
+Have a rest and a rumor in the inn over some comfortable pitchers of beer.
+The stakes are far too high for a weak bluff, so watch the scores?
+Be not like the others. Proceed carefully, cover yourself at all times.
+Smeagols removal is high on your list of things that needed knowing or doing?
+Matter of recollection: find the inn and nurse some rumors for a while.
+Served you right: 3 quarters dead. Wasn't it purely a result of your arrogance?
+Confident - Cocky - Lazy - Dead. The Old Man's mantra, and a serious good one.
+Let your mind drift over the perversely plotted events of the past levels.
+Another loss? Curse your inertia at having let the situation slide for so long.
+So you have been another cockerel who'd crow before he thinks? Foolish heart!
+Wicked adventures? First and foremost: negotiate with the devil (inside)!
+Do not pour vinegar into your own mental wounds of pride.
+Head over heels? There comes a point in any illness when...
+A flash of your all-to-familiar arrogance might make you bungle.
+Ooh, they will sense it, you really love playing with fire.
+One ill turn deserves another.
+To say it blunt: you *cannot* afford another mistake. - What you say, really?
+Our dreams are too much with us. They imply a breach of security.
+Groo seems almost too well organized to be a mental case.
+They say that the Arkenstone controls all the elements.
+They say that spores which turn to jewel shards might smash you like bullets.
+They say: Inhale the crisp evening air before going downward hunting.
+They say that when you stop being vain you might even be dead.
+They say that there are ninnies, simpletons. And they never come back.
+They say that the vestal virgins are hidden somewhere downstairs.
+They say that all of them adventurers are destined for Hades.
+They say: Being what you have to be without whining about it.
+They say: Visit a tannery and get used to be tanned!
+Chaos patrons are *very* moody!
+You gonna meet unique personalities who are even more than a challenge.
+To be at cross-purposes over your ways with uniques might prove fatal.
+Being infuriated by tricky foes will make your timing less immaculate.
+Jellies? Some encounters are chilly though they take you no further forwards.
+The best way to treat enemies is to make friends with them. Charm monsters!
+Uniques remain mostly impervious to your attempts to confuse them.
+Half the treasures of a vault could be crushed by an earthquake.
+A chaotic weapon could haunt you with earthquakes.
+Chaotic weapons tend now and then to change your adversaries seriously.
+Mutations will not increase your beauty, but surely your repertoire!
+The thrum of serious risk-taking heightens the suspense. Hitchcock them!
+They pay you the compliment of being perfectly straight? Oops, a hero!
+Try to line up your opponents to dispatch them one after the other.
+Some orcish leaders are extremely keen to meet you quite soon.
+Gee! You say you were nearly vanqished by the trickery of priests?
+Run over the facts in your head before confronting special tough guys.
+Kind creatures? They make you stay put if your free action is unsustained.
+Are you ready to vanish discreetly when those packs are after you?
+Any stupid Umber Hulk might destroy YOU if being not too confusion-proof.
+Magic doors make fine fences against weak masses of critters.
+Traps, Summoners, Zephyrs. The foreboding of evil grows heavier with stairs.
+Weak dangers? You may be overwhelmed by sheer numbers.
+Deep waters are a nice separation against some poisonous animals.
+It is best to waylay heavy magic users in narrow passages around the corners.
+Heart is downcast? Huh, that's beyond even your accustomed folly. Courage!
+Dark is the Shadow and yet your heart rejoices.
+In the dreadful light you will stand aghast unless your are indeed an elf.
+How the means unforeseen are revealed whereby Oberon might be overthrown?
+Saroyan: Voyald is a way of saying Void, Voyage and World at the same time.
+Death, next to birth is our best gift, and next to truth it is our best friend.
+The greatest story-teller of all is time and change, or death.
+Sing Fury: "This is not the time to wonder, this is not the time to cry!"
+How hope beyond hopes is fulfilled is yours to stumble upon.
+Do not grudge his chance of peril him who advances beyond hopes.
+Thou shalt see what comes to him who sets his foolish webs before these feet.
+Tolkien said: "The dread of the Ringwraith cannot be shaken off." Fearless!
+Potion mimics are wicked summoners. Hurry up to knock them out, quickly! 
+Full-scale priests look innocent but are among the nastiest sort of summoners.
+Summoners? Victory is slipping from your grasp even as you stretch out hands.
+Winning vault treasures is just like pulling chestnuts out of spreading fire.
+A dark full of nightmares? There is only one true Nightmare!
+Strength is crucial. Isn't witchcraft just an embroidery in a bard's tale?
+Whenever doubled over force yourself upright. Who wants a bad loser?
+Give heartened chase when your enemies turned tail. Last bit by missile!
+Vlad Dracula? Die and forget, since death is forbidden - to him, not you!
+Vlad Dracula? He hungers after you and thirstes for you!
+Luck and twice luck to meet a hydra if fearless and breath-shielded you are.
+All your misdeeds are engraved into the very flesh-score of time itself.
+Such a chaos spawn will disenchant your best gear in no time at all.
+You'd like anyone who sees you outlined in an archway will turn and run?
+Do not run when Barney approaches, and become a happily crumbling idiot.
+Morgoth is the very brink where hope and despair are akin.
+Give little heed to the wreck and slaughter that will lay around the pits.
+Accidents? What accidents? Mighty were your fallen ancestors.
+Fortune has betrayed you but for the momentum. Confidence!
+On the long run - IF you're survivor - winds of fortune will not wreck you.
+As a spell-striking egghead you'd need convincing offensive powers!
+Once no Recall is left the way up will seem never ending to you.
+The simple scheme ended in failure. That demon called lots of companions.
+Sing CCR: "Before you kill me take a look at yourself." Reflection-shields!
+Sing Pythons: "Always look on the bright sight of death." Only a breath away!
+Sing Beck: "I'm a loser, baby dragon, so why don't you kill me?" Suicide, ha!
+Sing Morisette: "Life has a funny way, helping you out." So innovate!
+Sing Garbage: "The trick is keep on breathing." Wear dragon scale mail!
+Sing Crowded House: "Always take your weather with you!" Yeah, have a breath.
+The game is serious. Catch it if you can. But you can leave your head on.
+A Grey Mushroom of Restoring will not restore your drained life experience.
+Close eXamination of splendid shop-wares will provide precious insights. 
+Bought items come *identified*, knowledge secure from blank mind attacks.
+You even may transmit knowledge of *identified* items by means of stacking.
+What average mages get by *identify* the Stone will Tell the Nature adept.
+If it's not quite visible if you caught a gear curse look it up by Ctrl-C.
+Any lesser titan will not just summon a monster but several combos of them.
+Robin Hood nowadays leads a wretched existence as a trapper and master thief.
+Too many different Zephyrs are the heroes death. IF caught on open ground.
+If Amulets of Resistance don't stack it's caused by different additionals.
+Seek melee combat with breathing foes so your treasures won't get blasted!
+Master Vampires won't prey on your life blood only, but love to torture DEX.
+Hellhound Garm is defeatable if you fence out his summoned packs in advance.
+Drolems are not drolleries but draconic golems with high defenses. They bite!
+You can't get hold on Bully Gates, he charges you and is gone immediately.
+Never go near Bull Gates without maximum dexterity or lose lots of money!
+He cackles and sneers at you and throws traps as his confetti: Bully Gates!
+I balanced all, brought all to mind. In balance with this life, this death.
+A visit in the Inner Temple is less expensive than bundles of Restore potions.
+Trolls, Paladins or Bloodletters are fine to make money - if you top them.
+Scrolls of artifact creation need a plain weapon/armour to enhance it.
+The definitely best way to fill a gear gap is creating your own artifact.
+Iron liches are *very* deadly if you're not hard to breath and summons alike.
+Maulotaurs tend to rely on fire and overwhelming shattering strength. Prepare!
+Think out ways to get hold on some unusual nasty unique thieves. Ooh, Santa!
+They say that everyone has some skeletons in the cellar. Some are harmful!
+GHOST said: "I would not wish to add to your probable present paranoia."
+One of life's smaller puzzles is how to get control of the nearer futures.
+Glaurung and all his kinsfolk - send them where the pepper grows! It's timing.
+The swamps south of the elvish town is worthy of some hunting excursions!
+You would be amazed of what a Greater Kraken is able to give to you.
+In deep waters any treasures will be lost! Lure them coastwards.
+Any means of digging are crucial for designing the battleground as *you* like!
+You may assault nasty Zephyr packs at doubled corners safe from their breath.
+Only permanent walls will prevent Ethereal or Death drakes from coming after you.
+Drujs are not good for you. So as folks (dare)say: Let sleeping wyverns lie.
+Sort of Pit-diver you are - those who seek after artifacts beyond the Rim.
+A jagged tentacle of the constantly shifting kind is moving toward your leg...
+Raal's? Ya might have to fool with it a long while just to figure it out.
+Apollonian and Dionysiac, light and dark, Order and Chaos need one another.
+The principles game of light and dark is finally to be judged esthetically.
+An uncursed amulet of anti-teleportation supports your choice of battleground.
+Try to get unknown to your old self. No compromising awhile.
+Too bad who not supports innkeepers! YOU have a stillness which is dangerous.
+A moral cudgel is truly not an effective weapon against farmer Maggot.
+Where are you going, unbeliever? The stairs down are but seemingly easy!
+You might end up in the grip of sinister forces who rule by torture and infamy!
+The gods love us, they even created birds to throw presents down.
+Anybody gets the beats s/he has ordered at Fortuna's Court in the end.
+Pay no attention. Incomers are resented and regarded as fair game!
+You seem inoffensive, a mere joker, a light-weight. But your eyes ..?
+Your knife has certainly hacked some bad meats. It's stained.
+The shrewd ones are never fooled. The weak mimic the habits of the strong.
+I see you have accustomed to plenty of local shopping snobberies.
+You won? You truly must have a brain as sharp as a woodsman's hatchet!
+Mimics: striking down men from behind certainly seems to be their trademark.
+He looks honest. This probably means he is a complete crook. Oh, I'm mocking.
+Flee while you can. Any decent adventurer has to honour the priorities.
+The average mage soon becomes accustomed to hard work and poor leisure.
+Are you sure to surpass your predecessors, being more than a mere brawler?
+Life: to mortgage yesterdays gains in order to move on to the next intermezzo.
+The art of dragon mail maintenance is: Never get stuck without escape chance.
+Oh I see! Now I'm not good enough!
+Prices? Any complaints and you'll be bumped out faster than you can breathe.
+Prices? If you insist on haggling you'll never advance seriously!
+Well, I tell ya, the dungeons landlords are mulling this over gloomily!
+Don't you think you are on a descending curve, young firehead?
+You are starting to loose your temper? So what? Gnaw your pistaccios!
+It shrieks? Don't bother! Presumably there will be just innocent bystanders.
+Still you might still fade out again! Been seeing so many ghostly apparitions.
+Even if the bluff fails them never give up! The caves are hotbed of banditry.
+Before I settled down, in my younger days I won the arena price.
+Yegh! Assuming you are not the refined sensitive type you're disguised as?
+However you shouldn't want to upset sensitivities hereabout. Learn xenology!
+Critters? If action was taken early this conspiracy could be nipped in the bed.
+Do not behold the baleful visage of The Greater magic mushroom were-quylthulg!
+Forget your childlike lore: mushrooms are not tasty but awholotta challenge!
+Hi matador, like to get gored to death by an infuriated gory minotaur?
+Never get caught by the notorious bloodhound Judge Porn-Starr, the beholder.
+Gorgons are fairy tales: mighty useful to get stone sculptures for the palace.
+Selling blessed weapons to a sympathizing temple is not too bad an idea.
+I'd prefer ball sorcery or breath ability to mass genocide for good reason.
+Scrolls of genocide will extinct annoying monster races from your level area.
+*Destruction* will cause a 15x15 area to change completely, but you undamaged.
+What does NETHER mean? The (arch.) N. regions are the world of the dead/hell.
+What does NEXUS mean? It refers to connexion/bond. Location/stats get unstable.
+A Blade of Chaos (chaotic) is quite a rare and precious finding.
+Isn't it a scandal that chaos patrons mostly grant inferior weapon gifts?
+Superior Blades of Chaos (6d5) can be won by defeating a platoon of Bloodletters.
+Nether and Life draining are not just the same, as by breath or by touching?
+Examination of rings of nether resistance reveals two granted intrinsics.
+To stand your ground against adversaries who heal-self you'll need...
+It's the Grail Brotherhood who is behind it all!
+There is no such thing as 'fearless', not unless a man is mad. But hide it!
+When the monsters don't eat you, ooh, let's say you're home.
+Young ones are made stupid, it's their protection against life's unkindness.
+And what about your due contribution to All-Fool's Day celebration? None?
+For the shared blood of your Ancestors you'll know about depth devilries.
+It takes a practiced eye to see through the glitter the rotten core of Thuringwethil.
+I saw dragon scale mail priced 11000 gp more for having +17 instead of +16.
+The strong rely on strength. The not-so-strong must mint means of shrewdness.
+If not your might might make tremble them and flee you need good spy ability.
+Pay heed to the Quylthulg race: invisible, powerful summoners, able to escape.
+(S)He has the devil of a time who encounters the neversleeping quylthulgs.
+Your pet aversion against all sorts of hounds won't lead you to anything!
+An inertia hound is gorgeous dinner: giving pleasure and sleepy satisfaction.
+Patience at ambush will help to defeat many hounds.
+Without catching acid I have once eliminated 10 water hounds 1 by 1 in melee!
+You'll get The_object_resists_the_spell if your Rune of Protection won't work.
+As shopkeepers rarely change you'll be glad about any high maximum merchants.
+It seems not smart to have your high bonus missiles destroyed by breathers.
+Against those some_hundred_hp_drain attacks you'll need means of heal-self!
+If you cover your back by fencing or digging no summoned will surround you.
+It's deciding which things are crucial that separates the wise from others.
+Being clocked backwards is just a terrible irony of fate.
+Time is a weird attack - not even sustained stats will save you.
+Stumble on a death mold: another unsettling occurrence in an unsettling world.
+Too many errors and one's luck would run out at last.
+Errorowwww!
+The highest bonused ring of damage I have seen was +23!
+The highest bonused amulets of searching/brilliance I have seen was +6!
+It's your own fault if you don't use all non-cheating means of awareness.
+Pay ANY price for a Rod of Perception for it saves you lots of scrolls/staffs.
+Rods seem somewhat secure from fire/acid/lightning attacks, but get stolen!
+Some black humored remarks (rumors) on common morals are not easily outwitted.
+Ever read Ambrose Bierce, From the devil's dictionary? No, didn't steal there.
+Remember that? Irony is a sophisticated art of talk by saying some opposite.
+Ents (friendly) are equally strong as trolls and tend to clear the vault fields.
+You could hate an Ent (friendly) who picks up the dragon scale mails you left.
+They say that there's work to be done, and no rest on this side of Heaven.
+There are no guarantees in life, but it's smarter to take fewer chances.
+Is it really true that a good chain armour once rusted can't be restored?
+Never thought about that daylight might be not just an illumination?
+Stone Skin is valuable as diamonds: even the tougher foes will miss you.
+You WILL need some means to prevent to be teleported to and fro unwanted.
+Without a means to teleport away certain nuisances you'll have harder labor.
+If you ever, ever manage to best Stormbringer you'll be amazed!
+The deeper you dive the more grateful you'll be about sustaining equipment.
+You'll love Reflection if you ever encounter those smashing halfling legions.
+Surprisingly not only crossbows use bolts that could bounce...
+At an early stage you are yet quite happy to find e.g. rods of trap detection.
+There is but one use for charisma boosting items: shopkeeper charming.
+It's a happy moment when sufficient DEX makes you "grab hold of your backpack".
+Even a nasty blood curse could fail if you're lucky.
+Don't go deeper down the cliffs unless you find secure footholds (equipment).
+Value in ART is so to say your scores relation of light and shade.
+You'd like an illustration on "sowing dragon's teeth"? Try Sorcery tower Quest!
+Waste of time, the crying. Fight and live - fight and die, then enter renewed.
+The say that to want too much was stupidity, waste of precious time and effort.
+Down at 650' is an ill-omened place where the swift ochre jellies roam.
+Below 2500' you'll need sustained maximum spell stats to secure your heal-self.
+The miracle of Herbal Healing is like Book-stories told by priests, amazing.
+A fallen Angel is likely to stay behind a stone obstacle in chequered pits.
+A screaming willingness to the flash and bang of damnation, freed of the suspence.
+They say that all these inevitable tombstones are but blessings in disguise. 
+Survival challenges use up superabundant energies, burn off the gland-juices.
+Kittens. Always going for the dramatic. Watching too many adventure holos.
+Young Heroes-to-be are always kept on diet, to increase their aggressiveness.
+Free at last from the blood curse: mirth welled up, boiled over as pure laughter.
+Even protected books are destroyed by breathers of chaos balls. Area effect!
+It is more secure to carry precious books yourself, IF you provide resistances.
+There are but sometimes shopkeepers that pay full price of 25000gp for a Book.
+Being hit by cold breaths while carrying potions might speed and heal foes!
+Why are Poison Resistance rings higher priced than even Disenchantment rings?
+Are there any cumulative effects by adding another means of resistance? Well?
+IF there are no free places around you, the worst summoning will not itch you.
+You can win against the ever-aware quylthulgs by blocking their lines of sight.
+Any hounds are difficult to contain by Door Building. Extinct them quickly!
+Regularly the god of the merchants is the same as that of the thieves.
+We are all natural born victims.
+Without information life is quite short.
+Information age has not just begun today! Hermes, Loki, Prometheus are tradition.
+Scrolls of Dispel XX are able to damage the foe for about 60 hitpoints.
+Scrolls of Fire/Ice/Chaos produce a balleffect, centered on you. Damaging you?
+Scrolls of Ice do double damage compared to SoF, but a little less than SoC.
+To find a Rod of Havoc means nothing else than: chaos at your fingertips.
+If the sages speak of Curing this comprehends the recovery of six afflictions.
+The six afflictions: Cut, Stun, Blind, Confused, Terrified, Hallucination.
+Staffs of Power will dispel any monster.
+Staffs of Holiness will dispel evil ones and also protect you.
+Staffs of the Magi will help eggheads to clear the head and recover energies.
+Those who seek knowledge of the sources must be experienced hunters of hints.
+You have difficulties to find survey or details in the source files? Combat!
+There are always people who'd like to restrict knowledge to their own circles.
+It can't be bad to give knowledge to the people, even if by means of rumors.
+Those who'd exclude people of knowledge make up a priesthood of selfishness.
+You don't like the rumors you get? Write your own! (And share the good ones.)
+If potions of blindness are useful against foes they will be priced at shops.
+Rumors are sort of wishing wells.
+Not any waters seem drinkable for those not thirsty!
+There are unclean waters. Well, boil them up!
+Time heals all wounds?? But surely time wounds all heels!
+OOOOOOOOOOOOOOOOOO!
+You feel the Windows (2000) on your hard disk is broken...
