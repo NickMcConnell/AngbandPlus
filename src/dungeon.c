@@ -5958,6 +5958,8 @@ void play_game(bool new_game)
 
         if (race_ptr && race_ptr->birth)
             race_ptr->birth();
+
+        spell_stats_on_birth();
     }
 
 

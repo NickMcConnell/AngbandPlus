@@ -418,7 +418,7 @@ void do_cmd_destroy(void)
 
     object_copy(q_ptr, o_ptr);
 
-    stats_on_destroy(o_ptr, amt);
+    stats_on_p_destroy(o_ptr, amt);
 
     if (prace_is_(RACE_MON_JELLY))
         jelly_eat_object(o_ptr);

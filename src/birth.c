@@ -2805,6 +2805,7 @@ void player_outfit(void)
     case RACE_ZOMBIE:
     case RACE_SPECTRE:
     case RACE_MON_GOLEM:
+    case RACE_MON_SWORD:
         _birth_object(TV_STAFF, SV_STAFF_NOTHING, 1);
         break;
 

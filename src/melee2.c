@@ -3516,6 +3516,7 @@ static void process_monster(int m_idx)
                         {
                             /* Dump a message */
                             msg_format("%^s destroys %s.", m_name, o_name);
+                            stats_on_m_destroy(o_ptr, o_ptr->number);
                         }
 
                         /* Delete the object */

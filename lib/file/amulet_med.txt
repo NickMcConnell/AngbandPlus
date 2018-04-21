@@ -6,7 +6,7 @@ of Dazzling
 'Cruciform'
 of Protection
 'Precious Protection'
-Talisman
+'Talisman'
 of Lore
 of Nobility
 of The Fair Maiden

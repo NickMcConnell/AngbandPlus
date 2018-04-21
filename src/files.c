@@ -3767,11 +3767,14 @@ static void dump_aux_object_counts(FILE *fff)
 
     fprintf(fff, "\n  Potions              Found Bought  Used  Dest\n");
     fprintf(fff,   "  ---------------------------------------------\n");
+    dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_CURE_CRITICAL);
+    dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_CURING);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_SPEED);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_HEALING);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_STAR_HEALING);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_LIFE);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_RESTORE_MANA);
+    dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_RESTORE_EXP);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_INC_STR);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_INC_INT);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_INC_WIS);
@@ -3787,6 +3790,7 @@ static void dump_aux_object_counts(FILE *fff)
     dump_aux_object_counts_imp(fff, TV_SCROLL, SV_SCROLL_IDENTIFY);
     dump_aux_object_counts_imp(fff, TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
     dump_aux_object_counts_imp(fff, TV_SCROLL, SV_SCROLL_REMOVE_CURSE);
+    dump_aux_object_counts_imp(fff, TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     dump_aux_object_counts_imp(fff, TV_SCROLL, SV_SCROLL_TELEPORT);
     dump_aux_object_counts_imp(fff, TV_SCROLL, SV_SCROLL_TELEPORT_LEVEL); 
     dump_aux_object_counts_imp(fff, TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION);

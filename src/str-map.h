@@ -15,6 +15,7 @@ extern int         str_map_delete(str_map_ptr map, const char *key);
 extern void *      str_map_find(str_map_ptr map, const char *key);
 extern int         str_map_contains(str_map_ptr map, const char *key);
 extern void        str_map_clear(str_map_ptr map);
+extern int         str_map_count(str_map_ptr map);
 
                         /* Iteration */
 extern str_map_iter_ptr str_map_iter_alloc(str_map_ptr map);

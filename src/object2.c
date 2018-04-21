@@ -833,7 +833,7 @@ void stats_on_use(object_type *o_ptr, int num)
     k_info[o_ptr->k_idx].counts.used += num;
 }
 
-void stats_on_destroy(object_type *o_ptr, int num)
+void stats_on_p_destroy(object_type *o_ptr, int num)
 {
     if (object_is_aware(o_ptr) && !(o_ptr->marked & OM_COUNTED))
     {
@@ -846,6 +846,13 @@ void stats_on_destroy(object_type *o_ptr, int num)
         o_ptr->marked |= OM_EGO_COUNTED;
     }
 
+    k_info[o_ptr->k_idx].counts.destroyed += num;
+    if (o_ptr->name2)
+        e_info[o_ptr->name2].counts.destroyed += num;
+}
+
+void stats_on_m_destroy(object_type *o_ptr, int num)
+{
     k_info[o_ptr->k_idx].counts.destroyed += num;
     if (o_ptr->name2)
         e_info[o_ptr->name2].counts.destroyed += num;
@@ -2339,6 +2346,18 @@ static int _jewelry_powers(int num, int level, int power)
     return abs(power) + m_bonus(num, level);
 }
 
+static void _finalize_jewelry(object_type *o_ptr)
+{
+    if (have_flag(o_ptr->art_flags, TR_RES_ACID))
+        add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
+    if (have_flag(o_ptr->art_flags, TR_RES_ELEC))
+        add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
+    if (have_flag(o_ptr->art_flags, TR_RES_FIRE))
+        add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
+    if (have_flag(o_ptr->art_flags, TR_RES_COLD))
+        add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
+}
+
 static void _create_ring(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
@@ -2758,6 +2777,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
             effect_add_random(o_ptr, BIAS_MAGE);
         break;
     }
+
+    _finalize_jewelry(o_ptr);
 
     /* Be sure to cursify later! */
     if (power == -1)
@@ -3237,6 +3258,9 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
             effect_add_random(o_ptr, BIAS_PROTECTION);
         break;
     }
+
+    _finalize_jewelry(o_ptr);
+
     /* Be sure to cursify later! */
     if (power == -1)
         power--;

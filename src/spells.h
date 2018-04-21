@@ -15,6 +15,17 @@ extern int get_spell_fail_min(ang_spell spell);
 extern cptr get_spell_name(ang_spell spell); /* buffer reset on each call */
 extern cptr get_spell_desc(ang_spell spell); /* buffer reset on each call */
 extern cptr get_spell_spoiler_name(ang_spell spell); /* buffer reset on each call */
+extern void spell_stats_on_birth(void);
+extern void spell_stats_on_load(savefile_ptr file);
+extern void spell_stats_on_save(savefile_ptr file);
+extern void spell_stats_on_learn(spell_info *spell, int max_skill);
+extern void spell_stats_on_cast(spell_info *spell);
+extern void spell_stats_gain_skill(spell_info *spell);
+extern void spell_stats_on_fail(spell_info *spell);
+
+extern void spell_stats_on_cast_old(int realm, int spell); /* Deprecated */
+extern void spell_stats_on_fail_old(int realm, int spell); /* Deprecated */
+
 
 /* Public Spells:  I'm using the following system for placing code.
    This makes it easier to split a too large file, and easier to locate

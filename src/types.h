@@ -1989,16 +1989,36 @@ int            stat;
 spell_info    spell;
 } power_info;
 
+#define SPELL_FLAG_LEARNED   0x0001
+#define SPELL_FLAG_FORGOTTEN 0x0002
+#define SPELL_FLAG_NOTICED   0x0004
+#define SPELL_FLAG_CONFIRM   0x0008
+#define SPELL_FLAG_HIDE      0x0010
+
+struct spell_stats_s
+{
+    int flags;
+    int ct_cast;
+    int ct_fail;
+    int skill;      /* CASTER_GAIN_SKILL */
+    int max_skill;
+    int last_turn;  /* Track last turn cast to prevent spell skill spamming */
+};
+
+typedef struct spell_stats_s  spell_stats_t;
+typedef spell_stats_t        *spell_stats_ptr;
+
 
 /* TODO: This needs some work ... I just hacked this together for now.
    I'm shooting for a single unified interface for choosing, browsing
    and casting spells */
 
-#define CASTER_ALLOW_DEC_MANA        0x0001
+#define CASTER_ALLOW_DEC_MANA       0x0001
 #define CASTER_GLOVE_ENCUMBRANCE    0x0002
 #define CASTER_NO_SPELL_COST        0x0004
 #define CASTER_NO_SPELL_FAIL        0x0008
 #define CASTER_USE_HP               0x0010
+#define CASTER_GAIN_SKILL           0x0020
 
 typedef struct {
     cptr magic_desc;    /* spell, mindcraft, brutal power, ninjitsu, etc */

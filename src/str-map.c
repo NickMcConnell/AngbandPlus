@@ -277,6 +277,11 @@ void str_map_clear(str_map_ptr map)
     map->prime_idx = 0;
 }
 
+int str_map_count(str_map_ptr map)
+{
+    return map->count;
+}
+
 /* Iteration */
 str_map_iter_ptr str_map_iter_alloc(str_map_ptr map)
 {

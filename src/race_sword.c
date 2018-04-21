@@ -293,6 +293,7 @@ static _flag_info_t _slay_flag_info[] = {
     { TR_CHAOTIC, 32, "Chaotic" },
     { TR_VAMPIRIC, 32, "Vampiric" },
     { TR_VORPAL, 16, "Vorpal" },
+    { TR_VORPAL2, 32, "*Vorpal*" },
 
     /* Alt: These could be achieved from corresponding slay flags with enough essences */
     { TR_KILL_EVIL, 16, "Kill Evil" },
@@ -378,6 +379,7 @@ static void _calc_bonuses(void)
 
     p_ptr->pspeed += 1;
     
+    p_ptr->levitation = TRUE;
     p_ptr->no_cut = TRUE;
     res_add(RES_BLIND);
     res_add(RES_POIS);
@@ -387,11 +389,7 @@ static void _calc_bonuses(void)
         p_ptr->pspeed += 1;
 
     if (p_ptr->lev >= 25)
-    {
         p_ptr->pspeed += 1;
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-    }
 
     if (p_ptr->lev >= 35)
         p_ptr->pspeed += 2;
@@ -475,11 +473,9 @@ static void _calc_bonuses(void)
 
     if (_essences[TR_NO_MAGIC] >= 5)
         p_ptr->anti_magic = TRUE;
-    if (_essences[TR_LEVITATION] >= 2)
-        p_ptr->levitation = TRUE;
-    if (_essences[TR_FREE_ACT] >= 1)
+    if (_essences[TR_FREE_ACT] >= 2)
         p_ptr->free_act = TRUE;
-    if (_essences[TR_SEE_INVIS] >= 1)
+    if (_essences[TR_SEE_INVIS] >= 3)
         p_ptr->see_inv = TRUE;
     if (_essences[TR_SLOW_DIGEST] >= 2)
         p_ptr->slow_digest = TRUE;
@@ -517,12 +513,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_BLIND);
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_HOLD_LIFE);
-
-    if (p_ptr->lev >= 25)
-    {
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ELEC);
-    }
+    add_flag(flgs, TR_LEVITATION);
 
     for (i = 0; i < 6; i++) /* Assume in order */
     {
@@ -563,11 +554,9 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 
     if (_essences[TR_NO_MAGIC] >= 5)
         add_flag(flgs, TR_NO_MAGIC);
-    if (_essences[TR_LEVITATION] >= 2)
-        add_flag(flgs, TR_LEVITATION);
-    if (_essences[TR_FREE_ACT] >= 1)
+    if (_essences[TR_FREE_ACT] >= 2)
         add_flag(flgs, TR_FREE_ACT);
-    if (_essences[TR_SEE_INVIS] >= 1)
+    if (_essences[TR_SEE_INVIS] >= 3)
         add_flag(flgs, TR_SEE_INVIS);
     if (_essences[TR_SLOW_DIGEST] >= 2)
         add_flag(flgs, TR_SLOW_DIGEST);
@@ -744,28 +733,6 @@ static void _birth(void)
     add_outfit(&forge);
 }
 
-static bool _drain_essences(int div)
-{
-    bool result = FALSE;
-    int r = _rank();
-    int i;
-
-    for (i = 0; i < _MAX_ESSENCE; i++)
-    {
-        int n = _essences[i];
-        
-        if (!n) continue;
-        if (i == TR_SPEED) continue;
-        
-        _essences[i] -= _essences[i] * randint1(r) / div;
-        if (_essences[i] < n)
-            result = TRUE;
-    }
-    if (result)
-        p_ptr->update |= PU_BONUS;
-    return result;
-}
-
 static object_type *_weapon(void)
 {
     return equip_obj(p_ptr->weapon_info[0].slot);
@@ -786,9 +753,6 @@ static void _upgrade_weapon(int tval, int sval)
 
     p_ptr->update |= PU_BONUS;
     p_ptr->window |= PW_INVEN | PW_EQUIP | PW_PLAYER;
-
-    /*if (_drain_essences(10))
-        msg_print("You feel your magic drain to support your new form.");*/
 }
 
 static void _gain_level(int new_level) 
@@ -935,9 +899,8 @@ static void _character_dump(FILE* fff)
 
     fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Abilities");
     fprintf(fff, "   ---------------------- ----- ----- -----\n");
-    _dump_ability_flag(fff, TR_FREE_ACT, 1, "Free Action");
-    _dump_ability_flag(fff, TR_SEE_INVIS, 1, "See Invisible");
-    _dump_ability_flag(fff, TR_LEVITATION, 2, "Levitation");
+    _dump_ability_flag(fff, TR_FREE_ACT, 2, "Free Action");
+    _dump_ability_flag(fff, TR_SEE_INVIS, 3, "See Invisible");
     _dump_ability_flag(fff, TR_SLOW_DIGEST, 2, "Slow Digestion");
     _dump_ability_flag(fff, TR_REGEN, 7, "Regeneration");
     _dump_ability_flag(fff, TR_NO_MAGIC, 5, "Antimagic");
@@ -1007,7 +970,7 @@ race_t *mon_sword_get_race_t(void)
         me.load_player = _load;
         me.save_player = _save;
 
-        me.flags = RACE_IS_MONSTER;
+        me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
         me.pseudo_class_idx = CLASS_WARRIOR;
 
         init = TRUE;
@@ -1041,13 +1004,29 @@ void sword_absorb_object(object_type *o_ptr)
 bool sword_disenchant(void)
 {
     bool result = FALSE;
-    if (!res_save(RES_DISEN, 70) && _drain_essences(20))
+    int  r = _rank();
+    int  i;
+
+    for (i = 0; i < _MAX_ESSENCE; i++)
     {
+        int n = _essences[i];
+        
+        if (!n) continue;
+        if (i == TR_SPEED) continue;
+        if (res_save(RES_DISEN, 70)) continue;
+        
+        _essences[i] -= MAX(1, _essences[i] * randint1(r) / 20);
+        if (_essences[i] < n)
+            result = TRUE;
+    }
+    if (result)
+    {
+        p_ptr->update |= PU_BONUS;
         msg_print("You feel power draining from your body!");
-        result = TRUE;
     }
     return result;
 }
+
 
 int sword_calc_torch(void)
 {

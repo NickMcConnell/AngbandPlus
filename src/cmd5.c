@@ -1164,6 +1164,7 @@ void do_cmd_cast(void)
         if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
             p_ptr->csp += take_mana/2;
 
+        spell_stats_on_fail_old(realm, spell);
         sound(SOUND_FAIL);
 
         if (caster_ptr && caster_ptr->on_fail != NULL)
@@ -1251,6 +1252,8 @@ msg_print("An infernal sound echoed.");
             energy_use = 0;
             return;
         }
+
+        spell_stats_on_cast_old(realm, spell);
 
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
             take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);

@@ -2167,6 +2167,41 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 #endif
 
+    if (o_ptr->name3 && object_is_known(o_ptr))
+    {
+        char  buf[255];
+        cptr  t = a_name + a_info[o_ptr->name3].name;
+        char *u = buf;
+
+        /* of Hammerhand -> Hammerhand 
+           'Thalkettoth' -> Thalkettoth
+           of the Dwarves -> Dwarves
+        */        
+        if (*t == 'o' && *(t+1) == 'f')
+             t += 2;
+
+        while (*t && *t == ' ')
+            t++;
+
+        if (*t == 't' && *(t+1) == 'h' && *(t+2) == 'e')
+             t += 3;
+
+        while (*t && *t == ' ')
+            t++;
+
+        *u++ = ' ';
+        while (*t)
+        {
+            if (*t == '\'' || *t == '&')
+                t++;
+            else
+                *u++ = *t++;
+        }
+
+        *u = '\0';
+        strcat(tmp_val2, buf);
+    }
+
     /* Use the standard inscription if available */
     if (o_ptr->inscription)
     {
@@ -2198,14 +2233,13 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Note "unidentified" if the item is unidentified */
-    else if ( (o_ptr->tval == TV_LITE || o_ptr->tval == TV_FIGURINE)
+    else if ( (o_ptr->tval == TV_LITE || o_ptr->tval == TV_FIGURINE || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
            && aware 
            && !known
            && !(o_ptr->ident & IDENT_SENSE) )
     {
         strcpy(fake_insc_buf, "unidentified");
     }
-
     /* Mega-Hack -- note empty wands/staffs */
     else if (!known && (o_ptr->ident & IDENT_EMPTY))
     {

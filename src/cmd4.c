@@ -6433,12 +6433,12 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
  * Display the objects in a group.
  */
 static void display_object_list(int col, int row, int per_page, int object_idx[],
-    int object_cur, int object_top, bool visual_only)
+    int object_cur, int object_top, int object_count, bool visual_only)
 {
     int i;
 
     /* Display lines until done */
-    for (i = 0; i < per_page && (object_idx[object_top + i] >= 0); i++)
+    for (i = 0; i < per_page && object_top + i < object_count && object_idx[object_top + i] >= 0; i++)
     {
         char o_name[80];
         char buf[255];
@@ -6501,6 +6501,31 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 
         /* Display symbol */
         Term_queue_bigchar(use_bigtile ? 76 : 77, row + i, a, c, 0, 0);
+    }
+
+    /* Total Line? */
+    if (!visual_only && i < per_page && object_idx[object_top + i] < 0)
+    {
+        char     buf[255];
+        counts_t totals = {0};
+        int      j;
+
+        for (j = 0; object_idx[j] >= 0; j++)
+        {
+            object_kind   *k_ptr = &k_info[object_idx[j]];
+
+            totals.found += k_ptr->counts.found;
+            totals.bought += k_ptr->counts.bought;
+            totals.used += k_ptr->counts.used;
+            totals.destroyed += k_ptr->counts.destroyed;
+        }
+
+        sprintf(buf, "%-35.35s %5d %6d %4d %4d", 
+            "Totals", 
+            totals.found, totals.bought, totals.used, totals.destroyed
+        );
+        c_prt(TERM_YELLOW, buf, row + i, col);
+        i++;
     }
 
     /* Clear remaining lines */
@@ -6698,7 +6723,7 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
             old_grp_cur = grp_cur;
 
             /* Get a list of objects in the current group */
-            ego_cnt = _collect_egos(grp_idx[grp_cur], ego_idx);
+            ego_cnt = _collect_egos(grp_idx[grp_cur], ego_idx) + 1;
         }
 
         /* Scroll object list */
@@ -6709,7 +6734,7 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
 
         /* Display a list of objects in the current group */
         /* Display lines until done */
-        for (i = 0; i < browser_rows && (ego_idx[ego_top + i] >= 0); i++)
+        for (i = 0; i < browser_rows && ego_top + i < ego_cnt && ego_idx[ego_top + i] >= 0; i++)
         {
             char           buf[255];
             char           name[255];
@@ -6724,6 +6749,28 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
             );
             c_prt(attr, buf, 6 + i, max + 3);
         }
+        /* Total Line? */
+        if (i < browser_rows && ego_idx[ego_top + i] < 0)
+        {
+            char     buf[255];
+            counts_t totals = {0};
+            int j;
+            for (j = 0; ego_idx[j] >= 0; j++)
+            {
+                ego_item_type *e_ptr = &e_info[ego_idx[j]];
+                totals.found += e_ptr->counts.found;
+                totals.bought += e_ptr->counts.bought;
+                totals.destroyed += e_ptr->counts.destroyed;
+            }
+
+            sprintf(buf, "%35.35s %5d %6d %4d", 
+                "Totals", 
+                totals.found, totals.bought, totals.destroyed
+            );
+            c_prt(TERM_YELLOW, buf, 6 + i, max + 3);
+            i++;
+        }
+
 
         /* Clear remaining lines */
         for (; i < browser_rows; i++)
@@ -6865,7 +6912,7 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
     while (!flag)
     {
         char ch;
-        object_kind *k_ptr, *flavor_k_ptr;
+        object_kind *k_ptr = NULL, *flavor_k_ptr = NULL;
 
         if (redraw)
         {
@@ -6907,7 +6954,7 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
                 old_grp_cur = grp_cur;
 
                 /* Get a list of objects in the current group */
-                object_cnt = collect_objects(grp_idx[grp_cur], object_idx, mode);
+                object_cnt = collect_objects(grp_idx[grp_cur], object_idx, mode) + 1;
             }
 
             /* Scroll object list */
@@ -6920,31 +6967,39 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
         if (!visual_list)
         {
             /* Display a list of objects in the current group */
-            display_object_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top, visual_only);
+            display_object_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top, object_cnt, visual_only);
         }
         else
         {
             object_top = object_cur;
 
             /* Display a list of objects in the current group */
-            display_object_list(max + 3, 6, 1, object_idx, object_cur, object_top, visual_only);
+            display_object_list(max + 3, 6, 1, object_idx, object_cur, object_top, object_cnt, visual_only);
 
             /* Display visual list below first object */
             display_visual_list(max + 3, 7, browser_rows-1, wid - (max + 3), attr_top, char_left);
         }
 
         /* Get the current object */
-        k_ptr = &k_info[object_idx[object_cur]];
-
-        if (!visual_only && k_ptr->flavor)
+        if (object_idx[object_cur] >= 0)
         {
-            /* Appearance of this object is shuffled */
-            flavor_k_ptr = &k_info[k_ptr->flavor];
+            k_ptr = &k_info[object_idx[object_cur]];
+
+            if (!visual_only && k_ptr->flavor)
+            {
+                /* Appearance of this object is shuffled */
+                flavor_k_ptr = &k_info[k_ptr->flavor];
+            }
+            else
+            {
+                /* Appearance of this object is very normal */
+                flavor_k_ptr = k_ptr;
+            }
         }
         else
         {
-            /* Appearance of this object is very normal */
-            flavor_k_ptr = k_ptr;
+            k_ptr = NULL;
+            flavor_k_ptr = NULL;
         }
 
         /* Prompt */
@@ -6954,10 +7009,11 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
             (attr_idx || char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"),
             hgt - 1, 0);
 
-        if (!visual_only)
+        if (!visual_only && object_idx[object_cur] >= 0)
         {
             /* Mega Hack -- track this object */
-            if (object_cnt) object_kind_track(object_idx[object_cur]);
+            if (object_cnt) 
+                object_kind_track(object_idx[object_cur]);
 
             /* The "current" object changed */
             if (object_old != object_idx[object_cur])
@@ -6970,7 +7026,7 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
             }
         }
 
-        if (visual_list)
+        if (visual_list && flavor_k_ptr)
         {
             place_visual_list_cursor(max + 3, 7, flavor_k_ptr->x_attr, flavor_k_ptr->x_char, attr_top, char_left);
         }
@@ -6986,7 +7042,7 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
         ch = inkey();
 
         /* Do visual mode command if needed */
-        if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &flavor_k_ptr->x_attr, &flavor_k_ptr->x_char, need_redraw))
+        if (flavor_k_ptr && visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &flavor_k_ptr->x_attr, &flavor_k_ptr->x_char, need_redraw))
         {
             if (direct_k_idx >= 0)
             {
@@ -7014,7 +7070,7 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
             case 'r':
             {
                 /* Recall on screen */
-                if (!visual_list && !visual_only && (grp_cnt > 0))
+                if (!visual_list && !visual_only && (grp_cnt > 0) && object_idx[object_cur] >= 0)
                 {
                     desc_obj_fake(object_idx[object_cur]);
                     redraw = TRUE;

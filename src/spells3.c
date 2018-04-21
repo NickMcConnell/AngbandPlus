@@ -3943,7 +3943,7 @@ int inven_damage(inven_func typ, int p1, int which)
                 /* Reduce the charges of rods/wands */
                 reduce_charges(o_ptr, amt);
 
-                stats_on_destroy(o_ptr, amt);
+                stats_on_m_destroy(o_ptr, amt);
 
                 /* Destroy "amt" items */
                 inven_item_increase(i, -amt);

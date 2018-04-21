@@ -1745,6 +1745,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
                 if (known && (o_ptr->marked & OM_FOUND) && note_kill)
                 {
                     msg_format("The %s%s", o_name, note_kill);
+                    stats_on_m_destroy(o_ptr, o_ptr->number);
                 }
 
                 k_idx = o_ptr->k_idx;
