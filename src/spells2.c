@@ -2973,7 +2973,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 					}
 					
 					// do the damage and check for death
-					killed = mon_take_hit(cave_m_idx[y][x], damage, NULL, who);
+					killed = mon_take_hit(cave_m_idx[y][x], net_dam, NULL, who);
 					
 					// special effects for survivors
 					if (!killed)
@@ -3605,12 +3605,6 @@ bool light_line(int dir)
 {
 	u32b flg = PROJECT_BEAM | PROJECT_GRID;
 	return (fire_bolt_beam_special(GF_LIGHT, dir, 6, 4, -1, MAX_RANGE, flg));
-}
-
-bool blast(int dir, int dd, int ds, int dif)
-{
-	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (fire_bolt_beam_special(GF_KILL_WALL, dir, dd, ds, dif, MAX_RANGE, flg));
 }
 
 bool destroy_door(int dir)

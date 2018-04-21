@@ -135,15 +135,13 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:11:Smashing Blow
+N:11:Coup de Grace
 I:0:11:12
-P:0/0:0/4
-D:Allows your attacks to partially ignore your opponents' armor. Heavier
-D: weapons break through armor more effectively.
+D:Attacks on enemies who have less health than the sum of your Strength and
+D: Dexterity kill them instantly.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
-T:31:2:3   # Gauntlets and mithril gauntlets
 
 N:12:Whirlwind Attack
 I:0:12:13
@@ -382,10 +380,11 @@ T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:39:0:99  # Light Source
 
-N:83:Lore-Keeper
+N:83:Alchemy
 I:4:3:4
-D:Lets you tell the difference between mere special items
-D: and artifacts, as well as which items are cursed.
+D:Lets you determine the purpose of all herbs and potions you encounter,
+D: as well as staves and horns. Allows you to spot curses on enchanted 
+D: items.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 
@@ -402,11 +401,12 @@ D:You receive a bonus to all skill rolls against
 D: a selected category of enemy. The bonus increases as
 D: you kill more.
 
-N:86:Lore-Master
+N:86:Forewarned
 I:4:6:7
-P:4/3
-D:You can immediately identify every item and have full knowledge
-D: of all your opponents.
+P:4/1:4/4
+D:You have full knowledge of all your opponents.
+D: If your base Perception exceeds your Evasion, you gain a bonus to your
+D: Evasion of one quarter your Perception score.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 
@@ -484,6 +484,9 @@ I:5:7:8
 P:5/1
 D:You do not die when your health reaches zero, but become
 D: mortally wounded instead, with health equal to your Will.
+D: Your health will never again recover beyond this, and
+D: abilities that trigger at low health will be permanently
+D: on.
 T:40:0:99  # Amulet
 
 N:108:Critical Resistance
@@ -529,36 +532,36 @@ T:31:0:99  # Gloves
 
 N:123:Enchantment
 I:6:3:5
-D:Allows you to create {special} items.
-T:21:8:8   # Hafted (War Hammer only)
-T:31:0:99  # Gloves
-
-N:124:Artistry
-I:6:4:6
-P:6/0:6/1
-D:Allows you to create items with bonuses to attack, evasion,
-D: damage, or protection.
+D:Allows you to create {special} items and determine
+D: what enchantments exist on items you encounter.
 T:21:8:8   # Hafted (War Hammer only)
 T:31:0:99  # Gloves
 
 N:125:Artifice
-I:6:5:8
+I:6:4:6
 P:6/2:6/3
 D:Allows you to create highly customised artifacts.
 T:21:8:8   # Hafted (War Hammer only)
 T:31:0:99  # Gloves
 
-N:126:Masterpiece
-I:6:6:9
+N:126:Expertise
+I:6:5:7
+P:6/3
+D:Reduces the time taken to forge an item by half.
+D: Also halves all experience and stat costs, rounding down odd numbers.
+T:21:8:8   # Hafted (War Hammer only)
+T:31:0:99  # Gloves
+
+N:127:Masterpiece
+I:6:6:8
 P:6/3
 D:Allows you to create items that are more difficult than usual.
 D: Doing so drains your smithing skill for each excess point.
 T:21:8:8   # Hafted (War Hammer only)
 T:31:0:99  # Gloves
 
-N:127:Grace
+N:128:Grace
 I:6:7:10
-P:6/5
 D:You gain a point of grace.
 
 # Song ---------------------------------------------

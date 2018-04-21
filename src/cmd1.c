@@ -2259,7 +2259,7 @@ void search_square(int y, int x, int dist, int searching)
 		}
 
 		// Determine the base score
-		score = p_ptr->skill_use[S_PER];
+		score = p_ptr->skill_use[S_PER] + cave_light[y][x];
 		
 		// If using the search command give a score bonus
 		if (searching) score += 5;
@@ -2287,12 +2287,12 @@ void search_square(int y, int x, int dist, int searching)
 		// Give various penalties
 		if (p_ptr->blind || no_light() || p_ptr->image)     difficulty +=  5;   // can't see properly
 		if (p_ptr->confused)								difficulty +=  5;   // confused
-		if (dist == 2)										difficulty +=  5;   // distance 2
-		if (dist == 3)										difficulty += 10;   // distance 3
-		if (dist == 4)										difficulty += 15;   // distance 4
-		if cave_trap_bold(y,x)								difficulty +=  5;   // dungeon trap
-		if (cave_feat[y][x] == FEAT_SECRET)					difficulty += 10;   // secret door
-		if (chest_trap_present)								difficulty += 15;   // chest trap
+		if (dist == 2)				difficulty +=  2;   // distance 2
+		if (dist == 3)				difficulty +=  4;   // distance 3
+		if (dist == 4)				difficulty +=  8;   // distance 4
+		if cave_trap_bold(y,x)			difficulty +=  5;   // dungeon trap
+		if (cave_feat[y][x] == FEAT_SECRET)	difficulty += 10;   // secret door
+		if (chest_trap_present)			difficulty += 15;   // chest trap
 		//if (cave_info[y][x] & (CAVE_ICKY))				difficulty +=  2;   // inside least/lesser/greater vaults
 
 		// Spider bane bonus helps to find webs
@@ -2556,8 +2556,6 @@ void py_pickup(void)
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		bool do_not_pickup = FALSE;
-
 		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
@@ -2576,13 +2574,6 @@ void py_pickup(void)
 		{
 			next_o_idx = 0;
 			continue;
-		}
-
-		/*some items are marked to never pickup*/
-		if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP)
-		    && object_aware_p(o_ptr))
-		{
-			do_not_pickup = TRUE;
 		}
 
 		/* Note that the pack is too full */
@@ -3503,6 +3494,7 @@ int py_attack_aux(int y, int x, int attack_type)
 	bool rapid_attack = FALSE;
 	bool off_hand_blow = FALSE;
 	bool fatal_blow = FALSE;
+	bool coup_de_grace = FALSE;
 
 	u32b f1, f2, f3; // the weapon's flags
 
@@ -3545,7 +3537,7 @@ int py_attack_aux(int y, int x, int attack_type)
 
     // inscribing an object with "!a" produces prompts to confirm that you with to attack with it
     // idea and code from MarvinPA
-    if (o_ptr->obj_note && !p_ptr->truce)
+    if (o_ptr->obj_note && !p_ptr->truce && m_ptr->ml)
     {
         cptr s;
         /* Find a '!' */
@@ -3699,11 +3691,17 @@ int py_attack_aux(int y, int x, int attack_type)
 		// Determine the monster's evasion score after all modifiers
 		total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
 				
-		/* Test for hit */
-		hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
-		
+		coup_de_grace = p_ptr->active_ability[S_MEL][MEL_COUP_DE_GRACE] &&
+				m_ptr && m_ptr->hp <= (p_ptr->stat_use[A_STR] + p_ptr->stat_use[A_DEX]);
+
+		if (!coup_de_grace)
+		{
+			/* Test for hit */
+			hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
+		}
+
 		/* If the attack connects... */
-		if (hit_result > 0)
+		if (hit_result > 0 || coup_de_grace)
 		{
 			attack_result = ATTACK_HIT;
 
@@ -3723,11 +3721,6 @@ int py_attack_aux(int y, int x, int attack_type)
 			dam = damroll(total_dice, mds);
 			prt = damroll(r_ptr->pd, r_ptr->ps);
 			prt_percent = prt_after_sharpness(o_ptr, &noticed_flag);
-
-			if (p_ptr->active_ability[S_MEL][MEL_SMASHING_BLOW])
-			{
-				prt_percent -= o_ptr->weight / 2;
-			}
 
 			if (prt_percent < 0)
 			{
@@ -3751,6 +3744,16 @@ int py_attack_aux(int y, int x, int attack_type)
 			// determine the punctuation for the attack ("...", ".", "!" etc)
 			attack_punctuation(punctuation, net_dam, crit_bonus_dice);
 			
+			if (coup_de_grace)
+			{
+				net_dam = m_ptr->hp;
+			}
+			else
+			{
+				update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps,
+						     prt, prt_percent, damage_type, TRUE);
+			}
+
 			/* Special message for visible unalert creatures */
 			if (stealth_bonus)
 			{
@@ -3759,7 +3762,11 @@ int py_attack_aux(int y, int x, int attack_type)
 			else
 			{
 				/* Message */
-				if (charge)
+				if (coup_de_grace)
+				{
+					message_format(MSG_HIT, m_ptr->r_idx, "You deliver a killing blow to %s%s", m_name, punctuation);
+				}
+				else if (charge)
 				{
 					message_format(MSG_HIT, m_ptr->r_idx, "You charge %s%s", m_name, punctuation);
 				}
@@ -3773,24 +3780,21 @@ int py_attack_aux(int y, int x, int attack_type)
 				}
 
 			}
-			
-			update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps, 
-			                     prt, prt_percent, damage_type, TRUE); 
-			
+
 			// determine the player's score for knocking an opponent backwards if they have the ability
-            // first calculate their strength including modifiers for this attack
-            effective_strength = p_ptr->stat_use[A_STR];
+			// first calculate their strength including modifiers for this attack
+			effective_strength = p_ptr->stat_use[A_STR];
 			if (charge) effective_strength += 3;
 			if (rapid_attack) effective_strength -= 3;
 			if (off_hand_blow) effective_strength -= 3;
             
-            // cap the value by the weapon weight
+			// cap the value by the weapon weight
 			if (effective_strength > weapon_weight / 10) effective_strength = weapon_weight / 10;
-            if ((effective_strength < 0) && (-effective_strength > weapon_weight / 10)) effective_strength = -(weapon_weight / 10);
-            
-            // give an extra +2 bonus for using a weapon two-handed
-            if (two_handed_melee()) effective_strength += 2;
-                            
+			if ((effective_strength < 0) && (-effective_strength > weapon_weight / 10)) effective_strength = -(weapon_weight / 10);
+
+			// give an extra +2 bonus for using a weapon two-handed
+			if (two_handed_melee()) effective_strength += 2;
+
 			// check whether the effect triggers
 			if (p_ptr->active_ability[S_MEL][MEL_KNOCK_BACK] && (attack_type != ATT_OPPORTUNIST) && !(r_ptr->flags1 & (RF1_NEVER_MOVE)) &&
 			    (skill_check(PLAYER, effective_strength * 2, monster_stat(m_ptr, A_CON) * 2, m_ptr) > 0))
@@ -3798,7 +3802,7 @@ int py_attack_aux(int y, int x, int attack_type)
 				// remember this for later when the effect is applied
 				do_knock_back = TRUE;
 			}
-			
+
 			// damage, check for death
 			fatal_blow = mon_take_hit(cave_m_idx[y][x], net_dam, NULL, -1);
 
@@ -3994,10 +3998,10 @@ void py_attack(int y, int x, int attack_type)
 		{
 			if (clockwise)  dir = cycle[dir0+i];
 			else            dir = cycle[dir0-i];
-							
+
 			yy = p_ptr->py + ddy[dir];
 			xx = p_ptr->px + ddx[dir];
-			
+
 			if (cave_m_idx[yy][xx] > 0)
 			{
 				monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];

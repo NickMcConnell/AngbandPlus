@@ -221,7 +221,7 @@
 #define R_IDX_BARROW_WIGHT		112
 #define R_IDX_ALDOR             117
 #define R_IDX_EASTERLING_SPY	121
-#define R_IDX_OATHWRAITH        152
+#define R_IDX_OATHWRAITH        153
 #define R_IDX_CAT_WARRIOR		154
 #define R_IDX_YOUNG_COLD_DRAKE  164
 #define R_IDX_CAT_ASSASSIN		175
@@ -461,7 +461,7 @@
 #define	MEL_IMPALE				 8
 #define	MEL_RAPID_ATTACK			 9
 #define	MEL_TWO_WEAPON				10
-#define	MEL_SMASHING_BLOW				11
+#define	MEL_COUP_DE_GRACE				11
 #define	MEL_WHIRLWIND_ATTACK		12
 #define	MEL_STR						13
 
@@ -509,13 +509,13 @@
 #define	PER_EYE_FOR_DETAIL			 0
 #define	PER_FOCUSED_ATTACK			 1
 #define	PER_KEEN_SENSES				 2
-#define	PER_LORE1					 3
+#define	PER_ALCHEMY				 3
 #define	PER_CONCENTRATION			 4
-#define	PER_BANE					 5
-#define	PER_LORE2					 6
-#define	PER_LISTEN					 7
+#define	PER_BANE				 5
+#define	PER_FOREWARNED				 6
+#define	PER_LISTEN				 7
 #define	PER_MASTER_HUNTER			 8
-#define	PER_GRA						 9
+#define	PER_GRA					 9
 
 /* 
  * Will abilities 
@@ -539,10 +539,10 @@
 #define	SMT_ARMOURSMITH				 1
 #define	SMT_JEWELLER				 2
 #define	SMT_ENCHANTMENT				 3
-#define	SMT_FINE					 4
-#define	SMT_ARTEFACT				 5
+#define	SMT_ARTEFACT				 4
+#define	SMT_EXPERTISE				 5
 #define	SMT_MASTERPIECE				 6
-#define	SMT_GRA						 7
+#define	SMT_GRA					 7
 
 /* 
  * Songs 
@@ -770,9 +770,11 @@
 
 #define OB_GEN_MODE_NORMAL		0
 #define OB_GEN_MODE_CHEST		11
+#define OB_GEN_MODE_SKELETON		12
 #define OB_GEN_MODE_RANDART		13
 
 #define CHEST_LEVEL			130
+#define SKELETON_LEVEL			131
 
 
 /*
@@ -1002,7 +1004,9 @@
 
 /*themed drops*/
 #define DROP_TYPE_UNTHEMED				0
-#define DROP_TYPE_NOT_USELESS			1
+
+#define DROP_TYPE_NOT_DAMAGED				1
+
 #define DROP_TYPE_POTION				2
 #define DROP_TYPE_STAFF					3
 #define DROP_TYPE_SHIELD				4
@@ -1018,6 +1022,8 @@
 #define DROP_TYPE_JEWELRY				14
 #define DROP_TYPE_CHEST					15
 #define DROP_TYPE_DIGGING				16
+
+#define DROP_TYPE_DAMAGED				17
 
 
 /*** Object "tval" and "sval" codes ***/
@@ -1038,7 +1044,7 @@
  */
 
 #define TV_NOTE          2	/* ~ Tutorial notes                      */
-#define TV_USELESS       3	/* ~ Skeletons, etc                      */
+#define TV_SKELETON      3	/* ~ Skeletons                           */
 #define TV_METAL		 4	/* ~ Piece of mithril                    */
 #define TV_CHEST         7	/* ~ Chests                              */
 #define TV_ARROW        17	/* - Arrows								 */
@@ -1066,10 +1072,10 @@
 #define TV_EASTER       81  /* , Easter Eggs (replacement for herbs) */
 
 
-/* The "sval" codes for TV_USELESS */
-#define SV_USELESS_ORC_SKEL		0	/*  */
-#define SV_USELESS_HUMAN_SKEL	1	/*  */
-#define SV_USELESS_ELF_SKEL		2	/*  */
+/* The "sval" codes for TV_SKELETON */
+#define SV_SKELETON_ORC		0	/*  */
+#define SV_SKELETON_HUMAN	1	/*  */
+#define SV_SKELETON_ELF		2	/*  */
 
 /* The "sval" codes for TV_METAL */
 #define SV_METAL_MITHRIL		0	/*  */
@@ -1103,7 +1109,6 @@
 
 /* The "sval" codes for TV_SWORD */
 
-#define SV_BROKEN_SWORD				2	/* 1d4 */
 #define SV_DAGGER					4	/* 1d4 */
 #define SV_CURVED_SWORD				7	/* 2d5 */
 #define SV_SHORT_SWORD				10	/* 1d8 */
@@ -1115,11 +1120,13 @@
 
 
 /* The "sval" codes for TV_SHIELD */
+#define SV_BROKEN_SHIELD		 1
 #define SV_ROUND_SHIELD			 3
 #define SV_KITE_SHIELD			 5
 #define SV_MITHRIL_SHIELD		10
 
 /* The "sval" codes for TV_HELM */
+#define SV_RUSTY_HELM			1
 #define SV_HELM					5
 #define SV_GREAT_HELM			6
 #define SV_DWARF_MASK			7
@@ -1132,6 +1139,7 @@
 #define SV_PAIR_OF_LEATHER_BOOTS		1
 #define SV_PAIR_OF_STEEL_GREAVES		2
 #define SV_PAIR_OF_MITHRIL_GREAVES		3
+#define SV_PAIR_OF_SHABBY_BOOTS			4
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK					1
@@ -1145,7 +1153,6 @@
 #define SV_SET_OF_GAUNTLETS			2
 
 /* The "sval" codes for TV_SOFT_ARMOR */
-#define SV_FILTHY_RAG				1
 #define SV_ROBE						2
 #define SV_LEATHER_ARMOR			4
 #define SV_STUDDED_LEATHER			7
@@ -1198,7 +1205,7 @@
 #define SV_RING_WARMTH				7
 #define SV_RING_ACCURACY			8
 #define SV_RING_FREE_ACTION			9
-#define SV_RING_DAMAGE				10
+#define SV_RING_ARCHERY				10
 #define SV_RING_TRUE_SIGHT			11
 #define SV_RING_VENOM				12
 #define SV_RING_HUNGER				21
@@ -1794,7 +1801,7 @@
 #define TR2_RESISTANCE  (TR2_RES_COLD | TR2_RES_FIRE | TR2_RES_ELEC)
 
 
-#define TR3_TR3XXX1         0x00000001L /* xxx */
+#define TR3_DAMAGED         0x00000001L /* xxx */
 #define TR3_TR3XXX2         0x00000002L /* xxx */
 #define TR3_TR3XXX3         0x00000004L /* xxx */
 #define TR3_TR3XXX4         0x00000008L /* xxx */
@@ -1819,7 +1826,7 @@
 #define TR3_ACTIVATE        0x00400000L /* Item can be activated */
 #define TR3_INSTA_ART       0x00800000L /* Item makes an artefact */
 #define TR3_EASY_KNOW       0x01000000L /* Item is known if aware */
-#define TR3_TR3XXX11        0x02000000L /* xxx */
+#define TR3_MORE_SPECIAL    0x02000000L /* Item has a better chance of being special */
 #define TR3_TR3XXX12        0x04000000L /* xxx */
 #define TR3_HAND_AND_A_HALF 0x08000000L /* Item is a hand and a half weapon */
 #define TR3_TWO_HANDED      0x10000000L /* Item is a two handed weapon */

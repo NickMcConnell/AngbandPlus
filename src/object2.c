@@ -167,6 +167,25 @@ void delete_object_idx(int o_idx)
 	o_cnt--;
 }
 
+/*
+ * Hack -- determine if a template is a damaged item
+ *
+ */
+static bool kind_is_damaged_item(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+	return k_ptr->flags3 & TR3_DAMAGED;
+}
+
+/*
+ * Hack -- determine if a template is not a damaged item or skeleton
+ *
+ */
+static bool kind_is_not_damaged(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+	return k_ptr->tval != TV_SKELETON && !kind_is_damaged_item(k_idx);
+}
 
 /*
  * Deletes all objects at given location
@@ -569,7 +588,7 @@ object_type* get_next_object(const object_type *o_ptr)
 /*
  * Apply a "object restriction function" to the "object allocation table"
  */
-errr get_obj_num_prep(void)
+void get_obj_num_prep(void)
 {
 	int i;
 
@@ -580,12 +599,19 @@ errr get_obj_num_prep(void)
 	for (i = 0; i < alloc_kind_size; i++)
 	{
 		/* Accept objects which pass the restriction, if any */
-		if (!get_obj_num_hook || (*get_obj_num_hook)(table[i].index))
+		if (!get_obj_num_hook)
+		{
+			// damaged items only on skeletons
+			if (kind_is_damaged_item(table[i].index))
+				table[i].prob2 = 0;
+			else
+				table[i].prob2 = table[i].prob1;
+		}
+		else if ((*get_obj_num_hook)(table[i].index))
 		{
 			/* Accept this object */
 			table[i].prob2 = table[i].prob1;
 		}
-
 		/* Do not use this object */
 		else
 		{
@@ -593,9 +619,6 @@ errr get_obj_num_prep(void)
 			table[i].prob2 = 0;
 		}
 	}
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1197,6 +1220,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	switch (o_ptr->tval)
 	{
 		/* Chests */
+		case TV_SKELETON:
 		case TV_CHEST:
 		{
 			/* Never okay */
@@ -1999,8 +2023,7 @@ static void a_m_aux_2(object_type *o_ptr, int level)
 	bool boost_other = FALSE;
 	
 	// for cloaks and robes and filthy rags go for evasion only
-	if ((o_ptr->tval == TV_CLOAK) || ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ROBE))
-	                              || ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_FILTHY_RAG)))
+	if ((o_ptr->tval == TV_CLOAK) || ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ROBE)))
 	{
 		boost_other = TRUE;
 	}
@@ -2097,27 +2120,10 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 				}
 
 				/* Ring of damage */
-				case SV_RING_DAMAGE:
+				case SV_RING_ARCHERY:
 				{
-					/* Bonus to damage sides */
-					o_ptr->pval = (level + dieroll(10)) / 10 - 1;
-					
-					// can't be zero
-					if (o_ptr->pval == 0)
-					{
-						o_ptr->pval = -1;
-					}
-
-					/* Cursed */
-					if (o_ptr->pval < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-						
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-					}
-
+					/* Bonus to archery  */
+					o_ptr->pval = (level + dieroll(10)) / 10 + 1;
 					break;
 				}
 
@@ -2315,6 +2321,13 @@ static void a_m_aux_4(object_type *o_ptr, int level, bool fine, bool special)
 			break;
 		}
 
+		case TV_SKELETON:
+		{
+			/* Not searched. */
+			o_ptr->pval = 1;
+			break;
+		}
+
 		case TV_CHEST:
 		{
 			/* Hack -- chest level is fixed at player level at time of generation */
@@ -2379,6 +2392,7 @@ void object_into_artefact(object_type *o_ptr, artefact_type *a_ptr)
 	 * knows where it is coming from.
 	 */
 	else if (object_generation_mode == OB_GEN_MODE_CHEST) o_ptr->xtra1 = CHEST_LEVEL;
+	else if (object_generation_mode == OB_GEN_MODE_SKELETON) o_ptr->xtra1 = SKELETON_LEVEL;
 
 	/* Hack -- extract the "broken" flag */
 	if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -2500,6 +2514,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	bool fine = FALSE;
 	bool special = FALSE;
 
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 		
@@ -2526,8 +2542,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	/* Assume no rolls */
 	artefact_rolls = 0;
 
-	/* Get 2 rolls if special */
-	if (special) artefact_rolls = 2;
+	if (special) artefact_rolls = 1;
+
+	if (great) artefact_rolls = 3;
 
 	/* Get 8 rolls if good and great are both set */
 	if ((good) && (great)) artefact_rolls = 8;
@@ -2571,6 +2588,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		return;
 	}
 
+	if (k_ptr->flags3 & (TR3_MORE_SPECIAL)) {
+		if (percent_chance(20))	special = TRUE;
+	}
 
 	/* Apply magic */
 	switch (o_ptr->tval)
@@ -2741,8 +2761,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	}
 }
 
-
-
 /*
  * Hack -- determine if a template is "great".
  *
@@ -2754,6 +2772,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 static bool kind_is_great(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -2793,37 +2814,15 @@ static bool kind_is_great(int k_idx)
 }
 
 /*
- * Hack -- determine if a template is not a useless item
- *
- */
-static bool kind_is_not_useless(int k_idx)
-{
-	object_kind *k_ptr = &k_info[k_idx];
-	
-	/* Analyze the item type */
-	switch (k_ptr->tval)
-	{
-			
-		/* Useless -- Bad */
-		case TV_USELESS:
-		{
-			return (FALSE);
-		}
-			
-	}
-	
-	/* Assume good */
-	return (TRUE);
-}
-
-
-/*
  * Hack -- determine if a template is a chest.
  *
  */
 static bool kind_is_chest(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -2848,6 +2847,9 @@ static bool kind_is_boots(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -2870,6 +2872,9 @@ static bool kind_is_boots(int k_idx)
 static bool kind_is_headgear(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -2894,6 +2899,9 @@ static bool kind_is_armor(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -2917,6 +2925,9 @@ static bool kind_is_gloves(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -2938,6 +2949,9 @@ static bool kind_is_gloves(int k_idx)
 static bool kind_is_cloak(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -2962,6 +2976,9 @@ static bool kind_is_shield(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -2984,6 +3001,9 @@ static bool kind_is_shield(int k_idx)
 static bool kind_is_bow(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -3019,6 +3039,9 @@ static bool kind_is_digging_tool(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -3042,6 +3065,9 @@ static bool kind_is_edged(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -3063,6 +3089,9 @@ static bool kind_is_polearm(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
@@ -3083,6 +3112,9 @@ static bool kind_is_polearm(int k_idx)
 static bool kind_is_weapon(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -3109,6 +3141,9 @@ static bool kind_is_weapon(int k_idx)
 static bool kind_is_potion(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -3145,6 +3180,9 @@ static bool kind_is_staff(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
+
 	/* Analyze the item type */
 	if (k_ptr->tval == TV_STAFF)
 	{
@@ -3167,6 +3205,9 @@ static bool kind_is_staff(int k_idx)
 static bool kind_is_jewelry(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -3224,6 +3265,9 @@ static bool kind_is_jewelry(int k_idx)
 static bool kind_is_good(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_damaged_item(k_idx))
+		return FALSE;
 
 	/* Analyze the item type */
 	switch (k_ptr->tval)
@@ -3323,7 +3367,8 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
 		int k_idx;
 
 		// unlike the others, this type can be overridden by 'great' and 'good'
-		if (objecttype == DROP_TYPE_NOT_USELESS)				get_obj_num_hook = kind_is_not_useless;
+		if (objecttype == DROP_TYPE_NOT_DAMAGED)
+			get_obj_num_hook = kind_is_not_damaged;
 
 		/*
 		 * Next check if it is a themed drop, and
@@ -3331,22 +3376,38 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
 		 * called from anywhere.
 		 * First check to skip all these checks when unnecessary.
 		 */
-		 if ((good) || (great) || (objecttype > DROP_TYPE_NOT_USELESS))
+		 if ((good) || (great) || (objecttype > DROP_TYPE_NOT_DAMAGED))
 		{
-			if (objecttype == DROP_TYPE_POTION)						get_obj_num_hook = kind_is_potion;
-			else if (objecttype == DROP_TYPE_STAFF)					get_obj_num_hook = kind_is_staff;
-			else if (objecttype == DROP_TYPE_SHIELD) 				get_obj_num_hook = kind_is_shield;
-			else if (objecttype == DROP_TYPE_WEAPON) 				get_obj_num_hook = kind_is_weapon;
-			else if (objecttype == DROP_TYPE_ARMOR) 				get_obj_num_hook = kind_is_armor;
-			else if (objecttype == DROP_TYPE_BOOTS) 				get_obj_num_hook = kind_is_boots;
-			else if (objecttype == DROP_TYPE_BOW) 					get_obj_num_hook = kind_is_bow;
-			else if (objecttype == DROP_TYPE_CLOAK)					get_obj_num_hook = kind_is_cloak;
-			else if (objecttype == DROP_TYPE_GLOVES)				get_obj_num_hook = kind_is_gloves;
-			else if (objecttype == DROP_TYPE_EDGED)					get_obj_num_hook = kind_is_edged;
-			else if (objecttype == DROP_TYPE_POLEARM)				get_obj_num_hook = kind_is_polearm;
-			else if (objecttype == DROP_TYPE_HEADGEAR)				get_obj_num_hook = kind_is_headgear;
-			else if (objecttype == DROP_TYPE_JEWELRY)				get_obj_num_hook = kind_is_jewelry;
-			else if (objecttype == DROP_TYPE_CHEST)					get_obj_num_hook = kind_is_chest;
+			if (objecttype == DROP_TYPE_POTION)
+				get_obj_num_hook = kind_is_potion;
+			else if (objecttype == DROP_TYPE_STAFF)
+				get_obj_num_hook = kind_is_staff;
+			else if (objecttype == DROP_TYPE_SHIELD)
+				get_obj_num_hook = kind_is_shield;
+			else if (objecttype == DROP_TYPE_WEAPON)
+				get_obj_num_hook = kind_is_weapon;
+			else if (objecttype == DROP_TYPE_ARMOR)
+				get_obj_num_hook = kind_is_armor;
+			else if (objecttype == DROP_TYPE_BOOTS)
+				get_obj_num_hook = kind_is_boots;
+			else if (objecttype == DROP_TYPE_BOW)
+				get_obj_num_hook = kind_is_bow;
+			else if (objecttype == DROP_TYPE_CLOAK)
+				get_obj_num_hook = kind_is_cloak;
+			else if (objecttype == DROP_TYPE_GLOVES)
+				get_obj_num_hook = kind_is_gloves;
+			else if (objecttype == DROP_TYPE_EDGED)
+				get_obj_num_hook = kind_is_edged;
+			else if (objecttype == DROP_TYPE_POLEARM)
+				get_obj_num_hook = kind_is_polearm;
+			else if (objecttype == DROP_TYPE_HEADGEAR)
+				get_obj_num_hook = kind_is_headgear;
+			else if (objecttype == DROP_TYPE_JEWELRY)
+				get_obj_num_hook = kind_is_jewelry;
+			else if (objecttype == DROP_TYPE_CHEST)
+				get_obj_num_hook = kind_is_chest;
+			else if (objecttype == DROP_TYPE_DAMAGED)
+				get_obj_num_hook = kind_is_damaged_item;
 
 			/*
 			 *	If it isn't a chest, check good and great flags.
@@ -3356,25 +3417,14 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
 			else if (good)	get_obj_num_hook = kind_is_good;
 		}
 
-		/* Prepare allocation table if needed*/
-		if ((objecttype) || (good) || (great))
-		{
-			get_obj_num_prep();
-		}
+		/* Prepare allocation tabled*/
+		get_obj_num_prep();
 
 		/* Pick a random object */
 		k_idx = get_obj_num(base);
 
-		/* Clear the objects template*/
-		if ((objecttype) ||	(good) || (great))
-		{
-			/* Clear restriction */
-			get_obj_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_obj_num_prep();
-		}
-
+		/* Clear restriction */
+		get_obj_num_hook = NULL;
 
 		/* Handle failure*/
 		if (!k_idx) return (FALSE);
@@ -3413,16 +3463,19 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
 		}
 	}
 
-	/* Apply magic (allow artefacts) */
-	if (generated_special)
+	if (objecttype != DROP_TYPE_DAMAGED)
 	{
-		// allow INSTA_ARTs
-		apply_magic(j_ptr, object_level, TRUE, good, great, TRUE);	
-	}
-	else
-	{
-		// don't allow INSTA_ARTs
-		apply_magic(j_ptr, object_level, TRUE, good, great, FALSE);
+		/* Apply magic (allow artefacts) */
+		if (generated_special)
+		{
+			// allow INSTA_ARTs
+			apply_magic(j_ptr, object_level, TRUE, good, great, TRUE);
+		}
+		else
+		{
+			// don't allow INSTA_ARTs
+			apply_magic(j_ptr, object_level, TRUE, good, great, FALSE);
+		}
 	}
 
 	// apply the autoinscription (if any)
@@ -3511,6 +3564,12 @@ bool prep_object_theme(int themetype)
 		case DROP_TYPE_DIGGING:
 		{
 			get_obj_num_hook = kind_is_digging_tool;
+
+			break;
+		}
+		case DROP_TYPE_DAMAGED:
+		{
+			get_obj_num_hook = kind_is_damaged_item;
 
 			break;
 		}
@@ -3886,7 +3945,7 @@ void acquirement(int y1, int x1, int num, bool great)
 		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
-		if (!make_object(i_ptr, TRUE, great, DROP_TYPE_NOT_USELESS)) continue;
+		if (!make_object(i_ptr, TRUE, great, DROP_TYPE_NOT_DAMAGED)) continue;
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);
