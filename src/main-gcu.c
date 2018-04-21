@@ -38,11 +38,10 @@
  * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
  */
 
+#include "main.h"
+#include "util.h"
+#include "variable.h"
 
-#include "angband.h"
-
-
-#ifdef USE_GCU
 
 #include <limits.h>
 
@@ -82,7 +81,7 @@
 # if defined(_POSIX_VERSION)
 # define USE_TPOSIX
 # else
-# if defined(USG) || defined(linux) || defined(SOLARIS)
+# if defined(linux)
 # define USE_TERMIO
 # else
 # define USE_TCHARS
@@ -121,11 +120,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
-
-/* /me pffts Solaris */
-#ifndef NAME_MAX
-#define	NAME_MAX	_POSIX_NAME_MAX
-#endif
 
 
 
@@ -451,7 +445,7 @@ static errr Term_xtra_gcu_alive(int v)
 		keymap_norm();
 
 		/* Restore modes */
-		nocbreak();
+		noraw();
 		echo();
 		nl();
 
@@ -482,7 +476,7 @@ static errr Term_xtra_gcu_alive(int v)
 		/* (void)wrefresh(curscr); */
 
 		/* Restore the settings */
-		cbreak();
+		raw();
 		noecho();
 		nonl();
 
@@ -561,60 +555,6 @@ static void Term_nuke_gcu(term *t)
 }
 
 
-
-
-#ifdef USE_GETCH
-
-/*
- * Process events, with optional wait
- */
-static errr Term_xtra_gcu_event(int v)
-{
-	int i, k;
-
-	/* Wait */
-	if (v)
-	{
-		/* Paranoia -- Wait for it */
-		nodelay(stdscr, FALSE);
-
-		/* Get a keypress */
-		i = getch();
-
-		/* Mega-Hack -- allow graceful "suspend" */
-		for (k = 0; (k < 10) && (i == ERR); k++) i = getch();
-
-		/* Broken input is special */
-		if (i == ERR) abort();
-		if (i == EOF) abort();
-	}
-
-	/* Do not wait */
-	else
-	{
-		/* Do not wait for it */
-		nodelay(stdscr, TRUE);
-
-		/* Check for keypresses */
-		i = getch();
-
-		/* Wait for it next time */
-		nodelay(stdscr, FALSE);
-
-		/* None ready */
-		if (i == ERR) return (1);
-		if (i == EOF) return (1);
-	}
-
-	/* Enqueue the keypress */
-	Term_keypress(i);
-
-	/* Success */
-	return (0);
-}
-
-#else	/* USE_GETCH */
-
 /*
 * Process events (with optional wait)
 */
@@ -663,7 +603,6 @@ static errr Term_xtra_gcu_event(int v)
 	return (0);
 }
 
-#endif	/* USE_GETCH */
 
 /*
  * React to changes
@@ -721,14 +660,6 @@ static errr Term_xtra_gcu(int n, int v)
 		(void)wrefresh(td->win);
 		return (0);
 
-#ifdef USE_CURS_SET
-
-		/* Change the cursor visibility */
-	case TERM_XTRA_SHAPE:
-		curs_set(v);
-		return (0);
-
-#endif
 
 		/* Suspend/Resume curses */
 	case TERM_XTRA_ALIVE:
@@ -742,53 +673,6 @@ static errr Term_xtra_gcu(int n, int v)
 	case TERM_XTRA_FLUSH:
 		while (!Term_xtra_gcu_event(FALSE));
 		return (0);
-
-		/* Delay */
-	case TERM_XTRA_DELAY:
-		usleep(1000 * v);
-		return (0);
-
-		/* Get Delay of some milliseconds */
-	case TERM_XTRA_GET_DELAY:
-		{
-			int ret;
-			struct timeval tv;
-
-			ret = gettimeofday(&tv, NULL);
-			Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-
-			return ret;
-		}
-
-		/* Subdirectory scan */
-	case TERM_XTRA_SCANSUBDIR:
-		{
-			DIR *directory;
-			struct dirent *entry;
-
-			scansubdir_max = 0;
-
-			directory = opendir(scansubdir_dir);
-			if (!directory)
-				return 1;
-
-			while ((entry = readdir(directory)))
-			{
-				char file[PATH_MAX + NAME_MAX + 2];
-				struct stat filedata;
-
-				file[PATH_MAX + NAME_MAX] = 0;
-				strncpy(file, scansubdir_dir, PATH_MAX);
-				strncat(file, "/", 2);
-				strncat(file, entry->d_name, NAME_MAX);
-				if (!stat(file, &filedata) && S_ISDIR((filedata.st_mode)))
-				{
-					string_free(scansubdir_result[scansubdir_max]);
-					scansubdir_result[scansubdir_max] = string_make(entry->d_name);
-					++scansubdir_max;
-				}
-			}
-		}
 
 		/* React to events */
 	case TERM_XTRA_REACT:
@@ -817,41 +701,13 @@ static errr Term_curs_gcu(int x, int y)
 
 
 /*
- * Erase a grid of space
- * Hack -- try to be "semi-efficient".
- */
-static errr Term_wipe_gcu(int x, int y, int n)
-{
-	term_data *td = (term_data *)(Term->data);
-
-	/* Place cursor */
-	wmove(td->win, y, x);
-
-	/* Clear to end of line */
-	if (x + n >= td->t.wid)
-	{
-		wclrtoeol(td->win);
-	}
-
-	/* Clear some characters */
-	else
-	{
-		while (n-- > 0) waddch(td->win, ' ');
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-/*
  * Place some text on the screen using an attribute
  */
 static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
 
-	int i, pic;
+	int i;
 
 #ifdef A_COLOR
 	/* Set the color */
@@ -864,41 +720,6 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	/* Draw each character */
 	for (i = 0; i < n; i++)
 	{
-#ifdef USE_GRAPHICS
-		/* Special character */
-		if (use_graphics && (s[i] & 0x80))
-		{
-			/* Determine picture to use */
-			switch (s[i] & 0x7F)
-			{
-
-#ifdef ACS_CKBOARD
-				/* Wall */
-			case '#':
-				pic = ACS_CKBOARD;
-				break;
-#endif /* ACS_CKBOARD */
-
-#ifdef ACS_BOARD
-				/* Mineral vein */
-			case '%':
-				pic = ACS_BOARD;
-				break;
-#endif /* ACS_BOARD */
-
-				/* XXX */
-			default:
-				pic = '?';
-				break;
-			}
-
-			/* Draw the picture */
-			waddch(td->win, pic);
-
-			/* Next character */
-			continue;
-		}
-#endif
 
 		/* Draw a normal character */
 		waddch(td->win, (byte)s[i]);
@@ -934,17 +755,12 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
 	/* Avoid bottom right corner */
 	t->icky_corner = TRUE;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
-	t->char_blank = ' ';
-
 	/* Set some hooks */
 	t->init_hook = Term_init_gcu;
 	t->nuke_hook = Term_nuke_gcu;
 
 	/* Set some more hooks */
 	t->text_hook = Term_text_gcu;
-	t->wipe_hook = Term_wipe_gcu;
 	t->curs_hook = Term_curs_gcu;
 	t->xtra_hook = Term_xtra_gcu;
 
@@ -977,7 +793,7 @@ static void hook_quit(cptr str)
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(int argc, char **argv)
+int init_gcu(int argc, char **argv)
 {
 	int i;
 
@@ -995,7 +811,7 @@ errr init_gcu(int argc, char **argv)
 			continue;
 		}
 
-		plog_fmt("Ignoring option: %s", argv[i]);
+		fprintf(stderr, "Ignoring option: %s", argv[i]);
 	}
 
 
@@ -1003,17 +819,11 @@ errr init_gcu(int argc, char **argv)
 	keymap_norm_prepare();
 
 
-#if defined(USG)
-	/* Initialize for USG Unix */
-	if (initscr() == NULL) return ( -1);
-#else
 /* Initialize for other systems */
 	if (initscr() == (WINDOW*)ERR) return ( -1);
-#endif
 
 	/* Activate hooks */
 	quit_aux = hook_quit;
-	core_aux = hook_quit;
 
 	/* Require standard size screen */
 	if ((LINES < 24) || (COLS < 80))
@@ -1022,12 +832,6 @@ errr init_gcu(int argc, char **argv)
 	}
 
 
-#ifdef USE_GRAPHICS
-
-	/* Set graphics flag */
-	use_graphics = arg_graphics;
-
-#endif
 
 #ifdef A_COLOR
 
@@ -1106,15 +910,9 @@ errr init_gcu(int argc, char **argv)
 
 	/*** Low level preparation ***/
 
-#ifdef USE_GETCH
-
-	/* Paranoia -- Assume no waiting */
-	nodelay(stdscr, FALSE);
-
-#endif
 
 	/* Prepare */
-	cbreak();
+	raw();
 	noecho();
 	nonl();
 
@@ -1216,7 +1014,12 @@ errr init_gcu(int argc, char **argv)
 	return (0);
 }
 
-
-#endif /* USE_GCU */
-
-
+int main(int argc, char *argv[])
+{
+	return main_real(
+		argc,
+		argv,
+		"gcu",
+		init_gcu,
+		"  -- -b              Requests big screen\n");
+}

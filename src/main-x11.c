@@ -92,9 +92,10 @@
  *
  */
 
-#include "angband.h"
-
-#ifdef USE_X11
+#include "loadsave.h"
+#include "main.h"
+#include "util.h"
+#include "variable.h"
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -112,20 +113,86 @@
 
 #include <sys/time.h>
 
-/* /me pffts Solaris */
-#ifndef NAME_MAX
-#define	NAME_MAX	_POSIX_NAME_MAX
-#endif
 
 /*
- * Include some helpful X11 code.
+ * This file is designed to be "included" by "main-x11.c" or "main-xaw.c",
+ * which will have already "included" several relevant header files.
  */
-#include "maid-x11.c"
+
+#ifndef IsModifierKey
 
 /*
- * Hack -- avoid some compiler warnings
+ * Keysym macros, used on Keysyms to test for classes of symbols
+ * These were stolen from one of the X11 header files
+ *
+ * Also appears in "main-x11.c".
  */
-#define IGNORE_UNUSED_FUNCTIONS
+
+#define IsKeypadKey(keysym) \
+(((unsigned)(keysym) >= XK_KP_Space) && ((unsigned)(keysym) <= XK_KP_Equal))
+
+#define IsCursorKey(keysym) \
+(((unsigned)(keysym) >= XK_Home)     && ((unsigned)(keysym) <  XK_Select))
+
+#define IsPFKey(keysym) \
+(((unsigned)(keysym) >= XK_KP_F1)     && ((unsigned)(keysym) <= XK_KP_F4))
+
+#define IsFunctionKey(keysym) \
+(((unsigned)(keysym) >= XK_F1)       && ((unsigned)(keysym) <= XK_F35))
+
+#define IsMiscFunctionKey(keysym) \
+(((unsigned)(keysym) >= XK_Select)   && ((unsigned)(keysym) <  XK_KP_Space))
+
+#define IsModifierKey(keysym) \
+(((unsigned)(keysym) >= XK_Shift_L)  && ((unsigned)(keysym) <= XK_Hyper_R))
+
+#endif /* IsModifierKey */
+
+
+/*
+ * Checks if the keysym is a special key or a normal key
+ * Assume that XK_MISCELLANY keysyms are special
+ *
+ * Also appears in "main-x11.c".
+ */
+#define IsSpecialKey(keysym) \
+((unsigned)(keysym) >= 0xFF00)
+
+
+/*
+ * Hack -- Convert an RGB value to an X11 Pixel, or die.
+ *
+ * Original code by Desvignes Sebastien (desvigne@solar12.eerie.fr).
+ *
+ * BMP format support by Denis Eropkin (denis@dream.homepage.ru).
+ *
+ * Major fixes and cleanup by Ben Harrison (benh@phial.com).
+ */
+static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
+{
+	Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
+
+	char cname[8];
+
+	XColor xcolour;
+
+	/* Build the color */
+
+	xcolour.red = red * 255 + red;
+	xcolour.green = green * 255 + green;
+	xcolour.blue = blue * 255 + blue;
+	xcolour.flags = DoRed | DoGreen | DoBlue;
+
+	/* Attempt to Allocate the Parsed color */
+	if (!(XAllocColor(dpy, cmap, &xcolour)))
+	{
+		quit_fmt("Couldn't allocate bitmap color '%s'\n", cname);
+	}
+
+	return (xcolour.pixel);
+}
+
+
 
 
 /*
@@ -406,14 +473,8 @@ Infowin_init_dad(D,X,Y,W,H,B,Metadpy->fg,Metadpy->bg)
 #define Infoclr_init_ppo(F,B,O,M) \
 Infoclr_init_data(F,B,O,M)
 
-#define Infoclr_init_cco(F,B,O,M) \
-Infoclr_init_ppo(Infoclr_Pixell(F),Infoclr_Pixell(B),O,M)
-
 #define Infoclr_init_ppn(F,B,O,M) \
 Infoclr_init_ppo(F,B,Infoclr_Opcode(O),M)
-
-#define Infoclr_init_ccn(F,B,O,M) \
-Infoclr_init_cco(F,B,Infoclr_Opcode(O),M)
 
 
 /* Set the current infofnt */
@@ -494,7 +555,7 @@ int Term_queue_space(void)
  *
  * NB: The keys added here will be interpreted by any macros or keymaps.
  */
-errr type_string(char *str, uint len)
+static errr type_string(char *str, uint len)
 {
 	char *s;
 
@@ -615,36 +676,6 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Nuke the current metadpy
- */
-static errr Metadpy_nuke(void)
-{
-	metadpy *m = Metadpy;
-
-
-	/* If required, Free the Display */
-	if (m->nuke)
-	{
-		/* Close the Display */
-		XCloseDisplay(m->dpy);
-
-		/* Forget the Display */
-		m->dpy = (Display*)(NULL);
-
-		/* Do not nuke it again */
-		m->nuke = 0;
-	}
-
-	/* Return Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * General Flush/ Sync/ Discard routine
  */
@@ -690,45 +721,6 @@ static errr Infowin_set_name(cptr name)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Set the icon name of Infowin
- */
-static errr Infowin_set_icon_name(cptr name)
-{
-	Status st;
-	XTextProperty tp;
-	char buf[128];
-	char *bp = buf;
-	strcpy(buf, name);
-	st = XStringListToTextProperty(&bp, 1, &tp);
-	if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
-	return (0);
-}
-
-
-/*
- * Nuke Infowin
- */
-static errr Infowin_nuke(void)
-{
-	infowin *iwin = Infowin;
-
-	/* Nuke if requested */
-	if (iwin->nuke)
-	{
-		/* Destory the old window */
-		XDestroyWindow(Metadpy->dpy, iwin->win);
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Prepare a new 'infowin'.
  */
@@ -769,26 +761,6 @@ static errr Infowin_prepare(Window xid)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Initialize a new 'infowin'.
- */
-static errr Infowin_init_real(Window xid)
-{
-	/* Wipe it clean */
-	(void)WIPE(Infowin, infowin);
-
-	/* Start out non-nukable */
-	Infowin->nuke = 0;
-
-	/* Attempt to Prepare ourself */
-	return (Infowin_prepare(xid));
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Init an infowin by giving some data.
  *
@@ -807,7 +779,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 	Window xid;
 
 	/* Wipe it clean */
-	(void)WIPE(Infowin, infowin);
+	memset(Infowin, 0, sizeof(struct infowin));
 
 
 	/*** Error Check XXX ***/
@@ -880,23 +852,6 @@ static errr Infowin_map(void)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Request that Infowin be unmapped
- */
-static errr Infowin_unmap(void)
-{
-	/* Execute the Un-Mapping */
-	XUnmapWindow(Metadpy->dpy, Infowin->win);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Request that Infowin be raised
  */
@@ -908,23 +863,6 @@ static errr Infowin_raise(void)
 	/* Success */
 	return (0);
 }
-
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Request that Infowin be lowered
- */
-static errr Infowin_lower(void)
-{
-	/* Lower towards invisibility */
-	XLowerWindow(Metadpy->dpy, Infowin->win);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -940,23 +878,6 @@ static errr Infowin_impell(int x, int y)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Move and Resize an infowin
- */
-static errr Infowin_locate(int x, int y, int w, int h)
-{
-	/* Execute the request */
-	XMoveResizeWindow(Metadpy->dpy, Infowin->win, x, y, w, h);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Visually clear Infowin
  */
@@ -968,24 +889,6 @@ static errr Infowin_wipe(void)
 	/* Success */
 	return (0);
 }
-
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Visually Paint Infowin with the current color
- */
-static errr Infowin_fill(void)
-{
-	/* Execute the request */
-	XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc,
-	               0, 0, Infowin->w, Infowin->h);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1050,109 +953,6 @@ static int Infoclr_Opcode(cptr str)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Request a Pixell by name.  Note: uses 'Metadpy'.
- *
- * Inputs:
- *      name: The name of the color to try to load (see below)
- *
- * Output:
- *	The Pixell value that metched the given name
- *	'Metadpy->fg' if the name was unparseable
- *
- * Valid forms for 'name':
- *	'fg', 'bg', 'zg', '<name>' and '#<code>'
- */
-static Pixell Infoclr_Pixell(cptr name)
-{
-	XColor scrn;
-
-	/* Attempt to Parse the name */
-	if (name && name[0])
-	{
-		/* The 'bg' color is available */
-		if (streq(name, "bg")) return (Metadpy->bg);
-
-		/* The 'fg' color is available */
-		if (streq(name, "fg")) return (Metadpy->fg);
-
-		/* The 'zg' color is available */
-		if (streq(name, "zg")) return (Metadpy->zg);
-
-		/* The 'white' color is available */
-		if (streq(name, "white")) return (Metadpy->white);
-
-		/* The 'black' color is available */
-		if (streq(name, "black")) return (Metadpy->black);
-
-		/* Attempt to parse 'name' into 'scrn' */
-		if (!(XParseColor(Metadpy->dpy, Metadpy->cmap, name, &scrn)))
-		{
-			plog_fmt("Warning: Couldn't parse color '%s'\n", name);
-		}
-
-		/* Attempt to Allocate the Parsed color */
-		if (!(XAllocColor(Metadpy->dpy, Metadpy->cmap, &scrn)))
-		{
-			plog_fmt("Warning: Couldn't allocate color '%s'\n", name);
-		}
-
-		/* The Pixel was Allocated correctly */
-		else return (scrn.pixel);
-	}
-
-	/* Warn about the Default being Used */
-	plog_fmt("Warning: Using 'fg' for unknown color '%s'\n", name);
-
-	/* Default to the 'Foreground' color */
-	return (Metadpy->fg);
-}
-
-
-/*
- * Initialize a new 'infoclr' with a real GC.
- */
-static errr Infoclr_init_1(GC gc)
-{
-	infoclr *iclr = Infoclr;
-
-	/* Wipe the iclr clean */
-	(void)WIPE(iclr, infoclr);
-
-	/* Assign the GC */
-	iclr->gc = gc;
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Nuke an old 'infoclr'.
- */
-static errr Infoclr_nuke(void)
-{
-	infoclr *iclr = Infoclr;
-
-	/* Deal with 'GC' */
-	if (iclr->nuke)
-	{
-		/* Free the GC */
-		XFreeGC(Metadpy->dpy, iclr->gc);
-	}
-
-	/* Forget the current */
-	Infoclr = (infoclr*)(NULL);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Initialize an infoclr with some data
  *
@@ -1214,7 +1014,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 	/*** Initialize ***/
 
 	/* Wipe the iclr clean */
-	(void)WIPE(iclr, infoclr);
+	memset(iclr, 0, sizeof(struct infoclr));
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1262,36 +1062,6 @@ static errr Infoclr_change_fg(Pixell fg)
 
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Nuke an old 'infofnt'.
- */
-static errr Infofnt_nuke(void)
-{
-	infofnt *ifnt = Infofnt;
-
-	/* Deal with 'name' */
-	if (ifnt->name)
-	{
-		/* Free the name */
-		string_free(ifnt->name);
-	}
-
-	/* Nuke info if needed */
-	if (ifnt->nuke)
-	{
-		/* Free the font */
-		XFreeFont(Metadpy->dpy, ifnt->info);
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Prepare a new 'infofnt'
  */
@@ -1311,42 +1081,11 @@ static errr Infofnt_prepare(XFontStruct *info)
 	ifnt->asc = info->ascent;
 	ifnt->hgt = info->ascent + info->descent;
 	ifnt->wid = cs->width;
-	if (use_bigtile)
-		ifnt->twid = 2 * ifnt->wid;
-	else
-		ifnt->twid = ifnt->wid;
-
-
-#ifdef OBSOLETE_SIZING_METHOD
-	/* Extract default sizing info */
-	ifnt->asc = cs->ascent;
-	ifnt->hgt = (cs->ascent + cs->descent);
-	ifnt->wid = cs->width;
-#endif
+	ifnt->twid = ifnt->wid;
 
 	/* Success */
 	return (0);
 }
-
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Initialize a new 'infofnt'.
- */
-static errr Infofnt_init_real(XFontStruct *info)
-{
-	/* Wipe the thing */
-	(void)WIPE(Infofnt, infofnt);
-
-	/* No nuking */
-	Infofnt->nuke = 0;
-
-	/* Attempt to prepare it */
-	return (Infofnt_prepare(info));
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1375,7 +1114,7 @@ static errr Infofnt_init_data(cptr name)
 	/*** Init the font ***/
 
 	/* Wipe the thing */
-	(void)WIPE(Infofnt, infofnt);
+	memset(Infofnt, 0, sizeof(struct infofnt));
 
 	/* Attempt to prepare it */
 	if (Infofnt_prepare(info))
@@ -1388,7 +1127,7 @@ static errr Infofnt_init_data(cptr name)
 	}
 
 	/* Save a copy of the font name */
-	Infofnt->name = string_make(name);
+	Infofnt->name = strdup(name);
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
@@ -1543,14 +1282,6 @@ struct term_data
 
 	infowin *win;
 
-#ifdef USE_GRAPHICS
-
-	XImage *tiles;
-
-	/* Tempory storage for overlaying tiles. */
-	XImage *TmpImage;
-
-#endif
 
 };
 
@@ -2009,8 +1740,6 @@ error:
 	XSendEvent(DPY, rq->requestor, FALSE, NoEventMask, &event);
 }
 
-extern errr type_string(char *str, uint len);
-
 /*
  * Add the contents of the PRIMARY buffer to the input queue.
  *
@@ -2433,56 +2162,6 @@ static errr Term_xtra_x11(int n, int v)
 		/* Clear the screen, and redraw any selection later. */
 	case TERM_XTRA_CLEAR: Infowin_wipe(); s_ptr->drawn = FALSE; return (0);
 
-		/* Delay for some milliseconds */
-	case TERM_XTRA_DELAY:
-		usleep(1000 * v);
-		return (0);
-
-		/* Get Delay of some milliseconds */
-	case TERM_XTRA_GET_DELAY:
-		{
-			int ret;
-			struct timeval tv;
-
-			ret = gettimeofday(&tv, NULL);
-			Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-
-			return ret;
-		}
-
-		/* Subdirectory scan */
-	case TERM_XTRA_SCANSUBDIR:
-		{
-			DIR *directory;
-			struct dirent *entry;
-
-			scansubdir_max = 0;
-
-			directory = opendir(scansubdir_dir);
-			if (!directory)
-				return 1;
-
-			while ((entry = readdir(directory)))
-			{
-				char file[PATH_MAX + NAME_MAX + 2];
-				struct stat filedata;
-
-				file[PATH_MAX + NAME_MAX] = 0;
-				strncpy(file, scansubdir_dir, PATH_MAX);
-				strncat(file, "/", 2);
-				strncat(file, entry->d_name, NAME_MAX);
-				if (!stat(file, &filedata) && S_ISDIR((filedata.st_mode)))
-				{
-					string_free(scansubdir_result[scansubdir_max]);
-					scansubdir_result[scansubdir_max] = string_make(entry->d_name);
-					++scansubdir_max;
-				}
-			}
-
-			closedir(directory);
-			return 0;
-		}
-
 		/* React to changes */
 	case TERM_XTRA_REACT: return (Term_xtra_x11_react());
 
@@ -2505,30 +2184,8 @@ static errr Term_curs_x11(int x, int y)
 	/* Draw the cursor */
 	Infoclr_set(xor);
 
-	if (use_bigtile && x + 1 < Term->wid && Term->old->a[y][x + 1] == 255)
-		Infofnt_text_non(x, y, "  ", 2);
-	else
-		/* Hilite the cursor character */
-		Infofnt_text_non(x, y, " ", 1);
-
-	/* Redraw the selection if any, as it may have been obscured. (later) */
-	s_ptr->drawn = FALSE;
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Erase some characters.
- */
-static errr Term_wipe_x11(int x, int y, int n)
-{
-	/* Erase (use black) */
-	Infoclr_set(clr[TERM_DARK]);
-
-	/* Mega-Hack -- Erase some space */
-	Infofnt_text_non(x, y, "", n);
+	/* Hilite the cursor character */
+	Infofnt_text_non(x, y, " ", 1);
 
 	/* Redraw the selection if any, as it may have been obscured. (later) */
 	s_ptr->drawn = FALSE;
@@ -2554,170 +2211,6 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 }
 
 
-#ifdef USE_GRAPHICS
-
-/*
- * Draw some graphical characters.
- */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp,
-                          const byte *tap, const char *tcp, const byte *eap, const char *ecp)
-{
-	int i, x1, y1;
-
-	byte a;
-	char c;
-
-	byte ta;
-	char tc;
-	int x2, y2;
-
-	byte ea;
-	char ec;
-	int x3, y3;
-	bool_ has_overlay;
-
-	int k, l;
-
-	unsigned long pixel, blank;
-
-	term_data *td = (term_data*)(Term->data);
-
-	y *= Infofnt->hgt;
-	x *= Infofnt->wid;
-
-	/* Add in affect of window boundaries */
-	y += Infowin->oy;
-	x += Infowin->ox;
-
-	for (i = 0; i < n; ++i, x += td->fnt->wid)
-	{
-		a = *ap++;
-		c = *cp++;
-
-		/* For extra speed - cache these values */
-		x1 = (c & 0x7F) * td->fnt->twid;
-		y1 = (a & 0x7F) * td->fnt->hgt;
-
-		ta = *tap++;
-		tc = *tcp++;
-
-		/* For extra speed - cache these values */
-		x2 = (tc & 0x7F) * td->fnt->twid;
-		y2 = (ta & 0x7F) * td->fnt->hgt;
-
-		ea = *eap++;
-		ec = *ecp++;
-		has_overlay = (ea && ec);
-
-		/* For extra speed - cache these values too */
-		x3 = (ec & 0x7F) * td->fnt->twid;
-		y3 = (ea & 0x7F) * td->fnt->hgt;
-
-		/* Optimise the common case */
-		if ((x1 == x2) && (y1 == y2))
-		{
-			/* Draw object / terrain */
-			if (!has_overlay)
-			{
-				XPutImage(Metadpy->dpy, td->win->win,
-				          clr[0]->gc,
-				          td->tiles,
-				          x1, y1,
-				          x, y,
-				          td->fnt->twid, td->fnt->hgt);
-			}
-
-			/* There's a terrain overlay */
-			else
-			{
-				/* Mega Hack^2 - assume the top left corner is "black" */
-				blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
-				for (k = 0; k < td->fnt->twid; k++)
-				{
-					for (l = 0; l < td->fnt->hgt; l++)
-					{
-						/* If mask set in overlay... */
-						if ((pixel = XGetPixel(td->tiles, x3 + k, y3 + l)) == blank)
-						{
-							/* Output from the terrain */
-							pixel = XGetPixel(td->tiles, x1 + k, y1 + l);
-						}
-
-						/* Store into the temp storage. */
-						XPutPixel(td->TmpImage, k, l, pixel);
-					}
-				}
-
-				/* Draw to screen */
-				XPutImage(Metadpy->dpy, td->win->win,
-				          clr[0]->gc,
-				          td->TmpImage,
-				          0, 0, x, y,
-				          td->fnt->twid, td->fnt->hgt);
-			}
-
-		}
-		else
-		{
-
-			/* Mega Hack^2 - assume the top left corner is "black" */
-			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
-
-			for (k = 0; k < td->fnt->twid; k++)
-			{
-				for (l = 0; l < td->fnt->hgt; l++)
-				{
-					/* Overlay */
-					if (has_overlay)
-					{
-						pixel = XGetPixel(td->tiles, x3 + k, y3 + l);
-					}
-
-					/* Hack -- No overlay */
-					else
-					{
-						pixel = blank;
-					}
-
-					/* If it's blank... */
-					if (pixel == blank)
-					{
-						/* Look at mon/obj */
-						pixel = XGetPixel(td->tiles, x1 + k, y1 + l);
-					}
-
-					/* If it's blank too, use terrain */
-					if (pixel == blank)
-					{
-						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
-					}
-
-					/* Store into the temp storage. */
-					XPutPixel(td->TmpImage, k, l, pixel);
-				}
-			}
-
-
-
-			/* Draw to screen */
-			XPutImage(Metadpy->dpy, td->win->win,
-			          clr[0]->gc,
-			          td->TmpImage,
-			          0, 0, x, y,
-			          td->fnt->twid, td->fnt->hgt);
-		}
-
-		x += td->fnt->wid;
-	}
-
-	/* Redraw the selection if any, as it may have been obscured. (later) */
-	s_ptr->drawn = FALSE;
-
-	/* Success */
-	return (0);
-}
-
-#endif /* USE_GRAPHICS */
 
 
 
@@ -2856,7 +2349,11 @@ static errr term_data_init(term_data *td, int i)
 
 
 	/* Prepare the standard font */
-	MAKE(td->fnt, infofnt);
+	td->fnt = calloc(1, sizeof(struct infofnt));
+	if (td->fnt == NULL)
+	{
+		abort();
+	}
 	Infofnt_set(td->fnt);
 	Infofnt_init_data(font);
 
@@ -2868,7 +2365,11 @@ static errr term_data_init(term_data *td, int i)
 	hgt = rows * td->fnt->hgt + (oy + oy);
 
 	/* Create a top-window */
-	MAKE(td->win, infowin);
+	td->win = calloc(1, sizeof(struct infowin));
+	if (td->win == NULL)
+	{
+		abort();
+	}
 	Infowin_set(td->win);
 	Infowin_init_top(x, y, wid, hgt, 0,
 	                 Metadpy->fg, Metadpy->bg);
@@ -2953,14 +2454,9 @@ static errr term_data_init(term_data *td, int i)
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
-	t->char_blank = ' ';
-
 	/* Hooks */
 	t->xtra_hook = Term_xtra_x11;
 	t->curs_hook = Term_curs_x11;
-	t->wipe_hook = Term_wipe_x11;
 	t->text_hook = Term_text_x11;
 
 	/* Save the data */
@@ -2985,17 +2481,6 @@ errr init_x11(int argc, char *argv[])
 
 	int num_term = 1;
 
-#ifdef USE_GRAPHICS
-
-	char filename[1024];
-
-	int pict_wid = 0;
-	int pict_hgt = 0;
-	bool_ force_old_graphics = FALSE;
-
-	char *TmpData;
-
-#endif /* USE_GRAPHICS */
 
 
 	/* Parse args */
@@ -3007,27 +2492,6 @@ errr init_x11(int argc, char *argv[])
 			continue;
 		}
 
-#ifdef USE_GRAPHICS
-
-		if (prefix(argv[i], "-s"))
-		{
-			smoothRescaling = FALSE;
-			continue;
-		}
-
-		if (prefix(argv[i], "-o"))
-		{
-			force_old_graphics = TRUE;
-			continue;
-		}
-
-		if (prefix(argv[i], "-b"))
-		{
-			arg_bigtile = use_bigtile = TRUE;
-			continue;
-		}
-
-#endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
 		{
@@ -3037,7 +2501,7 @@ errr init_x11(int argc, char *argv[])
 			continue;
 		}
 
-		plog_fmt("Ignoring option: %s", argv[i]);
+		fprintf(stderr, "Ignoring option: %s", argv[i]);
 	}
 
 
@@ -3046,7 +2510,11 @@ errr init_x11(int argc, char *argv[])
 
 
 	/* Prepare cursor color */
-	MAKE(xor, infoclr);
+	xor = calloc(1, sizeof(struct infoclr));
+	if (xor == NULL)
+	{
+		abort();
+	}
 	Infoclr_set(xor);
 	Infoclr_init_ppn(Metadpy->fg, Metadpy->bg, "xor", 0);
 
@@ -3056,8 +2524,11 @@ errr init_x11(int argc, char *argv[])
 	{
 		Pixell pixel;
 
-		MAKE(clr[i], infoclr);
-
+		clr[i] = calloc(1, sizeof(struct infoclr));
+		if (clr[i] == NULL)
+		{
+			abort();
+		}
 		Infoclr_set(clr[i]);
 
 		/* Acquire Angband colors */
@@ -3104,107 +2575,19 @@ errr init_x11(int argc, char *argv[])
 	Term_activate(&data[0].t);
 
 
-#ifdef USE_GRAPHICS
-
-	/* Try graphics */
-	if (arg_graphics)
-	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (!force_old_graphics &&
-		                (0 == fd_close(fd_open(filename, O_RDONLY))))
-		{
-			/* Use graphics */
-			use_graphics = TRUE;
-
-			pict_wid = pict_hgt = 16;
-
-			ANGBAND_GRAF = "new";
-		}
-		else
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
-		}
-	}
-
-	/* Load graphics */
-	if (use_graphics)
-	{
-		Display *dpy = Metadpy->dpy;
-
-		XImage *tiles_raw;
-
-		/* Load the graphical tiles */
-		tiles_raw = ReadBMP(dpy, filename);
-
-		/* Initialize the windows */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-
-			term *t = &td->t;
-
-			/* Graphics hook */
-			t->pict_hook = Term_pict_x11;
-
-			/* Use graphics sometimes */
-			t->higher_pict = TRUE;
-
-			/* Resize tiles */
-			td->tiles =
-			        ResizeImage(dpy, tiles_raw,
-			                    pict_wid, pict_hgt,
-			                    td->fnt->twid, td->fnt->hgt);
-		}
-
-		/* Initialize the transparency masks */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-			int ii, jj;
-			int depth = DefaultDepth(dpy, DefaultScreen(dpy));
-			Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
-			int total;
-
-
-			/* Determine total bytes needed for image */
-			ii = 1;
-			jj = (depth - 1) >> 2;
-			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->twid * td->fnt->hgt * ii;
-
-
-			TmpData = (char *)malloc(total);
-
-			td->TmpImage = XCreateImage(dpy, visual, depth,
-			                            ZPixmap, 0, TmpData,
-			                            td->fnt->twid, td->fnt->hgt, 8, 0);
-
-		}
-
-		/* Free tiles_raw? XXX XXX */
-	}
-
-#endif /* USE_GRAPHICS */
 
 
 	/* Success */
 	return (0);
 }
 
-#endif /* USE_X11 */
-
+int main(int argc, char *argv[])
+{
+	return main_real(
+		argc,
+		argv,
+		"x11",
+		init_x11,
+		"  -- -n#             Number of terms to use\n"
+		"  -- -d<name>        Display to use\n");
+}

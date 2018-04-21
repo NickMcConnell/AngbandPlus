@@ -8,9 +8,6 @@ X:rogue_like_commands
 # Option 'Activate quick messages'
 Y:quick_messages
 
-# Option 'Prompt for various information'
-X:other_query_flag
-
 # Option 'Prompt before picking things up'
 X:carry_query_flag
 
@@ -25,36 +22,6 @@ Y:prompt_pickup_heavy
 
 # Option 'Repeat obvious commands'
 Y:always_repeat
-
-# Option 'Show dungeon level in feet'
-X:depth_in_feet
-
-# Option 'Merge inscriptions when stacking'
-Y:stack_force_notes
-
-# Option 'Merge discounts when stacking'
-Y:stack_force_costs
-
-# Option 'Show labels in object listings'
-Y:show_labels
-
-# Option 'Show weights in object listings'
-Y:show_weights
-
-# Option 'Show graphics in inventory list'
-Y:show_inven_graph
-
-# Option 'Show graphics in equipment list'
-Y:show_equip_graph
-
-# Option 'Show graphics in stores'
-Y:show_store_graph
-
-# Option 'Show choices in certain sub-windows'
-Y:show_choices
-
-# Option 'Show details in certain sub-windows'
-Y:show_details
 
 # Option 'Audible bell (on errors, etc)'
 X:ring_bell
@@ -83,9 +50,6 @@ Y:disturb_near
 # Option 'Disturb whenever map panel changes'
 Y:disturb_panel
 
-# Option 'Disturb whenever leaving trap-detected area'
-Y:disturb_detect
-
 # Option 'Disturb whenever player state changes'
 Y:disturb_state
 
@@ -95,20 +59,11 @@ X:disturb_minor
 # Option 'Disturb whenever random things happen'
 X:disturb_other
 
-# Option 'Alert user to critical hitpoints'
-Y:alert_hitpoint
-
 # Option 'Alert user to various failures'
 Y:alert_failure
 
 # Option 'Get last words when the character dies'
 Y:last_words
-
-# Option 'Allow shopkeepers and uniques to speak'
-Y:speak_unique
-
-# Option 'No query to destroy known worthless items'
-Y:auto_destroy
 
 # Option 'Confirm to wear/wield known cursed items'
 Y:confirm_wear
@@ -122,9 +77,6 @@ X:disturb_pets
 # Option 'Automatically open doors'
 Y:easy_open
 
-# Option 'Automatically disarm traps'
-Y:easy_disarm
-
 # Option 'Automatically tunnel walls'
 Y:easy_tunnel
 
@@ -133,12 +85,6 @@ Y:auto_haggle
 
 # Option 'Auto-scum for good levels'
 Y:auto_scum
-
-# Option 'Allow weapons and armour to stack'
-Y:stack_allow_items
-
-# Option 'Allow wands/staffs/rods to stack'
-Y:stack_allow_wands
 
 # Option 'Expand the power of the look command'
 Y:expand_look
@@ -164,20 +110,8 @@ Y:dungeon_stair
 # Option 'Monsters chase current location (v.slow)'
 X:flow_by_sound
 
-# Option 'Use special symbols for the player char'
-X:player_symbols
-
-# Option 'Plain object descriptions'
-Y:plain_descriptions
-
 # Option 'Monsters learn from their mistakes'
 X:smart_learn
-
-# Option 'Monsters exploit players weaknesses'
-X:smart_cheat
-
-# Option 'Monsters behave stupidly'
-X:stupid_monsters
 
 # Option 'Allow unusually small dungeon levels'
 Y:small_levels
@@ -187,9 +121,6 @@ Y:empty_levels
 
 # Option 'Reduce lite-radius when running'
 X:view_reduce_lite
-
-# Option 'Reduce view-radius in town'
-X:view_reduce_view
 
 # Option 'Avoid checking for user abort'
 X:avoid_abort
@@ -241,9 +172,6 @@ X:center_player
 
 # Option 'Ingame contextual help'
 X:ingame_help
-
-# Option 'Show the experience needed for next level'
-X:exp_need
 
 # Option 'Use the old(Z) coloring scheme(reload the game)'
 X:old_colors

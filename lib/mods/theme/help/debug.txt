@@ -12,7 +12,7 @@ will not be scored if you use debug commands.
 ~~~~~100|Debug|Command List
 #####R=== Command List Summary ===
 
- *****debug.txt*1[a  Autorestore]                          *****debug.txt*2[A  Show all stats]
+ *****debug.txt*1[a  Autorestore]
  *****debug.txt*3[b  Teleport to target]                   *****debug.txt*4[B  HP to zero]
  *****debug.txt*5[c  Create object]                        *****debug.txt*6[C  Create artifact]
  *****debug.txt*7[d  Detect all]                           *****debug.txt*8[D  Teleport to the wilderness]
@@ -27,9 +27,9 @@ will not be scored if you use debug commands.
  *****debug.txt*25[m  Magic Mapping]                        *****debug.txt*26[M  Gain corruption]
  *****debug.txt*27[n  Summon named monster]                 *****debug.txt*28[N  Summon _friendly_ named monster]
  *****debug.txt*29[o  Edit object attributes]               O  (unused)
- *****debug.txt*31[p  Phase door]                           *****debug.txt*32[P  Panic save]
+ *****debug.txt*31[p  Phase door]                           P  (unused)
  *****debug.txt*33[q  Get a quest]                          Q  (unused)
- *****debug.txt*35[r  Gain reward]                          *****debug.txt*36[R  Create a trap]
+ r  (unused)                                                R  (unused)
  *****debug.txt*37[s  Summon monster]                       *****debug.txt*38[S  Change the feature of the map]
  *****debug.txt*39[t  Teleport]                             *****debug.txt*40[T  Teleport to a town]
  *****debug.txt*41[u  Complete map]                         *****debug.txt*42[U  Become undead]
@@ -53,17 +53,17 @@ will not be scored if you use debug commands.
  [  (unused)                            ^M  (unused)
  ]  (unused)                            ^N  (unused)
  *****debug.txt*67[-  Create object]                       ^O  (unused)
- *****debug.txt*69[_  The path to the god dark]            ^P  (unused)
+                                        ^P  (unused)
  *****debug.txt*71[+  Gain a fate]                         ^Q  (unused)
  *****debug.txt*73[=  Align monster]                       ^R  (unused)
  ;  (unused)                            ^S  (unused)
  :  (unused)                            ^T  (unused)
  '  (unused)                            ^U  (unused)
- *****debug.txt*75["  Create spoiler]                      ^V  (unused)
+                                        ^V  (unused)
  ,  (unused)                            ^W  (unused)
  <  (unused)                            ^X  (unused)
  .  (unused)                            ^Y  (unused)
- *****debug.txt*81[>  Lua script]                          ^Z  (unused)
+                                        ^Z  (unused)
  \  (unused)                             |  (unused)
  `  (unused)                             ~  (unused)
  *****debug.txt*91[/  Summon monster]                       *****debug.txt*92[?  Help]
@@ -85,10 +85,6 @@ maximal legal value.
 ~~~~~1
 [[[[[GAutorestore (a)]
         Restores all your stats.  This includes HP, SP, hunger, lost levels, etc.
-~~~~~2
-[[[[[GShow all stats (A)]
-        This brings up the Character status menu, where you can view
-        all the stats about your character.
 ~~~~~3
 [[[[[GTeleport to target (b)]
         You first need to have a monster targeted, then you can use
@@ -109,7 +105,7 @@ maximal legal value.
         For example : 03^AC will create the Arkenstone of Thrane (+3)
 ~~~~~7
 [[[[[GDetect all (d)]
-        Sense ways out/monsters/objects/traps.
+        Sense ways out/monsters/objects.
 ~~~~~8
 [[[[[GTeleport to the wilderness (D)]
         From a dungeon this will teleport you to the wilderness level
@@ -138,8 +134,7 @@ maximal legal value.
         Change your life rating.
 ~~~~~16
 [[[[[GHostile monster creation (H)]
-        Summons a Pack of Creatures of the same kind. Will only work
-        if MONSTER_HORDES has been defined at compile time.
+        Summons a Pack of Creatures of the same kind.
 ~~~~~17
 [[[[[GIdentify (i)]
         Like a Scroll of Identify.
@@ -175,9 +170,6 @@ maximal legal value.
 ~~~~~31
 [[[[[GPhase door (p)]
         Like a Scroll of Phase Door.
-~~~~~32
-[[[[[GPanic save (P)]
-        Save and quit the game, which is the same as doing a ^X.
 ~~~~~33
 [[[[[GGet a quest (q)]
         Get a quest.
@@ -187,11 +179,6 @@ maximal legal value.
 ~~~~~35
 [[[[[GGain reward (r)]
         Some high being grants you a reward.
-~~~~~36
-[[[[[GCreate a trap (R)]
-        Use the "Command count", aka 0, to specify a number from
-        tr_info.txt to put a trap on the ground where you are
-        standing.
 ~~~~~37
 [[[[[GSummon monster (s)]
         Summon a random monster, next to where you stand.
@@ -247,10 +234,6 @@ maximal legal value.
 [[[[[GCreate object (-)]
         Allows you to create a new object where you stand. You must
         specify an object number from k_info.txt.
-~~~~~69
-[[[[[GThe path to the god dark (_)]
-        Do not use this as it is used by DarkGod as a test for Lua
-        and will CRASH the game. You have been warned.
 ~~~~~71
 [[[[[GGain a fate (+)]
         Unearth more of your prophecy.
@@ -264,12 +247,6 @@ maximal legal value.
             3 monster becomes pet
             4 monster becomes companion
         You then point at an enemy and press space.
-~~~~~75
-[[[[[GCreate spoiler (")]
-        Brings up a menu that allows you to create a spoiler file.
-~~~~~81
-[[[[[GLua script (>)]
-        Allows you to run a Lua script.
 ~~~~~91
 [[[[[GSummon monster (/)]
         Summons a random monster next to you.

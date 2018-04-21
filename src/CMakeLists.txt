@@ -1,31 +1,140 @@
-# Lua support code.
-ADD_SUBDIRECTORY(lua)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../vendor/bandit)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../vendor/fmt)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../vendor/pcg-cpp/include)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../vendor/jsoncons)
 
-SET(SRCS
-  main-gcu.c main-x11.c main-xaw.c main-sdl.c main-gtk2.c
-  z-rand.c z-util.c z-form.c z-virt.c z-term.c
-  variable.c tables.c plots.c util.c cave.c dungeon.c 
-  melee1.c melee2.c modules.c 
-  object1.c object2.c randart.c squeltch.c traps.c 
-  monster1.c monster2.c monster3.c
-  xtra1.c xtra2.c skills.c powers.c gods.c
-  spells1.c spells2.c
-  status.c files.c notes.c loadsave.c
-  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c cmd7.c
-  help.c
-  generate.c gen_maze.c gen_evol.c wild.c levels.c store.c bldg.c
-  cmovie.c
-  wizard2.c init2.c birth.c wizard1.c init1.c main.c 
-  # Lua bits:
-  lua_bind.c script.c w_mnster.c w_player.c w_play_c.c w_z_pack.c
-  w_obj.c w_util.c w_spells.c w_quest.c w_dun.c
+# Add subdirectories
+ADD_SUBDIRECTORY (squelch)
+
+# Sources (common)
+SET(SRCS_COMMON
+  birth.cc
+  bldg.cc
+  cave.cc
+  cmd1.cc
+  cmd2.cc
+  cmd3.cc
+  cmd4.cc
+  cmd5.cc
+  cmd6.cc
+  cmd7.cc
+  corrupt.cc
+  device_allocation.cc
+  dice.cc
+  dungeon.cc
+  files.cc
+  game.cc
+  gen_evol.cc
+  gen_maze.cc
+  generate.cc
+  gods.cc
+  help.cc
+  hiscore.cc
+  hooks.cc
+  init1.cc
+  init2.cc
+  joke.cc
+  level_marker.cc
+  levels.cc
+  loadsave.cc
+  lua_bind.cc
+  melee1.cc
+  melee2.cc
+  message.cc
+  messages.cc
+  mimic.cc
+  modules.cc
+  monster_spell.cc
+  monster_type.cc
+  monster1.cc
+  monster2.cc
+  monster3.cc
+  notes.cc
+  object1.cc
+  object2.cc
+  object_filter.cc
+  object_flag_meta.cc
+  options.cc
+  player_type.cc
+  powers.cc
+  q_betwen.cc
+  q_bounty.cc
+  q_dragons.cc
+  q_eol.cc
+  q_evil.cc
+  q_fireprof.cc
+  q_god.cc
+  q_god.cc
+  q_haunted.cc
+  q_hobbit.cc
+  q_invas.cc
+  q_library.cc
+  q_main.cc
+  q_narsil.cc
+  q_nazgul.cc
+  q_nirna.cc
+  q_one.cc
+  q_poison.cc
+  q_rand.cc
+  q_shroom.cc
+  q_spider.cc
+  q_thief.cc
+  q_thrain.cc
+  q_troll.cc
+  q_ultrae.cc
+  q_ultrag.cc
+  q_wight.cc
+  q_wolves.cc
+  quest.cc
+  randart.cc
+  range.cc
+  skills.cc
+  spell_type.cc
+  spells1.cc
+  spells2.cc
+  spells3.cc
+  spells4.cc
+  spells5.cc
+  spells6.cc
+  squeltch.cc
+  store.cc
+  tables.cc
+  util.cc
+  variable.cc
+  wild.cc
+  wizard2.cc
+  seed.cc
+  xtra1.cc
+  xtra2.cc
+  z-form.c
+  z-rand.cc
+  z-term.c
+  z-util.c
 )
 
+# Sources (TEST)
+SET(SRCS_TESTS
+  ../tests/get_level_device.cc
+  ../tests/harness.cc
+  ../tests/lua_get_level.cc
+  ../tests/flag_set.cc
+  ../tests/grid.cc
+)
+
+ADD_LIBRARY(game
+  ${SRCS_COMMON} ${SRCS_VENDOR}
+)
+
+ADD_LIBRARY(game_main
+  main.cc)
+
 # Need a few additional source files for Windows.
-if(WIN32)
-  SET(SRCS ${SRCS} main-win.c readdib.c)
+IF(WIN32)
+  SET(SRCS ${SRCS} main-win.c)
   # Resource files require a little workaround.
-  if(MINGW)
+  IF(MINGW)
     # Workaround for resource compilation for mingw on CMake.
     # See http://www.cmake.org/Bug/view.php?id=4068
     ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/angband_rc.o
@@ -33,40 +142,44 @@ if(WIN32)
                                            -i${CMAKE_CURRENT_SOURCE_DIR}/angband.rc
                                            -o ${CMAKE_CURRENT_BINARY_DIR}/angband_rc.o)
     SET(SRCS ${SRCS} ${CMAKE_CURRENT_BINARY_DIR}/angband_rc.o)
-  else(MINGW)
+  ELSE(MINGW)
     SET(SRCS ${SRCS} angband.rc)
-  endif(MINGW)
-endif(WIN32)
+  ENDIF(MINGW)
+  # Executable for Win32
+  ADD_EXECUTABLE(tome-win WIN32 main-win.c)
+  TARGET_LINK_LIBRARIES(tome-win game squelch ${LIBS} winmm wsock32)
+  INSTALL(TARGETS tome-win RUNTIME DESTINATION bin)
+ENDIF(WIN32)
 
+# tome executables
+IF(X11_FOUND)
+  INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR})
+  ADD_EXECUTABLE(tome-x11 main-x11.c)
+  TARGET_LINK_LIBRARIES(tome-x11 game_main game squelch ${LIBS} ${X11_LIBRARIES})
+  INSTALL(TARGETS tome-x11 RUNTIME DESTINATION bin)
+ENDIF()
 
-# Macro for defining tolua targets.
-MACRO(TOLUA_FILE MODULE_NAME OUTPUT_FILE_NAME)
-  ADD_CUSTOM_COMMAND(
-    OUTPUT ${OUTPUT_FILE_NAME}
-    COMMAND tolua -n ${MODULE_NAME} -o ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_FILE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_NAME}.pkg
-    DEPENDS tolua ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_NAME}.pkg
-    )
-  SET_SOURCE_FILES_PROPERTIES("${OUTPUT_FILE_NAME}" PROPERTIES GENERATED TRUE)
-ENDMACRO(TOLUA_FILE)
+IF(SDL_FOUND AND SDLIMAGE_FOUND AND SDLTTF_FOUND)
+  INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
+  ADD_EXECUTABLE(tome-sdl main-sdl.c)
+  TARGET_LINK_LIBRARIES(tome-sdl game_main game squelch ${LIBS} ${SDLIMAGE_LIBRARY} ${SDLTTF_LIBRARY} ${SDL_LIBRARY} m)
+  INSTALL(TARGETS tome-sdl RUNTIME DESTINATION bin)
+ENDIF()
 
-# Process all the needed modules.
-TOLUA_FILE(monster w_mnster.c)
-TOLUA_FILE(player w_player.c)
-TOLUA_FILE(player_c w_play_c.c)
-TOLUA_FILE(z_pack w_z_pack.c)
-TOLUA_FILE(object w_obj.c)
-TOLUA_FILE(util w_util.c)
-TOLUA_FILE(spells w_spells.c)
-TOLUA_FILE(quest w_quest.c)
-TOLUA_FILE(dungeon w_dun.c)
+IF(CURSES_FOUND)
+  INCLUDE_DIRECTORIES(${CURSES_INCLUDE_DIR})
+  ADD_EXECUTABLE(tome-gcu main-gcu.c)
+  TARGET_LINK_LIBRARIES(tome-gcu game_main game squelch ${LIBS} ${CURSES_LIBRARIES})
+  INSTALL(TARGETS tome-gcu RUNTIME DESTINATION bin)
+ENDIF()
 
-# tome executable
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/lua)
-ADD_EXECUTABLE(tome ${EXECUTABLE_OPTIONS} ${SRCS})
-TARGET_LINK_LIBRARIES(tome lua ${LIBS})
+IF(GTK2_FOUND)
+  INCLUDE_DIRECTORIES(${GTK2_INCLUDE_DIRS})
+  ADD_EXECUTABLE(tome-gtk2 main-gtk2.c)
+  TARGET_LINK_LIBRARIES(tome-gtk2 game_main game squelch ${LIBS} ${GTK2_LIBRARIES})
+  INSTALL(TARGETS tome-gtk2 RUNTIME DESTINATION bin)
+ENDIF()
 
-# Installation
-INSTALL(TARGETS tome
-  RUNTIME DESTINATION bin
-)
+# test harness executable
+ADD_EXECUTABLE(harness ${SRCS_TESTS})
+TARGET_LINK_LIBRARIES(harness game squelch ${LIBS})

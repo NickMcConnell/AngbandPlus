@@ -1,0 +1,234 @@
+T.o.M.E 2.4.0 (ah)
+
+Game:
+
+- Removed traps and related skills. (Thanks to "miramor" for doing
+  most of the actual work on this.)
+- Removed Alchemist class from ToME module. They were horribly broken
+  and encouraged only scummy play. They were also indirectly
+  responsible for a lot of items that were junk to every other
+  character class.
+- Remove Runecrafer class.
+- Increased size of the home drastically.
+- Fix "far reaching attack" skill. (Thanks to "miramor".)
+- Remove pointless player stats such as "gender", "age", "height",
+  etc.
+- Disallow casting for Posessors when they don't have enought SP.
+  (aka "Remove system shock".)
+- Magic Mapping now maps the whole level instead of only the display
+  region.
+- Summoned monsters appear around summoner instead of player.
+- Remove various mostly inconsequential options.
+- Use PCG random number generator instead of the old custom one.
+- Grant player full monster knowledge.
+- Theme: Fix final guardian artifact for Land of Mountains.
+- Theme: Remove armor restriction for Eagle/Dragon races.
+
+Build:
+
+- Use C++14.
+- Use (vendored) "cppformat" for string formatting.
+- Use (vendored) "jsoncons" instead of "jansson".
+- Produce individual executables for each of the supported platforms
+  instead of a single executable.
+
+
+
+T.o.M.E 2.3.10 (ah)
+
+User Interface:
+
+- Always display list of selectable objects, i.e. remove the option of
+  pressing '*' to hide list.
+- GTK2: Allow running with Shift + arrow keys. (Thanks to Lord
+  Estraven.)
+- SDL fixes. (Thanks to Lord Estraven.)
+- System-wide character scores were removed. Use the ladder at
+  http://angband.oook.cz instead.
+- Panic saves are no longer created. Saving state when memory is
+  likely corrupted seems like a bad idea.
+- Remove long-obsolete front-ends.
+- Unix: Removed pointless and error-prone signal handling aimed at
+  preventing cheating.
+- Removed gamma correction.
+
+Game:
+
+- Killerbunnies: Character dump now lists companions.
+- Killerbunnies: Fix dodge messages.
+- Imported Theme 1.2.0 since this excellent module by Furiosity seems
+  to not be downloadable any more.
+- Further Thaumaturgy tweaks by Lord Estraven
+
+Build:
+
+- Setuid support REMOVED; do NOT install ToME as setuid!
+- Fixes for system installation. Thanks to 'darwin' for reporting.
+- Fix linking problem with the 'curses' front-end.
+- Add DEBUG.txt file for information on enabling debugging in builds.
+
+
+
+T.o.M.E 2.3.9 (ah)
+
+User Interface:
+
+- Always display list of selectable objects immediately
+  instead of requiring user to press '*'.
+- Fix display issues with extremely wide terminals.
+- Automatizer: Fix memory corruption issues.
+- Remove obsolete and pointless options.
+
+Game:
+
+- Items are now immediately pseudo-identified upon pickup.
+- Psycometry now always Identifies regardless of level.
+- Remove the need to instantly leave for a certain quest. Lots
+  of players would get caught out by this.
+- A few Mindcraft powers now scale with skill level. (Credit
+  for these goes to Lord Estraven.)
+- "Far reaching attack" now works for *all* polearms.
+- Fixes and tweaks for Thaumaturgy to make view/area spells less
+  overpowered and to make bolt/ball spells more useful. (Credit
+  goes to Lord Estraven.)
+
+T.o.M.E 2.3.8 (ah)
+
+Game:
+
+- Fix duration display for the Shapeshift Mimicry power. Thanks
+  to morchant for the fix.
+- Fix for creating "inventory" and "equipment" rules from the
+  Automatizer UI. Thanks to morchant for the fix.
+- Fix for Lua code which should hopefully get things working better
+  for OpenBSD users. Thanks to Kernigh for the patch.
+- Change "molten glass wall" to use a different internal code to
+  hopefully avoid clashes with modules such as Theme.
+- Removed the check on low fuel on your light source when traveling.
+  It doesn't make sense since you can already travel without any light
+  equipped.
+
+Build System:
+
+- Added support for building the GTK2 interface; only lightly tested.
+- Added support for building on Windows with MinGW. Thanks to wino45
+  for help with this.
+- Miscellaneous fixes to the CMake files. Thanks to Kernigh for
+  contributing these.
+
+T.o.M.E 2.3.7 (ah)
+
+- Remove item pval from antimagic field strength calculation since it
+  may be both non-zero and invisible (to the player).
+- Miscellaneous 64 bit fixes.
+- Fix Lua errors when hitting <ESC> while choosing spell.
+- Killerbunnies: Automatizer: Add patch which adds new <inventory/>
+  and <equipment/> rules.
+- Killerbunnies: Add "you do not know all your fate" to Fate menu
+  if you haven't been discovered all your fates.
+- Killerbunnies: Display a message if trying to activate Piercing Shots
+  without the necessary skill levels.
+
+T.o.M.E 2.3.6 (ah)
+
+- Don't generate impassable glass walls.
+- Mark *all* quest monsters properly.
+- Avoid generating up staircases in selected dungeons.
+- Mimicry cloaks of Abomination now aggravate properly.
+- Properly handle item set effects with certain traps.
+- Fix crash bug during character dumps.
+- Misc. Mimicry fixes.
+- Prevent immunities from Balrog Form persisting too long.
+- Fix for loading/saving on Linux distribution using Fortify.
+- Fix for module directory paths.
+- Fix miscellaneous problems on 64-bit platforms.
+- Princess room should now always be generated.
+- Extra Blows applies to barehand combat too.
+
+
+
+
+
+
+T.o.M.E 2.3.5 aka "Into the unknown" changes
+
+Interface changes:
+- The X11 and Xaw interfaces now save the dungeon and player when the
+  window is closed.
+- Fixed cpu churning bug that occurs when using certain window managers and
+  ToME is maximized.
+
+Gameplay changes:
+- Player speed now set correctly when Demon Hide corruption is enabled.
+- ToME now correctly sets various Balrog flags when player in Balrog form.
+- ToME now correctly sets the teleport flags when teleport corruption is
+  enabled.
+- ToME now uses the qrand7.map file when generating princess quests.
+- Bigs changes for generate.c to get it to produce the princess and thrain
+  rooms. Also code clean up of room geranation code.
+
+Object changes:
+- Slings of Buckland can now be generated.
+- Wiki Bug 510. Added the WIELD_CAST flag to all artifact instruments to
+  fix problems when casting spells.
+
+Misc changes:
+- Fixed small typo in the commands help file.
+- Added help for the Mathom House.
+- Fixed various compile time warnings in various files.
+- Added makefile support for main-gtk2.c in makefile.std
+- Values found in documentation for spectral race modifiers now match values
+  found in p_info.txt.
+- Wiki Bug 837. Removed references to old inscriptions handling code in
+  documentation.
+- Wiki Bug 564. Do not use the word 'restrict' as a variable name anymore.
+  It conflicts with keywords used by the Sun Studio Compiler.
+- Wiki Bug 517. Fixed incorrect descriptoin of artifacts in help files.
+- Changed description of Disarm spell to more accurately reflect what it
+  does.
+- ToME now correctly compiles main-gtk2.c on 64-bit machines.
+
+Bug fixes:
+- Wiki Bugs 841, 405, 360. Changes to get ToME to correctly build 64-bit
+  executables.
+- Applied killerbunnies patch to identify objects on grid before squelching.
+- Applied killer bunnies patch to keep the fate "you are fated to find
+  something special" from creating something special with an inappropriate
+  base object.
+- Applied killerbunnies patch stops symbiotes from gaining levels simply
+  by being hypnotized and released.
+- ToME now saves tim_fly, tim_poison, tim_regen and tim_regen_power.
+- Stores now display the inventory correctly after a purchase.
+- The race the legends display now works correctly with more than 10 dead
+  characters in history.
+- Characters are no longer generated with 0 mana points.
+- Wiki Bug 839. ToME no longer penalizes an object when it is not actually
+  cursed.
+- Wiki Bug 838. The melee style will now switch correctly from Bear to the
+  primary melee style when switching out of Bear form.
+- Wiki Bug 826. The inventory and equipment windows now update when the
+  player identifies the entire pack or uses the *Greater Identify* spell.
+- Wiki Bug 819. No more bogus level leaving messages.
+- Wiki Bug 722. ToME no longer crashes purple staircases have been trapped.
+- Wiki Bug 624. Ensure savefiles go to save and not scpt when using modules.
+- Wiki Bug 537. Partial fix of infinite loop during stair allocation on
+  small levels.
+- Wiki Bug 530. ToME no longer drops items inappropriately when changing
+  melee styles.
+- Wiki Bug 528. Character dumps now show the correct number of princess and
+  lost sword quests.
+- Wiki Bug 526. ToME no longer enters an infinite loop when fighting in
+  bare-hand combat sylte and bare-hand skill is < 1.
+- Wiki Bug 523. All types of recall check if the user really wants to leave
+  a unique level.
+- Wiki Bug 506. ToME no longer crashes attempting to drop non-existant
+  artifacts.
+- Wiki Bug 419. Use SKILL_BOULDER instead of SKILL_ARCHERY when throwing
+  a boulder.
+- Wiki Bug 411. Black breath no longer gets 3 chances to happen.
+- Wiki Bug 394 and 393. Inertia Control autocasting can no longer cast a
+  spell when antimagic field > 0 or when wielding a dark sword.
+- Wiki Bug 334. Companions are no longer saved in dungone save files.
+- Work around Mac OS 10.4.11 getlogin() bug - Neil
+- Wiki Bug 397. ToME no longer crashes on XP and Vista systems when viewing
+  quests or other info from the knowledge menu.

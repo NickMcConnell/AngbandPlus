@@ -1,93 +1,106 @@
 # Project definition.
 PROJECT (tome2)
-CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED (VERSION 3.1)
 
 # We want a readable feature summary.
 INCLUDE(FeatureSummary)
 
-# Default flags.
+# pkg-config support
+INCLUDE(FindPkgConfig)
+
+#
+# Basic common compiler flags.
+#
+SET(COMMON_COMPILER_FLAGS "-pipe -Wall -Wextra -Wno-unused-value -Wno-unused-parameter")
+
+#
+# Sanitizer flags for debugging
+#
+SET(SANITIZER_FLAGS "-fsanitize=undefined -fsanitize=address")
+
+#
+# C Compiler Flags
+#
+SET(CMAKE_C_FLAGS           "${CMAKE_C_FLAGS} ${COMMON_COMPILER_FLAGS}")
+SET(CMAKE_C_FLAGS_RELEASE   "-O2")
+SET(CMAKE_C_FLAGS_DEBUG     "-O0 -g ${SANITIZER_FLAGS}")
+
+#
+# C++ Compiler Flags
+#
+SET(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} ${COMMON_COMPILER_FLAGS} --std=c++14")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O2")
+SET(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g ${SANITIZER_FLAGS} -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC")
+
+#
+# GCC Flags
+#
 IF(CMAKE_COMPILER_IS_GNUCC)
-  # Let's set sensible options.
-  SET(CMAKE_C_FLAGS         "${CMAKE_C_FLAGS} -pipe -Wall -Wno-unused-value")
-  SET(CMAKE_C_FLAGS_RELEASE "-O2")
-  SET(CMAKE_C_FLAGS_DEBUG   "-O0 -g")
+  # Nothing for now
 ENDIF()
 
-# Add definitions.
-ADD_DEFINITIONS(-DUSE_PRECISE_CMOVIE)
+#
+# Clang flags
+#
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  # Nothing for now
+ENDIF()
+
+#
+# fmt
+#
+ADD_DEFINITIONS(-DFMT_HEADER_ONLY)
+
+# Add standard math library
+SET(LIBS ${LIBS} m)
+
+#
+# BOOST
+#
+FIND_PACKAGE(Boost 1.54.0 COMPONENTS system filesystem)
+SET_PACKAGE_PROPERTIES(Boost PROPERTIES TYPE REQUIRED)
+
+IF(Boost_FOUND)
+  ADD_DEFINITIONS(-DBOOST_FILESYSTEM_NO_DEPRECATED)
+  INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+  SET(LIBS ${LIBS} ${Boost_LIBRARIES} ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+ENDIF()
 
 #
 # X11 support (OPTIONAL)
 #
 FIND_PACKAGE(X11)
-IF(X11_FOUND)
-  # Add X11 flags/options
-  ADD_DEFINITIONS(-DUSE_X11)
-  INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR})
-  SET(LIBS ${LIBS} ${X11_LIBRARIES})
-ENDIF()
 
 #
 # GTK2 support (OPTIONAL)
 #
 FIND_PACKAGE(GTK2)
-IF(GTK2_FOUND)
-  # Add GTK flags/options
-  ADD_DEFINITIONS(-DUSE_GTK2)
-  INCLUDE_DIRECTORIES(${GTK2_INCLUDE_DIRS})
-  SET(LIBS ${LIBS} ${GTK2_LIBRARIES})
-ENDIF()
 
 #
 # SDL support (OPTIONAL)
 #
 FIND_PACKAGE(SDL)
 IF(SDL_FOUND)
-  # This is a bit roundabout, but we're working around
-  # the FindSDL_* scripts not respecting the REQUIRED
-  # flag.
-  #
-  # the SDL port also requires SDL_image and SDL_ttf
+  # We assume that if we want to compile for SDL that
+  # any required dependencies should be installed.
   FIND_PACKAGE(SDL_image)
   FIND_PACKAGE(SDL_ttf)
-  IF(SDLIMAGE_FOUND AND SDLTTF_FOUND)
-    # Add SDL flags/options
-    ADD_DEFINITIONS(-DUSE_SDL)
-    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
-    SET(LIBS ${LIBS} ${SDLIMAGE_LIBRARY} ${SDLTTF_LIBRARY} ${SDL_LIBRARY} m)
-  ELSE()
-    # Let user know that (and why) we haven't enabled SDL.
-    IF(SDLIMAGE_FOUND)
-      MESSAGE(STATUS "Found SDL and SDL_image, but not SDL_ttf!")
-    ELSEIF(SDLTTF_FOUND)
-      MESSAGE(STATUS "Found SDL and SDL_ttf, but not SDL_image!")
-    ELSE()
-      MESSAGE(STATUS "Found SDL, but not SDL_image nor SDL_ttf!")
-    ENDIF()
-    # add info about finding but not enabling SDL
-    SET_FEATURE_INFO(SDL "not enabled")
-  ENDIF()
+  SET_PACKAGE_PROPERTIES(SDL_image PROPERTIES TYPE REQUIRED)
+  SET_PACKAGE_PROPERTIES(SDL_ttf PROPERTIES TYPE REQUIRED)
 ENDIF()
 
 #
 # Curses support (OPTIONAL)
 #
 FIND_PACKAGE(Curses)
-IF(CURSES_FOUND)
-  # Add Curses flags/options
-  ADD_DEFINITIONS(-DUSE_GCU)
-  INCLUDE_DIRECTORIES(${CURSES_INCLUDE_DIR})
-  SET(LIBS ${LIBS} ${CURSES_LIBRARIES})
-ENDIF()
 
 #
 # Windows support
 #
 if(WIN32)
-  # Add Windows flags/options
+  # This definition is required for more than just the main-win file,
+  # so we need to have it here.
   ADD_DEFINITIONS(-DWINDOWS)
-  SET(EXECUTABLE_OPTIONS WIN32)
-  SET(LIBS ${LIBS} winmm wsock32)
 endif(WIN32)
 
 #
@@ -101,7 +114,7 @@ ENDIF()
 ADD_DEFINITIONS(-DDEFAULT_PATH="${DEFAULT_PATH}")
 
 # Print out a summary of features.
-PRINT_ENABLED_FEATURES()
+FEATURE_SUMMARY(FATAL_ON_MISSING_REQUIRED_PACKAGES WHAT PACKAGES_FOUND PACKAGES_NOT_FOUND)
 
 # Add the source subdirectory.
 ADD_SUBDIRECTORY (src)

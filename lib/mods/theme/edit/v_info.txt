@@ -16,11 +16,6 @@
 
 # Quest vaults added - rr9
 
-# Version stamp (required)
-
-V:2.0.0
-
-
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
 
 
@@ -233,7 +228,7 @@ D:%........XXXXXXXXXXX.%
 D:%%%%%%%%%%%%%%%%%%%%%%
 
 N:12:Lesser vault (prison)
-X:7:10:16:35
+X:7:10:15:35
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.+..&..+..&..+..&..+..&..+..&..+.%
 D:%.###.#####.#####.#####.#####.###.%

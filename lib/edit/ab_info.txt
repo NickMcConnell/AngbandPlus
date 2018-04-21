@@ -20,25 +20,17 @@
 # S:level(linear mode):stats
 # a:needed ability
 
-# E:excluding ability:excluding ability
-
-# If you need more sophisticated prereqs use the HOOK_LEARN_ABILITY
-
-# Version stamp (required)
-
 # Do not forget to update misc.txt with an entry like the following :
 # Maximum number of traits in ab_info.txt
 # M:b:50
-
-V:2.2.0
 
 N:0:Spread blows
 D:If a monster dies to your attack but you still have blows left
 D:you won't lose the full turn, allowing you to attack some other
 D:monster in the same turn
-D:Prereq: Weaponmastery skill@30, Dex@17
+D:Prereq: Combat@30, Dex@17
 I:5
-k:30:Weaponmastery
+k:30:Combat
 S:17:DEX
 
 N:1:Tree walking
@@ -83,15 +75,6 @@ k:40:Combat
 S:30:DEX
 S:30:STR
 
-N:7:Artifact Creation
-D:In combination with a high alchemy skill this ability will let you
-D:design your very own artifacts
-D:Prereq: Alchemy@40, INT@35, WIS@35
-I:70
-k:40:Alchemy
-S:35:INT
-S:35:WIS
-
 N:8:Far reaching attack
 D:You can attack an enemy one square far using a long polearm.
 D:At high levels of Polearm-mastery skill, you can even hit two enemies at once.
@@ -100,13 +83,6 @@ I:10
 A:102:Far reaching attack
 k:15:Combat
 k:15:Polearm-mastery
-
-N:9:Trapping
-D:Ability to set monster traps
-D:Prereq: Disarming@15
-I:10
-A:14:Set trap
-k:15:Disarming
 
 N:10:Undead Form
 D:Ability to turn into a weak undead being when you "die".

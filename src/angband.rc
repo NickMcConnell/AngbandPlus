@@ -1,10 +1,5 @@
 /* File: angband.rc */
 
-/*
- * If the windows command to compile this file understands #ifdef's, please
- * say #ifdef ALLOW_QUITTING to select from "A&bort" and "Sh&ow scores"
- */
-
 ANGBAND MENU
 {
  POPUP "&File"
@@ -12,7 +7,6 @@ ANGBAND MENU
   MENUITEM "&Save", 110
   MENUITEM SEPARATOR
   MENUITEM "S&how score", 120
-  /*MENUITEM "A&bort", 120*/
   MENUITEM "E&xit", 121
  }
 
@@ -107,25 +101,10 @@ ANGBAND MENU
 
  POPUP "&Options"
  {
-  POPUP "&Graphics"
-  {
-   MENUITEM "&Old tiles", 400
-   MENUITEM "&New tiles", 401
-   MENUITEM "ASCII &Text", 403
-   MENUITEM "&Bigtile mode", 409
-   }
-
-  MENUITEM "&Sound", 402
-  MENUITEM SEPARATOR
   MENUITEM "Unused menu option", 410
   MENUITEM "Activate Screensaver", 411
  }
 
- POPUP "&Help"
- {
-  MENUITEM "&General", 901
-  MENUITEM "&Spoilers", 902
- }
 }
 
 ANGBAND ICON "angband.ico"

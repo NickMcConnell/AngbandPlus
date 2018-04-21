@@ -41,16 +41,9 @@
 /* #define IS_CVS          " (ah, git)" */
 #endif
 
-#define USER_PATH_VERSION "/2.3"
+#define USER_PATH_VERSION "/2.4"
 
-#define ANGBAND_2_8_1
-
-#define SAVEFILE_VERSION 104
-
-/*
- * This value is not currently used
- */
-#define VERSION_EXTRA   0
+#define SAVEFILE_VERSION 105
 
 /*
  * Maximum amount of Angband windows.
@@ -121,86 +114,23 @@
  */
 #define DEFAULT_RADIUS	25
 
-
-#define CHANCE_TRAP_JAMMED_DOOR 2500
-#define CHANCE_TRAP_SECRET_DOOR 1500
-#define CHANCE_TRAP_LOCKED_DOOR 1000
-#define CHANCE_TRAP_DOOR  500        /* in 10000 */
-#define CHANCE_TRAP_FLOOR 4          /* in 10000 chance of placing a trap */
-
-#define MAX_BOUNTIES        24
-
 #define MAX_SPELLS          100
 #define MAX_RUNES           100
 
 /*
- * Arena constants
+ * Total number of monster powers
  */
-#define MAX_ARENA_MONS		29	/* -KMW- */
+#define MONSTER_POWERS_MAX 96
 
 /*
  * Total number of stores (see "store.c", etc)
  */
 #define STORE_GENERAL   0
-#define STORE_ARMOURY   1
-#define STORE_WEAPON    2
-#define STORE_TEMPLE    3
-#define STORE_ALCHEMIST 4
-#define STORE_MAGIC     5
-#define STORE_BLACK     6
 #define STORE_HOME      7
-#define STORE_BOOK      8
-#define STORE_PET       9
-
-/*
- * Maximum number of player "sex" types (see "table.c", etc)
- */
-#define MAX_SEXES            3
-
-/* The number of "patrons" available (for Chaos Warriors) */
-#define MAX_PATRON          16
 
 /* Number of Random Artifacts */
 #define MAX_RANDARTS 84
 #define MAX_T_ACT    51
-
-/* Chaos Warrior: Reward types: */
-#define REW_POLY_SLF    0
-#define REW_GAIN_EXP    1
-#define REW_LOSE_EXP    2
-#define REW_GOOD_OBJ    3
-#define REW_GREA_OBJ    4
-#define REW_CHAOS_WP    5
-#define REW_GOOD_OBS    6
-#define REW_GREA_OBS    7
-#define REW_TY_CURSE    8
-#define REW_SUMMON_M    9
-#define REW_H_SUMMON    10
-#define REW_DO_HAVOC    11
-#define REW_GAIN_ABL    12
-#define REW_LOSE_ABL    13
-#define REW_RUIN_ABL    14
-#define REW_AUGM_ABL    15
-#define REW_POLY_WND    16
-#define REW_HEAL_FUL    17
-#define REW_HURT_LOT    18
-#define REW_CURSE_WP    19
-#define REW_CURSE_AR    20
-#define REW_PISS_OFF    21
-#define REW_WRATH       22
-#define REW_DESTRUCT    23
-#define REW_GENOCIDE    24
-#define REW_MASS_GEN    25
-#define REW_DISPEL_C    26
-#define REW_UNUSED_1    27
-#define REW_UNUSED_2    28
-#define REW_UNUSED_3    29
-#define REW_UNUSED_4    30
-#define REW_UNUSED_5    31
-#define REW_IGNORE      32
-#define REW_SER_UNDE    33
-#define REW_SER_DEMO    34
-#define REW_SER_MONS    35
 
 
 /* bear barehanded attacks      ... */
@@ -223,6 +153,7 @@
 
 /* Mimicry */
 #define MAX_MIMIC_POWERS  5
+#define MIMIC_FORMS_MAX 14
 
 /* Symbiosis */
 #define MAX_SYMBIOTIC_POWERS  9
@@ -231,19 +162,6 @@
 /* A hack for cave.c */
 #define BMP_FIRST_PC_CLASS 164
 #define BMP_FIRST_PC_RACE 128
-
-
-/*
- * Size of memory reserved for initialization of some arrays
- */
-#define FAKE_NAME_SIZE  40 * 1024L
-#define FAKE_TEXT_SIZE 120 * 1024L
-
-
-/*
- * Maximum number of high scores in the high score file
- */
-#define MAX_HISCORES    100
 
 
 /*
@@ -304,30 +222,6 @@
 #define MACRO_MAX       256
 
 /*
- * OPTION: Maximum number of "quarks" (see "io.c")
- * Default: assume at most 512 different inscriptions are used
- */
-#define QUARK_MAX       768
-	/* Was 512... 256 quarks added for random artifacts */
-
-/*
- * OPTION: Maximum number of messages to remember (see "io.c")
- * Default: assume maximal memorization of 2048 total messages
- */
-#define MESSAGE_MAX     2048
-
-#define MESSAGE_NONE    0
-#define MESSAGE_MSG     1
-
-/*
- * OPTION: Maximum space for the message text buffer (see "io.c")
- * Default: assume that each of the 2048 messages is repeated an
- * average of three times, and has an average length of 48
- */
-#define MESSAGE_BUF     32768
-
-
-/*
  * Maximum value storable in a "byte" (hard-coded)
  */
 #define MAX_UCHAR       255
@@ -342,7 +236,6 @@
  * Store constants
  */
 #define STORE_INVEN_MAX 255             /* Max number of discrete objs in inven */
-#define STORE_CHOICES   56              /* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL 5               /* Magic Level for normal stores */
 #define STORE_TURNOVER  9               /* Normal shop turnover, per day */
 #define STORE_MIN_KEEP  6               /* Min slots to "always" keep full */
@@ -358,8 +251,6 @@
 #define HOUR                    (DAY / 24)              /* Number of turns per hour */
 #define MINUTE                  (HOUR / 60)             /* Number of turns per minute */
 #define DAY_START               (HOUR * 6)              /* Sunrise */
-#define START_YEAR              2890                    /* Bilbo birthday year */
-#define START_DAY               (DAY * (42 + 127))      /* Bilbo birthday */
 
 #define BREAK_GLYPH             550             /* Rune of protection resistance */
 #define BREAK_MINOR_GLYPH       99             /* For explosive runes */
@@ -418,7 +309,6 @@
 #define NASTY_MON       50              /* 1/chance of inflated monster level */
 
 
-
 /*
  * Refueling constants
  */
@@ -460,7 +350,6 @@
 #define SUBRACE_SAVE    9               /* Ugly hack, should be in foo-info, the subrace saved to the savefile */
 #define PY_MAX_EXP      99999999L       /* Maximum exp */
 #define PY_MAX_GOLD     999999999L      /* Maximum gold */
-#define PY_MAX_LEVEL    50              /* Maximum level */
 
 /*
  * Player "food" crucial values
@@ -482,131 +371,19 @@
 #define PY_REGEN_MNBASE         524             /* Min amount mana regen*2^16 */
 
 /*
- * Maximum number of "normal" pack slots, and the index of the "overflow"
- * slot, which can hold an item, but only temporarily, since it causes the
- * pack to "overflow", dropping the "last" item onto the ground.  Since this
- * value is used as an actual slot, it must be less than "INVEN_WIELD" (below).
- * Note that "INVEN_PACK" is probably hard-coded by its use in savefiles, and
- * by the fact that the screen can only show 23 items plus a one-line prompt.
- */
-#define INVEN_PACK              23
-
-/*
- * Body parts
- */
-#define BODY_WEAPON     0
-#define BODY_TORSO      1
-#define BODY_ARMS       2
-#define BODY_FINGER     3
-#define BODY_HEAD       4
-#define BODY_LEGS       5
-#define BODY_MAX        6
-
-/*
- * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
- */
-#define INVEN_WIELD     24 /* 3 weapons -- WEAPONS */
-#define INVEN_BOW       27 /* 1 bow -- WEAPON */
-#define INVEN_RING      28 /* 6 rings -- FINGER */
-#define INVEN_NECK      34 /* 2 amulets -- HEAD */
-#define INVEN_LITE      36 /* 1 lite -- TORSO */
-#define INVEN_BODY      37 /* 1 body -- TORSO */
-#define INVEN_OUTER     38 /* 1 cloak -- TORSO */
-#define INVEN_ARM       39 /* 3 arms -- ARMS */
-#define INVEN_HEAD      42 /* 2 heads -- HEAD */
-#define INVEN_HANDS     44 /* 3 hands -- ARMS */
-#define INVEN_FEET      47 /* 2 feets -- LEGS */
-#define INVEN_CARRY     49 /* 1 carried monster -- TORSO */
-#define INVEN_AMMO      50 /* 1 quiver -- TORSO */
-#define INVEN_TOOL      51 /* 1 tool -- ARMS */
-
-/*
- * Total number of inventory slots (hard-coded).
- */
-#define INVEN_TOTAL     52
-#define INVEN_EQ        (INVEN_TOTAL - INVEN_WIELD)
-
-/*
  * A "stack" of items is limited to less than 100 items (hard-coded).
  */
 #define MAX_STACK_SIZE                  100
 
 
-
-/*
- * Indexes of the various "stats" (hard-coded by savefiles, etc).
- */
-#define A_STR   0
-#define A_INT   1
-#define A_WIS   2
-#define A_DEX   3
-#define A_CON   4
-#define A_CHR   5
-
-/*
- * Player sex constants (hard-coded by save-files, arrays, etc)
- */
-#define SEX_FEMALE              0
-#define SEX_MALE                1
-#define SEX_NEUTER              2
-
-
-/* Race flags */
-#define PR1_EXPERIMENTAL        0x00000001L     /* Is still under developemnt */
-/* XXX */
-#define PR1_RESIST_BLACK_BREATH 0x00000004L     /* Resist black breath */
-#define PR1_NO_STUN             0x00000008L     /* Never stunned */
-#define PR1_XTRA_MIGHT_BOW      0x00000010L     /* Xtra might with bows */
-#define PR1_XTRA_MIGHT_XBOW     0x00000020L     /* Xtra might with xbows */
-#define PR1_XTRA_MIGHT_SLING    0x00000040L     /* Xtra might with slings */
-#define PR1_AC_LEVEL            0x00000080L     /* More AC with levels */
-#define PR1_HURT_LITE           0x00000100L     /* Hurt by light */
-#define PR1_VAMPIRE             0x00000200L     /* Vampire */
-#define PR1_UNDEAD              0x00000400L     /* Undead */
-#define PR1_NO_CUT              0x00000800L     /* no cuts */
-#define PR1_CORRUPT             0x00001000L     /* hack-- corrupted */
-#define PR1_NO_FOOD             0x00002000L     /* little gain from food */
-#define PR1_NO_GOD              0x00004000L     /* cannot worship */
-/* XXX */
-#define PR1_ELF                 0x00010000L     /* Is an elf */
-#define PR1_SEMI_WRAITH         0x00020000L     /* Takes damage when going in walls */
-#define PR1_NO_SUBRACE_CHANGE   0x00040000L     /* Impossible to change subrace */
-/* XXX */
-#define PR1_ANTIMAGIC           0x00100000L     /* antimagic ... hack */
-#define PR1_MOLD_FRIEND         0x00200000L     /* Not attacked by molds wielded */
-#define PR1_GOD_FRIEND          0x00400000L     /* Better grace */
-/* XXX */
-#define PR1_INNATE_SPELLS       0x01000000L     /* KNown all spells, only need books */
-/* XXX */
-/* XXX */
-#define PR1_EASE_STEAL          0x08000000L     /* Gain xp by stealing */
-/* XXX */
-/* XXX */
-/* XXX */
-/* XXX */
-
-/* XXX */
-#define PR2_ASTRAL              0x00000002L     /* Is it an astral being coming from th halls of mandos ? */
-/* XXX */
-
-#define PRACE_FLAG2(f)          ((rp_ptr->flags2 | rmp_ptr->flags2 | cp_ptr->flags2 | spp_ptr->flags2) & (f))
-#define PRACE_FLAG(f)           ((rp_ptr->flags1 | rmp_ptr->flags1 | cp_ptr->flags1 | spp_ptr->flags1) & (f))
-#define PRACE_FLAGS(f)          PRACE_FLAG(f)
-
-/* XXX */
 #define MKEY_MINDCRAFT          2
 #define MKEY_ANTIMAGIC          3
-#define MKEY_BLADE              4
-#define MKEY_ALCHEMY            5
 #define MKEY_MIMIC              6
 #define MKEY_NECRO              7
 #define MKEY_POWER_MAGE         8
-#define MKEY_RUNE               9
 #define MKEY_FORGING            10
 #define MKEY_INCARNATION        11
-#define MKEY_TELEKINESIS        12
 #define MKEY_SUMMON             13
-#define MKEY_TRAP               14
 #define MKEY_STEAL              15
 #define MKEY_DODGE              16
 #define MKEY_SCHOOL             17
@@ -616,6 +393,9 @@
 #define MKEY_BOULDER            21
 #define MKEY_COMPANION          22
 #define MKEY_PIERCING           23
+#define MKEY_DEATH_TOUCH        100
+#define MKEY_GEOMANCY           101
+#define MKEY_REACH_ATTACK       102
 
 
 /*** Screen Locations ***/
@@ -668,45 +448,6 @@
 #define ROW_MH                  19
 #define COL_MH                  0       /* "MH xxxxx/xxxxx" */
 
-#define ROW_INFO                (Term->hgt - 4)
-#define COL_INFO                0       /* "xxxxxxxxxxxx" */
-
-#define ROW_CUT                 (Term->hgt - 3)
-#define COL_CUT                 0       /* <cut> */
-
-#define ROW_STUN                (Term->hgt - 2)
-#define COL_STUN                0       /* <stun> */
-
-#define ROW_HUNGRY              (Term->hgt - 1)
-#define COL_HUNGRY              0       /* "Weak" / "Hungry" / "Full" / "Gorged" */
-
-#define ROW_BLIND               (Term->hgt - 1)
-#define COL_BLIND               7       /* "Blind" */
-
-#define ROW_CONFUSED            (Term->hgt - 1)
-#define COL_CONFUSED            13      /* "Conf" */
-
-#define ROW_AFRAID              (Term->hgt - 1)
-#define COL_AFRAID              18      /* "Afraid" */
-
-#define ROW_POISONED            (Term->hgt - 1)
-#define COL_POISONED            25      /* "Poison" */
-
-#define ROW_DTRAP               (Term->hgt - 1)
-#define COL_DTRAP               32      /* "DTrap" */
-
-#define ROW_STATE               (Term->hgt - 1)
-#define COL_STATE               38      /* <state> */
-
-#define ROW_SPEED               (Term->hgt - 1)
-#define COL_SPEED               49      /* "Slow (-NN)" or "Fast (+NN)" */
-
-#define ROW_STUDY               (Term->hgt - 1)
-#define COL_STUDY               60      /* "Study" */
-
-#define ROW_DEPTH               (Term->hgt - 1)
-#define COL_DEPTH               (Term->wid - 14) /* "Lev NNN" / "NNNN ft" */
-
 
 
 /*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
@@ -737,9 +478,6 @@
 #define FEAT_EMPTY_FOUNTAIN     0x0F
 
 /* Feature 0x10 -- web */
-
-/* Traps */
-#define FEAT_TRAP               0x11
 
 /* Features 0x12 - 0x1F -- unused */
 
@@ -788,9 +526,6 @@
 
 /* Permanent walls for quests */
 #define FEAT_QUEST1             0x4B
-#define FEAT_QUEST2             0x4C
-#define FEAT_QUEST3             0x4D
-#define FEAT_QUEST4             0x4E
 
 /* Features 0x4F - 0x53 -- unused */
 
@@ -827,7 +562,6 @@
 #define FEAT_MARKER             0xAC /* 172 */
 /* Feature 0xAD -- Underground Tunnel */
 #define FEAT_TAINTED_WATER      0xAE /* 174 */
-#define FEAT_MON_TRAP           0xAF /* 175 */
 #define FEAT_BETWEEN2           0xB0 /* 176 */
 #define FEAT_LAVA_WALL          0xB1 /* 177 */
 #define FEAT_GREAT_FIRE         0xB2 /* 178 */
@@ -862,7 +596,17 @@
 /* Features 0xCF - 0xFF -- unused */
 
 
-#define MAX_BETWEEN_EXITS       2
+#define MAX_BETWEEN_EXITS       3
+
+/*
+ * Maximum number of school spells
+ */
+#define SCHOOL_SPELLS_MAX 200
+
+/*
+ * Maximum number of spell schools
+ */
+#define SCHOOLS_MAX 50
 
 /*
  * Number of effects
@@ -880,228 +624,15 @@
 #define EFF_DIR8                0x00000200      /* Directed effect */
 #define EFF_DIR9                0x00000400      /* Directed effect */
 
-/*
- * Wilderness terrains
- */
-#define TERRAIN_EDGE             0 /* Edge of the World */
-#define TERRAIN_TOWN             1 /* Town */
-#define TERRAIN_DEEP_WATER       2 /* Deep water */
-#define TERRAIN_SHALLOW_WATER    3 /* Shallow water */
-#define TERRAIN_SWAMP            4 /* Swamp */
-#define TERRAIN_DIRT             5 /* Dirt */
-#define TERRAIN_GRASS            6 /* Grass */
-#define TERRAIN_TREES            7 /* Trees */
-#define TERRAIN_DESERT           8 /* Desert */
-#define TERRAIN_SHALLOW_LAVA     9 /* Shallow lava */
-#define TERRAIN_DEEP_LAVA       10 /* Deep lava */
-#define TERRAIN_MOUNTAIN        11 /* Mountain */
-
-#define MAX_WILD_TERRAIN        18
-
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
-
-/* Lites */
-#define ART_GALADRIEL                   1
-#define ART_ELENDIL                     2
-#define ART_THRAIN                      3
-#define ART_PALANTIR                    202
-#define ART_UNDEATH                     200
-#define ART_STONE_LORE                  15
-#define ART_PALANTIR_ITHIL              208
-
-/* Amulets */
-#define ART_CARLAMMAS                   4
-#define ART_INGWE                       5
-#define ART_DWARVES                     6
 #define ART_ANCHOR                      14
-#define ART_ELESSAR                     206
-#define ART_EVENSTAR                    207
-
-/* Rings */
-#define ART_FLAR                        7
-#define ART_BARAHIR                     8
-#define ART_TULKAS                      9
-#define ART_NARYA                       10
-#define ART_NENYA                       11
-#define ART_VILYA                       12
 #define ART_POWER                       13
-/* 14 used by the anchor of space-time */
-/* 15 used by the stone of lore */
-
-/* Dragon Scale */
-#define ART_RAZORBACK           16
-#define ART_BLADETURNER         17
-#define ART_MEDIATOR            166
-
-/* Hard Armour */
-#define ART_HIMRING             167
-#define ART_SOULKEEPER          19
-#define ART_ISILDUR             20
-#define ART_ROHIRRIM            21
-#define ART_BELEGENNON          22
-#define ART_CELEBORN            23
-#define ART_ARVEDUI             24
-#define ART_CASPANION           25
-
-/* Thunderlord flying suit */
-#define ART_MARDA               26
-#define ART_TRON                27
-
-/* Soft Armour */
-#define ART_THALKETTOTH         28
-
-/* Shields */
-#define ART_THORIN                      30
-#define ART_CELEGORM                    31
-#define ART_ANARION                     32
-#define ART_GILGALAD                    169
-#define ART_HARADRIM                    176
-
-/* Helms and Crowns */
 #define ART_MORGOTH                     34
-#define ART_BERUTHIEL           35
-#define ART_THRANDUIL           36
-#define ART_THENGEL                     37
-#define ART_HAMMERHAND          38
-#define ART_DOR                         39
-#define ART_HOLHENNETH          40
-#define ART_GORLIM                      41
-#define ART_GONDOR                      42
-#define ART_KNOWLEDGE                   160
-#define ART_NUMENOR                     43
-#define ART_CELEBRIMBOR                 170
-
-/* Cloaks */
-#define ART_COLLUIN                     44
-#define ART_HOLCOLLETH          45
-#define ART_THINGOL                     46
-#define ART_THORONGIL           47
-#define ART_COLANNON            48
-#define ART_LUTHIEN                     49
-#define ART_TUOR                        50
-
-/* Gloves */
-#define ART_CAMBELEG            52
-#define ART_CAMMITHRIM          53
-#define ART_PAURHACH            54
-#define ART_PAURNIMMEN          55
-#define ART_PAURAEGEN           56
-#define ART_PAURNEN                     57
-#define ART_CAMLOST                     58
-#define ART_FINGOLFIN           59
-#define ART_EOL                 178
-
-/* Boots */
-#define ART_FEANOR                      60
-#define ART_DAL                         61
-#define ART_THROR                       62
-
-/* Swords */
 #define ART_NARSIL              164
-#define ART_MAEDHROS            64
-#define ART_ANGRIST                     65
-#define ART_NARTHANC            66
-#define ART_NIMTHANC            67
-#define ART_DETHANC                     68
-#define ART_RILIA                       69
-#define ART_BELANGIL            70
-#define ART_CALRIS                      71
-#define ART_ARUNRUTH            72
 #define ART_GLAMDRING           73
-#define ART_AEGLIN                      74
-#define ART_ORCRIST                     75
-#define ART_GURTHANG            76
-#define ART_ZARCUTHRA           77
-#define ART_MORMEGIL            78
-#define ART_GONDRICAM           79
-#define ART_CRISDURIAN          80
-#define ART_AGLARANG            81
-#define ART_RINGIL                      82
 #define ART_ANDURIL                     83
-#define ART_ANGUIREL            84
-#define ART_ELVAGIL                     85
-#define ART_FORASGIL            86
-#define ART_CARETH                      87
-#define ART_STING                       88
-#define ART_HARADEKKET          89
-#define ART_GILETTAR            90
-#define ART_DOOMCALLER          91
-#define ART_VORPAL_BLADE        92
-#define ART_ERU                 147
-
-/* Polearms */
-#define ART_THEODEN                     93
-#define ART_PAIN                        94
-#define ART_OSONDIR                     95
-#define ART_TIL                         96
-#define ART_AEGLOS                      97
-#define ART_OROME                       98
-#define ART_NIMLOTH                     99
-#define ART_EORLINGAS           100
-#define ART_DURIN                       101
-#define ART_EONWE                       102
-#define ART_BALLI                       103
-#define ART_LOTHARANG           104
-#define ART_MUNDWINE            105
-#define ART_BARUKKHELED         106
-#define ART_WRATH                       107
-#define ART_ULMO                        108
-#define ART_AVAVIR                      109
-#define ART_FUNDIN                      175
-
-/* The sword of the Dawn */
-#define ART_DAWN                110
-
-/* Hafted */
-#define ART_MELKOR                      18
-#define ART_HURIN                       33
 #define ART_GROND                       111
-#define ART_TOTILA                      112
-#define ART_THUNDERFIST         113
-#define ART_BLOODSPIKE          114
-#define ART_FIRESTAR            115
-#define ART_TARATOL                     116
-#define ART_AULE                        117
-#define ART_NAR                         118
-#define ART_ERIRIL                      119
-#define ART_OLORIN                      120
-#define ART_DEATHWREAKER        121
-#define ART_TURMIL                      122
-#define ART_GOTHMOG                     123
-#define ART_AXE_GOTHMOG                 145
-#define ART_SKULLCLEAVER                177
-
-#define ART_NAIN                        174
-
-/* Bows */
-#define ART_BELTHRONDING        124
-#define ART_BARD                        125
-#define ART_CUBRAGOL            126
-#define ART_UMBAR                       171
-
-/* Mage Staffs */
-#define ART_GANDALF             127
-
-/* Boomerangs */
-#define ART_BEOR                128
-#define ART_GLIMDRIR            129
-
-/* Musical Instrument */
-#define ART_MAGLOR              137
-#define ART_SKY                 138
-#define ART_DAERON              139
-#define ART_DRUEDAIN            141
-#define ART_ROHAN               142
-#define ART_HELM                143
-#define ART_BOROMIR             144
-
-/* Diggers */
-#define ART_EREBOR              140
-
-#define ART_ORCHAST             156
-#define ART_NIGHT               157
-#define ART_NATUREBANE          158
 
 /* Spell for various object */
 #define SPELL_ID_PLAIN          1
@@ -1122,7 +653,6 @@
 #define EGO_MANA                1
 #define EGO_POWER               2
 #define EGO_MANA_POWER          3
-#define EGO_MSTAFF_SPELL        4
 #define EGO_BRAND_POIS          77
 #define EGO_BRAND_ELEC          74
 #define EGO_BRAND_FIRE          75
@@ -1205,7 +735,6 @@
 #define ACT_FUNDIN              30
 #define ACT_EOL                 31
 #define ACT_UMBAR               32
-#define ACT_NUMENOR             33
 #define ACT_KNOWLEDGE           34
 #define ACT_UNDEATH             35
 #define ACT_THRAIN              36
@@ -1251,10 +780,6 @@
 #define ACT_GANDALF             76
 #define ACT_MARDA               77
 #define ACT_PALANTIR            78
-/*
-                                79
-                                80
-*/
 #define ACT_CURE_LW             81
 #define ACT_CURE_MW             82
 #define ACT_CURE_POISON         83
@@ -1262,9 +787,6 @@
 #define ACT_REST_ALL            85
 #define ACT_CURE_700            86
 #define ACT_CURE_1000           87
-/*
-                                88
-*/
 #define ACT_EREBOR              89
 #define ACT_DRUEDAIN            90
 #define ACT_ESP                 91
@@ -1375,9 +897,14 @@
 #define ACT_BR_BALANCE          194
 #define ACT_BR_LIGHT            195
 #define ACT_BR_POWER            196
-#define ACT_GROW_MOLD			197
-#define ACT_MUSIC				200
-/* 170 -> unused */
+#define ACT_GROW_MOLD		197
+#define ACT_MUSIC		200
+#define ACT_ETERNAL_FLAME       201
+#define ACT_MAGGOT              202
+#define ACT_LEBOHAUM            203
+#define ACT_DURANDIL            204
+#define ACT_RADAGAST            205 /* Theme */
+#define ACT_VALAROMA            206 /* Theme */
 
 /*** Object "tval" and "sval" codes ***/
 
@@ -1398,8 +925,6 @@
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-/* XXX */
-#define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
 #define TV_CHEST         7      /* Chests ('~') */
@@ -1432,7 +957,6 @@
 #define TV_LITE         39      /* Lites (including Specials) */
 #define TV_AMULET       40      /* Amulets (including Specials) */
 #define TV_RING         45      /* Rings (including Specials) */
-#define TV_TRAPKIT      46      /* Trapkits */
 #define TV_TOTEM        54      /* Summoner totems */
 #define TV_STAFF        55
 #define TV_WAND         65
@@ -1446,8 +970,6 @@
 #define TV_HYPNOS       99      /* To wield monsters !:) */
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 #define TV_RANDART      102     /* Random Artifacts */
-#define TV_RUNE1        104      /* Base runes */
-#define TV_RUNE2        105      /* Modifier runes */
 
 #define TV_BOOK         111
 #define TV_SYMBIOTIC_BOOK 112
@@ -1462,7 +984,6 @@
 
 /* The "sval" codes for TV_TOOL */
 #define SV_TOOL_CLIMB 0
-#define SV_PORTABLE_HOLE 1
 
 /* The "sval" codes for TV_MSTAFF */
 #define SV_MSTAFF 1
@@ -1476,14 +997,6 @@
 #define SV_DRUM                          58
 #define SV_HARP                          59
 #define SV_HORN                          60
-
-/* The "sval" codes for TV_TRAPKIT */
-#define SV_TRAPKIT_SLING                 1
-#define SV_TRAPKIT_BOW                   2
-#define SV_TRAPKIT_XBOW                  3
-#define SV_TRAPKIT_POTION                4
-#define SV_TRAPKIT_SCROLL                5
-#define SV_TRAPKIT_DEVICE                6
 
 /* The "sval" codes for TV_BOOMERANG */
 #define SV_BOOM_S_WOOD                   1      /* 1d4  */
@@ -1687,10 +1200,8 @@
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM                   0
 #define SV_AMULET_TELEPORT               1
-#define SV_AMULET_ADORNMENT              2
 #define SV_AMULET_SLOW_DIGEST            3
 #define SV_AMULET_RESIST_ACID            4
-#define SV_AMULET_SEARCHING              5
 #define SV_AMULET_BRILLANCE              6
 #define SV_AMULET_CHARISMA               7
 #define SV_AMULET_THE_MAGI               8
@@ -1741,7 +1252,6 @@
 #define SV_RING_RESIST_POIS             20
 #define SV_RING_FREE_ACTION             21
 #define SV_RING_SEE_INVIS               22
-#define SV_RING_SEARCHING               23
 #define SV_RING_STR                     24
 #define SV_RING_INT                     25
 #define SV_RING_DEX                     26
@@ -1843,14 +1353,11 @@
 #define SV_ROD_ILLUMINATION              4
 #define SV_ROD_MAPPING                   5
 #define SV_ROD_DETECTION                 6
-#define SV_ROD_PROBING                   7
 #define SV_ROD_CURING                    8
 #define SV_ROD_HEALING                   9
 #define SV_ROD_RESTORATION              10
 #define SV_ROD_SPEED                    11
-/* xxx (aimed) */
 #define SV_ROD_TELEPORT_AWAY            13
-#define SV_ROD_DISARMING                14
 #define SV_ROD_LITE                     15
 #define SV_ROD_SLEEP_MONSTER            16
 #define SV_ROD_SLOW_MONSTER             17
@@ -1865,7 +1372,6 @@
 #define SV_ROD_FIRE_BALL                26
 #define SV_ROD_COLD_BALL                27
 #define SV_ROD_HAVOC                    28
-#define SV_ROD_DETECT_TRAP              29
 #define SV_ROD_HOME                     30
 
 
@@ -1891,7 +1397,6 @@
 #define SV_SCROLL_SUMMON_MONSTER         4
 #define SV_SCROLL_SUMMON_UNDEAD          5
 #define SV_SCROLL_SUMMON_MINE            6
-#define SV_SCROLL_TRAP_CREATION          7
 #define SV_SCROLL_PHASE_DOOR             8
 #define SV_SCROLL_TELEPORT               9
 #define SV_SCROLL_TELEPORT_LEVEL        10
@@ -1912,7 +1417,6 @@
 #define SV_SCROLL_MAPPING               25
 #define SV_SCROLL_DETECT_GOLD           26
 #define SV_SCROLL_DETECT_ITEM           27
-#define SV_SCROLL_DETECT_TRAP           28
 #define SV_SCROLL_DETECT_DOOR           29
 #define SV_SCROLL_DETECT_INVIS          30
 #define SV_SCROLL_DIVINATION            31
@@ -1923,7 +1427,6 @@
 #define SV_SCROLL_MONSTER_CONFUSION     36
 #define SV_SCROLL_PROTECTION_FROM_EVIL  37
 #define SV_SCROLL_RUNE_OF_PROTECTION    38
-#define SV_SCROLL_TRAP_DOOR_DESTRUCTION 39
 #define SV_SCROLL_DEINCARNATION         40
 #define SV_SCROLL_STAR_DESTRUCTION      41
 #define SV_SCROLL_DISPEL_UNDEAD         42
@@ -1938,6 +1441,7 @@
 #define SV_SCROLL_RUMOR                 51
 #define SV_SCROLL_ARTIFACT              52
 #define SV_SCROLL_NOTHING               53
+#define SV_SCROLL_STERILIZATION         54
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
@@ -1954,7 +1458,6 @@
 #define SV_POTION_SLEEP                 11
 #define SV_POTION_LEARNING              12
 #define SV_POTION_LOSE_MEMORIES         13
-/* xxx */
 #define SV_POTION_RUINATION             15
 #define SV_POTION_DEC_STR               16
 #define SV_POTION_DEC_INT               17
@@ -1994,11 +1497,9 @@
 #define SV_POTION_INC_DEX               51
 #define SV_POTION_INC_CON               52
 #define SV_POTION_INC_CHR               53
-/* xxx */
 #define SV_POTION_AUGMENTATION          55
 #define SV_POTION_ENLIGHTENMENT         56
 #define SV_POTION_STAR_ENLIGHTENMENT    57
-#define SV_POTION_SELF_KNOWLEDGE        58
 #define SV_POTION_EXPERIENCE            59
 #define SV_POTION_RESISTANCE            60
 #define SV_POTION_CURING                61
@@ -2050,27 +1551,6 @@
 #define SV_FOOD_GREAT_HEALTH            41
 #define SV_FOOD_FORTUNE_COOKIE          42
 
-/* The "sval" codes for TV_BATERIE */
-#define SV_BATERIE_POISON    1
-#define SV_BATERIE_EXPLOSION 2
-#define SV_BATERIE_TELEPORT  3
-#define SV_BATERIE_COLD      4
-#define SV_BATERIE_FIRE      5
-#define SV_BATERIE_ACID      6
-#define SV_BATERIE_LIFE      7
-#define SV_BATERIE_CONFUSION 8
-#define SV_BATERIE_LITE      9
-#define SV_BATERIE_CHAOS     10
-#define SV_BATERIE_TIME      11
-#define SV_BATERIE_MAGIC     12
-#define SV_BATERIE_XTRA_LIFE 13
-#define SV_BATERIE_DARKNESS  14
-#define SV_BATERIE_KNOWLEDGE 15
-#define SV_BATERIE_FORCE     16
-#define SV_BATERIE_LIGHTNING 17
-#define SV_BATERIE_MANA      18
-#define MAX_BATERIE_SVAL     18
-
 /* The "sval" codes for TV_CORPSE */
 #define SV_CORPSE_CORPSE     1
 #define SV_CORPSE_SKELETON   2
@@ -2103,13 +1583,6 @@
  */
 #define SV_BOOK_MAX_GOOD    49
 
-/* flags for operation in get_random_trap in object3.c */
-
-#define TRAP_EXISTS     0x00000001L
-#define TRAP_FOUND      0x00000002L
-#define TRAP_NOTFOUND   0x00000004L
-#define TRAP_IDENTIFIED 0x00000008L
-
 /*** General flag values ***/
 
 
@@ -2124,11 +1597,9 @@
 #define CAVE_VIEW       0x0020    /* view flag */
 #define CAVE_TEMP       0x0040    /* temp flag */
 #define CAVE_WALL       0x0080    /* wall flag */
-#define CAVE_TRDT       0x0100    /* trap detected */
 #define CAVE_IDNT       0x0200    /* grid identified (fountains) */
 #define CAVE_SPEC       0x0400    /* special mark(quests) */
 #define CAVE_FREE       0x0800    /* no random generation on it */
-#define CAVE_DETECT     0x1000    /* Traps detected here */
 #define CAVE_PLIT       0x2000    /* Player lit grid */
 #define CAVE_MLIT       0x4000    /* Monster lit grid */
 
@@ -2211,7 +1682,6 @@
 #define SM_OPP_POIS             0x00100000
 #define SM_OPP_XXX1             0x00200000
 #define SM_CLONED               0x00400000
-#define SM_NOTE_TRAP            0x00800000
 #define SM_IMM_ACID             0x01000000
 #define SM_IMM_ELEC             0x02000000
 #define SM_IMM_FIRE             0x04000000
@@ -2238,7 +1708,6 @@
 #define USE_EQUIP    0x01	/* Allow equip items */
 #define USE_INVEN    0x02	/* Allow inven items */
 #define USE_FLOOR    0x04	/* Allow floor items */
-#define USE_EXTRA    0x08	/* Allow extra items */
 #define USE_AUTO     0x10	/* Allow creation of automatizer rule */
 /*
  * Bit flags for the "p_ptr->notice" variable
@@ -2259,278 +1728,38 @@
 #define PU_MANA         0x00000020L     /* Calculate csp and msp */
 #define PU_SPELLS       0x00000040L     /* Calculate spells */
 #define PU_POWERS       0x00000080L     /* Calculate powers */
-/* xxx (many) */
 #define PU_UN_VIEW      0x00010000L     /* Forget view */
-/* xxx (many) */
 #define PU_VIEW         0x00100000L     /* Update view */
 #define PU_MON_LITE     0x00200000L     /* Update monster light */
-/* xxx */
 #define PU_MONSTERS     0x01000000L     /* Update monsters */
 #define PU_DISTANCE     0x02000000L     /* Update distances */
-/* xxx */
 #define PU_FLOW         0x10000000L     /* Update flow */
-/* xxx (many) */
 
 
 /*
  * Bit flags for the "p_ptr->redraw" variable
  */
-#define PR_MISC         0x00000001L     /* Display Race/Class */
-#define PR_TITLE        0x00000002L     /* Display Title */
-#define PR_LEV          0x00000004L     /* Display Level */
-#define PR_EXP          0x00000008L     /* Display Experience */
-#define PR_STATS        0x00000010L     /* Display Stats */
-#define PR_ARMOR        0x00000020L     /* Display Armor */
-#define PR_HP           0x00000040L     /* Display Hitpoints */
-#define PR_MANA         0x00000080L     /* Display Mana */
-#define PR_GOLD         0x00000100L     /* Display Gold */
-#define PR_DEPTH        0x00000200L     /* Display Depth */
-/****/
-#define PR_HEALTH       0x00000800L     /* Display Health Bar */
-#define PR_CUT          0x00001000L     /* Display Extra (Cut) */
-#define PR_STUN         0x00002000L     /* Display Extra (Stun) */
-#define PR_HUNGER       0x00004000L     /* Display Extra (Hunger) */
-#define PR_PIETY        0x00008000L     /* Display Piety */
-#define PR_BLIND        0x00010000L     /* Display Extra (Blind) */
-#define PR_CONFUSED     0x00020000L     /* Display Extra (Confused) */
-#define PR_AFRAID       0x00040000L     /* Display Extra (Afraid) */
-#define PR_POISONED     0x00080000L     /* Display Extra (Poisoned) */
-#define PR_STATE        0x00100000L     /* Display Extra (State) */
-#define PR_SPEED        0x00200000L     /* Display Extra (Speed) */
-#define PR_STUDY        0x00400000L     /* Display Extra (Study) */
-#define PR_SANITY       0x00800000L     /* Display Sanity */
-#define PR_EXTRA        0x01000000L     /* Display Extra Info */
-#define PR_BASIC        0x02000000L     /* Display Basic Info */
+#define PR_FRAME        0x02000000L     /* Display Basic Info */
 #define PR_MAP          0x04000000L     /* Display Map */
 #define PR_WIPE         0x08000000L     /* Hack -- Total Redraw */
-#define PR_MH           0x10000000L     /* Display Monster hitpoints */
-#define PR_DTRAP        0x20000000L     /* Display Extra (DTrap) */
-/* xxx */
-/* xxx */
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
  */
 #define PW_INVEN        0x00000001L     /* Display inven/equip */
 #define PW_EQUIP        0x00000002L     /* Display equip/inven */
-/* xxx */
 #define PW_PLAYER       0x00000008L     /* Display character */
 #define PW_M_LIST       0x00000010L /* Show monster list */
-/* xxx */
 #define PW_MESSAGE      0x00000040L     /* Display messages */
 #define PW_OVERHEAD     0x00000080L     /* Display overhead view */
 #define PW_MONSTER      0x00000100L     /* Display monster recall */
 #define PW_OBJECT       0x00000200L     /* Display object recall */
-/* xxx */
-#define PW_SNAPSHOT     0x00000800L     /* Display snap-shot */
-/* xxx */
-/* xxx */
-#define PW_BORG_1       0x00004000L     /* Display borg messages */
-#define PW_BORG_2       0x00008000L     /* Display borg status */
 
-
-/* jk */
-#define FTRAP_CHEST      0x000000001 /* may appear on chests */
-#define FTRAP_DOOR       0x000000002 /* may appear on doors/floors */
-#define FTRAP_FLOOR      0x000000004 /* may appear on floor */
-#define FTRAP_CHANGE     0x000000008 /* Color changing */
-#define FTRAP_XXX5       0x000000010
-#define FTRAP_XXX6       0x000000020
-#define FTRAP_XXX7       0x000000040
-#define FTRAP_XXX8       0x000000080
-#define FTRAP_XXX9       0x000000100
-#define FTRAP_XXX10      0x000000200
-#define FTRAP_XXX11      0x000000400
-#define FTRAP_XXX12      0x000000800
-#define FTRAP_XXX13      0x000001000
-#define FTRAP_XXX14      0x000002000
-#define FTRAP_XXX15      0x000004000
-#define FTRAP_XXX16      0x000008000
-#define FTRAP_LEVEL1     0x000010000 /* low level ball/bolt trap */
-#define FTRAP_LEVEL2     0x000020000 /* medium level ball/bolt trap */
-#define FTRAP_LEVEL3     0x000040000 /* high level ball/bolt trap */
-#define FTRAP_LEVEL4     0x000080000 /* oops level ball/bolt trap */
-#define FTRAP_XXX21      0x000100000
-#define FTRAP_XXX22      0x000200000
-#define FTRAP_XXX23      0x000400000
-#define FTRAP_XXX24      0x000800000
-#define FTRAP_XXX25      0x001000000
-#define FTRAP_XXX26      0x002000000
-#define FTRAP_XXX27      0x004000000
-#define FTRAP_XXX28      0x008000000
-#define FTRAP_XXX29      0x010000000
-#define FTRAP_XXX30      0x020000000
-#define FTRAP_XXX31      0x040000000
-#define FTRAP_XXX32      0x080000000
 
 /* jk */
 #define STAT_DEC_TEMPORARY 1
 #define STAT_DEC_NORMAL 2
 #define STAT_DEC_PERMANENT 3
-
-/* jk - which trap is which number */
-#define TRAP_OF_WEAKNESS_I                  1
-#define TRAP_OF_WEAKNESS_II                 2
-#define TRAP_OF_WEAKNESS_III                3
-#define TRAP_OF_INTELLIGENCE_I              4
-#define TRAP_OF_INTELLIGENCE_II             5
-#define TRAP_OF_INTELLIGENCE_III            6
-#define TRAP_OF_WISDOM_I                    7
-#define TRAP_OF_WISDOM_II                   8
-#define TRAP_OF_WISDOM_III                  9
-#define TRAP_OF_FUMBLING_I                 10
-#define TRAP_OF_FUMBLING_II                11
-#define TRAP_OF_FUMBLING_III               12
-#define TRAP_OF_WASTING_I                  13
-#define TRAP_OF_WASTING_II                 14
-#define TRAP_OF_WASTING_III                15
-#define TRAP_OF_BEAUTY_I                   16
-#define TRAP_OF_BEAUTY_II                  17
-#define TRAP_OF_BEAUTY_III                 18
-
-#define TRAP_OF_CURSE_WEAPON               20
-#define TRAP_OF_CURSE_ARMOR                21
-#define TRAP_OF_EARTHQUAKE                 22
-#define TRAP_OF_POISON_NEEDLE              23
-#define TRAP_OF_SUMMON_MONSTER             24
-#define TRAP_OF_SUMMON_UNDEAD              25
-#define TRAP_OF_SUMMON_GREATER_UNDEAD      26
-#define TRAP_OF_TELEPORT                   27
-#define TRAP_OF_PARALYZING                 28
-#define TRAP_OF_EXPLOSIVE_DEVICE           29
-#define TRAP_OF_TELEPORT_AWAY              30
-#define TRAP_OF_LOSE_MEMORY                31
-#define TRAP_OF_BITTER_REGRET              32
-#define TRAP_OF_BOWEL_CRAMPS               33
-#define TRAP_OF_BLINDNESS_CONFUSION        34
-#define TRAP_OF_AGGRAVATION                35
-#define TRAP_OF_MULTIPLICATION             36
-#define TRAP_OF_STEAL_ITEM                 37
-#define TRAP_OF_SUMMON_FAST_QUYLTHULGS     38
-#define TRAP_OF_SINKING                    39
-#define TRAP_OF_MANA_DRAIN                 40
-#define TRAP_OF_MISSING_MONEY              41
-#define TRAP_OF_NO_RETURN                  42
-#define TRAP_OF_SILENT_SWITCHING           43
-#define TRAP_OF_WALLS                      44
-#define TRAP_OF_CALLING_OUT                45
-#define TRAP_OF_SLIDING                    46
-#define TRAP_OF_CHARGES_DRAIN              47
-#define TRAP_OF_STAIR_MOVEMENT             48
-#define TRAP_OF_NEW                        49
-#define TRAP_OF_SCATTER_ITEMS              50
-#define TRAP_OF_DECAY                      51
-#define TRAP_OF_WASTING_WANDS              52
-#define TRAP_OF_FILLING                    53
-#define TRAP_OF_DRAIN_SPEED                54
-
-#define TRAP_OF_ELEC_BOLT                  60
-#define TRAP_OF_POIS_BOLT                  61
-#define TRAP_OF_ACID_BOLT                  62
-#define TRAP_OF_COLD_BOLT                  63
-#define TRAP_OF_FIRE_BOLT                  64
-#define TRAP_OF_PLASMA_BOLT                65
-#define TRAP_OF_WATER_BOLT                 66
-#define TRAP_OF_LITE_BOLT                  67
-#define TRAP_OF_DARK_BOLT                  68
-#define TRAP_OF_SHARDS_BOLT                69
-#define TRAP_OF_SOUND_BOLT                 70
-#define TRAP_OF_CONFUSION_BOLT             71
-#define TRAP_OF_FORCE_BOLT                 72
-#define TRAP_OF_INERTIA_BOLT               73
-#define TRAP_OF_MANA_BOLT                  74
-#define TRAP_OF_ICE_BOLT                   75
-#define TRAP_OF_CHAOS_BOLT                 76
-#define TRAP_OF_NETHER_BOLT                77
-#define TRAP_OF_DISENCHANT_BOLT            78
-#define TRAP_OF_NEXUS_BOLT                 79
-#define TRAP_OF_TIME_BOLT                  80
-#define TRAP_OF_GRAVITY_BOLT               81
-
-#define TRAP_OF_ELEC_BALL                  82
-#define TRAP_OF_POIS_BALL                  83
-#define TRAP_OF_ACID_BALL                  84
-#define TRAP_OF_COLD_BALL                  85
-#define TRAP_OF_FIRE_BALL                  86
-#define TRAP_OF_PLASMA_BALL                87
-#define TRAP_OF_WATER_BALL                 88
-#define TRAP_OF_LITE_BALL                  89
-#define TRAP_OF_DARK_BALL                  90
-#define TRAP_OF_SHARDS_BALL                91
-#define TRAP_OF_SOUND_BALL                 92
-#define TRAP_OF_CONFUSION_BALL             93
-#define TRAP_OF_FORCE_BALL                 94
-#define TRAP_OF_INERTIA_BALL               95
-#define TRAP_OF_MANA_BALL                  96
-#define TRAP_OF_ICE_BALL                   97
-#define TRAP_OF_CHAOS_BALL                 98
-#define TRAP_OF_NETHER_BALL                99
-#define TRAP_OF_DISENCHANT_BALL           100
-#define TRAP_OF_NEXUS_BALL                101
-#define TRAP_OF_TIME_BALL                 102
-#define TRAP_OF_GRAVITY_BALL              103
-
-#define TRAP_OF_ARROW_I                   110
-#define TRAP_OF_ARROW_II                  111
-#define TRAP_OF_ARROW_III                 112
-#define TRAP_OF_ARROW_IV                  113
-#define TRAP_OF_POISON_ARROW_I            114
-#define TRAP_OF_POISON_ARROW_II           115
-#define TRAP_OF_POISON_ARROW_III          116
-#define TRAP_OF_POISON_ARROW_IV           117
-#define TRAP_OF_DAGGER_I                  118
-#define TRAP_OF_DAGGER_II                 119
-#define TRAP_OF_POISON_DAGGER_I           120
-#define TRAP_OF_POISON_DAGGER_II          121
-#define TRAP_OF_ARROWS_I                  122
-#define TRAP_OF_ARROWS_II                 123
-#define TRAP_OF_ARROWS_III                124
-#define TRAP_OF_ARROWS_IV                 125
-#define TRAP_OF_POISON_ARROWS_I           126
-#define TRAP_OF_POISON_ARROWS_II          127
-#define TRAP_OF_POISON_ARROWS_III         128
-#define TRAP_OF_POISON_ARROWS_IV          129
-#define TRAP_OF_DAGGERS_I                 130
-#define TRAP_OF_DAGGERS_II                131
-#define TRAP_OF_POISON_DAGGERS_I          132
-#define TRAP_OF_POISON_DAGGERS_II         133
-
-#define TRAP_OF_DROP_ITEMS                140
-#define TRAP_OF_DROP_ALL_ITEMS            141
-#define TRAP_OF_DROP_EVERYTHING           142
-
-/* -SC- */
-#define TRAP_OF_FEMINITY                  150
-#define TRAP_OF_MASCULINITY               151
-#define TRAP_OF_NEUTRALITY                152
-#define TRAP_OF_AGING                     153
-#define TRAP_OF_GROWING                   154
-#define TRAP_OF_SHRINKING                 155
-#define TRAP_OF_ELDRITCH_HORROR           156
-/* XXX */
-#define TRAP_OF_DIVINE_ANGER              158
-#define TRAP_OF_DIVINE_WRATH              159
-#define TRAP_OF_HALLUCINATION             160
-
-#define TRAP_OF_ROCKET                    161
-#define TRAP_OF_NUKE_BOLT                 162
-#define TRAP_OF_DEATH_RAY                 163
-#define TRAP_OF_HOLY_FIRE                 164
-#define TRAP_OF_HELL_FIRE                 165
-#define TRAP_OF_PSI_BOLT                  166
-#define TRAP_OF_PSI_DRAIN                 167
-#define TRAP_OF_NUKE_BALL                 168
-#define TRAP_OF_PSI_BALL                  169
-
-/* DG */
-#define TRAP_OF_ACQUIREMENT               170
-
-/* Runescrye */
-#define TRAP_G_ELEC_BOLT                171
-#define TRAP_G_POIS_BOLT                172
-#define TRAP_G_ACID_BOLT                173
-#define TRAP_G_COLD_BOLT                174
-#define TRAP_G_FIRE_BOLT                175
 
 /*** General index values ***/
 
@@ -2575,7 +1804,6 @@
 #define SUMMON_SHADOWS              55
 #define SUMMON_GHOST                56
 #define SUMMON_QUYLTHULG            57
-#define SUMMON_LUA                  58
 
 
 /*
@@ -2613,10 +1841,8 @@
 #define GF_GRAVITY      35
 #define GF_KILL_WALL    40
 #define GF_KILL_DOOR    41
-#define GF_KILL_TRAP    42
 #define GF_MAKE_WALL    45
 #define GF_MAKE_DOOR    46
-#define GF_MAKE_TRAP    47
 #define GF_OLD_CLONE    51
 #define GF_OLD_POLY             52
 #define GF_OLD_HEAL             53
@@ -2655,7 +1881,6 @@
 #define GF_JAM_DOOR     88
 #define GF_DOMINATION   89
 #define GF_DISP_GOOD    90
-#define GF_IDENTIFY     91
 #define GF_RAISE        92
 #define GF_STAR_IDENTIFY 93
 #define GF_DESTRUCTION  94
@@ -2674,11 +1899,15 @@
 #define GF_TRAP_DEMONSOUL 108
 #define GF_ATTACK       109
 #define GF_CHARM_UNMOVING 110
-#define MAX_GF          111
+#define GF_INSTA_DEATH 111
+#define GF_ELEMENTAL_WALL 112
+#define GF_ELEMENTAL_GROWTH 113
+#define MAX_GF          114
 
 /*
  * Some things which induce learning
  */
+#define DRS_NONE         0
 #define DRS_ACID         1
 #define DRS_ELEC         2
 #define DRS_FIRE         3
@@ -2720,9 +1949,6 @@
 /* High resist */
 #define EGO_XTRA_POWER          2
 
-/* Special ability */
-#define EGO_XTRA_ABILITY        3
-
 /*** Object flag values ***/
 
 
@@ -2730,7 +1956,6 @@
  * Special Object Flags
  */
 #define IDENT_SENSE             0x01    /* Item has been "sensed" */
-#define IDENT_FIXED             0x02    /* Item has been "haggled" */
 #define IDENT_EMPTY             0x04    /* Item charges are known */
 #define IDENT_KNOWN             0x08    /* Item abilities are known */
 #define IDENT_STOREB            0x10    /* Item is storebought !!!! */
@@ -2757,347 +1982,13 @@
         MFLAG_PARTIAL | MFLAG_CONTROL | MFLAG_NO_DROP \
         )
 
-
-/*
- * As of 2.7.8, the "object flags" are valid for all objects, and as
- * of 2.7.9, these flags are not actually stored with the object.
- *
- * Note that "flags1" contains all flags dependant on "pval" (including
- * stat bonuses, but NOT stat sustainers), plus all "extra attack damage"
- * flags (SLAY_XXX and BRAND_XXX).
- *
- * Note that "flags2" contains all "resistances" (including "Stat Sustainers",
- * actual immunities, and resistances).  Note that "Hold Life" is really an
- * "immunity" to ExpLoss, and "Free Action" is "immunity to paralysis".
- *
- * Note that "flags3" contains everything else -- including the three "CURSED"
- * flags, and the "BLESSED" flag, several "item display" parameters, some new
- * flags for powerful Bows, and flags which affect the player in a "general"
- * way (LITE, TELEPATHY, SEE_INVIS, SLOW_DIGEST, REGEN, FEATHER), including
- * all the "general" curses (TELEPORT, AGGRAVATE, EXP_DRAIN).  It also has
- * four new flags called "ITEM_IGNORE_XXX" which lets an item specify that
- * it can not be affected by various forms of destruction.  This is NOT as
- * powerful as actually granting resistance/immunity to the wearer.
- */
-
-#define TR1_STR                         0x00000001L     /* STR += "pval" */
-#define TR1_INT                         0x00000002L     /* INT += "pval" */
-#define TR1_WIS                         0x00000004L     /* WIS += "pval" */
-#define TR1_DEX                         0x00000008L     /* DEX += "pval" */
-#define TR1_CON                         0x00000010L     /* CON += "pval" */
-#define TR1_CHR                         0x00000020L     /* CHR += "pval" */
-#define TR1_MANA                        0x00000040L     /* Mana multipler */
-#define TR1_SPELL                       0x00000080L     /* Spell power increase */
-#define TR1_STEALTH                     0x00000100L     /* Stealth += "pval" */
-#define TR1_SEARCH                      0x00000200L     /* Search += "pval" */
-#define TR1_INFRA                       0x00000400L     /* Infra += "pval" */
-#define TR1_TUNNEL                      0x00000800L     /* Tunnel += "pval" */
-#define TR1_SPEED                       0x00001000L     /* Speed += "pval" */
-#define TR1_BLOWS                       0x00002000L     /* Blows += "pval" */
-#define TR1_CHAOTIC                     0x00004000L
-#define TR1_VAMPIRIC                    0x00008000L
-#define TR1_SLAY_ANIMAL         0x00010000L
-#define TR1_SLAY_EVIL           0x00020000L
-#define TR1_SLAY_UNDEAD         0x00040000L
-#define TR1_SLAY_DEMON          0x00080000L
-#define TR1_SLAY_ORC            0x00100000L
-#define TR1_SLAY_TROLL          0x00200000L
-#define TR1_SLAY_GIANT          0x00400000L
-#define TR1_SLAY_DRAGON         0x00800000L
-#define TR1_KILL_DRAGON         0x01000000L     /* Execute Dragon */
-#define TR1_VORPAL                      0x02000000L     /* Later */
-#define TR1_IMPACT                      0x04000000L     /* Cause Earthquakes */
-#define TR1_BRAND_POIS                  0x08000000L
-#define TR1_BRAND_ACID          0x10000000L
-#define TR1_BRAND_ELEC          0x20000000L
-#define TR1_BRAND_FIRE          0x40000000L
-#define TR1_BRAND_COLD          0x80000000L
-#define TR1_NULL_MASK           0x00000000L
-
-#define TRAP2_AUTOMATIC_5       0x00000001L     /* Trap automatically rearms itself, 1 in 5 failure */
-#define TRAP2_AUTOMATIC_99      0x00000002L     /* Trap automatically rearms itself */
-#define TRAP2_KILL_GHOST        0x00000004L     /* Trap also affects PASS_WALL creatures */
-#define TRAP2_TELEPORT_TO       0x00000008L     /* After everything else, teleport to player */
-#define TRAP2_ONLY_DRAGON       0x00000010L     /* Affect only dragons & other AFFECTed creatures */
-#define TRAP2_ONLY_DEMON        0x00000020L     /* Affect only demons & other AFFECTed creatures */
-#define TRAP2_ONLY_ANIMAL       0x00000100L     /* Affect only animals & other AFFECTed creatures */
-#define TRAP2_ONLY_UNDEAD       0x00000200L     /* Affect only undead & others */
-#define TRAP2_ONLY_EVIL         0x00000400L     /* Affect only evil creatures &c. */
-
-#define TRAP2_ONLY_MASK		(TRAP2_ONLY_DRAGON | TRAP2_ONLY_DEMON | TRAP2_ONLY_ANIMAL | \
-				 TRAP2_ONLY_UNDEAD | TRAP2_ONLY_EVIL )
-
-#define TR2_SUST_STR            0x00000001L
-#define TR2_SUST_INT            0x00000002L
-#define TR2_SUST_WIS            0x00000004L
-#define TR2_SUST_DEX            0x00000008L
-#define TR2_SUST_CON            0x00000010L
-#define TR2_SUST_CHR            0x00000020L
-#define TR2_INVIS                       0x00000040L     /* Invisibility */
-#define TR2_LIFE                        0x00000080L     /* Life multiplier */
-#define TR2_IM_ACID                     0x00000100L
-#define TR2_IM_ELEC                     0x00000200L
-#define TR2_IM_FIRE                     0x00000400L
-#define TR2_IM_COLD                     0x00000800L
-#define TR2_SENS_FIRE                   0x00001000L     /* Sensibility to fire */
-#define TR2_REFLECT                     0x00002000L     /* Reflect 'bolts' */
-#define TR2_FREE_ACT            0x00004000L     /* Free Action */
-#define TR2_HOLD_LIFE           0x00008000L     /* Hold Life */
-#define TR2_RES_ACID            0x00010000L
-#define TR2_RES_ELEC            0x00020000L
-#define TR2_RES_FIRE            0x00040000L
-#define TR2_RES_COLD            0x00080000L
-#define TR2_RES_POIS            0x00100000L
-#define TR2_RES_FEAR            0x00200000L
-#define TR2_RES_LITE            0x00400000L
-#define TR2_RES_DARK            0x00800000L
-#define TR2_RES_BLIND           0x01000000L
-#define TR2_RES_CONF            0x02000000L
-#define TR2_RES_SOUND           0x04000000L
-#define TR2_RES_SHARDS          0x08000000L
-#define TR2_RES_NETHER          0x10000000L
-#define TR2_RES_NEXUS           0x20000000L
-#define TR2_RES_CHAOS           0x40000000L
-#define TR2_RES_DISEN           0x80000000L
-#define TR2_NULL_MASK           0x00000000L
-
-#define TR3_SH_FIRE             0x00000001L     /* Immolation (Fire) */
-#define TR3_SH_ELEC             0x00000002L     /* Electric Sheath */
-#define TR3_AUTO_CURSE          0x00000004L     /* The obj will recurse itself */
-#define TR3_DECAY               0x00000008L     /* Decay */
-#define TR3_NO_TELE             0x00000010L     /* Anti-teleportation */
-#define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
-#define TR3_WRAITH              0x00000040L     /* Wraithform */
-#define TR3_TY_CURSE            0x00000080L     /* The Ancient Curse */
-#define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
-#define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
-#define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
-#define TR3_INSTA_ART           0x00000800L     /* Item must be an artifact */
-#define TR3_FEATHER                     0x00001000L     /* Feather Falling */
-#define TR3_LITE1               0x00002000L     /* lite radius 1 */
-#define TR3_SEE_INVIS           0x00004000L     /* See Invisible */
-#define TR3_NORM_ART            0x00008000L     /* Artifact in k_info */
-#define TR3_SLOW_DIGEST         0x00010000L     /* Item slows down digestion */
-#define TR3_REGEN                       0x00020000L     /* Item induces regeneration */
-#define TR3_XTRA_MIGHT          0x00040000L     /* Bows get extra multiplier */
-#define TR3_XTRA_SHOTS          0x00080000L     /* Bows get extra shots */
-#define TR3_IGNORE_ACID         0x00100000L     /* Item ignores Acid Damage */
-#define TR3_IGNORE_ELEC         0x00200000L     /* Item ignores Elec Damage */
-#define TR3_IGNORE_FIRE         0x00400000L     /* Item ignores Fire Damage */
-#define TR3_IGNORE_COLD         0x00800000L     /* Item ignores Cold Damage */
-#define TR3_ACTIVATE            0x01000000L     /* Item can be activated */
-#define TR3_DRAIN_EXP           0x02000000L     /* Item drains Experience */
-#define TR3_TELEPORT            0x04000000L     /* Item teleports player */
-#define TR3_AGGRAVATE           0x08000000L     /* Item aggravates monsters */
-#define TR3_BLESSED                     0x10000000L     /* Item is Blessed */
-#define TR3_CURSED                      0x20000000L     /* Item is Cursed */
-#define TR3_HEAVY_CURSE         0x40000000L     /* Item is Heavily Cursed */
-#define TR3_PERMA_CURSE         0x80000000L     /* Item is Perma Cursed */
-#define TR3_NULL_MASK           0x00000000L
-
-
-#define TR4_NEVER_BLOW          0x00000001L     /* Weapon can't attack */
-#define TR4_PRECOGNITION        0x00000002L     /* Like activating the cheat mode */
-#define TR4_BLACK_BREATH        0x00000004L     /* Tolkien's Black Breath */
-#define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
-#define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over trees */
-#define TR4_DG_CURSE            0x00000020L     /* The Ancient Morgothian Curse */
-#define TR4_COULD2H             0x00000040L     /* Can wield it 2 Handed */
-#define TR4_MUST2H              0x00000080L     /* Must wield it 2 Handed */
-#define TR4_LEVELS              0x00000100L     /* Can gain exp/exp levels !! */
-#define TR4_CLONE               0x00000200L     /* Can clone monsters */
-#define TR4_SPECIAL_GENE        0x00000400L     /* The object can only be generated in special conditions like quests, special dungeons, ... */
-#define TR4_CLIMB               0x00000800L     /* Allow climbing mountains */
-#define TR4_FAST_CAST           0x00001000L     /* Rod is x2 time faster to use */
-#define TR4_CAPACITY            0x00002000L     /* Rod can take x2 mana */
-#define TR4_CHARGING            0x00004000L     /* Rod recharge faster */
-#define TR4_CHEAPNESS           0x00008000L     /* Rod spells are cheaper(in mana cost) to cast */
-#define TR4_FOUNTAIN            0x00010000L     /* Available as fountain (for potions) */
-#define TR4_ANTIMAGIC_50        0x00020000L     /* Forbid magic */
-#define TR4_ANTIMAGIC_30        0x00040000L     /* Forbid magic */
-#define TR4_ANTIMAGIC_20        0x00080000L     /* Forbid magic */
-#define TR4_ANTIMAGIC_10        0x00100000L     /* Forbid magic */
-#define TR4_EASY_USE            0x00200000L     /* Easily activable */
-#define TR4_IM_NETHER           0x00400000L     /* Immunity to nether */
-#define TR4_RECHARGED           0x00800000L     /* Object has been recharged once */
-#define TR4_ULTIMATE            0x01000000L     /* ULTIMATE artifact */
-#define TR4_AUTO_ID             0x02000000L     /* Id stuff on floor */
-#define TR4_LITE2               0x04000000L     /* lite radius 2 */
-#define TR4_LITE3               0x08000000L     /* lite radius 3 */
-#define TR4_FUEL_LITE           0x10000000L     /* fuelable lite */
-#define TR4_ART_EXP             0x20000000L     /* Will accumulate xp */
-#define TR4_CURSE_NO_DROP       0x40000000L     /* The obj wont be dropped */
-#define TR4_NO_RECHARGE         0x80000000L     /* Object Cannot be recharged */
-#define TR4_NULL_MASK           0xFFFFFFFCL
-
-#define TR5_TEMPORARY           0x00000001L     /* In timeout turns it is destroyed */
-#define TR5_DRAIN_MANA          0x00000002L     /* Drains mana */
-#define TR5_DRAIN_HP            0x00000004L     /* Drains hp */
-#define TR5_KILL_DEMON          0x00000008L     /* Execute Demon */
-#define TR5_KILL_UNDEAD         0x00000010L     /* Execute Undead */
-#define TR5_CRIT                0x00000020L     /* More critical hits */
-#define TR5_ATTR_MULTI          0x00000040L     /* Object shimmer -- only allowed in k_info */
-#define TR5_WOUNDING            0x00000080L     /* Wounds monsters */
-#define TR5_FULL_NAME           0x00000100L     /* Uses direct name from k_info */
-#define TR5_LUCK                0x00000200L     /* Luck += pval */
-#define TR5_IMMOVABLE           0x00000400L     /* Cannot move */
-#define TR5_SPELL_CONTAIN       0x00000800L     /* Can contain a spell */
-#define TR5_RES_MORGUL          0x00001000L     /* Is not shattered by morgul fiends(nazguls) */
-#define TR5_ACTIVATE_NO_WIELD   0x00002000L     /* Can be 'A'ctivated without being wielded */
-#define TR5_MAGIC_BREATH        0x00004000L     /* Can breath anywere */
-#define TR5_WATER_BREATH        0x00008000L     /* Can breath underwater */
-#define TR5_WIELD_CAST          0x00010000L     /* Need to be wielded to cast spelsl fomr it(if it can be wiekded) */
-
-/* ESP defines */
-#define ESP_ORC                 0x00000001L
-#define ESP_TROLL               0x00000002L
-#define ESP_DRAGON              0x00000004L
-#define ESP_GIANT               0x00000008L
-#define ESP_DEMON               0x00000010L
-#define ESP_UNDEAD              0x00000020L
-#define ESP_EVIL                0x00000040L
-#define ESP_ANIMAL              0x00000080L
-#define ESP_THUNDERLORD         0x00000100L
-#define ESP_GOOD                0x00000200L
-#define ESP_NONLIVING           0x00000400L
-#define ESP_UNIQUE              0x00000800L
-#define ESP_SPIDER              0x00001000L
-#define ESP_ALL                 0x80000000L
-
-/* Number of group of flags to choose from */
-#define MAX_FLAG_GROUP          12
 #define NEW_GROUP_CHANCE        40      /* Chance to get a new group */
-
-/*
- * Hack masks for "pval-dependant" flags.
- */
-#define TR1_PVAL_MASK   \
-	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-     TR1_CON | TR1_CHR | \
-	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
-     TR1_SPEED | TR1_BLOWS | TR1_SPELL)
-
-#define TR5_PVAL_MASK   \
-	(TR5_CRIT | TR5_LUCK)
-
-
-/*** Ego flags ***/
-#define ETR4_SUSTAIN           0x00000001L     /* Ego-Item gives a Random Sustain */
-#define ETR4_OLD_RESIST        0x00000002L     /* The old "extra power" random high resist */
-#define ETR4_ABILITY           0x00000004L     /* Ego-Item has a random Sustain */
-#define ETR4_R_ELEM            0x00000008L     /* Item resists Acid/Fire/Cold/Elec or Poison */
-#define ETR4_R_LOW             0x00000010L     /* Item has a random low resist */
-#define ETR4_R_HIGH            0x00000020L     /* Item has a random high resist */
-#define ETR4_R_ANY             0x00000040L     /* Item has one additional resist */
-#define ETR4_R_DRAGON          0x00000080L     /* Item gets "Dragon" Resist */
-#define ETR4_SLAY_WEAP         0x00000100L     /* Special 'Slaying' bonus */
-#define ETR4_DAM_DIE           0x00000200L     /* Item has an additional dam die */
-#define ETR4_DAM_SIZE          0x00000400L     /* Item has greater damage dice */
-#define ETR4_PVAL_M1           0x00000800L     /* Item has +1 to pval */
-#define ETR4_PVAL_M2           0x00001000L     /* Item has +(up to 2) to pval */
-#define ETR4_PVAL_M3           0x00002000L     /* Item has +(up to 3) to pval */
-#define ETR4_PVAL_M5           0x00004000L     /* Item has +(up to 5) to pval */
-#define ETR4_AC_M1             0x00008000L     /* Item has +1 to AC */
-#define ETR4_AC_M2             0x00010000L     /* Item has +(up to 2) to AC */
-#define ETR4_AC_M3             0x00020000L     /* Item has +(up to 3) to AC */
-#define ETR4_AC_M5             0x00040000L     /* Item has +(up to 5) to AC */
-#define ETR4_TH_M1             0x00080000L     /* Item has +1 to hit */
-#define ETR4_TH_M2             0x00100000L     /* Item has +(up to 2) to hit */
-#define ETR4_TH_M3             0x00200000L     /* Item has +(up to 3) to hit */
-#define ETR4_TH_M5             0x00400000L     /* Item has +(up to 5) to hit */
-#define ETR4_TD_M1             0x00800000L     /* Item has +1 to dam */
-#define ETR4_TD_M2             0x01000000L     /* Item has +(up to 2) to dam */
-#define ETR4_TD_M3             0x02000000L     /* Item has +(up to 3) to dam */
-#define ETR4_TD_M5             0x04000000L     /* Item has +(up to 5) to dam */
-#define ETR4_R_P_ABILITY       0x08000000L     /* Item has a random pval-affected ability */
-#define ETR4_R_STAT            0x10000000L     /* Item affects a random stat */
-#define ETR4_R_STAT_SUST       0x20000000L     /* Item affects a random stat & sustains it */
-#define ETR4_R_IMMUNITY        0x40000000L     /* Item gives a random immunity */
-#define ETR4_LIMIT_BLOWS       0x80000000L     /* switch the "limit blows" feature */
-
-/*** Features flags -- DG ***/
-#define FF1_NO_WALK             0x00000001L
-#define FF1_NO_VISION           0x00000002L
-#define FF1_CAN_LEVITATE        0x00000004L
-#define FF1_CAN_PASS            0x00000008L
-#define FF1_FLOOR               0x00000010L
-#define FF1_WALL                0x00000020L
-#define FF1_PERMANENT           0x00000040L
-#define FF1_CAN_FLY             0x00000080L
-#define FF1_REMEMBER            0x00000100L
-#define FF1_NOTICE              0x00000200L
-#define FF1_DONT_NOTICE_RUNNING 0x00000400L
-#define FF1_CAN_RUN             0x00000800L
-#define FF1_DOOR                0x00001000L
-#define FF1_SUPPORT_LIGHT       0x00002000L
-#define FF1_CAN_CLIMB           0x00004000L
-#define FF1_TUNNELABLE          0x00008000L
-#define FF1_WEB                 0x00010000L
-#define FF1_ATTR_MULTI          0x00020000L
-#define FF1_SUPPORT_GROWTH      0x00040000L
-
-/*** Dungeon type flags -- DG ***/
-#define DF1_PRINCIPAL           0x00000001L	/* Is a principal dungeon */
-#define DF1_MAZE                0x00000002L	/* Is a maze-type dungeon */
-#define DF1_SMALLEST            0x00000004L	/* Creates VERY small levels like The Maze */
-#define DF1_SMALL               0x00000008L	/* Creates small levels like Dol Goldor */
-#define DF1_BIG                 0x00000010L	/* Creates big levels like Moria, and Angband dungeons */
-#define DF1_NO_DOORS            0x00000020L	/* No doors on rooms, like Barrowdowns, Old Forest etc) */
-#define DF1_WATER_RIVER         0x00000040L	/* Allow a single water streamer on a level */
-#define DF1_LAVA_RIVER          0x00000080L	/* Allow a single lava streamer on a level */
-#define DF1_WATER_RIVERS        0x00000100L	/* Allow multiple water streamers on a level */
-#define DF1_LAVA_RIVERS         0x00000200L	/* Allow multiple lava streamers on a level */
-#define DF1_CAVE                0x00000400L	/* Allow rooms */
-#define DF1_CAVERN              0x00000800L	/* Allow cavern rooms */
-#define DF1_NO_UP               0x00001000L	/* Disallow up stairs */
-#define DF1_HOT                 0x00002000L	/* Corpses on ground and in pack decay quicker through heat */
-#define DF1_COLD                0x00004000L	/* Corpses on ground and in pack decay quicker through cold */
-#define DF1_FORCE_DOWN          0x00008000L	/* No up stairs generated */
-#define DF1_FORGET              0x00010000L	/* Features are forgotten, like the Maze and Illusory Castle */
-#define DF1_NO_DESTROY          0x00020000L	/* No destroyed levels in dungeon */
-#define DF1_SAND_VEIN           0x00040000L	/* Like in the sandworm lair */
-#define DF1_CIRCULAR_ROOMS      0x00080000L	/* Allow circular rooms */
-#define DF1_EMPTY               0x00100000L	/* Allow arena levels */
-#define DF1_DAMAGE_FEAT         0x00200000L
-#define DF1_FLAT                0x00400000L	/* Creates paths to next areas at edge of level, like Barrowdowns */
-#define DF1_TOWER               0x00800000L	/* You start at bottom and go up rather than the reverse */
-#define DF1_RANDOM_TOWNS        0x01000000L	/* Allow random towns */
-#define DF1_DOUBLE              0x02000000L	/* Creates double-walled dungeon like Helcaraxe and Erebor */
-#define DF1_LIFE_LEVEL          0x04000000L	/* Creates dungeon level on modified 'game of life' algorithm */
-#define DF1_EVOLVE              0x08000000L	/* Evolving, pulsing levels like Heart of the Earth */
-#define DF1_ADJUST_LEVEL_1      0x10000000L	/* Minimum monster level will be equal to dungeon level */
-#define DF1_ADJUST_LEVEL_2      0x20000000L	/* Minimum monster level will be double the dungeon level */
-#define DF1_NO_RECALL           0x40000000L	/* No recall allowed */
-#define DF1_NO_STREAMERS        0x80000000L	/* No streamers */
-
-#define DF2_ADJUST_LEVEL_1_2    0x00000001L	/* Minimum monster level will be half the dungeon level */
-#define DF2_NO_SHAFT            0x00000002L	/* No shafts */
-#define DF2_ADJUST_LEVEL_PLAYER 0x00000004L	/* Uses player level*2 instead of dungeon level for other ADJUST_LEVEL flags */
-#define DF2_NO_TELEPORT         0x00000008L
-#define DF2_ASK_LEAVE           0x00000010L
-#define DF2_NO_STAIR            0x00000020L
-#define DF2_SPECIAL             0x00000040L
-#define DF2_NO_NEW_MONSTER      0x00000080L
-#define DF2_DESC                0x00000100L
-#define DF2_NO_GENO             0x00000200L
-#define DF2_NO_BREATH           0x00000400L     /* Oups, cannot breath here */
-#define DF2_WATER_BREATH        0x00000800L     /* Oups, cannot breath here, need water breathing */
-#define DF2_ELVEN               0x00001000L     /* Try to create elven monster ego */
-#define DF2_DWARVEN             0x00002000L     /* Try to create dwarven monster ego */
-#define DF2_NO_EASY_MOVE        0x00004000L     /* Forbid stuff like teleport level, probability travel, ... */
-#define DF2_NO_RECALL_OUT       0x00008000L     /* Cannot recall out of the place */
-#define DF2_DESC_ALWAYS         0x00010000L     /* Always shows the desc */
 
 /*** Town flags ***/
 #define TOWN_REAL	0x01	/* Town is really present */
 #define TOWN_KNOWN	0x02	/* Town is found by the player */
 
 
-
-/*** Monster blow constants ***/
-
-#define MODIFY_AUX(o, n) ((o) = modify_aux((o), (n) >> 2, (n) & 3))
-#define MODIFY(o, n, min) MODIFY_AUX(o, n); (o) = ((o) < (min))?(min):(o)
 
 /*
  * New monster blow methods
@@ -3172,343 +2063,6 @@
 /*** Monster flag values (hard-coded) ***/
 
 #define MONSTER_LEVEL_MAX       150
-#define MONSTER_EXP(level)      ((((level) > MONSTER_LEVEL_MAX)?MONSTER_LEVEL_MAX:(level)) * (((level) > MONSTER_LEVEL_MAX)?MONSTER_LEVEL_MAX:(level)) * (((level) > MONSTER_LEVEL_MAX)?MONSTER_LEVEL_MAX:(level)) * 6)
-
-/*
- * New monster race bit flags
- */
-#define RF1_UNIQUE                      0x00000001      /* Unique Monster */
-#define RF1_QUESTOR                     0x00000002      /* Quest Monster */
-#define RF1_MALE                        0x00000004      /* Male gender */
-#define RF1_FEMALE                      0x00000008      /* Female gender */
-#define RF1_CHAR_CLEAR          0x00000010      /* Absorbs symbol */
-#define RF1_CHAR_MULTI          0x00000020      /* Changes symbol */
-#define RF1_ATTR_CLEAR          0x00000040      /* Absorbs color */
-#define RF1_ATTR_MULTI          0x00000080      /* Changes color */
-#define RF1_FORCE_DEPTH         0x00000100      /* Start at "correct" depth */
-#define RF1_FORCE_MAXHP         0x00000200      /* Start with max hitpoints */
-#define RF1_FORCE_SLEEP         0x00000400      /* Start out sleeping */
-#define RF1_FORCE_EXTRA         0x00000800      /* Start out something */
-#define RF1_FRIEND              0x00001000      /* Arrive with a friend */
-#define RF1_FRIENDS             0x00002000      /* Arrive with some friends */
-#define RF1_ESCORT              0x00004000      /* Arrive with an escort */
-#define RF1_ESCORTS             0x00008000      /* Arrive with some escorts */
-#define RF1_NEVER_BLOW          0x00010000      /* Never make physical blow */
-#define RF1_NEVER_MOVE          0x00020000      /* Never make physical move */
-#define RF1_RAND_25             0x00040000      /* Moves randomly (25%) */
-#define RF1_RAND_50             0x00080000      /* Moves randomly (50%) */
-#define RF1_ONLY_GOLD           0x00100000      /* Drop only gold */
-#define RF1_ONLY_ITEM           0x00200000      /* Drop only items */
-#define RF1_DROP_60             0x00400000      /* Drop an item/gold (60%) */
-#define RF1_DROP_90             0x00800000      /* Drop an item/gold (90%) */
-#define RF1_DROP_1D2            0x01000000      /* Drop 1d2 items/gold */
-#define RF1_DROP_2D2            0x02000000      /* Drop 2d2 items/gold */
-#define RF1_DROP_3D2            0x04000000      /* Drop 3d2 items/gold */
-#define RF1_DROP_4D2            0x08000000      /* Drop 4d2 items/gold */
-#define RF1_DROP_GOOD           0x10000000      /* Drop good items */
-#define RF1_DROP_GREAT          0x20000000      /* Drop great items */
-#define RF1_DROP_USEFUL         0x40000000      /* Drop "useful" items */
-#define RF1_DROP_CHOSEN         0x80000000      /* Drop "chosen" items */
-
-/*
- * New monster race bit flags
- */
-#define RF2_STUPID                      0x00000001      /* Monster is stupid */
-#define RF2_SMART                       0x00000002      /* Monster is smart */
-#define RF2_CAN_SPEAK            0x00000004  /* TY: can speak */
-#define RF2_REFLECTING                  0x00000008      /* Reflects bolts */
-#define RF2_INVISIBLE           0x00000010      /* Monster avoids vision */
-#define RF2_COLD_BLOOD          0x00000020      /* Monster avoids infra */
-#define RF2_EMPTY_MIND          0x00000040      /* Monster avoids telepathy */
-#define RF2_WEIRD_MIND          0x00000080      /* Monster avoids telepathy? */
-#define RF2_DEATH_ORB           0x00000100      /* Death Orb */
-#define RF2_REGENERATE          0x00000200      /* Monster regenerates */
-#define RF2_SHAPECHANGER        0x00000400  /* TY: shapechanger */
-#define RF2_ATTR_ANY            0x00000800  /* TY: Attr_any */
-#define RF2_POWERFUL            0x00001000      /* Monster has strong breath */
-#define RF2_ELDRITCH_HORROR             0x00002000      /* Sanity-blasting horror    */
-#define RF2_AURA_FIRE                   0x00004000      /* Burns in melee */
-#define RF2_AURA_ELEC                   0x00008000      /* Shocks in melee */
-#define RF2_OPEN_DOOR           0x00010000      /* Monster can open doors */
-#define RF2_BASH_DOOR           0x00020000      /* Monster can bash doors */
-#define RF2_PASS_WALL           0x00040000      /* Monster can pass walls */
-#define RF2_KILL_WALL           0x00080000      /* Monster can destroy walls */
-#define RF2_MOVE_BODY           0x00100000      /* Monster can move monsters */
-#define RF2_KILL_BODY           0x00200000      /* Monster can kill monsters */
-#define RF2_TAKE_ITEM           0x00400000      /* Monster can pick up items */
-#define RF2_KILL_ITEM           0x00800000      /* Monster can crush items */
-#define RF2_BRAIN_1                     0x01000000
-#define RF2_BRAIN_2                     0x02000000
-#define RF2_BRAIN_3                     0x04000000
-#define RF2_BRAIN_4                     0x08000000
-#define RF2_BRAIN_5                     0x10000000
-#define RF2_BRAIN_6                     0x20000000
-#define RF2_BRAIN_7                     0x40000000
-#define RF2_BRAIN_8                     0x80000000
-
-/*
- * New monster race bit flags
- */
-#define RF3_ORC                         0x00000001      /* Orc */
-#define RF3_TROLL                       0x00000002      /* Troll */
-#define RF3_GIANT                       0x00000004      /* Giant */
-#define RF3_DRAGON                      0x00000008      /* Dragon */
-#define RF3_DEMON                       0x00000010      /* Demon */
-#define RF3_UNDEAD                      0x00000020      /* Undead */
-#define RF3_EVIL                        0x00000040      /* Evil */
-#define RF3_ANIMAL                      0x00000080      /* Animal */
-#define RF3_THUNDERLORD            0x00000100  /* DG: Thunderlord */
-#define RF3_GOOD                        0x00000200      /* Good */
-#define RF3_AURA_COLD                        0x00000400      /* Freezes in melee */
-#define RF3_NONLIVING           0x00000800  /* TY: Non-Living (?) */
-#define RF3_HURT_LITE           0x00001000      /* Hurt by lite */
-#define RF3_HURT_ROCK           0x00002000      /* Hurt by rock remover */
-#define RF3_SUSCEP_FIRE           0x00004000      /* Hurt badly by fire */
-#define RF3_SUSCEP_COLD           0x00008000      /* Hurt badly by cold */
-#define RF3_IM_ACID                     0x00010000      /* Resist acid a lot */
-#define RF3_IM_ELEC                     0x00020000      /* Resist elec a lot */
-#define RF3_IM_FIRE                     0x00040000      /* Resist fire a lot */
-#define RF3_IM_COLD                     0x00080000      /* Resist cold a lot */
-#define RF3_IM_POIS                     0x00100000      /* Resist poison a lot */
-#define RF3_RES_TELE                    0x00200000      /* Resist teleportation */
-#define RF3_RES_NETH            0x00400000      /* Resist nether a lot */
-#define RF3_RES_WATE            0x00800000      /* Resist water */
-#define RF3_RES_PLAS            0x01000000      /* Resist plasma */
-#define RF3_RES_NEXU            0x02000000      /* Resist nexus */
-#define RF3_RES_DISE            0x04000000      /* Resist disenchantment */
-#define RF3_UNIQUE_4                    0x08000000      /* Is a "Nazgul" unique */
-#define RF3_NO_FEAR                     0x10000000      /* Cannot be scared */
-#define RF3_NO_STUN                     0x20000000      /* Cannot be stunned */
-#define RF3_NO_CONF                     0x40000000      /* Cannot be confused */
-#define RF3_NO_SLEEP            0x80000000      /* Cannot be slept */
-
-/*
- * New monster race bit flags
- */
-#define RF4_SHRIEK                      0x00000001  /* Shriek for help */
-#define RF4_MULTIPLY                    0x00000002  /* Monster reproduces */
-#define RF4_S_ANIMAL                    0x00000004  /* Summon animals */
-#define RF4_ROCKET                      0x00000008  /* TY: Rocket */
-#define RF4_ARROW_1                     0x00000010  /* Fire an arrow (light) */
-#define RF4_ARROW_2                     0x00000020  /* Fire an arrow (heavy) */
-#define RF4_ARROW_3                     0x00000040  /* Fire missiles (light) */
-#define RF4_ARROW_4                     0x00000080  /* Fire missiles (heavy) */
-#define RF4_BR_ACID                     0x00000100  /* Breathe Acid */
-#define RF4_BR_ELEC                     0x00000200  /* Breathe Elec */
-#define RF4_BR_FIRE                     0x00000400  /* Breathe Fire */
-#define RF4_BR_COLD                     0x00000800  /* Breathe Cold */
-#define RF4_BR_POIS                     0x00001000  /* Breathe Poison */
-#define RF4_BR_NETH                     0x00002000  /* Breathe Nether */
-#define RF4_BR_LITE                     0x00004000  /* Breathe Lite */
-#define RF4_BR_DARK                     0x00008000  /* Breathe Dark */
-#define RF4_BR_CONF                     0x00010000  /* Breathe Confusion */
-#define RF4_BR_SOUN                     0x00020000  /* Breathe Sound */
-#define RF4_BR_CHAO                     0x00040000  /* Breathe Chaos */
-#define RF4_BR_DISE                     0x00080000  /* Breathe Disenchant */
-#define RF4_BR_NEXU                     0x00100000  /* Breathe Nexus */
-#define RF4_BR_TIME                     0x00200000  /* Breathe Time */
-#define RF4_BR_INER                     0x00400000  /* Breathe Inertia */
-#define RF4_BR_GRAV                     0x00800000  /* Breathe Gravity */
-#define RF4_BR_SHAR                     0x01000000  /* Breathe Shards */
-#define RF4_BR_PLAS                     0x02000000  /* Breathe Plasma */
-#define RF4_BR_WALL                     0x04000000  /* Breathe Force */
-#define RF4_BR_MANA                     0x08000000  /* Breathe Mana */
-#define RF4_BA_NUKE                     0x10000000  /* TY: Nuke Ball */
-#define RF4_BR_NUKE                     0x20000000  /* TY: Toxic Breath */
-#define RF4_BA_CHAO                     0x40000000  /* Chaos Ball */
-#define RF4_BR_DISI                     0x80000000  /* Breathe Disintegration */
-
-/*
- * New monster race bit flags
- */
-#define RF5_BA_ACID                     0x00000001      /* Acid Ball */
-#define RF5_BA_ELEC                     0x00000002      /* Elec Ball */
-#define RF5_BA_FIRE                     0x00000004      /* Fire Ball */
-#define RF5_BA_COLD                     0x00000008      /* Cold Ball */
-#define RF5_BA_POIS                     0x00000010      /* Poison Ball */
-#define RF5_BA_NETH                     0x00000020      /* Nether Ball */
-#define RF5_BA_WATE                     0x00000040      /* Water Ball */
-#define RF5_BA_MANA                     0x00000080      /* Mana Storm */
-#define RF5_BA_DARK                     0x00000100      /* Darkness Storm */
-#define RF5_DRAIN_MANA          0x00000200      /* Drain Mana */
-#define RF5_MIND_BLAST          0x00000400      /* Blast Mind */
-#define RF5_BRAIN_SMASH         0x00000800      /* Smash Brain */
-#define RF5_CAUSE_1                     0x00001000      /* Cause Light Wound */
-#define RF5_CAUSE_2                     0x00002000      /* Cause Serious Wound */
-#define RF5_CAUSE_3                     0x00004000      /* Cause Critical Wound */
-#define RF5_CAUSE_4                     0x00008000      /* Cause Mortal Wound */
-#define RF5_BO_ACID                     0x00010000      /* Acid Bolt */
-#define RF5_BO_ELEC                     0x00020000      /* Elec Bolt (unused) */
-#define RF5_BO_FIRE                     0x00040000      /* Fire Bolt */
-#define RF5_BO_COLD                     0x00080000      /* Cold Bolt */
-#define RF5_BO_POIS                     0x00100000      /* Poison Bolt (unused) */
-#define RF5_BO_NETH                     0x00200000      /* Nether Bolt */
-#define RF5_BO_WATE                     0x00400000      /* Water Bolt */
-#define RF5_BO_MANA                     0x00800000      /* Mana Bolt */
-#define RF5_BO_PLAS                     0x01000000      /* Plasma Bolt */
-#define RF5_BO_ICEE                     0x02000000      /* Ice Bolt */
-#define RF5_MISSILE                     0x04000000      /* Magic Missile */
-#define RF5_SCARE                       0x08000000      /* Frighten Player */
-#define RF5_BLIND                       0x10000000      /* Blind Player */
-#define RF5_CONF                        0x20000000      /* Confuse Player */
-#define RF5_SLOW                        0x40000000      /* Slow Player */
-#define RF5_HOLD                        0x80000000      /* Paralyze Player */
-
-/*
- * New monster race bit flags
- */
-#define RF6_HASTE                       0x00000001      /* Speed self */
-#define RF6_HAND_DOOM                   0x00000002      /* Hand of Doom */
-#define RF6_HEAL                        0x00000004      /* Heal self */
-#define RF6_S_ANIMALS                   0x00000008      /* Summon animals */
-#define RF6_BLINK                       0x00000010      /* Teleport Short */
-#define RF6_TPORT                       0x00000020      /* Teleport Long */
-#define RF6_TELE_TO                     0x00000040      /* Move player to monster */
-#define RF6_TELE_AWAY                   0x00000080      /* Move player far away */
-#define RF6_TELE_LEVEL                  0x00000100      /* Move player vertically */
-#define RF6_DARKNESS                    0x00000200      /* Create Darkness */
-#define RF6_TRAPS                       0x00000400      /* Create Traps */
-#define RF6_FORGET                      0x00000800      /* Cause amnesia */
-#define RF6_RAISE_DEAD                  0x00001000      /* Raise Dead */
-#define RF6_S_BUG                       0x00002000      /* Summon Software bug */
-#define RF6_S_RNG                       0x00004000      /* Summon RNG */
-#define RF6_S_THUNDERLORD               0x00008000      /* Summon Thunderlords */
-#define RF6_S_KIN                       0x00010000      /* Summon "kin" */
-#define RF6_S_HI_DEMON                  0x00020000      /* Summon greater demons! */
-#define RF6_S_MONSTER                   0x00040000      /* Summon Monster */
-#define RF6_S_MONSTERS                  0x00080000      /* Summon Monsters */
-#define RF6_S_ANT                       0x00100000      /* Summon Ants */
-#define RF6_S_SPIDER                    0x00200000      /* Summon Spiders */
-#define RF6_S_HOUND                     0x00400000      /* Summon Hounds */
-#define RF6_S_HYDRA                     0x00800000      /* Summon Hydras */
-#define RF6_S_ANGEL                     0x01000000      /* Summon Angel */
-#define RF6_S_DEMON                     0x02000000      /* Summon Demon */
-#define RF6_S_UNDEAD            0x04000000      /* Summon Undead */
-#define RF6_S_DRAGON            0x08000000      /* Summon Dragon */
-#define RF6_S_HI_UNDEAD         0x10000000      /* Summon Greater Undead */
-#define RF6_S_HI_DRAGON         0x20000000      /* Summon Ancient Dragon */
-#define RF6_S_WRAITH            0x40000000      /* Summon Unique Wraith */
-#define RF6_S_UNIQUE            0x80000000      /* Summon Unique Monster */
-
-/*
- * New monster race bit flags
- */
-#define RF7_AQUATIC             0x00000001  /* Aquatic monster */
-#define RF7_CAN_SWIM            0x00000002  /* Monster can swim */
-#define RF7_CAN_FLY             0x00000004  /* Monster can fly */
-#define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
-#define RF7_PET                 0x00000010  /* Monster is a pet */
-#define RF7_MORTAL              0x00000020  /* Monster is a mortal being */
-#define RF7_SPIDER              0x00000040  /* Monster is a spider (can pass webs) */
-#define RF7_NAZGUL              0x00000080  /* Monster is a Nazgul */
-#define RF7_DG_CURSE            0x00000100  /* If killed the monster grant a DG Curse to the player */
-#define RF7_POSSESSOR           0x00000200  /* Is it a dreaded possessor monster ? */
-#define RF7_NO_DEATH            0x00000400  /* Cannot be killed */
-#define RF7_NO_TARGET           0x00000800  /* Cannot be targeted */
-#define RF7_AI_ANNOY            0x00001000  /* Try to tease the player */
-#define RF7_AI_SPECIAL          0x00002000  /* For quests */
-#define RF7_NEUTRAL             0x00004000  /* Monster is neutral */
-#define RF7_DROP_ART            0x00008000  /* Monster drop one art */
-#define RF7_DROP_RANDART        0x00010000  /* Monster drop one randart */
-#define RF7_AI_PLAYER           0x00020000  /* Controlled by the player */
-#define RF7_NO_THEFT		0x00040000  /* Monster is immune to theft */
-#define RF7_SPIRIT		0x00080000  /* This is a Spirit, coming from the Void */
-#define RF7_IM_MELEE            0x00100000  /* IM melee */
-
-
-/*
- * Monster race flags
- */
-#define RF8_DUNGEON             0x00000001
-#define RF8_WILD_TOWN           0x00000002
-#define RF8_XXX8X02             0x00000004
-#define RF8_WILD_SHORE          0x00000008
-#define RF8_WILD_OCEAN          0x00000010
-#define RF8_WILD_WASTE          0x00000020
-#define RF8_WILD_WOOD           0x00000040
-#define RF8_WILD_VOLCANO        0x00000080
-#define RF8_XXX8X08             0x00000100
-#define RF8_WILD_MOUNTAIN       0x00000200
-#define RF8_WILD_GRASS          0x00000400
-#define RF8_NO_CUT              0x00000800
-#define RF8_CTHANGBAND          0x00001000  /* Not used in ToME */
-/* XXX */
-#define RF8_ZANGBAND            0x00004000  /* Not used in ToME */
-#define RF8_JOKEANGBAND         0x00008000
-#define RF8_ANGBAND             0x00010000
-
-#define RF8_WILD_TOO            0x80000000
-
-
-/*
- * Monster race flags
- */
-#define RF9_DROP_CORPSE         0x00000001
-#define RF9_DROP_SKELETON       0x00000002
-#define RF9_HAS_LITE            0x00000004      /* Carries a lite */
-#define RF9_MIMIC               0x00000008      /* *REALLY* looks like an object ... only nastier */
-#define RF9_HAS_EGG             0x00000010      /* Can be monster's eggs */
-#define RF9_IMPRESED            0x00000020      /* The monster can follow you on each level until he dies */
-#define RF9_SUSCEP_ACID         0x00000040      /* Susceptible to acid */
-#define RF9_SUSCEP_ELEC         0x00000080      /* Susceptible to lightning */
-#define RF9_SUSCEP_POIS         0x00000100      /* Susceptible to poison */
-#define RF9_KILL_TREES          0x00000200      /* Monster can eat trees */
-#define RF9_WYRM_PROTECT        0x00000400      /* The monster is protected by great wyrms of power: They'll be summoned if it's killed */
-#define RF9_DOPPLEGANGER        0x00000800      /* The monster looks like you */
-#define RF9_ONLY_DEPTH          0x00001000      /* The monster can only be generated at the GIVEN depth */
-#define RF9_SPECIAL_GENE        0x00002000      /* The monster can only be generated in special conditions like quests, special dungeons, ... */
-#define RF9_NEVER_GENE          0x00004000      /* The monster cannot be normaly generated */
-
-
-/*
- * Hack -- choose "intelligent" spells when desperate
- */
-
-#define RF4_INT_MASK \
-   (RF4_S_ANIMAL)
-
-#define RF5_INT_MASK \
-  (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
-
-#define RF6_INT_MASK \
-   (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-    RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
-    RF6_S_KIN | RF6_S_HI_DEMON | RF6_S_MONSTER | RF6_S_MONSTERS | \
-    RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
-    RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
-    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE | \
-    RF6_S_THUNDERLORD | RF6_S_BUG | RF6_S_RNG | RF6_S_ANIMALS)
-
-
-/*
- * Hack -- "bolt" spells that may hurt fellow monsters
- */
-#define RF4_BOLT_MASK \
-  (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
-
-#define RF5_BOLT_MASK \
-   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
-    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
-    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
-
-#define RF6_BOLT_MASK \
-   0L
-
-
-/* Hack -- summon spells */
-
-#define RF4_SUMMON_MASK \
-    (RF4_S_ANIMAL)
-
-#define RF5_SUMMON_MASK \
-    0L
-
-#define RF6_SUMMON_MASK \
-    (RF6_S_KIN | RF6_S_HI_DEMON | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
-     RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
-     RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
-     RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_THUNDERLORD | RF6_S_BUG | RF6_S_RNG | \
-     RF6_S_ANIMALS)
 
 
 /*** Macro Definitions ***/
@@ -3520,459 +2074,6 @@
 #define term_screen     (angband_term[0])
 
 
-/*
- * Determine if a given inventory item is "aware"
- */
-#define object_aware_p(T) \
-    (k_info[(T)->k_idx].aware)
-
-/*
- * Determine if a given inventory item is "tried"
- */
-#define object_tried_p(T) \
-    (k_info[(T)->k_idx].tried)
-
-
-/*
- * Determine if a given inventory item is "known"
- * Test One -- Check for special "known" tag
- * Test Two -- Check for "Easy Know" + "Aware"
- */
-#define object_known_p(T) \
-    (((T)->ident & (IDENT_KNOWN)) || \
-     (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
-
-
-/*
- * Return the "attr" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_attr(T) \
-	(((T)->tval == TV_RANDART) ? \
-		random_artifacts[(T)->sval].attr : \
-		(k_info[(T)->k_idx].flavor) ? \
-			misc_to_attr[k_info[(T)->k_idx].flavor] : \
-			k_info[(T)->k_idx].x_attr)
-
-#define object_attr_default(T) \
-	(((T)->tval == TV_RANDART) ? \
-		random_artifacts[(T)->sval].attr : \
-		(k_info[(T)->k_idx].flavor) ? \
-			misc_to_attr[k_info[(T)->k_idx].flavor] : \
-			k_info[(T)->k_idx].d_attr)
-
-/*
- * Return the "char" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_char(T) \
-	((k_info[(T)->k_idx].flavor) ? \
-		misc_to_char[k_info[(T)->k_idx].flavor] : \
-		k_info[(T)->k_idx].x_char)
-
-#define object_char_default(T) \
-	((k_info[(T)->k_idx].flavor) ? \
-		misc_to_char[k_info[(T)->k_idx].flavor] : \
-		k_info[(T)->k_idx].d_char)
-
-
-
-/*
- * Artifacts use the "name1" field
- */
-#define artifact_p(T) \
-	(                                                               \
-	((T)->tval == TV_RANDART ||                                     \
-	((T)->name1 ? TRUE : FALSE) ||                                  \
-	((T)->art_name ? TRUE : FALSE) ||                               \
-	((k_info[(T)->k_idx].flags3 & TR3_NORM_ART)? TRUE : FALSE))     \
-	)
-
-/*
- * Ego-Items use the "name2" field
- */
-#define ego_item_p(T) \
-	((T)->name2 || (T)->name2b ? TRUE : FALSE)
-
-/*
- * Ego-Items use the "name2" field
- */
-#define is_ego_p(T, e) \
-	(((T)->name2 == (e)) || ((T)->name2b == (e)))
-
-
-
-/*
- * Cursed items.
- */
-#define cursed_p(T) \
-	((T)->ident & (IDENT_CURSED))
-
-
-/*
- * Convert an "attr"/"char" pair into a "pict" (P)
- */
-#define PICT(A,C) \
-	((((u16b)(A)) << 8) | ((byte)(C)))
-
-/*
- * Convert a "pict" (P) into an "attr" (A)
- */
-#define PICT_A(P) \
-	((byte)((P) >> 8))
-
-/*
- * Convert a "pict" (P) into an "char" (C)
- */
-#define PICT_C(P) \
-	((char)((byte)(P)))
-
-
-/*
- * Convert a "location" (Y,X) into a "grid" (G)
- */
-#define GRID(Y,X) \
-	(256 * (Y) + (X))
-
-/*
- * Convert a "grid" (G) into a "location" (Y)
- */
-#define GRID_Y(G) \
-	((int)((G) / 256U))
-
-/*
- * Convert a "grid" (G) into a "location" (X)
- */
-#define GRID_X(G) \
-	((int)((G) % 256U))
-
-
-/*
- * Determines if a map location is fully inside the outer walls
- */
-#define in_bounds(Y,X) \
-   (((Y) > 0) && ((X) > 0) && ((Y) < cur_hgt-1) && ((X) < cur_wid-1))
-
-/*
- * Determines if a map location is on or inside the outer walls
- */
-#define in_bounds2(Y,X) \
-   (((Y) >= 0) && ((X) >= 0) && ((Y) < cur_hgt) && ((X) < cur_wid))
-
-
-/*
- * Determines if a map location is currently "on screen" -RAK-
- * Note that "panel_contains(Y,X)" always implies "in_bounds2(Y,X)".
- */
-#define panel_contains(Y,X) \
-  (((Y) >= panel_row_min) && ((Y) <= panel_row_max) && \
-   ((X) >= panel_col_min) && ((X) <= panel_col_max))
-
-
-
-/*
- * Determine if a "legal" grid is a "floor" grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note that the terrain features are split by a one bit test
- * into those features which block line of sight and those that
- * do not, allowing an extremely fast single bit check below.
- *
- * Add in the fact that some new terrain (water & lava) do NOT block sight
- * -KMW-
- */
-#define cave_floor_bold(Y,X) \
-	((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
-	 (cave[Y][X].feat != FEAT_MON_TRAP))
-
-
-/*
- * Determine if a "legal" grid is floor without the REMEMBER flag set
- * Sometimes called "boring" grid
- */
-#define cave_plain_floor_bold(Y,X) \
-	((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
-	 !(f_info[cave[Y][X].feat].flags1 & FF1_REMEMBER))
-
-
-/*
- * Determine if a "legal" grid isn't a "blocking line of sight" grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note that the terrain features are split by a one bit test
- * into those features which block line of sight and those that
- * do not, allowing an extremely fast single bit check below.
- *
- * Add in the fact that some new terrain (water & lava) do NOT block sight
- * -KMW-
- */
-#define cave_sight_bold(Y,X) \
-	(!(f_info[cave[Y][X].feat].flags1 & FF1_NO_VISION))
-
-
-/*
- * Determine if a "legal" grid is a "clean" floor grid
- *
- * Line 1 -- forbid non-floors
- * Line 2 -- forbid deep water -KMW-
- * Line 3 -- forbid deep lava -KMW-
- * Line 4 -- forbid normal objects
- */
-#define cave_clean_bold(Y,X) \
-	((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
-	 (cave[Y][X].feat != FEAT_MON_TRAP) && \
-	 (cave[Y][X].o_idx == 0) && \
-	 !(f_info[cave[Y][X].feat].flags1 & FF1_PERMANENT))
-
-
-/*
- * Determine if a "legal" grid is an "empty" floor grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- * Line 2 -- forbid normal monsters
- * Line 3 -- forbid the player
- */
-#define cave_empty_bold(Y,X) \
-    (cave_floor_bold(Y,X) && \
-     !(cave[Y][X].m_idx) && \
-     !(((Y) == p_ptr->py) && ((X) == p_ptr->px)))
-
-
-/*
- * Determine if a "legal" grid is an "naked" floor grid
- *
- * Line 1 -- forbid non-floors, non-shallow water & lava -KMW-
- * Line 2 -- forbid normal objects
- * Line 3 -- forbid player/monsters
- */
-#define cave_naked_bold(Y,X) \
-	((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
-	 (cave[Y][X].feat != FEAT_MON_TRAP) && \
-	 !(f_info[cave[Y][X].feat].flags1 & FF1_PERMANENT) && \
-	  (cave[Y][X].o_idx == 0) && \
-	  (cave[Y][X].m_idx == 0))
-
-#define cave_naked_bold2(Y,X) \
-	((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
-	 (cave[Y][X].feat != FEAT_MON_TRAP) && \
-	  (cave[Y][X].o_idx == 0) && \
-	  (cave[Y][X].m_idx == 0))
-
-
-
-/*
- * Determine if a "legal" grid is "permanent"
- *
- * Line 1   -- perma-walls
- * Line 2-3 -- stairs
- * Line 4-5 -- building doors -KMW-
- * Line 6-7 -- shop doors
- */
-#define cave_perma_bold(Y,X) \
-       (f_info[cave[Y][X].feat].flags1 & FF1_PERMANENT)
-
-
-/*
- * Grid based version of "cave_floor_bold()"
- */
-#define cave_floor_grid(C) \
-    ((f_info[(C)->feat].flags1 & FF1_FLOOR) && ((C)->feat != FEAT_MON_TRAP))
-
-
-/*
- * Grid based version of "cave_plain_floor_bold()"
- */
-#define cave_plain_floor_grid(C) \
-	((f_info[(C)->feat].flags1 & FF1_FLOOR) && \
-	 !(f_info[(C)->feat].flags1 & FF1_REMEMBER))
-
-
-/*
- * Grid based version of "cave_clean_bold()"
- */
-#define cave_clean_grid(C) \
-    ((f_info[(C)->feat].flags1 & FF1_FLOOR) && ((C)->feat != FEAT_MON_TRAP) && \
-     (!(C)->o_idx))
-
-/*
- * Grid based version of "cave_sight_bold()"
- */
-#define cave_sight_grid(C) \
-	(!(f_info[(C)->feat].flags1 & FF1_NO_VISION))
-
-/*
- * Grid based version of "cave_empty_bold()"
- */
-#define cave_empty_grid(C) \
-    (cave_floor_grid(C) && \
-     !((C)->m_idx) && \
-     !((C) == &cave[p_ptr->py][p_ptr->px]))
-
-/*
- * Grid based version of "cave_empty_bold()"
- */
-#define cave_naked_grid(C) \
-    ((f_info[(C)->feat].flags1 & FF1_FLOOR) && ((C)->feat != FEAT_MON_TRAP) && \
-     !((C)->o_idx) && \
-     !((C)->m_idx) && \
-     !((C) == &cave[p_ptr->py][p_ptr->px]))
-
-
-/*
- * Grid based version of "cave_perma_bold()"
- */
-#define cave_perma_grid(C) \
-       (f_info[(C)->feat].flags1 & FF1_PERMANENT)
-
-
-
-/*
- * Determine if a "legal" grid is within "los" of the player
- *
- * Note the use of comparison to zero to force a "boolean" result
- */
-#define player_has_los_bold(Y,X) \
-    ((cave[Y][X].info & (CAVE_VIEW)) != 0)
-
-
-
-/*
- * Determine if a "legal" grid can be "seen" by the player
- *
- * Note the use of comparison to zero to force a "boolean" result
- */
-#define player_can_see_bold(Y,X) \
-	((cave[Y][X].info & (CAVE_SEEN)) != 0)
-
-
-
-/*** Color constants ***/
-
-
-/*
- * Angband "attributes" (with symbols, and base (R,G,B) codes)
- *
- * The "(R,G,B)" codes are given in "fourths" of the "maximal" value,
- * and should "gamma corrected" on most (non-Macintosh) machines.
- */
-#define TERM_DARK                0  /* 'd' */   /* 0,0,0 */
-#define TERM_WHITE               1  /* 'w' */   /* 4,4,4 */
-#define TERM_SLATE               2  /* 's' */   /* 2,2,2 */
-#define TERM_ORANGE              3  /* 'o' */   /* 4,2,0 */
-#define TERM_RED                 4  /* 'r' */   /* 3,0,0 */
-#define TERM_GREEN               5  /* 'g' */   /* 0,2,1 */
-#define TERM_BLUE                6  /* 'b' */   /* 0,0,4 */
-#define TERM_UMBER               7  /* 'u' */   /* 2,1,0 */
-#define TERM_L_DARK              8  /* 'D' */   /* 1,1,1 */
-#define TERM_L_WHITE             9  /* 'W' */   /* 3,3,3 */
-#define TERM_VIOLET             10  /* 'v' */   /* 4,0,4 */
-#define TERM_YELLOW             11  /* 'y' */   /* 4,4,0 */
-#define TERM_L_RED              12  /* 'R' */   /* 4,0,0 */
-#define TERM_L_GREEN            13  /* 'G' */   /* 0,4,0 */
-#define TERM_L_BLUE             14  /* 'B' */   /* 0,4,4 */
-#define TERM_L_UMBER            15  /* 'U' */   /* 3,2,1 */
-
-
-/*** Graphics constants ***/
-
-/*
- * Possible values of graphics_mode
- * Good only when use_graphics is set to TRUE
- * Set by reset_visuals() and used by map_info()
- */
-#define GRAPHICS_NONE    0
-#define GRAPHICS_UNKNOWN 1
-#define GRAPHICS_IBM     2
-#define GRAPHICS_OLD     3
-#define GRAPHICS_NEW     4
-#define GRAPHICS_ISO     5
-
-
-/*** Sound constants ***/
-
-
-/*
- * Mega-Hack -- some primitive sound support (see "main-win.c")
- *
- * Some "sound" constants for "Term_xtra(TERM_XTRA_SOUND, val)"
- */
-#define SOUND_HIT        1
-#define SOUND_MISS       2
-#define SOUND_FLEE       3
-#define SOUND_DROP       4
-#define SOUND_KILL       5
-#define SOUND_LEVEL      6
-#define SOUND_DEATH      7
-#define SOUND_STUDY      8
-#define SOUND_TELEPORT   9
-#define SOUND_SHOOT     10
-#define SOUND_QUAFF     11
-#define SOUND_ZAP       12
-#define SOUND_WALK      13
-#define SOUND_TPOTHER   14
-#define SOUND_HITWALL   15
-#define SOUND_EAT       16
-#define SOUND_STORE1    17
-#define SOUND_STORE2    18
-#define SOUND_STORE3    19
-#define SOUND_STORE4    20
-#define SOUND_DIG       21
-#define SOUND_OPENDOOR  22
-#define SOUND_SHUTDOOR  23
-#define SOUND_TPLEVEL   24
-#define SOUND_SCROLL	25
-#define SOUND_BUY	    26
-#define SOUND_SELL	    27
-#define SOUND_WARN	    28
-#define SOUND_ROCKET    29 /* Somebody's shooting rockets */
-#define SOUND_N_KILL    30 /* The player kills a non-living/undead monster */
-#define SOUND_U_KILL    31 /* The player kills a unique */
-#define SOUND_QUEST     32 /* The player has just completed a quest */
-#define SOUND_HEAL      33 /* The player was healed a little bit */
-#define SOUND_X_HEAL    34 /* The player was healed full health */
-#define SOUND_BITE      35 /* A monster bites you */
-#define SOUND_CLAW      36 /* A monster claws you */
-#define SOUND_M_SPELL   37 /* A monster casts a miscellaneous spell */
-#define SOUND_SUMMON    38 /* A monster casts a summoning spell  */
-#define SOUND_BREATH    39 /* A monster breathes */
-#define SOUND_BALL      40 /* A monster casts a ball / bolt spell */
-#define SOUND_M_HEAL    41 /* A monster heals itself somehow */
-#define SOUND_ATK_SPELL 42 /* A monster casts a misc. offensive spell */
-#define SOUND_EVIL      43 /* Something nasty has just happened! */
-#define SOUND_TOUCH     44 /* A monster touches you */
-#define SOUND_STING     45 /* A monster stings you */
-#define SOUND_CRUSH     46 /* A monster crushes / envelopes you */
-#define SOUND_SLIME     47 /* A monster drools/spits/etc on you */
-#define SOUND_WAIL      48 /* A monster wails */
-#define SOUND_WINNER    49 /* Just won the game! */
-#define SOUND_FIRE      50 /* An item was burned  */
-#define SOUND_ACID      51 /* An item was destroyed by acid */
-#define SOUND_ELEC      52 /* An item was destroyed by electricity */
-#define SOUND_COLD      53 /* An item was shattered */
-#define SOUND_ILLEGAL   54 /* Illegal command attempted */
-#define SOUND_FAIL      55 /* Fail to get a spell off / activate an item */
-#define SOUND_WAKEUP    56 /* A monster wakes up */
-#define SOUND_INVULN    57 /* Invulnerability! */
-#define SOUND_FALL      58 /* Falling through a trapdoor... */
-#define SOUND_PAIN      59 /* A monster is in pain! */
-#define SOUND_DESTITEM  60 /* An item was destroyed by misc. means */
-#define SOUND_MOAN      61 /* A monster makes a moan/beg/insult attack */
-#define SOUND_SHOW      62 /* A monster makes a "show" attack */
-#define SOUND_UNUSED    63 /* (no sound for gaze attacks) */
-#define SOUND_EXPLODE   64 /* Something (or somebody) explodes */
-
-/*
- * Mega-Hack -- maximum known sounds
- */
-#define SOUND_MAX 65
-
-
-
-/*** Hack ***/
 
 
 /*
@@ -3990,55 +2091,38 @@
 #define BACT_RESEARCH_ITEM           1
 #define BACT_TOWN_HISTORY            2
 #define BACT_RACE_LEGENDS            3
-#define BACT_GREET_KING              4
 #define BACT_KING_LEGENDS            5
 #define BACT_QUEST1                  6
-#define BACT_POSTER                  8
-#define BACT_ARENA_RULES             9
-#define BACT_ARENA                  10
-#define BACT_ARENA_LEGENDS          11
 #define BACT_IN_BETWEEN             12
 #define BACT_GAMBLE_RULES           13
 #define BACT_CRAPS                  14
-#define BACT_SPIN_WHEEL             15
 #define BACT_DICE_SLOTS             16
 #define BACT_REST                   17
 #define BACT_FOOD                   18
 #define BACT_RUMORS                 19
-#define BACT_RESEARCH_MONSTER       20
 #define BACT_COMPARE_WEAPONS        21
-#define BACT_LEGENDS                22
 #define BACT_ENCHANT_WEAPON         23
 #define BACT_ENCHANT_ARMOR          24
 #define BACT_RECHARGE               25
 #define BACT_IDENTS                 26
-#define BACT_LEARN                  27
 #define BACT_HEALING                28
 #define BACT_RESTORE                29
 #define BACT_ENCHANT_ARROWS         30
 #define BACT_ENCHANT_BOW            31
-#define BACT_GREET                  32
 #define BACT_RECALL                 33
 #define BACT_TELEPORT_LEVEL         34
-/* XXX */
-/* XXX */
 #define BACT_MIMIC_NORMAL           37
-#define BACT_VIEW_BOUNTIES          38
-#define BACT_SELL_CORPSES           39
-#define BACT_VIEW_QUEST_MON         40
-#define BACT_SELL_QUEST_MON         41
 #define BACT_DIVINATION             42
 #define BACT_SELL                   43
 #define BACT_BUY                    44
 #define BACT_EXAMINE                45
 #define BACT_STEAL                  46
-#define BACT_QUEST2                 47
-#define BACT_QUEST3                 48
-#define BACT_QUEST4                 49
 #define BACT_STAR_HEAL              50
-#define BACT_REQUEST_ITEM           51
-#define BACT_GET_LOAN               52
-#define BACT_PAY_BACK_LOAN          53
+#define BACT_DROP_ITEM              54
+#define BACT_GET_ITEM               55
+#define BACT_FIREPROOF_QUEST        56
+#define BACT_LIBRARY_QUEST          61
+#define BACT_EREBOR_KEY             66
 /* If one adds new BACT_ do NOT forget to increase max_bact in variables.c */
 
 
@@ -4071,44 +2155,6 @@
 #define INIT_POSITION         0x10
 
 /*
- * Alchemists defines
- */
-#define MAX_ALCHEMIST_RECIPES 20
-#define ALCHEMIST_ENCHANT_DAM      0x01
-#define ALCHEMIST_ENCHANT_PVAL     0x02
-#define ALCHEMIST_ENCHANT_AC       0x04
-
-/*
- * Music songs
- */
-#define MUSIC_NONE              0
-#define MUSIC_SLOW              1
-#define MUSIC_CONF              2
-#define MUSIC_STUN              3
-#define MUSIC_LIFE              4
-#define MUSIC_MIND              5
-#define MUSIC_LITE              6
-#define MUSIC_FURY              7
-#define MUSIC_AWARE             8
-#define MUSIC_ID                9
-#define MUSIC_ILLUSION          10
-#define MUSIC_WALL              11
-#define MUSIC_RESIST            12
-#define MUSIC_TIME              13
-#define MUSIC_BETWEEN           14
-#define MUSIC_CHARME            15
-#define MUSIC_VIBRA             16
-#define MUSIC_HOLY              17
-#define MUSIC_HIDE              18
-#define MUSIC_LIBERTY           19
-#define MUSIC_RAISE             20
-#define MUSIC_SHADOW            21
-#define MUSIC_STAR_ID           22
-
-#define MAX_MUSIC               23
-#define MAX_MUSICS              11
-
-/*
  * Fate
  */
 #define MAX_FATES               200
@@ -4120,19 +2166,6 @@
 #define FATE_FIND_R             4
 #define FATE_FIND_V             5
 #define FATE_DIE                6
-
-/*
- * Runes definition
- */
-#define RUNE_SELF               0x00000001
-#define RUNE_ARROW              0x00000002
-#define RUNE_RAY                0x00000004
-#define RUNE_SPHERE             0x00000008
-#define RUNE_POWER_SURGE        0x00000010
-#define RUNE_ARMAGEDDON         0x00000020
-#define RUNE_MOD_MAX            6
-#define RUNE_STONE              0x000000FF
-
 
 /*
  * Defines of the different dungeon types
@@ -4166,7 +2199,7 @@
  */
 #define level_or_feat(DTYPE, DLEVEL) \
 	((DTYPE) == DUNGEON_WILDERNESS ? \
-		wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat : \
+	        (game->wilderness)(p_ptr->wilderness_x, p_ptr->wilderness_y).feat : \
 		(DLEVEL) )
 
 
@@ -4191,13 +2224,7 @@
  * Various class dependant defines
  */
 #define CLASS_NONE              0
-#define CLASS_MANA_PATH         1
-#define CLASS_CANALIZE_MANA     2
-#define CLASS_WINDS_MANA        3
 
-#define CLASS_MANA_PATH_ERASE           0x0001
-#define CLASS_FLOOD_LEVEL               0x0002
-#define CLASS_CANALIZE_MANA_EXTRA       0x0004
 #define CLASS_UNDEAD                    0x0008
 #define CLASS_ANTIMAGIC                 0x0010
 #define CLASS_LEGS                      0x0020
@@ -4218,14 +2245,6 @@
 #define NOTE_WINNER		2
 #define NOTE_SAVE_GAME		3
 #define NOTE_ENTER_DUNGEON	4
-
-/*
- * Player monsters & ghost defines
- * NO MORE USED but for savefile compatibility
- */
-#define GHOST_R_IDX_HEAD        967
-#define GHOST_R_IDX_TAIL        977
-#define MAX_GHOSTS              (GHOST_R_IDX_TAIL - GHOST_R_IDX_HEAD)
 
 /* Stores/buildings defines */
 #define STORE_HATED     0
@@ -4257,14 +2276,6 @@
 
 #define MEGO_CHANCE             18      /* % chances of getting ego monsters */
 
-#define race_inf(m_ptr) (((m_ptr)->sr_ptr) ? (m_ptr)->sr_ptr : race_info_idx((m_ptr)->r_idx, (m_ptr)->ego))
-
-/* Object generation */
-#define OBJ_GENE_TREASURE       20
-#define OBJ_GENE_COMBAT         20
-#define OBJ_GENE_MAGIC          20
-#define OBJ_GENE_TOOL           20
-
 /*
  * Used (or should be) by various functions and tables needing access to
  * single bits
@@ -4273,95 +2284,8 @@
 
 /* Town defines */
 #define TOWN_RANDOM     20              /* First random town */
-#define TOWN_DUNGEON    4               /* Maximun number of towns per dungeon */
 #define TOWN_CHANCE     50              /* Chance of 1 town */
 
-
-/*
- * Store flags
- */
-#define SF1_DEPEND_LEVEL        0x00000001L
-#define SF1_SHALLOW_LEVEL       0x00000002L
-#define SF1_MEDIUM_LEVEL        0x00000004L
-#define SF1_DEEP_LEVEL          0x00000008L
-#define SF1_RARE                0x00000010L
-#define SF1_VERY_RARE           0x00000020L
-#define SF1_COMMON              0x00000040L
-#define SF1_ALL_ITEM            0x00000080L     /* Works as the BM */
-#define SF1_RANDOM              0x00000100L
-#define SF1_FORCE_LEVEL         0x00000200L
-#define SF1_MUSEUM              0x00000400L
-
-/*
- * Powers (mutation, activations, ...)
- */
-#define POWER_MAX_INIT                 62
-
-#define PWR_SPIT_ACID                  0
-#define PWR_BR_FIRE                    1
-#define PWR_HYPN_GAZE                  2
-#define PWR_TELEKINES                  3
-#define PWR_VTELEPORT                  4
-#define PWR_MIND_BLST                  5
-#define PWR_RADIATION                  6
-#define PWR_VAMPIRISM                  7
-#define PWR_SMELL_MET                  8
-#define PWR_SMELL_MON                  9
-#define PWR_BLINK                      10
-#define PWR_EAT_ROCK                   11
-#define PWR_SWAP_POS                   12
-#define PWR_SHRIEK                     13
-#define PWR_ILLUMINE                   14
-#define PWR_DET_CURSE                  15
-#define PWR_BERSERK                    16
-#define PWR_POLYMORPH                  17
-#define PWR_MIDAS_TCH                  18
-#define PWR_GROW_MOLD                  19
-#define PWR_RESIST                     20
-#define PWR_EARTHQUAKE                 21
-#define PWR_EAT_MAGIC                  22
-#define PWR_WEIGH_MAG                  23
-#define PWR_STERILITY                  24
-#define PWR_PANIC_HIT                  25
-#define PWR_DAZZLE                     26
-#define PWR_DARKRAY                    27
-#define PWR_RECALL                     28
-#define PWR_BANISH                     29
-#define PWR_COLD_TOUCH                 30
-#define PWR_LAUNCHER                   31
-
-#define PWR_PASSWALL                    32
-#define PWR_DETECT_TD                   33
-#define PWR_COOK_FOOD                   34
-#define PWR_UNFEAR                      35
-#define PWR_EXPL_RUNE                   36
-#define PWR_STM                         37
-#define PWR_POIS_DART                   38
-#define PWR_MAGIC_MISSILE               39
-#define PWR_GROW_TREE                   40
-#define PWR_BR_COLD                     41
-#define PWR_BR_CHAOS                    42
-#define PWR_BR_ELEM                     43
-#define PWR_WRECK_WORLD                 44
-#define PWR_SCARE                       45
-#define PWR_REST_LIFE                   46
-#define PWR_SUMMON_MONSTER              47
-#define PWR_NECRO                       48
-#define PWR_ROHAN                       49
-#define PWR_THUNDER                     50
-#define PWR_DEATHMOLD                   51
-#define PWR_HYPNO                       52
-#define PWR_UNHYPNO                     53
-#define PWR_INCARNATE                   54
-#define PWR_MAGIC_MAP                   55
-#define PWR_LAY_TRAP                    56
-#define PWR_MERCHANT                    57
-#define PWR_COMPANION                   58
-#define PWR_BEAR                        59
-#define PWR_DODGE                       60
-#define PWR_BALROG                      61
-
-#define ADD_POWER(pow, p)       ((pow)[(p)] = TRUE)
 
 /*
  * Shield effect options
@@ -4406,7 +2330,11 @@
 #define QUEST_DRAGONS           23
 #define QUEST_HAUNTED           24
 #define QUEST_EVIL              25
-#define MAX_Q_IDX_INIT          26
+#define QUEST_BOUNTY            26
+#define QUEST_FIREPROOF         27
+#define QUEST_LIBRARY           28
+#define QUEST_GOD               29
+#define MAX_Q_IDX               30
 
 #define PLOT_MAIN               0
 #define PLOT_BREE               1
@@ -4418,10 +2346,47 @@
 #define MAX_PLOTS               7
 
 /*
+ * Modules
+ */
+#define MODULE_TOME             0
+#define MODULE_THEME            1
+#define MAX_MODULES             2
+
+/*
+ * Races
+ */
+#define RACE_HUMAN 0
+#define RACE_HALF_ELF 1
+#define RACE_ELF 2
+#define RACE_HOBBIT 3
+#define RACE_GNOME 4
+#define RACE_DWARF 5
+#define RACE_ORC 6
+#define RACE_TROLL 7
+#define RACE_DUNADAN 8
+#define RACE_HIGH_ELF 9
+#define RACE_HALF_OGRE 10
+#define RACE_BEORNING 11
+#define RACE_KOBOLD 12        /* ToME */
+#define RACE_DRUADAN 12       /* Theme */
+#define RACE_PETTY_DWARF 13
+#define RACE_DARK_ELF 14
+#define RACE_ENT 15
+#define RACE_ROHANKNIGHT 16
+#define RACE_THUNDERLORD 17 /* ToME */
+#define RACE_EAGLE 17       /* Theme */
+#define RACE_DEATHMOLD 18   /* ToME */
+#define RACE_DRAGON 18      /* Theme */
+#define RACE_YEEK 19
+#define RACE_WOOD_ELF 20
+#define RACE_MAIA 21
+#define RACE_EASTERLING 22 /* Theme */
+#define RACE_DEMON 23 /* Theme */
+
+/*
  * Hooks
  */
 #define HOOK_MONSTER_DEATH      0
-#define HOOK_OPEN               1
 #define HOOK_GEN_QUEST          2
 #define HOOK_END_TURN           3
 #define HOOK_FEELING            4
@@ -4442,84 +2407,29 @@
 #define HOOK_MONSTER_AI         19
 #define HOOK_PLAYER_LEVEL       20
 #define HOOK_WIELD              21
-#define HOOK_INIT               22
-#define HOOK_QUAFF              23
+#define HOOK_NEW_MONSTER_END    22
 #define HOOK_AIM                24
 #define HOOK_USE                25
-#define HOOK_ACTIVATE           26
-#define HOOK_ZAP                27
-#define HOOK_READ               28
-#define HOOK_CALC_BONUS         29
-#define HOOK_CALC_POWERS        30
-#define HOOK_KEYPRESS           31
 #define HOOK_CHAT               32
 #define HOOK_MON_SPEAK          33
-#define HOOK_MKEY               34
 #define HOOK_BIRTH_OBJECTS      35
-#define HOOK_ACTIVATE_DESC      36
-#define HOOK_INIT_GAME          37
-#define HOOK_ACTIVATE_POWER     38
-#define HOOK_ITEM_NAME          39
 #define HOOK_SAVE_GAME          40
 #define HOOK_LOAD_GAME          41
 #define HOOK_LEVEL_REGEN        42
 #define HOOK_LEVEL_END_GEN      43
-#define HOOK_BUILDING_ACTION    44
-#define HOOK_PROCESS_WORLD      45
-#define HOOK_WIELD_SLOT         46
-#define HOOK_STORE_STOCK        47
-#define HOOK_STORE_BUY          48
 #define HOOK_GEN_LEVEL_BEGIN    49
 #define HOOK_GET                50
-#define HOOK_REDRAW             51
 #define HOOK_RECALC_SKILLS      52
 #define HOOK_ENTER_DUNGEON      53
-#define HOOK_FIRE               54
 #define HOOK_EAT                55
 #define HOOK_DIE                56
 #define HOOK_CALC_HP            57
-#define HOOK_GF_COLOR           58
-#define HOOK_GF_EXEC            59
 #define HOOK_CALC_MANA          60
-#define HOOK_LOAD_END           61
 #define HOOK_RECALL             62
-#define HOOK_FOLLOW_GOD         63
-#define HOOK_SACRIFICE_GOD      64
 #define HOOK_BODY_PARTS         65
-#define HOOK_APPLY_MAGIC        66
-#define HOOK_PLAYER_EXP         67
-#define HOOK_BIRTH              68
-#define HOOK_CALC_LITE          69
-#define HOOK_LEARN_ABILITY      70
-#define HOOK_MOVED              71
+#define HOOK_MON_ASK_HELP       69
 #define HOOK_GAME_START         72
-#define HOOK_TAKEOFF            73
-#define HOOK_CALC_WEIGHT        74
 #define HOOK_FORBID_TRAVEL      75
-#define HOOK_DEBUG_COMMAND      76
-#define HOOK_CALC_BONUS_END     77
-#define MAX_HOOKS               78
-
-#define HOOK_TYPE_C             0
-#define HOOK_TYPE_LUA           1
-
-/*
- * Defines for loadsave.c
- * Why 3 and 7? So if it's uninitialized, the code will be able to catch it, as
- * 0 is an invalid flag. Also, having them apart means that it being accidentally
- * modified will also result in an invalid value -- Improv
- */
-#define LS_LOAD 3
-#define LS_SAVE 7
-
-/*
- * In game help
- */
-#define HELP1_BETWEEN           0x00000001
-#define HELP1_ALTAR             0x00000002
-#define HELP1_FOUNTAIN          0x00000004
-#define HELP1_IDENTIFY          0x00000008
-#define HELP1_WILD_MODE         0x00000010
 
 /*
  * Special weapon effects
@@ -4548,83 +2458,10 @@
 
 #define SKILL_EXCLUSIVE         9999            /* Flag to tell exclusive skills */
 
-#define SKILL_CONVEYANCE        1
-#define SKILL_MANA              2
-#define SKILL_FIRE              3
-#define SKILL_AIR               4
-#define SKILL_WATER             5
-#define SKILL_NATURE            6
-#define SKILL_EARTH             7
-#define SKILL_SYMBIOTIC         8
-#define SKILL_MUSIC             9
-#define SKILL_DIVINATION        10
-#define SKILL_TEMPORAL          11
-#define SKILL_DRUID             12
-#define SKILL_DAEMON            13
-#define SKILL_META              14
-#define SKILL_MAGIC             15
-#define SKILL_COMBAT            16
-#define SKILL_MASTERY           17
-#define SKILL_SWORD             18
-#define SKILL_AXE               19
-#define SKILL_POLEARM           20
-#define SKILL_HAFTED            21
-#define SKILL_BACKSTAB          22
-#define SKILL_ARCHERY           23
-#define SKILL_SLING             24
-#define SKILL_BOW               25
-#define SKILL_XBOW              26
-#define SKILL_BOOMERANG         27
-#define SKILL_SPIRITUALITY      28
-#define SKILL_MINDCRAFT         29
-#define SKILL_MISC              30
-#define SKILL_NECROMANCY        31
-#define SKILL_MIMICRY           32
-#define SKILL_ANTIMAGIC         33
-#define SKILL_RUNECRAFT         34
-#define SKILL_SNEAK             35
-#define SKILL_STEALTH           36
-#define SKILL_DISARMING         37
-/* XXX */
-#define SKILL_ALCHEMY           39
-#define SKILL_STEALING          40
-#define SKILL_SORCERY           41
-#define SKILL_HAND              42
-#define SKILL_THAUMATURGY       43
-#define SKILL_SUMMON            44
-#define SKILL_SPELL             45
-#define SKILL_DODGE             46
-#define SKILL_BEAR              47
-#define SKILL_LORE              48
-#define SKILL_PRESERVATION      49
-#define SKILL_POSSESSION        50
-#define SKILL_MIND              51
-#define SKILL_CRITS             52
-#define SKILL_PRAY              53
-#define SKILL_LEARN             54
-#define SKILL_UDUN              55
-#define SKILL_DEVICE            56
-#define SKILL_STUN              57
-#define SKILL_BOULDER           58
-#define SKILL_GEOMANCY          59
-
-/* Ugly but needed */
-#define MAX_SKILLS              200
-
 /* Number of skill choices for Lost Sword quests. */
 #define LOST_SWORD_NSKILLS	4
 
-/* SKill flags */
-#define SKF1_HIDDEN             0x00000001      /* Starts hidden */
-#define SKF1_AUTO_HIDE          0x00000002      /* Tries to rehide at calc_bonus */
-#define SKF1_RANDOM_GAIN        0x00000004      /* Can be randomly gained by certain quests & such */
-
 #define MAX_MELEE               3
-
-/*
- * Player specialities, should be external but ti would be a mess
- */
-#define MAX_SPEC                20
 
 
 /*
@@ -4644,11 +2481,11 @@
 #define GOD_TULKAS              3
 #define GOD_MELKOR              4
 #define GOD_YAVANNA             5
-#define MAX_GODS_INIT           6
-
-#define GOD(g)                  if (p_ptr->pgod == (g))
-#define PRAY_GOD(g)             if ((p_ptr->pgod == (g)) && (p_ptr->praying))
-#define NOT_PRAY_GOD(g)         if ((p_ptr->pgod == (g)) && (!p_ptr->praying))
+#define GOD_AULE                6
+#define GOD_VARDA               7
+#define GOD_ULMO                8
+#define GOD_MANDOS              9
+#define MAX_GODS               10
 
 /*
  * Command numbers for do_cmd_cli().
@@ -4667,7 +2504,6 @@
 #define CMD_DUMP_HTML	-8186
 #define CMD_MACRO    	-8185
 #define CMD_QUEST    	-8184
-#define CMD_BLUNDER	-8183
 #define CMD_SHOW_ABILITY -8182
 
 #define CLI_MAX	128
@@ -4689,7 +2525,62 @@
 #define AB_MAX_BLOW2            4
 #define AB_AMMO_CREATION        5
 #define AB_DEATH_TOUCH          6
-#define AB_CREATE_ART           7
 #define AB_FAR_REACHING         8
-#define AB_TRAPPING             9
 #define AB_UNDEAD_FORM          10
+
+/**
+ * Spell school books/tomes
+ */
+#define TOME_MANA 0
+#define TOME_FIRE 1
+#define TOME_WINDS 2
+#define TOME_EARTH 3
+#define TOME_WATER 4
+#define TOME_TRANSLOCATION 5
+#define TOME_NATURE 6
+#define TOME_KNOWLEDGE 7
+#define TOME_TIME 8
+#define TOME_META 9
+#define TOME_MIND 10
+#define TOME_HELLFLAME 11
+#define TOME_ERU 20
+#define TOME_MANWE 21
+#define TOME_TULKAS 22
+#define TOME_MELKOR 23
+#define TOME_YAVANNA 24
+#define BOOK_CANTRIPS 50
+#define BOOK_TELEPORTATION 51
+#define BOOK_SUMMONING 52
+#define BOOK_DEMON_SWORD 55
+#define BOOK_DEMON_SHIELD 56
+#define BOOK_DEMON_HELM 57
+#define BOOK_DRUMS 58
+#define BOOK_HARPS 59
+#define BOOK_HORNS 60
+#define BOOK_PLAYER 61
+#define BOOK_GEOMANCY 62
+#define BOOK_AULE 63
+#define BOOK_VARDA 64
+#define BOOK_ULMO 65
+#define BOOK_MANDOS 66
+#define BOOK_RANDOM 255
+
+#define SCHOOL_BOOKS_SIZE 256
+
+/**
+ * Macro to generate a memoizing named monster lookup function.
+ *
+ * This is meant as a stopgap measure until a better method
+ * can be implemented.
+ */
+#define GENERATE_MONSTER_LOOKUP_FN(fn, name) \
+	static int fn()\
+	{\
+		static int r_idx = -1;\
+		if (r_idx < 0)\
+		{\
+			r_idx = test_monster_name(name);\
+			assert(r_idx);\
+		}\
+		return r_idx;\
+	}

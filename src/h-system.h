@@ -18,27 +18,18 @@
 #include <ctype.h>
 #include <errno.h>
 
-#if defined(NeXT)
-# include <libc.h>
-#else
-# include <stdlib.h>
-#endif
+#include <stdlib.h>
 
 
 #ifdef SET_UID
 
 # include <sys/types.h>
 
-# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
-     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
-     defined(__osf__) || defined(ISC) || defined(SGI) || \
-     defined(linux)
+# if defined(linux)
 #  include <sys/time.h>
 # endif
 
-# if !defined(SGI) && !defined(ULTRIX)
 #  include <sys/timeb.h>
-# endif
 
 #endif
 
@@ -47,35 +38,20 @@
 
 
 
-#ifdef MACINTOSH
-# include <unix.h>
-#endif
-
-#if defined(WINDOWS) || defined(MSDOS)
+#if defined(WINDOWS)
 # include <io.h>
 #endif
 
-#if !defined(MACINTOSH) && \
-    !defined(__MWERKS__)
-# if defined(__TURBOC__) || defined(__WATCOMC__)
-#  include <mem.h>
-# else
-#  include <memory.h>
-# endif
-#endif
+#include <memory.h>
 
 
-#if !defined(NeXT) && !defined(__MWERKS__)
 # include <fcntl.h>
-#endif
 
 
 #ifdef SET_UID
 
-# ifndef USG
 #  include <sys/param.h>
 #  include <sys/file.h>
-# endif
 
 # ifdef linux
 #  include <sys/file.h>
@@ -87,32 +63,12 @@
 
 # include <sys/stat.h>
 
-# if defined(SOLARIS)
-#  include <netdb.h>
-# endif
 
 #endif
-
-#ifdef __DJGPP__
-#include <unistd.h>
-#endif /* __DJGPP__ */
 
 #ifdef SET_UID
 
-#ifdef USG
-# include <string.h>
-#else
 # include <strings.h>
-# ifndef strstr
-extern char *strstr();
-# endif
-# ifndef strchr
-extern char *strchr();
-# endif
-# ifndef strrchr
-extern char *strrchr();
-# endif
-#endif
 
 #else
 
@@ -121,10 +77,6 @@ extern char *strrchr();
 #endif
 
 
-
-#if !defined(linux) && !defined(__MWERKS__)
-extern long atol();
-#endif
 
 
 #include <stdarg.h>

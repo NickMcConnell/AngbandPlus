@@ -14,28 +14,25 @@ F:a:227:3
 ### Buildings ###
 
 # The Grey Swan inn
-F:b:74:3:0:0:0:0:0:68
+F:b:74:3:0:0:0:0:68
 
 # The Prince's Tower
-F:c:74:3:0:0:0:0:0:86
+F:c:74:3:0:0:0:0:86
 
 # Music store
-F:d:74:3:0:0:0:0:0:64
-
-# Rune Shop
-F:e:74:3:0:0:0:0:0:62
+F:d:74:3:0:0:0:0:64
 
 # Hunting Store
-F:f:74:3:0:0:0:0:0:61
+F:f:74:3:0:0:0:0:61
 
 # Library
-F:i:74:3:0:0:0:0:0:13
+F:i:74:3:0:0:0:0:13
 
 # Casino
-F:j:74:3:0:0:0:0:0:15
+F:j:74:3:0:0:0:0:15
 
 # Beastmaster
-F:k:74:3:0:0:0:0:0:16
+F:k:74:3:0:0:0:0:16
 
 D:######################################################################################################################################################################################################
 D:#-------------------------------------------------@VVVVV@##VVVVV@@-----------------------------------------------------------------------------------------------------------------------------------#                                                                                                                                                                                      #
@@ -73,7 +70,7 @@ D:#-------------------------------------------------OVVVVVVVVVVVVVVVVVVVVVVVVVVV
 D:#-------------------------------------------------OVVVVVVVVVVVVVVVVVVVVVVVVVVV.......########................OOOO6###########9OOOOOOOOO#,,,,,,,,#####VVV@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVVVVVVVVVVVVVVVVVVVVVVVV.........#cc#...............#####,O#############O,,,,,,#####,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@#######################.......................####,,,,,,O,,#######,OO,,,,,,,,,,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
-D:#-------------------------------------------------@VVVVV@####,,,,,,,,,,,,OOOOO##....................#####,,,,,,,,,O,###e###O,,,,,,,,,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
+D:#-------------------------------------------------@VVVVV@####,,,,,,,,,,,,OOOOO##....................#####,,,,,,,,,O,#######O,,,,,,,,,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,#####,,,,O,,,,,##..................###,,,,,,,,,,,,,,OOOOOOOO,,,,,,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,####bOO,O,,,,,,##.................###,,,,,#######,,,,,,,,,,,,,,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,#####,,O,,####,##................aaa##,,,,#######,,,,,,,,,,,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#

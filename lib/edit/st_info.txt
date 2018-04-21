@@ -1,13 +1,5 @@
 # File: st_info.txt
 
-# Fixed Potions of Cure Light/Serious Wounds in the Temple, Potions of 
-# Restore Str/Con in the Alchemist
-# Magic Shop - Amulet of Slow Digestion, Wand of Light, Staffs of Enlightenment,
-# Door/Stair Location, Detect Invis/Evil, and Remove Curse
-
-# This file is used to initialize the "lib/raw/st_info.raw" file, which is
-# used to initialize the "store info type" information for the Angband game.
-
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
@@ -21,10 +13,6 @@
 # W:max number of items in the store
 
 # proba is the chance(out of 100) of the item being generated
-
-# Version stamp (required)
-
-V:2.0.0
 
 N:0:General Store
 I:100:& Wooden Torch~
@@ -177,7 +165,6 @@ I:100:Monster Confusion
 I:100:Magic Mapping
 I:100:Treasure Detection
 I:100:Object Detection
-I:100:Trap Detection
 I:100:Detect Invisible
 I:100:Recharging
 I:100:Satisfy Hunger
@@ -236,7 +223,6 @@ I:100:Lightning Resistance
 I:100:Searching
 I:100:Cure Light Wounds
 # Rods
-I:100:Probing
 I:25:& Wooden Rod~ of#
 # Book
 T:100:111:50
@@ -264,14 +250,15 @@ N:6:Black Market
 A:30:0:1:2:3:4
 O:38:39:40:41
 G:7:D
-F:ALL_ITEM | MEDIUM_LEVEL
+F:ALL_ITEM
+F:MEDIUM_LEVEL
 W:24
 
 N:7:Home
 A:0:0:54:55:3:0
 O:0:0:0:0
 G:8:y
-W:24
+W:240
 
 N:8:Book Store
 # & Book~ of Beginner Cantrips
@@ -348,10 +335,7 @@ G:+:s
 W:0
 
 N:16:Beastmaster Shanty
-# Disabled the bounty list for the time being to not confuse people
-# with the bounty quest
-# A:18:0:19:20:21:22
-A:18:0:21:22:0:0
+A:0:0:21:22:0:0
 O:19:19:19:19
 G:+:g
 W:0
@@ -494,7 +478,8 @@ T:100:24:256
 A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
-F:RANDOM | MEDIUM_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:39:Hafted Smith
@@ -502,7 +487,8 @@ T:100:21:256
 A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
-F:RANDOM | MEDIUM_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:40:Polearm Smith
@@ -510,7 +496,8 @@ T:100:22:256
 A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
-F:RANDOM | MEDIUM_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:41:Sword Smith
@@ -518,7 +505,8 @@ T:100:23:256
 A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
-F:RANDOM | MEDIUM_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:42:Rare Jewelry Shop
@@ -527,7 +515,10 @@ T:100:45:256
 A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:v
-F:RANDOM | DEPEND_LEVEL | DEEP_LEVEL | FORCE_LEVEL
+F:DEEP_LEVEL
+F:DEPEND_LEVEL
+F:FORCE_LEVEL
+F:RANDOM
 F:VERY_RARE
 W:10
 
@@ -537,7 +528,10 @@ T:100:45:256
 A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:y
-F:RANDOM | DEPEND_LEVEL | MEDIUM_LEVEL | FORCE_LEVEL
+F:DEPEND_LEVEL
+F:FORCE_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 F:RARE
 W:20
 
@@ -546,8 +540,9 @@ T:100:30:256
 A:0:0:1:2:3:4
 O:8:9:10:11
 G:2:r
-F:RANDOM | MEDIUM_LEVEL
 F:COMMON
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:45:Rare Footwear Shop
@@ -555,7 +550,9 @@ T:100:30:256
 A:0:0:1:2:3:4
 O:8:9:10:11
 G:2:r
-F:RANDOM | DEEP_LEVEL | MEDIUM_LEVEL
+F:DEEP_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 F:VERY_RARE
 W:8
 
@@ -579,7 +576,9 @@ T:100:125:256
 A:27:0:1:2:3:4
 O:8:9:10:11
 G:9:y
-F:RANDOM | DEPEND_LEVEL | MEDIUM_LEVEL
+F:DEPEND_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:24
 
 N:47:Forbidden Library
@@ -602,7 +601,9 @@ T:100:125:256
 A:27:0:1:2:3:4
 O:8:9:10:11
 G:9:v
-F:RANDOM | DEPEND_LEVEL | DEEP_LEVEL
+F:DEEP_LEVEL
+F:DEPEND_LEVEL
+F:RANDOM
 F:RARE
 W:12
 
@@ -610,7 +611,11 @@ N:48:Expensive Black Market
 A:0:0:1:2:3:4
 O:38:39:40:41
 G:7:v
-F:RANDOM | ALL_ITEM | DEEP_LEVEL | DEPEND_LEVEL | MEDIUM_LEVEL
+F:ALL_ITEM
+F:DEEP_LEVEL
+F:DEPEND_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:49:Common Shop
@@ -638,7 +643,9 @@ T:100:38:256
 A:0:0:1:2:3:4
 O:8:9:10:11
 G:2:v
-F:RANDOM | DEEP_LEVEL | DEPEND_LEVEL
+F:DEEP_LEVEL
+F:DEPEND_LEVEL
+F:RANDOM
 F:VERY_RARE
 W:12
 
@@ -647,7 +654,9 @@ T:100:45:31
 A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:G
-F:RANDOM | SHALLOW_LEVEL | DEPEND_LEVEL
+F:DEPEND_LEVEL
+F:RANDOM
+F:SHALLOW_LEVEL
 F:VERY_RARE
 W:6
 
@@ -656,7 +665,9 @@ T:100:70:256
 A:0:0:1:2:3:4
 O:8:9:10:11
 G:5:B
-F:RANDOM | MEDIUM_LEVEL | DEPEND_LEVEL
+F:DEPEND_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:53:Potion Store
@@ -665,7 +676,9 @@ T:100:72:256
 A:0:0:1:2:3:4
 O:8:9:10:11
 G:5:B
-F:RANDOM | MEDIUM_LEVEL | DEPEND_LEVEL
+F:DEPEND_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 W:12
 
 N:54:Recaller
@@ -673,7 +686,8 @@ I:100:Word of Recall
 A:33:0:1:2:3:0
 O:8:9:10:11
 G:+:b
-F:RANDOM | COMMON
+F:COMMON
+F:RANDOM
 W:2
 
 N:55:Master Archer
@@ -688,15 +702,11 @@ T:50:18:256
 A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:g
-F:RANDOM | MEDIUM_LEVEL | DEPEND_LEVEL
+F:DEPEND_LEVEL
+F:MEDIUM_LEVEL
+F:RANDOM
 F:RARE
 W:24
-
-N:56:Merchants Guild
-A:0:0:56:57:58:0
-O:68:68:68:68
-G:+:g
-W:0
 
 N:57:The Mathom-house
 A:0:0:59:0:3:0
