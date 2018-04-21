@@ -1,7 +1,16 @@
+Unangband 0.6.4c release
 
+### Bug Fixes ###
+
+- Allow monsters to use their ranged attacks (Fix thanks to Alexis Scheuer).
+
+- Fix monster toughness descriptions (Fix thanks to Alexis Scheuer).
+
+- Prevent Witchblooms spell description crashing the game.
+
+- Allow Saruman to appear in ruined Hobbiton.
 
 - Prevent friendly uniques from being invulnerable to enemy attacks (Reported by Ashkir).
-
 
 Unangband 0.6.4 release
 

@@ -1711,14 +1711,14 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		}
 
 		/* Important: Don't use healing attacks against enemies */
-		if ((target_m_idx) && ((r_info[m_list[target_m_idx].r_idx].flags3 & (RF3_DEMON)) != 0)) f5 &= ~(RF5_ARC_HFIRE);
+		if ((target_m_idx > 0) && ((r_info[m_list[target_m_idx].r_idx].flags3 & (RF3_DEMON)) != 0)) f5 &= ~(RF5_ARC_HFIRE);
 	}
 
 	/* Not necessarily assisting any more */
 	assist = FALSE;
 
 	/* Hack -- helping allies */
-	if ((target_m_idx) && (!m_ptr->image) && ((m_ptr->mflag & (MFLAG_ALLY)) != 0) == ((m_list[target_m_idx].mflag & (MFLAG_ALLY)) != 0))
+	if ((target_m_idx > 0) && (!m_ptr->image) && ((m_ptr->mflag & (MFLAG_ALLY)) != 0) == ((m_list[target_m_idx].mflag & (MFLAG_ALLY)) != 0))
 	{
 		/* Hack - cure hallucinating monsters or kill them */
 		if (m_list[target_m_idx].image)

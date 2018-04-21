@@ -13,6 +13,9 @@
 
 # P_race.txt entry format
 
+# Many of the race abilities are now defined by the object corresponding to the
+# player race/shape in objects.txt, from N:445 onwards.
+
 # N:race number:race name
 # S:str:int:wis:dex:con:chr:agi:siz
 # R:dis:dev:sav:stl:srh:dig:tht:thn:thb
@@ -20,7 +23,6 @@
 # I:history:agebase:agemod:hometown
 # H:hgtmale:modhgtmale:hgtfemale:modhgtfemale
 # W:wgtmale:wgtfemale
-# F:racial flags
 # G:race cancel flags
 # C:classes (numeric)
 # D:adjective

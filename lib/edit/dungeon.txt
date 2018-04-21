@@ -209,7 +209,7 @@ Q:3:532
 Z:3:3
 G:g
 S:516:517:14:266:509:0:0:0
-L:59:56:0:407:159:532:0:0:DESTROYED | SURFACE | DAYLIGHT | TOWN:
+L:59:56:0:407:159:532:0:0:DESTROYED | SURFACE | TOWN:
 D:Someone with a silver-tongue and guile-full words has brought fair
 D: Hobbiton to its knees in a whir of devilish industry and foul pollution.
 

@@ -10552,7 +10552,7 @@ errr emit_p_info_index(FILE *fp, header *head, int i)
 		fprintf(fp, "W:%d:%d\n", pr_ptr->m_b_wt, pr_ptr->f_b_wt);
 	}
 
-	/* Output 'F' for "Flags" */
+	/* Output 'G' for "Cancelled Flags" */
 	emit_flags_32(fp, "G:", pr_ptr->cancel_flags1, k_info_flags1);
 	emit_flags_32(fp, "G:", pr_ptr->cancel_flags2, k_info_flags2);
 	emit_flags_32(fp, "G:", pr_ptr->cancel_flags3, k_info_flags3);

@@ -1240,6 +1240,7 @@ static void describe_monster_toughness(const monster_race *r_ptr, const monster_
 		/* Armor */
 		text_out(format("%^s has an armor rating of %d",
 		    wd_he[msex], r_ptr->ac));
+		intro = TRUE;
 	}
 	
 	/* Describe monster "toughness" */
@@ -1251,7 +1252,7 @@ static void describe_monster_toughness(const monster_race *r_ptr, const monster_
 		}
 		else
 		{
-			text_out(format("%^s has ",
+			text_out(format("%^s has",
 				    wd_he[msex]));
 		}
 		
@@ -1265,7 +1266,7 @@ static void describe_monster_toughness(const monster_race *r_ptr, const monster_
 		/* Variable hitpoints */
 		else
 		{
-			text_out(format(" and an average life rating of %d.  ",
+			text_out(format(" an average life rating of %d.  ",
 			    r_ptr->hp));
 		}
 	}
