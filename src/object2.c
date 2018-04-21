@@ -4051,6 +4051,8 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 }
             }
             if (one_in_(2))
+                add_flag(o_ptr->art_flags, TR_DEC_STR);
+            if (one_in_(3))
                 add_flag(o_ptr->art_flags, TR_DEC_CON);
             if (one_in_(30))
                 add_flag(o_ptr->art_flags, TR_DEVICE_POWER);
@@ -4264,7 +4266,9 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
         case EGO_CROWN_MAGI:
             if (one_in_(7))
                 add_flag(o_ptr->art_flags, TR_EASY_SPELL);
-            if (one_in_(66))
+            if (one_in_(5))
+                add_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
+            else if (one_in_(66))
             {
                 add_flag(o_ptr->art_flags, TR_SPELL_POWER);
                 add_flag(o_ptr->art_flags, TR_DEC_CON);
@@ -4341,7 +4345,7 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 break;
 
             case EGO_HELMET_KNOWLEDGE:
-                if (one_in_(15))
+                if (one_in_(7))
                     add_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
                 if (one_in_(ACTIVATION_CHANCE))
                 {
@@ -5266,7 +5270,8 @@ static bool kind_is_tailored(int k_idx)
     {
     case TV_SHIELD:
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval) 
-            && p_ptr->pclass != CLASS_NINJA;
+            && p_ptr->pclass != CLASS_NINJA
+            && p_ptr->pclass != CLASS_MAULER;
 
     case TV_HARD_ARMOR:
     case TV_SOFT_ARMOR:
@@ -5690,8 +5695,8 @@ static _kind_alloc_entry _kind_alloc_table[] = {
     { kind_is_weapon,          180,    0,    0 },  
     { kind_is_body_armor,      165,    0,    0 },
     { kind_is_other_armor,     200,    0,    0 },
-    { kind_is_device,          200, -150, -150 },
-    { _kind_is_potion,          50,  -25,  -50 },
+    { kind_is_device,          210, -160, -160 },
+    { _kind_is_potion,          40,  -25,  -40 },
     { kind_is_bow_ammo,         70,    0,    0 },
     { kind_is_book,             50,    0,    0 },
     { kind_is_jewelry,          35,    0,    0 },
@@ -5724,6 +5729,8 @@ static _kind_p _choose_obj_kind(u32b mode)
         _kind_hook2 = kind_is_great;
     else if (mode & AM_GOOD)
         _kind_hook2 = kind_is_good;
+    else if (_drop_tailored)
+        _kind_hook2 = kind_is_tailored;
 
     for (i = 0; ; i++)
     {
@@ -5801,7 +5808,7 @@ bool make_object(object_type *j_ptr, u32b mode)
             get_obj_num_hook = kind_is_good;
         }*/
 
-        if (_drop_tailored && !get_obj_num_hook)
+        if (_drop_tailored && !get_obj_num_hook && p_ptr->pclass == CLASS_MONSTER)
             get_obj_num_hook = kind_is_tailored;
 
         /* Experimental: Restrict object allocation by type. */

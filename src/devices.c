@@ -1893,7 +1893,7 @@ static cptr _do_staff(int sval, int mode)
         if (desc) return "It puts all monsters in sight to sleep when you use it.";
         if (cast)
         {
-            if (sleep_monsters(_staff_power(p_ptr->lev*3))) device_noticed = TRUE;
+            if (sleep_monsters(_staff_power(20 + p_ptr->lev))) device_noticed = TRUE;
         }
         break;
     case SV_STAFF_SLOW_MONSTERS:
@@ -2127,7 +2127,7 @@ static cptr _do_wand(int sval, int mode)
         break;
     case SV_WAND_SLEEP_MONSTER:
         if (desc) return "It puts a monster to sleep when you use it.";
-        if (info) return format("Power %d", _wand_power(3 * p_ptr->lev));
+        if (info) return format("Power %d", _wand_power(10 + p_ptr->lev));
         if (cast)
         {
             if (sleep_monster(dir, _wand_power(3*p_ptr->lev))) device_noticed = TRUE;
@@ -2144,7 +2144,7 @@ static cptr _do_wand(int sval, int mode)
         if (desc) return "It confuses a monster when you use it.";
         if (cast)
         {
-            if (confuse_monster(dir, _wand_power(p_ptr->lev))) device_noticed = TRUE;
+            if (confuse_monster(dir, _wand_power(10 + p_ptr->lev))) device_noticed = TRUE;
         }
         break;
     case SV_WAND_FEAR_MONSTER:
@@ -2518,11 +2518,11 @@ static cptr _do_rod(int sval, int mode)
         break;
     case SV_ROD_SLEEP_MONSTER:
         if (desc) return "It puts a monster to sleep when you zap it.";
-        if (info) return format("Power %d", _rod_power(3*p_ptr->lev));
+        if (info) return format("Power %d", _rod_power(30 + p_ptr->lev));
         if (cast)
         {
             if (device_known && !get_aim_dir(&dir)) return NULL;
-            if (sleep_monster(dir, _rod_power(3*p_ptr->lev))) device_noticed = TRUE;
+            if (sleep_monster(dir, _rod_power(30 + p_ptr->lev))) device_noticed = TRUE;
         }
         break;
     case SV_ROD_SLOW_MONSTER:

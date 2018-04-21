@@ -464,7 +464,7 @@ void wilderness_move_player(int old_x, int old_y)
     if (qy == 0)
         dy = -1;
 
-#ifdef _DEBUG
+#if 0
     /* Because I am so easily confused :( */
     c_put_str(TERM_WHITE, format("P:%3d/%3d", px, py), 26, 0);
     c_put_str(TERM_WHITE, format("W:%3d/%3d", p_ptr->wilderness_x, p_ptr->wilderness_y), 27, 0);
@@ -483,7 +483,7 @@ void wilderness_move_player(int old_x, int old_y)
        and then repeatedly move the player. */
     if (wilderness_scroll_lock)
     {
-    #ifdef _DEBUG
+    #if 0
         msg_format("Skip Scroll (%d,%d)", dx, dy);
     #endif
         return;
@@ -534,7 +534,7 @@ void wilderness_move_player(int old_x, int old_y)
     p_ptr->redraw |= PR_BASIC; /* In case the user left/entered a town ... */
     handle_stuff();  /* Is this necessary?? */
 
-#ifdef _DEBUG
+#if 0
     c_put_str(TERM_WHITE, format("P:%3d/%3d", px, py), 26, 0);
     c_put_str(TERM_WHITE, format("W:%3d/%3d", p_ptr->wilderness_x, p_ptr->wilderness_y), 27, 0);
     c_put_str(TERM_WHITE, format("D:%3d/%3d", p_ptr->wilderness_dx, p_ptr->wilderness_dy), 28, 0);
@@ -704,11 +704,7 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
     return FALSE;
 }
 
-#ifdef _DEBUG
-#   define _WILD_ENCOUNTER_CHANCE 1
-#else
-#   define _WILD_ENCOUNTER_CHANCE 15
-#endif
+#define _WILD_ENCOUNTER_CHANCE 15
 
 static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *exclude)
 {

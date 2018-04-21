@@ -64,7 +64,6 @@ N:5:GLOVES:of the Wizard
 W:20:*:4
 C:-10:-10:-20:5
 F:INT | MAGIC_MASTERY | HIDE_TYPE
-F:DEC_STR
 
 N:6:GLOVES:of the Yeek
 W:0:50:4

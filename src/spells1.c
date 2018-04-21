@@ -3760,47 +3760,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         }
 
 
-        /* Sleep (Use "dam" as "power") */
-        case GF_OLD_SLEEP:
-        {
-            if (seen) obvious = TRUE;
-
-            if (r_ptr->flagsr & RFR_RES_ALL)
-            {
-                note = " is immune.";
-                dam = 0;
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
-                break;
-            }
-            /* Attempt a saving throw */
-            if ((r_ptr->flags1 & RF1_UNIQUE) ||
-                (r_ptr->flags3 & RF3_NO_SLEEP) ||
-                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
-            {
-                /* Memorize a flag */
-                if (r_ptr->flags3 & RF3_NO_SLEEP)
-                {
-                    if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_SLEEP);
-                }
-
-                /* No obvious effect */
-                note = " is unaffected!";
-
-                obvious = FALSE;
-            }
-            else
-            {
-                /* Go to sleep (much) later */
-                note = " falls asleep!";
-
-                do_sleep = 500;
-            }
-
-            /* No "real" damage */
-            dam = 0;
-            break;
-        }
-
         case GF_UNHOLY_WORD:
         {
             if (is_pet(m_ptr) && (r_ptr->flags3 & RF3_EVIL))
@@ -4318,9 +4277,62 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             break;
         }
 
+        /* Sleep (Use "dam" as "power") */
+        case GF_OLD_SLEEP:
+        {
+            int ml = r_ptr->level;
+            int pl = dam;
+
+            if (r_ptr->flags1 & RF1_UNIQUE) ml += 3;
+            if (r_ptr->flags2 & RF2_POWERFUL) ml += 7;
+
+            if (seen) obvious = TRUE;
+
+            if (r_ptr->flagsr & RFR_RES_ALL)
+            {
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+                break;
+            }
+
+            /* Attempt a saving throw */
+            if (r_ptr->flags3 & RF3_NO_SLEEP)
+            {
+                note = " is immune!";
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_SLEEP;
+                obvious = FALSE;
+            }
+            else if (r_ptr->flags1 & RF1_UNIQUE) /* Historical ... I'd like to remove this. */
+            {
+                note = " is immune!";
+                obvious = FALSE;
+            }
+            else if (randint1(ml) >= randint1(pl))
+            {
+                note = " resists!";
+                obvious = FALSE;
+            }
+            else
+            {
+                note = " falls asleep!";
+                do_sleep = 500;
+            }
+
+            /* No "real" damage */
+            dam = 0;
+            break;
+        }
+
         /* Confusion (Use "dam" as "power") */
         case GF_OLD_CONF:
         {
+            int ml = r_ptr->level;
+            int pl = dam;
+
+            if (r_ptr->flags1 & RF1_UNIQUE) ml += 3;
+            if (r_ptr->flags2 & RF2_POWERFUL) ml += 7;
+
             if (seen) obvious = TRUE;
 
             if (r_ptr->flagsr & RFR_RES_ALL)
@@ -4334,22 +4346,23 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             do_conf = damroll(3, (dam / 2)) + 1;
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-                (r_ptr->flags3 & (RF3_NO_CONF)) ||
-                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (r_ptr->flags3 & RF3_NO_CONF)
             {
-                /* Memorize a flag */
-                if (r_ptr->flags3 & (RF3_NO_CONF))
-                {
-                    if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
-                }
-
-                /* Resist */
                 do_conf = 0;
-
-                /* No obvious effect */
-                note = " is unaffected!";
-
+                note = " is immune!";
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
+                obvious = FALSE;
+            }
+            else if (r_ptr->flags1 & RF1_UNIQUE) /* Historical ... I'd like to remove this. */
+            {
+                do_conf = 0;
+                note = " is immune!";
+                obvious = FALSE;
+            }
+            else if (randint1(ml) >= randint1(pl))
+            {
+                do_conf = 0;
+                note = " resists!";
                 obvious = FALSE;
             }
 
@@ -4360,6 +4373,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
         case GF_STUN:
         {
+            int ml = r_ptr->level;
+            int pl = dam;
+
+            if (r_ptr->flags1 & RF1_UNIQUE) ml += 3;
+            if (r_ptr->flags2 & RF2_POWERFUL) ml += 7;
+
             if (seen) obvious = TRUE;
 
             if (r_ptr->flagsr & RFR_RES_ALL)
@@ -4369,18 +4388,21 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
                 break;
             }
-            do_stun = damroll((caster_lev / 20) + 3 , (dam)) + 1;
+            /* Why so much?? do_stun = damroll((caster_lev / 20) + 3 , (dam)) + 1;*/
+            do_stun = 3 + randint0(5);
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-                (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (r_ptr->flags3 & RF3_NO_STUN)
             {
-                /* Resist */
                 do_stun = 0;
-
-                /* No obvious effect */
                 note = " is unaffected!";
-
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
+                obvious = FALSE;
+            }
+            else if (randint1(ml) >= randint1(pl))
+            {
+                do_stun = 0;
+                note = " resists!";
                 obvious = FALSE;
             }
 

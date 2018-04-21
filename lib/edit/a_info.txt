@@ -128,7 +128,7 @@ I:45:0:4
 W:70:90:2:35000
 F:STR | DEX | CON | HIDE_TYPE | SPEED | 
 D:The treasure of Tulkas, most fleet and wrathful of the Valar.
-E:SPEED:25:225:75
+E:SPEED_HERO:25:225:75
 E:The ring glows brightly...
 
 # The Ring of Power (Narya)
@@ -470,7 +470,7 @@ N:38:of Hammerhand
 I:32:6:3
 W:20:2:60:45000
 P:6:1d3:3:4:20
-F:STR | DEX | CON | HIDE_TYPE | RES_ACID | RES_NEXUS | DEC_STEALTH
+F:STR | DEX | CON | HIDE_TYPE | RES_ACID | RES_NEXUS | DEC_STEALTH | SHOW_MODS
 D:A great helm as steady as the heroes of the Westdike. Mighty were the 
 D:blows of Helm, the Hammerhand!
 

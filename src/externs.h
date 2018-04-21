@@ -900,7 +900,7 @@ extern void enter_level(int level);
 extern s32b turn_real(s32b hoge);
 extern void prevent_turn_overflow(void);
 extern void process_world_aux_movement(void);  /* yuk!  refactor the recall code instead */
-
+extern void fame_on_failure(void);
 
 /* files.c */
 extern void safe_setuid_drop(void);
@@ -1975,7 +1975,7 @@ extern race_t *get_true_race_t(void); /* True Race */
 extern race_t *get_race_t_aux(int prace, int psubrace);
 
 /* Player Races */
-extern void mimic_race(int new_race);
+extern void mimic_race(int new_race, const char *msg);
 extern void mimic_upkeep(void);
 extern bool mimic_no_regen(void);
 
@@ -2284,6 +2284,7 @@ extern cptr do_hissatsu_spell(int spell, int mode);
 extern bool     repose_of_the_dead;
 extern cptr     do_necromancy_spell(int spell, int mode);
 extern class_t *necromancer_get_class_t(void);
+extern void     on_p_hit_m(int m_idx);
 
 /* skills.c */
 extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/

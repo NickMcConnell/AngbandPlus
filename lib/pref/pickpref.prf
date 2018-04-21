@@ -62,11 +62,12 @@ rod of healing#@zh
 ?wand of rockets#@ar!s!d!k
 ?wand of disintegrate#@ad!s!d!k
 
-?:[EQU $CLASS Mage High-Mage]
+?:[OR [EQU $CLASS Mage High-Mage] [EQU $RACE Beholder Lich] ]
 rod of cold balls#!s!d!k
 rod of fire balls#!s!d!k
 rod of lightning balls#!s!d!k
 rod of acid balls#!s!d!k
+rod of mana balls#!s!d!k
 wizardstaff
 
 ?:[EQU $CLASS Magic-Eater]

@@ -505,6 +505,14 @@ static int _get_spells(spell_info* spells, int max)
     return get_spells_aux(spells, max, _spells);
 }
 
+static void _character_dump(FILE* file)
+{
+    spell_info spells[MAX_SPELLS];
+    int        ct = _get_spells(spells, MAX_SPELLS);
+
+    dump_spells_aux(file, spells, ct);
+}
+
 static int _get_powers(spell_info* spells, int max)
 {
     return get_powers_aux(spells, max, _powers);
@@ -634,6 +642,7 @@ class_t *ninja_get_class_t(void)
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;
+        me.character_dump = _character_dump;
         init = TRUE;
     }
 

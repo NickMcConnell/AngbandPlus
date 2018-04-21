@@ -3371,17 +3371,10 @@ static cptr do_death_spell(int spell, int mode)
 
             if (cast)
             {
+                int dam;
                 if (!get_aim_dir(&dir)) return NULL;
-
-                /*
-                 * A radius-0 ball may (1) be aimed at
-                 * objects etc., and will affect them;
-                 * (2) may be aimed at ANY visible
-                 * monster, unlike a 'bolt' which must
-                 * travel to the monster.
-                 */
-
-                fire_ball(GF_HELL_FIRE, dir, spell_power(damroll(dice, sides)), rad);
+                dam = spell_power(damroll(dice, sides));
+                fire_ball(GF_HELL_FIRE, dir, dam, rad);
 
                 if (one_in_(5))
                 {
@@ -3393,9 +3386,9 @@ static cptr do_death_spell(int spell, int mode)
                     else if (effect < 500)
                         fire_ball_hide(GF_TURN_ALL, dir, spell_power(plev), 0);
                     else if (effect < 800)
-                        fire_ball_hide(GF_OLD_CONF, dir, spell_power(plev), 0);
+                        fire_ball_hide(GF_OLD_CONF, dir, dam, 0);
                     else
-                        fire_ball_hide(GF_STUN, dir, spell_power(plev), 0);
+                        fire_ball_hide(GF_STUN, dir, dam, 0);
                 }
             }
         }

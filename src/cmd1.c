@@ -502,12 +502,12 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
     /* Extract "blow" power */
     i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
 
-    /* Mauler: Destroyer now scales with level, and grants better quality */
+    /* Mauler: Destroyer now scales with level */
     if ( p_ptr->pclass == CLASS_MAULER
       && equip_is_valid_hand(hand)
       && p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS )
     {
-        int pct = MIN((weight - 200)/10, 40);
+        int pct = MIN((weight - 200)/20, 20);
         if (pct > 0)
             pct = pct * p_ptr->lev / 50;
         i += roll * pct / 100;
@@ -530,9 +530,7 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
         }
         if (mode == MAULER_CRITICAL_BLOW)
         {
-            k += randint1(650*p_ptr->lev/50);
-            if (k < 400)
-                k = 400;
+            k += randint1(250*p_ptr->lev/50);
         }
 
         if (k < 400)
@@ -2456,27 +2454,14 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     {
                     case GF_MISSILE:
                         *mdeath = mon_take_hit(m_idx, dam, fear, NULL);
-                        if (!(*mdeath) && (p_ptr->special_attack & ATTACK_CONFUSE))
-                        {
-                            p_ptr->special_attack &= ~(ATTACK_CONFUSE);
-                            msg_format("Your %s stops glowing.", a->name);
-                            p_ptr->redraw |= (PR_STATUS);
-                            if (r_ptr->flags3 & RF3_NO_CONF)
-                            {
-                                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
-                                msg_format("%^s is unaffected.", m_name);
-                            }
-                            else if (randint0(100) < r_ptr->level)
-                                msg_format("%^s is unaffected.", m_name);
-                            else
-                            {
-                                msg_format("%^s appears confused.", m_name);
-                                (void)set_monster_confused(m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
-                            }
-                        }
+                        break;
+                    case GF_DISENCHANT:
+                        *mdeath = mon_take_hit(m_idx, dam, fear, NULL);
+                        if (!(*mdeath) && one_in_(7))
+                            dispel_monster_status(m_idx);
                         break;
                     case GF_OLD_SLEEP:
-                        delay_sleep += effect_pow;
+                        delay_sleep += effect_pow/2;
                         break;
                     case GF_STASIS:
                         delay_stasis += effect_pow;
@@ -2541,6 +2526,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 }
 
                 if (*mdeath) return;
+
+                on_p_hit_m(m_idx);
 
                 if (mode == DRAGON_SNATCH)
                 {
@@ -2672,7 +2659,7 @@ static void do_monster_knockback(int x, int y, int dist)
 
 static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int mode)
 {
-    int             num = 0, k, k2, bonus, chance;
+    int             num = 0, k, k2, dam_tot = 0, bonus, chance;
     int             to_h = 0, to_d = 0;
     int             touch_ct = 0;
     critical_t      crit;
@@ -2805,6 +2792,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 backstab = TRUE;
         }
         break;
+
+    case CLASS_MONSTER:
+        if (p_ptr->ambush && o_ptr)
+        {
+            if (MON_CSLEEP(m_ptr) && m_ptr->ml)
+                backstab = TRUE;
+        }
+        break;
     }
 
     if (o_ptr)
@@ -2831,6 +2826,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     bonus = p_ptr->weapon_info[hand].to_h + to_h;
     if (mode == WEAPONMASTER_KNOCK_BACK) bonus -= 20;
     if (mode == WEAPONMASTER_REAPING) bonus -= 40;
+    if (mode == MAULER_KNOCKOUT_BLOW) bonus -= 50;
     if (mode == WEAPONMASTER_CUNNING_STRIKE) bonus += 20;
     if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0 && (r_ptr->flags3 & RF3_EVIL)) bonus += 200;
 
@@ -3123,7 +3119,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
                 if (mode == MAULER_CRUSHING_BLOW)
                 {   /* 2x to 5x */
-                    k = k * (5 + randint1(p_ptr->lev/5)) / 3;                    
+                    k = k * (5 + randint1(p_ptr->lev/5)) / 3;
                 }
 
                 if ( (have_flag(flgs, TR_IMPACT) && (k > 50 || one_in_(7))) 
@@ -3174,6 +3170,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         msg_print(crit.desc);
                     }
                 }
+
+                k += k * p_ptr->weapon_info[hand].to_mult / 100;
 
                 drain_result = k;
                 k2 = k;
@@ -3504,6 +3502,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
                 k = k * 3 / 2;
 
+            dam_tot += k;
+
             if (mode == WEAPONMASTER_REAPING)
             {
                 int              start_dir, x2, y2;
@@ -3647,7 +3647,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     else
                     {
                         msg_format("%^s is knocked out.", m_name);
-                        knock_out++;        
+                        set_monster_paralyzed(c_ptr->m_idx, randint1(3));
                         /* No more retaliation this round! */                    
                         retaliation_count = 100; /* Any number >= 4 will do ... */
                     }
@@ -4130,6 +4130,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
     if (do_quake)
         earthquake(py, px, 10);
+
+
+#if 1
+    if (p_ptr->pclass == CLASS_MAULER)
+        c_put_str(TERM_WHITE, format("Maul:%5d", dam_tot), 24, 0);    
+#endif
+
 
     return success_hit;
 }

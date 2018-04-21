@@ -108,6 +108,7 @@ static void _calc_innate_attacks(void)
 
         a.dd = 1;
         a.ds = 3 + r;
+        a.to_h = p_ptr->lev/3;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         a.blows = 100;
@@ -123,6 +124,7 @@ static void _calc_innate_attacks(void)
 
         a.dd = 1;
         a.ds = 2 + r;
+        a.to_h = p_ptr->lev/3;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         if (r >= 5)
@@ -142,6 +144,7 @@ static void _calc_innate_attacks(void)
         a.ds = 3 + r;
         if (r >= 5)
             a.ds += 7;
+        a.to_h = p_ptr->lev/3;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         calc_innate_blows(&a, 100 + 50*r);

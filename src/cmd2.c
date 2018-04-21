@@ -2600,7 +2600,7 @@ void do_cmd_rest(void)
         }
 
         if (clear)
-            mimic_race(MIMIC_NONE);
+            mimic_race(MIMIC_NONE, "You cannot rest while maintaining your current form.");
     }
 
     if (p_ptr->special_defense & NINJA_S_STEALTH) set_superstealth(FALSE);

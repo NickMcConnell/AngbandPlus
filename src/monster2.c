@@ -1438,6 +1438,9 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
                 continue;
         }
 
+        /* Some builds can't even equip a poison needle, so this is unfair! */
+        if (entry->index == MON_THE_METAL_BABBLE) continue;
+
         /* Accept this monster */
         entry->prob2 = entry->prob1;
 

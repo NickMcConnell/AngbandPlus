@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 4
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 
 /*
@@ -3641,7 +3641,7 @@ enum summon_specific_e {
 #define RF9_POS_BLESSING        0x00200000
 #define RF9_POS_BERSERK         0x00400000
 #define RF9_POS_CLAIRVOYANCE    0x00800000
-#define RF9_XXX25               0x01000000
+#define RF9_POS_BACKSTAB        0x01000000
 #define RF9_XXX26               0x02000000
 #define RF9_XXX27               0x04000000
 #define RF9_XXX28               0x08000000
@@ -5104,6 +5104,7 @@ extern int PlayerUID;
 #define MON_CULVERIN            867
 #define MON_EBONY_MONK          870
 #define MON_HAGURE              871
+#define MON_METAL_BABBLE        871
 #define MON_OROCHI              872
 #define MON_ECHIZEN             873
 #define MON_SPECT_WYRM          874
@@ -5215,6 +5216,7 @@ extern int PlayerUID;
 #define MON_HERA                1105
 #define MON_DEMETER             1106
 #define MON_APHRODITE           1107
+#define MON_THE_METAL_BABBLE    1110
 #define MON_GREATER_DEMONIC_QUYLTHULG   1123
 #define MON_ROCK_GIANT          1124
 #define MON_ICE_GIANT           1125

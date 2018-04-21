@@ -553,7 +553,7 @@ void dispel_player(void)
     /* Its important that doppelganger gets called correctly and not set_mimic()
        since we monkey with things like the experience factor! */
     if (p_ptr->prace == RACE_DOPPELGANGER && p_ptr->mimic_form != MIMIC_NONE && !p_ptr->tim_mimic)
-        mimic_race(MIMIC_NONE);
+        mimic_race(MIMIC_NONE, NULL);
     else
         (void)set_mimic(0, 0, TRUE);
         

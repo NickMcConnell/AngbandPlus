@@ -73,7 +73,7 @@ static _blow_info_t _get_blow_info(int hand)
         break;
 
     case CLASS_MAULER:
-        result.num = 300; result.wgt = 280; result.mul = 75; break;
+        result.num = 150; result.wgt = 280; result.mul = 75; break;
 
     case CLASS_BERSERKER:
         result.num = 600; result.wgt = 70; result.mul = 75; break;
@@ -369,7 +369,7 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     result = rng.min + (rng.max - rng.min) * blow_str_idx / 110;
 
     if (p_ptr->pclass == CLASS_MAULER)
-        result = 100 + (result - 100)/2;
+        result = 100 + (result - 100)/8;
         
     if (result > blow_info.num) 
         result = blow_info.num;
@@ -460,6 +460,7 @@ int display_weapon_info(int hand, int row, int col)
     int to_h = 0;
     int mult;
     critical_t crit = {0};
+    int crit_pct = 0;
     int num_blow = NUM_BLOWS(hand);
     int r,c;
     bool force = FALSE;
@@ -502,24 +503,29 @@ int display_weapon_info(int hand, int row, int col)
     else if (have_flag(flgs, TR_VORPAL))
         mult = mult * 11 / 9;
 
+    mult += mult * p_ptr->weapon_info[hand].to_mult / 100;
+
     if (!have_flag(flgs, TR_ORDER))
     {
-        const int ct = 10 * 1000;
+        const int attempts = 10 * 1000;
         int i;
+        int crits = 0;
         /* Compute Average Effects of Criticals by sampling */
-        for (i = 0; i < ct; i++)
+        for (i = 0; i < attempts; i++)
         {
             critical_t tmp = critical_norm(o_ptr->weight, to_h, p_ptr->weapon_info[hand].to_h, 0, hand);
             if (tmp.desc)
             {
                 crit.mul += tmp.mul;
                 crit.to_d += tmp.to_d;
+                crits++;
             }
             else
                 crit.mul += 100;
         }
-        crit.mul = crit.mul / ct;
-        crit.to_d = crit.to_d * 100 / ct;
+        crit.mul = crit.mul / attempts;
+        crit.to_d = crit.to_d * 100 / attempts;
+        crit_pct = crits * 1000 / attempts;
     }
     else
         crit.mul = 100;
@@ -568,11 +574,19 @@ int display_weapon_info(int hand, int row, int col)
         }
         else
         {
-            sprintf(buf, " %-7.7s: %d.%02dx", "Crits",
-                            crit.mul/100, crit.mul%100);
+            sprintf(buf, " %-7.7s: %d.%02dx (%d.%d%%)", "Crits",
+                            crit.mul/100, crit.mul%100, crit_pct / 10, crit_pct % 10);
         }
         put_str(buf, r++, c);
     }
+    if (p_ptr->weapon_info[hand].to_mult)
+    {
+        int m = 100 + p_ptr->weapon_info[hand].to_mult;
+        sprintf(buf, " %-7.7s: %d.%02dx", "Mauler", 
+            m / 100, m % 100);
+        put_str(buf, r++, c);
+    }
+
 
     _display_weapon_slay(mult, 100, FALSE, num_blow, dd, ds, to_d, "Normal", TERM_WHITE, r++, c);
     if (force)

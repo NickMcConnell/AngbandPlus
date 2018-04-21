@@ -517,15 +517,15 @@ static spell_info _spells[] =
     { 12, 10,  0, _critical_blow_spell},
     { 15,  0,  0, _splatter_spell},
     { 17,  0,  0, _block_spell},
-    { 19,  0,  0, _shatter_spell},
     { 21, 15, 40, _close_in_spell},
     { 23, 20,  0, _knockback_spell},
     { 25, 20,  0, _knockout_blow_spell},
-    { 30, 30,  0, _crushing_blow_spell},
+    { 30,  0,  0, _shatter_spell},
     { 32, 30, 50, _killing_spree_spell},
     { 35, 30, 50, _scatter_spell},
     { 37,  0,  0, _tunnel_spell},
-    { 40,  0,  0, _drain_spell},
+    { 40, 50,  0, _crushing_blow_spell},
+    { 42,  0,  0, _drain_spell},
     { 45,  0,  0, _maul_spell},
     { -1, -1, -1, NULL}
 };
@@ -563,6 +563,12 @@ static void _calc_bonuses(void)
         /* TODO: This should cost more energy too ...  */
         if (_get_toggle() == MAULER_TOGGLE_TUNNEL)
             p_ptr->kill_wall = TRUE;
+
+        if (_get_toggle() == MAULER_TOGGLE_MAUL)
+        {
+            p_ptr->to_a -= 20;
+            p_ptr->dis_to_a -= 20;
+        }
     }
 }
 
@@ -576,18 +582,24 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             int w = o_ptr->weight;
             int h = (w - 150)/20;
             int d = (w - 150)/10;
+            int m = (w - 150)/2;
 
-            if (w > 200)
-                d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+            if (m > 200)
+                m = 200;
+            if (m < 0)
+                m = 0;
 
-            info_ptr->to_h += h;
-            info_ptr->dis_to_h += h;
-            
-            info_ptr->to_d += d;
-            info_ptr->dis_to_d += d;
+            info_ptr->to_mult += m * p_ptr->lev/50;
+    
+            if (_get_toggle() != MAULER_TOGGLE_BLOCK)
+            {
+                info_ptr->to_h += h;
+                info_ptr->dis_to_h += h;
 
+                info_ptr->to_d += d;
+                info_ptr->dis_to_d += d;
+            }
         }
-
         /* CL25: Impact 
             20lb +1d0
             25lb +1d1

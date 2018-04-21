@@ -331,7 +331,7 @@ void possessor_calc_innate_attacks(void)
         a.dd = blow_ptr->d_dice;
         a.ds = blow_ptr->d_side;
         a.to_h += mbe_info[blow_ptr->effect].power / 3;
-        a.to_h += r_ptr->level / 3;
+        a.to_h += r_ptr->level / 2;
 
         switch (blow_ptr->method)
         {
@@ -511,8 +511,10 @@ void possessor_calc_innate_attacks(void)
             a.to_d += a.dd * (a.ds + 1) / 4;
             break;
         case RBE_UN_BONUS:
-        case RBE_UN_POWER:
             a.effect[0] = GF_DISENCHANT;
+            break;
+        case RBE_UN_POWER:
+            a.effect[1] = GF_DRAIN_MANA;
             break;
         case RBE_EAT_GOLD:
         case RBE_EAT_ITEM:
@@ -619,7 +621,7 @@ static void _possess_spell(int cmd, variant *res)
         msg_format("You possess %s.", o_name);
         if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
         {
-            if (one_in_(3))
+            if (p_ptr->lev <= 10 || one_in_(3))
             {
                 object_type forge;
                 object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
@@ -678,7 +680,7 @@ static void _unpossess_spell(int cmd, variant *res)
             monster_race *old_r_ptr = &r_info[old_r_idx];
 
             msg_print("You leave your current body!");
-            if (one_in_(3))
+            if (p_ptr->lev <= 10 || one_in_(3))
             {
                 object_type forge;
                 object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
@@ -794,6 +796,8 @@ static void _breathe_spell(int what, int cmd, variant *res)
         case 'D': div = 15; break;
         case 'd': div = 12; break;
         case 'Z': div = 8; break;
+        case 'C': div = 10; break; /* Cerberus */
+        case 'B': div = 12; break; /* Fenghuang, Petshop */
         case 'R': div = 12; break; /* Tarrasque, Godzilla */
         }
         
@@ -1392,6 +1396,8 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
         {
             p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
         }
+        /* Note: I would do rogues as well, but many rogue forms probably shouldn't get
+           this bonus (e.g. Hounds).*/
     }
 }
 
@@ -1440,6 +1446,8 @@ void possessor_calc_bonuses(void)
         p_ptr->see_inv = TRUE;
     if (r_ptr->flags2 & RF2_INVISIBLE)
         p_ptr->see_inv = TRUE;
+    if (r_ptr->flags9 & RF9_POS_BACKSTAB)
+        p_ptr->ambush = TRUE;
 
     if (r_ptr->flags9 & RF9_POS_SUST_STR)
         p_ptr->sustain_str = TRUE;

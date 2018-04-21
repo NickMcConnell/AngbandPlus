@@ -1,12 +1,15 @@
 #include "angband.h"
 
-void mimic_race(int new_race)
+void mimic_race(int new_race, const char *msg)
 {
     int  old_race = p_ptr->mimic_form;
 
     if (p_ptr->prace != RACE_DOPPELGANGER) return;
     if (p_ptr->tim_mimic) return;
     if (new_race == old_race) return;
+
+    if (msg)
+        msg_print(msg);
     
     if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD)
     {
@@ -109,7 +112,7 @@ void mimic_upkeep(void)
 
     cost = _form_upkeep(get_race_t()->exp);
     if (cost > p_ptr->csp + p_ptr->chp)
-        mimic_race(MIMIC_NONE);
+        mimic_race(MIMIC_NONE, "You can no longer afford the upkeep for this form.");
     else
         _pay_cost(cost);
 }
@@ -373,7 +376,7 @@ static void _mimic_spell(int cmd, variant *res)
         /* Drawback: Before shifting to a new form, they must revert to their original form. */
         else if (p_ptr->mimic_form != MIMIC_NONE)
         {
-            mimic_race(MIMIC_NONE);
+            mimic_race(MIMIC_NONE, NULL);
         }
         else
         {
@@ -393,7 +396,7 @@ static void _mimic_spell(int cmd, variant *res)
                 }
 
                 if (randint0(100) >= fail)
-                    mimic_race(race_idx);
+                    mimic_race(race_idx, NULL);
                 else
                     msg_print("You failed to concentrate hard enough!");
 

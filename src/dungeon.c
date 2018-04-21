@@ -11,6 +11,7 @@
 /* Purpose: Angband game engine */
 
 #include "angband.h"
+#include <assert.h>
 
 #define TY_CURSE_CHANCE 200
 #define CHAINSWORD_NOISE 100
@@ -1105,6 +1106,14 @@ void notice_lite_change(object_type *o_ptr)
     }
 }
 
+void fame_on_failure(void)
+{
+    int dec = p_ptr->fame/2;
+    if (dec > 30)
+        dec = 30;
+    assert (dec <= p_ptr->fame);
+    p_ptr->fame -= dec;
+}
 
 void leave_quest_check(void)
 {
@@ -1126,7 +1135,7 @@ void leave_quest_check(void)
         quest[leaving_quest].status = QUEST_STATUS_FAILED;
         quest[leaving_quest].complev = (byte)p_ptr->lev;
         virtue_add(VIRTUE_VALOUR, -2);
-        p_ptr->fame /= 2;
+        fame_on_failure();
 
         if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
         {
@@ -2666,7 +2675,7 @@ void process_world_aux_movement(void)
                             quest[i].status = QUEST_STATUS_FAILED;
                             quest[i].complev = (byte)p_ptr->lev;
                             virtue_add(VIRTUE_VALOUR, -2);
-                            p_ptr->fame /= 2; /* Trump Tower?? */
+                            fame_on_failure(); /* Trump Tower?? */
                             r_info[quest[i].r_idx].flags1 &= ~(RF1_QUESTOR);
                         }
                     }
@@ -5018,7 +5027,7 @@ static void process_player(void)
             else
             {
                 int amt = (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
-                #ifdef _DEBUG
+                #if 0
                 c_put_str(TERM_WHITE, format("E:%3d/%3d", amt, energy_use), 24, 0);
                 #endif
                 p_ptr->energy_need += amt;
@@ -5964,12 +5973,18 @@ void play_game(bool new_game)
     /* Load the "pref" files */
     load_all_pref_files();
 
+    Term_xtra(TERM_XTRA_REACT, 0);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+    p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
+    window_stuff();
+
     /* Give startup outfit (after loading pref files) */
     if (new_game)
     {
         class_t *class_ptr = get_class_t();
         race_t *race_ptr = get_race_t();
         
+        do_cmd_redraw(); /* Not sure why this is required?! */
         player_outfit();
         
         if (class_ptr && class_ptr->birth)
@@ -5981,11 +5996,6 @@ void play_game(bool new_game)
         spell_stats_on_birth();
     }
 
-
-    Term_xtra(TERM_XTRA_REACT, 0);
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-    p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
-    window_stuff();
 
     /* Set or clear "rogue_like_commands" if requested */
     if (arg_force_original) rogue_like_commands = FALSE;
@@ -6076,7 +6086,7 @@ void play_game(bool new_game)
                 p_ptr->exit_bldg = TRUE;
                 reset_tim_flags();
 
-                p_ptr->fame /= 2;
+                fame_on_failure();
 
                 /* Leave through the exit */
                 prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_RAND_CONNECT);

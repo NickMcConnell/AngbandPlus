@@ -53,7 +53,7 @@ static void _calc_innate_attacks(void)
         if (p_ptr->lev >= 45)
         {
             a.effect[3] = GF_STASIS;
-            a.effect_chance[3] = 20 + l/2;
+            a.effect_chance[3] = 15 + l/2;
         }
         else
         {
@@ -64,7 +64,7 @@ static void _calc_innate_attacks(void)
         if (p_ptr->lev >= 35)
         {
             a.effect[4] = GF_STUN;
-            a.effect_chance[4] = 20 + l/2;
+            a.effect_chance[4] = 15 + l/2;
         }
 
         calc_innate_blows(&a, 400);

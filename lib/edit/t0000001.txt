@@ -650,10 +650,10 @@ F:@:FLOOR:3:0:0:0:174
 
 ##########################################################################
 # Mauler
-# Impaler
+# Aegir
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:324
+F:@:FLOOR:3:0:0:0:251
 
 # Benkei
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [GEQ [MOD $RANDOM27 5] 1] ]

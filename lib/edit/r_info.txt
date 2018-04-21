@@ -8997,7 +8997,7 @@ F:MALE |
 F:DROP_1D2 | FRIENDS | INVISIBLE |
 F:OPEN_DOOR | BASH_DOOR | HURT_LITE |
 F:EVIL | RES_DARK | NO_CONF | NO_SLEEP
-F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS
+F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS | POS_BACKSTAB
 P:Copy:Dark-Elf:Ninja
 P:Speed:+7
 D:A dark elven assassin, so stealthy that he is almost impossible to see.
@@ -17957,7 +17957,7 @@ P:Speed:+5
 
 N:1003:The Ghost 'Q'
 G:G:w
-I:140:10d20:10:30:10:10
+I:140:10d20:20:30:10:10
 W:15:3:999:150:0:0
 B:TOUCH:EAT_FOOD:1d1
 B:TOUCH:EAT_FOOD:1d1
@@ -20254,9 +20254,11 @@ D: to seek and dominate the bodies of others.  It looks like a small
 D: cloud of glowing white mist.  In this form it is harmless, but
 D: upon possessing the dead body of another creature it will be able
 D: to use all its powers.
-P:Copy:Snotling:Tourist
+F:POS_TELEPATHY
+P:Copy:Yeek:Tourist
 P:Life:70
 P:Infra:5
+P:Skills:0:0:0:7:0:0:0:0
 P:Body:Possessor Soul
 
 N:1130:Marilith

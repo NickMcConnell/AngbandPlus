@@ -598,7 +598,7 @@ static cptr r_info_flags9[] =
     "POS_BLESSING",
     "POS_BERSERK",
     "POS_CLAIRVOYANCE",
-    "XXX25",
+    "POS_BACKSTAB",
     "XXX26",
     "XXX27",
     "XXX28",
