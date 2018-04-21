@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.3.0"
+#define VERSION_STRING	"1.3.1-q"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	3
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -67,7 +67,7 @@
  */
 #define OLD_VERSION_MAJOR	1
 #define OLD_VERSION_MINOR	3
-#define OLD_VERSION_PATCH	0
+#define OLD_VERSION_PATCH	1
 
 
 /*
@@ -1242,7 +1242,7 @@
 #define SV_POTION_HEALING			5
 #define SV_POTION_VOICE				6
 #define SV_POTION_TRUE_SIGHT		7
-#define SV_POTION_SLOW_POISON		8
+#define SV_POTION_ANTIDOTE		8
 #define SV_POTION_QUICKNESS			9
 #define SV_POTION_ELEM_RESISTANCE	10
 #define SV_POTION_STR				14
@@ -2451,7 +2451,6 @@
  */
 #define HIDE_RANGE      15
 
-
 /*
  * Morale-based stances that a monster could be in
  */
@@ -2459,6 +2458,10 @@
 #define STANCE_CONFIDENT		2
 #define STANCE_AGGRESSIVE		3
 
+/*
+ * Extra charges multiplier for Channeling
+ */
+#define CHANNELING_CHARGE_MULTIPLIER 2
 
 #define LEV_THEME_HEAD				11
 #define LEV_THEME_CREEPING_COIN		0   /*creeping coins*/

@@ -4401,7 +4401,7 @@ static void process_monster(monster_type *m_ptr)
 	{
 		if (skill_check(PLAYER,
 		                ability_bonus(S_SNG, SNG_MASTERY),
-			            monster_skill(m_ptr, S_WIL) + 5 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx),
+			            monster_skill(m_ptr, S_WIL) + 3 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx),
 						m_ptr) > 0)
 		{
             
@@ -4870,6 +4870,18 @@ static void process_monster(monster_type *m_ptr)
 
 				// removes the monster if it is still alive
 				delete_monster(ty, tx);
+
+				// Player gains some experience from non-unique monsters
+				if (!(r_ptr->flags1 & RF1_UNIQUE))
+				{
+					gain_exp(adjusted_mon_exp(r_ptr, TRUE));
+
+					/* Count scares this life */
+					if (l_ptr->pscares < MAX_SHORT) l_ptr->pkills++;
+
+					/* Count scares in all lives */
+					if (l_ptr->tscares < MAX_SHORT) l_ptr->tkills++;
+				}
 				
 				return;
 			}

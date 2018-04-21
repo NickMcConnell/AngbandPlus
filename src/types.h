@@ -434,6 +434,9 @@ struct monster_lore
 	s16b psights;			/* Count sightings of this monster in this life */
 	s16b tsights;			/* Count sightings of this monster in all lives */
 
+	s16b pscares;			/* Count monsters scared off the level in this life */
+	s16b tscares;			/* Count monsters scared off the level in all lives */
+
 	s16b pkills;			/* Count monsters killed in this life */
 	s16b tkills;			/* Count monsters killed in all lives */
 
@@ -893,7 +896,7 @@ struct player_type
 	u16b stairs_taken;	/* The number of times stairs have been used */
 	u16b staircasiness;	/* Gets higher when stairs are taken and slowly decays */
 
-	u16b forge_drought;	/* The number of turns since the last forge was generated */
+	u16b fixed_forge_count;	/* The number of mandatory forges that have been generated */
 	u16b forge_count;	/* The number of forges that have been generated */
 
 	byte stealth_mode;	/* Stealth mode */
