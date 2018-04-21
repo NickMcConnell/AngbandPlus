@@ -71,6 +71,11 @@ static void wr_item(savefile_ptr file, object_type *o_ptr)
         savefile_write_byte(file, o_ptr->dd);
         savefile_write_byte(file, o_ptr->ds);
     }
+    if (o_ptr->mult)
+    {
+        savefile_write_byte(file, SAVE_ITEM_MULT);
+        savefile_write_s16b(file, o_ptr->mult);
+    }
     if (o_ptr->ident)
     {
         savefile_write_byte(file, SAVE_ITEM_IDENT);

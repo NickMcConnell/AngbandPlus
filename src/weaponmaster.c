@@ -67,7 +67,7 @@ static int _get_nearest_target_los(void)
     int rng = 0;
     
     if (p_ptr->shooter_info.slot)
-        rng = bow_range(equip_obj(p_ptr->shooter_info.slot)->sval);
+        rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
     
     for (i = m_max - 1; i >= 1; i--)
     {
@@ -98,7 +98,7 @@ static int _get_greater_many_shot_targets(int *targets, int max)
     int rng = 0;
     
     if (p_ptr->shooter_info.slot)
-        rng = bow_range(equip_obj(p_ptr->shooter_info.slot)->sval);
+        rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
 
     /* shoot *all* line of sight monsters */    
     for (i = m_max - 1; i >= 1; i--)
@@ -129,7 +129,7 @@ static int _get_many_shot_targets(int *targets, int max)
     int rng = 0;
     
     if (p_ptr->shooter_info.slot)
-        rng = bow_range(equip_obj(p_ptr->shooter_info.slot)->sval);
+        rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
 
     /* pass 1: get line of sight monsters */    
     for (i = m_max - 1; i >= 1; i--)
@@ -3705,7 +3705,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 
     if (spec && !p_ptr->shooter_info.heavy_shoot)
     {
-        p_ptr->shooter_info.num_fire += 300 * p_ptr->lev/100;
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 150 / 50;
         if (p_ptr->psubclass == WEAPONMASTER_SLINGS && p_ptr->lev >= 40)
             p_ptr->shooter_info.num_fire += 100;
 

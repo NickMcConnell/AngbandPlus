@@ -1579,7 +1579,11 @@ bool make_attack_normal(int m_idx)
                 else if (p_ptr->sh_retaliation)
                 {
                     if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !p_ptr->paralyzed && !mon_save_p(m_ptr->r_idx, A_DEX))
+                    {
                         do_retaliate = TRUE;
+                        if (p_ptr->prace == RACE_MON_SWORD && !one_in_(3))
+                            do_retaliate = FALSE;
+                    }
                 }
 
                 if ( do_retaliate

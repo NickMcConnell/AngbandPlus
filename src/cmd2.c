@@ -3109,7 +3109,7 @@ bool do_cmd_fire_aux1(int item, object_type *bow)
     int dir;
     int tdis, tx, ty;
 
-    tdis = bow_range(bow->sval);
+    tdis = bow_range(bow);
     project_length = tdis + 1;
 
     if (shoot_hack == SHOOT_DISINTEGRATE)
@@ -3308,25 +3308,15 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
         energy_use = bow_energy(bow->sval);
 
     /* Calculate the Multiplier */
-    tmul = bow_tmul(bow->sval);
+    tmul = bow_mult(bow);
     tmul += p_ptr->shooter_info.to_mult;
-
-    if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS))
-    {
-        int idx = p_ptr->stat_ind[A_STR] + 4;
-        if (idx > 40-3)
-            idx = 40-3;
-        tmul = tmul * (100 + (int)(adj_str_td[idx]) - 128);
-    }
-    else
-        tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 
     /* Boost the damage */
     tdam_base *= tmul;
     tdam_base /= 100;
 
     /* Base range */
-    tdis = bow_range(bow->sval);
+    tdis = bow_range(bow);
     project_length = tdis + 1;
 
     /* Get projection path length */
@@ -3569,7 +3559,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                     int chance2 = chance;
 
                     if (weaponmaster_is_(WEAPONMASTER_BOWS) && p_ptr->lev >= 15)
-                        chance2 += 2*(bow_range(bow->sval) - cur_dis);
+                        chance2 += 2*(bow_range(bow) - cur_dis);
 
                     hit = test_hit_fire(chance2 - cur_dis, armour, m_ptr->ml);
                 }
@@ -3666,7 +3656,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                         if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS))
                         {
                             if (p_ptr->lev >= 20)
-                                tdam += bow_range(bow->sval) - cur_dis;
+                                tdam += bow_range(bow) - cur_dis;
 
                             if (p_ptr->lev >= 45)
                             {

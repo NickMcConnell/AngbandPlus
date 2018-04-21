@@ -2419,6 +2419,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     {
                         add_flag(o_ptr->art_flags, TR_LEVITATION);
                     }
+                    else if ( (o_ptr->tval == TV_CROWN && one_in_(2))
+                           || (o_ptr->tval == TV_HELM && one_in_(7)) )
+                    {
+                        if (add_esp_strong(o_ptr))
+                            add_esp_weak(o_ptr, TRUE);
+                        else
+                            add_esp_weak(o_ptr, FALSE);
+                    }
                     else if (!boosted_ac && randint1(225) < lev)
                     {
                         o_ptr->to_a = 20 + randint1(20);
@@ -2462,15 +2470,15 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         {
             if (o_ptr->tval == TV_RING)
             {
-                o_ptr->pval = 1;
+                o_ptr->pval = randint1(2);
                 if (one_in_(30)) o_ptr->pval++;
             }
             else
             {
-                o_ptr->pval = 1;
+                o_ptr->pval = randint1(3);
                 if (one_in_(15)) o_ptr->pval++;
                 if (is_falcon_sword)
-                    o_ptr->pval++;
+                    o_ptr->pval += randint1(2);
             }
         }
         else
@@ -2602,6 +2610,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         o_ptr->to_h = 0;
         o_ptr->to_d = 0;
         remove_flag(o_ptr->art_flags, TR_SHOW_MODS);
+    }
+
+    /* Hack: Apply extra might at the end (so only once) */
+    if (o_ptr->tval == TV_BOW && have_flag(o_ptr->art_flags, TR_XTRA_MIGHT) && o_ptr->mult)
+    {
+        o_ptr->mult  += 25 + m_bonus(17, object_level) * 5;
+        remove_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
     }
 
     if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI))

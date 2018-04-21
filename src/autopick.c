@@ -997,12 +997,17 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     {
         object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-        /* Require melee weapon */
-        if (!object_is_melee_weapon(o_ptr))
-            return FALSE;
-
-        /* Require boosted dice */
-        if ((o_ptr->dd == k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
+        if (object_is_bow(o_ptr))
+        {
+            if (o_ptr->mult == k_ptr->mult)
+                return FALSE;
+        }
+        else if (object_is_melee_weapon(o_ptr))
+        {
+            if (o_ptr->dd == k_ptr->dd && o_ptr->ds == k_ptr->ds)
+                return FALSE;
+        }
+        else
             return FALSE;
     }
 

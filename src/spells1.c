@@ -6310,7 +6310,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
     dam = (dam + r) / (r + 1);
 
     /* Yes, it is as ugly as this ... sigh */
-    if (hack_m_spell >= 96+7 && hack_m_spell <= 96+31)
+    if ( (hack_m_spell >= 96+7 && hack_m_spell <= 96+31)
+      || hack_m_spell == 96+1 )
     {
         bool evaded = FALSE; /* Demigod Scout with Evasion talent *and* Nimble Dodge cast? */
 

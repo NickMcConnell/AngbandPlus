@@ -591,7 +591,7 @@ The source can be used to compile English version too.
 - Ego rings and Ego amulets.
 - Names of random artifacts will reflect it's ability.
   A weapon which has fire brand, fire resistance, and fiery aura is 
-  more likely named 'Fire Bland' or like that.
+  more likely named 'Fire Brand' or like that.
 
 - When player level advances, stats increase sometimes. Instead,
   stat gaining potion is much rarer.

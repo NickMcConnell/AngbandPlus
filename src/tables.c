@@ -3504,7 +3504,7 @@ option_type option_info[] =
     { &last_words,                  TRUE,  OPT_PAGE_GAMEPLAY, 0, 28,
     "last_words",                   "Leave last words when your character dies" },
 
-#ifdef _DEBUG
+#ifdef ALLOW_WIZARD
     { &allow_debug_opts,            FALSE, OPT_PAGE_GAMEPLAY, 6, 11,
     "allow_debug_opts",             "Allow use of debug/cheat options" },
 #endif

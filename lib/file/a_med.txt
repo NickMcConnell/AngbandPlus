@@ -81,7 +81,7 @@ N: 8:BIAS_WIS
 'Gospel'
 'Guardian Angel'
 'Hope and Glory'
-'AEther Flash'
+'Aether Flash'
 'Parament of Holy Brume'
 'Holy Destiny'
 'Keeper of Light'

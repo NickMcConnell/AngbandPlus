@@ -1461,6 +1461,9 @@ void do_cmd_options(void)
             {
                 byte a = TERM_WHITE;
                 if (i == y) a = TERM_L_BLUE;
+#ifndef ALLOW_WIZARD
+                if (option_fields[i].key == 'c') continue;
+#endif
                 Term_putstr(5, option_fields[i].row, -1, a, 
                     format("(%c) %s", toupper(option_fields[i].key), option_fields[i].name));
             }
@@ -1559,6 +1562,7 @@ void do_cmd_options(void)
             /* Cheating Options */
             case 'C':
             {
+#ifdef ALLOW_WIZARD
                 if (!p_ptr->noscore && !allow_debug_opts)
                 {
                     /* Cheat options are not permitted */
@@ -1568,6 +1572,9 @@ void do_cmd_options(void)
 
                 /* Spawn */
                 do_cmd_options_cheat("Cheaters never win");
+#else
+                bell();
+#endif
                 break;
             }
 

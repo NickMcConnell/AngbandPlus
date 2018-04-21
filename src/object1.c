@@ -740,6 +740,9 @@ bool screen_object(object_type *o_ptr, u32b mode)
     if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
         info[i++] = "It decreases your ability to use magic devices.";
 
+    if (have_flag(flgs, TR_DEVICE_POWER))
+        info[i++] = "It increases the power of your magic devices.";
+
     if (have_flag(flgs, TR_STEALTH))
     {
         if (o_ptr->pval > 0)

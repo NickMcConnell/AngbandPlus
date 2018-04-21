@@ -2784,6 +2784,10 @@ void player_outfit(void)
     {
         _birth_object(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 20));
     }
+    else if (p_ptr->pclass == CLASS_SCOUT)
+    {
+        _birth_object(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 20));
+    }
 
     if(p_ptr->personality == PERS_SEXY && p_ptr->pclass != CLASS_MAULER && p_ptr->prace != RACE_MON_SWORD)
     {

@@ -90,6 +90,9 @@ static void rd_item(savefile_ptr file, object_type *o_ptr)
             o_ptr->dd = savefile_read_byte(file);
             o_ptr->ds = savefile_read_byte(file);
             break;
+        case SAVE_ITEM_MULT:
+            o_ptr->mult = savefile_read_s16b(file);
+            break;
         case SAVE_ITEM_IDENT:
             o_ptr->ident = savefile_read_byte(file);
             break;
@@ -158,6 +161,53 @@ static void rd_item(savefile_ptr file, object_type *o_ptr)
         /* default:
             TODO: Report an error back to the load routine!!*/
         }
+    }
+
+    /* Patch up shooters. Multipliers are now specified in k_info, a_info
+       and stored in the o_ptr (and savefile). Shooters should no longer
+       have the XTRA_MIGHT flag (but rings of archery might) */
+    if ( savefile_is_older_than(file, 3, 0, 6, 1)
+      && o_ptr->tval == TV_BOW
+      && !o_ptr->mult )
+    {
+        if (o_ptr->name1)
+        {
+            artifact_type *a_ptr = &a_info[o_ptr->name1];
+            o_ptr->mult = a_ptr->mult;
+        }
+        else
+        {
+            object_kind *k_ptr = &k_info[o_ptr->k_idx];
+            o_ptr->mult = k_ptr->mult;
+            if ( have_flag(o_ptr->art_flags, TR_XTRA_MIGHT)
+              || o_ptr->name2 == EGO_BOW_LOTHLORIEN /* e_info no longer has the XTRA_MIGHT flag! */
+              || o_ptr->name2 == EGO_BOW_EXTRA_MIGHT
+              || o_ptr->name2 == EGO_BOW_HARADRIM )
+            {
+                o_ptr->mult += 75;
+            }
+            else if (o_ptr->name2 == EGO_BOW_VELOCITY)
+                o_ptr->mult += 25;
+        }
+        remove_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
+    }
+
+    /* Extra shots now uses the pval */
+    if ( savefile_is_older_than(file, 3, 0, 6, 2)
+      && o_ptr->tval == TV_BOW
+      && (o_ptr->name2 == EGO_BOW_EXTRA_SHOTS || have_flag(o_ptr->art_flags, TR_XTRA_SHOTS))
+      && !o_ptr->pval )
+    {
+        o_ptr->pval = 3;
+    }
+
+    /* Extra attacks is now .5 per pval */
+    if (savefile_is_older_than(file, 3, 1, 0, 1))
+    {
+        if (o_ptr->name1 && have_flag(a_info[o_ptr->name1].flags, TR_BLOWS))
+            o_ptr->pval = a_info[o_ptr->name1].pval;
+        else if (o_ptr->name2 == EGO_WEAPON_EXTRA_ATTACKS || o_ptr->name2 == EGO_WEAPON_DAEMON)
+            o_ptr->pval *= 2;
     }
 }
 

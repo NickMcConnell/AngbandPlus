@@ -369,6 +369,12 @@ static void _scroll_cave(int dx, int dy)
     p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
 }
 
+static bool _in_bounds(int x, int y)
+{
+    return x > 0 && x < (max_wild_x - 1)
+        && y > 0 && y < (max_wild_y - 1);
+}
+
 int wilderness_level(int x, int y)
 {
     int total = 0;
@@ -385,6 +391,7 @@ int wilderness_level(int x, int y)
         {
             int x2 = x + dx;
             int y2 = y + dy;
+            if (!_in_bounds(x2, y2)) continue;
             if (wilderness[y2][x2].terrain != TERRAIN_EDGE)
             {
                 total += wilderness[y2][x2].level;

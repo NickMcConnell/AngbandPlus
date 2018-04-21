@@ -3141,10 +3141,6 @@ void calc_bonuses(void)
     s16b old_dis_ac = p_ptr->dis_ac;
     s16b old_dis_to_a = p_ptr->dis_to_a;
 
-    /* Clear extra blows/shots */
-    if (p_ptr->tim_speed_essentia)
-        p_ptr->shooter_info.num_fire += 100;
-
     /* Clear the stat modifiers */
     for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
 
@@ -3161,6 +3157,9 @@ void calc_bonuses(void)
     p_ptr->shooter_info.heavy_shoot = FALSE;
     p_ptr->shooter_info.to_mult = 0;
     p_ptr->shooter_info.tval_ammo = 0;
+
+    if (p_ptr->tim_speed_essentia)
+        p_ptr->shooter_info.num_fire += 100;
 
     p_ptr->dis_to_a = p_ptr->to_a = 0;
     p_ptr->to_h_m = 0;
@@ -4215,23 +4214,12 @@ void calc_bonuses(void)
         /* TODO: Convert old code to use class_ptr->calc_shooter_bonuses() */
         if (!p_ptr->shooter_info.heavy_shoot)
         {
-            /*
-             * Addendum -- also "Reward" high level warriors,
-             * with _any_ missile weapon -- TY
-             */
             if (p_ptr->pclass == CLASS_WARLOCK &&
                 p_ptr->psubclass == PACT_ABERRATION &&
                 p_ptr->shooter_info.tval_ammo <= TV_BOLT &&
                 p_ptr->shooter_info.tval_ammo >= TV_SHOT)
             {
                 p_ptr->shooter_info.num_fire += (p_ptr->lev * 2);
-            }
-            if (p_ptr->pclass == CLASS_SCOUT &&
-                !heavy_armor() &&
-                p_ptr->shooter_info.tval_ammo <= TV_BOLT &&
-                p_ptr->shooter_info.tval_ammo >= TV_SHOT)
-            {
-                p_ptr->shooter_info.num_fire += (p_ptr->lev * 3);
             }
         }
         if (p_ptr->shooter_info.num_fire < 0) p_ptr->shooter_info.num_fire = 0;

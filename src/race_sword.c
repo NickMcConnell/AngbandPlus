@@ -302,12 +302,23 @@ static int _slay_power(int i)
     return _rank_decay(_slay_flag_info[i].power);
 }
 
+static int _blows_div(void)
+{
+    int div = _rank();
+
+    if (div >= 4)
+        div = 10;
+
+    return MAX(1, div);
+}
+
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     int i;
     int to_hit = _calc_amount(_essences[_ESSENCE_TO_HIT], 1, 1);
     int to_dam = _calc_amount(_essences[_ESSENCE_TO_DAM], 1, 1);
     int to_dd = _calc_amount(_essences[_ESSENCE_XTRA_DICE], _rank_decay(64), 1);
+    int blows = _calc_amount(_essences[TR_BLOWS], _rank_decay(32), 1);
 
     for (i = 0; i < TR_FLAG_SIZE; i++)
         o_ptr->art_flags[i] = 0;
@@ -322,8 +333,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             add_flag(o_ptr->art_flags, j);
     }
 
-    if (_essences[TR_BLOWS] >= 25)
-        info_ptr->xtra_blow += 100;
+    info_ptr->xtra_blow += blows * 100 / _blows_div();
 
     info_ptr->to_h += to_hit;
     info_ptr->dis_to_h += to_hit;
@@ -867,11 +877,14 @@ static void _character_dump(FILE* fff)
     _dump_bonus_flag(fff, TR_SPEED, 1, 10, "Speed");
     if (_essences[TR_BLOWS])
     {
+        int blows = _calc_amount(_essences[TR_BLOWS], _rank_decay(32), 1);
+
+        blows = blows * 100 / _blows_div();
         fprintf(fff, "   %-22.22s %5d %5d %5.5s\n", 
             "Attacks",
             _essences[TR_BLOWS], 
-            25,
-            _essences[TR_BLOWS] >= 25 ? "+1" : ""
+            _calc_needed(_essences[TR_BLOWS], _rank_decay(32), 1),
+            blows ? format("+%d.%2.2d", blows / 100, blows % 100) : ""
         );
     }
     _dump_bonus_flag(fff, _ESSENCE_XTRA_DICE, _rank_decay(64), 1, "Slaying");

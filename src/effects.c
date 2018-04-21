@@ -5726,12 +5726,15 @@ void change_race(int new_race, cptr effect_msg)
 {
     cptr title = get_race_t_aux(new_race, 0)->name;
     int  old_race = p_ptr->prace;
+    static bool _lock = FALSE; /* This effect is not re-entrant! */
 
+    if (_lock) return;
     if (get_race_t()->flags & RACE_IS_MONSTER) return;
     if (get_race_t_aux(new_race, 0)->flags & RACE_IS_MONSTER) return;
     if (old_race == RACE_ANDROID) return;
-
     if (new_race == old_race) return;
+
+    _lock = TRUE;
 
     if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD)
     {
@@ -5774,7 +5777,7 @@ void change_race(int new_race, cptr effect_msg)
 
     if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD)
     {
-        race_t *race_ptr = get_race_t();
+        race_t *race_ptr = get_true_race_t();
         if (race_ptr != NULL && race_ptr->gain_level != NULL)
             race_ptr->gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on poly */
     }
@@ -5790,6 +5793,8 @@ void change_race(int new_race, cptr effect_msg)
 
     /* Player's graphic tile may change */
     lite_spot(py, px);
+
+    _lock = FALSE;
 }
 
 

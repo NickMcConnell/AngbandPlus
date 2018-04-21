@@ -192,10 +192,6 @@ void check_experience(void)
 {
     bool level_inc_stat = FALSE;
     int  old_lev = p_ptr->lev;
-    race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
-
-    if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
-        race_ptr = get_race_t();
 
     /* Hack -- lower limit */
     if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -261,11 +257,22 @@ void check_experience(void)
             if (class_ptr->gain_level != NULL)
                 (class_ptr->gain_level)(p_ptr->lev);
 
-            if (race_ptr->gain_level != NULL)
-                (race_ptr->gain_level)(p_ptr->lev);
-
             if (mut_present(MUT_CHAOS_GIFT))
                 chaos_warrior_reward();
+
+            /* N.B. The class hook or the Chaos Gift mutation may result in a race
+               change (stupid Chaos-Warriors), so we better always requery the player's 
+               race to make sure the correct racial hook is called. */
+            {
+                race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
+
+                if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
+                    race_ptr = get_race_t();
+
+                if (race_ptr->gain_level != NULL)
+                    (race_ptr->gain_level)(p_ptr->lev);
+            }
+
 
             level_inc_stat = TRUE;
         }
@@ -301,8 +308,14 @@ void check_experience(void)
 
     if (old_lev != p_ptr->lev) 
     {
+        race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
+
+        if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
+            race_ptr = get_race_t();
+
         if (race_ptr->change_level)
             race_ptr->change_level(old_lev, p_ptr->lev);
+
         autopick_load_pref(FALSE);
     }
 }
@@ -5403,7 +5416,7 @@ s16b gain_energy(void)
 /*
  * Return bow energy 
  */
-s16b bow_energy(int sval)
+int bow_energy(int sval)
 {
     int energy = 100;
 
@@ -5437,7 +5450,7 @@ s16b bow_energy(int sval)
         /* Bow of irresponsiblity and Arrow */
         case SV_NAMAKE_BOW:
         {
-            energy = 7777;
+            energy = 10000; /* Now has +7 XTRA_SHOTS (currently x1.75) */
             break;
         }
 
@@ -5457,97 +5470,6 @@ s16b bow_energy(int sval)
     }
 
     return (energy);
-}
-
-int bow_range(int sval)
-{
-    int tdis, tmul;
-
-    switch (sval)
-    {
-    case SV_LIGHT_XBOW:
-        tdis = 9; /* somebody is adding 1 later ... */
-        tdis += (p_ptr->concent + 1) / 2;    /* Snipers? */
-        break;
-
-    case SV_SHORT_BOW:
-        tdis = 9; /* somebody is adding 1 later ... */
-        break;
-
-    default:
-        tmul = bow_tmul(sval);
-        tmul += p_ptr->shooter_info.to_mult;
-        tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-        tdis = 13 + tmul/80;
-        if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
-        {
-            if (p_ptr->concent)
-                tdis -= (5 - (p_ptr->concent + 1) / 2);
-            else
-                tdis -= 5;
-        }
-        break;
-    }
-    if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS)
-        tdis += 1 + p_ptr->lev/12;
-
-    return tdis;
-}
-
-/*
- * Return bow tmul
- */
-int bow_tmul(int sval)
-{
-    int tmul = 0;
-
-    /* Analyze the launcher */
-    switch (sval)
-    {
-        /* Sling and ammo */
-        case SV_SLING:
-        {
-            tmul = 2;
-            break;
-        }
-
-        /* Short Bow and Arrow */
-        case SV_SHORT_BOW:
-        {
-            tmul = 3;
-            break;
-        }
-
-        /* Long Bow and Arrow */
-        case SV_LONG_BOW:
-        {
-            tmul = 3;
-            break;
-        }
-
-        /* Bow of irresponsiblity and Arrow */
-        case SV_NAMAKE_BOW:
-        {
-            tmul = 3;
-            break;
-        }
-
-        /* Light Crossbow and Bolt */
-        case SV_LIGHT_XBOW:
-        {
-            tmul = 4;
-            break;
-        }
-
-        /* Heavy Crossbow and Bolt */
-        case SV_HEAVY_XBOW:
-        {
-            tmul = 4;
-            break;
-        }
-    }
-
-    return (tmul);
 }
 
 /*

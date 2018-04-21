@@ -24,8 +24,12 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
-    if (info_ptr->tval_ammo <= TV_BOLT && info_ptr->tval_ammo >= TV_SHOT)
-        info_ptr->num_fire += (p_ptr->lev * 2);
+    if ( !p_ptr->shooter_info.heavy_shoot
+      && info_ptr->tval_ammo <= TV_BOLT 
+      && info_ptr->tval_ammo >= TV_SHOT )
+    {
+        p_ptr->shooter_info.num_fire += p_ptr->lev * 100 / 50;
+    }
 }
 
 static int _get_powers(spell_info* spells, int max)

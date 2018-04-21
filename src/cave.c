@@ -1830,7 +1830,7 @@ static cptr simplify_list[][2] =
 static bool _is_dice_boosted(object_type *o_ptr)
 {
     object_kind *k_ptr = &k_info[o_ptr->k_idx];
-    if (o_ptr->dd != k_ptr->dd || o_ptr->ds != k_ptr->ds)
+    if (o_ptr->dd != k_ptr->dd || o_ptr->ds != k_ptr->ds || o_ptr->mult != k_ptr->mult)
         return TRUE;
     return FALSE;
 }
@@ -1849,8 +1849,14 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
         object_desc(tmp, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_ONLY));
         sprintf(buf, "%dd%d %s", o_ptr->dd, o_ptr->ds, tmp);
     }
+    else if (o_ptr->tval == TV_BOW && _is_dice_boosted(o_ptr))
+    {
+        char tmp[MAX_NLEN];
+        object_desc(tmp, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_ONLY));
+        sprintf(buf, "x%d.%2.2d %s", o_ptr->mult / 100, o_ptr->mult % 100, tmp);
+    }
     else
-    object_desc(buf, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_ONLY));
+        object_desc(buf, o_ptr, (OD_NO_FLAVOR | OD_OMIT_PREFIX | OD_NAME_ONLY));
     attr = tval_to_attr[o_ptr->tval % 128];
 
     if (p_ptr->image)

@@ -351,8 +351,9 @@ static spell_info _marilith_spells[] = {
     { 30, 18, 45, cause_wounds_III_spell},
     { 32, 20, 50, amnesia_spell},
     { 36, 70, 85, summon_demon_spell},
-    { 40, 70, 70, enchantment_spell},
-    { -1, -1, -1, NULL}
+    { 40, 10, 50, enchantment_spell}, /* Note: Mariliths need corpses to eat, so they cannot spam
+                                         this spell in the town the way other characters may */
+    { -1, -1, -1, NULL}               
 };
 static int _marilith_get_spells(spell_info* spells, int max) {
     return get_spells_aux(spells, max, _marilith_spells);
@@ -372,10 +373,7 @@ static void _marilith_birth(void) {
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     add_outfit(&forge);
 
-    object_prep(&forge, lookup_kind(TV_HAFTED, SV_WHIP));
-    forge.name2 = EGO_WEAPON_BURNING;
-    forge.dd = 1;
-    forge.ds = 6;
+    object_prep(&forge, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
     forge.to_h = 1;
     forge.to_d = 2;
     add_outfit(&forge);

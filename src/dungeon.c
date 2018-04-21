@@ -649,6 +649,11 @@ static void pattern_teleport(void)
         teleport_player(200, 0L);
         return;
     }
+    else if (!ironman_downward && get_check("Recall? "))
+    {
+        recall_player(1);
+        return;
+    }
     else
     {
         return;
@@ -3417,7 +3422,7 @@ static bool enter_wizard_mode(void)
         else
         {
 #ifndef ALLOW_WIZARD
-            msg_print("Wizard mode is only permitted in _DEBUG builds.");
+            msg_print("Wizard mode is only permitted in special builds (#define ALLOW_WIZARD in z-config.h).");
             return FALSE;
 #endif
         }

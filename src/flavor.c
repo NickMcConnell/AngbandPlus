@@ -1756,28 +1756,34 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
     /* Bows get a special "damage string" */
     case TV_BOW:
+    {
+        char tmp[10];
+
         if (o_ptr->sval == SV_HARP) break;
         if (o_ptr->sval == SV_CRIMSON) break;
         if (o_ptr->sval == SV_RAILGUN) break;
 
         /* Mega-Hack -- Extract the "base power" */
-        power = bow_tmul(o_ptr->sval);
+        power = o_ptr->mult;
 
         /* Are we describing a wielded bow? */
         if (equip_is_worn(o_ptr))
             power += p_ptr->shooter_info.to_mult;
-        else if (have_flag(flgs, TR_XTRA_MIGHT))
-            power += 1;
+
+        if (power % 100)
+            sprintf(tmp, "x%d.%2.2d", power / 100, power % 100);
+        else
+            sprintf(tmp, "x%d", power / 100);
 
         /* Append a special "damage" string */
         t = object_desc_chr(t, ' ');
         t = object_desc_chr(t, p1);
-        t = object_desc_chr(t, 'x');
-        t = object_desc_num(t, power);
+        t = object_desc_str(t, tmp);
         t = object_desc_chr(t, p2);
 
         /* All done */
         break;
+    }
     }
 
     if (mode & OD_NAME_AND_DICE) goto object_desc_done;
@@ -1826,7 +1832,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (bow_ptr && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
     {
         int avgdam;        
-        int tmul = bow_tmul(bow_ptr->sval);
+        int tmul = bow_mult(bow_ptr);
         s16b energy_fire = bow_energy(bow_ptr->sval);
 
         if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
@@ -1841,11 +1847,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
         /* Effect of ammo */
         if (known) avgdam += (o_ptr->to_d * 10);
-
-        /* Get extra "power" from "extra might" */
-        tmul += p_ptr->shooter_info.to_mult;
-
-        tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 
         /* Launcher multiplier */
         avgdam *= tmul;
@@ -2033,7 +2034,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 /* Dump " to speed" */
                 t = object_desc_str(t, " to speed");
             }
-
+#if 0
+            TODO: Blows are now fractional (currently +.50 attacks per pval)
+                  As a result, the display would be wrong if we appended "attacks"
+                  after the pval.
             /* Attack speed */
             else if (have_flag(flgs, TR_BLOWS))
             {
@@ -2043,7 +2047,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 /* Add "attacks" */
                 if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
             }
-
+#endif
             /* Stealth */
             else if (have_flag(flgs, TR_STEALTH))
             {
@@ -2068,19 +2072,18 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             /* Finish the display */
             t = object_desc_chr(t, p2);
         }
-
-        if (have_flag(flgs, TR_MAGIC_MASTERY))
+        if (have_flag(flgs, TR_DEVICE_POWER))
         {
             int pct = device_power_aux(100, o_ptr->pval) - 100;
             if (pct >= 0)
-                t = object_desc_str(t, format(" <+%d%%>", pct));
+                t = object_desc_str(t, format(" {+%d%%}", pct));
             else
-                t = object_desc_str(t, format(" <%d%%>", pct));
+                t = object_desc_str(t, format(" {%d%%}", pct));
         }
         else if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
         {
             int pct = device_power_aux(100, -o_ptr->pval) - 100;
-            t = object_desc_str(t, format(" <%d%%>", pct));
+            t = object_desc_str(t, format(" {%d%%}", pct));
         }
 
         if (have_flag(flgs, TR_SPELL_POWER))

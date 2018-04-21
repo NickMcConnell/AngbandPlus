@@ -650,6 +650,10 @@ void equip_wield_aux(object_type *src, int slot)
     dest->marked |= OM_TOUCHED;
     p_ptr->total_weight += dest->weight;
 
+    /* Hack: Extra Might and Weaponmastery require a calc_bonus() to display correctly */
+    p_ptr->update |= PU_BONUS;
+    handle_stuff();
+
     object_desc(o_name, dest, 0);
     msg_format("You are wearing %s (%c).", o_name, index_to_label(slot)); /* TODO */
 
@@ -1103,10 +1107,11 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_DEC_CHR)) p_ptr->stat_add[A_CHR] -= o_ptr->pval;
 
         if (have_flag(flgs, TR_MAGIC_MASTERY))
-        {
             p_ptr->skills.dev += 8*o_ptr->pval;
+
+        if (have_flag(flgs, TR_DEVICE_POWER))
             p_ptr->device_power += o_ptr->pval;
-        }
+
         if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
         {
             p_ptr->skills.dev -= 8*o_ptr->pval;
@@ -1125,6 +1130,7 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_BLOWS) && (p_ptr->pclass != CLASS_MAULER || o_ptr->pval < 0))
         {
             int hand = _template->slots[i].hand;
+            int amt = o_ptr->pval * 50;
             switch (_template->slots[i].type)
             {
             case EQUIP_SLOT_GLOVES:
@@ -1134,47 +1140,44 @@ void equip_calc_bonuses(void)
                 int lhand = arm*2 + 1;
                 if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE && p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
                 {
-                    if (o_ptr->pval > 0)
+                    if (amt > 0)
                     {
-                        p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval*50;
-                        p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval*50;
+                        p_ptr->weapon_info[rhand].xtra_blow += amt/2;
+                        p_ptr->weapon_info[lhand].xtra_blow += amt/2;
                     }
                     else
                     {
-                        p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval*100;
-                        p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval*100;
+                        p_ptr->weapon_info[rhand].xtra_blow += amt;
+                        p_ptr->weapon_info[lhand].xtra_blow += amt;
                     }
                 }
                 else if (p_ptr->weapon_info[rhand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[rhand].xtra_blow += o_ptr->pval*100;
+                    p_ptr->weapon_info[rhand].xtra_blow += amt;
                 else if (p_ptr->weapon_info[lhand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[lhand].xtra_blow += o_ptr->pval*100;
+                    p_ptr->weapon_info[lhand].xtra_blow += amt;
                 else
-                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval*100;
+                    p_ptr->innate_attack_info.xtra_blow += amt;
                 break;
             }
             case EQUIP_SLOT_WEAPON_SHIELD:
             case EQUIP_SLOT_WEAPON:
                 if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
-                    p_ptr->weapon_info[hand].xtra_blow += o_ptr->pval*100;
+                    p_ptr->weapon_info[hand].xtra_blow += amt;
                 break;
             default:
             {
-                int  j;
-                bool assigned = FALSE;
                 if (object_is_melee_weapon(o_ptr)) break; /* Hack for Jellies ... */
-                for (j = 0; j < MAX_HANDS; j++)
+                if (p_ptr->weapon_ct)
                 {
-                    if (p_ptr->weapon_info[j].wield_how != WIELD_NONE)
+                    int  j;
+                    for (j = 0; j < MAX_HANDS; j++)
                     {
-                        p_ptr->weapon_info[j].xtra_blow += o_ptr->pval*100;
-                        assigned = TRUE;
-                        break; /* Assume pval == 1 so first found gets it */
-                               /* TODO: We could prorate pval*100 across # valid slots now! */
+                        if (p_ptr->weapon_info[j].wield_how != WIELD_NONE)
+                            p_ptr->weapon_info[j].xtra_blow += amt/p_ptr->weapon_ct;
                     }
                 }
-                if (!assigned)
-                    p_ptr->innate_attack_info.xtra_blow += o_ptr->pval*100;
+                else
+                    p_ptr->innate_attack_info.xtra_blow += amt;
             }
             }
         }
@@ -1192,14 +1195,7 @@ void equip_calc_bonuses(void)
         }
 
         if (have_flag(flgs, TR_XTRA_SHOTS))
-        {
-            if (o_ptr->name2 == EGO_RING_ARCHERY)
-                p_ptr->shooter_info.num_fire += 50 * o_ptr->pval;
-            else if (o_ptr->name2 == EGO_GLOVES_SNIPER) 
-                p_ptr->shooter_info.num_fire += 50;
-            else
-                p_ptr->shooter_info.num_fire += 100;
-        }
+            p_ptr->shooter_info.num_fire += 25 * o_ptr->pval;
 
         if (have_flag(flgs, TR_LIFE))
             p_ptr->life += 3*o_ptr->pval;
@@ -1217,7 +1213,10 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_DEC_SPELL_CAP))   p_ptr->spell_cap -= o_ptr->pval;
         if (have_flag(flgs, TR_MAGIC_RESISTANCE))   p_ptr->magic_resistance += 5*o_ptr->pval;
         if (have_flag(flgs, TR_BLESSED))     p_ptr->bless_blade = TRUE;
-        if (have_flag(flgs, TR_XTRA_MIGHT))  p_ptr->shooter_info.to_mult++;
+
+        if (have_flag(flgs, TR_XTRA_MIGHT) && o_ptr->tval != TV_BOW)  
+            p_ptr->shooter_info.to_mult += 25 * o_ptr->pval;
+
         if (have_flag(flgs, TR_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
         if (have_flag(flgs, TR_REGEN))       p_ptr->regenerate = TRUE;
         if (have_flag(flgs, TR_TELEPATHY))   p_ptr->telepathy = TRUE;
@@ -1370,6 +1369,24 @@ void equip_calc_bonuses(void)
                 p_ptr->shooter_info.dis_to_d += o_ptr->to_d;
             }
             continue;
+        }
+        /* Hack -- Archery now benefits from equipment slays. Without this, only
+           Sniper gloves and Archery rings affect shooting, and that seems a bit
+           unfair (especially since melee is so favored)  */
+        else if ( o_ptr->tval != TV_GLOVES
+               && o_ptr->name2 != EGO_RING_COMBAT
+               && o_ptr->name2 != EGO_CROWN_MIGHT
+               && o_ptr->name2 != EGO_CLOAK_FAIRY  /* Hey, fairies can shoot just fine :) */
+               && o_ptr->name1 != ART_TERROR
+               && o_ptr->name1 != ART_HAMMERHAND )
+        {
+            p_ptr->shooter_info.to_h += o_ptr->to_h;
+            p_ptr->shooter_info.to_d += o_ptr->to_d;
+            if (object_is_known(o_ptr))
+            {
+                p_ptr->shooter_info.dis_to_h += o_ptr->to_h;
+                p_ptr->shooter_info.dis_to_d += o_ptr->to_d;
+            }
         }
 
         bonus_to_h = o_ptr->to_h;

@@ -133,7 +133,8 @@ struct object_kind
 
     s16b ac;            /* Base armor */
 
-    byte dd, ds;        /* Damage dice/sides */
+    byte dd, ds;        /* Damage dice/sides for melee weapons */
+    s16b mult;          /* Damage multiplier (scaled by 100) for bows */
 
     s16b weight;        /* Weight */
 
@@ -200,6 +201,7 @@ struct artifact_type
     s16b ac;            /* Base armor */
 
     byte dd, ds;        /* Damage when hits */
+    s16b mult;          /* Damage multiplier (scaled by 100) for bows */
 
     s16b weight;        /* Weight */
 
@@ -316,6 +318,7 @@ struct object_type
     s16b ac;            /* Normal AC */
 
     byte dd, ds;        /* Damage dice/sides */
+    s16b mult;          /* Damage multiplier (scaled by 100) for bows */
 
     s16b timeout;        /* Timeout Counter */
 

@@ -567,7 +567,7 @@ s32b jewelry_cost(object_type *o_ptr)
 
     if (have_flag(flgs, TR_BLOWS))
     {
-        p += 90 * 1000 * o_ptr->pval;
+        p += 45 * 1000 * o_ptr->pval;
         if (cost_calc_hook)
         {
             sprintf(dbg_msg, "  * Blows: p = %d", p);
@@ -577,7 +577,7 @@ s32b jewelry_cost(object_type *o_ptr)
 
     if (have_flag(flgs, TR_XTRA_SHOTS))
     {
-        p += 30000;
+        p += 5000 * o_ptr->pval;
         if (cost_calc_hook)
         {
             sprintf(dbg_msg, "  * Shots: p = %d", p);
@@ -586,7 +586,7 @@ s32b jewelry_cost(object_type *o_ptr)
     }
     if (have_flag(flgs, TR_XTRA_MIGHT))
     {
-        p += 50000;
+        p += 5000 * o_ptr->pval;
         if (cost_calc_hook)
         {
             sprintf(dbg_msg, "  * Extra Might: p = %d", p);
@@ -911,7 +911,7 @@ s32b armor_cost(object_type *o_ptr)
     /* Extra Attacks */
     if (have_flag(flgs, TR_BLOWS))
     {
-        p += 100 * 1000 * o_ptr->pval; /* Just for show ... Shiva's Jacket and Ares */
+        p += 50 * 1000 * o_ptr->pval; /* Just for show ... Shiva's Jacket and Ares */
                                        /* With Reforging, this is relevant: Biffed! */
         if (cost_calc_hook)
         {
@@ -1036,7 +1036,7 @@ s32b weapon_cost(object_type *o_ptr)
             d = 1.0;
 
         if (have_flag(flgs, TR_BLOWS))
-            d += (d + 15.0)*o_ptr->pval/5.0;
+            d += (d + 15.0)*o_ptr->pval/10.0;
 
         if (have_flag(flgs, TR_VAMPIRIC)) 
             d *= 1.1;
@@ -1172,38 +1172,35 @@ s32b weapon_cost(object_type *o_ptr)
     return p;
 }
 
-static s32b _avg_dam_bow(int sval, int to_d, bool might)
+static s32b _avg_dam_bow(object_type *o_ptr)
 {
     s32b d = 0;
-    s32b m = bow_tmul(sval);
+    s32b m = o_ptr->mult;
 
-    if (might)
-        m++;
-
-    switch (sval)
+    switch (o_ptr->sval)
     {
     case SV_SLING:
-        d = m*2 + m*to_d;
+        d = m*(2 + o_ptr->to_d) / 100;
         break;
 
     case SV_SHORT_BOW:
-        d = m*5/2 + m*to_d;
+        d = m*(2 + o_ptr->to_d) / 100;
         break;
 
     case SV_LONG_BOW:
-        d = m*5/2 + m*to_d + m;
+        d = m*(3 + o_ptr->to_d) / 100;
         break;
 
     case SV_NAMAKE_BOW:
-        d = m*18 + m*to_d;
+        d = m*(18 + o_ptr->to_d) / 100;
         break;
 
     case SV_LIGHT_XBOW:
-        d = m*3 + m*to_d;
+        d = m*(3 + o_ptr->to_d) / 100;
         break;
 
     case SV_HEAVY_XBOW:
-        d = m*3 + m*to_d + m;
+        d = m*(4 + o_ptr->to_d) / 100;
         break;
 
     case SV_HARP:
@@ -1236,7 +1233,7 @@ s32b bow_cost(object_type *o_ptr)
     }
 
     /* Base Cost calculated from expected damage output */
-    t = _avg_dam_bow(o_ptr->sval, o_ptr->to_d, have_flag(flgs, TR_XTRA_MIGHT));
+    t = _avg_dam_bow(o_ptr);
     if (have_flag(flgs, TR_BRAND_POIS)) t = t * 5 / 4;
     if (have_flag(flgs, TR_BRAND_ACID)) t = t * 5 / 4;
     if (have_flag(flgs, TR_BRAND_ELEC)) t = t * 5 / 4;
@@ -1245,7 +1242,11 @@ s32b bow_cost(object_type *o_ptr)
 
     w = t * t * 3;
     if (have_flag(flgs, TR_XTRA_SHOTS))
-        w = w * 3 / 2;
+    {
+        int i;
+        for (i = 0; i < o_ptr->pval; i++)
+            w = w * 11 / 10;
+    }
 
     if (cost_calc_hook)
     {

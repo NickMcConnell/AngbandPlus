@@ -1407,6 +1407,10 @@ extern int random_quest_number(int level);
 extern bool tele_town(void);
 extern int hit_chance(int hand, int to_h, int ac);
 
+/* combat.c */
+extern int bow_energy(int sval);
+extern int bow_range(object_type *o_ptr);
+extern int bow_mult(object_type *o_ptr);
 extern int display_weapon_info(int hand, int row, int col);
 extern int display_innate_attack_info(int which, int row, int col);
 extern int display_shooter_info(int row, int col);
@@ -1666,9 +1670,6 @@ extern void change_race(int new_race, cptr effect_msg);
 extern int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear);
 extern int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear);
 extern s16b gain_energy(void);
-extern s16b bow_energy(int sval);
-extern int bow_tmul(int sval);
-extern int bow_range(int sval);
 extern cptr your_alignment(void);
 extern int weapon_exp_level(int weapon_exp);
 extern int riding_exp_level(int riding_exp);

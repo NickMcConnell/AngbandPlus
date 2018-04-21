@@ -17,9 +17,9 @@
 
 
 #define VER_MAJOR 3
-#define VER_MINOR 0
-#define VER_PATCH 5
-#define VER_EXTRA 0
+#define VER_MINOR 1
+#define VER_PATCH 0
+#define VER_EXTRA 1
 
 
 /*
@@ -3178,9 +3178,11 @@ enum summon_specific_e {
 #define TR_SLAY_LIVING         159
 
 #define TR_STUN                160
+#define TR_DEVICE_POWER        161
 
-#define TR_FLAG_MAX            161
-#define TR_FLAG_SIZE           6
+#define TR_FLAG_MAX            162
+/*#define TR_LAST_FLAG!!!!     191  (6 * 32 - 1)*/
+#define TR_FLAG_SIZE           6  
 
 #define TRG_INSTA_ART           0x00000001     /* Item must be an artifact */
 #define TRG_QUESTITEM           0x00000002     /* quest level item -KMW- */
@@ -5473,6 +5475,7 @@ enum object_save_fields_e {
     SAVE_ITEM_XTRA4,
     SAVE_ITEM_XTRA5,
     SAVE_ITEM_ACTIVATION,
+    SAVE_ITEM_MULT,
 };
 
 /*

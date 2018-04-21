@@ -69,8 +69,8 @@ class_t *tourist_get_class_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 15,  18,  28,   1,  12,   2,  40,  20};
-    skills_t xs = {  5,   7,   9,   0,   0,   0,  11,  11};
+    skills_t bs = { 15,  18,  28,   1,  12,   2,  48,  20};
+    skills_t xs = {  5,   7,   9,   0,   0,   0,  13,  11};
 
         me.name = "Tourist";
         me.desc = "Tourists have visited this world for the purpose of sightseeing. "

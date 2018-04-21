@@ -820,6 +820,7 @@ static cptr k_info_flags[TR_FLAG_MAX] =
     "SLAY_LIVING",
 
     "STUN",
+    "DEVICE_POWER",
 };
 
 
@@ -2635,15 +2636,25 @@ errr parse_k_info(char *buf, header *head)
     /* Hack -- Process 'P' for "power" and such */
     else if (buf[0] == 'P')
     {
-        int ac, hd1, hd2, th, td, ta;
+        int ac, hd1, hd2, th, td, ta, mult = 0;
 
-        /* Scan for the values */
-        if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
-
+        if (k_ptr->tval == TV_BOW)
+        {
+            if (6 != sscanf(buf+2, "%d:x%d.%d:%d:%d:%d",
+                    &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+            mult = hd1 * 100 + hd2; /* x3.25 -> 325 (alas, x3.2 -> 302 so use x3.20 instead) */
+            hd1 = 0;
+            hd2 = 0;
+        }
+        else
+        {
+            if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
+                    &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+        }
         k_ptr->ac = ac;
         k_ptr->dd = hd1;
         k_ptr->ds = hd2;
+        k_ptr->mult = mult;
         k_ptr->to_h = th;
         k_ptr->to_d = td;
         k_ptr->to_a =  ta;
@@ -2835,15 +2846,25 @@ errr parse_a_info(char *buf, header *head)
     /* Hack -- Process 'P' for "power" and such */
     else if (buf[0] == 'P')
     {
-        int ac, hd1, hd2, th, td, ta;
+        int ac, hd1, hd2, th, td, ta, mult = 0;
 
-        /* Scan for the values */
-        if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
-
+        if (a_ptr->tval == TV_BOW)
+        {
+            if (6 != sscanf(buf+2, "%d:x%d.%d:%d:%d:%d",
+                    &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+            mult = hd1 * 100 + hd2; /* x3.25 -> 325 (alas, x3.2 -> 302 so use x3.20 instead) */
+            hd1 = 0;
+            hd2 = 0;
+        }
+        else
+        {
+            if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
+                    &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+        }
         a_ptr->ac = ac;
         a_ptr->dd = hd1;
         a_ptr->ds = hd2;
+        a_ptr->mult = mult;
         a_ptr->to_h = th;
         a_ptr->to_d = td;
         a_ptr->to_a =  ta;

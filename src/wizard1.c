@@ -629,7 +629,7 @@ static const flag_desc misc_flags3_desc[] =
     { TR_REGEN,              "Regeneration" },
     { TR_WARNING,            "Warning" },
 /*    { TR_XTRA_MIGHT,         "Extra Might" }, */
-    { TR_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
+    { TR_XTRA_SHOTS,         "Extra Shot" },        /* always +1? */
     { TR_DRAIN_EXP,          "Drains Experience" },
     { TR_AGGRAVATE,          "Aggravates" },
     { TR_BLESSED,            "Blessed Blade" },

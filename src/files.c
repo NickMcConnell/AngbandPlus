@@ -2525,7 +2525,7 @@ static void display_player_other_flag_info(void)
     display_flag_aux(row+ 9, col, "ESP Orc    :", TR_ESP_ORC, &f, 0);
     display_flag_aux(row+10, col, "ESP Troll  :", TR_ESP_TROLL, &f, 0);
     display_flag_aux(row+11, col, "ESP Giant  :", TR_ESP_GIANT, &f, 0);
-    display_flag_aux(row+12, col, "Device Pow :", TR_MAGIC_MASTERY, &f, 0);
+    display_flag_aux(row+12, col, "Magic Skill:", TR_MAGIC_MASTERY, &f, 0);
     if (p_ptr->device_power)
     {
         int tmp = device_power_aux(100, p_ptr->device_power) - 100;

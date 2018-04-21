@@ -879,24 +879,11 @@ int display_innate_attack_info(int which, int row, int col)
 /**********************************************************************
  * Ranged Attacks
  **********************************************************************/
-static int _bow_mult_base(int sval)
-{
-    switch (sval)
-    {
-    case SV_SLING: return 2;
-    case SV_SHORT_BOW: return 3;
-    case SV_LONG_BOW: return 3;
-    case SV_NAMAKE_BOW: return 3;
-    case SV_LIGHT_XBOW: return 4;
-    case SV_HEAVY_XBOW: return 4;
-    }
-    return 0;
-}
 
 /* Multiplier scaled by 100 */
-static int _bow_mult(int sval)
+int bow_mult(object_type *o_ptr)
 {
-    int mult = _bow_mult_base(sval);
+    int mult = o_ptr->mult;
 
     mult += p_ptr->shooter_info.to_mult;
 
@@ -905,13 +892,48 @@ static int _bow_mult(int sval)
         int idx = p_ptr->stat_ind[A_STR] + 4;
         if (idx > 40-3)
             idx = 40-3;
-        mult = mult * (100 + (int)(adj_str_td[idx]) - 128);
+        mult = mult * (100 + (int)(adj_str_td[idx]) - 128) / 100;
     }
     else
-        mult = mult * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+        mult = mult * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) / 100;
 
     return mult;
 }
+
+int bow_range(object_type *o_ptr)
+{
+    int range, mult;
+
+    switch (o_ptr->sval)
+    {
+    case SV_LIGHT_XBOW:
+        range = 9; /* somebody is adding 1 later ... */
+        range += (p_ptr->concent + 1) / 2;    /* Snipers? */
+        break;
+
+    case SV_SHORT_BOW:
+        range = 9; /* somebody is adding 1 later ... */
+        break;
+
+    default:
+        mult = bow_mult(o_ptr);
+        range = 13 + mult/80;
+        if (o_ptr->sval == SV_HEAVY_XBOW)
+        {
+            if (p_ptr->concent)
+                range -= (5 - (p_ptr->concent + 1) / 2);
+            else
+                range -= 5;
+        }
+        break;
+    }
+    if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS)
+        range += 1 + p_ptr->lev/12;
+
+    return range;
+}
+
+
 
 static void _display_missile_slay(int base_mult, int slay_mult, int shots, 
                                   int dd, int ds, int to_d, int to_d_xtra, 
@@ -964,7 +986,7 @@ static int _shooter_info_aux(object_type *bow, object_type *arrow, int row, int 
     int          r,c;
 
     missile_flags_known(arrow, flgs);
-    mult = _bow_mult(bow->sval);
+    mult = bow_mult(bow);
 
     if (p_ptr->shooter_info.num_fire)
         num_fire = p_ptr->shooter_info.num_fire * 100 * 100 / bow_energy(bow->sval);
@@ -1138,7 +1160,7 @@ int display_shooter_info(int row, int col)
     char         o_name[MAX_NLEN];
     char         buf[255];
     int          mult;
-    int             num_fire = 0;
+    int          num_fire = 0;
     int          to_h = 0;
     int          to_d = 0;
     int          r, c, i, j, w, h;
@@ -1155,7 +1177,7 @@ int display_shooter_info(int row, int col)
     bow_ptr = equip_obj(slot);
     assert(bow_ptr);
 
-    mult = _bow_mult(bow_ptr->sval);
+    mult = bow_mult(bow_ptr);
 
     if (p_ptr->shooter_info.num_fire)
         num_fire = p_ptr->shooter_info.num_fire * 100 * 100 / bow_energy(bow_ptr->sval);
@@ -1175,7 +1197,7 @@ int display_shooter_info(int row, int col)
     sprintf(buf, " Shooting: %-70.70s", o_name);
     c_put_str(TERM_YELLOW, buf, r++, c);
     
-    sprintf(buf, " %-8.8s: %d'", "Range", (bow_range(bow_ptr->sval) + 1) * 10);
+    sprintf(buf, " %-8.8s: %d'", "Range", (bow_range(bow_ptr) + 1) * 10);
     put_str(buf, r++, c);
 
     sprintf(buf, " %-8.8s: %d.%02d", "Shots", num_fire/100, num_fire%100);

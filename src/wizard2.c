@@ -255,16 +255,16 @@ static void do_cmd_wiz_hack_chris2(void)
         
         object_prep(&forge, k_idx);
         /*create_artifact(&forge, CREATE_ART_CURSED);*/
-        apply_magic(&forge, object_level, 0);
+        apply_magic(&forge, object_level, AM_GREAT);
 
-        if (1 || forge.curse_flags)
+        if (1 || forge.name2 == EGO_BOW_EXTRA_SHOTS)
         {
             identify_item(&forge);
             forge.ident |= (IDENT_MENTAL); 
         
             object_desc(buf, &forge, 0);
             msg_format("%s (%d)", buf, object_value_real(&forge));
-            /*drop_near(&forge, -1, py, px);*/
+        /*    drop_near(&forge, -1, py, px); */
         }
     }
 }
@@ -298,11 +298,9 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
             object_type forge;
 
             object_prep(&forge, k_idx);
-            apply_magic(&forge, depth, AM_GREAT);
+            apply_magic(&forge, depth, 0);
 
-            if ( forge.name2 == EGO_WEAPON_JOUSTING
-              || forge.name2 == EGO_WEAPON_HELL_LANCE
-              || forge.name2 == EGO_WEAPON_HOLY_LANCE )
+            if (forge.name2 == EGO_WEAPON_EXTRA_ATTACKS)
             {
                 char buf[MAX_NLEN];
 
@@ -313,8 +311,13 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
                 forge.ident |= (IDENT_MENTAL); 
                 object_desc(buf, &forge, 0);
                 fprintf(file, "%s %d.%d lbs\n", buf, forge.weight/10, forge.weight%10);
+              
                 /*msg_print(buf);*/
-                /*drop_near(&forge, -1, py, px);*/
+
+                if (1)
+                {
+                    drop_near(&forge, -1, py, px);
+                }
             }
 
             counts[forge.name2]++;
@@ -2575,7 +2578,7 @@ extern void do_cmd_spoilers(void);
 
 /*
  * Hack -- declare external function
- */
+ */ 
 extern void do_cmd_debug(void);
 
 
@@ -2949,13 +2952,13 @@ void do_cmd_debug(void)
         break;
 
     case 'S':
+#ifdef ALLOW_SPOILERS
         generate_spoilers();
+#endif
         break;
 
     case '_':
-        mut_gain(MUT_HORNS);
-        mut_gain(MUT_TRUNK);
-        mut_gain(MUT_TENTACLES);
+        /* Placeholder for quick and dirty debugging ... */
         break;
 
     default:
