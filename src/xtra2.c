@@ -1390,7 +1390,7 @@ bool set_food(int v)
 		old_aux = 4;
 	}
 
-	/* Gorged */
+	/* Replete */
 	else
 	{
 		old_aux = 5;
@@ -1426,7 +1426,7 @@ bool set_food(int v)
 		new_aux = 4;
 	}
 
-	/* Gorged */
+	/* Replete */
 	else
 	{
 		new_aux = 5;
@@ -1466,11 +1466,10 @@ bool set_food(int v)
 				break;
 			}
 
-			/* Bloated */
+			/* Replete */
 			case 5:
 			{
-				msg_print("You have gorged yourself!");
-				msg_print("You can't eat or drink any more until you recover.");
+				msg_print("You are as full as you can be.");
 				break;
 			}
 		}
@@ -1516,7 +1515,7 @@ bool set_food(int v)
 			/* Full */
 			case 4:
 			{
-				msg_print("You are no longer gorged.");
+				msg_print("You feel comfortably full.");
 				break;
 			}
 		}
@@ -1979,31 +1978,6 @@ void drop_loot(monster_type *m_ptr)
 			// create the Iron Crown of Morgoth
 			create_chosen_artefact(ART_MORGOTH_3, y, x, TRUE);
 		}
-		
-		// Drop Deathblade treasures
-		else if (r_ptr->d_char == '|')
-		{
-			if (!birth_no_artefacts && (r_ptr->flags1 & (RF1_UNIQUE)))
-			{
-				// create the Deathblade 'Delmereth'
-				create_chosen_artefact(ART_DELMERETH, y, x, TRUE);
-			}
-			else
-			{
-				/* Get local object */
-				i_ptr = &object_type_body;
-				
-				/* Mega-Hack -- Prepare deathblade */
-				object_prep(i_ptr, lookup_kind(TV_SWORD, SV_DEATHBLADE));
-				
-				// otherwise just apply_magic to give a chance of being fine or special (not artefact)
-				apply_magic(i_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
-				
-				/* Drop it in the dungeon */
-				drop_near(i_ptr, -1, y, x);
-			}
-			
-		}
 		// Drop Galvorn Armour of Maeglin
 		else if (r_ptr->d_char == '@')
 		{
@@ -2207,9 +2181,8 @@ void monster_death(int m_idx)
 		monster_desc_race(real_name, sizeof(real_name), m_ptr->r_idx);
 			
 		/* Write note */
-		if (monster_nonliving(r_ptr) && (r_ptr->d_char == '|'))	my_strcpy(note2, format("Subdued %s", real_name), sizeof (note2));
-		else if (monster_nonliving(r_ptr))						my_strcpy(note2, format("Destroyed %s", real_name), sizeof (note2));
-		else													my_strcpy(note2, format("Slew %s", real_name), sizeof (note2));
+		if (monster_nonliving(r_ptr))				my_strcpy(note2, format("Destroyed %s", real_name), sizeof (note2));
+		else							my_strcpy(note2, format("Slew %s", real_name), sizeof (note2));
 		
  		do_cmd_note(note2, p_ptr->depth);
 	}
@@ -2306,7 +2279,6 @@ s32b adjusted_mon_exp(const monster_race *r_ptr, bool kill)
 	int mexp = r_ptr->level * 10;
 
 	int mkills = l_list[r_ptr - r_info].pkills;
-	int mscares = l_list[r_ptr - r_info].pscares;
 	int msights = l_list[r_ptr - r_info].psights;
 	
 	if (kill)
@@ -2317,7 +2289,7 @@ s32b adjusted_mon_exp(const monster_race *r_ptr, bool kill)
 		}
 		else
 		{
-			exp = (mexp) / (mkills + mscares + 1);
+			exp = (mexp) / (mkills + 1);
 		}
 	}
 	else
@@ -2398,17 +2370,8 @@ bool mon_take_hit(int m_idx, int dam, cptr note, int who)
 		/* Death by Physical attack -- non-living monster */
 		else if (monster_nonliving(r_ptr))
 		{
-			// special message for deathblades
-			if (r_ptr->d_char == '|')
-			{
-				if (who < 0)	message_format(MSG_KILL, m_ptr->r_idx, "You have subdued %s.", m_name);
-				else			message_format(MSG_KILL, m_ptr->r_idx, "%^s has been subdued.", m_name);
-			}
-			else
-			{
-				if (who < 0)	message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
-				else			message_format(MSG_KILL, m_ptr->r_idx, "%^s has been destroyed.", m_name);
-			}
+			if (who < 0)		message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
+			else			message_format(MSG_KILL, m_ptr->r_idx, "%^s has been destroyed.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
@@ -2556,8 +2519,7 @@ void verify_panel(void)
 
 
 	/* Scroll screen vertically when off-center */
-	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (py != wy + SCREEN_HGT / 2))
+	if (center_player && (!p_ptr->running || !run_avoid_center))
 	{
 		wy = py - SCREEN_HGT / 2;
 	}
@@ -2575,7 +2537,6 @@ void verify_panel(void)
 	{
 		wy = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 	}
-
 
 	/* Scroll screen horizontally when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&

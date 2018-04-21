@@ -2206,6 +2206,11 @@ static void process_player(void)
 		take_hit(amount, "a fatal wound");
 	}
 
+	if (p_ptr->unwounded == 0 && !p_ptr->active_ability[S_WIL][WIL_DEFIANCE])
+	{
+		take_hit(p_ptr->chp, "loss of the will to live");
+	}
+
 	/* Reduce the wrath counter */
 	if (p_ptr->wrath)
 	{
@@ -2244,8 +2249,8 @@ static void process_player(void)
 		i *= int_exp(3,p_ptr->hunger);
 	}
 	
-	/* Digest quickly when gorged */
-	if (p_ptr->food >= PY_FOOD_MAX) i *= 9;
+	/* Digest very quickly when gorged */
+	if (p_ptr->food >= PY_FOOD_MAX) i *= 50;
 		
 	/* Digest some food */
 	(void)set_food(p_ptr->food - i);
@@ -3154,6 +3159,7 @@ void play_game(bool new_game)
 				message_flush();
 
 				/* Cheat death */
+				p_ptr->unwounded = 1;
 				p_ptr->is_dead = FALSE;
 
 				/* Restore hit points */

@@ -211,7 +211,6 @@
 #define MAX_DEPTH		128
 #define MORGOTH_DEPTH	 20
 
-
 /*
  * Locations of various monsters in the monster.txt file
  */
@@ -469,7 +468,7 @@
 /* 
  * Archery abilities 
  */
-#define	ARC_CAREFUL					 0
+#define	ARC_ROUT					 0
 #define	ARC_IMPROVED_CRITICALS		 1
 #define	ARC_POINT_BLANK				 2
 #define	ARC_VERSATILITY				 3
@@ -521,17 +520,17 @@
 /* 
  * Will abilities 
  */
-#define	WIL_CHANNELING				 0
-#define	WIL_MIND_OVER_BODY			 1
-#define	WIL_CURSE_BREAKING			 2
-#define	WIL_INNER_LIGHT				 3
-#define	WIL_CLARITY					 4
-#define	WIL_HARDINESS				 5
-#define	WIL_POISON_RESISTANCE		 6
-#define	WIL_STRENGTH_IN_ADVERSITY	 7
-#define	WIL_CRITICAL_RESISTANCE		 8
-#define	WIL_MAJESTY					 9
-#define	WIL_CON						10
+#define	WIL_CHANNELING				0
+#define	WIL_STRENGTH_IN_ADVERSITY		1
+#define	WIL_CURSE_BREAKING			2
+#define	WIL_INNER_LIGHT				3
+#define	WIL_INDOMITABLE				4
+#define	WIL_HARDINESS				5
+#define	WIL_POISON_RESISTANCE			6
+#define	WIL_DEFIANCE				7
+#define	WIL_CRITICAL_RESISTANCE			8
+#define	WIL_MAJESTY				9
+#define	WIL_CON					10
 
 /* 
  * Smithing abilities 
@@ -692,6 +691,9 @@
 #define ROW_NAME		1
 #define COL_NAME		0	/* <race name> */
 
+#define ROW_MORTAL_WOUND	2
+#define COL_MORTAL_WOUND	0
+
 #define ROW_STAT		3
 #define COL_STAT		0	/* "xxx   xxxxxx" */
 
@@ -735,7 +737,7 @@
 #define COL_STEALTH		0	/* <stealth> */
 
 #define ROW_HUNGRY		(Term->hgt - 1)
-#define COL_HUNGRY		0	/* "Starving" "Weak" / "Hungry" / "Full" / "Gorged" */
+#define COL_HUNGRY		0	/* "Starving" "Weak" / "Hungry" / "Full" */
 
 #define ROW_BLIND		(Term->hgt - 1)
 #define COL_BLIND		9	/* "Blind" */
@@ -837,6 +839,7 @@
 #define GF_LOCK_DOOR	23    // adds (skill_check/2) points to the lock level of a door        ( - - - f )
 #define GF_AWAY_ALL		24    // teleports monsters (XdY) squares away                          ( - m - - ) *
 #define GF_IDENTIFY		25    // identifies objects on the ground                               ( - - o - ) *
+#define GF_BLUNT		26    // damage partly reduced by armour, not used in the project functions    ( - - - - )
 
 
 /*
@@ -1104,7 +1107,6 @@
 #define SV_DAGGER					4	/* 1d4 */
 #define SV_CURVED_SWORD				7	/* 2d5 */
 #define SV_SHORT_SWORD				10	/* 1d8 */
-#define SV_DEATHBLADE				15	/* 1d10 */
 #define SV_LONG_SWORD				17	/* 2d5 */
 #define SV_BASTARD_SWORD			21	/* 3d3 */
 #define SV_GREAT_SWORD				25	/* 3d5 */
@@ -2184,6 +2186,15 @@
 #define ALERTNESS_QUITE_ALERT	  5
 #define ALERTNESS_VERY_ALERT	 10
 #define ALERTNESS_MAX			 20
+
+/*
+ * Blow success: miss, hit, damage
+ */
+#define ATTACK_MISSED	0
+#define ATTACK_HIT	1
+#define ATTACK_DAMAGED	2
+
+#define BLUNT_WEAPON_ARMOR_DAMAGE_MULTIPLIER	(1.0 / 4)
 
 
 /*** Monster flags ***/

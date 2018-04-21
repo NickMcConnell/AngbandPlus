@@ -3465,8 +3465,9 @@ bool knock_back(int y1, int x1, int y2, int x2)
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
-void py_attack_aux(int y, int x, int attack_type)
+int py_attack_aux(int y, int x, int attack_type)
 {
+	int attack_result = ATTACK_MISSED;
 	int num = 0;
 	
 	int attack_mod = 0, total_attack_mod = 0, total_evasion_mod = 0;
@@ -3484,6 +3485,7 @@ void py_attack_aux(int y, int x, int attack_type)
 	int stealth_bonus = 0;
     int monster_ripostes = 0;
 	int effective_strength;
+	int damage_type = GF_HURT;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -3593,7 +3595,7 @@ void py_attack_aux(int y, int x, int attack_type)
         }
         
         /* Done */
-        return;
+        return attack_result;
     }
     
 	// fighting with fists is equivalent to a 4 lb weapon for the purpose of criticals
@@ -3703,6 +3705,8 @@ void py_attack_aux(int y, int x, int attack_type)
 		/* If the attack connects... */
 		if (hit_result > 0)
 		{
+			attack_result = ATTACK_HIT;
+
 			hits++;
 
 			/* Mark the monster as attacked */
@@ -3731,11 +3735,18 @@ void py_attack_aux(int y, int x, int attack_type)
 			}
 
 			prt = (prt * prt_percent) / 100;
-			
+
 			net_dam = dam - prt;
-			
+
 			/* No negative damage */
 			if (net_dam < 0) net_dam = 0;
+			if (net_dam > 0) attack_result = ATTACK_DAMAGED;
+
+			if (o_ptr->tval == TV_HAFTED)
+			{
+				net_dam += (MIN(prt, dam) * BLUNT_WEAPON_ARMOR_DAMAGE_MULTIPLIER);
+				damage_type = GF_BLUNT;
+			}
 
 			// determine the punctuation for the attack ("...", ".", "!" etc)
 			attack_punctuation(punctuation, net_dam, crit_bonus_dice);
@@ -3764,7 +3775,7 @@ void py_attack_aux(int y, int x, int attack_type)
 			}
 			
 			update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps, 
-			                     prt, prt_percent, GF_HURT, TRUE); 
+			                     prt, prt_percent, damage_type, TRUE); 
 			
 			// determine the player's score for knocking an opponent backwards if they have the ability
             // first calculate their strength including modifiers for this attack
@@ -3930,6 +3941,7 @@ void py_attack_aux(int y, int x, int attack_type)
 	// Break the truce if creatures see
 	break_truce(FALSE);
 		
+	return attack_result;
 }
 
 bool whirlwind_possible(void)
@@ -3988,11 +4000,37 @@ void py_attack(int y, int x, int attack_type)
 			
 			if (cave_m_idx[yy][xx] > 0)
 			{
-                monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];
-                                                
-				//if (i == 0)                                                                           py_attack_aux(yy, xx, ATT_MAIN);
-				if (p_ptr->rage)                                                                        py_attack_aux(yy, xx, ATT_RAGE);
-				else if ((i == 0) || !forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT))  py_attack_aux(yy, xx, ATT_WHIRLWIND);
+				monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];
+
+				if (p_ptr->rage)
+				{
+					py_attack_aux(yy, xx, ATT_RAGE);
+				}
+				else if ((i == 0) || !forgo_attacking_unwary || (m_ptr->alertness >= ALERTNESS_ALERT))
+				{
+					int result;
+					char m_name[80];
+					bool lucky = one_in_(2);
+
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+					result = py_attack_aux(yy, xx, ATT_WHIRLWIND);
+					if (result == ATTACK_DAMAGED)
+					{
+						if (!lucky) break;
+						else msg_format("Your weapon tears into %s and keeps going!", m_name);
+					}
+					else if (result == ATTACK_HIT)
+					{
+						msg_format("Your weapon bounces off %s.", m_name);
+					}
+					else
+					{
+						msg_format("Your weapon whirls past %s.", m_name);
+					}
+				}
+
+				if (i == 7) msg_print("You finish your swing.");
 			}
 		}
 	}
