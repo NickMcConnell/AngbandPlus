@@ -741,7 +741,13 @@ static quest_ptr _find_quest(int dungeon, int level)
 
 void quests_on_generate(int dungeon, int level)
 {
-    quest_ptr q = _find_quest(dungeon, level);
+	quest_ptr q = _find_quest(dungeon, level);
+
+	//rescuing an indvidual savefile, don't ask. delete away
+	if ((_current == 54) && (!q || !q->id)) {
+		_current = 0; q = quests_get(54); q->status = QS_TAKEN;
+	}
+
     /* N.B. level_gen() might fail for some reason, resulting in multiple
      * consecutive calls here. We can either add another hook to notice the
      * failed level_gen(), or try to detect this (unusual) error */

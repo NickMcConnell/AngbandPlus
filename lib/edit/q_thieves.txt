@@ -1,9 +1,11 @@
 ?:[EQU $QUEST1 Taken InProgress]
-D:There are thieves robbing my people! They live in a small
-D:burrow outside the city walls robbing people as they pass
-D:on the roads. They even sneak inside the town to mug and
-D:pillage! Your task is to go to the burrow and kill these
-D:ruffians.
+D:For many years, the armies of my town have waged war against
+D:the forces of Chaos. As the battles have become numerous, 
+D:I find that I am having trouble controlling the thieves who are
+D:beginning to move into my city. If you wish to show your allegience
+D:you must search the city and destroy the lair that these thieves
+D:call home. My troops report finding evidence of the thieves in the
+D:northwestern quarter. Your task is to kill these ruffians.
 ?:1
 
 ?:[EQU $QUEST1 Completed]
@@ -21,20 +23,17 @@ L:#:PERMANENT
 L:.:FLOOR
 L:+:CLOSED_DOOR
 L:<:UP_STAIR
-L:^:TRAP(*, 50%)
+L:^:TRAP(*, 50)
 L:0:MON(THIEF, DEPTH+5)
 L:$:OBJ(*)
-M:###############
-M:#....4....#..$#
-M:#.........+^..#
-M:#8........#0..#
-M:#####.....#####
-M:#$.^+........5#
-M:#.2.#..^......#
-M:#####.........#
-M:#.^.+.........#
-M:#<^.+........7#
-M:###############
+M:#####################
+M:#####..$#..$#..$#..$#
+M:#####.2.#.5.#.7.#.4.#
+M:#####.^.#...#...#.^.#
+M:#<..##+###+###+###+##
+M:#.^^#....^...^..^...#
+M:#.^.+...0......8....#
+M:#####################
 
 R:OBJ(long sword)
 

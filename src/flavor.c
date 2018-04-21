@@ -590,6 +590,8 @@ static flag_insc_table flag_insc_kill[] =
     { "U", OF_KILL_DEMON, -1 },
     { "L", OF_KILL_UNDEAD, -1 },
     { "Z", OF_KILL_ANIMAL, -1 },
+	{ "A", OF_KILL_GOOD, -1 },
+	{ "Lv", OF_KILL_LIVING, -1 },
     { NULL, 0, -1 }
 };
 
@@ -604,8 +606,8 @@ static flag_insc_table flag_insc_slay[] =
     { "U", OF_SLAY_DEMON, OF_KILL_DEMON },
     { "L", OF_SLAY_UNDEAD, OF_KILL_UNDEAD },
     { "Z", OF_SLAY_ANIMAL, OF_KILL_ANIMAL },
-    { "A", OF_SLAY_GOOD, -1 },
-    { "Lv", OF_SLAY_LIVING, -1 },
+    { "A", OF_SLAY_GOOD, OF_KILL_GOOD },
+    { "Lv", OF_SLAY_LIVING, OF_KILL_LIVING },
     { NULL, 0, -1 }
 };
 
@@ -616,6 +618,7 @@ static flag_insc_table flag_insc_esp1[] =
     { "Good", OF_ESP_GOOD, -1 },
     { "Nolv", OF_ESP_NONLIVING, -1 },
     { "Uniq", OF_ESP_UNIQUE, -1 },
+	{ "Lvng", OF_ESP_LIVING, -1 },
     { NULL, 0, -1 }
 };
 

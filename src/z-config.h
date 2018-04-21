@@ -99,7 +99,7 @@
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
-/* #define USE_NCURSES */
+/*#define USE_NCURSES*/
 
 
 /*
@@ -254,7 +254,7 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+/* #define USE_SOUND */
 
 /*
  * OPTION: Allow the use of "graphics" in various places
@@ -306,10 +306,11 @@
  * OPTION: Create and use a hidden directory in the users home directory
  * for storing pref-files and character-dumps.
  */
+/*
 #ifdef SET_UID
 #define PRIVATE_USER_PATH "~/.angband"
-#endif /* SET_UID */
-
+#endif
+*/
 
 /*
  * On multiuser systems, add the "uid" to savefile names

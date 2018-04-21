@@ -497,6 +497,7 @@ static _flag_info_t _telepathy_flags[] = {
     { OF_ESP_EVIL,      "Sense Evil" },
     { OF_ESP_GOOD,      "Sense Good" },
     { OF_ESP_NONLIVING, "Sense Nonliving" },
+	{ OF_ESP_LIVING,    "Sense Living" },
     { OF_ESP_UNIQUE,    "Sense Unique" },
     { OF_INVALID }
 };
@@ -508,8 +509,8 @@ static int _smith_telepathies(object_type *o_ptr)
 
 static _flag_info_t _slay_flags[] = {
     { OF_SLAY_EVIL,   "Slay Evil" },
-    { OF_SLAY_GOOD,   "Slay Good", object_is_melee_weapon },
-    { OF_SLAY_LIVING, "Slay Living", object_is_melee_weapon },
+    { OF_SLAY_GOOD,   "Slay Good" },
+    { OF_SLAY_LIVING, "Slay Living" },
     { OF_SLAY_UNDEAD, "Slay Undead" },
     { OF_SLAY_DEMON,  "Slay Demon" },
     { OF_SLAY_DRAGON, "Slay Dragon" },
@@ -519,6 +520,8 @@ static _flag_info_t _slay_flags[] = {
     { OF_SLAY_TROLL,  "Slay Troll" },
     { OF_SLAY_GIANT,  "Slay Giant" },
     { OF_KILL_EVIL,   "Kill Evil" },
+	{ OF_KILL_GOOD,   "Kill Good" },
+	{ OF_KILL_LIVING, "Kill Living" },
     { OF_KILL_UNDEAD, "Kill Undead" },
     { OF_KILL_DEMON,  "Kill Demon" },
     { OF_KILL_DRAGON, "Kill Dragon" },

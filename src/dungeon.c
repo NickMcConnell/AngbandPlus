@@ -150,7 +150,7 @@ static void _sense_obj(obj_ptr obj)
  */
 static int _adj_pseudo_id(int num)
 {
-    int result = num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
+	int result = num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
     int lev = p_ptr->lev;
 
     result = result * (625 - virtue_current(VIRTUE_KNOWLEDGE)) / 625;
@@ -180,31 +180,36 @@ static void sense_inventory1(void)
 {
     int  plev = p_ptr->lev + 10;
     bool strong = FALSE;
-    int  flags = _get_pseudo_id_flags();
 
     if (p_ptr->confused) return;
 
-    if (flags & CLASS_SENSE1_STRONG)
+	if (easy_id)
         strong = TRUE;
-    else if (!(flags & CLASS_SENSE1_WEAK))
-        return;
-    if (flags & CLASS_SENSE1_FAST)
+	else
     {
-        if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
+		int flags = _get_pseudo_id_flags();
+		if (flags & CLASS_SENSE1_STRONG)
+			strong = TRUE;
+		else if (!(flags & CLASS_SENSE1_WEAK))
             return;
+		if (flags & CLASS_SENSE1_FAST)
+			{
+			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
+				return;
+			}
+		else if (flags & CLASS_SENSE1_MED)
+			{
+			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
+				return;
+			}
+		else if (flags & CLASS_SENSE1_SLOW)
+			{
+			if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
+				return;
+			}
+		if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
+			strong = TRUE;
     }
-    else if (flags & CLASS_SENSE1_MED)
-    {
-        if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
-            return;
-    }
-    else if (flags & CLASS_SENSE1_SLOW)
-    {
-        if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
-            return;
-    }
-    if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
-        strong = TRUE;
 
     /*** Sense everything ***/
     _sense_strong = strong;
@@ -221,30 +226,37 @@ static void sense_inventory2(void)
     int  flags = _get_pseudo_id_flags();
 
     if (p_ptr->confused) return;
-
-    if (flags & CLASS_SENSE2_STRONG)
+	if (easy_id)
+	{
         strong = TRUE;
-    else if (!(flags & CLASS_SENSE2_WEAK))
+    }
+    else
+    {
+		int flags = _get_pseudo_id_flags();
+		if (flags & CLASS_SENSE2_STRONG)
+			strong = TRUE;
+		else if (!(flags & CLASS_SENSE2_WEAK))
         return;
-    if (flags & CLASS_SENSE2_FAST)
-    {
-        if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
-            return;
-    }
-    else if (flags & CLASS_SENSE2_MED)
-    {
-        if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
-            return;
-    }
-    else if (flags & CLASS_SENSE2_SLOW)
-    {
-        if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
-            return;
-    }
-    else /* Super duper slow */
-    {
-        if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5)))
-            return;
+		if (flags & CLASS_SENSE2_FAST)
+			{
+			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
+				return;
+			}
+		else if (flags & CLASS_SENSE2_MED)
+			{
+			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
+				return;
+			}
+		else if (flags & CLASS_SENSE2_SLOW)
+			{
+			if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
+				return;
+			}
+		else /* Super duper slow */
+			{
+			if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5)))
+				return;
+			}
     }
 
     /*** Sense everything ***/
@@ -3019,6 +3031,14 @@ static void _dispatch_command(int old_now_turn)
 #endif /* ALLOW_WIZARD */
 
 
+#ifdef ALLOW_SPOILERS
+		case KTRL('Z'):
+			/*  v~~~ ^Z(d|D) is useful info for game design ... */
+			if (0 || allow_spoilers)
+				do_cmd_spoilers();
+			break;
+#endif /* ALLOW_SPOILERS */
+		
         /*** Inventory Commands ***/
 
         /* Wear/wield equipment */
@@ -3969,7 +3989,8 @@ static void process_player(void)
                 || p_ptr->pclass == CLASS_RUNE_KNIGHT
                 || p_ptr->pclass == CLASS_RAGE_MAGE
                 || mimic_no_regen() )
-              && !magic_eater_can_regen() )
+              && !magic_eater_can_regen() 
+			  && !samurai_can_concentrate())
             {
                 set_action(ACTION_NONE);
             }
@@ -3985,6 +4006,7 @@ static void process_player(void)
                 || p_ptr->pclass == CLASS_RAGE_MAGE
                 || mimic_no_regen() )
               && !magic_eater_can_regen()
+			  && !samurai_can_concentrate()
               && !p_ptr->blind
               && !p_ptr->confused
               && !p_ptr->poisoned
@@ -4281,7 +4303,8 @@ static void process_player(void)
         /* Resting */
         else if (p_ptr->action == ACTION_REST)
         {
-            /* Timed rest */
+			caster_info *caster_ptr = get_caster_info();
+			/* Timed rest */
             if (resting > 0)
             {
                 /* Reduce rest count */
@@ -4296,19 +4319,15 @@ static void process_player(void)
             /* Take a turn */
             energy_use = 100;
 
-            if (p_ptr->csp < p_ptr->msp)
+            if (caster_ptr && (caster_ptr->options & CASTER_SUPERCHARGE_MANA))
             {
-                caster_info *caster_ptr = get_caster_info();
-                if (caster_ptr && (caster_ptr->options & CASTER_SUPERCHARGE_MANA))
-                {
-                    msg_boundary();
-                    cast_concentration();
-                }
-                else if (p_ptr->clear_mind)
-                {
-                    msg_boundary();
-                    cast_clear_mind();
-                }
+                msg_boundary();
+                cast_concentration();
+            }
+            else if (p_ptr->clear_mind)
+            {
+                msg_boundary();
+                cast_clear_mind();
             }
         }
 
@@ -4393,12 +4412,7 @@ static void process_player(void)
              * works better if the player is hurt on every move they make. */
             if (p_ptr->poisoned)
             {
-                /* XXX This mechanic might need some work ... as poisoned goes
-                 * down, so too does the damage you take per move. So, in practice,
-                 * you get waaaay more than 10 moves to deal with things. On the other
-                 * hand, poisoned=2000+ is not uncommon, and taking damage amounts of
-                 * 200, 180, 162, 145, 131, 118, 106, ... might be OK. */
-                int amt = MAX(MAX(1, p_ptr->mhp/60), p_ptr->poisoned/10);
+                int amt = MAX(MAX(1, p_ptr->mhp/60), p_ptr->poisoned/4);
 
                 /* quickwalking ninjas should not be overly poisoned! */
                 amt = amt * energy_use / 100;
@@ -4926,6 +4940,7 @@ void determine_today_mon(bool conv_old)
     int max_dl = 3, i;
     bool old_inside_battle = p_ptr->inside_battle;
     monster_race *r_ptr;
+	int loopcounter = 0, old_today_mon = today_mon;
 
     if (!conv_old)
     {
@@ -4940,10 +4955,11 @@ void determine_today_mon(bool conv_old)
     p_ptr->inside_battle = TRUE;
     get_mon_num_prep(NULL, NULL);
 
-    while (1)
+    while (loopcounter < 2000)
     {
         today_mon = get_mon_num(max_dl);
         r_ptr = &r_info[today_mon];
+		loopcounter++;
 
         if (r_ptr->flags1 & RF1_UNIQUE) continue;
         if (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)) continue;
@@ -4954,6 +4970,7 @@ void determine_today_mon(bool conv_old)
         break;
     }
 
+	if (loopcounter >= 2000) today_mon = old_today_mon;
     p_ptr->today_mon = 0;
     p_ptr->inside_battle = old_inside_battle;
 }

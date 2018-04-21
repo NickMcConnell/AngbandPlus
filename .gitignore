@@ -10,8 +10,7 @@ lib/user/*.csv
 lib/user/*.xlsx
 lib/help/*.csv
 lib/help/*.xlsx
-*.bat
-*.html
+lib/apex/*
 
 #################
 ## QtCreator

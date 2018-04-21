@@ -15,7 +15,7 @@ D:in the dungeon, we can only give you a small reward.
 D:Bah! I'll have to find another for this simple task.
 ?:1
 
-R:OBJ(small metal shield)
+R:OBJ(fur cloak)
 
 ?:[EQU $CLASS Magic-Eater]
 R:OBJ(WAND_BOLT_COLD)

@@ -295,7 +295,8 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
                     mult = 25;break;
                 case RACE_SNOTLING:
                 case RACE_HALF_TROLL:
-                case RACE_HALF_OGRE:
+                case RACE_OGRE:
+				case RACE_HALF_ORC:
                 case RACE_HALF_GIANT:
                 case RACE_HALF_TITAN:
                 case RACE_CYCLOPS:
@@ -800,7 +801,12 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 if (mult < 20) mult = 20;
             }
 
-            if (monster_living(r_ptr) && have_flag(flgs, OF_SLAY_LIVING))
+			if (monster_living(r_ptr) && have_flag(flgs, OF_KILL_LIVING))
+			{
+				if (mult < 20) mult = 20;
+				obj_learn_slay(o_ptr, OF_KILL_LIVING, "slays <color:o>*Living*</color>");
+			}
+            else if (monster_living(r_ptr) && have_flag(flgs, OF_SLAY_LIVING))
             {
                 if (mult < 20) mult = 20;
                 obj_learn_slay(o_ptr, OF_SLAY_LIVING, "slays <color:o>Living</color>");
@@ -892,7 +898,12 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                     msg_format("Your %s slays good.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_GOOD);
-                    if (have_flag(flgs, OF_SLAY_GOOD))
+					if (have_flag(flgs, OF_KILL_EVIL))
+					{
+						if (mult < 45) mult = 45;
+						obj_learn_slay(o_ptr, OF_KILL_GOOD, "slays <color:W>*Good*</color>");
+					}
+                    else if (have_flag(flgs, OF_SLAY_GOOD))
                     {
                         if (mult < 30) mult = 30;
                         obj_learn_slay(o_ptr, OF_SLAY_GOOD, "slays <color:W>Good</color>");
@@ -905,7 +916,13 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else
                 {
-                    if (have_flag(flgs, OF_SLAY_GOOD))
+					if (have_flag(flgs, OF_KILL_GOOD))
+					{
+						mon_lore_3(m_ptr, RF3_GOOD);
+						obj_learn_slay(o_ptr, OF_KILL_EVIL, "slays <color:y>*Good*</color>");
+						if (mult < 35) mult = 35;
+					}
+					else if (have_flag(flgs, OF_SLAY_GOOD))
                     {
                         mon_lore_3(m_ptr, RF3_GOOD);
                         obj_learn_slay(o_ptr, OF_SLAY_GOOD, "slays <color:W>Good</color>");
@@ -1364,6 +1381,14 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else if (mode == HISSATSU_POISON) mult = MAX(mult, 25);
             }
+
+			/* 'light brand' */
+			if (have_flag(flgs, OF_LITE) && (r_ptr->flags3 & RF3_HURT_LITE))
+			{
+				msg_format("It cringes.");
+				if (mult == 10) mult = 20;
+				else if (mult < 60) mult = MIN(60, mult + 10);
+			}
 
             if ((mode == HISSATSU_ZANMA) && !monster_living(r_ptr) && (r_ptr->flags3 & RF3_EVIL))
             {
@@ -2479,6 +2504,13 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                                 e = 0;
                             }
                             break;
+						case GF_INERT:
+							if (r_ptr->flags3 & RFR_RES_INER)
+							{
+								mon_lore_3(m_ptr, RFR_RES_INER);
+								e = 0;
+							}
+							break;
                         }
                     }
 
@@ -2742,6 +2774,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     bool            fuiuchi = FALSE;
     bool            monk_attack = FALSE;
     bool            duelist_attack = FALSE;
+	bool            duelist_challenge = FALSE;
     bool            perfect_strike = FALSE;
     bool            do_quake = FALSE;
     bool            weak = FALSE;
@@ -2813,11 +2846,17 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         p_ptr->painted_target_ct = 0;
     }
 
-    switch (p_ptr->pclass)
-    {
-    case CLASS_DUELIST:
-        if (c_ptr->m_idx == p_ptr->duelist_target_idx)
-            duelist_attack = TRUE;
+	switch (p_ptr->pclass)
+	{
+	case CLASS_DUELIST:
+		if (c_ptr->m_idx == p_ptr->duelist_target_idx)
+		{
+			duelist_attack = TRUE;
+		}
+		else if (!duelist_equip_error())
+		{
+			duelist_challenge = TRUE;
+		}
         break;
 
     case CLASS_WEAPONMASTER:
@@ -2959,6 +2998,18 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 break;
             }
         }
+
+		/* If we just challenged we don't attack */
+		if (duelist_challenge)
+		{
+			int m_idx = c_ptr->m_idx;
+			p_ptr->duelist_target_idx = c_ptr->m_idx;
+			msg_format("You challenge %s to a duel!", duelist_current_challenge());
+			set_monster_csleep(m_idx, 0);
+			set_hostile(&m_list[m_idx]);
+			p_ptr->redraw |= PR_STATUS;
+			break;
+		}
 
         if (p_ptr->stun >= STUN_KNOCKED_OUT) /* Grand Master Mystic retaliation knocked the player out! */
             break;
@@ -3417,11 +3468,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     k += MIN(m_ptr->hp * 2 / 5, rand_range(2, 10) * d);
                     drain_result = k;
                 }
-            }
-            else if (p_ptr->pclass == CLASS_DUELIST && p_ptr->lev >= 30)
-            {
-                /* Duelist: Careful Aim vs a non-target */
-                k = k * 3 / 2;
             }
 
             if (poison_needle || mode == HISSATSU_KYUSHO || mode == MYSTIC_KILL)
@@ -6579,14 +6625,15 @@ static bool travel_abort(void)
             }
         }
 
-        /* Visible monsters abort running */
-        if (c_ptr->m_idx)
-        {
-            monster_type *m_ptr = &m_list[c_ptr->m_idx];
+        /* Visible monsters abort running after the first step */
+		if (c_ptr->m_idx && travel.run != 255)
+		{
+			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 
-            /* Visible monster */
-            if (m_ptr->ml) return TRUE;
-        }
+			/* Visible monster */
+			if (m_ptr->ml)
+				return TRUE;
+		}
     }
 
     return FALSE;
@@ -6604,6 +6651,9 @@ void travel_step(void)
     int old_run = travel.run;
     int dirs[8] = { 2, 4, 6, 8, 1, 7, 9, 3 };
     point_t pt_best = {0};
+	cave_type *c_ptr;
+	int py_old=py;
+	int px_old=px;
 
     find_prevdir = travel.dir;
 
@@ -6658,7 +6708,7 @@ void travel_step(void)
     Term_fresh();
     travel.run = old_run;
 
-    if ((py == travel.y) && (px == travel.x))
+    if (((py == travel.y) && (px == travel.x)) || ((py == py_old)&&(px == px_old)))
     {
         travel_end();
     }

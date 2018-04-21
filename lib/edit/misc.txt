@@ -10,7 +10,7 @@ WX:99
 WY:66
 
 # Maximum number of monsters in r_info.txt
-R:1200
+R:1280
 
 # Maximum number of body types in b_info.txt
 B:150
@@ -22,13 +22,13 @@ K:750
 F:255
 
 # Maximum number of artifacts in a_info.txt
-A:329
+A:360
 
 # Maximum number of ego-items in e_info.txt
 E:500
 
 # Maximum number of dungeon types in d_info.txt
-D:32
+D:48
 
 # Maximum size for "o_list[]"
 O:1024

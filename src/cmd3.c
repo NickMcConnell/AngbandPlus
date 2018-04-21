@@ -533,7 +533,7 @@ void do_cmd_query_symbol(void)
         monster_race *r_ptr = &r_info[i];
 
         /* Nothing to recall */
-        if (!p_ptr->wizard && !r_ptr->r_sights) continue;
+		if (!(easy_lore || p_ptr->wizard) && !r_ptr->r_sights) continue;
         if (r_ptr->flagsx & RFX_SUPPRESS) continue;
 
         /* Require non-unique monsters if needed */

@@ -1405,6 +1405,7 @@ struct player_type
     bool esp_evil;
     bool esp_good;
     bool esp_nonliving;
+	bool esp_living;
     bool esp_unique;
     bool esp_magical;
 

@@ -5,9 +5,9 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-VERSION = 4.0.3
-COPYRIGHT = (c) 1995-2013 Angband contributors
-PROGNAME = poschengband
+VERSION = 1.1.0
+COPYRIGHT = (c) 1995-2017 Angband contributors
+PROGNAME = composband
 
 HEADERS = \
     h-basic.h \

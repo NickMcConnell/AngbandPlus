@@ -13,7 +13,7 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "PosChengband"
+#define VERSION_NAME "ComPosband"
 
 
 #define VER_MAJOR 7
@@ -155,7 +155,7 @@
  * not just malloc() string data and let the C library handle things?
  */
 #define FAKE_NAME_SIZE  20 * 1024   /* max is 18532 (r_info) */
-#define FAKE_TEXT_SIZE  120 * 1024  /* max is 116771 (r_info) */
+#define FAKE_TEXT_SIZE  128 * 1024  /* max is 116771 (r_info) */
 #define FAKE_TAG_SIZE   3 * 1024    /* max is 2092 (f_info) */
 
 
@@ -287,7 +287,7 @@
 /*
  * Random energy
  */
-#define ENERGY_NEED() (randnor(100, 25))
+#define ENERGY_NEED() (randnor(100, 18))
 
 
 /*
@@ -366,14 +366,14 @@
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ       10
+#define GREAT_OBJ        8
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
  */
-#define NASTY_MON       50              /* 1/chance of inflated monster level */
+#define NASTY_MON       40              /* 1/chance of inflated monster level */
 
 /* 1/x chance of hurting even if invulnerable! */
 #define PENETRATE_INVULNERABILITY 13
@@ -570,7 +570,7 @@
 #define RACE_AMBERITE            8
 #define RACE_HIGH_ELF            9
 #define RACE_BARBARIAN          10
-#define RACE_HALF_OGRE          11
+#define RACE_OGRE               11
 #define RACE_HALF_GIANT         12
 #define RACE_HALF_TITAN         13
 #define RACE_CYCLOPS            14
@@ -622,7 +622,8 @@
 #define RACE_WOOD_ELF           60
 #define RACE_MON_CENTIPEDE      61
 #define RACE_MON_VORTEX         62
-#define MAX_RACES               63
+#define RACE_HALF_ORC           63
+#define MAX_RACES               64
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -1734,6 +1735,7 @@ enum {
 #define SV_LARGE_METAL_SHIELD            5
 #define SV_DRAGON_SHIELD                 6
 #define SV_KNIGHT_SHIELD                 7
+#define SV_MITHRIL_SHIELD                8
 #define SV_MIRROR_SHIELD                10
 #define SV_YATA_MIRROR                  50
 
@@ -1743,8 +1745,8 @@ enum {
 #define SV_JINGASA                       4  /* 4 */
 #define SV_IRON_HELM                     5
 #define SV_STEEL_HELM                    6
-#define SV_DRAGON_HELM                   7
-#define SV_KABUTO                        8  /* 7 */
+#define SV_DRAGON_HELM                   8
+#define SV_KABUTO                        9  /* 9 */
 
 /* The "sval" codes for TV_CROWN */
 #define SV_IRON_CROWN                   10
@@ -1756,7 +1758,8 @@ enum {
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS    2
 #define SV_PAIR_OF_HARD_LEATHER_BOOTS    3
 #define SV_PAIR_OF_DRAGON_GREAVE         4
-#define SV_PAIR_OF_METAL_SHOD_BOOTS      6
+#define SV_PAIR_OF_METAL_SHOD_BOOTS      5
+#define SV_PAIR_OF_MITHRIL_SHOD_BOOTS    6
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK                         1
@@ -1768,10 +1771,13 @@ enum {
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES         1
-#define SV_SET_OF_GAUNTLETS              2
-#define SV_SET_OF_DRAGON_GLOVES          3
-#define SV_SET_OF_CESTI                  5
-#define SV_HAND                             6
+#define SV_SET_OF_STUDDED_GLOVES         2
+#define SV_SET_OF_GAUNTLETS              3
+#define SV_SET_OF_SPIKED_GAUNTLETS       4
+#define SV_SET_OF_MITHRIL_GAUNTLETS      5
+#define SV_SET_OF_DRAGON_GLOVES          6
+#define SV_SET_OF_CESTI                  7
+#define SV_HAND                          6
 
 /* The "sval" codes for TV_SOFT_ARMOR */
 #define SV_T_SHIRT                       0
@@ -1826,6 +1832,7 @@ enum {
 #define SV_DRAGON_SHINING               10
 #define SV_DRAGON_LAW                   12
 #define SV_DRAGON_BRONZE                14
+#define SV_DRAGON_SILVER                14
 #define SV_DRAGON_GOLD                  16
 #define SV_DRAGON_CHAOS                 18
 #define SV_DRAGON_BALANCE               20
@@ -1856,6 +1863,7 @@ enum {
 #define SV_LITE_ARMAGEDDON              21
 #define SV_LITE_HYDRA                   22
 #define SV_LITE_MIND                    23
+#define SV_LITE_ARKENSTONE              24
 
 #define SV_AMULT                         0
 #define SV_RING                          0
@@ -1951,50 +1959,50 @@ enum {
 #define SV_POTION_DEC_CHR               21
 #define SV_POTION_DETONATIONS           22
 #define SV_POTION_DEATH                 23
-    #define SV_POTION_INFRAVISION           24
-    #define SV_POTION_DETECT_INVIS          25
-#define SV_POTION_SLOW_POISON           26
-    #define SV_POTION_CURE_POISON           27
-    #define SV_POTION_BOLDNESS              28
-    #define SV_POTION_SPEED                 29
-    #define SV_POTION_RESIST_HEAT           30
-    #define SV_POTION_RESIST_COLD           31
-    #define SV_POTION_HEROISM               32
-    #define SV_POTION_BERSERK_STRENGTH      33
-    #define SV_POTION_CURE_LIGHT            34
-    #define SV_POTION_CURE_SERIOUS          35
-    #define SV_POTION_CURE_CRITICAL         36
-    #define SV_POTION_HEALING               37
-    #define SV_POTION_STAR_HEALING          38
-    #define SV_POTION_LIFE                  39
+/* SV_POTION_FIRE */
+/* SV_POTION_ICE */
+#define SV_POTION_SIGHT					26
+#define SV_POTION_CURE_POISON           27
+#define SV_POTION_BOLDNESS              28
+#define SV_POTION_SPEED                 29
+#define SV_POTION_THERMAL               30
+#define SV_POTION_RESIST_ELEC           31
+#define SV_POTION_HEROISM               32
+#define SV_POTION_BERSERK_STRENGTH      33
+#define SV_POTION_CURE_LIGHT            34
+#define SV_POTION_CURE_SERIOUS          35
+#define SV_POTION_CURE_CRITICAL         36
+#define SV_POTION_HEALING               37
+#define SV_POTION_STAR_HEALING          38
+#define SV_POTION_LIFE                  39
 #define SV_POTION_RESTORE_MANA          40
-    #define SV_POTION_RESTORE_EXP           41
-    #define SV_POTION_RES_STR               42
-    #define SV_POTION_RES_INT               43
-    #define SV_POTION_RES_WIS               44
-    #define SV_POTION_RES_DEX               45
-    #define SV_POTION_RES_CON               46
-    #define SV_POTION_RES_CHR               47
+#define SV_POTION_RESTORE_EXP           41
+#define SV_POTION_RES_STR               42
+#define SV_POTION_RES_INT               43
+#define SV_POTION_RES_WIS               44
+#define SV_POTION_RES_DEX               45
+#define SV_POTION_RES_CON               46
+#define SV_POTION_RES_CHR               47
 #define SV_POTION_INC_STR               48
 #define SV_POTION_INC_INT               49
 #define SV_POTION_INC_WIS               50
 #define SV_POTION_INC_DEX               51
 #define SV_POTION_INC_CON               52
 #define SV_POTION_INC_CHR               53
-/* xxx */
+#define SV_POTION_RES_ALL               54
 #define SV_POTION_AUGMENTATION          55
-    #define SV_POTION_ENLIGHTENMENT         56
-    #define SV_POTION_STAR_ENLIGHTENMENT    57
-    #define SV_POTION_SELF_KNOWLEDGE        58
+#define SV_POTION_ENLIGHTENMENT         56
+#define SV_POTION_STAR_ENLIGHTENMENT    57
+#define SV_POTION_SELF_KNOWLEDGE        58
 #define SV_POTION_EXPERIENCE            59
-    #define SV_POTION_RESISTANCE            60
-    #define SV_POTION_CURING                61
-    #define SV_POTION_INVULNERABILITY       62
+#define SV_POTION_RESISTANCE            60
+#define SV_POTION_CURING                61
+#define SV_POTION_INVULNERABILITY       62
 #define SV_POTION_NEW_LIFE              63
 #define SV_POTION_NEO_TSUYOSHI          64
 #define SV_POTION_TSUYOSHI              65
-    #define SV_POTION_POLYMORPH             66
-#define SV_POTION_BLOOD                    67
+#define SV_POTION_POLYMORPH             66
+#define SV_POTION_BLOOD                 67
 #define SV_POTION_GIANT_STRENGTH        68
 #define SV_POTION_STONE_SKIN            69
 #define SV_POTION_CLARITY               70
@@ -2020,7 +2028,7 @@ enum {
 #define SV_FOOD_CURE_BLINDNESS          13
 #define SV_FOOD_CURE_PARANOIA           14
 #define SV_FOOD_CURE_CONFUSION          15
-#define SV_FOOD_CURE_SERIOUS            16
+#define SV_FOOD_FAST_RECOVERY           16
 #define SV_FOOD_RESTORE_STR             17
 #define SV_FOOD_RESTORE_CON             18
 #define SV_FOOD_RESTORING               19
@@ -2796,6 +2804,7 @@ enum obj_flags_e {
     OF_ESP_EVIL,
     OF_ESP_GOOD,
     OF_ESP_NONLIVING,
+	OF_ESP_LIVING,
     OF_ESP_UNIQUE,
     OF_ESP_DRAGON,
     OF_ESP_DEMON,
@@ -2820,6 +2829,8 @@ enum obj_flags_e {
     OF_SLAY_GIANT,
 
     OF_KILL_EVIL,
+	OF_KILL_GOOD,
+	OF_KILL_LIVING,
     OF_KILL_DRAGON,
     OF_KILL_DEMON,
     OF_KILL_UNDEAD,
@@ -3071,7 +3082,7 @@ enum {
 #define RF2_REGENERATE      0x00000200  /* Monster regenerates */
 #define RF2_CHAR_MULTI      0x00000400  /* (Not implemented) */
 #define RF2_ATTR_ANY        0x00000800  /* TY: Attr_any */
-#define RF2_XXX             0x00001000
+#define RF2_FOREST          0x00001000  /* Forest creatures */
 #define RF2_ELDRITCH_HORROR 0x00002000  /* Sanity-blasting horror    */
 #define RF2_AURA_FIRE       0x00004000  /* Burns in melee */
 #define RF2_AURA_ELEC       0x00008000  /* Shocks in melee */
@@ -3960,8 +3971,8 @@ extern int PlayerUID;
 #define SPELL_EXP_EXPERT      1400
 #define SPELL_EXP_MASTER      1600
 
-#define NO_TOWN 6
-#define SECRET_TOWN 5
+#define NO_TOWN 7
+#define SECRET_TOWN 6
 
 #define NIKKI_HIGAWARI     0
 #define NIKKI_BUNSHOU      1
@@ -4121,6 +4132,7 @@ extern int PlayerUID;
 #define MON_BEGGAR              12
 #define MON_LEPER               13
 #define MON_BLACK_MARKET        14
+#define MON_GHB                 39
 #define MON_NOV_PRIEST          45
 #define MON_GRIP                53
 #define MON_WOLF                54
@@ -4567,6 +4579,10 @@ extern int PlayerUID;
 #define MON_DEMETER             1106
 #define MON_APHRODITE           1107
 #define MON_THE_METAL_BABBLE    1110
+#define MON_ARTHUR              1111
+#define MON_GALAHAD             1114
+#define MON_CAMELOT_KNIGHT      1117
+#define MON_GRAND_FEARLORD      1121
 #define MON_GREATER_DEMONIC_QUYLTHULG   1123
 #define MON_ROCK_GIANT          1124
 #define MON_ICE_GIANT           1125
@@ -4577,6 +4593,10 @@ extern int PlayerUID;
 #define MON_MARILITH            1130
 #define MON_MIMIC               1131
 #define MON_MULTIHUED_CENTIPEDE 1132
+#define MON_AUDE				1148
+#define MON_HELGA				1149
+#define MON_GERTRUDE            1150
+#define MON_NIGHTMARE_DRAGON    1215
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle
@@ -4585,14 +4605,9 @@ extern int PlayerUID;
 */
 #define MON_HAGURE2        1110
 
-#define MON_ARTHUR        1111
-#define MON_GALAHAD     1114
-#define MON_CAMELOT_KNIGHT 1117
-#define MAX_CAMELOT_KNIGHT_NUM 10
-#define MON_GRAND_FEARLORD 1121
-
-/* Maximum "Nazguls" number */
+/* Maximum limited foes number */
 #define MAX_NAZGUL_NUM 5
+#define MAX_CAMELOT_KNIGHT_NUM 10
 
 #define DO_AUTOPICK       0x01
 #define DO_AUTODESTROY    0x02
@@ -4815,7 +4830,9 @@ extern int PlayerUID;
 #define DUNGEON_OLYMPUS  22
 #define DUNGEON_GIANTS_HALL 24
 #define DUNGEON_ARENA    25
-#define DUNGEON_STRONGHOLD 30
+#define DUNGEON_WARREN   30
+#define DUNGEON_HIDEOUT  31
+#define DUNGEON_BATTLEFIELD  32
 
 #define DUNGEON_FEAT_PROB_NUM 3
 
@@ -5603,6 +5620,8 @@ enum effect_e
     EFFECT_BREATHE_SHARDS,
     EFFECT_BREATHE_CHAOS,
     EFFECT_BREATHE_DISEN,
+	EFFECT_BREATHE_INERTIA,
+	EFFECT_BREATHE_WATER,
     EFFECT_BREATHE_TIME,
     EFFECT_BREATHE_ONE_MULTIHUED, /* DSM with random breath types ... */
     EFFECT_BREATHE_ONE_CHAOS,

@@ -283,18 +283,30 @@ Base HP       26        Bows        <color:y>Very Good    </color>
 Experience   150%       Infravision 30'
 </style></indent>
 <topic:Half-Ogre><color:o>Half-Ogre</color>
-Half-Ogres are like Half-Orcs, only more so. They are big, bad, and stupid. For warriors, they have all the necessary attributes, and they can even become wizards: after all, they are related to Ogre Magi, from whom they have learned the skill of setting trapped runes once their level is high enough. Like Half-Orcs, they resist darkness, and like Half-Trolls, they have their strength sustained.
-
+Half-Ogres are big and ugly but possessed of a low cunning and great strength. For warriors, they have all the necessary attributes, and they can even become wizards: after all, they are related to Ogre Magi, from whom they have learned the skill of setting trapped runes once their level is high enough. Being simple minded they have their intelligence sustained
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +3        Disarming   <color:r>Bad          </color>
-Intelligence  -2        Device      <color:r>Bad          </color>
-Wisdom        +0        Save        <color:r>Bad          </color>
+Intelligence  +0        Device      <color:r>Bad          </color>
+Wisdom        -1        Save        <color:r>Bad          </color>
 Dexterity     -1        Stealth     <color:r>Bad          </color>
 Constitution  +3        Searching   <color:D>Very Bad     </color>
-Charisma      +1        Perception  <color:y>Good         </color>
+Charisma      +0        Perception  <color:y>Good         </color>
 Life Rating  106%       Melee       <color:g>Superb       </color>
 Base HP       23        Bows        <color:o>Fair         </color>
-Experience   140%       Infravision 30'
+Experience   140%       Infravision 0'
+</style></indent>
+<topic:Half-Orc><color:o>Half-Orc</color>
+Half - orcs make excellent warriors, but are terrible at magic. They are as bad as dwarves at stealth, and horrible at searching, disarming, and perception. Half - orcs are quite ugly, and tend to pay more for goods in town. Because of their preference to living underground to on the surface, half - orcs resist darkness attacks. The human part of their heritage allows them to select a talent at Level 30.
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength      +2        Disarming   <color:r>Bad          </color>
+Intelligence  -1        Device      <color:r>Bad          </color>
+Wisdom        +0        Save        <color:r>Bad          </color>
+Dexterity     +0        Stealth     <color:r>Bad          </color>
+Constitution  +1        Searching   <color:D>Very Bad     </color>
+Charisma      -1        Perception  <color:y>Good         </color>
+Life Rating  103%       Melee       <color:g>Superb       </color>
+Base HP       20        Bows        <color:o>Fair         </color>
+Experience   110%       Infravision 30'
 </style></indent>
 <topic:Half-Titan><color:o>Half-Titan</color>
 Half-mortal descendants of the mighty titans, these immensely powerful creatures put almost any other race to shame. They may lack the fascinating special powers of certain other races, but their enhanced attributes more than make up for that. They learn to estimate the strengths of their foes, and their love for law and order makes them resistant to the effects of Chaos.

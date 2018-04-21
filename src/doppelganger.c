@@ -143,7 +143,7 @@ static _form_t _forms[] =
     { 17, 50, RACE_BEASTMAN }, 
     { 18, 50, RACE_HOBBIT }, 
     { 19, 50, RACE_CYCLOPS }, 
-    { 20, 50, RACE_HALF_OGRE }, 
+    { 20, 50, RACE_OGRE }, 
     { 21, 50, RACE_HALF_GIANT }, 
     { 22, 50, RACE_NIBELUNG }, 
     { 23, 50, RACE_DARK_ELF }, 

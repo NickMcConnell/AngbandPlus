@@ -12,37 +12,70 @@ T:TOWN:NORMAL:NO_ROTATE
 # Default for Quest 19 = entrance is tree
 L:z:TREE
 
+# Default for quest 21 = grass
+L:w:GRASS
+
 # Default for Quest 22 = entrance is tree
 L:y:TREE
 
 # Default for Quest 23 = entrance is tree
 L:x:TREE
 
-# Default for Quest 36
-L:s:PERMANENT
+# Default for quest 24 = stone
+L:u:PERMANENT
 
-############### Quest 22 - Orc Camp
-?:[EQU $QUEST22 Taken]
-L:y:QUEST_ENTER(22)
-?:[EQU $QUEST22 Untaken Taken Completed Failed]
-L:b:BUILDING_1(22)
-?:[EQU $QUEST22 Finished FailedDone]
-L:b:BUILDING_1(19)
-?:1
+# Default for Quest 35 = entrance is tree
+L:v:TREE
+
+# Default for Quest 36 = entrance is tree
+L:s:DIRT
+
 ############### Quest 19 - Doom Quest 1
 ?:[EQU $QUEST19 Taken]
 L:z:QUEST_ENTER(19)
-?:[EQU $QUEST19 Taken Completed Failed]
+?:[EQU $QUEST19 Untaken Taken Completed Failed]
 L:b:BUILDING_1(19)
 ?:[EQU $QUEST19 Finished FailedDone]
 L:b:BUILDING_1(36)
 ?:1
-############### Quest 36 - The Renegade Sorcerer
+############### Quest 36 - The Sand Pit
 ?:[EQU $QUEST36 Taken]
 L:s:QUEST_ENTER(36)
 ?:[EQU $QUEST36 Taken Completed Failed]
 L:b:BUILDING_1(36)
 ?:[EQU $QUEST36 Finished FailedDone]
+L:b:BUILDING_1(35)
+?:1
+############### Quest 35 - Dragon Quest
+?:[EQU $QUEST35 Taken]
+L:v:QUEST_ENTER(35)
+?:[EQU $QUEST35 Taken Completed Failed]
+L:b:BUILDING_1(35)
+?:[EQU $QUEST35 Finished FailedDone]
+L:b:BUILDING_1(24)
+?:1
+############### Quest 24 - The Rise and Fall of Micro$oft ###############
+?:[EQU $QUEST24 Taken]
+L:u:QUEST_ENTER(24)
+?:[EQU $QUEST24 Taken Completed Failed]
+L:b:BUILDING_1(24)
+?:[EQU $QUEST24 Finished FailedDone]
+L:b:BUILDING_1(21)
+?:1
+############### Quest 21 - Doom Quest 2 ###############
+?:[EQU $QUEST21 Taken]
+L:w:QUEST_ENTER(21)
+?:[EQU $QUEST21 Taken Completed Failed]
+L:b:BUILDING_1(21)
+?:[EQU $QUEST21 Finished FailedDone]
+L:b:BUILDING_1(36)
+?:1
+###################### Quest 36 -- Sorceror
+?:[EQU $QUEST36 Taken]
+L:s:QUEST_ENTER(36)
+?:[EQU $QUEST36 Taken Completed Failed]
+L:b:BUILDING_1(36)
+?:[EQU $QUEST23 Finished FailedDone]
 L:b:BUILDING_1(23)
 ?:1
 ###################### Quest 23 -- Spawning Pits
@@ -81,17 +114,6 @@ B:4:A:2:Listen for rumors:10:10:u:19:0
 B:4:A:3:Teleport to other town:500:500:m:42:0
 B:4:A:4:Ask about your reputation:1:1:a:55:0
 B:4:R:*:Member
-B:4:R:Golem:None
-B:4:R:Skeleton:None
-B:4:R:Zombie:None
-B:4:R:Vampire:None
-B:4:R:Spectre:None
-B:4:R:Ent:None
-B:4:R:Balrog:None
-B:4:R:Android:None
-B:4:R:Demon:None
-B:4:R:Lich:None
-B:4:R:Jelly:None
 
 B:5:N:Beastmaster:Aradreth:Elf
 B:5:A:0:Research monster:1500:1500:r:20:0
@@ -160,12 +182,12 @@ B:13:M:Trump:Owner
 
 # Town Layout
 M:                                                                                                  T,T           
-M:                                  TTTTTTTT--T-TT--TTT#####                                        T,T           
-M:                                  T,,,,,,,,,,,,,,,,,,#####                                        T,T           
-M:                #########         T,T,--TTT-TTTT-TTTT#####                                        T,T           
-M:                #########TTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,T           
+M:                                  TTTTTTTTTTTTTTTTTTT#####                                        T,T           
+M:                                  T,,,,,,,,,,,,,,,,,,u####                                        T,T           
+M:                #########         T,TTTTTTTTTTTTTTTTT#####                                        T,T           
+M:     w          #########TTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,T           
 M:                ########e,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T           
-M:                #########,TT-TTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT           
+M:                #########,TTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT           
 M:                #########,T       T,T                                                                           
 M: z                 ######,T       T,T                                                                           
 M:                   #####d,T       T,T                                                                           
@@ -175,43 +197,43 @@ M:                                  T,T
 M:          #####                   T,T                                                                           
 M:          #####                   T,T                  ##   ##                                                  
 M:          #####                   T,T                  #######                                                  
-M:  ####    #####                   T,T              -TT-T#####                                                   
+M:  ####    #####                   T,T              TTTTT#####                                                   
 M:  ####TTTT##6##   #####           T,T              T,,,,l####          ######                                   
-M:  ###9,,,TT-,TT-TT#####           T,T              -,TTT#####          ######                                   
-M:  ####-T,,,,,,,,,,5####          TT,T-           -TT,-T#######         ######                                   
-M:  #### TTT,T-TTT,T#####        TTT,,,TTT         T,,,TT##-TT##         ###h##                                   
-M:       ###4###-T,T#####       TT,,,,,,,TT        T,TTT                  TT,T                                    
-M:       #######TT,T            T,,##b##,,T        -,T                    T-,TTT#####                             
+M:  ###9,,,TTT,TTTTT#####           T,T              T,TTT#####          ######                                   
+M:  ####TT,,,,,,,,,,5####          TT,TT           TTT,TT#######         ######                                   
+M:  #### TTT,TTTTT,T#####        TTT,,,TTT         T,,,TT##   ##         ###h##                                   
+M:       ###4###TT,T#####       TT,,,,,,,TT        T,TTT                  TT,T                                    
+M:       #######TT,T            T,,##b##,,T        T,T                    TT,TTT#####                             
 M:       #######TT,T           TT,#######,TT       T,T                   TT,,,,,m####                             
-M:       ###j###-T,TTTTTTTTTTTTT,,#######,,TTTTTTT-T,T                  TT,,TTTT#####                             
-M:    T-TTTT,,,,,,,,,,,,,,,,,,,,,,#######,,,,,,,,TTT,TTTTTTTTTTTT-TT-T-TT,,TT    ####                             
-M:    T,,,,,,TTT,T,,TTTTTTTTTTTT,,#######,,T-TTT,,,,,,,,,,,,,,,,,,,,,,,,,,T-     ####                             
-M: ####,TTTTTTTTTT,,T          TT,#######,-T   TTTTTTTTTT,TTTT,TTTTT--TTT,,T-                                     
-M: ####a##T-TTTTT,,,T           T,,##7##,,TT            T,T  T,T        TT,,TT                          T-TTTT   T
-M: #######TTT,T,,,,TT           -T,,,,,,,TT           ###1##-T,T         TT,,TTT                       TT-----TTT-
-M: #######-TTT,,,TTT             TTT,,,TT,T           ######TT,T   #####  TT,,,TTT                    TT--###--,-T
-M:           T,,TT                 T-,TT T,TTT--TT  #######1,,,--TT#####   TTT,,,TTTTTTTTT-TTTTTTTTTTTT--#####--TT
-M:           T,,T         ####TTTT-TT,T  TT,,,,,,T  ########TT,,,,,3####     TTT,,,,,,,,,,,,,,,,,,TTTTT-#######-TT
-M:          TT,,T         ###8,,,,,,,,T   TT#g##f#  ######## T,-T-T#####       TTTTTTTTTTT,TTTTTT,,,,,,,i######-TT
-M:        # T,,,T #       ####-TTTTTT,T     ######  ######   T,T   #####                 T,TTTT,,TTTTTT-#######--T
-M:       #####0#####              TT,T      ######  ######  ##2##                        T,T         TT--#####---T
-M:        #########            TTTT,T                       #####                        T,TT         -T--###--TTT
-M:        #########           TT,,,T                        #####                      --T,T--T       TTT-----T-TT
-M:        #########          TT,TTTT                        #####                     -#--,--#-T        TTTT---TTT
-M:       ###########         T,----TT                       #####                   T-#-##n##-#-T         TT-T-T-T
-M:        #       #        ###,###--T                                                --#######--T          -TT    
+M:       ###j###TT,TTTTTTTTTTTTT,,#######,,TTTTTTT T,T                  TT,,TTTT#####                             
+M:    TTTTTT,,,,,,,,,,,,,,,,,,,,,,#######,,,,,,,,TTT,TTTTTTTTTTTTTTTTTTTT,,TT    ####                             
+M:    T,,,,,,TTTTT,,TTTTTTTTTTTT,,#######,,TTTTT,,,,,,,,,,,,,,,,,,,,,,,,,,TT     ####                             
+M: ####,TTTTTT TTT,,T          TT,#######,TT   TTTTTTTTTT,TTTT,TTTTTTTTTT,,TT                                     
+M: ####a##T T TTT,,,T           T,,##7##,,TT            T,T  T,T        TT,,TT                          TTTTTTT   
+M: #######TTTTT,,,,TT           TT,,,,,,,TT           ###0## T,T         TT,,TTT                       TT-----TT  
+M: #######   T,,,TTT             TTT,,,TT,T           ######TT,T   #####  TT,,,TTT                    TT--###--TT 
+M:           T,,TT                 TT,TT T,TTTTTTT  #######1,,,TTTT#####   TTT,,,TTTTTTTTTTTTTTTTTTTTTT--#####--TT
+M:           T,,T         ####TTTTTTT,T  TT,,,,,,T  ########TT,,,,,3####     TTT,,,,,,,,,,,,,,,,,,TTTTT-#######-TT
+M:          TT,,T         ###8,,,,,,,,T   TT#g##f#  ######## T,TTTT#####       TTTTTTTTTTT,TTTTTT,,,,,,,i######-TT
+M:        # T,,,T #       ####TTTTTTT,T     ######  ######   T,T   #####                 T,TTTTTTTTTTTT-#######--T
+M:       #####M#####              TT,T      ######  ######  ##2##                        T,T         TT--#####---T
+M:        #########            TTTT,T                       #####                        T,TT         TT--###--TTT
+M:        #########           TT,,,T                        #####                      --T,T--T        TT-----TTT 
+M:        #########          TT,-TTT                        #####                     -#--,--#-T        TTTTTTTT  
+M:       ###########         T,TT--TT                       #####                   T-#-##n##-#-T                 
+M:        #       #        ###,###--T                                                --#######--T                 
 M:                         ###,###T--T                                               T-#######-T                  
 M:                         ###,###TT-T                                              T--#######--T                 
 M:                           #,#   T-TTT                                           -T,#-#####-#--T                
-M:                          ##,##  T----T                                            --#-----#--T                 
-M:                          ##s##  TTTTT-T                                            ---T-,-------T              
+M:                          ##s##  T----T                                            --#-----#--T                 
+M:                          #####  TTTTT-T                                            ---T-,-------T              
 M:                          #####      TT-T####                                                                   
 M:                          #####       TT-####                                                                   
 M:                                       T-k###                                                                   
-M:                                       T-####                                                                   
-M:                                       -T####                                                                   
+M:                                       T-####                      v                                            
+M:                                       TT####                                                                   
 M:                                                                                                                
-M:                                   y    x                                                                       
+M:                                        x                                                                       
 M:                                                                                                                
 
 # vim: filetype=q :

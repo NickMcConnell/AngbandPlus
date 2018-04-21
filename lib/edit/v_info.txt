@@ -282,7 +282,7 @@ L:.:DIRT
 L:T:TREE
 L:%:RUBBLE
 L:*:DIRT(ROOM):MON(*, DEPTH+10)
-L:~:DIRT(ROOM):OBJ(JUNK)
+L:~:DIRT(ROOM):OBJ(*)
 M:###%%%######%%TT%#
 M:#TT.....~..%TT*.T%
 M:+.........~T.....T
@@ -294,18 +294,77 @@ M:,.TT.......#.T,..%
 M:#........~.,TTT..%
 M:##   ##%%,,..T#%%,
 
+N:Thieve's Hideout
+T:WILD:GRASS:FORMATION
+W:1:*:16
+L:.:DIRT(ROOM)
+L:0:DIRT(ROOM):MON(THIEF, DEPTH+5):OBJ(GOLD)
+L:$:DIRT(ROOM):OBJ(GOLD)
+M:###########################
+M:#$.212...#.......#...212.$#
+M:#$21012..+.......+..21012$#
+M:#$.212..9#.......#9..212.$#
+M:##########.......##########
+M:#8.......................8#
+M:#8.......................8#
+M:#8.......................8#
+M:#8...777...........777...8#
+M:#############+#############
+
+N:Town
+T:WILD:GRASS
+W:1:*:8
+L:p:MON(p)
+M:............p...........
+M:#####.###########.######
+M:#...+.#......+..#.+.p..#
+M:#####.#..p...####.######
+M:#.p.+.#.........+.+.p..#
+M:#####.###########.######
+M:.....p..................
+M:############+###########
+M:#.....p.........p...p..#
+M:#........p.............#
+M:########################
+
 N:Archery Practice
 T:WILD:GRASS:FORMATION
 W:1:*:4
 L:0:MON(ARCHER)
 L:$:OBJ(BOW_AMMO)
-M: 2 0 4 
-M:2  $  4
-M:       
+M:8640468
+M:6  $  6
+M:4     4
 M:0$   $0
-M:       
-M:4  $  2
-M: 4 0 2 
+M:4     4
+M:6  $  6
+M:8640468
+
+N:Thieves' Prison
+T:WILD:GRASS
+W:1:*:2
+L:M:MON(THIEF)
+L:+:LOCKED_DOOR_7
+M:#########
+M:#M#M#M#M#
+M:#+#+#+#+#
+M:+.......#
+M:#+#+#+#+#
+M:#M#M#M#M#
+M:#########
+
+N:Debtors' Prison
+T:WILD:GRASS
+W:1:*:4
+L:M:MON(p)
+L:+:LOCKED_DOOR_5
+M:#########
+M:#M#M#M#M#
+M:#+#+#+#+#
+M:+.......#
+M:#+#+#+#+#
+M:#M#M#M#M#
+M:#########
 
 N:Menagerie
 T:WILD:GRASS
@@ -448,11 +507,125 @@ N:Murder
 T:WILD:GRASS
 W:10:*:16
 L:M:MON(^crow$)
-M: M M 
-M:M   M
 M:  M  
-M:M   M
-M: M M 
+M: MMM 
+M:MMMMM
+M: MMM 
+M:  M  
+
+N:Teaching Academy
+T:WILD:GRASS
+W:10:*:16
+M:------------------------------
+M:------------------------------
+M:------WWWWWWW.WWWWWWW---------
+M:---WWWW#####-.-#####WWWW------
+M:-WWW########-.-########WWW----
+M:-W#########--.--#########W----
+M:WW######-----.-----######WW---
+M:W######----##;##----######W---
+M:W#####--&-#######----#####W---
+M:W#####----#######-&--#####W---
+M:W######----#####----######W---
+M:WW######-----------######WW---
+M:-W#########--9--#########W----
+M:-WWW###################WWW----
+M:---WWWW#############WWWW------
+M:------WWWWWWWWWWWWWWW------9--
+
+N:Knight's Stronghold
+T:WILD:GRASS:FORMATION | GOOD | NO_ROTATE
+W:20:*:32
+L:.:DIRT(ROOM)
+L:0:DIRT(ROOM):MON(KNIGHT, DEPTH+30):OBJ(*, DEPTH+5):EGO(*)
+L:1:DIRT(ROOM):OBJ(*)
+L:C:DIRT(ROOM):MON(HOUND, DEPTH+10)
+L:q:DIRT(ROOM):MON(HORSE, DEPTH+10)
+M:####                                         ####
+M:#qq#                                         #qq#
+M:#qq#            #################            #qq#
+M:#qq##############CCCCCCCCCCCCCCC##############qq#
+M:###+............+CCCCCCCCCCCCCCC+............+###
+M:  #.....#################################.....#  
+M:###...###...............................###...###
+M:#9999##...#############################...##9999#
+M:#9999#....#888887777666111666777788888#....#9999#
+M:.9999+....+888887777666101666777788888+....+9999.
+M:#9999#....#888887777666111666777788888#....#9999#
+M:#9999##...#############################...##9999#
+M:###...###...............................###...###
+M:  #.....#################################.....#  
+M:###+............+CCCCCCCCCCCCCCC+............+###
+M:#qq##############CCCCCCCCCCCCCCC##############qq#
+M:#qq#            #################            #qq#
+M:#qq#                                         #qq#
+M:####                                         ####
+
+
+#Nivim
+N:Villa
+T:WILD:GRASS
+W:10:30:24
+L:_:FLOOR
+L:.:FLOOR(ROOM)
+L:0:FLOOR(ROOM):MON(p, NO_GROUP | DEPTH+25)
+L:1:FLOOR(ROOM):MON(p, NO_UNIQUE | DEPTH+17)
+L:2:FLOOR(ROOM):MON(p, NO_UNIQUE)
+L:`:FLOOR(ROOM):OBJ(STATUE, DEPTH+10)
+L:*:FLOOR(ROOM):OBJ(GOLD, DEPTH+15)
+L:&:FLOOR(ROOM):OBJ(CHEST)
+L:%:FLOOR(ROOM):OBJ(FOOD)
+L:x:CLOSED_DOOR(ROOM)
+M:___           
+M:_+############
+M:_#...#...#..%#
+M: #.22+..2x..%#
+M: #2..#..2#2.%#
+M: ##+##########
+M: #...#.&&#`..#
+M: #...#...#*.0$
+M: #.22#...#...#
+M: ##x###+###x##
+M: #2..#1..#...#
+M: #...x...x...#
+M: #...#..1#.%%#
+M: #############
+
+#Nivim (Unfinished)
+N:Keep of Four Pillars
+T:WILD:GRASS
+W:20:*:32
+L:.:FLOOR(ROOM)
+L:_:FLOOR
+L:x:CLOSED_DOOR(ROOM)
+L:v:SHALLOW_LAVA
+#To-do; a cold analogue to lava, probably G:#:B
+L:b:GLASS_FLOOR
+L:n:DEEP_WATER
+L:m:MOUNTAIN
+#The following is actually supposed to be more like a
+#line selecting mages with a high summon chance or
+#1/5 chance of silent watchers, and a line selecting
+#warriors (p or not).
+L:*:FLOOR(GLOW):MON(DEMON_SUMMONER, NO_GROUP | DEPTH+25):OBJ(LITE, DEPTH+10):EGO(*)
+L:`:FLOOR(GLOW):MON(silent watcher, NO_GROUP):OBJ(LITE, DEPTH+10):EGO(*)
+L:p:FLOOR(ROOM):MON(p, NO_UNIQUE | DEPTH+15)
+M: vvvv      mmmm 
+M:vvv__________mmm
+M:vv#v_##__##_m#mm
+M:v_v__#####+__m_m
+M:v___##..p.##___m
+M: _#+#p....p###_ 
+M: _##..#x##..##_ 
+M: __#p.#*`x..#__ 
+M: __#..x**#.p#__ 
+M: _##..##x#..##_ 
+M: _###p....p#+#_ 
+M:b___##.p..##___n
+M:b_b__+#####__n_n
+M:bb#b_##__##_n#nn
+M:bbb__________nnn
+M: bbbb      nnnn 
 
 ##################
 # Grass Ambushes #
@@ -463,17 +636,17 @@ T:AMBUSH:GRASS:FORMATION
 W:1:*:3
 L:0:MON(*, DEPTH+5)
 M:         0       
-M:      6 6 6 6    
-M:       4 4 4     
-M:        2 2      
+M:      6666666    
+M:      4444444    
+M:      2222222    
 M:                 
 M:                 
 M:         @       
 M:                 
 M:                 
-M:        2 2      
-M:       4 4 4     
-M:      6 6 6 6    
+M:      2222222    
+M:      4444444    
+M:      6666666    
 M:         0       
 
 N:Surrounded
@@ -483,13 +656,13 @@ L:0:MON(*, DEPTH+5)
 M:                 
 M:                 
 M:         8       
-M:                 
+M:        8 8      
 M:       8   8     
-M:  2              
+M:  2   8     8    
 M: 202 8   @   8   
-M:  2              
+M:  2   8     8    
 M:       8   8     
-M:                 
+M:        8 8      
 M:         8       
 M:                 
 M:                 
@@ -497,7 +670,7 @@ M:
 N:Marauding Orcs
 T:AMBUSH:GRASS:FORMATION | NIGHT
 W:1:*:1
-L:0:MON(o, DEPTH+5 | NO_GROUP)
+L:0:MON(o, DEPTH+5)
 L:T:MON(T, NO_SLEEP | NO_GROUP | DEPTH+10)
 M:T 6 T        T
 M: 636          
@@ -656,12 +829,62 @@ M:      ####.
 N:Eyrie
 T:WILD:MOUNTAIN:FORMATION
 W:40:*:4
-L:0:MON(B, DEPTH+10)
-M:    8     
-M:   6 4 3  
-M:    2   5 
-M:      0  7
-M:    8     
+L:0:DIRT:MON(B, DEPTH+10)
+M:    88    
+M:   66466  
+M:    43245 
+M:     40357
+M:    89    
+
+N:Monastery
+T:WILD:MOUNTAIN:FORMATION
+W:40:*:8
+L:.:GRASS
+L:0:GRASS(ROOM):MON(MONK, DEPTH+20)
+L:?:GRASS(ROOM):OBJ(BOOK)
+L:!:GRASS(ROOM):OBJ(BOOK, DEPTH+20)
+L:$:GRASS(ROOM):OBJ(STATUE)
+L:#:MOUNTAIN
+M:  .....    
+M:###888###  
+M:#6##+##7#  
+M:##+.9.+##  
+M:#5#'''#4#  
+M:##+9.9+##  
+M:#2#'''#3#  
+M:##+.9.+##  
+M:#1#9.9#0#  
+M:####+####  
+M:#?$?$?$!#  
+M:#########  
+
+N:Lord of Chaos
+T:WILD:MOUNTAIN
+W:40:*:16
+L:p:DIRT:MON(lord of chaos)
+L:.:DIRT
+M:############    
+M:#..........#    
+M:#.........p#    
+M:#..........#  ..
+M:#..######### .. 
+M:#..........+..  
+M:############    
+
+N:Sorcerer's Tower II
+T:WILD:MOUNTAIN
+W:50:*:32
+L:.:DIRT
+L:p:DIRT:MON(old sorcerer):OBJ(BOOK, DEPTH+50)
+M:.################
+M:.+..............#
+M:.##############.#
+M: #............#.#
+M: #.##########.#.#
+M: #.#p.........#.#
+M: #.############.#
+M: #..............#
+M: ################
 
 N:Dragon's Lair
 T:WILD:MOUNTAIN
@@ -688,6 +911,27 @@ M:   ##..TT...##
 M:    ##.....##    
 M:     ###.###     
 M:       ###       
+
+N:Mountain Resort
+T:WILD:MOUNTAIN:SHOP
+W:50:*:32
+L:#:MOUNTAIN
+L:.:TREE
+L:1:GENERAL_STORE(GLOW)
+L:2:ARMOURY(GLOW)
+L:3:WEAPON_SMITHS(GLOW)
+L:4:TEMPLE(GLOW)
+L:5:ALCHEMY_SHOP(GLOW)
+L:6:MAGIC_SHOP(GLOW)
+L:7:BLACK_MARKET(GLOW)
+L:9:BOOKSTORE(GLOW)
+M:#################
+M:##..##.#.#####7##
+M:#.#2..#.#3##5#.##
+M:######.####...#9#
+M:#.#1#...##4.#6###
+M:#....###...######
+M:#################
 
 N:Random Mountain Level
 T:WILD:MOUNTAIN
@@ -732,11 +976,11 @@ N:Bat Attack!
 T:WILD:SWAMP:FORMATION
 W:10:*:3
 L:0:DIRT:MON(b, DEPTH+10)
-M:    8     
-M:   6 4 3  
-M:    2   5 
-M:      0  7
-M:    8     
+M:    88    
+M:   66466  
+M:    43245 
+M:     40357
+M:    89    
 
 N:Ick!
 T:WILD:SWAMP:FORMATION
@@ -813,6 +1057,18 @@ M:   T  $T h
 M:      T~T h T
 M:   T   T h   
 M:T            
+
+N:Ewok Village
+T:WILD:TREES
+W:10:*:4
+L:h:TREE:MON(^ewok$)
+L:T:TREE
+L:~:GRASS
+M:TTh~hTTTh
+M: TTh~hT~ 
+M:  ~TTT~h~
+M:TThTTT~~T
+M:   ThhTT 
 
 N:Druidic Circle
 T:WILD:TREES

@@ -58,22 +58,6 @@ static void museum_carry(obj_ptr obj)
 /************************************************************************
  * Character Sheet (py_display)
  ***********************************************************************/
-static int _obj_cmp_score(obj_ptr left, obj_ptr right)
-{
-    if (!left && !right) return 0;
-    if (!left && right) return 1;
-    if (left && !right) return -1;
-    if (left == right) return 0;
-
-    assert(left && right);
-
-    if (!left->scratch) left->scratch = obj_value(left);
-    if (!right->scratch) right->scratch = obj_value(right);
-
-    if (left->scratch < right->scratch) return 1;
-    if (left->scratch > right->scratch) return -1;
-    return 0;
-}
 
 void home_display(doc_ptr doc, obj_p p, int flags)
 {
@@ -82,12 +66,7 @@ void home_display(doc_ptr doc, obj_p p, int flags)
     slot_t  slot;
     slot_t  max = inv_count_slots(inv, obj_exists);
 
-    inv_sort_aux(inv, _obj_cmp_score);
-    if (max > 50)
-    {
-        doc_printf(doc, "You have %d items in your home. Here are the top 50:\n", max);
-        max = 50;
-    }
+    inv_sort(inv);
 
     for (slot = 1; slot <= max; slot++)
     {
@@ -114,12 +93,6 @@ void museum_display(doc_ptr doc, obj_p p, int flags)
     slot_t slot;
     slot_t max = inv_last(_museum, obj_exists);
     char   name[MAX_NLEN];
-
-    if (max > 100)
-    {
-        doc_printf(doc, "There are %d items in the museum. Here are the top 100:\n", max);
-        max = 100;
-    }
 
     for (slot = 1; slot <= max; slot++)
     {

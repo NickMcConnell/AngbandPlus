@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PosChengband, 7.0.2, https://github.com/poschengband/poschengband/issues)
+AC_INIT(ComPosband, 1.1.0, https://github.com/OwenGHB/composband/issues)
 AC_CONFIG_SRCDIR(src)
 
 AC_CANONICAL_HOST
@@ -8,7 +8,7 @@ AC_CANONICAL_TARGET
 BUILDSYS_INIT
 BUILDSYS_TOUCH_DEPS
 
-AC_SUBST(PACKAGE, poschengband)
+AC_SUBST(PACKAGE, composband)
 
 AC_CONFIG_HEADERS(src/autoconf.h)
 

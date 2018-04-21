@@ -150,6 +150,7 @@ static s32b _abilities_q(u32b flgs[OF_ARRAY_SIZE])
     cost += _check_flag_and_score(flgs, OF_ESP_DRAGON, 700, &count);
     cost += _check_flag_and_score(flgs, OF_ESP_HUMAN, 700, &count);
     cost += _check_flag_and_score(flgs, OF_ESP_NONLIVING, 700, &count);
+	cost += _check_flag_and_score(flgs, OF_ESP_LIVING, 1000, &count);
 
     /* Sustains */
     count = 0;
@@ -1166,8 +1167,12 @@ s32b weapon_cost(object_type *o_ptr, int options)
         if (have_flag(flgs, OF_KILL_DEMON)) s += _inc_slay(4.0 * .15, &ct);
         else if (have_flag(flgs, OF_SLAY_DEMON)) s += _inc_slay(2.0 * .15, &ct);
 
-        if (have_flag(flgs, OF_SLAY_LIVING)) s += _inc_slay(1.0 * 0.7, &ct);
-        if (have_flag(flgs, OF_SLAY_GOOD)) s += _inc_slay(1.0 * 0.1, &ct);
+		if (have_flag(flgs, OF_KILL_LIVING)) s += _inc_slay(2.5 * 0.7, &ct);
+		else if (have_flag(flgs, OF_SLAY_LIVING)) s += _inc_slay(1.0 * 0.7, &ct);
+
+		if (have_flag(flgs, OF_KILL_GOOD)) s += _inc_slay(2.5 * 0.1, &ct);
+		else if (have_flag(flgs, OF_SLAY_GOOD)) s += _inc_slay(1.0 * 0.1, &ct);
+
         if (have_flag(flgs, OF_BRAND_ACID)) s += _inc_slay(1.5 * .15, &ct);
         if (have_flag(flgs, OF_BRAND_ELEC)) s += _inc_slay(1.5 * .2, &ct);
         if (have_flag(flgs, OF_BRAND_FIRE)) s += _inc_slay(1.5 * .1, &ct);

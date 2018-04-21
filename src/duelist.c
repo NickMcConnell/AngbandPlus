@@ -5,7 +5,7 @@
    We don't use format(...). Also, different messages will
    have different addresses, so that _calc_bonuses() can
    keep the user up to date as to why their powers don't work. */
-cptr _equip_error(void)
+cptr duelist_equip_error(void)
 {
     int wgt = equip_weight(object_is_armour);
 
@@ -41,7 +41,7 @@ cptr duelist_current_challenge(void)
         monster_desc(current_challenge, &m_list[p_ptr->duelist_target_idx], MD_ASSUME_VISIBLE);
         return current_challenge;
     }
-    if (_equip_error())
+    if (duelist_equip_error())
         return "Talents Disrupted";
 
     return "No Current Challenge";
@@ -508,7 +508,7 @@ static int _get_spells(spell_info* spells, int max)
     int i;
     int ct = 0;
     int stat_idx = p_ptr->stat_ind[A_DEX];
-    cptr msg = _equip_error();
+    cptr msg = duelist_equip_error();
 
     if (msg)
     {
@@ -538,7 +538,7 @@ static int _get_spells(spell_info* spells, int max)
 static void _calc_bonuses(void)
 {
     static cptr last_msg = NULL;
-    cptr msg = _equip_error();
+    cptr msg = duelist_equip_error();
 
     p_ptr->to_a -= 50;
     p_ptr->dis_to_a -= 50;
@@ -576,7 +576,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     int to_d = (p_ptr->stat_ind[A_DEX] + 3 - 10) + p_ptr->lev/2 - o_ptr->weight/10;
 
-    if (!_equip_error())
+    if (!duelist_equip_error())
     {
         info_ptr->to_d += to_d;
         info_ptr->dis_to_d += to_d;

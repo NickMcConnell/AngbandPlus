@@ -1,0 +1,45 @@
+?:[EQU $QUEST51 Taken InProgress]
+D:...What is that you say? One of the buildings seems to be over
+D:run with snakes! You might be interested to know that not long
+D:ago, a local adventurer dropped, I mean "Lost" his prized 
+D:leather whip among the ruins when he came face to face with a 
+D:thousand snakes. Perhaps you could perform a little house 
+D:cleaning in the ruins.
+?:1
+
+?:[EQU $QUEST51 Completed]
+D:I will sleep easier now I do not have to think about those
+D:snakes. If you found my whip, you may keep it as a reward.
+?:1
+
+?:[EQU $QUEST51 Failed]
+D:You have failed me, beware you do not do so again!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:;:RUBBLE
+L:-:GRASS
+L:,:DIRT
+L:.:FLOOR
+L:<:UP_STAIR
+L:a:MON(copperhead snake)
+L:b:MON(rattlesnake)
+L:c:MON(king cobra)
+L:d:MON(black mamba)
+L:k:ART(jones)
+
+# Dungeon layout
+M:################################
+M:####-,,,,------,,,,-----------##
+M:##-,,,,c----####;;;##;;;;##-;-##
+M:#---;;------#acadacdcadaca#--b-#
+M:#------;;;--;babcbdkdbcbab;--;-#
+M:#-,,--------#acabacdcabaca#--;-#
+M:#---;;;;----;##;;;#+#;;##;#-;;-#
+M:#--b,,------,,,,,--c--,,,---a--#
+M:#-------:::::-:::---;-----;;---#
+M:#----------,,,--------;;d-----##
+M:#<-----;;;;-------------;;;;-###
+M:################################
+

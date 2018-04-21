@@ -586,8 +586,8 @@ static void _build_flags1(doc_ptr doc, _flagzilla_ptr flagzilla)
     _build_slays_imp(doc, "Slay Orc", OF_SLAY_ORC, OF_KILL_ORC, flagzilla);
     _build_slays_imp(doc, "Slay Troll", OF_SLAY_TROLL, OF_KILL_TROLL, flagzilla);
     _build_slays_imp(doc, "Slay Giant", OF_SLAY_GIANT, OF_KILL_GIANT, flagzilla);
-    _build_slays_imp(doc, "Slay Good", OF_SLAY_GOOD, OF_INVALID, flagzilla);
-    _build_slays_imp(doc, "Slay Living", OF_SLAY_LIVING, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Slay Good", OF_SLAY_GOOD, OF_KILL_GOOD, flagzilla);
+    _build_slays_imp(doc, "Slay Living", OF_SLAY_LIVING, OF_KILL_LIVING, flagzilla);
     _build_slays_imp(doc, "Acid Brand", OF_BRAND_ACID, OF_INVALID, flagzilla);
     _build_slays_imp(doc, "Elec Brand", OF_BRAND_ELEC, OF_INVALID, flagzilla);
     _build_slays_imp(doc, "Fire Brand", OF_BRAND_FIRE, OF_INVALID, flagzilla);
@@ -704,6 +704,7 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
     _build_flags(doc, "Telepathy", OF_TELEPATHY, OF_INVALID, flagzilla);
     _build_flags(doc, "ESP Evil", OF_ESP_EVIL, OF_INVALID, flagzilla);
     _build_flags(doc, "ESP Nonliv", OF_ESP_NONLIVING, OF_INVALID, flagzilla);
+	_build_flags(doc, "ESP Living", OF_ESP_LIVING, OF_INVALID, flagzilla);
     _build_flags(doc, "ESP Good", OF_ESP_GOOD, OF_INVALID, flagzilla);
     _build_flags(doc, "ESP Undead", OF_ESP_UNDEAD, OF_INVALID, flagzilla);
     _build_flags(doc, "ESP Demon", OF_ESP_DEMON, OF_INVALID, flagzilla);
@@ -1990,6 +1991,7 @@ static void _build_statistics(doc_ptr doc)
         _device_counts_imp(doc, TV_WAND, EFFECT_TELEPORT_AWAY);
         _device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_COLD);
         _device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_FIRE);
+		_device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_WATER);
         _device_counts_imp(doc, TV_WAND, EFFECT_BREATHE_ONE_MULTIHUED);
         _device_counts_imp(doc, TV_WAND, EFFECT_METEOR);
         _device_counts_imp(doc, TV_WAND, EFFECT_GENOCIDE_ONE);
@@ -2238,6 +2240,13 @@ static void _build_options(doc_ptr doc)
 
     doc_printf(doc, " Preserve Mode:      %s\n", preserve_mode ? "On" : "Off");
 
+
+	if (easy_id)
+		doc_printf(doc, " Easy Identify:      On\n");
+	
+	if (easy_lore)
+		doc_printf(doc, " Easy Lore:          On\n");
+
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");
 
@@ -2376,7 +2385,7 @@ void py_display_character_sheet(doc_ptr doc)
 {
     _add_html_header(doc);
 
-    doc_insert(doc, "<style:wide>  [PosChengband <$:version> Character Dump]\n");
+    doc_insert(doc, "<style:wide>  [ComPosband <$:version> Character Dump]\n");
     if (p_ptr->total_winner)
         doc_insert(doc, "              <color:B>***WINNER***</color>\n");
     else if (p_ptr->is_dead)

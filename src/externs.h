@@ -302,6 +302,9 @@ extern bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 /*** Birth Options ***/
 
+extern bool easy_id;        /* Easy Identify */
+extern bool easy_lore;      /* Easy Monster Lore */
+extern bool allow_spoilers;
 extern bool smart_learn;    /* Monsters learn from their mistakes (*) */
 extern bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 extern bool no_wilderness;  /* Play without a normal wilderness */
@@ -1488,7 +1491,7 @@ extern int mod_need_mana(int need_mana, int spell, int realm);
 extern int mod_spell_chance_1(int chance, int realm);
 extern int mod_spell_chance_2(int chance, int realm);
 extern s16b spell_chance(int spell,int realm);
-extern bool spell_okay(int spell, bool learned, bool study_pray, int realm);
+extern bool spell_okay(int spell, bool learned, bool study_pray, int realm, bool browse);
 extern void print_spells(int target_spell, byte *spells, int num, rect_t display, int use_realm);
 extern bool hates_acid(object_type *o_ptr);
 extern bool hates_elec(object_type *o_ptr);
@@ -2169,6 +2172,7 @@ extern race_t *gnome_get_race(void);
 extern race_t *golem_get_race(void);
 extern race_t *half_giant_get_race(void);
 extern race_t *half_ogre_get_race(void);
+extern race_t *half_orc_get_race(void);
 extern race_t *half_titan_get_race(void);
 extern race_t *half_troll_get_race(void);
 extern race_t *high_elf_get_race(void);
@@ -2314,9 +2318,6 @@ extern int get_powers_aux(spell_info* spells, int max, power_info* table);
 extern int get_spells_aux(spell_info* spells, int max, spell_info* table);
 extern void dump_spells_aux(FILE *fff, spell_info *table, int ct);
 
-
-
-
 /* duelist.c */
 extern cptr duelist_current_challenge(void);
 extern class_t *duelist_get_class(void);
@@ -2325,7 +2326,7 @@ extern bool duelist_can_challenge(void);
 extern int duelist_skill_sav(int m_idx);
 extern void strafing_spell(int cmd, variant *res);
 extern bool nemesis_hack;    /* Actually, its in melee1.c */
-
+extern cptr duelist_equip_error(void);
 
 /* magic_eater.c */
 extern class_t *magic_eater_get_class(void);
@@ -2482,6 +2483,7 @@ extern int      rune_knight_absorption(int m_idx, int type, int dam);
 
 extern void     samurai_concentration_spell(int cmd, variant *res);
 extern void     cast_concentration(void);
+extern bool     samurai_can_concentrate(void);
 extern class_t *samurai_get_class(void);
 extern void     samurai_posture_spell(int cmd, variant *res);
 extern void     samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE]);

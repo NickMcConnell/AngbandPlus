@@ -35,11 +35,13 @@ enum {
 
 enum {                  /* stored in object.xtra1 when object.xtra3 = _ESSENCE_SPECIAL */
     _SPECIAL_RES_BASE = 1,
+	_SPECIAL_CLARITY,
     _SPECIAL_SUST_ALL,
     _SPECIAL_SLAYING,   /* object.xtra4 packs (+h,+d) in s16b */
     _SPECIAL_BRAND_ELEMENTS,
     _SPECIAL_MIGHT,
     _SPECIAL_PROTECTION,
+	_SPECIAL_VITALITY,
     _SPECIAL_AURA_ELEMENTS,
 };
 
@@ -154,8 +156,8 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
 
     { ESSENCE_TYPE_SLAYS, "Slays", {
         { OF_SLAY_EVIL,   "Slay Evil",  100, _ALLOW_MELEE | _ALLOW_AMMO },
-        { OF_SLAY_GOOD,   "Slay Good",   90, _ALLOW_MELEE },
-        { OF_SLAY_LIVING, "Slay Living", 80, _ALLOW_MELEE },
+        { OF_SLAY_GOOD,   "Slay Good",   90, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_LIVING, "Slay Living", 80, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_SLAY_UNDEAD, "Slay Undead", 20, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_SLAY_DEMON,  "Slay Demon",  20, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_SLAY_DRAGON, "Slay Dragon", 20, _ALLOW_MELEE | _ALLOW_AMMO },
@@ -165,6 +167,8 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
         { OF_SLAY_TROLL,  "Slay Troll",  15, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_SLAY_GIANT,  "Slay Giant",  20, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_KILL_EVIL,   "Kill Evil",  100, _ALLOW_MELEE | _ALLOW_AMMO },
+		{ OF_KILL_GOOD,   "Kill Good",   90, _ALLOW_MELEE | _ALLOW_AMMO },
+		{ OF_KILL_LIVING, "Kill Living", 80, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_KILL_UNDEAD, "Kill Undead", 30, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_KILL_DEMON,  "Kill Demon",  30, _ALLOW_MELEE | _ALLOW_AMMO },
         { OF_KILL_DRAGON, "Kill Dragon", 30, _ALLOW_MELEE | _ALLOW_AMMO },
@@ -196,20 +200,20 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
         { OF_RES_FIRE,      "Resist Fire",    15, _ALLOW_ALL },
         { OF_RES_COLD,      "Resist Cold",    15, _ALLOW_ALL },
         { _ESSENCE_SPECIAL, "Resist Base",    50, _ALLOW_ALL, 0, _SPECIAL_RES_BASE },
+		{ OF_RES_LITE,      "Resist Light",   30, _ALLOW_ALL },
+		{ OF_RES_SOUND,     "Resist Sound",   40, _ALLOW_ALL },
+		{ OF_RES_SHARDS,    "Resist Shards",  40, _ALLOW_ALL },
         { OF_RES_POIS,      "Resist Poison",  30, _ALLOW_ALL },
-        { OF_RES_LITE,      "Resist Light",   30, _ALLOW_ALL },
+		{ OF_RES_NETHER,    "Resist Nether",  30, _ALLOW_ALL },
+		{ OF_RES_NEXUS,     "Resist Nexus",   30, _ALLOW_ALL },
         { OF_RES_DARK,      "Resist Dark",    30, _ALLOW_ALL },
-        { OF_RES_CONF,      "Resist Conf",    20, _ALLOW_ALL },
-        { OF_RES_NETHER,    "Resist Nether",  30, _ALLOW_ALL },
-        { OF_RES_NEXUS,     "Resist Nexus",   30, _ALLOW_ALL },
-        { OF_RES_SOUND,     "Resist Sound",   40, _ALLOW_ALL },
-        { OF_RES_SHARDS,    "Resist Shards",  40, _ALLOW_ALL },
         { OF_RES_CHAOS,     "Resist Chaos",   40, _ALLOW_ALL },
         { OF_RES_DISEN,     "Resist Disench", 30, _ALLOW_ALL },
-        { OF_RES_TIME,      "Resist Time",    20, _ALLOW_ALL },
+		{ OF_RES_CONF,      "Resist Conf",    20, _ALLOW_ALL },
         { OF_RES_BLIND,     "Resist Blind",   20, _ALLOW_ALL },
         { OF_RES_FEAR,      "Resist Fear",    20, _ALLOW_ALL },
-        { OF_NO_TELE,       "Resist Tele",    20, _ALLOW_ALL },
+		{ _ESSENCE_SPECIAL, "Clarity",        60, _ALLOW_ALL, 0, _SPECIAL_CLARITY },
+		{ OF_RES_TIME,      "Resist Time",    20, _ALLOW_ALL },
         { OF_IM_ACID,       "Immune Acid",    20, _ALLOW_ALL },
         { OF_IM_ELEC,       "Immune Elec",    20, _ALLOW_ALL },
         { OF_IM_FIRE,       "Immune Fire",    20, _ALLOW_ALL },
@@ -229,22 +233,24 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
     { ESSENCE_TYPE_ABILITIES, "Abilities", {
         { OF_FREE_ACT,      "Free Action",            20, _ALLOW_ALL },
         { OF_SEE_INVIS,     "See Invisible",          20, _ALLOW_ALL },
-        { OF_HOLD_LIFE,     "Hold Life",              20, _ALLOW_ALL },
         { _ESSENCE_SPECIAL, "Protection",             50, _ALLOW_ALL, 0, _SPECIAL_PROTECTION },
+		{ OF_HOLD_LIFE,     "Hold Life",              20, _ALLOW_ALL },
         { OF_SLOW_DIGEST,   "Slow Digestion",         15, _ALLOW_ALL },
         { OF_REGEN,         "Regeneration",           50, _ALLOW_ALL },
+		{ _ESSENCE_SPECIAL, "Vitality",               100, _ALLOW_ALL, 0, _SPECIAL_VITALITY },
         { OF_DUAL_WIELDING, "Dual Wielding",          50, _ALLOW_ARMOR },
         { OF_NO_MAGIC,      "Antimagic",              15, _ALLOW_ALL },
+		{ OF_NO_TELE,       "Resist Tele",            20, _ALLOW_ALL },
         { OF_WARNING,       "Warning",                20, _ALLOW_ALL },
-        { OF_LEVITATION,    "Levitation",             20, _ALLOW_ALL },
         { OF_REFLECT,       "Reflection",             20, _ALLOW_ALL },
+		{ OF_LITE,          "Extra Light",            15, _ALLOW_ALL },
+		{ OF_LEVITATION,    "Levitation",             20, _ALLOW_ALL },
         { OF_AURA_FIRE,       "Aura Fire",              20, _ALLOW_ARMOR },
         { OF_AURA_ELEC,       "Aura Elec",              20, _ALLOW_ARMOR },
         { OF_AURA_COLD,       "Aura Cold",              20, _ALLOW_ARMOR },
         { _ESSENCE_SPECIAL, "Aura Elements",          50, _ALLOW_ALL, 0, _SPECIAL_AURA_ELEMENTS },
         { OF_AURA_SHARDS,     "Aura Shards",            30, _ALLOW_ARMOR },
         { OF_AURA_REVENGE,    "Revenge",                40, _ALLOW_ARMOR },
-        { OF_LITE,          "Extra Light",            15, _ALLOW_ALL },
         { OF_IGNORE_ACID,   "Rustproof", _COST_RUSTPROOF, _ALLOW_ARMOR },
         { _ESSENCE_NONE } } },
 
@@ -261,6 +267,7 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
         { OF_ESP_EVIL,      "Sense Evil",      40, _ALLOW_ALL },
         { OF_ESP_GOOD,      "Sense Good",      20, _ALLOW_ALL },
         { OF_ESP_NONLIVING, "Sense Nonliving", 40, _ALLOW_ALL },
+		{ OF_ESP_LIVING,    "Sense Living",    40, _ALLOW_ALL },
         { OF_ESP_UNIQUE,    "Sense Unique",    20, _ALLOW_ALL },
         { _ESSENCE_NONE } } },
 };
@@ -771,6 +778,9 @@ static int _smith_remove(object_type *o_ptr)
         case _SPECIAL_RES_BASE:
             name = "Resist Base";
             break;
+		case _SPECIAL_CLARITY:
+			name = "Clarity";
+			break;
         case _SPECIAL_SUST_ALL:
             name = "Sustaining";
             break;
@@ -783,6 +793,9 @@ static int _smith_remove(object_type *o_ptr)
         case _SPECIAL_PROTECTION:
             name = "Protection";
             break;
+		case _SPECIAL_VITALITY:
+			name = "Vitality";
+			break;
         case _SPECIAL_AURA_ELEMENTS:
             name = "Aura Elements";
             break;
@@ -1210,8 +1223,6 @@ static int _smith_add_slaying(object_type *o_ptr)
                 break;
             if (cost_h == 0 && cost_d == 0)
                 break;
-            to_h = to_h/2 + randint0((to_h+1)/2 + 1);
-            to_d = to_d/2 + randint0((to_d+1)/2 + 1);
             o_ptr->to_h += to_h;
             o_ptr->to_d += to_d;
             o_ptr->xtra3 = _ESSENCE_SPECIAL;
@@ -1299,6 +1310,22 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                         continue;
                     }
                 }
+				else if (info_ptr->xtra == _SPECIAL_CLARITY)
+				{
+					if (!_get_essence(OF_RES_FEAR)
+						|| !_get_essence(OF_RES_BLIND)
+						|| !_get_essence(OF_RES_CONF))
+					{
+						continue;
+					}
+
+					if (have_flag(flgs, OF_RES_FEAR)
+						&& have_flag(flgs, OF_RES_BLIND)
+						&& have_flag(flgs, OF_RES_CONF))
+					{
+						continue;
+					}
+				}
                 else if (info_ptr->xtra == _SPECIAL_BRAND_ELEMENTS)
                 {
                     if ( !_get_essence(OF_BRAND_ELEC)
@@ -1318,19 +1345,33 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                 else if (info_ptr->xtra == _SPECIAL_PROTECTION)
                 {
                     if ( !_get_essence(OF_FREE_ACT)
-                      || !_get_essence(OF_SEE_INVIS)
-                      || !_get_essence(OF_HOLD_LIFE) )
+                      || !_get_essence(OF_SEE_INVIS) )
                     {
                         continue;
                     }
 
                     if ( have_flag(flgs, OF_FREE_ACT)
-                      && have_flag(flgs, OF_SEE_INVIS)
-                      && have_flag(flgs, OF_HOLD_LIFE) )
+                      && have_flag(flgs, OF_SEE_INVIS) )
                     {
                         continue;
                     }
                 }
+				else if (info_ptr->xtra == _SPECIAL_VITALITY)
+				{
+					if (!_get_essence(OF_HOLD_LIFE)
+						|| !_get_essence(OF_SLOW_DIGEST)
+						|| !_get_essence(OF_REGEN))
+					{
+						continue;
+					}
+
+					if (have_flag(flgs, OF_HOLD_LIFE)
+						&& have_flag(flgs, OF_SLOW_DIGEST)
+						&& have_flag(flgs, OF_REGEN))
+					{
+						continue;
+					}
+				}
                 else if (info_ptr->xtra == _SPECIAL_AURA_ELEMENTS)
                 {
                     if ( !_get_essence(OF_AURA_ELEC)
@@ -1432,6 +1473,20 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                             cost
                         );
                     }
+					else if (info_ptr->xtra == _SPECIAL_CLARITY)
+					{
+						bool ok = TRUE;
+						if (cost > _get_essence(OF_RES_FEAR)) ok = FALSE;
+						else if (cost > _get_essence(OF_RES_BLIND)) ok = FALSE;
+						else if (cost > _get_essence(OF_RES_CONF)) ok = FALSE;
+						doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
+							ok ? 'y' : 'D',
+							'A' + i,
+							info_ptr->name,
+							ok ? 'G' : 'r',
+							cost
+						);
+					}
                     else if (info_ptr->xtra == _SPECIAL_BRAND_ELEMENTS)
                     {
                         bool ok = TRUE;
@@ -1451,7 +1506,6 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                         bool ok = TRUE;
                         if (cost > _get_essence(OF_FREE_ACT)) ok = FALSE;
                         else if (cost > _get_essence(OF_SEE_INVIS)) ok = FALSE;
-                        else if (cost > _get_essence(OF_HOLD_LIFE)) ok = FALSE;
                         doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1460,6 +1514,20 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                             cost
                         );
                     }
+					else if (info_ptr->xtra == _SPECIAL_VITALITY)
+					{
+						bool ok = TRUE;
+						if (cost > _get_essence(OF_HOLD_LIFE)) ok = FALSE;
+						else if (cost > _get_essence(OF_SLOW_DIGEST)) ok = FALSE;
+						else if (cost > _get_essence(OF_REGEN)) ok = FALSE;
+						doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
+							ok ? 'y' : 'D',
+							'A' + i,
+							info_ptr->name,
+							ok ? 'G' : 'r',
+							cost
+						);
+					}
                     else if (info_ptr->xtra == _SPECIAL_AURA_ELEMENTS)
                     {
                         bool ok = TRUE;
@@ -1560,6 +1628,20 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                         done = TRUE;
                     }
                 }
+				else if (info_ptr->xtra == _SPECIAL_CLARITY)
+				{
+					if (cost <= _get_essence(OF_RES_FEAR)
+						&& cost <= _get_essence(OF_RES_BLIND)
+						&& cost <= _get_essence(OF_RES_CONF))
+					{
+						o_ptr->xtra3 = _ESSENCE_SPECIAL;
+						o_ptr->xtra1 = _SPECIAL_CLARITY;
+						_add_essence(OF_RES_FEAR, -cost);
+						_add_essence(OF_RES_BLIND, -cost);
+						_add_essence(OF_RES_CONF, -cost);
+						done = TRUE;
+					}
+				}
                 else if (info_ptr->xtra == _SPECIAL_BRAND_ELEMENTS)
                 {
                     if ( cost <= _get_essence(OF_BRAND_ELEC)
@@ -1577,17 +1659,29 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                 else if (info_ptr->xtra == _SPECIAL_PROTECTION)
                 {
                     if ( cost <= _get_essence(OF_FREE_ACT)
-                      && cost <= _get_essence(OF_SEE_INVIS)
-                      && cost <= _get_essence(OF_HOLD_LIFE) )
+                      && cost <= _get_essence(OF_SEE_INVIS) )
                     {
                         o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_PROTECTION;
                         _add_essence(OF_FREE_ACT, -cost);
                         _add_essence(OF_SEE_INVIS, -cost);
-                        _add_essence(OF_HOLD_LIFE, -cost);
                         done = TRUE;
                     }
                 }
+				else if (info_ptr->xtra == _SPECIAL_VITALITY)
+				{
+					if (cost <= _get_essence(OF_HOLD_LIFE)
+						&& cost <= _get_essence(OF_REGEN)
+						&& cost <= _get_essence(OF_SLOW_DIGEST))
+					{
+						o_ptr->xtra3 = _ESSENCE_SPECIAL;
+						o_ptr->xtra1 = _SPECIAL_VITALITY;
+						_add_essence(OF_HOLD_LIFE, -cost);
+						_add_essence(OF_REGEN, -cost);
+						_add_essence(OF_SLOW_DIGEST, -cost);
+						done = TRUE;
+					}
+				}
                 else if (info_ptr->xtra == _SPECIAL_AURA_ELEMENTS)
                 {
                     if ( cost <= _get_essence(OF_AURA_ELEC)
@@ -2554,6 +2648,11 @@ void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
                 add_flag(flgs, OF_RES_FIRE);
                 add_flag(flgs, OF_RES_COLD);
                 break;
+			case _SPECIAL_CLARITY:
+				add_flag(flgs, OF_RES_FEAR);
+				add_flag(flgs, OF_RES_BLIND);
+				add_flag(flgs, OF_RES_CONF);
+				break;
             case _SPECIAL_SUST_ALL:
                 add_flag(flgs, OF_SUST_STR);
                 add_flag(flgs, OF_SUST_INT);
@@ -2578,8 +2677,12 @@ void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
             case _SPECIAL_PROTECTION:
                 add_flag(flgs, OF_FREE_ACT);
                 add_flag(flgs, OF_SEE_INVIS);
-                add_flag(flgs, OF_HOLD_LIFE);
                 break;
+			case _SPECIAL_VITALITY:
+				add_flag(flgs, OF_HOLD_LIFE);
+				add_flag(flgs, OF_REGEN);
+				add_flag(flgs, OF_SLOW_DIGEST);
+				break;
             case _SPECIAL_AURA_ELEMENTS:
                 add_flag(flgs, OF_AURA_ELEC);
                 add_flag(flgs, OF_AURA_FIRE);

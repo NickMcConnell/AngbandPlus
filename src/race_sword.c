@@ -299,6 +299,7 @@ static _flag_info_t _slay_flag_info[] = {
 
     /* Alt: These could be achieved from corresponding slay flags with enough essences */
     { OF_KILL_EVIL, 16, "Kill Evil" },
+	{ OF_KILL_GOOD, 8, "Kill Good" },
     { OF_KILL_UNDEAD, 8, "Kill Undead" },
     { OF_KILL_DEMON, 8, "Kill Demon" },
     { OF_KILL_DRAGON, 8, "Kill Dragon" },
@@ -307,6 +308,7 @@ static _flag_info_t _slay_flag_info[] = {
     { OF_KILL_ORC, 8, "Kill Orc" },
     { OF_KILL_TROLL, 8, "Kill Troll" },
     { OF_KILL_GIANT, 8, "Kill Giant" },
+	{ OF_KILL_LIVING, 8, "Kill Living" },
 
     { -1, 0, NULL}
 };
@@ -472,6 +474,8 @@ static void _calc_bonuses(void)
         p_ptr->esp_good = TRUE;
     if (_essences[OF_ESP_NONLIVING] >= 2)
         p_ptr->esp_nonliving = TRUE;
+	if (_essences[OF_ESP_LIVING] >= 2)
+		p_ptr->esp_living = TRUE;
     if (_essences[OF_ESP_UNIQUE] >= 2)
         p_ptr->esp_unique = TRUE;
 
@@ -551,6 +555,8 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_ESP_GOOD);
     if (_essences[OF_ESP_NONLIVING] >= 2)
         add_flag(flgs, OF_ESP_NONLIVING);
+	if (_essences[OF_ESP_LIVING] >= 2)
+		add_flag(flgs, OF_ESP_LIVING);
     if (_essences[OF_ESP_UNIQUE] >= 2)
         add_flag(flgs, OF_ESP_UNIQUE);
     if (_essences[OF_ESP_DRAGON] >= 2)
@@ -935,6 +941,7 @@ static void _character_dump(doc_ptr doc)
     _dump_ability_flag(doc, OF_ESP_EVIL, 2, "ESP Evil");
     _dump_ability_flag(doc, OF_ESP_GOOD, 2, "ESP Good");
     _dump_ability_flag(doc, OF_ESP_NONLIVING, 2, "ESP Nonliving");
+	_dump_ability_flag(doc, OF_ESP_LIVING, 2, "ESP Living");
     _dump_ability_flag(doc, OF_ESP_UNIQUE, 2, "ESP Unique");
 
     doc_newline(doc);

@@ -1,0 +1,26 @@
+?:[EQU $QUEST56 Taken InProgress]
+D:If you want our respect you need to prove yourself. Go to
+D:the orc caves and kill ten Ologs to show us you aren't a
+D:wimp.
+?:1
+
+?:[EQU $QUEST56 Completed]
+D:Good start. Our armourers have made you a trophy.
+?:1
+
+?:[EQU $QUEST56 Failed]
+D:Not tough enough eh? Try harder next time.
+?:1
+
+R:OBJ(steel helm):EGO(troll)
+
+?:[EQU $RACE Death-Sword]
+R:OBJ(long sword)
+
+?:[EQU $RACE Hound Spider Ring Beholder Vortex]
+R:OBJ(^ring$):EGO(combat)
+
+?:[EQU $RACE Centipede]
+R:OBJ(metal shod boots)
+
+# vim: filetype=q :

@@ -70,6 +70,10 @@ static bool _book_will_buy(obj_ptr obj);
 static bool _book_create(obj_ptr obj, u32b mode);
 static bool _jeweler_will_buy(obj_ptr obj);
 static bool _jeweler_create(obj_ptr obj, u32b mode);
+static bool _shroomery_will_buy(obj_ptr obj);
+static bool _shroomery_create(obj_ptr obj, u32b mode);
+static bool _dragon_will_buy(obj_ptr obj);
+static bool _dragon_create(obj_ptr obj, u32b mode);
 
 static _type_t _types[] = 
 {
@@ -164,7 +168,7 @@ static _type_t _types[] =
          { 23, "Eowilith the Fair",        25000, 115, RACE_VAMPIRE },
          { 24, "Huimog Balrog-Slayer",     30000, 112, RACE_SNOTLING },
          { 25, "Peadus the Cruel",          5000, 115, RACE_HUMAN },
-         { 26, "Vamog Slayer",             15000, 110, RACE_HALF_OGRE },
+         { 26, "Vamog Slayer",             15000, 110, RACE_OGRE },
          { 27, "Hooshnak the Vicious",     25000, 115, RACE_BEASTMAN },
          { 28, "Balenn War-Dancer",        30000, 112, RACE_BARBARIAN },
          { 0 }}},
@@ -186,9 +190,9 @@ static _type_t _types[] =
          { 14, "Atal the Wise",            30000, 109, RACE_HUMAN },
          { 15, "Ibenidd the Chaste",       10000, 109, RACE_HUMAN },
          { 16, "Eridish",                  15000, 110, RACE_HALF_TROLL },
-         { 17, "Vrudush the Shaman",       25000, 107, RACE_HALF_OGRE },
+         { 17, "Vrudush the Shaman",       25000, 107, RACE_OGRE },
          { 18, "Haob the Berserker",       30000, 109, RACE_BARBARIAN },
-         { 19, "Proogdish the Youthfull",  10000, 109, RACE_HALF_OGRE },
+         { 19, "Proogdish the Youthfull",  10000, 109, RACE_OGRE },
          { 20, "Lumwise the Mad",          15000, 110, RACE_YEEK },
          { 21, "Muirt the Virtuous",       25000, 107, RACE_KOBOLD },
          { 22, "Dardobard the Weak",       30000, 109, RACE_SPECTRE },
@@ -281,7 +285,7 @@ static _type_t _types[] =
          { 29, "Vosur the Wrinkled",       20000, 150, RACE_NIBELUNG },
          { 30, "Araord the Handsome",      20000, 150, RACE_AMBERITE },
          { 31, "Theradfrid the Loser",     30000, 150, RACE_HUMAN },
-         { 32, "One-Legged Eroolo",        30000, 150, RACE_HALF_OGRE }}},
+         { 32, "One-Legged Eroolo",        30000, 150, RACE_OGRE }}},
 
     { SHOP_BOOK, "Bookstore", _book_will_buy, _book_create,
         {{  1, "Dolaf the Greedy",         10000, 108, RACE_HUMAN },
@@ -323,6 +327,23 @@ static _type_t _types[] =
          { 13, "Mugbasha",                  5000, 120, RACE_KOBOLD },
          { 0 }}},
 
+	{ SHOP_SHROOMERY, "Mushroom Store", _shroomery_will_buy, _shroomery_create,
+		 { { 1, "Mysticus",              50000, 110, RACE_GNOME },
+		 { 2, "Martin",                10000, 108, RACE_HUMAN },
+		 { 3, "Karl",                     10000, 110, RACE_HALF_TROLL },
+		 { 4, "Mycella",				25000, 105, RACE_SPRITE },
+		 { 5, "Gordo",					20000, 110, RACE_HOBBIT },
+		 { 6, "Agaria",					40000, 105, RACE_WOOD_ELF },
+		 { 7, "Dumush",                  5000, 120, RACE_KOBOLD },
+		 { 0 } } },
+
+	{ SHOP_DRAGON, "Dragonskin Emporium", _dragon_will_buy, _dragon_create,
+		 { { 1, "Beowulf",              50000, 110, RACE_HUMAN },
+		 { 2, "George",                10000, 108, RACE_HUMAN },
+		 { 3, "Sigmund",                     10000, 110, RACE_HUMAN },
+		 { 4, "Conan",				25000, 105, RACE_BARBARIAN },
+		 { 0 } } },
+
     { SHOP_NONE }
 };
 
@@ -343,6 +364,7 @@ static bool _shop_is_basic(shop_ptr shop)
     {
     case SHOP_BLACK_MARKET:
     case SHOP_JEWELER:
+	case SHOP_DRAGON:
         return FALSE;
     }
     return TRUE;
@@ -439,10 +461,10 @@ static bool _create(obj_ptr obj, int k_idx, int lvl, u32b mode)
     object_prep(obj, k_idx);
     apply_magic(obj, lvl, mode);
     if (obj->tval == TV_LITE)
-    {
-        if (obj->sval == SV_LITE_TORCH) obj->xtra4 = FUEL_TORCH / 2;
-        if (obj->sval == SV_LITE_LANTERN) obj->xtra4 = FUEL_LAMP / 2;
-    }
+	{
+		if (obj->sval == SV_LITE_TORCH) obj->xtra4 = FUEL_TORCH;
+		if (obj->sval == SV_LITE_LANTERN) obj->xtra4 = FUEL_LAMP;
+	}
 
     if (object_is_cursed(obj)) return FALSE;
 
@@ -545,7 +567,7 @@ static bool _general_create(obj_ptr obj, u32b mode)
         k_idx = lookup_kind(TV_DIGGING, SV_PICK);
     else
         k_idx = _get_k_idx(_general_stock_p, _mod_lvl(20));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 5)), mode);
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
 }
 
 /************************************************************************
@@ -578,7 +600,7 @@ static bool _armory_stock_p(int k_idx)
 static bool _armory_create(obj_ptr obj, u32b mode)
 {
     int k_idx = _get_k_idx(_armory_stock_p, _mod_lvl(20));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 5)), mode);
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
 }
 
 /************************************************************************
@@ -649,7 +671,7 @@ static bool _weapon_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
     int l1 = _mod_lvl(20);
-    int l2 = _mod_lvl(rand_range(1, 5));
+    int l2 = _mod_lvl(rand_range(1, 15));
     if (one_in_(3))
         k_idx = _get_k_idx(_weapon_book_p, l1);
     else if (one_in_(4))
@@ -660,7 +682,12 @@ static bool _weapon_create(obj_ptr obj, u32b mode)
         k_idx = lookup_kind(TV_QUIVER, 0);
     else
         k_idx = _get_k_idx(_weapon_stock_p, l1);
-    return _create(obj, k_idx, l2, mode);
+    if (!_create(obj, k_idx, l2, mode)) return FALSE;
+	if (obj->to_a < 0 || obj->to_h < 0)
+	{
+		return FALSE;
+	}
+	return TRUE;
 }
 
 /************************************************************************
@@ -728,8 +755,6 @@ static bool _temple_stock_p(int k_idx)
     case TV_POTION:
         switch (k_info[k_idx].sval)
         {
-        case SV_POTION_RESIST_HEAT:
-        case SV_POTION_RESIST_COLD:
         case SV_POTION_RESTORE_EXP:
         case SV_POTION_CURE_CRITICAL:
         case SV_POTION_CURE_SERIOUS:
@@ -758,7 +783,7 @@ static bool _temple_create(obj_ptr obj, u32b mode)
         k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     else
         k_idx = _get_k_idx(_temple_stock_p, _mod_lvl(20));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 5)), mode);
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
 }
 
 /************************************************************************
@@ -796,20 +821,8 @@ static bool _alchemist_stock_p(int k_idx)
 
 static bool _alchemist_create(obj_ptr obj, u32b mode)
 {
-    int k_idx;
-    if (one_in_(3))
-        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
-    else if (one_in_(5))
-        k_idx = lookup_kind(TV_POTION, SV_POTION_RES_STR + randint0(6));
-    else if (one_in_(7))
-        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY);
-    else if (one_in_(10))
-        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT);
-    else if (one_in_(20))
-        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
-    else
-        k_idx = _get_k_idx(_alchemist_stock_p, _mod_lvl(20));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 5)), mode);
+    int k_idx = _get_k_idx(_alchemist_stock_p, _mod_lvl(20));
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
 }
 
 /************************************************************************
@@ -1018,7 +1031,7 @@ static bool _book_stock_p(int k_idx)
 static bool _book_create(obj_ptr obj, u32b mode)
 {
     int k_idx = _get_k_idx(_book_stock_p, _mod_lvl(20));
-    return _create(obj, k_idx, _mod_lvl(rand_range(1, 5)), mode);
+    return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
 }
 
 /************************************************************************
@@ -1051,6 +1064,87 @@ static bool _jeweler_create(obj_ptr obj, u32b mode)
     int k_idx = _get_k_idx(_jeweler_stock_p, _mod_lvl(l1));
     return _create(obj, k_idx, _mod_lvl(l2), mode);
 }
+
+/************************************************************************
+* The Mushroomery
+***********************************************************************/
+
+static bool _shroomery_will_buy(obj_ptr obj)
+{
+	if (obj->tval != TV_FOOD) return FALSE;
+	return _will_buy(obj);
+}
+
+static bool _shroomery_stock_p(int k_idx)
+{
+	if (!_stock_p(k_idx))
+		return FALSE;
+	switch (k_info[k_idx].tval)
+	{
+	case TV_FOOD:
+		if (k_info[k_idx].sval<SV_FOOD_MAX_MUSHROOM)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+static bool _shroomery_create(obj_ptr obj, u32b mode)
+{
+	int k_idx = _get_k_idx(_shroomery_stock_p, _mod_lvl(20));
+	return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
+}
+
+/************************************************************************
+* The Dragon Emporium
+***********************************************************************/
+
+static bool _dragon_will_buy(obj_ptr obj)
+{
+	return obj_is_armor(obj) && _will_buy(obj);
+}
+
+static bool _dragon_stock_p(int k_idx)
+{
+	if (!_stock_p(k_idx))
+		return FALSE;
+	if (k_info[k_idx].tval == TV_DRAG_ARMOR)
+		return TRUE;
+	return FALSE;
+}
+
+static bool _dragon_stock_aux_p(int k_idx)
+{
+	if (!_stock_p(k_idx))
+		return FALSE;
+	if (k_info[k_idx].tval == TV_DRAG_ARMOR)
+		return TRUE;
+	if ((k_info[k_idx].tval == TV_CLOAK) && (k_info[k_idx].sval == SV_DRAGON_CLOAK))
+		return TRUE;
+	if ((k_info[k_idx].tval == TV_HELM) && (k_info[k_idx].sval == SV_DRAGON_HELM))
+		return TRUE;
+	if ((k_info[k_idx].tval == TV_BOOTS) && (k_info[k_idx].sval == SV_PAIR_OF_DRAGON_GREAVE))
+		return TRUE;
+	if ((k_info[k_idx].tval == TV_GLOVES) && (k_info[k_idx].sval == SV_SET_OF_DRAGON_GLOVES))
+		return TRUE;
+	if ((k_info[k_idx].tval == TV_SHIELD) && (k_info[k_idx].sval == SV_DRAGON_SHIELD))
+		return TRUE;
+	return FALSE;
+}
+
+static bool _dragon_create(obj_ptr obj, u32b mode)
+{
+	int k_idx;
+	if (!one_in_(5))
+	{
+		k_idx = _get_k_idx(_dragon_stock_p, _mod_lvl(75));
+	}
+	else
+	{
+		k_idx = _get_k_idx(_dragon_stock_aux_p, _mod_lvl(60));
+	}
+	return _create(obj, k_idx, _mod_lvl(rand_range(1, 25)), mode);
+}
+
 
 /************************************************************************
  * Shops
@@ -1441,14 +1535,9 @@ static void _display(_ui_context_ptr context)
     doc_insert(doc, "<color:keypress>s</color> to sell. ");
     doc_insert(doc, 
         "<color:keypress>x</color> to begin examining items.\n"
-        "<color:keypress>B</color> to buyout inventory. ");
-
-    if (mut_present(MUT_MERCHANTS_FRIEND))
-    {
-        doc_insert(doc,
-            "<color:keypress>S</color> to shuffle stock. "
-            "<color:keypress>R</color> to reserve an item.");
-    }
+        "<color:keypress>B</color> to buyout inventory. "
+		"<color:keypress>S</color> to shuffle stock. "
+        "<color:keypress>R</color> to reserve an item.");
     doc_newline(doc);
 
     doc_insert(doc,
@@ -1619,32 +1708,27 @@ static void _reserve_aux(shop_ptr shop, obj_ptr obj)
 
 static void _reserve(_ui_context_ptr context)
 {
-    if (p_ptr->wizard || mut_present(MUT_MERCHANTS_FRIEND))
+    for (;;)
     {
-        for (;;)
+        char    cmd;
+        slot_t  slot;
+        obj_ptr obj;
+
+        if (!msg_command("<color:y>Reserve which item <color:w>(<color:keypress>Esc</color> when done)</color>?</color>", &cmd)) break;
+        if (cmd < 'a' || cmd > 'z') continue;
+        slot = label_slot(cmd);
+        slot = slot + context->top - 1;
+        obj = inv_obj(context->shop->inv, slot);
+        if (!obj) continue;
+
+        if (obj->marked & OM_RESERVED)
         {
-            char    cmd;
-            slot_t  slot;
-            obj_ptr obj;
-
-            if (!msg_command("<color:y>Reserve which item <color:w>(<color:keypress>Esc</color> when done)</color>?</color>", &cmd)) break;
-            if (cmd < 'a' || cmd > 'z') continue;
-            slot = label_slot(cmd);
-            slot = slot + context->top - 1;
-            obj = inv_obj(context->shop->inv, slot);
-            if (!obj) continue;
-
-            if (obj->marked & OM_RESERVED)
-            {
-                msg_print("You have already reserved that item. Choose another.");
-                continue;
-            }
-            _reserve_aux(context->shop, obj);
-            break;
+            msg_print("You have already reserved that item. Choose another.");
+            continue;
         }
+        _reserve_aux(context->shop, obj);
+        break;
     }
-    else
-        msg_print("I will only reserve items in my stock for wizards or true friends of the merchant's guild.");
 }
 
 static bool _sell_aux(shop_ptr shop, obj_ptr obj)
@@ -1703,6 +1787,19 @@ static void _sell(_ui_context_ptr context)
         obj_ptr obj;
         int     amt = 1;
 
+		//ban obvious thing
+		if (context->shop->type->id == SHOP_SHROOMERY)
+		{
+			if (prace_is_(RACE_SNOTLING) || prace_is_(RACE_DOPPELGANGER)) {
+				msg_print("We don't serve your kind here.");
+				return FALSE;
+			}
+			if (p_ptr->prace == RACE_DOPPELGANGER) {
+				msg_print("I'm wise to your tricks. You can't have my mushrooms.");
+				return FALSE;
+			}
+		}
+
         if (!msg_command("<color:y>Buy which item <color:w>(<color:keypress>Esc</color> "
                          "to cancel)</color>?</color>", &cmd)) break;
         if (cmd < 'a' || cmd > 'z') continue;
@@ -1740,6 +1837,19 @@ static void _sellout(shop_ptr shop)
 {
     slot_t slot, max = inv_last(shop->inv, obj_exists);
     int    price, total_price = 0;
+
+	//ugh I copy/pasted this
+	if (shop->type->id == SHOP_SHROOMERY)
+	{
+		if (prace_is_(RACE_SNOTLING) || prace_is_(RACE_DOPPELGANGER)) {
+			msg_print("We don't serve your kind here.");
+			return;
+		}
+		if (p_ptr->prace == RACE_DOPPELGANGER) {
+			msg_print("I'm wise to your tricks. You can't have my mushrooms.");
+			return;
+		}
+	}
 
     if (1 && !get_check("Are you sure you want to buy the entire inventory of this store? "))
         return;
@@ -1811,6 +1921,8 @@ static int _stock_base(shop_ptr shop)
 {
     if (shop->type->id == SHOP_GENERAL)
         return 10 - 2 + randint1(4);
+	if (shop->type->id == SHOP_SHROOMERY)
+		return 6 + randint1(4);
     return _STOCK_BASE - 4 + randint1(8);
 }
 
@@ -1967,34 +2079,29 @@ static int _restock(shop_ptr shop, int target)
 
 static void _shuffle_stock(shop_ptr shop)
 {
-    if (p_ptr->wizard || mut_present(MUT_MERCHANTS_FRIEND))
+    if (!p_ptr->wizard)
     {
-        if (!p_ptr->wizard)
+        int        cost = _sell_price(shop, 5000);
+        string_ptr s;
+        char       c;
+        s = string_alloc_format("Shuffle stock for <color:R>%d</color> gp? <color:y>[y/n]</color>", cost);
+        c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
+        string_free(s);
+        if (c == 'n') return;
+        if (cost > p_ptr->au)
         {
-            int        cost = _sell_price(shop, 5000);
-            string_ptr s;
-            char       c;
-            s = string_alloc_format("Shuffle stock for <color:R>%d</color> gp? <color:y>[y/n]</color>", cost);
-            c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
-            string_free(s);
-            if (c == 'n') return;
-            if (cost > p_ptr->au)
-            {
-                msg_print("You don't have enough gold.");
-                return;
-            }
-            p_ptr->au -= cost;
-            stats_on_gold_services(cost);
-
-            p_ptr->redraw |= PR_GOLD;
-            if (prace_is_(RACE_MON_LEPRECHAUN))
-                p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+            msg_print("You don't have enough gold.");
+            return;
         }
-        _cull(shop, 0);
-        _restock(shop, _stock_base(shop));
+        p_ptr->au -= cost;
+        stats_on_gold_services(cost);
+
+        p_ptr->redraw |= PR_GOLD;
+        if (prace_is_(RACE_MON_LEPRECHAUN))
+            p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }
-    else
-        msg_print("I will only shuffle my stock for wizards or true friends of the merchant's guild.");
+    _cull(shop, 0);
+    _restock(shop, _stock_base(shop));
 }
 
 /************************************************************************
@@ -2140,7 +2247,7 @@ void shop_display_inv(doc_ptr doc, inv_ptr inv, slot_t top, int page_size)
 /************************************************************************
  * Town
  ***********************************************************************/
-static cptr _names[] = { "Wilderness", "Outpost", "Telmora", "Morivant", "Angwil", "Zul", "Dungeon" };
+static cptr _names[] = { "Wilderness", "Outpost", "Telmora", "Morivant", "Angwil", "Thalos", "Zul", "Dungeon" };
 
 struct town_s
 {

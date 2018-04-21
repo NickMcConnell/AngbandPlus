@@ -1,0 +1,48 @@
+# The Sand Pit (clouded)
+?:[EQU $QUEST36 Taken InProgress]
+D:We desperately need help in clearing out a foul nest of worms.
+D:These eldritch abominations are sleeping in a nearby pit, waiting
+D:upon the stars. Please, you must help us before it is too late.
+?:[EQU $QUEST36 Completed]
+D:Thank you.
+?:[EQU $QUEST36 Failed]
+D:Oh. no.
+?:1
+
+T:QUEST:NORMAL
+L:X:PERMANENT
+L:#:GRANITE
+L:.:DIRT
+L:;:RUBBLE
+L:<:UP_STAIR
+L:C:MON(chthonian)
+L:D:MON(dhole)
+L:w:MON(trench wurm)
+L:W:MON(wereworm)
+M:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+M:X;;;;;;;;#;;;;;;;;;;;;;;;;;;;;;;;;X
+M:X;;;;;;;;;;;;;#;;;;;;;;#;;;;;;;;;;X
+M:X;;;#;;;...;;;;;;;;;;;;;;;.;;#;;;;X
+M:X;;;;;;C;;.w.;;;;#;;;;;;..w.D;;;;;X
+M:X;;;;;;;......;;;;;;;#;;;...;;;;;;X
+M:X;#;;;;.....;;;;;;;;;;;;;;...#;#;;X
+M:X;;;;#;;;...;;;#;;;#;;;#...;;;;;;;X
+M:X;;;;;;;;;;;;;;;;;;;;;;;;;.;;;;;;;X
+M:X;;;;#;;;;;;;#;;;...;;;;;;;;;#;;;;X
+M:X;#;;;;;;#;;;;;.....;;;#;;;;;;;;;;X
+M:X;;;;;;.;;;;;;;;.<;..;;;;;;;;;;;#;X
+M:X;;;;;..;;;;#;;....;.;;;#;;;.#;;;;X
+M:X;;#;..;#;;;;;;;....;;;;;;;...;;;;X
+M:X;;;;;...;;;;;;;;;;;#;;;;;;;.w;;;;X
+M:X;;;..w.;;;...;;;;;;;;;#;;;;;..#;;X
+M:X;;;;....;#;...;#;;;;.;;;;;..;;;;;X
+M:X;;;#;D.;;;;..;;;;;#;..;;#;;;;;;;;X
+M:X;;;;;.;;;;;;;;;;....w...;;;#;;;#;X
+M:X;;;;..;#;;;;#;;;;.W..;;...;#;;;;;X
+M:X;;#;;;;;;;;;;;;;...;#;;;..C;;;;;;X
+M:X;;;;;;;;;;#;;;#;;;;;;;;;#;;;;#;;;X
+M:X;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;X
+M:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+R:OBJ(blade of chaos)
+
+# vim: filetype=q :

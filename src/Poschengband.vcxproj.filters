@@ -88,6 +88,9 @@
     <Filter Include="Player\Classes\PosChengband">
       <UniqueIdentifier>{48def73f-7cce-4e26-8e5b-d71a44ee4f41}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Player\Classes\ComPosband">
+      <UniqueIdentifier>{59079a3e-d951-47f0-92d7-aa13f5c88c0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="files.c">
@@ -632,6 +635,9 @@
     </ClCompile>
     <ClCompile Include="py_display.c">
       <Filter>Player</Filter>
+    </ClCompile>
+    <ClCompile Include="hex_mage.c">
+      <Filter>Player\Classes\ComPosband</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

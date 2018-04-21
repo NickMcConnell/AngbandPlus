@@ -1362,8 +1362,19 @@ void equip_calc_bonuses(void)
             _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_ACID);
             _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_POIS);
             _weapon_info_flag(slot, flgs, known_flgs, OF_IMPACT);     /* Quaker */
-            _weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_GOOD);  /* Thanos, Nazgul */
-            _weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_HUMAN); /* Nazgul */
+            _weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_ORC);  
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_TROLL);  
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_GIANT);  
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_DRAGON);
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_DEMON);
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_UNDEAD);
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_ANIMAL);
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_HUMAN);
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_LIVING);
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_EVIL);
+			_weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_GOOD);  
+            _weapon_info_flag(slot, flgs, known_flgs, OF_SLAY_HUMAN); 
+			_weapon_info_flag(slot, flgs, known_flgs, OF_KILL_LIVING);  /* Thanos */
             _weapon_info_flag(slot, flgs, known_flgs, OF_BRAND_VAMP); /* Dragon Armor (Death), Helm of the Vampire */
         }
 
@@ -1428,6 +1439,7 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, OF_ESP_EVIL))    p_ptr->esp_evil = TRUE;
         if (have_flag(flgs, OF_ESP_GOOD))    p_ptr->esp_good = TRUE;
         if (have_flag(flgs, OF_ESP_NONLIVING)) p_ptr->esp_nonliving = TRUE;
+		if (have_flag(flgs, OF_ESP_LIVING)) p_ptr->esp_living = TRUE;
         if (have_flag(flgs, OF_ESP_UNIQUE))  p_ptr->esp_unique = TRUE;
 
         if (have_flag(flgs, OF_SEE_INVIS))   p_ptr->see_inv++;

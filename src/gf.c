@@ -588,7 +588,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
         dam = res_calc_dam(RES_DISEN, dam);
         if (!(flags & GF_AFFECT_SPELL) && !one_in_(5) && !CHECK_MULTISHADOW())
         {
-            if (!res_save_default(RES_DISEN) || one_in_(5))
+            if (!res_save_default(RES_DISEN))
                 disenchant_player();
         }
         else if (!res_save(RES_DISEN, 31) && !CHECK_MULTISHADOW())
@@ -1520,12 +1520,6 @@ bool gf_affect_m(int who, mon_ptr mon, int type, int dam, int flags)
                 dam *= 3; dam /= randint1(6) + 6;
             }
             mon_lore_r(mon, RFR_RES_NETH);
-        }
-        else if (race->flags3 & RF3_EVIL)
-        {
-            dam /= 2;
-            note = " resists somewhat.";
-            mon_lore_3(mon, RF3_EVIL);
         }
         break;
     case GF_WATER:

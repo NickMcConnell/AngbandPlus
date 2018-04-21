@@ -667,13 +667,17 @@ void display_weapon_info(doc_ptr doc, int hand)
     else if (have_flag(flgs, OF_SLAY_EVIL) || weaponmaster_get_toggle() == TOGGLE_HOLY_BLADE)
         _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Evil", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_SLAY_GOOD))
+	if (have_flag(flgs, OF_KILL_GOOD))
+		_display_weapon_slay(mult, 350, force, num_blow, dd, ds, to_d, "Good", TERM_YELLOW, cols[0]);
+	else if (have_flag(flgs, OF_SLAY_GOOD))
         _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Good", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_SLAY_LIVING))
+	if (have_flag(flgs, OF_KILL_LIVING))
+		_display_weapon_slay(mult, 350, force, num_blow, dd, ds, to_d, "Living", TERM_YELLOW, cols[0]);
+	else if (have_flag(flgs, OF_SLAY_LIVING))
         _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Living", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_HUMAN))
+    if (have_flag(flgs, OF_KILL_LIVING))
         _display_weapon_slay(mult, 400, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_HUMAN))
         _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, cols[0]);
@@ -1148,7 +1152,9 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "All", TERM_VIOLET, cols[0]);
     }
 
-    if (have_flag(flgs, OF_SLAY_LIVING))
+	if (have_flag(flgs, OF_KILL_LIVING))
+		_display_missile_slay(mult, 186, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Living", TERM_YELLOW, cols[0]);
+    else if (have_flag(flgs, OF_SLAY_LIVING))
         _display_missile_slay(mult, 143, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Living", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, OF_KILL_ANIMAL))
@@ -1171,6 +1177,8 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
         _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Good", TERM_VIOLET, cols[0]);
     }
+	else if (have_flag(flgs, OF_KILL_GOOD))
+		_display_missile_slay(mult, 186, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Good", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_GOOD))
         _display_missile_slay(mult, 143, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Good", TERM_YELLOW, cols[0]);
 

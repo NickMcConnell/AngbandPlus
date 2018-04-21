@@ -628,10 +628,14 @@ void py_throw_doc(py_throw_ptr context, doc_ptr doc)
     else if (have_flag(context->flags, OF_SLAY_EVIL))
         _display_weapon_slay(mult, 200, force, context->mult, num_throw, context->obj->dd, context->obj->ds, to_d, "Evil", TERM_YELLOW, cols[0]);
 
-    if (have_flag(context->flags, OF_SLAY_GOOD))
+	if (have_flag(context->flags, OF_KILL_GOOD))
+		_display_weapon_slay(mult, 350, force, context->mult, num_throw, context->obj->dd, context->obj->ds, to_d, "Good", TERM_YELLOW, cols[0]);
+	else if (have_flag(context->flags, OF_SLAY_GOOD))
         _display_weapon_slay(mult, 200, force, context->mult, num_throw, context->obj->dd, context->obj->ds, to_d, "Good", TERM_YELLOW, cols[0]);
 
-    if (have_flag(context->flags, OF_SLAY_LIVING))
+	if (have_flag(context->flags, OF_KILL_LIVING))
+		_display_weapon_slay(mult, 350, force, context->mult, num_throw, context->obj->dd, context->obj->ds, to_d, "Living", TERM_YELLOW, cols[0]);
+	else if (have_flag(context->flags, OF_SLAY_LIVING))
         _display_weapon_slay(mult, 200, force, context->mult, num_throw, context->obj->dd, context->obj->ds, to_d, "Living", TERM_YELLOW, cols[0]);
 
     if (have_flag(context->flags, OF_KILL_HUMAN))

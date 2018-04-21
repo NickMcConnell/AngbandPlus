@@ -1,7 +1,7 @@
 #new version by st_
 
 ?:[EQU $QUEST20 Taken InProgress]
-D:Something curious has taken root beneath our Inn. Celebor,
+D:Something curious has taken root beneath our Inn. Otick,
 D:the innkeeper, has reported strange vapors and auras in the
 D:basement that drive out all living things. A caged canary was
 D:placed there to test the air quality; it died within minutes,

@@ -1056,7 +1056,7 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Cure Poison";
         if (desc) return "Cure poison status.";
         if (cast)
-            set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+            set_poisoned(p_ptr->poisoned - MAX(125, p_ptr->poisoned / 3), TRUE);
         break;
     case 7:
         if (name) return "Satisfy Hunger";
@@ -2186,7 +2186,7 @@ static cptr do_nature_spell(int spell, int mode)
                 if (p_ptr->pclass != CLASS_BLOOD_MAGE)
                     hp_player(damroll(dice, sides));
                 set_cut(0, TRUE);
-                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(125, p_ptr->poisoned / 3), TRUE);
             }
         }
         break;
@@ -2880,7 +2880,7 @@ static cptr do_chaos_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!get_aim_dir(&dir)) return NULL;
+                if (!get_fire_dir(&dir)) return NULL;
 
                 fire_ball(
                     GF_DISINTEGRATE,
@@ -6602,7 +6602,7 @@ static cptr do_crusade_spell(int spell, int mode)
             if (cast)
             {
                 set_cut(0, TRUE);
-                set_poisoned(p_ptr->poisoned - MAX(50, p_ptr->poisoned / 5), TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(50, p_ptr->poisoned / 3), TRUE);
                 set_stun(0, TRUE);
             }
         }
@@ -6758,6 +6758,7 @@ static cptr do_crusade_spell(int spell, int mode)
                     hp_player(heal);
                 set_stun(0, TRUE);
                 set_cut(0, TRUE);
+				set_poisoned(0, TRUE);
             }
         }
         break;

@@ -668,7 +668,6 @@ bool mut_demigod_pred(int mut_idx)
     case MUT_SPEED_READER:
     case MUT_ONE_WITH_MAGIC:
     case MUT_PEERLESS_TRACKER:
-    case MUT_MERCHANTS_FRIEND:
     case MUT_SACRED_VITALITY:
     case MUT_CULT_OF_PERSONALITY:
     case MUT_FLEET_OF_FOOT:

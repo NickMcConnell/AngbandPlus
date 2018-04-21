@@ -475,7 +475,9 @@ bool obj_is_identified_fully(object_type *o_ptr)
 void obj_identify(object_type *o_ptr)
 {
     assert(o_ptr);
-    if (!obj_is_identified(o_ptr))
+	if (easy_id)
+		obj_identify_fully(o_ptr);
+	else if (!obj_is_identified(o_ptr))
         _obj_identify_aux(o_ptr);
 }
 

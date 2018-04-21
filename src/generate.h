@@ -5,9 +5,9 @@
  * Dungeon generation values
  */
 #define DUN_DEST    18  /* 1/chance of having a destroyed level */
-#define SMALL_LEVEL 8   /* 1/chance of smaller size (was 3) */
+#define SMALL_LEVEL 5   /* 1/chance of smaller size (was 3) */
 #define EMPTY_LEVEL 24  /* 1/chance of being 'empty' (15) */
-#define LAKE_LEVEL  24  /* 1/chance of being a lake on the level */
+#define LAKE_LEVEL  18  /* 1/chance of being a lake on the level */
 #define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2) */
 #define DUN_CAVERN  20    /* 1/chance of having a cavern level */
 
@@ -56,7 +56,7 @@ extern int dun_tun_jct;
 /*
  * Dungeon treausre allocation values
  */
-#define DUN_AMT_ROOM    6    /* Amount of objects for rooms */
+#define DUN_AMT_ROOM    8    /* Amount of objects for rooms */
 #define DUN_AMT_ITEM    2    /* Amount of objects for rooms/corridors */
 #define DUN_AMT_GOLD    2    /* Amount of treasure for rooms/corridors */
 #define DUN_AMT_INVIS   3    /* Amount of invisible walls for rooms/corridors */

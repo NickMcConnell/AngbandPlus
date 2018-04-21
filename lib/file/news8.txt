@@ -1,4 +1,4 @@
-<color:y>PosChengband <$:version></color>
+<color:y>ComPosband <$:version></color>
 <style:screenshot>
 The Mithril Bolt (Elemental) (5d5) (+14,+15) hits Gothmog, the                  
 High Captain of Balrogs. Gothmog, the High Captain of Balrogs       LEVEL <color:G>    50</color>

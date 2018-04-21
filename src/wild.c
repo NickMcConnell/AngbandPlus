@@ -604,7 +604,7 @@ static bool _generate_special_encounter(room_ptr room, rect_t r, rect_t exclude)
     return FALSE;
 }
 
-#define _WILD_ENCOUNTER_CHANCE 15
+#define _WILD_ENCOUNTER_CHANCE 10
 
 static void _generate_encounters(int x, int y, rect_t r, rect_t exclude)
 {
@@ -1720,14 +1720,6 @@ bool py_can_recall(void)
 {
     if (p_ptr->inside_arena || ironman_downward)
         return FALSE;
-
-    /* blocked if current dungeon's guardian is unslain */
-    if ( dungeon_type != 0
-      && !(dungeon_flags[dungeon_type] & DUNGEON_NO_GUARDIAN)
-      && d_info[dungeon_type].initial_guardian )
-    {
-        return FALSE;
-    }
 
     return TRUE;
 }

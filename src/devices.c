@@ -528,8 +528,8 @@ static cptr _do_potion(int sval, int mode)
             device_noticed = TRUE;
         }
         break;
-    case SV_POTION_INFRAVISION:
-        if (desc) return "It gives temporary infravision when you quaff it.";
+    case SV_POTION_SIGHT:
+        if (desc) return "It gives temporary see invisible and infravision and cures blindness when you quaff it.";
         if (info) return info_duration(_potion_power(100), _potion_power(100));
         if (cast)
         {
@@ -538,34 +538,24 @@ static cptr _do_potion(int sval, int mode)
             {
                 device_noticed = TRUE;
             }
+			if (set_tim_invis(p_ptr->tim_invis + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
+			if (set_blind(0, TRUE)) device_noticed = TRUE;
         }
         break;
-    case SV_POTION_DETECT_INVIS:
-        if (desc) return "It gives temporary see invisible when you quaff it.";
-        if (info) return info_duration(_potion_power(12), _potion_power(12));
+    case SV_POTION_CURE_POISON: //anti-toxin
+        if (desc) return "It cures poison and grants temporary poison resistance when you quaff it.";
         if (cast)
         {
-            int dur = _potion_power(12 + randint1(12));
-            if (set_tim_invis(p_ptr->tim_invis + dur, FALSE))
-            {
+			int dur = _potion_power(10 + randint1(10));
+			if (set_poisoned(p_ptr->poisoned - MAX(400, p_ptr->poisoned / 2), TRUE))
                 device_noticed = TRUE;
-            }
-        }
-        break;
-    case SV_POTION_SLOW_POISON:
-        if (desc) return "It reduces poison when you quaff it.";
-        if (cast)
-        {
-            if (set_poisoned(p_ptr->poisoned - MAX(10, p_ptr->poisoned / 10), TRUE))
-                device_noticed = TRUE;
-        }
-        break;
-    case SV_POTION_CURE_POISON:
-        if (desc) return "It cures poison a bit when you quaff it.";
-        if (cast)
-        {
-            if (set_poisoned(p_ptr->poisoned - MAX(50, p_ptr->poisoned / 5), TRUE))
-                device_noticed = TRUE;
+			if (set_oppose_pois(p_ptr->oppose_cold + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
         }
         break;
     case SV_POTION_BOLDNESS:
@@ -595,8 +585,8 @@ static cptr _do_potion(int sval, int mode)
                 set_fast(p_ptr->fast + 5, FALSE);
         }
         break;
-    case SV_POTION_RESIST_HEAT:
-        if (desc) return "You get temporary resistance to fire when you quaff it. This resistance is cumulative with equipment.";
+    case SV_POTION_THERMAL:
+        if (desc) return "You get temporary resistance to fire and cold when you quaff it. This resistance is cumulative with equipment.";
         if (info) return format("Dur d%d+%d", _potion_power(10), _potion_power(10));
         if (cast)
         {
@@ -605,18 +595,22 @@ static cptr _do_potion(int sval, int mode)
             {
                 device_noticed = TRUE;
             }
+			if (set_oppose_cold(p_ptr->oppose_cold + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
         }
         break;
-    case SV_POTION_RESIST_COLD:
-        if (desc) return "You get temporary resistance to cold when you quaff it. This resistance is cumulative with equipment.";
+    case SV_POTION_RESIST_ELEC:
+        if (desc) return "You get temporary resistance to electricity when you quaff it. This resistance is cumulative with equipment.";
         if (info) return format("Dur d%d+%d", _potion_power(10), _potion_power(10));
         if (cast)
         {
             int dur = _potion_power(10 + randint1(10));
-            if (set_oppose_cold(p_ptr->oppose_cold + dur, FALSE))
-            {
-                device_noticed = TRUE;
-            }
+			if (set_oppose_elec(p_ptr->oppose_elec + dur, FALSE))
+			{
+				device_noticed = TRUE;
+			}
         }
         break;
     case SV_POTION_HEROISM:
@@ -639,38 +633,35 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CURE_LIGHT:
-        if (desc) return "It heals you trivially, cures blindness and berserk and reduces cuts when you quaff it.";
-        if (info) return info_heal(2, _potion_power(8), 0);
-        if (cast)
-        {
-            if (hp_player(_potion_power(damroll(2, 8)))) device_noticed = TRUE;
-            if (set_blind(0, TRUE)) device_noticed = TRUE;
-            if (set_cut(p_ptr->cut - 10, TRUE)) device_noticed = TRUE;
-            if (set_shero(0,TRUE)) device_noticed = TRUE;
-        }
-        break;
-    case SV_POTION_CURE_SERIOUS:
-        if (desc) return "It heals you a bit, cures blindness, confusion and berserk and reduces cuts when you quaff it.";
+        if (desc) return "It heals you slightly, cures berserk and reduces cuts when you quaff it.";
         if (info) return info_heal(4, _potion_power(8), 0);
         if (cast)
         {
             if (hp_player(_potion_power(damroll(4, 8)))) device_noticed = TRUE;
-            if (set_blind(0, TRUE)) device_noticed = TRUE;
-            if (set_confused(0, TRUE)) device_noticed = TRUE;
+            if (set_cut(p_ptr->cut - 15, TRUE)) device_noticed = TRUE;
+            if (set_shero(0,TRUE)) device_noticed = TRUE;
+        }
+        break;
+    case SV_POTION_CURE_SERIOUS:
+        if (desc) return "It heals you a bit, cures berserk and reduces cuts when you quaff it.";
+        if (info) return info_heal(8, _potion_power(8), 0);
+        if (cast)
+        {
+            if (hp_player(_potion_power(damroll(8, 8)))) device_noticed = TRUE;
             if (set_cut((p_ptr->cut / 2) - 50, TRUE)) device_noticed = TRUE;
             if (set_shero(0,TRUE)) device_noticed = TRUE;
         }
         break;
     case SV_POTION_CURE_CRITICAL:
-        if (desc) return "It heals you a bit and cures blindness, confusion, stunned, cuts and berserk when you quaff it.";
-        if (info) return info_heal(6, _potion_power(8), 0);
+        if (desc) return "It heals you and cures stunned, cuts and berserk when you quaff it.";
+        if (info) return info_heal(12, _potion_power(8), 0);
         if (cast)
         {
-            if (hp_player(_potion_power(damroll(6, 8)))) device_noticed = TRUE;
-            if (set_blind(0, TRUE)) device_noticed = TRUE;
-            if (set_confused(0, TRUE)) device_noticed = TRUE;
+            if (hp_player(_potion_power(damroll(12, 8)))) device_noticed = TRUE;
             if (set_stun(0, TRUE)) device_noticed = TRUE;
             if (set_cut(0, TRUE)) device_noticed = TRUE;
+			if (set_poisoned(p_ptr->poisoned - MAX(150, p_ptr->poisoned / 3), TRUE))
+				device_noticed = TRUE;
             if (set_shero(0,TRUE)) device_noticed = TRUE;
         }
         break;
@@ -742,11 +733,11 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CLARITY:
-        if (desc) return "It clears your mind a bit when you quaff it.";
-        if (info) return format("5d%d + %d", _potion_power(6), _potion_power(5));
+        if (desc) return "It clears your mind a bit when you quaff it and cures confusion.";
+        if (info) return format("3d%d + %d", _potion_power(6), _potion_power(3));
         if (cast)
         {
-            int amt = _potion_power(damroll(5, 6) + 5);
+            int amt = _potion_power(damroll(3, 6) + 3);
 
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are unaffected.");
@@ -755,10 +746,11 @@ static cptr _do_potion(int sval, int mode)
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
             }
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
         }
         break;
     case SV_POTION_GREAT_CLARITY:
-        if (desc) return "It greatly clears your mind when you quaff it.";
+        if (desc) return "It greatly clears your mind when you quaff it and cures confusion and hallucinations.";
         if (info) return format("10d%d + %d", _potion_power(10), _potion_power(15));
         if (cast)
         {
@@ -771,6 +763,8 @@ static cptr _do_potion(int sval, int mode)
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
             }
+			if (set_confused(0, TRUE)) device_noticed = TRUE;
+			if (set_image(0, TRUE)) device_noticed = TRUE;
         }
         break;
     case SV_POTION_RESTORE_MANA:
@@ -831,6 +825,18 @@ static cptr _do_potion(int sval, int mode)
             if (do_res_stat(A_CHR)) device_noticed = TRUE;
         }
         break;
+	case SV_POTION_RES_ALL:
+		if (desc) return "It restores your stats when you quaff it.";
+		if (cast)
+		{
+			if (do_res_stat(A_STR)) device_noticed = TRUE;
+			if (do_res_stat(A_INT)) device_noticed = TRUE;
+			if (do_res_stat(A_WIS)) device_noticed = TRUE;
+			if (do_res_stat(A_DEX)) device_noticed = TRUE;
+			if (do_res_stat(A_CON)) device_noticed = TRUE;
+			if (do_res_stat(A_CHR)) device_noticed = TRUE;
+		}
+		break;
     case SV_POTION_INC_STR:
         if (desc) return "It increases your strength when you quaff it.";
         if (cast)
@@ -965,14 +971,11 @@ static cptr _do_potion(int sval, int mode)
         }
         break;
     case SV_POTION_CURING: {
-        int amt = 50;
-        if (desc) return "It heals you a bit and cures blindness, poison, confusion, stunning, cuts and hallucination when you quaff it.";
-        if (info) return info_heal(0, 0, _potion_power(amt));
+        if (desc) return "It cures blindness, poison, confusion, stunning, cuts and hallucination when you quaff it.";
         if (cast)
         {
-            if (hp_player(_potion_power(amt))) device_noticed = TRUE;
             if (set_blind(0, TRUE)) device_noticed = TRUE;
-            if (set_poisoned(p_ptr->poisoned - MAX(150, p_ptr->poisoned / 3), TRUE))
+            if (set_poisoned(p_ptr->poisoned - MAX(200, p_ptr->poisoned / 2), TRUE))
                 device_noticed = TRUE;
             if (set_confused(0, TRUE)) device_noticed = TRUE;
             if (set_stun(0, TRUE)) device_noticed = TRUE;
@@ -1296,15 +1299,15 @@ static cptr _do_scroll(int sval, int mode)
         if (desc) return "It increases an armour's to-ac powerfully when you read it.";
         if (cast)
         {
-            if (!enchant_spell(0, 0, randint1(3) + 2)) return NULL;
+            if (!enchant_spell(0, 0, randint1(3) + 3)) return NULL;
             device_noticed = TRUE;
         }
         break;
     case SV_SCROLL_STAR_ENCHANT_WEAPON:
-        if (desc) return "It increases a weapon's to-hit and to-dam when you read it.";
+        if (desc) return "It increases a weapon's to-hit and to-dam powerfully when you read it.";
         if (cast)
         {
-            if (!enchant_spell(randint1(3), randint1(3), 0)) return NULL;
+            if (!enchant_spell(randint1(3) + 3, randint1(3) + 3, 0)) return NULL;
             device_noticed = TRUE;
         }
         break;
@@ -2073,6 +2076,8 @@ static _effect_info_t _effect_info[] =
     {"BREATHE_SHARDS",  EFFECT_BREATHE_SHARDS,      70, 200,  4, BIAS_LAW},
     {"BREATHE_CHAOS",   EFFECT_BREATHE_CHAOS,       75, 250,  4, BIAS_CHAOS},
     {"BREATHE_DISEN",   EFFECT_BREATHE_DISEN,       60, 150,  8, 0},
+	{"BREATHE_INERTIA", EFFECT_BREATHE_INERTIA,     60, 200,  8, 0},
+	{"BREATHE_WATER",   EFFECT_BREATHE_WATER,       65, 150,  8, BIAS_MAGE },
     {"BREATHE_TIME",    EFFECT_BREATHE_TIME,        90, 500, 32, 0},
     {"BREATHE_ELEMENTS", EFFECT_BREATHE_ELEMENTS,   60, 100, 64, 0},
 
@@ -2354,7 +2359,7 @@ device_effect_info_t wand_effect_table[] =
 {
     /*                            Lvl Cost Rarity  Max  Difficulty Flags */
     {EFFECT_BOLT_MISSILE,           1,   3,     1,  20,    10,  0, _STOCK_TOWN},
-    {EFFECT_HEAL_MONSTER,           2,   3,     1,  20,     0,  0, 0},
+    {EFFECT_HEAL_MONSTER,           2,   3,     1,  50,     0,  0, 0},
     {EFFECT_BEAM_LITE_WEAK,         2,   3,     1,  20,    10,  0, _STOCK_TOWN},
     {EFFECT_BALL_POIS,              5,   4,     1,  20,    33,  0, _STOCK_TOWN},
     {EFFECT_SLEEP_MONSTER,          5,   5,     1,  20,    33,  0, _STOCK_TOWN},
@@ -2367,7 +2372,7 @@ device_effect_info_t wand_effect_table[] =
     {EFFECT_BOLT_ELEC,             15,   7,     1,  30,    33,  0, 0},
     {EFFECT_BOLT_ACID,             17,   8,     1,  35,    33,  0, 0},
     {EFFECT_BOLT_FIRE,             19,   9,     1,  35,    33,  0, 0},
-    {EFFECT_HASTE_MONSTER,         20,   3,     1,  40,     0,  0, 0},
+    {EFFECT_HASTE_MONSTER,         20,   3,     1,  50,     0,  0, 0},
     {EFFECT_TELEPORT_AWAY,         20,  10,     1,   0,    10,  0, _COMMON},
     {EFFECT_DESTROY_TRAPS,         20,  10,     1,   0,    10,  0, 0},
     {EFFECT_CHARM_MONSTER,         25,  11,     1,  50,    33,  0, 0},
@@ -2383,6 +2388,7 @@ device_effect_info_t wand_effect_table[] =
     {EFFECT_BALL_NEXUS,            47,  14,     1,   0,    50, 10, _DROP_GOOD},
     {EFFECT_BREATHE_COLD,          50,  15,     1,   0,    60, 10, _DROP_GOOD | _NO_DESTROY},
     {EFFECT_BREATHE_FIRE,          50,  16,     1,   0,    60, 10, _DROP_GOOD | _NO_DESTROY},
+	{EFFECT_BREATHE_WATER,         50,  16,     2,   0,    60, 10, _DROP_GOOD | _NO_DESTROY},
     {EFFECT_BEAM_GRAVITY,          55,  32,     2,   0,    33,  0, _DROP_GOOD | _NO_DESTROY},
     {EFFECT_METEOR,                55,  32,     2,   0,    50, 10, _DROP_GOOD | _NO_DESTROY},
     {EFFECT_BREATHE_ONE_MULTIHUED, 60,  17,     2,   0,    60, 10, _DROP_GOOD | _NO_DESTROY},
@@ -2574,6 +2580,8 @@ static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table
         if ((mode & AM_GOOD) && !(entry->flags & _DROP_GOOD)) continue;
         if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) continue;
         if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) continue;
+		if (easy_id && entry->type == EFFECT_IDENTIFY_FULL) continue;
+		if (easy_lore && entry->type == EFFECT_PROBING) continue;
 
         entry->prob = 64 / rarity;
         tot += entry->prob;
@@ -3962,14 +3970,14 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_HOLY_GRAIL:
         if (name) return "Healing and Magic Resistance";
         if (desc) return "It heals you and gives temporary resistance to magic.";
-        if (info) return format("Dur d%d+%d", 10, _BOOST(10));
+        if (info) return format("Dur d%d+%d", 50, _BOOST(50));
         if (value) return format("%d", 5000);
         if (color) return format("%d", TERM_L_BLUE);
         if (cast)
         {
-            if (hp_player(50))
+            if (hp_player(250))
                 device_noticed = TRUE;
-            if (set_resist_magic(_BOOST(10 + randint1(10)), FALSE))
+            if (set_resist_magic(_BOOST(50 + randint1(50)), FALSE))
                 device_noticed = TRUE;
         }
         break;
@@ -5809,6 +5817,36 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     }
+	case EFFECT_BREATHE_INERTIA:
+	{
+		int dam = _extra(effect, 50 + effect->power * 2);
+		if (name) return "Breathe Inertia";
+		if (desc) return "It breathes inertia.";
+		if (info) return info_damage(0, 0, _BOOST(dam));
+		if (value) return format("%d", 35 * dam);
+		if (cast)
+		{
+			if (!get_fire_dir(&dir)) return NULL;
+			fire_ball(GF_INERT, dir, _BOOST(dam), -2);
+			device_noticed = TRUE;
+		}
+		break;
+	}
+	case EFFECT_BREATHE_WATER:
+	{
+		int dam = _extra(effect, 50 + effect->power * 2);
+		if (name) return "Tsunami";
+		if (desc) return "It fires a torrent of water.";
+		if (info) return info_damage(0, 0, _BOOST(dam));
+		if (value) return format("%d", 30 * dam);
+		if (cast)
+		{
+			if (!get_fire_dir(&dir)) return NULL;
+			fire_ball(GF_WATER, dir, _BOOST(dam), -2);
+			device_noticed = TRUE;
+		}
+		break;
+	}
     case EFFECT_BREATHE_TIME:
     {
         int dam = _extra(effect, 50 + effect->power*2);

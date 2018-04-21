@@ -1,0 +1,29 @@
+?:[EQU $QUEST57 Taken InProgress]
+D:You're not a total wimp but how about something a bit more
+D:challenging? Go to the Giant's Hall and kill ten lesser
+D:titans to show us you're really strong.
+?:1
+
+?:[EQU $QUEST57 Completed]
+D:Not bad. Our armourers have made you another trophy.
+?:1
+
+?:[EQU $QUEST57 Failed]
+D:So you're not stronger than a titan.
+?:1
+
+R:OBJ(spiked gauntlets):EGO(giant)
+
+?:[EQU $RACE Death-Sword]
+R:OBJ(long sword)
+
+?:[EQU $RACE Dragon Hound Spider Ring Beholder Vortex]
+R:OBJ(^ring$):EGO(combat)
+
+?:[EQU $RACE Centipede]
+R:OBJ(metal shod boots)
+
+?:[EQU $RACE Hydra Quylthulg]
+R:OBJ(^cloak$)
+
+# vim: filetype=q :

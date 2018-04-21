@@ -368,7 +368,7 @@ void virtue_init(void)
     case RACE_SPRITE: case RACE_ENT:
         p_ptr->vir_types[i++] = VIRTUE_NATURE;
         break;
-    case RACE_HOBBIT: case RACE_HALF_OGRE:
+    case RACE_HOBBIT: case RACE_OGRE:
         p_ptr->vir_types[i++] = VIRTUE_TEMPERANCE;
         break;
     case RACE_DWARF: case RACE_KLACKON: case RACE_ANDROID:
@@ -380,7 +380,7 @@ void virtue_init(void)
     case RACE_SNOTLING: case RACE_AMBERITE: case RACE_KOBOLD:
         p_ptr->vir_types[i++] = VIRTUE_HONOUR;
         break;
-    case RACE_HALF_TROLL: case RACE_BARBARIAN:
+    case RACE_HALF_TROLL: case RACE_BARBARIAN: case RACE_HALF_ORC:
         p_ptr->vir_types[i++] = VIRTUE_VALOUR;
         break;
     case RACE_HIGH_ELF: case RACE_KUTAR:

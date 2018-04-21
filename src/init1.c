@@ -316,7 +316,7 @@ static cptr r_info_flags2[] =
     "REGENERATE",
     "CHAR_MULTI",
     "ATTR_ANY",
-    "XXX",
+    "FOREST",
     "ELDRITCH_HORROR",
     "AURA_FIRE",
     "AURA_ELEC",
@@ -695,6 +695,7 @@ static cptr k_info_flags[OF_COUNT] =
     "ESP_EVIL",
     "ESP_GOOD",
     "ESP_NONLIVING",
+	"ESP_LIVING",
     "ESP_UNIQUE",
     "ESP_DRAGON",
     "ESP_DEMON",
@@ -719,6 +720,8 @@ static cptr k_info_flags[OF_COUNT] =
     "SLAY_GIANT",
 
     "KILL_EVIL",
+	"KILL_GOOD",
+	"KILL_LIVING",
     "KILL_DRAGON",
     "KILL_DEMON",
     "KILL_UNDEAD",
@@ -4743,7 +4746,7 @@ static errr process_dungeon_file_aux(char *buf, int options)
 
 
 static char tmp[255];
-static cptr variant_name = "POSCHENGBAND";
+static cptr variant_name = "COMPOSBAND";
 
 /*
  * Helper function for "process_dungeon_file()"

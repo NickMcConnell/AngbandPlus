@@ -2272,6 +2272,15 @@ option_type option_info[] =
 
     /*** Birth Options ***/
 
+	{ &easy_id,						FALSE, OPT_PAGE_BIRTH, 6, 31,
+	"easy_id",						"Easy Identify" },
+	
+	{ &easy_lore,					FALSE, OPT_PAGE_BIRTH, 6, 30,
+	"easy_lore",					"Easy Lore" },
+	
+	{ &allow_spoilers,				FALSE, OPT_PAGE_BIRTH, 6, 29,
+	"allow_spoilers",				"Allow Spoilers" },
+	
     { &smart_learn,                 TRUE,  OPT_PAGE_BIRTH, 1, 14,
     "smart_learn",                  "Monsters learn from their mistakes (*)" },
 

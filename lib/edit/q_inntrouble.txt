@@ -1,0 +1,48 @@
+# Description for quest
+?:[EQU $QUEST50 Taken InProgress]
+D:A group of mercenaries have been frightening people at
+D:the bar. I need you to go and restore order. Be sure to 
+D:send my condolences to the families.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST50 Completed]
+D:Here is a reward for your good work.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST50 Failed]
+Q:You have failed me, beware you do not do so again!
+?:1
+
+T:QUEST:NORMAL
+L:#:PERMANENT
+L:<:UP_STAIR
+L:.:FLOOR
+L:+:CLOSED_DOOR
+L:$:OBJ(*)
+L:&:MON(*, DEPTH+5)
+L:a:MON(mean looking mercenary)
+L:b:MON(singing)
+L:k:OBJ(elvish waybread)
+L:m:OBJ(potion of boldness)
+L:n:OBJ(potion of booze)
+M:######################################
+M:#$...........#....#....kkm#.........$#
+M:#..b.........+....+....kkn#..........#
+M:#............#....#########..........#
+M:##############....#..................#
+M:#............#....#############++++###
+M:#..b.........+.......................#
+M:#............#.......................#
+M:##############.....##a....##a....##a.#
+M:#............#.....##b....##.....##b.#
+M:#$....&......+.......................#
+M:#............#.......................#
+M:##############.....##....b##a...b##a.#
+M:#............#.....##.....##b....##..#
+M:#............+.......................#
+M:#............#...........<...........#
+M:######################################
+R:OBJ(hard studded leather)
+

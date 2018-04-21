@@ -1878,16 +1878,16 @@ typedef struct {
 } _slot_weight_t, *_slot_weight_ptr;
 static _slot_weight_t _slot_weight_tbl[] = {
     {"Weapons", object_is_melee_weapon, 80},
-    {"Shields", object_is_shield, 45},
-    {"Bows", object_is_bow, 45},
-    {"Rings", object_is_ring, 40},
-    {"Amulets", object_is_amulet, 40},
-    {"Lights", object_is_lite, 30},
+    {"Shields", object_is_shield, 55},
+    {"Bows", object_is_bow, 65},
+    {"Rings", object_is_ring, 50},
+    {"Amulets", object_is_amulet, 50},
+    {"Lights", object_is_lite, 40},
     {"Body Armor", object_is_body_armour, 80},
-    {"Cloaks", object_is_cloak, 35},
-    {"Helmets", object_is_helmet, 40},
-    {"Gloves", object_is_gloves, 35},
-    {"Boots", object_is_boots, 40},
+    {"Cloaks", object_is_cloak, 45},
+    {"Helmets", object_is_helmet, 50},
+    {"Gloves", object_is_gloves, 45},
+    {"Boots", object_is_boots, 50},
     {NULL}
 };
 static int _get_slot_weight(obj_ptr obj)

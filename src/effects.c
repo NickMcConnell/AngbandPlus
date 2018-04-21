@@ -237,7 +237,7 @@ bool disenchant_player(void)
             {
                 (void)set_fast(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 2:
@@ -245,7 +245,7 @@ bool disenchant_player(void)
             {
                 (void)set_lightspeed(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 3:
@@ -254,7 +254,7 @@ bool disenchant_player(void)
                 (void)set_shield(0, TRUE);
                 set_tim_blood_shield(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 4:
@@ -262,7 +262,7 @@ bool disenchant_player(void)
             {
                 (void)set_blessed(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 5:
@@ -270,7 +270,7 @@ bool disenchant_player(void)
             {
                 (void)set_hero(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 6:
@@ -278,7 +278,7 @@ bool disenchant_player(void)
             {
                 (void)set_shero(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 7:
@@ -286,7 +286,7 @@ bool disenchant_player(void)
             {
                 (void)set_protevil(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 8:
@@ -294,7 +294,7 @@ bool disenchant_player(void)
             {
                 (void)set_invuln(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 9:
@@ -302,7 +302,7 @@ bool disenchant_player(void)
             {
                 (void)set_wraith_form(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 10:
@@ -310,7 +310,7 @@ bool disenchant_player(void)
             {
                 (void)set_kabenuke(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 11:
@@ -318,7 +318,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_res_nether(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 12:
@@ -326,7 +326,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_res_time(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 13:
@@ -334,7 +334,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_res_disenchantment(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 14:
@@ -342,7 +342,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_reflect(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 15:
@@ -352,7 +352,7 @@ bool disenchant_player(void)
                 set_tim_blood_seek(0, TRUE);
                 set_tim_blood_sight(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 16:
@@ -360,7 +360,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_regen(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 17:
@@ -369,7 +369,7 @@ bool disenchant_player(void)
                 (void)set_tim_eyeeye(0, TRUE);
                 set_tim_blood_revenge(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 18:
@@ -377,7 +377,7 @@ bool disenchant_player(void)
             {
                 (void)set_magicdef(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 19:
@@ -389,7 +389,7 @@ bool disenchant_player(void)
                 (void)set_oppose_cold(0, TRUE);
                 (void)set_oppose_pois(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 20:
@@ -397,7 +397,7 @@ bool disenchant_player(void)
             {
                 (void)set_ultimate_res(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 21:
@@ -405,7 +405,7 @@ bool disenchant_player(void)
             {
                 (void)set_ele_attack(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 22:
@@ -413,7 +413,7 @@ bool disenchant_player(void)
             {
                 (void)set_ele_immune(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 23:
@@ -422,7 +422,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_force(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 25:
@@ -430,7 +430,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_building_up(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 26:
@@ -438,7 +438,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_enlarge_weapon(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 27:
@@ -446,7 +446,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_quick_walk(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 28:
@@ -454,7 +454,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_inven_prot(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 29:
@@ -462,7 +462,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_dark_stalker(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 30:
@@ -470,7 +470,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_nimble_dodge(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 31:
@@ -478,7 +478,7 @@ bool disenchant_player(void)
             {
                 (void)set_tim_stealthy_snipe(0, TRUE);
                 result = TRUE;
-                if (one_in_(2)) return result;
+                return result;
             }
             break;
         case 32:

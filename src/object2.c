@@ -683,6 +683,7 @@ s16b get_obj_num(int level)
         k_ptr = &k_info[k_idx];
         if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && dungeon_type != DUNGEON_OLYMPUS) continue;
         if (k_ptr->tval == TV_BOW && k_ptr->sval == SV_HARP && p_ptr->pclass != CLASS_BARD) continue;
+		if (easy_id && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) continue;
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
@@ -1713,11 +1714,12 @@ bool add_esp_strong(object_type *o_ptr)
 {
     bool nonliv = FALSE;
 
-    switch (randint1(3))
+    switch (randint1(4))
     {
     case 1: add_flag(o_ptr->flags, OF_ESP_EVIL); break;
     case 2: add_flag(o_ptr->flags, OF_TELEPATHY); break;
-    case 3: add_flag(o_ptr->flags, OF_ESP_NONLIVING); nonliv = TRUE; break;
+	case 3: add_flag(o_ptr->flags, OF_ESP_LIVING); break;
+    case 4: add_flag(o_ptr->flags, OF_ESP_NONLIVING); nonliv = TRUE; break;
     }
 
     return nonliv;

@@ -381,10 +381,14 @@ static void _display_slays(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
     else if (have_flag(flgs, OF_SLAY_EVIL))
         vec_add(v, string_copy_s("<color:y>Evil</color>"));
 
-    if (have_flag(flgs, OF_SLAY_GOOD))
+	if (have_flag(flgs, OF_KILL_GOOD))
+		vec_add(v, string_copy_s("<color:y>*Good*</color>"));
+	else if (have_flag(flgs, OF_SLAY_GOOD))
         vec_add(v, string_copy_s("<color:W>Good</color>"));
 
-    if (have_flag(flgs, OF_SLAY_LIVING))
+	if (have_flag(flgs, OF_KILL_LIVING))
+		vec_add(v, string_copy_s("<color:y>*Living*</color>"));
+	else if (have_flag(flgs, OF_SLAY_LIVING))
         vec_add(v, string_copy_s("<color:o>Living</color>"));
 
     if (have_flag(flgs, OF_KILL_DRAGON))
@@ -569,6 +573,8 @@ static void _display_abilities(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
         vec_add(v, string_copy_s("<color:w>Sense Good</color>"));
     if (have_flag(flgs, OF_ESP_NONLIVING))
         vec_add(v, string_copy_s("<color:B>Sense Nonliving</color>"));
+	if (have_flag(flgs, OF_ESP_LIVING))
+		vec_add(v, string_copy_s("<color:W>Sense Living</color>"));
     if (have_flag(flgs, OF_ESP_UNIQUE))
         vec_add(v, string_copy_s("<color:v>Sense Uniques</color>"));
 

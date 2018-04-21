@@ -188,7 +188,7 @@ void py_birth_spellbooks(void)
 }
 
 /************************************************************************
- * Welcome to Poschengband!
+ * Welcome to Composband!
  ***********************************************************************/ 
 static void _set_mode(int mode);
 static bool _stats_changed = FALSE;
@@ -202,7 +202,7 @@ static int _welcome_ui(void)
         doc_clear(_doc);
 
         doc_insert(_doc,
-            "Welcome to <color:keyword>Poschengband</color>, a dungeon exploration "
+            "Welcome to <color:keyword>Composband</color>, a dungeon exploration "
             "role playing game. Your goal is to defeat the dreaded <color:keyword>"
             "Serpent of Chaos</color>, but before you can face it, you must battle "
             "many foes. Your first step is to create a character for this quest. "
@@ -662,7 +662,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Angel/Demon",
         {RACE_ARCHON, RACE_BALROG, RACE_IMP, -1} },
     { "Orc/Troll/Giant",
-        {RACE_CYCLOPS, RACE_HALF_GIANT, RACE_HALF_OGRE,
+        {RACE_CYCLOPS, RACE_HALF_GIANT, RACE_OGRE, RACE_HALF_ORC,
          RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_KOBOLD, RACE_SNOTLING, -1} },
     { "Undead",
         {RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
@@ -2783,7 +2783,7 @@ static void _birth_finalize(void)
     _bounty_uniques(); /* go before reducing uniques for speed ... (e.g. 10% uniques) */
     _reduce_uniques(); /* quests go first, rolling up random quest uniques without restriction */
 
-    p_ptr->au = randint1(600) + randint1(100) + 100;
+    p_ptr->au = randint1(300) + randint1(300) + 200;
 
     /* Everybody gets a chaos patron. The chaos warrior is obvious,
      * but anybody else can acquire MUT_CHAOS_GIFT during the game */

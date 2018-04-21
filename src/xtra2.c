@@ -735,7 +735,7 @@ static bool _kind_is_utility(int k_idx)
         case SV_SCROLL_DETECT_MONSTERS:
             return TRUE;
         case SV_SCROLL_STAR_IDENTIFY:
-            return TRUE;
+			return easy_id ? FALSE : TRUE;
         }
         break;
 
@@ -743,8 +743,8 @@ static bool _kind_is_utility(int k_idx)
         switch (k_ptr->sval)
         {
         case SV_POTION_SPEED:
-        case SV_POTION_RESIST_HEAT:
-        case SV_POTION_RESIST_COLD:
+        case SV_POTION_THERMAL:
+        case SV_POTION_RESIST_ELEC:
         case SV_POTION_RESISTANCE:
         case SV_POTION_HEROISM:
         case SV_POTION_CURE_SERIOUS:
@@ -1110,7 +1110,7 @@ void monster_death(int m_idx, bool drop_item)
          */
         if (!p_ptr->inside_arena && !p_ptr->inside_battle)
         {
-            if (!one_in_(7))
+            if (!one_in_(5))
             {
                 int wy = y, wx = x;
                 int attempts = 100;
@@ -3528,7 +3528,7 @@ static void target_set_prepare(int mode)
     }
 
     /* Set the sort hooks */
-    if ((mode & TARGET_KILL) || (mode & TARGET_MARK) || (mode & TARGET_DISI))
+    if ((mode & TARGET_KILL) || (mode & TARGET_MARK) || (mode & TARGET_DISI) || (mode & TARGET_XTRA))
     {
         /* Target the nearest monster for shooting */
         ang_sort_comp = ang_sort_comp_distance;
@@ -4081,7 +4081,7 @@ bool target_set(int mode)
 
             /* Allow target */
             if ( target_able(c_ptr->m_idx)
-             || ((mode & (TARGET_MARK|TARGET_DISI)) && m_list[c_ptr->m_idx].ml))
+             || ((mode & (TARGET_MARK|TARGET_DISI|TARGET_XTRA)) && m_list[c_ptr->m_idx].ml))
             {
                 strcpy(info, "q,t,p,o,+,-,?,<dir>");
 
@@ -4129,7 +4129,7 @@ bool target_set(int mode)
                 case '0':
                 {
                     if ( target_able(c_ptr->m_idx)
-                     || ((mode & (TARGET_MARK|TARGET_DISI)) && m_list[c_ptr->m_idx].ml))
+                     || ((mode & (TARGET_MARK | TARGET_DISI | TARGET_XTRA)) && m_list[c_ptr->m_idx].ml))
                     {
                         health_track(c_ptr->m_idx);
                         target_who = c_ptr->m_idx;
@@ -4550,11 +4550,13 @@ bool target_set(int mode)
 bool get_fire_dir(int *dp) { return get_fire_dir_aux(dp, TARGET_KILL); }
 bool get_fire_dir_aux(int *dp, int target_mode)
 {
-    bool valid_target = FALSE;
-    if (use_old_target && target_okay_aux(target_mode))
-        valid_target = TRUE;
+	if (use_old_target && target_okay_aux(target_mode)) {
+		*dp = 5;
+		p_ptr->redraw |= PR_HEALTH_BARS;
+		return TRUE;
+	}
     /* auto_target the closest monster if no valid target is selected up front */
-    if (!valid_target && auto_target && !p_ptr->confused && !p_ptr->image)
+    if (auto_target && !p_ptr->confused && !p_ptr->image)
     {
         int i, best_m_idx = 0, best_dis = 9999;
 
@@ -4600,8 +4602,7 @@ bool get_aim_dir_aux(int *dp, int target_mode)
     /* Global direction */
     dir = command_dir;
 
-    /* Hack -- auto-target if requested */
-    if (use_old_target && target_okay_aux(target_mode)) dir = 5;
+
 
 #ifdef ALLOW_REPEAT /* TNB */
 
@@ -5036,7 +5037,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
         n = 0;
     }
 
-    msg_print("Select a point and press <color:y>space</color>.");
+    msg_print("Select a point and press <color:y>space</color>. < and > cycle through stairs, * cycles through monsters");
 
     while ((ch != ESCAPE) && !success)
     {
@@ -5062,6 +5063,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
             break;
 
         /* XAngband: Move cursor to stairs */
+		/* Composband: Move cursor to monsters */
         case '>':
         case '<':
             if (expand_list && temp_n)
@@ -5072,7 +5074,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
 
                 n++;
 
-                while(n < temp_n)    /* Skip stairs which have defferent distance */
+                while(n < temp_n)    /* Skip stairs which have different distance */
                 {
                     cave_type *c_ptr = &cave[temp_y[n]][temp_x[n]];
 
@@ -5084,7 +5086,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
                         else
                             break;
                     }
-                    else /* if (ch == '<') */
+                    else if (ch == '<')
                     {
                         if (cave_have_flag_grid(c_ptr, FF_MORE))
                             n++;

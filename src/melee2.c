@@ -3377,6 +3377,7 @@ static void process_monster(int m_idx)
                     if (have_flag(flgs, OF_SLAY_EVIL))   flg3 |= (RF3_EVIL);
                     if (have_flag(flgs, OF_KILL_EVIL))   flg3 |= (RF3_EVIL);
                     if (have_flag(flgs, OF_SLAY_GOOD))   flg3 |= (RF3_GOOD);
+					if (have_flag(flgs, OF_KILL_GOOD))   flg3 |= (RF3_GOOD);
                     if (have_flag(flgs, OF_SLAY_HUMAN))  flg2 |= (RF2_HUMAN);
                     if (have_flag(flgs, OF_KILL_HUMAN))  flg2 |= (RF2_HUMAN);
                     if (have_flag(flgs, OF_BRAND_ACID))  flgr |= (RFR_IM_ACID);

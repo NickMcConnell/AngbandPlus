@@ -12,6 +12,38 @@
 
 #include "angband.h"
 
+/*Exo's character information patch*/
+void updatecharinfoS(void)
+{
+	//File Output + Lookup Tables
+	char tmp_Path[1024];
+	FILE *oFile;
+	path_build(tmp_Path, sizeof(tmp_Path), ANGBAND_DIR_USER, "CharOutput.txt");
+	oFile = fopen(tmp_Path, "w");
+
+	race_t         *race = get_true_race();
+	class_t        *class_ = get_class();
+	dragon_realm_ptr drealm = dragon_get_realm(p_ptr->dragon_realm);
+
+	fprintf(oFile, "{\n");
+	fprintf(oFile, "race: \"%s\",\n", race->name);
+	if (p_ptr->psubrace>0)fprintf(oFile, "subRace: \"%s\",\n", race->subname);
+	fprintf(oFile, "class: \"%s\",\n", class_->name);
+	if (p_ptr->psubclass>0)fprintf(oFile, "subClass: \"%s\",\n", class_->subname);
+	fprintf(oFile, "mapName: \"%s\",\n", map_name());
+	fprintf(oFile, "dLvl: \"%i\",\n", dun_level);
+	if (p_ptr->realm1 > 0)fprintf(oFile, "mRealm1: \"%s\",\n", realm_names[p_ptr->realm1]);
+	if (p_ptr->realm2 > 0)fprintf(oFile, "mRealm2: \"%s\",\n", realm_names[p_ptr->realm2]);
+	if (!strcmp("Chaos-Warrior", class_->name))fprintf(oFile, "mRealm2: \"%s\",\n", chaos_patrons[p_ptr->chaos_patron]);
+	if (p_ptr->dragon_realm > 0)fprintf(oFile, "mRealm1: \"%s\",\n", drealm->name);
+	fprintf(oFile, "cLvl: \"%i\",\n", p_ptr->lev);
+	fprintf(oFile, "isDead: \"%i\",\n", p_ptr->is_dead);
+	fprintf(oFile, "killedBy: \"%s\"\n", p_ptr->died_from);
+	fprintf(oFile, "}");
+	fclose(oFile);
+}
+
+
 void wr_item(savefile_ptr file, object_type *o_ptr)
 {
     obj_save(o_ptr, file);
@@ -1165,6 +1197,8 @@ static bool wr_savefile_new(savefile_ptr file)
     }
     savefile_write_u32b(file, file->v_check);
     savefile_write_u32b(file, file->x_check);
+
+	updatecharinfoS();
 
     if (ferror(file->file) || (fflush(file->file) == EOF)) return FALSE;
     return TRUE;

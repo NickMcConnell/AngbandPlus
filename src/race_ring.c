@@ -161,6 +161,7 @@ static bool _skip_flag(int which)
     case OF_BLESSED:
     case OF_KILL_ANIMAL:
     case OF_KILL_EVIL:
+	case OF_KILL_LIVING:
     case OF_KILL_UNDEAD:
     case OF_KILL_DEMON:
     case OF_KILL_ORC:
@@ -172,6 +173,7 @@ static bool _skip_flag(int which)
     case OF_BRAND_WILD:
     case OF_BRAND_ORDER:
     case OF_DARKNESS:
+	case OF_KILL_GOOD:
     case OF_SLAY_GOOD:
     case OF_DEC_STR:
     case OF_DEC_INT:
@@ -1408,6 +1410,8 @@ static void _calc_bonuses(void)
         p_ptr->esp_good = TRUE;
     if (_essences[OF_ESP_NONLIVING] >= 2)
         p_ptr->esp_nonliving = TRUE;
+	if (_essences[OF_ESP_LIVING] >= 2)
+		p_ptr->esp_living = TRUE;
     if (_essences[OF_ESP_UNIQUE] >= 2)
         p_ptr->esp_unique = TRUE;
 
@@ -1496,6 +1500,8 @@ static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_ESP_GOOD);
     if (_essences[OF_ESP_NONLIVING] >= 2)
         add_flag(flgs, OF_ESP_NONLIVING);
+	if (_essences[OF_ESP_LIVING] >= 2)
+		add_flag(flgs, OF_ESP_LIVING);
     if (_essences[OF_ESP_UNIQUE] >= 2)
         add_flag(flgs, OF_ESP_UNIQUE);
     if (_essences[OF_ESP_DRAGON] >= 2)
@@ -1692,6 +1698,7 @@ static void _character_dump(doc_ptr doc)
     _dump_ability_flag(doc, OF_ESP_EVIL, 2, "ESP Evil");
     _dump_ability_flag(doc, OF_ESP_GOOD, 2, "ESP Good");
     _dump_ability_flag(doc, OF_ESP_NONLIVING, 2, "ESP Nonliving");
+	_dump_ability_flag(doc, OF_ESP_LIVING, 2, "ESP Living");
     _dump_ability_flag(doc, OF_ESP_UNIQUE, 2, "ESP Unique");
 
     doc_printf(doc, "\n<topic:Spells>==================================== <color:keypress>S</color>pells ===================================\n");

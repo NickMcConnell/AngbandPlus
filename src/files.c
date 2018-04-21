@@ -2268,7 +2268,7 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
         if (show_version)
         {
             prt(format(
-                "[PosChengband %d.%d.%d, %s, Line %d/%d]",
+                "[Composband %d.%d.%d, %s, Line %d/%d]",
                VER_MAJOR, VER_MINOR, VER_PATCH,
                caption, line, size), 0, 0);
         }

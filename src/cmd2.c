@@ -2254,12 +2254,27 @@ void do_cmd_walk(bool pickup)
         command_arg = 0;
     }
 
-    /* Get a "repeated" direction */
-    if (get_rep_dir(&dir,FALSE))
-    {
-        do_cmd_walk_aux(dir, pickup);
-        more = TRUE;
-    }
+    /* Get a "repeated" direction (hacked to allow targeting) */
+	get_aim_dir(&dir);
+    if (dir == 5)
+	{
+		int i;
+		int dx, dy, sx, sy;
+		dx = abs(px - target_col);
+		dy = abs(py - target_row);
+		sx = ((target_col == px) || (dx < dy)) ? 0 : ((target_col > px) ? 1 : -1);
+		sy = ((target_row == py) || (dy < dx)) ? 0 : ((target_row > py) ? 1 : -1);
+		for (i = 1; i <= 9; i++)
+		{
+			if ((sx == ddx[i]) && (sy == ddy[i])) dir = i;
+		}
+		do_cmd_walk_aux(dir, pickup);
+	}
+	else if (dir>0 && dir != 5)
+	{
+		do_cmd_walk_aux(dir, pickup);
+		more = TRUE;
+	}
 
     /* Hack again -- Is there a special encounter ??? */
     if (p_ptr->wild_mode && !cave_have_flag_bold(py, px, FF_TOWN))
@@ -2268,7 +2283,7 @@ void do_cmd_walk(bool pickup)
         int tmp = MAX(1, 120 + p_ptr->lev*10 - lvl + 5);
 
         if (wilderness[py][px].road)
-            tmp *= 3;
+            tmp *= 8;
 
         if (!is_daytime())
             tmp /= 2;
@@ -2700,6 +2715,15 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 obj_learn_slay(o_ptr, OF_SLAY_GOOD, "slays <color:W>Good</color>");
                 if (mult < 143) mult = 143;
             }
+
+			/* Kill Good */
+			if ((have_flag(flgs, OF_KILL_GOOD)) &&
+				(r_ptr->flags3 & RF3_GOOD))
+			{
+				mon_lore_3(m_ptr, RF3_GOOD);
+				obj_learn_slay(o_ptr, OF_KILL_GOOD, "slays <color:W>*Good*</color>");
+				if (mult < 186) mult = 186;
+			}
 
             /* Slay Human */
             if ((have_flag(flgs, OF_SLAY_HUMAN)) &&
@@ -3996,8 +4020,8 @@ void travel_begin(int mode, int x, int y)
         /* Shut up already ... perhaps we are being called from wilderness_move_player, rather
         than from the top level. It turns out that the Museum in Outpost is located on a scroll
         boundary, and the scroll fires on the last move of the travel flow, but is processed
-        before travel_step checks that we are finished.
-        msg_print("You are already there!!"); */
+        before travel_step checks that we are finished. */
+        msg_print("You are already there!!");
         travel_cancel();
         return;
     }

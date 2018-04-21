@@ -171,6 +171,8 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
         {
             mult = 15 + 4*p_ptr->concent;
             if (m_ptr) mon_lore_3(m_ptr, RF3_GOOD);
+			if (have_flag(flgs, OF_KILL_GOOD))
+				mult += 10;
             if (have_flag(flgs, OF_SLAY_GOOD))
                 mult += 5;
         }
@@ -359,7 +361,7 @@ static void _piercing_shot(int cmd, variant *res)
         var_set_string(res, "An arrow pierces some monsters.");
         break;
     default:
-        _default(SP_RUSH, cmd, res);
+        _default(SP_PIERCE, cmd, res);
     }
 }
 static void _evil_shot(int cmd, variant *res)

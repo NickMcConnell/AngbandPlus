@@ -4,11 +4,17 @@ T:TOWN:NORMAL:NO_ROTATE
 ############### Additional default terrain settings ###############
 # A test tile for debugging
 L:&:FLOOR
-#L:&:QUEST_ENTER(28)
-#L:&:MON(morgoth):OBJ(power dragon)
+#L:&:QUEST_ENTER(53)
+#L:&:OBJ(gold dragon):EGO(87)
 
-# Default for Quest 1 = entrance is tree
-L:z:TREE
+# Default for Quest 1 = entrance is stone
+L:z:PERMANENT
+
+# Default for Quest 33 = entrance is floor
+L:r:FLOOR
+
+# Default for Quest 50 = entrance is stone
+L:p:PERMANENT
 
 # Default for Quest 25 = entrance is stone
 L:x:PERMANENT
@@ -22,11 +28,14 @@ L:v:GRASS
 # Default for Quest 31 = entrance is grass
 L:s:GRASS
 
-# Default for Quest 32 = entrance is stone
-L:r:PERMANENT
-
 # Default for Quest 33 = entrance is stone
 L:q:PERMANENT
+
+# Default for Quest 33 = entrance is stone
+L:o:PERMANENT
+
+# Default for Quest 62 = entrance is grass
+L:y:GRASS
 
 
 ############### Quest Sequence #1 #######################
@@ -38,10 +47,18 @@ L:b:BUILDING_1(1)
 ?:[EQU $QUEST1 Finished FailedDone]
 L:b:BUILDING_1(14)
 ?:1
-############### Quest 14 - Warg problem ###############
+############### Quest 14 - Pest Control ###############
 ?:[EQU $QUEST14 Taken Completed Failed]
 L:b:BUILDING_1(14)
 ?:[EQU $QUEST14 Finished FailedDone]
+L:b:BUILDING_1(2)
+?:1
+############### Quest 2 - The Sewer ###############
+?:[EQU $QUEST2 Taken]
+L:r:QUEST_ENTER(2)
+?:[EQU $QUEST2 Taken Completed Failed]
+L:b:BUILDING_1(2)
+?:[EQU $QUEST2 Finished FailedDone]
 L:b:BUILDING_1(25)
 ?:1
 ############### Quest 25 - Haunted House ###############
@@ -62,20 +79,37 @@ L:b:BUILDING_1(0)
 ?:1
 
 ############### Quest Sequence #2 #######################
+
+############### Quest 6 - Trouble at the Inn (from Kangband 143)
+?:[EQU $QUEST50 Taken]
+L:p:QUEST_ENTER(50)
+?:[EQU $QUEST50 Untaken Taken Completed Failed]
+L:a:BUILDING_0(50)
+?:[EQU $QUEST50 Finished FailedDone]
+L:a:BUILDING_0(62)
+?:1
+############### Quest 62 - Crow's Nest (from Kangband 147)
+?:[EQU $QUEST62 Taken]
+L:y:QUEST_ENTER(62)
+?:[EQU $QUEST62 Taken Completed Failed]
+L:a:BUILDING_0(62)
+?:[EQU $QUEST62 Finished FailedDone]
+L:a:BUILDING_0(31)
+?:1
 ############### Quest 31 - Old Man Willow Quest ###############
 ?:[EQU $QUEST31 Taken]
 L:s:QUEST_ENTER(31)
-?:[EQU $QUEST31 Untaken Taken Completed Failed]
+?:[EQU $QUEST31 Taken Completed Failed]
 L:a:BUILDING_0(31)
 ?:[EQU $QUEST31 Finished FailedDone]
-L:a:BUILDING_0(32)
+L:a:BUILDING_0(20)
 ?:1
-############### Quest 32 - Dark Elven Lords Quest ###############
-?:[EQU $QUEST32 Taken]
-L:r:QUEST_ENTER(32)
-?:[EQU $QUEST32 Taken Completed Failed]
-L:a:BUILDING_0(32)
-?:[EQU $QUEST32 Finished FailedDone]
+############### Quest 20 - Vapor Quest ################
+?:[EQU $QUEST20 Taken]
+L:o:QUEST_ENTER(20)
+?:[EQU $QUEST20 Taken Completed Failed]
+L:a:BUILDING_0(20)
+?:[EQU $QUEST20 Finished FailedDone]
 L:a:BUILDING_0(33)
 ?:1
 ############### Quest 33 - The Cloning Pits ###############
@@ -97,7 +131,7 @@ L:a:BUILDING_0(0)
 
 ############### Buildings ###############
 
-B:0:N:The White Horse Inn:Otick:Human
+B:0:N:The White Horse Inn:Goodman Otick:Human
 B:0:A:0:Rest for the night:20:20:r:17:0
 B:0:A:1:buy Food and drink:1:1:f:18:1
 B:0:A:2:Listen for rumors:5:5:u:19:0
@@ -105,24 +139,13 @@ B:0:A:3:Request quest:0:0:q:6:0
 B:0:A:4:Teleport to other town:500:500:m:42:0
 B:0:A:5:Ask about your reputation:1:1:a:55:0
 B:0:R:*:Member
-B:0:R:Golem:None
-B:0:R:Skeleton:None
-B:0:R:Zombie:None
-B:0:R:Vampire:None
-B:0:R:Spectre:None
-B:0:R:Ent:None
-B:0:R:Balrog:None
-B:0:R:Android:None
-B:0:R:Demon:None
-B:0:R:Lich:None
-B:0:R:Jelly:None
 
-B:1:N:Mayor:Uldrik:Human
+B:1:N:Count:Uldrik II:Human
 B:1:A:0:Request quest:0:0:q:6:0
 B:1:A:1:Identify item:50:50:i:44:0
 B:1:A:2:Legal Name Change:10:10:c:57:0
 
-B:13:N:Hunter's office:Kopei:Human
+B:13:N:Bounty Office:Arack Beastmaster:Dwarf
 B:13:A:0:Today's wanted:0:0:a:38:0
 B:13:A:1:Wanted unique list:0:0:b:39:0
 B:13:A:2:Special target:0:0:s:37:0
@@ -130,65 +153,65 @@ B:13:A:3:Receive prize:0:0:c:40:0
 
 
 ############### Town Layout ###############
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                                                                                      
-M:                                                                                                                                       ---                                      TT                    
-M:     WWWWW                                               --------                                                                    -------                                  TTTTTT                  
-M:WWWWW     WWWWWWWW                                      -------------------------------------------------------------------------------------                               TTTTTTTTT                 
-M:                  W                                     -------------------------------------------------------------------------------------                             TTTTTTTTTTTT                
-M:                   WW                                    ---.............................................................................----            ............. TTTTTTT--s---TTT               
-M:                     WWWWWW                               --.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.-----      .....            ......T---------TTT              
-M:                           WWWW                          ---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.------.....                   TTT-----------TTTT             
-M:                               WWWWW                     ---.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.----...                        TT------v-----TTT             
-M:                                    WWWW                 ---.,W#######################################################################W,......                          TT-----------TTT              
-M:                                        W                ---.,W###################################w###################################W,.---                             TTT--------TT                
-M:                                         W               ---.,W###.................................................................###W,.---                              TT..-----TT                 
-M:                                         W               ---.,WW##..########....#####.......#############................######....##WW,.---                            T TT.TTTTTTTTT                
-M:                                         WW              ---.,WW##..########....#####.......#############................######....##WW,.----                            TT..TT   TTTTT               
-M:                                          WW            ----.,WW##..###n####....#####.......#############................######....##WW,.---                              T.TT      TT                
-M:                                            WWWW          --.,WW##..###.........#####.......######b######..........................##WW,.---                              T.T                         
-M:                                                W        ---.,WW##..###............................................................##WW,.---                               .                          
-M:                                                W        ---.,WW##.......#########.....#########...................................##WW,.---         ^^^^^                 .                          
-M:                                                 WW     ----.,WW##.......#########.....#########.....#########.....#########.......##WW,.---        ^^^^^^^               ..                          
-M:                                                   WW-----WW.WWW##.......#########.....#########.....#########.....#########.......##WW,.----      ^^^^^^^^              ..                           
-M:                                                    VWV-WW--.,W####......####4####.....####3####.....#########.....####1####......####W,.-----      ^^>^^^               .                            
-M:                                                    WWWW----.,W####..................................####2####....................####W,.------      ,.,     ...............                          
-M:                                                   V--------..................................................................................................             ..          ...............
-M:                                              WWWWW---------.,W####.............................................&.................####W,.------                             ............              
-M:                                             WV     --------.,W####.......########................................................####W,.-----                                   z                    
-M:                                            W         ------.,WW##........########.................................................##WW,.---                                                          
-M:                                           W           -----.,WW##........########.....####5####..................#####a######.....##WW,.--                                                           
-M:                                         WW              ---.,WW##........#######9.....#########......####6####...############.....##WW,.--                                                           
-M:                                     WWWW               ----.,WW##........########.....#########......#########...############.....##WW,.--                                                           
-M:                                  WWW                    ---.,WW##........########.....#########......#########...############.....##WW,.--                                                           
-M:                               WWW                        --.,WW##........########.....#########......#########....................##WW,.--                                                           
-M:                              W                         ----.,WW##....................................#########....................##WW,.--                                                           
-M:                              W                          ---.,WW##.............###########.........................................##WW,.---                                                          
-M:                            WW                           ---.,WW##....##x##....###########....###0###...................####.......##WW,.----                  ..................                     
-M:                          WW                             ---.,WW##....#####....#####7#####....#######.....###q###.......###8.......##WW,.----     .............                  .                    
-M:                        WW                               ---.,WW##....#####...................#######.....###r###.......####.......##WW,..........                                .                   
-M:                    WWWW                                 ---.,W###.................................................................###W,.----                                      .                  
-M:                   W                                    ----.,W#######################################################################W,.---                                        .                 
-M:                 WW                                       --.,W#######################################################################W,.---                                         .                
-M:                W                                        ---.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.---                                          .               
-M:               W                                         ---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.----                                          ...            
-M:           VVWW                                       ------.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.----                                             .           
-M:          VWWV                                       -------.............................................................................----                                              .          
+M:                        T---T--                                                                                                                                                                       
+M:                        --T--T-  T     T                                                                                                                                                              
+M:                        -#-#-#- T    T ;                                                                                                                                                              
+M:                        -#####-T ;T;#;  T                                                                                                                                                             
+M:                        --###--   ###  T                                                                                                                                                              
+M:                        --########;#;     T                                                                                                                                                           
+M:             --------------####v#### ;  T                                                                                                                                                             
+M:               T     T  T   ---.-; ;;T ;;  T                                                                                                                                                          
+M:                      TT        . . .      ..  .                                                                                                                                                      
+M:                         T  TT TT   T   TT      . . .                                                                                                                                                 
+M:                              T        TT T  T       . .  .  .  . .                                                                                                                                   
+M:                                    TT  T TTT   T                   .                                                                                                                                 
+M:                                 TTTTTTTT                             . .                                                              ---                                      TT                    
+M:     WWWWWV                        TTT                   --------                                                  #    #    #       -------                                  TTTTTT                  
+M:WWWWWV    WWWWWWWWV                                     ---------------------------------                   ---   ###  ###  ###   -----------                               TTTTTTTTT                 
+M:                  W                                     ---------------------------------                   ---  ###############  -----------                             TTTTTTTTTTTT                
+M:                  VWW                                    -------------------------------------T-------T--------T########w########T-----------            ............. TTTTTTT------TTT               
+M:                    VWWWWWWV                             ---.................................................----T-###--.--###-T--------------      .....            ......T---------TTT              
+M:                           WWWW                          ---.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,..------T---.---T------------------.....                   TTT-----------TTTT             
+M:                              VWWWWWV                    ---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,,............................----...                        TT------s-----TTT             
+M:                                    WWWW                 ---.,W####WWWWWWWWWWWWWWWWWWWWWWWW####-------####WW,,,,,,,,,,,,,,,,,,,,,,,,,,,,......                          TT-----------TTT              
+M:                                       VW                ---.,W##########################WW###############WWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.---                             TTT--------TT                
+M:                                         W               ---.,WW#########################WW-#############-WWWWWWWWWWWWWWWWWWWWWWWW####W,.---                              TT..-----TT                 
+M:                                         WV              ---.,WW##-T---T--T#...........##WW######bbb######WW##########################W,.---                            T TT.TTTTTTTTT                
+M:                                         WW              ---.,WW##-T--#-T--#.##.######.##WW####T-...-T####WW##########################W,.----                            TT..TT   TTTTT               
+M:                                          WW            ----.,WW##--T-#----#.##.######.##WWWWW---...---WWWWW##.....................###W,.---                              T.TT      TT                
+M:                                           VWWWWV         --.,WW##---###-T-#.#0....#n#.###WWWWWWW...WWWWWWWW##.#########.#########.##WW,.---                              T.T                         
+M:                                                W        ---.,WW##T-#####--#.##........##########...##########.#########.#########.##WW,.---                               .                          
+M:                                                W        ---.,WW##--#####-T#............#########...#########..####2####.####z####.##WW,.---         ;-;-;                 .                          
+M:                                                VWWV    ----WWWW##-###4###-#..................###.&.###............................##WW,.---        ;-;;-T-               ..                          
+M:                                                   WW-----WWV,WW##-###.###-#.......r..........................................####.##WW,.----      ;;CC;C-;              ..                           
+M:                                                    VWV-WWV-.,WW##T---.----#..................................................3###.###W,.-----      ;C>CC;               .                            
+M:                                                   WWWWWV---.,W#######.#####..................................................####.###W,.------------;.C     ...............                          
+M:                                                  WV--------.,W###.................................................................###W,......................             ..          ...............
+M:                                              WWWWV---------.............................................................................-------------                      ............              
+M:                                             WV     --------.,W###.......................................................###a####..###W,.-----    T   T                                               
+M:                                            W         ------.,W###.......................................................p#######..###W,.---                                                          
+M:                                          VW           -----.,WW##.......................................................########,.##WW,.--                                                           
+M:                                         WW              ---.,WW##.####.....................................................#####..##WW,.--                                                           
+M:                                     WWWWV              ----.,WW##.###1....................................................,#####..##WW,.--                                                           
+M:                                  WWW                    ---.,WW##.####................................................,..#######.,##WW,.--                                                           
+M:                               WWWV                       --.,WW##.####...........................................#####...#####o#..##WW,.--                                                           
+M:                              W                         ----.,WW##................................................,####..,.,..,..,.##WW,.--                                                           
+M:                             VW                          ---.,WW##.####.##5###.#####6#####......................,..7###...##xT##T..##WW,.---                                                          
+M:                           VWW                           ---.,WW##.###q.######.##########9.....-----......####8...,####.,.#######,.##WW,.----                  ..................                     
+M:                          WW                             ---.,WW##.####.######.###########.....-T-T-......#####...#####..,#######..##WW,.----     .............                  .                    
+M:                        WWV                              ---.,W###.............................##M##...........,..,..,,..,......,.,##WW,..........                                .                   
+M:                    WWWWV                                ---.,W#######################################################################W,.----                                      .                  
+M:                   WV                                   ----.,W#######################################################################W,.---                                        .                 
+M:                VWW                                       --.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.---                                         .                
+M:                W                                        ---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.---                                          .               
+M:               WV                                        ---.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.----                                          ...            
+M:           VVWWV                                      ------.............................................................................----                                             .           
+M:          VWWV                                       ----------------------------------------------------------------------------------------                                              .          
 M:          WWWW                                        ---------------------------------------------------------------------------------------                                              .          
-M:         WWWWWW                                         ----------                                                                      -----                                              .          
-M:        VWWWWWWWW                                                                                                                                                                          .          
-M:       VWWWWWWWWWWV                                                                                                                                                                         ^^^^      
-M:       WWWWWWWWWWWW                                                                                                                                                                      ^^^^^^^^^    
+M:         WWWWWW                                         -------------------------------------------------------------------------------------                                              .          
+M:        VWWWWWWWW                                        ------                                                                     -------                                                .          
+M:       VWWWWWWWWWWV                                        --                                                                          --                                                   ^^^^      
+M:       WWWWWWWWWWWW                                                                                                                                                                     y^^^^^^^^^    
 M:     WWWWWWWWWWWWWWWW                                                                                                                                                                 ^^^^^^^^^^^^^   
 M:       WWWWWWWWWWWWW                                                                                                                                                               ^^^^^^^^^^^^^^^    
 M:       VWWWWWWWWWWV                                                                                                                                                               ^^^^^^^^^^^^^^^     

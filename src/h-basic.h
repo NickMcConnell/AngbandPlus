@@ -20,10 +20,10 @@
 /**
  * Native MSVC compiler doesn't understand inline or snprintf
  */
-#ifdef _MSC_VER
+/*#ifdef _MSC_VER
 #	define inline __inline
 #	define snprintf _snprintf
-#endif
+#endif*/
 
 /* Necessary? */
 #ifdef NDS

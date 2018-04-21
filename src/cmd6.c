@@ -225,10 +225,11 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
                 break;
             }
 
-            case SV_FOOD_CURE_SERIOUS:
+            case SV_FOOD_FAST_RECOVERY:
             {
-                if (hp_player(damroll(6, 8))) ident = TRUE;
+				if (hp_player(damroll(2, 8))) ident = TRUE;
                 if (set_cut((p_ptr->cut / 2) - 50, TRUE)) ident = TRUE;
+				if (set_tim_regen(100 + randint1(100), FALSE)) ident = TRUE;
                 break;
             }
 

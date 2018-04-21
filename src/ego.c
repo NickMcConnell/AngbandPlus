@@ -1738,17 +1738,17 @@ typedef struct {
     int esp_flag;
 } _slaying_info_t, *_slaying_info_ptr;
 static _slaying_info_t _slaying_info[] = {
-    { OF_SLAY_ORC,     2, 25, OF_KILL_ORC,    OF_ESP_ORC},
-    { OF_SLAY_TROLL,   2, 35, OF_KILL_TROLL,  OF_ESP_TROLL},
-    { OF_SLAY_GIANT,   2,  0, OF_KILL_GIANT,  OF_ESP_GIANT},
-    { OF_SLAY_DRAGON,  3,  0, OF_KILL_DRAGON, OF_ESP_DRAGON},
-    { OF_SLAY_DEMON,   3,  0, OF_KILL_DEMON,  OF_ESP_DEMON},
-    { OF_SLAY_UNDEAD,  3,  0, OF_KILL_UNDEAD, OF_ESP_UNDEAD},
-    { OF_SLAY_ANIMAL,  2,  0, OF_KILL_ANIMAL, OF_ESP_ANIMAL},
-    { OF_SLAY_HUMAN,   3,  0, OF_KILL_HUMAN,  OF_ESP_HUMAN},
+    { OF_SLAY_ORC,     2, 20, OF_KILL_ORC,    OF_ESP_ORC},
+    { OF_SLAY_TROLL,   2, 30, OF_KILL_TROLL,  OF_ESP_TROLL},
+    { OF_SLAY_GIANT,   2, 40, OF_KILL_GIANT,  OF_ESP_GIANT},
+    { OF_SLAY_DRAGON,  3, 80, OF_KILL_DRAGON, OF_ESP_DRAGON},
+    { OF_SLAY_DEMON,   3, 90, OF_KILL_DEMON,  OF_ESP_DEMON},
+    { OF_SLAY_UNDEAD,  3, 95, OF_KILL_UNDEAD, OF_ESP_UNDEAD},
+    { OF_SLAY_ANIMAL,  2, 60, OF_KILL_ANIMAL, OF_ESP_ANIMAL},
+    { OF_SLAY_HUMAN,   3, 50, OF_KILL_HUMAN,  OF_ESP_HUMAN},
     { OF_SLAY_EVIL,    5,  0, OF_KILL_EVIL,   OF_ESP_EVIL},
-    { OF_SLAY_GOOD,    5,  0, OF_INVALID,     OF_ESP_GOOD},
-    { OF_SLAY_LIVING, 20,  0, OF_INVALID,     OF_INVALID},
+    { OF_SLAY_GOOD,    5,  0, OF_KILL_GOOD,   OF_ESP_GOOD},
+    { OF_SLAY_LIVING, 20,  0, OF_KILL_LIVING, OF_ESP_LIVING},
     { OF_INVALID },
 };
 static int _choose_slaying_info(int level)
@@ -1802,7 +1802,7 @@ static void _ego_create_weapon_slaying(object_type *o_ptr, int level)
         if (info->kill_flag != OF_INVALID)
         {
             int r = info->rarity;
-            int p = r * r * r;
+            int p = r * r;
             if (obj_is_ammo(o_ptr))
                  p *= r;
             if (one_in_(p))
@@ -1981,7 +1981,7 @@ static void _ego_create_weapon_defender(object_type *o_ptr, int level)
         add_flag(o_ptr->flags, OF_WARNING);
     if (one_in_(3))
         add_flag(o_ptr->flags, OF_LEVITATION);
-    if (one_in_(7))
+    if (one_in_(5))
         add_flag(o_ptr->flags, OF_REGEN);
 }
 static void _ego_create_weapon(object_type *o_ptr, int level)
@@ -1996,8 +1996,15 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
         case EGO_WEAPON_SLAYING:
             _ego_create_weapon_slaying(o_ptr, level);
             break;
+		case EGO_WEAPON_BLESSED:
+			if (one_in_(2))
+				add_flag(o_ptr->flags, OF_ESP_GOOD);
+			if (one_in_(5))
+				add_flag(o_ptr->flags, OF_LITE);
+			_ego_create_weapon_slaying(o_ptr, level);
+			break;
         case EGO_WEAPON_SHARPNESS:
-            if (o_ptr->tval != TV_SWORD)
+            if (o_ptr->tval != TV_POLEARM && o_ptr->tval != TV_SWORD)
                 done = FALSE;
             else
             {
@@ -2041,6 +2048,8 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
             _ego_create_weapon_craft(o_ptr, level);
             break;
         case EGO_WEAPON_CRUSADE:
+			if (one_in_(4))
+				add_flag(o_ptr->flags, OF_LITE);
             if (one_in_(4) && level > 40)
                 add_flag(o_ptr->flags, OF_BLOWS);
             else if (one_in_(777) && level > 80)
@@ -2072,6 +2081,8 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
             }
             if (one_in_(3))
                 add_flag(o_ptr->flags, OF_SLAY_GOOD);
+			else if (one_in_(27))
+				add_flag(o_ptr->flags, OF_KILL_GOOD);
             if (one_in_(3))
                 add_flag(o_ptr->flags, OF_BRAND_POIS);
             if (one_in_(3))
@@ -2080,6 +2091,8 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
                 add_flag(o_ptr->flags, OF_RES_POIS);
             if (one_in_(6))
                 add_flag(o_ptr->flags, OF_SLAY_HUMAN);
+			else if (one_in_(36))
+				add_flag(o_ptr->flags, OF_KILL_HUMAN);
             else if (one_in_(13))
             {
                 add_flag(o_ptr->flags, OF_SLAY_LIVING);
@@ -2087,6 +2100,15 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
                 o_ptr->curse_flags |= OFC_CURSED;
                 o_ptr->curse_flags |= get_curse(2, o_ptr);
             }
+			else if (one_in_(78))
+			{
+				add_flag(o_ptr->flags, OF_KILL_LIVING);
+				if (one_in_(2))
+				o_ptr->dd++;
+				o_ptr->curse_flags |= OFC_CURSED;
+				o_ptr->curse_flags |= get_curse(2, o_ptr);
+			}
+			
             if (one_in_(ACTIVATION_CHANCE))
                 effect_add_random(o_ptr, BIAS_NECROMANTIC);
             break;
@@ -2447,6 +2469,24 @@ static void _ego_create_gloves(object_type *o_ptr, int level)
     o_ptr->name2 = ego_choose_type(EGO_TYPE_GLOVES, level);
     switch (o_ptr->name2)
     {
+	case EGO_GLOVES_SLAYING:
+		if (one_in_(4))
+		{
+			int rolls = 1 + m_bonus(4, level);
+			int i;
+			if (one_in_(GREAT_OBJ))
+				rolls *= 2;
+			for (i = 0; i < rolls; i++)
+			{
+				int               j = _choose_slaying_info(level);
+				_slaying_info_ptr info;
+
+				if (j == -1) continue;
+				info = &_slaying_info[j];
+				add_flag(o_ptr->flags, info->slay_flag);
+			}
+		}
+		break;
     case EGO_GLOVES_GIANT:
         if (one_in_(4))
         {

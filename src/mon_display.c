@@ -54,6 +54,7 @@ static string_ptr _get_res_name(int res)
 
 static bool _easy_lore(monster_race *r_ptr)
 {
+	if (easy_lore) return TRUE;
     if (p_ptr->wizard) return TRUE;
     if (spoiler_hack) return TRUE;
     if (r_ptr->r_xtra1 & MR1_LORE) return TRUE; /* Probing */
@@ -417,6 +418,7 @@ static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
     int pct = 0;
     assert(r_ptr->spells);
     if ( spoiler_hack
+	  || easy_lore
       || (!r_ptr->r_spell_turns && (r_ptr->r_xtra1 & MR1_LORE)) ) /* probing */
     {
         pct = r_ptr->spells->freq * 100;

@@ -121,9 +121,12 @@ race_t *get_race_aux(int prace, int psubrace)
     case RACE_HALF_GIANT:
         result = half_giant_get_race();
         break;
-    case RACE_HALF_OGRE:
+    case RACE_OGRE:
         result = half_ogre_get_race();
         break;
+	case RACE_HALF_ORC:
+		result = half_orc_get_race();
+		break;
     case RACE_HALF_TITAN:
         result = half_titan_get_race();
         break;

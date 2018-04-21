@@ -2859,13 +2859,11 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
         case SV_POTION_APPLE_JUICE:
             return TRUE;
 
-        case SV_POTION_INFRAVISION:
-        case SV_POTION_DETECT_INVIS:
-        case SV_POTION_SLOW_POISON:
+        case SV_POTION_SIGHT:
         case SV_POTION_CURE_POISON:
         case SV_POTION_BOLDNESS:
-        case SV_POTION_RESIST_HEAT:
-        case SV_POTION_RESIST_COLD:
+        case SV_POTION_THERMAL:
+        case SV_POTION_RESIST_ELEC:
         case SV_POTION_HEROISM:
         case SV_POTION_BERSERK_STRENGTH:
         case SV_POTION_RES_STR:
@@ -2888,6 +2886,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
         case SV_POTION_RESISTANCE:
         case SV_POTION_INVULNERABILITY:
         case SV_POTION_NEW_LIFE:
+		case SV_POTION_CURING:
             /* All of the above potions have no effect when shattered */
             return FALSE;
         case SV_POTION_SLOWNESS:
@@ -2936,7 +2935,6 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
             dam = damroll(4, 3);
             break;
         case SV_POTION_CURE_CRITICAL:
-        case SV_POTION_CURING:
             dt = GF_OLD_HEAL;
             dam = damroll(6, 3);
             break;
@@ -3199,7 +3197,7 @@ s16b spell_chance(int spell, int use_realm)
  * The spell must be legible, not forgotten, and also, to cast,
  * it must be known, and to study, it must not be known.
  */
-bool spell_okay(int spell, bool learned, bool study_pray, int use_realm)
+bool spell_okay(int spell, bool learned, bool study_pray, int use_realm, bool browse)
 {
     magic_type *s_ptr;
 
@@ -3212,6 +3210,9 @@ bool spell_okay(int spell, bool learned, bool study_pray, int use_realm)
     {
         s_ptr = &mp_ptr->info[use_realm - 1][spell];
     }
+
+	/* Can always browse spells */
+	if (browse) return (TRUE);
 
     /* Spell is illegal */
     if (s_ptr->slevel > p_ptr->lev) return (FALSE);
@@ -4131,12 +4132,13 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
                 summon_kin_type = 'h';
                 break;
             case RACE_SNOTLING:
+			case RACE_HALF_ORC:
                 summon_kin_type = 'o';
                 break;
             case RACE_HALF_TROLL:
                 summon_kin_type = 'T';
                 break;
-            case RACE_HALF_OGRE:
+            case RACE_OGRE:
                 summon_kin_type = 'O';
                 break;
             case RACE_HALF_GIANT:

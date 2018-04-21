@@ -1581,8 +1581,9 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
         else
         {
             if ((r_ptr->flags2 & RF2_CAMELOT) && dungeon_type != DUNGEON_CAMELOT) continue;
-            if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_STRONGHOLD) continue;
+            if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_HIDEOUT) continue;
             if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
+			if ((r_ptr->flags2 & RF2_FOREST) && dungeon_type != DUNGEON_WOOD) continue;
         }
 
         /* Hack: Some monsters are restricted from quests and summons */
@@ -2650,6 +2651,13 @@ void update_mon(int m_idx, bool full)
                 if (is_original_ap(m_ptr) && !p_ptr->image) mon_lore_aux_3(r_ptr, RF3_NONLIVING);
                 equip_learn_flag(OF_ESP_NONLIVING);
             }
+
+			/* Magical sensing */
+			if ((p_ptr->esp_living) && monster_living(r_ptr))
+			{
+				flag = TRUE;
+				/* There is no RF3_LIVING flag, so you won't gain any monster memory here ... */
+			}
 
             /* Magical sensing */
             if ((p_ptr->esp_unique) && (r_ptr->flags1 & (RF1_UNIQUE)))
