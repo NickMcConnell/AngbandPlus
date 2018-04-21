@@ -538,14 +538,14 @@ byte adj_gold[] =
  */
 byte adj_int_dev[] =
 {
-    0       /* 3 */,
-    0       /* 4 */,
-    0       /* 5 */,
-    0       /* 6 */,
-    0       /* 7 */,
-    1       /* 8 */,
-    1       /* 9 */,
-    1       /* 10 */,
+   -5       /* 3 */,
+   -3       /* 4 */,
+   -2       /* 5 */,
+   -1       /* 6 */,
+   -1       /* 7 */,
+    0       /* 8 */,
+    0       /* 9 */,
+    0       /* 10 */,
     1       /* 11 */,
     1       /* 12 */,
     1       /* 13 */,
@@ -574,8 +574,8 @@ byte adj_int_dev[] =
     16      /* 18/180-18/189 */,
     17      /* 18/190-18/199 */,
     18      /* 18/200-18/209 */,
-    19      /* 18/210-18/219 */,
-    20      /* 18/220+ */
+    20      /* 18/210-18/219 */,
+    23      /* 18/220+ */
 };
 
 
@@ -1351,7 +1351,7 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_G_TITAN,       TV_POTION, SV_POTION_STAR_ENLIGHTENMENT  },
     { MON_G_BALROG,      TV_ROD,    EFFECT_ENLIGHTENMENT          },
     { MON_NIGHTWALKER,   TV_ROD,    EFFECT_BEAM_DISINTEGRATE      },
-    { MON_SHAMBLER,      TV_STAFF,  EFFECT_HOLINESS               },
+    { MON_SHAMBLER,      TV_POTION, SV_POTION_STAR_HEALING        },
     { MON_BLACK_REAVER,  TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT    },
     { MON_FENGHUANG,     TV_STAFF,  EFFECT_STARBURST              },
     { MON_WYRM_POWER,    TV_ROD,    EFFECT_HEAL_CURING_HERO       },
@@ -2471,8 +2471,8 @@ option_type option_info[] =
     { &reduce_uniques,              FALSE, OPT_PAGE_BIRTH, 6, 26,
     "reduce_uniques",               "Reduce the number of uniques (randomly)" },
 
-    { &quickband,                   FALSE, OPT_PAGE_BIRTH, 6, 27,
-    "quickband",                    "Makes the game much shorter and easier" },
+    { &quickmode,                   FALSE, OPT_PAGE_BIRTH, 6, 27,
+    "quickmode",                    "Makes the game much shorter and easier" },
 
     { &no_selling,                  FALSE, OPT_PAGE_BIRTH, 6, 28,
     "no_selling",                   "Prohibit selling to shops" },

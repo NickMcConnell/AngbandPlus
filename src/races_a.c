@@ -46,7 +46,7 @@ race_t *amberite_get_race(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis =  4;
-        me.skills.dev =  5;
+        me.skills.dev =  3;
         me.skills.sav =  3;
         me.skills.stl =  2;
         me.skills.srh =  3;
@@ -268,7 +268,7 @@ race_t *android_get_race(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis =  0;
-        me.skills.dev = -5;
+        me.skills.dev = -3;
         me.skills.sav =  0;
         me.skills.stl = -2;
         me.skills.srh =  3;
@@ -331,7 +331,7 @@ race_t *archon_get_race(void)
         me.stats[A_CHR] =  3;
 
         me.skills.dis =  0;
-        me.skills.dev = 12;
+        me.skills.dev =  8;
         me.skills.sav =  8;
         me.skills.stl =  2;
         me.skills.srh =  2;
@@ -418,7 +418,7 @@ race_t *balrog_get_race(void)
         me.stats[A_CHR] =  2;
 
         me.skills.dis = -3;
-        me.skills.dev = 12;
+        me.skills.dev =  8;
         me.skills.sav = 15;
         me.skills.stl = -2;
         me.skills.srh =  1;
@@ -484,7 +484,7 @@ race_t *barbarian_get_race(void)
         me.stats[A_CHR] =  2;
 
         me.skills.dis = -2;
-        me.skills.dev = -10;
+        me.skills.dev = -7;
         me.skills.sav = 2;
         me.skills.stl = -1;
         me.skills.srh = 1;
@@ -559,7 +559,7 @@ race_t *beastman_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = -5;
-        me.skills.dev = -2;
+        me.skills.dev = -1;
         me.skills.sav = -1;
         me.skills.stl = -1;
         me.skills.srh = -1;
@@ -721,7 +721,7 @@ race_t *centaur_get_race(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis =  0;
-        me.skills.dev = -5;
+        me.skills.dev = -3;
         me.skills.sav =  2;
         me.skills.stl =  1;
         me.skills.srh =  3;
@@ -790,7 +790,7 @@ race_t *cyclops_get_race(void)
         me.stats[A_CHR] = -1;
 
         me.skills.dis = -4;
-        me.skills.dev = -5;
+        me.skills.dev = -3;
         me.skills.sav = -3;
         me.skills.stl = -2;
         me.skills.srh = -2;
@@ -860,7 +860,7 @@ race_t *dark_elf_get_race(void)
         me.stats[A_CHR] =  3;
 
         me.skills.dis = 5;
-        me.skills.dev = 10;
+        me.skills.dev = 7;
         me.skills.sav = 12;
         me.skills.stl = 3;
         me.skills.srh = 8;
@@ -1333,7 +1333,7 @@ race_t *draconian_get_race(int psubrace)
         me.stats[A_CHR] =  2;
 
         me.skills.dis = -2;
-        me.skills.dev = 5;
+        me.skills.dev = 3;
         me.skills.sav = 2;
         me.skills.stl = 1;
         me.skills.srh = 1;
@@ -1361,7 +1361,7 @@ race_t *draconian_get_race(int psubrace)
             me.stats[A_STR] += 2;
             me.stats[A_INT] -= 1;
             me.stats[A_WIS] -= 1;
-            me.skills.dev -= 5;
+            me.skills.dev -= 3;
             me.skills.stl -= 2;
             me.skills.thn += 10;
             me.life += 3;
@@ -1377,7 +1377,7 @@ race_t *draconian_get_race(int psubrace)
             me.stats[A_STR] += 2;
             me.stats[A_INT] -= 1;
             me.stats[A_WIS] -= 1;
-            me.skills.dev -= 5;
+            me.skills.dev -= 3;
             me.skills.stl -= 2;
             me.skills.thn += 9;
             me.life += 3;
@@ -1391,7 +1391,7 @@ race_t *draconian_get_race(int psubrace)
                          "Should they choose the power of Dragon Strike, their blows will electrocute "
                          "their enemies.";
             me.stats[A_STR] += 1;
-            me.skills.dev -= 4;
+            me.skills.dev -= 2;
             me.skills.stl -= 1;
             me.skills.thn += 7;
             me.life += 2;
@@ -1403,7 +1403,7 @@ race_t *draconian_get_race(int psubrace)
                          "and resist. They are strong in combat but not so good with magic or stealth. "
                          "With the power of Dragon Strike, their blows will corrode their enemies.";
             me.stats[A_STR] += 1;
-            me.skills.dev -= 4;
+            me.skills.dev -= 2;
             me.skills.stl -= 1;
             me.skills.thn += 8;
             me.life += 2;
@@ -1425,7 +1425,7 @@ race_t *draconian_get_race(int psubrace)
             me.stats[A_INT] += 1;
             me.skills.sav += 1;
             me.skills.thn -= 2;
-            me.skills.dev += 7;
+            me.skills.dev += 5;
             me.exp += 25;
             me.shop_adjust = 100;
             break;
@@ -1439,7 +1439,7 @@ race_t *draconian_get_race(int psubrace)
             me.stats[A_INT] -= 2;
             me.stats[A_DEX] -= 1;
             me.stats[A_CON] += 1;
-            me.skills.dev -= 5;
+            me.skills.dev -= 3;
             me.skills.stl -= 1;
             me.skills.thn += 7;
             me.life += 2;
@@ -1452,7 +1452,7 @@ race_t *draconian_get_race(int psubrace)
                          "their enemies. With the power of Dragon Strike, even their melee attacks will "
                          "stun their enemies.";
             me.stats[A_WIS] += 1;
-            me.skills.dev += 5;
+            me.skills.dev += 3;
             me.skills.sav += 3;
             me.life += 1;
             me.exp += 30;
@@ -1467,7 +1467,7 @@ race_t *draconian_get_race(int psubrace)
                          "in melee.";
             me.stats[A_STR] -= 1;
             me.stats[A_DEX] += 2;
-            me.skills.dev += 3;
+            me.skills.dev += 2;
             me.skills.stl += 3;
             me.skills.thn -= 5;
             me.life -= 1;
@@ -1519,7 +1519,7 @@ race_t *dunadan_get_race(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis =  4;
-        me.skills.dev =  5;
+        me.skills.dev =  3;
         me.skills.sav =  3;
         me.skills.stl =  2;
         me.skills.srh =  3;
@@ -1585,7 +1585,7 @@ race_t *dwarf_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = 2;
-        me.skills.dev = 7;
+        me.skills.dev = 5;
         me.skills.sav = 6;
         me.skills.stl = -1;
         me.skills.srh = 7;
@@ -1651,7 +1651,7 @@ race_t *ent_get_race(void)
                     "can summon the trees of the forest to their side.";
 
         me.skills.dis = -5;
-        me.skills.dev =  2;
+        me.skills.dev =  1;
         me.skills.sav =  5;
         me.skills.stl = -1;
         me.skills.srh =  0;
@@ -1740,7 +1740,7 @@ race_t *gnome_get_race(void)
         me.stats[A_CHR] = -1;
 
         me.skills.dis = 10;
-        me.skills.dev = 8;
+        me.skills.dev = 6;
         me.skills.sav = 7;
         me.skills.stl = 3;
         me.skills.srh = 6;
@@ -1901,7 +1901,7 @@ race_t *half_giant_get_race(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis = -6;
-        me.skills.dev = -8;
+        me.skills.dev = -5;
         me.skills.sav = -3;
         me.skills.stl = -2;
         me.skills.srh = -1;
@@ -1969,7 +1969,7 @@ race_t *half_ogre_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = -3;
-        me.skills.dev = -5;
+        me.skills.dev = -3;
         me.skills.sav = -3;
         me.skills.stl = -2;
         me.skills.srh = -1;
@@ -2034,7 +2034,7 @@ race_t *half_titan_get_race(void)
         me.stats[A_CHR] =  3;
 
         me.skills.dis = -5;
-        me.skills.dev =  5;
+        me.skills.dev =  3;
         me.skills.sav =  1;
         me.skills.stl = -2;
         me.skills.srh =  1;
@@ -2103,7 +2103,7 @@ race_t *half_troll_get_race(void)
         me.stats[A_CHR] = -2;
 
         me.skills.dis = -5;
-        me.skills.dev = -8;
+        me.skills.dev = -6;
         me.skills.sav = -5;
         me.skills.stl = -2;
         me.skills.srh = -1;
@@ -2162,7 +2162,7 @@ race_t *high_elf_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis =  4;
-        me.skills.dev = 13;
+        me.skills.dev =  9;
         me.skills.sav = 12;
         me.skills.stl =  4;
         me.skills.srh =  3;
@@ -2218,7 +2218,7 @@ race_t *hobbit_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = 15;
-        me.skills.dev = 12;
+        me.skills.dev = 8;
         me.skills.sav = 10;
         me.skills.stl = 5;
         me.skills.srh = 12;
@@ -2348,7 +2348,7 @@ race_t *imp_get_race(void)
         me.stats[A_CHR] = -1;
 
         me.skills.dis = -3;
-        me.skills.dev = 2;
+        me.skills.dev = 1;
         me.skills.sav = -1;
         me.skills.stl = 1;
         me.skills.srh = -1;

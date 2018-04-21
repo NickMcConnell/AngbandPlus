@@ -39,4 +39,13 @@ extern void    vec_merge_sort(vec_ptr vec, vec_cmp_f f);
 
 extern int     vec_compare(vec_ptr left, vec_ptr right, vec_cmp_f f);
 
+/* XXX This doesn't belong here ... Stats on vec<int> for wizard statistics */
+typedef struct {
+    double mean;
+    double variance;
+    double sigma;
+    int    max;
+} int_stat_t, *int_stat_ptr;
+extern int_stat_t int_calc_stats(vec_ptr v);
+
 #endif

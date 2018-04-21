@@ -47,7 +47,7 @@ W:0:*:2
 
 N:2:of Sharpness
 T:WEAPON
-W:10:70:2
+W:10:*:2
 C:0:0:0:5
 F:VORPAL | TUNNEL
 

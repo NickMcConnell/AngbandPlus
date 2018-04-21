@@ -594,6 +594,80 @@ static void _reroll_aux(object_type *o_ptr, int flags, int min)
     *o_ptr = best;
 }
 
+static char _score_color(int score)  /* XXX duplicated in wizard2.c */
+{
+    if (score < 1000)
+        return 'D';
+    if (score < 10000)
+        return 'w';
+    if (score < 20000)
+        return 'W';
+    if (score < 40000)
+        return 'u';
+    if (score < 60000)
+        return 'y';
+    if (score < 80000)
+        return 'o';
+    if (score < 100000)
+        return 'R';
+    if (score < 150000)
+        return 'r';
+    return 'v';
+}
+
+void wiz_create_objects(obj_create_f creator, u32b mode)
+{
+    doc_ptr doc = doc_alloc(120);
+    inv_ptr inv = inv_alloc("Temp", INV_PACK, 0);
+    int     i;
+
+    statistics_hack = TRUE;
+    for (i = 1; i < 1000;)
+    {
+        object_type forge;
+        if (creator(&forge, mode))
+        {
+            obj_identify_fully(&forge);
+            inv_add(inv, &forge);
+            i++;
+        }
+    }
+    inv_optimize(inv);
+    doc_insert(doc, "<style:table>");
+    for (i = 1; i <= inv_max(inv); i++)
+    {
+        obj_ptr obj = inv_obj(inv, i);
+        int     score;
+        char    name[MAX_NLEN];
+
+        if (!obj) continue;
+        score = obj_value_real(obj);
+        object_desc(name, obj, OD_COLOR_CODED);
+
+        doc_printf(doc, "%3d <color:%c>%5d</color>) <indent><style:indent>%s</style></indent>\n",
+            i, _score_color(score), score, name);
+    }
+    doc_insert(doc, "</style>");
+    statistics_hack = FALSE;
+
+    doc_display(doc, "Objects", 0);
+    inv_free(inv);
+    doc_free(doc);
+}
+
+static obj_ptr _reroll_obj = NULL;
+static bool _reroll_creator(obj_ptr obj, u32b mode)
+{
+    object_prep(obj, _reroll_obj->k_idx);
+    return apply_magic(obj, dun_level, mode);
+}
+static void _reroll_stats_aux(object_type *o_ptr, int flags)
+{
+    _reroll_obj = o_ptr;
+    wiz_create_objects(_reroll_creator, AM_NO_FIXED_ART | flags);
+    _reroll_obj = NULL;
+}
+
 static int _smith_reroll(object_type *o_ptr)
 {
     object_type copy = *o_ptr;
@@ -609,16 +683,17 @@ static int _smith_reroll(object_type *o_ptr)
 
         doc_insert(_doc, "   <color:y>w</color>) Awful\n");
         doc_insert(_doc, "   <color:y>b</color>) Bad\n");
-        doc_insert(_doc, "   <color:y>a</color>) Average\n");
-        doc_insert(_doc, "   <color:y>g</color>) Good\n");
-        doc_insert(_doc, "   <color:y>e</color>) Excellent\n");
-        doc_insert(_doc, "   <color:y>r</color>) Random Artifact\n");
+        doc_insert(_doc, "   <color:y>a</color>) Average*\n");
+        doc_insert(_doc, "   <color:y>g</color>) Good*\n");
+        doc_insert(_doc, "   <color:y>e</color>) Excellent*\n");
+        doc_insert(_doc, "   <color:y>r</color>) Random Artifact*\n");
         if (o_ptr->name1 || o_ptr->name3)
-            doc_insert(_doc, "   <color:y>R</color>) Replacement Artifact\n");
+            doc_insert(_doc, "   <color:y>X</color>) Replacement Artifact\n");
 
         doc_newline(_doc);
         doc_printf(_doc, "   <color:y>m</color>) Min Score = %d\n", min);
 
+        doc_insert(_doc, "\n   (*)SHIFT+choice to view statistics\n");
         doc_newline(_doc);
         doc_insert(_doc, " <color:y>RET</color>) Accept changes\n");
         doc_insert(_doc, " <color:y>ESC</color>) Cancel changes\n");
@@ -649,10 +724,14 @@ static int _smith_reroll(object_type *o_ptr)
         case 'w': _reroll_aux(&copy, AM_GOOD | AM_GREAT | AM_CURSED, min); break;
         case 'b': _reroll_aux(&copy, AM_GOOD | AM_CURSED, min); break;
         case 'a': _reroll_aux(&copy, AM_AVERAGE, min); break;
+        case 'A': _reroll_stats_aux(&copy, AM_AVERAGE); break; /* only makes sense for devices */
         case 'g': _reroll_aux(&copy, AM_GOOD, min); break;
+        case 'G': _reroll_stats_aux(&copy, AM_GOOD); break; /* only makes sense for devices */
         case 'e': _reroll_aux(&copy, AM_GOOD | AM_GREAT, min); break;
+        case 'E': _reroll_stats_aux(&copy, AM_GOOD | AM_GREAT); break;
         case 'r': _reroll_aux(&copy, AM_GOOD | AM_GREAT | AM_SPECIAL, min); break;
-        case 'R': {
+        case 'R': _reroll_stats_aux(&copy, AM_GOOD | AM_GREAT | AM_SPECIAL); break;
+        case 'X': {
             int which = o_ptr->name1;
             if (!which) which = o_ptr->name3;
             create_replacement_art(which, &copy);

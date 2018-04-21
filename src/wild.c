@@ -1711,3 +1711,19 @@ bool py_in_dungeon(void)
     return dungeon_type != 0;
 }
 
+bool py_can_recall(void)
+{
+    if (p_ptr->inside_arena || ironman_downward)
+        return FALSE;
+
+    /* blocked if current dungeon's guardian is unslain */
+    if ( dungeon_type != 0
+      && !(dungeon_flags[dungeon_type] & DUNGEON_NO_GUARDIAN)
+      && d_info[dungeon_type].initial_guardian )
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+

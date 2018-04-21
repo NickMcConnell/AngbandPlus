@@ -142,3 +142,11 @@ bool mon_stun(mon_ptr mon, int amt)
     }
     return set_monster_stunned(mon->id, cur_stun + amt);
 }
+
+bool mon_can_attack(mon_ptr mon)
+{
+    mon_race_ptr race = mon_race(mon);
+    if (!race->blows[0].method) return FALSE; /* XXX assume blow[0] set if any are set */
+    return TRUE;
+}
+

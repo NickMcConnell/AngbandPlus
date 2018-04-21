@@ -359,19 +359,18 @@ S:HELMET:Head
 S:GLOVES:Hands
 S:BOOTS:Feet
 
+#XXX I mistakenly though nagas had female bodies including arms,
+#but they only have the trunk of the human body which Webster's says
+#does not include the head or appendages. I'm not familiar with the
+#origin of naga, so someone can correct me, but I guess they are mostly
+#snake like. We'll let them slither into body armor which will snugly
+#fit their female torso, but much else will have to be forbidden.
 N:35:Naga
-S:WEAPON_SHIELD:Right Hand:0
-S:WEAPON_SHIELD:Left Hand:1
-S:BOW:Shooting
-S:QUIVER:Quiver
-S:RING:Right Ring:0
-S:RING:Left Ring:1
 S:AMULET:Neck
 S:LITE:Light
 S:BODY_ARMOR:Body
 S:CLOAK:Cloak
 S:HELMET:Head
-S:GLOVES:Hands
 
 N:36:Kavlax
 S:RING:Ring

@@ -862,16 +862,9 @@ int choose_dungeon(cptr note, int y, int x)
  */
 bool recall_player(int turns)
 {
-    /*
-     * TODO: Recall the player to the last
-     * visited town when in the wilderness
-     */
-
-    /* Ironman option */
-    if (p_ptr->inside_arena || ironman_downward)
+    if (!py_can_recall())
     {
         msg_print("Nothing happens.");
-
         return TRUE;
     }
 
@@ -1108,8 +1101,52 @@ void mutate_player(void)
 /*
  * Apply Nexus
  */
+static void _nexus_pick_dungeon(void)
+{
+    int which, lvl;
+    int max_lvl = 10 + MAX(20, py_prorata_level(100));
+    for (;;)
+    {
+        dungeon_info_type *d_ptr;
+        which = rand_range(2, max_d_idx);
+        d_ptr = &d_info[which];
+        if (!d_ptr->name) continue;
+        if (d_ptr->flags1 & (DF1_RANDOM | DF1_WINNER)) continue;
+        if (which == dungeon_type) continue;
+        if (d_ptr->mindepth > max_lvl) continue;
+        lvl = rand_range(d_ptr->mindepth, MIN(d_ptr->maxdepth, max_lvl));
+        break;
+    }
+    dungeon_type = which;
+    dun_level = lvl;
+}
+static void _nexus_travel(void)
+{
+    if (!py_on_surface() && !py_in_dungeon())
+    {
+        msg_print("There is no effect.");
+        return; /* paranoia wrt arena or town quests */
+    }
+    if (autosave_l) do_cmd_save_game(TRUE); /* XXX Sequence issue. Must be called first */
+    if (py_on_surface())
+    {
+        p_ptr->oldpy = py;
+        p_ptr->oldpx = px;
+    }
+    quests_on_leave();
+    _nexus_pick_dungeon();
+    prepare_change_floor_mode(CFM_RAND_PLACE);
+    p_ptr->leaving = TRUE;
+    p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
+}
+
 void apply_nexus(monster_type *m_ptr)
 {
+    if (!m_ptr) /* wizard testing */
+    {
+        _nexus_travel();
+        return;
+    }
     switch (randint1(7))
     {
         case 1: case 2: case 3:
@@ -1140,16 +1177,26 @@ void apply_nexus(monster_type *m_ptr)
 
         case 7:
         {
-            if (randint0(100) < p_ptr->skills.sav || res_save_default(RES_NEXUS))
+            if (randint0(100) < p_ptr->skills.sav)
             {
                 msg_print("You resist the effects!");
                 break;
             }
-            msg_print("Your body starts to scramble...");
             if (p_ptr->pclass == CLASS_WILD_TALENT)
+            {
+                msg_print("Your body starts to scramble...");
                 wild_talent_scramble();
-            else
+            }
+            else if (no_wilderness)
+            {
+                msg_print("Your body starts to scramble...");
                 mutate_player();
+            }
+            else
+            {
+                msg_print("The world around you starts to scramble...");
+                _nexus_travel();
+            }
             break;
         }
     }

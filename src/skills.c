@@ -205,7 +205,8 @@ void skills_weapon_init(int tval, int sval, int skill)
 
     assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
     assert(tval != TV_BOW);
-    assert(p_ptr->pclass != CLASS_SKILLMASTER);
+    /* XXX Poseidon Demigod!
+     * assert(p_ptr->pclass != CLASS_SKILLMASTER); */
 
     max = skills_weapon_max(tval, sval);
     cur = MIN(skill, max);

@@ -27,7 +27,7 @@ static personality_ptr _get_combat_personality(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis = -2;
-        me.skills.dev = -3;
+        me.skills.dev = -2;
         me.skills.sav = -3;
         me.skills.stl =  0;
         me.skills.srh = -1;
@@ -64,10 +64,10 @@ static personality_ptr _get_craven_personality(void)
         me.stats[A_WIS] =  1;
         me.stats[A_DEX] = -1;
         me.stats[A_CON] = -1;
-        me.stats[A_CHR] = -3;
+        me.stats[A_CHR] = -2;
 
         me.skills.dis =  5;
-        me.skills.dev =  6;
+        me.skills.dev =  5;
         me.skills.sav = -1;
         me.skills.stl =  3;
         me.skills.srh =  0;
@@ -114,7 +114,7 @@ static personality_ptr _get_fearless_personality(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = -5;
-        me.skills.dev =  2;
+        me.skills.dev =  1;
         me.skills.sav = -2;
         me.skills.stl =  0;
         me.skills.srh =  2;
@@ -138,7 +138,7 @@ static personality_ptr _get_fearless_personality(void)
  ****************************************************************/
 static void _hasty_calc_bonuses(void)
 {
-    p_ptr->pspeed += 2;
+    p_ptr->pspeed += 2 + p_ptr->lev/37;
     p_ptr->to_m_chance += 1;
 }
 static void _hasty_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -166,7 +166,7 @@ static personality_ptr _get_hasty_personality(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis = -5;
-        me.skills.dev = -5;
+        me.skills.dev = -4;
         me.skills.sav = -3;
         me.skills.stl = -1;
         me.skills.srh = -4;
@@ -213,7 +213,7 @@ static personality_ptr _get_lucky_personality(void)
         me.stats[A_CHR] = -2;
 
         me.skills.dis = 10;
-        me.skills.dev =  7;
+        me.skills.dev =  6;
         me.skills.sav =  3;
         me.skills.stl =  2;
         me.skills.srh = 10;
@@ -259,7 +259,7 @@ static personality_ptr _get_mighty_personality(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = -5;
-        me.skills.dev = -5;
+        me.skills.dev = -4;
         me.skills.sav = -3;
         me.skills.stl = -1;
         me.skills.srh = -2;
@@ -299,7 +299,7 @@ static personality_ptr _get_nimble_personality(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis =  7;
-        me.skills.dev =  3;
+        me.skills.dev =  2;
         me.skills.sav = -1;
         me.skills.stl =  1;
         me.skills.srh =  5;
@@ -364,7 +364,7 @@ static personality_ptr _get_patient_personality(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis = -5;
-        me.skills.dev = -3;
+        me.skills.dev = -2;
         me.skills.sav =  3;
         me.skills.stl =  1;
         me.skills.srh =  0;
@@ -404,7 +404,7 @@ static personality_ptr _get_pious_personality(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis = -5;
-        me.skills.dev =  2;
+        me.skills.dev =  1;
         me.skills.sav =  4;
         me.skills.stl = -1;
         me.skills.srh =  3;

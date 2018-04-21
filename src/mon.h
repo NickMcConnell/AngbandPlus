@@ -22,4 +22,5 @@ extern bool mon_stun_save(int rlev, int dam);
 extern int  mon_stun_amount(int dam);
 extern bool mon_stun(mon_ptr mon, int amt);
 
+extern bool mon_can_attack(mon_ptr mon);
 #endif

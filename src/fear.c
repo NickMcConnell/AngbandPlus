@@ -208,10 +208,13 @@ bool fear_allow_shoot(void)
 
 static int _plev(void)
 {
-    if (p_ptr->lev <= 40)
-        return 5 + p_ptr->lev;
+    int l = p_ptr->lev;
+    if (p_ptr->personality == PERS_CRAVEN)
+        l = MAX(1, l - 5);
+    if (l <= 40)
+        return 5 + l;
 
-    return 45 + (p_ptr->lev - 40)*2;
+    return 45 + (l - 40)*2;
 }
 
 /* Fear Saving Throws

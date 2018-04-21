@@ -22,13 +22,12 @@ struct _owner_s
 typedef struct _owner_s _owner_t, *_owner_ptr;
 
 typedef bool (*_k_idx_p)(int k_idx);
-typedef bool (*_create_obj_f)(obj_ptr obj, int mode);
 struct _type_s
 {
     int           id;
     cptr          name;
     obj_p         buy_p;
-    _create_obj_f create_f;
+    obj_create_f  create_f;
     _owner_t      owners[_MAX_OWNERS];
 };
 typedef struct _type_s _type_t, *_type_ptr;
@@ -54,23 +53,23 @@ struct shop_s
  ***********************************************************************/
 
 static bool _general_will_buy(obj_ptr obj);
-static bool _general_create(obj_ptr obj, int mode);
+static bool _general_create(obj_ptr obj, u32b mode);
 static bool _armory_will_buy(obj_ptr obj);
-static bool _armory_create(obj_ptr obj, int mode);
+static bool _armory_create(obj_ptr obj, u32b mode);
 static bool _weapon_will_buy(obj_ptr obj);
-static bool _weapon_create(obj_ptr obj, int mode);
+static bool _weapon_create(obj_ptr obj, u32b mode);
 static bool _temple_will_buy(obj_ptr obj);
-static bool _temple_create(obj_ptr obj, int mode);
+static bool _temple_create(obj_ptr obj, u32b mode);
 static bool _alchemist_will_buy(obj_ptr obj);
-static bool _alchemist_create(obj_ptr obj, int mode);
+static bool _alchemist_create(obj_ptr obj, u32b mode);
 static bool _magic_will_buy(obj_ptr obj);
-static bool _magic_create(obj_ptr obj, int mode);
+static bool _magic_create(obj_ptr obj, u32b mode);
 static bool _black_market_will_buy(obj_ptr obj);
-static bool _black_market_create(obj_ptr obj, int mode);
+static bool _black_market_create(obj_ptr obj, u32b mode);
 static bool _book_will_buy(obj_ptr obj);
-static bool _book_create(obj_ptr obj, int mode);
+static bool _book_create(obj_ptr obj, u32b mode);
 static bool _jeweler_will_buy(obj_ptr obj);
-static bool _jeweler_create(obj_ptr obj, int mode);
+static bool _jeweler_create(obj_ptr obj, u32b mode);
 
 static _type_t _types[] = 
 {
@@ -433,7 +432,7 @@ static void _discount(obj_ptr obj)
     obj->discount = discount;
 }
 
-static bool _create(obj_ptr obj, int k_idx, int lvl, int mode)
+static bool _create(obj_ptr obj, int k_idx, int lvl, u32b mode)
 {
     if (!k_idx) return FALSE;
 
@@ -523,7 +522,7 @@ static bool _stock_ammo_p(int k_idx)
     return FALSE;
 }
 
-static bool _general_create(obj_ptr obj, int mode)
+static bool _general_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
     if (one_in_(50))
@@ -576,7 +575,7 @@ static bool _armory_stock_p(int k_idx)
     return FALSE;
 }
 
-static bool _armory_create(obj_ptr obj, int mode)
+static bool _armory_create(obj_ptr obj, u32b mode)
 {
     int k_idx = _get_k_idx(_armory_stock_p, _mod_lvl(20));
     return _create(obj, k_idx, _mod_lvl(rand_range(1, 5)), mode);
@@ -646,7 +645,7 @@ static bool _weapon_stock_shooter_p(int k_idx)
     }
     return FALSE;
 }
-static bool _weapon_create(obj_ptr obj, int mode)
+static bool _weapon_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
     int l1 = _mod_lvl(20);
@@ -748,7 +747,7 @@ static bool _temple_stock_p(int k_idx)
     return FALSE;
 }
 
-static bool _temple_create(obj_ptr obj, int mode)
+static bool _temple_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
     if (one_in_(3))
@@ -795,7 +794,7 @@ static bool _alchemist_stock_p(int k_idx)
     return FALSE;
 }
 
-static bool _alchemist_create(obj_ptr obj, int mode)
+static bool _alchemist_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
     if (one_in_(3))
@@ -867,7 +866,7 @@ static bool _magic_stock_p(int k_idx)
     return FALSE;
 }
 
-static bool _magic_create(obj_ptr obj, int mode)
+static bool _magic_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
     if (one_in_(20))
@@ -935,10 +934,11 @@ static bool _black_market_stock_p(int k_idx)
     return !(k_ptr->gen_flags & OFG_TOWN);
 }
 
-static bool _black_market_create(obj_ptr obj, int mode)
+static bool _black_market_create(obj_ptr obj, u32b mode)
 {
-    int l1 = 25 + randint0(25);
-    int l2 = 25 + randint0(25);
+    int spread = py_prorata_level(50);
+    int l1 = 20 + spread/4 + randint0(3*spread/4);
+    int l2 = 20 + spread/4 + randint0(3*spread/4);
     int k_idx;
 
     if (one_in_(9))
@@ -1015,7 +1015,7 @@ static bool _book_stock_p(int k_idx)
     return FALSE;
 }
 
-static bool _book_create(obj_ptr obj, int mode)
+static bool _book_create(obj_ptr obj, u32b mode)
 {
     int k_idx = _get_k_idx(_book_stock_p, _mod_lvl(20));
     return _create(obj, k_idx, _mod_lvl(rand_range(1, 5)), mode);
@@ -1043,10 +1043,13 @@ static bool _jeweler_stock_p(int k_idx)
     return FALSE;
 }
 
-static bool _jeweler_create(obj_ptr obj, int mode)
+static bool _jeweler_create(obj_ptr obj, u32b mode)
 {
-    int k_idx = _get_k_idx(_jeweler_stock_p, _mod_lvl(25 + randint0(25)));
-    return _create(obj, k_idx, _mod_lvl(25 + randint0(25)), mode);
+    int spread = py_prorata_level(50);
+    int l1 = 20 + spread/4 + randint0(3*spread/4);
+    int l2 = 20 + spread/4 + randint0(3*spread/4);
+    int k_idx = _get_k_idx(_jeweler_stock_p, _mod_lvl(l1));
+    return _create(obj, k_idx, _mod_lvl(l2), mode);
 }
 
 /************************************************************************
@@ -1276,6 +1279,7 @@ static void _loop(_ui_context_ptr context);
 static void _maintain(shop_ptr shop);
 static int  _cull(shop_ptr shop, int target);
 static int  _restock(shop_ptr shop, int target);
+static void _wizard_stock(shop_ptr shop);
 static void _shuffle_stock(shop_ptr shop);
 static int  _stock_base(shop_ptr shop);
 
@@ -1330,6 +1334,8 @@ static void _loop(_ui_context_ptr context)
             case 'x': _examine(context); break;
             case 'S': _shuffle_stock(context->shop); break;
             case 'R': _reserve(context); break;
+            case KTRL('A'):
+                if (p_ptr->wizard) _wizard_stock(context->shop);
             case KTRL('S'):
                 if (p_ptr->wizard) inv_sort(context->shop->inv);
                 break;
@@ -1935,11 +1941,25 @@ static int _add_obj(shop_ptr shop, obj_ptr obj) /* return number of new slots us
     return 1;
 }
 
+static void _wizard_stock(shop_ptr shop)
+{
+    u32b mode = AM_NO_FIXED_ART;
+
+    if (!dun_level && _shop_is_basic(shop))
+        mode |=  AM_STOCK_TOWN;
+
+    if (shop->type->id == SHOP_BLACK_MARKET)
+        mode |= AM_STOCK_BM;
+
+    wiz_create_objects(shop->type->create_f, mode);
+    Term_clear_rect(ui_shop_msg_rect());
+}
+
 static int _restock(shop_ptr shop, int target)
 {
     int ct = inv_count_slots(shop->inv, obj_exists);
     int attempt = 0;
-    int mode = AM_NO_FIXED_ART;
+    u32b mode = AM_NO_FIXED_ART;
 
     if (!dun_level && _shop_is_basic(shop))
         mode |=  AM_STOCK_TOWN;

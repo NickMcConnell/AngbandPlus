@@ -47,7 +47,7 @@ race_t *klackon_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = 10;
-        me.skills.dev = -3;
+        me.skills.dev = -2;
         me.skills.sav = 3;
         me.skills.stl = 0;
         me.skills.srh = -1;
@@ -110,7 +110,7 @@ race_t *kobold_get_race(void)
         me.stats[A_CHR] = -2;
 
         me.skills.dis = -2;
-        me.skills.dev = -3;
+        me.skills.dev = -2;
         me.skills.sav = -1;
         me.skills.stl = -1;
         me.skills.srh =  1;
@@ -178,7 +178,7 @@ race_t *kutar_get_race(void)
         me.stats[A_CHR] =  2;
 
         me.skills.dis = -2;
-        me.skills.dev = 5;
+        me.skills.dev = 3;
         me.skills.sav = 5;
         me.skills.stl = 5;
         me.skills.srh = -2;
@@ -252,7 +252,7 @@ race_t *mindflayer_get_race(void)
         me.stats[A_CHR] = -1;
 
         me.skills.dis = 10;
-        me.skills.dev = 15;
+        me.skills.dev = 11;
         me.skills.sav = 9;
         me.skills.stl = 2;
         me.skills.srh = 5;
@@ -319,7 +319,7 @@ race_t *nibelung_get_race(void)
         me.stats[A_CHR] = -2;
 
         me.skills.dis =  3;
-        me.skills.dev =  5;
+        me.skills.dev =  3;
         me.skills.sav =  6;
         me.skills.stl =  1;
         me.skills.srh =  5;
@@ -380,7 +380,7 @@ race_t *shadow_fairy_get_race(void)
         me.stats[A_CHR] = -3;
 
         me.skills.dis =  7;
-        me.skills.dev =  8;
+        me.skills.dev =  6;
         me.skills.sav =  0;
         me.skills.stl =  6;
         me.skills.srh = 12;
@@ -558,7 +558,7 @@ race_t *snotling_get_race(void)
         me.stats[A_CHR] = -5;
 
         me.skills.dis = -3;
-        me.skills.dev = -3;
+        me.skills.dev = -2;
         me.skills.sav = -2;
         me.skills.stl = 2;
         me.skills.srh = 0;
@@ -646,7 +646,7 @@ race_t *spectre_get_race(void)
         me.stats[A_CHR] = -3;
 
         me.skills.dis = 10;
-        me.skills.dev = 15;
+        me.skills.dev = 10;
         me.skills.sav = 12;
         me.skills.stl =  5;
         me.skills.srh =  5;
@@ -719,7 +719,7 @@ race_t *sprite_get_race(void)
         me.stats[A_CHR] = -2;
 
         me.skills.dis = 10;
-        me.skills.dev =  8;
+        me.skills.dev =  6;
         me.skills.sav =  6;
         me.skills.stl =  4;
         me.skills.srh = 10;
@@ -809,7 +809,7 @@ race_t *tonberry_get_race(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis = -5;
-        me.skills.dev = -5;
+        me.skills.dev = -3;
         me.skills.sav =  3;
         me.skills.stl =  1;
         me.skills.srh = -2;
@@ -893,7 +893,7 @@ race_t *vampire_get_race(void)
         me.stats[A_CHR] =  2;
 
         me.skills.dis = 4;
-        me.skills.dev = 8;
+        me.skills.dev = 5;
         me.skills.sav = 6;
         me.skills.stl = 4;
         me.skills.srh = 1;
@@ -951,7 +951,7 @@ race_t *wood_elf_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = 5;
-        me.skills.dev = 6;
+        me.skills.dev = 4;
         me.skills.sav = 4;
         me.skills.stl = 3;
         me.skills.srh = 8;
@@ -1017,7 +1017,7 @@ race_t *yeek_get_race(void)
         me.stats[A_CHR] = -4;
 
         me.skills.dis = 2;
-        me.skills.dev = 4;
+        me.skills.dev = 3;
         me.skills.sav = 6;
         me.skills.stl = 3;
         me.skills.srh = 5;

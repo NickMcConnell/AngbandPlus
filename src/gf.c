@@ -336,7 +336,7 @@ int gf_affect_p(int who, int type, int dam, int flags)
          * scale factor is without some playtesting. cf GF_NUKE below. */
         dam *= 2;
         set_poisoned(p_ptr->poisoned + dam, FALSE);
-        if (!res_save_default(RES_POIS) && one_in_(HURT_CHANCE) && !CHECK_MULTISHADOW())
+        if (!(flags & GF_AFFECT_AURA) && !res_save_default(RES_POIS) && one_in_(HURT_CHANCE) && !CHECK_MULTISHADOW())
             do_dec_stat(A_CON);
         update_smart_learn(who, RES_POIS);
         break;

@@ -472,7 +472,7 @@ race_t *demigod_get_race(int psubrace)
         me.stats[A_CHR] =  1;
         
         me.skills.dis =  2;
-        me.skills.dev =  3;
+        me.skills.dev =  2;
         me.skills.sav =  1;
         me.skills.stl = -1;
         me.skills.srh =  0;
@@ -510,7 +510,7 @@ race_t *demigod_get_race(int psubrace)
                          "just angers them.";
             me.stats[A_CHR] += 2;
             me.exp += 40;
-            me.skills.dev += 2;
+            me.skills.dev = 3;
             me.shop_adjust = 70;
             me.calc_bonuses = _aphrodite_calc_bonuses;
             me.get_powers = _aphrodite_get_powers;
@@ -523,7 +523,7 @@ race_t *demigod_get_race(int psubrace)
                          "archery, and more. You inherit powers of illumination and are completely "
                          "immune to light based attacks. You are seldom blinded.";
             me.exp += 50;
-            me.skills.dev += 3;
+            me.skills.dev = 4;
             me.calc_bonuses = _apollo_calc_bonuses;
             me.get_powers = _apollo_get_powers;
             me.get_flags = _apollo_get_flags;
@@ -538,7 +538,7 @@ race_t *demigod_get_race(int psubrace)
                          "your lust for combat decreases your stealth as you call out challenges "
                          "to all that you meet. And your resistance to magic is suspect as well.";
             me.stats[A_STR] += 2;
-            me.skills.dev -= 3;
+            me.skills.dev  = 0;
             me.skills.sav -= 5;
             me.skills.stl -= 1;
             me.skills.thn += 15;
@@ -573,7 +573,7 @@ race_t *demigod_get_race(int psubrace)
                          "You also have a firm grip on your mental prowess.";
             me.stats[A_INT] += 2;
             me.exp += 60;
-            me.skills.dev += 10;
+            me.skills.dev  = 9;
             me.skills.sav += 2;
             me.calc_bonuses = _athena_calc_bonuses;
             me.get_flags = _athena_get_flags;
@@ -626,7 +626,7 @@ race_t *demigod_get_race(int psubrace)
             me.stats[A_WIS] += 2;
             me.exp += 40;
             me.skills.sav += 5;
-            me.skills.dev += 5;
+            me.skills.dev  = 6;
             me.calc_bonuses = _hera_calc_bonuses;
             me.get_powers = _hera_get_powers;
             me.get_flags = _hera_get_flags;
@@ -665,7 +665,7 @@ race_t *demigod_get_race(int psubrace)
                          "and your divine birth will be marked by your aura of electricity. You also "
                          "resist lightning.";
             me.skills.dis += 2;
-            me.skills.dev += 5;
+            me.skills.dev  = 5;
             me.skills.sav += 5;
             me.skills.thn += 10;
             me.skills.thb += 3;

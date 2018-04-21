@@ -870,7 +870,7 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
         int xp = r_ptr->mexp * r_ptr->level / (plev + 2);
         char buf[10];
 
-        if (quickband) xp *= 2;
+        if (quickmode) xp *= 2;
         big_num_display(xp, buf);
         doc_printf(doc, "Exp     : <color:G>%s</color> at CL%d\n", buf, plev);
     }

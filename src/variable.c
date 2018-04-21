@@ -315,7 +315,7 @@ bool enable_virtues;
 bool enable_spell_prof;
 bool reduce_uniques;
 byte reduce_uniques_pct = 100; /* This is the pct of uniques to face */
-bool quickband;
+bool quickmode;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -986,7 +986,7 @@ u16b max_a_idx;
 u16b max_e_idx;
 
 /*
- * Maximum number of dungeon in e_info.txt
+ * Maximum number of dungeon in d_info.txt
  */
 u16b max_d_idx;
 

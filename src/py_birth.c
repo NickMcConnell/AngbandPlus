@@ -2032,6 +2032,7 @@ static void _stats_init(void)
         {
             int stats[6] = { 15, 15, 11, 15, 15, 15 };
             _stats_init_aux(stats);
+            break;
         }
         case RACE_MON_QUYLTHULG:
         {
@@ -2632,10 +2633,35 @@ static void _bounty_uniques(void)
     vec_free(v);
 }
 
+static int _boss_r_idx(void)
+{
+    race_ptr r = get_race();
+    if (r->id == RACE_DEMIGOD)
+    {
+        switch (r->subid)
+        {
+        case DEMIGOD_ZEUS: return MON_ZEUS;
+        case DEMIGOD_POSEIDON: return MON_POSEIDON;
+        case DEMIGOD_HADES: return MON_HADES;
+        case DEMIGOD_ATHENA: return MON_ATHENA;
+        case DEMIGOD_ARES: return MON_ARES;
+        case DEMIGOD_HERMES: return MON_HERMES;
+        case DEMIGOD_APOLLO: return MON_APOLLO;
+        case DEMIGOD_ARTEMIS: return MON_ARTEMIS;
+        case DEMIGOD_HEPHAESTUS: return MON_HEPHAESTUS;
+        case DEMIGOD_HERA: return MON_HERA;
+        case DEMIGOD_DEMETER: return MON_DEMETER;
+        case DEMIGOD_APHRODITE: return MON_APHRODITE;
+        }
+    }
+    return r->boss_r_idx;
+}
+
 static void _reduce_uniques(void)
 {
-    vec_ptr buckets[10] = {0};
-    int     i, cull_pct;
+    vec_ptr  buckets[10] = {0};
+    int      i, cull_pct;
+    int      boss = _boss_r_idx();
 
     /* Perhaps there are too many uniques for your tastes? */
     if (!reduce_uniques) return;
@@ -2661,6 +2687,7 @@ static void _reduce_uniques(void)
         if (r_ptr->flagsx & RFX_WANTED) continue;
         if (!no_wilderness && (r_ptr->flags7 & RF7_GUARDIAN)) continue;
         if (r_ptr->flagsx & RFX_QUESTOR) continue; /* quests_on_birth() should be called before us */
+        if (r_ptr->id == boss) continue;
 
         bucket = r_ptr->level / 10;
         if (bucket >= 10) continue;

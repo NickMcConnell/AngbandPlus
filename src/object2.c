@@ -646,7 +646,7 @@ s16b get_obj_num(int level)
     if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
 
     /* Boost level */
-    if (quickband) level += 5;
+    if (quickmode) level += 5;
     if (level > 0 && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
     {
         /* Occasional "boost" */
@@ -687,7 +687,7 @@ s16b get_obj_num(int level)
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
         /* Probably the slowest thing in "slowband" is stat gain ... sigh */
-        if (quickband && _is_stat_potion(k_ptr->tval, k_ptr->sval))
+        if (quickmode && _is_stat_potion(k_ptr->tval, k_ptr->sval))
             p *= 2;
 
         /* TODO: Add some sort of max_num field to limit certain objects (I'm looking at you, spellbooks!)
@@ -2024,12 +2024,15 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     int maxf1 = d_info[dungeon_type].obj_good;
     int maxf2 = d_info[dungeon_type].obj_great;
 
-    if (quickband && !(mode & AM_STOCK_TOWN))
+    if (quickmode && !(mode & AM_STOCK_TOWN))
     {
         lev += 10;
         maxf1 += 10;
         maxf2 += 10;
     }
+
+    if (mode & AM_QUEST)
+        lev += 10;
 
     /* Maximum "level" for various things */
     if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
@@ -3989,7 +3992,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
     if (!object_is_artifact(j_ptr) && (randint0(100) < chance))
     {
         /* Message */
-        cmsg_format(TERM_RED, "The %s disappear%s.",
+        cmsg_format(TERM_L_RED, "The %s disappear%s.",
                o_name, plural ? "" : "s");
 
 

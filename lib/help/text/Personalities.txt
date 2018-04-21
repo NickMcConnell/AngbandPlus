@@ -248,5 +248,5 @@ Hasty        Very Bad      Bad           Very Bad      Bad
 
 
 
-Automatically generated for PosChengband 7.0.0.
+Automatically generated for PosChengband 7.0.1.
 

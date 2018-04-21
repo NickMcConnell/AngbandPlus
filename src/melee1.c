@@ -832,8 +832,19 @@ bool make_attack_normal(int m_idx)
                     else /* cloak of retaliation or staffmaster */
                         do_retaliate = TRUE;
                 }
-                if (!m_ptr->ml || p_ptr->confused || p_ptr->blind || p_ptr->paralyzed)
-                    do_retaliate = FALSE;
+                if (p_ptr->pclass == CLASS_FORCETRAINER)
+                {
+                    /* The Force-trainer need not see his enemy to retaliate.
+                     * Indeed, it is a training excercise among novices to fight
+                     * opponents while blindfolded! */
+                    if (p_ptr->confused || p_ptr->paralyzed)
+                        do_retaliate = FALSE;
+                }
+                else
+                {
+                    if (!m_ptr->ml || p_ptr->confused || p_ptr->blind || p_ptr->paralyzed)
+                        do_retaliate = FALSE;
+                }
 
                 /* light stunning is now *very* common */
                 if (p_ptr->stun && randint0(35) < p_ptr->stun)

@@ -435,7 +435,7 @@ typedef struct {
     s16b fos;            /* search frequency */
     s16b thn;            /* combat (normal) */
     s16b thb;            /* combat (shooting) */
-} skills_t;
+} skills_t, *skills_ptr;
 
 #define SKILL_DESC_LEN 50
 typedef struct {
@@ -1957,7 +1957,7 @@ typedef struct {
     save_fn                 save_player;
     obj_p                   destroy_object;
     obj_f                   get_object;
-} class_t;
+} class_t, *class_ptr;
 
 struct equip_template_s;
 
@@ -2001,7 +2001,7 @@ typedef struct {
     object_p                destroy_object;
     s16b                    pseudo_class_idx; /* For the "Monster" class ... */
     s16b                    shop_adjust;
-} race_t;
+} race_t, *race_ptr;
 
 typedef struct {
     int  type;

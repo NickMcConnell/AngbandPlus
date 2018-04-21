@@ -5429,7 +5429,7 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
                         int ac = possessor_r_ac(r_idx);
 
                         sprintf(buf, "%3d  %3d  %+5d  %+4d  %s",
-                            r_ptr->level, MAX(15, r_ptr->level + 5), speed, ac,
+                            r_ptr->level, possessor_max_plr_lvl(r_idx), speed, ac,
                             get_class_aux(r_ptr->body.class_idx, 0)->name
                         );
                         c_put_str(TERM_WHITE, buf, row + i, 80);

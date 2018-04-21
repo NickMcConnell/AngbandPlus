@@ -211,12 +211,16 @@ static void _player_action(int energy_use)
         teleport_player(10, TELEPORT_LINE_OF_SIGHT);
 }
 
+int possessor_max_plr_lvl(int r_idx)
+{
+    monster_race *r_ptr = &r_info[r_idx];
+    point_t       tbl[5] = { {10, 15}, {20, 30}, {30, 37}, { 40, 45}, { 50, 50} };
+    return        interpolate(r_ptr->level, tbl, 5);
+}
+
 static int _max_lvl(void)
 {
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-    int           max_lvl = MAX(15, r_ptr->level + 5);
-
-    return MIN(PY_MAX_LEVEL, max_lvl);
+    return possessor_max_plr_lvl(p_ptr->current_r_idx);
 }
 
 /**********************************************************************
@@ -735,6 +739,8 @@ caster_info *possessor_caster_info(void)
                 info.encumbrance.weapon_pct = 0;
                 info.encumbrance.enc_wgt = 1200;
             }
+            if (info.options & CASTER_SUPERCHARGE_MANA) /* many forms cast as 'Mystics', but cannot 'Concentrate'! */
+                info.options &= ~CASTER_SUPERCHARGE_MANA;
             return &info;
         }
     }
@@ -1032,16 +1038,6 @@ void possessor_calc_bonuses(void)
         p_ptr->no_cut = TRUE;
     if (strchr("sg", r_ptr->d_char))
         p_ptr->no_stun = TRUE;
-
-    switch (r_ptr->body.class_idx)
-    {
-    case CLASS_MAGE:
-        p_ptr->spell_cap += 2;
-        break;
-    case CLASS_HIGH_MAGE:
-        p_ptr->spell_cap += 3;
-        break;
-    }
 }
 
 void possessor_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
@@ -1164,8 +1160,8 @@ void possessor_get_flags(u32b flgs[OF_ARRAY_SIZE])
  **********************************************************************/
 void possessor_init_race_t(race_t *race_ptr, int default_r_idx)
 {
-static int    last_r_idx = -1;
-int           r_idx = p_ptr->current_r_idx, i;
+    static int last_r_idx = -1;
+    int        r_idx = p_ptr->current_r_idx, i;
 
     if (!r_idx) /* Birthing menus. p_ptr->prace not chosen yet. _birth() not called yet. */
         r_idx = default_r_idx; 
@@ -1416,7 +1412,7 @@ void possessor_character_dump(doc_ptr doc)
     char         lvl[80];
     char         loc[255];
     
-    if (p_ptr->current_r_idx)
+    if (p_ptr->current_r_idx != MON_MIMIC && p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
     {
         mon_race_ptr race = &r_info[p_ptr->current_r_idx];
         bool old_use_graphics = use_graphics;

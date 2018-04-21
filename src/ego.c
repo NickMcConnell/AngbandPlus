@@ -373,7 +373,7 @@ static _power_limit_t _get_jewelry_power_limit(int level, int mode)
         }
     }
 
-    if (mode & (AM_FORCE_EGO | AM_GREAT | AM_GUARDIAN)) /* Quest rewards and early dungeon guardians ... and Smeagol, Robin Hood, Wormy, etc. */
+    if (mode & (AM_FORCE_EGO | AM_GREAT | AM_QUEST)) /* Quest rewards and early dungeon guardians ... and Smeagol, Robin Hood, Wormy, etc. */
     {
         if (rng.min < 5000) rng.min = 5000;
         if (rng.max && rng.max < 10000) rng.max = 10000;
@@ -1119,6 +1119,8 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
             }
         }
         if (!o_ptr->pval) o_ptr->pval = randint1(8); /* Searching */
+        if (have_flag(o_ptr->flags, OF_MAGIC_MASTERY) && o_ptr->pval > 1)
+            o_ptr->pval--;
         if (o_ptr->to_d > 20)
             o_ptr->to_d = 20;
         if (one_in_(ACTIVATION_CHANCE))

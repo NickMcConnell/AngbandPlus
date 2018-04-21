@@ -2827,7 +2827,7 @@ M:100:2d3
 N:*:Resist Heat:Red Speckled
 G:!:r
 I:75:30:0
-W:1:0:60:4:150
+W:1:0:60:4:50
 A:1/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -2836,7 +2836,7 @@ M:100:2d5
 N:*:Resist Cold:Silver Speckled
 G:!:W
 I:75:31:0
-W:1:0:60:4:150
+W:1:0:60:4:50
 A:1/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -2892,7 +2892,7 @@ I:75:37:200
 W:31:0:0:4:300
 A:31/1:60/1:80/1
 P:0:1d1:0:0:0
-M:20:1d3
+M:50:1d3
 
 N:*:*Healing*:Oily Yellow
 G:!:y
@@ -3079,7 +3079,7 @@ I:75:61:100
 W:26:0:0:4:250
 A:26/1:40/1
 P:0:1d1:0:0:0
-M:100:1d5
+M:100:1d9
 
 N:*:Invulnerability:Dark Green
 G:!:g
@@ -3759,7 +3759,6 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
 F:TOWN
-M:100:1d5
 
 N:*:& Flask~ of oil
 G:!:y

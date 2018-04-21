@@ -2531,6 +2531,7 @@ void do_cmd_rest(void)
             }
         }
 
+        /* XXX race_mimic? */
         if (clear)
             mimic_race(MIMIC_NONE, "You cannot rest while maintaining your current form.");
     }

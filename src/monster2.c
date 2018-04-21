@@ -622,8 +622,9 @@ void pack_choose_ai(int m_idx)
         pack_info_t *pack_ptr = &pack_info_list[m_ptr->pack_idx];
         pack_ptr->ai = AI_SEEK; /* paranoia ... make sure something gets chosen! */
         if (pack_ptr->count == 1) /* Uniques can now come in packs of 1 for variable AI */
-        {
-            int p = randint0(100);
+        {   /*      v--- Artemis has no attacks ... probably a bug I should fix later */
+            int t = mon_can_attack(m_ptr) ? 100 : 25;
+            int p = randint0(t);
 
             if (p < 5 && mon_has_worthy_attack_spell(m_ptr))
                 pack_ptr->ai = AI_SHOOT;
@@ -633,7 +634,7 @@ void pack_choose_ai(int m_idx)
                     with evil summons! */
                 pack_ptr->ai = AI_LURE;
             }
-            else if (p < 25 && mon_has_worthy_attack_spell(m_ptr))
+            else if ((p < 25 && mon_has_worthy_attack_spell(m_ptr)) || !mon_can_attack(m_ptr))
             {
                 /* Hang back and pelt the player from a distance */
                 pack_ptr->ai = AI_MAINTAIN_DISTANCE;

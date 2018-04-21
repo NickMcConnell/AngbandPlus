@@ -92,11 +92,11 @@ void quest_complete(quest_ptr q, point_t p)
     }
     if (!(q->flags & QF_TOWN)) /* non-town quest get rewarded immediately */
     {
-        int i, ct = dun_level/15 + 1;
+        int i, ct = q->level/25 + 1;
         for (i = 0; i < ct; i++)
         {
             obj_t forge = {0};
-            if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED))
+            if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
                 drop_near(&forge, -1, p.y, p.x);
             else
                 msg_print("Software Bug ... you missed out on your reward!");
@@ -778,6 +778,9 @@ void quests_on_kill_mon(mon_ptr mon)
     q = quests_get(_current);
     assert(q);
     assert(mon);
+    /* handle monsters summoned *after* the quest was completed ... */
+    if (q->status == QS_COMPLETED) return;
+
     if (q->goal == QG_KILL_MON && mon->r_idx == q->goal_idx)
     {
         q->goal_current++;
@@ -920,7 +923,7 @@ void quests_on_leave(void)
     if (q->status == QS_IN_PROGRESS)
     {
         bool fail = TRUE;
-        if (q->flags & QF_RETAKE)
+        if (!statistics_hack && (q->flags & QF_RETAKE))
         {
             fail = FALSE;
             if (q->flags & QF_RANDOM)
@@ -1556,21 +1559,42 @@ static void _reward_cmd(_ui_context_ptr context)
         if (idx < vec_length(context->quests))
         {
             quest_ptr quest = vec_get(context->quests, idx);
-            obj_ptr   reward;
-
-            quest->seed = randint0(0x10000000);
-            reward = quest_get_reward(quest);
-
-            if (!reward)
-                msg_format("<color:R>%s</color> has no reward.", quest->name);
+            if (!(quest->flags & QF_TOWN))
+            {
+                int i, ct = quest->level/25 + 1;
+                object_level = quest->level;
+                for (i = 0; i < ct; i++)
+                {
+                    obj_t forge = {0};
+                    if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                    {
+                        char name[MAX_NLEN];
+                        obj_identify_fully(&forge);
+                        object_desc(name, &forge, OD_COLOR_CODED);
+                        msg_boundary();
+                        msg_format("%s", name);
+                    }
+                }
+                object_level = base_level;
+            }
             else
             {
-                char name[MAX_NLEN];
-                obj_identify_fully(reward);
-                object_desc(name, reward, OD_COLOR_CODED);
-                msg_format("<color:R>%s</color> gives %s.", quest->name, name);
-                if (reward->name1) a_info[reward->name1].generated = FALSE;
-                obj_free(reward);
+                obj_ptr   reward;
+
+                quest->seed = randint0(0x10000000);
+                reward = quest_get_reward(quest);
+
+                if (!reward)
+                    msg_format("<color:R>%s</color> has no reward.", quest->name);
+                else
+                {
+                    char name[MAX_NLEN];
+                    obj_identify_fully(reward);
+                    object_desc(name, reward, OD_COLOR_CODED);
+                    msg_format("<color:R>%s</color> gives %s.", quest->name, name);
+                    if (reward->name1) a_info[reward->name1].generated = FALSE;
+                    obj_free(reward);
+                }
             }
         }
     }

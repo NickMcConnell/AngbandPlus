@@ -1366,6 +1366,7 @@ static void _spoil_mon_melee_dam_aux_aux(doc_ptr doc, vec_ptr v)
         _mon_dam_info_ptr info = vec_get(v, i);
         int               hp = _mon_hp(info->mon);
         char              color = 'w';
+        int               xp, nasty;
 
         if (i%25 == 0)
             doc_printf(doc, "\n<color:G>%-30.30s Lvl    HP Speed  AC   Exp Damage   Damage   Auras Nastiness</color>\n", "Name");
@@ -1385,11 +1386,11 @@ static void _spoil_mon_melee_dam_aux_aux(doc_ptr doc, vec_ptr v)
         else
             doc_insert(doc, " <color:y>***</color>"); /* metal babble */
         {
-            int plev = spoiler_hack ? 50 : p_ptr->max_plv;
-            int xp = info->mon->mexp * info->mon->level / (plev + 2);
+            int  plev = spoiler_hack ? 50 : p_ptr->lev;
             char buf[10];
 
-            if (quickband) xp *= 2;
+            xp = info->mon->mexp * info->mon->level / (plev + 2);
+            if (quickmode) xp *= 2;
             big_num_display(xp, buf);
             doc_printf(doc, " %5.5s", buf);
         }
@@ -1402,7 +1403,10 @@ static void _spoil_mon_melee_dam_aux_aux(doc_ptr doc, vec_ptr v)
 
         _display_dam(doc, info->nasty1);
         _display_dam(doc, info->nasty2);
-        doc_printf(doc, " %d", info->hits);
+        /*doc_printf(doc, " %d", info->hits);*/
+        nasty = MAX(info->nasty1, info->nasty2);
+        if (nasty && hp > 10) /* skip babbles */
+            doc_printf(doc, "<tab:91>%9.2f", (double)xp * 1000.0 / (nasty * hp));
         doc_newline(doc);
     }
 }
@@ -1460,6 +1464,12 @@ static bool _is_monk(mon_race_ptr r)
 static bool _mon_dam_p(mon_race_ptr r)
 {
     int min = 0, max = 200;
+
+    return TRUE;
+    return r->d_char == 'd' || r->d_char == 'D';
+    return !r->blows[0].method;
+    return r->level <= mimic_max_lvl();
+
     if (dun_level)
     {
         min = dun_level - 20;
@@ -1469,8 +1479,6 @@ static bool _mon_dam_p(mon_race_ptr r)
     if (r->level < min || r->level > max) return FALSE;
 
     return BOOL(r->flags1 & RF1_UNIQUE);
-    return TRUE;
-    return r->d_char == 'd' || r->d_char == 'D';
     return r->d_char == 'P';
     return r->d_char == 'J' && r->spells && r->spells->groups[MST_BREATH];
     return BOOL(r->flags3 & RF3_UNDEAD);
@@ -1594,31 +1602,6 @@ static void spoil_mon_resist(void)
     vec_free(v);
 }
 
-typedef struct {
-    double mean;
-    double variance;
-    double sigma;
-    int    max;
-} _stat_t, *_stat_ptr;
-_stat_t _calc_stats(vec_ptr v)
-{
-    _stat_t r;
-    int n = vec_length(v);
-    int i, max = 0;
-    double tx2 = 0.0, tx = 0.0;
-    for (i = 0; i < n; i++)
-    {
-        int x = vec_get_int(v, i);
-        tx += (double)x;
-        tx2 += (double)x*(double)x;
-        if (x > max) max = x;
-    }
-    r.mean = tx/(double)n;
-    r.variance = tx2/(double)n - r.mean;  /* XXX check this ... */
-    r.sigma = sqrt(r.variance);
-    r.max = max;
-    return r;
-}
 static void spoil_mon_anger(void)
 {
     /* I tried to spreadsheet this, but I must be too dumb to get accurate results! */
@@ -1639,7 +1622,7 @@ static void spoil_mon_anger(void)
         for (freq_idx = 0;; freq_idx++)
         {
             vec_ptr runs;
-            _stat_t stat;
+            int_stat_t stat;
             int i, j, cast = 0, total = 0;
             int freq = freqs[freq_idx];
             if (freq < 0) break;
@@ -1662,7 +1645,7 @@ static void spoil_mon_anger(void)
                     a += boost + a/2;
                 }
             }
-            stat = _calc_stats(runs);
+            stat = int_calc_stats(runs);
             doc_printf(cols[doc_idx], "%4d  %2d.%d%% %.2f %.2f %3d\n",
                 freq, cast*100/total, (cast*1000/total)%10, stat.mean, stat.sigma, stat.max);
             vec_free(runs);
@@ -1690,7 +1673,7 @@ static bool _adaptive_caster2(int freq, int mana) { return randint0(100) < freq 
 static void _spoil_mon_spell_freq_aux(doc_ptr doc, int freq, _cast_simulator caster)
 {
     vec_ptr runs;
-    _stat_t stat;
+    int_stat_t stat;
     int i, mana = 0, run = 0, total = 0, cast = 0;
     runs = vec_alloc(NULL);
     for (i = 0; i < 100 * 1000; i++)
@@ -1712,7 +1695,7 @@ static void _spoil_mon_spell_freq_aux(doc_ptr doc, int freq, _cast_simulator cas
             }
         }
     }
-    stat = _calc_stats(runs);
+    stat = int_calc_stats(runs);
     doc_printf(doc, " %2d.%d%% %.2f %.2f %3d  ",
         cast*100/total, (cast*1000/total)%10, stat.mean, stat.sigma, stat.max);
     vec_free(runs);
@@ -1763,7 +1746,7 @@ static void spoil_device_fail()
     doc_ptr doc = doc_alloc(80);
     int     d, s;
 
-    doc_change_name(doc, "devices.html");
+    doc_change_name(doc, "device_fail.html");
     doc_insert(doc, "<style:table>");
     doc_insert(doc, "<topic:d_vs_s><color:r>Difficulty vs Skill</color>\n");
     for (d = 1; d <= 100; d++)
@@ -1808,7 +1791,88 @@ static void spoil_device_fail()
     doc_display(doc, "Device Faile Rates", 0);
     doc_free(doc);
 }
+static char _effect_color(int which)
+{
+    effect_t e = {0};
+    int      a;
+    e.type = which;
+    a = atoi(do_effect(&e, SPELL_COLOR, 0));
+    if (a)
+        return attr_to_attr_char(a);
+    return 'w';
+}
+static void _display_device_power(doc_ptr doc, effect_t *effect)
+{
+    cptr s = do_effect(effect, SPELL_INFO, 0);
+    int  dd, ds, base, amt;
 
+    if (!s || !strlen(s))
+    {
+        doc_insert(doc, "    ");
+        return;
+    }
+    if (sscanf(s, "dam %dd%d+%d", &dd, &ds, &base) == 3)
+        amt = dd*(ds+1)/2+base;
+    else if (sscanf(s, "dam %dd%d", &dd, &ds) == 2)
+        amt = dd*(ds+1)/2;
+    else if (sscanf(s, "dam %d", &base) == 1)
+        amt = base;
+    else if (sscanf(s, "heal %dd%d+%d", &dd, &ds, &base) == 3)
+        amt = dd*(ds+1)/2+base;
+    else if (sscanf(s, "heal %dd%d", &dd, &ds) == 2)
+        amt = dd*(ds+1)/2;
+    else if (sscanf(s, "heal %d", &base) == 1)
+        amt = base;
+    else if (sscanf(s, "Power %d", &base) == 1)
+        amt = base;
+    if (amt)
+        doc_printf(doc, " %3d", amt);
+    else
+        doc_insert(doc, "    ");
+}
+static void _spoil_device_table_aux(doc_ptr doc, device_effect_info_ptr table, cptr heading)
+{
+    int lvl, row;
+    doc_printf(doc, "<topic:%s>", heading);
+    for (row = 0; table->type; table++, row++)
+    {
+        effect_t e = {0};
+        int      max_depth = table->max_depth ? table->max_depth : 100;
+        e.type = table->type;
+        if (row % 25 == 0)
+            doc_printf(doc, "\n<style:heading>%-15.15s</style><color:G> Min Max   5  10  15  20  25  30  35  40  45  50  55  60  65  70  75  80  85  90  95 100</color>\n", heading);
+        doc_printf(doc, "<color:%c>", _effect_color(table->type));
+        doc_printf(doc, "%-15.15s", do_effect(&e, SPELL_NAME, 0));
+        doc_printf(doc, " %3d %3d", table->level, max_depth);
+        for (lvl = 5; lvl <= 100; lvl += 5)
+        {
+            e.power = lvl;
+            e.difficulty = e.power;
+            if (table->level <= lvl && lvl <= max_depth)
+                _display_device_power(doc, &e);
+            else
+                doc_insert(doc, "    ");
+        }
+        doc_insert(doc, "</color>\n");
+    }
+}
+static void spoil_device_tables()
+{
+    doc_ptr doc = doc_alloc(120);
+
+    doc_change_name(doc, "devices.html");
+    doc_insert(doc, "<style:table>");
+
+    _spoil_device_table_aux(doc, wand_effect_table, "Wands");
+    _spoil_device_table_aux(doc, staff_effect_table, "Staves");
+    _spoil_device_table_aux(doc, rod_effect_table, "Rods");
+
+    doc_insert(doc, "</style>");
+    doc_printf(doc, "\n<color:D>Generated for PosChengband %d.%d.%d</color>\n",
+                     VER_MAJOR, VER_MINOR, VER_PATCH);
+    doc_display(doc, "Device Faile Rates", 0);
+    doc_free(doc);
+}
 /************************************************************************
  * Monster Lore
  ************************************************************************/
@@ -1918,6 +1982,124 @@ static void spoil_mon_evol(void)
 
     doc_insert(doc, "</style>");
     doc_display(doc, "Monster Evolution", 0);
+    doc_free(doc);
+}
+
+/************************************************************************
+ * Skills
+ ************************************************************************/
+static int _pers_cmp(personality_ptr l, personality_ptr r)
+{
+    return strcmp(l->name, r->name);
+}
+static vec_ptr _get_personalities(void)
+{
+    vec_ptr v = vec_alloc(NULL);
+    int     i;
+
+    for (i = 0; i < MAX_PERSONALITIES; i++)
+    {
+        personality_ptr p = get_personality_aux(i);
+        if (p->flags & DEPRECATED) continue;
+        vec_add(v, p);
+    }
+    vec_sort(v, (vec_cmp_f)_pers_cmp);
+    return v;
+}
+static int _race_cmp(race_ptr l, race_ptr r)
+{
+    return strcmp(l->name, r->name);
+}
+static vec_ptr _get_races(void)
+{
+    vec_ptr v = vec_alloc(NULL);
+    int     i;
+
+    for (i = 0; i < MAX_RACES; i++)
+    {
+        race_ptr r = get_race_aux(i, 0);
+        if (r->flags & DEPRECATED) continue;
+        if (r->flags & RACE_IS_MONSTER) continue;
+        vec_add(v, r);
+    }
+    vec_sort(v, (vec_cmp_f)_race_cmp);
+    return v;
+}
+static void _print_skills1(doc_ptr doc, skills_ptr skills)
+{
+    doc_printf(doc, " %4d %4d %4d %4d %4d %4d %4d %4d",
+        skills->dis, skills->dev, skills->sav, skills->stl,
+        skills->srh, skills->fos, skills->thn, skills->thb);
+}
+static void _print_race_skills(doc_ptr doc, race_ptr race)
+{
+    if (race->id == RACE_DEMIGOD || race->id == RACE_DRACONIAN)
+    {
+        char buf[100];
+        sprintf(buf, "%s: %s", race->name, race->subname);
+        doc_printf(doc, "%-20.20s", buf);
+    }
+    else
+        doc_printf(doc, "%-20.20s", race->name);
+    _print_skills1(doc, &race->skills);
+    doc_newline(doc);
+}
+static void spoil_skills()
+{
+    doc_ptr doc = doc_alloc(120);
+    vec_ptr v;
+    int     i, j;
+
+    doc_change_name(doc, "skills.html");
+    doc_insert(doc, "<style:table>");
+
+    /* Personalities */
+    v = _get_personalities();
+    doc_insert(doc, "<topic:Personalities><style:heading>Personalities</style>\n");
+    doc_printf(doc, "<color:G>%-20.20s  Dis  Dev  Sav  Stl  Srh  Fos  Thn  Thb</color>\n", "Name");
+    for (i = 0; i < vec_length(v); i++)
+    {
+        personality_ptr p = vec_get(v, i);
+        doc_printf(doc, "%-20.20s", p->name);
+        _print_skills1(doc, &p->skills);
+        doc_newline(doc);
+    }
+    doc_newline(doc);
+    vec_free(v);
+
+    /* Races */
+    v = _get_races();
+    doc_insert(doc, "<topic:Races><style:heading>Races</style>\n");
+    doc_printf(doc, "<color:G>%-20.20s  Dis  Dev  Sav  Stl  Srh  Fos  Thn  Thb</color>\n", "Name");
+    for (i = 0; i < vec_length(v); i++)
+    {
+        race_ptr r = vec_get(v, i);
+        if (r->id == RACE_DEMIGOD)
+        {
+            for (j = 0; j < DEMIGOD_MAX; j++)
+            {
+                r = get_race_aux(RACE_DEMIGOD, j);
+                _print_race_skills(doc, r);
+            }
+        }
+        else if (r->id == RACE_DRACONIAN)
+        {
+            for (j = 0; j < DRACONIAN_MAX; j++)
+            {
+                r = get_race_aux(RACE_DRACONIAN, j);
+                _print_race_skills(doc, r);
+            }
+        }
+        else
+            _print_race_skills(doc, r);
+    }
+    doc_newline(doc);
+    vec_free(v);
+
+    doc_insert(doc, "</style>");
+    doc_printf(doc, "\n<color:D>Generated for PosChengband %d.%d.%d</color>\n",
+                     VER_MAJOR, VER_MINOR, VER_PATCH);
+    doc_display(doc, "Skills", 0);
     doc_free(doc);
 }
 
@@ -2283,6 +2465,7 @@ void do_cmd_spoilers(void)
         c_prt(TERM_RED, "Class Spoilers", row++, col - 2);
         prt("(s) Spells by Class", row++, col);
         prt("(r) Spells by Realm", row++, col);
+        prt("(S) Skills", row++, col);
         row++;
 
         row = 4;
@@ -2291,6 +2474,7 @@ void do_cmd_spoilers(void)
         c_prt(TERM_RED, "Miscellaneous", row++, col - 2);
         prt("(1) Option Bits", row++, col);
         prt("(2) Device Fail Rates", row++, col);
+        prt("(3) Device Tables", row++, col);
         row++;
 
         /* Prompt */
@@ -2351,6 +2535,9 @@ void do_cmd_spoilers(void)
         case 'r':
             spoil_spells_by_realm();
             break;
+        case 'S':
+            spoil_skills();
+            break;
 
         /* Miscellaneous */
         case '1':
@@ -2358,6 +2545,9 @@ void do_cmd_spoilers(void)
             break;
         case '2':
             spoil_device_fail();
+            break;
+        case '3':
+            spoil_device_tables();
             break;
 
         /* Oops */

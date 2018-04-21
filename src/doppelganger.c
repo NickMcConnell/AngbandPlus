@@ -120,6 +120,8 @@ void mimic_upkeep(void)
 bool mimic_no_regen(void)
 {
     if (p_ptr->prace == RACE_DOPPELGANGER && !p_ptr->tim_mimic && p_ptr->mimic_form != MIMIC_NONE) return TRUE;
+    /* XXX doppelganger has stolen the race_mimic namespace!! */
+    if (p_ptr->prace == RACE_MON_MIMIC && p_ptr->current_r_idx != MON_MIMIC && !mimic_is_memorized(p_ptr->current_r_idx)) return TRUE;
     return FALSE;
 }
 

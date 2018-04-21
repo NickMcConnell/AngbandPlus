@@ -292,32 +292,29 @@ static _parse_t _beam_tbl[] = {
     {0}
 };
 
-/* MST_CURSE */
+/* MST_CURSE: Note that gf_affect_m spams messages for GF_CAUSE_?,
+ * so we must omit the player casting messages. */
 static _parse_t _curse_tbl[] = {
     { "CAUSE_1", { MST_CURSE, GF_CAUSE_1 },
         { "Cause Light Wounds", TERM_RED,
           "$CASTER points at you and curses.",
           "$CASTER curses.",
-          "$CASTER points at $TARGET and curses.",
-          "You curse."}, MSF_TARGET },
+          "$CASTER points at $TARGET and curses." }, MSF_TARGET },
     { "CAUSE_2", { MST_CURSE, GF_CAUSE_2 },
         { "Cause Serious Wounds", TERM_RED,
           "$CASTER points at you and curses horribly.",
           "$CASTER curses horribly.",
-          "$CASTER points at $TARGET and curses horribly.",
-          "You curse horribly." }, MSF_TARGET },
+          "$CASTER points at $TARGET and curses horribly." }, MSF_TARGET },
     { "CAUSE_3", { MST_CURSE, GF_CAUSE_3 },
         { "Cause Critical Wounds", TERM_RED,
           "$CASTER points at you, incanting terribly!",
           "$CASTER incants terribly.",
-          "$CASTER points at $TARGET, incanting terribly!",
-          "You incant terribly." }, MSF_TARGET },
+          "$CASTER points at $TARGET, incanting terribly!" }, MSF_TARGET },
     { "CAUSE_4", { MST_CURSE, GF_CAUSE_4 },
         { "Cause Mortal Wounds", TERM_RED,
           "$CASTER points at you, screaming the word DIE!",
           "$CASTER screams the word DIE!", 
-          "$CASTER points at $TARGET, screaming the word DIE!",
-          "You scream the word DIE!" }, MSF_TARGET },
+          "$CASTER points at $TARGET, screaming the word DIE!" }, MSF_TARGET },
     { "HAND_DOOM", { MST_CURSE, GF_HAND_DOOM },
         { "Hand of Doom", TERM_RED,
           "$CASTER invokes the <color:r>Hand of Doom</color>!",
@@ -804,7 +801,7 @@ static mon_spell_parm_t _heal_parm(int which, int rlev)
     switch (which)
     {
     case HEAL_SELF:
-        parm.v.dice = _dice(0, 0, rlev*6);
+        parm.v.dice = _dice(0, 0, rlev*5);
         break;
     default:
         assert(FALSE);
@@ -1424,8 +1421,7 @@ bool mon_spell_cast_mon(mon_ptr mon, mon_spell_ai ai)
 static bool _projectable(point_t src, point_t dest);
 static bool _spell_fail(void)
 {
-    int fail;
-    int stun = 0;
+    int fail, stun;
 
     if (_current.spell->flags & MSF_INNATE)
         return FALSE;
@@ -1433,19 +1429,54 @@ static bool _spell_fail(void)
         return FALSE;
     if (py_in_dungeon() && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
         return TRUE;
-    if (_current.flags & MSC_SRC_PLAYER)
-        stun = p_ptr->stun;
-    else
-        stun = MON_STUNNED(_current.mon);
 
     fail = 25 - (_current.race->level + 3)/4;
-    if (stun)
+    if (_current.flags & MSC_SRC_PLAYER)
+    {
+        stun = p_ptr->stun;
+ 
+        /* Fail rates go down as player level exceeds base level.
+         * For example, a Novice Mage has a ridiculously un-useful
+         * Magic Missile (23% fail). But at CL15, this becomes just
+         * 13% (which still sucks, but high Int can help here) */
+        fail -= (p_ptr->lev - _current.race->level);
+
+        /* XXX Possessors and mimics should not get a free ride wrt
+         * spell casting stats, but the mechanics should not be too 
+         * harsh either since early game stats are bound to be poor.
+         * Note that poor stats also means a poor mana pool. */
+        if (_current.race->body.spell_stat != A_NONE)
+        {
+            int     stat = p_ptr->stat_ind[_current.race->body.spell_stat] + 3;
+            point_t tbl[5] = { {3, 25}, {10, 10}, {15, 0}, {20, 0}, {40, -10} };
+            int     adj = interpolate(stat, tbl, 5);
+
+            fail += adj;
+            if (fail < 1) fail = 1;
+        }
+
+        /* And finally, trying to learn a new form puts the player at
+         * a slight disadvantage. No fair taking down Loki with his own
+         * mana storms!! */
+        if (p_ptr->prace == RACE_MON_MIMIC && !mimic_is_memorized(p_ptr->current_r_idx))
+        {
+            fail += 15;
+        }
+    }
+    else
+        stun = MON_STUNNED(_current.mon);
+    if (stun > 0)
         fail += 50 * MIN(100, stun)/100;
 
     if (fail && randint0(100) < fail)
     {
         if (_current.flags & MSC_SRC_PLAYER)
-            msg_print("You try to cast a spell, but fail.");
+        {
+            if (0 || p_ptr->wizard)
+                msg_format("You try to cast a spell, but fail (%d%%).", fail);
+            else
+                msg_print("You try to cast a spell, but fail.");
+        }
         else if (mon_show_msg(_current.mon))
         {
             if (_projectable(point(px, py), _current.src))
@@ -1651,34 +1682,39 @@ static bool _m_resist_tele(mon_ptr mon, cptr name)
 }
 static void _annoy_m(void)
 {
-    if (!_current.mon2) return;
     switch (_current.spell->id.effect)
     {
     case ANNOY_AMNESIA:
+        if (!_current.mon2) break; /* MSF_DIRECT */
         gf_affect_m(_who(), _current.mon2, GF_AMNESIA, 0, GF_AFFECT_SPELL);
         break;
     case ANNOY_ANIMATE_DEAD:
         animate_dead(_who(), _current.src.y, _current.src.x);
         break;
     case ANNOY_BLIND:
+        if (!_current.mon2) break; /* MSF_DIRECT */
         gf_affect_m(_who(), _current.mon2, GF_BLIND, _current.race->level, GF_AFFECT_SPELL);
         break;
     case ANNOY_CONFUSE:
+        if (!_current.mon2) break; /* MSF_DIRECT */
         gf_affect_m(_who(), _current.mon2, GF_OLD_CONF, _current.race->level, GF_AFFECT_SPELL);
         break;
     case ANNOY_DARKNESS:
         unlite_room(_current.dest.y, _current.dest.x);
         break;
     case ANNOY_PARALYZE:
+        if (!_current.mon2) break; /* MSF_DIRECT */
         gf_affect_m(_who(), _current.mon2, GF_PARALYSIS, _current.race->level, GF_AFFECT_SPELL);
         break;
     case ANNOY_SCARE:
+        if (!_current.mon2) break; /* MSF_DIRECT */
         gf_affect_m(_who(), _current.mon2, GF_TURN_ALL, _current.race->level, GF_AFFECT_SPELL);
         break;
     case ANNOY_SHRIEK:
         aggravate_monsters(_who());
         break;
     case ANNOY_SLOW:
+        if (!_current.mon2) break; /* MSF_DIRECT */
         gf_affect_m(_who(), _current.mon2, GF_OLD_SLOW, _current.race->level, GF_AFFECT_SPELL);
         break;
     case ANNOY_TELE_LEVEL: {
@@ -3225,11 +3261,17 @@ static void _ai_direct(mon_spell_cast_ptr cast)
             spell->prob = anti_magic_check();
     }
     spell = mon_spells_find(spells, _id(MST_ANNOY, ANNOY_TELE_TO));
-    if (spell)
+    if (spell && spell->prob) /* XXX _smart_remove may notice RES_TELEPORT! */
     {
         if (_distance(cast->src, cast->dest) < 2)
             spell->prob = 0;
         else
+            spell->prob += cast->mon->anger;
+    }
+    if (cast->mon->anger)
+    {
+        spell = mon_spells_find(spells, _id(MST_BALL, GF_BRAIN_SMASH));
+        if (spell)
             spell->prob += cast->mon->anger;
     }
 
@@ -4250,8 +4292,8 @@ static int _escape_cost(mon_spell_ptr spell)
 {
     switch (spell->id.effect)
     {
-    case ESCAPE_TELE_OTHER: return 20;
-    case ESCAPE_TELE_SELF: return 10;
+    case ESCAPE_TELE_OTHER: return 12;
+    case ESCAPE_TELE_SELF: return 7;
     }
     return 0;
 }
@@ -4261,12 +4303,12 @@ static int _annoy_cost(mon_spell_ptr spell)
     {
     case ANNOY_AMNESIA: return 10;
     case ANNOY_ANIMATE_DEAD: return 15;
-    case ANNOY_BLIND: return 10;
-    case ANNOY_CONFUSE: return 10;
-    case ANNOY_DARKNESS: return 5;
+    case ANNOY_BLIND: return 5;
+    case ANNOY_CONFUSE: return 5;
+    case ANNOY_DARKNESS: return 1;
     case ANNOY_PARALYZE: return 10;
-    case ANNOY_SCARE: return 10;
-    case ANNOY_SHRIEK: return 10;
+    case ANNOY_SCARE: return 5;
+    case ANNOY_SHRIEK: return 3;
     case ANNOY_SLOW: return 10;
     case ANNOY_TELE_LEVEL: return 20;
     case ANNOY_TELE_TO: return 15;
@@ -4285,7 +4327,7 @@ static int _tactic_cost(mon_spell_ptr spell)
 {
     switch (spell->id.effect)
     {
-    case TACTIC_BLINK: return 3;
+    case TACTIC_BLINK: return 2;
     case TACTIC_BLINK_OTHER: return 10;
     default: return 15;
     }
@@ -4304,15 +4346,15 @@ static int _possessor_cost(mon_spell_ptr spell, mon_race_ptr race)
 {
     switch (spell->id.effect)
     {
-    case POS_DETECT_TRAPS: return 2;
-    case POS_DETECT_EVIL: return 3;
-    case POS_DETECT_MONSTERS: return 3;
-    case POS_DETECT_OBJECTS: return 4;
+    case POS_DETECT_TRAPS: return 1;
+    case POS_DETECT_EVIL: return 2;
+    case POS_DETECT_MONSTERS: return 2;
+    case POS_DETECT_OBJECTS: return 3;
     case POS_IDENTIFY: return 5;
     case POS_MAPPING: return 8;
     case POS_CLAIRVOYANCE: return 30;
     case POS_MULTIPLY: return 1 + race->level/2;
-    case POS_BLESS: return 5;
+    case POS_BLESS: return 3;
     case POS_HEROISM: return 8;
     case POS_BERSERK: return 10;
     }
@@ -4416,6 +4458,11 @@ static vec_ptr _spells_plr(mon_race_ptr race, _spell_p filter)
             mon_spell_ptr spell = &group->spells[j];
             if (no_magic && !(spell->flags & MSF_INNATE)) continue;
             if (filter && !filter(spell)) continue;
+
+            if ( _spell_is_(spell, MST_BUFF, BUFF_INVULN)
+              && p_ptr->prace == RACE_MON_MIMIC
+              && p_ptr->lev < 45 ) continue;
+
             vec_add(v, spell);
         }
     }

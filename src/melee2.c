@@ -4345,6 +4345,7 @@ void mon_gain_exp(mon_ptr mon, int amt)
                 else
                 {
                     msg_format("%^s evolved into %s.", m_name, r_name + race->name);
+                    if (race->r_sights < MAX_SHORT) race->r_sights++;
                 }
             }
 

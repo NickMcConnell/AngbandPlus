@@ -590,7 +590,8 @@ Devices
   speciality. These bonuses include increased damage, increased speed 
   of activation, extra resistance to charge draining, and even the 
   ability to occasionally power these devices without consuming 
-  charges. Each of these abilities becomes greater with experience.
+  charges. Each of these abilities becomes greater with experience. In 
+  addition, they gain enhanced device skill with speciality devices.
    
   Devicemasters have a few magical abilities to enhance their utility 
   with devices. As expected, they gain a powerful talent of Recharging 
@@ -1403,5 +1404,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 7.0.0.
+Automatically generated for PosChengband 7.0.1.
 

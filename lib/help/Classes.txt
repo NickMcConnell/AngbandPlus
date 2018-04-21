@@ -358,7 +358,7 @@ Experience   130%
   <indent><topic:Devicemaster><color:o>Devicemaster</color>
 Devicemasters are excellent with magical devices, but poor in most other skills. They may shoot or use melee in a pinch, but this will never be their forte. Instead, they must rely on their arsenal of magical devices in order to survive.
  
-The Devicemaster chooses to specialize in a particular class of devices and they gain extra bonuses when using devices from their speciality. These bonuses include increased damage, increased speed of activation, extra resistance to charge draining, and even the ability to occasionally power these devices without consuming charges. Each of these abilities becomes greater with experience.
+The Devicemaster chooses to specialize in a particular class of devices and they gain extra bonuses when using devices from their speciality. These bonuses include increased damage, increased speed of activation, extra resistance to charge draining, and even the ability to occasionally power these devices without consuming charges. Each of these abilities becomes greater with experience. In addition, they gain enhanced device skill with speciality devices.
  
 Devicemasters have a few magical abilities to enhance their utility with devices. As expected, they gain a powerful talent of Recharging very early on. Also, they may detect magical devices from a distance. At higher levels, they gain the powerful ability to move effects from one device to another (wand/rod/staff) or to move essence from one potion/scroll to a lower level potion/scroll. As a final ability, the Devicemaster may use multiple charges at once from a given device in an act of desperation. This greatly increases the power of the effect, but may destroy the device in the process.
 
@@ -904,4 +904,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 7.0.0.</color>
+<color:s>Automatically generated for PosChengband 7.0.1.</color>

@@ -499,8 +499,8 @@ class_t *devicemaster_get_class(int psubclass)
     /* static info never changes */
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  42,  36,   2,  20,  16,  48,  35 };
-    skills_t xs = {  7,  16,  10,   0,   0,   0,  13,  11 };
+    skills_t bs = { 25,  40,  36,   2,  20,  16,  48,  35 };
+    skills_t xs = {  7,  15,  10,   0,   0,   0,  13,  11 };
 
         me.name = "Devicemaster";
         me.desc = 
@@ -511,7 +511,8 @@ class_t *devicemaster_get_class(int psubclass)
             "gain extra bonuses when using devices from their speciality. These bonuses include "
             "increased damage, increased speed of activation, extra resistance to charge draining, "
             "and even the ability to occasionally power these devices without consuming charges. "
-            "Each of these abilities becomes greater with experience.\n \n"
+            "Each of these abilities becomes greater with experience. In addition, they gain enhanced "
+            "device skill with speciality devices.\n \n"
             "Devicemasters have a few magical abilities to enhance their utility with devices. As expected, "
             "they gain a powerful talent of Recharging very early on. Also, they may detect magical devices "
             "from a distance. At higher levels, they gain the powerful ability to move effects from "

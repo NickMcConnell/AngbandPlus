@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 0
-#define VER_PATCH 0
-#define VER_EXTRA 4
+#define VER_PATCH 1
+#define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -2944,7 +2944,7 @@ enum obj_flags_e {
 #define AM_FORCE_EGO    0x00000100
 #define AM_STOCK_TOWN   0x00000200
 #define AM_STOCK_BM     0x00000400
-#define AM_GUARDIAN     0x00000800
+#define AM_QUEST        0x00000800
 
 
 /*** Monster blow constants ***/
@@ -4808,7 +4808,6 @@ extern int PlayerUID;
 #define DUNGEON_GIANTS_HALL 24
 #define DUNGEON_ARENA    25
 #define DUNGEON_STRONGHOLD 30
-
 
 #define DUNGEON_FEAT_PROB_NUM 3
 

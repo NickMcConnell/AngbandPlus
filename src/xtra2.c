@@ -293,7 +293,7 @@ void check_experience(void)
 
         if (level_inc_stat)
         {
-            int mod = quickband ? 3 : 5;
+            int mod = quickmode ? 3 : 5;
             if(p_ptr->max_plv % mod == 0)
                 gain_chosen_stat();
         }
@@ -507,7 +507,7 @@ byte get_monster_drop_ct(monster_type *m_ptr)
     /* Hack: There are currently too many objects, IMO.
        Please rescale in r_info rather than the following! */
     if ( number > 2
-      && !quickband
+      && !quickmode
       && !(r_ptr->flags1 & RF1_DROP_GREAT)
       && !(r_ptr->flags1 & RF1_UNIQUE) )
     {
@@ -552,13 +552,8 @@ byte get_monster_drop_ct(monster_type *m_ptr)
 
 static int _mon_drop_lvl(int dl, int rl)
 {
-    /* return (dl + rl) / 2; */
-    /* Just some variability ... killing L50 monsters on DL90
-     * would give L70 drops ... always. Now, it gives L60-L80 drops */
-    int M = MAX(dl, rl);
-    int m = MIN(dl, rl);
-    int d = M - m;
-    return rand_range(m + d/4, m + 3*d/4);
+    if (rl >= dl) return rl;
+    return (rl + dl) / 2;
 }
 
 bool get_monster_drop(int m_idx, object_type *o_ptr)
@@ -943,7 +938,7 @@ void monster_death(int m_idx, bool drop_item)
         }
     }
 
-    if (p_ptr->prace == RACE_MON_MIMIC)
+    if (p_ptr->prace == RACE_MON_MIMIC && !(m_ptr->smart & SM_CLONED))
         mimic_on_kill_monster(m_ptr->r_idx);
 
     if ( vampiric_drain_hack
@@ -1964,7 +1959,7 @@ void monster_death(int m_idx, bool drop_item)
                 }
                 else
                 {
-                    apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD | AM_GUARDIAN);
+                    apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD | AM_QUEST);
                 }
                 /* Drop it in the dungeon */
                 (void)drop_near(q_ptr, -1, y, x);
@@ -2293,7 +2288,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
         s64b_div(&new_exp, &new_exp_frac, 0, 5);
     }
 
-    if (quickband)
+    if (quickmode)
     {
         s64b_mul(&new_exp, &new_exp_frac, 0, 2);
     }

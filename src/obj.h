@@ -18,6 +18,7 @@ typedef void (*obj_f)(obj_ptr obj);
  * It too should never be called with NULL. */
 typedef bool (*obj_p)(obj_ptr obj);
 typedef int  (*obj_cmp_f)(obj_ptr left, obj_ptr right);
+typedef bool (*obj_create_f)(obj_ptr obj, u32b mode);
 
 /* Creation */
 extern obj_ptr obj_alloc(void);

@@ -332,7 +332,7 @@ extern bool enable_virtues;
 extern bool enable_spell_prof;
 extern bool reduce_uniques;
 extern byte reduce_uniques_pct;
-extern bool quickband;
+extern bool quickmode;
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -2055,6 +2055,7 @@ extern bool object_allow_two_hands_wielding(object_type *o_ptr);
 extern bool py_on_surface(void);
 extern bool py_in_town(void);
 extern bool py_in_dungeon(void);
+extern bool py_can_recall(void);
 extern void set_floor_and_wall(byte type);
 extern void wilderness_gen(void);
 extern monster_hook_type wilderness_mon_hook;
@@ -2089,6 +2090,7 @@ extern void do_cmd_spoilers(void);
 /* wiz_obj.c */
 extern void wiz_obj_create(void);
 extern void wiz_obj_smith(void);
+extern void wiz_create_objects(obj_create_f creator, u32b mode);
 
 /* virtue.c */
 extern cptr virtue_name(int which);
@@ -2256,6 +2258,7 @@ extern void    possessor_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void    possessor_get_immunities(u32b flgs[OF_ARRAY_SIZE]);
 extern void    possessor_get_vulnerabilities(u32b flgs[OF_ARRAY_SIZE]);
 extern void    possessor_character_dump(doc_ptr doc);
+extern int     possessor_max_plr_lvl(int r_idx);
 extern void    possessor_on_load(savefile_ptr file);
 extern void    possessor_on_save(savefile_ptr file);
 extern void    possessor_set_current_r_idx(int r_idx);
@@ -2264,6 +2267,8 @@ extern void    possessor_init_race_t(race_t *race_ptr, int default_r_idx);
 extern void    possessor_do_auras(mon_ptr mon);
 extern void    mimic_dispel_player(void);
 extern void    mimic_on_kill_monster(int r_idx);
+extern int     mimic_max_lvl(void);
+extern bool    mimic_is_memorized(int r_idx);
 
 extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    monster_toss_spell(int cmd, variant *res);

@@ -27,7 +27,7 @@ int obj_prompt(obj_prompt_ptr prompt)
     if (!vec_length(context.tabs))
     {
         if (prompt->error)
-            msg_format("<color:r>%s</color>", prompt->error);
+            msg_format("<color:R>%s</color>", prompt->error);
         _context_unmake(&context);
         return OP_NO_OBJECTS;
     }
