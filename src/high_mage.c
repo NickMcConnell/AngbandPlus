@@ -31,9 +31,9 @@ static void _calc_bonuses(void)
     p_ptr->device_power += 2; */
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SPELL_CAP);
+    add_flag(flgs, OF_SPELL_CAP);
 /*  add_flag(flgs, TR_SPELL_POWER);
     add_flag(flgs, TR_MAGIC_MASTERY); */
 }

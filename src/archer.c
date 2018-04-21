@@ -18,9 +18,8 @@ static bool _create_arrows(void)
 
     object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
     forge.number = (byte)rand_range(5, 10);
-    object_aware(&forge);
-    object_known(&forge);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+    obj_identify(&forge);
     forge.discount = 99;
 
     msg_print("You make some ammo.");
@@ -57,9 +56,8 @@ static bool _create_bolts(void)
        However, getting Steel from Bones/Junk would be a bit odd anyway ... */
     object_prep(&forge, lookup_kind(TV_BOLT, m_bonus(1, p_ptr->lev)+ 1));
     forge.number = (byte)rand_range(4, 8);
-    object_aware(&forge);
-    object_known(&forge);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+    obj_identify(&forge);
     forge.discount = 99;
 
     msg_print("You make some ammo.");
@@ -109,9 +107,8 @@ static bool _create_shots(void)
 
     object_prep(&forge, lookup_kind(TV_SHOT, m_bonus(1, p_ptr->lev) + 1));
     forge.number = (byte)rand_range(15,30);
-    object_aware(&forge);
-    object_known(&forge);
     apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+    obj_identify(&forge);
     forge.discount = 99;
 
     msg_print("You make some ammo.");

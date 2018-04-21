@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PosChengband, 4.0.2, https://github.com/poschengband/poschengband/issues)
+AC_INIT(PosChengband, 5.0.0, https://github.com/poschengband/poschengband/issues)
 AC_CONFIG_SRCDIR(src)
 
 AC_CANONICAL_HOST

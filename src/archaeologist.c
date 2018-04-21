@@ -769,12 +769,12 @@ static void _calc_bonuses(void)
         res_add(RES_DARK);
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 20)
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_SEE_INVIS);
     if (p_ptr->lev >= 38)
-        add_flag(flgs, TR_RES_DARK);
+        add_flag(flgs, OF_RES_DARK);
 }
 
 static caster_info * _caster_info(void)

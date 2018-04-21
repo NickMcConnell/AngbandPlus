@@ -1544,7 +1544,7 @@ errr check_load_init(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-void player_flags(u32b flgs[TR_FLAG_SIZE])
+void player_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
     class_t *class_ptr = get_class();
@@ -1552,7 +1552,7 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
     personality_ptr pers_ptr = get_personality();
 
     /* Clear */
-    for (i = 0; i < TR_FLAG_SIZE; i++)
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
         flgs[i] = 0L;
 
     if (class_ptr->get_flags)
@@ -1565,153 +1565,157 @@ void player_flags(u32b flgs[TR_FLAG_SIZE])
         pers_ptr->get_flags(flgs);
 
     if (race_ptr->infra)
-        add_flag(flgs, TR_INFRA);
+        add_flag(flgs, OF_INFRA);
 
     mut_get_flags(flgs);
 }
 
-void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
+void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     int i;
 
     /* Clear */
-    for (i = 0; i < TR_FLAG_SIZE; i++)
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
         flgs[i] = 0L;
 
-    if (IS_HERO() || IS_SHERO())
-        add_flag(flgs, TR_RES_FEAR);
+    if (IS_HERO())
+        add_flag(flgs, OF_RES_FEAR);
+    if (IS_SHERO())
+        add_flag(flgs, OF_IM_FEAR);
+    if (IS_INVULN())
+        add_flag(flgs, OF_IM_FEAR);
     if (p_ptr->tim_invis)
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_SEE_INVIS);
     if (p_ptr->tim_regen)
-        add_flag(flgs, TR_REGEN);
+        add_flag(flgs, OF_REGEN);
     if (IS_TIM_ESP())
-        add_flag(flgs, TR_TELEPATHY);
+        add_flag(flgs, OF_TELEPATHY);
     if (IS_FAST() || p_ptr->slow)
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
 
     if (IS_OPPOSE_ACID() && !(p_ptr->special_defense & DEFENSE_ACID) && !(prace_is_(RACE_YEEK) && (p_ptr->lev > 19)))
-        add_flag(flgs, TR_RES_ACID);
+        add_flag(flgs, OF_RES_ACID);
     if (IS_OPPOSE_ELEC() && !(p_ptr->special_defense & DEFENSE_ELEC))
-        add_flag(flgs, TR_RES_ELEC);
+        add_flag(flgs, OF_RES_ELEC);
     if (IS_OPPOSE_FIRE() && !(p_ptr->special_defense & DEFENSE_FIRE))
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, OF_RES_FIRE);
     if (IS_OPPOSE_COLD() && !(p_ptr->special_defense & DEFENSE_COLD))
-        add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, OF_RES_COLD);
     if (IS_OPPOSE_POIS())
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_POIS);
 
-    if (p_ptr->tim_sustain_str) add_flag(flgs, TR_SUST_STR);
-    if (p_ptr->tim_sustain_int) add_flag(flgs, TR_SUST_INT);
-    if (p_ptr->tim_sustain_wis) add_flag(flgs, TR_SUST_WIS);
-    if (p_ptr->tim_sustain_dex) add_flag(flgs, TR_SUST_DEX);
-    if (p_ptr->tim_sustain_con) add_flag(flgs, TR_SUST_CON);
-    if (p_ptr->tim_sustain_chr) add_flag(flgs, TR_SUST_CHR);
-    if (p_ptr->tim_hold_life) add_flag(flgs, TR_HOLD_LIFE);
-    if (p_ptr->tim_dark_stalker) add_flag(flgs, TR_STEALTH);
+    if (p_ptr->tim_sustain_str) add_flag(flgs, OF_SUST_STR);
+    if (p_ptr->tim_sustain_int) add_flag(flgs, OF_SUST_INT);
+    if (p_ptr->tim_sustain_wis) add_flag(flgs, OF_SUST_WIS);
+    if (p_ptr->tim_sustain_dex) add_flag(flgs, OF_SUST_DEX);
+    if (p_ptr->tim_sustain_con) add_flag(flgs, OF_SUST_CON);
+    if (p_ptr->tim_sustain_chr) add_flag(flgs, OF_SUST_CHR);
+    if (p_ptr->tim_hold_life) add_flag(flgs, OF_HOLD_LIFE);
+    if (p_ptr->tim_dark_stalker) add_flag(flgs, OF_STEALTH);
 
     if (p_ptr->special_attack & ATTACK_ACID)
-        add_flag(flgs, TR_BRAND_ACID);
+        add_flag(flgs, OF_BRAND_ACID);
     if (p_ptr->special_attack & ATTACK_ELEC)
-        add_flag(flgs, TR_BRAND_ELEC);
+        add_flag(flgs, OF_BRAND_ELEC);
     if (p_ptr->special_attack & ATTACK_FIRE)
-        add_flag(flgs, TR_BRAND_FIRE);
+        add_flag(flgs, OF_BRAND_FIRE);
     if (p_ptr->special_attack & ATTACK_COLD)
-        add_flag(flgs, TR_BRAND_COLD);
+        add_flag(flgs, OF_BRAND_COLD);
     if (p_ptr->special_attack & ATTACK_POIS)
-        add_flag(flgs, TR_BRAND_POIS);
+        add_flag(flgs, OF_BRAND_POIS);
     if (p_ptr->special_defense & DEFENSE_ACID)
-        add_flag(flgs, TR_IM_ACID);
+        add_flag(flgs, OF_IM_ACID);
     if (p_ptr->special_defense & DEFENSE_ELEC)
-        add_flag(flgs, TR_IM_ELEC);
+        add_flag(flgs, OF_IM_ELEC);
     if (p_ptr->special_defense & DEFENSE_FIRE)
-        add_flag(flgs, TR_IM_FIRE);
+        add_flag(flgs, OF_IM_FIRE);
     if (p_ptr->special_defense & DEFENSE_COLD)
-        add_flag(flgs, TR_IM_COLD);
+        add_flag(flgs, OF_IM_COLD);
 
     if (IS_WRAITH())
     {
-        add_flag(flgs, TR_REFLECT);
-        add_flag(flgs, TR_IM_DARK);
-        add_flag(flgs, TR_VULN_LITE);
+        add_flag(flgs, OF_REFLECT);
+        add_flag(flgs, OF_IM_DARK);
+        add_flag(flgs, OF_VULN_LITE);
     }
     /* by henkma */
     if (p_ptr->tim_reflect)
-        add_flag(flgs, TR_REFLECT);
+        add_flag(flgs, OF_REFLECT);
 
     if (p_ptr->tim_blood_shield)
     {
         int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
         if (amt > 60)
-            add_flag(flgs, TR_REFLECT);
+            add_flag(flgs, OF_REFLECT);
     }
 
     if (p_ptr->tim_blood_seek)
-        add_flag(flgs, TR_SLAY_LIVING);
+        add_flag(flgs, OF_SLAY_LIVING);
 
     if (p_ptr->magicdef)
     {
-        add_flag(flgs, TR_RES_BLIND);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_REFLECT);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, OF_RES_BLIND);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_REFLECT);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_LEVITATION);
     }
     if (p_ptr->tim_res_nether)
     {
-        add_flag(flgs, TR_RES_NETHER);
+        add_flag(flgs, OF_RES_NETHER);
     }
     if (p_ptr->tim_res_disenchantment)
     {
-        add_flag(flgs, TR_RES_DISEN);
+        add_flag(flgs, OF_RES_DISEN);
     }
     if (p_ptr->tim_sh_fire)
     {
-        add_flag(flgs, TR_SH_FIRE);
+        add_flag(flgs, OF_AURA_FIRE);
     }
     if (p_ptr->tim_sh_shards)
     {
-        add_flag(flgs, TR_SH_SHARDS);
+        add_flag(flgs, OF_AURA_SHARDS);
     }
     if (p_ptr->tim_sh_elements)
     {
-        add_flag(flgs, TR_SH_FIRE);
+        add_flag(flgs, OF_AURA_FIRE);
         if (p_ptr->lev >= 25)
-            add_flag(flgs, TR_SH_COLD);
+            add_flag(flgs, OF_AURA_COLD);
         if (p_ptr->lev >= 35)
-            add_flag(flgs, TR_SH_ELEC);
+            add_flag(flgs, OF_AURA_ELEC);
     }
     if (p_ptr->ult_res)
     {
-        add_flag(flgs, TR_RES_FEAR);
-        add_flag(flgs, TR_RES_LITE);
-        add_flag(flgs, TR_RES_DARK);
-        add_flag(flgs, TR_RES_BLIND);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_RES_SOUND);
-        add_flag(flgs, TR_RES_SHARDS);
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_RES_NEXUS);
-        add_flag(flgs, TR_RES_CHAOS);
-        add_flag(flgs, TR_RES_DISEN);
-        add_flag(flgs, TR_RES_TIME);
-        add_flag(flgs, TR_REFLECT);
-        add_flag(flgs, TR_HOLD_LIFE);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_SH_FIRE);
-        add_flag(flgs, TR_SH_ELEC);
-        add_flag(flgs, TR_SH_COLD);
-        add_flag(flgs, TR_LEVITATION);
-        add_flag(flgs, TR_LITE);
-        add_flag(flgs, TR_SEE_INVIS);
-        add_flag(flgs, TR_TELEPATHY);
-        add_flag(flgs, TR_SLOW_DIGEST);
-        add_flag(flgs, TR_REGEN);
-        add_flag(flgs, TR_SUST_STR);
-        add_flag(flgs, TR_SUST_INT);
-        add_flag(flgs, TR_SUST_WIS);
-        add_flag(flgs, TR_SUST_DEX);
-        add_flag(flgs, TR_SUST_CON);
-        add_flag(flgs, TR_SUST_CHR);
+        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_LITE);
+        add_flag(flgs, OF_RES_DARK);
+        add_flag(flgs, OF_RES_BLIND);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_SHARDS);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_NEXUS);
+        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_RES_DISEN);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_REFLECT);
+        add_flag(flgs, OF_HOLD_LIFE);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_AURA_FIRE);
+        add_flag(flgs, OF_AURA_ELEC);
+        add_flag(flgs, OF_AURA_COLD);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_LITE);
+        add_flag(flgs, OF_SEE_INVIS);
+        add_flag(flgs, OF_TELEPATHY);
+        add_flag(flgs, OF_SLOW_DIGEST);
+        add_flag(flgs, OF_REGEN);
+        add_flag(flgs, OF_SUST_STR);
+        add_flag(flgs, OF_SUST_INT);
+        add_flag(flgs, OF_SUST_WIS);
+        add_flag(flgs, OF_SUST_DEX);
+        add_flag(flgs, OF_SUST_CON);
+        add_flag(flgs, OF_SUST_CHR);
     }
 
     /* Hex bonuses */
@@ -1719,11 +1723,11 @@ void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
     {
         if (hex_spelling(HEX_DEMON_AURA))
         {
-            add_flag(flgs, TR_SH_FIRE);
-            add_flag(flgs, TR_REGEN);
+            add_flag(flgs, OF_AURA_FIRE);
+            add_flag(flgs, OF_REGEN);
         }
-        if (hex_spelling(HEX_ICE_ARMOR)) add_flag(flgs, TR_SH_COLD);
-        if (hex_spelling(HEX_SHOCK_CLOAK)) add_flag(flgs, TR_SH_ELEC);
+        if (hex_spelling(HEX_ICE_ARMOR)) add_flag(flgs, OF_AURA_COLD);
+        if (hex_spelling(HEX_SHOCK_CLOAK)) add_flag(flgs, OF_AURA_ELEC);
     }
 }
 
@@ -1787,7 +1791,7 @@ int ct_kills_all(void)
         }
         else
         {
-            result += r_ptr->r_akills;
+            result += r_ptr->r_pkills;
         }
     }
 
@@ -1813,54 +1817,17 @@ int ct_uniques(void)
 
 int ct_artifacts(void)
 {
-    int i, y, x;
+    int i;
     int result = 0;
-    s16b *skip;
-
-    C_MAKE(skip, max_a_idx, s16b);
-
-    /* This is hard ... don't leak information to the player
-       when an artifact is on the current level but not yet found! */
-    for (y = 0; y < cur_hgt; y++)
-    {
-        for (x = 0; x < cur_wid; x++)
-        {
-            cave_type *c_ptr = &cave[y][x];
-            s16b this_o_idx, next_o_idx = 0;
-
-            for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-            {
-                object_type *o_ptr = &o_list[this_o_idx];
-                next_o_idx = o_ptr->next_o_idx;
-
-                if (!object_is_fixed_artifact(o_ptr)) continue;
-                if (object_is_known(o_ptr)) continue;
-                skip[o_ptr->name1] = TRUE;
-            }
-        }
-    }
-
-    for (i = 0; i < INVEN_TOTAL; i++)
-    {
-        object_type *o_ptr = &inventory[i];
-
-        if (!o_ptr->k_idx) continue;
-        if (!object_is_fixed_artifact(o_ptr)) continue;
-        if (object_is_known(o_ptr)) continue;
-
-        skip[o_ptr->name1] = TRUE;
-    }
 
     for (i = 0; i < max_a_idx; i++)
     {
         artifact_type *a_ptr = &a_info[i];
         if (!a_ptr->name) continue;
-        if (!a_ptr->cur_num) continue;
-        if (skip[i]) continue;
+        if (!a_ptr->found) continue;
         result++;
     }
 
-    C_KILL(skip, max_a_idx, s16b);
     return result;
 }
 
@@ -3294,8 +3261,7 @@ static void show_info(void)
         if (!o_ptr->k_idx) continue;
 
         /* Aware and Known */
-        object_aware(o_ptr);
-        object_known(o_ptr);
+        obj_identify(o_ptr);
     }
 
     for (i = 1; i < max_towns; i++)
@@ -3311,8 +3277,7 @@ static void show_info(void)
             if (!o_ptr->k_idx) continue;
 
             /* Aware and Known */
-            object_aware(o_ptr);
-            object_known(o_ptr);
+            obj_identify(o_ptr);
         }
     }
 

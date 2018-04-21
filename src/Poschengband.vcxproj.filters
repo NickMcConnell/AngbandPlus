@@ -201,6 +201,9 @@
     <ClCompile Include="effects.c">
       <Filter>Effects</Filter>
     </ClCompile>
+    <ClCompile Include="ego.c">
+      <Filter>Objects</Filter>
+    </ClCompile>
     <ClCompile Include="obj_kind.c">
       <Filter>Objects</Filter>
     </ClCompile>
@@ -262,6 +265,9 @@
       <Filter>Monsters</Filter>
     </ClCompile>
     <ClCompile Include="mspells3.c">
+      <Filter>Monsters</Filter>
+    </ClCompile>
+    <ClCompile Include="mon_display.c">
       <Filter>Monsters</Filter>
     </ClCompile>
     <ClCompile Include="monster1.c">

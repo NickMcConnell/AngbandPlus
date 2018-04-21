@@ -38,7 +38,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:22
 # Quest 22 rewarding, reward is Cloak of Stealth, continue with quest 19
 ?:[EQU $QUEST22 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:19
-F:!:FLOOR:3:0:123:102
+F:!:FLOOR:3:0:123:54
 
 # Quest 22 finished, continue with quest 19
 ?:[EQU $QUEST22 4]
@@ -67,12 +67,12 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:19
 # Quest 19 rewarding, reward is an Elemental Ring, continue with quest 23
 ?:[EQU $QUEST19 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:23
-F:!:FLOOR:3:0:132:301
+F:!:FLOOR:3:0:132:201
 
 # Elemental Charm
 ?:[AND [EQU $QUEST19 3] [EQU $RACE Hydra] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:23
-F:!:FLOOR:3:0:163:321
+F:!:FLOOR:3:0:163:201
 
 # Quest 19 finished, continue with quest 23
 ?:[EQU $QUEST19 4]

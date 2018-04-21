@@ -45,11 +45,6 @@ C:0:^K
 A:Q
 C:0:^C
 
-# Hack -- swap equipment
-A:w0
-C:0:X
-
-
 ##### Roguelike Keyset Mappings #####
 
 # Repeat Last Command

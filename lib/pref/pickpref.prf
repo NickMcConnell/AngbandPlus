@@ -45,12 +45,12 @@ scrolls:banish
 #########################################
 # Devices
 #########################################
-#*identified* rings more value than 5000
-#*identified* amulets more value than 5000
+#identified rings more value than 5000
+#identified amulets more value than 5000
 ?unidentified rings
 ?unidentified amulets
-#!*identified* rings
-#!*identified* amulets
+#!identified rings
+#!identified amulets
 
 rods:angelic healing#@zh!s!d!k
 rods:heroic speed#@zs!s!d!k

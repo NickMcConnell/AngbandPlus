@@ -136,30 +136,30 @@ static void _calc_bonuses(void) {
         p_ptr->pspeed += 1;
     }
 }
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_LEVITATION);
-    add_flag(flgs, TR_RES_POIS);
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_LEVITATION);
+    add_flag(flgs, OF_RES_POIS);
 
     if (p_ptr->lev >= 10)
     {
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_SEE_INVIS);
     }
     if (p_ptr->lev >= 20)
     {
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_COLD);
     }
     if (p_ptr->lev >= 30)
     {
-        add_flag(flgs, TR_RES_ACID);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_CONF);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_CONF);
     }
     if (p_ptr->lev >= 40)
     {
-        add_flag(flgs, TR_REFLECT);
-        add_flag(flgs, TR_RES_LITE);
+        add_flag(flgs, OF_REFLECT);
+        add_flag(flgs, OF_RES_LITE);
     }
     if (p_ptr->lev >= 45)
     {

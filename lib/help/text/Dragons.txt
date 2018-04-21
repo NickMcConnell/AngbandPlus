@@ -339,5 +339,5 @@ Steel Dragon      Bad           Bad           Superb        Bad             50'
 
 
 
-Automatically generated for PosChengband 4.0.2.
+Automatically generated for PosChengband 5.0.0.
 

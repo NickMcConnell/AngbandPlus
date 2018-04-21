@@ -64,7 +64,7 @@ static void _calc_bonuses(void)
 {
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
 }
 

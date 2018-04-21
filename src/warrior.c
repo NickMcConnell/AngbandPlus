@@ -4,16 +4,15 @@ static void _calc_bonuses(void)
 {
     if (p_ptr->lev >= 30)
         res_add(RES_FEAR);
-    if (p_ptr->lev >= 45)
-        p_ptr->regenerate = TRUE;
+    p_ptr->regen += 2 * p_ptr->lev;
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 30)
-        add_flag(flgs, TR_RES_FEAR);
+        add_flag(flgs, OF_RES_FEAR);
     if (p_ptr->lev >= 45)
-        add_flag(flgs, TR_REGEN);
+        add_flag(flgs, OF_REGEN);
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)

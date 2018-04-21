@@ -60,8 +60,8 @@ X:display_food_bar
 X:display_hp_bar
 X:display_sp_bar
 X:compress_savefile
-Y:abbrev_extra
-X:abbrev_all
+X:abbrev_extra
+Y:abbrev_all
 Y:exp_need
 Y:ignore_unview
 
@@ -99,6 +99,7 @@ Y:alert_trap_detect
 ##### Birth Options #####
 
 X:easy_id
+X:easy_lore
 Y:smart_learn
 X:smart_cheat
 X:no_wilderness

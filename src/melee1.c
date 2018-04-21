@@ -281,8 +281,7 @@ bool make_attack_normal(int m_idx)
         {
             if (m_ptr->ml)
                 cmsg_format(TERM_GREEN, "(%^s retaliates:", m_name);
-            if (is_original_ap_and_seen(m_ptr))
-                r_ptr->r_flags2 |= RF2_AURA_REVENGE;
+            mon_lore_2(m_ptr, RF2_AURA_REVENGE);
         }
 
         /* Extract the attack "power" */
@@ -303,7 +302,7 @@ bool make_attack_normal(int m_idx)
                 !mon_save_p(m_ptr->r_idx, A_WIS) &&
                 !one_in_(3))
             {
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
+                mon_lore_3(m_ptr, RF3_EVIL);
                 cmsg_format(TERM_L_BLUE, "%^s is repelled.", m_name);
                 if (retaliation_hack) break;
                 continue;
@@ -583,7 +582,7 @@ bool make_attack_normal(int m_idx)
 
                 case RBE_UN_POWER:
                 {
-                    u32b flgs[TR_FLAG_SIZE];
+                    u32b flgs[OF_ARRAY_SIZE];
                     char buf[MAX_NLEN];
                     bool drained = FALSE;
                     bool drain_amt = rlev; /* TODO: Consider using damage instead. Indeed, I nerfed this effect
@@ -610,8 +609,8 @@ bool make_attack_normal(int m_idx)
                         /* Skip non-devices */
                         if (o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF && o_ptr->tval != TV_ROD) continue;
 
-                        object_flags(o_ptr, flgs);
-                        if (have_flag(flgs, TR_HOLD_LIFE))
+                        obj_flags(o_ptr, flgs);
+                        if (have_flag(flgs, OF_HOLD_LIFE))
                         {
                             drained = TRUE; /* No food drain! */
                             break;
@@ -692,8 +691,8 @@ bool make_attack_normal(int m_idx)
                     /* Obvious */
                     obvious = TRUE;
 
-                    if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
-                        r_ptr->r_flags2 |= RF2_THIEF;
+                    if (r_ptr->flags2 & RF2_THIEF)
+                        mon_lore_2(m_ptr, RF2_THIEF);
 
                     /* Saving throw (unless paralyzed) based on dex and level */
                     if (!p_ptr->paralyzed &&
@@ -761,8 +760,8 @@ bool make_attack_normal(int m_idx)
 
                     if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
 
-                    if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
-                        r_ptr->r_flags2 |= RF2_THIEF;
+                    if (r_ptr->flags2 & RF2_THIEF)
+                        mon_lore_2(m_ptr, RF2_THIEF);
 
                     /* Saving throw (unless paralyzed) based on dex and level */
                     if (!p_ptr->paralyzed &&
@@ -876,8 +875,8 @@ bool make_attack_normal(int m_idx)
 
                     if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
 
-                    if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
-                        r_ptr->r_flags2 |= RF2_THIEF;
+                    if (r_ptr->flags2 & RF2_THIEF)
+                        mon_lore_2(m_ptr, RF2_THIEF);
 
                     /* Steal some food */
                     for (k = 0; k < 10; k++)
@@ -1112,6 +1111,7 @@ bool make_attack_normal(int m_idx)
                     else if (p_ptr->free_act)
                     {
                         msg_print("You are unaffected!");
+                        equip_learn_flag(OF_FREE_ACT);
 
                         obvious = TRUE;
                     }
@@ -1611,6 +1611,7 @@ bool make_attack_normal(int m_idx)
                         cmsg_print(TERM_L_UMBER, "(You retaliate:");
 
                     py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_RETALIATION);
+                    equip_learn_flag(OF_AURA_REVENGE);
                     cmsg_print(TERM_L_UMBER, ")");
                     if (mystic_get_toggle() == MYSTIC_TOGGLE_RETALIATE)
                         sp_player(-7);
@@ -1662,8 +1663,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
+                        mon_lore_r(m_ptr, RFR_EFF_IM_FIRE_MASK);
                     }
                 }
 
@@ -1688,8 +1688,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
+                        mon_lore_r(m_ptr, RFR_EFF_IM_ELEC_MASK);
                     }
                 }
 
@@ -1714,8 +1713,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
+                        mon_lore_r(m_ptr, RFR_EFF_IM_COLD_MASK);
                     }
                 }
 
@@ -1736,8 +1734,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_RES_SHAR_MASK);
+                        mon_lore_r(m_ptr, RFR_EFF_RES_SHAR_MASK);
                     }
 
                     if (p_ptr->dustrobe && is_mirror_grid(&cave[py][px]))
@@ -1756,8 +1753,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= RFR_RES_ALL;
+                        mon_lore_r(m_ptr, RFR_RES_ALL);
                     }
                 }
 
@@ -1784,8 +1780,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_RES_TIME_MASK);
+                        mon_lore_r(m_ptr, RFR_EFF_RES_TIME_MASK);
                     }
                 }
 
@@ -1815,13 +1810,11 @@ bool make_attack_normal(int m_idx)
                                 blinked = FALSE;
                                 alive = FALSE;
                             }
-                            if (is_original_ap_and_seen(m_ptr))
-                                r_ptr->r_flags3 |= RF3_EVIL;
+                            mon_lore_3(m_ptr, RF3_EVIL);
                         }
                         else
                         {
-                            if (is_original_ap_and_seen(m_ptr))
-                                r_ptr->r_flagsr |= RFR_RES_ALL;
+                            mon_lore_r(m_ptr, RFR_RES_ALL);
                         }
                     }
                 }
@@ -1847,8 +1840,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= RFR_RES_ALL;
+                        mon_lore_r(m_ptr, RFR_RES_ALL);
                     }
                 }
 
@@ -1913,8 +1905,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else
                     {
-                        if (is_original_ap_and_seen(m_ptr))
-                            r_ptr->r_flagsr |= (RFR_RES_ALL | RFR_RES_DARK);
+                        mon_lore_r(m_ptr, RFR_RES_ALL | RFR_RES_DARK);
                     }
                 }
             }
@@ -1978,18 +1969,12 @@ bool make_attack_normal(int m_idx)
         }
 
 
-        /* Analyze "visible" monsters only */
-        if (is_original_ap_and_seen(m_ptr) && !do_silly_attack)
         {
-            /* Count "obvious" attacks (and ones that cause damage) */
-            if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
-            {
-                /* Count attacks of this type */
-                if (r_ptr->r_blows[ap_cnt] < MAX_UCHAR)
-                {
-                    r_ptr->r_blows[ap_cnt]++;
-                }
-            }
+            int options = 0;
+            if (do_silly_attack) options |= MON_BLOW_SILLY;
+            if (obvious) options |= MON_BLOW_OBVIOUS;
+            if (damage) options |= MON_BLOW_DAMAGE;
+            mon_lore_blows(m_ptr, ap_cnt, options);
         }
 
         if (p_ptr->riding && damage)

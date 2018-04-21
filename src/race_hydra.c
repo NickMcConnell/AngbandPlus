@@ -25,8 +25,8 @@ static void _birth(void)
     skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     object_prep(&forge, lookup_kind(TV_AMULET, 0));
-    forge.name2 = EGO_AMULET_ELEMENTAL;
-    add_flag(forge.art_flags, TR_RES_ACID);
+    forge.name2 = EGO_JEWELRY_ELEMENTAL;
+    add_flag(forge.flags, OF_RES_ACID);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
@@ -186,7 +186,7 @@ static void _calc_bonuses(void)
     p_ptr->skill_dig += 50;
     p_ptr->to_a += ac;
     p_ptr->dis_to_a += ac;
-    p_ptr->regenerate = TRUE;
+    p_ptr->regen += 100 + 4*p_ptr->lev;
 
     switch (p_ptr->current_r_idx)
     {
@@ -214,31 +214,31 @@ static void _calc_bonuses(void)
     }    
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, TR_REGEN);
+    add_flag(flgs, OF_REGEN);
     switch (p_ptr->current_r_idx)
     {
     case MON_TWO_HEADED_HYDRA:
         break;
     case MON_FOUR_HEADED_HYDRA:
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
         break;
     case MON_FIVE_HEADED_HYDRA:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_POIS);
         break;
     case MON_SEVEN_HEADED_HYDRA:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_POIS);
         break;
     case MON_NINE_HEADED_HYDRA:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_FIRE);
         break;
     case MON_ELEVEN_HEADED_HYDRA:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_FIRE);
         break;
     }    
 }

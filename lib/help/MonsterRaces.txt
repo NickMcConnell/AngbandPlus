@@ -258,7 +258,7 @@ Death Swords are mighty weapons animated by magical means. As such, they are una
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +1</color>        Disarming   <color:y>Good         </color>
-Intelligence <color:w> -5</color>        Device      <color:G>Excellent    </color>
+Intelligence <color:w> -5</color>        Device      <color:o>Fair         </color>
 Wisdom       <color:w> -5</color>        Save        <color:G>Excellent    </color>
 Dexterity    <color:w> +0</color>        Stealth     <color:y>Very Good    </color>
 Constitution <color:w> +1</color>        Searching   <color:R>Poor         </color>
@@ -451,7 +451,7 @@ Golem        <color:o>Fair         </color> <color:r>Bad          </color> <colo
 Jelly        <color:y>Good         </color> <color:r>Bad          </color> <color:y>Good         </color> <color:g>Superb       </color>
 Quylthulg    <color:o>Fair         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:g>Superb       </color>
 Leprechaun   <color:y>Very Good    </color> <color:b>Heroic       </color> <color:y>Good         </color> <color:b>Heroic       </color>
-Death-Sword  <color:y>Good         </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>
+Death-Sword  <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:y>Very Good    </color>
 Mimic        <color:R>Poor         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Possessor    <color:r>Bad          </color> <color:r>Bad          </color> <color:R>Poor         </color> <color:g>Superb       </color>
 Ring         <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:G>Excellent    </color>
@@ -490,4 +490,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 4.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.0.</color>

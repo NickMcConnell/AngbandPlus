@@ -226,7 +226,7 @@ Melee
   Weaponsmith
   A Weaponsmith can improve weapons and armors for him or herself. They 
   are good at fighting, and they have potential ability to become even 
-  better than Warriors using improved equipments. They cannot cast 
+  better than Warriors using improved equipment. They cannot cast 
   spells, and are poor at skills such as stealth or magic defense.
    
   A Weaponsmith extracts the essences of special effects from weapons 
@@ -235,8 +235,8 @@ Melee
   improved only once, but they can remove a previously added essence 
   from improved equipment to improve it with another essence. To-hit, 
   to-damage bonus, and AC can be improved freely up to a maximum value 
-  depending on level. Weaponsmiths have a class power - 'Judgment' - 
-  which allows them to identify (later *identify*) weapons and armor.
+  depending on level. Weaponsmiths now use class powers for Smithing 
+  commands.
   
     Stats                   Skills
     Strength      +3        Disarming   Good         
@@ -1348,5 +1348,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 4.0.2.
+Automatically generated for PosChengband 5.0.0.
 

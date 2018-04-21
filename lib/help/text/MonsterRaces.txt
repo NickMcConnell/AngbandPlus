@@ -451,7 +451,7 @@ Mimic/Possessor
   
     Stats                   Skills
     Strength      +1        Disarming   Good         
-    Intelligence  -5        Device      Excellent    
+    Intelligence  -5        Device      Fair         
     Wisdom        -5        Save        Excellent    
     Dexterity     +0        Stealth     Very Good    
     Constitution  +1        Searching   Poor         
@@ -737,7 +737,7 @@ Golem        Fair          Bad           Superb        Poor
 Jelly        Good          Bad           Good          Superb       
 Quylthulg    Fair          Superb        Excellent     Superb       
 Leprechaun   Very Good     Heroic        Good          Heroic       
-Death-Sword  Good          Excellent     Excellent     Very Good    
+Death-Sword  Good          Fair          Excellent     Very Good    
 Mimic        Poor          Good          Fair          Fair         
 Possessor    Bad           Bad           Poor          Superb       
 Ring         Fair          Superb        Good          Excellent    
@@ -776,5 +776,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 4.0.2.
+Automatically generated for PosChengband 5.0.0.
 

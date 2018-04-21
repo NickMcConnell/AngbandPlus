@@ -6,10 +6,10 @@ static void _calc_bonuses(void)
         res_add(RES_FEAR);
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 40)
-        add_flag(flgs, TR_RES_FEAR);
+        add_flag(flgs, OF_RES_FEAR);
 }
 
 static int _get_powers(spell_info* spells, int max)

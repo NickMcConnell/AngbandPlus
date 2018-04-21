@@ -340,9 +340,9 @@ static void _equippy_heading(doc_ptr doc, cptr heading, int col)
 }
 
 typedef struct {
-    u32b py_flgs[TR_FLAG_SIZE];
-    u32b tim_py_flgs[TR_FLAG_SIZE];
-    u32b obj_flgs[EQUIP_MAX_SLOTS][TR_FLAG_SIZE];
+    u32b py_flgs[OF_ARRAY_SIZE];
+    u32b tim_py_flgs[OF_ARRAY_SIZE];
+    u32b obj_flgs[EQUIP_MAX_SLOTS][OF_ARRAY_SIZE];
 } _flagzilla_t, *_flagzilla_ptr;
 
 static _flagzilla_ptr _flagzilla_alloc(void)
@@ -360,7 +360,7 @@ static _flagzilla_ptr _flagzilla_alloc(void)
         object_type *o_ptr = equip_obj(slot);
 
         if (o_ptr)
-            object_flags_known(o_ptr, flagzilla->obj_flgs[i]);
+            obj_flags_known(o_ptr, flagzilla->obj_flgs[i]);
     }
 
     return flagzilla;
@@ -384,11 +384,11 @@ static void _build_res_flags(doc_ptr doc, int which, _flagzilla_ptr flagzilla)
 
     for (i = 0; i < equip_count(); i++)
     {
-        if (im_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], im_flg))
+        if (im_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], im_flg))
             doc_insert_char(doc, TERM_VIOLET, '*');
-        else if (vuln_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg) && have_flag(flagzilla->obj_flgs[i], flg))
+        else if (vuln_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg) && have_flag(flagzilla->obj_flgs[i], flg))
             doc_insert_char(doc, TERM_L_DARK, '.');
-        else if (vuln_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg))
+        else if (vuln_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg))
             doc_insert_char(doc, TERM_L_RED, '-');
         else if (have_flag(flagzilla->obj_flgs[i], flg))
             doc_insert_char(doc, TERM_WHITE, '+');
@@ -396,18 +396,18 @@ static void _build_res_flags(doc_ptr doc, int which, _flagzilla_ptr flagzilla)
             doc_insert_char(doc, TERM_L_DARK, '.');
     }
 
-    if (im_flg != TR_INVALID && have_flag(flagzilla->py_flgs, im_flg))
+    if (im_flg != OF_INVALID && have_flag(flagzilla->py_flgs, im_flg))
         doc_insert_char(doc, TERM_VIOLET, '*');
-    else if (im_flg != TR_INVALID && have_flag(flagzilla->tim_py_flgs, im_flg))
+    else if (im_flg != OF_INVALID && have_flag(flagzilla->tim_py_flgs, im_flg))
         doc_insert_char(doc, TERM_YELLOW, '*');
     else if (have_flag(flagzilla->tim_py_flgs, flg))
     {
-        if (vuln_flg != TR_INVALID && have_flag(flagzilla->py_flgs, vuln_flg))
+        if (vuln_flg != OF_INVALID && have_flag(flagzilla->py_flgs, vuln_flg))
             doc_insert_char(doc, TERM_ORANGE, '#');
         else
             doc_insert_char(doc, TERM_YELLOW, '#');
     }
-    else if (vuln_flg != TR_INVALID && have_flag(flagzilla->py_flgs, vuln_flg))
+    else if (vuln_flg != OF_INVALID && have_flag(flagzilla->py_flgs, vuln_flg))
         doc_insert_char(doc, TERM_RED, 'v');
     else if (have_flag(flagzilla->py_flgs, flg))
         doc_insert_char(doc, TERM_WHITE, '+');
@@ -455,13 +455,11 @@ static void _build_curse_flags(doc_ptr doc, cptr name)
 
         if (o_ptr)
         {
-            if (object_is_cursed(o_ptr) && !(o_ptr->ident & IDENT_FULL))
-                doc_insert_char(doc, TERM_YELLOW, '?');
-            else if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+            if (o_ptr->curse_flags & OFC_PERMA_CURSE)
                 doc_insert_char(doc, TERM_VIOLET, '*');
-            else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
+            else if (o_ptr->curse_flags & OFC_HEAVY_CURSE)
                 doc_insert_char(doc, TERM_L_RED, '+');
-            else if (o_ptr->curse_flags & TRC_CURSED)
+            else if (o_ptr->curse_flags & OFC_CURSED)
                 doc_insert_char(doc, TERM_WHITE, '+');
             else
                 doc_insert_char(doc, TERM_L_DARK, '.');
@@ -479,18 +477,18 @@ static void _build_slays_imp(doc_ptr doc, cptr name, int flg, int kill_flg, _fla
     doc_printf(doc, " %-11.11s: ", name);
     for (i = 0; i < equip_count(); i++)
     {
-        if (kill_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], kill_flg))
+        if (kill_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], kill_flg))
             doc_insert_char(doc, TERM_RED, '*');
         else if (have_flag(flagzilla->obj_flgs[i], flg))
             doc_insert_char(doc, TERM_WHITE, '+');
         else
             doc_insert_char(doc, TERM_L_DARK, '.');
     }
-    if (kill_flg != TR_INVALID && have_flag(flagzilla->tim_py_flgs, kill_flg))
+    if (kill_flg != OF_INVALID && have_flag(flagzilla->tim_py_flgs, kill_flg))
         doc_insert_char(doc, TERM_YELLOW, '*');
     else if (have_flag(flagzilla->tim_py_flgs, flg))
         doc_insert_char(doc, TERM_YELLOW, '+');
-    else if (kill_flg != TR_INVALID && have_flag(flagzilla->py_flgs, kill_flg))
+    else if (kill_flg != OF_INVALID && have_flag(flagzilla->py_flgs, kill_flg))
         doc_insert_char(doc, TERM_RED, '*');
     else if (have_flag(flagzilla->py_flgs, flg))
         doc_insert_char(doc, TERM_WHITE, '+');
@@ -512,7 +510,7 @@ static int _build_flags_imp(doc_ptr doc, cptr name, int flg, int dec_flg, _flagz
             doc_insert_char(doc, TERM_WHITE, '+');
             result++;
         }
-        else if (dec_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], dec_flg))
+        else if (dec_flg != OF_INVALID && have_flag(flagzilla->obj_flgs[i], dec_flg))
         {
             doc_insert_char(doc, TERM_L_RED, '-');
             result--;
@@ -530,6 +528,11 @@ static int _build_flags_imp(doc_ptr doc, cptr name, int flg, int dec_flg, _flagz
         doc_insert_char(doc, TERM_WHITE, '+');
         result++;
     }
+    else if (have_flag(flagzilla->py_flgs, dec_flg))
+    {
+        doc_insert_char(doc, TERM_L_RED, '-');
+        result++;
+    }
     else
         doc_insert_char(doc, TERM_L_DARK, '.');
 
@@ -538,7 +541,7 @@ static int _build_flags_imp(doc_ptr doc, cptr name, int flg, int dec_flg, _flagz
 
 static void _build_flags_aura(doc_ptr doc, cptr name, int flg, _flagzilla_ptr flagzilla)
 {
-    if (_build_flags_imp(doc, name, flg, TR_INVALID, flagzilla))
+    if (_build_flags_imp(doc, name, flg, OF_INVALID, flagzilla))
     {
         doc_printf(doc, " %dd%d+2", 1 + p_ptr->lev/10, 2 + p_ptr->lev/ 10);
     }
@@ -563,41 +566,41 @@ static void _build_flags1(doc_ptr doc, _flagzilla_ptr flagzilla)
     doc_newline(doc);
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Auras", 14);
-    _build_flags_aura(doc, "Aura Elec", TR_SH_ELEC, flagzilla);
-    _build_flags_aura(doc, "Aura Fire", TR_SH_FIRE, flagzilla);
-    _build_flags_aura(doc, "Aura Cold", TR_SH_COLD, flagzilla);
-    _build_flags_aura(doc, "Aura Shards", TR_SH_SHARDS, flagzilla);
-    _build_flags(doc, "Revenge", TR_SH_REVENGE, TR_INVALID, flagzilla);
+    _build_flags_aura(doc, "Aura Elec", OF_AURA_ELEC, flagzilla);
+    _build_flags_aura(doc, "Aura Fire", OF_AURA_FIRE, flagzilla);
+    _build_flags_aura(doc, "Aura Cold", OF_AURA_COLD, flagzilla);
+    _build_flags_aura(doc, "Aura Shards", OF_AURA_SHARDS, flagzilla);
+    _build_flags(doc, "Revenge", OF_AURA_REVENGE, OF_INVALID, flagzilla);
 
     doc_newline(doc);
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Slays", 14);
-    _build_slays_imp(doc, "Slay Evil", TR_SLAY_EVIL, TR_KILL_EVIL, flagzilla);
-    _build_slays_imp(doc, "Slay Undead", TR_SLAY_UNDEAD, TR_KILL_UNDEAD, flagzilla);
-    _build_slays_imp(doc, "Slay Demon", TR_SLAY_DEMON, TR_KILL_DEMON, flagzilla);
-    _build_slays_imp(doc, "Slay Dragon", TR_SLAY_DRAGON, TR_KILL_DRAGON, flagzilla);
-    _build_slays_imp(doc, "Slay Human", TR_SLAY_HUMAN, TR_KILL_HUMAN, flagzilla);
-    _build_slays_imp(doc, "Slay Animal", TR_SLAY_ANIMAL, TR_KILL_ANIMAL, flagzilla);
-    _build_slays_imp(doc, "Slay Orc", TR_SLAY_ORC, TR_KILL_ORC, flagzilla);
-    _build_slays_imp(doc, "Slay Troll", TR_SLAY_TROLL, TR_KILL_TROLL, flagzilla);
-    _build_slays_imp(doc, "Slay Giant", TR_SLAY_GIANT, TR_KILL_GIANT, flagzilla);
-    _build_slays_imp(doc, "Slay Good", TR_SLAY_GOOD, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Slay Living", TR_SLAY_LIVING, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Acid Brand", TR_BRAND_ACID, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Elec Brand", TR_BRAND_ELEC, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Fire Brand", TR_BRAND_FIRE, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Cold Brand", TR_BRAND_COLD, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Pois Brand", TR_BRAND_POIS, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Mana Brand", TR_FORCE_WEAPON, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Sharpness", TR_VORPAL, TR_VORPAL2, flagzilla);
-    _build_slays_imp(doc, "Quake", TR_IMPACT, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Vampiric", TR_VAMPIRIC, TR_INVALID, flagzilla);
-    _build_slays_imp(doc, "Chaotic", TR_CHAOTIC, TR_INVALID, flagzilla);
-    _build_flags(doc, "Add Blows", TR_BLOWS, TR_DEC_BLOWS, flagzilla);
-    _build_flags(doc, "Blessed", TR_BLESSED, TR_INVALID, flagzilla);
-    _build_flags(doc, "Riding", TR_RIDING, TR_INVALID, flagzilla);
-    _build_flags(doc, "Tunnel", TR_TUNNEL, TR_INVALID, flagzilla);
-    _build_flags(doc, "Throwing", TR_THROW, TR_INVALID, flagzilla);
+    _build_slays_imp(doc, "Slay Evil", OF_SLAY_EVIL, OF_KILL_EVIL, flagzilla);
+    _build_slays_imp(doc, "Slay Undead", OF_SLAY_UNDEAD, OF_KILL_UNDEAD, flagzilla);
+    _build_slays_imp(doc, "Slay Demon", OF_SLAY_DEMON, OF_KILL_DEMON, flagzilla);
+    _build_slays_imp(doc, "Slay Dragon", OF_SLAY_DRAGON, OF_KILL_DRAGON, flagzilla);
+    _build_slays_imp(doc, "Slay Human", OF_SLAY_HUMAN, OF_KILL_HUMAN, flagzilla);
+    _build_slays_imp(doc, "Slay Animal", OF_SLAY_ANIMAL, OF_KILL_ANIMAL, flagzilla);
+    _build_slays_imp(doc, "Slay Orc", OF_SLAY_ORC, OF_KILL_ORC, flagzilla);
+    _build_slays_imp(doc, "Slay Troll", OF_SLAY_TROLL, OF_KILL_TROLL, flagzilla);
+    _build_slays_imp(doc, "Slay Giant", OF_SLAY_GIANT, OF_KILL_GIANT, flagzilla);
+    _build_slays_imp(doc, "Slay Good", OF_SLAY_GOOD, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Slay Living", OF_SLAY_LIVING, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Acid Brand", OF_BRAND_ACID, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Elec Brand", OF_BRAND_ELEC, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Fire Brand", OF_BRAND_FIRE, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Cold Brand", OF_BRAND_COLD, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Pois Brand", OF_BRAND_POIS, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Mana Brand", OF_BRAND_MANA, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Sharpness", OF_VORPAL, OF_VORPAL2, flagzilla);
+    _build_slays_imp(doc, "Quake", OF_IMPACT, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Vampiric", OF_BRAND_VAMP, OF_INVALID, flagzilla);
+    _build_slays_imp(doc, "Chaotic", OF_BRAND_CHAOS, OF_INVALID, flagzilla);
+    _build_flags(doc, "Add Blows", OF_BLOWS, OF_DEC_BLOWS, flagzilla);
+    _build_flags(doc, "Blessed", OF_BLESSED, OF_INVALID, flagzilla);
+    _build_flags(doc, "Riding", OF_RIDING, OF_INVALID, flagzilla);
+    _build_flags(doc, "Tunnel", OF_TUNNEL, OF_INVALID, flagzilla);
+    _build_flags(doc, "Throwing", OF_THROWING, OF_INVALID, flagzilla);
 }
 
 static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
@@ -605,21 +608,24 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Abilities", 14);
 
-    _build_flags(doc, "Speed", TR_SPEED, TR_DEC_SPEED, flagzilla);
-    _build_flags(doc, "Free Act", TR_FREE_ACT, TR_INVALID, flagzilla);
-    _build_flags(doc, "See Invis", TR_SEE_INVIS, TR_INVALID, flagzilla);
-    _build_flags(doc, "Warning", TR_WARNING, TR_INVALID, flagzilla);
-    _build_flags(doc, "Slow Digest", TR_SLOW_DIGEST, TR_INVALID, flagzilla);
-    _build_flags(doc, "Regenerate", TR_REGEN, TR_INVALID, flagzilla);
-    _build_flags(doc, "Levitation", TR_LEVITATION, TR_INVALID, flagzilla);
-    _build_flags(doc, "Perm Lite", TR_LITE, TR_INVALID, flagzilla);
-    _build_flags(doc, "Reflection", TR_REFLECT, TR_INVALID, flagzilla);
-    _build_flags(doc, "Hold Life", TR_HOLD_LIFE, TR_INVALID, flagzilla);
-    _build_flags(doc, "Dec Mana", TR_DEC_MANA, TR_INVALID, flagzilla);
-    _build_flags(doc, "Easy Spell", TR_EASY_SPELL, TR_INVALID, flagzilla);
-    _build_flags(doc, "Anti Magic", TR_NO_MAGIC, TR_INVALID, flagzilla);
+    _build_flags(doc, "Speed", OF_SPEED, OF_DEC_SPEED, flagzilla);
+    _build_flags(doc, "Free Act", OF_FREE_ACT, OF_INVALID, flagzilla);
+    _build_flags(doc, "See Invis", OF_SEE_INVIS, OF_INVALID, flagzilla);
+    _build_flags(doc, "Warning", OF_WARNING, OF_INVALID, flagzilla);
+    _build_flags(doc, "Slow Digest", OF_SLOW_DIGEST, OF_INVALID, flagzilla);
 
-    _build_flags_imp(doc, "Magic Skill", TR_MAGIC_MASTERY, TR_DEC_MAGIC_MASTERY, flagzilla);
+    _build_flags_imp(doc, "Regenerate", OF_REGEN, OF_INVALID, flagzilla);
+    doc_printf(doc, " %3d%%\n", p_ptr->regen); /* TODO: Only display known amount ... but then again, you can feel this, no? */
+
+    _build_flags(doc, "Levitation", OF_LEVITATION, OF_INVALID, flagzilla);
+    _build_flags(doc, "Perm Lite", OF_LITE, OF_INVALID, flagzilla);
+    _build_flags(doc, "Reflection", OF_REFLECT, OF_INVALID, flagzilla);
+    _build_flags(doc, "Hold Life", OF_HOLD_LIFE, OF_INVALID, flagzilla);
+    _build_flags(doc, "Dec Mana", OF_DEC_MANA, OF_INVALID, flagzilla);
+    _build_flags(doc, "Easy Spell", OF_EASY_SPELL, OF_INVALID, flagzilla);
+    _build_flags(doc, "Anti Magic", OF_NO_MAGIC, OF_INVALID, flagzilla);
+
+    _build_flags_imp(doc, "Magic Skill", OF_MAGIC_MASTERY, OF_DEC_MAGIC_MASTERY, flagzilla);
     if (p_ptr->device_power)
     {
         int pow = device_power_aux(100, p_ptr->device_power) - 100;
@@ -627,66 +633,66 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
     }
     doc_newline(doc);
 
-    if (_build_flags_imp(doc, "Spell Power", TR_SPELL_POWER, TR_DEC_SPELL_POWER, flagzilla))
+    if (_build_flags_imp(doc, "Spell Power", OF_SPELL_POWER, OF_DEC_SPELL_POWER, flagzilla))
     {
         int  pow = spell_power_aux(100, p_ptr->spell_power) - 100;
         doc_printf(doc, " %+3d%%", pow);
     }
     doc_newline(doc);
 
-    if (_build_flags_imp(doc, "Spell Cap", TR_SPELL_CAP, TR_DEC_SPELL_CAP, flagzilla))
+    if (_build_flags_imp(doc, "Spell Cap", OF_SPELL_CAP, OF_DEC_SPELL_CAP, flagzilla))
     {
         int cap = spell_cap_aux(100, p_ptr->spell_cap) - 100;
         doc_printf(doc, " %+3d%%", cap);
     }
     doc_newline(doc);
 
-    if (_build_flags_imp(doc, "Magic Res", TR_MAGIC_RESISTANCE, TR_INVALID, flagzilla))
+    if (_build_flags_imp(doc, "Magic Res", OF_MAGIC_RESISTANCE, OF_INVALID, flagzilla))
         doc_printf(doc, " %+3d%%", p_ptr->magic_resistance);
     doc_newline(doc);
 
-    if (_build_flags_imp(doc, "Infravision", TR_INFRA, TR_INVALID, flagzilla))
+    if (_build_flags_imp(doc, "Infravision", OF_INFRA, OF_INVALID, flagzilla))
         doc_printf(doc, " %3d'", p_ptr->see_infra * 10);
     doc_newline(doc);
 
-    _build_flags(doc, "Stealth", TR_STEALTH, TR_DEC_STEALTH, flagzilla);
-    _build_flags(doc, "Searching", TR_SEARCH, TR_INVALID, flagzilla);
+    _build_flags(doc, "Stealth", OF_STEALTH, OF_DEC_STEALTH, flagzilla);
+    _build_flags(doc, "Searching", OF_SEARCH, OF_INVALID, flagzilla);
 
     doc_newline(doc);
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Sustains", 14);
-    _build_flags(doc, "Sust Str", TR_SUST_STR, TR_INVALID, flagzilla);
-    _build_flags(doc, "Sust Int", TR_SUST_INT, TR_INVALID, flagzilla);
-    _build_flags(doc, "Sust Wis", TR_SUST_WIS, TR_INVALID, flagzilla);
-    _build_flags(doc, "Sust Dex", TR_SUST_DEX, TR_INVALID, flagzilla);
-    _build_flags(doc, "Sust Con", TR_SUST_CON, TR_INVALID, flagzilla);
-    _build_flags(doc, "Sust Chr", TR_SUST_CHR, TR_INVALID, flagzilla);
+    _build_flags(doc, "Sust Str", OF_SUST_STR, OF_INVALID, flagzilla);
+    _build_flags(doc, "Sust Int", OF_SUST_INT, OF_INVALID, flagzilla);
+    _build_flags(doc, "Sust Wis", OF_SUST_WIS, OF_INVALID, flagzilla);
+    _build_flags(doc, "Sust Dex", OF_SUST_DEX, OF_INVALID, flagzilla);
+    _build_flags(doc, "Sust Con", OF_SUST_CON, OF_INVALID, flagzilla);
+    _build_flags(doc, "Sust Chr", OF_SUST_CHR, OF_INVALID, flagzilla);
 
     doc_newline(doc);
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Detection", 14);
-    _build_flags(doc, "Telepathy", TR_TELEPATHY, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Evil", TR_ESP_EVIL, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Nonliv", TR_ESP_NONLIVING, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Good", TR_ESP_GOOD, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Undead", TR_ESP_UNDEAD, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Demon", TR_ESP_DEMON, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Dragon", TR_ESP_DRAGON, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Human", TR_ESP_HUMAN, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Animal", TR_ESP_ANIMAL, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Orc", TR_ESP_ORC, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Troll", TR_ESP_TROLL, TR_INVALID, flagzilla);
-    _build_flags(doc, "ESP Giant", TR_ESP_GIANT, TR_INVALID, flagzilla);
+    _build_flags(doc, "Telepathy", OF_TELEPATHY, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Evil", OF_ESP_EVIL, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Nonliv", OF_ESP_NONLIVING, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Good", OF_ESP_GOOD, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Undead", OF_ESP_UNDEAD, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Demon", OF_ESP_DEMON, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Dragon", OF_ESP_DRAGON, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Human", OF_ESP_HUMAN, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Animal", OF_ESP_ANIMAL, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Orc", OF_ESP_ORC, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Troll", OF_ESP_TROLL, OF_INVALID, flagzilla);
+    _build_flags(doc, "ESP Giant", OF_ESP_GIANT, OF_INVALID, flagzilla);
 
     doc_newline(doc);
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Curses", 14);
     _build_curse_flags(doc, "Cursed");
-    _build_flags(doc, "Rnd Tele", TR_TELEPORT, TR_INVALID, flagzilla);
-    _build_flags(doc, "No Tele", TR_NO_TELE, TR_INVALID, flagzilla);
-    _build_flags(doc, "Drain Exp", TR_DRAIN_EXP, TR_INVALID, flagzilla);
-    _build_flags(doc, "Aggravate", TR_AGGRAVATE, TR_INVALID, flagzilla);
-    _build_flags(doc, "TY Curse", TR_TY_CURSE, TR_INVALID, flagzilla);
+    _build_flags(doc, "Rnd Tele", OF_TELEPORT, OF_INVALID, flagzilla);
+    _build_flags(doc, "No Tele", OF_NO_TELE, OF_INVALID, flagzilla);
+    _build_flags(doc, "Drain Exp", OF_DRAIN_EXP, OF_INVALID, flagzilla);
+    _build_flags(doc, "Aggravate", OF_AGGRAVATE, OF_INVALID, flagzilla);
+    _build_flags(doc, "TY Curse", OF_TY_CURSE, OF_INVALID, flagzilla);
 }
 
 static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
@@ -713,9 +719,9 @@ static void _build_stats(doc_ptr doc, _flagzilla_ptr flagzilla)
 
     for (i = 0; i < MAX_STATS; i++)
     {
-        int flg = TR_STR + i;
-        int dec_flg = TR_DEC_STR + i;
-        int sust_flg = TR_SUST_STR + i;
+        int flg = OF_STR + i;
+        int dec_flg = OF_DEC_STR + i;
+        int sust_flg = OF_SUST_STR + i;
         int e_adj = 0;
 
         if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
@@ -1515,28 +1521,13 @@ static void _object_counts_imp(doc_ptr doc, int tval, int sval)
     {
         doc_printf(
             doc,
-            "  %-20.20s %5d %6d %5d %5d",
+            "  %-20.20s %5d %6d %5d %5d\n",
             k_name + k_ptr->name,
             k_ptr->counts.found,
             k_ptr->counts.bought,
             k_ptr->counts.used,
             k_ptr->counts.destroyed
         );
-
-        switch (tval)
-        {
-        case TV_WAND: case TV_ROD: case TV_STAFF: case TV_SCROLL:
-        {
-            int         fail;
-            object_type forge;
-            object_prep(&forge, lookup_kind(tval, sval));
-            fail = device_calc_fail_rate(&forge);
-            doc_printf(doc, " %3d.%1d%%", fail / 10, fail % 10);
-            break;
-        }
-        }
-
-        doc_newline(doc);
     }
 }
 
@@ -1550,7 +1541,6 @@ static void _device_counts_imp(doc_ptr doc, int tval, int effect)
     if (entry->counts.found || entry->counts.bought || entry->counts.used || entry->counts.destroyed)
     {
         effect_t effect;
-        int      fail;
 
         effect.power = entry->level;
         effect.difficulty = entry->level;
@@ -1558,17 +1548,13 @@ static void _device_counts_imp(doc_ptr doc, int tval, int effect)
 
         doc_printf(
             doc,
-            "  %-20.20s %5d %6d %5d %5d",
+            "  %-20.20s %5d %6d %5d %5d\n",
             do_effect(&effect, SPELL_NAME, 0),
             entry->counts.found,
             entry->counts.bought,
             entry->counts.used,
             entry->counts.destroyed
         );
-
-        fail = effect_calc_fail_rate(&effect);
-        doc_printf(doc, " %3d.%1d%%", fail / 10, fail % 10);
-        doc_newline(doc);
     }
 }
 
@@ -1721,7 +1707,7 @@ static void _group_counts_tval_imp(doc_ptr doc, int tval, cptr text)
 
 static void _ego_counts_imp(doc_ptr doc, int idx, cptr text)
 {
-    ego_item_type *e_ptr = &e_info[idx];
+    ego_type *e_ptr = &e_info[idx];
 
     if (e_ptr->counts.found || e_ptr->counts.bought || e_ptr->counts.destroyed)
     {
@@ -1885,7 +1871,7 @@ static void _kill_counts_imp(doc_ptr doc, _mon_p p, cptr text, int total)
                     kills++;   /* Perhaps The Cloning Pits is messing up r_akills? */
             }
             else
-                kills += r_info[i].r_akills;
+                kills += r_info[i].r_pkills;
         }
     }
 
@@ -1964,6 +1950,8 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_SHOT, "Shots");
     _group_counts_tval_imp(doc, TV_ARROW, "Arrows");
     _group_counts_tval_imp(doc, TV_BOLT, "Bolts");
+    if (p_ptr->pclass == CLASS_NINJA)
+        _group_counts_tval_imp(doc, TV_SPIKE, "Syuriken");
     _group_counts_imp(doc, _kind_is_spellbook, "Spellbooks");
     _group_counts_tval_imp(doc, TV_FOOD, "Food");
     _group_counts_imp(doc, _kind_is_corpse, "Corpses");
@@ -1989,7 +1977,7 @@ static void _build_statistics(doc_ptr doc)
     _object_counts_imp(doc, TV_POTION, SV_POTION_EXPERIENCE);
     _group_counts_tval_imp(doc, TV_POTION, "Totals");
 
-    doc_printf(doc, "\n  <color:G>Scrolls              Found Bought  Used  Dest  Fail</color>\n");
+    doc_printf(doc, "\n  <color:G>Scrolls              Found Bought  Used  Dest</color>\n");
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_IDENTIFY);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
@@ -2001,12 +1989,13 @@ static void _build_statistics(doc_ptr doc)
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_GENOCIDE);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_MASS_GENOCIDE);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_FOREST_CREATION);
+    _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_BANISHMENT);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_ACQUIREMENT);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT);
     _object_counts_imp(doc, TV_SCROLL, SV_SCROLL_ARTIFACT);
     _group_counts_tval_imp(doc, TV_SCROLL, "Totals");
 
-    doc_printf(doc, "\n  <color:G>Wands                Found Bought  Used  Dest  Fail</color>\n");
+    doc_printf(doc, "\n  <color:G>Wands                Found Bought  Used  Dest</color>\n");
     if (p_ptr->wizard)
     {
         for (i = 0; ; i++)
@@ -2032,7 +2021,7 @@ static void _build_statistics(doc_ptr doc)
     }
     _group_counts_tval_imp(doc, TV_WAND, "Totals");
 
-    doc_printf(doc, "\n  <color:G>Staves               Found Bought  Used  Dest  Fail</color>\n");
+    doc_printf(doc, "\n  <color:G>Staves               Found Bought  Used  Dest</color>\n");
     if (p_ptr->wizard)
     {
         for (i = 0; ; i++)
@@ -2060,7 +2049,7 @@ static void _build_statistics(doc_ptr doc)
     }
     _group_counts_tval_imp(doc, TV_STAFF, "Totals");
 
-    doc_printf(doc, "\n  <color:G>Rods                 Found Bought  Used  Dest  Fail</color>\n");
+    doc_printf(doc, "\n  <color:G>Rods                 Found Bought  Used  Dest</color>\n");
     if (p_ptr->wizard)
     {
         for (i = 0; ; i++)
@@ -2113,9 +2102,9 @@ static void _build_statistics(doc_ptr doc)
 
     doc_printf(doc, "\n  <color:G>Egos                 Found Bought  Dest</color>\n");
     _ego_counts_imp(doc, EGO_RING_SPEED, "Ring of Speed");
-    _ego_counts_imp(doc, EGO_RING_DEFENDER, "Ring (Defender)");
-    _ego_counts_imp(doc, EGO_AMULET_DEFENDER, "Amulet (Defender)");
+    _ego_counts_imp(doc, EGO_JEWELRY_DEFENDER, "Ring/Amulet (Defender)");
     _ego_counts_imp(doc, EGO_BOOTS_ELVENKIND, "Boots of Elvenkind");
+    _ego_counts_imp(doc, EGO_BOOTS_SPRITE, "Boots of the Sprite");
     _ego_counts_imp(doc, EGO_BOOTS_SPEED, "Boots of Speed");
     _ego_counts_imp(doc, EGO_BOOTS_FEANOR, "Boots of Feanor");
 
@@ -2303,6 +2292,9 @@ static void _build_options(doc_ptr doc)
 
     if (easy_id)
         doc_printf(doc, " Easy Identify:      On\n");
+
+    if (easy_lore)
+        doc_printf(doc, " Easy Lore:          On\n");
 
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");

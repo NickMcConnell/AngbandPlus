@@ -5,16 +5,18 @@
 # across a range of different makefiles, to cut down on maintenance.
 #
 
-VERSION = 3.0.0
+VERSION = 4.0.3
 COPYRIGHT = (c) 1995-2013 Angband contributors
 
 HEADERS = \
 	h-basic.h \
 	h-define.h h-type.h h-system.h h-config.h angband.h \
 	z-config.h defines.h types.h externs.h \
-	z-term.h z-rand.h z-util.h z-virt.h z-form.h
+    c-string.h c-vec.h \
+    z-term.h z-rand.h z-util.h z-virt.h z-form.h z-doc.h
 
-ZFILES = z-form.o z-rand.o z-term.o z-util.o z-virt.o
+CFILES = c-string.o c-vec.o
+ZFILES = z-doc.o z-form.o z-rand.o z-term.o z-util.o z-virt.o
 
 # MAINFILES is defined by autotools (or manually) to be combinations of these
 
@@ -33,23 +35,23 @@ X11MAINFILES = main-x11.o
 ANGFILES = \
 	archaeologist.o archer.o artifact.o autopick.o virtue.o bard.o \
 	beastmaster.o berserker.o birth.o bldg.o blood_knight.o blood_mage.o blue_mage.o \
-	cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
+    cavalry.o cave.o chaos_warrior.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o \
 	cmd6.o combat.o demigod.o devicemaster.o devices.o do-spell.o doppelganger.o duelist.o dungeon.o \
 	effects.o equip.o fear.o files.o flavor.o floors.o force_trainer.o generate.o \
-	grid.o hex.o high_mage.o hissatsu.o imitator.o init1.o init2.o load.o mage.o \
-	magic_eater.o mauler.o melee1.o melee2.o menu.o mindcrafter.o mirror_master.o \
+    grid.o hex.o high_mage.o hissatsu.o imitator.o init1.o init2.o int-map.o load.o mage.o \
+    magic_eater.o mauler.o melee1.o melee2.o menu.o message.o mindcrafter.o mirror_master.o \
 	monk.o monster.o monster1.o monster2.o mspells1.o mspells2.o mspells3.o mut.o \
-	mut_a.o mystic.o necromancer.o ninja.o object1.o object2.o object3.o obj_kind.o paladin.o \
-	priest.o psion.o races.o races_a.o races_k.o races_mimic.o race_angel.o \
+    mut_a.o mystic.o necromancer.o ninja.o obj_display.o object1.o object2.o object3.o obj_kind.o paladin.o \
+    personality.o priest.o psion.o py_display.o races.o races_a.o races_k.o races_mimic.o race_angel.o \
     race_beholder.o race_centipede.o race_demon.o race_dragon.o race_elemental.o race_giant.o race_golem.o \
 	race_hound.o race_hydra.o race_jelly.o race_leprechaun.o race_lich.o race_mimic.o race_possessor.o race_quylthulg.o race_spider.o \
-    race_ring.o race_sword.o race_troll.o race_vampire.o race_xorn.o racial.o rage-mage.o ranger.o red_mage.o \
+    race_ring.o race_sword.o race_troll.o race_vampire.o race_xorn.o racial.o rage-mage.o ranger.o rect.o red_mage.o \
 	resist.o rogue.o rooms.o rune_knight.o samurai.o save.o savefile.o scores.o scout.o \
 	skills.o sniper.o sorcerer.o spells.o spells1.o spells2.o spells3.o spells_a.o \
-	spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o store.o streams.o \
+    spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o store.o str-map.o streams.o \
 	tables.o time_lord.o tourist.o util.o variable.o variant.o warlock.o warrior.o \
 	warrior_mage.o weaponmaster.o weaponsmith.o wild.o wild_realm.o wild_talent.o \
-    wizard1.o wizard2.o xtra1.o xtra2.o int-map.o str-map.o \
-    c-string.o z-doc.o c-vec.o message.o rect.o obj_display.o personality.o py_display.o
+    wizard1.o wizard2.o xtra1.o xtra2.o \
+    mon_display.o ego.o
 
 

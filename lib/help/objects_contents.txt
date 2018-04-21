@@ -9,6 +9,7 @@ Please choose one of the following online help files:
     <link:objects.txt#Quality> How Good is this Object, Anyway?
     <link:objects.txt#Flavors> Object Flavors
     <link:objects.txt#Jewelry> Jewelry
+    <link:objects.txt#Lore> Object Lore
     <link:objects.txt#Devices> Devices
     <link:objects.txt#Spellbooks> Spellbooks
     <link:objects.txt#Inscriptions> Object Inscriptions

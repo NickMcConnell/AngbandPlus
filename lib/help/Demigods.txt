@@ -324,4 +324,4 @@ You resist the Eldritch Horror.</indent>
 
 
 
-<color:s>Automatically generated for PosChengband 4.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.0.</color>

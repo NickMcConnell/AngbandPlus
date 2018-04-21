@@ -532,131 +532,131 @@ static void _calc_bonuses(void) {
     }
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     int tier = _find_tier(p_ptr->current_r_idx);
     if (tier > 3)
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
 
     switch (p_ptr->current_r_idx)
     {
     case MON_LIGHT_HOUND:
-        add_flag(flgs, TR_RES_LITE);
+        add_flag(flgs, OF_RES_LITE);
         break;
     case MON_SHADOW_HOUND:
-        add_flag(flgs, TR_RES_DARK);
-        add_flag(flgs, TR_VULN_LITE);
+        add_flag(flgs, OF_RES_DARK);
+        add_flag(flgs, OF_VULN_LITE);
         break;
     case MON_FIRE_HOUND:
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_VULN_COLD);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_VULN_COLD);
         break;
     case MON_COLD_HOUND:
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_VULN_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_VULN_FIRE);
         break;
     case MON_ENERGY_HOUND:
-        add_flag(flgs, TR_RES_ELEC);
+        add_flag(flgs, OF_RES_ELEC);
         break;
     case MON_AIR_HOUND:
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_POIS);
         break;
     case MON_WATER_HOUND:
-        add_flag(flgs, TR_RES_ACID);
+        add_flag(flgs, OF_RES_ACID);
         break;
     case MON_EARTH_HOUND:
-        add_flag(flgs, TR_RES_SHARDS);
+        add_flag(flgs, OF_RES_SHARDS);
         break;
     case MON_VIBRATION_HOUND:
-        add_flag(flgs, TR_RES_SOUND);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_NEXUS_HOUND:
-        add_flag(flgs, TR_RES_NEXUS);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_RES_NEXUS);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_MULTI_HUED_HOUND:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ACID);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_INERTIA_HOUND:
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_IMPACT_HOUND:
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_NETHER_HOUND:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_GRAVITY_HOUND:
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_TIME_HOUND:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_TIME);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_PLASMA_HOUND:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_CHAOS_HOUND:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_CHAOS);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_HOUND_OF_TINDALOS:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_RES_TIME);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_LEVITATION);
         break;
     case MON_MANA_HOUND:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     case MON_AETHER_HOUND:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ACID);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_LITE);
-        add_flag(flgs, TR_RES_DARK);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_RES_NEXUS);
-        add_flag(flgs, TR_RES_SOUND);
-        add_flag(flgs, TR_RES_SHARDS);
-        add_flag(flgs, TR_RES_CHAOS);
-        add_flag(flgs, TR_RES_DISEN);
-        add_flag(flgs, TR_RES_TIME);
-        add_flag(flgs, TR_SH_COLD);
-        add_flag(flgs, TR_SH_FIRE);
-        add_flag(flgs, TR_SH_ELEC);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_LITE);
+        add_flag(flgs, OF_RES_DARK);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_NEXUS);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_SHARDS);
+        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_RES_DISEN);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_AURA_COLD);
+        add_flag(flgs, OF_AURA_FIRE);
+        add_flag(flgs, OF_AURA_ELEC);
+        add_flag(flgs, OF_FREE_ACT);
         break;
     }
 }

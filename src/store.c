@@ -99,7 +99,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
     s32b    price;
 
     /* Get the value of one of the items */
-    price = object_value(o_ptr);
+    price = obj_value(o_ptr);
 
     /* Worthless items */
     if (price <= 0) return 0;
@@ -149,7 +149,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 void discount(object_type *o_ptr)
 {
     int discount = 0;
-    s32b cost = object_value(o_ptr);
+    s32b cost = obj_value(o_ptr);
 
     if (cost < 5)
     {
@@ -247,8 +247,8 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
     if (object_is_artifact(o_ptr) || object_is_artifact(j_ptr)) return (0);
 
     /* Hack -- Identical art_flags! */
-    for (i = 0; i < TR_FLAG_SIZE; i++)
-        if (o_ptr->art_flags[i] != j_ptr->art_flags[i]) return (0);
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+        if (o_ptr->flags[i] != j_ptr->flags[i]) return (0);
 
     /* Hack -- Never stack "powerful" items */
     if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
@@ -383,9 +383,9 @@ static int store_check_num(object_type *o_ptr)
 
 static bool is_blessed(object_type *o_ptr)
 {
-    u32b flgs[TR_FLAG_SIZE];
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_BLESSED)) return (TRUE);
+    u32b flgs[OF_ARRAY_SIZE];
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_BLESSED)) return (TRUE);
     else return (FALSE);
 }
 
@@ -607,7 +607,7 @@ static bool store_will_buy(object_type *o_ptr)
     }
 
     /* XXX XXX XXX Ignore "worthless" items */
-    if (object_value(o_ptr) <= 0) return (FALSE);
+    if (obj_value(o_ptr) <= 0) return (FALSE);
 
     /* Assume okay */
     return (TRUE);
@@ -718,7 +718,7 @@ bool combine_and_reorder_home(int store_num)
         if (!o_ptr->k_idx) continue;
 
         /* Get the "value" of the item */
-        o_value = object_value(o_ptr);
+        o_value = obj_value(o_ptr);
 
         /* Scan every occupied slot */
         for (j = 0; j < st_ptr->stock_num; j++)
@@ -828,7 +828,7 @@ static int home_carry(object_type *o_ptr)
 
 
     /* Determine the "value" of the item */
-    value = object_value(o_ptr);
+    value = obj_value(o_ptr);
 
     /* Check existing slots to see if we must "slide" */
     for (slot = 0; slot < st_ptr->stock_num; slot++)
@@ -878,13 +878,13 @@ static int store_carry(object_type *o_ptr)
 
 
     /* Evaluate the object */
-    value = object_value(o_ptr);
+    value = obj_value(o_ptr);
 
     /* Cursed/Worthless items "disappear" when sold */
     if (value <= 0) return (-1);
 
     /* All store items are fully *identified* */
-    o_ptr->ident |= IDENT_FULL;
+    o_ptr->ident |= IDENT_STORE;
 
     /* Erase the inscription */
     o_ptr->inscription = 0;
@@ -935,7 +935,7 @@ static int store_carry(object_type *o_ptr)
         }
 
         /* Evaluate that slot */
-        j_value = object_value(j_ptr);
+        j_value = obj_value(j_ptr);
 
         /* Objects sort by decreasing value */
         if (value > j_value) break;
@@ -1087,12 +1087,12 @@ static void store_delete(void)
  */
 static bool _town_accept_aux(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (k_info[k_idx].gen_flags & OFG_INSTA_ART)
         return FALSE;
 
     if (p_ptr->town_num != SECRET_TOWN)
     {
-        if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+        if (!(k_info[k_idx].gen_flags & OFG_TOWN))
             return FALSE;
     }
     return TRUE;
@@ -1152,7 +1152,7 @@ static bool _weapon_accept(int k_idx)
     case TV_RAGE_BOOK:
         if (p_ptr->town_num == SECRET_TOWN && !one_in_(20))
         {
-            if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+            if (!(k_info[k_idx].gen_flags & OFG_TOWN))
                 return FALSE;
         }
         return TRUE;
@@ -1194,7 +1194,7 @@ static bool _temple_accept(int k_idx)
     case TV_CRUSADE_BOOK:
         if (p_ptr->town_num == SECRET_TOWN && !one_in_(20))
         {
-            if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+            if (!(k_info[k_idx].gen_flags & OFG_TOWN))
                 return FALSE;
         }
         return TRUE;
@@ -1241,7 +1241,7 @@ static bool _alchemist_accept(int k_idx)
 
     if (p_ptr->town_num == SECRET_TOWN && !one_in_(20))
     {
-        if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+        if (!(k_info[k_idx].gen_flags & OFG_TOWN))
             return FALSE;
     }
 
@@ -1268,7 +1268,7 @@ static bool _magic_accept(int k_idx)
     case TV_STAFF:
         if (p_ptr->town_num == SECRET_TOWN && !one_in_(10))
         {
-            if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+            if (!(k_info[k_idx].gen_flags & OFG_TOWN))
                 return FALSE;
         }
         return TRUE;
@@ -1280,7 +1280,7 @@ static bool _magic_accept(int k_idx)
     case TV_SORCERY_BOOK: 
         if (p_ptr->town_num == SECRET_TOWN && !one_in_(20))
         {
-            if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+            if (!(k_info[k_idx].gen_flags & OFG_TOWN))
                 return FALSE;
         }
         return TRUE;
@@ -1295,7 +1295,7 @@ static bool _book_accept(int k_idx)
 
     if (p_ptr->town_num == SECRET_TOWN && !one_in_(10))
     {
-        if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+        if (!(k_info[k_idx].gen_flags & OFG_TOWN))
             return FALSE;
     }
 
@@ -1320,7 +1320,7 @@ static bool _book_accept(int k_idx)
 
 static bool _jeweler_accept(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (k_info[k_idx].gen_flags & OFG_INSTA_ART)
         return FALSE;
 
     switch (k_info[k_idx].tval)
@@ -1418,27 +1418,34 @@ static bool _get_store_obj(object_type *o_ptr)
     }
     else if (cur_store_num == STORE_MAGIC && one_in_(20))
     {
-        /* Hack: Early resists are hard to find, and Archviles are so damn nasty! */
+        /* Hack: Early resists are hard to find, and Archviles are so damn nasty!
+           BTW, since we are cheating and not using normal ego generation code, we'll
+           need to manually add to ego_type.xtra_flags. This will improve the
+           player's lore experience should they purchase or examine this item
+           of stock. */
         if (one_in_(5))
         {
             object_prep(o_ptr, lookup_kind(TV_AMULET, 0));
-            o_ptr->name2 = EGO_AMULET_ELEMENTAL;
+            o_ptr->name2 = EGO_JEWELRY_ELEMENTAL;
         }
         else
         {
             object_prep(o_ptr, lookup_kind(TV_RING, 0));
-            o_ptr->name2 = EGO_RING_ELEMENTAL;
+            o_ptr->name2 = EGO_JEWELRY_ELEMENTAL;
         }
         switch (randint1(5))
         {
         case 1: case 2:
-            add_flag(o_ptr->art_flags, TR_RES_COLD);
+            add_flag(o_ptr->flags, OF_RES_COLD);
+            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_COLD);
             break;
         case 3: case 4:
-            add_flag(o_ptr->art_flags, TR_RES_FIRE);
+            add_flag(o_ptr->flags, OF_RES_FIRE);
+            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_FIRE);
             break;
         case 5:
-            add_flag(o_ptr->art_flags, TR_RES_ACID);
+            add_flag(o_ptr->flags, OF_RES_ACID);
+            add_flag(e_info[EGO_JEWELRY_ELEMENTAL].xtra_flags, OF_RES_ACID);
             break;
         }
         return TRUE;
@@ -1500,7 +1507,7 @@ static void store_create(void)
         if (!_get_store_obj(&forge)) continue;
 
         /* The item is "known" */
-        object_known(&forge);
+        obj_identify(&forge);
 
         /* Mark it storebought */
         forge.ident |= IDENT_STORE;
@@ -1515,7 +1522,7 @@ static void store_create(void)
             if (black_market_crap(&forge)) continue;
 
             /* Hack -- No "cheap" items */
-            if (object_value(&forge) < 10) continue;
+            if (obj_value(&forge) < 10) continue;
 
             /* No "worthless" items */
             /* if (object_value(q_ptr) <= 0) continue; */
@@ -1526,7 +1533,7 @@ static void store_create(void)
         else
         {
             /* No "worthless" items */
-            if (object_value(&forge) <= 0) continue;
+            if (obj_value(&forge) <= 0) continue;
             if (object_is_cursed(&forge)) continue;
         }
 
@@ -1608,7 +1615,7 @@ static void display_entry(int pos)
         }
         if (cur_store_num == STORE_HOME)
         {
-            int score = object_value(o_ptr);
+            int score = obj_value(o_ptr);
             if (score)
             {
                 (void)sprintf(out_val, "%9d ", score);
@@ -2074,10 +2081,6 @@ static void store_purchase(void)
                 /* Update the display */
                 store_prt_gold();
 
-                /* Hack -- buying an item makes you aware of it */
-                object_aware(j_ptr);
-                ego_aware(j_ptr);
-
                 /* Hack -- clear the "fixed" flag from the item */
                 j_ptr->ident &= ~(IDENT_FIXED);
 
@@ -2088,6 +2091,9 @@ static void store_purchase(void)
                 j_ptr->feeling = FEEL_NONE;
                 j_ptr->ident &= ~(IDENT_STORE);
                 j_ptr->marked &= ~(OM_RESERVED);
+
+                /* Hack -- buying an item makes you aware of it */
+                obj_identify_fully(j_ptr);
 
                 /* Give it to the player */
                 stats_on_purchase(j_ptr);
@@ -2315,7 +2321,7 @@ static void store_sell(void)
             msg_print("Hmmm, it seems to be cursed.");
             return;
         }
-        if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+        if (have_flag(o_ptr->flags, OF_NO_REMOVE))
         {
             msg_print("You can't sell yourself, silly!");
             return;
@@ -2407,8 +2413,8 @@ static void store_sell(void)
             store_prt_gold();
 
             /* Identify it */
-            stats_on_sell(o_ptr); /* before identify, please! */
-            identify_item(o_ptr);
+            stats_on_sell(o_ptr);
+            obj_identify_fully(o_ptr);
 
             /* Get local object */
             q_ptr = &forge;
@@ -2451,9 +2457,8 @@ static void store_sell(void)
             /* Handle stuff */
             handle_stuff();
 
-            /* The store gets that (known) item */
+            /* The store gets that item */
             item_pos = store_carry(q_ptr);
-            ego_aware(q_ptr);
 
             /* Re-display if item is now in store */
             if (item_pos >= 0)
@@ -2481,10 +2486,8 @@ static void store_sell(void)
         if (!get_check(format("Really give %s to the Museum? ", o2_name))) return;
 
         /* Identify it */
-        stats_on_sell(o_ptr); /* before identify, please! */
-        identify_item(q_ptr);
-        q_ptr->ident |= IDENT_FULL;
-        ego_aware(q_ptr);
+        stats_on_sell(o_ptr); /* before identify, please! ... Why? */
+        obj_identify_fully(o_ptr);
 
         /* Distribute charges of wands/rods */
         distribute_charges(o_ptr, q_ptr, amt);
@@ -2539,7 +2542,7 @@ static void store_sell(void)
     }
 
     if (equip_is_valid_slot(item))
-        calc_android_exp();
+        android_calc_exp();
 }
 
 
@@ -2551,7 +2554,6 @@ static void store_examine(void)
     int         i;
     int         item;
     object_type *o_ptr;
-    char        o_name[MAX_NLEN];
     char        out_val[160];
 
 
@@ -2580,7 +2582,6 @@ static void store_examine(void)
     /* Prompt */
     sprintf(out_val, "Which item do you want to examine? ");
 
-
     /* Get the item number to be examined */
     if (!get_stock(&item, out_val, 0, i - 1)) return;
 
@@ -2590,26 +2591,9 @@ static void store_examine(void)
     /* Get the actual item */
     o_ptr = &st_ptr->stock[item];
 
-    /* Require full knowledge */
-    if (!(o_ptr->ident & IDENT_FULL))
-    {
-        /* This can only happen in the home */
-        msg_print("You have no special knowledge about that item.");
-
-        return;
-    }
-
-    /* Description */
-    object_desc(o_name, o_ptr, 0);
-
-    /* Describe
-    msg_format("Examining %s...", o_name);*/
-
-
-    /* Describe it fully */
-    ego_aware(o_ptr);
+    if (cur_store_num != STORE_HOME)
+        obj_identify_fully(o_ptr);
     obj_display(o_ptr);
-
     return;
 }
 
@@ -3727,12 +3711,12 @@ static void _buyout(void)
             total_price += price;
             store_prt_gold();
 
-            object_aware(j_ptr);
             j_ptr->ident &= ~(IDENT_FIXED);
             j_ptr->inscription = 0;
             j_ptr->feeling = FEEL_NONE;
             j_ptr->ident &= ~(IDENT_STORE);
             j_ptr->marked &= ~(OM_RESERVED);
+            obj_identify_fully(j_ptr);
 
             if (!destroy)
             {

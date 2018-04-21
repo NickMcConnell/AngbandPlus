@@ -163,4 +163,4 @@ Death          <color:D>Very Bad     </color> <color:D>Very Bad     </color> <co
 </style>
 
 
-<color:s>Automatically generated for PosChengband 4.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.0.</color>

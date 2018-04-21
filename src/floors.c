@@ -1286,7 +1286,7 @@ void change_floor(void)
                     else
                     {
                         /* Cancel preserve */
-                        a_info[o_ptr->name1].cur_num = 1;
+                        a_info[o_ptr->name1].generated = TRUE;
                     }
                 }
                 if (o_ptr->name3)
@@ -1294,7 +1294,7 @@ void change_floor(void)
                     if (a_info[o_ptr->name3].floor_id != new_floor_id)
                         delete_object_idx(i);
                     else
-                        a_info[o_ptr->name3].cur_num = 1;
+                        a_info[o_ptr->name3].generated = TRUE;
                 }
             }
 

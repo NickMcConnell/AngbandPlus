@@ -270,7 +270,7 @@ static void _calc_bonuses(void)
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;
 
-    p_ptr->super_regenerate = TRUE; /* cf process_world_aux_hp_and_sp() in dungeon.c for the troll's special regeneration */
+    p_ptr->regen += 100 + 8*p_ptr->lev;
     switch (p_ptr->current_r_idx)
     {
     case MON_FOREST_TROLL:
@@ -331,65 +331,65 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, TR_REGEN);
+    add_flag(flgs, OF_REGEN);
     switch (p_ptr->current_r_idx)
     {
     case MON_FOREST_TROLL:
-        add_flag(flgs, TR_VULN_LITE);
+        add_flag(flgs, OF_VULN_LITE);
         break;
     case MON_STONE_TROLL:
-        add_flag(flgs, TR_VULN_LITE);
+        add_flag(flgs, OF_VULN_LITE);
         break;
     case MON_ICE_TROLL:
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_BRAND_COLD);
-        add_flag(flgs, TR_VULN_LITE);
-        add_flag(flgs, TR_VULN_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_BRAND_COLD);
+        add_flag(flgs, OF_VULN_LITE);
+        add_flag(flgs, OF_VULN_FIRE);
         break;
     case MON_FIRE_TROLL:
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_BRAND_FIRE);
-        add_flag(flgs, TR_VULN_LITE);
-        add_flag(flgs, TR_VULN_COLD);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_BRAND_FIRE);
+        add_flag(flgs, OF_VULN_LITE);
+        add_flag(flgs, OF_VULN_COLD);
         break;
     case MON_ALGROTH:
-        add_flag(flgs, TR_BRAND_POIS);
+        add_flag(flgs, OF_BRAND_POIS);
         break;
     case MON_AKLASH:
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_ACID);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_ACID);
         break;
     case MON_OLOG:
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_POIS);
         break;
     case MON_ETTIN:
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_CONF);
         break;
     case MON_SPIRIT_TROLL:
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_SEE_INVIS);
-        add_flag(flgs, TR_LEVITATION);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_SEE_INVIS);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_CONF);
         break;
     case MON_STORM_TROLL:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_ACID);
-        add_flag(flgs, TR_BRAND_ELEC);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_BRAND_ELEC);
         break;
     case MON_TROLL_KING:
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_CONF);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_CONF);
         break;
     }
 }
@@ -399,16 +399,16 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     switch (p_ptr->current_r_idx)
     {
     case MON_ICE_TROLL:
-        add_flag(info_ptr->flags, TR_BRAND_COLD);
+        add_flag(info_ptr->flags, OF_BRAND_COLD);
         break;
     case MON_FIRE_TROLL:
-        add_flag(info_ptr->flags, TR_BRAND_FIRE);
+        add_flag(info_ptr->flags, OF_BRAND_FIRE);
         break;
     case MON_ALGROTH:
-        add_flag(info_ptr->flags, TR_BRAND_POIS);
+        add_flag(info_ptr->flags, OF_BRAND_POIS);
         break;
     case MON_STORM_TROLL:
-        add_flag(info_ptr->flags, TR_BRAND_ELEC);
+        add_flag(info_ptr->flags, OF_BRAND_ELEC);
         break;
     case MON_TROLL_KING:
         info_ptr->to_d += 10;

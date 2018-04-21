@@ -2890,7 +2890,7 @@ bool mon_spell_mon(int m_idx, int options)
             {
                 if ((tr_ptr->flags1 & RF1_UNIQUE) || (tr_ptr->flagsr & RFR_RES_ALL))
                 {
-                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    mon_lore_r(t_ptr, RFR_RES_TELE);
                     if (see_t)
                     {
                         msg_format("%^s is unaffected!", t_name);
@@ -2900,7 +2900,7 @@ bool mon_spell_mon(int m_idx, int options)
                 }
                 else if (tr_ptr->level > randint1(100))
                 {
-                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    mon_lore_r(t_ptr, RFR_RES_TELE);
                     if (see_t)
                     {
                         msg_format("%^s resists!", t_name);
@@ -2941,7 +2941,7 @@ bool mon_spell_mon(int m_idx, int options)
             {
                 if ((tr_ptr->flags1 & RF1_UNIQUE) || (tr_ptr->flagsr & RFR_RES_ALL))
                 {
-                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    mon_lore_r(t_ptr, RFR_RES_TELE);
                     if (see_t)
                     {
                         msg_format("%^s is unaffected!", t_name);
@@ -2951,7 +2951,7 @@ bool mon_spell_mon(int m_idx, int options)
                 }
                 else if (tr_ptr->level > randint1(100))
                 {
-                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    mon_lore_r(t_ptr, RFR_RES_TELE);
                     if (see_t)
                     {
                         msg_format("%^s resists!", t_name);
@@ -3714,25 +3714,16 @@ bool mon_spell_mon(int m_idx, int options)
     if (can_remember)
     {
         /* Inate spell */
-        if (thrown_spell < 32*4)
-        {
-            r_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
-            if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
-        }
+        if (thrown_spell < 32 * 4)
+            mon_lore_aux_4(r_ptr, 1 << (thrown_spell - 32 * 3));
 
         /* Bolt or Ball */
-        else if (thrown_spell < 32*5)
-        {
-            r_ptr->r_flags5 |= (1L << (thrown_spell - 32*4));
-            if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
-        }
+        else if (thrown_spell < 32 * 5)
+            mon_lore_aux_5(r_ptr, 1 << (thrown_spell - 32 * 4));
 
         /* Special spell */
-        else if (thrown_spell < 32*6)
-        {
-            r_ptr->r_flags6 |= (1L << (thrown_spell - 32*5));
-            if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
-        }
+        else if (thrown_spell < 32 * 6)
+            mon_lore_aux_6(r_ptr, 1 << (thrown_spell - 32 * 5));
     }
 
     /* Always take note of monsters that kill you */

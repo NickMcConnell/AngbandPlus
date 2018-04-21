@@ -17,6 +17,9 @@ This option simplifies the identification of objects, making Identify work just 
 
 In addition, this birth option will also affect the early game pseudo-identification of objects. Normally, objects must be carried in your pack for some time before you become aware of their quality. The length of time is class dependent, as is the amount of information revealed through pseudo-identification (see <link:objects.txt#Pseudo-ID>). With <color:keyword>Easy Identify</color> enabled, all players will get instantaneous and full pseudo-identification of objects, making this aspect of gameplay much easier as well.
 
+<topic:easy_lore><color:U>Easy Lore</color> <color:D>(easy_lore)</color>
+With this option enabled, the player will be born with complete knowledge of monster lore, including the various attacks and nasty surprises that many monsters usually offer to the uninitiated. This is a bit of a spoiler option, but is available for those who don't enjoy learning each of the many monsters present in the game. Like the <color:U>Easy Identify</color> option, <color:U>Easy Lore</color> also renders a few aspects of the game non-functional or pointless, including the ability to <color:keyword>Probe</color> monsters to learn about them as you encounter them, and the town <color:keyword>Beastmaster Lore</color> service to learn about monsters before you see them (for a price, of course).
+
 <topic:smart_learn><color:U>Monsters learn from their mistakes</color> <color:D>(smart_learn)</color>
 Allow monsters to learn what spell attacks you are resistant to, and to use this information to choose the best attacks.
 

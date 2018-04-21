@@ -67,7 +67,7 @@ void on_p_hit_m(int m_idx)
 
         if (r_ptr->flags3 & RF3_NO_CONF)
         {
-            if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
+            mon_lore_3(m_ptr, RF3_NO_CONF);
             msg_format("%^s is unaffected.", m_name);
         }
         else if (randint0(100) < r_ptr->level)
@@ -540,12 +540,12 @@ static void _calc_bonuses(void)
     if (p_ptr->lev >= 35) res_add(RES_POIS);
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 5) add_flag(flgs, TR_RES_COLD);
-    if (p_ptr->lev >= 15) add_flag(flgs, TR_SEE_INVIS);
-    if (p_ptr->lev >= 25) add_flag(flgs, TR_HOLD_LIFE);
-    if (p_ptr->lev >= 35) add_flag(flgs, TR_RES_POIS);
+    if (p_ptr->lev >= 5) add_flag(flgs, OF_RES_COLD);
+    if (p_ptr->lev >= 15) add_flag(flgs, OF_SEE_INVIS);
+    if (p_ptr->lev >= 25) add_flag(flgs, OF_HOLD_LIFE);
+    if (p_ptr->lev >= 35) add_flag(flgs, OF_RES_POIS);
 }
 
 static int _get_powers(spell_info* spells, int max)

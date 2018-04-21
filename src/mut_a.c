@@ -620,7 +620,7 @@ void draconian_lore_mut(int cmd, variant *res)
         var_set_string(res, "Items will automatically identify as you pick them up.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->loremaster = TRUE;
+        p_ptr->auto_id = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -661,7 +661,10 @@ void draconian_metamorphosis_mut(int cmd, variant *res)
         var_set_string(res, "You have metamorphosed into a Dragon!");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "Your body will transform into a dragon (e.g. 6 ring slots and no weapons)");
+        if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
+            var_set_string(res, "Your body will transform into a dragon (e.g. 6 ring slots and no weapons). WARNING: You will lose access to martial arts!");
+        else
+            var_set_string(res, "Your body will transform into a dragon (e.g. 6 ring slots and no weapons)");
         break;
     default:
         default_spell(cmd, res);
@@ -683,7 +686,7 @@ void draconian_regen_mut(int cmd, variant *res)
         var_set_string(res, "You will regenerate much more quickly.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->super_regenerate = TRUE;
+        p_ptr->regen += 150;
         break;
     default:
         default_spell(cmd, res);
@@ -1641,7 +1644,7 @@ void loremaster_mut(int cmd, variant *res)
         var_set_string(res, "Items will automatically identify as you pick them up.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->loremaster = TRUE;
+        p_ptr->auto_id = TRUE;
         break;
     default:
         default_spell(cmd, res);
@@ -2139,7 +2142,7 @@ void regeneration_mut(int cmd, variant *res)
         var_set_string(res, "You are regenerating.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->regenerate = TRUE;
+        p_ptr->regen += 100;
         break;
     default:
         default_spell(cmd, res);
@@ -2189,7 +2192,7 @@ void rotting_flesh_mut(int cmd, variant *res)
         var_set_string(res, "Your flesh is rotting (-2 CON, -1 CHR).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->regenerate = FALSE; /* Equip and spells processed later ... */
+        p_ptr->regen -= 100;
         break;
     default:
         default_spell(cmd, res);

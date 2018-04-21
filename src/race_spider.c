@@ -142,11 +142,11 @@ static void _cave_spider_calc_bonuses(void)
     res_add_vuln(RES_LITE);
     p_ptr->see_nocto = TRUE;
 }
-static void _cave_spider_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _cave_spider_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_RES_DARK);
-    add_flag(flgs, TR_VULN_LITE);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_VULN_LITE);
 }
 race_t *_cave_spider_get_race_t(void)
 {
@@ -204,9 +204,9 @@ static void _giant_spider_calc_bonuses(void)
     res_add(RES_POIS);
     p_ptr->see_nocto = TRUE;
 }
-static void _giant_spider_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _giant_spider_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_POIS);
+    add_flag(flgs, OF_RES_POIS);
 }
 race_t *_giant_spider_get_race_t(void)
 {
@@ -310,14 +310,14 @@ static void _phase_spider_calc_bonuses(void)
     p_ptr->free_act = TRUE;
     p_ptr->see_nocto = TRUE;
 }
-static void _phase_spider_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _phase_spider_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_RES_NEXUS);
-    add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_FREE_ACT);
+    add_flag(flgs, OF_SPEED);
+    add_flag(flgs, OF_RES_NEXUS);
+    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_FREE_ACT);
 
-    add_flag(flgs, TR_IM_POIS);
+    add_flag(flgs, OF_IM_POIS);
 }
 race_t *_phase_spider_get_race_t(void)
 {
@@ -391,15 +391,15 @@ static void _aranea_calc_bonuses(void)
     p_ptr->free_act = TRUE;
     p_ptr->see_nocto = TRUE;
 }
-static void _aranea_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _aranea_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_RES_DARK);
-    add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_RES_FEAR);
-    add_flag(flgs, TR_FREE_ACT);
+    add_flag(flgs, OF_SPEED);
+    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_FREE_ACT);
 
-    add_flag(flgs, TR_IM_POIS);
+    add_flag(flgs, OF_IM_POIS);
 }
 race_t *_aranea_get_race_t(void)
 {
@@ -471,25 +471,25 @@ static void _elder_aranea_calc_bonuses(void)
 
     p_ptr->free_act = TRUE;
     p_ptr->see_inv = TRUE;
-    p_ptr->regenerate = TRUE;
+    p_ptr->regen += 100;
     p_ptr->see_nocto = TRUE;
 }
-static void _elder_aranea_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _elder_aranea_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_RES_FIRE);
-    add_flag(flgs, TR_RES_NETHER);
-    add_flag(flgs, TR_RES_DISEN);
-    add_flag(flgs, TR_RES_DARK);
-    add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_RES_FEAR);
+    add_flag(flgs, OF_SPEED);
+    add_flag(flgs, OF_RES_FIRE);
+    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_DISEN);
+    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_FEAR);
 
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_REGEN);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_REGEN);
 
-    add_flag(flgs, TR_IM_POIS);
-    add_flag(flgs, TR_VULN_LITE);
+    add_flag(flgs, OF_IM_POIS);
+    add_flag(flgs, OF_VULN_LITE);
 }
 race_t *_elder_aranea_get_race_t(void)
 {
@@ -571,7 +571,7 @@ static void _birth(void)
     forge.to_h = 7;
     forge.to_d = 2;
     forge.pval = 1;
-    add_flag(forge.art_flags, TR_DEX);
+    add_flag(forge.flags, OF_DEX);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));

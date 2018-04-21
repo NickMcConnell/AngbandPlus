@@ -86,40 +86,75 @@ void wr_item(savefile_ptr file, object_type *o_ptr)
         savefile_write_byte(file, SAVE_ITEM_MARKED);
         savefile_write_u32b(file, o_ptr->marked);
     }
-    if (o_ptr->art_flags[0])
+    if (o_ptr->flags[0])
     {
         savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_0);
-        savefile_write_u32b(file, o_ptr->art_flags[0]);
+        savefile_write_u32b(file, o_ptr->flags[0]);
     }
-    if (o_ptr->art_flags[1])
+    if (o_ptr->flags[1])
     {
         savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_1);
-        savefile_write_u32b(file, o_ptr->art_flags[1]);
+        savefile_write_u32b(file, o_ptr->flags[1]);
     }
-    if (o_ptr->art_flags[2])
+    if (o_ptr->flags[2])
     {
         savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_2);
-        savefile_write_u32b(file, o_ptr->art_flags[2]);
+        savefile_write_u32b(file, o_ptr->flags[2]);
     }
-    if (o_ptr->art_flags[3])
+    if (o_ptr->flags[3])
     {
         savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_3);
-        savefile_write_u32b(file, o_ptr->art_flags[3]);
+        savefile_write_u32b(file, o_ptr->flags[3]);
     }
-    if (o_ptr->art_flags[4])
+    if (o_ptr->flags[4])
     {
         savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_4);
-        savefile_write_u32b(file, o_ptr->art_flags[4]);
+        savefile_write_u32b(file, o_ptr->flags[4]);
     }
-    if (o_ptr->art_flags[5])
+    if (o_ptr->flags[5])
     {
         savefile_write_byte(file, SAVE_ITEM_ART_FLAGS_5);
-        savefile_write_u32b(file, o_ptr->art_flags[5]);
+        savefile_write_u32b(file, o_ptr->flags[5]);
     }
     if (o_ptr->curse_flags)
     {
         savefile_write_byte(file, SAVE_ITEM_CURSE_FLAGS);
         savefile_write_u32b(file, o_ptr->curse_flags);
+    }
+    if (o_ptr->known_flags[0])
+    {
+        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_0);
+        savefile_write_u32b(file, o_ptr->known_flags[0]);
+    }
+    if (o_ptr->known_flags[1])
+    {
+        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_1);
+        savefile_write_u32b(file, o_ptr->known_flags[1]);
+    }
+    if (o_ptr->known_flags[2])
+    {
+        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_2);
+        savefile_write_u32b(file, o_ptr->known_flags[2]);
+    }
+    if (o_ptr->known_flags[3])
+    {
+        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_3);
+        savefile_write_u32b(file, o_ptr->known_flags[3]);
+    }
+    if (o_ptr->known_flags[4])
+    {
+        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_4);
+        savefile_write_u32b(file, o_ptr->known_flags[4]);
+    }
+    if (o_ptr->known_flags[5])
+    {
+        savefile_write_byte(file, SAVE_ITEM_KNOWN_FLAGS_5);
+        savefile_write_u32b(file, o_ptr->known_flags[5]);
+    }
+    if (o_ptr->known_curse_flags)
+    {
+        savefile_write_byte(file, SAVE_ITEM_KNOWN_CURSE_FLAGS);
+        savefile_write_u32b(file, o_ptr->known_curse_flags);
     }
     if (o_ptr->rune)
     {
@@ -363,18 +398,32 @@ static void wr_xtra_kind(savefile_ptr file, int k_idx)
 
 static void wr_xtra_ego(savefile_ptr file, int e_idx)
 {
-    byte tmp8u = 0;
+    int       i;
+    ego_type *e_ptr = &e_info[e_idx];
 
-    ego_item_type *e_ptr = &e_info[e_idx];
+    savefile_write_byte(file, OF_ARRAY_SIZE);
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+        savefile_write_u32b(file, e_ptr->known_flags[i]);
 
-    if (e_ptr->aware) tmp8u |= 0x01;
+    savefile_write_byte(file, OF_ARRAY_SIZE);
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+        savefile_write_u32b(file, e_ptr->xtra_flags[i]);
 
-    savefile_write_byte(file, tmp8u);
     savefile_write_s32b(file, e_ptr->counts.generated);
     savefile_write_s32b(file, e_ptr->counts.found);
     savefile_write_s32b(file, e_ptr->counts.bought);
     /*savefile_write_s32b(file, e_ptr->counts.used);*/
     savefile_write_s32b(file, e_ptr->counts.destroyed);
+}
+
+static void wr_xtra_art(savefile_ptr file, int a_idx)
+{
+    int            i;
+    artifact_type *a_ptr = &a_info[a_idx];
+
+    savefile_write_byte(file, OF_ARRAY_SIZE);
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+        savefile_write_u32b(file, a_ptr->known_flags[i]);
 }
 
 static void wr_store(savefile_ptr file, store_type *st_ptr)
@@ -421,7 +470,6 @@ static void wr_options(savefile_ptr file)
     if (cheat_hear) c |= 0x0200;
     if (cheat_room) c |= 0x0400;
     if (cheat_xtra) c |= 0x0800;
-    if (cheat_know) c |= 0x1000;
     if (cheat_live) c |= 0x2000;
     if (cheat_save) c |= 0x4000;
     savefile_write_u16b(file, c);
@@ -1049,7 +1097,7 @@ static void wr_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
             savefile_write_s16b(file, pack_ptr->leader_idx);
             savefile_write_s16b(file, pack_ptr->count);
             savefile_write_s16b(file, pack_ptr->ai);
-            savefile_write_s16b(file, pack_ptr->guard_m_idx);
+            savefile_write_s16b(file, pack_ptr->guard_idx);
             savefile_write_s16b(file, pack_ptr->guard_x);
             savefile_write_s16b(file, pack_ptr->guard_y);
             savefile_write_s16b(file, pack_ptr->distance);
@@ -1180,6 +1228,10 @@ static bool wr_savefile_new(savefile_ptr file)
     savefile_write_u16b(file, tmp16u);
     for (i = 0; i < tmp16u; i++) wr_xtra_ego(file, i);
 
+    tmp16u = max_a_idx;
+    savefile_write_u16b(file, tmp16u);
+    for (i = 0; i < tmp16u; i++) wr_xtra_art(file, i);
+
     tmp16u = max_towns;
     savefile_write_u16b(file, tmp16u);
 
@@ -1225,7 +1277,8 @@ static bool wr_savefile_new(savefile_ptr file)
     for (i = 0; i < tmp16u; i++)
     {
         artifact_type *a_ptr = &a_info[i];
-        savefile_write_byte(file, a_ptr->cur_num);
+        savefile_write_byte(file, a_ptr->generated);
+        savefile_write_byte(file, a_ptr->found);
         savefile_write_s16b(file, a_ptr->floor_id);
     }
 

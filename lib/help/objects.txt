@@ -34,7 +34,7 @@ If you sense that an object might be useful, you will probably want to Identify 
 
 Identifying an object reveals its full name, as well as its more obvious bonuses. This includes combat bonuses in accuracy and deadliness as well as armor bonuses in protectiveness (i.e., AC). The object's name tells you whether it is an ego item or even an artifact, and also (usually) tells you if the object is cursed or not. But Identify doesn't tell you everything about an object.
 
-For many excellent and special objects, you will want to *Identify* the object as well. This reveals everything, absolutely everything, about an object, including any hidden bonuses and powers it may or may not have. And here too, there is a spell for this, but it is high level and rare, so unlikely to be available even for a Mage until much later in the game. Devices with this effect are also very rare and only found in the deep depths of the dungeon. And Scrolls of *Identify* are quite expensive, even if you can buy them in town. Fortunately, there is a town service to research an object in all of the towns except Outpost. It too, is rather pricey, but at least it is available as needed. If you are too poor for this, or are just starting out on your adventures, then you can always sell the object to learn about it. Of course, then you won't have the object, and might not be able to buy it back if you decide you want it after all, so this approach is not recommended. (Try a little patience, and stash the object in your home until you have more gold!).
+For excellent and special objects, you will need to learn their powers. You may do so by equipping and using the object (but you won't want to wield cursed items unless you have some means of removing the curse). Some magical attributes will be obvious, and you will learn these simply by wearing the item. For example, the item might increase your strength, and you will feel yourself 'bulk up' when you put it on. Other attributes will take longer to learn. For example, a weapon might slay orcs, and you will need to actually hit an orc with the weapon to discover this. Or, a piece of armor might grant resistance to fire, and you'll need to get hit with a fire ball or breath before learning this fact. Eventually, through sheer tenacity and perseverance, you can learn everything about an object this way! However, this method can take some time, and, especially as the game progresses, you won't want to spend this much effort learning each object you find. In this case, there are two other means of learning about objects: *Identify* and selling. The first is a magical power, available as a spell, scroll or town service, and is rather expensive or rare. But it instantly and completely reveals everything about a given item, so is quite useful. The second method is to simply sell an item in town. After the sale, you can examine the item in the shop's inventory to see what it does. Of course, if you make a mistake with this method and sell something truly useful, you'll need to buy the item back. Make sure you have some gold!
 
 Object Knowledge and Object Quality are related concepts (You gain kowledge about an object's quality). We've been discussing knowledge, so now it is time to turn our attention to quality.
 
@@ -91,9 +91,60 @@ Currently, the only flavored objects are mushrooms, potions and scrolls (We used
 
 While rings and amulets are wearable objects, they behave a little bit differently than weapons and armor. For one thing, there is no such thing as <color:keyword>good</color> jewelry. Either an item is average (in which case you might consider it junk, unless you plan on reforging artifacts later in the game) or it is excellent/awful. Excellent rings and amulets are like ordinary ego items in that they are instances of a broad class: the ego type. However, they are a bit different in that the ego type determines the theme of the object: its set of allowed attributes. But each piece of jewelry is almost entirely random, generated with one or more attributes from the allowed set. This means the quality of the item is highly variable, and generally increases the deeper you descend.
 
-Another difference with jewelry is that identify actually *identifies* the item as well. This is because the there are no stock attributes for each ego type, so that normal identify semantics would do very little more than reveal the objects name (and combat/ac bonuses, if any). You would almost always need *identify* anyway, and this can be a bit tedious to do for every single piece of jewelry you find.
+Another difference with jewelry is that you won't find random artifacts. Instead, there are a small number of fixed standard artifacts available. However, the various ego types can become amazingly powerful so you don't really need artifacts here. And given the themed nature of the egos, they are really behaving like mini-rand-arts anyway.
 
-The final difference is that you won't find random artifact jewelry. Instead, there are a small number of fixed standard artifacts available. However, the various ego types can become amazingly powerful so you don't really need artifacts here. And given the themed nature of the egos, they are really behaving like mini-rand-arts anyway.
+<topic:Lore><style:heading>Object Lore</style>
+
+We've been discussing the magical bonuses provided by excellent and special items (egos and artifacts). To review, you will need to learn the bonuses of each item as you find it. Your pseudo-id will reveal the object's quality at a very coarse level and is generally used to determine which objects are worthy of further investigation. Identifying an object reveals its basic attributes ... what you would see for an average or good item in the town shops. This includes combat bonuses on weapons and armor class bonuses on armor. In addition, Identify reveals the object's <color:keyword>name</color>. For ego items, this is the name of the ego type, such as a <color:keyword>Long Sword of Slaying</color>. For artifacts, this is the unique name of the artifact. But, aside from this, <color:keyword>Identify</color> won't tell you what the object actually does. And most excellent and special items have magical bonuses, so you'll need to learn these.
+
+We discussed three ways to learn the magical bonuses of a wearable item. First, you can equip the item (but don't try this if the item is cursed!). This will immediately reveal many aspects of the item's power, including stat and skill bonuses. But it won't reveal a weapon's extra slays, or an armor's extra resistances. It won't reveal many hidden bonuses like <color:keyword>Free Action</color> or <color:keyword>See Invisible</color>. For all of these, you will need to experience the bonus while using the item. For example, if your weapon slays orcs, then you will learn this once you hit an orc with it. Or, if it grants Free Action, then you will learn this the next time a Floating Eye gazes upon you with its paralysis effect. And so on. Over time, you can learn all of the objects powers ... if you are patient enough. For less patient players, however, the second method of learning an object's bonuses is <color:keyword>*Identify*</color>, either through a scroll, a spell or a town service. This power instantly reveals all the object's attributes and is very convenient. Unfortunately, at least in the early game, it is a bit expensive. So, the third way of learning about an object is to sell it. But, then you no longer have the object, do you?
+
+This brings us to the concept of <color:keyword>Object Lore</color>. You see, not only are you learning attributes of an individual object, you are also learning about the underlying artifact or ego item. And the next time you find this artifact (that would be in another game using this savefile, since artifacts are unique) or the next time you find an instance of this ego item, you will be aware of attributes you learned before. Simply identifying the object will reveal object powers that you have already learned. Over time, the need for <color:keyword>*Identify*</color> wanes. Play several characters using the same savefile, and you will see the benefits!
+
+You can always view your current artifact and ego lore while playing. Simply use the knowledge command (<color:keypress>~</color>) and choose the option for artifacts or egos. Find the item you are interested in and use the recall command (<color:keypress>r</color>) to view the details. For example:
+<style:screenshot>
+Knowledge - Egos
+
+Group          Name                                Found Bought Dest
+========================================================================
+Weapons      | <color:B>of Elemental Protection [Shared]        0      0    0</color>
+Diggers      | of Protection [Shared]                  0      0    0
+Shields      | of the Uruk-hai                         0      0    0
+<color:B>Body Armor</color>   | (Dwarven)                               0      0    0
+Robes        | of the Olog-hai                         0      0    0
+Dragon Armor | of Elvenkind [Shared]                   0      0    0
+Cloaks       | of Celestial Protection [Shared]        0      0    0
+Helmets      | of the Demon                            0      0    0
+Crowns       | of the Demon-Lord                       0      0    0
+Gloves       | <color:y>                             Totals     0      0    0</color>
+Boots        |
+Bows         |
+Ammo         |
+Harps        |
+Rings        |
+Amulets      |
+Lights       |
+Devices      |
+             |
+
+<dir>, 'r' to recall, ESC
+</style>
+
+Pressing 'r' with Armor of Elemental Protection selected reveals the lore:
+<style:screenshot>
+Armor of Elemental Protection
+<color:B>Fixed Bonuses</color>
+  <color:B>It cannot be harmed by the elements.</color>
+
+<color:B>Optional Bonuses</color>
+  Resist <color:g>Acid</color>, <color:b>Electricity</color>, <color:r>Fire</color>, <color:W>Cold</color>, <color:G>Poison</color>
+  It grants an extra activation.
+
+
+[Press Any Key to Continue]
+</style>
+
+Like <color:keyword>Monster Lore</color>, object lore is stored in your savefile and will be passed down to any new characters you create with this file. If you want to build up a large stock of lore, make sure you use the same savefile for each game you play.
 
 <topic:Devices><style:heading>Devices</style>
 

@@ -878,7 +878,7 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
         else
         {
             virtue_add(VIRTUE_ENCHANTMENT, 1);
-            calc_android_exp();
+            android_calc_exp();
         }
         _enchant_power = 0;
         var_set_bool(res, TRUE);
@@ -1959,9 +1959,9 @@ static void _calc_bonuses(void)
     if (p_ptr->magic_num1[_BLENDING])
     {
         p_ptr->skills.stl += 5 * p_ptr->magic_num2[_BLENDING];
-        if ((p_ptr->cursed & TRC_AGGRAVATE) && p_ptr->magic_num2[_BLENDING] == 5)
+        if ((p_ptr->cursed & OFC_AGGRAVATE) && p_ptr->magic_num2[_BLENDING] == 5)
         {
-            p_ptr->cursed &= ~(TRC_AGGRAVATE);
+            p_ptr->cursed &= ~(OFC_AGGRAVATE);
             p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);
         }
     }
@@ -2005,25 +2005,25 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->magic_num1[_BLENDING])
-        add_flag(flgs, TR_STEALTH);
+        add_flag(flgs, OF_STEALTH);
     if (p_ptr->magic_num1[_SHIELDING])
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_FREE_ACT);
     if (p_ptr->magic_num1[_SPEED])
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
     if (p_ptr->magic_num1[_FORTRESS])
     {
-        add_flag(flgs, TR_SPELL_POWER);
-        add_flag(flgs, TR_RES_TIME);
-        add_flag(flgs, TR_SUST_STR);
-        add_flag(flgs, TR_SUST_INT);
-        add_flag(flgs, TR_SUST_WIS);
-        add_flag(flgs, TR_SUST_DEX);
-        add_flag(flgs, TR_SUST_CON);
-        add_flag(flgs, TR_SUST_CHR);
-        add_flag(flgs, TR_HOLD_LIFE);
+        add_flag(flgs, OF_SPELL_POWER);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_SUST_STR);
+        add_flag(flgs, OF_SUST_INT);
+        add_flag(flgs, OF_SUST_WIS);
+        add_flag(flgs, OF_SUST_DEX);
+        add_flag(flgs, OF_SUST_CON);
+        add_flag(flgs, OF_SUST_CHR);
+        add_flag(flgs, OF_HOLD_LIFE);
     }
 }
 

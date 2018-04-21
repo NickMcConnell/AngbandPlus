@@ -164,9 +164,9 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_SOUND);
+    add_flag(flgs, OF_RES_SOUND);
 }
 
 class_t *bard_get_class(void)

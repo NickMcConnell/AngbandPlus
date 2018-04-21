@@ -299,7 +299,6 @@ static int get_snipe_power(int *sn, bool only_browse)
 int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
 {
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
-    bool seen = is_seen(m_ptr);
 
     switch (snipe_type)
     {
@@ -307,14 +306,14 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         if (r_ptr->flags3 & (RF3_HURT_LITE))
         {
             int n = 20 + p_ptr->concent;
-            if (seen) r_ptr->r_flags3 |= (RF3_HURT_LITE);
+            mon_lore_3(m_ptr, RF3_HURT_LITE);
             if (mult < n) mult = n;
         }
         break;
     case SP_FIRE:
-        if (r_ptr->flagsr & RFR_IM_FIRE)
+        if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
         {
-            if (seen) r_ptr->r_flagsr |= RFR_IM_FIRE;
+            mon_lore_r(m_ptr, RFR_EFF_IM_FIRE_MASK);
         }
         else
         {
@@ -323,9 +322,9 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         }
         break;
     case SP_COLD:
-        if (r_ptr->flagsr & RFR_IM_COLD)
+        if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
         {
-            if (seen) r_ptr->r_flagsr |= RFR_IM_COLD;
+            mon_lore_r(m_ptr, RFR_EFF_IM_COLD_MASK);
         }
         else
         {
@@ -334,9 +333,9 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         }
         break;
     case SP_ELEC:
-        if (r_ptr->flagsr & RFR_IM_ELEC)
+        if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
         {
-            if (seen) r_ptr->r_flagsr |= RFR_IM_ELEC;
+            mon_lore_r(m_ptr, RFR_EFF_IM_ELEC_MASK);
         }
         else
         {
@@ -348,13 +347,13 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         if (r_ptr->flags3 & RF3_HURT_ROCK)
         {
             int n = 15 + (p_ptr->concent * 2);
-            if (seen) r_ptr->r_flags3 |= RF3_HURT_ROCK;
+            mon_lore_3(m_ptr, RF3_HURT_ROCK);
             if (mult < n) mult = n;
         }
         else if (r_ptr->flags3 & RF3_NONLIVING)
         {
             int n = 15 + (p_ptr->concent * 2);
-            if (seen) r_ptr->r_flags3 |= RF3_NONLIVING;
+            mon_lore_3(m_ptr, RF3_NONLIVING);
             if (mult < n) mult = n;
         }
         break;
@@ -362,7 +361,7 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         if (r_ptr->flags3 & RF3_GOOD)
         {
             int n = 15 + (p_ptr->concent * 4);
-            if (seen) r_ptr->r_flags3 |= RF3_GOOD;
+            mon_lore_3(m_ptr, RF3_GOOD);
             if (mult < n) mult = n;
         }
         break;
@@ -370,11 +369,11 @@ int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
         if (r_ptr->flags3 & RF3_EVIL)
         {
             int n = 12 + (p_ptr->concent * 3);
-            if (seen) r_ptr->r_flags3 |= RF3_EVIL;
+            mon_lore_3(m_ptr, RF3_EVIL);
             if (r_ptr->flags3 & (RF3_HURT_LITE))
             {
                 n += (p_ptr->concent * 3);
-                if (seen) r_ptr->r_flags3 |= (RF3_HURT_LITE);
+                mon_lore_3(m_ptr, RF3_HURT_LITE);
             }
             if (mult < n) mult = n;
         }

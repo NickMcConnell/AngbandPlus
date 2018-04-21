@@ -547,24 +547,24 @@ static void _calc_bonuses(void)
     p_ptr->see_nocto = TRUE;
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (heavy_armor())
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
     else
     {
         if (!equip_find_object(TV_SHIELD, SV_ANY))
         {
-            add_flag(flgs, TR_SPEED);
+            add_flag(flgs, OF_SPEED);
         }
         if (p_ptr->lev >= 25)
-            add_flag(flgs, TR_FREE_ACT);
+            add_flag(flgs, OF_FREE_ACT);
     }
-    add_flag(flgs, TR_SLOW_DIGEST);
-    add_flag(flgs, TR_RES_FEAR);
-    if (p_ptr->lev >= 20) add_flag(flgs, TR_RES_POIS);
-    if (p_ptr->lev >= 25) add_flag(flgs, TR_SUST_DEX);
-    if (p_ptr->lev >= 30) add_flag(flgs, TR_SEE_INVIS);
+    add_flag(flgs, OF_SLOW_DIGEST);
+    add_flag(flgs, OF_RES_FEAR);
+    if (p_ptr->lev >= 20) add_flag(flgs, OF_RES_POIS);
+    if (p_ptr->lev >= 25) add_flag(flgs, OF_SUST_DEX);
+    if (p_ptr->lev >= 30) add_flag(flgs, OF_SEE_INVIS);
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)

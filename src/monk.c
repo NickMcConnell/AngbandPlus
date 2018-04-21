@@ -200,31 +200,31 @@ void monk_display_attack_info(doc_ptr doc, int hand)
     doc_printf(cols[1], " One Strike: %d.%1d\n", (tot_dam + to_d)/10, (tot_dam + to_d)%10);
     doc_printf(cols[1], " One Attack: %d.%1d\n", blows*(tot_dam + to_d)/1000, ((blows*(tot_dam + to_d))/100)%10);
 
-    if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_ACID))
+    if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_ACID))
     {
         doc_printf(cols[1], " <color:r>      Acid</color>: %d.%1d\n",
             blows*(tot_dam*17/10 + to_d)/1000,
             ((blows*(tot_dam*17/10 + to_d))/100)%10);
     }
-    if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_ELEC))
+    if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_ELEC))
     {
         doc_printf(cols[1], " <color:r>      Elec</color>: %d.%1d\n",
             blows*(tot_dam*17/10 + to_d)/1000,
             ((blows*(tot_dam*17/10 + to_d))/100)%10);
     }
-    if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_FIRE))
+    if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_FIRE))
     {
         doc_printf(cols[1], " <color:r>      Fire</color>: %d.%1d\n",
             blows*(tot_dam*17/10 + to_d)/1000,
             ((blows*(tot_dam*17/10 + to_d))/100)%10);
     }
-    if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_COLD))
+    if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_COLD))
     {
         doc_printf(cols[1], " <color:r>      Cold</color>: %d.%1d\n",
             blows*(tot_dam*17/10 + to_d)/1000,
             ((blows*(tot_dam*17/10 + to_d))/100)%10);
     }
-    if (have_flag(p_ptr->weapon_info[hand].flags, TR_BRAND_POIS))
+    if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_POIS))
     {
         doc_printf(cols[1], " <color:r>      Pois</color>: %d.%1d\n",
             blows*(tot_dam*17/10 + to_d)/1000,
@@ -238,7 +238,7 @@ void monk_display_attack_info(doc_ptr doc, int hand)
 
 static bool _monk_check_spell(void)
 {
-    if (p_ptr->pclass == CLASS_WILD_TALENT)
+    if (p_ptr->pclass == CLASS_WILD_TALENT || mut_present(MUT_DRACONIAN_METAMORPHOSIS))
         return TRUE;
     if ((p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC) && !p_ptr->weapon_ct)
         return TRUE;
@@ -577,26 +577,26 @@ void monk_posture_calc_stats(s16b stats[MAX_STATS])
     }
 }
 
-void monk_posture_get_flags(u32b flgs[TR_FLAG_SIZE])
+void monk_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->special_defense & KAMAE_GENBU)
-        add_flag(flgs, TR_REFLECT);
+        add_flag(flgs, OF_REFLECT);
     if (p_ptr->special_defense & KAMAE_SUZAKU)
     {
-        add_flag(flgs, TR_LEVITATION);
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_SPEED);
     }
     if (p_ptr->special_defense & KAMAE_SEIRYU)
     {
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ACID);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_LEVITATION);
-        add_flag(flgs, TR_SH_FIRE);
-        add_flag(flgs, TR_SH_ELEC);
-        add_flag(flgs, TR_SH_COLD);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_AURA_FIRE);
+        add_flag(flgs, OF_AURA_ELEC);
+        add_flag(flgs, OF_AURA_COLD);
     }
 }
 
@@ -618,16 +618,16 @@ static void _calc_stats(s16b stats[MAX_STATS])
     monk_posture_calc_stats(stats);
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     monk_posture_get_flags(flgs);
     if (!heavy_armor())
     {
-        add_flag(flgs, TR_SH_REVENGE);
+        add_flag(flgs, OF_AURA_REVENGE);
         if (p_ptr->lev >= 10)
-            add_flag(flgs, TR_SPEED);
+            add_flag(flgs, OF_SPEED);
         if (p_ptr->lev >= 25)
-            add_flag(flgs, TR_FREE_ACT);
+            add_flag(flgs, OF_FREE_ACT);
     }
 }
 

@@ -245,36 +245,36 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
     /* Clay Golem */
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_POIS);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_POIS);
 
     /* Stone Golem */
     if (p_ptr->lev >= 10)
     {
-        add_flag(flgs, TR_RES_FEAR);
+        add_flag(flgs, OF_RES_FEAR);
     }
 
     /* Iron Golem */
     if (p_ptr->lev >= 20)
     {
-        add_flag(flgs, TR_SEE_INVIS);
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_MAGIC_RESISTANCE);
+        add_flag(flgs, OF_SEE_INVIS);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_MAGIC_RESISTANCE);
     }
 
     /* Mithril Golem */
     if (p_ptr->lev >= 30)
     {
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_RES_SHARDS);
-        add_flag(flgs, TR_REFLECT);
+        add_flag(flgs, OF_DEC_SPEED);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_SHARDS);
+        add_flag(flgs, OF_REFLECT);
     }
 
     /* Eog Golem */
@@ -284,15 +284,15 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 
     if (p_ptr->current_r_idx == MON_COLOSSUS)
     {
-        add_flag(flgs, TR_RES_SOUND);
-        add_flag(flgs, TR_RES_DISEN);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_DISEN);
     }
 
     if (p_ptr->current_r_idx == MON_SKY_GOLEM)
     {
-        add_flag(flgs, TR_RES_TIME);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_LITE);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_LITE);
     }
 
     if (p_ptr->current_r_idx == MON_SPELLWARP_AUTOMATON)

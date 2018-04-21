@@ -70,21 +70,21 @@ static void _calc_bonuses(void) {
         p_ptr->pspeed += 2 + (p_ptr->lev - 35)/5;
     }
 }
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_SUST_STR);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_RES_CONF);
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_SUST_STR);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_CONF);
 
     if (p_ptr->lev >= 20)
     {
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_FIRE);
     }
     if (p_ptr->lev >= 35)
     {
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
     }
 }
 static void _gain_level(int new_level) {

@@ -19,7 +19,9 @@
 #define _ESSENCE_NONE -1  /* 0 is actually a valid essence: TR_STR */
 
 /* Essence IDs: These are generally an object flag (TR_*) but can be something
-   special. The id is stored as object_type.xtra3 = id + 1. */
+   special. The id is stored as object_type.xtra3 = id. Note that OF_HIDE_TYPE
+   is now the 0 object flag rather than the old TR_STR, so we no longer need
+   to worry about +/- 1 to xtra3 everwhere to set/get the correct code.*/
 enum {
     _ESSENCE_AC = _MIN_SPECIAL,
     _ESSENCE_TO_HIT,
@@ -31,7 +33,7 @@ enum {
     _ESSENCE_SPECIAL    /* 247 We are about to overflow the byte object.xtra3! Use xtra1 from more codes. */
 };
 
-enum {                  /* stored in object.xtra1 when object.xtra3 - 1 = _ESSENCE_SPECIAL */
+enum {                  /* stored in object.xtra1 when object.xtra3 = _ESSENCE_SPECIAL */
     _SPECIAL_RES_BASE = 1,
     _SPECIAL_SUST_ALL,
     _SPECIAL_SLAYING,   /* object.xtra4 packs (+h,+d) in s16b */
@@ -127,139 +129,139 @@ static _essence_group_t _essence_groups[ESSENCE_TYPE_MAX] = {
         { _ESSENCE_NONE } } }, /* Note: Flags and costs are just for show here ... this group has special handling */
 
     { ESSENCE_TYPE_STATS, "Stats", {
-        { TR_STR,           "Strength",     20, _ALLOW_ALL },
-        { TR_INT,           "Intelligence", 20, _ALLOW_ALL },
-        { TR_WIS,           "Wisdom",       20, _ALLOW_ALL },
-        { TR_DEX,           "Dexterity",    20, _ALLOW_ALL },
-        { TR_CON,           "Constitution", 20, _ALLOW_ALL },
-        { TR_CHR,           "Charisma",     20, _ALLOW_ALL },
+        { OF_STR,           "Strength",     20, _ALLOW_ALL },
+        { OF_INT,           "Intelligence", 20, _ALLOW_ALL },
+        { OF_WIS,           "Wisdom",       20, _ALLOW_ALL },
+        { OF_DEX,           "Dexterity",    20, _ALLOW_ALL },
+        { OF_CON,           "Constitution", 20, _ALLOW_ALL },
+        { OF_CHR,           "Charisma",     20, _ALLOW_ALL },
         { _ESSENCE_SPECIAL, "Might",       150, _ALLOW_ALL, 3, _SPECIAL_MIGHT },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_BONUSES, "Bonuses", {
-        { TR_SPEED,            "Speed",          12, _ALLOW_ALL },
-        { TR_STEALTH,          "Stealth",        15, _ALLOW_ALL },
-        { TR_LIFE,             "Life",           50, _ALLOW_ALL,   5 },
-        { TR_BLOWS,            "Extra Attacks",  20, _ALLOW_MELEE, 3 },
+        { OF_SPEED,            "Speed",          12, _ALLOW_ALL },
+        { OF_STEALTH,          "Stealth",        15, _ALLOW_ALL },
+        { OF_LIFE,             "Life",           50, _ALLOW_ALL,   5 },
+        { OF_BLOWS,            "Extra Attacks",  50, _ALLOW_MELEE, 3 },
         { _ESSENCE_XTRA_DICE,  "Extra Dice",    250, _ALLOW_MELEE, 4 },
         { _ESSENCE_XTRA_MIGHT, "Extra Might",   250, _ALLOW_BOW,   4 },
-        { TR_XTRA_SHOTS,       "Extra Shots",    50, _ALLOW_BOW,   4 },
-        { TR_MAGIC_MASTERY,    "Magic Mastery",  12, _ALLOW_ALL },
-        { TR_TUNNEL,           "Digging",        10, _ALLOW_ALL },
-        { TR_INFRA,            "Infravision",    10, _ALLOW_ALL },
-        { TR_SEARCH,           "Searching",      10, _ALLOW_ALL },
+        { OF_XTRA_SHOTS,       "Extra Shots",    50, _ALLOW_BOW,   4 },
+        { OF_MAGIC_MASTERY,    "Magic Mastery",  12, _ALLOW_ALL },
+        { OF_TUNNEL,           "Digging",        10, _ALLOW_ALL },
+        { OF_INFRA,            "Infravision",    10, _ALLOW_ALL },
+        { OF_SEARCH,           "Searching",      10, _ALLOW_ALL },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_SLAYS, "Slays", {
-        { TR_SLAY_EVIL,   "Slay Evil",  100, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_GOOD,   "Slay Good",   90, _ALLOW_MELEE },
-        { TR_SLAY_LIVING, "Slay Living", 80, _ALLOW_MELEE },
-        { TR_SLAY_UNDEAD, "Slay Undead", 20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_DEMON,  "Slay Demon",  20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_DRAGON, "Slay Dragon", 20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_HUMAN,  "Slay Human",  20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_ANIMAL, "Slay Animal", 20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_ORC,    "Slay Orc",    15, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_TROLL,  "Slay Troll",  15, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_SLAY_GIANT,  "Slay Giant",  20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_EVIL,   "Kill Evil",  100, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_UNDEAD, "Kill Undead", 30, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_DEMON,  "Kill Demon",  30, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_DRAGON, "Kill Dragon", 30, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_HUMAN,  "Kill Human",  30, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_ANIMAL, "Kill Animal", 30, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_ORC,    "Kill Orc",    20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_TROLL,  "Kill Troll",  20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_KILL_GIANT,  "Kill Giant",  30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_EVIL,   "Slay Evil",  100, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_GOOD,   "Slay Good",   90, _ALLOW_MELEE },
+        { OF_SLAY_LIVING, "Slay Living", 80, _ALLOW_MELEE },
+        { OF_SLAY_UNDEAD, "Slay Undead", 20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_DEMON,  "Slay Demon",  20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_DRAGON, "Slay Dragon", 20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_HUMAN,  "Slay Human",  20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_ANIMAL, "Slay Animal", 20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_ORC,    "Slay Orc",    15, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_TROLL,  "Slay Troll",  15, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_SLAY_GIANT,  "Slay Giant",  20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_EVIL,   "Kill Evil",  100, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_UNDEAD, "Kill Undead", 30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_DEMON,  "Kill Demon",  30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_DRAGON, "Kill Dragon", 30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_HUMAN,  "Kill Human",  30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_ANIMAL, "Kill Animal", 30, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_ORC,    "Kill Orc",    20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_TROLL,  "Kill Troll",  20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_KILL_GIANT,  "Kill Giant",  30, _ALLOW_MELEE | _ALLOW_AMMO },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_BRANDS, "Brands", {
-        { TR_BRAND_ACID,    "Brand Acid",      20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_BRAND_ELEC,    "Brand Elec",      20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_BRAND_FIRE,    "Brand Fire",      20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_BRAND_COLD,    "Brand Cold",      20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_BRAND_ACID,    "Brand Acid",      20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_BRAND_ELEC,    "Brand Elec",      20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_BRAND_FIRE,    "Brand Fire",      20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_BRAND_COLD,    "Brand Cold",      20, _ALLOW_MELEE | _ALLOW_AMMO },
         { _ESSENCE_SPECIAL, "Brand Elements", 100, _ALLOW_MELEE | _ALLOW_AMMO, 0, _SPECIAL_BRAND_ELEMENTS },
-        { TR_BRAND_POIS,    "Brand Poison",    20, _ALLOW_MELEE | _ALLOW_AMMO },
-        { TR_CHAOTIC,       "Chaotic",         20, _ALLOW_MELEE },
-        { TR_VAMPIRIC,      "Vampiric",        60, _ALLOW_MELEE },
-        { TR_IMPACT,        "Impact",          20, _ALLOW_HAFTED },
-        { TR_STUN,          "Stun",            50, _ALLOW_HAFTED },
-        { TR_VORPAL,        "Vorpal",         100, _ALLOW_SWORD },
-        { TR_VORPAL2,       "*Vorpal*",       100, _ALLOW_SWORD },
+        { OF_BRAND_POIS,    "Brand Poison",    20, _ALLOW_MELEE | _ALLOW_AMMO },
+        { OF_BRAND_CHAOS,       "Chaotic",         20, _ALLOW_MELEE },
+        { OF_BRAND_VAMP,      "Vampiric",        60, _ALLOW_MELEE },
+        { OF_IMPACT,        "Impact",          20, _ALLOW_HAFTED },
+        { OF_STUN,          "Stun",            50, _ALLOW_HAFTED },
+        { OF_VORPAL,        "Vorpal",         100, _ALLOW_SWORD },
+        { OF_VORPAL2,       "*Vorpal*",       100, _ALLOW_SWORD },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_RESISTS, "Resists", {
-        { TR_RES_ACID,      "Resist Acid",    15, _ALLOW_ALL },
-        { TR_RES_ELEC,      "Resist Elec",    15, _ALLOW_ALL },
-        { TR_RES_FIRE,      "Resist Fire",    15, _ALLOW_ALL },
-        { TR_RES_COLD,      "Resist Cold",    15, _ALLOW_ALL },
+        { OF_RES_ACID,      "Resist Acid",    15, _ALLOW_ALL },
+        { OF_RES_ELEC,      "Resist Elec",    15, _ALLOW_ALL },
+        { OF_RES_FIRE,      "Resist Fire",    15, _ALLOW_ALL },
+        { OF_RES_COLD,      "Resist Cold",    15, _ALLOW_ALL },
         { _ESSENCE_SPECIAL, "Resist Base",    50, _ALLOW_ALL, 0, _SPECIAL_RES_BASE },
-        { TR_RES_POIS,      "Resist Poison",  30, _ALLOW_ALL },
-        { TR_RES_LITE,      "Resist Light",   30, _ALLOW_ALL },
-        { TR_RES_DARK,      "Resist Dark",    30, _ALLOW_ALL },
-        { TR_RES_CONF,      "Resist Conf",    20, _ALLOW_ALL },
-        { TR_RES_NETHER,    "Resist Nether",  30, _ALLOW_ALL },
-        { TR_RES_NEXUS,     "Resist Nexus",   30, _ALLOW_ALL },
-        { TR_RES_SOUND,     "Resist Sound",   40, _ALLOW_ALL },
-        { TR_RES_SHARDS,    "Resist Shards",  40, _ALLOW_ALL },
-        { TR_RES_CHAOS,     "Resist Chaos",   40, _ALLOW_ALL },
-        { TR_RES_DISEN,     "Resist Disench", 30, _ALLOW_ALL },
-        { TR_RES_TIME,      "Resist Time",    20, _ALLOW_ALL },
-        { TR_RES_BLIND,     "Resist Blind",   20, _ALLOW_ALL },
-        { TR_RES_FEAR,      "Resist Fear",    20, _ALLOW_ALL },
-        { TR_NO_TELE,       "Resist Tele",    20, _ALLOW_ALL },
-        { TR_IM_ACID,       "Immune Acid",    20, _ALLOW_ALL },
-        { TR_IM_ELEC,       "Immune Elec",    20, _ALLOW_ALL },
-        { TR_IM_FIRE,       "Immune Fire",    20, _ALLOW_ALL },
-        { TR_IM_COLD,       "Immune Cold",    20, _ALLOW_ALL },
+        { OF_RES_POIS,      "Resist Poison",  30, _ALLOW_ALL },
+        { OF_RES_LITE,      "Resist Light",   30, _ALLOW_ALL },
+        { OF_RES_DARK,      "Resist Dark",    30, _ALLOW_ALL },
+        { OF_RES_CONF,      "Resist Conf",    20, _ALLOW_ALL },
+        { OF_RES_NETHER,    "Resist Nether",  30, _ALLOW_ALL },
+        { OF_RES_NEXUS,     "Resist Nexus",   30, _ALLOW_ALL },
+        { OF_RES_SOUND,     "Resist Sound",   40, _ALLOW_ALL },
+        { OF_RES_SHARDS,    "Resist Shards",  40, _ALLOW_ALL },
+        { OF_RES_CHAOS,     "Resist Chaos",   40, _ALLOW_ALL },
+        { OF_RES_DISEN,     "Resist Disench", 30, _ALLOW_ALL },
+        { OF_RES_TIME,      "Resist Time",    20, _ALLOW_ALL },
+        { OF_RES_BLIND,     "Resist Blind",   20, _ALLOW_ALL },
+        { OF_RES_FEAR,      "Resist Fear",    20, _ALLOW_ALL },
+        { OF_NO_TELE,       "Resist Tele",    20, _ALLOW_ALL },
+        { OF_IM_ACID,       "Immune Acid",    20, _ALLOW_ALL },
+        { OF_IM_ELEC,       "Immune Elec",    20, _ALLOW_ALL },
+        { OF_IM_FIRE,       "Immune Fire",    20, _ALLOW_ALL },
+        { OF_IM_COLD,       "Immune Cold",    20, _ALLOW_ALL },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_SUSTAINS, "Sustains", {
-        { TR_SUST_STR,      "Sust Str",   15, _ALLOW_ALL },
-        { TR_SUST_INT,      "Sust Int",   15, _ALLOW_ALL },
-        { TR_SUST_WIS,      "Sust Wis",   15, _ALLOW_ALL },
-        { TR_SUST_DEX,      "Sust Dex",   15, _ALLOW_ALL },
-        { TR_SUST_CON,      "Sust Con",   15, _ALLOW_ALL },
-        { TR_SUST_CHR,      "Sust Chr",   15, _ALLOW_ALL },
+        { OF_SUST_STR,      "Sust Str",   15, _ALLOW_ALL },
+        { OF_SUST_INT,      "Sust Int",   15, _ALLOW_ALL },
+        { OF_SUST_WIS,      "Sust Wis",   15, _ALLOW_ALL },
+        { OF_SUST_DEX,      "Sust Dex",   15, _ALLOW_ALL },
+        { OF_SUST_CON,      "Sust Con",   15, _ALLOW_ALL },
+        { OF_SUST_CHR,      "Sust Chr",   15, _ALLOW_ALL },
         { _ESSENCE_SPECIAL, "Sustaining", 50, _ALLOW_ALL, 0, _SPECIAL_SUST_ALL },
         { _ESSENCE_NONE, } } },
 
     { ESSENCE_TYPE_ABILITIES, "Abilities", {
-        { TR_FREE_ACT,      "Free Action",            20, _ALLOW_ALL },
-        { TR_SEE_INVIS,     "See Invisible",          20, _ALLOW_ALL },
-        { TR_HOLD_LIFE,     "Hold Life",              20, _ALLOW_ALL },
+        { OF_FREE_ACT,      "Free Action",            20, _ALLOW_ALL },
+        { OF_SEE_INVIS,     "See Invisible",          20, _ALLOW_ALL },
+        { OF_HOLD_LIFE,     "Hold Life",              20, _ALLOW_ALL },
         { _ESSENCE_SPECIAL, "Protection",             50, _ALLOW_ALL, 0, _SPECIAL_PROTECTION },
-        { TR_SLOW_DIGEST,   "Slow Digestion",         15, _ALLOW_ALL },
-        { TR_REGEN,         "Regeneration",           50, _ALLOW_ALL },
-        { TR_DUAL_WIELDING, "Dual Wielding",          50, _ALLOW_ARMOR },
-        { TR_NO_MAGIC,      "Antimagic",              15, _ALLOW_ALL },
-        { TR_WARNING,       "Warning",                20, _ALLOW_ALL },
-        { TR_LEVITATION,    "Levitation",             20, _ALLOW_ALL },
-        { TR_REFLECT,       "Reflection",             20, _ALLOW_ALL },
-        { TR_SH_FIRE,       "Aura Fire",              20, _ALLOW_ARMOR },
-        { TR_SH_ELEC,       "Aura Elec",              20, _ALLOW_ARMOR },
-        { TR_SH_COLD,       "Aura Cold",              20, _ALLOW_ARMOR },
+        { OF_SLOW_DIGEST,   "Slow Digestion",         15, _ALLOW_ALL },
+        { OF_REGEN,         "Regeneration",           50, _ALLOW_ALL },
+        { OF_DUAL_WIELDING, "Dual Wielding",          50, _ALLOW_ARMOR },
+        { OF_NO_MAGIC,      "Antimagic",              15, _ALLOW_ALL },
+        { OF_WARNING,       "Warning",                20, _ALLOW_ALL },
+        { OF_LEVITATION,    "Levitation",             20, _ALLOW_ALL },
+        { OF_REFLECT,       "Reflection",             20, _ALLOW_ALL },
+        { OF_AURA_FIRE,       "Aura Fire",              20, _ALLOW_ARMOR },
+        { OF_AURA_ELEC,       "Aura Elec",              20, _ALLOW_ARMOR },
+        { OF_AURA_COLD,       "Aura Cold",              20, _ALLOW_ARMOR },
         { _ESSENCE_SPECIAL, "Aura Elements",          50, _ALLOW_ALL, 0, _SPECIAL_AURA_ELEMENTS },
-        { TR_SH_SHARDS,     "Aura Shards",            30, _ALLOW_ARMOR },
-        { TR_SH_REVENGE,    "Revenge",                40, _ALLOW_ARMOR },
-        { TR_LITE,          "Extra Light",            15, _ALLOW_ALL },
-        { TR_IGNORE_ACID,   "Rustproof", _COST_RUSTPROOF, _ALLOW_ARMOR },
+        { OF_AURA_SHARDS,     "Aura Shards",            30, _ALLOW_ARMOR },
+        { OF_AURA_REVENGE,    "Revenge",                40, _ALLOW_ARMOR },
+        { OF_LITE,          "Extra Light",            15, _ALLOW_ALL },
+        { OF_IGNORE_ACID,   "Rustproof", _COST_RUSTPROOF, _ALLOW_ARMOR },
         { _ESSENCE_NONE } } },
 
     { ESSENCE_TYPE_TELEPATHY, "Telepathy", {
-        { TR_TELEPATHY,     "Telepathy",       40, _ALLOW_ALL },
-        { TR_ESP_ANIMAL,    "Sense Animals",   30, _ALLOW_ALL },
-        { TR_ESP_UNDEAD,    "Sense Undead",    40, _ALLOW_ALL },
-        { TR_ESP_DEMON,     "Sense Demon",     40, _ALLOW_ALL },
-        { TR_ESP_ORC,       "Sense Orc",       20, _ALLOW_ALL },
-        { TR_ESP_TROLL,     "Sense Troll",     20, _ALLOW_ALL },
-        { TR_ESP_GIANT,     "Sense Giant",     20, _ALLOW_ALL },
-        { TR_ESP_DRAGON,    "Sense Dragon",    30, _ALLOW_ALL },
-        { TR_ESP_HUMAN,     "Sense Human",     20, _ALLOW_ALL },
-        { TR_ESP_EVIL,      "Sense Evil",      40, _ALLOW_ALL },
-        { TR_ESP_GOOD,      "Sense Good",      20, _ALLOW_ALL },
-        { TR_ESP_NONLIVING, "Sense Nonliving", 40, _ALLOW_ALL },
-        { TR_ESP_UNIQUE,    "Sense Unique",    20, _ALLOW_ALL },
+        { OF_TELEPATHY,     "Telepathy",       40, _ALLOW_ALL },
+        { OF_ESP_ANIMAL,    "Sense Animals",   30, _ALLOW_ALL },
+        { OF_ESP_UNDEAD,    "Sense Undead",    40, _ALLOW_ALL },
+        { OF_ESP_DEMON,     "Sense Demon",     40, _ALLOW_ALL },
+        { OF_ESP_ORC,       "Sense Orc",       20, _ALLOW_ALL },
+        { OF_ESP_TROLL,     "Sense Troll",     20, _ALLOW_ALL },
+        { OF_ESP_GIANT,     "Sense Giant",     20, _ALLOW_ALL },
+        { OF_ESP_DRAGON,    "Sense Dragon",    30, _ALLOW_ALL },
+        { OF_ESP_HUMAN,     "Sense Human",     20, _ALLOW_ALL },
+        { OF_ESP_EVIL,      "Sense Evil",      40, _ALLOW_ALL },
+        { OF_ESP_GOOD,      "Sense Good",      20, _ALLOW_ALL },
+        { OF_ESP_NONLIVING, "Sense Nonliving", 40, _ALLOW_ALL },
+        { OF_ESP_UNIQUE,    "Sense Unique",    20, _ALLOW_ALL },
         { _ESSENCE_NONE } } },
 };
 
@@ -412,11 +414,11 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     int          i,j;
     int          div = 1;
     int          mult = o_ptr->number;
-    u32b         old_flgs[TR_FLAG_SIZE], new_flgs[TR_FLAG_SIZE];
+    u32b         old_flgs[OF_ARRAY_SIZE], new_flgs[OF_ARRAY_SIZE];
     object_type  old_obj = *o_ptr;
     object_type  new_obj = {0};
 
-    object_flags(&old_obj, old_flgs);
+    obj_flags(&old_obj, old_flgs);
 
     /* Mundanity */
     object_prep(&new_obj, o_ptr->k_idx);
@@ -426,17 +428,15 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     new_obj.marked = old_obj.marked;
     new_obj.number = old_obj.number;
     if (old_obj.tval == TV_DRAG_ARMOR) new_obj.timeout = old_obj.timeout;
-    new_obj.ident |= (IDENT_FULL);
-    object_aware(&new_obj);
-    object_known(&new_obj);
-    object_flags(&new_obj, new_flgs);
+    obj_identify_fully(&new_obj);
+    obj_flags(&new_obj, new_flgs);
 
     /* Ammo and Curses */
-    if (o_ptr->curse_flags & (TRC_CURSED | TRC_HEAVY_CURSE | TRC_PERMA_CURSE)) div++;
-    if (have_flag(old_flgs, TR_AGGRAVATE)) div++;
-    if (have_flag(old_flgs, TR_NO_TELE)) div++;
-    if (have_flag(old_flgs, TR_DRAIN_EXP)) div++;
-    if (have_flag(old_flgs, TR_TY_CURSE)) div++;
+    if (o_ptr->curse_flags & (OFC_CURSED | OFC_HEAVY_CURSE | OFC_PERMA_CURSE)) div++;
+    if (have_flag(old_flgs, OF_AGGRAVATE)) div++;
+    if (have_flag(old_flgs, OF_NO_TELE)) div++;
+    if (have_flag(old_flgs, OF_DRAIN_EXP)) div++;
+    if (have_flag(old_flgs, OF_TY_CURSE)) div++;
 
     if (object_is_ammo(&old_obj))
         div *= _AMMO_DIV;
@@ -457,7 +457,7 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
             if (info_ptr->id == _ESSENCE_XTRA_MIGHT) continue;
             if (info_ptr->id == _ESSENCE_SPECIAL) continue;
 
-            assert(info_ptr->id < TR_FLAG_COUNT);
+            assert(info_ptr->id < OF_COUNT);
             if (have_flag(old_flgs, info_ptr->id))
             {
                 if (i == ESSENCE_TYPE_STATS || i == ESSENCE_TYPE_BONUSES)
@@ -477,7 +477,7 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
     }
 
     /* Special Handling */
-    if (object_is_weapon_ammo(&old_obj) && !have_flag(old_flgs, TR_ORDER) && !have_flag(old_flgs, TR_WILD))
+    if (object_is_weapon_ammo(&old_obj) && !have_flag(old_flgs, OF_BRAND_ORDER) && !have_flag(old_flgs, OF_BRAND_WILD))
     {
         if (old_obj.ds > new_obj.ds)
             absorb_f(_find_essence_info(_ESSENCE_XTRA_DICE), (old_obj.ds - new_obj.ds)*10*mult/div);
@@ -506,14 +506,18 @@ static void _absorb_all(object_type *o_ptr, _absorb_essence_f absorb_f)
             absorb_f(_find_essence_info(_ESSENCE_TO_DAM_A), (old_obj.to_d - new_obj.to_d)*10*mult/div);
     }
 
+    /* Extra Boosts */
+    if (old_obj.name1 == ART_MUSASI_KATANA || old_obj.name1 == ART_MUSASI_WAKIZASI)
+        absorb_f(_find_essence_info(OF_DUAL_WIELDING), 10);
+
     *o_ptr = new_obj;
 }
 
 static void _remove(object_type *o_ptr)
 {
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
 
-    if (o_ptr->xtra3 == 1+_ESSENCE_SPECIAL)
+    if (o_ptr->xtra3 == _ESSENCE_SPECIAL)
     {
         if (o_ptr->xtra1 == _SPECIAL_SLAYING )
         {
@@ -526,21 +530,21 @@ static void _remove(object_type *o_ptr)
         }
         o_ptr->xtra1 = 0;
     }
-    else if (o_ptr->xtra3 == 1+_ESSENCE_XTRA_DICE)
+    else if (o_ptr->xtra3 == _ESSENCE_XTRA_DICE)
     {
         o_ptr->dd -= o_ptr->xtra4;
         o_ptr->xtra4 = 0;
         if (o_ptr->dd < 1) o_ptr->dd = 1;
     }
-    else if (o_ptr->xtra3 == 1+_ESSENCE_XTRA_MIGHT)
+    else if (o_ptr->xtra3 == _ESSENCE_XTRA_MIGHT)
     {
         o_ptr->mult -= o_ptr->xtra4*25;
         o_ptr->xtra4 = 0;
         if (o_ptr->mult < 100) o_ptr->dd = 100;
     }
     o_ptr->xtra3 = 0;
-    object_flags(o_ptr, flgs);
-    if (!have_pval_flags(flgs))
+    obj_flags(o_ptr, flgs);
+    if (!have_pval_flag(flgs))
         o_ptr->pval = 0;
 }
 
@@ -641,14 +645,14 @@ static int _smith_add_slaying(object_type *o_ptr);
      from the predicted results.
  */
 static string_ptr _spy_results = NULL;
-static u32b       _spy_known_flags[TR_FLAG_SIZE];
+static u32b       _spy_known_flags[OF_ARRAY_SIZE];
 static void _absorb_one_spy(_essence_info_ptr info, int amt)
 {
     assert(info);
     assert(_spy_results);
 
     /*           v~~~~~~ All of the special flags are obvious if the object has been identified */
-    if (info->id >= TR_FLAG_COUNT || have_flag(_spy_known_flags, info->id))
+    if (info->id >= OF_COUNT || have_flag(_spy_known_flags, info->id))
     {                             /* ^~~~~~~~ But everything else requires player awareness */
         string_printf(_spy_results, "      You will gain <color:B>%s</color>: %d\n", info->name, amt);
     }
@@ -674,7 +678,7 @@ static int _smith_absorb(object_type *o_ptr)
 
     if (object_is_known(o_ptr))
     {
-        object_flags_known(o_ptr, _spy_known_flags);
+        obj_flags_known(o_ptr, _spy_known_flags);
 
         spy_before = string_alloc();
         _spy_results = spy_before;
@@ -694,7 +698,7 @@ static int _smith_absorb(object_type *o_ptr)
             if (spy_before)
             {
                 doc_insert(_doc, string_buffer(spy_before));
-                if (!(o_ptr->ident & IDENT_FULL) && !object_is_nameless(o_ptr))
+                if (!obj_is_identified_fully(o_ptr) && !object_is_nameless(o_ptr))
                     doc_insert(_doc, "      And perhaps more?\n");
             }
             else
@@ -750,7 +754,7 @@ static int _smith_remove(object_type *o_ptr)
 {
     rect_t r = ui_map_rect();
     cptr   name = "Unknown";
-    int    id = o_ptr->xtra3 - 1;
+    int    id = o_ptr->xtra3;
 
     if (id != _ESSENCE_SPECIAL)
     {
@@ -839,12 +843,12 @@ static int _smith_enchant_armor(object_type *o_ptr)
     int    cost_a = 0;
 
     {
-        u32b   flgs[TR_FLAG_SIZE];
-        object_flags(o_ptr, flgs); /* don't use object_flags_known ... it is broken for TR_IGNORE_ACID */
-        if (!have_flag(flgs, TR_IGNORE_ACID))
+        u32b   flgs[OF_ARRAY_SIZE];
+        obj_flags(o_ptr, flgs); /* don't use object_flags_known ... it is broken for TR_IGNORE_ACID */
+        if (!have_flag(flgs, OF_IGNORE_ACID))
         {
             can_rustproof = TRUE;
-            avail_rustproof = _get_essence(TR_IGNORE_ACID);
+            avail_rustproof = _get_essence(OF_IGNORE_ACID);
         }
     }
 
@@ -927,9 +931,10 @@ static int _smith_enchant_armor(object_type *o_ptr)
         case 'R': case 'r':
             if (can_rustproof && avail_rustproof >= _COST_RUSTPROOF)
             {
-                add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
+                add_flag(o_ptr->flags, OF_IGNORE_ACID);
+                add_flag(o_ptr->known_flags, OF_IGNORE_ACID);
                 can_rustproof = FALSE;
-                _add_essence(TR_IGNORE_ACID, -_COST_RUSTPROOF);
+                _add_essence(OF_IGNORE_ACID, -_COST_RUSTPROOF);
             }
             break;
         }
@@ -1210,7 +1215,7 @@ static int _smith_add_slaying(object_type *o_ptr)
             to_d = to_d/2 + randint0((to_d+1)/2 + 1);
             o_ptr->to_h += to_h;
             o_ptr->to_d += to_d;
-            o_ptr->xtra3 = _ESSENCE_SPECIAL + 1;
+            o_ptr->xtra3 = _ESSENCE_SPECIAL;
             o_ptr->xtra1 = _SPECIAL_SLAYING;
             o_ptr->xtra4 = (to_h<<8) + to_d;
             _add_essence(_ESSENCE_TO_HIT_A, -cost_h);
@@ -1234,10 +1239,10 @@ static int _smith_add_essence(object_type *o_ptr, int type)
        the required type, and we avoid adding a redundant ability
        (that the player is aware of) */
     {
-        u32b flgs[TR_FLAG_SIZE];
+        u32b flgs[OF_ARRAY_SIZE];
         int  i;
 
-        object_flags_known(o_ptr, flgs);
+        obj_flags_known(o_ptr, flgs);
 
         for (i = 0; i < _MAX_INFO_PER_TYPE; i++)
         {
@@ -1246,9 +1251,9 @@ static int _smith_add_essence(object_type *o_ptr, int type)
 
             if (!_object_is_allowed(o_ptr, info_ptr->flags)) continue;
 
-            if (info_ptr->id < TR_FLAG_COUNT)
+            if (info_ptr->id < OF_COUNT)
             {
-                if (info_ptr->id == TR_IGNORE_ACID) continue; /* Rustproofing is handled by 'Enchant' */
+                if (info_ptr->id == OF_IGNORE_ACID) continue; /* Rustproofing is handled by 'Enchant' */
                 if (!_get_essence(info_ptr->id)) continue;
                 if (have_flag(flgs, info_ptr->id)) continue;
             }
@@ -1257,88 +1262,88 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                 assert(info_ptr->id == _ESSENCE_SPECIAL);
                 if (info_ptr->xtra == _SPECIAL_SUST_ALL)
                 {
-                    if ( !_get_essence(TR_SUST_STR)
-                      || !_get_essence(TR_SUST_INT)
-                      || !_get_essence(TR_SUST_WIS)
-                      || !_get_essence(TR_SUST_DEX)
-                      || !_get_essence(TR_SUST_CON)
-                      || !_get_essence(TR_SUST_CHR) )
+                    if ( !_get_essence(OF_SUST_STR)
+                      || !_get_essence(OF_SUST_INT)
+                      || !_get_essence(OF_SUST_WIS)
+                      || !_get_essence(OF_SUST_DEX)
+                      || !_get_essence(OF_SUST_CON)
+                      || !_get_essence(OF_SUST_CHR) )
                     {
                         continue;
                     }
 
-                    if ( have_flag(flgs, TR_SUST_STR)
-                      && have_flag(flgs, TR_SUST_INT)
-                      && have_flag(flgs, TR_SUST_WIS)
-                      && have_flag(flgs, TR_SUST_DEX)
-                      && have_flag(flgs, TR_SUST_CON)
-                      && have_flag(flgs, TR_SUST_CHR) )
+                    if ( have_flag(flgs, OF_SUST_STR)
+                      && have_flag(flgs, OF_SUST_INT)
+                      && have_flag(flgs, OF_SUST_WIS)
+                      && have_flag(flgs, OF_SUST_DEX)
+                      && have_flag(flgs, OF_SUST_CON)
+                      && have_flag(flgs, OF_SUST_CHR) )
                     {
                         continue;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_RES_BASE)
                 {
-                    if ( !_get_essence(TR_RES_ACID)
-                      || !_get_essence(TR_RES_ELEC)
-                      || !_get_essence(TR_RES_FIRE)
-                      || !_get_essence(TR_RES_COLD) )
+                    if ( !_get_essence(OF_RES_ACID)
+                      || !_get_essence(OF_RES_ELEC)
+                      || !_get_essence(OF_RES_FIRE)
+                      || !_get_essence(OF_RES_COLD) )
                     {
                         continue;
                     }
 
-                    if ( have_flag(flgs, TR_RES_ACID)
-                      && have_flag(flgs, TR_RES_ELEC)
-                      && have_flag(flgs, TR_RES_FIRE)
-                      && have_flag(flgs, TR_RES_COLD) )
+                    if ( have_flag(flgs, OF_RES_ACID)
+                      && have_flag(flgs, OF_RES_ELEC)
+                      && have_flag(flgs, OF_RES_FIRE)
+                      && have_flag(flgs, OF_RES_COLD) )
                     {
                         continue;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_BRAND_ELEMENTS)
                 {
-                    if ( !_get_essence(TR_BRAND_ELEC)
-                      || !_get_essence(TR_BRAND_FIRE)
-                      || !_get_essence(TR_BRAND_COLD) )
+                    if ( !_get_essence(OF_BRAND_ELEC)
+                      || !_get_essence(OF_BRAND_FIRE)
+                      || !_get_essence(OF_BRAND_COLD) )
                     {
                         continue;
                     }
 
-                    if ( have_flag(flgs, TR_BRAND_ELEC)
-                      && have_flag(flgs, TR_BRAND_FIRE)
-                      && have_flag(flgs, TR_BRAND_COLD) )
+                    if ( have_flag(flgs, OF_BRAND_ELEC)
+                      && have_flag(flgs, OF_BRAND_FIRE)
+                      && have_flag(flgs, OF_BRAND_COLD) )
                     {
                         continue;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_PROTECTION)
                 {
-                    if ( !_get_essence(TR_FREE_ACT)
-                      || !_get_essence(TR_SEE_INVIS)
-                      || !_get_essence(TR_HOLD_LIFE) )
+                    if ( !_get_essence(OF_FREE_ACT)
+                      || !_get_essence(OF_SEE_INVIS)
+                      || !_get_essence(OF_HOLD_LIFE) )
                     {
                         continue;
                     }
 
-                    if ( have_flag(flgs, TR_FREE_ACT)
-                      && have_flag(flgs, TR_SEE_INVIS)
-                      && have_flag(flgs, TR_HOLD_LIFE) )
+                    if ( have_flag(flgs, OF_FREE_ACT)
+                      && have_flag(flgs, OF_SEE_INVIS)
+                      && have_flag(flgs, OF_HOLD_LIFE) )
                     {
                         continue;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_AURA_ELEMENTS)
                 {
-                    if ( !_get_essence(TR_SH_ELEC)
-                      || !_get_essence(TR_SH_FIRE)
-                      || !_get_essence(TR_SH_COLD) )
+                    if ( !_get_essence(OF_AURA_ELEC)
+                      || !_get_essence(OF_AURA_FIRE)
+                      || !_get_essence(OF_AURA_COLD) )
                     {
                         continue;
                     }
 
-                    if ( have_flag(flgs, TR_SH_ELEC)
-                      && have_flag(flgs, TR_SH_FIRE)
-                      && have_flag(flgs, TR_SH_COLD) )
+                    if ( have_flag(flgs, OF_AURA_ELEC)
+                      && have_flag(flgs, OF_AURA_FIRE)
+                      && have_flag(flgs, OF_AURA_COLD) )
                     {
                         continue;
                     }
@@ -1399,12 +1404,12 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                     if (info_ptr->xtra == _SPECIAL_SUST_ALL)
                     {
                         bool ok = TRUE;
-                        if (cost > _get_essence(TR_SUST_STR)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SUST_INT)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SUST_WIS)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SUST_DEX)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SUST_CON)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SUST_CHR)) ok = FALSE;
+                        if (cost > _get_essence(OF_SUST_STR)) ok = FALSE;
+                        else if (cost > _get_essence(OF_SUST_INT)) ok = FALSE;
+                        else if (cost > _get_essence(OF_SUST_WIS)) ok = FALSE;
+                        else if (cost > _get_essence(OF_SUST_DEX)) ok = FALSE;
+                        else if (cost > _get_essence(OF_SUST_CON)) ok = FALSE;
+                        else if (cost > _get_essence(OF_SUST_CHR)) ok = FALSE;
                         doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1416,10 +1421,10 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                     else if (info_ptr->xtra == _SPECIAL_RES_BASE)
                     {
                         bool ok = TRUE;
-                        if (cost > _get_essence(TR_RES_ACID)) ok = FALSE;
-                        else if (cost > _get_essence(TR_RES_ELEC)) ok = FALSE;
-                        else if (cost > _get_essence(TR_RES_FIRE)) ok = FALSE;
-                        else if (cost > _get_essence(TR_RES_COLD)) ok = FALSE;
+                        if (cost > _get_essence(OF_RES_ACID)) ok = FALSE;
+                        else if (cost > _get_essence(OF_RES_ELEC)) ok = FALSE;
+                        else if (cost > _get_essence(OF_RES_FIRE)) ok = FALSE;
+                        else if (cost > _get_essence(OF_RES_COLD)) ok = FALSE;
                         doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1431,9 +1436,9 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                     else if (info_ptr->xtra == _SPECIAL_BRAND_ELEMENTS)
                     {
                         bool ok = TRUE;
-                        if (cost > _get_essence(TR_BRAND_ELEC)) ok = FALSE;
-                        else if (cost > _get_essence(TR_BRAND_FIRE)) ok = FALSE;
-                        else if (cost > _get_essence(TR_BRAND_COLD)) ok = FALSE;
+                        if (cost > _get_essence(OF_BRAND_ELEC)) ok = FALSE;
+                        else if (cost > _get_essence(OF_BRAND_FIRE)) ok = FALSE;
+                        else if (cost > _get_essence(OF_BRAND_COLD)) ok = FALSE;
                         doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1445,9 +1450,9 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                     else if (info_ptr->xtra == _SPECIAL_PROTECTION)
                     {
                         bool ok = TRUE;
-                        if (cost > _get_essence(TR_FREE_ACT)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SEE_INVIS)) ok = FALSE;
-                        else if (cost > _get_essence(TR_HOLD_LIFE)) ok = FALSE;
+                        if (cost > _get_essence(OF_FREE_ACT)) ok = FALSE;
+                        else if (cost > _get_essence(OF_SEE_INVIS)) ok = FALSE;
+                        else if (cost > _get_essence(OF_HOLD_LIFE)) ok = FALSE;
                         doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1459,9 +1464,9 @@ static int _smith_add_essence(object_type *o_ptr, int type)
                     else if (info_ptr->xtra == _SPECIAL_AURA_ELEMENTS)
                     {
                         bool ok = TRUE;
-                        if (cost > _get_essence(TR_SH_ELEC)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SH_FIRE)) ok = FALSE;
-                        else if (cost > _get_essence(TR_SH_COLD)) ok = FALSE;
+                        if (cost > _get_essence(OF_AURA_ELEC)) ok = FALSE;
+                        else if (cost > _get_essence(OF_AURA_FIRE)) ok = FALSE;
+                        else if (cost > _get_essence(OF_AURA_COLD)) ok = FALSE;
                         doc_printf(cols[doc_idx], " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>\n",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1522,79 +1527,79 @@ static int _smith_add_essence(object_type *o_ptr, int type)
             {
                 if (info_ptr->xtra == _SPECIAL_SUST_ALL)
                 {
-                    if ( cost <= _get_essence(TR_SUST_STR)
-                      && cost <= _get_essence(TR_SUST_INT)
-                      && cost <= _get_essence(TR_SUST_WIS)
-                      && cost <= _get_essence(TR_SUST_DEX)
-                      && cost <= _get_essence(TR_SUST_CON)
-                      && cost <= _get_essence(TR_SUST_CHR) )
+                    if ( cost <= _get_essence(OF_SUST_STR)
+                      && cost <= _get_essence(OF_SUST_INT)
+                      && cost <= _get_essence(OF_SUST_WIS)
+                      && cost <= _get_essence(OF_SUST_DEX)
+                      && cost <= _get_essence(OF_SUST_CON)
+                      && cost <= _get_essence(OF_SUST_CHR) )
                     {
-                        o_ptr->xtra3 = _ESSENCE_SPECIAL + 1;
+                        o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_SUST_ALL;
-                        _add_essence(TR_SUST_STR, -cost);
-                        _add_essence(TR_SUST_INT, -cost);
-                        _add_essence(TR_SUST_WIS, -cost);
-                        _add_essence(TR_SUST_DEX, -cost);
-                        _add_essence(TR_SUST_CON, -cost);
-                        _add_essence(TR_SUST_CHR, -cost);
+                        _add_essence(OF_SUST_STR, -cost);
+                        _add_essence(OF_SUST_INT, -cost);
+                        _add_essence(OF_SUST_WIS, -cost);
+                        _add_essence(OF_SUST_DEX, -cost);
+                        _add_essence(OF_SUST_CON, -cost);
+                        _add_essence(OF_SUST_CHR, -cost);
                         done = TRUE;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_RES_BASE)
                 {
-                    if ( cost <= _get_essence(TR_RES_ACID)
-                      && cost <= _get_essence(TR_RES_ELEC)
-                      && cost <= _get_essence(TR_RES_FIRE)
-                      && cost <= _get_essence(TR_RES_COLD) )
+                    if ( cost <= _get_essence(OF_RES_ACID)
+                      && cost <= _get_essence(OF_RES_ELEC)
+                      && cost <= _get_essence(OF_RES_FIRE)
+                      && cost <= _get_essence(OF_RES_COLD) )
                     {
-                        o_ptr->xtra3 = _ESSENCE_SPECIAL + 1;
+                        o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_RES_BASE;
-                        _add_essence(TR_RES_ACID, -cost);
-                        _add_essence(TR_RES_ELEC, -cost);
-                        _add_essence(TR_RES_FIRE, -cost);
-                        _add_essence(TR_RES_COLD, -cost);
+                        _add_essence(OF_RES_ACID, -cost);
+                        _add_essence(OF_RES_ELEC, -cost);
+                        _add_essence(OF_RES_FIRE, -cost);
+                        _add_essence(OF_RES_COLD, -cost);
                         done = TRUE;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_BRAND_ELEMENTS)
                 {
-                    if ( cost <= _get_essence(TR_BRAND_ELEC)
-                      && cost <= _get_essence(TR_BRAND_FIRE)
-                      && cost <= _get_essence(TR_BRAND_COLD) )
+                    if ( cost <= _get_essence(OF_BRAND_ELEC)
+                      && cost <= _get_essence(OF_BRAND_FIRE)
+                      && cost <= _get_essence(OF_BRAND_COLD) )
                     {
-                        o_ptr->xtra3 = _ESSENCE_SPECIAL + 1;
+                        o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_BRAND_ELEMENTS;
-                        _add_essence(TR_BRAND_ELEC, -cost);
-                        _add_essence(TR_BRAND_FIRE, -cost);
-                        _add_essence(TR_BRAND_COLD, -cost);
+                        _add_essence(OF_BRAND_ELEC, -cost);
+                        _add_essence(OF_BRAND_FIRE, -cost);
+                        _add_essence(OF_BRAND_COLD, -cost);
                         done = TRUE;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_PROTECTION)
                 {
-                    if ( cost <= _get_essence(TR_FREE_ACT)
-                      && cost <= _get_essence(TR_SEE_INVIS)
-                      && cost <= _get_essence(TR_HOLD_LIFE) )
+                    if ( cost <= _get_essence(OF_FREE_ACT)
+                      && cost <= _get_essence(OF_SEE_INVIS)
+                      && cost <= _get_essence(OF_HOLD_LIFE) )
                     {
-                        o_ptr->xtra3 = _ESSENCE_SPECIAL + 1;
+                        o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_PROTECTION;
-                        _add_essence(TR_FREE_ACT, -cost);
-                        _add_essence(TR_SEE_INVIS, -cost);
-                        _add_essence(TR_HOLD_LIFE, -cost);
+                        _add_essence(OF_FREE_ACT, -cost);
+                        _add_essence(OF_SEE_INVIS, -cost);
+                        _add_essence(OF_HOLD_LIFE, -cost);
                         done = TRUE;
                     }
                 }
                 else if (info_ptr->xtra == _SPECIAL_AURA_ELEMENTS)
                 {
-                    if ( cost <= _get_essence(TR_SH_ELEC)
-                      && cost <= _get_essence(TR_SH_FIRE)
-                      && cost <= _get_essence(TR_SH_COLD) )
+                    if ( cost <= _get_essence(OF_AURA_ELEC)
+                      && cost <= _get_essence(OF_AURA_FIRE)
+                      && cost <= _get_essence(OF_AURA_COLD) )
                     {
-                        o_ptr->xtra3 = _ESSENCE_SPECIAL + 1;
+                        o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_AURA_ELEMENTS;
-                        _add_essence(TR_SH_ELEC, -cost);
-                        _add_essence(TR_SH_FIRE, -cost);
-                        _add_essence(TR_SH_COLD, -cost);
+                        _add_essence(OF_AURA_ELEC, -cost);
+                        _add_essence(OF_AURA_FIRE, -cost);
+                        _add_essence(OF_AURA_COLD, -cost);
                         done = TRUE;
                     }
                 }
@@ -1605,7 +1610,7 @@ static int _smith_add_essence(object_type *o_ptr, int type)
 
                 if (cost <= avail)
                 {
-                    o_ptr->xtra3 = info_ptr->id + 1;
+                    o_ptr->xtra3 = info_ptr->id;
                     _add_essence(info_ptr->id, -cost);
                     done = TRUE;
                 }
@@ -1648,10 +1653,10 @@ static int _smith_add_pval(object_type *o_ptr, int type)
        the required type, and we avoid adding a redundant ability
        (that the player is aware of) */
     {
-        u32b flgs[TR_FLAG_SIZE];
+        u32b flgs[OF_ARRAY_SIZE];
         int  i;
 
-        object_flags_known(o_ptr, flgs);
+        obj_flags_known(o_ptr, flgs);
 
         for (i = 0; i < _MAX_INFO_PER_TYPE; i++)
         {
@@ -1664,16 +1669,16 @@ static int _smith_add_pval(object_type *o_ptr, int type)
             {
                 if (info_ptr->xtra == _SPECIAL_MIGHT)
                 {
-                    if ( !_get_essence(TR_STR)
-                      || !_get_essence(TR_DEX)
-                      || !_get_essence(TR_CON) )
+                    if ( !_get_essence(OF_STR)
+                      || !_get_essence(OF_DEX)
+                      || !_get_essence(OF_CON) )
                     {
                         continue;
                     }
 
-                    if ( have_flag(flgs, TR_STR)
-                      && have_flag(flgs, TR_DEX)
-                      && have_flag(flgs, TR_CON) )
+                    if ( have_flag(flgs, OF_STR)
+                      && have_flag(flgs, OF_DEX)
+                      && have_flag(flgs, OF_CON) )
                     {
                         continue;
                     }
@@ -1682,7 +1687,7 @@ static int _smith_add_pval(object_type *o_ptr, int type)
             else
             {
                 if (!_get_essence(info_ptr->id)) continue;
-                if (info_ptr->id < TR_FLAG_COUNT && have_flag(flgs, info_ptr->id)) continue;
+                if (info_ptr->id < OF_COUNT && have_flag(flgs, info_ptr->id)) continue;
             }
             vec_add(choices, info_ptr);
 
@@ -1761,9 +1766,9 @@ static int _smith_add_pval(object_type *o_ptr, int type)
                     if (info_ptr->xtra == _SPECIAL_MIGHT)
                     {
                         bool ok = TRUE;
-                        if (cost > _get_essence(TR_STR)) ok = FALSE;
-                        else if (cost > _get_essence(TR_DEX)) ok = FALSE;
-                        else if (cost > _get_essence(TR_CON)) ok = FALSE;
+                        if (cost > _get_essence(OF_STR)) ok = FALSE;
+                        else if (cost > _get_essence(OF_DEX)) ok = FALSE;
+                        else if (cost > _get_essence(OF_CON)) ok = FALSE;
                         doc_printf(_doc, " <color:%c>  %c</color>) %-15.15s  <color:%c>%4d</color>  <color:%c>%4d</color>",
                             ok ? 'y' : 'D',
                             'A' + i,
@@ -1792,7 +1797,7 @@ static int _smith_add_pval(object_type *o_ptr, int type)
 
                 if (capped)
                 {
-                    if (plus < o_ptr->pval && info_ptr->id < TR_FLAG_COUNT)
+                    if (plus < o_ptr->pval && info_ptr->id < OF_COUNT)
                     {
                         doc_printf(_doc, " <color:v>Bonus is capped at %+d<color:o>*</color></color>", info_ptr->max);
                         do_pval_warning = TRUE;
@@ -1854,16 +1859,16 @@ static int _smith_add_pval(object_type *o_ptr, int type)
             {
                 if (info_ptr->xtra == _SPECIAL_MIGHT)
                 {
-                    if ( cost <= _get_essence(TR_STR)
-                      && cost <= _get_essence(TR_DEX)
-                      && cost <= _get_essence(TR_CON) )
+                    if ( cost <= _get_essence(OF_STR)
+                      && cost <= _get_essence(OF_DEX)
+                      && cost <= _get_essence(OF_CON) )
                     {
-                        o_ptr->xtra3 = _ESSENCE_SPECIAL + 1;
+                        o_ptr->xtra3 = _ESSENCE_SPECIAL;
                         o_ptr->xtra1 = _SPECIAL_MIGHT;
                         o_ptr->pval = plus;
-                        _add_essence(TR_STR, -cost);
-                        _add_essence(TR_DEX, -cost);
-                        _add_essence(TR_CON, -cost);
+                        _add_essence(OF_STR, -cost);
+                        _add_essence(OF_DEX, -cost);
+                        _add_essence(OF_CON, -cost);
                         done = TRUE;
                     }
                 }
@@ -1873,10 +1878,10 @@ static int _smith_add_pval(object_type *o_ptr, int type)
                 int avail = _get_essence(info_ptr->id);
                 if (cost <= avail)
                 {
-                    o_ptr->xtra3 = info_ptr->id + 1;
+                    o_ptr->xtra3 = info_ptr->id;
                     _add_essence(info_ptr->id, -cost);
                     done = TRUE;
-                    if (info_ptr->id < TR_FLAG_COUNT)
+                    if (info_ptr->id < OF_COUNT)
                     {
                         o_ptr->pval = plus;
                     }
@@ -1925,9 +1930,9 @@ static int _smith_add_pval(object_type *o_ptr, int type)
 static void _character_dump_aux(doc_ptr doc);
 static bool _can_enchant(object_type *o_ptr)
 {
-    u32b flgs[TR_FLAG_SIZE];
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_NO_ENCHANT)) /* Harps, Guns, Runeswords, Kamikaze Robes, etc. */
+    u32b flgs[OF_ARRAY_SIZE];
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_NO_ENCHANT)) /* Harps, Guns, Runeswords, Kamikaze Robes, etc. */
         return FALSE;
     return TRUE;
 }
@@ -1959,7 +1964,7 @@ static void _smith_weapon_armor(object_type *o_ptr)
         doc_insert(_doc, "   <color:y>A</color>) Absorb all essences\n");
         if (object_is_smith(o_ptr))
             doc_insert(_doc, "   <color:y>R</color>) Remove added essence\n");
-        else if (object_is_artifact(o_ptr))
+        else if (object_is_artifact(o_ptr) || object_is_(o_ptr, TV_SWORD, SV_RUNESWORD))
         {
         }
         else
@@ -2202,10 +2207,7 @@ static bool _smithing(void)
     {
         identify_item(o_ptr);
         if (p_ptr->lev >= 30)
-        {
-            o_ptr->ident |= IDENT_FULL;
-            ego_aware(o_ptr);
-        }
+            obj_identify_fully(o_ptr);
     }
     old_obj = *o_ptr;
 
@@ -2532,13 +2534,13 @@ class_t *weaponsmith_get_class(void)
     return &me;
 }
 
-void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
+void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE])
 {
     if (object_is_smith(o_ptr))
     {
-        int add = o_ptr->xtra3 - 1;
+        int add = o_ptr->xtra3;
 
-        if (add < TR_FLAG_COUNT)
+        if (add < OF_COUNT)
             add_flag(flgs, add);
 
         else if (add == _ESSENCE_SPECIAL)
@@ -2546,41 +2548,41 @@ void weaponsmith_object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
             switch (o_ptr->xtra1)
             {
             case _SPECIAL_RES_BASE:
-                add_flag(flgs, TR_RES_ACID);
-                add_flag(flgs, TR_RES_ELEC);
-                add_flag(flgs, TR_RES_FIRE);
-                add_flag(flgs, TR_RES_COLD);
+                add_flag(flgs, OF_RES_ACID);
+                add_flag(flgs, OF_RES_ELEC);
+                add_flag(flgs, OF_RES_FIRE);
+                add_flag(flgs, OF_RES_COLD);
                 break;
             case _SPECIAL_SUST_ALL:
-                add_flag(flgs, TR_SUST_STR);
-                add_flag(flgs, TR_SUST_INT);
-                add_flag(flgs, TR_SUST_WIS);
-                add_flag(flgs, TR_SUST_DEX);
-                add_flag(flgs, TR_SUST_CON);
-                add_flag(flgs, TR_SUST_CHR);
+                add_flag(flgs, OF_SUST_STR);
+                add_flag(flgs, OF_SUST_INT);
+                add_flag(flgs, OF_SUST_WIS);
+                add_flag(flgs, OF_SUST_DEX);
+                add_flag(flgs, OF_SUST_CON);
+                add_flag(flgs, OF_SUST_CHR);
                 break;
             case _SPECIAL_SLAYING:
-                add_flag(flgs, TR_SHOW_MODS);
+                add_flag(flgs, OF_SHOW_MODS);
                 break;
             case _SPECIAL_BRAND_ELEMENTS:
-                add_flag(flgs, TR_BRAND_ELEC);
-                add_flag(flgs, TR_BRAND_FIRE);
-                add_flag(flgs, TR_BRAND_COLD);
+                add_flag(flgs, OF_BRAND_ELEC);
+                add_flag(flgs, OF_BRAND_FIRE);
+                add_flag(flgs, OF_BRAND_COLD);
                 break;
             case _SPECIAL_MIGHT:
-                add_flag(flgs, TR_STR);
-                add_flag(flgs, TR_DEX);
-                add_flag(flgs, TR_CON);
+                add_flag(flgs, OF_STR);
+                add_flag(flgs, OF_DEX);
+                add_flag(flgs, OF_CON);
                 break;
             case _SPECIAL_PROTECTION:
-                add_flag(flgs, TR_FREE_ACT);
-                add_flag(flgs, TR_SEE_INVIS);
-                add_flag(flgs, TR_HOLD_LIFE);
+                add_flag(flgs, OF_FREE_ACT);
+                add_flag(flgs, OF_SEE_INVIS);
+                add_flag(flgs, OF_HOLD_LIFE);
                 break;
             case _SPECIAL_AURA_ELEMENTS:
-                add_flag(flgs, TR_SH_ELEC);
-                add_flag(flgs, TR_SH_FIRE);
-                add_flag(flgs, TR_SH_COLD);
+                add_flag(flgs, OF_AURA_ELEC);
+                add_flag(flgs, OF_AURA_FIRE);
+                add_flag(flgs, OF_AURA_COLD);
                 break;
             }
         }

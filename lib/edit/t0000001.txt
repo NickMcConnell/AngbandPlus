@@ -60,7 +60,7 @@ F:!:FLOOR:3:0:42
 # Ring of Protection
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Beholder Spider Ring] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
-F:!:FLOOR:3:0:132:300
+F:!:FLOOR:3:0:132:205
 
 # Boots
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Centipede] ]
@@ -90,7 +90,7 @@ F:!:FLOOR:3:0:37
 # Ring of Protection
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Lich Quylthulg] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
-F:!:FLOOR:3:0:132:300
+F:!:FLOOR:3:0:132:205
 
 # Rapier
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Duelist] ]
@@ -140,7 +140,7 @@ F:!:FLOOR:3:0:70
 # Ring of Protection
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
-F:!:FLOOR:3:0:132:300
+F:!:FLOOR:3:0:132:205
 
 # Dagger
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Ninja] ]
@@ -196,12 +196,12 @@ F:!:FLOOR:3:0:42
 # Ring of Wizardry
 ?:[AND [EQU $QUEST14 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
-F:!:FLOOR:3:0:132:305
+F:!:FLOOR:3:0:132:208
 
 # Ring of Combat
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Spider] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
-F:!:FLOOR:3:0:132:302
+F:!:FLOOR:3:0:132:206
 
 # Metal Shod Boots
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Centipede] ]
@@ -211,7 +211,7 @@ F:!:FLOOR:3:0:93
 # Elemental Ring
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Ring] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
-F:!:FLOOR:3:0:132:301
+F:!:FLOOR:3:0:132:201
 
 # Cloak
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Hydra Quylthulg] ]
@@ -361,12 +361,12 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:31
 # continue with quest 32
 ?:[EQU $QUEST31 3]
 F:a:BUILDING_0:3:0:0:0:0:NONE:32
-F:@:FLOOR:3:0:132:301
+F:@:FLOOR:3:0:132:201
 
 # Elemental Charm
 ?:[AND [EQU $QUEST31 3] [EQU $RACE Hydra] ]
 F:a:BUILDING_0:3:0:0:0:0:NONE:32
-F:@:FLOOR:3:0:163:321
+F:@:FLOOR:3:0:163:201
 
 # Quest 31 finished, continue with quest 32
 ?:[EQU $QUEST31 4]
@@ -548,7 +548,7 @@ F:@:FLOOR:3:0:0:0:42
 # Tulkas??
 ?:[AND [EQU $QUEST27 3] [EQU $RACE Ring] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-#F:@:FLOOR:3:0:132:306 <== Ring of Speed
+#F:@:FLOOR:3:0:132:209 <== Ring of Speed
 F:@:FLOOR:3:0:0:0:9
 
 # Tulkas
@@ -636,7 +636,7 @@ F:@:FLOOR:3:0:0:0:215
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:3
 
-# Whip of Dr. Jones ... note this class gets a buffed version!
+# Whip of Dr. Jones ... note this class gets a "buffed" version!
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:162

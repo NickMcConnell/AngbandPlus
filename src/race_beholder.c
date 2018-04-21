@@ -9,7 +9,7 @@ static void _birth(void)
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
     
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
-    forge.name2 = EGO_CROWN_SEEING;
+    forge.name2 = EGO_ARMOR_SEEING;
     forge.pval = 4;
     forge.to_a = 10;
     add_esp_weak(&forge, FALSE);
@@ -201,46 +201,46 @@ static void _calc_bonuses(void) {
         res_add(RES_POIS);
     }
 }
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_LEVITATION);
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_LEVITATION);
     if (p_ptr->lev >= 45)
     {
-        add_flag(flgs, TR_TELEPATHY);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_TELEPATHY);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
     }
     else if (p_ptr->lev >= 35)
     {
-        add_flag(flgs, TR_TELEPATHY);
-        add_flag(flgs, TR_RES_ACID);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_HOLD_LIFE);
+        add_flag(flgs, OF_TELEPATHY);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_HOLD_LIFE);
     }
     else if (p_ptr->lev >= 25)
     {
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
     }
     else if (p_ptr->lev >= 10)
     {
-        add_flag(flgs, TR_RES_FEAR);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
     }
     else
     {
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_POIS);
     }
 }
 static void _gain_level(int new_level) {

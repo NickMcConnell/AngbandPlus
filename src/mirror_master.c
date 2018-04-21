@@ -775,10 +775,10 @@ static void _calc_bonuses(void)
         p_ptr->reflect = TRUE;
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if(p_ptr->lev >= 40)
-        add_flag(flgs, TR_REFLECT);
+        add_flag(flgs, OF_REFLECT);
 }
 
 static void _on_fail(const spell_info *spell)

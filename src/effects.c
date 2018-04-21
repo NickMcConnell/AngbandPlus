@@ -3352,12 +3352,14 @@ bool set_superstealth(bool set)
         {
             if (cave[py][px].info & CAVE_MNLT)
             {
-                msg_print("You are mantled in weak shadow from ordinary eyes.");
+                if (disturb_minor)
+                    msg_print("<color:D>You are mantled in weak shadow from ordinary eyes.</color>");
                 p_ptr->monlite = p_ptr->old_monlite = TRUE;
             }
             else
             {
-                msg_print("You are mantled in shadow from ordinary eyes!");
+                if (disturb_minor)
+                    msg_print("<color:D>You are mantled in shadow from ordinary eyes!</color>");
                 p_ptr->monlite = p_ptr->old_monlite = FALSE;
             }
 
@@ -3373,7 +3375,8 @@ bool set_superstealth(bool set)
     {
         if (p_ptr->special_defense & NINJA_S_STEALTH)
         {
-            msg_print("You are exposed to common sight once more.");
+            if (disturb_minor)
+                msg_print("<color:y>You are exposed to common sight once more.</color>");
 
             notice = TRUE;
 
@@ -5406,6 +5409,7 @@ bool do_dec_stat(int stat)
         if (disturb_minor)
             msg_format("You feel %s for a moment, but the feeling passes.", desc_stat_neg[stat]);
 
+        equip_learn_flag(OF_SUST_STR + stat);
         return TRUE;
     }
 
@@ -5540,8 +5544,8 @@ bool lose_all_info(void)
         /* Skip non-objects */
         if (!o_ptr->k_idx) continue;
 
-        /* Allow "protection" by the MENTAL flag */
-        if (o_ptr->ident & (IDENT_FULL)) continue;
+        /* Allow "protection" by *ID* */
+        if (obj_is_identified_fully(o_ptr)) continue;
 
         /* Remove "default inscriptions" */
         o_ptr->feeling = FEEL_NONE;
@@ -6151,101 +6155,6 @@ void gain_exp(s32b amount)
 {
     gain_exp_64(amount, 0L);
 }
-
-
-void calc_android_exp(void)
-{
-    int slot;
-    s32b total_exp = 0;
-
-    if (p_ptr->is_dead) return;
-
-    if (p_ptr->prace != RACE_ANDROID) return;
-
-    for (slot = EQUIP_BEGIN; slot < EQUIP_BEGIN + equip_count(); slot++)
-    {
-        object_type *o_ptr = equip_obj(slot);
-        int          value, exp, level;
-
-        if (!o_ptr) continue;
-        if (object_is_jewelry(o_ptr)) continue;
-        if (o_ptr->tval == TV_LITE) continue;
-
-        level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
-
-        if (object_is_fixed_artifact(o_ptr))
-        {
-            level = (level + MAX(a_info[o_ptr->name1].level - 8, 5)) / 2;
-            level += MIN(20, a_info[o_ptr->name1].rarity/(a_info[o_ptr->name1].gen_flags & TRG_INSTA_ART ? 10 : 3));
-        }
-        else if (o_ptr->art_name || o_ptr->name2)
-        {
-            s32b total_flags = flag_cost(o_ptr, o_ptr->pval, FALSE);
-            int fake_level;
-
-            if (!object_is_weapon_ammo(o_ptr))
-            {
-                /* For armors */
-                if (total_flags < 15000) fake_level = 10;
-                else if (total_flags < 35000) fake_level = 25;
-                else fake_level = 40;
-            }
-            else
-            {
-                /* For weapons */
-                if (total_flags < 20000) fake_level = 10;
-                else if (total_flags < 45000) fake_level = 25;
-                else fake_level = 40;
-            }
-
-            level = MAX(level, (level + MAX(fake_level - 8, 5)) / 2 + 3);
-        }
-
-        {
-            object_type  copy = {0};
-            object_copy(&copy, o_ptr);
-            copy.discount = 0;
-            copy.curse_flags = 0L;
-            value = object_value_real(&copy);
-        }
-
-        if (value <= 0) continue;
-        if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI) && p_ptr->personality != PERS_SEXY) 
-            value /= 32;
-        if (value > 5000000L) value = 5000000L;
-        if (o_ptr->tval == TV_DRAG_ARMOR || o_ptr->tval == TV_CARD) level /= 2;
-
-        if ( object_is_artifact(o_ptr) 
-          || object_is_ego(o_ptr) 
-          || o_ptr->tval == TV_DRAG_ARMOR 
-          || object_is_dragon_armor(o_ptr)
-          || object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE) )
-        {
-            if (level > 65) level = 35 + (level - 65) / 5;
-            else if (level > 35) level = 25 + (level - 35) / 3;
-            else if (level > 15) level = 15 + (level - 15) / 2;
-            exp = MIN(100000L, value) * level * level / 2;
-            if (value > 100000L)
-                exp += (value - 100000L) * level * level / 8;
-        }
-        else
-        {
-            exp = MIN(100000L, value) * level;
-            if (value > 100000L)
-                exp += (value - 100000L) * level / 4;
-        }
-        if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_BOW)
-            total_exp += exp / 48;
-        else 
-            total_exp += exp / 16;
-
-        if (object_is_body_armour(o_ptr)) 
-            total_exp += exp / 32;
-    }
-    p_ptr->exp = p_ptr->max_exp = total_exp;
-    check_experience();
-}
-
 
 /*
  * Lose experience

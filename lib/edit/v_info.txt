@@ -876,8 +876,8 @@ M:     ###.###
 M:       ###       
 
 N:Mountain Resort
-T:WILD:MOUNTAIN
-W:1:*:200
+T:WILD:MOUNTAIN:SHOP
+W:50:*:32
 L:#:MOUNTAIN
 L:.:TREE
 L:1:GENERAL_STORE(GLOW)
@@ -4213,6 +4213,79 @@ M:%.....#.......#.....%
 M:%.....#########.....%
 M:%...................%
 M:%%%%%%%%%%%%%%%%%%%%%
+
+N:Black Market
+T:ROOM:NORMAL:SHOP
+W:20:*:8
+L:7:BLACK_MARKET(GLOW)
+M:%%%%%%%%%%%%%
+M:%...........%
+M:%.XXXX7XXXX.%
+M:%.XXXXXXXXX.%
+M:%.7XXXXXXX7.%
+M:%.XXXXXXXXX.%
+M:%.XXXX7XXXX.%
+M:%...........%
+M:%%%%%%%%%%%%%
+
+N:Black Market II
+T:ROOM:NORMAL:SHOP
+W:20:*:8
+L:7:BLACK_MARKET(GLOW)
+M:%%%%%%%%%%%%%
+M:%...........%
+M:%.XXXXXXXXX.%
+M:%.XXXXXXXXX.%
+M:%.'.....7XX.%
+M:%.XXXXXXXXX.%
+M:%.XXXXXXXXX.%
+M:%...........%
+M:%%%%%%%%%%%%%
+
+N:Black Market III
+T:ROOM:NORMAL:SHOP
+W:20:*:8
+L:7:BLACK_MARKET(GLOW)
+M:%%%%%%%%%%%%%
+M:%...........%
+M:%.XXXX'XXXX.%
+M:%.X.......X.%
+M:%.X.......X.%
+M:%.XXXX7XXXX.%
+M:%.XXXXXXXXX.%
+M:%...........%
+M:%%%%%%%%%%%%%
+
+N:Vanilla Town
+T:ROOM:NORMAL:SHOP | NO_ROTATE
+W:20:*:3
+L:1:GENERAL_STORE(GLOW)
+L:2:ARMOURY(GLOW)
+L:3:WEAPON_SMITHS(GLOW)
+L:4:TEMPLE(GLOW)
+L:5:ALCHEMY_SHOP(GLOW)
+L:6:MAGIC_SHOP(GLOW)
+L:7:BLACK_MARKET(GLOW)
+L:9:BOOKSTORE(GLOW)
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+M:%.....................................................%
+M:%...............XXXXXXXXX...................XXXXXXXXX.%
+M:%.XXXXXXXXX.....XXXXXXXXX......XXXXXXX......XXXXXXXXX.%
+M:%.XXXXXXXXX.....XXXX3XXXX......XXXXXXX......XXXX1XXXX.%
+M:%.XXXX4XXXX....................XXXXXXX................%
+M:%..............................XXX2XXX................%
+M:%.....................................................%
+M:%.....................................................%
+M:%.....................................................%
+M:%................XXXX5XXXX...................XXX7XXX..%
+M:%................XXXXXXXXX.....XXXX6XXXX.....XXXXXXX..%
+M:%................XXXXXXXXX.....XXXXXXXXX.....XXXXXXX..%
+M:%.....XXX9XXX....XXXXXXXXX.....XXXXXXXXX.....XXXXXXX..%
+M:%.....XXXXXXX..................XXXXXXXXX.....XXXXXXX..%
+M:%.....XXXXXXX................................XXXXXXX..%
+M:%............................................XXXXXXX..%
+M:%.....................................................%
+M:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ##############################
 # clouded (edited)
@@ -9328,45 +9401,6 @@ M:%.#^#,,989,,#^#.%
 M:%.#+#########+#.%
 M:%.^^^.......^^^.%
 M:%%%%%%%%%%%%%%%%%
-
-N:Black market
-T:VAULT:LESSER
-W:20:*:1
-M:%%%%%%%%%%%%%
-M:%...........%
-M:%.XXXXSXXXX.%
-M:%.XXXXXXXXX.%
-M:%.SXXXXXXXS.%
-M:%.XXXXXXXXX.%
-M:%.XXXXSXXXX.%
-M:%...........%
-M:%%%%%%%%%%%%%
-
-N:Black market2
-T:VAULT:LESSER
-W:20:*:1
-M:%%%%%%%%%%%%%
-M:%...........%
-M:%.XXXXXXXXX.%
-M:%.XXXXXXXXX.%
-M:%.'.....SXX.%
-M:%.XXXXXXXXX.%
-M:%.XXXXXXXXX.%
-M:%...........%
-M:%%%%%%%%%%%%%
-
-N:Black market3
-T:VAULT:LESSER
-W:20:*:1
-M:%%%%%%%%%%%%%
-M:%...........%
-M:%.XXXX'XXXX.%
-M:%.X.......X.%
-M:%.X.......X.%
-M:%.XXXXSXXXX.%
-M:%.XXXXXXXXX.%
-M:%...........%
-M:%%%%%%%%%%%%%
 
 # Eric Bock
 #

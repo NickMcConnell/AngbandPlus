@@ -378,21 +378,21 @@ static void _undead_calc_stats(s16b stats[MAX_STATS])
     stats[A_CON] += 3 * p_ptr->lev/50;
 }
 
-static void _undead_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _undead_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_COLD);
+    add_flag(flgs, OF_RES_COLD);
     if (p_ptr->lev >= 15)
     {
-        add_flag(flgs, TR_RES_POIS);
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_RES_POIS);
+        add_flag(flgs, OF_SEE_INVIS);
     }
     if (p_ptr->lev >= 30)
     {
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_HOLD_LIFE);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_HOLD_LIFE);
     }
     if (p_ptr->lev >= 35)
-        add_flag(flgs, TR_RES_DARK);
+        add_flag(flgs, OF_RES_DARK);
 }
 
 static void _draining_blast(int cmd, variant *res)
@@ -511,11 +511,11 @@ static void _dragon_calc_stats(s16b stats[MAX_STATS])
     stats[A_STR] += 3 * p_ptr->lev/50;
 }
 
-static void _dragon_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _dragon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_FEAR);
+    add_flag(flgs, OF_RES_FEAR);
     if (p_ptr->lev >= 30)
-        add_flag(flgs, TR_SUST_STR);
+        add_flag(flgs, OF_SUST_STR);
 }
 
 static void _dragon_blast(int cmd, variant *res)
@@ -1077,13 +1077,13 @@ static void _angel_calc_stats(s16b stats[MAX_STATS])
     stats[A_WIS] += 3 * p_ptr->lev/50;
 }
 
-static void _angel_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _angel_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_LEVITATION);
+    add_flag(flgs, OF_LEVITATION);
     if (p_ptr->lev >= 15)
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_SEE_INVIS);
     if (p_ptr->lev >= 35)
-        add_flag(flgs, TR_REFLECT);
+        add_flag(flgs, OF_REFLECT);
 }
 
 static void _dispelling_blast(int cmd, variant *res)
@@ -1183,12 +1183,12 @@ static void _demon_calc_stats(s16b stats[MAX_STATS])
     stats[A_INT] += 3 * p_ptr->lev/50;
 }
 
-static void _demon_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _demon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_FIRE);
-    if (p_ptr->lev >= 10) add_flag(flgs, TR_DEVICE_POWER);
-    if (p_ptr->lev >= 15) add_flag(flgs, TR_HOLD_LIFE);
-    if (p_ptr->lev >= 50) add_flag(flgs, TR_IM_FIRE);
+    add_flag(flgs, OF_RES_FIRE);
+    if (p_ptr->lev >= 10) add_flag(flgs, OF_DEVICE_POWER);
+    if (p_ptr->lev >= 15) add_flag(flgs, OF_HOLD_LIFE);
+    if (p_ptr->lev >= 50) add_flag(flgs, OF_IM_FIRE);
 }
 
 static void _vengeful_blast(int cmd, variant *res)
@@ -1286,21 +1286,21 @@ static void _hound_calc_stats(s16b stats[MAX_STATS])
     stats[A_DEX] += 3 * p_ptr->lev/50;
 }
 
-static void _hound_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _hound_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 10)
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
 
     if (p_ptr->lev >= 5)
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, OF_RES_FIRE);
     if (p_ptr->lev >= 10)
-        add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, OF_RES_COLD);
     if (p_ptr->lev >= 15)
-        add_flag(flgs, TR_RES_ELEC);
+        add_flag(flgs, OF_RES_ELEC);
     if (p_ptr->lev >= 20)
-        add_flag(flgs, TR_RES_ACID);
+        add_flag(flgs, OF_RES_ACID);
     if (p_ptr->lev >= 35)
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_POIS);
 }
 
 #define _AETHER_EFFECT_CT 15
@@ -1433,15 +1433,15 @@ static void _spider_calc_stats(s16b stats[MAX_STATS])
     stats[A_DEX] += 3 * p_ptr->lev/50;
 }
 
-static void _spider_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _spider_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 8)
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
 
     if (p_ptr->lev >= 10)
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_POIS);
     if (p_ptr->lev >= 20)
-        add_flag(flgs, TR_RES_NEXUS);
+        add_flag(flgs, OF_RES_NEXUS);
 }
 
 static void _phase_blast(int cmd, variant *res)
@@ -1664,14 +1664,14 @@ static void _giant_calc_stats(s16b stats[MAX_STATS])
     stats[A_CON] += 3 * p_ptr->lev/50;
 }
 
-static void _giant_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _giant_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 30)
-        add_flag(flgs, TR_RES_SOUND);
+        add_flag(flgs, OF_RES_SOUND);
     if (p_ptr->lev >= 40)
-        add_flag(flgs, TR_RES_SHARDS);
+        add_flag(flgs, OF_RES_SHARDS);
     if (p_ptr->lev >= 50)
-        add_flag(flgs, TR_RES_CHAOS);
+        add_flag(flgs, OF_RES_CHAOS);
 }
 
 static void _confusing_blast(int cmd, variant *res)

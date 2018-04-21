@@ -928,7 +928,7 @@ int get_powers_aux(spell_info* spells, int max, power_info* table)
         if (ct >= max) break;
         if (!base->spell.fn) break;
 
-    /*    if (base->spell.level <= p_ptr->lev) */
+        if (base->spell.level <= p_ptr->lev)
         {
             spell_info* current = &spells[ct];
             current->fn = base->spell.fn;

@@ -24,6 +24,7 @@ bool can_do_cmd_cast(void)
     else if (p_ptr->anti_magic)
     {
         msg_print("An anti-magic shell disrupts your magic!");
+        equip_learn_flag(OF_NO_MAGIC);
         return FALSE;
     }
     else if (IS_SHERO())

@@ -163,7 +163,7 @@ extern bool mut_draconian_pred(int mut_idx);
 extern bool mut_unlocked_pred(int mut_idx);
 
 extern void mut_calc_bonuses(void);
-extern void mut_get_flags(u32b flgs[TR_FLAG_SIZE]);
+extern void mut_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void mut_calc_stats(s16b stats[MAX_STATS]);
 extern int  mut_gain_random_aux(mut_pred pred);
 extern int  mut_count(mut_pred pred);

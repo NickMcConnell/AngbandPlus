@@ -542,7 +542,7 @@ void equip_wield(void)
     slot = _prompt_wield_slot(o_ptr);
     if (!equip_is_valid_slot(slot)) return;
 
-    if (have_flag(inventory[slot].art_flags, TR_NO_REMOVE))
+    if (have_flag(inventory[slot].flags, OF_NO_REMOVE))
     {
         msg_print("You can't replace yourself with that!");
         return;
@@ -648,6 +648,7 @@ void equip_wield_aux(object_type *src, int slot)
         equip_takeoff_aux(slot);
     
     object_copy(dest, src);
+    obj_learn_equipped(dest);
     stats_on_equip(dest);
     dest->marked |= OM_TOUCHED;
     dest->marked &= ~OM_WORN;
@@ -694,7 +695,7 @@ void equip_wield_aux(object_type *src, int slot)
     p_ptr->update |= PU_MANA;
     p_ptr->redraw |= PR_EQUIPPY;
     p_ptr->window |= PW_INVEN | PW_EQUIP;
-    calc_android_exp();
+    android_calc_exp();
 }
 
 void equip_takeoff(void)
@@ -709,7 +710,7 @@ void equip_takeoff(void)
     o_ptr = &inventory[slot];
     
     if (!psion_can_wield(o_ptr)) return;
-    if (have_flag(o_ptr->art_flags, TR_NO_REMOVE)) /* Hack!!!! */
+    if (have_flag(o_ptr->flags, OF_NO_REMOVE)) /* Hack!!!! */
     {
         msg_print("You try to take yourself off, but fail!");
         return;
@@ -717,12 +718,12 @@ void equip_takeoff(void)
 
     if (object_is_cursed(o_ptr))
     {
-        if (o_ptr->curse_flags & TRC_PERMA_CURSE || (p_ptr->pclass != CLASS_BERSERKER && !prace_is_(RACE_MON_JELLY)))
+        if (o_ptr->curse_flags & OFC_PERMA_CURSE || (p_ptr->pclass != CLASS_BERSERKER && !prace_is_(RACE_MON_JELLY)))
         {
             msg_print("Hmmm, it seems to be cursed.");
             return;
         }
-        if (((o_ptr->curse_flags & TRC_HEAVY_CURSE) && one_in_(7)) || one_in_(4))
+        if (((o_ptr->curse_flags & OFC_HEAVY_CURSE) && one_in_(7)) || one_in_(4))
         {
             msg_print("You teared a cursed equipment off by sheer strength!");
             o_ptr->ident |= (IDENT_SENSE);
@@ -745,7 +746,7 @@ void equip_takeoff(void)
     if (weaponmaster_is_(WEAPONMASTER_SHIELDS))
         handle_stuff();
     
-    calc_android_exp();
+    android_calc_exp();
 }
 
 void equip_takeoff_aux(int slot)
@@ -800,7 +801,7 @@ bool equip_is_empty_two_handed_slot(int slot)
    affect the hand in question, unless the other hand on that set
    of arms is wielding a weapon two handed.
  */
-static void _weapon_info_flag(int idx, u32b flgs[TR_FLAG_SIZE], int flg)
+static void _weapon_info_flag(int idx, u32b flgs[OF_ARRAY_SIZE], int flg)
 {
     if (have_flag(flgs, flg))
     {
@@ -824,8 +825,12 @@ static void _weapon_info_flag(int idx, u32b flgs[TR_FLAG_SIZE], int flg)
             else if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
                 add_flag(p_ptr->weapon_info[other_hand].flags, flg);
             break;
-        case EQUIP_SLOT_ANY:
-            add_flag(p_ptr->weapon_info[hand].flags, flg);
+        default:
+            for (hand = 0; hand < MAX_HANDS; hand++)
+            {
+                if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+                    add_flag(p_ptr->weapon_info[hand].flags, flg);
+            }
             break;
         }
     }
@@ -1109,26 +1114,25 @@ void equip_calc_bonuses(void)
     {
         int          slot = EQUIP_BEGIN + i;
         object_type *o_ptr = &inventory[slot];
-        u32b         flgs[TR_FLAG_SIZE];
+        u32b         flgs[OF_ARRAY_SIZE];
         int          bonus_to_h, bonus_to_d;
 
         if (!o_ptr->k_idx) continue;
 
-        object_flags(o_ptr, flgs);
+        obj_flags(o_ptr, flgs);
 
         p_ptr->cursed |= (o_ptr->curse_flags & (0xFFFFFFFFL));
         if (p_ptr->cursed)
             p_ptr->redraw |= PR_EFFECTS;
-        if (o_ptr->name1 == ART_CHAINSWORD) p_ptr->cursed |= TRC_CHAINSWORD;
+        if (o_ptr->name1 == ART_CHAINSWORD) p_ptr->cursed |= OFC_CHAINSWORD;
 
         if (o_ptr->name1 == ART_MAUL_OF_VICE)
             p_ptr->maul_of_vice = TRUE;
 
-        if (o_ptr->name1 == ART_STONE_LORE)
-            p_ptr->loremaster = TRUE;
-
-        if (o_ptr->name2 == EGO_BOOTS_FAIRY || o_ptr->name2 == EGO_CLOAK_FAIRY)
-            p_ptr->fairy_stealth = TRUE;
+        if (have_flag(flgs, OF_LORE2))
+            p_ptr->auto_id = TRUE;
+        else if (have_flag(flgs, OF_LORE1))
+            p_ptr->auto_pseudo_id = TRUE;
 
         if (o_ptr->name2 == EGO_GLOVES_GIANT)
         {
@@ -1148,49 +1152,49 @@ void equip_calc_bonuses(void)
             rune_calc_stats(o_ptr, p_ptr->stat_add);
         }
 
-        if (have_flag(flgs, TR_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
-        if (have_flag(flgs, TR_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
-        if (have_flag(flgs, TR_WIS)) p_ptr->stat_add[A_WIS] += o_ptr->pval;
-        if (have_flag(flgs, TR_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
-        if (have_flag(flgs, TR_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
-        if (have_flag(flgs, TR_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+        if (have_flag(flgs, OF_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
+        if (have_flag(flgs, OF_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
+        if (have_flag(flgs, OF_WIS)) p_ptr->stat_add[A_WIS] += o_ptr->pval;
+        if (have_flag(flgs, OF_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
+        if (have_flag(flgs, OF_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
+        if (have_flag(flgs, OF_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
 
-        if (have_flag(flgs, TR_DEC_STR)) p_ptr->stat_add[A_STR] -= o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_INT)) p_ptr->stat_add[A_INT] -= o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_WIS)) p_ptr->stat_add[A_WIS] -= o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_DEX)) p_ptr->stat_add[A_DEX] -= o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_CON)) p_ptr->stat_add[A_CON] -= o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_CHR)) p_ptr->stat_add[A_CHR] -= o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_STR)) p_ptr->stat_add[A_STR] -= o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_INT)) p_ptr->stat_add[A_INT] -= o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_WIS)) p_ptr->stat_add[A_WIS] -= o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_DEX)) p_ptr->stat_add[A_DEX] -= o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_CON)) p_ptr->stat_add[A_CON] -= o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_CHR)) p_ptr->stat_add[A_CHR] -= o_ptr->pval;
 
-        if (have_flag(flgs, TR_MAGIC_MASTERY))
+        if (have_flag(flgs, OF_MAGIC_MASTERY))
             p_ptr->skills.dev += 8*o_ptr->pval;
 
-        if (have_flag(flgs, TR_DEVICE_POWER))
+        if (have_flag(flgs, OF_DEVICE_POWER))
             p_ptr->device_power += o_ptr->pval;
 
-        if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
+        if (have_flag(flgs, OF_DEC_MAGIC_MASTERY))
         {
             p_ptr->skills.dev -= 8*o_ptr->pval;
             p_ptr->device_power -= o_ptr->pval;
         }
 
-        if (have_flag(flgs, TR_STEALTH)) p_ptr->skills.stl += o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_STEALTH)) p_ptr->skills.stl -= o_ptr->pval;
-        if (have_flag(flgs, TR_SEARCH)) p_ptr->skills.srh += (o_ptr->pval * 5);
-        if (have_flag(flgs, TR_SEARCH)) p_ptr->skills.fos += (o_ptr->pval * 5);
-        if (have_flag(flgs, TR_INFRA)) p_ptr->see_infra += o_ptr->pval;
-        if (have_flag(flgs, TR_TUNNEL)) p_ptr->skill_dig += (o_ptr->pval * 20);
-        if (have_flag(flgs, TR_SPEED)) p_ptr->pspeed += o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_SPEED)) p_ptr->pspeed -= o_ptr->pval;
+        if (have_flag(flgs, OF_STEALTH)) p_ptr->skills.stl += o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_STEALTH)) p_ptr->skills.stl -= o_ptr->pval;
+        if (have_flag(flgs, OF_SEARCH)) p_ptr->skills.srh += (o_ptr->pval * 5);
+        if (have_flag(flgs, OF_SEARCH)) p_ptr->skills.fos += (o_ptr->pval * 5);
+        if (have_flag(flgs, OF_INFRA)) p_ptr->see_infra += o_ptr->pval;
+        if (have_flag(flgs, OF_TUNNEL)) p_ptr->skill_dig += (o_ptr->pval * 20);
+        if (have_flag(flgs, OF_SPEED)) p_ptr->pspeed += o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_SPEED)) p_ptr->pspeed -= o_ptr->pval;
 
-        if (have_flag(flgs, TR_BLOWS) || have_flag(flgs, TR_DEC_BLOWS))
+        if (have_flag(flgs, OF_BLOWS) || have_flag(flgs, OF_DEC_BLOWS))
         {
             int hand = _template->slots[i].hand;
             int amt = 0;
 
-            if (have_flag(flgs, TR_BLOWS))
+            if (have_flag(flgs, OF_BLOWS))
                 amt += o_ptr->pval * 50;
-            if (have_flag(flgs, TR_DEC_BLOWS))
+            if (have_flag(flgs, OF_DEC_BLOWS))
                 amt -= o_ptr->pval * 100;
             if (p_ptr->pclass == CLASS_MAULER && amt > 0)
                 amt = 0;
@@ -1263,31 +1267,33 @@ void equip_calc_bonuses(void)
         }
 
         /* New: Rings and Gloves can grant weapon slays */
-        if (!object_is_melee_weapon(o_ptr)) /* Hack for Jellies ... */
+        if ( !object_is_melee_weapon(o_ptr) /* Hack for Jellies ... */
+          && !object_is_bow(o_ptr) )
         {
-            _weapon_info_flag(i, flgs, TR_BRAND_FIRE);
-            _weapon_info_flag(i, flgs, TR_BRAND_COLD);
-            _weapon_info_flag(i, flgs, TR_BRAND_ELEC);
-            _weapon_info_flag(i, flgs, TR_BRAND_ACID);
-            _weapon_info_flag(i, flgs, TR_BRAND_POIS);
-            _weapon_info_flag(i, flgs, TR_IMPACT);     /* Quaker */
-            _weapon_info_flag(i, flgs, TR_SLAY_GOOD);  /* Thanos, Nazgul */
-            _weapon_info_flag(i, flgs, TR_SLAY_HUMAN); /* Nazgul */
+            _weapon_info_flag(i, flgs, OF_BRAND_FIRE);
+            _weapon_info_flag(i, flgs, OF_BRAND_COLD);
+            _weapon_info_flag(i, flgs, OF_BRAND_ELEC);
+            _weapon_info_flag(i, flgs, OF_BRAND_ACID);
+            _weapon_info_flag(i, flgs, OF_BRAND_POIS);
+            _weapon_info_flag(i, flgs, OF_IMPACT);     /* Quaker */
+            _weapon_info_flag(i, flgs, OF_SLAY_GOOD);  /* Thanos, Nazgul */
+            _weapon_info_flag(i, flgs, OF_SLAY_HUMAN); /* Nazgul */
+            _weapon_info_flag(i, flgs, OF_BRAND_VAMP); /* Dragon Armor (Death), Helm of the Vampire */
         }
 
-        if (have_flag(flgs, TR_XTRA_SHOTS))
+        if (have_flag(flgs, OF_XTRA_SHOTS))
             p_ptr->shooter_info.num_fire += 25 * o_ptr->pval;
 
-        if (have_flag(flgs, TR_LIFE))
+        if (have_flag(flgs, OF_LIFE))
             p_ptr->life += 3*o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_LIFE))
+        if (have_flag(flgs, OF_DEC_LIFE))
             p_ptr->life -= 3*o_ptr->pval;
 
-        if (have_flag(flgs, TR_AGGRAVATE))   p_ptr->cursed |= TRC_AGGRAVATE;
-        if (have_flag(flgs, TR_DRAIN_EXP))   p_ptr->cursed |= TRC_DRAIN_EXP;
-        if (have_flag(flgs, TR_TY_CURSE))    p_ptr->cursed |= TRC_TY_CURSE;
+        if (have_flag(flgs, OF_AGGRAVATE))   p_ptr->cursed |= OFC_AGGRAVATE;
+        if (have_flag(flgs, OF_DRAIN_EXP))   p_ptr->cursed |= OFC_DRAIN_EXP;
+        if (have_flag(flgs, OF_TY_CURSE))    p_ptr->cursed |= OFC_TY_CURSE;
 
-        if (have_flag(flgs, TR_DEC_MANA))
+        if (have_flag(flgs, OF_DEC_MANA))
         {
             /* In general, you need to be a Mage/Priest to gain from wizardstaves, et. al.
              * There are exceptions (e.g. Bards and the two artifact harps; Vampires
@@ -1306,80 +1312,80 @@ void equip_calc_bonuses(void)
             }
 
         }
-        if (have_flag(flgs, TR_EASY_SPELL))
+        if (have_flag(flgs, OF_EASY_SPELL))
         {
             caster_info *caster_ptr = get_caster_info();
             if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
                 p_ptr->easy_spell = TRUE;
         }
 
-        if (have_flag(flgs, TR_SPELL_POWER)) p_ptr->spell_power += o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_SPELL_POWER)) p_ptr->spell_power -= o_ptr->pval;
-        if (have_flag(flgs, TR_SPELL_CAP))   p_ptr->spell_cap += o_ptr->pval;
-        if (have_flag(flgs, TR_DEC_SPELL_CAP))   p_ptr->spell_cap -= o_ptr->pval;
-        if (have_flag(flgs, TR_MAGIC_RESISTANCE))   p_ptr->magic_resistance += 5*o_ptr->pval;
-        if (have_flag(flgs, TR_BLESSED))     p_ptr->bless_blade = TRUE;
+        if (have_flag(flgs, OF_SPELL_POWER)) p_ptr->spell_power += o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_SPELL_POWER)) p_ptr->spell_power -= o_ptr->pval;
+        if (have_flag(flgs, OF_SPELL_CAP))   p_ptr->spell_cap += o_ptr->pval;
+        if (have_flag(flgs, OF_DEC_SPELL_CAP))   p_ptr->spell_cap -= o_ptr->pval;
+        if (have_flag(flgs, OF_MAGIC_RESISTANCE))   p_ptr->magic_resistance += 5*o_ptr->pval;
+        if (have_flag(flgs, OF_BLESSED))     p_ptr->bless_blade = TRUE;
 
-        if (have_flag(flgs, TR_XTRA_MIGHT) && o_ptr->tval != TV_BOW)  
+        if (have_flag(flgs, OF_XTRA_MIGHT) && o_ptr->tval != TV_BOW)  
             p_ptr->shooter_info.to_mult += 25 * o_ptr->pval;
 
-        if (have_flag(flgs, TR_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
-        if (have_flag(flgs, TR_REGEN))       p_ptr->regenerate = TRUE;
-        if (have_flag(flgs, TR_TELEPATHY))   p_ptr->telepathy = TRUE;
-        if (have_flag(flgs, TR_ESP_ANIMAL))  p_ptr->esp_animal = TRUE;
-        if (have_flag(flgs, TR_ESP_UNDEAD))  p_ptr->esp_undead = TRUE;
-        if (have_flag(flgs, TR_ESP_DEMON))   p_ptr->esp_demon = TRUE;
-        if (have_flag(flgs, TR_ESP_ORC))     p_ptr->esp_orc = TRUE;
-        if (have_flag(flgs, TR_ESP_TROLL))   p_ptr->esp_troll = TRUE;
-        if (have_flag(flgs, TR_ESP_GIANT))   p_ptr->esp_giant = TRUE;
-        if (have_flag(flgs, TR_ESP_DRAGON))  p_ptr->esp_dragon = TRUE;
-        if (have_flag(flgs, TR_ESP_HUMAN))   p_ptr->esp_human = TRUE;
-        if (have_flag(flgs, TR_ESP_EVIL))    p_ptr->esp_evil = TRUE;
-        if (have_flag(flgs, TR_ESP_GOOD))    p_ptr->esp_good = TRUE;
-        if (have_flag(flgs, TR_ESP_NONLIVING)) p_ptr->esp_nonliving = TRUE;
-        if (have_flag(flgs, TR_ESP_UNIQUE))  p_ptr->esp_unique = TRUE;
+        if (have_flag(flgs, OF_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+        if (have_flag(flgs, OF_REGEN))       p_ptr->regen += 100;
+        if (have_flag(flgs, OF_TELEPATHY))   p_ptr->telepathy = TRUE;
+        if (have_flag(flgs, OF_ESP_ANIMAL))  p_ptr->esp_animal = TRUE;
+        if (have_flag(flgs, OF_ESP_UNDEAD))  p_ptr->esp_undead = TRUE;
+        if (have_flag(flgs, OF_ESP_DEMON))   p_ptr->esp_demon = TRUE;
+        if (have_flag(flgs, OF_ESP_ORC))     p_ptr->esp_orc = TRUE;
+        if (have_flag(flgs, OF_ESP_TROLL))   p_ptr->esp_troll = TRUE;
+        if (have_flag(flgs, OF_ESP_GIANT))   p_ptr->esp_giant = TRUE;
+        if (have_flag(flgs, OF_ESP_DRAGON))  p_ptr->esp_dragon = TRUE;
+        if (have_flag(flgs, OF_ESP_HUMAN))   p_ptr->esp_human = TRUE;
+        if (have_flag(flgs, OF_ESP_EVIL))    p_ptr->esp_evil = TRUE;
+        if (have_flag(flgs, OF_ESP_GOOD))    p_ptr->esp_good = TRUE;
+        if (have_flag(flgs, OF_ESP_NONLIVING)) p_ptr->esp_nonliving = TRUE;
+        if (have_flag(flgs, OF_ESP_UNIQUE))  p_ptr->esp_unique = TRUE;
 
-        if (have_flag(flgs, TR_SEE_INVIS))   p_ptr->see_inv = TRUE;
-        if (have_flag(flgs, TR_LEVITATION))  p_ptr->levitation = TRUE;
-        if (have_flag(flgs, TR_FREE_ACT))    p_ptr->free_act = TRUE;
-        if (have_flag(flgs, TR_HOLD_LIFE))   p_ptr->hold_life = TRUE;
-        if (have_flag(flgs, TR_WARNING))
+        if (have_flag(flgs, OF_SEE_INVIS))   p_ptr->see_inv = TRUE;
+        if (have_flag(flgs, OF_LEVITATION))  p_ptr->levitation = TRUE;
+        if (have_flag(flgs, OF_FREE_ACT))    p_ptr->free_act = TRUE;
+        if (have_flag(flgs, OF_HOLD_LIFE))   p_ptr->hold_life = TRUE;
+        if (have_flag(flgs, OF_WARNING))
         {
             if (!o_ptr->inscription || !(my_strchr(quark_str(o_ptr->inscription),'$')))
               p_ptr->warning = TRUE;
         }
 
-        if (have_flag(flgs, TR_TELEPORT))
+        if (have_flag(flgs, OF_TELEPORT))
         {
-            if (object_is_cursed(o_ptr)) p_ptr->cursed |= TRC_TELEPORT;
+            if (object_is_cursed(o_ptr)) p_ptr->cursed |= OFC_TELEPORT;
             else
             {
                 cptr insc = quark_str(o_ptr->inscription);
                 if (o_ptr->inscription && my_strchr(insc, '.')) {}
-                else p_ptr->cursed |= TRC_TELEPORT_SELF;
+                else p_ptr->cursed |= OFC_TELEPORT_SELF;
             }
         }
 
         res_calc_bonuses(flgs);
 
-        if (have_flag(flgs, TR_REFLECT))  p_ptr->reflect = TRUE;
-        if (have_flag(flgs, TR_SH_FIRE))  p_ptr->sh_fire = TRUE;
-        if (have_flag(flgs, TR_SH_ELEC))  p_ptr->sh_elec = TRUE;
-        if (have_flag(flgs, TR_SH_COLD))  p_ptr->sh_cold = TRUE;
-        if (have_flag(flgs, TR_SH_SHARDS))  p_ptr->sh_shards = TRUE;
-        if (have_flag(flgs, TR_SH_REVENGE))  p_ptr->sh_retaliation = TRUE;
-        if (have_flag(flgs, TR_NO_MAGIC)) p_ptr->anti_magic = TRUE;
-        if (have_flag(flgs, TR_NO_TELE))  p_ptr->anti_tele = TRUE;
-        if (have_flag(flgs, TR_NO_SUMMON)) p_ptr->anti_summon = TRUE;
+        if (have_flag(flgs, OF_REFLECT))  p_ptr->reflect = TRUE;
+        if (have_flag(flgs, OF_AURA_FIRE))  p_ptr->sh_fire = TRUE;
+        if (have_flag(flgs, OF_AURA_ELEC))  p_ptr->sh_elec = TRUE;
+        if (have_flag(flgs, OF_AURA_COLD))  p_ptr->sh_cold = TRUE;
+        if (have_flag(flgs, OF_AURA_SHARDS))  p_ptr->sh_shards = TRUE;
+        if (have_flag(flgs, OF_AURA_REVENGE))  p_ptr->sh_retaliation = TRUE;
+        if (have_flag(flgs, OF_NO_MAGIC)) p_ptr->anti_magic = TRUE;
+        if (have_flag(flgs, OF_NO_TELE))  p_ptr->anti_tele = TRUE;
+        if (have_flag(flgs, OF_NO_SUMMON)) p_ptr->anti_summon = TRUE;
 
-        if (have_flag(flgs, TR_SUST_STR)) p_ptr->sustain_str = TRUE;
-        if (have_flag(flgs, TR_SUST_INT)) p_ptr->sustain_int = TRUE;
-        if (have_flag(flgs, TR_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-        if (have_flag(flgs, TR_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-        if (have_flag(flgs, TR_SUST_CON)) p_ptr->sustain_con = TRUE;
-        if (have_flag(flgs, TR_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+        if (have_flag(flgs, OF_SUST_STR)) p_ptr->sustain_str = TRUE;
+        if (have_flag(flgs, OF_SUST_INT)) p_ptr->sustain_int = TRUE;
+        if (have_flag(flgs, OF_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+        if (have_flag(flgs, OF_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+        if (have_flag(flgs, OF_SUST_CON)) p_ptr->sustain_con = TRUE;
+        if (have_flag(flgs, OF_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
-        if (have_flag(flgs, TR_DUAL_WIELDING))
+        if (have_flag(flgs, OF_DUAL_WIELDING))
         {
             switch (_template->slots[i].type)
             {
@@ -1406,9 +1412,9 @@ void equip_calc_bonuses(void)
             p_ptr->no_passwall_dam = TRUE;
         }
 
-        if (o_ptr->curse_flags & TRC_LOW_MAGIC)
+        if (o_ptr->curse_flags & OFC_LOW_MAGIC)
         {
-            if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
+            if (o_ptr->curse_flags & OFC_HEAVY_CURSE)
                 p_ptr->to_m_chance += 10;
             else
                 p_ptr->to_m_chance += 3;
@@ -1424,14 +1430,14 @@ void equip_calc_bonuses(void)
         p_ptr->to_a += o_ptr->to_a;
         if (object_is_known(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
-        if (o_ptr->curse_flags & TRC_LOW_MELEE)
+        if (o_ptr->curse_flags & OFC_LOW_MELEE)
         {
-            int penalty = (o_ptr->curse_flags & TRC_HEAVY_CURSE) ? -15 : -5;
+            int penalty = (o_ptr->curse_flags & OFC_HEAVY_CURSE) ? -15 : -5;
             switch (_template->slots[i].type)
             {
             case EQUIP_SLOT_BOW:
                 p_ptr->shooter_info.to_h += penalty;
-                if (o_ptr->ident & IDENT_FULL)
+                if (o_ptr->known_curse_flags & OFC_LOW_MELEE)
                     p_ptr->shooter_info.dis_to_h += penalty;
                 break;                
             case EQUIP_SLOT_WEAPON_SHIELD:
@@ -1439,23 +1445,25 @@ void equip_calc_bonuses(void)
             {
                 int hand = _template->slots[i].hand;
                 p_ptr->weapon_info[hand].to_h += penalty;
-                if (o_ptr->ident & IDENT_FULL)
+                if (o_ptr->known_curse_flags & OFC_LOW_MELEE)
                     p_ptr->weapon_info[hand].dis_to_h += penalty;
                 break;
             }
             }
         }
-        if (o_ptr->curse_flags & TRC_LOW_AC)
+        if (o_ptr->curse_flags & OFC_LOW_AC)
         {
-            if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
+            if (o_ptr->curse_flags & OFC_HEAVY_CURSE)
             {
                 p_ptr->to_a -= 30;
-                if (o_ptr->ident & IDENT_FULL) p_ptr->dis_to_a -= 30;
+                if (o_ptr->known_curse_flags & OFC_LOW_AC)
+                    p_ptr->dis_to_a -= 30;
             }
             else
             {
                 p_ptr->to_a -= 10;
-                if (o_ptr->ident & IDENT_FULL) p_ptr->dis_to_a -= 10;
+                if (o_ptr->known_curse_flags & OFC_LOW_AC)
+                    p_ptr->dis_to_a -= 10;
             }
         }
 
@@ -1502,7 +1510,6 @@ void equip_calc_bonuses(void)
                && o_ptr->name2 != EGO_SHIELD_DWARVEN
                && o_ptr->name2 != EGO_SHIELD_ORCISH
                && o_ptr->name2 != EGO_CROWN_MIGHT
-               && o_ptr->name2 != EGO_CLOAK_FAIRY  /* Hey, fairies can shoot just fine :) */
                && o_ptr->name2 != EGO_CLOAK_BAT
                && o_ptr->name2 != EGO_CLOAK_COWARDICE
                && o_ptr->name1 != ART_KAMIKAZE_ROBE
@@ -1531,7 +1538,7 @@ void equip_calc_bonuses(void)
         p_ptr->to_d_m += bonus_to_d;
 
         _weapon_bonus(i, bonus_to_h, bonus_to_d);
-        if (have_flag(flgs, TR_WEAPONMASTERY))
+        if (have_flag(flgs, OF_WEAPONMASTERY))
         {
             _weaponmastery(i, o_ptr->pval);
         }
@@ -1699,6 +1706,58 @@ void equip_on_change_race(void)
         p_ptr->update |= PU_MANA;
         p_ptr->redraw |= PR_EQUIPPY;
         p_ptr->window |= PW_INVEN | PW_EQUIP;
-        calc_android_exp();
+        android_calc_exp();
     }
 }
+
+void equip_learn_curse(int flag)
+{
+    int i;
+    for (i = 0; i < _template->count; i++)
+    {
+        int          slot = EQUIP_BEGIN + i;
+        object_type *o_ptr = equip_obj(slot);
+
+        if (o_ptr && obj_learn_curse(o_ptr, flag))
+        {
+            char buf[MAX_NLEN];
+            object_desc(buf, o_ptr, OD_LORE);
+            msg_format("<color:B>You feel that your %s is <color:r>cursed</color>.</color>", buf);
+        }
+    }
+}
+
+void equip_learn_resist(int obj_flag)
+{
+    int i;
+    for (i = 0; i < _template->count; i++)
+    {
+        int          slot = EQUIP_BEGIN + i;
+        object_type *o_ptr = equip_obj(slot);
+
+        if (o_ptr && obj_learn_flag(o_ptr, obj_flag))
+        {
+            char buf[MAX_NLEN];
+            object_desc(buf, o_ptr, OD_LORE);
+            msg_format("<color:B>You feel that your %s is protecting you.</color>", buf);
+        }
+    }
+}
+
+void equip_learn_flag(int obj_flag)
+{
+    int i;
+    for (i = 0; i < _template->count; i++)
+    {
+        int          slot = EQUIP_BEGIN + i;
+        object_type *o_ptr = equip_obj(slot);
+
+        if (o_ptr && obj_learn_flag(o_ptr, obj_flag))
+        {
+            char buf[MAX_NLEN];
+            object_desc(buf, o_ptr, OD_LORE);
+            msg_format("<color:B>You learn more about your %s.</color>", buf);
+        }
+    }
+}
+

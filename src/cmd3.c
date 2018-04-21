@@ -208,7 +208,7 @@ void do_cmd_drop(void)
             msg_print("Hmmm, it seems to be cursed.");
             return;
         }
-        if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+        if (have_flag(o_ptr->flags, OF_NO_REMOVE))
         {
             msg_print("You can't drop yourself, silly!");
             return;
@@ -239,7 +239,7 @@ void do_cmd_drop(void)
     inven_drop(item, amt);
 
     if (equip_is_valid_slot(item))
-        calc_android_exp();
+        android_calc_exp();
 
     p_ptr->redraw |= PR_EQUIPPY;
 }
@@ -330,7 +330,7 @@ void do_cmd_destroy(void)
     }
 
     /* Verify unless quantity given beforehand */
-    if (!force && (confirm_destroy || (object_value(o_ptr) > 0)))
+    if (!force && (confirm_destroy || (obj_value(o_ptr) > 0)))
     {
         char ch;
         int options = OD_COLOR_CODED;
@@ -420,7 +420,7 @@ void do_cmd_destroy(void)
         if (is_equipped)
         {
             blast_object(o_ptr);
-            o_ptr->curse_flags = TRC_HEAVY_CURSE;
+            o_ptr->curse_flags = OFC_HEAVY_CURSE;
         }
     }
     else if (is_equipped)
@@ -528,17 +528,17 @@ void do_cmd_destroy(void)
     if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
         virtue_add(VIRTUE_ENCHANTMENT, -1);
     
-    if (object_value_real(q_ptr) > 30000)
+    if (obj_value_real(q_ptr) > 30000)
         virtue_add(VIRTUE_SACRIFICE, 2);
     
-    else if (object_value_real(q_ptr) > 10000)
+    else if (obj_value_real(q_ptr) > 10000)
         virtue_add(VIRTUE_SACRIFICE, 1);
 
     if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
         virtue_add(VIRTUE_HARMONY, 1);
 
     if (equip_is_valid_slot(item)) 
-        calc_android_exp();
+        android_calc_exp();
 }
 
 
@@ -604,10 +604,8 @@ void do_cmd_inspect(void)
         }
 
 
-        /* Note, descriptions for potions, scrolls, wands, staves and rods all spoil
-           the object's effects. Some of the light and jewelry descriptions are also TMI.
-           Descriptions for weapons and armor should always be displayed. */
-        if (!object_is_weapon_armour_ammo(o_ptr) && !object_is_known(o_ptr))
+        /* Note, some descriptions (potions, scrolls, mushrooms) spoil the object's effects. */
+        if ( object_is_flavor(o_ptr) && !object_is_known(o_ptr))
         {
             msg_print("You have no special knowledge about that item.");
             return;
@@ -755,7 +753,7 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 
 static bool _lite_is_darkness(object_type *lite)
 {
-    if (lite->name2 == EGO_LITE_DARKNESS || have_flag(lite->art_flags, TR_DARKNESS))
+    if (lite->name2 == EGO_LITE_DARKNESS || have_flag(lite->flags, OF_DARKNESS))
         return TRUE;
     return FALSE;
 }
@@ -1144,6 +1142,7 @@ void do_cmd_query_symbol(void)
     char    temp[80] = "";
 
     bool    recall = FALSE;
+    doc_ptr doc = NULL;
 
     u16b    why = 0;
     u16b    *who;
@@ -1210,7 +1209,7 @@ void do_cmd_query_symbol(void)
         monster_race *r_ptr = &r_info[i];
 
         /* Nothing to recall */
-        if (!(cheat_know || p_ptr->wizard) && !r_ptr->r_sights) continue;
+        if (!(easy_lore || p_ptr->wizard) && !r_ptr->r_sights) continue;
 
         /* Require non-unique monsters if needed */
         if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -1300,6 +1299,7 @@ void do_cmd_query_symbol(void)
         ang_sort(who, &why, n);
     }
 
+    doc = doc_alloc(72);
 
     /* Start at the end */
     i = n - 1;
@@ -1325,8 +1325,11 @@ void do_cmd_query_symbol(void)
                 /* Save the screen */
                 screen_save();
 
-                /* Recall on screen */
-                screen_roff(who[i], 0);
+                /* Recall on screen
+                screen_roff(who[i], 0);*/
+                doc_clear(doc);
+                mon_display_doc(&r_info[who[i]], doc);
+                doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 1));
             }
 
             /* Hack -- Begin the prompt */
@@ -1341,7 +1344,7 @@ void do_cmd_query_symbol(void)
             /* Unrecall */
             if (recall)
             {
-                /* Restore */
+                /* Restore*/
                 screen_load();
             }
 
@@ -1378,6 +1381,7 @@ void do_cmd_query_symbol(void)
 
     /* Free the "who" array */
     C_KILL(who, max_r_idx, u16b);
+    doc_free(doc);
 
     /* Re-display the identity */
     prt(buf, 0, 0);
@@ -1837,7 +1841,19 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             redraw = FALSE;
         }
         Term_gotoxy(display_rect.x, display_rect.y + pos);
-
+        {
+            int idx = top + pos;
+            if (0 <= idx && idx < ct_types)
+            {
+                _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
+                assert(info_ptr);
+                if (info_ptr->r_idx && info_ptr->r_idx != p_ptr->monster_race_idx)
+                {
+                    monster_race_track(info_ptr->r_idx);
+                    window_stuff();
+                }
+            }
+        }
         if (q_pos < q_ct)
             cmd = cmd_queue[q_pos++];
         else
@@ -1855,8 +1871,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
                 assert(info_ptr);
                 if (info_ptr->r_idx)
                 {
-                    screen_roff(info_ptr->r_idx, 0);
-                    inkey();
+                    mon_display(&r_info[info_ptr->r_idx]);
                     screen_load();
                     screen_save();
                     redraw = TRUE;
@@ -2225,7 +2240,7 @@ static _obj_list_ptr _create_obj_list(void)
         info->y = o_ptr->iy;
         info->dy = info->y - py;
         info->dx = info->x - px;
-        info->score = object_value(o_ptr);
+        info->score = obj_value(o_ptr);
         info->count = o_ptr->number;
 
         auto_pick_idx = is_autopick(o_ptr);
@@ -2333,7 +2348,7 @@ static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
             Term_queue_bigchar(rect.x + 1, rect.y + i, a, c, 0, 0);
             c_put_str(attr, format(obj_fmt, o_name), rect.y + i, rect.x + 3);
             if (p_ptr->wizard)
-                c_put_str(TERM_WHITE, format("%6d %6d ", info_ptr->score, object_value_real(o_ptr)), rect.y + i, rect.x + 3 + cx_obj + 1);
+                c_put_str(TERM_WHITE, format("%6d %6d ", info_ptr->score, obj_value_real(o_ptr)), rect.y + i, rect.x + 3 + cx_obj + 1);
             else
                 c_put_str(TERM_WHITE, format("%-9.9s ", loc), rect.y + i, rect.x + 3 + cx_obj + 1);
         }

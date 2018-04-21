@@ -1865,8 +1865,7 @@ static bool kankin(void)
                 mass_produce(&forge);
 
                 /* Identify it fully */
-                object_aware(&forge);
-                object_known(&forge);
+                obj_identify_fully(&forge);
 
                 /*
                  * Hand it --- Assume there is an empty slot.
@@ -1964,7 +1963,7 @@ void have_nightmare(int r_idx)
 
                   horror_desc[randint0(MAX_SAN_HORROR)], desc);
 
-    r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
+    mon_lore_aux_2(r_ptr, RF2_ELDRITCH_HORROR);
 
     if (p_ptr->mimic_form != MIMIC_NONE)
     {
@@ -2588,9 +2587,8 @@ static bool _gamble_shop_aux(object_type *o_ptr)
     char buf[MAX_NLEN];
     int slot, auto_pick_idx;
 
-    identify_item(o_ptr);
-    ego_aware(o_ptr);
-    o_ptr->ident |= (IDENT_FULL);
+    obj_identify_fully(o_ptr);
+    stats_on_identify(o_ptr);
     object_desc(buf, o_ptr, OD_COLOR_CODED);
 
     clear_bldg(5, 10);
@@ -2739,13 +2737,13 @@ static bool _reforge_artifact(void)
         msg_print("You must choose an artifact for reforging.");
         return FALSE;
     }
-    if (object_value_real(src) > src_max_power)
+    if (obj_value_real(src) > src_max_power)
     {
         msg_print("You are not famous enough to reforge that item.");
         return FALSE;
     }
 
-    cost = object_value_real(src);
+    cost = obj_value_real(src);
     
     dest_max_power = cost / 2;
     if (dest_max_power < 1000) /* Reforging won't try to power match weak stuff ... */
@@ -2789,7 +2787,7 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
-    if (have_flag(dest->art_flags, TR_NO_REMOVE))
+    if (have_flag(dest->flags, OF_NO_REMOVE))
     {
         msg_print("You cannot be reforged!");
         return FALSE;
@@ -2807,7 +2805,7 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
-    if (object_value_real(dest) > dest_max_power)
+    if (obj_value_real(dest) > dest_max_power)
     {
         msg_print("This item is too powerful for the source artifact you have chosen.");
         return FALSE;
@@ -2826,9 +2824,7 @@ static bool _reforge_artifact(void)
 
     msg_print("After several hours, you are presented your new artifact...");
 
-    object_aware(dest);
-    object_known(dest);
-    dest->ident |= IDENT_FULL;
+    obj_identify_fully(dest);
 
     p_ptr->update |= PU_BONUS;
     p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -2918,11 +2914,11 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
 
         object_copy(&copy, o_ptr);
         copy.curse_flags = 0;
-        remove_flag(copy.art_flags, TR_AGGRAVATE);
-        remove_flag(copy.art_flags, TR_NO_TELE);
-        remove_flag(copy.art_flags, TR_NO_MAGIC);
-        remove_flag(copy.art_flags, TR_DRAIN_EXP);
-        remove_flag(copy.art_flags, TR_TY_CURSE);
+        remove_flag(copy.flags, OF_AGGRAVATE);
+        remove_flag(copy.flags, OF_NO_TELE);
+        remove_flag(copy.flags, OF_NO_MAGIC);
+        remove_flag(copy.flags, OF_DRAIN_EXP);
+        remove_flag(copy.flags, OF_TY_CURSE);
         old_cost = new_object_cost(&copy, COST_REAL);
                 
         for (i = 0; i < 25; i++) /* TODO: Option for max. But +25 a pop is enough perhaps? */
@@ -3047,7 +3043,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
 
         p_ptr->au -= cost;
         stats_on_gold_services(cost);
-        if (equip_is_valid_slot(item)) calc_android_exp();
+        if (equip_is_valid_slot(item)) android_calc_exp();
         return (TRUE);
     }
 }
@@ -3332,7 +3328,7 @@ static bool research_mon(void)
                 handle_stuff();
 
                 /* know every thing mode */
-                screen_roff(r_idx, 0x01);
+                mon_display(&r_info[r_idx]);
                 notpicked = FALSE;
 
                 /* XTRA HACK REMEMBER_IDX */

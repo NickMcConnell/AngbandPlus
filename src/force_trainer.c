@@ -553,14 +553,14 @@ static void _calc_bonuses(void)
     monk_ac_bonus();
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (!heavy_armor())
     {
         if (p_ptr->lev >= 10)
-            add_flag(flgs, TR_SPEED);
+            add_flag(flgs, OF_SPEED);
         if (p_ptr->lev >= 25)
-            add_flag(flgs, TR_FREE_ACT);
+            add_flag(flgs, OF_FREE_ACT);
     }
 }
 

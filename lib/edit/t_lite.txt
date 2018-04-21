@@ -78,7 +78,7 @@ F:!:FLOOR:3:0:42
 # Ring of Combat
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Beholder Dragon Hound Possessor Spider] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:32
-F:!:FLOOR:3:0:132:302
+F:!:FLOOR:3:0:132:206
 
 # Steel Helm
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Hydra] ]
@@ -98,7 +98,7 @@ F:!:FLOOR:3:0:37
 # Ring of Protection
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Lich Quylthulg] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:32
-F:!:FLOOR:3:0:132:300
+F:!:FLOOR:3:0:132:205
 
 # Rapier
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Duelist] ]
@@ -143,7 +143,7 @@ F:!:FLOOR:3:0:70
 # Ring of Protection
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:32
-F:!:FLOOR:3:0:132:300
+F:!:FLOOR:3:0:132:205
 
 # Dagger
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Ninja] ]
@@ -1041,7 +1041,7 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:22
 # Quest 22 rewarding, reward is Cloak of Stealth, continue with quest 19
 ?:[EQU $QUEST22 3]
 F:a:BUILDING_0:3:0:0:0:0:NONE:19
-F:?:FLOOR:3:0:123:102
+F:?:FLOOR:3:0:123:54
 
 # Quest 22 finished, continue with quest 19
 ?:[EQU $QUEST22 4]
@@ -1071,7 +1071,7 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:19
 # Quest 19 rewarding, reward is an Elemental Ring, continue with quest 29
 ?:[EQU $QUEST19 3]
 F:a:BUILDING_0:3:0:0:0:0:NONE:29
-F:?:FLOOR:3:0:132:301
+F:?:FLOOR:3:0:132:201
 
 # Quest 19 finished, continue with quest 29
 ?:[EQU $QUEST19 4]
@@ -1102,12 +1102,12 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:29
 # continue with quest 30
 ?:[EQU $QUEST29 3]
 F:a:BUILDING_0:3:0:0:0:0:NONE:30
-F:?:FLOOR:3:0:132:300
+F:?:FLOOR:3:0:132:205
 
 # Dagger of Westernesse
 ?:[AND [EQU $QUEST29 3] [EQU $RACE Death-Sword] ]
 F:a:BUILDING_0:3:0:0:0:0:NONE:30
-F:!:FLOOR:3:0:43:247
+F:!:FLOOR:3:0:43:19
 
 # Quest 29 finished, continue with quest 30
 ?:[EQU $QUEST29 4]

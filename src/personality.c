@@ -88,9 +88,9 @@ static void _fearless_calc_bonuses(void)
 {
     res_add(RES_FEAR);
 }
-static void _fearless_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _fearless_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_FEAR);
+    add_flag(flgs, OF_RES_FEAR);
 }
 static personality_ptr _get_fearless_personality(void)
 {
@@ -139,9 +139,9 @@ static void _hasty_calc_bonuses(void)
     p_ptr->pspeed += 2;
     p_ptr->to_m_chance += 1;
 }
-static void _hasty_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _hasty_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, OF_SPEED);
 }
 
 static personality_ptr _get_hasty_personality(void)
@@ -333,14 +333,14 @@ static void _munchkin_calc_bonuses(void)
 
     p_ptr->pspeed += p_ptr->lev/10 + 5;
 }
-static void _munchkin_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _munchkin_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_BLIND);
-    add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_HOLD_LIFE);
+    add_flag(flgs, OF_RES_BLIND);
+    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_HOLD_LIFE);
     if (p_ptr->pclass != CLASS_NINJA)
-        add_flag(flgs, TR_LITE);
-    add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_LITE);
+    add_flag(flgs, OF_SPEED);
 }
 static personality_ptr _get_munchkin_personality(void)
 {
@@ -540,11 +540,11 @@ static void _sexy_birth(void)
 }
 static void _sexy_calc_bonuses(void)
 {
-    p_ptr->cursed |= TRC_AGGRAVATE;
+    p_ptr->cursed |= OFC_AGGRAVATE;
 }
-static void _sexy_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _sexy_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_AGGRAVATE);
+    add_flag(flgs, OF_AGGRAVATE);
 }
 static personality_ptr _get_sexy_personality(void)
 {

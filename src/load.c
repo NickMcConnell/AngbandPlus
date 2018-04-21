@@ -105,25 +105,46 @@ void rd_item(savefile_ptr file, object_type *o_ptr)
             o_ptr->marked = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_ART_FLAGS_0:
-            o_ptr->art_flags[0] = savefile_read_u32b(file);
+            o_ptr->flags[0] = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_ART_FLAGS_1:
-            o_ptr->art_flags[1] = savefile_read_u32b(file);
+            o_ptr->flags[1] = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_ART_FLAGS_2:
-            o_ptr->art_flags[2] = savefile_read_u32b(file);
+            o_ptr->flags[2] = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_ART_FLAGS_3:
-            o_ptr->art_flags[3] = savefile_read_u32b(file);
+            o_ptr->flags[3] = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_ART_FLAGS_4:
-            o_ptr->art_flags[4] = savefile_read_u32b(file);
+            o_ptr->flags[4] = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_ART_FLAGS_5:
-            o_ptr->art_flags[5] = savefile_read_u32b(file);
+            o_ptr->flags[5] = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_CURSE_FLAGS:
             o_ptr->curse_flags = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_KNOWN_FLAGS_0:
+            o_ptr->known_flags[0] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_KNOWN_FLAGS_1:
+            o_ptr->known_flags[1] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_KNOWN_FLAGS_2:
+            o_ptr->known_flags[2] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_KNOWN_FLAGS_3:
+            o_ptr->known_flags[3] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_KNOWN_FLAGS_4:
+            o_ptr->known_flags[4] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_KNOWN_FLAGS_5:
+            o_ptr->known_flags[5] = savefile_read_u32b(file);
+            break;
+        case SAVE_ITEM_KNOWN_CURSE_FLAGS:
+            o_ptr->known_curse_flags = savefile_read_u32b(file);
             break;
         case SAVE_ITEM_RUNE_FLAGS:
             o_ptr->rune = savefile_read_u32b(file);
@@ -145,11 +166,6 @@ void rd_item(savefile_ptr file, object_type *o_ptr)
             break;
         case SAVE_ITEM_XTRA5_OLD:
             o_ptr->xtra5 = savefile_read_s16b(file);
-            if (savefile_is_older_than(file, 4, 0, 0, 6) && object_is_device(o_ptr))
-            {
-                o_ptr->xtra5 *= 100;
-                assert(o_ptr->xtra5 > 0);
-            }
             break;
         case SAVE_ITEM_XTRA5:
             o_ptr->xtra5 = savefile_read_s32b(file);
@@ -176,7 +192,10 @@ void rd_item(savefile_ptr file, object_type *o_ptr)
             TODO: Report an error back to the load routine!!*/
         }
     }
+    if (object_is_device(o_ptr))
+        add_flag(o_ptr->flags, OF_ACTIVATE);
 }
+
 
 static void rd_monster(savefile_ptr file, monster_type *m_ptr)
 {
@@ -365,7 +384,7 @@ static void home_carry(store_type *st_ptr, object_type *o_ptr)
     }
 
     /* Determine the "value" of the item */
-    value = object_value(o_ptr);
+    value = obj_value(o_ptr);
 
     /* Check existing slots to see if we must "slide" */
     for (slot = 0; slot < st_ptr->stock_num; slot++)
@@ -489,7 +508,6 @@ static void rd_options(savefile_ptr file)
     cheat_hear = (c & 0x0200) ? TRUE : FALSE;
     cheat_room = (c & 0x0400) ? TRUE : FALSE;
     cheat_xtra = (c & 0x0800) ? TRUE : FALSE;
-    cheat_know = (c & 0x1000) ? TRUE : FALSE;
     cheat_live = (c & 0x2000) ? TRUE : FALSE;
     cheat_save = (c & 0x4000) ? TRUE : FALSE;
 
@@ -1134,7 +1152,7 @@ static errr rd_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
             ptr->leader_idx = savefile_read_s16b(file);
             ptr->count = savefile_read_s16b(file);
             ptr->ai = savefile_read_s16b(file);
-            ptr->guard_m_idx = savefile_read_s16b(file);
+            ptr->guard_idx = savefile_read_s16b(file);
             ptr->guard_x = savefile_read_s16b(file);
             ptr->guard_y = savefile_read_s16b(file);
             ptr->distance = savefile_read_s16b(file);
@@ -1288,7 +1306,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
              "Loading a %d.%d.%d savefile...",
              (z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
 
-    if (savefile_is_older_than(file, 4, 0, 0, 5))
+    if (savefile_is_older_than(file, 5, 0, 0, 0))
     {
         note("Old savefiles are not supported!");
         return 1;
@@ -1373,18 +1391,59 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         }
         for (i = 0; i < tmp16u; i++)
         {
-            byte           tmp8u;
-            ego_item_type *e_ptr = &e_info[i];
+            int       ct, j;
+            ego_type *e_ptr = &e_info[i];
 
-            tmp8u = savefile_read_byte(file);
+            ct = savefile_read_byte(file);
+            if (ct > OF_ARRAY_SIZE)
+            {
+                note(format("Too many (%d) ego known flags!", ct));
+                return (22);
+            }
+            for (j = 0; j < ct; j++)
+                e_ptr->known_flags[j] = savefile_read_u32b(file);
+            for (j = ct; j < OF_ARRAY_SIZE; j++)
+                e_ptr->known_flags[j] = 0;
 
-            e_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
+            ct = savefile_read_byte(file);
+            if (ct > OF_ARRAY_SIZE)
+            {
+                note(format("Too many (%d) ego xtra flags!", ct));
+                return (22);
+            }
+            for (j = 0; j < ct; j++)
+                e_ptr->xtra_flags[j] = savefile_read_u32b(file);
+            for (j = ct; j < OF_ARRAY_SIZE; j++)
+                e_ptr->xtra_flags[j] = 0;
 
             e_ptr->counts.generated = savefile_read_s32b(file);
             e_ptr->counts.found = savefile_read_s32b(file);
             e_ptr->counts.bought = savefile_read_s32b(file);
             /*e_ptr->counts.used = savefile_read_s32b(file);*/
             e_ptr->counts.destroyed = savefile_read_s32b(file);
+        }
+
+        tmp16u = savefile_read_u16b(file);
+        if (tmp16u > max_a_idx)
+        {
+            note(format("Too many (%u) artifacts!", tmp16u));
+            return (22);
+        }
+        for (i = 0; i < tmp16u; i++)
+        {
+            int            ct, j;
+            artifact_type *a_ptr = &a_info[i];
+
+            ct = savefile_read_byte(file);
+            if (ct > OF_ARRAY_SIZE)
+            {
+                note(format("Too many (%d) artifact known flags!", ct));
+                return (22);
+            }
+            for (j = 0; j < ct; j++)
+                a_ptr->known_flags[j] = savefile_read_u32b(file);
+            for (j = ct; j < OF_ARRAY_SIZE; j++)
+                a_ptr->known_flags[j] = 0;
         }
     }
     if (arg_fiddle) note("Loaded Object Memory");
@@ -1459,7 +1518,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
 
                     quest[i].k_idx = savefile_read_s16b(file);
                     if (quest[i].k_idx)
-                        a_info[quest[i].k_idx].gen_flags |= TRG_QUESTITEM;
+                        a_info[quest[i].k_idx].gen_flags |= OFG_QUESTITEM;
 
                     quest[i].flags = savefile_read_byte(file);
                     quest[i].dungeon = savefile_read_byte(file);
@@ -1512,18 +1571,15 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     for (i = 0; i < tmp16u; i++)
     {
         artifact_type *a_ptr = &a_info[i];
-        a_ptr->cur_num = savefile_read_byte(file);
+        a_ptr->generated = savefile_read_byte(file);
+        if (!savefile_is_older_than(file, 5, 0, 0, 1))
+            a_ptr->found = savefile_read_byte(file);
         a_ptr->floor_id = savefile_read_s16b(file);
     }
     if (arg_fiddle) note("Loaded Artifacts");
 
 
     rd_extra(file);
-    if (p_ptr->pclass == CLASS_WEAPONSMITH && savefile_is_older_than(file, 4, 0, 2, 0))
-    {
-        note("Weaponsmiths were re-written for version 4.0.2. Unable to upgrade since all your previous essences would be lost!");
-        return 25;
-    }
 
     if (p_ptr->energy_need < -999) world_player = TRUE;
 

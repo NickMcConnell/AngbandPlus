@@ -13,6 +13,7 @@
 #include "angband.h"
 #include "rooms.h"
 
+#include <assert.h>
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game. Note the use of "fd_read()" and "fd_write()" to bypass
@@ -671,187 +672,209 @@ static cptr r_info_flagsr[] =
 
 
 /*
- * Object flags
+ * Object flags (Keep in sync with obj_flags_e in defines.h)
  */
-static cptr k_info_flags[TR_FLAG_COUNT] =
+static cptr k_info_flags[OF_COUNT] =
 {
+    "HIDE_TYPE",
+    "SHOW_MODS",
+    "FULL_NAME",
+    "FIXED_FLAVOR",
+
+    /* Stats */
     "STR",
     "INT",
     "WIS",
     "DEX",
     "CON",
     "CHR",
-    "MAGIC_MASTERY",
-    "FORCE_WEAPON",
-    "STEALTH",
-    "SEARCH",
-    "INFRA",
-    "TUNNEL",
-    "SPEED",
-    "BLOWS",
-    "CHAOTIC",
-    "VAMPIRIC",
-    "SLAY_ANIMAL",
-    "SLAY_EVIL",
-    "SLAY_UNDEAD",
-    "SLAY_DEMON",
-    "SLAY_ORC",
-    "SLAY_TROLL",
-    "SLAY_GIANT",
-    "SLAY_DRAGON",
-    "KILL_DRAGON",
-    "VORPAL",
-    "IMPACT",
-    "BRAND_POIS",
-    "BRAND_ACID",
-    "BRAND_ELEC",
-    "BRAND_FIRE",
-    "BRAND_COLD",
-
-    "SUST_STR",
-    "SUST_INT",
-    "SUST_WIS",
-    "SUST_DEX",
-    "SUST_CON",
-    "SUST_CHR",
-    "RIDING",
-    "EASY_SPELL",
-    "IM_ACID",
-    "IM_ELEC",
-    "IM_FIRE",
-    "IM_COLD",
-    "THROW",
-    "REFLECT",
-    "FREE_ACT",
-    "HOLD_LIFE",
-    "RES_ACID",
-    "RES_ELEC",
-    "RES_FIRE",
-    "RES_COLD",
-    "RES_POIS",
-    "RES_FEAR",
-    "RES_LITE",
-    "RES_DARK",
-    "RES_BLIND",
-    "RES_CONF",
-    "RES_SOUND",
-    "RES_SHARDS",
-    "RES_NETHER",
-    "RES_NEXUS",
-    "RES_CHAOS",
-    "RES_DISEN",
-
-    "SH_FIRE",
-    "SH_ELEC",
-    "SLAY_HUMAN",
-    "SH_COLD",
-    "NO_TELE",
-    "NO_MAGIC",
-    "DEC_MANA",
-    "TY_CURSE",
-    "WARNING",
-    "HIDE_TYPE",
-    "SHOW_MODS",
-    "WEAPONMASTERY",
-    "LEVITATION",
-    "LITE",
-    "SEE_INVIS",
-    "TELEPATHY",
-    "SLOW_DIGEST",
-    "REGEN",
-    "XTRA_MIGHT",
-    "XTRA_SHOTS",
-    "IGNORE_ACID",
-    "IGNORE_ELEC",
-    "IGNORE_FIRE",
-    "IGNORE_COLD",
-    "ACTIVATE",
-    "DRAIN_EXP",
-    "TELEPORT",
-    "AGGRAVATE",
-    "BLESSED",
-    "XXX3",
-    "XXX4",
-    "SH_SHARDS",
-
-    "KILL_ANIMAL",
-    "KILL_EVIL",
-    "KILL_UNDEAD",
-    "KILL_DEMON",
-    "KILL_ORC",
-    "KILL_TROLL",
-    "KILL_GIANT",
-    "KILL_HUMAN",
-    "ESP_ANIMAL",
-    "ESP_UNDEAD",
-    "ESP_DEMON",
-    "ESP_ORC",
-    "ESP_TROLL",
-    "ESP_GIANT",
-    "ESP_DRAGON",
-    "ESP_HUMAN",
-    "ESP_EVIL",
-    "ESP_GOOD",
-    "ESP_NONLIVING",
-    "ESP_UNIQUE",
-    "FULL_NAME",
-    "FIXED_FLAVOR",
-    "SPELL_POWER",
-    "RES_TIME",
-    "SPELL_CAP",
-    "LIFE",
-    "WILD",
-    "ORDER",
-    "DARKNESS",
-    "NO_SUMMON",
-    "NO_REMOVE",
-    "MAGIC_RESISTANCE",
-
-    "SLAY_GOOD",
     "DEC_STR",
     "DEC_INT",
     "DEC_WIS",
     "DEC_DEX",
     "DEC_CON",
     "DEC_CHR",
+    "SUST_STR",
+    "SUST_INT",
+    "SUST_WIS",
+    "SUST_DEX",
+    "SUST_CON",
+    "SUST_CHR",
+
+    /* Skills/Bonuses */
+    "SPEED",
+    "STEALTH",
+    "SEARCH",
+    "INFRA",
+    "TUNNEL",
+    "MAGIC_MASTERY",
+    "MAGIC_RESISTANCE",
+    "SPELL_POWER",
+    "SPELL_CAP",
+    "DEVICE_POWER",
+    "LIFE",
+
+    "DEC_SPEED",
+    "DEC_STEALTH",
+    "DEC_MAGIC_MASTERY",
+    "DEC_SPELL_POWER",
+    "DEC_SPELL_CAP",
+    "DEC_LIFE",
+
+    /* Resists */
+    "RES_ACID",
+    "RES_ELEC",
+    "RES_FIRE",
+    "RES_COLD",
+    "RES_POIS",
+    "RES_LITE",
+    "RES_DARK",
+    "RES_CONF",
+    "RES_NETHER",
+    "RES_NEXUS",
+    "RES_SOUND",
+    "RES_SHARDS",
+    "RES_CHAOS",
+    "RES_DISEN",
+    "RES_TIME",
+    "RES_BLIND",
+    "RES_FEAR",
+
+    "IM_ACID",
+    "IM_ELEC",
+    "IM_FIRE",
+    "IM_COLD",
+    "IM_POIS",
+    "IM_LITE",
+    "IM_DARK",
+    "IM_NETHER",
+    "IM_BLIND",
+    "IM_FEAR",
+
     "VULN_ACID",
     "VULN_ELEC",
     "VULN_FIRE",
     "VULN_COLD",
     "VULN_POIS",
-    "VULN_FEAR",
     "VULN_LITE",
     "VULN_DARK",
-    "VULN_BLIND",
     "VULN_CONF",
-    "VULN_SOUND",
-    "VULN_SHARDS",
     "VULN_NETHER",
     "VULN_NEXUS",
+    "VULN_SOUND",
+    "VULN_SHARDS",
     "VULN_CHAOS",
     "VULN_DISEN",
-    "DEC_STEALTH", 
-    "DEC_SPEED", 
-    "DEC_LIFE", 
-    "SH_REVENGE", 
-    "VORPAL2",
-    "DEC_MAGIC_MASTERY",
-    "DEC_SPELL_CAP",
-    "DEC_SPELL_POWER",
-    "SLAY_LIVING",
+    "VULN_BLIND",
+    "VULN_FEAR",
 
-    "STUN",
-    "DEVICE_POWER",
-    "IM_POIS",
-    "IM_LITE",
-    "IM_DARK",
-    "IM_NETHER",
-    "IM_FEAR",
-    "DEC_BLOWS",
-    "IM_BLIND",
-    "FAKE",
+    /* Abilities */
+    "FREE_ACT",
+    "SEE_INVIS",
+    "REGEN",
+    "HOLD_LIFE",
+    "REFLECT",
+    "LEVITATION",
+    "SLOW_DIGEST",
+    "WARNING",
+    "NO_MAGIC",
+    "NO_SUMMON",
+    "NO_TELE",
     "NO_ENCHANT",
+    "NO_REMOVE",
+    "EASY_SPELL",
+    "DEC_MANA",
+    "LITE",
+    "DARKNESS",
+    "LORE1",
+    "LORE2",
+
+    "ACTIVATE",
+
+    "IGNORE_ACID",
+    "IGNORE_ELEC",
+    "IGNORE_FIRE",
+    "IGNORE_COLD",
+
+    /* Auras */
+    "AURA_ELEC",
+    "AURA_FIRE",
+    "AURA_COLD",
+    "AURA_SHARDS",
+    "AURA_REVENGE",
+    "AURA_FEAR",
+
+    /* Telepathy */
+    "TELEPATHY",
+    "ESP_EVIL",
+    "ESP_GOOD",
+    "ESP_NONLIVING",
+    "ESP_UNIQUE",
+    "ESP_DRAGON",
+    "ESP_DEMON",
+    "ESP_UNDEAD",
+    "ESP_ANIMAL",
+    "ESP_HUMAN",
+    "ESP_ORC",
+    "ESP_TROLL",
+    "ESP_GIANT",
+
+    /* Weapons */
+    "SLAY_EVIL",
+    "SLAY_GOOD",
+    "SLAY_LIVING",
+    "SLAY_DRAGON",
+    "SLAY_DEMON",
+    "SLAY_UNDEAD",
+    "SLAY_ANIMAL",
+    "SLAY_HUMAN",
+    "SLAY_ORC",
+    "SLAY_TROLL",
+    "SLAY_GIANT",
+
+    "KILL_EVIL",
+    "KILL_DRAGON",
+    "KILL_DEMON",
+    "KILL_UNDEAD",
+    "KILL_ANIMAL",
+    "KILL_HUMAN",
+    "KILL_ORC",
+    "KILL_TROLL",
+    "KILL_GIANT",
+
+    "BRAND_ACID",
+    "BRAND_ELEC",
+    "BRAND_FIRE",
+    "BRAND_COLD",
+    "BRAND_POIS",
+    "BRAND_CHAOS",
+    "BRAND_VAMP",
+    "BRAND_WILD",
+    "BRAND_ORDER",
+    "BRAND_MANA",
+    "VORPAL",
+    "VORPAL2",
+    "IMPACT",
+    "STUN",
+
+    "BLESSED",
+    "RIDING",
+    "THROWING",
+
+    "BLOWS",
+    "DEC_BLOWS",
+    "WEAPONMASTERY",
     "DUAL_WIELDING",
+
+    /* Bows */
+    "XTRA_MIGHT",
+    "XTRA_SHOTS",
+
+    /* Curses */
+    "DRAIN_EXP",
+    "TELEPORT",
+    "AGGRAVATE",
+    "TY_CURSE",
 };
 
 
@@ -1758,6 +1781,8 @@ static errr _parse_room_flags(char* buf, room_template_t *room_ptr)
             room_ptr->flags |= ROOM_THEME_NIGHT;
         else if (streq(flag, "DAY"))
             room_ptr->flags |= ROOM_THEME_DAY;
+        else if (streq(flag, "SHOP"))
+            room_ptr->flags |= ROOM_SHOP;
         else if (streq(flag, "DEBUG"))
             room_ptr->flags |= ROOM_DEBUG;
         else if (streq(flag, "NO_ROTATE"))
@@ -2593,8 +2618,11 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 {
     int i;
 
+    /* We really should check this someplace :) */
+    assert((OF_COUNT + 31)/32 == OF_ARRAY_SIZE);
+
     /* Check flags */
-    for (i = 0; i < TR_FLAG_COUNT; i++)
+    for (i = 0; i < OF_COUNT; i++)
     {
         if (streq(what, k_info_flags[i]))
         {
@@ -2699,8 +2727,8 @@ errr parse_k_info(char *buf, header *head)
         if (!k_ptr->activation.type)
         {
             errr rc = effect_parse(buf + 2, &k_ptr->activation);
-            if (rc) 
-                return rc;
+            if (rc) return rc;
+            add_flag(k_ptr->flags, OF_ACTIVATE); /* for object lore */
         }
         /* Second E: line is optional and describes the activation. */
         else if (!k_ptr->activation_msg)
@@ -2879,7 +2907,7 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
     int i;
 
     /* Check flags */
-    for (i = 0; i < TR_FLAG_COUNT; i++)
+    for (i = 0; i < OF_COUNT; i++)
     {
         if (streq(what, k_info_flags[i]))
         {
@@ -2946,10 +2974,10 @@ errr parse_a_info(char *buf, header *head)
         a_ptr = &a_info[i];
 
         /* Ignore everything */
-        add_flag(a_ptr->flags, TR_IGNORE_ACID);
-        add_flag(a_ptr->flags, TR_IGNORE_ELEC);
-        add_flag(a_ptr->flags, TR_IGNORE_FIRE);
-        add_flag(a_ptr->flags, TR_IGNORE_COLD);
+        add_flag(a_ptr->flags, OF_IGNORE_ACID);
+        add_flag(a_ptr->flags, OF_IGNORE_ELEC);
+        add_flag(a_ptr->flags, OF_IGNORE_FIRE);
+        add_flag(a_ptr->flags, OF_IGNORE_COLD);
 
         /* Store the name */
         if (!add_name(&a_ptr->name, head, s)) return (7);
@@ -2964,8 +2992,8 @@ errr parse_a_info(char *buf, header *head)
         if (!a_ptr->activation.type)
         {
             errr rc = effect_parse(buf + 2, &a_ptr->activation);
-            if (rc) 
-                return rc;
+            if (rc) return rc;
+            add_flag(a_ptr->flags, OF_ACTIVATE); /* for object lore */
         }
         /* Second E: line is optional and describes the activation. */
         else if (!a_ptr->activation_msg)
@@ -3084,12 +3112,12 @@ errr parse_a_info(char *buf, header *head)
 /*
  * Grab one flag in a ego-item_type from a textual string
  */
-static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
+static bool grab_one_ego_item_flag(ego_type *e_ptr, cptr what)
 {
     int i;
 
     /* Check flags */
-    for (i = 0; i < TR_FLAG_COUNT; i++)
+    for (i = 0; i < OF_COUNT; i++)
     {
         if (streq(what, k_info_flags[i]))
         {
@@ -3109,28 +3137,34 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
     return (1);
 }
 
-static cptr e_info_types[] = /* order must match ego_e in defines.h, obviously */
+static bool grab_one_ego_type_flag(ego_type *e_ptr, cptr what)
 {
-    "NONE", 
-    "AMMO",
-    "WEAPON",
-    "SHIELD",
-    "BOW",
-    "RING",
-    "AMULET",
-    "LITE",
-    "BODY_ARMOR",
-    "CLOAK",
-    "HELMET",
-    "GLOVES",
-    "BOOTS",
-    "DIGGER",
-    "CROWN",
-    "HARP",
-    "ROBE",
-    "SPECIAL",
-    "DEVICE",
-};
+    if (streq(what, "AMMO")) e_ptr->type |= EGO_TYPE_AMMO;
+    else if (streq(what, "WEAPON")) e_ptr->type |= EGO_TYPE_WEAPON;
+    else if (streq(what, "SHIELD")) e_ptr->type |= EGO_TYPE_SHIELD;
+    else if (streq(what, "BOW")) e_ptr->type |= EGO_TYPE_BOW;
+    else if (streq(what, "RING")) e_ptr->type |= EGO_TYPE_RING;
+    else if (streq(what, "AMULET")) e_ptr->type |= EGO_TYPE_AMULET;
+    else if (streq(what, "LITE")) e_ptr->type |= EGO_TYPE_LITE;
+    else if (streq(what, "BODY_ARMOR")) e_ptr->type |= EGO_TYPE_BODY_ARMOR;
+    else if (streq(what, "CLOAK")) e_ptr->type |= EGO_TYPE_CLOAK;
+    else if (streq(what, "HELMET")) e_ptr->type |= EGO_TYPE_HELMET;
+    else if (streq(what, "GLOVES")) e_ptr->type |= EGO_TYPE_GLOVES;
+    else if (streq(what, "BOOTS")) e_ptr->type |= EGO_TYPE_BOOTS;
+    else if (streq(what, "DIGGER")) e_ptr->type |= EGO_TYPE_DIGGER;
+    else if (streq(what, "CROWN")) e_ptr->type |= EGO_TYPE_CROWN;
+    else if (streq(what, "HARP")) e_ptr->type |= EGO_TYPE_HARP;
+    else if (streq(what, "ROBE")) e_ptr->type |= EGO_TYPE_ROBE;
+    else if (streq(what, "SPECIAL")) e_ptr->type |= EGO_TYPE_SPECIAL;
+    else if (streq(what, "DEVICE")) e_ptr->type |= EGO_TYPE_DEVICE;
+    else if (streq(what, "DRAGON_ARMOR")) e_ptr->type |= EGO_TYPE_DRAGON_ARMOR;
+    else
+    {
+        msg_format("Unknown ego type flag: '%s'.", what);
+        return ERROR_UNKOWN_FAILURE;
+    }
+    return ERROR_SUCCESS;
+}
 
 /*
  * Initialize the "e_info" array, by parsing an ascii "template" file
@@ -3142,7 +3176,7 @@ errr parse_e_info(char *buf, header *head)
     char *s, *t;
 
     /* Current entry */
-    static ego_item_type *e_ptr = NULL;
+    static ego_type *e_ptr = NULL;
 
 
     /* Just before the first record */
@@ -3152,14 +3186,13 @@ errr parse_e_info(char *buf, header *head)
     error_line = -1;
 
 
-    /* N:1:Gloves:of Free Action */
+    /* N:1:of Free Action */
     if (buf[0] == 'N')
     {
         char *zz[3];
-        int   num = tokenize(buf + 2, 3, zz, 0);
-        int   j;
+        int   num = tokenize(buf + 2, 2, zz, 0);
 
-        if (num != 3) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        if (num != 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
 
         /* Unique Index */
         i = atoi(zz[0]);
@@ -3168,22 +3201,10 @@ errr parse_e_info(char *buf, header *head)
 
         error_idx = i;
         e_ptr = &e_info[i];
-
-        /* Type */
-        for (j = 0; j < EGO_TYPE_MAX; j++)
-        {
-            if (streq(zz[1], e_info_types[j])) 
-            {
-                e_ptr->type = j;
-                break;
-            }
-        }
-
-        if (!e_ptr->type) return 1;
-
+        e_ptr->id = i;
 
         /* Description */
-        if (!add_name(&e_ptr->name, head, zz[2])) return 7;
+        if (!add_name(&e_ptr->name, head, zz[1])) return 7;
     }
 
     /* There better be a current e_ptr */
@@ -3191,8 +3212,8 @@ errr parse_e_info(char *buf, header *head)
     else if (buf[0] == 'E')
     {
         errr rc = effect_parse(buf + 2, &e_ptr->activation);
-        if (rc) 
-            return rc;
+        if (rc) return rc;
+        add_flag(e_ptr->flags, OF_ACTIVATE); /* for object lore */
     }
     /* W:MinDepth:MaxDepth:Rarity 
        W:30:*:32                  */
@@ -3224,6 +3245,31 @@ errr parse_e_info(char *buf, header *head)
         e_ptr->max_to_d = td;
         e_ptr->max_to_a = ta;
         e_ptr->max_pval = pv;
+    }
+    /* T:HELMET | SHIELD | BODY_ARMOR | CLOAK
+       T:WEAPON | AMMO
+       T:RING etc. */
+    else if (buf[0] == 'T')
+    {
+        /* Parse every entry textually */
+        for (s = buf + 2; *s; )
+        {
+                /* Find the end of this entry */
+            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+                /* Nuke and skip any dividers */
+            if (*t)
+            {
+                *t++ = '\0';
+                while ((*t == ' ') || (*t == '|')) t++;
+            }
+
+                /* Parse this entry */
+            if (0 != grab_one_ego_type_flag(e_ptr, s)) return (5);
+
+                /* Start the next entry */
+            s = t;
+        }
     }
 
     /* Hack -- Process 'F' for flags */
@@ -3478,6 +3524,7 @@ errr parse_r_info(char *buf, header *head)
 
         /* Point at the "info" */
         r_ptr = &r_info[i];
+        r_ptr->id = i;
 
         /* Store the name */
         if (!add_name(&r_ptr->name, head, s)) return (7);
@@ -4142,6 +4189,13 @@ errr parse_d_info(char *buf, header *head)
                 /* Continue */
                 continue;
             }
+            if (1 == sscanf(s, "INITIAL_GUARDIAN_%d", &monst))
+            {
+                d_ptr->initial_guardian = monst;
+                s = t;
+                continue;
+            }
+
 
             /* XXX XXX XXX Hack -- Read Special Percentage */
             if (1 == sscanf(s, "MONSTER_DIV_%d", &monst))
@@ -4896,7 +4950,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                     object_prep(q_ptr, k_idx);
                     drop_here(q_ptr, y2, x2);                
                 }
-                else if (a_info[artifact_index].cur_num)
+                else if (a_info[artifact_index].generated)
                 {
                     object_type forge;
                     create_replacement_art(artifact_index, &forge);
@@ -4906,7 +4960,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                 {
                     /* Create the artifact */
                     if (create_named_art(artifact_index, y2, x2))
-                        a_info[artifact_index].cur_num = 1;
+                        a_info[artifact_index].generated = TRUE;
                 }
             }
             if (level > 0)
@@ -4963,7 +5017,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                     r_ptr->flags1 |= RF1_QUESTOR;
 
                 a_ptr = &a_info[q_ptr->k_idx];
-                a_ptr->gen_flags |= TRG_QUESTITEM;
+                a_ptr->gen_flags |= OFG_QUESTITEM;
             }
             return (0);
         }

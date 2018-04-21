@@ -1,6 +1,10 @@
 # File: r_info.txt
 # With new monsters for Zangband 2.2 (or 2.3)
 
+# Touched: You know, altering monster_race in types.h does not cause the
+# r_info.raw file to get regenerated. Rather, one needs to modify r_info.txt,
+# as I am doing now, to avoid catastrophic memory corruption!
+
 # This file is used to initialize the "lib/raw/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
 

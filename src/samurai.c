@@ -535,7 +535,7 @@ cptr do_hissatsu_spell(int spell, int mode)
             for (hand = 0; hand < MAX_HANDS; hand++)
             {
                 int damage, basedam;
-                u32b flgs[TR_FLAG_SIZE];
+                u32b flgs[OF_ARRAY_SIZE];
                 object_type *o_ptr = NULL;
 
                 if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
@@ -546,13 +546,13 @@ cptr do_hissatsu_spell(int spell, int mode)
                 basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
                 damage = o_ptr->to_d * 100;
                 
-                object_flags(o_ptr, flgs);
-                if (have_flag(flgs, TR_VORPAL2))
+                obj_flags(o_ptr, flgs);
+                if (have_flag(flgs, OF_VORPAL2))
                 {
                     basedam *= 5;
                     basedam /= 3;
                 }
-                else if (have_flag(flgs, TR_VORPAL))
+                else if (have_flag(flgs, OF_VORPAL))
                 {
                     basedam *= 11;
                     basedam /= 9;
@@ -753,7 +753,7 @@ cptr do_hissatsu_spell(int spell, int mode)
             if (p_ptr->anti_tele)
             {
                 msg_print("A mysterious force prevents you from teleporting!");
-    
+                equip_learn_flag(OF_NO_TELE);
                 break;
             }
             project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, -1);
@@ -814,7 +814,7 @@ cptr do_hissatsu_spell(int spell, int mode)
             for (hand = 0; hand < MAX_HANDS; hand++)
             {
                 int damage, basedam;
-                u32b flgs[TR_FLAG_SIZE];
+                u32b flgs[OF_ARRAY_SIZE];
                 object_type *o_ptr = NULL;
 
                 if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
@@ -825,13 +825,13 @@ cptr do_hissatsu_spell(int spell, int mode)
                 basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
                 damage = o_ptr->to_d * 100;
                 
-                object_flags(o_ptr, flgs);
-                if (have_flag(flgs, TR_VORPAL2))
+                obj_flags(o_ptr, flgs);
+                if (have_flag(flgs, OF_VORPAL2))
                 {
                     basedam *= 5;
                     basedam /= 3;
                 }
-                else if (have_flag(flgs, TR_VORPAL))
+                else if (have_flag(flgs, OF_VORPAL))
                 {
                     basedam *= 11;
                     basedam /= 9;
@@ -928,7 +928,7 @@ void samurai_posture_calc_bonuses(void)
         p_ptr->see_inv = TRUE;
         p_ptr->free_act = TRUE;
         p_ptr->slow_digest = TRUE;
-        p_ptr->regenerate = TRUE;
+        p_ptr->regen += 100;
         p_ptr->levitation = TRUE;
         p_ptr->hold_life = TRUE;
         p_ptr->sustain_str = TRUE;
@@ -959,51 +959,51 @@ void samurai_posture_calc_stats(s16b stats[MAX_STATS])
     }
 }
 
-void samurai_posture_get_flags(u32b flgs[TR_FLAG_SIZE])
+void samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->special_defense & KATA_FUUJIN)
-        add_flag(flgs, TR_REFLECT);
+        add_flag(flgs, OF_REFLECT);
 
     if (p_ptr->special_defense & KATA_MUSOU)
     {
-        add_flag(flgs, TR_RES_FEAR);
-        add_flag(flgs, TR_RES_LITE);
-        add_flag(flgs, TR_RES_DARK);
-        add_flag(flgs, TR_RES_BLIND);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_RES_SOUND);
-        add_flag(flgs, TR_RES_SHARDS);
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_RES_NEXUS);
-        add_flag(flgs, TR_RES_CHAOS);
-        add_flag(flgs, TR_RES_DISEN);
-        add_flag(flgs, TR_RES_TIME);
-        add_flag(flgs, TR_REFLECT);
-        add_flag(flgs, TR_HOLD_LIFE);
-        add_flag(flgs, TR_FREE_ACT);
-        add_flag(flgs, TR_SH_FIRE);
-        add_flag(flgs, TR_SH_ELEC);
-        add_flag(flgs, TR_SH_COLD);
-        add_flag(flgs, TR_LEVITATION);
-        add_flag(flgs, TR_LITE);
-        add_flag(flgs, TR_SEE_INVIS);
-        add_flag(flgs, TR_TELEPATHY);
-        add_flag(flgs, TR_SLOW_DIGEST);
-        add_flag(flgs, TR_REGEN);
-        add_flag(flgs, TR_SUST_STR);
-        add_flag(flgs, TR_SUST_INT);
-        add_flag(flgs, TR_SUST_WIS);
-        add_flag(flgs, TR_SUST_DEX);
-        add_flag(flgs, TR_SUST_CON);
-        add_flag(flgs, TR_SUST_CHR);
+        add_flag(flgs, OF_RES_FEAR);
+        add_flag(flgs, OF_RES_LITE);
+        add_flag(flgs, OF_RES_DARK);
+        add_flag(flgs, OF_RES_BLIND);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_RES_SOUND);
+        add_flag(flgs, OF_RES_SHARDS);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_RES_NEXUS);
+        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_RES_DISEN);
+        add_flag(flgs, OF_RES_TIME);
+        add_flag(flgs, OF_REFLECT);
+        add_flag(flgs, OF_HOLD_LIFE);
+        add_flag(flgs, OF_FREE_ACT);
+        add_flag(flgs, OF_AURA_FIRE);
+        add_flag(flgs, OF_AURA_ELEC);
+        add_flag(flgs, OF_AURA_COLD);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_LITE);
+        add_flag(flgs, OF_SEE_INVIS);
+        add_flag(flgs, OF_TELEPATHY);
+        add_flag(flgs, OF_SLOW_DIGEST);
+        add_flag(flgs, OF_REGEN);
+        add_flag(flgs, OF_SUST_STR);
+        add_flag(flgs, OF_SUST_INT);
+        add_flag(flgs, OF_SUST_WIS);
+        add_flag(flgs, OF_SUST_DEX);
+        add_flag(flgs, OF_SUST_CON);
+        add_flag(flgs, OF_SUST_CHR);
     }
 
     if (p_ptr->special_defense & KATA_KOUKIJIN)
     {
-        add_flag(flgs, TR_VULN_ACID);
-        add_flag(flgs, TR_VULN_ELEC);
-        add_flag(flgs, TR_VULN_FIRE);
-        add_flag(flgs, TR_VULN_COLD);
+        add_flag(flgs, OF_VULN_ACID);
+        add_flag(flgs, OF_VULN_ELEC);
+        add_flag(flgs, OF_VULN_FIRE);
+        add_flag(flgs, OF_VULN_COLD);
     }
 }
 
@@ -1207,11 +1207,11 @@ static void _calc_stats(s16b stats[MAX_STATS])
     samurai_posture_calc_stats(stats);
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     samurai_posture_get_flags(flgs);
     if (p_ptr->lev >= 30)
-        add_flag(flgs, TR_RES_FEAR);
+        add_flag(flgs, OF_RES_FEAR);
 }
 
 static int _get_powers(spell_info* spells, int max)

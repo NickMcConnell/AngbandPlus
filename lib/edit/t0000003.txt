@@ -91,10 +91,10 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:24
 
 # Quest 24 rewarding, reward is Ring (Defender)
 ?:[EQU $QUEST24 3]
-F:~:FLOOR:3:0:132:304:0:NONE:0:50
+F:~:FLOOR:3:0:132:200:0:NONE:0:50
 
 ?:[AND [EQU $QUEST24 3] [EQU $RACE Hydra] ]
-F:~:FLOOR:3:0:163:322:0:NONE:0:50
+F:~:FLOOR:3:0:163:200:0:NONE:0:50
 
 # Continue with "Quest 21 - Doom Quest 2
 # "Quest 24 - The Rise and Fall of Micro$oft" and
@@ -162,17 +162,17 @@ F:k:BUILDING_10:3:0:0:0:0:NONE:29
 # continue with quest 30
 ?:[EQU $QUEST29 3]
 F:k:BUILDING_10:3:0:0:0:0:NONE:30
-F:@:FLOOR:3:0:132:300
+F:@:FLOOR:3:0:132:205
 
 # Dagger of Westernesse
 ?:[AND [EQU $QUEST29 3] [EQU $RACE Death-Sword] ]
 F:k:BUILDING_10:3:0:0:0:0:NONE:30
-F:@:FLOOR:3:0:43:247
+F:@:FLOOR:3:0:43:19
 
 # Elemental Charm
 ?:[AND [EQU $QUEST29 3] [EQU $RACE Hydra] ]
 F:k:BUILDING_10:3:0:0:0:0:NONE:30
-F:@:FLOOR:3:0:163:321
+F:@:FLOOR:3:0:163:201
 
 # Quest 29 finished, continue with quest 30
 ?:[EQU $QUEST29 4]
@@ -204,12 +204,12 @@ F:k:BUILDING_10:3:0:0:0:0:NONE:30
 # no new quest available
 ?:[EQU $QUEST30 3]
 F:k:BUILDING_10:3
-F:@:FLOOR:3:0:132:300
+F:@:FLOOR:3:0:132:205
 
 # Trickery
 ?:[AND [EQU $QUEST30 3] [EQU $RACE Hydra] ]
 F:k:BUILDING_10:3
-F:@:FLOOR:3:0:163:329
+F:@:FLOOR:3:0:163:227
 
 # Quest 30 finished, no new quest available
 ?:[EQU $QUEST30 4]

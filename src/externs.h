@@ -313,7 +313,8 @@ extern bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 /*** Birth Options ***/
 
-extern bool easy_id;    /* Easy Identify */
+extern bool easy_id;        /* Easy Identify */
+extern bool easy_lore;      /* Easy Monster Lore */
 extern bool smart_learn;    /* Monsters learn from their mistakes (*) */
 extern bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 extern bool no_wilderness;  /* Play without a normal wilderness */
@@ -354,12 +355,9 @@ extern bool cheat_peek;
 extern bool cheat_hear;
 extern bool cheat_room;
 extern bool cheat_xtra;
-extern bool cheat_know;
 extern bool cheat_live;
 extern bool cheat_save;
 
-extern char record_o_name[MAX_NLEN];
-extern s32b record_turn;
 extern byte hitpoint_warn;
 extern byte mana_warn;
 extern byte delay_factor;
@@ -454,7 +452,7 @@ extern char *k_text;
 extern artifact_type *a_info;
 extern char *a_name;
 extern char *a_text;
-extern ego_item_type *e_info;
+extern ego_type *e_info;
 extern char *e_name;
 extern char *e_text;
 extern monster_race *r_info;
@@ -604,7 +602,8 @@ extern s16b *max_dlv;
     [1] Address Stair Scumming by occasionally removing the wilderness entrance. (Done)
     [2] Lock dungeons until a certain event takes place (Proposed)
 */
-#define DUNGEON_NO_ENTRANCE 0x0001
+#define DUNGEON_NO_ENTRANCE 0x0001  /* Wilderness Entrance has collapsed (stair scummer?) */
+#define DUNGEON_NO_GUARDIAN 0x0002  /* Wilderness Entrance Guardian has been slain */
 extern u32b *dungeon_flags;
 
 extern s16b feat_wall_outer;
@@ -879,6 +878,8 @@ extern bool     effect_add(object_type *o_ptr, int type);
 extern bool     effect_try(effect_t *effect_ptr);
 extern bool     effect_use(effect_t *effect_ptr, int boost);
 extern errr     effect_parse(char *line, effect_t *effect);
+extern bool     effect_is_known(int type);
+extern bool     effect_learn(int type);
 extern int      effect_value(effect_t *effect);
 extern byte     effect_color(effect_t *effect);
 extern cptr     do_effect(effect_t *effect_ptr, int mode, int boost);
@@ -955,8 +956,8 @@ extern void signals_handle_tstp(void);
 extern void signals_init(void);
 extern errr get_rnd_line(cptr file_name, int entry, char *output);
 
-extern void player_flags(u32b flgs[TR_FLAG_SIZE]);
-extern void tim_player_flags(u32b flgs[TR_FLAG_SIZE]);
+extern void player_flags(u32b flgs[OF_ARRAY_SIZE]);
+extern void tim_player_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void tim_player_stats(s16b stats[MAX_STATS]);
 
 extern int ct_kills(void);
@@ -1011,7 +1012,6 @@ extern errr init_buildings(void);
 extern s16b f_tag_to_index_in_init(cptr str);
 extern void init_angband(void);
 extern void display_news(void);
-extern cptr get_check_sum(void);
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -1048,11 +1048,29 @@ extern void monster_gain_exp(int m_idx, int s_idx);
 /* monster1.c */
 extern bool mon_save_p(int r_idx, int stat);
 extern void roff_top(int r_idx);
-extern void screen_roff(int r_idx, int mode);
-extern void display_roff(int r_idx);
-extern void output_monster_spoiler(int r_idx, void (*roff_func)(byte attr, cptr str));
-extern void create_name(int type, char *name);
 extern bool mon_hook_dungeon(int r_idx);
+
+extern void mon_lore_1(monster_type *m_ptr, u32b mask);
+extern void mon_lore_2(monster_type *m_ptr, u32b mask);
+extern void mon_lore_3(monster_type *m_ptr, u32b mask);
+extern void mon_lore_4(monster_type *m_ptr, u32b mask);
+extern void mon_lore_5(monster_type *m_ptr, u32b mask);
+extern void mon_lore_6(monster_type *m_ptr, u32b mask);
+extern void mon_lore_r(monster_type *m_ptr, u32b mask);
+
+extern void mon_lore_aux_1(monster_race *r_ptr, u32b mask);
+extern void mon_lore_aux_2(monster_race *r_ptr, u32b mask);
+extern void mon_lore_aux_3(monster_race *r_ptr, u32b mask);
+extern void mon_lore_aux_4(monster_race *r_ptr, u32b mask);
+extern void mon_lore_aux_5(monster_race *r_ptr, u32b mask);
+extern void mon_lore_aux_6(monster_race *r_ptr, u32b mask);
+extern void mon_lore_aux_r(monster_race *r_ptr, u32b mask);
+
+#define MON_BLOW_SILLY   0x01
+#define MON_BLOW_OBVIOUS 0x02
+#define MON_BLOW_DAMAGE  0x04
+extern void mon_lore_blows(monster_type *m_ptr, int which, int options);
+extern void mon_lore_aux_blows(monster_race *r_ptr, int which, int options);
 
 extern monster_hook_type get_wilderness_monster_hook(int x, int y);
 extern monster_hook_type get_monster_hook(void);
@@ -1109,6 +1127,7 @@ extern void sanity_blast(monster_type *m_ptr, bool necro);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
 extern bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode);
+extern int  place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode);
 extern bool place_monster(int y, int x, u32b mode);
 extern bool alloc_horde(int y, int x);
 extern bool alloc_guardian(bool def_val);
@@ -1122,12 +1141,20 @@ extern byte get_mspeed(monster_race *r_ptr);
 extern bool player_place(int y, int x);
 extern void monster_drop_carried_objects(monster_type *m_ptr);
 
+/* mon_display.c */
+extern void mon_display(monster_race *r_ptr);
+extern void mon_display_rect(monster_race *r_ptr, rect_t display);
+extern void mon_display_doc(monster_race *r_ptr, doc_ptr doc);
+
 /* obj_display.c */
 extern void obj_display(object_type *o_ptr);
 extern void obj_display_rect(object_type *o_ptr, rect_t display);
 extern void obj_display_doc(object_type *o_ptr, doc_ptr doc);
 extern void obj_display_smith(object_type *o_ptr, doc_ptr doc);
 extern void device_display_doc(object_type *o_ptr, doc_ptr doc);
+extern void ego_display(ego_type *e_ptr);
+extern void ego_display_rect(ego_type *e_ptr, rect_t display);
+extern void ego_display_doc(ego_type *e_ptr, doc_ptr doc);
 
 /* py_display.c */
 extern void py_display(void);
@@ -1141,12 +1168,11 @@ extern void py_display_dungeons(doc_ptr doc);
 extern s16b m_bonus(int max, int level);
 
 extern void reset_visuals(void);
-extern void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
-extern void weapon_flags(int hand, u32b flgs[TR_FLAG_SIZE]);
-extern void weapon_flags_known(int hand, u32b flgs[TR_FLAG_SIZE]);
-extern void missile_flags(object_type *arrow, u32b flgs[TR_FLAG_SIZE]);
-extern void missile_flags_known(object_type *arrow, u32b flgs[TR_FLAG_SIZE]);
-extern void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
+extern void obj_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
+extern void weapon_flags(int hand, u32b flgs[OF_ARRAY_SIZE]);
+extern void weapon_flags_known(int hand, u32b flgs[OF_ARRAY_SIZE]);
+extern void missile_flags(object_type *arrow, u32b flgs[OF_ARRAY_SIZE]);
+extern void missile_flags_known(object_type *arrow, u32b flgs[OF_ARRAY_SIZE]);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
 extern s16b label_to_equip(int c);
@@ -1161,10 +1187,47 @@ extern void toggle_inven_equip(void);
 extern bool can_get_item(void);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
 
+/* Object Lore */
+extern void obj_flags_known(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
+extern void obj_flags_unknown(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
+extern bool obj_is_identified(object_type *o_ptr);
+extern bool obj_is_identified_fully(object_type *o_ptr);
+extern void obj_identify(object_type *o_ptr);
+extern void obj_identify_fully(object_type *o_ptr);
+
+/* obj_learn_*() methods return TRUE if the flag is present and unknown (hence learned)
+   and FALSE otherwise. So FALSE means either the flag is not applicable, or that
+   the user already knew about it. Generally, TRUE indicates the need to display
+   a message to the player. */
+extern bool obj_learn_flag(object_type *o_ptr, int which);
+extern void obj_learn_activation(object_type *o_ptr);
+extern bool obj_learn_curse(object_type *o_ptr, int flag);
+
+/* Learn a weapon slay *and* alert the user. */
+extern void obj_learn_slay(object_type *o_ptr, int which, cptr msg);
+
+/* Equipping an object learns many things, mostly pval related. Alert the user. */
+extern void obj_learn_equipped(object_type *o_ptr);
+
+extern bool ego_has_lore(ego_type *e_ptr);
+extern bool art_has_lore(artifact_type *a_ptr);
+extern bool obj_has_lore(object_type *o_ptr);
+
+/* ego.c */
+extern void ego_create_ring(object_type *o_ptr, int level, int power, int mode);
+extern void ego_create_amulet(object_type *o_ptr, int level, int power, int mode);
+extern bool obj_create_device(object_type *o_ptr, int level, int power, int mode);
+extern void obj_create_weapon(object_type *o_ptr, int level, int power, int mode);
+extern void obj_create_armor(object_type *o_ptr, int level, int power, int mode);
+extern void obj_create_lite(object_type *o_ptr, int level, int power, int mode);
+extern int  ego_choose_type(int type, int level);
+extern void ego_weapon_adjust_weight(object_type *o_ptr);
+extern void ego_brand_weapon(object_type *o_ptr, int which);
+extern void ego_finalize(object_type *o_ptr, int level, int power, int mode);
+
 /* object2.c */
 extern bool add_esp_strong(object_type *o_ptr);
 extern void add_esp_weak(object_type *o_ptr, bool extra);
-extern void adjust_weapon_weight(object_type *o_ptr);
 extern void excise_object_idx(int o_idx);
 extern void delete_object_idx(int o_idx);
 extern void delete_object(int y, int x);
@@ -1174,14 +1237,12 @@ extern s16b o_pop(void);
 extern s16b get_obj_num(int level);
 extern errr get_obj_num_prep(void);
 extern bool object_is_aware(object_type *o_ptr);
-extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
-extern void ego_aware(object_type *o_ptr);
-extern bool ego_is_aware(int which);
 extern void object_tried(object_type *o_ptr);
 extern bool object_is_tried(object_type *o_ptr);
-extern s32b object_value(object_type *o_ptr);
-extern s32b object_value_real(object_type *o_ptr);
+extern s32b obj_value(object_type *o_ptr);
+extern s32b obj_value_real(object_type *o_ptr);
+extern s32b obj_android_exp(object_type *o_ptr);
 extern bool can_player_destroy_object(object_type *o_ptr);
 extern void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt);
 extern void reduce_charges(object_type *o_ptr, int amt);
@@ -1393,7 +1454,6 @@ extern bool control_one_demon(int dir, int plev);
 extern bool charm_animal(int dir, int plev);
 extern bool charm_living(int dir, int plev);
 extern bool mindblast_monsters(int dam);
-extern s32b flag_cost(object_type *o_ptr, int plusses, bool hack);
 extern void report_magics(void);
 extern bool teleport_swap(int dir);
 extern bool project_hook(int typ, int dir, int dam, int flg);
@@ -1426,6 +1486,7 @@ extern void phlogiston(void);
 extern bool brand_weapon(int brand_type);
 extern bool brand_weapon_aux(int item);
 extern bool brand_armour_aux(int item);
+extern bool brand_weapon_slaying(int flag);
 extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
 extern void alter_reality(void);
@@ -1722,7 +1783,6 @@ extern bool restore_level(void);
 extern bool lose_all_info(void);
 extern void gain_exp_64(s32b amount, u32b amount_frac);
 extern void gain_exp(s32b amount);
-extern void calc_android_exp(void);
 extern void lose_exp(s32b amount);
 extern bool drain_exp(s32b drain, s32b slip, int hold_life_prob);
 extern void do_poly_self(void);
@@ -1870,6 +1930,7 @@ extern void get_bloody_moon_flags(object_type *o_ptr);
 extern void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr);
 extern bool create_named_art(int a_idx, int y, int x);
 extern bool create_named_art_aux(int a_idx, object_type *o_ptr);
+extern bool create_named_art_aux_aux(int a_idx, object_type *o_ptr);
 extern bool create_replacement_art(int a_idx, object_type *o_ptr);
 extern bool reforge_artifact(object_type *src, object_type *dest, int fame);
 extern void get_random_name(char *return_name, object_type *o_ptr, int power);
@@ -1986,14 +2047,17 @@ extern bool easy_floor;
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
 /* obj_kind.c */
-extern bool have_pval_flags(u32b flgs[TR_FLAG_SIZE]);
+extern const int pval_flags[];
+extern bool have_pval_flag(u32b flgs[OF_ARRAY_SIZE]);
 extern bool is_pval_flag(int which);
 extern bool object_is_cloak(object_type *o_ptr);
 extern bool object_is_gloves(object_type *o_ptr);
 extern bool object_is_helmet(object_type *o_ptr);
 extern bool object_is_cursed(object_type *o_ptr);
 extern bool object_is_mushroom(object_type *o_ptr);
+extern bool object_is_flavor(object_type *o_ptr);
 extern bool object_is_potion(object_type *o_ptr);
+extern bool mon_is_wanted(int r_idx);
 extern bool object_is_shoukinkubi(object_type *o_ptr);
 extern bool object_is_favorite(object_type *o_ptr);
 extern bool object_is_rare(object_type *o_ptr);
@@ -2105,7 +2169,11 @@ extern bool mimic_no_regen(void);
 extern cptr gf_name(int which);
 
 extern race_t *amberite_get_race(void);
+
 extern race_t *android_get_race(void);
+extern void    android_calc_exp(void);
+extern int     android_obj_exp(object_type *o_ptr);
+
 extern race_t *archon_get_race(void);
 extern race_t *balrog_get_race(void);
 extern race_t *barbarian_get_race(void);
@@ -2201,9 +2269,9 @@ caster_info   *possessor_caster_info(void);
 extern void    possessor_calc_bonuses(void);
 extern int     possessor_r_speed(int r_idx);
 extern int     possessor_r_ac(int r_idx);
-extern void    possessor_get_flags(u32b flgs[TR_FLAG_SIZE]);
-extern void    possessor_get_immunities(u32b flgs[TR_FLAG_SIZE]);
-extern void    possessor_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]);
+extern void    possessor_get_flags(u32b flgs[OF_ARRAY_SIZE]);
+extern void    possessor_get_immunities(u32b flgs[OF_ARRAY_SIZE]);
+extern void    possessor_get_vulnerabilities(u32b flgs[OF_ARRAY_SIZE]);
 extern void    possessor_character_dump(doc_ptr doc);
 extern void    possessor_on_load(savefile_ptr file);
 extern void    possessor_on_save(savefile_ptr file);
@@ -2352,7 +2420,7 @@ extern cptr     mon_name(int r_idx);
 extern class_t *monk_get_class(void);
 extern void     monk_posture_calc_bonuses(void);
 extern void     monk_posture_calc_stats(s16b stats[MAX_STATS]);
-extern void     monk_posture_get_flags(u32b flgs[TR_FLAG_SIZE]);
+extern void     monk_posture_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 
 extern void     monk_ac_bonus(void);
 extern class_t *monster_get_class(void);
@@ -2411,7 +2479,7 @@ extern void     samurai_on_rest(void);
 extern bool     samurai_can_concentrate(void);
 extern class_t *samurai_get_class(void);
 extern void     samurai_posture_spell(int cmd, variant *res);
-extern void     samurai_posture_get_flags(u32b flgs[TR_FLAG_SIZE]);
+extern void     samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void     samurai_posture_calc_stats(s16b stats[MAX_STATS]);
 extern void     samurai_posture_calc_bonuses(void);
 
@@ -2428,7 +2496,7 @@ extern void     warlock_stop_singing(void);
 extern class_t *warrior_get_class(void);
 extern class_t *warrior_mage_get_class(void);
 
-extern void     weaponsmith_object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
+extern void     weaponsmith_object_flags(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE]);
 extern class_t *weaponsmith_get_class(void);
 
 extern cptr do_hissatsu_spell(int spell, int mode);

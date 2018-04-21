@@ -76,4 +76,8 @@ extern bool               equip_is_empty_hand(int hand);
 extern bool               equip_is_valid_hand(int hand);
 extern bool               equip_is_empty_two_handed_slot(int slot);
 
+extern void               equip_learn_curse(int flag);
+extern void               equip_learn_resist(int obj_flag); /* pass TR_RES_FIRE rather than RES_FIRE */
+extern void               equip_learn_flag(int obj_flag);
+
 #endif

@@ -245,7 +245,7 @@ static void _scroll_grid(int src_x, int src_y, int dest_x, int dest_y)
 
 static void _scroll_cave(int dx, int dy)
 {
-    int x, y;
+    int x, y, i;
 
 #if 0
     msg_format("Scoll Cave (%d,%d)", dx, dy);
@@ -297,6 +297,16 @@ static void _scroll_cave(int dx, int dy)
 
     px += dx;
     py += dy;
+
+    for (i = 0; i < max_pack_info_idx; i++)
+    {
+        pack_info_t *pack_info_ptr = &pack_info_list[i];
+        if (pack_info_ptr->ai == AI_GUARD_POS)
+        {
+            pack_info_ptr->guard_x += dx;
+            pack_info_ptr->guard_y += dy;
+        }
+    }
 
     if (center_player && (center_running || !running))
     {
@@ -966,6 +976,87 @@ static void generate_wilderness_area(int terrain, u32b seed)
 }
 
 
+static void _generate_entrance(int x, int y, int dx, int dy)
+{
+    int dun_idx = wilderness[y][x].entrance;
+    int y2, x2;
+
+    /* Hack -- Use the "simple" RNG */
+    Rand_quick = TRUE;
+
+    /* Hack -- Induce consistant town layout */
+    Rand_value = wilderness[y][x].seed;
+
+    y2 = rand_range(6, cur_hgt - 6) + dy;
+    x2 = rand_range(6, cur_wid - 6) + dx;
+
+    if (in_bounds(y2, x2))
+    {
+        cave[y2][x2].feat = feat_entrance;
+        cave[y2][x2].special = dun_idx;
+
+        if ( !(dungeon_flags[dun_idx] & DUNGEON_NO_GUARDIAN)
+          && d_info[dun_idx].initial_guardian )
+        {
+            int i;
+            bool skip = FALSE;
+
+            /* Thanks to wilderness scrolling, we'll need to double check
+               that we haven't already allocated the guardian! */
+            for (i = 0; i < max_m_idx; i++)
+            {
+                if (!m_list[i].r_idx) continue;
+
+                if ( (m_list[i].smart & SM_GUARDIAN)
+                  && m_list[i].pack_idx
+                  && pack_info_list[m_list[i].pack_idx].guard_idx == dun_idx )
+                {
+                    skip = TRUE;
+                    break;
+                }
+            }
+
+            if (!skip)
+            {
+                int dx = 0, dy = 0;
+                int m_idx = 0;
+
+                /* Don't place it on the stairs. If the player gets by the guardian, then
+                   this is where they will be placed should they take the stairs back up
+                   to the surface. */
+                while (dx == 0 && dy == 0)
+                {
+                    dx = randint1(3) - 2;
+                    dy = randint1(3) - 2;
+                }
+
+                m_idx = place_monster_one(0, y2 + dy, x2 + dx, d_info[dun_idx].initial_guardian, 0, 0);
+
+                /* We'll use pack ai to guard this location (see _scroll_cave() above).
+                   We'll use smart flags to mark the guardian, and hack the dungeon index into
+                   the pack info so that we can correctly mark the dungeon upon killing the
+                   guardian. See pack_on_slay_monster(). */
+                if (m_idx)
+                {
+                    monster_type *m_ptr = &m_list[m_idx];
+                    int           pack_idx = pack_info_pop();
+                    pack_info_t  *pack_ptr = &pack_info_list[pack_idx];
+
+                    m_ptr->pack_idx = pack_idx;
+                    m_ptr->smart |= SM_GUARDIAN;
+
+                    pack_ptr->count++;
+                    pack_ptr->ai = AI_GUARD_POS;
+                    pack_ptr->guard_x = x2;
+                    pack_ptr->guard_y = y2;
+                    pack_ptr->guard_idx = dun_idx; /* Hack: See pack_on_slay_monster() for more details. */
+                }
+            }
+        }
+    }
+    /* Use the complex RNG */
+    Rand_quick = FALSE;
+}
 
 /*
  * Load a town or generate a terrain level using "plasma" fractals.
@@ -986,6 +1077,7 @@ static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
 
     {
         int terrain = wilderness[y][x].terrain;
+        int dun_idx = wilderness[y][x].entrance;
         u32b seed = wilderness[y][x].seed;
 
         generate_wilderness_area(terrain, seed);
@@ -1071,32 +1163,13 @@ static void _generate_area(int x, int y, int dx, int dy, const rect_t *exclude)
 
 
         /* Ah ... well, our _cave scratch buffer can't handle the stairs. */
-        if ( wilderness[y][x].entrance 
+        if ( dun_idx
          && !wilderness[y][x].town 
-         && (p_ptr->total_winner || !(d_info[wilderness[y][x].entrance].flags1 & DF1_WINNER))
-         && (ironman_rooms || !(dungeon_flags[wilderness[y][x].entrance] & DUNGEON_NO_ENTRANCE) ) )
+         && (p_ptr->total_winner || !(d_info[dun_idx].flags1 & DF1_WINNER))
+         && (ironman_rooms || !(dungeon_flags[dun_idx] & DUNGEON_NO_ENTRANCE) ) )
         {
-            int y2, x2;
-            int which = wilderness[y][x].entrance;
-
-            /* Hack -- Use the "simple" RNG */
-            Rand_quick = TRUE;
-
-            /* Hack -- Induce consistant town layout */
-            Rand_value = wilderness[y][x].seed;
-
-            y2 = rand_range(6, cur_hgt - 6) + dy;
-            x2 = rand_range(6, cur_wid - 6) + dx;
-
-            if (in_bounds(y2, x2))
-            {
-                cave[y2][x2].feat = feat_entrance;
-                cave[y2][x2].special = which;
-            }
-            /* Use the complex RNG */
-            Rand_quick = FALSE;
+            _generate_entrance(x, y, dx, dy);
         }
-
     }
 }
 

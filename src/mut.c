@@ -275,77 +275,79 @@ void mut_calc_bonuses(void)
     var_clear(&v);
 }
 
-void mut_get_flags(u32b flgs[TR_FLAG_SIZE])
+void mut_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     /* Unfortunately, there is no way to send a SPELL_GET_FLAGS
        event to our mutation "objects" ... So we need to delocalize
        our logic. */
 
     if (mut_present(MUT_FLESH_ROT))
-        remove_flag(flgs, TR_REGEN);
+        remove_flag(flgs, OF_REGEN);
+
+    if (mut_present(MUT_XTRA_LEGS))
+        add_flag(flgs, OF_SPEED);
 
     if (mut_present(MUT_XTRA_FAT) ||
-        mut_present(MUT_XTRA_LEGS) ||
         mut_present(MUT_SHORT_LEG))
     {
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_DEC_SPEED);
     }
 
     if (mut_present(MUT_ELEC_AURA))
-        add_flag(flgs, TR_SH_ELEC);
+        add_flag(flgs, OF_AURA_ELEC);
 
     if (mut_present(MUT_FIRE_AURA))
     {
-        add_flag(flgs, TR_SH_FIRE);
-        add_flag(flgs, TR_LITE);
+        add_flag(flgs, OF_AURA_FIRE);
+        add_flag(flgs, OF_LITE);
     }
 
     if (mut_present(MUT_WINGS))
-        add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, OF_LEVITATION);
 
     if (mut_present(MUT_FEARLESS))
-        add_flag(flgs, TR_RES_FEAR);
+        add_flag(flgs, OF_RES_FEAR);
 
     if (mut_present(MUT_REGEN))
-        add_flag(flgs, TR_REGEN);
+        add_flag(flgs, OF_REGEN);
 
     if (mut_present(MUT_ESP))
-        add_flag(flgs, TR_TELEPATHY);
+        add_flag(flgs, OF_TELEPATHY);
 
     if (mut_present(MUT_MOTION))
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_FREE_ACT);
 
     if (mut_present(MUT_TREAD_SOFTLY))
-        add_flag(flgs, TR_STEALTH);
+        add_flag(flgs, OF_STEALTH);
 
     if (mut_present(MUT_DRACONIAN_SHIELD))
     {
         switch (p_ptr->psubrace)
         {
         case DRACONIAN_RED:
-            add_flag(flgs, TR_SH_FIRE);
+            add_flag(flgs, OF_AURA_FIRE);
             break;
         case DRACONIAN_WHITE:
-            add_flag(flgs, TR_SH_COLD);
+            add_flag(flgs, OF_AURA_COLD);
             break;
         case DRACONIAN_BLUE:
-            add_flag(flgs, TR_SH_ELEC);
+            add_flag(flgs, OF_AURA_ELEC);
             break;
         case DRACONIAN_CRYSTAL:
-            add_flag(flgs, TR_SH_SHARDS);
+            add_flag(flgs, OF_AURA_SHARDS);
             break;
         }
     }
 
     if (mut_present(MUT_DRACONIAN_REGEN))
-        add_flag(flgs, TR_REGEN);
+        add_flag(flgs, OF_REGEN);
 
     if (mut_present(MUT_VULN_ELEM))
     {
-        add_flag(flgs, TR_VULN_ACID);
-        add_flag(flgs, TR_VULN_ELEC);
-        add_flag(flgs, TR_VULN_FIRE);
-        add_flag(flgs, TR_VULN_COLD);
+        add_flag(flgs, OF_VULN_ACID);
+        add_flag(flgs, OF_VULN_ELEC);
+        add_flag(flgs, OF_VULN_FIRE);
+        add_flag(flgs, OF_VULN_COLD);
     }
 }
 
@@ -708,21 +710,21 @@ bool mut_draconian_pred(int mut_idx)
         /* OK, what classes will actually work with no bow or weapon slots? */
         switch (p_ptr->pclass)
         {
-        case CLASS_MONK:
+        /*case CLASS_MONK:
+        case CLASS_FORCETRAINER: */
+        case CLASS_MYSTIC:
         case CLASS_BEASTMASTER: /* No riding, either! */
         case CLASS_ARCHER:
         case CLASS_SAMURAI:
-        case CLASS_FORCETRAINER:
         case CLASS_CAVALRY:
         case CLASS_WEAPONSMITH:
-        case CLASS_NINJA:
+        /*case CLASS_NINJA:*/
         case CLASS_SNIPER:
         case CLASS_DUELIST:
         case CLASS_WEAPONMASTER:
         case CLASS_RUNE_KNIGHT:
         case CLASS_NECROMANCER:
         case CLASS_MAULER:
-        case CLASS_MYSTIC:
             return FALSE;
             break;
         default:

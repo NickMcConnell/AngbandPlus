@@ -284,7 +284,7 @@ void build_streamer(int feat, int chance)
                     if (object_is_fixed_artifact(o_ptr))
                     {
                         /* Mega-Hack -- Preserve the artifact */
-                        a_info[o_ptr->name1].cur_num = 0;
+                        a_info[o_ptr->name1].generated = FALSE;
 
                         if (cheat_peek)
                         {
@@ -293,10 +293,10 @@ void build_streamer(int feat, int chance)
                             msg_format("Artifact (%s) was deleted by streamer.", o_name);
                         }
                     }
-                    else if (o_ptr->name3)
+                    else if (random_artifacts && o_ptr->name3)
                     {
                         /* Mega-Hack -- Preserve the artifact */
-                        a_info[o_ptr->name3].cur_num = 0;
+                        a_info[o_ptr->name3].generated = FALSE;
 
                         if (cheat_peek)
                         {

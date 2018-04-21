@@ -89,11 +89,11 @@ static void _black_ooze_calc_bonuses(void)
     p_ptr->no_stun = TRUE;
     p_ptr->no_cut = TRUE;
 }
-static void _black_ooze_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _black_ooze_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_ACID);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_IM_BLIND);
+    add_flag(flgs, OF_RES_ACID);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_IM_BLIND);
 }
 race_t *_black_ooze_get_race_t(void)
 {
@@ -137,12 +137,12 @@ static void _gelatinous_cube_calc_bonuses(void)
     res_add(RES_ELEC);
     _black_ooze_calc_bonuses();
 }
-static void _gelatinous_cube_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _gelatinous_cube_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_ACID);
-    add_flag(flgs, TR_RES_FIRE);
-    add_flag(flgs, TR_RES_COLD);
-    add_flag(flgs, TR_RES_ELEC);
+    add_flag(flgs, OF_RES_ACID);
+    add_flag(flgs, OF_RES_FIRE);
+    add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_RES_ELEC);
     _black_ooze_get_flags(flgs);
 }
 race_t *_gelatinous_cube_get_race_t(void)
@@ -187,19 +187,19 @@ static void _acidic_cytoplasm_calc_bonuses(void)
     res_add(RES_CONF);
     res_add_immune(RES_FEAR);
 
-    add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID);
+    add_flag(p_ptr->weapon_info[0].flags, OF_BRAND_ACID);
 
     _gelatinous_cube_calc_bonuses();
 }
-static void _acidic_cytoplasm_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _acidic_cytoplasm_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_BRAND_ACID);
+    add_flag(flgs, OF_SPEED);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_BRAND_ACID);
 
-    add_flag(flgs, TR_IM_ACID);
-    add_flag(flgs, TR_IM_FEAR);
+    add_flag(flgs, OF_IM_ACID);
+    add_flag(flgs, OF_IM_FEAR);
 
     _gelatinous_cube_get_flags(flgs);
 }
@@ -239,7 +239,7 @@ race_t *_acidic_cytoplasm_get_race_t(void)
 static void _shoggoth_calc_bonuses(void)
 {
     p_ptr->pspeed += 2;
-    p_ptr->regenerate = TRUE;
+    p_ptr->regen += 100;
     p_ptr->to_a += p_ptr->lev/3;
     p_ptr->dis_to_a += p_ptr->lev/3;
     p_ptr->no_eldritch = TRUE;
@@ -248,10 +248,10 @@ static void _shoggoth_calc_bonuses(void)
 
     _acidic_cytoplasm_calc_bonuses();
 }
-static void _shoggoth_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _shoggoth_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_REGEN);
+    add_flag(flgs, OF_SPEED);
+    add_flag(flgs, OF_REGEN);
     _acidic_cytoplasm_get_flags(flgs);
 }
 race_t *_shoggoth_get_race_t(void)
@@ -327,7 +327,7 @@ static void _birth(void)
     forge.name2 = EGO_RING_COMBAT;
     forge.pval = 1;
     forge.to_d = 3;
-    add_flag(forge.art_flags, TR_STR);
+    add_flag(forge.flags, OF_STR);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));

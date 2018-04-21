@@ -613,13 +613,13 @@ static bool use_mane(int spell)
         {
             if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
             {
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+                mon_lore_r(m_ptr, RFR_RES_TELE);
                 msg_format("%s is unaffected!", m_name);
                 break;
             }
             else if (r_ptr->level > randint1(100))
             {
-                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+                mon_lore_r(m_ptr, RFR_RES_TELE);
                 msg_format("%s resists!", m_name);
                 break;
             }

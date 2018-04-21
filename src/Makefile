@@ -4,7 +4,7 @@ include $(MKPATH)buildsys.mk
 # import source list
 include Makefile.src
 INCLUDE = $(HDRS)
-OBJECTS = $(ANGFILES) $(ZFILES)
+OBJECTS = $(ANGFILES) $(CFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c} ${MAINFILES:.o=.c}
 PROG    = poschengband$(PROG_SUFFIX)
 # VERSION := $(shell ../scripts/version.sh)

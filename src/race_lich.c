@@ -169,31 +169,31 @@ static void _calc_bonuses(void) {
         p_ptr->no_passwall_dam = TRUE;
     }
 }
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_SLOW_DIGEST);
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_COLD);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_RES_NETHER);
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_SLOW_DIGEST);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_NETHER);
 
     if (p_ptr->lev < 25)
-        add_flag(flgs, TR_VULN_LITE);
+        add_flag(flgs, OF_VULN_LITE);
 
     if (p_ptr->lev >= 25)
     {
-        add_flag(flgs, TR_SPEED);
-        add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, OF_SPEED);
+        add_flag(flgs, OF_RES_CONF);
+        add_flag(flgs, OF_FREE_ACT);
     }
     if (p_ptr->lev >= 40)
     {
-        add_flag(flgs, TR_TELEPATHY);
+        add_flag(flgs, OF_TELEPATHY);
     }
     if (p_ptr->lev >= 50)
     {
-        add_flag(flgs, TR_LEVITATION);
-        add_flag(flgs, TR_IM_NETHER);
+        add_flag(flgs, OF_LEVITATION);
+        add_flag(flgs, OF_IM_NETHER);
     }
 }
 static void _gain_level(int new_level) {

@@ -413,7 +413,7 @@ static void _character_dump(doc_ptr doc)
 
 static void _calc_bonuses(void)
 {
-    p_ptr->regenerate = TRUE;
+    p_ptr->regen += 100 + 2*p_ptr->lev;
     if (p_ptr->lev >= 30) res_add(RES_FEAR);
 
     if (p_ptr->cut > 0)
@@ -497,9 +497,9 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_REGEN);
+    add_flag(flgs, OF_REGEN);
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)

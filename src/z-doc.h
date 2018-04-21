@@ -134,6 +134,7 @@ doc_region_t  doc_range_middle(doc_ptr doc, doc_pos_t start, doc_pos_t stop);
 doc_region_t  doc_range_middle_lines(doc_ptr doc, int start_line, int stop_line);
 
 int           doc_line_count(doc_ptr doc);
+int           doc_width(doc_ptr doc);
 
 doc_pos_t     doc_next_bookmark(doc_ptr doc, doc_pos_t pos);
 doc_pos_t     doc_prev_bookmark(doc_ptr doc, doc_pos_t pos);

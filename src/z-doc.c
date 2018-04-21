@@ -290,6 +290,11 @@ int doc_line_count(doc_ptr doc)
     return doc_region_line_count(&r);
 }
 
+int doc_width(doc_ptr doc)
+{
+    return doc->width;
+}
+
 doc_region_t doc_range_all(doc_ptr doc)
 {
     doc_region_t result;

@@ -319,6 +319,7 @@ void do_cmd_go_down(void)
                   && down_num >= 20 
                   && !ironman_rooms 
                   && !(d_info[dungeon_type].flags1 & DF1_RANDOM) 
+                  && !(d_info[dungeon_type].initial_guardian && !(dungeon_flags[dungeon_type] & DUNGEON_NO_GUARDIAN))
                   && one_in_(14) )
                 {
                     /* Hack:  No stair scum */
@@ -485,7 +486,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
     chest_ptr->pval = 0;
 
     /* Known */
-    object_known(chest_ptr);
+    obj_identify(chest_ptr);
 }
 
 
@@ -545,6 +546,7 @@ static void chest_trap(int y, int x, s16b o_idx)
         {
             (void)set_paralyzed(randint1(4), FALSE);
         }
+        else equip_learn_flag(OF_FREE_ACT);
     }
 
     /* Summon monsters */
@@ -658,7 +660,10 @@ static void chest_trap(int y, int x, s16b o_idx)
                     if (!p_ptr->free_act) 
                         (void)set_paralyzed(randint1(4), FALSE);
                     else 
+                    {
+                        equip_learn_flag(OF_FREE_ACT);
                         (void)set_stun(p_ptr->stun + 10 + randint0(100), FALSE);
+                    }
                 }
                 else if (one_in_(3)) apply_disenchant(0);
                 else if (one_in_(2))
@@ -2697,7 +2702,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
     int mult = 10;
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
 
     /* Extract the flags */
     missile_flags(o_ptr, flgs);
@@ -2710,218 +2715,164 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
         case TV_BOLT:
         {
             /* Slay Animal */
-            if ((have_flag(flgs, TR_SLAY_ANIMAL)) &&
+            if ((have_flag(flgs, OF_SLAY_ANIMAL)) &&
                 (r_ptr->flags3 & RF3_ANIMAL))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_ANIMAL;
-                }
-
+                mon_lore_3(m_ptr, RF3_ANIMAL);
+                obj_learn_slay(o_ptr, OF_SLAY_ANIMAL, "slays <color:g>Animals</color>");
                 if (mult < 17) mult = 17;
             }
 
             /* Kill Animal */
-            if ((have_flag(flgs, TR_KILL_ANIMAL)) &&
+            if ((have_flag(flgs, OF_KILL_ANIMAL)) &&
                 (r_ptr->flags3 & RF3_ANIMAL))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_ANIMAL;
-                }
-
+                mon_lore_3(m_ptr, RF3_ANIMAL);
+                obj_learn_slay(o_ptr, OF_KILL_ANIMAL, "slays <color:g>*Animals*</color>");
                 if (mult < 27) mult = 27;
             }
 
             /* Slay Evil */
-            if ((have_flag(flgs, TR_SLAY_EVIL)) &&
+            if ((have_flag(flgs, OF_SLAY_EVIL)) &&
                 (r_ptr->flags3 & RF3_EVIL))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_EVIL;
-                }
-
+                mon_lore_3(m_ptr, RF3_EVIL);
+                obj_learn_slay(o_ptr, OF_SLAY_EVIL, "slays <color:y>Evil</color>");
                 if (mult < 15) mult = 15;
             }
 
             /* Kill Evil */
-            if ((have_flag(flgs, TR_KILL_EVIL)) &&
+            if ((have_flag(flgs, OF_KILL_EVIL)) &&
                 (r_ptr->flags3 & RF3_EVIL))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_EVIL;
-                }
-
+                mon_lore_3(m_ptr, RF3_EVIL);
+                obj_learn_slay(o_ptr, OF_KILL_EVIL, "slays <color:y>*Evil*</color>");
                 if (mult < 25) mult = 25;
             }
 
             /* Slay Human */
-            if ((have_flag(flgs, TR_SLAY_HUMAN)) &&
+            if ((have_flag(flgs, OF_SLAY_HUMAN)) &&
                 (r_ptr->flags2 & RF2_HUMAN))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags2 |= RF2_HUMAN;
-                }
-
+                mon_lore_2(m_ptr, RF2_HUMAN);
+                obj_learn_slay(o_ptr, OF_SLAY_HUMAN, "slays <color:s>Humans</color>");
                 if (mult < 17) mult = 17;
             }
 
             /* Kill Human */
-            if ((have_flag(flgs, TR_KILL_HUMAN)) &&
+            if ((have_flag(flgs, OF_KILL_HUMAN)) &&
                 (r_ptr->flags2 & RF2_HUMAN))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags2 |= RF2_HUMAN;
-                }
-
+                mon_lore_2(m_ptr, RF2_HUMAN);
+                obj_learn_slay(o_ptr, OF_KILL_HUMAN, "slays <color:s>*Humans*</color>");
                 if (mult < 27) mult = 27;
             }
 
             /* Slay Undead */
-            if ((have_flag(flgs, TR_SLAY_UNDEAD)) &&
+            if ((have_flag(flgs, OF_SLAY_UNDEAD)) &&
                 (r_ptr->flags3 & RF3_UNDEAD))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_UNDEAD;
-                }
-
+                mon_lore_3(m_ptr, RF3_UNDEAD);
+                obj_learn_slay(o_ptr, OF_SLAY_UNDEAD, "slays <color:D>Undead</color>");
                 if (mult < 20) mult = 20;
             }
 
             /* Kill Undead */
-            if ((have_flag(flgs, TR_KILL_UNDEAD)) &&
+            if ((have_flag(flgs, OF_KILL_UNDEAD)) &&
                 (r_ptr->flags3 & RF3_UNDEAD))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_UNDEAD;
-                }
-
+                mon_lore_3(m_ptr, RF3_UNDEAD);
+                obj_learn_slay(o_ptr, OF_KILL_UNDEAD, "slays <color:D>*Undead*</color>");
                 if (mult < 30) mult = 30;
             }
 
             /* Slay Demon */
-            if ((have_flag(flgs, TR_SLAY_DEMON)) &&
+            if ((have_flag(flgs, OF_SLAY_DEMON)) &&
                 (r_ptr->flags3 & RF3_DEMON))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_DEMON;
-                }
-
+                mon_lore_3(m_ptr, RF3_DEMON);
+                obj_learn_slay(o_ptr, OF_SLAY_DEMON, "slays <color:R>Demons</color>");
                 if (mult < 20) mult = 20;
             }
 
             /* Kill Demon */
-            if ((have_flag(flgs, TR_KILL_DEMON)) &&
+            if ((have_flag(flgs, OF_KILL_DEMON)) &&
                 (r_ptr->flags3 & RF3_DEMON))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_DEMON;
-                }
-
+                mon_lore_3(m_ptr, RF3_DEMON);
+                obj_learn_slay(o_ptr, OF_KILL_DEMON, "slays <color:R>*Demons*</color>");
                 if (mult < 30) mult = 30;
             }
 
             /* Slay Orc */
-            if ((have_flag(flgs, TR_SLAY_ORC)) &&
+            if ((have_flag(flgs, OF_SLAY_ORC)) &&
                 (r_ptr->flags3 & RF3_ORC))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_ORC;
-                }
-
+                mon_lore_3(m_ptr, RF3_ORC);
+                obj_learn_slay(o_ptr, OF_SLAY_ORC, "slays <color:U>Orcs</color>");
                 if (mult < 20) mult = 20;
             }
 
             /* Kill Orc */
-            if ((have_flag(flgs, TR_KILL_ORC)) &&
+            if ((have_flag(flgs, OF_KILL_ORC)) &&
                 (r_ptr->flags3 & RF3_ORC))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_ORC;
-                }
-
+                mon_lore_3(m_ptr, RF3_ORC);
+                obj_learn_slay(o_ptr, OF_KILL_ORC, "slays <color:U>*Orcs*</color>");
                 if (mult < 30) mult = 30;
             }
 
             /* Slay Troll */
-            if ((have_flag(flgs, TR_SLAY_TROLL)) &&
+            if ((have_flag(flgs, OF_SLAY_TROLL)) &&
                 (r_ptr->flags3 & RF3_TROLL))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_TROLL;
-                }
-
+                mon_lore_3(m_ptr, RF3_TROLL);
+                obj_learn_slay(o_ptr, OF_SLAY_TROLL, "slays <color:g>Trolls</color>");
                 if (mult < 20) mult = 20;
             }
 
             /* Kill Troll */
-            if ((have_flag(flgs, TR_KILL_TROLL)) &&
+            if ((have_flag(flgs, OF_KILL_TROLL)) &&
                 (r_ptr->flags3 & RF3_TROLL))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_TROLL;
-                }
-
+                mon_lore_3(m_ptr, RF3_TROLL);
+                obj_learn_slay(o_ptr, OF_KILL_TROLL, "slays <color:g>*Trolls*</color>");
                 if (mult < 30) mult = 30;
             }
 
             /* Slay Giant */
-            if ((have_flag(flgs, TR_SLAY_GIANT)) &&
+            if ((have_flag(flgs, OF_SLAY_GIANT)) &&
                 (r_ptr->flags3 & RF3_GIANT))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_GIANT;
-                }
-
+                mon_lore_3(m_ptr, RF3_GIANT);
+                obj_learn_slay(o_ptr, OF_SLAY_GIANT, "slays <color:u>Giants</color>");
                 if (mult < 20) mult = 20;
             }
 
             /* Kill Giant */
-            if ((have_flag(flgs, TR_KILL_GIANT)) &&
+            if ((have_flag(flgs, OF_KILL_GIANT)) &&
                 (r_ptr->flags3 & RF3_GIANT))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_GIANT;
-                }
-
+                mon_lore_3(m_ptr, RF3_GIANT);
+                obj_learn_slay(o_ptr, OF_KILL_GIANT, "slays <color:u>*Giants*</color>");
                 if (mult < 30) mult = 30;
             }
 
             /* Slay Dragon  */
-            if ((have_flag(flgs, TR_SLAY_DRAGON)) &&
+            if ((have_flag(flgs, OF_SLAY_DRAGON)) &&
                 (r_ptr->flags3 & RF3_DRAGON))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_DRAGON;
-                }
-
+                mon_lore_3(m_ptr, RF3_DRAGON);
+                obj_learn_slay(o_ptr, OF_SLAY_DRAGON, "slays <color:r>Dragons</color>");
                 if (mult < 20) mult = 20;
             }
 
             /* Execute Dragon */
-            if ((have_flag(flgs, TR_KILL_DRAGON)) &&
+            if ((have_flag(flgs, OF_KILL_DRAGON)) &&
                 (r_ptr->flags3 & RF3_DRAGON))
             {
-                if (is_original_ap_and_seen(m_ptr))
-                {
-                    r_ptr->r_flags3 |= RF3_DRAGON;
-                }
-
+                mon_lore_3(m_ptr, RF3_DRAGON);
+                obj_learn_slay(o_ptr, OF_KILL_DRAGON, "slays <color:r>*Dragons*</color>");
                 if (mult < 30) mult = 30;
 
                 if ( o_ptr->name1 == ART_BARD_ARROW 
@@ -2933,121 +2884,92 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
             }
 
             /* Brand (Acid) */
-            if (have_flag(flgs, TR_BRAND_ACID))
+            if (have_flag(flgs, OF_BRAND_ACID))
             {
-                /* Notice immunity */
                 if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
                 {
-                    if (is_original_ap_and_seen(m_ptr))
-                    {
-                        r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK);
-                    }
+                    mon_lore_r(m_ptr, RFR_EFF_IM_ACID_MASK);
                 }
-
-                /* Otherwise, take the damage */
                 else
                 {
+                    obj_learn_slay(o_ptr, OF_BRAND_ACID, "is <color:g>Acid Branded</color>");
                     if (mult < 17) mult = 17;
                 }
             }
 
             /* Brand (Elec) */
-            if (have_flag(flgs, TR_BRAND_ELEC))
+            if (have_flag(flgs, OF_BRAND_ELEC))
             {
-                /* Notice immunity */
                 if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
                 {
-                    if (is_original_ap_and_seen(m_ptr))
-                    {
-                        r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
-                    }
+                    mon_lore_r(m_ptr, RFR_EFF_IM_ELEC_MASK);
                 }
-
-                /* Otherwise, take the damage */
                 else
                 {
+                    obj_learn_slay(o_ptr, OF_BRAND_ELEC, "is <color:b>Lightning Branded</color>");
                     if (mult < 17) mult = 17;
                 }
             }
 
             /* Brand (Fire) */
-            if (have_flag(flgs, TR_BRAND_FIRE))
+            if (have_flag(flgs, OF_BRAND_FIRE))
             {
-                /* Notice immunity */
                 if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
                 {
-                    if (is_original_ap_and_seen(m_ptr))
-                    {
-                        r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
-                    }
+                    mon_lore_r(m_ptr, RFR_EFF_IM_FIRE_MASK);
                 }
-
-                /* Otherwise, take the damage */
                 else
                 {
+                    obj_learn_slay(o_ptr, OF_BRAND_FIRE, "has <color:r>Flame Tongue</color>");
                     if (r_ptr->flags3 & RF3_HURT_FIRE)
                     {
+                        mon_lore_3(m_ptr, RF3_HURT_FIRE);
                         if (mult < 25) mult = 25;
-                        if (is_original_ap_and_seen(m_ptr))
-                        {
-                            r_ptr->r_flags3 |= RF3_HURT_FIRE;
-                        }
                     }
                     else if (mult < 17) mult = 17;
                 }
             }
 
             /* Brand (Cold) */
-            if (have_flag(flgs, TR_BRAND_COLD))
+            if (have_flag(flgs, OF_BRAND_COLD))
             {
-                /* Notice immunity */
                 if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
                 {
-                    if (is_original_ap_and_seen(m_ptr))
-                    {
-                        r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
-                    }
+                    mon_lore_r(m_ptr, RFR_EFF_IM_COLD_MASK);
                 }
-                /* Otherwise, take the damage */
                 else
                 {
+                    obj_learn_slay(o_ptr, OF_BRAND_COLD, "is <color:W>Frost Branded</color>");
                     if (r_ptr->flags3 & RF3_HURT_COLD)
                     {
                         if (mult < 25) mult = 25;
-                        if (is_original_ap_and_seen(m_ptr))
-                        {
-                            r_ptr->r_flags3 |= RF3_HURT_COLD;
-                        }
+                        mon_lore_3(m_ptr, RF3_HURT_COLD);
                     }
                     else if (mult < 17) mult = 17;
                 }
             }
 
             /* Brand (Poison) */
-            if (have_flag(flgs, TR_BRAND_POIS))
+            if (have_flag(flgs, OF_BRAND_POIS))
             {
-                /* Notice immunity */
                 if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
                 {
-                    if (is_original_ap_and_seen(m_ptr))
-                    {
-                        r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK);
-                    }
+                    mon_lore_r(m_ptr, RFR_EFF_IM_POIS_MASK);
                 }
-
-                /* Otherwise, take the damage */
                 else
                 {
+                    obj_learn_slay(o_ptr, OF_BRAND_POIS, "has <color:G>Viper's Fang</color>");
                     if (mult < 17) mult = 17;
                 }
             }
 
-            if ( (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) 
+            if ( (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force) 
               && (p_ptr->csp > (p_ptr->msp / 30)))
             {
                 p_ptr->csp -= (1+(p_ptr->msp / 30));
                 p_ptr->redraw |= (PR_MANA);
                 mult = mult * 3 / 2;
+                obj_learn_slay(o_ptr, OF_BRAND_MANA, "is <color:B>Mana Branded</color>");
             }
 
             break;
@@ -3931,9 +3853,9 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
             {
                 msg_format("The %s have gone to somewhere.", o_name);
                 if (object_is_fixed_artifact(q_ptr))
-                    a_info[bow->name1].cur_num = 0;
-                if (q_ptr->name3)
-                    a_info[bow->name3].cur_num = 0;
+                    a_info[q_ptr->name1].generated = FALSE;
+                if (random_artifacts && q_ptr->name3)
+                    a_info[q_ptr->name3].generated = FALSE;
                 return;
             }
 
@@ -4074,7 +3996,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 
     int msec = delay_factor * delay_factor * delay_factor;
 
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     cptr q, s;
     bool come_back = FALSE;
     bool do_drop = TRUE;
@@ -4147,7 +4069,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
         return FALSE;
     }
 
-    if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+    if (have_flag(o_ptr->flags, OF_NO_REMOVE))
     {
         msg_print("And how exactly do you propose to throw yourself?");
         return FALSE;
@@ -4185,7 +4107,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
     object_copy(q_ptr, o_ptr);
 
     /* Extract the thrown object's flags. */
-    object_flags(q_ptr, flgs);
+    obj_flags(q_ptr, flgs);
 
     /* Distribute the charges of rods/wands between the stacks */
     distribute_charges(o_ptr, q_ptr, 1);
@@ -4204,7 +4126,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 
     /* Enforce a minimum "weight" of one pound */
     div = ((q_ptr->weight > 10) ? q_ptr->weight : 10);
-    if ((have_flag(flgs, TR_THROW)) || boomerang) div /= 2;
+    if ((have_flag(flgs, OF_THROWING)) || boomerang) div /= 2;
 
     /* Hack -- Distance -- Reward strength, penalize weight */
     tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
@@ -4278,11 +4200,11 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
     notice_stuff(); /* Hack: combine_pack before calc_bonuses */
     handle_stuff();
 
-    if ((p_ptr->pclass == CLASS_NINJA) && ((q_ptr->tval == TV_SPIKE) || ((have_flag(flgs, TR_THROW)) && (q_ptr->tval == TV_SWORD)))) shuriken = TRUE;
+    if ((p_ptr->pclass == CLASS_NINJA) && ((q_ptr->tval == TV_SPIKE) || ((have_flag(flgs, OF_THROWING)) && (q_ptr->tval == TV_SWORD)))) shuriken = TRUE;
     else shuriken = FALSE;
 
     /* Chance of hitting */
-    if (have_flag(flgs, TR_THROW)) chance = ((p_ptr->skill_tht) +
+    if (have_flag(flgs, OF_THROWING)) chance = ((p_ptr->skill_tht) +
         ((p_ptr->shooter_info.to_h + q_ptr->to_h) * BTH_PLUS_ADJ));
     else chance = (p_ptr->skill_tht + (p_ptr->shooter_info.to_h * BTH_PLUS_ADJ));
 
@@ -4406,7 +4328,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
                     tdam *= mult + NUM_BLOWS(0)/100; /* TODO */
                     tdam += p_ptr->to_d_m;
                 }
-                else if (have_flag(flgs, TR_THROW))
+                else if (have_flag(flgs, OF_THROWING))
                 {
                     tdam *= (3+mult);
                     tdam += p_ptr->to_d_m;
@@ -4601,7 +4523,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
     }
     else if (equiped_item)
     {
-        calc_android_exp();
+        android_calc_exp();
     }
 
     /* Drop (or break) near that location */

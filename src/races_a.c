@@ -16,12 +16,12 @@ static int _amberite_get_powers(spell_info* spells, int max)
 static void _amberite_calc_bonuses(void)
 {
     p_ptr->sustain_con = TRUE;
-    p_ptr->regenerate = TRUE;
+    p_ptr->regen += 100;
 }
-static void _amberite_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _amberite_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SUST_CON);
-    add_flag(flgs, TR_REGEN);
+    add_flag(flgs, OF_SUST_CON);
+    add_flag(flgs, OF_REGEN);
 }
 race_t *amberite_get_race(void)
 {
@@ -73,6 +73,98 @@ race_t *amberite_get_race(void)
 /****************************************************************
  * Android
  ****************************************************************/
+static int _obj_value(object_type *o_ptr)
+{
+    object_type  copy = *o_ptr;
+    copy.discount = 0;
+    copy.curse_flags = 0;
+    return obj_value_real(&copy);
+}
+int android_obj_exp(object_type *o_ptr)
+{
+    int value, exp, level;
+
+    if (!o_ptr) return 0;
+    if (!object_is_wearable(o_ptr)) return 0;
+    if (object_is_jewelry(o_ptr)) return 0;
+    if (o_ptr->tval == TV_LITE) return 0;
+
+    value = _obj_value(o_ptr);
+    if (value <= 0) return 0;
+    if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ABUNAI_MIZUGI) && p_ptr->personality != PERS_SEXY)
+        value /= 32;
+    if (value > 5000000) value = 5000000;
+
+    level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
+
+    if (object_is_fixed_artifact(o_ptr))
+    {
+        artifact_type *a_ptr = &a_info[o_ptr->name1];
+        int            a_lvl = MAX(a_ptr->level - 8, 5);
+        int            r_div = a_ptr->gen_flags & OFG_INSTA_ART ? 10 : 3;
+
+        level = (level + a_lvl) / 2;
+        level += MIN(20, a_ptr->rarity/r_div);
+    }
+    else if (o_ptr->art_name || o_ptr->name2)
+    {
+        int fake_level = 10 + value / 1500;
+
+        if (fake_level > 90)
+            fake_level = 90;
+
+        fake_level = MAX(fake_level - 8, 5);
+        level = MAX(level, (level + fake_level) / 2 + 3);
+    }
+
+    if (o_ptr->tval == TV_DRAG_ARMOR || o_ptr->tval == TV_CARD) level /= 2;
+
+    if ( object_is_artifact(o_ptr)
+      || object_is_ego(o_ptr)
+      || o_ptr->tval == TV_DRAG_ARMOR
+      || object_is_dragon_armor(o_ptr)
+      || object_is_(o_ptr, TV_SWORD, SV_DIAMOND_EDGE) )
+    {
+        if (level > 65) level = 35 + (level - 65) / 5;
+        else if (level > 35) level = 25 + (level - 35) / 3;
+        else if (level > 15) level = 15 + (level - 15) / 2;
+        exp = MIN(100000L, value) * level * level / 2;
+        if (value > 100000L)
+            exp += (value - 100000L) * level * level / 8;
+    }
+    else
+    {
+        exp = MIN(100000L, value) * level;
+        if (value > 100000L)
+            exp += (value - 100000L) * level / 4;
+    }
+    if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_BOW)
+        return exp / 48;
+    else if (object_is_body_armour(o_ptr))
+        return 3 * exp / 32;
+    else
+        return exp / 16;
+}
+
+void android_calc_exp(void)
+{
+    int slot;
+    s32b total_exp = 0;
+
+    if (p_ptr->is_dead) return;
+
+    if (p_ptr->prace != RACE_ANDROID) return;
+
+    for (slot = EQUIP_BEGIN; slot < EQUIP_BEGIN + equip_count(); slot++)
+    {
+        object_type *o_ptr = equip_obj(slot);
+        total_exp += android_obj_exp(o_ptr);
+    }
+    p_ptr->exp = p_ptr->max_exp = total_exp;
+    check_experience();
+}
+
+
 static int _android_get_powers(spell_info* spells, int max)
 {
     int         ct = 0;
@@ -128,12 +220,12 @@ static void _android_calc_bonuses(void)
     /*res_add_vuln(RES_ELEC); cf resists.c res_pct_aux() for an alternative*/
     p_ptr->hold_life = TRUE;
 }
-static void _android_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _android_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_SLOW_DIGEST);
-    add_flag(flgs, TR_HOLD_LIFE);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_SLOW_DIGEST);
+    add_flag(flgs, OF_HOLD_LIFE);
     /*add_flag(flgs, TR_VULN_ELEC);*/
 }
 race_t *android_get_race(void)
@@ -199,10 +291,10 @@ static void _archon_calc_bonuses(void)
     p_ptr->see_inv = TRUE;
     p_ptr->align += 200;
 }
-static void _archon_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _archon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_LEVITATION);
-    add_flag(flgs, TR_SEE_INVIS);
+    add_flag(flgs, OF_LEVITATION);
+    add_flag(flgs, OF_SEE_INVIS);
 }
 race_t *archon_get_race(void)
 {
@@ -269,13 +361,13 @@ static void _balrog_calc_bonuses(void)
     if (p_ptr->lev >= 45) res_add(RES_FIRE);
     p_ptr->align -= 200;
 }
-static void _balrog_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _balrog_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_FIRE);
-    add_flag(flgs, TR_RES_NETHER);
-    add_flag(flgs, TR_HOLD_LIFE);
+    add_flag(flgs, OF_RES_FIRE);
+    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_HOLD_LIFE);
     if (p_ptr->lev >= 10)
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_SEE_INVIS);
 }
 race_t *balrog_get_race(void)
 {
@@ -340,9 +432,9 @@ static void _barbarian_calc_bonuses(void)
 {
     res_add(RES_FEAR);
 }
-static void _barbarian_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _barbarian_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_FEAR);
+    add_flag(flgs, OF_RES_FEAR);
 }
 race_t *barbarian_get_race(void)
 {
@@ -404,10 +496,10 @@ static void _beastman_calc_bonuses(void)
     res_add(RES_CONF);
     res_add(RES_SOUND);
 }
-static void _beastman_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _beastman_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_SOUND);
-    add_flag(flgs, TR_RES_CONF);
+    add_flag(flgs, OF_RES_SOUND);
+    add_flag(flgs, OF_RES_CONF);
 }
 race_t *beastman_get_race(void)
 {
@@ -542,10 +634,10 @@ static void _centaur_calc_bonuses(void)
     }
 }
 
-static void _centaur_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _centaur_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 10)
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
 }
 
 static void _centaur_calc_innate_attacks(void)
@@ -637,9 +729,9 @@ static void _cyclops_calc_bonuses(void)
 {
     res_add(RES_SOUND);
 }
-static void _cyclops_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _cyclops_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_SOUND);
+    add_flag(flgs, OF_RES_SOUND);
 }
 race_t *cyclops_get_race(void)
 {
@@ -703,12 +795,12 @@ static void _dark_elf_calc_bonuses(void)
     p_ptr->spell_cap += 3;
     if (p_ptr->lev >= 20) p_ptr->see_inv = TRUE;
 }
-static void _dark_elf_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _dark_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_DARK);
-    add_flag(flgs, TR_SPELL_CAP);
+    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_SPELL_CAP);
     if (p_ptr->lev >= 20)
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_SEE_INVIS);
 }
 race_t *dark_elf_get_race(void)
 {
@@ -941,42 +1033,43 @@ static void _draconian_calc_bonuses(void)
         p_ptr->dis_to_a += to_a;
     }
 }
-static void _draconian_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _draconian_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_LEVITATION);
+    add_flag(flgs, OF_LEVITATION);
     switch (p_ptr->psubrace)
     {
     case DRACONIAN_RED:
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, OF_RES_FIRE);
         break;
     case DRACONIAN_WHITE:
-        add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, OF_RES_COLD);
         break;
     case DRACONIAN_BLUE:
-        add_flag(flgs, TR_RES_ELEC);
+        add_flag(flgs, OF_RES_ELEC);
         break;
     case DRACONIAN_BLACK:
-        add_flag(flgs, TR_RES_ACID);
+        add_flag(flgs, OF_RES_ACID);
         break;
     case DRACONIAN_GREEN:
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_POIS);
         break;
     case DRACONIAN_BRONZE:
-        add_flag(flgs, TR_RES_CONF);
+        add_flag(flgs, OF_RES_CONF);
         break;
     case DRACONIAN_CRYSTAL:
-        add_flag(flgs, TR_RES_SHARDS);
+        add_flag(flgs, OF_RES_SHARDS);
         if (p_ptr->lev >= 40)
-            add_flag(flgs, TR_REFLECT);
+            add_flag(flgs, OF_REFLECT);
         break;
     case DRACONIAN_GOLD:
-        add_flag(flgs, TR_RES_SOUND);
+        add_flag(flgs, OF_RES_SOUND);
         break;
     case DRACONIAN_SHADOW:
-        add_flag(flgs, TR_RES_NETHER);
+        add_flag(flgs, OF_RES_NETHER);
         break;
     }
 }
+/* cf design/dragons.ods */
 static int _draconian_attack_level(void)
 {
     int l = p_ptr->lev * 2;
@@ -1012,6 +1105,7 @@ static int _draconian_attack_level(void)
         l = MAX(1, l * 170 / 100);
         break;
     case CLASS_WARRIOR:
+    case CLASS_MONK:
     case CLASS_BLOOD_KNIGHT:
         l = MAX(1, l * 120 / 100);
         break;
@@ -1022,6 +1116,7 @@ static int _draconian_attack_level(void)
     case CLASS_IMITATOR:
     case CLASS_RED_MAGE:
     case CLASS_WEAPONSMITH:
+    case CLASS_ROGUE:
         l = MAX(1, l * 105 / 100);
         break;
     case CLASS_PRIEST:
@@ -1032,6 +1127,7 @@ static int _draconian_attack_level(void)
     case CLASS_PSION:
     case CLASS_SCOUT:
     case CLASS_DEVICEMASTER:
+    case CLASS_FORCETRAINER:
         /*l = MAX(1, l * 100 / 100);*/
         break;
     case CLASS_BARD:
@@ -1041,6 +1137,7 @@ static int _draconian_attack_level(void)
     case CLASS_RAGE_MAGE:
         l = MAX(1, l * 90 / 100);
         break;
+    case CLASS_NINJA:
     case CLASS_MAGE:
     case CLASS_HIGH_MAGE:
     case CLASS_TOURIST:
@@ -1075,6 +1172,12 @@ static void _draconian_calc_innate_attacks(void)
         calc_innate_blows(&a, 400);
         a.msg = "You claw.";
         a.name = "Claw";
+
+        if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
+        {
+            a.effect[1] = GF_STUN;
+            a.effect_chance[1] = 15 + l/4;
+        }
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
     }
@@ -1333,9 +1436,9 @@ static void _dunadan_calc_bonuses(void)
 {
     p_ptr->sustain_con = TRUE;
 }
-static void _dunadan_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _dunadan_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SUST_CON);
+    add_flag(flgs, OF_SUST_CON);
 }
 race_t *dunadan_get_race(void)
 {
@@ -1398,9 +1501,9 @@ static void _dwarf_calc_bonuses(void)
 {
     res_add(RES_BLIND);
 }
-static void _dwarf_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _dwarf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_BLIND);
+    add_flag(flgs, OF_RES_BLIND);
 }
 race_t *dwarf_get_race(void)
 {
@@ -1465,7 +1568,7 @@ static void _ent_calc_bonuses(void)
     if (!equip_find_first(object_is_melee_weapon)) 
         p_ptr->skill_dig += p_ptr->lev * 10;
 }
-static void _ent_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _ent_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     /*add_flag(flgs, TR_VULN_FIRE);*/
 }
@@ -1545,9 +1648,9 @@ static void _gnome_calc_bonuses(void)
 {
     p_ptr->free_act = TRUE;
 }
-static void _gnome_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _gnome_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_FREE_ACT);
+    add_flag(flgs, OF_FREE_ACT);
 }
 race_t *gnome_get_race(void)
 {
@@ -1622,16 +1725,16 @@ static void _golem_calc_bonuses(void)
 
     p_ptr->pspeed -= p_ptr->lev/16;
 }
-static void _golem_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _golem_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_SLOW_DIGEST);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_SLOW_DIGEST);
     if (p_ptr->lev >= 35)
-        add_flag(flgs, TR_HOLD_LIFE);
+        add_flag(flgs, OF_HOLD_LIFE);
     if (p_ptr->lev >= 16)
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_DEC_SPEED);
 }
 race_t *golem_get_race(void)
 {
@@ -1702,10 +1805,10 @@ static void _half_giant_calc_bonuses(void)
     p_ptr->sustain_str = TRUE;
     res_add(RES_SHARDS);
 }
-static void _half_giant_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _half_giant_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_SHARDS);
-    add_flag(flgs, TR_SUST_STR);
+    add_flag(flgs, OF_RES_SHARDS);
+    add_flag(flgs, OF_SUST_STR);
 }
 race_t *half_giant_get_race(void)
 {
@@ -1768,10 +1871,10 @@ static void _half_ogre_calc_bonuses(void)
     res_add(RES_DARK);
     p_ptr->sustain_str = TRUE;
 }
-static void _half_ogre_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _half_ogre_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SUST_STR);
-    add_flag(flgs, TR_RES_DARK);
+    add_flag(flgs, OF_SUST_STR);
+    add_flag(flgs, OF_RES_DARK);
 }
 race_t *half_ogre_get_race(void)
 {
@@ -1835,9 +1938,9 @@ static void _half_titan_calc_bonuses(void)
 {
     res_add(RES_CHAOS);
 }
-static void _half_titan_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _half_titan_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_CHAOS);
+    add_flag(flgs, OF_RES_CHAOS);
 }
 race_t *half_titan_get_race(void)
 {
@@ -1900,13 +2003,13 @@ static void _half_troll_calc_bonuses(void)
 {
     p_ptr->sustain_str = TRUE;
     if (p_ptr->lev >= 15)
-        p_ptr->regenerate = TRUE;
+        p_ptr->regen += 100;
 }
-static void _half_troll_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _half_troll_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_SUST_STR);
+    add_flag(flgs, OF_SUST_STR);
     if (p_ptr->lev >= 15)
-        add_flag(flgs, TR_REGEN);
+        add_flag(flgs, OF_REGEN);
 }
 race_t *half_troll_get_race(void)
 {
@@ -1961,10 +2064,10 @@ static void _high_elf_calc_bonuses(void)
     res_add(RES_LITE);
     p_ptr->see_inv = TRUE;
 }
-static void _high_elf_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _high_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_LITE);
-    add_flag(flgs, TR_SEE_INVIS);
+    add_flag(flgs, OF_RES_LITE);
+    add_flag(flgs, OF_SEE_INVIS);
 }
 race_t *high_elf_get_race(void)
 {
@@ -2148,11 +2251,11 @@ static void _imp_calc_bonuses(void)
     res_add(RES_FIRE);
     if (p_ptr->lev >= 10) p_ptr->see_inv = TRUE;
 }
-static void _imp_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _imp_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_FIRE);
+    add_flag(flgs, OF_RES_FIRE);
     if (p_ptr->lev >= 10)
-        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, OF_SEE_INVIS);
 }
 race_t *imp_get_race(void)
 {

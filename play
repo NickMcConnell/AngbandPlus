@@ -15,8 +15,8 @@ else
    #Dejavu has a problem with the 'R' character ... it leaves a ghost pixel when you type over or scroll!
    #export ANGBAND_X11_FONT_0='-misc-dejavu sans mono-medium-r-normal--20-0-0-0-m-0-iso8859-1'
     export ANGBAND_X11_FONT_0='-misc-liberation mono-medium-r-normal--22-0-0-0-m-0-iso8859-1'
-    #export ANGBAND_X11_AT_X_0=0
-    export ANGBAND_X11_AT_X_0=220
+    export ANGBAND_X11_AT_X_0=0
+    #export ANGBAND_X11_AT_X_0=220
     export ANGBAND_X11_AT_Y_0=0
     export ANGBAND_X11_ROWS_0=150
     export ANGBAND_X11_COLS_0=90
@@ -35,6 +35,6 @@ else
 
     #export ANGBAND_X11_GAMMA=185
 
-    #./poschengband -g -mx11 -u$1 -- -n3
-    ./poschengband -g -mx11 -u$1 -- -n1
+    ./poschengband -g -mx11 -u$1 -- -n3
+    #./poschengband -g -mx11 -u$1 -- -n1
 fi

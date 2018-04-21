@@ -65,13 +65,13 @@ int device_calc_fail_rate(object_type *o_ptr)
     if (o_ptr->activation.type)
     {
         effect_t effect = o_ptr->activation;
-        u32b     flgs[TR_FLAG_SIZE];
+        u32b     flgs[OF_ARRAY_SIZE];
 
-        object_flags(o_ptr, flgs);
-        if (have_flag(flgs, TR_EASY_SPELL))
+        obj_flags(o_ptr, flgs);
+        if (have_flag(flgs, OF_EASY_SPELL))
             effect.difficulty -= effect.difficulty * o_ptr->pval / 10;
 
-        if (o_ptr->curse_flags & TRC_CURSED)
+        if (o_ptr->curse_flags & OFC_CURSED)
             effect.difficulty += effect.difficulty / 5;
 
         return effect_calc_fail_rate(&effect);
@@ -372,6 +372,7 @@ static cptr _do_potion(int sval, int mode)
                     device_noticed = TRUE;
                 }
             }
+            else equip_learn_flag(OF_FREE_ACT);
         }
         break;
     case SV_POTION_LOSE_MEMORIES:
@@ -1505,10 +1506,7 @@ static cptr _do_scroll(int sval, int mode)
             }
 
             if (err) strcpy(Rumor, "Some rumors are wrong.");
-            msg_print("There is message on the scroll. It says:");
-            msg_print(NULL);
-            msg_format("%s", Rumor);
-            msg_print(NULL);
+            msg_format("<color:B>There is message on the scroll. It says:</color> %s", Rumor);
             msg_print("The scroll disappears in a puff of smoke!");
             device_noticed = TRUE;
         }
@@ -1687,10 +1685,10 @@ cptr do_device(object_type *o_ptr, int mode, int boost)
 
     if (o_ptr->activation.type)
     {
-        u32b flgs[TR_FLAG_SIZE];
+        u32b flgs[OF_ARRAY_SIZE];
 
-        object_flags(o_ptr, flgs);
-        if (have_flag(flgs, TR_DEVICE_POWER))
+        obj_flags(o_ptr, flgs);
+        if (have_flag(flgs, OF_DEVICE_POWER))
             boost += device_power_aux(100, o_ptr->pval) - 100;
 
         result = do_effect(&o_ptr->activation, mode, boost);
@@ -1773,7 +1771,7 @@ bool effect_try(effect_t *effect)
 
 bool effect_use(effect_t *effect, int boost)
 {
-    device_known = TRUE;
+    device_noticed = FALSE;
     device_used_charges = 0;
     device_available_charges = 1;
     if (do_effect(effect, SPELL_CAST, boost))
@@ -1807,7 +1805,8 @@ typedef struct
     int  cost;
     int  rarity;
     int  bias;
-} _effect_info_t;
+    bool known;
+} _effect_info_t, *_effect_info_ptr;
 
 /*  Allocation Table for Random Artifact Activations
     This also assists parsing a_info.txt, k_info.txt and e_info.txt.
@@ -2076,8 +2075,39 @@ static _effect_info_t _effect_info[] =
     {"GONG",            EFFECT_GONG,                 0,   0,  0, 0},
     {"MURAMASA",        EFFECT_MURAMASA,             0,   0,  0, 0},
 
-    { 0, 0, 0, 0, 0, 0 }
+    {0}
 };
+
+_effect_info_ptr _get_effect_info(int type)
+{
+    int i;
+    for (i = 0; ; i++)
+    {
+        _effect_info_ptr e = &_effect_info[i];
+        if (!e->type) break;
+        if (e->type == type) return e;
+    }
+    return NULL;
+}
+
+bool effect_is_known(int type)
+{
+    _effect_info_ptr e = _get_effect_info(type);
+    if (e)
+        return e->known;
+    return FALSE;
+}
+
+bool effect_learn(int type)
+{
+    _effect_info_ptr e = _get_effect_info(type);
+    if (e && !e->known)
+    {
+        e->known = TRUE;
+        return TRUE;
+    }
+    return FALSE;
+}
 
 errr effect_parse(char *line, effect_t *effect) /* LITE_AREA:<Lvl>:<Timeout>:<Extra> */
 {
@@ -2180,6 +2210,7 @@ static void _add_index(object_type *o_ptr, int index)
         o_ptr->activation.cost = _effect_info[index].cost;
         o_ptr->activation.extra = 0;
         o_ptr->timeout = 0;
+        add_flag(o_ptr->flags, OF_ACTIVATE); /* for object lore */
     }
 }
 
@@ -2412,6 +2443,7 @@ static bool _device_pick_effect_aux(object_type *o_ptr, device_effect_info_ptr e
     if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) return FALSE;
     if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) return FALSE;
     if (easy_id && entry->type == EFFECT_IDENTIFY_FULL) return FALSE;
+    if (easy_lore && entry->type == EFFECT_PROBING) return FALSE;
     return TRUE;
 }
 
@@ -2457,10 +2489,10 @@ static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table
 
             if (entry->flags & _NO_DESTROY)
             {
-                add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
-                add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
-                add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
-                add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
+                add_flag(o_ptr->flags, OF_IGNORE_ACID);
+                add_flag(o_ptr->flags, OF_IGNORE_ELEC);
+                add_flag(o_ptr->flags, OF_IGNORE_FIRE);
+                add_flag(o_ptr->flags, OF_IGNORE_COLD);
             }
 
             return;
@@ -2528,7 +2560,9 @@ bool device_init(object_type *o_ptr, int level, int mode)
     o_ptr->xtra5 = _bounds_check(_rand_normal(o_ptr->xtra4/2, 25), o_ptr->activation.cost, o_ptr->xtra4);
     o_ptr->xtra5 *= 100; /* scale current sp by 100 for smoother regeneration */
 
-    /* cf _create_device in object2.c for egos */
+    add_flag(o_ptr->flags, OF_ACTIVATE);
+
+    /* cf obj_create_device in ego.c for egos */
     return TRUE;
 }
 
@@ -2593,11 +2627,13 @@ bool device_init_fixed(object_type *o_ptr, int effect)
 
     if (e_ptr->flags & _NO_DESTROY)
     {
-        add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
-        add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
-        add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
-        add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
+        add_flag(o_ptr->flags, OF_IGNORE_ACID);
+        add_flag(o_ptr->flags, OF_IGNORE_ELEC);
+        add_flag(o_ptr->flags, OF_IGNORE_FIRE);
+        add_flag(o_ptr->flags, OF_IGNORE_COLD);
     }
+
+    add_flag(o_ptr->flags, OF_ACTIVATE);
 
     return TRUE;
 }
@@ -2668,7 +2704,7 @@ void device_regen_sp_aux(object_type *o_ptr, int per_mill)
 void device_regen_sp(object_type *o_ptr, int base_per_mill)
 {
     int  per_mill = base_per_mill;
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
 
     if (!_is_valid_device(o_ptr))
         return;
@@ -2679,8 +2715,8 @@ void device_regen_sp(object_type *o_ptr, int base_per_mill)
     if (devicemaster_is_speciality(o_ptr))
         per_mill += base_per_mill;
 
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_REGEN))
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_REGEN))
         per_mill += o_ptr->pval * base_per_mill;
 
     device_regen_sp_aux(o_ptr, per_mill);
@@ -2696,7 +2732,7 @@ int device_max_sp(object_type *o_ptr)
 int device_value(object_type *o_ptr, int options)
 {
     int  result = 0;
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     int  pval = 0;
 
     if (!_is_valid_device(o_ptr))
@@ -2749,28 +2785,28 @@ int device_value(object_type *o_ptr, int options)
     }
 
     if (options & COST_REAL)
-        object_flags(o_ptr, flgs);
+        obj_flags(o_ptr, flgs);
     else
-        object_flags_known(o_ptr, flgs);
+        obj_flags_known(o_ptr, flgs);
 
     if ((options & COST_REAL) || object_is_known(o_ptr))
     {
         if (o_ptr->name2 == EGO_DEVICE_RESISTANCE) /* I don't want artifacts to get an extra boost for TR_IGNORE_* */
             result += result * 25 / 100;
     }
-    if (have_flag(flgs, TR_REGEN))
+    if (have_flag(flgs, OF_REGEN))
         result += result * 20 * pval / 100;
 
-    if (have_flag(flgs, TR_EASY_SPELL))
+    if (have_flag(flgs, OF_EASY_SPELL))
         result += result * 10 * pval / 100;
 
-    if (have_flag(flgs, TR_DEVICE_POWER))
+    if (have_flag(flgs, OF_DEVICE_POWER))
         result += result * 25 * pval / 100;
 
-    if (have_flag(flgs, TR_HOLD_LIFE))
+    if (have_flag(flgs, OF_HOLD_LIFE))
         result += result * 30 / 100;
 
-    if (have_flag(flgs, TR_SPEED))
+    if (have_flag(flgs, OF_SPEED))
         result += result * 25 * pval / 100;
 
     return result;
@@ -2868,9 +2904,23 @@ static void _device_stats_load_imp(savefile_ptr file, device_effect_info_ptr tab
 
 void device_stats_on_save(savefile_ptr file)
 {
+    int i, ct = 0;
     _device_stats_save_imp(file, wand_effect_table);
     _device_stats_save_imp(file, rod_effect_table);
     _device_stats_save_imp(file, staff_effect_table);
+
+    for (i = 0; ; i++)
+    {
+        if (!_effect_info[i].type) break;
+        if (_effect_info[i].known) ct++;
+    }
+    savefile_write_s32b(file, ct);
+    for (i = 0; ; i++)
+    {
+        if (!_effect_info[i].type) break;
+        if (_effect_info[i].known)
+            savefile_write_s32b(file, _effect_info[i].type);
+    }
 }
 
 void device_stats_on_load(savefile_ptr file)
@@ -2878,6 +2928,19 @@ void device_stats_on_load(savefile_ptr file)
     _device_stats_load_imp(file, wand_effect_table);
     _device_stats_load_imp(file, rod_effect_table);
     _device_stats_load_imp(file, staff_effect_table);
+
+    if (!savefile_is_older_than(file, 5, 0, 0, 2))
+    {
+        int i, ct;
+        ct = savefile_read_s32b(file);
+        for (i = 0; i < ct; i++)
+        {
+            int type = savefile_read_s32b(file);
+            _effect_info_ptr e = _get_effect_info(type);
+            if (e)
+                e->known = TRUE;
+        }
+    }
 }
 
 void device_stats_on_find(object_type *o_ptr)
@@ -6427,9 +6490,8 @@ cptr do_effect(effect_t *effect, int mode, int boost)
 
             object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
             forge.number = (byte)rand_range(5, 10);
-            object_aware(&forge);
-            object_known(&forge);
             apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+            obj_identify(&forge);
 
             forge.discount = 99;
 
@@ -6558,8 +6620,11 @@ cptr do_effect(effect_t *effect, int mode, int boost)
             int slot = equip_find_artifact(ART_BLOOD);
             if (slot)
             {
-                get_bloody_moon_flags(equip_obj(slot));
-                if (p_ptr->prace == RACE_ANDROID) calc_android_exp();
+                object_type *o_ptr = equip_obj(slot);
+                get_bloody_moon_flags(o_ptr);
+                obj_identify_fully(o_ptr);
+                obj_display(o_ptr);
+                if (p_ptr->prace == RACE_ANDROID) android_calc_exp();
                 p_ptr->update |= (PU_BONUS | PU_HP);
                 device_noticed = TRUE;
             }

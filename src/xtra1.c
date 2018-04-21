@@ -653,7 +653,7 @@ static struct {
     {TERM_L_BLUE, "Rg", "Regen"},
     {TERM_L_RED, "If", "Infr"},
     {TERM_UMBER, "Sl", "Stealth"},
-    {TERM_YELLOW, "Stlt", "Stealth"},
+    {TERM_L_DARK, "Hd", "Hiding"},
     {TERM_L_BLUE, "Rc", "Recall"},
     {TERM_WHITE, "Al", "Alter"},
     /* Hex */
@@ -1831,9 +1831,9 @@ static void prt_effects(void)
     if (p_ptr->cursed & 0x0000000F)
     {
         byte a = TERM_L_DARK;
-        if (p_ptr->cursed & TRC_PERMA_CURSE)
+        if (p_ptr->cursed & OFC_PERMA_CURSE)
             c_put_str(a, "*CURSED*", row++, col);
-        else if (p_ptr->cursed & TRC_HEAVY_CURSE)
+        else if (p_ptr->cursed & OFC_HEAVY_CURSE)
             c_put_str(a, "CURSED", row++, col);
         else
             c_put_str(a, "Cursed", row++, col);
@@ -2388,8 +2388,18 @@ static void fix_monster(void)
         Term_activate(angband_term[j]);
 
         /* Display monster race info */
-        if (p_ptr->monster_race_idx) display_roff(p_ptr->monster_race_idx);
+        if (p_ptr->monster_race_idx)
+        {
+            int y;
+            doc_ptr doc = doc_alloc(MIN(72, Term->wid));
+            mon_display_doc(&r_info[p_ptr->monster_race_idx], doc);
 
+            for (y = 0; y < Term->hgt; y++)
+                Term_erase(0, y, 255);
+
+            doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 0));
+            doc_free(doc);
+        }
         /* Fresh */
         Term_fresh();
 
@@ -2837,14 +2847,14 @@ static void _calc_encumbrance(void)
                 slot;
                 slot = equip_find_next(object_is_gloves, slot))
         {
-            u32b         flgs[TR_FLAG_SIZE];
+            u32b         flgs[OF_ARRAY_SIZE];
             object_type *o_ptr = equip_obj(slot);
 
-            object_flags(o_ptr, flgs);
+            obj_flags(o_ptr, flgs);
 
-            if (!(have_flag(flgs, TR_FREE_ACT)) &&
-                !(have_flag(flgs, TR_MAGIC_MASTERY)) &&
-                !((have_flag(flgs, TR_DEX)) && (o_ptr->pval > 0)))
+            if (!(have_flag(flgs, OF_FREE_ACT)) &&
+                !(have_flag(flgs, OF_MAGIC_MASTERY)) &&
+                !((have_flag(flgs, OF_DEX)) && (o_ptr->pval > 0)))
             {
                 p_ptr->cumber_glove = TRUE;
                 break;
@@ -3258,9 +3268,11 @@ static void calc_hitpoints(void)
  */
 static void _calc_torch_imp(object_type *o_ptr)
 {
+    u32b flgs[OF_ARRAY_SIZE];
+    obj_flags(o_ptr, flgs);
     if (o_ptr->tval == TV_LITE)
     {
-        if (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS))
+        if (have_flag(flgs, OF_DARKNESS))
         {
             if (o_ptr->sval == SV_LITE_TORCH)
                 p_ptr->cur_lite -= 1;
@@ -3279,18 +3291,15 @@ static void _calc_torch_imp(object_type *o_ptr)
         {
             p_ptr->cur_lite += 3;
         }
-        if (o_ptr->name2 == EGO_LITE_EXTRA_LIGHT) p_ptr->cur_lite++;
+        if (have_flag(flgs, OF_LITE)) p_ptr->cur_lite++;
         if (o_ptr->sval == SV_LITE_EYE) p_ptr->cur_lite -= 10;
     }
     else
     {
-        u32b flgs[TR_FLAG_SIZE] = {0};
-        object_flags(o_ptr, flgs);
-        if (have_flag(flgs, TR_LITE))
-        {
-            if (o_ptr->name2 == EGO_HELMET_VAMPIRE || o_ptr->name1 == ART_NIGHT) p_ptr->cur_lite--;
-            else p_ptr->cur_lite++;
-        }
+        if (have_flag(flgs, OF_DARKNESS))
+            p_ptr->cur_lite--;
+        else if (have_flag(flgs, OF_LITE))
+            p_ptr->cur_lite++;
     }
 }
 static void calc_torch(void)
@@ -3379,7 +3388,7 @@ void calc_bonuses(void)
     s16b            old_speed = p_ptr->pspeed;
     s16b            old_life = p_ptr->life;
     object_type     *o_ptr;
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     bool            riding_levitation = FALSE;
 
     class_t *class_ptr = get_class();
@@ -3427,7 +3436,7 @@ void calc_bonuses(void)
     p_ptr->shooter_info.to_mult = 0;
     p_ptr->shooter_info.tval_ammo = 0;
 
-    for (i = 0; i < TR_FLAG_SIZE; i++)
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
         p_ptr->shooter_info.flags[i] = 0;
 
     if (p_ptr->tim_speed_essentia)
@@ -3464,8 +3473,7 @@ void calc_bonuses(void)
 
         p_ptr->weapon_info[i].to_dd = 0;
         p_ptr->weapon_info[i].to_ds = 0;
-        p_ptr->weapon_info[i].to_mult = 0;
-        for (j = 0; j < TR_FLAG_SIZE; j++)
+        for (j = 0; j < OF_ARRAY_SIZE; j++)
             p_ptr->weapon_info[i].flags[j] = 0;
 
         p_ptr->weapon_info[i].base_blow = 100;
@@ -3487,7 +3495,7 @@ void calc_bonuses(void)
             memset(&p_ptr->innate_attacks[i], 0, sizeof(innate_attack_t));
         p_ptr->innate_attack_info.to_dd = 0;
         p_ptr->innate_attack_info.xtra_blow = 0;
-        for (i = 0; i < TR_FLAG_SIZE; i++)
+        for (i = 0; i < OF_ARRAY_SIZE; i++)
             p_ptr->innate_attack_info.flags[i] = 0;
     }
     /* Start with "normal" speed */
@@ -3507,12 +3515,12 @@ void calc_bonuses(void)
     p_ptr->see_inv = FALSE;
     p_ptr->free_act = FALSE;
     p_ptr->slow_digest = FALSE;
-    p_ptr->regenerate = FALSE;
-    p_ptr->super_regenerate = FALSE;
+    p_ptr->regen = 100;
     p_ptr->can_swim = FALSE;
     p_ptr->levitation = FALSE;
     p_ptr->hold_life = FALSE;
-    p_ptr->loremaster = FALSE;
+    p_ptr->auto_id = FALSE;
+    p_ptr->auto_pseudo_id = FALSE;
     p_ptr->auto_id_sp = 0;
     p_ptr->cult_of_personality = FALSE;
     p_ptr->telepathy = FALSE;
@@ -3597,6 +3605,8 @@ void calc_bonuses(void)
     p_ptr->align = friend_align;
     p_ptr->maul_of_vice = FALSE;
 
+    if (easy_id || p_ptr->lev >= 35)
+        p_ptr->auto_pseudo_id = TRUE;
 
     if (p_ptr->tim_sustain_str) p_ptr->sustain_str = TRUE;
     if (p_ptr->tim_sustain_int) p_ptr->sustain_int = TRUE;
@@ -3610,33 +3620,33 @@ void calc_bonuses(void)
 
     if (p_ptr->special_attack & ATTACK_ACID)
     {
-        add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID);
-        add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_ACID);
-        add_flag(p_ptr->shooter_info.flags, TR_BRAND_ACID);
+        add_flag(p_ptr->weapon_info[0].flags, OF_BRAND_ACID);
+        add_flag(p_ptr->weapon_info[1].flags, OF_BRAND_ACID);
+        add_flag(p_ptr->shooter_info.flags, OF_BRAND_ACID);
     }
     if (p_ptr->special_attack & ATTACK_COLD)
     {
-        add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_COLD);
-        add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_COLD);
-        add_flag(p_ptr->shooter_info.flags, TR_BRAND_COLD);
+        add_flag(p_ptr->weapon_info[0].flags, OF_BRAND_COLD);
+        add_flag(p_ptr->weapon_info[1].flags, OF_BRAND_COLD);
+        add_flag(p_ptr->shooter_info.flags, OF_BRAND_COLD);
     }
     if (p_ptr->special_attack & ATTACK_FIRE)
     {
-        add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_FIRE);
-        add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_FIRE);
-        add_flag(p_ptr->shooter_info.flags, TR_BRAND_FIRE);
+        add_flag(p_ptr->weapon_info[0].flags, OF_BRAND_FIRE);
+        add_flag(p_ptr->weapon_info[1].flags, OF_BRAND_FIRE);
+        add_flag(p_ptr->shooter_info.flags, OF_BRAND_FIRE);
     }
     if (p_ptr->special_attack & ATTACK_ELEC)
     {
-        add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ELEC);
-        add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_ELEC);
-        add_flag(p_ptr->shooter_info.flags, TR_BRAND_ELEC);
+        add_flag(p_ptr->weapon_info[0].flags, OF_BRAND_ELEC);
+        add_flag(p_ptr->weapon_info[1].flags, OF_BRAND_ELEC);
+        add_flag(p_ptr->shooter_info.flags, OF_BRAND_ELEC);
     }
     if (p_ptr->special_attack & ATTACK_POIS)
     {
-        add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_POIS);
-        add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_POIS);
-        add_flag(p_ptr->shooter_info.flags, TR_BRAND_POIS);
+        add_flag(p_ptr->weapon_info[0].flags, OF_BRAND_POIS);
+        add_flag(p_ptr->weapon_info[1].flags, OF_BRAND_POIS);
+        add_flag(p_ptr->shooter_info.flags, OF_BRAND_POIS);
     }
 
     if (p_ptr->tim_device_power)
@@ -3736,7 +3746,7 @@ void calc_bonuses(void)
         p_ptr->see_inv = TRUE;
         p_ptr->free_act = TRUE;
         p_ptr->slow_digest = TRUE;
-        p_ptr->regenerate = TRUE;
+        p_ptr->regen += 100;
         p_ptr->levitation = TRUE;
 
         if (p_ptr->special_defense & KATA_MUSOU)
@@ -3803,6 +3813,9 @@ void calc_bonuses(void)
             p_ptr->sh_elec = TRUE;
     }
 
+    if (IS_INVULN())
+        res_add_immune(RES_FEAR);
+
     /* Personalities */
     if (pers_ptr->calc_bonuses)
         pers_ptr->calc_bonuses();
@@ -3838,7 +3851,7 @@ void calc_bonuses(void)
 
     if (p_ptr->special_defense & KAMAE_MASK)
     {
-        if (p_ptr->pclass != CLASS_WILD_TALENT && !p_ptr->weapon_info[0].bare_hands)
+        if (p_ptr->pclass != CLASS_WILD_TALENT && !mut_present(MUT_DRACONIAN_METAMORPHOSIS) && !p_ptr->weapon_info[0].bare_hands)
             set_action(ACTION_NONE);
     }
     mut_calc_stats(stats); /* mut goes first for MUT_ILL_NORM, which masks charisma mods of other mutations */
@@ -3859,7 +3872,7 @@ void calc_bonuses(void)
         p_ptr->window |= PW_INVEN;
     }
 
-    if (p_ptr->cursed & TRC_TELEPORT) p_ptr->cursed &= ~(TRC_TELEPORT_SELF);
+    if (p_ptr->cursed & OFC_TELEPORT) p_ptr->cursed &= ~(OFC_TELEPORT_SELF);
 
     /* Hack -- aura of fire also provides light */
     if (p_ptr->sh_fire) p_ptr->lite = TRUE;
@@ -3875,7 +3888,7 @@ void calc_bonuses(void)
         if (hex_spelling(HEX_DEMON_AURA))
         {
             p_ptr->sh_fire = TRUE;
-            p_ptr->regenerate = TRUE;
+            p_ptr->regen += 100;
         }
         if (hex_spelling(HEX_ICE_ARMOR))
         {
@@ -3896,8 +3909,8 @@ void calc_bonuses(void)
             if (!object_is_armour(o_ptr)) continue;
             if (!object_is_cursed(o_ptr)) continue;
             ac += 5;
-            if (o_ptr->curse_flags & TRC_HEAVY_CURSE) ac += 7;
-            if (o_ptr->curse_flags & TRC_PERMA_CURSE) ac += 13;
+            if (o_ptr->curse_flags & OFC_HEAVY_CURSE) ac += 7;
+            if (o_ptr->curse_flags & OFC_PERMA_CURSE) ac += 13;
             p_ptr->to_a += ac;
             p_ptr->dis_to_a += ac;
         }
@@ -3981,6 +3994,8 @@ void calc_bonuses(void)
         int ct = 0;
         int to_d = 3 + p_ptr->lev/5;
 
+        res_add_immune(RES_FEAR);
+
         for (i = 0; i < MAX_HANDS; i++)
         {
             if (p_ptr->weapon_info[i].wield_how != WIELD_NONE) ct++;
@@ -4052,7 +4067,7 @@ void calc_bonuses(void)
         p_ptr->see_infra+=3;
 
     if (p_ptr->tim_regen)
-        p_ptr->regenerate = TRUE;
+        p_ptr->regen += 100;
 
     if (p_ptr->tim_levitation)
         p_ptr->levitation = TRUE;
@@ -4480,7 +4495,7 @@ void calc_bonuses(void)
         o_ptr = equip_obj(info_ptr->slot);
         if (!o_ptr) continue;
         
-        object_flags(o_ptr, flgs);
+        obj_flags(o_ptr, flgs);
 
         if (p_ptr->tim_enlarge_weapon)
         {
@@ -4567,7 +4582,7 @@ void calc_bonuses(void)
         }
 
         /* Priest weapon penalty for non-blessed edged weapons */
-        if ((p_ptr->pclass == CLASS_PRIEST) && (!(have_flag(flgs, TR_BLESSED))) &&
+        if ((p_ptr->pclass == CLASS_PRIEST) && (!(have_flag(flgs, OF_BLESSED))) &&
             ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
         {
             /* Reduce the real bonuses */
@@ -4586,15 +4601,15 @@ void calc_bonuses(void)
         {
             if (object_is_cursed(o_ptr))
             {
-                if (o_ptr->curse_flags & (TRC_CURSED)) { p_ptr->weapon_info[i].to_h += 5; p_ptr->weapon_info[i].dis_to_h += 5; }
-                if (o_ptr->curse_flags & (TRC_HEAVY_CURSE)) { p_ptr->weapon_info[i].to_h += 7; p_ptr->weapon_info[i].dis_to_h += 7; }
-                if (o_ptr->curse_flags & (TRC_PERMA_CURSE)) { p_ptr->weapon_info[i].to_h += 13; p_ptr->weapon_info[i].dis_to_h += 13; }
-                if (o_ptr->curse_flags & (TRC_TY_CURSE)) { p_ptr->weapon_info[i].to_h += 5; p_ptr->weapon_info[i].dis_to_h += 5; }
+                if (o_ptr->curse_flags & (OFC_CURSED)) { p_ptr->weapon_info[i].to_h += 5; p_ptr->weapon_info[i].dis_to_h += 5; }
+                if (o_ptr->curse_flags & (OFC_HEAVY_CURSE)) { p_ptr->weapon_info[i].to_h += 7; p_ptr->weapon_info[i].dis_to_h += 7; }
+                if (o_ptr->curse_flags & (OFC_PERMA_CURSE)) { p_ptr->weapon_info[i].to_h += 13; p_ptr->weapon_info[i].dis_to_h += 13; }
+                if (o_ptr->curse_flags & (OFC_TY_CURSE)) { p_ptr->weapon_info[i].to_h += 5; p_ptr->weapon_info[i].dis_to_h += 5; }
                 if (hex_spelling(HEX_RUNESWORD))
                 {
-                    if (o_ptr->curse_flags & (TRC_CURSED)) { p_ptr->weapon_info[i].to_d += 5; p_ptr->weapon_info[i].dis_to_d += 5; }
-                    if (o_ptr->curse_flags & (TRC_HEAVY_CURSE)) { p_ptr->weapon_info[i].to_d += 7; p_ptr->weapon_info[i].dis_to_d += 7; }
-                    if (o_ptr->curse_flags & (TRC_PERMA_CURSE)) { p_ptr->weapon_info[i].to_d += 13; p_ptr->weapon_info[i].dis_to_d += 13; }
+                    if (o_ptr->curse_flags & (OFC_CURSED)) { p_ptr->weapon_info[i].to_d += 5; p_ptr->weapon_info[i].dis_to_d += 5; }
+                    if (o_ptr->curse_flags & (OFC_HEAVY_CURSE)) { p_ptr->weapon_info[i].to_d += 7; p_ptr->weapon_info[i].dis_to_d += 7; }
+                    if (o_ptr->curse_flags & (OFC_PERMA_CURSE)) { p_ptr->weapon_info[i].to_d += 13; p_ptr->weapon_info[i].dis_to_d += 13; }
                 }
             }
         }
@@ -4606,7 +4621,7 @@ void calc_bonuses(void)
                 p_ptr->weapon_info[i].dis_to_h +=15;
                 p_ptr->weapon_info[i].to_dd += 2;
             }
-            else if (!(have_flag(flgs, TR_RIDING)))
+            else if (!(have_flag(flgs, OF_RIDING)))
             {
                 int penalty;
                 if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY))
@@ -4779,6 +4794,16 @@ void calc_bonuses(void)
     if (p_ptr->pspeed != old_speed)
         p_ptr->redraw |= PR_EFFECTS;
 
+    /* Regeneration */
+    if (p_ptr->special_defense & (KAMAE_MASK | KATA_MASK))
+        p_ptr->regen /= 2;
+
+    if (p_ptr->cursed & OFC_SLOW_REGEN)
+        p_ptr->regen /= 5;
+
+    if (p_ptr->regen < 0)
+        p_ptr->regen = 0;
+
     /* Robe of the Twilight forces AC to 0 */
     if (equip_find_ego(EGO_ROBE_TWILIGHT))
     {
@@ -4818,17 +4843,17 @@ void calc_bonuses(void)
 
     if ( p_ptr->fairy_stealth 
       && p_ptr->personality != PERS_SEXY 
-      && (p_ptr->cursed & TRC_AGGRAVATE) )
+      && (p_ptr->cursed & OFC_AGGRAVATE) )
     {
-        p_ptr->cursed &= ~(TRC_AGGRAVATE);
+        p_ptr->cursed &= ~(OFC_AGGRAVATE);
         p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);
     }
 
     /* Peerless Stealth is just like the Shadow Fairy, but can even negate the
        aggravation of Sexy characters! */
-    if (p_ptr->peerless_stealth && p_ptr->cursed & TRC_AGGRAVATE)
+    if (p_ptr->peerless_stealth && p_ptr->cursed & OFC_AGGRAVATE)
     {
-        p_ptr->cursed &= ~(TRC_AGGRAVATE);
+        p_ptr->cursed &= ~(OFC_AGGRAVATE);
         p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);
     }
 

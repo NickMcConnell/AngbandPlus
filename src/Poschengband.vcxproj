@@ -122,6 +122,7 @@
     <ClCompile Include="doppelganger.c" />
     <ClCompile Include="duelist.c" />
     <ClCompile Include="dungeon.c" />
+    <ClCompile Include="ego.c" />
     <ClCompile Include="effects.c" />
     <ClCompile Include="equip.c" />
     <ClCompile Include="fear.c" />
@@ -153,6 +154,7 @@
     <ClCompile Include="mindcrafter.c" />
     <ClCompile Include="mirror_master.c" />
     <ClCompile Include="monk.c" />
+    <ClCompile Include="mon_display.c" />
     <ClCompile Include="monster.c" />
     <ClCompile Include="monster1.c" />
     <ClCompile Include="monster2.c" />

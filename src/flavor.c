@@ -188,7 +188,7 @@ static void shuffle_flavors(byte tval)
         if (!k_ptr->flavor) continue;
 
         /* Skip objects with a fixed flavor name */
-        if (have_flag(k_ptr->flags, TR_FIXED_FLAVOR)) continue;
+        if (have_flag(k_ptr->flags, OF_FIXED_FLAVOR)) continue;
 
         /* Remember k_idx */
         k_idx_list[k_idx_list_num] = i;
@@ -436,206 +436,208 @@ typedef struct flag_insc_table
 
 static flag_insc_table flag_insc_plus[] =
 {
-    { "At", TR_BLOWS, -1 },
-    { "Sp", TR_SPEED, -1 },
-    { "St", TR_STR, -1 },
-    { "In", TR_INT, -1 },
-    { "Wi", TR_WIS, -1 },
-    { "Dx", TR_DEX, -1 },
-    { "Cn", TR_CON, -1 },
-    { "Ch", TR_CHR, -1 },
-    { "Md", TR_MAGIC_MASTERY, -1 },
-    { "Sl", TR_STEALTH, -1 },
-    { "Sr", TR_SEARCH, -1 },
-    { "If", TR_INFRA, -1 },
-    { "Dg", TR_TUNNEL, -1 },
-    { "Lf", TR_LIFE, -1 },
+    { "At", OF_BLOWS, -1 },
+    { "Sp", OF_SPEED, -1 },
+    { "St", OF_STR, -1 },
+    { "In", OF_INT, -1 },
+    { "Wi", OF_WIS, -1 },
+    { "Dx", OF_DEX, -1 },
+    { "Cn", OF_CON, -1 },
+    { "Ch", OF_CHR, -1 },
+    { "Md", OF_MAGIC_MASTERY, -1 },
+    { "Sl", OF_STEALTH, -1 },
+    { "Sr", OF_SEARCH, -1 },
+    { "If", OF_INFRA, -1 },
+    { "Dg", OF_TUNNEL, -1 },
+    { "Lf", OF_LIFE, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_minus[] =
 {
-    { "St", TR_DEC_STR, -1 },
-    { "In", TR_DEC_INT, -1 },
-    { "Wi", TR_DEC_WIS, -1 },
-    { "Dx", TR_DEC_DEX, -1 },
-    { "Cn", TR_DEC_CON, -1 },
-    { "Ch", TR_DEC_CHR, -1 },
-    { "Sl", TR_DEC_STEALTH, -1 },
-    { "Sp", TR_DEC_SPEED, -1 },
-    { "Lf", TR_DEC_LIFE, -1 },
-    { "Md", TR_DEC_MAGIC_MASTERY, -1 },
+    { "St", OF_DEC_STR, -1 },
+    { "In", OF_DEC_INT, -1 },
+    { "Wi", OF_DEC_WIS, -1 },
+    { "Dx", OF_DEC_DEX, -1 },
+    { "Cn", OF_DEC_CON, -1 },
+    { "Ch", OF_DEC_CHR, -1 },
+    { "Sl", OF_DEC_STEALTH, -1 },
+    { "Sp", OF_DEC_SPEED, -1 },
+    { "Lf", OF_DEC_LIFE, -1 },
+    { "Md", OF_DEC_MAGIC_MASTERY, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_immune[] =
 {
-    { "Ac", TR_IM_ACID, -1 },
-    { "El", TR_IM_ELEC, -1 },
-    { "Fi", TR_IM_FIRE, -1 },
-    { "Co", TR_IM_COLD, -1 },
+    { "Ac", OF_IM_ACID, -1 },
+    { "El", OF_IM_ELEC, -1 },
+    { "Fi", OF_IM_FIRE, -1 },
+    { "Co", OF_IM_COLD, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_resistance[] =
 {
-    { "Ac", TR_RES_ACID, TR_IM_ACID },
-    { "El", TR_RES_ELEC, TR_IM_ELEC },
-    { "Fi", TR_RES_FIRE, TR_IM_FIRE },
-    { "Co", TR_RES_COLD, TR_IM_COLD },
-    { "Po", TR_RES_POIS, -1 },
-    { "Li", TR_RES_LITE, -1 },
-    { "Dk", TR_RES_DARK, -1 },
-    { "Cf", TR_RES_CONF, -1 },
-    { "Nt", TR_RES_NETHER, -1 },
-    { "Nx", TR_RES_NEXUS, -1 },
-    { "So", TR_RES_SOUND, -1 },
-    { "Sh", TR_RES_SHARDS, -1 },
-    { "Ca", TR_RES_CHAOS, -1 },
-    { "Di", TR_RES_DISEN, -1 },
-    { "Ti", TR_RES_TIME, -1 },
-    { "Bl", TR_RES_BLIND, -1 },
-    { "Fe", TR_RES_FEAR, -1 },
+    { "Ac", OF_RES_ACID, OF_IM_ACID },
+    { "El", OF_RES_ELEC, OF_IM_ELEC },
+    { "Fi", OF_RES_FIRE, OF_IM_FIRE },
+    { "Co", OF_RES_COLD, OF_IM_COLD },
+    { "Po", OF_RES_POIS, -1 },
+    { "Li", OF_RES_LITE, -1 },
+    { "Dk", OF_RES_DARK, -1 },
+    { "Cf", OF_RES_CONF, -1 },
+    { "Nt", OF_RES_NETHER, -1 },
+    { "Nx", OF_RES_NEXUS, -1 },
+    { "So", OF_RES_SOUND, -1 },
+    { "Sh", OF_RES_SHARDS, -1 },
+    { "Ca", OF_RES_CHAOS, -1 },
+    { "Di", OF_RES_DISEN, -1 },
+    { "Ti", OF_RES_TIME, -1 },
+    { "Bl", OF_RES_BLIND, -1 },
+    { "Fe", OF_RES_FEAR, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_vulnerability[] =
 {
-    { "Ac", TR_VULN_ACID, -1 },
-    { "El", TR_VULN_ELEC, -1 },
-    { "Fi", TR_VULN_FIRE, -1 },
-    { "Co", TR_VULN_COLD, -1 },
-    { "Po", TR_VULN_POIS, -1 },
-    { "Li", TR_VULN_LITE, -1 },
-    { "Dk", TR_VULN_DARK, -1 },
-    { "Nt", TR_VULN_NETHER, -1 },
-    { "Nx", TR_VULN_NEXUS, -1 },
-    { "Cf", TR_VULN_CONF, -1 },
-    { "So", TR_VULN_SOUND, -1 },
-    { "Sh", TR_VULN_SHARDS, -1 },
-    { "Ca", TR_VULN_CHAOS, -1 },
-    { "Di", TR_VULN_DISEN, -1 },
-    { "Bl", TR_VULN_BLIND, -1 },
-    { "Fe", TR_VULN_FEAR, -1 },
+    { "Ac", OF_VULN_ACID, -1 },
+    { "El", OF_VULN_ELEC, -1 },
+    { "Fi", OF_VULN_FIRE, -1 },
+    { "Co", OF_VULN_COLD, -1 },
+    { "Po", OF_VULN_POIS, -1 },
+    { "Li", OF_VULN_LITE, -1 },
+    { "Dk", OF_VULN_DARK, -1 },
+    { "Nt", OF_VULN_NETHER, -1 },
+    { "Nx", OF_VULN_NEXUS, -1 },
+    { "Cf", OF_VULN_CONF, -1 },
+    { "So", OF_VULN_SOUND, -1 },
+    { "Sh", OF_VULN_SHARDS, -1 },
+    { "Ca", OF_VULN_CHAOS, -1 },
+    { "Di", OF_VULN_DISEN, -1 },
+    { "Bl", OF_VULN_BLIND, -1 },
+    { "Fe", OF_VULN_FEAR, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_misc[] =
 {
-    { "Es", TR_EASY_SPELL, -1 },
-    { "Dm", TR_DEC_MANA, -1 },
-    { "Th", TR_THROW, -1 },
-    { "Rf", TR_REFLECT, -1 },
-    { "Fa", TR_FREE_ACT, -1 },
-    { "Si", TR_SEE_INVIS, -1 },
-    { "Hl", TR_HOLD_LIFE, -1 },
-    { "Sd", TR_SLOW_DIGEST, -1 },
-    { "Rg", TR_REGEN, -1 },
-    { "Lv", TR_LEVITATION, -1 },
-    { "Lu", TR_LITE, -1 },
-    { "Wr", TR_WARNING, -1 },
-    { "Xm", TR_XTRA_MIGHT, -1 },
-    { "Xs", TR_XTRA_SHOTS, -1 },
-    { "Te", TR_TELEPORT, -1 },
-    { "Ag", TR_AGGRAVATE, -1 },
-    { "Bs", TR_BLESSED, -1 },
-    { "Ty", TR_TY_CURSE, -1 },
-    { "Ds", TR_DARKNESS, -1 },
-    { "Wm", TR_WEAPONMASTERY, -1 },
+    { "Es", OF_EASY_SPELL, -1 },
+    { "Dm", OF_DEC_MANA, -1 },
+    { "Th", OF_THROWING, -1 },
+    { "Rf", OF_REFLECT, -1 },
+    { "Fa", OF_FREE_ACT, -1 },
+    { "Si", OF_SEE_INVIS, -1 },
+    { "Hl", OF_HOLD_LIFE, -1 },
+    { "Sd", OF_SLOW_DIGEST, -1 },
+    { "Rg", OF_REGEN, -1 },
+    { "Lv", OF_LEVITATION, -1 },
+    { "Lu", OF_LITE, -1 },
+    { "Wr", OF_WARNING, -1 },
+    { "Xm", OF_XTRA_MIGHT, -1 },
+    { "Xs", OF_XTRA_SHOTS, -1 },
+    { "Te", OF_TELEPORT, -1 },
+    { "Ag", OF_AGGRAVATE, -1 },
+    { "Bs", OF_BLESSED, -1 },
+    { "Ty", OF_TY_CURSE, -1 },
+    { "Ds", OF_DARKNESS, -1 },
+    { "Wm", OF_WEAPONMASTERY, -1 },
+    { "Ps", OF_LORE1, -1 },
+    { "Id", OF_LORE2, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_aura[] =
 {
-    { "F", TR_SH_FIRE, -1 },
-    { "E", TR_SH_ELEC, -1 },
-    { "C", TR_SH_COLD, -1 },
-    { "Sh", TR_SH_SHARDS, -1 },
-    { "At", TR_SH_REVENGE, -1 },
-    { "M", TR_NO_MAGIC, -1 },
-    { "T", TR_NO_TELE, -1 },
-    { "Sm", TR_NO_SUMMON, -1 },
-    { "Mr", TR_MAGIC_RESISTANCE, -1 },
+    { "F", OF_AURA_FIRE, -1 },
+    { "E", OF_AURA_ELEC, -1 },
+    { "C", OF_AURA_COLD, -1 },
+    { "Sh", OF_AURA_SHARDS, -1 },
+    { "At", OF_AURA_REVENGE, -1 },
+    { "M", OF_NO_MAGIC, -1 },
+    { "T", OF_NO_TELE, -1 },
+    { "Sm", OF_NO_SUMMON, -1 },
+    { "Mr", OF_MAGIC_RESISTANCE, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_brand[] =
 {
-    { "A", TR_BRAND_ACID, -1 },
-    { "E", TR_BRAND_ELEC, -1 },
-    { "F", TR_BRAND_FIRE, -1 },
-    { "Co", TR_BRAND_COLD, -1 },
-    { "P", TR_BRAND_POIS, -1 },
-    { "Ca", TR_CHAOTIC, -1 },
-    { "V", TR_VAMPIRIC, -1 },
-    { "Q", TR_IMPACT, -1 },
-    { "S", TR_VORPAL, -1 },
-    { "S", TR_VORPAL2, -1 },
-    { "M", TR_FORCE_WEAPON, -1 },
+    { "A", OF_BRAND_ACID, -1 },
+    { "E", OF_BRAND_ELEC, -1 },
+    { "F", OF_BRAND_FIRE, -1 },
+    { "Co", OF_BRAND_COLD, -1 },
+    { "P", OF_BRAND_POIS, -1 },
+    { "Ca", OF_BRAND_CHAOS, -1 },
+    { "V", OF_BRAND_VAMP, -1 },
+    { "Q", OF_IMPACT, -1 },
+    { "S", OF_VORPAL, -1 },
+    { "S", OF_VORPAL2, -1 },
+    { "M", OF_BRAND_MANA, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_kill[] =
 {
-    { "*", TR_KILL_EVIL, -1 },
-    { "p", TR_KILL_HUMAN, -1 },
-    { "D", TR_KILL_DRAGON, -1 },
-    { "o", TR_KILL_ORC, -1 },
-    { "T", TR_KILL_TROLL, -1 },
-    { "P", TR_KILL_GIANT, -1 },
-    { "U", TR_KILL_DEMON, -1 },
-    { "L", TR_KILL_UNDEAD, -1 },
-    { "Z", TR_KILL_ANIMAL, -1 },
+    { "*", OF_KILL_EVIL, -1 },
+    { "p", OF_KILL_HUMAN, -1 },
+    { "D", OF_KILL_DRAGON, -1 },
+    { "o", OF_KILL_ORC, -1 },
+    { "T", OF_KILL_TROLL, -1 },
+    { "P", OF_KILL_GIANT, -1 },
+    { "U", OF_KILL_DEMON, -1 },
+    { "L", OF_KILL_UNDEAD, -1 },
+    { "Z", OF_KILL_ANIMAL, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_slay[] =
 {
-    { "*", TR_SLAY_EVIL, TR_KILL_EVIL },
-    { "p", TR_SLAY_HUMAN, TR_KILL_HUMAN },
-    { "D", TR_SLAY_DRAGON, TR_KILL_DRAGON },
-    { "o", TR_SLAY_ORC, TR_KILL_ORC },
-    { "T", TR_SLAY_TROLL, TR_KILL_TROLL },
-    { "P", TR_SLAY_GIANT, TR_KILL_GIANT },
-    { "U", TR_SLAY_DEMON, TR_KILL_DEMON },
-    { "L", TR_SLAY_UNDEAD, TR_KILL_UNDEAD },
-    { "Z", TR_SLAY_ANIMAL, TR_KILL_ANIMAL },
-    { "A", TR_SLAY_GOOD, -1 },
-    { "Lv", TR_SLAY_LIVING, -1 },
+    { "*", OF_SLAY_EVIL, OF_KILL_EVIL },
+    { "p", OF_SLAY_HUMAN, OF_KILL_HUMAN },
+    { "D", OF_SLAY_DRAGON, OF_KILL_DRAGON },
+    { "o", OF_SLAY_ORC, OF_KILL_ORC },
+    { "T", OF_SLAY_TROLL, OF_KILL_TROLL },
+    { "P", OF_SLAY_GIANT, OF_KILL_GIANT },
+    { "U", OF_SLAY_DEMON, OF_KILL_DEMON },
+    { "L", OF_SLAY_UNDEAD, OF_KILL_UNDEAD },
+    { "Z", OF_SLAY_ANIMAL, OF_KILL_ANIMAL },
+    { "A", OF_SLAY_GOOD, -1 },
+    { "Lv", OF_SLAY_LIVING, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_esp1[] =
 {
-    { "Tele", TR_TELEPATHY, -1 },
-    { "Evil", TR_ESP_EVIL, -1 },
-    { "Good", TR_ESP_GOOD, -1 },
-    { "Nolv", TR_ESP_NONLIVING, -1 },
-    { "Uniq", TR_ESP_UNIQUE, -1 },
+    { "Tele", OF_TELEPATHY, -1 },
+    { "Evil", OF_ESP_EVIL, -1 },
+    { "Good", OF_ESP_GOOD, -1 },
+    { "Nolv", OF_ESP_NONLIVING, -1 },
+    { "Uniq", OF_ESP_UNIQUE, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_esp2[] =
 {
-    { "p", TR_ESP_HUMAN, -1 },
-    { "D", TR_ESP_DRAGON, -1 },
-    { "o", TR_ESP_ORC, -1 },
-    { "T", TR_ESP_TROLL, -1 },
-    { "P", TR_ESP_GIANT, -1 },
-    { "U", TR_ESP_DEMON, -1 },
-    { "L", TR_ESP_UNDEAD, -1 },
-    { "Z", TR_ESP_ANIMAL, -1 },
+    { "p", OF_ESP_HUMAN, -1 },
+    { "D", OF_ESP_DRAGON, -1 },
+    { "o", OF_ESP_ORC, -1 },
+    { "T", OF_ESP_TROLL, -1 },
+    { "P", OF_ESP_GIANT, -1 },
+    { "U", OF_ESP_DEMON, -1 },
+    { "L", OF_ESP_UNDEAD, -1 },
+    { "Z", OF_ESP_ANIMAL, -1 },
     { NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_sust[] =
 {
-    { "St", TR_SUST_STR, -1 },
-    { "In", TR_SUST_INT, -1 },
-    { "Wi", TR_SUST_WIS, -1 },
-    { "Dx", TR_SUST_DEX, -1 },
-    { "Cn", TR_SUST_CON, -1 },
-    { "Ch", TR_SUST_CHR, -1 },
+    { "St", OF_SUST_STR, -1 },
+    { "In", OF_SUST_INT, -1 },
+    { "Wi", OF_SUST_WIS, -1 },
+    { "Dx", OF_SUST_DEX, -1 },
+    { "Cn", OF_SUST_CON, -1 },
+    { "Ch", OF_SUST_CHR, -1 },
     { NULL, 0, -1 }
 };
 
@@ -645,7 +647,7 @@ static flag_insc_table flag_insc_sust[] =
 /*
  *  Helper function for get_inscription()
  */
-static char *inscribe_flags_aux(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE], char *ptr)
+static char *inscribe_flags_aux(flag_insc_table *fi_ptr, u32b flgs[OF_ARRAY_SIZE], char *ptr)
 {
     while (fi_ptr->english)
     {
@@ -662,7 +664,7 @@ static char *inscribe_flags_aux(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE]
 /*
  *  Special variation of have_flag for auto-inscription
  */
-static bool have_flag_of(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE])
+static bool have_flag_of(flag_insc_table *fi_ptr, u32b flgs[OF_ARRAY_SIZE])
 {
     while (fi_ptr->english)
     {
@@ -678,11 +680,13 @@ static bool have_flag_of(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE])
 static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
 {
     char *prev_ptr = ptr;
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
+
+    if (object_is_device(o_ptr))
+        return ptr;
 
     /* Extract the flags */
-    object_flags_known(o_ptr, flgs);
-
+    obj_flags_known(o_ptr, flgs);
 
     /* Remove obvious flags */
     if (!all)
@@ -691,22 +695,22 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
         int j;
                 
         /* Base object */
-        for (j = 0; j < TR_FLAG_SIZE; j++)
+        for (j = 0; j < OF_ARRAY_SIZE; j++)
             flgs[j] &= ~k_ptr->flags[j];
 
         if (object_is_fixed_artifact(o_ptr))
         {
             artifact_type *a_ptr = &a_info[o_ptr->name1];
                     
-            for (j = 0; j < TR_FLAG_SIZE; j++)
+            for (j = 0; j < OF_ARRAY_SIZE; j++)
                 flgs[j] &= ~a_ptr->flags[j];
         }
 
         if (object_is_ego(o_ptr))
         {
-            ego_item_type *e_ptr = &e_info[o_ptr->name2];
+            ego_type *e_ptr = &e_info[o_ptr->name2];
                     
-            for (j = 0; j < TR_FLAG_SIZE; j++)
+            for (j = 0; j < OF_ARRAY_SIZE; j++)
                 flgs[j] &= ~e_ptr->flags[j];
         }
     }
@@ -810,6 +814,16 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
     }
     ptr = inscribe_flags_aux(flag_insc_sust, flgs, ptr);
 
+    /* Is there more to learn about this object? Perhaps, but don't leak quality info! */
+    if ( obj_is_identified(o_ptr)
+      && object_is_wearable(o_ptr)
+      && (object_is_artifact(o_ptr) || object_is_ego(o_ptr))
+      && !obj_is_identified_fully(o_ptr)
+      && !(o_ptr->ident & IDENT_STORE) )
+    {
+        ADD_INSC("?");
+    }
+
     *ptr = '\0';
 
     return ptr;
@@ -825,7 +839,7 @@ static void get_inscription(char *buff, object_type *o_ptr)
     char *ptr = buff;
 
     /* Not fully identified */
-    if (!(o_ptr->ident & IDENT_FULL))
+    if (!obj_is_identified_fully(o_ptr))
     {
         /* Copy until end of line or '#' */
         while (*insc)
@@ -966,16 +980,18 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     char            tmp_val2[MAX_NLEN+10];
     char            fake_insc_buf[30];
 
-    u32b flgs[TR_FLAG_SIZE];
+    u32b            flgs[OF_ARRAY_SIZE];
+    u32b            known_flgs[OF_ARRAY_SIZE];
 
-    int          slot;
-    object_type *bow_ptr = NULL;
+    int             slot;
+    object_type    *bow_ptr = NULL;
 
-    object_kind *k_ptr = &k_info[o_ptr->k_idx];
-    object_kind *flavor_k_ptr = &k_info[k_ptr->flavor];
+    object_kind    *k_ptr = &k_info[o_ptr->k_idx];
+    object_kind    *flavor_k_ptr = &k_info[k_ptr->flavor];
 
     /* Extract some flags */
-    object_flags(o_ptr, flgs);
+    obj_flags(o_ptr, flgs); /* TR_FULL_NAME and TR_SHOW_MODS should never really be hidden ... */
+    obj_flags_known(o_ptr, known_flgs); /* ... but please don't leak  Activations, Spell Power, etc! */
 
     /* See if the object is "aware" */
     if (object_is_aware(o_ptr)) aware = TRUE;
@@ -1371,7 +1387,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Use full name from k_info or a_info */
-    if (aware && have_flag(flgs, TR_FULL_NAME))
+    if (aware && have_flag(flgs, OF_FULL_NAME))
     {
         if (known && o_ptr->name1) basenm = a_name + a_info[o_ptr->name1].name;
         else if (known && o_ptr->name2) basenm = e_name + e_info[o_ptr->name2].name;
@@ -1549,7 +1565,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Hack -- Append "Artifact" or "Special" names */
-    if (known && !have_flag(flgs, TR_FULL_NAME))
+    if (known && !have_flag(flgs, OF_FULL_NAME))
     {
         /* Is it a new random artifact ? */
         if (o_ptr->art_name)
@@ -1572,7 +1588,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         {
             if (object_is_ego(o_ptr))
             {
-                ego_item_type *e_ptr = &e_info[o_ptr->name2];
+                ego_type *e_ptr = &e_info[o_ptr->name2];
 
                 t = object_desc_chr(t, ' ');
                 t = object_desc_str(t, e_name + e_ptr->name);
@@ -1706,7 +1722,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 
     /* Display the item like a weapon */
-    if (have_flag(flgs, TR_SHOW_MODS)) show_weapon = TRUE;
+    if (have_flag(flgs, OF_SHOW_MODS)) show_weapon = TRUE;
 
     /* Display the item like a weapon */
     if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
@@ -1952,7 +1968,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (mode & OD_NAME_AND_ENCHANT) goto object_desc_done;
 
 
-    if (known) /* Known item only */
+    if (known)
     {
         if (object_is_device(o_ptr))
         {
@@ -1975,12 +1991,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 t = object_desc_chr(t, p2);
             }
         }
-
-        /* Dump "pval" flags for wearable items
-           have_pval_flags doesn't work correctly for devices, so assume all
-           devices with a pval need display. TODO: Fix this!
-        */
-        if ((have_pval_flags(flgs) || object_is_device(o_ptr)) && o_ptr->pval)
+        /* TODO: Devices need fixing, so we'll require Id for now */
+        if (object_is_device(o_ptr) && o_ptr->pval)
         {
             if (o_ptr->name2 == EGO_DEVICE_POWER)
             {
@@ -1993,45 +2005,57 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
                 t = object_desc_chr(t, p2);
             }
         }
-        if (have_flag(flgs, TR_DEVICE_POWER))
-        {
-            int pct = device_power_aux(100, o_ptr->pval) - 100;
-            if (pct >= 0)
-                t = object_desc_str(t, format(" {+%d%%}", pct));
-            else
-                t = object_desc_str(t, format(" {%d%%}", pct));
-        }
-        else if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
-        {
-            int pct = device_power_aux(100, -o_ptr->pval) - 100;
+    }
+
+    /* Learning about a pval flag on an unidentified object *should* display the pval!*/
+    if (have_pval_flag(known_flgs) && !object_is_device(o_ptr) && o_ptr->pval)
+    {
+        t = object_desc_chr(t, ' ');
+        t = object_desc_chr(t, p1);
+        t = object_desc_int(t, o_ptr->pval);
+        t = object_desc_chr(t, p2);
+    }
+    if (have_flag(known_flgs, OF_DEVICE_POWER))
+    {
+        int pct = device_power_aux(100, o_ptr->pval) - 100;
+        if (pct >= 0)
+            t = object_desc_str(t, format(" {+%d%%}", pct));
+        else
             t = object_desc_str(t, format(" {%d%%}", pct));
-        }
+    }
+    else if (have_flag(known_flgs, OF_DEC_MAGIC_MASTERY))
+    {
+        int pct = device_power_aux(100, -o_ptr->pval) - 100;
+        t = object_desc_str(t, format(" {%d%%}", pct));
+    }
 
-        if (have_flag(flgs, TR_SPELL_POWER))
-        {
-            int pct = spell_power_aux(100, o_ptr->pval) - 100;
-            t = object_desc_str(t, format(" <+%d%%>", pct));
-        }
-        else if (have_flag(flgs, TR_DEC_SPELL_POWER))
-        {
-            int pct = spell_power_aux(100, -o_ptr->pval) - 100;
-            t = object_desc_str(t, format(" <%d%%>", pct));
-        }
+    if (have_flag(known_flgs, OF_SPELL_POWER))
+    {
+        int pct = spell_power_aux(100, o_ptr->pval) - 100;
+        t = object_desc_str(t, format(" <+%d%%>", pct));
+    }
+    else if (have_flag(known_flgs, OF_DEC_SPELL_POWER))
+    {
+        int pct = spell_power_aux(100, -o_ptr->pval) - 100;
+        t = object_desc_str(t, format(" <%d%%>", pct));
+    }
 
-        if (have_flag(flgs, TR_SPELL_CAP))
-        {
-            int pct = spell_cap_aux(100, o_ptr->pval) - 100;
-            if (pct > 0)
-                t = object_desc_str(t, format(" [+%d%%]", pct));
-            else
-                t = object_desc_str(t, format(" [%d%%]", pct));
-        }
-        else if (have_flag(flgs, TR_DEC_SPELL_CAP))
-        {
-            int pct = spell_cap_aux(100, -o_ptr->pval) - 100;
+    if (have_flag(known_flgs, OF_SPELL_CAP))
+    {
+        int pct = spell_cap_aux(100, o_ptr->pval) - 100;
+        if (pct > 0)
+            t = object_desc_str(t, format(" [+%d%%]", pct));
+        else
             t = object_desc_str(t, format(" [%d%%]", pct));
-        }
+    }
+    else if (have_flag(known_flgs, OF_DEC_SPELL_CAP))
+    {
+        int pct = spell_cap_aux(100, -o_ptr->pval) - 100;
+        t = object_desc_str(t, format(" [%d%%]", pct));
+    }
 
+    if (known)
+    {
         /* Hack -- Process Lanterns/Torches */
         if ((o_ptr->tval == TV_LITE) && (!(o_ptr->name1 || o_ptr->art_name || (o_ptr->sval == SV_LITE_FEANOR))))
         {
@@ -2059,21 +2083,21 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     tmp_val2[0] = '\0';
 
     /* Auto abbreviation inscribe */
-    if ((abbrev_extra || abbrev_all) && (o_ptr->ident & IDENT_KNOWN))
+    if (abbrev_extra || abbrev_all)
     {
         if (!o_ptr->inscription || !my_strchr(quark_str(o_ptr->inscription), '%'))
         {
             bool all = abbrev_all;
-            if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && o_ptr->art_name)
+            if (!obj_is_identified(o_ptr)) /* otherwise, this pseudo leaks the underlying name */
                 all = TRUE;
             get_ability_abbreviation(tmp_val2, o_ptr, all);
         }
     }
 
-    if ( (o_ptr->ident & IDENT_FULL)
+    if ( have_flag(known_flgs, OF_ACTIVATE)
       && obj_has_effect(o_ptr)
       && !device
-      && (abbrev_all || (abbrev_extra && o_ptr->activation.type)) )
+      && (abbrev_all || (abbrev_extra && o_ptr->activation.type) || !obj_is_identified(o_ptr)) )
     {
         char     buf[255];
         effect_t e = obj_get_effect(o_ptr);
@@ -2151,7 +2175,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     /* Note "cursed" if the item is known to be cursed */
     else if (object_is_cursed(o_ptr) && (known || (o_ptr->ident & IDENT_SENSE)))
     {
-        if (object_is_device(o_ptr) && !(o_ptr->ident & IDENT_FULL))
+        if (object_is_device(o_ptr) && !obj_is_identified_fully(o_ptr))
         {
             /* Hide cursed status of devices until *Identified* */
         }

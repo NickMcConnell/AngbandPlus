@@ -220,13 +220,6 @@
  */
 #define ALLOW_TEMPLATES
 
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
-
 
 /*
  * OPTION: Handle signals
@@ -474,14 +467,6 @@
  * OPTION: Make floor stacks easy -- TNB
  */
 #define ALLOW_EASY_FLOOR
-
-/*
- * Check the modification time of *_info.raw files
- * (by Keldon Jones)
- */
-#ifndef MAC_MPW
-#define CHECK_MODIFICATION_TIME
-#endif
 
 /*
  * Use the new sorting routines for creation

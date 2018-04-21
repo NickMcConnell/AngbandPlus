@@ -598,16 +598,16 @@ static void _calc_bonuses(void)
     if (p_ptr->lev >= 40) p_ptr->telepathy = TRUE;
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (p_ptr->lev >= 10)
-        add_flag(flgs, TR_RES_FEAR);
+        add_flag(flgs, OF_RES_FEAR);
     if (p_ptr->lev >= 20)
-        add_flag(flgs, TR_SUST_WIS);
+        add_flag(flgs, OF_SUST_WIS);
     if (p_ptr->lev >= 30)
-        add_flag(flgs, TR_RES_CONF);
+        add_flag(flgs, OF_RES_CONF);
     if (p_ptr->lev >= 40)
-        add_flag(flgs, TR_TELEPATHY);
+        add_flag(flgs, OF_TELEPATHY);
 }
 
 static void _on_fail(const spell_info *spell)

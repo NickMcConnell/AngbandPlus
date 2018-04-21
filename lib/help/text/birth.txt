@@ -46,7 +46,7 @@ match your natural talents. There is no auto-roller and you really
 should accept and play with whatever is given to you to keep with the 
 spirit of this option.
 
-For the remainer of this document, and most of the rest of the help 
+For the remainder of this document, and most of the rest of the help 
 files, we will be assuming you are playing with the Normal option, 
 which includes the full array of race and class choices as well as a 
 vast wilderness to explore.
@@ -367,7 +367,34 @@ based on a set of user-selected criteria. If you choose to use the
 auto-roller, you will be presented with a column giving the maximum 
 possible statistics (see [i] below) for your choice of race, class and 
 personality (see [j]). Then you can specify your desired statistics 
-using keypad or cursor keys.
+using keypad or cursor keys. The game will score each roll of your 
+stats using a point based system and only scores in the range of 20 to 
+30 are accepted. So don't be too greedy in specifying you minimal 
+limits. Even forcing 30 points worth of constraints is a bad idea, 
+since you are unlikely to roll 8's for all the remaining unconstrained 
+stats. An example of a reasonable choice is the following:
+
+ Name       : Test
+ Sex        : Female        
+ Personality: Mighty        
+ Race       : High-Elf      
+ Subrace    :
+ Class      : Warrior       
+ Realm      :                     
+
+          Make your character. ('S' Restart, 'Q' Quit, '?' Help)
+          Set minimum stats.
+          2/8 for Select, 4/6 for Change value, Enter for Goto next
+
+                     Base   Rac  Cla  Per      Total  Maximum  Points
+          STR :        16    +1   +4   +2  =   18/50   18/60      12
+          INT :         8    +3   -2   -2  =       7      16      -2
+          WIS :         8    -1   -2   -2  =       3      12      -2
+          DEX :        16    +3   +2   +0  =   18/30   18/40      12
+          CON :        14    +1   +2   +1  =      18   18/30       5
+          CHR :         8    +1   +1   +1  =      11   18/20      -2
+
+                                   Accept                         23
 
 Once you have specified your desired statistics, the computer will then 
 randomly roll successive start-up characters and compare them to your 
@@ -393,8 +420,35 @@ levels for the remaining statistics rather than looking for high rolls.
 Also note that the game significantly "nerfs" the power of the 
 Auto-roller relative to other variants. After 50,000 rolls the 
 Auto-roller simply stops and forces you to accept the best match (if 
-any) or to repick minimums. In general, you can pick 2 stats to be 
-maximal but no more.
+any) or to repick minimums. A good idea is to pick constraints on 2 
+stats at most, and even then, you are unlikely to roll 17s in both 
+stats. A 17 and a 16 is rare as well, so perhaps try a 17 and a 15, or 
+two 16s. For example, my above restrictions (16, 16, 14) yielded a 
+handful of matches, the best being the following:
+
+ Name       : Test                         ========== Stats ==========
+ Sex        : Female                             STR  :     18/50
+ Personality: Mighty                             INT  :         8
+ Race       : High-Elf                           WIS  :         6
+ Subrace    : None                               DEX  :     18/30
+ Class      : Warrior                            CON  :        18
+                                                 CHR  :        12
+                                        
+ Level      :        1                           HP   :     54/54
+ Cur Exp    :        0                           SP   :       0/0
+ Max Exp    :        0                           AC   :         2
+ Adv Exp    :       19                           Speed:        +0
+                                        
+                                           ========== Skills =========
+ Gold       :      435                     Melee      : Excellent
+ Kills      :        0                     Ranged     : Very Good
+ Uniques    :        0                     SavingThrow: Good
+ Artifacts  :      0+0                     Stealth    : Good
+                                           Perception : Poor
+ Game Day   :        1                     Searching  : Poor
+ Game Time  :     6:00                     Disarming  : Fair
+ Play Time  :    00:08                     Device     : Fair
+  [You must accept, or Enter to accept] 
 
 If you select not to use the auto-roller, the computer will roll one 
 random character at a time and then display it for you to either accept 

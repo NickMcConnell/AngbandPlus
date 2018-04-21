@@ -4,72 +4,37 @@
 
 #include <assert.h>
 
+const int pval_flags[] = {
+    OF_STR, OF_INT, OF_WIS, OF_DEX, OF_CON, OF_CHR,
+    OF_MAGIC_MASTERY, OF_DEVICE_POWER, OF_MAGIC_RESISTANCE,
+    OF_STEALTH, OF_SEARCH, OF_INFRA, OF_TUNNEL, OF_SPEED,
+    OF_BLOWS, OF_XTRA_SHOTS, OF_XTRA_MIGHT,
+    OF_SPELL_POWER, OF_SPELL_CAP, OF_WEAPONMASTERY, OF_LIFE,
+    OF_DEC_STR, OF_DEC_INT, OF_DEC_WIS, OF_DEC_DEX, OF_DEC_CON, OF_DEC_CHR,
+    OF_DEC_STEALTH, OF_DEC_SPEED, OF_DEC_LIFE,
+    OF_DEC_MAGIC_MASTERY, OF_DEC_SPELL_CAP, OF_DEC_SPELL_POWER, OF_DEC_BLOWS,
+    OF_INVALID
+};
+
 bool is_pval_flag(int which)
 {
-    switch (which)
+    int i;
+    for (i = 0; ; i++)
     {
-    case TR_STR: 
-    case TR_INT: 
-    case TR_WIS: 
-    case TR_DEX: 
-    case TR_CON: 
-    case TR_CHR:
-    case TR_MAGIC_MASTERY:
-    case TR_DEVICE_POWER:
-    case TR_MAGIC_RESISTANCE:
-    case TR_STEALTH:
-    case TR_SEARCH:
-    case TR_INFRA:
-    case TR_TUNNEL:
-    case TR_SPEED:
-    case TR_BLOWS:
-    case TR_XTRA_SHOTS:
-    case TR_XTRA_MIGHT:
-    case TR_SPELL_POWER:
-    case TR_SPELL_CAP:
-    case TR_WEAPONMASTERY:
-    case TR_LIFE:
-        return TRUE;
+        int flg = pval_flags[i];
+        if (flg == OF_INVALID) break;
+        if (flg == which) return TRUE;
     }
     return FALSE;
 }
-bool have_pval_flags(u32b flgs[TR_FLAG_SIZE])
+bool have_pval_flag(u32b flgs[OF_ARRAY_SIZE])
 {
-    if ( have_flag(flgs, TR_STR)
-      || have_flag(flgs, TR_INT)
-      || have_flag(flgs, TR_WIS)
-      || have_flag(flgs, TR_DEX)
-      || have_flag(flgs, TR_CON)
-      || have_flag(flgs, TR_CHR)
-      || have_flag(flgs, TR_MAGIC_MASTERY)
-      || have_flag(flgs, TR_DEVICE_POWER)
-      || have_flag(flgs, TR_MAGIC_RESISTANCE)
-      || have_flag(flgs, TR_STEALTH)
-      || have_flag(flgs, TR_SEARCH)
-      || have_flag(flgs, TR_INFRA)
-      || have_flag(flgs, TR_TUNNEL)
-      || have_flag(flgs, TR_SPEED)
-      || have_flag(flgs, TR_BLOWS)
-      || have_flag(flgs, TR_XTRA_SHOTS)
-      || have_flag(flgs, TR_XTRA_MIGHT)
-      || have_flag(flgs, TR_SPELL_POWER)
-      || have_flag(flgs, TR_SPELL_CAP) 
-      || have_flag(flgs, TR_WEAPONMASTERY) 
-      || have_flag(flgs, TR_LIFE) 
-      || have_flag(flgs, TR_DEC_STR)
-      || have_flag(flgs, TR_DEC_INT)
-      || have_flag(flgs, TR_DEC_WIS)
-      || have_flag(flgs, TR_DEC_DEX)
-      || have_flag(flgs, TR_DEC_CON)
-      || have_flag(flgs, TR_DEC_CHR)
-      || have_flag(flgs, TR_DEC_STEALTH)
-      || have_flag(flgs, TR_DEC_SPEED)
-      || have_flag(flgs, TR_DEC_LIFE)
-      || have_flag(flgs, TR_DEC_MAGIC_MASTERY)
-      || have_flag(flgs, TR_DEC_SPELL_CAP)
-      || have_flag(flgs, TR_DEC_SPELL_POWER) )
+    int i;
+    for (i = 0; ; i++)
     {
-        return TRUE;
+        int flg = pval_flags[i];
+        if (flg == OF_INVALID) break;
+        if (have_flag(flgs, flg)) return TRUE;
     }
     return FALSE;
 }
@@ -87,16 +52,28 @@ bool object_is_mushroom(object_type *o_ptr)
     return result;
 }
 
+bool object_is_flavor(object_type *o_ptr)
+{
+    return object_is_mushroom(o_ptr) || o_ptr->tval == TV_POTION || o_ptr->tval == TV_SCROLL;
+}
+
 bool object_is_potion(object_type *o_ptr)
 {
     return (k_info[o_ptr->k_idx].tval == TV_POTION);
 }
 
-
-bool object_is_shoukinkubi(object_type *o_ptr)
+bool mon_is_wanted(int r_idx)
 {
     int i;
 
+    for (i = 0; i < MAX_KUBI; i++)
+        if (r_idx == kubi_r_idx[i]) return TRUE;
+
+    return FALSE;
+}
+
+bool object_is_shoukinkubi(object_type *o_ptr)
+{
     /* Require corpse or skeleton */
     if (o_ptr->tval != TV_CORPSE) return FALSE;
 
@@ -107,9 +84,7 @@ bool object_is_shoukinkubi(object_type *o_ptr)
     if (o_ptr->pval == MON_TSUCHINOKO) return TRUE;
 
     /* Unique monster */
-    for (i = 0; i < MAX_KUBI; i++)
-        if (o_ptr->pval == kubi_r_idx[i]) break;
-    if (i < MAX_KUBI) return TRUE;
+    if (mon_is_wanted(o_ptr->pval)) return TRUE;
 
     /* Not wanted */
     return FALSE;
@@ -132,10 +107,10 @@ bool object_is_favorite(object_type *o_ptr)
     {
     case CLASS_PRIEST:
     {
-        u32b flgs[TR_FLAG_SIZE];
-        object_flags_known(o_ptr, flgs);
+        u32b flgs[OF_ARRAY_SIZE];
+        obj_flags_known(o_ptr, flgs);
 
-        if (!have_flag(flgs, TR_BLESSED) && 
+        if (!have_flag(flgs, OF_BLESSED) && 
             !(o_ptr->tval == TV_HAFTED))
             return FALSE;
         break;
@@ -155,11 +130,11 @@ bool object_is_favorite(object_type *o_ptr)
     case CLASS_BEASTMASTER:
     case CLASS_CAVALRY:
     {
-        u32b flgs[TR_FLAG_SIZE];
-        object_flags_known(o_ptr, flgs);
+        u32b flgs[OF_ARRAY_SIZE];
+        obj_flags_known(o_ptr, flgs);
 
         /* Is it known to be suitable to using while riding? */
-        if (!(have_flag(flgs, TR_RIDING)))
+        if (!(have_flag(flgs, OF_RIDING)))
             return FALSE;
 
         break;

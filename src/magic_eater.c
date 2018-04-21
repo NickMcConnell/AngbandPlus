@@ -257,14 +257,14 @@ object_type *_choose(cptr verb, int tval, int options)
 void _use_object(object_type *o_ptr)
 {
     int  boost = device_power(100) - 100;
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     bool used = FALSE;
     int  charges = 1;
 
     energy_use = 100;
 
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_SPEED))
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_SPEED))
         energy_use -= energy_use * o_ptr->pval / 10;
 
     if (!fear_allow_device())
@@ -390,9 +390,8 @@ static bool gain_magic(void)
     *dest_ptr = *src_ptr;
 
     dest_ptr->inscription = 0;
-    identify_item(dest_ptr);
-    dest_ptr->ident |= IDENT_FULL;
-    ego_aware(dest_ptr);
+    obj_identify_fully(dest_ptr);
+    stats_on_identify(dest_ptr);
 
     /* Eliminate the item (from the pack) */
     if (item >= 0)
@@ -440,12 +439,11 @@ void magic_eater_gain(void)
 bool magic_eater_regen(int pct)
 {
     int i;
-    int base = 3;
+    int base;
+
     if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
-    if (p_ptr->regenerate)
-        base += 3;
-    if (p_ptr->super_regenerate)
-        base += 6;
+
+    base = 3*p_ptr->regen/100;
     for (i = 0; i < _MAX_SLOTS; i++)
     {
         object_type *o_ptr = _which_obj(TV_WAND, i);

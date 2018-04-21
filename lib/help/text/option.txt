@@ -23,10 +23,35 @@ The birth options can only be accessed while creating a new character
 (press = while creating the character). There is no way to turn them 
 off after the creation is finished!
   
-  Easy Mode (easy_band)
-  This option enables easy game mode for beginners. If this option is 
-  set, you take only half damage from any enemy's attack compared to 
-  normal mode, and monster's summoning spells become much weaker.
+  Easy Identify (easy_id)
+  This option simplifies the identification of objects, making Identify 
+  work just like *Identify*. However, this renders many spells (such as 
+  Stone Tell in Nature and Identify True in Sorcery) and objects (such 
+  as Staves of *Identify*) redundant or pointless. Also, some classes 
+  (such as the Archaeologist) are designed with early access to 
+  *Identify* as a principle bonus. Enabling this option removes the 
+  advantages of these classes, making them less worthy of playing.
+  
+  In addition, this birth option will also affect the early game 
+  pseudo-identification of objects. Normally, objects must be carried 
+  in your pack for some time before you become aware of their quality. 
+  The length of time is class dependent, as is the amount of 
+  information revealed through pseudo-identification (see [b]). With 
+  Easy Identify enabled, all players will get instantaneous and full 
+  pseudo-identification of objects, making this aspect of gameplay much 
+  easier as well.
+  
+  Easy Lore (easy_lore)
+  With this option enabled, the player will be born with complete 
+  knowledge of monster lore, including the various attacks and nasty 
+  surprises that many monsters usually offer to the uninitiated. This 
+  is a bit of a spoiler option, but is available for those who don't 
+  enjoy learning each of the many monsters present in the game. Like 
+  the Easy Identify option, Easy Lore also renders a few aspects of the 
+  game non-functional or pointless, including the ability to Probe 
+  monsters to learn about them as you encounter them, and the town 
+  Beastmaster Lore service to learn about monsters before you see them 
+  (for a price, of course).
   
   Monsters learn from their mistakes (smart_learn)
   Allow monsters to learn what spell attacks you are resistant to, and 
@@ -41,7 +66,7 @@ off after the creation is finished!
   single special town level. As a result, the only dungeon that will be 
   available is the Pits of Angband. However, the town is relatively 
   well serviced and many, if not most, of the various fixed quests will 
-  be available for your pleasure (see [b]).
+  be available for your pleasure (see [c]).
   
   Stores are permanently closed (ironman_shops)
   This option closes all shops. Try to survive in the deeps of the 
@@ -103,7 +128,7 @@ Input Options
   
   Rogue-like commands (rogue_like_commands)
   Selects the roguelike command set which is an alternative way of 
-  mapping keystrokes to underlying game commands. (see [c] for info).
+  mapping keystrokes to underlying game commands. (see [d] for info).
   
   Pick things up by default (always_pickup)
   Tells the game that walking onto an item should attempt to pick it 
@@ -149,7 +174,7 @@ Input Options
   Repeat obvious commands (always_repeat)
   Tells the game that when you attempt to open a door or chest, bash a 
   door, tunnel through walls, or disarm traps or chests, that you wish 
-  to repeat the command 99 times (see [d]).
+  to repeat the command 99 times (see [e]).
   
   Prompt for destruction of known worthless items (confirm_destroy)
   Normally, no confirmation will be asked if you attempt to destroy an 
@@ -391,7 +416,7 @@ Text Display Options
   Fire is not an EXTRA resistance.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [e].
+  described in [f].
   
   Describe obj's all resistances by abbreviation (abbrev_all)
   When an *identified* equipment is displayed, an abbreviation string 
@@ -399,7 +424,7 @@ Text Display Options
   inscriptions of the object.
   
   The list of abbreviations for each resistances and abilities are 
-  described in [f].
+  described in [g].
   
   Show the experience needed for the next level (exp_need)
   Setting this option to yes alters the display of experience on the 
@@ -564,7 +589,7 @@ Easy Auto-Destroyer Options
   
     Note: The Easy Auto-Destroyer is a simpler to use 
     version of the full featured Mogaminator discussed in 
-    [g]. It is designed for those who feel the full version 
+    [h]. It is designed for those who feel the full version 
     is too complicated to use. However, you really should 
     only use one or the other. So if you are using the full 
     version, then you should not also enable the easy 

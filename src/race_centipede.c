@@ -36,7 +36,7 @@ static void _birth(void)
     forge.to_h = 3;
     forge.to_d = 2;
     forge.pval = 1;
-    add_flag(forge.art_flags, TR_DEX);
+    add_flag(forge.flags, OF_DEX);
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
@@ -171,10 +171,10 @@ static void _calc_bonuses(void)
     p_ptr->pspeed += _rank();
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
     if (_rank())
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_SPEED);
 }
 /**********************************************************************
  * Public Methods

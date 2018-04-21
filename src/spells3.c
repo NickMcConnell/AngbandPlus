@@ -330,7 +330,7 @@ bool teleport_player_aux(int dis, u32b mode)
     if (p_ptr->anti_tele && !(mode & TELEPORT_NONMAGICAL))
     {
         msg_print("A mysterious force prevents you from teleporting!");
-
+        equip_learn_flag(OF_NO_TELE);
         return FALSE;
     }
 
@@ -530,7 +530,7 @@ void teleport_player_to(int ny, int nx, u32b mode)
     if (p_ptr->anti_tele && !(mode & TELEPORT_NONMAGICAL))
     {
         msg_print("A mysterious force prevents you from teleporting!");
-
+        equip_learn_flag(OF_NO_TELE);
         return;
     }
 
@@ -577,8 +577,8 @@ static u32b _flag = 0;
 static bool _has_flag(object_type *o_ptr) {
     if (!object_is_cursed(o_ptr))
     {
-        u32b flgs[TR_FLAG_SIZE];
-        object_flags(o_ptr, flgs);
+        u32b flgs[OF_ARRAY_SIZE];
+        obj_flags(o_ptr, flgs);
         return have_flag(flgs, _flag);
     }
     return FALSE;
@@ -606,7 +606,7 @@ void teleport_away_followable(int m_idx)
         }
         else
         {
-            _flag = TR_TELEPORT;
+            _flag = OF_TELEPORT;
             if (equip_find_first(_has_flag))
                 follow = TRUE;
         }
@@ -672,6 +672,7 @@ void teleport_level(int m_idx)
     if ((m_idx <= 0) && p_ptr->anti_tele) /* To player */
     {
         msg_print("A mysterious force prevents you from teleporting!");
+        equip_learn_flag(OF_NO_TELE);
         return;
     }
 
@@ -990,6 +991,7 @@ bool apply_disenchant(int mode)
         object_type     *o_ptr = equip_obj(slot);
         int             t = 0;
         char            o_name[MAX_NLEN];
+        u32b            flgs[OF_ARRAY_SIZE];
         int to_h, to_d, to_a, pval;
 
         if (o_ptr->to_h <= 0 && o_ptr->to_d <= 0 && o_ptr->to_a <= 0 && o_ptr->pval <= 1)
@@ -1000,6 +1002,14 @@ bool apply_disenchant(int mode)
         if (object_is_artifact(o_ptr) && (randint0(100) < 71))
         {
             msg_format("Your %s (%c) resists disenchantment!", o_name, index_to_label(t));
+            return TRUE;
+        }
+
+        obj_flags(o_ptr, flgs);
+        if (have_flag(flgs, OF_RES_DISEN))
+        {
+            msg_format("Your %s (%c) resists disenchantment!", o_name, index_to_label(t));
+            obj_learn_flag(o_ptr, OF_RES_DISEN);
             return TRUE;
         }
 
@@ -1034,7 +1044,7 @@ bool apply_disenchant(int mode)
 
             p_ptr->update |= (PU_BONUS);
             p_ptr->window |= (PW_EQUIP);
-            calc_android_exp();
+            android_calc_exp();
         }
         return TRUE;
     }
@@ -1177,7 +1187,7 @@ bool brand_weapon(int brand_type)
     if (inventory[item].name1 || inventory[item].name2)
     {
     }
-    else if (have_flag(inventory[item].art_flags, TR_NO_REMOVE))
+    else if (have_flag(inventory[item].flags, OF_NO_REMOVE))
     {
         msg_print("You are already excellent!");
     }
@@ -1187,16 +1197,7 @@ bool brand_weapon(int brand_type)
     }
     else
     {
-        inventory[item].name2 = brand_type;
-        /* TODO: a_m_aux_1 in object2.c currently handles creation of weapon egos, but
-           is not re-usable since it conflates ego selection and a few other things.
-           Please refactor ... e.g.,
-           void ego_init_weapon(object_type *o_ptr, int ego_type);
-           void ego_init_armor(object_type *o_ptr, int ego_type);
-           etc.
-        */
-        if (brand_type == EGO_WEAPON_TRUMP)
-            inventory[item].pval = randint1(2);
+        ego_brand_weapon(&inventory[item], brand_type);
         result = TRUE;
     }
     if (result)
@@ -1205,6 +1206,8 @@ bool brand_weapon(int brand_type)
         inventory[item].discount = 99;
 
         virtue_add(VIRTUE_ENCHANTMENT, 2);
+        obj_identify_fully(&inventory[item]);
+        obj_display(&inventory[item]);
     }
     else
     {
@@ -1212,14 +1215,58 @@ bool brand_weapon(int brand_type)
         msg_print("The Branding failed.");
         virtue_add(VIRTUE_ENCHANTMENT, -2);
     }
-    calc_android_exp();
+    android_calc_exp();
     return TRUE;
 }
+/* Hack for old branding spells attempting to make now non-existent ego types! */
+bool brand_weapon_slaying(int flag)
+{
+    bool        result = FALSE;
+    int         item;
+    cptr        q, s;
 
+    item_tester_hook = object_allow_enchant_melee_weapon;
+    item_tester_no_ryoute = TRUE;
+
+    q = "Enchant which weapon? ";
+    s = "You have nothing to enchant.";
+    if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
+
+    if (inventory[item].name1 || inventory[item].name2)
+    {
+    }
+    else if (have_flag(inventory[item].flags, OF_NO_REMOVE))
+    {
+        msg_print("You are already excellent!");
+    }
+    else
+    {
+        inventory[item].name2 = EGO_WEAPON_SLAYING;
+        add_flag(inventory[item].flags, flag);
+        result = TRUE;
+    }
+    if (result)
+    {
+        enchant(&inventory[item], randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+        inventory[item].discount = 99;
+
+        virtue_add(VIRTUE_ENCHANTMENT, 2);
+        obj_identify_fully(&inventory[item]);
+        obj_display(&inventory[item]);
+    }
+    else
+    {
+        if (flush_failure) flush();
+        msg_print("The Branding failed.");
+        virtue_add(VIRTUE_ENCHANTMENT, -2);
+    }
+    android_calc_exp();
+    return TRUE;
+}
 bool brand_weapon_aux(int item)
 {
     assert(item >= 0);
-    if (have_flag(inventory[item].art_flags, TR_NO_REMOVE))
+    if (have_flag(inventory[item].flags, OF_NO_REMOVE))
         return FALSE;
     apply_magic(&inventory[item], dun_level, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
     return TRUE;
@@ -1227,7 +1274,7 @@ bool brand_weapon_aux(int item)
 bool brand_armour_aux(int item)
 {
     assert(item >= 0);
-    if (have_flag(inventory[item].art_flags, TR_NO_REMOVE))
+    if (have_flag(inventory[item].flags, OF_NO_REMOVE))
         return FALSE;
     apply_magic(&inventory[item], dun_level, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
     return TRUE;
@@ -1697,19 +1744,21 @@ static int remove_curse_aux(int all)
     {
         object_type *o_ptr = equip_obj(slot);
 
-        if (!all && (o_ptr->curse_flags & TRC_HEAVY_CURSE)) continue;
+        if (!all && (o_ptr->curse_flags & OFC_HEAVY_CURSE)) continue;
 
-        if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+        if (o_ptr->curse_flags & OFC_PERMA_CURSE)
         {
-            o_ptr->curse_flags &= (TRC_CURSED | TRC_HEAVY_CURSE | TRC_PERMA_CURSE);
+            o_ptr->curse_flags &= (OFC_CURSED | OFC_HEAVY_CURSE | OFC_PERMA_CURSE);
+            o_ptr->known_curse_flags &= (OFC_CURSED | OFC_HEAVY_CURSE | OFC_PERMA_CURSE);
             continue;
         }
 
-        o_ptr->curse_flags = 0L;
-        o_ptr->ident |= (IDENT_SENSE);
+        o_ptr->curse_flags = 0;
+        o_ptr->known_curse_flags = 0; /* Forget lore in preparation for next cursing */
+        o_ptr->ident  |= IDENT_SENSE;
         o_ptr->feeling = FEEL_NONE;
-        p_ptr->update |= (PU_BONUS);
-        p_ptr->window |= (PW_EQUIP);
+        p_ptr->update |= PU_BONUS;
+        p_ptr->window |= PW_EQUIP;
         p_ptr->redraw |= PR_EFFECTS;
         ct++;
     }
@@ -1792,7 +1841,7 @@ bool alchemy(void)
     /* Verify unless quantity given */
     if (!force)
     {
-        if (confirm_destroy || (object_value(o_ptr) > 0))
+        if (confirm_destroy || (obj_value(o_ptr) > 0))
         {
             /* Make a verification */
             sprintf(out_val, "Really turn %s to gold? ", o_name);
@@ -1811,7 +1860,7 @@ bool alchemy(void)
         return FALSE;
     }
 
-    price = object_value_real(o_ptr);
+    price = obj_value_real(o_ptr);
 
     if (price <= 0)
     {
@@ -1862,7 +1911,7 @@ bool alchemy(void)
  */
 static void break_curse(object_type *o_ptr)
 {
-    if (object_is_cursed(o_ptr) && !(o_ptr->curse_flags & TRC_PERMA_CURSE) && !(o_ptr->curse_flags & TRC_HEAVY_CURSE) && (randint0(100) < 25))
+    if (object_is_cursed(o_ptr) && !(o_ptr->curse_flags & OFC_PERMA_CURSE) && !(o_ptr->curse_flags & OFC_HEAVY_CURSE) && (randint0(100) < 25))
     {
         msg_print("The curse is broken!");
 
@@ -1897,15 +1946,15 @@ bool enchant(object_type *o_ptr, int n, int eflag)
     bool    a = object_is_artifact(o_ptr);
     bool    force = (eflag & ENCH_FORCE);
     int     minor_limit = 2 + p_ptr->lev/5; /* This matches the town service ... */
-    u32b    flgs[TR_FLAG_SIZE];
+    u32b    flgs[OF_ARRAY_SIZE];
 
 
     /* Large piles resist enchantment */
     prob = o_ptr->number * 100;
 
     /* Some objects cannot be enchanted */
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_NO_ENCHANT))
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_NO_ENCHANT))
         return FALSE;
 
 
@@ -2018,7 +2067,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
     /* Window stuff */
     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-    calc_android_exp();
+    android_calc_exp();
 
     /* Success */
     return (TRUE);
@@ -2095,7 +2144,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
     else
         virtue_add(VIRTUE_ENCHANTMENT, 1);
 
-    calc_android_exp();
+    android_calc_exp();
 
     /* Something happened */
     return (TRUE);
@@ -2190,7 +2239,7 @@ bool artifact_scroll(void)
             ((o_ptr->number > 1) ? "customized items" : "a customized item"));
     }
 
-    else if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+    else if (have_flag(o_ptr->flags, OF_NO_REMOVE))
     {
         msg_print("You are quite special already!");
         okay = FALSE;
@@ -2237,7 +2286,7 @@ bool artifact_scroll(void)
     else
         virtue_add(VIRTUE_ENCHANTMENT, 1);
 
-    calc_android_exp();
+    android_calc_exp();
 
     /* Something happened */
     return (TRUE);
@@ -2250,32 +2299,18 @@ bool artifact_scroll(void)
 bool identify_item(object_type *o_ptr)
 {
     bool old_known = FALSE;
-    char o_name[MAX_NLEN];
 
-    /* Description */
-    object_desc(o_name, o_ptr, 0);
-
-    if (o_ptr->ident & IDENT_KNOWN)
+    if (obj_is_identified(o_ptr))
         old_known = TRUE;
 
-    if (!spoiler_hack && !(o_ptr->ident & (IDENT_FULL)))
+    if (!spoiler_hack && !obj_is_identified_fully(o_ptr))
     {
         if (object_is_artifact(o_ptr) || one_in_(5))
             virtue_add(VIRTUE_KNOWLEDGE, 1);
     }
 
-    /* Identify it fully */
-    object_aware(o_ptr);
-    object_known(o_ptr);
-
+    obj_identify(o_ptr);
     stats_on_identify(o_ptr);
-
-    /* Experimental: Jewelry is a bit tedious to *id*, and id often reveals very little. */
-    if (!easy_id && object_is_jewelry(o_ptr) && !object_is_artifact(o_ptr))
-    {
-        o_ptr->ident |= IDENT_FULL;
-        ego_aware(o_ptr);
-    }
 
     /* Player touches it */
     o_ptr->marked |= OM_TOUCHED;
@@ -2289,11 +2324,6 @@ bool identify_item(object_type *o_ptr)
     /* Window stuff */
     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-    strcpy(record_o_name, o_name);
-    record_turn = game_turn;
-
-    /* Description */
-    object_desc(o_name, o_ptr, OD_NAME_ONLY);
     return old_known;
 }
 
@@ -2343,6 +2373,7 @@ bool ident_spell(object_p p)
         o_ptr = &o_list[0 - item];
 
     old_known = identify_item(o_ptr);
+
     object_desc(o_name, o_ptr, 0);
 
     if (equip_is_valid_slot(item))
@@ -2395,7 +2426,7 @@ bool mundane_spell(bool only_equip)
         return TRUE;
     }
 
-    if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+    if (have_flag(o_ptr->flags, OF_NO_REMOVE))
     {
         msg_print("Failed! You will never be average!");
         return TRUE;
@@ -2421,7 +2452,8 @@ bool mundane_spell(bool only_equip)
         o_ptr->inscription = inscription;
         if (item >= 0) p_ptr->total_weight += (o_ptr->weight - weight);
     }
-    calc_android_exp();
+    p_ptr->update |= PU_BONUS;
+    android_calc_exp();
 
     /* Something happened */
     return TRUE;
@@ -2431,8 +2463,13 @@ bool mundane_spell(bool only_equip)
 
 static bool item_tester_hook_identify_fully(object_type *o_ptr)
 {
-    if ( (!object_is_known(o_ptr) || !(o_ptr->ident & IDENT_FULL))
+    if ( (!object_is_known(o_ptr) || !obj_is_identified_fully(o_ptr))
       && (!_hack_obj_p || _hack_obj_p(o_ptr)) )
+    {
+        return TRUE;
+    }
+    if ( obj_is_identified_fully(o_ptr)
+      && o_ptr->curse_flags != o_ptr->known_curse_flags )
     {
         return TRUE;
     }
@@ -2474,9 +2511,8 @@ bool identify_fully(object_p p)
     else
         o_ptr = &o_list[0 - item];
 
-    old_known = identify_item(o_ptr);
-    o_ptr->ident |= (IDENT_FULL);
-    ego_aware(o_ptr);
+    old_known = identify_item(o_ptr); /* For the stat tracking and old_known ... */
+    obj_identify_fully(o_ptr);
 
     handle_stuff();
     object_desc(o_name, o_ptr, 0);
@@ -2697,7 +2733,7 @@ bool bless_weapon(void)
 {
     int             item;
     object_type     *o_ptr;
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     char            o_name[MAX_NLEN];
     cptr            q, s;
 
@@ -2730,12 +2766,12 @@ bool bless_weapon(void)
     object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
     /* Extract the flags */
-    object_flags(o_ptr, flgs);
+    obj_flags(o_ptr, flgs);
 
     if (object_is_cursed(o_ptr))
     {
-        if (((o_ptr->curse_flags & TRC_HEAVY_CURSE) && (randint1(100) < 33)) ||
-            (o_ptr->curse_flags & TRC_PERMA_CURSE))
+        if (((o_ptr->curse_flags & OFC_HEAVY_CURSE) && (randint1(100) < 33)) ||
+            (o_ptr->curse_flags & OFC_PERMA_CURSE))
         {
             msg_format("The black aura on %s %s disrupts the blessing!",
                 ((item >= 0) ? "your" : "the"), o_name);
@@ -2771,7 +2807,7 @@ bool bless_weapon(void)
      * artifact weapon they find. Ego weapons and normal weapons
      * can be blessed automatically.
      */
-    if (have_flag(flgs, TR_BLESSED))
+    if (have_flag(flgs, OF_BLESSED))
     {
         msg_format("%s %s %s blessed already.",
             ((item >= 0) ? "Your" : "The"), o_name,
@@ -2787,7 +2823,7 @@ bool bless_weapon(void)
             ((item >= 0) ? "Your" : "The"), o_name,
             ((o_ptr->number > 1) ? "" : "s"));
 
-        add_flag(o_ptr->art_flags, TR_BLESSED);
+        add_flag(o_ptr->flags, OF_BLESSED);
         o_ptr->discount = 99;
     }
     else
@@ -2841,7 +2877,7 @@ bool bless_weapon(void)
     /* Window stuff */
     p_ptr->window |= PW_EQUIP;
 
-    calc_android_exp();
+    android_calc_exp();
 
     return TRUE;
 }
@@ -2854,7 +2890,7 @@ bool polish_shield(void)
 {
     int             item;
     object_type     *o_ptr;
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     char            o_name[MAX_NLEN];
     cptr            q, s;
 
@@ -2886,7 +2922,7 @@ bool polish_shield(void)
     object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
     /* Extract the flags */
-    object_flags(o_ptr, flgs);
+    obj_flags(o_ptr, flgs);
 
     if (o_ptr->k_idx && !object_is_artifact(o_ptr) && !object_is_ego(o_ptr) &&
         !object_is_cursed(o_ptr) && (o_ptr->sval != SV_MIRROR_SHIELD))
@@ -2910,7 +2946,7 @@ bool polish_shield(void)
 
         virtue_add(VIRTUE_ENCHANTMENT, -2);
     }
-    calc_android_exp();
+    android_calc_exp();
 
     return FALSE;
 }
@@ -3699,10 +3735,10 @@ bool hates_cold(object_type *o_ptr)
  */
 int set_acid_destroy(object_type *o_ptr)
 {
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     if (!hates_acid(o_ptr)) return (FALSE);
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_IGNORE_ACID)) return (FALSE);
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_IGNORE_ACID)) return (FALSE);
     return (TRUE);
 }
 
@@ -3712,10 +3748,10 @@ int set_acid_destroy(object_type *o_ptr)
  */
 int set_elec_destroy(object_type *o_ptr)
 {
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     if (!hates_elec(o_ptr)) return (FALSE);
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_IGNORE_ELEC)) return (FALSE);
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_IGNORE_ELEC)) return (FALSE);
     return (TRUE);
 }
 
@@ -3725,10 +3761,10 @@ int set_elec_destroy(object_type *o_ptr)
  */
 int set_fire_destroy(object_type *o_ptr)
 {
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     if (!hates_fire(o_ptr)) return (FALSE);
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_IGNORE_FIRE)) return (FALSE);
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_IGNORE_FIRE)) return (FALSE);
     return (TRUE);
 }
 
@@ -3738,10 +3774,10 @@ int set_fire_destroy(object_type *o_ptr)
  */
 int set_cold_destroy(object_type *o_ptr)
 {
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
     if (!hates_cold(o_ptr)) return (FALSE);
-    object_flags(o_ptr, flgs);
-    if (have_flag(flgs, TR_IGNORE_COLD)) return (FALSE);
+    obj_flags(o_ptr, flgs);
+    if (have_flag(flgs, OF_IGNORE_COLD)) return (FALSE);
     return (TRUE);
 }
 
@@ -3843,18 +3879,19 @@ static int minus_ac(void)
     if (slot)
     {
         object_type *o_ptr = equip_obj(slot);
-        u32b         flgs[TR_FLAG_SIZE];
+        u32b         flgs[OF_ARRAY_SIZE];
         char         o_name[MAX_NLEN];
 
         if (o_ptr->ac + o_ptr->to_a <= 0) return FALSE;
 
         object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        object_flags(o_ptr, flgs);
+        obj_flags(o_ptr, flgs);
 
-        if ( have_flag(flgs, TR_IGNORE_ACID)
+        if ( have_flag(flgs, OF_IGNORE_ACID)
           || demigod_is_(DEMIGOD_HEPHAESTUS) )
         {
             msg_format("Your %s is unaffected!", o_name);
+            obj_learn_flag(o_ptr, OF_IGNORE_ACID);
             return TRUE;
         }
 
@@ -3862,7 +3899,7 @@ static int minus_ac(void)
         o_ptr->to_a--;
         p_ptr->update |= PU_BONUS;
         p_ptr->window |= PW_EQUIP;
-        calc_android_exp();
+        android_calc_exp();
         return TRUE;
     }
     return FALSE;
@@ -4042,7 +4079,8 @@ bool rustproof(void)
     /* Description */
     object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
-    add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
+    add_flag(o_ptr->flags, OF_IGNORE_ACID);
+    add_flag(o_ptr->known_flags, OF_IGNORE_ACID);
 
     if ((o_ptr->to_a < 0) && !object_is_cursed(o_ptr))
     {
@@ -4056,7 +4094,7 @@ bool rustproof(void)
         ((item >= 0) ? "Your" : "The"), o_name,
         ((o_ptr->number > 1) ? "are" : "is"));
 
-    calc_android_exp();
+    android_calc_exp();
     return TRUE;
 }
 
@@ -4071,7 +4109,7 @@ void blast_object(object_type *o_ptr)
     bool is_weapon = object_is_weapon(o_ptr);
     int i;
 
-    if (have_flag(o_ptr->art_flags, TR_NO_REMOVE))
+    if (have_flag(o_ptr->flags, OF_NO_REMOVE))
         return;
 
     o_ptr->name1 = 0;
@@ -4093,8 +4131,8 @@ void blast_object(object_type *o_ptr)
         o_ptr->to_d -= randint1(5) + randint1(5);
     }
 
-    for (i = 0; i < TR_FLAG_SIZE; i++)
-        o_ptr->art_flags[i] = 0;
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+        o_ptr->flags[i] = 0;
 
     o_ptr->rune = 0;
 
@@ -4128,7 +4166,7 @@ bool curse_armor(int slot)
         msg_format("A terrible black aura blasts your %s!", o_name);
         virtue_add(VIRTUE_ENCHANTMENT, -5);
         blast_object(o_ptr);
-        o_ptr->curse_flags = TRC_CURSED;
+        o_ptr->curse_flags = OFC_CURSED;
     }
 
     return TRUE;
@@ -4159,7 +4197,7 @@ bool curse_weapon(bool force, int slot)
         if (!force) msg_format("A terrible black aura blasts your %s!", o_name);
         virtue_add(VIRTUE_ENCHANTMENT, -5);
         blast_object(o_ptr);
-        o_ptr->curse_flags = TRC_CURSED;
+        o_ptr->curse_flags = OFC_CURSED;
     }
     return TRUE;
 }

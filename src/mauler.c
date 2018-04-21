@@ -363,38 +363,6 @@ static void _knockback_spell(int cmd, variant *res)
     }
 }
 
-static void _knockout_blow_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Knockout Blow");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with a single blow aimed to knock your opponent out cold.");
-        break;
-    case SPELL_CAST:
-        var_set_bool(res, do_blow(MAULER_KNOCKOUT_BLOW));
-        break;
-    case SPELL_ON_BROWSE:
-    {
-        bool screen_hack = screen_is_saved();
-        if (screen_hack) screen_load();
-
-        display_weapon_mode = MAULER_KNOCKOUT_BLOW;
-        do_cmd_knowledge_weapon();
-        display_weapon_mode = 0;
-
-        if (screen_hack) screen_save();
-        var_set_bool(res, TRUE);
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
 static void _maul_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -581,13 +549,11 @@ static spell_info _spells[] =
     /*lvl cst fail spell */
     {  5,  5, 30, _smash_wall_spell},
     {  8,  5, 30, _detect_ferocity_spell},
-    { 10,  7,  0, stunning_blow_spell},
     { 12, 10,  0, _critical_blow_spell},
     { 15,  0,  0, _splatter_spell},
     { 17,  0,  0, _block_spell},
     { 21, 15, 40, _close_in_spell},
     { 23, 20,  0, _knockback_spell},
-    { 25, 20,  0, _knockout_blow_spell},
     { 30,  0,  0, _shatter_spell},
     { 32, 30, 50, _killing_spree_spell},
     { 35, 30, 50, _scatter_spell},
@@ -650,15 +616,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             int w = o_ptr->weight;
             int h = (w - 150)/20;
             int d = (w - 150)/10;
-            int m = (w - 150)/2;
 
-            if (m > 200)
-                m = 200;
-            if (m < 0)
-                m = 0;
-
-            info_ptr->to_mult += m * p_ptr->lev/50;
-    
             if (_get_toggle() != MAULER_TOGGLE_BLOCK)
             {
                 info_ptr->to_h += h;

@@ -10,10 +10,10 @@ static void _clay_golem_calc_bonuses(void)
     p_ptr->to_a += 10;
     p_ptr->dis_to_a += 10;
 }
-static void _clay_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _clay_golem_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_HOLD_LIFE);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_HOLD_LIFE);
 }
 race_t *clay_golem_get_race(void)
 {
@@ -73,17 +73,17 @@ static void _colossus_calc_bonuses(void)
     p_ptr->to_a += 40;
     p_ptr->dis_to_a += 40;
 }
-static void _colossus_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _colossus_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_RES_SHARDS);
-    add_flag(flgs, TR_REFLECT);
-    add_flag(flgs, TR_RES_SOUND);
-    add_flag(flgs, TR_RES_DISEN);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_DEC_SPEED);
+    add_flag(flgs, OF_RES_SHARDS);
+    add_flag(flgs, OF_REFLECT);
+    add_flag(flgs, OF_RES_SOUND);
+    add_flag(flgs, OF_RES_DISEN);
 }
 race_t *colossus_get_race(void)
 {
@@ -151,14 +151,14 @@ static void _demon_calc_bonuses(void)
     p_ptr->dis_to_a += 10;
     p_ptr->align -= 200;
 }
-static void _demon_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _demon_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_CHAOS);
-    add_flag(flgs, TR_RES_NETHER);
-    add_flag(flgs, TR_RES_FIRE);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_CHAOS);
+    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_FIRE);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_SPEED);
 }
 race_t *demon_get_race(void)
 {
@@ -237,28 +237,28 @@ static void _demon_lord_calc_bonuses(void)
     p_ptr->dis_to_a += 20;
     p_ptr->align -= 200;
 }
-static void _demon_lord_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _demon_lord_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_CHAOS);
-    add_flag(flgs, TR_RES_NETHER);
-    add_flag(flgs, TR_RES_FIRE);
-    add_flag(flgs, TR_RES_COLD);
-    add_flag(flgs, TR_RES_ELEC);
-    add_flag(flgs, TR_RES_ACID);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_RES_DISEN);
-    add_flag(flgs, TR_RES_NEXUS);
-    add_flag(flgs, TR_RES_FEAR);
-    add_flag(flgs, TR_IM_FIRE);
-    add_flag(flgs, TR_SH_FIRE);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_TELEPATHY);
-    add_flag(flgs, TR_LEVITATION);
-    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_CHAOS);
+    add_flag(flgs, OF_RES_NETHER);
+    add_flag(flgs, OF_RES_FIRE);
+    add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_RES_ELEC);
+    add_flag(flgs, OF_RES_ACID);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_RES_DISEN);
+    add_flag(flgs, OF_RES_NEXUS);
+    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_IM_FIRE);
+    add_flag(flgs, OF_AURA_FIRE);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_TELEPATHY);
+    add_flag(flgs, OF_LEVITATION);
+    add_flag(flgs, OF_SPEED);
 
-    add_flag(flgs, TR_IM_FIRE);
+    add_flag(flgs, OF_IM_FIRE);
 }
 race_t *demon_lord_get_race(void)
 {
@@ -314,13 +314,13 @@ static void _iron_golem_calc_bonuses(void)
     p_ptr->to_a += 15;
     p_ptr->dis_to_a += 15;
 }
-static void _iron_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _iron_golem_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_DEC_SPEED);
 }
 race_t *iron_golem_get_race(void)
 {
@@ -419,15 +419,15 @@ static void _mithril_golem_calc_bonuses(void)
     p_ptr->to_a += 20;
     p_ptr->dis_to_a += 20;
 }
-static void _mithril_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _mithril_golem_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_RES_SHARDS);
-    add_flag(flgs, TR_REFLECT);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_DEC_SPEED);
+    add_flag(flgs, OF_RES_SHARDS);
+    add_flag(flgs, OF_REFLECT);
 }
 race_t *mithril_golem_get_race(void)
 {
@@ -476,9 +476,9 @@ static void _small_kobold_calc_bonuses(void)
 {
     res_add(RES_POIS);
 }
-static void _small_kobold_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _small_kobold_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_RES_POIS);
+    add_flag(flgs, OF_RES_POIS);
 }
 race_t *small_kobold_get_race(void)
 {
@@ -549,19 +549,19 @@ static void _vampire_lord_calc_bonuses(void)
     p_ptr->to_a += 10;
     p_ptr->dis_to_a += 10;
 }
-static void _vampire_lord_get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _vampire_lord_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    add_flag(flgs, TR_VULN_LITE);
-    add_flag(flgs, TR_IM_DARK);
+    add_flag(flgs, OF_VULN_LITE);
+    add_flag(flgs, OF_IM_DARK);
 
-    add_flag(flgs, TR_HOLD_LIFE);
-    add_flag(flgs, TR_RES_DARK);
-    add_flag(flgs, TR_RES_NETHER);
-    if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_RES_COLD);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_SPEED);
+    add_flag(flgs, OF_HOLD_LIFE);
+    add_flag(flgs, OF_RES_DARK);
+    add_flag(flgs, OF_RES_NETHER);
+    if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, OF_LITE);
+    add_flag(flgs, OF_RES_POIS);
+    add_flag(flgs, OF_RES_COLD);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_SPEED);
 }
 race_t *vampire_lord_get_race(void)
 {

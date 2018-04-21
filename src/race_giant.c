@@ -502,10 +502,10 @@ static void _hru_calc_bonuses(void) {
         p_ptr->dis_to_a += 15;
     }
 }
-static void _hru_get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_SUST_STR);
+static void _hru_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_SUST_STR);
     if (p_ptr->lev >= 40)
-        add_flag(flgs, TR_RES_SHARDS);
+        add_flag(flgs, OF_RES_SHARDS);
 }
 static void _hru_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -633,21 +633,21 @@ static void _fire_calc_bonuses(void) {
     if (p_ptr->lev >= 40)
         res_add(RES_FIRE);
 }
-static void _fire_get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_SUST_STR);
+static void _fire_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_SUST_STR);
     if (p_ptr->lev >= 30)
     {
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_SH_FIRE);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_AURA_FIRE);
     }
     if (p_ptr->lev >= 40)
-        add_flag(flgs, TR_BRAND_FIRE);
+        add_flag(flgs, OF_BRAND_FIRE);
 }
 static void _fire_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     _calc_weapon_bonuses(o_ptr, info_ptr);
     if (p_ptr->lev >= 40)
-        add_flag(info_ptr->flags, TR_BRAND_FIRE);
+        add_flag(info_ptr->flags, OF_BRAND_FIRE);
 }
 static void _fire_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -766,21 +766,21 @@ static void _frost_calc_bonuses(void) {
     if (p_ptr->lev >= 40)
         res_add(RES_COLD);
 }
-static void _frost_get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_SUST_STR);
+static void _frost_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_SUST_STR);
     if (p_ptr->lev >= 30)
     {
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_SH_COLD);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_AURA_COLD);
     }
     if (p_ptr->lev >= 40)
-        add_flag(flgs, TR_BRAND_COLD);
+        add_flag(flgs, OF_BRAND_COLD);
 }
 static void _frost_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     _calc_weapon_bonuses(o_ptr, info_ptr);
     if (p_ptr->lev >= 40)
-        add_flag(info_ptr->flags, TR_BRAND_COLD);
+        add_flag(info_ptr->flags, OF_BRAND_COLD);
 }
 static void _frost_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -935,21 +935,21 @@ static void _storm_calc_bonuses(void) {
         res_add(RES_ELEC);
     }
 }
-static void _storm_get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_SUST_STR);
+static void _storm_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_SUST_STR);
     if (p_ptr->lev >= 30)
-        add_flag(flgs, TR_RES_ELEC);
+        add_flag(flgs, OF_RES_ELEC);
     if (p_ptr->lev >= 40)
     {
-        add_flag(flgs, TR_SH_ELEC);
-        add_flag(flgs, TR_BRAND_ELEC);
+        add_flag(flgs, OF_AURA_ELEC);
+        add_flag(flgs, OF_BRAND_ELEC);
     }
 }
 static void _storm_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     _calc_weapon_bonuses(o_ptr, info_ptr);
     if (p_ptr->lev >= 40)
-        add_flag(info_ptr->flags, TR_BRAND_ELEC);
+        add_flag(info_ptr->flags, OF_BRAND_ELEC);
 }
 static void _storm_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_HILL_GIANT && new_level >= 20)
@@ -1048,12 +1048,12 @@ static void _titan_calc_bonuses(void) {
     if (p_ptr->lev >= 40)
         p_ptr->pspeed += 3;
 }
-static void _titan_get_flags(u32b flgs[TR_FLAG_SIZE]) {
-    add_flag(flgs, TR_SUST_STR);
+static void _titan_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
+    add_flag(flgs, OF_SUST_STR);
     if (p_ptr->lev >= 30)
     {
-        add_flag(flgs, TR_RES_CHAOS);
-        add_flag(flgs, TR_SPEED);
+        add_flag(flgs, OF_RES_CHAOS);
+        add_flag(flgs, OF_SPEED);
     }
 }
 static void _titan_gain_level(int new_level) {

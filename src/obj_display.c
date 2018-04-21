@@ -12,24 +12,35 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc);
 
 static void _display_name(object_type *o_ptr, doc_ptr doc);
 static void _display_desc(object_type *o_ptr, doc_ptr doc);
-static void _display_stats(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_sustains(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_other_pval(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_brands(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_slays(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_resists(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_abilities(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_auras(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_extra(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_curses(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
-static void _display_activation(object_type *o_ptr, doc_ptr doc);
-static void _display_ignore(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
+static void _display_stats(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_sustains(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_other_pval(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_brands(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_slays(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_resists(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_abilities(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_auras(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_activation(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc);
+static void _display_ignore(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
 static void _display_autopick(object_type *o_ptr, doc_ptr doc);
-static void _display_cost(object_type *o_ptr, doc_ptr doc);
-static void _display_ego_desc(object_type *o_ptr, doc_ptr doc);
+static void _display_score(object_type *o_ptr, doc_ptr doc);
 static void _lite_display_doc(object_type *o_ptr, doc_ptr doc);
 
-static int _calc_net_bonus(int amt, u32b flgs[TR_FLAG_SIZE], int flg, int flg_dec);
+/* Ego Object Knowledge is very similar to obj_display() ... I had to hack a bit
+   to make it work, though :( */
+extern void ego_display(ego_type *e_ptr);
+extern void ego_display_rect(ego_type *e_ptr, rect_t display);
+extern void ego_display_doc(ego_type *e_ptr, doc_ptr doc);
+
+static void _ego_display_name(ego_type *e_ptr, doc_ptr doc);
+static void _ego_display_stats(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _ego_display_other_pval(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+static void _ego_display_extra(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc);
+
+static int _calc_net_bonus(int amt, u32b flgs[OF_ARRAY_SIZE], int flg, int flg_dec);
 static void _print_list(vec_ptr v, doc_ptr doc, char sep, char term);
 static string_ptr _get_res_name(int res);
 
@@ -39,13 +50,13 @@ static string_ptr _get_res_name(int res);
    is possible for an object to have both. Also, pvals can be negative and use
    the bonus flag (rather than being positive and use the penalty flag).
    Note: vec_ptr is always vec<string_ptr> */
-static int _calc_net_bonus(int amt, u32b flgs[TR_FLAG_SIZE], int flg, int flg_dec)
+static int _calc_net_bonus(int amt, u32b flgs[OF_ARRAY_SIZE], int flg, int flg_dec)
 {
     int net = 0;
 
-    if (flg != TR_INVALID && have_flag(flgs, flg))
+    if (flg != OF_INVALID && have_flag(flgs, flg))
         net += amt;
-    if (flg_dec != TR_INVALID && have_flag(flgs, flg_dec))
+    if (flg_dec != OF_INVALID && have_flag(flgs, flg_dec))
         net -= amt;
 
     return net;
@@ -67,7 +78,7 @@ static void _print_list(vec_ptr v, doc_ptr doc, char sep, char term)
     }
 }
 
-string_ptr _get_res_name(int res)
+static string_ptr _get_res_name(int res)
 {
     return string_alloc_format(
         "<color:%c>%s</color>",
@@ -93,21 +104,8 @@ static void _display_desc(object_type *o_ptr, doc_ptr doc)
     else
         text = k_text + k_info[o_ptr->k_idx].text;
 
-    if (strlen(text) && !have_flag(o_ptr->art_flags, TR_FAKE))
+    if (strlen(text))
         doc_printf(doc, "%s\n\n", text);
-}
-
-static void _display_ego_desc(object_type *o_ptr, doc_ptr doc)
-{
-    if ( o_ptr->name2
-      && object_is_known(o_ptr)
-      && ego_is_aware(o_ptr->name2)
-      && have_flag(o_ptr->art_flags, TR_FAKE) )
-    {
-        cptr text = e_text + e_info[o_ptr->name2].text;
-        if (strlen(text))
-            doc_printf(doc, "\n%s\n\n", text);
-    }
 }
 
 /* For convenience, the stats section will include a few other bonuses, like stealh,
@@ -122,24 +120,24 @@ struct _flag_info_s
 typedef struct _flag_info_s _flag_info_t, *_flag_info_ptr;
 static _flag_info_t _stats_flags[] =
 {
-    { TR_STR,           TR_DEC_STR,             "STR" },
-    { TR_INT,           TR_DEC_INT,             "INT" },
-    { TR_WIS,           TR_DEC_WIS,             "WIS" },
-    { TR_DEX,           TR_DEC_DEX,             "DEX" },
-    { TR_CON,           TR_DEC_CON,             "CON" },
-    { TR_CHR,           TR_DEC_CHR,             "CHR" },
-    { TR_SPEED,         TR_DEC_SPEED,           "Speed" },
-    { TR_MAGIC_MASTERY, TR_DEC_MAGIC_MASTERY,   "Devices" },
-    { TR_STEALTH,       TR_DEC_STEALTH,         "Stealth" },
-    { TR_SEARCH,        TR_INVALID,             "Searching" },
-    { TR_INFRA,         TR_INVALID,             "Infravision" },
-    { TR_TUNNEL,        TR_INVALID,             "Digging" },
-    { TR_INVALID,       TR_INVALID,             NULL }
+    { OF_STR,           OF_DEC_STR,             "STR" },
+    { OF_INT,           OF_DEC_INT,             "INT" },
+    { OF_WIS,           OF_DEC_WIS,             "WIS" },
+    { OF_DEX,           OF_DEC_DEX,             "DEX" },
+    { OF_CON,           OF_DEC_CON,             "CON" },
+    { OF_CHR,           OF_DEC_CHR,             "CHR" },
+    { OF_SPEED,         OF_DEC_SPEED,           "Speed" },
+    { OF_MAGIC_MASTERY, OF_DEC_MAGIC_MASTERY,   "Devices" },
+    { OF_STEALTH,       OF_DEC_STEALTH,         "Stealth" },
+    { OF_SEARCH,        OF_INVALID,             "Searching" },
+    { OF_INFRA,         OF_INVALID,             "Infravision" },
+    { OF_TUNNEL,        OF_INVALID,             "Digging" },
+    { OF_INVALID,       OF_INVALID,             NULL }
 };
 
-static void _build_bonus_list(int pval, u32b flgs[TR_FLAG_SIZE], _flag_info_ptr table, vec_ptr v)
+static void _build_bonus_list(int pval, u32b flgs[OF_ARRAY_SIZE], _flag_info_ptr table, vec_ptr v)
 {
-    while (table->flg != TR_INVALID)
+    while (table->flg != OF_INVALID)
     {
         int net = _calc_net_bonus(pval, flgs, table->flg, table->flg_dec);
         if (net > 0)
@@ -149,9 +147,9 @@ static void _build_bonus_list(int pval, u32b flgs[TR_FLAG_SIZE], _flag_info_ptr 
     }
 }
 
-static void _build_penalty_list(int pval, u32b flgs[TR_FLAG_SIZE], _flag_info_ptr table, vec_ptr v)
+static void _build_penalty_list(int pval, u32b flgs[OF_ARRAY_SIZE], _flag_info_ptr table, vec_ptr v)
 {
-    while (table->flg != TR_INVALID)
+    while (table->flg != OF_INVALID)
     {
         int net = _calc_net_bonus(pval, flgs, table->flg, table->flg_dec);
         if (net < 0)
@@ -161,7 +159,7 @@ static void _build_penalty_list(int pval, u32b flgs[TR_FLAG_SIZE], _flag_info_pt
     }
 }
 
-static void _display_stats(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_stats(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
@@ -186,19 +184,44 @@ static void _display_stats(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
 
     vec_free(v);
 }
+static void _ego_display_stats(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
+{
+    vec_ptr v = vec_alloc((vec_free_f)string_free);
+
+    /* Pass 1: Positive Bonus */
+    _build_bonus_list(1, flgs, _stats_flags, v);
+    if (vec_length(v) > 0)
+    {
+        doc_insert(doc, "<color:G>Increase</color> ");
+        _print_list(v, doc, ',', '\0');
+        doc_newline(doc);
+    }
+
+    /* Pass 2: Penalty Phase */
+    vec_clear(v);
+    _build_penalty_list(1, flgs, _stats_flags, v);
+    if (vec_length(v) > 0)
+    {
+        doc_insert(doc, "<color:r>Decrease</color> ");
+        _print_list(v, doc, ',', '\0');
+        doc_newline(doc);
+    }
+
+    vec_free(v);
+}
 
 static _flag_info_t _sustains_flags[] =
 {
-    { TR_SUST_STR, TR_INVALID, "STR" },
-    { TR_SUST_INT, TR_INVALID, "INT" },
-    { TR_SUST_WIS, TR_INVALID, "WIS" },
-    { TR_SUST_DEX, TR_INVALID, "DEX" },
-    { TR_SUST_CON, TR_INVALID, "CON" },
-    { TR_SUST_CHR, TR_INVALID, "CHR" },
-    { TR_INVALID,  TR_INVALID, NULL }
+    { OF_SUST_STR, OF_INVALID, "STR" },
+    { OF_SUST_INT, OF_INVALID, "INT" },
+    { OF_SUST_WIS, OF_INVALID, "WIS" },
+    { OF_SUST_DEX, OF_INVALID, "DEX" },
+    { OF_SUST_CON, OF_INVALID, "CON" },
+    { OF_SUST_CHR, OF_INVALID, "CHR" },
+    { OF_INVALID,  OF_INVALID, NULL }
 };
 
-static void _display_sustains(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_sustains(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
@@ -217,33 +240,56 @@ static void _display_sustains(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_p
     vec_free(v);
 }
 
+static _flag_info_t _other_flags[] =
+{
+    { OF_BLOWS,             OF_INVALID, "Attack Speed" },
+    { OF_XTRA_SHOTS,        OF_INVALID, "Shooting Speed" },
+    { OF_DEVICE_POWER,      OF_INVALID, "Device Power" },
+    { OF_MAGIC_RESISTANCE,  OF_INVALID, "Magic Resistance" },
+    { OF_SPELL_POWER,       OF_INVALID, "Spell Power" },
+    { OF_SPELL_CAP,         OF_INVALID, "Spell Capacity" },
+    { OF_LIFE,              OF_INVALID, "Life Rating" },
+    { OF_INVALID,           OF_INVALID, NULL }
+};
+static void _ego_display_other_pval(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
+{
+    vec_ptr v = vec_alloc((vec_free_f)string_free);
+    _build_bonus_list(1, flgs, _other_flags, v);
+    if (vec_length(v) > 0)
+    {
+        doc_insert(doc, "<color:G>Increase</color> ");
+        _print_list(v, doc, ',', '\0');
+        doc_newline(doc);
+    }
+    vec_free(v);
+}
 /* These pval flags require detailed explanations (e.g. +21% to Spell Power or -1.50 to Attack Speed) */
-static void _display_other_pval(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_other_pval(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     int net = 0;
 
     if (!o_ptr->pval) return;
 
-    if (have_flag(flgs, TR_BLOWS) || have_flag(flgs, TR_DEC_BLOWS))
+    if (have_flag(flgs, OF_BLOWS) || have_flag(flgs, OF_DEC_BLOWS))
     {
         int num = 0;
 
-        if (have_flag(flgs, TR_BLOWS))
+        if (have_flag(flgs, OF_BLOWS))
             num +=  o_ptr->pval * 50;
-        if (have_flag(flgs, TR_DEC_BLOWS))
+        if (have_flag(flgs, OF_DEC_BLOWS))
             num -=  o_ptr->pval * 100;
 
         doc_printf(doc, "<color:%c>%+d.%2.2d</color> to Attack Speed\n",
                     (net > 0) ? 'G' : 'r', num / 100, num % 100);
     }
-    if (have_flag(flgs, TR_XTRA_SHOTS))
+    if (have_flag(flgs, OF_XTRA_SHOTS))
     {
         int num = o_ptr->pval * 25;
         doc_printf(doc, "<color:%c>%+d.%2.2d</color> to Shooting Speed\n",
                     (net > 0) ? 'G' : 'r', num / 100, num % 100);
     }
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_DEVICE_POWER, TR_DEC_MAGIC_MASTERY);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_DEVICE_POWER, OF_DEC_MAGIC_MASTERY);
     if (net)
     {
         int pct = device_power_aux(100, net) - 100;
@@ -251,14 +297,14 @@ static void _display_other_pval(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc
                     (net > 0) ? 'G' : 'r', pct);
     }
 
-    if (have_flag(flgs, TR_MAGIC_RESISTANCE))
+    if (have_flag(flgs, OF_MAGIC_RESISTANCE))
     {
         int pct = o_ptr->pval * 5;
         doc_printf(doc, "<color:%c>%+d%%</color> to Magic Resistance\n",
                     (net > 0) ? 'G' : 'r', pct);
     }
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_SPELL_POWER, TR_DEC_SPELL_POWER);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_SPELL_POWER, OF_DEC_SPELL_POWER);
     if (net)
     {
         int pct = spell_power_aux(100, net) - 100;
@@ -266,7 +312,7 @@ static void _display_other_pval(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc
                     (net > 0) ? 'G' : 'r', pct);
     }
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_SPELL_CAP, TR_DEC_SPELL_CAP);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_SPELL_CAP, OF_DEC_SPELL_CAP);
     if (net)
     {
         int pct = spell_cap_aux(100, net) - 100;
@@ -274,7 +320,7 @@ static void _display_other_pval(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc
                     (net > 0) ? 'G' : 'r', pct);
     }
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_LIFE, TR_DEC_LIFE);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_LIFE, OF_DEC_LIFE);
     if (net)
     {
         int pct = 3 * net;
@@ -283,37 +329,37 @@ static void _display_other_pval(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc
     }
 }
 
-static void _display_brands(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_brands(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
-    if (have_flag(flgs, TR_BRAND_ACID))
+    if (have_flag(flgs, OF_BRAND_ACID))
         vec_add(v, string_copy_s("<color:g>Acid Brand</color>"));
-    if (have_flag(flgs, TR_BRAND_ELEC))
+    if (have_flag(flgs, OF_BRAND_ELEC))
         vec_add(v, string_copy_s("<color:b>Lightning Brand</color>"));
-    if (have_flag(flgs, TR_BRAND_FIRE))
+    if (have_flag(flgs, OF_BRAND_FIRE))
         vec_add(v, string_copy_s("<color:r>Flame Tongue</color>"));
-    if (have_flag(flgs, TR_BRAND_COLD))
+    if (have_flag(flgs, OF_BRAND_COLD))
         vec_add(v, string_copy_s("<color:W>Frost Brand</color>"));
-    if (have_flag(flgs, TR_BRAND_POIS))
+    if (have_flag(flgs, OF_BRAND_POIS))
         vec_add(v, string_copy_s("<color:G>Viper's Fang</color>"));
-    if (have_flag(flgs, TR_CHAOTIC))
+    if (have_flag(flgs, OF_BRAND_CHAOS))
         vec_add(v, string_copy_s("<color:v>Mark of Chaos</color>"));
-    if (have_flag(flgs, TR_VAMPIRIC))
+    if (have_flag(flgs, OF_BRAND_VAMP))
         vec_add(v, string_copy_s("<color:D>Vampiric</color>"));
-    if (have_flag(flgs, TR_IMPACT))
+    if (have_flag(flgs, OF_IMPACT))
         vec_add(v, string_copy_s("<color:U>Earthquakes</color>"));
-    if (have_flag(flgs, TR_VORPAL2))
+    if (have_flag(flgs, OF_VORPAL2))
         vec_add(v, string_copy_s("<color:v>*Sharpness*</color>"));
-    else if (have_flag(flgs, TR_VORPAL))
+    else if (have_flag(flgs, OF_VORPAL))
         vec_add(v, string_copy_s("<color:R>Sharpness</color>"));
-    if (have_flag(flgs, TR_STUN))
+    if (have_flag(flgs, OF_STUN))
         vec_add(v, string_copy_s("<color:o>Stuns</color>"));
-    if (have_flag(flgs, TR_ORDER))
+    if (have_flag(flgs, OF_BRAND_ORDER))
         vec_add(v, string_copy_s("<color:W>Weapon of Order</color>"));
-    if (have_flag(flgs, TR_WILD))
+    if (have_flag(flgs, OF_BRAND_WILD))
         vec_add(v, string_copy_s("<color:o>Wild Weapon</color>"));
-    if (have_flag(flgs, TR_FORCE_WEAPON))
+    if (have_flag(flgs, OF_BRAND_MANA))
         vec_add(v, string_copy_s("<color:B>Mana Brand</color>"));
 
     if (vec_length(v))
@@ -325,59 +371,59 @@ static void _display_brands(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr
     vec_free(v);
 }
 
-static void _display_slays(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_slays(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
-    if (have_flag(flgs, TR_KILL_EVIL))
+    if (have_flag(flgs, OF_KILL_EVIL))
         vec_add(v, string_copy_s("<color:y>*Evil*</color>"));
-    else if (have_flag(flgs, TR_SLAY_EVIL))
+    else if (have_flag(flgs, OF_SLAY_EVIL))
         vec_add(v, string_copy_s("<color:y>Evil</color>"));
 
-    if (have_flag(flgs, TR_SLAY_GOOD))
+    if (have_flag(flgs, OF_SLAY_GOOD))
         vec_add(v, string_copy_s("<color:W>Good</color>"));
 
-    if (have_flag(flgs, TR_SLAY_LIVING))
+    if (have_flag(flgs, OF_SLAY_LIVING))
         vec_add(v, string_copy_s("<color:o>Living</color>"));
 
-    if (have_flag(flgs, TR_KILL_DRAGON))
+    if (have_flag(flgs, OF_KILL_DRAGON))
         vec_add(v, string_copy_s("<color:r>*Dragons*</color>"));
-    else if (have_flag(flgs, TR_SLAY_DRAGON))
+    else if (have_flag(flgs, OF_SLAY_DRAGON))
         vec_add(v, string_copy_s("<color:r>Dragons</color>"));
 
-    if (have_flag(flgs, TR_KILL_DEMON))
+    if (have_flag(flgs, OF_KILL_DEMON))
         vec_add(v, string_copy_s("<color:R>*Demons*</color>"));
-    else if (have_flag(flgs, TR_SLAY_DEMON))
+    else if (have_flag(flgs, OF_SLAY_DEMON))
         vec_add(v, string_copy_s("<color:R>Demons</color>"));
 
-    if (have_flag(flgs, TR_KILL_UNDEAD))
+    if (have_flag(flgs, OF_KILL_UNDEAD))
         vec_add(v, string_copy_s("<color:D>*Undead*</color>"));
-    else if (have_flag(flgs, TR_SLAY_UNDEAD))
+    else if (have_flag(flgs, OF_SLAY_UNDEAD))
         vec_add(v, string_copy_s("<color:D>Undead</color>"));
 
-    if (have_flag(flgs, TR_KILL_ANIMAL))
+    if (have_flag(flgs, OF_KILL_ANIMAL))
         vec_add(v, string_copy_s("<color:g>*Animals*</color>"));
-    else if (have_flag(flgs, TR_SLAY_ANIMAL))
+    else if (have_flag(flgs, OF_SLAY_ANIMAL))
         vec_add(v, string_copy_s("<color:g>Animals</color>"));
 
-    if (have_flag(flgs, TR_KILL_HUMAN))
+    if (have_flag(flgs, OF_KILL_HUMAN))
         vec_add(v, string_copy_s("<color:s>*Humans*</color>"));
-    else if (have_flag(flgs, TR_SLAY_HUMAN))
+    else if (have_flag(flgs, OF_SLAY_HUMAN))
         vec_add(v, string_copy_s("<color:s>Humans</color>"));
 
-    if (have_flag(flgs, TR_KILL_ORC))
+    if (have_flag(flgs, OF_KILL_ORC))
         vec_add(v, string_copy_s("<color:U>*Orcs*</color>"));
-    else if (have_flag(flgs, TR_SLAY_ORC))
+    else if (have_flag(flgs, OF_SLAY_ORC))
         vec_add(v, string_copy_s("<color:U>Orcs</color>"));
 
-    if (have_flag(flgs, TR_KILL_TROLL))
+    if (have_flag(flgs, OF_KILL_TROLL))
         vec_add(v, string_copy_s("<color:g>*Trolls*</color>"));
-    else if (have_flag(flgs, TR_SLAY_TROLL))
+    else if (have_flag(flgs, OF_SLAY_TROLL))
         vec_add(v, string_copy_s("<color:g>Trolls</color>"));
 
-    if (have_flag(flgs, TR_KILL_GIANT))
+    if (have_flag(flgs, OF_KILL_GIANT))
         vec_add(v, string_copy_s("<color:u>*Giants*</color>"));
-    else if (have_flag(flgs, TR_SLAY_GIANT))
+    else if (have_flag(flgs, OF_SLAY_GIANT))
         vec_add(v, string_copy_s("<color:u>Giants</color>"));
 
     if (vec_length(v))
@@ -390,7 +436,7 @@ static void _display_slays(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
     vec_free(v);
 }
 
-static void _display_resists(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_resists(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     int     i;
     vec_ptr v = vec_alloc((vec_free_f)string_free);
@@ -399,7 +445,7 @@ static void _display_resists(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_pt
     for (i = 0; i < RES_TELEPORT; i++)
     {
         int flg = res_get_object_immune_flag(i);
-        if (flg != TR_INVALID && have_flag(flgs, flg))
+        if (flg != OF_INVALID && have_flag(flgs, flg))
             vec_add(v, _get_res_name(i));
     }
     if (vec_length(v))
@@ -416,7 +462,7 @@ static void _display_resists(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_pt
         int flg_im = res_get_object_immune_flag(i);
         int net = 0;
 
-        if (flg_im != TR_INVALID && have_flag(flgs, flg_im)) continue;
+        if (flg_im != OF_INVALID && have_flag(flgs, flg_im)) continue;
         net = _calc_net_bonus(1, flgs, res_get_object_flag(i), res_get_object_vuln_flag(i));
         if (net > 0)
             vec_add(v, _get_res_name(i));
@@ -435,7 +481,7 @@ static void _display_resists(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_pt
         int flg_im = res_get_object_immune_flag(i);
         int net = 0;
 
-        if (flg_im != TR_INVALID && have_flag(flgs, flg_im)) continue;
+        if (flg_im != OF_INVALID && have_flag(flgs, flg_im)) continue;
         net = _calc_net_bonus(1, flgs, res_get_object_flag(i), res_get_object_vuln_flag(i));
         if (net < 0)
             vec_add(v, _get_res_name(i));
@@ -450,45 +496,47 @@ static void _display_resists(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_pt
     vec_free(v);
 }
 
-static void _display_abilities(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_abilities(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
-    if (have_flag(flgs, TR_FREE_ACT))
+    if (have_flag(flgs, OF_LORE2))
+        vec_add(v, string_copy_s("<color:B>Auto Identify</color>"));
+    else if (have_flag(flgs, OF_LORE1))
+        vec_add(v, string_copy_s("<color:B>Auto Pseudo-Identify</color>"));
+
+    if (have_flag(flgs, OF_FREE_ACT))
         vec_add(v, string_copy_s("<color:R>Free Action</color>"));
-    if (have_flag(flgs, TR_SEE_INVIS))
+    if (have_flag(flgs, OF_SEE_INVIS))
         vec_add(v, string_copy_s("<color:B>See Invisible</color>"));
-    if (have_flag(flgs, TR_REGEN))
+    if (have_flag(flgs, OF_REGEN))
         vec_add(v, string_copy_s("<color:g>Regeneration</color>"));
-    if (have_flag(flgs, TR_HOLD_LIFE))
+    if (have_flag(flgs, OF_HOLD_LIFE))
         vec_add(v, string_copy_s("<color:y>Hold Life</color>"));
-    if (have_flag(flgs, TR_REFLECT))
+    if (have_flag(flgs, OF_REFLECT))
         vec_add(v, string_copy_s("<color:o>Reflection</color>"));
-    if (have_flag(flgs, TR_LEVITATION))
+    if (have_flag(flgs, OF_LEVITATION))
         vec_add(v, string_copy_s("<color:B>Levitation</color>"));
-    if (have_flag(flgs, TR_SLOW_DIGEST))
+    if (have_flag(flgs, OF_SLOW_DIGEST))
         vec_add(v, string_copy_s("<color:g>Slow Digestion</color>"));
-    if (have_flag(flgs, TR_WARNING))
+    if (have_flag(flgs, OF_WARNING))
         vec_add(v, string_copy_s("<color:y>Warning</color>"));
-    if (have_flag(flgs, TR_NO_MAGIC))
+    if (have_flag(flgs, OF_NO_MAGIC))
         vec_add(v, string_copy_s("<color:r>Anti-Magic</color>"));
-    if (have_flag(flgs, TR_NO_SUMMON))
+    if (have_flag(flgs, OF_NO_SUMMON))
         vec_add(v, string_copy_s("<color:v>Prevents Summoning</color>"));
-    if (have_flag(flgs, TR_NO_TELE))
+    if (have_flag(flgs, OF_NO_TELE))
         vec_add(v, string_copy_s("<color:r>Prevents Teleportation</color>"));
-    if (have_flag(flgs, TR_THROW))
+    if (have_flag(flgs, OF_THROWING))
         vec_add(v, string_copy_s("<color:D>Throwing</color>"));
-    if (have_flag(flgs, TR_BLESSED))
+    if (have_flag(flgs, OF_BLESSED))
         vec_add(v, string_copy_s("<color:B>Blessed</color>"));
-    if (have_flag(flgs, TR_RIDING))
+    if (have_flag(flgs, OF_RIDING))
         vec_add(v, string_copy_s("<color:o>Riding</color>"));
-    if (have_flag(flgs, TR_LITE))
-    {
-        if (o_ptr->name2 == EGO_HELMET_VAMPIRE || o_ptr->name1 == ART_NIGHT)
-            vec_add(v, string_copy_s("<color:D>Permanent Darkness (1)</color>"));
-        else
-            vec_add(v, string_copy_s("<color:y>Permanent Light (1)</color>"));
-    }
+    if (have_flag(flgs, OF_DARKNESS))
+        vec_add(v, string_copy_s("<color:D>Permanent Darkness</color>"));
+    else if (have_flag(flgs, OF_LITE))
+        vec_add(v, string_copy_s("<color:y>Permanent Light</color>"));
     if (vec_length(v))
     {
         _print_list(v, doc, ';', '\0');
@@ -496,31 +544,31 @@ static void _display_abilities(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_
     }
 
     vec_clear(v);
-    if (have_flag(flgs, TR_TELEPATHY))
+    if (have_flag(flgs, OF_TELEPATHY))
         vec_add(v, string_copy_s("<color:y>Telepathy</color>"));
-    if (have_flag(flgs, TR_ESP_ANIMAL))
+    if (have_flag(flgs, OF_ESP_ANIMAL))
         vec_add(v, string_copy_s("<color:B>Sense Animals</color>"));
-    if (have_flag(flgs, TR_ESP_UNDEAD))
+    if (have_flag(flgs, OF_ESP_UNDEAD))
         vec_add(v, string_copy_s("<color:D>Sense Undead</color>"));
-    if (have_flag(flgs, TR_ESP_DEMON))
+    if (have_flag(flgs, OF_ESP_DEMON))
         vec_add(v, string_copy_s("<color:R>Sense Demons</color>"));
-    if (have_flag(flgs, TR_ESP_ORC))
+    if (have_flag(flgs, OF_ESP_ORC))
         vec_add(v, string_copy_s("<color:U>Sense Orcs</color>"));
-    if (have_flag(flgs, TR_ESP_TROLL))
+    if (have_flag(flgs, OF_ESP_TROLL))
         vec_add(v, string_copy_s("<color:g>Sense Trolls</color>"));
-    if (have_flag(flgs, TR_ESP_GIANT))
+    if (have_flag(flgs, OF_ESP_GIANT))
         vec_add(v, string_copy_s("<color:u>Sense Giants</color>"));
-    if (have_flag(flgs, TR_ESP_DRAGON))
+    if (have_flag(flgs, OF_ESP_DRAGON))
         vec_add(v, string_copy_s("<color:r>Sense Dragons</color>"));
-    if (have_flag(flgs, TR_ESP_HUMAN))
+    if (have_flag(flgs, OF_ESP_HUMAN))
         vec_add(v, string_copy_s("<color:s>Sense Humans</color>"));
-    if (have_flag(flgs, TR_ESP_EVIL))
+    if (have_flag(flgs, OF_ESP_EVIL))
         vec_add(v, string_copy_s("<color:y>Sense Evil</color>"));
-    if (have_flag(flgs, TR_ESP_GOOD))
+    if (have_flag(flgs, OF_ESP_GOOD))
         vec_add(v, string_copy_s("<color:w>Sense Good</color>"));
-    if (have_flag(flgs, TR_ESP_NONLIVING))
+    if (have_flag(flgs, OF_ESP_NONLIVING))
         vec_add(v, string_copy_s("<color:B>Sense Nonliving</color>"));
-    if (have_flag(flgs, TR_ESP_UNIQUE))
+    if (have_flag(flgs, OF_ESP_UNIQUE))
         vec_add(v, string_copy_s("<color:v>Sense Uniques</color>"));
 
     if (vec_length(v))
@@ -532,19 +580,19 @@ static void _display_abilities(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_
     vec_free(v);
 }
 
-static void _display_auras(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_auras(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     vec_ptr v = vec_alloc((vec_free_f)string_free);
 
-    if (have_flag(flgs, TR_SH_FIRE))
+    if (have_flag(flgs, OF_AURA_FIRE))
         vec_add(v, _get_res_name(RES_FIRE));
-    if (have_flag(flgs, TR_SH_COLD))
+    if (have_flag(flgs, OF_AURA_COLD))
         vec_add(v, _get_res_name(RES_COLD));
-    if (have_flag(flgs, TR_SH_ELEC))
+    if (have_flag(flgs, OF_AURA_ELEC))
         vec_add(v, _get_res_name(RES_ELEC));
-    if (have_flag(flgs, TR_SH_SHARDS))
+    if (have_flag(flgs, OF_AURA_SHARDS))
         vec_add(v, string_copy_s("<color:U>Shards</color>"));
-    if (have_flag(flgs, TR_SH_REVENGE))
+    if (have_flag(flgs, OF_AURA_REVENGE))
         vec_add(v, string_copy_s("<color:v>Retaliation</color>"));
 
     if (vec_length(v))
@@ -557,28 +605,28 @@ static void _display_auras(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
     vec_free(v);
 }
 
-static void _display_extra(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_extra(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
     int net = 0;
 
-    if (have_flag(flgs, TR_EASY_SPELL))
+    if (have_flag(flgs, OF_EASY_SPELL))
         doc_insert(doc, "It affects your ability to cast spells.\n");
 
-    if (have_flag(flgs, TR_DEC_MANA))
+    if (have_flag(flgs, OF_DEC_MANA))
     {
         caster_info *caster_ptr = get_caster_info();
         if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
             doc_insert(doc, "It decreases your mana consumption.\n");
     }
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_WEAPONMASTERY, TR_INVALID);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_WEAPONMASTERY, OF_INVALID);
     if (net)
     {
         doc_printf(doc, "It %s the damage dice of your melee weapon.\n",
             (net > 0) ? "increases" : "<color:R>decreases</color>");
     }
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_XTRA_MIGHT, TR_INVALID);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_XTRA_MIGHT, OF_INVALID);
     if (net)
     {
         doc_printf(doc, "It %s the multiplier of your bow.\n",
@@ -628,7 +676,7 @@ static void _display_extra(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
     if (object_is_(o_ptr, TV_POLEARM, SV_DEATH_SCYTHE))
         doc_insert(doc, "It causes you to strike yourself sometimes.\nIt always penetrates invulnerability barriers.\n");
 
-    if (have_flag(flgs, TR_DUAL_WIELDING))
+    if (have_flag(flgs, OF_DUAL_WIELDING))
         doc_insert(doc, "It affects your ability to hit when you are wielding two weapons.\n");
 
     if (o_ptr->tval == TV_STATUE)
@@ -648,103 +696,144 @@ static void _display_extra(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
         doc_printf(doc, "It reminds you of the artifact <color:R>%s</color>.\n", a_name + a_info[o_ptr->name3].name);
 }
 
-static void _display_curses(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _ego_display_extra(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
-    if (!(o_ptr->ident & IDENT_FULL))
-    {                               /* v--- Hide cursed status of devices until *Identified* */
-        if (object_is_cursed(o_ptr) && !object_is_device(o_ptr))
-            doc_insert(doc, "It has <color:v>unknown curses</color>.\n");
-    }
-    else
+    if (have_flag(flgs, OF_EASY_SPELL))
+        doc_insert(doc, "It affects your ability to cast spells.\n");
+
+    if (have_flag(flgs, OF_DEC_MANA))
     {
-        vec_ptr v = vec_alloc((vec_free_f)string_free);
-        if (object_is_cursed(o_ptr))
-        {
-            if (o_ptr->curse_flags & TRC_PERMA_CURSE)
-                doc_insert(doc, "It is <color:v>Permanently Cursed</color>.\n");
-            else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
-                doc_insert(doc, "It is <color:r>Heavily Cursed</color>.\n");
-            else
-                doc_insert(doc, "It is <color:D>Cursed</color>.\n");
-        }
+        caster_info *caster_ptr = get_caster_info();
+        if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+            doc_insert(doc, "It decreases your mana consumption.\n");
+    }
 
-        if (have_flag(flgs, TR_TY_CURSE) || o_ptr->curse_flags & TRC_TY_CURSE)
-            vec_add(v, string_copy_s("<color:v>*Ancient Foul Curse*</color>"));
-        if (have_flag(flgs, TR_AGGRAVATE) || o_ptr->curse_flags & TRC_AGGRAVATE)
-            vec_add(v, string_copy_s("<color:r>Aggravates</color>"));
-        if (have_flag(flgs, TR_DRAIN_EXP) || o_ptr->curse_flags & TRC_DRAIN_EXP)
-            vec_add(v, string_copy_s("<color:y>Drains Experience</color>"));
-        if (o_ptr->curse_flags & TRC_SLOW_REGEN)
-            vec_add(v, string_copy_s("<color:o>Slow Regeneration</color>"));
-        if (o_ptr->curse_flags & TRC_ADD_L_CURSE)
-            vec_add(v, string_copy_s("<color:w>Adds Weak Curses</color>"));
-        if (o_ptr->curse_flags & TRC_ADD_H_CURSE)
-            vec_add(v, string_copy_s("<color:b>Adds Heavy Curses</color>"));
-        if (o_ptr->curse_flags & TRC_CALL_ANIMAL)
-            vec_add(v, string_copy_s("<color:g>Attracts Animals</color>"));
-        if (o_ptr->curse_flags & TRC_CALL_DEMON)
-            vec_add(v, string_copy_s("<color:R>Attracts Demons</color>"));
-        if (o_ptr->curse_flags & TRC_CALL_DRAGON)
-            vec_add(v, string_copy_s("<color:r>Attracts Dragons</color>"));
-        if (o_ptr->curse_flags & TRC_COWARDICE)
-            vec_add(v, string_copy_s("<color:y>Cowardice</color>"));
-        if (have_flag(flgs, TR_TELEPORT) || o_ptr->curse_flags & TRC_TELEPORT)
-            vec_add(v, string_copy_s("<color:B>Random Teleportation</color>"));
-        if (o_ptr->curse_flags & TRC_LOW_MELEE)
-            vec_add(v, string_copy_s("<color:G>Miss Blows</color>"));
-        if (o_ptr->curse_flags & TRC_LOW_AC)
-            vec_add(v, string_copy_s("<color:R>Low AC</color>"));
-        if (o_ptr->curse_flags & TRC_LOW_MAGIC)
-            vec_add(v, string_copy_s("<color:y>Increased Fail Rates</color>"));
-        if (o_ptr->curse_flags & TRC_FAST_DIGEST)
-            vec_add(v, string_copy_s("<color:r>Fast Digestion</color>"));
-        if (o_ptr->curse_flags & TRC_DRAIN_HP)
-            vec_add(v, string_copy_s("<color:o>Drains You</color>"));
-        if (o_ptr->curse_flags & TRC_DRAIN_MANA)
-            vec_add(v, string_copy_s("<color:B>Drains Mana</color>"));
+    if (have_flag(flgs, OF_WEAPONMASTERY))
+        doc_insert(doc, "It increases the damage dice of your melee weapon.\n");
 
-        if (vec_length(v))
+    if (have_flag(flgs, OF_XTRA_MIGHT))
+        doc_insert(doc, "It increases the multiplier of your bow.\n");
+
+    if (have_flag(flgs, OF_DUAL_WIELDING))
+        doc_insert(doc, "It affects your ability to hit when you are wielding two weapons.\n");
+}
+
+static void _display_curses(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
+{
+    vec_ptr v;
+
+    if (object_is_device(o_ptr)) return;
+    if (!(o_ptr->ident & (IDENT_KNOWN | IDENT_SENSE))) return;
+
+    v = vec_alloc((vec_free_f)string_free);
+
+    /* Note: Object may not actually be cursed, but still might have
+       Aggravate or TY Curse. */
+    if (obj_is_identified(o_ptr))
+    {
+        /* Basic Curse Status is always obvious (light, heavy, permanent) */
+        if (o_ptr->curse_flags & OFC_PERMA_CURSE)
+            doc_insert(doc, "It is <color:v>Permanently Cursed</color>.\n");
+        else if (o_ptr->curse_flags & OFC_HEAVY_CURSE)
+            doc_insert(doc, "It is <color:r>Heavily Cursed</color>.\n");
+        else if (o_ptr->curse_flags & OFC_CURSED)
+            doc_insert(doc, "It is <color:D>Cursed</color>.\n");
+    }
+    else if (o_ptr->curse_flags & OFC_CURSED)
+        doc_insert(doc, "It has <color:v>unknown curses</color>.\n");
+
+    /* The precise nature of the curse, however, must be learned either by
+       experience or by *identification* */
+    if (have_flag(flgs, OF_TY_CURSE) || o_ptr->known_curse_flags & OFC_TY_CURSE)
+        vec_add(v, string_copy_s("<color:v>*Ancient Foul Curse*</color>"));
+    if (have_flag(flgs, OF_AGGRAVATE) || o_ptr->known_curse_flags & OFC_AGGRAVATE)
+        vec_add(v, string_copy_s("<color:r>Aggravates</color>"));
+    if (have_flag(flgs, OF_DRAIN_EXP) || o_ptr->known_curse_flags & OFC_DRAIN_EXP)
+        vec_add(v, string_copy_s("<color:y>Drains Experience</color>"));
+    if (o_ptr->known_curse_flags & OFC_SLOW_REGEN)
+        vec_add(v, string_copy_s("<color:o>Slow Regeneration</color>"));
+    if (o_ptr->known_curse_flags & OFC_ADD_L_CURSE)
+        vec_add(v, string_copy_s("<color:w>Adds Weak Curses</color>"));
+    if (o_ptr->known_curse_flags & OFC_ADD_H_CURSE)
+        vec_add(v, string_copy_s("<color:b>Adds Heavy Curses</color>"));
+    if (o_ptr->known_curse_flags & OFC_CALL_ANIMAL)
+        vec_add(v, string_copy_s("<color:g>Attracts Animals</color>"));
+    if (o_ptr->known_curse_flags & OFC_CALL_DEMON)
+        vec_add(v, string_copy_s("<color:R>Attracts Demons</color>"));
+    if (o_ptr->known_curse_flags & OFC_CALL_DRAGON)
+        vec_add(v, string_copy_s("<color:r>Attracts Dragons</color>"));
+    if (o_ptr->known_curse_flags & OFC_COWARDICE)
+        vec_add(v, string_copy_s("<color:y>Cowardice</color>"));
+    if (have_flag(flgs, OF_TELEPORT) || o_ptr->known_curse_flags & OFC_TELEPORT)
+        vec_add(v, string_copy_s("<color:B>Random Teleportation</color>"));
+    if (o_ptr->known_curse_flags & OFC_LOW_MELEE)
+        vec_add(v, string_copy_s("<color:G>Miss Blows</color>"));
+    if (o_ptr->known_curse_flags & OFC_LOW_AC)
+        vec_add(v, string_copy_s("<color:R>Low AC</color>"));
+    if (o_ptr->known_curse_flags & OFC_LOW_MAGIC)
+        vec_add(v, string_copy_s("<color:y>Increased Fail Rates</color>"));
+    if (o_ptr->known_curse_flags & OFC_FAST_DIGEST)
+        vec_add(v, string_copy_s("<color:r>Fast Digestion</color>"));
+    if (o_ptr->known_curse_flags & OFC_DRAIN_HP)
+        vec_add(v, string_copy_s("<color:o>Drains You</color>"));
+    if (o_ptr->known_curse_flags & OFC_DRAIN_MANA)
+        vec_add(v, string_copy_s("<color:B>Drains Mana</color>"));
+
+    if (vec_length(v))
+    {
+        _print_list(v, doc, ';', '\0');
+        doc_newline(doc);
+    }
+
+    vec_free(v);
+}
+
+static void _display_activation_aux(effect_t *effect, bool full_info, doc_ptr doc)
+{
+    cptr res = do_effect(effect, SPELL_NAME, 0);
+
+    doc_newline(doc);
+    doc_printf(doc, "<color:U>Activation:</color><tab:12><color:B>%s</color>\n", res);
+
+    if (full_info)
+    {
+        int fail = effect_calc_fail_rate(effect);
+
+        res = do_effect(effect, SPELL_INFO, 0);
+        if (res && strlen(res))
+            doc_printf(doc, "<color:U>Info:</color><tab:12>%s\n", res);
+        doc_printf(doc, "<color:U>Fail:</color><tab:12>%d.%d%%\n", fail/10, fail%10);
+        if (effect->cost)
+            doc_printf(doc, "<color:U>Timeout:</color><tab:12>%d\n", effect->cost);
+    }
+
+}
+
+static void _display_activation(object_type *o_ptr, u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
+{
+    if (obj_has_effect(o_ptr))
+    {
+        if (have_flag(flgs, OF_ACTIVATE))
         {
-            _print_list(v, doc, ';', '\0');
+            effect_t e = obj_get_effect(o_ptr);
+            _display_activation_aux(&e, obj_is_identified_fully(o_ptr), doc);
             doc_newline(doc);
         }
-
-        vec_free(v);
-    }
-}
-
-static void _display_activation(object_type *o_ptr, doc_ptr doc)
-{
-    if (obj_has_effect(o_ptr) && object_is_known(o_ptr))
-    {
-        effect_t e = obj_get_effect(o_ptr);
-        cptr     res = do_effect(&e, SPELL_NAME, 0);
-
-        doc_newline(doc);
-        doc_printf(doc, "<color:U>Activation:</color><tab:12><color:B>%s</color>\n", res);
-
-        if (o_ptr->ident & IDENT_FULL)
+        else
         {
-            int fail = effect_calc_fail_rate(&e);
-
-            res = do_effect(&e, SPELL_INFO, 0);
-            if (res && strlen(res))
-                doc_printf(doc, "<color:U>Info:</color><tab:12>%s\n", res);
-            doc_printf(doc, "<color:U>Fail:</color><tab:12>%d.%d%%\n", fail/10, fail%10);
-            if (e.cost)
-                doc_printf(doc, "<color:U>Timeout:</color><tab:12>%d\n", e.cost);
+            doc_newline(doc);
+            doc_insert(doc, "<color:U>Activation:</color><tab:12><color:y>?</color>\n");
+            doc_newline(doc);
         }
-
-        doc_newline(doc);
     }
 }
 
-static void _display_ignore(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
+static void _display_ignore(u32b flgs[OF_ARRAY_SIZE], doc_ptr doc)
 {
-    if (have_flag(flgs, TR_IGNORE_ACID) &&
-        have_flag(flgs, TR_IGNORE_ELEC) &&
-        have_flag(flgs, TR_IGNORE_FIRE) &&
-        have_flag(flgs, TR_IGNORE_COLD))
+    if (have_flag(flgs, OF_IGNORE_ACID) &&
+        have_flag(flgs, OF_IGNORE_ELEC) &&
+        have_flag(flgs, OF_IGNORE_FIRE) &&
+        have_flag(flgs, OF_IGNORE_COLD))
     {
         doc_insert(doc, "<color:B>It cannot be harmed by the elements.</color>\n");
     }
@@ -752,13 +841,13 @@ static void _display_ignore(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr
     {
         vec_ptr v = vec_alloc((vec_free_f)string_free);
 
-        if (have_flag(flgs, TR_IGNORE_ACID))
+        if (have_flag(flgs, OF_IGNORE_ACID))
             vec_add(v, _get_res_name(RES_ACID));
-        if (have_flag(flgs, TR_IGNORE_ELEC))
+        if (have_flag(flgs, OF_IGNORE_ELEC))
             vec_add(v, _get_res_name(RES_ELEC));
-        if (have_flag(flgs, TR_IGNORE_FIRE))
+        if (have_flag(flgs, OF_IGNORE_FIRE))
             vec_add(v, _get_res_name(RES_FIRE));
-        if (have_flag(flgs, TR_IGNORE_COLD))
+        if (have_flag(flgs, OF_IGNORE_COLD))
             vec_add(v, _get_res_name(RES_COLD));
 
         if (vec_length(v) > 0)
@@ -786,32 +875,70 @@ static void _display_autopick(object_type *o_ptr, doc_ptr doc)
     }
 }
 
+#if 0
 /* Debugging Object Pricing */
 static doc_ptr _dbg_doc = NULL;
 static void _cost_dbg_hook(cptr msg)
 {
     doc_printf(_dbg_doc, "%s\n", msg);
 }
-
-static void _display_cost(object_type *o_ptr, doc_ptr doc)
+#else
+static char _score_color(int score)
 {
-    if (1 && p_ptr->wizard && !have_flag(o_ptr->art_flags, TR_FAKE))
+    if (score < 1000)
+        return 'D';
+    if (score < 10000)
+        return 'w';
+    if (score < 20000)
+        return 'W';
+    if (score < 40000)
+        return 'u';
+    if (score < 60000)
+        return 'y';
+    if (score < 80000)
+        return 'o';
+    if (score < 100000)
+        return 'R';
+    if (score < 150000)
+        return 'r';
+    return 'v';
+}
+#endif
+
+static void _display_score(object_type *o_ptr, doc_ptr doc)
+{
+#if 0
+    _dbg_doc = doc;
+    cost_calc_hook = _cost_dbg_hook;
+
+    doc_newline(doc);
+    new_object_cost(o_ptr, 0);
+
+    cost_calc_hook = NULL;
+    _dbg_doc = NULL;
+#else
+    int score = obj_value(o_ptr);
+    char buf[10];
+    big_num_display(score, buf);
+    doc_printf(doc, "<color:B>Score:</color> <color:%c>%s</color>\n", _score_color(score), buf);
+
+    if (p_ptr->prace == RACE_ANDROID && obj_is_identified(o_ptr))
     {
-        _dbg_doc = doc;
-        cost_calc_hook = _cost_dbg_hook;
-
-        doc_newline(doc);
-        new_object_cost(o_ptr, COST_REAL);
-
-        cost_calc_hook = NULL;
-        _dbg_doc = NULL;
+        score = android_obj_exp(o_ptr);
+        big_num_display(score, buf);
+        if (score)
+            doc_printf(doc, "<color:B>Const:</color> <color:%c>%s</color>\n", _score_color(score), buf);
     }
+
+#endif
 }
 
 static void _lite_display_doc(object_type *o_ptr, doc_ptr doc)
 {
+    u32b flgs[OF_ARRAY_SIZE];
     if (o_ptr->tval != TV_LITE) return;
-    if (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS))
+    obj_flags_known(o_ptr, flgs);
+    if (have_flag(flgs, OF_DARKNESS))
     {
         doc_insert(doc, "It provides no light.\n");
 
@@ -852,12 +979,12 @@ static void _lite_display_doc(object_type *o_ptr, doc_ptr doc)
 }
 
 /* Public Interface */
-extern void obj_display(object_type *o_ptr)
+void obj_display(object_type *o_ptr)
 {
     obj_display_rect(o_ptr, ui_menu_rect());
 }
 
-extern void obj_display_rect(object_type *o_ptr, rect_t display)
+void obj_display_rect(object_type *o_ptr, rect_t display)
 {
     doc_ptr doc = doc_alloc(MIN(display.cx, 72));
 
@@ -882,9 +1009,9 @@ extern void obj_display_rect(object_type *o_ptr, rect_t display)
     doc_free(doc);
 }
 
-extern void obj_display_doc(object_type *o_ptr, doc_ptr doc)
+void obj_display_doc(object_type *o_ptr, doc_ptr doc)
 {
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
 
     /* Devices need special handling. For one thing, they cannot be equipped, so
        that most flags are not used, and those that are generally mean something
@@ -895,7 +1022,7 @@ extern void obj_display_doc(object_type *o_ptr, doc_ptr doc)
         return;
     }
 
-    object_flags_known(o_ptr, flgs);
+    obj_flags_known(o_ptr, flgs);
 
     _display_name(o_ptr, doc);
     doc_insert(doc, "  <indent>");
@@ -906,41 +1033,47 @@ extern void obj_display_doc(object_type *o_ptr, doc_ptr doc)
         _lite_display_doc(o_ptr, doc);
 
     _display_stats(o_ptr, flgs, doc);
-    _display_sustains(o_ptr, flgs, doc);
+    _display_sustains(flgs, doc);
     _display_other_pval(o_ptr, flgs, doc);
-    _display_slays(o_ptr, flgs, doc);
-    _display_brands(o_ptr, flgs, doc);
-    _display_resists(o_ptr, flgs, doc);
-    _display_abilities(o_ptr, flgs, doc);
-    _display_auras(o_ptr, flgs, doc);
+    _display_slays(flgs, doc);
+    _display_brands(flgs, doc);
+    _display_resists(flgs, doc);
+    _display_abilities(flgs, doc);
+    _display_auras(flgs, doc);
     _display_extra(o_ptr, flgs, doc);
-    _display_activation(o_ptr, doc);
+    _display_activation(o_ptr, flgs, doc);
     _display_curses(o_ptr, flgs, doc);
-    _display_ignore(o_ptr, flgs, doc);
+    _display_ignore(flgs, doc);
+    _display_score(o_ptr, doc);
 
-    _display_ego_desc(o_ptr, doc);
-
-    if (object_is_known(o_ptr))
+    if (object_is_wearable(o_ptr))
     {
-        if (object_is_ego(o_ptr) && !ego_is_aware(o_ptr->name2))
-            doc_printf(doc, "You are unfamiliar with this ego type. To learn the basic attributes of this ego type, you need to *identify* or sell this object.\n");
-        else if (object_is_artifact(o_ptr) && !(o_ptr->ident & IDENT_FULL))
-            doc_printf(doc, "This object is an artifact, a unique object whose powers you must learn by *identifying* or selling this object.\n");
-        else if (!(o_ptr->ident & IDENT_FULL))
-            doc_printf(doc, "This object may have additional powers which you may learn by *identifying* or selling this object.\n");
+        doc_newline(doc);
+        if (obj_is_identified(o_ptr))
+        {
+            if (!obj_is_identified_fully(o_ptr))
+            {
+                if (object_is_artifact(o_ptr))
+                    doc_printf(doc, "This object is an artifact, a unique object whose powers you must either learn by direct experience or by *identifying* or selling this object.\n");
+                else
+                    doc_printf(doc, "This object may have additional powers which you may learn either by experience or by *identifying* or selling this object.\n");
+            }
+        }
+        else
+        {
+            doc_printf(doc, "This object is unkown. You should either identify it, or, if you are truly bold (foolish?), then you might learn more by equipping it!\n");
+        }
     }
-
     _display_autopick(o_ptr, doc);
-    _display_cost(o_ptr, doc);
 
     doc_insert(doc, "</style></indent>\n");
 }
 
 void obj_display_smith(object_type *o_ptr, doc_ptr doc)
 {
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
 
-    object_flags_known(o_ptr, flgs);
+    obj_flags_known(o_ptr, flgs);
 
     _display_name(o_ptr, doc);
     doc_insert(doc, "  <indent><style:indent>");
@@ -975,23 +1108,23 @@ void obj_display_smith(object_type *o_ptr, doc_ptr doc)
 
 
     _display_stats(o_ptr, flgs, doc);
-    _display_sustains(o_ptr, flgs, doc);
+    _display_sustains(flgs, doc);
     _display_other_pval(o_ptr, flgs, doc);
-    _display_slays(o_ptr, flgs, doc);
-    _display_brands(o_ptr, flgs, doc);
-    _display_resists(o_ptr, flgs, doc);
-    _display_abilities(o_ptr, flgs, doc);
-    _display_auras(o_ptr, flgs, doc);
+    _display_slays(flgs, doc);
+    _display_brands(flgs, doc);
+    _display_resists(flgs, doc);
+    _display_abilities(flgs, doc);
+    _display_auras(flgs, doc);
     _display_extra(o_ptr, flgs, doc);
     _display_curses(o_ptr, flgs, doc);
-    _display_ignore(o_ptr, flgs, doc);
+    _display_ignore(flgs, doc);
 
     doc_insert(doc, "</style></indent>\n");
 }
 
-extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
+void device_display_doc(object_type *o_ptr, doc_ptr doc)
 {
-    u32b    flgs[TR_FLAG_SIZE];
+    u32b    flgs[OF_ARRAY_SIZE];
     int     net = 0;
     int     boost = 0;
     vec_ptr v = NULL;
@@ -1003,7 +1136,7 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
     if (o_ptr->tval == TV_SCROLL || o_ptr->tval == TV_POTION)
     {
         doc_printf(doc, "%s\n\n", do_device(o_ptr, SPELL_DESC, 0));
-        if (o_ptr->ident & IDENT_FULL)
+        if (obj_is_identified_fully(o_ptr))
         {
             cptr info = do_device(o_ptr, SPELL_INFO, 0);
             if (info && strlen(info))
@@ -1026,13 +1159,13 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
         return;
     }
 
-    object_flags_known(o_ptr, flgs);
+    obj_flags_known(o_ptr, flgs);
     if (devicemaster_is_speciality(o_ptr))
         boost = device_power_aux(100, p_ptr->device_power + p_ptr->lev/10) - 100;
     else
         boost = device_power(100) - 100;
 
-    if (o_ptr->ident & IDENT_FULL)
+    if (obj_is_identified_fully(o_ptr))
     {
         int sp = device_sp(o_ptr);
         int max_sp = device_max_sp(o_ptr);
@@ -1050,11 +1183,11 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
     }
 
     v = vec_alloc((vec_free_f)string_free);
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_SPEED, TR_DEC_SPEED);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_SPEED, OF_DEC_SPEED);
     if (net)
         vec_add(v, string_alloc_format("<color:%c>%+d Quickness</color>", (net > 0) ? 'G' : 'r', net));
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_DEVICE_POWER, TR_INVALID);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_DEVICE_POWER, OF_INVALID);
     if (net)
     {
         int        pct = device_power_aux(100, net) - 100;
@@ -1062,17 +1195,17 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
         vec_add(v, s);
     }
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_EASY_SPELL, TR_INVALID);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_EASY_SPELL, OF_INVALID);
     if (net > 0)
         vec_add(v, string_copy_s("<color:G>Easy Use</color>"));
     else if (net < 0)
         vec_add(v, string_copy_s("<color:r>Hard Use</color>"));
 
-    net = _calc_net_bonus(o_ptr->pval, flgs, TR_REGEN, TR_INVALID);
+    net = _calc_net_bonus(o_ptr->pval, flgs, OF_REGEN, OF_INVALID);
     if (net)
         vec_add(v, string_alloc_format("<color:%c>%+d to Regeneration</color>", (net > 0) ? 'G' : 'r', net));
 
-    if (have_flag(flgs, TR_HOLD_LIFE))
+    if (have_flag(flgs, OF_HOLD_LIFE))
         vec_add(v, string_copy_s("<color:y>Hold Charges</color>"));
 
     if (vec_length(v))
@@ -1088,7 +1221,7 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
 
     if (o_ptr->activation.type != EFFECT_NONE)
     {
-        if (o_ptr->ident & IDENT_FULL)
+        if (obj_is_identified_fully(o_ptr))
         {
             int  fail = device_calc_fail_rate(o_ptr);
             int  charges = device_sp(o_ptr) / o_ptr->activation.cost;
@@ -1116,18 +1249,172 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
     }
 
     doc_insert(doc, "<style:indent>"); /* Indent a bit when word wrapping long lines */
+    _display_score(o_ptr, doc);
 
-    _display_ego_desc(o_ptr, doc);
+    if (object_is_ego(o_ptr) && !obj_is_identified_fully(o_ptr))
+        doc_printf(doc, "\nThis object may have additional powers which you may learn by *identifying* or selling this object.\n");
+    else if (!obj_is_identified_fully(o_ptr))
+        doc_printf(doc, "\nYou may *identify* or sell this object to learn more about this device.\n");
 
-    if (object_is_ego(o_ptr) && !(o_ptr->ident & IDENT_FULL))
-        doc_printf(doc, "This object may have additional powers which you may learn by *identifying* or selling this object.\n");
-    else if (!(o_ptr->ident & IDENT_FULL))
-        doc_printf(doc, "You may *identify* or sell this object to learn more about this device.\n");
-
-    _display_ignore(o_ptr, flgs, doc);
-
+    _display_ignore(flgs, doc);
     _display_autopick(o_ptr, doc);
-    _display_cost(o_ptr, doc);
 
     doc_insert(doc, "</style></indent>\n");
+}
+
+void ego_display(ego_type *e_ptr)
+{
+    ego_display_rect(e_ptr, ui_menu_rect());
+}
+
+void ego_display_rect(ego_type *e_ptr, rect_t display)
+{
+    doc_ptr doc = doc_alloc(MIN(display.cx, 72));
+
+    if (display.cx > 80)
+        display.cx = 80;
+
+    ego_display_doc(e_ptr, doc);
+
+    screen_save();
+    if (doc_cursor(doc).y < display.cy - 3)
+    {
+        doc_insert(doc, "\n[Press Any Key to Continue]\n\n");
+        doc_sync_term(doc, doc_range_all(doc), doc_pos_create(display.x, display.y));
+        inkey();
+    }
+    else
+    {
+        doc_display_aux(doc, "Ego Info", 0, display);
+    }
+    screen_load();
+
+    doc_free(doc);
+}
+
+static bool _have_flag(u32b flgs[OF_ARRAY_SIZE])
+{
+    int  i;
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+    {
+        if (flgs[i])
+            return TRUE;
+    }
+    return FALSE;
+}
+
+static void _ego_display_name(ego_type *e_ptr, doc_ptr doc)
+{
+    char name[255];
+
+    /* Major hackage. Many egos can span multiple types, and
+       I'd rather not always list them all. For example, 'Armor of Protection'
+       is enough, rather than 'Body Armor/Shield/Cloak/Helmet/Gloves/Boots of Protection' */
+    if (e_ptr->type & EGO_TYPE_WEAPON)
+        doc_insert(doc, "Weapon ");
+    else if (e_ptr->type & EGO_TYPE_DIGGER)
+        doc_insert(doc, "Digger ");
+    else if (e_ptr->type & EGO_TYPE_BODY_ARMOR)
+        doc_insert(doc, "Armor ");
+    else if (e_ptr->type & EGO_TYPE_DRAGON_ARMOR)
+        doc_insert(doc, "Dragon Armor ");
+    else if (e_ptr->type == (EGO_TYPE_CLOAK | EGO_TYPE_BOOTS))
+        doc_insert(doc, "Cloak/Boots ");
+    else if (e_ptr->type == (EGO_TYPE_GLOVES | EGO_TYPE_BOOTS))
+        doc_insert(doc, "Golves/Boots ");
+    else if (e_ptr->type == (EGO_TYPE_HELMET | EGO_TYPE_CROWN))
+        doc_insert(doc, "Helmet/Crown ");
+    else if (e_ptr->type & EGO_TYPE_SHIELD)
+        doc_insert(doc, "Shield ");
+    else if (e_ptr->type & EGO_TYPE_ROBE)
+        doc_insert(doc, "Robe ");
+    else if (e_ptr->type & EGO_TYPE_CLOAK)
+        doc_insert(doc, "Cloak ");
+    else if (e_ptr->type & EGO_TYPE_HELMET)
+        doc_insert(doc, "Helmet ");
+    else if (e_ptr->type & EGO_TYPE_CROWN)
+        doc_insert(doc, "Crown ");
+    else if (e_ptr->type & EGO_TYPE_GLOVES)
+        doc_insert(doc, "Gloves ");
+    else if (e_ptr->type & EGO_TYPE_BOOTS)
+        doc_insert(doc, "Boots ");
+    else if (e_ptr->type & EGO_TYPE_BOW)
+        doc_insert(doc, "Bow ");
+    else if (e_ptr->type & EGO_TYPE_AMMO)
+        doc_insert(doc, "Ammo ");
+    else if (e_ptr->type & EGO_TYPE_HARP)
+        doc_insert(doc, "Harp ");
+    else if (e_ptr->type == (EGO_TYPE_RING | EGO_TYPE_AMULET))
+        doc_insert(doc, "Ring/Amulet ");
+    else if (e_ptr->type & EGO_TYPE_RING)
+        doc_insert(doc, "Ring ");
+    else if (e_ptr->type & EGO_TYPE_AMULET)
+        doc_insert(doc, "Amulet ");
+    else if (e_ptr->type & EGO_TYPE_LITE)
+        doc_insert(doc, "Light ");
+    else if (e_ptr->type & EGO_TYPE_DEVICE)
+        doc_insert(doc, "Device ");
+
+    strip_name_aux(name, e_name + e_ptr->name);
+    doc_printf(doc, "%s\n\n", name);
+}
+
+void ego_display_doc(ego_type *e_ptr, doc_ptr doc)
+{
+    int  i;
+    u32b flgs[OF_ARRAY_SIZE];
+
+    _ego_display_name(e_ptr, doc);
+
+    /* First, the fixed flags always present */
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+        flgs[i] = e_ptr->known_flags[i] & e_ptr->flags[i];
+    remove_flag(flgs, OF_HIDE_TYPE);
+    remove_flag(flgs, OF_SHOW_MODS);
+    remove_flag(flgs, OF_FULL_NAME);
+
+    if (_have_flag(flgs))
+    {
+        doc_insert(doc, "<color:B>Fixed Bonuses</color>\n");
+        doc_insert(doc, "  <indent><style:indent>");
+        _ego_display_stats(flgs, doc);
+        _display_sustains(flgs, doc);
+        _ego_display_other_pval(flgs, doc);
+        _display_slays(flgs, doc);
+        _display_brands(flgs, doc);
+        _display_resists(flgs, doc);
+        _display_abilities(flgs, doc);
+        _display_auras(flgs, doc);
+        _ego_display_extra(flgs, doc);
+        if (have_flag(flgs, OF_ACTIVATE))
+            _display_activation_aux(&e_ptr->activation, FALSE, doc);
+        _display_ignore(flgs, doc);
+        doc_insert(doc, "</style></indent>\n");
+    }
+
+    /* Next, the optional flags */
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+        flgs[i] = e_ptr->known_flags[i] & e_ptr->xtra_flags[i];
+    remove_flag(flgs, OF_HIDE_TYPE);
+    remove_flag(flgs, OF_SHOW_MODS);
+    remove_flag(flgs, OF_FULL_NAME);
+
+    if (_have_flag(flgs))
+    {
+        doc_insert(doc, "<color:B>Optional Bonuses</color>\n");
+        doc_insert(doc, "  <indent><style:indent>");
+        _ego_display_stats(flgs, doc);
+        _display_sustains(flgs, doc);
+        _ego_display_other_pval(flgs, doc);
+        _display_slays(flgs, doc);
+        _display_brands(flgs, doc);
+        _display_resists(flgs, doc);
+        _display_abilities(flgs, doc);
+        _display_auras(flgs, doc);
+        _ego_display_extra(flgs, doc);
+        if (have_flag(flgs, OF_ACTIVATE))
+            doc_insert(doc, "It grants an extra activation.\n");
+        _display_ignore(flgs, doc);
+        doc_insert(doc, "</style></indent>\n");
+    }
 }

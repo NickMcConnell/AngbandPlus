@@ -797,7 +797,7 @@ static void _calc_bonuses(void)
     res_add(RES_FEAR);
     res_add(RES_BLIND);
     res_add(RES_CONF);
-    p_ptr->regenerate = TRUE;
+    p_ptr->regen += 100;
     p_ptr->slow_digest = TRUE;
     p_ptr->telepathy = TRUE;
     p_ptr->free_act = TRUE;
@@ -834,44 +834,44 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
 {
-    add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_RES_FEAR);
-    add_flag(flgs, TR_RES_BLIND);
-    add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_REGEN);
-    add_flag(flgs, TR_SLOW_DIGEST);
-    add_flag(flgs, TR_TELEPATHY);
-    add_flag(flgs, TR_FREE_ACT);
-    add_flag(flgs, TR_SEE_INVIS);
-    add_flag(flgs, TR_SUST_CHR);
+    add_flag(flgs, OF_DEC_SPEED);
+    add_flag(flgs, OF_RES_FEAR);
+    add_flag(flgs, OF_RES_BLIND);
+    add_flag(flgs, OF_RES_CONF);
+    add_flag(flgs, OF_REGEN);
+    add_flag(flgs, OF_SLOW_DIGEST);
+    add_flag(flgs, OF_TELEPATHY);
+    add_flag(flgs, OF_FREE_ACT);
+    add_flag(flgs, OF_SEE_INVIS);
+    add_flag(flgs, OF_SUST_CHR);
 
     if (p_ptr->current_r_idx == MON_NEXUS_QUYLTHULG)
-        add_flag(flgs, TR_RES_NEXUS);
+        add_flag(flgs, OF_RES_NEXUS);
 
     if ( p_ptr->current_r_idx == MON_ROTTING_QUYLTHULG
       || p_ptr->current_r_idx == MON_GREATER_ROTTING_QUYLTHULG )
     {
-        add_flag(flgs, TR_RES_NETHER);
-        add_flag(flgs, TR_HOLD_LIFE);
+        add_flag(flgs, OF_RES_NETHER);
+        add_flag(flgs, OF_HOLD_LIFE);
     }
 
     if ( p_ptr->current_r_idx == MON_DRACONIC_QUYLTHULG
       || p_ptr->current_r_idx == MON_GREATER_DRACONIC_QUYLTHULG )
     {
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ACID);
-        add_flag(flgs, TR_RES_ELEC);
-        add_flag(flgs, TR_RES_POIS);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_COLD);
+        add_flag(flgs, OF_RES_ACID);
+        add_flag(flgs, OF_RES_ELEC);
+        add_flag(flgs, OF_RES_POIS);
     }
 
     if ( p_ptr->current_r_idx == MON_DEMONIC_QUYLTHULG
       || p_ptr->current_r_idx == MON_GREATER_DEMONIC_QUYLTHULG )
     {
-        add_flag(flgs, TR_RES_FIRE);
-        add_flag(flgs, TR_RES_CHAOS);
+        add_flag(flgs, OF_RES_FIRE);
+        add_flag(flgs, OF_RES_CHAOS);
     }
 }
 

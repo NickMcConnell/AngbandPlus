@@ -18,6 +18,7 @@
 #include <assert.h>
 
 static void do_cmd_knowledge_shooter(void);
+static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt, int *list_cur, int list_cnt);
 
 /*
  * A set of functions to maintain automatic dumps of various kinds.
@@ -394,7 +395,7 @@ void do_cmd_redraw(void)
     /* Hack -- update */
     handle_stuff();
 
-    if (p_ptr->prace == RACE_ANDROID) calc_android_exp();
+    if (p_ptr->prace == RACE_ANDROID) android_calc_exp();
 
 
     /* Redraw every window */
@@ -482,10 +483,6 @@ static option_type cheat_info[CHEAT_MAX] =
 
     { &cheat_xtra,        FALSE,    255,    0x08, 0x00,
     "cheat_xtra",        "Peek into something else"
-    },
-
-    { &cheat_know,        FALSE,    255,    0x10, 0x00,
-    "cheat_know",        "Know complete monster info"
     },
 
     { &cheat_live,        FALSE,    255,    0x20, 0x00,
@@ -3470,7 +3467,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
         if (!r_ptr->name) continue;
 
         /* Require known monsters */
-        if (!(mode & 0x02) && !cheat_know && !r_ptr->r_sights) continue;
+        if (!(mode & 0x02) && !easy_lore && !r_ptr->r_sights) continue;
 
         if (grp_corpses)
         {
@@ -3853,7 +3850,7 @@ cptr inven_res_label =
 static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, int *j, byte tval, char *where)
 {
     char o_name[MAX_NLEN];
-    u32b flgs[TR_FLAG_SIZE];
+    u32b flgs[OF_ARRAY_SIZE];
 
     if (!o_ptr->k_idx) return;
     if (o_ptr->tval != tval) return;
@@ -3888,43 +3885,37 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, int *j, by
 
         fprintf(fff, "%s %s", where, o_name);
 
-        if (!(o_ptr->ident & (IDENT_FULL)))
-        {
-            fputs("-------unknown------------ -------unknown------\n", fff);
-        }
-        else
-        {
-            object_flags_known(o_ptr, flgs);
+        obj_flags_known(o_ptr, flgs);
 
-            print_im_or_res_flag(TR_IM_ACID, TR_RES_ACID);
-            print_im_or_res_flag(TR_IM_ELEC, TR_RES_ELEC);
-            print_im_or_res_flag(TR_IM_FIRE, TR_RES_FIRE);
-            print_im_or_res_flag(TR_IM_COLD, TR_RES_COLD);
-            print_flag(TR_RES_POIS);
-            print_flag(TR_RES_LITE);
-            print_flag(TR_RES_DARK);
-            print_flag(TR_RES_SHARDS);
-            print_flag(TR_RES_SOUND);
-            print_flag(TR_RES_NETHER);
-            print_flag(TR_RES_NEXUS);
-            print_flag(TR_RES_CHAOS);
-            print_flag(TR_RES_DISEN);
+        print_im_or_res_flag(OF_IM_ACID, OF_RES_ACID);
+        print_im_or_res_flag(OF_IM_ELEC, OF_RES_ELEC);
+        print_im_or_res_flag(OF_IM_FIRE, OF_RES_FIRE);
+        print_im_or_res_flag(OF_IM_COLD, OF_RES_COLD);
+        print_flag(OF_RES_POIS);
+        print_flag(OF_RES_LITE);
+        print_flag(OF_RES_DARK);
+        print_flag(OF_RES_SHARDS);
+        print_flag(OF_RES_SOUND);
+        print_flag(OF_RES_NETHER);
+        print_flag(OF_RES_NEXUS);
+        print_flag(OF_RES_CHAOS);
+        print_flag(OF_RES_DISEN);
 
-            fputs(" ", fff);
+        fputs(" ", fff);
 
-            print_flag(TR_RES_BLIND);
-            print_flag(TR_RES_FEAR);
-            print_flag(TR_RES_CONF);
-            print_flag(TR_FREE_ACT);
-            print_flag(TR_SEE_INVIS);
-            print_flag(TR_HOLD_LIFE);
-            print_flag(TR_TELEPATHY);
-            print_flag(TR_SLOW_DIGEST);
-            print_flag(TR_REGEN);
-            print_flag(TR_LEVITATION);
+        print_flag(OF_RES_BLIND);
+        print_flag(OF_RES_FEAR);
+        print_flag(OF_RES_CONF);
+        print_flag(OF_FREE_ACT);
+        print_flag(OF_SEE_INVIS);
+        print_flag(OF_HOLD_LIFE);
+        print_flag(OF_TELEPATHY);
+        print_flag(OF_SLOW_DIGEST);
+        print_flag(OF_REGEN);
+        print_flag(OF_LEVITATION);
 
-            fputc('\n', fff);
-        }
+        fputc('\n', fff);
+
         (*j)++;
         if (*j == 9)
         {
@@ -4079,269 +4070,271 @@ void do_cmd_save_screen(void)
     doc_free(doc);
 }
 
-/*
- * Sorting hook -- Comp function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform on "u".
- */
-static bool ang_sort_art_comp(vptr u, vptr v, int a, int b)
+/************************************************************************
+ * Artifact Lore (Standard Arts Only)
+ * Note: Check out the Wizard Spoiler Commands for an alternative approach.
+ *       ^a"a and ^a"O
+ ************************************************************************/
+typedef struct {
+    object_p filter;
+    cptr     name;
+} _art_type_t;
+
+static _art_type_t _art_types[] = {
+    { object_is_melee_weapon, "Weapons" },
+    { object_is_shield, "Shield" },
+    { object_is_bow, "Bows" },
+    { object_is_ring, "Rings" },
+    { object_is_amulet, "Amulets" },
+    { object_is_lite, "Lights" },
+    { object_is_body_armour, "Body Armor" },
+    { object_is_cloak, "Cloaks" },
+    { object_is_helmet, "Helmets" },
+    { object_is_gloves, "Gloves" },
+    { object_is_boots, "Boots" },
+    { object_is_ammo, "Ammo" },
+    { NULL, NULL },
+};
+
+static bool _compare_a_level(vptr u, vptr v, int a, int b)
 {
-    u16b *who = (u16b*)(u);
+    int *indices = (int*)u;
+    int left = indices[a];
+    int right = indices[b];
+    return a_info[left].level <= a_info[right].level;
+}
 
-    u16b *why = (u16b*)(v);
+static int _collect_arts(int grp_cur, int art_idx[], bool show_all)
+{
+    int i, cnt = 0;
 
-    int w1 = who[a];
-    int w2 = who[b];
-
-    int z1, z2;
-
-    /* Sort by total kills */
-    if (*why >= 3)
+    for (i = 0; i < max_a_idx; i++)
     {
-        /* Extract total kills */
-        z1 = a_info[w1].tval;
-        z2 = a_info[w2].tval;
+        artifact_type *a_ptr = &a_info[i];
+        object_type    forge;
 
-        /* Compare total kills */
-        if (z1 < z2) return (TRUE);
-        if (z1 > z2) return (FALSE);
+        if (!a_ptr->name) continue;
+        if (!a_ptr->found)
+        {
+            if (!show_all) continue;
+            if (!art_has_lore(a_ptr)) continue;
+        }
+        if (!create_named_art_aux_aux(i, &forge)) continue;
+        if (!_art_types[grp_cur].filter(&forge)) continue;
+
+        art_idx[cnt++] = i;
     }
 
+    /* Sort Results */
+    ang_sort_comp = _compare_a_level;
+    ang_sort_swap = _swap_int;
+    ang_sort(art_idx, NULL, cnt);
 
-    /* Sort by monster level */
-    if (*why >= 2)
-    {
-        /* Extract levels */
-        z1 = a_info[w1].sval;
-        z2 = a_info[w2].sval;
+    /* Terminate the list */
+    art_idx[cnt] = -1;
 
-        /* Compare levels */
-        if (z1 < z2) return (TRUE);
-        if (z1 > z2) return (FALSE);
-    }
-
-
-    /* Sort by monster experience */
-    if (*why >= 1)
-    {
-        /* Extract experience */
-        z1 = a_info[w1].level;
-        z2 = a_info[w2].level;
-
-        /* Compare experience */
-        if (z1 < z2) return (TRUE);
-        if (z1 > z2) return (FALSE);
-    }
-
-
-    /* Compare indexes */
-    return (w1 <= w2);
+    return cnt;
 }
 
 
-/*
- * Sorting hook -- Swap function -- see below
- *
- * We use "u" to point to array of monster indexes,
- * and "v" to select the type of sorting to perform.
- */
-static void ang_sort_art_swap(vptr u, vptr v, int a, int b)
-{
-    u16b *who = (u16b*)(u);
-
-    u16b holder;
-
-    /* Unused */
-    (void)v;
-
-    /* Swap */
-    holder = who[a];
-    who[a] = who[b];
-    who[b] = holder;
-}
-
-
-/*
- * Check the status of "artifacts"
- */
 static void do_cmd_knowledge_artifacts(void)
 {
-    int i, k, z, x, y, n = 0;
-    u16b why = 3;
-    s16b *who;
+    static bool show_all = TRUE;
 
-    FILE *fff;
+    int i, len, max;
+    int grp_cur, grp_top, old_grp_cur;
+    int art_cur, art_top;
+    int grp_cnt, grp_idx[100];
+    int art_cnt;
+    int *art_idx;
 
-    char file_name[1024];
+    int column = 0;
+    bool flag;
+    bool redraw;
+    bool rebuild;
 
-    char base_name[MAX_NLEN];
-
-    bool *okay;
-
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return; 
-    }
+    int browser_rows;
+    int wid, hgt;
 
     if (random_artifacts)
     {
-        fprintf(fff, "You won't find any fixed artifacts this game.");
+        cmsg_print(TERM_L_RED, "You won't find any fixed artifacts this game.");
+        return;
     }
     else if (no_artifacts)
     {
-        fprintf(fff, "You won't find any artifacts this game.");
+        cmsg_print(TERM_L_RED, "You won't find any artifacts this game.");
+        return;
     }
-    else
+
+    /* Get size */
+    Term_get_size(&wid, &hgt);
+
+    browser_rows = hgt - 8;
+
+    C_MAKE(art_idx, max_a_idx, int);
+
+    max = 0;
+    grp_cnt = 0;
+    for (i = 0; _art_types[i].filter; i++)
     {
-        /* Allocate the "who" array */
-        C_MAKE(who, max_a_idx, s16b);
+        len = strlen(_art_types[i].name);
+        if (len > max)
+            max = len;
 
-        /* Allocate the "okay" array */
-        C_MAKE(okay, max_a_idx, bool);
-
-        /* Scan the artifacts */
-        for (k = 0; k < max_a_idx; k++)
-        {
-            artifact_type *a_ptr = &a_info[k];
-
-            /* Default */
-            okay[k] = FALSE;
-
-            /* Skip "empty" artifacts */
-            if (!a_ptr->name) continue;
-
-            /* Skip "uncreated" artifacts */
-            if (!a_ptr->cur_num) continue;
-
-            /* Assume okay */
-            okay[k] = TRUE;
-        }
-
-        /* Check the dungeon */
-        for (y = 0; y < cur_hgt; y++)
-        {
-            for (x = 0; x < cur_wid; x++)
-            {
-                cave_type *c_ptr = &cave[y][x];
-
-                s16b this_o_idx, next_o_idx = 0;
-
-                /* Scan all objects in the grid */
-                for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-                {
-                    object_type *o_ptr;
-
-                    /* Acquire object */
-                    o_ptr = &o_list[this_o_idx];
-
-                    /* Acquire next object */
-                    next_o_idx = o_ptr->next_o_idx;
-
-                    /* Ignore non-artifacts */
-                    if (!object_is_fixed_artifact(o_ptr)) continue;
-
-                    /* Ignore known items */
-                    if (object_is_known(o_ptr)) continue;
-
-                    /* Note the artifact */
-                    okay[o_ptr->name1] = FALSE;
-                }
-            }
-        }
-
-        /* Check the inventory and equipment */
-        for (i = 0; i < INVEN_TOTAL; i++)
-        {
-            object_type *o_ptr = &inventory[i];
-
-            /* Ignore non-objects */
-            if (!o_ptr->k_idx) continue;
-
-            /* Ignore non-artifacts */
-            if (!object_is_fixed_artifact(o_ptr)) continue;
-
-            /* Ignore known items */
-            if (object_is_known(o_ptr)) continue;
-
-            /* Note the artifact */
-            okay[o_ptr->name1] = FALSE;
-        }
-
-        for (k = 0; k < max_a_idx; k++)
-        {
-            if (okay[k]) who[n++] = k;
-        }
-
-        /* Select the sort method */
-        ang_sort_comp = ang_sort_art_comp;
-        ang_sort_swap = ang_sort_art_swap;
-
-        /* Sort the array by dungeon depth of monsters */
-        ang_sort(who, &why, n);
-
-        /* Scan the artifacts */
-        for (k = 0; k < n; k++)
-        {
-            artifact_type *a_ptr = &a_info[who[k]];
-
-            /* Paranoia */
-            strcpy(base_name, "Unknown Artifact");
-
-
-            /* Obtain the base object type */
-            z = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-            /* Real object */
-            if (z)
-            {
-                object_type forge;
-                object_type *q_ptr;
-
-                /* Get local object */
-                q_ptr = &forge;
-
-                /* Create fake object */
-                object_prep(q_ptr, z);
-
-                /* Make it an artifact */
-                q_ptr->name1 = who[k];
-
-                /* Display as if known */
-                q_ptr->ident |= IDENT_STORE;
-
-                /* Describe the artifact */
-                object_desc(base_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-            }
-            else
-            {
-                strcpy(base_name, "Unknown Artifact");
-            }
-
-            /* Hack -- Build the artifact name */
-            fprintf(fff, "     The %s\n", base_name);
-
-        }
-
-        /* Free the "who" array */
-        C_KILL(who, max_a_idx, s16b);
-
-        /* Free the "okay" array */
-        C_KILL(okay, max_a_idx, bool);
+        if (_collect_arts(i, art_idx, TRUE))
+            grp_idx[grp_cnt++] = i;
     }
-    /* Close the file */
-    my_fclose(fff);
+    grp_idx[grp_cnt] = -1;
 
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Artifacts Seen", 0, 0);
+    if (!grp_cnt)
+    {
+        prt("You haven't found any artifacts just yet. Press any key to continue.", 0, 0);
+        inkey();
+        prt("", 0, 0);
+        C_KILL(art_idx, max_a_idx, int);
+        return;
+    }
 
+    art_cnt = 0;
 
-    /* Remove the file */
-    fd_kill(file_name);
+    old_grp_cur = -1;
+    grp_cur = grp_top = 0;
+    art_cur = art_top = 0;
+
+    flag = FALSE;
+    redraw = TRUE;
+    rebuild = TRUE;
+
+    while (!flag)
+    {
+        char ch;
+        if (redraw)
+        {
+            clear_from(0);
+
+            prt(format("%s - Artifacts", "Knowledge"), 2, 0);
+            prt("Group", 4, 0);
+            prt("Name", 4, max + 3);
+
+            for (i = 0; i < 72; i++)
+            {
+                Term_putch(i, 5, TERM_WHITE, '=');
+            }
+
+            for (i = 0; i < browser_rows; i++)
+            {
+                Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+            }
+
+            redraw = FALSE;
+        }
+
+        /* Scroll group list */
+        if (grp_cur < grp_top) grp_top = grp_cur;
+        if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+        /* Display a list of object groups */
+        for (i = 0; i < browser_rows && grp_idx[i] >= 0; i++)
+        {
+            int  grp = grp_idx[grp_top + i];
+            byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
+
+            Term_erase(0, 6 + i, max);
+            c_put_str(attr, _art_types[grp].name, 6 + i, 0);
+        }
+
+        if (rebuild || old_grp_cur != grp_cur)
+        {
+            old_grp_cur = grp_cur;
+
+            /* Get a list of objects in the current group */
+            art_cnt = _collect_arts(grp_idx[grp_cur], art_idx, show_all);
+            rebuild = FALSE;
+        }
+
+        /* Scroll object list */
+        while (art_cur < art_top)
+            art_top = MAX(0, art_top - browser_rows/2);
+        while (art_cur >= art_top + browser_rows)
+            art_top = MIN(art_cnt - browser_rows, art_top + browser_rows/2);
+
+        /* Display a list of objects in the current group */
+        /* Display lines until done */
+        for (i = 0; i < browser_rows && art_top + i < art_cnt && art_idx[art_top + i] >= 0; i++)
+        {
+            char        name[MAX_NLEN];
+            int         idx = art_idx[art_top + i];
+            object_type forge;
+            byte        attr = TERM_WHITE;
+
+            create_named_art_aux_aux(idx, &forge);
+            forge.ident = IDENT_KNOWN;
+            object_desc(name, &forge, OD_OMIT_INSCRIPTION);
+
+            if (i + art_top == art_cur)
+                attr = TERM_L_BLUE;
+            else if (!a_info[idx].found)
+                attr = TERM_L_DARK;
+            else
+                attr = tval_to_attr[forge.tval % 128];
+
+            c_prt(attr, name, 6 + i, max + 3);
+        }
+
+        /* Clear remaining lines */
+        for (; i < browser_rows; i++)
+        {
+            Term_erase(max + 3, 6 + i, 255);
+        }
+
+        if (show_all)
+            prt("<dir>, 'r' to recall, 't' to Hide Unfound, ESC", hgt - 1, 0);
+        else
+            prt("<dir>, 'r' to recall, 't' to Show All, ESC", hgt - 1, 0);
+
+        if (!column)
+        {
+            Term_gotoxy(0, 6 + (grp_cur - grp_top));
+        }
+        else
+        {
+            Term_gotoxy(max + 3, 6 + (art_cur - art_top));
+        }
+
+        ch = inkey();
+
+        switch (ch)
+        {
+        case ESCAPE:
+            flag = TRUE;
+            break;
+
+        case 'T': case 't':
+            show_all = !show_all;
+            art_cur = 0;
+            rebuild = TRUE;
+            break;
+
+        case 'R': case 'r':
+        case 'I': case 'i':
+            if (grp_cnt > 0 && art_idx[art_cur] >= 0)
+            {
+                int idx = art_idx[art_cur];
+                object_type forge;
+                create_named_art_aux_aux(idx, &forge);
+                forge.ident = IDENT_KNOWN;
+                obj_display(&forge);
+                redraw = TRUE;
+            }
+            break;
+
+        default:
+            browser_cursor(ch, &column, &grp_cur, grp_cnt, &art_cur, art_cnt);
+        }
+    }
+
+    C_KILL(art_idx, max_a_idx, int);
 }
 
 
@@ -4392,7 +4385,7 @@ static void do_cmd_knowledge_uniques(void)
         if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
 
         /* Only display "known" uniques */
-        if (!cheat_know && !r_ptr->r_sights) continue;
+        if (!easy_lore && !r_ptr->r_sights) continue;
 
         /* Only print rarity <= 100 uniques */
         if (!r_ptr->rarity || ((r_ptr->rarity > 100) && !(r_ptr->flags1 & RF1_QUESTOR))) continue;
@@ -5877,10 +5870,8 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
                 /* Recall on screen */
                 if (!visual_list && !visual_only && (mon_idx[mon_cur] > 0))
                 {
-                    screen_roff(mon_idx[mon_cur], 0);
-
-                    (void)inkey();
-
+                    int r_idx = mon_idx[mon_cur];
+                    mon_display(&r_info[r_idx]);
                     redraw = TRUE;
                 }
                 break;
@@ -6051,109 +6042,39 @@ static void desc_obj_fake(int k_idx)
 
 static void desc_ego_fake(int e_idx)
 {
-    object_type    forge = {0};
-    ego_item_type *e_ptr = &e_info[e_idx];
-    int            k_idx = 0;
-
-    switch (e_ptr->type)
-    {
-    case EGO_TYPE_WEAPON:
-        k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
-        break;
-    case EGO_TYPE_DIGGER:
-        k_idx = lookup_kind(TV_DIGGING, SV_SHOVEL);
-        break;
-    case EGO_TYPE_SHIELD:
-        k_idx = lookup_kind(TV_SHIELD, SV_SMALL_LEATHER_SHIELD);
-        break;
-    case EGO_TYPE_BOW:
-        k_idx = lookup_kind(TV_BOW, SV_SHORT_BOW);
-        break;
-    case EGO_TYPE_HARP:
-        k_idx = lookup_kind(TV_BOW, SV_HARP);
-        break;
-    case EGO_TYPE_RING:
-        k_idx = lookup_kind(TV_RING, SV_ANY);
-        break;
-    case EGO_TYPE_AMULET:
-        k_idx = lookup_kind(TV_AMULET, SV_ANY);
-        break;
-    case EGO_TYPE_LITE:
-        k_idx = lookup_kind(TV_LITE, SV_LITE_FEANOR);
-        break;
-    case EGO_TYPE_BODY_ARMOR:
-        k_idx = lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL);
-        break;
-    case EGO_TYPE_ROBE:
-        k_idx = lookup_kind(TV_SOFT_ARMOR, SV_ROBE);
-        break;
-    case EGO_TYPE_CLOAK:
-        k_idx = lookup_kind(TV_CLOAK, SV_CLOAK);
-        break;
-    case EGO_TYPE_HELMET:
-        k_idx = lookup_kind(TV_HELM, SV_HARD_LEATHER_CAP);
-        break;
-    case EGO_TYPE_CROWN:
-        k_idx = lookup_kind(TV_CROWN, SV_IRON_CROWN);
-        break;
-    case EGO_TYPE_GLOVES:
-        k_idx = lookup_kind(TV_GLOVES, SV_SET_OF_LEATHER_GLOVES);
-        break;
-    case EGO_TYPE_BOOTS:
-        k_idx = lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS);
-        break;
-    case EGO_TYPE_AMMO:
-        k_idx = lookup_kind(TV_ARROW, SV_AMMO_NORMAL);
-        break;
-    }
-
-    if (k_idx)
-    {
-        object_prep(&forge, k_idx);
-        forge.name2 = e_idx;
-        add_flag(forge.art_flags, TR_FAKE); /* Hack */
-
-        forge.ident |= IDENT_KNOWN;
-        if (ego_is_aware(e_idx))
-        {
-            forge.pval = e_ptr->max_pval;
-            forge.to_h = e_ptr->max_to_h;
-            forge.to_d = e_ptr->max_to_d;
-            forge.to_a = e_ptr->max_to_a;
-
-            forge.ident |= IDENT_FULL;
-        }
-
-        handle_stuff();
-        obj_display(&forge);
-        /* TODO: Improve reporting with TRG_flags */
-    }
+    ego_type *e_ptr = &e_info[e_idx];
+    ego_display(e_ptr);
 }
 
 
 typedef struct {
-    int id;
+    u32b id;
     cptr name;
 } _ego_type_t;
 
 static _ego_type_t _ego_types[] = {
     { EGO_TYPE_WEAPON, "Weapons" },
     { EGO_TYPE_DIGGER, "Diggers" },
+
     { EGO_TYPE_SHIELD, "Shields" },
-    { EGO_TYPE_BOW, "Bows" },
-    { EGO_TYPE_HARP, "Harps" },
-    { EGO_TYPE_RING, "Rings" },
-    { EGO_TYPE_AMULET, "Amulets" },
-    { EGO_TYPE_LITE, "Lights" },
-    { EGO_TYPE_BODY_ARMOR, "Armors" },
+    { EGO_TYPE_BODY_ARMOR, "Body Armor" },
     { EGO_TYPE_ROBE, "Robes" },
+    { EGO_TYPE_DRAGON_ARMOR, "Dragon Armor" },
     { EGO_TYPE_CLOAK, "Cloaks" },
     { EGO_TYPE_HELMET, "Helmets" },
     { EGO_TYPE_CROWN, "Crowns" },
     { EGO_TYPE_GLOVES, "Gloves" },
     { EGO_TYPE_BOOTS, "Boots" },
+
+    { EGO_TYPE_BOW, "Bows" },
     { EGO_TYPE_AMMO, "Ammo" },
+    { EGO_TYPE_HARP, "Harps" },
+
+    { EGO_TYPE_RING, "Rings" },
+    { EGO_TYPE_AMULET, "Amulets" },
+    { EGO_TYPE_LITE, "Lights" },
     { EGO_TYPE_DEVICE, "Devices" },
+
     { EGO_TYPE_NONE, NULL },
 };
 
@@ -6172,12 +6093,12 @@ static int _collect_egos(int grp_cur, int ego_idx[])
 
     for (i = 0; i < max_e_idx; i++)
     {
-        ego_item_type *e_ptr = &e_info[i];
+        ego_type *e_ptr = &e_info[i];
 
         if (!e_ptr->name) continue;
         /*if (!e_ptr->aware) continue;*/
-        if (!e_ptr->aware && !e_ptr->counts.found && !e_ptr->counts.bought) continue;
-        if (e_ptr->type != type) continue;
+        if (!ego_has_lore(e_ptr) && !e_ptr->counts.found && !e_ptr->counts.bought) continue;
+        if (!(e_ptr->type & type)) continue;
 
         ego_idx[cnt++] = i;
     }
@@ -6193,7 +6114,7 @@ static int _collect_egos(int grp_cur, int ego_idx[])
     return cnt;
 }
 
-static void do_cmd_knowledge_egos(bool *need_redraw)
+static void do_cmd_knowledge_egos(void)
 {
     int i, len, max;
     int grp_cur, grp_top, old_grp_cur;
@@ -6257,9 +6178,9 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
             prt(format("%s - Egos", "Knowledge"), 2, 0);
             prt("Group", 4, 0);
             prt("Name", 4, max + 3);
-            prt("Found Bought Dest", 4, 46);
+            prt("Found Bought Dest", 4, max + 3 + 36);
 
-            for (i = 0; i < 63; i++)
+            for (i = 0; i < 72; i++)
             {
                 Term_putch(i, 5, TERM_WHITE, '=');
             }
@@ -6307,15 +6228,16 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
             char           buf[255];
             char           name[255];
             int            idx = ego_idx[ego_top + i];
-            ego_item_type *e_ptr = &e_info[idx];
+            ego_type      *e_ptr = &e_info[idx];
             byte           attr = TERM_WHITE;
 
             if (i + ego_top == ego_cur)
                 attr = TERM_L_BLUE;
-            else if (!ego_is_aware(idx))
-                attr = TERM_L_DARK;
 
             strip_name_aux(name, e_name + e_ptr->name); 
+            if (e_ptr->type & (~_ego_types[grp_idx[grp_cur]].id))
+                strcat(name, " [Shared]");
+
             sprintf(buf, "%-35.35s %5d %6d %4d", 
                 name, 
                 e_ptr->counts.found, e_ptr->counts.bought, e_ptr->counts.destroyed
@@ -6330,7 +6252,7 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
             int j;
             for (j = 0; ego_idx[j] >= 0; j++)
             {
-                ego_item_type *e_ptr = &e_info[ego_idx[j]];
+                ego_type *e_ptr = &e_info[ego_idx[j]];
                 totals.found += e_ptr->counts.found;
                 totals.bought += e_ptr->counts.bought;
                 totals.destroyed += e_ptr->counts.destroyed;
@@ -6351,12 +6273,7 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
             Term_erase(max + 3, 6 + i, 255);
         }
 
-        /* Prompt 
-        prt(format("<dir>%s%s%s, ESC",
-            (!visual_list && !visual_only) ? ", 'r' to recall" : "",
-            visual_list ? ", ENTER to accept" : ", 'v' for visuals",
-            (attr_idx || char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"),
-            hgt - 1, 0); */
+        prt("<dir>, 'r' to recall, ESC", hgt - 1, 0);
 
         if (!column)
         {
@@ -6377,6 +6294,8 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
 
         case 'R':
         case 'r':
+        case 'I':
+        case 'i':
             if (grp_cnt > 0 && ego_idx[ego_cur] >= 0)
             {
                 desc_ego_fake(ego_idx[ego_cur]);
@@ -7787,7 +7706,7 @@ static void do_cmd_knowledge_home(void)
                     if (0 <= which && which < page_size && page_top + which < st_ptr->stock_num)
                     {
                         object_type *o_ptr = &st_ptr->stock[page_top + which];
-                        if (!(o_ptr->ident & IDENT_FULL))
+                        if (object_is_flavor(o_ptr) && !obj_is_identified(o_ptr))
                             msg_print("You have no special knowledge about that item.");
                         else
                             obj_display(o_ptr);
@@ -7945,7 +7864,7 @@ void do_cmd_knowledge(void)
             do_cmd_knowledge_objects(&need_redraw, FALSE, -1);
             break;
         case 'e':
-            do_cmd_knowledge_egos(&need_redraw);
+            do_cmd_knowledge_egos();
             break;
         case 'h':
             do_cmd_knowledge_home();

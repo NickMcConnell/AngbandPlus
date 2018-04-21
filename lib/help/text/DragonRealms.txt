@@ -225,5 +225,5 @@ Death          Very Bad      Very Bad      Excellent     Good
 
 
 
-Automatically generated for PosChengband 4.0.2.
+Automatically generated for PosChengband 5.0.0.
 

@@ -11,6 +11,8 @@ void rune_calc_bonuses(object_type *o_ptr)
 {
     if (o_ptr->rune == RUNE_ABSORPTION)
         p_ptr->magic_resistance += 15;
+    if (o_ptr->rune == RUNE_UNDERSTANDING && object_is_helmet(o_ptr))
+        p_ptr->auto_pseudo_id = TRUE;
     if (o_ptr->rune == RUNE_SHADOW)
     {
         if (object_is_body_armour(o_ptr) || o_ptr->tval == TV_CLOAK)
@@ -139,102 +141,102 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
     switch (which)
     {
     case RUNE_PROTECTION:
-        add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
+        add_flag(o_ptr->flags, OF_IGNORE_ACID);
         o_ptr->to_a += 2 + randint1(8);
         break;
 
     case RUNE_REGENERATION:
-        add_flag(o_ptr->art_flags, TR_REGEN);
+        add_flag(o_ptr->flags, OF_REGEN);
         break;
 
     case RUNE_FIRE:
         if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
-            add_flag(o_ptr->art_flags, TR_BRAND_FIRE);
+            add_flag(o_ptr->flags, OF_BRAND_FIRE);
         if (object_is_shield(o_ptr))
-            add_flag(o_ptr->art_flags, TR_RES_FIRE);
+            add_flag(o_ptr->flags, OF_RES_FIRE);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->art_flags, TR_RES_FIRE);
-            add_flag(o_ptr->art_flags, TR_SH_FIRE);
+            add_flag(o_ptr->flags, OF_RES_FIRE);
+            add_flag(o_ptr->flags, OF_AURA_FIRE);
         }
         if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_CLOAK)
-            add_flag(o_ptr->art_flags, TR_SH_FIRE);
+            add_flag(o_ptr->flags, OF_AURA_FIRE);
         break;
 
     case RUNE_AIR:
         if (!object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->art_flags, TR_LEVITATION);
+            add_flag(o_ptr->flags, OF_LEVITATION);
         break;
 
     case RUNE_WATER:
-        add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
+        add_flag(o_ptr->flags, OF_IGNORE_ACID);
         if (object_is_melee_weapon(o_ptr) || o_ptr->tval == TV_GLOVES)
-            add_flag(o_ptr->art_flags, TR_BRAND_ACID);
+            add_flag(o_ptr->flags, OF_BRAND_ACID);
         else
-            add_flag(o_ptr->art_flags, TR_RES_ACID);
+            add_flag(o_ptr->flags, OF_RES_ACID);
         break;
 
     case RUNE_LIGHT:
-        add_flag(o_ptr->art_flags, TR_RES_LITE);
+        add_flag(o_ptr->flags, OF_RES_LITE);
         break;
 
     case RUNE_SHADOW:
         if (o_ptr->tval != TV_CLOAK)
-            add_flag(o_ptr->art_flags, TR_RES_DARK);
+            add_flag(o_ptr->flags, OF_RES_DARK);
         break;
 
     case RUNE_EARTH:
         if (object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->art_flags, TR_VORPAL);
+            add_flag(o_ptr->flags, OF_VORPAL);
         else if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->art_flags, TR_RES_SHARDS);
-            add_flag(o_ptr->art_flags, TR_SH_SHARDS);
+            add_flag(o_ptr->flags, OF_RES_SHARDS);
+            add_flag(o_ptr->flags, OF_AURA_SHARDS);
         }
         else if (object_is_shield(o_ptr))
-            add_flag(o_ptr->art_flags, TR_RES_SHARDS);
+            add_flag(o_ptr->flags, OF_RES_SHARDS);
         else if (o_ptr->tval == TV_CLOAK)
-            add_flag(o_ptr->art_flags, TR_SH_SHARDS);
+            add_flag(o_ptr->flags, OF_AURA_SHARDS);
         break;
 
     case RUNE_SEEING:
-        add_flag(o_ptr->art_flags, TR_RES_BLIND);
+        add_flag(o_ptr->flags, OF_RES_BLIND);
         if (o_ptr->tval == TV_HELM)
-            add_flag(o_ptr->art_flags, TR_SEE_INVIS);
+            add_flag(o_ptr->flags, OF_SEE_INVIS);
         break;
 
     case RUNE_LIFE:
-        add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+        add_flag(o_ptr->flags, OF_HOLD_LIFE);
         break;
 
     case RUNE_STABILITY:
-        add_flag(o_ptr->art_flags, TR_RES_NEXUS);
+        add_flag(o_ptr->flags, OF_RES_NEXUS);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->art_flags, TR_RES_CHAOS);
-            add_flag(o_ptr->art_flags, TR_RES_DISEN);
+            add_flag(o_ptr->flags, OF_RES_CHAOS);
+            add_flag(o_ptr->flags, OF_RES_DISEN);
         }
         break;
     
     case RUNE_REFLECTION:
-        add_flag(o_ptr->art_flags, TR_REFLECT);
+        add_flag(o_ptr->flags, OF_REFLECT);
         break;
 
     case RUNE_DEATH:
         if (object_is_melee_weapon(o_ptr))
-            add_flag(o_ptr->art_flags, TR_VAMPIRIC);
+            add_flag(o_ptr->flags, OF_BRAND_VAMP);
         else
         {
-            add_flag(o_ptr->art_flags, TR_RES_NETHER);
+            add_flag(o_ptr->flags, OF_RES_NETHER);
             if (object_is_body_armour(o_ptr))
-                add_flag(o_ptr->art_flags, TR_RES_POIS);
+                add_flag(o_ptr->flags, OF_RES_POIS);
         }
         break;
 
     case RUNE_MIND:
-        add_flag(o_ptr->art_flags, TR_TELEPATHY);
+        add_flag(o_ptr->flags, OF_TELEPATHY);
         if (o_ptr->tval == TV_HELM)
-            add_flag(o_ptr->art_flags, TR_SUST_INT);
+            add_flag(o_ptr->flags, OF_SUST_INT);
         break;
 
     case RUNE_MIGHT:
@@ -242,9 +244,9 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         o_ptr->to_d += randint1(5);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->art_flags, TR_SUST_STR);
-            add_flag(o_ptr->art_flags, TR_SUST_DEX);
-            add_flag(o_ptr->art_flags, TR_SUST_CON);
+            add_flag(o_ptr->flags, OF_SUST_STR);
+            add_flag(o_ptr->flags, OF_SUST_DEX);
+            add_flag(o_ptr->flags, OF_SUST_CON);
         }
         break;
 
@@ -259,25 +261,25 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         break;
 
     case RUNE_IMMORTALITY:
-        add_flag(o_ptr->art_flags, TR_RES_TIME);
+        add_flag(o_ptr->flags, OF_RES_TIME);
         if (object_is_body_armour(o_ptr))
         {
-            add_flag(o_ptr->art_flags, TR_SUST_STR);
-            add_flag(o_ptr->art_flags, TR_SUST_INT);
-            add_flag(o_ptr->art_flags, TR_SUST_WIS);
-            add_flag(o_ptr->art_flags, TR_SUST_DEX);
-            add_flag(o_ptr->art_flags, TR_SUST_CON);
-            add_flag(o_ptr->art_flags, TR_SUST_CHR);
-            add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+            add_flag(o_ptr->flags, OF_SUST_STR);
+            add_flag(o_ptr->flags, OF_SUST_INT);
+            add_flag(o_ptr->flags, OF_SUST_WIS);
+            add_flag(o_ptr->flags, OF_SUST_DEX);
+            add_flag(o_ptr->flags, OF_SUST_CON);
+            add_flag(o_ptr->flags, OF_SUST_CHR);
+            add_flag(o_ptr->flags, OF_HOLD_LIFE);
         }
         break;
 
     case RUNE_ELEMENTAL_PROTECTION:
     case RUNE_GOOD_FORTUNE:
-        add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
-        add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
-        add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
-        add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
+        add_flag(o_ptr->flags, OF_IGNORE_ACID);
+        add_flag(o_ptr->flags, OF_IGNORE_FIRE);
+        add_flag(o_ptr->flags, OF_IGNORE_COLD);
+        add_flag(o_ptr->flags, OF_IGNORE_ELEC);
         break;
     }
 

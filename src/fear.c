@@ -136,37 +136,6 @@ bool fear_set_p(int v)
     return TRUE;
 }
 
-/* Odds that 1dL1 <= 1dL2 
-   Addendum: I worked out closed forms for the odds
-   that 1dM <= 1dN. There are 2 cases:
-   [1] M<=N: p = (2N-M+1)/2N
-   [2] M>N:  p = (N+1)/2M
- */
-static double _save_odds(int l1, int l2)
-{
-    double w1 = 1.0/(double)l1;
-    double t = 0.0;
-    double p = 0.0;
-    int i, j;
-
-    /* Consider each possibility on a 1dL1 roll */
-    for (i = 1; i <= l1; i++)
-    {
-        /* To save, 1dL2 must roll >= i. How many ways? */
-        j = l2 - (i - 1);
-
-        /* Stop when all hope is lost */
-        if (j <= 0) break;
-
-        /* The odds of this are: */
-        p = (double)j/(double)l2;
-
-        /* Weight this event */
-        t += p*w1;
-    }
-    return t;
-}
-
 /* Effective monster level for fear calculations */
 static int _r_level(monster_race *r_ptr)
 {
@@ -248,60 +217,37 @@ static int _plev(void)
     return 45 + (p_ptr->lev - 40)*2;
 }
 
-/* Fear Saving Throws */
+/* Fear Saving Throws
+   Odds that 1dM <= 1dN. There are 2 cases:
+   [1] M<=N: p = (2N-M+1)/2N
+   [2] M>N : p = (N+1)/2M
+ */
 bool fear_save_p(int ml)
 {
-    bool result = FALSE;
     int pl;
+    int rolls;
+    int i;
 
     if (!hack_mind) return TRUE;
     if (ml <= 1) return TRUE;
 
-    /* Immunity to Fear? */
-    if (!ml) return TRUE;
+    /* Immunity to Fear?*/
     if (res_pct(RES_FEAR) >= 100) return TRUE;
-    if (IS_INVULN()) return TRUE;
-    if (IS_SHERO()) return TRUE;
-    if (p_ptr->pclass == CLASS_BERSERKER) return TRUE;
-    if (equip_find_artifact(ART_ARES)) return TRUE;
 
     pl = _plev() + adj_stat_save_fear[p_ptr->stat_ind[A_CHR]];
     if (pl < 1) pl = 1;
 
-    if (randint1(ml) <= randint1(pl)) result = TRUE;
-    else
-    {
-        int j;
-        for (j = 0; j < p_ptr->resist[RES_FEAR]; j++)
-        {
-            if (randint1(ml) <= randint1(pl)) 
-            {
-                result = TRUE;
-                break;
-            }
-        }    
-    }
+    rolls = 1 + p_ptr->resist[RES_FEAR];
 
-    if (p_ptr->wizard)
+    for (i = 0; i < rolls; i++)
     {
-        double s = _save_odds(ml, pl);
-        if (p_ptr->resist[RES_FEAR])
+        if (randint1(ml) <= randint1(pl))
         {
-            double f = 1.0 - s;
-            double f2 = f;
-            double s2;
-            int j;
-            for (j = 0; j < p_ptr->resist[RES_FEAR]; j++)
-                f2 *= f;
-            s2 = 1.0 - f2;
-            msg_format("Fear: 1d%d <= 1d%d => %.2lf%%, %.2lf%% %s (%d)", ml, pl, s*100.0, s2*100.0, result?"Y":"N", p_ptr->resist[RES_FEAR]);
+            equip_learn_resist(OF_RES_FEAR);
+            return TRUE;
         }
-        else
-            msg_format("Fear: 1d%d <= 1d%d => %.2lf%% %s", ml, pl, s*100.0, result?"Y":"N");
     }
-
-
-    return result;
+    return FALSE;
 }
 
 bool fear_save_m(monster_type *m_ptr)
@@ -385,7 +331,7 @@ void fear_process_p(void)
             char m_name[80];
             monster_desc(m_name, m_ptr, 0);
             msg_format("You behold the terrifying visage of %s!", m_name);
-            r_ptr->r_flags2 |= RF2_AURA_FEAR;
+            mon_lore_2(m_ptr, RF2_AURA_FEAR);
             fear_add_p(r_level/MAX(1, m_ptr->cdis-2));
         }
     }
@@ -402,7 +348,7 @@ void fear_update_m(monster_type *m_ptr)
             char m_name[80];
             monster_desc(m_name, m_ptr, 0);
             msg_format("You behold the terrifying visage of %s!", m_name);
-            r_ptr->r_flags2 |= RF2_AURA_FEAR;
+            mon_lore_2(m_ptr, RF2_AURA_FEAR);
             fear_add_p(r_level);
         }
     }
@@ -417,7 +363,7 @@ void fear_p_touch_m(monster_type *m_ptr)
         int r_level = _r_level(r_ptr);
         if (!fear_save_p(r_level))
         {
-            r_ptr->r_flags2 |= RF2_AURA_FEAR;
+            mon_lore_2(m_ptr, RF2_AURA_FEAR);
             fear_add_p(r_level);
         }
     }
@@ -435,7 +381,7 @@ bool fear_p_hurt_m(int m_idx, int dam)
         int r_level = _r_level(r_ptr);
         if (!fear_save_p(r_level))
         {
-            r_ptr->r_flags2 |= RF2_AURA_FEAR;
+            mon_lore_2(m_ptr, RF2_AURA_FEAR);
             fear_add_p(r_level/MAX(1, m_ptr->cdis - 2));
         }
     }

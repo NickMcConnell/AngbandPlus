@@ -140,4 +140,4 @@ Giants            <color:R>Poor         </color> <color:r>Bad          </color> 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 4.0.2.</color>
+<color:s>Automatically generated for PosChengband 5.0.0.</color>

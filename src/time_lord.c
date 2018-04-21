@@ -854,10 +854,10 @@ static void _calc_bonuses(void)
     p_ptr->pspeed += (p_ptr->lev) / 7;
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 30) add_flag(flgs, TR_RES_TIME);
-    if (p_ptr->lev >= 7) add_flag(flgs, TR_SPEED);
+    if (p_ptr->lev >= 30) add_flag(flgs, OF_RES_TIME);
+    if (p_ptr->lev >= 7) add_flag(flgs, OF_SPEED);
 }
 
 static void _on_fail(const spell_info *spell)

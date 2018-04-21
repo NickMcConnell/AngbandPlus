@@ -2124,16 +2124,16 @@ M:50:1d2
 N:332:[Book of the Unicorn]
 G:?:w
 I:90:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:333:[Blessings of the Grail]
 G:?:w
 I:90:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2158,16 +2158,16 @@ M:50:1d2
 N:336:[Pattern Sorcery]
 G:?:b
 I:91:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:337:[Grimoire of Power]
 G:?:b
 I:91:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2291,16 +2291,16 @@ M:50:1d2
 N:381:[Nature's Gifts]
 G:?:g
 I:92:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:382:[Nature's Wrath]
 G:?:g
 I:92:3:0
-W:80:0:0:30:100000
-A:80/2
+W:70:0:0:30:100000
+A:70/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2325,16 +2325,16 @@ M:100:1d2
 N:385:[Chaos Channels]
 G:?:r
 I:93:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:386:[Armageddon Tome]
 G:?:r
 I:93:3:0
-W:100:0:0:30:100000
-A:100/3
+W:85:0:0:30:100000
+A:85/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2479,7 +2479,7 @@ F:RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_COLD:30:30:110
 E:You breathe frost.
-D:A suit of scales, coldly gleaming in frosty white.  A shiver runs down 
+D:A suit of scales, coldly gleaming in frosty white. A shiver runs down
 D:through your spine even as you look at it.
 
 N:403:Red Dragon Scale Mail~
@@ -2492,7 +2492,7 @@ F:RES_FIRE |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_FIRE:30:50:200
 E:You breathe fire.
-D:A suit of scales, with all the reds of every fire ever lit.  The scar 
+D:A suit of scales, with all the reds of every fire ever lit. The scar
 D:tissue from an old burn aches as you put this armour on.
 
 N:404:Green Dragon Scale Mail~
@@ -2538,7 +2538,7 @@ P:40:2d4:-2:0:10
 F:RES_SOUND | RES_SHARDS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_LAW:50:100:230
-D:A suit of scales in stern blue and silver.  You feel the slightest tremor 
+D:A suit of scales in stern blue and silver. You feel the slightest tremor
 D:as you touch it, like massed trumpets heard and cyclones felt from afar.
 
 N:408:Bronze Dragon Scale Mail~
@@ -2551,7 +2551,7 @@ F:RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_CONF:30:40:120
 E:You breathe confusion.
-D:A suit of scales, gleaming in rich engraved bronze.  The more you look at 
+D:A suit of scales, gleaming in rich engraved bronze. The more you look at
 D:the the maze of whorls and lines that close inspection reveal on its 
 D:surface, the less sense you are able to make of them.
 
@@ -2565,7 +2565,7 @@ F:RES_SOUND |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_SOUND:30:40:130
 E:You breathe sound.
-D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
+D:A suit of scales in mirror-like gold. You hear nothing unusual as you
 D:wear this armour, yet your ears ache as though in the midst of a 
 D:cacophony.
 
@@ -2578,7 +2578,7 @@ P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_CHAOS:50:100:220
-D:A suit of scales.  Every shape, in every color imaginable, riot and 
+D:A suit of scales. Every shape, in every color imaginable, riot and
 D:contend upon its surface as you stare in fascination.
 
 N:411:Balance Dragon Scale Mail~
@@ -2590,7 +2590,7 @@ P:40:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_BALANCE:50:100:250
-D:A suit of scales.  Featureless grey to casual inspection, yet a closer 
+D:A suit of scales. Featureless grey to casual inspection, yet a closer
 D:look reveals patterns within patterns of iridescence that throb with 
 D:leashed energies bound as though by chains of adamant.
 
@@ -2617,7 +2617,7 @@ W:60:0:0:50:10000
 A:60/5
 P:8:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
-D:A dragon-winged great helm, glowing in all the colors of the rainbow.  
+D:A dragon-winged great helm, glowing in all the colors of the rainbow.
 D:It grants resistance to the elements.
 
 N:414:& Dragon Shield~
@@ -2693,16 +2693,16 @@ P:0:1d1:0:0:0
 N:423:[Black Channels]
 G:?:v
 I:94:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:424:[Necronomicon]
 G:?:v
 I:94:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2935,16 +2935,16 @@ M:50:1d2
 N:514:[Trumps of Doom]
 G:?:u
 I:95:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:515:[Five Aces]
 G:?:u
 I:95:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3490,7 +3490,7 @@ W:70:0:0:350:10000
 A:70/6
 P:0:10d10:-50:30:0
 F:SHOW_MODS | VORPAL | CURSED | HEAVY_CURSE |
-F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_HUMAN | VAMPIRIC |
+F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_HUMAN | BRAND_VAMP |
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC |
 F:BRAND_FIRE | BRAND_ELEC | BRAND_COLD | BRAND_ACID | BRAND_POIS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RIDING
@@ -3549,16 +3549,16 @@ M:50:1d2
 N:606:[Note of Acting Master]
 G:?:U
 I:97:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:607:[Spiritual Enlightenment]
 G:?:U
 I:97:3:0
-W:95:0:0:30:100000
-A:95/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3577,7 +3577,7 @@ A:70/4
 P:0:0d0:0:0:10
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
 D:This unearthly, completely transparent body mantle folds and drapes in 
-D:iridescent patterns around you.  It weighs absolutely nothing.
+D:iridescent patterns around you. It weighs absolutely nothing.
 
 N:612:& Mirror~
 G:*:b
@@ -3685,16 +3685,16 @@ M:50:1d2
 N:633:[Harps of Rivendell]
 G:?:w
 I:105:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:634:[Lays of Beleriand]
 G:?:w
 I:105:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3735,16 +3735,16 @@ M:50:1d2
 N:639:[Gorinnosho]
 G:?:u
 I:106:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:640:[Hokusin Ittouryuu Kaiden]
 G:?:u
 I:106:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3783,16 +3783,16 @@ M:50:1d2
 N:648:[Demonthoughts]
 G:?:r
 I:98:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:649:[Hellfire Tome]
 G:?:r
 I:98:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3838,16 +3838,16 @@ M:50:1d2
 N:656:[Exorcism and Dispelling]
 G:?:w
 I:99:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:657:[Wrath of God]
 G:?:w
 I:99:3:0
-W:95:0:0:30:100000
-A:95/3
+W:85:0:0:30:100000
+A:85/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3872,16 +3872,16 @@ M:50:1d2
 N:665:[Curse and Spelling]
 G:?:D
 I:107:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:666:[Forbidden Cursebook]
 G:?:D
 I:107:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3974,16 +3974,16 @@ M:50:1d2
 N:685:[Return of the Dead]
 G:?:D
 I:100:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:686:[Necromatic Tome]
 G:?:D
 I:100:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3992,10 +3992,10 @@ G:|:D
 I:23:34:0
 W:70:0:0:150:50000
 A:30/8
-P:0:0d0:-50:-50:-50
+P:0:0d0:-10:-10:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:VAMPIRIC | NO_ENCHANT
-D:A black blade, covered with gleaming runes.  It is rumored
+F:BRAND_VAMP | NO_ENCHANT
+D:A black blade, covered with gleaming runes. It is rumored
 D:to be an evil weapon of great power that will ultimately control
 D:its bearer.
 
@@ -4020,16 +4020,16 @@ M:50:1d2
 N:690:[The Sound and the Fury]
 G:?:D
 I:108:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:691:[Dire Ire]
 G:?:D
 I:108:3:0
-W:90:0:0:30:100000
-A:90/2
+W:80:0:0:30:100000
+A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -4084,16 +4084,16 @@ M:50:1d2
 N:703:[Great Escapes]
 G:?:u
 I:109:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:704:[Book of Shadows]
 G:?:u
 I:109:3:0
-W:90:0:0:30:100000
-A:90/3
+W:80:0:0:30:100000
+A:80/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -4215,16 +4215,16 @@ M:50:1d2
 N:721:[Path of Destruction]
 G:?:r
 I:101:2:0
-W:50:0:90:30:15000
-A:50/1
+W:40:0:90:30:15000
+A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:722:[Day of Ragnarok]
 G:?:r
 I:101:3:0
-W:90:0:0:30:100000
-A:95/3
+W:85:0:0:30:100000
+A:85/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
