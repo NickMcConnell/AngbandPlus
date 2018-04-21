@@ -103,7 +103,7 @@ static byte value_check_aux2(object_type *o_ptr)
 
 
 
-static void sense_inventory_aux(int slot, bool heavy)
+static void sense_inventory_aux(int slot, bool strong)
 {
     byte        feel;
     object_type *o_ptr = &inventory[slot];
@@ -116,7 +116,7 @@ static void sense_inventory_aux(int slot, bool heavy)
     if (object_is_known(o_ptr)) return;
 
     /* Check for a feeling */
-    feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+    feel = (strong ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
     /* Skip non-feelings */
     if (!feel) return;
@@ -184,217 +184,51 @@ static int _adj_pseudo_id(int num)
     return result;
 }
 
-static int _class_idx(void)
+static int _get_pseudo_id_flags(void)
 {
-    int result = p_ptr->pclass;
-    if (result == CLASS_MONSTER)
+    if (p_ptr->pclass == CLASS_MONSTER)
     {
         race_t *race_ptr = get_race();
-        result = race_ptr->pseudo_class_idx;
+        return get_class_aux(race_ptr->pseudo_class_idx, 0)->flags;
     }
-    return result;
+    return get_class()->flags;
 }
 
 static void sense_inventory1(void)
 {
     int         i;             /* v~~~ Early Game speed is ridiculous otherwise */
     int         plev = p_ptr->lev + 10;
-    bool        heavy = FALSE;
+    bool        strong = FALSE;
     object_type *o_ptr;
 
     if (p_ptr->confused) return;
 
     if (easy_id)
-        heavy = TRUE;
+        strong = TRUE;
     else
     {
-        switch (_class_idx())
+        int flags = _get_pseudo_id_flags();
+        if (flags & CLASS_SENSE1_STRONG)
+            strong = TRUE;
+        else if (!(flags & CLASS_SENSE1_WEAK))
+            return;
+        if (flags & CLASS_SENSE1_FAST)
         {
-            case CLASS_WARRIOR:
-            case CLASS_ARCHER:
-            case CLASS_SAMURAI:
-            case CLASS_CAVALRY:
-            case CLASS_BLOOD_KNIGHT:
-            case CLASS_DUELIST:
-            case CLASS_RUNE_KNIGHT:
-            case CLASS_WEAPONMASTER:
-            case CLASS_RAGE_MAGE:
-            case CLASS_MAULER:
-            case CLASS_MONSTER:
-            {
-                /* Good sensing */
-                if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
-
-                /* Heavy sensing */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_WEAPONSMITH:
-            {
-                /* Good sensing */
-                if (0 != randint0(_adj_pseudo_id(6000) / (plev * plev + 50))) return;
-
-                /* Heavy sensing */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_MAGE:
-            case CLASS_NECROMANCER:
-            case CLASS_BLOOD_MAGE:
-            case CLASS_HIGH_MAGE:
-            case CLASS_SORCERER:
-            case CLASS_MAGIC_EATER:
-            case CLASS_DEVICEMASTER:
-            case CLASS_YELLOW_MAGE:
-            case CLASS_GRAY_MAGE:
-            {
-                /* Good (light) sensing ... I never understood why the classes with the
-                   greatest magical understanding were so oblivious to the magic around them.
-                   Probably, this was an ancient decision from the days of a universal early
-                   identify spell. That no longer makes sense, though. */
-                if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_PRIEST:
-            case CLASS_BARD:
-            case CLASS_TIME_LORD:
-            case CLASS_WARLOCK:
-            case CLASS_WILD_TALENT:
-            {
-                /* Good (light) sensing */
-                if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_ROGUE:
-            case CLASS_NINJA:
-            case CLASS_SCOUT:
-            {
-                /* Okay sensing */
-                if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
-
-                /* Heavy sensing */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_RANGER:
-            {
-                /* Bad sensing */
-                if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
-
-                /* Changed! */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_PALADIN:
-            case CLASS_SNIPER:
-            case CLASS_IMITATOR:
-            {
-                /* Bad sensing */
-                if (0 != randint0(_adj_pseudo_id(77777) / (plev * plev + 40))) return;
-
-                /* Heavy sensing */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_WARRIOR_MAGE:
-            case CLASS_RED_MAGE:
-            {
-                /* Bad sensing */
-                if (0 != randint0(_adj_pseudo_id(75000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_MINDCRAFTER:
-            case CLASS_PSION:
-            case CLASS_BLUE_MAGE:
-            case CLASS_MIRROR_MASTER:
-            {
-                /* Bad sensing */
-                if (0 != randint0(_adj_pseudo_id(55000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_CHAOS_WARRIOR:
-            {
-                /* Bad sensing */
-                if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40))) return;
-
-                /* Changed! */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_MONK:
-            case CLASS_FORCETRAINER:
-            case CLASS_MYSTIC:
-            {
-                /* Okay sensing */
-                if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_TOURIST:
-            case CLASS_ARCHAEOLOGIST:
-            {
-                /* Good sensing */
-                if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
-
-                /* Heavy sensing */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_BEASTMASTER:
-            {
-                /* Bad sensing */
-                if (0 != randint0(_adj_pseudo_id(65000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-            case CLASS_BERSERKER:
-            {
-                /* Heavy sensing */
-                heavy = TRUE;
-
-                /* Done */
-                break;
-            }
+            if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
+                return;
         }
-
+        else if (flags & CLASS_SENSE1_MED)
+        {
+            if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
+                return;
+        }
+        else if (flags & CLASS_SENSE1_SLOW)
+        {
+            if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
+                return;
+        }
         if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
-            heavy = TRUE;
+            strong = TRUE;
     }
 
     /*** Sense everything ***/
@@ -445,10 +279,10 @@ static void sense_inventory1(void)
         /* Good luck */
         if (p_ptr->good_luck && !randint0(13))
         {
-            heavy = TRUE;
+            strong = TRUE;
         }
 
-        sense_inventory_aux(i, heavy);
+        sense_inventory_aux(i, strong);
     }
 }
 
@@ -457,108 +291,41 @@ static void sense_inventory2(void)
 {
     int         i;
     int         plev = p_ptr->lev + 10;
+    bool        strong = FALSE;
     object_type *o_ptr;
 
     if (p_ptr->confused) return;
 
-    switch (_class_idx())
-    {
-        case CLASS_WARRIOR:
-        case CLASS_ARCHER:
-        case CLASS_SAMURAI:
-        case CLASS_CAVALRY:
-        case CLASS_BERSERKER:
-        case CLASS_SNIPER:
-        case CLASS_BLOOD_KNIGHT:
-        case CLASS_DUELIST:
-        case CLASS_WEAPONMASTER:
-        case CLASS_RAGE_MAGE:
-        case CLASS_MAULER:
-        case CLASS_MONSTER:
-        {
-            return;
-        }
-    }
-
     if (easy_id)
     {
+        strong = TRUE;
     }
     else
     {
-        switch (_class_idx())
+        int flags = _get_pseudo_id_flags();
+        if (flags & CLASS_SENSE2_STRONG)
+            strong = TRUE;
+        else if (!(flags & CLASS_SENSE2_WEAK))
+            return;
+        if (flags & CLASS_SENSE2_FAST)
         {
-            case CLASS_WEAPONSMITH:
-            case CLASS_PALADIN:
-            case CLASS_CHAOS_WARRIOR:
-            case CLASS_IMITATOR:
-            case CLASS_BEASTMASTER:
-            case CLASS_NINJA:
-            {
-                /* Very bad (light) sensing */
-                if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_RANGER:
-            case CLASS_WARRIOR_MAGE:
-            case CLASS_RED_MAGE:
-            case CLASS_MONK:
-            case CLASS_MYSTIC:
-            {
-                /* Bad sensing */
-                if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_PRIEST:
-            case CLASS_BARD:
-            case CLASS_ROGUE:
-            case CLASS_SCOUT:
-            case CLASS_FORCETRAINER:
-            case CLASS_MINDCRAFTER:
-            case CLASS_PSION:
-            case CLASS_WARLOCK:
-            case CLASS_WILD_TALENT:
-            {
-                /* Good sensing */
-                if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_MAGE:
-            case CLASS_NECROMANCER:
-            case CLASS_BLOOD_MAGE:
-            case CLASS_HIGH_MAGE:
-            case CLASS_SORCERER:
-            case CLASS_MAGIC_EATER:
-            case CLASS_MIRROR_MASTER:
-            case CLASS_BLUE_MAGE:
-            case CLASS_ARCHAEOLOGIST:
-            case CLASS_DEVICEMASTER:
-            case CLASS_YELLOW_MAGE:
-            case CLASS_GRAY_MAGE:
-            {
-                /* Good sensing */
-                if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
-
-                /* Done */
-                break;
-            }
-
-            case CLASS_TOURIST:
-            {
-                /* Good sensing */
-                if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
-
-                /* Done */
-                break;
-            }
+            if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40)))
+                return;
+        }
+        else if (flags & CLASS_SENSE2_MED)
+        {
+            if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40)))
+                return;
+        }
+        else if (flags & CLASS_SENSE2_SLOW)
+        {
+            if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40)))
+                return;
+        }
+        else /* Super duper slow */
+        {
+            if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5)))
+                return;
         }
     }
 
@@ -596,7 +363,7 @@ static void sense_inventory2(void)
         /* Occasional failure on inventory items */
         if ((i < INVEN_PACK) && (0 != randint0(5))) continue;
 
-        sense_inventory_aux(i, TRUE);
+        sense_inventory_aux(i, strong);
     }
 }
 
@@ -3882,8 +3649,10 @@ static void process_command(void)
         /* Gain new spells/prayers */
         case 'G':
         {
-            if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE))
+            if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RED_MAGE)
                 msg_print("You don't have to learn spells!");
+            else if (p_ptr->pclass == CLASS_SKILLMASTER)
+                skillmaster_gain_skill();
             else if (p_ptr->pclass == CLASS_SAMURAI)
                 do_cmd_gain_hissatsu();
             else if (p_ptr->pclass == CLASS_RAGE_MAGE)
@@ -3912,6 +3681,8 @@ static void process_command(void)
                 do_cmd_snipe_browse();
             else if (p_ptr->pclass == CLASS_RAGE_MAGE)
                 rage_mage_browse_spell();
+            else if (p_ptr->pclass == CLASS_SKILLMASTER)
+                skillmaster_browse();
             else if (p_ptr->pclass == CLASS_GRAY_MAGE)
                 gray_mage_browse_spell();
             else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
@@ -4007,6 +3778,8 @@ static void process_command(void)
                     imitator_cast(FALSE);
                 else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                     magic_eater_cast(0);
+                else if (p_ptr->pclass == CLASS_SKILLMASTER)
+                    skillmaster_cast();
                 else if (p_ptr->pclass == CLASS_SAMURAI)
                     do_cmd_hissatsu();
                 else if (p_ptr->pclass == CLASS_BLUE_MAGE)
@@ -4901,8 +4674,20 @@ static void process_player(void)
             /* Take a turn */
             energy_use = 100;
 
-            if (p_ptr->clear_mind && p_ptr->csp < p_ptr->msp)
-                cast_clear_mind();
+            if (p_ptr->csp < p_ptr->msp)
+            {
+                caster_info *caster_ptr = get_caster_info();
+                if (caster_ptr && (caster_ptr->options & CASTER_SUPERCHARGE_MANA))
+                {
+                    msg_boundary();
+                    cast_concentration();
+                }
+                else if (p_ptr->clear_mind)
+                {
+                    msg_boundary();
+                    cast_clear_mind();
+                }
+            }
         }
 
         else if (p_ptr->action == ACTION_FISH)
@@ -4940,8 +4725,8 @@ static void process_player(void)
             /* Redraw stuff */
             redraw_stuff();
 
-            /* Hack -- Assume messages were seen */
-            msg_line_clear();
+            /* Hack -- Assume messages were seen 
+            msg_line_clear(); */
 
             /* Process the command */
             process_command();

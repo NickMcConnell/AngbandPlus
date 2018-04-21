@@ -27,7 +27,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "spell";
         me.which_stat = A_CHR;
-        me.weight = 430;
+        me.encumbrance.max_wgt = 430;
+        me.encumbrance.weapon_pct = 50;
+        me.encumbrance.enc_wgt = 800;
         me.min_fail = 5;
         me.min_level = 3;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
@@ -80,6 +82,8 @@ class_t *beastmaster_get_class(void)
         me.base_hp = 6;
         me.exp = 120;
         me.pets = 10;
+        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_WEAK;
         
         me.birth = _birth;
         me.caster_info = _caster_info;

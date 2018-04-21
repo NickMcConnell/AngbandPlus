@@ -3312,28 +3312,7 @@ s16b spell_chance(int spell, int use_realm)
     if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->weapon_info[1].icky_wield) chance += 25;
 
     chance = mod_spell_chance_1(chance, use_realm);
-
-    /* Goodness or evilness gives a penalty to failure rate */
-    {
-        int    penalty = 2;
-        if (caster_ptr && caster_ptr->which_stat == A_WIS)
-            penalty = 5;
-
-        switch (use_realm)
-        {
-        case REALM_NATURE:
-            if (p_ptr->align > 50 || p_ptr->align < -50) chance += penalty;
-            break;
-        case REALM_LIFE: case REALM_CRUSADE:
-            if (p_ptr->align < -20) chance += penalty;
-            if (p_ptr->align >= 50) chance -= penalty;
-            break;
-        case REALM_DEATH: case REALM_DAEMON: case REALM_HEX:
-            if (p_ptr->align > 20) chance += penalty;
-            if (p_ptr->align <= -50) chance -= penalty;
-            break;
-        }
-    }
+    chance = virtue_mod_spell_fail(use_realm, chance);
 
     /* Minimum failure rate */
     if (chance < minfail) chance = minfail;

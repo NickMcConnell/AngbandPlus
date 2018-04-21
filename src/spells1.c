@@ -5481,8 +5481,10 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 break;
             }
 
-            if (is_pet(m_ptr)) nokori_hp = m_ptr->maxhp * 4L;
+            if (is_pet(m_ptr)) nokori_hp = m_ptr->maxhp * 4;
             else if ((p_ptr->pclass == CLASS_BEASTMASTER) && monster_living(r_ptr))
+                nokori_hp = m_ptr->maxhp * 3 / 10;
+            else if (p_ptr->easy_capture)
                 nokori_hp = m_ptr->maxhp * 3 / 10;
             else if (warlock_is_(WARLOCK_DRAGONS) && (r_ptr->flags3 & RF3_DRAGON))
                 nokori_hp = m_ptr->maxhp * 3 / 15;

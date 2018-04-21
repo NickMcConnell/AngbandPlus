@@ -148,7 +148,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "song";
         me.which_stat = A_CHR;
-        me.weight = 400;
+        me.encumbrance.max_wgt = 400;
+        me.encumbrance.weapon_pct = 67;
+        me.encumbrance.enc_wgt = 800;
         init = TRUE;
     }
     return &me;
@@ -210,6 +212,8 @@ class_t *bard_get_class(void)
         me.base_hp = 4;
         me.exp = 140;
         me.pets = 25;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

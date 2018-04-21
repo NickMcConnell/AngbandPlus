@@ -561,6 +561,9 @@
     <ClCompile Include="race_possessor.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="skillmaster.c">
+      <Filter>Player</Filter>
+    </ClCompile>
     <ClCompile Include="skills.c">
       <Filter>Player</Filter>
     </ClCompile>

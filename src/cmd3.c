@@ -1870,7 +1870,7 @@ static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode
             Term_erase(display_rect.x, display_rect.y + ct, display_rect.cx);
             if (mode == MON_LIST_PROBING)
             {
-                c_put_str(TERM_L_BLUE, "['p' for Probing; ESC to Exit; ? for Help]",
+                c_put_str(TERM_L_BLUE, "['P' for Probing; ESC to Exit; ? for Help]",
                         display_rect.y + ct, display_rect.x + 3);
             }
             else

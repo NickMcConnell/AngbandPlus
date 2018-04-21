@@ -1284,13 +1284,13 @@ static cptr do_life_spell(int spell, int mode)
         if (spoil) return "Player gains up to L/7 stat sustains for L turns.";
 
         {
-            int dur = spell_power(p_ptr->lev);
+            int dur = spell_power(plev);
 
             if (info) return info_duration(dur, 0);
 
             if (cast)
             {
-                int num = p_ptr->lev / 7;
+                int num = plev / 7;
 
                 if (randint0(7) < num)
                 {
@@ -1339,7 +1339,7 @@ static cptr do_life_spell(int spell, int mode)
 
         if (cast)
         {
-            if (one_in_(100/p_ptr->lev))
+            if (one_in_(100/plev))
                 mut_lose_random(mut_bad_pred);
             else
                 mut_lose_random(NULL);
@@ -1368,7 +1368,7 @@ static cptr do_life_spell(int spell, int mode)
         if (desc) return "For a short while, any damage you receive will be absorbed by your spell points.";
 
         {
-            int dur = spell_power(p_ptr->lev/10);
+            int dur = spell_power(plev/10);
 
             if (info) return format("dur %d", dur);
 
@@ -1703,13 +1703,19 @@ static cptr do_sorcery_spell(int spell, int mode)
         break;
 
     case 9:
-        if (name) return "Identify";
-        if (desc) return "Identifies an item.";
+        if (name) return plev < 30 ? "Identify" : "Mass Identify";
+        if (desc) return plev < 30 ? "Identifies an item." : "Identifies all items in your pack";
 
         {
             if (cast)
             {
-                if (!ident_spell(NULL)) return NULL;
+                if (plev < 30) 
+                {
+                    if (!ident_spell(NULL))
+                        return NULL;
+                }
+                else
+                    mass_identify();
             }
         }
         break;
@@ -2005,7 +2011,7 @@ static cptr do_sorcery_spell(int spell, int mode)
         if (desc) return "For a very short time, your magical devices are more powerful.";
 
         {
-            int base = spell_power(p_ptr->lev/10);
+            int base = spell_power(plev/10);
 
             if (info) return info_duration(base, base);
 
@@ -3079,7 +3085,7 @@ static cptr do_chaos_spell(int spell, int mode)
 
             if (cast)
             {
-                destroy_area(py, px, base + randint1(sides), spell_power(4 * p_ptr->lev));
+                destroy_area(py, px, base + randint1(sides), spell_power(4 * plev));
             }
         }
         break;
@@ -5287,6 +5293,75 @@ static cptr do_arcane_spell(int spell, int mode)
     return "";
 }
 
+static bool _craft_enchant(int max, int inc)
+{
+    int         item;
+    object_type *o_ptr;
+    char        o_name[MAX_NLEN];
+    bool        improved = FALSE;
+
+    item_tester_hook = object_is_weapon_armour_ammo;
+    item_tester_no_ryoute = TRUE;
+
+    if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", (USE_EQUIP | USE_INVEN | USE_FLOOR)))
+        return FALSE;
+
+    if (item >= 0)
+        o_ptr = &inventory[item];
+    else
+        o_ptr = &o_list[0 - item];
+
+    object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+    /* Enchanting is now automatic ... It was always possible to max
+     * out enchanting quickly with skilled macro usage, but other players
+     * are inviting carpal tunnel issues to no purpose. */
+    if (object_is_weapon_ammo(o_ptr))
+    {
+        if (o_ptr->to_h < max)
+        {
+            o_ptr->to_h = MIN(max, o_ptr->to_h + inc);
+            improved = TRUE;
+        }
+        if (o_ptr->to_d < max)
+        {
+            o_ptr->to_d = MIN(max, o_ptr->to_d + inc);
+            improved = TRUE;
+        }
+    }
+    else
+    {
+        if (o_ptr->to_a < max)
+        {
+            o_ptr->to_a = MIN(max, o_ptr->to_a + inc);
+            improved = TRUE;
+        }
+    }
+
+
+    msg_format("%s %s glow%s brightly!",
+            ((item >= 0) ? "Your" : "The"), o_name,
+            ((o_ptr->number > 1) ? "" : "s"));
+
+    if (!improved)
+    {
+        msg_print("The enchantment failed.");
+        if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100)
+            virtue_add(VIRTUE_ENCHANTMENT, -1);
+    }
+    else
+    {
+        virtue_add(VIRTUE_ENCHANTMENT, 1);
+        /* Minor Enchantment should not allow gold farming ... */
+        if (inc == 1 && object_is_nameless(o_ptr))
+            o_ptr->discount = 99;
+        p_ptr->update |= PU_BONUS;
+        p_ptr->notice |= PN_COMBINE | PN_REORDER;
+        p_ptr->window |= PW_INVEN | PW_EQUIP;
+        android_calc_exp();
+    }
+    return TRUE;
+}
 
 static cptr do_craft_spell(int spell, int mode)
 {
@@ -5305,59 +5380,8 @@ static cptr do_craft_spell(int spell, int mode)
 
         if (cast)
         {
-            int         item;
-            bool        okay = FALSE;
-            object_type *o_ptr;
-            char        o_name[MAX_NLEN];
-
-            item_tester_hook = object_is_weapon_armour_ammo;
-            item_tester_no_ryoute = TRUE;
-
-            if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) return NULL;
-
-            if (item >= 0)
-                o_ptr = &inventory[item];
-            else
-                o_ptr = &o_list[0 - item];
-
-            object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-            if (object_is_weapon_ammo(o_ptr))
-            {
-                if (one_in_(2))
-                {
-                    if (enchant(o_ptr, 1, ENCH_TOHIT | ENCH_MINOR_HACK)) okay = TRUE;
-                }
-                else
-                {
-                    if (enchant(o_ptr, 1, ENCH_TODAM | ENCH_MINOR_HACK)) okay = TRUE;
-                }
-            }
-            else
-            {
-                if (enchant(o_ptr, 1, ENCH_TOAC | ENCH_MINOR_HACK)) okay = TRUE;
-            }
-
-
-            msg_format("%s %s glow%s brightly!",
-                    ((item >= 0) ? "Your" : "The"), o_name,
-                    ((o_ptr->number > 1) ? "" : "s"));
-
-            if (!okay)
-            {
-                if (flush_failure) flush();
-                msg_print("The enchantment failed.");
-                if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100)
-                    virtue_add(VIRTUE_ENCHANTMENT, -1);
-            }
-            else
-            {
-                if (object_is_nameless(o_ptr))
-                    o_ptr->discount = 99;
-                virtue_add(VIRTUE_ENCHANTMENT, 1);
-            }
-
-            android_calc_exp();
+            if (!_craft_enchant(2 + plev/5, 1))
+                return NULL;
         }
         break;
 
@@ -5765,11 +5789,10 @@ static cptr do_craft_spell(int spell, int mode)
         if (name) return "Enchantment";
         if (desc) return "Attempts to increase +to-hit, +to-dam of a weapon, or to increase +AC of armor.";
 
+        if (cast)
         {
-            if (cast)
-            {
-                if (!cast_enchantment()) return NULL;
-            }
+            if (!_craft_enchant(15, 3))
+                return NULL;
         }
         break;
 
@@ -6961,7 +6984,7 @@ static cptr do_crusade_spell(int spell, int mode)
 
             if (cast)
             {
-                destroy_area(py, px, base + randint1(sides), spell_power(4 * p_ptr->lev));
+                destroy_area(py, px, base + randint1(sides), spell_power(4 * plev));
             }
         }
         break;
@@ -8591,7 +8614,7 @@ static cptr do_hex_spell(int spell, int mode)
             o_ptr = &inventory[item];
             obj_flags(o_ptr, f);
 
-            p_ptr->csp += (p_ptr->lev / 5) + randint1(p_ptr->lev / 5);
+            p_ptr->csp += (plev / 5) + randint1(plev / 5);
             if (have_flag(f, OF_TY_CURSE) || (o_ptr->curse_flags & OFC_TY_CURSE)) p_ptr->csp += randint1(5);
             if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
 

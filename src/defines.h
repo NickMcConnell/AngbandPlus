@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 5
 #define VER_MINOR 0
-#define VER_PATCH 3
-#define VER_EXTRA 1
+#define VER_PATCH 4
+#define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -548,7 +548,7 @@
 #define realm2tval(A) ((A) + TV_LIFE_BOOK - 1)
 #define technic2magic(A)      (is_magic(A) ? (A) : (A) - MIN_TECHNIC + 1 + MAX_MAGIC)
 #define is_good_realm(REALM)   ((REALM) == REALM_LIFE || (REALM) == REALM_CRUSADE)
-#define is_evil_realm(REALM)   ((REALM) == REALM_DEATH || (REALM) == REALM_DAEMON)
+#define is_evil_realm(REALM)   ((REALM) == REALM_DEATH || (REALM) == REALM_DAEMON || (REALM) == REALM_HEX)
 
 /*
  * Magic-books for the realms
@@ -773,6 +773,19 @@
 #define RACE_IS_MONSTER      0x0008
 #define RACE_IS_ILLITERATE   0x0010
 
+/* Pseudo-ID: Sense1 is the traditional equipable item sensing.
+ * Sense2 is jewelry, lights and magical devices (mage like sensing). */
+#define CLASS_SENSE1_STRONG  0x0001
+#define CLASS_SENSE1_WEAK    0x0002
+#define CLASS_SENSE1_SLOW    0x0004
+#define CLASS_SENSE1_MED     0x0008
+#define CLASS_SENSE1_FAST    0x0010
+#define CLASS_SENSE2_STRONG  0x0020
+#define CLASS_SENSE2_WEAK    0x0040
+#define CLASS_SENSE2_SLOW    0x0080
+#define CLASS_SENSE2_MED     0x0100
+#define CLASS_SENSE2_FAST    0x0200
+
 /* Mimicry uses races too ... Its just that players
    cannot choose these races during birth. */
 #define MIMIC_NONE            -1                  /* RACE_HUMAN is 0 and Dopplegangers can mimic humans! */
@@ -857,7 +870,8 @@ enum _mimic_types {
 #define CLASS_DEVICEMASTER      44
 #define CLASS_YELLOW_MAGE       45
 #define CLASS_GRAY_MAGE         46
-#define MAX_CLASS               47
+#define CLASS_SKILLMASTER       47
+#define MAX_CLASS               48
 
 /*
 #define CLASS_LOGRUS_MASTER     47
@@ -1614,6 +1628,8 @@ enum {
 #define TV_WEAPON_END     TV_SWORD
 #define TV_ARMOR_BEGIN    TV_BOOTS
 #define TV_ARMOR_END      TV_DRAG_ARMOR
+#define TV_BOOK_BEGIN     TV_LIFE_BOOK
+#define TV_BOOK_END       TV_BURGLARY_BOOK
 
 /* Any subvalue */
 #define SV_ANY                     255
@@ -2396,6 +2412,7 @@ enum {
 #define OD_FORCE_FLAVOR     0x00000080  /* Get un-shuffled flavor name */
 #define OD_NAME_AND_DICE    0x00000100
 #define OD_COLOR_CODED      0x00000200  /* For msg_print only */
+#define OD_THROWING         0x00000400  /* buggy otherwise for throwing weapon info */
 
 #define OD_LORE (OD_NAME_ONLY | OD_OMIT_PREFIX | OD_COLOR_CODED)
 
@@ -5292,6 +5309,7 @@ extern int PlayerUID;
 #define WEAPONMASTER_FLURRY  85
 
 #define BEHOLDER_GAZE        86
+#define MODE_THROWING        87
 
 #define HISSATSU_IAI    100
 

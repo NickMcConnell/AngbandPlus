@@ -1311,7 +1311,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "spell";
         me.which_stat = A_INT;
-        me.weight = 450;
+        me.encumbrance.max_wgt = 450;
+        me.encumbrance.weapon_pct = 20;
+        me.encumbrance.enc_wgt = 1200;
         init = TRUE;
     }
     return &me;
@@ -1360,6 +1362,7 @@ class_t *rune_knight_get_class(void)
         me.base_hp = 6;
         me.exp = 150;
         me.pets = 35;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

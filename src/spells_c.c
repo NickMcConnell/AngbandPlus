@@ -168,8 +168,7 @@ void clear_mind_spell(int cmd, variant *res)
             return;
         }
 
-        if (disturb_minor)
-            msg_print("You feel your head clear a little.");
+        msg_print("You feel your head clear a little.");
 
         if (p_ptr->pclass == CLASS_PSION) /* Testing ... */
             amt = 3 + p_ptr->lev/10;
@@ -1399,7 +1398,7 @@ void eat_magic_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
-        if (eat_magic(p_ptr->lev * 2))
+        if (eat_magic(20 + p_ptr->lev * 8 / 5)) /* skillmasters can do this on CL1 ... */
             var_set_bool(res, TRUE);
         break;
     case SPELL_FAIL_MIN:

@@ -1924,7 +1924,14 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "arcane power";
         me.which_stat = A_CHR;
-        me.weight = 500;
+        me.encumbrance.max_wgt = 450;
+        if (p_ptr->psubclass == WARLOCK_DRAGONS)
+            me.encumbrance.weapon_pct = 33;
+        else if (p_ptr->psubclass == WARLOCK_GIANTS)
+            me.encumbrance.weapon_pct = 20;
+        else
+            me.encumbrance.weapon_pct = 67;
+        me.encumbrance.enc_wgt = 800;
         init = TRUE;
     }
     return &me;
@@ -2015,6 +2022,8 @@ class_t *warlock_get_class(int psubclass)
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;
         me.character_dump = _character_dump;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.pets = 15;
         init = TRUE;

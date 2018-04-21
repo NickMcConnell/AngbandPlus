@@ -513,4 +513,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.3.</color>
+<color:s>Automatically generated for PosChengband 5.0.4.</color>

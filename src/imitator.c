@@ -994,6 +994,8 @@ class_t *imitator_get_class(void)
         me.base_hp = 10;
         me.exp = 110;
         me.pets = 20;
+        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG |
+                   CLASS_SENSE2_STRONG;
         
         me.birth = _birth;
         me.get_powers = _get_powers;

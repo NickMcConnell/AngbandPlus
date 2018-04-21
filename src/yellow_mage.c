@@ -21,7 +21,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "spell";
         me.which_stat = A_INT;
-        me.weight = 430;
+        me.encumbrance.max_wgt = 430;
+        me.encumbrance.weapon_pct = 100;
+        me.encumbrance.enc_wgt = 600;
         me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
@@ -77,6 +79,8 @@ class_t *yellow_mage_get_class(void)
         me.base_hp = 0;
         me.exp = 130;
         me.pets = 30;
+        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

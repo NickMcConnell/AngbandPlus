@@ -992,7 +992,9 @@ void equip_calc_bonuses(void)
                         p_ptr->weapon_info[hand].xtra_blow += 100;
                 }
             }
-            else if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC)
+            /* N.B. if (p_ptr->monk_lvl) would be a simpler check, but class_t.calc_bonuses gets called after equip_calc_bonuses ... */
+            else if ( p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_MYSTIC || p_ptr->pclass == CLASS_FORCETRAINER
+                   || (p_ptr->pclass == CLASS_SKILLMASTER && skillmaster_martial_arts_prof() > 0) )
             {
                 p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
                 p_ptr->weapon_info[hand].bare_hands = TRUE;

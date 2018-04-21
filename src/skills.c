@@ -123,13 +123,18 @@ skill_desc_t skills_describe(int amt, int div)
 
 int skills_bow_current(int sval)
 {
-    int max = skills_bow_max(sval);
-    int cur = p_ptr->weapon_exp[0][sval];
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_bow_prof();
+    else
+    {
+        int max = skills_bow_max(sval);
+        int cur = p_ptr->weapon_exp[0][sval];
 
-    if (cur > max)
-        cur = max;
+        if (cur > max)
+            cur = max;
 
-    return cur;
+        return cur;
+    }
 }
 
 int skills_bow_max(int sval)
@@ -140,6 +145,9 @@ int skills_bow_max(int sval)
     if (demigod_is_(DEMIGOD_ARTEMIS))
         return WEAPON_EXP_MASTER;
 
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_bow_prof();
+
     return s_info[_class_idx()].w_max[0][sval];
 }
 
@@ -148,6 +156,7 @@ void skills_bow_gain(int sval)
     int max = skills_bow_max(sval);
     int cur = p_ptr->weapon_exp[0][sval];
 
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
     if (cur < max)
     {
         int add = 0;
@@ -178,6 +187,9 @@ int skills_weapon_current(int tval, int sval)
     if (tval == TV_BOW)
         return skills_bow_current(sval);
 
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_weapon_prof(tval);
+
     max = skills_weapon_max(tval, sval);
     cur = p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval];
 
@@ -193,6 +205,9 @@ int skills_weapon_max(int tval, int sval)
 
     if (tval == TV_BOW)
         return skills_bow_max(sval);
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_weapon_prof(tval);
 
     if (mut_present(MUT_WEAPON_SKILLS))
         return WEAPON_EXP_MASTER;
@@ -248,6 +263,8 @@ void skills_weapon_gain(int tval, int sval)
     assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
     assert(tval != TV_BOW);
 
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
     max = skills_weapon_max(tval, sval);
     cur = p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval];
 
@@ -298,6 +315,8 @@ bool skills_weapon_is_icky(int tval, int sval)
         if (s_info[p_ptr->pclass].w_max[tval-TV_WEAPON_BEGIN][sval] <= WEAPON_EXP_BEGINNER)
             result = TRUE;
         break;
+    case CLASS_SKILLMASTER:
+        return skillmaster_weapon_is_icky(tval);
     }
     return result;
 }
@@ -376,8 +395,12 @@ cptr skills_shield_describe_current(int sval)
 
 void skills_martial_arts_gain(void)
 {
-    int current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
-    int max = s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
+    int current, max;
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
+    current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
+    max = s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
 
     if (current < max)
     {
@@ -397,20 +420,31 @@ void skills_martial_arts_gain(void)
 
 int skills_martial_arts_current(void)
 {
-    int current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
-    int max = s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
-    return MIN(current, max);
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_martial_arts_prof();
+    else
+    {
+        int current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
+        int max = s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
+        return MIN(current, max);
+    }
 }
 
 int skills_martial_arts_max(void)
 {
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_martial_arts_prof();
     return s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
 }
 
 void skills_dual_wielding_gain(monster_race *r_ptr)
 {
-    int current = p_ptr->skill_exp[SKILL_DUAL_WIELDING];
-    int max = s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
+    int current, max;
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
+    current = p_ptr->skill_exp[SKILL_DUAL_WIELDING];
+    max = s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
 
     if (current < max && (current - 1000) / 200 < r_ptr->level)
     {
@@ -430,21 +464,32 @@ void skills_dual_wielding_gain(monster_race *r_ptr)
 
 int skills_dual_wielding_current(void)
 {
-    int current = p_ptr->skill_exp[SKILL_DUAL_WIELDING];
-    int max = s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
-    return MIN(current, max);
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_dual_wielding_prof();
+    else
+    {
+        int current = p_ptr->skill_exp[SKILL_DUAL_WIELDING];
+        int max = s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
+        return MIN(current, max);
+    }
 }
 
 int skills_dual_wielding_max(void)
 {
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_dual_wielding_prof();
     return s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
 }
 
 static void _skills_riding_gain(int inc)
 {
-    int current = p_ptr->skill_exp[SKILL_RIDING];
-    int max = skills_riding_max();
-    int update = MIN(max, current + inc);
+    int current, max, update;
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
+    current = p_ptr->skill_exp[SKILL_RIDING];
+    max = skills_riding_max();
+    update = MIN(max, current + inc);
 
     if (update > current)
     {
@@ -470,8 +515,12 @@ static void _skills_riding_gain(int inc)
 
 void skills_riding_gain_melee(monster_race *r_ptr)
 {
-    int current = p_ptr->skill_exp[SKILL_RIDING];
-    int max = skills_riding_max();
+    int current, max;
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
+    current = p_ptr->skill_exp[SKILL_RIDING];
+    max = skills_riding_max();
 
     assert(p_ptr->riding);
 
@@ -498,8 +547,12 @@ void skills_riding_gain_melee(monster_race *r_ptr)
 
 void skills_riding_gain_rakuba(int dam)
 {
-    int current = p_ptr->skill_exp[SKILL_RIDING];
-    int max = skills_riding_max();
+    int current, max;
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
+    current = p_ptr->skill_exp[SKILL_RIDING];
+    max = skills_riding_max();
 
     assert(p_ptr->riding);
 
@@ -522,8 +575,12 @@ void skills_riding_gain_rakuba(int dam)
 
 void skills_riding_gain_archery(monster_race *r_ptr)
 {
-    int current = p_ptr->skill_exp[SKILL_RIDING];
-    int max = skills_riding_max();
+    int current, max;
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER) return;
+
+    current = p_ptr->skill_exp[SKILL_RIDING];
+    max = skills_riding_max();
 
     assert(p_ptr->riding);
 
@@ -540,18 +597,24 @@ void skills_riding_gain_archery(monster_race *r_ptr)
 
 int skills_riding_current(void)
 {
-    int current = p_ptr->skill_exp[SKILL_RIDING];
-    int max = skills_riding_max();
-    if (p_ptr->prace == RACE_MON_RING)
-        return RIDING_EXP_MASTER;
-    return MIN(current, max);
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_riding_prof();
+    else
+    {
+        int current = p_ptr->skill_exp[SKILL_RIDING];
+        int max = skills_riding_max();
+        if (p_ptr->prace == RACE_MON_RING)
+            return RIDING_EXP_MASTER;
+        return MIN(current, max);
+    }
 }
 
 int skills_riding_max(void)
 {
-    /* Dragon Warlocks are Dragon Riders! */
     if (warlock_is_(WARLOCK_DRAGONS))
         return RIDING_EXP_MASTER;
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_riding_prof();
     return s_info[_class_idx()].s_max[SKILL_RIDING];
 }
 

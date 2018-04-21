@@ -6869,7 +6869,7 @@ bool set_tim_dark_stalker(int v, bool do_dec)
         }
         else
         {
-            if (p_ptr->pclass == CLASS_ROGUE)
+            if (p_ptr->pclass == CLASS_ROGUE || p_ptr->pclass == CLASS_SKILLMASTER)
                 msg_print("You begin to tread softly.");
             else if (p_ptr->pclass == CLASS_NECROMANCER)
                 msg_print("You are cloaked in darkness.");
@@ -6883,7 +6883,7 @@ bool set_tim_dark_stalker(int v, bool do_dec)
     {
         if (p_ptr->tim_dark_stalker)
         {
-            if (p_ptr->pclass == CLASS_ROGUE)
+            if (p_ptr->pclass == CLASS_ROGUE || p_ptr->pclass == CLASS_SKILLMASTER)
                 msg_print("You no longer tread softly.");
             else if (p_ptr->pclass == CLASS_NECROMANCER)
                 msg_print("You are no longer cloaked in darkness.");

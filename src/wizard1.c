@@ -1296,11 +1296,13 @@ static bool _check_realm(int class_idx, int realm_idx)
         return TRUE;
     if (realm_choices2[class_idx] & bit)
         return TRUE;
-    if (class_idx == CLASS_SORCERER || class_idx == CLASS_RED_MAGE || class_idx == CLASS_GRAY_MAGE)
+    if (class_idx == CLASS_SORCERER || class_idx == CLASS_RED_MAGE || class_idx == CLASS_GRAY_MAGE || class_idx == CLASS_SKILLMASTER)
     {
         if (is_magic(realm_idx) && realm_idx != REALM_NECROMANCY)
             return TRUE;
     }
+    if (class_idx == CLASS_SKILLMASTER && realm_idx == REALM_BURGLARY)
+        return TRUE;
     return FALSE;
 }
 

@@ -29,15 +29,28 @@ int hit_chance(int hand, int to_h, int ac)
     return (odds+5)/10;
 }
 
+int throw_hit_chance(int to_h, int ac, int range)
+{
+    int chance = p_ptr->skill_tht + (p_ptr->shooter_info.to_h + to_h) * BTH_PLUS_ADJ - range;
+    int odds;
+
+    if (chance <= 0) return 0;
+
+    odds = 95*(chance - ac*3/4)*1000/(chance*100);
+    if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
+    if (odds < 50) odds = 50;
+    return (odds+5)/10;
+}
+
 int bow_hit_chance(int sval, int to_h, int ac)
 {
     int chance;
     int odds;
 
     if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
-        chance = (p_ptr->skills.thb + (p_ptr->weapon_exp[0][sval] / 400 + to_h) * BTH_PLUS_ADJ);
+        chance = (p_ptr->skills.thb + (skills_bow_current(sval) / 400 + to_h) * BTH_PLUS_ADJ);
     else
-        chance = (p_ptr->skills.thb + ((p_ptr->weapon_exp[0][sval] - (WEAPON_EXP_MASTER / 2)) / 200 + to_h) * BTH_PLUS_ADJ);
+        chance = (p_ptr->skills.thb + ((skills_bow_current(sval) - (WEAPON_EXP_MASTER / 2)) / 200 + to_h) * BTH_PLUS_ADJ);
 
     if (chance <= 0) return 0;
 
@@ -50,31 +63,35 @@ int bow_hit_chance(int sval, int to_h, int ac)
 /**********************************************************************
  * Number of Blows
  **********************************************************************/
-typedef struct { int num; int wgt; int mul; } _blow_info_t;
 
-static _blow_info_t _get_blow_info(int hand)
+/* TODO: This should be moved to class_t.calc_weapon_bonuses */
+void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
 {
-    _blow_info_t result = {0};
-    int          arm = hand / 2;
-    object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
-
-    if (!o_ptr) return result;
-
-    /* TODO: Use race_ptr and class_ptr instead of this giant switch ... */
     switch (p_ptr->pclass)
     {
     case CLASS_WARRIOR:
-        result.num = 600; result.wgt = 70; result.mul = 50 + p_ptr->lev/2;
+        info_ptr->blows_calc.max = 600;
+        info_ptr->blows_calc.wgt = 70;
+        info_ptr->blows_calc.mult = 50 + p_ptr->lev/2;
         break;
 
     case CLASS_MAULER:
-        result.num = 300; result.wgt = 280; result.mul = 125; break;
+        info_ptr->blows_calc.max = 300;
+        info_ptr->blows_calc.wgt = 280;
+        info_ptr->blows_calc.mult = 125;
+        break;
 
     case CLASS_BERSERKER:
-        result.num = 600; result.wgt = 70; result.mul = 75; break;
+        info_ptr->blows_calc.max = 600;
+        info_ptr->blows_calc.wgt = 70;
+        info_ptr->blows_calc.mult = 75;
+        break;
 
     case CLASS_RAGE_MAGE:
-        result.num = 300; result.wgt = 70; result.mul = 30; break;
+        info_ptr->blows_calc.max = 300;
+        info_ptr->blows_calc.wgt = 70;
+        info_ptr->blows_calc.mult = 30;
+        break;
 
     case CLASS_MAGE:
     case CLASS_NECROMANCER:
@@ -83,204 +100,214 @@ static _blow_info_t _get_blow_info(int hand)
     case CLASS_BLUE_MAGE:
     case CLASS_YELLOW_MAGE:
     case CLASS_GRAY_MAGE:
-        result.num = 400; result.wgt = 100; result.mul = 20; break;
+        info_ptr->blows_calc.max = 400;
+        info_ptr->blows_calc.wgt = 100;
+        info_ptr->blows_calc.mult = 20;
+        break;
 
     case CLASS_WARLOCK:
-        result.num = 400; result.wgt = 100; result.mul = 35;
+        info_ptr->blows_calc.max = 400;
+        info_ptr->blows_calc.wgt = 100;
+        info_ptr->blows_calc.mult = 35;
         switch (p_ptr->psubclass)
         {
         case WARLOCK_DRAGONS:
             if ( p_ptr->riding
               && (object_is_(o_ptr, TV_POLEARM, SV_LANCE) || object_is_(o_ptr, TV_POLEARM, SV_HEAVY_LANCE)) )
             {
-                result.mul = 65;
+                info_ptr->blows_calc.mult = 65;
             }
             break;
         case WARLOCK_ANGELS:
         case WARLOCK_DEMONS:
-            result.num = 450;
+            info_ptr->blows_calc.max = 450;
             break;
         case WARLOCK_HOUNDS:
-            result.num = 475;
+            info_ptr->blows_calc.max = 475;
             break;
         case WARLOCK_GIANTS:
-            result.wgt = 200;
-            result.mul = 50 + p_ptr->lev/5;
-            result.num = 500;
+            info_ptr->blows_calc.wgt = 200;
+            info_ptr->blows_calc.mult = 50 + p_ptr->lev/5;
+            info_ptr->blows_calc.max = 500;
             break;
         }
         break;
 
     case CLASS_PSION:
-        result.num = 400; result.wgt = 100; result.mul = 30; break;
+        info_ptr->blows_calc.max = 400;
+        info_ptr->blows_calc.wgt = 100;
+        info_ptr->blows_calc.mult = 30;
+        break;
 
     case CLASS_PRIEST:
     case CLASS_MAGIC_EATER:
     case CLASS_MINDCRAFTER:
-        result.num = 500; result.wgt = 100; result.mul = 35; break;
+        info_ptr->blows_calc.max = 500;
+        info_ptr->blows_calc.wgt = 100;
+        info_ptr->blows_calc.mult = 35;
+        break;
 
     case CLASS_DEVICEMASTER:
-        result.num = 400; result.wgt = 100; result.mul = 35;
+        info_ptr->blows_calc.max = 400;
+        info_ptr->blows_calc.wgt = 100;
+        info_ptr->blows_calc.mult = 35;
         if (p_ptr->psubclass == DEVICEMASTER_POTIONS || p_ptr->psubclass == DEVICEMASTER_SCROLLS)
-            result.num = 500;
+            info_ptr->blows_calc.max = 500;
         break;
 
     case CLASS_ROGUE:
-        result.num = 525; result.wgt = 40; result.mul = 30;
-        if (o_ptr->weight < 50) result.num = 600;
+        info_ptr->blows_calc.max = 525;
+        info_ptr->blows_calc.wgt = 40;
+        info_ptr->blows_calc.mult = 30;
+        if (o_ptr->weight < 50)
+            info_ptr->blows_calc.max = 600;
         break;
 
     case CLASS_SCOUT:
-        result.num = 400; result.wgt = 70; result.mul = 25; break;
+        info_ptr->blows_calc.max = 400;
+        info_ptr->blows_calc.wgt = 70;
+        info_ptr->blows_calc.mult = 25;
+        break;
 
     case CLASS_RANGER:
-        result.num = 500; result.wgt = 70; result.mul = 40; break;
+        info_ptr->blows_calc.max = 500;
+        info_ptr->blows_calc.wgt = 70;
+        info_ptr->blows_calc.mult = 40;
+        break;
 
     case CLASS_PALADIN:
     case CLASS_SAMURAI:
-        result.num = 550; result.wgt = 70; result.mul = 45; break;
+        info_ptr->blows_calc.max = 550;
+        info_ptr->blows_calc.wgt = 70;
+        info_ptr->blows_calc.mult = 45;
+        break;
 
     case CLASS_MYSTIC:
-        result.num = 100; result.wgt = 100; result.mul = 10; break;
+        info_ptr->blows_calc.max = 100;
+        info_ptr->blows_calc.wgt = 100;
+        info_ptr->blows_calc.mult = 10;
+        break;
 
     case CLASS_WEAPONSMITH:
     case CLASS_RUNE_KNIGHT:
-        result.num = 525; result.wgt = 150; result.mul = 55; break;
-
-    case CLASS_WEAPONMASTER:
-        result.num = weaponmaster_get_max_blows(o_ptr, hand);
-        result.wgt = 70; result.mul = 50; break;
+        info_ptr->blows_calc.max = 525;
+        info_ptr->blows_calc.wgt = 150;
+        info_ptr->blows_calc.mult = 55;
+        break;
 
     case CLASS_WARRIOR_MAGE:
     case CLASS_RED_MAGE:
-        result.num = 525; result.wgt = 70; result.mul = 30; break;
+        info_ptr->blows_calc.max = 525; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 30; break;
 
     case CLASS_CHAOS_WARRIOR:
-        result.num = 550; result.wgt = 70; result.mul = 45; break;
+        info_ptr->blows_calc.max = 550; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 45; break;
 
     case CLASS_MONK:
-        result.num = 500; result.wgt = 60; result.mul = 30; break;
+        info_ptr->blows_calc.max = 500; info_ptr->blows_calc.wgt = 60; info_ptr->blows_calc.mult = 30; break;
 
     case CLASS_TOURIST:
     case CLASS_TIME_LORD:
-        result.num = 400; result.wgt = 100; result.mul = 30; break;
+        info_ptr->blows_calc.max = 400; info_ptr->blows_calc.wgt = 100; info_ptr->blows_calc.mult = 30; break;
 
     case CLASS_ARCHAEOLOGIST:
-        result.num = 400; result.wgt = 70; result.mul = 30;
+        info_ptr->blows_calc.max = 400; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 30;
         if (archaeologist_is_favored_weapon(o_ptr))
         {
-            result.num = 500;
-            result.mul = 40;
+            info_ptr->blows_calc.max = 500;
+            info_ptr->blows_calc.mult = 40;
         }
         break;
 
     case CLASS_BLOOD_KNIGHT:
-        result.num = 300; result.wgt = 150; result.mul = 30; break;
+        info_ptr->blows_calc.max = 300; info_ptr->blows_calc.wgt = 150; info_ptr->blows_calc.mult = 30; break;
 
     case CLASS_DUELIST:
-        result.num = 100; result.wgt = 70; result.mul = 40; break;
+        info_ptr->blows_calc.max = 100; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 40; break;
 
     case CLASS_IMITATOR:
-        result.num = 550; result.wgt = 70; result.mul = 40; break;
+        info_ptr->blows_calc.max = 550; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 40; break;
 
     case CLASS_WILD_TALENT:
-        result.num = 450; result.wgt = 70; result.mul = 40; break;
+        info_ptr->blows_calc.max = 450; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 40; break;
 
     case CLASS_BEASTMASTER:
-        result.num = 500; result.wgt = 70; result.mul = 35; break;
+        info_ptr->blows_calc.max = 500; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 35; break;
 
     case CLASS_CAVALRY:
     {
         u32b flgs[OF_ARRAY_SIZE];
         obj_flags(o_ptr, flgs);
-        if (p_ptr->riding && have_flag(flgs, OF_RIDING)) {result.num = 550; result.wgt = 70; result.mul = 65;}
-        else {result.num = 500; result.wgt = 100; result.mul = 35;}
+        if (p_ptr->riding && have_flag(flgs, OF_RIDING)) {info_ptr->blows_calc.max = 550; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 65;}
+        else {info_ptr->blows_calc.max = 500; info_ptr->blows_calc.wgt = 100; info_ptr->blows_calc.mult = 35;}
         break;
     }
     case CLASS_SORCERER:
-        result.num = 100; result.wgt = 1; result.mul = 10; break;
+        info_ptr->blows_calc.max = 100; info_ptr->blows_calc.wgt = 1; info_ptr->blows_calc.mult = 10; break;
 
     case CLASS_ARCHER:
     case CLASS_BARD:
-        result.num = 450; result.wgt = 70; result.mul = 20; break;
+        info_ptr->blows_calc.max = 450; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 20; break;
 
     case CLASS_FORCETRAINER:
-        result.num = 400; result.wgt = 60; result.mul = 20; break;
+        info_ptr->blows_calc.max = 400; info_ptr->blows_calc.wgt = 60; info_ptr->blows_calc.mult = 20; break;
 
     case CLASS_MIRROR_MASTER:
     case CLASS_SNIPER:
-        result.num = 400; result.wgt = 100; result.mul = 30; break;
+        info_ptr->blows_calc.max = 400; info_ptr->blows_calc.wgt = 100; info_ptr->blows_calc.mult = 30; break;
 
     case CLASS_NINJA:
-        result.num = 425; result.wgt = 20; result.mul = 10; break;
+        info_ptr->blows_calc.max = 425; info_ptr->blows_calc.wgt = 20; info_ptr->blows_calc.mult = 10; break;
 
     case CLASS_MONSTER:
-        result.num = 500; result.wgt = 70; result.mul = 50;
+        info_ptr->blows_calc.max = 500; info_ptr->blows_calc.wgt = 70; info_ptr->blows_calc.mult = 50;
         if (prace_is_(RACE_MON_LICH))
         {
-            result.num = 400;
-            result.mul = 30;
+            info_ptr->blows_calc.max = 400;
+            info_ptr->blows_calc.mult = 30;
         }
         else if (prace_is_(RACE_MON_POSSESSOR))
         {
-            result.num = 400;
+            info_ptr->blows_calc.max = 400;
         }
         else if (prace_is_(RACE_MON_MIMIC))
         {
-            result.num = 400;
+            info_ptr->blows_calc.max = 400;
         }
         else if (prace_is_(RACE_MON_TROLL))
         {
-            result.num = 550;
+            info_ptr->blows_calc.max = 550;
         }
         else if (prace_is_(RACE_MON_GIANT))
         {
-            result.num = 550;
-            result.mul = 50 + p_ptr->lev/5;
-            result.wgt = 200;
+            info_ptr->blows_calc.max = 550;
+            info_ptr->blows_calc.mult = 50 + p_ptr->lev/5;
+            info_ptr->blows_calc.wgt = 200;
             if (giant_is_(GIANT_HRU) && p_ptr->lev >= 40)
-                result.mul = 80;
+                info_ptr->blows_calc.mult = 80;
         }
         else if ( prace_is_(RACE_MON_JELLY)
                || demon_is_(DEMON_KHORNE) )
         {
-            result.num = 600;
-            result.mul = 50 + p_ptr->lev/5;
+            info_ptr->blows_calc.max = 600;
+            info_ptr->blows_calc.mult = 50 + p_ptr->lev/5;
         }
         else if (prace_is_(RACE_MON_LEPRECHAUN))
         {
-            result.num = 300; /* but gold gives extra blows ... */
-            result.mul = 20;
+            info_ptr->blows_calc.max = 300; /* but gold gives extra blows ... */
+            info_ptr->blows_calc.mult = 20;
         }
         else if (prace_is_(RACE_MON_SWORD))
         {
-            result.num = 525;
+            info_ptr->blows_calc.max = 525;
             if (p_ptr->lev >= 45) /* Death Scythes retaliate! */
-                result.num = 300;
+                info_ptr->blows_calc.max = 300;
         }
         else if (prace_is_(RACE_MON_GOLEM))
         {
-            result.num = 100;
+            info_ptr->blows_calc.max = 100;
         }
         break;
     }
-
-    if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING) || p_ptr->tim_building_up)
-    {
-        result.wgt /= 2;
-        result.mul += 20;
-    }
-
-    /* Xorns and Mariliths have multiple sets of arms */
-    if (arm > 0)
-        result.num -= 100;
-    if (result.num < 100)
-        result.num = 100;
-
-    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
-        result.num = 100;
-
-    return result;
 }
 
 /* New Blows Calc
@@ -346,7 +373,6 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     int            div = 0;
     int            mul = 0;
     int            wgt = 0;
-    _blow_info_t   blow_info = {0};
     _range_t       rng = _blows_range[dex_idx];
 
     if (info_ptr->wield_how == WIELD_NONE) return 0;
@@ -355,11 +381,9 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     if (!o_ptr) return 0;
     if (info_ptr->heavy_wield) return 100;
 
-    blow_info = _get_blow_info(hand);
-
     wgt = o_ptr->weight;
-    div = (wgt < blow_info.wgt) ? blow_info.wgt : wgt;
-    mul = blow_info.mul + info_ptr->giant_wield * 10;
+    div = wgt < info_ptr->blows_calc.wgt ? info_ptr->blows_calc.wgt : wgt;
+    mul = info_ptr->blows_calc.mult + info_ptr->giant_wield * 10;
 
     blow_str_idx = adj_str_blow[str_idx] * mul / div; /* Scaled by 10 */
     if (info_ptr->wield_how == WIELD_TWO_HANDS)
@@ -377,8 +401,8 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     if (p_ptr->pclass == CLASS_MAULER)
         result = 100 + (result - 100)*2/5;
 
-    if (result > blow_info.num)
-        result = blow_info.num;
+    if (result > info_ptr->blows_calc.max)
+        result = info_ptr->blows_calc.max;
 
     if (result < 100)
         result = 100;

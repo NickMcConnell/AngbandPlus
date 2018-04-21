@@ -746,6 +746,10 @@ bool check_book_realm(const byte book_tval, const byte book_sval)
     {
         return gray_mage_is_allowed_book(book_tval, book_sval);
     }
+    else if (p_ptr->pclass == CLASS_SKILLMASTER)
+    {
+        return skillmaster_is_allowed_book(book_tval, book_sval);
+    }
     return (REALM1_BOOK == book_tval || REALM2_BOOK == book_tval);
 }
 

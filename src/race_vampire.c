@@ -429,7 +429,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "dark power";
         me.which_stat = A_CHR;
-        me.weight = 450;
+        me.encumbrance.max_wgt = 450;
+        me.encumbrance.weapon_pct = 50;
+        me.encumbrance.enc_wgt = 800;
         init = TRUE;
     }
     return &me;

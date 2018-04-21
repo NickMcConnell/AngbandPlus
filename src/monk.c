@@ -1,5 +1,7 @@
 #include "angband.h"
 
+#include <assert.h>
+
 /* TODO: Move special py_attack code here
          Move blows calculations here
          Move posture code here */
@@ -31,6 +33,7 @@ static int _get_attack_idx(int lvl, u32b defense)
     int best_attack_idx = 0;
     int min_level;
 
+    assert(lvl > 0);
     if (p_ptr->stun || p_ptr->confused)
         tries = 1;
 
@@ -41,10 +44,7 @@ static int _get_attack_idx(int lvl, u32b defense)
         {
             attack_idx = randint0(MAX_MA);
             ma_ptr = &ma_blows[attack_idx];
-
-            if (p_ptr->pclass == CLASS_FORCETRAINER && ma_ptr->min_level > 1)
-                min_level = ma_ptr->min_level + 3;
-            else min_level = ma_ptr->min_level;
+            min_level = ma_ptr->min_level;
         }
         while (min_level > lvl || randint1(lvl) < ma_ptr->chance);
 
@@ -77,7 +77,7 @@ void _get_attack_counts(int tot, _attack_t *counts, int hand)
 
     for (i = 0; i < tot; i++)
     {
-        int attack_idx = _get_attack_idx(p_ptr->lev, p_ptr->special_defense);
+        int attack_idx = _get_attack_idx(p_ptr->monk_lvl, p_ptr->special_defense);
         martial_arts *ma_ptr = &ma_blows[attack_idx];
 
         _attack_ptr = &counts[attack_idx];
@@ -109,7 +109,7 @@ static int _get_weight(void)
         weight += (p_ptr->magic_num1[0]/30);
         if (weight > 20) weight = 20;
     }
-    return weight * p_ptr->lev;
+    return weight * p_ptr->monk_lvl;
 }
 
 critical_t monk_get_critical(martial_arts *ma_ptr, int hand, int mode)
@@ -117,14 +117,19 @@ critical_t monk_get_critical(martial_arts *ma_ptr, int hand, int mode)
     int min_level = ma_ptr->min_level;
     int weight = _get_weight();
 
-    if (p_ptr->pclass == CLASS_FORCETRAINER) min_level = MAX(1, min_level - 3);
-
     return critical_norm(weight, min_level, p_ptr->weapon_info[hand].to_h, mode, 0);
 }
 
 int monk_get_attack_idx(void)
 {
-    return _get_attack_idx(p_ptr->lev, p_ptr->special_defense);
+    return _get_attack_idx(p_ptr->monk_lvl, p_ptr->special_defense);
+}
+
+static int _calc_damage_per_hit(int dice_dmg, int xtra_dmg, int mult, bool force)
+{
+    if (force)
+        mult = mult * 12 / 10 + 5;
+    return dice_dmg * mult / 10 + xtra_dmg;
 }
 
 void monk_display_attack_info(doc_ptr doc, int hand)
@@ -181,7 +186,10 @@ void monk_display_attack_info(doc_ptr doc, int hand)
     doc_printf(cols[0], "<tab:8>%20s %3d.%1d +%3d\n", "One Strike:", tot_dam/10, tot_dam%10, to_d/10);
 
     /* Second Column */
-    doc_insert(cols[1], "<color:y>Your Fists</color>\n");
+    if (p_ptr->monk_lvl < p_ptr->lev)
+        doc_printf(cols[1], "<color:y> Your Fists</color> (L%d)\n", p_ptr->monk_lvl);
+    else
+        doc_insert(cols[1], "<color:y>Your Fists</color>\n");
 
     doc_printf(cols[1], "Number of Blows: %d.%2.2d\n", blows/100, blows%100);
     doc_printf(cols[1], "To Hit:  0  50 100 150 200 (AC)\n");
@@ -198,71 +206,66 @@ void monk_display_attack_info(doc_ptr doc, int hand)
     doc_printf(cols[1], " One Strike: %d.%1d\n", (tot_dam + to_d)/10, (tot_dam + to_d)%10);
 
     /* Note: blows are scaled by 100. tot_dam and to_d by 10. So we divide by 1000 to recover the integer part ... */
-    doc_printf(cols[1], " One Attack: %d.%1d\n", blows*(tot_dam + to_d)/1000, ((blows*(tot_dam + to_d))/100)%10);
+    doc_printf(cols[1], " One Attack: %d\n", blows*(tot_dam + to_d)/1000);
 
+    if (p_ptr->tim_force)
+    {
+        int hit = _calc_damage_per_hit(tot_dam, to_d, 10, TRUE);
+        doc_printf(cols[1], " <color:B>     Force</color>: %d\n", blows * hit / 1000);
+    }
     if (display_weapon_mode == MYSTIC_ACID)
     {
-        doc_printf(cols[1], " <color:r>      Acid</color>: %d.%1d\n",
-            blows*(tot_dam*20/10 + to_d + 50)/1000,
-            ((blows*(tot_dam*20/10 + to_d + 50))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d + 50, 20, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Acid</color>: %d\n", blows * hit / 1000);
     }
     else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_ACID))
     {
-        doc_printf(cols[1], " <color:r>      Acid</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d)/1000,
-            ((blows*(tot_dam*17/10 + to_d))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Acid</color>: %d\n", blows * hit / 1000);
     }
 
     if (display_weapon_mode == MYSTIC_FIRE)
     {
-        doc_printf(cols[1], " <color:r>      Fire</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d + 30)/1000,
-            ((blows*(tot_dam*17/10 + to_d + 30))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d + 30, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Fire</color>: %d\n", blows * hit / 1000);
     }
     else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_FIRE))
     {
-        doc_printf(cols[1], " <color:r>      Fire</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d)/1000,
-            ((blows*(tot_dam*17/10 + to_d))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Fire</color>: %d\n", blows * hit / 1000);
     }
 
     if (display_weapon_mode == MYSTIC_COLD)
     {
-        doc_printf(cols[1], " <color:r>      Cold</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d + 30)/1000,
-            ((blows*(tot_dam*17/10 + to_d + 30))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d + 30, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Cold</color>: %d\n", blows * hit / 1000);
     }
     else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_COLD))
     {
-        doc_printf(cols[1], " <color:r>      Cold</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d)/1000,
-            ((blows*(tot_dam*17/10 + to_d))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Cold</color>: %d\n", blows * hit / 1000);
     }
 
     if (display_weapon_mode == MYSTIC_ELEC)
     {
-        doc_printf(cols[1], " <color:r>      Elec</color>: %d.%1d\n",
-            blows*(tot_dam*25/10 + to_d + 70)/1000,
-            ((blows*(tot_dam*25/10 + to_d + 70))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d + 70, 25, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Elec</color>: %d\n", blows * hit / 1000);
     }
     else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_ELEC))
     {
-        doc_printf(cols[1], " <color:r>      Elec</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d)/1000,
-            ((blows*(tot_dam*17/10 + to_d))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Elec</color>: %d\n", blows * hit / 1000);
     }
 
     if (display_weapon_mode == MYSTIC_POIS)
     {
-        doc_printf(cols[1], " <color:r>      Pois</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d + 30)/1000,
-            ((blows*(tot_dam*17/10 + to_d + 30))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d + 30, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Pois</color>: %d\n", blows * hit / 1000);
     }
     else if (have_flag(p_ptr->weapon_info[hand].flags, OF_BRAND_POIS))
     {
-        doc_printf(cols[1], " <color:r>      Pois</color>: %d.%1d\n",
-            blows*(tot_dam*17/10 + to_d)/1000,
-            ((blows*(tot_dam*17/10 + to_d))/100)%10);
+        int hit = _calc_damage_per_hit(tot_dam, to_d, 17, p_ptr->tim_force);
+        doc_printf(cols[1], " <color:r>      Pois</color>: %d\n", blows * hit / 1000);
     }
 
     doc_insert_cols(doc, cols, 2, 0);
@@ -479,37 +482,37 @@ static void _ac_bonus_imp(int slot)
         switch (equip_slot_type(slot))
         {
         case EQUIP_SLOT_BODY_ARMOR:
-            p_ptr->to_a += p_ptr->lev*3/2;
-            p_ptr->dis_to_a += p_ptr->lev*3/2;
+            p_ptr->to_a += p_ptr->monk_lvl*3/2;
+            p_ptr->dis_to_a += p_ptr->monk_lvl*3/2;
             break;
         case EQUIP_SLOT_CLOAK:
             if (p_ptr->lev > 15)
             {
-                p_ptr->to_a += (p_ptr->lev - 13)/3;
-                p_ptr->dis_to_a += (p_ptr->lev - 13)/3;
+                p_ptr->to_a += (p_ptr->monk_lvl - 13)/3;
+                p_ptr->dis_to_a += (p_ptr->monk_lvl - 13)/3;
             }
             break;
         case EQUIP_SLOT_WEAPON_SHIELD: /* Oops: was INVEN_LARM only and "/3" ... */
             if (p_ptr->lev > 10)
             {
-                p_ptr->to_a += (p_ptr->lev - 8)/6;
-                p_ptr->dis_to_a += (p_ptr->lev - 8)/6;
+                p_ptr->to_a += (p_ptr->monk_lvl - 8)/6;
+                p_ptr->dis_to_a += (p_ptr->monk_lvl - 8)/6;
             }
             break;
         case EQUIP_SLOT_HELMET:
             if (p_ptr->lev >= 5)
             {
-                p_ptr->to_a += (p_ptr->lev - 2)/3;
-                p_ptr->dis_to_a += (p_ptr->lev - 2)/3;
+                p_ptr->to_a += (p_ptr->monk_lvl - 2)/3;
+                p_ptr->dis_to_a += (p_ptr->monk_lvl - 2)/3;
             }
             break;
         case EQUIP_SLOT_GLOVES:
-            p_ptr->to_a += p_ptr->lev/2;
-            p_ptr->dis_to_a += p_ptr->lev/2;
+            p_ptr->to_a += p_ptr->monk_lvl/2;
+            p_ptr->dis_to_a += p_ptr->monk_lvl/2;
             break;
         case EQUIP_SLOT_BOOTS:
-            p_ptr->to_a += p_ptr->lev/3;
-            p_ptr->dis_to_a += p_ptr->lev/3;
+            p_ptr->to_a += p_ptr->monk_lvl/3;
+            p_ptr->dis_to_a += p_ptr->monk_lvl/3;
             break;
         }
     }
@@ -517,7 +520,7 @@ static void _ac_bonus_imp(int slot)
 
 void monk_ac_bonus(void)
 {
-    if (!(heavy_armor()))
+    if (!heavy_armor())
         equip_for_each_slot(_ac_bonus_imp);
 }
 
@@ -651,6 +654,7 @@ void monk_posture_get_flags(u32b flgs[OF_ARRAY_SIZE])
 
 static void _calc_bonuses(void)
 {
+    p_ptr->monk_lvl = p_ptr->lev;
     monk_posture_calc_bonuses();
     if (!heavy_armor())
     {
@@ -688,7 +692,9 @@ static caster_info *_caster_info(void)
     {
         me.magic_desc = "prayer";
         me.which_stat = A_WIS;
-        me.weight = 350;
+        me.encumbrance.max_wgt = 350;
+        me.encumbrance.weapon_pct = 100;
+        me.encumbrance.enc_wgt = 1000;
         me.min_fail = 5;
         init = TRUE;
     }
@@ -742,6 +748,8 @@ class_t *monk_get_class(void)
         me.base_hp = 12;
         me.exp = 130;
         me.pets = 35;
+        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

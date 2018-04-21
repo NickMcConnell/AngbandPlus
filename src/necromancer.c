@@ -257,7 +257,7 @@ cptr do_necromancy_spell(int spell, int mode)
         if (desc) return "You become shrouded in darkness.";
         if (cast) 
         {
-            set_tim_dark_stalker(spell_power(randint1(p_ptr->lev) + p_ptr->lev), FALSE);
+            set_tim_dark_stalker(spell_power(randint1(plev) + plev), FALSE);
         }
         break;
 
@@ -362,7 +362,7 @@ cptr do_necromancy_spell(int spell, int mode)
         {
             int dir; 
             if (!get_fire_dir(&dir)) return NULL;
-            fire_ball_hide(GF_ENTOMB, dir, p_ptr->lev, 0);
+            fire_ball_hide(GF_ENTOMB, dir, plev, 0);
             p_ptr->update |= (PU_FLOW);
             p_ptr->redraw |= (PR_MAP);
         }
@@ -408,7 +408,7 @@ cptr do_necromancy_spell(int spell, int mode)
     case 22:
         if (name) return "Unholy Word";
         if (desc) return "Utter an unspeakable word. The morale of your visible evil pets is temporarily boosted and they will serve you with renewed enthusiasm.";
-        if (cast) project_hack(GF_UNHOLY_WORD, p_ptr->lev * 6);
+        if (cast) project_hack(GF_UNHOLY_WORD, plev * 6);
         break;
 
     case 23:
@@ -449,8 +449,8 @@ cptr do_necromancy_spell(int spell, int mode)
     case 27:
         if (name) return "Rending Touch";
         if (desc) return "Damage an adjacent monster with a disintegrating touch.";
-        if (info) return _necro_info_damage(20, 20, p_ptr->lev + p_ptr->to_d_spell);
-        if (cast && !_necro_do_touch(GF_DISINTEGRATE, 20, 20, p_ptr->lev + p_ptr->to_d_spell)) return NULL;
+        if (info) return _necro_info_damage(20, 20, plev + p_ptr->to_d_spell);
+        if (cast && !_necro_do_touch(GF_DISINTEGRATE, 20, 20, plev + p_ptr->to_d_spell)) return NULL;
         break;
 
     case 28:
@@ -477,7 +477,7 @@ cptr do_necromancy_spell(int spell, int mode)
     case 30:
         if (name) return "Deadly Touch";
         if (desc) return "Attempt to kill an adjacent monster.";
-        if (cast && !_necro_do_touch(GF_DEATH_TOUCH, 0, 0, p_ptr->lev * 200)) return NULL;
+        if (cast && !_necro_do_touch(GF_DEATH_TOUCH, 0, 0, plev * 200)) return NULL;
         break;
 
     case 31:
@@ -575,7 +575,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "spell";
         me.which_stat = A_INT;
-        me.weight = 430;
+        me.encumbrance.max_wgt = 430;
+        me.encumbrance.weapon_pct = 100;
+        me.encumbrance.enc_wgt = 600;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
@@ -622,6 +624,8 @@ class_t *necromancer_get_class(void)
         me.base_hp = 2;
         me.exp = 125;
         me.pets = 10;
+        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.caster_info = _caster_info;

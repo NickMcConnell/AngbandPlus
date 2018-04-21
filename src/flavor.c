@@ -1750,7 +1750,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
             dd *= 2;
 
-        if (hand >= 0 && hand < MAX_HANDS)
+        if (hand >= 0 && hand < MAX_HANDS && !(mode & OD_THROWING))
         {
             dd += p_ptr->weapon_info[hand].to_dd;
             ds += p_ptr->weapon_info[hand].to_ds;

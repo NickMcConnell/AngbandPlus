@@ -1253,7 +1253,9 @@ caster_info *possessor_caster_info(void)
         info.which_stat = r_ptr->body.spell_stat;
         info.magic_desc = "power";
         info.options = 0;
-        info.weight = 450;
+        info.encumbrance.max_wgt = 450;
+        info.encumbrance.weapon_pct = 0;
+        info.encumbrance.enc_wgt = 800;
         return &info;
     }
 

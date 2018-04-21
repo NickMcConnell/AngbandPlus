@@ -96,7 +96,7 @@ R:0:0x92/0
 R:0:0x93/0
 ?:[EQU $CLASS Priest]
 R:0:0x94/0
-?:[EQU $CLASS Rogue]
+?:[EQU $CLASS Rogue Skillmaster]
 R:0:0x95/0
 ?:[EQU $CLASS Ranger]
 R:0:0x96/0

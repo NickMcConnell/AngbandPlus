@@ -248,7 +248,7 @@ static int _max_vampiric_drain(void)
         msg_print("Only cursed Rune Swords may feed.");
 }
 
-static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
+void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 {
     u32b flgs[OF_ARRAY_SIZE];
     int k;
@@ -258,7 +258,10 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
     sound(SOUND_HIT);
 
     /* Message */
-    msg_print("Your scythe returns to you!");
+    if (mode == MODE_THROWING)
+        cmsg_print(TERM_VIOLET, "Your scythe viciously slashes you!");
+    else
+        cmsg_print(TERM_VIOLET, "Your scythe returns to you!");
 
     /* Extract the flags */
     obj_flags(o_ptr, flgs);
@@ -475,12 +478,13 @@ critical_t critical_shot(int weight, int plus)
  * Critical hits (from bows/crossbows/slings)
  * Factor in item weight, total plusses, and player level.
  */
-s16b critical_throw(int weight, int plus, int dam)
+critical_t critical_throw(int weight, int plus)
 {
+    critical_t result = {0};
     int i, k;
 
     /* Extract "shot" power */
-    i = ((p_ptr->shooter_info.to_h + plus) * 4) + (p_ptr->lev * 3);
+    i = (p_ptr->shooter_info.to_h + plus)*4 + p_ptr->lev*3;
 
     /* Critical hit */
     if (randint1(5000) <= i)
@@ -489,22 +493,22 @@ s16b critical_throw(int weight, int plus, int dam)
 
         if (k < 400)
         {
-            msg_print("It was a good hit!");
-            dam += (dam / 2);
+            result.desc = "It was a <color:y>good</color> hit!";
+            result.mul = 150;
         }
         else if (k < 700)
         {
-            msg_print("It was a great hit!");
-            dam += dam;
+            result.desc = "It was a <color:R>great</color> hit!";
+            result.mul = 200;
         }
         else
         {
-            msg_print("It was a superb hit!");
-            dam += 3*dam/2;
+            result.desc = "It was a <color:r>superb</color> hit!";
+            result.mul = 250;
         }
     }
 
-    return (dam);
+    return result;
 }
 
 
@@ -703,6 +707,16 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         }
     }
 
+    if (p_ptr->tim_force) /* Craft skillmaster martial artist. Craft Monks cannot learn Mana Branding */
+    {
+        int cost = 1 + tdam / 7; /* 100 -> 170 for +70 costs 15 (4.7 dmg/sp) */
+        if (p_ptr->csp >= cost)
+        {
+            p_ptr->csp -= cost;
+            p_ptr->redraw |= (PR_MANA);
+            mult = mult * 12 / 10 + 5; /* 1.0x -> 1.7x; 1.7x -> 2.5x; 2.5x -> 3.5x */
+        }
+    }
     return tdam * mult / 10 + bonus;
 }
 
@@ -1399,6 +1413,9 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                     cost = (1 + (dd * ds * 2 / 7));
                 else
                     cost = (1 + (dd * ds / 7));
+
+                if (thrown)
+                    cost *= 3;
 
                 if (caster && (caster->options & CASTER_USE_AU))
                 {
@@ -2990,11 +3007,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         ds = 1;
         to_h = 0;
         to_d = 0;
-        if ( (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC)
-          && !p_ptr->riding )
-        {
+        if (p_ptr->monk_lvl && !p_ptr->riding)
             monk_attack = TRUE;
-        }
     }
 
     if (p_ptr->painted_target)
@@ -3051,6 +3065,19 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         {
             if (MON_CSLEEP(m_ptr) && m_ptr->ml)
                 backstab = TRUE;
+        }
+        break;
+    case CLASS_SKILLMASTER:
+        if (MON_CSLEEP(m_ptr) && m_ptr->ml) /* Works for Martial Arts as well */
+        {
+            if (p_ptr->ambush || (p_ptr->special_defense & NINJA_S_STEALTH))
+                backstab = TRUE;
+        }
+        else if (p_ptr->special_defense & NINJA_S_STEALTH) /* Burglary Hide in Shadows */
+        {
+            int tmp = p_ptr->lev * 6 + (p_ptr->skills.stl + 10) * 4;
+            if (randint0(tmp) > r_ptr->level + 20 && m_ptr->ml && !(r_ptr->flagsr & RFR_RES_ALL))
+                fuiuchi = TRUE;
         }
         break;
     }
@@ -3160,6 +3187,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             success_hit = one_in_(n);
         }
+        else if (fuiuchi && !(r_ptr->flagsr & RFR_RES_ALL)) success_hit = TRUE;
         else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flagsr & RFR_RES_ALL))) success_hit = TRUE;
         else if (duelist_attack && one_in_(2))
         {
@@ -3199,7 +3227,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 }
             }
 
-            if (backstab) cmsg_format(TERM_L_GREEN, "You cruelly stab %s!", m_name_object);
+            if (backstab) cmsg_format(TERM_L_GREEN, "You cruelly attack %s!", m_name_object);
             else if (fuiuchi) cmsg_format(TERM_L_GREEN, "You make a surprise attack, and hit %s with a powerful blow!", m_name_object);
             else if (stab_fleeing) cmsg_format(TERM_L_GREEN, "You backstab %s!",  m_name_object);
             else if (perfect_strike) cmsg_format(TERM_L_GREEN, "You land a perfect strike against %s.", m_name_object);
@@ -3259,6 +3287,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 k = damroll(ma_ptr->dd + p_ptr->weapon_info[hand].to_dd, ma_ptr->ds + p_ptr->weapon_info[hand].to_ds);
                 k = tot_dam_aux_monk(k, m_ptr, mode);
 
+                if (backstab || fuiuchi) /* skillmaster (stealthy or hiding in shadows) */
+                {
+                    int mult = 250 + p_ptr->lev * 4;
+                    if (backstab) mult += 50;
+                    k = k * mult / 100;
+                }
                 if (p_ptr->special_attack & ATTACK_SUIKEN) k *= 2; /* Drunken Boxing! */
 
                 if (ma_ptr->effect == MA_KNEE)
@@ -3884,10 +3918,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
                 if ((p_ptr->pclass == CLASS_BERSERKER || mut_present(MUT_FANTASTIC_FRENZY) || p_ptr->tim_shrike) && energy_use)
                 {
+                    int ct = MAX(1, p_ptr->weapon_ct); /* paranoia ... if we are called with 0, that is a bug (I cannot reproduce) */
+                    int frac = 100/ct;                 /* Perhaps the 'zerker leveled up to 35 in the middle of a round of attacks? */
+
                     energy_use = 0;
-                    if (hand)
-                        energy_use += (hand - 1) * 100 / p_ptr->weapon_ct;
-                    energy_use += num * (100 / p_ptr->weapon_ct) / num_blow;
+                    if (hand) /* hand is 0, 1, ... so hand is the number of successful rounds of attacks so far */
+                        energy_use += hand * frac;
+                    energy_use += num * frac / num_blow;
                 }
                 if (o_ptr && o_ptr->name1 == ART_ZANTETSU && is_lowlevel)
                     msg_print("Sigh... Another trifling thing I've cut....");
@@ -4353,6 +4390,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         if (mode == MYSTIC_KILL) break;
         if (mode == MYSTIC_KNOCKOUT) break;
         if (mode == MYSTIC_CONFUSE) break;
+        if (!p_ptr->weapon_ct) break; /* Draconian Metamorphosis in the middle of attacking ... mon_take_hit -> gain_exp ->
+                                         gain level 35 -> change body type -> drop all weapons -> handle_stuff -> continue attacks!
+                                         BTW: Gaining experience and calling handle_stuff in the middle of a round of attacks
+                                         causes numerous other problems and should be removed at some point. The problem is that
+                                         handle_stuff is like a virus ... someone will keep calling it to resurface these sorts
+                                         of issues! */
     }
 
     if (mode == WEAPONMASTER_ELUSIVE_STRIKE && hit_ct)

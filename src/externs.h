@@ -702,12 +702,12 @@ extern void glow_deep_lava_and_bldg(void);
 extern void py_get_display_char_attr(char *c, byte *a);
 
 /* cmd1.c */
+extern void death_scythe_miss(object_type *o_ptr, int hand, int mode);
 extern void rune_sword_kill(object_type *o_ptr, monster_race *r_ptr);
 extern void touch_zap_player(int m_idx);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool random_opponent(int *y, int *x);
 extern bool test_hit_norm(int chance, int ac, int vis);
-extern s16b critical_throw(int weight, int plus, int dam);
 
 typedef struct critical_s {
     int mul; /* Scaled by 100 */
@@ -716,6 +716,7 @@ typedef struct critical_s {
 } critical_t;
 extern critical_t critical_shot(int weight, int plus);
 extern critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand);
+extern critical_t critical_throw(int weight, int plus);
 
 extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, int mode, bool thrown);
 extern void search(void);
@@ -891,6 +892,7 @@ extern int      effect_value(effect_t *effect);
 extern byte     effect_color(effect_t *effect);
 extern cptr     do_effect(effect_t *effect_ptr, int mode, int boost);
 
+extern void     mass_identify(void);
 
 /* do-spell.c */
 extern int get_realm_idx(cptr name);
@@ -1583,7 +1585,9 @@ extern void display_weapon_info(doc_ptr doc, int hand);
 extern int display_weapon_mode;
 extern void display_innate_attack_info(doc_ptr doc, int which);
 extern void display_shooter_info(doc_ptr doc);
+extern void init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr);
 extern int calculate_base_blows(int hand, int str_idx, int dex_idx);
+extern int throw_hit_chance(int to_h, int ac, int range);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
@@ -2012,15 +2016,17 @@ extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 #ifdef ALLOW_REPEAT /* TNB ... 'n' repeats the last command */
 #define REPEAT_PULL(pn) repeat_pull(pn)
 #define REPEAT_PUSH(pn) repeat_push(pn)
-
+#define REPEAT_POP()    repeat_pop()
 extern int count_bits(u32b x);
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
+extern void repeat_pop(void);
 extern void repeat_check(int shopping);
 
 #else
 #define REPEAT_PULL(pn) FALSE
 #define REPEAT_PUSH(pn) ((void)0)
+#define REPEAT_POP() ((void)0)
 #endif /* ALLOW_REPEAT -- TNB */
 
 #ifdef ALLOW_EASY_OPEN /* TNB */
@@ -2129,14 +2135,18 @@ extern void stats_add_ego(object_type *o_ptr);
 extern void wiz_obj_create(void);
 extern void wiz_obj_smith(void);
 
-/* avatar.c */
+/* virtue.c */
 extern cptr virtue_name(int which);
-extern int virtue_find(int which);
+extern int  virtue_find(int which);
 extern bool virtue_present(int which);
-extern int virtue_current(int which);
+extern int  virtue_current(int which);
 extern void virtue_add(int which, int amount);
 extern void virtue_init(void);
 extern void virtue_display(doc_ptr doc);
+extern void virtue_on_fail_spell(int realm, int fail);
+extern void virtue_on_cast_spell(int realm, int cost, int fail);
+extern int  virtue_mod_spell_fail(int realm, int fail);
+
 
 extern travel_type travel;
 
@@ -2422,7 +2432,10 @@ extern class_t *berserker_get_class(void);
 extern class_t *blood_knight_get_class(void);
 extern class_t *blood_mage_get_class(void);
 extern class_t *blue_mage_get_class(void);
+
 extern class_t *cavalry_get_class(void);
+extern void     rodeo_spell(int cmd, variant *res);
+
 extern class_t *chaos_warrior_get_class(void);
 extern void     chaos_warrior_reward(void);
 extern class_t *devicemaster_get_class(int psubclass);
@@ -2510,12 +2523,27 @@ extern void     rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS]);
 extern class_t *rune_knight_get_class(void);
 
 extern void     samurai_concentration_spell(int cmd, variant *res);
+extern void     cast_concentration(void);
 extern class_t *samurai_get_class(void);
 extern void     samurai_posture_spell(int cmd, variant *res);
 extern void     samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE]);
 extern void     samurai_posture_calc_stats(s16b stats[MAX_STATS]);
 extern void     samurai_posture_calc_bonuses(void);
 extern cptr     do_hissatsu_spell(int spell, int mode);
+
+extern class_t *skillmaster_get_class(void);
+extern void     skillmaster_gain_skill(void);
+extern int      skillmaster_new_skills(void);
+extern int      skillmaster_bow_prof(void);
+extern int      skillmaster_weapon_prof(int tval);
+extern int      skillmaster_martial_arts_prof(void);
+extern int      skillmaster_riding_prof(void);
+extern int      skillmaster_dual_wielding_prof(void);
+extern void     skillmaster_cast(void);
+extern void     skillmaster_browse(void);
+extern bool     skillmaster_is_allowed_book(int tval, int sval);
+extern int      skillmaster_calc_xtra_hp(int amt);
+extern bool     skillmaster_weapon_is_icky(int tval);
 
 extern class_t *tourist_get_class(void);
 extern class_t *scout_get_class(void);
@@ -2613,7 +2641,6 @@ extern int weaponmaster_get_toggle(void);
 extern void weaponmaster_set_toggle(int toggle);
 extern void weaponmaster_adjust_skills(void);
 extern bool weaponmaster_is_favorite(object_type *o_ptr);
-extern int weaponmaster_get_max_blows(object_type *o_ptr, int hand);
 extern int weaponmaster_wield_hack(object_type *o_ptr);
 extern void weaponmaster_do_wild_blade(void);
 extern void weaponmaster_do_readied_shot(monster_type *m_ptr);

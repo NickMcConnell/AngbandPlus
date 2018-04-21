@@ -328,6 +328,8 @@ static void _monster_toss_imp(_monster_toss_info *info)
             if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr2, m_ptr2), visible))
             {
                 bool fear = FALSE;
+                critical_t crit;
+
                 if (!visible)
                     msg_format("%^s finds a mark.", m_name);
                 else
@@ -342,7 +344,12 @@ static void _monster_toss_imp(_monster_toss_info *info)
 
                 /***** The Damage Calculation!!! *****/
                 dam = damroll(1 + MIN(10 + p_ptr->lev/3, info->wgt / 25), 5);
-                dam = critical_throw(info->wgt * 10, p_ptr->lev, dam);
+                crit = critical_throw(info->wgt * 10, p_ptr->lev);
+                if (crit.desc)
+                {
+                    dam = dam * crit.mul/100 + crit.to_d;
+                    msg_print(crit.desc);
+                }
                 dam *= info->mult;
                 if (dam < 0) dam = 0;
                 dam = mon_damage_mod(m_ptr, dam, FALSE);

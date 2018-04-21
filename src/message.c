@@ -15,6 +15,7 @@ static bool      _msg_append = FALSE;
 static rect_t    _msg_line_rect;
 static doc_ptr   _msg_line_doc = NULL;
 static doc_pos_t _msg_line_sync_pos;
+static doc_pos_t _msg_line_last_msg_pos;
 
 msg_ptr _msg_alloc(cptr s)
 {
@@ -116,8 +117,17 @@ void cmsg_append(byte color, cptr str)
         msg_ptr m = msg_get(0);
 
         assert(m);
-        /* You tunnel into the granite wall. <x17> The heroism wears off.
-           Not: You tunnel into the granite wall. The heroism wears off. <x17> */
+
+        /* Repeat last message? Even when appending, this scenario
+         * is common. For example: "A tree was blasted! (x4)" */
+        if (strcmp(string_buffer(m->msg), str) == 0)
+        {
+            m->count++;
+            return;
+        }
+
+        /* You tunnel into the granite wall. (x17) The heroism wears off.
+           Not: You tunnel into the granite wall. The heroism wears off. (x17) */
         if (m->count > 1)
         {
             cmsg_add(color, str);
@@ -200,6 +210,7 @@ void msg_line_init(const rect_t *display_rect)
             _msg_line_rect.cx = Term->wid - _msg_line_rect.x;
         _msg_line_doc = doc_alloc(_msg_line_rect.cx);
         _msg_line_sync_pos = doc_cursor(_msg_line_doc);
+        _msg_line_last_msg_pos = doc_cursor(_msg_line_doc);
     }
     else
     {
@@ -252,6 +263,7 @@ void msg_line_clear(void)
     }
     doc_rollback(_msg_line_doc, doc_pos_create(0, 0));
     _msg_line_sync_pos = doc_cursor(_msg_line_doc);
+    _msg_line_last_msg_pos = doc_cursor(_msg_line_doc);
 
     if (y > 0)
     {
@@ -327,6 +339,23 @@ static void msg_line_display(byte color, cptr msg)
 {
     int len = strlen(msg);
 
+    /* Hack for better display of repeated messages. For example, messages
+     * while resting or tunneling can force multiple -more- prompts. */
+    if (character_generated)
+    {
+        msg_ptr m = msg_get(0);
+        if (m->count > 1)
+        {
+            doc_rollback(_msg_line_doc, _msg_line_last_msg_pos);
+            _msg_line_sync_pos = _msg_line_last_msg_pos;
+            doc_insert_text(_msg_line_doc, m->color, string_buffer(m->msg));
+            doc_printf(_msg_line_doc, " (x%d)", m->count);
+            msg_line_sync();
+            /* For testing: inkey();*/
+            return;
+        }
+    }
+
     /* Quick and dirty test for -more- ... This means _msg_line_display_rect
        is just a suggested limit, and we'll surpass this for long messages. */
     if (doc_cursor(_msg_line_doc).y >= _msg_line_rect.cy && len > 1)
@@ -338,6 +367,7 @@ static void msg_line_display(byte color, cptr msg)
 
     if (doc_cursor(_msg_line_doc).x > 0 && len > 1)
         doc_insert_char(_msg_line_doc, TERM_WHITE, ' ');
+    _msg_line_last_msg_pos = doc_cursor(_msg_line_doc); /* remember in case this message repeats */
     doc_insert_text(_msg_line_doc, color, msg);
     msg_line_sync();
 }

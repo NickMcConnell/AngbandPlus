@@ -47,7 +47,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "spell";
         me.which_stat = A_INT;
-        me.weight = 430;
+        me.encumbrance.max_wgt = 430;
+        me.encumbrance.weapon_pct = 33;
+        me.encumbrance.enc_wgt = 1000;
         me.min_fail = 5;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
@@ -106,6 +108,8 @@ class_t *red_mage_get_class(void)
         me.base_hp = 8;
         me.exp = 140;
         me.pets = 40;
+        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_SLOW | CLASS_SENSE2_STRONG;
         
         me.birth = _birth;
         me.caster_info = _caster_info;

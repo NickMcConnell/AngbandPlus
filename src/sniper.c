@@ -553,6 +553,7 @@ class_t *sniper_get_class(void)
         me.base_hp = 4;
         me.exp = 110;
         me.pets = 40;
+        me.flags = CLASS_SENSE1_SLOW | CLASS_SENSE1_STRONG;
         
         me.birth = _birth;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;

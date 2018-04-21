@@ -764,6 +764,7 @@ static void _club_toss_imp(_club_toss_info * info)
             if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr, m_ptr), m_ptr->ml))
             {
                 bool fear = FALSE;
+                critical_t crit;
 
                 if (!visible)
                     msg_format("The %s finds a mark.", o_name);
@@ -783,7 +784,12 @@ static void _club_toss_imp(_club_toss_info * info)
                 dd = info->o_ptr->dd;
                 tdam = damroll(dd, info->o_ptr->ds);
                 tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
-                tdam = critical_throw(info->o_ptr->weight, info->o_ptr->to_h, tdam);
+                crit = critical_throw(info->o_ptr->weight, info->o_ptr->to_h);
+                if (crit.desc)
+                {
+                    tdam = tdam * crit.mul/100 + crit.to_d;
+                    msg_print(crit.desc);
+                }
                 tdam += info->o_ptr->to_d;
                 tdam *= info->mult;
                 tdam += p_ptr->to_d_m;
@@ -1287,6 +1293,7 @@ static void _dagger_toss_imp(_dagger_toss_info * info)
             if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr, m_ptr), m_ptr->ml))
             {
                 bool fear = FALSE;
+                critical_t crit;
 
                 if (!visible)
                     msg_format("The %s finds a mark.", o_name);
@@ -1308,7 +1315,12 @@ static void _dagger_toss_imp(_dagger_toss_info * info)
                     dd += p_ptr->lev/15;
                 tdam = damroll(dd, info->o_ptr->ds);
                 tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
-                tdam = critical_throw(info->o_ptr->weight, info->o_ptr->to_h, tdam);
+                crit = critical_throw(info->o_ptr->weight, info->o_ptr->to_h);
+                if (crit.desc)
+                {
+                    tdam = tdam * crit.mul/100 + crit.to_d;
+                    msg_print(crit.desc);
+                }
                 tdam += info->o_ptr->to_d;
                 tdam *= info->mult;
                 tdam += p_ptr->shooter_info.to_d;
@@ -3217,56 +3229,6 @@ bool weaponmaster_is_favorite(object_type *o_ptr)
     return _check_speciality_aux(o_ptr);
 }
 
-int weaponmaster_get_max_blows(object_type *o_ptr, int hand)
-{
-    int num = 100;
-    switch (_specialities[p_ptr->psubclass].kind)
-    {
-    case _WEAPONMASTER_BOWS:
-        num = 300;
-        break;
-
-    case _WEAPONMASTER_SHIELDS: /* Shieldmaster can bash or melee with aplomb */
-        num = 500;
-        break;
-
-    case _WEAPONMASTER_MELEE:
-        if (_check_speciality_aux(o_ptr))
-        {
-            switch (p_ptr->psubclass)
-            {
-            case WEAPONMASTER_AXES:
-                num = 500;
-                if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
-                    num = 600;
-                break;
-            case WEAPONMASTER_DAGGERS:
-                num = 500;
-                if (_get_toggle() == TOGGLE_FRENZY_STANCE)
-                    num = 600;
-                break;
-            case WEAPONMASTER_CLUBS:
-                num = 525;
-                break;
-            case WEAPONMASTER_POLEARMS:
-                num = 525;
-                break;
-            case WEAPONMASTER_STAVES:
-                num = 500;
-                break;
-            case WEAPONMASTER_SWORDS:
-                num = 525;
-                break;
-            case WEAPONMASTER_DIGGERS:
-                num = 550;
-                break;
-            }
-        }
-        break;
-    }
-    return num;
-}
-
 static int _get_spells_aux(spell_info* spells, int max)
 {
     int i;
@@ -3309,7 +3271,6 @@ static caster_info * _caster_info(void)
         me.which_stat = A_STR;
         me.magic_desc = "skill";
         me.options = CASTER_USE_HP;
-        me.weight = 3000;
         init = TRUE;
     }
     return &me;
@@ -3890,12 +3851,69 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
                 break;
             }
         }
+        if (p_ptr->psubclass == WEAPONMASTER_BOWS && p_ptr->lev >= 20)
+            p_ptr->shooter_info.breakage = 30;
+    }
+}
+
+static void _init_blows_calc(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+    info_ptr->blows_calc.max = 100; /* Default for melee specialties with unfavored weapons */
+    info_ptr->blows_calc.wgt = 70;
+    info_ptr->blows_calc.mult = 50;
+    switch (_specialities[p_ptr->psubclass].kind)
+    {
+    case _WEAPONMASTER_BOWS:
+        info_ptr->blows_calc.max = 300;
+        break;
+
+    case _WEAPONMASTER_SHIELDS: /* Shieldmaster can bash or melee with aplomb */
+        info_ptr->blows_calc.max = 500;
+        break;
+
+    case _WEAPONMASTER_MELEE:
+        if (_check_speciality_aux(o_ptr))
+        {
+            switch (p_ptr->psubclass)
+            {
+            case WEAPONMASTER_AXES:
+                if (info_ptr->wield_how == WIELD_TWO_HANDS)
+                    info_ptr->blows_calc.max = 600;
+                else
+                    info_ptr->blows_calc.max = 500;
+                break;
+            case WEAPONMASTER_DAGGERS:
+                if (_get_toggle() == TOGGLE_FRENZY_STANCE)
+                    info_ptr->blows_calc.max = 600;
+                else
+                    info_ptr->blows_calc.max = 500;
+                break;
+            case WEAPONMASTER_CLUBS:
+                info_ptr->blows_calc.max = 525;
+                break;
+            case WEAPONMASTER_POLEARMS:
+                info_ptr->blows_calc.max = 525;
+                break;
+            case WEAPONMASTER_STAVES:
+                info_ptr->blows_calc.max = 500;
+                break;
+            case WEAPONMASTER_SWORDS:
+                info_ptr->blows_calc.max = 525;
+                break;
+            case WEAPONMASTER_DIGGERS:
+                info_ptr->blows_calc.max = 550;
+                break;
+            }
+        }
+        break;
     }
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     int spec1 = _check_speciality_aux(o_ptr);
+
+    _init_blows_calc(o_ptr, info_ptr);
 
     /* (+L/5, +L/5) for all weaponmasters replacing 'Signature Weapon' */
     if (spec1 && p_ptr->speciality_equip)
@@ -4323,6 +4341,7 @@ class_t *weaponmaster_get_class(int subclass)
         me.base_hp = 12;
         me.exp = 135;
         me.pets = 40;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;

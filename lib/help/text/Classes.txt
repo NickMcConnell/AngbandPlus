@@ -724,8 +724,7 @@ Stealth
   and picking locks. A rogue has a high stealth allowing him to sneak 
   around many creatures without having to fight, or to get in a telling 
   first blow. A rogue may also backstab a fleeing monster. Rogues also 
-  gain shooting bonuses when using a sling. Intelligence determines a 
-  rogue's spell casting ability.
+  gain shooting bonuses when using a sling.
    
   Rogues can select one realm from Sorcery, Death, Trump, Arcane, 
   Craft, or Burglary. Except for this last realm, rogues have certain 
@@ -734,7 +733,10 @@ Stealth
   rogue and offers spells for setting traps, picking pockets, 
   negotiating with other thieves, and escaping from a tight spot. 
   Burglary rogues are agents of the Black Market and receive favorable 
-  pricing from that shop.
+  pricing from that shop. A Burglary rogue uses DEX as their 
+  spellcasting stat, and may learn spells beginning at level 1. For 
+  other realms, however, the rogue uses INT as the spellcasting stat, 
+  and won't be able to learn spells until level 5.
   
     Stats                   Skills
     Strength      +2        Disarming   Superb       
@@ -1210,6 +1212,37 @@ Other
     Base HP        6        Bows        Fair         
     Experience   150%
     
+  Skillmaster
+  The Skillmaster is not your ordinary class. Instead, you may design 
+  your own class, on the fly, using a point based skill system. Upon 
+  birth, you will get 5 points to spend and you should use these wisely 
+  to set the basic direction of your class. Upon gaining every fifth 
+  level, you will receive an additional point to spend, for fifteen 
+  points overall. You may use these points to learn melee or to gain 
+  access to spell realms. You can improve your speed or your stealth. 
+  Or you may gain increased magic device skills. In addition, you may 
+  learn riding skills, dual wielding or even martial arts. You will 
+  have a lot of flexibility in how you choose to play this class.
+   
+  Most skills allow the investment of multiple points for increased 
+  proficiency, but some are abilities that you may buy with a single 
+  point (e.g. Luck). This class is not recommended for beginning or 
+  immediate players. You only have a limited amount of points to spend, 
+  and your choices are irreversible.
+  
+  See [f] for more details on skillmasters.
+  
+    Stats                   Skills
+    Strength      +0        Disarming   Very Bad     
+    Intelligence  +0        Device      Very Bad     
+    Wisdom        +0        Save        Very Bad     
+    Dexterity     +0        Stealth     Poor         
+    Constitution  +0        Searching   Bad          
+    Charisma      +0        Perception  Bad          
+    Life Rating  100%       Melee       Very Bad     
+    Base HP       10        Bows        Very Bad     
+    Experience   130%
+    
   Tourist
   Tourists have visited this world for the purpose of sightseeing. 
   Their fighting skills are bad and they cannot cast powerful spells. 
@@ -1305,6 +1338,7 @@ Archaeologist  -1   +1   +2   +1   -1   +0  106%   +8  120%
 Bard           -2   +1   +2   -1   -2   +4  100%   +4  140%
 Imitator       +0   +1   -1   +2   +0   -1  108%  +10  110%
 Rage-Mage      +3   -2   -2   -2   +2   +1  106%   +6  150%
+Skillmaster    +0   +0   +0   +0   +0   +0  100%  +10  130%
 Tourist        -1   -1   -1   -1   -1   -3   95%   +0   70%
 Wild-Talent    -1   +1   +1   +1   -2   +1  100%   +4  110%
 
@@ -1356,6 +1390,7 @@ Archaeologist Superb        Excellent     Fair          Very Good
 Bard          Poor          Excellent     Fair          Very Bad     
 Imitator      Poor          Good          Fair          Fair         
 Rage-Mage     Bad           Fair          Superb        Bad          
+Skillmaster   Very Bad      Very Bad      Very Bad      Poor         
 Tourist       Bad           Bad           Bad           Fair         
 Wild-Talent   Fair          Good          Fair          Fair         
 
@@ -1407,11 +1442,12 @@ Archaeologist Excellent     Good          Very Good     Poor
 Bard          Poor          Fair          Bad           Bad          
 Imitator      Fair          Poor          Very Good     Excellent    
 Rage-Mage     Poor          Bad           Fair          Fair         
+Skillmaster   Bad           Bad           Very Bad      Very Bad     
 Tourist       Poor          Bad           Fair          Bad          
 Wild-Talent   Fair          Poor          Very Good     Very Good    
 
 
 
 
-Automatically generated for PosChengband 5.0.3.
+Automatically generated for PosChengband 5.0.4.
 

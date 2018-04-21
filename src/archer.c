@@ -183,7 +183,9 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
       && p_ptr->shooter_info.tval_ammo <= TV_BOLT
       && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
     {
+        int tier = (p_ptr->lev - 1) / 7;
         p_ptr->shooter_info.num_fire += p_ptr->lev * 200 / 50;
+        p_ptr->shooter_info.breakage = MAX(0, 60 - tier * 10);
     }
 }
 
@@ -239,6 +241,7 @@ class_t *archer_get_class(void)
         me.base_hp = 12;
         me.exp = 110;
         me.pets = 40;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
         
         me.birth = _birth;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;

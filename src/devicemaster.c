@@ -476,7 +476,9 @@ static caster_info * _caster_info(void)
     {
         me.which_stat = A_INT;
         me.magic_desc = "talent";
-        me.weight = 3000;
+        me.encumbrance.max_wgt = 1000;
+        me.encumbrance.weapon_pct = 0;
+        me.encumbrance.enc_wgt = 1200;
         init = TRUE;
     }
     return &me;
@@ -524,6 +526,8 @@ class_t *devicemaster_get_class(int psubclass)
         me.base_hp = 6;
         me.exp = 130;
         me.pets = 30;
+        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.get_spells = _get_spells;

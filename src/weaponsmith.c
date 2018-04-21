@@ -2523,7 +2523,9 @@ class_t *weaponsmith_get_class(void)
         me.base_hp = 12;
         me.exp = 130;
         me.pets = 40;
-        
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
+                   CLASS_SENSE2_STRONG;
+
         me.birth = _birth;
         me.get_powers = _get_powers;
         me.character_dump = _character_dump;

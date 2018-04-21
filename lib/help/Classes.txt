@@ -436,9 +436,9 @@ Base HP        4        Bows        <color:G>Excellent    </color>
 Experience   120%
 </style></indent>
 <topic:Rogue><color:o>Rogue</color>
-A Rogue is a character that prefers to live by his cunning, but is capable of fighting his way out of a tight spot. Rogues are good at locating hidden traps and doors and are masters of disarming traps and picking locks. A rogue has a high stealth allowing him to sneak around many creatures without having to fight, or to get in a telling first blow. A rogue may also backstab a fleeing monster. Rogues also gain shooting bonuses when using a sling. Intelligence determines a rogue's spell casting ability.
+A Rogue is a character that prefers to live by his cunning, but is capable of fighting his way out of a tight spot. Rogues are good at locating hidden traps and doors and are masters of disarming traps and picking locks. A rogue has a high stealth allowing him to sneak around many creatures without having to fight, or to get in a telling first blow. A rogue may also backstab a fleeing monster. Rogues also gain shooting bonuses when using a sling.
  
-Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, or Burglary. Except for this last realm, rogues have certain limitations on which spells they can learn, and they do not learn new spells very quickly. The Burglary Realm however is unique to the rogue and offers spells for setting traps, picking pockets, negotiating with other thieves, and escaping from a tight spot. Burglary rogues are agents of the Black Market and receive favorable pricing from that shop.
+Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, or Burglary. Except for this last realm, rogues have certain limitations on which spells they can learn, and they do not learn new spells very quickly. The Burglary Realm however is unique to the rogue and offers spells for setting traps, picking pockets, negotiating with other thieves, and escaping from a tight spot. Burglary rogues are agents of the Black Market and receive favorable pricing from that shop. A Burglary rogue uses DEX as their spellcasting stat, and may learn spells beginning at level 1. For other realms, however, the rogue uses INT as the spellcasting stat, and won't be able to learn spells until level 5.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +2</color>        Disarming   <color:g>Superb       </color>
@@ -727,6 +727,24 @@ Life Rating  106%       Melee       <color:o>Fair         </color>
 Base HP        6        Bows        <color:o>Fair         </color>
 Experience   150%
 </style></indent>
+<topic:Skillmaster><color:o>Skillmaster</color>
+The Skillmaster is not your ordinary class. Instead, you may design your own class, on the fly, using a point based skill system. Upon birth, you will get 5 points to spend and you should use these wisely to set the basic direction of your class. Upon gaining every fifth level, you will receive an additional point to spend, for fifteen points overall. You may use these points to learn melee or to gain access to spell realms. You can improve your speed or your stealth. Or you may gain increased magic device skills. In addition, you may learn riding skills, dual wielding or even martial arts. You will have a lot of flexibility in how you choose to play this class.
+ 
+Most skills allow the investment of multiple points for increased proficiency, but some are abilities that you may buy with a single point (e.g. Luck). This class is not recommended for beginning or immediate players. You only have a limited amount of points to spend, and your choices are irreversible.
+
+See <link:Skillmasters.txt> for more details on skillmasters.
+
+  <indent><style:table><color:G>Stats                   Skills</color>
+Strength     <color:w> +0</color>        Disarming   <color:D>Very Bad     </color>
+Intelligence <color:w> +0</color>        Device      <color:D>Very Bad     </color>
+Wisdom       <color:w> +0</color>        Save        <color:D>Very Bad     </color>
+Dexterity    <color:w> +0</color>        Stealth     <color:R>Poor         </color>
+Constitution <color:w> +0</color>        Searching   <color:r>Bad          </color>
+Charisma     <color:w> +0</color>        Perception  <color:r>Bad          </color>
+Life Rating  100%       Melee       <color:D>Very Bad     </color>
+Base HP       10        Bows        <color:D>Very Bad     </color>
+Experience   130%
+</style></indent>
 <topic:Tourist><color:o>Tourist</color>
 Tourists have visited this world for the purpose of sightseeing. Their fighting skills are bad and they cannot cast powerful spells. They are the most difficult class to win the game with. Intelligence determines a tourist's spell casting ability.
  
@@ -807,6 +825,7 @@ Archaeologist  -1   +1 <color:v>  +2 </color>  +1   -1   +0  106%   +8  120%
 Bard           -2   +1   +2   -1   -2 <color:v>  +4 </color> 100%   +4  140%
 Imitator       +0   +1   -1   +2   +0   -1  108%  +10  110%
 Rage-Mage    <color:v>  +3 </color>  -2   -2   -2   +2   +1  106%   +6  150%
+Skillmaster    +0   +0   +0   +0   +0   +0  100%  +10  130%
 Tourist        -1 <color:v>  -1 </color>  -1   -1   -1   -3   95%   +0   70%
 Wild-Talent    -1   +1   +1   +1   -2   +1  100%   +4  110%
 
@@ -858,6 +877,7 @@ Archaeologist <color:g>Superb       </color> <color:G>Excellent    </color> <col
 Bard          <color:R>Poor         </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:D>Very Bad     </color>
 Imitator      <color:R>Poor         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Rage-Mage     <color:r>Bad          </color> <color:o>Fair         </color> <color:g>Superb       </color> <color:r>Bad          </color>
+Skillmaster   <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:R>Poor         </color>
 Tourist       <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color> <color:o>Fair         </color>
 Wild-Talent   <color:o>Fair         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 
@@ -909,10 +929,11 @@ Archaeologist <color:G>Excellent    </color> <color:y>Good         </color> <col
 Bard          <color:R>Poor         </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:r>Bad          </color>
 Imitator      <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:G>Excellent    </color>
 Rage-Mage     <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
+Skillmaster   <color:r>Bad          </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Tourist       <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:r>Bad          </color>
 Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:y>Very Good    </color>
 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.3.</color>
+<color:s>Automatically generated for PosChengband 5.0.4.</color>

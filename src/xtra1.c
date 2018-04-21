@@ -1903,7 +1903,17 @@ static void prt_effects(void)
         prt_food(row++, col);
     if (p_ptr->wizard)
         c_put_str(TERM_L_BLUE, "Wizard", row++, col);
-    if (p_ptr->new_spells && p_ptr->pclass != CLASS_RAGE_MAGE)
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+    {
+        int amt = skillmaster_new_skills();
+        if (amt > 0)
+        {
+            char tmp[20];
+            sprintf(tmp, "Study (%d)", amt);
+            c_put_str(TERM_L_BLUE, tmp, row++, col);
+        }
+    }
+    else if (p_ptr->new_spells && p_ptr->pclass != CLASS_RAGE_MAGE)
     {
         char tmp[20];
         sprintf(tmp, "Study (%d)", p_ptr->new_spells);
@@ -2282,7 +2292,7 @@ static void _fix_message_aux(void)
         if (m->count > 1)
         {
             char buf[10];
-            sprintf(buf, " <x%d>", m->count);
+            sprintf(buf, " (x%d)", m->count);
             doc_insert_text(doc, m->color, buf);
         }
         doc_newline(doc);
@@ -2899,67 +2909,16 @@ static void _calc_encumbrance(void)
 
     /* Armor/Weapon Weight */
     weight = equip_weight(object_is_armour);
-    switch (get_class_idx())
+    if (caster_ptr->encumbrance.weapon_pct)
     {
-    case CLASS_MAGE:
-    case CLASS_NECROMANCER:
-    case CLASS_BLOOD_MAGE:
-    case CLASS_HIGH_MAGE:
-    case CLASS_BLUE_MAGE:
-    case CLASS_MONK:
-    case CLASS_FORCETRAINER:
-    case CLASS_SORCERER:
-    case CLASS_YELLOW_MAGE:
-    case CLASS_GRAY_MAGE:
-        weight += equip_weight(object_is_melee_weapon);
-        break;
-
-    case CLASS_WARLOCK:
-        if (p_ptr->psubclass == WARLOCK_DRAGONS)
-            weight += equip_weight(object_is_melee_weapon) / 3;
-        else if (p_ptr->psubclass == WARLOCK_GIANTS)
-            weight += equip_weight(object_is_melee_weapon) / 5;
-        else
-            weight += equip_weight(object_is_melee_weapon) * 2 / 3;
-        break;
-
-    case CLASS_PRIEST:
-    case CLASS_BARD:
-    case CLASS_TOURIST:
-    case CLASS_SCOUT:
-    case CLASS_MONSTER:
-        weight += equip_weight(object_is_melee_weapon) * 2 / 3;
-        break;
-
-    case CLASS_MINDCRAFTER:
-    case CLASS_PSION:
-    case CLASS_BEASTMASTER:
-    case CLASS_MIRROR_MASTER:
-        weight += equip_weight(object_is_melee_weapon) / 2;
-        break;
-
-    case CLASS_ROGUE:
-    case CLASS_RANGER:
-    case CLASS_RED_MAGE:
-    case CLASS_WARRIOR_MAGE:
-    case CLASS_ARCHAEOLOGIST:
-        weight += equip_weight(object_is_melee_weapon) / 3;
-        break;
-
-    case CLASS_PALADIN:
-    case CLASS_CHAOS_WARRIOR:
-    case CLASS_RAGE_MAGE:
-        weight += equip_weight(object_is_melee_weapon) / 5;
-        break;
-
-    default:
-        weight += equip_weight(object_is_melee_weapon);
+        int wgt = equip_weight(object_is_melee_weapon);
+        int pct = caster_ptr->encumbrance.weapon_pct;
+        weight += wgt * pct / 100;
     }
-
-    if (weight > caster_ptr->weight)
+    if (weight > caster_ptr->encumbrance.max_wgt)
     {
         p_ptr->cumber_armor = TRUE;
-        p_ptr->cumber_armor_amt = weight - caster_ptr->weight;
+        p_ptr->cumber_armor_amt = weight - caster_ptr->encumbrance.max_wgt;
     }
 }
 
@@ -3006,6 +2965,7 @@ static void calc_mana(void)
         }
         return;
     }
+
     if ( (caster_ptr->options & CASTER_USE_HP)
       || (caster_ptr->options & CASTER_USE_AU)
       || p_ptr->lev < caster_ptr->min_level)
@@ -3030,8 +2990,7 @@ static void calc_mana(void)
     else
         lvl = p_ptr->lev;
 
-
-    if (p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_MYSTIC)
+    if (caster_ptr->options & CASTER_SUPERCHARGE_MANA)
     {
         msp = (adj_mag_mana[p_ptr->stat_ind[caster_ptr->which_stat]] + 10) * 2;
         if (msp) msp += (msp * _racial_mana_adjust(caster_ptr->which_stat) / 20);
@@ -3059,61 +3018,19 @@ static void calc_mana(void)
 
     _calc_encumbrance();
     if (p_ptr->cumber_glove)
-        msp = (3 * msp) / 4;
+        msp = 3 * msp / 4;
 
     if (p_ptr->cumber_armor)
     {
-        switch (get_class_idx())
+        int div = caster_ptr->encumbrance.enc_wgt;
+        if (!div) div = 800;
+        if (caster_ptr->options & CASTER_SUPERCHARGE_MANA)
         {
-        case CLASS_MAGE:
-        case CLASS_NECROMANCER:
-        case CLASS_BLOOD_MAGE:
-        case CLASS_HIGH_MAGE:
-        case CLASS_BLUE_MAGE:
-        case CLASS_YELLOW_MAGE:
-        case CLASS_GRAY_MAGE:
-            msp -= msp * p_ptr->cumber_armor_amt / 600;
-            break;
-
-        case CLASS_PRIEST:
-        case CLASS_MINDCRAFTER:
-        case CLASS_PSION:
-        case CLASS_BEASTMASTER:
-        case CLASS_BARD:
-        case CLASS_FORCETRAINER:
-        case CLASS_TOURIST:
-        case CLASS_MIRROR_MASTER:
-        case CLASS_MONSTER:
-            msp -= msp * p_ptr->cumber_armor_amt / 800;
-            break;
-
-        case CLASS_SORCERER:
-            msp -= msp * p_ptr->cumber_armor_amt / 900;
-            break;
-
-        case CLASS_ROGUE:
-        case CLASS_RANGER:
-        case CLASS_MONK:
-        case CLASS_RED_MAGE:
-            msp -= msp * p_ptr->cumber_armor_amt / 1000;
-            break;
-
-        case CLASS_PALADIN:
-        case CLASS_CHAOS_WARRIOR:
-        case CLASS_WARRIOR_MAGE:
-        case CLASS_RAGE_MAGE:
-            msp -= msp * p_ptr->cumber_armor_amt / 1200;
-            break;
-
-        case CLASS_SAMURAI:
-        case CLASS_MYSTIC:
             p_ptr->cumber_armor = FALSE;
             p_ptr->cumber_armor_amt = 0;
-            break;
-
-        default:
-            msp -= msp * p_ptr->cumber_armor_amt / 800;
         }
+        else
+            msp -= msp * p_ptr->cumber_armor_amt / div; 
     }
 
     if (msp < 0) msp = 0;
@@ -3132,7 +3049,7 @@ static void calc_mana(void)
         else if (p_ptr->csp > 0 && csp >= 0)
             p_ptr->csp = csp;
 
-        if (p_ptr->csp >= msp && p_ptr->pclass != CLASS_SAMURAI && p_ptr->pclass != CLASS_MYSTIC)
+        if (p_ptr->csp >= msp && !(caster_ptr->options & CASTER_SUPERCHARGE_MANA))
         {
             p_ptr->csp = msp;
             p_ptr->csp_frac = 0;
@@ -3164,6 +3081,9 @@ int py_prorata_level_aux(int amt, int w1, int w2, int w3)
     int wt = w1 + w2 + w3;
     int l = p_ptr->lev;
 
+    if (l == 50)
+        return amt; /* make sure the player gets the entire amt */
+
     result += amt * l * w1 / (50*wt);
     result += amt * l * l * w2 / (50*50*wt);
     result += (amt * l * l / 50) * l * w3 / (50*50*wt); /* 2^31/50^3 is about 17000 */
@@ -3177,6 +3097,9 @@ static int _calc_xtra_hp(int amt)
 {
     int w1 = 1, w2 = 1, w3 = 1;
     int class_idx = get_class_idx();
+
+    if (p_ptr->pclass == CLASS_SKILLMASTER)
+        return skillmaster_calc_xtra_hp(amt);
 
     switch (class_idx)
     {
@@ -3404,6 +3327,16 @@ u32b weight_limit(void)
     return i;
 }
 
+static bool _is_martial_arts(void)
+{
+    int i;
+    for (i = 0; i < MAX_HANDS; i++)
+    {
+        if (p_ptr->weapon_info[i].bare_hands)
+            return TRUE;
+    }
+    return FALSE;
+}
 
 /*
  * Calculate the players current "state", taking into account
@@ -3478,6 +3411,7 @@ void calc_bonuses(void)
     p_ptr->shooter_info.heavy_shoot = FALSE;
     p_ptr->shooter_info.to_mult = 0;
     p_ptr->shooter_info.tval_ammo = 0;
+    p_ptr->shooter_info.breakage = 100;
 
     for (i = 0; i < OF_ARRAY_SIZE; i++)
         p_ptr->shooter_info.flags[i] = 0;
@@ -3607,6 +3541,7 @@ void calc_bonuses(void)
     p_ptr->warning = FALSE;
     p_ptr->mighty_throw = FALSE;
     p_ptr->see_nocto = FALSE;
+    p_ptr->easy_capture = FALSE;
     p_ptr->easy_realm1 = REALM_NONE;
 
     p_ptr->move_random = FALSE;
@@ -3645,6 +3580,7 @@ void calc_bonuses(void)
     p_ptr->open_terrain_ct = 0;
 
     p_ptr->quick_walk = FALSE;
+    p_ptr->monk_lvl = 0;
 
     p_ptr->align = friend_align;
     p_ptr->maul_of_vice = FALSE;
@@ -4060,7 +3996,7 @@ void calc_bonuses(void)
                 p_ptr->weapon_info[i].to_d += to_d;
                 p_ptr->weapon_info[i].dis_to_h += to_d;
             }
-            else
+            else if (ct > 0)
             {
                 p_ptr->weapon_info[i].to_d += to_d / ct;
                 p_ptr->weapon_info[i].dis_to_h += to_d / ct;
@@ -4539,6 +4475,7 @@ void calc_bonuses(void)
     {
         weapon_info_t *info_ptr = &p_ptr->weapon_info[i];
         int            tmp_hold = hold;
+        int            arm = i/2;
 
         if (info_ptr->wield_how == WIELD_NONE) continue;
 
@@ -4589,12 +4526,29 @@ void calc_bonuses(void)
         }
 
 
+        /* calc_weapon_bonuses
+         * This should also init the blows_calc in preparation for calc_base_blows,
+         * but this is not finished just yet. In the meantime init_blows_calc in
+         * combat.c is required. */
+        init_blows_calc(o_ptr, info_ptr);
+
         if (class_ptr->calc_weapon_bonuses)
             class_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
         if (race_ptr->calc_weapon_bonuses)
             race_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
 
-        /* Normal weapons */
+        /* Hacks */
+        if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
+            info_ptr->blows_calc.max = 100;
+        if (arm > 0)
+            info_ptr->blows_calc.max = MAX(100, info_ptr->blows_calc.max - 100);
+        if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING) || p_ptr->tim_building_up)
+        {
+            info_ptr->blows_calc.wgt /= 2;
+            info_ptr->blows_calc.mult += 20;
+        }
+
+        /* Calculate Blows */
         if (!info_ptr->heavy_wield)
         {
             info_ptr->base_blow = calculate_base_blows(i, p_ptr->stat_ind[A_STR], p_ptr->stat_ind[A_DEX]);
@@ -4616,7 +4570,7 @@ void calc_bonuses(void)
                 info_ptr->xtra_blow = 0;
             }
 
-            p_ptr->skill_dig += (o_ptr->weight / 10);
+            p_ptr->skill_dig += o_ptr->weight / 10;
         }
 
         /* Two Handed wielding bonus */
@@ -4723,7 +4677,7 @@ void calc_bonuses(void)
         int arm = i / 2;
         if (p_ptr->weapon_info[i].wield_how != WIELD_NONE && p_ptr->weapon_info[i].bare_hands)
         {
-            int blow_base = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_DEX]];
+            int blow_base = p_ptr->monk_lvl + adj_dex_blow[p_ptr->stat_ind[A_DEX]];
             p_ptr->weapon_info[i].base_blow = 100;
 
             if (p_ptr->pclass == CLASS_FORCETRAINER)
@@ -4739,6 +4693,10 @@ void calc_bonuses(void)
             {
                 p_ptr->weapon_info[i].base_blow += MIN(450, 450 * blow_base / 60);
             }
+            else if (p_ptr->pclass == CLASS_SKILLMASTER)
+            {
+                p_ptr->weapon_info[i].base_blow += MIN(500, 500 * blow_base / 60);
+            }
             else
             {
                 p_ptr->weapon_info[i].base_blow += MIN(600, 600 * blow_base / 60);
@@ -4748,11 +4706,11 @@ void calc_bonuses(void)
                 p_ptr->weapon_info[i].base_blow  /= 2;
             else
             {
-                p_ptr->weapon_info[i].to_h += (p_ptr->lev / 3);
-                p_ptr->weapon_info[i].dis_to_h += (p_ptr->lev / 3);
+                p_ptr->weapon_info[i].to_h += (p_ptr->monk_lvl / 3);
+                p_ptr->weapon_info[i].dis_to_h += (p_ptr->monk_lvl / 3);
 
-                p_ptr->weapon_info[i].to_d += (p_ptr->lev / 6);
-                p_ptr->weapon_info[i].dis_to_d += (p_ptr->lev / 6);
+                p_ptr->weapon_info[i].to_d += (p_ptr->monk_lvl / 6);
+                p_ptr->weapon_info[i].dis_to_d += (p_ptr->monk_lvl / 6);
             }
 
             p_ptr->weapon_info[i].base_blow -= arm*100;
@@ -5023,6 +4981,7 @@ void calc_bonuses(void)
     if ((p_ptr->pclass == CLASS_MONK
       || p_ptr->pclass == CLASS_MYSTIC
       || p_ptr->pclass == CLASS_FORCETRAINER
+      || p_ptr->pclass == CLASS_SKILLMASTER
       || p_ptr->pclass == CLASS_NINJA
       || p_ptr->pclass == CLASS_SCOUT) && (monk_armour_aux != monk_notify_aux))
     {
@@ -5464,7 +5423,6 @@ void handle_stuff(void)
     if (p_ptr->window) window_stuff();
 }
 
-
 bool heavy_armor(void)
 {
     u16b monk_arm_wgt = 0;
@@ -5473,7 +5431,8 @@ bool heavy_armor(void)
      && p_ptr->pclass != CLASS_MYSTIC
      && p_ptr->pclass != CLASS_FORCETRAINER
      && p_ptr->pclass != CLASS_NINJA
-     && p_ptr->pclass != CLASS_SCOUT)
+     && p_ptr->pclass != CLASS_SCOUT
+     && (p_ptr->pclass != CLASS_SKILLMASTER || !_is_martial_arts()) )
     {
         return FALSE;
     }

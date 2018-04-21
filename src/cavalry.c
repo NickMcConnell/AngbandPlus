@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void _rodeo_spell(int cmd, variant *res)
+void rodeo_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -89,7 +89,7 @@ static int _get_powers(spell_info* spells, int max)
     spell->level = 10;
     spell->cost = 0;
     spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_STR]);
-    spell->fn = _rodeo_spell;
+    spell->fn = rodeo_spell;
 
     return ct;
 }
@@ -134,6 +134,7 @@ class_t *cavalry_get_class(void)
         me.base_hp = 10;
         me.exp = 120;
         me.pets = 35;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
         
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

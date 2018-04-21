@@ -53,7 +53,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "spell";
         me.which_stat = A_INT;
-        me.weight = 450;
+        me.encumbrance.max_wgt = 450;
+        me.encumbrance.weapon_pct = 67;
+        me.encumbrance.enc_wgt = 800;
         me.min_fail = 5;
         me.min_level = 5;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
@@ -109,7 +111,9 @@ class_t *tourist_get_class(void)
         me.base_hp = 0;
         me.exp = 70;
         me.pets = 40;
-        
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
+                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
+
         me.birth = _birth;
         me.caster_info = _caster_info;
         /* TODO: This class uses spell books, so we are SOL

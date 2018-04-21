@@ -19,7 +19,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "devilish power";
         me.which_stat = A_INT;
-        me.weight = 750;
+        me.encumbrance.max_wgt = 750;
+        me.encumbrance.weapon_pct = 0;
+        me.encumbrance.enc_wgt = 800;
         init = TRUE;
     }
     return &me;

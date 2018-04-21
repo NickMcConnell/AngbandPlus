@@ -587,3 +587,142 @@ void virtue_display(doc_ptr doc)
         }
     }
 }
+
+/*************************************************************************
+ * Spellcasting and the Virtues
+ ************************************************************************/
+void virtue_on_fail_spell(int realm, int fail)
+{
+    switch (realm)
+    {
+    case REALM_LIFE:
+        if (randint1(100) < fail)
+            virtue_add(VIRTUE_VITALITY, -1);
+        break;
+    case REALM_DEATH:
+    case REALM_NECROMANCY:
+        if (randint1(100) < fail)
+            virtue_add(VIRTUE_UNLIFE, -1);
+        break;
+    case REALM_NATURE:
+        if (randint1(100) < fail)
+            virtue_add(VIRTUE_NATURE, -1);
+        break;
+    case REALM_DAEMON:
+        if (randint1(100) < fail)
+            virtue_add(VIRTUE_JUSTICE, 1);
+        break;
+    case REALM_CRUSADE:
+        if (randint1(100) < fail)
+            virtue_add(VIRTUE_JUSTICE, -1);
+        break;
+    case REALM_HEX:
+        if (randint1(100) < fail)
+            virtue_add(VIRTUE_COMPASSION, -1);
+        break;
+    default:
+        if (randint1(100) < fail)
+            virtue_add(VIRTUE_KNOWLEDGE, -1);
+        break;
+    }
+    if (randint1(100) >= fail)
+        virtue_add(VIRTUE_CHANCE,-1);
+}
+
+void virtue_on_cast_spell(int realm, int cost, int fail)
+{
+    switch (realm)
+    {
+    case REALM_LIFE:
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_TEMPERANCE, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_COMPASSION, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_VITALITY, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_DILIGENCE, 1);
+        break;
+    case REALM_DEATH:
+    case REALM_NECROMANCY:
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_UNLIFE, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_VITALITY, -1);
+        break;
+    case REALM_DAEMON:
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HONOUR, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_TEMPERANCE, -1);
+        break;
+    case REALM_CRUSADE:
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_SACRIFICE, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HONOUR, 1);
+        break;
+    case REALM_NATURE:
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_NATURE, 1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HARMONY, 1);
+        break;
+    case REALM_HEX:
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_JUSTICE, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_FAITH, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_HONOUR, -1);
+        if (randint1(100 + p_ptr->lev) < cost) virtue_add(VIRTUE_COMPASSION, -1);
+        break;
+    }
+    if (randint1(100) < fail)
+        virtue_add(VIRTUE_CHANCE,1);
+}
+
+/* Here is a return to Hengband's harshness ... but rather than
+ * making the large penalties all or nothing, we'll distribute
+ * the penalty based upon the alignment's deviation */
+int virtue_mod_spell_fail(int realm, int fail)
+{
+    caster_info *caster_ptr = get_caster_info();
+    int          max = 5;
+
+    if (caster_ptr && caster_ptr->which_stat == A_WIS)
+        max = 10;
+
+    if (realm == REALM_NATURE)
+    {
+        /* Nature is a realm of balance, and the player must
+         * strive to maintain neutrality */
+        int align = abs(p_ptr->align);
+        if (align > 50)
+        {
+            int base = 1;
+            int xtra = max - base;
+            int mod = MIN(max, base + (align - 51) * xtra / 150);
+            fail += mod;
+        }
+    }
+    else if (is_good_realm(realm))
+    {
+        if (p_ptr->align < -20)
+        {
+            int align = abs(p_ptr->align);
+            int base = 1;
+            int xtra = max - base;
+            int mod = MIN(max, base + (align - 21) * xtra / 130);
+            fail += mod;
+        }
+        else if (p_ptr->align > 150)
+            fail -= 1;
+    }
+    else if (is_evil_realm(realm))
+    {
+        if (p_ptr->align > 20)
+        {
+            int base = 1;
+            int xtra = max - base;
+            int mod = MIN(max, base + (p_ptr->align - 21) * xtra / 130);
+            fail += mod;
+        }
+        else if (p_ptr->align < -150)
+            fail -= 1;
+    }
+    return fail;
+}
+
+

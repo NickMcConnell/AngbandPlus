@@ -158,7 +158,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "power";
         me.which_stat = A_INT;
-        me.weight = 430;
+        me.encumbrance.max_wgt = 430;
+        me.encumbrance.weapon_pct = 100;
+        me.encumbrance.enc_wgt = 600;
         me.options = CASTER_ALLOW_DEC_MANA;
         init = TRUE;
     }
@@ -209,6 +211,8 @@ class_t *blue_mage_get_class(void)
         me.base_hp = 4;
         me.exp = 130;
         me.pets = 35;
+        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_FAST | CLASS_SENSE2_STRONG;
         
         me.birth = _birth;
         me.caster_info = _caster_info;

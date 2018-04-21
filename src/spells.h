@@ -2,6 +2,7 @@
 extern void browse_spells(spell_info* spells, int ct, cptr desc);
 extern int calculate_cost(int cost);
 extern int calculate_fail_rate(int level, int base_fail, int stat_idx);
+extern int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int stat_idx);
 extern bool cast_spell(ang_spell spell);
 extern int  choose_spell(spell_info* spells, int ct, cptr desc, int max_cost);
 extern void default_spell(int cmd, variant *res);

@@ -1052,15 +1052,24 @@ struct player_pact
  * is saved in the savefile.  The "transient" info is recomputed
  * whenever anything important changes.
  */
- #define WIELD_NONE       0
- #define WIELD_ONE_HAND   1
- #define WIELD_TWO_HANDS  2
+#define WIELD_NONE       0
+#define WIELD_ONE_HAND   1
+#define WIELD_TWO_HANDS  2
 
- #define MAX_HANDS 6
- #define MAX_ARMS  3
- #define HAND_NONE -1
+#define MAX_HANDS 6
+#define MAX_ARMS  3
+#define HAND_NONE -1
 
- typedef struct {
+/* For the blows calculation, see calculate_base_blows in combat.c
+ * This structure should be initialized in the appropriate calc_weapon_bonuses
+ * cf calc_bonuses in xtra1.c */
+typedef struct {
+    int max;
+    int wgt;
+    int mult;
+} _blows_calc_t;
+
+typedef struct {
     int  wield_how;
     bool omoi;   /* WIELD_TWO_HANDS but too heavy for WIELD_ONE_HAND */
     bool bare_hands; /* Monks and Forcetrainers */
@@ -1072,6 +1081,7 @@ struct player_pact
     int  dis_to_d;
     int  to_dd;
     int  to_ds;
+    _blows_calc_t blows_calc; /* set in calc_weapon_bonuses (class_t or sometimes race_t) */
     int  base_blow;
     int  xtra_blow;
     bool genji;
@@ -1096,6 +1106,7 @@ typedef struct {
     int to_mult;
     int num_fire;
     byte tval_ammo;
+    int breakage; /* pct of normal breakage odds ... default is 100 */
     bool heavy_shoot;
     u32b flags[OF_ARRAY_SIZE];
 } shooter_info_t;
@@ -1583,10 +1594,13 @@ struct player_type
     bool warning;
     bool mighty_throw;
     bool see_nocto;        /* Noctovision */
+    bool easy_capture;
 
     byte easy_realm1;   /* Magic Stones give realm specific boosts */
 
     bool move_random;   /* Cyberdemons and Possessors ... */
+
+    s16b monk_lvl;
 
     int           weapon_ct;
     weapon_info_t weapon_info[MAX_HANDS];
@@ -2047,11 +2061,18 @@ typedef spell_stats_t        *spell_stats_ptr;
 #define CASTER_USE_HP               0x0010
 #define CASTER_GAIN_SKILL           0x0020
 #define CASTER_USE_AU               0x0040 /* Leprechauns */
+#define CASTER_SUPERCHARGE_MANA     0x0080
+
+typedef struct {
+    int max_wgt;    /* max weight before encumbrance */
+    int weapon_pct; /* how much do melee weapons matter for encumbrance? */
+    int enc_wgt;    /* how much weight over the max before 0sp */
+} encumbrance_info;
 
 typedef struct {
     cptr magic_desc;    /* spell, mindcraft, brutal power, ninjitsu, etc */
     int  min_fail;
-    int  weight;
+    encumbrance_info encumbrance;
     int  which_stat;
     int  min_level;
     u32b options;
@@ -2094,6 +2115,7 @@ typedef struct {
     s16b                    base_hp;
     s16b                    exp;
     byte                    pets;
+    u32b                    flags;
 
     birth_fn                birth;          /* After py_birth() ... grant starting gear, etc */
     birth_ui_fn             birth_ui;       /* Used during py_birth() ... choose a subclass */ 

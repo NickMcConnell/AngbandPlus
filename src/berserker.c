@@ -123,6 +123,7 @@ static void _calc_bonuses(void)
     if (p_ptr->lev > 39) p_ptr->reflect = TRUE;
     if (p_ptr->lev > 34) p_ptr->no_stun = TRUE;
     p_ptr->redraw |= PR_STATUS;
+    p_ptr->auto_pseudo_id = TRUE;
 }
 
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -179,7 +180,6 @@ static caster_info * _caster_info(void)
         me.magic_desc = "brutal power";
         me.which_stat = A_STR;
         me.options = CASTER_USE_HP;
-        me.weight = 1000;
         init = TRUE;
     }
     return &me;

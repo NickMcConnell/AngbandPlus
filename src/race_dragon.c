@@ -537,7 +537,9 @@ static caster_info * _caster_info(void)
     if (!init)
     {
         me.magic_desc = "dragon spell";
-        me.weight = 750;
+        me.encumbrance.max_wgt = 750;
+        me.encumbrance.weapon_pct = 0;
+        me.encumbrance.enc_wgt = 800;
         init = TRUE;
     }
     me.which_stat = _get_realm()->spell_stat; /* Careful: Birthing may invoke this multiple times with different realms */

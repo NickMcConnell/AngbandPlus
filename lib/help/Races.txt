@@ -720,4 +720,4 @@ Yeek         <color:y>Good         </color> <color:b>Heroic       </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.3.</color>
+<color:s>Automatically generated for PosChengband 5.0.4.</color>

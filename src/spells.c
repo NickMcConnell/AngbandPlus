@@ -1,6 +1,7 @@
 #include "angband.h"
 
 #include "str-map.h"
+#include <assert.h>
 
 /***********************************************************************
  * Spell Skills, Stats and Savefile Support
@@ -579,13 +580,13 @@ int calculate_cost(int cost)
     return result;
 }
 
-int calculate_fail_rate(int level, int base_fail, int stat_idx)
+int calculate_fail_rate_aux(int caster_lvl, int spell_lvl, int base_fail, int stat_idx)
 {
     int fail = base_fail;
     int min = 0;
     caster_info *caster_ptr = get_caster_info();
 
-    if (p_ptr->lev < level)
+    if (caster_lvl < spell_lvl)
         return 100;
 
     if (caster_ptr && (caster_ptr->options & CASTER_NO_SPELL_FAIL))
@@ -595,7 +596,7 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
         return 0;
 
     /* Adjust Fail Rate */
-    fail -= 3 * (p_ptr->lev - level);
+    fail -= 3 * (caster_lvl - spell_lvl);
     fail += p_ptr->to_m_chance;
     fail -= 3 * (adj_mag_stat[stat_idx] - 1);
     if (p_ptr->heavy_spell) fail += 20;
@@ -615,7 +616,7 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
     if (mut_present(MUT_ARCANE_MASTERY))
         fail -= 3;
 
-    if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
+    if (demigod_is_(DEMIGOD_ATHENA))
     {
         fail -= 2;
         if (min > 0)
@@ -639,6 +640,11 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
     if (fail < 0) fail = 0;
     if (fail > 100) fail = 100;
     return fail;
+}
+
+int calculate_fail_rate(int level, int base_fail, int stat_idx)
+{
+    return calculate_fail_rate_aux(p_ptr->lev, level, base_fail, stat_idx);
 }
 
 /****************************************************************
@@ -1275,6 +1281,9 @@ static void _dump_realm(doc_ptr doc, int realm)
             _dump_book(doc, realm, i);
         }
     }
+    i = virtue_mod_spell_fail(realm, 0);
+    if (!first && i)
+        doc_printf(doc, " Your alignment is adding <color:R>%+d%%</color> to your fail rates in this realm.\n\n", i);
 }
 
 void spellbook_character_dump(doc_ptr doc)

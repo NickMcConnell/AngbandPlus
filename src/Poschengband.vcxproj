@@ -225,6 +225,7 @@
     <ClCompile Include="savefile.c" />
     <ClCompile Include="scores.c" />
     <ClCompile Include="scout.c" />
+    <ClCompile Include="skillmaster.c" />
     <ClCompile Include="skills.c" />
     <ClCompile Include="sniper.c" />
     <ClCompile Include="sorcerer.c" />

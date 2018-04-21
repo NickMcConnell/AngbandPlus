@@ -584,7 +584,6 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "challenge";
         me.options = CASTER_USE_HP;
-        me.weight = 500;
         init = TRUE;
     }
     return &me;
@@ -637,6 +636,7 @@ class_t *duelist_get_class(void)
         me.base_hp = 4;
         me.exp = 150;
         me.pets = 35;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

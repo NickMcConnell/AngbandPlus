@@ -655,7 +655,7 @@ cptr do_burglary_spell(int spell, int mode)
         if (name) return "Hide in Shadows";
         if (desc) return "You become shrouded in darkness, your torch light magically dimmed.";
         {
-            int d = p_ptr->lev;
+            int d = plev;
             if (info) return info_duration(spell_power(d), spell_power(d));
             if (cast)
             {
@@ -763,12 +763,23 @@ static caster_info * _caster_info(void)
     if (!init)
     {
         me.magic_desc = "spell";
-        me.which_stat = A_INT;
-        me.weight = 400;
-        me.min_level = 5;
-        me.min_fail = 5;
+        me.encumbrance.max_wgt = 400;
+        me.encumbrance.weapon_pct = 33;
+        me.encumbrance.enc_wgt = 1000;
         me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
+    }
+    if (p_ptr->realm1 == REALM_BURGLARY)
+    {
+        me.which_stat = A_DEX;
+        me.min_level = 1;
+        me.min_fail = 0;
+    }
+    else
+    {
+        me.which_stat = A_INT;
+        me.min_level = 5;
+        me.min_fail = 5;
     }
     return &me;
 }
@@ -804,8 +815,7 @@ class_t *rogue_get_class(void)
                     "allowing him to sneak around many creatures without having to "
                     "fight, or to get in a telling first blow. A rogue may also "
                     "backstab a fleeing monster. Rogues also gain shooting bonuses "
-                    "when using a sling. Intelligence determines a rogue's "
-                    "spell casting ability.\n \n"
+                    "when using a sling.\n \n"
                     "Rogues can select one realm from Sorcery, Death, Trump, Arcane, Craft, "
                     "or Burglary. Except for this last realm, rogues have certain limitations " 
                     "on which spells they can learn, and they do not learn new spells "
@@ -813,7 +823,10 @@ class_t *rogue_get_class(void)
                     "offers spells for setting traps, picking pockets, negotiating with "
                     "other thieves, and escaping from a tight spot. Burglary rogues are "
                     "agents of the Black Market and receive favorable pricing from "
-                    "that shop.";
+                    "that shop. A Burglary rogue uses DEX as their spellcasting stat, "
+                    "and may learn spells beginning at level 1. For other realms, however, "
+                    "the rogue uses INT as the spellcasting stat, and won't be able to "
+                    "learn spells until level 5.";
 
         me.stats[A_STR] =  2;
         me.stats[A_INT] =  1;
@@ -827,6 +840,8 @@ class_t *rogue_get_class(void)
         me.base_hp = 12;
         me.exp = 125;
         me.pets = 40;
+        me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG |
+                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
         
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;

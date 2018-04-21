@@ -539,6 +539,7 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
+    p_ptr->monk_lvl = (p_ptr->lev * 94 + 50) / 100;
     if (p_ptr->lev >= 15) 
         p_ptr->clear_mind = TRUE;
 
@@ -593,7 +594,9 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "force";
         me.which_stat = A_WIS;
-        me.weight = 350;
+        me.encumbrance.max_wgt = 350;
+        me.encumbrance.weapon_pct = 100;
+        me.encumbrance.enc_wgt = 800;
         me.on_fail = _on_fail;
         me.on_cast = _on_cast;
         init = TRUE;
@@ -650,6 +653,8 @@ class_t *force_trainer_get_class(void)
         me.base_hp = 4;
         me.exp = 135;
         me.pets = 40;
+        me.flags = CLASS_SENSE1_MED | CLASS_SENSE1_WEAK |
+                   CLASS_SENSE2_MED | CLASS_SENSE2_STRONG;
 
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
