@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 0
-#define VER_PATCH "strawberry"
+#define VER_PATCH "peppermint"
 #define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
@@ -1338,12 +1338,13 @@ enum {
 #define ART_EOWYN               216
 #define ART_SPECTRAL_DSM        226
 #define ART_BLOODRIP            243
-#define ART_MAGLOR                245
-#define ART_DAERON                246
-#define ART_MASTER_TONBERRY        247
-#define ART_DUELIST                248
+#define ART_MAGLOR              245
+#define ART_DAERON              246
+#define ART_MASTER_TONBERRY     247
+#define ART_DUELIST             248
 #define ART_ETERNAL_BLADE       294
 #define ART_MICRODOLLAR         334
+#define ART_SKYNAIL             341
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -1665,6 +1666,7 @@ enum {
 #define SV_MACE_OF_DISRUPTION           20    /* 5d8  */
 #define SV_WIZSTAFF                     21    /* 1d2  */
 #define SV_GROND                        50    /* 3d9  */
+#define SV_BASEBALL_BAT                 51    /* 1d4  */
 #define SV_NAMAKE_HAMMER                63    /* 1d77 */
 
 /* The "sval" values for TV_POLEARM */
@@ -3143,7 +3145,7 @@ enum {
 #define RF3_XXX24           0x01000000
 #define RF3_XXX25           0x02000000
 #define RF3_XXX26           0x04000000
-#define RF3_XXX27           0x08000000
+#define RF3_CLEAR_HEAD      0x08000000  /* Can recover from confusion suddenly */
 #define RF3_NO_FEAR         0x10000000  /* Cannot be scared */
 #define RF3_NO_STUN         0x20000000  /* Cannot be stunned */
 #define RF3_NO_CONF         0x40000000  /* Cannot be confused and resist confusion */
@@ -3174,6 +3176,7 @@ enum {
 #define RF7_SELF_DARK_2         0x00080000  /* Monster darkens itself */
 #define RF7_CAN_CLIMB           0x00100000
 #define RF7_RANGED_MELEE        0x00200000  /* Monster has ranged melee */
+#define RF7_NASTY_GLYPH         0x00400000  /* Monster has nasty glyph */
 
 /*
  * Monster race flags
@@ -4265,6 +4268,7 @@ extern int PlayerUID;
 #define MON_OGRE_SHAMAN   479
 #define MON_NEXUS_QUYLTHULG             480
 #define MON_NINJA         485
+#define MON_MEMORY_MOSS   486
 #define MON_STORM_GIANT 487
 #define MON_SPECTATOR 488
 #define MON_BICLOPS       490
@@ -4847,12 +4851,16 @@ extern int PlayerUID;
 #define DUNGEON_CHAMELEON 18
 #define DUNGEON_DARKNESS 19
 #define DUNGEON_GLASS    20
+#define DUNGEON_ICKY     21
 #define DUNGEON_OLYMPUS  22
+#define DUNGEON_LONELY   23
 #define DUNGEON_GIANTS_HALL 24
 #define DUNGEON_ARENA    25
 #define DUNGEON_WARREN   30
 #define DUNGEON_HIDEOUT  31
 #define DUNGEON_BATTLEFIELD  32
+#define DUNGEON_TIDAL_CAVE 33
+#define DUNGEON_MAX      DUNGEON_TIDAL_CAVE
 
 #define DUNGEON_FEAT_PROB_NUM 3
 
@@ -5341,6 +5349,7 @@ enum ego_type_e {
     EGO_CLOAK_AMAN,
     EGO_CLOAK_BAT,
     EGO_CLOAK_NAZGUL,
+    EGO_CLOAK_HERO,
 
     EGO_HELMET_KNOWLEDGE = 110,
     EGO_HELMET_PIETY,
@@ -5748,8 +5757,53 @@ enum effect_e
 #define BIAS_PROTECTION      0x00100000
 #define BIAS_ARCHER          0x00200000
 
-/* Special multiplier to nerf ninja lawyer melee */
-#define NINJA_LAWYER_MULT 80
+/* Item origins */
+
+enum {
+    ORIGIN_NONE = 0,
+    ORIGIN_FLOOR,			/* found on the dungeon floor */
+    ORIGIN_DROP,			/* normal monster drops */
+    ORIGIN_QUEST_DROP,          /* monster drop in a quest */
+    ORIGIN_CHEST,               /* found in a chest */
+    ORIGIN_SPECIAL,			/* on the floor of a special room */
+    ORIGIN_VAULT,			/* on the floor of a vault */
+    ORIGIN_RUBBLE,			/* found under rubble */
+    ORIGIN_MIXED,			/* stack with mixed origins */
+    ORIGIN_ACQUIRE,			/* called forth by scroll */
+    ORIGIN_STORE,			/* something you bought */
+    ORIGIN_BIRTH,			/* objects created at character birth */
+    ORIGIN_DROP_UNKNOWN,        /* drops from unseen foes - not currently supported */
+    ORIGIN_CHEAT,			/* created by wizard mode */
+    ORIGIN_QUEST,			/* from a quest */
+    ORIGIN_QUEST_REWARD,		/* a quest reward */
+    ORIGIN_ANGBAND_REWARD,      /* an Angband quest reward */
+    ORIGIN_ARENA_REWARD,        /* an arena reward */
+    ORIGIN_NAGA,                /* a gift from Spiritnaga & Co. */
+    ORIGIN_PATTERN,             /* reward for walking the pattern */
+    ORIGIN_PLAYER_MADE,         /* player-made item */ 
+    ORIGIN_ART_CREATION,        /* created by scroll of art creation */ 
+    ORIGIN_REFORGE,             /* reforge */ 
+    ORIGIN_GAMBLE,              /* gamble */ 
+    ORIGIN_WANTED,              /* reward for turning in a wanted monster */ 
+    ORIGIN_PATRON,              /* reward from your chaos patron */
+    ORIGIN_ENDLESS,             /* created by an endless quiver */
+    ORIGIN_PHOTO,               /* taken with a camera */
+    ORIGIN_KAWARIMI,            /* statue left behind by kawarimi */
+    ORIGIN_STOLEN,              /* stolen by a pickpocket */
+    ORIGIN_CAN_OF_TOYS,         /* found in a can of toys */
+
+    ORIGIN_MAX
+};
+
+#define ORIGIN_MODULO 128
+#define ORIGIN_DUNGEONS_AFTER 32  /* everything after this is a dungeon */
+#define ORIGIN_QUESTS_AFTER 127   /* except everything after this is a quest */
+
+/* MITZE bitflags */
+
+#define MITZE_ID 0x01
+#define MITZE_PICKUP 0x02
+#define MITZE_MIXED 0x04
 
 /* Lawyer hacks */
 #define LAWYER_HACK_LEVEL 1

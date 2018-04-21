@@ -385,7 +385,7 @@ void bad_luck_mut(int cmd, variant *res)
         var_set_string(res, "Black Aura");
         break;
     case SPELL_GAIN_MUT:
-        msg_print("There is a malignant black aura surrounding you...");
+        msg_print("You feel a strange kinship with Dennis the rodmaster!");
         mut_lose(MUT_GOOD_LUCK);
         break;
     case SPELL_LOSE_MUT:
@@ -2603,7 +2603,7 @@ void untouchable_mut(int cmd, variant *res)
         msg_print("You feel untouchable!");
         break;
     case SPELL_LOSE_MUT:
-        msg_print("Your feel touchable!");
+        msg_print("You feel touchable!");
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You are untouchable and gain a bonus to AC.");

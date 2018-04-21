@@ -275,6 +275,7 @@ int res_ct_known(int which)
     int hidden = 0;
     int flg = res_get_object_flag(which);
     int vuln_flg = res_get_object_vuln_flag(which);
+    int imm_flg = res_get_object_immune_flag(which);
     int i;
 
     /* Life is a bit hard at the moment since "player flags"
@@ -296,6 +297,8 @@ int res_ct_known(int which)
             hidden++;
         if (vuln_flg != OF_INVALID && have_flag(flgs, vuln_flg) && !have_flag(flgs_known, vuln_flg))
             hidden--;
+        if (imm_flg != OF_INVALID && have_flag(flgs, imm_flg) && !have_flag(flgs_known, imm_flg))
+            hidden += 100;
     }
 
     ct -= hidden;

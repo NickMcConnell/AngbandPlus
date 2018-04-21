@@ -1590,6 +1590,9 @@ s16b get_mon_num_aux(int level, int min_level, u32b options)
         if (quests_get_current() && (r_ptr->flags1 & RF1_NO_QUEST)) continue;
         if (summon_specific_who != SUMMON_WHO_NOBODY && (r_ptr->flags1 & RF1_NO_SUMMON)) continue;
 
+        /* No point in generating memory mosses if the never_forget birth option is on */
+        if ((never_forget) && (r_idx == MON_MEMORY_MOSS)) continue;
+
         if (!p_ptr->inside_battle && !chameleon_change_m_idx)
         {
             /* Hack -- "unique" monsters must be "unique" */
@@ -3185,10 +3188,16 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 
         /* Require empty space (if not ghostly) */
         if (!monster_can_enter(y, x, r_ptr, 0)) return 0;
+
+        /* Avoid generating monsters on top of enclosed 1x1 pits */
+        if ((!character_dungeon) && (dungeon_type) && (cave[y][x].feat == feat_dark_pit)) return 0;
     }
 
     if (!p_ptr->inside_battle)
     {
+        /* Mega-hack - improve savefile compatibility */
+        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->max_num > 1)) r_ptr->max_num = 1;
+
         /* Hack -- "unique" monsters must be "unique" */
         if (((r_ptr->flags1 & (RF1_UNIQUE)) ||
              (r_ptr->flags7 & (RF7_NAZGUL))) &&
@@ -3605,6 +3614,9 @@ static bool mon_scatter(int r_idx, int *yp, int *xp, int y, int x, int max_dist)
                 /* Require empty space (if not ghostly) */
                 if (!monster_can_enter(ny, nx, r_ptr, 0))
                     continue;
+
+                /* Avoid generating monsters on top of enclosed 1x1 pits */
+                if ((!character_dungeon) && (dungeon_type) && (cave[ny][nx].feat == feat_dark_pit)) continue;
             }
             else
             {

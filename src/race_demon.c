@@ -4,7 +4,7 @@ static cptr _desc =
     "Demons are powerful servants of evil and come in many forms. Being monsters, they "
     "may not choose a normal class. Instead, they rely on their devilish powers or their "
     "brutish strength to survive.\n \n"
-    "The various demonic races include the Balrog, powerful demons of fire; the Sevants "
+    "The various demonic races include the Balrog, powerful demons of fire; the Servants "
     "of Khorne, mighty warriors of destruction; the Tanar'ri, weaker demons whose ultimate "
     "form has three sets of arms, but prefers to fight naked; and Cyberdemons, whose firepower "
     "is unsurpassable.\n \n"
@@ -278,6 +278,7 @@ static void _khorne_gain_level(int new_level)
     if (p_ptr->current_r_idx == MON_JUGGERNAUT_KHORNE && new_level >= 40)
     {
         object_type forge;
+        int slot;
         p_ptr->current_r_idx = MON_BLOODTHIRSTER;
         msg_print("You have evolved into a Bloodthirster.");
         equip_on_change_race();
@@ -289,7 +290,19 @@ static void _khorne_gain_level(int new_level)
         forge.weight = 500;
         forge.to_h = 15;
         forge.to_d = 15;
-        py_birth_obj(&forge);
+
+        /* Poor man's py_birth_obj() - we can't call the actual py_birth_obj()
+         * because we need a different origin, which we cannot specify later */
+        obj_identify_fully(&forge);
+        object_origins(&forge, ORIGIN_PATRON);
+        forge.origin_xtra = 11; /* Khorne */
+
+        slot = equip_first_empty_slot(&forge);
+        if (slot)
+            equip_wield(&forge, slot);
+        else
+            pack_carry(&forge);
+
         p_ptr->update |= PU_BONUS;
     }
 }

@@ -371,7 +371,7 @@ static cptr r_info_flags3[] =
     "XXX",
     "XXX",
     "XXX",
-    "XXX",
+    "CLEAR_HEAD",
     "NO_FEAR",
     "NO_STUN",
     "NO_CONF",
@@ -405,7 +405,7 @@ static cptr r_info_flags7[] =
     "SELF_DARK_2",
     "CAN_CLIMB",
     "RANGED_MELEE",
-    "XXX7X22",
+    "NASTY_GLYPH",
     "XXX7X23",
     "XXX7X24",
     "XXX7X25",
@@ -1517,7 +1517,7 @@ static errr _parse_effect(int tval, cptr arg, room_grid_ptr grid, int options)
     int effect_id = effect_parse_type(arg);
     if (!effect_id)
     {
-        msg_format("Unkown effect: %s", arg);
+        msg_format("Unknown effect: %s", arg);
         return PARSE_ERROR_GENERIC;
     }
     if (!device_is_valid_effect(tval, effect_id))
@@ -1904,7 +1904,7 @@ errr parse_room_grid(char *buf, room_grid_ptr grid, int options)
         {
             if (found_feature)
             {
-                msg_format("Error: Unkown %s directive.", name);
+                msg_format("Error: Unknown %s directive.", name);
                 return PARSE_ERROR_GENERIC;
             }
 
@@ -2303,7 +2303,8 @@ errr parse_m_info(char *buf, header *head)
         if (4 != sscanf(buf+2, "%d:%d:%d:%d",
                 &level, &mana, &fail, &exp)) return (1);
 
-        m_ptr->info[realm][magic_idx].realm = realm;
+        m_ptr->info[realm][magic_idx].realm = realm + 1; /* the realms are off by 1 */
+        m_ptr->info[realm][magic_idx].idx = magic_idx;
         m_ptr->info[realm][magic_idx].slevel = level;
         m_ptr->info[realm][magic_idx].smana = mana;
         m_ptr->info[realm][magic_idx].sfail = fail;
@@ -4622,7 +4623,40 @@ errr parse_room_line(room_ptr room, char *line, int options)
         memset(letter, 0, sizeof(room_grid_t));
         letter->letter = line[2];
         rc = parse_room_grid(line + 4, letter, options);
-        if (!rc) int_map_add(room->letters, letter->letter, letter);
+        if (!rc) 
+        {
+        /* Check for the following case: a quest line is edited during the game, 
+         * and the player has already requested or completed a quest that happens
+         * later in the new line without having requested, completed or received a
+         * reward for an earlier quest. This can make either a quest reward or an
+         * entire quest inaccessible. To avoid this, we use a very ugly hack:
+         * buildings set to an Untaken quest or a Completed quest (meaning an
+         * unrewarded one) can only be overwritten by setting them to another 
+         * Completed quest. (We allow that so that a player who completes the
+         * later quest first can receive the reward immediately, without having to
+         * take the earlier quest.) */
+            if ((letter->cave_feat >= 128) && (letter->cave_feat < 160))
+            {
+                room_grid_ptr old_grid = int_map_find(room->letters, letter->letter);
+                while ((old_grid) && (old_grid->extra > 0) && (old_grid->cave_feat == letter->cave_feat) 
+                      && (old_grid->extra != letter->extra))
+                {
+                    quest_ptr q = quests_get(old_grid->extra);
+                    if (!q || !q->id) break;
+                    if ((q->status == QS_UNTAKEN) || (q->status == QS_COMPLETED))
+                    {
+                        if (letter->extra < 1) letter->extra = old_grid->extra;
+                        else {
+                            quest_ptr q2 = quests_get(letter->extra);   
+                            if (!q2 || !q2->id) letter->extra = old_grid->extra;
+                            else if (q2->status != QS_COMPLETED) letter->extra = old_grid->extra;
+                        }
+                    }
+                    break;
+                }
+            }
+            int_map_add(room->letters, letter->letter, letter);
+        }
         else free(letter);
         if (rc) return rc;
     }

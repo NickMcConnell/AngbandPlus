@@ -398,8 +398,11 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         if (!(obj->sval == SV_FOOD_WAYBREAD ||
               obj->sval < SV_FOOD_BISCUIT))
         {
+            int luku = obj->number;
             msg_print("The food falls through your jaws!");
+            obj->number = 1;
             drop_near(obj, -1, py, px);
+            obj->number = luku;
         }
         else
         {

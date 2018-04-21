@@ -314,15 +314,17 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
     int     i;
     u32b    mode = CREATE_ART_NORMAL;
     point_t min_tbl[2] = { {20, 0}, {70, 50000} };
-    point_t max_tbl[5] = { {0, 5000}, {10, 10000}, {30, 30000}, {70, 110000}, {100, 200000} };
+    point_t max_tbl[5] = { {0, 5000}, {10, 10000}, {30, 30000}, {70, 100000}, {100, 150000} };
     int     min = interpolate(level, min_tbl, 2);
     int     max = interpolate(level, max_tbl, 5);
     int     pct = get_slot_power(o_ptr);
+    int     softmax;
 
     /* normalize based on the slot for this object (cf artifact.c)
      * weapons/armor are 100%; amulets/lights 50%; etc. */
     min = min * pct / 100;
     max = max * pct / 100;
+    softmax = MIN(800L * pct, MAX(5000, max * 7 / 8));
 
     if (power < 0)
         mode = CREATE_ART_CURSED;
@@ -337,6 +339,7 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
 
         if (score < min) continue;
         if (score > max) continue;
+        if ((score > softmax) && (one_in_(2))) continue;
 
         *o_ptr = forge;
         return;
@@ -2986,6 +2989,23 @@ static void _ego_create_cloak(object_type *o_ptr, int level)
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_NECROMANTIC);
         break;
+    case EGO_CLOAK_HERO:
+        o_ptr->to_d += 3;
+        o_ptr->to_h += 3;
+        if (one_in_(2)) add_flag(o_ptr->flags, OF_SUST_DEX);
+        if (one_in_(3)) add_flag(o_ptr->flags, OF_REGEN);
+        if (one_in_(5)) add_flag(o_ptr->flags, OF_SEE_INVIS);
+        if (one_in_(5)) add_flag(o_ptr->flags, OF_DEX);
+        if (one_in_(5)) add_flag(o_ptr->flags, OF_CON);
+        if (one_in_(10)) add_flag(o_ptr->flags, OF_LIFE);
+        if (one_in_(10)) add_flag(o_ptr->flags, OF_SPEED);
+        if (one_in_(10)) add_flag(o_ptr->flags, OF_LEVITATION);
+        if (one_in_(20)) add_flag(o_ptr->flags, OF_CHR);
+        else if (one_in_(5)) add_flag(o_ptr->flags, OF_DEC_STEALTH);
+        if (one_in_(12)) one_high_resistance(o_ptr);
+        if ((one_in_(3)) && (one_in_(ACTIVATION_CHANCE)))
+            effect_add_random(o_ptr, BIAS_WARRIOR);
+        break;
     case EGO_CLOAK_RETRIBUTION:
         if (one_in_(2))
             add_flag(o_ptr->flags, OF_AURA_FIRE);
@@ -3342,6 +3362,7 @@ void ego_finalize(object_type *o_ptr, int level, int power, int mode)
             else
             {
                 o_ptr->pval += randint1(e_ptr->max_pval);
+                if ((o_ptr->name2 == EGO_CLOAK_HERO) && (o_ptr->pval > 3)) o_ptr->pval = 3; /* prevent oppy elven cloaks */
             }
         }
 

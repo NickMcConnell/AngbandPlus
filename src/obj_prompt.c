@@ -71,7 +71,7 @@ int obj_prompt(obj_prompt_ptr prompt)
 
         _display(&context);
 
-        cmd = inkey_special(TRUE);
+        cmd = inkey_special(TRUE);        
         if (prompt->cmd_handler)
         {
             tmp = prompt->cmd_handler(&context, cmd);
@@ -82,6 +82,19 @@ int obj_prompt(obj_prompt_ptr prompt)
                 REPEAT_PUSH(cmd);
                 break;
             }
+          /*  if ((isupper(cmd)) && (inv_label_slot(tab->inv, tolower(cmd))))
+            {
+                cmd = tolower(cmd);
+                tmp = prompt->cmd_handler(&context, cmd);
+                if (tmp == OP_CMD_HANDLED) continue;
+                if (tmp == OP_CMD_DISMISS)
+                {
+                    result = OP_CUSTOM;
+                    REPEAT_PUSH(cmd);
+                    break;
+                }
+                cmd = toupper(cmd);
+            } */
         }
         slot = inv_label_slot(tab->inv, cmd);
         if (slot)
@@ -101,8 +114,17 @@ int obj_prompt(obj_prompt_ptr prompt)
             slot = inv_label_slot(tab->inv, tolower(cmd));
             if (slot)
             {
+                obj_ptr obj = inv_obj(tab->inv, slot);
                 doc_clear(context.doc);
-                obj_display_doc(inv_obj(tab->inv, slot), context.doc);
+                if (object_is_flavor(obj) && !object_is_known(obj))
+                {
+                    char name[MAX_NLEN];
+                    object_desc(name, obj, OD_COLOR_CODED);
+                    doc_insert(context.doc, name);
+                    doc_insert(context.doc, "\n\nYou have no special knowledge about this item.\n");
+                    doc_insert(context.doc, "<color:B>[Press <color:y>Any Key</color> to Continue]</color>\n\n");
+                }
+                else obj_display_doc(obj, context.doc);
                 _sync_doc(context.doc);
                 cmd = inkey();
                 continue;
@@ -299,7 +321,7 @@ static int _basic_cmd(obj_prompt_context_ptr context, int cmd)
         {
             obj_prompt_tab_ptr tab = vec_get(context->tabs, floor_tab);
             context->tab = floor_tab;
-            if (inv_count_slots(tab->inv, obj_exists) == 1)
+            if ((inv_count_slots(tab->inv, obj_exists) == 1) && (!strpos("nscribe", context->prompt->prompt)))
             {
                 slot_t slot = inv_first(tab->inv, obj_exists);
                 obj_ptr obj; 
@@ -396,6 +418,5 @@ int _count_lines(cptr s)
     }
     return ct;
 }
-
 
 

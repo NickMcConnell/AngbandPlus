@@ -98,6 +98,9 @@ void reset_visuals(void)
         /* Process "font-<playername>.prf" */
         process_pref_file(buf);
     }
+
+    /* Respect easy_mimics */
+    if (easy_mimics) toggle_easy_mimics(TRUE);
 }
 
 
@@ -355,6 +358,8 @@ static void _obj_identify_aux(object_type *o_ptr)
     o_ptr->feeling = FEEL_NONE;
     o_ptr->ident &= ~(IDENT_SENSE | IDENT_EMPTY | IDENT_TRIED);
     o_ptr->ident |= IDENT_KNOWN;
+
+    object_mitze(o_ptr, MITZE_ID);
 
     /* Lore on unidentified objects is tricky, but flavorful.
        Patch up the lore flags, putting them in their correct

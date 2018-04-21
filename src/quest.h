@@ -59,6 +59,8 @@ typedef bool (*quest_p)(quest_ptr q);
 extern quest_ptr  quest_alloc(cptr name);
 extern void       quest_free(quest_ptr q);
 extern void       quest_change_file(quest_ptr q, cptr file);
+extern cptr       kayttonimi(quest_ptr q);
+extern cptr       lyhytnimi(quest_ptr q, cptr *nimi);
 
 extern void       quest_take(quest_ptr q);
 extern void       quest_complete(quest_ptr q, point_t p);
@@ -78,6 +80,7 @@ extern void       quests_add(quest_ptr q); /* for the q_info.txt parser on N: li
 extern void       quests_cleanup(void);
 
 extern quest_ptr  quests_get_current(void);
+extern int        quest_id_current(void);
 extern quest_ptr  quests_get(int id);
 extern cptr       quests_get_name(int id);
 extern vec_ptr    quests_get_all(void);
@@ -94,6 +97,7 @@ extern void       quests_on_generate(int dungeon, int level); /* see if this lev
 extern void       quests_generate(int id); /* QF_GENERATE located on surface (QUEST_ENTER(id)) */
 extern void       quests_on_kill_mon(mon_ptr mon); /* check for completion */
 extern void       quests_on_get_obj(obj_ptr obj); /* check for completion */
+extern bool       quest_allow_poly(mon_ptr mon); /* check for unwanted polymorph orevolution */
 extern bool       quests_check_leave(void); /* confirm if !OF_RETAKE and !QS_COMPLETED */
 extern void       quests_on_leave(void); /* quest_fail() if !QS_COMPLETED */
 extern bool       quests_allow_downstairs(void); /* check for cave_gen '>' */

@@ -770,7 +770,7 @@ bool make_attack_normal(int m_idx)
 
                     if (randint1(100) < 11 && p_ptr->prace != RACE_ANDROID)
                     {
-                        bool perm = one_in_(10) && one_in_(100/rlev);
+                        bool perm = one_in_(10) && one_in_(100/MAX(1, rlev));
                         if (dec_stat(A_CON, randint1(10), perm))
                         {
                             msg_print("You feel strange sickness.");

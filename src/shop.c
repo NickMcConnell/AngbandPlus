@@ -475,6 +475,12 @@ static bool _create(obj_ptr obj, int k_idx, int lvl, u32b mode)
     obj->ident |= IDENT_STORE;
     if (obj_value(obj) <= 0) return FALSE; /* Note: requires IDENT_STORE to work!!! */
 
+    if (mode & AM_SHUFFLING) /* Prevent shuffling for a [Sm amulet */
+    {
+        if ((k_info[k_idx].tval == TV_AMULET) && (have_flag(obj->flags, OF_NO_SUMMON))) return FALSE;
+        if ((object_is_mushroom(obj)) && ((prace_is_(RACE_SNOTLING)) || (p_ptr->prace == RACE_SNOTLING) || (p_ptr->prace == RACE_DOPPELGANGER))) return FALSE;
+    }
+
     /* discounts could screw up the special pricing in dragonskin emporium */
     if (k_info[k_idx].tval != TV_DRAG_ARMOR) _discount(obj);
 
@@ -781,12 +787,22 @@ static bool _temple_stock_p(int k_idx)
 static bool _temple_create(obj_ptr obj, u32b mode)
 {
     int k_idx;
-    if (one_in_(3))
+    if (one_in_(4))
         k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
     else if (one_in_(7))
         k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_REMOVE_CURSE);
     else if (one_in_(20))
         k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
+    else if (((p_ptr->lev < 40) || (no_wilderness)) && (one_in_(10)))
+    {
+        if (p_ptr->lev < 20) k_idx = lookup_kind(TV_POTION, SV_POTION_CURE_SERIOUS);
+        else if (p_ptr->lev < 35) k_idx = lookup_kind(TV_POTION, SV_POTION_CURING);
+        else k_idx = lookup_kind(TV_POTION, SV_POTION_HEROISM);
+    }
+    else if ((no_wilderness) && (p_ptr->lev > 20) && (one_in_(14)))
+    {
+        k_idx = lookup_kind(TV_POTION, SV_POTION_RESTORE_EXP);
+    }
     else
         k_idx = _get_k_idx(_temple_stock_p, _mod_lvl(20));
     return _create(obj, k_idx, _mod_lvl(rand_range(1, 15)), mode);
@@ -1554,7 +1570,10 @@ static void _display(_ui_context_ptr context)
     big_num_display(p_ptr->au, buf);
     doc_printf(doc, "Gold Remaining: <color:y>%s</color>\n\n", buf);
     doc_insert(doc, "<color:keypress>b</color> to buy. ");
-    doc_insert(doc, "<color:keypress>s</color> to sell. ");
+    if (no_selling)
+        doc_insert(doc, "<color:keypress>s</color> to give. ");
+    else
+        doc_insert(doc, "<color:keypress>s</color> to sell. ");
     doc_insert(doc, 
         "<color:keypress>x</color> to begin examining items.\n"
         "<color:keypress>B</color> to buyout inventory. "
@@ -1590,17 +1609,23 @@ static bool _buy_aux(shop_ptr shop, obj_ptr obj)
     price *= obj->number;
 
     object_desc(name, obj, OD_COLOR_CODED);
-    string_printf(s, "Really sell %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, price);
+    if (no_selling)
+        string_printf(s, "Really give %s? <color:y>[y/n]</color>", name);
+    else
+        string_printf(s, "Really sell %s for <color:R>%d</color> gp? <color:y>[y/n]</color>", name, price);
     c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
     string_free(s);
     if (c == 'n') return FALSE;
 
-    p_ptr->au += price;
-    stats_on_gold_selling(price);
+    if (!no_selling)
+    {
+        p_ptr->au += price;
+        stats_on_gold_selling(price);
 
-    p_ptr->redraw |= PR_GOLD;
-    if (prace_is_(RACE_MON_LEPRECHAUN))
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+        p_ptr->redraw |= PR_GOLD;
+        if (prace_is_(RACE_MON_LEPRECHAUN))
+            p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+    }
 
     obj->inscription = 0;
     obj->feeling = FEEL_NONE;
@@ -1613,7 +1638,11 @@ static bool _buy_aux(shop_ptr shop, obj_ptr obj)
     /* This message may seem like spam, but it is not. Selling an
      * un-identified potion of augmentation, for example. */
     object_desc(name, obj, OD_COLOR_CODED);
-    msg_format("You sold %s for <color:R>%d</color> gold.", name, price);
+
+    if (no_selling)
+        msg_format("You gave %s.", name);
+    else
+        msg_format("You sold %s for <color:R>%d</color> gold.", name, price);
 
     if (shop->type->id == SHOP_BLACK_MARKET)
         virtue_add(VIRTUE_JUSTICE, -1);
@@ -1641,8 +1670,16 @@ static void _buy(_ui_context_ptr context)
     obj_prompt_t prompt = {0};
     int          amt = 1;
 
-    prompt.prompt = "Sell which item?";
-    prompt.error = "You have nothing to sell.";
+    if (no_selling)
+    {
+        prompt.prompt = "Give which item?";
+        prompt.error = "You have nothing to give.";
+    }
+    else
+    {
+        prompt.prompt = "Sell which item?";
+        prompt.error = "You have nothing to sell.";
+    }
     prompt.filter = context->shop->type->buy_p;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_QUIVER;
@@ -1786,6 +1823,13 @@ static bool _sell_aux(shop_ptr shop, obj_ptr obj)
     obj->feeling = FEEL_NONE;
     obj->marked &= ~OM_RESERVED;
 
+    /* Almost all origins are marked on item creation, but origin_store is
+     * marked on purchase to avoid message spam and misleading messages
+     * ("bought from store" for items that have not yet been bought).
+     * However, we may be repurchasing an item that we previously sold, so
+     * we need to avoid overwriting such items' original origins */
+    if ((!obj->origin_type) || (obj->origin_type == ORIGIN_MIXED)) object_origins(obj, ORIGIN_STORE);
+
     obj_identify_fully(obj);
     stats_on_purchase(obj);
 
@@ -1816,7 +1860,7 @@ static void _sell(_ui_context_ptr context)
 				msg_print("We don't serve your kind here.");
 				return FALSE;
 			}
-			if (p_ptr->prace == RACE_DOPPELGANGER) {
+			if ((p_ptr->prace == RACE_SNOTLING) || (p_ptr->prace == RACE_DOPPELGANGER)) {
 				msg_print("I'm wise to your tricks. You can't have my mushrooms.");
 				return FALSE;
 			}

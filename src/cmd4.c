@@ -339,6 +339,29 @@ cptr get_ordinal_number_suffix(int num)
 }
 
 /*
+ * Toggle easy_mimics
+ */
+void toggle_easy_mimics(bool kayta)
+{
+    int i;
+    for (i = 1; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+        if (!r_ptr->name) continue;
+        if (r_ptr->flags7 & RF7_NASTY_GLYPH)
+        {
+            if ((kayta) && (r_ptr->x_char == r_ptr->d_char)) r_ptr->x_char = 'x';
+            else if ((!kayta) && (r_ptr->x_char == 'x')) r_ptr->x_char = r_ptr->d_char;
+            if (r_ptr->d_attr == color_char_to_attr('d'))
+            {
+                if (kayta) r_ptr->x_attr = color_char_to_attr('D');
+                else r_ptr->x_attr = color_char_to_attr('d');
+            } 
+        }
+    }
+}
+
+/*
  * Hack -- redraw the screen
  *
  * This command performs various low level updates, clears all the "extra"
@@ -1211,6 +1234,7 @@ void do_cmd_options(void)
     char k;
     int i, d, skey;
     int y = 0;
+    bool old_easy_mimics = easy_mimics;
 
     /* Save the screen */
     screen_save();
@@ -1490,6 +1514,8 @@ void do_cmd_options(void)
         msg_print(NULL);
     }
 
+    /* Big fat hack */
+    if (easy_mimics || old_easy_mimics) toggle_easy_mimics(easy_mimics);
 
     /* Restore the screen */
     screen_load();
@@ -3216,7 +3242,7 @@ void do_cmd_version(void)
     if (VER_MINOR == 0)
     {
 /*        if (VER_PATCH == 0) xtra = " (Alpha)"; */
-        xtra = " (Beta)";
+        if (VER_MAJOR != 7) xtra = " (Beta)";
     }
     msg_format("You are playing <color:B>FrogComposband</color> <color:r>%d.%d.%s%s</color>.",
         VER_MAJOR, VER_MINOR, VER_PATCH, xtra);

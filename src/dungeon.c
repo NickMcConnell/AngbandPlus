@@ -4257,74 +4257,77 @@ static void process_player(void)
     if (load)
         equip_on_load();
 
-    load = FALSE;
 
     /* XXX While many timed effects are processed every 10 game turns, some
      * game mechanics work better if they are indexed to player actions.
      * cf process_world_aux_hp_and_sp. */
 
-    if (p_ptr->lightspeed)
+    if (!load)
     {
-        (void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
-    }
-    if (p_ptr->tim_no_spells)
-    {
-        (void)set_tim_no_spells(p_ptr->tim_no_spells - 1, TRUE);
-    }
-    if (p_ptr->tim_no_device)
-    {
-        (void)set_tim_no_device(p_ptr->tim_no_device - 1, TRUE);
-    }
-    if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
-    {
-        if (p_ptr->magic_num1[0] < 40)
+        if (p_ptr->lightspeed)
         {
-            p_ptr->magic_num1[0] = 0;
+            (void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
         }
-        else p_ptr->magic_num1[0] -= 40;
-        p_ptr->update |= (PU_BONUS);
-    }
-    if (p_ptr->action == ACTION_LEARN)
-    {
-        s32b cost = 0L;
-        u32b cost_frac = (p_ptr->msp + 30L) * 256L;
-
-        /* Convert the unit (1/2^16) to (1/2^32) */
-        s64b_LSHIFT(cost, cost_frac, 16);
-
-
-        if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, cost, cost_frac) < 0)
+        if (p_ptr->tim_no_spells)
         {
-            /* Mana run out */
-            p_ptr->csp = 0;
-            p_ptr->csp_frac = 0;
-            set_action(ACTION_NONE);
+            (void)set_tim_no_spells(p_ptr->tim_no_spells - 1, TRUE);
         }
-        else
+        if (p_ptr->tim_no_device)
         {
-            /* Reduce mana */
-            s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), cost, cost_frac);
+            (void)set_tim_no_device(p_ptr->tim_no_device - 1, TRUE);
         }
-        p_ptr->redraw |= PR_MANA;
-    }
-
-    if (p_ptr->special_defense & KATA_MASK)
-    {
-        if (p_ptr->special_defense & KATA_MUSOU)
+        if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
         {
-            if (p_ptr->csp < 3)
+            if (p_ptr->magic_num1[0] < 40)
             {
+                p_ptr->magic_num1[0] = 0;
+            }
+            else p_ptr->magic_num1[0] -= 40;
+            p_ptr->update |= (PU_BONUS);
+        }
+        if (p_ptr->action == ACTION_LEARN)
+        {
+            s32b cost = 0L;
+            u32b cost_frac = (p_ptr->msp + 30L) * 256L;
+
+            /* Convert the unit (1/2^16) to (1/2^32) */
+            s64b_LSHIFT(cost, cost_frac, 16);
+
+            if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, cost, cost_frac) < 0)
+            {
+                /* Mana run out */
+                p_ptr->csp = 0;
+                p_ptr->csp_frac = 0;
                 set_action(ACTION_NONE);
             }
             else
             {
-                p_ptr->csp -= 2;
-                p_ptr->redraw |= (PR_MANA);
+                /* Reduce mana */
+                s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), cost, cost_frac);
+            }
+            p_ptr->redraw |= PR_MANA;
+        }
+
+        if (p_ptr->special_defense & KATA_MASK)
+        {
+            if (p_ptr->special_defense & KATA_MUSOU)
+            {
+                if (p_ptr->csp < 3)
+                {
+                    set_action(ACTION_NONE);
+                }
+                else
+                {
+                    p_ptr->csp -= 2;
+                    p_ptr->redraw |= (PR_MANA);
+                }
             }
         }
+
+        fear_recover_p();
     }
 
-    fear_recover_p();
+    load = FALSE;
 
     /*** Handle actual user input ***/
 
@@ -5320,6 +5323,9 @@ void play_game(bool new_game)
     /* Load the "pref" files */
     load_all_pref_files();
 
+    /* Turn on easy mimics */
+    toggle_easy_mimics(easy_mimics);
+
     Term_xtra(TERM_XTRA_REACT, 0);
     p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL);
     p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MONSTER | PW_OBJECT);
@@ -5462,7 +5468,7 @@ void play_game(bool new_game)
                 fame_on_failure();
 
                 /* Leave through the exit */
-                prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_RAND_CONNECT);
+                prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
                 /* prepare next floor */
                 leave_floor();

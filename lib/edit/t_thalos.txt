@@ -65,9 +65,9 @@ L:b:BUILDING_1(33)
 ?:[EQU $QUEST33 Taken]
 L:q:QUEST_ENTER(33)
 ?:[EQU $QUEST33 Taken Completed Failed]
-L:a:BUILDING_1(33)
+L:b:BUILDING_1(33)
 ?:[EQU $QUEST33 Finished FailedDone]
-L:a:BUILDING_1(61)
+L:b:BUILDING_1(61)
 ?:1
 ############### Quest 61 - Shipwreck
 ?:[EQU $QUEST61 Taken]

@@ -354,7 +354,7 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
             {
                 char m_name[80];
                 sound(SOUND_FLEE);
-                monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
+                monster_desc(m_name, m_ptr, MD_PRON_VISIBLE);
                 msg_format("%^s flees in terror!", m_name);
             }
             if (context->after_hit_f)
@@ -390,7 +390,15 @@ void _throw(py_throw_ptr context)
 
         if (!cave_have_flag_bold(y, x, FF_PROJECT))
         {
-            if (_hit_wall(context)) break;
+            if (_hit_wall(context)) 
+            {
+                /* Drop on the previous square to avoid objects flying through walls.
+                 * It's possible the previous square isn't actually part of the path,
+                 * in which case we need to improvise */
+                if (!context->path_pos) context->path[0] = GRID(py, px);
+                else context->path_pos--;
+                break;
+            }
         }
 
         /* careful ... leave path_pos on the last processed square

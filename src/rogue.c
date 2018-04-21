@@ -48,6 +48,8 @@ static cptr _rogue_pick_pocket(int power)
             object_copy(&loot, &o_list[m_ptr->hold_o_idx]);
             delete_object_idx(m_ptr->hold_o_idx);
             loot.held_m_idx = 0;
+            object_origins(&loot, ORIGIN_STOLEN);
+            loot.origin_xtra = m_ptr->r_idx;
         }
         else if (m_ptr->drop_ct > m_ptr->stolen_ct)
         {
@@ -56,6 +58,8 @@ static cptr _rogue_pick_pocket(int power)
                 m_ptr->stolen_ct++;
                 if (r_ptr->flags1 & RF1_UNIQUE)
                     r_ptr->stolen_ct++;
+                object_origins(&loot, ORIGIN_STOLEN);
+                loot.origin_xtra = m_ptr->r_idx;
             }
         }
 
@@ -73,7 +77,7 @@ static cptr _rogue_pick_pocket(int power)
             }
             else if (loot.tval == TV_GOLD)
             {
-                msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
+                msg_format("You steal %d gold pieces' worth of %s.", (int)loot.pval, o_name);
                 sound(SOUND_SELL);
                 p_ptr->au += loot.pval;
                 stats_on_gold_find(loot.pval);
@@ -829,7 +833,7 @@ class_t *rogue_get_class(void)
         me.stats[A_CHR] =  1;
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 110;
+        me.life = 100;
         me.base_hp = 12;
         me.exp = 125;
         me.pets = 40;

@@ -1,27 +1,27 @@
-?:[EQU $QUEST80 Taken InProgress]
-D:You're one of the strongest we've seen, so here's your final
-D:test - go to Angband and kill ten pit fiends. If you can do 
-D:it, we'll sing songs to your glorious triumph.
+?:[EQU $QUEST59 Taken InProgress]
+D:You're one of the strongest we've seen, so here's your
+D:final test - go to Angband and kill ten lesser balrogs. If you
+D:can do it, we'll sing songs to your glorious triumph.
 ?:1
 
-?:[EQU $QUEST80 Completed]
+?:[EQU $QUEST59 Completed]
 D:Wow! Here's a trophy of your great victory.
 ?:1
 
-?:[EQU $QUEST80 Failed]
+?:[EQU $QUEST59 Failed]
 D:So you were never that good really.
 ?:1
 
-R:OBJ(mithril chain mail):EGO(^of the demon$)
+R:OBJ(broad sword):EGO(daemon)
 
 ?:[EQU $RACE Dragon Hound Spider Ring Beholder Vortex]
 R:OBJ(^ring$):EGO(combat)
 
 ?:[EQU $RACE Centipede]
-R:OBJ(metal shod boots):EGO(speed)
+R:OBJ(metal shod boots)
 
 ?:[EQU $RACE Hydra Quylthulg]
-R:OBJ(^cloak$):EGO(aman)
+R:OBJ(^cloak$)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] ]
 R:OBJ(broad axe):EGO(daemon)
@@ -31,6 +31,9 @@ R:OBJ(war hammer):EGO(daemon)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] ]
 R:OBJ(^dagger$):EGO(daemon)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] ]
+R:OBJ(^pick$):EGO(disruption)
 
 ?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] ]
 R:OBJ(^glaive$):EGO(daemon)
@@ -45,9 +48,9 @@ R:OBJ(long sword):EGO(daemon)
 R:OBJ(lance):EGO(daemon)
 
 ?:[EQU $CLASS Ninja Ninja-Lawyer]
-R:OBJ(ninjato):EGO(daemon)
+R:OBJ(tanto):EGO(daemon)
 
-?:[EQU $CLASS Archaeologist]
-R:OBJ(whip):EGO(daemon)
+?:[EQU $CLASS Mauler]
+R:OBJ(two-handed flail):EGO(daemon)
 
 # vim: filetype=q :

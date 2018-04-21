@@ -1041,11 +1041,44 @@ bool apply_disenchant(int mode)
     return FALSE;
 }
 
-
+/* Scramble stats */
 void mutate_player(void)
 {
     int max1, cur1, max2, cur2, ii, jj, i;
     bool sustains[6] = {0};
+
+    if (no_scrambling)
+    { /* Do temporary bad things instead */
+        (void)fear_set_p(p_ptr->afraid + damroll(4, 42));
+        (void)set_stun(p_ptr->stun + randint1(42), FALSE);
+        if (one_in_(2))
+        {
+            do_dec_stat(A_STR);
+            do_dec_stat(A_INT);
+            do_dec_stat(A_WIS);
+            do_dec_stat(A_DEX);
+            do_dec_stat(A_CON);
+            do_dec_stat(A_CHR);
+        }
+        else
+        {
+            set_image(p_ptr->image + 10 + randint1(10), FALSE);
+            if (one_in_(3)) do_dec_stat(A_STR);
+            if (one_in_(3)) do_dec_stat(A_INT);
+            if (one_in_(3)) do_dec_stat(A_WIS);
+            if (one_in_(3)) do_dec_stat(A_DEX);
+            if (one_in_(3)) do_dec_stat(A_CON);
+            if (one_in_(3)) do_dec_stat(A_CHR);
+        }
+        if ((one_in_(5)) && (p_ptr->exp > 0))
+        {
+            msg_print("You feel your memories fade.");
+            virtue_add(VIRTUE_KNOWLEDGE, -5);
+            lose_exp(p_ptr->exp / (p_ptr->hold_life ? 24 : 8));
+        }
+        if ((!one_in_(4)) && (!res_save_default(RES_DISEN))) (void)apply_disenchant(0);
+        return;
+    }
 
     /* Pick a pair of stats. Sustains give players a chance to protect
      * key stats in the early game (e.g. mages are forced to hyper focus
@@ -1122,6 +1155,7 @@ static void _nexus_pick_dungeon(void)
 }
 static void _nexus_travel(void)
 {
+    if (no_chris) return; /* paranoia */
     if (!py_on_surface() && !py_in_dungeon())
     {
         msg_print("There is no effect.");
@@ -1187,9 +1221,9 @@ void apply_nexus(monster_type *m_ptr)
                 msg_print("Your body starts to scramble...");
                 wild_talent_scramble();
             }
-            else if (no_wilderness)
+            else if (no_wilderness || no_chris)
             {
-                msg_print("Your body starts to scramble...");
+                if (!no_scrambling) msg_print("Your body starts to scramble...");
                 mutate_player();
             }
             else
@@ -1873,9 +1907,10 @@ static bool _alchemy_aux(obj_ptr obj, bool force)
     {
         price /= 3;
         if (price > 30000) price = 30000;
+        if (no_selling) price /= 3;
         price *= obj->number;
 
-        msg_format("You turn %s to %d coins worth of gold.", o_name, price);
+        msg_format("You turn %s to %d coins' worth of gold.", o_name, price);
 
         p_ptr->au += price;
         stats_on_gold_selling(price); /* ? */
@@ -2242,7 +2277,10 @@ bool artifact_scroll(void)
         if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
     }
     else
+    {
+        object_origins(prompt.obj, ORIGIN_ART_CREATION);
         virtue_add(VIRTUE_ENCHANTMENT, 1);
+    }
 
     android_calc_exp();
 
@@ -2267,7 +2305,18 @@ bool identify_item(object_type *o_ptr)
             virtue_add(VIRTUE_KNOWLEDGE, 1);
     }
 
-    obj_identify(o_ptr);
+    if (easy_id)
+    {
+        obj_identify_fully(o_ptr);
+        if ( p_ptr->prace == RACE_MON_POSSESSOR
+          && o_ptr->tval == TV_CORPSE
+          && o_ptr->sval == SV_CORPSE )
+            (void)lore_do_probe(o_ptr->pval);
+    }
+    else
+    {
+        obj_identify(o_ptr);
+    }
     stats_on_identify(o_ptr);
     o_ptr->marked |= OM_TOUCHED;
     gear_notice_id(o_ptr);
@@ -2359,6 +2408,12 @@ bool mundane_spell(bool only_equip)
         byte marked = prompt.obj->marked;
         u16b inscription = prompt.obj->inscription;
         int  number = prompt.obj->number;
+        byte orig = prompt.obj->origin_type;
+        int  orig_x = prompt.obj->origin_xtra;
+        int  orig_p = prompt.obj->origin_place;
+        byte mitze_tp = prompt.obj->mitze_type;
+        byte mitze_lv = prompt.obj->mitze_level;
+        s32b mitze_tn = prompt.obj->mitze_turn;
 
         /* Wipe it clean ... note this erases info that must
          * not be erased. Thus, all the code to remember and restore ... sigh. */
@@ -2369,6 +2424,12 @@ bool mundane_spell(bool only_equip)
         prompt.obj->marked = marked;
         prompt.obj->inscription = inscription;
         prompt.obj->number = number;
+        prompt.obj->origin_type = orig;
+        prompt.obj->origin_xtra = orig_x;
+        prompt.obj->origin_place = orig_p;
+        prompt.obj->mitze_type = mitze_tp;
+        prompt.obj->mitze_level = mitze_lv;
+        prompt.obj->mitze_turn = mitze_tn;
     }
     p_ptr->update |= PU_BONUS;
     android_calc_exp();

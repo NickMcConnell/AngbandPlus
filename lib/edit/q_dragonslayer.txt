@@ -1,27 +1,29 @@
-?:[EQU $QUEST58 Taken InProgress]
+?:[EQU $QUEST79 Taken InProgress]
 D:You're pretty strong, so how about something to really 
-D:test you. Go to the lonely mountain and kill ten
-D:ancient gold dragons. That'll show us if you're
-D:really great.
+D:test you. Go to Tiamat's lair and kill ten great wyrms of
+D:many colours. That'll show us if you're really great.
 ?:1
 
-?:[EQU $QUEST58 Completed]
+?:[EQU $QUEST79 Completed]
 D:Nicely done. Here's another trophy of your victory.
 ?:1
 
-?:[EQU $QUEST58 Failed]
+?:[EQU $QUEST79 Failed]
 D:So you can't handle big dragons.
 ?:1
 
-R:OBJ(gold dragon scale mail):EGO(87)
+R:OBJ(dragon shield):ART(*)
 
 ?:[EQU $RACE Death-Sword]
-R:OBJ(long sword)
+R:OBJ(dragon fang, DEPTH+20)
+
+?:[EQU $CLASS Ninja Ninja-Lawyer]
+R:OBJ(dragon fang, DEPTH+20)
 
 ?:[EQU $RACE Dragon Hound Spider Ring Beholder Vortex]
-R:OBJ(^ring$):EGO(elemental)
+R:OBJ(^ring$, DEPTH+20):EGO(defender)
 
 ?:[EQU $RACE Centipede]
-R:OBJ(metal shod boots)
+R:OBJ(dragon boots, DEPTH+11):EGO(golem)
 
 # vim: filetype=q :

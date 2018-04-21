@@ -2107,6 +2107,7 @@ static cptr do_nature_spell(int spell, int mode)
 
                 /* Create the food ration */
                 object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+                object_origins(q_ptr, ORIGIN_ACQUIRE);
 
                 /* Drop the object from heaven */
                 drop_near(q_ptr, -1, py, px);
@@ -3613,7 +3614,7 @@ static cptr do_death_spell(int spell, int mode)
         break;
 
     case 10:
-        if (name) return "Cloud kill";
+        if (name) return "Cloud Kill";
         if (desc) return "Generate a ball of poison centered on you.";
 
         {
@@ -3711,7 +3712,7 @@ static cptr do_death_spell(int spell, int mode)
         break;
 
     case 14:
-        if (name) return "Animate dead";
+        if (name) return "Animate Dead";
         if (desc) return "Resurrects nearby corpse and skeletons. And makes these your pets.";
 
         {
@@ -6079,7 +6080,7 @@ static cptr do_daemon_spell(int spell, int mode)
         break;
 
     case 11:
-        if (name) return "Plasma bolt";
+        if (name) return "Plasma Bolt";
         if (desc) return "Fires a bolt or beam of plasma.";
 
         {

@@ -41,6 +41,46 @@ void quest_change_file(quest_ptr q, cptr file)
     else q->file = NULL;
 }
 
+cptr kayttonimi(quest_ptr q)
+{
+    /* Censor (Thalos), (Morivant) etc. in lite-town mode */
+    if ((no_wilderness) && (strpos("(", q->name) > 2))
+    {
+        char putsattu[50];
+        int paikka = strpos("(", q->name);
+        my_strcpy(putsattu, q->name, MIN((int)sizeof(putsattu), paikka - 1));
+        free((vptr)q->name);
+        q->name = _strcpy(putsattu);
+        return q->name;
+    }
+    else return q->name;
+}
+
+/* It's a bit ugly to have two functions that essentially do the same thing.
+ * The problem with using kayttonimi() for everything is that it actually
+ * changes the quest's name, which saves time (no need to truncate the name
+ * repeatedly) and avoids memory leaks, but is inconvenient if we don't use
+ * lite-town and therefore actually want to keep the long name. We can't even
+ * use kayttonimi() to put the long name back in, because the long name isn't
+ * retained and the quest doesn't actually "know" which town it belongs to.
+ * Therefore, we use lyhytnimi() to get the short name when we don't want
+ * to actually change the quest's name, but it is a much less convenient
+ * function than kayttonimi(), because it allocates memory for the name
+ * but relies on its users to free that memory elsewhere. */
+cptr lyhytnimi(quest_ptr q, cptr *nimi)
+{
+    if (strpos("(", q->name) > 2)
+    {
+        char putsattu[50];
+        int paikka = strpos("(", q->name);
+        my_strcpy(putsattu, q->name, MIN((int)sizeof(putsattu), paikka - 1));
+        *nimi = _strcpy(putsattu);
+    }
+    else *nimi = _strcpy(q->name);
+    return *nimi;
+}
+
+
 /************************************************************************
  * Quest Status
  ***********************************************************************/
@@ -53,13 +93,14 @@ void quest_take(quest_ptr q)
     q->seed = randint0(0x10000000);
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        q->name, q->level, string_buffer(s));
+        kayttonimi(q), q->level, string_buffer(s));
     string_free(s);
 }
 
 void quest_complete(quest_ptr q, point_t p)
 {
     assert(q);
+    if ((q->status == QS_COMPLETED) || (q->status == QS_FINISHED)) return;
     assert(q->status == QS_IN_PROGRESS);
     q->status = QS_COMPLETED;
     q->completed_lev = p_ptr->lev;
@@ -93,10 +134,11 @@ void quest_complete(quest_ptr q, point_t p)
     if (!(q->flags & QF_TOWN)) /* non-town quest get rewarded immediately */
     {
         int i, ct = q->level/25 + 1;
+        if ((q->level > 14) && (q->level < 25) && (one_in_(5))) ct++;
         for (i = 0; i < ct; i++)
         {
             obj_t forge = {0};
-            if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+            if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST, ORIGIN_ANGBAND_REWARD))
                 drop_near(&forge, -1, p.y, p.x);
             else
                 msg_print("Software Bug ... you missed out on your reward!");
@@ -119,7 +161,7 @@ void quest_reward(quest_ptr q)
 
     s = quest_get_description(q);
     msg_format("<color:R>%s</color> (<color:U>Level %d</color>): %s",
-        q->name, q->level, string_buffer(s));
+        kayttonimi(q), q->level, string_buffer(s));
     string_free(s);
 
     reward = quest_get_reward(q);
@@ -141,7 +183,7 @@ void quest_fail(quest_ptr q)
     assert(q);
     q->status = QS_FAILED;
     q->completed_lev = p_ptr->lev;
-    msg_format("You have <color:v>failed</color> the quest: <color:R>%s</color>.", q->name);
+    msg_format("You have <color:v>failed</color> the quest: <color:R>%s</color>.", kayttonimi(q));
     virtue_add(VIRTUE_VALOUR, -2);
     fame_on_failure();
     if (!(q->flags & QF_TOWN))
@@ -200,6 +242,11 @@ obj_ptr quest_get_reward(quest_ptr q)
             if (!letter->object_level)
                 letter->object_level = 1; /* Hack: force at least AM_GOOD */
             reward = room_grid_make_obj(letter, q->level);
+            if (reward)
+            {
+                object_origins(reward, ORIGIN_QUEST_REWARD);
+                reward->origin_place = (q->id * ORIGIN_MODULO);
+            }
         }
         _temp_reward = NULL;
         free(letter);
@@ -507,6 +554,11 @@ quest_ptr quests_get_current(void)
     return int_map_find(_quests, _current);
 }
 
+int quest_id_current(void)
+{
+    return _current;
+}
+
 quest_ptr quests_get(int id)
 {
     return int_map_find(_quests, id);
@@ -516,7 +568,7 @@ cptr quests_get_name(int id)
 {
     quest_ptr q = quests_get(id);
     if (!q) return "";
-    return q->name;
+    return kayttonimi(q);
 }
 
 static int _quest_cmp_level(quest_ptr l, quest_ptr r)
@@ -811,6 +863,20 @@ void quests_on_kill_mon(mon_ptr mon)
     }
 }
 
+/* Check whether we need to prevent a quest monster from polymorphing or evolving */
+bool quest_allow_poly(mon_ptr mon)
+{
+    quest_ptr q;
+    if (!_current) return TRUE;
+    q = quests_get(_current);
+    assert(q);
+    assert(mon);
+    if (q->status == QS_COMPLETED) return TRUE;
+    if (q->goal != QG_KILL_MON) return TRUE;
+    if (mon->r_idx == q->goal_idx) return FALSE;
+    return TRUE;
+}
+
 void quests_on_get_obj(obj_ptr obj)
 {
     quest_ptr q;
@@ -843,7 +909,7 @@ bool quests_check_leave(void)
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
                 string_printf(s, "Kill %s", r_name + r_info[q->goal_idx].name);
             else
-                string_append_s(s, q->name);
+                string_append_s(s, kayttonimi(q));
             string_append_s(s, "</color>. You may return to this quest later though. "
                                "Are you sure you want to leave? <color:y>[Y,n]</color>");
             c = msg_prompt(string_buffer(s), "ny", PROMPT_YES_NO);
@@ -859,7 +925,7 @@ bool quests_check_leave(void)
             if ((q->flags & QF_RANDOM) && q->goal == QG_KILL_MON)
                 string_printf(s, "Kill %s", r_name + r_info[q->goal_idx].name);
             else
-                string_append_s(s, q->name);
+                string_append_s(s, kayttonimi(q));
             string_append_s(s, "</color>. <color:v>You will fail this quest if you leave!</color> "
                                "Are you sure you want to leave? <color:y>[Y,n]</color>");
             c = msg_prompt(string_buffer(s), "nY", PROMPT_NEW_LINE | PROMPT_ESCAPE_DEFAULT | PROMPT_CASE_SENSITIVE);
@@ -1012,7 +1078,7 @@ void quests_display(void)
 
             /* Quest Name and Status */
             doc_printf(doc, "  <color:%c>%s</color> (Lvl <color:U>%d</color>)\n",
-                (q->status == QS_IN_PROGRESS) ? 'y' : 'R', q->name, q->level);
+                (q->status == QS_IN_PROGRESS) ? 'y' : 'R', kayttonimi(q), q->level);
 
             /* Description. However, the QS_COMPLETED description is the 'reward' message */
             if (q->status == QS_COMPLETED)
@@ -1090,7 +1156,7 @@ static void quest_doc(quest_ptr q, doc_ptr doc)
     else
     {
         doc_printf(doc, "  %s <tab:60>DL%3d CL%2d\n",
-            q->name, q->level, q->completed_lev);
+            kayttonimi(q), q->level, q->completed_lev);
     }
 }
 
@@ -1576,10 +1642,11 @@ static void _reward_cmd(_ui_context_ptr context)
             {
                 int i, ct = quest->level/25 + 1;
                 object_level = quest->level;
+                if ((quest->level > 14) && (quest->level < 25) && (one_in_(5))) ct++;
                 for (i = 0; i < ct; i++)
                 {
                     obj_t forge = {0};
-                    if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST))
+                    if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED | AM_QUEST, ORIGIN_ANGBAND_REWARD))
                     {
                         char name[MAX_NLEN];
                         obj_identify_fully(&forge);

@@ -1199,11 +1199,11 @@ static void _build_uniques(doc_ptr doc)
 
             vec_sort(v, (vec_cmp_f)_compare_monsters);
 
-            doc_printf(doc, "  <color:G>%-40.40s <color:R>%3s</color></color>\n", "Uniques", "Lvl");
+            doc_printf(doc, "  <color:G>%-44.44s <color:R>%3s</color></color>\n", "Uniques", "Lvl");
             for (i = ct_uniques_dead - 1; i >= 0 && i >= ct_uniques_dead - 20; i--)
             {
                 monster_race *r_ptr = vec_get(v, i);
-                doc_printf(doc, "  %-40.40s %3d\n", (r_name + r_ptr->name), r_ptr->level);
+                doc_printf(doc, "  %-44.44s %3d\n", (r_name + r_ptr->name), r_ptr->level);
             }
         }
         else
@@ -2158,8 +2158,10 @@ void py_display_dungeons(doc_ptr doc)
         }
         else if (quests_get_current())
         {
+            cptr quest_name;
             doc_printf(doc, "You were killed by %s in the quest '%s'.\n",
-                p_ptr->died_from, quests_get_current()->name);
+                p_ptr->died_from, lyhytnimi(quests_get_current(), &quest_name));
+            free((vptr)quest_name);
         }
         else /* ??? */
         {
@@ -2173,7 +2175,11 @@ void py_display_dungeons(doc_ptr doc)
         else if (py_in_dungeon())
             doc_printf(doc, "Now, you are exploring level %d of %s.\n", dun_level, map_name());
         else if (quests_get_current())
-            doc_printf(doc, "Now, you are in the quest '%s'.\n", quests_get_current()->name);
+        {
+            cptr quest_name;
+            doc_printf(doc, "Now, you are in the quest '%s'.\n", lyhytnimi(quests_get_current(), &quest_name));
+            free((vptr)quest_name);
+        }
         else
             doc_insert(doc, "Hmmm ... Where are you?");
     }
@@ -2276,6 +2282,9 @@ static void _build_options(doc_ptr doc)
     if (reduce_uniques)
         doc_printf(doc, " Reduce Uniques:     %d%%\n", reduce_uniques_pct);
 
+    if (no_selling)
+        doc_printf(doc, " No Selling:         On\n");
+
     if (p_ptr->noscore)
         doc_printf(doc, "\n <color:v>You have done something illegal.</color>\n");
 
@@ -2355,13 +2364,13 @@ static void _add_html_header(doc_ptr doc)
     string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
     string_printf(header,  " <meta name='variant_version' value='%d.%d.%s'>\n", VER_MAJOR, VER_MINOR, VER_PATCH);
     string_printf(header,  " <meta name='character_name' value='%s'>\n", player_name);
-    string_printf(header,  " <meta name='race' value='%s'>\n", get_race()->name);
+    string_printf(header,  " <meta name='race' value='%s'>\n", get_true_race()->name);
     string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
     string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->lev);
-    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->exp);
+    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->max_exp);
     string_printf(header,  " <meta name='turncount' value='%d'>\n", game_turn);
     string_printf(header,  " <meta name='max_depth' value='%d'>\n", _max_depth());
-    string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->exp); /* ?? Does oook need this? */
+    string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->max_exp); /* ?? Does oook need this? */
     string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
 
     /* For angband.oook.cz ... I'm not sure what is best for proper display of html dumps so I'll need to ask pav

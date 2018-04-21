@@ -17,6 +17,7 @@
 
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
+static bool paivita = FALSE;
 
 int get_bldg_member_code(cptr name)
 {
@@ -201,7 +202,7 @@ static void show_building(building_type* bldg)
     }
 
     prt(" ESC) Exit building", 23, 0);
-
+    paivita = FALSE;
 }
 
 /*
@@ -1807,6 +1808,8 @@ static void _forge_wanted_monster_prize(obj_ptr obj, int r_idx)
 
     object_prep(obj, lookup_kind(tval, sval));
     apply_magic(obj, object_level, AM_NO_FIXED_ART);
+    object_origins(obj, ORIGIN_WANTED);
+    obj->origin_xtra = r_idx;
     obj_make_pile(obj);
     obj_identify_fully(obj);
 }
@@ -2190,6 +2193,43 @@ static bool inn_comm(int cmd)
 }
 
 /*
+ * Refresh buildings (epic hack)
+ */
+static void refresh_buildings(void)
+{
+    room_ptr dummy;
+    init_buildings();
+    dummy = towns_get_map();
+    if (dummy)
+    {
+        int y, x;
+        bool loytyi = FALSE;
+        cave_type *ruutu = &cave[py][px];
+        s16b etsittava = ruutu->feat;
+        for (y = 0; y < dummy->height && !loytyi; y++)
+        {
+            cptr line = vec_get(dummy->map, y);
+            for (x = 0; x < dummy->width && !loytyi; x++)
+            {
+                char letter = line[x];
+                room_grid_ptr my_grid = int_map_find(dummy->letters, letter);
+                if (!my_grid) my_grid = int_map_find(room_letters, letter);
+                if (!my_grid) continue;
+                if (etsittava == conv_dungeon_feat(my_grid->cave_feat))
+                {
+                    loytyi = TRUE;
+
+                    /* Update the quest indicator for the building we're in */
+                    ruutu->special = my_grid->extra;
+                }
+            }
+        }
+        room_free(dummy);
+    }
+    paivita = TRUE;
+}
+
+/*
  * Request a quest from the Lord.
  */
 static void castle_quest(void)
@@ -2214,8 +2254,10 @@ static void castle_quest(void)
 
     if (quest->status == QS_COMPLETED)
     {
+        if (strpos("Eddies", quest->name)) town_on_visit(TOWN_ZUL);
         quest_reward(quest);
         reinit_wilderness = TRUE;
+        refresh_buildings();
     }
     else if (quest->status == QS_FAILED)
     {
@@ -2225,6 +2267,7 @@ static void castle_quest(void)
         string_free(s);
         quest->status = QS_FAILED_DONE;
         reinit_wilderness = TRUE;
+        refresh_buildings();
     }
     else if (quest->status == QS_TAKEN)
     {
@@ -2495,6 +2538,7 @@ static bool _gamble_shop(const _gamble_shop_t *choices)
 
     k_idx = lookup_kind(choices[choice].tval, choices[choice].sval);
     object_prep(&forge, k_idx);
+    object_origins(&forge, ORIGIN_GAMBLE);
 
     return _gamble_shop_aux(&forge);
 }
@@ -2512,6 +2556,7 @@ static bool _gamble_shop_object(object_p pred)
         if (pred && !pred(&forge))
             continue;
         apply_magic(&forge, lvl, AM_GOOD);
+        object_origins(&forge, ORIGIN_GAMBLE);
         switch (forge.tval)
         {
             case TV_SPIKE:
@@ -2543,7 +2588,10 @@ static bool _gamble_shop_device(int tval)
         k_idx = lookup_kind(tval, SV_ANY);
         object_prep(&forge, k_idx);
         if (device_init(&forge, lvl, 0))
+        {
+            object_origins(&forge, ORIGIN_GAMBLE);
             break;
+        }
     }
 
     return _gamble_shop_aux(&forge);
@@ -2564,6 +2612,7 @@ static bool _gamble_shop_artifact(void)
         apply_magic(&forge, lvl, AM_GOOD | AM_GREAT | AM_SPECIAL);
         if (!forge.art_name)
             continue;
+        object_origins(&forge, ORIGIN_GAMBLE);
 
         break;
     }
@@ -2609,7 +2658,8 @@ static bool _reforge_artifact(void)
     int  cost;
     char o_name[MAX_NLEN];
     object_type *src, *dest;
-    int f = p_ptr->fame; /* 90K max kind of removed - stronger objects are allowed but get scaled down */
+    int f = ((p_ptr->fame <= 128) || (p_ptr->fame >= 224)) ? p_ptr->fame : (((p_ptr->fame - 128) * 3) / 4) + 128;
+    /* 90K max kind of removed - stronger objects are allowed but get scaled down */
     int src_max_power = f*150 + f*f*3/2;
     int dest_max_power = 0;
 
@@ -3680,6 +3730,9 @@ void do_cmd_bldg(void)
             /* Re-enter the arena */
             command_new = SPECIAL_KEY_BUILDING;
 
+            /* Refresh buildings (otherwise bad things happen if we saved and loaded inside the arena) */
+            refresh_buildings();
+
             /* No energy needed to re-enter the arena */
             energy_use = 0;
         }
@@ -3766,15 +3819,25 @@ void do_cmd_bldg(void)
             msg_print(NULL);
             leave_bldg = TRUE;
         }
+
         /* Notice stuff */
         notice_stuff();
 
         /* Handle stuff */
         handle_stuff();
+
+        if (paivita)
+        {
+            if (leave_bldg) paivita = FALSE;
+            else { inkey(); show_building(bldg); }
+        }
     }
 
     store_hack = FALSE;
     msg_line_init(ui_msg_rect());
+
+    /* Force reinit if which == 2 (or bad things happen if we saved and loaded inside the arena) */
+    if (which == 2) reinit_wilderness = TRUE;
 
     /* Reinit wilderness to activate quests ... */
     if (reinit_wilderness)

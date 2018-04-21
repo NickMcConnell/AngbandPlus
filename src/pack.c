@@ -48,6 +48,7 @@ void pack_carry(obj_ptr obj)
      * to omit checking for a full pack in client code. Instead
      * the pack will just overflow as needed. Perhaps this is
      * a bit comical if the player gets a large floor pile? */
+    object_mitze(obj, MITZE_PICKUP);
     stats_on_pickup(obj);
     if (quiver_likes(obj))
         quiver_carry(obj);
@@ -88,7 +89,7 @@ void pack_get(obj_ptr obj)
     {
         int value = obj->pval;
 
-        msg_format("You collect %d gold pieces worth of %s.",
+        msg_format("You collect %d gold pieces' worth of %s.",
                value, name);
 
         sound(SOUND_SELL);

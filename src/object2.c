@@ -1587,10 +1587,11 @@ static bool make_artifact_special(object_type *o_ptr)
 {
     int i;
     int k_idx = 0;
-
+    int ref_level = dun_level;
+    if (mut_present(MUT_BAD_LUCK)) ref_level -= (ref_level / (4 * randint1(4)));
 
     /* No artifacts in the town */
-    if (!dun_level) return (FALSE);
+    if (!ref_level) return (FALSE);
     if (no_artifacts) return FALSE;
 
     /* Themed object */
@@ -1607,10 +1608,10 @@ static bool make_artifact_special(object_type *o_ptr)
         if (!(a_ptr->gen_flags & OFG_INSTA_ART)) continue;
 
         /* XXX XXX Enforce minimum "depth" (loosely) */
-        if (a_ptr->level > dun_level)
+        if (a_ptr->level > ref_level)
         {
             /* Acquire the "out-of-depth factor" */
-            int d = (a_ptr->level - dun_level) * 2;
+            int d = (a_ptr->level - ref_level) * 2;
 
             /* Roll for out-of-depth creation */
             if (!one_in_(d)) continue;
@@ -1636,7 +1637,7 @@ static bool make_artifact_special(object_type *o_ptr)
           && !(a_ptr->gen_flags & OFG_FIXED_ART)
           && randint0(100) < random_artifact_pct )
         {
-            create_replacement_art(i, o_ptr);
+            create_replacement_art(i, o_ptr, ORIGIN_NONE); /* we will give the proper origin later */
         }
         else
             create_named_art_aux(i, o_ptr);
@@ -1660,10 +1661,12 @@ static bool make_artifact_special(object_type *o_ptr)
 static bool make_artifact(object_type *o_ptr)
 {
     int i;
+    int ref_level = dun_level;
+    if (mut_present(MUT_BAD_LUCK)) ref_level -= (ref_level / (4 * randint1(4)));
 
 
     /* No artifacts in the town */
-    if (!dun_level) return FALSE;
+    if (!ref_level) return FALSE;
     if (no_artifacts) return FALSE;
 
     /* Paranoia -- no "plural" artifacts */
@@ -1682,10 +1685,10 @@ static bool make_artifact(object_type *o_ptr)
         if (a_ptr->sval != o_ptr->sval) continue;
 
         /* XXX XXX Enforce minimum "depth" (loosely) */
-        if (a_ptr->level > dun_level)
+        if (a_ptr->level > ref_level)
         {
             /* Acquire the "out-of-depth factor" */
-            int d = (a_ptr->level - dun_level) * (a_ptr->level - dun_level);
+            int d = (a_ptr->level - ref_level) * (a_ptr->level - ref_level);
 
             /* Roll for out-of-depth creation */
             if (!one_in_(d)) continue;
@@ -1697,7 +1700,7 @@ static bool make_artifact(object_type *o_ptr)
           && !(a_ptr->gen_flags & OFG_FIXED_ART)
           && randint0(100) < random_artifact_pct )
         {
-            create_replacement_art(i, o_ptr);
+            create_replacement_art(i, o_ptr, ORIGIN_NONE); /* we will give the proper origin later */
         }
         else
             create_named_art_aux(i, o_ptr);
@@ -2028,6 +2031,15 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     /* Maximum "level" for various things */
     if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
+    if (mut_present(MUT_BAD_LUCK))
+    {
+        maxf1 -= 5;
+        maxf2 -= (maxf2 / 4);
+        if (one_in_(20)) lev -= (lev / 20);
+        else lev -= (lev / 6);
+        if (o_ptr->tval == TV_STAFF) lev -= (lev / 15);
+    }
+
     if (!o_ptr->level)
         o_ptr->level = lev; /* Wizard statistics ... */
 
@@ -2056,11 +2068,6 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     {
         f1 += 5;
         f2 += 2;
-    }
-    else if(mut_present(MUT_BAD_LUCK))
-    {
-        f1 -= 5;
-        f2 -= 2;
     }
 
     f1 += virtue_current(VIRTUE_CHANCE) / 50;
@@ -2313,7 +2320,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
             {
                 if (cheat_peek) object_mention(o_ptr);
                 dragon_resist(o_ptr);
-                if (!one_in_(3)) power = 0;
+                if ((!((mode & AM_SPECIAL) && (mode & AM_NO_FIXED_ART))) && (!one_in_(3))) power = 0;
             }
             if (power) obj_create_armor(o_ptr, lev, power, mode);
             break;
@@ -3701,7 +3708,42 @@ static bool _make_object_aux(object_type *j_ptr, u32b mode)
     return TRUE;
 }
 
-bool make_object(obj_ptr obj, u32b mode)
+/* Note that this effectively limits us to 32 towns and 95 dungeons */
+void object_origins(object_type *j_ptr, byte origin)
+{
+    int paikka = ORIGIN_DUNGEONS_AFTER + MIN(dungeon_type, ORIGIN_QUESTS_AFTER - ORIGIN_DUNGEONS_AFTER);
+    int taso = (dun_level % ORIGIN_MODULO);
+    int cur_quest = quest_id_current();
+    if ((!dungeon_type) && (p_ptr->town_num)) paikka -= MIN(p_ptr->town_num, ORIGIN_DUNGEONS_AFTER);
+
+    if ((!j_ptr) || (!j_ptr->k_idx)) return; /* Paranoia */
+    if (j_ptr->tval == TV_GOLD) return; /* Do not track the origins of gold */
+    if ((origin == ORIGIN_QUEST) || ((!dungeon_type) && (origin == ORIGIN_DROP) && (cur_quest > 0)))
+    {
+        if (origin == ORIGIN_DROP) origin = ORIGIN_QUEST_DROP;
+        paikka = cur_quest;
+    }
+    else if ((!dungeon_type) && (quest_id_current() > 0))
+    {
+        paikka = ORIGIN_QUESTS_AFTER + cur_quest;
+    }
+
+    if (origin == ORIGIN_PATRON) j_ptr->origin_xtra = p_ptr->chaos_patron;
+
+    j_ptr->origin_type = origin;
+    j_ptr->origin_place = (paikka * ORIGIN_MODULO) + taso;
+}
+
+void object_mitze(object_type *j_ptr, byte mode)
+{
+    if ((!j_ptr) || (!j_ptr->tval)) return; /* paranoia */
+    if (j_ptr->mitze_type) return; /* already MITZE'd */
+    j_ptr->mitze_type = mode; /* We can assume previous mitze_type was 0 */
+    j_ptr->mitze_turn = game_turn;
+    j_ptr->mitze_level = p_ptr->max_plv;
+}
+
+bool make_object(obj_ptr obj, u32b mode, byte origin)
 {
     bool result = FALSE;
     int max_attempts = 1;
@@ -3723,6 +3765,7 @@ bool make_object(obj_ptr obj, u32b mode)
         if (_make_object_aux(obj, mode))
         {
             result = TRUE;
+            object_origins(obj, origin);
             break;
         }
         object_wipe(obj);
@@ -3741,7 +3784,7 @@ bool make_object(obj_ptr obj, u32b mode)
  *
  * This routine requires a clean floor grid destination.
  */
-void place_object(int y, int x, u32b mode)
+void place_object(int y, int x, u32b mode, byte origin)
 {
     s16b o_idx;
 
@@ -3769,7 +3812,7 @@ void place_object(int y, int x, u32b mode)
     object_wipe(q_ptr);
 
     /* Make an object (if possible) */
-    if (!make_object(q_ptr, mode)) return;
+    if (!make_object(q_ptr, mode, origin)) return;
 
 
     /* Make an object */
@@ -3855,8 +3898,17 @@ bool make_gold(object_type *j_ptr, bool do_boost)
     au = au * (625 - virtue_current(VIRTUE_SACRIFICE)) / 625;
     if (do_boost)
         au += au * object_level / 7;
+    if ((no_selling) && ((dungeon_type) || (quests_get_current())) && (dun_level > 0))
+    {
+        /* Selling players rely less and less on selling, and more and more on drops,
+           as the game progresses. Accordingly, there is less need to inflate gold
+           drops for no_selling mode in the late game */
+        point_t skaala[5] = { {1, 605}, {18, 363}, {32, 284}, {42, 242}, {100, 155} };
+        int kerroin = interpolate(dun_level, skaala, 5);
+        au = au * kerroin / 100;
+    }
     if (au > MAX_SHORT)
-        au = MAX_SHORT;
+        au = MAX_SHORT - randint0(1000);
     j_ptr->pval = au;
 
     /* Success */
@@ -4306,7 +4358,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 /*
  * Scatter some "great" objects near the player
  */
-void acquirement(int y1, int x1, int num, bool great, bool known)
+void acquirement(int y1, int x1, int num, bool great, bool known, byte origin)
 {
     object_type *i_ptr;
     object_type object_type_body;
@@ -4324,7 +4376,7 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
         attempt++;
 
         /* Make a good (or great) object (if possible) */
-        if (!make_object(i_ptr, mode)) continue;
+        if (!make_object(i_ptr, mode, origin)) continue;
 
         num--;
         if (known)

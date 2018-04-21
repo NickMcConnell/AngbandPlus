@@ -1,7 +1,7 @@
 ?:[EQU $QUEST51 Taken InProgress]
-D:...What is that you say? One of the buildings seems to be over
-D:run with snakes! You might be interested to know that not long
-D:ago, a local adventurer dropped, I mean "Lost" his prized 
+D:...What is that you say? One of the buildings seems to be
+D:overrun with snakes! You might be interested to know that not
+D:long ago, a local adventurer dropped, I mean "Lost" his prized 
 D:leather whip among the ruins when he came face to face with a 
 D:thousand snakes. Perhaps you could perform a little house 
 D:cleaning in the ruins.

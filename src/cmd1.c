@@ -2340,7 +2340,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     dam -= dam * MIN(100, p_ptr->stun) / 150;
                     base_dam -= base_dam * MIN(100, p_ptr->stun) / 150;
                 }
-                if (p_ptr->pclass == CLASS_NINJA_LAWYER) dam -= ((dam * (100 - NINJA_LAWYER_MULT)) / 100);
+                dam = ((dam * class_melee_mult()) + 50) / 100;
 
                 /* More slop for Draconian Metamorphosis ... */
                 if ( (player_is_ninja)
@@ -2786,7 +2786,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     int             num_blow;
     bool            is_human;
     bool            is_lowlevel;
-    bool            zantetsu_mukou = FALSE, e_j_mukou = FALSE;
+    bool            zantetsu_mukou = FALSE, e_j_mukou = FALSE, bird_recoil = FALSE;
     int             knock_out = 0;
     int             dd, ds, old_hp;
     bool            hit_ct = 0;
@@ -2830,6 +2830,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             zantetsu_mukou = TRUE;
         if (o_ptr->name1 == ART_EXCALIBUR_J && r_ptr->d_char == 'S')
             e_j_mukou = TRUE;
+        if (o_ptr->name1 == ART_SKYNAIL && r_ptr->d_char == 'B')
+            bird_recoil = TRUE;
     }
     else
     {
@@ -2924,7 +2926,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     {
         if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && o_ptr->tval == TV_SHIELD)
             skills_shield_gain(o_ptr->sval, r_ptr->level);
-        else
+        else if (!bird_recoil)
             skills_weapon_gain(o_ptr->tval, o_ptr->sval, r_ptr->level);
     }
     else
@@ -3019,6 +3021,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
         if (p_ptr->paralyzed)
             break;
+
+        if (bird_recoil)
+        {
+            msg_print("You recoil at the thought of harming a bird!");
+            break;
+        }
 
         /* Weaponmaster Whirlwind turns a normal strike into a sweeping whirlwind strike */
         if (p_ptr->whirlwind && mode == 0)
@@ -3390,7 +3398,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             if (zantetsu_mukou)
             {
-                msg_print("You cannot cut such a elastic thing!");
+                msg_print("You cannot cut such an elastic thing!");
                 k = 0;
             }
 
@@ -3473,6 +3481,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 }
             }
 
+            /* Adjust for class penalties */
+            k = ((k * class_melee_mult()) + 50) / 100;
+
             if (poison_needle || mode == HISSATSU_KYUSHO || mode == MYSTIC_KILL)
             {
                 if ( randint1(randint1(r_ptr->level/7)+5) == 1
@@ -3490,7 +3501,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                    && ((p_ptr->cur_lite <= 0 || one_in_(7))) )
             {
                 int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
-                if (p_ptr->pclass == CLASS_NINJA_LAWYER) k -= ((k * (100 - NINJA_LAWYER_MULT)) / 100);
 
                 if (one_in_(backstab ? 13 : (stab_fleeing || fuiuchi) ? 15 : 27))
                 {
@@ -5176,7 +5186,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         if ((!p_ptr->blind && !no_lite()) || !is_trap(c_ptr->feat)) c_ptr->info &= ~(CAVE_UNSAFE);
 
         /* For get everything when requested hehe I'm *NASTY* */
-        if (dun_level && (d_info[dungeon_type].flags1 & DF1_FORGET)) wiz_dark();
+        if (dun_level && (d_info[dungeon_type].flags1 & DF1_FORGET) && !never_forget) wiz_dark();
 
         /* Handle stuff */
         if (mpe_mode & MPE_HANDLE_STUFF) handle_stuff();

@@ -66,6 +66,7 @@ bool high_level_book(object_type *o_ptr)
         (o_ptr->tval == TV_NECROMANCY_BOOK) ||
         (o_ptr->tval == TV_ARMAGEDDON_BOOK) ||
         (o_ptr->tval == TV_MUSIC_BOOK) ||
+        (o_ptr->tval == TV_LAW_BOOK) ||
         (o_ptr->tval == TV_HEX_BOOK))
     {
         if (o_ptr->sval > 1)
