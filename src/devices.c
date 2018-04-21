@@ -307,7 +307,7 @@ static cptr _do_potion(int sval, int mode)
                 msg_print("The potion makes you vomit!");
                 set_food(PY_FOOD_STARVE - 1);
                 set_poisoned(0, TRUE);
-                set_paralyzed(p_ptr->paralyzed + 4, FALSE);
+                set_paralyzed(randint1(4), FALSE);
                 device_noticed = TRUE;
             }
         }
@@ -383,7 +383,7 @@ static cptr _do_potion(int sval, int mode)
                     have_nightmare(get_mon_num(MAX_DEPTH));
                     get_mon_num_prep(NULL, NULL);
                 }
-                if (set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE))
+                if (set_paralyzed(randint1(4), FALSE))
                 {
                     device_noticed = TRUE;
                 }

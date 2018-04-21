@@ -646,6 +646,7 @@ extern cptr birth_get_class_desc(int i);
 extern cptr birth_get_personality_desc(int i);
 extern cptr birth_get_realm_desc(int i);
 extern void birth_object(int tv, int sv, int qty);
+extern void e_info_reset(void);
 extern void player_birth(void);
 extern void get_max_stats(void);
 extern void determine_random_questor(quest_type *q_ptr);
@@ -1118,6 +1119,7 @@ extern s16b get_obj_num(int level);
 extern errr get_obj_num_prep(void);
 extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
+extern void ego_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
 extern s32b object_value(object_type *o_ptr);
 extern s32b object_value_real(object_type *o_ptr);
@@ -1172,6 +1174,15 @@ extern void display_koff(int k_idx);
 extern object_type *choose_warning_item(void);
 extern bool process_warning(int xx, int yy);
 extern void do_cmd_kaji(bool only_browse);
+extern void stats_on_purchase(object_type *o_ptr);
+extern void stats_on_sell(object_type *o_ptr);
+extern void stats_on_notice(object_type *o_ptr, int num);
+extern void stats_on_combine(object_type *dest, object_type *src);
+extern void stats_on_use(object_type *o_ptr, int num);
+extern void stats_on_destroy(object_type *o_ptr, int num);
+extern void stats_on_pickup(object_type *o_ptr);
+extern void stats_on_equip(object_type *o_ptr);
+extern void stats_on_identify(object_type *o_ptr);
 
 /* object3.c */
 typedef void (*debug_hook)(cptr msg);
@@ -1391,6 +1402,7 @@ extern bool dimension_door(int rng);
 extern bool summon_kin_player(int level, int y, int x, u32b mode);
 
 /* store.c */
+extern bool store_hack;
 extern bool combine_and_reorder_home(int store_num);
 extern void do_cmd_store(void);
 extern void store_shuffle(int which);
@@ -1902,6 +1914,7 @@ extern bool change_wild_mode(void);
 /* wizard2.c */
 extern bool spoiler_hack;
 extern void strip_name(char *buf, int k_idx);
+extern void strip_name_aux(char *dest, const char *src);
 extern cptr race_spoiler_page(int i);
 
 /* avatar.c */

@@ -647,6 +647,7 @@ void equip_wield_aux(object_type *src, int slot)
         equip_takeoff_aux(slot);
     
     object_copy(dest, src);
+    stats_on_equip(dest);
     dest->marked |= OM_TOUCHED;
     dest->marked &= ~OM_WORN;
     p_ptr->total_weight += dest->weight;

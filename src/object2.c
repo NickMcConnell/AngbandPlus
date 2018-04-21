@@ -753,7 +753,6 @@ void object_known(object_type *o_ptr)
     o_ptr->ident |= (IDENT_KNOWN);
 }
 
-
 /*
  * The player is now aware of the effects of the given object.
  */
@@ -761,7 +760,141 @@ void object_aware(object_type *o_ptr)
 {
     k_info[o_ptr->k_idx].aware = TRUE;
 }
+void ego_aware(object_type *o_ptr)
+{
+    if (o_ptr->name2)
+        e_info[o_ptr->name2].aware = TRUE;
+}
 
+/* Statistics
+   We try hard not to leak information. For example, when picking up an
+   unaware potion, we should wait for one of the following before counting it:
+   [1] Identify
+   [2] Sell to shop
+   [3] Quaff and become aware.
+
+   Note we might miss some counts if the user quaffs, but doesn't notice the
+   effect. This is better than leaking kind info in the various browser screens, 
+   though.
+*/
+void stats_on_purchase(object_type *o_ptr)
+{
+    if (!(o_ptr->marked & OM_COUNTED))
+    {
+        k_info[o_ptr->k_idx].counts.bought += o_ptr->number;
+        o_ptr->marked |= OM_COUNTED;
+    }
+    if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    {
+        e_info[o_ptr->name2].counts.bought += o_ptr->number;
+        o_ptr->marked |= OM_EGO_COUNTED;
+    }
+}
+
+void stats_on_sell(object_type *o_ptr)
+{
+    if (!(o_ptr->marked & OM_COUNTED))
+    {
+        k_info[o_ptr->k_idx].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_COUNTED;
+    }
+    if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    {
+        e_info[o_ptr->name2].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_EGO_COUNTED;
+    }
+}
+
+void stats_on_notice(object_type *o_ptr, int num)
+{
+    if (!(o_ptr->marked & OM_COUNTED))
+    {
+        k_info[o_ptr->k_idx].counts.found += num;
+        o_ptr->marked |= OM_COUNTED;
+    }
+}
+
+void stats_on_combine(object_type *dest, object_type *src)
+{
+    if (object_is_aware(dest) && !(dest->marked & OM_COUNTED))
+    {
+        k_info[dest->k_idx].counts.found += dest->number;
+        dest->marked |= OM_COUNTED;
+    }
+    if (object_is_aware(src) && !(src->marked & OM_COUNTED))
+    {
+        k_info[src->k_idx].counts.found += src->number;
+        src->marked |= OM_COUNTED;
+    }
+}
+
+void stats_on_use(object_type *o_ptr, int num)
+{
+    k_info[o_ptr->k_idx].counts.used += num;
+}
+
+void stats_on_destroy(object_type *o_ptr, int num)
+{
+    if (object_is_aware(o_ptr) && !(o_ptr->marked & OM_COUNTED))
+    {
+        k_info[o_ptr->k_idx].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_COUNTED;
+    }
+    if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    {
+        e_info[o_ptr->name2].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_EGO_COUNTED;
+    }
+
+    k_info[o_ptr->k_idx].counts.destroyed += num;
+    if (o_ptr->name2)
+        e_info[o_ptr->name2].counts.destroyed += num;
+}
+
+void stats_on_pickup(object_type *o_ptr)
+{
+    if (object_is_aware(o_ptr) && !(o_ptr->marked & OM_COUNTED))
+    {
+        k_info[o_ptr->k_idx].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_COUNTED;
+    }
+
+    if (object_is_known(o_ptr) && o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    {
+        e_info[o_ptr->name2].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_EGO_COUNTED;
+    }
+}
+
+void stats_on_equip(object_type *o_ptr)
+{
+    if (object_is_aware(o_ptr) && !(o_ptr->marked & OM_COUNTED))
+    {
+        k_info[o_ptr->k_idx].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_COUNTED;
+    }
+
+    if (object_is_known(o_ptr) && o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    {
+        e_info[o_ptr->name2].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_EGO_COUNTED;
+    }
+}
+
+void stats_on_identify(object_type *o_ptr)
+{
+    if (object_is_aware(o_ptr) && !(o_ptr->marked & OM_COUNTED))
+    {
+        k_info[o_ptr->k_idx].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_COUNTED;
+    }
+
+    if (object_is_known(o_ptr) && o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    {
+        e_info[o_ptr->name2].counts.found += o_ptr->number;
+        o_ptr->marked |= OM_EGO_COUNTED;
+    }
+}
 
 /*
  * Something has been "sampled"
@@ -1807,6 +1940,12 @@ void object_prep(object_type *o_ptr, int k_idx)
 
     /* Save the kind index */
     o_ptr->k_idx = k_idx;
+    if (k_ptr->tval != TV_GOLD && !store_hack)
+    {
+        k_ptr->counts.generated++;
+        if (p_ptr->wizard)
+            msg_format("Generated 1 %s", k_name + k_ptr->name);
+    }
 
     /* Efficiency -- tval/sval */
     o_ptr->tval = k_ptr->tval;
@@ -3681,7 +3820,9 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
           && o_ptr->name2 /* These first two checks are paranoia, pure and simple! */
           && o_ptr->dd == k_info[o_ptr->k_idx].dd
           && o_ptr->ds == k_info[o_ptr->k_idx].ds
-          && o_ptr->name2 != EGO_WEAPON_EXTRA_ATTACKS )
+          && o_ptr->name2 != EGO_WEAPON_EXTRA_ATTACKS
+          && o_ptr->name2 != EGO_WEAPON_WILD
+          && o_ptr->name2 != EGO_WEAPON_ORDER )
         {
             if (o_ptr->dd * o_ptr->ds > 0 && one_in_(5 + 200/MAX(level, 1)))
             {
@@ -4822,6 +4963,9 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
     {
         ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
+        if (!store_hack)
+            e_ptr->counts.generated++;
+
         /* Hack -- acquire "cursed" flag */
         if (e_ptr->gen_flags & TRG_CURSED) o_ptr->curse_flags |= (TRC_CURSED);
         if (e_ptr->gen_flags & TRG_HEAVY_CURSE) o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
@@ -5513,7 +5657,6 @@ bool make_object(object_type *j_ptr, u32b mode)
 
         /* Prepare the object */
         object_prep(j_ptr, k_idx);
-        k_info[k_idx].count++;
     }
 
     /* Apply magic (allow artifacts) */
@@ -6638,6 +6781,8 @@ s16b inven_carry(object_type *o_ptr)
         /* Check if the two items can be combined */
         if (object_similar(j_ptr, o_ptr))
         {
+            stats_on_pickup(o_ptr);
+
             /* Combine the items */
             object_absorb(j_ptr, o_ptr);
 
@@ -6700,6 +6845,7 @@ s16b inven_carry(object_type *o_ptr)
 
 
     /* Copy the item */
+    stats_on_pickup(o_ptr);
     object_copy(&inventory[i], o_ptr);
 
     /* Access new object */
@@ -6715,7 +6861,7 @@ s16b inven_carry(object_type *o_ptr)
     j_ptr->iy = j_ptr->ix = 0;
 
     /* Player touches it, and no longer marked */
-    j_ptr->marked &= OM_WORN;  /* Ah, but remember the "worn" status ... */
+    j_ptr->marked &= (OM_WORN | OM_COUNTED | OM_EGO_COUNTED);  /* Ah, but remember the "worn" status ... */
     j_ptr->marked |= OM_TOUCHED;
 
     /* Increase the weight */
@@ -6916,6 +7062,7 @@ void combine_pack(void)
                 /* Can we (partialy) drop "o_ptr" onto "j_ptr"? */
                 if (max_num && j_ptr->number < max_num)
                 {
+                    stats_on_combine(j_ptr, o_ptr);
                     if (o_ptr->number + j_ptr->number <= max_num)
                     {
                         /* Take note */

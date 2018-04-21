@@ -1991,7 +1991,7 @@ static void hit_trap(bool break_trap)
                     /* Remove the monster restriction */
                     get_mon_num_prep(NULL, NULL);
                 }
-                (void)set_paralyzed(p_ptr->paralyzed + randint0(10) + 5, FALSE);
+                (void)set_paralyzed(randint1(4), FALSE);
             }
             break;
         }
@@ -2866,6 +2866,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 break;
             }
         }
+
+        if (p_ptr->stun >= 100) /* Grand Master Mystic retaliation knocked the player out! */
+            break;
+
+        if (p_ptr->paralyzed)
+            break;
 
         /* Weaponmaster Whirlwind turns a normal strike into a sweeping whirlwind strike */
         if (p_ptr->whirlwind && mode == 0)

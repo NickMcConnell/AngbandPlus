@@ -3108,7 +3108,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                                 }
                                 default:
                                     if (!p_ptr->free_act)
-                                        (void)set_paralyzed(p_ptr->paralyzed + randint1(dam), FALSE);
+                                        (void)set_paralyzed(randint1(dam), FALSE);
                                     break;
                             }
                         }
@@ -6958,7 +6958,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
                 get_mon_num_prep(NULL, NULL);
             }
 
-            set_paralyzed(p_ptr->paralyzed + dam, FALSE);
+            set_paralyzed(dam, FALSE);
             dam = 0;
             break;
         }
@@ -7162,7 +7162,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
                         (void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
                     if (!p_ptr->free_act)
                     {
-                        (void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
+                        (void)set_paralyzed(randint1(4), FALSE);
                     }
                     (void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
 

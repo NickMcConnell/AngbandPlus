@@ -1843,12 +1843,6 @@ static void process_world_aux_timeout(void)
         (void)set_kabenuke(p_ptr->kabenuke - 1, TRUE);
     }
 
-    /* Paralysis */
-    if (p_ptr->paralyzed)
-    {
-        (void)set_paralyzed(p_ptr->paralyzed - dec_count, TRUE);
-    }
-
     /* Confusion */
     if (p_ptr->confused)
     {
@@ -2135,7 +2129,7 @@ static void process_world_aux_timeout(void)
     }
 
     /* Stun */
-    if (p_ptr->stun)
+    if (p_ptr->stun > 0 && p_ptr->stun < 100)
     {
         int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
 
@@ -3368,7 +3362,7 @@ static void process_world(void)
                 disturb(1, 0);
 
                 /* Hack -- faint (bypass free action) */
-                (void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5), FALSE);
+                (void)set_paralyzed(randint1(4), FALSE);
             }
 
             /* Starve to death (slowly) */
@@ -4876,11 +4870,17 @@ static void process_player(void)
             /* Process the command */
             process_command();
         }
-        /* Paralyzed or Knocked Out */
-        else if (p_ptr->paralyzed || (p_ptr->stun >= 100))
+        /* Paralyzed */
+        else if (p_ptr->paralyzed)
         {
-            /* Take a turn */
             energy_use = 100;
+            set_paralyzed(p_ptr->paralyzed - 1, TRUE);
+        }
+        /* Knocked Out */
+        else if (p_ptr->stun >= 100)
+        {
+            energy_use = 100;
+            set_stun(p_ptr->stun - 25, TRUE);
         }
 
         /* Resting */

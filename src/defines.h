@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 3
-#define VER_PATCH 2
-#define VER_EXTRA 0
+#define VER_PATCH 3
+#define VER_EXTRA 2
 
 /*
  * Number of grids in each block (vertically)
@@ -2963,13 +2963,15 @@ enum summon_specific_e {
  * OM_NOMSG --- temporary flag to suppress messages which were
  *              already printed in autopick_pickup_items().
  */
-#define OM_FOUND        0x01    /* original boolean flag */
-#define OM_NOMSG        0x02    /* temporary flag to suppress messages */
-#define OM_NO_QUERY     0x04    /* Query for auto-pick was already answered as 'No' */
-#define OM_AUTODESTROY  0x08    /* Destroy later to avoid illegal inventry shift */
-#define OM_TOUCHED      0x10    /* Object was touched by player */
-#define OM_RESERVED     0x20    /* Object reserved in the shop */
-#define OM_WORN         0x40    /* Object was previously being worn but is possibly no longer a legal piece of equipment (Mimics) */
+#define OM_FOUND        0x0001    /* original boolean flag */
+#define OM_NOMSG        0x0002    /* temporary flag to suppress messages */
+#define OM_NO_QUERY     0x0004    /* Query for auto-pick was already answered as 'No' */
+#define OM_AUTODESTROY  0x0008    /* Destroy later to avoid illegal inventry shift */
+#define OM_TOUCHED      0x0010    /* Object was touched by player */
+#define OM_RESERVED     0x0020    /* Object reserved in the shop */
+#define OM_WORN         0x0040    /* Object was previously being worn but is possibly no longer a legal piece of equipment (Mimics) */
+#define OM_COUNTED      0x0080    /* Stats */
+#define OM_EGO_COUNTED  0x0100    /* Stats */
 
 
 /*
@@ -5494,7 +5496,7 @@ enum object_save_fields_e {
     SAVE_ITEM_ARMOR,
     SAVE_ITEM_DAMAGE_DICE,
     SAVE_ITEM_IDENT,
-    SAVE_ITEM_MARKED,
+    SAVE_ITEM_MARKED_BYTE,
     SAVE_ITEM_FEELING,
     SAVE_ITEM_INSCRIPTION,
     SAVE_ITEM_ART_FLAGS_0,
@@ -5517,6 +5519,7 @@ enum object_save_fields_e {
     SAVE_ITEM_XTRA5,
     SAVE_ITEM_ACTIVATION,
     SAVE_ITEM_MULT,
+    SAVE_ITEM_MARKED,
 };
 
 /*

@@ -1962,6 +1962,20 @@ static void birth_put_stats(void)
     }
 }
 
+void e_info_reset(void)
+{
+    int i;
+
+    /* Reset the "objects" */
+    for (i = 1; i < max_e_idx; i++)
+    {
+        ego_item_type *e_ptr = &e_info[i];
+
+        e_ptr->aware = FALSE;
+        WIPE(&e_ptr->counts, counts_t);
+    }
+}
+
 static void k_info_reset(void)
 {
     int i;
@@ -1973,7 +1987,7 @@ static void k_info_reset(void)
 
         k_ptr->tried = FALSE;
         k_ptr->aware = FALSE;
-        k_ptr->count = 0;
+        WIPE(&k_ptr->counts, counts_t);
     }
 }
 
@@ -2027,6 +2041,7 @@ static void player_wipe(void)
 
     /* Reset the objects */
     k_info_reset();
+    e_info_reset();
 
     /* Reset the "monsters" */
     for (i = 1; i < max_r_idx; i++)
@@ -2723,6 +2738,7 @@ void add_outfit(object_type *o_ptr)
     int slot;
 
     object_aware(o_ptr);
+    ego_aware(o_ptr);
     object_known(o_ptr);
     o_ptr->ident |= IDENT_MENTAL;
 

@@ -3658,22 +3658,22 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
 
 /*
- * Description of each monster group.
+ * Description of each object group.
  */
 static cptr object_group_text[] = 
 {
     "Mushrooms",
     "Potions",
-    "Flasks",
+/*  "Flasks", */
     "Scrolls",
-    "Rings",
+/*  "Rings",
     "Amulets",
     "Whistle",
-    "Lanterns",
+    "Lanterns", */
     "Wands",
     "Staves",
     "Rods",
-    "Cards",
+/*  "Cards",
     "Capture Balls",
     "Parchments",
     "Spikes",
@@ -3683,7 +3683,7 @@ static cptr object_group_text[] =
     "Junks",
     "Bottles",
     "Skeletons",
-    "Corpses",
+    "Corpses", */
     "Swords",
     "Blunt Weapons",
     "Polearms",
@@ -3702,7 +3702,7 @@ static cptr object_group_text[] =
     "Crowns",
     "Boots",
     "Spellbooks",
-    "Treasure",
+/*  "Treasure", */
     "Something",
     NULL
 };
@@ -3715,16 +3715,16 @@ static byte object_group_tval[] =
 {
     TV_FOOD,
     TV_POTION,
-    TV_FLASK,
+/*  TV_FLASK, */
     TV_SCROLL,
-    TV_RING,
+/*  TV_RING, 
     TV_AMULET,
     TV_WHISTLE,
-    TV_LITE,
+    TV_LITE, */
     TV_WAND,
     TV_STAFF,
     TV_ROD,
-    TV_CARD,
+/*  TV_CARD,
     TV_CAPTURE,
     TV_PARCHMENT,
     TV_SPIKE,
@@ -3734,7 +3734,7 @@ static byte object_group_tval[] =
     TV_JUNK,
     TV_BOTTLE,
     TV_SKELETON,
-    TV_CORPSE,
+    TV_CORPSE, */
     TV_SWORD,
     TV_HAFTED,
     TV_POLEARM,
@@ -3753,11 +3753,26 @@ static byte object_group_tval[] =
     TV_CROWN,
     TV_BOOTS,
     TV_LIFE_BOOK, /* Hack -- all spellbooks */
-    TV_GOLD,
+/*  TV_GOLD, */
     0,
     0,
 };
 
+static bool _compare_k_level(vptr u, vptr v, int a, int b)
+{
+    int *indices = (int*)u;
+    int left = indices[a];
+    int right = indices[b];
+    return k_info[left].level <= k_info[right].level;
+}
+
+static void _swap_int(vptr u, vptr v, int a, int b)
+{
+    int *indices = (int*)u;
+    int tmp = indices[a];
+    indices[a] = indices[b];
+    indices[b] = tmp;
+}
 
 /*
  * Build a list of object indexes in the given group. Return the number
@@ -3788,14 +3803,13 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
         }
         else
         {
-            if (!p_ptr->wizard)
-            {
-                /* Skip non-flavoured objects */
-                if (!k_ptr->flavor) continue;
+            /* Skip non-flavoured objects 
+            if (!k_ptr->flavor) continue; */
 
-                /* Require objects ever seen */
-                if (!k_ptr->aware) continue;
-            }
+            if (!k_ptr->counts.found && !k_ptr->counts.bought) continue;
+
+            /* Require objects ever seen */
+            if (!k_ptr->aware) continue;
 
             /* Skip items with no distribution (special artifacts) */
             for (j = 0, k = 0; j < 4; j++) k += k_ptr->chance[j];
@@ -3806,7 +3820,7 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
         if (TV_LIFE_BOOK == group_tval)
         {
             /* Hack -- All spell books */
-            if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_HEX_BOOK)
+            if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_BURGLARY_BOOK)
             {
                 /* Add the object */
                 object_idx[object_cnt++] = i;
@@ -3823,6 +3837,11 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
         /* XXX Hack -- Just checking for non-empty group */
         if (mode & 0x01) break;
     }
+
+    /* Sort Results */
+    ang_sort_comp = _compare_k_level;
+    ang_sort_swap = _swap_int;
+    ang_sort(object_idx, NULL, object_cnt);
 
     /* Terminate the list */
     object_idx[object_cnt] = -1;
@@ -6209,7 +6228,7 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
         {
             clear_from(0);
 
-            prt(format("%s - monsters", !visual_only ? "Knowledge" : "Visuals"), 2, 0);
+            prt(format("%s - Monsters", !visual_only ? "Knowledge" : "Visuals"), 2, 0);
             if (direct_r_idx < 0) prt("Group", 4, 0);
             prt("Name", 4, max + 3);
             if (p_ptr->wizard || visual_only) prt("Idx", 4, 62);
@@ -6464,10 +6483,7 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
         }
 
         /* Display the name */
-        if (p_ptr->wizard)
-            sprintf(buf, "%s (%d)", o_name, k_ptr->count);
-        else
-            sprintf(buf, "%s", o_name);
+        sprintf(buf, "%-35.35s %5d %6d %4d %4d", o_name, k_ptr->counts.found, k_ptr->counts.bought, k_ptr->counts.used, k_ptr->counts.destroyed);
         c_prt(attr, buf, row + i, col);
 
         /* Hack -- visual_list mode */
@@ -6475,7 +6491,7 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
         {
             c_prt(attr, format("%02x/%02x", flavor_k_ptr->x_attr, flavor_k_ptr->x_char), row + i, (p_ptr->wizard || visual_only) ? 64 : 68);
         }
-        if (p_ptr->wizard || visual_only)
+        if (visual_only)
         {
             c_prt(attr, format("%d", k_idx), row + i, 70);
         }
@@ -6530,6 +6546,222 @@ static void desc_obj_fake(int k_idx)
     }
 }
 
+
+typedef struct {
+    int id;
+    cptr name;
+} _ego_type_t;
+
+static _ego_type_t _ego_types[] = {
+    { EGO_TYPE_WEAPON, "Weapons" },
+    { EGO_TYPE_DIGGER, "Diggers" },
+    { EGO_TYPE_SHIELD, "Shields" },
+    { EGO_TYPE_BOW, "Bows" },
+    { EGO_TYPE_HARP, "Harps" },
+    { EGO_TYPE_RING, "Rings" },
+    { EGO_TYPE_AMULET, "Amulets" },
+    { EGO_TYPE_LITE, "Lights" },
+    { EGO_TYPE_BODY_ARMOR, "Armors" },
+    { EGO_TYPE_ROBE, "Robes" },
+    { EGO_TYPE_CLOAK, "Shields" },
+    { EGO_TYPE_HELMET, "Helmets" },
+    { EGO_TYPE_CROWN, "Crowns" },
+    { EGO_TYPE_GLOVES, "Gloves" },
+    { EGO_TYPE_BOOTS, "Boots" },
+    { EGO_TYPE_AMMO, "Ammo" },
+    { EGO_TYPE_NONE, NULL },
+};
+
+static bool _compare_e_level(vptr u, vptr v, int a, int b)
+{
+    int *indices = (int*)u;
+    int left = indices[a];
+    int right = indices[b];
+    return e_info[left].level <= e_info[right].level;
+}
+
+static int _collect_egos(int grp_cur, int ego_idx[])
+{
+    int i, cnt = 0;
+    int type = _ego_types[grp_cur].id;
+
+    for (i = 0; i < max_e_idx; i++)
+    {
+        ego_item_type *e_ptr = &e_info[i];
+
+        if (!e_ptr->name) continue;
+        /*if (!e_ptr->aware) continue;*/
+        if (!e_ptr->counts.found && !e_ptr->counts.bought) continue;
+        if (e_ptr->type != type) continue;
+
+        ego_idx[cnt++] = i;
+    }
+
+    /* Sort Results */
+    ang_sort_comp = _compare_e_level;
+    ang_sort_swap = _swap_int;
+    ang_sort(ego_idx, NULL, cnt);
+
+    /* Terminate the list */
+    ego_idx[cnt] = -1;
+
+    return cnt;
+}
+
+static void do_cmd_knowledge_egos(bool *need_redraw)
+{
+    int i, len, max;
+    int grp_cur, grp_top, old_grp_cur;
+    int ego_old, ego_cur, ego_top;
+    int grp_cnt, grp_idx[100];
+    int ego_cnt;
+    int *ego_idx;
+
+    int column = 0;
+    bool flag;
+    bool redraw;
+
+    int browser_rows;
+    int wid, hgt;
+
+    /* Get size */
+    Term_get_size(&wid, &hgt);
+
+    browser_rows = hgt - 8;
+
+    C_MAKE(ego_idx, max_e_idx, int);
+
+    max = 0;
+    grp_cnt = 0;
+    for (i = 0; _ego_types[i].id != EGO_TYPE_NONE; i++)
+    {
+        len = strlen(_ego_types[i].name);
+        if (len > max) 
+            max = len;
+
+        if (_collect_egos(i, ego_idx))
+            grp_idx[grp_cnt++] = i;
+    }
+    grp_idx[grp_cnt] = -1;
+
+    ego_old = -1;
+    ego_cnt = 0;
+
+    old_grp_cur = -1;
+    grp_cur = grp_top = 0;
+    ego_cur = ego_top = 0;
+
+    flag = FALSE;
+    redraw = TRUE;
+
+    while (!flag)
+    {
+        char ch;
+        if (redraw)
+        {
+            clear_from(0);
+
+            prt(format("%s - Egos", "Knowledge"), 2, 0);
+            prt("Group", 4, 0);
+            prt("Name", 4, max + 3);
+            prt("Found Bought Dest", 4, 46);
+
+            for (i = 0; i < 63; i++)
+            {
+                Term_putch(i, 5, TERM_WHITE, '=');
+            }
+
+            for (i = 0; i < browser_rows; i++)
+            {
+                Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+            }
+
+            redraw = FALSE;
+        }
+
+        /* Scroll group list */
+        if (grp_cur < grp_top) grp_top = grp_cur;
+        if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+
+        /* Display a list of object groups */
+        for (i = 0; i < browser_rows && grp_idx[i] >= 0; i++)
+        {
+            int  grp = grp_idx[grp_top + i];
+            byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
+
+            Term_erase(0, 6 + i, max);
+            c_put_str(attr, _ego_types[grp].name, 6 + i, 0);
+        }
+
+        if (old_grp_cur != grp_cur)
+        {
+            old_grp_cur = grp_cur;
+
+            /* Get a list of objects in the current group */
+            ego_cnt = _collect_egos(grp_idx[grp_cur], ego_idx);
+        }
+
+        /* Scroll object list */
+        while (ego_cur < ego_top)
+            ego_top = MAX(0, ego_top - browser_rows/2);
+        while (ego_cur >= ego_top + browser_rows)
+            ego_top = MIN(ego_cnt - browser_rows, ego_top + browser_rows/2);
+
+        /* Display a list of objects in the current group */
+        /* Display lines until done */
+        for (i = 0; i < browser_rows && (ego_idx[ego_top + i] >= 0); i++)
+        {
+            char           buf[255];
+            char           name[255];
+            int            idx = ego_idx[ego_top + i];
+            ego_item_type *e_ptr = &e_info[idx];
+            byte           attr = (i + ego_top == ego_cur) ? TERM_L_BLUE : TERM_WHITE;
+
+            strip_name_aux(name, e_name + e_ptr->name); 
+            sprintf(buf, "%-35.35s %5d %6d %4d", 
+                name, 
+                e_ptr->counts.found, e_ptr->counts.bought, e_ptr->counts.destroyed
+            );
+            c_prt(attr, buf, 6 + i, max + 3);
+        }
+
+        /* Clear remaining lines */
+        for (; i < browser_rows; i++)
+        {
+            Term_erase(max + 3, 6 + i, 255);
+        }
+
+        /* Prompt 
+        prt(format("<dir>%s%s%s, ESC",
+            (!visual_list && !visual_only) ? ", 'r' to recall" : "",
+            visual_list ? ", ENTER to accept" : ", 'v' for visuals",
+            (attr_idx || char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"),
+            hgt - 1, 0); */
+
+        if (!column)
+        {
+            Term_gotoxy(0, 6 + (grp_cur - grp_top));
+        }
+        else
+        {
+            Term_gotoxy(max + 3, 6 + (ego_cur - ego_top));
+        }
+
+        ch = inkey();
+
+        switch (ch)
+        {
+        case ESCAPE:
+            flag = TRUE;
+            break;
+
+        default:
+            browser_cursor(ch, &column, &grp_cur, grp_cnt, &ego_cur, ego_cnt);
+        }
+    }
+
+    C_KILL(ego_idx, max_e_idx, int);
+}
 
 
 /*
@@ -6639,11 +6871,11 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
         {
             clear_from(0);
 
-            prt(format("%s - objects", !visual_only ? "Knowledge" : "Visuals"), 2, 0);
+            prt(format("%s - Objects", !visual_only ? "Knowledge" : "Visuals"), 2, 0);
             if (direct_k_idx < 0) prt("Group", 4, 0);
             prt("Name", 4, max + 3);
-            if (p_ptr->wizard || visual_only) prt("Idx", 4, 70);
-            prt("Sym", 4, 75);
+            if (visual_only) prt("Idx", 4, 70);
+            prt("Found Bought Used Dest Sym", 4, 52);
 
             for (i = 0; i < 78; i++)
             {
@@ -7964,6 +8196,7 @@ void do_cmd_knowledge(void)
             prt("(f) Display dungeons", row++, 5);
             prt("(g) Display current quests", row++, 5);
             prt("(h) Display auto pick/destroy", row++, 5);
+            prt("(i) Display known egos", row++, 5);
             if (enable_virtues)
                 prt("(v) Display virtues", row++, 5);
             prt("(w) Display weapon effectiveness", row++, 5);
@@ -7993,6 +8226,9 @@ void do_cmd_knowledge(void)
             break;
         case '2':
             do_cmd_knowledge_objects(&need_redraw, FALSE, -1);
+            break;
+        case 'i':
+            do_cmd_knowledge_egos(&need_redraw);
             break;
         case '3':
             do_cmd_knowledge_uniques();

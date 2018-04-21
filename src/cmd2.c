@@ -560,7 +560,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
         if (!p_ptr->free_act)
         {
-            (void)set_paralyzed(p_ptr->paralyzed + 10 + randint1(20), FALSE);
+            (void)set_paralyzed(randint1(4), FALSE);
         }
     }
 
@@ -673,11 +673,9 @@ static void chest_trap(int y, int x, s16b o_idx)
                 else if (one_in_(4))
                 {
                     if (!p_ptr->free_act) 
-                        (void)set_paralyzed(p_ptr->paralyzed + 2 + 
-                        randint0(6), FALSE);
+                        (void)set_paralyzed(randint1(4), FALSE);
                     else 
-                        (void)set_stun(p_ptr->stun + 10 + 
-                        randint0(100), FALSE);
+                        (void)set_stun(p_ptr->stun + 10 + randint0(100), FALSE);
                 }
                 else if (one_in_(3)) apply_disenchant(0);
                 else if (one_in_(2))
@@ -2035,7 +2033,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 
         /* Hack -- Lose balance ala paralysis */
-        (void)set_paralyzed(p_ptr->paralyzed + 2 + randint0(2), FALSE);
+        (void)set_paralyzed(randint1(4), FALSE);
     }
 
     /* Result */
@@ -3961,7 +3959,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
             o_ptr = &o_list[o_idx];
             object_copy(o_ptr, q_ptr);
 
-            o_ptr->marked &= OM_TOUCHED;
+            o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EGO_COUNTED);
             o_ptr->iy = o_ptr->ix = 0;
             o_ptr->held_m_idx = m_idx;
             o_ptr->next_o_idx = m_ptr->hold_o_idx;

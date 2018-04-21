@@ -4056,8 +4056,20 @@ void calc_bonuses(void)
                 skill = 7000;
 
             /* Berserkers don't mind dual wielding with heavy weapons */
-            if (p_ptr->pclass == CLASS_BERSERKER)
+            switch (p_ptr->pclass)
+            {
+            case CLASS_BERSERKER:
                 w_div = 24;
+                break;
+            case CLASS_WARRIOR:
+            case CLASS_BLOOD_KNIGHT:
+                w_div = 18;
+                break;
+            case CLASS_SAMURAI:
+            case CLASS_PALADIN:
+                w_div = 12;
+                break;
+            }
 
             if (robj->name1 == ART_QUICKTHORN && lobj->name1 == ART_TINYTHORN)
             {

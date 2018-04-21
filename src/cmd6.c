@@ -184,7 +184,7 @@ static void do_cmd_eat_food_aux(int item)
             {
                 if (!p_ptr->free_act)
                 {
-                    if (set_paralyzed(p_ptr->paralyzed + randint0(10) + 10, FALSE))
+                    if (set_paralyzed(randint1(4), FALSE))
                     {
                         ident = TRUE;
                     }
@@ -364,10 +364,13 @@ static void do_cmd_eat_food_aux(int item)
     /* We have tried it */
     if (o_ptr->tval == TV_FOOD) object_tried(o_ptr);
 
+    stats_on_use(o_ptr, 1);
+
     /* The player is now aware of the object */
     if (ident && !object_is_aware(o_ptr))
     {
         object_aware(o_ptr);
+        stats_on_notice(o_ptr, 1);
         gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
     }
 
@@ -704,6 +707,8 @@ static void do_cmd_quaff_potion_aux(int item)
     }
     else
     {
+        stats_on_use(q_ptr, number);
+
         if (item >= 0)
         {
             inven_item_increase(item, -number);
@@ -744,6 +749,16 @@ static void do_cmd_quaff_potion_aux(int item)
     {
         object_aware(q_ptr);
         gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
+
+        /* Try to keep stats up to date. It's possible inventory[item]
+           is no longer the item we just noticed and I'm rather frustrated
+           that the code consumes the objects before actually using them. */
+        if (item >= 0)
+            o_ptr = &inventory[item];
+        else
+            o_ptr = &o_list[0 - item];
+        if (o_ptr->k_idx == q_ptr->k_idx)
+            stats_on_notice(o_ptr, o_ptr->number + number);
     }
 
     /* Window stuff */
@@ -1002,6 +1017,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
     if (device_noticed && !object_is_aware(o_ptr))
     {
         object_aware(o_ptr);
+        stats_on_notice(o_ptr, o_ptr->number);
         gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
     }
 
@@ -1018,6 +1034,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
     }
     else
     {
+        stats_on_use(o_ptr, number);
         if (item >= 0)
         {
             inven_item_increase(item, -number);
@@ -1202,6 +1219,7 @@ static void do_cmd_use_staff_aux(int item)
     if (device_noticed && !object_is_aware(o_ptr))
     {
         object_aware(o_ptr);
+        stats_on_notice(o_ptr, o_ptr->number);
         gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
     }
 
@@ -1221,6 +1239,7 @@ static void do_cmd_use_staff_aux(int item)
     }
     else
     {
+        stats_on_use(o_ptr, charges);
         if (devicemaster_desperation && randint0(p_ptr->lev*7) < k_info[o_ptr->k_idx].level)
         {
             char o_name[MAX_NLEN];
@@ -1409,6 +1428,7 @@ static void do_cmd_aim_wand_aux(int item)
     if (device_noticed && !object_is_aware(o_ptr))
     {
         object_aware(o_ptr);
+        stats_on_notice(o_ptr, o_ptr->number);
         gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
     }
     p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
@@ -1421,6 +1441,7 @@ static void do_cmd_aim_wand_aux(int item)
         }
         else
         {
+            stats_on_use(o_ptr, charges);
             if (devicemaster_desperation && randint0(p_ptr->lev*7) < k_info[o_ptr->k_idx].level)
             {
                 char o_name[MAX_NLEN];
@@ -1588,6 +1609,7 @@ static void do_cmd_zap_rod_aux(int item)
         }
         else
         {
+            stats_on_use(o_ptr, charges);
             o_ptr->timeout += k_ptr->pval * charges;
             if (devicemaster_desperation && randint0(p_ptr->lev*11) < k_info[o_ptr->k_idx].level)
             {
@@ -1627,6 +1649,7 @@ static void do_cmd_zap_rod_aux(int item)
     if (device_noticed && !object_is_aware(o_ptr))
     {
         object_aware(o_ptr);
+        stats_on_notice(o_ptr, o_ptr->number);
         gain_exp((k_info[o_ptr->k_idx].level + (p_ptr->lev >> 1)) / p_ptr->lev);
     }
 

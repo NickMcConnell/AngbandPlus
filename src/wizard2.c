@@ -17,26 +17,27 @@
 /*
  * Strip an "object name" into a buffer
  */
-void strip_name(char *buf, int k_idx)
+void strip_name_aux(char *dest, const char *src)
 {
     char *t;
 
-    object_kind *k_ptr = &k_info[k_idx];
-
-    cptr str = (k_name + k_ptr->name);
-
-
     /* Skip past leading characters */
-    while ((*str == ' ') || (*str == '&') || (*str == '[')) str++;
+    while (*src == ' ' || *src == '&' || *src == '[') 
+        src++;
 
     /* Copy useful chars */
-    for (t = buf; *str; str++)
+    for (t = dest; *src; src++)
     {
-        if (*str != '~' && *str != ']') *t++ = *str;
+        if (*src != '~' && *src != ']') 
+            *t++ = *src;
     }
 
-    /* Terminate the new name */
     *t = '\0';
+}
+
+void strip_name(char *buf, int k_idx)
+{
+    strip_name_aux(buf, k_name + k_info[k_idx].name);
 }
 
 int _life_rating_aux(int lvl)
@@ -2938,7 +2939,8 @@ void do_cmd_debug(void)
             for (i = 0; i < max_o_idx; i++)
             {
                 if (!o_list[i].k_idx) continue;
-                ct++;
+                if (o_list[i].tval == TV_GOLD) continue;
+                ct += o_list[i].number;
                 identify_item(&o_list[i]);
                 o_list[i].ident |= IDENT_MENTAL;
                 if (o_list[i].name1 || o_list[i].name2)

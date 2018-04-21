@@ -2019,7 +2019,7 @@ void have_nightmare(int r_idx)
         }
         if (!p_ptr->free_act)
         {
-            (void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
+            (void)set_paralyzed(randint1(4), FALSE);
         }
         while (!saving_throw(p_ptr->skills.sav))
         {
@@ -2664,6 +2664,7 @@ static bool _gamble_shop_aux(object_type *o_ptr)
     int slot, auto_pick_idx;
 
     identify_item(o_ptr);
+    ego_aware(o_ptr);
     o_ptr->ident |= (IDENT_MENTAL);
     object_desc(buf, o_ptr, 0);
 
@@ -3825,7 +3826,7 @@ static void bldg_process_command(building_type *bldg, int i)
         msg_print("You do not have the gold!");
         return;
     }
-
+    store_hack = TRUE;
     switch (bact)
     {
     case BACT_NOTHING:
@@ -4061,6 +4062,8 @@ static void bldg_process_command(building_type *bldg, int i)
         if (prace_is_(RACE_MON_LEPRECHAUN))
             p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }
+
+    store_hack = FALSE;
 }
 
 

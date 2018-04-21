@@ -1448,7 +1448,7 @@ msg_print("An infernal sound echoed.");
 
 
             /* Hack -- Bypass free action */
-            (void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1), FALSE);
+            (void)set_paralyzed(randint1(5 * oops + 1), FALSE);
 
             switch (realm)
             {

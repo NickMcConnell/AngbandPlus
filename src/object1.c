@@ -294,21 +294,24 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
     {
         ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-        for (i = 0; i < TR_FLAG_SIZE; i++)
-            flgs[i] |= e_ptr->flags[i];
+        if (e_ptr->aware)
+        {
+            for (i = 0; i < TR_FLAG_SIZE; i++)
+                flgs[i] |= e_ptr->flags[i];
 
-        if (o_ptr->name2 == EGO_LITE_IMMOLATION && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
-        {
-            remove_flag(flgs, TR_SH_FIRE);
-        }
-        else if ((o_ptr->name2 == EGO_LITE_INFRAVISION) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
-        {
-            remove_flag(flgs, TR_INFRA);
-        }
-        else if ((o_ptr->name2 == EGO_LITE_IMMORTAL_EYE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
-        {
-            remove_flag(flgs, TR_RES_BLIND);
-            remove_flag(flgs, TR_SEE_INVIS);
+            if (o_ptr->name2 == EGO_LITE_IMMOLATION && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+            {
+                remove_flag(flgs, TR_SH_FIRE);
+            }
+            else if ((o_ptr->name2 == EGO_LITE_INFRAVISION) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+            {
+                remove_flag(flgs, TR_INFRA);
+            }
+            else if ((o_ptr->name2 == EGO_LITE_IMMORTAL_EYE) && !o_ptr->xtra4 && (o_ptr->sval <= SV_LITE_LANTERN))
+            {
+                remove_flag(flgs, TR_RES_BLIND);
+                remove_flag(flgs, TR_SEE_INVIS);
+            }
         }
     }
 

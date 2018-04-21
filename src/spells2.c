@@ -4723,9 +4723,9 @@ bool activate_ty_curse(bool stop_ty, int *count)
                 msg_print("You feel like a statue!");
 
                 if (p_ptr->free_act)
-                    set_paralyzed(p_ptr->paralyzed + randint1(2), FALSE);
+                    set_paralyzed(randint1(2), FALSE);
                 else
-                    set_paralyzed(p_ptr->paralyzed + randint1(13), FALSE);
+                    set_paralyzed(randint1(13), FALSE);
                 stop_ty = TRUE;
             }
             if (!one_in_(6)) break;

@@ -1552,7 +1552,8 @@ bool make_attack_normal(int m_idx)
                 }
 
                 /* Apply the stun */
-                if (k) (void)set_stun(p_ptr->stun + k, FALSE);
+                if (k && p_ptr->stun < 100) 
+                    set_stun(p_ptr->stun + k, FALSE);
             }
 
             if (explode)

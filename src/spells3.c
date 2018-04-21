@@ -2267,6 +2267,8 @@ bool identify_item(object_type *o_ptr)
     object_aware(o_ptr);
     object_known(o_ptr);
 
+    stats_on_identify(o_ptr);
+
     /* Player touches it */
     o_ptr->marked |= OM_TOUCHED;
 
@@ -2466,6 +2468,8 @@ bool identify_fully(object_p p)
 
     old_known = identify_item(o_ptr);
     o_ptr->ident |= (IDENT_MENTAL);
+    ego_aware(o_ptr);
+
     handle_stuff();
     object_desc(o_name, o_ptr, 0);
 
@@ -3938,6 +3942,8 @@ int inven_damage(inven_func typ, int p1, int which)
 
                 /* Reduce the charges of rods/wands */
                 reduce_charges(o_ptr, amt);
+
+                stats_on_destroy(o_ptr, amt);
 
                 /* Destroy "amt" items */
                 inven_item_increase(i, -amt);

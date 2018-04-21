@@ -24,6 +24,8 @@ static store_type *st_ptr = NULL;
 static owner_type *ot_ptr = NULL;
 static s16b old_town_num = 0;
 static s16b inner_town_num = 0;
+bool store_hack = FALSE;
+
 #define RUMOR_CHANCE 8
 
 #define MAX_COMMENT_1    6
@@ -512,6 +514,15 @@ void mass_produce(object_type *o_ptr)
 
     /* Save the total pile size (Call discount() before mass_produce() for shops)*/
     o_ptr->number = size;
+    if (!store_hack)
+    {
+        k_ptr->counts.generated += size - 1;
+        if (p_ptr->wizard)
+            msg_format("Generated %d %s", size - 1, k_name + k_ptr->name);
+        if (o_ptr->name2)
+            e_info[o_ptr->name2].counts.generated += size - 1;
+    }
+
     if (!dun_level)
         o_ptr->number -= (size * o_ptr->discount / 100);
 
@@ -1219,6 +1230,7 @@ static int store_carry(object_type *o_ptr)
 
     /* All store items are fully *identified* */
     o_ptr->ident |= IDENT_MENTAL;
+    ego_aware(o_ptr);
 
     /* Erase the inscription */
     o_ptr->inscription = 0;
@@ -3058,6 +3070,7 @@ static void store_purchase(void)
                 j_ptr->marked &= ~(OM_RESERVED);
 
                 /* Give it to the player */
+                stats_on_purchase(j_ptr);
                 item_new = inven_carry(j_ptr);
 
                 /* Describe the final result */
@@ -3410,6 +3423,7 @@ static void store_sell(void)
             dummy = object_value(q_ptr) * q_ptr->number;
 
             /* Identify it */
+            stats_on_sell(o_ptr); /* before identify, please! */
             identify_item(o_ptr);
 
             /* Get local object */
@@ -3499,8 +3513,10 @@ static void store_sell(void)
         if (!get_check(format("Really give %s to the Museum? ", o2_name))) return;
 
         /* Identify it */
+        stats_on_sell(o_ptr); /* before identify, please! */
         identify_item(q_ptr);
         q_ptr->ident |= IDENT_MENTAL;
+        ego_aware(q_ptr);
 
         /* Distribute charges of wands/rods */
         distribute_charges(o_ptr, q_ptr, amt);
@@ -4145,6 +4161,8 @@ void do_cmd_store(void)
         return;
     }
 
+    store_hack = TRUE;
+    
     /* Calculate the number of store maintainances since the last visit */
     maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (TURNS_PER_TICK * STORE_TICKS);
 
@@ -4536,6 +4554,8 @@ void do_cmd_store(void)
 
     /* Window stuff */
     p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+    store_hack = FALSE;
 }
 
 
@@ -4725,7 +4745,8 @@ void move_to_black_market(object_type *o_ptr)
 
 static void _restock(store_type *st_ptr, bool all)
 {
-    int j = _cull(st_ptr, all);
+    int j;
+    j = _cull(st_ptr, all);
     while (st_ptr->stock_num < j) 
         store_create();
 }

@@ -1742,6 +1742,8 @@ static void autopick_delayed_alter_aux(int item)
         char o_name[MAX_NLEN];
         bool msg = FALSE;
 
+        stats_on_destroy(o_ptr, o_ptr->number);
+
         if (prace_is_(RACE_MON_JELLY))
             jelly_eat_object(o_ptr);
         else if (prace_is_(RACE_MON_SWORD) && object_is_melee_weapon(o_ptr))

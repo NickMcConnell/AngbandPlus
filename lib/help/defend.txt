@@ -109,25 +109,7 @@ There are two categories of resistances: (1) the low (or elemental)
 resistances - acid, fire, cold and electricity; and (2) the high
 resistances - poison, confusion, light, dark, blindness, sound, fear,
 shards, nexus, chaos, nether, gravity, disenchantment and time. In
-general, the low resistances are more commonly available, they can be
-double-resisted and the corresponding attacks have a higher maximum
-damage potential. 
-
-A common misconception amongst new players is that having multiple
-sources of a particular resistance will increase your character's
-resistance to attacks of that form. This is not true. You will get the
-same benefit from wielding a single Amulet of Resist Acid as wielding a
-Shield of Resist Acid, an {Armor-type} of Resist Acid and an artifact
-weapon which grants acid resistance all at the same time.
-
-As stated above, however, it is possible to get double resistance for
-the low resists (and also poison). This is because these resistances
-are also available on a temporary basis by casting certain spells or by
-quaffing a Potion of Resistance. Some items may also activate for
-temporary resistance and it may also be gained from one of the many
-possible mutations. This temporary effect is cumulative with the
-permanent effect and will increase your protection against these kinds
-of attacks.
+general, the low resistances are more commonly available. 
 
 
 ***** <EgoArtifact>
