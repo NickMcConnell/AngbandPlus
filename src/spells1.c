@@ -4694,7 +4694,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             bool resists_tele = FALSE;
             if (r_ptr->flagsr & RFR_RES_TELE)
             {
-                if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
+                if ( (r_ptr->flags1 & RF1_UNIQUE)
+                  || (r_ptr->flagsr & RFR_RES_ALL) 
+                  || (m_ptr->smart & SM_GUARDIAN) )
                 {
                     mon_lore_r(m_ptr, RFR_RES_TELE);
                     note = " is unaffected!";
@@ -6004,8 +6006,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             r_ptr = &r_info[m_ptr->r_idx];
         }
 
-        /* Handle "teleport" */
-        if (do_dist)
+        /* Handle "teleport" ... double check the Guardian. It should be
+         * handled above for nicer messaging, but I didn't get all the cases. */
+        if (do_dist && !(m_ptr->smart & SM_GUARDIAN))
         {
             /* Obvious */
             if (seen) obvious = TRUE;

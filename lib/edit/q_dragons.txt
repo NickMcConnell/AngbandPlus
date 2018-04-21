@@ -1,0 +1,75 @@
+# Dragon Quest (clouded)
+?:[EQU $QUEST35 Taken InProgress]
+D:There's a small dungeon in which dragons have created a home.
+D:They aren't a threat to us, but what do you say to doing some
+D:looting? Here's the deal, you go in, kill everything in there,
+D:take what you like and I'll send my men in for the rest.
+D:Sound good?
+?:[EQU $QUEST35 Completed]
+D:Here's a little something extra for you.
+?:[EQU $QUEST35 Failed]
+D:Disgraceful.
+?:1
+
+T:QUEST:NORMAL
+L:X:PERMANENT
+L:#:GRANITE
+L:.:FLOOR
+L:+:CLOSED_DOOR
+L:<:UP_STAIR
+L:a:MON(baby blue dragon)
+L:b:MON(mature blue dragon)
+L:B:MON(ancient blue dragon)
+L:c:MON(baby white dragon)
+L:w:MON(mature white dragon)
+L:W:MON(ancient white dragon)
+L:i:MON(baby green dragon)
+L:g:MON(mature green dragon)
+L:G:MON(ancient green dragon)
+L:e:MON(baby black dragon)
+L:d:MON(mature black dragon)
+L:D:MON(ancient black dragon)
+L:f:MON(baby red dragon)
+L:r:MON(mature red dragon)
+L:R:MON(ancient red dragon)
+L:m:MON(baby multi-hued dragon)
+L:M:MON(mature multi-hued dragon)
+L:h:MON(mature bronze dragon)
+L:H:MON(ancient bronze dragon)
+L:j:MON(mature gold dragon)
+L:J:MON(ancient gold dragon)
+M:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+M:X##################################################X
+M:X##################################################X
+M:X##################################################X
+M:X#######################.....................######X
+M:X#######################.##########.########.######X
+M:X########................##########.#.M..mm#.######X
+M:X########+##############+##########.+..mmMm#....###X
+M:X######.....##########.....bB######.#..mMmm####.###X
+M:X######..e..##########...a.ab######.###########.###X
+M:X######d...e.dD#######..b...a######.##Rr..f...+.###X
+M:X######Dd..d..d#######b......######.##r.......#.###X
+M:X#########...e.#######Bb.....######+##...rf...#.###X
+M:X#########.....###########+########.....f....r#.###X
+M:X###########+#############.########.........rR#.###X
+M:X###########.#############.########.......#####.###X
+M:X###########.#############+########......f#####+###X
+M:X###...j####.###########...########+#######h....###X
+M:X###....####.###########.<.+..........#####...h.###X
+M:X###J...+..............+...##########.#####.H...###X
+M:X###j...####+###########+######...m.#.#####....h###X
+M:X##########.....gG###Ww....####.MM..#.#######+#####X
+M:X##########..i...g###w....c####.mM..+.........#####X
+M:X##########...gi..##...cw..####m....#.##+##########X
+M:X##########g....i.##w.....###########.#...Mm#######X
+M:X##########Gg.....##Ww..c.+...........#...mM#######X
+M:X##############+###########.###########..mMM#######X
+M:X##############.............#######################X
+M:X##################################################X
+M:X##################################################X
+M:X##################################################X
+M:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+R:OBJ(dragon wings)
+
+# vim: filetype=q :

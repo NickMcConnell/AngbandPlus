@@ -506,6 +506,9 @@ struct monster_race
     u32b flags8;              /* Flags 8 (wilderness info) */
     u32b flags9;              /* Flags 9 (drops info; possessor info) */
     u32b flagsr;              /* Flags R (resistances info) */
+    u32b flagsx;              /* Temp Flags valid only for a single game. Written to savefile.
+                                 For example, this unique is a questor. Or this
+                                 unique is suppressed and won't appear in this game. */
 
     monster_blow blow[4];
 
@@ -2014,9 +2017,6 @@ struct device_effect_info_s
 
 typedef struct device_effect_info_s  device_effect_info_t;
 typedef struct device_effect_info_s *device_effect_info_ptr;
-
-#define PERSONALITY_IS_MALE     0x01  /* Lucky */
-#define PERSONALITY_IS_FEMALE   0x02  /* Sexy */
 
 struct personality_s
 {

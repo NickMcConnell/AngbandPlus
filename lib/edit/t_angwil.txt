@@ -18,7 +18,13 @@ L:y:TREE
 # Default for Quest 23 = entrance is tree
 L:x:TREE
 
-############### Quest 22 - Orc Camp ###################
+# Default for Quest 35 = entrance is tree
+L:v:TREE
+
+# Default for Quest 36 = entrance is tree
+L:s:TREE
+
+############### Quest 22 - Orc Camp
 ?:[EQU $QUEST22 Taken]
 L:y:QUEST_ENTER(22)
 ?:[EQU $QUEST22 Untaken Taken Completed Failed]
@@ -26,15 +32,31 @@ L:b:BUILDING_1(22)
 ?:[EQU $QUEST22 Finished FailedDone]
 L:b:BUILDING_1(19)
 ?:1
-############### Quest 19 - Doom Quest 1 ###############
+############### Quest 19 - Doom Quest 1
 ?:[EQU $QUEST19 Taken]
 L:z:QUEST_ENTER(19)
 ?:[EQU $QUEST19 Taken Completed Failed]
 L:b:BUILDING_1(19)
 ?:[EQU $QUEST19 Finished FailedDone]
+L:b:BUILDING_1(36)
+?:1
+############### Quest 36 - The Sand Pit
+?:[EQU $QUEST36 Taken]
+L:s:QUEST_ENTER(36)
+?:[EQU $QUEST36 Taken Completed Failed]
+L:b:BUILDING_1(36)
+?:[EQU $QUEST36 Finished FailedDone]
+L:b:BUILDING_1(35)
+?:1
+############### Quest 35 - Dragon Quest
+?:[EQU $QUEST35 Taken]
+L:v:QUEST_ENTER(35)
+?:[EQU $QUEST35 Taken Completed Failed]
+L:b:BUILDING_1(35)
+?:[EQU $QUEST35 Finished FailedDone]
 L:b:BUILDING_1(23)
 ?:1
-###################### Quest 23 -- Spawning Pits ####################
+###################### Quest 23 -- Spawning Pits
 ?:[EQU $QUEST23 Taken]
 L:x:QUEST_ENTER(23)
 ?:[EQU $QUEST23 Taken Completed Failed]
@@ -197,7 +219,7 @@ M:                          #####  TTTTT-T                                      
 M:                          #####      TT-T####                                                                   
 M:                          #####       TT-####                                                                   
 M:                                       T-k###                                                                   
-M:                                       T-####                                                                   
+M:   s                                   T-####                      v                                            
 M:                                       -T####                                                                   
 M:                                                                                                                
 M:                                   y    x                                                                       

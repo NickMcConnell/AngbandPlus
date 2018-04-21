@@ -216,8 +216,8 @@ static void _ui(_ui_context_ptr context)
         {
             switch (cmd)
             {
-            case 'g': _get(context); break;
-            case 'd': _drop(context); break;
+            case 'g': case 'b': case 'p':  _get(context); break;
+            case 'd': case 's':  _drop(context); break;
             case 'x': _examine(context); break;
             case 'r': _remove(context); break;
             case '?':
@@ -283,7 +283,7 @@ static void _display(_ui_context_ptr context)
     doc_clear(doc);
     doc_insert(doc, "<style:table>");
     doc_printf(doc, "%*s<color:G>%s</color>\n\n",
-        (r.cx - 10)/2, "", inv_name(context->inv));
+        (doc_width(doc) - 10)/2, "", inv_name(context->inv));
 
     shop_display_inv(doc, context->inv, context->top, context->page_size);
     
@@ -442,6 +442,12 @@ static void _drop(_ui_context_ptr context)
     if (prompt.obj->number > 1)
     {
         if (!msg_input_num("Quantity", &amt, 1, prompt.obj->number)) return;
+    }
+
+    if (inv_loc(context->inv) == INV_MUSEUM)
+    {
+        /* *identify* here rather than in _drop_aux in case the user splits a pile. */
+        obj_identify_fully(prompt.obj);
     }
 
     if (amt < prompt.obj->number)

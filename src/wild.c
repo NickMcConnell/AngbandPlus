@@ -572,7 +572,7 @@ static bool _build_room(room_ptr room, transform_ptr xform, rect_t r, rect_t exc
     build_room_template_aux(room, xform, NULL);
     _wipe_generate_cave_flags(r);
 
-    if (is_daytime() && room->type == ROOM_WILDERNESS && disturb_minor)
+    if (is_daytime() && room->type == ROOM_WILDERNESS && disturb_minor && !travel.run)
     {
         msg_print("You've stumbled onto something interesting ...");
         disturb(0, 0);

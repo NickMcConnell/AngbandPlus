@@ -24,8 +24,8 @@ Y:confirm_quest
 X:target_pet
 Y:easy_open
 Y:easy_disarm
-Y:auto_get_ammo
-Y:auto_get_objects
+X:auto_get_ammo
+X:auto_get_objects
 Y:numpad_as_cursorkey
 
 ##### Map Screen Options #####

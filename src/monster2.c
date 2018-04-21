@@ -13,6 +13,8 @@
 #include "angband.h"
 #include "rooms.h"
 
+#include <assert.h>
+
 #define HORDE_NOGOOD 0x01
 #define HORDE_NOEVIL 0x02
 
@@ -1169,7 +1171,7 @@ bool mon_is_type(int r_idx, int type)
             return TRUE;
         else if (r_ptr->flags7 & RF7_NAZGUL)
             return TRUE;
-        else if (r_idx == MON_ANGMAR || r_idx == MON_HOARMURATH)
+        else if (r_idx == MON_ANGMAR || r_idx == MON_HOARMURATH || r_idx == MON_DWAR || r_idx == MON_KHAMUL)
              return TRUE;
         else if (r_ptr->d_char == 'V' && r_idx != 521 && r_idx != 536 && r_idx != 613)
             return TRUE;
@@ -1430,8 +1432,8 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
         if (!p_ptr->inside_battle && !chameleon_change_m_idx &&
             summon_specific_type != SUMMON_GUARDIAN)
         {
-            /* Hack -- don't create (unique) questors */
-            if (r_ptr->flags1 & RF1_QUESTOR)
+            /* Hack -- don't create (unique) questors or suppressed uniques */
+            if (r_ptr->flagsx & (RFX_QUESTOR | RFX_SUPPRESS))
                 continue;
 
             if ((r_ptr->flags7 & RF7_GUARDIAN) && !no_wilderness)
@@ -1809,8 +1811,9 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
     bool            seen, pron;
     bool            named = FALSE;
 
-    /* Hack: See Issue 116 */
-    if (m_ptr->nickname && !(mode & MD_NO_PET_ABBREV))
+    /* Hack: Chengband requested to just show the pet's name (e.g. 'Stinky' vs
+     * 'Your super-duper multi-hued behemoth called Stinky') */
+    if (m_ptr->nickname && !(mode & MD_NO_PET_ABBREV) && !(mode & MD_PRON_VISIBLE))
     {
         sprintf(desc, "%s", quark_str(m_ptr->nickname));
         return;
@@ -3278,11 +3281,13 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 
         /* Depth monsters may NOT be created out of depth, unless in Nightmare mode */
         if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level) &&
-            (!ironman_nightmare || (r_ptr->flags1 & (RF1_QUESTOR))))
+            (!ironman_nightmare || (r_ptr->flagsx & (RFX_QUESTOR))))
         {
             /* Cannot create */
             return 0;
         }
+        /* XXX Arena and quest accidents. RF1_FIXED_UNIQUE *should* have been set ...
+         * if (r_ptr->flagsx & RFX_SUPPRESS) return 0;*/
     }
 
     if (is_glyph_grid(c_ptr))
@@ -3947,7 +3952,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
     /* Give uniques variable AI strategies. We do this as a hack, using the
        existing pack code, by creating a "pack of 1".
                                         v---- Mercy!*/
-    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags1 & RF1_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN))
+    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flagsx & RFX_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN))
     {
         if (!pack_ptr)
         {
@@ -3994,7 +3999,7 @@ bool place_monster(int y, int x, u32b mode)
     {
         monster_race *r_ptr = &r_info[r_idx];
         if ( warlock_is_pact_monster(r_ptr)
-          && !(mode & PM_QUESTOR) /* RF1_QUESTOR is *not* set for non-unique quest monsters */
+          && !(mode & PM_QUESTOR) /* RFX_QUESTOR is *not* set for non-unique quest monsters */
           && one_in_(12 - p_ptr->lev/5) )
         {
             mode |= PM_FORCE_FRIENDLY;

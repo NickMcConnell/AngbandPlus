@@ -127,6 +127,16 @@ int vec_get_int(vec_ptr vec, int i)
     return (int)(intptr_t)pv;
 }
 
+void vec_delete(vec_ptr vec, int i)
+{
+    int j;
+    assert(i >= 0 && i < vec->len);
+    if (vec->free)
+        vec->free(vec->objs[i]);
+    for (j = i; j < vec->len - 1; j++)
+        vec->objs[j] = vec->objs[j+1];
+}
+
 void vec_set(vec_ptr vec, int i, vptr obj)
 {
     assert(i >= 0 && i < vec->len);

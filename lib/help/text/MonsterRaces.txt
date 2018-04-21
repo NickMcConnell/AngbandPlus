@@ -822,5 +822,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 6.0.1.
+Automatically generated for PosChengband 6.0.3.
 

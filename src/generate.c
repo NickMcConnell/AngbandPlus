@@ -204,7 +204,10 @@ static bool alloc_stairs(int feat, int num, int walls)
         if (dun_level >= d_info[dungeon_type].maxdepth) return TRUE;
 
         if (dun_level < d_info[dungeon_type].maxdepth-1 && quests_allow_downshaft())
+        {
             shaft_num = (randint1(num)+1)/2;
+            if (quickband) shaft_num *= 2;
+        }
     }
 
     /* Paranoia */

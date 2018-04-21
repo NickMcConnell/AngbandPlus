@@ -531,6 +531,7 @@ void do_cmd_query_symbol(void)
 
         /* Nothing to recall */
         if (!(easy_lore || p_ptr->wizard) && !r_ptr->r_sights) continue;
+        if (r_ptr->flagsx & RFX_SUPPRESS) continue;
 
         /* Require non-unique monsters if needed */
         if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;

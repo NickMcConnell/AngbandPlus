@@ -483,13 +483,16 @@ void quests_cleanup(void)
 
     assert(_quests);
 
-    /* remove RF1_QUESTOR from previously assigned random quests */
+    /* remove RFX_QUESTOR from previously assigned random quests
+     * This is no longer necessary for normal games, as player_wipe
+     * will clear flagsx. However, the quests_wizard() has an option
+     * to re-roll the random questors ... */
     v = quests_get_random();
     for (i = 0; i < vec_length(v); i++)
     {
         quest_ptr q = vec_get(v, i);
         if (q->goal == QG_KILL_MON && q->goal_idx)
-            r_info[q->goal_idx].flags1 &= ~RF1_QUESTOR;
+            r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
     }
     vec_free(v);
 
@@ -631,7 +634,7 @@ static void _get_questor(quest_ptr q)
             if (force_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
         }
 
-        if (r_ptr->flags1 & RF1_QUESTOR) continue;
+        if (r_ptr->flagsx & RFX_QUESTOR) continue;
         if (r_ptr->flags1 & RF1_NO_QUEST) continue;
         if (r_ptr->rarity > 100) continue;
         if (r_ptr->flags7 & RF7_FRIENDLY) continue;
@@ -643,7 +646,7 @@ static void _get_questor(quest_ptr q)
             q->goal_idx = r_idx;
             if (r_ptr->flags1 & RF1_UNIQUE)
             {
-                r_ptr->flags1 |= RF1_QUESTOR;
+                r_ptr->flagsx |= RFX_QUESTOR;
                 q->goal_count = 1;
             }
             else
@@ -670,7 +673,7 @@ void quests_on_birth(void)
         quest_ptr q = vec_get(v, i);
         if (q->goal == QG_KILL_MON)
         {
-            if (q->goal_idx) r_info[q->goal_idx].flags1 &= ~RF1_QUESTOR;
+            if (q->goal_idx) r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
             _get_questor(q);
         }
     }
@@ -678,7 +681,10 @@ void quests_on_birth(void)
 
     /* take the standard fixed quests */
     quests_get(QUEST_OBERON)->status = QS_TAKEN;
+    r_info[MON_OBERON].flagsx |= RFX_QUESTOR;
+
     quests_get(QUEST_SERPENT)->status = QS_TAKEN;
+    r_info[MON_SERPENT].flagsx |= RFX_QUESTOR;
 }
 
 /************************************************************************
@@ -906,7 +912,7 @@ void quests_on_leave(void)
         {
             quest_fail(q);
             if (q->goal == QG_KILL_MON)
-                r_info[q->goal_idx].flags1 &= ~RF1_QUESTOR;
+                r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
             prepare_change_floor_mode(CFM_NO_RETURN);
         }
     }
@@ -1101,11 +1107,15 @@ void quests_load(savefile_ptr file)
 
         if (q->goal == QG_FIND_ART)
             a_info[q->goal_idx].gen_flags |= OFG_QUESTITEM;
-        if (q->goal == QG_KILL_MON && !p_ptr->is_dead && q->status < QS_COMPLETED)
+
+        if (savefile_is_older_than(file, 6, 0, 3, 1))
         {
-            monster_race *r_ptr = &r_info[q->goal_idx];
-            if (r_ptr->flags1 & RF1_UNIQUE)
-                r_ptr->flags1 |= RF1_QUESTOR;
+            if (q->goal == QG_KILL_MON && !p_ptr->is_dead && q->status < QS_COMPLETED)
+            {
+                monster_race *r_ptr = &r_info[q->goal_idx];
+                if (r_ptr->flags1 & RF1_UNIQUE)
+                    r_ptr->flagsx |= RFX_QUESTOR;
+            }
         }
     }
     _current = savefile_read_s16b(file);

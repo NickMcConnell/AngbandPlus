@@ -2078,12 +2078,6 @@ static bool inn_comm(int cmd)
     switch (cmd)
     {
         case BACT_FOOD: /* Buy food & drink */
-            if (p_ptr->food >= PY_FOOD_FULL)
-            {
-                msg_print("You are full now.");
-                return FALSE;
-            }
-
             msg_print("The barkeep gives you some gruel and a beer.");
 
             (void)set_food(PY_FOOD_MAX - 1);
@@ -2449,7 +2443,15 @@ static bool _gamble_shop_aux(object_type *o_ptr)
     {
         if (autopick_list[auto_pick_idx].action & DO_AUTODESTROY)
         {
-            msg_print("You destroy your prize.");
+            race_t  *race_ptr = get_race();
+            class_t *class_ptr = get_class();
+            bool     handled = FALSE;
+            if (!handled && race_ptr->destroy_object)
+                handled = race_ptr->destroy_object(o_ptr);
+            if (!handled && class_ptr->destroy_object)
+                handled = class_ptr->destroy_object(o_ptr);
+            if (!handled)
+                msg_format("You destroy %s.", buf);
             return TRUE;
         }
     }
@@ -3097,6 +3099,8 @@ static bool research_mon(void)
 
         /* Empty monster */
         if (!r_ptr->name) continue;
+
+        if (r_ptr->flagsx & RFX_SUPPRESS) continue;
 
         /* XTRA HACK WHATSEARCH */
         /* Require non-unique monsters if needed */

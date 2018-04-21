@@ -33,20 +33,20 @@ struct _type_s
 };
 typedef struct _type_s _type_t, *_type_ptr;
 
-struct _last_visit_s
+struct _last_restock_s
 {
     int turn;
     int level;
     int exp;
 };
-typedef struct _last_visit_s _last_visit_t;
+typedef struct _last_restock_s _last_restock_t;
 
 struct shop_s
 {
     _type_ptr     type;
     _owner_ptr    owner;
     inv_ptr       inv;
-    _last_visit_t last_visit;
+    _last_restock_t last_restock;
 };
 
 /************************************************************************
@@ -1089,9 +1089,9 @@ shop_ptr shop_load(savefile_ptr file)
     shop->inv = inv_alloc(shop->type->name, INV_SHOP, 0);
     inv_load(shop->inv, file);
 
-    shop->last_visit.turn = savefile_read_s32b(file);
-    shop->last_visit.level = savefile_read_s16b(file);
-    shop->last_visit.exp = savefile_read_s32b(file);
+    shop->last_restock.turn = savefile_read_s32b(file);
+    shop->last_restock.level = savefile_read_s16b(file);
+    shop->last_restock.exp = savefile_read_s32b(file);
 
     guard = savefile_read_u32b(file);
     assert(guard == 0xFEEDFEED);
@@ -1114,9 +1114,9 @@ void shop_free(shop_ptr shop)
 void shop_reset(shop_ptr shop)
 {
     inv_clear(shop->inv);
-    shop->last_visit.turn = 0;
-    shop->last_visit.level = 0;
-    shop->last_visit.exp = 0;
+    shop->last_restock.turn = 0;
+    shop->last_restock.level = 0;
+    shop->last_restock.exp = 0;
 }
 
 void shop_save(shop_ptr shop, savefile_ptr file)
@@ -1124,9 +1124,9 @@ void shop_save(shop_ptr shop, savefile_ptr file)
     savefile_write_s16b(file, shop->type->id);
     savefile_write_s16b(file, shop->owner->id);
     inv_save(shop->inv, file);
-    savefile_write_s32b(file, shop->last_visit.turn);
-    savefile_write_s16b(file, shop->last_visit.level);
-    savefile_write_s32b(file, shop->last_visit.exp);
+    savefile_write_s32b(file, shop->last_restock.turn);
+    savefile_write_s16b(file, shop->last_restock.level);
+    savefile_write_s32b(file, shop->last_restock.exp);
     savefile_write_u32b(file, 0xFEEDFEED);
 }
 
@@ -1315,6 +1315,9 @@ static void _loop(_ui_context_ptr context)
             case 'x': _examine(context); break;
             case 'S': _shuffle_stock(context->shop); break;
             case 'R': _reserve(context); break;
+            case KTRL('S'):
+                if (p_ptr->wizard) inv_sort(context->shop->inv);
+                break;
             case KTRL('O'):
                 if (p_ptr->wizard) _change_owner(context->shop);
                 break;
@@ -1490,8 +1493,12 @@ static bool _buy_aux(shop_ptr shop, obj_ptr obj)
         obj->sval = SV_POTION_SALT_WATER;
         obj->k_idx = lookup_kind(TV_POTION, SV_POTION_SALT_WATER);
     }
-    if (_add_obj(shop, obj))
+
+    price = obj_value(obj); /* correctly handle unidentified items */
+    if (price > 0 && _add_obj(shop, obj))
         inv_sort(shop->inv);
+    else
+        obj->number = 0;
     return TRUE;
 }
 
@@ -1792,18 +1799,18 @@ static void _maintain(shop_ptr shop)
     }
 
     /* Shops maintain once per day */
-    num = MIN(10, (game_turn - shop->last_visit.turn) / TOWN_DAWN);
+    num = MIN(10, (game_turn - shop->last_restock.turn) / TOWN_DAWN);
     if (!num) return;
 
     /* Limit shop scumming (ie resting in town or on DL1 for BM wares) */
     if (!_shop_is_basic(shop))
     {
-        if (shop->last_visit.turn)
+        if (shop->last_restock.turn)
         {
-            int xp = shop->last_visit.exp;
+            int xp = shop->last_restock.exp;
             xp += MIN(MAX(xp / 20, 1000), 100000);
             if ( !ironman_downward
-              && p_ptr->max_plv <= shop->last_visit.level
+              && p_ptr->max_plv <= shop->last_restock.level
               && p_ptr->max_exp <= xp
               && p_ptr->prace != RACE_ANDROID )
             {
@@ -1825,8 +1832,6 @@ static void _maintain(shop_ptr shop)
                 ct = _restock(shop, MIN(_STOCK_HI, ct + randint1(9)));
         }
     }
-    if (allow_restock)
-        shop->last_visit.turn = game_turn;
 }
 
 static bool _can_cull(obj_ptr obj)
@@ -1911,8 +1916,9 @@ static int _restock(shop_ptr shop, int target)
     }
     inv_sort(shop->inv);
     assert(ct == inv_count_slots(shop->inv, obj_exists));
-    shop->last_visit.level = p_ptr->max_plv;
-    shop->last_visit.exp = p_ptr->max_exp;
+    shop->last_restock.turn = game_turn;
+    shop->last_restock.level = p_ptr->max_plv;
+    shop->last_restock.exp = p_ptr->max_exp;
     return ct;
 }
 
@@ -2263,10 +2269,10 @@ void towns_on_turn_overflow(int rollback_turns)
                 int_map_iter_next(iter))
         {
             shop_ptr shop = int_map_iter_current(iter);
-            if (shop->last_visit.turn > rollback_turns)
-                shop->last_visit.turn -= rollback_turns;
+            if (shop->last_restock.turn > rollback_turns)
+                shop->last_restock.turn -= rollback_turns;
             else
-                shop->last_visit.turn = 0;
+                shop->last_restock.turn = 0;
         }
         int_map_iter_free(iter);
     }

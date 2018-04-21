@@ -2266,8 +2266,8 @@ option_type option_info[] =
     { &show_weights,                TRUE,  OPT_PAGE_TEXT, 0, 11,
     "show_weights",                 "Show weights in object listings" },
 
-    { &show_discounts,                TRUE,  OPT_PAGE_TEXT, 0, 12,
-    "show_discounts",                 "Show discounts in object listings" },
+    { &show_discounts,              TRUE,  OPT_PAGE_TEXT, 0, 12,
+    "show_discounts",               "Show discounts in object listings" },
 
     { &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
     "show_item_graph",              "Show items graphics" },
@@ -2374,8 +2374,8 @@ option_type option_info[] =
     { &disturb_minor,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 24,
     "disturb_minor",                "Disturb whenever boring things happen" },
 
-    { &town_no_disturb,            FALSE, OPT_PAGE_DISTURBANCE, 1, 17,
-    "town_no_disturb",             "Never disturb when a town monster moves" },
+    { &town_no_disturb,             FALSE, OPT_PAGE_DISTURBANCE, 1, 17,
+    "town_no_disturb",              "Never disturb when a town monster moves" },
 
     { &ring_bell,                   FALSE, OPT_PAGE_DISTURBANCE, 0, 14,
     "ring_bell",                    "Audible bell (on errors, etc)" },
@@ -2421,32 +2421,38 @@ option_type option_info[] =
     { &ironman_nightmare,           FALSE, OPT_PAGE_BIRTH, 6, 18,
     "ironman_nightmare",            "Nightmare mode(it isn't even remotely fair!)(*)" },
 
-    { &enable_virtues,                  FALSE, OPT_PAGE_BIRTH, 6, 13,
-    "enable_virtues",                  "Enable the Virtue System" },
+    { &enable_virtues,              FALSE, OPT_PAGE_BIRTH, 6, 13,
+    "enable_virtues",               "Enable the Virtue System" },
 
     { &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
     "preserve_mode",                "Preserve artifacts (*)" },
 
-    { &allow_friendly_monster,          TRUE, OPT_PAGE_BIRTH, 6, 17,
-    "allow_friendly_monster",           "Allow monsters friendly to player" },
+    { &allow_friendly_monster,      TRUE, OPT_PAGE_BIRTH, 6, 17,
+    "allow_friendly_monster",       "Allow monsters friendly to player" },
 
-    { &allow_hostile_monster,          TRUE, OPT_PAGE_BIRTH, 6, 19,
-    "allow_hostile_monster",           "Allow monsters hostile to each other" },
+    { &allow_hostile_monster,       TRUE, OPT_PAGE_BIRTH, 6, 19,
+    "allow_hostile_monster",        "Allow monsters hostile to each other" },
 
-    { &allow_pets,                        TRUE, OPT_PAGE_BIRTH, 6, 20,
-    "allow_pets",                        "Allow player to summon/charm monsters" },
+    { &allow_pets,                  TRUE, OPT_PAGE_BIRTH, 6, 20,
+    "allow_pets",                   "Allow player to summon/charm monsters" },
 
-    { &quest_unique,                    TRUE, OPT_PAGE_BIRTH, 6, 21,
-    "quest_unique",                        "Random quests for unique monsters only" },
+    { &quest_unique,                TRUE, OPT_PAGE_BIRTH, 6, 21,
+    "quest_unique",                 "Random quests for unique monsters only" },
 
-    { &random_artifacts,                FALSE, OPT_PAGE_BIRTH, 6, 23,
-    "random_artifacts",                    "Randomize Standard Artifacts" },
+    { &random_artifacts,            FALSE, OPT_PAGE_BIRTH, 6, 23,
+    "random_artifacts",             "Randomize Standard Artifacts" },
 
-    { &no_artifacts,                    FALSE, OPT_PAGE_BIRTH, 6, 24,
-    "no_artifacts",                        "Never create artifacts" },
+    { &no_artifacts,                FALSE, OPT_PAGE_BIRTH, 6, 24,
+    "no_artifacts",                 "Never create artifacts" },
 
-    { &no_egos,                            FALSE, OPT_PAGE_BIRTH, 6, 25,
-    "no_egos",                            "Never create ego items" },
+    { &no_egos,                     FALSE, OPT_PAGE_BIRTH, 6, 25,
+    "no_egos",                      "Never create ego items" },
+
+    { &reduce_uniques,              FALSE, OPT_PAGE_BIRTH, 6, 26,
+    "reduce_uniques",               "Reduce the number of uniques (randomly)" },
+
+    { &quickband,                   FALSE, OPT_PAGE_BIRTH, 6, 27,
+    "quickband",                    "Makes the game much shorter and easier" },
 
     /*** Easy Object Auto-Destroyer ***/
 

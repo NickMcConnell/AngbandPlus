@@ -324,6 +324,9 @@ extern byte random_artifact_pct;
 extern bool no_artifacts;
 extern bool no_egos;
 extern bool enable_virtues;
+extern bool reduce_uniques;
+extern byte reduce_uniques_pct;
+extern bool quickband;
 
 /*** Easy Object Auto-Destroyer ***/
 

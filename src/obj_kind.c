@@ -64,12 +64,7 @@ bool object_is_potion(object_type *o_ptr)
 
 bool mon_is_wanted(int r_idx)
 {
-    int i;
-
-    for (i = 0; i < MAX_KUBI; i++)
-        if (r_idx == kubi_r_idx[i]) return TRUE;
-
-    return FALSE;
+    return BOOL(r_info[r_idx].flagsx & RFX_WANTED);
 }
 
 bool object_is_shoukinkubi(object_type *o_ptr)
@@ -222,7 +217,19 @@ bool object_is_rare(object_type *o_ptr)
     case TV_DRAG_ARMOR:
         return TRUE;
 
-    default:
+    case TV_ARROW:
+        if (o_ptr->sval == SV_SEEKER_ARROW || o_ptr->sval == SV_MITHRIL_ARROW)
+            return TRUE;
+        break;
+
+    case TV_BOLT:
+        if (o_ptr->sval == SV_SEEKER_BOLT || o_ptr->sval == SV_MITHRIL_BOLT)
+            return TRUE;
+        break;
+
+    case TV_SHOT:
+        if (o_ptr->sval == SV_MITHRIL_SHOT)
+            return TRUE;
         break;
     }
 

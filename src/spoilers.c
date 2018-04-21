@@ -1367,6 +1367,8 @@ static void _personalities_help(FILE* fp)
             "at <link:Personalities.txt#Tables> the personality tables below.\n\n", fp);
     for (i = 0; i < MAX_PERSONALITIES; i++)
     {
+        personality_ptr pers_ptr = get_personality_aux(i);
+        if (pers_ptr->flags & DEPRECATED) continue;
         _personality_help(fp, i);
     }
 
@@ -1377,6 +1379,7 @@ static void _personalities_help(FILE* fp)
     {
         personality_ptr pers_ptr = get_personality_aux(i);
 
+        if (pers_ptr->flags & DEPRECATED) continue;
         fprintf(fp, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n",
             pers_ptr->name,
             pers_ptr->stats[0], pers_ptr->stats[1], pers_ptr->stats[2],
@@ -1391,6 +1394,7 @@ static void _personalities_help(FILE* fp)
     for (i = 0; i < MAX_PERSONALITIES; i++)
     {
         personality_ptr pers_ptr = get_personality_aux(i);
+        if (pers_ptr->flags & DEPRECATED) continue;
         fprintf(fp, "%-12.12s", pers_ptr->name);
         fprintf(fp, " %s", _pers_dis_skill_desc(pers_ptr));
         fprintf(fp, " %s", _pers_dev_skill_desc(pers_ptr));
@@ -1405,6 +1409,7 @@ static void _personalities_help(FILE* fp)
     for (i = 0; i < MAX_PERSONALITIES; i++)
     {
         personality_ptr pers_ptr = get_personality_aux(i);
+        if (pers_ptr->flags & DEPRECATED) continue;
         fprintf(fp, "%-12.12s", pers_ptr->name);
         fprintf(fp, " %s", _skill_desc(pers_ptr->skills.srh + 3, 1));
         fprintf(fp, " %s", _skill_desc(pers_ptr->skills.fos + 3, 1));

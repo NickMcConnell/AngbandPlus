@@ -140,6 +140,18 @@ N:33:45:The Cloning Pits
 T:TOWN | GENERATE
 F:q_cloning_pits.txt
 
+N:34:50:The Mountain Shrine
+T:TOWN | GENERATE
+F:q_shrine.txt
+
+N:35:42:Dragon Quest
+T:TOWN | GENERATE
+F:q_dragons.txt
+
+N:36:38:The Sand Pit
+T:TOWN | GENERATE
+F:q_worms.txt
+
 ########################################################################
 # Random Quests ... assigned in quests_on_birth()
 ########################################################################

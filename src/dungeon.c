@@ -4967,18 +4967,18 @@ void determine_bounty_uniques(void)
     {
         while (1)
         {
-            kubi_r_idx[i] = get_mon_num(MAX_DEPTH - 1);
-            r_ptr = &r_info[kubi_r_idx[i]];
+            int r_idx = get_mon_num(MAX_DEPTH - 1);
+            r_ptr = &r_info[r_idx];
 
             if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
             if (r_ptr->flags1 & RF1_NO_QUEST) continue;
+            if (r_ptr->flagsx & RFX_WANTED) continue;
             if (!(r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON))) continue;
             if (r_ptr->rarity > 100) continue;
 
-            for (j = 0; j < i; j++)
-                if (kubi_r_idx[i] == kubi_r_idx[j]) break;
-
-            if (j == i) break;
+            kubi_r_idx[i] = r_idx;
+            r_ptr->flagsx |= RFX_WANTED;
+            break;
         }
     }
 
@@ -5094,58 +5094,6 @@ void play_game(bool new_game)
     /* Extract the options */
     extract_option_vars();
 
-    /* Report waited score */
-    if (p_ptr->wait_report_score)
-    {
-        char buf[1024];
-        bool success;
-
-        if (!get_check_strict("Do you register score now? ", CHECK_NO_HISTORY))
-            quit(0);
-
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-        update_stuff();
-
-        p_ptr->is_dead = TRUE;
-        start_time = time(NULL);
-
-        signals_ignore_tstp();
-
-        /* Hack -- Character is now "icky" */
-        character_icky = TRUE;
-
-        /* Build the filename */
-        path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
-
-        /* Open the high score file, for reading/writing */
-        highscore_fd = fd_open(buf, O_RDWR);
-
-        /* Handle score, show Top scores */
-        success = send_world_score(TRUE);
-
-        if (!success && !get_check_strict("Do you give up score registration? ", CHECK_NO_HISTORY))
-        {
-            prt("standing by for future registration...", 0, 0);
-            (void)inkey();
-        }
-        else
-        {
-            p_ptr->wait_report_score = FALSE;
-            top_twenty();
-            if (!save_player()) msg_print("death save failed!");
-        }
-        /* Shut the high score file */
-        (void)fd_close(highscore_fd);
-
-        /* Forget the high score fd */
-        highscore_fd = -1;
-
-        /* Allow suspending now */
-        signals_handle_tstp();
-
-        quit(0);
-    }
-
     creating_savefile = new_game;
 
     /* Nothing loaded */
@@ -5227,7 +5175,6 @@ void play_game(bool new_game)
 
         load = FALSE;
 
-        determine_bounty_uniques();
         determine_today_mon(FALSE);
 
         /* Initialize object array */

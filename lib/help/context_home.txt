@@ -40,8 +40,8 @@ The Museum is another building present in each town that behaves very much like 
 
 <topic:QuickRef><style:heading>Quick Reference</style>
   <indent><color:G>Basic Commands</color>
-<color:keypress>d</color>         Drop an item from your pack to your home
-<color:keypress>g</color>         Get an item from your home to your pack
+<color:keypress>d s</color>       Drop an item from your pack to your home
+<color:keypress>g p b</color>     Get an item from your home to your pack
 <color:keypress>x</color>         Examine an item in your home
 <color:keypress>r</color>         Permanently remove items from your home
 <color:keypress>q Esc</color>     Leave your home

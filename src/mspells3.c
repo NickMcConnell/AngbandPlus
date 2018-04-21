@@ -1580,6 +1580,10 @@ void learn_spell(int monspell)
         new_mane = TRUE;
         p_ptr->redraw |= (PR_STATE);
     }
+    else
+    {
+        msg_print("You don't manage to learn the spell.");
+    }
 }
 
 

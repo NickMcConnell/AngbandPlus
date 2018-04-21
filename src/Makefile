@@ -8,16 +8,11 @@ OBJECTS = $(ANGFILES) $(CFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c} ${MAINFILES:.o=.c}
 PROG    = $(PROGNAME)$(PROG_SUFFIX)
 # VERSION := $(shell ../scripts/version.sh)
+ifneq (${VERSION},)
+	CFLAGS += -DBUILD_ID=${VERSION}
+endif
 
-#Use this for debug code:
-#Note: configure is not setting _GNU_SOURCE for us, but is in vanilla Angband.
-#      I can't figure out how, though. Perhaps sdl is doing it:
-#      >sdl-config --cflags
-#      -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
-CFLAGS += -D_GNU_SOURCE=1 -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -O0 -g -fno-omit-frame-pointer
-
-#Use this for release code:
-#CFLAGS += -D_GNU_SOURCE=1 -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -DNDEBUG -O2 -fno-omit-frame-pointer
+CFLAGS += -I. -std=c99 -O0 -Wdeclaration-after-statement -fno-omit-frame-pointer
 
 CLEAN = poschengband.o $(OBJECTS) win/poschengband.res
 DISTCLEAN = autoconf.h

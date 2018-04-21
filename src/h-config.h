@@ -229,42 +229,27 @@
 #endif
 
 
-/*
+/**
  * Every system seems to use its own symbol as a path separator.
+ *
  * Default to the standard Unix slash, but attempt to change this
  * for various other systems.  Note that any system that uses the
- * "period" as a separator (i.e. ACORN) will have to pretend that
+ * "period" as a separator (i.e. RISCOS) will have to pretend that
  * it uses the slash, and do its own mapping of period <-> slash.
- * Note that the VM system uses a "flat" directory, and thus uses
- * the empty string for "PATH_SEP".
+ *
+ * It is most definitely wrong to have such things here.  Platform-specific
+ * code should handle shifting Angband filenames to platform ones. XXX
  */
 #undef PATH_SEP
 #define PATH_SEP "/"
-#ifdef MACINTOSH
-# undef PATH_SEP
-# define PATH_SEP ":"
-#endif
-#if defined(WINDOWS) || defined(WINNT)
-# undef PATH_SEP
-# define PATH_SEP "\\"
-#endif
-#if defined(MSDOS) || defined(OS2) || defined(USE_EMX)
-# undef PATH_SEP
-# define PATH_SEP "\\"
-#endif
-#ifdef AMIGA
-# undef PATH_SEP
-# define PATH_SEP "/"
-#endif
-#ifdef __GO32__
-# undef PATH_SEP
-# define PATH_SEP "/"
-#endif
-#ifdef VM
-# undef PATH_SEP
-# define PATH_SEP ""
-#endif
+#define PATH_SEPC '/'
 
+#ifdef WINDOWS
+# undef PATH_SEP
+# undef PATH_SEPC
+# define PATH_SEP "\\"
+# define PATH_SEPC '\\'
+#endif
 
 /*
  * The Macintosh allows the use of a "file type" when creating a file
@@ -276,7 +261,6 @@
 //# define FILE_TYPE(X) (_ftype = (X))
 //#else
 # define FILE_TYPE(X) ((void)0)
-#define HAVE_USLEEP
 //#endif
 
 
@@ -292,32 +276,6 @@
 #if defined(linux)
 # define HAS_STRICMP
 # define stricmp strcasecmp
-#endif
-
-
-/*
- * OPTION: Define "HAVE_USLEEP" only if "usleep()" exists.
- *
- * Note that this is only relevant for "SET_UID" machines.
- * Note that new "SOLARIS" and "SGI" machines have "usleep()".
- */
-#if defined(SET_UID)
-# if !defined(HPUX) && !defined(ULTRIX) && !defined(ISC)
-#  define HAVE_USLEEP
-# endif
-#endif
-
-#ifdef USE_IBM
-# ifndef HAVE_USLEEP
-#  define HAVE_USLEEP /* Set for gcc (djgpp-v2), TY */
-# endif
-#endif
-
-#ifdef _GNU_SOURCE
-#undef  HAVE_MKSTEMP
-#define HAVE_MKSTEMP 1
-#undef  HAVE_USLEEP
-#define HAVE_USLEEP 1
 #endif
 
 #endif /* INCLUDED_H_CONFIG_H */

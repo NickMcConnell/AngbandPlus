@@ -395,8 +395,7 @@ static int _race_class_ui(void)
         cols[1] = doc_alloc(46);
 
         doc_insert(cols[0], "  <color:y>n</color>) Change Name\n");
-        doc_printf(cols[0], "  <color:%c>s</color>) Change Sex\n",
-            p_ptr->personality == PERS_SEXY || p_ptr->personality == PERS_LUCKY ? 'D' : 'y');
+        doc_insert(cols[0], "  <color:y>s</color>) Change Sex\n");
         if (game_mode != GAME_MODE_BEGINNER)
             doc_insert(cols[0], "  <color:y>p</color>) Change Personality\n");
         doc_insert(cols[0], "  <color:y>r</color>) Change Race\n");
@@ -520,11 +519,8 @@ static int _race_class_ui(void)
             break;
         case 's':
             if (p_ptr->psex == SEX_MALE)
-            {
-                if (p_ptr->personality != PERS_LUCKY)
-                    p_ptr->psex = SEX_FEMALE;
-            }
-            else if (p_ptr->personality != PERS_SEXY)
+                p_ptr->psex = SEX_FEMALE;
+            else
                 p_ptr->psex = SEX_MALE;
             break;
         }
@@ -616,8 +612,7 @@ static vec_ptr _pers_choices(void)
     for (i = 0; i < MAX_PERSONALITIES; i++)
     {
         personality_ptr pers_ptr = get_personality_aux(i);
-        if (p_ptr->psex == SEX_MALE && i == PERS_SEXY) continue;
-        if (p_ptr->psex == SEX_FEMALE && i == PERS_LUCKY) continue;
+        if (pers_ptr->flags & DEPRECATED) continue;
         vec_add(v, pers_ptr);
     }
     vec_sort(v, (vec_cmp_f)_pers_cmp);
@@ -2556,6 +2551,73 @@ static void _birth_options(void)
     }
 }
 
+static void _reduce_uniques(void)
+{
+    vec_ptr buckets[10] = {0};
+    int     i, cull_pct;
+
+    /* Perhaps there are too many uniques for your tastes? */
+    if (!reduce_uniques) return;
+    if (reduce_uniques_pct < 10 || reduce_uniques_pct > 90) return;
+
+    /* I think it makes more sense that the user chooses the percentage
+     * of uniques to face, not the percentage to remove. */
+    cull_pct = 100 - reduce_uniques_pct;
+
+    for (i = 0; i < 10; i++)
+        buckets[i] = vec_alloc(NULL);
+
+    /* Place all qualifying uniques into buckets by level */
+    for (i = 0; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+        int           bucket;
+
+        assert (!(r_ptr->flagsx & RFX_SUPPRESS));
+
+        if (!r_ptr->name) continue;
+        if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+        if (r_ptr->flags1 & RF1_FIXED_UNIQUE) continue;
+        if (r_ptr->flagsx & RFX_WANTED) continue;
+        if (!no_wilderness && (r_ptr->flags7 & RF7_GUARDIAN)) continue;
+        if (r_ptr->flagsx & RFX_QUESTOR) continue; /* quests_on_birth() should be called before us */
+
+        bucket = r_ptr->level / 10;
+        if (bucket >= 10) continue;
+        vec_add(buckets[bucket], r_ptr);
+    }
+
+    /* For each bucket, randomly suppress the requested percentage of uniques */
+    for (i = 0; i < 10; i++)
+    {
+        vec_ptr v = buckets[i];
+        int     total = vec_length(v);
+        int     ct = total * cull_pct / 100;
+
+        if (ct < total && randint0(100) < (total * cull_pct) % 100) ct++;
+        if (!ct) continue;
+
+        assert(ct <= total);
+        while (ct)
+        {
+            int j = randint0(total);
+            monster_race *r_ptr = vec_get(v, j);
+
+            assert(r_ptr);
+            assert(r_ptr->name);
+            assert(!(r_ptr->flagsx & RFX_SUPPRESS));
+
+            r_ptr->flagsx |= RFX_SUPPRESS;
+            vec_delete(v, j);
+            ct--;
+            total--;
+        }
+    }
+
+    for (i = 0; i < 10; i++)
+        vec_free(buckets[i]);
+}
+
 static void _birth_finalize(void)
 {
     int i;
@@ -2588,6 +2650,8 @@ static void _birth_finalize(void)
     home_init();
     virtue_init();
     quests_on_birth();
+    determine_bounty_uniques(); /* go before reducing uniques for speed ... (e.g. 10% uniques) */
+    _reduce_uniques(); /* quests go first, rolling up random quest uniques without restriction */
 
     p_ptr->au = randint1(600) + randint1(100) + 100;
 

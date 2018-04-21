@@ -177,6 +177,7 @@ static void wr_lore(savefile_ptr file, int r_idx)
     savefile_write_byte(file, r_ptr->max_num);
     savefile_write_s16b(file, r_ptr->floor_id);
     savefile_write_byte(file, r_ptr->stolen_ct);
+    savefile_write_u32b(file, r_ptr->flagsx);
 }
 
 static void wr_xtra_kind(savefile_ptr file, int k_idx)
@@ -245,6 +246,7 @@ static void wr_options(savefile_ptr file)
     savefile_write_byte(file, hitpoint_warn);
     savefile_write_byte(file, mana_warn);
     savefile_write_byte(file, random_artifact_pct);
+    savefile_write_byte(file, reduce_uniques_pct);
 
     /*** Cheating options ***/
     c = 0;
@@ -306,10 +308,6 @@ static void wr_quick_start(savefile_ptr file)
     for (i = 0; i < 6; i++)
         savefile_write_s16b(file, previous_char.stat_max[i]);
 
-#ifndef _DEBUG
-    /* No quick start after using debug mode or cheat options */
-    if (p_ptr->noscore) previous_char.quick_ok = FALSE;
-#endif
     savefile_write_byte(file, previous_char.quick_ok);
 }
 

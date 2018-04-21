@@ -3024,7 +3024,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (backstab) cmsg_format(TERM_L_GREEN, "You cruelly attack %s!", m_name_object);
             else if (fuiuchi) cmsg_format(TERM_L_GREEN, "You make a surprise attack, and hit %s with a powerful blow!", m_name_object);
             else if (stab_fleeing) cmsg_format(TERM_L_GREEN, "You backstab %s!",  m_name_object);
-            else if (perfect_strike) cmsg_format(TERM_L_GREEN, "You land a perfect strike against %s.", m_name_object);
+            else if (perfect_strike) msg_format("You land a <color:G>perfect strike</color> against %s.", m_name_object);
             else if (!monk_attack) msg_format("You hit.", m_name_object);
 
             /* Hack -- bare hands do one damage */
@@ -3394,13 +3394,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     && !(r_ptr->flags1 & (RF1_UNIQUE))
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
-                    msg_format("You hamstring %s.", m_name_object);
+                    msg_format("You <color:y>hamstring</color> %s.", m_name_object);
                     set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50);
                 }
                 if ( p_ptr->lev >= 20    /* Wounding Strike */
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
-                    msg_format("%^s is dealt a wounding strike.", m_name_subject);
+                    msg_format("%^s is dealt a <color:r>wounding</color> strike.", m_name_subject);
                     k += MIN(m_ptr->hp / 5, randint1(3) * d);
                     drain_result = k;
                 }
@@ -3408,13 +3408,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     && !(r_ptr->flags3 & (RF3_NO_STUN))
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
-                    msg_format("%^s is dealt a stunning blow.", m_name_subject);
+                    msg_format("%^s is dealt a <color:B>stunning</color> blow.", m_name_subject);
                     set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
                 }
                 if ( p_ptr->lev >= 40    /* Greater Wounding Strike */
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
-                    msg_format("%^s is dealt a *WOUNDING* strike.", m_name_subject);
+                    msg_format("%^s is dealt a <color:v>*WOUNDING*</color> strike.", m_name_subject);
                     k += MIN(m_ptr->hp * 2 / 5, rand_range(2, 10) * d);
                     drain_result = k;
                 }
@@ -5088,7 +5088,10 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
                 race_ptr->move_player();
 
             if (!dun_level && !p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+            {
                 wilderness_move_player(ox, oy);
+                c_ptr = &cave[py][px]; /* re-aquire in case of wilderness scroll */
+            }
         }
 
         /* Window stuff */

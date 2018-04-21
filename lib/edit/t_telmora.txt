@@ -54,7 +54,7 @@ L:w:QUEST_ENTER(5)
 ?:[EQU $QUEST5 Taken Completed Failed]
 L:b:BUILDING_1(5)
 ?:[EQU $QUEST5 Finished FailedDone]
-L:b:BUILDING_1(26)
+L:b:BUILDING_1(34)
 ?:[AND [EQU $QUEST5 Finished FailedDone] [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] ]
 L:b:BUILDING_1(16)
 ?:1
@@ -64,16 +64,24 @@ L:u:QUEST_ENTER(16)
 ?:[EQU $QUEST16 Taken Completed Failed]
 L:b:BUILDING_1(16)
 ?:[EQU $QUEST16 Finished FailedDone]
-L:b:BUILDING_1(26)
+L:b:BUILDING_1(34)
 ?:1
-#################### Quest 26 - Killing Fields ####################
-?:[EQU $QUEST26 Taken]
-L:t:QUEST_ENTER(26)
-?:[EQU $QUEST26 Taken Completed Failed]
-L:b:BUILDING_1(26)
-?:[EQU $QUEST26 Finished FailedDone]
+#################### Quest 34 - The Mountain Shrine
+?:[EQU $QUEST34 Taken]
+L:t:QUEST_ENTER(34)
+?:[EQU $QUEST34 Taken Completed Failed]
+L:b:BUILDING_1(34)
+?:[EQU $QUEST34 Finished FailedDone]
 L:b:BUILDING_1(15)
 ?:1
+#################### Quest 26 - Killing Fields ####################
+#?:[EQU $QUEST26 Taken]
+#L:t:QUEST_ENTER(26)
+#?:[EQU $QUEST26 Taken Completed Failed]
+#L:b:BUILDING_1(26)
+#?:[EQU $QUEST26 Finished FailedDone]
+#L:b:BUILDING_1(15)
+#?:1
 #################### Quest 15 - Eric's Stronghold ####################
 ?:[EQU $QUEST15 Taken]
 L:v:QUEST_ENTER(15)

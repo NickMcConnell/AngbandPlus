@@ -250,9 +250,9 @@ static personality_ptr _get_lucky_personality(void)
     if (!init)
     {
         me.name = "Lucky";
-        me.desc = "A Lucky man has poor stats, equivalent to a Lazy person. "
-                    "Mysteriously, however, he can do all things well. Only "
-                    "males can choose this personality.";
+        me.desc = "A Lucky person has poor stats but, surprisingly, can do all "
+                    "things well. For some reason, good things seem to happen "
+                    "more often to lucky players.";
 
         me.stats[A_STR] = -2;
         me.stats[A_INT] = -2;
@@ -274,7 +274,6 @@ static personality_ptr _get_lucky_personality(void)
         me.exp = 100;
 
         me.birth = _lucky_birth;
-        me.flags = PERSONALITY_IS_MALE;
 
         init = TRUE;
     }
@@ -385,6 +384,7 @@ static personality_ptr _get_munchkin_personality(void)
 
         me.life = 150;
         me.exp = 50;
+        me.flags = DEPRECATED;
 
         me.birth = _munchkin_birth;
         me.calc_bonuses = _munchkin_calc_bonuses;
@@ -569,9 +569,8 @@ static personality_ptr _get_sexy_personality(void)
     if (!init)
     {
         me.name = "Sexy";
-        me.desc = "Sexy rises all of your stats and skills, but your haughty "
-                    "attitude will aggravate all monsters. Only females can "
-                    "choose this personality.";
+        me.desc = "Sexy increases all of your stats and skills, but your haughty "
+                    "attitude will aggravate all monsters.";
 
         me.stats[A_STR] = 1;
         me.stats[A_INT] = 1;
@@ -591,7 +590,6 @@ static personality_ptr _get_sexy_personality(void)
 
         me.life = 100;
         me.exp = 100;
-        me.flags = PERSONALITY_IS_FEMALE;
 
         me.calc_bonuses = _sexy_calc_bonuses;
         me.get_flags = _sexy_get_flags;

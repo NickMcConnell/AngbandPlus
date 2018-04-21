@@ -72,8 +72,8 @@ from the museum and this action can not be reversed.
 
 Quick Reference
   Basic Commands
-  d         Drop an item from your pack to your home
-  g         Get an item from your home to your pack
+  d s       Drop an item from your pack to your home
+  g p b     Get an item from your home to your pack
   x         Examine an item in your home
   r         Permanently remove items from your home
   q Esc     Leave your home

@@ -172,6 +172,7 @@ static void player_wipe(void)
 
         /* Hack -- Reset the max counter */
         r_ptr->max_num = 100;
+        r_ptr->flagsx = 0;
 
         /* Hack -- Reset the max counter */
         if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;

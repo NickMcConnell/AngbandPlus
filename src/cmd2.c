@@ -4047,8 +4047,17 @@ void travel_wilderness_scroll(int new_x, int new_y)
         travel.x = px;
         travel.y = py;
     }
-    else
+    /* Careful: Travel might cause a scroll that sends the destination
+     * out of bounds. For example: Telmora and The Sand Pits quest. Travel
+     * from the Manor square to the quest entrance to reproduce. */
+    else if (in_bounds2(new_y, new_x))
         travel_begin(travel.mode, new_x, new_y);
+    else
+    {
+        travel_cancel();
+        forget_travel_flow();
+        msg_print("<color:v>Oops!</color> The location you were travelling towards has scrolled off the screen.");
+    }
 }
 
 void travel_cancel(void)

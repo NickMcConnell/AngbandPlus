@@ -131,6 +131,12 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         return FALSE;
     }
 
+    if (object_is_(o_ptr, TV_SWORD, SV_RUNESWORD))
+    {
+        msg_print("Failed! Rune Swords already have runes, albeit ones you fail to comprehend.");
+        return FALSE;
+    }
+
     if (o_ptr->number > 1)
     {
         msg_print("Failed! You may only add a rune to a single object at a time.");

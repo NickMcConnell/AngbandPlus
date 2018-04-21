@@ -820,6 +820,15 @@ void do_cmd_options_aux(int page, cptr info)
                     strcat(buf, "no  ");
                 sprintf(buf + strlen(buf), "(%.19s)", option_info[opt[i]].o_text);
             }
+            else if (option_info[opt[i]].o_var == &reduce_uniques)
+            {
+                sprintf(buf, "%-48s: ", option_info[opt[i]].o_desc);
+                if (reduce_uniques)
+                    sprintf(buf + strlen(buf), "%d%% ", reduce_uniques_pct);
+                else
+                    strcat(buf, "no  ");
+                sprintf(buf + strlen(buf), "(%.19s)", option_info[opt[i]].o_text);
+            }
             else
             {
                 sprintf(buf, "%-48s: %s (%.19s)",
@@ -890,6 +899,19 @@ void do_cmd_options_aux(int page, cptr info)
                         if (random_artifact_pct > 100) random_artifacts = FALSE;
                     }
                 }
+                else if (option_info[opt[k]].o_var == &reduce_uniques)
+                {
+                    if (!reduce_uniques)
+                    {
+                        reduce_uniques = TRUE;
+                        reduce_uniques_pct = 10;
+                    }
+                    else
+                    {
+                        reduce_uniques_pct += 10;
+                        if (reduce_uniques_pct >= 100) reduce_uniques = FALSE;
+                    }
+                }
                 else
                 {
                     (*option_info[opt[k]].o_var) = TRUE;
@@ -914,6 +936,23 @@ void do_cmd_options_aux(int page, cptr info)
                     {
                         random_artifact_pct -= 10;
                         if (random_artifact_pct <= 0) random_artifacts = FALSE;
+                    }
+                }
+                else if (option_info[opt[k]].o_var == &reduce_uniques)
+                {
+                    if (!reduce_uniques)
+                    {
+                        reduce_uniques = TRUE;
+                        reduce_uniques_pct = 90;
+                    }
+                    else
+                    {
+                        reduce_uniques_pct -= 10;
+                        if (reduce_uniques_pct <= 0)
+                        {
+                            reduce_uniques = FALSE;
+                            reduce_uniques_pct = 100;
+                        }
                     }
                 }
                 else
@@ -3507,6 +3546,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
         /* Skip empty race */
         if (!r_ptr->name) continue;
+        if (!p_ptr->wizard && (r_ptr->flagsx & RFX_SUPPRESS)) continue;
 
         /* Require known monsters */
         if (!(mode & 0x02) && !easy_lore && !r_ptr->r_sights) continue;
@@ -4220,12 +4260,13 @@ static void do_cmd_knowledge_uniques(void)
 
         /* Require unique monsters */
         if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+        if (r_ptr->flagsx & RFX_SUPPRESS) continue;
 
         /* Only display "known" uniques */
         if (!easy_lore && !r_ptr->r_sights) continue;
 
         /* Only print rarity <= 100 uniques */
-        if (!r_ptr->rarity || ((r_ptr->rarity > 100) && !(r_ptr->flags1 & RF1_QUESTOR))) continue;
+        if (!r_ptr->rarity || ((r_ptr->rarity > 100) && !(r_ptr->flagsx & RFX_QUESTOR))) continue;
 
         /* Only "alive" uniques */
         if (r_ptr->max_num == 0) continue;
@@ -5253,6 +5294,8 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
 
         /* Choose a color */
         attr = ((i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE);
+        if (attr == TERM_WHITE && (r_ptr->flagsx & RFX_SUPPRESS))
+            attr = TERM_L_DARK;
 
         /* Display the name */
         c_prt(attr, (r_name + r_ptr->name), row + i, col);

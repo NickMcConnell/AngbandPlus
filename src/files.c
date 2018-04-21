@@ -2908,33 +2908,18 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(int is_autosave)
 {
-    /* Autosaves do not disturb */
-    if (is_autosave)
-    {
-        msg_print("Autosaving the game...");
-    }
-    else
-    {
-        /* Disturb the player */
+    if (!is_autosave)
         disturb(1, 0);
-    }
 
-    /* Clear messages
-    msg_print(NULL);*/
-
-    /* Handle stuff */
     handle_stuff();
 
-    /* Message */
-    prt("Saving game...", 0, 0);
+    if (!is_autosave)
+        prt("Saving game...", 0, 0);
 
-
-    /* Refresh */
     Term_fresh();
 
     /* The player is not dead */
     (void)strcpy(p_ptr->died_from, "(saved)");
-
 
     /* Forbid suspend */
     signals_ignore_tstp();
@@ -2942,15 +2927,13 @@ void do_cmd_save_game(int is_autosave)
     /* Save the player */
     if (save_player())
     {
-        prt("Saving game... done.", 0, 0);
-
+        if (!is_autosave)
+            prt("Saving game... done.", 0, 0);
     }
-
     /* Save failed (oops) */
     else
     {
         prt("Saving game... failed!", 0, 0);
-
     }
 
     /* Allow suspend again */

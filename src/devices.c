@@ -617,12 +617,13 @@ static cptr _do_potion(int sval, int mode)
             if (set_stun(0, TRUE)) device_noticed = TRUE;
         }
         break;
-    case SV_POTION_HEALING:
+    case SV_POTION_HEALING: {
+        int amt = quickband ? 500 : 300;
         if (desc) return "It heals you and cures blindness, confusion, poison, stunned, cuts and berserk when you quaff it.";
-        if (info) return info_heal(0, 0, _potion_power(300));
+        if (info) return info_heal(0, 0, _potion_power(amt));
         if (cast)
         {
-            if (hp_player(_potion_power(300))) device_noticed = TRUE;
+            if (hp_player(_potion_power(amt))) device_noticed = TRUE;
             if (set_blind(0, TRUE)) device_noticed = TRUE;
             if (set_confused(0, TRUE)) device_noticed = TRUE;
             if (set_poisoned(0, TRUE)) device_noticed = TRUE;
@@ -630,7 +631,7 @@ static cptr _do_potion(int sval, int mode)
             if (set_cut(0, TRUE)) device_noticed = TRUE;
             if (set_shero(0,TRUE)) device_noticed = TRUE;
         }
-        break;
+        break; }
     case SV_POTION_STAR_HEALING:
         if (desc) return "It heals you and cures blindness, confusion, poison, stunned, cuts and berserk when you quaff it.";
         if (info) return info_heal(0, 0, _potion_power(1000));
@@ -894,12 +895,13 @@ static cptr _do_potion(int sval, int mode)
             device_noticed = TRUE;
         }
         break;
-    case SV_POTION_CURING:
+    case SV_POTION_CURING: {
+        int amt = quickband ? 150 : 50;
         if (desc) return "It heals you a bit and cures blindness, poison, confusion, stunning, cuts and hallucination when you quaff it.";
-        if (info) return info_heal(0, 0, _potion_power(50));
+        if (info) return info_heal(0, 0, _potion_power(amt));
         if (cast)
         {
-            if (hp_player(_potion_power(50))) device_noticed = TRUE;
+            if (hp_player(_potion_power(amt))) device_noticed = TRUE;
             if (set_blind(0, TRUE)) device_noticed = TRUE;
             if (set_poisoned(0, TRUE)) device_noticed = TRUE;
             if (set_confused(0, TRUE)) device_noticed = TRUE;
@@ -908,7 +910,7 @@ static cptr _do_potion(int sval, int mode)
             if (set_image(0, TRUE)) device_noticed = TRUE;
             if (set_shero(0,TRUE)) device_noticed = TRUE;
         }
-        break;
+        break; }
     case SV_POTION_INVULNERABILITY:
         if (desc) return "You become invulnerable temporarily when you quaff it.";
         if (info) return format("Dur d%d + %d", _potion_power(4), _potion_power(4));
@@ -4393,6 +4395,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
     case EFFECT_HEAL_CURING:
     {
         int amt = _extra(effect, 50 + 7*effect->power/2);
+        if (quickband) amt = amt * 5 / 3;
         if (amt < 100)
         {
             if (name) return "Cure Wounds";

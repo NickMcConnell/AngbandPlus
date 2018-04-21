@@ -110,7 +110,7 @@ Life Rating   95%       Melee       <color:D>Very Bad     </color>
 Experience   100%       Bows        <color:D>Very Bad     </color>
 </style></indent>
 <topic:Sexy><color:o>Sexy</color>
-Sexy rises all of your stats and skills, but your haughty attitude will aggravate all monsters. Only females can choose this personality.
+Sexy increases all of your stats and skills, but your haughty attitude will aggravate all monsters.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +1        Disarming   <color:g>Superb       </color>
@@ -123,7 +123,7 @@ Life Rating  100%       Melee       <color:g>Superb       </color>
 Experience   100%       Bows        <color:g>Superb       </color>
 </style></indent>
 <topic:Lucky><color:o>Lucky</color>
-A Lucky man has poor stats, equivalent to a Lazy person. Mysteriously, however, he can do all things well. Only males can choose this personality.
+A Lucky person has poor stats but, surprisingly, can do all things well. For some reason, good things seem to happen more often to lucky players.
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      -2        Disarming   <color:g>Superb       </color>
@@ -147,19 +147,6 @@ Constitution  +2        Searching   <color:o>Fair         </color>
 Charisma      +0        Perception  <color:r>Bad          </color>
 Life Rating  102%       Melee       <color:D>Very Bad     </color>
 Experience   100%       Bows        <color:D>Very Bad     </color>
-</style></indent>
-<topic:Munchkin><color:o>Munchkin</color>
-The Munchkin personality is for beginners. It raises all your stats and skills. With this personality, you can win the game easily, but gain little honor in doing so.
-
-  <indent><style:table><color:G>Stats                   Skills</color>
-Strength      +3        Disarming   <color:g>Superb       </color>
-Intelligence  +3        Device      <color:v>Amber[12]    </color>
-Wisdom        +3        Save        <color:b>Heroic       </color>
-Dexterity     +3        Stealth     <color:G>Excellent    </color>
-Constitution  +3        Searching   <color:v>Amber[15]    </color>
-Charisma      +3        Perception  <color:v>Amber[15]    </color>
-Life Rating  150%       Melee       <color:v>Amber[62]    </color>
-Experience    50%       Bows        <color:v>Amber[62]    </color>
 </style></indent>
 <topic:Craven><color:o>Craven</color>
 A Craven person is a coward, preferring to avoid a fight at any cost. Craven adventurers shoot and use devices well, and their stealth is impressive. But their stats and other skills are somewhat wanting.
@@ -201,7 +188,6 @@ Lazy            -2   -2   -2   -2   -2   -2   95%  100%
 Sexy            +1   +1   +1   +1   +1   +1  100%  100%
 Lucky           -2   -2   -2   -2   -2   -2  100%  100%
 Patient         -1   -1   +1   -2   +2   +0  102%  100%
-Munchkin        +3   +3   +3   +3   +3   +3  150%   50%
 Craven          -1   +1   +1   -1   -1   -3   99%  100%
 Hasty           +0   -1   -2   +2   -1   +0  100%  100%
 
@@ -220,7 +206,6 @@ Lazy         <color:D>Very Bad     </color> <color:D>Very Bad     </color> <colo
 Sexy         <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color> <color:R>Poor         </color>
 Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Good         </color> <color:o>Fair         </color>
 Patient      <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:y>Good         </color> <color:o>Fair         </color>
-Munchkin     <color:g>Superb       </color> <color:v>Amber[12]    </color> <color:b>Heroic       </color> <color:G>Excellent    </color>
 Craven       <color:G>Excellent    </color> <color:G>Excellent    </color> <color:r>Bad          </color> <color:y>Good         </color>
 Hasty        <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 
@@ -239,11 +224,10 @@ Lazy         <color:D>Very Bad     </color> <color:r>Bad          </color> <colo
 Sexy         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:g>Superb       </color>
 Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:b>Heroic       </color> <color:b>Heroic       </color>
 Patient      <color:o>Fair         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
-Munchkin     <color:v>Amber[15]    </color> <color:v>Amber[15]    </color> <color:v>Amber[62]    </color> <color:v>Amber[62]    </color>
 Craven       <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:g>Superb       </color>
 Hasty        <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.1.</color>
+<color:s>Automatically generated for PosChengband 6.0.3.</color>

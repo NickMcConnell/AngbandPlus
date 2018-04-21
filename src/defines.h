@@ -18,12 +18,12 @@
 
 #define VER_MAJOR 6
 #define VER_MINOR 0
-#define VER_PATCH 2
-#define VER_EXTRA 0
+#define VER_PATCH 3
+#define VER_EXTRA 2
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
-#define GAME_MODE_REAL_LIFE 2
+#define GAME_MODE_XXX       2
 #define GAME_MODE_MONSTER   3
 #define GAME_MODE_MAX       4
 
@@ -720,6 +720,8 @@
 #define CLASS_SENSE2_SLOW    0x0080
 #define CLASS_SENSE2_MED     0x0100
 #define CLASS_SENSE2_FAST    0x0200
+
+#define DEPRECATED           0x80000000 /* race, class, personality (TODO) */
 
 /* Mimicry uses races too ... Its just that players
    cannot choose these races during birth. */
@@ -3214,7 +3216,7 @@ enum obj_flags_e {
  * New monster race bit flags
  */
 #define RF1_UNIQUE              0x00000001  /* Unique Monster */
-#define RF1_QUESTOR             0x00000002  /* Unique Monster tagged for a random quest */
+#define RF1_FIXED_UNIQUE        0x00000002  /* Unique Monster can never be RFX_SUPPRESSed */
 #define RF1_MALE                0x00000004  /* Male gender */
 #define RF1_FEMALE              0x00000008  /* Female gender */
 #define RF1_CHAR_CLEAR          0x00000010  /* Absorbs symbol */
@@ -3569,6 +3571,9 @@ enum r_drop_e
 #define RFR_XXX30           0x40000000
 #define RFR_XXX31           0x80000000
 
+#define RFX_QUESTOR         0x00000001  /* Unique Monster tagged for a random quest */
+#define RFX_SUPPRESS        0x00000002  /* Unique Monster won't generate this game */
+#define RFX_WANTED          0x00000004  /* Wanted monster (bounty at hunters guild) */
 
 /*
  * Hack -- choose "intelligent" spells when desperate
@@ -4142,7 +4147,7 @@ enum r_drop_e
     time_t tmp;\
     tmp = time(NULL);\
     if (start_time)\
-        playtime += (u32b)(tmp - start_time);\
+        playtime += MIN((u32b)(tmp - start_time), 30);\
     start_time = tmp;\
 }
 

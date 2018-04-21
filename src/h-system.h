@@ -16,7 +16,6 @@
  * because VMS does not use the "ASCII" character set.
  */
 
-
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>

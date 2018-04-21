@@ -262,7 +262,7 @@ static cptr f_info_flags[] =
 static cptr r_info_flags1[] =
 {
     "UNIQUE",
-    "QUESTOR",
+    "FIXED_UNIQUE",
     "MALE",
     "FEMALE",
     "CHAR_CLEAR",

@@ -293,7 +293,8 @@ void check_experience(void)
 
         if (level_inc_stat)
         {
-            if(p_ptr->max_plv % 5 == 0)
+            int mod = quickband ? 3 : 5;
+            if(p_ptr->max_plv % mod == 0)
                 gain_chosen_stat();
         }
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -506,6 +507,7 @@ byte get_monster_drop_ct(monster_type *m_ptr)
     /* Hack: There are currently too many objects, IMO.
        Please rescale in r_info rather than the following! */
     if ( number > 2
+      && !quickband
       && !(r_ptr->flags1 & RF1_DROP_GREAT)
       && !(r_ptr->flags1 & RF1_UNIQUE) )
     {
@@ -2330,6 +2332,11 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
     {
         s64b_mul(&new_exp, &new_exp_frac, 0, 6);
         s64b_div(&new_exp, &new_exp_frac, 0, 5);
+    }
+
+    if (quickband)
+    {
+        s64b_mul(&new_exp, &new_exp_frac, 0, 2);
     }
 
     /* Intelligence affects learning! */

@@ -331,9 +331,12 @@ int obj_cmp(obj_ptr left, obj_ptr right)
     if (left->tval < right->tval) return 1;
     if (left->tval > right->tval) return -1;
 
-    /* Non-aware (flavored) items always come last */
-    if (!object_is_aware(left) && object_is_aware(right)) return 1;
-    if (object_is_aware(left) && !object_is_aware(right)) return -1;
+    /* Non-aware (flavored) items always come last (buggy test in shops) */
+    if (left->loc.where != INV_SHOP && right->loc.where != INV_SHOP)
+    {
+        if (!object_is_aware(left) && object_is_aware(right)) return 1;
+        if (object_is_aware(left) && !object_is_aware(right)) return -1;
+    }
 
     /* Objects sort by increasing sval */
     if (left->sval < right->sval) return -1;

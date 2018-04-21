@@ -679,7 +679,7 @@ static void _charm_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Charm");
+        var_set_string(res, "Charm Ring Bearer");
         break;
     case SPELL_DESC:
         var_set_string(res, "Attempt to dominate a single ring bearer.");

@@ -1981,8 +1981,16 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
 bool apply_magic(object_type *o_ptr, int lev, u32b mode)
 {
     int i, rolls, f1, f2, power;
+    int maxf1 = d_info[dungeon_type].obj_good;
+    int maxf2 = d_info[dungeon_type].obj_great;
 
     if (p_ptr->personality == PERS_MUNCHKIN) lev += randint0(p_ptr->lev/2+10);
+    if (quickband && !(mode & AM_STOCK_TOWN))
+    {
+        lev += 10;
+        maxf1 += 10;
+        maxf2 += 10;
+    }
 
     /* Maximum "level" for various things */
     if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
@@ -1993,21 +2001,21 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     f1 = lev + 10;
 
     /* Maximal chance of being "good" */
-    if (f1 > d_info[dungeon_type].obj_good) f1 = d_info[dungeon_type].obj_good;
+    if (f1 > maxf1) f1 = maxf1;
 
     /* Base chance of being "great" */
     f2 = f1 * 2 / 3;
 
     /* Maximal chance of being "great" */
-    if ((p_ptr->personality != PERS_MUNCHKIN) && (f2 > d_info[dungeon_type].obj_great))
-        f2 = d_info[dungeon_type].obj_great;
+    if (p_ptr->personality != PERS_MUNCHKIN && f2 > maxf2)
+        f2 = maxf2;
 
     /* Temp Hack: It's a bit too hard to find good rings early on. Note we hack after
        calculating f2! */
     if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
     {
         f1 += 30;
-        if (f1 > d_info[dungeon_type].obj_good) f1 = d_info[dungeon_type].obj_good;
+        if (f1 > maxf1) f1 = maxf1;
     }
 
     if (p_ptr->good_luck)

@@ -2073,7 +2073,7 @@ static void _build_messages(doc_ptr doc)
 static cptr _game_mode_text[GAME_MODE_MAX] = {
     "<color:G>Beginner</color>",
     "Normal",
-    "<color:R>Real Life</color>",
+    "XXX", 
     "<color:r>Monster</color>"
 };
 static void _build_options(doc_ptr doc)
@@ -2094,6 +2094,9 @@ static void _build_options(doc_ptr doc)
 
     if (easy_lore)
         doc_printf(doc, " Easy Lore:          On\n");
+
+    if (quickband)
+        doc_printf(doc, " Quickband:          On\n");
 
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");
@@ -2120,6 +2123,9 @@ static void _build_options(doc_ptr doc)
 
     if (no_egos)
         doc_printf(doc, " No Egos:            Enabled\n");
+
+    if (reduce_uniques)
+        doc_printf(doc, " Reduce Uniques:     %d%%\n", reduce_uniques_pct);
 
     if (p_ptr->noscore)
         doc_printf(doc, "\n <color:v>You have done something illegal.</color>\n");

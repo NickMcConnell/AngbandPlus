@@ -15,6 +15,23 @@
 #include "init.h"
 #include "z-doc.h"
 
+#ifdef HAVE_STAT
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
+
+#if defined (WINDOWS) && !defined (CYGWIN)
+# define my_mkdir(path, perms) mkdir(path)
+#elif defined(HAVE_MKDIR) || defined(MACH_O_CARBON) || defined (CYGWIN)
+# define my_mkdir(path, perms) mkdir(path, perms)
+#else
+# define my_mkdir(path, perms) FALSE
+#endif
+
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game. Note the use of "fd_read()" and "fd_write()" to bypass
@@ -221,45 +238,39 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
 
 }
 
-#ifdef WIN32
-/* This just broke one day ... sigh */
-#include <sys/stat.h>
-#endif
-
 bool dir_exists(const char *path)
 {
+    #ifdef HAVE_STAT
     struct stat buf;
     if (stat(path, &buf) != 0)
         return FALSE;
-#ifdef WIN32
     else if (buf.st_mode & S_IFDIR)
-#else
-    else if (S_ISDIR(buf.st_mode))
-#endif
         return TRUE;
     else
         return FALSE;
+    #else
+    return TRUE;
+    #endif
 }
 
-#define PATH_SEPC '/'
+#ifdef HAVE_STAT
 bool dir_create(const char *path)
 {
-#ifdef WIN32
-    /* If the directory already exists then we're done */
-    if (dir_exists(path)) return TRUE;
-    return FALSE;
-#else
     const char *ptr;
     char buf[512];
 
     /* If the directory already exists then we're done */
     if (dir_exists(path)) return TRUE;
+
+    #ifdef WINDOWS
+    /* If we're on windows, we need to skip past the "C:" part. */
+    if (isalpha(path[0]) && path[1] == ':') path += 2;
+    #endif
+
     /* Iterate through the path looking for path segements. At each step,
      * create the path segment if it doesn't already exist. */
-    for (ptr = path; *ptr; ptr++)
-    {
-        if (*ptr == PATH_SEPC)
-        {
+    for (ptr = path; *ptr; ptr++) {
+        if (*ptr == PATH_SEPC) {
             /* Find the length of the parent path string */
             size_t len = (size_t)(ptr - path);
 
@@ -279,12 +290,16 @@ bool dir_create(const char *path)
             if (dir_exists(buf)) continue;
 
             /* The parent doesn't exist, so create it or fail */
-            if (mkdir(buf, 0755) != 0) return FALSE;
+            if (my_mkdir(buf, 0755) != 0) return FALSE;
         }
     }
-    return mkdir(path, 0755) == 0 ? TRUE : FALSE;
-#endif
+    return my_mkdir(path, 0755) == 0 ? TRUE : FALSE;
 }
+#else /* HAVE_STAT */
+bool dir_create(const char *path) { return FALSE; }
+#endif /* !HAVE_STAT */
+
+
 /*
  * Create any missing directories. We create only those dirs which may be
  * empty (user/, save/, apex/, info/, help/). The others are assumed

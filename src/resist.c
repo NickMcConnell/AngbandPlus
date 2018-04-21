@@ -294,7 +294,7 @@ int res_ct_known(int which)
 
         if (have_flag(flgs, flg) && !have_flag(flgs_known, flg))
             hidden++;
-        if (have_flag(flgs, vuln_flg) && !have_flag(flgs_known, vuln_flg))
+        if (vuln_flg != OF_INVALID && have_flag(flgs, vuln_flg) && !have_flag(flgs_known, vuln_flg))
             hidden--;
     }
 

@@ -136,8 +136,8 @@ a direct bad influence on your spell fail rate.
   Experience   100%       Bows        Very Bad     
   
 Sexy
-Sexy rises all of your stats and skills, but your haughty attitude will 
-aggravate all monsters. Only females can choose this personality.
+Sexy increases all of your stats and skills, but your haughty attitude 
+will aggravate all monsters.
 
   Stats                   Skills
   Strength      +1        Disarming   Superb       
@@ -150,9 +150,9 @@ aggravate all monsters. Only females can choose this personality.
   Experience   100%       Bows        Superb       
   
 Lucky
-A Lucky man has poor stats, equivalent to a Lazy person. Mysteriously, 
-however, he can do all things well. Only males can choose this 
-personality.
+A Lucky person has poor stats but, surprisingly, can do all things 
+well. For some reason, good things seem to happen more often to lucky 
+players.
 
   Stats                   Skills
   Strength      -2        Disarming   Superb       
@@ -178,21 +178,6 @@ skills. Also it directly influences your life rating.
   Charisma      +0        Perception  Bad          
   Life Rating  102%       Melee       Very Bad     
   Experience   100%       Bows        Very Bad     
-  
-Munchkin
-The Munchkin personality is for beginners. It raises all your stats and 
-skills. With this personality, you can win the game easily, but gain 
-little honor in doing so.
-
-  Stats                   Skills
-  Strength      +3        Disarming   Superb       
-  Intelligence  +3        Device      Amber[12]    
-  Wisdom        +3        Save        Heroic       
-  Dexterity     +3        Stealth     Excellent    
-  Constitution  +3        Searching   Amber[15]    
-  Charisma      +3        Perception  Amber[15]    
-  Life Rating  150%       Melee       Amber[62]    
-  Experience    50%       Bows        Amber[62]    
   
 Craven
 A Craven person is a coward, preferring to avoid a fight at any cost. 
@@ -238,7 +223,6 @@ Lazy            -2   -2   -2   -2   -2   -2   95%  100%
 Sexy            +1   +1   +1   +1   +1   +1  100%  100%
 Lucky           -2   -2   -2   -2   -2   -2  100%  100%
 Patient         -1   -1   +1   -2   +2   +0  102%  100%
-Munchkin        +3   +3   +3   +3   +3   +3  150%   50%
 Craven          -1   +1   +1   -1   -1   -3   99%  100%
 Hasty           +0   -1   -2   +2   -1   +0  100%  100%
 
@@ -257,7 +241,6 @@ Lazy         Very Bad      Very Bad      Very Bad      Bad
 Sexy         Superb        Excellent     Good          Poor         
 Lucky        Superb        Superb        Good          Fair         
 Patient      Very Bad      Very Bad      Good          Fair         
-Munchkin     Superb        Amber[12]     Heroic        Excellent    
 Craven       Excellent     Excellent     Bad           Good         
 Hasty        Very Bad      Very Bad      Very Bad      Bad          
 
@@ -276,12 +259,11 @@ Lazy         Very Bad      Bad           Very Bad      Very Bad
 Sexy         Excellent     Good          Superb        Superb       
 Lucky        Superb        Superb        Heroic        Heroic       
 Patient      Fair          Bad           Very Bad      Very Bad     
-Munchkin     Amber[15]     Amber[15]     Amber[62]     Amber[62]    
 Craven       Fair          Fair          Very Bad      Superb       
 Hasty        Very Bad      Bad           Very Bad      Very Bad     
 
 
 
 
-Automatically generated for PosChengband 6.0.1.
+Automatically generated for PosChengband 6.0.3.
 

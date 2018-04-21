@@ -172,6 +172,10 @@ static void rd_lore(savefile_ptr file, int r_idx)
     r_ptr->max_num = savefile_read_byte(file);
     r_ptr->floor_id = savefile_read_s16b(file);
     r_ptr->stolen_ct = savefile_read_byte(file);
+    if (savefile_is_older_than(file, 6, 0, 3, 1))
+        r_ptr->flagsx = 0; /* we will repair RFX_QUESTOR later ... */
+    else
+        r_ptr->flagsx = savefile_read_u32b(file);
 
     if (r_ptr->r_flagsr & (RFR_PACT_MONSTER)) pact = TRUE;
 
@@ -226,6 +230,11 @@ static void rd_options(savefile_ptr file)
         random_artifact_pct = 100;
     else
         random_artifact_pct = savefile_read_byte(file);
+
+    if (savefile_is_older_than(file, 6, 0, 3, 2))
+        reduce_uniques_pct = 100;
+    else
+        reduce_uniques_pct = savefile_read_byte(file);
 
     /*** Cheating options ***/
     c = savefile_read_u16b(file);
@@ -1121,7 +1130,7 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         }
     }
 
-    quests_load(file);
+    quests_load(file); /* quests must load after monster lore ... see above */
     if (arg_fiddle) note("Loaded Quests");
 
     p_ptr->wilderness_x = savefile_read_s32b(file);

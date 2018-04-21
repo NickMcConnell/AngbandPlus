@@ -400,17 +400,17 @@ static void _melee_init_class(class_t *class_ptr)
     class_ptr->stats[A_INT] += row.int_;
 
     pts = _get_skill_pts(_TYPE_MELEE, _MARTIAL_ARTS);
-    class_ptr->stats[A_DEX] += (pts + 1)/3;
+    class_ptr->stats[A_DEX] += pts/4;
 }
 
 typedef struct { int to_h; int to_d; int prof; int blows_max; int blows_mult; int ma_wgt; } _melee_info_t;
 static _melee_info_t _melee_info[6] = {
     {  0,  0, 2000, 400, 20,   0 },
     {  0,  0, 4000, 500, 30,  60 },
-    {  0,  0, 6000, 525, 40,  70 },
-    {  5,  0, 7000, 550, 50,  80 },
-    { 10,  3, 8000, 575, 55,  90 },
-    { 20, 10, 8000, 600, 60, 100 }
+    {  0,  0, 5000, 525, 40,  70 },
+    {  0,  0, 6000, 550, 50,  80 },
+    {  0,  0, 7000, 575, 55,  90 },
+    {  0,  0, 8000, 600, 60, 100 }
 };
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)

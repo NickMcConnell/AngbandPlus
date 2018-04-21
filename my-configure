@@ -1,2 +1,11 @@
 #!/bin/bash
-./configure CFLAGS="-fsanitize=undefined -fsanitize=address -fstandalone-debug" LDFLAGS=-fsanitize=address --with-no-install CC=clang-3.8
+if [ "$1" == "mingw" ]; then
+    ./configure CFLAGS="-DNDEBUG -O2" --enable-win --disable-curses --build=i686-pc-linux-gnu \
+        --host=i586-mingw32msvc --with-no-install
+elif [ "$1" == "gcc" ]; then
+    ./configure --with-no-install
+else
+    ./configure CFLAGS="-fsanitize=undefined -fsanitize=address -fstandalone-debug" \
+        LDFLAGS=-fsanitize=address --with-no-install CC=clang-3.8
+fi
+

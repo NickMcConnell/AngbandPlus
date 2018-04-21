@@ -938,4 +938,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.1.</color>
+<color:s>Automatically generated for PosChengband 6.0.3.</color>
