@@ -1139,8 +1139,11 @@ static bool is_open(int feat)
  */
 static bool is_closed(int feat)
 {
-	return ((feat >= FEAT_DOOR_HEAD) &&
-	        (feat <= FEAT_DOOR_TAIL));
+	return (((feat >= FEAT_DOOR_HEAD) &&
+	         (feat <= FEAT_DOOR_TAIL)) ||
+		  feat == FEAT_WARDED ||
+		  feat == FEAT_WARDED2 ||
+		  feat == FEAT_WARDED3);
 }
 
 
@@ -1525,9 +1528,6 @@ static bool do_cmd_close_test(int y, int x)
  */
 static bool do_cmd_close_aux(int y, int x)
 {
-	bool more = FALSE;
-
-
 	/* Verify legality */
 	if (!do_cmd_close_test(y, x)) return (FALSE);
 
@@ -1537,23 +1537,43 @@ static bool do_cmd_close_aux(int y, int x)
 	{
 		/* Message */
 		msg_print("The door appears to be broken.");
+		return (FALSE);
 	}
-
-	/* Open door */
+	/* Ward the open door */
+	else if (singing(SNG_THRESHOLDS))
+	{
+		int difficulty = 18;
+		int result = skill_check(PLAYER, ability_bonus(S_SNG, SNG_THRESHOLDS), difficulty, NULL);
+		if (result > 9)
+		{
+			msg_print("You close the door, singing a song of trust unbroken.");
+			cave_set_feat(y, x, FEAT_WARDED3);
+		}
+		else if (result > 0)
+		{
+			msg_print("You close the door, singing charms of binding.");
+			cave_set_feat(y, x, FEAT_WARDED2);
+		}
+		else
+		{
+			msg_print("You close the door, singing words of warding.");
+			cave_set_feat(y, x, FEAT_WARDED);
+		}
+	}
 	else
 	{
-		/* Close the door */
+		/* Close the open door */
 		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Sound */
-		sound(MSG_SHUTDOOR);
 	}
 
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Sound */
+	sound(MSG_SHUTDOOR);
+
 	/* Result */
-	return (more);
+	return (FALSE);
 }
 
 
@@ -3960,21 +3980,10 @@ void do_cmd_fire(int quiver)
 					
 					// hit the monster, check for death
 					fatal_blow = mon_take_hit(cave_m_idx[y][x], net_dam, note_dies, -1);
-					
 					display_hit(y, x, net_dam, GF_HURT, fatal_blow);
-					
-					// if this was the killing shot
-					if (fatal_blow)
-					{
-						// gain wrath if singing song of slaying
-						if (singing(SNG_SLAYING))
-						{
-							add_wrath();
-						}
-					}
-					
-					// if it is still alive
-					else
+
+					// if this wasn't the killing shot
+					if (!fatal_blow)
 					{
 						// there is at least one target left on the trajectory
 						targets_remaining = TRUE;
@@ -4750,12 +4759,6 @@ void do_cmd_throw(bool automatic)
 				if (!potion_effect)
 				{
 					 fatal_blow = (mon_take_hit(cave_m_idx[y][x], net_dam, note_dies, -1));
-					 
-					// gain wrath if singing song of slaying
-					if (fatal_blow && singing(SNG_SLAYING))
-					{
-						add_wrath();
-					}
 				}
 
 				display_hit(y, x, net_dam, GF_HURT, fatal_blow);

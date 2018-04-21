@@ -30,7 +30,12 @@ byte total_mdd(const object_type *o_ptr)
 	}
 	/* add the modifiers */
 	dd += p_ptr->to_mdd;
-	
+
+	if (p_ptr->active_ability[S_WIL][WIL_VENGEANCE])
+	{
+		dd += p_ptr->vengeance;
+	}
+
 	return (dd);
 }
 
@@ -412,12 +417,7 @@ static void prt_hp(void)
 	int len;
 	byte color;
 
-	if (p_ptr->unwounded == 0)
-	{
-		c_put_str(TERM_RED, "Will        ", ROW_HP, COL_HP);
-		c_put_str(TERM_RED, "Mortally Wounded", ROW_MORTAL_WOUND, COL_MORTAL_WOUND);
-	}
-	else if (p_ptr->mhp >= 100)
+	if (p_ptr->mhp >= 100)
 	{
 		put_str("Hth        ", ROW_HP, COL_HP);
 	}
@@ -427,12 +427,6 @@ static void prt_hp(void)
 	}
 
 	len = sprintf(tmp, "%d:%d", p_ptr->chp, p_ptr->mhp);
-
-	if (p_ptr->unwounded == 0)
-	{
-		c_put_str(TERM_RED, tmp, ROW_HP, COL_HP + 12 - len);
-		return;
-	}
 
 	c_put_str(TERM_L_GREEN, tmp, ROW_HP, COL_HP + 12 - len);
 
@@ -499,12 +493,11 @@ static void prt_song(void)
 	char *song1_name = b_name + (&b_info[ability_index(S_SNG, p_ptr->song1)])->name;
 	char *song2_name = b_name + (&b_info[ability_index(S_SNG, p_ptr->song2)])->name;
 	char buf[80];
-	int slaying_bonus = slaying_song_bonus();
-	
+
 	// wipe old songs
 	put_str("             ", ROW_SONG, COL_SONG);
 	put_str("             ", ROW_SONG + 1, COL_SONG);
-	
+
 	// show the first song
 	if (p_ptr->song1 != SNG_NOTHING)
 	{
@@ -515,21 +508,6 @@ static void prt_song(void)
 	if (p_ptr->song2 != SNG_NOTHING)
 	{
 		c_put_str(TERM_BLUE, song2_name + 8, ROW_SONG + 1, COL_SONG);
-	}
-	
-	// show the slaying score
-	if (slaying_bonus > 0)
-	{
-		sprintf(buf, "+%d", slaying_bonus);
-		
-		if (p_ptr->song1 == SNG_SLAYING)
-		{
-			c_put_str(TERM_L_BLUE, buf, ROW_SONG, COL_SONG + 8);
-		}
-		else if (p_ptr->song2 == SNG_SLAYING)
-		{
-			c_put_str(TERM_BLUE, buf, ROW_SONG + 1, COL_SONG + 8);
-		}
 	}
 }
 
@@ -1517,35 +1495,26 @@ static void calc_hitpoints(void)
 	int i;
 	int tmp;
 
-	
-	if (p_ptr->active_ability[S_WIL][WIL_DEFIANCE] && p_ptr->unwounded == 0)
+	/* Get hitpoint value */
+	// 20 + a compounding 20% bonus per point of con
+
+	tmp = 20 * 100;
+	if (p_ptr->stat_use[A_CON] >= 0)
 	{
-		mhp = p_ptr->skill_use[S_WIL];
+		for (i = 0; i < p_ptr->stat_use[A_CON]; i++)
+		{
+			tmp = tmp * 12 / 10;
+		}
 	}
 	else
 	{
-
-		/* Get hitpoint value */
-		// 20 + a compounding 20% bonus per point of con
-
-		tmp = 20 * 100;
-		if (p_ptr->stat_use[A_CON] >= 0)
+		for (i = 0; i < -(p_ptr->stat_use[A_CON]); i++)
 		{
-			for (i = 0; i < p_ptr->stat_use[A_CON]; i++)
-			{
-				tmp = tmp * 12 / 10;
-			}
+			tmp = tmp * 10 / 12;
 		}
-		else
-		{
-			for (i = 0; i < -(p_ptr->stat_use[A_CON]); i++)
-			{
-				tmp = tmp * 10 / 12;
-			}
-		}
-		mhp = tmp / 100;
 	}
-	
+	mhp = tmp / 100;
+
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
@@ -1904,7 +1873,7 @@ int ability_bonus(int skilltype, int abilitynum)
 				bonus = skill;
 				break;
 			}
-			case SNG_SLAYING:
+			case SNG_CHALLENGE:
 			{
 				bonus = skill;
 				break;
@@ -1939,15 +1908,14 @@ int ability_bonus(int skilltype, int abilitynum)
 				bonus = skill;
 				break;
 			}
-			case SNG_ESTE:
+			case SNG_THRESHOLDS:
 			{
-				bonus = skill / 3;
-				if (bonus < 3) bonus = 3;
+				bonus = skill;
 				break;
 			}
-			case SNG_SHARPNESS:
+			case SNG_DELVINGS:
 			{
-				bonus = skill * 2;
+				bonus = skill * 3;
 				break;
 			}
 			case SNG_MASTERY:
@@ -2352,7 +2320,7 @@ static void calc_bonuses(void)
 	if (p_ptr->active_ability[S_WIL][WIL_STRENGTH_IN_ADVERSITY])
 	{
 		// if <= 50% health, give a bonus to strength and grace
-		if (health_level(p_ptr->chp, p_ptr->mhp) <= HEALTH_BADLY_WOUNDED || p_ptr->unwounded == 0)
+		if (health_level(p_ptr->chp, p_ptr->mhp) <= HEALTH_BADLY_WOUNDED)
 		{
 			p_ptr->stat_misc_mod[A_STR]++;
 			p_ptr->stat_misc_mod[A_DEX]++;
@@ -2360,7 +2328,7 @@ static void calc_bonuses(void)
 		}
 
 		// if <= 25% health, give an extra bonus
-		if (health_level(p_ptr->chp, p_ptr->mhp) <= HEALTH_ALMOST_DEAD || p_ptr->unwounded == 0)
+		if (health_level(p_ptr->chp, p_ptr->mhp) <= HEALTH_ALMOST_DEAD)
 		{
 			p_ptr->stat_misc_mod[A_STR]++;
 			p_ptr->stat_misc_mod[A_DEX]++;
@@ -2382,7 +2350,7 @@ static void calc_bonuses(void)
 	{
 		p_ptr->resist_pois += 1;
 	}
-	
+
 	/*** Temporary flags ***/
 
 	/* Apply temporary "stun" */
@@ -2553,15 +2521,15 @@ static void calc_bonuses(void)
 			{
 				case SNG_NOTHING:	song_noise += 0; break;
 				case SNG_ELBERETH:	song_noise += 8; break;
-				case SNG_SLAYING:	song_noise += 12; break;
+				case SNG_CHALLENGE:	song_noise += 12; break;
 				case SNG_SILENCE:	song_noise += 0; break;
 				case SNG_FREEDOM:	song_noise += 4; break;
 				case SNG_TREES:		song_noise += 4; break;
 				case SNG_AULE:		song_noise += 8; break;
 				case SNG_STAYING:	song_noise += 4; break;
 				case SNG_LORIEN:	song_noise += 4; break;
-				case SNG_ESTE:		song_noise += 4; break;
-				case SNG_SHARPNESS:	song_noise += 8; break;
+				case SNG_THRESHOLDS:	song_noise += 4; break;
+				case SNG_DELVINGS:	song_noise += 4; break;
 				case SNG_MASTERY:	song_noise += 8; break;
 			}		
 		}
@@ -2614,14 +2582,10 @@ static void calc_bonuses(void)
 							  p_ptr->skill_stat_mod[S_SNG] + p_ptr->skill_misc_mod[S_SNG];
 
 	// Apply song effects that modify skills
-	if (singing(SNG_SLAYING))
-	{
-		p_ptr->skill_misc_mod[S_MEL] += slaying_song_bonus();
-		p_ptr->skill_misc_mod[S_ARC] += slaying_song_bonus();
-	}
 	if (singing(SNG_AULE))
 	{
 		p_ptr->skill_misc_mod[S_SMT] += ability_bonus(S_SNG, SNG_AULE);
+		p_ptr->resist_fire += 1;
 	}
 	if (singing(SNG_STAYING))
 	{
@@ -2631,14 +2595,15 @@ static void calc_bonuses(void)
 	{
 		p_ptr->free_act += 1;
 	}
-	if (singing(SNG_ESTE))
+	if (singing(SNG_THRESHOLDS))
 	{
-		p_ptr->sustain_dex += 1;
-		p_ptr->sustain_str += 1;
-		p_ptr->sustain_con += 1;
-		p_ptr->sustain_gra += 1;
+		int feat = cave_feat[p_ptr->py][p_ptr->px];
+		if (feat == FEAT_BROKEN || feat == FEAT_OPEN)
+		{
+			p_ptr->skill_misc_mod[S_EVN] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 3;
+		}
 	}
-	
+
 	/*** Finalise all skills other than combat skills  (as bows/weapons must be analysed first) ***/
 	
 	p_ptr->skill_use[S_STL] = p_ptr->skill_base[S_STL] + p_ptr->skill_equip_mod[S_STL] + 
@@ -2800,12 +2765,6 @@ static void calc_bonuses(void)
     /* Always redraw terrain */
     p_ptr->redraw |= (PR_TERRAIN);
     
-	if (p_ptr->skill_use[S_WIL] != old_skill_use[S_WIL])
-	{
-		// DEFIANCE
-		p_ptr->update |= (PU_HP);
-	}
-
 	/* Redraw melee (if needed) */
 	if ((p_ptr->skill_use[S_MEL] != old_skill_use[S_MEL]) || (p_ptr->mdd != old_mdd) || (p_ptr->mds != old_mds) || 
 															 (p_ptr->mdd2 != old_mdd2) || (p_ptr->mds2 != old_mds2))

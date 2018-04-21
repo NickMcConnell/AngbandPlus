@@ -171,10 +171,12 @@ void new_wandering_destination(monster_type *m_ptr, monster_type *leader_ptr)
 
 void drop_iron_crown(monster_type *m_ptr, const char *msg)
 {
-	int i, near_y, near_x;
+	int i, j, near_y, near_x;
 	
 	if ((&a_info[ART_MORGOTH_3])->cur_num == 0)
 	{
+		object_type *o_ptr;
+
 		msg_print(msg);
 		
 		// choose a nearby location, but not his own square
@@ -188,13 +190,15 @@ void drop_iron_crown(monster_type *m_ptr, const char *msg)
 		
 		// drop it there
 		create_chosen_artefact(ART_MORGOTH_3, near_y, near_x, TRUE);
+		o_ptr = &o_list[cave_o_idx[near_y][near_x]];
+		o_ptr->xtra1 = FIRST_SILMARIL | SECOND_SILMARIL | THIRD_SILMARIL;
 		
-		// lower Morgoth's protection, remove his light source, increase his will and perception
+		// lower Morgoth's protection, remove his light source, increase his will and perception and evasion
 		(&r_info[R_IDX_MORGOTH])->pd -= 1;
 		(&r_info[R_IDX_MORGOTH])->light = 0;
 		(&r_info[R_IDX_MORGOTH])->wil += 5;
 		(&r_info[R_IDX_MORGOTH])->per += 5;
-
+		(&r_info[R_IDX_MORGOTH])->evn += 2;
 	}
 }
 
@@ -575,7 +579,7 @@ int total_player_evasion(monster_type *m_ptr, bool archery)
 	
 	// reward successful use of the dodging ability 
 	evn += dodging_bonus();
-	
+
 	// reward successful use of the bane ability
 	evn += bane_bonus(m_ptr);
 
@@ -2176,17 +2180,6 @@ extern int prt_after_sharpness(const object_type *o_ptr, u32b *noticed_flag)
 	{
 		*noticed_flag = maybe_notice_slay(o_ptr, TR1_SHARPNESS2);
 		protection = 0;
-	}
-	
-	// Song of sharpness
-	if (singing(SNG_SHARPNESS))
-	{
-		int tval = o_ptr->tval;
-				
-		if ((tval == TV_SWORD) || (tval == TV_POLEARM) || (tval == TV_ARROW))
-		{
-			protection -= ability_bonus(S_SNG, SNG_SHARPNESS);
-		}
 	}
     
     if (protection < 0) protection = 0;
@@ -3805,6 +3798,7 @@ int py_attack_aux(int y, int x, int attack_type)
 
 			// damage, check for death
 			fatal_blow = mon_take_hit(cave_m_idx[y][x], net_dam, NULL, -1);
+			p_ptr->vengeance = 0;
 
 			// use different colours depending on whether knock back triggered
 			if (do_knock_back)
@@ -3835,13 +3829,7 @@ int py_attack_aux(int y, int x, int attack_type)
 						ident_weapon_by_use(o_ptr, m_ptr, TR1_VAMPIRIC);
 					}
 				}
-				
-				// gain wrath if singing song of slaying
-				if (singing(SNG_SLAYING))
-				{
-					add_wrath();
-				}
-				
+
 				// deal with 'follow_through' ability
 				possible_follow_through(y, x, attack_type);
 				
@@ -4308,9 +4296,10 @@ void move_player(int dir)
 		/* Check before walking on known traps/chasms on movement */
 		if ((!p_ptr->confused) && (cave_info[y][x] & (CAVE_MARK)))
 		{
-            // leapable things: chasms, known pits, known false floors
+            // leapable things: chasms, traps (except roosts and webs)
             if (((cave_feat[y][x] == FEAT_CHASM) && !climbable(p_ptr->py, p_ptr->px, y, x)) ||
-                ((cave_pit_bold(y,x) || (cave_feat[y][x] == FEAT_TRAP_FALSE_FLOOR)) && !cave_floorlike_bold(y,x)))
+                (((cave_trap_bold(y,x)) && !cave_floorlike_bold(y,x)) &&
+		 !(cave_feat[y][x] == FEAT_TRAP_ROOST || cave_feat[y][x] == FEAT_TRAP_WEB)))
             {
                 char prompt[80];
                 int i;

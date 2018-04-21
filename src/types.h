@@ -558,6 +558,11 @@ struct object_type
 	byte abilities;	    // Number of abilities
 	byte skilltype[8];  // Skill-types for the granted abilities (8 = 4 for object base + 4 for special or artefact)
 	byte abilitynum[8]; // Ability numbers for these
+
+	s32b unused1; // Room for expansion without breaking savefiles
+	s32b unused2; // Room for expansion without breaking savefiles
+	s32b unused3; // Room for expansion without breaking savefiles
+	s32b unused4; // Room for expansion without breaking savefiles
 };
 
 
@@ -829,7 +834,7 @@ struct player_type
 	s16b age;			/* Character's age */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
-	s16b unwounded;		/* Mortally wounded? */
+	s16b morgoth_state;		/* Spare */
 
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
@@ -904,9 +909,10 @@ struct player_type
 
 	byte self_made_arts;	/* Number of self-made artefacts so far */
 
+	s16b vengeance;			/* Vengeance counter */
+
 	byte song1;			/* Current song */
 	byte song2;			/* Current minor theme */
-	s16b wrath;			/* The counter for the song of slaying */
 	s16b song_duration;	/* The duration of the current song */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
@@ -1004,8 +1010,6 @@ struct player_type
 	
 	s16b new_spells;		/* Number of spells available */
 
-	bool heavy_wield;	/* Heavy weapon */
-
 	s16b cur_light;		/* Radius of light (if any) */
 	s16b old_light;		/* Radius of light last turn (if any) */
 
@@ -1077,6 +1081,11 @@ struct player_type
 	s16b hunger;		/* Hunger rate */
 	
 	byte artefacts;		/* Number of artefacts generated so far */
+
+	s32b unused1; // Room for expansion without breaking savefiles
+	s32b unused2; // Room for expansion without breaking savefiles
+	s32b unused3; // Room for expansion without breaking savefiles
+	s32b unused4; // Room for expansion without breaking savefiles
 };
 
 

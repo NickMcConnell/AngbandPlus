@@ -324,6 +324,11 @@ static errr rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->abilitynum[i]);
 	}
 
+	rd_s32b(&o_ptr->unused1);
+	rd_s32b(&o_ptr->unused2);
+	rd_s32b(&o_ptr->unused3);
+	rd_s32b(&o_ptr->unused4);
+
 	// 8 spare bytes
 	strip_bytes(8);
 		
@@ -824,13 +829,13 @@ static errr rd_extra(void)
 	rd_u16b(&p_ptr->staircasiness);
 
 	/* More info */
-	rd_s16b(&p_ptr->unwounded);
+	rd_s16b(&p_ptr->morgoth_state);
 
 	/* Read the flags */
 	rd_byte(&p_ptr->song1);
 	rd_byte(&p_ptr->song2);
 	rd_s16b(&p_ptr->song_duration);
-	rd_s16b(&p_ptr->wrath);
+	rd_s16b(&p_ptr->vengeance);
 	rd_s16b(&p_ptr->blind);
 	rd_s16b(&p_ptr->entranced);
 	rd_s16b(&p_ptr->confused);
@@ -966,6 +971,11 @@ static errr rd_extra(void)
 	
 	/* Current player turn */
 	rd_s32b(&playerturn);
+
+	rd_s32b(&p_ptr->unused1);
+	rd_s32b(&p_ptr->unused2);
+	rd_s32b(&p_ptr->unused3);
+	rd_s32b(&p_ptr->unused4);
 
 	return (0);
 }
@@ -1843,7 +1853,7 @@ bool load_player(void)
 
 		/* Allow this */
 		p_ptr->restoring = FALSE;
-		return (FALSE);////
+		return (TRUE);
 	}
 
 	/* Close the file */

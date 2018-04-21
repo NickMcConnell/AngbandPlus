@@ -2206,29 +2206,6 @@ static void process_player(void)
 		take_hit(amount, "a fatal wound");
 	}
 
-	if (p_ptr->unwounded == 0 && !p_ptr->active_ability[S_WIL][WIL_DEFIANCE])
-	{
-		take_hit(p_ptr->chp, "loss of the will to live");
-	}
-
-	/* Reduce the wrath counter */
-	if (p_ptr->wrath)
-	{
-		amount = (p_ptr->wrath / 100) * (p_ptr->wrath / 100);
-		
-		// half as fast if still singing the song
-		if (singing(SNG_SLAYING))
-		{
-			p_ptr->wrath -= MAX(amount/2, 1);
-		}
-		else
-		{
-			p_ptr->wrath -= MAX(amount, 1);
-		}
-		p_ptr->update |= (PU_BONUS);
-		p_ptr->redraw |= (PR_SONG);
-	}
-	
 	/*** Check the Food, and Regenerate ***/
 
 	/* Basic digestion rate */
@@ -2298,11 +2275,6 @@ static void process_player(void)
 	if (p_ptr->poisoned) regen_multiplier = 0;
 	if (p_ptr->cut) regen_multiplier = 0;
 
-	if (singing(SNG_ESTE))
-	{
-		regen_multiplier *= ability_bonus(S_SNG, SNG_ESTE);
-	}
-	
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
@@ -2311,14 +2283,7 @@ static void process_player(void)
 	
 	/*** Timeout Various Things ***/
 
-	if (singing(SNG_ESTE))
-	{
-		amount = ability_bonus(S_SNG, SNG_ESTE);
-	}
-	else
-	{
-		amount = 1;
-	}
+	amount = 1;
 
 	/* Hack -- Hallucinating */
 	if (p_ptr->image)
@@ -2371,9 +2336,10 @@ static void process_player(void)
 	/* Slow */
 	if (p_ptr->slow)
 	{
-		if (singing(SNG_FREEDOM)) amount = ability_bonus(S_SNG, SNG_FREEDOM);
-		
-		(void)set_slow(p_ptr->slow - amount);
+		if (singing(SNG_FREEDOM))
+			(void)set_slow(p_ptr->slow - ability_bonus(S_SNG, SNG_FREEDOM));
+		else
+			(void)set_slow(p_ptr->slow - 1);
 	}
 
 	/* Rage */
@@ -2467,13 +2433,13 @@ static void process_player(void)
 		p_ptr->consecutive_attacks = 0;
 		p_ptr->last_attack_m_idx = 0;
 	}
-	
+
 	// boots of radiance
 	if (inventory[INVEN_FEET].k_idx)
 	{
 		u32b f1, f2, f3;
 		object_type *o_ptr = &inventory[INVEN_FEET];
-		
+
 		/* Extract the flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -2499,7 +2465,7 @@ static void process_player(void)
 			}
 		}
 	}
-	
+
 	playerturn++;
 
 	/* Window stuff */
@@ -3159,7 +3125,6 @@ void play_game(bool new_game)
 				message_flush();
 
 				/* Cheat death */
-				p_ptr->unwounded = 1;
 				p_ptr->is_dead = FALSE;
 
 				/* Restore hit points */

@@ -66,7 +66,7 @@ void teleport_away(int m_idx, int dis)
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave_feat[ny][nx] == FEAT_GLYPH) continue;
+			if (cave_glyph(ny, nx)) continue;
 
 			/* No teleporting into vaults and such */
 			/* if (cave_info[ny][nx] & (CAVE_ICKY)) continue; */
@@ -294,7 +294,7 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 		if (cave_empty_bold(y, x))
 		{
 			/*Don't allow monster to teleport onto glyphs*/
-			if (cave_feat[y][x] == FEAT_GLYPH) continue;
+			if (cave_glyph(y, x)) continue;
 
 			/* Calculate distance between target and current grid */
 			dist = distance(ny, nx, y, x);
@@ -546,20 +546,7 @@ void take_hit(int dam, cptr kb_str)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0);
 
-        /* Dead player */
-	if (p_ptr->active_ability[S_WIL][WIL_DEFIANCE])
-	{
-		if (p_ptr->chp <= 0 && p_ptr->unwounded == 1)
-		{
-			message(MSG_DEATH, 0, "The blow brings you to your knees. You know your wounds are mortal.");
-			message_flush();
-			p_ptr->mhp = p_ptr->skill_use[S_WIL];
-			p_ptr->chp = p_ptr->skill_use[S_WIL];
-			p_ptr->unwounded = 0;
-		}
-	}
-
-	if (p_ptr->chp <= 0 || (p_ptr->unwounded == 0 && !p_ptr->active_ability[S_WIL][WIL_DEFIANCE]))
+	if (p_ptr->chp <= 0)
 	{
 		/* Hack -- Note death */
 		message(MSG_DEATH, 0, "You die.");
@@ -4227,24 +4214,10 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dd, int ds, i
 	return (notice);
 }
 
-void add_wrath(void)
-{
-	int new_wrath = 100;
-	p_ptr->update |= (PU_BONUS);
-	p_ptr->redraw |= (PR_SONG);
-
-	p_ptr->wrath += new_wrath;
-}
-
-int slaying_song_bonus(void)
-{
-	return ((ability_bonus(S_SNG, SNG_SLAYING) * p_ptr->wrath + 999) / 1000);
-}
-
 /*
  *  Do the effects of Song of Freedom
  */
-void song_of_freedom(int score)
+void sing_song_of_freedom(int score)
 {
     int y, x;
     int base_difficulty, difficulty;
@@ -4790,12 +4763,6 @@ void change_song(int song)
 		
 		return;
 	}
-	
-	// Reset wrath counter if stopping singing of slaying
-	//if (old_song == SNG_SLAYING)
-	//{
-	//	p_ptr->wrath = 0;
-	//}
 
 	// Reset the song duration counter if changing major theme
 	if (song_to_change == 1)
@@ -4834,19 +4801,19 @@ void change_song(int song)
 			}
 			break;
 		}
-		case SNG_SLAYING:
+		case SNG_CHALLENGE:
 		{
 			if (song_to_change == 1)
 			{
-				msg_print("You begin a song of fury and dread.");
+				msg_print("You begin a strident song of mockery and scorn.");
 			}
 			else if (old_song == SNG_NOTHING)
 			{
-				msg_print("You add a minor theme of fury and dread.");
+				msg_print("You add a minor theme of mockery and scorn.");
 			}
 			else
 			{
-				msg_print("You change your minor theme to one of fury and dread.");
+				msg_print("You change your minor theme to one of mockery and scorn.");
 			}
 			break;
 		}
@@ -4903,15 +4870,15 @@ void change_song(int song)
 		{
 			if (song_to_change == 1)
 			{
-				msg_print("You begin a song of great enchantment.");
+				msg_print("You begin a song of the hammer and the forge's fire.");
 			}
 			else if (old_song == SNG_NOTHING)
 			{
-				msg_print("You add a minor theme of great enchantment.");
+				msg_print("You add a minor theme of the hammer and the forge's fire.");
 			}
 			else
 			{
-				msg_print("You change your minor theme to one of great enchantment.");
+				msg_print("You change your minor theme to one of the hammer and the forge's fire.");
 			}
 			break;
 		}
@@ -4947,35 +4914,35 @@ void change_song(int song)
 			}
 			break;
 		}
-		case SNG_ESTE:
+		case SNG_THRESHOLDS:
 		{
 			if (song_to_change == 1)
 			{
-				msg_print("You begin a song about gentle growth and recovery.");
+				msg_print("You begin a song of ways guarded and impassable.");
 			}
 			else if (old_song == SNG_NOTHING)
 			{
-				msg_print("You add a minor theme about gentle growth and recovery.");
+				msg_print("You add a minor theme of ways guarded and impassable.");
 			}
 			else
 			{
-				msg_print("You change your minor theme to one about gentle growth and recovery.");
+				msg_print("You change your minor theme to one of ways guarded and impassable.");
 			}
 			break;
 		}
-		case SNG_SHARPNESS:
+		case SNG_DELVINGS:
 		{
 			if (song_to_change == 1)
 			{
-				msg_print("You begin a whetting song about things that cut deep and true.");
+				msg_print("You begin a song about the rocky bones of the earth.");
 			}
 			else if (old_song == SNG_NOTHING)
 			{
-				msg_print("You add a minor theme about things that cut deep and true.");
+				msg_print("You add a minor theme about the rocky bones of the earth.");
 			}
 			else
 			{
-				msg_print("You change your minor theme to one about things that cut deep and true.");
+				msg_print("You change your minor theme to one about the rocky bones of the earth.");
 			}
 			break;
 		}
@@ -5034,9 +5001,214 @@ bool singing(int song)
 	return (FALSE);
 }
 
+bool known_to_delvings(int y, int x)
+{
+	if (!in_bounds(y,x)) return FALSE;
+	return ((cave_info[y][x] & CAVE_MARK) || (cave_info[y][x] & CAVE_SEEN));
+}
+
+void sing_song_of_challenge(int score)
+{
+	int i;
+
+	/* Scan all other monsters */
+	for (i = mon_max - 1; i >= 1; i--)
+	{
+		int resistance;
+		int result;
+
+		/* Access the monster */
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Ignore dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		resistance = monster_skill(m_ptr, S_WIL);
+
+		// adjust difficulty by the distance to the monster
+		result = skill_check(PLAYER, score, resistance + 3 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
+
+		/* If successful, alert the monster and make it more aggressive */
+		if (result > 0)
+		{
+			set_alertness(m_ptr, m_ptr->alertness + result);
+			// boost morale and check for the monster turning aggressive
+			m_ptr->tmp_morale = MAX(m_ptr->tmp_morale, 60);
+			calc_morale(m_ptr);
+			calc_stance(m_ptr);
+		}
+	}
+
+}
+
+void sing_song_of_delvings(int score)
+{
+	int y, x, yy, xx;
+	int min_x, max_x, min_y, max_y, y_range, x_range;
+
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+	int range = score;
+
+	min_y = MAX(1, py - range);
+	max_y = MIN(MAX_DUNGEON_HGT, py + range + 1);
+	min_x = MAX(1, px - range);
+	max_x = MIN(MAX_DUNGEON_WID, px + range + 1);
+	y_range = max_y - min_y;
+	x_range = max_x - min_x;
+
+	char *delvings;
+	C_MAKE(delvings, y_range * x_range * 4, char);
+
+	for (y = min_y; y < max_x; ++y)
+	{
+		for (x = min_x; x < max_x; ++x)
+		{
+			bool neighbour_known = FALSE;
+			int distance_from_player = (distance(py, px, y, x));
+			int adjusted_score = score - distance_from_player;
+
+			for (yy = y - 1; yy <= y + 1; ++yy)
+			{
+				for (xx = x - 1; xx <= x + 1; ++xx)
+				{
+					int chance = dieroll(1000);
+					if (known_to_delvings(yy, xx) && chance < adjusted_score)
+						neighbour_known = TRUE;
+				}
+			}
+
+			if (neighbour_known)
+			{
+				int dy = y - min_y;
+				int dx = x - min_x;
+
+				delvings[(dy * x_range) + dx] = TRUE;
+			}
+		}
+	}
+
+	for (y = min_y; y < max_y; ++y)
+	{
+		for (x = min_x; x < max_x; ++x)
+		{
+			int dy = y - min_y;
+			int dx = x - min_x;
+
+			if (delvings[(dy * x_range) + dx] == TRUE)
+			{
+				if (cave_m_idx[y][x] > 0)
+				{
+					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+					monster_race *r_ptr;
+					r_ptr = &r_info[m_ptr->r_idx];
+
+					if (r_ptr->flags3 & RF3_STONE)
+					{
+						/* Hack -- Detect the monster */
+						m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+						/* Update the monster */
+						update_mon(cave_m_idx[y][x], FALSE);
+					}
+				}
+				else
+				{
+					map_feature(y, x);
+				}
+			}
+		}
+	}
+
+        /* Redraw map */
+        p_ptr->redraw |= (PR_MAP);
+
+        /* Window stuff */
+        p_ptr->window |= (PW_OVERHEAD);
+
+	FREE(delvings);
+}
+
+void sing_song_of_elbereth(int score)
+{
+	int i;
+
+	/* Scan all other monsters */
+	for (i = mon_max - 1; i >= 1; i--)
+	{
+		int resistance;
+		int result;
+
+		/* Access the monster */
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Ignore dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		resistance = monster_skill(m_ptr, S_WIL);
+
+		// only intelligent monsters are affected
+		if (!(r_ptr->flags2 & (RF2_SMART)))  resistance += 100;
+
+		// Morgoth is not affected
+		if (m_ptr->r_idx == R_IDX_MORGOTH)   resistance += 100;
+
+		// adjust difficulty by the distance to the monster
+		result = skill_check(PLAYER, score, resistance + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
+
+		/* If successful, cause fear in the monster */
+		if (result > 0)
+		{
+			/* Decrease temporary morale */
+			m_ptr->tmp_morale -= result * 10;
+		}
+	}
+}
+
+void sing_song_of_lorien(int score)
+{
+	int i;
+
+	/* Scan all other monsters */
+	for (i = mon_max - 1; i >= 1; i--)
+	{
+		int resistance;
+		int result;
+
+		/* Access the monster */
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Ignore dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		resistance = monster_skill(m_ptr, S_WIL);
+
+		// Deal with sleep resistance
+		if (r_ptr->flags3 & (RF3_NO_SLEEP))
+		{
+			resistance += 100;
+			if (m_ptr->ml) l_ptr->flags3 |= (RF3_NO_SLEEP);
+		}
+
+		// adjust difficulty by the distance to the monster
+		result = skill_check(PLAYER, score, resistance + 3 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
+
+		/* If successful, (partially) put the monster to sleep */
+		if (result > 0)
+		{
+			set_alertness(m_ptr, m_ptr->alertness - result);
+		}
+	}
+}
+
 void sing(void)
 {
-	int i, type;
+	int type;
 	int song = p_ptr->song1; // a default to soothe compilation warnings
 	int score = 0;
 	int cost = 0;
@@ -5074,43 +5246,17 @@ void sing(void)
 			case SNG_ELBERETH:
 			{
 				cost += 1;
-				
-				/* Scan all other monsters */
-				for (i = mon_max - 1; i >= 1; i--)
-				{
-					int resistance;
-					int result;
-					
-					/* Access the monster */
-					monster_type *m_ptr = &mon_list[i];
-					monster_race *r_ptr = &r_info[m_ptr->r_idx];
-					
-					/* Ignore dead monsters */
-					if (!m_ptr->r_idx) continue;
-					
-					resistance = monster_skill(m_ptr, S_WIL);
-					
-					// only intelligent monsters are affected
-					if (!(r_ptr->flags2 & (RF2_SMART)))  resistance += 100;
 
-					// Morgoth is not affected
-					if (m_ptr->r_idx == R_IDX_MORGOTH)   resistance += 100;
-					
-					// adjust difficulty by the distance to the monster
-					result = skill_check(PLAYER, score, resistance + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
-										
-					/* If successful, cause fear in the monster */
-					if (result > 0)
-					{
-						/* Decrease temporary morale */
-						m_ptr->tmp_morale -= result * 10;
-					}
-				}
+				sing_song_of_elbereth(score);
+
 				break;
 			}
-			case SNG_SLAYING:
+			case SNG_CHALLENGE:
 			{
 				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
+
+				sing_song_of_challenge(score);
+
 				break;
 			}
 			case SNG_SILENCE:
@@ -5121,7 +5267,7 @@ void sing(void)
 			case SNG_FREEDOM:
 			{
 				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
-                song_of_freedom(score);
+				sing_song_of_freedom(score);
 				break;
 			}
 			case SNG_TREES:
@@ -5143,48 +5289,22 @@ void sing(void)
 			{
 				cost += 1;
 
-				/* Scan all other monsters */
-				for (i = mon_max - 1; i >= 1; i--)
-				{
-					int resistance;
-					int result;
-					
-					/* Access the monster */
-					monster_type *m_ptr = &mon_list[i];
-					monster_race *r_ptr = &r_info[m_ptr->r_idx];
-					monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-					
-					/* Ignore dead monsters */
-					if (!m_ptr->r_idx) continue;
-					
-					resistance = monster_skill(m_ptr, S_WIL);
-					
-					// Deal with sleep resistance
-					if (r_ptr->flags3 & (RF3_NO_SLEEP))
-					{
-						resistance += 100;
-						if (m_ptr->ml) l_ptr->flags3 |= (RF3_NO_SLEEP);
-					}
+				sing_song_of_lorien(score);
 
-					// adjust difficulty by the distance to the monster
-					result = skill_check(PLAYER, score, resistance + 3 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
-					
-					/* If successful, (partially) put the monster to sleep */
-					if (result > 0)
-					{
-						set_alertness(m_ptr, m_ptr->alertness - result);
-					}
-				}
 				break;
 			}
-			case SNG_ESTE:
+			case SNG_THRESHOLDS:
 			{
 				cost += 1;
+
 				break;
 			}
-			case SNG_SHARPNESS:
+			case SNG_DELVINGS:
 			{
-				cost += 1;
+				if ((p_ptr->song_duration % 3) == type - 1) cost += 1;
+
+				sing_song_of_delvings(score);
+
 				break;
 			}
 			case SNG_MASTERY:

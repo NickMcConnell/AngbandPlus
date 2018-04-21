@@ -298,6 +298,7 @@ extern void update_view(void);
 extern int flow_dist(int which_flow, int y, int x);
 extern void update_flow(int cy, int cx, int which_flow);
 extern void update_smell(void);
+extern void map_feature(int y, int x);
 extern void map_area(void);
 extern void wiz_light(void);
 extern void wiz_dark(void);
@@ -731,8 +732,6 @@ extern void disease(int *damage);
 extern bool apply_disenchant(int mode);
 extern bool project(int who, int rad, int y0, int x0, int y1, int x1, int dd, int ds, int dif, int typ,
 			 u32b flg, int degrees, bool uniform);
-extern void add_wrath(void);
-extern int  slaying_song_bonus(void);
 extern void song_of_binding(monster_type *m_ptr);
 extern void song_of_piercing(monster_type *m_ptr);
 extern void song_of_oaths(monster_type *m_ptr);

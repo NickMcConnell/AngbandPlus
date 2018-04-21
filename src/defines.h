@@ -44,13 +44,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Sil"
+#define VERSION_NAME "Sil-Q"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.3.1-q"
+#define VERSION_STRING	"1.3.2-q"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	3
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 #define VERSION_EXTRA	0
 
 
@@ -67,7 +67,7 @@
  */
 #define OLD_VERSION_MAJOR	1
 #define OLD_VERSION_MINOR	3
-#define OLD_VERSION_PATCH	1
+#define OLD_VERSION_PATCH	2
 
 
 /*
@@ -527,7 +527,7 @@
 #define	WIL_INDOMITABLE				4
 #define	WIL_HARDINESS				5
 #define	WIL_POISON_RESISTANCE			6
-#define	WIL_DEFIANCE				7
+#define	WIL_VENGEANCE				7
 #define	WIL_CRITICAL_RESISTANCE			8
 #define	WIL_MAJESTY				9
 #define	WIL_CON					10
@@ -548,15 +548,15 @@
  * Songs 
  */
 #define	SNG_ELBERETH				 0
-#define	SNG_SLAYING					 1
+#define	SNG_CHALLENGE					 1
 #define	SNG_SILENCE					 2
 #define	SNG_FREEDOM					 3
 #define	SNG_TREES					 4
 #define	SNG_AULE					 5
 #define	SNG_STAYING					 6
 #define	SNG_LORIEN					 7
-#define	SNG_ESTE					 8
-#define	SNG_SHARPNESS				 9
+#define	SNG_THRESHOLDS					 8
+#define	SNG_DELVINGS				 9
 #define	SNG_MASTERY					10
 #define	SNG_WOVEN_THEMES			11
 #define	SNG_GRA						12
@@ -909,6 +909,9 @@
 #define FEAT_GLYPH		0x03
 #define FEAT_OPEN		0x04
 #define FEAT_BROKEN		0x05
+#define FEAT_WARDED		0x06
+#define FEAT_WARDED2		0x07
+#define FEAT_WARDED3		0x08
 #define FEAT_CLOSED 	0x20  /*door*/
 
 /*stairs moved to make way for adventurers guild*/
@@ -993,6 +996,10 @@
 
 #define ART_ULTIMATE		182
 
+// Flags for the Silmarils in the crown
+#define FIRST_SILMARIL		1
+#define SECOND_SILMARIL		2
+#define THIRD_SILMARIL		4
 
 /*
  * Maximum length of artefact names
@@ -3247,8 +3254,11 @@
  * Open or broken doors don't count.
  */
 #define cave_known_closed_door_bold(Y,X) \
-    ((cave_feat[Y][X] >= FEAT_DOOR_HEAD) && \
-     (cave_feat[Y][X] <= FEAT_DOOR_TAIL))
+    (((cave_feat[Y][X] >= FEAT_DOOR_HEAD) && \
+      (cave_feat[Y][X] <= FEAT_DOOR_TAIL)) || \
+      (cave_feat[Y][X] == FEAT_WARDED) || \
+      (cave_feat[Y][X] == FEAT_WARDED2) || \
+      (cave_feat[Y][X] == FEAT_WARDED3))
 
 /*
  * Determine if a "legal" grid is a closed door.
@@ -3257,9 +3267,19 @@
 #define cave_any_closed_door_bold(Y,X) \
    (((cave_feat[Y][X] >= FEAT_DOOR_HEAD) && \
      (cave_feat[Y][X] <= FEAT_DOOR_TAIL)) || \
-     (cave_feat[Y][X] == FEAT_SECRET))
+     (cave_feat[Y][X] == FEAT_SECRET) || \
+     (cave_feat[Y][X] == FEAT_WARDED) || \
+     (cave_feat[Y][X] == FEAT_WARDED2) || \
+     (cave_feat[Y][X] == FEAT_WARDED3))
 
-
+/*
+ * Determine if a "legal" grid is a glyph or warded door.
+ */
+#define cave_glyph(Y,X) \
+   ((cave_feat[Y][X] == FEAT_WARDED) || \
+    (cave_feat[Y][X] == FEAT_WARDED2) || \
+    (cave_feat[Y][X] == FEAT_WARDED3) || \
+    (cave_feat[Y][X] == FEAT_GLYPH))
 
 /*
  * Determine if a "legal" grid is within "los" of the player

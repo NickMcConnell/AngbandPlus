@@ -1436,6 +1436,11 @@ bool make_attack_normal(monster_type *m_ptr)
 				}
 			}
 
+			if (net_dam > 0 && p_ptr->active_ability[S_WIL][WIL_VENGEANCE])
+			{
+				p_ptr->vengeance = 1;
+			}
+
 			update_combat_rolls2(dd + crit_bonus_dice + elem_bonus_dice, ds, dam, -1, -1, prt, prt_percent, dam_type, TRUE); 
 		
 			display_hit(p_ptr->py, p_ptr->px, net_dam, dam_type, p_ptr->is_dead);
@@ -1565,11 +1570,21 @@ bool make_attack_normal(monster_type *m_ptr)
 				/* Visible monsters */
 				if (m_ptr->ml && !p_ptr->confused)
 				{
+					bool quake_anyway = FALSE;
+					int damage = m_ptr->maxhp - m_ptr->hp;
+
 					/* Disturbing */
 					disturb(1, 0);
 
+					// Extra earthquakes as more damaged
+					// (really for Morgoth, who has more
+					// health to lose) - binomial
+					// distribution means low probabilty
+					// at first, gradually increasing
+					quake_anyway = damage > damroll(2, 1000);
+
 					// deal with earthquakes if they miss you by 1 or 2 or 3 points
-					if ((effect == RBE_SHATTER) && (hit_result > -3))
+					if (((effect == RBE_SHATTER) && (hit_result > -3)) || quake_anyway)
 					{
 						/* Message */
 						msg_format("%^s just misses you.", m_name);
@@ -2111,16 +2126,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			disturb(0, 0);
 			
-			// special message for Mewlips
-			if ((r_ptr->d_char == 'H') && (r_ptr->d_attr == TERM_UMBER))
-			{
-				if (blind) msg_format("%^s rings its bell.", m_name);
-				else msg_format("%^s rings its bell.", m_name);
-			}
-			else
-			{
-				msg_format("%^s tries to blank your mind.", m_name);
-			}
+			msg_format("%^s tries to blank your mind.", m_name);
 			
 			if (saving_throw(m_ptr, 0))
 			{

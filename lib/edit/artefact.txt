@@ -158,7 +158,7 @@
 
 # Version stamp (required)
 
-V:1.3.1
+V:1.3.2
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -172,7 +172,7 @@ V:1.3.1
 
 ## The Ring of Barahir
 ## 1st age
-## (ability 7/8 is Song of Este)
+## (ability 7/6 is Song of Staying)
 
 N:1:of Barahir
 I:45:32:0
@@ -180,7 +180,7 @@ W:10:20:1:5000
 P:0:0d0:0:0d0
 F:FREE_ACT | RES_POIS
 F:INSTA_ART
-B:7/8
+B:7/6
 D:A ring shaped into twinned serpents with eyes of emerald meeting
 D: beneath a crown of flowers. It was given to Barahir of Beor's House
 D: by Finrod Felagund the Noldorin Prince. It is a symbol of loyalty and
@@ -874,9 +874,9 @@ N:90:of Melkor
 G:/:D
 I:22:2:-1
 W:15:20:80:100000
-P:-1:1d14:1:0d0
+P:-1:1d15:1:0d0
 F:GRA | BRAND_POIS
-F:VUL_POIS | LIGHT_CURSE 
+F:FREE_ACT | VUL_POIS | LIGHT_CURSE 
 D:A mighty black spear, once wielded by the Lord of Darkness
 D: himself as he came to Valinor in wrath. Its envenomed bite pierced
 D: the Two Trees with wounds that would not heal.
