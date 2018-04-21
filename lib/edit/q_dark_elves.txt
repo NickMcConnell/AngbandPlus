@@ -50,6 +50,6 @@ M:#.......#
 M:#..%%%..#
 M:#...<...#
 M:#########
-R:ART(galadriel)
+R:OBJ(feanorian lamp):ART(*)
 
 # vim: filetype=q :

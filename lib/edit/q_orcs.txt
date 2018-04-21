@@ -48,9 +48,18 @@ M:###########.............a.....................................#######
 M:##############..........................................#############
 M:##################...................................################
 M:#####################################################################
-R:OBJ(^cloak$):EGO(of stealth)
-
-?:[EQU RACE$ Beholder]
-R:OBJ(^ring$):EGO(protection)
+R:OBJ(SWORD):EGO(slaying)
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes Polearms] ]
+R:OBJ(POLEARM):EGO(slaying)
+?:[EQU $CLASS Priest]
+R:OBJ(HAFTED):EGO(slaying)
+?:[EQU $RACE Angel]
+R:OBJ(HAFTED):EGO(slaying)
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs Staves] ]
+R:OBJ(HAFTED):EGO(slaying)
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] ]
+R:OBJ(DIGGING):EGO(slaying)
+?:[EQU $CLASS Monk Force-Trainer Mystic]
+R:OBJ(GLOVES):EGO(slaying)
 
 # vim: filetype=q :

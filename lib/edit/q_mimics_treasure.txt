@@ -44,9 +44,6 @@ M:#++%%%%%%%%%%%++#
 M:#...............#
 M:#.......<.......#
 M:#################
-R:OBJ(^ring$):EGO(protection)
-
-?:[EQU $RACE Hydra]
 R:OBJ(^amulet$):EGO(trickery)
 
 # vim: filetype=q :

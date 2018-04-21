@@ -1037,6 +1037,42 @@ static void process_world_aux_hp_and_sp(void)
         }
     }
 
+	if (have_flag(f_ptr->flags, FF_ACID) && !IS_INVULN())
+	{
+		int damage = 0;
+
+		if (have_flag(f_ptr->flags, FF_DEEP))
+		{
+			damage = 6000 + randint0(4000);
+		}
+		else if (!p_ptr->levitation)
+		{
+			damage = 3000 + randint0(2000);
+		}
+
+		damage = res_calc_dam(RES_ACID, damage);
+		if (p_ptr->levitation) damage = damage / 5;
+
+		if (damage)
+		{
+			damage = damage / 100 + (randint0(100) < (damage % 100));
+
+			if (p_ptr->levitation)
+			{
+				msg_print("The acid burns you!");
+				take_hit(DAMAGE_NOESCAPE, damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name));
+			}
+			else
+			{
+				cptr name = f_name + f_info[get_feat_mimic(&cave[py][px])].name;
+				msg_format("The %s burns you!", name);
+				take_hit(DAMAGE_NOESCAPE, damage, name);
+			}
+
+			cave_no_regen = TRUE;
+		}
+	}
+
     if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP) &&
         !p_ptr->levitation && !p_ptr->can_swim && !elemental_is_(ELEMENTAL_WATER))
     {

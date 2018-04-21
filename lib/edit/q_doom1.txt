@@ -1,4 +1,4 @@
-# a quick creation by Jeff Coleburn <vsp@netaxs.com>
+# remade to be more like doom
 
 ?:[EQU $QUEST19 Taken InProgress]
 D:We need your help, adventurer. A hole has opened up to the
@@ -17,26 +17,34 @@ D:Thank you for killing the demons!
 D:I've sent out someone else to do the job. Now leave me alone!
 ?:1
 
-T:QUEST:NORMAL
+T:QUEST:NORMAL:NO_ROTATE
 L:#:PERMANENT
 L:.:FLOOR
 L:+:CLOSED_DOOR
-L:;:RUBBLE
+L:W:PERMANENT_GLASS_WALL
+L:~:DEEP_ACID
 L:<:UP_STAIR
-L:$:OBJ(*)
-L:a:MON(^manes$)
+L:a:MON(zombified human)
 L:b:MON(^imp$)
-L:c:MON(flying skull)
+L:c:MON(black knight)
 L:d:MON(arch-vile)
+L:e:OBJ(elven cloak)
+L:f:OBJ(blue dragon)
+L:g:OBJ(potion of healing)
+L:h:OBJ(BOLT, DEPTH+15)
+L:i:OBJ(light crossbow, DEPTH+10)
+L:j:OBJ(potion of cure serious wounds)
+L:k:MON(landmine)
 M:###############################################
-M:#$....c....a....#$....#.......+c+...ca...;#.$$#
-M:#$......######..#.bcb.+..b.b..+c+..b...###...$#
-M:#.b.....#b......#..b..#..a....+c+....####....$#
-M:#####...#.$...b.#.....#.b..$$.+c+..#####c...d.#
-M:#$..+...#......#####+##.b..$$.+c+..#####....d.#
-M:#$b.#.a.#...b.##......#.......+c+...$####....$#
-M:#####...#..####.c.....#..b.b..+c+..b...###...$#
-M:#<..+...#...b........$#.......+c+...ca...;#.$$#
+M:####.c.##########.c........#######.....~~~~~~~#
+M:####...#j.....j.+....##.......a........a~~~~~~#
+M:#....#..........+....a#.........a..~...~~~~~~~#
+M:#.e.............#....##..c.#######~~~..a~~.b..#
+M:#....#..........#c.........#...#.%~~c..~~~..d.#
+M:####...#.......######WWWW###...#.####++#####%##
+M:####.c.#.......W....~~~........#.#.aW..Wa.#h..#
+M:########j.....jW....~f~....#####c#..#..#..#h..#
+M:##########.<.###....~~~....%....g#.k.b..k.#i..#
 M:###############################################
 R:OBJ(^ring$):EGO(elemental)
 

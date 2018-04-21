@@ -1,6 +1,6 @@
 ?:[EQU $QUEST59 Taken InProgress]
 D:You're one of the strongest we've seen, so here's your
-D:final test - go to Angband and kill ten Barbazu. If you
+D:final test - go to Angband and kill ten Lesser Balrogs. If you
 D:can do it, we'll sing songs to your glorious triumph.
 ?:1
 

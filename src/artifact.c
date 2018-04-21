@@ -1275,8 +1275,6 @@ static void random_misc(object_type * o_ptr)
             add_flag(o_ptr->flags, OF_NO_MAGIC);
             break;
         case 31:
-            add_flag(o_ptr->flags, OF_NO_TELE);
-            break;
         case 32:
             add_flag(o_ptr->flags, OF_WARNING);
             break;
@@ -1878,16 +1876,16 @@ typedef struct {
 } _slot_weight_t, *_slot_weight_ptr;
 static _slot_weight_t _slot_weight_tbl[] = {
     {"Weapons", object_is_melee_weapon, 80},
-    {"Shields", object_is_shield, 55},
-    {"Bows", object_is_bow, 65},
-    {"Rings", object_is_ring, 50},
-    {"Amulets", object_is_amulet, 50},
-    {"Lights", object_is_lite, 40},
+    {"Shields", object_is_shield, 60},
+    {"Bows", object_is_bow, 70},
+    {"Rings", object_is_ring, 60},
+    {"Amulets", object_is_amulet, 60},
+    {"Lights", object_is_lite, 45},
     {"Body Armor", object_is_body_armour, 80},
-    {"Cloaks", object_is_cloak, 45},
-    {"Helmets", object_is_helmet, 50},
-    {"Gloves", object_is_gloves, 45},
-    {"Boots", object_is_boots, 50},
+    {"Cloaks", object_is_cloak, 55},
+    {"Helmets", object_is_helmet, 60},
+    {"Gloves", object_is_gloves, 55},
+    {"Boots", object_is_boots, 60},
     {NULL}
 };
 static int _get_slot_weight(obj_ptr obj)
@@ -3217,14 +3215,11 @@ bool reforge_artifact(object_type *src, object_type *dest, int fame)
     if (object_is_melee_weapon(dest))
     {
         int dice = k_info[dest->k_idx].dd * k_info[dest->k_idx].ds;
-        if (dice < 12)
+        if (dice < 12 && k_info[dest->k_idx].ds > 2)
             dest_weight = dest_weight * dice / 12;
     }
     if (src_weight > dest_weight)
         base_power = base_power * dest_weight / src_weight;
-
-    /* Pay a Power Tax! */
-    base_power = base_power*2/3 + randint1(base_power*fame/900);
 
     /* Setup thresholds. For weak objects, its better to use a generous range ... */
     if (base_power < 1000)

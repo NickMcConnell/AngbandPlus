@@ -5,7 +5,7 @@ D:I find that I am having trouble controlling the thieves who are
 D:beginning to move into my city. If you wish to show your allegience
 D:you must search the city and destroy the lair that these thieves
 D:call home. My troops report finding evidence of the thieves in the
-D:northwestern quarter. Your task is to kill these ruffians.
+D:northeastern quarter. Your task is to kill these ruffians.
 ?:1
 
 ?:[EQU $QUEST1 Completed]
@@ -61,9 +61,6 @@ R:OBJ(^ring$):EGO(protection)
 ?:[EQU $CLASS Duelist]
 R:OBJ(rapier)
 
-?:[EQU $CLASS Rogue]
-R:OBJ(^sling$)
-
 ?:[EQU $CLASS Archaeologist]
 R:OBJ(^whip$)
 
@@ -73,25 +70,40 @@ R:OBJ(broad spear)
 ?:[EQU $CLASS Monk Force-Trainer Mystic]
 R:OBJ(gauntlets)
 
+?:[EQU $CLASS Samurai]
+R:OBJ(katana)
+
+?:[EQU $CLASS Warrior Paladin]
+R:OBJ(broad sword)
+
 ?:[EQU $CLASS Priest]
 R:OBJ(war hammer)
 
 ?:[EQU $RACE Angel]
 R:OBJ(war hammer)
 
-?:[EQU $CLASS Archer]
-R:OBJ(short bow)
-
 ?:[EQU $CLASS Weaponsmith]
 R:OBJ(broad axe)
 
-?:[EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage Yellow-Mage Gray-Mage]
-R:OBJ(^ring$):EGO(protection)
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] ]
+R:OBJ(broad axe)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] ]
+R:OBJ(war hammer)
 
 ?:[EQU $CLASS Ninja]
 R:OBJ(^dagger$)
 
-?:[EQU $CLASS Sniper]
-R:OBJ(light crossbow)
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] ]
+R:OBJ(^dagger$)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Diggers] ]
+R:OBJ(^pick$)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] ]
+R:OBJ(quarterstaff)
+
+?:[AND [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] ]
+R:OBJ(^pike$)
 
 # vim: filetype=q :

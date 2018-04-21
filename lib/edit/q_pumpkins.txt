@@ -1,0 +1,18 @@
+?:[EQU $QUEST64 Taken InProgress]
+D:Oh you're back already, hmm. Next thing you should do is
+D:get me some pumpkins from the icky cave. They have
+D:interesting magical properties.
+?:1
+
+?:[EQU $QUEST64 Completed]
+D:Good work. Now I can finish my soup. Take this signet
+D:ring to show you're allowed to be here.
+?:1
+
+?:[EQU $QUEST64 Failed]
+D:You know what helps with pumpkins? Fire.
+?:1
+
+R:OBJ(RING):EGO(wizardry)
+
+# vim: filetype=q :

@@ -3485,7 +3485,7 @@ B:CLAW:HURT(1d8)
 B:CLAW:HURT(1d8)
 B:BITE:HURT(1d6)
 F:BASH_DOOR | WILD_GRASS | WILD_WOOD | WILD_MOUNTAIN | ANIMAL
-F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | RIDING
 P:Copy:Human:Rogue
 P:Skills:0:-7:0:0:0:0:0:0
 P:ExtraSkills:0:-4:0:0:0:0:0:0
@@ -5217,7 +5217,7 @@ B:CLAW:HURT(1d10)
 B:BITE:HURT(1d10)
 B:BITE:HURT(1d10)
 F:BASH_DOOR | WILD_WOOD | WILD_GRASS | ANIMAL
-F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
+F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | RIDING
 P:Copy:Dunadan:Rogue
 P:Skills:0:-7:0:0:0:0:0:0
 P:ExtraSkills:0:-4:0:0:0:0:0:0
@@ -20589,7 +20589,7 @@ D:preparing for the Great Hunt and in a low voice he intones your name.
 
 N:1148:Aude
 G:p:o
-I:120:40d40:30:80:5:110
+I:120:16d100:30:80:5:110
 W:38:1:999:3000:0:0
 B:GAZE:HURT(2d6):CONFUSE(50%)
 B:HIT:HURT(1d12):FIRE(1d6):ELEC(1d6):COLD(1d6)
@@ -20611,7 +20611,7 @@ D:closed eyes issuing an invitation you somehow cannot resist.
 
 N:1149:Helga
 G:p:D
-I:120:40d40:30:85:15:110
+I:120:18d100:30:85:15:110
 W:39:1:999:4000:0:0
 B:HIT:HURT(3d6)
 B:BITE:HURT(1d6):VAMP(3d6)
@@ -20624,7 +20624,7 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | RES_NETH | RES_WATE
 F:EVIL | HUMAN | REGENERATE | DROP_CORPSE |
 F:RES_FIRE | RES_POIS | RES_ELEC | RES_ACID | RES_COLD |
 F:NO_SLEEP | NO_CONF | FOREST | NO_QUEST | SELF_DARK_2
-A:NETHER(1d3)
+A:NETHER(2d3)
 S:1_IN_3 |
 S:TELE_SELF | HEAL | BA_NETHER | CAUSE_3 | ANIM_DEAD
 S:BLINK | SHRIEK | BO_NETHER | TELE_TO
@@ -20635,23 +20635,22 @@ D:of the undead to destroy you!
 
 N:1150:Gertrude
 G:p:r
-I:120:50d50:30:90:5:110
+I:120:21d100:30:100:5:110
 W:40:1:999:5000:0:0
 B:HIT:HURT(2d6):POIS(2d6)
 B:HIT:HURT(2d6):DISENCHANT(2d6)
 B:GAZE:HURT(2d6):DRAIN_CHARGES
-B:TOUCH:NEXUS(3d6, 90%):TIME(3d6, 10%)
+B:TOUCH:NEXUS(3d6)
 F:UNIQUE | FEMALE |
 F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
 F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
 F:SMART | TAKE_ITEM | OPEN_DOOR | RES_WATE | RES_NETH
 F:EVIL | HUMAN | REGENERATE | DROP_CORPSE |
 F:RES_FIRE | RES_POIS | RES_ELEC | RES_ACID | RES_COLD |
-F:NO_SLEEP | NO_CONF | FOREST | NO_QUEST | SELF_DARK_2
-A:DISENCHANT(1d3)
+F:NO_SLEEP | NO_CONF | FOREST | NO_QUEST
 S:1_IN_3 |
-S:BA_ACID | S_SPECIAL | HEAL | POLYMORPH | CAUSE_3 | BRAIN_SMASH
-S:BA_POIS | TRAPS | BO_MANA | TELE_OTHER | TELE_TO
+S:BA_ACID | S_SPECIAL | POLYMORPH | CAUSE_3 | CONFUSE
+S:TRAPS | BO_MANA | HASTE | SLOW | BLIND
 O:DROP_MAGE
 D:This battered old soul has wandered far and long from her coven Dulritch.
 D:The years have not been good to her, her eyes filled with weary hatred,
@@ -20709,7 +20708,7 @@ B:HIT:HURT(3d4)
 B:HIT:HURT(3d4)
 F:DROP_90
 F:IM_FIRE | FRIENDS(4d4)
-F:EVIL | DEMON |
+F:EVIL | DEMON | OPEN_DOOR | BASH_DOOR |
 S:1_IN_9
 S:BO_FIRE
 S:S_DEMON
@@ -20744,7 +20743,7 @@ B:HIT:HURT(3d4)
 B:HIT:HURT(3d4)
 F:DROP_60
 F:IM_FIRE
-F:EVIL | DEMON |
+F:EVIL | DEMON | OPEN_DOOR | BASH_DOOR |
 S:1_IN_9
 S:BO_FIRE
 S:S_DEMON
@@ -20760,7 +20759,7 @@ B:HIT:HURT(3d4)
 F:HAS_LITE_1
 F:DROP_90
 F:IM_FIRE
-F:EVIL | DEMON |
+F:EVIL | DEMON | OPEN_DOOR | BASH_DOOR |
 S:1_IN_9
 S:BLIND | CONFUSE
 S:BR_FIRE
@@ -20778,7 +20777,7 @@ B:HIT:HURT(10d2):LOSE_CON
 B:STING:POISON(5d5)
 F:DROP_90
 F:IM_POIS | FRIENDS(4d4)
-F:EVIL | DEMON |
+F:EVIL | DEMON | OPEN_DOOR | BASH_DOOR |
 S:1_IN_10
 S:SCARE
 S:S_DEMON
@@ -20795,7 +20794,7 @@ B:CRUSH:HURT(8d12)
 B:CRUSH:HURT(8d12)
 F:DROP_60
 F:IM_FIRE | FRIENDS(4d4)
-F:EVIL | DEMON |
+F:EVIL | DEMON | OPEN_DOOR | BASH_DOOR |
 S:1_IN_8
 S:BLIND | CONFUSE
 D:It is a demon with a long neck and raking claws.
@@ -20985,16 +20984,16 @@ D:Greatest of the crystal dragons, it threatens to tear you asunder with its
 D:mighty claws.
 
 N:1168:Cacodemon
-G:U:R
-I:108:60d12:10:110:40:200
-W:24:3:90:1000:0:0
+G:e:R
+I:105:60d12:10:110:40:200
+W:32:3:90:1200:0:0
 B:BITE:HURT(6d2)
 B:BITE:HURT(6d2)
 B:BITE:HURT(12d1):PLASMA(1d12)
 F:RES_POIS | OPEN_DOOR | BASH_DOOR | RES_PLAS | NONLIVING |
 F:RES_FIRE | NO_CONF | NO_SLEEP | EVIL | DEMON | FORCE_MAXHP | CAN_FLY
 F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | RAND_50 | FRIENDS(2d2)
-S:1_IN_2 | BO_PLASMA
+S:1_IN_5 | BO_PLASMA
 D:A giant one-eyed floating meatball, spitting plasma.
 
 N:1169:Chitauli
@@ -21834,67 +21833,67 @@ F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Half-Titan:Beastmaster
 P:Life:110
 P:Body:Dragon
-S:FREQ_10 | SLOW | CONFUSE | SCARE | BR_INERTIA | DETECT_OBJECTS 
+S:FREQ_15 | SLOW | CONFUSE | SCARE | BR_INERTIA | DETECT_OBJECTS 
 D:A huge draconic form wreathed in a nimbus of light.
 
-# Crystal dragon variants
+# Crystal snakes
 
-N:1211:Ruby Dragon
-G:D:B
+N:1211:Ruby Serpent
+G:J:B
 I:120:16d100:25:110:30:500
 W:45:3:999:8000:0:0
 B:CLAW:HURT(4d9)
 B:CLAW:HURT(4d9)
 B:BITE:HURT(5d12):FIRE(3d12):CUT(5d12, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | REFLECTING
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | CAN_FLY | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | ATTR_CLEAR | RAND_25
 F:HAS_LITE_1 | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_FIRE
-F:EVIL | DRAGON | RES_COLD | NO_CONF | RES_SHAR | NO_SLEEP | RIDING
+F:ANIMAL | RES_COLD | NO_CONF | RES_SHAR | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS
-P:Copy:Half-Titan:Beastmaster
-P:Body:Dragon
-S:FREQ_10 | SLOW | CONFUSE | SCARE | BR_SHARDS | DETECT_OBJECTS 
+S:FREQ_15 | SLOW | CONFUSE | SCARE | BR_SHARDS | DETECT_OBJECTS 
 S:BR_FIRE |
+P:Copy:Ogre:Warrior-Mage
+P:Body:Naga
 D:A huge crystalline dragon. Its claws could cut you to shreds and 
 D:its teeth are razor sharp. Deep red hues reflect from it as it 
 D:moves in the light.
 
-N:1212:Emerald Dragon
-G:D:B
+N:1212:Emerald Serpent
+G:J:B
 I:120:16d100:25:110:30:500
-W:45:3:999:8000:0:0
+W:46:3:999:8000:0:0
 B:CLAW:HURT(4d9)
 B:CLAW:HURT(4d9)
 B:BITE:HURT(5d12):POISON(3d12):CUT(5d12, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | REFLECTING
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | CAN_FLY | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | ATTR_CLEAR | RAND_25
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_POIS |
-F:EVIL | DRAGON | RES_COLD | NO_CONF | RES_SHAR | NO_SLEEP | RIDING
+F:ANIMAL | RES_COLD | NO_CONF | RES_SHAR | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS
-P:Copy:Half-Titan:Beastmaster
-P:Body:Dragon
-S:FREQ_10 | SLOW | CONFUSE | SCARE | BR_SHARDS | DETECT_OBJECTS 
+S:FREQ_15 | SLOW | CONFUSE | SCARE | BR_SHARDS | DETECT_OBJECTS 
 S:BR_POISON |
+P:Copy:Ogre:Warrior-Mage
+P:Body:Naga
 D:A huge crystalline dragon. Its claws could cut you to shreds and its
 D:teeth are razor sharp. Deep green hues reflect from it as it moves in
 D:the light.
 
-N:1213:Amethyst Dragon
-G:D:B
+N:1213:Amethyst Serpent
+G:J:B
 I:120:16d100:25:110:30:500
-W:45:3:999:8000:0:0
+W:47:3:999:8000:0:0
 B:CLAW:HURT(4d9)
 B:CLAW:HURT(4d9)
 B:BITE:HURT(5d12):DARK(3d12):CUT(5d12, 10%)
 F:FORCE_SLEEP | FORCE_MAXHP | REFLECTING | RES_DISE
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | CAN_FLY | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | ATTR_CLEAR | RAND_25
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_DARK |
-F:EVIL | DRAGON | RES_COLD | NO_CONF | RES_SHAR | NO_SLEEP | RIDING
+F:ANIMAL | RES_COLD | NO_CONF | RES_SHAR | NO_SLEEP | RIDING
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS
-P:Copy:Half-Titan:Beastmaster
-P:Body:Dragon
-S:FREQ_12 | SLOW | CONFUSE | SCARE | BR_SHARDS | DETECT_OBJECTS
+S:FREQ_15 | SLOW | CONFUSE | SCARE | BR_SHARDS | DETECT_OBJECTS
 S:BR_DISENCHANT | BR_DARK 
+P:Copy:Ogre:Warrior-Mage
+P:Body:Naga
 D:A huge crystalline dragon. Its claws could cut you to shreds and its
 D:teeth are razor sharp. Deep purple hues reflect from it it as it moves in
 D:the light.
@@ -21903,7 +21902,7 @@ D:the light.
 
 N:1214:The Midnight Dragon
 G:D:D
-I:125:20d100:25:125:30:500
+I:125:25d100:25:125:30:500
 W:50:3:999:8000:0:0
 B:CLAW:HURT(4d9)
 B:CLAW:HURT(4d9)
@@ -21924,7 +21923,7 @@ D:contemptously.
 
 N:1215:The Nightmare Dragon
 G:D:v
-I:130:30d100:25:130:30:500
+I:130:40d100:25:130:30:500
 W:66:3:999:8000:0:0
 B:CLAW:HURT(4d9)
 B:CLAW:HURT(4d9)
@@ -21948,12 +21947,12 @@ D:You try and convince yourself that it doesn't exist
 N:1216:Winged Horror
 G:B:v
 I:120:20d100:30:96:5:400
-W:48:3:999:4000:0:0
+W:44:3:999:4000:0:0
 B:CLAW:HURT(3d8)
 B:CLAW:HURT(3d8)
 B:BITE:HURT(4d6)
 B:BITE:HURT(4d6)
-F:IM_COLD | IM_POIS | UNDEAD | RIDING | EVIL
+F:IM_COLD | IM_POIS | UNDEAD | RIDING | EVIL | CAN_FLY | FORCE_MAXHP
 S:1_IN_6
 S:BR_DARK | BR_NETHER | BR_POISON
 D:A terrifying sight: a winged creature greater than any bird you have ever
@@ -21966,7 +21965,7 @@ D: steed for his Ringwraiths.
 N:1217:Triceratops
 G:R:o
 I:111:100d10:20:70:10:700
-W:40:2:90:2500:0:0
+W:33:2:90:1500:0:0
 B:BUTT:HURT(4d6)
 B:CHARGE:HURT(4d6):CUT(2d6, 50%)
 B:CRUSH:HURT(4d6):HURT(4d6, 20%)
@@ -21982,7 +21981,7 @@ D:It has very long very sharp head horns and a bony frill around its head.
 N:1218:Diplodocus
 G:R:g
 I:108:150d10:20:70:50:700
-W:40:2:90:3000:0:0
+W:34:2:90:2500:0:0
 B:BUTT:HURT(4d6)
 B:KICK:HURT(4d6)
 B:CRUSH:HURT(4d6):HURT(4d6, 20%)
@@ -21997,7 +21996,7 @@ D:A long necked sauropod. It is very large.
 N:1219:Ankylosaur
 G:R:U
 I:108:120d10:20:110:50:700
-W:40:2:90:2500:0:0
+W:35:2:90:1500:0:0
 B:BITE:HURT(4d6)
 B:CRUSH:HURT(4d6):HURT(4d6, 20%)
 B:CRUSH:HURT(4d6):STUN(4d6, 20%)
@@ -22013,7 +22012,7 @@ D:It is covered in armor plating and has a huge clubbed tail.
 N:1220:Pteranodon
 G:R:w
 I:120:80d10:20:60:10:700
-W:40:2:90:1000:0:0
+W:30:2:90:800:0:0
 B:BITE:HURT(4d6)
 B:BITE:HURT(4d6)
 F:BASH_DOOR | WILD_GRASS
@@ -22027,7 +22026,7 @@ D:A great winged reptile in search of prey.
 N:1221:Giant Land Sloth
 G:Y:U
 I:104:110d10:20:50:10:700
-W:30:2:90:500:0:0
+W:27:2:90:500:0:0
 B:CLAW:HURT(4d6):POISON(4d6):CUT(2d6, 50%)
 B:CLAW:HURT(4d6):POISON(4d6):CUT(2d6, 50%)
 F:BASH_DOOR | WILD_GRASS
@@ -22041,7 +22040,7 @@ D:A lazy mammal tearing down obstacles with oversized claws rather than go aroun
 N:1222:Glyptodont
 G:q:w
 I:107:80d10:20:80:10:700
-W:20:3:90:300:0:0
+W:25:3:90:300:0:0
 B:BITE:HURT(3d6):HURT(3d6, 50%)
 F:BASH_DOOR | WILD_GRASS | FRIENDS(3d2)
 F:ANIMAL | RIDING |
@@ -22054,7 +22053,7 @@ D:armoured shell.
 N:1223:Dimetrodon
 G:R:U
 I:108:30d10:20:40:100:700
-W:15:3:90:200:0:0
+W:20:3:90:200:0:0
 B:BITE:HURT(3d6)
 B:BITE:HURT(3d6)
 F:FRIENDS(1d4) |
@@ -22080,6 +22079,24 @@ P:Body:Bird
 S:1_IN_9 | CAUSE_1
 D:A crook-beaked bird with bedraggled black feathers.  It mocks you, and you 
 D:realise that its scorn can kill.
+
+N:1225:Beer Elemental
+G:E:U
+I:110:25d8:12:40:50:200
+W:35:20:999:500:0:0
+B:ENGULF:CONFUSE(1d10)
+B:ENGULF:CONFUSE(1d10)
+B:ENGULF:POISON(1d10)
+F:FORCE_SLEEP | RAND_25 |
+F:EMPTY_MIND | COLD_BLOOD | CAN_FLY |
+F:KILL_BODY | KILL_ITEM | BASH_DOOR |
+F:EVIL | RES_WATE | RES_POIS | NONLIVING |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+S:1_IN_6 |
+S:BR_CONFUSION
+D:A frothing mass of ale set in motion by mysterious forces.
 
 
 # N: serial number : monster name

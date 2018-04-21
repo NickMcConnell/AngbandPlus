@@ -81,7 +81,7 @@ N:16:40:Assault on Montsalvat (Telmora)
 T:TOWN | GENERATE
 F:q_montsalvat.txt
 
-N:19:15:Doom Quest I (Angwil)
+N:19:25:Doom Quest I (Angwil)
 T:TOWN | GENERATE
 F:q_doom1.txt
 
@@ -221,8 +221,8 @@ G:KILL(mean looking mercenary, 5)
 
 N:51:15:I Hate Snakes! (Morivant)
 T:TOWN | GENERATE
-F:q_snakes.txt
 G:FIND(jones)
+F:q_snakes.txt
 
 N:52:25:The Old Barracks (Morivant)
 T:TOWN | GENERATE
@@ -244,7 +244,7 @@ N:60:25:Clear the tunnels (Thalos)
 T:TOWN | GENERATE
 F:q_tunnels.txt
 
-N:61:30:Clear the wreckage (Thalos)
+N:61:50:Clear the wreckage (Thalos)
 T:TOWN | GENERATE
 F:q_shipwreck.txt
 
@@ -256,28 +256,63 @@ F:q_birds.txt
 # Fighters guild quests
 #####################################################################
 
-N:56:30:Troll slayer
+N:56:30:Troll Slayer (Morivant)
 T:TOWN
 W:orc
 G:KILL(olog, 10)
 F:q_trollslayer.txt
 
-N:57:35:Giant slayer
+N:57:35:Giant Slayer (Morivant)
 T:TOWN
 W:giant
 G:KILL(lesser titan, 10)
 F:q_giantslayer.txt
 
-N:58:38:Dragon slayer
+N:58:38:Dragon Slayer (Morivant)
 T:TOWN
 W:lonely
-G:KILL(ancient gold dragon, 10)
+G:KILL(ancient gold, 10)
 F:q_dragonslayer.txt
 
-N:59:50:Demon slayer
+N:59:44:Demon Slayer (Morivant)
 T:TOWN
 W:angband
-G:KILL(barbazu, 10)
+G:KILL(lesser balrog, 10)
 F:q_demonslayer.txt
+
+#####################################################################
+# Mages guild quests
+#####################################################################
+
+N:63:10:Mushrooms (Thalos)
+T:TOWN
+W:icky
+G:KILL(magic mushroom, 5)
+F:q_mushrooms.txt
+
+N:64:15:Pumpkins (Thalos)
+T:TOWN
+W:icky
+G:KILL(pumpkin man, 8)
+F:q_pumpkins.txt
+
+N:65:20:Tidy the Laboratory (Thalos)
+T:TOWN | GENERATE
+F:q_laboratory.txt
+
+N:66:35:Basilisk Den (Thalos)
+T:TOWN | GENERATE
+F:q_basilisk.txt
+
+N:67:40:Crystal Quest (Thalos)
+T:TOWN
+W:crystal
+G:KILL(great crystal drake, 5)
+F:q_crystal.txt
+
+#N:66:65:Renegade Master (Thalos)
+#T:TOWN | GENERATE
+#F:q_renegade.txt
+#R:OBJ(robe):EGO(sorcerer)
 
 # vim: filetype=qi :

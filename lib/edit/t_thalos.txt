@@ -2,11 +2,16 @@
 T:TOWN:NORMAL:NO_ROTATE
 %:t_pref.txt
 
-# Default for Quest 60 = entrance is grass
+L:>:ENTRANCE(GLOW | MARK, 21)
+
+# Default for Quest 60
 L:z:GRASS
 
-# Default for Quest 61 = entrance is grass
+# Default for Quest 61
 L:y:PERMANENT
+
+# Default for Quest 65
+L:x:FLOOR
 
 ############### Quest 22 - Orc Camp
 ?:[EQU $QUEST22 Taken]
@@ -32,6 +37,37 @@ L:b:BUILDING_1(61)
 ?:[EQU $QUEST61 Finished FailedDone]
 L:b:BUILDING_1(0)
 ?:1
+
+############### Quest Sequence #2
+############### Quest 63 - Mushrooms ###############
+?:[EQU $QUEST63 Untaken Taken Completed Failed]
+L:n:BUILDING_13(63)
+?:[EQU $QUEST63 Finished FailedDone]
+L:n:BUILDING_13(65)
+?:1
+############### Quest 65 - Laboratory ###############
+?:[EQU $QUEST65 Taken]
+L:x:QUEST_ENTER(65)
+?:[EQU $QUEST65 Taken Completed Failed]
+L:n:BUILDING_13(65)
+?:[EQU $QUEST65 Finished FailedDone]
+L:n:BUILDING_13(66)
+?:1
+############### Quest 66 - Basilisks ###############
+?:[EQU $QUEST66 Taken]
+L:w:QUEST_ENTER(66)
+?:[EQU $QUEST66 Taken Completed Failed]
+L:n:BUILDING_13(66)
+?:[EQU $QUEST66 Finished FailedDone]
+L:n:BUILDING_13(67)
+?:1
+############### Quest 67 - Crystals ###############
+?:[EQU $QUEST67 Taken Completed Failed]
+L:n:BUILDING_13(67)
+?:[EQU $QUEST67 Finished FailedDone]
+L:n:BUILDING_13(0)
+?:1
+
 
 B:0:N:Library:Ibn Khaldun:Human?
 B:0:A:0:Research item:1000:1000:a:1:0
@@ -139,7 +175,7 @@ M:---VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 M:-----VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV--------
 M:--------VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV----------
 M:---------------VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV-------------
-M:------------------VVVVVVVVVVVVVVVVVVVVVVVV##VVVVVVVVVVVV#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV--------------
+M:-----------------wVVVVVVVVVVVVVVVVVVVVVVVV##VVVVVVVVVVVV#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV--------------
 M:-------------------VVVVVVVVVVVVVVVVVVVVVVVV##VVVVVVVVVV#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV-----------------------------TTTT----
 M:--------------------VVVVVVVVVVVVVVVVVVVVVVVV######VVVVV#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV---------------------------------------------------T--TT-----TT-----------
 M:---------------------VVVVVVVVVVVVVVVVVVVVVVVV#############VVVVVVVVVVV#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV-------------------------------------------------------TTT--TTT-TTT-----TTTT----
@@ -159,7 +195,7 @@ M:------------------------------------------------------------------------------
 M:-----####################################################################################################################-----------------------------------------------------------------------------
 M:-----#;;;;;;;;;;;;;,,,,.................................................................................................#-----------------------------------------------------------------------------
 M:-----#;;;;;;;;;,,,,,,...............................................-..----------.-...----..--..........................#-----------------------------------------------------------------------------
-M:-----#;;;;;,,,,,,..................................................-T--TTTTTTTT-T-T---T-TT--TT-.....#####...#####.......#-----------------------------------------------------------------------------
+M:-----#;;;;;,,,,,,.................................x................-T--TTTTTTTT-T-T---T-TT--TT-.....#####...#####.......#-----------------------------------------------------------------------------
 M:-----#;;;,,,,..........................#####.........#####........-T-TT--######TT---TTTWWWWWTTT-....#############.......#-----------------------------------------------------------------------------
 M:-----#;;,,,..........................#########.....#########........-T--..o####--T-T-WWWWWWWW,T-.....##-------##........#-----------------------------------------------------------------------------
 M:-----#;,,,.......###############....###########...###########......-T-T.T######,,,,,,WWWWWWWWTT-.....##--###--##........#-----------------------------------------------------------------------------
@@ -181,7 +217,7 @@ M:-----#......############........T-####-T...........###############......######
 M:-----#......############.............................###########........#########..###.###..#########..........#######..#--.---------VVVVVVVVVVVVVVVVVVVVVVVV-----------------------------------------
 M:-----#...###############.......................................................................................####.....#--.-------VVWWWWWWWWWWWWWWWWWWWWWWWWVVVVVVVV---------------------------------
 M:-----#...#######........................................................................................................#--.------VWWWWWWWWWWWWWWWWWWWVVVVWWWWWWWWWWWVVV------------------------------
-M:-----#...######f........................................................................................................#--.------VWWWWWWWWWWWWWWWWWVV----VWWWWWWWWWWWWWVV----------------------------
+M:-----#...######f........................................................................................................#--.------VWWWWWWWWWWWWWWWWWVV----VWWWWWWWWW>WWWVV----------------------------
 M:-----#...#######.......................................................####...####.##############.###.....###.###.......#--.------VVVWWWWWWWWWWVVVVV------VWWWWWWWWWWWWWWV----------------------------
 M:-----#...........#######e#######..........#######...#######.###.###....###d...d###.##############.###...#####.#####.....#--.---------VVVVVVVVVV-------TT--VVWWWWWWWWWWWWVV----------------------------
 M:-----#......#######################.......#####m.....h#####.###0###....#####d#####.###M...........###...#####7#####.....#--.-------------------------T------VVVVVVVVVVVV------------------------------

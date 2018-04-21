@@ -269,7 +269,7 @@ summons special opponents!
 concentrates on its wounds.
 concentrates on its body. It starts moving faster.
 teleports away.
-dies.  You see a longsword (5d5).
+dies. You see a longsword (5d6).
 dies. You see a Stick (1d77).
 
 N:409:Kharis the Powerslave
@@ -743,7 +743,7 @@ says, '10 PRINT "I AM THE MASTER OF THE UNIVERSE!"'
 says, '20 GOTO 10'
 takes another swig of Jolt cola.
 opens another bag of Doritos.
-takes out his 5d5 longsword and says, 'No more Mr. Nice Guy!'
+takes out his 5d6 longsword and says, 'No more Mr. Nice Guy!'
 says, 'I'll teach you not to play!'
 says, 'Wait until you see the changes I made for this version!'
 says, 'If you're going to cry, just go play Vanilla!'

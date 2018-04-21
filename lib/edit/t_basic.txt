@@ -2,6 +2,7 @@
 
 # *Basic* town (vanilla style)
 
+L:<:ENTRANCE(GLOW | MARK, 1)
 
 ############### Town Layout ###############
 

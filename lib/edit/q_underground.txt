@@ -6,7 +6,8 @@ D:the process.
 ?:1
 
 ?:[EQU $QUEST55 Completed]
-D:You have our undying gratitude for your heroic efforts.
+D:You have our undying gratitude for your heroic efforts. Here, take
+D:my old battle gloves for your victory.
 ?:1
 
 ?:[EQU $QUEST55 Failed]
@@ -22,14 +23,14 @@ L:V:SHALLOW_WATER
 L:.:FLOOR
 L:<:UP_STAIR
 L:a:MON(undead spider)
-L:b:OBJ(can of toys):MON(skull druj)
-L:c:OBJ(large steel chest):MON(hand druj)
-L:d:OBJ(large steel chest):MON(eye druj)
+L:b:OBJ(large steel chest, DEPTH+30):MON(skull druj)
+L:c:OBJ(large steel chest, DEPTH+30):MON(hand druj)
+L:d:OBJ(large steel chest, DEPTH+30):MON(eye druj)
 L:e:OBJ(skeleton)
-L:*:TRAP(*, 25%):OBJ(*)
-L:k:OBJ(iron crown):EGO(might)
+L:*:OBJ(*, DEPTH+20)
+L:k:OBJ(CROWN, DEPTH+25):EGO(lordliness)
 L:l:OBJ(RING, DEPTH+20):EGO(speed)
-L:m:OBJ(leather gloves):EGO(thief)
+L:m:OBJ(mithril chain, DEPTH+30):EGO(70)
 !SCRAMBLE(k,l,m)
 !SCRAMBLE(b,c,d,e)
 
@@ -58,4 +59,5 @@ M:#....WWWWWWWWWWWWWWWWWWWWW......#.............+....a.....m#.......%.#
 M:#....WWWWWWWWWWWWWWWWWWWWW......###########################.......%.#
 M:#.................................................................%<#
 M:#####################################################################
-R:OBJ(potion of experience)
+
+R:OBJ(mithril gauntlets):ART(*)

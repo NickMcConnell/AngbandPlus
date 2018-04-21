@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 7
 #define VER_MINOR 0
-#define VER_PATCH 2
+#define VER_PATCH 4
 #define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
@@ -957,7 +957,7 @@ enum {
 /* #define FF_HURT_COLD     46 */
 /* #define FF_HURT_ACID     47 */
 /* #define FF_ICE           48 */
-/* #define FF_ACID          49 */
+#define FF_ACID          49
 /* #define FF_OIL           50 */
 /* #define FF_XXX04      51 */
 #define FF_CAN_CLIMB     52
@@ -3959,9 +3959,9 @@ extern int PlayerUID;
 
 /* Proficiency of riding */
 #define RIDING_EXP_UNSKILLED     0
-#define RIDING_EXP_BEGINNER    500
-#define RIDING_EXP_SKILLED    2000
-#define RIDING_EXP_EXPERT     5000
+#define RIDING_EXP_BEGINNER   2000
+#define RIDING_EXP_SKILLED    4000
+#define RIDING_EXP_EXPERT     6000
 #define RIDING_EXP_MASTER     8000
 
 /* Proficiency of spells */

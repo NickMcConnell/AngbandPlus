@@ -18,25 +18,18 @@ bool free_act_save_p(int ml)
 {
     int i, skill = p_ptr->skills.sav;
     if (p_ptr->pclass == CLASS_BERSERKER) return TRUE; /* negative skills */
-    for (i = 0; i < p_ptr->free_act; i++)
+	if (p_ptr->free_act == 1) 
+	{
+		if (randint0(10) < 9)
+		{
+			equip_learn_flag(OF_FREE_ACT);
+			return TRUE;
+		}
+	}
+	else if (p_ptr->free_act > 1)
     {
-        if (randint0(100 + ml/2) < skill)
-        {
-            equip_learn_flag(OF_FREE_ACT);
-            return TRUE;
-        }
-        /* OF_FREE_ACT is very common. End game with 4 sources is not unusual.
-         * Sample CL50 (sav=97) vs Umbaba on DL98:
-         * Ct  Fail1 Fail2
-         * ===============
-         *  1  33.6% 22.1%
-         *  2  18.9% 10.7%
-         *  3  13.4%  7.1%
-         *  4  10.9%  5.5%
-         *  5   9.5%  4.7%
-         *  Notice the diminishing returns with multiple sources. 3 is much better
-         *  than 1, but 5 only marginally better than 3. */
-        skill = skill * 2 / 3;
+        equip_learn_flag(OF_FREE_ACT);
+        return TRUE;
     }
     return FALSE;
 }

@@ -645,6 +645,13 @@ bool monster_can_cross_terrain(s16b feat, monster_race *r_ptr, u16b mode)
         if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)) return FALSE;
     }
 
+	/* Acid */
+	if (have_flag(f_ptr->flags, FF_ACID))
+	{
+		/* Deep acid */
+		if (have_flag(f_ptr->flags, FF_DEEP)) return FALSE;
+	}
+
     return TRUE;
 }
 

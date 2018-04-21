@@ -68,14 +68,6 @@ L:w:QUEST_ENTER(21)
 ?:[EQU $QUEST21 Taken Completed Failed]
 L:b:BUILDING_1(21)
 ?:[EQU $QUEST21 Finished FailedDone]
-L:b:BUILDING_1(36)
-?:1
-###################### Quest 36 -- Sorceror
-?:[EQU $QUEST36 Taken]
-L:s:QUEST_ENTER(36)
-?:[EQU $QUEST36 Taken Completed Failed]
-L:b:BUILDING_1(36)
-?:[EQU $QUEST23 Finished FailedDone]
 L:b:BUILDING_1(23)
 ?:1
 ###################### Quest 23 -- Spawning Pits

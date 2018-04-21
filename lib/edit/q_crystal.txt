@@ -1,0 +1,19 @@
+?:[EQU $QUEST67 Taken InProgress]
+D:Hah! Can't get rid of you that easily. For your next
+D:assessment I would like the hearts of five great crystal drakes.
+D:You can find them nesting in the crystal castle away to
+D:the east. 
+?:1
+
+?:[EQU $QUEST67 Completed]
+D:Well done on the advanced examinations. Here is your
+D:Magister's crown.
+?:1
+
+?:[EQU $QUEST67 Failed]
+D:Back already? Hmm let's see. Didn't make the grade.
+?:1
+
+R:OBJ(jewel encrusted crown):EGO(magi)
+
+# vim: filetype=q :

@@ -22,18 +22,18 @@ L:+:CLOSED_DOOR
 L:.:FLOOR
 L:<:UP_STAIR
 L:^:TRAP(*, 25%)
-L:a:MON(mithril golem):OBJ(mithril shod boots)
-L:b:MON(mithril golem):OBJ(mithril shield)
-L:c:MON(mithril golem):OBJ(mithril plate)
-L:d:MON(mithril golem):OBJ(mithril helm)
-L:e:MON(mithril golem):OBJ(mithril gauntlets)
+L:a:OBJ(SCROLL, DEPTH+10):MON(mithril golem)
+L:b:OBJ(POTION, DEPTH+10):MON(mithril golem)
+L:c:OBJ(BOOK, DEPTH+10):MON(mithril golem)
+L:d:OBJ(FIGURINE, DEPTH+10):MON(mithril golem)
+L:e:OBJ(*, DEPTH+10):MON(mithril golem)
 L:f:MON(colossus)
-L:g:OBJ(*, DEPTH+7):MON(silent watcher)
+L:g:OBJ(*, DEPTH+12):MON(silent watcher)
 L:h:MON(eog golem)
-L:i:OBJ(*, DEPTH+20):MON(drolem)
+L:i:OBJ(CROWN, DEPTH+25):MON(drolem)
 L:k:OBJ(potion of charisma)
-L:l:OBJ(WAND_CHARM_MONSTER)
-L:m:OBJ(SCROLL, DEPTH+10)
+L:l:OBJ(mithril helm):EGO(118)
+L:m:OBJ(SCROLL, DEPTH+20)
 L:n:OBJ(small iron chest)
 
 M:######################################################################
