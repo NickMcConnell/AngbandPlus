@@ -275,6 +275,30 @@ void mind_blast_spell(int cmd, variant *res)
 }
 bool cast_mind_blast(void) { return cast_spell(mind_blast_spell); }
 
+void nature_awareness_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Nature Awareness");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Maps nearby area. Detects all monsters, traps, doors and stairs.");
+        break;
+    case SPELL_CAST:
+        map_area(DETECT_RAD_MAP);
+        detect_traps(DETECT_RAD_DEFAULT, TRUE);
+        detect_doors(DETECT_RAD_DEFAULT);
+        detect_stairs(DETECT_RAD_DEFAULT);
+        detect_monsters_normal(DETECT_RAD_DEFAULT);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void nether_ball_spell(int cmd, variant *res)
 {
     int dam = spell_power(p_ptr->lev * 3 / 2 + 100);

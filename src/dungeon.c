@@ -4579,7 +4579,8 @@ static void process_player(void)
                 || p_ptr->pclass == CLASS_RUNE_KNIGHT 
                 || p_ptr->pclass == CLASS_RAGE_MAGE 
                 || mimic_no_regen() ) 
-              && !magic_eater_can_regen() )
+              && !magic_eater_can_regen()
+              && !samurai_can_concentrate() )
             {
                 set_action(ACTION_NONE);
             }
@@ -4595,6 +4596,7 @@ static void process_player(void)
                 || p_ptr->pclass == CLASS_RAGE_MAGE 
                 || mimic_no_regen() ) 
               && !magic_eater_can_regen() 
+              && !samurai_can_concentrate()
               && !p_ptr->blind 
               && !p_ptr->confused 
               && !p_ptr->poisoned 
@@ -4900,6 +4902,9 @@ static void process_player(void)
 
             /* Take a turn */
             energy_use = 100;
+
+            if (p_ptr->pclass == CLASS_SAMURAI)
+                samurai_on_rest();
         }
 
         else if (p_ptr->action == ACTION_FISH)

@@ -15,7 +15,7 @@
 #include <assert.h>
 
 #define REWARD_CHANCE 10
-
+#define OLYMPIAN_CHANCE 35
 
  /* Experience required to advance from level to level + 1
     Note the table is off by 1, so we encapsulate that fact.
@@ -1724,73 +1724,73 @@ void monster_death(int m_idx, bool drop_item)
 
         case MON_ZEUS:
             a_idx = ART_ZEUS;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_ZEUS))
                 chance = 100;
             break;
         case MON_POSEIDON:
             a_idx = ART_POSEIDON;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_POSEIDON))
                 chance = 100;
             break;
         case MON_HADES:
             a_idx = ART_HADES;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_HADES))
                 chance = 100;
             break;
         case MON_ATHENA:
             a_idx = ART_ATHENA;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_ATHENA))
                 chance = 100;
             break;
         case MON_ARES:
             a_idx = ART_ARES;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_ARES))
                 chance = 100;
             break;
         case MON_HERMES:
             a_idx = ART_HERMES;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_HERMES))
                 chance = 100;
             break;
         case MON_APOLLO:
             a_idx = ART_APOLLO;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_APOLLO))
                 chance = 100;
             break;
         case MON_ARTEMIS:
             a_idx = ART_ARTEMIS;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_ARTEMIS))
                 chance = 100;
             break;
         case MON_HEPHAESTUS:
             a_idx = ART_HEPHAESTUS;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_HEPHAESTUS))
                 chance = 100;
             break;
         case MON_HERA:
             a_idx = ART_HERA;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_HERA))
                 chance = 100;
             break;
         case MON_DEMETER:
             a_idx = ART_DEMETER;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_DEMETER))
                 chance = 100;
             break;
         case MON_APHRODITE:
             a_idx = ART_APHRODITE;
-            chance = 50;
+            chance = OLYMPIAN_CHANCE;
             if (demigod_is_(DEMIGOD_APHRODITE))
                 chance = 100;
             break;

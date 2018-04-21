@@ -3913,10 +3913,30 @@ void add_esp_weak(object_type *o_ptr, bool extra)
     case 4: add_flag(o_ptr->art_flags, TR_ESP_ORC); break;
     case 5: add_flag(o_ptr->art_flags, TR_ESP_TROLL); break;
     case 6: add_flag(o_ptr->art_flags, TR_ESP_GIANT); break;
-    case 7: add_flag(o_ptr->art_flags, TR_ESP_DRAGON);   break;
+    case 7: add_flag(o_ptr->art_flags, TR_ESP_DRAGON); break;
     case 8: add_flag(o_ptr->art_flags, TR_ESP_HUMAN); break;
     case 9: add_flag(o_ptr->art_flags, TR_ESP_GOOD); break;
     }
+}
+
+static int *_effect_list = NULL;
+static bool _effect_list_p(int effect)
+{
+    int i;
+    assert(_effect_list);
+    for (i = 0; ; i++)
+    {
+        int n = _effect_list[i];
+        if (n == -1) return FALSE;
+        if (n == effect) return TRUE;
+     }
+    /* return FALSE;  unreachable */
+}
+
+static void _effect_add_list(object_type *o_ptr, int *list)
+{
+    _effect_list = list;
+    effect_add_random_p(o_ptr, _effect_list_p);
 }
 
 static void _create_armor(object_type *o_ptr, int level, int power, int mode)
@@ -4269,6 +4289,40 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 o_ptr->ac = k_info[o_ptr->k_idx].ac + 3;
                 if (one_in_(4))
                     add_flag(o_ptr->art_flags, TR_TUNNEL);
+                break;
+
+            case EGO_HELMET_SUNLIGHT:
+                if (one_in_(ACTIVATION_CHANCE))
+                {
+                    int choices[] = {
+                        EFFECT_LITE_AREA, EFFECT_LITE_MAP_AREA, EFFECT_BOLT_LITE, EFFECT_BEAM_LITE_WEAK,
+                        EFFECT_BEAM_LITE, EFFECT_BALL_LITE, EFFECT_BREATHE_LITE, EFFECT_CONFUSING_LITE, -1 
+                    };
+                    _effect_add_list(o_ptr, choices);
+                }
+                break;
+
+            case EGO_HELMET_KNOWLEDGE:
+                if (one_in_(ACTIVATION_CHANCE))
+                {
+                    int choices[] = {
+                        EFFECT_IDENTIFY, EFFECT_IDENTIFY_FULL, EFFECT_PROBING, EFFECT_DETECT_TRAPS, 
+                        EFFECT_DETECT_MONSTERS, EFFECT_DETECT_OBJECTS, EFFECT_DETECT_ALL, 
+                        EFFECT_ENLIGHTENMENT, EFFECT_CLAIRVOYANCE, EFFECT_SELF_KNOWLEDGE, -1 
+                    };
+                    _effect_add_list(o_ptr, choices);
+                }
+                break;
+            case EGO_HELMET_PIETY:
+                if (one_in_(ACTIVATION_CHANCE))
+                {
+                    int choices[] = {
+                        EFFECT_HEAL, EFFECT_CURING, EFFECT_RESTORE_STATS, EFFECT_RESTORE_EXP, 
+                        EFFECT_HEAL_CURING, EFFECT_CURE_POIS, EFFECT_CURE_FEAR, 
+                        EFFECT_REMOVE_CURSE, EFFECT_REMOVE_ALL_CURSE, EFFECT_CLARITY, -1 
+                    };
+                    _effect_add_list(o_ptr, choices);
+                }
                 break;
             }
         }

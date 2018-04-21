@@ -29,7 +29,7 @@ R:0:0/0x90
 R:0:0/0x87
 ?:[EQU $RACE Dunadan]
 R:0:0/0x88
-?:[EQU $RACE High-Elf]
+?:[EQU $RACE High-Elf Wood-Elf]
 R:0:0/0x89
 ?:[EQU $RACE Amberite]
 R:0:0/0x8A

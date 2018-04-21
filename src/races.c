@@ -227,6 +227,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
     case RACE_TONBERRY:
         result = tonberry_get_race_t();
         break;
+    case RACE_WOOD_ELF:
+        result = wood_elf_get_race_t();
+        break;
     case RACE_VAMPIRE:
         result = vampire_get_race_t();
         break;

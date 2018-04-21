@@ -125,7 +125,6 @@ race_t *kobold_get_race_t(void)
         me.calc_bonuses = _kobold_calc_bonuses;
         me.get_powers = _kobold_get_powers;
         me.get_flags = _kobold_get_flags;
-        me.flags = RACE_IS_DEPRECATED;
 
         init = TRUE;
     }
@@ -344,6 +343,7 @@ race_t *nibelung_get_race_t(void)
 static void _shadow_fairy_calc_bonuses(void)
 {
     p_ptr->levitation = TRUE;
+    p_ptr->fairy_stealth = TRUE;
     res_add_vuln(RES_LITE);
 }
 static void _shadow_fairy_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -468,7 +468,7 @@ race_t *skeleton_get_race_t(void)
         me.base_hp = 21;
         me.exp = 115;
         me.infra = 2;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
 
         me.calc_bonuses = _skeleton_calc_bonuses;
         me.get_powers = _skeleton_get_powers;
@@ -560,7 +560,6 @@ race_t *snotling_get_race_t(void)
         me.get_powers = _snotling_get_powers;
         me.get_flags = _snotling_get_flags;
 
-        me.flags = RACE_IS_DEPRECATED;
         init = TRUE;
     }
 
@@ -637,7 +636,7 @@ race_t *spectre_get_race_t(void)
         me.base_hp = 13;
         me.exp = 250;
         me.infra = 5;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
 
         me.calc_bonuses = _spectre_calc_bonuses;
         me.get_powers = _spectre_get_powers;
@@ -867,13 +866,65 @@ race_t *vampire_get_race_t(void)
         me.base_hp = 22;
         me.exp = 200;
         me.infra = 5;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
 
         me.calc_bonuses = _vampire_calc_bonuses;
         me.get_powers = _vampire_get_powers;
         me.get_flags = _vampire_get_flags;
         me.get_immunities = _vampire_get_immunities;
         me.get_vulnerabilities = _vampire_get_vulnerabilities;
+        init = TRUE;
+    }
+
+    return &me;
+}
+
+/****************************************************************
+ * Wood-Elf
+ ****************************************************************/
+static power_info _wood_elf_powers[] =
+{
+    { A_WIS, {20, 15, 50, nature_awareness_spell}},
+    { -1, {-1, -1, -1, NULL} }
+};
+static int _wood_elf_get_powers(spell_info* spells, int max)
+{
+    return get_powers_aux(spells, max, _wood_elf_powers);
+}
+race_t *wood_elf_get_race_t(void)
+{
+    static race_t me = {0};
+    static bool init = FALSE;
+
+    if (!init)
+    {
+        me.name = "Wood-Elf";
+        me.desc = "Wood-Elves are the most common of elves. They prefer the seclusion of thick "
+                    "forests and are unhampered when moving through dense foliage. Their skills "
+                    "with tracking and bow are unsurpassed.";
+
+        me.stats[A_STR] = -1;
+        me.stats[A_INT] =  1;
+        me.stats[A_WIS] =  2;
+        me.stats[A_DEX] =  1;
+        me.stats[A_CON] = -1;
+        me.stats[A_CHR] =  1;
+        
+        me.skills.dis = 5;
+        me.skills.dev = 6;
+        me.skills.sav = 4;
+        me.skills.stl = 3;
+        me.skills.srh = 8;
+        me.skills.fos = 12;
+        me.skills.thn = -5;
+        me.skills.thb = 15;
+
+        me.life = 97;
+        me.base_hp = 16;
+        me.exp = 125;
+        me.infra = 3;
+
+        me.get_powers = _wood_elf_get_powers;
         init = TRUE;
     }
 
@@ -1016,7 +1067,7 @@ race_t *zombie_get_race_t(void)
         me.base_hp = 24;
         me.exp = 180;
         me.infra = 2;
-        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_DEPRECATED;
+        me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
 
         me.calc_bonuses = _zombie_calc_bonuses;
         me.get_powers = _zombie_get_powers;

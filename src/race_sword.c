@@ -274,7 +274,7 @@ typedef struct {
 } _flag_info_t;
 
 static _flag_info_t _slay_flag_info[] = {
-    { TR_SLAY_EVIL, 32, "Slay Evil" },
+    { TR_SLAY_EVIL, 64, "Slay Evil" },
     { TR_SLAY_GOOD, 16, "Slay Good" },
     { TR_SLAY_UNDEAD, 16, "Slay Undead" },
     { TR_SLAY_DEMON, 16, "Slay Demon" },
@@ -323,14 +323,17 @@ static int _slay_power(int i)
     return _rank_decay(_slay_flag_info[i].power);
 }
 
-static int _blows_div(void)
+static int _blows_mult(void)
 {
-    int div = _rank();
-
-    if (div >= 4)
-        div = 10;
-
-    return MAX(1, div);
+    switch (_rank())
+    {
+    case 0: return 100;
+    case 1: return 100;
+    case 2: return 75;
+    case 3: return 50;
+    case 4:
+    default: return 20;
+    }
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
@@ -354,7 +357,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             add_flag(o_ptr->art_flags, j);
     }
 
-    info_ptr->xtra_blow += blows * 100 / _blows_div();
+    info_ptr->xtra_blow += blows * _blows_mult();
 
     info_ptr->to_h += to_hit;
     info_ptr->dis_to_h += to_hit;
@@ -862,7 +865,7 @@ static void _character_dump(FILE* fff)
     {
         int blows = _calc_amount(_essences[TR_BLOWS], _rank_decay(32), 1);
 
-        blows = blows * 100 / _blows_div();
+        blows = blows * _blows_mult();
         fprintf(fff, "   %-22.22s %5d %5d %5.5s\n", 
             "Attacks",
             _essences[TR_BLOWS], 

@@ -999,6 +999,31 @@ static bool _choose_kata(void)
     return TRUE;
 }
 
+static int _max_sp(void)
+{
+    return MAX(p_ptr->msp*4, p_ptr->lev*5+5);
+}
+
+static void _concentrate(void)
+{
+    int max_csp = _max_sp();
+    if (total_friends)
+        return;
+    if (p_ptr->special_defense & KATA_MASK)
+        return;
+        
+    msg_print("You concentrate to charge your power.");
+
+    p_ptr->csp += p_ptr->msp / 2;
+    if (p_ptr->csp >= max_csp)
+    {
+        p_ptr->csp = max_csp;
+        p_ptr->csp_frac = 0;
+    }
+
+    p_ptr->redraw |= (PR_MANA);
+ }
+
 void samurai_concentration_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -1011,7 +1036,6 @@ void samurai_concentration_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int max_csp = MAX(p_ptr->msp*4, p_ptr->lev*5+5);
         var_set_bool(res, FALSE);
         if (total_friends)
         {
@@ -1023,17 +1047,9 @@ void samurai_concentration_spell(int cmd, variant *res)
             msg_print("You need concentration on your form.");
             return;
         }
-        
-        msg_print("You concentrate to charge your power.");
 
-        p_ptr->csp += p_ptr->msp / 2;
-        if (p_ptr->csp >= max_csp)
-        {
-            p_ptr->csp = max_csp;
-            p_ptr->csp_frac = 0;
-        }
+        _concentrate();        
 
-        p_ptr->redraw |= (PR_MANA);
         var_set_bool(res, TRUE);
         break;
     }
@@ -1168,4 +1184,17 @@ class_t *samurai_get_class_t(void)
     }
 
     return &me;
+}
+
+void samurai_on_rest(void)
+{
+    if (p_ptr->pclass == CLASS_SAMURAI)
+        _concentrate();
+}
+
+bool samurai_can_concentrate(void)
+{
+    if (p_ptr->pclass != CLASS_SAMURAI) return FALSE;
+    if (p_ptr->csp >= _max_sp()) return FALSE;
+    return TRUE;
 }

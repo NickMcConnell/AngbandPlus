@@ -214,6 +214,7 @@ extern void mana_storm_I_spell(int cmd, variant *res);
 extern void mana_storm_II_spell(int cmd, variant *res);
 extern void massacre_spell(int cmd, variant *res);
 extern void mind_blast_spell(int cmd, variant *res);
+extern void nature_awareness_spell(int cmd, variant *res);
 extern void nether_ball_spell(int cmd, variant *res);
 extern void nether_bolt_spell(int cmd, variant *res);
 extern void orb_of_entropy_spell(int cmd, variant *res);

@@ -27,7 +27,7 @@ R:0:0/0x8F
 R:0:0/0x87
 ?:[EQU $RACE Amberite]
 R:0:0/0x88
-?:[EQU $RACE High-Elf]
+?:[EQU $RACE High-Elf Wood-Elf]
 R:0:0/0x89
 ?:[EQU $RACE Barbarian]
 R:0:0/0x8A

@@ -168,7 +168,6 @@ feanorian
 Iron Spike#@v0
 ?:1
 
-!worthless items
 !potion of apple juice
 #!statue
 #!figurine
@@ -189,4 +188,6 @@ Iron Spike#@v0
 #(unidentified weapons
 ?:1
 
+~special items
+!worthless items
 

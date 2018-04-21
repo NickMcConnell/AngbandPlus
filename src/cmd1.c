@@ -5258,6 +5258,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
           && p_ptr->pclass != CLASS_SCOUT
           && !prace_is_(RACE_ENT) 
           && !prace_is_(RACE_CENTAUR)
+          && !prace_is_(RACE_WOOD_ELF)
           && !p_ptr->levitation 
           && (!p_ptr->riding || !(riding_r_ptr->flags8 & RF8_WILD_WOOD))) 
         {

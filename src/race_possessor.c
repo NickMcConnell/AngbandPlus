@@ -1090,6 +1090,7 @@ caster_info *possessor_caster_info(void)
         {
             info = *class_ptr->caster_info();
             info.which_stat = r_ptr->body.spell_stat; /* r_info can now override the default spell stat */
+            info.options &=  ~CASTER_USE_HP;
             return &info;
         }
     }

@@ -3353,6 +3353,7 @@ void calc_bonuses(void)
     p_ptr->inven_prot = FALSE;
     p_ptr->ambush = FALSE;
     p_ptr->peerless_stealth = FALSE;
+    p_ptr->fairy_stealth = FALSE;
     p_ptr->open_terrain_ct = 0;
 
     p_ptr->quick_walk = FALSE;
@@ -4051,12 +4052,16 @@ void calc_bonuses(void)
             int pct, to_d, w1, w2;
             int w_div = 8;
             int skill = skills_dual_wielding_current();
+            int class_idx = p_ptr->pclass;
+
+            if (class_idx == CLASS_MONSTER)
+                class_idx = race_ptr->pseudo_class_idx;
 
             if (p_ptr->tim_genji && skill < 7000)
                 skill = 7000;
 
-            /* Berserkers don't mind dual wielding with heavy weapons */
-            switch (p_ptr->pclass)
+            /* Some classes (e.g. Berserkers) don't mind dual wielding with heavy weapons */
+            switch (class_idx)
             {
             case CLASS_BERSERKER:
                 w_div = 24;
@@ -4755,7 +4760,9 @@ void calc_bonuses(void)
     /* Affect Skill -- digging (STR) */
     p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
 
-    if ((prace_is_(RACE_SHADOW_FAIRY)) && (p_ptr->personality != PERS_SEXY) && (p_ptr->cursed & TRC_AGGRAVATE))
+    if ( p_ptr->fairy_stealth 
+      && p_ptr->personality != PERS_SEXY 
+      && (p_ptr->cursed & TRC_AGGRAVATE) )
     {
         p_ptr->cursed &= ~(TRC_AGGRAVATE);
         p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);

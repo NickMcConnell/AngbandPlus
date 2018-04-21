@@ -836,4 +836,4 @@
 
 
 
-[[[[s|  Automatically generated for PosChengband 3.3.2.
+[[[[s|  Automatically generated for PosChengband 3.3.5.

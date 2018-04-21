@@ -3881,9 +3881,8 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
             switch (_get_toggle())
             {
             case TOGGLE_INDUSTRIOUS_MORTICIAN:
-                info_ptr->xtra_blow += MIN(o_ptr->pval*50, 250);
-                /*info_ptr->to_dd += (o_ptr->pval + 1)/2;
-                info_ptr->to_ds += o_ptr->pval/2;*/
+                info_ptr->xtra_blow += 100;
+                /*info_ptr->xtra_blow += MIN(o_ptr->pval*50, 250);*/
                 break;
             }
         }

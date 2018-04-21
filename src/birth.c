@@ -869,7 +869,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Human", "Races.txt#Tables", 
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
     { "Elf", "Races.txt#Tables", 
-        {RACE_DARK_ELF, RACE_HIGH_ELF, -1} },
+        {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WOOD_ELF, -1} },
     { "Hobbit/Dwarf", "Races.txt#Tables", 
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
     { "Fairy", "Races.txt#Tables", 

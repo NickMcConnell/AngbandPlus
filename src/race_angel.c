@@ -61,6 +61,7 @@ static spell_info _spells[] = {
 static int _get_spells(spell_info* spells, int max) {
     return get_spells_aux(spells, max, _spells);
 }
+
 static void _calc_bonuses(void) {
     /* cf calc_torch in xtra1.c for the 'extra light' */
 

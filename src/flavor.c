@@ -2155,8 +2155,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
 #ifdef _DEBUG
-    if ( (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) 
-      && object_is_known(o_ptr)
+    if ( object_is_known(o_ptr)
       && obj_has_effect(o_ptr) )
     {
         char     buf[255];

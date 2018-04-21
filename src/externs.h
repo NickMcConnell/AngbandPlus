@@ -851,6 +851,10 @@ extern cptr     obj_get_effect_msg(object_type *o_ptr);
 extern bool     obj_has_effect(object_type *o_ptr);
 extern int      effect_calc_fail_rate(effect_t *effect_ptr);
 extern bool     effect_add_random(object_type *o_ptr, int bias);
+
+typedef bool (*effect_p)(int effect);
+extern bool effect_add_random_p(object_type *o_ptr, effect_p p);
+
 extern bool     effect_add(object_type *o_ptr, int type);
 extern bool     effect_try(effect_t *effect_ptr);
 extern bool     effect_use(effect_t *effect_ptr, int boost);
@@ -2008,6 +2012,7 @@ extern race_t *spectre_get_race_t(void);
 extern race_t *sprite_get_race_t(void);
 extern race_t *tonberry_get_race_t(void);
 extern race_t *vampire_get_race_t(void);
+extern race_t *wood_elf_get_race_t(void);
 extern race_t *yeek_get_race_t(void);
 extern race_t *zombie_get_race_t(void);
 
@@ -2246,6 +2251,8 @@ extern cptr     rune_desc(int which);
 extern void     rune_calc_bonuses(object_type *o_ptr);
 extern class_t *rune_knight_get_class_t(void);
 extern void     samurai_concentration_spell(int cmd, variant *res);
+extern void     samurai_on_rest(void);
+extern bool     samurai_can_concentrate(void);
 extern class_t *samurai_get_class_t(void);
 extern void     samurai_posture_spell(int cmd, variant *res);
 extern class_t *tourist_get_class_t(void);

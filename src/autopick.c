@@ -19,60 +19,64 @@
 /*
  * Macros for Keywords
  */
-#define FLG_ALL              0 
-#define FLG_UNAWARE          1 
-#define FLG_UNIDENTIFIED     2 
-#define FLG_IDENTIFIED       3 
-#define FLG_STAR_IDENTIFIED  4 
-#define FLG_COLLECTING       5 
-#define FLG_ARTIFACT         6 
-#define FLG_EGO              7 
-#define FLG_MORE_LEVEL       8
-#define FLG_GOOD            10
-#define FLG_NAMELESS        11
-#define FLG_AVERAGE         12
-#define FLG_WORTHLESS       13
-#define FLG_RARE            14
-#define FLG_COMMON          15
-#define FLG_BOOSTED         16
-#define FLG_MORE_DICE       17
-#define FLG_MORE_BONUS      18 
-#define FLG_WANTED          19
-#define FLG_UNIQUE          20
-#define FLG_HUMAN           21
-#define FLG_UNREADABLE      22
-#define FLG_REALM1          23
-#define FLG_REALM2          24
-#define FLG_FIRST           25
-#define FLG_SECOND          26
-#define FLG_THIRD           27
-#define FLG_FOURTH          28
-#define FLG_CURSED          29
+static enum _keyword_e {
+    FLG_ALL = 0,
+    FLG_UNAWARE,
+    FLG_UNIDENTIFIED,
+    FLG_IDENTIFIED,
+    FLG_STAR_IDENTIFIED,
+    FLG_COLLECTING,
+    FLG_ARTIFACT,
+    FLG_EGO,
+    FLG_MORE_LEVEL,
+    FLG_GOOD,
+    FLG_NAMELESS,
+    FLG_AVERAGE,
+    FLG_WORTHLESS,
+    FLG_RARE,
+    FLG_COMMON,
+    FLG_BOOSTED,
+    FLG_MORE_DICE,
+    FLG_MORE_BONUS,
+    FLG_WANTED,
+    FLG_UNIQUE,
+    FLG_HUMAN,
+    FLG_UNREADABLE,
+    FLG_REALM1,
+    FLG_REALM2,
+    FLG_FIRST,
+    FLG_SECOND,
+    FLG_THIRD,
+    FLG_FOURTH,
+    FLG_CURSED,
+    FLG_SPECIAL,
 
-#define FLG_ITEMS           30
-#define FLG_WEAPONS         31
-#define FLG_FAVORITE_WEAPONS 32
-#define FLG_ARMORS          33
-#define FLG_MISSILES        34
-#define FLG_DEVICES         35
-#define FLG_LIGHTS          36
-#define FLG_JUNKS           37
-#define FLG_CORPSES         38
-#define FLG_SPELLBOOKS      39
-#define FLG_HAFTED          40
-#define FLG_SHIELDS         41
-#define FLG_BOWS            42
-#define FLG_RINGS           43
-#define FLG_AMULETS         44
-#define FLG_SUITS           45
-#define FLG_CLOAKS          46
-#define FLG_HELMS           47
-#define FLG_GLOVES          48
-#define FLG_BOOTS           49
-#define FLG_SKELETONS       50
+    FLG_ITEMS,
+    FLG_WEAPONS,
+    FLG_FAVORITE_WEAPONS,
+    FLG_ARMORS,
+    FLG_MISSILES,
+    FLG_DEVICES,
+    FLG_LIGHTS,
+    FLG_JUNKS,
+    FLG_CORPSES,
+    FLG_SPELLBOOKS,
+    FLG_HAFTED,
+    FLG_SHIELDS,
+    FLG_BOWS,
+    FLG_RINGS,
+    FLG_AMULETS,
+    FLG_SUITS,
+    FLG_CLOAKS,
+    FLG_HELMS,
+    FLG_GLOVES,
+    FLG_BOOTS,
+    FLG_SKELETONS,
+    FLG_MAX,
+};
 
 #define FLG_NOUN_BEGIN      FLG_ITEMS
-#define FLG_NOUN_END        FLG_BOOTS
+#define FLG_NOUN_END        (FLG_MAX - 1)
 
 
 static char KEY_ALL[] = "all";
@@ -85,6 +89,7 @@ static char KEY_ARTIFACT[] = "artifact";
 static char KEY_EGO[] = "ego";
 static char KEY_GOOD[] = "good";
 static char KEY_CURSED[] = "cursed";
+static char KEY_SPECIAL[] = "special";
 static char KEY_NAMELESS[] = "nameless";
 static char KEY_AVERAGE[] = "average";
 static char KEY_WORTHLESS[] = "worthless";
@@ -247,6 +252,7 @@ static bool autopick_new_entry(autopick_type *entry, cptr str, bool allow_defaul
         if (MATCH_KEY(KEY_EGO)) ADD_FLG(FLG_EGO);
         if (MATCH_KEY(KEY_GOOD)) ADD_FLG(FLG_GOOD);
 		if (MATCH_KEY(KEY_CURSED)) ADD_FLG(FLG_CURSED);
+        if (MATCH_KEY(KEY_SPECIAL)) ADD_FLG(FLG_SPECIAL);
         if (MATCH_KEY(KEY_NAMELESS)) ADD_FLG(FLG_NAMELESS);
         if (MATCH_KEY(KEY_AVERAGE)) ADD_FLG(FLG_AVERAGE);
         if (MATCH_KEY(KEY_RARE)) ADD_FLG(FLG_RARE);
@@ -861,6 +867,7 @@ cptr autopick_line_from_entry(autopick_type *entry)
     if (IS_FLG(FLG_WORTHLESS)) ADD_KEY(KEY_WORTHLESS);
     if (IS_FLG(FLG_GOOD)) ADD_KEY(KEY_GOOD);
 	if (IS_FLG(FLG_CURSED)) ADD_KEY(KEY_CURSED);
+    if (IS_FLG(FLG_SPECIAL)) ADD_KEY(KEY_SPECIAL);
     if (IS_FLG(FLG_NAMELESS)) ADD_KEY(KEY_NAMELESS);
     if (IS_FLG(FLG_AVERAGE)) ADD_KEY(KEY_AVERAGE);
     if (IS_FLG(FLG_RARE)) ADD_KEY(KEY_RARE);
@@ -1175,6 +1182,55 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		}
 		else
 			return FALSE;
+    }
+
+    if (IS_FLG(FLG_SPECIAL)) /* leave_special ... I'm trying to obsolesce the easy destroyer. */
+    {
+        bool is_special = FALSE;
+        if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON) 
+            || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
+        {
+            if (o_ptr->tval == TV_CORPSE &&
+                o_ptr->sval == SV_CORPSE &&
+                my_strchr("pht", r_info[o_ptr->pval].d_char))
+            {
+                is_special = TRUE;
+            }
+        }
+        if (p_ptr->pclass == CLASS_ARCHER)
+        {
+            if (o_ptr->tval == TV_SKELETON ||
+                (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_SKELETON))
+            {
+                is_special = TRUE;
+            }
+        }
+        else if (p_ptr->pclass == CLASS_NINJA)
+        {
+            if ( o_ptr->tval == TV_LITE 
+              && (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS))
+              && object_is_known(o_ptr))
+            {
+                is_special = TRUE;
+            }
+        }
+        else if (p_ptr->pclass == CLASS_BEASTMASTER ||
+             p_ptr->pclass == CLASS_CAVALRY)
+        {
+            if (o_ptr->tval == TV_WAND &&
+                o_ptr->sval == SV_WAND_HEAL_MONSTER && object_is_aware(o_ptr))
+            {
+                is_special = TRUE;
+            }
+        }
+        else if (weaponmaster_is_(WEAPONMASTER_DIGGERS))
+        {
+            if (o_ptr->tval == TV_CORPSE || o_ptr->tval == TV_SKELETON)
+                is_special = TRUE;
+        }
+
+        if (!is_special)
+            return FALSE;
     }
 
     /*** Cursed ***/
@@ -2483,6 +2539,12 @@ static void describe_autopick(char *buff, autopick_type *entry)
     {
         body_str = "equipment";
         which_str[which_n++] = "is cursed";
+    }
+
+    if (IS_FLG(FLG_SPECIAL))
+    {
+        body_str = "item";
+        which_str[which_n++] = "your race/class needs";
     }
 
     /*** Nameless ***/
@@ -3858,6 +3920,7 @@ static void search_for_string(text_body_type *tb, cptr search_str, bool forward)
 #define EC_KK_BOOTS           81
 #define EC_KK_SKELETONS       82
 #define EC_OK_CURSED          83
+#define EC_OK_SPECIAL         84
 
 
 /* Manu names */
@@ -3995,6 +4058,7 @@ command_menu_type menu_data[] =
     {KEY_EGO, 1, -1, EC_OK_EGO},
     {KEY_GOOD, 1, -1, EC_OK_GOOD},
 	{KEY_CURSED, 1, -1, EC_OK_CURSED},
+    {KEY_SPECIAL, 1, -1, EC_OK_SPECIAL},
     {KEY_NAMELESS, 1, -1, EC_OK_NAMELESS},
     {KEY_AVERAGE, 1, -1, EC_OK_AVERAGE},
     {KEY_WORTHLESS, 1, -1, EC_OK_WORTHLESS},
@@ -5669,6 +5733,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
     case EC_OK_EGO: toggle_keyword(tb, FLG_EGO); break;
     case EC_OK_GOOD: toggle_keyword(tb, FLG_GOOD); break;
 	case EC_OK_CURSED: toggle_keyword(tb, FLG_CURSED); break;
+    case EC_OK_SPECIAL: toggle_keyword(tb, FLG_SPECIAL); break;
     case EC_OK_NAMELESS: toggle_keyword(tb, FLG_NAMELESS); break;
     case EC_OK_AVERAGE: toggle_keyword(tb, FLG_AVERAGE); break;
     case EC_OK_RARE: toggle_keyword(tb, FLG_RARE); break;

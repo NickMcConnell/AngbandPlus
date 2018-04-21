@@ -195,6 +195,15 @@ static void rd_item(savefile_ptr file, object_type *o_ptr)
         remove_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
     }
 
+    /* Ooops. Stand-art bows were never getting their multipliers set! */
+    if ( savefile_is_older_than(file, 3, 3, 5, 2)
+      && o_ptr->tval == TV_BOW
+      && o_ptr->name1 )
+    {
+        artifact_type *a_ptr = &a_info[o_ptr->name1];
+        o_ptr->mult = a_ptr->mult;
+    }
+
     /* Extra shots now uses the pval */
     if ( savefile_is_older_than(file, 3, 0, 6, 2)
       && o_ptr->tval == TV_BOW

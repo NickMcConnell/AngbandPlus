@@ -2867,7 +2867,6 @@ bool destroy_area(int y1, int x1, int r, int power)
                     
                     if (m_ptr->mflag2 & MFLAG2_NODESTRUCT) resist = TRUE;
                     else if (r_ptr->level > randint0(power)) resist = TRUE;
-                    else if (m_ptr->r_idx == MON_POSEIDON) resist = TRUE;
 
                     if (resist)
                     {

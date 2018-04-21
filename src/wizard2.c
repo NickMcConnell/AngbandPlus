@@ -889,12 +889,16 @@ static void do_cmd_wiz_hack_chris8(void)
         char buf[MAX_NLEN];
 
         object_prep(&forge, k_idx);
-        create_artifact(&forge, CREATE_ART_GOOD);
+        /*create_artifact(&forge, CREATE_ART_GOOD);*/
+        apply_magic(&forge, object_level, AM_GREAT);
         identify_item(&forge);
 
-        forge.ident |= (IDENT_MENTAL); 
-        object_desc(buf, &forge, 0);
-        msg_format(" %d) %s", i+1, buf);
+        if (forge.name2 == EGO_HELMET_PIETY && forge.activation.type)
+        {
+            forge.ident |= (IDENT_MENTAL); 
+            object_desc(buf, &forge, 0);
+            msg_format(" %d) %s", i+1, buf);
+        }
     }
 }
 

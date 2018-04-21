@@ -365,6 +365,8 @@ void do_cmd_hissatsu(void)
     /* Cast the spell */
     if (!do_spell(REALM_HISSATSU, n, SPELL_CAST)) return;
 
+    spell_stats_on_cast_old(REALM_HISSATSU, n);
+
     /* Take a turn */
     energy_use = 100;
 

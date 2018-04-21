@@ -2638,21 +2638,21 @@ static cptr _do_rod(int sval, int mode)
         break;
     case SV_ROD_MANA_BOLT:
         if (desc) return "It fires a bolt of mana when you zap it.";
-        if (info) return info_damage(0, 0, _rod_power(100 + p_ptr->lev));
+        if (info) return info_damage(0, 0, _rod_power(100 + 2*p_ptr->lev));
         if (cast)
         {
             if (device_known && !get_aim_dir(&dir)) return NULL;
-            fire_bolt(GF_MANA, dir, _rod_power(100 + p_ptr->lev));
+            fire_bolt(GF_MANA, dir, _rod_power(100 + 2*p_ptr->lev));
             device_noticed = TRUE;
         }
         break;
     case SV_ROD_MANA_BALL:
         if (desc) return "It fires a ball of mana when you zap it.";
-        if (info) return info_damage(0, 0, _rod_power(200 + p_ptr->lev));
+        if (info) return info_damage(0, 0, _rod_power(200 + 2*p_ptr->lev));
         if (cast)
         {
             if (device_known && !get_aim_dir(&dir)) return NULL;
-            fire_ball(GF_MANA, dir, _rod_power(200 + p_ptr->lev), 2);
+            fire_ball(GF_MANA, dir, _rod_power(200 + 2*p_ptr->lev), 2);
             device_noticed = TRUE;
         }
         break;
@@ -2660,7 +2660,7 @@ static cptr _do_rod(int sval, int mode)
         if (desc) return "It is capable of firing almost anything, at random.";
         if (cast)
         {
-            call_chaos(_rod_power(150));
+            call_chaos(_rod_power(200));
             device_noticed = TRUE;
         }
         break;
@@ -2853,7 +2853,7 @@ static _effect_info_t _effect_info[] =
     {"RUNE_EXPLOSIVE",  EFFECT_RUNE_EXPLOSIVE,      30, 100,  2, BIAS_MAGE},
     {"RUNE_PROTECTION", EFFECT_RUNE_PROTECTION,     70, 500,  4, BIAS_PRIESTLY},
 
-    {"SATISFY_HUNGER",  EFFECT_SATISFY_HUNGER,        5, 100,  1, BIAS_RANGER},
+    {"SATISFY_HUNGER",  EFFECT_SATISFY_HUNGER,       5, 100,  1, BIAS_RANGER},
     {"DESTROY_TRAP",    EFFECT_DESTROY_TRAP,        20,  50,  1, 0},
     {"DESTROY_TRAPS",   EFFECT_DESTROY_TRAPS,       25,  50,  1, BIAS_ROGUE},
     {"WHIRLWIND_ATTACK",EFFECT_WHIRLWIND_ATTACK,    50, 500,  4, BIAS_WARRIOR},
@@ -2863,6 +2863,7 @@ static _effect_info_t _effect_info[] =
     {"BANISH_ALL",      EFFECT_BANISH_ALL,          50, 100,  8, BIAS_MAGE},
     {"TELEKINESIS",     EFFECT_TELEKINESIS,         25, 100,  2, BIAS_MAGE},
     {"ALCHEMY",         EFFECT_ALCHEMY,             70, 500,  4, BIAS_MAGE},
+    {"SELF_KNOWLEDGE",  EFFECT_SELF_KNOWLEDGE,      70, 500,  3, BIAS_MAGE},
 
     /* Timed Buffs:                                 Lv    T   R  Bias */
     {"STONE_SKIN",      EFFECT_STONE_SKIN,          25, 150,  2, BIAS_WARRIOR | BIAS_PROTECTION},
@@ -3069,6 +3070,35 @@ errr effect_parse(char *line, effect_t *effect) /* LITE_AREA:<Lvl>:<Timeout>:<Ex
     return 0;
 }
 
+static int _choose_random_p(effect_p p)
+{
+    int i, n;
+    int tot = 0;
+    
+    for (i = 0; ; i++)
+    {
+        if (!_effect_info[i].type) break;
+        if (!_effect_info[i].rarity) continue;
+        if (p && !p(_effect_info[i].type)) continue;
+
+        tot += MAX(255 / _effect_info[i].rarity, 1);
+    }
+
+    if (!tot) return -1;
+    n = randint1(tot);
+
+    for (i = 0; ; i++)
+    {
+        if (!_effect_info[i].type) break;
+        if (!_effect_info[i].rarity) continue;
+        if (p && !p(_effect_info[i].type)) continue;
+
+        n -= MAX(255 / _effect_info[i].rarity, 1);
+        if (n <= 0) return i;
+    }
+    return -1;
+}
+
 static int _choose_random(int bias)
 {
     int i, n;
@@ -3110,6 +3140,17 @@ static void _add_index(object_type *o_ptr, int index)
         o_ptr->activation.extra = 0;
         o_ptr->timeout = 0;
     }
+}
+
+bool effect_add_random_p(object_type *o_ptr, effect_p p)
+{
+    int i = _choose_random_p(p);
+    if (i >= 0)
+    {
+        _add_index(o_ptr, i);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool effect_add_random(object_type *o_ptr, int bias)
@@ -3638,6 +3679,16 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cast)
         {
             if (!alchemy()) return NULL;
+            device_noticed = TRUE;
+        }
+        break;
+    case EFFECT_SELF_KNOWLEDGE:
+        if (name) return "Self Knowledge";
+        if (desc) return "It reveals information about your stats, resistances and life rating.";   
+        if (value) return format("%d", 2500);
+        if (cast)
+        {
+            self_knowledge();
             device_noticed = TRUE;
         }
         break;

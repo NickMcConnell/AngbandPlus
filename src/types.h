@@ -1534,6 +1534,7 @@ struct player_type
 
     bool loremaster;
     bool cult_of_personality;
+    bool fairy_stealth;
 
     bool telepathy;        /* Telepathy */
     bool esp_animal;

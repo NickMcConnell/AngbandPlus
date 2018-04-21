@@ -178,6 +178,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:302
 
+# Ring of Archery
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Archer Sniper Ranger] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:132:303
+
 # Another Long Sword
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Death-Sword] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25

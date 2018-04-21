@@ -328,6 +328,7 @@ void virtue_init(void)
     switch (p_ptr->prace)
     {
     case RACE_CENTAUR:
+    case RACE_WOOD_ELF:
         p_ptr->vir_types[i++] = VIRTUE_NATURE;
         break;
     case RACE_MON_SWORD:

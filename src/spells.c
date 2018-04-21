@@ -1073,7 +1073,7 @@ static void _dump_book(FILE *fff, int realm, int book)
     else if (realm == p_ptr->realm2) increment = 32;
 
     if (realm == REALM_HISSATSU)
-        fprintf(fff, "     %-25.25s Lvl  SP Desc\n", k_name + k_info[k_idx].name);
+        fprintf(fff, "     %-25.25s Lvl  SP %-15.15s Cast\n", k_name + k_info[k_idx].name, "Desc");
     else
     {
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
@@ -1151,9 +1151,18 @@ static void _dump_book(FILE *fff, int realm, int book)
         sprintf(line, "  %c) ", I2A(i));
         if (realm == REALM_HISSATSU)
         {
-            strcat(line, format("%-25s %3d %3d %s",
-                do_spell(realm, s_idx, SPELL_NAME),
-                s_ptr->slevel, cost, comment));
+            spell_stats_ptr stats = _spell_stats_old(realm, s_idx);
+            strcat(
+                line, 
+                format(
+                    "%-25s %3d %3d %-15.15s %4d",
+                    do_spell(realm, s_idx, SPELL_NAME),
+                    s_ptr->slevel, 
+                    cost, 
+                    comment,
+                    stats->ct_cast
+                )
+            );
         }
         else
         {
