@@ -245,7 +245,7 @@ L:p:DIRT(ROOM):MON(HUMAN, DEPTH+15)
 L:C:DIRT(ROOM):MON(C, HASTE | DEPTH+10)
 L:,:DIRT(ROOM):OBJ(FOOD)
 L:!:DIRT(ROOM):OBJ(POTION)
-L:&:DIRT(ROOM):OBJ(CHEST)
+L:&:DIRT(ROOM):OBJ(GOLD)
 M:###############
 M:#.......#,!..&#
 M:+.......#..p..#

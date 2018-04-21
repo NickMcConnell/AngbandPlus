@@ -331,6 +331,20 @@ int string_chr(string_ptr str, int start, char ch)
     return -1;
 }
 
+int string_count_chr(string_ptr str, char ch)
+{
+    int ct = 0;
+    int pos = 0;
+    for (;;)
+    {
+        pos = string_chr(str, pos, ch);
+        if (pos == -1) break;
+        pos++;
+        ct++;
+    }
+    return ct;
+}
+
 int string_last_chr(string_ptr str, char ch)
 {
     int pos = 0;

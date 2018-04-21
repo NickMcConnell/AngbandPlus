@@ -1619,7 +1619,7 @@ static void _apply_room_grid1(int x, int y, const room_grid_t *grid_ptr, u16b ro
     else if ((grid_ptr->flags & ROOM_GRID_OBJ_TYPE) && grid_ptr->object == TV_GOLD)
     {
         object_type forge;
-        if (make_gold(&forge))
+        if (make_gold(&forge, FALSE))
             drop_here(&forge, y, x);
     }
     else if (grid_ptr->object)

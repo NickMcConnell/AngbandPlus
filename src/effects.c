@@ -5870,8 +5870,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
     if (check_foresight()) return 0;
     if (statistics_hack) return 0;
 
-    if (easy_band) damage = (damage+1)/2;
-
     if (damage_type != DAMAGE_USELIFE)
     {
         /* Disturb */

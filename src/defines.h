@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 4
 #define VER_MINOR 0
-#define VER_PATCH 1
-#define VER_EXTRA 0
+#define VER_PATCH 2
+#define VER_EXTRA 1
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -302,9 +302,12 @@
 #define MAX_SHORT       32767
 
 /*
- * Maximum length of object's name
+ * Maximum length of object's name: Note, players can
+ * enter an arbitrarily long inscription which is appended
+ * to object descriptions, making the fixed buffer string
+ * handling approach foolish. Convert to c-string.c someday ... (237 matches)
  */
-#define MAX_NLEN        160
+#define MAX_NLEN        255
 
 /*
  * Special internal key
@@ -3030,8 +3033,11 @@ enum summon_specific_e {
 #define TR_IM_FEAR             166
 #define TR_DEC_BLOWS           167
 #define TR_IM_BLIND            168
+#define TR_FAKE                169 /* Hack for marking fake objects (e.g. inspecting known ego types) */
+#define TR_NO_ENCHANT          170
+#define TR_DUAL_WIELDING       171
 
-#define TR_FLAG_MAX            169
+#define TR_FLAG_COUNT          172
 /*#define TR_LAST_FLAG!!!!     191  (6 * 32 - 1)*/
 #define TR_FLAG_SIZE           6  
 
@@ -3477,6 +3483,35 @@ enum summon_specific_e {
 #define RF9_XXX30               0x20000000
 #define RF9_XXX31               0x40000000
 #define RF9_XXX32               0x80000000
+
+/* Themed drops ... r_info[].drop_theme
+   Note: If you reorder these, you'll need to touch r_info.txt as well.
+   See:  obj_drop_theme for implementation
+   See:  r_drop_themes in init1.c for parsing r_info.txt */
+enum r_drop_e
+{
+    R_DROP_NONE = 0,
+
+    /* Class Themes */
+    R_DROP_WARRIOR,
+    R_DROP_WARRIOR_SHOOT,
+    R_DROP_ARCHER,
+    R_DROP_MAGE,
+    R_DROP_PRIEST,
+    R_DROP_PRIEST_EVIL,
+    R_DROP_PALADIN,
+    R_DROP_PALADIN_EVIL,
+    R_DROP_SAMURAI,
+    R_DROP_NINJA,
+    R_DROP_ROGUE,
+
+    /* Racial Themes */
+    R_DROP_HOBBIT,
+    R_DROP_DWARF,
+
+    R_DROP_JUNK,
+    R_DROP_MAX
+};
 
 /*
  * Monster bit flags of racial resistances
@@ -5210,25 +5245,6 @@ extern int PlayerUID;
 #define WEAPONMASTER_FLURRY  85
 
 #define HISSATSU_IAI    100
-
-/*
- *  Special essence id for Weapon smith
- */
-#define MIN_SPECIAL_ESSENCE 200
-
-#define ESSENCE_ATTACK        (MIN_SPECIAL_ESSENCE + 0)
-#define ESSENCE_AC            (MIN_SPECIAL_ESSENCE + 1)
-#define ESSENCE_TMP_RES_ACID  (MIN_SPECIAL_ESSENCE + 2)
-#define ESSENCE_TMP_RES_ELEC  (MIN_SPECIAL_ESSENCE + 3)
-#define ESSENCE_TMP_RES_FIRE  (MIN_SPECIAL_ESSENCE + 4)
-#define ESSENCE_TMP_RES_COLD  (MIN_SPECIAL_ESSENCE + 5)
-#define ESSENCE_SH_FIRE       (MIN_SPECIAL_ESSENCE + 6)
-#define ESSENCE_SH_ELEC       (MIN_SPECIAL_ESSENCE + 7)
-#define ESSENCE_SH_COLD       (MIN_SPECIAL_ESSENCE + 8)
-#define ESSENCE_RESISTANCE    (MIN_SPECIAL_ESSENCE + 9)
-#define ESSENCE_SUSTAIN       (MIN_SPECIAL_ESSENCE + 10)
-#define ESSENCE_SLAY_GLOVE    (MIN_SPECIAL_ESSENCE + 11)
-
 
 #define DUNGEON_MODE_NONE       0
 #define DUNGEON_MODE_AND        1

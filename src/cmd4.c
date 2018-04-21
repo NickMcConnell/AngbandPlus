@@ -6049,6 +6049,87 @@ static void desc_obj_fake(int k_idx)
     obj_display(o_ptr);
 }
 
+static void desc_ego_fake(int e_idx)
+{
+    object_type    forge = {0};
+    ego_item_type *e_ptr = &e_info[e_idx];
+    int            k_idx = 0;
+
+    switch (e_ptr->type)
+    {
+    case EGO_TYPE_WEAPON:
+        k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
+        break;
+    case EGO_TYPE_DIGGER:
+        k_idx = lookup_kind(TV_DIGGING, SV_SHOVEL);
+        break;
+    case EGO_TYPE_SHIELD:
+        k_idx = lookup_kind(TV_SHIELD, SV_SMALL_LEATHER_SHIELD);
+        break;
+    case EGO_TYPE_BOW:
+        k_idx = lookup_kind(TV_BOW, SV_SHORT_BOW);
+        break;
+    case EGO_TYPE_HARP:
+        k_idx = lookup_kind(TV_BOW, SV_HARP);
+        break;
+    case EGO_TYPE_RING:
+        k_idx = lookup_kind(TV_RING, SV_ANY);
+        break;
+    case EGO_TYPE_AMULET:
+        k_idx = lookup_kind(TV_AMULET, SV_ANY);
+        break;
+    case EGO_TYPE_LITE:
+        k_idx = lookup_kind(TV_LITE, SV_LITE_FEANOR);
+        break;
+    case EGO_TYPE_BODY_ARMOR:
+        k_idx = lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL);
+        break;
+    case EGO_TYPE_ROBE:
+        k_idx = lookup_kind(TV_SOFT_ARMOR, SV_ROBE);
+        break;
+    case EGO_TYPE_CLOAK:
+        k_idx = lookup_kind(TV_CLOAK, SV_CLOAK);
+        break;
+    case EGO_TYPE_HELMET:
+        k_idx = lookup_kind(TV_HELM, SV_HARD_LEATHER_CAP);
+        break;
+    case EGO_TYPE_CROWN:
+        k_idx = lookup_kind(TV_CROWN, SV_IRON_CROWN);
+        break;
+    case EGO_TYPE_GLOVES:
+        k_idx = lookup_kind(TV_GLOVES, SV_SET_OF_LEATHER_GLOVES);
+        break;
+    case EGO_TYPE_BOOTS:
+        k_idx = lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS);
+        break;
+    case EGO_TYPE_AMMO:
+        k_idx = lookup_kind(TV_ARROW, SV_AMMO_NORMAL);
+        break;
+    }
+
+    if (k_idx)
+    {
+        object_prep(&forge, k_idx);
+        forge.name2 = e_idx;
+        add_flag(forge.art_flags, TR_FAKE); /* Hack */
+
+        forge.ident |= IDENT_KNOWN;
+        if (ego_is_aware(e_idx))
+        {
+            forge.pval = e_ptr->max_pval;
+            forge.to_h = e_ptr->max_to_h;
+            forge.to_d = e_ptr->max_to_d;
+            forge.to_a = e_ptr->max_to_a;
+
+            forge.ident |= IDENT_FULL;
+        }
+
+        handle_stuff();
+        obj_display(&forge);
+        /* TODO: Improve reporting with TRG_flags */
+    }
+}
+
 
 typedef struct {
     int id;
@@ -6153,6 +6234,7 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
         prt("You haven't found any egos just yet. Press any key to continue.", 0, 0);
         inkey();
         prt("", 0, 0);
+        C_KILL(ego_idx, max_e_idx, int);
         return;
     }
 
@@ -6291,6 +6373,15 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
         {
         case ESCAPE:
             flag = TRUE;
+            break;
+
+        case 'R':
+        case 'r':
+            if (grp_cnt > 0 && ego_idx[ego_cur] >= 0)
+            {
+                desc_ego_fake(ego_idx[ego_cur]);
+                redraw = TRUE;
+            }
             break;
 
         default:

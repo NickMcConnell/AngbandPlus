@@ -801,21 +801,27 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     if (r_ptr->flags1 & RF1_DROP_GREAT) 
         mo_mode |= AM_GREAT;
 
-    if ( (r_ptr->flags1 & RF1_QUESTOR)
-      || (r_ptr->flags7 & RF7_GUARDIAN) )
+    obj_drop_theme = 0;
+    if (r_ptr->drop_theme && one_in_(2))
+        obj_drop_theme = r_ptr->drop_theme;
+    else /* Don't try to tailor themed drops since they could easily fail ... */
     {
-        if (one_in_(5))
-            mo_mode |= AM_TAILORED;
-    }
-    if (r_ptr->flags1 & RF1_UNIQUE)
-    {
-        if (one_in_(10))
-            mo_mode |= AM_TAILORED;
-    }
-    else if (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
-    {
-        if (one_in_(30))
-            mo_mode |= AM_TAILORED;
+        if ( (r_ptr->flags1 & RF1_QUESTOR)
+          || (r_ptr->flags7 & RF7_GUARDIAN) )
+        {
+            if (one_in_(5))
+                mo_mode |= AM_TAILORED;
+        }
+        if (r_ptr->flags1 & RF1_UNIQUE)
+        {
+            if (one_in_(10))
+                mo_mode |= AM_TAILORED;
+        }
+        else if (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
+        {
+            if (one_in_(30))
+                mo_mode |= AM_TAILORED;
+        }
     }
 
     coin_type = force_coin;
@@ -824,17 +830,24 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
 
     if (do_gold && (!do_item || (randint0(100) < 20)))
     {
-        if (!make_gold(o_ptr))
+        if (!make_gold(o_ptr, TRUE))
+        {
+            obj_drop_theme = 0;
             return FALSE;
+        }
     }
     else
     {
         if (!make_object(o_ptr, mo_mode))
+        {
+            obj_drop_theme = 0;
             return FALSE;
+        }
     }
 
     object_level = base_level;
     coin_type = 0;
+    obj_drop_theme = 0;
 
     return TRUE;    
 }
@@ -942,13 +955,14 @@ static bool _kind_is_utility(int k_idx)
         case SV_SCROLL_PHASE_DOOR:
         case SV_SCROLL_WORD_OF_RECALL:
         case SV_SCROLL_IDENTIFY:
-        case SV_SCROLL_STAR_IDENTIFY:
         case SV_SCROLL_REMOVE_CURSE:
         case SV_SCROLL_STAR_REMOVE_CURSE:
         case SV_SCROLL_MAPPING:
         case SV_SCROLL_PROTECTION_FROM_EVIL:
         case SV_SCROLL_DETECT_MONSTERS:
             return TRUE;
+        case SV_SCROLL_STAR_IDENTIFY:
+            return easy_id ? FALSE : TRUE;
         }
         break;
 
@@ -1270,7 +1284,7 @@ void monster_death(int m_idx, bool drop_item)
     }
     case MON_BLOODLETTER:
         /* Bloodletters of Khorne may drop a blade of chaos */
-        if (drop_chosen_item && (randint1(100) < 15))
+        if (drop_chosen_item && one_in_(20))
         {
             /* Get local object */
             q_ptr = &forge;
@@ -1855,7 +1869,7 @@ void monster_death(int m_idx, bool drop_item)
 
         case MON_JACK_SHADOWS:
             a_idx = ART_JACK;
-            chance = 15;
+            chance = 33;
             break;
 
         case MON_DIO:
@@ -2291,6 +2305,22 @@ void monster_death(int m_idx, bool drop_item)
             drop_near(&forge, -1, y, x);
             j++;
         }
+    }
+
+    if (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
+    {
+        int r = (r_ptr->flags1 & RF1_DROP_GREAT) ? 7 : 3;
+        int n = randint0(r);
+        int i;
+
+        object_level = (MAX(base_level, dun_level) + r_ptr->level) / 2;
+        for (i = 0; i < n; i++)
+        {
+            object_type gold = {0};
+            if (make_gold(&gold, TRUE))
+                drop_near(&gold, -1, y, x);
+        }
+        object_level = base_level;
     }
 
     if (visible && (dump_item || dump_gold))

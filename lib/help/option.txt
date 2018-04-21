@@ -12,8 +12,10 @@ Various concepts are mentioned in the descriptions below, including <color:keywo
 
 The birth options can only be accessed while creating a new character (press <color:keypress>=</color> while creating the character). There is no way to turn them off after the creation is finished!
   <indent>
-<topic:easy_band><color:U>Easy Mode</color> <color:D>(easy_band)</color>
-This option enables easy game mode for beginners. If this option is set, you take only half damage from any enemy's attack compared to normal mode, and monster's summoning spells become much weaker.
+<topic:easy_id><color:U>Easy Identify</color> <color:D>(easy_id)</color>
+This option simplifies the identification of objects, making Identify work just like *Identify*. However, this renders many spells (such as <color:keyword>Stone Tell</color> in Nature and <color:keyword>Identify True</color> in Sorcery) and objects (such as <color:keyword>Staves of *Identify*</color>) redundant or pointless. Also, some classes (such as the Archaeologist) are designed with early access to *Identify* as a principle bonus. Enabling this option removes the advantages of these classes, making them less worthy of playing.
+
+In addition, this birth option will also affect the early game pseudo-identification of objects. Normally, objects must be carried in your pack for some time before you become aware of their quality. The length of time is class dependent, as is the amount of information revealed through pseudo-identification (see <link:objects.txt#Pseudo-ID>). With <color:keyword>Easy Identify</color> enabled, all players will get instantaneous and full pseudo-identification of objects, making this aspect of gameplay much easier as well.
 
 <topic:smart_learn><color:U>Monsters learn from their mistakes</color> <color:D>(smart_learn)</color>
 Allow monsters to learn what spell attacks you are resistant to, and to use this information to choose the best attacks.

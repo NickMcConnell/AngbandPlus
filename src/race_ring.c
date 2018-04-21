@@ -241,7 +241,7 @@ static bool _absorb(object_type *o_ptr)
     if (o_ptr->curse_flags & (TRC_TY_CURSE | TRC_HEAVY_CURSE))
         div++;
 
-    for (i = 0; i < TR_FLAG_MAX; i++)
+    for (i = 0; i < TR_FLAG_COUNT; i++)
     {
         if (_skip_flag(i)) continue;
         if (have_flag(flags, i))
@@ -280,6 +280,19 @@ static bool _absorb(object_type *o_ptr)
         msg_print("You grow stronger!");
     }
     return result;
+}
+
+static bool _absorb_object(object_type *o_ptr)
+{
+    if (object_is_jewelry(o_ptr))
+    {
+        char o_name[MAX_NLEN];
+        object_desc(o_name, o_ptr, OD_NAME_ONLY);
+        msg_format("You attempt to drain power from %s.", o_name);
+        _absorb(o_ptr);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static int _calc_amount(int amount, int power, int rep)
@@ -1433,13 +1446,13 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     if (_essences[TR_SH_COLD] >= 7)
         add_flag(flgs, TR_SH_COLD);
 
-    if (_essences[TR_IM_ACID] >= 3)
+    if (_essences[TR_IM_ACID] >= 2)
         add_flag(flgs, TR_IM_ACID);
-    if (_essences[TR_IM_ELEC] >= 3)
+    if (_essences[TR_IM_ELEC] >= 2)
         add_flag(flgs, TR_IM_ELEC);
-    if (_essences[TR_IM_FIRE] >= 3)
+    if (_essences[TR_IM_FIRE] >= 2)
         add_flag(flgs, TR_IM_FIRE);
-    if (_essences[TR_IM_COLD] >= 3)
+    if (_essences[TR_IM_COLD] >= 2)
         add_flag(flgs, TR_IM_COLD);
 }
 
@@ -1638,6 +1651,7 @@ race_t *mon_ring_get_race(void)
 
         me.load_player = _load;
         me.save_player = _save;
+        me.destroy_object = _absorb_object;
 
         me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
         me.pseudo_class_idx = CLASS_MAGE;
@@ -1653,17 +1667,6 @@ race_t *mon_ring_get_race(void)
 
     me.equip_template = mon_get_equip_template();
     return &me;
-}
-
-void ring_absorb_object(object_type *o_ptr)
-{
-    if (object_is_jewelry(o_ptr))
-    {
-        char o_name[MAX_NLEN];
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
-        msg_format("You attempt to drain power from %s.", o_name);
-        _absorb(o_ptr);
-    }
 }
 
 int ring_calc_torch(void)

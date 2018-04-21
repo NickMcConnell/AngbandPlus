@@ -1,0 +1,4 @@
+#!/bin/bash
+make -j4
+cp poschengband ..
+ls -lah ../pos*

@@ -1519,6 +1519,12 @@ static errr rd_savefile_new_aux(savefile_ptr file)
 
 
     rd_extra(file);
+    if (p_ptr->pclass == CLASS_WEAPONSMITH && savefile_is_older_than(file, 4, 0, 2, 0))
+    {
+        note("Weaponsmiths were re-written for version 4.0.2. Unable to upgrade since all your previous essences would be lost!");
+        return 25;
+    }
+
     if (p_ptr->energy_need < -999) world_player = TRUE;
 
     if (arg_fiddle) note("Loaded extra information");

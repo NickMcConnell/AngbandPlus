@@ -14,9 +14,16 @@ lib/help/*.xlsx
 *.html
 
 #################
+## QtCreator
+#################
+src/poschengband.config
+src/poschengband.creator
+src/poschengband.files
+src/poschengband.includes
+
+#################
 ## Eclipse
 #################
-
 *.pydevproject
 .project
 .metadata

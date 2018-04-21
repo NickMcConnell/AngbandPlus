@@ -7972,7 +7972,7 @@ S:0:4000:8000  # Martial Arts
 S:1:4000:8000  # Dual Wielding
 S:2:0:0  # Riding
 
-### KAJI ###
+### WEAPONSMITH ###
 N:24
 # Bow
 W:0:0:1:4  # 0
@@ -8301,7 +8301,7 @@ W:4:62:1:4  #
 W:4:63:1:4  # 
 # Skill
 S:0:0:4000  # Martial Arts
-S:1:0:4000  # Dual Wielding
+S:1:0:7000  # Dual Wielding
 S:2:0:2000  # Riding
 
 ### MIRROR MASTER ###

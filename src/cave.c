@@ -1402,15 +1402,7 @@ void print_rel(char c, byte a, int y, int x)
     {
         point_t ui = cave_xy_to_ui_pt(x, y);
         if (!msg_line_contains(ui.y, ui.x))
-        {
-            if (!use_graphics)/* Hack -- fake monochrome */
-            {
-                if (world_monster) a = TERM_DARK;
-                else if (IS_INVULN() || world_player) a = TERM_WHITE;
-                else if (IS_WRAITH()) a = TERM_L_DARK;
-            }
             Term_queue_bigchar(ui.x, ui.y, a, c, 0, 0);
-        }
     }
 }
 
@@ -1567,14 +1559,6 @@ void display_dungeon(void)
                 /* Examine the grid */
                 map_info(y, x, &a, &c, &ta, &tc);
 
-                /* Hack -- fake monochrome */
-                if (!use_graphics)
-                {
-                    if (world_monster) a = TERM_DARK;
-                    else if (IS_INVULN() || world_player) a = TERM_WHITE;
-                    else if (IS_WRAITH()) a = TERM_L_DARK;
-                }
-
                 /* Hack -- Queue it */
                 Term_queue_char(x - px + Term->wid / 2 - 1, y - py + Term->hgt / 2 - 1, a, c, ta, tc);
             }
@@ -1618,12 +1602,6 @@ void lite_spot(int y, int x)
             char c, tc;
 
             map_info(y, x, &a, &c, &ta, &tc);
-            if (!use_graphics)/* Hack -- fake monochrome */
-            {
-                if (world_monster) a = TERM_DARK;
-                else if (IS_INVULN() || world_player) a = TERM_WHITE;
-                else if (IS_WRAITH()) a = TERM_L_DARK;
-            }
             Term_queue_bigchar(ui.x, ui.y, a, c, ta, tc);
             p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
         }
@@ -1673,12 +1651,6 @@ void prt_map(void)
             if (!in_bounds2(cp.y, cp.x)) continue;
 
             map_info(cp.y, cp.x, &a, &c, &ta, &tc);
-            if (!use_graphics) /* Hack -- fake monochrome */
-            {
-                if (world_monster) a = TERM_DARK;
-                else if (IS_INVULN() || world_player) a = TERM_WHITE;
-                else if (IS_WRAITH()) a = TERM_L_DARK;
-            }
             Term_queue_bigchar(uip.x, uip.y, a, c, ta, tc);
         }
     }
@@ -1745,13 +1717,6 @@ void prt_path(int y, int x)
                     a = default_color;
                 else if (a == default_color)
                     a = TERM_WHITE;
-            }
-
-            if (!use_graphics)
-            {
-                if (world_monster) a = TERM_DARK;
-                else if (IS_INVULN() || world_player) a = TERM_WHITE;
-                else if (IS_WRAITH()) a = TERM_L_DARK;
             }
 
             c = '*';
@@ -2072,14 +2037,6 @@ void display_map(int *cy, int *cx)
         {
             ta = ma[y][x];
             tc = mc[y][x];
-
-            /* Hack -- fake monochrome */
-            if (!use_graphics)
-            {
-                if (world_monster) ta = TERM_DARK;
-                else if (IS_INVULN() || world_player) ta = TERM_WHITE;
-                else if (IS_WRAITH()) ta = TERM_L_DARK;
-            }
 
             /* Add the character */
             Term_add_bigch(ta, tc);

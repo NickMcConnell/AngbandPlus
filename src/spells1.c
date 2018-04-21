@@ -6154,8 +6154,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             hp_player(heal);
         }
 
-        /* Hurt the monster, check for fear and death */
-        if (dam && mon_take_hit(c_ptr->m_idx, dam, &fear, note_dies))
+        /* Hurt the monster, check for fear and death
+              v---- Revert 525c2ace: Warlocks: Playtesting Dragon Pact. Massive problems with project()
+                    The problem here is that many attacks, like Slow Monster, do no physical damage, but
+                    rely on mon_take_hit to do other things, like wake up sleeping monsters (or reveal
+                    player ring mimics). This code needs refactoring ...*/
+        if (/*dam &&*/ mon_take_hit(c_ptr->m_idx, dam, &fear, note_dies))
         {
             /* Dead monster */
         }

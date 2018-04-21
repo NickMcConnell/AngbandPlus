@@ -1666,7 +1666,7 @@ N:221:Destruction:denmung ishbul
 G:?:w
 I:70:41:0
 W:40:0:0:5:250
-A:40/1
+A:40/2
 F:IGNORE_FIRE
 
 ##### Potions #####
@@ -3915,7 +3915,7 @@ G:}:U
 I:19:70:0
 W:25:0:0:40:400
 A:25/4
-F:CHR
+F:CHR | NO_ENCHANT
 D:A stringed instrument preferred by Bards.
 
 N:673:Rune
@@ -3994,7 +3994,7 @@ W:70:0:0:150:50000
 A:30/8
 P:0:0d0:-50:-50:-50
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:VAMPIRIC
+F:VAMPIRIC | NO_ENCHANT
 D:A black blade, covered with gleaming runes.  It is rumored
 D:to be an evil weapon of great power that will ultimately control
 D:its bearer.

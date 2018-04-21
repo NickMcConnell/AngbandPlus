@@ -532,10 +532,13 @@ static void _centaur_calc_bonuses(void)
     {
         object_type *o_ptr = equip_obj(slot);
         p_ptr->to_a -= o_ptr->ac / 3;
-        p_ptr->to_a -= o_ptr->to_a / 3;
-
         p_ptr->dis_to_a -= o_ptr->ac / 3;
-        p_ptr->dis_to_a -= o_ptr->to_a / 3;
+
+        if (o_ptr->to_a > 0)
+        {
+            p_ptr->to_a -= o_ptr->to_a / 3;
+            p_ptr->dis_to_a -= o_ptr->to_a / 3;
+        }
     }
 }
 

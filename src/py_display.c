@@ -455,7 +455,9 @@ static void _build_curse_flags(doc_ptr doc, cptr name)
 
         if (o_ptr)
         {
-            if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+            if (object_is_cursed(o_ptr) && !(o_ptr->ident & IDENT_FULL))
+                doc_insert_char(doc, TERM_YELLOW, '?');
+            else if (o_ptr->curse_flags & TRC_PERMA_CURSE)
                 doc_insert_char(doc, TERM_VIOLET, '*');
             else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
                 doc_insert_char(doc, TERM_L_RED, '+');
@@ -1907,6 +1909,20 @@ static void _build_statistics(doc_ptr doc)
 
     doc_printf(doc, "<topic:Statistics>================================== <color:keypress>S</color>tatistics =================================\n\n");
 
+    /* Gold */
+    doc_insert(doc, "             <color:y>    Gold</color>\n");
+    doc_printf(doc, "  Found    : <color:w>%8d</color>\n", stats_gold_counts.found);
+    doc_printf(doc, "  Selling  : <color:w>%8d</color>\n", stats_gold_counts.selling);
+    doc_printf(doc, "  Winnings : <color:w>%8d</color> <color:w>%8d</color>\n",
+        stats_gold_counts.winnings,
+        stats_gold_counts.found + stats_gold_counts.selling + stats_gold_counts.winnings);
+    doc_printf(doc, "  Purchases: <color:w>%8d</color>\n", stats_gold_counts.buying);
+    doc_printf(doc, "  Services : <color:w>%8d</color>\n", stats_gold_counts.services);
+    doc_printf(doc, "  Stolen   : <color:w>%8d</color> <color:w>%8d</color>\n",
+        stats_gold_counts.stolen,
+        stats_gold_counts.buying + stats_gold_counts.services + stats_gold_counts.stolen);
+    doc_printf(doc, "                      <color:y>%8d</color>\n\n", p_ptr->au);
+
     /* Objects */
     for (i = 0; i < max_k_idx; i++)
     {
@@ -2120,16 +2136,19 @@ static void _build_statistics(doc_ptr doc)
     _kill_counts_imp(doc, _mon_is_evil, "Evil Monsters", total_kills);
     _kill_counts_imp(doc, _mon_is_good, "Good Monsters", total_kills);
     _kill_counts_imp(doc, _mon_is_neutral, "Neutral Monsters", total_kills);
-    doc_newline(doc);
-    _kill_counts_imp(doc, _mon_drops_good, "Good Droppers", total_kills);
-    _kill_counts_imp(doc, _mon_drops_great, "Great Droppers", total_kills);
-    doc_newline(doc);
-    _kill_counts_imp(doc, _mon_res_acid, "Resist Acid", total_kills);
-    _kill_counts_imp(doc, _mon_res_elec, "Resist Elec", total_kills);
-    _kill_counts_imp(doc, _mon_res_fire, "Resist Fire", total_kills);
-    _kill_counts_imp(doc, _mon_res_cold, "Resist Cold", total_kills);
-    _kill_counts_imp(doc, _mon_res_pois, "Resist Pois", total_kills);
-    _kill_counts_imp(doc, _mon_res_conf, "Resist Conf", total_kills);
+    if (0)
+    {
+        doc_newline(doc);
+        _kill_counts_imp(doc, _mon_drops_good, "Good Droppers", total_kills);
+        _kill_counts_imp(doc, _mon_drops_great, "Great Droppers", total_kills);
+        doc_newline(doc);
+        _kill_counts_imp(doc, _mon_res_acid, "Resist Acid", total_kills);
+        _kill_counts_imp(doc, _mon_res_elec, "Resist Elec", total_kills);
+        _kill_counts_imp(doc, _mon_res_fire, "Resist Fire", total_kills);
+        _kill_counts_imp(doc, _mon_res_cold, "Resist Cold", total_kills);
+        _kill_counts_imp(doc, _mon_res_pois, "Resist Pois", total_kills);
+        _kill_counts_imp(doc, _mon_res_conf, "Resist Conf", total_kills);
+    }
     doc_printf(doc, "\n  %-20.20s %5d\n", "Totals", total_kills);
 
     doc_newline(doc);
@@ -2282,6 +2301,9 @@ static void _build_options(doc_ptr doc)
                                                     always_small_levels ? "Always" :
                                                     small_levels ? "Sometimes" : "Never");
 
+    if (easy_id)
+        doc_printf(doc, " Easy Identify:      On\n");
+
     if (no_wilderness)
         doc_printf(doc, " Wilderness:         Off\n");
 
@@ -2295,7 +2317,7 @@ static void _build_options(doc_ptr doc)
         doc_printf(doc, " Unusual Rooms:      On\n");
 
     if (ironman_nightmare)
-        doc_printf(doc, " Nightmare Mode:     O\n");
+        doc_printf(doc, " Nightmare Mode:     On\n");
 
     doc_printf(doc, " Arena Levels:       %s\n", ironman_empty_levels ? "*Always*" :
                                                     empty_levels ? "Sometimes" : "Never");

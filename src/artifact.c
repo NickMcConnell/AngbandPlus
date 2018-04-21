@@ -1874,6 +1874,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     int     max_d = MAX(o_ptr->to_d, 32);
 
     if (no_artifacts) return 0;
+    if (have_flag(o_ptr->art_flags, TR_NO_REMOVE)) return 0;
     
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_HAYABUSA)
         is_falcon_sword = TRUE;
@@ -1905,7 +1906,48 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
     if (o_ptr->pval) has_pval = TRUE;
 
-    if ((mode & (CREATE_ART_SCROLL/* | CREATE_ART_GOOD*/)) && one_in_(4))
+    if (obj_drop_theme)
+    {
+        switch (obj_drop_theme)
+        {
+        case R_DROP_WARRIOR:
+        case R_DROP_WARRIOR_SHOOT:
+        case R_DROP_SAMURAI:
+        case R_DROP_DWARF:
+            artifact_bias = BIAS_WARRIOR;
+            break;
+        case R_DROP_ARCHER:
+            artifact_bias = BIAS_ARCHER;
+            break;
+        case R_DROP_MAGE:
+            artifact_bias = BIAS_MAGE;
+            break;
+        case R_DROP_PRIEST:
+            artifact_bias = BIAS_PRIESTLY;
+            break;
+        case R_DROP_PRIEST_EVIL:
+            artifact_bias = BIAS_NECROMANTIC;
+            break;
+        case R_DROP_PALADIN:
+            artifact_bias = BIAS_LAW;
+            warrior_artifact_bias = 60;
+            break;
+        case R_DROP_PALADIN_EVIL:
+            artifact_bias = BIAS_NECROMANTIC;
+            warrior_artifact_bias = 60;
+            break;
+        case R_DROP_NINJA:
+        case R_DROP_HOBBIT:
+            artifact_bias = BIAS_ROGUE;
+            break;
+        case R_DROP_ROGUE:
+            artifact_bias = BIAS_ROGUE;
+            warrior_artifact_bias = 50;
+            break;
+        }
+    }
+
+    if (!artifact_bias && (mode & (CREATE_ART_SCROLL/* | CREATE_ART_GOOD*/)) && one_in_(4))
     {
         switch (p_ptr->pclass)
         {
@@ -2039,9 +2081,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         if (!one_in_(WEIRD_LUCK))
         {
             if (powers > 3) powers = powers*3/4;
-            if (powers > 5) powers = 5;
+            if (powers > 5 && o_ptr->tval != TV_RING) powers = 5;
 
-            /* Artifacting high rings of damage is now possible ... */
+            /* Artifacting high rings of damage used to be possible ... Perhaps it someday will again?*/
             if (o_ptr->to_d)
                 o_ptr->to_d = randint1((o_ptr->to_d + 1)/2) + randint1(o_ptr->to_d/2);
             if (o_ptr->to_a)
@@ -2302,14 +2344,26 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 {
                     add_flag(o_ptr->art_flags, TR_DEC_MANA);
                 }
-                else if (one_in_(100))
+                else if (one_in_(20))
                 {
                     add_flag(o_ptr->art_flags, TR_WEAPONMASTERY);
                     has_pval = TRUE;
                 }
-                else if (one_in_(66) && randint1(150) < lev - 50)
+                else if (one_in_(10) && randint1(150) < lev - 50)
                 {
                     add_flag(o_ptr->art_flags, TR_BLOWS);
+                    has_pval = TRUE;
+                }
+                else if (one_in_(20))
+                {
+                    add_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
+                    if (!one_in_(7)) remove_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
+                    has_pval = TRUE;
+                }
+                else if (one_in_(20))
+                {
+                    add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
+                    if (!one_in_(7)) remove_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
                     has_pval = TRUE;
                 }
                 else if (one_in_(15))
@@ -2334,15 +2388,34 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 else if (one_in_(3))
                 {
                     add_flag(o_ptr->art_flags, TR_SHOW_MODS);
-                    o_ptr->to_h = 4 + (randint1(11));
-                    o_ptr->to_d = 4 + (randint1(11));
+                    o_ptr->to_h += randint1(5) + m_bonus(5, lev);
+                    o_ptr->to_d += randint1(5) + m_bonus(5, lev);
                 }
                 else
                 {
                     one_high_resistance(o_ptr);
                 }
                 break;
-            case 4: case 5: case 6:
+            case 4:
+                if (one_in_(3))
+                {
+                    add_flag(o_ptr->art_flags, TR_SHOW_MODS);
+                    o_ptr->to_h += randint1(5) + m_bonus(5, lev);
+                    o_ptr->to_d += randint1(5) + m_bonus(5, lev);
+                    break;
+                }
+                else if (one_in_(2))
+                {
+                    random_plus(o_ptr);
+                    has_pval = TRUE;
+                    break;
+                }
+                else if (one_in_(5))
+                {
+                    one_high_resistance(o_ptr);
+                    break;
+                }
+            case 5: case 6:
                 random_resistance(o_ptr);
                 break;
             case 7:
@@ -2388,15 +2461,34 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 else if (one_in_(3))
                 {
                     add_flag(o_ptr->art_flags, TR_SHOW_MODS);
-                    o_ptr->to_h = 4 + (randint1(11));
-                    o_ptr->to_d = 4 + (randint1(11));
+                    o_ptr->to_h += randint1(5) + m_bonus(5, lev);
+                    o_ptr->to_d += randint1(5) + m_bonus(5, lev);
                 }
                 else
                 {
                     one_high_resistance(o_ptr);
                 }
                 break;
-            case 4: case 5: case 6:
+            case 4:
+                if (one_in_(3))
+                {
+                    add_flag(o_ptr->art_flags, TR_SHOW_MODS);
+                    o_ptr->to_h += randint1(5) + m_bonus(5, lev);
+                    o_ptr->to_d += randint1(5) + m_bonus(5, lev);
+                    break;
+                }
+                else if (one_in_(2))
+                {
+                    random_plus(o_ptr);
+                    has_pval = TRUE;
+                    break;
+                }
+                else if (one_in_(5))
+                {
+                    one_high_resistance(o_ptr);
+                    break;
+                }
+            case 5: case 6:
                 random_resistance(o_ptr);
                 break;
             case 7:
@@ -2493,7 +2585,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             if (o_ptr->tval == TV_RING || o_ptr->tval == TV_GLOVES)
             {
                 o_ptr->pval = randint1(2);
-                if (one_in_(30)) o_ptr->pval++;
+                if (one_in_(6)) o_ptr->pval++;
             }
             else
             {
@@ -2532,7 +2624,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
     if (have_flag(o_ptr->art_flags, TR_WEAPONMASTERY) && o_ptr->pval > 2)
     {
-        if (one_in_(30))
+        if (one_in_(6))
             o_ptr->pval = 3;
         else
             o_ptr->pval = 2;
@@ -2603,18 +2695,18 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
     if (object_is_armour(o_ptr) || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
     {
-        int lower = 10;
+        int lower1 = 20, lower2 = 10;
 
-        if (o_ptr->tval == TV_RING)
-            lower = 15;
+        if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+            lower1 = 25; lower2 = 20;
 
-        while ((o_ptr->to_d+o_ptr->to_h) > 20)
+        while ((o_ptr->to_d+o_ptr->to_h) > lower1)
         {
             if (one_in_(o_ptr->to_d) && one_in_(o_ptr->to_h)) break;
             o_ptr->to_d -= (s16b)randint0(3);
             o_ptr->to_h -= (s16b)randint0(3);
         }
-        while ((o_ptr->to_d+o_ptr->to_h) > lower && !immunity_hack)
+        while ((o_ptr->to_d+o_ptr->to_h) > lower2 && !immunity_hack)
         {
             if (one_in_(o_ptr->to_d) || one_in_(o_ptr->to_h)) break;
             o_ptr->to_d -= (s16b)randint0(3);
@@ -2854,7 +2946,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
         }
         else
         {
-            add_flag(o_ptr->art_flags, TR_BLOWS);
+            add_flag(o_ptr->art_flags, TR_DEC_BLOWS);
             add_flag(o_ptr->art_flags, TR_AGGRAVATE);
             add_flag(o_ptr->art_flags, TR_DRAIN_EXP);
             add_flag(o_ptr->art_flags, TR_TY_CURSE);
@@ -3097,7 +3189,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
             worst_power = power;
         }
 
-        if (power > base_power * 7 / 10 && power < base_power * 2)
+        if (power > base_power * 4 / 5 && power < base_power * 2)
         {
             object_level = old_level;
             object_copy(o_ptr, &forge2);

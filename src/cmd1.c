@@ -1588,6 +1588,7 @@ void carry(bool pickup)
 
             /* Collect the gold */
             p_ptr->au += value;
+            stats_on_gold_find(value);
 
             /* Redraw gold */
             p_ptr->redraw |= (PR_GOLD);

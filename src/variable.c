@@ -294,7 +294,7 @@ bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 /*** Birth Options ***/
 
-bool easy_band;    /* Easy Mode (*) */
+bool easy_id;    /* Easy Identify */
 bool smart_learn;    /* Monsters learn from their mistakes (*) */
 bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 bool no_wilderness;
@@ -956,6 +956,7 @@ monster_hook_type get_mon_num2_hook;
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+int obj_drop_theme;
 
 
 /* Hack, monk armour */

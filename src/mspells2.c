@@ -289,8 +289,8 @@ bool mon_spell_mon(int m_idx, int options)
     int start;
     int plus = 1;
     u32b u_mode = 0L;
-    int s_num_6 = (easy_band ? 2 : 6);
-    int s_num_4 = (easy_band ? 1 : 4);
+    int s_num_6 = 6;
+    int s_num_4 = 4;
 
     byte spell[96], num = 0;
 
@@ -3443,7 +3443,7 @@ bool mon_spell_mon(int m_idx, int options)
         {
             int num = 1;
 
-            if ((r_ptr->flags1 & RF1_UNIQUE) && !easy_band)
+            if ((r_ptr->flags1 & RF1_UNIQUE))
             {
                 num += r_ptr->level/40;
             }

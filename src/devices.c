@@ -1549,7 +1549,7 @@ static cptr _do_scroll(int sval, int mode)
                 msg_print("Don't be greedy. Just try it out on a single object at a time.");
                 return NULL;
             }
-            
+
             device_noticed = TRUE;
 
             /* TODO: Add more goodies ... */
@@ -1576,7 +1576,7 @@ static cptr _do_scroll(int sval, int mode)
             {
                 if (object_is_melee_weapon(o_ptr))
                 {
-                    if (!brand_weapon_aux(item)) return NULL;
+                    if (!brand_weapon_aux(item)) return "";
                 }
                 else
                     msg_print("Funny, nothing happened.");
@@ -1587,7 +1587,7 @@ static cptr _do_scroll(int sval, int mode)
                 {
                     if (object_is_melee_weapon(o_ptr))
                     {
-                        if (!brand_weapon_aux(item)) return NULL;
+                        if (!brand_weapon_aux(item)) return "";
                     }
                 }
                 else
@@ -2242,7 +2242,7 @@ device_effect_info_t wand_effect_table[] =
     {EFFECT_SCARE_MONSTER,          7,   5,     1,  20,     0, 0},
     {EFFECT_STONE_TO_MUD,          10,   5,     1,  60,     0, 0},
     {EFFECT_POLYMORPH,             12,   6,     1,  25,     0, 0},
-    {EFFECT_CLONE_MONSTER,         12,   6,     1,  25,     0, 0},
+    /*{EFFECT_CLONE_MONSTER,         12,   6,     1,  25,     0, 0},*/
     {EFFECT_BOLT_COLD,             12,   7,     1,  25,     0, 0},
     {EFFECT_BOLT_ELEC,             15,   7,     1,  25,     0, 0},
     {EFFECT_BOLT_ACID,             17,   8,     1,  25,     0, 0},
@@ -2411,6 +2411,7 @@ static bool _device_pick_effect_aux(object_type *o_ptr, device_effect_info_ptr e
     if ((mode & AM_GOOD) && !(entry->flags & _DROP_GOOD)) return FALSE;
     if ((mode & AM_GREAT) && !(entry->flags & _DROP_GREAT)) return FALSE;
     if ((mode & AM_STOCK_TOWN) && !(entry->flags & _STOCK_TOWN)) return FALSE;
+    if (easy_id && entry->type == EFFECT_IDENTIFY_FULL) return FALSE;
     return TRUE;
 }
 
@@ -3942,7 +3943,7 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         }
         break;
     case EFFECT_SUMMON_OCTOPUS:
-        if (name) return "Summon Ocotpus";
+        if (name) return "Summon Octopus";
         if (desc) return "It attempts to summon octopi for assistance.";
         if (value) return format("%d", 1200);
         if (cast)

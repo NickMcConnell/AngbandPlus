@@ -157,7 +157,7 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
             add_flag(o_ptr->art_flags, TR_RES_FIRE);
             add_flag(o_ptr->art_flags, TR_SH_FIRE);
         }
-        if (o_ptr->tval == TV_LITE)
+        if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_CLOAK)
             add_flag(o_ptr->art_flags, TR_SH_FIRE);
         break;
 

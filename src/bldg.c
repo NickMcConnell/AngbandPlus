@@ -225,7 +225,8 @@ static void arena_comm(int cmd)
 
                 prt("", 10, 0);
                 prt("", 11, 0);
-                p_ptr->au += 1000000L;
+                p_ptr->au += 1000000;
+                stats_on_gold_winnings(1000000);
                 msg_prompt("Press the space bar to continue", " ", PROMPT_NEW_LINE | PROMPT_FORCE_CHOICE);
                 p_ptr->arena_number++;
             }
@@ -984,6 +985,8 @@ static bool gamble_comm(int cmd)
             do
             {
                 p_ptr->au -= wager;
+                stats_on_gold_services(wager);
+
                 switch (cmd)
                 {
                  case BACT_IN_BETWEEN: /* Game of In-Between */
@@ -1154,6 +1157,7 @@ static bool gamble_comm(int cmd)
                     prt("YOU WON", 16, 37);
 
                     p_ptr->au += odds * wager;
+                    stats_on_gold_winnings(odds * wager);
                     sprintf(tmp_str, "Payoff: %d", odds);
 
                     prt(tmp_str, 17, 37);
@@ -1571,6 +1575,8 @@ static bool kakutoujou(void)
             battle_odds = MAX(wager+1, wager * battle_odds / 100);
             kakekin = wager;
             p_ptr->au -= wager;
+            stats_on_gold_services(wager);
+
             reset_tim_flags();
 
             /* Save the surface floor as saved floor */
@@ -1710,8 +1716,10 @@ static bool kankin(void)
             sprintf(buf, "Convert %s into money? ",o_name);
             if (get_check(buf))
             {
-                msg_format("You get %dgp.", 1000000 * o_ptr->number);
-                p_ptr->au += 1000000 * o_ptr->number;
+                int amt = 1000000 * o_ptr->number;
+                msg_format("You get %dgp.", amt);
+                p_ptr->au += amt;
+                stats_on_gold_winnings(amt);
                 p_ptr->redraw |= (PR_GOLD);
                 inven_item_increase(i, -o_ptr->number);
                 inven_item_describe(i);
@@ -1733,8 +1741,10 @@ static bool kankin(void)
             sprintf(buf, "Convert %s into money? ",o_name);
             if (get_check(buf))
             {
-                msg_format("You get %dgp.", 200000 * o_ptr->number);
-                p_ptr->au += 200000 * o_ptr->number;
+                int amt = 200000 * o_ptr->number;
+                msg_format("You get %dgp.", amt);
+                p_ptr->au += amt;
+                stats_on_gold_winnings(amt);
                 p_ptr->redraw |= (PR_GOLD);
                 inven_item_increase(i, -o_ptr->number);
                 inven_item_describe(i);
@@ -1756,8 +1766,10 @@ static bool kankin(void)
             sprintf(buf, "Convert %s into money? ",o_name);
             if (get_check(buf))
             {
-                msg_format("You get %dgp.", 100000 * o_ptr->number);
-                p_ptr->au += 100000 * o_ptr->number;
+                int amt = 100000 * o_ptr->number;
+                msg_format("You get %dgp.", amt);
+                p_ptr->au += amt;
+                stats_on_gold_winnings(amt);
                 p_ptr->redraw |= (PR_GOLD);
                 inven_item_increase(i, -o_ptr->number);
                 inven_item_describe(i);
@@ -1777,8 +1789,10 @@ static bool kankin(void)
             sprintf(buf, "Convert %s into money? ",o_name);
             if (get_check(buf))
             {
-                msg_format("You get %dgp.", (int)(r_info[today_mon].level * 50 + 100) * o_ptr->number);
-                p_ptr->au += (r_info[today_mon].level * 50 + 100) * o_ptr->number;
+                int amt = (int)(r_info[today_mon].level * 50 + 100) * o_ptr->number;
+                msg_format("You get %dgp.", amt);
+                p_ptr->au += amt;
+                stats_on_gold_winnings(amt);
                 p_ptr->redraw |= (PR_GOLD);
                 inven_item_increase(i, -o_ptr->number);
                 inven_item_describe(i);
@@ -1799,8 +1813,10 @@ static bool kankin(void)
             sprintf(buf, "Convert %s into money? ",o_name);
             if (get_check(buf))
             {
-                msg_format("You get %dgp.", (int)(r_info[today_mon].level * 30 + 60) * o_ptr->number);
-                p_ptr->au += (r_info[today_mon].level * 30 + 60) * o_ptr->number;
+                int amt = (int)(r_info[today_mon].level * 30 + 60) * o_ptr->number;
+                msg_format("You get %dgp.", amt);
+                p_ptr->au += amt;
+                stats_on_gold_winnings(amt);
                 p_ptr->redraw |= (PR_GOLD);
                 inven_item_increase(i, -o_ptr->number);
                 inven_item_describe(i);
@@ -2177,11 +2193,15 @@ static bool inn_comm(int cmd)
                     if (p_ptr->pclass == CLASS_MAGIC_EATER)
                         magic_eater_restore_all();
 
-                    for (i = 0; i < INVEN_PACK; i++)
+                    for (i = 0; i < INVEN_TOTAL; i++)
                     {
-                        if (!inventory[i].k_idx) continue;
-                        if (!object_is_device(&inventory[i])) continue;
-                        device_regen_sp_aux(&inventory[i], 1000);
+                        object_type *o_ptr = &inventory[i];
+
+                        if (!o_ptr->k_idx) continue;
+                        if (object_is_device(o_ptr))
+                            device_regen_sp_aux(o_ptr, 1000);
+                        else if (o_ptr->timeout > 0)
+                            o_ptr->timeout = 0;
                     }
 
                     if (prev_hour >= 6 && prev_hour <= 17)
@@ -2802,6 +2822,7 @@ static bool _reforge_artifact(void)
     inven_item_increase(src_idx, -1);
     inven_item_describe(src_idx);
     p_ptr->au -= cost;
+    stats_on_gold_services(cost);
 
     msg_print("After several hours, you are presented your new artifact...");
 
@@ -3025,6 +3046,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
         msg_format("Improved into %s for %d gold.", tmp_str, cost);
 
         p_ptr->au -= cost;
+        stats_on_gold_services(cost);
         if (equip_is_valid_slot(item)) calc_android_exp();
         return (TRUE);
     }
@@ -3643,6 +3665,7 @@ static void bldg_process_command(building_type *bldg, int i)
     if (paid)
     {
         p_ptr->au -= bcost;
+        stats_on_gold_services(bcost);
         if (prace_is_(RACE_MON_LEPRECHAUN))
             p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }

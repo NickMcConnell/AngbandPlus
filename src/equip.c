@@ -1053,19 +1053,41 @@ void equip_calc_bonuses(void)
             int lhand = 2*i+1;
 
             if ( p_ptr->weapon_info[rhand].wield_how == WIELD_ONE_HAND
-              && (p_ptr->weapon_info[rhand].bare_hands || object_allow_two_hands_wielding(equip_obj(p_ptr->weapon_info[rhand].slot)))
-              && equip_is_empty_hand(lhand) )
+              && (p_ptr->weapon_info[rhand].bare_hands || object_allow_two_hands_wielding(equip_obj(p_ptr->weapon_info[rhand].slot))))
             {
-                p_ptr->weapon_info[rhand].wield_how = WIELD_TWO_HANDS;
-                p_ptr->weapon_info[lhand].wield_how = WIELD_NONE;
+                if (equip_is_empty_hand(lhand))
+                {
+                    p_ptr->weapon_info[rhand].wield_how = WIELD_TWO_HANDS;
+                    p_ptr->weapon_info[lhand].wield_how = WIELD_NONE;
+                }
+                /* Hack for Shieldmaster */
+                else if ( weaponmaster_is_(WEAPONMASTER_SHIELDS)
+                       && weaponmaster_get_toggle() != TOGGLE_SHIELD_BASH
+                       && equip_is_valid_hand(lhand)
+                       && object_is_shield(equip_obj(p_ptr->weapon_info[lhand].slot)) )
+                {
+                    p_ptr->weapon_info[rhand].wield_how = WIELD_TWO_HANDS;
+                    p_ptr->weapon_info[lhand].wield_how = WIELD_NONE;
+                }
             }
 
             if ( p_ptr->weapon_info[lhand].wield_how == WIELD_ONE_HAND
-              && (p_ptr->weapon_info[lhand].bare_hands || object_allow_two_hands_wielding(equip_obj(p_ptr->weapon_info[lhand].slot)))
-              && equip_is_empty_hand(rhand) )
+              && (p_ptr->weapon_info[lhand].bare_hands || object_allow_two_hands_wielding(equip_obj(p_ptr->weapon_info[lhand].slot))))
             {
-                p_ptr->weapon_info[lhand].wield_how = WIELD_TWO_HANDS;
-                p_ptr->weapon_info[rhand].wield_how = WIELD_NONE;
+                if (equip_is_empty_hand(rhand))
+                {
+                    p_ptr->weapon_info[lhand].wield_how = WIELD_TWO_HANDS;
+                    p_ptr->weapon_info[rhand].wield_how = WIELD_NONE;
+                }
+                /* Hack for Shieldmaster */
+                else if ( weaponmaster_is_(WEAPONMASTER_SHIELDS)
+                       && weaponmaster_get_toggle() != TOGGLE_SHIELD_BASH
+                       && equip_is_valid_hand(rhand)
+                       && object_is_shield(equip_obj(p_ptr->weapon_info[rhand].slot)) )
+                {
+                    p_ptr->weapon_info[lhand].wield_how = WIELD_TWO_HANDS;
+                    p_ptr->weapon_info[rhand].wield_how = WIELD_NONE;
+                }
             }
         }
     }
@@ -1357,7 +1379,7 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_SUST_CON)) p_ptr->sustain_con = TRUE;
         if (have_flag(flgs, TR_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
-        if (o_ptr->name2 == EGO_GLOVES_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
+        if (have_flag(flgs, TR_DUAL_WIELDING))
         {
             switch (_template->slots[i].type)
             {
@@ -1372,6 +1394,9 @@ void equip_calc_bonuses(void)
                 p_ptr->weapon_info[lhand].genji = TRUE;
                 break;
             }
+            default: /* Weaponsmith with their beloved Boots of Genji :) */
+                p_ptr->weapon_info[0].genji = TRUE;
+                p_ptr->weapon_info[1].genji = TRUE;
             }
         }
 
@@ -1509,13 +1534,6 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_WEAPONMASTERY))
         {
             _weaponmastery(i, o_ptr->pval);
-
-            if ( o_ptr->name1 == ART_NARYA
-              || o_ptr->name1 == ART_NENYA
-              || o_ptr->name1 == ART_VILYA )
-            {
-                p_ptr->shooter_info.to_mult += 25 * o_ptr->pval;
-            }
         }
     }
 }

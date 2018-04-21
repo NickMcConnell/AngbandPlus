@@ -370,6 +370,7 @@ bool leprechaun_steal(int m_idx)
                 msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
                 sound(SOUND_SELL);
                 p_ptr->au += loot.pval;
+                stats_on_gold_find(loot.pval);
                 p_ptr->redraw |= (PR_GOLD);
                 if (prace_is_(RACE_MON_LEPRECHAUN))
                     p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);

@@ -53,9 +53,12 @@ int mauler_get_toggle(void)
 
 void process_maul_of_vice(void)
 {
+    int amt;
     if (!p_ptr->maul_of_vice) return;
     
-    p_ptr->au -= randint1(p_ptr->lev);
+    amt = randint1(p_ptr->lev);
+    p_ptr->au -= amt;
+    stats_on_gold_stolen(amt);
     p_ptr->redraw |= PR_GOLD;
 
     if (p_ptr->au < 0)

@@ -887,7 +887,9 @@ static bool cave_gen(void)
             int feat1 = 0, feat2 = 0;
 
             /* Choose water or lava */
-            if ((randint1(MAX_DEPTH * 2) - 1 > dun_level) && (d_info[dungeon_type].flags1 & DF1_WATER_RIVER))
+            if ( randint1(MAX_DEPTH * 2) - 1 > dun_level
+              && ( (d_info[dungeon_type].flags1 & DF1_WATER_RIVER)
+                || (no_wilderness && one_in_(3)) ) )
             {
                 feat1 = feat_deep_water;
                 feat2 = feat_shallow_water;

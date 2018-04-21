@@ -5,7 +5,7 @@ bool spoiler_hack = FALSE;
 #ifdef ALLOW_SPOILERS
 
 typedef void(*_file_fn)(FILE*);
-static void _text_file(cptr name, _file_fn fn)
+static void _help_file(cptr name, _file_fn fn)
 {
     FILE    *fp = NULL;
     char    buf[1024];
@@ -29,6 +29,33 @@ static void _text_file(cptr name, _file_fn fn)
     fn(fp);
     fprintf(fp, "\n\n<color:s>Automatically generated for PosChengband %d.%d.%d.</color>\n",
             VER_MAJOR, VER_MINOR, VER_PATCH);
+
+    my_fclose(fp);
+    msg_format("Created %s", buf);
+}
+
+static void _csv_file(cptr name, _file_fn fn)
+{
+    FILE    *fp = NULL;
+    char    buf[1024];
+
+    path_build(buf, sizeof(buf), ANGBAND_DIR_HELP, name);
+    fp = my_fopen(buf, "w");
+
+    if (!fp)
+    {
+        path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+        fp = my_fopen(buf, "w");
+
+        if (!fp)
+        {
+            prt("Failed!", 0, 0);
+            (void)inkey();
+            return;
+        }
+    }
+
+    fn(fp);
 
     my_fclose(fp);
     msg_format("Created %s", buf);
@@ -1383,7 +1410,7 @@ static void _personalities_help(FILE* fp)
 /******************************************************************************
  * Spoilers: Monster max damage by type (Sort it by level for best results)
  ******************************************************************************/
-static void _mon_dam_help(FILE* fp)
+static void _mon_dam_table(FILE* fp)
 {
     int i, j;
     fprintf(fp, "Name,Idx,Lvl,HP,Ac,El,Fi,Co,Po,Li,Dk,Cf,Nt,Nx,So,Sh,Ca,Di\n");
@@ -1458,7 +1485,7 @@ static void _mon_dam_help(FILE* fp)
 /******************************************************************************
  * Spoilers: All the various possessor body types
  ******************************************************************************/
-static void _possessor_stats_help(FILE* fp)
+static void _possessor_stats_table(FILE* fp)
 {
     int i;
     fprintf(fp, "Name,Idx,Lvl,Speed,AC,Attacks,Dam,Body,Str,Int,Wis,Dex,Con,Chr,Life,Disarm,Device,Save,Stealth,Search,Perception,Melee,Bows\n");
@@ -1506,7 +1533,7 @@ static void _possessor_stats_help(FILE* fp)
 /******************************************************************************
  * Spoilers: Skill Tables with Actual Numbers for Design Purposes
  ******************************************************************************/
-static void _skills_race_help(FILE* fp)
+static void _skills_race_table(FILE* fp)
 {
     int i,j;
     fputs("Race,Dis,Dev,Sav,Stl,Srh,Fos,Thn,Thb,Stats,Exp\n", fp);
@@ -1548,7 +1575,7 @@ static void _skills_race_help(FILE* fp)
     }
 }
 
-static void _skills_class_help(FILE* fp)
+static void _skills_class_table(FILE* fp)
 {
     int i,j;
     fputs("Class,Dis,Dev,Sav,Stl,Srh,Fos,Thn,Thb,Dis2,Dev2,Sav2,Thn2,Thb2,Riding,DualWielding\n", fp);
@@ -1588,6 +1615,36 @@ static void _skills_class_help(FILE* fp)
                 s_info[i].s_max[SKILL_RIDING],
                 s_info[i].s_max[SKILL_DUAL_WIELDING]
             );
+        }
+    }
+}
+
+static void _spells_table(FILE* fp) /*m_info.txt*/
+{
+    int class_idx, realm_idx, spell_idx;
+    fputs("Class,Realm,Index,Name,Level,Cost,Fail\n", fp);
+    for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
+    {
+        class_t      *class_ptr = get_class_aux(class_idx, 0);
+        player_magic *magic_ptr = &m_info[class_idx];
+        for (realm_idx = REALM_LIFE; realm_idx <= MAX_MAGIC; realm_idx++)
+        {
+            for (spell_idx = 0; spell_idx < 32; spell_idx++)
+            {
+                magic_type *spell_ptr = &magic_ptr->info[realm_idx-1][spell_idx];
+                if (0 < spell_ptr->slevel && spell_ptr->slevel <= PY_MAX_LEVEL)
+                {
+                    fprintf(fp, "\"%s\",\"%s\",%d,\"%s\",%d,%d,%d\n",
+                        class_ptr->name,
+                        realm_names[realm_idx],
+                        spell_idx+1,
+                        do_spell(realm_idx, spell_idx, SPELL_NAME),
+                        spell_ptr->slevel,
+                        spell_ptr->smana,
+                        spell_ptr->sfail
+                    );
+                }
+            }
         }
     }
 }
@@ -1744,26 +1801,27 @@ void generate_spoilers(void)
 {
     spoiler_hack = TRUE;
 
-    _text_file("Races.txt", _races_help);
-    _text_file("Demigods.txt", _demigods_help);
-    _text_file("Draconians.txt", _draconians_help);
+    _help_file("Races.txt", _races_help);
+    _help_file("Demigods.txt", _demigods_help);
+    _help_file("Draconians.txt", _draconians_help);
 
-    _text_file("Classes.txt", _classes_help);
-    _text_file("Weaponmasters.txt", _weaponmasters_help);
-    _text_file("Warlocks.txt", _warlocks_help);
+    _help_file("Classes.txt", _classes_help);
+    _help_file("Weaponmasters.txt", _weaponmasters_help);
+    _help_file("Warlocks.txt", _warlocks_help);
 
-    _text_file("Personalities.txt", _personalities_help);
+    _help_file("Personalities.txt", _personalities_help);
 
-    _text_file("MonsterRaces.txt", _monster_races_help);
-    _text_file("Demons.txt", _demons_help);
-    _text_file("Dragons.txt", _dragons_help);
-    _text_file("DragonRealms.txt", _dragon_realms_help);
+    _help_file("MonsterRaces.txt", _monster_races_help);
+    _help_file("Demons.txt", _demons_help);
+    _help_file("Dragons.txt", _dragons_help);
+    _help_file("DragonRealms.txt", _dragon_realms_help);
 
-    _text_file("PossessorStats.csv", _possessor_stats_help);
-    _text_file("MonsterDam.csv", _mon_dam_help);
-    _text_file("Skills-Racial.csv", _skills_race_help);
-    _text_file("Skills-Class.csv", _skills_class_help);
-    /*_text_file("Skills-Monster.csv", _skills_mon_help);*/
+    _csv_file("PossessorStats.csv", _possessor_stats_table);
+    _csv_file("MonsterDam.csv", _mon_dam_table);
+    _csv_file("Skills-Racial.csv", _skills_race_table);
+    _csv_file("Skills-Class.csv", _skills_class_table);
+    /*_csv_file("Skills-Monster.csv", _skills_mon_table);*/
+    _csv_file("Spells.csv", _spells_table);
 
     _generate_html_help();
     _generate_text_help();

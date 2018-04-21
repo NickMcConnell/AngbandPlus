@@ -836,15 +836,19 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
         {
             if (object_is_weapon(o_ptr))
             {
-                brand_weapon_aux(item);
-                o_ptr->discount = 99;
-                okay = TRUE;
+                if (brand_weapon_aux(item))
+                {
+                    o_ptr->discount = 99;
+                    okay = TRUE;
+                }
             }
             else if (object_is_armour(o_ptr))
             {
-                brand_armour_aux(item);
-                o_ptr->discount = 99;
-                okay = TRUE;
+                if (brand_armour_aux(item))
+                {
+                    o_ptr->discount = 99;
+                    okay = TRUE;
+                }
             }
         }
 

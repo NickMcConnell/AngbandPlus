@@ -98,7 +98,7 @@ Y:alert_trap_detect
 
 ##### Birth Options #####
 
-X:easy_band
+X:easy_id
 Y:smart_learn
 X:smart_cheat
 X:no_wilderness

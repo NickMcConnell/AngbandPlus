@@ -94,6 +94,8 @@ bool restore_mana(void)
     {
         if (!inventory[i].k_idx) continue;
         if (!object_is_device(&inventory[i])) continue;
+        if (inventory[i].activation.type == EFFECT_RESTORE_MANA) continue;
+
         if (inventory[i].tval == TV_ROD)
             device_regen_sp_aux(&inventory[i], 700);
         else

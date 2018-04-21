@@ -1920,7 +1920,7 @@ bool mon_hook_dungeon(int r_idx)
     else
     {
         dungeon_info_type *d_ptr = &d_info[dungeon_type];
-        if ((d_ptr->mflags8 & RF8_WILD_MOUNTAIN) &&
+        if (((d_ptr->mflags8 & RF8_WILD_MOUNTAIN) || no_wilderness) &&
             (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
         return FALSE;
     }
@@ -2406,6 +2406,7 @@ bool no_questor_or_bounty_uniques(int r_idx)
     case MON_BANORLUPART:
     case MON_BANOR:
     case MON_LUPART:
+    case MON_CHAMELEON_K: /* No Wilderness: He's not dropping a corpse for some reason? */
         return TRUE;
     default:
         return FALSE;

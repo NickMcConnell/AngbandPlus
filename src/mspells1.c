@@ -1413,8 +1413,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     bool            do_spell = DO_SPELL_NONE;
     int             dam = 0;
     u32b mode = 0L;
-    int s_num_6 = (easy_band ? 2 : 6);
-    int s_num_4 = (easy_band ? 1 : 3);
+    int s_num_6 = 6;
+    int s_num_4 = 3; /* ?! */
 
     /* Target location */
     int x = px;
@@ -3851,7 +3851,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
             else msg_format("%^s magically summons an angel!", m_name);
 
-            if ((r_ptr->flags1 & RF1_UNIQUE) && !easy_band)
+            if ((r_ptr->flags1 & RF1_UNIQUE))
             {
                 num += r_ptr->level/40;
             }

@@ -368,12 +368,13 @@ race_t *mon_jelly_get_race(void)
     result->equip_template = mon_get_equip_template();
     result->pseudo_class_idx = CLASS_WARRIOR;
     result->shop_adjust = 125;
+    result->destroy_object = jelly_eat_object;
 
     result->boss_r_idx = MON_UBBO_SATHLA;
     return result;
 }
 
-void jelly_eat_object(object_type *o_ptr)
+bool jelly_eat_object(object_type *o_ptr)
 {
     char o_name[MAX_NLEN];
     object_type copy = *o_ptr;
@@ -385,5 +386,6 @@ void jelly_eat_object(object_type *o_ptr)
        For example, TR_RES_FIRE might give temp fire resistance and 
        TR_SPEED might give temporary haste.
     */
+    return TRUE;
 }
 

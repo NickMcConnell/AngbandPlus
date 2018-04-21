@@ -8853,6 +8853,7 @@ static cptr _rogue_pick_pocket(void)
                 msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
                 sound(SOUND_SELL);
                 p_ptr->au += loot.pval;
+                stats_on_gold_find(loot.pval);
                 p_ptr->redraw |= (PR_GOLD);
             }
             else if (!inven_carry_okay(&loot))
@@ -8982,6 +8983,7 @@ static cptr _rogue_negotiate(void)
             {
                 sound(SOUND_SELL);
                 p_ptr->au -= cost;
+                stats_on_gold_services(cost);
                 p_ptr->redraw |= PR_GOLD;
 
                 if (mon_save_p(m_ptr->r_idx, A_CHR))

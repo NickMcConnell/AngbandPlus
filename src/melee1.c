@@ -716,6 +716,7 @@ bool make_attack_normal(int m_idx)
                         if (gold > 5000) gold = (p_ptr->au / 20) + randint1(3000);
                         if (gold > p_ptr->au) gold = p_ptr->au;
                         p_ptr->au -= gold;
+                        stats_on_gold_stolen(gold);
                         if (gold <= 0)
                         {
                             msg_print("Nothing was stolen.");

@@ -608,6 +608,27 @@ static cptr r_info_flags9[] =
     "XXX32",
 };
 
+static cptr r_drop_themes[R_DROP_MAX] =
+{
+    "NONE",
+
+    "DROP_WARRIOR",
+    "DROP_WARRIOR_SHOOT",
+    "DROP_ARCHER",
+    "DROP_MAGE",
+    "DROP_PRIEST",
+    "DROP_PRIEST_EVIL",
+    "DROP_PALADIN",
+    "DROP_PALADIN_EVIL",
+    "DROP_SAMURAI",
+    "DROP_NINJA",
+    "DROP_ROGUE",
+
+    "DROP_HOBBIT",
+    "DROP_DWARF",
+
+    "DROP_JUNK",
+};
 
 /*
  * Monster race flags - Resistances
@@ -652,7 +673,7 @@ static cptr r_info_flagsr[] =
 /*
  * Object flags
  */
-static cptr k_info_flags[TR_FLAG_MAX] =
+static cptr k_info_flags[TR_FLAG_COUNT] =
 {
     "STR",
     "INT",
@@ -828,6 +849,9 @@ static cptr k_info_flags[TR_FLAG_MAX] =
     "IM_FEAR",
     "DEC_BLOWS",
     "IM_BLIND",
+    "FAKE",
+    "NO_ENCHANT",
+    "DUAL_WIELDING",
 };
 
 
@@ -2570,7 +2594,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
     int i;
 
     /* Check flags */
-    for (i = 0; i < TR_FLAG_MAX; i++)
+    for (i = 0; i < TR_FLAG_COUNT; i++)
     {
         if (streq(what, k_info_flags[i]))
         {
@@ -2855,7 +2879,7 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
     int i;
 
     /* Check flags */
-    for (i = 0; i < TR_FLAG_MAX; i++)
+    for (i = 0; i < TR_FLAG_COUNT; i++)
     {
         if (streq(what, k_info_flags[i]))
         {
@@ -3065,7 +3089,7 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
     int i;
 
     /* Check flags */
-    for (i = 0; i < TR_FLAG_MAX; i++)
+    for (i = 0; i < TR_FLAG_COUNT; i++)
     {
         if (streq(what, k_info_flags[i]))
         {
@@ -3224,6 +3248,15 @@ errr parse_e_info(char *buf, header *head)
                 /* Start the next entry */
             s = t;
         }
+    }
+    /* Process 'D' for "Description" */
+    else if (buf[0] == 'D')
+    {
+        /* Acquire the text */
+        s = buf+2;
+
+        /* Store the text */
+        if (!add_text(&e_ptr->text, head, s, TRUE)) return (7);
     }
 
     /* Oops */
@@ -3808,9 +3841,29 @@ errr parse_r_info(char *buf, header *head)
             s = t;
         }
     }
+    /* O:DROP_WARRIOR */
+    else if (buf[0] == 'O')
+    {
+        /* Acquire the text */
+        s = buf+2;
+
+        if (r_ptr->drop_theme)
+            return PARSE_ERROR_GENERIC; /* Only one theme allowed */
+
+        for (i = 0; i < R_DROP_MAX; i++)
+        {
+            if (streq(s, r_drop_themes[i]))
+            {
+                r_ptr->drop_theme = i;
+                break;
+            }
+        }
+        if (!r_ptr->drop_theme)
+            return PARSE_ERROR_INVALID_FLAG; /* Not a valid theme */
+    }
 
     /* Oops */
-    else return (6);
+    else return PARSE_ERROR_UNDEFINED_DIRECTIVE;
 
 
     /* Success */
@@ -4797,7 +4850,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                 if (o_ptr->tval == TV_GOLD)
                 {
                     coin_type = object_index - OBJ_GOLD_LIST;
-                    make_gold(o_ptr);
+                    make_gold(o_ptr, FALSE);
                     coin_type = 0;
                 }
                 else if (object_is_device(o_ptr))

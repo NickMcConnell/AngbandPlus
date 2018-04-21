@@ -29,7 +29,7 @@ static int wild_regen = 20;
  * average -> good -> excellent -> special
  *         -> bad  -> awful     -> terrible
  */
-static byte value_check_aux1(object_type *o_ptr)
+byte value_check_aux1(object_type *o_ptr)
 {
     /* Artifacts */
     if (object_is_artifact(o_ptr))
@@ -217,191 +217,196 @@ static void sense_inventory1(void)
 
     if (p_ptr->confused) return;
 
-    switch (_class_idx())
-    {
-        case CLASS_WARRIOR:
-        case CLASS_ARCHER:
-        case CLASS_SAMURAI:
-        case CLASS_CAVALRY:
-        case CLASS_BLOOD_KNIGHT:
-        case CLASS_DUELIST:
-        case CLASS_RUNE_KNIGHT:
-        case CLASS_WEAPONMASTER:
-        case CLASS_RAGE_MAGE:
-        case CLASS_MAULER:
-        case CLASS_MONSTER:
-        {
-            /* Good sensing */
-            if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
-
-            /* Heavy sensing */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_WEAPONSMITH:
-        {
-            /* Good sensing */
-            if (0 != randint0(_adj_pseudo_id(6000) / (plev * plev + 50))) return;
-
-            /* Heavy sensing */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_MAGE:
-        case CLASS_NECROMANCER:
-        case CLASS_BLOOD_MAGE:
-        case CLASS_HIGH_MAGE:
-        case CLASS_SORCERER:
-        case CLASS_MAGIC_EATER:
-        case CLASS_DEVICEMASTER:
-        {
-            /* Good (light) sensing ... I never understood why the classes with the
-               greatest magical understanding were so oblivious to the magic around them.
-               Probably, this was an ancient decision from the days of a universal early
-               identify spell. That no longer makes sense, though. */
-            if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_PRIEST:
-        case CLASS_BARD:
-        case CLASS_TIME_LORD:
-        case CLASS_WARLOCK:
-        case CLASS_WILD_TALENT:
-        {
-            /* Good (light) sensing */
-            if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_ROGUE:
-        case CLASS_NINJA:
-        case CLASS_SCOUT:
-        {
-            /* Okay sensing */
-            if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
-
-            /* Heavy sensing */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_RANGER:
-        {
-            /* Bad sensing */
-            if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
-
-            /* Changed! */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_PALADIN:
-        case CLASS_SNIPER:
-        case CLASS_IMITATOR:
-        {
-            /* Bad sensing */
-            if (0 != randint0(_adj_pseudo_id(77777) / (plev * plev + 40))) return;
-
-            /* Heavy sensing */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_WARRIOR_MAGE:
-        case CLASS_RED_MAGE:
-        {
-            /* Bad sensing */
-            if (0 != randint0(_adj_pseudo_id(75000) / (plev * plev + 40))) return;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_MINDCRAFTER:
-        case CLASS_PSION:
-        case CLASS_BLUE_MAGE:
-        case CLASS_MIRROR_MASTER:
-        {
-            /* Bad sensing */
-            if (0 != randint0(_adj_pseudo_id(55000) / (plev * plev + 40))) return;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_CHAOS_WARRIOR:
-        {
-            /* Bad sensing */
-            if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40))) return;
-
-            /* Changed! */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_MONK:
-        case CLASS_FORCETRAINER:
-        case CLASS_MYSTIC:
-        {
-            /* Okay sensing */
-            if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_TOURIST:
-        case CLASS_ARCHAEOLOGIST:
-        {
-            /* Good sensing */
-            if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
-
-            /* Heavy sensing */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-
-        case CLASS_BEASTMASTER:
-        {
-            /* Bad sensing */
-            if (0 != randint0(_adj_pseudo_id(65000) / (plev * plev + 40))) return;
-
-            /* Done */
-            break;
-        }
-        case CLASS_BERSERKER:
-        {
-            /* Heavy sensing */
-            heavy = TRUE;
-
-            /* Done */
-            break;
-        }
-    }
-
-    if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
+    if (easy_id)
         heavy = TRUE;
+    else
+    {
+        switch (_class_idx())
+        {
+            case CLASS_WARRIOR:
+            case CLASS_ARCHER:
+            case CLASS_SAMURAI:
+            case CLASS_CAVALRY:
+            case CLASS_BLOOD_KNIGHT:
+            case CLASS_DUELIST:
+            case CLASS_RUNE_KNIGHT:
+            case CLASS_WEAPONMASTER:
+            case CLASS_RAGE_MAGE:
+            case CLASS_MAULER:
+            case CLASS_MONSTER:
+            {
+                /* Good sensing */
+                if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
+
+                /* Heavy sensing */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_WEAPONSMITH:
+            {
+                /* Good sensing */
+                if (0 != randint0(_adj_pseudo_id(6000) / (plev * plev + 50))) return;
+
+                /* Heavy sensing */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_MAGE:
+            case CLASS_NECROMANCER:
+            case CLASS_BLOOD_MAGE:
+            case CLASS_HIGH_MAGE:
+            case CLASS_SORCERER:
+            case CLASS_MAGIC_EATER:
+            case CLASS_DEVICEMASTER:
+            {
+                /* Good (light) sensing ... I never understood why the classes with the
+                   greatest magical understanding were so oblivious to the magic around them.
+                   Probably, this was an ancient decision from the days of a universal early
+                   identify spell. That no longer makes sense, though. */
+                if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_PRIEST:
+            case CLASS_BARD:
+            case CLASS_TIME_LORD:
+            case CLASS_WARLOCK:
+            case CLASS_WILD_TALENT:
+            {
+                /* Good (light) sensing */
+                if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_ROGUE:
+            case CLASS_NINJA:
+            case CLASS_SCOUT:
+            {
+                /* Okay sensing */
+                if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
+
+                /* Heavy sensing */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_RANGER:
+            {
+                /* Bad sensing */
+                if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
+
+                /* Changed! */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_PALADIN:
+            case CLASS_SNIPER:
+            case CLASS_IMITATOR:
+            {
+                /* Bad sensing */
+                if (0 != randint0(_adj_pseudo_id(77777) / (plev * plev + 40))) return;
+
+                /* Heavy sensing */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_WARRIOR_MAGE:
+            case CLASS_RED_MAGE:
+            {
+                /* Bad sensing */
+                if (0 != randint0(_adj_pseudo_id(75000) / (plev * plev + 40))) return;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_MINDCRAFTER:
+            case CLASS_PSION:
+            case CLASS_BLUE_MAGE:
+            case CLASS_MIRROR_MASTER:
+            {
+                /* Bad sensing */
+                if (0 != randint0(_adj_pseudo_id(55000) / (plev * plev + 40))) return;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_CHAOS_WARRIOR:
+            {
+                /* Bad sensing */
+                if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40))) return;
+
+                /* Changed! */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_MONK:
+            case CLASS_FORCETRAINER:
+            case CLASS_MYSTIC:
+            {
+                /* Okay sensing */
+                if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_TOURIST:
+            case CLASS_ARCHAEOLOGIST:
+            {
+                /* Good sensing */
+                if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
+
+                /* Heavy sensing */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+
+            case CLASS_BEASTMASTER:
+            {
+                /* Bad sensing */
+                if (0 != randint0(_adj_pseudo_id(65000) / (plev * plev + 40))) return;
+
+                /* Done */
+                break;
+            }
+            case CLASS_BERSERKER:
+            {
+                /* Heavy sensing */
+                heavy = TRUE;
+
+                /* Done */
+                break;
+            }
+        }
+
+        if (virtue_current(VIRTUE_KNOWLEDGE) >= 100)
+            heavy = TRUE;
+    }
 
     /*** Sense everything ***/
 
@@ -484,76 +489,85 @@ static void sense_inventory2(void)
         {
             return;
         }
+    }
 
-        case CLASS_WEAPONSMITH:
-        case CLASS_PALADIN:
-        case CLASS_CHAOS_WARRIOR:
-        case CLASS_IMITATOR:
-        case CLASS_BEASTMASTER:
-        case CLASS_NINJA:
+    if (easy_id)
+    {
+    }
+    else
+    {
+        switch (_class_idx())
         {
-            /* Very bad (light) sensing */
-            if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5))) return;
+            case CLASS_WEAPONSMITH:
+            case CLASS_PALADIN:
+            case CLASS_CHAOS_WARRIOR:
+            case CLASS_IMITATOR:
+            case CLASS_BEASTMASTER:
+            case CLASS_NINJA:
+            {
+                /* Very bad (light) sensing */
+                if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5))) return;
 
-            /* Done */
-            break;
-        }
+                /* Done */
+                break;
+            }
 
-        case CLASS_RANGER:
-        case CLASS_WARRIOR_MAGE:
-        case CLASS_RED_MAGE:
-        case CLASS_MONK:
-        case CLASS_MYSTIC:
-        {
-            /* Bad sensing */
-            if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
+            case CLASS_RANGER:
+            case CLASS_WARRIOR_MAGE:
+            case CLASS_RED_MAGE:
+            case CLASS_MONK:
+            case CLASS_MYSTIC:
+            {
+                /* Bad sensing */
+                if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
 
-            /* Done */
-            break;
-        }
+                /* Done */
+                break;
+            }
 
-        case CLASS_PRIEST:
-        case CLASS_BARD:
-        case CLASS_ROGUE:
-        case CLASS_SCOUT:
-        case CLASS_FORCETRAINER:
-        case CLASS_MINDCRAFTER:
-        case CLASS_PSION:
-        case CLASS_WARLOCK:
-        case CLASS_WILD_TALENT:
-        {
-            /* Good sensing */
-            if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
+            case CLASS_PRIEST:
+            case CLASS_BARD:
+            case CLASS_ROGUE:
+            case CLASS_SCOUT:
+            case CLASS_FORCETRAINER:
+            case CLASS_MINDCRAFTER:
+            case CLASS_PSION:
+            case CLASS_WARLOCK:
+            case CLASS_WILD_TALENT:
+            {
+                /* Good sensing */
+                if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
 
-            /* Done */
-            break;
-        }
+                /* Done */
+                break;
+            }
 
-        case CLASS_MAGE:
-        case CLASS_NECROMANCER:
-        case CLASS_BLOOD_MAGE:
-        case CLASS_HIGH_MAGE:
-        case CLASS_SORCERER:
-        case CLASS_MAGIC_EATER:
-        case CLASS_MIRROR_MASTER:
-        case CLASS_BLUE_MAGE:
-        case CLASS_ARCHAEOLOGIST:
-        case CLASS_DEVICEMASTER:
-        {
-            /* Good sensing */
-            if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
+            case CLASS_MAGE:
+            case CLASS_NECROMANCER:
+            case CLASS_BLOOD_MAGE:
+            case CLASS_HIGH_MAGE:
+            case CLASS_SORCERER:
+            case CLASS_MAGIC_EATER:
+            case CLASS_MIRROR_MASTER:
+            case CLASS_BLUE_MAGE:
+            case CLASS_ARCHAEOLOGIST:
+            case CLASS_DEVICEMASTER:
+            {
+                /* Good sensing */
+                if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
 
-            /* Done */
-            break;
-        }
+                /* Done */
+                break;
+            }
 
-        case CLASS_TOURIST:
-        {
-            /* Good sensing */
-            if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
+            case CLASS_TOURIST:
+            {
+                /* Good sensing */
+                if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
 
-            /* Done */
-            break;
+                /* Done */
+                break;
+            }
         }
     }
 
@@ -1652,8 +1666,6 @@ static void process_world_aux_hp_and_sp(void)
  */
 static void process_world_aux_timeout(void)
 {
-    const int dec_count = (easy_band ? 2 : 1);
-
     /*** Timeout Various Things ***/
 
     process_maul_of_vice();
@@ -1670,13 +1682,13 @@ static void process_world_aux_timeout(void)
     /* Hack -- Hallucinating */
     if (p_ptr->image)
     {
-        (void)set_image(p_ptr->image - dec_count, TRUE);
+        (void)set_image(p_ptr->image - 1, TRUE);
     }
 
     /* Blindness */
     if (p_ptr->blind)
     {
-        (void)set_blind(p_ptr->blind - dec_count, TRUE);
+        (void)set_blind(p_ptr->blind - 1, TRUE);
     }
 
     /* Times see-invisible */
@@ -1821,7 +1833,7 @@ static void process_world_aux_timeout(void)
     /* Confusion */
     if (p_ptr->confused)
     {
-        (void)set_confused(p_ptr->confused - dec_count, TRUE);
+        (void)set_confused(p_ptr->confused - 1, TRUE);
     }
 
     /* Fast */
@@ -1833,7 +1845,7 @@ static void process_world_aux_timeout(void)
     /* Slow */
     if (p_ptr->slow)
     {
-        (void)set_slow(p_ptr->slow - dec_count, TRUE);
+        (void)set_slow(p_ptr->slow - 1, TRUE);
     }
 
     /* Protection from evil */
@@ -2991,6 +3003,7 @@ static void process_world(void)
                 msg_print("Congratulations.");
                 msg_format("You received %d gold.", battle_odds);
                 p_ptr->au += battle_odds;
+                stats_on_gold_winnings(battle_odds);
             }
             else
             {
@@ -3004,6 +3017,7 @@ static void process_world(void)
         {
             msg_format("This battle have ended in a draw.");
             p_ptr->au += kakekin;
+            stats_on_gold_winnings(kakekin);
             msg_print(NULL);
             p_ptr->energy_need = 0;
             battle_monsters();
@@ -3873,8 +3887,6 @@ static void process_command(void)
         {
             if (p_ptr->prace == RACE_MON_RING)
                 ring_browse();
-            else if (p_ptr->pclass == CLASS_WEAPONSMITH)
-                do_cmd_kaji(TRUE);
             else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                 magic_eater_browse();
             else if (p_ptr->pclass == CLASS_SNIPER)
@@ -3928,7 +3940,6 @@ static void process_command(void)
             }
             else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
                 && p_ptr->pclass != CLASS_BERSERKER
-                && p_ptr->pclass != CLASS_WEAPONSMITH
                 && p_ptr->pclass != CLASS_BLOOD_KNIGHT
                 && p_ptr->pclass != CLASS_WEAPONMASTER
                 && p_ptr->pclass != CLASS_MAULER )
@@ -3938,7 +3949,6 @@ static void process_command(void)
             }
             else if (p_ptr->anti_magic
                     && p_ptr->pclass != CLASS_BERSERKER
-                    && p_ptr->pclass != CLASS_WEAPONSMITH
                     && p_ptr->pclass != CLASS_BLOOD_KNIGHT
                     && p_ptr->pclass != CLASS_WEAPONMASTER
                     && p_ptr->pclass != CLASS_MAULER )
@@ -3979,8 +3989,6 @@ static void process_command(void)
                     do_cmd_hissatsu();
                 else if (p_ptr->pclass == CLASS_BLUE_MAGE)
                     do_cmd_cast_learned();
-                else if (p_ptr->pclass == CLASS_WEAPONSMITH)
-                    do_cmd_kaji(FALSE);
                 else if (p_ptr->pclass == CLASS_SNIPER)
                     do_cmd_snipe();
                 else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
@@ -5955,6 +5963,8 @@ void play_game(bool new_game)
             race_ptr->birth();
 
         spell_stats_on_birth();
+
+        stats_on_gold_find(p_ptr->au); /* Found? Inherited? What's the difference? */
 
         if (game_mode == GAME_MODE_BEGINNER)
         {

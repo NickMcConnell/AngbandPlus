@@ -3389,7 +3389,6 @@ special_menu_naiyou special_menu_info[] =
     {"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
     {"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
     {"BrutalPower/Special", 0, 0, MENU_CLASS, CLASS_BERSERKER},
-    {"Technique/Special", 0, 0, MENU_CLASS, CLASS_WEAPONSMITH},
     {"MirrorMagic/Special", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
     {"Ninjutsu/Special", 0, 0, MENU_CLASS, CLASS_NINJA},
     {"Enter global map(<)", 2, 6, MENU_WILD, FALSE},

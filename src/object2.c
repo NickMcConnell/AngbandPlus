@@ -13,7 +13,6 @@
 #include "angband.h"
 
 #include "int-map.h"
-#include "kajitips.h"
 
 #include <assert.h>
 
@@ -596,6 +595,21 @@ errr get_obj_num_prep(void)
     return (0);
 }
 
+static int _spellbook_max(int tval, int sval)
+{
+    int       max = 0;
+    const int limits[4] = { 10, 10, 3, 2 };
+
+    if (!ironman_shops && tval >= TV_LIFE_BOOK)
+    {
+        if (tval == TV_ARCANE_BOOK)
+            max = 10;
+        else
+            max = limits[sval];
+    }
+
+    return max;
+}
 
 /*
  * Choose an object kind that seems "appropriate" to the given level
@@ -640,6 +654,9 @@ s16b get_obj_num(int level)
     /* Process probabilities */
     for (i = 0; i < alloc_kind_size; i++)
     {
+        int p = table[i].prob2;
+        int max = 0;
+
         /* Objects are sorted by depth */
         if (table[i].level > level) break;
         table[i].prob3 = 0;
@@ -649,12 +666,23 @@ s16b get_obj_num(int level)
         k_idx = table[i].index;
         k_ptr = &k_info[k_idx];
         if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && dungeon_type != DUNGEON_OLYMPUS) continue;
-
+        if (easy_id && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) continue;
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
-        table[i].prob3 = table[i].prob2;
-        total += table[i].prob3;
+        /* TODO: Add some sort of max_num field to limit certain objects (I'm looking at you, spellbooks!)
+           Note, this also ensures an even distribution of spellbook kinds for high level books! */
+        max = _spellbook_max(k_ptr->tval, k_ptr->sval);
+        if (max && p)
+        {
+            int ct = k_ptr->counts.found - max;
+            while (ct-- > 0)
+                p /= 2;
+            p = MAX(p, 1);
+        }
+
+        table[i].prob3 = p;
+        total += p;
     }
 
     /* No legal objects */
@@ -721,14 +749,19 @@ void object_known(object_type *o_ptr)
     o_ptr->feeling = FEEL_NONE;
 
     /* Clear the "Felt" info */
-    o_ptr->ident &= ~(IDENT_SENSE);
+    o_ptr->ident &= ~IDENT_SENSE;
 
     /* Clear the "Empty" info */
-    o_ptr->ident &= ~(IDENT_EMPTY);
-    o_ptr->ident &= ~(IDENT_TRIED);
+    o_ptr->ident &= ~IDENT_EMPTY;
+    o_ptr->ident &= ~IDENT_TRIED;
 
     /* Now we know about the item */
-    o_ptr->ident |= (IDENT_KNOWN);
+    o_ptr->ident |= IDENT_KNOWN;
+    if (easy_id)
+    {
+        o_ptr->ident |= IDENT_FULL;
+        ego_aware(o_ptr);
+    }
 }
 
 /*
@@ -762,6 +795,7 @@ bool ego_is_aware(int which)
    though.
 */
 counts_t stats_rand_art_counts = {0};
+gold_counts_t stats_gold_counts = {0};
 
 void stats_reset(void)
 {
@@ -781,6 +815,7 @@ void stats_reset(void)
     }
 
     WIPE(&stats_rand_art_counts, counts_t);
+    WIPE(&stats_gold_counts, gold_counts_t);
     device_stats_reset();
 }
 
@@ -791,6 +826,20 @@ void stats_on_load(savefile_ptr file)
     stats_rand_art_counts.bought = savefile_read_s32b(file);
     stats_rand_art_counts.used = savefile_read_s32b(file);
     stats_rand_art_counts.destroyed = savefile_read_s32b(file);
+
+    if (savefile_is_older_than(file, 4, 0, 2, 1))
+    {
+        WIPE(&stats_gold_counts, gold_counts_t);
+    }
+    else
+    {
+        stats_gold_counts.found = savefile_read_s32b(file);
+        stats_gold_counts.selling = savefile_read_s32b(file);
+        stats_gold_counts.buying = savefile_read_s32b(file);
+        stats_gold_counts.services = savefile_read_s32b(file);
+        stats_gold_counts.winnings = savefile_read_s32b(file);
+        stats_gold_counts.stolen = savefile_read_s32b(file);
+    }
 
     device_stats_on_load(file);
 }
@@ -803,7 +852,44 @@ void stats_on_save(savefile_ptr file)
     savefile_write_s32b(file, stats_rand_art_counts.used);      /* Artifact Devices */
     savefile_write_s32b(file, stats_rand_art_counts.destroyed); /* Certain Class Powers */
 
+    savefile_write_s32b(file, stats_gold_counts.found);
+    savefile_write_s32b(file, stats_gold_counts.selling);
+    savefile_write_s32b(file, stats_gold_counts.buying);
+    savefile_write_s32b(file, stats_gold_counts.services);
+    savefile_write_s32b(file, stats_gold_counts.winnings);
+    savefile_write_s32b(file, stats_gold_counts.stolen);
+
     device_stats_on_save(file);
+}
+
+void stats_on_gold_find(int au)
+{
+    stats_gold_counts.found += au;
+}
+
+void stats_on_gold_selling(int au)
+{
+    stats_gold_counts.selling += au;
+}
+
+void stats_on_gold_buying(int au)
+{
+    stats_gold_counts.buying += au;
+}
+
+void stats_on_gold_services(int au)
+{
+    stats_gold_counts.services += au;
+}
+
+void stats_on_gold_winnings(int au)
+{
+    stats_gold_counts.winnings += au;
+}
+
+void stats_on_gold_stolen(int au)
+{
+    stats_gold_counts.stolen += au;
 }
 
 void stats_on_purchase(object_type *o_ptr)
@@ -1566,7 +1652,7 @@ s32b object_value(object_type *o_ptr)
             else if (object_is_artifact(o_ptr))
                 value += 1000;
             if (object_is_cursed(o_ptr))
-                value /= 3;
+                value = (value+2)/3;
         }
     }
     else
@@ -1588,7 +1674,7 @@ s32b object_value(object_type *o_ptr)
             value += 1000;
         }
         if ((o_ptr->ident & IDENT_SENSE) && object_is_cursed(o_ptr))
-            value /= 3;
+            value = (value+2)/3;
     }
     if (o_ptr->discount) 
         value -= (value * o_ptr->discount / 100L);
@@ -2101,9 +2187,9 @@ void object_prep(object_type *o_ptr, int k_idx)
  *
  * It is always possible (albeit unlikely) to get the "full" enchantment.
  *
- * A sample distribution of values from "m_bonus(10, N)" is shown below:
+ * A sample distribution of values from "m_bonus(10, L)" is shown below:
  *
- *   N       0     1     2     3     4     5     6     7     8     9    10
+ *   L       0     1     2     3     4     5     6     7     8     9    10
  * ---    ----  ----  ----  ----  ----  ----  ----  ----  ----  ----  ----
  *   0   66.37 13.01  9.73  5.47  2.89  1.31  0.72  0.26  0.12  0.09  0.03
  *   8   46.85 24.66 12.13  8.13  4.20  2.30  1.05  0.36  0.19  0.08  0.05
@@ -2331,7 +2417,7 @@ static bool make_artifact(object_type *o_ptr)
         if (a_ptr->level > dun_level)
         {
             /* Acquire the "out-of-depth factor" */
-            int d = (a_ptr->level - dun_level) * 2;
+            int d = (a_ptr->level - dun_level) * (a_ptr->level - dun_level);
 
             /* Roll for out-of-depth creation */
             if (!one_in_(d)) continue;
@@ -2360,74 +2446,349 @@ static bool make_artifact(object_type *o_ptr)
  *  Choose random ego type
  */
 int        apply_magic_ego = 0;
-static int _get_random_ego(int type)
+static int _ego_rarity(ego_item_type *e_ptr, int level)
+{
+    int rarity = e_ptr->rarity;
+    if (rarity)
+    {
+        if (e_ptr->max_level && level > e_ptr->max_level)
+            rarity += 3*e_ptr->rarity*(level - e_ptr->max_level);
+        else if (e_ptr->level && level < e_ptr->level)
+            rarity += e_ptr->rarity*(e_ptr->level - level);
+    }
+    return rarity;
+}
+static int _ego_weight(ego_item_type *e_ptr, int level)
+{
+    int rarity = _ego_rarity(e_ptr, level);
+    int weight = 0;
+    if (rarity)
+        weight = MAX(10000 / rarity, 1);
+    return weight;
+}
+typedef bool (*_ego_p)(int e_idx);
+
+static int _get_random_ego_aux(int type, int level, _ego_p p)
 {
     int i, value;
     ego_item_type *e_ptr;
 
     int total = 0;
-
-    if (apply_magic_ego)
-        return apply_magic_ego;
     
     for (i = 1; i < max_e_idx; i++)
     {
+        if (p && !p(i)) continue;
+
         e_ptr = &e_info[i];
-        
+
         if (e_ptr->type == type)
-        {
-            int rarity = e_ptr->rarity;
-            if (rarity)
-            {
-                if (e_ptr->max_level && object_level > e_ptr->max_level)
-                    rarity += 3*(object_level - e_ptr->max_level)/4;
-                else if (e_ptr->level && object_level < e_ptr->level)
-                    rarity += 3*rarity*(e_ptr->level - object_level)/4;
-                total += MAX(10000 / rarity, 1);
-            }
-        }
+            total += _ego_weight(e_ptr, level);
     }
 
     value = randint1(total);
 
     for (i = 1; i < max_e_idx; i++)
     {
+        if (p && !p(i)) continue;
+
         e_ptr = &e_info[i];
-        
+
         if (e_ptr->type == type)
         {
-            int rarity = e_ptr->rarity;
-            if (rarity)
-            {
-                if (e_ptr->max_level && object_level > e_ptr->max_level)
-                    rarity += 3*(object_level - e_ptr->max_level)/4;
-                else if (e_ptr->level && object_level < e_ptr->level)
-                    rarity += 3*rarity*(e_ptr->level - object_level)/4;
-                value -= MAX(10000 / rarity, 1);
-                if (value <= 0) 
-                    return i;
-            }
+            value -= _ego_weight(e_ptr, level);
+            if (value <= 0)
+                return i;
         }
     }
 
     return 0;
 }
 
-static void _create_artifact(object_type *o_ptr, int power)
+static bool _ego_p_ring(int e_idx)
 {
+    switch (obj_drop_theme)
+    {
+    case R_DROP_WARRIOR:
+    case R_DROP_WARRIOR_SHOOT:
+    case R_DROP_SAMURAI:
+        if (e_idx == EGO_RING_COMBAT) return TRUE;
+        return FALSE;
+    case R_DROP_ARCHER:
+        if (e_idx == EGO_RING_ARCHERY) return TRUE;
+        return FALSE;
+    case R_DROP_MAGE:
+        if ( e_idx == EGO_RING_PROTECTION
+          || e_idx == EGO_RING_ELEMENTAL
+          || e_idx == EGO_RING_DEFENDER
+          || e_idx == EGO_RING_WIZARDRY
+          || e_idx == EGO_RING_SPEED )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_PRIEST:
+    case R_DROP_PRIEST_EVIL:
+        if ( e_idx == EGO_RING_PROTECTION
+          || e_idx == EGO_RING_ELEMENTAL
+          || e_idx == EGO_RING_DEFENDER
+          || e_idx == EGO_RING_SPEED )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_PALADIN:
+    case R_DROP_PALADIN_EVIL:
+        if ( e_idx == EGO_RING_PROTECTION
+          || e_idx == EGO_RING_DEFENDER
+          || e_idx == EGO_RING_SPEED )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_ROGUE:
+    case R_DROP_NINJA:
+        if ( e_idx == EGO_RING_COMBAT
+          || e_idx == EGO_RING_ARCHERY
+          || e_idx == EGO_RING_SPEED )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static bool _ego_p_amulet(int e_idx)
+{
+    switch (obj_drop_theme)
+    {
+    case R_DROP_WARRIOR:
+    case R_DROP_WARRIOR_SHOOT:
+        if ( e_idx == EGO_AMULET_BARBARIAN
+          || e_idx == EGO_AMULET_HERO )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_DWARF:
+        if ( e_idx == EGO_AMULET_ELEMENTAL
+          || e_idx == EGO_AMULET_DWARVEN )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_MAGE:
+        if ( e_idx == EGO_AMULET_ELEMENTAL
+          || e_idx == EGO_AMULET_DEFENDER
+          || e_idx == EGO_AMULET_MAGI )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_PRIEST:
+    case R_DROP_PALADIN:
+        if ( e_idx == EGO_AMULET_ELEMENTAL
+          || e_idx == EGO_AMULET_DEFENDER
+          || e_idx == EGO_AMULET_SACRED
+          || e_idx == EGO_AMULET_DEVOTION )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_PALADIN_EVIL:
+    case R_DROP_PRIEST_EVIL:
+        if ( e_idx == EGO_AMULET_ELEMENTAL
+          || e_idx == EGO_AMULET_HELL )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_ROGUE:
+    case R_DROP_NINJA:
+    case R_DROP_HOBBIT:
+        if ( e_idx == EGO_AMULET_DEFENDER
+          || e_idx == EGO_AMULET_ELEMENTAL
+          || e_idx == EGO_AMULET_TRICKERY )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static bool _ego_p_body_armor(int e_idx)
+{
+    switch (obj_drop_theme)
+    {
+    case R_DROP_DWARF:
+        if (e_idx == EGO_BODY_DWARVEN) return TRUE;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static bool _ego_p_shield(int e_idx)
+{
+    switch (obj_drop_theme)
+    {
+    case R_DROP_DWARF:
+        if (e_idx == EGO_SHIELD_DWARVEN) return TRUE;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static bool _ego_p_helmet(int e_idx)
+{
+    switch (obj_drop_theme)
+    {
+    case R_DROP_DWARF:
+        if (e_idx == EGO_HELMET_DWARVEN) return TRUE;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static bool _ego_p_gloves(int e_idx)
+{
+    switch (obj_drop_theme)
+    {
+    case R_DROP_WARRIOR:
+    case R_DROP_WARRIOR_SHOOT:
+    case R_DROP_SAMURAI:
+        if ( e_idx == EGO_GLOVES_SLAYING
+          || e_idx == EGO_GLOVES_BERSERKER
+          || e_idx == EGO_GLOVES_GIANT
+          || e_idx == EGO_GLOVES_GENJI
+          || e_idx == EGO_GLOVES_FREE_ACTION )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    case R_DROP_ARCHER:
+        if (e_idx == EGO_GLOVES_SNIPER) return TRUE;
+        return FALSE;
+    case R_DROP_MAGE:
+        if (e_idx == EGO_GLOVES_WIZARD) return TRUE;
+        return FALSE;
+    case R_DROP_ROGUE:
+        if (e_idx == EGO_GLOVES_THIEF) return TRUE;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static bool _ego_p_boots(int e_idx)
+{
+    switch (obj_drop_theme)
+    {
+    case R_DROP_DWARF:
+        if (e_idx == EGO_BOOTS_DWARVEN) return TRUE;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static int _get_random_ego(int type, int level)
+{
+    _ego_p p = NULL;
+    int    e_idx = 0;
+
+    if (apply_magic_ego)
+        return apply_magic_ego;
+
+    if (obj_drop_theme)
+    {
+        switch (type)
+        {
+        case EGO_TYPE_RING: p = _ego_p_ring; break;
+        case EGO_TYPE_AMULET: p = _ego_p_amulet; break;
+        case EGO_TYPE_BODY_ARMOR: p = _ego_p_body_armor; break;
+        case EGO_TYPE_SHIELD: p = _ego_p_shield; break;
+        case EGO_TYPE_HELMET: p = _ego_p_helmet; break;
+        case EGO_TYPE_GLOVES: p = _ego_p_gloves; break;
+        case EGO_TYPE_BOOTS: p = _ego_p_boots; break;
+        }
+
+        /* Hack: Ego creation will often spin a loop, limiting
+           certain ego types to certain object types. For example,
+           Rusty Chain Mail (Dwarven) or a Pair of Soft Leather Boots (Dwarven)
+           is prevented.
+
+           In general, the kind_theme_* hooks should prevent these
+           errors, but any mistake would result in an infinite loop.
+           Turning off the drop theme here is safe. You just won't get
+           a properly themed ego item on the next pass. */
+        obj_drop_theme = 0;
+    }
+
+    e_idx = _get_random_ego_aux(type, level, p);
+    if (!e_idx && p)
+        e_idx = _get_random_ego_aux(type, level, NULL);
+    return e_idx;
+}
+
+typedef struct { int lvl, min, max; } _power_limit_t;
+static _power_limit_t _art_power_limits[] = {
+    { 10,     0,   5000 },
+    { 20,     0,   7000 },
+    { 30,     0,  10000 },
+    { 40,     0,  20000 },
+    { 50,     0,  30000 },
+    { 60, 10000, 100000 },
+    { 70, 20000,      0 },
+    { 80, 30000,      0 },
+    { 90, 40000,      0 },
+    {999, 40000,      0 }
+};
+
+static void _create_artifact(object_type *o_ptr, int level, int power)
+{
+    int  i;
     u32b mode = CREATE_ART_NORMAL;
+    int  min = 0, max = 0;
+
+    for (i = 0; ; i++)
+    {
+        if (level < _art_power_limits[i].lvl)
+        {
+            min = _art_power_limits[i].min;
+            max = _art_power_limits[i].max;
+            break;
+        }
+    }
+    if (one_in_(GREAT_OBJ))
+        max *= 2;
     
     if (power < 0)
         mode = CREATE_ART_CURSED;
 
-    create_artifact(o_ptr, mode);
+    for (i = 0; i < 1000 ; i++)
+    {
+        object_type forge = *o_ptr;
+        int         score;
+
+        create_artifact(&forge, mode);
+        score = object_value_real(&forge);
+
+        if (min > 0 && score < min) continue;
+        if (max > 0 && score > max) continue;
+
+        *o_ptr = forge;
+        break;
+    }
 }
 
 static bool _create_level_check(int power, int lvl)
 {
-    lvl = MAX(1, lvl);
+    if (lvl <= 0)
+        return FALSE;
+
+    /* L/P odds of success ... */
     if (randint0(power * 100 / lvl) < 100)
         return TRUE;
+
     return FALSE;
 }
 
@@ -2534,31 +2895,11 @@ static void _create_defender(object_type *o_ptr, int level, int power)
         effect_add_random(o_ptr, BIAS_PROTECTION);
 }
 
-static void _create_ring(object_type *o_ptr, int level, int power, int mode)
+static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
-    bool done = FALSE;
-    bool force_great = FALSE;
 
-    if (!apply_magic_ego && level > 50)
-    {
-        if ((mode & (AM_GOOD | AM_GREAT)) && randint0(150) < level)
-        {
-            force_great = TRUE;
-        }
-    }
-
-    while (!done)
-    {
-        o_ptr->name2 = _get_random_ego(EGO_TYPE_RING);
-        done = TRUE;
-        if ( force_great
-          && o_ptr->name2 != EGO_RING_SPEED
-          && o_ptr->name2 != EGO_RING_DEFENDER )
-        {
-            done = FALSE;
-        }
-    }
+    o_ptr->name2 = _get_random_ego(EGO_TYPE_RING, level);
 
     switch (o_ptr->name2)
     {
@@ -2679,7 +3020,11 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
             effect_add_random(o_ptr, BIAS_WARRIOR | BIAS_STR);
         break;
     case EGO_RING_ARCHERY:
-        for (powers = _jewelry_powers(4, level, power); powers > 0; --powers)
+    {
+        int div = 1;
+        if (abs(power) >= 2) div++;
+
+        for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
         {
             switch (randint1(7))
             {
@@ -2688,17 +3033,30 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                 if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
                 break;
             case 2:
-                add_flag(o_ptr->art_flags, TR_STEALTH);
+                if (_create_level_check(200/div, level - 40))
+                    add_flag(o_ptr->art_flags, TR_SPEED);
+                else
+                    add_flag(o_ptr->art_flags, TR_STEALTH);
                 if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
                 break;
             case 3:
                 o_ptr->to_h += randint1(5) + m_bonus(5, level);
+                while (one_in_(2) && powers > 0)
+                {
+                    o_ptr->to_h += randint1(5) + m_bonus(5, level);
+                    powers--;
+                }
                 break;
             case 4:
-                o_ptr->to_d += randint1(5) + m_bonus(5, level);
+                o_ptr->to_d += randint1(7) + m_bonus(7, level);
+                while (one_in_(2) && powers > 0)
+                {
+                    o_ptr->to_d += randint1(7) + m_bonus(7, level);
+                    powers--;
+                }
                 break;
             case 5:
-                if ( (abs(power) >= 2 || _create_level_check(200, level))
+                if ( _create_level_check(100/div, level)
                   && (!have_flag(o_ptr->art_flags, TR_XTRA_MIGHT) || one_in_(7) ) )
                 {
                     add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
@@ -2706,7 +3064,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     break;
                 }
             case 6:
-                if ( (abs(power) >= 2  || _create_level_check(200, level))
+                if ( _create_level_check(200/div, level)
                   && (!have_flag(o_ptr->art_flags, TR_XTRA_SHOTS) || one_in_(7) ) )
                 {
                     add_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
@@ -2714,20 +3072,24 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     break;
                 }
             default:
-                o_ptr->to_h += randint1(5) + m_bonus(5, level);
+                o_ptr->to_d += randint1(7) + m_bonus(7, level);
             }
         }
-        if (o_ptr->to_h > 25) o_ptr->to_h = 25;
-        if (o_ptr->to_d > 20) o_ptr->to_d = 20;
+        if (o_ptr->to_h > 30) o_ptr->to_h = 30;
+        if (o_ptr->to_d > 40) o_ptr->to_d = 40; /* most players get only one shot ... */
+        if (o_ptr->to_d > 20 && have_flag(o_ptr->art_flags, TR_XTRA_SHOTS)) o_ptr->to_d = 20;
+
         if ( o_ptr->pval > 3
           && (have_flag(o_ptr->art_flags, TR_XTRA_SHOTS) || have_flag(o_ptr->art_flags, TR_XTRA_MIGHT))
           && !one_in_(10) )
         {
             o_ptr->pval = 3;
         }
+
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_ARCHER);
         break;
+    }
     case EGO_RING_PROTECTION:
         for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
         {
@@ -2859,11 +3221,21 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
         _create_defender(o_ptr, level, power);
         break;
     case EGO_RING_SPEED:
-        o_ptr->pval = randint1(5) + m_bonus(5, level);
+    {
+        /*o_ptr->pval = randint1(5) + m_bonus(5, level);
         while (randint0(100) < 50) 
-            o_ptr->pval++;
-        if (cheat_peek) object_mention(o_ptr);
-        if (one_in_(ACTIVATION_CHANCE*2))
+            o_ptr->pval++;*/
+        int amt = 5;
+        if (level >= 30)
+            amt += (MIN(80,level) - 30)/10;
+        o_ptr->pval = 1 + m_bonus(amt, level);
+
+        if (randint0(20) < level - 50)
+        {
+            while (one_in_(2))
+                o_ptr->pval++;
+        }
+        if (level >= 50 && one_in_(ACTIVATION_CHANCE*2))
         {
             if (one_in_(777))
                 effect_add(o_ptr, EFFECT_LIGHT_SPEED);
@@ -2872,7 +3244,10 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
             else
                 effect_add(o_ptr, EFFECT_SPEED);
         }
+
+        if (cheat_peek) object_mention(o_ptr);
         break;
+    }
     case EGO_RING_WIZARDRY:
         for (powers = _jewelry_powers(4, level, power); powers > 0; --powers)
         {
@@ -2946,31 +3321,11 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
         power--;
 }
 
-static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
+static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
-    bool force_great = FALSE;
-    bool done = FALSE;
 
-    if (!apply_magic_ego && level > 50)
-    {
-        if ((mode & (AM_GOOD | AM_GREAT)) && randint0(300) < level)
-        {
-            force_great = TRUE;
-        }
-    }
-
-    while (!done)
-    {
-        o_ptr->name2 = _get_random_ego(EGO_TYPE_AMULET);
-        done = TRUE;
-        if ( force_great
-          && o_ptr->name2 != EGO_AMULET_DEFENDER
-          && o_ptr->name2 != EGO_AMULET_HERO )
-        {
-            done = FALSE;
-        }
-    }
+    o_ptr->name2 = _get_random_ego(EGO_TYPE_AMULET, level);
 
     switch (o_ptr->name2)
     {
@@ -3005,7 +3360,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
                 else if (one_in_(2))
                 {
                     add_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
-                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(6, level);
+                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
                     break;
                 }
             case 6:
@@ -3362,7 +3717,11 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
         }
         if (o_ptr->to_a < -20) o_ptr->to_a = -20;
         if (o_ptr->to_h > 20) o_ptr->to_h = 20;
-        if (o_ptr->to_d > 16) o_ptr->to_d = 16;
+        if (o_ptr->to_d > 16)
+        {
+            add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+            o_ptr->to_d = 16;
+        }
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_DEMON);
         break;
@@ -3400,6 +3759,85 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
         power--;
 }
 
+static _power_limit_t _jewelry_power_limits[] = {
+    { 10,     0,   5000 },
+    { 20,     0,   7000 },
+    { 30,     0,  10000 },
+    { 40,  2500,  20000 },
+    { 50,  5000,  30000 },
+    { 60,  7500,  60000 },
+    { 70, 10000,      0 },
+    { 80, 12500,      0 },
+    { 90, 15000,      0 },
+    {999, 15000,      0 }
+};
+
+static void _create_ring(object_type *o_ptr, int level, int power, int mode)
+{
+    int  i;
+    int  min = 0, max = 0;
+
+    for (i = 0; ; i++)
+    {
+        if (level < _jewelry_power_limits[i].lvl)
+        {
+            min = _jewelry_power_limits[i].min;
+            max = _jewelry_power_limits[i].max;
+            break;
+        }
+    }
+    if (one_in_(GREAT_OBJ))
+        max *= 2;
+
+    for (i = 0; i < 1000 ; i++)
+    {
+        object_type forge = *o_ptr;
+        int         score;
+
+        _create_ring_aux(&forge, level, power, mode);
+        score = object_value_real(&forge);
+
+        if (min > 0 && score < min) continue;
+        if (max > 0 && score > max) continue;
+
+        *o_ptr = forge;
+        break;
+    }
+}
+
+static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
+{
+    int  i;
+    int  min = 0, max = 0;
+
+    for (i = 0; ; i++)
+    {
+        if (level < _jewelry_power_limits[i].lvl)
+        {
+            min = _jewelry_power_limits[i].min;
+            max = _jewelry_power_limits[i].max;
+            break;
+        }
+    }
+    if (one_in_(GREAT_OBJ))
+        max *= 2;
+
+    for (i = 0; i < 1000 ; i++)
+    {
+        object_type forge = *o_ptr;
+        int         score;
+
+        _create_amulet_aux(&forge, level, power, mode);
+        score = object_value_real(&forge);
+
+        if (min > 0 && score < min) continue;
+        if (max > 0 && score > max) continue;
+
+        *o_ptr = forge;
+        break;
+    }
+}
+
 static bool _create_device(object_type *o_ptr, int level, int power, int mode)
 {
     /* Create the device and pick the effect. This can fail if, for example,
@@ -3416,7 +3854,7 @@ static bool _create_device(object_type *o_ptr, int level, int power, int mode)
 
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_DEVICE);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_DEVICE, level);
             done = TRUE;
 
             if ( o_ptr->name2 == EGO_DEVICE_RESISTANCE
@@ -3564,18 +4002,18 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
 
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            create_artifact(o_ptr, CREATE_ART_NORMAL);
+            _create_artifact(o_ptr, level, power);
             break;
         }
         if (o_ptr->sval == SV_HARP)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_HARP);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_HARP, level);
             break;
         }
         
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_BOW);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_BOW, level);
             done = TRUE;
 
             switch (o_ptr->name2)
@@ -3635,7 +4073,7 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
         if (power < 0)
             break;
 
-        o_ptr->name2 = _get_random_ego(EGO_TYPE_AMMO);
+        o_ptr->name2 = _get_random_ego(EGO_TYPE_AMMO, level);
 
         switch (o_ptr->name2)
         {
@@ -3655,12 +4093,12 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
     case TV_DIGGING:
         if ((!crafting && one_in_(30)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_DIGGER);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_DIGGER, level);
             done = TRUE;
             switch (o_ptr->name2)
             {
@@ -3682,12 +4120,12 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
     case TV_SWORD:
         if ((!crafting && one_in_(40)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_WEAPON);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_WEAPON, level);
             done = TRUE;
             switch (o_ptr->name2)
             {
@@ -3786,6 +4224,8 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
 
                 if (o_ptr->tval == TV_HAFTED && one_in_(7))
                     add_flag(o_ptr->art_flags, TR_IMPACT);
+                else if (o_ptr->tval == TV_HAFTED && one_in_(7))
+                    add_flag(o_ptr->art_flags, TR_STUN);
 
                 if (one_in_(666))
                     add_flag(o_ptr->art_flags, TR_FORCE_WEAPON);
@@ -3838,8 +4278,9 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 if (one_in_(4))
                 {
                     int i;
-                    int ct = 4;
-                    if (one_in_(3)) 
+                    int ct = 2;
+
+                    while (one_in_(3))
                         ct++;
 
                     for (i = 0; i < ct; i++)
@@ -3847,12 +4288,14 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 }
                 else
                 {
-                    add_flag(o_ptr->art_flags, TR_RES_FIRE);
-                    add_flag(o_ptr->art_flags, TR_RES_COLD);
-                    add_flag(o_ptr->art_flags, TR_RES_ACID);
-                    add_flag(o_ptr->art_flags, TR_RES_ELEC);
-                    if (one_in_(3)) 
-                        add_flag(o_ptr->art_flags, TR_RES_POIS);
+                    int i;
+                    int ct = 4;
+
+                    while (one_in_(2))
+                        ct++;
+
+                    for (i = 0; i < ct; i++)
+                        one_ele_resistance(o_ptr);
                 }
                 if (one_in_(3))
                     add_flag(o_ptr->art_flags, TR_WARNING);
@@ -4173,17 +4616,17 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
     {
     case TV_DRAG_ARMOR:
         if ((!crafting && one_in_(50)) || power > 2)
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
         if (cheat_peek) object_mention(o_ptr);
         break;
 
     case TV_GLOVES:
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
-        o_ptr->name2 = _get_random_ego(EGO_TYPE_GLOVES);
+        o_ptr->name2 = _get_random_ego(EGO_TYPE_GLOVES, level);
         switch (o_ptr->name2)
         {
         case EGO_GLOVES_GIANT:
@@ -4243,7 +4686,7 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
     case TV_SOFT_ARMOR:
         if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ROBE) && one_in_(7))
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_ROBE);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_ROBE, level);
             switch (o_ptr->name2)
             {
             case EGO_ROBE_TWILIGHT:
@@ -4263,13 +4706,13 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
 
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
 
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_BODY_ARMOR);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_BODY_ARMOR, level);
             done = TRUE;
 
             switch (o_ptr->name2)
@@ -4356,13 +4799,13 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
     case TV_SHIELD:
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
 
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_SHIELD);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_SHIELD, level);
             done = TRUE;
 
             switch (o_ptr->name2)
@@ -4422,10 +4865,10 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
     case TV_CROWN:
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
-        o_ptr->name2 = _get_random_ego(EGO_TYPE_CROWN);
+        o_ptr->name2 = _get_random_ego(EGO_TYPE_CROWN, level);
         switch (o_ptr->name2)
         {
         case EGO_CROWN_TELEPATHY:
@@ -4433,8 +4876,22 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
             else add_esp_weak(o_ptr, FALSE);
             break;
         case EGO_CROWN_MAGI:
+            if (one_in_(3))
+            {
+                one_high_resistance(o_ptr);
+            }
+            else
+            {
+                one_ele_resistance(o_ptr);
+                one_ele_resistance(o_ptr);
+                one_ele_resistance(o_ptr);
+                one_ele_resistance(o_ptr);
+            }
             if (one_in_(7))
                 add_flag(o_ptr->art_flags, TR_EASY_SPELL);
+            if (one_in_(3))
+                add_flag(o_ptr->art_flags, TR_DEC_STR);
+
             if (one_in_(5))
                 add_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
             else if (one_in_(66))
@@ -4450,17 +4907,35 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
 
                 add_flag(o_ptr->art_flags, TR_SHOW_MODS);
             }
+
+            if (level > 70 && one_in_(10))
+                add_flag(o_ptr->art_flags, TR_SPEED);
+
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_MAGE);
             break;
         case EGO_CROWN_LORDLINESS:
-            if (one_in_(7))
+            if (one_in_(5))
                 add_flag(o_ptr->art_flags, TR_SPELL_CAP);
+            if (one_in_(5))
+                one_high_resistance(o_ptr);
+            if (one_in_(5))
+                one_high_resistance(o_ptr);
+            if (level > 70 && one_in_(5))
+                add_flag(o_ptr->art_flags, TR_SPEED);
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_PRIESTLY);
             break;
         case EGO_CROWN_MIGHT:
-            if (one_in_(7))
+            if (one_in_(5))
             {
                 o_ptr->to_h += randint1(7);
                 o_ptr->to_d += randint1(7);
             }
+            if (level > 70 && one_in_(10))
+                add_flag(o_ptr->art_flags, TR_SPEED);
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_WARRIOR);
             break;
         case EGO_CROWN_SEEING:
             if (one_in_(3))
@@ -4479,12 +4954,12 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
     case TV_HELM:
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_HELMET);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_HELMET, level);
             done = TRUE;
 
             switch (o_ptr->name2)
@@ -4556,10 +5031,10 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
     case TV_CLOAK:
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
-        o_ptr->name2 = _get_random_ego(EGO_TYPE_CLOAK);
+        o_ptr->name2 = _get_random_ego(EGO_TYPE_CLOAK, level);
         switch (o_ptr->name2)
         {
         case EGO_CLOAK_IMMOLATION:
@@ -4626,12 +5101,13 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
     case TV_BOOTS:
         if ((!crafting && one_in_(20)) || power > 2)
         {
-            _create_artifact(o_ptr, power);
+            _create_artifact(o_ptr, level, power);
             break;
         }
         while (!done)
         {
-            o_ptr->name2 = _get_random_ego(EGO_TYPE_BOOTS);
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_BOOTS, level);
+
             done = TRUE;
 
             switch (o_ptr->name2)
@@ -4696,15 +5172,15 @@ static void _create_lite(object_type *o_ptr, int level, int power, int mode)
     if (-1 <= power && power <= 1)
         return;
 
-    if (o_ptr->sval == SV_LITE_FEANOR && (one_in_(20) || power > 2))
+    if (o_ptr->sval == SV_LITE_FEANOR && (one_in_(7) || power > 2))
     {
-        _create_artifact(o_ptr, power);
+        _create_artifact(o_ptr, level, power);
         return;
     }
 
     while (!done)
     {
-        o_ptr->name2 = _get_random_ego(EGO_TYPE_LITE);
+        o_ptr->name2 = _get_random_ego(EGO_TYPE_LITE, level);
         done = TRUE;
         switch (o_ptr->name2)
         {
@@ -5049,6 +5525,11 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         }
     }
 
+    if (obj_drop_theme && !power && (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET))
+    {
+        power = 1;
+    }
+
     if (mode & AM_AVERAGE)
         power = 0;
 
@@ -5292,7 +5773,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         if (e_ptr->gen_flags & (TRG_XTRA_H_RES))
         {
             one_high_resistance(o_ptr);
-            if (randint1(object_level) > 60)
+            if (randint1(lev) > 60)
                 one_high_resistance(o_ptr);
         }
         if (e_ptr->gen_flags & (TRG_XTRA_E_RES)) one_ele_resistance(o_ptr);
@@ -5374,22 +5855,48 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
                 o_ptr->pval += randint1(e_ptr->max_pval);
             }
         }
+
         if (o_ptr->name2 == EGO_BOOTS_SPEED)
         {
-            o_ptr->pval = 1 + m_bonus(9, object_level);
+            int amt = 3;
+            if (lev >= 30)
+                amt += (MIN(90,lev) - 30)/10;
+            o_ptr->pval = 1 + m_bonus(amt, lev);
         }
-        if (o_ptr->name2 == EGO_BOOTS_FEANOR)
+        else if (o_ptr->name2 == EGO_BOOTS_FEANOR)
         {
-            o_ptr->pval = 6 + m_bonus(9, object_level);
+            o_ptr->pval = 6 + m_bonus(9, lev);
         }
+        else if (o_ptr->name2 == EGO_BOOTS_ELVENKIND && lev > 70)
+        {
+            o_ptr->to_a += randint1(5);
+            while (one_in_(3))
+                o_ptr->pval++;
+        }
+        else if (o_ptr->name2 == EGO_CLOAK_AMAN && lev > 80)
+        {
+            while (one_in_(4))
+                o_ptr->pval++;
+        }
+        else if ( (o_ptr->name2 == EGO_CROWN_MAGI || o_ptr->name2 == EGO_CROWN_LORDLINESS || o_ptr->name2 == EGO_CROWN_MIGHT)
+               && lev > 80 )
+        {
+            if (one_in_(5))
+                o_ptr->pval++;
+        }
+
         if (have_flag(o_ptr->art_flags, TR_DEVICE_POWER) && o_ptr->pval >= 3)
         {
             o_ptr->pval = 2;
             if (one_in_(30)) o_ptr->pval++;
         }
 
-        if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA) && (o_ptr->pval > 2) && (o_ptr->name2 != EGO_WEAPON_EXTRA_ATTACKS))
+        if ( object_is_(o_ptr, TV_SWORD, SV_FALCON_SWORD)
+          && o_ptr->pval > 2
+          && o_ptr->name2 != EGO_WEAPON_EXTRA_ATTACKS )
+        {
             o_ptr->pval = 2;
+        }
 
         /* Cursed Egos: Make sure to do this last to avoid nonsensical combinations of 
            good and bad flags (e.g. resist fire and vulnerable to fire) */
@@ -5890,12 +6397,26 @@ bool kind_is_body_armor(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
-    case TV_SHIELD:
         return TRUE;
     }
     return FALSE;
 }
-bool kind_is_other_armor(int k_idx) { 
+static bool _kind_is_shield(int k_idx) {
+    if (k_info[k_idx].tval == TV_SHIELD)
+        return TRUE;
+    return FALSE;
+}
+static bool _kind_is_gloves(int k_idx) {
+    if (k_info[k_idx].tval == TV_GLOVES)
+        return TRUE;
+    return FALSE;
+}
+static bool _kind_is_cloak(int k_idx) {
+    if (k_info[k_idx].tval == TV_CLOAK)
+        return TRUE;
+    return FALSE;
+}
+bool kind_is_other_armor(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_BOOTS: case TV_GLOVES: 
@@ -5953,6 +6474,11 @@ static bool _kind_is_bow(int k_idx) {
         return TRUE;
     return FALSE;
 }
+static bool _kind_is_lite(int k_idx) {
+    if (k_info[k_idx].tval == TV_LITE)
+        return TRUE;
+    return FALSE;
+}
 static bool _kind_is_bow2(int k_idx) {
     if (k_info[k_idx].tval == TV_BOW && k_info[k_idx].sval != SV_HARP) /* Assume tailored Archer reward, and a harp is just insulting! */
         return TRUE;
@@ -5975,7 +6501,7 @@ bool kind_is_misc(int k_idx) {
     {
     case TV_SKELETON: case TV_BOTTLE: case TV_JUNK: case TV_WHISTLE:
     case TV_SPIKE: case TV_CHEST: case TV_FIGURINE: case TV_STATUE:
-    case TV_CAPTURE: case TV_LITE: case TV_FOOD: case TV_FLASK:
+    case TV_CAPTURE: case TV_FOOD: case TV_FLASK:
         return TRUE;
     }
     return FALSE;
@@ -5986,6 +6512,7 @@ typedef struct {
     int     good;
     int     great;
 } _kind_alloc_entry;
+/*
 static _kind_alloc_entry _kind_alloc_table[] = {
     { kind_is_weapon,          210,    0,    0 },
     { kind_is_body_armor,      200,    0,    0 },
@@ -5997,6 +6524,28 @@ static _kind_alloc_entry _kind_alloc_table[] = {
     { kind_is_book,             25,   10,   15 },
     { kind_is_jewelry,          40,    0,    0 },
     { kind_is_misc,             50,  -50,  -50 },
+    { NULL, 0}
+};*/
+static _kind_alloc_entry _kind_alloc_table[] = {
+    /* Equipment by Slot */
+    { kind_is_weapon,          215,    0,    0 },
+    { _kind_is_shield,          30,    0,    0 },
+    { _kind_is_bow,             65,    0,    0 },
+    { kind_is_jewelry,          40,    0,    0 },
+    { _kind_is_lite,            10,    0,    0 },
+    { kind_is_body_armor,      200,    0,    0 },
+    { _kind_is_cloak,           30,    0,    0 },
+    { kind_is_helm,             30,    0,    0 },
+    { _kind_is_gloves,          30,    0,    0 },
+    { _kind_is_boots,           30,    0,    0 },
+    /*                         680              */
+
+    { kind_is_wand_rod_staff,   95,  -40,  -60 },
+    { _kind_is_potion_scroll,  105,  -50,  -90 },
+    { _kind_is_ammo,            45,    0,  -30 },
+    { kind_is_book,             25,   10,   15 }, /* R_DROP_MAGE is covering this ... */
+    { kind_is_misc,             50,  -50,  -50 },
+    /*                         320              */
     { NULL, 0}
 };
 static int _kind_alloc_weight(_kind_alloc_entry *entry, u32b mode)
@@ -6013,6 +6562,364 @@ static int _kind_alloc_weight(_kind_alloc_entry *entry, u32b mode)
 
     return MAX(0, w);
 }
+/****************** Themed Drops ***************************************/
+static bool _kind_is_(int k_idx, int tval, int sval)
+{
+    if ( k_info[k_idx].tval == tval
+      && (sval == SV_ANY || k_info[k_idx].sval == sval) )
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_theme_warrior(int k_idx) {
+    if ( _kind_is_(k_idx, TV_POTION, SV_POTION_BERSERK_STRENGTH)
+      || _kind_is_(k_idx, TV_POTION, SV_POTION_HEROISM) )
+    {
+        return TRUE;
+    }
+
+    switch (k_info[k_idx].tval)
+    {
+    case TV_SWORD:
+        if (k_info[k_idx].sval >= SV_SABRE && k_info[k_idx].sval < SV_POISON_NEEDLE)
+            return TRUE;
+        break;
+    case TV_POLEARM:
+    case TV_BOOTS:
+    case TV_GLOVES:
+    case TV_HELM:
+    case TV_SHIELD:
+    case TV_HARD_ARMOR:
+    case TV_DRAG_ARMOR:
+        return TRUE;
+    case TV_RING:
+    case TV_AMULET:
+        return one_in_(3);
+    }
+    return FALSE;
+}
+static bool _kind_theme_warrior_shoot(int k_idx) {
+    if ( _kind_is_(k_idx, TV_BOW,  SV_LIGHT_XBOW)
+      || _kind_is_(k_idx, TV_BOW,  SV_HEAVY_XBOW)
+      || _kind_is_(k_idx, TV_BOLT, SV_ANY)  )
+    {
+        return TRUE;
+    }
+    return _kind_theme_warrior(k_idx);
+}
+static bool _kind_theme_archer(int k_idx) {
+    if ( _kind_is_(k_idx, TV_BOW,  SV_SHORT_BOW)
+      || _kind_is_(k_idx, TV_BOW,  SV_LONG_BOW)
+      || _kind_is_(k_idx, TV_ARROW,  SV_ANY) )
+    {
+        return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_RING)
+        return TRUE;
+    return FALSE;
+}
+static bool _kind_theme_mage(int k_idx) {
+    if ( _kind_is_(k_idx, TV_HAFTED, SV_WIZSTAFF)
+      || _kind_is_(k_idx, TV_SOFT_ARMOR, SV_ROBE) )
+    {
+        return TRUE;
+    }
+    switch (k_info[k_idx].tval)
+    {
+    case TV_RING:
+    case TV_AMULET:
+    case TV_WAND:
+    case TV_ROD:
+    case TV_STAFF:
+    case TV_SORCERY_BOOK:
+    case TV_NATURE_BOOK:
+    case TV_CHAOS_BOOK:
+    case TV_DEATH_BOOK:
+    case TV_TRUMP_BOOK:
+    case TV_ARCANE_BOOK:
+    case TV_CRAFT_BOOK:
+    case TV_DAEMON_BOOK:
+    case TV_ARMAGEDDON_BOOK:
+        return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_RESTORE_MANA:
+        case SV_POTION_ENLIGHTENMENT:
+        case SV_POTION_STAR_ENLIGHTENMENT:
+        case SV_POTION_SELF_KNOWLEDGE:
+        case SV_POTION_INVULNERABILITY:
+        case SV_POTION_CLARITY:
+        case SV_POTION_GREAT_CLARITY:
+        case SV_POTION_INC_STR:
+        case SV_POTION_INC_INT:
+        case SV_POTION_INC_WIS:
+        case SV_POTION_INC_DEX:
+        case SV_POTION_INC_CON:
+        case SV_POTION_INC_CHR:
+            return TRUE;
+        }
+    }
+    if (k_info[k_idx].tval == TV_SCROLL)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_SCROLL_PHASE_DOOR:
+        case SV_SCROLL_TELEPORT:
+        case SV_SCROLL_TELEPORT_LEVEL:
+        case SV_SCROLL_WORD_OF_RECALL:
+        case SV_SCROLL_IDENTIFY:
+        case SV_SCROLL_STAR_IDENTIFY:
+        case SV_SCROLL_RECHARGING:
+        case SV_SCROLL_STAR_DESTRUCTION:
+        case SV_SCROLL_GENOCIDE:
+        case SV_SCROLL_MASS_GENOCIDE:
+        case SV_SCROLL_ACQUIREMENT:
+        case SV_SCROLL_STAR_ACQUIREMENT:
+        case SV_SCROLL_ARTIFACT:
+        case SV_SCROLL_DETECT_MONSTERS:
+        case SV_SCROLL_FIRE:
+        case SV_SCROLL_ICE:
+        case SV_SCROLL_CHAOS:
+        case SV_SCROLL_MANA:
+        case SV_SCROLL_BANISHMENT:
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+static bool _kind_theme_priest(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_HAFTED:
+    case TV_LIFE_BOOK:
+    case TV_CRUSADE_BOOK:
+    case TV_AMULET:
+        return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_CURE_LIGHT:
+        case SV_POTION_CURE_SERIOUS:
+        case SV_POTION_CURE_CRITICAL:
+        case SV_POTION_HEALING:
+        case SV_POTION_STAR_HEALING:
+        case SV_POTION_LIFE:
+        case SV_POTION_RESTORE_EXP:
+        case SV_POTION_RES_STR:
+        case SV_POTION_RES_INT:
+        case SV_POTION_RES_WIS:
+        case SV_POTION_RES_DEX:
+        case SV_POTION_RES_CON:
+        case SV_POTION_RES_CHR:
+            return TRUE;
+        }
+    }
+    if (k_info[k_idx].tval == TV_SCROLL)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_SCROLL_REMOVE_CURSE:
+        case SV_SCROLL_STAR_REMOVE_CURSE:
+        case SV_SCROLL_BLESSING:
+        case SV_SCROLL_HOLY_CHANT:
+        case SV_SCROLL_HOLY_PRAYER:
+        case SV_SCROLL_PROTECTION_FROM_EVIL:
+        case SV_SCROLL_RUNE_OF_PROTECTION:
+        case SV_SCROLL_DISPEL_UNDEAD:
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+static bool _kind_theme_priest_evil(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_HAFTED:
+    case TV_DEATH_BOOK:
+    case TV_DAEMON_BOOK:
+    case TV_AMULET:
+        return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_SCROLL)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_SCROLL_GENOCIDE:
+        case SV_SCROLL_MASS_GENOCIDE:
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+static bool _kind_theme_paladin(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_LIFE_BOOK:
+    case TV_CRUSADE_BOOK:
+    case TV_RING:
+    case TV_AMULET:
+        return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_POTION)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_POTION_CURE_LIGHT:
+        case SV_POTION_CURE_SERIOUS:
+        case SV_POTION_CURE_CRITICAL:
+        case SV_POTION_HEALING:
+        case SV_POTION_STAR_HEALING:
+        case SV_POTION_LIFE:
+            return TRUE;
+        }
+    }
+    if (k_info[k_idx].tval == TV_SCROLL)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_SCROLL_BLESSING:
+        case SV_SCROLL_HOLY_CHANT:
+        case SV_SCROLL_HOLY_PRAYER:
+        case SV_SCROLL_PROTECTION_FROM_EVIL:
+        case SV_SCROLL_VENGEANCE:
+            return TRUE;
+        }
+    }
+    return _kind_theme_warrior(k_idx);
+}
+static bool _kind_theme_paladin_evil(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_DEATH_BOOK:
+    case TV_DAEMON_BOOK:
+    case TV_RING:
+    case TV_AMULET:
+        return TRUE;
+    }
+    if (k_info[k_idx].tval == TV_SCROLL)
+    {
+        switch (k_info[k_idx].sval)
+        {
+        case SV_SCROLL_GENOCIDE:
+        case SV_SCROLL_MASS_GENOCIDE:
+        case SV_SCROLL_STAR_DESTRUCTION:
+        case SV_SCROLL_VENGEANCE:
+            return TRUE;
+        }
+    }
+    return _kind_theme_warrior(k_idx);
+}
+static bool _kind_theme_samurai(int k_idx) {
+    if ( _kind_is_(k_idx, TV_SWORD, SV_KATANA)
+      || _kind_is_(k_idx, TV_SWORD, SV_WAKIZASHI)
+      || _kind_is_(k_idx, TV_HARD_ARMOR, SV_HARAMAKIDO) )
+    {
+        return TRUE;
+    }
+    switch (k_info[k_idx].tval)
+    {
+    case TV_RING:
+    case TV_HISSATSU_BOOK:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_theme_ninja(int k_idx) {
+    if ( _kind_is_(k_idx, TV_SWORD, SV_POISON_NEEDLE)
+      || _kind_is_(k_idx, TV_SWORD, SV_FALCON_SWORD)
+      || _kind_is_(k_idx, TV_SWORD, SV_DAGGER)
+      || _kind_is_(k_idx, TV_SWORD, SV_NINJATO)
+      || _kind_is_(k_idx, TV_SOFT_ARMOR, SV_KUROSHOUZOKU) )
+    {
+        return TRUE;
+    }
+    switch (k_info[k_idx].tval)
+    {
+    case TV_AMULET:
+    case TV_SPIKE:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_theme_rogue(int k_idx) {
+    if (_kind_is_(k_idx, TV_BOW, SV_SLING))
+        return TRUE;
+
+    switch (k_info[k_idx].tval)
+    {
+    case TV_AMULET:
+    case TV_SOFT_ARMOR:
+    case TV_CLOAK:
+    case TV_GLOVES:
+    case TV_SHOT:
+    case TV_BURGLARY_BOOK:
+        return TRUE;
+
+    case TV_SWORD:
+        if (k_info[k_idx].weight < 50)
+            return TRUE;
+        return FALSE;
+    }
+    return FALSE;
+}
+static bool _kind_theme_hobbit(int k_idx) {
+    if ( _kind_is_(k_idx, TV_FOOD, SV_ANY)
+      || _kind_is_(k_idx, TV_BOW, SV_SLING)
+      || _kind_is_(k_idx, TV_SHOT, SV_AMMO_LIGHT) )
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_theme_dwarf(int k_idx) {
+    if ( _kind_is_(k_idx, TV_POLEARM, SV_LOCHABER_AXE)
+      || _kind_is_(k_idx, TV_POLEARM, SV_BEAKED_AXE)
+      || _kind_is_(k_idx, TV_POLEARM, SV_BROAD_AXE)
+      || _kind_is_(k_idx, TV_POLEARM, SV_BATTLE_AXE)
+      || _kind_is_(k_idx, TV_POLEARM, SV_GREAT_AXE)
+      || _kind_is_(k_idx, TV_BOOTS, SV_PAIR_OF_METAL_SHOD_BOOTS)
+      || _kind_is_(k_idx, TV_DIGGING, SV_DWARVEN_PICK)
+      || _kind_is_(k_idx, TV_DIGGING, SV_DWARVEN_SHOVEL)
+      || _kind_is_(k_idx, TV_DIGGING, SV_MATTOCK)
+      || _kind_is_(k_idx, TV_HELM, SV_IRON_HELM)
+      || _kind_is_(k_idx, TV_HELM, SV_STEEL_HELM)
+      || _kind_is_(k_idx, TV_SHIELD, SV_SMALL_METAL_SHIELD)
+      || _kind_is_(k_idx, TV_HARD_ARMOR, SV_MITHRIL_CHAIN_MAIL)
+      || _kind_is_(k_idx, TV_HARD_ARMOR, SV_MITHRIL_PLATE_MAIL) )
+    {
+        return TRUE;
+    }
+    switch (k_info[k_idx].tval)
+    {
+    case TV_AMULET:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_theme_junk(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_SKELETON:
+    case TV_BOTTLE:
+    case TV_JUNK:
+    case TV_SPIKE:
+    case TV_CORPSE:
+    case TV_LITE:
+    case TV_FLASK:
+    case TV_FOOD:
+        return TRUE;
+    }
+    return FALSE;
+
+}
+/****************** End of Themed Drops ***************************************/
+
 static _kind_p _choose_obj_kind(u32b mode)
 {
     int  i;
@@ -6025,14 +6932,62 @@ static _kind_p _choose_obj_kind(u32b mode)
         _kind_hook2 = kind_is_great;
     else if (mode & AM_GOOD)
         _kind_hook2 = kind_is_good;
-    else if (_drop_tailored)
-        _kind_hook2 = kind_is_tailored;
 
+    if (obj_drop_theme)
+    {
+        switch (obj_drop_theme)
+        {
+        case R_DROP_WARRIOR:
+            _kind_hook1 = _kind_theme_warrior;
+            break;
+        case R_DROP_WARRIOR_SHOOT:
+            _kind_hook1 = _kind_theme_warrior_shoot;
+            break;
+        case R_DROP_ARCHER:
+            _kind_hook1 = _kind_theme_archer;
+            break;
+        case R_DROP_MAGE:
+            _kind_hook1 = _kind_theme_mage;
+            break;
+        case R_DROP_PRIEST:
+            _kind_hook1 = _kind_theme_priest;
+            break;
+        case R_DROP_PRIEST_EVIL:
+            _kind_hook1 = _kind_theme_priest_evil;
+            break;
+        case R_DROP_PALADIN:
+            _kind_hook1 = _kind_theme_paladin;
+            break;
+        case R_DROP_PALADIN_EVIL:
+            _kind_hook1 = _kind_theme_paladin_evil;
+            break;
+        case R_DROP_SAMURAI:
+            _kind_hook1 = _kind_theme_samurai;
+            break;
+        case R_DROP_NINJA:
+            _kind_hook1 = _kind_theme_ninja;
+            break;
+        case R_DROP_ROGUE:
+            _kind_hook1 = _kind_theme_rogue;
+            break;
+        case R_DROP_HOBBIT:
+            _kind_hook1 = _kind_theme_hobbit;
+            break;
+        case R_DROP_DWARF:
+            _kind_hook1 = _kind_theme_dwarf;
+            break;
+        case R_DROP_JUNK:
+            _kind_hook1 = _kind_theme_junk;
+            break;
+        }
+    }
     /* Circumvent normal object kind frequencies for good, great and tailored drops.
      * The goal here is, for example, to allow mages to find adequate spellbooks without
-     * drowning other characters with useless junk. */
-    if (_drop_tailored)
+     * drowning other characters with useless junk.
+     * Note: Themed drops (above) circumvent tailored objects ...*/
+    else if (_drop_tailored)
     {
+        _kind_hook2 = kind_is_tailored;
         switch (p_ptr->pclass)
         {
         case CLASS_ARCHAEOLOGIST:
@@ -6196,6 +7151,7 @@ bool make_object(object_type *j_ptr, u32b mode)
         if (mode & AM_TAILORED)
         {
             _drop_tailored = TRUE;
+            base += 10;          /* To help spellcasters find their books. Really, I should just adjust their levels in k_info, though ... */
             max_attempts = 1000; /* Tailored drops can fail for certain _choose_obj_kind()s */
         }
 
@@ -6225,7 +7181,10 @@ bool make_object(object_type *j_ptr, u32b mode)
 
         /* Handle failure */
         if (!k_idx) 
-            return (FALSE);
+        {
+            obj_drop_theme = 0;
+            return FALSE;
+        }
 
         /* Prepare the object */
         object_prep(j_ptr, k_idx);
@@ -6233,7 +7192,10 @@ bool make_object(object_type *j_ptr, u32b mode)
 
     /* Apply magic (allow artifacts) */
     if (!apply_magic(j_ptr, object_level, mode))
+    {
+        obj_drop_theme = 0;
         return FALSE;
+    }
 
     /* Note: It is important to do this *after* apply_magic rather than in, say, 
        object_prep() since artifacts should never spawn multiple copies. Ego ammo
@@ -6253,7 +7215,8 @@ bool make_object(object_type *j_ptr, u32b mode)
     }
 
     /* Success */
-    return (TRUE);
+    obj_drop_theme = 0;
+    return TRUE;
 }
 
 
@@ -6345,7 +7308,7 @@ void place_object(int y, int x, u32b mode)
  *
  * The location must be a legal, clean, floor grid.
  */
-bool make_gold(object_type *j_ptr)
+bool make_gold(object_type *j_ptr, bool do_boost)
 {
     int i;
 
@@ -6377,6 +7340,9 @@ bool make_gold(object_type *j_ptr)
     j_ptr->pval = (base + (8 * randint1(base)) + randint1(8));
 
     j_ptr->pval = j_ptr->pval * (625 - virtue_current(VIRTUE_SACRIFICE)) / 625;
+
+    if (do_boost)
+        j_ptr->pval += j_ptr->pval * object_level / 7;
 
     /* Success */
     return (TRUE);
@@ -6417,7 +7383,7 @@ void place_gold(int y, int x)
     object_wipe(q_ptr);
 
     /* Make some gold */
-    if (!make_gold(q_ptr)) return;
+    if (!make_gold(q_ptr, FALSE)) return;
 
 
     /* Make an object */
@@ -8217,1328 +9183,4 @@ bool process_warning(int xx, int yy)
     }
 
     return TRUE;
-}
-
-
-static bool item_tester_hook_melee_ammo(object_type *o_ptr)
-{
-    switch (o_ptr->tval)
-    {
-        case TV_HAFTED:
-        case TV_POLEARM:
-        case TV_DIGGING:
-        case TV_BOLT:
-        case TV_ARROW:
-        case TV_SHOT:
-        {
-            return (TRUE);
-        }
-        case TV_SWORD:
-        {
-            if (o_ptr->sval != SV_DOKUBARI) return (TRUE);
-        }
-    }
-
-    return (FALSE);
-}
-
-
-/*
- *  A structure for smithing
- */
-typedef struct {
-    int add;       /* TR flag number or special essence id */
-    cptr add_name; /* Name of this ability */
-    int type;      /* Menu number */
-    int essence;   /* Index for carrying essences */
-    int value;     /* Needed value to add this ability */
-} essence_type;
-
-
-/*
- *  Smithing type data for Weapon smith
- */
-static essence_type essence_info[] = 
-{
-    {TR_STR, "strength", 4, TR_STR, 20},
-    {TR_INT, "intelligence", 4, TR_INT, 20},
-    {TR_WIS, "wisdom", 4, TR_WIS, 20},
-    {TR_DEX, "dexterity", 4, TR_DEX, 20},
-    {TR_CON, "constitution", 4, TR_CON, 20},
-    {TR_CHR, "charisma", 4, TR_CHR, 20},
-    {TR_MAGIC_MASTERY, "magic mastery", 4, TR_MAGIC_MASTERY, 20},
-    {TR_STEALTH, "stealth", 4, TR_STEALTH, 40},
-    {TR_SEARCH, "serching", 4, TR_SEARCH, 15},
-    {TR_INFRA, "infravision", 4, TR_INFRA, 15},
-    {TR_TUNNEL, "digging", 4, TR_TUNNEL, 15},
-    {TR_SPEED, "speed", 4, TR_SPEED, 12},
-    {TR_BLOWS, "extra attack", 1, TR_BLOWS, 20},
-    {TR_CHAOTIC, "chaos brand", 1, TR_CHAOTIC, 15},
-    {TR_VAMPIRIC, "vampiric brand", 1, TR_VAMPIRIC, 60},
-    {TR_IMPACT, "quake activation", 7, TR_IMPACT, 15},
-    {TR_BRAND_POIS, "poison brand", 1, TR_BRAND_POIS, 20},
-    {TR_BRAND_ACID, "acid brand", 1, TR_BRAND_ACID, 20},
-    {TR_BRAND_ELEC, "electric brand", 1, TR_BRAND_ELEC, 20},
-    {TR_BRAND_FIRE, "fire brand", 1, TR_BRAND_FIRE, 20},
-    {TR_BRAND_COLD, "cold brand", 1, TR_BRAND_COLD, 20},
-    {TR_SUST_STR, "sustain strength", 3, TR_SUST_STR, 15},
-    {TR_SUST_INT, "sustain intelligence", 3, TR_SUST_STR, 15},
-    {TR_SUST_WIS, "sustain wisdom", 3, TR_SUST_STR, 15},
-    {TR_SUST_DEX, "sustain dexterity", 3, TR_SUST_STR, 15},
-    {TR_SUST_CON, "sustain constitution", 3, TR_SUST_STR, 15},
-    {TR_SUST_CHR, "sustain charisma", 3, TR_SUST_STR, 15},
-    {TR_IM_ACID, "acid immunity", 2, TR_IM_ACID, 20},
-    {TR_IM_ELEC, "electric immunity", 2, TR_IM_ACID, 20},
-    {TR_IM_FIRE, "fire immunity", 2, TR_IM_ACID, 20},
-    {TR_IM_COLD, "cold immunity", 2, TR_IM_ACID, 20},
-    {TR_REFLECT, "reflection", 2, TR_REFLECT, 20},
-    {TR_FREE_ACT, "free action", 3, TR_FREE_ACT, 20},
-    {TR_HOLD_LIFE, "hold life", 3, TR_HOLD_LIFE, 20},
-    {TR_RES_ACID, "resistance to acid", 2, TR_RES_ACID, 15},
-    {TR_RES_ELEC, "resistance to electric", 2, TR_RES_ELEC, 15},
-    {TR_RES_FIRE, "resistance to fire", 2, TR_RES_FIRE, 15},
-    {TR_RES_COLD, "resistance to cold", 2, TR_RES_COLD, 15},
-    {TR_RES_POIS, "resistance to poison", 2, TR_RES_POIS, 25},
-    {TR_RES_FEAR, "resistance to fear", 2, TR_RES_FEAR, 20},
-    {TR_RES_LITE, "resistance to light", 2, TR_RES_LITE, 20},
-    {TR_RES_DARK, "resistance to dark", 2, TR_RES_DARK, 20},
-    {TR_RES_BLIND, "resistance to blind", 2, TR_RES_BLIND, 20},
-    {TR_RES_CONF, "resistance to confusion", 2, TR_RES_CONF, 20},
-    {TR_RES_SOUND, "resistance to sound", 2, TR_RES_SOUND, 20},
-    {TR_RES_SHARDS, "resistance to shard", 2, TR_RES_SHARDS, 20},
-    {TR_RES_NETHER, "resistance to nether", 2, TR_RES_NETHER, 20},
-    {TR_RES_NEXUS, "resistance to nexus", 2, TR_RES_NEXUS, 20},
-    {TR_RES_CHAOS, "resistance to chaos", 2, TR_RES_CHAOS, 20},
-    {TR_RES_DISEN, "resistance to disenchantment", 2, TR_RES_DISEN, 20},
-    {TR_SH_FIRE, "", 0, -2, 0},
-    {TR_SH_ELEC, "", 0, -2, 0},
-    {TR_SH_COLD, "", 0, -2, 0},
-    {TR_NO_MAGIC, "anti magic", 3, TR_NO_MAGIC, 15},
-    {TR_WARNING, "warning", 3, TR_WARNING, 20},
-    {TR_LEVITATION, "levitation", 3, TR_LEVITATION, 20},
-    {TR_LITE, "permanent light", 3, TR_LITE, 15},
-    {TR_SEE_INVIS, "see invisible", 3, TR_SEE_INVIS, 20},
-    {TR_TELEPATHY, "telepathy", 6, TR_TELEPATHY, 15},
-    {TR_SLOW_DIGEST, "slow digestion", 3, TR_SLOW_DIGEST, 15},
-    {TR_REGEN, "regeneration", 3, TR_REGEN, 20},
-    {TR_TELEPORT, "teleport", 3, TR_TELEPORT, 25},
-
-    {TR_SLAY_EVIL, "slay evil", 5, TR_SLAY_EVIL, 100},
-    {TR_SLAY_ANIMAL, "slay animal", 5, TR_SLAY_ANIMAL, 20},
-    {TR_KILL_ANIMAL, "kill animal", 5, TR_SLAY_ANIMAL, 60},
-    {TR_KILL_EVIL, "kill evil", 0, TR_SLAY_EVIL, 60},
-    {TR_SLAY_UNDEAD, "slay undead", 5, TR_SLAY_UNDEAD, 20},
-    {TR_KILL_UNDEAD, "kill undead", 5, TR_SLAY_UNDEAD, 60},
-    {TR_SLAY_DEMON, "slay demon", 5, TR_SLAY_DEMON, 20},
-    {TR_KILL_DEMON, "kill demon", 5, TR_SLAY_DEMON, 60},
-    {TR_SLAY_ORC, "slay orc", 5, TR_SLAY_ORC, 15},
-    {TR_KILL_ORC, "kill orc", 5, TR_SLAY_ORC, 60},
-    {TR_SLAY_TROLL, "slay troll", 5, TR_SLAY_TROLL, 15},
-    {TR_KILL_TROLL, "kill troll", 5, TR_SLAY_TROLL, 60},
-    {TR_SLAY_GIANT, "slay giant", 5, TR_SLAY_GIANT, 20},
-    {TR_KILL_GIANT, "kill giant", 5, TR_SLAY_GIANT, 60},       
-    {TR_SLAY_DRAGON, "slay dragon", 5, TR_SLAY_DRAGON, 20},
-    {TR_KILL_DRAGON, "kill dragon", 5, TR_SLAY_DRAGON, 60},
-    {TR_SLAY_HUMAN, "slay human", 5, TR_SLAY_HUMAN, 20},
-    {TR_KILL_HUMAN, "kill human", 5, TR_SLAY_HUMAN, 60},
-
-    {TR_ESP_ANIMAL, "sense animal", 6, TR_SLAY_ANIMAL, 40},
-    {TR_ESP_UNDEAD, "sense undead", 6, TR_SLAY_UNDEAD, 40}, 
-    {TR_ESP_DEMON, "sense demon", 6, TR_SLAY_DEMON, 40},       
-    {TR_ESP_ORC, "sense orc", 6, TR_SLAY_ORC, 40},     
-    {TR_ESP_TROLL, "sense troll", 6, TR_SLAY_TROLL, 40},   
-    {TR_ESP_GIANT, "sense giant", 6, TR_SLAY_GIANT, 40},       
-    {TR_ESP_DRAGON, "sense dragon", 6, TR_SLAY_DRAGON, 40},
-    {TR_ESP_HUMAN, "sense human", 6, TR_SLAY_HUMAN, 40},
-
-    {ESSENCE_ATTACK, "weapon enchant", 10, TR_ES_ATTACK, 30},
-    {ESSENCE_AC, "armor enchant", 10, TR_ES_AC, 15},
-    {ESSENCE_TMP_RES_ACID, "resist acid activation", 7, TR_RES_ACID, 50},
-    {ESSENCE_TMP_RES_ELEC, "resist electricity activation", 7, TR_RES_ELEC, 50},
-    {ESSENCE_TMP_RES_FIRE, "resist fire activation", 7, TR_RES_FIRE, 50},
-    {ESSENCE_TMP_RES_COLD, "resist cold activation", 7, TR_RES_COLD, 50},
-    {ESSENCE_SH_FIRE, "fiery sheath", 7, -1, 50},
-    {ESSENCE_SH_ELEC, "electric sheath", 7, -1, 50},
-    {ESSENCE_SH_COLD, "sheath of coldness", 7, -1, 50},
-    {ESSENCE_RESISTANCE, "resistance", 2, -1, 150},
-    {ESSENCE_SUSTAIN, "elements proof", 10, -1, 10},
-    {ESSENCE_SLAY_GLOVE, "gauntlets of slaying", 1, TR_ES_ATTACK, 200},
-
-    {-1, NULL, 0, -1, 0}
-};
-
-
-/*
- *  Essense names for Weapon smith
- */
-
-static cptr essence_name[] = 
-{
-    "strength",
-    "intelligen.",
-    "wisdom",
-    "dexterity",
-    "constitut.",
-    "charisma",
-    "magic mast.",
-    "",
-    "stealth",
-    "serching",
-    "infravision",
-    "digging",
-    "speed",
-    "extra atk",
-    "chaos brand",
-    "vampiric",
-    "slay animal",
-    "slay evil",
-    "slay undead",
-    "slay demon",
-    "slay orc",
-    "slay troll",
-    "slay giant",
-    "slay dragon",
-    "",
-    "",
-    "quake",
-    "pois. brand",
-    "acid brand",
-    "elec. brand",
-    "fire brand",
-    "cold brand",
-    "sustain",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "immunity",
-    "",
-    "",
-    "",
-    "",
-    "reflection",
-    "free action",
-    "hold life",
-    "res. acid",
-    "res. elec.",
-    "res. fire",
-    "res. cold",
-    "res. poison",
-    "res. fear",
-    "res. light",
-    "res. dark",
-    "res. blind",
-    "res.confuse",
-    "res. sound",
-    "res. shard",
-    "res. nether",
-    "res. nexus",
-    "res. chaos",
-    "res. disen.",
-    "",
-    "",
-    "slay human",
-    "",
-    "",
-    "anti magic",
-    "",
-    "",
-    "warning",
-    "",
-    "",
-    "",
-    "levitation",
-    "perm. light",
-    "see invis.",
-    "telepathy",
-    "slow dige.",
-    "regen.",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "teleport",
-    "",
-    "",
-    "weapon enc.",
-    "armor enc.",
-
-    NULL
-};
-
-
-static void display_essence(void)
-{
-    int i, num = 0;
-
-    screen_save();
-    for (i = 1; i < 22; i++)
-    {
-        prt("",i,0);
-    }
-    prt("Essence      Num      Essence      Num      Essence      Num ", 1, 8);
-    for (i = 0; essence_name[i]; i++)
-    {
-        if (!essence_name[i][0]) continue;
-        prt(format("%-11s %5d", essence_name[i], p_ptr->magic_num1[i]), 2+num%21, 8+num/21*22);
-        num++;
-    }
-    prt("List of all essences you have.", 0, 0);
-    (void)inkey();
-    screen_load();
-    return;
-}
-
-static void drain_essence(void)
-{
-    int drain_value[MAX_MAGIC_NUM];
-    int i, item;
-    int dec = 4;
-    bool observe = FALSE;
-    int old_ds, old_dd, old_to_h, old_to_d, old_ac, old_to_a, old_pval, old_name2, old_timeout;
-    u32b old_flgs[TR_FLAG_SIZE], new_flgs[TR_FLAG_SIZE];
-    object_type *o_ptr;
-    cptr            q, s;
-    byte iy, ix, marked, number;
-    s16b next_o_idx, weight;
-
-    for (i = 0; i < MAX_MAGIC_NUM; i++)
-        drain_value[i] = 0;
-
-    item_tester_hook = object_is_weapon_armour_ammo;
-    item_tester_no_ryoute = TRUE;
-
-    /* Get an item */
-    q = "Extract from which item? ";
-    s = "You have nothing you can extract from.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    if (object_is_known(o_ptr) && !object_is_nameless(o_ptr))
-    {
-        char o_name[MAX_NLEN];
-        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-        if (!get_check(format("Really extract from %s? ", o_name))) return;
-    }
-
-    energy_use = 100;
-
-    object_flags(o_ptr, old_flgs);
-    if (have_flag(old_flgs, TR_KILL_DRAGON)) add_flag(old_flgs, TR_SLAY_DRAGON);
-    if (have_flag(old_flgs, TR_KILL_ANIMAL)) add_flag(old_flgs, TR_SLAY_ANIMAL);
-    if (have_flag(old_flgs, TR_KILL_EVIL)) add_flag(old_flgs, TR_SLAY_EVIL);
-    if (have_flag(old_flgs, TR_KILL_UNDEAD)) add_flag(old_flgs, TR_SLAY_UNDEAD);
-    if (have_flag(old_flgs, TR_KILL_DEMON)) add_flag(old_flgs, TR_SLAY_DEMON);
-    if (have_flag(old_flgs, TR_KILL_ORC)) add_flag(old_flgs, TR_SLAY_ORC);
-    if (have_flag(old_flgs, TR_KILL_TROLL)) add_flag(old_flgs, TR_SLAY_TROLL);
-    if (have_flag(old_flgs, TR_KILL_GIANT)) add_flag(old_flgs, TR_SLAY_GIANT);
-    if (have_flag(old_flgs, TR_KILL_HUMAN)) add_flag(old_flgs, TR_SLAY_HUMAN);
-
-    old_to_a = o_ptr->to_a;
-    old_ac = o_ptr->ac;
-    old_to_h = o_ptr->to_h;
-    old_to_d = o_ptr->to_d;
-    old_ds = o_ptr->ds;
-    old_dd = o_ptr->dd;
-    old_pval = o_ptr->pval;
-    old_name2 = o_ptr->name2;
-    old_timeout = o_ptr->timeout;
-    if (o_ptr->curse_flags & (TRC_CURSED | TRC_HEAVY_CURSE | TRC_PERMA_CURSE)) dec--;
-    if (have_flag(old_flgs, TR_AGGRAVATE)) dec--;
-    if (have_flag(old_flgs, TR_NO_TELE)) dec--;
-    if (have_flag(old_flgs, TR_DRAIN_EXP)) dec--;
-    if (have_flag(old_flgs, TR_TY_CURSE)) dec--;
-
-    iy = o_ptr->iy;
-    ix = o_ptr->ix;
-    next_o_idx = o_ptr->next_o_idx;
-    marked = o_ptr->marked;
-    weight = o_ptr->weight;
-    number = o_ptr->number;
-
-    object_prep(o_ptr, o_ptr->k_idx);
-
-    o_ptr->iy=iy;
-    o_ptr->ix=ix;
-    o_ptr->next_o_idx=next_o_idx;
-    o_ptr->marked=marked;
-    o_ptr->number = number;
-    if (o_ptr->tval == TV_DRAG_ARMOR) o_ptr->timeout = old_timeout;
-    if (item >= 0) p_ptr->total_weight += (o_ptr->weight*o_ptr->number - weight*number);
-    o_ptr->ident |= (IDENT_FULL);
-    object_aware(o_ptr);
-    object_known(o_ptr);
-
-    object_flags(o_ptr, new_flgs);
-
-    for (i = 0; essence_info[i].add_name; i++)
-    {
-        essence_type *es_ptr = &essence_info[i];
-        int pval = 0;
-
-        if (es_ptr->add < TR_FLAG_MAX && is_pval_flag(es_ptr->add) && old_pval)
-            pval = (have_flag(new_flgs, es_ptr->add)) ? old_pval - o_ptr->pval : old_pval;
-
-        if (es_ptr->add < TR_FLAG_MAX &&
-            (!have_flag(new_flgs, es_ptr->add) || pval) &&
-            have_flag(old_flgs, es_ptr->add))
-        {
-            if (pval)
-            {
-                drain_value[es_ptr->essence] += 10 * pval;
-            }
-            else if (es_ptr->essence != -2)
-            {
-                drain_value[es_ptr->essence] += 10;
-            }
-            else if (es_ptr->add == TR_SH_FIRE)
-            {
-                drain_value[TR_BRAND_FIRE] += 10;
-                drain_value[TR_RES_FIRE] += 10;
-            }
-            else if (es_ptr->add == TR_SH_ELEC)
-            {
-                drain_value[TR_BRAND_ELEC] += 10;
-                drain_value[TR_RES_ELEC] += 10;
-            }
-            else if (es_ptr->add == TR_SH_COLD)
-            {
-                drain_value[TR_BRAND_COLD] += 10;
-                drain_value[TR_RES_COLD] += 10;
-            }
-        }
-    }
-
-    if ((have_flag(old_flgs, TR_FORCE_WEAPON)) && !(have_flag(new_flgs, TR_FORCE_WEAPON)))
-    {
-        drain_value[TR_INT] += 5;
-        drain_value[TR_WIS] += 5;
-    }
-    if ((have_flag(old_flgs, TR_VORPAL)) && !(have_flag(new_flgs, TR_VORPAL)))
-    {
-        drain_value[TR_BRAND_POIS] += 5;
-        drain_value[TR_BRAND_ACID] += 5;
-        drain_value[TR_BRAND_ELEC] += 5;
-        drain_value[TR_BRAND_FIRE] += 5;
-        drain_value[TR_BRAND_COLD] += 5;
-    }
-    if ((have_flag(old_flgs, TR_DEC_MANA)) && !(have_flag(new_flgs, TR_DEC_MANA)))
-    {
-        drain_value[TR_INT] += 10;
-    }
-    if ((have_flag(old_flgs, TR_XTRA_MIGHT)) && !(have_flag(new_flgs, TR_XTRA_MIGHT)))
-    {
-        drain_value[TR_STR] += 10;
-    }
-    if ((have_flag(old_flgs, TR_XTRA_SHOTS)) && !(have_flag(new_flgs, TR_XTRA_SHOTS)))
-    {
-        drain_value[TR_DEX] += 10;
-    }
-    if (old_name2 == EGO_GLOVES_GENJI)
-    {
-        drain_value[TR_DEX] += 20;
-    }
-    if (object_is_weapon_ammo(o_ptr))
-    {
-        if (old_ds > o_ptr->ds) drain_value[TR_ES_ATTACK] += (old_ds-o_ptr->ds)*10;
-
-        if (old_dd > o_ptr->dd) drain_value[TR_ES_ATTACK] += (old_dd-o_ptr->dd)*10;
-    }
-    if (old_to_h > o_ptr->to_h) drain_value[TR_ES_ATTACK] += (old_to_h-o_ptr->to_h)*10;
-    if (old_to_d > o_ptr->to_d) drain_value[TR_ES_ATTACK] += (old_to_d-o_ptr->to_d)*10;
-    if (old_ac > o_ptr->ac) drain_value[TR_ES_AC] += (old_ac-o_ptr->ac)*10;
-    if (old_to_a > o_ptr->to_a) drain_value[TR_ES_AC] += (old_to_a-o_ptr->to_a)*10;
-
-    for (i = 0; i < MAX_MAGIC_NUM; i++)
-    {
-        drain_value[i] *= number;
-        drain_value[i] = drain_value[i] * dec / 4;
-        drain_value[i] = MAX(drain_value[i], 0);
-        if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_BOLT)) drain_value[i] /= 10;
-        if (drain_value[i])
-        {
-            observe = TRUE;
-        }
-    }
-    if (!observe)
-    {
-        msg_print("You were not able to extract any essence.");
-    }
-    else
-    {
-        msg_print("Extracted essences:");
-        for (i = 0; essence_name[i]; i++)
-        {
-            if (!essence_name[i][0]) continue;
-            if (!drain_value[i]) continue;
-
-            p_ptr->magic_num1[i] += drain_value[i];
-            p_ptr->magic_num1[i] = MIN(20000, p_ptr->magic_num1[i]);
-            msg_print(NULL);
-            msg_format("%s...%d", essence_name[i], drain_value[i]);
-        }
-    }
-
-    /* Combine the pack */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN);
-}
-
-
-
-static int choose_essence(void)
-{
-    int mode = 0;
-    char choice;
-    int menu_line = (use_menu ? 1 : 0);
-
-    cptr menu_name[] = {
-        "Brand weapon",
-        "Resistance",
-        "Ability",
-        "Magic number", 
-        "Slay",
-        "ESP",
-        "Others"
-    };
-    const int mode_max = 7;
-
-#ifdef ALLOW_REPEAT
-    if (repeat_pull(&mode) && 1 <= mode && mode <= mode_max)
-        return mode;
-    mode = 0;
-#endif /* ALLOW_REPEAT */
-
-    if (use_menu)
-    {
-        screen_save();
-
-        while(!mode)
-        {
-            int i;
-            for (i = 0; i < mode_max; i++)
-                prt(format(" %s %s", (menu_line == 1+i) ? "> " : "  ", menu_name[i]), 2 + i, 14);
-            prt("Choose from menu.", 0, 0);
-
-            choice = inkey();
-            switch(choice)
-            {
-            case ESCAPE:
-            case 'z':
-            case 'Z':
-                screen_load();
-                return 0;
-            case '2':
-            case 'j':
-            case 'J':
-                menu_line++;
-                break;
-            case '8':
-            case 'k':
-            case 'K':
-                menu_line += mode_max - 1;
-                break;
-            case '\r':
-            case '\n':
-            case 'x':
-            case 'X':
-                mode = menu_line;
-                break;
-            }
-            if (menu_line > mode_max) menu_line -= mode_max;
-        }
-        screen_load();
-    }
-    else
-    {
-        screen_save();
-        while (!mode)
-        {
-            int i;
-
-            for (i = 0; i < mode_max; i++)
-                prt(format("  %c) %s", 'a' + i, menu_name[i]), 2 + i, 14);
-
-            if (!get_com("Command :", &choice, TRUE))
-            {
-                screen_load();
-                return 0;
-            }
-
-            if (isupper(choice)) choice = tolower(choice);
-
-            if ('a' <= choice && choice <= 'a' + (char)mode_max - 1)
-                mode = (int)choice - 'a' + 1;
-        }
-        screen_load();
-    }
-
-#ifdef ALLOW_REPEAT
-    repeat_push(mode);
-#endif /* ALLOW_REPEAT */
-    return mode;
-}
-
-static void add_essence(int mode)
-{
-    int item, max_num = 0;
-    int i;
-    bool flag,redraw;
-    char choice;
-    cptr            q, s;
-    object_type *o_ptr;
-    int ask = TRUE;
-    char out_val[160];
-    int num[22];
-    char o_name[MAX_NLEN];
-    int use_essence;
-    essence_type *es_ptr;
-
-    int menu_line = (use_menu ? 1 : 0);
-
-    for (i = 0; essence_info[i].add_name; i++)
-    {
-        es_ptr = &essence_info[i];
-
-        if (es_ptr->type != mode) continue;
-        num[max_num++] = i;
-    }
-
-#ifdef ALLOW_REPEAT
-    if (!repeat_pull(&i) || i<0 || i>=max_num)
-    {
-#endif /* ALLOW_REPEAT */
-
-
-    /* Nothing chosen yet */
-    flag = FALSE;
-
-    /* No redraw yet */
-    redraw = FALSE;
-
-    /* Build a prompt */
-    (void)strnfmt(out_val, 78, "(*=List, ESC=exit) Add which ability? ");
-    if (use_menu) screen_save();
-
-    /* Get a spell from the user */
-
-    choice = (always_show_list || use_menu) ? ESCAPE:1;
-    while (!flag)
-    {
-        bool able[22];
-        if( choice==ESCAPE ) choice = ' '; 
-        else if( !get_com(out_val, &choice, FALSE) )break; 
-
-        if (use_menu && choice != ' ')
-        {
-            switch(choice)
-            {
-                case '0':
-                {
-                    screen_load();
-                    return;
-                }
-
-                case '8':
-                case 'k':
-                case 'K':
-                {
-                    menu_line += (max_num-1);
-                    break;
-                }
-
-                case '2':
-                case 'j':
-                case 'J':
-                {
-                    menu_line++;
-                    break;
-                }
-
-                case '4':
-                case 'h':
-                case 'H':
-                {
-                    menu_line = 1;
-                    break;
-                }
-                case '6':
-                case 'l':
-                case 'L':
-                {
-                    menu_line = max_num;
-                    break;
-                }
-
-                case 'x':
-                case 'X':
-                case '\r':
-                case '\n':
-                {
-                    i = menu_line - 1;
-                    ask = FALSE;
-                    break;
-                }
-            }
-            if (menu_line > max_num) menu_line -= max_num;
-        }
-        /* Request redraw */
-        if ((choice == ' ') || (choice == '*') || (choice == '?') || (use_menu && ask))
-        {
-            /* Show the list */
-            if (!redraw || use_menu)
-            {
-                byte y, x = 10;
-                int ctr;
-                char dummy[80], dummy2[80];
-                byte col;
-
-                strcpy(dummy, "");
-
-                /* Show list */
-                redraw = TRUE;
-
-                /* Save the screen */
-                if (!use_menu) screen_save();
-
-                for (y = 1; y < 24; y++)
-                    prt("", y, x);
-
-                /* Print header(s) */
-                prt(format("   %-43s %6s/%s", "Ability (needed essence)", "Needs", "Possess"), 1, x);
-                /* Print list */
-                for (ctr = 0; ctr < max_num; ctr++)
-                {
-                    es_ptr = &essence_info[num[ctr]];
-
-                    if (use_menu)
-                    {
-                        if (ctr == (menu_line-1))
-                            strcpy(dummy, ">  ");
-                        else strcpy(dummy, "   ");
-                        
-                    }
-                    /* letter/number for power selection */
-                    else
-                    {
-                        sprintf(dummy, "%c) ",I2A(ctr));
-                    }
-
-                    strcat(dummy, es_ptr->add_name);
-
-                    col = TERM_WHITE;
-                    able[ctr] = TRUE;
-
-                    if (es_ptr->essence != -1)
-                    {
-                        strcat(dummy, format("(%s)", essence_name[es_ptr->essence]));
-                        if (p_ptr->magic_num1[es_ptr->essence] < es_ptr->value) able[ctr] = FALSE;
-                    }
-                    else
-                    {
-                        switch(es_ptr->add)
-                        {
-                        case ESSENCE_SH_FIRE:
-                            strcat(dummy, "(brand fire + res.fire)");
-                            if (p_ptr->magic_num1[TR_BRAND_FIRE] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_FIRE] < es_ptr->value) able[ctr] = FALSE;
-                            break;
-                        case ESSENCE_SH_ELEC:
-                            strcat(dummy, "(brand elec. + res. elec.)");
-                            if (p_ptr->magic_num1[TR_BRAND_ELEC] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_ELEC] < es_ptr->value) able[ctr] = FALSE;
-                            break;
-                        case ESSENCE_SH_COLD:
-                            strcat(dummy, "(brand cold + res. cold)");
-                            if (p_ptr->magic_num1[TR_BRAND_COLD] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_COLD] < es_ptr->value) able[ctr] = FALSE;
-                            break;
-                        case ESSENCE_RESISTANCE:
-                            strcat(dummy, "(r.fire+r.cold+r.elec+r.acid)");
-                            if (p_ptr->magic_num1[TR_RES_FIRE] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_COLD] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_ELEC] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_ACID] < es_ptr->value) able[ctr] = FALSE;
-                            break;
-                        case ESSENCE_SUSTAIN:
-                            strcat(dummy, "(r.fire+r.cold+r.elec+r.acid)");
-                            if (p_ptr->magic_num1[TR_RES_FIRE] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_COLD] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_ELEC] < es_ptr->value) able[ctr] = FALSE;
-                            if (p_ptr->magic_num1[TR_RES_ACID] < es_ptr->value) able[ctr] = FALSE;
-                            break;
-                        }
-                    }
-
-                    if (!able[ctr]) col = TERM_RED;
-
-                    if (es_ptr->essence != -1)
-                    {
-                        sprintf(dummy2, "%-49s %3d/%d", dummy, es_ptr->value, (int)p_ptr->magic_num1[es_ptr->essence]);
-                    }
-                    else
-                    {
-                        sprintf(dummy2, "%-49s %3d/(\?\?)", dummy, es_ptr->value);
-                    }
-
-                    c_prt(col, dummy2, ctr+2, x);
-                }
-            }
-
-            /* Hide the list */
-            else
-            {
-                /* Hide list */
-                redraw = FALSE;
-
-                /* Restore the screen */
-                screen_load();
-            }
-
-            /* Redo asking */
-            continue;
-        }
-
-        if (!use_menu)
-        {
-            /* Note verify */
-            ask = (isupper(choice));
-
-            /* Lowercase */
-            if (ask) choice = tolower(choice);
-
-            /* Extract request */
-            i = (islower(choice) ? A2I(choice) : -1);
-        }
-
-        /* Totally Illegal */
-        if ((i < 0) || (i >= max_num) || !able[i])
-        {
-            bell();
-            continue;
-        }
-
-        /* Verify it */
-        if (ask)
-        {
-            char tmp_val[160];
-
-            /* Prompt */
-            (void) strnfmt(tmp_val, 78, "Add the abilitiy of %s? ", essence_info[num[i]].add_name);
-
-            /* Belay that order */
-            if (!get_check(tmp_val)) continue;
-        }
-
-        /* Stop the loop */
-        flag = TRUE;
-    }
-
-    /* Restore the screen */
-    if (redraw) screen_load();
-
-    if (!flag) return;
-
-#ifdef ALLOW_REPEAT
-    repeat_push(i);
-    }
-#endif /* ALLOW_REPEAT */
-
-    es_ptr = &essence_info[num[i]];
-
-    if (es_ptr->add == ESSENCE_SLAY_GLOVE)
-        item_tester_tval = TV_GLOVES;
-    else if (mode == 1 || mode == 5)
-        item_tester_hook = item_tester_hook_melee_ammo;
-    else if (es_ptr->add == ESSENCE_ATTACK)
-        item_tester_hook = object_allow_enchant_weapon;
-    else if (es_ptr->add == ESSENCE_AC)
-        item_tester_hook = object_is_armour;
-    else
-        item_tester_hook = object_is_weapon_armour_ammo;
-    item_tester_no_ryoute = TRUE;
-
-    /* Get an item */
-    q = "Improve which item? ";
-    s = "You have nothing to improve.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    if ((mode != 10) && (object_is_artifact(o_ptr) || object_is_smith(o_ptr)))
-    {
-        msg_print("This item is no more able to be improved.");
-        return;
-    }
-
-    object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-    use_essence = es_ptr->value;
-    if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_BOLT)) use_essence = (use_essence+9)/10;
-    if (o_ptr->number > 1)
-    {
-        use_essence *= o_ptr->number;
-        msg_format("It will take %d essences.",use_essence);
-
-    }
-
-    if (es_ptr->essence != -1)
-    {
-        if (p_ptr->magic_num1[es_ptr->essence] < use_essence)
-        {
-            msg_print("You don't have enough essences.");
-            return;
-        }
-        if (is_pval_flag(es_ptr->add))
-        {
-            if (o_ptr->pval < 0)
-            {
-                msg_print("You cannot increase magic number of this item.");
-                return;
-            }
-            else if (es_ptr->add == TR_BLOWS)
-            {
-                if (o_ptr->pval > 1)
-                {
-                    if (!get_check("The magic number of this weapon will become 1. Are you sure? ")) return;
-                }
-
-                o_ptr->pval = 1;
-                msg_format("It will take %d essences.", use_essence);
-            }
-            else if (o_ptr->pval > 0)
-            {
-                use_essence *= o_ptr->pval;
-                msg_format("It will take %d essences.", use_essence);
-            }
-            else
-            {
-                char tmp[80];
-                char tmp_val[160];
-                int pval;
-                int limit = MIN(5, p_ptr->magic_num1[es_ptr->essence]/es_ptr->value);
-
-                sprintf(tmp, "Enchant how many? (1-%d): ", limit);
-                strcpy(tmp_val, "1");
-
-                if (!get_string(tmp, tmp_val, 1)) return;
-                pval = atoi(tmp_val);
-                if (pval > limit) pval = limit;
-                else if (pval < 1) pval = 1;
-                o_ptr->pval += pval;
-                use_essence *= pval;
-                msg_format("It will take %d essences.", use_essence);
-            }
-
-            if (p_ptr->magic_num1[es_ptr->essence] < use_essence)
-            {
-                msg_print("You don't have enough essences.");
-                return;
-            }
-        }
-        else if (es_ptr->add == ESSENCE_SLAY_GLOVE)
-        {
-            char tmp_val[160];
-            int val;
-            int get_to_h, get_to_d;
-
-            strcpy(tmp_val, "1");
-            if (!get_string(format("Enchant how many? (1-%d):", p_ptr->lev/7+3), tmp_val, 2)) return;
-            val = atoi(tmp_val);
-            if (val > p_ptr->lev/7+3) val = p_ptr->lev/7+3;
-            else if (val < 1) val = 1;
-            use_essence *= val;
-            msg_format("It will take %d essences.", use_essence);
-            if (p_ptr->magic_num1[es_ptr->essence] < use_essence)
-            {
-                msg_print("You don't have enough essences.");
-                return;
-            }
-            get_to_h = ((val+1)/2+randint0(val/2+1));
-            get_to_d = ((val+1)/2+randint0(val/2+1));
-            o_ptr->xtra4 = (get_to_h<<8)+get_to_d;
-            o_ptr->to_h += get_to_h;
-            o_ptr->to_d += get_to_d;
-        }
-        p_ptr->magic_num1[es_ptr->essence] -= use_essence;
-        if (es_ptr->add == ESSENCE_ATTACK)
-        {
-            int max = 5 + 15*p_ptr->lev/50;
-
-            /* Old: Everything could go to +15, +15
-               New: Allow enchanting up to +20, +20, but this makes
-                    shooting a bit strong. So clip ammo at +10, +10 */
-            switch (o_ptr->tval)
-            {
-            case TV_SHOT:
-            case TV_ARROW:
-            case TV_BOLT:
-                max = 10*p_ptr->lev/50;
-                break;
-            }
-
-            if ( (o_ptr->tval == TV_BOW && o_ptr->sval == SV_HARP)
-              || (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) )
-            {
-                msg_print("You failed to enchant.");
-                energy_use = 100;
-                return;
-            }
-
-            if ((o_ptr->to_h >= max) && (o_ptr->to_d >= max))
-            {
-                msg_print("You failed to enchant.");
-                energy_use = 100;
-                return;
-            }
-            else
-            {
-                if (o_ptr->to_h < max) o_ptr->to_h++;
-                if (o_ptr->to_d < max) o_ptr->to_d++;
-            }
-        }
-        else if (es_ptr->add == ESSENCE_AC)
-        {
-            if ( o_ptr->name1 == ART_KAMIKAZE_ROBE
-              || o_ptr->name2 == EGO_GLOVES_BERSERKER )
-            {
-                msg_print("You failed to enchant.");
-                energy_use = 100;
-                return;
-            }
-
-            if (o_ptr->to_a >= 5 + 15*p_ptr->lev/50)
-            {
-                msg_print("You failed to enchant.");
-                energy_use = 100;
-                return;
-            }
-            else
-            {
-                if (o_ptr->to_a < 5 + 15*p_ptr->lev/50) o_ptr->to_a++;
-            }
-        }
-        else
-        {
-            o_ptr->xtra3 = es_ptr->add + 1;
-        }
-    }
-    else
-    {
-        bool success = TRUE;
-
-        switch(es_ptr->add)
-        {
-        case ESSENCE_SH_FIRE:
-            if ((p_ptr->magic_num1[TR_BRAND_FIRE] < use_essence) || (p_ptr->magic_num1[TR_RES_FIRE] < use_essence))
-            {
-                success = FALSE;
-                break;
-            }
-            p_ptr->magic_num1[TR_BRAND_FIRE] -= use_essence;
-            p_ptr->magic_num1[TR_RES_FIRE] -= use_essence;
-            break;
-        case ESSENCE_SH_ELEC:
-            if ((p_ptr->magic_num1[TR_BRAND_ELEC] < use_essence) || (p_ptr->magic_num1[TR_RES_ELEC] < use_essence))
-            {
-                success = FALSE;
-                break;
-            }
-            p_ptr->magic_num1[TR_BRAND_ELEC] -= use_essence;
-            p_ptr->magic_num1[TR_RES_ELEC] -= use_essence;
-            break;
-        case ESSENCE_SH_COLD:
-            if ((p_ptr->magic_num1[TR_BRAND_COLD] < use_essence) || (p_ptr->magic_num1[TR_RES_COLD] < use_essence))
-            {
-                success = FALSE;
-                break;
-            }
-            p_ptr->magic_num1[TR_BRAND_COLD] -= use_essence;
-            p_ptr->magic_num1[TR_RES_COLD] -= use_essence;
-            break;
-        case ESSENCE_RESISTANCE:
-        case ESSENCE_SUSTAIN:
-            if ((p_ptr->magic_num1[TR_RES_ACID] < use_essence) || (p_ptr->magic_num1[TR_RES_ELEC] < use_essence) || (p_ptr->magic_num1[TR_RES_FIRE] < use_essence) || (p_ptr->magic_num1[TR_RES_COLD] < use_essence))
-            {
-                success = FALSE;
-                break;
-            }
-            p_ptr->magic_num1[TR_RES_ACID] -= use_essence;
-            p_ptr->magic_num1[TR_RES_ELEC] -= use_essence;
-            p_ptr->magic_num1[TR_RES_FIRE] -= use_essence;
-            p_ptr->magic_num1[TR_RES_COLD] -= use_essence;
-            break;
-        }
-        if (!success)
-        {
-            msg_print("You don't have enough essences.");
-            return;
-        }
-        if (es_ptr->add == ESSENCE_SUSTAIN)
-        {
-            add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
-            add_flag(o_ptr->art_flags, TR_IGNORE_ELEC);
-            add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
-            add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
-        }
-        else
-        {
-            o_ptr->xtra3 = es_ptr->add + 1;
-        }
-    }
-
-    energy_use = 100;
-
-    msg_format("You have added ability of %s to %s.", es_ptr->add_name, o_name);
-
-    /* Combine the pack */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN);
-}
-
-
-static void erase_essence(void)
-{
-    int item;
-    cptr q, s;
-    object_type *o_ptr;
-    char o_name[MAX_NLEN];
-    u32b flgs[TR_FLAG_SIZE];
-
-    item_tester_hook = object_is_smith;
-
-    /* Get an item */
-    q = "Remove from which item? ";
-    s = "You have nothing to remove essence.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        o_ptr = &o_list[0 - item];
-    }
-
-    object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-    if (!get_check(format("Are you sure? [%s]", o_name))) return;
-
-    energy_use = 100;
-
-    if (o_ptr->xtra3 == 1+ESSENCE_SLAY_GLOVE)
-    {
-        o_ptr->to_h -= (o_ptr->xtra4>>8);
-        o_ptr->to_d -= (o_ptr->xtra4 & 0x000f);
-        o_ptr->xtra4 = 0;
-        if (o_ptr->to_h < 0 && o_ptr->name2 != EGO_GLOVES_BERSERKER) o_ptr->to_h = 0;
-        if (o_ptr->to_d < 0) o_ptr->to_d = 0;
-    }
-    o_ptr->xtra3 = 0;
-    object_flags(o_ptr, flgs);
-    if (!(have_pval_flags(flgs))) o_ptr->pval = 0;
-    msg_print("You removed all essence you have added.");
-
-    /* Combine the pack */
-    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN);
-}
-
-void do_cmd_kaji(bool only_browse)
-{
-    int mode = 0;
-    char choice;
-
-    int menu_line = (use_menu ? 1 : 0);
-
-    if (!only_browse)
-    {
-        if (p_ptr->confused)
-        {
-            msg_print("You are too confused!");
-
-            return;
-        }
-        if (p_ptr->blind)
-        {
-            msg_print("You are blind!");
-
-            return;
-        }
-        if (p_ptr->image)
-        {
-            msg_print("You are hallucinating!");
-
-            return;
-        }
-    }
-
-#ifdef ALLOW_REPEAT
-    if (!(repeat_pull(&mode) && 1 <= mode && mode <= 5))
-    {
-#endif /* ALLOW_REPEAT */
-
-    if (only_browse) screen_save();
-    do {
-    if (!only_browse) screen_save();
-    if (use_menu)
-    {
-        while(!mode)
-        {
-            prt(format(" %s List essences", (menu_line == 1) ? "> " : "  "), 2, 14);
-            prt(format(" %s Extract essence", (menu_line == 2) ? "> " : "  "), 3, 14);
-            prt(format(" %s Remove essence", (menu_line == 3) ? "> " : "  "), 4, 14);
-            prt(format(" %s Add essence", (menu_line == 4) ? "> " : "  "), 5, 14);
-            prt(format(" %s Enchant weapon/armor", (menu_line == 5) ? "> " : "  "), 6, 14);
-            prt(format("Choose command from menu."), 0, 0);
-            choice = inkey();
-            switch(choice)
-            {
-            case ESCAPE:
-            case 'z':
-            case 'Z':
-                screen_load();
-                return;
-            case '2':
-            case 'j':
-            case 'J':
-                menu_line++;
-                break;
-            case '8':
-            case 'k':
-            case 'K':
-                menu_line+= 4;
-                break;
-            case '\r':
-            case '\n':
-            case 'x':
-            case 'X':
-                mode = menu_line;
-                break;
-            }
-            if (menu_line > 5) menu_line -= 5;
-        }
-    }
-
-    else
-    {
-        while (!mode)
-        {
-            prt("  a) List essences", 2, 14);
-            prt("  b) Extract essence", 3, 14);
-            prt("  c) Remove essence", 4, 14);
-            prt("  d) Add essence", 5, 14);
-            prt("  e) Enchant weapon/armor", 6, 14);
-            if (!get_com("Command :", &choice, TRUE))
-            {
-                screen_load();
-                return;
-            }
-            switch (choice)
-            {
-            case 'A':
-            case 'a':
-                mode = 1;
-                break;
-            case 'B':
-            case 'b':
-                mode = 2;
-                break;
-            case 'C':
-            case 'c':
-                mode = 3;
-                break;
-            case 'D':
-            case 'd':
-                mode = 4;
-                break;
-            case 'E':
-            case 'e':
-                mode = 5;
-                break;
-            }
-        }
-    }
-
-    if (only_browse)
-    {
-        char temp[62*5];
-        int line, j;
-
-        /* Clear lines, position cursor  (really should use strlen here) */
-        Term_erase(14, 21, 255);
-        Term_erase(14, 20, 255);
-        Term_erase(14, 19, 255);
-        Term_erase(14, 18, 255);
-        Term_erase(14, 17, 255);
-        Term_erase(14, 16, 255);
-
-        roff_to_buf(kaji_tips[mode-1], 62, temp, sizeof(temp));
-        for(j=0, line = 17;temp[j];j+=(1+strlen(&temp[j])))
-        {
-            prt(&temp[j], line, 15);
-            line++;
-        }
-        mode = 0;
-    }
-    if (!only_browse) screen_load();
-    } while (only_browse);
-#ifdef ALLOW_REPEAT
-    repeat_push(mode);
-    }
-#endif /* ALLOW_REPEAT */
-
-    switch(mode)
-    {
-        case 1: display_essence();break;
-        case 2: drain_essence();break;
-        case 3: erase_essence();break;
-        case 4:
-            mode = choose_essence();
-            if (mode == 0)
-                break;
-            add_essence(mode);
-            break;
-        case 5: add_essence(10);break;
-    }
 }

@@ -443,6 +443,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
     o_ptr->ac = a_ptr->ac;
     o_ptr->dd = a_ptr->dd;
     o_ptr->ds = a_ptr->ds;
+    o_ptr->mult = a_ptr->mult;
     o_ptr->to_a = a_ptr->to_a;
     o_ptr->to_h = a_ptr->to_h;
     o_ptr->to_d = a_ptr->to_d;
@@ -452,7 +453,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
     return (TRUE);
 }
 
-static void spoil_artifact_doc(void)
+static void spoil_artifact_desc(void)
 {
     int i,j;
     doc_ptr doc = doc_alloc(80);
@@ -476,7 +477,10 @@ static void spoil_artifact_doc(void)
 
             if (!make_fake_artifact(&forge, j)) continue;
 
-            identify_item(&forge);
+            /*No Stats Tracking, please!!!
+            identify_item(&forge);*/
+            object_aware(&forge);
+            object_known(&forge);
             forge.ident |= IDENT_FULL;
 
             obj_display_doc(&forge, doc);
@@ -487,6 +491,242 @@ static void spoil_artifact_doc(void)
     doc_display(doc, "Artifact Spoilers", 0);
     doc_free(doc);
     spoiler_hack = FALSE;
+}
+
+#define ART_RANDOM -1
+#define ART_EGO    -2
+#define ART_STD_BEGIN 1
+
+typedef struct {
+    int  id;
+    char name[MAX_NLEN];
+    int  score;
+    int  k_idx; /* For rand-arts and egos ... */
+} _art_info_t, *_art_info_ptr;
+static int _art_score_cmp(_art_info_ptr l, _art_info_ptr r)
+{
+    if (l->score > r->score)
+        return -1;
+    if (l->score < r->score)
+        return 1;
+    return 0;
+}
+
+static int _term_width(void)
+{
+    int cx, cy;
+    Term_get_size(&cx, &cy);
+    return cx;
+}
+
+typedef bool (*_obj_p)(object_type *o_ptr);
+
+#define _SPOIL_ARTS      0x01
+#define _SPOIL_RAND_ARTS 0x02
+#define _SPOIL_EGOS      0x04
+static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
+{
+    int i;
+    vec_ptr entries = vec_alloc(free);
+    int     ct_std = 0, ct_rnd = 0, ct_ego = 0;
+    int     score_std = 0, score_rnd = 0, score_ego = 0;
+    int     max_score_std = 0, max_score_rnd = 0, max_score_ego = 0;
+
+    if ((options & _SPOIL_ARTS) && !random_artifacts)
+    {
+        for (i = 1; i < max_a_idx; ++i)
+        {
+            object_type    forge = {0};
+            _art_info_ptr  entry;
+
+            if (!p_ptr->wizard && (a_info[i].gen_flags & TRG_QUESTITEM)) continue;
+            if (!create_named_art_aux(i, &forge)) continue;
+
+            /*No Stats Tracking, please!!!
+            identify_item(&forge);*/
+            object_aware(&forge);
+            object_known(&forge);
+            forge.ident |= IDENT_FULL;
+
+            if ((options & _SPOIL_EGOS) && !a_info[i].cur_num) continue; /* Hack */
+            if (pred && !pred(&forge)) continue;
+
+            entry = malloc(sizeof(_art_info_t));
+            entry->id = i;
+            entry->score = object_value_real(&forge);
+            object_desc(entry->name, &forge, OD_COLOR_CODED);
+            entry->k_idx = forge.k_idx;
+            vec_add(entries, entry);
+
+            if (a_info[entry->id].cur_num == 1)
+            {
+                ct_std++;
+                score_std += entry->score;
+                if (entry->score > max_score_std)
+                    max_score_std = entry->score;
+            }
+        }
+    }
+    if (options & _SPOIL_RAND_ARTS)
+    {
+        vec_ptr v = stats_rand_arts();
+        for (i = 0; i < vec_length(v); i++)
+        {
+            object_type   *o_ptr = vec_get(v, i);
+            _art_info_ptr  entry;
+
+            if (pred && !pred(o_ptr)) continue;
+
+            entry = malloc(sizeof(_art_info_t));
+            entry->id = ART_RANDOM;
+            entry->score = object_value_real(o_ptr);
+            object_desc(entry->name, o_ptr, OD_COLOR_CODED);
+            entry->k_idx = o_ptr->k_idx;
+            vec_add(entries, entry);
+
+            ct_rnd++;
+            score_rnd += entry->score;
+            if (entry->score > max_score_rnd)
+                max_score_rnd = entry->score;
+        }
+    }
+    if (options & _SPOIL_EGOS)
+    {
+        vec_ptr v = stats_egos();
+        for (i = 0; i < vec_length(v); i++)
+        {
+            object_type   *o_ptr = vec_get(v, i);
+            _art_info_ptr  entry;
+
+            if (pred && !pred(o_ptr)) continue;
+
+            entry = malloc(sizeof(_art_info_t));
+            entry->id = ART_EGO;
+            entry->score = object_value_real(o_ptr);
+            object_desc(entry->name, o_ptr, OD_COLOR_CODED);
+            entry->k_idx = o_ptr->k_idx;
+            vec_add(entries, entry);
+
+            ct_ego++;
+            score_ego += entry->score;
+            if (entry->score > max_score_ego)
+                max_score_ego = entry->score;
+        }
+    }
+    if (vec_length(entries))
+    {
+        vec_sort(entries, (vec_cmp_f)_art_score_cmp);
+
+        doc_printf(doc, "<topic:%s><style:heading>%s</style>\n\n", title, title);
+        doc_insert(doc, "<style:wide>     <color:G>  Score Lvl Rty Cts Object Description</color>\n");
+        for (i = 0; i < vec_length(entries); i++)
+        {
+            _art_info_ptr  entry = vec_get(entries, i);
+
+            if (entry->id == ART_RANDOM)
+            {
+                doc_printf(doc, "<color:v>%3d) %7d</color>         %3d ", i+1, entry->score, k_info[entry->k_idx].counts.found);
+                doc_printf(doc, "<indent><style:indent>%s</style></indent>\n", entry->name);
+            }
+            else if (entry->id == ART_EGO)
+            {
+                doc_printf(doc, "<color:B>%3d) %7d</color>         %3d ", i+1, entry->score, k_info[entry->k_idx].counts.found);
+                doc_printf(doc, "<indent><style:indent>%s</style></indent>\n", entry->name);
+            }
+            else
+            {
+            artifact_type *a_ptr = &a_info[entry->id];
+
+                doc_printf(doc, "<color:%c>%3d) %7d</color> %3d %3d ",
+                    (a_ptr->cur_num == 1) ? 'y' : 'w',
+                    i+1, entry->score, a_ptr->level, a_ptr->rarity);
+
+                if (a_ptr->gen_flags & TRG_INSTA_ART)
+                    doc_insert(doc, "    ");
+                else
+                    doc_printf(doc, "%3d ", k_info[entry->k_idx].counts.found);
+                doc_printf(doc, "<indent><style:indent>%s <color:D>#%d</color></style></indent>\n", entry->name, entry->id);
+            }
+        }
+
+        if (ct_std || ct_rnd || ct_ego)
+        {
+            doc_printf(doc, "\n<color:G>%20.20s   Ct Average    Best</color>\n", "");
+            if (ct_std)
+            {
+                doc_printf(doc, "<color:B>%20.20s</color> %4d %7d %7d\n",
+                    "Stand Arts", ct_std, score_std/ct_std, max_score_std);
+            }
+            if (ct_rnd)
+            {
+                doc_printf(doc, "<color:B>%20.20s</color> %4d %7d %7d\n",
+                    "Rand Arts", ct_rnd, score_rnd/ct_rnd, max_score_rnd);
+            }
+            if (ct_ego)
+            {
+                doc_printf(doc, "<color:B>%20.20s</color> %4d %7d %7d\n",
+                    "Egos", ct_ego, score_ego/ct_ego, max_score_ego);
+            }
+        }
+        doc_insert(doc, "</style>\n\n");
+    }
+    vec_free(entries);
+}
+
+static void _spoil_artifact_table_aux(doc_ptr doc, cptr title, _obj_p pred)
+{
+    _spoil_table_aux(doc, title, pred, _SPOIL_ARTS | _SPOIL_RAND_ARTS);
+}
+
+static void _spoil_object_table_aux(doc_ptr doc, cptr title, _obj_p pred)
+{
+    _spoil_table_aux(doc, title, pred, _SPOIL_ARTS | _SPOIL_RAND_ARTS | _SPOIL_EGOS);
+}
+
+static void spoil_artifact_tables(void)
+{
+    doc_ptr doc = doc_alloc(MIN(100, _term_width()));
+
+    spoiler_hack = TRUE;
+    _spoil_artifact_table_aux(doc, "All Artifacts", NULL);
+    _spoil_artifact_table_aux(doc, "Weapons", object_is_melee_weapon);
+    _spoil_artifact_table_aux(doc, "Shields", object_is_shield);
+    _spoil_artifact_table_aux(doc, "Bows", object_is_bow);
+    _spoil_artifact_table_aux(doc, "Rings", object_is_ring);
+    _spoil_artifact_table_aux(doc, "Amulets", object_is_amulet);
+    _spoil_artifact_table_aux(doc, "Lights", object_is_lite);
+    _spoil_artifact_table_aux(doc, "Body Armor", object_is_body_armour);
+    _spoil_artifact_table_aux(doc, "Cloaks", object_is_cloak);
+    _spoil_artifact_table_aux(doc, "Helmets", object_is_helmet);
+    _spoil_artifact_table_aux(doc, "Gloves", object_is_gloves);
+    _spoil_artifact_table_aux(doc, "Boots", object_is_boots);
+    spoiler_hack = FALSE;
+
+    doc_display(doc, "Artifact Tables", 0);
+    doc_free(doc);
+}
+
+static void spoil_object_tables(void)
+{
+    doc_ptr doc = doc_alloc(MIN(100, _term_width()));
+
+    spoiler_hack = TRUE;
+    _spoil_object_table_aux(doc, "All Objects", NULL);
+    _spoil_object_table_aux(doc, "Weapons", object_is_melee_weapon);
+    _spoil_object_table_aux(doc, "Shields", object_is_shield);
+    _spoil_object_table_aux(doc, "Bows", object_is_bow);
+    _spoil_object_table_aux(doc, "Rings", object_is_ring);
+    _spoil_object_table_aux(doc, "Amulets", object_is_amulet);
+    _spoil_object_table_aux(doc, "Lights", object_is_lite);
+    _spoil_object_table_aux(doc, "Body Armor", object_is_body_armour);
+    _spoil_object_table_aux(doc, "Cloaks", object_is_cloak);
+    _spoil_object_table_aux(doc, "Helmets", object_is_helmet);
+    _spoil_object_table_aux(doc, "Gloves", object_is_gloves);
+    _spoil_object_table_aux(doc, "Boots", object_is_boots);
+    spoiler_hack = FALSE;
+
+    doc_display(doc, "Object Tables", 0);
+    doc_free(doc);
 }
 
 /*
@@ -1163,12 +1403,278 @@ static void spoil_mon_evol(cptr fname)
     msg_print("Successfully created a spoiler file.");
 }
 
+static bool _check_realm(int class_idx, int realm_idx)
+{
+    int bit = (1 << (realm_idx-1)); /* cf CH_LIFE and REALM_LIFE (etc) in defines.h */
+    if (realm_choices1[class_idx] & bit)
+        return TRUE;
+    if (realm_choices2[class_idx] & bit)
+        return TRUE;
+    if (class_idx == CLASS_SORCERER || class_idx == CLASS_RED_MAGE)
+    {
+        if (is_magic(realm_idx) && realm_idx != REALM_NECROMANCY)
+            return TRUE;
+    }
+    return FALSE;
+}
 
+static void _spoil_spell_book(doc_ptr doc, int class_idx, int realm_idx, int book_idx)
+{
+    int           spell_idx;
+    int           k_idx = lookup_kind(realm2tval(realm_idx), book_idx);
+    player_magic *magic_ptr = &m_info[class_idx];
 
-/*
- * Forward declare
- */
-extern void do_cmd_spoilers(void);
+    doc_printf(doc, "<color:o>%-25.25s</color><color:G> Lvl Cst Fail  </color>\n", k_name + k_info[k_idx].name);
+    for (spell_idx = book_idx*8; spell_idx < (book_idx+1)*8; spell_idx++)
+    {
+        magic_type *spell_ptr = NULL;
+        if (is_magic(realm_idx))
+            spell_ptr = &magic_ptr->info[realm_idx - 1][spell_idx];
+        else
+            spell_ptr = &technic_info[realm_idx - MIN_TECHNIC][spell_idx];
+
+        if (0 < spell_ptr->slevel && spell_ptr->slevel <= PY_MAX_LEVEL)
+        {
+            doc_printf(doc, "%-25.25s %3d %3d %3d%%\n",
+                do_spell(realm_idx, spell_idx, SPELL_NAME),
+                spell_ptr->slevel,
+                spell_ptr->smana,
+                spell_ptr->sfail
+            );
+        }
+        else
+        {
+            doc_printf(doc, "<color:D>%-26.26s</color>\n", "Illegible");
+        }
+    }
+    doc_newline(doc);
+}
+
+static int  _cmp_class_name(int left_idx, int right_idx)
+{
+    class_t *l = get_class_aux(left_idx, 0);
+    class_t *r = get_class_aux(right_idx, 0);
+    return strcmp(l->name, r->name);
+}
+
+static void spoil_spells_by_class(void)
+{
+    int i, realm_idx;
+    doc_ptr doc = doc_alloc(80);
+    vec_ptr vec = vec_alloc(NULL);
+
+    for (i = 0; i < MAX_CLASS; i++)
+        vec_add_int(vec, i);
+
+    vec_sort(vec, (vec_cmp_f)_cmp_class_name);
+
+    for (i = 0; i < vec_length(vec); i++)
+    {
+        int           class_idx = vec_get_int(vec, i);
+        class_t      *class_ptr = get_class_aux(class_idx, 0);
+        bool          class_heading = FALSE;
+
+        if (class_idx == CLASS_RAGE_MAGE) continue; /* broken */
+
+        for (realm_idx = REALM_LIFE; realm_idx <= MAX_REALM; realm_idx++)
+        {
+            if (_check_realm(class_idx, realm_idx))
+            {
+                doc_ptr cols[2];
+
+                cols[0] = doc_alloc(40);
+                cols[1] = doc_alloc(40);
+
+                _spoil_spell_book(cols[0], class_idx, realm_idx, 0);
+                _spoil_spell_book(cols[1], class_idx, realm_idx, 1);
+                if (class_idx != CLASS_RED_MAGE || realm_idx == REALM_ARCANE)
+                {
+                    _spoil_spell_book(cols[0], class_idx, realm_idx, 2);
+                    _spoil_spell_book(cols[1], class_idx, realm_idx, 3);
+                }
+
+                if (!class_heading)
+                {
+                    doc_printf(doc, "<topic:%s><color:r>%s</color>\n", class_ptr->name, class_ptr->name);
+                    doc_printf(doc, "%s\n\n", class_ptr->desc);
+                    class_heading = TRUE;
+                }
+                doc_printf(doc, "<color:B>%s</color>\n", realm_names[realm_idx]);
+
+                doc_insert_cols(doc, cols, 2, 0);
+
+                doc_free(cols[0]);
+                doc_free(cols[1]);
+            }
+        }
+    }
+
+    doc_display(doc, "Spells by Class", 0);
+    doc_free(doc);
+    vec_free(vec);
+}
+
+static void _spoil_spell_book2(doc_ptr doc, int class1_idx, int class2_idx, int realm_idx, int book_idx)
+{
+    int           spell_idx;
+    int           k_idx = lookup_kind(realm2tval(realm_idx), book_idx);
+    player_magic *magic1_ptr = &m_info[class1_idx];
+    player_magic *magic2_ptr = &m_info[class2_idx];
+
+    doc_printf(doc, "%-25.25s <color:G>%-12.12s</color>  <color:R>%-12.12s</color>\n",
+        "", get_class_aux(class1_idx, 0)->name, get_class_aux(class2_idx, 0)->name);
+    doc_printf(doc, "<color:o>%-25.25s</color><color:G> Lvl Cst Fail</color>  <color:R>Lvl Cst Fail</color>\n", k_name + k_info[k_idx].name);
+    for (spell_idx = book_idx*8; spell_idx < (book_idx+1)*8; spell_idx++)
+    {
+        magic_type *spell1_ptr = &magic1_ptr->info[realm_idx - 1][spell_idx];
+        magic_type *spell2_ptr = &magic2_ptr->info[realm_idx - 1][spell_idx];
+
+        doc_printf(doc, "%-25.25s ", do_spell(realm_idx, spell_idx, SPELL_NAME));
+        if (1 <= spell1_ptr->slevel && spell1_ptr->slevel <= PY_MAX_LEVEL)
+            doc_printf(doc, "%3d %3d %3d%%  ", spell1_ptr->slevel, spell1_ptr->smana, spell1_ptr->sfail);
+        else
+            doc_insert(doc, "<color:D>Illegible</color>     ");
+        if (1 <= spell2_ptr->slevel && spell2_ptr->slevel <= PY_MAX_LEVEL)
+            doc_printf(doc, "%3d %3d %3d%%  ", spell2_ptr->slevel, spell2_ptr->smana, spell2_ptr->sfail);
+        else
+            doc_insert(doc, "<color:D>Illegible</color>     ");
+        doc_newline(doc);
+    }
+    doc_newline(doc);
+}
+
+static void _spoil_spells_by_realm_aux3(int realm_idx, int class1_idx, int class2_idx)
+{
+    int i;
+    doc_ptr doc = doc_alloc(80);
+
+    for (i = 0; i < 4; i++)
+        _spoil_spell_book2(doc, class1_idx, class2_idx, realm_idx, i);
+
+    doc_display(doc, "Spells by Realm", 0);
+    doc_free(doc);
+}
+
+static void _spoil_spells_by_realm_aux2(int realm_idx, int class1_idx)
+{
+    int i, row, col, class_idx, choice;
+    vec_ptr vec = vec_alloc(NULL);
+
+    for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
+    {
+        if (_check_realm(class_idx, realm_idx))
+            vec_add_int(vec, class_idx);
+    }
+
+    vec_sort(vec, (vec_cmp_f)_cmp_class_name);
+
+    while (1)
+    {
+        Term_clear();
+
+        c_prt(TERM_L_BLUE, format("%s", realm_names[realm_idx]), 2, 0);
+        c_prt(TERM_L_BLUE, format("First Class: %s", get_class_aux(class1_idx, 0)->name), 3, 0);
+
+        /* Classes */
+        row = 4;
+        col = 2;
+        c_prt(TERM_RED, "Second Class", row++, col - 2);
+
+        for (i = 0; i < vec_length(vec); i++)
+        {
+            int      class_idx = vec_get_int(vec, i);
+            class_t *class_ptr = get_class_aux(class_idx, 0);
+
+            prt(format("(%c) %s", 'a' + i, class_ptr->name), row++, col);
+        }
+
+        i = inkey();
+        if (i == ESCAPE) break;
+        choice = i - 'a';
+
+        if (0 <= choice && choice < vec_length(vec))
+        {
+            class_idx = vec_get_int(vec, choice);
+            _spoil_spells_by_realm_aux3(realm_idx, class1_idx, class_idx);
+        }
+     }
+
+    vec_free(vec);
+}
+
+static void _spoil_spells_by_realm_aux1(int realm_idx)
+{
+    int i, row, col, class_idx, choice;
+    vec_ptr vec = vec_alloc(NULL);
+
+    for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
+    {
+        if (_check_realm(class_idx, realm_idx))
+            vec_add_int(vec, class_idx);
+    }
+
+    vec_sort(vec, (vec_cmp_f)_cmp_class_name);
+
+    while (1)
+    {
+        Term_clear();
+
+        c_prt(TERM_L_BLUE, format("%s", realm_names[realm_idx]), 2, 0);
+
+        /* Classes */
+        row = 4;
+        col = 2;
+        c_prt(TERM_RED, "First Class", row++, col - 2);
+
+        for (i = 0; i < vec_length(vec); i++)
+        {
+            int      class_idx = vec_get_int(vec, i);
+            class_t *class_ptr = get_class_aux(class_idx, 0);
+
+            prt(format("(%c) %s", 'a' + i, class_ptr->name), row++, col);
+        }
+
+        i = inkey();
+        if (i == ESCAPE) break;
+        choice = i - 'a';
+
+        if (0 <= choice && choice < vec_length(vec))
+        {
+            class_idx = vec_get_int(vec, choice);
+            _spoil_spells_by_realm_aux2(realm_idx, class_idx);
+        }
+     }
+
+    vec_free(vec);
+}
+
+static void spoil_spells_by_realm(void)
+{
+    int i, row, col, realm_idx;
+    while (1)
+    {
+        Term_clear();
+
+        prt("Realm Spoilers", 2, 0);
+
+        /* Realms */
+        row = 4;
+        col = 2;
+        c_prt(TERM_RED, "Realms", row++, col - 2);
+
+        for (realm_idx = REALM_LIFE; realm_idx <= MAX_MAGIC; realm_idx++)
+        {
+            prt(format("(%c) %s", 'a' + realm_idx - 1, realm_names[realm_idx]), row++, col);
+        }
+
+        i = inkey();
+        if (i == ESCAPE) break;
+        realm_idx = i - 'a' + 1;
+
+        if (REALM_LIFE <= realm_idx && realm_idx <= MAX_MAGIC)
+            _spoil_spells_by_realm_aux1(realm_idx);
+     }
+}
 
 /*
  * Create Spoiler files -BEN-
@@ -1177,60 +1683,79 @@ extern void do_cmd_spoilers(void);
  */
 void do_cmd_spoilers(void)
 {
-    /* Save the screen */
+    int i, row, col;
+
     screen_save();
 
-    /* Interact */
     while (1)
     {
-        /* Clear screen */
         Term_clear();
 
-        /* Info */
         prt("View Spoilers", 2, 0);
 
-        /* Prompt for a file */
-        prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
-        prt("(2) Brief Artifact Info", 6, 5);
-        prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
-        prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
-        prt("(5) Monster Evolution Info (mon-evol.spo)", 9, 5);
+        /* Give some choices */
+        row = 4;
+        col = 2;
+        c_prt(TERM_RED, "Object Spoilers", row++, col - 2);
+        prt("(a) Artifact Descriptions", row++, col);
+        prt("(A) Artifact Tables", row++, col);
+        prt("(o) Objects", row++, col);
+        prt("(O) Object Tables", row++, col);
+        row++;
+
+        c_prt(TERM_RED, "Monster Spoilers", row++, col - 2);
+        prt("(m) Brief Descriptions", row++, col);
+        prt("(M) Full Descriptions", row++, col);
+        prt("(e) Evolution", row++, col);
+        row++;
+
+        c_prt(TERM_RED, "Class Spoilers", row++, col - 2);
+        prt("(s) Spells by Class", row++, col);
+        prt("(r) Spells by Realm", row++, col);
+        row++;
 
         /* Prompt */
-        prt("Command: ", 12, 0);
+        prt("ESC) Exit menu", 21, 1);
+        prt("Command: ", 20, 0);
 
-        /* Get a choice */
-        switch (inkey())
+        /* Prompt */
+        i = inkey();
+
+        /* Done */
+        if (i == ESCAPE) break;
+        switch (i)
         {
-        /* Escape */
-        case ESCAPE:
-            /* Restore the screen */
-            screen_load();
-            return;
-
-        /* Option (1) */
-        case '1':
+        /* Object Spoilers */
+        case 'a':
+            spoil_artifact_desc();
+            break;
+        case 'A':
+            spoil_artifact_tables();
+            break;
+        case 'O':
+            spoil_object_tables();
+            break;
+        case 'o':
             spoil_obj_desc("obj-desc.spo");
             break;
 
-        /* Option (2) */
-        case '2':
-            spoil_artifact_doc();
-            break;
-
-        /* Option (3) */
-        case '3':
+        /* Monster Spoilers */
+        case 'm':
             spoil_mon_desc("mon-desc.spo");
             break;
-
-        /* Option (4) */
-        case '4':
+        case 'M':
             spoil_mon_info("mon-info.spo");
             break;
-
-        /* Option (5) */
-        case '5':
+        case 'e':
             spoil_mon_evol("mon-evol.spo");
+            break;
+
+        /* Class Spoilers */
+        case 's':
+            spoil_spells_by_class();
+            break;
+        case 'r':
+            spoil_spells_by_realm();
             break;
 
         /* Oops */
@@ -1242,6 +1767,7 @@ void do_cmd_spoilers(void)
         /* Flush messages */
         msg_print(NULL);
     }
+    screen_load();
 }
 
 

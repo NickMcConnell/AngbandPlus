@@ -7,6 +7,7 @@
 extern void obj_display(object_type *o_ptr);
 extern void obj_display_rect(object_type *o_ptr, rect_t display);
 extern void obj_display_doc(object_type *o_ptr, doc_ptr doc);
+extern void obj_display_smith(object_type *o_ptr, doc_ptr doc);
 extern void device_display_doc(object_type *o_ptr, doc_ptr doc);
 
 static void _display_name(object_type *o_ptr, doc_ptr doc);
@@ -24,6 +25,8 @@ static void _display_curses(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr
 static void _display_activation(object_type *o_ptr, doc_ptr doc);
 static void _display_ignore(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc);
 static void _display_autopick(object_type *o_ptr, doc_ptr doc);
+static void _display_cost(object_type *o_ptr, doc_ptr doc);
+static void _display_ego_desc(object_type *o_ptr, doc_ptr doc);
 static void _lite_display_doc(object_type *o_ptr, doc_ptr doc);
 
 static int _calc_net_bonus(int amt, u32b flgs[TR_FLAG_SIZE], int flg, int flg_dec);
@@ -90,8 +93,21 @@ static void _display_desc(object_type *o_ptr, doc_ptr doc)
     else
         text = k_text + k_info[o_ptr->k_idx].text;
 
-    if (strlen(text))
+    if (strlen(text) && !have_flag(o_ptr->art_flags, TR_FAKE))
         doc_printf(doc, "%s\n\n", text);
+}
+
+static void _display_ego_desc(object_type *o_ptr, doc_ptr doc)
+{
+    if ( o_ptr->name2
+      && object_is_known(o_ptr)
+      && ego_is_aware(o_ptr->name2)
+      && have_flag(o_ptr->art_flags, TR_FAKE) )
+    {
+        cptr text = e_text + e_info[o_ptr->name2].text;
+        if (strlen(text))
+            doc_printf(doc, "\n%s\n\n", text);
+    }
 }
 
 /* For convenience, the stats section will include a few other bonuses, like stealh,
@@ -562,6 +578,13 @@ static void _display_extra(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
             (net > 0) ? "increases" : "<color:R>decreases</color>");
     }
 
+    net = _calc_net_bonus(o_ptr->pval, flgs, TR_XTRA_MIGHT, TR_INVALID);
+    if (net)
+    {
+        doc_printf(doc, "It %s the multiplier of your bow.\n",
+            (net > 0) ? "increases" : "<color:R>decreases</color>");
+    }
+
     switch (o_ptr->name1)
     {
     case ART_STONE_OF_NATURE:
@@ -605,7 +628,7 @@ static void _display_extra(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
     if (object_is_(o_ptr, TV_POLEARM, SV_DEATH_SCYTHE))
         doc_insert(doc, "It causes you to strike yourself sometimes.\nIt always penetrates invulnerability barriers.\n");
 
-    if (o_ptr->name2 == EGO_GLOVES_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
+    if (have_flag(flgs, TR_DUAL_WIELDING))
         doc_insert(doc, "It affects your ability to hit when you are wielding two weapons.\n");
 
     if (o_ptr->tval == TV_STATUE)
@@ -627,68 +650,67 @@ static void _display_extra(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr 
 
 static void _display_curses(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE], doc_ptr doc)
 {
-    vec_ptr v = vec_alloc((vec_free_f)string_free);
-
-    if (object_is_cursed(o_ptr))
+    if (!(o_ptr->ident & IDENT_FULL))
+    {                               /* v--- Hide cursed status of devices until *Identified* */
+        if (object_is_cursed(o_ptr) && !object_is_device(o_ptr))
+            doc_insert(doc, "It has <color:v>unknown curses</color>.\n");
+    }
+    else
     {
-        if (o_ptr->curse_flags & TRC_PERMA_CURSE)
-            doc_insert(doc, "It is <color:v>Permanently Cursed</color>.\n");
-        else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
-            doc_insert(doc, "It is <color:r>Heavily Cursed</color>.\n");
-        else
+        vec_ptr v = vec_alloc((vec_free_f)string_free);
+        if (object_is_cursed(o_ptr))
         {
-            if (object_is_device(o_ptr) && !(o_ptr->ident & IDENT_FULL))
-            {
-                /* Hide cursed status of devices until *Identified* */
-            }
+            if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+                doc_insert(doc, "It is <color:v>Permanently Cursed</color>.\n");
+            else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
+                doc_insert(doc, "It is <color:r>Heavily Cursed</color>.\n");
             else
-            {
                 doc_insert(doc, "It is <color:D>Cursed</color>.\n");
-            }
         }
-    }
 
-    if (have_flag(flgs, TR_TY_CURSE) || o_ptr->curse_flags & TRC_TY_CURSE)
-        vec_add(v, string_copy_s("<color:v>*Ancient Foul Curse*</color>"));
-    if (have_flag(flgs, TR_AGGRAVATE) || o_ptr->curse_flags & TRC_AGGRAVATE)
-        vec_add(v, string_copy_s("<color:r>Aggravates</color>"));
-    if (have_flag(flgs, TR_DRAIN_EXP) || o_ptr->curse_flags & TRC_DRAIN_EXP)
-        vec_add(v, string_copy_s("<color:y>Drains Experience</color>"));
-    if (o_ptr->curse_flags & TRC_SLOW_REGEN)
-        vec_add(v, string_copy_s("<color:o>Slow Regeneration</color>"));
-    if (o_ptr->curse_flags & TRC_ADD_L_CURSE)
-        vec_add(v, string_copy_s("<color:w>Adds Weak Curses</color>"));
-    if (o_ptr->curse_flags & TRC_ADD_H_CURSE)
-        vec_add(v, string_copy_s("<color:b>Adds Heavy Curses</color>"));
-    if (o_ptr->curse_flags & TRC_CALL_ANIMAL)
-        vec_add(v, string_copy_s("<color:g>Attracts Animals</color>"));
-    if (o_ptr->curse_flags & TRC_CALL_DEMON)
-        vec_add(v, string_copy_s("<color:R>Attracts Demons</color>"));
-    if (o_ptr->curse_flags & TRC_CALL_DRAGON)
-        vec_add(v, string_copy_s("<color:r>Attracts Dragons</color>"));
-    if (o_ptr->curse_flags & TRC_COWARDICE)
-        vec_add(v, string_copy_s("<color:y>Cowardice</color>"));
-    if (have_flag(flgs, TR_TELEPORT) || o_ptr->curse_flags & TRC_TELEPORT)
-        vec_add(v, string_copy_s("<color:B>Random Teleportation</color>"));
-    if (o_ptr->curse_flags & TRC_LOW_MELEE)
-        vec_add(v, string_copy_s("<color:G>Miss Blows</color>"));
-    if (o_ptr->curse_flags & TRC_LOW_AC)
-        vec_add(v, string_copy_s("<color:R>Low AC</color>"));
-    if (o_ptr->curse_flags & TRC_LOW_MAGIC)
-        vec_add(v, string_copy_s("<color:y>Increased Fail Rates</color>"));
-    if (o_ptr->curse_flags & TRC_FAST_DIGEST)
-        vec_add(v, string_copy_s("<color:r>Fast Digestion</color>"));
-    if (o_ptr->curse_flags & TRC_DRAIN_HP)
-        vec_add(v, string_copy_s("<color:o>Drains You</color>"));
-    if (o_ptr->curse_flags & TRC_DRAIN_MANA)
-        vec_add(v, string_copy_s("<color:B>Drains Mana</color>"));
-    if (vec_length(v))
-    {
-        _print_list(v, doc, ';', '\0');
-        doc_newline(doc);
-    }
+        if (have_flag(flgs, TR_TY_CURSE) || o_ptr->curse_flags & TRC_TY_CURSE)
+            vec_add(v, string_copy_s("<color:v>*Ancient Foul Curse*</color>"));
+        if (have_flag(flgs, TR_AGGRAVATE) || o_ptr->curse_flags & TRC_AGGRAVATE)
+            vec_add(v, string_copy_s("<color:r>Aggravates</color>"));
+        if (have_flag(flgs, TR_DRAIN_EXP) || o_ptr->curse_flags & TRC_DRAIN_EXP)
+            vec_add(v, string_copy_s("<color:y>Drains Experience</color>"));
+        if (o_ptr->curse_flags & TRC_SLOW_REGEN)
+            vec_add(v, string_copy_s("<color:o>Slow Regeneration</color>"));
+        if (o_ptr->curse_flags & TRC_ADD_L_CURSE)
+            vec_add(v, string_copy_s("<color:w>Adds Weak Curses</color>"));
+        if (o_ptr->curse_flags & TRC_ADD_H_CURSE)
+            vec_add(v, string_copy_s("<color:b>Adds Heavy Curses</color>"));
+        if (o_ptr->curse_flags & TRC_CALL_ANIMAL)
+            vec_add(v, string_copy_s("<color:g>Attracts Animals</color>"));
+        if (o_ptr->curse_flags & TRC_CALL_DEMON)
+            vec_add(v, string_copy_s("<color:R>Attracts Demons</color>"));
+        if (o_ptr->curse_flags & TRC_CALL_DRAGON)
+            vec_add(v, string_copy_s("<color:r>Attracts Dragons</color>"));
+        if (o_ptr->curse_flags & TRC_COWARDICE)
+            vec_add(v, string_copy_s("<color:y>Cowardice</color>"));
+        if (have_flag(flgs, TR_TELEPORT) || o_ptr->curse_flags & TRC_TELEPORT)
+            vec_add(v, string_copy_s("<color:B>Random Teleportation</color>"));
+        if (o_ptr->curse_flags & TRC_LOW_MELEE)
+            vec_add(v, string_copy_s("<color:G>Miss Blows</color>"));
+        if (o_ptr->curse_flags & TRC_LOW_AC)
+            vec_add(v, string_copy_s("<color:R>Low AC</color>"));
+        if (o_ptr->curse_flags & TRC_LOW_MAGIC)
+            vec_add(v, string_copy_s("<color:y>Increased Fail Rates</color>"));
+        if (o_ptr->curse_flags & TRC_FAST_DIGEST)
+            vec_add(v, string_copy_s("<color:r>Fast Digestion</color>"));
+        if (o_ptr->curse_flags & TRC_DRAIN_HP)
+            vec_add(v, string_copy_s("<color:o>Drains You</color>"));
+        if (o_ptr->curse_flags & TRC_DRAIN_MANA)
+            vec_add(v, string_copy_s("<color:B>Drains Mana</color>"));
 
-    vec_free(v);
+        if (vec_length(v))
+        {
+            _print_list(v, doc, ';', '\0');
+            doc_newline(doc);
+        }
+
+        vec_free(v);
+    }
 }
 
 static void _display_activation(object_type *o_ptr, doc_ptr doc)
@@ -761,6 +783,28 @@ static void _display_autopick(object_type *o_ptr, doc_ptr doc)
             doc_printf(doc, "<color:r>Autopick:</color> <indent><style:indent>%s</style></indent>\n", string_buffer(s));
             string_free(s);
         }
+    }
+}
+
+/* Debugging Object Pricing */
+static doc_ptr _dbg_doc = NULL;
+static void _cost_dbg_hook(cptr msg)
+{
+    doc_printf(_dbg_doc, "%s\n", msg);
+}
+
+static void _display_cost(object_type *o_ptr, doc_ptr doc)
+{
+    if (1 && p_ptr->wizard && !have_flag(o_ptr->art_flags, TR_FAKE))
+    {
+        _dbg_doc = doc;
+        cost_calc_hook = _cost_dbg_hook;
+
+        doc_newline(doc);
+        new_object_cost(o_ptr, COST_REAL);
+
+        cost_calc_hook = NULL;
+        _dbg_doc = NULL;
     }
 }
 
@@ -874,14 +918,73 @@ extern void obj_display_doc(object_type *o_ptr, doc_ptr doc)
     _display_curses(o_ptr, flgs, doc);
     _display_ignore(o_ptr, flgs, doc);
 
-    if (object_is_ego(o_ptr) && !ego_is_aware(o_ptr->name2))
-        doc_printf(doc, "You are unfamiliar with this ego type. To learn the basic attributes of this ego type, you need to *identify* or sell this object.\n");
-    else if (object_is_artifact(o_ptr) && !(o_ptr->ident & IDENT_FULL))
-        doc_printf(doc, "This object is an artifact, a unique object whose powers you must learn by *identifying* or selling this object.\n");
-    else if (!(o_ptr->ident & IDENT_FULL))
-        doc_printf(doc, "This object may have additional powers which you may learn by *identifying* or selling this object.\n");
+    _display_ego_desc(o_ptr, doc);
+
+    if (object_is_known(o_ptr))
+    {
+        if (object_is_ego(o_ptr) && !ego_is_aware(o_ptr->name2))
+            doc_printf(doc, "You are unfamiliar with this ego type. To learn the basic attributes of this ego type, you need to *identify* or sell this object.\n");
+        else if (object_is_artifact(o_ptr) && !(o_ptr->ident & IDENT_FULL))
+            doc_printf(doc, "This object is an artifact, a unique object whose powers you must learn by *identifying* or selling this object.\n");
+        else if (!(o_ptr->ident & IDENT_FULL))
+            doc_printf(doc, "This object may have additional powers which you may learn by *identifying* or selling this object.\n");
+    }
 
     _display_autopick(o_ptr, doc);
+    _display_cost(o_ptr, doc);
+
+    doc_insert(doc, "</style></indent>\n");
+}
+
+void obj_display_smith(object_type *o_ptr, doc_ptr doc)
+{
+    u32b flgs[TR_FLAG_SIZE];
+
+    object_flags_known(o_ptr, flgs);
+
+    _display_name(o_ptr, doc);
+    doc_insert(doc, "  <indent><style:indent>");
+
+    if (!object_is_known(o_ptr) && (o_ptr->ident & IDENT_SENSE))
+    {
+        switch (o_ptr->feeling)
+        {
+        case FEEL_TERRIBLE:
+            doc_insert(doc, "This item appears to be something truly <color:v>terrible</color>.\n");
+            break;
+        case FEEL_SPECIAL:
+            doc_insert(doc, "This item appears to be something truly <color:B>special</color>.\n");
+            break;
+        case FEEL_AWFUL:
+            doc_insert(doc, "This item appears to be something <color:r>awful</color>.\n");
+            break;
+        case FEEL_EXCELLENT:
+            doc_insert(doc, "This item appears to be an <color:y>excellent</color> piece of work.\n");
+            break;
+        case FEEL_BAD:
+            doc_insert(doc, "This item appears to be a <color:R>shoddy</color> piece of work.\n");
+            break;
+        case FEEL_GOOD:
+            doc_insert(doc, "This item displays <color:G>good</color> craftmanship.\n");
+            break;
+        case FEEL_AVERAGE:
+            doc_insert(doc, "This item appears normal.\n");
+            break;
+        }
+    }
+
+
+    _display_stats(o_ptr, flgs, doc);
+    _display_sustains(o_ptr, flgs, doc);
+    _display_other_pval(o_ptr, flgs, doc);
+    _display_slays(o_ptr, flgs, doc);
+    _display_brands(o_ptr, flgs, doc);
+    _display_resists(o_ptr, flgs, doc);
+    _display_abilities(o_ptr, flgs, doc);
+    _display_auras(o_ptr, flgs, doc);
+    _display_extra(o_ptr, flgs, doc);
+    _display_curses(o_ptr, flgs, doc);
+    _display_ignore(o_ptr, flgs, doc);
 
     doc_insert(doc, "</style></indent>\n");
 }
@@ -1014,6 +1117,8 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
 
     doc_insert(doc, "<style:indent>"); /* Indent a bit when word wrapping long lines */
 
+    _display_ego_desc(o_ptr, doc);
+
     if (object_is_ego(o_ptr) && !(o_ptr->ident & IDENT_FULL))
         doc_printf(doc, "This object may have additional powers which you may learn by *identifying* or selling this object.\n");
     else if (!(o_ptr->ident & IDENT_FULL))
@@ -1022,5 +1127,7 @@ extern void device_display_doc(object_type *o_ptr, doc_ptr doc)
     _display_ignore(o_ptr, flgs, doc);
 
     _display_autopick(o_ptr, doc);
+    _display_cost(o_ptr, doc);
+
     doc_insert(doc, "</style></indent>\n");
 }

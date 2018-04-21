@@ -126,7 +126,7 @@ static bool _absorb(object_type *o_ptr)
             result = TRUE;
     }
 
-    for (i = 0; i < TR_FLAG_MAX; i++)
+    for (i = 0; i < TR_FLAG_COUNT; i++)
     {
         if (_skip_flag(i)) continue;
         if (have_flag(flags, i))
@@ -158,6 +158,20 @@ static bool _absorb(object_type *o_ptr)
     }
     return result;
 }
+
+static bool _absorb_object(object_type *o_ptr)
+{
+    if (object_is_melee_weapon(o_ptr))
+    {
+        char o_name[MAX_NLEN];
+        object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_COLOR_CODED);
+        msg_format("You attempt to drain power from %s.", o_name);
+        _absorb(o_ptr);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 
 static int _calc_amount(int amount, int power, int rep)
 {
@@ -929,8 +943,8 @@ race_t *mon_sword_get_race(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  37,  40,   4,  14,   5,  56,  20};
-    skills_t xs = { 12,  12,  12,   0,   0,   0,  20,   7};
+    skills_t bs = { 25,  24,  40,   4,  14,   5,  56,  20};
+    skills_t xs = { 12,  10,  12,   0,   0,   0,  20,   7};
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -958,6 +972,7 @@ race_t *mon_sword_get_race(void)
 
         me.load_player = _load;
         me.save_player = _save;
+        me.destroy_object = _absorb_object;
 
         me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
         me.pseudo_class_idx = CLASS_WARRIOR;
@@ -977,17 +992,6 @@ race_t *mon_sword_get_race(void)
 
     me.equip_template = mon_get_equip_template();
     return &me;
-}
-
-void sword_absorb_object(object_type *o_ptr)
-{
-    if (object_is_melee_weapon(o_ptr))
-    {
-        char o_name[MAX_NLEN];
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
-        msg_format("You attempt to drain power from %s.", o_name);
-        _absorb(o_ptr);
-    }
 }
 
 bool sword_disenchant(void)

@@ -1038,10 +1038,10 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:22
 ?:[EQU $QUEST22 2]
 F:a:BUILDING_0:3:0:0:0:0:NONE:22
 
-# Quest 22 rewarding, reward is Elven Cloak, continue with quest 19
+# Quest 22 rewarding, reward is Cloak of Stealth, continue with quest 19
 ?:[EQU $QUEST22 3]
 F:a:BUILDING_0:3:0:0:0:0:NONE:19
-F:?:FLOOR:3:0:90
+F:?:FLOOR:3:0:123:102
 
 # Quest 22 finished, continue with quest 19
 ?:[EQU $QUEST22 4]
@@ -1165,10 +1165,10 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:21
 ?:[EQU $QUEST21 2]
 F:a:BUILDING_0:3:0:0:0:0:NONE:21
 
-# Quest 21 rewarding (?Artifact)
+# Quest 21 rewarding (_Healing)
 ?:[EQU $QUEST21 3]
 F:a:BUILDING_0:3
-F:?:FLOOR:3:0:205
+F:?:FLOOR:3:0:270:205
 
 # Quest 21 finished, no new quest available
 ?:[EQU $QUEST21 4]

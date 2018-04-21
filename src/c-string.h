@@ -62,6 +62,7 @@ typedef struct substring_s substring_t, *substring_ptr;
 
 extern int string_chr(string_ptr str, int start, char ch);
 extern int string_last_chr(string_ptr str, char ch);
+extern int string_count_chr(string_ptr str, char ch);
 extern substring_t string_left(string_ptr str, int length);
 extern substring_t string_right(string_ptr str, int length);
 

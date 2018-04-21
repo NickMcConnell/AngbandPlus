@@ -379,18 +379,26 @@ void do_cmd_destroy(void)
 
     stats_on_p_destroy(o_ptr, amt);
 
-    if (prace_is_(RACE_MON_JELLY))
-        jelly_eat_object(o_ptr);
-    else if (prace_is_(RACE_MON_SWORD) && object_is_melee_weapon(o_ptr))
-        sword_absorb_object(o_ptr);
-    else if (prace_is_(RACE_MON_RING) && object_is_jewelry(o_ptr))
-        ring_absorb_object(o_ptr);
-    else
     {
-        if (old_number == 1)
-            msg_print("Destroyed.");
-        else
-            msg_format("You destroy %s.", o_name);
+        race_t  *race_ptr = get_race();
+        class_t *class_ptr = get_class();
+        bool     handled = FALSE;
+        object_type copy = *o_ptr;
+
+        copy.number = amt;
+        if (!handled && race_ptr->destroy_object)
+            handled = race_ptr->destroy_object(&copy);
+
+        if (!handled && class_ptr->destroy_object)
+            handled = class_ptr->destroy_object(&copy);
+
+        if (!handled)
+        {
+            if (old_number == 1)
+                msg_print("Destroyed.");
+            else
+                msg_format("You destroy %s.", o_name);
+        }
     }
 
     if (o_ptr->rune == RUNE_SACRIFICE)

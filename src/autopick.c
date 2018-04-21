@@ -2058,8 +2058,11 @@ static void autopick_delayed_alter_aux(int item, bool detailed_msg)
 
     if (o_ptr->k_idx && (o_ptr->marked & OM_AUTODESTROY))
     {
-        char o_name[MAX_NLEN];
-        bool msg = FALSE;
+        char     o_name[MAX_NLEN];
+        bool     msg = FALSE;
+        race_t  *race_ptr = get_race();
+        class_t *class_ptr = get_class();
+        bool     handled = FALSE;
 
         if (destroy_debug)
         {
@@ -2068,13 +2071,13 @@ static void autopick_delayed_alter_aux(int item, bool detailed_msg)
         }
         stats_on_p_destroy(o_ptr, o_ptr->number);
 
-        if (prace_is_(RACE_MON_JELLY))
-            jelly_eat_object(o_ptr);
-        else if (prace_is_(RACE_MON_SWORD) && object_is_melee_weapon(o_ptr))
-            sword_absorb_object(o_ptr);
-        else if (prace_is_(RACE_MON_RING) && object_is_jewelry(o_ptr))
-            ring_absorb_object(o_ptr);
-        else
+        if (!handled && race_ptr->destroy_object)
+            handled = race_ptr->destroy_object(o_ptr);
+
+        if (!handled && class_ptr->destroy_object)
+            handled = class_ptr->destroy_object(o_ptr);
+
+        if (!handled)
         {
             if (detailed_msg)
                 object_desc(o_name, o_ptr, OD_COLOR_CODED);
@@ -2347,7 +2350,10 @@ void autopick_pickup_items(cave_type *c_ptr)
 {
     s16b this_o_idx, next_o_idx = 0;
     bool auto_lore = p_ptr->loremaster;
-    bool auto_sense = p_ptr->lev >= 35;
+    bool auto_sense = FALSE;
+
+    if (easy_id || p_ptr->lev >= 35)
+        auto_sense = TRUE;
     
     /* Scan the pile of objects */
     for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)

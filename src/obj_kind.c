@@ -15,12 +15,16 @@ bool is_pval_flag(int which)
     case TR_CON: 
     case TR_CHR:
     case TR_MAGIC_MASTERY:
+    case TR_DEVICE_POWER:
+    case TR_MAGIC_RESISTANCE:
     case TR_STEALTH:
     case TR_SEARCH:
     case TR_INFRA:
     case TR_TUNNEL:
     case TR_SPEED:
     case TR_BLOWS:
+    case TR_XTRA_SHOTS:
+    case TR_XTRA_MIGHT:
     case TR_SPELL_POWER:
     case TR_SPELL_CAP:
     case TR_WEAPONMASTERY:
@@ -280,7 +284,26 @@ bool object_is_helmet(object_type *o_ptr)
     if (o_ptr->tval == TV_HELM || o_ptr->tval == TV_CROWN) return TRUE;
     return FALSE;
 }
-
+bool object_is_ring(object_type *o_ptr)
+{
+    if (o_ptr->tval == TV_RING) return TRUE;
+    return FALSE;
+}
+bool object_is_amulet(object_type *o_ptr)
+{
+    if (o_ptr->tval == TV_AMULET) return TRUE;
+    return FALSE;
+}
+bool object_is_lite(object_type *o_ptr)
+{
+    if (o_ptr->tval == TV_LITE) return TRUE;
+    return FALSE;
+}
+bool object_is_boots(object_type *o_ptr)
+{
+    if (o_ptr->tval == TV_BOOTS) return TRUE;
+    return FALSE;
+}
 bool object_is_device(object_type *o_ptr)
 {
     switch (o_ptr->tval)

@@ -112,6 +112,15 @@ struct counts_s
 };
 typedef struct counts_s counts_t;
 
+typedef struct {
+    s32b found;
+    s32b selling;
+    s32b buying;
+    s32b services;
+    s32b winnings;
+    s32b stolen;
+} gold_counts_t;
+
 /*
  * Information about object "kinds", including player knowledge.
  *
@@ -436,57 +445,56 @@ struct monster_race
     u32b name;                /* Name (offset) */
     u32b text;                /* Text (offset) */
 
-    byte hdice;                /* Creatures hit dice count */
-    byte hside;                /* Creatures hit dice sides */
+    byte hdice;               /* Creatures hit dice count */
+    byte hside;               /* Creatures hit dice sides */
+    s16b ac;                  /* Armour Class */
 
-    s16b ac;                /* Armour Class */
-
-    s16b sleep;                /* Inactive counter (base) */
-    byte aaf;                /* Area affect radius (1-100) */
-    byte speed;                /* Speed (normally 110) */
+    s16b sleep;               /* Inactive counter (base) */
+    byte aaf;                 /* Area affect radius (1-100) */
+    byte speed;               /* Speed (normally 110) */
 
     s32b mexp;                /* Exp value for kill */
 
-    s16b weight;            
+    s16b weight;
+    byte freq_spell;          /* Spell frequency */
+    byte drop_theme;
 
-    byte freq_spell;        /* Spell frequency */
+    u32b flags1;              /* Flags 1 (general) */
+    u32b flags2;              /* Flags 2 (abilities) */
+    u32b flags3;              /* Flags 3 (race/resist) */
+    u32b flags4;              /* Flags 4 (inate/breath) */
+    u32b flags5;              /* Flags 5 (normal spells) */
+    u32b flags6;              /* Flags 6 (special spells) */
+    u32b flags7;              /* Flags 7 (movement related abilities) */
+    u32b flags8;              /* Flags 8 (wilderness info) */
+    u32b flags9;              /* Flags 9 (drops info; possessor info) */
+    u32b flagsr;              /* Flags R (resistances info) */
 
-    u32b flags1;            /* Flags 1 (general) */
-    u32b flags2;            /* Flags 2 (abilities) */
-    u32b flags3;            /* Flags 3 (race/resist) */
-    u32b flags4;            /* Flags 4 (inate/breath) */
-    u32b flags5;            /* Flags 5 (normal spells) */
-    u32b flags6;            /* Flags 6 (special spells) */
-    u32b flags7;            /* Flags 7 (movement related abilities) */
-    u32b flags8;            /* Flags 8 (wilderness info) */
-    u32b flags9;            /* Flags 9 (drops info) */
-    u32b flagsr;            /* Flags R (resistances info) */
-
-    monster_blow blow[4];    /* Up to four blows per round */
+    monster_blow blow[4];
 
     s16b next_r_idx;
     u32b next_exp;
 
-    byte level;                /* Level of creature */
+    byte level;               /* Level of creature */
     byte melee_level;
     byte save_level;
-    byte rarity;            /* Rarity of creature */
+    byte rarity;              /* Rarity of creature */
     s16b max_level;
 
 
-    byte d_attr;            /* Default monster attribute */
-    byte d_char;            /* Default monster character */
+    byte d_attr;              /* Default monster attribute */
+    byte d_char;              /* Default monster character */
 
 
-    byte x_attr;            /* Desired monster attribute */
-    byte x_char;            /* Desired monster character */
+    byte x_attr;              /* Desired monster attribute */
+    byte x_char;              /* Desired monster character */
 
 
-    byte max_num;            /* Maximum population allowed per level */
+    byte max_num;             /* Maximum population allowed per level */
 
-    byte cur_num;            /* Monster population on current level */
+    byte cur_num;             /* Monster population on current level */
 
-    s16b floor_id;                  /* Location of unique monster */
+    s16b floor_id;            /* Location of unique monster */
 
 
     s16b r_sights;            /* Count sightings of this monster */
@@ -496,20 +504,20 @@ struct monster_race
     s16b r_akills;            /* Count all monsters killed in this life */
     s16b r_tkills;            /* Count monsters killed in all lives */
 
-    s16b r_skills;          /* Count all summons killed in this life */
+    s16b r_skills;            /* Count all summons killed in this life */
 
-    byte r_wake;            /* Number of times woken up (?) */
+    byte r_wake;              /* Number of times woken up (?) */
     byte r_ignore;            /* Number of times ignored (?) */
 
-    byte r_xtra1;            /* Flags for Evolution and Possessor Body Info */
-    byte r_xtra2;            /* Something (unused) */
+    byte r_xtra1;             /* Flags for Evolution and Possessor Body Info */
+    byte r_xtra2;             /* Something (unused) */
 
-    byte r_drop_gold;        /* Max number of gold dropped at once */
-    byte r_drop_item;        /* Max number of item dropped at once */
+    byte r_drop_gold;         /* Max number of gold dropped at once */
+    byte r_drop_item;         /* Max number of item dropped at once */
 
     byte r_cast_spell;        /* Max number of other spells seen */
 
-    byte r_blows[4];        /* Number of times each blow type was seen */
+    byte r_blows[4];          /* Number of times each blow type was seen */
 
     u32b r_flags1;            /* Observed racial flags */
     u32b r_flags2;            /* Observed racial flags */
@@ -2066,6 +2074,7 @@ typedef struct {
     flags_fn                get_flags;
     load_fn                 load_player;
     save_fn                 save_player;
+    object_p                destroy_object;
 } class_t;
 
 struct equip_template_s;
@@ -2104,6 +2113,7 @@ typedef struct {
     process_world_fn        process_world;  /* Called every 10 game turns */
     load_fn                 load_player;
     save_fn                 save_player;
+    object_p                destroy_object;
     s16b                    pseudo_class_idx; /* For the "Monster" class ... */
     s16b                    shop_adjust;
 } race_t;

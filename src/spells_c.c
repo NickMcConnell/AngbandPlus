@@ -324,21 +324,27 @@ void crafting_spell(int cmd, variant *res)
         {
             if (object_is_ammo(o_ptr) && randint1(30) > (o_ptr->number - 30))
             {
-                brand_weapon_aux(item);
-                o_ptr->discount = 99;
-                okay = TRUE;
+                if (brand_weapon_aux(item))
+                {
+                    o_ptr->discount = 99;
+                    okay = TRUE;
+                }
             }
             else if (object_is_weapon(o_ptr) && o_ptr->number == 1)
             {
-                brand_weapon_aux(item);
-                o_ptr->discount = 99;
-                okay = TRUE;
+                if (brand_weapon_aux(item))
+                {
+                    o_ptr->discount = 99;
+                    okay = TRUE;
+                }
             }
             else if (object_is_armour(o_ptr) && o_ptr->number == 1)
             {
-                brand_armour_aux(item);
-                o_ptr->discount = 99;
-                okay = TRUE;
+                if (brand_armour_aux(item))
+                {
+                    o_ptr->discount = 99;
+                    okay = TRUE;
+                }
             }
         }
 
@@ -1262,175 +1268,6 @@ void dominate_living_II_spell(int cmd, variant *res)
         break;
     case SPELL_COST_EXTRA:
         var_set_int(res, (p_ptr->lev+20)/2);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-void draconian_breath_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Draconian Breath");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Fires an elemental, or perhaps special, breath at your foes.");
-        break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
-        break;
-    case SPELL_CAST:
-    {/* Sorry ... I made no effort to clean this up :( */
-        int plev = p_ptr->lev;
-        int dir = 0;
-        int  Type = (one_in_(3) ? GF_COLD : GF_FIRE);
-        cptr Type_desc = ((Type == GF_COLD) ? "cold" : "fire");
-
-        var_set_bool(res, FALSE);
-        if (!get_aim_dir(&dir)) return;
-
-        if (randint1(100) < plev)
-        {
-            switch (p_ptr->pclass)
-            {
-                case CLASS_WARRIOR:
-                case CLASS_MAULER:
-                case CLASS_BERSERKER:
-                case CLASS_RANGER:
-                case CLASS_TOURIST:
-                case CLASS_IMITATOR:
-                case CLASS_ARCHER:
-                case CLASS_WEAPONSMITH:
-                    if (one_in_(3))
-                    {
-                        Type = GF_MISSILE;
-                        Type_desc = "the elements";
-                    }
-                    else
-                    {
-                        Type = GF_SHARDS;
-                        Type_desc = "shards";
-                    }
-                    break;
-                case CLASS_MAGE:
-                case CLASS_NECROMANCER:
-                case CLASS_BLOOD_MAGE:
-                case CLASS_WARRIOR_MAGE:
-                case CLASS_HIGH_MAGE:
-                case CLASS_SORCERER:
-                case CLASS_MAGIC_EATER:
-                case CLASS_RED_MAGE:
-                case CLASS_BLUE_MAGE:
-                case CLASS_MIRROR_MASTER:
-                case CLASS_DEVICEMASTER:
-                    if (one_in_(3))
-                    {
-                        Type = GF_MANA;
-                        Type_desc = "mana";
-                    }
-                    else
-                    {
-                        Type = GF_DISENCHANT;
-                        Type_desc = "disenchantment";
-                    }
-                    break;
-                case CLASS_CHAOS_WARRIOR:
-                    if (!one_in_(3))
-                    {
-                        Type = GF_CONFUSION;
-                        Type_desc = "confusion";
-                    }
-                    else
-                    {
-                        Type = GF_CHAOS;
-                        Type_desc = "chaos";
-                    }
-                    break;
-                case CLASS_MONK:
-                case CLASS_MYSTIC:
-                case CLASS_SAMURAI:
-                case CLASS_FORCETRAINER:
-                    if (!one_in_(3))
-                    {
-                        Type = GF_CONFUSION;
-                        Type_desc = "confusion";
-                    }
-                    else
-                    {
-                        Type = GF_SOUND;
-                        Type_desc = "sound";
-                    }
-                    break;
-                case CLASS_MINDCRAFTER:
-                case CLASS_PSION:
-                    if (!one_in_(3))
-                    {
-                        Type = GF_CONFUSION;
-                        Type_desc = "confusion";
-                    }
-                    else
-                    {
-                        Type = GF_PSI;
-                        Type_desc = "mental energy";
-                    }
-                    break;
-                case CLASS_PRIEST:
-                case CLASS_PALADIN:
-                    if (one_in_(3))
-                    {
-                        Type = GF_HELL_FIRE;
-                        Type_desc = "hellfire";
-                    }
-                    else
-                    {
-                        Type = GF_HOLY_FIRE;
-                        Type_desc = "holy fire";
-                    }
-                    break;
-                case CLASS_ROGUE:
-                case CLASS_SCOUT:
-                case CLASS_NINJA:
-                    if (one_in_(3))
-                    {
-                        Type = GF_DARK;
-                        Type_desc = "darkness";
-                    }
-                    else
-                    {
-                        Type = GF_POIS;
-                        Type_desc = "poison";
-                    }
-                    break;
-                case CLASS_BARD:
-                    if (!one_in_(3))
-                    {
-                        Type = GF_SOUND;
-                        Type_desc = "sound";
-                    }
-                    else
-                    {
-                        Type = GF_CONFUSION;
-                        Type_desc = "confusion";
-                    }
-                    break;
-            }
-        }
-
-        stop_mouth();
-
-        msg_format("You breathe %s.", Type_desc);
-
-        fire_ball(Type, dir, spell_power(plev * 2),
-            -(plev / 15) - 1);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
-    case SPELL_COST_EXTRA:
-        var_set_int(res, p_ptr->lev/3);
         break;
     default:
         default_spell(cmd, res);

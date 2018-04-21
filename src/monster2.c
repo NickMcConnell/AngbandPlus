@@ -1626,9 +1626,12 @@ s16b get_mon_num(int level)
         r_ptr = &r_info[r_idx];
 
         /* Hack: Camelot monsters only appear in Camelot. Olympians in Mt Olympus. Southerings in the Stronghold */
-        if ((r_ptr->flags2 & RF2_CAMELOT) && dungeon_type != DUNGEON_CAMELOT) continue;
-        if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_STRONGHOLD) continue;
-        if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
+        if (!no_wilderness)
+        {
+            if ((r_ptr->flags2 & RF2_CAMELOT) && dungeon_type != DUNGEON_CAMELOT) continue;
+            if ((r_ptr->flags2 & RF2_SOUTHERING) && dungeon_type != DUNGEON_STRONGHOLD) continue;
+            if ((r_ptr->flags3 & RF3_OLYMPIAN) && dungeon_type != DUNGEON_OLYMPUS) continue;
+        }
 
         if (!p_ptr->inside_battle && !chameleon_change_m_idx)
         {
@@ -3734,18 +3737,18 @@ static bool place_monster_group(int who, int y, int x, int r_idx, int pack_idx, 
     total = randint1(10);
 
     /* Hard monsters, small groups */
-    if (dun_level)
+    if (base_level)
     {
-        if (r_ptr->level > dun_level)
+        if (r_ptr->level > base_level)
         {
-            extra = r_ptr->level - dun_level;
+            extra = r_ptr->level - base_level;
             extra = 0 - randint1(extra);
         }
 
         /* Easy monsters, large groups */
-        else if (r_ptr->level < dun_level)
+        else if (r_ptr->level < base_level)
         {
-            extra = dun_level - r_ptr->level;
+            extra = base_level - r_ptr->level;
             extra = randint1(extra);
         }
     }

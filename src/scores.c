@@ -754,7 +754,8 @@ void kingly(void)
     cx = wid / 2;
 
     /* Hack -- Instant Gold */
-    p_ptr->au += 10000000L;
+    p_ptr->au += 10000000;
+    stats_on_gold_winnings(10000000);
 
     /* Clear screen */
     Term_clear();

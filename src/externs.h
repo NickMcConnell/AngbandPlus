@@ -313,7 +313,7 @@ extern bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 /*** Birth Options ***/
 
-extern bool easy_band;    /* Easy Mode (*) */
+extern bool easy_id;    /* Easy Identify */
 extern bool smart_learn;    /* Monsters learn from their mistakes (*) */
 extern bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 extern bool no_wilderness;  /* Play without a normal wilderness */
@@ -491,6 +491,7 @@ extern void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 extern monster_hook_type get_mon_num_hook;
 extern monster_hook_type get_mon_num2_hook;
 extern bool (*get_obj_num_hook)(int k_idx);
+extern int  obj_drop_theme;
 extern bool monk_armour_aux;
 extern bool monk_notify_aux;
 extern wilderness_type **wilderness;
@@ -921,6 +922,7 @@ extern void prevent_turn_overflow(void);
 extern void process_world_aux_movement(void);  /* yuk!  refactor the recall code instead */
 extern void fame_on_failure(void);
 extern void recharged_notice(object_type *o_ptr);
+extern byte value_check_aux1(object_type *o_ptr); /* pseudo-id */
 
 /* files.c */
 extern cptr map_name(void);
@@ -964,6 +966,7 @@ extern int ct_artifacts(void);
 
 extern errr counts_write(int where, u32b count);
 extern u32b counts_read(int where);
+extern bool arg_lock_name; /*locks player name for server play --phantom*/
 
 /* flavor.c */
 extern void get_table_name_aux(char *out_string);
@@ -1123,6 +1126,7 @@ extern void monster_drop_carried_objects(monster_type *m_ptr);
 extern void obj_display(object_type *o_ptr);
 extern void obj_display_rect(object_type *o_ptr, rect_t display);
 extern void obj_display_doc(object_type *o_ptr, doc_ptr doc);
+extern void obj_display_smith(object_type *o_ptr, doc_ptr doc);
 extern void device_display_doc(object_type *o_ptr, doc_ptr doc);
 
 /* py_display.c */
@@ -1206,7 +1210,7 @@ extern bool kind_is_weapon(int k_idx);
 extern bool kind_is_bow_ammo(int k_idx);
 extern bool kind_is_misc(int k_idx);
 extern void place_object(int y, int x, u32b mode);
-extern bool make_gold(object_type *j_ptr);
+extern bool make_gold(object_type *j_ptr, bool do_boost);
 extern void place_gold(int y, int x);
 extern s16b drop_near(object_type *o_ptr, int chance, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great, bool known);
@@ -1232,7 +1236,6 @@ extern void reorder_pack(void);
 extern void display_koff(int k_idx);
 extern object_type *choose_warning_item(void);
 extern bool process_warning(int xx, int yy);
-extern void do_cmd_kaji(bool only_browse);
 extern void stats_on_purchase(object_type *o_ptr);
 extern void stats_on_sell(object_type *o_ptr);
 extern void stats_on_notice(object_type *o_ptr, int num);
@@ -1245,8 +1248,15 @@ extern void stats_on_equip(object_type *o_ptr);
 extern void stats_on_identify(object_type *o_ptr);
 extern void stats_on_load(savefile_ptr file);
 extern void stats_on_save(savefile_ptr file);
+extern void stats_on_gold_find(int au);
+extern void stats_on_gold_selling(int au);
+extern void stats_on_gold_buying(int au);
+extern void stats_on_gold_services(int au);
+extern void stats_on_gold_winnings(int au);
+extern void stats_on_gold_stolen(int au);
 extern void stats_reset(void);
 extern counts_t stats_rand_art_counts;
+extern gold_counts_t stats_gold_counts;
 
 /* object3.c */
 typedef void (*debug_hook)(cptr msg);
@@ -1995,6 +2005,10 @@ extern bool object_is_ammo(object_type *o_ptr);
 extern bool object_is_armour(object_type *o_ptr);
 extern bool object_is_shield(object_type *o_ptr);
 extern bool object_is_body_armour(object_type *o_ptr);
+extern bool object_is_ring(object_type *o_ptr);
+extern bool object_is_amulet(object_type *o_ptr);
+extern bool object_is_lite(object_type *o_ptr);
+extern bool object_is_boots(object_type *o_ptr);
 extern bool enchantment_hack;
 extern bool object_is_weapon_armour_ammo(object_type *o_ptr);
 extern bool object_is_melee_weapon(object_type *o_ptr);
@@ -2031,6 +2045,10 @@ extern bool character_dump_hack;
 extern void strip_name(char *buf, int k_idx);
 extern void strip_name_aux(char *dest, const char *src);
 extern cptr race_spoiler_page(int i);
+extern vec_ptr stats_rand_arts(void);
+extern void stats_add_rand_art(object_type *o_ptr);
+extern vec_ptr stats_egos(void);
+extern void stats_add_ego(object_type *o_ptr);
 
 /* avatar.c */
 extern cptr virtue_name(int which);
@@ -2197,17 +2215,15 @@ extern void    mimic_on_kill_monster(int r_idx);
 
 extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    monster_toss_spell(int cmd, variant *res);
-extern void    jelly_eat_object(object_type *o_ptr);
+extern bool    jelly_eat_object(object_type *o_ptr);
 
 extern void    blink_toggle_spell(int cmd, variant *res);
 extern bool    leprechaun_steal(int m_idx);
 extern int     leprechaun_get_toggle(void);
 
-extern void    sword_absorb_object(object_type *o_ptr);
 extern int     sword_calc_torch(void);
 extern bool    sword_disenchant(void);
 
-extern void    ring_absorb_object(object_type *o_ptr);
 extern int     ring_calc_torch(void);
 extern bool    ring_disenchant(void);
 extern void    ring_cast(void);
@@ -2411,6 +2427,8 @@ extern void     warlock_stop_singing(void);
 
 extern class_t *warrior_get_class(void);
 extern class_t *warrior_mage_get_class(void);
+
+extern void     weaponsmith_object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
 extern class_t *weaponsmith_get_class(void);
 
 extern cptr do_hissatsu_spell(int spell, int mode);

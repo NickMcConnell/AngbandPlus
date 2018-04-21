@@ -1251,8 +1251,6 @@ static errr init_other(void)
     /* Quark variables */
     quark_init();
 
-    msg_on_startup();
-
     /*** Prepare the Player inventory ***/
 
     /* Allocate it */
@@ -1826,6 +1824,7 @@ void init_angband(void)
     /* Close it */
     (void)fd_close(fd);
 
+    msg_on_startup();
 
     /*** Initialize some arrays ***/
 

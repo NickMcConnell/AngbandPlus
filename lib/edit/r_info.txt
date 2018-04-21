@@ -537,6 +537,7 @@ B:HIT:HURT:1d9
 F:DROP_60 | WILD_ALL | DROP_SKELETON | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | RES_POIS
+O:DROP_WARRIOR
 P:Copy:Kobold:Tourist
 P:Life:70
 D:It is a squat and ugly humanoid figure.
@@ -550,6 +551,7 @@ B:HIT:HURT:1d8
 F:DROP_60 | WILD_ALL |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | RES_POIS
+O:DROP_WARRIOR
 P:Copy:Kobold:Warrior
 P:Stats:-2:0:0:-1:-1:0
 P:Life:70
@@ -735,6 +737,7 @@ F:DROP_60 | WILD_ALL | DROP_SKELETON | DROP_CORPSE | HUMAN |
 F:OPEN_DOOR | BASH_DOOR
 P:Copy:Human:Warrior
 P:Life:85
+O:DROP_WARRIOR
 D:He looks inexperienced but tough.
 
 N:44:Novice rogue
@@ -750,6 +753,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WILD_ALL |
 F:EVIL
 P:Copy:Human:Rogue
 P:Life:85
+O:DROP_ROGUE
 D:A rather shifty individual.
 
 N:45:Novice priest
@@ -765,6 +769,7 @@ S:1_IN_12 |
 S:HEAL | SCARE | CAUSE_1
 P:Copy:Human:Priest
 P:Life:85
+O:DROP_PRIEST
 D:He is tripping over his priestly robes.
 
 N:46:Novice mage
@@ -780,6 +785,7 @@ S:1_IN_12 |
 S:BLINK | BLIND | CONF | MISSILE
 P:Copy:Human:Mage
 P:Life:85
+O:DROP_MAGE
 D:He is leaving behind a trail of dropped spell components.
 
 N:47:Yellow mushroom patch
@@ -1170,13 +1176,14 @@ W:3:1:30:5:5000:539
 B:HIT:HURT:1d7
 B:TOUCH:EAT_GOLD
 F:MALE | HAS_LITE_1 |
-F:DROP_60 | THIEF
+F:DROP_1D2 | ONLY_ITEM | THIEF
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
 F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Hobbit:Tourist
+O:DROP_HOBBIT
 D:A short little guy, in bedraggled clothes. He appears to be looking
-D:for a good tavern.
+D:for a good tavern as he mutters something about missing second breakfast.
 
 N:75:Giant white ant
 G:a:w
@@ -1302,6 +1309,7 @@ P:Copy:Human:Ranger
 P:Life:85
 S:1_IN_9 | 
 S:SHOOT | MISSILE
+O:DROP_ARCHER
 D:An agile hunter, ready and relaxed.
 
 N:84:Blue jelly
@@ -1353,7 +1361,8 @@ F:FRIENDS | DROP_60 | RAND_50 | DROP_SKELETON | DROP_CORPSE |
 F:OPEN_DOOR | BASH_DOOR | WILD_WOOD | RES_DARK |
 F:EVIL | ORC | HURT_LITE
 P:Copy:Snotling:Tourist
-D:A pathetic breed of tiny snaga-like creatures. They are running 
+O:DROP_WARRIOR
+D:A pathetic breed of tiny snaga-like creatures. They are running
 D:wild and screaming all the time!
 
 N:88:Swordfish
@@ -1438,6 +1447,7 @@ S:1_IN_12 |
 S:BLINK | BLIND | CONF | MISSILE
 P:Copy:Human:Mage
 P:Life:85
+O:DROP_MAGE
 D:He is leaving behind a trail of dropped spell components.
 
 N:94:Green naga
@@ -1495,7 +1505,8 @@ S:1_IN_9 |
 S:SCARE | CAUSE_1
 P:Copy:Human:Paladin
 P:Life:85
-D:An adventurer both devoutly religious and skillful in combat. 
+O:DROP_PALADIN
+D:An adventurer both devoutly religious and skillful in combat.
 D:He seems to consider you an agent of the devil.
 
 N:98:Zog
@@ -1560,6 +1571,7 @@ F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | RES_POIS
 P:Copy:Kobold:Warrior
 P:Life:95
+O:DROP_WARRIOR
 D:It a man-sized figure with the all too recognizable face of a kobold.
 
 N:103:Grey icky thing
@@ -1657,6 +1669,7 @@ S:1_IN_12 |
 S:HEAL | SCARE | CAUSE_1
 P:Copy:Human:Priest
 P:Life:85
+O:DROP_PRIEST
 D:He is tripping over his priestly robes.
 
 N:110:Novice warrior
@@ -1671,6 +1684,7 @@ F:FRIENDS | DROP_60 | WILD_ALL |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 P:Copy:Human:Warrior
 P:Life:85
+O:DROP_WARRIOR
 D:He looks inexperienced but tough.
 
 N:111:Nibelung
@@ -1684,7 +1698,8 @@ F:FRIENDS | DROP_60 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:HURT_LITE | RES_DARK | RES_DISE | DROP_SKELETON | DROP_CORPSE
 P:Copy:Nibelung:Rogue
-D:Night dwarfs collecting new riches for their master, Alberich. 
+O:DROP_DWARF
+D:Night dwarfs collecting new riches for their master, Alberich.
 
 N:112:Disembodied hand that strangled people
 G:z:g
@@ -1754,12 +1769,13 @@ B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:MALE | HAS_LITE_1 | HUMAN |
 F:FORCE_SLEEP | WILD_ALL | DROP_SKELETON | DROP_CORPSE
-F:ONLY_GOLD | DROP_1D2
+F:ONLY_ITEM | DROP_1D2
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_3 | 
 S:SHOOT
 P:Copy:Human:Archer
 P:Life:85
+O:DROP_ARCHER
 D:A nasty little fellow with a bow and arrow.
 
 N:117:Creeping silver coins
@@ -1783,7 +1799,8 @@ F:FRIENDS | DROP_60 | WILD_ALL | DROP_SKELETON | DROP_CORPSE |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE | RES_DARK
 P:Copy:Snotling:Warrior
-D:He is one of the many weaker 'slave' orcs, often mistakenly known as a 
+O:DROP_WARRIOR
+D:He is one of the many weaker 'slave' orcs, often mistakenly known as a
 D:goblin.
 
 N:119:Rattlesnake
@@ -1900,6 +1917,7 @@ F:FRIENDS | DROP_60 | DROP_SKELETON | DROP_CORPSE |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE | RES_DARK
 P:Copy:Human:Warrior
+O:DROP_WARRIOR
 D:He is often found in huge numbers in deep caves.
 
 N:127:Wood spider
@@ -2029,6 +2047,7 @@ F:EVIL | RES_POIS
 P:Copy:Kobold:Warrior
 P:Stats:1:0:0:1:1:0
 P:Life:105
+O:DROP_WARRIOR
 D:Strong and powerful, for a kobold.
 
 N:136:Skeleton orc
@@ -2109,7 +2128,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE
 F:EVIL | ORC | RES_DARK
 P:Copy:Kobold:Warrior
-D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order 
+O:DROP_WARRIOR
+D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order
 D:with displays of excessive violence.
 D:"I've told you twice that Gorbag's swine got to the gate first, and none 
 D:of ours got out. Lagduf and Muzgash ran through, but they were shot."
@@ -2140,6 +2160,7 @@ S:1_IN_9 |
 S:SHOOT | MISSILE
 P:Copy:Human:Ranger
 P:Life:85
+O:DROP_ARCHER
 D:An agile hunter, ready and relaxed.
 
 N:143:Giant salamander
@@ -2207,7 +2228,8 @@ S:1_IN_9 |
 S:SCARE | CAUSE_1
 P:Copy:Human:Paladin
 P:Life:85
-D:He thinks you are an agent of the devil. 
+O:DROP_PALADIN
+D:He thinks you are an agent of the devil.
 
 N:148:Lemure
 G:u:o
@@ -2231,6 +2253,7 @@ F:FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | ORC | HURT_LITE | RES_DARK
 P:Copy:Human:Warrior
+O:DROP_WARRIOR
 D:He is a hardy well-weathered survivor.
 
 N:150:Bandit
@@ -2245,6 +2268,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL
 P:Copy:Human:Rogue
 P:Life:90
+O:DROP_ROGUE
 D:He is after your cash!
 
 N:151:Hunting hawk of Julian
@@ -2409,6 +2433,7 @@ F:EVIL | ORC | HURT_LITE
 P:Copy:Human:Priest
 S:1_IN_8 | 
 S:BLINK | CAUSE_1 | MISSILE
+O:DROP_PRIEST_EVIL
 D:An orc dressed in skins who gestures wildly.
 
 N:163:Baby blue dragon
@@ -2532,6 +2557,7 @@ F:FORCE_MAXHP | CAN_SPEAK | WILD_ALL | DROP_SKELETON | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
 P:Copy:Half-Ogre:Warrior
+O:DROP_WARRIOR
 D:A nasty piece of work, Brodda picks on defenseless women and children.
 D:"And Morwen was gone. Empty stood her house, broken and cold. It was
 D:more than a year since she departed to Doriath. Brodda the Easterling
@@ -2669,6 +2695,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_TRAPS | POS_DETECT_MO
 P:Copy:Dark-Elf:Mage
 S:1_IN_5 | 
 S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS | BO_COLD
+O:DROP_MAGE
 D:A dark elven figure, dressed all in black, hurling spells at you.
 
 N:179:Kamikaze yeek
@@ -2732,6 +2759,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS
 P:Copy:Dark-Elf:Warrior-Mage
 S:1_IN_12
 S:MISSILE
+O:DROP_WARRIOR
 D:A dark elven figure in armour and ready with his sword.
 
 N:183:Sand-dweller
@@ -2784,7 +2812,8 @@ F:UNIQUE | MALE | CAN_SPEAK | FORCE_MAXHP | ESCORT | WILD_ALL |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_SKELETON | DROP_CORPSE |
 F:OPEN_DOOR | BASH_DOOR | EVIL | ORC | RES_POIS | RES_DARK
 P:Copy:Kobold:Warrior
-D:He is a cunning and devious orc. 
+O:DROP_WARRIOR
+D:He is a cunning and devious orc.
 D:"Grishnakh [was] a short crook-legged creature, very broad and with 
 D:long arms that hung almost to the ground." 
 
@@ -3223,6 +3252,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR | CAN_SPEAK |
 F:EVIL | ORC | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_DARK
 P:Copy:Kobold:Warrior
+O:DROP_WARRIOR
 D:A leader of a band of raiding orcs, he picks on hobbits.
 
 N:216:Swordsman
@@ -3237,6 +3267,7 @@ F:OPEN_DOOR | BASH_DOOR
 D:A warrior of considerable skill.
 P:Copy:Barbarian:Warrior
 P:Life:90
+O:DROP_WARRIOR
 
 N:217:Skaven shaman
 G:r:g
@@ -3252,7 +3283,8 @@ P:Copy:Snotling:Priest
 P:Body:Scrawny
 S:1_IN_8 | 
 S:BLINK | CAUSE_1 | MISSILE | CONF | SCARE
-D:The shaman of a skaven tribe gets his powers from a mystic 
+O:DROP_PRIEST_EVIL
+D:The shaman of a skaven tribe gets his powers from a mystic
 D:stone corrupted by chaos, called a Warp Stone.
 
 N:218:Gazer
@@ -3284,6 +3316,7 @@ F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 S:1_IN_8
 S:SHOOT
 P:Copy:Human:Archer
+O:DROP_WARRIOR_SHOOT
 D:A warrior trained in melee as well as missile weapons.
 
 N:220:Ixitxachitl
@@ -3376,6 +3409,7 @@ S:1_IN_3 |
 S:HEAL | SCARE | CAUSE_2 |
 S:S_MONSTER
 P:Copy:Dunadan:Priest
+O:DROP_PRIEST
 D:A robed humanoid dedicated to his god.
 
 N:226:Dark elven priest
@@ -3393,7 +3427,8 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_EVIL | POS_BLESSING
 P:Copy:Dark-Elf:Priest
 S:1_IN_5 | 
 S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS | MISSILE
-D:A dark elven figure, dressed all in black, chanting curses and waiting to 
+O:DROP_PRIEST_EVIL
+D:A dark elven figure, dressed all in black, chanting curses and waiting to
 D:deliver your soul to hell.
 
 N:227:Air spirit
@@ -3571,6 +3606,7 @@ F:DROP_60 | WILD_WOOD | WILD_MOUNTAIN | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
 P:Copy:Half-Ogre:Warrior
+O:DROP_WARRIOR
 D:A hideous, smallish giant that is often found near or with orcs.
 
 N:239:Creeping mithril coins
@@ -3598,6 +3634,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_MONSTERS
 S:1_IN_3 | 
 S:HASTE | BLINK | TPORT | BLIND | HOLD | SLOW | CONF | DARKNESS
 P:Copy:Dunadan:Mage
+O:DROP_MAGE
 D:A deceptive spell caster.
 
 N:241:Druid
@@ -3656,6 +3693,7 @@ F:EVIL | ORC | HURT_LITE | RES_DARK
 P:Copy:Kobold:Warrior
 S:1_IN_15
 S:SHOOT
+O:DROP_WARRIOR_SHOOT
 D:He is a large orc with powerful arms and deep black skin.
 
 N:245:Ochre jelly
@@ -3755,7 +3793,8 @@ F:WILD_ALL |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE | RES_DARK
 P:Copy:Snotling:Warrior
-D:He is one of the many weaker 'slave' orcs, often mistakenly known as a 
+O:DROP_WARRIOR
+D:He is one of the many weaker 'slave' orcs, often mistakenly known as a
 D:goblin. He is equipped with an explosive charge.
 
 N:252:Blue icky thing
@@ -3819,6 +3858,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Giant:Warrior
 S:1_IN_8
 S:THROW
+O:DROP_WARRIOR
 D:A ten foot tall humanoid with powerful muscles.
 
 #Note! Flesh golem's CAN_SWIM is a tribute to Shelley...
@@ -3896,6 +3936,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | RES_COLD | RES_POIS | RES_DARK |
 P:Copy:Kobold:Warrior
+O:DROP_WARRIOR
 D:A strong orc guarding the pass of Cirith Ungol. He is mortally afraid of
 D:spiders.
 
@@ -3924,6 +3965,7 @@ F:FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
 P:Copy:Half-Ogre:Warrior
+O:DROP_WARRIOR
 D:A massive orc-like figure with black skin and powerful arms.
 
 N:263:Dweller on the threshold
@@ -3954,7 +3996,8 @@ F:FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | ORC | RES_DARK
 P:Copy:Kobold:Warrior
-D:He is a hideous deformed cross-breed with man and orc, combining man's 
+O:DROP_WARRIOR
+D:He is a hideous deformed cross-breed with man and orc, combining man's
 D:strength and cunning with orcish evil.
 
 N:265:Dark naga
@@ -3971,7 +4014,8 @@ S:1_IN_4
 S:HOLD | CONF | BO_COLD | HEAL | DARKNESS
 P:Copy:Yeek:Mage
 P:Body:Naga
-D:A giant snake-like figure with a woman's torso. Not as strong 
+O:DROP_MAGE
+D:A giant snake-like figure with a woman's torso. Not as strong
 D:as other nagas, but more talented in magic.
 
 N:266:Giant octopus
@@ -4227,6 +4271,7 @@ P:Copy:Gnome:Mage
 S:1_IN_4 | 
 S:BLINK | DARKNESS | BO_COLD | 
 S:S_MONSTER
+O:DROP_MAGE
 D:A mage of short stature.
 
 N:282:Clear hound
@@ -4299,6 +4344,7 @@ F:EVIL | ORC | RES_DARK | CAN_SPEAK
 P:Copy:Kobold:Warrior
 S:1_IN_15
 S:SHOOT
+O:DROP_WARRIOR_SHOOT
 D:An armoured orc with an air of authority.
 
 N:286:Gelatinous cube
@@ -4353,6 +4399,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Giant:Mauler
 S:1_IN_4 |
 S:SCARE | BO_FIRE | BA_FIRE | THROW
+O:DROP_WARRIOR
 D:A glowing fourteen foot tall giant. Flames drip from its red skin.
 
 N:289:Hummerhorn
@@ -4397,6 +4444,7 @@ F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
 P:Copy:Dunadan:Warrior
+O:DROP_WARRIOR
 D:A short and swarthy Easterling.
 
 N:292:Hammerhead
@@ -4426,6 +4474,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_BERSERK
 P:Copy:Dunadan:Berserker
 P:Life:75
 P:Speed:+3
+O:DROP_WARRIOR
 D:A warrior in a battle-frenzy; he'll stop only when he drops.
 
 N:294:Quasit
@@ -4493,6 +4542,7 @@ F:OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | TROLL | HURT_LITE
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:He is green skinned and ugly.
 
 N:298:Freezing sphere
@@ -4746,6 +4796,7 @@ F:EVIL | ORC | RES_POIS | RES_DARK
 P:Copy:Kobold:Warrior
 S:1_IN_12
 S:SHOOT
+O:DROP_WARRIOR_SHOOT
 D:He is a cunning orc of power, as tall as a man, and stronger. It fears
 D:little.
 
@@ -4764,6 +4815,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | RES_POIS | RES_DARK
 P:Copy:Kobold:Warrior
+O:DROP_WARRIOR
 D:He is an Uruk of power and great cunning.
 
 N:315:Gorbag, the Orc Captain
@@ -4781,6 +4833,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | RES_POIS | RES_DARK
 P:Copy:Kobold:Mauler
+O:DROP_WARRIOR
 D:A gruesomely ugly but cunning orc, his eyes regard you with hatred. His
 D:powerful arms flex menacingly as he advances.
 
@@ -4877,6 +4930,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Giant:Warrior
 S:1_IN_8
 S:THROW
+O:DROP_WARRIOR
 D:It is eighteen feet tall and looking at you.
 
 N:322:Giant black dragon fly
@@ -4981,6 +5035,7 @@ P:Copy:Kobold:Priest
 P:Body:Fish
 S:1_IN_6
 S:TELE_TO | HEAL | SCARE | CAUSE_2 | BLIND | S_MONSTER
+O:DROP_PRIEST_EVIL
 D:A devil ray of the depths, with priestly magic.
 
 N:329:Huorn
@@ -5016,6 +5071,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | RES_POIS | RES_DARK
 P:Copy:Kobold:Mauler
+O:DROP_WARRIOR
 D:A large and powerful orc. He looks just like his daddy. He is tall and
 D:fast, but fortunately blessed with orcish brains.
 
@@ -5048,6 +5104,7 @@ F:DROP_60 | DROP_1D2 | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | FORCE_MAXHP
 P:Copy:Klackon:Warrior
+O:DROP_WARRIOR
 D:A lizardman leader.
 
 N:333:Landmine
@@ -5329,6 +5386,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Giant:Mauler
 S:1_IN_4
 S:THROW | BO_ELEC | BA_ELEC
+O:DROP_WARRIOR
 D:It is a twenty foot tall giant wreathed in clouds.
 
 N:350:Ugluk, the Uruk
@@ -5346,6 +5404,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | RES_POIS | RES_DARK
 P:Copy:Kobold:Mauler
+O:DROP_WARRIOR
 D:Another of Morgoth's servants, this orc is strong and cunning. He is ugly
 D:and scarred from many power struggles.
 
@@ -5449,6 +5508,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | NO_CONF | NO_SLEEP
 P:Copy:Kobold:Mauler
+O:DROP_WARRIOR
 D:A strong and cunning orc warrior, Lugdush sneers as he insults your mother.
 
 N:357:Arch-vile
@@ -5715,6 +5775,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_BERSERK
 P:Copy:Kobold:Mauler
 P:Stats:1:0:0:1:1:1
 P:Speed:+5
+O:DROP_WARRIOR
 D:He is also known as the King of Khazad-dum. His ego is renowned to be
 D:bigger than his head.
 
@@ -5751,6 +5812,7 @@ P:Copy:Dark-Elf:Mage
 P:Speed:+5
 S:1_IN_5 | 
 S:CONF | MISSILE | DARKNESS | BO_MANA
+O:DROP_MAGE
 D:A dark elven mage with spells of frightening destructive power.
 
 N:376:Master rogue
@@ -5766,6 +5828,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 P:Copy:High-Elf:Rogue
 P:Speed:+5
+O:DROP_ROGUE
 D:A thief of great power and shifty speed.
 
 N:377:Red dragon bat
@@ -5827,6 +5890,7 @@ F:EVIL | RES_FIRE | RES_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:SLOW | FORGET
 P:Copy:Dunadan:Chaos-Warrior
+O:DROP_WARRIOR
 D:A Black Numenorean who hates the men of the west.
 
 N:381:Kouko
@@ -5864,6 +5928,7 @@ F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Nibelung:Rogue
 S:1_IN_8 | 
 S:HEAL | HASTE | BO_FIRE
+O:DROP_DWARF
 D:This tiny night dwarf is as greedy for gold as his brother, Alberich.
 
 N:383:Hagen, Son of Alberich
@@ -5883,6 +5948,7 @@ F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Nibelung:Rogue
 S:1_IN_8 | 
 S:HEAL | HASTE | BO_FIRE
+O:DROP_DWARF
 D:Alberich's son, born of a mortal woman won with gold.
 
 N:384:Meneldor the Swift
@@ -6024,6 +6090,7 @@ F:EVIL | RES_FIRE | RES_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:SLOW | FORGET
 P:Copy:Dunadan:Chaos-Warrior
+O:DROP_WARRIOR
 D:A Black Numenorean with a blacker heart.
 
 N:393:It
@@ -6167,6 +6234,7 @@ P:Copy:Dark-Elf:Priest
 S:1_IN_6 | 
 S:HEAL | CONF | DARKNESS | 
 S:S_MONSTER | S_SPIDER | MISSILE
+O:DROP_PRIEST_EVIL
 D:A powerful dark elf, with mighty nature-controlling enchantments.
 
 N:401:Stone troll
@@ -6182,6 +6250,7 @@ F:OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | TROLL | HURT_LITE
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:He is a giant troll with scabrous black skin.
 
 N:402:Black
@@ -6215,6 +6284,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC |
 P:Copy:Half-Troll:Priest
 S:1_IN_5 | 
 S:BLINK | SCARE | CAUSE_1 | MISSILE | DARKNESS
+O:DROP_PRIEST_EVIL
 D:A troll who is so bright he knows how to read.
 
 N:404:Wereworm
@@ -6369,6 +6439,7 @@ F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
 P:Copy:Dunadan:Warrior
+O:DROP_WARRIOR
 D:A short and swarthy Easterling.
 
 N:414:Agent of Benedict
@@ -6382,6 +6453,7 @@ F:BASH_DOOR | OPEN_DOOR | HAS_LITE_2 | HUMAN |
 S:1_IN_8
 S:BLIND | CONF | TPORT
 P:Copy:Human:Chaos-Warrior
+O:DROP_WARRIOR
 D:A faithful servitor and a skilled warrior.
 
 N:415:Cave ogre
@@ -6394,6 +6466,7 @@ F:FRIENDS | DROP_60 | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
 P:Copy:Half-Ogre:Warrior
+O:DROP_WARRIOR
 D:A giant orc-like figure with an awesomely muscled frame.
 
 N:416:White wraith
@@ -6429,7 +6502,8 @@ F:POS_HOLD_LIFE | POS_GAIN_AC | POS_DETECT_EVIL | POS_BLESSING
 P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | FORGET
-D:A lesser angel wearing little more than a loincloth - its steely skin 
+O:DROP_PALADIN
+D:A lesser angel wearing little more than a loincloth - its steely skin
 D:provides all the protection it needs.
 
 N:418:Ghoul
@@ -6467,7 +6541,8 @@ P:Copy:Nibelung:Rogue
 P:Speed:+5
 S:1_IN_6 | 
 S:HEAL | SCARE | BO_ACID | BA_ACID | TPORT | S_MONSTER 
-D:Made invisible with his magic cap, the greedy dwarf plots for 
+O:DROP_DWARF
+D:Made invisible with his magic cap, the greedy dwarf plots for
 D:world domination through his riches.
 
 N:420:Hellblade
@@ -6537,6 +6612,7 @@ F:OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | TROLL
 F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:A powerful troll form. Venom drips from its needlelike claws.
 
 N:425:Flamer of Tzeentch
@@ -6654,6 +6730,7 @@ P:Copy:Half-Ogre:Mage
 S:1_IN_4 | 
 S:HEAL | HOLD | TRAPS | BA_COLD | 
 S:S_MONSTER
+O:DROP_MAGE
 D:A hideous ogre wrapped in black sorcerous robes.
 
 N:431:Grendel
@@ -6672,6 +6749,7 @@ F:EVIL | GIANT | RES_POIS | AURA_REVENGE
 F:DROP_CORPSE | POS_BERSERK
 P:Copy:Half-Ogre:Warrior
 P:Stats:3:0:0:0:2:0
+O:DROP_WARRIOR
 D:An ogre renowned for acts of surpassing cruelty.
 
 N:432:Vampire
@@ -6868,7 +6946,8 @@ F:DROP_SKELETON | DROP_CORPSE | POS_HEROISM
 S:1_IN_8 | 
 S:BLIND | SCARE | CAUSE_3 | DARKNESS
 P:Copy:Dunadan:Paladin
-D:He is a figure encased in deep black plate armour; he looks at you 
+O:DROP_PALADIN_EVIL
+D:He is a figure encased in deep black plate armour; he looks at you
 D:menacingly.
 
 N:443:Seahorse
@@ -6903,6 +6982,7 @@ F:DROP_CORPSE | POS_SUST_STR
 P:Copy:Cyclops:Warrior
 S:1_IN_8 | 
 S:THROW
+O:DROP_WARRIOR
 D:A gigantic humanoid with but one eye.
 
 N:445:Clairvoyant
@@ -6984,6 +7064,7 @@ S:1_IN_3 |
 S:HASTE | TPORT | TELE_TO | BLIND | CONF | 
 S:BO_FIRE | BO_COLD | BO_ELEC | 
 S:S_MONSTER
+O:DROP_MAGE
 D:A fat mage with glasses.
 
 N:450:Mind flayer
@@ -7000,7 +7081,7 @@ F:DROP_CORPSE | POS_TELEPATHY | POS_SEE_INVIS
 P:Copy:Mindflayer:Mage
 S:1_IN_8 | 
 S:BLIND | HOLD | SCARE | MIND_BLAST | BRAIN_SMASH | FORGET
-D:A humanoid form with a gruesome head, tentacular mouth, and piercing 
+D:A humanoid form with a gruesome head, tentacular mouth, and piercing
 D:eyes. Claws reach out for you and you feel a presence invade your mind.
 
 N:451:The Ultimate Dungeon Cleaner
@@ -7074,6 +7155,7 @@ F:OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | TROLL | RES_COLD | HURT_LITE | HURT_FIRE
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:He is a white troll with powerfully clawed hands.
 
 N:455:Dhole
@@ -7110,6 +7192,7 @@ F:POS_HOLD_LIFE | POS_GAIN_AC | POS_DETECT_EVIL | POS_BLESSING
 P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | CONF | SCARE
+O:DROP_PALADIN
 D:A lesser angel protected by an aura of holiness. Its muscular form looks
 D:extremely powerful next to your own frail body.
 
@@ -7242,7 +7325,8 @@ F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
 S:1_IN_7
 S:BR_POIS
-D:Pale, bald, fat, hairless troll creatures. Ugly beyond description. 
+O:DROP_WARRIOR
+D:Pale, bald, fat, hairless troll creatures. Ugly beyond description.
 D:Not to mention how bad their breath smells...
 
 N:464:Mithril golem
@@ -7456,7 +7540,8 @@ F:EVIL | RES_POIS | RES_ACID | GIANT |
 F:DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Giant:Warrior
 P:Body:Gug
-D:A hideous, beastly, four-armed unclean giant: "...large as a 
+O:DROP_WARRIOR
+D:A hideous, beastly, four-armed unclean giant: "...large as a
 D:barrel... The eyes jutted two inches from each side, shaded by 
 D:bony protuberances overgrown of the mouth. That mouth had great 
 D:yellow fangs and ran from the top to the tally."
@@ -7508,6 +7593,7 @@ P:Copy:Half-Ogre:Priest
 S:1_IN_5 | 
 S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE | 
 S:S_MONSTER
+O:DROP_PRIEST_EVIL
 D:It is an ogre wrapped in furs and covered in grotesque body paints.
 
 N:480:Nexus quylthulg
@@ -7616,6 +7702,7 @@ F:EVIL | NO_CONF | NO_SLEEP |
 P:Copy:Hobbit:Ninja
 P:Life:90
 P:Speed:+10
+O:DROP_NINJA
 D:A humanoid clothed in black who moves with blinding speed.
 
 N:486:Memory moss
@@ -7646,6 +7733,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Giant:Mauler
 S:1_IN_4 | 
 S:BLINK | TELE_TO | BO_ELEC | BA_ELEC | THROW
+O:DROP_WARRIOR
 D:It is a twenty-five foot tall giant wreathed in lighting.
 
 N:488:Spectator
@@ -7701,7 +7789,8 @@ F:DROP_CORPSE | POS_SUST_STR
 P:Copy:Cyclops:Warrior
 S:1_IN_8 |
 S:THROW
-D:Oh, no! Aaargh! It is the most unnatural, most disgusting 
+O:DROP_WARRIOR
+D:Oh, no! Aaargh! It is the most unnatural, most disgusting
 D:creature imaginable: a two-eyed cyclops! This perversion 
 D:of nature must be exterminated!
 
@@ -7720,6 +7809,7 @@ F:OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | TROLL | RES_POIS
 F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:A huge, ugly, half-human in search of plunder.
 
 N:492:Ivory monk
@@ -7755,6 +7845,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | RES_COLD | RES_POIS | HURT_LITE | HURT_ROCK
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:Big, brawny, powerful and with a taste for hobbit. He has friends called
 D:Bill and Tom.
 
@@ -7773,6 +7864,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | RES_COLD | RES_POIS | HURT_LITE | HURT_ROCK
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:Big, brawny, powerful and with a taste for hobbit. He has friends called
 D:Bert and Tom.
 
@@ -7791,6 +7883,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | RES_COLD | RES_POIS | HURT_LITE | HURT_ROCK
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:Big, brawny, powerful and with a taste for hobbit. He has friends called
 D:Bert and Bill.
 
@@ -7808,6 +7901,7 @@ F:OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | TROLL | RES_POIS | HURT_LITE
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:He is a vicious monster, feared for his ferocity.
 
 N:497:Anti-paladin
@@ -7823,6 +7917,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_HEROISM
 P:Copy:Dunadan:Paladin
 S:1_IN_4
 S:HOLD | SCARE | BLIND | CAUSE_3 | TRAPS | DARKNESS | FORGET | HASTE
+O:DROP_PALADIN_EVIL
 D:An embodiment of all the cardinal vices, he beholds you scornfully.
 
 N:498:Logrus master
@@ -7971,6 +8066,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:RES_COLD | RES_POIS
 P:Copy:Half-Giant:Warrior
+O:DROP_SAMURAI
 
 N:506:Fasolt the Giant
 G:P:u
@@ -7988,6 +8084,7 @@ F:DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Giant:Rogue
 S:1_IN_6 | 
 S:THROW
+O:DROP_WARRIOR
 D:Big, brawny, powerful and with a greed for gold.
 
 N:507:Logrus ghost
@@ -8044,6 +8141,7 @@ F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:EVIL | TROLL | RES_COLD | RES_POIS | RES_WATE | HURT_LITE
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:He is a troll that reeks of brine.
 
 N:510:Fire elemental
@@ -8081,7 +8179,8 @@ P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE | 
 S:S_MONSTERS
-D:It is an angel moving very quickly, wielding a holy war hammer and casting 
+O:DROP_PALADIN
+D:It is an angel moving very quickly, wielding a holy war hammer and casting
 D:a volley of powerful spells in your direction.
 
 N:512:Water elemental
@@ -8170,6 +8269,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 P:Copy:High-Elf:Rogue
 P:Speed:+10
+O:DROP_ROGUE
 D:Cool and confident, fast and lithe; protect your possessions quickly!
 
 N:517:Jurt the Living Trump
@@ -8207,6 +8307,7 @@ P:Copy:Skeleton:Warrior-Mage
 S:1_IN_4 | 
 S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE | 
 S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
+O:DROP_MAGE
 D:It is a skeletal form dressed in robes. It radiates vastly evil power.
 
 N:519:Gas spore
@@ -8444,6 +8545,7 @@ F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | HUMAN | NO_CONF | NO_SLEEP
 P:Copy:Dunadan:Warrior
 P:Speed:+7
+O:DROP_WARRIOR
 D:A human warrior, moving with lightning speed.
 
 N:533:Headless ghost
@@ -8550,6 +8652,7 @@ F:SMART | BASH_DOOR |
 F:EVIL | TROLL | RES_POIS
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:It is a massive intelligent troll with needle sharp fangs.
 
 N:539:Halfling slinger
@@ -8565,6 +8668,7 @@ F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Hobbit:Rogue
 S:1_IN_3
 S:SHOOT
+O:DROP_ARCHER
 D:A rebel halfling who has rejected the halfling tradition of archery.
 
 N:540:Gravity hound
@@ -8671,6 +8775,7 @@ F:OPEN_DOOR | BASH_DOOR | RES_WATE
 F:EVIL | TROLL | RES_COLD | RES_POIS | HURT_LITE
 F:POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:He is a troll that reeks of brine, close relative to water trolls.
 
 N:545:Ooze elemental
@@ -8792,7 +8897,8 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | RES_COLD | RES_POIS
 F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Mauler
-D:A massive and cruel troll of great power, drool slides caustically down 
+O:DROP_WARRIOR
+D:A massive and cruel troll of great power, drool slides caustically down
 D:his muscular frame. Despite his bulk, he strikes with stunning speed.
 
 N:552:Mist giant
@@ -8865,7 +8971,8 @@ F:POS_HOLD_LIFE | POS_SEE_INVIS
 P:Copy:Spectre:Paladin
 S:1_IN_4 |
 S:BO_FIRE
-D:Back from the grave, to wreak vengeance upon the living. A gaunt, tall, 
+O:DROP_PALADIN_EVIL
+D:Back from the grave, to wreak vengeance upon the living. A gaunt, tall,
 D:skeletal figure wearing a ruined plate mail.
 
 N:556:Young multi-hued dragon
@@ -9160,6 +9267,7 @@ S:1_IN_3 |
 S:HASTE | TPORT | TELE_TO | BLIND | HOLD | SCARE | CAUSE_3 | 
 S:BO_NETH | MIND_BLAST | FORGET |
 S:S_UNDEAD | S_DEMON | ANIM_DEAD
+O:DROP_PRIEST_EVIL
 D:A gaunt figure, clothed in black robes.
 
 N:572:The Greater Hell Magic Mushroom Were-Quylthulg
@@ -9203,6 +9311,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:TELE_TO | 
 S:S_KIN
+O:DROP_WARRIOR
 D:A Lord of Chaos famous for his skill at arms.
 P:Copy:Dunadan:Beastmaster
 
@@ -9271,7 +9380,8 @@ P:Copy:Skeleton:Warrior-Mage
 S:1_IN_3 | 
 S:BLINK | TELE_TO | TELE_AWAY | TELE_LEVEL |
 S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
-D:It is a skeletal form dressed in robes. 
+O:DROP_MAGE
+D:It is a skeletal form dressed in robes.
 D:It looks evil and devious...
 
 N:578:Chaos butterfly
@@ -9653,6 +9763,7 @@ P:Copy:Dunadan:Paladin
 S:1_IN_5 | 
 S:BLIND | SCARE | CAUSE_3 | BO_NETH | 
 S:S_MONSTERS
+O:DROP_PALADIN_EVIL
 D:It is a humanoid form dressed in armour of an ancient form. From beneath
 D:its helmet, eyes glow a baleful red and seem to pierce you like lances of 
 D:fire.
@@ -9809,6 +9920,7 @@ P:Copy:Archon:Paladin
 S:1_IN_11 | 
 S:HEAL | HASTE | TELE_AWAY | CONF | BO_MANA | BO_PLAS | 
 S:S_MONSTERS
+O:DROP_PALADIN
 D:It is an angel, fast and strong. You are stunned by its extreme holiness
 D:and try to resist all desires to obey it.
 
@@ -10257,7 +10369,8 @@ S:1_IN_2 |
 S:HEAL | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | FORGET | HOLD |
 S:S_MONSTER | S_MONSTERS | S_DEMON | TPORT | BA_NETH | MIND_BLAST |
 S:S_KIN
-D:One of the oldest and most powerful dark elves, Malekith is a master 
+O:DROP_MAGE
+D:One of the oldest and most powerful dark elves, Malekith is a master
 D:sorcerer devoted to evil. The left side of his face is pale, the other 
 D:one is dark. His hair is long and white. 
 
@@ -10294,6 +10407,7 @@ F:EVIL | TROLL | RES_COLD | RES_ELEC | RES_POIS |
 F:NO_CONF | NO_SLEEP
 F:POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
+O:DROP_WARRIOR
 D:A weird troll from the elemental planes.
 
 N:631:War troll
@@ -10310,6 +10424,7 @@ F:EVIL | TROLL | RES_POIS | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Berserker
 P:Life:80
+O:DROP_WARRIOR
 D:A massive troll, equipped with a scimitar and heavy armour.
 
 N:632:Disenchanter worm mass
@@ -10360,7 +10475,8 @@ P:Copy:Half-Titan:Mauler
 S:1_IN_5 | 
 S:HEAL | TELE_TO | SCARE | 
 S:S_MONSTERS | THROW
-D:It is a humanoid figure thirty feet tall that gives off an aura of power 
+O:DROP_WARRIOR
+D:It is a humanoid figure thirty feet tall that gives off an aura of power
 D:and hate.
 
 N:635:9-headed hydra
@@ -10400,7 +10516,8 @@ P:Copy:Dark-Elf:Beastmaster
 S:1_IN_2 | 
 S:BLIND | 
 S:S_DRAGON
-D:This elusive female spellcaster has a special affinity for dragons, whom 
+O:DROP_MAGE
+D:This elusive female spellcaster has a special affinity for dragons, whom
 D:she rarely fights without.
 
 N:637:Archpriest
@@ -10421,6 +10538,7 @@ P:Copy:Dwarf:Priest
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CONF | CAUSE_3 | ANIM_DEAD
 S:S_MONSTER | S_UNDEAD
+O:DROP_PRIEST_EVIL
 D:An evil priest, dressed all in black. Deadly spells hit you at an
 D:alarming rate as his black spiked mace rains down blow after blow on your 
 D:pitiful frame.
@@ -10444,7 +10562,8 @@ S:1_IN_2 |
 S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | TRAPS | 
 S:BO_ACID | BA_FIRE | BA_COLD | BO_MANA | BA_WATE
 S:S_MONSTER | S_UNDEAD | S_DRAGON
-D:A human figure in robes, he moves with magically improved speed, and his 
+O:DROP_MAGE
+D:A human figure in robes, he moves with magically improved speed, and his
 D:hands are ablur with spell casting.
 
 N:639:Xaren
@@ -10616,7 +10735,8 @@ P:Copy:Dark-Elf:Priest
 S:1_IN_2 | 
 S:BLIND | 
 S:S_DEMON | CONF | SCARE | DARKNESS 
-D:This old crone is rumoured to be a witch of chaos... but you don't 
+O:DROP_PRIEST_EVIL
+D:This old crone is rumoured to be a witch of chaos... but you don't
 D:really believe in witches, do you?
 
 N:648:Clubber demon
@@ -10821,6 +10941,7 @@ S:1_IN_2 |
 S:HEAL | BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | 
 S:BO_ACID | BA_FIRE | BA_COLD | ANIM_DEAD | BA_DARK
 S:S_MONSTER | S_UNDEAD | S_DEMON | MISSILE
+O:DROP_MAGE
 D:A dark elven figure, dressed in deepest black. Power seems to crackle
 D:from his slender frame.
 
@@ -10842,6 +10963,7 @@ S:1_IN_3 |
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | 
 S:S_UNDEAD
+O:DROP_MAGE
 D:A skeletal form wrapped in robes. Powerful magic crackles along its bony
 D:fingers.
 
@@ -10901,6 +11023,7 @@ P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
 S:S_MONSTERS | INVULNER
+O:DROP_PALADIN
 D:Never a more heavenly being have you seen. The very holiness of its
 D:presence makes you deeply respect it. Few creatures can match the powers
 D:of an Archon; fewer still live to tell the tale after attacking one.
@@ -11094,7 +11217,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL |
 F:DROP_SKELETON | DROP_CORPSE | POS_TELEPATHY
 S:1_IN_4
 S:BLIND | HEAL | BA_DARK | HASTE | CONF | TRAPS
-D:Deriving his strength from the shadows, this king of thieves 
+D:Deriving his strength from the shadows, this king of thieves
 D:steals only for the challenge.
 P:Copy:High-Elf:Rogue
 P:Skills:0:0:0:7:0:0:0:0
@@ -11367,6 +11490,7 @@ P:Speed:+5
 S:1_IN_3 | 
 S:HEAL | TELE_TO | 
 S:S_KIN | BR_COLD | THROW
+O:DROP_WARRIOR
 D:A frost giant chieftain, unusually smart for a giant.
 
 N:684:Quachil Uttaus, Treader of the Dust
@@ -11499,6 +11623,7 @@ F:POS_DETECT_MONSTERS | POS_MAPPING | POS_BLESSING | POS_HEROISM | POS_SUST_WIS
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CAUSE_4 | BRAIN_SMASH | ANIM_DEAD 
 S:S_MONSTERS | S_UNDEAD
+O:DROP_PRIEST_EVIL
 D:A dark priest of the highest order. Powerful and evil, beware his many
 D:spells.
 P:Copy:Dark-Elf:Priest
@@ -11712,6 +11837,7 @@ F:POS_DETECT_EVIL | POS_MAPPING | POS_BLESSING | POS_HEROISM
 P:Copy:Dunadan:Paladin
 S:1_IN_12
 S:HEAL 
+O:DROP_PALADIN
 D:Fighting for a good cause, and they consider you an agent of the devil.
 
 N:700:Leprechaun fanatic
@@ -11770,6 +11896,7 @@ P:Copy:Half-Titan:Mauler
 S:1_IN_5 | 
 S:HEAL | TELE_TO | 
 S:S_MONSTERS | THROW
+O:DROP_WARRIOR
 D:A forty foot tall humanoid that shakes the ground as it walks. The power
 D:radiating from its frame shakes your courage, its hatred inspired by your 
 D:defiance.
@@ -12344,7 +12471,8 @@ F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Warrior
 P:Stats:5:0:0:1:4:1
 P:Life:107
-D:Ulik is the strongest troll who has ever lived. He could challenge 
+O:DROP_WARRIOR
+D:Ulik is the strongest troll who has ever lived. He could challenge
 D:the immortals and pound them to dust with his great strength.
 
 N:730:Baphomet the Minotaur Lord
@@ -12384,6 +12512,7 @@ F:DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS
 P:Copy:Dunadan:Paladin
 S:1_IN_5 |
 S:BLIND | SCARE | CAUSE_3 | BA_NETH | BA_FIRE | BO_PLAS | S_MONSTERS
+O:DROP_PALADIN_EVIL
 D:It is a humanoid form dressed in armour of ancient style. From beneath
 D:its helmet, eyes glow with hellfire.
 
@@ -12634,6 +12763,7 @@ S:1_IN_3 |
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | S_HI_UNDEAD | S_UNDEAD | FORGET |
 S:TPORT | HEAL | ANIM_DEAD
+O:DROP_MAGE
 D:A lich who is partially immaterial, on its way to a new, ethereal form.
 
 N:743:The Phoenix
@@ -13084,6 +13214,7 @@ S:1_IN_4 |
 S:HEAL | BLIND | CONF | SCARE | CAUSE_3 | CAUSE_4 | BRAIN_SMASH | 
 S:FORGET | 
 S:S_MONSTERS
+O:DROP_PRIEST
 D:He is one of the greatest dwarven priests to walk the earth. Fundin has
 D:earned a high position in the church, and his skill with both weapon and 
 D:spell only justify his position further. His combination of both dwarven
@@ -13142,6 +13273,7 @@ S:TELE_TO | BLIND |
 S:BO_MANA | BA_FIRE |
 S:BR_FIRE | BR_MANA | INVULNER | BO_PLAS | BR_PLAS |
 S:S_ANGEL | PSY_SPEAR | HEAL | BA_LITE
+O:DROP_PALADIN
 D:A creature of godly appearance, you dare not challenge Uriel's supremacy.
 D:Those who stood against him before are but a memory, cremated by his 
 D:mastery of elemental fire.
@@ -13168,7 +13300,8 @@ S:TELE_TO | BLIND |
 S:BO_MANA | BA_NETH |
 S:BR_NETH | PSY_SPEAR | S_MONSTERS | HEAL |
 S:S_ANGEL | BR_MANA | BR_COLD | S_DRAGON | INVULNER | BA_LITE
-D:Azriel commands awesome power, his visage holy enough to shrivel your 
+O:DROP_PALADIN
+D:Azriel commands awesome power, his visage holy enough to shrivel your
 D:soul. You shriek with disbelief as his mastery of death draws you to your
 D:grave. It is truly beyond all but the mightiest of warriors to stand
 D:against him and live.
@@ -13275,6 +13408,7 @@ S:1_IN_2 |
 S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN | INVULNER | DISPEL | ANTI_MAGIC | PSY_SPEAR
 S:BR_MANA | BR_LITE | BR_ELEC | BA_MANA | HAND_DOOM | S_HI_DRAGON |
 S:BRAIN_SMASH | S_MONSTERS | HEAL | BR_DISE | BA_LITE
+O:DROP_PALADIN
 D:Commanding a legion of angels, Raphael will destroy you for your sins. He
 D:will crush you like the pitiful insignificant being he sees you to be.
 D:Your very soul will be taken into judgement by his supreme authority as he 
@@ -13320,7 +13454,8 @@ S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | POLY
 S:CAUSE_4 | MIND_BLAST | FORGET | TRAPS | ANIM_DEAD | TELE_TO
 S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE | 
 S:S_UNDEAD | S_DEMON | S_DRAGON | PSY_SPEAR
-D:Originally known as the White, Saruman fell prey to Sauron's wiles. He 
+O:DROP_MAGE
+D:Originally known as the White, Saruman fell prey to Sauron's wiles. He
 D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
 D:world.
 P:Copy:High-Elf:Mage
@@ -13347,6 +13482,7 @@ S:S_MONSTER | S_ANGEL | S_DRAGON | S_KIN
 D:The wizard who opposed Saruman, and in the end, was the only 
 D:one of the Istari to succeed in his task. Gandalf is very 
 D:wise and specializes in fire magic.
+O:DROP_MAGE
 P:Copy:High-Elf:Mage
 
 N:773:Brand, Mad Visionary of Amber
@@ -13441,7 +13577,8 @@ S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 |
 S:DRAIN_MANA | BRAIN_SMASH | S_HI_UNDEAD | S_UNDEAD | FORGET |
 S:TPORT | HEAL | S_KIN | S_DEMON | BA_NETH | ANIM_DEAD | DISPEL | ANTI_MAGIC
 S:BA_MANA
-D:A lich who has reached its ultimate evolutionary stage: a completely 
+O:DROP_MAGE
+D:A lich who has reached its ultimate evolutionary stage: a completely
 D:immaterial state.
 
 N:777:Bast, Goddess of Cats
@@ -14155,7 +14292,8 @@ F:EVIL | RES_POIS | RES_ACID | RES_FIRE | REGENERATE
 F:OPEN_DOOR | BASH_DOOR |
 S:1_IN_4 |
 S:HEAL | TPORT | TELE_TO | SCARE | BLIND | S_MONSTERS
-D:Gerard may not be quite as devious as the other Amberites, but 
+O:DROP_WARRIOR
+D:Gerard may not be quite as devious as the other Amberites, but
 D:he is certainly stronger than the rest of them put together. "...a big, 
 D:powerful man... (He) resembled (Corwin) quite strongly, save that 
 D:his jaw was heavier, and (Corwin) knew he was bigger than him, though 
@@ -14432,6 +14570,7 @@ P:Stats:0:3:0:0:0:0
 S:1_IN_2 | 
 S:TELE_TO | HOLD | CAUSE_3 | TRAPS | ANIM_DEAD | DISPEL | ANTI_MAGIC | PSY_SPEAR |
 S:BO_PLAS | BA_DARK | BA_MANA | BA_FIRE | BA_WATE | BA_NETH
+O:DROP_MAGE
 D:The Mouth of Sauron is a mighty spell caster. So old that even he cannot
 D:remember his own name, his power and evil are undeniable. He believes
 D:unshakably that he is unbeatable and laughs as he weaves his awesome
@@ -14447,7 +14586,7 @@ B:TOUCH:BLIND
 B:TOUCH:CONFUSE
 F:UNIQUE | MALE | CAN_SPEAK | POWERFUL | RES_TELE | HAS_LITE_2 | HUMAN |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GREAT | DROP_GOOD |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GREAT | DROP_GOOD |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | RES_FIRE | RES_COLD | 
 F:RES_ELEC | NO_CONF | NO_SLEEP
@@ -14458,7 +14597,8 @@ S:1_IN_2 |
 S:CAUSE_3 | TELE_TO | BA_FIRE | DRAIN_MANA | HOLD |
 S:TRAPS | BA_WATE | BO_PLAS | BA_NETH | DISPEL | ANTI_MAGIC | PSY_SPEAR |
 S:BA_MANA | BA_DARK | S_HI_UNDEAD | BA_CHAO | HAND_DOOM | ANIM_DEAD
-D:Klingsor, whose hopeless effort to join the Knights of the Grail 
+O:DROP_MAGE
+D:Klingsor, whose hopeless effort to join the Knights of the Grail
 D:was thwarted, turned to black magic and became a deadly necromancer.
 
 N:820:Corwin, Lord of Avalon
@@ -14579,7 +14719,8 @@ S:1_IN_4 |
 S:SCARE | CONF | TPORT | TELE_TO | DRAIN_MANA | TRAPS | BRAIN_SMASH |
 S:TELE_AWAY | CAUSE_4 | S_MONSTERS |
 S:S_DEMON | TELE_LEVEL | FORGET | HEAL
-D:In the field of combat Benedict rules supreme: with but one hand 
+O:DROP_WARRIOR
+D:In the field of combat Benedict rules supreme: with but one hand
 D:he was still superior to Corwin. "Benedict, tall and dour; thin of 
 D:body, thin of face, wide of mind. He wore orange and yellow and brown 
 D:and reminded me of haystacks and pumpkins and scarecrows and the 
@@ -14733,7 +14874,8 @@ S:1_IN_1 |
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
 S:S_HI_UNDEAD | ANIM_DEAD | PSY_SPEAR
-D:A legion of evil undead druj animating the skeleton of a once mighty 
+O:DROP_MAGE
+D:A legion of evil undead druj animating the skeleton of a once mighty
 D:sorcerer. His power is devastating and his speed unmatched in the
 D:underworld. Flee his wrath!
 
@@ -15063,7 +15205,8 @@ S:1_IN_3 |
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | POLY
 S:BA_MANA | BO_MANA | BA_FIRE | DISPEL | ANTI_MAGIC | PSY_SPEAR |
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | HAND_DOOM | ANIM_DEAD
-D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
+O:DROP_MAGE
+D:A stench of corruption and decay surrounds this sorcerer, who has clearly
 D:risen from the grave to continue his foul plots and schemes.
 
 N:845:Yog-Sothoth, the All-in-One
@@ -15189,6 +15332,7 @@ S:TELE_AWAY | TELE_TO | TELE_LEVEL | TPORT |
 S:BO_MANA | BA_MANA | S_MONSTERS | HEAL |
 S:HASTE | HAND_DOOM | 
 S:S_ANGEL | S_UNIQUE | DISPEL | ANTI_MAGIC | PSY_SPEAR
+O:DROP_MAGE
 D:The hoary Lord of the Great Abyss seems a wizened man, but appearances
 D:can be deceiving.
 
@@ -15841,7 +15985,8 @@ F:DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Mauler
 S:1_IN_7 | 
 S:BA_COLD | BO_ICEE | BO_WATE | BA_ELEC
-D:The dungeon shakes as an enormous troll-form thunders into view, hurling 
+O:DROP_WARRIOR
+D:The dungeon shakes as an enormous troll-form thunders into view, hurling
 D:ice and lightning in every direction. It is thirty feet tall, has six
 D:heads, and is enraged at your impudence.
 
@@ -15948,6 +16093,7 @@ S:1_IN_3 |
 S:TPORT | BLIND | HOLD | BLINK | HEAL | HASTE |
 S:TELE_TO | CONF | BO_MANA | BRAIN_SMASH | PSY_SPEAR
 P:Copy:Half-Titan:Monk
+O:DROP_WARRIOR
 
 
 N:882:Layzark, the Emperor
@@ -15969,6 +16115,7 @@ S:CONF | BO_MANA | BRAIN_SMASH | PSY_SPEAR |
 S:BA_NETH | BA_DARK | BA_CHAO |
 S:S_MONSTERS | S_DEMON | S_KIN
 P:Copy:Demigod:Mage
+O:DROP_MAGE
 
 N:883:Zombified Serpent of Chaos
 G:J:D
@@ -16040,6 +16187,7 @@ S:1_IN_2 |
 S:HEAL | BLINK | BLIND | CONF | CAUSE_3 | DARKNESS | 
 S:ANIM_DEAD | SHRIEK | TELE_AWAY | BA_DARK | DRAIN_MANA |
 S:S_MONSTER | S_UNDEAD | S_DEMON | S_KIN |
+O:DROP_MAGE
 D:A dark elven figure that glows with an inner light.
 
 N:887:Mana hound
@@ -16131,7 +16279,8 @@ F:SMART | OPEN_DOOR | BASH_DOOR | HAS_LITE_2 |
 F:RES_ACID | RES_COLD | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP |
 S:1_IN_2 | 
 S:CAUSE_3 | BO_WATE | BO_MANA
-D:This once-mighty warrior was so dominated by Morgoth's power that he 
+O:DROP_WARRIOR
+D:This once-mighty warrior was so dominated by Morgoth's power that he
 D:became little more than a mindless creature of evil.
 P:Copy:Human:Beastmaster
 
@@ -16179,6 +16328,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC | POS_BERSERK
 P:Copy:Half-Troll:Mauler
 S:1_IN_8 |
 S:BLINK
+O:DROP_WARRIOR
 D:This troll is a king, which means it's still stupid, but has even more power.
 D:It never comes alone, and can call out to other trolls.
 
@@ -16285,6 +16435,7 @@ F:MALE | ONLY_ITEM | DROP_90 | DROP_CORPSE | DROP_SKELETON | GOOD | HUMAN |
 F:OPEN_DOOR | BASH_DOOR | HAS_LITE_1 |
 D:A warrior clad in ornate but effective armour, holding katana so sharp it
 D:can cut your throat and you won't notice till you nod.
+O:DROP_SAMURAI
 P:Copy:Demigod:Warrior
 
 N:902:Magma intrusion
@@ -16366,6 +16517,7 @@ B:HIT:SUPERHURT:4d8
 F:RAND_25 | DROP_90 | OPEN_DOOR | BASH_DOOR | DROP_CORPSE | EVIL | GIANT | MOVE_BODY
 F:WILD_WASTE
 P:Copy:Half-Ogre:Warrior
+O:DROP_WARRIOR
 D:It is a massive ogre in metal armour, a champion of its kind.
 
 N:908:Pole axe of animated attack
@@ -16467,7 +16619,7 @@ F:FORCE_MAXHP | DROP_CORPSE | DROP_SKELETON |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 P:Copy:Hobbit:Rogue
-D:He is a sturdy hobbit who is renowned for his unusual strength and 
+D:He is a sturdy hobbit who is renowned for his unusual strength and
 D:vigour. He can prove a troublesome opponent.
 
 N:915:Mystic
@@ -16775,6 +16927,7 @@ S:1_IN_3 |
 S:BLIND | HOLD | HEAL | HASTE |
 S:TELE_TO | CONF | BO_MANA | BRAIN_SMASH | PSY_SPEAR
 P:Copy:Demigod:Mystic
+O:DROP_WARRIOR
 
 N:931:Caldarm the Third
 G:p:D
@@ -16923,6 +17076,7 @@ F:GOOD
 F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_EVIL | POS_MAPPING | POS_BLESSING
 S:1_IN_8 | 
 S:CONF | HOLD | CAUSE_3 | HEAL
+O:DROP_PALADIN
 D:A knight wrapped in plate armor of pure white.
 D:He stares at you menacingly.
 P:Copy:Human:Paladin
@@ -17006,6 +17160,7 @@ P:Copy:Archon:Paladin
 S:1_IN_4 | 
 S:HEAL | HASTE | TELE_AWAY | BO_MANA | BO_PLAS | CAUSE_4 |
 S:S_MONSTERS | S_ANGEL | INVULNER | PSY_SPEAR | S_DRAGON | DISPEL | ANTI_MAGIC
+O:DROP_PALADIN
 D:It is an angel, fast and strong. You are stunned by its extreme holiness
 D:and try to resist all desires to obey it.
 
@@ -17027,6 +17182,7 @@ P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_4 | BO_MANA | PSY_SPEAR | INVULNER
 S:S_ANGEL | S_DRAGON | BA_LITE | HEAL | DISPEL | ANTI_MAGIC
+O:DROP_PALADIN
 D:Never a more heavenly being have you seen. The very holiness of its
 D:presence makes you deeply respect it. Few creatures can match the powers
 D:of a Solar; fewer still live to tell the tale after attacking one.
@@ -17203,6 +17359,7 @@ F:ORC | HURT_LITE | EVIL | RES_DARK
 P:Copy:Kobold:Warrior
 S:1_IN_2 |
 S:SHOOT
+O:DROP_WARRIOR_SHOOT
 D:In a rare display of ingenuity, the Orcs invented an incredibly
 D:destructive weapon. Most Orcish artillerists are those who dared
 D:criticize its effectiveness.
@@ -17523,6 +17680,7 @@ F:UNIQUE | MALE | FORCE_MAXHP | DROP_60 | DROP_GOOD | HUMAN |
 F:DROP_1D2 | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | RES_FIRE |
 F:TAKE_ITEM | CAN_SPEAK | EVIL | NO_CONF | NO_SLEEP | 
 F:CAN_SWIM | DROP_CORPSE | AURA_FIRE | HAS_LITE_2 |
+O:DROP_WARRIOR
 D:Beld seeks to conquer Lodoss and will destroy anyone who stands in his way.
 P:Copy:Dunadan:Warrior
 
@@ -17538,6 +17696,7 @@ F:UNIQUE | MALE | FORCE_MAXHP | DROP_60 | DROP_GOOD | EVIL | HUMAN |
 F:DROP_1D2 | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | RES_FIRE |
 F:TAKE_ITEM | CAN_SPEAK | NO_CONF | NO_SLEEP | 
 F:CAN_SWIM | DROP_CORPSE | AURA_FIRE | HAS_LITE_2 |
+O:DROP_WARRIOR
 D:Ashram took up Beld's sword and position after his death.
 P:Copy:Dunadan:Warrior
 
@@ -17637,6 +17796,7 @@ F:EVIL | GIANT | RES_POIS | RES_FIRE | RES_ELEC
 F:DROP_CORPSE | POS_BERSERK
 P:Copy:Half-Ogre:Warrior
 P:Stats:6:0:0:0:4:0
+O:DROP_WARRIOR
 
 N:980:Coatl
 I:115:30d20:30:80:50:50
@@ -17908,6 +18068,7 @@ F:DROP_SKELETON | DROP_CORPSE
 P:Copy:Dwarf:Samurai
 S:1_IN_6 | 
 S:HEAL | BLIND | CONF | CAUSE_2 | MIND_BLAST
+O:DROP_DWARF
 D:This dwarf became so obsessed by gold that Morgoth tricked him into 
 D:betraying his friends.
 
@@ -18061,6 +18222,7 @@ S:1_IN_2 | CAUSE_3 | BA_FIRE | HOLD | BLIND | CONF | SCARE
 S:TRAPS | BO_PLAS | BO_NETH
 S:BA_DARK | S_HOUND
 P:Copy:Human:High-Mage
+O:DROP_MAGE
 
 N:1006:High-elven ranger
 G:h:G
@@ -18076,6 +18238,7 @@ F:DROP_SKELETON | DROP_CORPSE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPIN
 P:Copy:High-Elf:Ranger
 S:1_IN_2 |
 S:SHOOT
+O:DROP_ARCHER
 D:An elf cloaked in green wielding a longbow.
 
 N:1007:Giant cockroach
@@ -18359,7 +18522,8 @@ P:Skills:0:0:0:5:0:0:0:0
 P:Speed:+15
 S:1_IN_2 |
 S:BLINK | TPORT | TELE_TO | CONF | TRAPS
-D:A class of its own: you are already too late to protect your possessions 
+O:DROP_ROGUE
+D:A class of its own: you are already too late to protect your possessions
 D:and he seems to have studied magic too, and is a master of setting traps.
 
 N:1025:Charon, Boatman of the Styx
@@ -18405,7 +18569,8 @@ S:1_IN_2 |
 S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | CAUSE_4 | TRAPS |
 S:BO_ACID | BA_FIRE | BA_COLD | BA_POIS | BO_WATE | BO_MANA | BA_WATE
 S:S_MONSTER | S_UNDEAD | S_DRAGON | S_HI_DRAGON | S_HI_UNDEAD
-D:A human figure in robes, he moves with magically improved speed, and his 
+O:DROP_MAGE
+D:A human figure in robes, he moves with magically improved speed, and his
 D:hands are a blur with spell casting. You stagger at the mighty sound of his 
 D:spells as they echo hollowly through the dungeon.
 
@@ -18468,6 +18633,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | ESCORT |
 F:OPEN_DOOR | BASH_DOOR | SOUTHERING
 S:1_IN_10 |
 S:S_KIN
+O:DROP_WARRIOR
 D:He is the king of Nanman. He was arrested by Zhuge Liang 7 times.
 P:Copy:Human:Paladin
 
@@ -18573,6 +18739,7 @@ S:1_IN_2 |
 S:TRAPS | BLINK
 P:Copy:Hobbit:Rogue
 P:Speed:+10
+O:DROP_ROGUE
 
 N:1037:Knight templar
 G:p:w
@@ -18591,7 +18758,8 @@ F:POS_DETECT_EVIL | POS_MAPPING | POS_BLESSING | POS_HEROISM
 P:Copy:Dunadan:Paladin
 S:1_IN_4 | 
 S:HEAL | SCARE | CAUSE_3 | CAUSE_4 | HASTE | BLIND | S_ANGEL
-D:It seems that the more devout the person, the more likely they are to cross 
+O:DROP_PALADIN
+D:It seems that the more devout the person, the more likely they are to cross
 D:the boundary between piety and sanctimoniousness. And such is the case with 
 D:the Order of the Knights Templar: they are among the most pious and 
 D:powerful of the religious knightly orders, but noted for their intolerance. 
@@ -18610,7 +18778,8 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | KNIGHT
 F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_EVIL | POS_MAPPING | POS_BLESSING
 S:1_IN_4 | 
 S:HEAL | CAUSE_1 | CAUSE_2 | SLOW | SCARE | BLIND
-D:A warrior for a holy cause. Unfortunately, his god is not yours, and there is 
+O:DROP_PALADIN
+D:A warrior for a holy cause. Unfortunately, his god is not yours, and there is
 D:rivalry even between the various gods of Good, so he is your enemy.
 P:Copy:Human:Paladin
 
@@ -18627,7 +18796,8 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_MONSTERS | POS_MAPPING
 S:1_IN_4 | 
 S:SHOOT | MISSILE | S_MONSTER | BO_ELEC | BLINK
-D:A warrior who is at one with nature. A master of both bow and sword, with 
+O:DROP_ARCHER
+D:A warrior who is at one with nature. A master of both bow and sword, with
 D:minor spellcasting skills, and animals come to do his bidding.
 P:Copy:Human:Ranger
 
@@ -18740,6 +18910,7 @@ F:FORCE_MAXHP | HAS_LITE_1 | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:DROP_WARRIOR
 D:A short and swarthy Easterling dressed in Black.
 P:Copy:Dunadan:Rogue
 
@@ -18937,6 +19108,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | GIANT | ORC | RES_DARK
 F:DROP_CORPSE | 
 P:Copy:Half-Ogre:Warrior
+O:DROP_WARRIOR
 D:An unholy hybrid of ogre and orc.
 
 N:1058:Elder vampire
@@ -19215,6 +19387,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | CAN_SPEAK |
 F:EVIL | ORC | RES_POIS | RES_DARK
 P:Copy:Kobold:Warrior
+O:DROP_WARRIOR
 
 N:1073:Meng You, the Brother of Meng Huo
 G:p:o
@@ -19228,6 +19401,7 @@ F:UNIQUE | MALE | EVIL | HAS_LITE_2 | HUMAN |
 F:FORCE_MAXHP | CAN_SPEAK | WILD_ALL | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | SOUTHERING
+O:DROP_WARRIOR
 D:He is a junior brother of king of southerings Meng Huo.
 P:Copy:Human:Warrior
 
@@ -19260,6 +19434,7 @@ F:FORCE_MAXHP | CAN_SPEAK | WILD_ALL | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR | SOUTHERING
 S:1_IN_5 |
 S:SHOOT
+O:DROP_WARRIOR_SHOOT
 D:He is one of the captains of Nanman.
 D:He comes to help his sister and her husband Meng Huo.
 P:Copy:Human:Paladin
@@ -19308,7 +19483,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR |
 F:RES_ACID | RES_ELEC | RES_POIS | HURT_FIRE |
 F:DROP_SKELETON | DROP_CORPSE | SOUTHERING
 P:Copy:Half-Giant:Warrior
-D:This giant man is the king of southern Nanman. It is said that 
+O:DROP_WARRIOR
+D:This giant man is the king of southern Nanman. It is said that
 D:he is about 10 feet tall. His army has hard rattan armor.
 
 N:1079:Invisible Pink Unicorn
@@ -19414,6 +19590,7 @@ S:1_IN_1 |
 S:BLINK | TPORT | HEAL | TELE_AWAY |
 S:BA_MANA | BR_DISI | DISPEL | ANTI_MAGIC
 S:BA_NETH | BO_MANA | BA_CHAO
+O:DROP_MAGE
 D:A wizened old man, stooped by age, he seems barely able to move.
 D:Yet, something is not quite right here. You see a faint shimmer
 D:in the air surrounding this pathetic old man.
@@ -19731,6 +19908,7 @@ P:Copy:Half-Titan:Mauler
 P:Stats:1:0:3:1:0:0
 S:1_IN_5 | 
 S:TELE_TO | SPECIAL
+O:DROP_WARRIOR
 D:Ares is the bold son of Zeus and Hera, whose very name is
 D:feared and respected by warriors and citizens alike. His
 D:legendary combat prowess exceeds that of Zeus and 
@@ -19900,6 +20078,7 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | ORC | HURT_LITE | RES_DARK | KILL_WALL | MOVE_BODY
 P:Copy:Kobold:Warrior
+O:DROP_WARRIOR
 D:He is a hardy orc with a pick in hand.
 
 N:1109:Exploding ant
@@ -20097,6 +20276,7 @@ F:RES_FIRE | RES_POIS | RES_ELEC | RES_ACID | RES_COLD |
 F:NO_SLEEP | NO_CONF | AURA_FEAR | CAMELOT | SELF_DARK_1
 S:1_IN_3 | 
 S:BO_MANA | TPORT | HEAL | HASTE | BA_WATE
+O:DROP_MAGE
 D:The great keeper of Pagan traditions, Morgana Le Fay
 D:is seen as a savior by some, and a witch by many. She
 D:refused to let her lands be invaded by Christianity,
@@ -20119,6 +20299,7 @@ F:RES_ELEC | RES_ACID | RES_COLD |
 F:NO_SLEEP | NO_CONF | AURA_REVENGE | CAMELOT | SELF_DARK_1
 S:1_IN_6 | 
 S:BO_MANA | TPORT | HEAL | HASTE | BA_WATE
+O:DROP_MAGE
 D:A mighty spellsword and the son of Morgana Le Fay,
 D:Mordred is prophesized to unite the lands after
 D:the fall of Camelot.

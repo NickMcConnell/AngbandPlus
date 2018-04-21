@@ -35,10 +35,10 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:22
 ?:[EQU $QUEST22 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:22
 
-# Quest 22 rewarding, reward is Elven Cloak, continue with quest 19
+# Quest 22 rewarding, reward is Cloak of Stealth, continue with quest 19
 ?:[EQU $QUEST22 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:19
-F:!:FLOOR:3:0:90
+F:!:FLOOR:3:0:123:102
 
 # Quest 22 finished, continue with quest 19
 ?:[EQU $QUEST22 4]

@@ -401,97 +401,78 @@ static s16b chest_check(int y, int x)
  *
  * Disperse treasures from the given chest, centered at (x,y).
  *
- * Small chests often contain "gold", while Large chests always contain
- * items. Wooden chests contain 2 items, Iron chests contain 4 items,
- * and Steel chests contain 6 items. The "value" of the items in a
- * chest is based on the "power" of the chest, which is in turn based
- * on the level on which the chest is generated.
+ * Chests are now a good means of getting gold  -CHRIS-
+ *
  */
+static bool _chest_scatter(object_type *o_ptr)
+{
+    int i;
+    for (i = 0; i < 200; i++)
+    {
+        int y = randint0(MAX_HGT);
+        int x = randint0(MAX_WID);
+
+        if (!cave_empty_bold(y, x)) continue;
+        drop_near(o_ptr, -1, y, x);
+        return TRUE;
+    }
+    return FALSE;
+}
 static void chest_death(bool scatter, int y, int x, s16b o_idx)
 {
-    int number;
+    int         ct_objects = 0, ct_gold = 0;
+    int         i;
+    u32b        mode = AM_GOOD;
+    object_type *chest_ptr = &o_list[o_idx];
 
-    bool small;
-    u32b mode = AM_GOOD;
-
-    object_type forge;
-    object_type *q_ptr;
-
-    object_type *o_ptr = &o_list[o_idx];
-
-
-    /* Small chests often hold "gold" */
-    small = (o_ptr->sval < SV_CHEST_MIN_LARGE);
-
-    /* Determine how much to drop (see above) */
-    number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
-
-    if (o_ptr->sval == SV_CHEST_KANDUME)
+    if (chest_ptr->sval == SV_CHEST_KANDUME) /* Can of Toys */
     {
-        number = 5;
-        small = FALSE;
+        ct_objects = 5;
+        ct_gold = 0;
         mode |= AM_GREAT;
-        object_level = o_ptr->xtra3;
+        object_level = chest_ptr->xtra3;
     }
     else
-    {
-        /* Determine the "value" of the items */
-        object_level = ABS(o_ptr->pval) + 10;
+    {        /* v~~~~~~~~~ You'll need to look a k_info.txt to understand this ... */
+        int num = chest_ptr->sval % SV_CHEST_MIN_LARGE;
+
+        object_level = ABS(chest_ptr->pval) + 10;
+        if (chest_ptr->sval < SV_CHEST_MIN_LARGE)
+        {
+            ct_gold = damroll(2, num);
+            ct_objects = damroll(1, num);
+        }
+        else
+        {
+            ct_gold = damroll(3, num);
+            ct_objects = damroll(2, num);
+        }
     }
 
     /* Zero pval means empty chest */
-    if (!o_ptr->pval) number = 0;
+    if (!chest_ptr->pval)
+    {
+        ct_gold = 0;
+        ct_objects = 0;
+    }
 
     /* Opening a chest */
-    opening_chest = TRUE;
+    opening_chest = TRUE; /* <==== This hack prevents getting chests from inside chests! */
 
-    /* Drop some objects (non-chests) */
-    for (; number > 0; --number)
+    for (i = 0; i < ct_objects; i++)
     {
-        /* Get local object */
-        q_ptr = &forge;
+        object_type forge = {0};
+        if (!make_object(&forge, mode)) continue;
+        if (scatter) _chest_scatter(&forge);
+        else drop_near(&forge, -1, y, x);
+    }
 
-        /* Wipe the object */
-        object_wipe(q_ptr);
-
-        /* Small chests often drop gold. Wilderness chests almost always
-           drop gold. */
-        if ( (!dun_level && (randint0(100) < 75))
-          || (small && (randint0(100) < 25)) )
-        {
-            /* Make some gold */
-            if (!make_gold(q_ptr)) continue;
-        }
-
-        /* Otherwise drop an item */
-        else
-        {
-            /* Make a good object */
-            if (!make_object(q_ptr, mode)) continue;
-        }
-
-        /* If chest scatters its contents, pick any floor square. */
-        if (scatter)
-        {
-            int i;
-            for (i = 0; i < 200; i++)
-            {
-                /* Pick a totally random spot. */
-                y = randint0(MAX_HGT);
-                x = randint0(MAX_WID);
-
-                /* Must be an empty floor. */
-                if (!cave_empty_bold(y, x)) continue;
-
-                /* Place the object there. */
-                drop_near(q_ptr, -1, y, x);
-
-                /* Done. */
-                break;
-            }
-        }
-        /* Normally, drop object near the chest. */
-        else drop_near(q_ptr, -1, y, x);
+    for (i = 0; i < ct_gold; i++)
+    {
+        object_type forge = {0};
+        if (!make_gold(&forge, TRUE)) continue;
+        if (scatter) _chest_scatter(&forge);
+        else drop_near(&forge, -1, y, x);
     }
 
     /* Reset the object level */
@@ -501,10 +482,10 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
     opening_chest = FALSE;
 
     /* Empty */
-    o_ptr->pval = 0;
+    chest_ptr->pval = 0;
 
     /* Known */
-    object_known(o_ptr);
+    object_known(chest_ptr);
 }
 
 

@@ -681,7 +681,7 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool all)
     u32b flgs[TR_FLAG_SIZE];
 
     /* Extract the flags */
-    object_flags(o_ptr, flgs);
+    object_flags_known(o_ptr, flgs);
 
 
     /* Remove obvious flags */
@@ -1709,10 +1709,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (have_flag(flgs, TR_SHOW_MODS)) show_weapon = TRUE;
 
     /* Display the item like a weapon */
-    if (object_is_smith(o_ptr) && (o_ptr->xtra3 == 1 + ESSENCE_SLAY_GLOVE))
-        show_weapon = TRUE;
-
-    /* Display the item like a weapon */
     if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
 
     /* Display the item like armour */
@@ -1915,7 +1911,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             if (prace_is_(RACE_CENTAUR) && object_is_body_armour(o_ptr))
             {
                 ac -= ac / 3;
-                to_a -= to_a / 3;
+                if (to_a > 0)
+                    to_a -= to_a / 3;
             }
 
             t = object_desc_chr(t, ' ');
@@ -2062,23 +2059,21 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     tmp_val2[0] = '\0';
 
     /* Auto abbreviation inscribe */
-    if ((abbrev_extra || abbrev_all) && (o_ptr->ident & IDENT_FULL))
+    if ((abbrev_extra || abbrev_all) && (o_ptr->ident & IDENT_KNOWN))
     {
         if (!o_ptr->inscription || !my_strchr(quark_str(o_ptr->inscription), '%'))
         {
-            bool all;
-
-            all = abbrev_all;
+            bool all = abbrev_all;
             if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && o_ptr->art_name)
                 all = TRUE;
             get_ability_abbreviation(tmp_val2, o_ptr, all);
         }
     }
 
-    if ( (abbrev_extra || abbrev_all)
-      && (o_ptr->ident & IDENT_FULL)
+    if ( (o_ptr->ident & IDENT_FULL)
       && obj_has_effect(o_ptr)
-      && !device )
+      && !device
+      && (abbrev_all || (abbrev_extra && o_ptr->activation.type)) )
     {
         char     buf[255];
         effect_t e = obj_get_effect(o_ptr);
@@ -2090,7 +2085,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         strcat(tmp_val2, buf);
     }
 
-    if (o_ptr->name3 && object_is_known(o_ptr))
+    if (o_ptr->name3 && object_is_known(o_ptr) && abbrev_all)
     {
         cptr  t = a_name + a_info[o_ptr->name3].name;
 

@@ -11,6 +11,9 @@
 #include "angband.h"
 #include "z-doc.h"
 
+static int _birth_stats_score(s16b stats[6]);
+static void get_stats(int min_score, int max_score);
+
 /*
  * Returns adjusted stat -JK-  Algorithm by -JWT-
  */
@@ -1841,18 +1844,7 @@ static bool _prompt_game_mode(void)
                 c_put_str(TERM_L_BLUE, format("%-19s", _draconian_info[p_ptr->psubrace].name), 5, 14);
             }
 
-            for (;;)
-            {
-                int spread = 0, i;
-                for (i = 0; i < 6; i++)
-                {
-                    int n = randint1(9) - 5;
-                    p_ptr->stat_cur[i] = 13 + n;
-                    p_ptr->stat_max[i] = 13 + n;
-                    spread += n;
-                }
-                if (spread > 2) break;
-            }
+            get_stats(31, 33);
 
             col = 42;
             row = 1;
@@ -2037,13 +2029,32 @@ static void load_prev_data(bool swap)
  *
  * For efficiency, we include a chunk of "calc_bonuses()".
  */
-static void get_stats(void)
+static int _birth_stat_points[18] =
+{ 0, 0, 0,
+ -7,-6,-5,   /*  3  4  5 */
+ -4,-3,-2,   /*  6  7  8 */
+ -1, 0, 1,   /*  9 10 11 */
+  2, 3, 5,   /* 12 13 14 */
+  8,12,17 }; /* 15 16 17 */
+
+static int _birth_stats_score(s16b stats[6])
 {
+    int i, score = 0;
+
+    for (i = 0; i < 6; i++)
+        score += _birth_stat_points[stats[i]];
+
+    return score;
+}
+
+static void get_stats(int min_score, int max_score)
+{
+    int attempt = 0;
     /* Roll and verify some stats */
-    while (TRUE)
+    while (attempt++ < 1000)
     {
         int i;
-        int sum = 0;
+        int score = 0;
 
         /* Roll some dice */
         for (i = 0; i < 2; i++)
@@ -2058,7 +2069,6 @@ static void get_stats(void)
             val += tmp % 5; tmp /= 5;
 
             /* Save that value */
-            sum += val;
             p_ptr->stat_cur[3*i] = p_ptr->stat_max[3*i] = val;
 
             /* Extract 5 + 1d3 + 1d4 + 1d5 */
@@ -2068,7 +2078,6 @@ static void get_stats(void)
             val += tmp % 5; tmp /= 5;
 
             /* Save that value */
-            sum += val;
             p_ptr->stat_cur[3*i+1] = p_ptr->stat_max[3*i+1] = val;
 
             /* Extract 5 + 1d3 + 1d4 + 1d5 */
@@ -2078,12 +2087,11 @@ static void get_stats(void)
             val += tmp;
 
             /* Save that value */
-            sum += val;
             p_ptr->stat_cur[3*i+2] = p_ptr->stat_max[3*i+2] = val;
         }
 
-        /* Verify totals */
-        if ((sum > 42+5*6) && (sum < 54+5*6)) break;
+        score = _birth_stats_score(p_ptr->stat_cur);
+        if (min_score <= score && score <= max_score) break;
     }
 }
 
@@ -2588,7 +2596,7 @@ void determine_random_questor(quest_type *q_ptr)
     else
         get_mon_num_prep(mon_hook_quest, NULL);
 
-    while (1)
+    while (attempt < 10000)
     {
         int accept_lev = q_ptr->level + (q_ptr->level / 20);
         int mon_lev = q_ptr->level + 5 + randint1(q_ptr->level / 10);
@@ -2635,7 +2643,7 @@ void determine_random_questor(quest_type *q_ptr)
 
         if (r_ptr->level > q_ptr->level + 12) continue;
 
-        if (r_ptr->level > accept_lev) break;
+        if (r_ptr->level > accept_lev || attempt > 5000) break;
     }
 
     q_ptr->r_idx = r_idx;
@@ -3210,7 +3218,8 @@ void player_outfit(void)
     {
         _birth_object(TV_ARROW, SV_AMMO_NORMAL, rand_range(15, 20));
     }
-    else if (p_ptr->pclass == CLASS_HIGH_MAGE)
+
+    if (p_ptr->pclass == CLASS_HIGH_MAGE)
     {
         object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
         if (device_init_fixed(&forge, EFFECT_BOLT_MISSILE))
@@ -3300,10 +3309,11 @@ void player_outfit(void)
 static bool get_stat_limits(void)
 {
     int i, j, m, cs, os;
-    int cval[6];
+    s16b cval[6];
     char c;
     char buf[80], cur[80];
     char inp[80];
+    char max[6][80];
     race_t *race_ptr = get_race();
     class_t *class_ptr = get_class();
     personality_ptr pers_ptr = get_personality();
@@ -3314,14 +3324,14 @@ static bool get_stat_limits(void)
     /* Extra infomation */
     put_str("Set minimum stats.", 10, 10);
     put_str("2/8 for Select, 4/6 for Change value, Enter for Goto next", 11, 10);
-    put_str("           Base   Rac  Cla  Per      Total  Maximum", 13, 10);
+    put_str("           Base   Rac  Cla  Per      Total  Maximum  Points", 13, 10);
 
     /* Output the maximum stats */
     for (i = 0; i < 6; i++)
     {
         /* Reset the "success" counter */
         stat_match[i] = 0;
-        cval[i] = 3;
+        cval[i] = 8; /* Stats are rolled as 5 + 1d3 + 1d4 + 1d5 */
 
         /* Race/Class bonus */
         j = race_ptr->stats[i] + class_ptr->stats[i] + pers_ptr->stats[i];
@@ -3330,9 +3340,9 @@ static bool get_stat_limits(void)
         m = adjust_stat(17, j);
 
         if (m > 18)
-            sprintf(cur, "18/%02d", (m - 18));        
+            sprintf(max[i], "18/%02d", (m - 18));
         else
-            sprintf(cur, "%2d", m);
+            sprintf(max[i], "%2d", m);
 
         /* Obtain the current stat */
         m = adjust_stat(cval[i], j);
@@ -3342,9 +3352,9 @@ static bool get_stat_limits(void)
         else
             sprintf(inp, "%2d", m);
 
-        sprintf(buf, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s  %6s",
+        sprintf(buf, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s  %6s  %6d",
             stat_names[i], cval[i], race_ptr->stats[i], class_ptr->stats[i],
-            pers_ptr->stats[i], inp, cur);
+            pers_ptr->stats[i], inp, max[i], _birth_stat_points[cval[i]]);
         
         put_str(buf, 14 + i, 10);
     }
@@ -3357,13 +3367,24 @@ static bool get_stat_limits(void)
         /* Move Cursol */
         if (cs != os)
         {
+            int  score = _birth_stats_score(cval);
+            byte score_a = TERM_L_GREEN;
+
+            if (score > 30)
+                score_a = TERM_RED;
+            else if (score < 20)
+                score_a = TERM_L_DARK;
+
             if(os == 6)
                 c_put_str(TERM_WHITE, "Accept", 21, 35);
             else if(os < 6)
                 c_put_str(TERM_WHITE, cur, 14 + os, 10);
             
             if(cs == 6)
+            {
                 c_put_str(TERM_YELLOW, "Accept", 21, 35);
+                c_put_str(score_a, format("%6d", score), 21, 62);
+            }
             else
             {
                 /* Race/Class bonus */
@@ -3377,11 +3398,14 @@ static bool get_stat_limits(void)
                 else
                     sprintf(inp, "%2d", m);
                 
-                sprintf(cur, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s",
+                sprintf(cur, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s  %6s  %6d",
                     stat_names[cs], cval[cs], race_ptr->stats[cs],
-                    class_ptr->stats[cs], pers_ptr->stats[cs], inp);
+                    class_ptr->stats[cs], pers_ptr->stats[cs], inp, max[cs], _birth_stat_points[cval[cs]]);
+
+                c_put_str(score_a, format("%6d", score), 21, 62);
                 c_put_str(TERM_YELLOW, cur, 14 + cs, 10);
             }
+
             os = cs;
         }
         
@@ -3413,12 +3437,12 @@ static bool get_stat_limits(void)
         case 'h':
             if (cs != 6)
             {
-                if (cval[cs] == 3)
+                if (cval[cs] == 8)
                 {
                     cval[cs] = 17;
                     os = 7;
                 }
-                else if (cval[cs] > 3)
+                else if (cval[cs] > 8)
                 {
                     cval[cs]--;
                     os = 7;
@@ -3432,7 +3456,7 @@ static bool get_stat_limits(void)
             {
                 if (cval[cs] == 17)
                 {
-                    cval[cs] = 3;
+                    cval[cs] = 8;
                     os = 7;
                 }
                 else if (cval[cs] < 17)
@@ -3453,7 +3477,7 @@ static bool get_stat_limits(void)
         case 'n':
             if(cs != 6)
             {
-                cval[cs] = 3;
+                cval[cs] = 8;
                 os = 7;
             }
             break;
@@ -3581,7 +3605,7 @@ auto_roller_barf:
         }
         else if (game_mode != GAME_MODE_REAL_LIFE)
         {
-            get_stats();
+            get_stats(20, 30);
         }
 
         if (use_autoroller)
@@ -3618,7 +3642,7 @@ auto_roller_barf:
         {
             bool accept = TRUE;
 
-            get_stats();
+            get_stats(20, 30);
             auto_round++;
 
             /* Hack -- Prevent overflow */

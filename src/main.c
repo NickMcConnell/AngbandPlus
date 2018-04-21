@@ -210,6 +210,15 @@ static void change_path(cptr info)
 			break;
 		}
 
+                /*added pref because it's missing*/
+		/*--phantom*/
+                case 'p':
+                {
+                        z_string_free(ANGBAND_DIR_PREF);
+                        ANGBAND_DIR_PREF = z_string_make(s+1);
+                        break;
+                }
+
 		case 'x':
 		{
             z_string_free(ANGBAND_DIR_XTRA);
@@ -470,6 +479,15 @@ int main(int argc, char *argv[])
 			{
 				if (!argv[i][2]) goto usage;
 				strcpy(player_name, &argv[i][2]);
+				break;
+			}
+
+			/*locks player name for server play*/
+			/*--phantom*/
+			case 'l':
+			case 'L':
+			{
+				arg_lock_name = TRUE;
 				break;
 			}
 

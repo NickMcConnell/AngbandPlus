@@ -167,7 +167,6 @@ extern void dispel_magic_spell(int cmd, variant *res);
 extern void dispel_undead_spell(int cmd, variant *res);
 extern void dominate_living_I_spell(int cmd, variant *res);
 extern void dominate_living_II_spell(int cmd, variant *res);
-extern void draconian_breath_spell(int cmd, variant *res);
 extern void drain_mana_spell(int cmd, variant *res);
 extern void earthquake_spell(int cmd, variant *res);
 extern void eat_magic_spell(int cmd, variant *res);
