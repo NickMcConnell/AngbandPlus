@@ -45,7 +45,7 @@ race_t *klackon_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis = 10;
         me.skills.dev = 5;
         me.skills.sav = 3;
@@ -108,7 +108,7 @@ race_t *kobold_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  0;
         me.stats[A_CHR] = -2;
-        
+
         me.skills.dis = -2;
         me.skills.dev = -3;
         me.skills.sav = -1;
@@ -176,7 +176,7 @@ race_t *kutar_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis = -2;
         me.skills.dev = 5;
         me.skills.sav = 5;
@@ -250,7 +250,7 @@ race_t *mindflayer_get_race(void)
         me.stats[A_DEX] =  0;
         me.stats[A_CON] = -2;
         me.stats[A_CHR] = -1;
-        
+
         me.skills.dis = 10;
         me.skills.dev = 15;
         me.skills.sav = 9;
@@ -317,7 +317,7 @@ race_t *nibelung_get_race(void)
         me.stats[A_DEX] =  0;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] = -2;
-        
+
         me.skills.dis =  3;
         me.skills.dev =  5;
         me.skills.sav =  6;
@@ -378,7 +378,7 @@ race_t *shadow_fairy_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] = -1;
         me.stats[A_CHR] = -3;
-        
+
         me.skills.dis =  7;
         me.skills.dev =  8;
         me.skills.sav =  0;
@@ -456,7 +456,7 @@ race_t *skeleton_get_race(void)
         me.stats[A_DEX] =  0;
         me.stats[A_CON] =  1;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis = -5;
         me.skills.dev = 0;
         me.skills.sav = 3;
@@ -544,7 +544,7 @@ race_t *snotling_get_race(void)
         me.stats[A_DEX] = -2;
         me.stats[A_CON] = -2;
         me.stats[A_CHR] = -5;
-        
+
         me.skills.dis = -3;
         me.skills.dev = -3;
         me.skills.sav = -2;
@@ -626,7 +626,7 @@ race_t *spectre_get_race(void)
         me.stats[A_DEX] =  2;
         me.stats[A_CON] = -2;
         me.stats[A_CHR] = -3;
-        
+
         me.skills.dis = 10;
         me.skills.dev = 15;
         me.skills.sav = 12;
@@ -698,7 +698,7 @@ race_t *sprite_get_race(void)
         me.stats[A_DEX] =  3;
         me.stats[A_CON] = -2;
         me.stats[A_CHR] = -2;
-        
+
         me.skills.dis = 10;
         me.skills.dev =  8;
         me.skills.sav =  6;
@@ -763,6 +763,7 @@ static void _tonberry_get_flags(u32b flgs[OF_ARRAY_SIZE])
     add_flag(flgs, OF_SUST_CON);
     add_flag(flgs, OF_RES_FEAR);
     add_flag(flgs, OF_DEC_SPEED);
+    add_flag(flgs, OF_VULN_CONF);
 }
 race_t *tonberry_get_race(void)
 {
@@ -780,14 +781,14 @@ race_t *tonberry_get_race(void)
                     "to their culture and physiology. Tonberries attack very powerfully "
                     "in melee, albeit with fewer attacks than normal. They are also "
                     "easily confused and move with reduced speed.";
-        
+
         me.stats[A_STR] =  4;
         me.stats[A_INT] =  0;
         me.stats[A_WIS] = -2;
         me.stats[A_DEX] = -4;
         me.stats[A_CON] =  5;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis = -5;
         me.skills.dev =  3;
         me.skills.sav =  3;
@@ -867,7 +868,7 @@ race_t *vampire_get_race(void)
         me.stats[A_DEX] = -1;
         me.stats[A_CON] =  1;
         me.stats[A_CHR] =  2;
-        
+
         me.skills.dis = 4;
         me.skills.dev = 8;
         me.skills.sav = 6;
@@ -923,7 +924,7 @@ race_t *wood_elf_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] = -1;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis = 5;
         me.skills.dev = 6;
         me.skills.sav = 4;
@@ -989,7 +990,7 @@ race_t *yeek_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] = -2;
         me.stats[A_CHR] = -4;
-        
+
         me.skills.dis = 2;
         me.skills.dev = 4;
         me.skills.sav = 6;
@@ -1066,7 +1067,7 @@ race_t *zombie_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  4;
         me.stats[A_CHR] = -3;
-        
+
         me.skills.dis = -5;
         me.skills.dev = -5;
         me.skills.sav = 5;

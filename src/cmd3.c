@@ -183,7 +183,7 @@ void do_cmd_drop(void)
         o_ptr = &inventory[item];
 
         /* Ugly hack! */
-        if ( object_is_melee_weapon(o_ptr) 
+        if ( object_is_melee_weapon(o_ptr)
           && equip_is_valid_slot(item)
           && p_ptr->pclass == CLASS_PSION
           && psion_weapon_graft() )
@@ -407,7 +407,7 @@ void do_cmd_destroy(void)
         int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
 
         msg_print("You feel a surge of wondrous power enter your body.");
-        
+
         p_ptr->chp = MIN(p_ptr->mhp, p_ptr->chp + add_hp);
         p_ptr->chp_frac = 0;
         p_ptr->csp = MIN(p_ptr->msp, p_ptr->csp + add_sp);
@@ -518,26 +518,26 @@ void do_cmd_destroy(void)
         virtue_add(VIRTUE_UNLIFE, 1);
         virtue_add(VIRTUE_VITALITY, -1);
     }
-    else if ( high_level_book(q_ptr) 
+    else if ( high_level_book(q_ptr)
            && (q_ptr->tval == TV_DEATH_BOOK || q_ptr->tval == TV_NECROMANCY_BOOK) )
     {
         virtue_add(VIRTUE_UNLIFE, -1);
         virtue_add(VIRTUE_VITALITY, 1);
-    }    
+    }
 
     if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
         virtue_add(VIRTUE_ENCHANTMENT, -1);
-    
+
     if (obj_value_real(q_ptr) > 30000)
         virtue_add(VIRTUE_SACRIFICE, 2);
-    
+
     else if (obj_value_real(q_ptr) > 10000)
         virtue_add(VIRTUE_SACRIFICE, 1);
 
     if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
         virtue_add(VIRTUE_HARMONY, 1);
 
-    if (equip_is_valid_slot(item)) 
+    if (equip_is_valid_slot(item))
         android_calc_exp();
 }
 
@@ -1225,16 +1225,16 @@ void do_cmd_query_symbol(void)
         {
           int xx;
           char temp2[80];
-  
+
           for (xx=0; temp[xx] && xx<80; xx++)
           {
             if (isupper(temp[xx])) temp[xx]=tolower(temp[xx]);
           }
-  
+
           strcpy(temp2, r_name+r_ptr->name);
           for (xx=0; temp2[xx] && xx<80; xx++)
             if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
-  
+
           if (my_strstr(temp2, temp))
               who[n++]=i;
         }
@@ -1398,7 +1398,7 @@ void do_cmd_query_symbol(void)
 
    Apologies: MON_LIST_PROBING is a giant, ugly hack, but the old
    probing code was a carpal tunnel death trap in a crowded room.*/
-struct _mon_list_info_s 
+struct _mon_list_info_s
 {
     int group;
     int subgroup;
@@ -1688,9 +1688,16 @@ static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode
                 sprintf(buf, "%s", r_name + r_ptr->name);
                 if ((r_ptr->flags1 & RF1_UNIQUE) && !info_ptr->ct_awake)
                     strcat(buf, " (asleep)");
-                sprintf(loc, "%c %2d %c %2d",
-                        (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
-                        (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
+                if (info_ptr->group == _GROUP_LOS && display_distance)
+                {
+                    sprintf(loc, "Rng %2d", info_ptr->dis);
+                }
+                else
+                {
+                    sprintf(loc, "%c %2d %c %2d",
+                            (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
+                            (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
+                }
             }
             else if (!info_ptr->ct_awake)
                 sprintf(buf, "%s (%d asleep)", r_name + r_ptr->name, info_ptr->ct_total);
@@ -2093,7 +2100,7 @@ void do_cmd_list_monsters(int mode)
 
     if (display_rect.cx > 50)
         display_rect.cx = 50;
-    
+
     if (list->ct_total)
         _list_monsters_aux(list, display_rect, mode);
     else

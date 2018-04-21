@@ -17,13 +17,13 @@ static void _cavern_creation_spell(int cmd, variant *res)
         {
             y = py + ddy_ddd[dir];
             x = px + ddx_ddd[dir];
-        
+
             if (!in_bounds(y, x)) continue;
             if (!cave_have_flag_bold(y, x, FF_HURT_ROCK))  continue;
             cave_alter_feat(y, x, FF_HURT_ROCK);
             ct++;
         }
-        if (ct) 
+        if (ct)
             p_ptr->update |= (PU_FLOW | PU_BONUS);
 
         var_set_bool(res, TRUE);
@@ -58,12 +58,25 @@ static void _dark_stalker_spell(int cmd, variant *res)
     }
 }
 
+static void _greater_mapping_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Greater Mapping");
+        break;
+    default:
+        clairvoyance_spell(cmd, res);
+        break;
+    }
+}
+
 static void _greater_whirlwind_attack_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Greater Whirlwind Attack");
+        var_set_string(res, "Greater Ambush");
         break;
     case SPELL_DESC:
         var_set_string(res, "Perform a massive ambush on nearby monsters.");
@@ -115,11 +128,11 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
 
             if (!in_bounds(y, x)) continue;
             if (!projectable(py, px, y, x)) continue;
-            
+
             c_ptr = &cave[y][x];
 
             if (!c_ptr->m_idx) continue;
-            
+
             m_ptr = &m_list[c_ptr->m_idx];
 
             if (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT))
@@ -153,6 +166,31 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
     }
 }
 
+static void _lookout_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Lookout");
+        break;
+    default:
+        detect_monsters_spell(cmd, res);
+        break;
+    }
+}
+
+static void _mapping_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Mapping");
+        break;
+    default:
+        magic_mapping_spell(cmd, res);
+        break;
+    }
+}
 
 static void _nimble_dodge_spell(int cmd, variant *res)
 {
@@ -173,6 +211,81 @@ static void _nimble_dodge_spell(int cmd, variant *res)
         break;
     default:
         default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _reconnaissance_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Reconnaissance");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Quickly scout nearby terrain for enemies, traps and loot.");
+        break;
+    case SPELL_CAST:
+        map_area(DETECT_RAD_MAP);
+        detect_all(DETECT_RAD_DEFAULT);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _retreat_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Retreat");
+        break;
+    default:
+        teleport_spell(cmd, res);
+        break;
+    }
+}
+
+static void _sniping_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Sniping");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Shoot a sleeping enemy sentry with great precision.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (!equip_find_object(TV_BOW, SV_ANY))
+        {
+            msg_print("You need a bow to use this talent.");
+            break;
+        }
+        shoot_hack = SHOOT_SNIPING;
+        command_cmd = 'f'; /* Hack for inscriptions (e.g. '@f1') */
+        var_set_bool(res, do_cmd_fire());
+        shoot_hack = SHOOT_NONE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _spying_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Spying");
+        break;
+    default:
+        telepathy_spell(cmd, res);
         break;
     }
 }
@@ -205,7 +318,7 @@ static void _whirlwind_attack_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Whirlwind Attack");
+        var_set_string(res, "Ambush");
         break;
     case SPELL_DESC:
         var_set_string(res, "Attack all adjacent monsters in a single ambush.");
@@ -220,20 +333,23 @@ static void _whirlwind_attack_spell(int cmd, variant *res)
  * Spell Table and Exports
  ****************************************************************/
 
-static spell_info _spells[] = 
+static spell_info _spells[] =
 {
     /*lvl cst fail spell */
+    {  1,  1, 30, _lookout_spell},
     {  5,  2, 30, strafing_spell},
-    {  9, 10, 50, detection_spell},
+    {  9, 10, 35, _mapping_spell},
     { 13,  8, 40, stone_to_mud_spell},
-    { 17, 20, 50, magic_mapping_spell},
+    { 17, 12, 50, _spying_spell},
     { 21, 30, 50, _dark_stalker_spell},
+    { 23, 15, 50, _reconnaissance_spell},
     { 25, 18, 50, _whirlwind_attack_spell},
-    { 29, 25, 50, teleport_spell},
-    { 33, 40, 55, _nimble_dodge_spell},
+    { 29, 25, 50, _retreat_spell},
+    { 33, 25,  0, _sniping_spell},
+    { 35, 40, 55, _nimble_dodge_spell},
     { 37, 24, 45, _cavern_creation_spell},
     { 41, 70, 50, _stealthy_snipe_spell},
-    { 45, 60, 70, clairvoyance_spell},
+    { 45, 60, 70, _greater_mapping_spell},
     { 49, 42, 65, _greater_whirlwind_attack_spell},
     { -1, -1, -1, NULL}
 };
@@ -246,7 +362,7 @@ static int _get_spells(spell_info* spells, int max)
     {
         msg_print("Your talents are disrupted!");
         return 0;
-    }    
+    }
     ct = get_spells_aux(spells, max, _spells);
     if (ct == 0)
         msg_print("You have no powers yet! Why not go kill stuff?");
@@ -271,7 +387,7 @@ static int _count_open_terrain(void)
     {
         y = py + ddy_ddd[dir];
         x = px + ddx_ddd[dir];
-        
+
         if (!in_bounds(y, x))
         {
             /* Count the edge of wilderness maps as open.
@@ -338,16 +454,11 @@ static void _calc_bonuses(void)
     if (!disrupt && p_ptr->lev >= 20)
         p_ptr->ambush = TRUE;
 
-    if (!disrupt && p_ptr->lev >= 35)
-        p_ptr->telepathy = TRUE;
-
     if (!disrupt && p_ptr->lev >= 50)
         p_ptr->peerless_stealth = TRUE;
 }
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->lev >= 35)
-        add_flag(flgs, OF_TELEPATHY);
 }
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
@@ -415,12 +526,10 @@ static void _character_dump(doc_ptr doc)
     if (!disrupt && p_ptr->lev >= 20)
         doc_printf(doc, "  * You ambush sleeping monsters for extra damage.\n");
 
-    if (!disrupt && p_ptr->lev >= 35)
-        p_ptr->telepathy = TRUE;
-
     if (!disrupt && p_ptr->lev >= 50)
         doc_printf(doc, "  * You have Peerless Stealth and will never aggravate monsters.\n");
 
+    doc_newline(doc);
 }
 
 static caster_info * _caster_info(void)

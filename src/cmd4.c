@@ -38,17 +38,17 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt, int 
  * an user deletes some or all of these files by hand at some
  * point.
  *
- *     These three functions automatically delete old dumped lines 
- * before adding new ones. Since there are various kinds of automatic 
- * dumps in a single file, we add a header and a footer with a type 
- * name for every automatic dump, and kill old lines only when the 
+ *     These three functions automatically delete old dumped lines
+ * before adding new ones. Since there are various kinds of automatic
+ * dumps in a single file, we add a header and a footer with a type
+ * name for every automatic dump, and kill old lines only when the
  * lines have the correct type of header and footer.
  *
- *     We need to be quite paranoid about correctness; the user might 
+ *     We need to be quite paranoid about correctness; the user might
  * (mistakenly) edit the file by hand, and see all their work come
- * to nothing on the next auto dump otherwise. The current code only 
- * detects changes by noting inconsistencies between the actual number 
- * of lines and the number written in the footer. Note that this will 
+ * to nothing on the next auto dump otherwise. The current code only
+ * detects changes by noting inconsistencies between the actual number
+ * of lines and the number written in the footer. Note that this will
  * not catch single-line edits.
  */
 
@@ -462,7 +462,7 @@ void do_cmd_messages(int old_now_turn)
 /*
  * Number of cheating options
  */
-#define CHEAT_MAX 7
+#define CHEAT_MAX 6
 
 /*
  * Cheating options
@@ -596,7 +596,7 @@ static void do_cmd_options_cheat(cptr info)
             case '?':
             {
                 doc_display_help("option.txt", cheat_info[k].o_text);
-                Term_clear(); 
+                Term_clear();
                 break;
             }
 
@@ -746,7 +746,7 @@ static void do_cmd_options_autosave(cptr info)
             {
                 doc_display_help("option.txt", "Autosave");
 
-                Term_clear(); 
+                Term_clear();
                 break;
             }
 
@@ -1044,7 +1044,7 @@ static void do_cmd_options_win(void)
             case '?':
             {
                 doc_display_help("option.txt", "Window");
-                Term_clear(); 
+                Term_clear();
                 break;
             }
 
@@ -1155,7 +1155,7 @@ void do_cmd_options(void)
 #ifndef ALLOW_WIZARD
                 if (option_fields[i].key == 'c') continue;
 #endif
-                Term_putstr(5, option_fields[i].row, -1, a, 
+                Term_putstr(5, option_fields[i].row, -1, a,
                     format("(%c) %s", toupper(option_fields[i].key), option_fields[i].name));
             }
 
@@ -1319,7 +1319,7 @@ void do_cmd_options(void)
                     else if (k == '?')
                     {
                         doc_display_help("option.txt", "BaseDelay");
-                        Term_clear(); 
+                        Term_clear();
                     }
                     else if (isdigit(k)) delay_factor = D2I(k);
                     else bell();
@@ -1349,7 +1349,7 @@ void do_cmd_options(void)
                     else if (k == '?')
                     {
                         doc_display_help("option.txt", "HitPoint");
-                        Term_clear(); 
+                        Term_clear();
                     }
                     else if (isdigit(k)) hitpoint_warn = D2I(k);
                     else bell();
@@ -1379,7 +1379,7 @@ void do_cmd_options(void)
                     else if (k == '?')
                     {
                         doc_display_help("option.txt", "Manapoint");
-                        Term_clear(); 
+                        Term_clear();
                     }
                     else if (isdigit(k)) mana_warn = D2I(k);
                     else bell();
@@ -1390,7 +1390,7 @@ void do_cmd_options(void)
 
             case '?':
                 doc_display_help("option.txt", NULL);
-                Term_clear(); 
+                Term_clear();
                 break;
 
             /* Unknown option */
@@ -3221,7 +3221,7 @@ void do_cmd_feeling(void)
 /*
  * Description of each monster group.
  */
-static cptr monster_group_text[] = 
+static cptr monster_group_text[] =
 {
     "Corpses",
     "Uniques",
@@ -3438,7 +3438,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
         {
             cave_type  *c_ptr = &cave[py][px];
             s16b        o_idx = c_ptr->o_idx;
-            
+
             while (o_idx)
             {
                 object_type *o_ptr = &o_list[o_idx];
@@ -3471,7 +3471,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
         if (grp_corpses)
         {
-            if (!int_map_contains(available_corpses, i)) 
+            if (!int_map_contains(available_corpses, i))
                 continue;
         }
 
@@ -3545,7 +3545,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 /*
  * Description of each object group.
  */
-static cptr object_group_text[] = 
+static cptr object_group_text[] =
 {
     "Food",
     "Potions",
@@ -3596,7 +3596,7 @@ static cptr object_group_text[] =
 /*
  * TVALs of items in each group
  */
-static byte object_group_tval[] = 
+static byte object_group_tval[] =
 {
     TV_FOOD,
     TV_POTION,
@@ -3688,10 +3688,10 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
         }
         else
         {
-            /* Skip non-flavoured objects 
-            if (!k_ptr->flavor) continue; */
-
-            if (!k_ptr->counts.found && !k_ptr->counts.bought) continue;
+            if (!k_ptr->flavor)
+            {
+                if (!k_ptr->counts.found && !k_ptr->counts.bought) continue;
+            }
 
             /* Require objects ever seen */
             if (!k_ptr->aware) continue;
@@ -3739,7 +3739,7 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
 /*
  * Description of each feature group.
  */
-static cptr feature_group_text[] = 
+static cptr feature_group_text[] =
 {
     "terrains",
     NULL
@@ -3826,7 +3826,7 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 }
 #endif /* 0 */
 
-cptr inven_res_label = 
+cptr inven_res_label =
  "                               AcElFiCoPoLiDkShSoNtNxCaDi BlFeCfFaSiHlEpSdRgLv";
 
 
@@ -5112,10 +5112,10 @@ static void display_group_list(int col, int row, int wid, int per_page,
 }
 
 
-/* 
- * Move the cursor in a browser window 
+/*
+ * Move the cursor in a browser window
  */
-static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt, 
+static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
                            int *list_cur, int list_cnt)
 {
     int d;
@@ -5512,7 +5512,7 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
                     {
                         int j;
                         for (j = 0; j < 6; j++)
-                        {                      
+                        {
                             sprintf(buf, "%+3d", r_ptr->body.stats[j]);
                             c_put_str(j == r_ptr->body.spell_stat ? TERM_L_GREEN : TERM_WHITE,
                                       buf, row + i, 80 + j * 5);
@@ -5538,31 +5538,31 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
                             case EQUIP_SLOT_WEAPON:
                                 _prt_equippy(c, r, TV_SWORD, SV_LONG_SWORD);
                                 break;
-                            case EQUIP_SLOT_RING:         
+                            case EQUIP_SLOT_RING:
                                 _prt_equippy(c, r, TV_RING, 0);
                                 break;
-                            case EQUIP_SLOT_BOW:          
+                            case EQUIP_SLOT_BOW:
                                 _prt_equippy(c, r, TV_BOW, SV_LONG_BOW);
                                 break;
-                            case EQUIP_SLOT_AMULET:       
+                            case EQUIP_SLOT_AMULET:
                                 _prt_equippy(c, r, TV_AMULET, 0);
                                 break;
-                            case EQUIP_SLOT_LITE:         
+                            case EQUIP_SLOT_LITE:
                                 _prt_equippy(c, r, TV_LITE, SV_LITE_FEANOR);
                                 break;
-                            case EQUIP_SLOT_BODY_ARMOR:   
+                            case EQUIP_SLOT_BODY_ARMOR:
                                 _prt_equippy(c, r, TV_HARD_ARMOR, SV_CHAIN_MAIL);
                                 break;
-                            case EQUIP_SLOT_CLOAK:        
+                            case EQUIP_SLOT_CLOAK:
                                 _prt_equippy(c, r, TV_CLOAK, SV_CLOAK);
                                 break;
-                            case EQUIP_SLOT_BOOTS:        
+                            case EQUIP_SLOT_BOOTS:
                                 _prt_equippy(c, r, TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS);
                                 break;
-                            case EQUIP_SLOT_HELMET:       
+                            case EQUIP_SLOT_HELMET:
                                 _prt_equippy(c, r, TV_HELM, SV_IRON_HELM);
                                 break;
-                            case EQUIP_SLOT_ANY:             
+                            case EQUIP_SLOT_ANY:
                                 Term_putch(c, r, TERM_WHITE, '*');
                                 break;
                             case EQUIP_SLOT_CAPTURE_BALL:
@@ -5573,14 +5573,14 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
                     }
                     else if (monster_mode == MONSTER_MODE_SKILLS)
                     {
-                        sprintf(buf, "%2d+%-2d  %2d+%-2d  %2d+%-2d  %4d  %4d  %4d  %2d+%-2d  %2d+%-2d\n", 
-                            r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis, 
-                            r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev, 
+                        sprintf(buf, "%2d+%-2d  %2d+%-2d  %2d+%-2d  %4d  %4d  %4d  %2d+%-2d  %2d+%-2d\n",
+                            r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis,
+                            r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev,
                             r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
-                            r_ptr->body.skills.stl, 
-                            r_ptr->body.skills.srh, 
+                            r_ptr->body.skills.stl,
+                            r_ptr->body.skills.srh,
                             r_ptr->body.skills.fos,
-                            r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn, 
+                            r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn,
                             r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
                         );
                         c_put_str(TERM_WHITE, buf, row + i, 80);
@@ -5590,7 +5590,7 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
                         int speed = possessor_r_speed(r_idx);
                         int ac = possessor_r_ac(r_idx);
 
-                        sprintf(buf, "%3d  %3d  %+5d  %+4d  %s", 
+                        sprintf(buf, "%3d  %3d  %+5d  %+4d  %s",
                             r_ptr->level, MAX(15, r_ptr->level + 5), speed, ac,
                             get_class_aux(r_ptr->body.class_idx, 0)->name
                         );
@@ -5651,7 +5651,7 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
         /* Check every group */
         for (i = 0; monster_group_text[i] != NULL; i++)
         {
-            if (monster_group_char[i] == ((char *) -1L) && p_ptr->prace != RACE_MON_POSSESSOR) 
+            if (monster_group_char[i] == ((char *) -1L) && p_ptr->prace != RACE_MON_POSSESSOR)
                 continue;
 
             /* Measure the label */
@@ -5715,7 +5715,7 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
                 char buf[255];
                 if (monster_mode == MONSTER_MODE_STATS)
                 {
-                    sprintf(buf, "STR  INT  WIS  DEX  CON  CHR  Life  Body");    
+                    sprintf(buf, "STR  INT  WIS  DEX  CON  CHR  Life  Body");
                     c_put_str(TERM_WHITE, buf, 4, 80);
                     for (i = 78; i < 130; i++)
                         Term_putch(i, 5, TERM_WHITE, '=');
@@ -5993,8 +5993,8 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
             totals.destroyed += k_ptr->counts.destroyed;
         }
 
-        sprintf(buf, "%-35.35s %5d %6d %4d %4d", 
-            "Totals", 
+        sprintf(buf, "%-35.35s %5d %6d %4d %4d",
+            "Totals",
             totals.found, totals.bought, totals.used, totals.destroyed
         );
         c_prt(TERM_YELLOW, buf, row + i, col);
@@ -6142,7 +6142,7 @@ static void do_cmd_knowledge_egos(void)
     for (i = 0; _ego_types[i].id != EGO_TYPE_NONE; i++)
     {
         len = strlen(_ego_types[i].name);
-        if (len > max) 
+        if (len > max)
             max = len;
 
         if (_collect_egos(i, ego_idx))
@@ -6234,12 +6234,12 @@ static void do_cmd_knowledge_egos(void)
             if (i + ego_top == ego_cur)
                 attr = TERM_L_BLUE;
 
-            strip_name_aux(name, e_name + e_ptr->name); 
+            strip_name_aux(name, e_name + e_ptr->name);
             if (e_ptr->type & (~_ego_types[grp_idx[grp_cur]].id))
                 strcat(name, " [Shared]");
 
-            sprintf(buf, "%-35.35s %5d %6d %4d", 
-                name, 
+            sprintf(buf, "%-35.35s %5d %6d %4d",
+                name,
                 e_ptr->counts.found, e_ptr->counts.bought, e_ptr->counts.destroyed
             );
             c_prt(attr, buf, 6 + i, max + 3);
@@ -6258,8 +6258,8 @@ static void do_cmd_knowledge_egos(void)
                 totals.destroyed += e_ptr->counts.destroyed;
             }
 
-            sprintf(buf, "%35.35s %5d %6d %4d", 
-                "Totals", 
+            sprintf(buf, "%35.35s %5d %6d %4d",
+                "Totals",
                 totals.found, totals.bought, totals.destroyed
             );
             c_prt(TERM_YELLOW, buf, 6 + i, max + 3);
@@ -6513,7 +6513,7 @@ static void do_cmd_knowledge_objects(bool *need_redraw, bool visual_only, int di
         if (!visual_only && object_idx[object_cur] >= 0)
         {
             /* Mega Hack -- track this object */
-            if (object_cnt) 
+            if (object_cnt)
                 object_kind_track(object_idx[object_cur]);
 
             /* The "current" object changed */
@@ -6993,10 +6993,10 @@ static void do_cmd_knowledge_kubi(void)
 {
     int i;
     FILE *fff;
-    
+
     char file_name[1024];
-    
-    
+
+
     /* Open a new file */
     fff = my_fopen_temp(file_name, 1024);
     if (!fff) {
@@ -7004,7 +7004,7 @@ static void do_cmd_knowledge_kubi(void)
         msg_print(NULL);
         return;
     }
-    
+
     if (fff)
     {
         bool listed = FALSE;
@@ -7029,14 +7029,14 @@ static void do_cmd_knowledge_kubi(void)
             fprintf(fff,"\n%s\n", "There is no more wanted monster.");
         }
     }
-    
+
     /* Close the file */
     my_fclose(fff);
-    
+
     /* Display the file contents */
     show_file(TRUE, file_name, "Wanted monsters", 0, 0);
 
-    
+
     /* Remove the file */
     fd_kill(file_name);
 }
@@ -7405,7 +7405,7 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
                 else
                 {
                     sprintf(tmp_str, "  %-40s (Kill %d) (Dungeon level: %3d) - level %2d\n",
-                        r_name+r_ptr->name, quest[q_idx].max_num, 
+                        r_name+r_ptr->name, quest[q_idx].max_num,
                         quest[q_idx].level, quest[q_idx].complev);
                 }
             }

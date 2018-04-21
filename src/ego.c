@@ -269,13 +269,7 @@ int ego_choose_type(int type, int level)
     int    e_idx = 0;
 
     if (apply_magic_ego)
-    {
-        /* Avoid infinite loops if our client tries to force
-           an ego type that is invalid for the object in question */
-        int result = apply_magic_ego;
-        apply_magic_ego = 0;
-        return result;
-    }
+        return apply_magic_ego;
 
     if (obj_drop_theme)
     {
@@ -289,22 +283,13 @@ int ego_choose_type(int type, int level)
         case EGO_TYPE_GLOVES: p = _ego_p_gloves; break;
         case EGO_TYPE_BOOTS: p = _ego_p_boots; break;
         }
-
-        /* Hack: Ego creation will often spin a loop, limiting
-           certain ego types to certain object types. For example,
-           Rusty Chain Mail (Dwarven) or a Pair of Soft Leather Boots (Dwarven)
-           is prevented.
-
-           In general, the kind_theme_* hooks should prevent these
-           errors, but any mistake would result in an infinite loop.
-           Turning off the drop theme here is safe. You just won't get
-           a properly themed ego item on the next pass. */
-        obj_drop_theme = 0;
     }
 
     e_idx = _choose_type(type, level, p);
+
     if (!e_idx && p)
         e_idx = _choose_type(type, level, NULL);
+
     return e_idx;
 }
 
@@ -368,7 +353,7 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
 static _power_limit_t _jewelry_power_limits[] = {
     { 10,     0,   5000 },
     { 20,     0,   7000 },
-    { 30,     0,  10000 },
+    { 30,  1000,  15000 },
     { 40,  2500,  20000 },
     { 50,  5000,  30000 },
     { 60,  7500,  60000 },
@@ -392,6 +377,13 @@ void ego_create_ring(object_type *o_ptr, int level, int power, int mode)
             break;
         }
     }
+
+    if (mode & (AM_FORCE_EGO | AM_GREAT | AM_GUARDIAN)) /* Quest rewards and early dungeon guardians ... */
+    {
+        if (min < 5000) min = 5000;
+        if (max < 10000) max = 10000;
+    }
+
     if (one_in_(GREAT_OBJ))
         max *= 2;
 
@@ -425,6 +417,13 @@ void ego_create_amulet(object_type *o_ptr, int level, int power, int mode)
             break;
         }
     }
+
+    if (mode & (AM_FORCE_EGO | AM_GREAT | AM_GUARDIAN)) /* Quest rewards and early dungeon guardians ... */
+    {
+        if (min < 5000) min = 5000;
+        if (max < 10000) max = 10000;
+    }
+
     if (one_in_(GREAT_OBJ))
         max *= 2;
 
@@ -1262,7 +1261,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
             case 3:
                 if (one_in_(3))
                     add_flag(o_ptr->flags, OF_FREE_ACT);
-                else
+                else if (level > 30)
                 {
                     add_flag(o_ptr->flags, OF_NO_MAGIC);
                     if (abs(power) >= 2 && one_in_(10) && level >= 70)
@@ -1275,7 +1274,7 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
             case 4:
                 if (abs(power) >= 2 && one_in_(10) && level >= 70)
                     add_flag(o_ptr->flags, OF_NO_SUMMON);
-                else if (one_in_(6))
+                else if (one_in_(6) && level > 30)
                     add_flag(o_ptr->flags, OF_NO_TELE);
                 else
                     add_flag(o_ptr->flags, OF_RES_FEAR);
@@ -1570,7 +1569,7 @@ static void _ego_create_bow(object_type *o_ptr, int level)
         switch (o_ptr->name2)
         {
         case EGO_BOW_VELOCITY:
-            o_ptr->mult  += 25;
+            o_ptr->mult  += 5 + m_bonus(4, level) * 5;
             break;
         case EGO_BOW_EXTRA_MIGHT:
             o_ptr->mult  += 25 + m_bonus(15, level) * 5;
@@ -1959,8 +1958,6 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
                 add_flag(o_ptr->flags, OF_DEC_STEALTH);
             if (one_in_(ACTIVATION_CHANCE))
                 effect_add_random(o_ptr, BIAS_DEMON);
-            if (p_ptr->pclass == CLASS_PRIEST && (p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON))
-                add_flag(o_ptr->flags, OF_BLESSED);
             break;
         case EGO_WEAPON_DEATH:
             if (one_in_(16))
@@ -1989,8 +1986,6 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
             }
             if (one_in_(ACTIVATION_CHANCE))
                 effect_add_random(o_ptr, BIAS_NECROMANTIC);
-            if (p_ptr->pclass == CLASS_PRIEST && (p_ptr->realm1 == REALM_DEATH || p_ptr->realm2 == REALM_DEATH))
-                add_flag(o_ptr->flags, OF_BLESSED);
             break;
         case EGO_WEAPON_NATURE:
             if (one_in_(5))
@@ -2036,10 +2031,6 @@ static void _ego_create_weapon(object_type *o_ptr, int level)
         case EGO_WEAPON_WESTERNESSE:
             if (one_in_(3))
                 add_flag(o_ptr->flags, OF_RES_FEAR);
-            break;
-        case EGO_WEAPON_MORGUL:
-            if (p_ptr->pclass == CLASS_PRIEST && (p_ptr->realm1 == REALM_DEATH || p_ptr->realm2 == REALM_DEATH))
-                add_flag(o_ptr->flags, OF_BLESSED);
             break;
         case EGO_WEAPON_PATTERN:
             if (one_in_(3))
@@ -2668,6 +2659,10 @@ static void _ego_create_crown(object_type *o_ptr, int level)
             o_ptr->to_h += randint1(7);
             o_ptr->to_d += randint1(7);
         }
+        if (one_in_(3))
+            add_flag(o_ptr->flags, OF_RES_FEAR);
+        else
+            one_high_resistance(o_ptr);
         if (level > 70 && one_in_(10))
             add_flag(o_ptr->flags, OF_SPEED);
         if (one_in_(ACTIVATION_CHANCE))

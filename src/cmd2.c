@@ -315,10 +315,10 @@ void do_cmd_go_down(void)
             else
             {
                 /* Create a way back ... maybe */
-                if ( p_ptr->enter_dungeon 
-                  && down_num >= 20 
-                  && !ironman_rooms 
-                  && !(d_info[dungeon_type].flags1 & DF1_RANDOM) 
+                if ( p_ptr->enter_dungeon
+                  && down_num >= 20
+                  && !ironman_rooms
+                  && !(d_info[dungeon_type].flags1 & DF1_RANDOM)
                   && !(d_info[dungeon_type].initial_guardian && !(dungeon_flags[dungeon_type] & DUNGEON_NO_GUARDIAN))
                   && one_in_(14) )
                 {
@@ -657,9 +657,9 @@ static void chest_trap(int y, int x, s16b o_idx)
                 else if (one_in_(5)) (void)set_cut(p_ptr->cut + 200, FALSE);
                 else if (one_in_(4))
                 {
-                    if (!p_ptr->free_act) 
+                    if (!p_ptr->free_act)
                         (void)set_paralyzed(randint1(4), FALSE);
-                    else 
+                    else
                     {
                         equip_learn_flag(OF_FREE_ACT);
                         (void)set_stun(p_ptr->stun + 10 + randint0(100), FALSE);
@@ -2378,13 +2378,13 @@ void do_cmd_walk(bool pickup)
 
         /* Hack -- In small scale wilderness it takes MUCH more time to move */
         if (p_ptr->wild_mode) energy_use *= ((MAX_HGT + MAX_WID) / 2);
-        
+
         if (p_ptr->action == ACTION_QUICK_WALK) energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
         if (p_ptr->action == ACTION_STALK) energy_use = energy_use * (175 - p_ptr->lev) / 100;
         if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
             energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
-        
-        if (!p_ptr->wild_mode && p_ptr->tim_shrike) 
+
+        if (!p_ptr->wild_mode && p_ptr->tim_shrike)
             energy_use /= 3;
         else if (p_ptr->quick_walk)
             energy_use = energy_use * 60 / 100;
@@ -2415,7 +2415,7 @@ void do_cmd_walk(bool pickup)
         msg_format("Ambush=%.2f%%", (double)(21 - p_ptr->skills.stl) * 100.0/(double)tmp);
 #endif
 
-        if ( lvl + 5 > p_ptr->lev / 2 
+        if ( lvl + 5 > p_ptr->lev / 2
           && randint0(tmp) < 21 - p_ptr->skills.stl )
         {
             /* Inform the player of his horrible fate :=) */
@@ -2573,13 +2573,13 @@ void do_cmd_rest(void)
         bool clear = TRUE;
         if (command_arg == -2)
         {
-            if (p_ptr->blind || 
+            if (p_ptr->blind ||
                 p_ptr->confused ||
                 p_ptr->poisoned ||
                 p_ptr->afraid ||
                 p_ptr->stun ||
                 p_ptr->cut ||
-                p_ptr->slow || 
+                p_ptr->slow ||
                 p_ptr->paralyzed ||
                 p_ptr->image ||
                 p_ptr->word_recall ||
@@ -2601,7 +2601,7 @@ void do_cmd_rest(void)
     /* The sin of sloth */
     if (command_arg > 100)
         virtue_add(VIRTUE_DILIGENCE, -1);
-    
+
     /* Why are you sleeping when there's no need?  WAKE UP!*/
     if ((p_ptr->chp == p_ptr->mhp) &&
         (p_ptr->csp == p_ptr->msp) &&
@@ -2875,8 +2875,8 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 obj_learn_slay(o_ptr, OF_KILL_DRAGON, "slays <color:r>*Dragons*</color>");
                 if (mult < 30) mult = 30;
 
-                if ( o_ptr->name1 == ART_BARD_ARROW 
-                  && m_ptr->r_idx == MON_SMAUG 
+                if ( o_ptr->name1 == ART_BARD_ARROW
+                  && m_ptr->r_idx == MON_SMAUG
                   && equip_find_artifact(ART_BARD) )
                 {
                     mult *= 5;
@@ -2963,7 +2963,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
                 }
             }
 
-            if ( (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force) 
+            if ( (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force)
               && (p_ptr->csp > (p_ptr->msp / 30)))
             {
                 p_ptr->csp -= (1+(p_ptr->msp / 30));
@@ -3178,7 +3178,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
         energy_use = 100;
         break;
     }
-    
+
     if (weaponmaster_get_toggle() == TOGGLE_PIERCING_ARROW || shoot_hack == SHOOT_PIERCE)
         shoot_count = 0;
 
@@ -3195,7 +3195,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
         no_energy = TRUE;
         energy_use = 100;
 
-        /* Calculate shots per round 
+        /* Calculate shots per round
            CTK: energy_fire has four decimal places implied
                 p_ptr->num_fire only has two decimal places implied */
         num_shots = p_ptr->shooter_info.num_fire * 100;  /* rescale to 4 decimal places */
@@ -3236,7 +3236,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 
     /* Take a (partial) turn */
     if (!no_energy)
-        energy_use = (energy_use / thits); 
+        energy_use = (energy_use / thits);
 
     is_fired = TRUE;
 
@@ -3443,15 +3443,15 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                 if (p_ptr->riding)
                     skills_riding_gain_archery(r_ptr);
 
-                 armour = MON_AC(r_ptr, m_ptr);
+                armour = MON_AC(r_ptr, m_ptr);
                 if (p_ptr->concent)
                 {
                     armour *= (10 - p_ptr->concent);
                     armour /= 10;
                 }
 
-                if ( p_ptr->painted_target 
-                  && p_ptr->painted_target_idx == c_ptr->m_idx 
+                if ( p_ptr->painted_target
+                  && p_ptr->painted_target_idx == c_ptr->m_idx
                   && p_ptr->painted_target_ct >= 3)
                 {
                     if (randint1(100) <= 95)
@@ -3530,7 +3530,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                             tdam = m_ptr->hp + 1;
                             msg_format("Your shot hit a fatal spot of %s!", m_name);
                         }
-                        else 
+                        else
                             tdam = 1;
                     }
                     else if (snipe_type == SP_NEEDLE)
@@ -3543,7 +3543,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                             tdam = m_ptr->hp + 1;
                             msg_format("Your shot hit a fatal spot of %s!", m_name);
                         }
-                        else 
+                        else
                             tdam = 1;
                     }
                     else
@@ -3551,6 +3551,9 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                         critical_t crit = {0};
                         if (shoot_hack != SHOOT_SHATTER && shoot_hack != SHOOT_ELEMENTAL)
                             tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
+
+                        if (shoot_hack == SHOOT_SNIPING && MON_CSLEEP(m_ptr))
+                            tdam *= 2;
 
                         crit = critical_shot(q_ptr->weight, q_ptr->to_h);
                         if (crit.desc)
@@ -3667,7 +3670,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                             }
                         }
 
-                        if (anger && tdam > 0) 
+                        if (anger && tdam > 0)
                             anger_monster(m_ptr);
 
                         /* Artifact arrows stick to target. Note, we now do this
@@ -3712,7 +3715,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                                     }
                                 }
                             }
-                            
+
                             if (stick_to)
                                 msg_format("%^s have stuck into %s!",o_name, m_name);
                         }
@@ -4046,7 +4049,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
         o_ptr = &inventory[item];
 
         /* Ugly hack! */
-        if ( object_is_melee_weapon(o_ptr) 
+        if ( object_is_melee_weapon(o_ptr)
           && equip_is_valid_slot(item)
           && p_ptr->pclass == CLASS_PSION
           && psion_weapon_graft() )

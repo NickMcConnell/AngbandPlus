@@ -31,6 +31,18 @@ int mystic_get_toggle(void)
     return result;
 }
 
+static void _on_browse(int which)
+{
+    bool screen_hack = screen_is_saved();
+    if (screen_hack) screen_load();
+
+    display_weapon_mode = which;
+    do_cmd_knowledge_weapon();
+    display_weapon_mode = 0;
+
+    if (screen_hack) screen_save();
+}
+
 /****************************************************************
  * Spells
  ****************************************************************/
@@ -71,6 +83,10 @@ static void _acid_strike_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MYSTIC_ACID));
         break;
+    case SPELL_ON_BROWSE:
+        _on_browse(MYSTIC_ACID);
+        var_set_bool(res, TRUE);
+        break;
     default:
         default_spell(cmd, res);
         break;
@@ -90,12 +106,17 @@ static void _cold_strike_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MYSTIC_COLD));
         break;
+    case SPELL_ON_BROWSE:
+        _on_browse(MYSTIC_COLD);
+        var_set_bool(res, TRUE);
+        break;
     default:
         default_spell(cmd, res);
         break;
     }
 }
 
+/* For the Logrus Master
 static void _confusing_strike_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -113,7 +134,7 @@ static void _confusing_strike_spell(int cmd, variant *res)
         default_spell(cmd, res);
         break;
     }
-}
+} */
 
 static void _crushing_blow_spell(int cmd, variant *res)
 {
@@ -127,6 +148,10 @@ static void _crushing_blow_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, do_blow(MYSTIC_CRITICAL));
+        break;
+    case SPELL_ON_BROWSE:
+        _on_browse(MYSTIC_CRITICAL);
+        var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
@@ -163,6 +188,10 @@ static void _elec_strike_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MYSTIC_ELEC));
         break;
+    case SPELL_ON_BROWSE:
+        _on_browse(MYSTIC_ELEC);
+        var_set_bool(res, TRUE);
+        break;
     default:
         default_spell(cmd, res);
         break;
@@ -197,6 +226,10 @@ static void _fire_strike_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, do_blow(MYSTIC_FIRE));
+        break;
+    case SPELL_ON_BROWSE:
+        _on_browse(MYSTIC_FIRE);
+        var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
@@ -283,6 +316,10 @@ static void _poison_strike_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         var_set_bool(res, do_blow(MYSTIC_POIS));
+        break;
+    case SPELL_ON_BROWSE:
+        _on_browse(MYSTIC_POIS);
+        var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);
@@ -407,33 +444,33 @@ static void _summon_spiders_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
-static spell_info _spells[] = 
+static spell_info _spells[] =
 {
     /*lvl cst fail spell */
     {  1,  0,  0, samurai_concentration_spell},
-    {  3,  8,  0, _fire_strike_spell}, 
+    {  3,  8,  0, _fire_strike_spell},
     {  5,  8, 30, _summon_spiders_spell},
-    {  7,  8,  0, _cold_strike_spell}, 
-    {  9, 10, 30, detect_menace_spell}, 
-    { 11, 10,  0, _poison_strike_spell}, 
+    {  7,  8,  0, _cold_strike_spell},
+    {  9, 10, 30, detect_menace_spell},
+    { 11, 10,  0, _poison_strike_spell},
     { 13, 15, 40, sense_surroundings_spell},
     { 15,  0,  0, _stealth_toggle_spell},
     { 17,  0,  0, _fast_toggle_spell},
     { 19,  0,  0, _defense_toggle_spell},
-    { 21, 15, 50, _mystic_insights_spell}, 
-    { 23, 15,  0, _confusing_strike_spell}, 
-    { 25, 17,  0, _acid_strike_spell}, 
+    { 21, 15, 50, _mystic_insights_spell},
+    /* For the Logrus Master: { 23, 15,  0, _confusing_strike_spell}, */
+    { 25, 17,  0, _acid_strike_spell},
     { 27, 20,  0, _stunning_blow_spell},
     { 29,  0,  0, _retaliate_toggle_spell},
     { 30, 30, 60, haste_self_spell},
     { 32, 30, 60, resistance_spell},
-    { 33, 30,  0, _elec_strike_spell}, 
+    { 33, 30,  0, _elec_strike_spell},
     { 35, 20, 60, rush_attack_spell},
     { 36, 40, 60, _summon_hounds_spell},
     { 37,  0,  0, _offense_toggle_spell},
     { 39, 40,  0, _knockout_blow_spell},
     { 42, 50,  0, _killing_strike_spell},
-    { 45, 50,  0, _crushing_blow_spell},
+    { 45, 70,  0, _crushing_blow_spell},
     { -1, -1, -1, NULL}
 };
 
@@ -540,7 +577,7 @@ class_t *mystic_get_class(void)
         me.base_hp = 4;
         me.exp = 130;
         me.pets = 35;
-        
+
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
         me.caster_info = _caster_info;

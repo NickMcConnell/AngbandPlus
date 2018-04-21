@@ -40,7 +40,7 @@ static int artifact_bias;
 
 /*
  * Cursed arts now pick up bad flags at the end. To avoid idiocy like
- * arts that give resistance and vulnerability to fire simultaneously, 
+ * arts that give resistance and vulnerability to fire simultaneously,
  * we implement the following check:
  */
 static bool _add_bad_flag(object_type *o_ptr, int bad_flag, int good_flag)
@@ -285,7 +285,7 @@ bool one_vulnerability(object_type *o_ptr)
 {
     if (one_in_(3))
         return one_ele_vulnerability(o_ptr);
-    
+
     return one_high_vulnerability(o_ptr);
 }
 
@@ -357,7 +357,7 @@ bool one_biff(object_type *o_ptr)
                 return TRUE;
             }
         }
-        else if (n < 67) 
+        else if (n < 67)
         {
             if (one_stat_biff(o_ptr))
             {
@@ -399,7 +399,7 @@ void one_ability(object_type *o_ptr)
 static void random_plus(object_type * o_ptr)
 {
     int this_type = (object_is_weapon_ammo(o_ptr) ? 23 : 19);
-    
+
     has_pval = TRUE;
     switch (artifact_bias)
     {
@@ -735,32 +735,32 @@ static bool double_check_immunity(object_type * o_ptr)
                 break;
 
             case 3:
-                if (one_in_(2)) 
+                if (one_in_(2))
                 {
                     add_flag(o_ptr->flags, OF_STR);
                     has_pval = TRUE;
                 }
-                if (one_in_(2)) 
+                if (one_in_(2))
                 {
                     add_flag(o_ptr->flags, OF_INT);
                     has_pval = TRUE;
                 }
-                if (one_in_(2)) 
+                if (one_in_(2))
                 {
                     add_flag(o_ptr->flags, OF_WIS);
                     has_pval = TRUE;
                 }
-                if (one_in_(2)) 
+                if (one_in_(2))
                 {
                     add_flag(o_ptr->flags, OF_DEX);
                     has_pval = TRUE;
                 }
-                if (one_in_(2)) 
+                if (one_in_(2))
                 {
                     add_flag(o_ptr->flags, OF_CON);
                     has_pval = TRUE;
                 }
-                if (one_in_(2)) 
+                if (one_in_(2))
                 {
                     add_flag(o_ptr->flags, OF_CHR);
                     has_pval = TRUE;
@@ -1495,7 +1495,7 @@ static void random_slay_aux(object_type *o_ptr)
                 add_flag(o_ptr->flags, OF_BRAND_ORDER);
             else if (!have_flag(o_ptr->flags, OF_BRAND_WILD) && !have_flag(o_ptr->flags, OF_BRAND_ORDER) &&  one_in_(100))
                 add_flag(o_ptr->flags, OF_BRAND_WILD);
-            else 
+            else
             {
                 if (randint1(2500) <= object_level)
                     add_flag(o_ptr->flags, OF_KILL_EVIL);
@@ -1681,10 +1681,10 @@ static void random_slay(object_type *o_ptr)
 static void get_random_name_aux(char *return_name, object_type *o_ptr, int power)
 {
     /* Hack: BIAS_* got converted to bits but the artifact name files still use
-       old values. Fortunately, the bit position in the new constants will 
+       old values. Fortunately, the bit position in the new constants will
        recover the old values.
        TODO: Change the parser (e.g. N:18:BIAS_WARRIOR -> N:BIAS_WARRIOR)
-       so this doesn't happen again. 
+       so this doesn't happen again.
     */
     int bias_hack = 0;
     int temp = artifact_bias;
@@ -1808,14 +1808,14 @@ void curse_object(object_type *o_ptr)
     int ct = randint1(2);
     int v = obj_value_real(o_ptr) / 10000;
     int i;
-    
+
     o_ptr->curse_flags |= OFC_CURSED;
-    
+
     one_biff(o_ptr);
     ct--;
 
     ct += randint1(randint1(v)); /* TODO */
-    
+
     for (i = 0; i < ct; i++)
     {
         int n = randint0(70 + v*v);
@@ -1875,7 +1875,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
     if (no_artifacts) return 0;
     if (have_flag(o_ptr->flags, OF_NO_REMOVE)) return 0;
-    
+
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_HAYABUSA)
         is_falcon_sword = TRUE;
 
@@ -2032,7 +2032,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 warrior_artifact_bias = 30;
                 break;
             case CLASS_MIRROR_MASTER:
-                if (randint1(4) > 1) 
+                if (randint1(4) > 1)
                 {
                     artifact_bias = BIAS_MAGE;
                 }
@@ -2060,7 +2060,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     if (mode & CREATE_ART_CURSED)
         a_cursed = TRUE;
 
-    if ( (o_ptr->tval == TV_AMULET || o_ptr->tval == TV_RING) 
+    if ( (o_ptr->tval == TV_AMULET || o_ptr->tval == TV_RING)
       && object_is_cursed(o_ptr) )
     {
         a_cursed = TRUE;
@@ -2074,9 +2074,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     if (one_in_(WEIRD_LUCK))
         powers *= 2;
 
-    if ( (o_ptr->tval == TV_LITE && o_ptr->sval != SV_LITE_JUDGE) 
+    if ( (o_ptr->tval == TV_LITE && o_ptr->sval != SV_LITE_JUDGE)
       || o_ptr->tval == TV_AMULET
-      || o_ptr->tval == TV_RING ) 
+      || o_ptr->tval == TV_RING )
     {
         if (!one_in_(WEIRD_LUCK))
         {
@@ -2114,7 +2114,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             add_flag(o_ptr->flags, OF_HOLD_LIFE);
         break;
 
-        
+
     case TV_LITE:
         if (one_in_(3))
             add_flag(o_ptr->flags, OF_HOLD_LIFE);
@@ -2173,7 +2173,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                         slaying_hack++;
                     }
                     while (one_in_(o_ptr->dd));
-                        
+
                     do
                     {
                         o_ptr->ds++;
@@ -2181,7 +2181,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                         slaying_hack++;
                     }
                     while (one_in_(o_ptr->ds));
-                }            
+                }
             }
             else
                 random_slay(o_ptr);
@@ -2226,7 +2226,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             case 7:
                 random_misc(o_ptr);
                 break;
-            }        
+            }
             break;
 
         case TV_SWORD:
@@ -2264,7 +2264,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                             slaying_hack++;
                         }
                         while (one_in_(o_ptr->dd));
-                        
+
                         do
                         {
                             o_ptr->ds++;
@@ -2272,7 +2272,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                             slaying_hack++;
                         }
                         while (one_in_(o_ptr->ds));
-                    }            
+                    }
                 }
                 else if (!boosted_dam && !boosted_hit && randint1(225) < lev)
                 {
@@ -2301,7 +2301,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             case 4:
                 random_misc(o_ptr);
                 break;
-            case 5: case 6: case 7: 
+            case 5: case 6: case 7:
                 random_slay(o_ptr);
                 break;
             }
@@ -2505,8 +2505,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     has_pval = TRUE;
                     break;
                 case 3:
-                    if (!has_resistance 
-                      && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr)) 
+                    if (!has_resistance
+                      && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr))
                       && one_in_(4) )
                     {
                         add_flag(o_ptr->flags, OF_RES_ACID);
@@ -2571,8 +2571,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                         random_misc(o_ptr);
                         break;
                     }
-                case 5: case 6: case 7: 
-                    random_resistance(o_ptr);                    
+                case 5: case 6: case 7:
+                    random_resistance(o_ptr);
                     break;
             }
         }
@@ -2597,8 +2597,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         }
         else
         {
-            /* Hengband:  1: 0.0%  2:20.0%  3:32.0%  4+:48.0%  
-               Chengband: 1:16.7%  2:28.6%  3:28.6%  4+:26.0% 
+            /* Hengband:  1: 0.0%  2:20.0%  3:32.0%  4+:48.0%
+               Chengband: 1:16.7%  2:28.6%  3:28.6%  4+:26.0%
                4+ usually becomes a 4. The only tweak I made was changing
                "|| one_in_(pval)" to "|| one_in_(pval+5)."
             */
@@ -2717,8 +2717,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         }
     }
 
-    if ((artifact_bias == BIAS_MAGE || artifact_bias == BIAS_INT) 
-      && (o_ptr->tval == TV_GLOVES)) 
+    if ((artifact_bias == BIAS_MAGE || artifact_bias == BIAS_INT)
+      && (o_ptr->tval == TV_GLOVES))
     {
         add_flag(o_ptr->flags, OF_FREE_ACT);
     }
@@ -2785,7 +2785,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         if (total_flags <= 0) power_level = 0;
         else if (total_flags < 30000) power_level = 1;
         else if (total_flags < 70000) power_level = 2;
-        else 
+        else
         {
             power_level = 3;
             if (one_in_(17)) add_flag(o_ptr->flags, OF_AGGRAVATE);
@@ -2798,7 +2798,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         if (total_flags <= 0) power_level = 0;
         else if (total_flags <  50000) power_level = 1;
         else if (total_flags < 100000) power_level = 2;
-        else 
+        else
         {
             power_level = 3;
             if (one_in_(17)) add_flag(o_ptr->flags, OF_AGGRAVATE);
@@ -2941,6 +2941,12 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
             add_flag(o_ptr->flags, OF_SLAY_EVIL);
             give_resistance = TRUE;
         }
+        else if (warlock_is_(WARLOCK_GIANTS)) /* Pseudo-boss reward for Giant Warlocks */
+        {
+            o_ptr->to_h = 5;
+            o_ptr->to_d = 5;
+            o_ptr->to_a = 0;
+        }
         else
         {
             add_flag(o_ptr->flags, OF_AGGRAVATE);
@@ -2984,8 +2990,8 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 
     if (o_ptr->name1 == ART_TERROR) /* Terror Mask is for warriors... */
     {
-        if (p_ptr->pclass == CLASS_WARRIOR || 
-            p_ptr->pclass == CLASS_CAVALRY || 
+        if (p_ptr->pclass == CLASS_WARRIOR ||
+            p_ptr->pclass == CLASS_CAVALRY ||
             p_ptr->pclass == CLASS_BERSERKER ||
             p_ptr->pclass == CLASS_MAULER ||
             p_ptr->prace == RACE_MON_HYDRA ||
@@ -3089,7 +3095,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 bool reforge_artifact(object_type *src, object_type *dest, int fame)
 {
     bool        result = FALSE;
-    object_type forge = {0};    
+    object_type forge = {0};
     object_type best = {0}, worst = {0};
     int         base_power, best_power = -10000000, power = 0, worst_power = 10000000;
     int         min_power, max_power;
@@ -3191,7 +3197,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
         forge1.to_a = MAX(10, forge1.to_a);
     }
     base_power = MAX(7500, obj_value_real(&forge1));
-    
+
     best_power = -10000000;
     power = 0;
     old_level = object_level;

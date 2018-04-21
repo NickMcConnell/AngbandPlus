@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 5
 #define VER_MINOR 0
-#define VER_PATCH 0
-#define VER_EXTRA 2
+#define VER_PATCH 1
+#define VER_EXTRA 1
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -548,6 +548,7 @@
 #define realm2tval(A) ((A) + TV_LIFE_BOOK - 1)
 #define technic2magic(A)      (is_magic(A) ? (A) : (A) - MIN_TECHNIC + 1 + MAX_MAGIC)
 #define is_good_realm(REALM)   ((REALM) == REALM_LIFE || (REALM) == REALM_CRUSADE)
+#define is_evil_realm(REALM)   ((REALM) == REALM_DEATH || (REALM) == REALM_DAEMON)
 
 /*
  * Magic-books for the realms
@@ -719,7 +720,7 @@
 #define DRAGON_RED      0
 #define DRAGON_WHITE    1
 #define DRAGON_BLUE     2
-#define DRAGON_BLACK    3 
+#define DRAGON_BLACK    3
 #define DRAGON_GREEN    4
 #define DRAGON_NETHER   5
 #define DRAGON_LAW      6
@@ -1633,16 +1634,17 @@ enum {
 #define SV_AMMO_NORMAL                   1    /* shots, arrows, bolts */
 #define SV_AMMO_HEAVY                    2    /* seeker arrows and bolts, mithril shots */
 
-/* The "sval" codes for TV_BOW */
-#define SV_SLING                         2    /* (x2) */
-#define SV_SHORT_BOW                    12    /* (x3) */
-#define SV_LONG_BOW                     13    /* (x3) */
-#define SV_LIGHT_XBOW                   23    /* (x4) */
-#define SV_HEAVY_XBOW                   24    /* (x4) */
-#define SV_CRIMSON                      50    /* (x0) */
-#define SV_RAILGUN                      51    /* (x0) */
-#define SV_NAMAKE_BOW                   63    /* (x3) */
-#define SV_HARP                            70  /* (x0) */
+/* The "sval" codes for TV_BOW. The weird sequencing is historic (Previously,
+   sval%10 gave the bow multiplier, but this is now specified in k_info, etc). */
+#define SV_SLING                         2
+#define SV_SHORT_BOW                    12
+#define SV_LONG_BOW                     13
+#define SV_LIGHT_XBOW                   23
+#define SV_HEAVY_XBOW                   24
+#define SV_CRIMSON                      50
+#define SV_RAILGUN                      51
+#define SV_NAMAKE_BOW                   63
+#define SV_HARP                         70
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL                        1
@@ -2388,7 +2390,7 @@ enum {
 /*
  * Bit flags for the "p_ptr->special_attack" variable. -LM-
  *
- * Note:  The elemental and poison attacks should be managed using the 
+ * Note:  The elemental and poison attacks should be managed using the
  * function "set_ele_attack", in spell2.c.  This provides for timeouts and
  * prevents the player from getting more than one at a time.
  */
@@ -2783,7 +2785,7 @@ enum summon_specific_e {
 #define IDENT_BROKEN    0x80    /* Item is permanently worthless */
 
 
-/* 
+/*
  * How object is marked (flags in object_type.mark)
  * OM_FOUND --- original boolean flag
  * OM_NOMSG --- temporary flag to suppress messages which were
@@ -3146,6 +3148,7 @@ enum obj_flags_e {
 #define AM_FORCE_EGO    0x00000100
 #define AM_STOCK_TOWN   0x00000200
 #define AM_STOCK_BM     0x00000400
+#define AM_GUARDIAN     0x00000800
 
 
 /*** Monster blow constants ***/
@@ -3285,7 +3288,7 @@ enum obj_flags_e {
 #define RF2_KILL_BODY       0x00200000  /* Monster can kill monsters */
 #define RF2_TAKE_ITEM       0x00400000  /* Monster can pick up items */
 #define RF2_KILL_ITEM       0x00800000  /* Monster can crush items */
-#define RF2_AURA_REVENGE    0x01000000  
+#define RF2_AURA_REVENGE    0x01000000
 #define RF2_THIEF           0x02000000
 #define RF2_AURA_FEAR       0x04000000
 #define RF2_CAMELOT         0x08000000
@@ -5109,8 +5112,8 @@ extern int PlayerUID;
 #define MON_MULTIHUED_CENTIPEDE 1132
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
-   monster or the dungeon never gets flagged as completed. Note, this messes up the needle 
-   code in py_attack_aux() since the needle doesn't work on uniques, but I think I have 
+   monster or the dungeon never gets flagged as completed. Note, this messes up the needle
+   code in py_attack_aux() since the needle doesn't work on uniques, but I think I have
    that fixed now ... sigh
 */
 #define MON_HAGURE2        1110
@@ -5426,7 +5429,7 @@ enum object_save_fields_e {
  */
 enum mon_save_fields_e {
     SAVE_MON_DONE = 0,
-    SAVE_MON_AP_R_IDX, 
+    SAVE_MON_AP_R_IDX,
     SAVE_MON_SUB_ALIGN,
     SAVE_MON_TIMER,
     SAVE_MON_TARGET_Y,
@@ -5654,10 +5657,10 @@ enum mon_save_fields_e {
 #define RUNE_IMMORTALITY          23
 
 /* Weaponmaster shooting powers */
-#define SHOOT_NONE            0
-#define SHOOT_BOUNCE          1
+#define SHOOT_NONE          0
+#define SHOOT_BOUNCE        1
 #define SHOOT_PIERCE        2
-#define SHOOT_RUN            3 
+#define SHOOT_RUN           3
 #define SHOOT_MANY          4
 #define SHOOT_ALL           5
 #define SHOOT_VOLLEY        7
@@ -5668,6 +5671,7 @@ enum mon_save_fields_e {
 #define SHOOT_SHATTER      12
 #define SHOOT_KNOCKBACK    13
 #define SHOOT_ELEMENTAL    14
+#define SHOOT_SNIPING      15  /* Scout */
 
 /* Weaponmaster et. al. toggle modes */
 #define TOGGLE_NONE                0
@@ -5736,13 +5740,15 @@ enum mon_save_fields_e {
 #define MYSTIC_TOGGLE_OFFENSE    42
 #define MYSTIC_TOGGLE_DEFENSE    43
 
-#define LEPRECHAUN_TOGGLE_BLINK  44
+#define LEPRECHAUN_TOGGLE_BLINK    44
 
 #define WARLOCK_DRAGON_TOGGLE_BLESS 45
 #define WARLOCK_DRAGON_TOGGLE_CANTER 46
 #define WARLOCK_DRAGON_TOGGLE_GALLOP 47
 #define WARLOCK_DRAGON_TOGGLE_HEALING 48
 #define WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE 49
+
+#define LEPRECHAUN_TOGGLE_HOARDING 50
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1
@@ -5778,15 +5784,15 @@ enum slot_e {
     EQUIP_SLOT_NONE,
     EQUIP_SLOT_GLOVES,
     EQUIP_SLOT_WEAPON_SHIELD,
-    EQUIP_SLOT_RING,         
-    EQUIP_SLOT_BOW,          
-    EQUIP_SLOT_AMULET,       
-    EQUIP_SLOT_LITE,         
-    EQUIP_SLOT_BODY_ARMOR,   
-    EQUIP_SLOT_CLOAK,        
-    EQUIP_SLOT_BOOTS,        
-    EQUIP_SLOT_HELMET,       
-    EQUIP_SLOT_ANY,             
+    EQUIP_SLOT_RING,
+    EQUIP_SLOT_BOW,
+    EQUIP_SLOT_AMULET,
+    EQUIP_SLOT_LITE,
+    EQUIP_SLOT_BODY_ARMOR,
+    EQUIP_SLOT_CLOAK,
+    EQUIP_SLOT_BOOTS,
+    EQUIP_SLOT_HELMET,
+    EQUIP_SLOT_ANY,
     EQUIP_SLOT_WEAPON,
     EQUIP_SLOT_CAPTURE_BALL,
     EQUIP_SLOT_MAX

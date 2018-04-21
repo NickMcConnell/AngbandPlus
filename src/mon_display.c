@@ -124,7 +124,12 @@ static void _display_level(monster_race *r_ptr, doc_ptr doc)
     if (r_ptr->level == 0)
         doc_insert(doc, "<color:G>Town</color>");
     else if (_easy_lore(r_ptr) || r_ptr->r_tkills > 0)
-        doc_printf(doc, "<color:G>%d</color>", (int)r_ptr->level);
+    {
+        if (r_ptr->max_level != 999)
+            doc_printf(doc, "<color:G>%d to %d</color>", (int)r_ptr->level, (int)r_ptr->max_level);
+        else
+            doc_printf(doc, "<color:G>%d</color>", (int)r_ptr->level);
+    }
     else
         doc_insert(doc, "<color:y>?</color>");
     doc_newline(doc);
@@ -240,6 +245,8 @@ static void _display_type(monster_race *r_ptr, doc_ptr doc)
         vec_add(v, string_copy_s("<color:b>Male</color>"));
     if (r_ptr->flags1 & RF1_FEMALE)
         vec_add(v, string_copy_s("<color:R>Female</color>")); /* Pink? */
+    if (p_ptr->pclass == CLASS_WARLOCK && warlock_is_pact_monster(r_ptr))
+        vec_add(v, string_copy_s("<color:v>Pact</color>"));
 
     _print_list(v, doc, ',', '\0');
     vec_free(v);

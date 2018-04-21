@@ -4256,6 +4256,20 @@ M:%.XXXXXXXXX.%
 M:%...........%
 M:%%%%%%%%%%%%%
 
+N:Jeweler
+T:ROOM:NORMAL:SHOP
+W:20:*:64
+L:7:JEWELER(GLOW)
+M:%%%%%%%%%%%%%
+M:%...........%
+M:%.XXXX'XXXX.%
+M:%.X.......X.%
+M:%.X.......X.%
+M:%.XXXX7XXXX.%
+M:%.XXXXXXXXX.%
+M:%...........%
+M:%%%%%%%%%%%%%
+
 N:Vanilla Town
 T:ROOM:NORMAL:SHOP | NO_ROTATE
 W:20:*:3

@@ -11,26 +11,8 @@ void burning_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attacks a monster with more damage unless it has resistance to fire.");
         break;
     case SPELL_CAST:
-    {
-        int y, x, dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_rep_dir2(&dir)) return;
-        if (dir == 5) return;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        if (cave[y][x].m_idx)
-        {
-            py_attack(y, x, HISSATSU_FIRE);
-            var_set_bool(res, TRUE);
-        }
-        else
-        {
-            msg_print("There is no monster.");
-        }
+        var_set_bool(res, do_blow(HISSATSU_FIRE));
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -48,26 +30,8 @@ void lightning_eagle_spell(int cmd, variant *res)
         var_set_string(res, "Attacks a monster with more damage unless it has resistance to electricity.");
         break;
     case SPELL_CAST:
-    {
-        int y, x, dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_rep_dir2(&dir)) return;
-        if (dir == 5) return;
-
-        y = py + ddy[dir];
-        x = px + ddx[dir];
-
-        if (cave[y][x].m_idx)
-        {
-            py_attack(y, x, HISSATSU_ELEC);
-            var_set_bool(res, TRUE);
-        }
-        else
-        {
-            msg_print("There is no monster.");
-        }
+        var_set_bool(res, do_blow(HISSATSU_ELEC));
         break;
-    }
     default:
         default_spell(cmd, res);
         break;
@@ -81,9 +45,9 @@ void lightning_eagle_spell(int cmd, variant *res)
  */
 
 typedef struct {
-int            stat;
-cptr        gain_desc;
-spell_info    spell;
+int        stat;
+cptr       gain_desc;
+spell_info spell;
 } talent_t;
 
 /*
@@ -110,7 +74,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_WIS, "like a Half Orc", {3, 5, 50, remove_fear_spell}},
         { A_CHR, "like a Warlock", {3, 5, 60, satisfy_hunger_spell}},
         { A_CHR, "like a Warlock", {3, 5, 40, light_area_spell}},
-        { A_CHR, "like a Mutant", {3, 12, 40, hypnotic_gaze_spell}},        
+        { A_CHR, "like a Mutant", {3, 12, 40, hypnotic_gaze_spell}},
         { A_WIS, "like a Priest", {3, 5, 40, bless_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
@@ -187,7 +151,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     /* CL21: Good Buff*/
     {
         { A_STR, "like a Half Troll", {10, 12, 50, berserk_spell}},
-        { A_CON, "like a Golem", {20, 15, 50, stone_skin_spell}},        
+        { A_CON, "like a Golem", {20, 15, 50, stone_skin_spell}},
         { A_CHR, "like a Kutar", {20, 15, 40, kutar_expand_spell}},
         { A_CHR, "like a Warlock", {15, 10, 30, heroism_spell}},
         { A_CHR, "like a Warlock", {21, 40, 40, protection_from_evil_spell}},
@@ -643,7 +607,6 @@ static caster_info * _caster_info(void)
     if (!init)
     {
         me.magic_desc = "wild spell";
-        me.which_stat = A_INT;
         me.weight = 450;
         init = TRUE;
     }

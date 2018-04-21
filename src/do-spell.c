@@ -192,7 +192,7 @@ bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, u32b mo
     int i;
     bool success = FALSE;
 
-    /* Default level */ 
+    /* Default level */
     if (!lev) lev = spell_power(plev) + randint1(spell_power(plev * 2 / 3));
 
     if (pet)
@@ -977,7 +977,7 @@ static cptr do_life_spell(int spell, int mode)
     case 0:
         if (name) return "Cure Light Wounds";
         if (desc) return "Heals cut and HP a little.";
-    
+
         {
             int dice = 2;
             int sides = 10;
@@ -995,7 +995,7 @@ static cptr do_life_spell(int spell, int mode)
     case 1:
         if (name) return "Bless";
         if (desc) return "Gives bonus to hit and AC for a few turns.";
-    
+
         {
             int base = spell_power(12);
 
@@ -1011,7 +1011,7 @@ static cptr do_life_spell(int spell, int mode)
     case 2:
         if (name) return "Regeneration";
         if (desc) return "Gives regeneration ability for a while.";
-    
+
         {
             int base = spell_power(80);
 
@@ -1027,7 +1027,7 @@ static cptr do_life_spell(int spell, int mode)
     case 3:
         if (name) return "Call Light";
         if (desc) return "Lights up nearby area and the inside of a room permanently.";
-    
+
         {
             int dice = 2;
             int sides = plev / 2;
@@ -1045,7 +1045,7 @@ static cptr do_life_spell(int spell, int mode)
     case 4:
         if (name) return "Detect Doors & Traps";
         if (desc) return "Detects traps, doors, and stairs in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -1063,7 +1063,7 @@ static cptr do_life_spell(int spell, int mode)
     case 5:
         if (name) return "Cure Medium Wounds";
         if (desc) return "Heals cut and HP more.";
-    
+
         {
             int dice = 6;
             int sides = 10;
@@ -1081,7 +1081,7 @@ static cptr do_life_spell(int spell, int mode)
     case 6:
         if (name) return "Cure Poison";
         if (desc) return "Cure poison status.";
-    
+
         {
             if (cast)
             {
@@ -1093,7 +1093,7 @@ static cptr do_life_spell(int spell, int mode)
     case 7:
         if (name) return "Satisfy Hunger";
         if (desc) return "Satisfies hunger.";
-    
+
         {
             if (cast)
             {
@@ -1127,7 +1127,7 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Fasting";
         if (desc) return "Begin a religious fast. In time, your god may restore you!";
         if (spoil) return "Player begins a fast. Once hungry there is a small chance that the player will have a random stat restored, or will have their life restored.";
-    
+
         if (cast)
         {
             if (p_ptr->fasting)
@@ -1145,7 +1145,7 @@ static cptr do_life_spell(int spell, int mode)
     case 10:
         if (name) return "Cure Critical Wounds";
         if (desc) return "Heals cut, stun and HP greatly.";
-    
+
         {
             int dice = 12;
             int sides = 12;
@@ -1164,7 +1164,7 @@ static cptr do_life_spell(int spell, int mode)
     case 11:
         if (name) return "Resist Heat and Cold";
         if (desc) return "Gives resistance to fire and cold. These resistances can be added to which from equipment for more powerful resistances.";
-    
+
         {
             int base = spell_power(20);
 
@@ -1181,7 +1181,7 @@ static cptr do_life_spell(int spell, int mode)
     case 12:
         if (name) return "Sense Surroundings";
         if (desc) return "Maps nearby area.";
-    
+
         {
             int rad = DETECT_RAD_MAP;
 
@@ -1197,7 +1197,7 @@ static cptr do_life_spell(int spell, int mode)
     case 13:
         if (name) return "Turn Undead";
         if (desc) return "Attempts to scare undead monsters in sight.";
-    
+
         {
             if (cast)
             {
@@ -1209,7 +1209,7 @@ static cptr do_life_spell(int spell, int mode)
     case 14:
         if (name) return "Healing";
         if (desc) return "Much powerful healing magic, and heals cut and stun completely.";
-    
+
         {
             int heal = spell_power(300);
 
@@ -1227,7 +1227,7 @@ static cptr do_life_spell(int spell, int mode)
     case 15:
         if (name) return "Glyph of Warding";
         if (desc) return "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph.";
-    
+
         {
             if (cast)
             {
@@ -1239,7 +1239,7 @@ static cptr do_life_spell(int spell, int mode)
     case 16:
         if (name) return "Dispel Curse";
         if (desc) return "Removes normal and heavy curse from equipped items.";
-    
+
         {
             if (cast)
             {
@@ -1254,7 +1254,7 @@ static cptr do_life_spell(int spell, int mode)
     case 17:
         if (name) return "Perception";
         if (desc) return "Identifies an item.";
-    
+
         {
             if (cast)
             {
@@ -1267,7 +1267,7 @@ static cptr do_life_spell(int spell, int mode)
     case 18:
         if (name) return "Dispel Undead";
         if (desc) return "Damages all undead monsters in sight.";
-    
+
         {
             int dam = spell_power(plev * 3 + p_ptr->to_d_spell);
 
@@ -1282,7 +1282,7 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Sustaining";
         if (desc) return "Grants temporary stat sustains, depending on your level.";
         if (spoil) return "Player gains up to L/7 stat sustains for L turns.";
-    
+
         {
             int dur = spell_power(p_ptr->lev);
 
@@ -1336,7 +1336,7 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Cure Mutation";
         if (desc) return "Remove a random mutation.";
         if (spoil) return "Remove a random mutation. There is a 1 in 100/L chance of removing a bad mutation only.";
-    
+
         if (cast)
         {
             if (one_in_(100/p_ptr->lev))
@@ -1349,7 +1349,7 @@ static cptr do_life_spell(int spell, int mode)
     case 21:
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
-    
+
         {
             int base = 15;
             int sides = 20;
@@ -1366,7 +1366,7 @@ static cptr do_life_spell(int spell, int mode)
     case 22:
         if (name) return "Transcendence";
         if (desc) return "For a short while, any damage you receive will be absorbed by your spell points.";
-    
+
         {
             int dur = spell_power(p_ptr->lev/10);
 
@@ -1380,7 +1380,7 @@ static cptr do_life_spell(int spell, int mode)
     case 23:
         if (name) return "Warding True";
         if (desc) return "Creates glyphs in all adjacent squares and under you.";
-    
+
         {
             int rad = 1;
 
@@ -1397,7 +1397,7 @@ static cptr do_life_spell(int spell, int mode)
     case 24:
         if (name) return "Sterilization";
         if (desc) return "Prevents any breeders on current level from breeding.";
-    
+
         {
             if (cast)
             {
@@ -1425,7 +1425,7 @@ static cptr do_life_spell(int spell, int mode)
     case 26:
         if (name) return "Annihilate Undead";
         if (desc) return "Eliminates all nearby undead monsters, exhausting you. Powerful or unique monsters may be able to resist.";
-    
+
         {
             int power = spell_power(plev + 50);
 
@@ -1441,7 +1441,7 @@ static cptr do_life_spell(int spell, int mode)
     case 27:
         if (name) return "Clairvoyance";
         if (desc) return "Maps and lights whole dungeon level. Knows all objects location. And gives telepathy for a while.";
-    
+
         {
             if (cast)
             {
@@ -1453,7 +1453,7 @@ static cptr do_life_spell(int spell, int mode)
     case 28:
         if (name) return "Restoration";
         if (desc) return "Restores all stats and experience.";
-    
+
         {
             if (cast)
             {
@@ -1472,7 +1472,7 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Healing True";
         if (desc) return "The greatest healing magic. Heals all HP, cut and stun.";
         if (spoil) return "Removes cuts and stuns, and heals the player 2000hp.";
-    
+
         {
             int heal = spell_power(2000);
 
@@ -1490,7 +1490,7 @@ static cptr do_life_spell(int spell, int mode)
     case 30:
         if (name) return "Holy Vision";
         if (desc) return "Fully identifies an item.";
-    
+
         {
             if (cast)
             {
@@ -1503,7 +1503,7 @@ static cptr do_life_spell(int spell, int mode)
         if (name) return "Ultimate Resistance";
         if (desc) return "Gives ultimate resistance, bonus to AC and speed.";
         if (spoil) return "Player gains all resistances, auras, sustains, FA, SI, slow digestion, regeneration, levitation and reflection as well as double base resistance, haste, and +100AC for X+dX rounds where X=L/2.";
-    
+
         {
             int base = spell_power(plev / 2);
 
@@ -1543,7 +1543,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 0:
         if (name) return "Detect Monsters";
         if (desc) return "Detects all monsters in your vicinity unless invisible.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -1559,7 +1559,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 1:
         if (name) return "Phase Door";
         if (desc) return "Teleport short distance.";
-    
+
         {
             int range = 10;
 
@@ -1577,7 +1577,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 2:
         if (name) return "Detect Doors and Traps";
         if (desc) return "Detects traps, doors, and stairs in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -1595,7 +1595,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 3:
         if (name) return "Light Area";
         if (desc) return "Lights up nearby area and the inside of a room permanently.";
-    
+
         {
             int dice = 2;
             int sides = plev / 2;
@@ -1613,7 +1613,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 4:
         if (name) return "Confuse Monster";
         if (desc) return "Attempts to confuse a monster.";
-    
+
         {
             int power = spell_power((plev * 3) / 2);
 
@@ -1631,7 +1631,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 5:
         if (name) return "Teleport";
         if (desc) return "Teleport long distance.";
-    
+
         {
             int range = plev * 5;
 
@@ -1649,7 +1649,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 6:
         if (name) return "Sleep Monster";
         if (desc) return "Attempts to sleep a monster.";
-    
+
         {
             int power = spell_power(plev * 3 /2);
 
@@ -1667,7 +1667,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 7:
         if (name) return "Recharging";
         if (desc) return "It attempts to recharge a device using your mana for power.";
-    
+
         {
             int power = spell_power(plev * 3);
 
@@ -1683,7 +1683,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 8:
         if (name) return "Magic Mapping";
         if (desc) return "Maps nearby area.";
-    
+
         {
             int rad = DETECT_RAD_MAP;
 
@@ -1699,7 +1699,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 9:
         if (name) return "Identify";
         if (desc) return "Identifies an item.";
-    
+
         {
             if (cast)
             {
@@ -1711,7 +1711,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 10:
         if (name) return "Slow Monster";
         if (desc) return "Attempts to slow a monster.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -1737,7 +1737,7 @@ static cptr do_sorcery_spell(int spell, int mode)
             if (name) return "Mass Stasis";
             if (desc) return "Attempts to suspend all monsters in sight.";
         }
-    
+
         {
             int power = spell_power(plev * 4);
 
@@ -1756,7 +1756,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 12:
         if (name) return "Teleport Away";
         if (desc) return "Teleports all monsters on the line away unless resisted.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -1774,7 +1774,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 13:
         if (name) return "Haste Self";
         if (desc) return "Hastes you for a while.";
-    
+
         {
             int base = spell_power(plev);
             int sides = spell_power(20 + plev);
@@ -1791,7 +1791,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 14:
         if (name) return "Detection True";
         if (desc) return "Detects all monsters, traps, doors, stairs, treasures and items in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -1807,7 +1807,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 15:
         if (name) return "Identify True";
         if (desc) return "*Identifies* an item.";
-    
+
         {
             if (cast)
             {
@@ -1819,7 +1819,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 16:
         if (name) return "Inventory Protection";
         if (desc) return "For a short while, items in your pack have a chance to resist destruction.";
-    
+
         {
             int base = spell_power(30);
 
@@ -1833,7 +1833,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 17:
         if (name) return "Stair Creation";
         if (desc) return "Creates a stair which goes down or up.";
-    
+
         if (cast)
             stair_creation(FALSE);
         break;
@@ -1841,7 +1841,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 18:
         if (name) return "Sense Minds";
         if (desc) return "Gives telepathy for a while.";
-    
+
         {
             int base = 25;
             int sides = spell_power(30);
@@ -1858,7 +1858,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 19:
         if (name) return "Teleport to town";
         if (desc) return "Teleport to a town which you choose in a moment. Can only be used outdoors.";
-    
+
         {
             if (cast)
             {
@@ -1870,7 +1870,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 20:
         if (name) return "Self Knowledge";
         if (desc) return "Gives you useful info regarding your current resistances, the powers of your weapon and maximum limits of your stats.";
-    
+
         {
             if (cast)
             {
@@ -1882,7 +1882,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 21:
         if (name) return "Teleport Level";
         if (desc) return "Teleport to up or down stairs in a moment.";
-    
+
         {
             if (cast)
             {
@@ -1895,7 +1895,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 22:
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
-    
+
         {
             int base = 15;
             int sides = 20;
@@ -1912,7 +1912,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 23:
         if (name) return "Dimension Door";
         if (desc) return "Teleport to given location.";
-    
+
         {
             int range = spell_power(plev / 2 + 10);
 
@@ -1930,7 +1930,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 24:
         if (name) return "Probing";
         if (desc) return "Proves all monsters' alignment, HP, speed and their true character.";
-    
+
         {
             if (cast)
             {
@@ -1942,7 +1942,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 25:
         if (name) return "Door Creation";
         if (desc) return "Creates doors on all surrounding squares.";
-    
+
         if (cast)
         {
             project(0, 1, py, px, 0, GF_MAKE_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE, -1);
@@ -1954,7 +1954,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 26:
         if (name) return "Telekinesis";
         if (desc) return "Pulls a distant item close to you.";
-    
+
         {
             int weight = spell_power(plev * 15);
 
@@ -1972,7 +1972,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 27:
         if (name) return "Clairvoyance";
         if (desc) return "Maps and lights whole dungeon level. Knows all objects location. And gives telepathy for a while.";
-    
+
         {
             int base = 25;
             int sides = spell_power(30);
@@ -2011,7 +2011,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 29:
         if (name) return "Alchemy";
         if (desc) return "Turns an item into 1/3 of its value in gold.";
-    
+
         {
             if (cast)
             {
@@ -2023,7 +2023,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 30:
         if (name) return "Banishment";
         if (desc) return "Teleports all monsters in sight away unless resisted.";
-    
+
         {
             int power = spell_power(plev * 4);
 
@@ -2039,7 +2039,7 @@ static cptr do_sorcery_spell(int spell, int mode)
     case 31:
         if (name) return "Globe of Invulnerability";
         if (desc) return "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks or duration time is exceeded.";
-    
+
         {
             int base = 4;
 
@@ -2072,7 +2072,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 0:
         if (name) return "Detect Creatures";
         if (desc) return "Detects all monsters in your vicinity unless invisible.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -2088,7 +2088,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 1:
         if (name) return "Lightning";
         if (desc) return "Fires a short beam of lightning.";
-    
+
         {
             int dice = 3 + (plev - 1) / 5;
             int sides = 4;
@@ -2110,7 +2110,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 2:
         if (name) return "Detect Doors and Traps";
         if (desc) return "Detects traps, doors, and stairs in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -2128,7 +2128,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 3:
         if (name) return "Produce Food";
         if (desc) return "Produces a Ration of Food.";
-    
+
         {
             if (cast)
             {
@@ -2148,7 +2148,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 4:
         if (name) return "Daylight";
         if (desc) return "Lights up nearby area and the inside of a room permanently.";
-    
+
         {
             int dice = 2;
             int sides = spell_power(plev / 2);
@@ -2160,7 +2160,7 @@ static cptr do_nature_spell(int spell, int mode)
             {
                 lite_area(damroll(dice, sides), rad);
 
-                if ( (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE) 
+                if ( (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE)
                   && !res_save_default(RES_LITE) )
                 {
                     msg_print("The daylight scorches your flesh!");
@@ -2173,7 +2173,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 5:
         if (name) return "Wind Walker";
         if (desc) return "Grants temporary levitation.";
-    
+
         {
             int dur = spell_power(30);
 
@@ -2187,7 +2187,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 6:
         if (name) return "Resist Environment";
         if (desc) return "Gives resistance to fire, cold and electricity for a while. These resistances can be added to which from equipment for more powerful resistances.";
-    
+
         {
             int base = spell_power(20);
 
@@ -2205,7 +2205,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 7:
         if (name) return "Cure Wounds & Poison";
         if (desc) return "Heals all cut and poison status. Heals HP a little.";
-    
+
         {
             int dice = 2;
             int sides = spell_power(8);
@@ -2225,7 +2225,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 8:
         if (name) return "Stone to Mud";
         if (desc) return "Turns one rock square to mud.";
-    
+
         {
             int dice = 1;
             int sides = 30;
@@ -2245,7 +2245,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 9:
         if (name) return "Frost Bolt";
         if (desc) return "Fires a bolt or beam of cold.";
-    
+
         {
             int dice = 3 + (plev - 5) / 4;
             int sides = 8;
@@ -2268,7 +2268,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 10:
         if (name) return "Nature Awareness";
         if (desc) return "Maps nearby area. Detects all monsters, traps, doors and stairs.";
-    
+
         {
             int rad1 = DETECT_RAD_MAP;
             int rad2 = DETECT_RAD_DEFAULT;
@@ -2289,7 +2289,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 11:
         if (name) return "Fire Bolt";
         if (desc) return "Fires a bolt or beam of fire.";
-    
+
         {
             int dice = 5 + (plev - 5) / 4;
             int sides = 8;
@@ -2312,7 +2312,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 12:
         if (name) return "Ray of Sunlight";
         if (desc) return "Fires a beam of light which damages to light-sensitive monsters.";
-    
+
         {
             int dice = 6;
             int sides = 8;
@@ -2337,7 +2337,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 13:
         if (name) return "Entangle";
         if (desc) return "Attempts to slow all monsters in sight.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -2353,7 +2353,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 14:
         if (name) return "Nature's Gate";
         if (desc) return "Summons one or more animals. At higher levels, might summon hounds, reptiles or even an Ent!";
-    
+
         if (cast)
         {
             bool success = FALSE;
@@ -2387,7 +2387,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 15:
         if (name) return "Herbal Healing";
         if (desc) return "Heals HP greatly. And heals cut, stun and poison completely.";
-    
+
         {
             int heal = spell_power(500);
 
@@ -2406,7 +2406,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 16:
         if (name) return "Stair Building";
         if (desc) return "Creates a stair which goes down or up.";
-    
+
         {
             if (cast)
             {
@@ -2418,7 +2418,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 17:
         if (name) return "Stone Skin";
         if (desc) return "Gives bonus to AC for a while.";
-    
+
         {
             int base = spell_power(20);
             int sides = spell_power(30);
@@ -2435,7 +2435,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 18:
         if (name) return "Resistance True";
         if (desc) return "Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.";
-    
+
         {
             int base = spell_power(20);
 
@@ -2455,7 +2455,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 19:
         if (name) return "Forest Creation";
         if (desc) return "Creates trees in all adjacent squares.";
-    
+
         {
             if (cast)
             {
@@ -2467,7 +2467,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 20:
         if (name) return "Stone Tell";
         if (desc) return "*Identifies* an item.";
-    
+
         {
             if (cast)
             {
@@ -2479,7 +2479,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 21:
         if (name) return "Wall of Stone";
         if (desc) return "Creates granite walls in all adjacent squares.";
-    
+
         {
             if (cast)
             {
@@ -2491,7 +2491,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 22:
         if (name) return "Protect from Corrosion";
         if (desc) return "Makes an equipment acid-proof.";
-    
+
         {
             if (cast)
             {
@@ -2503,7 +2503,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 23:
         if (name) return "Call Sunlight";
         if (desc) return "Generates ball of light centered on you. Maps and lights whole dungeon level. Knows all objects location.";
-    
+
         {
             int dam = spell_power(150 + p_ptr->to_d_spell);
             int rad = 8;
@@ -2517,7 +2517,7 @@ static cptr do_nature_spell(int spell, int mode)
                 virtue_add(VIRTUE_ENLIGHTENMENT, 1);
                 wiz_lite(FALSE);
 
-                if ( (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE) 
+                if ( (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || p_ptr->mimic_form == MIMIC_VAMPIRE)
                   && !res_save_default(RES_LITE) )
                 {
                     msg_print("The sunlight scorches your flesh!");
@@ -2530,7 +2530,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 24:
         if (name) return "Earthquake";
         if (desc) return "Shakes dungeon structure, and results in random swapping of floors and walls.";
-    
+
         {
             int rad = spell_power(10);
 
@@ -2546,7 +2546,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 25:
         if (name) return "Fire Storm";
         if (desc) return "Fires a huge ball of fire.";
-    
+
         {
             int dam = spell_power(60 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
@@ -2564,7 +2564,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 26:
         if (name) return "Blizzard";
         if (desc) return "Fires a huge ball of cold.";
-    
+
         {
             int dam = spell_power(70 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
@@ -2583,7 +2583,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 27:
         if (name) return "Lightning Storm";
         if (desc) return "Fires a huge electric ball.";
-    
+
         {
             int dam = spell_power(90 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
@@ -2602,7 +2602,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 28:
         if (name) return "Whirlpool";
         if (desc) return "Fires a huge ball of water.";
-    
+
         {
             int dam = spell_power(100 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
@@ -2620,7 +2620,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 29:
         if (name) return "Ice Bolt";
         if (desc) return "Fires a bolt of ice.";
-    
+
         {
             int dice = 5 + 15*plev/50;
             int sides = 15;
@@ -2642,7 +2642,7 @@ static cptr do_nature_spell(int spell, int mode)
     case 30:
         if (name) return "Gravity Storm";
         if (desc) return "Fires a huge ball of gravity.";
-    
+
         {
             int dam = spell_power(70 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
@@ -2769,7 +2769,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 0:
         if (name) return "Magic Missile";
         if (desc) return "Fires a weak bolt of magic.";
-    
+
         {
             int dice = 3 + (plev - 1) / 5;
             int sides = 4;
@@ -2793,7 +2793,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 1:
         if (name) return "Trap / Door Destruction";
         if (desc) return "Destroys all traps in adjacent squares.";
-    
+
         {
             int rad = 1;
 
@@ -2809,7 +2809,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 2:
         if (name) return "Flash of Light";
         if (desc) return "Lights up nearby area and the inside of a room permanently.";
-    
+
         {
             int dice = 2;
             int sides = spell_power(plev / 2);
@@ -2827,7 +2827,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 3:
         if (name) return "Touch of Confusion";
         if (desc) return "Attempts to confuse the next monster that you hit.";
-    
+
         {
             if (cast)
             {
@@ -2845,7 +2845,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 4:
         if (name) return "Mana Burst";
         if (desc) return "Fires a ball of magic.";
-    
+
         {
             int dice = 3;
             int sides = 5;
@@ -2880,7 +2880,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 5:
         if (name) return "Fire Bolt";
         if (desc) return "Fires a bolt or beam of fire.";
-    
+
         {
             int dice = 8 + (plev - 5) / 4;
             int sides = 8;
@@ -2904,7 +2904,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 6:
         if (name) return "Fist of Force";
         if (desc) return "Fires a tiny ball of disintegration.";
-    
+
         {
             int dice = 8 + (plev - 5) / 4;
             int sides = 8;
@@ -2928,7 +2928,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 7:
         if (name) return "Teleport Self";
         if (desc) return "Teleport long distance.";
-    
+
         {
             int range = plev * 5;
 
@@ -2944,7 +2944,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 8:
         if (name) return "Wonder";
         if (desc) return "Fires something with random effects.";
-    
+
         {
             if (info) return s_random;
 
@@ -2961,7 +2961,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 9:
         if (name) return "Chaos Bolt";
         if (desc) return "Fires a bolt or ball of chaos.";
-    
+
         {
             int dice = 10 + (plev - 5) / 4;
             int sides = 8;
@@ -2985,7 +2985,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 10:
         if (name) return "Sonic Boom";
         if (desc) return "Generates a ball of sound centered on you.";
-    
+
         {
             int dam = spell_power(60 + plev*3/2 + p_ptr->to_d_spell*2);
             int rad = spell_power(plev / 10 + 2);
@@ -3004,7 +3004,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 11:
         if (name) return "Doom Bolt";
         if (desc) return "Fires a beam of pure mana.";
-    
+
         {
             int dice = 11 + (plev - 5) / 4;
             int sides = 8;
@@ -3027,7 +3027,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 12:
         if (name) return "Fire Ball";
         if (desc) return "Fires a ball of fire.";
-    
+
         {
             int dam = spell_power(plev + 55 + p_ptr->to_d_spell);
             int rad = spell_power(2);
@@ -3046,7 +3046,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 13:
         if (name) return "Teleport Other";
         if (desc) return "Teleports all monsters on the line away unless resisted.";
-    
+
         {
             int power = spell_power(plev*2);
 
@@ -3064,7 +3064,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 14:
         if (name) return "Word of Destruction";
         if (desc) return "Destroy everything in nearby area.";
-    
+
         {
             int base = 12;
             int sides = 4;
@@ -3079,7 +3079,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 15:
         if (name) return "Invoke Logrus";
         if (desc) return "Fires a huge ball of chaos.";
-    
+
         {
             int dam = spell_power(plev * 2 + 99 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 5);
@@ -3098,7 +3098,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 16:
         if (name) return "Polymorph Other";
         if (desc) return "Attempts to polymorph a monster.";
-    
+
         {
             int power = spell_power(plev);
 
@@ -3116,7 +3116,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 17:
         if (name) return "Chain Lightning";
         if (desc) return "Fires lightning beams in all directions.";
-    
+
         {
             int dice = 5 + plev / 10;
             int sides = 8;
@@ -3140,7 +3140,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 18:
         if (name) return "Arcane Binding";
         if (desc) return "It attempts to recharge a device using your mana for power.";
-    
+
         {
             int power = spell_power(90);
 
@@ -3156,7 +3156,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 19:
         if (name) return "Disintegrate";
         if (desc) return "Fires a huge ball of disintegration.";
-    
+
         {
             int dam = spell_power(plev + 70 + p_ptr->to_d_spell);
             int rad = 3 + plev / 40;
@@ -3175,7 +3175,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 20:
         if (name) return "Alter Reality";
         if (desc) return "Recreates current dungeon level.";
-    
+
         {
             int base = 15;
             int sides = 20;
@@ -3192,7 +3192,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 21:
         if (name) return "Magic Rocket";
         if (desc) return "Fires a magic rocket.";
-    
+
         {
             int dam = spell_power(120 + plev * 2 + p_ptr->to_d_spell);
             int rad = 2;
@@ -3213,7 +3213,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 22:
         if (name) return "Chaos Branding";
         if (desc) return "Makes current weapon a Chaotic weapon.";
-    
+
         {
             if (cast)
             {
@@ -3225,7 +3225,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 23:
         if (name) return "Summon Demon";
         if (desc) return "Summons a demon.";
-    
+
         {
             if (cast)
             {
@@ -3256,7 +3256,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 24:
         if (name) return "Beam of Gravity";
         if (desc) return "Fires a beam of gravity.";
-    
+
         {
             int dice = 9 + (plev - 5) / 4;
             int sides = 8;
@@ -3279,7 +3279,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 25:
         if (name) return "Meteor Swarm";
         if (desc) return "Makes meteor balls fall down to nearby random locations.";
-    
+
         {
             int dam = spell_power(plev * 2 + p_ptr->to_d_spell);
             int rad = 2;
@@ -3296,7 +3296,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 26:
         if (name) return "Flame Strike";
         if (desc) return "Generate a huge ball of fire centered on you.";
-    
+
         {
             int dam = spell_power(300 + 3 * plev + p_ptr->to_d_spell*2);
             int rad = 8;
@@ -3313,7 +3313,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 27:
         if (name) return "Call Chaos";
         if (desc) return "Generate random kind of balls or beams.";
-    
+
         {
             if (cast)
             {
@@ -3325,7 +3325,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 28:
         if (name) return "Polymorph Self";
         if (desc) return "Polymorphs yourself.";
-    
+
         {
             if (cast)
             {
@@ -3338,7 +3338,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 29:
         if (name) return "Mana Storm";
         if (desc) return "Fires an extremely powerful huge ball of pure mana.";
-    
+
         {
             int dam = spell_power(300 + plev * 4 + p_ptr->to_d_spell);
             int rad = spell_power(4);
@@ -3357,7 +3357,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 30:
         if (name) return "Breathe Logrus";
         if (desc) return "Fires an extremely powerful ball of chaos.";
-    
+
         {
             int dam = spell_power(p_ptr->chp + p_ptr->to_d_spell);
             int rad = spell_power(2);
@@ -3376,7 +3376,7 @@ static cptr do_chaos_spell(int spell, int mode)
     case 31:
         if (name) return "Call the Void";
         if (desc) return "Fires rockets, mana balls and nuclear waste balls in all directions each unless you are not adjacent to any walls. Otherwise *destroys* huge area.";
-    
+
         {
             if (info) return format("%s3 * 175", s_dam);
 
@@ -3410,7 +3410,7 @@ static cptr do_death_spell(int spell, int mode)
     case 0:
         if (name) return "Detect Unlife";
         if (desc) return "Detects all nonliving monsters in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -3426,7 +3426,7 @@ static cptr do_death_spell(int spell, int mode)
     case 1:
         if (name) return "Malediction";
         if (desc) return "Fires a tiny ball of evil power which hurts good monsters greatly.";
-    
+
         {
             int dice = 3 + (plev - 1) / 5;
             int sides = 4;
@@ -3462,7 +3462,7 @@ static cptr do_death_spell(int spell, int mode)
     case 2:
         if (name) return "Detect Evil";
         if (desc) return "Detects all evil monsters in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -3478,7 +3478,7 @@ static cptr do_death_spell(int spell, int mode)
     case 3:
         if (name) return "Stinking Cloud";
         if (desc) return "Fires a ball of poison.";
-    
+
         {
             int dam = spell_power(10 + plev / 2 + p_ptr->to_d_spell);
             int rad = 2;
@@ -3497,7 +3497,7 @@ static cptr do_death_spell(int spell, int mode)
     case 4:
         if (name) return "Black Sleep";
         if (desc) return "Attempts to sleep a monster.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -3515,7 +3515,7 @@ static cptr do_death_spell(int spell, int mode)
     case 5:
         if (name) return "Undead Resistance";
         if (desc) return "Gives resistance to poison and cold. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -3532,7 +3532,7 @@ static cptr do_death_spell(int spell, int mode)
     case 6:
         if (name) return "Horrify";
         if (desc) return "Attempts to scare and stun a monster.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -3551,7 +3551,7 @@ static cptr do_death_spell(int spell, int mode)
     case 7:
         if (name) return "Enslave Undead";
         if (desc) return "Attempts to charm an undead monster.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -3569,7 +3569,7 @@ static cptr do_death_spell(int spell, int mode)
     case 8:
         if (name) return "Orb of Entropy";
         if (desc) return "Fires a ball which damages living monsters.";
-    
+
         {
             int dice = 3;
             int sides = 6;
@@ -3604,7 +3604,7 @@ static cptr do_death_spell(int spell, int mode)
     case 9:
         if (name) return "Nether Bolt";
         if (desc) return "Fires a bolt or beam of nether.";
-    
+
         {
             int dice = 8 + (plev - 5) / 4;
             int sides = 8;
@@ -3628,7 +3628,7 @@ static cptr do_death_spell(int spell, int mode)
     case 10:
         if (name) return "Cloud kill";
         if (desc) return "Generate a ball of poison centered on you.";
-    
+
         {
             int dam = spell_power((30 + plev) * 2 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 10 + 2);
@@ -3645,7 +3645,7 @@ static cptr do_death_spell(int spell, int mode)
     case 11:
         if (name) return "Genocide One";
         if (desc) return "Attempts to vanish a monster.";
-    
+
         {
             int power = spell_power(plev*3);
 
@@ -3663,11 +3663,11 @@ static cptr do_death_spell(int spell, int mode)
     case 12:
         if (name) return "Poison Branding";
         if (desc) return "Makes current weapon poison branded.";
-    
+
         {
             if (cast)
             {
-                brand_weapon_slaying(OF_BRAND_POIS);
+                brand_weapon_slaying(OF_BRAND_POIS, OF_RES_POIS);
             }
         }
         break;
@@ -3675,7 +3675,7 @@ static cptr do_death_spell(int spell, int mode)
     case 13:
         if (name) return "Vampiric Drain";
         if (desc) return "Absorbs some HP from a monster and gives them to you. You will also gain nutritional sustenance from this.";
-    
+
         {
             int dice = 1;
             int sides = spell_power(plev * 2);
@@ -3726,7 +3726,7 @@ static cptr do_death_spell(int spell, int mode)
     case 14:
         if (name) return "Animate dead";
         if (desc) return "Resurrects nearby corpse and skeletons. And makes these your pets.";
-    
+
         {
             if (cast)
             {
@@ -3738,7 +3738,7 @@ static cptr do_death_spell(int spell, int mode)
     case 15:
         if (name) return "Genocide";
         if (desc) return "Eliminates an entire class of monster, exhausting you. Powerful or unique monsters may resist.";
-    
+
         {
             int power = spell_power(plev*3);
 
@@ -3754,7 +3754,7 @@ static cptr do_death_spell(int spell, int mode)
     case 16:
         if (name) return "Berserk";
         if (desc) return "Gives bonus to hit and HP, immunity to fear for a while. But decreases AC.";
-    
+
         {
             int base = spell_power(25);
 
@@ -3771,7 +3771,7 @@ static cptr do_death_spell(int spell, int mode)
     case 17:
         if (name) return "Invoke Spirits";
         if (desc) return "Causes random effects.";
-    
+
         {
             if (info) return s_random;
 
@@ -3787,7 +3787,7 @@ static cptr do_death_spell(int spell, int mode)
     case 18:
         if (name) return "Dark Bolt";
         if (desc) return "Fires a bolt or beam of darkness.";
-    
+
         {
             int dice = 4 + (plev - 5) / 4;
             int sides = 8;
@@ -3811,7 +3811,7 @@ static cptr do_death_spell(int spell, int mode)
     case 19:
         if (name) return "Battle Frenzy";
         if (desc) return "Gives another bonus to hit and HP, immunity to fear for a while. Hastes you. But decreases AC.";
-    
+
         {
             int b_base = spell_power(25);
             int sp_base = spell_power(plev / 2);
@@ -3831,7 +3831,7 @@ static cptr do_death_spell(int spell, int mode)
     case 20:
         if (name) return "Vampiric Branding";
         if (desc) return "Makes current weapon Vampiric.";
-    
+
         {
             if (cast)
             {
@@ -3843,7 +3843,7 @@ static cptr do_death_spell(int spell, int mode)
     case 21:
         if (name) return "Vampirism True";
         if (desc) return "Fires 3 bolts. Each of the bolts absorbs some HP from a monster and gives them to you.";
-    
+
         {
             int dam = spell_power(100 + p_ptr->to_d_spell/3);
 
@@ -3870,7 +3870,7 @@ static cptr do_death_spell(int spell, int mode)
     case 22:
         if (name) return "Nether Wave";
         if (desc) return "Damages all living monsters in sight.";
-    
+
         {
             int sides = plev * 3;
 
@@ -3886,7 +3886,7 @@ static cptr do_death_spell(int spell, int mode)
     case 23:
         if (name) return "Darkness Storm";
         if (desc) return "Fires a huge ball of darkness.";
-    
+
         {
             int dam = 100 + py_prorata_level_aux(200, 1, 1, 2);
             int rad = spell_power(4);
@@ -3907,7 +3907,7 @@ static cptr do_death_spell(int spell, int mode)
     case 24:
         if (name) return "Death Ray";
         if (desc) return "Fires a beam of death.";
-    
+
         {
             if (cast)
             {
@@ -3921,7 +3921,7 @@ static cptr do_death_spell(int spell, int mode)
     case 25:
         if (name) return "Raise the Dead";
         if (desc) return "Summons an undead monster.";
-    
+
         {
             if (cast)
             {
@@ -3960,7 +3960,7 @@ static cptr do_death_spell(int spell, int mode)
     case 26:
         if (name) return "Esoteria";
         if (desc) return "Identifies an item. Or *identifies* an item at higher level.";
-    
+
         {
             if (cast)
             {
@@ -3979,7 +3979,7 @@ static cptr do_death_spell(int spell, int mode)
     case 27:
         if (name) return "Polymorph Vampire";
         if (desc) return "Mimic a vampire for a while. Loses abilities of original race and gets abilities as a vampire.";
-    
+
         {
             int base = spell_power(10 + plev / 2);
 
@@ -3995,7 +3995,7 @@ static cptr do_death_spell(int spell, int mode)
     case 28:
         if (name) return "Restore Life";
         if (desc) return "Restore lost experience.";
-    
+
         {
             if (cast)
             {
@@ -4007,7 +4007,7 @@ static cptr do_death_spell(int spell, int mode)
     case 29:
         if (name) return "Mass Genocide";
         if (desc) return "Eliminates all nearby monsters, exhausting you. Powerful or unique monsters may be able to resist.";
-    
+
         {
             int power = spell_power(plev*3);
 
@@ -4023,7 +4023,7 @@ static cptr do_death_spell(int spell, int mode)
     case 30:
         if (name) return "Nether Storm";
         if (desc) return "Generate a huge ball of nether.";
-    
+
         {
             int dam = spell_power(plev * 15 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 5);
@@ -4042,7 +4042,7 @@ static cptr do_death_spell(int spell, int mode)
     case 31:
         if (name) return "Wraithform";
         if (desc) return "Becomes wraith form which gives ability to pass walls and makes all damages half.";
-    
+
         {
             int base = spell_power(plev / 2);
 
@@ -4085,7 +4085,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 0:
         if (name) return "Phase Door";
         if (desc) return "Teleport short distance.";
-    
+
         {
             int range = 10;
 
@@ -4103,7 +4103,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 1:
         if (name) return "Trump Spiders";
         if (desc) return "Summons spiders.";
-    
+
         {
             if (cast || fail)
             {
@@ -4123,7 +4123,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 2:
         if (name) return "Shuffle";
         if (desc) return "Causes random effects.";
-    
+
         {
             if (info) return s_random;
 
@@ -4140,7 +4140,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 3:
         if (name) return "Reset Recall";
         if (desc) return "Resets the 'deepest' level for recall spell.";
-    
+
         {
             if (cast)
             {
@@ -4152,7 +4152,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 4:
         if (name) return "Teleport";
         if (desc) return "Teleport long distance.";
-    
+
         {
             int range = plev * 4;
 
@@ -4170,7 +4170,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 5:
         if (name) return "Trump Spying";
         if (desc) return "Gives telepathy for a while.";
-    
+
         {
             int base = spell_power(25);
             int sides = spell_power(30);
@@ -4187,7 +4187,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 6:
         if (name) return "Teleport Away";
         if (desc) return "Teleports all monsters on the line away unless resisted.";
-    
+
         {
             int power = spell_power(plev*2);
 
@@ -4205,7 +4205,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 7:
         if (name) return "Trump Animals";
         if (desc) return "Summons an animal.";
-    
+
         {
             if (cast || fail)
             {
@@ -4227,7 +4227,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 8:
         if (name) return "Trump Reach";
         if (desc) return "Pulls a distant item close to you.";
-    
+
         {
             int weight = spell_power(plev * 15);
 
@@ -4245,7 +4245,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 9:
         if (name) return "Trump Kamikaze";
         if (desc) return "Summons monsters which explode by itself.";
-    
+
         {
             if (cast || fail)
             {
@@ -4286,7 +4286,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 10:
         if (name) return "Phantasmal Servant";
         if (desc) return "Summons a ghost.";
-    
+
         {
             /* Phantasmal Servant is not summoned as enemy when failed */
             if (cast)
@@ -4304,7 +4304,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 11:
         if (name) return "Haste Monster";
         if (desc) return "Hastes a monster.";
-    
+
         {
             if (cast)
             {
@@ -4329,7 +4329,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 12:
         if (name) return "Teleport Level";
         if (desc) return "Teleport to up or down stairs in a moment.";
-    
+
         {
             if (cast)
             {
@@ -4342,7 +4342,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 13:
         if (name) return "Dimension Door";
         if (desc) return "Teleport to given location.";
-    
+
         {
             int range = plev / 2 + 10;
 
@@ -4360,7 +4360,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 14:
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
-    
+
         {
             int base = 15;
             int sides = 20;
@@ -4377,7 +4377,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 15:
         if (name) return "Banish";
         if (desc) return "Teleports all monsters in sight away unless resisted.";
-    
+
         {
             int power = spell_power(plev * 4);
 
@@ -4393,7 +4393,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 16:
         if (name) return "Swap Position";
         if (desc) return "Swap positions of you and a monster.";
-    
+
         {
             if (cast)
             {
@@ -4417,7 +4417,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 17:
         if (name) return "Trump Undead";
         if (desc) return "Summons an undead monster.";
-    
+
         {
             if (cast || fail)
             {
@@ -4437,7 +4437,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 18:
         if (name) return "Trump Reptiles";
         if (desc) return "Summons a hydra.";
-    
+
         {
             if (cast || fail)
             {
@@ -4457,7 +4457,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 19:
         if (name) return "Trump Monsters";
         if (desc) return "Summons some monsters.";
-    
+
         {
             if (cast || fail)
             {
@@ -4485,7 +4485,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 20:
         if (name) return "Trump Hounds";
         if (desc) return "Summons a group of hounds.";
-    
+
         {
             if (cast || fail)
             {
@@ -4505,7 +4505,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 21:
         if (name) return "Trump Branding";
         if (desc) return "Makes current weapon a Trump weapon.";
-    
+
         {
             if (cast)
             {
@@ -4517,7 +4517,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 22:
         if (name) return "Living Trump";
         if (desc) return "Gives mutation which makes you teleport randomly or makes you able to teleport at will.";
-    
+
         {
             if (cast)
             {
@@ -4542,7 +4542,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 23:
         if (name) return "Trump Cyberdemon";
         if (desc) return "Summons a cyber demon.";
-    
+
         {
             if (cast || fail)
             {
@@ -4562,7 +4562,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 24:
         if (name) return "Trump Divination";
         if (desc) return "Detects all monsters, traps, doors, stairs, treasures and items in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -4578,7 +4578,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 25:
         if (name) return "Trump Lore";
         if (desc) return "*Identifies* an item.";
-    
+
         {
             if (cast)
             {
@@ -4590,7 +4590,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 26:
         if (name) return "Heal Monster";
         if (desc) return "Heal a monster.";
-    
+
         {
             int heal = spell_power(plev * 10 + 200);
 
@@ -4619,7 +4619,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 27:
         if (name) return "Trump Dragon";
         if (desc) return "Summons a dragon.";
-    
+
         {
             if (cast || fail)
             {
@@ -4639,7 +4639,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 28:
         if (name) return "Trump Meteor";
         if (desc) return "Makes meteor balls fall down to nearby random locations.";
-    
+
         {
             int dam = spell_power(plev * 2 + p_ptr->to_d_spell);
             int rad = 2;
@@ -4656,7 +4656,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 29:
         if (name) return "Trump Demon";
         if (desc) return "Summons a demon.";
-    
+
         {
             if (cast || fail)
             {
@@ -4676,7 +4676,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 30:
         if (name) return "Trump Greater Undead";
         if (desc) return "Summons a greater undead.";
-    
+
         {
             if (cast || fail)
             {
@@ -4696,7 +4696,7 @@ static cptr do_trump_spell(int spell, int mode)
     case 31:
         if (name) return "Trump Ancient Dragon";
         if (desc) return "Summons an ancient dragon.";
-    
+
         {
             if (cast)
             {
@@ -4741,7 +4741,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 0:
         if (name) return "Zap";
         if (desc) return "Fires a bolt or beam of lightning.";
-    
+
         {
             int dice = 3 + (plev - 1) / 5;
             int sides = 3;
@@ -4765,7 +4765,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 1:
         if (name) return "Wizard Lock";
         if (desc) return "Locks a door.";
-    
+
         {
             if (cast)
             {
@@ -4779,7 +4779,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 2:
         if (name) return "Detect Invisibility";
         if (desc) return "Detects all invisible monsters in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -4795,7 +4795,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 3:
         if (name) return "Detect Monsters";
         if (desc) return "Detects all monsters in your vicinity unless invisible.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -4811,7 +4811,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 4:
         if (name) return "Blink";
         if (desc) return "Teleport short distance.";
-    
+
         {
             int range = 10;
 
@@ -4829,7 +4829,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 5:
         if (name) return "Light Area";
         if (desc) return "Lights up nearby area and the inside of a room permanently.";
-    
+
         {
             int dice = 2;
             int sides = spell_power(plev / 2);
@@ -4847,7 +4847,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 6:
         if (name) return "Trap & Door Destruction";
         if (desc) return "Fires a beam which destroy traps and doors.";
-    
+
         {
             if (cast)
             {
@@ -4861,7 +4861,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 7:
         if (name) return "Cure Light Wounds";
         if (desc) return "Heals cut and HP a little.";
-    
+
         {
             int dice = 2;
             int sides = spell_power(8);
@@ -4879,7 +4879,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 8:
         if (name) return "Detect Doors & Traps";
         if (desc) return "Detects traps, doors, and stairs in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -4897,7 +4897,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 9:
         if (name) return "Phlogiston";
         if (desc) return "Adds more turns of light to a lantern or torch.";
-    
+
         {
             if (cast)
             {
@@ -4909,7 +4909,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 10:
         if (name) return "Detect Treasure";
         if (desc) return "Detects all treasures in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -4926,7 +4926,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 11:
         if (name) return "Detect Enchantment";
         if (desc) return "Detects all magical items in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -4942,7 +4942,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 12:
         if (name) return "Detect Objects";
         if (desc) return "Detects all items in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -4958,7 +4958,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 13:
         if (name) return "Cure Poison";
         if (desc) return "Cures poison status.";
-    
+
         {
             if (cast)
             {
@@ -4970,7 +4970,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 14:
         if (name) return "Resist Cold";
         if (desc) return "Gives resistance to cold. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -4986,7 +4986,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 15:
         if (name) return "Resist Fire";
         if (desc) return "Gives resistance to fire. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5002,7 +5002,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 16:
         if (name) return "Resist Lightning";
         if (desc) return "Gives resistance to electricity. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5018,7 +5018,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 17:
         if (name) return "Resist Acid";
         if (desc) return "Gives resistance to acid. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5034,7 +5034,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 18:
         if (name) return "Cure Medium Wounds";
         if (desc) return "Heals cut and HP more.";
-    
+
         {
             int dice = 4;
             int sides = spell_power(8);
@@ -5052,7 +5052,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 19:
         if (name) return "Teleport";
         if (desc) return "Teleport long distance.";
-    
+
         {
             int range = plev * 5;
 
@@ -5070,7 +5070,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 20:
         if (name) return "Identify";
         if (desc) return "Identifies an item.";
-    
+
         {
             if (cast)
             {
@@ -5082,7 +5082,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 21:
         if (name) return "Stone to Mud";
         if (desc) return "Turns one rock square to mud.";
-    
+
         {
             int dice = 1;
             int sides = 30;
@@ -5102,7 +5102,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 22:
         if (name) return "Ray of Light";
         if (desc) return "Fires a beam of light which damages to light-sensitive monsters.";
-    
+
         {
             int dice = 6;
             int sides = 8;
@@ -5123,7 +5123,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 23:
         if (name) return "Satisfy Hunger";
         if (desc) return "Satisfies hunger.";
-    
+
         {
             if (cast)
             {
@@ -5135,7 +5135,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 24:
         if (name) return "See Invisible";
         if (desc) return "Gives see invisible for a while.";
-    
+
         {
             int base = spell_power(24);
 
@@ -5151,7 +5151,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 25:
         if (name) return "Resist Poison";
         if (desc) return "Gives resistance to poison. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5167,7 +5167,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 26:
         if (name) return "Teleport Level";
         if (desc) return "Teleport to up or down stairs in a moment.";
-    
+
         {
             if (cast)
             {
@@ -5180,7 +5180,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 27:
         if (name) return "Teleport Away";
         if (desc) return "Teleports all monsters on the line away unless resisted.";
-    
+
         {
             int power = spell_power(plev);
 
@@ -5214,7 +5214,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 29:
         if (name) return "Detection";
         if (desc) return "Detects all monsters, traps, doors, stairs, treasures and items in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -5230,7 +5230,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 30:
         if (name) return "Word of Recall";
         if (desc) return "Recalls player from dungeon to town, or from town to the deepest level of dungeon.";
-    
+
         {
             int base = 15;
             int sides = 20;
@@ -5247,7 +5247,7 @@ static cptr do_arcane_spell(int spell, int mode)
     case 31:
         if (name) return "Clairvoyance";
         if (desc) return "Maps and lights whole dungeon level. Knows all objects location. And gives telepathy for a while.";
-    
+
         {
             int base = 25;
             int sides = 30;
@@ -5288,7 +5288,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 0:
         if (name) return "Minor Enchantment";
         if (desc) return "Attempts to increase +to-hit, +to-dam of a weapon, or to increase +AC of armor.";
-    
+
         if (cast)
         {
             int         item;
@@ -5321,9 +5321,9 @@ static cptr do_craft_spell(int spell, int mode)
             }
             else
             {
-                if (enchant(o_ptr, 1, ENCH_TOAC | ENCH_MINOR_HACK)) okay = TRUE;            
+                if (enchant(o_ptr, 1, ENCH_TOAC | ENCH_MINOR_HACK)) okay = TRUE;
             }
-            
+
 
             msg_format("%s %s glow%s brightly!",
                     ((item >= 0) ? "Your" : "The"), o_name,
@@ -5333,7 +5333,7 @@ static cptr do_craft_spell(int spell, int mode)
             {
                 if (flush_failure) flush();
                 msg_print("The enchantment failed.");
-                if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100) 
+                if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100)
                     virtue_add(VIRTUE_ENCHANTMENT, -1);
             }
             else
@@ -5350,7 +5350,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 1:
         if (name) return "Regeneration";
         if (desc) return "Gives regeneration ability for a while.";
-    
+
         {
             int base = spell_power(80);
 
@@ -5366,7 +5366,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 2:
         if (name) return "Satisfy Hunger";
         if (desc) return "Satisfies hunger.";
-    
+
         {
             if (cast)
             {
@@ -5378,7 +5378,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 3:
         if (name) return "Resist Cold";
         if (desc) return "Gives resistance to cold. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5394,7 +5394,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 4:
         if (name) return "Resist Fire";
         if (desc) return "Gives resistance to fire. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5410,7 +5410,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 5:
         if (name) return "Heroism";
         if (desc) return "Removes fear, and gives bonus to hit and 10 more HP for a while.";
-    
+
         {
             int base = spell_power(25);
 
@@ -5426,7 +5426,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 6:
         if (name) return "Resist Lightning";
         if (desc) return "Gives resistance to electricity. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5442,7 +5442,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 7:
         if (name) return "Resist Acid";
         if (desc) return "Gives resistance to acid. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5458,7 +5458,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 8:
         if (name) return "See Invisibility";
         if (desc) return "Gives see invisible for a while.";
-    
+
         {
             int base = spell_power(24);
 
@@ -5485,7 +5485,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 10:
         if (name) return "Resist Poison";
         if (desc) return "Gives resistance to poison. This resistance can be added to which from equipment for more powerful resistance.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5518,7 +5518,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 12:
         if (name) return "Self Knowledge";
         if (desc) return "Gives you useful info regarding your current resistances, the powers of your weapon and maximum limits of your stats.";
-    
+
         {
             if (cast)
             {
@@ -5557,7 +5557,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 15:
         if (name) return "Elemental Branding";
         if (desc) return "Grants your attacks a temporary elemental brand of your choice.";
-    
+
         {
             int base = plev / 2;
 
@@ -5573,7 +5573,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 16:
         if (name) return "Telepathy";
         if (desc) return "Gives telepathy for a while.";
-    
+
         {
             int base = 25;
             int sides = 30;
@@ -5590,7 +5590,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 17:
         if (name) return "Stone Skin";
         if (desc) return "Gives bonus to AC for a while.";
-    
+
         {
             int base = 30;
             int sides = 20;
@@ -5607,7 +5607,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 18:
         if (name) return "Resistance";
         if (desc) return "Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5627,7 +5627,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 19:
         if (name) return "Haste Self";
         if (desc) return "Hastes you for a while.";
-    
+
         {
             int base = spell_power(plev);
             int sides = spell_power(20 + plev);
@@ -5644,7 +5644,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 20:
         if (name) return "Whirlwind Attack";
         if (desc) return "Attacks all adjacent monsters.";
-    
+
         {
             if (cast)
             {
@@ -5689,7 +5689,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 23:
         if (name) return "Magical Armor";
         if (desc) return "Gives resistance to magic, bonus to AC, resistance to confusion, blindness, reflection, free action and levitation for a while.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5705,7 +5705,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 24:
         if (name) return "Remove All Curse";
         if (desc) return "Removes normal and heavy curse from equipped items.";
-    
+
         {
             if (cast)
             {
@@ -5720,7 +5720,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 25:
         if (name) return "Walk through Wall";
         if (desc) return "Gives ability to pass walls for a while.";
-    
+
         {
             int base = spell_power(plev / 2);
 
@@ -5736,7 +5736,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 26:
         if (name) return "Knowledge True";
         if (desc) return "*Identifies* an item.";
-    
+
         {
             if (cast)
             {
@@ -5748,7 +5748,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 27:
         if (name) return "Enchantment";
         if (desc) return "Attempts to increase +to-hit, +to-dam of a weapon, or to increase +AC of armor.";
-    
+
         {
             if (cast)
             {
@@ -5760,7 +5760,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 28:
         if (name) return "Crafting";
         if (desc) return "Makes chosen weapon, armor or ammo an ego item.";
-    
+
         if (cast)
         {
             if (!cast_crafting())
@@ -5771,7 +5771,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 29:
         if (name) return "Living Trump";
         if (desc) return "Gives mutation which makes you teleport randomly or makes you able to teleport at will.";
-    
+
         if (cast)
         {
             int mutation;
@@ -5789,7 +5789,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 30:
         if (name) return "Immunity";
         if (desc) return "Gives an immunity to fire, cold, electricity or acid for a while.";
-    
+
         {
             int base = spell_power(13);
 
@@ -5805,7 +5805,7 @@ static cptr do_craft_spell(int spell, int mode)
     case 31:
         if (name) return "Mana Branding";
         if (desc) return "Temporarily brands your weapon with force.";
-    
+
         {
         int base = spell_power(plev / 4);
 
@@ -5839,7 +5839,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 0:
         if (name) return "Magic Missile";
         if (desc) return "Fires a weak bolt of magic.";
-    
+
         {
             int dice = 3 + (plev - 1) / 5;
             int sides = 4;
@@ -5863,7 +5863,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 1:
         if (name) return "Detect Unlife";
         if (desc) return "Detects all nonliving monsters in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -5879,7 +5879,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 2:
         if (name) return "Evil Bless";
         if (desc) return "Gives bonus to hit and AC for a few turns.";
-    
+
         {
             int base = spell_power(12);
 
@@ -5895,7 +5895,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 3:
         if (name) return "Resist Fire";
         if (desc) return "Gives resistance to fire for a while. This resistance can be added to which from equipment for more powerful resistances.";
-    
+
         {
             int base = spell_power(20);
 
@@ -5911,7 +5911,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 4:
         if (name) return "Horrify";
         if (desc) return "Attempts to scare and stun a monster.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -5930,7 +5930,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 5:
         if (name) return "Nether Bolt";
         if (desc) return "Fires a bolt or beam of nether.";
-    
+
         {
             int dice = 6 + (plev - 5) / 4;
             int sides = 8;
@@ -5954,7 +5954,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 6:
         if (name) return "Summon Manes";
         if (desc) return "Summons a manes.";
-    
+
         {
             if (cast)
             {
@@ -5969,7 +5969,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 7:
         if (name) return "Hellish Flame";
         if (desc) return "Fires a ball of evil power. Hurts good monsters greatly.";
-    
+
         {
             int dice = 3;
             int sides = 6;
@@ -6004,7 +6004,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 8:
         if (name) return "Dominate Demon";
         if (desc) return "Attempts to charm a demon.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -6022,7 +6022,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 9:
         if (name) return "Vision";
         if (desc) return "Maps nearby area.";
-    
+
         {
             int rad = DETECT_RAD_MAP;
 
@@ -6038,7 +6038,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 10:
         if (name) return "Resist Nether";
         if (desc) return "Gives resistance to nether for a while.";
-    
+
         {
             int base = spell_power(20);
 
@@ -6054,7 +6054,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 11:
         if (name) return "Plasma bolt";
         if (desc) return "Fires a bolt or beam of plasma.";
-    
+
         {
             int dice = 11 + (plev - 5) / 4;
             int sides = 8;
@@ -6078,7 +6078,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 12:
         if (name) return "Fire Ball";
         if (desc) return "Fires a ball of fire.";
-    
+
         {
             int dam = spell_power(plev + 55 + p_ptr->to_d_spell);
             int rad = 2;
@@ -6097,11 +6097,11 @@ static cptr do_daemon_spell(int spell, int mode)
     case 13:
         if (name) return "Fire Branding";
         if (desc) return "Makes current weapon fire branded.";
-    
+
         {
             if (cast)
             {
-                brand_weapon_slaying(OF_BRAND_FIRE);
+                brand_weapon_slaying(OF_BRAND_FIRE, OF_RES_FIRE);
             }
         }
         break;
@@ -6109,7 +6109,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 14:
         if (name) return "Nether Ball";
         if (desc) return "Fires a huge ball of nether.";
-    
+
         {
             int dam = spell_power(plev * 3 / 2 + 100 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 20 + 2);
@@ -6128,7 +6128,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 15:
         if (name) return "Summon Demon";
         if (desc) return "Summons a demon.";
-    
+
         {
             if (cast)
             {
@@ -6165,7 +6165,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 16:
         if (name) return "Devilish Eye";
         if (desc) return "Gives telepathy for a while.";
-    
+
         {
             int base = spell_power(30);
             int sides = 25;
@@ -6182,7 +6182,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 17:
         if (name) return "Devilish Cloak";
         if (desc) return "Gives resistance to fire, acid and poison as well as an aura of fire. These resistances can be added to which from equipment for more powerful resistances.";
-    
+
         {
             int base = spell_power(20);
 
@@ -6191,7 +6191,7 @@ static cptr do_daemon_spell(int spell, int mode)
             if (cast)
             {
                 int dur = randint1(base) + base;
-                    
+
                 set_oppose_fire(dur, FALSE);
                 set_oppose_acid(dur, FALSE);
                 set_oppose_pois(dur, FALSE);
@@ -6204,7 +6204,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 18:
         if (name) return "The Flow of Lava";
         if (desc) return "Generates a ball of fire centered on you which transforms floors to magma.";
-    
+
         {
             int dam = spell_power((55 + plev + p_ptr->to_d_spell) * 2);
             int rad = 3;
@@ -6222,7 +6222,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 19:
         if (name) return "Plasma Ball";
         if (desc) return "Fires a ball of plasma.";
-    
+
         {
             int dam = spell_power(plev * 3 / 2 + 80 + p_ptr->to_d_spell);
             int rad = spell_power(2 + plev / 40);
@@ -6241,7 +6241,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 20:
         if (name) return "Polymorph Demon";
         if (desc) return "Mimic a demon for a while. Loses abilities of original race and gets abilities as a demon.";
-    
+
         {
             int base = spell_power(10 + plev / 2);
 
@@ -6257,7 +6257,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 21:
         if (name) return "Nether Wave";
         if (desc) return "Damages all monsters in sight. Hurts good monsters greatly.";
-    
+
         {
             if (info) return info_damage(1, spell_power(plev*2), spell_power(p_ptr->to_d_spell));
 
@@ -6272,7 +6272,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 22:
         if (name) return "Kiss of Succubus";
         if (desc) return "Fires a ball of nexus.";
-    
+
         {
             int dam = spell_power(100 + plev * 2 + p_ptr->to_d_spell);
             int rad = 4;
@@ -6289,15 +6289,15 @@ static cptr do_daemon_spell(int spell, int mode)
 
     case 23:
         if (name) return "Doom Hand";
-        if (desc) return "Attempts to make a monster's HP almost half.";
-    
+        if (desc) return "Attempt to mortally wound a target monster, draining a large proportion of their remaining health.";
+
         {
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
                 else msg_print("You invoke the Hand of Doom!");
 
-                fire_ball_hide(GF_HAND_DOOM, dir, spell_power(plev * 5 / 2), 0);
+                fire_ball_hide(GF_HAND_DOOM, dir, spell_power(plev * 3), 0);
             }
         }
         break;
@@ -6305,7 +6305,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 24:
         if (name) return "Raise the Morale";
         if (desc) return "Gives bonus to hit and 10 more HP for a while.";
-    
+
         {
             int base = spell_power(25);
 
@@ -6321,7 +6321,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 25:
         if (name) return "Immortal Body";
         if (desc) return "Gives resistance to time for a while.";
-    
+
         {
             int base = spell_power(20);
 
@@ -6337,7 +6337,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 26:
         if (name) return "Insanity Circle";
         if (desc) return "Generate balls of chaos, confusion and charm centered on you.";
-    
+
         {
             int dam = spell_power(50 + plev + p_ptr->to_d_spell);
             int power = spell_power(20 + plev);
@@ -6357,7 +6357,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 27:
         if (name) return "Explode Pets";
         if (desc) return "Makes all pets explode.";
-    
+
         {
             if (cast)
             {
@@ -6369,7 +6369,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 28:
         if (name) return "Summon Greater Demon";
         if (desc) return "Summons greater demon. It need to sacrifice a corpse of human ('p','h' or 't').";
-    
+
         {
             if (cast)
             {
@@ -6381,7 +6381,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 29:
         if (name) return "Hellfire";
         if (desc) return "Fires a powerful ball of evil power. Hurts good monsters greatly.";
-    
+
         {
             int dam = spell_power(666 + p_ptr->to_d_spell);
             int rad = 3;
@@ -6401,7 +6401,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 30:
         if (name) return "Send to Hell";
         if (desc) return "Attempts to send a single monster directly to hell.";
-    
+
         {
             int power = 666;
 
@@ -6419,7 +6419,7 @@ static cptr do_daemon_spell(int spell, int mode)
     case 31:
         if (name) return "Polymorph Demonlord";
         if (desc) return "Mimic a demon lord for a while. Loses abilities of original race and gets great abilities as a demon lord. Even hard walls can't stop your walking.";
-    
+
         {
             int base = spell_power(15);
 
@@ -6452,7 +6452,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 0:
         if (name) return "Punishment";
         if (desc) return "Fires a bolt or beam of lightning.";
-    
+
         {
             int dice = 3 + (plev - 1) / 5;
             int sides = 4;
@@ -6476,7 +6476,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 1:
         if (name) return "Detect Evil";
         if (desc) return "Detects all evil monsters in your vicinity.";
-    
+
         {
             int rad = DETECT_RAD_DEFAULT;
 
@@ -6492,7 +6492,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 2:
         if (name) return "Remove Fear";
         if (desc) return "Removes fear.";
-    
+
         if (cast)
             fear_clear_p();
         break;
@@ -6500,7 +6500,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 3:
         if (name) return "Scare Monster";
         if (desc) return "Attempts to scare a monster.";
-    
+
         {
             int power = spell_power(plev);
 
@@ -6518,7 +6518,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 4:
         if (name) return "Sanctuary";
         if (desc) return "Attempts to sleep monsters in the adjacent squares.";
-    
+
         {
             int power = plev;
 
@@ -6534,7 +6534,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 5:
         if (name) return "Portal";
         if (desc) return "Teleport medium distance.";
-    
+
         {
             int range = 25 + plev / 2;
 
@@ -6552,7 +6552,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 6:
         if (name) return "Star Dust";
         if (desc) return "Fires many bolts of light near the target.";
-    
+
         {
             int dice = spell_power(3 + (plev - 1) / 9);
             int sides = 2;
@@ -6570,7 +6570,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 7:
         if (name) return "Purify";
         if (desc) return "Heals all cut, stun and poison status.";
-    
+
         {
             if (cast)
             {
@@ -6584,7 +6584,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 8:
         if (name) return "Scatter Evil";
         if (desc) return "Attempts to teleport an evil monster away.";
-    
+
         {
             int power = MAX_SIGHT * 5;
 
@@ -6601,7 +6601,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 9:
         if (name) return "Holy Orb";
         if (desc) return "Fires a ball with holy power. Hurts evil monsters greatly, but don't effect good monsters.";
-    
+
         {
             int dice = 3;
             int sides = 6;
@@ -6633,7 +6633,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 10:
         if (name) return "Exorcism";
         if (desc) return "Damages all undead and demons in sight, and scares all evil monsters in sight.";
-    
+
         {
             int sides = plev;
             int power = plev;
@@ -6652,7 +6652,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 11:
         if (name) return "Remove Curse";
         if (desc) return "Removes normal curses from equipped items.";
-    
+
         {
             if (cast)
             {
@@ -6667,7 +6667,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 12:
         if (name) return "Sense Unseen";
         if (desc) return "Gives see invisible for a while.";
-    
+
         {
             int base = 24;
 
@@ -6683,7 +6683,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 13:
         if (name) return "Protection from Evil";
         if (desc) return "Gives aura which protect you from evil monster's physical attack.";
-    
+
         {
             int base = 25;
             int sides = 3 * plev;
@@ -6700,7 +6700,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 14:
         if (name) return "Judgment Thunder";
         if (desc) return "Fires a powerful bolt of lightning.";
-    
+
         {
             int dam = spell_power(plev * 5 + p_ptr->to_d_spell);
 
@@ -6717,7 +6717,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 15:
         if (name) return "Holy Word";
         if (desc) return "Damages all evil monsters in sight, heals HP somewhat, and completely heals poison, stun and cut status.";
-    
+
         {
             int dam_sides = plev * 6;
             int heal = spell_power(100);
@@ -6739,7 +6739,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 16:
         if (name) return "Unbarring Ways";
         if (desc) return "Fires a beam which destroy traps and doors.";
-    
+
         {
             if (cast)
             {
@@ -6753,7 +6753,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 17:
         if (name) return "Arrest";
         if (desc) return "Attempts to paralyze an evil monster.";
-    
+
         {
             int power = spell_power(plev * 2);
 
@@ -6770,7 +6770,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 18:
         if (name) return "Angelic Cloak";
         if (desc) return "Gives resistance to acid, cold and lightning. Gives aura of holy power which injures evil monsters which attacked you for a while.";
-    
+
         {
             int base = 20;
 
@@ -6789,7 +6789,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 19:
         if (name) return "Dispel Undead & Demons";
         if (desc) return "Damages all undead and demons in sight.";
-    
+
         {
             int dam = spell_power(plev * 3 + p_ptr->to_d_spell);
 
@@ -6806,7 +6806,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 20:
         if (name) return "Dispel Evil";
         if (desc) return "Damages all evil monsters in sight.";
-    
+
         {
             int dam = spell_power(plev * 3 + p_ptr->to_d_spell);
 
@@ -6822,11 +6822,11 @@ static cptr do_crusade_spell(int spell, int mode)
     case 21:
         if (name) return "Holy Blade";
         if (desc) return "Makes current weapon especially deadly against evil monsters.";
-    
+
         {
             if (cast)
             {
-                brand_weapon_slaying(OF_SLAY_EVIL);
+                brand_weapon_slaying(OF_SLAY_EVIL, OF_INVALID);
             }
         }
         break;
@@ -6834,7 +6834,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 22:
         if (name) return "Star Burst";
         if (desc) return "Fires a huge ball of powerful light.";
-    
+
         {
             int dam = 100 + py_prorata_level_aux(200, 1, 1, 2);
             int rad = spell_power(4);
@@ -6855,7 +6855,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 23:
         if (name) return "Summon Angel";
         if (desc) return "Summons an angel.";
-    
+
         {
             if (cast)
             {
@@ -6884,7 +6884,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 24:
         if (name) return "Heroism";
         if (desc) return "Removes fear, and gives bonus to hit and 10 more HP for a while.";
-    
+
         {
             int base = 25;
 
@@ -6901,7 +6901,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 25:
         if (name) return "Dispel Curse";
         if (desc) return "Removes normal and heavy curse from equipped items.";
-    
+
         {
             if (cast)
             {
@@ -6916,7 +6916,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 26:
         if (name) return "Banish Evil";
         if (desc) return "Teleports all evil monsters in sight away unless resisted.";
-    
+
         {
             int power = spell_power(100);
 
@@ -6936,7 +6936,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 27:
         if (name) return "Armageddon";
         if (desc) return "Destroy everything in nearby area.";
-    
+
         {
             int base = 12;
             int sides = 4;
@@ -6951,7 +6951,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 28:
         if (name) return "An Eye for an Eye";
         if (desc) return "Gives special aura for a while. When you are attacked by a monster, the monster are injured with same amount of damage as you take.";
-    
+
         {
             int base = 10;
 
@@ -6967,7 +6967,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 29:
         if (name) return "Wrath of the God";
         if (desc) return "Drops many balls of disintegration near the target.";
-    
+
         {
             int dam = spell_power(plev * 3 + 25 + p_ptr->to_d_spell);
             int rad = 2;
@@ -6984,7 +6984,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 30:
         if (name) return "Divine Intervention";
         if (desc) return "Damages all adjacent monsters with holy power. Damages and attempt to slow, stun, confuse, scare and freeze all monsters in sight. And heals HP.";
-    
+
         {
             int b_dam = spell_power(plev * 11);
             int d_dam = spell_power(plev * 4 + p_ptr->to_d_spell);
@@ -7011,38 +7011,7 @@ static cptr do_crusade_spell(int spell, int mode)
     case 31:
         if (name) return "Crusade";
         if (desc) return "Attempts to charm all good monsters in sight, and scare all non-charmed monsters, and summons great number of knights, and gives heroism, bless, speed and protection from evil.";
-    
-        {
-            if (cast)
-            {
-                int base = 25;
-                int sp_sides = 20 + plev;
-                int sp_base = plev;
-
-                int i;
-                crusade();
-                for (i = 0; i < 12; i++)
-                {
-                    int attempt = 10;
-                    int my = 0, mx = 0;
-
-                    while (attempt--)
-                    {
-                        scatter(&my, &mx, py, px, 4, 0);
-
-                        /* Require empty grids */
-                        if (cave_empty_bold2(my, mx)) break;
-                    }
-                    if (attempt < 0) continue;
-                    summon_specific(-1, my, mx, plev, SUMMON_KNIGHT, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
-                }
-                set_hero(randint1(base) + base, FALSE);
-                set_blessed(randint1(base) + base, FALSE);
-                set_fast(randint1(sp_sides) + sp_base, FALSE);
-                set_protevil(randint1(base) + base, FALSE);
-                fear_clear_p();
-            }
-        }
+        if (cast) cast_crusade();
         break;
     }
 
@@ -7068,7 +7037,7 @@ static cptr do_music_spell(int spell, int mode)
     case 0:
         if (name) return "Song of Holding";
         if (desc) return "Attempts to slow all monsters in sight.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7093,7 +7062,7 @@ static cptr do_music_spell(int spell, int mode)
     case 1:
         if (name) return "Song of Blessing";
         if (desc) return "Gives bonus to hit and AC for a few turns.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7116,7 +7085,7 @@ static cptr do_music_spell(int spell, int mode)
     case 2:
         if (name) return "Wrecking Note";
         if (desc) return "Fires a bolt of sound.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7142,7 +7111,7 @@ static cptr do_music_spell(int spell, int mode)
     case 3:
         if (name) return "Stun Pattern";
         if (desc) return "Attempts to stun all monsters in sight.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7169,7 +7138,7 @@ static cptr do_music_spell(int spell, int mode)
     case 4:
         if (name) return "Flow of Life";
         if (desc) return "Heals HP a little.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7196,7 +7165,7 @@ static cptr do_music_spell(int spell, int mode)
     case 5:
         if (name) return "Song of the Sun";
         if (desc) return "Lights up nearby area and the inside of a room permanently.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7219,14 +7188,14 @@ static cptr do_music_spell(int spell, int mode)
     case 6:
         if (name) return "Song of Fear";
         if (desc) return "Attempts to scare all monsters in sight.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
         if (cast)
         {
             msg_print("You start weaving a fearful pattern...");
-            bard_start_singing(spell, MUSIC_FEAR);            
+            bard_start_singing(spell, MUSIC_FEAR);
         }
 
         {
@@ -7277,7 +7246,7 @@ static cptr do_music_spell(int spell, int mode)
     case 8:
         if (name) return "Clairaudience";
         if (desc) return "Detects traps, doors and stairs in your vicinity. And detects all monsters at level 15, treasures and items at level 20. Maps nearby area at level 25. Lights and know the whole level at level 40. These effects occurs by turns while this song continues.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7369,7 +7338,7 @@ static cptr do_music_spell(int spell, int mode)
     case 10:
         if (name) return "Song of Lore";
         if (desc) return "Identifies all items which are in the adjacent squares.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7418,7 +7387,7 @@ static cptr do_music_spell(int spell, int mode)
     case 12:
         if (name) return "Illusion Pattern";
         if (desc) return "Attempts to confuse all monsters in sight.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7444,7 +7413,7 @@ static cptr do_music_spell(int spell, int mode)
     case 13:
         if (name) return "Doomcall";
         if (desc) return "Damages all monsters in sight with booming sound.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7474,7 +7443,7 @@ static cptr do_music_spell(int spell, int mode)
     case 14:
         if (name) return "Firiel's Song";
         if (desc) return "Resurrects nearby corpse and skeletons. And makes these your pets.";
-    
+
         {
             /* Stop singing before start another */
             if (cast || fail) bard_stop_singing();
@@ -7540,7 +7509,7 @@ static cptr do_music_spell(int spell, int mode)
     case 17:
         if (name) return "Finrod's Resistance";
         if (desc) return "Gives resistance to fire, cold, electricity, acid and poison. These resistances can be added to which from equipment for more powerful resistances.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7606,7 +7575,7 @@ static cptr do_music_spell(int spell, int mode)
     case 19:
         if (name) return "World Contortion";
         if (desc) return "Teleports all nearby monsters away unless resisted.";
-    
+
         {
             int rad = spell_power(plev / 15 + 1);
             int power = spell_power(plev * 3 + 1);
@@ -7628,7 +7597,7 @@ static cptr do_music_spell(int spell, int mode)
     case 20:
         if (name) return "Dispelling chant";
         if (desc) return "Damages all monsters in sight. Hurts evil monsters greatly.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7655,7 +7624,7 @@ static cptr do_music_spell(int spell, int mode)
     case 21:
         if (name) return "The Voice of Saruman";
         if (desc) return "Attempts to slow and sleep all monsters in sight.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7682,7 +7651,7 @@ static cptr do_music_spell(int spell, int mode)
     case 22:
         if (name) return "Song of the Tempest";
         if (desc) return "Fires a beam of sound.";
-    
+
         {
             int dice = 15 + (plev - 1) / 2;
             int sides = 10;
@@ -7708,7 +7677,7 @@ static cptr do_music_spell(int spell, int mode)
     case 23:
         if (name) return "Ambarkanta";
         if (desc) return "Recreates current dungeon level.";
-    
+
         {
             int base = 15;
             int sides = 20;
@@ -7757,7 +7726,7 @@ static cptr do_music_spell(int spell, int mode)
     case 25:
         if (name) return "Stationary Shriek";
         if (desc) return "Attempts to freeze all monsters in sight.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7783,7 +7752,7 @@ static cptr do_music_spell(int spell, int mode)
     case 26:
         if (name) return "Endurance";
         if (desc) return "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph.";
-    
+
         {
             /* Stop singing before start another */
             if (cast || fail) bard_stop_singing();
@@ -7800,7 +7769,7 @@ static cptr do_music_spell(int spell, int mode)
     case 27:
         if (name) return "The Hero's Poem";
         if (desc) return "Hastes you. Gives heroism. Damages all monsters in sight.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7846,7 +7815,7 @@ static cptr do_music_spell(int spell, int mode)
     case 28:
         if (name) return "Relief of Yavanna";
         if (desc) return "Powerful healing song. Also heals cut and stun completely.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7875,7 +7844,7 @@ static cptr do_music_spell(int spell, int mode)
     case 29:
         if (name) return "Goddess' rebirth";
         if (desc) return "Restores all stats and experience.";
-    
+
         {
             /* Stop singing before start another */
             if (cast || fail) bard_stop_singing();
@@ -7897,7 +7866,7 @@ static cptr do_music_spell(int spell, int mode)
     case 30:
         if (name) return "Wizardry of Sauron";
         if (desc) return "Fires an extremely powerful tiny ball of sound.";
-    
+
         {
             int dice = 50 + plev;
             int sides = 10;
@@ -7925,7 +7894,7 @@ static cptr do_music_spell(int spell, int mode)
     case 31:
         if (name) return "Fingolfin's Challenge";
         if (desc) return "Generates barrier which completely protect you from almost all damages. Takes a few your turns when the barrier breaks.";
-    
+
         /* Stop singing before start another */
         if (cast || fail) bard_stop_singing();
 
@@ -7935,10 +7904,10 @@ static cptr do_music_spell(int spell, int mode)
 
                 /* Redraw map */
                 p_ptr->redraw |= (PR_MAP);
-        
+
                 /* Update monsters */
                 p_ptr->update |= (PU_MONSTERS);
-        
+
                 /* Window stuff */
                 p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
@@ -8783,732 +8752,6 @@ static cptr do_hex_spell(int spell, int mode)
     return "";
 }
 
-static cptr _rogue_pick_pocket(void)
-{
-    int y, x, m_idx, dir;
-    monster_type *m_ptr;
-    monster_race *r_ptr;
-    char          m_name[MAX_NLEN];
-    char          o_name[MAX_NLEN];
-
-    if (!get_rep_dir2(&dir)) return NULL;
-    if (dir == 5) return NULL;
-
-    y = py + ddy[dir];
-    x = px + ddx[dir];
-
-    if (!cave[y][x].m_idx)
-    {
-        msg_print("There is no monster.");
-        return NULL;
-    }
-
-    m_idx = cave[y][x].m_idx;
-    m_ptr = &m_list[m_idx];
-    r_ptr = &r_info[m_ptr->r_idx];
-
-    if (!m_ptr->ml || p_ptr->image) /* Can't see it, so can't steal! */
-    {
-        msg_print("There is no monster.");
-        return NULL;
-    }
-
-    monster_desc(m_name, m_ptr, 0);
-
-    if ( !mon_save_p(m_ptr->r_idx, A_DEX) 
-      || (MON_CSLEEP(m_ptr) && !mon_save_p(m_ptr->r_idx, A_DEX)))
-    {
-        object_type loot = {0};
-
-        if (m_ptr->hold_o_idx && one_in_(2))
-        {
-            object_copy(&loot, &o_list[m_ptr->hold_o_idx]);
-            delete_object_idx(m_ptr->hold_o_idx);
-            loot.held_m_idx = 0;
-        }
-        else if (m_ptr->drop_ct > m_ptr->stolen_ct)
-        {
-            if (get_monster_drop(m_idx, &loot))
-            {
-                m_ptr->stolen_ct++;
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                    r_ptr->stolen_ct++;
-            }
-        }
-
-        if (!loot.k_idx)
-        {
-            msg_print("There is nothing to steal!");
-        }
-        else 
-        {
-            object_desc(o_name, &loot, 0);
-            if (mon_save_p(m_ptr->r_idx, A_DEX))
-            {
-                msg_format("Oops! You drop %s.", o_name);
-                drop_near(&loot, -1, y, x);
-            }
-            else if (loot.tval == TV_GOLD)
-            {
-                msg_format("You steal %d gold pieces worth of %s.", (int)loot.pval, o_name);
-                sound(SOUND_SELL);
-                p_ptr->au += loot.pval;
-                stats_on_gold_find(loot.pval);
-                p_ptr->redraw |= (PR_GOLD);
-            }
-            else if (!inven_carry_okay(&loot))
-            {
-                msg_format("You have no room for %s.", o_name);
-                drop_near(&loot, -1, y, x);
-            }
-            else
-            {
-                int slot = inven_carry(&loot);
-                msg_format("You steal %s (%c).", o_name, index_to_label(slot));
-            }
-        }
-
-        if ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_p(m_ptr->r_idx, A_DEX))
-        {
-            set_monster_csleep(m_idx, 0);                    
-            if ( allow_ticked_off(r_ptr) 
-              && ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_p(m_ptr->r_idx, A_DEX)) )
-            {
-                msg_format("%^s wakes up and looks very mad!", m_name);
-                m_ptr->anger_ct++;
-            }
-            else
-                msg_format("%^s wakes up.", m_name);
-        }
-
-        if (loot.k_idx)
-        {
-            if (mon_save_p(m_ptr->r_idx, A_DEX))
-                msg_print("You fail to run away!");
-            else
-            {
-                if (p_ptr->lev < 35 || get_check("Run away?"))
-                    teleport_player(25 + p_ptr->lev/2, 0L);
-            }
-        }
-    }
-    else if (MON_CSLEEP(m_ptr))
-    {
-        set_monster_csleep(m_idx, 0);            
-        if (allow_ticked_off(r_ptr))
-        {
-            msg_format("Failed! %^s wakes up and looks very mad!", m_name);
-            m_ptr->anger_ct++;
-        }
-        else
-            msg_format("Failed! %^s wakes up.", m_name);
-    }
-    else if (allow_ticked_off(r_ptr))
-    {
-        msg_format("Failed! %^s looks very mad!", m_name);
-        m_ptr->anger_ct++;
-    }
-    else
-    {
-        msg_print("Failed!");
-    }
-
-    if (is_friendly(m_ptr) || is_pet(m_ptr))
-    {
-        msg_format("%^s suddenly becomes hostile!", m_name);
-        set_hostile(m_ptr);
-    }
-    return "";
-}
-
-static cptr _rogue_negotiate(void)
-{
-    int           m_idx = 0;
-    monster_type *m_ptr;
-    monster_race *r_ptr;
-    char          m_name[MAX_NLEN];
-
-    if (target_set(TARGET_MARK))
-    {
-        if (target_who > 0)
-            m_idx = target_who;
-        else
-            m_idx = cave[target_row][target_col].m_idx;
-    }
-
-    if (!m_idx)
-    {
-        msg_print("There is no monster.");
-        return NULL;
-    }
-
-    m_ptr = &m_list[m_idx];
-    r_ptr = &r_info[m_ptr->r_idx];
-
-    if (!m_ptr->ml || p_ptr->image)
-    {
-        msg_print("There is no monster.");
-        return NULL;
-    }
-
-    monster_desc(m_name, m_ptr, 0);
-
-    if (is_pet(m_ptr) || is_friendly(m_ptr))
-    {
-        msg_format("%^s is already in your services.", m_name);
-        return NULL;
-    }
-
-    set_monster_csleep(m_idx, 0);
-
-    if (r_ptr->flags2 & RF2_THIEF)
-        mon_lore_2(m_ptr, RF2_THIEF);
-
-    if (!(r_ptr->flags2 & RF2_THIEF))
-    {
-        msg_format("%^s is not open to any sort of deal!", m_name);
-    }
-    else if (!mon_save_p(m_ptr->r_idx, A_CHR))
-    {
-        int cost = 10 + r_ptr->level * 100;
-
-        if (r_ptr->flags1 & RF1_UNIQUE)
-            cost *= 10;
-
-        if (p_ptr->au >= cost)
-        {
-            msg_format("%^s says 'My services will cost you %d gold pieces.'", m_name, cost);
-
-            if (get_check("Do you pay?"))
-            {
-                sound(SOUND_SELL);
-                p_ptr->au -= cost;
-                stats_on_gold_services(cost);
-                p_ptr->redraw |= PR_GOLD;
-
-                if (mon_save_p(m_ptr->r_idx, A_CHR))
-                {
-                    msg_format("%^s says 'Fool! Never trust a thief!'", m_name);
-                    m_ptr->anger_ct++;
-                }
-                else
-                {
-                    msg_format("%^s says 'Deal!'", m_name);
-                    if (!(r_ptr->flags1 & RF1_UNIQUE) && !mon_save_p(m_ptr->r_idx, A_CHR))
-                        set_pet(m_ptr);
-                    else
-                        set_friendly(m_ptr);                    
-                }
-            }
-            else
-            {
-                msg_format("%^s says 'Scoundrel!'", m_name);
-                m_ptr->anger_ct++;
-            }
-        }
-        else
-        {
-            msg_format("%^s says 'Hah! You can't afford my help!", m_name);
-        }
-    }
-    else
-    {
-        msg_format("%^s is insulted you would ask such a question!", m_name);
-        m_ptr->anger_ct++;
-    }
-    return "";
-}
-
-
-static cptr do_burglary_spell(int spell, int mode)
-{
-    bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
-    bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
-    bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
-    bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
-    bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
-
-    int plev = p_ptr->lev;
-    int rad = DETECT_RAD_DEFAULT;
-    int dir;
-
-    if (plev >= 45)
-        rad = DETECT_RAD_ALL;
-    else
-        rad += plev;
-
-    switch (spell)
-    {
-    /* Burglar's Handbook */
-    case 0:
-        if (name) return "Detect Traps";
-        if (desc) return "Detects nearby traps.";
-        if (info) return info_radius(rad);
-        if (cast)
-            detect_traps(rad, TRUE);
-        break;
-
-    case 1:
-        if (name) return "Disarm Traps";
-        if (desc) return "Fires a beam which disarms traps.";
-    
-        if (cast)
-        {
-            if (!get_aim_dir(&dir)) return NULL;
-            disarm_trap(dir);
-        }
-        break;
-
-    case 2:
-        if (name) return "Detect Treasure";
-        if (desc) return "Detects all treasures in your vicinity.";
-        if (info) return info_radius(rad);
-
-        if (cast)
-        {
-            detect_treasure(rad);
-            detect_objects_gold(rad);
-        }
-        break;
-
-    case 3:
-        if (name) return "Detect Objects";
-        if (desc) return "Detects all items in your vicinity.";
-        if (info) return info_radius(rad);
-
-        if (cast)
-            detect_objects_normal(rad);
-        break;
-
-    case 4:
-        if (name) return "See in the Dark";
-        if (desc) return "Gives infravision for a while."; 
-        {
-            int base = spell_power(100);
-
-            if (info) return info_duration(base, base);
-
-            if (cast)
-                set_tim_infra(base + randint1(base), FALSE);
-        }
-        break;
-
-    case 5:
-        if (name) return "Tread Softly";
-        if (desc) return "Grants enhanced stealth for a bit."; 
-        {
-            int base = spell_power(50);
-
-            if (info) return info_duration(base, base);
-            if (cast)
-                set_tim_dark_stalker(base + randint1(base), FALSE);
-        }
-        break;
-
-    case 6:
-        if (name) return "Minor Getaway";
-        if (desc) return "Teleport medium distance.";
-    
-        {
-            int range = 30;
-
-            if (info) return info_range(range);
-
-            if (cast)
-            {
-                if (mut_present(MUT_ASTRAL_GUIDE))
-                    energy_use = 30;
-                teleport_player(range, 0L);
-            }
-        }
-        break;
-
-    case 7:
-        if (name) return "Set Minor Trap";
-        if (desc) return "Sets a weak trap under you. This trap will have various weak effects on a passing monster.";
-
-        if (cast)    
-            set_trap(py, px, feat_rogue_trap1);
-        break;
-
-    /* Thieving Ways */
-    case 8:
-        if (name) return "Map Escape Route";
-        if (desc) return "Maps nearby area.";
-        if (info) return info_radius(rad);
-
-        if (cast)
-            map_area(rad);
-        break;
-
-    case 9:
-        if (name) return "Pick Pocket";
-        if (desc) return "Attempt to steal an item or treasure from an adjacent monster.";
-
-        if (cast)
-            return _rogue_pick_pocket();
-        break;
-
-    case 10:
-        if (name) return "Negotiate";
-        if (desc) return "Attempt to bargain for the services of a nearby thief.";
-
-        if (cast)
-            return _rogue_negotiate();
-        break;
-
-    case 11:
-        if (name) return "Fetch Object";
-        if (desc) return "Pulls a distant item close to you.";
-    
-        {
-            int weight = spell_power(plev * 15);
-            if (info) return info_weight(weight);
-            if (cast)
-            {
-                if (!get_aim_dir(&dir)) return NULL;
-                fetch(dir, weight, FALSE);
-            }
-        }
-        break;
-
-    case 12:
-        if (name) return "Eye for Danger";
-        if (desc) return "Gives telepathy for a while.";
-        {
-            int base = 25;
-            int sides = 30;
-
-            if (info) return info_duration(base, sides);
-
-            if (cast)
-                set_tim_esp(randint1(sides) + base, FALSE);
-        }
-        break;
-
-    case 13:
-        if (name) return "Examine Loot";
-        if (desc) return "Identifies an item.";
-    
-        if (cast)
-        {
-            if (!ident_spell(NULL)) 
-                return NULL;
-        }
-        break;
-
-    case 14:
-        if (name) return "Set Major Trap";
-        if (desc) return "Sets a trap under you. This trap will have various effects on a passing monster.";
-
-        if (cast)    
-            set_trap(py, px, feat_rogue_trap2);
-        break;
-
-    case 15:
-        if (name) return "Make Haste";
-        if (desc) return "Hastes you for a while.";
-   
-        {
-            int base = spell_power(plev);
-            int sides = spell_power(20 + plev);
-
-            if (info) return info_duration(base, sides);
-
-            if (cast)
-                set_fast(randint1(sides) + base, FALSE);
-        }
-        break;
-
-    /* Great Escapes */
-    case 16:
-        if (name) return "Create Stairs";
-        if (desc) return "Creates a flight of stairs underneath you.";
-    
-        if (cast)
-            stair_creation(FALSE);
-        break;
-
-    case 17:
-        if (name) return "Panic Hit";
-        if (desc) return "Attack an adjacent monster and attempt a getaway.";
-    
-        if (cast)
-        {
-            int dir = 0;
-            int x, y;
-
-            if (!get_rep_dir2(&dir)) return NULL;
-            y = py + ddy[dir];
-            x = px + ddx[dir];
-            if (cave[y][x].m_idx)
-            {
-                py_attack(y, x, 0);
-                if (randint0(p_ptr->skills.dis) < 7)
-                    msg_print("You failed to teleport.");
-                else 
-                    teleport_player(30, 0);
-            }
-            else
-            {
-                msg_print("You don't see any monster in this direction");
-                msg_print(NULL);
-                return NULL;
-            }
-        }
-        break;
-
-    case 18:
-        if (name) return "Panic Shot";
-        if (desc) return "Shoot a nearby monster and attempt a getaway.";
-    
-        if (cast)
-        {
-            if (!do_cmd_fire()) return NULL;
-            if (randint0(p_ptr->skills.dis) < 7)
-                msg_print("You failed to teleport.");
-            else 
-                teleport_player(30, 0);
-        }
-        break;
-
-    case 19:
-        if (name) return "Panic Summons";
-        if (desc) return "Summon assistance and attempt a getaway.";
-    
-        if (cast)
-        {
-            trump_summoning(damroll(2, 3), !fail, py, px, 0, SUMMON_THIEF, PM_ALLOW_GROUP);
-
-            if (randint0(p_ptr->skills.dis) < 7)
-                msg_print("You failed to teleport.");
-            else 
-                teleport_player(30, 0);
-        }
-        break;
-
-    case 20:
-        if (name) return "Panic Traps";
-        if (desc) return "Set multiple weak traps and attempt a getaway.";
-    
-        if (cast)
-        {
-            int y = 0, x = 0;
-            int dir;
-
-            for (dir = 0; dir <= 8; dir++)
-            {
-                y = py + ddy_ddd[dir];
-                x = px + ddx_ddd[dir];
-
-                set_trap(y, x, feat_rogue_trap1);
-            }
-            
-            if (randint0(p_ptr->skills.dis) < 7)
-                msg_print("You failed to teleport.");
-            else 
-                teleport_player(30, 0);
-        }
-        break;
-
-    case 21:
-        if (name) return "Flee Level";
-        if (desc) return "Flee your current level without delay.";
-    
-        if (cast)
-        {
-            if (!get_check("Are you sure? (Flee Level)")) return NULL;
-            teleport_level(0);
-        }
-        break;
-
-    case 22:
-        if (name) return "New Beginnings";
-        if (desc) return "Recreates current dungeon level after a short delay.";
-        if (info) return info_delay(15, 20);
-
-        if (cast)
-            alter_reality();
-        break;
-
-    case 23:
-        if (name) return "Major Getaway";
-        if (desc) return "Teleport long distance with very little energy use.";
-    
-        {
-            int range = plev * 5;
-
-            if (info) return info_range(range);
-
-            if (cast)
-            {
-                energy_use = 15;
-                teleport_player(range, 0L);
-            }
-        }
-        break;
-
-    /* Book of Shadows */
-    case 24:
-        if (name) return "Protect Loot";
-        if (desc) return "For a long time, items in your inventory will have a chance at resisting destruction.";
-   
-        {
-            int base = spell_power(plev*2);
-            int sides = spell_power(plev*2);
-
-            if (info) return info_duration(base, sides);
-
-            if (cast)
-                set_tim_inven_prot(randint1(sides) + base, FALSE);
-        }
-        break;
-
-    case 25:
-        if (name) return "Teleport To";
-        if (desc) return "Teleport a visible monster next to you without disturbing it.";
-
-        if (cast)
-        {
-            monster_type *m_ptr;
-            monster_race *r_ptr;
-            char m_name[80];
-
-            if (!target_set(TARGET_KILL)) return NULL;
-            if (!cave[target_row][target_col].m_idx) return NULL;
-            if (!player_has_los_bold(target_row, target_col)) return NULL;
-            if (!projectable(py, px, target_row, target_col)) return NULL;
-
-            m_ptr = &m_list[cave[target_row][target_col].m_idx];
-            r_ptr = &r_info[m_ptr->r_idx];
-            monster_desc(m_name, m_ptr, 0);
-            if (r_ptr->flagsr & RFR_RES_TELE)
-            {
-                if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
-                {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s is unaffected!", m_name);
-                    break;
-                }
-                else if (r_ptr->level > randint1(100))
-                {
-                    mon_lore_r(m_ptr, RFR_RES_TELE);
-                    msg_format("%s resists!", m_name);
-                    break;
-                }
-            }
-            msg_format("You command %s to return.", m_name);
-            teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100, TELEPORT_PASSIVE);
-        }
-        break;
-
-    case 26:
-        if (name) return "Walk Quickly";
-        if (desc) return "For a while, movement will cost less energy.";
-   
-        {
-            int base = spell_power(plev);
-            int sides = spell_power(20 + plev);
-
-            if (info) return info_duration(base, sides);
-
-            if (cast)
-                set_tim_quick_walk(randint1(sides) + base, FALSE);
-        }
-        break;
-
-    case 27:
-        if (name) return "Shadow Storm";
-        if (desc) return "Fires a huge ball of darkness.";
-    
-        {
-            int dam = spell_power(10 * (plev - 20) + p_ptr->to_d_spell);
-            int rad = spell_power(4);
-
-            if (info) return info_damage(0, 0, dam);
-
-            if (cast)
-            {
-                if (!get_aim_dir(&dir)) return NULL;
-                fire_ball(GF_DARK, dir, dam, rad);
-            }
-        }
-        break;
-
-    case 28:
-        if (name) return "Hide in Shadows";
-        if (desc) return "You become shrouded in darkness.";
-        {
-            int d = p_ptr->lev;
-            if (info) return info_duration(spell_power(d), spell_power(d));
-            if (cast) 
-            {
-                if (p_ptr->tim_superstealth)
-                {
-                    msg_print("You are already hiding in the shadows.");
-                    return NULL;
-                }
-                set_tim_superstealth(spell_power(randint1(d) + d), FALSE);
-            }
-        }
-        break;
-
-    case 29:
-        if (name) return "Hide in Stone";
-        if (desc) return "For a short time, you may move through walls.";
-        {
-            int d = p_ptr->lev/3;
-            if (info) return info_duration(spell_power(d), spell_power(d));
-            if (cast) 
-                set_kabenuke(spell_power(randint1(d) + d), FALSE);
-        }
-        break;
-
-    case 30:
-        if (name) return "Set Ultimate Trap";
-        if (desc) return "Sets an extremely powerful trap under you. This trap will have various strong effects on a passing monster.";
-
-        if (cast)    
-            set_trap(py, px, feat_rogue_trap3);
-        break;
-
-    case 31:
-        if (name) return "Assassinate";
-        if (desc) return "Attempt to instantly kill a sleeping monster.";
-
-        if (cast)
-        {
-            int y, x, dir;
-            if (!get_rep_dir2(&dir)) return NULL;
-            if (dir == 5) return NULL;
-
-            y = py + ddy[dir];
-            x = px + ddx[dir];
-
-            if (cave[y][x].m_idx)
-            {
-                monster_type *m_ptr = &m_list[cave[y][x].m_idx];
-                if (MON_CSLEEP(m_ptr))
-                    py_attack(y, x, ROGUE_ASSASSINATE);
-                else
-                {
-                    msg_print("This only works for sleeping monsters.");
-                    return NULL;
-                }
-            }
-            else
-            {
-                msg_print("There is no monster.");
-                return NULL;
-            }
-        }
-        break;
-
-    }
-
-    return "";
-}
-
 static cptr do_armageddon_spell(int spell, int mode)
 {
     bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -9525,7 +8768,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 0:
         if (name) return "Lightning Bolt";
         if (desc) return "Fires a bolt or beam of electricity.";
-    
+
         {
             int dice = 3 + plev / 4;
             int sides = 8;
@@ -9547,7 +8790,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 1:
         if (name) return "Frost Bolt";
         if (desc) return "Fires a bolt or beam of cold.";
-    
+
         {
             int dice = 4 + plev / 4;
             int sides = 8;
@@ -9569,7 +8812,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 2:
         if (name) return "Fire Bolt";
         if (desc) return "Fires a bolt or beam of fire.";
-    
+
         {
             int dice = 5 + plev / 4;
             int sides = 8;
@@ -9591,7 +8834,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 3:
         if (name) return "Acid Bolt";
         if (desc) return "Fires a bolt or beam of acid.";
-    
+
         {
             int dice = 5 + plev / 4;
             int sides = 8;
@@ -9613,7 +8856,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 4:
         if (name) return "Lightning Ball";
         if (desc) return "Fires a ball of electricity.";
-    
+
         {
             int dam = spell_power(3*plev/2 + 20 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9630,7 +8873,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 5:
         if (name) return "Frost Ball";
         if (desc) return "Fires a ball of cold.";
-    
+
         {
             int dam = spell_power(3*plev/2 + 25 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9647,7 +8890,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 6:
         if (name) return "Fire Ball";
         if (desc) return "Fires a ball of fire.";
-    
+
         {
             int dam = spell_power(3*plev/2 + 30 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9664,7 +8907,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 7:
         if (name) return "Acid Ball";
         if (desc) return "Fires a ball of acid.";
-    
+
         {
             int dam = spell_power(3*plev/2 + 35 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9683,7 +8926,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 8:
         if (name) return "Shard Bolt";
         if (desc) return "Fires a bolt or beam of shards.";
-    
+
         {
             int dice = 7 + plev / 4;
             int sides = 8;
@@ -9705,7 +8948,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 9:
         if (name) return "Gravity Bolt";
         if (desc) return "Fires a bolt or beam of gravity.";
-    
+
         {
             int dice = 5 + plev / 4;
             int sides = 8;
@@ -9727,7 +8970,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 10:
         if (name) return "Plasma Bolt";
         if (desc) return "Fires a bolt or beam of plasma.";
-    
+
         {
             int dice = 11 + plev / 4;
             int sides = 8;
@@ -9749,7 +8992,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 11:
         if (name) return "Meteor";
         if (desc) return "Fires a meteor.";
-    
+
         {
             int dam = spell_power(plev + 60 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9784,7 +9027,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 13:
         if (name) return "Windblast";
         if (desc) return "Fires a microburst of strong winds.";
-    
+
         {
             int dam = spell_power(plev + 40 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9815,7 +9058,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 15:
         if (name) return "Rocket";
         if (desc) return "Fires a rocket.";
-    
+
         {
             int dam = spell_power(60 + plev * 4 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9835,7 +9078,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 16:
         if (name) return "Ice Bolt";
         if (desc) return "Fires a bolt of ice.";
-    
+
         {
             int dice = 5 + plev/4;
             int sides = 15;
@@ -9856,7 +9099,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 17:
         if (name) return "Water Ball";
         if (desc) return "Fires a ball of water.";
-    
+
         {
             int dam = spell_power(2*plev + 30 + p_ptr->to_d_spell);
             int rad = 2;
@@ -9873,7 +9116,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 18:
         if (name) return "Breathe Lightning";
         if (desc) return "Breathes a cone of electricity at chosen target.";
-    
+
         {
             int dam = spell_power(9*plev/2 + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -9890,7 +9133,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 19:
         if (name) return "Breathe Frost";
         if (desc) return "Breathes a cone of cold at chosen target.";
-    
+
         {
             int dam = spell_power(9*plev/2 + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -9907,7 +9150,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 20:
         if (name) return "Breathe Fire";
         if (desc) return "Breathes a cone of fire at chosen target.";
-    
+
         {
             int dam = spell_power(5*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -9924,7 +9167,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 21:
         if (name) return "Breathe Acid";
         if (desc) return "Breathes a cone of acid at chosen target.";
-    
+
         {
             int dam = spell_power(5*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -9941,7 +9184,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 22:
         if (name) return "Breathe Plasma";
         if (desc) return "Breathes a cone of plasma at chosen target.";
-    
+
         {
             int dam = spell_power(11*plev/2 + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -9958,7 +9201,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 23:
         if (name) return "Breathe Gravity";
         if (desc) return "Breathes a cone of gravity at chosen target.";
-    
+
         {
             int dam = spell_power(4*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -9977,7 +9220,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 24:
         if (name) return "Mana Bolt";
         if (desc) return "Fires a bolt of mana.";
-    
+
         {
             int dice = 1;
             int sides = 5*plev;
@@ -9998,7 +9241,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 25:
         if (name) return "Plasma Ball";
         if (desc) return "Fires a ball of plasma.";
-    
+
         {
             int dam = spell_power(2*plev + 90 + p_ptr->to_d_spell);
             int rad = 3;
@@ -10015,7 +9258,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 26:
         if (name) return "Mana Ball";
         if (desc) return "Fires a ball of pure mana.";
-    
+
         {
             int dam = spell_power(4*plev + 100 + p_ptr->to_d_spell);
             int rad = 3;
@@ -10032,7 +9275,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 27:
         if (name) return "Breathe Sound";
         if (desc) return "Breathes a cone of sound at chosen target.";
-    
+
         {
             int dam = spell_power(6*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -10049,7 +9292,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 28:
         if (name) return "Breathe Inertia";
         if (desc) return "Breathes a cone of inertia at chosen target.";
-    
+
         {
             int dam = spell_power(5*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -10066,7 +9309,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 29:
         if (name) return "Breathe Disintegration";
         if (desc) return "Breathes a cone of disintegration at chosen target.";
-    
+
         {
             int dam = spell_power(7*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -10083,7 +9326,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 30:
         if (name) return "Breathe Mana";
         if (desc) return "Breathes a cone of mana at chosen target.";
-    
+
         {
             int dam = spell_power(9*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
@@ -10100,7 +9343,7 @@ static cptr do_armageddon_spell(int spell, int mode)
     case 31:
         if (name) return "Breathe Shards";
         if (desc) return "Breathes a cone of shards at chosen target.";
-    
+
         {
             int dam = spell_power(10*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;

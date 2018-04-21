@@ -38,6 +38,45 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+    if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM)
+    {
+        u32b flgs[OF_ARRAY_SIZE];
+        obj_flags(o_ptr, flgs);
+        if (have_flag(flgs, OF_BLESSED))
+        {
+        }
+        else if (is_evil_realm(p_ptr->realm1))
+        {
+        }
+        else
+        {
+            info_ptr->to_h -= 2;
+            info_ptr->dis_to_h -= 2;
+
+            info_ptr->to_d -= 2;
+            info_ptr->dis_to_d -= 2;
+
+            info_ptr->icky_wield = TRUE;
+        }
+    }
+}
+
+bool priest_is_good(void)
+{
+    if (p_ptr->pclass == CLASS_PRIEST && is_good_realm(p_ptr->realm1))
+        return TRUE;
+    return FALSE;
+}
+
+bool priest_is_evil(void)
+{
+    if (p_ptr->pclass == CLASS_PRIEST && is_evil_realm(p_ptr->realm1))
+        return TRUE;
+    return FALSE;
+}
+
 class_t *priest_get_class(void)
 {
     static class_t me = {0};
@@ -52,25 +91,23 @@ class_t *priest_get_class(void)
         me.desc = "A Priest is a character devoted to serving a higher power. They "
                     "explore the dungeon in the service of their God. They are fairly "
                     "familiar with magical devices which they believe act as foci for divine "
-                    "intervention in the natural order of things. Priests abhor bloodshed, "
-                    "and therefore are not comfortable with edged weapons. Wielding one "
-                    "will disrupt their ability to concentrate during prayers. "
-                    "A Priest's primary stat is Wisdom.\n \n"
-                    "Priests can select from Life, Death, Daemon, or Crusade as a first "
-                    "realm, and choose almost any second realm. However, if they choose "
-                    "a good realm (Life or Crusade) for their first realm, then they are "
-                    "precluded from choosing an evil realm (Death or Daemon) for their "
-                    "second realm, and vice versa. "
-                    "Priests can learn all spells in the selected realms, even if not "
-                    "as efficiently as mages. However, when learning spells, priests "
-                    "cannot voluntarily decide which spells to study: they are rewarded "
-                    "with new prayers by their patron deities, with no money-back "
-                    "satisfaction guarantee. Priests that select a good realm "
-                    "have a class power - 'Bless Weapon' - which allows "
-                    "the priest to wield an edged weapon without penalty. "
-                    "Priests that select an Evil Realm have a class power "
-                    "- 'Evocation' - which damages, scares and banish all monsters in "
-                    "sight.";
+                    "intervention in the natural order of things.\n \n"
+                    "There are two types of priests: Good and Evil. If the priest chooses Life "
+                    "or Crusade as their first realm, then they will follow the path of good. "
+                    "As such, they may not choose an evil realm for their second realm. Also, good "
+                    "priests abhor bloodshed, and therefore are not comfortable with edged weapons. "
+                    "Wielding one will disrupt their ability to concentrate during prayers. "
+                    "Should a priest choose Death or Daemon as their first realm, however, then "
+                    "they will serve an evil god. As such, they actually enjoy shedding blood, and "
+                    "suffer no such weapon restriction. Of course, evil priests abhor good things, "
+                    "and are unable to choose Life or Crusade for their second realm.\n \n"
+                    "Good priests have a strong affinity for Life prayers, and learn them very well, even better "
+                    "than a High Mage. Conversely, evil priests favor prayers of Death, and receive "
+                    "strong bonuses when choosing this foul realm. Otherwise, priests learn spells less "
+                    "efficiently than a Mage would. Also, they may not choose which spell to learn, but "
+                    "are granted new prayers by the whim of their deity, presumably in order to serve "
+                    "some greater divine plan of which the priest is not fully cognizant. The priest's "
+                    "primary prayer stat is Wisdom.";
 
         me.stats[A_STR] = -1;
         me.stats[A_INT] = -3;
@@ -84,11 +121,12 @@ class_t *priest_get_class(void)
         me.base_hp = 4;
         me.exp = 120;
         me.pets = 35;
-        
+
         me.caster_info = _caster_info;
         /* TODO: This class uses spell books, so we are SOL
         me.get_spells = _get_spells;*/
         me.get_powers = _get_powers;
+        me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.character_dump = spellbook_character_dump;
         init = TRUE;
     }

@@ -1,6 +1,6 @@
 #include "angband.h"
 
-static cptr _desc = 
+static cptr _desc =
     "Giants are humanoids of immense stature. There are several types of giants. "
     "Fire, Frost and Storm giants are elemental giants and gain extra resistance, "
     "elementals slays and even elemental attacks of their respective element. Titans "
@@ -8,15 +8,15 @@ static cptr _desc =
     "rarely fight alone.\n \n"
     "Giants are monsters so cannot choose a normal class. Instead, they must rely on their "
     "superior physical stature to pummel their opponents with mighty blows. Against a distant "
-    "foe, giants are capable of hurling large boulders with devastating effect.\n \n" 
+    "foe, giants are capable of hurling large boulders with devastating effect.\n \n"
     "Giants use the same equipment slots as normal player races and have no innate attacks.";
 
-static void _birth(void) 
-{ 
+static void _birth(void)
+{
     object_type    forge;
 
     p_ptr->current_r_idx = MON_HILL_GIANT;
-    
+
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
     add_outfit(&forge);
 
@@ -295,7 +295,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
 
         /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
         if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-         && !cave[ny][nx].m_idx) 
+         && !cave[ny][nx].m_idx)
         {
             if (cave_have_flag_bold(ny, nx, FF_WALL))
             {
@@ -531,7 +531,7 @@ static race_t *_hru_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Rock Giant", "Hru"};    
+    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Rock Giant", "Hru"};
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
@@ -561,13 +561,13 @@ static race_t *_hru_get_race_t(void)
     }
 
     me.subname = titles[rank];
-    me.stats[A_STR] =  3 + 2*rank;
-    me.stats[A_INT] = -3 + rank;
-    me.stats[A_WIS] = -6 + rank;
-    me.stats[A_DEX] = -2 + rank;
-    me.stats[A_CON] =  3 + 7*rank/4;
-    me.stats[A_CHR] =  0 + rank;
-    me.life = 102 + 7*rank;
+    me.stats[A_STR] =  7 + rank;
+    me.stats[A_INT] = -5;
+    me.stats[A_WIS] = -5;
+    me.stats[A_DEX] = -3;
+    me.stats[A_CON] =  4 + rank;
+    me.stats[A_CHR] =  0 + rank/2;
+    me.life = 110 + 5*rank;
     me.boss_r_idx = MON_ATLAS;
 
     return &me;
@@ -624,7 +624,7 @@ static int _fire_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _fire_powers);
 }
 static void _fire_calc_bonuses(void) {
-    p_ptr->sustain_str = TRUE;    
+    p_ptr->sustain_str = TRUE;
     if (p_ptr->lev >= 30)
     {
         res_add(RES_FIRE);
@@ -673,7 +673,7 @@ static race_t *_fire_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Fire Giant", "Elder Fire Giant"};    
+    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Fire Giant", "Elder Fire Giant"};
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
@@ -701,13 +701,13 @@ static race_t *_fire_get_race_t(void)
     }
 
     me.subname = titles[rank];
-    me.stats[A_STR] =  3 + 7*rank/4;
-    me.stats[A_INT] = -3 + rank;
-    me.stats[A_WIS] = -6 + rank;
-    me.stats[A_DEX] = -2 + rank;
-    me.stats[A_CON] =  3 + 7*rank/4;
-    me.stats[A_CHR] =  0 + rank;
-    me.life = 100 + 7*rank;
+    me.stats[A_STR] =  6 + rank;
+    me.stats[A_INT] = -3;
+    me.stats[A_WIS] = -3;
+    me.stats[A_DEX] = -2;
+    me.stats[A_CON] =  3 + rank;
+    me.stats[A_CHR] =  0 + rank/2;
+    me.life = 107 + 5*rank;
     me.boss_r_idx = MON_SURTUR;
 
     return &me;
@@ -806,7 +806,7 @@ static race_t *_frost_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Frost Giant", "Ice Giant"};    
+    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Frost Giant", "Ice Giant"};
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
@@ -834,13 +834,13 @@ static race_t *_frost_get_race_t(void)
     }
 
     me.subname = titles[rank];
-    me.stats[A_STR] =  3 + 7*rank/4;
-    me.stats[A_INT] = -3 + rank;
-    me.stats[A_WIS] = -6 + rank;
-    me.stats[A_DEX] = -2 + rank;
-    me.stats[A_CON] =  3 + 7*rank/4;
-    me.stats[A_CHR] =  0 + rank;
-    me.life = 100 + 7*rank;
+    me.stats[A_STR] =  6 + rank;
+    me.stats[A_INT] = -3;
+    me.stats[A_WIS] = -3;
+    me.stats[A_DEX] = -2;
+    me.stats[A_CON] =  3 + rank;
+    me.stats[A_CHR] =  0 + rank/2;
+    me.life = 107 + 5*rank;
     me.boss_r_idx = MON_YMIR;
 
     return &me;
@@ -981,7 +981,7 @@ static race_t *_storm_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[5] =  {"Hill Giant", "Stone Giant", "Cloud Giant", "Storm Giant", "Elder Storm Giant"};    
+    static cptr   titles[5] =  {"Hill Giant", "Stone Giant", "Cloud Giant", "Storm Giant", "Elder Storm Giant"};
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
@@ -1010,13 +1010,13 @@ static race_t *_storm_get_race_t(void)
     }
 
     me.subname = titles[rank];
-    me.stats[A_STR] =  3 + rank;
-    me.stats[A_INT] = -3 + rank;
-    me.stats[A_WIS] = -6 + rank;
-    me.stats[A_DEX] = -2 + rank;
-    me.stats[A_CON] =  3 + rank;
-    me.stats[A_CHR] =  0 + rank;
-    me.life = 100 + 3*rank;
+    me.stats[A_STR] =  5 + (rank + 1)/2;
+    me.stats[A_INT] = -3;
+    me.stats[A_WIS] = -3;
+    me.stats[A_DEX] = -2;
+    me.stats[A_CON] =  3 + (rank + 1)/2;
+    me.stats[A_CHR] =  0 + rank/2;
+    me.life = 105 + 3*rank;
     me.boss_r_idx = MON_TYPHOEUS;
 
     return &me;
@@ -1080,7 +1080,7 @@ static race_t *_titan_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Lesser Titan", "Greater Titan"};    
+    static cptr   titles[4] =  {"Hill Giant", "Stone Giant", "Lesser Titan", "Greater Titan"};
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
@@ -1108,10 +1108,10 @@ static race_t *_titan_get_race_t(void)
     }
 
     me.subname = titles[rank];
-    me.stats[A_STR] =  3 + rank;
+    me.stats[A_STR] =  5 + rank;
     me.stats[A_INT] =  0 + rank;
     me.stats[A_WIS] =  0 + rank;
-    me.stats[A_DEX] = -2 + rank;
+    me.stats[A_DEX] = -2;
     me.stats[A_CON] =  3 + rank;
     me.stats[A_CHR] =  3 + rank;
     me.life = 102 + 5*rank;

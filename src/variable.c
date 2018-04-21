@@ -38,7 +38,7 @@ cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 int level_up = 0;
 
-/* 
+/*
  *  List for auto-picker/destroyer entries
  */
 int max_autopick = 0;
@@ -251,6 +251,7 @@ bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation */
 bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
 bool exp_need;    /* Show the experience needed for next level */
 bool ignore_unview;    /* Ignore whenever any monster does */
+bool display_distance;
 
 
 /*** Game-Play Options ***/

@@ -299,7 +299,6 @@
     <ClInclude Include="h-type.h" />
     <ClInclude Include="init.h" />
     <ClInclude Include="int-map.h" />
-    <ClInclude Include="kajitips.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="message.h" />
     <ClInclude Include="msvc_warnings.h" />

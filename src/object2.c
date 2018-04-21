@@ -741,7 +741,7 @@ void object_aware(object_type *o_ptr)
    [3] Quaff and become aware.
 
    Note we might miss some counts if the user quaffs, but doesn't notice the
-   effect. This is better than leaking kind info in the various browser screens, 
+   effect. This is better than leaking kind info in the various browser screens,
    though.
 */
 counts_t stats_rand_art_counts = {0};
@@ -1252,7 +1252,7 @@ s32b obj_value(object_type *o_ptr)
         if ((o_ptr->ident & IDENT_SENSE) && object_is_cursed(o_ptr))
             value = (value+2)/3;
     }
-    if (o_ptr->discount) 
+    if (o_ptr->discount)
         value -= (value * o_ptr->discount / 100L);
     return value;
 }
@@ -1675,7 +1675,7 @@ s16b lookup_kind(int tval, int sval)
 void object_wipe(object_type *o_ptr)
 {
     /* Wipe the structure */
-    (void)WIPE(o_ptr, object_type); 
+    (void)WIPE(o_ptr, object_type);
 }
 
 
@@ -2442,7 +2442,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     /* Hack -- Get no rolls if not allowed */
     if ((mode & AM_NO_FIXED_ART) || o_ptr->name1 || o_ptr->name3) rolls = 0;
     if (mode & AM_AVERAGE) rolls = 0;
-    if (mode & AM_FORCE_EGO) 
+    if (mode & AM_FORCE_EGO)
     {
         rolls = 0;
         /* AM_FORCE_EGO is used for granting quest rewards. Ego rings and amulets
@@ -2564,11 +2564,11 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
                 if (!one_in_(3)) power = 0;
             }
 
-            if (o_ptr->sval == SV_RUNESWORD) 
+            if (o_ptr->sval == SV_RUNESWORD)
             {
                 o_ptr->curse_flags |= (OFC_PERMA_CURSE);
             }
-            else 
+            else
             {
                 if (!(o_ptr->sval == SV_DOKUBARI))
                 {
@@ -2703,7 +2703,7 @@ static bool kind_is_tailored(int k_idx)
     switch (k_ptr->tval)
     {
     case TV_SHIELD:
-        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval) 
+        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval)
             && p_ptr->pclass != CLASS_NINJA
             && p_ptr->pclass != CLASS_MAULER
             && p_ptr->pclass != CLASS_DUELIST;
@@ -2713,7 +2713,7 @@ static bool kind_is_tailored(int k_idx)
     case TV_DRAG_ARMOR:
         if ( p_ptr->pclass == CLASS_MONK
           || p_ptr->pclass == CLASS_FORCETRAINER
-          || p_ptr->pclass == CLASS_MYSTIC 
+          || p_ptr->pclass == CLASS_MYSTIC
           || p_ptr->pclass == CLASS_DUELIST
           || p_ptr->pclass == CLASS_SCOUT
           || p_ptr->pclass == CLASS_NINJA )
@@ -3013,14 +3013,14 @@ bool kind_is_good(int k_idx)
 typedef bool (*_kind_p)(int k_idx);
 static _kind_p _kind_hook1;
 static _kind_p _kind_hook2;
-static bool _kind_hook(int k_idx) { 
+static bool _kind_hook(int k_idx) {
     if (_kind_hook1 && !_kind_hook1(k_idx))
         return FALSE;
     if (_kind_hook2 && !_kind_hook2(k_idx))
         return FALSE;
     return TRUE;
 }
-bool kind_is_device(int k_idx) { 
+bool kind_is_device(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_WAND: case TV_ROD: case TV_STAFF:
@@ -3028,7 +3028,7 @@ bool kind_is_device(int k_idx) {
     }
     return FALSE;
 }
-static bool _kind_is_potion(int k_idx) { 
+static bool _kind_is_potion(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_POTION:
@@ -3087,7 +3087,7 @@ bool kind_is_wand_rod_staff(int k_idx) {
     }
     return FALSE;
 }
-bool kind_is_jewelry(int k_idx) { 
+bool kind_is_jewelry(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_RING: case TV_AMULET:
@@ -3116,7 +3116,7 @@ bool kind_is_book(int k_idx) {
         return TRUE;
     return FALSE;
 }
-bool kind_is_body_armor(int k_idx) { 
+bool kind_is_body_armor(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
@@ -3142,7 +3142,7 @@ static bool _kind_is_cloak(int k_idx) {
 bool kind_is_other_armor(int k_idx) {
     switch (k_info[k_idx].tval)
     {
-    case TV_BOOTS: case TV_GLOVES: 
+    case TV_BOOTS: case TV_GLOVES:
     case TV_HELM: case TV_CROWN: case TV_CLOAK:
         return TRUE;
     }
@@ -3177,7 +3177,7 @@ bool kind_is_armor(int k_idx) {
         return TRUE;
     return FALSE;
 }
-bool kind_is_weapon(int k_idx) { 
+bool kind_is_weapon(int k_idx) {
     if (TV_DIGGING <= k_info[k_idx].tval && k_info[k_idx].tval <= TV_WEAPON_END)
         return TRUE;
     return FALSE;
@@ -3219,7 +3219,7 @@ bool kind_is_bow_ammo(int k_idx) {
         return TRUE;
     return FALSE;
 }
-bool kind_is_misc(int k_idx) { 
+bool kind_is_misc(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_SKELETON: case TV_BOTTLE: case TV_JUNK: case TV_WHISTLE:
@@ -3882,7 +3882,7 @@ bool make_object(object_type *j_ptr, u32b mode)
             if (!get_obj_num_hook)
                 get_obj_num_hook = _choose_obj_kind(mode);
 
-            if (get_obj_num_hook) 
+            if (get_obj_num_hook)
                 get_obj_num_prep();
 
             k_idx = get_obj_num(base);
@@ -3902,7 +3902,7 @@ bool make_object(object_type *j_ptr, u32b mode)
         }
 
         /* Handle failure */
-        if (!k_idx) 
+        if (!k_idx)
         {
             obj_drop_theme = 0;
             return FALSE;
@@ -3919,7 +3919,7 @@ bool make_object(object_type *j_ptr, u32b mode)
         return FALSE;
     }
 
-    /* Note: It is important to do this *after* apply_magic rather than in, say, 
+    /* Note: It is important to do this *after* apply_magic rather than in, say,
        object_prep() since artifacts should never spawn multiple copies. Ego ammo
        should, but other egos (e.g. lights) should not. */
     mass_produce(j_ptr);
@@ -4876,7 +4876,7 @@ bool inven_carry_okay(object_type *o_ptr)
 
     /* Empty slot? */
     if (inven_cnt < INVEN_PACK) return (TRUE);
-    
+
     /* Similar slot? */
     for (j = 0; j < INVEN_PACK; j++)
     {
@@ -5545,7 +5545,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
     {
     case GF_ELEC:
         dam = res_calc_dam(RES_ELEC, dam);
-        if (dam == 0) 
+        if (dam == 0)
             ignore_wraith_form = TRUE;
         break;
 
@@ -5555,20 +5555,20 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 
     case GF_ACID:
         dam = res_calc_dam(RES_ACID, dam);
-        if (dam == 0) 
+        if (dam == 0)
             ignore_wraith_form = TRUE;
         break;
 
     case GF_COLD:
     case GF_ICE:
         dam = res_calc_dam(RES_COLD, dam);
-        if (dam == 0) 
+        if (dam == 0)
             ignore_wraith_form = TRUE;
         break;
 
     case GF_FIRE:
         dam = res_calc_dam(RES_FIRE, dam);
-        if (dam == 0) 
+        if (dam == 0)
             ignore_wraith_form = TRUE;
         break;
 

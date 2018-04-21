@@ -1301,16 +1301,3 @@ class_t *samurai_get_class(void)
 
     return &me;
 }
-
-void samurai_on_rest(void)
-{
-    if (p_ptr->pclass == CLASS_SAMURAI)
-        _concentrate(FALSE);
-}
-
-bool samurai_can_concentrate(void)
-{
-    if (p_ptr->pclass != CLASS_SAMURAI) return FALSE;
-    if (p_ptr->csp >= _max_sp()) return FALSE;
-    return TRUE;
-}

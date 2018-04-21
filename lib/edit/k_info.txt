@@ -39,7 +39,7 @@
 
 # 'I' is for basic information. The tval is for the type of item, the
 # sval identifies the subtype and the pval indicates the amount of
-# effect the item has, if applicable. 
+# effect the item has, if applicable.
 
 # 'W' is for extra information. Depth is the depth the object is
 # normally found at, rarity determines how common the object is,
@@ -244,7 +244,7 @@ W:0:0:0:10:3
 A:0/1:5/1:10/1:20/1
 M:100:1d5
 F:TOWN
-D:This nutritious but fairly bland food is 
+D:This nutritious but fairly bland food is
 D:familiar to anyone contemplating long journeys.
 
 N:22:& Hard Biscuit~
@@ -253,7 +253,7 @@ I:80:32:500
 W:0:0:30:2:1
 M:100:1d5
 F:TOWN
-D:Twice-cooked for good keeping qualities, this lump of bread is as hard as a 
+D:Twice-cooked for good keeping qualities, this lump of bread is as hard as a
 D:rock and about as tasty.
 
 N:23:& Strip~ of Venison
@@ -279,7 +279,7 @@ W:5:0:0:3:30
 A:5/1:10/1
 M:50:1d4
 F:TOWN
-D:Small golden-brown wafers wrapped in silven leaves.  Made with elvish art, 
+D:Small golden-brown wafers wrapped in silven leaves.  Made with elvish art,
 D:it sustains life where nothing else can.
 
 N:26:& Pint~ of Fine Ale
@@ -378,7 +378,7 @@ W:70:0:0:180:4000
 A:70/8
 P:0:6d5:0:0:0
 F:RES_CHAOS | SHOW_MODS
-D:This inconstant weapon revels in disorder, hacking and slashing your foes 
+D:This inconstant weapon revels in disorder, hacking and slashing your foes
 D:with bloodthirsty glee.
 
 N:37:& Two-Handed Sword~
@@ -415,7 +415,7 @@ W:40:0:0:260:850
 A:40/1
 P:0:4d5:0:0:0
 F:SHOW_MODS
-D:A giant, curved blade designed to cleave the head cleanly from the 
+D:A giant, curved blade designed to cleave the head cleanly from the
 D:body.
 
 N:41:& Katana~
@@ -425,7 +425,7 @@ W:20:0:0:120:400
 A:20/1
 P:0:3d4:0:0:0
 F:SHOW_MODS | TOWN
-D:A slightly curved long-handled slashing sword with a single-edged 
+D:A slightly curved long-handled slashing sword with a single-edged
 D:blade and a chisel tip.
 
 N:42:& Long Sword~
@@ -435,7 +435,7 @@ W:10:0:0:130:300
 A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS | RIDING | TOWN
-D:A long, straight, two-edged blade, with two hand guards projecting out from 
+D:A long, straight, two-edged blade, with two hand guards projecting out from
 D:the hilt to form a perfect cross.
 
 N:43:& Dagger~
@@ -463,7 +463,7 @@ W:5:0:0:50:50
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS | RIDING | TOWN
-D:A light, somewhat curved blade that can be used to thrust or slash; familiar 
+D:A light, somewhat curved blade that can be used to thrust or slash; familiar
 D:to horseman and duelists alike.
 
 N:46:& Small Sword~
@@ -502,7 +502,7 @@ W:3:0:0:30:30
 A:3/1
 P:0:1d6:0:0:0
 F:SHOW_MODS | TOWN
-D:A heavy whip, this thick coil is thrown from the shoulder and can 
+D:A heavy whip, this thick coil is thrown from the shoulder and can
 D:knock down a large man.
 
 N:50:& Flail~
@@ -512,7 +512,7 @@ W:10:0:0:150:353
 A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | RIDING | TOWN
-D:Two heavy bars of wood connected by a short link of chain, capable of 
+D:Two heavy bars of wood connected by a short link of chain, capable of
 D:delivering crushing blows.
 
 N:51:& Two-Handed Flail~
@@ -522,7 +522,7 @@ W:45:0:0:280:590
 A:45/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
-D:Two great bars of wood connected by a massive chain, needing two hands 
+D:Two great bars of wood connected by a massive chain, needing two hands
 D:to properly wield.
 
 N:52:& Morning Star~
@@ -550,7 +550,7 @@ W:10:0:0:150:200
 A:10/1
 P:0:1d9:0:0:0
 F:SHOW_MODS | TOWN
-D:Six feet of oak which can be wielded in both hands to give a drubbing or 
+D:Six feet of oak which can be wielded in both hands to give a drubbing or
 D:block one.
 
 N:55:& War Hammer~
@@ -569,7 +569,7 @@ W:15:0:0:180:502
 A:15/1
 P:0:3d4:0:0:0
 F:SHOW_MODS | TOWN
-D:A heavy war club topped with a mass of lead-filled steel, capable of 
+D:A heavy war club topped with a mass of lead-filled steel, capable of
 D:landing crushing blows.
 
 N:57:& Mace~ of Disruption
@@ -579,7 +579,7 @@ W:80:0:0:400:4300
 A:80/8
 P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS
-D:A giant's weapon, enchanted with shattering power that breaks bones, bodies, 
+D:A giant's weapon, enchanted with shattering power that breaks bones, bodies,
 D:and spirit.
 
 N:58:& Lucerne Hammer~
@@ -608,7 +608,7 @@ W:20:0:0:190:363
 A:20/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | RIDING | TOWN
-D:A reinforced wooden pole eight feet long, topped by a massive knife blade 
+D:A reinforced wooden pole eight feet long, topped by a massive knife blade
 D:that can can be used to thrust or chop.
 
 N:61:& Halberd~
@@ -618,7 +618,7 @@ W:25:0:0:190:430
 A:25/1
 P:0:3d5:0:0:0
 F:SHOW_MODS | TOWN
-D:The most successful of the polearms, the halberd has a long haft mounted 
+D:The most successful of the polearms, the halberd has a long haft mounted
 D:with a heavy axe blade and opposing spike, and topped by a thrusting spine.
 
 N:62:& Awl-Pike~
@@ -645,7 +645,7 @@ W:5:0:0:50:36
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS | RIDING | TOWN
-D:The basic polearm, with a double-edged knife mounted on a light shaft.  
+D:The basic polearm, with a double-edged knife mounted on a light shaft.
 D:This weapon can be thrown effectively.
 
 N:65:& Trident~
@@ -672,7 +672,7 @@ W:40:0:0:230:500
 A:40/1
 P:0:4d4:0:0:0
 F:SHOW_MODS | TOWN
-D:An enormous two-handed battle axe, carried by Dwarven champions, who 
+D:An enormous two-handed battle axe, carried by Dwarven champions, who
 D:compete to see who can cleave the most orc heads.
 
 N:68:& Battle Axe~
@@ -708,7 +708,7 @@ W:45:0:0:250:800
 A:45/1
 P:0:5d3:0:0:0
 F:SHOW_MODS | TOWN
-D:The long crescent blade stands out from the handle of this polearm, and 
+D:The long crescent blade stands out from the handle of this polearm, and
 D:it is swung with two hands to harvest grain or blood.
 
 N:72:& Scythe~ of Slicing
@@ -718,7 +718,7 @@ W:60:0:0:250:3500
 A:60/4
 P:0:8d4:0:0:0
 F:SHOW_MODS | RIDING
-D:A reaper's weapon, the long blade almost hums in anticipation of the 
+D:A reaper's weapon, the long blade almost hums in anticipation of the
 D:blood it will spill.
 
 ##### Bows, Crossbows, Slings #####
@@ -730,7 +730,7 @@ N:73:& Short Bow~
 G:}:U
 I:19:12:0
 W:10:0:0:30:400
-P:0:x3.00:0:0:0
+P:0:x2.50:0:0:0
 A:10/1
 F:SHOW_MODS | TOWN
 D:The traditional hunter's weapon, this light bow is easily drawn.
@@ -742,17 +742,17 @@ W:30:0:0:40:400
 P:0:x3.00:0:0:0
 A:30/2
 F:SHOW_MODS
-D:As tall as a man, the longbow can drive an arrow through the heaviest 
+D:As tall as a man, the longbow can drive an arrow through the heaviest
 D:armour.
 
 N:75:& Light Crossbow~
 G:}:s
 I:19:23:0
 W:15:0:0:110:500
-P:0:x4.00:0:0:0
+P:0:x3.50:0:0:0
 A:15/1
 F:SHOW_MODS | TOWN
-D:A mechanical bow made of wood, it is cocked to augment the strength of 
+D:A mechanical bow made of wood, it is cocked to augment the strength of
 D:its wielder.
 
 N:76:& Heavy Crossbow~
@@ -770,7 +770,7 @@ W:5:0:0:5:5
 P:0:x2.00:0:0:0
 A:5/1
 F:SHOW_MODS | TOWN
-D:A loop of leather and cords able to hurl stones or shot with tremendous 
+D:A loop of leather and cords able to hurl stones or shot with tremendous
 D:velocity.
 
 ##### Missiles #####
@@ -794,7 +794,7 @@ P:0:6d4:0:0:0
 F:SHOW_MODS
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 M:100:6d7
-D:Carved from a rare wood, this arrow is inscribed with fell runes and 
+D:Carved from a rare wood, this arrow is inscribed with fell runes and
 D:fletched with eagle feathers.
 
 N:80:& Bolt~
@@ -863,7 +863,7 @@ W:40:0:0:120:200
 A:40/1
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
-D:A broad shovel, fit for the strong shoulders of a dwarf.  It bears runes 
+D:A broad shovel, fit for the strong shoulders of a dwarf.  It bears runes
 D:of delving and no ordinary rock can resist it.
 
 N:87:& Pick~
@@ -873,7 +873,7 @@ W:5:0:30:150:50
 A:10/1
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL | TOWN
-D:A heavy mining tool with a long, slightly curved head that tapers 
+D:A heavy mining tool with a long, slightly curved head that tapers
 D:to chisel points on both ends.
 
 N:88:& Orcish Pick~
@@ -883,7 +883,7 @@ W:30:0:0:150:300
 A:30/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
-D:A crude, ugly, but effective pickaxe.  Made in enormous quantities for 
+D:A crude, ugly, but effective pickaxe.  Made in enormous quantities for
 D:the slave-mines of Durthang.
 
 N:89:& Dwarven Pick~
@@ -893,7 +893,7 @@ W:50:0:0:200:600
 A:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
-D:A short but sturdy pick, like those that delved deep Moria, with runes to 
+D:A short but sturdy pick, like those that delved deep Moria, with runes to
 D:break the sinews of mountains.
 
 ##### Armor #####
@@ -905,7 +905,7 @@ A:30/4
 P:4:0d0:0:0:4
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 F:STEALTH | SEARCH
-D:A mantle made of curious silken material by the Galadrim that wondrously 
+D:A mantle made of curious silken material by the Galadrim that wondrously
 D:takes on the hues and shapes of its surroundings.
 
 N:91:& Pair~ of Soft Leather Boots
@@ -932,7 +932,7 @@ I:30:6:0
 W:20:0:0:80:50
 A:20/1
 P:6:1d1:0:0:0
-D:A set of double-lined leather boots, with toes and heels reinforced with 
+D:A set of double-lined leather boots, with toes and heels reinforced with
 D:iron.
 
 N:94:& Hard Leather Cap~
@@ -967,7 +967,7 @@ I:32:6:0
 W:40:0:0:60:200
 A:40/1
 P:6:1d3:0:0:0
-D:This great helm covers the head and shoulders with plates of steel and a 
+D:This great helm covers the head and shoulders with plates of steel and a
 D:curtain of mail.
 
 N:98:& Iron Crown~
@@ -976,7 +976,7 @@ I:33:10:0
 W:40:0:0:20:500
 A:40/1
 P:0:1d1:0:0:0
-D:A plain band of iron, crowned with iron spikes.  It is a tyrant's 
+D:A plain band of iron, crowned with iron spikes.  It is a tyrant's
 D:symbol.
 
 N:99:& Golden Crown~
@@ -986,7 +986,7 @@ W:45:0:0:30:1000
 A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
-D:An elegant golden circlet, with slender spines thrusting upward. 
+D:An elegant golden circlet, with slender spines thrusting upward.
 D:It looks like it should be resting over the brow of a king.
 
 N:100:& Jewel Encrusted Crown~
@@ -1014,7 +1014,7 @@ I:36:1:0
 W:0:0:0:20:1
 A:0/1
 P:1:0d0:0:0:-1
-D:This tattered rag appears to once have been a robe, but has been patched 
+D:This tattered rag appears to once have been a robe, but has been patched
 D:and re-patched so many times that you can't be sure.
 
 N:103:Soft Leather Armour~
@@ -1051,7 +1051,7 @@ W:10:0:0:110:200
 A:10/1
 F:TOWN
 P:7:1d2:-1:0:0
-D:A strong leather breastplate and shoulder guards over a sleeved shirt 
+D:A strong leather breastplate and shoulder guards over a sleeved shirt
 D:of cured leather covered with iron studs.
 
 N:107:Leather Scale Mail~
@@ -1061,7 +1061,7 @@ W:15:0:0:140:450
 A:15/1
 F:TOWN
 P:11:1d1:-1:0:0
-D:A tunic and skirt sewn with thick, overlapping scales of hardened 
+D:A tunic and skirt sewn with thick, overlapping scales of hardened
 D:leather.
 
 N:108:Metal Scale Mail~
@@ -1071,7 +1071,7 @@ W:25:0:0:250:550
 A:25/1
 F:TOWN
 P:13:1d4:-2:0:0
-D:A heavy shirt of overlapping steel scales backed by leather, with 
+D:A heavy shirt of overlapping steel scales backed by leather, with
 D:matching skirt and sleeves.
 
 N:109:Chain Mail~
@@ -1080,8 +1080,8 @@ I:37:4:0
 W:25:0:0:220:750
 A:25/1
 P:14:1d4:-2:0:0
-D:A sleeved hauberk of interlocking steel rings, well padded with leather.  
-D:Chain mail takes skill to make, but offers good protection and relatively 
+D:A sleeved hauberk of interlocking steel rings, well padded with leather.
+D:Chain mail takes skill to make, but offers good protection and relatively
 D:low weight.
 
 N:110:Rusty Chain Mail~
@@ -1090,7 +1090,7 @@ I:37:1:0
 W:25:0:0:200:550
 A:25/1
 P:14:1d4:-5:0:-8
-D:Each link of this suit is brittle with rust, and the corroded rings 
+D:Each link of this suit is brittle with rust, and the corroded rings
 D:are stiff and weakened.
 
 N:111:Augmented Chain Mail~
@@ -1099,8 +1099,8 @@ I:37:6:0
 W:30:0:0:270:900
 A:30/1
 P:16:1d4:-2:0:0
-D:A hauberk, leggings, and sleeves of interlocking steel rings, 
-D:strategically reinforced at vital locations with a second layer 
+D:A hauberk, leggings, and sleeves of interlocking steel rings,
+D:strategically reinforced at vital locations with a second layer
 D:of chain, all over a layer of heavy padding.
 
 N:112:Bar Chain Mail~
@@ -1138,7 +1138,7 @@ I:37:15:0
 W:45:0:0:380:1350
 A:45/1
 P:25:2d4:-3:0:0
-D:A full suit of carefully fitted plates, with hinged joints backed 
+D:A full suit of carefully fitted plates, with hinged joints backed
 D:by chain, and light padding underneath.
 
 N:117:Ribbed Plate Armour~
@@ -1155,7 +1155,7 @@ W:75:0:0:420:20000
 A:75/8
 P:40:2d4:-4:0:0
 F:IGNORE_ACID
-D:Adamantite, hard as diamonds, forms this exquisite suit; nothing else 
+D:Adamantite, hard as diamonds, forms this exquisite suit; nothing else
 D:in Middle Earth gives as much protection.
 
 N:119:Mithril Plate Mail~
@@ -1165,7 +1165,7 @@ W:60:0:0:300:15000
 A:60/4
 P:35:2d4:-3:0:0
 F:IGNORE_ACID
-D:A shimmering suit of true-silver, forged long ago by dwarven smiths of 
+D:A shimmering suit of true-silver, forged long ago by dwarven smiths of
 D:legend.  It gleams with purest white as you gaze upon it.
 
 N:120:Mithril Chain Mail~
@@ -1175,7 +1175,7 @@ W:55:0:0:150:7000
 A:55/4
 P:28:1d4:-1:0:0
 F:IGNORE_ACID
-D:Rare and wondrous is chain mail made of true-silver, for it offers more 
+D:Rare and wondrous is chain mail made of true-silver, for it offers more
 D:protection for the weight than any other armour.
 
 N:121:Double Chain Mail~
@@ -1258,7 +1258,7 @@ I:34:4:0
 W:15:0:0:100:100
 A:15/1
 P:6:1d2:0:0:0
-D:A large oval shield made of layered wooden strips with a thick leather 
+D:A large oval shield made of layered wooden strips with a thick leather
 D:covering.
 
 N:130:& Small Metal Shield~
@@ -1276,7 +1276,7 @@ I:34:5:0
 W:30:0:0:120:200
 A:30/1
 P:8:1d3:0:0:0
-D:An oval shield of wood covered by leather and rimmed with metal.  A large 
+D:An oval shield of wood covered by leather and rimmed with metal.  A large
 D:iron shield boss offers excellent hand protection.
 
 ##### Jewelry #####
@@ -2045,7 +2045,7 @@ N:266:Restore Mana:Vermilion
 G:!:r
 I:75:40:0
 W:25:0:0:4:1000
-A:25/2:90/2
+A:25/5:90/2
 P:0:1d1:0:0:0
 M:10:1d3
 
@@ -2466,7 +2466,7 @@ F:RES_ELEC |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ELEC:30:30:100
 E:You breathe lightning.
-D:A suit of scales as blue as sapphires, emitting eerie sparks and flashes as 
+D:A suit of scales as blue as sapphires, emitting eerie sparks and flashes as
 D:you move about in it.
 
 N:402:White Dragon Scale Mail~
@@ -2516,7 +2516,7 @@ P:40:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_MULTIHUED:40:70:250
-D:A suit of scales that throbs with angry energies; it takes all your energy 
+D:A suit of scales that throbs with angry energies; it takes all your energy
 D:to master the Elements fighting an endless war trapped inside.
 
 N:406:Pseudo Dragon Scale Mail~
@@ -2552,7 +2552,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_CONF:30:40:120
 E:You breathe confusion.
 D:A suit of scales, gleaming in rich engraved bronze. The more you look at
-D:the the maze of whorls and lines that close inspection reveal on its 
+D:the the maze of whorls and lines that close inspection reveal on its
 D:surface, the less sense you are able to make of them.
 
 N:409:Gold Dragon Scale Mail~
@@ -2566,7 +2566,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_SOUND:30:40:130
 E:You breathe sound.
 D:A suit of scales in mirror-like gold. You hear nothing unusual as you
-D:wear this armour, yet your ears ache as though in the midst of a 
+D:wear this armour, yet your ears ache as though in the midst of a
 D:cacophony.
 
 N:410:Chaos Dragon Scale Mail~
@@ -2591,7 +2591,7 @@ F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ONE_BALANCE:50:100:250
 D:A suit of scales. Featureless grey to casual inspection, yet a closer
-D:look reveals patterns within patterns of iridescence that throb with 
+D:look reveals patterns within patterns of iridescence that throb with
 D:leashed energies bound as though by chains of adamant.
 
 N:412:Power Dragon Scale Mail~
@@ -2600,13 +2600,13 @@ I:38:30:0
 W:110:0:0:200:350000
 A:110/64
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ELEMENTS:50:100:300
 E:You breathe the elements!
-D:A suit with scales of every color, surrounded in a nimbus of perfectly 
+D:A suit with scales of every color, surrounded in a nimbus of perfectly
 D:untrammelled yet inextricably intermingled and utterly mastered powers
 D:elemental and ethereal.
 
@@ -3575,8 +3575,8 @@ I:35:5:0
 W:50:0:0:0:2500
 A:70/4
 P:0:0d0:0:0:10
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD 
-D:This unearthly, completely transparent body mantle folds and drapes in 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This unearthly, completely transparent body mantle folds and drapes in
 D:iridescent patterns around you. It weighs absolutely nothing.
 
 N:612:& Mirror~
@@ -4299,8 +4299,8 @@ F:INSTA_ART
 N:748:Banishment:wonto maroki
 G:?:w
 I:70:62:0
-W:80:0:0:5:5000
-A:80/3
+W:50:0:0:5:5000
+A:50/4
 F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 M:20:1d3
 

@@ -153,7 +153,7 @@ static int _menu_choose(menu_ptr menu, int start_choice)
 
         if (menu->count <= 26)
             keys[i] = tolower(keys[i]);
-        
+
         menu->fn(MENU_TEXT, i, menu->cookie, &text);
         if (var_is_null(&text))
             var_set_string(&text, "");
@@ -351,7 +351,7 @@ static bool _confirm_choice(cptr desc, int ct)
     for (i = 0; i < 30; i++)
     {
         if(t[0] == 0)
-            break; 
+            break;
         else
         {
             prt(t, 12+i, 3);
@@ -418,7 +418,7 @@ static int _prompt_personality(void)
         int    choices[MAX_PERSONALITIES];
         personality_ptr pers_ptr = NULL;
         menu_t menu = { "Personality", "Personalities.txt", "Note: Your personality determines various intrinsic abilities and bonuses.",
-                            _personality_menu_fn, 
+                            _personality_menu_fn,
                             choices, 0};
 
         for (i = 0; i < MAX_PERSONALITIES; i++)
@@ -437,7 +437,7 @@ static int _prompt_personality(void)
 
         p_ptr->personality = choices[idx];
         pers_ptr = get_personality();
-        
+
         c_put_str(TERM_L_BLUE, format("%-14s", pers_ptr->name), 3, 14);
 
         if (!_confirm_choice(pers_ptr->desc, menu.count)) continue;
@@ -466,7 +466,7 @@ static void _realm_menu_fn(int cmd, int which, vptr cookie, variant *res)
 static int _prompt_realm2(void)
 {
     c_put_str(TERM_L_BLUE, format("%-20s", realm_names[p_ptr->realm1]), 7, 14);
-    if (!realm_choices2[p_ptr->pclass]) 
+    if (!realm_choices2[p_ptr->pclass])
     {
         p_ptr->realm2 = 0;
         return _prompt_personality();
@@ -478,7 +478,7 @@ static int _prompt_realm2(void)
         int    ct = 0;
         int    idx, i;
         menu_t menu = { "Realm", "magic.txt#MagicRealms", "Note: The realm of magic will determine which spells you can learn.",
-                            _realm_menu_fn, 
+                            _realm_menu_fn,
                             choices, 0};
 
         if (p_ptr->pclass == CLASS_PRIEST)
@@ -527,9 +527,9 @@ static void _dragon_realm_menu_fn(int cmd, int which, vptr cookie, variant *res)
         c_put_str(TERM_L_BLUE, realm->name, 3, 40);
         put_str(": Realm modification", 3, 40+strlen(realm->name));
         put_str("Str  Int  Wis  Dex  Con  Chr   Exp ", 4, 40);
-        sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",           
-            realm->stats[A_STR], realm->stats[A_INT], realm->stats[A_WIS], 
-            realm->stats[A_DEX], realm->stats[A_CON], realm->stats[A_CHR], 
+        sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
+            realm->stats[A_STR], realm->stats[A_INT], realm->stats[A_WIS],
+            realm->stats[A_DEX], realm->stats[A_CON], realm->stats[A_CHR],
             realm->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
         var_set_bool(res, TRUE);
@@ -564,7 +564,7 @@ static int _prompt_realm1(void)
                 int    choices[DRAGON_REALM_MAX];
                 menu_t menu = { "Dragon Realm", "DragonRealms.txt", "", _dragon_realm_menu_fn, choices, 0 };
                 dragon_realm_ptr realm = NULL;
-                
+
                 /* TODO: Subracial restrictions? */
                 choices[ct++] = DRAGON_REALM_LORE;
                 choices[ct++] = DRAGON_REALM_BREATH;
@@ -594,7 +594,7 @@ static int _prompt_realm1(void)
         }
     }
     p_ptr->dragon_realm = 0;
-    if (!realm_choices1[p_ptr->pclass]) 
+    if (!realm_choices1[p_ptr->pclass])
     {
         p_ptr->realm1 = p_ptr->realm2 = 0;
         return _prompt_personality();
@@ -606,7 +606,7 @@ static int _prompt_realm1(void)
         int    ct = 0;
         int    idx, i;
         menu_t menu = { "Realm", "magic.txt#MagicRealms", "Note: The realm of magic will determine which spells you can learn.",
-                            _realm_menu_fn, 
+                            _realm_menu_fn,
                             choices, 0};
         for (i = 0; i < 32; i++)
         {
@@ -624,7 +624,7 @@ static int _prompt_realm1(void)
         idx = _prompt_realm2();
         if (idx == _BIRTH_ESCAPE)
         {
-            if (menu.count == 1) 
+            if (menu.count == 1)
             {
                 c_put_str(TERM_L_BLUE, format("%-20s", ""), 7, 14);
                 return idx;
@@ -632,7 +632,7 @@ static int _prompt_realm1(void)
             continue;
         }
         return idx;
-    }    
+    }
     /* return _BIRTH_ESCAPE; unreachable */
 }
 
@@ -643,22 +643,22 @@ typedef struct _class_group_s {
     int ids[_MAX_CLASSES_PER_GROUP];
 } _class_group_t;
 static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
-    { "Melee", {CLASS_BERSERKER, CLASS_BLOOD_KNIGHT, CLASS_DUELIST, CLASS_MAULER, 
-                    CLASS_RUNE_KNIGHT, CLASS_SAMURAI, CLASS_WARRIOR, CLASS_WEAPONMASTER, 
-                    CLASS_WEAPONSMITH, -1} }, 
+    { "Melee", {CLASS_BERSERKER, CLASS_BLOOD_KNIGHT, CLASS_DUELIST, CLASS_MAULER,
+                    CLASS_RUNE_KNIGHT, CLASS_SAMURAI, CLASS_WARRIOR, CLASS_WEAPONMASTER,
+                    CLASS_WEAPONSMITH, -1} },
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
-    { "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE, 
+    { "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
                     CLASS_NECROMANCER, CLASS_SORCERER, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
     { "Stealth", {CLASS_NINJA, CLASS_ROGUE, CLASS_SCOUT, -1} },
-    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_PALADIN, CLASS_RANGER, CLASS_RED_MAGE, 
+    { "Hybrid", {CLASS_CHAOS_WARRIOR, CLASS_PALADIN, CLASS_RANGER, CLASS_RED_MAGE,
                     CLASS_WARRIOR_MAGE, -1} },
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
-    { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION, 
+    { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
-    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, CLASS_RAGE_MAGE, 
+    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, CLASS_RAGE_MAGE,
                     CLASS_TOURIST, CLASS_WILD_TALENT, -1} },
 };
 
@@ -688,8 +688,8 @@ static void _class_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Class modification", 3, 40+strlen(class_ptr->name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
-            class_ptr->stats[A_STR], class_ptr->stats[A_INT], class_ptr->stats[A_WIS], 
-            class_ptr->stats[A_DEX], class_ptr->stats[A_CON], class_ptr->stats[A_CHR], 
+            class_ptr->stats[A_STR], class_ptr->stats[A_INT], class_ptr->stats[A_WIS],
+            class_ptr->stats[A_DEX], class_ptr->stats[A_CON], class_ptr->stats[A_CHR],
             class_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
         var_set_bool(res, TRUE);
@@ -823,7 +823,7 @@ static int _prompt_class(void)
         for (;;)
         {
             menu_t menu1 = { "Class Type", "Classes.txt", "",
-                                _class_group_menu_fn, 
+                                _class_group_menu_fn,
                                 NULL, _MAX_CLASS_GROUPS};
             idx = _menu_choose(&menu1, group_id);
             if (idx < 0) return idx;
@@ -834,7 +834,7 @@ static int _prompt_class(void)
             int      ct = 0, i;
             class_t *class_ptr = NULL;
             menu_t   menu2 = { "Class", "Classes.txt", "Note: Your 'class' determines various intrinsic factors and bonuses.",
-                                _class_menu_fn, 
+                                _class_menu_fn,
                                 choices, 0};
 
                 for (i = 0; ; i++)
@@ -874,7 +874,7 @@ static int _prompt_class(void)
                     for (;;)
                     {
                     menu_t menu3 = { "Pact", "Warlocks.txt", "Its time to make your pact.",
-                                        _warlock_menu_fn, 
+                                        _warlock_menu_fn,
                                         NULL, WARLOCK_MAX};
                         c_put_str(TERM_WHITE, "              ", 7, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubclass);
@@ -894,7 +894,7 @@ static int _prompt_class(void)
                     for (;;)
                     {
                     menu_t menu3 = { "Speciality", "Weaponmasters.txt", "It is time to specialize.",
-                                        _weaponmaster_menu_fn, 
+                                        _weaponmaster_menu_fn,
                                         NULL, WEAPONMASTER_MAX};
                         c_put_str(TERM_WHITE, "              ", 7, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubclass);
@@ -914,7 +914,7 @@ static int _prompt_class(void)
                     for (;;)
                     {
                     menu_t menu3 = { "Speciality", "Devicemasters.txt", "It is time to specialize.",
-                                        _devicemaster_menu_fn, 
+                                        _devicemaster_menu_fn,
                                         NULL, DEVICEMASTER_MAX};
                         c_put_str(TERM_WHITE, "              ", 7, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubclass);
@@ -970,7 +970,7 @@ static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
     { "Undead", "Races.txt",
         {RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
     { "Other", "Races.txt",
-        {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT, 
+        {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT,
          RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
 };
 
@@ -1039,8 +1039,8 @@ static void _race_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(race_ptr->name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
         var_set_bool(res, TRUE);
@@ -1067,8 +1067,8 @@ static void _demigod_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(race_ptr->subname));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
 
@@ -1106,8 +1106,8 @@ static void _troll_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(_troll_info[which].name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
 
@@ -1153,8 +1153,8 @@ static void _giant_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(_giant_info[which].name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
 
@@ -1191,8 +1191,8 @@ static void _golem_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(_golem_info[which].name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
 
@@ -1232,8 +1232,8 @@ static void _dragon_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(race_ptr->subname));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
 
@@ -1314,8 +1314,8 @@ static void _demon_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(race_ptr->subname));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
 
@@ -1326,23 +1326,23 @@ static void _demon_menu_fn(int cmd, int which, vptr cookie, variant *res)
 }
 
 static _name_desc_t _elemental_info[ELEMENTAL_MAX] = {
-    { "Earth Elemental", 
+    { "Earth Elemental",
         "Earth Elementals are creatures of rock: Strong, tough and slow. "
         "They may move freely through the earth and are capable of conjuring "
         "sharp clods of earth to hurl at their foes. Their skin is very tough, "
         "and they can even turn their bodies to stone. However, being made of "
         "earth, their potions frequently turn to mud." },
-    { "Air Elemental", 
+    { "Air Elemental",
         "Air Elementals are creatures of electricity. They are incredibly fast, "
         "blinking in and out of sight as they shower their enemies with confusing "
         "and shocking blows. Electricity crackles menacingly about their nimble frames, "
         "tending to destroy rings, amulets, wands and rods." },
-    { "Water Elemental", 
+    { "Water Elemental",
         "Water Elementals are creatures of water, able to modify this ubiquitous "
         "liquid into a deadly and often corrosive weapon of destruction. Fear their "
         "rage! They cannot be stunned. Their corrosive nature erodes any armor that "
         "gets too close." },
-    { "Fire Elemental", 
+    { "Fire Elemental",
         "Fire Elementals are creatures of flame. They have a vast arsenal of "
         "flaming attacks with which to singe the fiercest of foes. However, they "
         "must beware of cold based attacks! Being wreathed in flames, scrolls and "
@@ -1364,8 +1364,8 @@ static void _elemental_menu_fn(int cmd, int which, vptr cookie, variant *res)
         put_str(": Race modification", 3, 40+strlen(_elemental_info[which].name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
 
@@ -1431,7 +1431,7 @@ static int _prompt_race(void)
         for (;;)
         {
             menu_t menu1 = { "Race Type", "Races.txt", "",
-                                _race_group_menu_fn, 
+                                _race_group_menu_fn,
                                 NULL, _MAX_RACE_GROUPS};
             idx = _menu_choose(&menu1, group_id);
             if (idx < 0) return idx;
@@ -1440,7 +1440,7 @@ static int _prompt_race(void)
             {
             race_t *race_ptr = NULL;
             menu_t menu2 = { "Race", _race_groups[group_id].help, "Note: Your 'race' determines various intrinsic factors and bonuses.",
-                                _race_menu_fn, 
+                                _race_menu_fn,
                                 _race_groups[group_id].ids, _count_ids(_race_groups[group_id].ids)};
 
                 c_put_str(TERM_WHITE, "              ", 4, 14);
@@ -1463,7 +1463,7 @@ static int _prompt_race(void)
                     for (;;)
                     {
                     menu_t menu3 = { "Parentage", "Demigods.txt", "Unlike in real life, you get to choose your parent.",
-                                        _demigod_menu_fn, 
+                                        _demigod_menu_fn,
                                         NULL, MAX_DEMIGOD_TYPES};
 
                         c_put_str(TERM_WHITE, "                        ", 5, 14);
@@ -1721,7 +1721,7 @@ static int _prompt_sex(void)
     {
         int idx;
         menu_t menu = { "Sex", "birth.txt", "Note: Your 'sex' does not have any significant gameplay effects.",
-                            _sex_menu_fn, 
+                            _sex_menu_fn,
                             NULL, 2};
 
         c_put_str(TERM_WHITE, "              ", 2, 14);
@@ -1895,7 +1895,7 @@ static bool _prompt_game_mode(void)
 static bool _prompt(void)
 {
     /* Note: The call stack stores the users path thru the directed graph
-       of birth options (up to personality). We now support escaping to 
+       of birth options (up to personality). We now support escaping to
        back up and rechoose options. */
     return _prompt_game_mode();
 }
@@ -2031,11 +2031,11 @@ static void load_prev_data(bool swap)
  */
 static int _birth_stat_points[18] =
 { 0, 0, 0,
- -7,-6,-5,   /*  3  4  5 */
- -4,-3,-2,   /*  6  7  8 */
- -1, 0, 1,   /*  9 10 11 */
-  2, 3, 5,   /* 12 13 14 */
-  8,12,17 }; /* 15 16 17 */
+ -8,-7,-6,   /*  3  4  5 */
+ -5,-4,-3,   /*  6  7  8 */
+ -2,-1, 0,   /*  9 10 11 */
+  1, 2, 3,   /* 12 13 14 */
+  6,10,16 }; /* 15 16 17 */
 
 static int _birth_stats_score(s16b stats[6])
 {
@@ -2150,7 +2150,7 @@ int calc_exp_factor(void)
     int c_exp = get_class()->exp;
     int a_exp = get_personality()->exp;
 
-    if (p_ptr->prace == RACE_ANDROID) 
+    if (p_ptr->prace == RACE_ANDROID)
         return r_exp;
 
     exp = r_exp * c_exp / 100;
@@ -2274,7 +2274,7 @@ static void birth_put_stats(void)
                 {
                     p = 1000L * stat_match[i] / auto_round;
                 }
-            
+
                 attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
                 sprintf(buf, "%3d.%d%%", p/10, p%10);
                 c_put_str(attr, buf, 3+i, col+13);
@@ -2387,7 +2387,7 @@ static void player_wipe(void)
         r_ptr->r_skills = 0;
         r_ptr->stolen_ct = 0;
 
-        /* Wipe out pact alliances from previous character 
+        /* Wipe out pact alliances from previous character
            Currently, flagsr is only set to make the memory field
            work, but perhaps it would be better to set this once
            and for all when a pact is made?  This would break
@@ -2572,7 +2572,7 @@ void determine_random_questor(quest_type *q_ptr)
 
     /* High Level quests are stacked with uniques. Everything else
        is stacked the other way. So lets make some attempt at balance.
-       Of course, users can force all quests to be for uniques, in 
+       Of course, users can force all quests to be for uniques, in
        true Hengband spirit. */
     if (quest_unique || one_in_(3))
     {
@@ -3096,7 +3096,7 @@ static void _birth_object(int tv, int sv, int qty)
     obj_identify_fully(&forge);
     add_outfit(&forge);
 }
- 
+
 void player_outfit(void)
 {
     int i, tv, sv, k_idx;
@@ -3167,8 +3167,8 @@ void player_outfit(void)
     {
         _birth_object(TV_SCROLL, SV_SCROLL_DARKNESS, rand_range(2, 5));
     }
-    else if ( p_ptr->prace == RACE_MON_JELLY 
-           || p_ptr->prace == RACE_MON_SPIDER 
+    else if ( p_ptr->prace == RACE_MON_JELLY
+           || p_ptr->prace == RACE_MON_SPIDER
            || p_ptr->prace == RACE_MON_VAMPIRE
            || p_ptr->prace == RACE_MON_SWORD
            || p_ptr->prace == RACE_MON_RING )
@@ -3253,7 +3253,7 @@ void player_outfit(void)
         /* Look up standard equipment */
         tv = player_init[p_ptr->pclass][i][0];
         sv = player_init[p_ptr->pclass][i][1];
-        
+
         if (!tv) continue;
         if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS && tv == TV_BOW && sv == SV_SHORT_BOW) continue;
         if ((p_ptr->prace == RACE_ANDROID) && ((tv == TV_SOFT_ARMOR) || (tv == TV_HARD_ARMOR))) continue;
@@ -3336,10 +3336,10 @@ static bool get_stat_limits(void)
         sprintf(buf, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s  %6s  %6d",
             stat_names[i], cval[i], race_ptr->stats[i], class_ptr->stats[i],
             pers_ptr->stats[i], inp, max[i], _birth_stat_points[cval[i]]);
-        
+
         put_str(buf, 14 + i, 10);
     }
-    
+
     /* Get a minimum stat */
     cs = 0;
     os = 6;
@@ -3360,7 +3360,7 @@ static bool get_stat_limits(void)
                 c_put_str(TERM_WHITE, "Accept", 21, 35);
             else if(os < 6)
                 c_put_str(TERM_WHITE, cur, 14 + os, 10);
-            
+
             if(cs == 6)
             {
                 c_put_str(TERM_YELLOW, "Accept", 21, 35);
@@ -3373,12 +3373,12 @@ static bool get_stat_limits(void)
 
                 /* Obtain the current stat */
                 m = adjust_stat(cval[cs], j);
-                
+
                 if (m > 18)
                     sprintf(inp, "18/%02d", (m - 18));
                 else
                     sprintf(inp, "%2d", m);
-                
+
                 sprintf(cur, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s  %6s  %6d",
                     stat_names[cs], cval[cs], race_ptr->stats[cs],
                     class_ptr->stats[cs], pers_ptr->stats[cs], inp, max[cs], _birth_stat_points[cval[cs]]);
@@ -3389,7 +3389,7 @@ static bool get_stat_limits(void)
 
             os = cs;
         }
-        
+
         /* Prompt for the minimum stats */
         c = inkey();
         switch ( c ){
@@ -3476,7 +3476,7 @@ static bool get_stat_limits(void)
         }
         if(c == ESCAPE || ((c == ' ' || c == '\r' || c == '\n') && cs == 6))break;
     }
-    
+
     for (i = 0; i < 6; i++)
     {
         /* Save the minimum stat */
@@ -3657,7 +3657,7 @@ auto_roller_barf:
                 }
             }
 
-            /* Hack: Enforce a maximum number of rolls. If we never matched, 
+            /* Hack: Enforce a maximum number of rolls. If we never matched,
                go back and re-prompt for stat limits. If we did match, force
                the last successful match as the starting character. */
             if (auto_round >= AUTOROLLER_MAX)
@@ -3923,7 +3923,7 @@ void player_birth(void)
 
     birth_hack = TRUE;
     playtime = 0;
-    
+
     wipe_m_list();
     player_wipe();
 
@@ -3956,7 +3956,7 @@ void player_birth(void)
     seed_wilderness();
 
     /* Give beastman a mutation at character birth */
-    if (p_ptr->prace == RACE_BEASTMAN) 
+    if (p_ptr->prace == RACE_BEASTMAN)
         mut_gain(p_ptr->birth_mutation);
 
     birth_hack = FALSE;

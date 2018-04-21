@@ -1,6 +1,6 @@
 #include "angband.h"
 
-static cptr _desc = 
+static cptr _desc =
     "Demons are powerful servants of evil and come in many forms. Being monsters, they "
     "may not choose a normal class. Instead, they rely on their devilish powers or their "
     "brutish strength to survive.\n \n"
@@ -29,8 +29,8 @@ static caster_info * _caster_info(void)
  *                                20            30            40
  * Servant of Khorne: Bloodletter -> Fleshhound -> Juggernaut -> Bloodthirster
  ******************************************************************************/
-static void _khorne_birth(void) 
-{ 
+static void _khorne_birth(void)
+{
     object_type    forge;
 
     p_ptr->current_r_idx = MON_BLOODLETTER_KHORNE;
@@ -40,7 +40,7 @@ static void _khorne_birth(void)
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 6;
     add_outfit(&forge);
-    
+
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     add_outfit(&forge);
 
@@ -55,7 +55,7 @@ static void _khorne_birth(void)
     add_outfit(&forge);
 }
 
-static void _khorne_calc_innate_attacks(void) 
+static void _khorne_calc_innate_attacks(void)
 {
     if (p_ptr->current_r_idx == MON_FLESHHOUND_KHORNE)
     {
@@ -135,13 +135,13 @@ static void _khorne_calc_innate_attacks(void)
     }
 }
 
-static void _khorne_calc_bonuses(void) 
+static void _khorne_calc_bonuses(void)
 {
     p_ptr->align -= 200;
 
     res_add(RES_FIRE);
     res_add(RES_NETHER);
-    
+
     p_ptr->slow_digest = TRUE;
     p_ptr->hold_life = TRUE;
     p_ptr->no_eldritch = TRUE;
@@ -192,7 +192,7 @@ static void _khorne_calc_bonuses(void)
     }
 }
 
-static void _khorne_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
+static void _khorne_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_FIRE);
     add_flag(flgs, OF_RES_NETHER);
@@ -241,7 +241,7 @@ static void _khorne_get_flags(u32b flgs[OF_ARRAY_SIZE])
     }
 }
 
-static void _khorne_gain_level(int new_level) 
+static void _khorne_gain_level(int new_level)
 {
     if (p_ptr->current_r_idx == MON_BLOODLETTER_KHORNE && new_level >= 20)
     {
@@ -280,7 +280,7 @@ static race_t *_khorne_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[4] =  {"Bloodletter of Khorne", "Fleshhound of Khorne", "Juggernaut of Khorne", "Bloodthirster"};    
+    static cptr   titles[4] =  {"Bloodletter of Khorne", "Fleshhound of Khorne", "Juggernaut of Khorne", "Bloodthirster"};
     int           rank = 0;
 
     if (p_ptr->lev >= 20) rank++;
@@ -348,13 +348,13 @@ static spell_info _marilith_spells[] = {
     { 36, 70, 85, summon_demon_spell},
     { 40, 10, 50, enchantment_spell}, /* Note: Mariliths need corpses to eat, so they cannot spam
                                          this spell in the town the way other characters may */
-    { -1, -1, -1, NULL}               
+    { -1, -1, -1, NULL}
 };
 static int _marilith_get_spells(spell_info* spells, int max) {
     return get_spells_aux(spells, max, _marilith_spells);
 }
 
-static void _marilith_birth(void) { 
+static void _marilith_birth(void) {
     object_type    forge;
 
     p_ptr->current_r_idx = MON_MANES;
@@ -364,7 +364,7 @@ static void _marilith_birth(void) {
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 3;
     add_outfit(&forge);
-    
+
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     add_outfit(&forge);
 
@@ -399,7 +399,7 @@ static void _marilith_calc_bonuses(void) {
 
     res_add(RES_FIRE);
     res_add(RES_NETHER);
-    
+
     p_ptr->slow_digest = TRUE;
     p_ptr->hold_life = TRUE;
     p_ptr->no_eldritch = TRUE;
@@ -512,7 +512,7 @@ static race_t *_marilith_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[5] =  {"Manes", "Quasit", "Bodak", "Death Quasit", "Marilith"};    
+    static cptr   titles[5] =  {"Manes", "Quasit", "Bodak", "Death Quasit", "Marilith"};
     int           rank = 0;
 
     if (p_ptr->lev >= 10) rank++;
@@ -575,17 +575,17 @@ static spell_info _balrog_spells[] = {
     {  3,  2, 25, evil_bless_spell},
     {  4,  5, 30, resist_fire_spell},
     {  7,  5, 45, scare_spell},
-    {  9,  7, 40, fire_bolt_spell},
-    { 10,  7, 40, nether_bolt_spell},
+    {  9,  5, 40, fire_bolt_spell},
+    { 10,  6, 40, nether_bolt_spell},
     { 11,  9, 35, summon_manes_spell},
-    { 20, 15, 50, plasma_bolt_spell},
-    { 25, 16, 50, fire_ball_spell},
-    { 27, 20, 60, flow_of_lava_spell},
-    { 30, 25, 60, recharging_spell},
-    { 32, 28, 70, nether_ball_spell},
-    { 34, 30, 80, plasma_ball_spell},
-    { 36, 70, 85, summon_demon_spell},
-    { 37, 40, 80, kiss_of_succubus_spell},
+    { 20, 12, 40, plasma_bolt_spell},
+    { 25, 12, 40, fire_ball_spell},
+    { 27, 17, 50, flow_of_lava_spell},
+    { 30, 20, 50, recharging_spell},
+    { 32, 22, 50, nether_ball_spell},
+    { 34, 24, 50, plasma_ball_spell},
+    { 36, 70, 55, summon_demon_spell},
+    { 37, 32, 60, kiss_of_succubus_spell},
     { 40, 35, 50, brain_smash_spell},
     { 43, 90, 90, summon_greater_demon_spell},
     { 45, 80, 85, hellfire_spell},
@@ -594,8 +594,8 @@ static spell_info _balrog_spells[] = {
 static int _balrog_get_spells(spell_info* spells, int max) {
     return get_spells_aux(spells, max, _balrog_spells);
 }
-static void _balrog_birth(void) 
-{ 
+static void _balrog_birth(void)
+{
     object_type    forge;
 
     p_ptr->current_r_idx = MON_LESSER_BALROG;
@@ -604,7 +604,7 @@ static void _balrog_birth(void)
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 5;
     add_outfit(&forge);
-    
+
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     add_outfit(&forge);
 
@@ -622,7 +622,7 @@ static void _balrog_calc_bonuses(void) {
 
     res_add(RES_FIRE);
     res_add(RES_NETHER);
-    
+
     p_ptr->hold_life = TRUE;
     p_ptr->no_eldritch = TRUE;
     p_ptr->pspeed += p_ptr->lev/8; /* Angels get +7 speed. Demons get +6 speed. */
@@ -633,8 +633,8 @@ static void _balrog_calc_bonuses(void) {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
     }
-    
-    if (p_ptr->lev >= 10) 
+
+    if (p_ptr->lev >= 10)
         p_ptr->see_inv = TRUE;
 
     if (p_ptr->lev >= 30)
@@ -679,7 +679,7 @@ static race_t *_balrog_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[2] =  {"Lesser Balrog", "Greater Balrog"};    
+    static cptr   titles[2] =  {"Lesser Balrog", "Greater Balrog"};
     int           rank = 0;
 
     if (p_ptr->lev >= 40) rank++;
@@ -779,8 +779,8 @@ static int _cyber_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _cyber_powers);
 }
 
-static void _cyber_birth(void) 
-{ 
+static void _cyber_birth(void)
+{
     object_type    forge;
 
     p_ptr->current_r_idx = MON_CYBER;
@@ -789,7 +789,7 @@ static void _cyber_birth(void)
     forge.name2 = EGO_RING_COMBAT;
     forge.to_d = 10;
     add_outfit(&forge);
-    
+
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));
     add_outfit(&forge);
 
@@ -797,7 +797,7 @@ static void _cyber_birth(void)
     add_outfit(&forge);
 }
 
-static void _cyber_calc_bonuses(void) 
+static void _cyber_calc_bonuses(void)
 {
     int to_a = py_prorata_level(75);
 
@@ -811,13 +811,13 @@ static void _cyber_calc_bonuses(void)
     res_add(RES_POIS);
 /*  Cyberdemons are vulnerable to confusion. See res_pct_aux() in resist.c
     res_add_vuln(RES_CONF); */
-    
+
     p_ptr->hold_life = TRUE;
     p_ptr->no_eldritch = TRUE;
     p_ptr->free_act = TRUE;
 }
 
-static void _cyber_get_flags(u32b flgs[OF_ARRAY_SIZE]) 
+static void _cyber_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     add_flag(flgs, OF_RES_FIRE);
     add_flag(flgs, OF_RES_POIS);
@@ -833,7 +833,7 @@ static void _cyber_move_player(void)
     if (one_in_(66))
     {
         int i;
-    
+
         cmsg_print(TERM_RED, "The dungeon trembles!");
         if (disturb_minor)
             disturb(0, 0);

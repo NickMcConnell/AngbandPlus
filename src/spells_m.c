@@ -407,10 +407,10 @@ void orb_of_entropy_spell(int cmd, variant *res)
         int rad = (p_ptr->lev < 30) ? 2 : 3;
 
         var_set_bool(res, FALSE);
-        
+
         if (!get_aim_dir(&dir)) return;
         fire_ball(GF_OLD_DRAIN, dir, spell_power(damroll(3, 6) + base + p_ptr->to_d_spell), rad);
-        
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -453,9 +453,9 @@ void panic_hit_spell(int cmd, variant *res)
             py_attack(y, x, 0);
             if (randint0(p_ptr->skills.dis) < 7)
                 msg_print("You failed to teleport.");
-            else 
+            else
                 teleport_player(30, 0L);
-    
+
             var_set_bool(res, TRUE);
         }
         else
@@ -524,7 +524,7 @@ void pattern_mindwalk_spell(int cmd, variant *res)
         do_res_stat(A_CON);
         do_res_stat(A_CHR);
         restore_level();
-        
+
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1087,7 +1087,7 @@ void recharging_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         if (p_ptr->prace == RACE_MON_LEPRECHAUN)
-            var_set_bool(res, recharge_from_player(3 * p_ptr->lev));
+            var_set_bool(res, recharge_from_player(2 * p_ptr->lev));
         else if (!p_ptr->msp)
             var_set_bool(res, recharge_from_device(3 * p_ptr->lev));
         else
@@ -1184,7 +1184,7 @@ void resistance_spell(int cmd, variant *res)
         set_oppose_fire(randint1(base) + base, FALSE);
         set_oppose_cold(randint1(base) + base, FALSE);
         set_oppose_pois(randint1(base) + base, FALSE);
-    
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -1421,7 +1421,7 @@ void rocket_I_spell(int cmd, variant *res)
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, spell_power(120 + p_ptr->lev * 2 + p_ptr->to_d_spell)));
-        break;    
+        break;
     case SPELL_CAST:
     {
         int dir = 0;
@@ -1455,7 +1455,7 @@ void rocket_II_spell(int cmd, variant *res)
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, spell_power(500 + p_ptr->to_d_spell)));
-        break;    
+        break;
     case SPELL_CAST:
     {
         int dir = 0;

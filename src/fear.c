@@ -32,7 +32,7 @@ int _decrement_level(int lvl)
 static void _decrease_p(int lvls)
 {
     int lvl = fear_level_p();
-    
+
     for (;lvls; lvls--)
         lvl = _decrement_level(lvl);
 
@@ -122,7 +122,7 @@ bool fear_set_p(int v)
             msg_print("Your fears finally subside.");
         else
         {
-            msg_format("You are no longer %s, but you still feel %s.", 
+            msg_format("You are no longer %s, but you still feel %s.",
                         _get_level_name(old_lvl), _get_level_name(new_lvl));
         }
         notice = TRUE;
@@ -140,7 +140,7 @@ bool fear_set_p(int v)
 static int _r_level(monster_race *r_ptr)
 {
 int ml = r_ptr->level;
-    
+
     if (r_ptr->flags2 & RF2_POWERFUL)
         ml += 7;
 
@@ -166,7 +166,7 @@ int fear_threat_level(void)
         if (!m_ptr->ml) continue;
         if (!(r_ptr->flags2 & RF2_AURA_FEAR)) continue;
         if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
-        
+
         ml = MAX(ml, _r_level(r_ptr)/MAX(1, m_ptr->cdis - 2));
     }
 
@@ -197,7 +197,7 @@ bool fear_allow_melee(int m_idx)
             /* Duelist: Fearless Duel */
             if (!fear_save_p(p_ptr->afraid)) return FALSE;
         }
-        else if (!fear_save_p(3*p_ptr->afraid)) 
+        else if (!fear_save_p(3*p_ptr->afraid))
             return FALSE;
     }
     return TRUE;
@@ -239,6 +239,13 @@ bool fear_save_p(int ml)
 
     rolls = 1 + p_ptr->resist[RES_FEAR];
 
+    /* Vulnerability to Fear? At least give the player a chance! */
+    if (rolls < 1)
+    {
+        rolls = 1;
+        pl = (pl + 1)/2;
+    }
+
     for (i = 0; i < rolls; i++)
     {
         if (randint1(ml) <= randint1(pl))
@@ -256,7 +263,7 @@ bool fear_save_m(monster_type *m_ptr)
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
     int           ml = _r_level(r_ptr);
     bool          result = FALSE;
-    
+
     /* Player may not exert their force of will out of sight! */
     if (projectable(py, px, m_ptr->fy, m_ptr->fx))
         pl += adj_stat_save[p_ptr->stat_ind[A_CHR]];
@@ -315,10 +322,10 @@ void fear_process_p(void)
     {
         monster_type *m_ptr = &m_list[i];
         monster_race *r_ptr;
-        
-        if (!m_ptr->r_idx) continue;        
+
+        if (!m_ptr->r_idx) continue;
         if (!m_ptr->ml) continue;
-        
+
         r_ptr = &r_info[m_ptr->ap_r_idx];
 
         if (!(r_ptr->flags2 & RF2_AURA_FEAR)) continue;
@@ -448,7 +455,7 @@ bool fear_process_m(int m_idx)
             {
             monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
 
-                recovered = set_monster_monfear(m_idx, 
+                recovered = set_monster_monfear(m_idx,
                     MON_MONFEAR(m_ptr) - randint1(r_ptr->level / 20 + 1));
             }
 

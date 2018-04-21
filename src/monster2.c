@@ -349,7 +349,7 @@ static void compact_monsters_aux(int i1, int i2)
     /* Hack -- Update the health bar */
     if (p_ptr->health_who == i1) health_track(i2);
 
-    /* Hack -- Update parent index 
+    /* Hack -- Update parent index
        Note, not just pets track their owner anymore ... */
     /*if (is_pet(m_ptr))*/
     {
@@ -569,7 +569,7 @@ void wipe_m_list(void)
 
 /*
  * Return a Pack Info record to the free list
- */ 
+ */
 void pack_info_push(int idx)
 {
     pack_info_t *pack_ptr = &pack_info_list[idx];
@@ -582,7 +582,7 @@ void pack_info_push(int idx)
 
 /*
  * Get a Pack Info record from the free list
- */ 
+ */
 s16b pack_info_pop(void)
 {
     s16b result = pack_info_free_list;
@@ -692,7 +692,7 @@ void pack_choose_ai(int m_idx)
         {
             switch(randint1(10))
             {
-            case 1: case 2: case 3: 
+            case 1: case 2: case 3:
                 pack_ptr->ai = AI_SEEK;
                 break;
             case 4:
@@ -710,10 +710,10 @@ void pack_choose_ai(int m_idx)
         {
             switch(randint1(10))
             {
-            case 1: case 2: case 3: case 4: case 5: case 6: 
+            case 1: case 2: case 3: case 4: case 5: case 6:
                 pack_ptr->ai = AI_SEEK;
                 break;
-            case 7: case 8: 
+            case 7: case 8:
                 pack_ptr->ai = AI_LURE;
                 break;
             case 9:
@@ -905,7 +905,7 @@ bool mon_is_type(int r_idx, int type)
     case SUMMON_MATURE_DRAGON:
         /* Hack -- all non-unique 'd's with 'ature' or 'rake' in name */
         if ( r_ptr->d_char == 'd'
-          && !(r_ptr->flags1 & RF1_UNIQUE) 
+          && !(r_ptr->flags1 & RF1_UNIQUE)
           && (strstr(r_name + r_ptr->name, "ature") || strstr(r_name + r_ptr->name, "rake")) )
         {
             return TRUE;
@@ -1067,13 +1067,13 @@ bool mon_is_type(int r_idx, int type)
         if (r_ptr->flags3 & RF3_ANIMAL) return TRUE;
         break;
     case SUMMON_ANIMAL_RANGER:
-        if ( (r_ptr->flags3 & RF3_ANIMAL) 
-          && strchr("abcflqrwBCHIJKMRS", r_ptr->d_char) 
-          && !(r_ptr->flags3 & RF3_DRAGON) 
-          && !(r_ptr->flags3 & RF3_EVIL) 
-          && !(r_ptr->flags3 & RF3_UNDEAD) 
-          && !(r_ptr->flags3 & RF3_DEMON) 
-          && !(r_ptr->flags2 & RF2_MULTIPLY) 
+        if ( (r_ptr->flags3 & RF3_ANIMAL)
+          && strchr("abcflqrwBCHIJKMRS", r_ptr->d_char)
+          && !(r_ptr->flags3 & RF3_DRAGON)
+          && !(r_ptr->flags3 & RF3_EVIL)
+          && !(r_ptr->flags3 & RF3_UNDEAD)
+          && !(r_ptr->flags3 & RF3_DEMON)
+          && !(r_ptr->flags2 & RF2_MULTIPLY)
           && !(r_ptr->flags4 || r_ptr->flags5 || r_ptr->flags6) )
         {
             return TRUE;
@@ -1139,7 +1139,7 @@ bool mon_is_type(int r_idx, int type)
         if (r_ptr->flags7 & RF7_GUARDIAN) return TRUE;
         break;
     case SUMMON_KNIGHT:
-        if ( r_idx == MON_NOV_PALADIN || r_idx == MON_NOV_PALADIN_G || r_idx == MON_PALADIN 
+        if ( r_idx == MON_NOV_PALADIN || r_idx == MON_NOV_PALADIN_G || r_idx == MON_PALADIN
           || r_idx == MON_W_KNIGHT || r_idx == MON_ULTRA_PALADIN || r_idx == MON_KNI_TEMPLAR )
         {
             return TRUE;
@@ -1156,7 +1156,7 @@ bool mon_is_type(int r_idx, int type)
         if (r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_GOOD)) return TRUE;
         break;
     case SUMMON_ARMAGE_EVIL:
-        if ( (r_ptr->flags3 & RF3_DEMON) 
+        if ( (r_ptr->flags3 & RF3_DEMON)
             || (r_ptr->d_char == 'A' && (r_ptr->flags3 & RF3_EVIL)) )
         {
             return TRUE;
@@ -1221,7 +1221,7 @@ static bool restrict_monster_to_dungeon(int r_idx)
     if (d_ptr->flags1 & DF1_NO_MAGIC)
     {
         if (r_idx != MON_CHAMELEON &&
-            r_ptr->freq_spell && 
+            r_ptr->freq_spell &&
             !(r_ptr->flags4 & RF4_NOMAGIC_MASK) &&
             !(r_ptr->flags5 & RF5_NOMAGIC_MASK) &&
             !(r_ptr->flags6 & RF6_NOMAGIC_MASK))
@@ -1371,7 +1371,7 @@ static bool restrict_monster_to_dungeon(int r_idx)
         if (r_ptr->flagsr & d_ptr->mflagsr) return TRUE;
         for (a = 0; a < 5; a++)
         {
-            if (d_ptr->r_char[a] == r_ptr->d_char) 
+            if (d_ptr->r_char[a] == r_ptr->d_char)
                 return TRUE;
         }
 
@@ -1415,7 +1415,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
     for (i = 0; i < alloc_race_size; i++)
     {
         monster_race    *r_ptr;
-        
+
         /* Get the entry */
         alloc_entry *entry = &alloc_race_table[i];
 
@@ -1561,8 +1561,8 @@ s16b get_mon_num(int level)
     }
 
     /* Restrict uniques ... except for summoning, of course ;) */
-    if ( unique_count 
-      && !summon_specific_who 
+    if ( unique_count
+      && !summon_specific_who
       && !one_in_(unique_count) )
     {
         allow_unique = FALSE;
@@ -1640,7 +1640,7 @@ s16b get_mon_num(int level)
         if (!p_ptr->inside_battle && !chameleon_change_m_idx)
         {
             /* Hack -- "unique" monsters must be "unique" */
-            if ( ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL) || (r_idx == MON_CAMELOT_KNIGHT)) 
+            if ( ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL) || (r_idx == MON_CAMELOT_KNIGHT))
               && r_ptr->cur_num >= r_ptr->max_num)
             {
                 /* Serpent can "resurrect" uniques, but not weak ones! */
@@ -1995,7 +1995,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
         if (mode & MD_POSSESSIVE)
         {
             /* XXX Check for trailing "s" */
-            
+
             /* Simply append "apostrophe" and "s" */
             (void)strcat(desc, "'s");
         }
@@ -2622,7 +2622,7 @@ void update_mon(int m_idx, bool full)
             }
 
             /* Warlock Pacts: Warlocks sense pact monsters at CL25 */
-            if ( p_ptr->pclass == CLASS_WARLOCK 
+            if ( p_ptr->pclass == CLASS_WARLOCK
               && p_ptr->lev >= 25
               && warlock_is_pact_monster(r_ptr) )
             {
@@ -2726,14 +2726,14 @@ void update_mon(int m_idx, bool full)
                 if (is_original_ap(m_ptr) && !p_ptr->image) mon_lore_aux_1(r_ptr, RF1_UNIQUE);
                 equip_learn_flag(OF_ESP_UNIQUE);
             }
-            
+
             if (p_ptr->esp_magical && monster_magical(r_ptr))
                 flag = TRUE;
         }
 
         /* Normal line of sight, and not blind */
         if (!p_ptr->blind && (player_has_los_bold(fy, fx)/* || projectable(py, px, fy, fx)*/))
-        { 
+        {
             bool do_invisible = FALSE;
             bool do_cold_blood = FALSE;
 
@@ -2837,8 +2837,8 @@ void update_mon(int m_idx, bool full)
             fear_update_m(m_ptr);
 
             /* Disturb on appearance */
-            if (disturb_near 
-              && projectable(m_ptr->fy, m_ptr->fx, py, px) 
+            if (disturb_near
+              && projectable(m_ptr->fy, m_ptr->fx, py, px)
               && projectable(py, px, m_ptr->fy, m_ptr->fx) )
             {
                 if ( town_no_disturb
@@ -2988,7 +2988,7 @@ static bool monster_hook_chameleon(int r_idx)
     if (r_ptr->flags1 & (RF1_UNIQUE)) return FALSE;
     if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
     if (r_ptr->flags7 & (RF7_FRIENDLY | RF7_CHAMELEON)) return FALSE;
-    
+
     if ((r_ptr->blow[0].method == RBM_EXPLODE) || (r_ptr->blow[1].method == RBM_EXPLODE) || (r_ptr->blow[2].method == RBM_EXPLODE) || (r_ptr->blow[3].method == RBM_EXPLODE))
         return FALSE;
 
@@ -3128,7 +3128,7 @@ static bool monster_hook_tanuki(int r_idx)
     if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
     if (r_ptr->flags7 & (RF7_FRIENDLY | RF7_CHAMELEON)) return FALSE;
     if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
-    
+
     if ((r_ptr->blow[0].method == RBM_EXPLODE) || (r_ptr->blow[1].method == RBM_EXPLODE) || (r_ptr->blow[2].method == RBM_EXPLODE) || (r_ptr->blow[3].method == RBM_EXPLODE))
         return FALSE;
 
@@ -3454,31 +3454,31 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
     else if ( (r_ptr->flags3 & RF3_ANIMAL)
            && randint0(1000) < virtue_current(VIRTUE_NATURE) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( (r_ptr->flags2 & RF2_KNIGHT)
            && randint0(1000) < virtue_current(VIRTUE_HONOUR) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( r_ptr->d_char == 'A'
            && randint0(1000) < virtue_current(VIRTUE_FAITH) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( (r_ptr->flags3 & RF3_DEMON)
            && randint0(1000) < -virtue_current(VIRTUE_FAITH) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
     else if ( (r_ptr->flags3 & RF3_UNDEAD)
            && randint0(1000) < virtue_current(VIRTUE_UNLIFE) )
     {
-        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) 
+        if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr))
             set_friendly(m_ptr);
     }
 
@@ -3545,7 +3545,7 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
         /* Must repair monsters */
         repair_monsters = TRUE;
     }
-    
+
     /* Hack -- see "process_monsters()" */
     if (c_ptr->m_idx < hack_m_idx)
     {
@@ -3896,7 +3896,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
         if (r_ptr->flags1 & RF1_FRIENDS)
         {
             int pack_idx = pack_info_pop();
-        
+
             pack_ptr = &pack_info_list[pack_idx];
             m_list[m_idx].pack_idx = pack_idx;
             pack_ptr->count++;
@@ -3906,7 +3906,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
         else if (r_ptr->flags1 & RF1_ESCORT)
         {
             int pack_idx = pack_info_pop();
-            
+
             pack_ptr = &pack_info_list[pack_idx];
             m_list[m_idx].pack_idx = pack_idx;
             pack_ptr->leader_idx = m_idx;
@@ -3952,14 +3952,14 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
     }
 
     /* Give uniques variable AI strategies. We do this as a hack, using the
-       existing pack code, by creating a "pack of 1". 
+       existing pack code, by creating a "pack of 1".
                                         v---- Mercy!*/
     if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags1 & RF1_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN))
     {
         if (!pack_ptr)
         {
             int pack_idx = pack_info_pop();
-        
+
             pack_ptr = &pack_info_list[pack_idx];
             m_list[m_idx].pack_idx = pack_idx;
             pack_ptr->count++;
@@ -4294,13 +4294,13 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
         if (p_ptr->inside_arena && !prace_is_(RACE_MON_QUYLTHULG)) return (FALSE);
     }
 
-    /* Note: summon_specific does not imply summoning at all, despite the name ... 
+    /* Note: summon_specific does not imply summoning at all, despite the name ...
        Let's try to guess whether or not this is really a summon spell ...
     */
     if ( (who > 0 && hack_m_spell) /* monster cast a spell ... probably a summon spell */
       || who == -1 )               /* player did something ... probably a summon spell/activation */
     {
-        if (p_ptr->anti_summon && !one_in_(7)) 
+        if (p_ptr->anti_summon && !one_in_(7))
         {
             msg_format("The summoning is blocked!");
             return FALSE;
@@ -4313,6 +4313,8 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 
     /* Save the "summon" type */
     summon_specific_type = type;
+    if (type == SUMMON_BIZARRE1 && who == -1)
+        _ignore_depth_hack = TRUE;
 
     /* Limit monster summons. But try to bring one back if possible */
     if (who > 0 && m_list[who].summon_ct >= MAX_SUMMONS)
@@ -4338,7 +4340,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
         if (ct)
         {
             int oy, ox;
-    
+
             i = monsters[randint0(ct)];
             m_ptr = &m_list[i];
 
@@ -4389,10 +4391,10 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
         r_idx = get_mon_num((dun_level + lev) / 2 + 5);
     }
 
-    /* Hack: For summoning spells, try again ignoring any 
+    /* Hack: For summoning spells, try again ignoring any
              max depth restrictions. For example, Summon Manes
              should always work when cast. And for fairness,
-             monsters gain the same consideration. 
+             monsters gain the same consideration.
              Note, we only do this on failure so that spells
              like Summon Animal will get beefier results! */
     if (!r_idx && summon_specific_who)
@@ -4448,7 +4450,7 @@ bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode)
 
     if (r_idx >= max_r_idx) return FALSE;
     if (p_ptr->inside_arena) return FALSE;
-    if (p_ptr->anti_summon && !one_in_(7)) 
+    if (p_ptr->anti_summon && !one_in_(7))
     {
         msg_format("The summoning is blocked!");
         return FALSE;
@@ -4465,7 +4467,7 @@ bool summon_named_creature (int who, int oy, int ox, int r_idx, u32b mode)
     {
         if (!(r_ptr->flags7 & RF7_GUARDIAN) && r_ptr->cur_num < r_ptr->max_num)
             result = place_monster_aux(who, y, x, r_idx, (mode | PM_NO_KAGE));
-        
+
         if (!result && (r_ptr->flags1 & RF1_UNIQUE) && one_in_(2))
             do_return = TRUE;
     }

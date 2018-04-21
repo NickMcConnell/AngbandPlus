@@ -422,12 +422,13 @@ Leprechaun
   places at once. Dexterity determines the leprechaun's skill with 
   their magic.
    
-  Leprechauns are monsters so can not choose a normal class. Instead, 
-  being small, they should spend their initial pot of gold wisely and 
-  then enter the dungeons in search of new treasure. Since gold is so 
-  important to the leprechaun, much of their strength depends on 
-  possessing a large hoard of wealth, and various leprechaun attributes 
-  are directly affected by the amount of gold on hand.
+  The leprechaun uses gold for spell casting the way other players use 
+  mana. Gold is also used to pay for recharging devices or to power 
+  mana branded weapons. In addition, increasing the amount of gold on 
+  hand increases the power of the leprechaun, granting extra blows per 
+  round, extra shots per round, increased AC, life rating and even 
+  increasing their power with magical devices. To succeed in life, 
+  greed is obviously the primary virtue of the leprechaun!
   
     Stats                   Skills
     Strength      -2        Disarming   Very Good    
@@ -577,13 +578,13 @@ Orc/Troll/Giant
   no innate attacks.
   
     Stats                   Skills
-    Strength      +3        Disarming   Fair         
+    Strength      +6        Disarming   Fair         
     Intelligence  -3        Device      Bad          
-    Wisdom        -6        Save        Fair         
+    Wisdom        -3        Save        Fair         
     Dexterity     -2        Stealth     Poor         
     Constitution  +3        Searching   Poor         
     Charisma      +0        Perception  Bad          
-    Life Rating  100%       Melee       Heroic       
+    Life Rating  107%       Melee       Heroic       
     Base HP       46        Bows        Superb       
     Experience   200%       Infravision 50'
     
@@ -715,7 +716,7 @@ Death-Sword   +1   -5   -5   +0   +1   +0   85%  +30  150%  110%
 Mimic         +0   +1   -1   +2   +0   -1  108%  +15  250%  110%
 Possessor     -3   +0   -3   +0   -3   -7   60%  +15  250%  110%
 Ring          -3   +4   +1   +0   -1   +3   85%  +10  150%  110%
-Giant         +3   -3   -6   -2   +3   +0  100%  +46  200%  130%
+Giant         +6   -3   -3   -2   +3   +0  107%  +46  200%  130%
 Troll         +3   -5   -5   -2   +3   +0  100%  +50  150%  135%
 Lich          +0   +3   -3   +1   +0   +0  100%  +20  275%  135%
 Vampire       +2   +1   -1   +0   -2   +1   90%  +20  250%  130%
@@ -776,5 +777,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 5.0.0.
+Automatically generated for PosChengband 5.0.1.
 

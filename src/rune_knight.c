@@ -83,7 +83,7 @@ cptr rune_desc(int which)
     case RUNE_UNDERSTANDING:
         return "<<Understanding>>";
     case RUNE_ELEMENTAL_PROTECTION:
-        return "<<Elemental Protection>>";
+        return "<<Preservation>>";
     case RUNE_HASTE:
         return "<<Haste>>";
     case RUNE_SEEING:
@@ -125,6 +125,12 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
         return FALSE;
     }
 
+    if (o_ptr->number > 1)
+    {
+        msg_print("Failed! You may only add a rune to a single object at a time.");
+        return FALSE;
+    }
+
     if (prompt)
     {
         if (!get_check(
@@ -133,6 +139,8 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
     }
 
     o_ptr->rune = which;
+    if (object_is_nameless(o_ptr))
+        o_ptr->discount = 99;
 
     /* Note: Any effect that requires a pval will need to be handled
        silently in calc_bonuses(). This is because we keep the pval
@@ -353,7 +361,7 @@ static void _rune_of_absorption_spell(int cmd, variant *res)
         var_set_string(res, "Rune of Absorption");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Places a Rune of Absorption on chosen item granting a special magical defense that absorbs damage from all monster spells restoring your mana in the process.");
+        var_set_string(res, "Places a Rune of Absorption on chosen melee weapon, body armor or shield. This rune grants a special magical defense that absorbs damage from all monster spells restoring your mana in the process.");
         break;
     case SPELL_CAST:
     {
@@ -709,7 +717,7 @@ static void _rune_of_elemental_protection_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Protection");
+        var_set_string(res, "Rune of Preservation");
         break;
     case SPELL_DESC:
         var_set_string(res, "Creates a standalone rune. As long as you have this rune in your inventory, your inventory items are less likely to be destroyed by elemental attacks.");

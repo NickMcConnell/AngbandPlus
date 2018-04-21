@@ -258,7 +258,7 @@ void check_experience(void)
                 chaos_warrior_reward();
 
             /* N.B. The class hook or the Chaos Gift mutation may result in a race
-               change (stupid Chaos-Warriors), so we better always requery the player's 
+               change (stupid Chaos-Warriors), so we better always requery the player's
                race to make sure the correct racial hook is called. */
             {
                 race_t *race_ptr = get_true_race(); /* So players don't miss if they Polymorph Demon, etc */
@@ -302,7 +302,7 @@ void check_experience(void)
         handle_stuff();
     }
 
-    if (old_lev != p_ptr->lev) 
+    if (old_lev != p_ptr->lev)
     {
         race_t *race_ptr = get_true_race(); /* So players don't miss if they Polymorph Demon, etc */
 
@@ -569,7 +569,7 @@ void check_quest_completion(monster_type *m_ptr)
                 for (i2 = 0; i2 < cur_wid; ++i2)
                     for (j2 = 0; j2 < cur_hgt; j2++)
                         if (cave[j2][i2].m_idx > 0)
-                            if (is_hostile(&m_list[cave[j2][i2].m_idx])) 
+                            if (is_hostile(&m_list[cave[j2][i2].m_idx]))
                                 number_mon++;
 
                 if ((number_mon - 1) == 0)
@@ -630,6 +630,8 @@ void check_quest_completion(monster_type *m_ptr)
                     {
                         reward = TRUE;
                         quest[i].status = QUEST_STATUS_FINISHED;
+                        if (no_wilderness)
+                            gain_chosen_stat();
                         msg_add_tiny_screenshot(50, 24);
                     }
                 }
@@ -742,10 +744,10 @@ byte get_monster_drop_ct(monster_type *m_ptr)
     if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);
     if  (r_ptr->flags1 & RF1_DROP_4D2) number += damroll(4, 2);
 
-    /* Hack: There are currently too many objects, IMO. 
+    /* Hack: There are currently too many objects, IMO.
        Please rescale in r_info rather than the following! */
-    if ( number > 2 
-      && !(r_ptr->flags1 & RF1_DROP_GREAT) 
+    if ( number > 2
+      && !(r_ptr->flags1 & RF1_DROP_GREAT)
       && !(r_ptr->flags1 & RF1_UNIQUE) )
     {
         number = 2 + (number - 2) / 2;
@@ -802,9 +804,9 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     if (m_ptr->stolen_ct >= m_ptr->drop_ct)
         return FALSE;
 
-    if (r_ptr->flags1 & RF1_DROP_GOOD) 
+    if (r_ptr->flags1 & RF1_DROP_GOOD)
         mo_mode |= AM_GOOD;
-    if (r_ptr->flags1 & RF1_DROP_GREAT) 
+    if (r_ptr->flags1 & RF1_DROP_GREAT)
         mo_mode |= AM_GREAT;
 
     obj_drop_theme = 0;
@@ -855,7 +857,7 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     coin_type = 0;
     obj_drop_theme = 0;
 
-    return TRUE;    
+    return TRUE;
 }
 
 static bool _mon_is_wanted(int m_idx)
@@ -916,7 +918,7 @@ static bool _kind_is_basic(int k_idx)
         }
         break;
 
-    case TV_DIGGING:            
+    case TV_DIGGING:
         switch (k_ptr->sval)
         {
         case SV_SHOVEL:
@@ -1054,8 +1056,8 @@ void monster_death(int m_idx, bool drop_item)
 
     if (mut_present(MUT_INFERNAL_DEAL) && los(py, px, m_ptr->fy, m_ptr->fx) && !is_pet(m_ptr))
     {
-        if ( p_ptr->msp > 0 
-          && p_ptr->pclass != CLASS_RUNE_KNIGHT 
+        if ( p_ptr->msp > 0
+          && p_ptr->pclass != CLASS_RUNE_KNIGHT
           && p_ptr->pclass != CLASS_SAMURAI
           && p_ptr->pclass != CLASS_MYSTIC )
         {
@@ -1066,7 +1068,7 @@ void monster_death(int m_idx, bool drop_item)
             hp_player_aux(15);
     }
 
-    if (r_ptr->flags2 & RF2_MULTIPLY) 
+    if (r_ptr->flags2 & RF2_MULTIPLY)
         num_repro_kill++;
 
     y = m_ptr->fy;
@@ -1162,8 +1164,8 @@ void monster_death(int m_idx, bool drop_item)
     if (p_ptr->prace == RACE_MON_MIMIC)
         mimic_on_kill_monster(m_ptr->r_idx);
 
-    if ( vampiric_drain_hack 
-      && (r_ptr->flags2 & RF2_HUMAN) 
+    if ( vampiric_drain_hack
+      && (r_ptr->flags2 & RF2_HUMAN)
       && !is_pet(m_ptr)
       && randint1(p_ptr->lev) >= 15 )
     {
@@ -1175,7 +1177,7 @@ void monster_death(int m_idx, bool drop_item)
         corpse_chance = 2;
 
     if ( (_mon_is_wanted(m_idx) || (one_in_(corpse_chance) && !do_vampire_servant))
-      && (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) 
+      && (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON))
       && !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
     {
         /* Assume skeleton */
@@ -1191,8 +1193,8 @@ void monster_death(int m_idx, bool drop_item)
             corpse = TRUE;
         else if ((r_ptr->flags9 & RF9_DROP_CORPSE) && _mon_is_wanted(m_idx))
             corpse = TRUE;
-        else if ( (r_ptr->flags9 & RF9_DROP_CORPSE) 
-               && p_ptr->prace == RACE_MON_POSSESSOR 
+        else if ( (r_ptr->flags9 & RF9_DROP_CORPSE)
+               && p_ptr->prace == RACE_MON_POSSESSOR
                && p_ptr->current_r_idx == MON_POSSESSOR_SOUL )
         {
             corpse = TRUE;
@@ -1407,7 +1409,7 @@ void monster_death(int m_idx, bool drop_item)
                 /* Hack -- Memorize location of artifact in saved floors */
                 if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
             }
-            else if (!preserve_mode) 
+            else if (!preserve_mode)
                 a_ptr->generated = TRUE;
         }
         break;
@@ -1620,7 +1622,7 @@ void monster_death(int m_idx, bool drop_item)
         {
             if (dun_level >= 30 && dun_level <= 60  && one_in_(3))
                 get_obj_num_hook = _kind_is_stat_potion;
-            else 
+            else
             {
                 if (dun_level >= 20 && one_in_(3))
                     mode |= AM_GREAT;
@@ -2099,7 +2101,7 @@ void monster_death(int m_idx, bool drop_item)
         }
 
         /* I think the bug is Kill Amberite, get Blood Curse, entomb said Amberite,
-           zeroing out the m_ptr while processing monster death, and continuing to call 
+           zeroing out the m_ptr while processing monster death, and continuing to call
            this routine after m_list[m_idx] has been corrupted. */
 
         if (race_ptr->boss_r_idx && race_ptr->boss_r_idx == m_ptr->r_idx)
@@ -2131,7 +2133,7 @@ void monster_death(int m_idx, bool drop_item)
                     /* Hack -- Memorize location of artifact in saved floors */
                     if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
                 }
-                else if (!preserve_mode) 
+                else if (!preserve_mode)
                     a_ptr->generated = TRUE;
             }
         }
@@ -2159,7 +2161,7 @@ void monster_death(int m_idx, bool drop_item)
                         /* Hack -- Memorize location of artifact in saved floors */
                         if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
                     }
-                    else if (!preserve_mode) 
+                    else if (!preserve_mode)
                         a_ptr->generated = TRUE;
 
                     /* Prevent rewarding both artifact and "default" object */
@@ -2262,7 +2264,7 @@ void monster_death(int m_idx, bool drop_item)
                 }
                 else
                 {
-#if 0
+#if 1
                     if (p_ptr->wizard)
                     {
                         int iii;
@@ -2270,19 +2272,19 @@ void monster_death(int m_idx, bool drop_item)
                         for (iii = 0; iii < 100; )
                         {
                             object_type forge = {0};
-                            object_prep(&forge, k_idx);
-                            if (!apply_magic(&forge, object_level, AM_NO_FIXED_ART | AM_GOOD)) continue;
-                            iii++;
-                            identify_item(&forge);
-                            forge.ident |= IDENT_FULL;
-                            ego_aware(&forge);
+                            int         score;
 
+                            object_prep(&forge, k_idx);
+                            if (!apply_magic(&forge, object_level, AM_NO_FIXED_ART | AM_GOOD | AM_GUARDIAN)) continue;
+                            iii++;
+                            score = obj_value_real(&forge);
+                            obj_identify_fully(&forge);
                             object_desc(buf, &forge, OD_COLOR_CODED);
-                            msg_format("%d) %s\n", iii, buf);
+                            msg_format("%d) %s (%d)\n", iii, buf, score);
                         }
                     }
 #endif
-                    apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD);
+                    apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD | AM_GUARDIAN);
                 }
                 /* Drop it in the dungeon */
                 (void)drop_near(q_ptr, -1, y, x);
@@ -2553,7 +2555,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
                 biff = pr_ptr->r_skills / 100;
             else
                 biff = pr_ptr->r_skills / 250;
-            
+
             if (biff > 8) biff = 8;
             while (biff--)
                 s64b_RSHIFT(new_exp, new_exp_frac, 1);
@@ -2605,10 +2607,10 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
         m_ptr->pexp += pexp;
 #if 0
         msg_format(
-            "Gain %d.%2.2d XP (Max %d.%2.2d, Mon %d.%2.2d, Actual %d %u)", 
-            pexp/100, pexp%100, 
-            mexp/100, mexp%100, 
-            m_ptr->pexp/100, m_ptr->pexp%100, 
+            "Gain %d.%2.2d XP (Max %d.%2.2d, Mon %d.%2.2d, Actual %d %u)",
+            pexp/100, pexp%100,
+            mexp/100, mexp%100,
+            m_ptr->pexp/100, m_ptr->pexp%100,
             new_exp, new_exp_frac
         );
 #endif
@@ -2671,7 +2673,7 @@ void mon_check_kill_unique(int m_idx)
 
         /* When the player kills a Nazgul, it stays dead */
         else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
-        else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT) 
+        else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT)
         {
             if (r_ptr->max_num)
                 r_ptr->max_num--;
@@ -2727,14 +2729,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         for (i = 1; i < m_max; i++)
         {
             monster_type *m_ptr2 = &m_list[i];
-            
+
             if (!m_ptr2->r_idx) continue;
             if (is_aware(m_ptr2)) continue;
             if (MON_CSLEEP(m_ptr2)) continue;
 
             if (!player_has_los_bold(m_ptr2->fy, m_ptr2->fx)) continue;
             /*if (!projectable(m_ptr2->fy, m_ptr2->fx, py, px)) continue;*/
-            
+
             m_ptr2->mflag2 |= MFLAG2_AWARE;
         }
     }
@@ -2771,7 +2773,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
     if ( p_ptr->melt_armor
       && note == NULL /* Hack: Trying to just get melee and shooting */
-      && (-m_ptr->ac_adj) < r_ptr->ac/2 
+      && (-m_ptr->ac_adj) < r_ptr->ac/2
       && !mon_save_p(m_ptr->r_idx, A_NONE) )
     {
         char m_name[MAX_NLEN];
@@ -2781,7 +2783,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         if (p_ptr->wizard || cheat_xtra)
             msg_format("Melt Armor: AC is now %d", MON_AC(r_ptr, m_ptr));
     }
-    
+
     /* Rage Mage: "Blood Lust" */
     if (p_ptr->pclass == CLASS_RAGE_MAGE && dam > 0)
     {
@@ -2863,7 +2865,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
             /* When the player kills a Nazgul, it stays dead */
             else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
-            else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT) 
+            else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT)
             {
                 if (r_ptr->max_num)
                     r_ptr->max_num--;
@@ -3147,7 +3149,7 @@ void resize_map(void)
 {
     /* Only if the dungeon exists */
     if (!character_dungeon) return;
-    
+
     viewport_verify();
     msg_line_clear();
 
@@ -3168,7 +3170,7 @@ void resize_map(void)
 
     /* Hack -- update */
     handle_stuff();
-    
+
     /* Redraw */
     Term_redraw();
 
@@ -4019,6 +4021,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
                 strcat(out_val, "(Friendly) ");
             else if (m_ptr->smart & SM_CLONED)
                 strcat(out_val, "(Clone) ");
+            if (display_distance)
+                sprintf(out_val + strlen(out_val), "(Rng %d) ", m_ptr->cdis);
             sprintf(out_val + strlen(out_val), "[r,%s%s]", x_info, info);
 
             prt(out_val, 0, 0);
@@ -4180,7 +4184,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
                 /* Get the object being moved. */
                 o_idx = c_ptr->o_idx;
- 
+
                 /* Only rotate a pile of two or more objects. */
                 if (!(o_idx && o_list[o_idx].next_o_idx)) continue;
 
@@ -4363,6 +4367,15 @@ static int target_set_aux(int y, int x, int mode, cptr info)
             else sprintf(f_idx_str, "%d", c_ptr->feat);
             sprintf(out_val, "%s%s%s%s [%s] %x %s %d %d %d (%d,%d)", s1, s2, s3, name, info, c_ptr->info, f_idx_str, c_ptr->dist, c_ptr->cost, c_ptr->when, y, x);
         }
+        else if (display_distance)
+        {
+            /* Note: c_ptr->dist != m_ptr->cdis. The cave distance is not the range as diagonals count as 1, not 1.5
+               Use distance calculation from update_mon, which sets m_ptr->cdis.*/
+            int dy = (py > y) ? (py - y) : (y - py);
+            int dx = (px > x) ? (px - x) : (x - px);
+            int d  = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+            sprintf(out_val, "%s%s%s%s [%s] (Rng %d)", s1, s2, s3, name, info, d);
+        }
         else
             sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 
@@ -4461,7 +4474,7 @@ bool target_set(int mode)
             x = temp_x[m];
 
             if ( !(mode & TARGET_LOOK)
-              && !(mode & TARGET_MARK) ) 
+              && !(mode & TARGET_MARK) )
             {
                 prt_path(y, x);
             }
@@ -4470,7 +4483,7 @@ bool target_set(int mode)
             c_ptr = &cave[y][x];
 
             /* Allow target */
-            if ( target_able(c_ptr->m_idx) 
+            if ( target_able(c_ptr->m_idx)
              || ((mode & (TARGET_MARK|TARGET_DISI)) && m_list[c_ptr->m_idx].ml))
             {
                 strcpy(info, "q,t,p,o,+,-,?,<dir>");
@@ -4496,7 +4509,7 @@ bool target_set(int mode)
             if (use_menu)
             {
                 if (query == '\r') query = 't';
-            }  
+            }
 
             /* Analyze */
             switch (query)
@@ -4518,7 +4531,7 @@ bool target_set(int mode)
                 case '5':
                 case '0':
                 {
-                    if ( target_able(c_ptr->m_idx) 
+                    if ( target_able(c_ptr->m_idx)
                      || ((mode & (TARGET_MARK|TARGET_DISI)) && m_list[c_ptr->m_idx].ml))
                     {
                         health_track(c_ptr->m_idx);
@@ -4706,7 +4719,7 @@ bool target_set(int mode)
             bool move_fast = FALSE;
 
             if ( !(mode & TARGET_LOOK)
-              && !(mode & TARGET_MARK) ) 
+              && !(mode & TARGET_MARK) )
             {
                 prt_path(y, x);
             }
@@ -4732,7 +4745,7 @@ bool target_set(int mode)
             if (use_menu)
             {
                 if (query == '\r') query = 't';
-            }  
+            }
 
             /* Analyze the keypress */
             switch (query)
@@ -4753,7 +4766,7 @@ bool target_set(int mode)
                 case '.':
                 case '5':
                 case '0':
-                if ( !(mode & TARGET_MARK) 
+                if ( !(mode & TARGET_MARK)
                   || (c_ptr->m_idx && m_list[c_ptr->m_idx].ml) )
                 {
                     if (mode & TARGET_MARK)
@@ -4986,7 +4999,7 @@ bool get_aim_dir(int *dp)
         if (use_menu)
         {
             if (command == '\r') command = 't';
-        }  
+        }
 
         /* Convert various keys to "standard" keys */
         switch (command)
@@ -5382,7 +5395,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
     x = px;
     y = py;
 
-    if (expand_list) 
+    if (expand_list)
     {
         tgt_pt_prepare();
         n = 0;
@@ -5606,7 +5619,7 @@ bool get_hack_dir(int *dp)
         if (use_menu)
         {
             if (command == '\r') command = 't';
-        }  
+        }
 
         /* Convert various keys to "standard" keys */
         switch (command)
@@ -5698,7 +5711,7 @@ s16b gain_energy(void)
 
 
 /*
- * Return bow energy 
+ * Return bow energy
  */
 int bow_energy(int sval)
 {

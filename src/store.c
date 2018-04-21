@@ -180,7 +180,7 @@ void discount(object_type *o_ptr)
 
 }
 
-/* Note: make_object() now uses this for dungeon drops!!!! 
+/* Note: make_object() now uses this for dungeon drops!!!!
    Note: This is now controlled by the M:P:XdY line in k_info.txt
 */
 void mass_produce(object_type *o_ptr)
@@ -1100,29 +1100,29 @@ static bool _town_accept_aux(int k_idx)
 
 static bool _general_store_accept(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
-    case TV_FLASK:    
-    case TV_SPIKE:    
-    case TV_SHOT:    
-    case TV_ARROW:    
+    case TV_FLASK:
+    case TV_SPIKE:
+    case TV_SHOT:
+    case TV_ARROW:
     case TV_BOLT:
-    case TV_CAPTURE: 
-    case TV_FIGURINE: 
-    case TV_CLOAK: 
+    case TV_CAPTURE:
+    case TV_FIGURINE:
+    case TV_CLOAK:
     case TV_LITE:
     case TV_FOOD:
-    case TV_DIGGING: 
+    case TV_DIGGING:
         return TRUE;
     }
     return FALSE;
 }
 static bool _armoury_accept(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
 
     switch (k_info[k_idx].tval)
@@ -1139,12 +1139,12 @@ static bool _armoury_accept(int k_idx)
 }
 static bool _weapon_accept(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
-    case TV_POLEARM: 
+    case TV_POLEARM:
     case TV_SWORD:
         return TRUE;
 
@@ -1161,7 +1161,7 @@ static bool _weapon_accept(int k_idx)
 }
 static bool _weapon_accept_shooter(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
     switch (k_info[k_idx].tval)
     {
@@ -1172,12 +1172,12 @@ static bool _weapon_accept_shooter(int k_idx)
 }
 static bool _weapon_accept_ammo(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
     switch (k_info[k_idx].tval)
     {
-    case TV_SHOT:    
-    case TV_ARROW:    
+    case TV_SHOT:
+    case TV_ARROW:
     case TV_BOLT:
         return TRUE;
     }
@@ -1185,12 +1185,12 @@ static bool _weapon_accept_ammo(int k_idx)
 }
 static bool _temple_accept(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
-    case TV_LIFE_BOOK: 
+    case TV_LIFE_BOOK:
     case TV_CRUSADE_BOOK:
         if (p_ptr->town_num == SECRET_TOWN && !one_in_(20))
         {
@@ -1236,7 +1236,7 @@ static bool _temple_accept(int k_idx)
 
 static bool _alchemist_accept(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
 
     if (p_ptr->town_num == SECRET_TOWN && !one_in_(20))
@@ -1259,7 +1259,7 @@ static bool _alchemist_accept(int k_idx)
 
 static bool _magic_accept(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
 
     switch (k_info[k_idx].tval)
@@ -1277,7 +1277,7 @@ static bool _magic_accept(int k_idx)
     case TV_ARCANE_BOOK:
         return TRUE;
 
-    case TV_SORCERY_BOOK: 
+    case TV_SORCERY_BOOK:
         if (p_ptr->town_num == SECRET_TOWN && !one_in_(20))
         {
             if (!(k_info[k_idx].gen_flags & OFG_TOWN))
@@ -1290,7 +1290,7 @@ static bool _magic_accept(int k_idx)
 
 static bool _book_accept(int k_idx)
 {
-    if (!_town_accept_aux(k_idx)) 
+    if (!_town_accept_aux(k_idx))
         return FALSE;
 
     if (p_ptr->town_num == SECRET_TOWN && !one_in_(10))
@@ -1302,7 +1302,7 @@ static bool _book_accept(int k_idx)
     switch (k_info[k_idx].tval)
     {
     case TV_ARCANE_BOOK:
-    case TV_SORCERY_BOOK: 
+    case TV_SORCERY_BOOK:
     case TV_NATURE_BOOK:
     case TV_CHAOS_BOOK:
     case TV_DEATH_BOOK:
@@ -1380,13 +1380,29 @@ static bool _get_store_obj(object_type *o_ptr)
         break;
     case STORE_BLACK:
         choose_obj_kind(0);
-        level1 = 25 + randint0(25);
-        level2 = 25 + randint0(25);
+        if (dun_level)
+        {
+            level1 = dun_level;
+            level2 = dun_level;
+        }
+        else
+        {
+            level1 = 25 + randint0(25);
+            level2 = 25 + randint0(25);
+        }
         break;
     case STORE_JEWELER:
         get_obj_num_hook = _jeweler_accept;
-        level1 = 10 + randint0(40);
-        level2 = 10 + randint0(40);
+        if (dun_level)
+        {
+            level1 = dun_level;
+            level2 = dun_level;
+        }
+        else
+        {
+            level1 = 25 + randint0(25);
+            level2 = 25 + randint0(25);
+        }
         break;
     }
 
@@ -1467,9 +1483,9 @@ static bool _get_store_obj(object_type *o_ptr)
         else if (one_in_(5))
             k_idx = lookup_kind(TV_DIGGING, SV_PICK);
     }
-    
+
     if (!k_idx)
-    {    
+    {
         if (get_obj_num_hook) get_obj_num_prep();
         k_idx = get_obj_num(level1);
         if (get_obj_num_hook)
@@ -1480,7 +1496,7 @@ static bool _get_store_obj(object_type *o_ptr)
     }
     else
         get_obj_num_hook = NULL;
-    
+
     object_prep(o_ptr, k_idx);
     apply_magic(o_ptr, level2, mode);
     if (o_ptr->tval == TV_LITE)
@@ -2734,8 +2750,8 @@ static void store_process_command(void)
             else
             {
                 store_top += store_bottom;
-                if ((cur_store_num == STORE_HOME) && 
-                    (powerup_home == FALSE) && 
+                if ((cur_store_num == STORE_HOME) &&
+                    (powerup_home == FALSE) &&
                     (st_ptr->stock_num >= STORE_INVEN_MAX))
                 {
                     if (store_top >= (STORE_INVEN_MAX - 1))
@@ -3075,7 +3091,7 @@ void do_cmd_store(void)
     msg_display_rect = rect_create(0, 0, 80, 3);
     msg_line_init(&msg_display_rect);
     store_hack = TRUE;
-    
+
     /* Calculate the number of store maintainances since the last visit */
     maintain_num = (game_turn - town[p_ptr->town_num].store[which].last_visit) / (TURNS_PER_TICK * STORE_TICKS);
 
@@ -3088,7 +3104,7 @@ void do_cmd_store(void)
         xp += MIN(MAX(xp / 20, 1000), 100000);
         if ( !ironman_downward
           && p_ptr->max_plv <= town[p_ptr->town_num].store[which].last_lev
-          && p_ptr->max_exp <= xp 
+          && p_ptr->max_exp <= xp
           && p_ptr->prace != RACE_ANDROID )
         {
             options = STORE_MAINT_CULL;
@@ -3225,7 +3241,7 @@ void do_cmd_store(void)
                     p_ptr->au -= 5000;
                     stats_on_gold_services(5000);
                     p_ptr->redraw |= PR_GOLD;
-                    store_prt_gold(); 
+                    store_prt_gold();
                 }
                 break;
             case '2':
@@ -3606,14 +3622,14 @@ static void _restock(store_type *st_ptr, bool all)
 {
     int j;
     j = _cull(st_ptr, all);
-    while (st_ptr->stock_num < j) 
+    while (st_ptr->stock_num < j)
         store_create();
 }
 
 static int _cull(store_type *st_ptr, bool all)
 {
     int j, attempt;
-    
+
     j = st_ptr->stock_num;
 
     if (all)
@@ -3621,16 +3637,16 @@ static int _cull(store_type *st_ptr, bool all)
     else
     {
         j = j - randint1(STORE_TURNOVER);
-        if (j > STORE_MAX_KEEP) 
+        if (j > STORE_MAX_KEEP)
             j = STORE_MAX_KEEP;
-        if (j < STORE_MIN_KEEP) 
+        if (j < STORE_MIN_KEEP)
             j = STORE_MIN_KEEP;
-        if (j < 0) 
+        if (j < 0)
             j = 0;
     }
 
     attempt = 1;
-    while (st_ptr->stock_num > j) 
+    while (st_ptr->stock_num > j)
     {
         store_delete(); /* Players may reserve items, so this might fail! */
         attempt++;
@@ -3649,7 +3665,7 @@ static int _cull(store_type *st_ptr, bool all)
         if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
     }
 
-    if (j >= st_ptr->stock_size) 
+    if (j >= st_ptr->stock_size)
         j = st_ptr->stock_size - 1;
 
     return j;
@@ -3692,7 +3708,7 @@ static void _buyout(void)
 
             if (auto_pick_idx >= 0 && autopick_list[auto_pick_idx].action & DO_AUTODESTROY)
                 destroy = TRUE;
-            
+
             if (!destroy && !inven_carry_okay(o_ptr))
             {
                 msg_print("Your pack is full.");

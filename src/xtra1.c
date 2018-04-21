@@ -596,6 +596,7 @@ static void prt_stat(int stat)
 #define BAR_DRAGON_GALLOP 170
 #define BAR_DRAGON_HEALING 171
 #define BAR_DRAGON_HEROIC_CHARGE 172
+#define BAR_HOARDING 173
 
 static struct {
     byte attr;
@@ -777,6 +778,7 @@ static struct {
     {TERM_RED, "Glp", "Gallop"},
     {TERM_YELLOW, "Hl", "Healing"},
     {TERM_VIOLET, "Chg", "Heroic Charge"},
+    {TERM_YELLOW, "$$", "Hoarding"},
     {0, NULL, NULL}
 };
 
@@ -864,8 +866,8 @@ static void prt_status(void)
     if (p_ptr->tsubureru) ADD_FLG(BAR_EXPAND);
 
     if (IS_STONE_SKIN()) ADD_FLG(BAR_STONESKIN);
-    
-    if (p_ptr->special_defense & NINJA_KAWARIMI) 
+
+    if (p_ptr->special_defense & NINJA_KAWARIMI)
     {
         ADD_FLG(BAR_KAWARIMI);
         if (prace_is_(RACE_MON_SPIDER))
@@ -915,7 +917,7 @@ static void prt_status(void)
 
     if (p_ptr->tim_res_nether) ADD_FLG(BAR_RESNETH);
     if (p_ptr->tim_res_disenchantment) ADD_FLG(BAR_RES_DISENCHANTMENT);
-    
+
     if (p_ptr->tim_spell_reaction) ADD_FLG(BAR_SPELL_REACTION);
     if (p_ptr->tim_resist_curses) ADD_FLG(BAR_RESIST_CURSES);
     if (p_ptr->tim_armor_of_fury) ADD_FLG(BAR_ARMOR_OF_FURY);
@@ -937,7 +939,7 @@ static void prt_status(void)
     if (p_ptr->tim_sh_elements)
     {
         ADD_FLG(BAR_SHFIRE);
-        if (p_ptr->lev >= 25)    
+        if (p_ptr->lev >= 25)
             ADD_FLG(BAR_SHCOLD);
         if (p_ptr->lev >= 35)
             ADD_FLG(BAR_SHELEC);
@@ -1091,6 +1093,9 @@ static void prt_status(void)
         {
         case LEPRECHAUN_TOGGLE_BLINK:
             ADD_FLG(BAR_BLINK);
+            break;
+        case LEPRECHAUN_TOGGLE_HOARDING:
+            ADD_FLG(BAR_HOARDING);
             break;
         }
     }
@@ -1393,9 +1398,9 @@ static void prt_hp(void)
 {
     char tmp[32];
     rect_t r = ui_char_info_rect();
-  
+
     byte color;
-  
+
     put_str("HP", r.y + ROW_CURHP, r.x + COL_CURHP);
 
     sprintf(tmp, "%4d", p_ptr->chp);
@@ -1848,6 +1853,8 @@ static void prt_effects(void)
     }
     if (monk_armour_aux)
         c_put_str(TERM_RED, "Heavy Armor", row++, col);
+    if (p_ptr->cumber_glove)
+        c_put_str(TERM_RED, "Encumbrance", row++, col);
     for (i = 0; i < MAX_HANDS; i++)
     {
         if (p_ptr->weapon_info[i].heavy_wield)
@@ -2747,8 +2754,8 @@ static void calc_spells(void)
             k++;
         }
         if (k>32) k = 32;
-        if ( p_ptr->new_spells > k 
-          && (mp_ptr->spell_book == TV_LIFE_BOOK 
+        if ( p_ptr->new_spells > k
+          && (mp_ptr->spell_book == TV_LIFE_BOOK
            || mp_ptr->spell_book == TV_HISSATSU_BOOK
            || mp_ptr->spell_book == TV_RAGE_BOOK))
         {
@@ -2790,7 +2797,7 @@ static void calc_spells(void)
  * This function induces status messages.
  */
 static int _racial_mana_adjust(int i)
-{               
+{
     int     result = 0;
     race_t *race_ptr;
 
@@ -2800,11 +2807,11 @@ static int _racial_mana_adjust(int i)
     /* but when anybody else mimics, we continue to use their true original race */
     else
         race_ptr = get_true_race();
-    
+
     /* psion's best racial modifier wins */
     if (p_ptr->pclass == CLASS_PSION)
     {
-        result = MAX(race_ptr->stats[A_INT], 
+        result = MAX(race_ptr->stats[A_INT],
                     MAX(race_ptr->stats[A_WIS], race_ptr->stats[A_CHR]));
     }
     else
@@ -2937,6 +2944,7 @@ static void _report_encumbrance(void)
         else
             msg_print("Your hands feel more suitable for spellcasting.");
         p_ptr->old_cumber_glove = p_ptr->cumber_glove;
+        p_ptr->redraw |= PR_EFFECTS;
     }
 
     if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
@@ -2968,7 +2976,8 @@ static void calc_mana(void)
         }
         return;
     }
-    if ( (caster_ptr->options & CASTER_USE_HP) 
+    if ( (caster_ptr->options & CASTER_USE_HP)
+      || (caster_ptr->options & CASTER_USE_AU)
       || p_ptr->lev < caster_ptr->min_level)
     {
         p_ptr->msp = 0;
@@ -3008,7 +3017,7 @@ static void calc_mana(void)
 
         msp = adj_mag_mana[idx] * (lvl + 3)/4;
         if (msp) msp++;
-        if (msp) 
+        if (msp)
         {
             int adj = _racial_mana_adjust(caster_ptr->which_stat);
             msp += (msp * adj / 20);
@@ -3224,7 +3233,7 @@ static void calc_hitpoints(void)
     mhp = mhp * class_ptr->life / 100;
     mhp = mhp * pers_ptr->life / 100;
     mhp = mhp * p_ptr->life / 100;
-    
+
     if (p_ptr->prace == RACE_MON_DRAGON)
     {
         dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
@@ -3321,7 +3330,7 @@ static void calc_torch(void)
         p_ptr->cur_lite = 1;
 
     /*
-     * check if the player doesn't have light radius, 
+     * check if the player doesn't have light radius,
      * but does weakly glow as an intrinsic.
      */
     if (p_ptr->cur_lite <= 0 && p_ptr->lite) p_ptr->cur_lite++;
@@ -3503,7 +3512,6 @@ void calc_bonuses(void)
 
     /* Clear all the flags */
     p_ptr->cursed = 0L;
-    p_ptr->bless_blade = FALSE;
     p_ptr->pass_wall = FALSE;
     p_ptr->kill_wall = FALSE;
     p_ptr->dec_mana = FALSE;
@@ -3544,12 +3552,12 @@ void calc_bonuses(void)
     p_ptr->sustain_con = FALSE;
     p_ptr->sustain_dex = FALSE;
     p_ptr->sustain_chr = FALSE;
-    
+
     res_clear();
 
     p_ptr->life = 0;
     p_ptr->reflect = FALSE;
-    
+
     p_ptr->sh_fire = FALSE;
     p_ptr->sh_elec = FALSE;
     p_ptr->sh_cold = FALSE;
@@ -3797,7 +3805,7 @@ void calc_bonuses(void)
         res_add_vuln(RES_FIRE);
         res_add_vuln(RES_COLD);
     }
-    
+
     if (p_ptr->tim_sh_fire)
         p_ptr->sh_fire = TRUE;
 
@@ -3840,9 +3848,9 @@ void calc_bonuses(void)
         if (!o_ptr->k_idx) continue;
         if (o_ptr->name1 == ART_MAUL_OF_VICE)
             p_ptr->maul_of_vice = TRUE;
-        if (o_ptr->rune == RUNE_ELEMENTAL_PROTECTION) 
+        if (o_ptr->rune == RUNE_ELEMENTAL_PROTECTION)
             p_ptr->rune_elem_prot = TRUE;
-        if (o_ptr->rune == RUNE_GOOD_FORTUNE) 
+        if (o_ptr->rune == RUNE_GOOD_FORTUNE)
             p_ptr->good_luck = TRUE;
     }
 
@@ -3892,7 +3900,7 @@ void calc_bonuses(void)
         }
         if (hex_spelling(HEX_ICE_ARMOR))
         {
-            p_ptr->sh_cold = TRUE; 
+            p_ptr->sh_cold = TRUE;
             p_ptr->to_a += 30;
             p_ptr->dis_to_a += 30;
         }
@@ -4485,7 +4493,7 @@ void calc_bonuses(void)
     for (i = 0; i < MAX_HANDS; i++)
     {
         weapon_info_t *info_ptr = &p_ptr->weapon_info[i];
-        int            tmp_hold = hold;        
+        int            tmp_hold = hold;
 
         if (info_ptr->wield_how == WIELD_NONE) continue;
 
@@ -4494,7 +4502,7 @@ void calc_bonuses(void)
 
         o_ptr = equip_obj(info_ptr->slot);
         if (!o_ptr) continue;
-        
+
         obj_flags(o_ptr, flgs);
 
         if (p_ptr->tim_enlarge_weapon)
@@ -4521,14 +4529,14 @@ void calc_bonuses(void)
             info_ptr->dis_to_h += 2 * (tmp_hold - o_ptr->weight / 10);
             info_ptr->heavy_wield = TRUE;
         }
-        else if (info_ptr->wield_how == WIELD_TWO_HANDS && tmp_hold < o_ptr->weight/5) 
+        else if (info_ptr->wield_how == WIELD_TWO_HANDS && tmp_hold < o_ptr->weight/5)
         {
             if (p_ptr->pclass != CLASS_MAULER)
                 info_ptr->omoi = TRUE;
         }
 
-        if ( i % 2 == 1 
-          && o_ptr->tval == TV_SWORD 
+        if ( i % 2 == 1
+          && o_ptr->tval == TV_SWORD
           && (o_ptr->sval == SV_MAIN_GAUCHE || o_ptr->sval == SV_WAKIZASHI) )
         {
             p_ptr->to_a += 5;
@@ -4551,7 +4559,7 @@ void calc_bonuses(void)
 
             if (p_ptr->special_defense & KATA_FUUJIN) info_ptr->xtra_blow -= 100;
 
-            if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
+            if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
             {
                 info_ptr->base_blow = 100;
                 info_ptr->xtra_blow = 0;
@@ -4567,8 +4575,8 @@ void calc_bonuses(void)
         }
 
         /* Two Handed wielding bonus */
-        if ( p_ptr->weapon_info[i].wield_how == WIELD_TWO_HANDS 
-          && p_ptr->pclass != CLASS_DUELIST 
+        if ( p_ptr->weapon_info[i].wield_how == WIELD_TWO_HANDS
+          && p_ptr->pclass != CLASS_DUELIST
           && !p_ptr->weapon_info[i].omoi )
         {
             int bonus_to_h=0, bonus_to_d=0;
@@ -4581,21 +4589,6 @@ void calc_bonuses(void)
             p_ptr->weapon_info[i].dis_to_d += MAX(bonus_to_d,1);
         }
 
-        /* Priest weapon penalty for non-blessed edged weapons */
-        if ((p_ptr->pclass == CLASS_PRIEST) && (!(have_flag(flgs, OF_BLESSED))) &&
-            ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
-        {
-            /* Reduce the real bonuses */
-            p_ptr->weapon_info[i].to_h -= 2;
-            p_ptr->weapon_info[i].to_d -= 2;
-
-            /* Reduce the mental bonuses */
-            p_ptr->weapon_info[i].dis_to_h -= 2;
-            p_ptr->weapon_info[i].dis_to_d -= 2;
-
-            /* Icky weapon */
-            p_ptr->weapon_info[i].icky_wield = TRUE;
-        }
         /* Hex bonuses */
         if (p_ptr->realm1 == REALM_HEX)
         {
@@ -4699,7 +4692,7 @@ void calc_bonuses(void)
             }
             else if (p_ptr->pclass == CLASS_MYSTIC)
             {
-                p_ptr->weapon_info[i].base_blow += MIN(500, 500 * blow_base / 60);
+                p_ptr->weapon_info[i].base_blow += MIN(450, 450 * blow_base / 60);
             }
             else
             {
@@ -4735,7 +4728,7 @@ void calc_bonuses(void)
         }
     }
 
-    if (p_ptr->riding && p_ptr->prace != RACE_MON_RING) 
+    if (p_ptr->riding && p_ptr->prace != RACE_MON_RING)
         p_ptr->levitation = riding_levitation;
 
     monk_armour_aux = FALSE;
@@ -4841,8 +4834,8 @@ void calc_bonuses(void)
     /* Affect Skill -- digging (STR) */
     p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
 
-    if ( p_ptr->fairy_stealth 
-      && p_ptr->personality != PERS_SEXY 
+    if ( p_ptr->fairy_stealth
+      && p_ptr->personality != PERS_SEXY
       && (p_ptr->cursed & OFC_AGGRAVATE) )
     {
         p_ptr->cursed &= ~(OFC_AGGRAVATE);
@@ -4983,7 +4976,7 @@ void calc_bonuses(void)
     }
 
     if ((p_ptr->pclass == CLASS_MONK
-      || p_ptr->pclass == CLASS_MYSTIC 
+      || p_ptr->pclass == CLASS_MYSTIC
       || p_ptr->pclass == CLASS_FORCETRAINER
       || p_ptr->pclass == CLASS_NINJA
       || p_ptr->pclass == CLASS_SCOUT) && (monk_armour_aux != monk_notify_aux))
@@ -5006,8 +4999,8 @@ void calc_bonuses(void)
     */
 
     /* Apply some maximums ... */
-    if ( p_ptr->magic_resistance > 15 
-      && !prace_is_(RACE_MON_GOLEM) 
+    if ( p_ptr->magic_resistance > 15
+      && !prace_is_(RACE_MON_GOLEM)
       && !prace_is_(MIMIC_MIST)
       && !prace_is_(RACE_MON_POSSESSOR)
       && !prace_is_(RACE_MON_MIMIC) )
@@ -5142,7 +5135,7 @@ void update_stuff(void)
     {
         p_ptr->update &= ~(PU_DISTANCE);
 
-        /* Still need to call update_monsters(FALSE) after update_mon_lite() */ 
+        /* Still need to call update_monsters(FALSE) after update_mon_lite() */
         /* p_ptr->update &= ~(PU_MONSTERS); */
 
         update_monsters(TRUE);

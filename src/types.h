@@ -595,7 +595,7 @@ struct monster_race
 enum obj_types_e                           /* OBJ(DEVICE), etc */
 {
     OBJ_TYPE_TVAL_MAX = 255,
-    OBJ_TYPE_DEVICE,            
+    OBJ_TYPE_DEVICE,
     OBJ_TYPE_JEWELRY,
     OBJ_TYPE_BOOK,
     OBJ_TYPE_BODY_ARMOR,
@@ -609,15 +609,15 @@ struct room_grid_s
 {
     s16b cave_feat;
     s16b cave_trap;
-    
+
     u16b cave_info;
     s16b monster;
-    
+
     s16b object;
     s16b extra;
-    
+
     u32b flags;
-    
+
     byte letter;
     byte monster_level;
     byte object_level;
@@ -636,7 +636,7 @@ struct room_template_s
     byte type;
 
     u16b subtype;
-    u16b flags;    
+    u16b flags;
 
     byte height;
     byte width;
@@ -777,7 +777,7 @@ struct monster_type
     s16b parent_m_idx;
     s16b pack_idx;
 
-    byte drop_ct;        
+    byte drop_ct;
     byte stolen_ct;
     u16b summon_ct;
 
@@ -1036,7 +1036,7 @@ struct player_pact
  #define WIELD_NONE       0
  #define WIELD_ONE_HAND   1
  #define WIELD_TWO_HANDS  2
- 
+
  #define MAX_HANDS 6
  #define MAX_ARMS  3
  #define HAND_NONE -1
@@ -1242,7 +1242,7 @@ struct player_type
     s16b tim_chaotic_surge;
     s16b tim_wild_pos;
     s16b tim_wild_mind;
-    
+
     s16b tim_blood_shield;
     s16b tim_blood_seek;
     s16b tim_blood_sight;
@@ -1256,7 +1256,7 @@ struct player_type
     s16b tim_building_up;
     s16b tim_vicious_strike;
     s16b tim_enlarge_weapon;
-    
+
     s16b tim_spell_reaction;
     s16b tim_resist_curses;
     s16b tim_armor_of_fury;
@@ -1289,7 +1289,7 @@ struct player_type
     int  painted_target_idx;
     int  painted_target_ct;
     bool easy_2weapon;
-    bool speciality_equip; 
+    bool speciality_equip;
     bool sneak_attack;
     bool enhanced_crit;
     bool cleave;
@@ -1300,7 +1300,7 @@ struct player_type
     s16b cloak_of_shadows;
     bool lightning_reflexes;
     bool clear_mind;
-    
+
     bool ambush;
     bool peerless_stealth;
     s16b open_terrain_ct;
@@ -1311,10 +1311,10 @@ struct player_type
     bool entrenched;
     bool inven_prot;
     bool quick_walk;
-    
+
     s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
     s16b tim_no_device;        /* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
-                            
+
     s16b tim_superstealth;
 
     bool fasting;
@@ -1417,7 +1417,7 @@ struct player_type
 
     s16b today_mon;           /* Wanted monster */
 
-    s16b floor_id;            /* Current floor location */ 
+    s16b floor_id;            /* Current floor location */
 
     bool autopick_autoregister; /* auto register is in-use or not */
 
@@ -1551,7 +1551,6 @@ struct player_type
     bool esp_magical;
 
     bool slow_digest;    /* Slower digestion */
-    bool bless_blade;    /* Blessed blade */
     bool pass_wall;     /* Permanent wraithform */
     bool kill_wall;
     bool dec_mana;
@@ -1910,7 +1909,7 @@ typedef struct {
 /*
  *  A structure type for the saved floor
  */
-typedef struct 
+typedef struct
 {
     s16b floor_id;        /* No recycle until 65536 IDs are all used */
     byte savefile_id;     /* ID for savefile (from 0 to MAX_SAVED_FLOOR) */
@@ -2023,6 +2022,7 @@ typedef spell_stats_t        *spell_stats_ptr;
 #define CASTER_NO_SPELL_FAIL        0x0008
 #define CASTER_USE_HP               0x0010
 #define CASTER_GAIN_SKILL           0x0020
+#define CASTER_USE_AU               0x0040 /* Leprechauns */
 
 typedef struct {
     cptr magic_desc;    /* spell, mindcraft, brutal power, ninjitsu, etc */
@@ -2132,7 +2132,7 @@ typedef struct {
 typedef struct {
     int  type;
     s16b tag;
-    int  hand; 
+    int  hand;
 } slot_t;
 
 typedef struct equip_template_s {

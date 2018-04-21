@@ -3833,7 +3833,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 /* Go to sleep (much) later */
                 note = " is suspended!";
-                do_paralyzed = 5;
+                do_paralyzed = 3;
             }
 
             /* No "real" damage */
@@ -5446,7 +5446,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             else
             {
-                if (randint1(caster_lev) >= r_ptr->level + randint1(20))
+                if (randint1(dam) >= r_ptr->level + randint1(20))
                 {
                     dam = ((40 + randint1(20)) * m_ptr->hp) / 100;
                     if (m_ptr->hp < dam) dam = m_ptr->hp - 1;

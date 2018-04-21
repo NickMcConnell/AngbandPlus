@@ -68,9 +68,9 @@ Strength     <color:w> +0</color>        Disarming   <color:r>Bad          </col
 Intelligence <color:w> -2</color>        Device      <color:o>Fair         </color>
 Wisdom       <color:w> -2</color>        Save        <color:o>Fair         </color>
 Dexterity    <color:w> +2</color>        Stealth     <color:G>Excellent    </color>
-Constitution <color:w> +2</color>        Searching   <color:R>Poor         </color>
-Charisma     <color:v> +2</color>        Perception  <color:r>Bad          </color>
-Life Rating  102%       Melee       <color:y>Very Good    </color>
+Constitution <color:w> +2</color>        Searching   <color:o>Fair         </color>
+Charisma     <color:v> +2</color>        Perception  <color:R>Poor         </color>
+Life Rating  102%       Melee       <color:G>Excellent    </color>
 Base HP       12        Bows        <color:r>Bad          </color>
 Experience   110%
 </style></indent>
@@ -95,7 +95,7 @@ An alliance with giants and titans grants impressive physical strength and forti
 Strength     <color:w> +2</color>        Disarming   <color:r>Bad          </color>
 Intelligence <color:w> -4</color>        Device      <color:r>Bad          </color>
 Wisdom       <color:w> -4</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:w> -2</color>        Stealth     <color:R>Poor         </color>
+Dexterity    <color:w> -3</color>        Stealth     <color:R>Poor         </color>
 Constitution <color:w> +2</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:v> +2</color>        Perception  <color:r>Bad          </color>
 Life Rating  112%       Melee       <color:g>Superb       </color>
@@ -111,7 +111,7 @@ Angels             +1   +1   +2   +1   +1   +3   98%   +4  150%
 Demons             +3   +1  -10   +1   +1   +3  100%  +15  150%
 Hounds             +0   -2   -2   +2   +2   +2  102%  +12  110%
 Spiders            -1   +0   -2   +2   +0   +2   97%   +1  120%
-Giants             +2   -4   -4   -2   +2   +2  112%  +25  140%
+Giants             +2   -4   -4   -3   +2   +2  112%  +25  140%
 
 </style>
 <topic:Skills1><style:heading>Table 2 - Warlock Skill Bonus Table I</style>
@@ -133,11 +133,11 @@ Undead            <color:R>Poor         </color> <color:o>Fair         </color> 
 Dragons           <color:R>Poor         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Angels            <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Demons            <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:R>Poor         </color>
-Hounds            <color:R>Poor         </color> <color:r>Bad          </color> <color:y>Very Good    </color> <color:r>Bad          </color>
+Hounds            <color:o>Fair         </color> <color:R>Poor         </color> <color:G>Excellent    </color> <color:r>Bad          </color>
 Spiders           <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:y>Very Good    </color>
 Giants            <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:y>Very Good    </color>
 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.0.</color>
+<color:s>Automatically generated for PosChengband 5.0.1.</color>

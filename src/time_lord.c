@@ -155,7 +155,7 @@ bool devolve_monster(int m_idx, bool msg)
             msg_format("%^s is too primitive for further devolution.", m_name);
         return FALSE;
     }
-        
+
     if (_monster_save(r_ptr, 2*p_ptr->lev))
     {
         if (msg)
@@ -178,7 +178,7 @@ bool evolve_monster(int m_idx, bool msg)
     if (r_idx <= 0) return FALSE;
     monster_desc(m_name, m_ptr, 0);
     r_idx = _find_evolution_idx(r_idx);
-            
+
     if (r_idx <= 0)
     {
         if (msg)
@@ -216,7 +216,7 @@ static u32b _forget_imp(u32b f)
     if (ct)
     {
         int which = randint1(ct);
-        
+
         result = 1;
         for (;;)
         {
@@ -287,7 +287,7 @@ bool check_foresight(void)
 
     return FALSE;
 }
-        
+
 /****************************************************************
  * Private Spells
  ****************************************************************/
@@ -432,7 +432,7 @@ static void _withering_spell(int cmd, variant *res)
         {
             cave_alter_feat(y, x, FF_HURT_ROCK);
             msg_print("The wall turns to dust.");
-    
+
             p_ptr->update |= (PU_FLOW);
         }
         else if (cave_have_flag_bold(y, x, FF_TREE))
@@ -638,7 +638,7 @@ static void _rewind_time_spell(int cmd, variant *res)
         else
         {
             int amount = 0;
-            
+
             if (p_ptr->lev < 3) return;
             amount = exp_requirement(p_ptr->lev-1);
             amount -= exp_requirement(p_ptr->lev-2);
@@ -695,7 +695,7 @@ static void _remember_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Remember");
+        var_set_string(res, "Remembrance");
         break;
     case SPELL_DESC:
         var_set_string(res, "Restores life and stats.");
@@ -815,7 +815,7 @@ static void _foresee_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
-static spell_info _spells[] = 
+static spell_info _spells[] =
 {
     /*lvl cst fail spell */
     {  1,  2, 30, _bolt_spell},
@@ -845,7 +845,8 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (equip_find_artifact(ART_ETERNITY))
+    if ( equip_find_artifact(ART_ETERNITY)
+      || equip_find_artifact(ART_ETERNAL_BLADE) )
     {
         p_ptr->dec_mana = TRUE;
         p_ptr->easy_spell = TRUE;
@@ -952,7 +953,7 @@ class_t *time_lord_get_class(void)
 
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 96; 
+        me.life = 96;
         me.base_hp = 0;
         me.exp = 125;
         me.pets = 20;

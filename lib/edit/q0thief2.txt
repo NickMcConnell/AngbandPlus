@@ -39,7 +39,7 @@ F:j:FLOOR:8:286
 
 # The doors, floors and treasures
 # Floor with a Barbarian Talisman
-F:":FLOOR:8:0:163:320
+F:":FLOOR:8:0:163:220
 
 # Normal floor
 F: :FLOOR:8

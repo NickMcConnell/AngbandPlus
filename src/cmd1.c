@@ -528,7 +528,7 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
 
     if ( equip_is_valid_hand(hand)
       && p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS
-      && p_ptr->pclass != CLASS_DUELIST 
+      && p_ptr->pclass != CLASS_DUELIST
       && !p_ptr->weapon_info[hand].omoi )
     {
         roll = roll * 4 / 5;
@@ -550,15 +550,16 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
     }
 
     /* Chance */
-    if ( mode == HISSATSU_MAJIN 
-      || mode == HISSATSU_3DAN 
+    if ( mode == HISSATSU_MAJIN
+      || mode == HISSATSU_3DAN
       || mode == MAULER_CRITICAL_BLOW
       || mode == GOLEM_BIG_PUNCH
+      || mode == MYSTIC_CRITICAL
       || randint1(roll) <= i )
     {
         int k = weight + randint1(quality);
 
-        if ( mode == HISSATSU_MAJIN 
+        if ( mode == HISSATSU_MAJIN
           || mode == HISSATSU_3DAN )
         {
             k += randint1(650);
@@ -657,7 +658,7 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
                 mult = MAX(mult, 17);
                 bonus = MAX(bonus, 3);
             }
-            else 
+            else
                 mult = MAX(mult, monk_elem_slay);
         }
     }
@@ -680,7 +681,7 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
                 mult = MAX(mult, 17);
                 bonus = MAX(bonus, 3);
             }
-            else 
+            else
                 mult = MAX(mult, monk_elem_slay);
         }
     }
@@ -723,7 +724,7 @@ int _chaos_slays[_MAX_CHAOS_SLAYS] = {
     OF_BRAND_ELEC,
     OF_BRAND_FIRE,
     OF_BRAND_COLD,
-};    
+};
 
 s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, int mode, bool thrown)
 {
@@ -765,7 +766,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
     if (have_flag(flgs, OF_BRAND_CHAOS))
     {
         chaos_slay = _chaos_slays[randint0(_MAX_CHAOS_SLAYS)];
-        object_desc(o_name, o_ptr, OD_NAME_ONLY);
+        object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_OMIT_PREFIX | OD_COLOR_CODED);
     }
 
     /* Some "weapons" and "ammo" do extra damage */
@@ -794,7 +795,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_ANIMAL)
                 {
-                    msg_format("%s slays animals.", o_name);
+                    msg_format("Your %s slays animals.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_ANIMAL);
                     if (have_flag(flgs, OF_KILL_ANIMAL))
@@ -833,7 +834,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_EVIL)
                 {
-                    msg_format("%s slays evil.", o_name);
+                    msg_format("Your %s slays evil.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_EVIL);
                     if (have_flag(flgs, OF_KILL_EVIL))
@@ -873,7 +874,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_GOOD)
                 {
-                    msg_format("%s slays good.", o_name);
+                    msg_format("Your %s slays good.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_GOOD);
                     if (have_flag(flgs, OF_SLAY_GOOD))
@@ -902,7 +903,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_HUMAN)
                 {
-                    msg_format("%s slays humans.", o_name);
+                    msg_format("Your %s slays humans.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_2(m_ptr, RF2_HUMAN);
                     if (have_flag(flgs, OF_KILL_HUMAN))
@@ -941,7 +942,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_UNDEAD)
                 {
-                    msg_format("%s slays undead.", o_name);
+                    msg_format("Your %s slays undead.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_UNDEAD);
                     if (have_flag(flgs, OF_KILL_UNDEAD))
@@ -980,7 +981,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_DEMON)
                 {
-                    msg_format("%s slays demons.", o_name);
+                    msg_format("Your %s slays demons.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_DEMON);
                     if (have_flag(flgs, OF_KILL_DEMON))
@@ -1019,7 +1020,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_ORC)
                 {
-                    msg_format("%s slays orcs.", o_name);
+                    msg_format("Your %s slays orcs.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_ORC);
                     if (have_flag(flgs, OF_KILL_ORC))
@@ -1059,7 +1060,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_TROLL)
                 {
-                    msg_format("%s slays trolls.", o_name);
+                    msg_format("Your %s slays trolls.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_TROLL);
                     if (have_flag(flgs, OF_KILL_TROLL))
@@ -1098,7 +1099,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_GIANT)
                 {
-                    msg_format("%s slays giants.", o_name);
+                    msg_format("Your %s slays giants.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_GIANT);
                     if (have_flag(flgs, OF_KILL_GIANT))
@@ -1137,7 +1138,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             {
                 if (chaos_slay == OF_SLAY_DRAGON)
                 {
-                    msg_format("%s slays dragons.", o_name);
+                    msg_format("Your %s slays dragons.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     mon_lore_3(m_ptr, RF3_DRAGON);
                     if (have_flag(flgs, OF_KILL_DRAGON))
@@ -1194,7 +1195,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else if (chaos_slay == OF_BRAND_ACID)
                 {
-                    cmsg_format(TERM_L_DARK, "%s is covered in acid.", o_name);
+                    msg_format("Your %s is covered in acid.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     if (have_flag(flgs, OF_BRAND_ACID))
                     {
@@ -1211,7 +1212,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             }
 
             /* Brand (Elec) */
-            if ( have_flag(flgs, OF_BRAND_ELEC) 
+            if ( have_flag(flgs, OF_BRAND_ELEC)
               || mode == HISSATSU_ELEC
               || chaos_slay == OF_BRAND_ELEC )
             {
@@ -1221,7 +1222,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else if (chaos_slay == OF_BRAND_ELEC)
                 {
-                    cmsg_format(TERM_BLUE, "%s is covered in electricity.", o_name);
+                    msg_format("Your %s is covered in electricity.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     if (have_flag(flgs, OF_BRAND_ELEC))
                     {
@@ -1242,7 +1243,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             }
 
             /* Brand (Fire) */
-            if ( have_flag(flgs, OF_BRAND_FIRE) 
+            if ( have_flag(flgs, OF_BRAND_FIRE)
               || mode == HISSATSU_FIRE
               || chaos_slay == OF_BRAND_FIRE )
             {
@@ -1253,7 +1254,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else if (chaos_slay == OF_BRAND_FIRE)
                 {
-                    cmsg_format(TERM_RED, "%s is covered in fire.", o_name);
+                    msg_format("Your %s is covered in fire.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     if (have_flag(flgs, OF_BRAND_FIRE))
                     {
@@ -1272,7 +1273,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else if (mode == HISSATSU_FIRE) tmp = 25;
                 if (tmp > 0 && (r_ptr->flags3 & RF3_HURT_FIRE))
-                {    
+                {
                     tmp *= 2;
                     mon_lore_3(m_ptr, RF3_HURT_FIRE);
                 }
@@ -1280,9 +1281,9 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             }
 
             /* Brand (Cold) */
-            if ( have_flag(flgs, OF_BRAND_COLD) 
+            if ( have_flag(flgs, OF_BRAND_COLD)
               || mode == HISSATSU_COLD
-              || chaos_slay == OF_BRAND_COLD ) 
+              || chaos_slay == OF_BRAND_COLD )
             {
                 int tmp = 0;
                 if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
@@ -1291,7 +1292,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else if (chaos_slay == OF_BRAND_COLD)
                 {
-                    cmsg_format(TERM_L_BLUE, "%s is covered in frost.", o_name);
+                    msg_format("Your %s is covered in frost.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     if (have_flag(flgs, OF_BRAND_COLD))
                     {
@@ -1311,7 +1312,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 else if (mode == HISSATSU_COLD) tmp = 25;
 
                 if (tmp > 0 && (r_ptr->flags3 & RF3_HURT_COLD))
-                {    
+                {
                     tmp *= 2;
                     mon_lore_3(m_ptr, RF3_HURT_COLD);
                 }
@@ -1319,7 +1320,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             }
 
             /* Brand (Poison) */
-            if ( have_flag(flgs, OF_BRAND_POIS) 
+            if ( have_flag(flgs, OF_BRAND_POIS)
               || mode == HISSATSU_POISON
               || chaos_slay == OF_BRAND_POIS )
             {
@@ -1329,7 +1330,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
                 }
                 else if (chaos_slay == OF_BRAND_POIS)
                 {
-                    cmsg_format(TERM_GREEN, "%s is covered in poison.", o_name);
+                    msg_format("Your %s is covered in poison.", o_name);
                     obj_learn_slay(o_ptr, OF_BRAND_CHAOS, "has the <color:v>Mark of Chaos</color>");
                     if (have_flag(flgs, OF_BRAND_POIS))
                     {
@@ -1389,16 +1390,31 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             }
             if (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force)
             {
-                int cost = 0;
-                int dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
-                int ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
-                
+                int          cost = 0;
+                int          dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
+                int          ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
+                caster_info *caster = get_caster_info();
+
                 if (p_ptr->pclass == CLASS_SAMURAI)
                     cost = (1 + (dd * ds * 2 / 7));
                 else
                     cost = (1 + (dd * ds / 7));
 
-                if (p_ptr->csp >= cost)
+                if (caster && (caster->options & CASTER_USE_AU))
+                {
+                    cost *= 10;
+                    if (p_ptr->au >= cost)
+                    {
+                        p_ptr->au -= cost;
+                        stats_on_gold_services(cost); /* ? */
+                        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+                        p_ptr->redraw |= (PR_GOLD);
+
+                        mult = mult * 3 / 2 + 15;
+                        obj_learn_slay(o_ptr, OF_BRAND_MANA, "is <color:B>Mana Branded</color>");
+                    }
+                }
+                else if (p_ptr->csp >= cost)
                 {
                     p_ptr->csp -= cost;
                     p_ptr->redraw |= (PR_MANA);
@@ -1538,7 +1554,7 @@ void py_pickup_aux(int o_idx)
     /* Delete the object */
     delete_object_idx(o_idx);
 
-    if ( p_ptr->personality == PERS_MUNCHKIN 
+    if ( p_ptr->personality == PERS_MUNCHKIN
       || randint0(1000) < virtue_current(VIRTUE_KNOWLEDGE) )
     {
         bool old_known = identify_item(o_ptr);
@@ -1560,8 +1576,8 @@ void py_pickup_aux(int o_idx)
     p_ptr->update |= PU_BONUS;
 
     /* Hack: Archaeologists Instantly Pseudo-ID artifacts on pickup */
-    if ( p_ptr->pclass == CLASS_ARCHAEOLOGIST 
-      && object_is_artifact(o_ptr) 
+    if ( p_ptr->pclass == CLASS_ARCHAEOLOGIST
+      && object_is_artifact(o_ptr)
       && !object_is_known(o_ptr) )
     {
         /* Suppress you are leaving something special behind message ... */
@@ -1574,7 +1590,7 @@ void py_pickup_aux(int o_idx)
         if (!(o_ptr->ident & (IDENT_SENSE)))
         {
             cmsg_format(TERM_L_BLUE, "You feel that the %s is %s...", o_name, game_inscriptions[FEEL_SPECIAL]);
-        
+
             o_ptr->ident |= (IDENT_SENSE);
             o_ptr->feeling = FEEL_SPECIAL;
         }
@@ -2506,7 +2522,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 if (dam < 0)
                     dam = 0;
                 dam = mon_damage_mod(m_ptr, dam, FALSE);
-                if (dam > 0) 
+                if (dam > 0)
                     anger_monster(m_ptr);
 
                 for (k = 0; k < MAX_INNATE_EFFECTS && !*mdeath; k++)
@@ -2515,7 +2531,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     int p = a->effect_chance[k];
 
                     if (p == 0) p = 100;
-                    if (!e && k == 0) 
+                    if (!e && k == 0)
                     {
                         if (a->flags & INNATE_NO_DAM)
                             continue;
@@ -2794,8 +2810,8 @@ static int get_next_dir(int dir)
 }
 
 static void do_monster_knockback(int x, int y, int dist)
-{   
-    monster_type   *m_ptr = &m_list[cave[y][x].m_idx];   
+{
+    monster_type   *m_ptr = &m_list[cave[y][x].m_idx];
     int             dir = calculate_dir(px, py, x, y);
 
     if (dir != 5)
@@ -2823,15 +2839,15 @@ static void do_monster_knockback(int x, int y, int dist)
                 cave[ty][tx].m_idx = m_idx;
                 m_ptr->fy = ty;
                 m_ptr->fx = tx;
-    
+
                 Term_fresh();
                 update_mon(m_idx, TRUE);
                 lite_spot(oy, ox);
                 lite_spot(ty, tx);
-    
+
                 if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
                     p_ptr->update |= PU_MON_LITE;
-                    
+
                 Term_xtra(TERM_XTRA_DELAY, msec);
                 Term_fresh();
             }
@@ -2934,7 +2950,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         ds = 1;
         to_h = 0;
         to_d = 0;
-        if ( (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC) 
+        if ( (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER || p_ptr->pclass == CLASS_MYSTIC)
           && !p_ptr->riding )
         {
             monk_attack = TRUE;
@@ -3055,7 +3071,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (mode == WEAPONMASTER_FLURRY) num_blow *= 2;
     if (mode == WEAPONMASTER_CUNNING_STRIKE) num_blow = (num_blow + 1)/2;
 
-    if (o_ptr && o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
+    if (o_ptr && o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
     {
         poison_needle = TRUE;
         num_blow = 1;
@@ -3160,9 +3176,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             }
 
             /* Vampiric drain */
-            if ( have_flag(flgs, OF_BRAND_VAMP) 
-              || chaos_effect == 1 
-              || mode == HISSATSU_DRAIN 
+            if ( have_flag(flgs, OF_BRAND_VAMP)
+              || chaos_effect == 1
+              || mode == HISSATSU_DRAIN
               || mode == DRACONIAN_STRIKE_VAMP
               || hex_spelling(HEX_VAMP_BLADE)
               || weaponmaster_get_toggle() == TOGGLE_BLOOD_BLADE
@@ -3303,8 +3319,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     else
                     {
                         cmsg_format(TERM_VIOLET, "%^s is knocked out.", m_name_subject);
-                        knock_out++;        
-                        /* No more retaliation this round! */                    
+                        knock_out++;
+                        /* No more retaliation this round! */
                         retaliation_count = 100; /* Any number >= 4 will do ... */
                     }
                 }
@@ -3337,8 +3353,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (mode == MAULER_CRUSHING_BLOW)
                     k = k * NUM_BLOWS(hand) / 50;
 
-                if ( (have_flag(flgs, OF_IMPACT) && (k > 50 || one_in_(7))) 
-                  || chaos_effect == 2 
+                if ( (have_flag(flgs, OF_IMPACT) && (k > 50 || one_in_(7)))
+                  || chaos_effect == 2
                   || mode == HISSATSU_QUAKE
                   || (mauler_get_toggle() == MAULER_TOGGLE_SHATTER && (k > 50 || one_in_(7))) )
                 {
@@ -3374,7 +3390,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (!poison_needle
                  && mode != HISSATSU_KYUSHO
                  && mode != MYSTIC_KILL
-                 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE 
+                 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE
                  && !have_flag(flgs, OF_BRAND_ORDER) )
                 {
                     int bonus = 0;
@@ -3490,9 +3506,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             /* Modify the damage */
             k = mon_damage_mod(
-                m_ptr, 
-                k, 
-                (o_ptr && o_ptr->tval == TV_POLEARM && o_ptr->sval == SV_DEATH_SCYTHE) 
+                m_ptr,
+                k,
+                (o_ptr && o_ptr->tval == TV_POLEARM && o_ptr->sval == SV_DEATH_SCYTHE)
              || (p_ptr->pclass == CLASS_BERSERKER && one_in_(2))
              || mode == WEAPONMASTER_CRUSADERS_STRIKE
             );
@@ -3501,8 +3517,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             {
                 int d = k;
                 /* Duelist: Careful Aim */
-                if (duelist_attack && 
-                    p_ptr->lev >= 10) 
+                if (duelist_attack &&
+                    p_ptr->lev >= 10)
                 {
                     k += d;
                 }
@@ -3543,8 +3559,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             if (poison_needle || mode == HISSATSU_KYUSHO || mode == MYSTIC_KILL)
             {
-                if ( randint1(randint1(r_ptr->level/7)+5) == 1 
-                  && (!(r_ptr->flags1 & RF1_UNIQUE) || m_ptr->r_idx == MON_HAGURE2) 
+                if ( randint1(randint1(r_ptr->level/7)+5) == 1
+                  && (!(r_ptr->flags1 & RF1_UNIQUE) || m_ptr->r_idx == MON_HAGURE2)
                   && !(r_ptr->flags7 & RF7_UNIQUE2))
                 {
                     k = m_ptr->hp + 1;
@@ -3552,9 +3568,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 }
                 else k = 1;
             }
-            else if ( p_ptr->pclass == CLASS_NINJA 
-                   && o_ptr 
-                   && !p_ptr->weapon_info[hand].icky_wield 
+            else if ( p_ptr->pclass == CLASS_NINJA
+                   && o_ptr
+                   && !p_ptr->weapon_info[hand].icky_wield
                    && (p_ptr->cur_lite <= 0 || one_in_(7)) )
             {
                 int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
@@ -3564,9 +3580,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     drain_result *= 2;
                     msg_format("You critically injured %s!", m_name_object);
                 }
-                else if ( (m_ptr->hp < maxhp/2 && one_in_(num_blow*10)) 
+                else if ( (m_ptr->hp < maxhp/2 && one_in_(num_blow*10))
                        || ( (one_in_(666) || ((backstab || fuiuchi) && one_in_(11)))
-                         && !(r_ptr->flags1 & RF1_UNIQUE) 
+                         && !(r_ptr->flags1 & RF1_UNIQUE)
                          && !(r_ptr->flags7 & RF7_UNIQUE2)) )
                 {
                     if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || (m_ptr->hp >= maxhp/2))
@@ -3686,7 +3702,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         k /= 3;
                         mon_lore_r(m_ptr, RFR_RES_COLD);
                     }
-                    else 
+                    else
                     {
                         if (r_ptr->flags3 & (RF3_HURT_COLD))
                         {
@@ -3722,7 +3738,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         k /= 3;
                         mon_lore_r(m_ptr, RFR_RES_ELEC);
                     }
-                    else 
+                    else
                     {
                         if ( one_in_(5)
                           && !(r_ptr->flags3 & RF3_NO_STUN)
@@ -3755,7 +3771,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
                 k *= 1 + (num_blow + 2)/3;
 
-                /* First hit the chosen target */            
+                /* First hit the chosen target */
                 if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
                 {
                     *mdeath = TRUE;
@@ -3763,7 +3779,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 }
 
                 msg_format("Your swing your %s about, reaping a harvest of death!", o_name);
-            
+
                 /* Next hit all adjacent targets in a swinging circular arc */
                 start_dir = calculate_dir(px, py, x, y);
                 dir = start_dir;
@@ -3798,7 +3814,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
                 if (mauler_get_toggle() == MAULER_TOGGLE_SPLATTER)
                 {
-                    project(0, 2, y, x, k, 
+                    project(0, 2, y, x, k,
                             GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_FULL_DAM, -1);
                 }
 
@@ -3896,8 +3912,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                             int w = o_ptr->weight;
                             max = MIN(p_ptr->lev/5, w/40);
                         }
-                        
-                        for (ct = 0; ct < max; ct++) 
+
+                        for (ct = 0; ct < max; ct++)
                         {
                             y += ddy[dir];
                             x += ddx[dir];
@@ -3905,7 +3921,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                             {
                                 int dam = 50;
 
-                                if ( cave[y][x].m_idx 
+                                if ( cave[y][x].m_idx
                                   || cave_have_flag_bold(y, x, FF_TREE)
                                   || cave[y][x].feat == feat_rubble
                                   || cave[y][x].feat == feat_dark_pit )
@@ -3929,32 +3945,32 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                                 cave[ty][tx].m_idx = m_idx;
                                 m_ptr->fy = ty;
                                 m_ptr->fx = tx;
-    
+
                                 update_mon(m_idx, TRUE);
                                 lite_spot(oy, ox);
                                 lite_spot(ty, tx);
-                                
+
                                 oy = ty;
                                 ox = tx;
-    
+
                                 if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
                                     p_ptr->update |= PU_MON_LITE;
                             }
                         }
                     }
                 }
-                    
+
                 if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
                 {
                     msg_format("Your Crusader's Strike drains life from %s!", m_name_object);
                     hp_player(MIN(k, 150));
                 }
-            
+
                 /* Clubmaster Hacks. We do these effects *after* the monster takes damage. */
                 if (weaponmaster_is_(WEAPONMASTER_CLUBS) && p_ptr->speciality_equip)
                 {
                     int odds = 5;
-                
+
                     if (mode == WEAPONMASTER_CUNNING_STRIKE)
                         odds = 2;
 
@@ -4000,13 +4016,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         else
                         {
                             msg_format("%^s is knocked out.", m_name_subject);
-                            knock_out++;        
-                            /* No more retaliation this round! */                    
+                            knock_out++;
+                            /* No more retaliation this round! */
                             retaliation_count = 100; /* Any number >= 4 will do ... */
                         }
                     }
 
-                    if ( mode == WEAPONMASTER_CUNNING_STRIKE 
+                    if ( mode == WEAPONMASTER_CUNNING_STRIKE
                       || (p_ptr->lev >= 45 && one_in_(odds)) )
                     {
                         if (r_ptr->flagsr & RFR_RES_ALL)
@@ -4106,9 +4122,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             drain_result = 0;
 
             /* Confusion attack */
-            if ( (p_ptr->special_attack & ATTACK_CONFUSE) 
-              || chaos_effect == 3 
-              || mode == HISSATSU_CONF 
+            if ( (p_ptr->special_attack & ATTACK_CONFUSE)
+              || chaos_effect == 3
+              || mode == HISSATSU_CONF
               || mode == MYSTIC_CONFUSE
               || mode == DRACONIAN_STRIKE_CONF
               || hex_spelling(HEX_CONFUSION)
@@ -4212,7 +4228,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             if ( p_ptr->pclass == CLASS_DUELIST
               && o_ptr
-              && o_ptr->tval == TV_POLEARM 
+              && o_ptr->tval == TV_POLEARM
               && o_ptr->sval == SV_DEATH_SCYTHE
               && !one_in_(3) )
             {
@@ -4226,8 +4242,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             fuiuchi = FALSE; /* Clumsy! */
 
             if ( o_ptr
-              && o_ptr->tval == TV_POLEARM 
-              && o_ptr->sval == SV_DEATH_SCYTHE 
+              && o_ptr->tval == TV_POLEARM
+              && o_ptr->sval == SV_DEATH_SCYTHE
               && one_in_(3) )
             {
                 msg_format("You miss.", m_name_object);
@@ -4254,7 +4270,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             bool            mdeath2 = FALSE;
 
             msg_format("Your swing your %s about, striking all nearby foes.", o_name);
-            
+
             start_dir = calculate_dir(px, py, x, y);
             dir = start_dir;
 
@@ -4302,7 +4318,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (mode == WEAPONMASTER_ELUSIVE_STRIKE && hit_ct)
         teleport_player(10, TELEPORT_LINE_OF_SIGHT);
 
-    if ( (mode == WEAPONMASTER_KNOCK_BACK || mode == MAULER_KNOCKBACK || mode == MAULER_SCATTER) 
+    if ( (mode == WEAPONMASTER_KNOCK_BACK || mode == MAULER_KNOCKBACK || mode == MAULER_SCATTER)
       && hit_ct
       && !*mdeath )
     {
@@ -4361,9 +4377,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 #if 0
     if (p_ptr->pclass == CLASS_MAULER)
-        c_put_str(TERM_WHITE, format("Maul:%5d", dam_tot), 24, 0);    
+        c_put_str(TERM_WHITE, format("Maul:%5d", dam_tot), 24, 0);
     if (p_ptr->pclass == CLASS_DUELIST)
-        c_put_str(TERM_WHITE, format("Duel:%5d", dam_tot), 24, 0);    
+        c_put_str(TERM_WHITE, format("Duel:%5d", dam_tot), 24, 0);
 #endif
 
 
@@ -4435,7 +4451,7 @@ bool py_attack(int y, int x, int mode)
         health_track(c_ptr->m_idx);
     }
 
-    if ( (r_ptr->flags1 & RF1_FEMALE) 
+    if ( (r_ptr->flags1 & RF1_FEMALE)
       && !(p_ptr->stun || p_ptr->confused || p_ptr->image || !m_ptr->ml)
       && equip_find_artifact(ART_ZANTETSU))
     {
@@ -4449,7 +4465,7 @@ bool py_attack(int y, int x, int mode)
         return FALSE;
     }
 
-    if ( !is_hostile(m_ptr) 
+    if ( !is_hostile(m_ptr)
       && !(p_ptr->stun || p_ptr->confused || p_ptr->image || IS_SHERO() || !m_ptr->ml) )
     {
         if (equip_find_artifact(ART_STORMBRINGER))
@@ -4585,7 +4601,7 @@ bool py_attack(int y, int x, int mode)
                         nx = GRID_X(path[k]);
 
                         if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-                         && !cave[ny][nx].m_idx) 
+                         && !cave[ny][nx].m_idx)
                         {
                             break;
                         }
@@ -4607,7 +4623,7 @@ bool py_attack(int y, int x, int mode)
                         }
                         else
                             Term_xtra(TERM_XTRA_DELAY, msec);
-                    
+
                         if (!py_attack_aux(ny, nx, &fear, &mdeath, i, WEAPONMASTER_PIERCING_STRIKE) || fear_stop) break;
                     }
                 }
@@ -4638,7 +4654,7 @@ bool py_attack(int y, int x, int mode)
                         y = py + ddy[dir];
                         x = px + ddx[dir];
                         c_ptr = &cave[y][x];
-    
+
                         if (c_ptr->m_idx)
                             py_attack_aux(y, x, &fear, &mdeath, i, 0);
                         else
@@ -4649,28 +4665,28 @@ bool py_attack(int y, int x, int mode)
 
                         /* Monster is dead? */
                         if (!c_ptr->m_idx) break;
-    
+
                         ny = y + ddy[dir];
                         nx = x + ddx[dir];
                         m_idx = c_ptr->m_idx;
                         m_ptr = &m_list[m_idx];
-    
+
                         /* Monster cannot move back? */
                         if (!monster_can_enter(ny, nx, &r_info[m_ptr->r_idx], 0))
                         {
                             continue;
                         }
-    
+
                         c_ptr->m_idx = 0;
                         cave[ny][nx].m_idx = m_idx;
                         m_ptr->fy = ny;
                         m_ptr->fx = nx;
-    
+
                         update_mon(m_idx, TRUE);
-    
+
                         lite_spot(y, x);
                         lite_spot(ny, nx);
-    
+
                         /* Player can move forward? */
                         if (player_can_enter(c_ptr->feat, 0))
                         {
@@ -4754,7 +4770,7 @@ bool py_attack(int y, int x, int mode)
             break;
         }
 
-        if (mauler_get_toggle() == MAULER_TOGGLE_MAUL) 
+        if (mauler_get_toggle() == MAULER_TOGGLE_MAUL)
             do_innate_attacks = FALSE;
 
         if (do_innate_attacks)
@@ -4970,6 +4986,7 @@ static bool _auto_detect_traps(void)
 {
     int i;
     if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
+    if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_detect_traps()) return TRUE;
 
     i = pack_find(TV_SCROLL, SV_SCROLL_DETECT_TRAP);
     if (i >= 0 && !p_ptr->blind && !(get_race()->flags & RACE_IS_ILLITERATE))
@@ -5076,7 +5093,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         /* Redraw new spot */
         lite_spot(ny, nx);
 
-        /* Check for new panel (redraw map) */      
+        /* Check for new panel (redraw map) */
         viewport_verify();
 
         /* Check detection status */
@@ -5287,8 +5304,8 @@ bool trap_can_be_ignored(int feat)
     case TRAP_FIRE:
         if (res_can_ignore(RES_FIRE)) return TRUE;
         break;
-    case TRAP_ACID:
-        if (res_can_ignore(RES_ACID)) return TRUE;
+    case TRAP_ACID: /* Note: Your armor still gets messed up even if your pack is safe! */
+        if (res_pct(RES_ACID) == 100) return TRUE;
         break;
     case TRAP_BLIND:
         if (res_can_ignore(RES_BLIND)) return TRUE;
@@ -5568,8 +5585,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         running = 0;
         oktomove = FALSE;
     }
-    else if ( !have_flag(f_ptr->flags, FF_MOVE) 
-           && have_flag(f_ptr->flags, FF_CAN_FLY) 
+    else if ( !have_flag(f_ptr->flags, FF_MOVE)
+           && have_flag(f_ptr->flags, FF_CAN_FLY)
            && !p_ptr->riding
            && !p_ptr->levitation )
     {
@@ -5589,11 +5606,11 @@ void move_player(int dir, bool do_pickup, bool break_trap)
     {
         if ( p_ptr->pclass != CLASS_RANGER
           && p_ptr->pclass != CLASS_SCOUT
-          && !prace_is_(RACE_ENT) 
+          && !prace_is_(RACE_ENT)
           && !prace_is_(RACE_CENTAUR)
           && !prace_is_(RACE_WOOD_ELF)
-          && !p_ptr->levitation 
-          && (!p_ptr->riding || !(riding_r_ptr->flags8 & RF8_WILD_WOOD))) 
+          && !p_ptr->levitation
+          && (!p_ptr->riding || !(riding_r_ptr->flags8 & RF8_WILD_WOOD)))
         {
             energy_use *= 2;
         }

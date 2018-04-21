@@ -109,5 +109,5 @@ Cyberdemon        Poor          Bad           Heroic        Bad             50'
 
 
 
-Automatically generated for PosChengband 5.0.0.
+Automatically generated for PosChengband 5.0.1.
 

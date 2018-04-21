@@ -270,6 +270,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
 
     if (obj_is_identified(o_ptr))
     {
+        int xtra = 0;
         if (o_ptr->name2 == EGO_ROBE_TWILIGHT)
         {
             p = p / 3;
@@ -293,21 +294,23 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
         case ART_STONE_OF_CRAFT:
         case ART_STONE_OF_ARMAGEDDON:
         case ART_STONE_OF_MIND:
-            p += 5000;
-            if (cost_calc_hook)
-            {
-                sprintf(dbg_msg, "  * Hidden Power: p = %d", p);
-                cost_calc_hook(dbg_msg);
-            }
+            xtra = 5000;
             break;
         case ART_ASSASSINATOR:
-            p += 25000;
+            xtra = 25000;
+            break;
+        case ART_SPECTRAL_DSM: /* Passwall */
+            xtra = 50000;
+            break;
+        }
+        if (xtra)
+        {
+            p += xtra;
             if (cost_calc_hook)
             {
                 sprintf(dbg_msg, "  * Hidden Power: p = %d", p);
                 cost_calc_hook(dbg_msg);
             }
-            break;
         }
     }
 
@@ -437,7 +440,7 @@ s32b jewelry_cost(object_type *o_ptr, int options)
 
     switch (o_ptr->tval)
     {
-    case TV_LITE:        
+    case TV_LITE:
         j = 1000;
         break;
     case TV_RING:
@@ -1026,7 +1029,7 @@ s32b weapon_cost(object_type *o_ptr, int options)
         if (have_flag(flgs, OF_BRAND_ELEC)) s += (1.5 * .2);
         if (have_flag(flgs, OF_BRAND_FIRE)) s += (1.5 * .1);
         if (have_flag(flgs, OF_BRAND_COLD)) s += (1.5 * .1);
-        
+
         if (have_flag(flgs, OF_BRAND_CHAOS)) s += 0.2;
         if (have_flag(flgs, OF_BRAND_VAMP)) s += 0.1; /* Not really a slay, but vamp works better on higher dice */
 
@@ -1066,12 +1069,12 @@ s32b weapon_cost(object_type *o_ptr, int options)
         /* While raw damage output continues to be cubic-----^           ^
            But, scaled to gain cross type power comparability------------^ */
 
-        if (have_flag(flgs, OF_BRAND_VAMP)) 
+        if (have_flag(flgs, OF_BRAND_VAMP))
             w += 3000;
 
-        if (have_flag(flgs, OF_IMPACT)) 
+        if (have_flag(flgs, OF_IMPACT))
             w += 250;
-    
+
         if (have_flag(flgs, OF_BRAND_WILD))
             w += 10000;
 
@@ -1140,7 +1143,7 @@ s32b weapon_cost(object_type *o_ptr, int options)
     y = 0;
     if (have_flag(flgs, OF_SEARCH)) y += 100;
     if (have_flag(flgs, OF_INFRA)) y += 500;
-    if (have_flag(flgs, OF_TUNNEL)) 
+    if (have_flag(flgs, OF_TUNNEL))
     {
         if (o_ptr->tval == TV_DIGGING && pval == 1)
         {
@@ -1231,7 +1234,6 @@ static s32b _avg_dam_bow(object_type *o_ptr, int options)
 
     case SV_SHORT_BOW:
         d = m*(2 + to_d) / 100;
-        d = d * 2 / 3; /* Range */
         break;
 
     case SV_LONG_BOW:
@@ -1244,7 +1246,6 @@ static s32b _avg_dam_bow(object_type *o_ptr, int options)
 
     case SV_LIGHT_XBOW:
         d = m*(4 + to_d) / 100;
-        d = d * 2 / 3; /* Range */
         break;
 
     case SV_HEAVY_XBOW:

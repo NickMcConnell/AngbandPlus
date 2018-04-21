@@ -623,9 +623,6 @@
     <ClInclude Include="init.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="kajitips.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="readdib.h">
       <Filter>Header Files</Filter>
     </ClInclude>

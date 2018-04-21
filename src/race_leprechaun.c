@@ -5,7 +5,7 @@
 #define MON_DEATH_LEPRECHAUN 680
 #define MON_LEPRECHAUN_FANATIC 700
 
-static cptr _desc = 
+static cptr _desc =
     "Leprechauns are small, mischevous creatures, always scheming for gold. "
     "They are weak, but quick and stealthy. For combat, they prefer not to use "
     "weapons at all. Rather, by keeping at least one hand free, they may pilfer "
@@ -21,14 +21,15 @@ static cptr _desc =
     "are great masters of bow and device alike. At high levels, they move with incredible "
     "speed and seem to be in multiple places at once. Dexterity determines the leprechaun's "
     "skill with their magic.\n \n"
-    "Leprechauns are monsters so can not choose a normal class. Instead, being small, they "
-    "should spend their initial pot of gold wisely and then enter the dungeons in search "
-    "of new treasure. Since gold is so important to the leprechaun, much of their strength "
-    "depends on possessing a large hoard of wealth, and various leprechaun attributes "
-    "are directly affected by the amount of gold on hand.";
+    "The leprechaun uses gold for spell casting the way other players use mana. Gold is "
+    "also used to pay for recharging devices or to power mana branded weapons. In addition, "
+    "increasing the amount of gold on hand increases the power of the leprechaun, granting "
+    "extra blows per round, extra shots per round, increased AC, life rating and even "
+    "increasing their power with magical devices. To succeed in life, greed is obviously "
+    "the primary virtue of the leprechaun!";
 
-static void _birth(void) 
-{ 
+static void _birth(void)
+{
     p_ptr->current_r_idx = MON_CHEERFUL_LEPRECHAUN;
     skills_innate_init("Greedy Hands", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
@@ -73,7 +74,7 @@ static void _calc_innate_attacks(void)
         a.to_h = p_ptr->lev/5;
 
         a.effect[1] = GF_STEAL;
-        
+
         calc_innate_blows(&a, 300);
 
         a.msg = "You pilfer.";
@@ -126,6 +127,22 @@ void blink_toggle_spell(int cmd, variant *res)
     }
 }
 
+void _hoarding_toggle_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Hoarding");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "When using this technique, any items you 'destroy' will be automatically converted into gold.");
+        break;
+    default:
+        _toggle_spell(LEPRECHAUN_TOGGLE_HOARDING, cmd, res);
+        break;
+    }
+}
+
 /**********************************************************************
  * Leprechaun Spells and Abilities
  **********************************************************************/
@@ -160,24 +177,25 @@ void _fanaticism_spell(int cmd, variant *res)
     }
 }
 
-static spell_info _spells[] = 
-{
-    {  1,  2, 20, phase_door_spell},
-    {  1,  3, 20, detect_treasure_spell},
-    { 10,  5, 30, detection_spell},
-    { 15,  3, 30, cause_wounds_I_spell}, 
-    { 15,  5, 30, teleport_spell},
-    { 15, 12, 40, teleport_to_spell},
-    { 20, 12, 40, telekinesis_spell}, 
-    { 30, 15, 50, cause_wounds_III_spell}, 
-    { 35, 15, 60, animate_dead_spell}, 
-    { 37, 20, 60, recharging_spell},  /* Using the player's gold! */
-    { 40,  0,  0, blink_toggle_spell}, 
-    { 45, 40, 60, _fanaticism_spell},
-    { -1, -1, -1, NULL}
+static spell_info _spells[] =
+{ /* Lvl    Au  Fail */
+    {  1,    5,   20, phase_door_spell},
+    {  1,   10,   20, detect_treasure_spell},
+    { 10,   25,   30, detection_spell},
+    { 15,   25,   30, cause_wounds_I_spell},
+    { 15,   20,   30, teleport_spell},
+    { 15,  100,   40, teleport_to_spell},
+    { 20,  250,   40, telekinesis_spell},
+    { 30,  200,   50, cause_wounds_III_spell},
+    { 35,  500,   60, animate_dead_spell},
+    { 37, 1000,   60, recharging_spell},
+    { 40,    0,    0, blink_toggle_spell},
+    { 42,    0,    0, _hoarding_toggle_spell},
+    { 45, 1500,   60, _fanaticism_spell},
+    { -1,   -1,   -1, NULL}
 };
 
-static int _get_spells(spell_info* spells, int max) 
+static int _get_spells(spell_info* spells, int max)
 {
     return get_spells_aux(spells, max, _spells);
 }
@@ -190,13 +208,13 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "greedy power";
         me.which_stat = A_DEX;
-        me.weight = 450;
+        me.options = CASTER_USE_AU;
         init = TRUE;
     }
     return &me;
 }
 
-static void _calc_bonuses(void) 
+static void _calc_bonuses(void)
 {
     int ac = MIN(p_ptr->au / 250000, 25);
 
@@ -205,23 +223,12 @@ static void _calc_bonuses(void)
 
     if (p_ptr->au >= 10 * 1000 * 1000)
     {
-        p_ptr->device_power++;
+        p_ptr->device_power += 2;
     }
-    if (p_ptr->au >= 5 * 1000 * 1000)
+    else if (p_ptr->au >= 5 * 1000 * 1000)
     {
-        p_ptr->spell_power++;
-        p_ptr->spell_cap++;
-        p_ptr->device_power++;
+        p_ptr->device_power += 1;
     }
-    if (p_ptr->au >= 1000 * 1000)
-    {
-        p_ptr->spell_power++;
-        p_ptr->spell_cap++;
-    }
-    if (p_ptr->au >= 500 * 1000)
-        p_ptr->spell_cap++;
-    if (p_ptr->au >= 100 * 1000)
-        p_ptr->spell_cap++;
 
     switch (p_ptr->current_r_idx)
     {
@@ -245,13 +252,10 @@ static void _calc_bonuses(void)
     }
 }
 
-static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
-    if (p_ptr->au >= 100 * 1000)
-        add_flag(flgs, OF_SPELL_CAP);
-
-    if (p_ptr->au >= 1000 * 1000)
-        add_flag(flgs, OF_SPELL_POWER);
+    if (p_ptr->au >= 5 * 1000 * 1000)
+        add_flag(flgs, OF_DEVICE_POWER);
 
     switch (p_ptr->current_r_idx)
     {
@@ -278,13 +282,13 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
       && info_ptr->tval_ammo <= TV_BOLT
       && info_ptr->tval_ammo >= TV_SHOT )
     {
-        p_ptr->shooter_info.num_fire += MIN(p_ptr->au / 200000, 75);
+        p_ptr->shooter_info.num_fire += MIN(p_ptr->au / 100000, 100);
     }
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
-    info_ptr->xtra_blow += MIN(p_ptr->au / 200000, 100);
+    info_ptr->xtra_blow += MIN(p_ptr->au / 100000, 100);
 }
 
 static void _player_action(int energy_use)
@@ -296,7 +300,7 @@ static void _player_action(int energy_use)
 /**********************************************************************
  * Leprechaun Evolution
  **********************************************************************/
-static void _gain_level(int new_level) 
+static void _gain_level(int new_level)
 {
     if (p_ptr->current_r_idx == MON_CHEERFUL_LEPRECHAUN && new_level >= 15)
     {
@@ -329,7 +333,7 @@ bool leprechaun_steal(int m_idx)
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-    if ( !mon_save_p(m_ptr->r_idx, A_DEX) 
+    if ( !mon_save_p(m_ptr->r_idx, A_DEX)
       || (MON_CSLEEP(m_ptr) && !mon_save_p(m_ptr->r_idx, A_DEX)))
     {
         object_type loot = {0};
@@ -354,7 +358,7 @@ bool leprechaun_steal(int m_idx)
         {
             msg_print("There is nothing to steal!");
         }
-        else 
+        else
         {
             char o_name[MAX_NLEN];
 
@@ -392,11 +396,36 @@ bool leprechaun_steal(int m_idx)
     return result;
 }
 
+bool _destroy_object(object_type *o_ptr)
+{
+    if (_get_toggle() == LEPRECHAUN_TOGGLE_HOARDING)
+    {
+        int amt = obj_value_real(o_ptr) * o_ptr->number / 3;
+
+        if (amt > 0)
+        {
+            char o_name[MAX_NLEN];
+
+            object_desc(o_name, o_ptr, OD_COLOR_CODED);
+            msg_format("You turn %s to %d coins worth of gold.", o_name, amt);
+
+            p_ptr->au += amt;
+            stats_on_gold_selling(amt); /* ? */
+
+            p_ptr->redraw |= (PR_GOLD);
+            p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 race_t *mon_leprechaun_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[3] =  {"Cheerful Leprechaun", "Malicious Leprechaun", "Death Leprechaun"};    
+    static cptr   titles[3] =  {"Cheerful Leprechaun", "Malicious Leprechaun", "Death Leprechaun"};
     int           rank = 0;
 
     if (p_ptr->lev >= 15) rank++;
@@ -428,6 +457,7 @@ race_t *mon_leprechaun_get_race(void)
         me.gain_level = _gain_level;
         me.birth = _birth;
         me.player_action = _player_action;
+        me.destroy_object = _destroy_object;
         me.pseudo_class_idx = CLASS_ROGUE;
 
         me.flags = RACE_IS_MONSTER;
@@ -436,7 +466,7 @@ race_t *mon_leprechaun_get_race(void)
 
     me.life = 80;
     if (!spoiler_hack)
-        me.life += MIN(p_ptr->au / 1000000, 20);
+        me.life += MIN(p_ptr->au / 500000, 20);
 
     me.subname = titles[rank];
     me.stats[A_STR] = -2 - 2*rank;

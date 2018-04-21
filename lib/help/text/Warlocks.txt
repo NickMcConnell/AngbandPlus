@@ -125,9 +125,9 @@ be annoying as well, so perhaps an alliance is in order?
   Intelligence  -2        Device      Fair         
   Wisdom        -2        Save        Fair         
   Dexterity     +2        Stealth     Excellent    
-  Constitution  +2        Searching   Poor         
-  Charisma      +2        Perception  Bad          
-  Life Rating  102%       Melee       Very Good    
+  Constitution  +2        Searching   Fair         
+  Charisma      +2        Perception  Poor         
+  Life Rating  102%       Melee       Excellent    
   Base HP       12        Bows        Bad          
   Experience   110%
   
@@ -168,7 +168,7 @@ nearly indistiguishable in skill from Warriors!
   Strength      +2        Disarming   Bad          
   Intelligence  -4        Device      Bad          
   Wisdom        -4        Save        Fair         
-  Dexterity     -2        Stealth     Poor         
+  Dexterity     -3        Stealth     Poor         
   Constitution  +2        Searching   Poor         
   Charisma      +2        Perception  Bad          
   Life Rating  112%       Melee       Superb       
@@ -184,7 +184,7 @@ Angels             +1   +1   +2   +1   +1   +3   98%   +4  150%
 Demons             +3   +1  -10   +1   +1   +3  100%  +15  150%
 Hounds             +0   -2   -2   +2   +2   +2  102%  +12  110%
 Spiders            -1   +0   -2   +2   +0   +2   97%   +1  120%
-Giants             +2   -4   -4   -2   +2   +2  112%  +25  140%
+Giants             +2   -4   -4   -3   +2   +2  112%  +25  140%
 
 
 Table 2 - Warlock Skill Bonus Table I
@@ -206,12 +206,12 @@ Undead            Poor          Fair          Fair          Poor
 Dragons           Poor          Poor          Fair          Poor         
 Angels            Poor          Bad           Fair          Poor         
 Demons            Poor          Bad           Excellent     Poor         
-Hounds            Poor          Bad           Very Good     Bad          
+Hounds            Fair          Poor          Excellent     Bad          
 Spiders           Poor          Bad           Fair          Very Good    
 Giants            Poor          Bad           Superb        Very Good    
 
 
 
 
-Automatically generated for PosChengband 5.0.0.
+Automatically generated for PosChengband 5.0.1.
 

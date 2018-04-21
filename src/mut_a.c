@@ -1355,7 +1355,7 @@ void fumbling_mut(int cmd, variant *res)
         if (one_in_(10000))
         {
             int slot = equip_random_slot(object_is_melee_weapon);
-            
+
             disturb(0, 0);
             msg_print("You trip over your own feet!");
             take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), "tripping", -1);
@@ -1561,7 +1561,7 @@ void infravision_mut(int cmd, variant *res)
         var_set_string(res, "You have remarkable infravision (+3).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->see_infra += 3;        
+        p_ptr->see_infra += 3;
         break;
     default:
         default_spell(cmd, res);
@@ -1771,12 +1771,12 @@ void nausea_mut(int cmd, variant *res)
         if (!p_ptr->slow_digest && one_in_(9000))
         {
             disturb(0, 0);
-            
+
             msg_print("Your stomach roils, and you lose your lunch!");
             msg_print(NULL);
 
             set_food(PY_FOOD_WEAK);
-            
+
             if (music_singing_any()) bard_stop_singing();
             if (hex_spelling_any()) stop_hex_spell_all();
             warlock_stop_singing();
@@ -2627,8 +2627,8 @@ void untouchable_mut(int cmd, variant *res)
         var_set_string(res, "You will gain a bonus to armor class.");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->to_a += 15;
-        p_ptr->dis_to_a += 15;
+        p_ptr->to_a += 20;
+        p_ptr->dis_to_a += 20;
         break;
     default:
         default_spell(cmd, res);

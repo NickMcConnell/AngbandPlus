@@ -7,7 +7,7 @@ int hit_chance_innate(int to_h, int ac)
     int odds;
 
     if (chance <= 0) return 0;
-    
+
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
     if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
     if (odds < 50) odds = 50;
@@ -75,7 +75,7 @@ static _blow_info_t _get_blow_info(int hand)
 
     case CLASS_RAGE_MAGE:
         result.num = 300; result.wgt = 70; result.mul = 30; break;
-                    
+
     case CLASS_MAGE:
     case CLASS_NECROMANCER:
     case CLASS_BLOOD_MAGE:
@@ -146,7 +146,7 @@ static _blow_info_t _get_blow_info(int hand)
         result.num = 525; result.wgt = 150; result.mul = 55; break;
 
     case CLASS_WEAPONMASTER:
-        result.num = weaponmaster_get_max_blows(o_ptr, hand); 
+        result.num = weaponmaster_get_max_blows(o_ptr, hand);
         result.wgt = 70; result.mul = 50; break;
 
     case CLASS_WARRIOR_MAGE:
@@ -177,7 +177,7 @@ static _blow_info_t _get_blow_info(int hand)
 
     case CLASS_DUELIST:
         result.num = 100; result.wgt = 70; result.mul = 40; break;
-                    
+
     case CLASS_IMITATOR:
         result.num = 550; result.wgt = 70; result.mul = 40; break;
 
@@ -214,7 +214,7 @@ static _blow_info_t _get_blow_info(int hand)
 
     case CLASS_MONSTER:
         result.num = 500; result.wgt = 70; result.mul = 50;
-        if (prace_is_(RACE_MON_LICH)) 
+        if (prace_is_(RACE_MON_LICH))
         {
             result.num = 400;
             result.mul = 30;
@@ -223,7 +223,7 @@ static _blow_info_t _get_blow_info(int hand)
         {
             result.num = 400;
         }
-        else if (prace_is_(RACE_MON_MIMIC)) 
+        else if (prace_is_(RACE_MON_MIMIC))
         {
             result.num = 400;
         }
@@ -240,14 +240,14 @@ static _blow_info_t _get_blow_info(int hand)
                 result.mul = 80;
         }
         else if ( prace_is_(RACE_MON_JELLY)
-               || demon_is_(DEMON_KHORNE) )  
+               || demon_is_(DEMON_KHORNE) )
         {
             result.num = 600;
             result.mul = 50 + p_ptr->lev/5;
         }
-        else if (prace_is_(RACE_MON_LEPRECHAUN)) 
+        else if (prace_is_(RACE_MON_LEPRECHAUN))
         {
-            result.num = 300;
+            result.num = 300; /* but gold gives extra blows ... */
             result.mul = 20;
         }
         else if (prace_is_(RACE_MON_SWORD))
@@ -275,7 +275,7 @@ static _blow_info_t _get_blow_info(int hand)
     if (result.num < 100)
         result.num = 100;
 
-    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
+    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE)
         result.num = 100;
 
     return result;
@@ -364,7 +364,7 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     {
         if (!info_ptr->omoi)
             blow_str_idx += 10;
-        if (prace_is_(RACE_MON_GIANT) && giant_is_favorite(o_ptr)) 
+        if (prace_is_(RACE_MON_GIANT) && giant_is_favorite(o_ptr))
             blow_str_idx += 10;
     }
     if (p_ptr->pclass == CLASS_NINJA) blow_str_idx = MAX(0, blow_str_idx-10);
@@ -374,8 +374,8 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
 
     if (p_ptr->pclass == CLASS_MAULER)
         result = 100 + (result - 100)*2/5;
-        
-    if (result > blow_info.num) 
+
+    if (result > blow_info.num)
         result = blow_info.num;
 
     if (result < 100)
@@ -418,7 +418,7 @@ void calc_innate_blows(innate_attack_ptr a, int max)
 /**********************************************************************
  * Display Weapon Information to the Player
  **********************************************************************/
-static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int blows, 
+static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int blows,
                                  int dd, int ds, int to_d, cptr name, int color, doc_ptr doc)
 {
     int mult, min, max;
@@ -486,10 +486,24 @@ void display_weapon_info(doc_ptr doc, int hand)
     }
 
     weapon_flags_known(hand, flgs);
-    if ( (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force) 
-      && (p_ptr->csp > o_ptr->dd*o_ptr->ds/5) )
+    if (have_flag(flgs, OF_BRAND_MANA) || p_ptr->tim_force)
     {
-        force = TRUE;
+        caster_info *caster = get_caster_info();
+        int          cost = 0;
+
+        if (p_ptr->pclass == CLASS_SAMURAI)
+            cost = (1 + (dd * ds * 2 / 7));
+        else
+            cost = (1 + (dd * ds / 7));
+
+        if (caster && (caster->options & CASTER_USE_AU))
+        {
+            cost *= 10;
+            if (p_ptr->au >= cost)
+                force = TRUE;
+        }
+        else if (p_ptr->csp >= cost)
+            force = TRUE;
     }
 
     if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && object_is_shield(o_ptr))
@@ -609,13 +623,13 @@ void display_weapon_info(doc_ptr doc, int hand)
 
     if (p_ptr->tim_slay_sentient)
         _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Sent.", TERM_YELLOW, cols[0]);
-    
-    if (have_flag(flgs, OF_KILL_ANIMAL)) 
+
+    if (have_flag(flgs, OF_KILL_ANIMAL))
         _display_weapon_slay(mult, 400, force, num_blow, dd, ds, to_d, "Animals", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_ANIMAL))
         _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Animals", TERM_YELLOW, cols[0]);
-    
-    if (have_flag(flgs, OF_KILL_EVIL))   
+
+    if (have_flag(flgs, OF_KILL_EVIL))
         _display_weapon_slay(mult, 350, force, num_blow, dd, ds, to_d, "Evil", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_EVIL) || weaponmaster_get_toggle() == TOGGLE_HOLY_BLADE)
         _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Evil", TERM_YELLOW, cols[0]);
@@ -635,32 +649,32 @@ void display_weapon_info(doc_ptr doc, int hand)
         _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Undead", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_UNDEAD))
         _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Undead", TERM_YELLOW, cols[0]);
-    
-    if (have_flag(flgs, OF_KILL_DEMON))  
+
+    if (have_flag(flgs, OF_KILL_DEMON))
         _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Demons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_DEMON))
         _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Demons", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_ORC))  
+    if (have_flag(flgs, OF_KILL_ORC))
         _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Orcs", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_ORC))
         _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Orcs", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_TROLL))  
+    if (have_flag(flgs, OF_KILL_TROLL))
         _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Trolls", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_TROLL))
         _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Trolls", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_GIANT))  
+    if (have_flag(flgs, OF_KILL_GIANT))
         _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Giants", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_GIANT))
         _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Giants", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_DRAGON))  
+    if (have_flag(flgs, OF_KILL_DRAGON))
         _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Dragons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_DRAGON))
         _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Dragons", TERM_YELLOW, cols[0]);
-    
+
     if (have_flag(flgs, OF_BRAND_ACID))
         _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Acid", TERM_RED, cols[0]);
 
@@ -821,7 +835,7 @@ void display_innate_attack_info(doc_ptr doc, int which)
     max_base = mult * dd * a->ds / 100;
     max = max_base + to_d;
     max2 = 2*(max_base + a->to_d) + p_ptr->to_d_m;
-    
+
     if (a->effect[0] == GF_OLD_CONF) /* Hack for Umber Hulk ... */
     {
         doc_insert(cols[0], "<tab:10><color:B>Confuses</color>\n");
@@ -843,16 +857,16 @@ void display_innate_attack_info(doc_ptr doc, int which)
 
         switch (a->effect[i])
         {
-        case GF_STEAL: 
+        case GF_STEAL:
             doc_printf(cols[0], "<tab:10><color:B>Steals%s</color>\n", xtra);
             break;
-        case GF_OLD_SLOW: 
+        case GF_OLD_SLOW:
             doc_printf(cols[0], "<tab:10><color:B>Slows%s</color>\n", xtra);
             break;
-        case GF_OLD_CONF: 
+        case GF_OLD_CONF:
             doc_printf(cols[0], "<tab:10><color:B>Confuses%s</color>\n", xtra);
             break;
-        case GF_OLD_SLEEP: 
+        case GF_OLD_SLEEP:
             doc_printf(cols[0], "<tab:10><color:B>Sleeps%s</color>\n", xtra);
             break;
         case GF_STASIS:
@@ -925,60 +939,51 @@ int bow_range(object_type *o_ptr)
 {
     int range, mult;
 
+    mult = bow_mult(o_ptr);
+    range = 13 + mult/80;
+
     switch (o_ptr->sval)
     {
     case SV_LIGHT_XBOW:
-        range = 9; /* somebody is adding 1 later ... */
-        range += (p_ptr->concent + 1) / 2;    /* Snipers? */
+        if (p_ptr->concent) /* Sniper */
+            range += (p_ptr->concent + 1) / 2;
         break;
-
-    case SV_SHORT_BOW:
-        range = 9; /* somebody is adding 1 later ... */
-        break;
-
-    default:
-        mult = bow_mult(o_ptr);
-        range = 13 + mult/80;
-        if (o_ptr->sval == SV_HEAVY_XBOW)
-        {
-            if (p_ptr->concent)
-                range -= (5 - (p_ptr->concent + 1) / 2);
-            else
-                range -= 5;
-        }
+    case SV_HEAVY_XBOW:
+        range -= 5;
+        if (p_ptr->concent) /* Sniper */
+            range += (p_ptr->concent + 1) / 2;
         break;
     }
-    if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS)
-        range += 1 + p_ptr->lev/12;
 
     return range;
 }
 
-
-
-static void _display_missile_slay(int base_mult, int slay_mult, int shots, 
-                                  int dd, int ds, int to_d, int to_d_xtra, 
+static void _display_missile_slay(int base_mult, int slay_mult, int shots,
+                                  int dd, int ds, int to_d, int to_d_xtra,
                                   cptr name, int color, doc_ptr doc)
 {
-    int mult, min, max;
+    int mult, min, max, avg1, avg2;
 
     mult = slay_mult;
     mult = mult * base_mult / 100;
 
-    if (p_ptr->concent) 
+    if (p_ptr->concent)
     {
-        min = shots * (boost_concentration_damage(mult*(dd + to_d)/100) + to_d_xtra) / 100;
-        max = shots * (boost_concentration_damage(mult*(dd*ds + to_d)/100) + to_d_xtra) / 100;
+        min = boost_concentration_damage(mult*(dd + to_d)/100) + to_d_xtra;
+        max = boost_concentration_damage(mult*(dd*ds + to_d)/100) + to_d_xtra;
     }
     else
     {
-        min = shots * (mult*(dd + to_d)/100 + to_d_xtra) / 100;
-        max = shots * (mult*(dd*ds + to_d)/100 + to_d_xtra) / 100;
+        min = mult*(dd + to_d)/100 + to_d_xtra;
+        max = mult*(dd*ds + to_d)/100 + to_d_xtra;
     }
 
+    avg1 = (min+max)/2;
+    avg2 = shots*avg1/100;
+
     doc_printf(doc, " <color:%c>%-8.8s</color>", attr_to_attr_char(color), name);
-    doc_printf(doc, ": %d [%d.%02dx]\n",
-                    (min + max)/2,
+    doc_printf(doc, ": %d/%d [%d.%02dx]\n",
+                    avg1, avg2,
                     mult/100, mult%100);
 }
 
@@ -996,7 +1001,7 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
     int          to_d_xtra = p_ptr->shooter_info.dis_to_d;
     int          dd = arrow->dd;
     int          ds = arrow->ds;
-    critical_t   crit = {0}; 
+    critical_t   crit = {0};
     int          num_fire = 0;
     doc_ptr      cols[2] = {0};
 
@@ -1017,7 +1022,7 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         to_d_bow = bow->to_d;
         if (weaponmaster_is_(WEAPONMASTER_CROSSBOWS) && p_ptr->lev >= 15)
             to_d_bow += 1 + p_ptr->lev/10;
-    } 
+    }
 
     if (object_is_known(arrow))
     {
@@ -1079,12 +1084,12 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         _display_missile_slay(mult, 100, num_fire, dd, ds, to_d, to_d_xtra, "Force", TERM_L_BLUE, cols[0]);
     }
 
-    if (have_flag(flgs, OF_KILL_ANIMAL)) 
+    if (have_flag(flgs, OF_KILL_ANIMAL))
         _display_missile_slay(mult, 270, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_ANIMAL))
         _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, cols[0]);
-    
-    if (have_flag(flgs, OF_KILL_EVIL))   
+
+    if (have_flag(flgs, OF_KILL_EVIL))
         _display_missile_slay(mult, 250, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_EVIL))
         _display_missile_slay(mult, 150, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, cols[0]);
@@ -1098,32 +1103,32 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Undead", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_UNDEAD))
         _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Undead", TERM_YELLOW, cols[0]);
-    
-    if (have_flag(flgs, OF_KILL_DEMON))  
+
+    if (have_flag(flgs, OF_KILL_DEMON))
         _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Demons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_DEMON))
         _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Demons", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_ORC))  
+    if (have_flag(flgs, OF_KILL_ORC))
         _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Orcs", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_ORC))
         _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Orcs", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_TROLL))  
+    if (have_flag(flgs, OF_KILL_TROLL))
         _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Trolls", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_TROLL))
         _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Trolls", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_GIANT))  
+    if (have_flag(flgs, OF_KILL_GIANT))
         _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Giants", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_GIANT))
         _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Giants", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_DRAGON))  
+    if (have_flag(flgs, OF_KILL_DRAGON))
         _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Dragons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_DRAGON))
         _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Dragons", TERM_YELLOW, cols[0]);
-    
+
     if (have_flag(flgs, OF_BRAND_ACID))
         _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Acid", TERM_RED, cols[0]);
 
@@ -1188,7 +1193,7 @@ void display_shooter_info(doc_ptr doc)
     /* Shooter */
     object_desc(o_name, bow_ptr, OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
     doc_printf(doc, " <color:y>Shooting</color>: <indent><style:indent>%s</style></indent>\n", o_name);
-    
+
     doc_printf(doc, " %-8.8s: %d'\n", "Range", (bow_range(bow_ptr) + 1) * 10);
     doc_printf(doc, " %-8.8s: %d.%02d\n", "Shots", num_fire/100, num_fire%100);
     doc_printf(doc, " %-8.8s: %d.%02dx\n", "Mult", mult/100, mult%100);

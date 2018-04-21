@@ -33,7 +33,7 @@ extern cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 extern int level_up;
 
-/* 
+/*
  *  List for auto-picker/destroyer entries
  */
 extern int max_autopick;
@@ -270,6 +270,7 @@ extern bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation
 extern bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
 extern bool exp_need;    /* Show the experience needed for next level */
 extern bool ignore_unview;    /* Ignore whenever any monster does */
+extern bool display_distance;    /* Display distance of LoS monsters in monster list */
 
 
 /*** Game-Play Options ***/
@@ -1047,6 +1048,7 @@ extern void monster_gain_exp(int m_idx, int s_idx);
 
 /* monster1.c */
 extern bool mon_save_p(int r_idx, int stat);
+extern bool mon_save_aux(int r_idx, int power);
 extern void roff_top(int r_idx);
 extern bool mon_hook_dungeon(int r_idx);
 
@@ -1391,7 +1393,6 @@ extern bool dispel_undead(int dam);
 extern bool dispel_monsters(int dam);
 extern bool dispel_living(int dam);
 extern bool dispel_demons(int dam);
-extern bool crusade(void);
 extern bool turn_undead(void);
 extern bool destroy_area(int y1, int x1, int r, int power);
 extern bool earthquake_aux(int cy, int cx, int r, int m_idx);
@@ -1486,7 +1487,7 @@ extern void phlogiston(void);
 extern bool brand_weapon(int brand_type);
 extern bool brand_weapon_aux(int item);
 extern bool brand_armour_aux(int item);
-extern bool brand_weapon_slaying(int flag);
+extern bool brand_weapon_slaying(int brand_flag, int res_flag);
 extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
 extern void alter_reality(void);
@@ -1946,13 +1947,6 @@ extern void race_legends(void);
 extern void race_score(int race_num);
 extern void show_highclass(void);
 
-/* mind.c */
-extern mind_power mind_powers[MIND_MAX_CLASSES];
-extern void mindcraft_info(char *p, int use_mind, int power);
-extern void do_cmd_mind(void);
-extern void do_cmd_mind_browse(void);
-
-
 /* mspells3.c */
 extern bool do_cmd_cast_learned(void);
 extern void learn_spell(int monspell);
@@ -2264,7 +2258,7 @@ extern void    possessor_on_birth(void);
 extern void    possessor_calc_innate_attacks(void);
 extern int     possessor_get_powers(spell_info* spells, int max);
 extern int     possessor_get_spells(spell_info* spells, int max);
-extern 
+extern
 caster_info   *possessor_caster_info(void);
 extern void    possessor_calc_bonuses(void);
 extern int     possessor_r_speed(int r_idx);
@@ -2349,6 +2343,9 @@ extern bool magic_eater_regen(int percent);
 extern void magic_eater_restore(void);
 extern void magic_eater_restore_all(void);
 extern bool magic_eater_can_regen(void);
+extern int  magic_eater_regen_amt(int tval);
+extern bool magic_eater_auto_id(object_type *o_ptr);
+extern bool magic_eater_auto_detect_traps(void);
 
 extern void magic_eater_browse(void);
 extern void magic_eater_cast(int tval);
@@ -2428,6 +2425,8 @@ extern class_t *ninja_get_class(void);
 extern class_t *paladin_get_class(void);
 extern bool     player_is_monster_king(void);
 extern class_t *priest_get_class(void);
+extern bool     priest_is_good(void);
+extern bool     priest_is_evil(void);
 extern class_t *psion_get_class(void);
 extern int      psion_backlash_dam(int dam);
 extern void     psion_decrement_counters(void);
@@ -2467,7 +2466,10 @@ extern void     rage_mage_blood_lust(int dam);
 extern void     rage_mage_rage_fueled(int dam);
 extern class_t *ranger_get_class(void);
 extern class_t *red_mage_get_class(void);
+
 extern class_t *rogue_get_class(void);
+extern cptr     do_burglary_spell(int spell, int mode);
+
 extern bool     rune_add(object_type *o_ptr, int which, bool prompt);
 extern cptr     rune_desc(int which);
 extern void     rune_calc_bonuses(object_type *o_ptr);
@@ -2475,8 +2477,6 @@ extern void     rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS]);
 extern class_t *rune_knight_get_class(void);
 
 extern void     samurai_concentration_spell(int cmd, variant *res);
-extern void     samurai_on_rest(void);
-extern bool     samurai_can_concentrate(void);
 extern class_t *samurai_get_class(void);
 extern void     samurai_posture_spell(int cmd, variant *res);
 extern void     samurai_posture_get_flags(u32b flgs[OF_ARRAY_SIZE]);
@@ -2510,7 +2510,7 @@ extern void     on_p_hit_m(int m_idx);
 /* skills.c */
 extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/
 extern void skills_add(skills_t *dest, skills_t *src);
-extern void skills_scale(skills_t *dest, int num, int denom); 
+extern void skills_scale(skills_t *dest, int num, int denom);
 extern void skills_init(skills_t *dest);
 typedef struct { cptr desc; byte color; } skill_desc_t;
 extern skill_desc_t skills_describe(int amt, int div);

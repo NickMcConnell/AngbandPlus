@@ -75,7 +75,7 @@
  */
 void init_file_paths(const char *configpath, const char *libpath, const char *datapath)
 {
-#ifdef NeXT  
+#ifdef NeXT
     char *tail;
 #endif
 
@@ -107,7 +107,7 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     /* Hack -- save the main directory */
     ANGBAND_DIR = z_string_make(libpath);
 
-#ifdef NeXT  
+#ifdef NeXT
     /* Prepare to append to the Base Path */
     /* This is really suspicious code as we might sprintf to this buffer below! */
     tail = (char*)(libpath + strlen(libpath));
@@ -221,69 +221,74 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
 
 }
 
+#ifdef WIN32
+/* This just broke one day ... sigh */
+#include <sys/stat.h>
+#endif
+
 bool dir_exists(const char *path)
 {
-	struct stat buf;
-	if (stat(path, &buf) != 0)
-		return FALSE;
+    struct stat buf;
+    if (stat(path, &buf) != 0)
+        return FALSE;
 #ifdef WIN32
-	else if (buf.st_mode & S_IFDIR)
+    else if (buf.st_mode & S_IFDIR)
 #else
     else if (S_ISDIR(buf.st_mode))
 #endif
-		return TRUE;
-	else
-		return FALSE;
+        return TRUE;
+    else
+        return FALSE;
 }
 
 #define PATH_SEPC '/'
 bool dir_create(const char *path)
 {
 #ifdef WIN32
-	/* If the directory already exists then we're done */
-	if (dir_exists(path)) return TRUE;
+    /* If the directory already exists then we're done */
+    if (dir_exists(path)) return TRUE;
     return FALSE;
 #else
-	const char *ptr;
-	char buf[512];
+    const char *ptr;
+    char buf[512];
 
-	/* If the directory already exists then we're done */
-	if (dir_exists(path)) return TRUE;
-	/* Iterate through the path looking for path segements. At each step,
-	 * create the path segment if it doesn't already exist. */
-	for (ptr = path; *ptr; ptr++)
-	{
-		if (*ptr == PATH_SEPC)
-		{
-			/* Find the length of the parent path string */
-			size_t len = (size_t)(ptr - path);
+    /* If the directory already exists then we're done */
+    if (dir_exists(path)) return TRUE;
+    /* Iterate through the path looking for path segements. At each step,
+     * create the path segment if it doesn't already exist. */
+    for (ptr = path; *ptr; ptr++)
+    {
+        if (*ptr == PATH_SEPC)
+        {
+            /* Find the length of the parent path string */
+            size_t len = (size_t)(ptr - path);
 
-			/* Skip the initial slash */
-			if (len == 0) continue;
+            /* Skip the initial slash */
+            if (len == 0) continue;
 
-			/* If this is a duplicate path separator, continue */
-			if (*(ptr - 1) == PATH_SEPC) continue;
+            /* If this is a duplicate path separator, continue */
+            if (*(ptr - 1) == PATH_SEPC) continue;
 
-			/* We can't handle really big filenames */
-			if (len - 1 > 512) return FALSE;
+            /* We can't handle really big filenames */
+            if (len - 1 > 512) return FALSE;
 
-			/* Create the parent path string, plus null-padding */
-			my_strcpy(buf, path, len + 1);
+            /* Create the parent path string, plus null-padding */
+            my_strcpy(buf, path, len + 1);
 
-			/* Skip if the parent exists */
-			if (dir_exists(buf)) continue;
+            /* Skip if the parent exists */
+            if (dir_exists(buf)) continue;
 
-			/* The parent doesn't exist, so create it or fail */
-			if (mkdir(buf, 0755) != 0) return FALSE;
-		}
-	}
-	return mkdir(path, 0755) == 0 ? TRUE : FALSE;
+            /* The parent doesn't exist, so create it or fail */
+            if (mkdir(buf, 0755) != 0) return FALSE;
+        }
+    }
+    return mkdir(path, 0755) == 0 ? TRUE : FALSE;
 #endif
 }
 /*
  * Create any missing directories. We create only those dirs which may be
- * empty (user/, save/, apex/, info/, help/). The others are assumed 
- * to contain required files and therefore must exist at startup 
+ * empty (user/, save/, apex/, info/, help/). The others are assumed
+ * to contain required files and therefore must exist at startup
  * (edit/, pref/, file/, xtra/).
  *
  * ToDo: Only create the directories when actually writing files.

@@ -100,9 +100,9 @@ void self_knowledge(void)
             char v_name [20];
             char vir_desc[80];
             int tester = p_ptr->virtues[v_nr];
-    
+
             strcpy(v_name, virtue_name(p_ptr->vir_types[v_nr]));
- 
+
             sprintf(vir_desc, "Oops. No info about %s.", v_name);
             if (tester < -100)
                 sprintf(vir_desc, "You are the polar opposite of %s (%d).", v_name, tester);
@@ -116,7 +116,7 @@ void self_knowledge(void)
                 sprintf(vir_desc, "You have sinned against %s (%d).", v_name, tester);
             else if (tester < 0)
                 sprintf(vir_desc, "You have strayed from the path of %s (%d).", v_name, tester);
-            else if (tester == 0)                   
+            else if (tester == 0)
                 sprintf(vir_desc,"You are neutral to %s (%d).", v_name, tester);
             else if (tester < 20)
                 sprintf(vir_desc,"You are somewhat virtuous in %s (%d).", v_name, tester);
@@ -130,14 +130,14 @@ void self_knowledge(void)
                 sprintf(vir_desc,"You are a great champion of %s (%d).", v_name, tester);
             else
                 sprintf(vir_desc,"You are the living embodiment of %s (%d).", v_name, tester);
-    
+
             strcpy(v_string[v_nr], vir_desc);
-    
+
             info[i++] = v_string[v_nr];
         }
         info[i++] = "";
 
-    }    
+    }
     /* TODO: List Mutations */
 
     if (p_ptr->blind)
@@ -1980,15 +1980,6 @@ bool dispel_demons(int dam)
 
 
 /*
- * Crusade
- */
-bool crusade(void)
-{
-    return (project_hack(GF_CRUSADE, p_ptr->lev*4));
-}
-
-
-/*
  * Wake up all monsters, and speed up "los" monsters.
  */
 void aggravate_monsters(int who)
@@ -2465,10 +2456,10 @@ bool destroy_area(int y1, int x1, int r, int power)
                     /* Delete the monster (if any) */
                     delete_monster(y, x);
                 }
-                else 
+                else
                 {
                     bool resist = FALSE;
-                    
+
                     if (m_ptr->mflag2 & MFLAG2_NODESTRUCT) resist = TRUE;
                     else if (r_ptr->level > randint0(power)) resist = TRUE;
 
@@ -2498,7 +2489,7 @@ bool destroy_area(int y1, int x1, int r, int power)
 
                         if (!(r_ptr->flags1 & RF1_QUESTOR) /* Questors becoming immune to *destruct* can be advantageous! */
                              && !(r_ptr->flags2 & RF2_MULTIPLY)  /* Unmakers ... *shudder* */
-                             && one_in_(13)) 
+                             && one_in_(13))
                         {
                             m_ptr->mflag2 |= MFLAG2_NODESTRUCT;
                         }
@@ -3215,7 +3206,7 @@ void discharge_minion(void)
         monster_type *m_ptr = &m_list[i];
         monster_race *r_ptr;
 
-        if (p_ptr->pclass == CLASS_NECROMANCER) 
+        if (p_ptr->pclass == CLASS_NECROMANCER)
         {
             switch (randint1(4))
             {
@@ -3223,7 +3214,7 @@ void discharge_minion(void)
             case 2: typ = GF_NETHER; break;
             case 3: typ = GF_DISENCHANT; break;
             case 4: typ = GF_MANA; break;
-            }    
+            }
         }
 
         if (!m_ptr->r_idx || !is_pet(m_ptr)) continue;
@@ -3243,7 +3234,7 @@ void discharge_minion(void)
         if (dam > 400) dam = (dam-400)/2 + 400;
         if (dam > 800) dam = 800;
         project(i, 2+(r_ptr->level/20), m_ptr->fy,
-            m_ptr->fx, dam, typ, 
+            m_ptr->fx, dam, typ,
             PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
 
         delete_monster_idx(i);
@@ -3796,9 +3787,9 @@ bool fire_ball_hide(int typ, int dir, int dam, int rad)
 
 
 /*
- * Cast a meteor spell, defined as a ball spell cast by an arbitary monster, 
- * player, or outside source, that starts out at an arbitrary location, and 
- * leaving no trail from the "caster" to the target. This function is 
+ * Cast a meteor spell, defined as a ball spell cast by an arbitary monster,
+ * player, or outside source, that starts out at an arbitrary location, and
+ * leaving no trail from the "caster" to the target. This function is
  * especially useful for bombardments and similar. -LM-
  *
  * Option to hurt the player.

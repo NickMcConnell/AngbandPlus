@@ -16,7 +16,7 @@ static bool _necro_check_touch(void)
         msg_print("You are too scared to do that!");
         return FALSE;
     }
-    if (!equip_find_empty_hand())
+    if (!equip_find_empty_hand() && !mut_present(MUT_DRACONIAN_METAMORPHOSIS))
     {
         msg_print("You need a free hand to touch.");
         return FALSE;

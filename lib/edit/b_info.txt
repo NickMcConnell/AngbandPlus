@@ -4,7 +4,7 @@
 # Use the P:Body:<name> line in r_info to indicate which
 # body template to use.
 
-# Warning: Don't monkey with this file while you are 
+# Warning: Don't monkey with this file while you are
 # playing a character. You can lose objects this way!
 
 # Note: Currently you may list up to 16 slots for each
@@ -291,7 +291,7 @@ S:CLOAK:Cloak
 S:HELMET:Helm
 
 # A joke monster ... no damage attacks possible!
-N:29:Greater Hell-Beast 
+N:29:Greater Hell-Beast
 S:RING:Ring
 S:RING:Ring
 S:AMULET:Amulet

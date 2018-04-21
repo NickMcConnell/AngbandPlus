@@ -3,20 +3,20 @@
 
 static equip_template_ptr _template = NULL;
 
-bool _object_is_amulet(object_type *o_ptr) 
+bool _object_is_amulet(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_AMULET || o_ptr->tval == TV_WHISTLE) return TRUE;
     return FALSE;
 }
 
-bool _object_is_anything(object_type *o_ptr) 
+bool _object_is_anything(object_type *o_ptr)
 {
-    if (TV_WEARABLE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEARABLE_END) 
+    if (TV_WEARABLE_BEGIN <= o_ptr->tval && o_ptr->tval <= TV_WEARABLE_END)
         return TRUE;
-    return FALSE; 
+    return FALSE;
 }
 
-bool _object_is_body_armor(object_type *o_ptr) 
+bool _object_is_body_armor(object_type *o_ptr)
 {
     switch (o_ptr->tval)
     {
@@ -26,31 +26,31 @@ bool _object_is_body_armor(object_type *o_ptr)
     return FALSE;
 }
 
-bool _object_is_boots(object_type *o_ptr) 
+bool _object_is_boots(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_BOOTS) return TRUE;
     return FALSE;
 }
 
-bool _object_is_bow(object_type *o_ptr) 
+bool _object_is_bow(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_BOW) return TRUE;
     return FALSE;
 }
 
-bool _object_is_cloak(object_type *o_ptr) 
+bool _object_is_cloak(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_CLOAK) return TRUE;
     return FALSE;
 }
 
-bool _object_is_gloves(object_type *o_ptr) 
+bool _object_is_gloves(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_GLOVES) return TRUE;
     return FALSE;
 }
 
-bool _object_is_helmet(object_type *o_ptr) 
+bool _object_is_helmet(object_type *o_ptr)
 {
     switch (o_ptr->tval)
     {
@@ -60,19 +60,19 @@ bool _object_is_helmet(object_type *o_ptr)
     return FALSE;
 }
 
-bool _object_is_lite(object_type *o_ptr) 
+bool _object_is_lite(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_LITE) return TRUE;
     return FALSE;
 }
 
-bool _object_is_ring(object_type *o_ptr) 
+bool _object_is_ring(object_type *o_ptr)
 {
     if (o_ptr->tval == TV_RING) return TRUE;
     return FALSE;
 }
 
-bool _object_is_weapon(object_type *o_ptr) 
+bool _object_is_weapon(object_type *o_ptr)
 {
     switch (o_ptr->tval)
     {
@@ -82,7 +82,7 @@ bool _object_is_weapon(object_type *o_ptr)
     return FALSE;
 }
 
-bool _object_is_weapon_or_shield(object_type *o_ptr) 
+bool _object_is_weapon_or_shield(object_type *o_ptr)
 {
     switch (o_ptr->tval)
     {
@@ -93,7 +93,7 @@ bool _object_is_weapon_or_shield(object_type *o_ptr)
     return FALSE;
 }
 
-bool _object_is_capture_ball(object_type *o_ptr) 
+bool _object_is_capture_ball(object_type *o_ptr)
 {
     switch (o_ptr->tval)
     {
@@ -278,8 +278,8 @@ int equip_find_object(int tval, int sval)
     {
         object_type *o_ptr = equip_obj(i);
 
-        if ( o_ptr 
-          && o_ptr->tval == tval 
+        if ( o_ptr
+          && o_ptr->tval == tval
           && (sval == SV_ANY || o_ptr->sval == sval) )
         {
             return i;
@@ -313,7 +313,7 @@ int equip_first_empty_slot(object_type *o_ptr)
     {
         int      slot = EQUIP_BEGIN + i;
         object_p p = _accept[_template->slots[i].type];
-        
+
         if (p(o_ptr) && !equip_obj(slot))
             return slot;
     }
@@ -389,7 +389,7 @@ void equip_for_each_obj(object_fn f)
     {
         int          slot = EQUIP_BEGIN + i;
         object_type *o_ptr = equip_obj(slot);
-        
+
         if (o_ptr)
             f(o_ptr);
     }
@@ -403,7 +403,7 @@ int equip_weight(object_p p)
     {
         int          slot = EQUIP_BEGIN + i;
         object_type *o_ptr = equip_obj(slot);
-        
+
         if (o_ptr && (!p || p(o_ptr)))
             w += o_ptr->weight;
     }
@@ -418,7 +418,7 @@ int equip_count_used(void)
     {
         int          slot = EQUIP_BEGIN + i;
         object_type *o_ptr = equip_obj(slot);
-        
+
         if (o_ptr)
             ct++;
     }
@@ -432,8 +432,8 @@ int equip_is_worn(object_type *o_ptr)
     {
         int          slot = EQUIP_BEGIN + i;
         object_type *o = equip_obj(slot);
-        
-        if (o == o_ptr) 
+
+        if (o == o_ptr)
             return slot;
     }
     return 0;
@@ -446,8 +446,8 @@ int equip_which_hand(object_type *o_ptr)
     {
         int          slot = EQUIP_BEGIN + i;
         object_type *o = equip_obj(slot);
-        
-        if (o == o_ptr) 
+
+        if (o == o_ptr)
             return _template->slots[i].hand;
     }
     return -1;
@@ -472,7 +472,7 @@ int equip_random_slot(object_p p)
     {
         int          slot = EQUIP_BEGIN + i;
         object_type *o = equip_obj(slot);
-        
+
         if (o && (!p || p(o)))
             ct++;
     }
@@ -484,7 +484,7 @@ int equip_random_slot(object_p p)
         {
             int          slot = EQUIP_BEGIN + i;
             object_type *o = equip_obj(slot);
-        
+
             if (o && (!p || p(o)))
             {
                 if (!which) return slot;
@@ -555,39 +555,39 @@ void equip_wield(void)
         msg_format("The %s you are wearing appears to be cursed.", o_name);
         return;
     }
-	if (confirm_wear)
-	{
-		bool do_prompt = FALSE;
+    if (confirm_wear)
+    {
+        bool do_prompt = FALSE;
 
-		if (object_is_known(o_ptr) && object_is_cursed(o_ptr))
-		{
-			do_prompt = TRUE;
-		}
-		else if (o_ptr->ident & IDENT_SENSE)
-		{
-			switch (o_ptr->feeling)
-			{
-			case FEEL_BROKEN:
-			case FEEL_BAD:
-			case FEEL_TERRIBLE:
-			case FEEL_AWFUL:
-			case FEEL_CURSED:
-				do_prompt = TRUE;
-				break;
-			}
-		}
-		if (do_prompt)
-		{
-			char dummy[MAX_NLEN+80];
+        if (object_is_known(o_ptr) && object_is_cursed(o_ptr))
+        {
+            do_prompt = TRUE;
+        }
+        else if (o_ptr->ident & IDENT_SENSE)
+        {
+            switch (o_ptr->feeling)
+            {
+            case FEEL_BROKEN:
+            case FEEL_BAD:
+            case FEEL_TERRIBLE:
+            case FEEL_AWFUL:
+            case FEEL_CURSED:
+                do_prompt = TRUE;
+                break;
+            }
+        }
+        if (do_prompt)
+        {
+            char dummy[MAX_NLEN+80];
             object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED));
-			sprintf(dummy, "Really use the %s {cursed}? ", o_name);
-			if (!get_check(dummy)) return;
-		}
-	}
-    if ( o_ptr->name1 == ART_STONEMASK 
-      && object_is_known(o_ptr) 
-      && p_ptr->prace != RACE_VAMPIRE 
-      && p_ptr->prace != RACE_ANDROID 
+            sprintf(dummy, "Really use the %s {cursed}? ", o_name);
+            if (!get_check(dummy)) return;
+        }
+    }
+    if ( o_ptr->name1 == ART_STONEMASK
+      && object_is_known(o_ptr)
+      && p_ptr->prace != RACE_VAMPIRE
+      && p_ptr->prace != RACE_ANDROID
       && !(get_race()->flags & RACE_IS_MONSTER)
       && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
     {
@@ -646,7 +646,7 @@ void equip_wield_aux(object_type *src, int slot)
 
     if (dest->k_idx)
         equip_takeoff_aux(slot);
-    
+
     object_copy(dest, src);
     obj_learn_equipped(dest);
     stats_on_equip(dest);
@@ -681,10 +681,10 @@ void equip_wield_aux(object_type *src, int slot)
         msg_print("You pluck out your own eye to wield the Eye of Vecna!");
         set_cut(CUT_MORTAL_WOUND, FALSE);
     }
-    if ( dest->name1 == ART_STONEMASK 
-      && object_is_known(dest) 
-      && p_ptr->prace != RACE_VAMPIRE 
-      && p_ptr->prace != RACE_ANDROID 
+    if ( dest->name1 == ART_STONEMASK
+      && object_is_known(dest)
+      && p_ptr->prace != RACE_VAMPIRE
+      && p_ptr->prace != RACE_ANDROID
       && p_ptr->pclass != CLASS_BLOOD_KNIGHT )
     {
         change_race(RACE_VAMPIRE, "");
@@ -708,7 +708,7 @@ void equip_takeoff(void)
 
     if (!get_item(&slot, "Take off which item? ", "You are not wearing anything to take off.", USE_EQUIP)) return;
     o_ptr = &inventory[slot];
-    
+
     if (!psion_can_wield(o_ptr)) return;
     if (have_flag(o_ptr->flags, OF_NO_REMOVE)) /* Hack!!!! */
     {
@@ -745,7 +745,7 @@ void equip_takeoff(void)
     equip_takeoff_aux(slot);
     if (weaponmaster_is_(WEAPONMASTER_SHIELDS))
         handle_stuff();
-    
+
     android_calc_exp();
 }
 
@@ -755,7 +755,7 @@ void equip_takeoff_aux(int slot)
 
     if (o_ptr)
     {
-        object_type copy;    
+        object_type copy;
         int  new_slot;
         char o_name[MAX_NLEN];
 
@@ -794,7 +794,7 @@ bool equip_is_empty_two_handed_slot(int slot)
     return FALSE;
 }
 
-/* Rings and Gloves are somewhat complicated. 
+/* Rings and Gloves are somewhat complicated.
    We support an arbitrary number of hands (cf MAX_HANDS) paired
    into an arbitrary number of sets of arms (cf MAX_ARMS). Gloves
    affect both weapons for that arm, possibly with proration. Rings
@@ -810,7 +810,7 @@ static void _weapon_info_flag(int idx, u32b flgs[OF_ARRAY_SIZE], int flg)
         int rhand = arm*2;
         int lhand = arm*2 + 1;
         int other_hand = (hand == rhand) ? lhand : rhand;
-        
+
         switch (_template->slots[idx].type)
         {
         case EQUIP_SLOT_GLOVES:
@@ -984,7 +984,7 @@ void equip_calc_bonuses(void)
                     if (object_is_shield(o_ptr))
                         p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
                 }
-                else if (object_is_melee_weapon(o_ptr)) 
+                else if (object_is_melee_weapon(o_ptr))
                 {
                     p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
                     if (o_ptr->rune == RUNE_AIR)
@@ -1324,9 +1324,8 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, OF_SPELL_CAP))   p_ptr->spell_cap += o_ptr->pval;
         if (have_flag(flgs, OF_DEC_SPELL_CAP))   p_ptr->spell_cap -= o_ptr->pval;
         if (have_flag(flgs, OF_MAGIC_RESISTANCE))   p_ptr->magic_resistance += 5*o_ptr->pval;
-        if (have_flag(flgs, OF_BLESSED))     p_ptr->bless_blade = TRUE;
 
-        if (have_flag(flgs, OF_XTRA_MIGHT) && o_ptr->tval != TV_BOW)  
+        if (have_flag(flgs, OF_XTRA_MIGHT) && o_ptr->tval != TV_BOW)
             p_ptr->shooter_info.to_mult += 25 * o_ptr->pval;
 
         if (have_flag(flgs, OF_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
@@ -1439,7 +1438,7 @@ void equip_calc_bonuses(void)
                 p_ptr->shooter_info.to_h += penalty;
                 if (o_ptr->known_curse_flags & OFC_LOW_MELEE)
                     p_ptr->shooter_info.dis_to_h += penalty;
-                break;                
+                break;
             case EQUIP_SLOT_WEAPON_SHIELD:
             case EQUIP_SLOT_WEAPON:
             {
@@ -1556,8 +1555,8 @@ void equip_on_init(void)
 
 /* Attempt to gracefully handle changes to body type between
    releases. New slots may be added, old slots may be removed.
-   Slots may be shuffled or have their types changed. 
-   This is called by process_player() during startup if a 
+   Slots may be shuffled or have their types changed.
+   This is called by process_player() during startup if a
    savefile has been loaded. At this point, drop_near is allowed. */
 void equip_on_load(void)
 {
@@ -1567,7 +1566,7 @@ void equip_on_load(void)
     for (i = 0; i < EQUIP_MAX_SLOTS; i++)
     {
         int slot = i + EQUIP_BEGIN;
-        
+
         if (!inventory[slot].k_idx) continue;
 
         if (i >= _template->count)
@@ -1589,10 +1588,10 @@ void equip_on_load(void)
     for (i = 0; i < ct; i++)
     {
         int slot = equip_first_empty_slot(&temp[i]);
-        
+
         if (slot)
             object_copy(&inventory[slot], &temp[i]);
-        else 
+        else
         {
             char name[MAX_NLEN];
             object_desc(name, &temp[i], 0);
@@ -1622,7 +1621,7 @@ void equip_on_change_race(void)
     {
         int i;
         object_type temp[EQUIP_MAX_SLOTS];
-    
+
         _template = new_template;
 
         for (i = 0; i < old_template->count; i++)
@@ -1641,10 +1640,10 @@ void equip_on_change_race(void)
             slot = equip_first_empty_slot(src);
             if (slot)
                 object_copy(&inventory[slot], src);
-            else 
+            else
             {
                 char name[MAX_NLEN];
-                
+
                 object_desc(name, src, 0);
                 msg_format("You can no longer wield %s.", name);
 
@@ -1684,7 +1683,7 @@ void equip_on_change_race(void)
 
             if (!o_ptr->k_idx) continue;
             if (!(o_ptr->marked & OM_WORN)) continue;
-        
+
             slot = equip_first_empty_slot(o_ptr);
             if (slot && o_ptr->number == 1)
             {

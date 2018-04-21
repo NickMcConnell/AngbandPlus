@@ -108,7 +108,7 @@ static int _blast_ds(void)
         15    /* 18/170-18/179 */,
         16    /* 18/180-18/189 */,
         17    /* 18/190-18/199 */,
-        19    /* 18/200-18/209 */,
+        18    /* 18/200-18/209 */,
         19    /* 18/210-18/219 */,
         20    /* 18/220+ */
     };
@@ -127,9 +127,9 @@ static void _basic_blast(int cmd, variant *res)
         break;
     case SPELL_INFO:
         if (p_ptr->to_d_spell)
-            var_set_string(res, format("Dice:%dd%d+%d Range:%d", _blast_dd(), _blast_ds(), p_ptr->to_d_spell, _blast_range()));
+            var_set_string(res, format("%dd%d+%d (Rng %d)", _blast_dd(), _blast_ds(), p_ptr->to_d_spell, _blast_range()));
         else
-            var_set_string(res, format("Dice:%dd%d Range:%d", _blast_dd(), _blast_ds(), _blast_range()));
+            var_set_string(res, format("%dd%d (Rng %d)", _blast_dd(), _blast_ds(), _blast_range()));
         break;
     case SPELL_CAST:
     {
@@ -370,6 +370,12 @@ static void _undead_calc_bonuses(void)
     }
     if (p_ptr->lev >= 35)
         res_add(RES_DARK);
+
+    if (equip_find_artifact(ART_STONE_OF_DEATH))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
 }
 
 static void _undead_calc_stats(s16b stats[MAX_STATS])
@@ -462,9 +468,10 @@ static _pact_t _undead_pact = {
     { 22,  10, 50, enslave_undead_spell},
     { 25,  15, 40, nether_ball_spell},
     { 32,  40, 60, summon_undead_spell},
-    { 35,  45, 70, darkness_storm_I_spell},
+    { 35,  30, 70, darkness_storm_I_spell},
+    { 37,  50, 80, polymorph_vampire_spell},
     { 40,  70, 80, summon_hi_undead_spell},
-    { 42,  80, 80, genocide_spell},
+    { 42,  50, 80, genocide_spell},
     { 50, 100, 80, wraithform_spell},
     { -1,   0,  0, NULL },
   },
@@ -1070,6 +1077,12 @@ static void _angel_calc_bonuses(void)
         p_ptr->see_inv = TRUE;
     if (p_ptr->lev >= 35)
         p_ptr->reflect = TRUE;
+
+    if (equip_find_artifact(ART_STONE_OF_CRUSADE) || equip_find_artifact(ART_STONE_OF_LIFE))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
 }
 
 static void _angel_calc_stats(s16b stats[MAX_STATS])
@@ -1152,7 +1165,7 @@ static _pact_t _angels_pact = {
     { 37, 20, 60, healing_I_spell},
     { 42, 70, 60, destruction_spell},
     { 47,100, 90, summon_angel_spell},
-    { 50,120, 90, invulnerability_spell}, /* crusade_spell? */
+    { 50,120, 90, crusade_spell},
     { -1,   0,  0, NULL },
   },
   _dispelling_blast
@@ -1176,6 +1189,12 @@ static void _demon_calc_bonuses(void)
         p_ptr->kill_wall = TRUE;
     if (p_ptr->lev >= 50)
         res_add_immune(RES_FIRE);
+
+    if (equip_find_artifact(ART_STONE_OF_DAEMON))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
 }
 
 static void _demon_calc_stats(s16b stats[MAX_STATS])
@@ -1255,6 +1274,7 @@ static _pact_t _demons_pact = {
     { 20,  10, 50, teleport_spell},
     { 30,  25, 60, recharging_spell},
     { 37,  40, 80, kiss_of_succubus_spell},
+    { 40,  50, 80, polymorph_demon_spell},
     { 43,  90, 90, summon_greater_demon_spell},
     { 45,  80, 85, hellfire_spell},
     { -1,   0,  0, NULL },
@@ -1267,6 +1287,7 @@ static _pact_t _demons_pact = {
  ****************************************************************/
 static void _hound_calc_bonuses(void)
 {
+    p_ptr->skill_dig += 60;
     p_ptr->pspeed += 5 * p_ptr->lev / 50;
 
     if (p_ptr->lev >= 5)
@@ -1320,7 +1341,7 @@ static void _aether_blast(int cmd, variant *res)
     case SPELL_CAST:
     {
         int dir = 0, i;
-        int ct = rand_range(2, 7);
+        int ct = rand_range(3, 7);
         int dice = _blast_dd();
         int sides = _blast_ds();
         int effects[_AETHER_EFFECT_CT] =
@@ -1381,6 +1402,26 @@ static void _dog_whistle_spell(int cmd, variant *res)
     }
 }
 
+static void _aether_shield_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Aether Shield");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Much like the dreaded Aether hound, you will gain protective elemental auras for a bit.");
+        break;
+    case SPELL_CAST:
+        set_tim_sh_elements(randint1(30) + 20, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 static _pact_t _hounds_pact = {
   "Hounds",
   "An alliance with hounds is one of the weaker pacts the warlock may make. Hounds are fast, stealthy "
@@ -1398,8 +1439,8 @@ static _pact_t _hounds_pact = {
 /*  S   I   W   D   C   C */
   { 0, -2, -2,  2,  2,  2},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-  {  20,  25,  31,   5,  12,   2, 56, 25},
-  {   7,  10,  10,   0,   0,   0, 18, 11},
+  {  20,  25,  31,   5,  20,  15, 56, 25},
+  {   7,  10,  10,   0,   0,   0, 20, 11},
 /*Life  BaseHP     Exp */
    102,     12,    110,
   {
@@ -1408,6 +1449,7 @@ static _pact_t _hounds_pact = {
     { 27,  20, 50, haste_self_spell},
     { 30,  20, 50, resistance_spell},
     { 32,  30, 70, _dog_whistle_spell},
+    { 40,  20, 60, _aether_shield_spell},
     { -1,   0,  0, NULL },
   },
   _aether_blast
@@ -1660,7 +1702,6 @@ static void _giant_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_p
 static void _giant_calc_stats(s16b stats[MAX_STATS])
 {
     stats[A_STR] += 5 * p_ptr->lev/50;
-    stats[A_DEX] -= 3 * p_ptr->lev/50;
     stats[A_CON] += 3 * p_ptr->lev/50;
 }
 
@@ -1746,7 +1787,7 @@ static _pact_t _giants_pact = {
   _giant_get_flags,
   NULL,
 /*  S   I   W   D   C   C */
-  { 2, -4, -4, -2,  2,  2},
+  { 2, -4, -4, -3,  2,  2},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
   {  20,  20,  31,   0,  12,   2, 70, 40},
   {   7,   8,  10,   0,   0,   0, 30, 20},
@@ -1801,8 +1842,8 @@ static spell_info _powers[MAX_WARLOCK_BLASTS] =
     { 18,  0,  45, _spear_blast},
     { 26,  0,  60, _burst_blast},
     { 33,  0,  60, _stunning_blast},
-    { 40,  0,  70, NULL},
-    { 45,  0,  75, _empowered_blast},
+    { 37,  0,  70, NULL},
+    { 42,  0,  75, _empowered_blast},
 };
 
 static int _get_powers(spell_info* spells, int max)
@@ -1824,14 +1865,14 @@ static int _get_powers(spell_info* spells, int max)
     for (i = 0; i < MAX_WARLOCK_BLASTS; i++)
     {
         spell_info *base = &_powers[i];
-        if (ct >= max) break;        
+        if (ct >= max) break;
         if (base->level <= p_ptr->lev)
         {
             spell_info* current = &spells[ct];
             current->fn = base->fn;
             current->level = base->level;
             current->cost = base->cost;
-            current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);            
+            current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);
             if (current->fn == NULL)
                 current->fn = pact->special_blast;
 

@@ -620,7 +620,7 @@ void teleport_away_followable(int m_idx)
                     teleport_player(200, TELEPORT_PASSIVE);
                     msg_print("Failed!");
                 }
-                else 
+                else
                 {
                     if (p_ptr->pclass == CLASS_DUELIST
                      && p_ptr->duelist_target_idx == m_idx
@@ -686,7 +686,7 @@ void teleport_level(int m_idx)
         else if (get_check("Force to go down? ")) go_up = FALSE;
     }
 
-    /* Down only */ 
+    /* Down only */
     if ((ironman_downward && (m_idx <= 0)) || (dun_level <= d_info[dungeon_type].mindepth))
     {
         if (see_m) msg_format("%^s sink%s through the floor.", m_name, (m_idx <= 0) ? "" : "s");
@@ -824,14 +824,14 @@ int choose_dungeon(cptr note, int y, int x)
         }
         else if (max_dlv[i] == d_info[i].maxdepth) seiha = TRUE;
 
-        sprintf(buf,"      %c) %c%-16s : Max level %d", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
-        prt(buf, y + num, x);
+        sprintf(buf," %c) %c%-16s : Max level %d ", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
+        put_str(buf, y + num, x);
         dun[num++] = i;
     }
 
     if (!num)
     {
-        prt("      No dungeon is available.", y, x);
+        put_str(" No dungeon is available.", y, x);
     }
 
     prt(format("Which dungeon do you %s?: ", note), 0, 0);
@@ -880,9 +880,9 @@ bool recall_player(int turns)
         return TRUE;
     }
 
-    if ( dun_level 
+    if ( dun_level
       && !(d_info[dungeon_type].flags1 & DF1_RANDOM)
-      && !p_ptr->inside_quest 
+      && !p_ptr->inside_quest
       && !p_ptr->word_recall
       && max_dlv[dungeon_type] > dun_level )
     {
@@ -897,7 +897,7 @@ bool recall_player(int turns)
         if (!dun_level)
         {
             int select_dungeon;
-            select_dungeon = choose_dungeon("recall", 2, 14);
+            select_dungeon = choose_dungeon("recall", 1, 1);
             if (!select_dungeon) return FALSE;
             p_ptr->recall_dungeon = select_dungeon;
         }
@@ -932,7 +932,7 @@ bool reset_recall(void)
     char ppp[80];
     char tmp_val[160];
 
-    select_dungeon = choose_dungeon("reset", 2, 14);
+    select_dungeon = choose_dungeon("reset", 1, 1);
 
     /* Ironman option */
     if (ironman_downward)
@@ -1182,7 +1182,7 @@ bool brand_weapon(int brand_type)
 
     q = "Enchant which weapon? ";
     s = "You have nothing to enchant.";
-    if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;    
+    if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
 
     if (inventory[item].name1 || inventory[item].name2)
     {
@@ -1219,7 +1219,7 @@ bool brand_weapon(int brand_type)
     return TRUE;
 }
 /* Hack for old branding spells attempting to make now non-existent ego types! */
-bool brand_weapon_slaying(int flag)
+bool brand_weapon_slaying(int brand_flag, int res_flag)
 {
     bool        result = FALSE;
     int         item;
@@ -1242,7 +1242,9 @@ bool brand_weapon_slaying(int flag)
     else
     {
         inventory[item].name2 = EGO_WEAPON_SLAYING;
-        add_flag(inventory[item].flags, flag);
+        add_flag(inventory[item].flags, brand_flag);
+        if (res_flag != OF_INVALID)
+            add_flag(inventory[item].flags, res_flag);
         result = TRUE;
     }
     if (result)
@@ -1738,8 +1740,8 @@ static int remove_curse_aux(int all)
     int slot;
     int ct = 0;
 
-    for (slot = equip_find_first(object_is_cursed); 
-            slot; 
+    for (slot = equip_find_first(object_is_cursed);
+            slot;
             slot = equip_find_next(object_is_cursed, slot))
     {
         object_type *o_ptr = equip_obj(slot);
@@ -2138,7 +2140,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
         /* Message */
         msg_print("The enchantment failed.");
 
-        if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100) 
+        if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100)
             virtue_add(VIRTUE_ENCHANTMENT, -1);
     }
     else
@@ -2157,13 +2159,13 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 {
     if ( !object_is_weapon_armour_ammo(o_ptr)
-      && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR) 
+      && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR)
       && !(o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) /* Testing ... */
       && !(prace_is_(RACE_SNOTLING) && object_is_mushroom(o_ptr)) )
     {
         return FALSE;
     }
-    
+
     /* Require nameless object if the object is well known */
     if (object_is_known(o_ptr) && !object_is_nameless(o_ptr))
         return FALSE;
@@ -2525,8 +2527,8 @@ bool identify_fully(object_p p)
     else
         msg_format("On the ground: %s.", o_name);
 */
-    if ( p_ptr->prace == RACE_MON_POSSESSOR 
-      && o_ptr->tval == TV_CORPSE 
+    if ( p_ptr->prace == RACE_MON_POSSESSOR
+      && o_ptr->tval == TV_CORPSE
       && o_ptr->sval == SV_CORPSE )
     {
         if (!(r_info[o_ptr->pval].r_xtra1 & MR1_POSSESSOR))
@@ -2824,6 +2826,7 @@ bool bless_weapon(void)
             ((o_ptr->number > 1) ? "" : "s"));
 
         add_flag(o_ptr->flags, OF_BLESSED);
+        add_flag(o_ptr->known_flags, OF_BLESSED);
         o_ptr->discount = 99;
     }
     else
@@ -3825,7 +3828,7 @@ int inven_damage(inven_func typ, int p1, int which)
                 if ( randint0(100) < p1    /* Effects of Breath Quality */
                   && randint0(100) < p2 /* Effects of Inventory Protection (Rune or Spell) */
                   && !res_save_inventory(which) ) /* Effects of Resistance */
-                { 
+                {
                     amt++;
                 }
             }
@@ -3836,7 +3839,7 @@ int inven_damage(inven_func typ, int p1, int which)
                 /* Get a description */
                 object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_COLOR_CODED);
 
-                msg_format("%d of your %s (%c) %s destroyed!", 
+                msg_format("%d of your %s (%c) %s destroyed!",
                             amt, o_name, index_to_label(i), (amt > 1) ? "were" : "was");
 
                 /* Potions smash open */
@@ -3916,11 +3919,11 @@ static int _inv_dam_pct(int dam)
 
 int acid_dam(int dam, cptr kb_str, int monspell)
 {
-    int get_damage;  
+    int get_damage;
     int inv = _inv_dam_pct(dam);
 
     dam = res_calc_dam(RES_ACID, dam);
-    
+
     /* Total Immunity */
     if (dam <= 0)
     {
@@ -3952,7 +3955,7 @@ int acid_dam(int dam, cptr kb_str, int monspell)
  */
 int elec_dam(int dam, cptr kb_str, int monspell)
 {
-    int get_damage;  
+    int get_damage;
     int inv = _inv_dam_pct(dam);
 
     dam = res_calc_dam(RES_ELEC, dam);
@@ -3985,7 +3988,7 @@ int elec_dam(int dam, cptr kb_str, int monspell)
  */
 int fire_dam(int dam, cptr kb_str, int monspell)
 {
-    int get_damage;  
+    int get_damage;
     int inv = _inv_dam_pct(dam);
 
     dam = res_calc_dam(RES_FIRE, dam);
@@ -4018,7 +4021,7 @@ int fire_dam(int dam, cptr kb_str, int monspell)
  */
 int cold_dam(int dam, cptr kb_str, int monspell)
 {
-    int get_damage;  
+    int get_damage;
     int inv = _inv_dam_pct(dam);
 
     dam = res_calc_dam(RES_COLD, dam);
@@ -4592,7 +4595,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
     case MIMIC_COLOSSUS:
         summon_kin_type = 'g';
         break;
-    }    
+    }
 
     if (warlock_is_(WARLOCK_GIANTS))
         summon_kin_type = 'P';

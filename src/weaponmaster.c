@@ -65,10 +65,10 @@ static int _get_nearest_target_los(void)
     int i;
     monster_type *m_ptr = NULL;
     int rng = 0;
-    
+
     if (p_ptr->shooter_info.slot)
         rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
-    
+
     for (i = m_max - 1; i >= 1; i--)
     {
         m_ptr = &m_list[i];
@@ -96,11 +96,11 @@ static int _get_greater_many_shot_targets(int *targets, int max)
     int i;
     monster_type *m_ptr = NULL;
     int rng = 0;
-    
+
     if (p_ptr->shooter_info.slot)
         rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
 
-    /* shoot *all* line of sight monsters */    
+    /* shoot *all* line of sight monsters */
     for (i = m_max - 1; i >= 1; i--)
     {
         m_ptr = &m_list[i];
@@ -127,11 +127,11 @@ static int _get_many_shot_targets(int *targets, int max)
     int in_sight[_MAX_TARGETS];
     int ct = 0;
     int rng = 0;
-    
+
     if (p_ptr->shooter_info.slot)
         rng = bow_range(equip_obj(p_ptr->shooter_info.slot));
 
-    /* pass 1: get line of sight monsters */    
+    /* pass 1: get line of sight monsters */
     for (i = m_max - 1; i >= 1; i--)
     {
         m_ptr = &m_list[i];
@@ -419,8 +419,8 @@ static void _readied_shot_spell(int cmd, variant *res)
             /* Prompt for ammo to use, but disallow choosing from the floor since
                the player will be moving */
             item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&shoot_item, 
-                          "Choose ammo for this technique.", 
+            if (!get_item(&shoot_item,
+                          "Choose ammo for this technique.",
                           "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
             {
                 flush();
@@ -545,7 +545,7 @@ static int _smash_ground_dam(void)
 
             dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
             ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
-    
+
             damage = dd * (ds + 1) * 50;
             damage += o_ptr->to_d * 100;
             damage *= NUM_BLOWS(hand)/100;
@@ -606,7 +606,7 @@ static bool _club_toss(int hand)
     int dir;
     _club_toss_info info;
     int back_chance;
-    
+
     /* Setup info for the toss */
     info.item = p_ptr->weapon_info[hand].slot;
     info.o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
@@ -623,7 +623,7 @@ static bool _club_toss(int hand)
         if (back_chance <= 37 && !p_ptr->blind)
             info.fail_catch = TRUE;
     }
-    
+
     if (!_check_speciality_aux(info.o_ptr)) return FALSE;
     if (object_is_cursed(info.o_ptr))
     {
@@ -676,13 +676,13 @@ static bool _club_toss(int hand)
         inven_item_increase(info.item, -1);
         inven_item_describe(info.item);
         inven_item_optimize(info.item);
-        
+
 
         if (!info.come_back)
             drop_near(&copy, 0, info.ty, info.tx);
         else
             drop_near(&copy, 0, py, px);
-        
+
         p_ptr->redraw |= PR_EQUIPPY;
         p_ptr->update |= PU_BONUS;
 
@@ -719,7 +719,7 @@ static void _club_toss_imp(_club_toss_info * info)
 
         /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
         if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-         && !cave[ny][nx].m_idx) 
+         && !cave[ny][nx].m_idx)
         {
             break;
         }
@@ -781,7 +781,7 @@ static void _club_toss_imp(_club_toss_info * info)
 
                 /***** The Damage Calculation!!! *****/
                 dd = info->o_ptr->dd;
-                tdam = damroll(dd, info->o_ptr->ds);                
+                tdam = damroll(dd, info->o_ptr->ds);
                 tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
                 tdam = critical_throw(info->o_ptr->weight, info->o_ptr->to_h, tdam);
                 tdam += info->o_ptr->to_d;
@@ -823,7 +823,7 @@ static void _club_toss_imp(_club_toss_info * info)
                         char m_name[80];
                         int odds = 5;
                         monster_desc(m_name, m_ptr, 0);
-                
+
                         if (one_in_(odds))
                         {
                             if (r_ptr->flags3 & RF3_NO_CONF)
@@ -1095,7 +1095,7 @@ static bool _dagger_toss(int hand)
     _dagger_toss_info info;
     int back_chance;
     int oops = 100;
-    
+
     /* Setup info for the toss */
     info.item = p_ptr->weapon_info[hand].slot;
     info.o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
@@ -1201,13 +1201,13 @@ static bool _dagger_toss(int hand)
         inven_item_increase(info.item, -1);
         inven_item_describe(info.item);
         inven_item_optimize(info.item);
-        
+
 
         if (!info.come_back)
             drop_near(&copy, 0, info.ty, info.tx);
         else
             drop_near(&copy, 0, py, px);
-        
+
         p_ptr->redraw |= PR_EQUIPPY;
         p_ptr->update |= PU_BONUS;
         android_calc_exp();
@@ -1242,7 +1242,7 @@ static void _dagger_toss_imp(_dagger_toss_info * info)
 
         /* Stopped by walls/doors/forest ... but allow hitting your target, please! */
         if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
-         && !cave[ny][nx].m_idx) 
+         && !cave[ny][nx].m_idx)
         {
             break;
         }
@@ -1306,7 +1306,7 @@ static void _dagger_toss_imp(_dagger_toss_info * info)
                 dd = info->o_ptr->dd;
                 if (info->flying_dagger)
                     dd += p_ptr->lev/15;
-                tdam = damroll(dd, info->o_ptr->ds);                
+                tdam = damroll(dd, info->o_ptr->ds);
                 tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
                 tdam = critical_throw(info->o_ptr->weight, info->o_ptr->to_h, tdam);
                 tdam += info->o_ptr->to_d;
@@ -1654,7 +1654,7 @@ static void _bury_dead_spell(int cmd, variant *res)
             set_fast(p_ptr->fast + turns, FALSE);
         if (p_ptr->lev >= 40)
             set_resist_magic(p_ptr->resist_magic + turns, FALSE);
-        
+
         if (p_ptr->lev >= 15)
             set_oppose_cold(p_ptr->oppose_cold + turns, FALSE);
         if (p_ptr->lev >= 25)
@@ -1663,7 +1663,7 @@ static void _bury_dead_spell(int cmd, variant *res)
             set_tim_hold_life(p_ptr->tim_hold_life + turns, FALSE);
         if (p_ptr->lev >= 35)
             set_tim_res_nether(p_ptr->tim_res_nether + turns, FALSE);
-    
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -1692,7 +1692,7 @@ static void _barricade_spell(int cmd, variant *res)
             msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
-        
+
         if (p_ptr->lev >= 45)
         {
             for (dir = 0; dir < 8; dir++)
@@ -1973,7 +1973,7 @@ static void _desperation_spell(int cmd, variant *res)
         {
             msg_format("Your %s is too weak to help you any more.", o_name);
         }
-        
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -2100,8 +2100,8 @@ static void _greater_many_shot_spell(int cmd, variant *res)
             object_type *bow = equip_obj(p_ptr->shooter_info.slot);
 
             item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&item, 
-                          "Fire which ammo? ", 
+            if (!get_item(&item,
+                          "Fire which ammo? ",
                           "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
             {
                 flush();
@@ -2154,8 +2154,8 @@ static void _many_shot_spell(int cmd, variant *res)
             object_type *bow = equip_obj(p_ptr->shooter_info.slot);
 
             item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&item, 
-                          "Fire which ammo? ", 
+            if (!get_item(&item,
+                          "Fire which ammo? ",
                           "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
             {
                 flush();
@@ -2223,8 +2223,8 @@ static void _shot_on_the_run_spell(int cmd, variant *res)
             /* Prompt for ammo to use, but disallow choosing from the floor since
                the player will be moving */
             item_tester_tval = p_ptr->shooter_info.tval_ammo;
-            if (!get_item(&shoot_item, 
-                          "Choose ammo for this technique.", 
+            if (!get_item(&shoot_item,
+                          "Choose ammo for this technique.",
                           "You have nothing to fire.", (USE_INVEN | USE_QUIVER)))
             {
                 flush();
@@ -2285,9 +2285,9 @@ bool _design_monkey_clone(void)
             dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
             ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
 
-            tdam += NUM_BLOWS(hand) * 
+            tdam += NUM_BLOWS(hand) *
                 (dd * (ds + 1)/2 + p_ptr->weapon_info[hand].to_d + o_ptr->to_d)/100;
-    
+
             blows += NUM_BLOWS(hand)/100;
             acc = hit_chance(hand, o_ptr->to_h, 150);
         }
@@ -2296,7 +2296,7 @@ bool _design_monkey_clone(void)
     dam = tdam / MIN(4, blows);
     dd = 10;
     ds = dam/5;
-    if (ds < 1) 
+    if (ds < 1)
     {
         dd = 1;
         ds = 1;
@@ -2400,9 +2400,9 @@ void _circle_kick(void)
 
     if (slot)
         dd = equip_obj(slot)->ac;
-    
+
     for (i = 0; i < 8; i++)
-    {    
+    {
         int           dir = cdd[i];
         int           y = py + ddy[dir];
         int           x = px + ddx[dir];
@@ -2415,7 +2415,7 @@ void _circle_kick(void)
         char          m_name[MAX_NLEN];
 
             monster_desc(m_name, m_ptr, 0);
-            
+
             if (test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
             {
                 int dam = damroll(dd, ds) + p_ptr->to_d_m;
@@ -2540,7 +2540,7 @@ static void _circle_kick_spell(int cmd, variant *res)
         bool can_enter = FALSE;
         int ny = GRID_Y(path_g[i]);
         int nx = GRID_X(path_g[i]);
-        
+
         c_ptr = &cave[ny][nx];
         can_enter = !c_ptr->m_idx && player_can_enter(c_ptr->feat, 0);
 
@@ -2560,7 +2560,7 @@ static void _circle_kick_spell(int cmd, variant *res)
         /* Move player before updating the monster */
         if (!player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
         moved = TRUE;
-        
+
         update_mon(c_ptr->m_idx, TRUE);
 
         if (tm_idx != c_ptr->m_idx)
@@ -2766,7 +2766,7 @@ static void _wild_blade_spell(int cmd, variant *res)
 
 int weaponmaster_get_toggle(void)
 {
-    /* exposed for prtstatus() in xtra1.c 
+    /* exposed for prtstatus() in xtra1.c
        this is easier than rewriting the status code so that classes can maintain it!
     */
     int result = TOGGLE_NONE;
@@ -2780,7 +2780,7 @@ void weaponmaster_set_toggle(int toggle)
     if (p_ptr->pclass == CLASS_WEAPONMASTER)
         _set_toggle(toggle);
 }
-  
+
 #define _WEAPONMASTER_MELEE   1
 #define _WEAPONMASTER_SHIELDS 2
 #define _WEAPONMASTER_BOWS    3
@@ -2805,8 +2805,8 @@ typedef struct {
 
 /*  p_ptr->psubclass indexes into _specialities.
     This index is persisted in savefiles and are chosen
-    by the player at startup, so moving things around is 
-    unwise unless you put code to fix up old savefiles 
+    by the player at startup, so moving things around is
+    unwise unless you put code to fix up old savefiles
     in load.c.
 */
 static _speciality _specialities[_MAX_SPECIALITIES] = {
@@ -3462,7 +3462,7 @@ static void _calc_bonuses(void)
             if (p_ptr->lev >= 45)
                 p_ptr->unlimited_quiver = TRUE;
         }
-    } 
+    }
     else if (p_ptr->psubclass == WEAPONMASTER_BOWS)
     {
         if (spec)
@@ -3470,7 +3470,7 @@ static void _calc_bonuses(void)
             if (p_ptr->lev >= 45)
                 p_ptr->unlimited_quiver = TRUE;
         }
-    } 
+    }
     else if (p_ptr->psubclass == WEAPONMASTER_CROSSBOWS)
     {
         if (spec)
@@ -3483,10 +3483,10 @@ static void _calc_bonuses(void)
                 break;
             }
         }
-    } 
+    }
     else if (p_ptr->psubclass == WEAPONMASTER_DAGGERS)
     {
-        if (spec) 
+        if (spec)
         {
             p_ptr->easy_2weapon = TRUE;
             if (p_ptr->lev >= 25 && p_ptr->weapon_ct > 1)
@@ -3568,7 +3568,7 @@ static void _calc_bonuses(void)
                     p_ptr->redraw |= (PR_STATUS);
                 }
                 else
-                    p_ptr->constant_hero = TRUE;                
+                    p_ptr->constant_hero = TRUE;
             }
 
             if (p_ptr->lev >= 45)
@@ -3588,7 +3588,7 @@ static void _calc_bonuses(void)
 
             if (p_ptr->lev >= 30)
             {
-                if (p_ptr->entrench_ct >= 3) 
+                if (p_ptr->entrench_ct >= 3)
                 {
                     p_ptr->entrenched = TRUE;
                     p_ptr->redraw |= PR_STATUS;
@@ -3717,7 +3717,7 @@ static void _calc_bonuses(void)
         p_ptr->painted_target_ct = 0;
     }
 
-    /* Hack -- handle "xtra" mode 
+    /* Hack -- handle "xtra" mode
        This works around a startup glitch where the screen is only half painted.
        If we do a msg_print at this point, the user gets a face full of yuk!
     */
@@ -3755,7 +3755,7 @@ static void _calc_bonuses(void)
             default:
                 msg_print("You love your weapon.");
                 break;
-            } 
+            }
         }
 
         init = TRUE;
@@ -3882,7 +3882,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
                 p_ptr->shooter_info.num_fire /= 2;
                 break;
             case TOGGLE_OVERDRAW:
-                p_ptr->shooter_info.to_mult += 1;
+                p_ptr->shooter_info.to_mult += 100;
                 p_ptr->shooter_info.to_h -= 20;
                 p_ptr->shooter_info.dis_to_h -= 20;
                 break;
@@ -4174,7 +4174,7 @@ static void _move_player(void)
 static void _character_dump(doc_ptr doc)
 {
     doc_printf(doc, "<topic:Abilities>================================== <color:keypress>A</color>bilities ==================================\n\n");
-    
+
     if (p_ptr->psubclass == WEAPONMASTER_AXES)
     {
         if (p_ptr->lev >= 45)
@@ -4183,7 +4183,7 @@ static void _character_dump(doc_ptr doc)
             doc_printf(doc, "  * You gain a large bonus to damage when wielding an axe.\n");
         else
             doc_printf(doc, "  * You gain a small bonus to damage when wielding an axe.\n");
-        
+
         doc_printf(doc, "  * You gain +1 max attack when wielding an axe with two hands.\n");
 
         if (p_ptr->lev >= 5)
@@ -4195,10 +4195,10 @@ static void _character_dump(doc_ptr doc)
     else if (p_ptr->psubclass == WEAPONMASTER_CLUBS)
     {
         doc_printf(doc, "  * Your attacks have a chance to confuse when wielding a club.\n");
-        
+
         if (p_ptr->lev >= 20)
             doc_printf(doc, "  * Your attacks have a chance to knock out when wielding a club.\n");
-        
+
         if (p_ptr->lev >= 45)
             doc_printf(doc, "  * Your attacks have a chance to stun when wielding a club.\n");
 
@@ -4265,7 +4265,7 @@ static void _character_dump(doc_ptr doc)
 
         if (p_ptr->lev >= 25)
             doc_printf(doc, "  * You gain a bonus to saving throws when wielding a shield.\n");
-    
+
     }
     else if (p_ptr->psubclass == WEAPONMASTER_STAVES)
     {
@@ -4321,7 +4321,7 @@ class_t *weaponmaster_get_class(int subclass)
         me.base_hp = 12;
         me.exp = 135;
         me.pets = 40;
-        
+
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.birth = _on_birth;
@@ -4375,7 +4375,7 @@ int weaponmaster_wield_hack(object_type *o_ptr)
     {
         if (p_ptr->psubclass == WEAPONMASTER_DAGGERS)
         {
-            if (_check_speciality_aux(o_ptr)) 
+            if (_check_speciality_aux(o_ptr))
                 result = 50 - p_ptr->lev/2;
         }
     }

@@ -52,33 +52,33 @@ static void _build_general1(doc_ptr doc)
     if (race_ptr->subname)
     {
         if (p_ptr->prace == RACE_MON_RING)
-            doc_printf(doc, " Controlling: <color:B>%-27.27s</color>\n", race_ptr->subname);
+            doc_printf(doc, " Controlling: <color:B>%-26.26s</color>\n", race_ptr->subname);
         else if (p_ptr->prace == RACE_MON_MIMIC)
         {
             if (p_ptr->current_r_idx == MON_MIMIC)
-                doc_printf(doc, " Mimicking  : <color:B>%-27.27s</color>\n", "Nothing");
+                doc_printf(doc, " Mimicking  : <color:B>%-26.26s</color>\n", "Nothing");
             else
-                doc_printf(doc, " Mimicking  : <color:B>%-27.27s</color>\n", race_ptr->subname);
+                doc_printf(doc, " Mimicking  : <color:B>%-26.26s</color>\n", race_ptr->subname);
         }
         else
-            doc_printf(doc, " Subrace    : <color:B>%-27.27s</color>\n", race_ptr->subname);
+            doc_printf(doc, " Subrace    : <color:B>%-26.26s</color>\n", race_ptr->subname);
     }
     else
-        doc_printf(doc, " Subrace    : <color:B>%-27.27s</color>\n", "None");
+        doc_printf(doc, " Subrace    : <color:B>%-26.26s</color>\n", "None");
 
     doc_printf(doc, " Class      : <color:B>%s</color>\n", class_ptr->name);
 
     /* Assume Subclass and Magic are mutually exclusive ... */
     if (class_ptr->subname)
-        doc_printf(doc, " Subclass   : <color:B>%-27.27s</color>\n", class_ptr->subname);
+        doc_printf(doc, " Subclass   : <color:B>%-26.26s</color>\n", class_ptr->subname);
     else if (p_ptr->pclass == CLASS_WARLOCK)
-        doc_printf(doc, " Subclass   : <color:B>%-27.27s</color>\n", pact_info[p_ptr->psubclass].title);
+        doc_printf(doc, " Subclass   : <color:B>%-26.26s</color>\n", pact_info[p_ptr->psubclass].title);
     else if (p_ptr->pclass == CLASS_WEAPONMASTER)
-        doc_printf(doc, " Subclass   : <color:B>%-27.27s</color>\n", weaponmaster_speciality_name(p_ptr->psubclass));
+        doc_printf(doc, " Subclass   : <color:B>%-26.26s</color>\n", weaponmaster_speciality_name(p_ptr->psubclass));
     else if (p_ptr->prace == RACE_MON_DRAGON)
     {
         dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
-        doc_printf(doc, " Realm      : <color:B>%-27.27s</color>\n", realm->name);
+        doc_printf(doc, " Realm      : <color:B>%-26.26s</color>\n", realm->name);
     }
     else if (p_ptr->realm1)
     {
@@ -1011,7 +1011,7 @@ void py_display_spells(doc_ptr doc, spell_info *table, int ct)
     var_init(&vfm);
 
     doc_printf(doc, "<topic:Spells>=================================== <color:keypress>S</color>pells ====================================\n\n");
-    doc_printf(doc, "<color:G>%-20.20s Lvl Cost Fail %-15.15s Cast Fail</color>\n", "", "Desc");
+    doc_printf(doc, "<color:G>%-20.20s Lvl Cost Fail %-15.15s  Cast Fail</color>\n", "", "Desc");
 
     for (i = 0; i < ct; i++)
     {
@@ -1023,7 +1023,7 @@ void py_display_spells(doc_ptr doc, spell_info *table, int ct)
         spell->fn(SPELL_COST_EXTRA, &vc);
         spell->fn(SPELL_FAIL_MIN, &vfm);
 
-        doc_printf(doc, "%-20.20s %3d %4d %3d%% %-15.15s %4d %4d %3d%%\n",
+        doc_printf(doc, "%-20.20s %3d %4d %3d%% %-15.15s %5d %4d %3d%%\n",
             var_get_string(&vn),
             spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)),
             var_get_string(&vd),
@@ -1857,6 +1857,10 @@ static bool _mon_res_conf(int r_idx)
         return TRUE;
     return FALSE;
 }
+static bool _mon_is_pact(int r_idx)
+{
+    return warlock_is_pact_monster(&r_info[r_idx]);
+}
 static void _kill_counts_imp(doc_ptr doc, _mon_p p, cptr text, int total)
 {
     int i;
@@ -2121,6 +2125,8 @@ static void _build_statistics(doc_ptr doc)
     _kill_counts_imp(doc, _mon_is_troll, "Trolls", total_kills);
     _kill_counts_imp(doc, _mon_is_undead, "Undead", total_kills);
     _kill_counts_imp(doc, _mon_is_unique, "Uniques", total_kills);
+    if (p_ptr->pclass == CLASS_WARLOCK)
+        _kill_counts_imp(doc, _mon_is_pact, "Pact", total_kills);
     doc_newline(doc);
     _kill_counts_imp(doc, _mon_is_evil, "Evil Monsters", total_kills);
     _kill_counts_imp(doc, _mon_is_good, "Good Monsters", total_kills);

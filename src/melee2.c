@@ -664,7 +664,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
 
             /* Accept louder sounds */
             if ((cost == 0) || (best < cost)) continue;
-            /* Hack: Don't flow into occupied squares 
+            /* Hack: Don't flow into occupied squares
                TODO: Don't flow into squares that the monster can't move into.
             */
             if (c_ptr->m_idx && !(r_ptr->flags2 & (RF2_MOVE_BODY|RF2_KILL_BODY))) continue;
@@ -1081,7 +1081,7 @@ static bool get_moves(int m_idx, int *mm)
         if (pack_ptr->ai == AI_FEAR)
         {
             int odds = 500 - m_ptr->cdis * m_ptr->cdis;
-            
+
             /* Recover from fear? */
             if (odds <= 1 || one_in_(odds))
                 pack_ptr->ai = AI_SEEK;
@@ -1090,7 +1090,7 @@ static bool get_moves(int m_idx, int *mm)
         }
         else if (pack_ptr->ai == AI_MAINTAIN_DISTANCE)
         {
-            if ( 1 < m_ptr->cdis 
+            if ( 1 < m_ptr->cdis
               && m_ptr->cdis <= pack_ptr->distance
               && p_ptr->chp >= p_ptr->mhp * 4 / 5 ) /* If @ wounded, pursue! */
             {
@@ -1171,7 +1171,7 @@ static bool get_moves(int m_idx, int *mm)
             }
         }
 
-        if (pack_ptr->ai == AI_SHOOT)
+        if (pack_ptr->ai == AI_SHOOT && m_ptr->cdis > 1)
         {
             x = 0;
             y = 0;
@@ -2288,14 +2288,14 @@ static void process_monster(int m_idx)
     /* Are there its parent? */
     if (m_ptr->parent_m_idx && !m_list[m_ptr->parent_m_idx].r_idx)
     {
-        /* Its parent have gone, it also goes away. 
+        /* Its parent have gone, it also goes away.
            Hack: Only for pets.
         */
         if (!is_pet(m_ptr))
         {
             mon_set_parent(m_ptr, 0);
         }
-        else 
+        else
         {
             if (see_m)
             {
@@ -2403,8 +2403,8 @@ static void process_monster(int m_idx)
     }
 
     /* Hack: Rings wake up potential ring bearers */
-    if ( MON_CSLEEP(m_ptr) 
-      && p_ptr->action == ACTION_GLITTER 
+    if ( MON_CSLEEP(m_ptr)
+      && p_ptr->action == ACTION_GLITTER
       && mon_is_type(m_ptr->r_idx, SUMMON_RING_BEARER) )
     {
         set_monster_csleep(m_idx, 0);
@@ -2482,7 +2482,7 @@ static void process_monster(int m_idx)
 
 
     /* Attempt to "multiply" if able and allowed */
-    if ( (r_ptr->flags2 & RF2_MULTIPLY) 
+    if ( (r_ptr->flags2 & RF2_MULTIPLY)
       && num_repro < MAX_REPRO
       && randint1(375) > virtue_current(VIRTUE_HARMONY) )
     {
@@ -2627,7 +2627,7 @@ static void process_monster(int m_idx)
 
                 m_ptr2 = &m_list[c_ptr->m_idx];
 
-                if (c_ptr->m_idx && 
+                if (c_ptr->m_idx &&
                     m_ptr2->pack_idx == m_ptr->pack_idx &&
                     MON_CSLEEP(m_ptr2))
                 {
@@ -2683,7 +2683,7 @@ static void process_monster(int m_idx)
 
         /* But angry monsters will eventually spell if they get too pissed off */
         freq += m_ptr->anger_ct * 10;
-        
+
         /* Hack for Rage Mage Anti-magic Ray ... */
         if (m_ptr->anti_magic_ct)
         {
@@ -2710,7 +2710,7 @@ static void process_monster(int m_idx)
             else
             {
                 msg_format("%^s says 'Just you wait until I can cast spells again!'", m_name);
-                blocked_magic = TRUE;    
+                blocked_magic = TRUE;
                 m_ptr->anti_magic_ct--;
             }
         }
@@ -2908,7 +2908,7 @@ static void process_monster(int m_idx)
         {
             if ( p_ptr->chp > p_ptr->mhp * 4 / 5 /* If @ wounded, pursue! */
               && !player_bold(ny, nx)            /* Moving from out of LOS into LOS */
-              && player_has_los_bold(ny, nx) 
+              && player_has_los_bold(ny, nx)
               && projectable(py, px, ny, nx)
               && !projectable(py, px, m_ptr->fy, m_ptr->fx) )
             {
@@ -2928,7 +2928,7 @@ static void process_monster(int m_idx)
                         if (y == m_ptr->fy && x == m_ptr->fx) continue;
                         if (cave[y][x].m_idx && is_hostile(&m_list[cave[y][x].m_idx]))
                             ct_enemy++;
-                        if (cave_empty_bold(y, x) && projectable(py, px, y, x) && projectable(y, x, py, px)) 
+                        if (cave_empty_bold(y, x) && projectable(py, px, y, x) && projectable(y, x, py, px))
                             ct_open++;
                     }
                 }
@@ -3434,9 +3434,9 @@ static void process_monster(int m_idx)
             }
 
             /* Possible disturb */
-            if (m_ptr->ml && 
-                (disturb_move || 
-                 (m_ptr->cdis <= 2 && projectable(py, px, m_ptr->fy, m_ptr->fx)) || 
+            if (m_ptr->ml &&
+                (disturb_move ||
+                 (m_ptr->cdis <= 2 && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
                  (disturb_near && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
                  (disturb_high && ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)))
             {
@@ -3806,7 +3806,7 @@ void process_monsters(void)
         }
         else if (!dun_level /*&& !p_ptr->town_num*/ && !p_ptr->inside_arena && !p_ptr->inside_battle && !p_ptr->inside_quest)
             radius *= 3;
-        
+
         if (m_ptr->cdis <= radius)
         {
             /* We can "sense" the player */
@@ -3824,7 +3824,7 @@ void process_monsters(void)
         else if (m_ptr->target_y) test = TRUE;
 
         /* Do nothing */
-        if (!test) 
+        if (!test)
             continue;
 
 
@@ -3868,9 +3868,9 @@ void process_monsters(void)
             continue;
         }
 
-        if (!fear_process_m(i)) 
+        if (!fear_process_m(i))
             continue;
-        
+
         if (m_ptr->paralyzed)
         {
             set_monster_paralyzed(i, m_ptr->paralyzed - 1);
@@ -4632,7 +4632,7 @@ void monster_gain_exp(int m_idx, int s_idx)
     if (is_pet(m_ptr))
     {
         int  div = 5;
-        bool penalty = TRUE; 
+        bool penalty = TRUE;
         int  exp;
 
         if ( prace_is_(RACE_MON_QUYLTHULG)

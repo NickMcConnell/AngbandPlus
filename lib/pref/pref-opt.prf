@@ -64,6 +64,7 @@ X:abbrev_extra
 Y:abbrev_all
 Y:exp_need
 Y:ignore_unview
+X:display_distance
 
 ##### Game-Play #####
 

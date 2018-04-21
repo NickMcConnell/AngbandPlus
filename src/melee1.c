@@ -230,11 +230,11 @@ bool make_attack_normal(int m_idx)
         int d_dice;
         int d_side;
 
-        /* Revenge aura only gives a single retaliatory attempt per player strike 
+        /* Revenge aura only gives a single retaliatory attempt per player strike
            We'll cycle thru monster attacks on each revenge strike, and the revenge
            will stop after the monster runs out of attacks. So 20 attack players need
            not fear insta-death (as much). All the hackery is communicated between
-           here, py_attack_* and touch_zap_player(). Enjoy! 
+           here, py_attack_* and touch_zap_player(). Enjoy!
            (Note: If I had a mon_attack_p(int m_idx, int blow_idx), we could
            avoid all this nonsense ... )
          */
@@ -556,7 +556,7 @@ bool make_attack_normal(int m_idx)
                             obvious = TRUE;
                         }
                     }
-                    else 
+                    else
                     {
                         if (!res_save(RES_DISEN, 31) && !CHECK_MULTISHADOW())
                         {
@@ -666,7 +666,7 @@ bool make_attack_normal(int m_idx)
                         break;
                     }
 
-                    if ( !drained 
+                    if ( !drained
                       && !(get_race()->flags & RACE_IS_NONLIVING)
                       && !prace_is_(RACE_MON_JELLY) )
                     {
@@ -1558,7 +1558,7 @@ bool make_attack_normal(int m_idx)
                 }
 
                 /* Apply the stun */
-                if (k && p_ptr->stun < 100) 
+                if (k && p_ptr->stun < 100)
                     set_stun(p_ptr->stun + k, FALSE);
             }
 
@@ -1775,7 +1775,7 @@ bool make_attack_normal(int m_idx)
                             break;
                         }
                         project(0, 0, m_ptr->fy, m_ptr->fx, dam, GF_TIME, PROJECT_STOP | PROJECT_KILL | PROJECT_GRID, -1);
-                        if (MON_CSLEEP(m_ptr))
+                        if (m_ptr->paralyzed)
                             break;
                     }
                     else
@@ -1850,7 +1850,7 @@ bool make_attack_normal(int m_idx)
                     {
                         int dam = 1;
                         int slot, hand;
-                        
+
                         for (hand = 0; hand < MAX_HANDS; hand++)
                         {
                             object_type *o_ptr = NULL;
@@ -1862,7 +1862,7 @@ bool make_attack_normal(int m_idx)
                                 int ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
                                 dam = dd * (ds + 1) / 2 + o_ptr->to_d + p_ptr->weapon_info[hand].to_d;
                                 break;
-                            }    
+                            }
                         }
                         slot = equip_find_first(object_is_body_armour);
                         if (slot)
@@ -1890,7 +1890,7 @@ bool make_attack_normal(int m_idx)
                                 object_type *o_ptr = equip_obj(slot);
                                 int          effect = 0;
                                 int          flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-                                
+
                                 switch (equip_slot_type(slot))
                                 {
                                 case EQUIP_SLOT_HELMET: effect = GF_OLD_CONF; break;
@@ -1991,7 +1991,7 @@ bool make_attack_normal(int m_idx)
         {
             if (kawarimi(FALSE)) return TRUE;
         }
-    
+
         if (retaliation_hack)
             break;
     }

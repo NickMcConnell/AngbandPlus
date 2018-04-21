@@ -1207,7 +1207,7 @@ static bool _is_d_char(const char *token)
     return FALSE;
 }
 
-/* Same order as summon_specific_e in defines.h 
+/* Same order as summon_specific_e in defines.h
    These are legal monster types for the MON() directive when
    specifying room_grid_t
  */
@@ -1304,7 +1304,7 @@ static const char *_summon_specific_types[] = {
    MON(442)                       A Black Knight */
 static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_ptr)
 {
-    if (arg_ct < 1 || arg_ct > 2) 
+    if (arg_ct < 1 || arg_ct > 2)
     {
         msg_print("Invalid MON() directive: Syntax: MON(<which> [,<options>]).");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
@@ -1318,7 +1318,7 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_
     else if (_is_numeric(args[0]))
     {
         grid_ptr->monster = atoi(args[0]);
-        if (!grid_ptr->monster) 
+        if (!grid_ptr->monster)
         {
             msg_format("Error: %d is not a valid monster index (See r_idx.txt).", grid_ptr->monster);
             return PARSE_ERROR_GENERIC;
@@ -1354,7 +1354,7 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_
         char *flags[10];
         int   flag_ct = z_string_split(args[1], flags, 10, "|");
         int   i;
-                
+
         trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
@@ -1400,10 +1400,10 @@ struct _object_type_s
 };
 typedef struct _object_type_s _object_type_t;
 
-/* Use the following keywords in OBJ(), EGO() and ART() directives 
-   to force a random object of the indicated tval. 
+/* Use the following keywords in OBJ(), EGO() and ART() directives
+   to force a random object of the indicated tval.
    Regexp: \#define TV_{[A-Z_0-9]+}[ ]+[0-9]+ -> { "\1", TV_\1 }, */
-static _object_type_t _object_types[] = 
+static _object_type_t _object_types[] =
 {
     { "JUNK",               TV_JUNK },
     { "SKELETON",           TV_SKELETON },
@@ -1478,7 +1478,7 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
         char *flags[10];
         int   flag_ct = z_string_split(args[1], flags, 10, "|");
         int   i;
-                
+
         trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
@@ -1508,7 +1508,7 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
                 if (!_object_types[i].name)
                 {
                     grid_ptr->object = atoi(args[0]);
-                    if (!grid_ptr->object) 
+                    if (!grid_ptr->object)
                     {
                         msg_format("Error: Invalid object %s.", args[0]);
                         return PARSE_ERROR_GENERIC;
@@ -1548,7 +1548,7 @@ static errr _parse_room_grid_ego(char **args, int arg_ct, room_grid_t *grid_ptr)
         else
         {
             grid_ptr->extra = atoi(args[0]);
-            if (!grid_ptr->extra) 
+            if (!grid_ptr->extra)
             {
                 msg_format("Error: Unknown Ego %s.", args[0]);
                 return PARSE_ERROR_GENERIC;
@@ -1609,7 +1609,7 @@ static errr _parse_room_grid_trap(char **args, int arg_ct, room_grid_t *grid_ptr
         else
         {
             s16b trap = f_tag_to_index(args[0]);
-            if (trap < 0) 
+            if (trap < 0)
             {
                 msg_format("Error: Unknown Trap %s.", args[0]);
                 return PARSE_ERROR_GENERIC;
@@ -1654,12 +1654,12 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
         char *flags[10];
         int   flag_ct = z_string_split(args[0], flags, 10, "|");
         int   i;
-                
+
         trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
             char* flag = flags[i];
-            
+
             if (streq(flag, "ROOM"))
                 grid_ptr->cave_info |= CAVE_ROOM;
             else if (streq(flag, "ICKY"))
@@ -1678,7 +1678,7 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
     return 0;
 }
 
-/* L:.:FLOOR(ROOM|ICKY):MON(DRAGON, 20):EGO(*) 
+/* L:.:FLOOR(ROOM|ICKY):MON(DRAGON, 20):EGO(*)
    Room Grids are designed to replace old dungeon_grid F: lines
    but I haven't got around to replacing those just yet. */
 errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
@@ -1692,18 +1692,18 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
     WIPE(grid_ptr, room_grid_t);
 
     /* First command is the "letter" for this room grid */
-    if (command_ct < 2) 
+    if (command_ct < 2)
     {
         msg_print("Error: Not enough info on the L: line. Syntax: L:<letter>:<option_list>.");
         return PARSE_ERROR_TOO_FEW_ARGUMENTS;
     }
-    if (strlen(commands[0]) != 1) 
+    if (strlen(commands[0]) != 1)
     {
         msg_format("Error: Invalid letter %s on L: line. Should be one character only.", commands[0]);
         return PARSE_ERROR_GENERIC;
     }
     grid_ptr->letter = commands[0][0];
-    
+
     /* Remaining commands are name(args) directives in any order */
     for (i = 1; i < command_ct; i++)
     {
@@ -1712,7 +1712,7 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
         char *args[10];
         int   arg_ct = parse_args(command, &name, args, 10);
 
-        if (arg_ct < 0) 
+        if (arg_ct < 0)
         {
             msg_format("Error: Malformed argument %s. Missing )?", name);
             return PARSE_ERROR_GENERIC;
@@ -1765,12 +1765,12 @@ static errr _parse_room_flags(char* buf, room_template_t *room_ptr)
     char *flags[10];
     int   flag_ct = z_string_split(buf, flags, 10, "|");
     int   i;
-                
+
     trim_tokens(flags, flag_ct);
     for (i = 0; i < flag_ct; i++)
     {
         char* flag = flags[i];
-            
+
         if (streq(flag, "GOOD"))
             room_ptr->flags |= ROOM_THEME_GOOD;
         else if (streq(flag, "EVIL"))
@@ -1815,7 +1815,7 @@ errr parse_v_info(char *buf, header *head)
         char *zz[10];
         int   num = tokenize(buf + 2, 10, zz, 0);
 
-        if (num != 1 || !*zz[0]) 
+        if (num != 1 || !*zz[0])
         {
             msg_print("Error: Invalid N: line. Syntax: N:<Name>.");
             return PARSE_ERROR_TOO_FEW_ARGUMENTS;
@@ -1823,7 +1823,7 @@ errr parse_v_info(char *buf, header *head)
 
         /* Auto-gen a sequence id ... these are never stored or referred to in code, so why force numbering? */
         i = MAX(1, error_idx + 1);
-        if (i >= head->info_num) 
+        if (i >= head->info_num)
         {
             msg_format("Error: Too many v_info records. Max is currently set to %d in misc.txt.", head->info_num);
             return (2);
@@ -1839,7 +1839,7 @@ errr parse_v_info(char *buf, header *head)
     }
 
     /* There better be a current room_ptr */
-    else if (!room_ptr) 
+    else if (!room_ptr)
     {
         msg_print("Error: Missing N: line for new room template.");
         return PARSE_ERROR_MISSING_RECORD_HEADER;
@@ -1851,7 +1851,7 @@ errr parse_v_info(char *buf, header *head)
         char *zz[10];
         int   num = tokenize(buf + 2, 10, zz, 0);
 
-        if (num < 2 || num > 3) 
+        if (num < 2 || num > 3)
         {
             msg_print("Error: Invalid T: line. Syntax is T:<Type>:<Subtype>[:<Flags>].");
             return PARSE_ERROR_TOO_FEW_ARGUMENTS;
@@ -1865,19 +1865,19 @@ errr parse_v_info(char *buf, header *head)
             else if (streq(zz[1], "GREATER"))
                 room_ptr->subtype = VAULT_GREATER;
 
-            if (!room_ptr->subtype) 
+            if (!room_ptr->subtype)
             {
                 msg_format("Error: Unknown vault type %s.", zz[1]);
                 return PARSE_ERROR_GENERIC;
             }
         }
         else if (streq(zz[0], "ROOM"))
-        {   
+        {
             room_ptr->type = ROOM_NORMAL;
             room_ptr->subtype = 0; /* TODO */
         }
         else if (streq(zz[0], "WILD") || streq(zz[0], "AMBUSH"))
-        {   
+        {
             static struct { cptr name; int type; } types[] = {
                 {"WATER",    TERRAIN_DEEP_WATER}, /* TERRAIN_SHALLOW_WATER */
                 {"SWAMP",    TERRAIN_SWAMP},
@@ -1902,14 +1902,14 @@ errr parse_v_info(char *buf, header *head)
                 }
             }
 
-            if (!room_ptr->subtype) 
+            if (!room_ptr->subtype)
             {
                 msg_format("Error: Unknown wilderness type %s.", zz[1]);
                 return PARSE_ERROR_GENERIC;
             }
         }
 
-        if (!room_ptr->type) 
+        if (!room_ptr->type)
         {
             msg_format("Error: Unknown room type %s.", zz[0]);
             return PARSE_ERROR_GENERIC;
@@ -1929,7 +1929,7 @@ errr parse_v_info(char *buf, header *head)
         int   num = tokenize(buf + 2, 10, zz, 0);
         int   tmp;
 
-        if (num != 3) 
+        if (num != 3)
         {
             msg_print("Error: Invalid W: line. Syntax: W:<Level>:<MaxLevel>:<Rarity>.");
             return PARSE_ERROR_TOO_FEW_ARGUMENTS;
@@ -1957,7 +1957,7 @@ errr parse_v_info(char *buf, header *head)
             if (!room_ptr->letters[j].letter)
                 return parse_room_grid(buf + 2, &room_ptr->letters[j]);
         }
-        msg_format("Error: Too many letters. Only %d letters are allowed.", ROOM_MAX_LETTERS); 
+        msg_format("Error: Too many letters. Only %d letters are allowed.", ROOM_MAX_LETTERS);
         return PARSE_ERROR_GENERIC;
     }
 
@@ -1966,12 +1966,12 @@ errr parse_v_info(char *buf, header *head)
     {
         /* Acquire the text */
         s = buf+2;
-        
+
         /* Calculate room dimensions automagically */
         room_ptr->height++;
         if (!room_ptr->width)
             room_ptr->width = strlen(s);
-        else if (strlen(s) != room_ptr->width) 
+        else if (strlen(s) != room_ptr->width)
         {
             msg_format(
                 "Error: Inconsistent map widths. Room width auto-calculated to %d but "
@@ -3215,7 +3215,7 @@ errr parse_e_info(char *buf, header *head)
         if (rc) return rc;
         add_flag(e_ptr->flags, OF_ACTIVATE); /* for object lore */
     }
-    /* W:MinDepth:MaxDepth:Rarity 
+    /* W:MinDepth:MaxDepth:Rarity
        W:30:*:32                  */
     else if (buf[0] == 'W')
     {
@@ -3378,15 +3378,15 @@ static cptr b_info_slots[] =
     "NONE",
     "GLOVES",
     "WEAPON_SHIELD",
-    "RING",         
-    "BOW",          
-    "AMULET",       
-    "LITE",         
-    "BODY_ARMOR",   
-    "CLOAK",        
-    "BOOTS",        
-    "HELMET",       
-    "ANY",             
+    "RING",
+    "BOW",
+    "AMULET",
+    "LITE",
+    "BODY_ARMOR",
+    "CLOAK",
+    "BOOTS",
+    "HELMET",
+    "ANY",
     "WEAPON",
     "CAPTURE_BALL",
 };
@@ -3452,7 +3452,7 @@ errr parse_b_info(char *buf, header *head)
         /* Analyze the slot type */
         for (n1 = 0; n1 < EQUIP_SLOT_MAX; n1++)
         {
-            if (streq(s, b_info_slots[n1])) 
+            if (streq(s, b_info_slots[n1]))
             {
                 b_ptr->slots[i].type = n1;
                 break;
@@ -4548,7 +4548,7 @@ static errr parse_line_building(char *buf)
             return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
         }
 
-        /* Building Classes 
+        /* Building Classes
             The old way:
             B:7:C:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:2:0:0:2:2:2:0:0:0:0:0:2:0:0:2:0:2:2:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
@@ -4586,7 +4586,7 @@ static errr parse_line_building(char *buf)
             return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
         }
 
-        /* Building Races 
+        /* Building Races
             Same as with classes ...
         */
         case 'R':
@@ -4762,7 +4762,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
             int        old_object_level = object_level;
             int        old_dun_level = dun_level;
 
-            if (!in_bounds2(y2, x2)) 
+            if (!in_bounds2(y2, x2))
                 continue;
 
             if (init_exclude_rect && rect_contains_pt(init_exclude_rect, x2, y2))
@@ -4948,7 +4948,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                     object_type *q_ptr = &forge;
 
                     object_prep(q_ptr, k_idx);
-                    drop_here(q_ptr, y2, x2);                
+                    drop_here(q_ptr, y2, x2);
                 }
                 else if (a_info[artifact_index].generated)
                 {
@@ -5171,7 +5171,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
             /* Maximum d_idx */
             else if (zz[0][0] == 'D')
             {
-                max_d_idx = atoi(zz[1]); 
+                max_d_idx = atoi(zz[1]);
             }
 
             /* Maximum o_idx */
@@ -5398,7 +5398,6 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
             {
                 v = ANGBAND_GRAF;
             }
-
             else if (streq(b+1, "MONOCHROME"))
             {
                 if (arg_monochrome)
@@ -5406,30 +5405,33 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
                 else
                     v = "OFF";
             }
-
+            /* Race */
             else if (streq(b+1, "RACE"))
             {
                 v = get_true_race()->name;
             }
-
+            else if (streq(b+1, "SUBRACE"))
+            {
+                v = get_true_race()->subname;
+            }
             /* Class */
             else if (streq(b+1, "CLASS"))
             {
                 v = get_class()->name;
             }
-
-            /* First realm */
+            else if (streq(b+1, "SUBCLASS"))
+            {
+                v = get_class()->subname;
+            }
+            /* Realms */
             else if (streq(b+1, "REALM1"))
             {
                 v = realm_names[p_ptr->realm1];
             }
-
-            /* Second realm */
             else if (streq(b+1, "REALM2"))
             {
                 v = realm_names[p_ptr->realm2];
             }
-
             /* Player name */
             else if (streq(b+1, "PLAYER"))
             {
@@ -5479,10 +5481,10 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
                 v = tmp;
             }
 
-            /* Random 
+            /* Random
                OLD: $RANDOM7 evaluated as seed_town % 7
                NEW: [MOD $RANDOM37 7] where 37 refers to the seed
-               for quest 37. Every quest gets assigned a new seed 
+               for quest 37. Every quest gets assigned a new seed
                when it is accepted in bldg.c.
             */
             else if (prefix(b+1, "RANDOM"))

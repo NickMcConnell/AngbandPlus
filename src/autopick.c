@@ -570,8 +570,8 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
             switch (o_ptr->feeling)
             {
             case FEEL_CURSED:
-				ADD_FLG(FLG_CURSED);
-				break;
+                ADD_FLG(FLG_CURSED);
+                break;
 
             case FEEL_ENCHANTED:
                 /* XXX No appropriate flag */
@@ -583,32 +583,32 @@ static void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr)
                 break;
 
             case FEEL_GOOD:
-				ADD_FLG(FLG_GOOD);
+                ADD_FLG(FLG_GOOD);
                 ADD_FLG(FLG_NAMELESS);
                 break;
 
-			case FEEL_BAD:
-				ADD_FLG(FLG_CURSED);
-				ADD_FLG(FLG_NAMELESS);
-				break;
+            case FEEL_BAD:
+                ADD_FLG(FLG_CURSED);
+                ADD_FLG(FLG_NAMELESS);
+                break;
 
             case FEEL_EXCELLENT:
                 ADD_FLG(FLG_EGO);
                 break;
 
-			case FEEL_AWFUL:
-				ADD_FLG(FLG_CURSED);
-				ADD_FLG(FLG_EGO);
-				break;
+            case FEEL_AWFUL:
+                ADD_FLG(FLG_CURSED);
+                ADD_FLG(FLG_EGO);
+                break;
 
-			case FEEL_SPECIAL:
-				ADD_FLG(FLG_ARTIFACT);
-				break;
+            case FEEL_SPECIAL:
+                ADD_FLG(FLG_ARTIFACT);
+                break;
 
-			case FEEL_TERRIBLE:
-				ADD_FLG(FLG_CURSED);
-				ADD_FLG(FLG_ARTIFACT);
-				break;
+            case FEEL_TERRIBLE:
+                ADD_FLG(FLG_CURSED);
+                ADD_FLG(FLG_ARTIFACT);
+                break;
 
             case FEEL_BROKEN:
                 ADD_FLG(FLG_NAMELESS);
@@ -953,10 +953,10 @@ errr process_autopick_file_command(char *buf)
             break;
     }
     buf[i] = 0;
-    
+
     if (!autopick_new_entry(entry, buf, FALSE)) return 0;
 
-    /* Already has the same entry? */ 
+    /* Already has the same entry? */
     for(i = 0; i < max_autopick; i++)
         if(!strcmp(entry->name, autopick_list[i].name)
            && entry->flag[0] == autopick_list[i].flag[0]
@@ -1285,7 +1285,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         if (o_ptr->dd * o_ptr->ds <= entry->dice)
             return FALSE;
     }
-                
+
     /*** Objects with pval is more than nn ***/
     if (IS_FLG(FLG_MORE_BONUS))
     {
@@ -1327,7 +1327,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
             if (level <= entry->level)
                 return FALSE;
         }
-    }                
+    }
 
     if (IS_FLG(FLG_MORE_WEIGHT))
     {
@@ -1349,50 +1349,50 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Artifact object ***/
     if (IS_FLG(FLG_ARTIFACT))
     {
-		if (object_is_known(o_ptr))
-		{ 
-			if (!object_is_artifact(o_ptr)) return FALSE;
-		}
-		else if (o_ptr->ident & IDENT_SENSE) 
-		{
-			switch (o_ptr->feeling)
-			{
-			case FEEL_SPECIAL:
-			case FEEL_TERRIBLE:
-				break;
-			default:
-				return FALSE;
-			}
-		}
-		else
-			return FALSE;
+        if (object_is_known(o_ptr))
+        {
+            if (!object_is_artifact(o_ptr)) return FALSE;
+        }
+        else if (o_ptr->ident & IDENT_SENSE)
+        {
+            switch (o_ptr->feeling)
+            {
+            case FEEL_SPECIAL:
+            case FEEL_TERRIBLE:
+                break;
+            default:
+                return FALSE;
+            }
+        }
+        else
+            return FALSE;
     }
 
     /*** Ego object ***/
     if (IS_FLG(FLG_EGO))
     {
-		if (object_is_known(o_ptr))
-		{ 
-			if (!object_is_ego(o_ptr)) return FALSE;
-		}
-		else if (o_ptr->ident & IDENT_SENSE) 
-		{
-			switch (o_ptr->feeling)
-			{
-			case FEEL_AWFUL:
-			case FEEL_EXCELLENT:
-				break;
-			default:
-				return FALSE;
-			}
-		}
-		else
-			return FALSE;
+        if (object_is_known(o_ptr))
+        {
+            if (!object_is_ego(o_ptr)) return FALSE;
+        }
+        else if (o_ptr->ident & IDENT_SENSE)
+        {
+            switch (o_ptr->feeling)
+            {
+            case FEEL_AWFUL:
+            case FEEL_EXCELLENT:
+                break;
+            default:
+                return FALSE;
+            }
+        }
+        else
+            return FALSE;
     }
     if (IS_FLG(FLG_SPECIAL)) /* leave_special ... I'm trying to obsolesce the easy destroyer. */
     {
         bool is_special = FALSE;
-        if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON) 
+        if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON)
             || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
         {
             if (o_ptr->tval == TV_CORPSE &&
@@ -1412,7 +1412,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         }
         else if (p_ptr->pclass == CLASS_NINJA)
         {
-            if ( o_ptr->tval == TV_LITE 
+            if ( o_ptr->tval == TV_LITE
               && (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->flags, OF_DARKNESS))
               && object_is_known(o_ptr))
             {
@@ -1450,27 +1450,27 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     if (IS_FLG(FLG_CURSED))
     {
         if (!object_is_equipment(o_ptr)) return FALSE;
-		if (object_is_known(o_ptr))
-		{ 
-			if (!object_is_cursed(o_ptr)) return FALSE;
-		}
-		else if (o_ptr->ident & IDENT_SENSE) 
-		{
-			switch (o_ptr->feeling)
-			{
-			case FEEL_BROKEN:
-			case FEEL_BAD:
-			case FEEL_AWFUL:
-			case FEEL_TERRIBLE:
-			case FEEL_CURSED:
-				break;
-			default:
-				return FALSE;
-			}
-		}
-		else
-			return FALSE;
-	}
+        if (object_is_known(o_ptr))
+        {
+            if (!object_is_cursed(o_ptr)) return FALSE;
+        }
+        else if (o_ptr->ident & IDENT_SENSE)
+        {
+            switch (o_ptr->feeling)
+            {
+            case FEEL_BROKEN:
+            case FEEL_BAD:
+            case FEEL_AWFUL:
+            case FEEL_TERRIBLE:
+            case FEEL_CURSED:
+                break;
+            default:
+                return FALSE;
+            }
+        }
+        else
+            return FALSE;
+    }
 
     /*** Good ***/
     if (IS_FLG(FLG_GOOD))
@@ -1533,7 +1533,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
             {
             case FEEL_AVERAGE:
             case FEEL_GOOD:
-			case FEEL_BAD:
+            case FEEL_BAD:
                 /* It's nameless */
                 break;
 
@@ -1626,7 +1626,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         return FALSE;
 
     /*** First realm spellbooks ***/
-    if (IS_FLG(FLG_REALM1) && 
+    if (IS_FLG(FLG_REALM1) &&
         (REALM1_BOOK != o_ptr->tval ||
          p_ptr->pclass == CLASS_SORCERER ||
          p_ptr->pclass == CLASS_RED_MAGE))
@@ -1650,7 +1650,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
         return FALSE;
 
     /*** Third rank spellbooks ***/
-    if (IS_FLG(FLG_THIRD) && 
+    if (IS_FLG(FLG_THIRD) &&
         (o_ptr->tval < TV_LIFE_BOOK || 2 != o_ptr->sval))
         return FALSE;
 
@@ -1806,7 +1806,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     for (j = 0; j < INVEN_PACK; j++)
     {
         /*
-         * 'Collecting' means the item must be absorbed 
+         * 'Collecting' means the item must be absorbed
          * into an inventory slot.
          * But an item can not be absorbed into itself!
          */
@@ -1849,12 +1849,12 @@ int is_autopick(object_type *o_ptr)
     /* Convert the string to lower case */
     str_tolower(o_name);
 
-    /* Look for a matching entry in the list */    
+    /* Look for a matching entry in the list */
     for (i=0; i < max_autopick; i++)
     {
         autopick_type *entry = &autopick_list[i];
 
-        if (is_autopick_aux(o_ptr, entry, o_name)) 
+        if (is_autopick_aux(o_ptr, entry, o_name))
             return i;
     }
 
@@ -1890,19 +1890,19 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
     if (!destroy_items) return FALSE;
 
     if (leave_worth) /* leave worthy items ... worth could also stand for worthless, no? Sigh ... */
-	{
-		if ( !object_is_known(o_ptr)
-		  && !object_is_rare(o_ptr)
-		  && (o_ptr->ident & IDENT_SENSE)
-		  && o_ptr->feeling == FEEL_BAD )
-		{
-			/* Bad items should generally be destroyed (even if they have
-			   non-zero values). However, a subsequent option may keep them
-			   around (e.g. leave_special or leave_equip) */
-		}
-		else if (obj_value(o_ptr) > 0) 
-			return FALSE;
-	}
+    {
+        if ( !object_is_known(o_ptr)
+          && !object_is_rare(o_ptr)
+          && (o_ptr->ident & IDENT_SENSE)
+          && o_ptr->feeling == FEEL_BAD )
+        {
+            /* Bad items should generally be destroyed (even if they have
+               non-zero values). However, a subsequent option may keep them
+               around (e.g. leave_special or leave_equip) */
+        }
+        else if (obj_value(o_ptr) > 0)
+            return FALSE;
+    }
 
     if (leave_equip)
         if (object_is_weapon_armour_ammo(o_ptr)) return FALSE;
@@ -1923,7 +1923,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 
     if (leave_special)
     {
-        if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON) 
+        if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON)
             || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
         {
             if (o_ptr->tval == TV_CORPSE &&
@@ -1943,7 +1943,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
         }
         else if (p_ptr->pclass == CLASS_NINJA)
         {
-            if ( o_ptr->tval == TV_LITE 
+            if ( o_ptr->tval == TV_LITE
               && (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->flags, OF_DARKNESS))
               && object_is_known(o_ptr))
             {
@@ -2259,7 +2259,7 @@ static void _sense_object_floor(object_type *o_ptr)
     if (o_ptr->ident & IDENT_SENSE) return;
     if (object_is_known(o_ptr)) return;
     if (!_can_sense_object(o_ptr)) return;
-    
+
     o_ptr->ident |= IDENT_SENSE;
     o_ptr->feeling = _get_object_feeling(o_ptr);
 }
@@ -2303,13 +2303,18 @@ bool autopick_auto_id(object_type *o_ptr)
 {
     int     class_idx = p_ptr->pclass;
     race_t *race = get_race();
-    
+
     if (class_idx == CLASS_MONSTER)
         class_idx = race->pseudo_class_idx;
 
     if (!object_is_known(o_ptr) && class_idx != CLASS_BERSERKER)
     {
-        int i = pack_find(TV_SCROLL, SV_SCROLL_IDENTIFY);
+        int i;
+
+        if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_id(o_ptr))
+            return TRUE;
+
+        i = pack_find(TV_SCROLL, SV_SCROLL_IDENTIFY);
 
         if (i >= 0 && !p_ptr->blind && !(race->flags & RACE_IS_ILLITERATE))
         {
@@ -2351,15 +2356,15 @@ void autopick_pickup_items(cave_type *c_ptr)
     s16b this_o_idx, next_o_idx = 0;
     bool auto_id = p_ptr->auto_id;
     bool auto_pseudo_id = p_ptr->auto_pseudo_id;
-    
+
     /* Scan the pile of objects */
     for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
     {
         int idx;
-    
+
         /* Acquire object */
         object_type *o_ptr = &o_list[this_o_idx];
-        
+
         /* Acquire next object */
         next_o_idx = o_ptr->next_o_idx;
 
@@ -2443,7 +2448,7 @@ void autopick_pickup_items(cave_type *c_ptr)
             }
             py_pickup_aux(this_o_idx);
         }
-        
+
         /*
          * Do auto-destroy;
          * When always_pickup is 'yes', we disable
@@ -2502,7 +2507,7 @@ static bool clear_auto_register(void)
         return FALSE;
     }
 
-    
+
     /* Loop for every line */
     while (TRUE)
     {
@@ -2601,7 +2606,7 @@ bool autopick_autoregister(object_type *o_ptr)
         else /* if (act & DO_QUERY_AUTOPICK) */ what = "query auto-pickup";
 
         msg_format("The object is already registered to %s by the rule %s.", what, string_buffer(s));
-        
+
         string_free(s);
         return FALSE;
     }
@@ -2639,9 +2644,9 @@ bool autopick_autoregister(object_type *o_ptr)
         /* Use default name */
         path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_DEFAULT));
         pref_fff = my_fopen(pref_file, "r");
-        if (!pref_fff) 
+        if (!pref_fff)
         {
-            msg_print("Initialize the auto-pick preferences first (Type '_').");            
+            msg_print("Initialize the auto-pick preferences first (Type '_').");
             return FALSE;
         }
     }
@@ -2731,7 +2736,7 @@ bool autopick_autoregister(object_type *o_ptr)
 #define QUIT_WITHOUT_SAVE 1
 #define QUIT_AND_SAVE     2
 
-/* 
+/*
  * Struct for yank buffer
  */
 typedef struct chain_str {
@@ -2806,7 +2811,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     /*** Which can be absorbed into a slot as a bundle ***/
     if (IS_FLG(FLG_COLLECTING))
         which_str[which_n++] = "can be absorbed into an existing inventory slot";
-    
+
     /*** Unaware items ***/
     if (IS_FLG(FLG_UNAWARE))
     {
@@ -2913,7 +2918,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
         static char more_than_desc_str[] =
             "maximum damage from dice is more than __";
         body_str = "weapons";
-            
+
         sprintf(more_than_desc_str + sizeof(more_than_desc_str) - 3,
             "%d", entry->dice);
         whose_str[whose_n++] = more_than_desc_str;
@@ -2924,7 +2929,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     {
         static char more_bonus_desc_str[] =
             "magical bonus is larger than (+__)";
-            
+
         sprintf(more_bonus_desc_str + sizeof(more_bonus_desc_str) - 4,
             "%d)", entry->bonus);
         whose_str[whose_n++] = more_bonus_desc_str;
@@ -3115,7 +3120,7 @@ static void describe_autopick(char *buff, autopick_type *entry)
     }
 
     /* Adjective */
-    if (!before_n) 
+    if (!before_n)
         strcat(buff, "all ");
     else for (i = 0; i < before_n && before_str[i]; i++)
     {
@@ -3202,7 +3207,7 @@ static cptr *read_text_lines(cptr filename)
     char buf[1024];
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, filename);
-    
+
     /* Open the file */
     fff = my_fopen(buf, "r");
 
@@ -3347,7 +3352,7 @@ static bool write_text_lines(cptr filename, cptr *lines_list)
 
     /* Build the filename */
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, filename);
-    
+
     /* Open the file */
     fff = my_fopen(buf, "w");
     if (fff)
@@ -3427,7 +3432,7 @@ static void toggle_keyword(text_body_type *tb, int flg)
             for (i = FLG_NOUN_BEGIN; i <= FLG_NOUN_END; i++)
                 REM_FLG(i);
         }
-        
+
         /* You can use only one identify state flag */
         else if (FLG_KNOWLEDGE_BEGIN <= flg && flg <= FLG_KNOWLEDGE_END)
         {
@@ -3435,7 +3440,7 @@ static void toggle_keyword(text_body_type *tb, int flg)
             for (i = FLG_KNOWLEDGE_BEGIN; i <= FLG_KNOWLEDGE_END; i++)
                 REM_FLG(i);
         }
-        
+
         /* You can use only one flag in artifact/ego/nameless */
         else if (FLG_QUALITY_BEGIN <= flg && flg <= FLG_QUALITY_END)
         {
@@ -3443,7 +3448,7 @@ static void toggle_keyword(text_body_type *tb, int flg)
             for (i = FLG_QUALITY_BEGIN; i <= FLG_QUALITY_END; i++)
                 REM_FLG(i);
         }
-        
+
         /* You can use only one flag in rare/common */
         else if (FLG_RARE <= flg && flg <= FLG_COMMON)
         {
@@ -3451,7 +3456,7 @@ static void toggle_keyword(text_body_type *tb, int flg)
             for (i = FLG_RARE; i <= FLG_COMMON; i++)
                 REM_FLG(i);
         }
-        
+
         if (add) ADD_FLG(flg);
         else
         {
@@ -3459,9 +3464,9 @@ static void toggle_keyword(text_body_type *tb, int flg)
             if (FLG_NOUN_BEGIN <= flg && flg <= FLG_NOUN_END)
                 ADD_FLG(FLG_ITEMS);
         }
-        
+
         tb->lines_list[y] = autopick_line_from_entry_kill(entry);
-        
+
         /* Now dirty */
         tb->dirty_flags |= DIRTY_ALL;
 
@@ -3552,9 +3557,9 @@ static void toggle_command_letter(text_body_type *tb, byte flg)
             if (wid > 0) tb->cx++;
             if (wid < 0 && tb->cx > 0) tb->cx--;
         }
-            
+
         tb->lines_list[y] = autopick_line_from_entry_kill(entry);
-            
+
         /* Now dirty */
         tb->dirty_flags |= DIRTY_ALL;
 
@@ -3596,12 +3601,12 @@ static void add_keyword(text_body_type *tb, int flg)
         {
             /* Free memory for the entry */
             autopick_free_entry(entry);
-            
+
             continue;
         }
-        
+
         z_string_free(tb->lines_list[y]);
-        
+
         /* Remove all noun flag */
         if (FLG_NOUN_BEGIN <= flg && flg <= FLG_NOUN_END)
         {
@@ -3609,9 +3614,9 @@ static void add_keyword(text_body_type *tb, int flg)
             for (i = FLG_NOUN_BEGIN; i <= FLG_NOUN_END; i++)
                 REM_FLG(i);
         }
-        
+
         ADD_FLG(flg);
-        
+
         tb->lines_list[y] = autopick_line_from_entry_kill(entry);
 
         /* Now dirty */
@@ -3857,7 +3862,7 @@ static byte get_string_for_search(object_type **o_handle, cptr *search_strp)
                 int next_pos = i + 1;
 
 
-                /* Is there the cursor at next position? */ 
+                /* Is there the cursor at next position? */
                 if (next_pos >= pos) break;
 
                 /* Move to next */
@@ -3925,7 +3930,7 @@ static byte get_string_for_search(object_type **o_handle, cptr *search_strp)
                 int next_pos = i + 1;
 
 
-                /* Is there the cursor at next position? */ 
+                /* Is there the cursor at next position? */
                 if (next_pos >= pos) break;
 
                 /* Move to next */
@@ -4395,8 +4400,8 @@ typedef struct {
 command_menu_type menu_data[] =
 {
     {MN_HELP, 0, -1, EC_HELP},
-    {MN_QUIT, 0, KTRL('q'), EC_QUIT}, 
-    {MN_SAVEQUIT, 0, KTRL('w'), EC_SAVEQUIT}, 
+    {MN_QUIT, 0, KTRL('q'), EC_QUIT},
+    {MN_SAVEQUIT, 0, KTRL('w'), EC_SAVEQUIT},
     {MN_REVERT, 0, KTRL('z'), EC_REVERT},
 
     {MN_EDIT, 0, -1, -1},
@@ -4445,7 +4450,7 @@ command_menu_type menu_data[] =
     {KEY_ARTIFACT, 1, -1, EC_OK_ARTIFACT},
     {KEY_EGO, 1, -1, EC_OK_EGO},
     {KEY_GOOD, 1, -1, EC_OK_GOOD},
-	{KEY_CURSED, 1, -1, EC_OK_CURSED},
+    {KEY_CURSED, 1, -1, EC_OK_CURSED},
     {KEY_SPECIAL, 1, -1, EC_OK_SPECIAL},
     {KEY_UNUSABLE, 1, -1, EC_OK_UNUSABLE},
     {KEY_NAMELESS, 1, -1, EC_OK_NAMELESS},
@@ -4538,7 +4543,7 @@ static int get_com_id(char key)
 
 
 /*
- * Display the menu, and get a command 
+ * Display the menu, and get a command
  */
 static int do_command_menu(int level, int start)
 {
@@ -5139,7 +5144,7 @@ static void draw_text_editor(text_body_type *tb)
             for (i = 0; i < 3; i++)
             {
                 if(t[0] == 0)
-                    break; 
+                    break;
                 else
                 {
                     prt(t, tb->hgt +1 + 1 + i, 0);
@@ -5543,7 +5548,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
         break;
 
     case EC_CUT:
-    {    
+    {
         /* Copy the text first */
         copy_text_to_yank(tb);
 
@@ -5575,7 +5580,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
             for (y = by2; y >= by1; y--)
             {
                 int len = strlen(tb->lines_list[y]);
-                
+
                 kill_line_segment(tb, y, 0, len, TRUE);
             }
 
@@ -6064,7 +6069,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
         class_t *class_ptr = get_class();
 
         /* Conditional Expression for Class and Race */
-        sprintf(expression, "?:[AND [EQU $RACE %s] [EQU $CLASS %s] [GEQ $LEVEL %02d]]", 
+        sprintf(expression, "?:[AND [EQU $RACE %s] [EQU $CLASS %s] [GEQ $LEVEL %02d]]",
             race_ptr->name, class_ptr->name, p_ptr->lev);
 
         tb->cx = 0;
@@ -6128,7 +6133,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
 
             /* Text is changed */
             tb->changed = TRUE;
-        }                
+        }
         break;
 
     case EC_CL_AUTOPICK: toggle_command_letter(tb, DO_AUTOPICK); break;
@@ -6177,7 +6182,7 @@ static bool do_editor_command(text_body_type *tb, int com_id)
     case EC_OK_ARTIFACT: toggle_keyword(tb, FLG_ARTIFACT); break;
     case EC_OK_EGO: toggle_keyword(tb, FLG_EGO); break;
     case EC_OK_GOOD: toggle_keyword(tb, FLG_GOOD); break;
-	case EC_OK_CURSED: toggle_keyword(tb, FLG_CURSED); break;
+    case EC_OK_CURSED: toggle_keyword(tb, FLG_CURSED); break;
     case EC_OK_SPECIAL: toggle_keyword(tb, FLG_SPECIAL); break;
     case EC_OK_UNUSABLE: toggle_keyword(tb, FLG_UNUSABLE); break;
     case EC_OK_NAMELESS: toggle_keyword(tb, FLG_NAMELESS); break;
@@ -6322,7 +6327,7 @@ static int analyze_move_key(text_body_type *tb, int skey)
 
             /* Correct cursor location */
             if (tb->cx > len) tb->mx = len;
-                        
+
             /* Need to redraw text */
             if (com_id == EC_UP || com_id == EC_DOWN)
             {

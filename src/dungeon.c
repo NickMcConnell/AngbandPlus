@@ -857,12 +857,36 @@ static void regenhp(int percent)
 /*
  * Regenerate mana points
  */
+static void _decay_mana(void)
+{
+    /* PY_REGEN_NORMAL is the Regen factor in unit (1/2^16) */
+    s32b decay = 0;
+    u32b decay_frac = (p_ptr->msp * 32 * PY_REGEN_NORMAL + PY_REGEN_MNBASE);
+
+    /* Convert the unit (1/2^16) to (1/2^32) */
+    s64b_LSHIFT(decay, decay_frac, 16);
+
+    /* Decay */
+    s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), decay, decay_frac);
+
+    /* Stop decaying */
+    if (p_ptr->csp < p_ptr->msp)
+    {
+        p_ptr->csp = p_ptr->msp;
+        p_ptr->csp_frac = 0;
+    }
+}
 static void regenmana(int percent)
 {
     s32b old_csp = p_ptr->csp;
 
     if (p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE) return;
-    if (mimic_no_regen()) return;
+    if (mimic_no_regen())
+    {
+        if (p_ptr->csp > p_ptr->msp) /* Doppelganger Samurai/Mystics should still decay supercharged mana! */
+            _decay_mana();
+        return;
+    }
 
     /*
      * Excess mana will decay 32 times faster than normal
@@ -870,24 +894,8 @@ static void regenmana(int percent)
      */
     if (p_ptr->csp > p_ptr->msp)
     {
-        /* PY_REGEN_NORMAL is the Regen factor in unit (1/2^16) */
-        s32b decay = 0;
-        u32b decay_frac = (p_ptr->msp * 32 * PY_REGEN_NORMAL + PY_REGEN_MNBASE);
-
-        /* Convert the unit (1/2^16) to (1/2^32) */
-        s64b_LSHIFT(decay, decay_frac, 16);
-
-        /* Decay */
-        s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), decay, decay_frac);
-
-        /* Stop decaying */
-        if (p_ptr->csp < p_ptr->msp)
-        {
-            p_ptr->csp = p_ptr->msp;
-            p_ptr->csp_frac = 0;
-        }
+        _decay_mana();
     }
-
     /* Regenerating mana (unless the player has excess mana) */
     else if (percent > 0)
     {
@@ -1515,7 +1523,7 @@ static void process_world_aux_hp_and_sp(void)
             dam = MAX(1 + p_ptr->lev/5, 1 + p_ptr->mhp/24);*/
             if (p_ptr->pass_wall)
             {
-                if (p_ptr->no_passwall_dam) 
+                if (p_ptr->no_passwall_dam)
                     dam = 0;
                 else
                 {
@@ -1533,7 +1541,7 @@ static void process_world_aux_hp_and_sp(void)
 
             if (dam)
             {
-                cave_no_regen = TRUE;            
+                cave_no_regen = TRUE;
                 take_hit(DAMAGE_NOESCAPE, dam, dam_desc, -1);
             }
         }
@@ -1570,7 +1578,7 @@ static void process_world_aux_hp_and_sp(void)
         regen_amount = regen_amount * p_ptr->regen/100;
     }
 
-    if ( p_ptr->action == ACTION_SEARCH 
+    if ( p_ptr->action == ACTION_SEARCH
       || p_ptr->action == ACTION_REST
       || p_ptr->action == ACTION_GLITTER )
     {
@@ -2131,7 +2139,7 @@ static void process_world_aux_light(void)
     if (slot)
     {
         object_type *lite = equip_obj(slot);
-        if ( !(lite->name1 || lite->name3 || lite->art_name || lite->sval == SV_LITE_FEANOR) 
+        if ( !(lite->name1 || lite->name3 || lite->art_name || lite->sval == SV_LITE_FEANOR)
           && lite->xtra4 > 0 )
         {
             if (lite->name2 == EGO_LITE_DURATION)
@@ -2215,7 +2223,7 @@ static void process_world_aux_curse(void)
             equip_learn_curse(OFC_TY_CURSE);
         }
         /* Handle experience draining */
-        if (p_ptr->prace != RACE_ANDROID && 
+        if (p_ptr->prace != RACE_ANDROID &&
             ((p_ptr->cursed & OFC_DRAIN_EXP) && one_in_(4)))
         {
             p_ptr->exp -= (p_ptr->lev+1)/2;
@@ -2315,7 +2323,7 @@ static void process_world_aux_curse(void)
                 object_type *o_ptr = choose_cursed_obj_name(OFC_CALL_DRAGON);
 
                 object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-                msg_format("Your %s have attracted an animal!", o_name);
+                msg_format("Your %s have attracted a dragon!", o_name);
 
                 disturb(0, 0);
                 obj_learn_curse(o_ptr, OFC_CALL_DRAGON);
@@ -2453,7 +2461,7 @@ static void process_world_aux_curse(void)
                 p_ptr->csp = 0;
                 p_ptr->csp_frac = 0;
             }
-            p_ptr->redraw |= PR_MANA;        
+            p_ptr->redraw |= PR_MANA;
         }
     }
 
@@ -2841,8 +2849,8 @@ static byte get_dungeon_feeling(void)
         if (object_is_artifact(o_ptr))
             return 1;
 
-        if ( object_is_artifact(o_ptr) 
-          || object_is_ego(o_ptr) 
+        if ( object_is_artifact(o_ptr)
+          || object_is_ego(o_ptr)
           || o_ptr->tval == TV_DRAG_ARMOR
           || object_is_dragon_armor(o_ptr) )
         {
@@ -2947,7 +2955,7 @@ static void process_world(void)
     const s32b A_DAY = TURNS_PER_TICK * TOWN_DAWN;
     s32b prev_turn_in_today = ((game_turn - TURNS_PER_TICK) % A_DAY + A_DAY / 4) % A_DAY;
     int prev_min = (1440 * prev_turn_in_today / A_DAY) % 60;
-    
+
     extract_day_hour_min(&day, &hour, &min);
 
     /* Update dungeon feeling, and announce it if changed */
@@ -3248,8 +3256,8 @@ static void process_world(void)
         }
     }
     /* It's too easy to get stuck playing a race that can't move! Sigh ... */
-    else if ( p_ptr->inside_quest 
-           && p_ptr->action == ACTION_GLITTER 
+    else if ( p_ptr->inside_quest
+           && p_ptr->action == ACTION_GLITTER
            && one_in_(50) )
     {
         ring_summon_ring_bearer();
@@ -3890,7 +3898,7 @@ static void process_command(void)
                      p_ptr->pclass == CLASS_BERSERKER ||
                      p_ptr->pclass == CLASS_DUELIST ||
                      p_ptr->pclass == CLASS_WARLOCK ||
-                     p_ptr->pclass == CLASS_PSION || 
+                     p_ptr->pclass == CLASS_PSION ||
                      p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
                      p_ptr->pclass == CLASS_MINDCRAFTER ||
                      p_ptr->pclass == CLASS_MIRROR_MASTER ||
@@ -4175,7 +4183,7 @@ static void process_command(void)
         /* Use racial power */
         case 'U':
         {
-            if (!p_ptr->wild_mode) 
+            if (!p_ptr->wild_mode)
             {
                 if (!fear_allow_magic())
                 {
@@ -4550,13 +4558,12 @@ static void process_player(void)
         if (resting == -1)
         {
             /* Stop resting */
-            if ( (p_ptr->chp == p_ptr->mhp || mimic_no_regen()) 
-              && ( p_ptr->csp >= p_ptr->msp 
-                || p_ptr->pclass == CLASS_RUNE_KNIGHT 
-                || p_ptr->pclass == CLASS_RAGE_MAGE 
-                || mimic_no_regen() ) 
-              && !magic_eater_can_regen()
-              && !samurai_can_concentrate() )
+            if ( (p_ptr->chp == p_ptr->mhp || mimic_no_regen())
+              && ( p_ptr->csp >= p_ptr->msp
+                || p_ptr->pclass == CLASS_RUNE_KNIGHT
+                || p_ptr->pclass == CLASS_RAGE_MAGE
+                || mimic_no_regen() )
+              && !magic_eater_can_regen() )
             {
                 set_action(ACTION_NONE);
             }
@@ -4566,23 +4573,22 @@ static void process_player(void)
         else if (resting == -2)
         {
             /* Stop resting */
-            if ( (p_ptr->chp == p_ptr->mhp || mimic_no_regen()) 
-              && ( p_ptr->csp >= p_ptr->msp 
-                || p_ptr->pclass == CLASS_RUNE_KNIGHT 
-                || p_ptr->pclass == CLASS_RAGE_MAGE 
-                || mimic_no_regen() ) 
-              && !magic_eater_can_regen() 
-              && !samurai_can_concentrate()
-              && !p_ptr->blind 
-              && !p_ptr->confused 
-              && !p_ptr->poisoned 
-              && !p_ptr->afraid 
-              && !p_ptr->stun 
-              && !p_ptr->cut 
-              && !p_ptr->slow 
-              && !p_ptr->paralyzed 
-              && !p_ptr->image 
-              && !p_ptr->word_recall 
+            if ( (p_ptr->chp == p_ptr->mhp || mimic_no_regen())
+              && ( p_ptr->csp >= p_ptr->msp
+                || p_ptr->pclass == CLASS_RUNE_KNIGHT
+                || p_ptr->pclass == CLASS_RAGE_MAGE
+                || mimic_no_regen() )
+              && !magic_eater_can_regen()
+              && !p_ptr->blind
+              && !p_ptr->confused
+              && !p_ptr->poisoned
+              && !p_ptr->afraid
+              && !p_ptr->stun
+              && !p_ptr->cut
+              && !p_ptr->slow
+              && !p_ptr->paralyzed
+              && !p_ptr->image
+              && !p_ptr->word_recall
               && !p_ptr->alter_reality )
             {
                 set_action(ACTION_NONE);
@@ -4626,9 +4632,9 @@ static void process_player(void)
     if (check_abort)
     {
         /* Check for "player abort" (semi-efficiently for resting) */
-        if ( running 
-          || command_rep 
-          || p_ptr->action == ACTION_REST 
+        if ( running
+          || command_rep
+          || p_ptr->action == ACTION_REST
           || p_ptr->action == ACTION_GLITTER
           || p_ptr->action == ACTION_FISH )
         {
@@ -4770,7 +4776,7 @@ static void process_player(void)
         /* Convert the unit (1/2^16) to (1/2^32) */
         s64b_LSHIFT(cost, cost_frac, 16);
 
- 
+
         if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, cost, cost_frac) < 0)
         {
             /* Mana run out */
@@ -4808,7 +4814,7 @@ static void process_player(void)
 
     /* Repeat until out of energy */
     while (p_ptr->energy_need <= 0)
-    {    
+    {
         p_ptr->sutemi = FALSE;
         p_ptr->counter = FALSE;
 
@@ -4878,9 +4884,6 @@ static void process_player(void)
 
             /* Take a turn */
             energy_use = 100;
-
-            if (p_ptr->pclass == CLASS_SAMURAI)
-                samurai_on_rest();
 
             if (p_ptr->clear_mind && p_ptr->csp < p_ptr->msp)
                 cast_clear_mind();
@@ -4954,7 +4957,7 @@ static void process_player(void)
         {
             class_t *class_ptr = get_class();
             race_t  *race_ptr = get_race();
-            
+
             if (class_ptr->player_action)
                 class_ptr->player_action(energy_use);
 
@@ -4969,7 +4972,7 @@ static void process_player(void)
                 if (p_ptr->free_turns)
                     energy_use = 0;
             }
-            
+
             if (world_player || energy_use > 400)
             {
                 /* The Randomness is irrelevant */
@@ -5168,7 +5171,7 @@ static void dungeon(bool load_game)
 
 
     /* Track maximum dungeon level (if not in quest -KMW-) */
-    if ( max_dlv[dungeon_type] < dun_level 
+    if ( max_dlv[dungeon_type] < dun_level
       && !p_ptr->inside_quest
       && !(d_info[dungeon_type].flags1 & DF1_RANDOM) )
     {
@@ -5259,9 +5262,12 @@ static void dungeon(bool load_game)
     if ((dun_level == d_info[dungeon_type].maxdepth) && d_info[dungeon_type].final_guardian)
     {
         if (r_info[d_info[dungeon_type].final_guardian].max_num)
-            msg_format("%^s lives in this level as the keeper of %s.",
-                       r_name+r_info[d_info[dungeon_type].final_guardian].name, 
-                       d_name+d_info[dungeon_type].name);
+        {
+            cmsg_format(
+                TERM_YELLOW, "%^s lives in this level as the keeper of %s.",
+                r_name + r_info[d_info[dungeon_type].final_guardian].name,
+                d_name + d_info[dungeon_type].name);
+        }
     }
 
     if (!load_game && (p_ptr->special_defense & NINJA_S_STEALTH)) set_superstealth(FALSE);
@@ -5397,7 +5403,7 @@ static void dungeon(bool load_game)
         reinit_wilderness = FALSE;
     }
 
-    /* Inside a quest and non-unique questor? 
+    /* Inside a quest and non-unique questor?
        Remark: leave_floor() requires RF1_QUESTOR still be valid for the old level
                ... look up a few lines!
     */
@@ -5673,7 +5679,7 @@ void play_game(bool new_game)
         start_time = time(NULL);
 
         signals_ignore_tstp();
-        
+
         /* Hack -- Character is now "icky" */
         character_icky = TRUE;
 
@@ -5702,7 +5708,7 @@ void play_game(bool new_game)
 
         /* Forget the high score fd */
         highscore_fd = -1;
-        
+
         /* Allow suspending now */
         signals_handle_tstp();
 
@@ -5930,7 +5936,7 @@ void play_game(bool new_game)
         class_t *class_ptr = get_class();
         race_t *race_ptr = get_race();
         personality_ptr pers_ptr = get_personality();
-        
+
         do_cmd_redraw();  /* Not sure why this is required?! */
 
         msg_print("<color:B>Welcome!</color> You begin life in the town where you may purchase "

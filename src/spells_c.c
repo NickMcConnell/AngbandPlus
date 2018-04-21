@@ -168,7 +168,8 @@ void clear_mind_spell(int cmd, variant *res)
             return;
         }
 
-        msg_print("You feel your head clear a little.");
+        if (disturb_minor)
+            msg_print("You feel your head clear a little.");
 
         if (p_ptr->pclass == CLASS_PSION) /* Testing ... */
             amt = 3 + p_ptr->lev/10;
@@ -283,7 +284,7 @@ void confusing_lights_spell(int cmd, variant *res)
         stun_monsters(p_ptr->lev * 4);
         confuse_monsters(p_ptr->lev * 4);
         turn_monsters(p_ptr->lev * 4);
-        stasis_monsters(p_ptr->lev * 4);
+        stasis_monsters(p_ptr->lev * 3 / 2);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -486,6 +487,53 @@ void create_ultimate_trap_spell(int cmd, variant *res)
     }
 }
 
+void crusade_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Crusade");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Attempts to charm all good monsters in sight, and scare all non-charmed monsters, and summons great number of knights, and gives heroism, bless, speed and protection from evil.");
+        break;
+    case SPELL_CAST:
+    {
+        int base = 25;
+        int sp_sides = 20 + p_ptr->lev;
+        int sp_base = p_ptr->lev;
+        int i;
+
+        project_hack(GF_CRUSADE, p_ptr->lev*4);
+        for (i = 0; i < 12; i++)
+        {
+            int attempt = 10;
+            int my = 0, mx = 0;
+
+            while (attempt--)
+            {
+                scatter(&my, &mx, py, px, 4, 0);
+                if (cave_empty_bold2(my, mx)) break;
+            }
+            if (attempt < 0) continue;
+            summon_specific(-1, my, mx, p_ptr->lev, SUMMON_KNIGHT, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
+        }
+        set_hero(randint1(base) + base, FALSE);
+        set_blessed(randint1(base) + base, FALSE);
+        set_fast(randint1(sp_sides) + sp_base, FALSE);
+        set_protevil(randint1(base) + base, FALSE);
+        fear_clear_p();
+
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+bool cast_crusade(void) { return cast_spell(crusade_spell); }
+
 void cure_poison_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -672,7 +720,7 @@ void darkness_storm_II_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a darkness storm.");
-        fire_ball(GF_DARK, dir, 
+        fire_ball(GF_DARK, dir,
             spell_power(_darkness_storm_II_dam() + p_ptr->to_d_spell),
             spell_power(4));
         var_set_bool(res, TRUE);
@@ -1101,12 +1149,12 @@ void disintegrate_spell(int cmd, variant *res)
         int dam = spell_power(p_ptr->lev + 70 + p_ptr->to_d_spell);
         int rad = 3 + p_ptr->lev / 40;
         int dir;
-            
+
         var_set_bool(res, FALSE);
 
         if (!get_aim_dir(&dir)) return;
         fire_ball(GF_DISINTEGRATE, dir, dam, rad);
-            
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -1408,7 +1456,7 @@ void eat_rock_spell(int cmd, variant *res)
         }
         else if (have_flag(f_ptr->flags, FF_PERMANENT))
         {
-            msg_format("Ouch!  This %s is harder than your teeth!", 
+            msg_format("Ouch!  This %s is harder than your teeth!",
                 f_name + mimic_f_ptr->name);
 
             break;
@@ -1562,9 +1610,9 @@ void minor_enchantment_spell(int cmd, variant *res)
         }
         else
         {
-            if (enchant(o_ptr, 1, ENCH_TOAC | ENCH_MINOR_HACK)) okay = TRUE;            
+            if (enchant(o_ptr, 1, ENCH_TOAC | ENCH_MINOR_HACK)) okay = TRUE;
         }
-            
+
 
         msg_format("%s %s glow%s brightly!",
                ((item >= 0) ? "Your" : "The"), o_name,
@@ -1574,7 +1622,7 @@ void minor_enchantment_spell(int cmd, variant *res)
         {
             if (flush_failure) flush();
             msg_print("The enchantment failed.");
-            if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100) 
+            if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100)
                 virtue_add(VIRTUE_ENCHANTMENT, -1);
         }
         else
@@ -1632,7 +1680,7 @@ void enchantment_spell(int cmd, variant *res)
         {
             if (enchant(o_ptr, randint0(3) + 2, ENCH_TOAC)) okay = TRUE;
         }
-            
+
 
         msg_format("%s %s glow%s brightly!",
                ((item >= 0) ? "Your" : "The"), o_name,
@@ -1642,7 +1690,7 @@ void enchantment_spell(int cmd, variant *res)
         {
             if (flush_failure) flush();
             msg_print("The enchantment failed.");
-            if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100) 
+            if (one_in_(3) && virtue_current(VIRTUE_ENCHANTMENT) < 100)
                 virtue_add(VIRTUE_ENCHANTMENT, -1);
         }
         else

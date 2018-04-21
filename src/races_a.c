@@ -44,7 +44,7 @@ race_t *amberite_get_race(void)
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis =  4;
         me.skills.dev =  5;
         me.skills.sav =  3;
@@ -254,7 +254,7 @@ race_t *android_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis =  0;
         me.skills.dev = -5;
         me.skills.sav =  0;
@@ -316,7 +316,7 @@ race_t *archon_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] =  3;
-        
+
         me.skills.dis =  0;
         me.skills.dev = 12;
         me.skills.sav =  8;
@@ -390,7 +390,7 @@ race_t *balrog_get_race(void)
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] =  2;
-        
+
         me.skills.dis = -3;
         me.skills.dev = 12;
         me.skills.sav = 15;
@@ -455,7 +455,7 @@ race_t *barbarian_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] =  2;
-        
+
         me.skills.dis = -2;
         me.skills.dev = -10;
         me.skills.sav = 2;
@@ -524,7 +524,7 @@ race_t *beastman_get_race(void)
         me.stats[A_DEX] = -1;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis = -5;
         me.skills.dev = -2;
         me.skills.sav = -1;
@@ -553,8 +553,8 @@ race_t *beastman_get_race(void)
 /****************************************************************
  * Centaur
  ****************************************************************/
-static void _centaur_birth(void) 
-{ 
+static void _centaur_birth(void)
+{
     equip_on_change_race();
     skills_innate_init("Hooves", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 }
@@ -649,7 +649,7 @@ static void _centaur_calc_innate_attacks(void)
 
     a.dd = 1 + l / 16;
     a.ds = 4 + l / 21;
-    a.to_d += to_d; 
+    a.to_d += to_d;
     a.to_h += to_h;
 
     a.weight = 150;
@@ -683,7 +683,7 @@ race_t *centaur_get_race(void)
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  1;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis =  0;
         me.skills.dev = -5;
         me.skills.sav =  2;
@@ -752,7 +752,7 @@ race_t *cyclops_get_race(void)
         me.stats[A_DEX] = -3;
         me.stats[A_CON] =  4;
         me.stats[A_CHR] = -1;
-        
+
         me.skills.dis = -4;
         me.skills.dev = -5;
         me.skills.sav = -3;
@@ -822,7 +822,7 @@ race_t *dark_elf_get_race(void)
         me.stats[A_DEX] =  2;
         me.stats[A_CON] = -2;
         me.stats[A_CHR] =  3;
-        
+
         me.skills.dis = 5;
         me.skills.dev = 10;
         me.skills.sav = 12;
@@ -1159,6 +1159,18 @@ static void _draconian_calc_innate_attacks(void)
     int to_d = 0;
     int to_h = l2*3/5;
 
+    if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
+    {
+        /* These monk postures get "1 try" when selecting a monk attack.
+           Translate this into a lower attack rating. */
+        if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
+            l = (l + 2) / 3;
+        /* Conversely, the White Tiger gets more "tries" for martial arts,
+           so needs a better power rating */
+        else if (p_ptr->special_defense & KAMAE_BYAKKO)
+            l = l * 5 / 4;
+    }
+
     /* Claws */
     {
         innate_attack_t    a = {0};
@@ -1177,6 +1189,9 @@ static void _draconian_calc_innate_attacks(void)
         {
             a.effect[1] = GF_STUN;
             a.effect_chance[1] = 15 + l/4;
+
+            if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
+                a.blows = MAX(100, a.blows - 200);
         }
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -1206,6 +1221,12 @@ static void _draconian_calc_innate_attacks(void)
             a.blows = 100;
         a.msg = "You bite.";
         a.name = "Bite";
+
+        if (p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_FORCETRAINER)
+        {
+            if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
+                a.blows = MAX(100, a.blows - 100);
+        }
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
     }
@@ -1251,7 +1272,7 @@ race_t *draconian_get_race(int psubrace)
                     "at will, while White Draconians breathe and resist cold instead. All draconians "
                     "levitate. In addition, when they mature enough, they may choose a special "
                     "draconian power.";
-        
+
         me.base_hp = 22;
 
         me.calc_bonuses = _draconian_calc_bonuses;
@@ -1459,7 +1480,7 @@ race_t *dunadan_get_race(void)
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis =  4;
         me.skills.dev =  5;
         me.skills.sav =  3;
@@ -1525,7 +1546,7 @@ race_t *dwarf_get_race(void)
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis = 2;
         me.skills.dev = 7;
         me.skills.sav = 6;
@@ -1565,7 +1586,7 @@ static int _ent_get_powers(spell_info* spells, int max)
 static void _ent_calc_bonuses(void)
 {
     /*res_add_vuln(RES_FIRE); cf resists.c res_pct_aux() for an alternative*/
-    if (!equip_find_first(object_is_melee_weapon)) 
+    if (!equip_find_first(object_is_melee_weapon))
         p_ptr->skill_dig += p_ptr->lev * 10;
 }
 static void _ent_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -1607,7 +1628,7 @@ race_t *ent_get_race(void)
         init = TRUE;
     }
 
-    /* Since Ent racial stat bonuses are level dependent, we recalculate. 
+    /* Since Ent racial stat bonuses are level dependent, we recalculate.
        Note, this prevents hackery in files.c for displaying racial stat bonuses correctly.
     */
     {
@@ -1673,7 +1694,7 @@ race_t *gnome_get_race(void)
         me.stats[A_DEX] =  2;
         me.stats[A_CON] =  1;
         me.stats[A_CHR] = -1;
-        
+
         me.skills.dis = 10;
         me.skills.dev = 8;
         me.skills.sav = 7;
@@ -1760,7 +1781,7 @@ race_t *golem_get_race(void)
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  4;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis = -5;
         me.skills.dev = -5;
         me.skills.sav = 6;
@@ -1829,7 +1850,7 @@ race_t *half_giant_get_race(void)
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis = -6;
         me.skills.dev = -8;
         me.skills.sav = -3;
@@ -1897,7 +1918,7 @@ race_t *half_ogre_get_race(void)
         me.stats[A_DEX] = -1;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis = -3;
         me.skills.dev = -5;
         me.skills.sav = -3;
@@ -1962,7 +1983,7 @@ race_t *half_titan_get_race(void)
         me.stats[A_DEX] = -2;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] =  3;
-        
+
         me.skills.dis = -5;
         me.skills.dev =  5;
         me.skills.sav =  1;
@@ -2031,7 +2052,7 @@ race_t *half_troll_get_race(void)
         me.stats[A_DEX] = -3;
         me.stats[A_CON] =  3;
         me.stats[A_CHR] = -2;
-        
+
         me.skills.dis = -5;
         me.skills.dev = -8;
         me.skills.sav = -5;
@@ -2090,7 +2111,7 @@ race_t *high_elf_get_race(void)
         me.stats[A_DEX] =  3;
         me.stats[A_CON] =  1;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis =  4;
         me.skills.dev = 13;
         me.skills.sav = 12;
@@ -2146,7 +2167,7 @@ race_t *hobbit_get_race(void)
         me.stats[A_DEX] =  3;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] =  1;
-        
+
         me.skills.dis = 15;
         me.skills.dev = 12;
         me.skills.sav = 10;
@@ -2204,14 +2225,14 @@ race_t *human_get_race(void)
                     "adjustments or intrinsics occur to characters choosing human. However, "
                     "humans may choose a special talent at L30 that more than makes up for "
                     "their overall mediocrity.";
-        
+
         me.stats[A_STR] =  0;
         me.stats[A_INT] =  0;
         me.stats[A_WIS] =  0;
         me.stats[A_DEX] =  0;
         me.stats[A_CON] =  0;
         me.stats[A_CHR] =  0;
-        
+
         me.skills.dis = 0;
         me.skills.dev = 0;
         me.skills.sav = 0;
@@ -2276,7 +2297,7 @@ race_t *imp_get_race(void)
         me.stats[A_DEX] =  1;
         me.stats[A_CON] =  2;
         me.stats[A_CHR] = -1;
-        
+
         me.skills.dis = -3;
         me.skills.dev = 2;
         me.skills.sav = -1;

@@ -60,22 +60,28 @@ static int _r_level(int r_idx)
     return ml;
 }
 
-bool mon_save_p(int r_idx, int stat)
+bool mon_save_aux(int r_idx, int power)
 {
-    int  pl = p_ptr->lev;
     int  ml = _r_level(r_idx);
     bool result = FALSE;
+
+    if (power < 1)
+        power = 1;
+
+    if (randint1(power) <= randint1(ml))
+        result = TRUE;
+
+    return result;
+}
+
+bool mon_save_p(int r_idx, int stat)
+{
+    int pl = p_ptr->lev;
     
     if (stat >= 0 && stat < 6) 
         pl += adj_stat_save[p_ptr->stat_ind[stat]];
 
-    if (pl < 1)
-        pl = 1;
-
-    if (randint1(pl) <= randint1(ml)) 
-        result = TRUE;
-    
-    return result;
+    return mon_save_aux(r_idx, pl);
 }
 
 void mon_lore_1(monster_type *m_ptr, u32b mask)

@@ -681,7 +681,6 @@ bool set_mimic(int v, int p, bool do_dec)
         if (p_ptr->tim_mimic)
         {
             msg_print("You are no longer transformed.");
-            if (p_ptr->mimic_form == MIMIC_DEMON) set_oppose_fire(0, TRUE);
             p_ptr->mimic_form= MIMIC_NONE;
             notice = TRUE;
             p = MIMIC_NONE;

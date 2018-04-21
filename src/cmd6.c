@@ -97,9 +97,9 @@ bool restore_mana(void)
         if (inventory[i].activation.type == EFFECT_RESTORE_MANA) continue;
 
         if (inventory[i].tval == TV_ROD)
-            device_regen_sp_aux(&inventory[i], 700);
+            device_regen_sp_aux(&inventory[i], 500);
         else
-            device_regen_sp_aux(&inventory[i], 350);
+            device_regen_sp_aux(&inventory[i], 250);
     }
 
     msg_print("You feel your head clear.");
@@ -397,8 +397,8 @@ static void do_cmd_eat_food_aux(int item)
 
 
     /* Food can feed the player */
-    if ( prace_is_(RACE_VAMPIRE) 
-      || prace_is_(RACE_MON_VAMPIRE) 
+    if ( prace_is_(RACE_VAMPIRE)
+      || prace_is_(RACE_MON_VAMPIRE)
       || p_ptr->mimic_form == MIMIC_VAMPIRE )
     {
         /* Reduced nutritional benefit */
@@ -450,7 +450,7 @@ static void do_cmd_eat_food_aux(int item)
         /* Don't consume the object */
         return;
     }
-    else if ((p_ptr->mimic_form == MIMIC_DEMON || p_ptr->mimic_form == MIMIC_DEMON_LORD || prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON)) 
+    else if ((p_ptr->mimic_form == MIMIC_DEMON || p_ptr->mimic_form == MIMIC_DEMON_LORD || prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON))
            && (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE && my_strchr("pht", r_info[o_ptr->pval].d_char)))
     {
         /* Drain vitality of humanoids */
@@ -532,8 +532,8 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
 
     if (prace_is_(RACE_SKELETON) ||
         prace_is_(RACE_GOLEM) ||
-        prace_is_(RACE_MON_GOLEM) || 
-        prace_is_(RACE_MON_SWORD) || 
+        prace_is_(RACE_MON_GOLEM) ||
+        prace_is_(RACE_MON_SWORD) ||
         prace_is_(RACE_MON_RING) ||
         p_ptr->mimic_form == MIMIC_CLAY_GOLEM ||
         p_ptr->mimic_form == MIMIC_IRON_GOLEM ||

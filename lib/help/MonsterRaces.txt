@@ -238,7 +238,7 @@ Leprechauns are small, mischevous creatures, always scheming for gold. They are 
  
 Leprechauns value riches above all else and even begin the game with their legendary pot of gold. Leprechauns also have the luck of the Irish, and good drops are more common for them. For magic, the leprechaun has a few talents and even a bit of cursing offense (Malicious and Death Leprechauns are vile, evil creatures, after all). They are masters of teleportation and detection. And while one never fears their combat (though one despises their thievery, of course), they are great masters of bow and device alike. At high levels, they move with incredible speed and seem to be in multiple places at once. Dexterity determines the leprechaun's skill with their magic.
  
-Leprechauns are monsters so can not choose a normal class. Instead, being small, they should spend their initial pot of gold wisely and then enter the dungeons in search of new treasure. Since gold is so important to the leprechaun, much of their strength depends on possessing a large hoard of wealth, and various leprechaun attributes are directly affected by the amount of gold on hand.
+The leprechaun uses gold for spell casting the way other players use mana. Gold is also used to pay for recharging devices or to power mana branded weapons. In addition, increasing the amount of gold on hand increases the power of the leprechaun, granting extra blows per round, extra shots per round, increased AC, life rating and even increasing their power with magical devices. To succeed in life, greed is obviously the primary virtue of the leprechaun!
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> -2</color>        Disarming   <color:y>Very Good    </color>
@@ -331,13 +331,13 @@ Giants are monsters so cannot choose a normal class. Instead, they must rely on 
 Giants use the same equipment slots as normal player races and have no innate attacks.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> +3</color>        Disarming   <color:o>Fair         </color>
+Strength     <color:w> +6</color>        Disarming   <color:o>Fair         </color>
 Intelligence <color:w> -3</color>        Device      <color:r>Bad          </color>
-Wisdom       <color:w> -6</color>        Save        <color:o>Fair         </color>
+Wisdom       <color:w> -3</color>        Save        <color:o>Fair         </color>
 Dexterity    <color:w> -2</color>        Stealth     <color:R>Poor         </color>
 Constitution <color:w> +3</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:w> +0</color>        Perception  <color:r>Bad          </color>
-Life Rating  100%       Melee       <color:b>Heroic       </color>
+Life Rating  107%       Melee       <color:b>Heroic       </color>
 Base HP       46        Bows        <color:g>Superb       </color>
 Experience   200%       Infravision 50'
 </style></indent>
@@ -429,7 +429,7 @@ Death-Sword   +1   -5   -5   +0   +1   +0   85%  +30  150%  110%
 Mimic         +0   +1   -1   +2   +0   -1  108%  +15  250%  110%
 Possessor     -3   +0   -3   +0   -3   -7   60%  +15  250%  110%
 Ring          -3   +4   +1   +0   -1   +3   85%  +10  150%  110%
-Giant         +3   -3   -6   -2   +3   +0  100%  +46  200%  130%
+Giant         +6   -3   -3   -2   +3   +0  107%  +46  200%  130%
 Troll         +3   -5   -5   -2   +3   +0  100%  +50  150%  135%
 Lich          +0   +3   -3   +1   +0   +0  100%  +20  275%  135%
 Vampire       +2   +1   -1   +0   -2   +1   90%  +20  250%  130%
@@ -490,4 +490,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 5.0.0.</color>
+<color:s>Automatically generated for PosChengband 5.0.1.</color>

@@ -151,7 +151,7 @@ void skills_bow_gain(int sval)
     if (cur < max)
     {
         int add = 0;
-        
+
         if (cur < WEAPON_EXP_BEGINNER) add = 80;
         else if (cur < WEAPON_EXP_SKILLED) add = 25;
         else if (cur < WEAPON_EXP_EXPERT && p_ptr->lev > 19) add = 10;
@@ -197,6 +197,8 @@ int skills_weapon_max(int tval, int sval)
     if (mut_present(MUT_WEAPON_SKILLS))
         return WEAPON_EXP_MASTER;
 
+    /* TODO: Add a class_t callback to override the skill tables ... */
+
     /* Dragon Warlocks are Dragon Riders! */
     if ( warlock_is_(WARLOCK_DRAGONS)
       && tval == TV_POLEARM
@@ -212,6 +214,15 @@ int skills_weapon_max(int tval, int sval)
             return WEAPON_EXP_MASTER;
         if (k_info[k_idx].weight <= 100)
             return WEAPON_EXP_BEGINNER;
+    }
+
+    /* Edged weapons for priests. I never understood the restriction for evil priests! */
+    if (p_ptr->pclass == CLASS_PRIEST && (tval == TV_SWORD || tval == TV_POLEARM))
+    {
+        if (priest_is_good())
+            return WEAPON_EXP_BEGINNER;
+        else if (priest_is_evil())
+            return WEAPON_EXP_SKILLED;
     }
 
     return s_info[_class_idx()].w_max[tval-TV_WEAPON_BEGIN][sval];
@@ -243,7 +254,7 @@ void skills_weapon_gain(int tval, int sval)
     if (cur < max)
     {
         int add = 0;
-        
+
         if (cur < WEAPON_EXP_BEGINNER) add = 80;
         else if (cur < WEAPON_EXP_SKILLED) add = 10;
         else if (cur < WEAPON_EXP_EXPERT && p_ptr->lev > 19) add = 1;
@@ -367,7 +378,7 @@ void skills_martial_arts_gain(void)
 {
     int current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
     int max = s_info[_class_idx()].s_max[SKILL_MARTIAL_ARTS];
-    
+
     if (current < max)
     {
         if (current < WEAPON_EXP_BEGINNER)
@@ -376,7 +387,7 @@ void skills_martial_arts_gain(void)
             current += 5;
         else if (current < WEAPON_EXP_EXPERT && p_ptr->lev > 19)
             current += 1;
-        else if (p_ptr->lev > 34 && one_in_(3)) 
+        else if (p_ptr->lev > 34 && one_in_(3))
             current += 1;
 
         p_ptr->skill_exp[SKILL_MARTIAL_ARTS] = MIN(current, max);
@@ -400,7 +411,7 @@ void skills_dual_wielding_gain(monster_race *r_ptr)
 {
     int current = p_ptr->skill_exp[SKILL_DUAL_WIELDING];
     int max = s_info[_class_idx()].s_max[SKILL_DUAL_WIELDING];
-    
+
     if (current < max && (current - 1000) / 200 < r_ptr->level)
     {
         if (current < WEAPON_EXP_BEGINNER)
@@ -409,7 +420,7 @@ void skills_dual_wielding_gain(monster_race *r_ptr)
             current += 4;
         else if (current < WEAPON_EXP_EXPERT)
             current += 1;
-        else if (current < WEAPON_EXP_MASTER && one_in_(3)) 
+        else if (current < WEAPON_EXP_MASTER && one_in_(3))
             current += 1;
 
         p_ptr->skill_exp[SKILL_DUAL_WIELDING] = MIN(current, max);
@@ -470,7 +481,7 @@ void skills_riding_gain_archery(monster_race *r_ptr)
     if (current < max)
     {
         int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
-        
+
         if ((current - RIDING_EXP_BEGINNER*2) / 200 < ridinglevel && one_in_(2))
         {
             p_ptr->skill_exp[SKILL_RIDING] += 1;
