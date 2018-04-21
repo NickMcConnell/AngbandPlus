@@ -7281,10 +7281,6 @@ static cptr do_music_spell(int spell, int mode)
 
             if (info) return info_radius(rad);
 
-            /*
-             * 歌の開始時にも効果発動：
-             * MP不足で鑑定が発動される前に歌が中断してしまうのを防止。
-             */
             if (cont || cast)
             {
                 project(0, rad, py, px, 0, GF_IDENTIFY, PROJECT_ITEM, -1);
@@ -7427,10 +7423,6 @@ static cptr do_music_spell(int spell, int mode)
         }
 
         {
-            /*
-             * 歌の開始時にも効果発動：
-             * MP不足で効果が発動される前に歌が中断してしまうのを防止。
-             */
             if (cont || cast)
             {
                 project(0, 0, py, px,
@@ -7989,7 +7981,7 @@ static cptr do_hex_spell(int spell, int mode)
             object_desc(o_name, o_ptr, OD_NAME_ONLY);
             object_flags(o_ptr, f);
 
-            if (!get_check(format("Do you curse %s, really？", o_name))) return FALSE;
+            if (!get_check(format("Do you curse %s, really?", o_name))) return FALSE;
 
             if (!one_in_(3) &&
                 (object_is_artifact(o_ptr) || have_flag(f, TR_BLESSED)))
@@ -8281,7 +8273,7 @@ static cptr do_hex_spell(int spell, int mode)
             object_desc(o_name, o_ptr, OD_NAME_ONLY);
             object_flags(o_ptr, f);
 
-            if (!get_check(format("Do you curse %s, really？", o_name))) return FALSE;
+            if (!get_check(format("Do you curse %s, really?", o_name))) return FALSE;
 
             if (!one_in_(3) &&
                 (object_is_artifact(o_ptr) || have_flag(f, TR_BLESSED)))
@@ -8768,7 +8760,7 @@ static cptr _rogue_pick_pocket(void)
               && ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_p(m_ptr->r_idx, A_DEX)) )
             {
                 msg_format("%^s wakes up and looks very mad!", m_name);
-                m_ptr->smart |= SM_TICKED_OFF;
+                m_ptr->anger_ct++;
             }
             else
                 msg_format("%^s wakes up.", m_name);
@@ -8791,7 +8783,7 @@ static cptr _rogue_pick_pocket(void)
         if (allow_ticked_off(r_ptr))
         {
             msg_format("Failed! %^s wakes up and looks very mad!", m_name);
-            m_ptr->smart |= SM_TICKED_OFF;
+            m_ptr->anger_ct++;
         }
         else
             msg_format("Failed! %^s wakes up.", m_name);
@@ -8799,7 +8791,7 @@ static cptr _rogue_pick_pocket(void)
     else if (allow_ticked_off(r_ptr))
     {
         msg_format("Failed! %^s looks very mad!", m_name);
-        m_ptr->smart |= SM_TICKED_OFF;
+        m_ptr->anger_ct++;
     }
     else
     {
@@ -8883,7 +8875,7 @@ static cptr _rogue_negotiate(void)
                 if (mon_save_p(m_ptr->r_idx, A_CHR))
                 {
                     msg_format("%^s says 'Fool! Never trust a thief!'", m_name);
-                    m_ptr->smart |= SM_TICKED_OFF;
+                    m_ptr->anger_ct++;
                 }
                 else
                 {
@@ -8897,7 +8889,7 @@ static cptr _rogue_negotiate(void)
             else
             {
                 msg_format("%^s says 'Scoundrel!'", m_name);
-                m_ptr->smart |= SM_TICKED_OFF;
+                m_ptr->anger_ct++;
             }
         }
         else
@@ -8908,7 +8900,7 @@ static cptr _rogue_negotiate(void)
     else
     {
         msg_format("%^s is insulted you would ask such a question!", m_name);
-        m_ptr->smart |= SM_TICKED_OFF;
+        m_ptr->anger_ct++;
     }
     return "";
 }

@@ -2031,13 +2031,23 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
             strcat(desc, " [Guard Position]");
             break;
         case AI_MAINTAIN_DISTANCE:
-            strcat(desc, " [Keep Distance]");
+        {
+            char buf[100];
+            sprintf(buf, " [Keep Distance of %d]", pack_info_list[m_ptr->pack_idx].distance);
+            strcat(desc, buf);
             break;
         }
+        }
+    }
+    if (p_ptr->wizard && m_ptr->anger_ct)
+    {
+        char buf[100];
+        sprintf(buf, " (Anger = %d)", m_ptr->anger_ct);
+        strcat(desc, buf);
     }
     if (p_ptr->wizard && m_ptr->summon_ct)
     {
-        strcat(desc, format("(%d summons)", m_ptr->summon_ct));
+        strcat(desc, format(" (%d summons)", m_ptr->summon_ct));
     }
 }
 
@@ -3928,7 +3938,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
     /* Give uniques variable AI strategies. We do this as a hack, using the
        existing pack code, by creating a "pack of 1". 
                                         v---- Mercy!*/
-    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags1 & RF1_QUESTOR))
+    if ((r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags1 & RF1_QUESTOR) && !(r_ptr->flags7 & RF7_GUARDIAN))
     {
         if (!pack_ptr)
         {

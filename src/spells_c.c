@@ -184,6 +184,7 @@ void clear_mind_spell(int cmd, variant *res)
         break;
     }
 }
+bool cast_clear_mind(void) { return cast_spell(clear_mind_spell); }
 
 void confuse_spell(int cmd, variant *res)
 {

@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 4
-#define VER_PATCH 3
+#define VER_PATCH 4
 #define VER_EXTRA 0
 
 /*
@@ -770,10 +770,11 @@ enum _mimic_types {
     /* Vampires only, please :) */
     MIMIC_BAT,
     MIMIC_MIST,
-    MIMIC_WOLF
+    MIMIC_WOLF,
+    MIMIC_MAX
 };
 
-#define prace_is_(A) (p_ptr->mimic_form == (A) || (p_ptr->mimic_form == MIMIC_NONE && p_ptr->prace == (A)))
+/*#define prace_is_(A) (p_ptr->mimic_form == (A) || (p_ptr->mimic_form == MIMIC_NONE && (A) < MAX_RACES && p_ptr->prace == (A)))*/
 #define psubclass_is_(A, B) (p_ptr->pclass == (A) && p_ptr->psubclass == (B))
 #define weaponmaster_is_(B) (p_ptr->pclass == CLASS_WEAPONMASTER && p_ptr->psubclass == (B))
 #define devicemaster_is_(B) (p_ptr->pclass == CLASS_DEVICEMASTER && p_ptr->psubclass == (B))
@@ -2399,7 +2400,7 @@ enum _mimic_types {
 #define SM_OPP_FIRE             0x00040000
 #define SM_OPP_COLD             0x00080000
 #define SM_OPP_POIS             0x00100000
-#define SM_TICKED_OFF           0x00200000
+#define SM_TICKED_OFF_XXX       0x00200000  /* I replaced this with m_ptr->anger_ct */
 #define SM_CLONED               0x00400000
 #define SM_PET                  0x00800000
 #define SM_IMM_ACID             0x01000000
@@ -2428,69 +2429,69 @@ enum _mimic_types {
 /*
  * Bit flags for the "p_ptr->notice" variable
  */
-#define PN_COMBINE      0x00000001L     /* Combine the pack */
-#define PN_REORDER      0x00000002L     /* Reorder the pack */
-#define PN_AUTODESTROY  0x00000004L     /* Auto-destroy marked item */
+#define PN_COMBINE      0x00000001     /* Combine the pack */
+#define PN_REORDER      0x00000002     /* Reorder the pack */
+#define PN_AUTODESTROY  0x00000004     /* Auto-destroy marked item */
 /* xxx (many) */
 
 
 /*
  * Bit flags for the "p_ptr->update" variable
  */
-#define PU_BONUS        0x00000001L     /* Calculate bonuses */
-#define PU_TORCH        0x00000002L     /* Calculate torch radius */
+#define PU_BONUS        0x00000001     /* Calculate bonuses */
+#define PU_TORCH        0x00000002     /* Calculate torch radius */
 /* xxx (many) */
-#define PU_HP           0x00000010L     /* Calculate chp and mhp */
-#define PU_MANA         0x00000020L     /* Calculate csp and msp */
-#define PU_SPELLS       0x00000040L     /* Calculate spells */
+#define PU_HP           0x00000010     /* Calculate chp and mhp */
+#define PU_MANA         0x00000020     /* Calculate csp and msp */
+#define PU_SPELLS       0x00000040     /* Calculate spells */
 /* xxx (many) */
 /* xxx (many) */
-#define PU_UN_VIEW      0x00010000L     /* Forget view */
-#define PU_UN_LITE      0x00020000L     /* Forget lite */
+#define PU_UN_VIEW      0x00010000     /* Forget view */
+#define PU_UN_LITE      0x00020000     /* Forget lite */
 /* xxx (many) */
-#define PU_VIEW         0x00100000L     /* Update view */
-#define PU_LITE         0x00200000L     /* Update lite */
-#define PU_MON_LITE     0x00400000L     /* Monster illumination */
-#define PU_DELAY_VIS    0x00800000L     /* Mega-Hack -- Delayed visual update */
-#define PU_MONSTERS     0x01000000L     /* Update monsters */
-#define PU_DISTANCE     0x02000000L     /* Update distances */
+#define PU_VIEW         0x00100000     /* Update view */
+#define PU_LITE         0x00200000     /* Update lite */
+#define PU_MON_LITE     0x00400000     /* Monster illumination */
+#define PU_DELAY_VIS    0x00800000     /* Mega-Hack -- Delayed visual update */
+#define PU_MONSTERS     0x01000000     /* Update monsters */
+#define PU_DISTANCE     0x02000000     /* Update distances */
 /* xxx */
-#define PU_FLOW         0x10000000L     /* Update flow */
+#define PU_FLOW         0x10000000     /* Update flow */
 /* xxx (many) */
 
 
 /*
  * Bit flags for the "p_ptr->redraw" variable
  */
-#define PR_MISC         0x00000001L     /* Display Race/Class */
-#define PR_TITLE        0x00000002L     /* Display Title */
-#define PR_LEV          0x00000004L     /* Display Level */
-#define PR_EXP          0x00000008L     /* Display Experience */
-#define PR_STATS        0x00000010L     /* Display Stats */
-#define PR_ARMOR        0x00000020L     /* Display Armor */
-#define PR_HP           0x00000040L     /* Display Hitpoints */
-#define PR_MANA         0x00000080L     /* Display Mana */
-#define PR_GOLD         0x00000100L     /* Display Gold */
-#define PR_DEPTH        0x00000200L     /* Display Depth */
-#define PR_EQUIPPY      0x00000400L     /* Display equippy chars */
-#define PR_HEALTH       0x00000800L     /* Display Health Bar */
-#define PR_CUT          0x00001000L     /* Display Extra (Cut) */
-#define PR_STUN         0x00002000L     /* Display Extra (Stun) */
-#define PR_HUNGER       0x00004000L     /* Display Extra (Hunger) */
-#define PR_STATUS       0x00008000L     /* Display Status Bar */
-#define PR_XXX0         0x00010000L     
-#define PR_UHEALTH      0x00020000L     /* Display Uma Health Bar */
-#define PR_XXX1         0x00040000L     /* (unused) */
-#define PR_XXX2         0x00080000L     /* (unused) */
-#define PR_STATE        0x00100000L     /* Display Extra (State) */
-#define PR_SPEED        0x00200000L     /* Display Extra (Speed) */
-#define PR_STUDY        0x00400000L     /* Display Extra (Study) */
-#define PR_IMITATION    0x00800000L     /* Display Extra (Imitation) */
-#define PR_EXTRA        0x01000000L     /* Display Extra Info */
-#define PR_BASIC        0x02000000L     /* Display Basic Info */
-#define PR_MAP          0x04000000L     /* Display Map */
-#define PR_WIPE         0x08000000L     /* Hack -- Total Redraw */
-#define PR_FEAR         0x10000000L
+#define PR_MISC         0x00000001     /* Display Race/Class */
+#define PR_TITLE        0x00000002     /* Display Title */
+#define PR_LEV          0x00000004     /* Display Level */
+#define PR_EXP          0x00000008     /* Display Experience */
+#define PR_STATS        0x00000010     /* Display Stats */
+#define PR_ARMOR        0x00000020     /* Display Armor */
+#define PR_HP           0x00000040     /* Display Hitpoints */
+#define PR_MANA         0x00000080     /* Display Mana */
+#define PR_GOLD         0x00000100     /* Display Gold */
+#define PR_DEPTH        0x00000200     /* Display Depth */
+#define PR_EQUIPPY      0x00000400     /* Display equippy chars */
+#define PR_HEALTH       0x00000800     /* Display Health Bar */
+#define PR_CUT          0x00001000     /* Display Extra (Cut) */
+#define PR_STUN         0x00002000     /* Display Extra (Stun) */
+#define PR_HUNGER       0x00004000     /* Display Extra (Hunger) */
+#define PR_STATUS       0x00008000     /* Display Status Bar */
+#define PR_XXX0         0x00010000     
+#define PR_UHEALTH      0x00020000     /* Display Uma Health Bar */
+#define PR_XXX1         0x00040000     /* (unused) */
+#define PR_XXX2         0x00080000     /* (unused) */
+#define PR_STATE        0x00100000     /* Display Extra (State) */
+#define PR_SPEED        0x00200000     /* Display Extra (Speed) */
+#define PR_STUDY        0x00400000     /* Display Extra (Study) */
+#define PR_IMITATION    0x00800000     /* Display Extra (Imitation) */
+#define PR_EXTRA        0x01000000     /* Display Extra Info */
+#define PR_BASIC        0x02000000     /* Display Basic Info */
+#define PR_MAP          0x04000000     /* Display Map */
+#define PR_WIPE         0x08000000     /* Hack -- Total Redraw */
+#define PR_FEAR         0x10000000
 
 /* xxx */
 /* xxx */
@@ -2500,22 +2501,22 @@ enum _mimic_types {
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
  */
-#define PW_INVEN        0x00000001L     /* Display inven/equip */
-#define PW_EQUIP        0x00000002L     /* Display equip/inven */
-#define PW_SPELL        0x00000004L     /* Display spell list */
-#define PW_PLAYER       0x00000008L     /* Display character */
+#define PW_INVEN        0x00000001     /* Display inven/equip */
+#define PW_EQUIP        0x00000002     /* Display equip/inven */
+#define PW_SPELL        0x00000004     /* Display spell list */
+#define PW_PLAYER       0x00000008     /* Display character */
 /* xxx */
 /* xxx */
-#define PW_MESSAGE      0x00000040L     /* Display messages */
-#define PW_OVERHEAD     0x00000080L     /* Display overhead view */
-#define PW_MONSTER      0x00000100L     /* Display monster recall */
-#define PW_OBJECT       0x00000200L     /* Display object recall */
-#define PW_DUNGEON      0x00000400L     /* Display dungeon view */
-#define PW_SNAPSHOT     0x00000800L     /* Display snap-shot */
+#define PW_MESSAGE      0x00000040     /* Display messages */
+#define PW_OVERHEAD     0x00000080     /* Display overhead view */
+#define PW_MONSTER      0x00000100     /* Display monster recall */
+#define PW_OBJECT       0x00000200     /* Display object recall */
+#define PW_DUNGEON      0x00000400     /* Display dungeon view */
+#define PW_SNAPSHOT     0x00000800     /* Display snap-shot */
 /* xxx */
 /* xxx */
-#define PW_BORG_1       0x00004000L     /* Display borg messages */
-#define PW_BORG_2       0x00008000L     /* Display borg status */
+#define PW_BORG_1       0x00004000     /* Display borg messages */
+#define PW_BORG_2       0x00008000     /* Display borg status */
 
 /*
  * Bit flags for the place_monster_???() (etc)
@@ -3230,30 +3231,30 @@ enum summon_specific_e {
 
 #define MAX_CURSE 17
 
-#define TRC_CURSED              0x00000001L
-#define TRC_HEAVY_CURSE         0x00000002L
-#define TRC_PERMA_CURSE         0x00000004L
-#define TRC_XXX1                0x00000008L
-#define TRC_TY_CURSE            0x00000010L
-#define TRC_AGGRAVATE           0x00000020L
-#define TRC_DRAIN_EXP           0x00000040L
-#define TRC_SLOW_REGEN          0x00000080L
-#define TRC_ADD_L_CURSE         0x00000100L
-#define TRC_ADD_H_CURSE         0x00000200L
-#define TRC_CALL_ANIMAL         0x00000400L
-#define TRC_CALL_DEMON          0x00000800L
-#define TRC_CALL_DRAGON         0x00001000L
-#define TRC_COWARDICE           0x00002000L
-#define TRC_TELEPORT            0x00004000L
-#define TRC_LOW_MELEE           0x00008000L
-#define TRC_LOW_AC              0x00010000L
-#define TRC_LOW_MAGIC           0x00020000L
-#define TRC_FAST_DIGEST         0x00040000L
-#define TRC_DRAIN_HP            0x00080000L
-#define TRC_DRAIN_MANA          0x00100000L
+#define TRC_CURSED              0x00000001
+#define TRC_HEAVY_CURSE         0x00000002
+#define TRC_PERMA_CURSE         0x00000004
+#define TRC_XXX1                0x00000008
+#define TRC_TY_CURSE            0x00000010
+#define TRC_AGGRAVATE           0x00000020
+#define TRC_DRAIN_EXP           0x00000040
+#define TRC_SLOW_REGEN          0x00000080
+#define TRC_ADD_L_CURSE         0x00000100
+#define TRC_ADD_H_CURSE         0x00000200
+#define TRC_CALL_ANIMAL         0x00000400
+#define TRC_CALL_DEMON          0x00000800
+#define TRC_CALL_DRAGON         0x00001000
+#define TRC_COWARDICE           0x00002000
+#define TRC_TELEPORT            0x00004000
+#define TRC_LOW_MELEE           0x00008000
+#define TRC_LOW_AC              0x00010000
+#define TRC_LOW_MAGIC           0x00020000
+#define TRC_FAST_DIGEST         0x00040000
+#define TRC_DRAIN_HP            0x00080000
+#define TRC_DRAIN_MANA          0x00100000
 
-#define TRC_TELEPORT_SELF       0x00000001L
-#define TRC_CHAINSWORD          0x00000002L
+#define TRC_TELEPORT_SELF       0x00000001
+#define TRC_CHAINSWORD          0x00000002
 
 #define TRC_SPECIAL_MASK \
     (TRC_TY_CURSE | TRC_AGGRAVATE)
@@ -3712,7 +3713,7 @@ enum summon_specific_e {
 #define RF4_RIDING_MASK \
     (RF4_SHRIEK)
 
-#define RF5_RIDING_MASK 0L
+#define RF5_RIDING_MASK 0
 
 #define RF6_RIDING_MASK \
     (RF6_BLINK | RF6_TPORT | RF6_TRAPS | RF6_DARKNESS | RF6_SPECIAL)
@@ -3729,15 +3730,15 @@ enum summon_specific_e {
      RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | RF5_BO_PLAS | \
      RF5_BO_ICEE | RF5_MISSILE)
 
-#define RF6_BOLT_MASK 0L
+#define RF6_BOLT_MASK 0
 
 /*
  * Hack -- "beam" spells that may hurt fellow monsters
  * Currently "beam" spells are included in "attack"
  */
-#define RF4_BEAM_MASK 0L
+#define RF4_BEAM_MASK 0
 
-#define RF5_BEAM_MASK 0L
+#define RF5_BEAM_MASK 0
 
 #define RF6_BEAM_MASK (RF6_PSY_SPEAR)
 
@@ -3768,7 +3769,7 @@ enum summon_specific_e {
 #define RF5_BIG_BALL_MASK \
     (RF5_BA_LITE | RF5_BA_DARK | RF5_BA_WATE | RF5_BA_MANA)
 
-#define RF6_BIG_BALL_MASK 0L
+#define RF6_BIG_BALL_MASK 0
 
 /*
  * Hack -- "breath" spells that may hurt friends
@@ -3782,17 +3783,17 @@ enum summon_specific_e {
      RF4_BR_GRAV | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
      RF4_BR_NUKE | RF4_BR_DISI | RF4_BR_STORM)
 
-#define RF5_BREATH_MASK 0L
+#define RF5_BREATH_MASK 0
 
-#define RF6_BREATH_MASK 0L
+#define RF6_BREATH_MASK 0
 
 /*
  * Hack -- "summon" spells
  * Currently "summon" spells are included in "intelligent" and "indirect"
  */
-#define RF4_SUMMON_MASK 0L
+#define RF4_SUMMON_MASK 0
 
-#define RF5_SUMMON_MASK 0L
+#define RF5_SUMMON_MASK 0
 
 #define RF6_SUMMON_MASK \
     (RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
@@ -4656,6 +4657,7 @@ extern int PlayerUID;
 #define RECORD_NAMED_PET_LOSE_PARENT 14
 
 #define MAX_MANE 16
+#define MAX_MAGIC_NUM 108
 #define MAX_MONSPELLS 96
 #define MONSPELL_TYPE_BOLT 1
 #define MONSPELL_TYPE_BALL 2
@@ -5408,38 +5410,38 @@ extern int PlayerUID;
 #define DUNGEON_MODE_NOR        4
 
 /*** Dungeon type flags -- DG ***/
-#define DF1_WINNER              0x00000001L
-#define DF1_MAZE                0x00000002L
-#define DF1_SMALLEST            0x00000004L
-#define DF1_BEGINNER            0x00000008L
-#define DF1_BIG                 0x00000010L
-#define DF1_NO_DOORS            0x00000020L
-#define DF1_WATER_RIVER         0x00000040L
-#define DF1_LAVA_RIVER          0x00000080L
-#define DF1_CURTAIN             0x00000100L
-#define DF1_GLASS_DOOR          0x00000200L
-#define DF1_CAVE                0x00000400L
-#define DF1_CAVERN              0x00000800L
-#define DF1_RANDOM              0x00001000L
-#define DF1_XXX13               0x00002000L
-#define DF1_XXX14               0x00004000L
-#define DF1_XXX15               0x00008000L
-#define DF1_FORGET              0x00010000L
-#define DF1_LAKE_WATER          0x00020000L
-#define DF1_LAKE_LAVA           0x00040000L
-#define DF1_LAKE_RUBBLE         0x00080000L
-#define DF1_LAKE_TREE           0x00100000L
-#define DF1_NO_VAULT            0x00200000L
-#define DF1_ARENA               0x00400000L
-#define DF1_DESTROY             0x00800000L
-#define DF1_GLASS_ROOM          0x01000000L
-#define DF1_NO_CAVE             0x02000000L
-#define DF1_NO_MAGIC            0x04000000L
-#define DF1_NO_MELEE            0x08000000L
-#define DF1_CHAMELEON           0x10000000L
-#define DF1_DARKNESS            0x20000000L
-#define DF1_XXX30               0x40000000L
-#define DF1_XXX31               0x80000000L
+#define DF1_WINNER              0x00000001
+#define DF1_MAZE                0x00000002
+#define DF1_SMALLEST            0x00000004
+#define DF1_BEGINNER            0x00000008
+#define DF1_BIG                 0x00000010
+#define DF1_NO_DOORS            0x00000020
+#define DF1_WATER_RIVER         0x00000040
+#define DF1_LAVA_RIVER          0x00000080
+#define DF1_CURTAIN             0x00000100
+#define DF1_GLASS_DOOR          0x00000200
+#define DF1_CAVE                0x00000400
+#define DF1_CAVERN              0x00000800
+#define DF1_RANDOM              0x00001000
+#define DF1_XXX13               0x00002000
+#define DF1_XXX14               0x00004000
+#define DF1_XXX15               0x00008000
+#define DF1_FORGET              0x00010000
+#define DF1_LAKE_WATER          0x00020000
+#define DF1_LAKE_LAVA           0x00040000
+#define DF1_LAKE_RUBBLE         0x00080000
+#define DF1_LAKE_TREE           0x00100000
+#define DF1_NO_VAULT            0x00200000
+#define DF1_ARENA               0x00400000
+#define DF1_DESTROY             0x00800000
+#define DF1_GLASS_ROOM          0x01000000
+#define DF1_NO_CAVE             0x02000000
+#define DF1_NO_MAGIC            0x04000000
+#define DF1_NO_MELEE            0x08000000
+#define DF1_CHAMELEON           0x10000000
+#define DF1_DARKNESS            0x20000000
+#define DF1_XXX30               0x40000000
+#define DF1_XXX31               0x80000000
 
 #define DF1_LAKE_MASK (DF1_LAKE_WATER | DF1_LAKE_LAVA | DF1_LAKE_RUBBLE | DF1_LAKE_TREE)
 
@@ -5562,6 +5564,7 @@ enum mon_save_fields_e {
     SAVE_MON_STOLEN_CT,
     SAVE_MON_PEXP,
     SAVE_MON_PARALYZED,
+    SAVE_MON_ANGER_CT,
 };
 
 /* Sub-alignment flags for neutral monsters */

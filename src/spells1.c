@@ -45,8 +45,8 @@ bool allow_ticked_off(monster_race *r_ptr)
  */
 static void next_mirror( int* next_y , int* next_x , int cury, int curx)
 {
-    int mirror_x[10],mirror_y[10]; /* 鏡はもっと少ない */
-    int mirror_num=0;              /* 鏡の数 */
+    int mirror_x[10],mirror_y[10];
+    int mirror_num=0;
     int x,y;
     int num;
 
@@ -6112,17 +6112,43 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             /* HACK - tick off smart monsters whenever damaged by the player
                from a distance. */
-            if (who == 0 && dam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+            if (who == 0 && dam > 0 && m_ptr->cdis > 1)
             {
-                if (!(m_ptr->smart & SM_TICKED_OFF))
+                bool splashed = !projectable(py, px, y, x);
+                if (allow_ticked_off(r_ptr))
                 {
-                    if (mut_present(MUT_SUBTLE_CASTING))
+                    if (!mut_present(MUT_SUBTLE_CASTING))
+                        m_ptr->anger_ct++;
+                    if (splashed)
+                        m_ptr->anger_ct++;
+                }
+                /* Splashing Uniques out of LOS makes them rethink their approach */
+                if (splashed && (r_ptr->flags1 & RF1_UNIQUE))
+                {
+                    pack_info_t *pack_ptr = pack_info_ptr(c_ptr->m_idx);
+
+                    if (pack_ptr)
                     {
-                    }
-                    else
-                    {
-                        msg_format("%^s is ticked off!", m_name);
-                        m_ptr->smart |= SM_TICKED_OFF;
+                        int odds = MAX(1, 7 - m_ptr->anger_ct);
+
+                        if (!allow_ticked_off(r_ptr)) /* Paranoia ... These should already be seeking! */
+                            odds = 1;
+
+                        switch (pack_ptr->ai)
+                        {
+                        case AI_MAINTAIN_DISTANCE:
+                            if (one_in_(odds))
+                                pack_ptr->ai = AI_SEEK;
+                            else
+                                pack_ptr->distance += 2;
+                            break;
+
+                        case AI_SHOOT:
+                        case AI_LURE:
+                            if (one_in_(odds))
+                                pack_ptr->ai = AI_SEEK;
+                            break;
+                        }
                     }
                 }
             }
@@ -8921,15 +8947,14 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 
 bool binding_field( int dam )
 {
-    int mirror_x[10],mirror_y[10]; /* 鏡はもっと少ない */
-    int mirror_num=0;              /* 鏡の数 */
+    int mirror_x[10],mirror_y[10];
+    int mirror_num=0;
     int x,y;
     int centersign;
     int x1,x2,y1,y2;
     u16b p;
     int msec= delay_factor*delay_factor*delay_factor;
 
-    /* 三角形の頂点 */
     int point_x[3];
     int point_y[3];
 

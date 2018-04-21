@@ -8,7 +8,7 @@ OBJECTS = $(ANGFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c} ${MAINFILES:.o=.c}
 PROG    = poschengband$(PROG_SUFFIX)
 # VERSION := $(shell ../scripts/version.sh)
-CFLAGS += -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -O0
+CFLAGS += -DBUILD_ID=${VERSION} -I. -std=c99 -Wdeclaration-after-statement -O0 -g -fno-omit-frame-pointer
 
 CLEAN = poschengband.o $(OBJECTS) win/poschengband.res
 DISTCLEAN = autoconf.h

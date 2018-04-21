@@ -1245,17 +1245,13 @@ static void prt_ac(void)
  */
 static void prt_hp(void)
 {
-/* ヒットポイントの表示方法を変更 */
     char tmp[32];
   
     byte color;
   
-    /* タイトル */
-/*    put_str(" ＨＰ・ＭＰ", ROW_HPMP, COL_HPMP); */
 
     put_str("HP", ROW_CURHP, COL_CURHP);
 
-    /* 現在のヒットポイント */
     sprintf(tmp, "%4d", p_ptr->chp);
 
     if (p_ptr->chp >= p_ptr->mhp)
@@ -1273,10 +1269,8 @@ static void prt_hp(void)
 
     c_put_str(color, tmp, ROW_CURHP, COL_CURHP+3);
 
-    /* 区切り */
     put_str( "/", ROW_CURHP, COL_CURHP + 7 );
 
-    /* 最大ヒットポイント */
     sprintf(tmp, "%4d", p_ptr->mhp);
     color = TERM_L_GREEN;
 
@@ -1667,7 +1661,7 @@ static void prt_speed(void)
             else if (MON_SLOW(m_ptr) && !MON_FAST(m_ptr)) attr = TERM_VIOLET;
             else attr = TERM_GREEN;
         }
-        else if ((is_fast && !p_ptr->slow) || IS_LIGHT_SPEED()) attr = TERM_YELLOW;
+        else if ((is_fast && !p_ptr->slow) || IS_LIGHT_SPEED() || psion_speed()) attr = TERM_YELLOW;
         else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
         else attr = TERM_L_GREEN;
         sprintf(buf, "Fast(+%d)", (i - 110));
@@ -3114,11 +3108,7 @@ static void calc_torch(void)
     if (p_ptr->cur_lite < 0) p_ptr->cur_lite = 0;
 
     if (p_ptr->tim_superstealth)
-    {
-        p_ptr->cur_lite -= 3;
-        if (p_ptr->cur_lite < 0)
-            p_ptr->cur_lite = 0;
-    }
+        p_ptr->cur_lite = 0;
 
     /* Notice changes in the "lite radius" */
     if (p_ptr->old_lite != p_ptr->cur_lite)
@@ -3362,6 +3352,7 @@ void calc_bonuses(void)
     p_ptr->whirlwind = FALSE;
     p_ptr->entrenched = FALSE;
     p_ptr->lightning_reflexes = FALSE;
+    p_ptr->clear_mind = FALSE;
     p_ptr->inven_prot = FALSE;
     p_ptr->ambush = FALSE;
     p_ptr->peerless_stealth = FALSE;
@@ -4424,6 +4415,7 @@ void calc_bonuses(void)
 
         /* Two Handed wielding bonus */
         if ( p_ptr->weapon_info[i].wield_how == WIELD_TWO_HANDS 
+          && p_ptr->pclass != CLASS_DUELIST 
           && !p_ptr->weapon_info[i].omoi )
         {
             int bonus_to_h=0, bonus_to_d=0;

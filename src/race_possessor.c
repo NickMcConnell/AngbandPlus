@@ -288,7 +288,7 @@ static bool _blow_is_masked(monster_blow *blow_ptr)
 void possessor_calc_innate_attacks(void)
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-    monster_blow  blows[4] = {0};
+    monster_blow  blows[4] = {{0}};
     int           cts[4] = {0};
     int           ct = 0;
     int           i, j;

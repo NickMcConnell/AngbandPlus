@@ -10,6 +10,7 @@
   From the root of the source archive:
     $ sh autogen.sh
     $ ./configure
+    % make clean
     $ make
 
   To install, you may need to elevate your credentials:

@@ -238,6 +238,7 @@ bool psion_process_monster(int m_idx)
         char m_name[255];
 
         monster_desc(m_name, m_ptr, 0);
+        anger_monster(m_ptr);
 
         if (psion_mon_save_p(m_ptr->r_idx, m_ptr->ego_whip_pow))
         {
@@ -251,6 +252,8 @@ bool psion_process_monster(int m_idx)
             msg_format("Your ego whip lashes %s!", m_name);
             result = mon_take_hit(m_idx, spell_power(40*m_ptr->ego_whip_pow), &fear, NULL);
             m_ptr->ego_whip_ct--;
+            if (!projectable(py, px, m_ptr->fy, m_ptr->fx))
+                m_ptr->anger_ct++;
             if (!m_ptr->ego_whip_ct)
             {
                 msg_format("Your ego whip on %s disappears.", m_name);
@@ -297,7 +300,7 @@ static void _archery_transformation_spell(int power, int cmd, variant *res)
         }
         _clear_counter(_COMBAT, "Your combat transformation expires.");    
         msg_print("You transform into a shooting machine!");
-        p_ptr->magic_num1[_ARCHERY] = spell_power(power*20 + 15);
+        p_ptr->magic_num1[_ARCHERY] = spell_power(power*8 + 20);
         p_ptr->magic_num2[_ARCHERY] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -378,7 +381,7 @@ static void _combat_transformation_spell(int power, int cmd, variant *res)
         }
         _clear_counter(_ARCHERY, "Your archery transformation expires.");    
         msg_print("You transform into a fighting machine!");
-        p_ptr->magic_num1[_COMBAT] = spell_power(power*20 + 15);
+        p_ptr->magic_num1[_COMBAT] = spell_power(power*8 + 20);
         p_ptr->magic_num2[_COMBAT] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -485,12 +488,8 @@ static void _energy_blast_spell(int power, int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-    {
-        const cptr _names[_MAX_POWER] = {
-            "Ball of Fire", "or Cold", "or Poison", "or Acid", "or Lightning"};
-        var_set_string(res, _names[power-1]);
+        var_set_string(res, format("Blast %s", _roman_numeral[power]));
         break;
-    }
     case SPELL_DESC:
         var_set_string(res, "Fires an elemental ball.");
         break;
@@ -551,7 +550,7 @@ static void _graft_weapon_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("Your weapon fuses to your arm!");
-        p_ptr->magic_num1[_WEAPON_GRAFT] = spell_power(12*power + 20);
+        p_ptr->magic_num1[_WEAPON_GRAFT] = spell_power(8*power + 20);
         p_ptr->magic_num2[_WEAPON_GRAFT] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -741,7 +740,7 @@ static void _psionic_blending_spell(int power, int cmd, variant *res)
             msg_print("You are already blending into your surroundings.");
             return;
         }
-        msg_print("You blending into your surroundings.");
+        msg_print("You blend into your surroundings.");
         p_ptr->magic_num1[_BLENDING] = spell_power(power*25 + 50);
         p_ptr->magic_num2[_BLENDING] = power;
         p_ptr->update |= PU_BONUS;
@@ -833,16 +832,18 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
         object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
         _enchant_power = power; /* Hack for enchant(), which I'm too lazy to rewrite ... */
-        if (power == 5 && object_is_nameless(o_ptr))
+        if (power == 5 && object_is_nameless(o_ptr) && o_ptr->number == 1)
         {
             if (object_is_weapon(o_ptr))
             {
                 brand_weapon_aux(item);
+                o_ptr->discount = 99;
                 okay = TRUE;
             }
             else if (object_is_armour(o_ptr))
             {
                 brand_armour_aux(item);
+                o_ptr->discount = 99;
                 okay = TRUE;
             }
         }
@@ -1489,7 +1490,7 @@ static _spell_t __spells[] =
         { 18,  70, _psionic_clarity2_spell },
         { 36, 120, _psionic_clarity3_spell },
         { 60, 160, _psionic_clarity4_spell },
-        { 90, 212, _psionic_clarity5_spell }},
+        { 90, 200, _psionic_clarity5_spell }},
         "Psionic Clarity focuses the mind of the psion. While only active for "
         "a short while, this power lowers the casting costs of all other psionic "
         "powers and can be quite useful. However, the utility of Psionic Clarity "
@@ -1627,8 +1628,7 @@ static _spell_t __spells[] =
         { 65,  80, _psionic_storm3_spell }, /* 350hp */
         {100,  95, _psionic_storm4_spell }, /* 475hp */
         {135, 110, _psionic_storm5_spell }},/* 600hp */
-        "Psionic Storm unleashes your mental focus in a large, powerful blast of mana. All monsters "
-          "hit by the blast will take full damage."
+        "Psionic Storm unleashes your mental focus in a large, powerful ball of mana."
     },
     { "Psionic Backlash", _PSION_BACKLASH, 40, {  
         { 24,  50, _psionic_backlash1_spell },
@@ -1646,7 +1646,7 @@ static _spell_t __spells[] =
         { 60,  80, _psionic_drain3_spell },
         { 90,  95, _psionic_drain4_spell },
         {130, 110, _psionic_drain5_spell }},
-        "Psychic drain allows you to draw mental energy and focus from the magic around you. "
+        "Psychic Drain allows you to draw mental energy and focus from the magic around you. "
         "Whenever you are hit by a magic spell you will convert some of the damage into mana. This "
         "power has no effect on non-magical damage like breaths, rockets or melee."
     },
@@ -1943,6 +1943,9 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
+    if (p_ptr->lev >= 15)
+        p_ptr->clear_mind = TRUE;
+
     if (p_ptr->magic_num1[_BLENDING])
     {
         p_ptr->skills.stl += 5 * p_ptr->magic_num2[_BLENDING];

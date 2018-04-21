@@ -647,6 +647,29 @@ void magic_eater_cast(int tval)
     int chance;
     _spell_t *spell;
 
+    /* Duplicate anti-magic checks since "device" commands might re-route here (as "magic" commands)
+       For example, do_cmd_use_staff() will allow magic-eaters to invoke staff based spells. */
+    if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
+    {
+        msg_print("The dungeon absorbs all attempted magic!");
+        return;
+    }
+    else if (p_ptr->tim_no_spells)
+    {
+        msg_print("Your spells are blocked!");
+        return;
+    }
+    else if (p_ptr->anti_magic)
+    {
+        msg_print("An anti-magic shell disrupts your magic!");
+        return;
+    }
+    else if (IS_SHERO())
+    {
+        msg_print("You cannot think clearly!");
+        return;
+    }
+
     if (p_ptr->confused)
     {
         msg_print("You are too confused!");

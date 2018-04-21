@@ -5030,7 +5030,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 
         case TV_SWORD:
         {
-            if (object_is_(o_ptr, TV_SWORD, SV_DRAGON_FANG))
+            if (object_is_(o_ptr, TV_SWORD, SV_DRAGON_FANG) && !(mode & AM_CRAFTING))
             {
                 if (cheat_peek) object_mention(o_ptr);
                 dragon_resist(o_ptr);
@@ -5066,7 +5066,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
                 o_ptr->pval = randint1(4);
             }
 
-            if (object_is_dragon_armor(o_ptr))
+            if (object_is_dragon_armor(o_ptr) && !(mode & AM_CRAFTING))
             {
                 if (cheat_peek) object_mention(o_ptr);
                 dragon_resist(o_ptr);
@@ -5271,14 +5271,18 @@ static bool kind_is_tailored(int k_idx)
     case TV_SHIELD:
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval) 
             && p_ptr->pclass != CLASS_NINJA
-            && p_ptr->pclass != CLASS_MAULER;
+            && p_ptr->pclass != CLASS_MAULER
+            && p_ptr->pclass != CLASS_DUELIST;
 
     case TV_HARD_ARMOR:
     case TV_SOFT_ARMOR:
     case TV_DRAG_ARMOR:
         if ( p_ptr->pclass == CLASS_MONK
           || p_ptr->pclass == CLASS_FORCETRAINER
-          || p_ptr->pclass == CLASS_MYSTIC )
+          || p_ptr->pclass == CLASS_MYSTIC 
+          || p_ptr->pclass == CLASS_DUELIST
+          || p_ptr->pclass == CLASS_SCOUT
+          || p_ptr->pclass == CLASS_NINJA )
         {
             return k_ptr->weight <= 200;
         }
@@ -7079,7 +7083,7 @@ s16b inven_takeoff(int item, int amt)
 
     object_type *o_ptr;
 
-    cptr act;
+    cptr act = "";
 
     char o_name[MAX_NLEN];
 
@@ -8118,7 +8122,7 @@ static void display_essence(void)
 
 static void drain_essence(void)
 {
-    int drain_value[sizeof(p_ptr->magic_num1) / sizeof(s32b)];
+    int drain_value[MAX_MAGIC_NUM];
     int i, item;
     int dec = 4;
     bool observe = FALSE;
@@ -8129,7 +8133,7 @@ static void drain_essence(void)
     byte iy, ix, marked, number;
     s16b next_o_idx, weight;
 
-    for (i = 0; i < sizeof(drain_value) / sizeof(int); i++)
+    for (i = 0; i < MAX_MAGIC_NUM; i++)
         drain_value[i] = 0;
 
     item_tester_hook = object_is_weapon_armour_ammo;
@@ -8288,7 +8292,7 @@ static void drain_essence(void)
     if (old_ac > o_ptr->ac) drain_value[TR_ES_AC] += (old_ac-o_ptr->ac)*10;
     if (old_to_a > o_ptr->to_a) drain_value[TR_ES_AC] += (old_to_a-o_ptr->to_a)*10;
 
-    for (i = 0; i < sizeof(drain_value) / sizeof(int); i++)
+    for (i = 0; i < MAX_MAGIC_NUM; i++)
     {
         drain_value[i] *= number;
         drain_value[i] = drain_value[i] * dec / 4;

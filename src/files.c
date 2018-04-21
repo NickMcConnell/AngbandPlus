@@ -3599,7 +3599,7 @@ static void dump_aux_class_special(FILE *fff)
 
         for (i=0;i<=col;i++)
         {
-            fprintf(fff, p[i]);
+            fprintf(fff, "%s", p[i]);
         }
     }
 }
@@ -5679,7 +5679,7 @@ static void print_tomb(void)
         char   dummy[80];
         char   *t;
         FILE   *fp;
-        time_t ct = time((time_t)0);
+        time_t ct = time(0);
 
         /* Clear screen */
         Term_clear();
@@ -6016,8 +6016,6 @@ void close_game(void)
 {
     char buf[1024];
     bool do_send = TRUE;
-
-/*    cptr p = "[i:キャラクタの情報, f:ファイル書き出し, t:スコア, x:*鑑定*, ESC:ゲーム終了]"; */
 
     /* Handle stuff */
     handle_stuff();
@@ -6441,7 +6439,6 @@ errr counts_write(int where, u32b count)
 
 
 #ifdef HANDLE_SIGNALS
-
 
 #include <signal.h>
 

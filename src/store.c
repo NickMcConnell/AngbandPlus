@@ -685,10 +685,6 @@ static int store_check_num(object_type *o_ptr)
     }
 
     /* Free space is always usable */
-    /*
-     * オプション powerup_home が設定されていると
-     * 我が家が 20 ページまで使える
-     */
     if ((cur_store_num == STORE_HOME) && ( powerup_home == FALSE )) {
         if (st_ptr->stock_num < ((st_ptr->stock_size) / 10)) {
             return 1;
@@ -1152,11 +1148,6 @@ static int home_carry(object_type *o_ptr)
         stack_force_costs = old_stack_force_costs;
     }
 
-    /* No space? */
-    /*
-     * 隠し機能: オプション powerup_home が設定されていると
-     *           我が家が 20 ページまで使える
-     */
     /* No space? */
     if ((cur_store_num != STORE_HOME) || (powerup_home == TRUE)) {
         if (st_ptr->stock_num >= st_ptr->stock_size) {
@@ -3269,7 +3260,6 @@ static void store_sell(void)
     item_tester_hook = store_will_buy;
 
     /* Get an item */
-    /* 我が家でおかしなメッセージが出るオリジナルのバグを修正 */
     if (cur_store_num == STORE_HOME)
     {
         s = "You don't have any item to drop.";
@@ -3760,8 +3750,6 @@ static void store_process_command(void)
             break;
         }
 
-        /* 日本語版追加 */
-        /* 1 ページ戻るコマンド: 我が家のページ数が多いので重宝するはず By BUG */
         case '-':
         {
             if (st_ptr->stock_num <= store_bottom) {
@@ -3789,10 +3777,6 @@ static void store_process_command(void)
             else
             {
                 store_top += store_bottom;
-                /*
-                 * 隠しオプション(powerup_home)がセットされていないときは
-                 * 我が家では 2 ページまでしか表示しない
-                 */
                 if ((cur_store_num == STORE_HOME) && 
                     (powerup_home == FALSE) && 
                     (st_ptr->stock_num >= STORE_INVEN_MAX))

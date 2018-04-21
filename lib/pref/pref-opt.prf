@@ -118,7 +118,7 @@ Y:powerup_home
 
 ##### Easy Object Auto-Destroyer #####
 
-Y:destroy_items
+X:destroy_items
 Y:destroy_feeling
 Y:destroy_identify
 Y:leave_worth

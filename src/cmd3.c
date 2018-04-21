@@ -673,7 +673,6 @@ void do_cmd_uninscribe(void)
     /* Window stuff */
     p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-    /* .や$の関係で, 再計算が必要なはず -- henkma */
     p_ptr->update |= (PU_BONUS);
 
 }
@@ -743,7 +742,6 @@ void do_cmd_inscribe(void)
         /* Window stuff */
         p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-        /* .や$の関係で, 再計算が必要なはず -- henkma */
         p_ptr->update |= (PU_BONUS);
     }
 }
@@ -1473,7 +1471,7 @@ void do_cmd_list_monsters(void)
         int               cx, cy, row = 1, col;
 
         /* Sort */
-        order = C_MAKE(order, ct_types, int);
+        C_MAKE(order, ct_types, int);
 
         i = 0;
         for (iter = int_map_iter_alloc(info); 

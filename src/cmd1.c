@@ -494,6 +494,7 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
 
     if ( equip_is_valid_hand(hand)
       && p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS
+      && p_ptr->pclass != CLASS_DUELIST 
       && !p_ptr->weapon_info[hand].omoi )
     {
         roll = roll * 2 / 3;
@@ -2678,6 +2679,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     bool            fuiuchi = FALSE;
     bool            monk_attack = FALSE;
     bool            duelist_attack = FALSE;
+    bool            perfect_strike = FALSE;
     bool            do_quake = FALSE;
     bool            weak = FALSE;
     bool            drain_msg = TRUE;
@@ -2753,7 +2755,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     switch (p_ptr->pclass)
     {
     case CLASS_DUELIST:
-        if (p_ptr->pclass == CLASS_DUELIST && c_ptr->m_idx == p_ptr->duelist_target_idx)
+        if (c_ptr->m_idx == p_ptr->duelist_target_idx)
             duelist_attack = TRUE;
         break;
 
@@ -2829,6 +2831,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (mode == MAULER_KNOCKOUT_BLOW) bonus -= 50;
     if (mode == WEAPONMASTER_CUNNING_STRIKE) bonus += 20;
     if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0 && (r_ptr->flags3 & RF3_EVIL)) bonus += 200;
+    if (duelist_attack) bonus += p_ptr->lev;
 
     chance = (p_ptr->skills.thn + (bonus * BTH_PLUS_ADJ));
     if (chance > 0)
@@ -2900,7 +2903,11 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             success_hit = one_in_(n);
         }
         else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flagsr & RFR_RES_ALL))) success_hit = TRUE;
-        else if (duelist_attack) success_hit = TRUE;
+        else if (duelist_attack && one_in_(2))
+        {
+            perfect_strike = TRUE;
+            success_hit = TRUE;
+        }
         else if (weaponmaster_get_toggle() == TOGGLE_BURNING_BLADE) success_hit = TRUE;
         else success_hit = test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml);
 
@@ -2936,9 +2943,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             }
 
             if (backstab) msg_format("You cruelly stab %s!", m_name);
-            else if (fuiuchi) msg_format("You make surprise attack, and hit %s with a powerful blow!", m_name);
+            else if (fuiuchi) msg_format("You make a surprise attack, and hit %s with a powerful blow!", m_name);
             else if (stab_fleeing) msg_format("You backstab %s!",  m_name);
-            else if (duelist_attack) msg_format("You land a perfect strike against %s.", m_name);
+            else if (perfect_strike) msg_format("You land a perfect strike against %s.", m_name);
             else if (!monk_attack) msg_format("You hit %s.", m_name);
 
             /* Hack -- bare hands do one damage */
@@ -3281,11 +3288,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             if (duelist_attack)
             {
+                int d = k;
                 /* Duelist: Careful Aim */
                 if (duelist_attack && 
                     p_ptr->lev >= 10) 
                 {
-                    k = k * 2;
+                    k += d;
                 }
                 if ( p_ptr->lev >= 15    /* Hamstring */
                     && !(r_ptr->flags1 & (RF1_UNIQUE))
@@ -3298,7 +3306,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
                     msg_format("%^s is dealt a wounding strike.", m_name);
-                    k += MIN(m_ptr->hp / 5, p_ptr->lev * 7);
+                    k += MIN(m_ptr->hp / 5, randint1(3) * d);
                     drain_result = k;
                 }
                 if ( p_ptr->lev >= 25    /* Stunning Blow */
@@ -3312,7 +3320,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
                     msg_format("%^s is dealt a *WOUNDING* strike.", m_name);
-                    k += MIN(m_ptr->hp * 2 / 5, (p_ptr->lev - 20) * 33);
+                    k += MIN(m_ptr->hp * 2 / 5, rand_range(2, 10) * d);
                     drain_result = k;
                 }
             }
@@ -4135,6 +4143,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 #if 1
     if (p_ptr->pclass == CLASS_MAULER)
         c_put_str(TERM_WHITE, format("Maul:%5d", dam_tot), 24, 0);    
+    if (p_ptr->pclass == CLASS_DUELIST)
+        c_put_str(TERM_WHITE, format("Duel:%5d", dam_tot), 24, 0);    
 #endif
 
 
@@ -4517,6 +4527,7 @@ bool py_attack(int y, int x, int mode)
         case MAULER_CRUSHING_BLOW:
         case MAULER_CRITICAL_BLOW:
         case MAULER_SCATTER:
+        case HISSATSU_2:
         case HISSATSU_KYUSHO:
         case HISSATSU_MINEUCHI:
         case HISSATSU_3DAN:
@@ -5193,6 +5204,22 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             energy_use = 0;
             oktomove = FALSE;
             disturb(0, 0);
+        }
+        else if (MON_CSLEEP(riding_m_ptr))
+        {
+            char m_name[80];
+            monster_desc(m_name, riding_m_ptr, 0);
+            msg_format("%^s is sleeping.", m_name);
+            oktomove = FALSE;
+            disturb(0,0);
+        }
+        else if (riding_m_ptr->paralyzed)
+        {
+            char m_name[80];
+            monster_desc(m_name, riding_m_ptr, 0);
+            msg_format("%^s is paralyzed.", m_name);
+            oktomove = FALSE;
+            disturb(0,0);
         }
         else if (MON_MONFEAR(riding_m_ptr))
         {

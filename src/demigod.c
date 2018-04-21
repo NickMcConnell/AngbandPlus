@@ -55,8 +55,7 @@ static void _kiss_spell(int cmd, variant *res)
 
                     if (allow_ticked_off(r_ptr))
                     {
-                        msg_format("%^s is ticked off!", desc);
-                        m_ptr->smart |= SM_TICKED_OFF;
+                        m_ptr->anger_ct++;
                     }
 
                 }
@@ -369,6 +368,8 @@ static power_info _hera_powers[] =
 static void _hera_calc_bonuses(void)
 {
     p_ptr->spell_cap += 2;
+    if (p_ptr->lev >= 15)
+        p_ptr->clear_mind = TRUE;
 }
 static int _hera_get_powers(spell_info* spells, int max)
 {

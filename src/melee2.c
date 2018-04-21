@@ -2433,7 +2433,7 @@ static void process_monster(int m_idx)
         ((((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)) &&
           monster_has_hostile_align(NULL, 10, -10, r_ptr))))
     {
-        if (!p_ptr->prace == RACE_MON_RING)
+        if (p_ptr->prace != RACE_MON_RING)
             gets_angry = TRUE;
     }
 
@@ -2612,25 +2612,38 @@ static void process_monster(int m_idx)
     } */
 
     /* Try to cast spell occasionally */
+    if (r_ptr->freq_spell)
     {
-    int freq = r_ptr->freq_spell;
-    pack_info_t *pack_ptr = pack_info_ptr(m_idx);
-    bool ticked_off = (m_ptr->smart & SM_TICKED_OFF) ? TRUE : FALSE;
-    bool blocked_magic = FALSE;
+        int freq = r_ptr->freq_spell;
+        int freq_n = 100 / r_ptr->freq_spell; /* recover S:1_IN_X field */
+        pack_info_t *pack_ptr = pack_info_ptr(m_idx);
+        bool ticked_off = m_ptr->anger_ct ? TRUE : FALSE;
+        bool blocked_magic = FALSE;
 
-        if (ticked_off || is_glyph_grid(&cave[py][px]))
-            freq += 5 + r_ptr->level/10;
+        if (is_glyph_grid(&cave[py][px]))
+        {
+            freq_n -= 2;
+            if (freq_n < 2)
+                freq_n = 2;
+            freq = MAX(freq + 5 + r_ptr->level/10, 100 / freq_n);
+        }
         else if (pack_ptr)
         {
             switch (pack_ptr->ai)
             {
             case AI_SHOOT:
-                freq += 15;
+            case AI_MAINTAIN_DISTANCE:
+                freq_n -= 2;
+                if (freq_n < 2)
+                    freq_n = 2;
+                freq = MAX(freq + 15, 100 / freq_n);
                 break;
             case AI_LURE:
             case AI_FEAR:
-            case AI_MAINTAIN_DISTANCE:
-                freq += 5;
+                freq_n -= 1;
+                if (freq_n < 2)
+                    freq_n = 2;
+                freq = MAX(freq + 10, 100 / freq_n);
                 break;
             }
         }
@@ -2638,6 +2651,9 @@ static void process_monster(int m_idx)
         /* Cap spell frequency at 75% or twice the natural frequency */
         freq = MIN(freq, MAX(75, r_ptr->freq_spell));
         freq = MIN(freq, 2*r_ptr->freq_spell);
+
+        /* But angry monsters will eventually spell if they get too pissed off */
+        freq += m_ptr->anger_ct * 10;
         
         /* Hack for Rage Mage Anti-magic Ray ... */
         if (m_ptr->anti_magic_ct)
@@ -2694,13 +2710,7 @@ static void process_monster(int m_idx)
                 /* Being Ticked Off will affect spell selection */
                 if (aware && make_attack_spell(m_idx, ticked_off))
                 {
-                    if (ticked_off)
-                    {
-                        char m_name[80];
-                        monster_desc(m_name, m_ptr, 0);
-                        msg_format("%^s is no longer ticked off!", m_name);
-                        m_ptr->smart &= ~SM_TICKED_OFF;                
-                    }
+                    m_ptr->anger_ct = 0;
                     return;
                 }
                 /*
@@ -2901,7 +2911,7 @@ static void process_monster(int m_idx)
                 else if (ct_open < 1 + randint1(4))
                 {
                     /* not enough summoning opportunities, so hold off unless angered */
-                    if (!(m_ptr->smart & SM_TICKED_OFF))
+                    if (!m_ptr->anger_ct)
                         continue;
                     if (!one_in_(3))
                         continue;
@@ -3852,7 +3862,7 @@ void process_monsters(void)
             monster_desc(m_name, m_ptr, 0);
             msg_format("%^s gets back up and looks mad as hell.", m_name);
             m_ptr->mflag2 &= ~MFLAG2_TRIPPED;
-            m_ptr->smart |= SM_TICKED_OFF;
+            m_ptr->anger_ct++;
             continue;
         }
 

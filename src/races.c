@@ -4,6 +4,16 @@
 /****************************************************************
  * Public Entrypoints
  ****************************************************************/
+bool prace_is_(int which)
+{
+    if (p_ptr->mimic_form == which)
+        return TRUE;
+    else if (p_ptr->mimic_form == MIMIC_NONE && p_ptr->prace == which)
+        return TRUE;
+
+    return FALSE;
+}
+
 int get_race_idx(cptr name)
 {
     int i;

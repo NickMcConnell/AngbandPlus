@@ -521,6 +521,9 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
+    if (p_ptr->lev >= 15) 
+        p_ptr->clear_mind = TRUE;
+
     if (!(heavy_armor()))
     {
         p_ptr->pspeed += (p_ptr->lev) / 10;

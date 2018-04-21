@@ -546,9 +546,6 @@
     <ClCompile Include="skills.c">
       <Filter>Player</Filter>
     </ClCompile>
-    <ClCompile Include="race_centipede.c">
-      <Filter>Player\Races</Filter>
-    </ClCompile>
     <ClCompile Include="race_ghost.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
@@ -562,6 +559,9 @@
       <Filter>Player\Races</Filter>
     </ClCompile>
     <ClCompile Include="race_mimic.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
+    <ClCompile Include="race_centipede.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
   </ItemGroup>

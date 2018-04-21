@@ -631,7 +631,7 @@ M:
 M:                 
 
 N:Marauding Orcs
-T:AMBUSH:GRASS:FORMATION
+T:AMBUSH:GRASS:FORMATION | NIGHT
 W:1:*:1
 L:0:MON(o, DEPTH+5)
 L:T:MON(T, NO_SLEEP | NO_GROUP | DEPTH+10)
@@ -1009,7 +1009,7 @@ M:  8  $232$  8
 M:   8$  4  $8   
 
 N:Roasting Hobbits
-T:WILD:TREES
+T:WILD:TREES:NIGHT
 W:15:*:4
 L:T:MON(297, NO_SLEEP)
 L:h:MON(74, FRIENDLY)

@@ -2591,7 +2591,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
     add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
 
-    if (!have_flag(o_ptr->art_flags, TR_ACTIVATE))
+    if ( !have_flag(o_ptr->art_flags, TR_ACTIVATE)
+      && !object_is_ammo(o_ptr) )
     {
         int odds = object_is_armour(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE;
         if (one_in_(odds))

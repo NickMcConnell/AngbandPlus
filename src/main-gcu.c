@@ -157,7 +157,7 @@
  */
 
 #include "angband.h"
-
+#include <assert.h>
 
 #ifdef USE_GCU
 
@@ -1094,7 +1094,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 
    int i;
 
-   char text[81];
+   char text[1024];
 
 #ifdef USE_NCURSES_ACS
    /* do we have colors + 16 ? */
@@ -1133,6 +1133,9 @@ static errr term_data_init(term_data *td, int rows, int cols, int y, int x)
    /* Make sure the window has a positive size */
    if (rows <= 0 || cols <= 0) return (0);
 
+   assert(x + cols <= COLS);
+   assert(y + rows <= LINES);
+   
    /* Create a window */
    td->win = newwin(rows, cols, y, x);
 
@@ -1197,14 +1200,12 @@ errr init_gcu(int argc, char *argv[])
 {
    int i;
 
-   int num_term = 4, next_win = 0;
    char path[1024];
 
    /* Unused */
    (void)argc;
    (void)argv;
-
-
+   
 #ifdef USE_SOUND
 
    /* Build the "sound" path */
@@ -1217,6 +1218,9 @@ errr init_gcu(int argc, char *argv[])
 
    /* Extract the normal keymap */
    keymap_norm_prepare();
+
+   if (!getenv("ESCDELAY"))
+       putenv("ESCDELAY=20");
 
 #if defined(USG)
    /* Initialize for USG Unix */
@@ -1361,54 +1365,58 @@ errr init_gcu(int argc, char *argv[])
    keymap_game_prepare();
 
 
-   /*** Now prepare the term(s) ***/
-   for (i = 0; i < num_term; i++)
-   {
-      int rows, cols;
-      int y, x;
+    /*** Now prepare the term(s)
+         Sorry, but I prefer the map window to be as large as possible. This
+         requires me to hard-code the secondary term sizes based on my preferences.
+         Probably, they should be configurable. ***/
+    {
+        const int desired_inv_cx = 60;
+        const int desired_msg_cy = 7;
+        const int spacer_cx = 1;
+        const int spacer_cy = 0;
+        const int inv_min = 30;
+        const int msg_min = 2;
 
-      switch (i)
-      {
-	 /* Upper left */
-	 case 0: rows = 27;
-	    cols = 80;
-	    y = x = 0;
-	    break;
-	 /* Lower left */
-	 case 1: rows = LINES - 28;
-	    cols = 80;
-	    y = 27;
-	    x = 0;
-	    break;
-	 /* Upper right */
-	 case 2: rows = 27;
-	    cols = COLS - 81;
-	    y = 0;
-	    x = 81;
-	    break;
-	 /* Lower right */
-	 case 3: rows = LINES - 28;
-	    cols = COLS - 81;
-	    y = 27;
-	    x = 81;
-	    break;
-	 /* XXX */
-	 default: rows = cols = 0;
-	     y = x = 0;
-	     break;
-      }
+        int map_cx = MAX(80, COLS - (desired_inv_cx + spacer_cx));
+        int map_cy = MAX(27, LINES - (desired_msg_cy + spacer_cy));
+        int inv_cx = COLS - map_cx - spacer_cx;
+        int inv_cy = MIN(map_cy, 28);
+        int msg_cx = map_cx;
+        int msg_cy = LINES - map_cy - spacer_cy;
+        int recall_cx = inv_cx;
+        int recall_cy = LINES - inv_cy;
 
-      /* No non-windows */
-      if (rows <= 0 || cols <= 0) continue;
+        int next_win = 0;
 
-      /* Initialize */
-      term_data_init(&data[next_win], rows, cols, y, x);
+        /* Map Window: Upper Left */
+        term_data_init(&data[next_win], map_cy, map_cx, 0, 0);
+        angband_term[next_win] = Term;
+        next_win++;
 
-      /* Store */
-      angband_term[next_win] = Term;
-
-      next_win++;
-   }
+        /* Messages: Lower Left */
+        if (msg_cy >= msg_min)
+        {
+            term_data_init(&data[next_win], msg_cy, msg_cx, map_cy + spacer_cy, 0);
+            angband_term[next_win] = Term;
+            next_win++;
+        }
+              
+        /* Inventory: Upper Right */
+        if (inv_cx >= inv_min)
+        {
+            term_data_init(&data[next_win], inv_cy, inv_cx, 0, map_cx + spacer_cx);
+            angband_term[next_win] = Term;
+            next_win++;
+        }
+        
+        /* Recall: Lower Right */
+        if (inv_cx >= inv_min && msg_cy >= msg_min)
+        {
+            term_data_init(&data[next_win], recall_cy, recall_cx, inv_cy + spacer_cy, map_cx + spacer_cx);
+            angband_term[next_win] = Term;
+            next_win++;
+        }        
+    }
 
    /* Activate the "Angband" window screen */
    Term_activate(&data[0].t);

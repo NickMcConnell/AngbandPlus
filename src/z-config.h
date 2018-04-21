@@ -96,7 +96,6 @@
 # define USE_GETCH
 #endif
 
-
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
@@ -196,8 +195,9 @@
 
 /* Debug options: To enable wizard commands in a custom build,
    simply remove the following #ifdef _DEBUG and #endif guards. */
-#ifdef _DEBUG
 #define ALLOW_WIZARD
+
+#ifdef _DEBUG
 #define ALLOW_SPOILERS
 #endif
 

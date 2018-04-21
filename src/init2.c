@@ -81,7 +81,9 @@
  */
 void init_file_paths(const char *configpath, const char *libpath, const char *datapath)
 {
+#ifdef NeXT  
     char *tail;
+#endif
 
 #ifdef PRIVATE_USER_PATH
     char buf[1024];
@@ -111,10 +113,11 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     /* Hack -- save the main directory */
     ANGBAND_DIR = string_make(libpath);
 
+#ifdef NeXT  
     /* Prepare to append to the Base Path */
     /* This is really suspicious code as we might sprintf to this buffer below! */
     tail = (char*)(libpath + strlen(libpath));
-
+#endif
 
 #ifdef VM
 
@@ -1502,11 +1505,6 @@ static errr init_towns(void)
 
             /* Assume full stock */
 
-        /*
-         * 我が家が 20 ページまで使える隠し機能のための準備。
-         * オプションが有効でもそうでなくても一応スペース
-         * を作っておく。
-         */
         if (j == STORE_HOME)
         {
             st_ptr->stock_size = (STORE_INVEN_MAX * 10);

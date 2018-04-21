@@ -250,7 +250,7 @@ bool fear_save_p(int ml)
     if (p_ptr->pclass == CLASS_BERSERKER) return TRUE;
     if (equip_find_artifact(ART_ARES)) return TRUE;
 
-    pl = _plev() + adj_stat_save[p_ptr->stat_ind[A_CHR]];
+    pl = _plev() + adj_stat_save_fear[p_ptr->stat_ind[A_CHR]];
     if (pl < 1) pl = 1;
 
     if (randint1(ml) <= randint1(pl)) result = TRUE;

@@ -733,6 +733,7 @@ static cptr _effect_name(int which)
     case GF_TIME: return "Time";
     case GF_OLD_DRAIN: return "Drain";
     case GF_OLD_CONF: return "Confuse";
+    case GF_CONFUSION: return "Confuse";
     case GF_STUN: return "Stun";
     case GF_DRAIN_MANA: return "Drain Mana";
     case GF_TURN_ALL: return "Terrifies";

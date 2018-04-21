@@ -438,7 +438,7 @@ bool screen_object(object_type *o_ptr, u32b mode)
     else
     {
         cptr text;
-        if (o_ptr->name1)
+        if (o_ptr->name1 && object_is_known(o_ptr))
             text = a_text + a_info[o_ptr->name1].text;
         else
             text = k_text + k_info[o_ptr->k_idx].text;
@@ -450,7 +450,7 @@ bool screen_object(object_type *o_ptr, u32b mode)
             info[i++] = "";
         }
     }
-    if (obj_has_effect(o_ptr))
+    if (obj_has_effect(o_ptr) && object_is_known(o_ptr))
     {
         char     scratch[70 * 20];
         effect_t e = obj_get_effect(o_ptr);
@@ -1507,7 +1507,7 @@ void display_equip(void)
                 attr = TERM_L_DARK;
         }
         else
-            sprintf(o_name, "");
+            sprintf(o_name, "%s", "");
 
         n = strlen(o_name);
         Term_putstr(3, r, n, attr, o_name);
@@ -2040,7 +2040,7 @@ int show_equip(int target_item, int mode)
                 out_color[k] = tval_to_attr[o_ptr->tval % 128];
         }
         else
-            sprintf(out_desc[k], "");
+            sprintf(out_desc[k], "%s", "");
 
         out_index[k] = i;
 
@@ -2622,9 +2622,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
     }
 
 
-    /*
-     * 追加オプション(always_show_list)が設定されている場合は常に一覧を表示する
-     */
     if ((always_show_list == TRUE) || use_menu) command_see = TRUE;
 
     /* Hack -- start out in "display" mode */
@@ -3653,9 +3650,6 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
         }
     }
 
-    /*
-     * 追加オプション(always_show_list)が設定されている場合は常に一覧を表示する
-     */
     if ((always_show_list == TRUE) || use_menu) command_see = TRUE;
 
     /* Hack -- start out in "display" mode */
@@ -4626,7 +4620,7 @@ void py_pickup_floor(bool pickup)
     char o_name[MAX_NLEN];
     object_type *o_ptr;
 
-    int floor_num = 0, floor_list[23], floor_o_idx = 0;
+    int floor_num = 0, floor_o_idx = 0;
 
     int can_pickup = 0;
 
@@ -4685,10 +4679,6 @@ void py_pickup_floor(bool pickup)
         {
             can_pickup++;
         }
-
-        /* Remember this object index */
-        if (floor_num < 23)
-            floor_list[floor_num] = this_o_idx;
 
         /* Count non-gold objects */
         floor_num++;

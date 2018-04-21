@@ -34,7 +34,6 @@ cptr macro_modifier_name[MAX_MACRO_MOD];
 cptr macro_trigger_name[MAX_MACRO_TRIG];
 cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
-/* レベルアップの時に上昇量を表示するのに使う */
 int level_up = 0;
 
 /* 

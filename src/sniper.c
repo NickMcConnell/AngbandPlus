@@ -430,9 +430,8 @@ static bool cast_sniper_spell(int spell)
 
 void do_cmd_snipe(void)
 {
-    int             n = 0;
-    snipe_power     spell;
-    bool            cast;
+    int  n = 0;
+    bool cast;
 
     if (p_ptr->confused)
     {
@@ -451,7 +450,6 @@ void do_cmd_snipe(void)
     }
 
     if (!get_snipe_power(&n, FALSE)) return;
-    spell = snipe_powers[n];
     sound(SOUND_SHOOT);
     cast = cast_sniper_spell(n);
     if (!cast) return;

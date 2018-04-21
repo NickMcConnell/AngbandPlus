@@ -765,7 +765,6 @@ int main(int argc, char *argv[])
 	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
 
-
 	/* Catch nasty signals */
 	signals_init();
 
@@ -775,7 +774,7 @@ int main(int argc, char *argv[])
 	/* Wait for response */
 	pause_line(23);
 
-	/* Play the game */
+        /* Play the game */
 	play_game(new_game);
 
 	/* Quit */

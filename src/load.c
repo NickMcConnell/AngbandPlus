@@ -311,6 +311,9 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
         case SAVE_MON_PARALYZED:
             m_ptr->paralyzed = savefile_read_s16b(file);
             break;
+        case SAVE_MON_ANGER_CT:
+            m_ptr->anger_ct = savefile_read_byte(file);
+            break;
         /* default:
             TODO: Report an error back to the load routine!!*/
         }
@@ -679,8 +682,8 @@ static void rd_extra(savefile_ptr file)
     for (i = 0; i < 64; i++) p_ptr->spell_turn[i] = savefile_read_s32b(file);
     for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) p_ptr->weapon_exp[i][j] = savefile_read_s16b(file);
     for (i = 0; i < 10; i++) p_ptr->skill_exp[i] = savefile_read_s16b(file);
-    for (i = 0; i < 108; i++) p_ptr->magic_num1[i] = savefile_read_s32b(file);
-    for (i = 0; i < 108; i++) p_ptr->magic_num2[i] = savefile_read_byte(file);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num1[i] = savefile_read_s32b(file);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num2[i] = savefile_read_byte(file);
     if (music_singing_any()) p_ptr->action = ACTION_SING;
 
     p_ptr->start_race = savefile_read_byte(file);
@@ -1833,6 +1836,11 @@ bool load_floor(saved_floor_type *sf_ptr, u32b mode)
         safe_setuid_grab();
         fd_kill(floor_savefile);
         safe_setuid_drop();
+    }
+    
+    if (!ok)
+    {
+        msg_print("Software bug in load_floor: All is *not* OK!");
     }
 
     return TRUE;

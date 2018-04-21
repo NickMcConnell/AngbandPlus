@@ -1468,7 +1468,7 @@ void equip_on_init(void)
 void equip_on_load(void)
 {
     int i, ct = 0;
-    object_type temp[EQUIP_MAX_SLOTS] = {0};
+    object_type temp[EQUIP_MAX_SLOTS] = {{0}};
 
     for (i = 0; i < EQUIP_MAX_SLOTS; i++)
     {

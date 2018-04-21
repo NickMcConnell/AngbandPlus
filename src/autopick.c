@@ -19,7 +19,7 @@
 /*
  * Macros for Keywords
  */
-static enum _keyword_e {
+enum _keyword_e {
     FLG_ALL = 0,
     FLG_UNAWARE,
     FLG_UNIDENTIFIED,

@@ -844,7 +844,6 @@ void do_cmd_power(void)
     spell_info spells[MAX_SPELLS];
     int ct = 0; 
     int choice = 0;
-    bool fail = FALSE;
     race_t *race_ptr = get_race_t();
     class_t *class_ptr = get_class_t();
     
@@ -909,7 +908,6 @@ void do_cmd_power(void)
         /* Check for Failure */
         if (randint0(100) < spell->fail)
         {
-            fail = TRUE;
             spell_stats_on_fail(spell);
             sound(SOUND_FAIL); /* Doh! */
             fail_spell(spell->fn);

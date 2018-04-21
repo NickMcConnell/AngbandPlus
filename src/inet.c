@@ -35,7 +35,7 @@ static InetSvcRef inet_services = nil;
 static EndpointRef ep 		= kOTInvalidEndpointRef;
 #endif
 
-#if 0 /* とりあえず現在は使わない。by Habu*/
+#if 0
 static char	*homeurl;
 
 void
@@ -99,7 +99,6 @@ int soc_read(int sd, char *buf, size_t sz)
 
 #endif /* if 0 */
 
-/* プロキシサーバのアドレスををファイルから読んで設定する */
 void set_proxy(char *default_url, int default_port)
 {
 	char buf[1024];
@@ -114,12 +113,10 @@ void set_proxy(char *default_url, int default_port)
 
 	path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, "proxy.prf");
 
-	/* ファイルから設定を読む。 */
 	fp = my_fopen(buf, "r");
 
 	if (!fp)
 	{
-		/* ファイルが存在しない場合はデフォルトを設定 */
 		proxy = default_url;
 		proxy_port = default_port;
 		return;
@@ -132,10 +129,8 @@ void set_proxy(char *default_url, int default_port)
 
 	my_fclose(fp);
 
-	/* ポインタを用意。 */
 	s = buf;
 
-	/* "http://" から始まっている場合はその部分をカットする。 */
 #if defined(WINDOWS)
 	if (!strnicmp(s, "http://", 7))
 	{
@@ -159,11 +154,9 @@ void set_proxy(char *default_url, int default_port)
 	}
 #endif
 
-	/* 文字列の長さを調べ、必要なメモリを確保 */
 	len = strlen(s);
 	proxy = malloc(len + 1);
 
-	/* ポート番号があるかどうかを調べ、あればproxy_portに設定。 */
 	--len;
 	while (len > 0 && isdigit(s[len]))
 		--len;
@@ -179,14 +172,12 @@ void set_proxy(char *default_url, int default_port)
 		proxy_port = default_port;
 	}
 
-	/* プロキシのアドレスをproxyにコピー */
 	strcpy(proxy, s);
 
 	if (proxy_port == 0)
 		proxy_port = 80;
 }
 
-/* ソケットにバッファの内容を書き込む */
 int soc_write(int sd, char *buf, size_t sz)
 {
 #ifndef MACINTOSH
@@ -215,7 +206,7 @@ int soc_write(int sd, char *buf, size_t sz)
 	return sz;
 }
 
-#if 0 /* おそらく使わない */
+#if 0
 int soc_write_str(int sd, char *buf)
 {
 	return soc_write(sd, buf, strlen(buf));
@@ -233,13 +224,11 @@ static void restore_signal(void)
 #if !defined(WINDOWS) && !defined(MACINTOSH)
 	struct itimerval	val0;
 
-	/* itimerリセット用 */
 	val0.it_interval.tv_sec = 0;
 	val0.it_interval.tv_usec = 0;
 	val0.it_value.tv_sec = 0;
 	val0.it_value.tv_usec = 0;
 
-	/* アラーム解除 */
 	setitimer(ITIMER_REAL, &val0, NULL);
 	signal(SIGALRM, sig_alm_saved);
 	signal(SIGINT, sig_int_saved);
@@ -256,7 +245,6 @@ static void interrupt_report(int sig)
 #endif
 
 
-/* サーバにコネクトする関数。 */
 int connect_server(int timeout, const char *host, int port)
 #ifndef MACINTOSH
 {
@@ -268,13 +256,11 @@ int connect_server(int timeout, const char *host, int port)
 	struct itimerval	val;
 	int			ret;
 
-	/* itimer設定用 */
 	val.it_interval.tv_sec = 0;
 	val.it_interval.tv_usec = 0;
 	val.it_value.tv_sec = timeout;
 	val.it_value.tv_usec = 0;
 
-	/* タイムアウト、もしくは中断した時の処理。 */
 	if ((ret = sigsetjmp(env,1)) != 0)
 	{
 		if (ret == SIGALRM)
@@ -286,14 +272,12 @@ int connect_server(int timeout, const char *host, int port)
 	sig_int_saved = signal(SIGINT, interrupt_report);
 	sig_alm_saved = signal(SIGALRM, interrupt_report);
 
-	/* タイムアウトの時間を設定 */
 	setitimer(ITIMER_REAL, &val, NULL);
 #else
 	/* Unused in Windows */
 	(void)timeout;
 #endif
 
-	/* プロキシが設定されていればプロキシに繋ぐ */
 	if (proxy && proxy[0])
 	{
 		if ((hp = gethostbyname(proxy)) == NULL)
@@ -354,7 +338,6 @@ int connect_server(int timeout, const char *host, int port)
 
 #else /* !MACINTOSH */
 
-        /* サーバにコネクトする関数。 Mac */
 {
 	OSStatus err;
 	InetHostInfo 	response;

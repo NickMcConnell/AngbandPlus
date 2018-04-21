@@ -30,25 +30,68 @@ static cptr wd_his[3] =
 #define plural(c,s,p) \
     (((c) == 1) ? (s) : (p))
 
+/* 
+Monster saving throws versus player attacks.
 
-/* Monster saving throws versus player attacks */
+I changed this to competing dice rolls. Evaluating this
+change is best done in a spread sheet, but here is a sample
+assuming end game max player power (CL50 + max save stat):
+
+ML MSave	Old MSave
+10	6.1%	0%
+20	11.7%	0%
+30	17.2%	0%
+40	22.8%	0%
+50	28.3%	10%
+60	33.9%	20%
+70	39.4%	30%
+80	45.0%	40%
+90	50.6%	50%
+100	55.5%	60%
+110	59.5%	70%
+120	62.9%	80%
+130	65.8%	90%
+140	68.2%	100%
+150	70.3%	100%
+
+The player is now slightly less overwhelming vs. weaker monsters
+while end game uniques keep their nearly 60% fail (Serpent goes from
+power 100 to 127 with this change so his save goes from 60% to 65%).
+ */
+
+static int _r_level(int r_idx)
+{
+    monster_race *r_ptr = &r_info[r_idx];
+    int           ml = r_ptr->level;
+
+    if (r_ptr->flags1 & RF1_UNIQUE)
+        ml += ml/5;
+    
+    if (r_ptr->flags2 & RF2_POWERFUL)
+        ml += 7;
+
+    if (ml < 1)
+        ml = 1;
+
+    return ml;
+}
+
 bool mon_save_p(int r_idx, int stat)
 {
-    int pl = p_ptr->lev * 2;
-    int ml = r_info[r_idx].save_level;
-    int s = 0;
+    int  pl = p_ptr->lev;
+    int  ml = _r_level(r_idx);
+    bool result = FALSE;
+    
+    if (stat >= 0 && stat < 6) 
+        pl += adj_stat_save[p_ptr->stat_ind[stat]];
 
-    if (!ml)
-        ml = r_info[r_idx].level;
+    if (pl < 1)
+        pl = 1;
 
-    /* Use linearized player stat for the power */
-    if (stat >= 0 && stat < 6) s = p_ptr->stat_ind[stat] + 3;
-
-    /*if (p_ptr->wizard)
-        msg_format("MonSave: %d +d100 > %d + %d?", ml, pl, s);*/
-
-    if (ml + randint1(100) > pl + s) return TRUE;
-    return FALSE;
+    if (randint1(pl) <= randint1(ml)) 
+        result = TRUE;
+    
+    return result;
 }
 
 /*
@@ -1883,13 +1926,24 @@ bool mon_hook_dungeon(int r_idx)
     }
 }
 
+static bool _mon_hook_wild_daytime_check(int r_idx)
+{
+    bool result = TRUE;
+    if (is_daytime())
+    {
+        monster_race *r_ptr = &r_info[r_idx];
+        if (r_ptr->flags3 & RF3_HURT_LITE)
+            return FALSE;
+    }
+    return result;
+}
 
 static bool mon_hook_ocean(int r_idx)
 {
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & RF8_WILD_OCEAN)
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1900,7 +1954,7 @@ static bool mon_hook_shore(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & RF8_WILD_SHORE)
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1911,7 +1965,7 @@ static bool mon_hook_waste(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & (RF8_WILD_WASTE | RF8_WILD_ALL))
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1922,7 +1976,7 @@ static bool mon_hook_town(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & (RF8_WILD_TOWN | RF8_WILD_ALL))
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1933,7 +1987,7 @@ static bool mon_hook_wood(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & (RF8_WILD_WOOD | RF8_WILD_ALL))
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1944,7 +1998,7 @@ static bool mon_hook_volcano(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & RF8_WILD_VOLCANO)
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1955,7 +2009,7 @@ static bool mon_hook_mountain(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & RF8_WILD_MOUNTAIN)
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1966,7 +2020,7 @@ static bool mon_hook_grass(int r_idx)
     monster_race *r_ptr = &r_info[r_idx];
 
     if (r_ptr->flags8 & (RF8_WILD_GRASS | RF8_WILD_ALL))
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1979,7 +2033,7 @@ static bool mon_hook_deep_water(int r_idx)
     if (!mon_hook_dungeon(r_idx)) return FALSE;
 
     if (r_ptr->flags7 & RF7_AQUATIC)
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }
@@ -1994,7 +2048,7 @@ static bool mon_hook_shallow_water(int r_idx)
     if (r_ptr->flags2 & RF2_AURA_FIRE)
         return FALSE;
     else
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
 }
 
 
@@ -2007,7 +2061,7 @@ static bool mon_hook_lava(int r_idx)
     if (((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
          (r_ptr->flags7 & RF7_CAN_FLY)) &&
         !(r_ptr->flags3 & RF3_AURA_COLD))
-        return TRUE;
+        return _mon_hook_wild_daytime_check(r_idx);
     else
         return FALSE;
 }

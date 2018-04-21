@@ -31,7 +31,6 @@ extern cptr macro_trigger_name[MAX_MACRO_TRIG];
 extern cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 
-/* 日本語版機能追加で使う */
 extern int level_up;
 
 /* 
@@ -61,6 +60,7 @@ extern byte adj_gold[];
 extern byte adj_pseudo_id[];
 extern byte adj_exp_gain[];
 extern s16b adj_fear_m[];
+extern s16b adj_stat_save_fear[];
 extern s16b adj_stat_save[];
 extern byte warlock_damage_sides[];
 extern byte adj_int_dev[];
@@ -1500,6 +1500,7 @@ extern bool get_check_strict(cptr prompt, int mode);
 extern bool get_com(cptr prompt, char *command, bool z_escape);
 extern s16b get_quantity(cptr prompt, int max);
 extern void pause_line(int row);
+extern void pause_line_aux(cptr prompt, int row, int col);
 extern void request_command(int shopping);
 extern bool is_a_vowel(int ch);
 extern int get_keymap_dir(char ch);
@@ -1970,6 +1971,7 @@ extern bool multiply_barrier(int m_idx);
 
 /* races.c */
 extern int get_race_idx(cptr name);
+extern bool prace_is_(int which);
 extern race_t *get_race_t(void);      /* Actual Race (cf Mimics) */
 extern race_t *get_true_race_t(void); /* True Race */
 extern race_t *get_race_t_aux(int prace, int psubrace);

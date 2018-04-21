@@ -70,7 +70,7 @@ bool stop_hex_spell(void)
         {
             int n = 0;
             Term_erase(x, y, 255);
-            prt("     Ì¾Á°", y, x + 5);
+            prt("       ", y, x + 5);
             for (spell = 0; spell < 32; spell++)
             {
                 if (hex_spelling(spell))

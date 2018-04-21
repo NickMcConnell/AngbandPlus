@@ -3748,21 +3748,15 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 
                         if (anger && tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
                         {
-                            if (!(m_ptr->smart & SM_TICKED_OFF))
+                            if (mut_present(MUT_PEERLESS_SNIPER))
                             {
-                                if (mut_present(MUT_PEERLESS_SNIPER))
-                                {
-                                }
-                                else if (p_ptr->tim_stealthy_snipe)
-                                {
-                                }
-                                else
-                                {
-                                    char m_name[80];
-                                    monster_desc(m_name, m_ptr, 0);
-                                    msg_format("%^s is ticked off!", m_name);
-                                    m_ptr->smart |= SM_TICKED_OFF;
-                                }
+                            }
+                            else if (p_ptr->tim_stealthy_snipe)
+                            {
+                            }
+                            else
+                            {
+                                m_ptr->anger_ct++;
                             }
                         }
 

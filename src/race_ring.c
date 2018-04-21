@@ -1048,8 +1048,7 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
         sprintf(info, "%s", do_effect(&effect, SPELL_INFO, _boost(s->effect)));
 
         sprintf(buf, "%-30.30s %3d %3d %3d%% ", name, s->level, s->cost, s->fail);
-        if (info)
-            strcat(buf, info);
+        strcat(buf, info);
         var_set_string(res, buf);
         break;            
     }
@@ -1501,8 +1500,7 @@ static void _dump_effects(FILE* fff)
                 sprintf(buf, "%-30.30s %3d %3d %3d %3d%% ", 
                               name, _effects[s->effect], s->level, _calculate_cost(s->effect, s->cost), 
                               calculate_fail_rate(s->level, s->fail, p_ptr->stat_ind[A_INT]));
-                if (info)
-                    strcat(buf, info);
+                strcat(buf, info);
 
                 if (!ct)
                 {

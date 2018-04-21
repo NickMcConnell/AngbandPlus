@@ -772,6 +772,7 @@ struct monster_type
     byte ego_whip_ct;
     byte ego_whip_pow;
     byte anti_magic_ct;
+    byte anger_ct;
 
     u32b forgot4;
     u32b forgot5;
@@ -1020,7 +1021,7 @@ struct player_seikaku
 
     s16b life;
 
-    byte XXX;            /* ¤Î */
+    byte XXX;            
     byte sex;            /* seibetu seigen */
 
     s16b a_exp;
@@ -1307,6 +1308,7 @@ struct player_type
     s16b elaborate_defense;
     s16b cloak_of_shadows;
     bool lightning_reflexes;
+    bool clear_mind;
     
     bool ambush;
     bool peerless_stealth;
@@ -1386,8 +1388,8 @@ struct player_type
     s16b weapon_exp[5][64];   /* Proficiency of weapons */
     s16b skill_exp[10];       /* Proficiency of misc. skill */
 
-    s32b magic_num1[108];     /* Array for non-spellbook type magic */
-    byte magic_num2[108];     /* Flags for non-spellbook type magics */
+    s32b magic_num1[MAX_MAGIC_NUM];     /* Array for non-spellbook type magic */
+    byte magic_num2[MAX_MAGIC_NUM];     /* Flags for non-spellbook type magics */
 
     s16b mane_spell[MAX_MANE];
     s16b mane_dam[MAX_MANE];

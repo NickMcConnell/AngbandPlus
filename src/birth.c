@@ -2141,7 +2141,7 @@ static void player_wipe(void)
     p_ptr->visit = 1;
     p_ptr->wild_mode = FALSE;
 
-    for (i = 0; i < 108; i++)
+    for (i = 0; i < MAX_MAGIC_NUM; i++)
     {
         p_ptr->magic_num1[i] = 0;
         p_ptr->magic_num2[i] = 0;
@@ -2628,9 +2628,9 @@ static byte player_init[MAX_CLASS][3][2] =
     },
     {
         /* Duelist */
-        { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+        { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
         { TV_SWORD, SV_RAPIER },
-        { TV_GLOVES, SV_SET_OF_GAUNTLETS },
+        { TV_POTION, SV_POTION_SPEED },
     },
     {
         /* Wild-Talent */

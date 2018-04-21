@@ -1264,7 +1264,6 @@ static errr Infofnt_prepare(XFontStruct *info)
 		if(ascent < (*fontinfo)->ascent) ascent = (*fontinfo)->ascent;
 		if(descent < (*fontinfo)->descent) descent = (*fontinfo)->descent;
 		if(((*fontinfo)->max_byte1) > 0){
-			/* 多バイト文字の場合は幅半分(端数切り上げ)で評価する */
 			if(width < (cs->width+1)/2) width = (cs->width+1)/2;
 		}else{
 			if(width < cs->width) width = cs->width;

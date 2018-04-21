@@ -1811,7 +1811,7 @@ void sound(int val)
  */
 static char inkey_aux(void)
 {
-    int k = 0, n, p = 0, w = 0;
+    int k = 0, n, p = 0, w = 0, max_delay = 100;
 
     char ch;
 
@@ -1819,7 +1819,6 @@ static char inkey_aux(void)
 
     char *buf = inkey_macro_trigger_string;
 
-    /* Hack : キー入力待ちで止まっているので、流れた行の記憶は不要。 */
     num_more = 0;
 
     if (parse_macro)
@@ -1861,7 +1860,17 @@ static char inkey_aux(void)
     /* No macro pending */
     if (k < 0) return (ch);
 
-
+#ifdef USE_GCU
+    /* curses sends many single keystrokes as escape sequences, and we
+     * use macros to handle these (see pref-gcu.prf). For example, pressing '2'
+     * on the number pad comes as the three character sequence \e[B. If we
+     * aren't careful, then the game will pause when the user really just types
+     * escape. For the longest time, I was convinced this had to do with ESCDELAY
+     * in ncurses. Alas, the culprit is our macro processing system! */
+    if (ch == 27)
+        max_delay = 10;
+#endif 
+    
     /* Wait for a macro, or a timeout */
     while (TRUE)
     {
@@ -1889,7 +1898,7 @@ static char inkey_aux(void)
             w += 10;
 
             /* Excessive delay */
-            if (w >= 100) break;
+            if (w >= max_delay) break;
 
             /* Delay */
             Term_xtra(TERM_XTRA_DELAY, w);
@@ -2533,7 +2542,7 @@ void message_add(cptr str)
         }
 
         /* Limit the multiplier to 1000 */
-        if (buf && streq(buf, str) && (j < 1000))
+        if (streq(buf, str) && (j < 1000))
         {
             j++;
 
@@ -2552,7 +2561,7 @@ void message_add(cptr str)
         }
         else
         {
-            num_more++;/*流れた行の数を数えておく */
+            num_more++;
             now_message++;
         }
 
@@ -2750,13 +2759,13 @@ static void msg_flush(int x)
         {
             int cmd = inkey();
             if (cmd == ESCAPE) {
-                num_more = -9999; /*auto_moreのとき、全て流す。 */
+                num_more = -9999;
                 break;
             } else if (cmd == ' ') {
-                num_more = 0; /*１画面だけ流す。 */
+                num_more = 0;
                 break;
             } else if ((cmd == '\n') || (cmd == '\r')) {
-                num_more--; /*１行だけ流す。 */
+                num_more--;
                 break;
             }
             if (quick_messages) break;
@@ -3694,13 +3703,18 @@ s16b get_quantity(cptr prompt, int max)
 /*
  * Pause for user response XXX XXX XXX
  */
-void pause_line(int row)
+void pause_line_aux(cptr prompt, int row, int col)
 {
     prt("", row, 0);
-    put_str("[Press any key to continue]", row, 23);
+    put_str(prompt, row, col);
 
     (void)inkey();
     prt("", row, 0);
+}
+
+void pause_line(int row)
+{
+    pause_line_aux("[Press any key to continue]", row, 23);
 }
 
 

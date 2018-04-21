@@ -754,6 +754,7 @@ void do_cmd_messages(int num_now)
 }
 
 
+#ifdef ALLOW_WIZARD
 
 /*
  * Number of cheating options
@@ -911,7 +912,7 @@ static void do_cmd_options_cheat(cptr info)
         }
     }
 }
-
+#endif
 
 static option_type autosave_info[2] =
 {
@@ -4351,7 +4352,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
     tmpfff = my_fopen(buf, "r");
     if (!tmpfff) {
         for (i = 0; html_head[i]; i++)
-            fprintf(fff, html_head[i]);
+            fprintf(fff, "%s", html_head[i]);
     }
     else {
         yomikomu = 0;
@@ -4413,7 +4414,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 
     if (!tmpfff) {
         for (i = 0; html_foot[i]; i++)
-            fprintf(fff, html_foot[i]);
+            fprintf(fff, "%s", html_foot[i]);
     }
     else {
         rewind(tmpfff);
@@ -6694,7 +6695,7 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
 {
     int i, len, max;
     int grp_cur, grp_top, old_grp_cur;
-    int ego_old, ego_cur, ego_top;
+    int ego_cur, ego_top;
     int grp_cnt, grp_idx[100];
     int ego_cnt;
     int *ego_idx;
@@ -6726,7 +6727,6 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
     }
     grp_idx[grp_cnt] = -1;
 
-    ego_old = -1;
     ego_cnt = 0;
 
     old_grp_cur = -1;
@@ -7805,12 +7805,12 @@ static void do_cmd_knowledge_quests_current(FILE *fff)
                 sprintf(tmp_str, "  %s (Danger level: %d)%s\n",
                     quest[i].name, quest[i].level, note);
 
-                fprintf(fff, tmp_str);
+                fprintf(fff, "%s", tmp_str);
 
                 if (quest[i].status == QUEST_STATUS_COMPLETED)
                 {
                     sprintf(tmp_str, "    Quest Completed - Unrewarded\n");
-                    fprintf(fff, tmp_str);
+                    fprintf(fff, "%s", tmp_str);
                 }
                 else
                 {
@@ -7853,7 +7853,7 @@ static void do_cmd_knowledge_quests_current(FILE *fff)
     }
 
     /* Print the current random quest  */
-    if (rand_tmp_str[0]) fprintf(fff, rand_tmp_str);
+    if (rand_tmp_str[0]) fprintf(fff, "%s", rand_tmp_str);
 
     if (!total) fprintf(fff, "  Nothing.\n");
 }
@@ -7923,7 +7923,7 @@ void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
                     quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
             }
 
-            fprintf(fff, tmp_str);
+            fprintf(fff, "%s", tmp_str);
         }
     }
     if (!total) fprintf(fff, "  Nothing.\n");
@@ -7988,7 +7988,7 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
                 sprintf(tmp_str, "  %-40s (Danger  level: %3d) - level %2d\n",
                     quest[q_idx].name, quest[q_idx].level, quest[q_idx].complev);
             }
-            fprintf(fff, tmp_str);
+            fprintf(fff, "%s", tmp_str);
         }
     }
     if (!total) fprintf(fff, "  Nothing.\n");
@@ -8042,7 +8042,7 @@ static void do_cmd_knowledge_quests_wiz_random(FILE *fff, int quest_num[])
                 sprintf(tmp_str, "  (Lev: %d) Kill %s.\n",
                     q_ptr->level, r_name+r_ptr->name);
             }
-            fprintf(fff, tmp_str);
+            fprintf(fff, "%s", tmp_str);
         }
     }
     if (!total) fprintf(fff, "  Nothing.\n");

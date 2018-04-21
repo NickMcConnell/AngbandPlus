@@ -544,7 +544,7 @@ static int _choose_mimic_form(void)
 {
     int             r_idx = -1;
     int             i;
-    _choice_array_t choices = {0};
+    _choice_array_t choices = {{{0}}};
 
     /* List Known Forms */
     for (i = 0; i < _MAX_FORMS; i++)
@@ -599,7 +599,7 @@ static int _choose_new_slot(int new_r_idx)
 {
     int             slot = -1;
     int             i;
-    _choice_array_t choices = {0};
+    _choice_array_t choices = {{{0}}};
 
     /* Display the Newly Learned Form */
     assert(new_r_idx);

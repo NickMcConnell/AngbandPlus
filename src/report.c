@@ -228,7 +228,6 @@ static void http_post(int sd, cptr url, BUF *buf)
 }
 
 
-/* キャラクタダンプを作って BUFに保存 */
 static errr make_dump(BUF* dumpbuf)
 {
 	char		buf[1024];
@@ -244,7 +243,6 @@ static errr make_dump(BUF* dumpbuf)
 		return 1;
 	}
 
-	/* 一旦一時ファイルを作る。通常のダンプ出力と共通化するため。 */
 	(void)make_character_dump(fff);
 
 	/* Close the file */
@@ -474,7 +472,6 @@ errr report_score(void)
 		prt("connecting...", 0, 0);
 		Term_fresh();
 		
-		/* プロキシを設定する */
 		set_proxy(HTTP_PROXY, HTTP_PROXY_PORT);
 
 		/* Connect to the score server */

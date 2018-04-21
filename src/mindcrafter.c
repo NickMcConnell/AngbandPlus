@@ -579,6 +579,7 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
+    if (p_ptr->lev >= 15) p_ptr->clear_mind = TRUE;
     if (p_ptr->lev >= 10) res_add(RES_FEAR);
     if (p_ptr->lev >= 20) p_ptr->sustain_wis = TRUE;
     if (p_ptr->lev >= 30) res_add(RES_CONF);

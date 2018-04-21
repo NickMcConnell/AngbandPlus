@@ -2015,13 +2015,7 @@ bool make_attack_normal(int m_idx)
 
     if (ht_cnt == 0 && !p_ptr->is_dead && allow_ticked_off(r_ptr) && one_in_(2))
     {
-        if (!(m_ptr->smart & SM_TICKED_OFF))
-        {
-            char m_name[80];
-            monster_desc(m_name, m_ptr, 0);
-            msg_format("%^s is ticked off!", m_name);
-            m_ptr->smart |= SM_TICKED_OFF;
-        }
+        m_ptr->anger_ct++;
     }
 
     /* Blink away */

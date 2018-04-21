@@ -1769,8 +1769,8 @@ void prt_path(int y, int x)
             byte a = default_color;
             char c;
 
-            byte ta;
-            char tc;
+            byte ta = 0;
+            char tc = 0;
 
             if (c_ptr->m_idx && m_list[c_ptr->m_idx].ml)
             {
@@ -3277,11 +3277,11 @@ void update_mon_lite(void)
         {
             if (p_ptr->monlite)
             {
-                msg_print("Your mantle of shadow become thin.");
+                msg_print("Your mantle of shadow becomes thin.");
             }
             else
             {
-                msg_print("Your mantle of shadow restored its original darkness.");
+                msg_print("Your mantle of shadow is restored to its original darkness.");
             }
         }
     }
@@ -3387,6 +3387,9 @@ static bool update_view_aux(int y, int x, int y1, int x1, int y2, int x2)
 
     cave_type *g1_c_ptr;
     cave_type *g2_c_ptr;
+
+    assert(in_bounds2(y1, x1));
+    assert(in_bounds2(y2, x2));
 
     /* Access the grids */
     g1_c_ptr = &cave[y1][x1];
@@ -3581,12 +3584,12 @@ void update_view(void)
     /*** Initialize ***/
 
     /* Optimize */
-    if (view_reduce_view && !dun_level && p_ptr->town_num)
+    if (view_reduce_view && !dun_level && p_ptr->town_num && !p_ptr->inside_arena && !p_ptr->inside_battle && !p_ptr->inside_quest)
     {
-        /* Full radius (10) */
-        full = MAX_SIGHT / 2;
+        /* Full radius (4) */
+        full = MAX_SIGHT / 5;
 
-        /* Octagon factor (15) */
+        /* Octagon factor (3) */
         over = MAX_SIGHT * 3 / 4;
     }
 
@@ -3651,7 +3654,7 @@ void update_view(void)
     /* Scan south-east */
     for (d = 1; d <= z; d++)
     {
-        if (!in_bounds(y+d, x+d)) break;
+        if (!in_bounds2(y+d, x+d)) break;
         c_ptr = &cave[y+d][x+d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y+d, x+d);
@@ -3661,7 +3664,7 @@ void update_view(void)
     /* Scan south-west */
     for (d = 1; d <= z; d++)
     {
-        if (!in_bounds(y+d, x-d)) break;
+        if (!in_bounds2(y+d, x-d)) break;
         c_ptr = &cave[y+d][x-d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y+d, x-d);
@@ -3671,7 +3674,7 @@ void update_view(void)
     /* Scan north-east */
     for (d = 1; d <= z; d++)
     {
-        if (!in_bounds(y-d, x+d)) break;
+        if (!in_bounds2(y-d, x+d)) break;
         c_ptr = &cave[y-d][x+d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y-d, x+d);
@@ -3681,7 +3684,7 @@ void update_view(void)
     /* Scan north-west */
     for (d = 1; d <= z; d++)
     {
-        if (!in_bounds(y-d, x-d)) break;
+        if (!in_bounds2(y-d, x-d)) break;
         c_ptr = &cave[y-d][x-d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y-d, x-d);
@@ -3694,7 +3697,7 @@ void update_view(void)
     /* Scan south */
     for (d = 1; d <= full; d++)
     {
-        if (!in_bounds(y+d, x)) break;
+        if (!in_bounds2(y+d, x)) break;
         c_ptr = &cave[y+d][x];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y+d, x);
@@ -3707,7 +3710,7 @@ void update_view(void)
     /* Scan north */
     for (d = 1; d <= full; d++)
     {
-        if (!in_bounds(y-d, x)) break;
+        if (!in_bounds2(y-d, x)) break;
         c_ptr = &cave[y-d][x];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y-d, x);
@@ -3720,7 +3723,7 @@ void update_view(void)
     /* Scan east */
     for (d = 1; d <= full; d++)
     {
-        if (!in_bounds(y, x+d)) break;
+        if (!in_bounds2(y, x+d)) break;
         c_ptr = &cave[y][x+d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y, x+d);
@@ -3733,7 +3736,7 @@ void update_view(void)
     /* Scan west */
     for (d = 1; d <= full; d++)
     {
-        if (!in_bounds(y, x-d)) break;
+        if (!in_bounds2(y, x-d)) break;
         c_ptr = &cave[y][x-d];
         c_ptr->info |= (CAVE_XTRA);
         cave_view_hack(c_ptr, y, x-d);
@@ -5125,9 +5128,6 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
     int nx, ny;
 
-    /* Unused */
-    m = m;
-
     /* Pick a location */
     while (TRUE)
     {
@@ -5209,9 +5209,6 @@ void object_kind_track(int k_idx)
  */
 void disturb(int stop_search, int unused_flag)
 {
-    /* Unused */
-    unused_flag = unused_flag;
-
     /* Cancel auto-commands */
     /* command_new = 0; */
 

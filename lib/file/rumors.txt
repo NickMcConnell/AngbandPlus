@@ -289,7 +289,7 @@ Are you really suffering withdrawal symptoms and want something crushable?
 Smaug and alcohol may disturb your .. was it sanity, courage or boredom?
 Ha, treasures! Like all vaults it was full of depths and dangers.
 The benefits of alchemy are my marriage, danger is my passion.
-Any dungeons offer mazes. But don't they lack the ZAngband sense of humor?
+Any dungeons offer mazes. But don't they lack the PosChengband sense of humor?
 Bodychecks, bodycounts itching all my ways but the awful software bugs...
 Be constantly on guard, joker, don't take anything at face value.
 Which is better: mind blast or mind wash? Will lost memories return gradually?
@@ -512,7 +512,7 @@ Selling blessed weapons to a sympathizing temple is not too bad an idea.
 I'd prefer ball sorcery or breath ability to mass genocide for good reason.
 Scrolls of genocide will extinct annoying monster races from your level area.
 *Destruction* will cause a 15x15 area to change completely, but you undamaged.
-There are mostly only rumors about the effects of rarer ZAngband items.
+There are mostly only rumors about the effects of rarer PosChengband items.
 What does NETHER mean? The (arch.) N. regions are the world of the dead/hell.
 What does NEXUS mean? It refers to connexion/bond. Location/stats get unstable.
 Such a Blade of Chaos (chaotic) is quite a rare and precious finding.
@@ -645,4 +645,4 @@ Some say the RNG itself lurks deep in the caverns.
 They say some space monsters are not what they appear to be.
 Never read a scroll that asks you to use an item.
 There is a powerful spell which can remove even the strongest curses...
-You feel the Windows (2000) on your hard disk is broken...
+You feel the Windows 8 on your hard disk is broken...

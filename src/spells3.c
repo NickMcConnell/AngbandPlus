@@ -523,6 +523,8 @@ void teleport_player_away(int m_idx, int dis)
 void teleport_player_to(int ny, int nx, u32b mode)
 {
     int y, x, dis = 0, ctr = 0;
+    int attempt = 0;
+    const int max_attempts = 10 * 1000;
 
     if (p_ptr->anti_tele && !(mode & TELEPORT_NONMAGICAL))
     {
@@ -540,6 +542,13 @@ void teleport_player_to(int ny, int nx, u32b mode)
             y = rand_spread(ny, dis);
             x = rand_spread(nx, dis);
             if (in_bounds(y, x)) break;
+        }
+
+        ++attempt;
+        if (attempt >= max_attempts)
+        {
+            msg_print("There is no effect!");
+            return;
         }
 
         /* Accept any grid when wizard mode */

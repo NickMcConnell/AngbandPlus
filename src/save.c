@@ -301,6 +301,11 @@ static void wr_monster(savefile_ptr file, monster_type *m_ptr)
         savefile_write_byte(file, SAVE_MON_PARALYZED);
         savefile_write_s16b(file, m_ptr->paralyzed);
     }
+    if (m_ptr->anger_ct)
+    {
+        savefile_write_byte(file, SAVE_MON_ANGER_CT);
+        savefile_write_byte(file, m_ptr->anger_ct);
+    }
 
     savefile_write_byte(file, SAVE_MON_DONE);
 }
@@ -520,8 +525,8 @@ static void wr_extra(savefile_ptr file)
     for (i = 0; i < 64; i++) savefile_write_s32b(file, p_ptr->spell_turn[i]);
     for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) savefile_write_s16b(file, p_ptr->weapon_exp[i][j]);
     for (i = 0; i < 10; i++) savefile_write_s16b(file, p_ptr->skill_exp[i]);
-    for (i = 0; i < 108; i++) savefile_write_s32b(file, p_ptr->magic_num1[i]);
-    for (i = 0; i < 108; i++) savefile_write_byte(file, p_ptr->magic_num2[i]);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_s32b(file, p_ptr->magic_num1[i]);
+    for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_byte(file, p_ptr->magic_num2[i]);
 
     savefile_write_byte(file, p_ptr->start_race);
     savefile_write_s32b(file, p_ptr->old_race1);

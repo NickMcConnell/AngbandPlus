@@ -640,7 +640,8 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _gain_level(int new_level)
 {
-    chaos_warrior_reward();
+    if (new_level > 1)
+        chaos_warrior_reward();
 }
 
 static caster_info * _caster_info(void)

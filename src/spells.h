@@ -41,6 +41,7 @@ extern bool cast_alchemy(void);
 extern bool cast_banish_evil(void);
 extern bool cast_berserk(void);
 extern bool cast_breathe_fire_I(void);
+extern bool cast_clear_mind(void);
 extern bool cast_cold_touch(void);
 extern bool cast_create_food(void);
 extern bool cast_dazzle(void);

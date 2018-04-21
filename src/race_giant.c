@@ -358,11 +358,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
 
                     if (dam > 0 && m_ptr2->cdis > 1 && allow_ticked_off(r_ptr))
                     {
-                        if (!(m_ptr->smart & SM_TICKED_OFF))
-                        {
-                            msg_format("%^s is ticked off!", m_name2);
-                            m_ptr2->smart |= SM_TICKED_OFF;
-                        }
+                        m_ptr->anger_ct++;
                     }
 
                     if (fear && visible)
