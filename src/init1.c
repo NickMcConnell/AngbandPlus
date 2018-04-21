@@ -6829,6 +6829,26 @@ static errr grab_one_town_race_flag(town_type *t_ptr, cptr what)
 	return (PARSE_ERROR_GENERIC);
 }
 
+/*
+ * Grab an ally race flag in an town_type from a textual string
+ */
+static errr grab_one_ally_race_flag(town_type *t_ptr, cptr what)
+{
+	t_ptr->r_flag = 0;
+
+	if (grab_one_flag(&t_ptr->a_flag, r_info_flags3, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&t_ptr->a_flag, r_info_flags9, what) == 0)
+		return (0);
+
+	/* Oops */
+	msg_format("Unknown ally race flag '%s'.", what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
+
 static bool monster_not_unique(int monster_id)
 {
 	return monster_id && !(r_info[monster_id].name
@@ -7160,6 +7180,24 @@ errr parse_t_info(char *buf, header *head)
 		t_ptr->store[7] = store8;
 
 	}
+	/* Process 'A' for "Allies" */
+	else if (buf[0] == 'A')
+	{
+		/* There better be a current t_ptr */
+		if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Paranoia */
+		if (!buf[2]) return (PARSE_ERROR_GENERIC);
+
+		/* Save the char value */
+		t_ptr->a_char = buf[2];
+
+		/* Find the second colon */
+		s = strchr(buf, ':');
+		s = strchr(s+1, ':');
+
+		if (0 != grab_one_ally_race_flag(t_ptr, s+1)) return (PARSE_ERROR_INVALID_FLAG);
+	}
 	/* Process 'D' for "Description" */
 	else if (buf[0] == 'D')
 	{
@@ -7305,7 +7343,17 @@ errr parse_u_info(char *buf, header *head)
 		/* increase counter for 'possible tval' index */
 		cur_w++;
 	}
-
+        
+        /* Process 'A' for "Artifact" */
+	else if (buf[0] == 'A')
+	{
+		int art;
+		/* only sixteen B: lines allowed */
+		if (u_ptr->auto_artifact) return (PARSE_ERROR_GENERIC);
+                
+                if (1 != sscanf(buf+2, "%d", &art)) return (PARSE_ERROR_GENERIC);
+                u_ptr->auto_artifact = art;
+	}
 	else
 	{
 		/* Oops */

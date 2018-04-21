@@ -1,3 +1,17 @@
+(Planned) Unangband 0.6.5 release 
+
+### Game Play ###
+
+-Reworked maps so that they don't provide senseless teleportation halfway across Arda; each map may now have a 'from' dungeon specified, and attempts to use the map from any other dungeon (if the 'from' is defined) fail.
+
+-Made some artifacts always appear in certain 'reward shops' (e.g. the Phial of Galadriel is attained at her Mirror).
+
+-Allies in battlefield levels now vary based on the 'A:' entry for that dungeon
+
+-Encumbrance reduces energy as opposed to speed.
+
+[TODO more stuff]
+
 Unangband 0.6.4c release
 
 ### Bug Fixes ###

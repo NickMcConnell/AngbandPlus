@@ -264,6 +264,8 @@ struct town_type
 
 	dungeon_zone zone[MAX_DUNGEON_ZONES];
 
+	byte a_char;	/* Use races of this char as allies for BATTLE levels */
+	u32b a_flag;	/* Use races with this flag as allies for BATTLE levels */
 };
 
 
@@ -1330,6 +1332,9 @@ struct store_type
 	byte stock_num; /* Stock -- Number of entries */
 	s16b stock_size;/* Stock -- Total Size of Array */
 	object_type *stock;     /* Stock -- Actual stock items */
+        
+        /* An artifact that always appears*/
+        s16b auto_artifact;
 };
 
 
