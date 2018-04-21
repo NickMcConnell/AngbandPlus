@@ -585,7 +585,7 @@ bool make_attack_normal(int m_idx)
                     u32b flgs[OF_ARRAY_SIZE];
                     char buf[MAX_NLEN];
                     bool drained = FALSE;
-                    bool drain_amt = rlev; /* TODO: Consider using damage instead. Indeed, I nerfed this effect
+                    int  drain_amt = rlev; /* TODO: Consider using damage instead. Indeed, I nerfed this effect
                                               so all monsters should probably do some damage here as well. */
 
                     /* Take some damage */

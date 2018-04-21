@@ -811,11 +811,22 @@ void do_cmd_options_aux(int page, cptr info)
             if (i == k) a = TERM_L_BLUE;
 
             /* Display the option text */
-            sprintf(buf, "%-48s: %s (%.19s)",
-                option_info[opt[i]].o_desc,
-                (*option_info[opt[i]].o_var ? "yes" : "no "),
-
-                option_info[opt[i]].o_text);
+            if (option_info[opt[i]].o_var == &random_artifacts)
+            {
+                sprintf(buf, "%-48s: ", option_info[opt[i]].o_desc);
+                if (random_artifacts)
+                    sprintf(buf + strlen(buf), "%d%% ", random_artifact_pct);
+                else
+                    strcat(buf, "no  ");
+                sprintf(buf + strlen(buf), "(%.19s)", option_info[opt[i]].o_text);
+            }
+            else
+            {
+                sprintf(buf, "%-48s: %s (%.19s)",
+                    option_info[opt[i]].o_desc,
+                    (*option_info[opt[i]].o_var ? "yes" : "no "),
+                    option_info[opt[i]].o_text);
+            }
             if ((page == OPT_PAGE_AUTODESTROY) && i > 4) c_prt(a, buf, i + 6, 0);
             else c_prt(a, buf, i + 2, 0);
         }
@@ -866,8 +877,24 @@ void do_cmd_options_aux(int page, cptr info)
             case '6':
             {
                 if (browse_only) break;
-                (*option_info[opt[k]].o_var) = TRUE;
-                k = (k + 1) % n;
+                if (option_info[opt[k]].o_var == &random_artifacts)
+                {
+                    if (!random_artifacts)
+                    {
+                        random_artifacts = TRUE;
+                        random_artifact_pct = 10;
+                    }
+                    else
+                    {
+                        random_artifact_pct += 10;
+                        if (random_artifact_pct > 100) random_artifacts = FALSE;
+                    }
+                }
+                else
+                {
+                    (*option_info[opt[k]].o_var) = TRUE;
+                    k = (k + 1) % n;
+                }
                 break;
             }
 
@@ -876,8 +903,24 @@ void do_cmd_options_aux(int page, cptr info)
             case '4':
             {
                 if (browse_only) break;
-                (*option_info[opt[k]].o_var) = FALSE;
-                k = (k + 1) % n;
+                if (option_info[opt[k]].o_var == &random_artifacts)
+                {
+                    if (!random_artifacts)
+                    {
+                        random_artifacts = TRUE;
+                        random_artifact_pct = 100;
+                    }
+                    else
+                    {
+                        random_artifact_pct -= 10;
+                        if (random_artifact_pct <= 0) random_artifacts = FALSE;
+                    }
+                }
+                else
+                {
+                    (*option_info[opt[k]].o_var) = FALSE;
+                    k = (k + 1) % n;
+                }
                 break;
             }
 
@@ -3907,6 +3950,7 @@ static int _collect_arts(int grp_cur, int art_idx[], bool show_all)
         if (!a_ptr->found)
         {
             if (!show_all) continue;
+            /*if (!a_ptr->generated) continue;*/
             if (!art_has_lore(a_ptr)) continue;
         }
         if (!create_named_art_aux_aux(i, &forge)) continue;
@@ -3948,8 +3992,11 @@ static void do_cmd_knowledge_artifacts(void)
 
     if (random_artifacts)
     {
-        cmsg_print(TERM_L_RED, "You won't find any fixed artifacts this game.");
-        return;
+        if (random_artifact_pct >= 100)
+        {
+            cmsg_print(TERM_L_RED, "You won't find any fixed artifacts this game.");
+            return;
+        }
     }
     else if (no_artifacts)
     {

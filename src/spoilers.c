@@ -1041,6 +1041,9 @@ static void _class_help(FILE *fp, int idx)
     case CLASS_SKILLMASTER:
         fputs("See <link:Skillmasters.txt> for more details on skillmasters.\n\n", fp);
         break;
+    case CLASS_RUNE_KNIGHT:
+        fputs("See <link:Runeknights.txt> for more details on rune knights.\n\n", fp);
+        break;
     }
 
     _class_help_table(fp, class_ptr);

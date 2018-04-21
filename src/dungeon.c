@@ -4627,9 +4627,10 @@ static void dungeon(bool load_game)
 
 
     /* Track maximum dungeon level (if not in quest -KMW-)
-     * XXX Why is this here? Why not in generate()? */
-    if ( max_dlv[dungeon_type] < dun_level
-      && !quests_get_current()
+     * XXX Why is this here? Why not in generate()?
+     * XXX Removed quest check since it gave recall weirdness for random quests. */
+    if ( dungeon_type
+      && max_dlv[dungeon_type] < dun_level
       && !(d_info[dungeon_type].flags1 & DF1_RANDOM) )
     {
         max_dlv[dungeon_type] = dun_level;

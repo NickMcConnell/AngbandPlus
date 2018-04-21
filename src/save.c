@@ -244,6 +244,7 @@ static void wr_options(savefile_ptr file)
     savefile_write_byte(file, delay_factor);
     savefile_write_byte(file, hitpoint_warn);
     savefile_write_byte(file, mana_warn);
+    savefile_write_byte(file, random_artifact_pct);
 
     /*** Cheating options ***/
     c = 0;

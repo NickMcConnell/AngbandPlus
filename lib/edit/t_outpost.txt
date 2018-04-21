@@ -130,70 +130,70 @@ B:13:A:3:Receive prize:0:0:c:40:0
 
 
 ############### Town Layout ###############
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:WWWWWTTTTTWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------------------------------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------------------------------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.............................................................................----TTTTTTTTTTTT.............TTTTTTTT--s---TTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.-----TTTTTT.....TTTTTTTTTTTT......T---------TTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTTT---.-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.------.....TTTTTTTTTTTTTTTTTTTTTT-----------TTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWWTTTTTTTTTTTTTTTTTTTTT---.-W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.----...TTTTTTTTTTTTTTTTTTTTTTTTTT------v-----TTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTT---.-W#######################################################################W,......TTTTTTTTTTTTTTTTTTTTTTTTTTTT-----------TTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTT---.-W###################################w###################################W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--------TTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTT---.-W###.................................................................###W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..-----TTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTT---.-WW##..########....#####.......#############................######....##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTT---.-WW##..########....#####.......#############................######....##WW,.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT..TTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTT----.-WW##..###n####....#####.......#############................######....##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTT--.-WW##..###.........#####.......######b######..........................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTT---.-WW##..###............................................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTT---.-WW##.......#########.....#########...................................##WW,.---TTTTTTTTT^^^^^TTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTT----.-WW##.......#########.....#########.....#########.....#########.......##WW,.---TTTTTTTT^^^^^^^TTTTTTTTTTTTTTT..TTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWW-----WW.WWW##.......#########.....#########.....#########.....#########.......##WW,.----TTTTTT^^^^^^^^TTTTTTTTTTTTTT..TTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTVWV-WW--.-W####......####4####.....####3####.....#########.....####1####......####W,.-----TTTTTT^^>^^^TTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTT.............TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWW----.-W####..................................####2####....................####W,.------TTTTTT,.,TTTTT...............TTTTTTTTTTTTTTTTTTTTTTTTTT
-M:.......TTTTTTTTTTT.............TTTT................V..........................................................................................................TTTTTTTTTTTTT..TTTTTTTTTT...............
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT......TTTTTTTTTTWWWWW---------.-W####.............................................&.................####W,.------TTTTTTTTTTTTTTTTTTTTTTTTTTTTT............TTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWVTTTTT--------.-W####.......########................................................####W,.-----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTzTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTT------.-WW##........########.................................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTT-----.-WW##........########.....####5####..................#####a######.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTT---.-WW##........#######9.....#########......####6####...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTT----.-WW##........########.....#########......#########...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTT---.,WW##........########.....#########......#########...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTTTTTT--.,WW##........########.....#########......#########....................##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTT----.,WW##....................................#########....................##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##.............###########.........................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....##x##....###########....###0###...................####.......##WW,.----TTTTTTTTTTTTTTTTTT..................TTTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....#####....#####7#####....#######.....###q###.......###8.......##WW,.----TTTTT.............TTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....#####...................#######.....###r###.......####.......##WW,..........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,W###.................................................................###W,.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT----.,W#######################################################################W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--.,W#######################################################################W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTT
-M:TTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTT
-M:TTTTTTTTTTTVVWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT------.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTT
-M:TTTTTTTTTTVWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-------.............................................................................----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTT
-M:TTTTTTTTTTWWWWTTTTTTTTTTTTTTTTTTTTTTTTT...............---------------------------------------------------------------------------------------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTT
-M:TTTTTTTTTWWWWWWTTTTTTT..................TTTTTTTTTTTTTTTT----------TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT-----TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTT
-M:TTTTTTTTVWWWWWWWW......TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTT
-M:TTTTTTTVWWWWWWWWWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^TTTTTT
-M:TTTTTTTWWWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^TTTT
-M:TTTTTWWWWWWWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^TTT
-M:TTTTTTTWWWWWWWWWWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^TTTT
-M:TTTTTTTVWWWWWWWWWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^^^TTTTT
-M:TTTTTTTTTVWWWWWWWVTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^^^^^TTTTTT
-M:TTTTTTTTTTTTVVVWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT^^^^^^^^^TTTTTTTT
-M:TTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                                                                                      
+M:                                                                                                                                       ---                                      TT                    
+M:     WWWWW                                               --------                                                                    -------                                  TTTTTT                  
+M:WWWWW     WWWWWWWW                                      -------------------------------------------------------------------------------------                               TTTTTTTTT                 
+M:                  W                                     -------------------------------------------------------------------------------------                             TTTTTTTTTTTT                
+M:                   WW                                    ---.............................................................................----            ............. TTTTTTT--s---TTT               
+M:                     WWWWWW                               --.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.-----      .....            ......T---------TTT              
+M:                           WWWW                          ---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.------.....                   TTT-----------TTTT             
+M:                               WWWWW                     ---.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.----...                        TT------v-----TTT             
+M:                                    WWWW                 ---.,W#######################################################################W,......                          TT-----------TTT              
+M:                                        W                ---.,W###################################w###################################W,.---                             TTT--------TT                
+M:                                         W               ---.,W###.................................................................###W,.---                              TT..-----TT                 
+M:                                         W               ---.,WW##..########....#####.......#############................######....##WW,.---                            T TT.TTTTTTTTT                
+M:                                         WW              ---.,WW##..########....#####.......#############................######....##WW,.----                            TT..TT   TTTTT               
+M:                                          WW            ----.,WW##..###n####....#####.......#############................######....##WW,.---                              T.TT      TT                
+M:                                            WWWW          --.,WW##..###.........#####.......######b######..........................##WW,.---                              T.T                         
+M:                                                W        ---.,WW##..###............................................................##WW,.---                               .                          
+M:                                                W        ---.,WW##.......#########.....#########...................................##WW,.---         ^^^^^                 .                          
+M:                                                 WW     ----.,WW##.......#########.....#########.....#########.....#########.......##WW,.---        ^^^^^^^               ..                          
+M:                                                   WW-----WW.WWW##.......#########.....#########.....#########.....#########.......##WW,.----      ^^^^^^^^              ..                           
+M:                                                    VWV-WW--.,W####......####4####.....####3####.....#########.....####1####......####W,.-----      ^^>^^^               .                            
+M:                                                    WWWW----.,W####..................................####2####....................####W,.------      ,.,     ...............                          
+M:                                                   V--------..................................................................................................             ..          ...............
+M:                                              WWWWW---------.,W####.............................................&.................####W,.------                             ............              
+M:                                             WV     --------.,W####.......########................................................####W,.-----                                   z                    
+M:                                            W         ------.,WW##........########.................................................##WW,.---                                                          
+M:                                           W           -----.,WW##........########.....####5####..................#####a######.....##WW,.--                                                           
+M:                                         WW              ---.,WW##........#######9.....#########......####6####...############.....##WW,.--                                                           
+M:                                     WWWW               ----.,WW##........########.....#########......#########...############.....##WW,.--                                                           
+M:                                  WWW                    ---.,WW##........########.....#########......#########...############.....##WW,.--                                                           
+M:                               WWW                        --.,WW##........########.....#########......#########....................##WW,.--                                                           
+M:                              W                         ----.,WW##....................................#########....................##WW,.--                                                           
+M:                              W                          ---.,WW##.............###########.........................................##WW,.---                                                          
+M:                            WW                           ---.,WW##....##x##....###########....###0###...................####.......##WW,.----                  ..................                     
+M:                          WW                             ---.,WW##....#####....#####7#####....#######.....###q###.......###8.......##WW,.----     .............                  .                    
+M:                        WW                               ---.,WW##....#####...................#######.....###r###.......####.......##WW,..........                                .                   
+M:                    WWWW                                 ---.,W###.................................................................###W,.----                                      .                  
+M:                   W                                    ----.,W#######################################################################W,.---                                        .                 
+M:                 WW                                       --.,W#######################################################################W,.---                                         .                
+M:                W                                        ---.,W####WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW####W,.---                                          .               
+M:               W                                         ---.,WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.----                                          ...            
+M:           VVWW                                       ------.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.----                                             .           
+M:          VWWV                                       -------.............................................................................----                                              .          
+M:          WWWW                                        ---------------------------------------------------------------------------------------                                              .          
+M:         WWWWWW                                         ----------                                                                      -----                                              .          
+M:        VWWWWWWWW                                                                                                                                                                          .          
+M:       VWWWWWWWWWWV                                                                                                                                                                         ^^^^      
+M:       WWWWWWWWWWWW                                                                                                                                                                      ^^^^^^^^^    
+M:     WWWWWWWWWWWWWWWW                                                                                                                                                                 ^^^^^^^^^^^^^   
+M:       WWWWWWWWWWWWW                                                                                                                                                               ^^^^^^^^^^^^^^^    
+M:       VWWWWWWWWWWV                                                                                                                                                               ^^^^^^^^^^^^^^^     
+M:         VWWWWWWWV                                                                                                                                                                 ^^^^^^^^^^^^^      
+M:            VVVWWWW                                                                                                                                                                  ^^^^^^^^^        
+M:                  WW                                                                                                                                                                                  
 
 # vim: filetype=q :

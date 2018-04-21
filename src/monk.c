@@ -136,7 +136,7 @@ void monk_display_attack_info(doc_ptr doc, int hand)
 {
     _attack_t counts[MAX_MA];
     int i;
-    const int tot = 1000;
+    const int tot = 5000;
     int tot_dam = 0;              /* Scaled by 10 */
     int tot_mul = 0;
     int tot_to_d = 0;             /* Scaled by 10 */
@@ -169,7 +169,7 @@ void monk_display_attack_info(doc_ptr doc, int hand)
         sprintf(tmp, "%dd%d", dd, ds);
         doc_printf(cols[0], "%-14.14s %6s %3d.%1d%% %3d.%1d\n",
                                 ma_ptr->name, tmp,
-                                counts[i].count/10, counts[i].count%10,
+                                counts[i].count*100/tot, (counts[i].count*1000/tot)%10,
                                 dam/10, dam%10);
     }
 

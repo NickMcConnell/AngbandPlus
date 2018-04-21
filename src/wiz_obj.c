@@ -541,9 +541,9 @@ static _flag_info_t _brand_flags[] = {
     { OF_BRAND_FIRE,    "Brand Fire" },
     { OF_BRAND_COLD,    "Brand Cold" },
     { OF_BRAND_POIS,    "Brand Poison" },
-    { OF_BRAND_MANA,    "Brand Mana" },
+    { OF_BRAND_MANA,    "Brand Mana", object_is_melee_weapon },
     { OF_BRAND_CHAOS,   "Chaotic", object_is_melee_weapon },
-    { OF_BRAND_VAMP,    "Vampiric", object_is_melee_weapon },
+    { OF_BRAND_VAMP,    "Vampiric" },
     { OF_IMPACT,        "Impact", object_is_melee_weapon },
     { OF_STUN,          "Stun", object_is_melee_weapon },
     { OF_VORPAL,        "Vorpal", object_is_melee_weapon },
@@ -605,6 +605,8 @@ static int _smith_reroll(object_type *o_ptr)
         doc_insert(_doc, "   <color:y>g</color>) Good\n");
         doc_insert(_doc, "   <color:y>e</color>) Excellent\n");
         doc_insert(_doc, "   <color:y>r</color>) Random Artifact\n");
+        if (o_ptr->name1)
+            doc_insert(_doc, "   <color:y>R</color>) Replacement Artifact\n");
 
         doc_newline(_doc);
         doc_printf(_doc, "   <color:y>m</color>) Min Score = %d\n", min);
@@ -642,6 +644,10 @@ static int _smith_reroll(object_type *o_ptr)
         case 'g': _reroll_aux(&copy, AM_GOOD, min); break;
         case 'e': _reroll_aux(&copy, AM_GOOD | AM_GREAT, min); break;
         case 'r': _reroll_aux(&copy, AM_GOOD | AM_GREAT | AM_SPECIAL, min); break;
+        case 'R':
+            create_replacement_art(o_ptr->name1, &copy);
+            obj_identify_fully(&copy);
+            break;
         }
     }
 }
@@ -1021,7 +1027,8 @@ static bool _brands_p(object_type *o_ptr)
 {
     return object_is_melee_weapon(o_ptr)
         || object_is_ammo(o_ptr)
-        || object_is_bow(o_ptr);
+        || object_is_bow(o_ptr)
+        || o_ptr->tval == TV_RING;
 }
 
 static _command_t _commands[] = {

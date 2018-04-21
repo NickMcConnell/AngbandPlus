@@ -1917,7 +1917,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     if (o_ptr->rune)
     {
         t = object_desc_chr(t, ' ');
+        if (mode & OD_COLOR_CODED)
+            t = object_desc_str(t, "<color:B>");
         t = object_desc_str(t, rune_desc(o_ptr->rune));
+        if (mode & OD_COLOR_CODED)
+            t = object_desc_str(t, "</color>");
     }
 
     /* No more details wanted */

@@ -50,6 +50,7 @@ pref.txt \
 raceclass_contents.txt \
 Races.txt \
 rings.txt \
+Runeknights.txt \
 Skillmasters.txt \
 start.txt \
 tang_contents.txt \

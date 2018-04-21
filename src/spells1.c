@@ -1842,9 +1842,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
     /* Is the monster "seen"? */
     bool seen = m_ptr->ml;
-    bool seen_msg = is_seen(m_ptr);
+    bool seen_msg = seen;
 
-    bool slept = (bool)MON_CSLEEP(m_ptr);
+    bool slept = BOOL(MON_CSLEEP(m_ptr));
 
     /* Were the effects "obvious" (if seen)? */
     bool obvious = FALSE;
@@ -5893,9 +5893,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     if (dam)
     {
         if (who > 0)
-            dam = mon_damage_mod_mon(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
+            dam = mon_damage_mod_mon(m_ptr, dam, typ == GF_PSY_SPEAR);
         else
-            dam = mon_damage_mod(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
+            dam = mon_damage_mod(m_ptr, dam, typ == GF_PSY_SPEAR);
     }
     if (tmp > 0 && dam == 0)
         note = " is unharmed.";
@@ -6543,9 +6543,12 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
        innate attacks, and are non-magical. Evasion and Nimble Dodge
        only work on innate attacks. Magic Resistance works on everything
        else.
+       96+1 = RF4_THROW
+       96+3 = RF4_ROCKET
+       96+4 = RF4_SHOOT
      */
     if ( (hack_m_spell >= 96+7 && hack_m_spell <= 96+31)
-      || hack_m_spell == 96+1 )
+      || hack_m_spell == 96+1 || hack_m_spell == 96+3 || hack_m_spell == 96+4)
     {
         bool evaded = FALSE; /* Demigod Scout with Evasion talent *and* Nimble Dodge cast? */
 

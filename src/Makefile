@@ -6,7 +6,7 @@ include Makefile.src
 INCLUDE = $(HDRS)
 OBJECTS = $(ANGFILES) $(CFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c} ${MAINFILES:.o=.c}
-PROG    = poschengband$(PROG_SUFFIX)
+PROG    = $(PROGNAME)$(PROG_SUFFIX)
 # VERSION := $(shell ../scripts/version.sh)
 
 #Use this for debug code:
@@ -24,14 +24,14 @@ DISTCLEAN = autoconf.h
 
 export CFLAGS LDFLAGS LIBS
 
-$(PROG): poschengband.o $(MAINFILES)
-	$(CC) -o $@ poschengband.o $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
+$(PROG): $(PROGNAME).o $(MAINFILES)
+	$(CC) -o $@ $(PROGNAME).o $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
 	@printf "%10s %-20s\n" LINK $@
 
-win/poschengband.res: win/poschengband.rc
+$(PROGNAME).res: $(PROGNAME).rc
 	$(RC) $< -O coff -o $@
 
-poschengband.o: $(OBJECTS)
+$(PROGNAME).o: $(OBJECTS)
 	$(LD) -nostdlib -Wl,-r -o $@ $(OBJECTS)
 	@printf "%10s %-20s\n" LINK $@
 

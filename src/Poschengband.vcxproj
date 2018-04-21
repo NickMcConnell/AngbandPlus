@@ -19,12 +19,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -62,7 +62,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalOptions>"winmm.lib"  "ws2_32.lib" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>"winmm.lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,7 +83,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalOptions>"winmm.lib"  "ws2_32.lib" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>"winmm.lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -333,177 +333,7 @@
     <ClInclude Include="z-virt.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ang_eng.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\lib\edit\a_info.txt" />
-    <None Include="..\lib\edit\b_info.txt" />
-    <None Include="..\lib\edit\d_info.txt" />
-    <None Include="..\lib\edit\e_info.txt" />
-    <None Include="..\lib\edit\f_info.txt" />
-    <None Include="..\lib\edit\k_info.txt" />
-    <None Include="..\lib\edit\misc.txt" />
-    <None Include="..\lib\edit\m_info.txt" />
-    <None Include="..\lib\edit\q0000001.txt" />
-    <None Include="..\lib\edit\q0000002.txt" />
-    <None Include="..\lib\edit\q0000003.txt" />
-    <None Include="..\lib\edit\q0000004.txt" />
-    <None Include="..\lib\edit\q0000005.txt" />
-    <None Include="..\lib\edit\q0000006.txt" />
-    <None Include="..\lib\edit\q0000007.txt" />
-    <None Include="..\lib\edit\q0000019.txt" />
-    <None Include="..\lib\edit\q0000020.txt" />
-    <None Include="..\lib\edit\q0000021.txt" />
-    <None Include="..\lib\edit\q0000022.txt" />
-    <None Include="..\lib\edit\q0000023.txt" />
-    <None Include="..\lib\edit\q0000027.txt" />
-    <None Include="..\lib\edit\q0000028.txt" />
-    <None Include="..\lib\edit\q00000ms.txt" />
-    <None Include="..\lib\edit\q000chao.txt" />
-    <None Include="..\lib\edit\q000dekn.txt" />
-    <None Include="..\lib\edit\q000eric.txt" />
-    <None Include="..\lib\edit\q000lyeh.txt" />
-    <None Include="..\lib\edit\q000natu.txt" />
-    <None Include="..\lib\edit\q000sorc.txt" />
-    <None Include="..\lib\edit\q0clone0.txt" />
-    <None Include="..\lib\edit\q0fields.txt" />
-    <None Include="..\lib\edit\q0thief1.txt" />
-    <None Include="..\lib\edit\q0thief2.txt" />
-    <None Include="..\lib\edit\q0willow.txt" />
-    <None Include="..\lib\edit\qdarkelf.txt" />
-    <None Include="..\lib\edit\qhaunted.txt" />
-    <None Include="..\lib\edit\qsmaug.txt" />
-    <None Include="..\lib\edit\q_info.txt" />
-    <None Include="..\lib\edit\q_oberon.txt" />
-    <None Include="..\lib\edit\q_pref.txt" />
-    <None Include="..\lib\edit\q_random.txt" />
-    <None Include="..\lib\edit\q_serpen.txt" />
-    <None Include="..\lib\edit\q_warg.txt" />
-    <None Include="..\lib\edit\r_info.txt" />
-    <None Include="..\lib\edit\s_info.txt" />
-    <None Include="..\lib\edit\t0000001.txt" />
-    <None Include="..\lib\edit\t0000002.txt" />
-    <None Include="..\lib\edit\t0000003.txt" />
-    <None Include="..\lib\edit\t0000004.txt" />
-    <None Include="..\lib\edit\t0000005.txt" />
-    <None Include="..\lib\edit\t0000006.txt" />
-    <None Include="..\lib\edit\t_basic.txt" />
-    <None Include="..\lib\edit\t_info.txt" />
-    <None Include="..\lib\edit\t_lite.txt" />
-    <None Include="..\lib\edit\t_pref.txt" />
-    <None Include="..\lib\edit\v_info.txt" />
-    <None Include="..\lib\edit\w_info.txt" />
-    <None Include="..\lib\file\amulet_cursed.txt" />
-    <None Include="..\lib\file\amulet_high.txt" />
-    <None Include="..\lib\file\amulet_low.txt" />
-    <None Include="..\lib\file\amulet_med.txt" />
-    <None Include="..\lib\file\a_cursed.txt" />
-    <None Include="..\lib\file\a_high.txt" />
-    <None Include="..\lib\file\a_low.txt" />
-    <None Include="..\lib\file\a_med.txt" />
-    <None Include="..\lib\file\lite_cursed.txt" />
-    <None Include="..\lib\file\lite_high.txt" />
-    <None Include="..\lib\file\lite_low.txt" />
-    <None Include="..\lib\file\lite_med.txt" />
-    <None Include="..\lib\file\mondeath.txt" />
-    <None Include="..\lib\file\monspeak.txt" />
-    <None Include="..\lib\file\news.txt" />
-    <None Include="..\lib\file\ring_cursed.txt" />
-    <None Include="..\lib\file\ring_high.txt" />
-    <None Include="..\lib\file\ring_low.txt" />
-    <None Include="..\lib\file\ring_med.txt" />
-    <None Include="..\lib\file\rumors.txt" />
-    <None Include="..\lib\file\w_cursed.txt" />
-    <None Include="..\lib\file\w_high.txt" />
-    <None Include="..\lib\file\w_low.txt" />
-    <None Include="..\lib\file\w_med.txt" />
-    <None Include="..\lib\help\attack.hlp" />
-    <None Include="..\lib\help\attack.txt" />
-    <None Include="..\lib\help\birth.hlp" />
-    <None Include="..\lib\help\birth.txt" />
-    <None Include="..\lib\help\bldg.txt" />
-    <None Include="..\lib\help\Classes.txt" />
-    <None Include="..\lib\help\command.hlp" />
-    <None Include="..\lib\help\command.txt" />
-    <None Include="..\lib\help\commdesc.hlp" />
-    <None Include="..\lib\help\commdesc.txt" />
-    <None Include="..\lib\help\defend.hlp" />
-    <None Include="..\lib\help\defend.txt" />
-    <None Include="..\lib\help\Demigods.txt" />
-    <None Include="..\lib\help\DragonRealms.txt" />
-    <None Include="..\lib\help\dungeon.hlp" />
-    <None Include="..\lib\help\dungeon.txt" />
-    <None Include="..\lib\help\editor.txt" />
-    <None Include="..\lib\help\faq.txt" />
-    <None Include="..\lib\help\gambling.txt" />
-    <None Include="..\lib\help\general.hlp" />
-    <None Include="..\lib\help\general.txt" />
-    <None Include="..\lib\help\help.hlp" />
-    <None Include="..\lib\help\helpinfo.txt" />
-    <None Include="..\lib\help\magic.hlp" />
-    <None Include="..\lib\help\magic.txt" />
-    <None Include="..\lib\help\monster.hlp" />
-    <None Include="..\lib\help\monster.txt" />
-    <None Include="..\lib\help\MonsterRaces.txt" />
-    <None Include="..\lib\help\objects.hlp" />
-    <None Include="..\lib\help\objects.txt" />
-    <None Include="..\lib\help\option.hlp" />
-    <None Include="..\lib\help\option.txt" />
-    <None Include="..\lib\help\Personalities.txt" />
-    <None Include="..\lib\help\pref.hlp" />
-    <None Include="..\lib\help\pref.txt" />
-    <None Include="..\lib\help\raceclas.hlp" />
-    <None Include="..\lib\help\raceclas.txt" />
-    <None Include="..\lib\help\Races.txt" />
-    <None Include="..\lib\help\rings.txt" />
-    <None Include="..\lib\help\tang.txt" />
-    <None Include="..\lib\help\town.hlp" />
-    <None Include="..\lib\help\town.txt" />
-    <None Include="..\lib\help\version.txt" />
-    <None Include="..\lib\pref\colors.prf" />
-    <None Include="..\lib\pref\font-ami.prf" />
-    <None Include="..\lib\pref\font-dos.prf" />
-    <None Include="..\lib\pref\font-ibm.prf" />
-    <None Include="..\lib\pref\font-mac.prf" />
-    <None Include="..\lib\pref\font-mon.prf" />
-    <None Include="..\lib\pref\font-win.prf" />
-    <None Include="..\lib\pref\font-x11.prf" />
-    <None Include="..\lib\pref\font-xxx.prf" />
-    <None Include="..\lib\pref\font.prf" />
-    <None Include="..\lib\pref\graf-ami.prf" />
-    <None Include="..\lib\pref\graf-dos.prf" />
-    <None Include="..\lib\pref\graf-gcu.prf" />
-    <None Include="..\lib\pref\graf-ibm.prf" />
-    <None Include="..\lib\pref\graf-mac.prf" />
-    <None Include="..\lib\pref\graf-new.prf" />
-    <None Include="..\lib\pref\graf-win.prf" />
-    <None Include="..\lib\pref\graf-x11.prf" />
-    <None Include="..\lib\pref\graf-xaw.prf" />
-    <None Include="..\lib\pref\graf-xxx.prf" />
-    <None Include="..\lib\pref\graf.prf" />
-    <None Include="..\lib\pref\pickpref.prf" />
-    <None Include="..\lib\pref\picktype.prf" />
-    <None Include="..\lib\pref\pref-acn.prf" />
-    <None Include="..\lib\pref\pref-ami.prf" />
-    <None Include="..\lib\pref\pref-emx.prf" />
-    <None Include="..\lib\pref\pref-gcu.prf" />
-    <None Include="..\lib\pref\pref-key.prf" />
-    <None Include="..\lib\pref\pref-mac.prf" />
-    <None Include="..\lib\pref\pref-opt.prf" />
-    <None Include="..\lib\pref\pref-win.prf" />
-    <None Include="..\lib\pref\pref-x11.prf" />
-    <None Include="..\lib\pref\pref.prf" />
-    <None Include="..\lib\pref\proxy.prf" />
-    <None Include="..\lib\pref\spell-xx.prf" />
-    <None Include="..\lib\pref\user-win.prf" />
-    <None Include="..\lib\pref\user.prf" />
-    <None Include="..\lib\pref\xtra-gcu.prf" />
-    <None Include="..\lib\pref\xtra-new.prf" />
-    <None Include="..\lib\pref\xtra-xxx.prf" />
-    <None Include="..\readme.txt" />
-    <None Include="Makefile.inc" />
-    <None Include="Makefile.osx" />
-    <None Include="Makefile.src" />
+    <ResourceCompile Include="poschengband.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

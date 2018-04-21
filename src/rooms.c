@@ -1831,8 +1831,12 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
     {
         if (no_artifacts)
             object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT));
-        else if (a_info[grid->object].generated || random_artifacts)
+        else if ( a_info[grid->object].generated
+               || (random_artifacts && randint0(100) < random_artifact_pct))
+        {
             create_replacement_art(grid->object, &forge);
+            a_info[grid->object].generated = TRUE;
+        }
         else
         {
             create_named_art_aux(grid->object, &forge);

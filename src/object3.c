@@ -248,6 +248,7 @@ static s32b _resistances_q(u32b flgs[OF_ARRAY_SIZE])
     cost -= _check_flag_and_score(flgs, OF_VULN_SOUND, 5000, &count);
     cost -= _check_flag_and_score(flgs, OF_VULN_SHARDS, 5000, &count);
     cost -= _check_flag_and_score(flgs, OF_VULN_DISEN, 5000, &count);
+    if (cost < 0) cost = 0;
 
     return (u32b) cost;
 }
@@ -354,7 +355,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
         }
     }
 
-    if (have_flag(flgs, OF_TY_CURSE))
+    if (have_flag(flgs, OF_TY_CURSE) && !(o_ptr->curse_flags & OFC_PERMA_CURSE))
     {
         p = p * 5 / 10;
         if (cost_calc_hook)

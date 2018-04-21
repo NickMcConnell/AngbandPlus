@@ -45,7 +45,7 @@ W:F:$:9:40
 W:F:=:4:35
 
 # Town 1 (7 is trees)
-W:E:1:7:0:1:1:Outpost
+W:E:1:6:0:1:1:Outpost
 
 # Town 2 (6 is grass)
 W:E:2:6:0:2:1:Telmora

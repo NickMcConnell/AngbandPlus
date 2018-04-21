@@ -1919,7 +1919,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
     int     i, chance, prob;
     bool    res = FALSE;
     bool    a = object_is_artifact(o_ptr);
-    bool    force = (eflag & ENCH_FORCE);
+    bool    force = BOOL(eflag & ENCH_FORCE);
     int     minor_limit = 2 + p_ptr->lev/5; /* This matches the town service ... */
     u32b    flgs[OF_ARRAY_SIZE];
 
@@ -4175,7 +4175,7 @@ bool eat_magic(int power)
 
 bool summon_kin_player(int level, int y, int x, u32b mode)
 {
-    bool pet = (bool)(mode & PM_FORCE_PET);
+    bool pet = BOOL(mode & PM_FORCE_PET);
     if (!pet) mode |= PM_NO_PET;
 
     switch (p_ptr->mimic_form)

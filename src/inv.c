@@ -322,13 +322,18 @@ void inv_clear(inv_ptr inv)
 
 bool inv_sort(inv_ptr inv)
 {
+    return inv_sort_aux(inv, obj_cmp);
+}
+
+bool inv_sort_aux(inv_ptr inv, obj_cmp_f f)
+{
     int start = 1, stop = vec_length(inv->objects) - 1;
     if (start == stop) return FALSE;
     inv_for_each(inv, obj_clear_scratch);
-    if (!vec_is_sorted_range(inv->objects, start, stop, (vec_cmp_f)obj_cmp))
+    if (!vec_is_sorted_range(inv->objects, start, stop, (vec_cmp_f)f))
     {
         slot_t slot;
-        vec_sort_range(inv->objects, start, stop, (vec_cmp_f)obj_cmp);
+        vec_sort_range(inv->objects, start, stop, (vec_cmp_f)f);
         /* It is OK to sort a filtered inv, but we better not update
          * locations for objects we do not own! */
         if (!(inv->flags & _FILTER))

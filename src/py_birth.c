@@ -541,7 +541,7 @@ static void _pers_ui(void)
     vec_ptr v = _pers_choices();
     for (;;)
     {
-        int cmd, i, split = vec_length(v);
+        int cmd, i, split = vec_length(v) + 1;
         doc_ptr cols[2];
 
         doc_clear(_doc);
@@ -563,6 +563,7 @@ static void _pers_ui(void)
                 pers_ptr->name
             );
         }
+        doc_insert(cols[vec_length(v) <= split ? 0 : 1], "  <color:y>*</color>) Random\n");
 
         doc_insert(_doc, "<color:G>Choose Your Personality</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
@@ -590,7 +591,8 @@ static void _pers_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 personality_ptr pers_ptr = vec_get(v, i);
@@ -681,8 +683,9 @@ static void _race_group_ui(void)
         for (i = 0; i < vec_length(groups); i++)
         {
             _race_group_ptr g_ptr = vec_get(groups, i);
-            doc_printf( _doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
+            doc_printf(_doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         _sync_term(_doc);
 
         cmd = _inkey();
@@ -693,7 +696,8 @@ static void _race_group_ui(void)
         else if (cmd == '?') doc_display_help("Races.txt", NULL);
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(groups));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(groups))
             {
                 _race_group_ptr g_ptr = vec_get(groups, i);
@@ -711,7 +715,7 @@ static int _race_ui(int ids[])
 
     while (result == UI_NONE)
     {
-        int cmd, i, split = vec_length(v);
+        int cmd, i, split = vec_length(v) + 1;
         doc_ptr cols[2];
 
         doc_clear(_doc);
@@ -733,6 +737,7 @@ static int _race_ui(int ids[])
                 race_ptr->name
             );
         }
+        doc_insert(cols[vec_length(v) < split ? 0 : 1], "  <color:y>*</color>) Random\n");
 
         doc_insert(_doc, "<color:G>Choose Your Race</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
@@ -760,7 +765,8 @@ static int _race_ui(int ids[])
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 int     old_id = p_ptr->prace;
@@ -840,7 +846,7 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
 {
     for (;;)
     {
-        int cmd, i, split = ct;
+        int cmd, i, split = ct + 1;
         doc_ptr cols[2];
 
         cols[0] = doc_alloc(30);
@@ -850,7 +856,7 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
         _race_class_top(_doc);
 
         if (split > 7)
-            split = (ct + 1)/2;
+            split = (split + 1)/2;
 
         for (i = 0; i < ct; i++)
         {
@@ -862,6 +868,8 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
                 i == p_ptr->psubrace ? 'B' : 'w',
                 race_ptr->subname);
         }
+        doc_insert(ct < split ? cols[0] : cols[1], "  <color:y>*</color>) Random\n");
+
         doc_printf(_doc, "<color:G>Choose %s</color>\n", desc);
         doc_insert_cols(_doc, cols, 2, 1);
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
@@ -886,7 +894,8 @@ static int _subrace_ui_aux(int ct, cptr desc, cptr help, cptr topic)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 p_ptr->psubrace = i;
@@ -970,7 +979,7 @@ static void _class_group_ui(void)
 
     for (;;)
     {
-        int cmd, split = vec_length(groups);
+        int cmd, split = vec_length(groups) + 1;
         doc_ptr cols[2];
 
         cols[0] = doc_alloc(30);
@@ -989,6 +998,8 @@ static void _class_group_ui(void)
                 i < split ? cols[0] : cols[1],
                 "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
+        doc_insert(cols[vec_length(groups) <= split ? 0 : 1], "  <color:y>*</color>) Random\n");
+
         doc_insert(_doc, "<color:G>Choose a Type of Class to Play</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
 
@@ -1005,7 +1016,8 @@ static void _class_group_ui(void)
         else if (cmd == '?') doc_display_help("Classes.txt", NULL);
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(groups));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(groups))
             {
                 _class_group_ptr g_ptr = vec_get(groups, i);
@@ -1024,7 +1036,7 @@ static int _class_ui(int ids[])
 
     while (result == UI_NONE)
     {
-        int cmd, i, split = vec_length(v);
+        int cmd, i, split = vec_length(v) + 1;
         doc_ptr cols[2];
 
         doc_clear(_doc);
@@ -1046,6 +1058,7 @@ static int _class_ui(int ids[])
                 class_ptr->name
             );
         }
+        doc_insert(cols[vec_length(v) <= split ? 0 : 1], "  <color:y>*</color>) Random\n");
 
         doc_insert(_doc, "<color:G>Choose Your Class</color>\n");
         doc_insert_cols(_doc, cols, 2, 1);
@@ -1073,7 +1086,8 @@ static int _class_ui(int ids[])
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 class_t *class_ptr = vec_get(v, i);
@@ -1149,6 +1163,7 @@ static int _warlock_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1168,7 +1183,8 @@ static int _warlock_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(WARLOCK_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < WARLOCK_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1198,6 +1214,7 @@ static int _weaponmaster_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1217,7 +1234,8 @@ static int _weaponmaster_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(WEAPONMASTER_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < WEAPONMASTER_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1247,6 +1265,7 @@ static int _devicemaster_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
 
         _sync_term(_doc);
         cmd = _inkey();
@@ -1256,7 +1275,8 @@ static int _devicemaster_ui(void)
         else if (cmd == '?') doc_display_help("Classes.txt", "Devicemaster");
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(DEVICEMASTER_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < DEVICEMASTER_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1286,6 +1306,7 @@ static int _gray_mage_ui(void)
                 class_ptr->subname
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
 
         _sync_term(_doc);
         cmd = _inkey();
@@ -1295,7 +1316,8 @@ static int _gray_mage_ui(void)
         else if (cmd == '?') doc_display_help("Classes.txt", "Gray-Mage");
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(GRAY_MAGE_MAX);
+            else i = A2I(cmd);
             if (0 <= i && i < GRAY_MAGE_MAX)
             {
                 p_ptr->psubclass = i;
@@ -1345,6 +1367,7 @@ static int _realm1_ui(void)
                 realm_names[id]
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "\n     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1366,7 +1389,8 @@ static int _realm1_ui(void)
         }
         else
         {
-            i = A2I(tolower(cmd));
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 int id = choices[i];
@@ -1429,6 +1453,7 @@ static int _realm2_ui(void)
                 realm_names[id]
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "\n     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1450,7 +1475,8 @@ static int _realm2_ui(void)
         }
         else
         {
-            i = A2I(tolower(cmd));
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 int id = choices[i];
@@ -1509,6 +1535,7 @@ static void _mon_race_group_ui(void)
             _race_group_ptr g_ptr = &_mon_race_groups[i];
             doc_printf( _doc, "  <color:y>%c</color>) %s\n", I2A(i), g_ptr->name);
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         _sync_term(_doc);
 
         cmd = _inkey();
@@ -1534,7 +1561,8 @@ static void _mon_race_group_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(_MAX_MON_RACE_GROUPS);
+            else i = A2I(cmd);
             if (0 <= i && i < _MAX_MON_RACE_GROUPS)
             {
                 _race_group_ptr g_ptr = &_mon_race_groups[i];
@@ -1578,6 +1606,7 @@ static int _mon_race_ui(int ids[])
                 race_ptr->name
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1600,7 +1629,8 @@ static int _mon_race_ui(int ids[])
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(ct);
+            else i = A2I(cmd);
             if (0 <= i && i < ct)
             {
                 int     old_id = p_ptr->prace;
@@ -1704,6 +1734,7 @@ static int _dragon_realm_ui(void)
                 realm->name
             );
         }
+        doc_insert(_doc, "  <color:y>*</color>) Random\n");
         doc_insert(_doc, "     Use SHIFT+choice to display help topic\n");
 
         _sync_term(_doc);
@@ -1725,7 +1756,8 @@ static int _dragon_realm_ui(void)
         }
         else
         {
-            i = A2I(cmd);
+            if (cmd == '*') i = randint0(vec_length(v));
+            else i = A2I(cmd);
             if (0 <= i && i < vec_length(v))
             {
                 dragon_realm_ptr realm = vec_get(v, i);

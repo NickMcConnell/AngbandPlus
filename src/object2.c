@@ -1607,14 +1607,11 @@ static bool make_artifact_special(object_type *o_ptr)
             if (!one_in_(d)) continue;
         }
 
-        if (random_artifacts)
-        {
+        if (random_artifacts && randint0(100) < random_artifact_pct)
             create_replacement_art(i, o_ptr);
-        }
         else
-        {
             create_named_art_aux(i, o_ptr);
-        }
+
         /* Success */
         return (TRUE);
     }
@@ -1667,14 +1664,11 @@ static bool make_artifact(object_type *o_ptr)
 
         if (!one_in_(a_ptr->rarity)) continue;
 
-        if (random_artifacts)
-        {
+        if (random_artifacts && randint0(100) < random_artifact_pct)
             create_replacement_art(i, o_ptr);
-        }
         else
-        {
             create_named_art_aux(i, o_ptr);
-        }
+
         /* Success */
         return (TRUE);
     }
@@ -4713,7 +4707,7 @@ bool process_warning(int xx, int yy)
                 {
                     int rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
                     int storm_dam = rlev * 4 + 150;
-                    bool powerful = (bool)(r_ptr->flags2 & RF2_POWERFUL);
+                    bool powerful = BOOL(r_ptr->flags2 & RF2_POWERFUL);
 
                     if (f4 & RF4_BA_CHAO) spell_damcalc(m_ptr, GF_CHAOS, rlev * (powerful ? 3 : 2) + 100, 0, &dam_max0);
                     if (f5 & RF5_BA_MANA) spell_damcalc(m_ptr, GF_MANA, storm_dam, 0, &dam_max0);

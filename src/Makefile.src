@@ -7,6 +7,7 @@
 
 VERSION = 4.0.3
 COPYRIGHT = (c) 1995-2013 Angband contributors
+PROGNAME = poschengband
 
 HEADERS = \
     h-basic.h \
@@ -31,6 +32,8 @@ SDLMAINFILES = main-sdl.o
 # SNDSDLFILES = snd-sdl.o
 
 X11MAINFILES = main-x11.o
+
+WINMAINFILES = $(PROGNAME).res main-win.o readdib.o
 
 ANGFILES = \
     archaeologist.o archer.o artifact.o autopick.o virtue.o bard.o \

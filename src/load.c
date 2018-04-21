@@ -222,6 +222,10 @@ static void rd_options(savefile_ptr file)
     delay_factor = savefile_read_byte(file);
     hitpoint_warn = savefile_read_byte(file);
     mana_warn = savefile_read_byte(file);
+    if (savefile_is_older_than(file, 6, 0, 1, 1))
+        random_artifact_pct = 100;
+    else
+        random_artifact_pct = savefile_read_byte(file);
 
     /*** Cheating options ***/
     c = savefile_read_u16b(file);
@@ -377,8 +381,8 @@ static void rd_extra(savefile_ptr file)
     p_ptr->town_num = savefile_read_s16b(file);
 
     p_ptr->arena_number = savefile_read_s16b(file);
-    p_ptr->inside_arena = (bool)savefile_read_s16b(file);
-    p_ptr->inside_battle = (bool)savefile_read_s16b(file);
+    p_ptr->inside_arena = BOOL(savefile_read_s16b(file));
+    p_ptr->inside_battle = BOOL(savefile_read_s16b(file));
     p_ptr->exit_bldg = savefile_read_byte(file);
 
     p_ptr->oldpx = savefile_read_s16b(file);

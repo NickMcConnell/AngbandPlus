@@ -502,7 +502,7 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
     int     score_std = 0, score_rnd = 0, score_ego = 0;
     int     max_score_std = 0, max_score_rnd = 0, max_score_ego = 0;
 
-    if ((options & _SPOIL_ARTS) && !random_artifacts)
+    if ((options & _SPOIL_ARTS) && (!random_artifacts || random_artifact_pct < 100))
     {
         for (i = 1; i < max_a_idx; ++i)
         {

@@ -54,6 +54,7 @@ extern void    inv_remove(inv_ptr inv, slot_t slot);
 extern void    inv_clear(inv_ptr inv);
 extern bool    inv_optimize(inv_ptr inv);
 extern bool    inv_sort(inv_ptr inv);
+extern bool    inv_sort_aux(inv_ptr inv, obj_cmp_f f);
 extern void    inv_swap(inv_ptr inv, slot_t left, slot_t right);
 
 /* Iterating, Searching and Accessing Objects (Predicates are always optional) */

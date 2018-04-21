@@ -7979,11 +7979,6 @@ static bool item_tester_hook_weapon_except_bow(object_type *o_ptr)
     return (FALSE);
 }
 
-static bool item_tester_hook_cursed(object_type *o_ptr)
-{
-    return (bool)(object_is_cursed(o_ptr));
-}
-
 static cptr do_hex_spell(int spell, int mode)
 {
     bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -8565,7 +8560,7 @@ static cptr do_hex_spell(int spell, int mode)
                 msg_format("Finish casting '%^s'.", do_spell(REALM_HEX, HEX_RESTORE, SPELL_NAME));
                 p_ptr->magic_num1[0] &= ~(1L << HEX_RESTORE);
                 if (cont) p_ptr->magic_num2[0]--;
-                if (p_ptr->magic_num2) p_ptr->action = ACTION_NONE;
+                if (!p_ptr->magic_num2[0]) set_action(ACTION_NONE);
 
                 /* Redraw status */
                 p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -8586,7 +8581,7 @@ static cptr do_hex_spell(int spell, int mode)
 
             prompt.prompt = "Which cursed equipment do you drain mana from?";
             prompt.error = "You have no cursed equipment.";
-            prompt.filter = item_tester_hook_cursed;
+            prompt.filter = object_is_cursed;
             prompt.where[0] = INV_EQUIP;
 
             obj_prompt(&prompt);

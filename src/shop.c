@@ -1075,6 +1075,7 @@ shop_ptr shop_load(savefile_ptr file)
 {
     shop_ptr shop = malloc(sizeof(shop_t));
     int      tmp;
+    u32b     guard;
 
     tmp = savefile_read_s16b(file);
     shop->type = _get_type(tmp);
@@ -1092,7 +1093,8 @@ shop_ptr shop_load(savefile_ptr file)
     shop->last_visit.level = savefile_read_s16b(file);
     shop->last_visit.exp = savefile_read_s32b(file);
 
-    assert(savefile_read_u32b(file) == 0xFEEDFEED);
+    guard = savefile_read_u32b(file);
+    assert(guard == 0xFEEDFEED);
 
     return shop;
 }

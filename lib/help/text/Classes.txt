@@ -140,6 +140,8 @@ Melee
   selection of spells that he can use his mana on, in addition to his 
   unique Rune spells.
   
+  See [d] for more details on rune knights.
+  
     Stats                   Skills
     Strength      +2        Disarming   Fair         
     Intelligence  +2        Device      Good         
@@ -210,7 +212,7 @@ Melee
   type of specialization. Alas, the weaponmaster is truly lousy when 
   using any weapon outside their chosen specialty so focus is key.
   
-  See [d] for more details on weaponmasters.
+  See [e] for more details on weaponmasters.
   
     Stats                   Skills
     Strength      +4        Disarming   Fair         
@@ -1092,7 +1094,7 @@ Mind
   the binding forces which the warlock imposes to gain both mastery and 
   power.
   
-  See [e] for more details on warlock pacts.
+  See [f] for more details on warlock pacts.
   
     Stats                   Skills
     Strength      -1        Disarming   Poor         
@@ -1230,7 +1232,7 @@ Other
   immediate players. You only have a limited amount of points to spend, 
   and your choices are irreversible.
   
-  See [f] for more details on skillmasters.
+  See [g] for more details on skillmasters.
   
     Stats                   Skills
     Strength      +0        Disarming   Very Bad     
@@ -1449,5 +1451,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 6.0.0.
+Automatically generated for PosChengband 6.0.1.
 

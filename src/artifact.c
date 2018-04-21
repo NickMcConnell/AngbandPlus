@@ -1867,7 +1867,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     bool    a_cursed = FALSE;
     int     warrior_artifact_bias = 0;
     int     i;
-    bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_dam = FALSE, boosted_hit = FALSE, esp_count = 0;
+    bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_dam = FALSE, boosted_hit = FALSE;
+    int     esp_count = 0;
     int     lev = object_level;
     bool    is_falcon_sword = FALSE;
     int     max_a = MAX(o_ptr->to_a, 30);
@@ -2358,13 +2359,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     add_flag(o_ptr->flags, OF_BLOWS);
                     has_pval = TRUE;
                 }
-                else if (one_in_(20))
+                else if (one_in_(50))
                 {
                     add_flag(o_ptr->flags, OF_XTRA_MIGHT);
                     if (!one_in_(7)) remove_flag(o_ptr->flags, OF_XTRA_SHOTS);
                     has_pval = TRUE;
                 }
-                else if (one_in_(20))
+                else if (one_in_(50))
                 {
                     add_flag(o_ptr->flags, OF_XTRA_SHOTS);
                     if (!one_in_(7)) remove_flag(o_ptr->flags, OF_XTRA_MIGHT);
@@ -2395,6 +2396,21 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     o_ptr->to_h += randint1(5) + m_bonus(5, lev);
                     o_ptr->to_d += randint1(5) + m_bonus(5, lev);
                 }
+                else if (one_in_(3))
+                {
+                    o_ptr->to_a += randint1(5) + m_bonus(5, lev);
+                }
+                else if (one_in_(20))
+                {
+                    switch (randint1(5))
+                    {
+                    case 1: add_flag(o_ptr->flags, OF_BRAND_ACID); break;
+                    case 2: add_flag(o_ptr->flags, OF_BRAND_ELEC); break;
+                    case 3: add_flag(o_ptr->flags, OF_BRAND_FIRE); break;
+                    case 4: add_flag(o_ptr->flags, OF_BRAND_COLD); break;
+                    case 5: add_flag(o_ptr->flags, OF_BRAND_VAMP); break;
+                    }
+                }
                 else
                 {
                     one_high_resistance(o_ptr);
@@ -2419,7 +2435,16 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                     one_high_resistance(o_ptr);
                     break;
                 }
-            case 5: case 6:
+            case 5:
+                if (one_in_(2))
+                {
+                    random_plus(o_ptr);
+                    has_pval = TRUE;
+                }
+                else
+                    random_resistance(o_ptr);
+                break;
+            case 6:
                 random_resistance(o_ptr);
                 break;
             case 7:
@@ -3178,13 +3203,13 @@ bool reforge_artifact(object_type *src, object_type *dest, int fame)
 
 bool create_replacement_art(int a_idx, object_type *o_ptr)
 {
-    object_type        forge1 = {0};
-    object_type        forge2 = {0};
-    object_type        best = {0}, worst = {0};
-    int                base_power, best_power, power = 0, worst_power = 10000000;
-    int                old_level;
-    artifact_type  *a_ptr = &a_info[a_idx];
-    int                i;
+    object_type    forge1 = {0};
+    object_type    forge2 = {0};
+    object_type    best = {0}, worst = {0};
+    int            base_power, best_power, power = 0, worst_power = 10000000;
+    int            old_level;
+    artifact_type *a_ptr = &a_info[a_idx];
+    int            i;
 
     if (!a_ptr->name) return FALSE;
     if (no_artifacts) return FALSE;
@@ -3200,14 +3225,14 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
     {
         forge1.to_a = MAX(10, forge1.to_a);
     }
-    base_power = MAX(7500, obj_value_real(&forge1));
+    base_power = obj_value_real(&forge1);
+    if (!obj_is_ammo(&forge1) && base_power < 7500)
+        base_power = 7500;
 
     best_power = -10000000;
     power = 0;
     old_level = object_level;
-
-    if (object_level < a_ptr->level)
-        object_level = a_ptr->level;
+    object_level = a_ptr->level;
 
     for (i = 0; i < 10000; i++)
     {
@@ -3299,7 +3324,7 @@ bool create_named_art(int a_idx, int y, int x)
 {
     if (no_artifacts) return FALSE;
 
-    if (random_artifacts)
+    if (random_artifacts && randint0(100) < random_artifact_pct)
     {
         object_type forge;
         if (create_replacement_art(a_idx, &forge))

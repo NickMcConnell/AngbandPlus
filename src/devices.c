@@ -680,9 +680,8 @@ static cptr _do_potion(int sval, int mode)
             int amt = _potion_power(damroll(5, 6) + 5);
 
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-                amt = (amt + 2)/3;
-
-            if (sp_player(amt))
+                msg_print("You are unaffected.");
+            else if (sp_player(amt))
             {
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
@@ -697,9 +696,8 @@ static cptr _do_potion(int sval, int mode)
             int amt = _potion_power(damroll(10, 10) + 15);
 
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-                amt = (amt + 2)/3;
-
-            if (sp_player(amt))
+                msg_print("You are unaffected.");
+            else if (sp_player(amt))
             {
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
@@ -2392,10 +2390,10 @@ device_effect_info_t staff_effect_table[] =
     {EFFECT_HEAL_CURING,           60,  30,     3,   0,     0, _DROP_GOOD | _DROP_GREAT},
     {EFFECT_BANISH_EVIL,           65,  31,     2,  80,     0, _DROP_GOOD},
     {EFFECT_BANISH_ALL,            65,  32,     3,   0,     0, _DROP_GOOD},
-    {EFFECT_GENOCIDE,              75,  35,     5,   0,     0, _DROP_GOOD | _DROP_GREAT},
     {EFFECT_MANA_STORM,            85,  40,     3,   0,     0, _DROP_GOOD | _DROP_GREAT | _NO_DESTROY},
     {EFFECT_STARBURST,             85,  41,     3,   0,     0, _DROP_GOOD | _DROP_GREAT | _NO_DESTROY},
     {EFFECT_DARKNESS_STORM,        85,  42,     3,   0,     0, _DROP_GOOD | _DROP_GREAT | _NO_DESTROY},
+    {EFFECT_GENOCIDE,              90,  50,     8,   0,     0, _DROP_GOOD | _DROP_GREAT},
     {EFFECT_RESTORE_MANA,         100, 100,    16,   0,     0, _DROP_GOOD | _DROP_GREAT | _NO_DESTROY},
     {0}
 };
@@ -4539,9 +4537,8 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cast)
         {
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-                amt = (amt + 2)/3;
-
-            if (sp_player(_BOOST(amt)))
+                msg_print("You are unaffected.");
+            else if (sp_player(_BOOST(amt)))
             {
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;
@@ -4560,9 +4557,8 @@ cptr do_effect(effect_t *effect, int mode, int boost)
         if (cast)
         {
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-                amt = (amt + 2)/3;
-
-            if (sp_player(_BOOST(amt)))
+                msg_print("You are unaffected.");
+            else if (sp_player(_BOOST(amt)))
             {
                 msg_print("You feel your mind clear.");
                 device_noticed = TRUE;

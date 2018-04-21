@@ -126,19 +126,21 @@ static void _display_level(monster_race *r_ptr, doc_ptr doc)
     else if (_easy_lore(r_ptr) || r_ptr->r_tkills > 0)
     {
         if (r_ptr->max_level != 999)
-            doc_printf(doc, "<color:G>%d to %d</color>", (int)r_ptr->level, (int)r_ptr->max_level);
+            doc_printf(doc, "<color:G>%d to %d</color>", r_ptr->level, r_ptr->max_level);
         else
-            doc_printf(doc, "<color:G>%d</color>", (int)r_ptr->level);
+            doc_printf(doc, "<color:G>%d</color>", r_ptr->level);
     }
     else
         doc_insert(doc, "<color:y>?</color>");
     doc_newline(doc);
+    if (spoiler_hack)
+        doc_printf(doc, "Rarity  : <color:G>%d</color>\n", r_ptr->rarity);
 }
 static void _display_ac(monster_race *r_ptr, doc_ptr doc)
 {
     doc_insert(doc, "AC      : ");
     if (_know_armor_hp(r_ptr))
-        doc_printf(doc, "<color:G>%d</color>", (int)r_ptr->ac);
+        doc_printf(doc, "<color:G>%d</color>", r_ptr->ac);
     else
         doc_insert(doc, "<color:y>?</color>");
     doc_newline(doc);
@@ -164,7 +166,7 @@ static void _display_hp(monster_race *r_ptr, doc_ptr doc)
 }
 static void _display_speed(monster_race *r_ptr, doc_ptr doc)
 {                        /* v~~~~~~byte */
-    int speed = (int)r_ptr->speed - 110;
+    int speed = r_ptr->speed - 110;
     int rand = 0;
     doc_printf(doc, "Speed: <color:%c>%+d</color>", _speed_color(speed), speed);
 
@@ -223,6 +225,8 @@ static void _display_type(monster_race *r_ptr, doc_ptr doc)
         vec_add(v, string_copy_s("<color:y>Good</color>"));
     if (r_ptr->flags3 & RF3_UNDEAD)
         vec_add(v, string_copy_s("<color:v>Undead</color>"));
+    if (r_ptr->flags3 & RF3_NONLIVING)
+        vec_add(v, string_copy_s("<color:U>Nonliving</color>"));
     if (r_ptr->flags3 & RF3_AMBERITE)
         vec_add(v, string_copy_s("<color:v>Amberite</color>"));
     if (r_ptr->flags3 & RF3_DRAGON)
@@ -387,7 +391,7 @@ static void _display_resists(monster_race *r_ptr, doc_ptr doc)
 static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
 {
     int pct = 0;
-    if (spoiler_hack)
+    if (spoiler_hack || (!r_ptr->r_spell_turns && _easy_lore(r_ptr)))
         pct = r_ptr->freq_spell * 100;
     else if (r_ptr->r_spell_turns)
     {
@@ -399,7 +403,7 @@ static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
         vec_ptr v = vec_alloc((vec_free_f)string_free);
 
         doc_printf(doc, "Spells  : <indent><color:G>%d.%02d%%</color> ", pct/100, pct%100);
-        if (!spoiler_hack)
+        if (!spoiler_hack && r_ptr->r_spell_turns + r_ptr->r_move_turns > 0)
             doc_printf(doc, "(%d of %d moves) ", r_ptr->r_spell_turns, r_ptr->r_spell_turns + r_ptr->r_move_turns);
 
         if (r_ptr->flags2 & RF2_SMART)
@@ -941,13 +945,18 @@ static void _display_kills(monster_race *r_ptr, doc_ptr doc)
 {
     if (r_ptr->flags1 & RF1_UNIQUE)
     {
-        doc_insert(doc, "Status  : ");
-        if (r_ptr->max_num == 0)
-            doc_insert(doc, "<color:D>Dead</color>");
-        else if (mon_is_wanted(r_ptr->id))
-            doc_insert(doc, "<color:v>Wanted</color>");
+        if (spoiler_hack)
+            doc_insert(doc, "Status  : <color:v>Unique</color>");
         else
-            doc_insert(doc, "<color:y>Alive</color>");
+        {
+            doc_insert(doc, "Status  : ");
+            if (r_ptr->max_num == 0)
+                doc_insert(doc, "<color:D>Dead</color>");
+            else if (mon_is_wanted(r_ptr->id))
+                doc_insert(doc, "<color:v>Wanted</color>");
+            else
+                doc_insert(doc, "<color:y>Alive</color>");
+        }
         doc_newline(doc);
     }
     else

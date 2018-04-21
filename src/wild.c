@@ -635,7 +635,7 @@ static void _generate_encounters(int x, int y, rect_t r, rect_t exclude)
       && !no_encounters_hack
       && one_in_(_WILD_ENCOUNTER_CHANCE))
     {
-        room_ptr room= choose_room_template(ROOM_WILDERNESS, _encounter_terrain_type(x, y));
+        room_ptr room = choose_room_template(ROOM_WILDERNESS, _encounter_terrain_type(x, y));
         if (room)
             _generate_special_encounter(room, r, exclude);
     }

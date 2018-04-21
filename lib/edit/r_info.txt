@@ -20546,6 +20546,1124 @@ P:Copy:Human:Mauler
 P:Body:Centipede6
 D:Oh my god, it's changing colors! Run!!
 
+# NEW MONSTERS ->
+# From XAngband
+N:1133:Takeminakata, Drastic Measures
+G:p:v
+I:130:45d100:100:125:10:200
+W:56:3:999:22200:0:0
+B:HIT:HURT:6d10
+B:HIT:HURT:6d10
+B:HIT:COLD:8d12
+B:KICK:HURT:12d12
+F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE | DROP_SKELETON
+F:FORCE_SLEEP | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
+F:NO_CONF | NO_SLEEP |
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_TELE |
+F:HAS_LITE_2
+S:1_IN_4 |
+S:TPORT | SCARE | BLIND | CONF |
+S:BO_COLD | BO_MANA | BO_ICEE | BA_COLD | BR_COLD |
+S:S_KIN
+P:Copy:Amberite:Chaos-Warrior
+D:He is the son of the lord of Ashihara and resists Amaterasu's conquest.
+D:He is brave and likes conflicts.
+
+N:1134:Kotoshiro, the Oracle
+G:p:B
+I:120:50d100:100:100:0:150
+W:60:3:999:35000:0:0
+B:HIT:UN_BONUS:7d7
+B:HIT:UN_BONUS:7d7
+B:HIT:EAT_ITEM:5d5
+B:HIT:EAT_ITEM:5d5
+F:UNIQUE | MALE | CAN_SPEAK | SMART |
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_SKELETON | DROP_CORPSE |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP |
+F:RES_ELEC | RES_POIS | RES_FIRE | RES_COLD | RES_TELE |
+F:HAS_LITE_2
+S:1_IN_2 |
+S:BLINK | TPORT | TELE_AWAY | TELE_LEVEL |
+S:HASTE | SLOW | SCARE | BLIND |
+S:CAUSE_4 | BA_ACID | BA_WATE |
+P:Copy:Amberite:Chaos-Warrior
+D:He is the oracle of the country Ashihara, and he is the son of
+D:the lord of Ashihara. He do not like conflicts.
+
+N:1135:Okuninushi, the Conqueror
+G:p:U
+I:130:55d100:100:100:0:250
+W:67:3:999:35000:0:0
+B:HIT:HURT:8d12
+B:HIT:HURT:8d12
+B:HIT:TERRIFY:8d12
+F:UNIQUE | MALE | CAN_SPEAK | SMART |
+F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_FIRE | RES_ELEC | RES_POIS | RES_TELE |
+F:REGENERATE | HAS_LITE_2
+S:1_IN_3 |
+S:TPORT | TELE_AWAY | TELE_TO | TRAPS |
+S:SCARE | CONF | BLIND |
+S:BO_FIRE | BA_FIRE | BA_ELEC | BA_WATE |
+S:S_MONSTERS
+P:Copy:Amberite:Chaos-Warrior
+D:He obtained the country Ashihara defeating the brothers.
+D:He and his wife cheated Susanoo to get his power.
+
+N:1136:Omoikane, Spirit of Wisdom
+G:p:g
+I:130:48d100:100:100:10:200
+W:68:3:999:35000:0:0
+B:HIT:LOSE_INT:8d15
+B:HIT:LOSE_WIS:8d15
+B:TOUCH:LOSE_CHR
+B:TOUCH:LOSE_CON
+F:UNIQUE | MALE | CAN_SPEAK | SMART | POWERFUL |
+F:FORCE_SLEEP | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_POIS | RES_ELEC | RES_COLD | RES_TELE |
+F:NO_CONF | NO_SLEEP | | REGENERATE | HAS_LITE_2
+F:DROP_CORPSE | DROP_SKELETON
+S:1_IN_2 |
+S:BLINK | TPORT | TELE_AWAY | SCARE | CONF | BLIND |
+S:DRAIN_MANA | BRAIN_SMASH | CAUSE_3 | CAUSE_4 |
+S:BO_MANA | BA_WATE | BA_CHAO |
+S:HEAL | S_ANT | S_SPIDER | S_HOUND | S_KIN |
+P:Copy:Amberite:Chaos-Warrior
+D:He is the smartest spirit of the Takamagahara.
+D:His knowledge is wider than the land, his intellects are higher than mountains,
+D:and his consideration is deeper than seas.
+
+N:1137:Takemikazuchi, the Thunder
+G:p:R
+I:130:60d100:100:150:10:230
+W:69:3:999:36000:0:0
+B:HIT:FIRE:10d10
+B:KICK:ELEC:10d10
+B:SLASH:FIRE:50d1
+B:SLASH:ELEC:50d1
+F:UNIQUE | MALE | SMART | POWERFUL |
+F:FORCE_SLEEP | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_POIS | RES_ELEC | RES_FIRE | RES_TELE |
+F:AURA_ELEC | NO_CONF | NO_SLEEP | | REGENERATE | HAS_LITE_2
+F:DROP_CORPSE | DROP_SKELETON
+S:1_IN_5 |
+S:TPORT | SCARE | CONF | BLIND |
+S:BO_ELEC | BO_MANA | BA_ELEC | BR_ELEC | BR_MANA |
+P:Copy:Amberite:Chaos-Warrior
+D:He is the spirit of a thunder or swords.
+D:He is very brave and dauntless.
+
+N:1138:Izanami, Spirit of Yomi
+G:p:D
+I:130:75d100:100:100:20:100
+W:71:3:999:36500:0:0
+B:HIT:POISON:8d15
+B:HIT:EXP_VAMP:8d15
+B:TOUCH:DISEASE:8d8
+B:TOUCH:LOSE_ALL
+F:UNIQUE | EVIL | FEMALE | CAN_SPEAK | SMART | UNDEAD |
+F:OPEN_DOOR | BASH_DOOR |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_ACID | RES_COLD | RES_POIS | RES_NETH | RES_TELE |
+F:REGENERATE | ELDRITCH_HORROR
+F:DROP_CORPSE | DROP_SKELETON
+S:1_IN_4 |
+S:BLINK | TPORT | TELE_TO | TRAPS | FORGET | DARKNESS |
+S:SCARE | BLIND | CONF | MIND_BLAST |
+S:CAUSE_3 | CAUSE_4 | BO_ACID | BO_NETH |
+S:BA_ELEC | BA_POIS | BA_NETH | BA_DARK |
+S:S_UNDEAD | S_HI_UNDEAD | S_SPIDER
+P:Copy:Amberite:Chaos-Warrior
+D:She was a beautiful spirit before, but she is a terrible spirit of
+D:the hell now. Fear its anger!
+
+N:1139:Izanagi, the Spirit
+G:p:w
+I:130:75d100:100:150:20:100
+W:74:3:999:36500:0:0
+B:HIT:HURT:8d12
+B:HIT:HURT:8d12
+B:HIT:UN_BONUS:10d10
+B:TOUCH:UN_POWER
+F:UNIQUE | MALE | CAN_SPEAK | SMART |
+F:OPEN_DOOR | BASH_DOOR |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_POIS | RES_ACID | RES_FIRE | RES_TELE
+F:REGENERATE | HAS_LITE_2
+F:DROP_CORPSE | DROP_SKELETON
+S:1_IN_4 |
+S:TPORT | TELE_TO | TELE_LEVEL | TELE_AWAY |
+S:SCARE | BLIND | DRAIN_MANA |
+S:CAUSE_3 | CAUSE_4 | BO_ACID | BO_WATE |
+S:BA_ACID | BA_WATE | BA_CHAO | BA_LITE |
+S:S_MONSTERS | S_ANGEL | S_HI_DRAGON
+P:Copy:Amberite:Chaos-Warrior
+D:He and his wife Izanami created many islands and gave birth to many spirits.
+D:His power may not have become weak yet.
+
+N:1140:Susanoo, the Angry
+G:p:u
+I:130:95d100:100:100:15:250
+W:76:3:999:35500:0:0
+B:HIT:HURT:15d15
+B:HIT:HURT:15d15
+B:SLASH:HURT:10d10
+B:HIT:SHATTER:10d10
+F:UNIQUE | MALE | CAN_SPEAK | SMART |
+F:OPEN_DOOR | BASH_DOOR | KILL_WALL |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_ACID | RES_FIRE | RES_ELEC | RES_POIS | RES_TELE |
+F:REGENERATE | HAS_LITE_2
+F:DROP_CORPSE | DROP_SKELETON
+S:1_IN_4 |
+S:HEAL | TPORT | TELE_TO | SCARE | BLIND | S_MONSTERS
+P:Copy:Amberite:Chaos-Warrior
+D:This child of Izanagi is very impatient.
+D:He does not obey his father's instruction for lording the sea.
+
+N:1141:Tsukuyomi, Spirit of Moon
+G:p:b
+I:130:85d100:100:100:15:100
+W:78:3:999:35500:0:0
+B:HIT:LOSE_INT:10d12
+B:HIT:LOSE_WIS:10d12
+B:HIT:LOSE_CON:12d12
+B:TOUCH:UN_POWER
+F:UNIQUE | MALE | CAN_SPEAK | SMART |
+F:OPEN_DOOR | BASH_DOOR |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_ACID | RES_COLD | RES_ELEC | RES_POIS | RES_NETH | RES_TELE
+F:AURA_COLD | REGENERATE | SELF_LITE_1
+F:DROP_CORPSE | DROP_SKELETON
+S:1_IN_3 |
+S:BLINK | TPORT | TELE_TO | TELE_AWAY | FORGET | TRAPS | DARKNESS |
+S:SCARE | CONF | HOLD | BRAIN_SMASH | DRAIN_MANA |
+S:CAUSE_3 | CAUSE_4 | BO_COLD | BO_ICEE |
+S:BA_COLD | BA_NETH | BA_DARK |
+S:S_ANGEL | S_HI_UNDEAD | S_KIN
+P:Copy:Amberite:Chaos-Warrior
+D:He is one of the 3 children of Izanagi who lords the country of the night.
+D:There is no rumor that he get along well with the his elder sister Amaterasu.
+
+N:1142:Amaterasu, Spirit of Sun
+G:p:y
+I:130:100d100:100:100:15:175
+W:79:3:999:38500:0:0
+B:HIT:FIRE:12d12
+B:HIT:FIRE:12d12
+B:HIT:UN_BONUS:10d10
+B:TOUCH:LOSE_ALL
+F:UNIQUE | GOOD | FEMALE | CAN_SPEAK | SMART |
+F:OPEN_DOOR | BASH_DOOR |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
+F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
+F:RES_COLD | RES_POIS | RES_ACID | RES_ELEC | IM_FIRE |
+F:RES_PLAS | RES_TELE |
+F:AURA_FIRE | REGENERATE | SELF_LITE_2
+F:DROP_CORPSE | DROP_SKELETON
+S:1_IN_3 |
+S:TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL |
+S:CONF | BLIND | DRAIN_MANA |
+S:CAUSE_4 | BO_MANA | BO_PLAS | BA_FIRE | BA_LITE |
+S:HEAL | S_MONSTERS | S_ANGEL | S_HI_DRAGON
+P:Copy:Amberite:Chaos-Warrior
+D:She is the spirit of the sun that lords Takamagahara that is the country
+D:of heaven. Her brightness lights up the world.
+D:She and her children plot to conquest of countries of the ground.
+
+# Demons from Vanilla
+N:1151:Osyluth
+G:U:W
+I:130:40d100:20:145:40:100
+W:65:3:999:13000:0:0
+B:HIT:LOSE_CHR:8d8
+B:HIT:LOSE_CHR:8d8
+B:BITE:POISON:10d10
+B:STING:LOSE_STR:9d9
+F:FORCE_SLEEP | FORCE_MAXHP | NONLIVING |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY
+F:EVIL | DEMON | NO_CONF | NO_SLEEP | INVISIBLE |
+F:RES_ACID | RES_ELEC | RES_POIS | RES_COLD | RES_FIRE
+P:Copy:Balrog:Mauler
+S:1_IN_6 |
+S:BA_ELEC | BA_COLD | BO_ICEE | SCARE | S_DEMON | S_KIN |
+D:It is a demon made almost entirely out of bones. It is humanoid, but with
+D:a large tail similar to that of a giant scorpion, and emits a foul smell
+D:of decay and rot. They are despised even in the hells.
+
+N:1152:Gelugon
+G:U:w
+I:130:45d100:20:120:40:250
+W:69:3:999:14000:0:0
+B:CLAW:COLD:6d10
+B:CLAW:COLD:6d10
+B:BITE:COLD:9d9
+B:HIT:PARALYZE:8d8
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_GOOD | DROP_2D2 | CAN_FLY | RES_POIS |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | REGENERATE | CAN_SWIM |
+F:EVIL | DEMON | IM_COLD | NO_CONF | NO_SLEEP |
+P:Copy:Balrog:Mauler
+S:1_IN_6
+S:BR_COLD | BR_SHAR | BA_COLD | BO_ICEE | S_DEMON |
+S:SLOW | SCARE | HOLD | S_KIN |
+D:This demon from the ice planes is a truly terrifying sight. It has an
+D:extremely large, insect-like body towering a full twelve feet tall, with
+D:great claws on its hands and pincers on its mouth, and its head bulges
+D:with great multi-faceted eyes. Its tail is covered with razor-sharp
+D:spikes.
+
+N:1153:Horned Reaper
+G:U:B
+I:130:50d100:40:140:40:250
+W:72:3:999:18000:0:0
+B:HIT:HURT:12d12
+B:HIT:HURT:12d12
+B:HIT:HURT:12d12
+B:HIT:HURT:12d12
+F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE |
+F:ONLY_ITEM | DROP_GOOD | DROP_3D2 | CAN_SWIM |
+F:OPEN_DOOR | BASH_DOOR | KILL_BODY | POWERFUL |
+F:EVIL | DEMON | NO_CONF | NO_SLEEP | CAN_FLY |
+F:RES_FIRE | RES_COLD | RES_POIS | RES_ACID | RES_ELEC
+P:Copy:Balrog:Mauler
+S:1_IN_5 |
+S:HASTE | SLOW | SCARE | S_DEMON | S_KIN |
+D:A giant humanoid demon wielding a massive, heavy and sharp scythe. Feared
+D:by foes and friends alike when it flies into one of its berserk rages, the
+D:Horned Reaper will cut down anything in its path between it and you - even
+D:the minions it has just summoned.
+
+N:1154:Pit Fiend
+G:U:o
+I:130:60d100:30:140:35:300
+W:77:3:999:22000:0:0
+B:CLAW:FIRE:8d10
+B:CLAW:FIRE:8d10
+B:BITE:POISON:7d10
+B:BITE:LOSE_CON:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE |
+F:ONLY_ITEM | DROP_GOOD | DROP_3D2 |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | CAN_FLY |
+F:EVIL | DEMON | RES_FIRE | RES_POIS | NO_CONF | NO_SLEEP |
+P:Copy:Balrog:Mauler
+S:1_IN_5 |
+S:S_DEMON | S_HI_DRAGON | BR_FIRE | BR_POIS | BR_CHAO | BA_CHAO |
+S:SCARE | BA_FIRE | CAUSE_4 | S_KIN |
+D:Appearing as a giant, clawed and winged humanoid with a scaly red body
+D:and massive fangs dripping a foul green liquid, the Pit Fiend is a
+D:dreadful enemy from the lowest depths of the hells. They are often the
+D:commanders of vast demon armies.
+
+# Tomenet
+N:1159:Cave Gorm
+G:R:D
+I:125:40d100:25:150:50:500
+W:60:5:999:18000:0:0
+B:GAZE:PARALYZE:5d3
+B:BITE:DISEASE:15d10
+B:BITE:DISEASE:15d10
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | POWERFUL | FORCE_MAXHP
+F:OPEN_DOOR | BASH_DOOR | EVIL | RES_FIRE | RES_COLD | RES_ACID |
+F:RES_ELEC | RES_POIS | DROP_CORPSE | RES_NETH | RES_DARK |
+F:ANIMAL | CAN_SWIM | HURT_LITE
+P:Copy:Barbarian:Warrior
+P:Life:105
+P:Body:Giant Reptile
+S:1_IN_4
+S:BR_DARK
+D:A large reptile in black scales, burning the earth with
+D:the touch of hell where it steps.
+
+# New things
+N:1160:Nebiros, the Marquis
+G:B:D
+I:140:70d100:20:150:15:300
+W:85:2:999:35000:0:0
+B:CLAW:HURT:25d2
+B:CLAW:HURT:25d2
+B:BITE:HURT:6d12
+B:GAZE:TERRIFY
+F:UNIQUE | MALE | CAN_SPEAK | RES_COLD | RES_DARK | RES_NETH |
+F:FORCE_SLEEP | FORCE_MAXHP | RES_ELEC | RES_FIRE | RES_ACID |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GREAT | DROP_GOOD |
+F:BASH_DOOR | CAN_FLY | DEMON | DROP_CORPSE | NO_FEAR |
+F:RES_POIS | POS_GAIN_AC |
+F:EVIL | NO_CONF | NO_SLEEP | DROP_SKELETON |
+P:Copy:Balrog:Mauler
+P:Life:110
+P:Body:Giant Bird
+S:1_IN_3 |
+S:BR_DARK | BR_NETH | SCARE | BO_NETH | BA_DARK |
+S:S_HI_UNDEAD | S_UNDEAD | S_DEMON | ANIM_DEAD |
+D:Nebiros, the General of Hell keeps watch over all demons. One of the
+D:greatest necromancers in Hell, he appears in the form of a raven.
+
+N:1161:Atropos, the Sister of Fate
+G:p:G
+I:130:96d100:50:130:8:130
+W:90:4:999:48000:0:0
+B:SLASH:HURT:30d1
+B:SLASH:HURT:30d1
+B:SLASH:TIME:30d1
+B:SLASH:TIME:30d1
+F:UNIQUE | FEMALE | CAN_SPEAK | POWERFUL | RES_TELE |
+F:FORCE_SLEEP | FORCE_MAXHP | SMART |
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GREAT | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | NO_CONF | NO_SLEEP |
+F:DROP_CORPSE | DROP_SKELETON
+P:Copy:Amberite:Priest
+S:1_IN_3 |
+S:WORLD | S_MONSTERS | S_UNIQUE | S_AMBERITES |
+S:SCARE | HOLD | BLIND | CONF | TPORT | HEAL | HASTE |
+D:Atropos is the eldest of the sisters of fate and cuts the threads of
+D:life with her shears. She has decided that your time is up.
+
+N:1162:Greater naga
+G:n:r
+I:120:30d100:30:130:7:600
+W:55:4:999:17000:0:0
+B:CRUSH:SUPERHURT:10d10
+B:BITE:HURT:10d10
+B:SPIT:BLIND:4d4
+B:SPIT:ACID:8d8
+F:FORCE_MAXHP | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR |
+F:MOVE_BODY | RES_FIRE | RES_POIS | RES_ACID | DROP_2D2 | DROP_GOOD |
+F:DROP_CORPSE | DROP_SKELETON | POS_GAIN_AC | CAN_SWIM | COLD_BLOOD |
+F:RIDING
+P:Copy:Half-Ogre:Warrior-Mage
+P:Body:Naga
+S:1_IN_5
+S:BR_POIS
+
+N:1163:Nagaraja
+G:n:G
+I:120:30d100:30:130:7:600
+W:60:4:999:17000:0:0
+B:CRUSH:HURT:10d10
+B:BITE:HURT:10d10
+B:SPIT:BLIND:4d4
+B:SPIT:BLIND:4d4
+F:FORCE_MAXHP | FORCE_SLEEP | POWERFUL | OPEN_DOOR | BASH_DOOR |
+F:MOVE_BODY | RES_FIRE | RES_POIS | RES_ACID | DROP_2D2 | DROP_GOOD |
+F:DROP_CORPSE | DROP_SKELETON | POS_GAIN_AC | CAN_SWIM | COLD_BLOOD |
+F:RIDING |
+P:Copy:Half-Ogre:Warrior-Mage
+P:Body:Naga
+S:1_IN_3
+S:BR_POIS | S_HYDRA | BA_ACID | BA_FIRE | BO_MANA |
+S:SCARE | CONF | HOLD | SLOW | BLIND
+D:A king of the naga.
+
+N:1164:Vasuki, the Serpent King
+G:n:o
+I:130:79d79:50:150:7:1500
+W:70:3:999:42000:0:0
+B:CRUSH:HURT:25d2
+B:BITE:HURT:25d2
+B:SPIT:POISON:50d1
+F:FORCE_MAXHP | FORCE_SLEEP | POWERFUL | UNIQUE | CAN_SWIM | MALE |
+F:MOVE_BODY | IM_POIS | NO_CONF | NO_SLEEP |
+F:OPEN_DOOR | BASH_DOOR | DROP_3D2 | DROP_2D2 | DROP_GOOD | DROP_GREAT |
+F:DROP_CORPSE | DROP_SKELETON | POS_GAIN_AC | COLD_BLOOD | RIDING
+P:Copy:Half-Ogre:Warrior
+P:Body:Naga
+S:1_IN_2
+S:BR_POIS | S_KIN
+D:A grand nagaraja. The gods and demons used him to churn the ocean and
+D:create amrita, causing poison to envelop the world.
+
+N:1165:Shesha, the Infinite
+G:n:W
+I:130:99d99:50:160:12:3000
+W:80:3:999:55000:0:0
+B:BITE:HURT:14d10
+B:BITE:HURT:14d10
+B:BITE:BLIND:14d10
+B:BITE:CONFUSE:14d10
+F:FORCE_MAXHP | FORCE_SLEEP | POWERFUL | UNIQUE | CAN_SWIM | MALE |
+F:MOVE_BODY | RES_POIS | NO_CONF | NO_SLEEP |
+F:OPEN_DOOR | BASH_DOOR | DROP_4D2 | DROP_3D2 | DROP_GOOD |
+F:RES_TIME | DROP_GREAT |
+F:DROP_CORPSE | DROP_SKELETON | POS_GAIN_AC | COLD_BLOOD | RIDING
+P:Copy:Half-Titan:Mauler
+P:Body:Jormungand
+P:Life:120
+S:1_IN_4
+S:BR_TIME | BR_DISI | S_KIN
+D:A serpent with 1000 heads, upon which Vishnu rests.
+
+N:1166:Thanatos, God of Death
+G:P:D
+I:145:132d84:20:175:8:700
+W:88:2:999:66000:0:0
+B:SLASH:LOSE_CON:8d18
+B:SLASH:LOSE_STR:8d18
+B:TOUCH:DISEASE:9d9
+B:TOUCH:TERRIFY:7d7
+F:UNIQUE | MALE | CAN_SPEAK | MOVE_BODY | BASH_DOOR |
+F:FORCE_SLEEP | FORCE_MAXHP | EVIL | DROP_GREAT | CAN_FLY |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
+F:NO_SLEEP | NO_CONF | NO_STUN | HURT_LITE | RES_DARK |
+F:RES_POIS | RES_COLD | RES_FIRE | RES_ACID | RES_ELEC |
+F:DROP_CORPSE | DROP_SKELETON |
+P:Copy:Half-Titan:Chaos-Warrior
+S:1_IN_5
+S:BO_MANA | BO_NETH | TELE_TO |
+S:HASTE | HEAL | ANTI_MAGIC |
+D:"I win greater honor when the victims are young."
+
+N:1169:Chitauli
+G:R:W
+I:130:133d65:60:120:1:300
+W:89:12:999:35000:0:0
+B:GAZE:PARALYZE:20d20
+B:GAZE:UN_BONUS:2d5
+F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE | CAN_SPEAK |
+F:ONLY_ITEM | DROP_GOOD | DROP_3D2 | SMART | DROP_4D2 |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | NO_STUN |
+F:EVIL | IM_ACID | RES_FIRE | RES_COLD | RES_ELEC |
+F:IM_POIS | NO_CONF | NO_SLEEP | RES_DARK
+F:DROP_CORPSE | DROP_SKELETON
+P:Copy:Half-Titan:Chaos-Warrior
+S:1_IN_3 |
+S:BR_POIS | BR_ACID | BR_DARK |
+S:MIND_BLAST | CAUSE_4 | S_MONSTERS | TELE_TO |
+D:"And there is another name by which these creatures are known. This name is
+D:Chitauli. Now, the word Chitauli means "the dictators, the ones who tell us
+D:the law". In other words, they who tell us, secretly, what we are to do."
+
+N:1170:Umbaba-Samahongo
+G:R:s
+I:130:150d100:70:160:1:500
+W:92:6:999:50000:0:0
+B:GAZE:PARALYZE:20d20
+B:GAZE:UN_BONUS:10d8
+B:GAZE:UN_BONUS:10d8
+F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | CAN_SPEAK |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE |
+F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | IM_ACID |
+F:NO_CONF | NO_SLEEP | POWERFUL | NO_STUN | RES_DARK
+F:DROP_CORPSE | DROP_SKELETON
+P:Copy:Half-Titan:Chaos-Warrior
+S:1_IN_3 |
+S:BR_POIS | BR_ACID | BR_DARK | HASTE
+S:BRAIN_SMASH | S_KIN | S_MONSTERS | BA_NUKE | TELE_TO
+D:"The lord king, the great father of the terrible eyes. And this god is
+D:waiting for the day when the surface of the Earth will be cleared of
+D:human beings so that he, and his children, the Chitauli, can come out
+D:and enjoy the heat of the Sun."
+
+# Tomenet
+N:1171:Star Blade
+G:A:R
+I:130:90d100:100:155:255:250
+W:90:6:999:40000:0:0
+B:GAZE:TERRIFY:7d4
+B:HIT:HURT:50d5
+B:HIT:HURT:50d5
+F:FORCE_SLEEP | FORCE_MAXHP | GOOD | SELF_LITE_2
+F:ONLY_ITEM | DROP_90 | DROP_3D2 | DROP_GOOD | DROP_GREAT
+F:SMART | KILL_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE | AURA_FEAR
+F:NO_CONF | NO_SLEEP | CAN_FLY | KILL_WALL | NO_FEAR | REFLECTING | RES_TELE | NO_STUN |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
+S:1_IN_3 |
+S:TELE_TO | BR_MANA | BR_DISE | S_ANGEL
+D:An undeviable presence, designated to watch the stars and the void and maintain
+D:their balance. Its aura is pure beyond expression, its eyes reflect supreme
+D:laws beyond comprehension, daring to look at it will drive you insane,
+D:let alone fighting it!
+
+N:1172:Michael, the Guardian Overlord
+G:A:U
+I:130:69d199:100:175:255:255
+W:98:3:999:77777:0:0
+B:GAZE:TERRIFY:7d4
+B:HIT:HURT:50d7
+B:HIT:HURT:50d7
+F:FORCE_SLEEP | FORCE_MAXHP | GOOD | SELF_LITE_2 |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT
+F:SMART | KILL_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE | AURA_FEAR
+F:AURA_ELEC | ESCORT | UNIQUE | REGENERATE | NO_STUN | MALE
+F:NO_CONF | NO_SLEEP | CAN_FLY | KILL_WALL | NO_FEAR | REFLECTING | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC |
+P:Copy:Archon:Paladin
+P:Stats:2:2:5:2:2:5
+P:Speed:+10
+S:1_IN_3 |
+S:TELE_TO | BR_MANA | BR_DISE | BR_CONF | S_ANGEL | S_MONSTERS
+S:BA_LITE | BO_MANA | BO_WATE | BRAIN_SMASH |
+S:HASTE | HEAL | ANTI_MAGIC | DRAIN_MANA
+D:Through many succeeding cycles of time, as ray after ray provided the pathway
+D:for the descent of new spirits, lord Michael has remained as the guardian
+D:overlord of the angelic host, the elemental kingdom and humanity. He shall
+D:not fold his cosmic wings about him to return home until the final angelic
+D:being is freed, the last man is redeemed and the last elemental returned to
+D:its perfect state.
+
+N:1173:Tik'srvzllat
+G:G:v
+I:142:103d103:60:170:0:120
+W:98:3:999:50000:0:0
+B:GAZE:TIME:10d10
+B:GAZE:BLIND:10d10
+B:GAZE:CONFUSE:10d10
+B:GAZE:TERRIFY:10d10
+F:UNIQUE |
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_SPEAK | CAN_FLY | HAS_DARK_2 |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | WEIRD_MIND | ELDRITCH_HORROR |
+F:EVIL | UNDEAD | IM_COLD | RES_NETH | AURA_COLD | POWERFUL | SMART |
+F:IM_POIS | NO_CONF | NO_SLEEP | NO_STUN | RES_DARK | RES_TIME |
+F:AURA_FEAR | NO_FEAR
+F:POS_SEE_INVIS | POS_HOLD_LIFE | POS_DETECT_MONSTERS
+P:Copy:High-Elf:Rogue
+S:1_IN_2 |
+S:S_UNDEAD | S_DEMON | S_DRAGON |
+S:S_UNIQUE | S_AMBERITES |
+S:S_HI_UNDEAD | S_HI_DRAGON | S_KIN |
+S:BR_DISI | BR_NETH
+D:A disembodied and barely sentient mind, Tik'srvzllat floated
+D:through the void for eons before being awakened by sorcery, pulled
+D:into the nether realm, and shaped into the being you see before you.
+D:A flickering purple outline of a sphere, with eerie yellow-purple
+D:mist circling rapidly around it, Tik'srvzllat threatens your sanity
+D:with its appearance alone.
+
+N:1174:Dor
+G:e:w
+I:125:55d100:50:50:0:1000
+W:97:4:999:50000:0:0
+B:GAZE:TERRIFY
+F:ONLY_ITEM | DROP_2D2 | CAN_SWIM |
+F:DROP_GOOD | DROP_GREAT |
+F:UNIQUE | NEVER_MOVE | FORCE_MAXHP | FORCE_SLEEP |
+F:RES_ACID | RES_POIS | RES_COLD | RES_ELEC | RES_NETH | RES_NEXU |
+F:RES_CHAO | EMPTY_MIND | NONLIVING | REGENERATE | RES_SHAR
+F:NO_CONF | NO_SLEEP | RES_CHAO |
+F:COLD_BLOOD | RES_DISE | NO_STUN | POWERFUL |
+F:POS_TELEPATHY | POS_GAIN_AC | POS_HOLD_LIFE
+F:DROP_CORPSE |
+P:Copy:High-Elf:High-Mage
+P:Body:Cyaegha
+S:1_IN_1 |
+S:ROCKET
+D:This golem beholder is a perfect sentry and won't let anything come close.
+D:White mouldy flesh covered by metal plating holds a black lidless eye,
+D:slowly turning around and around forever.
+
+# new
+N:1191:The Maw of Hell
+G:v:r
+I:140:103d99:30:175:0:0
+W:93:2:999:60000:0:0
+F:UNIQUE | FORCE_MAXHP | DROP_GREAT | NEVER_MOVE | NONLIVING | EMPTY_MIND |
+F:DROP_3D2 | DROP_2D2 | DROP_GOOD | POWERFUL | NEVER_BLOW
+F:IM_FIRE | IM_POIS | RES_NETH | RES_PLAS | RES_TELE |
+F:NO_CONF | NO_FEAR | NO_SLEEP | NO_STUN | AURA_FIRE |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-3:0:0:0:0:0
+P:Body:Vortex8
+S:1_IN_1
+S:BA_NETH | BO_PLAS | BR_FIRE | BR_DARK | S_DEMON | S_UNDEAD | SHRIEK |
+
+# v from FA
+N:1192:Wiruin, the Maelstrom
+G:v:w
+I:130:70d95:100:175:0:0
+W:91:4:999:40000:0:0
+B:ENGULF:COLD:35d5
+B:ENGULF:CONFUSE:35d5
+F:UNIQUE | FORCE_MAXHP | FORCE_SLEEP | NONLIVING | EMPTY_MIND |
+F:IM_COLD | IM_POIS | RES_SOUN | RES_SHAR | RES_TELE | MOVE_BODY |
+F:NO_CONF | NO_FEAR | NO_SLEEP | NO_STUN | AURA_COLD | BASH_DOOR |
+F:RAND_50 | RAND_25 | CAN_FLY |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-3:0:0:0:0:0
+P:Body:Vortex8
+S:1_IN_2
+S:BR_COLD | BR_SOUN | S_KIN
+D:A violent icy whirlpool, brought from the frozen wastes of the Helcaraxe
+D:by Morgoth as guard and entertainment. Smaller vortices arise on its edges,
+D:and you feel as if you will never be free of its deafening roar.
+
+N:1193:The Storm of Unmagic
+G:v:v
+I:130:65d97:100:125:0:0
+W:90:4:999:40000:0:0
+B:ENGULF:EXP_20:7d7
+B:ENGULF:UN_POWER:7d7
+B:ENGULF:UN_BONUS:7d7
+B:ENGULF:LOSE_ALL:7d7
+F:UNIQUE | FORCE_MAXHP | FORCE_SLEEP | NONLIVING | EMPTY_MIND |
+F:RES_COLD | RES_FIRE | RES_ACID | RES_ELEC | IM_POIS | RES_TELE | RES_DISE |
+F:NO_CONF | NO_FEAR | NO_SLEEP | NO_STUN | AURA_COLD | RES_CHAO | RES_TIME |
+F:RAND_50 | RAND_25 | CAN_FLY | ATTR_ANY | KILL_WALL | MOVE_BODY | BASH_DOOR |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-3:0:0:0:0:0
+P:Body:Vortex8
+S:1_IN_2
+S:BR_CHAO | BR_DISE | BR_TIME |
+D:Howling through the disintegrating dungeon, this awesome whirlpool of
+D:Unmagic rips the enchantments from everything it touches.
+
+N:1194:Beelzebub, Lord of the Flies
+G:I:D
+I:130:113d87:40:175:10:1000
+W:90:2:999:41100:0:0
+B:HIT:BLIND:15d15
+B:HIT:BLIND:15d15
+B:HIT:DISEASE:37d8
+F:UNIQUE | MALE | CAN_SPEAK | CAN_FLY |
+F:FORCE_SLEEP | FORCE_MAXHP | NO_STUN |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:EVIL | DEMON | HURT_LITE | RES_DARK |
+F:RES_COLD | RES_ELEC | RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
+S:1_IN_4 |
+S:BR_DARK | BR_CONF | BR_INER | S_DEMON |
+D:The prince of evil.
+
+N:1195:Lucifer, the Fallen
+G:A:W
+I:135:157d100:50:250:255:235
+W:97:2:999:65100:0:0
+B:HIT:HURT:15d15
+B:HIT:HURT:15d15
+B:GAZE:LOSE_WIS:5d5
+B:GAZE:LOSE_CHR:5d5
+F:UNIQUE | MALE | CAN_SPEAK | CAN_FLY | AURA_REVENGE |
+F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | SMART |
+F:AURA_COLD | EVIL | RES_TELE | NO_STUN |
+F:IM_COLD | RES_POIS | NO_CONF | NO_SLEEP |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC |
+P:Copy:Archon:Paladin
+S:1_IN_4 |
+S:BR_COLD | BR_SHAR | PSY_SPEAR | S_ANGEL |
+
+N:1196:The Lurking Horror
+G:H:D
+I:120:20d100:2:50:4:1000
+W:42:3:999:35000:0:0
+B:BITE:PARALYZE:3d10
+B:BITE:POISON:3d10
+B:CLAW:TERRIFY:3d10
+B:CLAW:HURT:10d10
+F:FORCE_SLEEP | FORCE_MAXHP | SELF_DARK_1 | SELF_DARK_2 | AURA_FEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD | EMPTY_MIND | UNIQUE |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_POIS | RES_DARK | NO_CONF |
+F:COLD_BLOOD |
+S:1_IN_5 |
+S:DARKNESS | BLIND | CONF | SCARE | TELE_TO | BR_DARK
+D:It waits for you in the ink-black of the dungeon.
+D:It seems to be made entirely of claws and of teeth.
+
+N:1197:The Shadow Fiend
+G:U:v
+I:120:30d100:35:100:80:1000
+W:48:3:999:27000:0:0
+B:HIT:HURT:8d8
+B:HIT:HURT:8d8
+B:TOUCH:EXP_80:2d5
+B:TOUCH:EXP_80:2d5
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | SELF_DARK_2 | UNIQUE |
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | NONLIVING |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:EVIL | DEMON | RES_COLD | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
+S:1_IN_3 |
+S:HAND_DOOM | CAUSE_2 | CAUSE_3 | CAUSE_4 | DISPEL | CONF | BLIND |
+S:BRAIN_SMASH | MIND_BLAST | FORGET | ANIM_DEAD |
+
+# golems from Vanilla
+N:1198:Bronze golem
+G:g:o
+I:120:55d100:25:170:50:1000
+W:65:3:999:26000:0:0
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:FORCE_MAXHP | FORCE_SLEEP | EMPTY_MIND | COLD_BLOOD | RES_COLD | RES_ACID |
+F:OPEN_DOOR | BASH_DOOR | IM_FIRE | RES_ELEC | IM_POIS | RES_TELE |
+F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR | NONLIVING |
+F:RES_LITE | REFLECTING
+S:1_IN_3 |
+S:BO_PLAS | BA_FIRE | BR_FIRE | BA_ELEC | S_DEMON | TELE_TO
+D:A gigantic four-armed animated bronze statue, glowing with great heat.
+
+N:1199:Bone golem
+G:g:w
+I:120:45d100:20:170:50:1000
+W:65:3:999:23000:0:0
+B:HIT:UN_BONUS:8d8
+B:HIT:UN_BONUS:8d8
+B:HIT:LOSE_STR:6d6
+B:HIT:LOSE_STR:6d6
+F:FORCE_SLEEP | FORCE_MAXHP | EMPTY_MIND |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | NO_STUN |
+F:EVIL | UNDEAD | RES_COLD | RES_POIS | RES_FIRE | RES_ELEC | RES_TELE |
+F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+S:1_IN_3 |
+S:TELE_TO | CAUSE_4 | DRAIN_MANA |
+S:BRAIN_SMASH | BA_NETH | S_HI_UNDEAD
+D:A skeletal form, black as night, constructed from the bones of its
+D:previous victims.
+
+N:1200:Pandemonium
+G:E:v
+I:140:88d88:50:50:75:1000
+W:94:3:999:50000:0:0
+B:ENGULF:CONFUSE:30d2
+B:ENGULF:EXP_VAMP:30d2
+B:ENGULF:LOSE_STR:30d2
+B:ENGULF:ACID:30d2
+F:UNIQUE | RES_TELE | NONLIVING |
+F:FORCE_SLEEP | FORCE_MAXHP | PASS_WALL | RES_ELEC | RES_CHAO |
+F:SHAPECHANGER | ATTR_MULTI | ATTR_ANY | NO_STUN |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT | DROP_90 |
+F:SMART | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_COLD |
+F:RES_ACID | RES_POIS | RES_FIRE | NO_CONF | NO_SLEEP | POWERFUL |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Warrior-Mage
+S:1_IN_2 |
+S:TELE_TO | TPORT | BR_GRAV |
+S:BA_CHAO | BA_FIRE | BA_DARK | BA_NETH | BA_ACID | BA_COLD | BRAIN_SMASH |
+S:CAUSE_4 | PSY_SPEAR | BO_MANA | HEAL | HASTE | MIND_BLAST | BA_LITE | BA_ELEC |
+S:S_DEMON | S_CYBER | S_HI_UNDEAD | S_HI_DRAGON | S_MONSTERS | S_UNIQUE |
+S:S_ANGEL | S_HOUND |
+
+# some steam stuff
+N:1201:Countess Bathory
+G:V:w
+I:130:50d100:20:100:10:170
+W:58:4:999:30000:0:0
+B:BITE:EXP_VAMP:14d8
+B:BITE:EXP_VAMP:14d8
+B:BITE:EXP_VAMP:10d8
+B:BITE:EXP_VAMP:10d8
+F:UNIQUE | FEMALE | AURA_FEAR |
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_SPEAK |
+F:ONLY_ITEM | DROP_1D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR | REGENERATE | UNDEAD | COLD_BLOOD |
+F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP | ESCORT | NO_STUN | RES_TELE |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY
+F:DROP_CORPSE |
+P:Copy:Vampire:Rogue
+P:Body:Vampire
+S:1_IN_3 |
+S:HEAL | HASTE |
+D:The Countess Elizabeth Bathory stands before you, a strikingly
+D:beautiful young woman with an aura of tremendous power. You
+D:immediately notice the blood dripping from her face and covering
+D:most of her body, and her eyes glint with an inhuman
+D:bloodlust as she launches herself towards you, fangs bared and
+D:razor-sharp nails glinting as they rake through the air intent on
+D:drawing your blood that she may bathe in it.
+
+N:1202:Steam-Powered Mechanical Dragon
+G:g:D
+I:125:84d100:80:120:100:500
+W:69:7:999:24000:0:0
+B:CLAW:HURT:10d10
+B:CLAW:HURT:10d10
+B:BITE:FIRE:13d13
+B:BITE:HURT:2d2
+F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | KILL_WALL |
+F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
+F:DRAGON | RES_FIRE | RES_COLD | RES_ELEC | RES_COLD | IM_POIS | CAN_SWIM |
+F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | RIDING |
+F:RES_LITE | RES_DARK | RES_NEXU | RES_NETH | RES_SHAR | RES_SOUN | RES_CHAO |
+F:RES_DISE | RES_ACID |
+F:DROP_3D2 | DROP_4D2 | DROP_2D2 | DROP_1D2 | DROP_GOOD |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+F:DROP_CORPSE |
+P:Copy:Golem:Mauler
+P:Body:Dragon
+S:1_IN_6 |
+S:BR_FIRE | BA_WATE
+D:Before you stands a huge automated guardian of the depths made
+D:to look like a dragon. It idly bites a large chunk of the wall, the better
+D:to power its hellish furnace; you can feel the heat from here. You consider
+D:your options...
+
+N:1203:The Grand Inquisitor
+G:p:r
+I:120:25d100:15:80:25:170
+W:50:3:999:17000:0:0
+B:SLASH:FIRE:2d40
+B:SLASH:FIRE:2d40
+B:GAZE:PARALYZE:15d5
+B:GAZE:CONFUSE:20d5
+F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE | FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT | HUMAN | SMART |
+F:RES_ACID | RES_COLD | RES_POIS | RES_FIRE | RES_ELEC | NO_CONF |
+F:NO_SLEEP | ESCORT | ESCORTS | NO_FEAR | OPEN_DOOR | BASH_DOOR |
+S:1_IN_2 |
+S:BA_FIRE | BO_FIRE | HEAL | HASTE | SLOW | TPORT | BLINK
+S:S_KIN | S_MONSTERS | BLIND | SCARE |
+P:Copy:Dunadan:Warrior
+D:"... and at that moment the cardinal himself, the Grand Inquisitor,
+D:passes by the cathedral. He is an old man, almost ninety, tall and
+D:erect, with a withered face and sunken eyes, in which there is
+D:still a gleam of light. He is not dressed in his gorgeous cardinal's
+D:robes, as he was the day before, when he was burning the enemies
+D:of the Roman Church -- at this moment he is wearing his coarse, old,
+D:monk's cassock."
+
+N:1204:Jack the Ripper
+G:p:D
+I:150:80d100:100:120:4:150
+W:90:2:999:50000:0:0
+B:HIT:SUPERHURT:15d10
+B:HIT:TERRIFY:15d10
+B:HIT:LOSE_ALL:15d10
+B:HIT:LOSE_ALL:15d10
+F:MALE | FORCE_MAXHP | CAN_SPEAK |
+F:REGENERATE | NO_CONF | NO_SLEEP | NO_STUN |
+F:HUMAN | EVIL |
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | DROP_GREAT | UNIQUE |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL |
+F:DROP_SKELETON | DROP_CORPSE | POS_TELEPATHY
+S:1_IN_6
+S:HASTE | HEAL | BLINK | TPORT | TELE_TO | DARKNESS | TRAPS
+D:Pure evil needs no introduction.
+P:Copy:High-Elf:Rogue
+P:Skills:0:0:0:7:0:0:0:0
+P:Life:90
+P:Speed:+15
+
+N:1205:The Babbage Analytical Engine
+G:g:B
+I:140:100d100:2:130:30:500
+W:96:6:999:60000:0:0
+F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | POWERFUL |
+F:EMPTY_MIND | COLD_BLOOD | NEVER_BLOW | NEVER_MOVE | NONLIVING
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_COLD | RES_ACID | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR | UNIQUE | NO_STUN |
+F:DROP_4D2 | DROP_2D2 | DROP_GOOD | DROP_GREAT |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mage
+S:1_IN_1
+S:SHRIEK | S_KIN | BR_ELEC | BR_FIRE
+D:Charles Babbage must have gone on to create this heinous monster after
+D:the creation of his useful difference engine. This must be the source of
+D:all the automata that you have been destroying. You are sure that if
+D:you destroy this monstrosity that it will end the terrible mechanical scourge.
+D:That is much easier said than done, however, as you see a
+D:steady stream of automata appearing
+D:and moving towards you in an attempt to protect their master.
+
+# originally had S:SHOTGUN, could just do special messages?
+N:1206:The Marquis de la Tour
+G:p:r
+I:130:155d10:20:50:20:170
+W:40:4:999:17000:0:0
+B:HIT:HURT:6d15
+F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE | FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | NO_CONF |
+F:NO_SLEEP | NO_FEAR | OPEN_DOOR | BASH_DOOR |
+S:1_IN_2 |
+S:SHOOT | HEAL | BLINK | TPORT
+D:Seemingly out of nowhere, a gentleman steps towards you.
+D:He is wearing a fine suit covered by a dark cloak. He
+D:tips his top hat towards you. "Good evening", he says
+D:with a smile. Suddenly he pulls a shotgun from under
+D:his cloak and points it towards you. His form seems
+D:to blur for a second and then resolidifies in the form
+D:of a humanoid tiger: a Rakshasa! "A good evening
+D:indeed," he growls, "A pity you will not live to enjoy it!".
+
+N:1207:The Etheric Dimensional Phase Automaton
+G:g:b
+I:150:255d20:100:255:0:50
+W:96:6:999:55000:0:0
+B:HIT:HURT:20d10
+B:HIT:HURT:20d10
+B:HIT:HURT:20d10
+F:FORCE_SLEEP | FORCE_MAXHP | NO_STUN |
+F:EMPTY_MIND | COLD_BLOOD | NO_CONF | NO_SLEEP | NO_FEAR | UNIQUE | NONLIVING |
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_COLD | RES_ACID | IM_POIS |
+F:DROP_90 | DROP_2D2 | DROP_GOOD | DROP_GREAT | RES_TIME | INVISIBLE |
+F:POS_GAIN_AC | POS_HOLD_LIFE | OPEN_DOOR | BASH_DOOR |
+P:Copy:Golem:Mage
+S:1_IN_2
+S:BR_ELEC | BR_GRAV | BR_TIME | BO_MANA | BA_DARK |
+S:TPORT | TELE_TO | BLINK |
+D:There was once a universe where a brilliant scientist lived. Greater
+D:than any man of science had ever been, his inventions were countless
+D:and grander than any race's inventions had a right to be. However, hubris
+D:is not just a human concept. One day, believing himself to
+D:be infallible, he invented the Etheric Dimensional Phase Automaton.
+D:It promptly killed him and began exterminating life anywhere it could
+D:find it; since it can travel to any place and to any time, that
+D:is quite a bit of life indeed.
+
+# new
+N:1208:Anubis, Keeper of the Balance
+G:H:D
+I:130:80d100:20:155:0:130
+W:88:2:999:50000:0:0
+B:HIT:UN_BONUS:12d4
+B:HIT:UN_BONUS:12d4
+B:HIT:UN_BONUS:12d4
+B:HIT:UN_BONUS:12d4
+F:UNIQUE | MALE | MOVE_BODY | OPEN_DOOR | BASH_DOOR |
+F:FORCE_SLEEP | FORCE_MAXHP | POWERFUL |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:NO_SLEEP | NO_CONF | NO_STUN | RES_LITE | RES_DARK |
+F:RES_POIS | RES_COLD | RES_FIRE |
+F:DROP_CORPSE |
+P:Copy:Amberite:Chaos-Warrior
+S:1_IN_3
+S:BR_LITE | BR_DARK | BA_LITE | BA_DARK | HAND_DOOM |
+S:TPORT | TELE_AWAY | HEAL | DISPEL | ANTI_MAGIC |
+D:The jackal headed god that weighs the hearts of the dead against the
+D:feather of Ma'at, the goddess of truth. Those that are lighter are
+D:guided to Osiris, those that are not are devoured by Ammit.
+
+N:1209:Ammit, the Devourer
+G:H:U
+I:135:60d100:30:135:80:530
+W:66:2:999:30000:0:0
+B:BITE:FIRE:12d12
+B:BITE:TERRIFY:12d12
+B:BITE:FIRE:12d12
+B:BITE:TERRIFY:12d12
+F:UNIQUE | FEMALE | KILL_BODY | OPEN_DOOR | BASH_DOOR |
+F:FORCE_SLEEP | FORCE_MAXHP | EVIL | DEMON | CAN_SWIM |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
+F:NO_SLEEP | NO_CONF | RES_DARK | RIDING |
+F:RES_POIS | RES_FIRE | AURA_FIRE | AURA_FEAR |
+F:DROP_CORPSE | DROP_SKELETON
+P:Copy:Half-Giant:Mauler
+P:Body:Hound
+S:1_IN_4
+S:BR_NETH | BR_FIRE | BR_DARK | BR_PLAS |
+D:Ammit annihilates the souls deemed unworthy to enter Sekhet-Aaru. She
+D:watches Anubis weigh the hearts of the dead in the Hall of Two Truths.
+
+N:1210:Horus, the Ancient
+G:B:o
+I:150:85d100:30:140:255:100
+W:92:4:999:50000:0:0
+B:BITE:HURT:10d10
+B:CLAW:HURT:12d12
+B:CLAW:HURT:12d12
+F:UNIQUE | MALE | BASH_DOOR | CAN_FLY | FRIENDLY |
+F:FORCE_SLEEP | FORCE_MAXHP | GOOD | DROP_GOOD |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GREAT |
+F:NO_SLEEP | NO_CONF | RES_LITE | RES_DARK | AURA_FIRE | AURA_COLD |
+F:RES_POIS | RES_FIRE | RES_NETH | RES_CHAO | RIDING |
+F:DROP_CORPSE | DROP_SKELETON |
+P:Copy:Dunadan:Mystic
+P:Body:Giant Bird
+S:1_IN_2
+S:BR_LITE | BR_FIRE | BR_COLD | SPECIAL |
+S:S_MONSTERS
+
+N:1211:Apophis, the Primordial Chaos
+G:J:v
+I:130:100d100:70:175:100:700
+W:89:2:999:45000:0:0
+B:GAZE:PARALYZE:15d10
+B:BITE:POISON:15d10
+B:CRUSH:SHATTER:15d10
+B:CRUSH:SHATTER:15d10
+F:UNIQUE | BASH_DOOR | CAN_SPEAK |
+F:FORCE_SLEEP | FORCE_MAXHP | EVIL | DROP_GOOD | MOVE_BODY |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_1D2 | RES_TELE |
+F:NO_SLEEP | NO_CONF | NO_STUN | HURT_LITE | RES_DARK |
+F:RES_POIS | RES_FIRE | RES_COLD | RES_ELEC | RES_ACID |
+F:RES_NETH | RES_CHAO | RIDING |
+F:DROP_CORPSE | DROP_SKELETON
+P:Copy:Half-Giant:Mauler
+P:Life:115
+P:Body:Jormungand
+S:1_IN_3
+S:BR_CHAO | BR_DARK | BR_SOUN | BR_STORM | S_DEMON
+D:Existing from the beginning of time and before creation, Apophis the
+D:serpent god embodies chaos and darkness.
+
+N:1212:Thoth, the Voice of Ra
+G:Y:g
+I:125:45d100:20:95:50:100
+W:60:2:999:30000:0:0
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+F:UNIQUE | OPEN_DOOR | BASH_DOOR | MALE |
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | POWERFUL |
+F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | DROP_GOOD |
+F:NO_SLEEP | NO_CONF |
+F:DROP_CORPSE | DROP_SKELETON
+P:Copy:Human:Mage
+S:1_IN_2
+S:BA_ELEC | BA_COLD | BO_ICEE | BO_MANA | CAUSE_4 | S_UNIQUE |
+S:TPORT | BLINK | TELE_AWAY |
+D:The wisest of Egyptian gods and creator of writing and language, he
+D:fights with cunning and patience.
+
+N:1213:Sekhmet the Mistress of Fury
+G:f:r
+I:140:130d100:100:200:0:120
+W:97:5:999:70000:0:0
+B:BITE:SUPERHURT:20d10
+B:BITE:SUPERHURT:20d10
+B:CRUSH:TERRIFY:25d1
+B:CLAW:LOSE_DEX:50d1
+F:UNIQUE | FEMALE | CAN_SPEAK | FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_4D2 | DROP_3D2 | DROP_GOOD | DROP_GREAT |
+F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP
+F:IM_FIRE | KILL_BODY | AURA_FIRE |
+F:DROP_CORPSE | DROP_SKELETON | POS_GAIN_AC | POS_SEE_INVIS
+P:Copy:Half-Titan:Mauler
+P:Body:Hound
+S:1_IN_3 |
+S:BR_FIRE | BR_SOUN | S_KIN | S_HI_DRAGON | TELE_TO
+D:A terrible god of violence and wrath, Sekhmet destroys all in her path.
+
+N:1214:The Wizard of Yendor
+G:@:v
+I:120:49d92:22:70:89:120
+W:55:2:999:40000:0:0
+B:CLAW:EAT_ITEM:2d12
+F:UNIQUE | MALE | CAN_SPEAK | FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | DROP_GREAT |
+F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP | INVISIBLE |
+F:SMART | POWERFUL | HUMAN | REFLECTING | REGENERATE |
+F:RES_FIRE | RES_ACID | RES_POIS |
+F:DROP_CORPSE | DROP_SKELETON |
+P:Copy:Amberite:High-Mage
+S:1_IN_2 |
+S:BRAIN_SMASH | BO_MANA | HEAL | HASTE | BO_WATE | SHRIEK |
+S:S_MONSTERS | BO_PLAS | BO_NETH | BO_ICEE |
+S:DRAIN_MANA | ANTI_MAGIC | POLY |
+
+
 # N: serial number : monster name
 # G: symbol : color
 # I: speed : hit points : vision : armor class : alertness : weight (lbs)

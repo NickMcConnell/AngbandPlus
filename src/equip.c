@@ -1056,7 +1056,7 @@ void equip_calc_bonuses(void)
                 {
                     p_ptr->weapon_info[hand].wield_how = WIELD_ONE_HAND;
                     if (obj->rune == RUNE_AIR)
-                        p_ptr->weapon_info[hand].xtra_blow += 100;
+                        p_ptr->weapon_info[hand].xtra_blow += 75;
                 }
             }
             /* N.B. if (p_ptr->monk_lvl) would be a simpler check, but class_t.calc_bonuses gets called after equip_calc_bonuses ... */

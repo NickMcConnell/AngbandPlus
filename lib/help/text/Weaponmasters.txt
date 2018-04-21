@@ -249,5 +249,5 @@ Diggers           Poor          Bad           Superb        Bad
 
 
 
-Automatically generated for PosChengband 6.0.0.
+Automatically generated for PosChengband 6.0.1.
 

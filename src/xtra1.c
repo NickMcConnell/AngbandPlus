@@ -4515,6 +4515,7 @@ void calc_bonuses(void)
         }
 
         if ( i % 2 == 1
+          && p_ptr->weapon_info[i-1].wield_how != WIELD_NONE
           && o_ptr->tval == TV_SWORD
           && (o_ptr->sval == SV_MAIN_GAUCHE || o_ptr->sval == SV_WAKIZASHI) )
         {
@@ -4610,7 +4611,9 @@ void calc_bonuses(void)
             else if (!(have_flag(flgs, OF_RIDING)))
             {
                 int penalty;
-                if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY))
+                if ( p_ptr->pclass == CLASS_BEASTMASTER
+                  || p_ptr->pclass == CLASS_CAVALRY
+                  || skillmaster_riding_prof() >= RIDING_EXP_EXPERT )
                 {
                     penalty = 5;
                 }
@@ -4646,7 +4649,9 @@ void calc_bonuses(void)
     if (p_ptr->riding)
     {
         int penalty = 0;
-        if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY))
+        if ( p_ptr->pclass == CLASS_BEASTMASTER
+          || p_ptr->pclass == CLASS_CAVALRY
+          || skillmaster_riding_prof() >= RIDING_EXP_EXPERT )
         {
             if (p_ptr->shooter_info.tval_ammo != TV_ARROW) penalty = 5;
         }

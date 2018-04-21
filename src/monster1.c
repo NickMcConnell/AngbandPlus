@@ -315,15 +315,15 @@ bool mon_hook_dungeon(int r_idx)
 {
     monster_race *r_ptr = &r_info[r_idx];
 
-    if (!(r_ptr->flags8 & RF8_WILD_ONLY))
-        return TRUE;
-    else
+    if (r_ptr->flags8 & RF8_WILD_ONLY)
     {
         dungeon_info_type *d_ptr = &d_info[dungeon_type];
-        if (((d_ptr->mflags8 & RF8_WILD_MOUNTAIN) || no_wilderness) &&
-            (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
+        if (no_wilderness && (r_ptr->flags1 & RF1_UNIQUE)) return TRUE;
+        if ((d_ptr->mflags8 & RF8_WILD_MOUNTAIN) && (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
         return FALSE;
     }
+    else
+        return TRUE;
 }
 
 static bool _mon_hook_wild_daytime_check(int r_idx)

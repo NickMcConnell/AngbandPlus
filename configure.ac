@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PosChengband, 6.0.0, https://github.com/poschengband/poschengband/issues)
+AC_INIT(PosChengband, 6.0.2, https://github.com/poschengband/poschengband/issues)
 AC_CONFIG_SRCDIR(src)
 
 AC_CANONICAL_HOST
@@ -217,33 +217,6 @@ AC_ARG_ENABLE(sdl_mixer,
 MAINFILES="\$(BASEMAINFILES)"
 
 dnl curses checking
-dnl	AC_CHECK_LIB(curses  , initscr, found_curses=yes,found_curses=no)
-dnl	AC_CHECK_LIB(ncurses , initscr, found_ncurses=yes,found_ncurses=no)
-dnl	AC_CHECK_LIB(pdcurses, initscr, found_pdcurses=yes,found_pdcurses=no)
-dnl	if test "x$found_ncurses" = "xno"; then
-dnl		if test "x$found_pdcurses" = "xno"; then
-dnl			if test "x$found_curses" = "xno"; then
-dnl				with_curses=no
-dnl			else
-dnl				AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
-dnl				AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-dnl				LDFLAGS="${LDFLAGS} -lcurses"
-dnl				with_curses=yes
-dnl			fi
-dnl		else
-dnl			AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
-dnl			AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-dnl			LDFLAGS="${LDFLAGS} -lpdcurses"
-dnl			with_curses=yes
-dnl		fi
-dnl	else
-dnl		AC_DEFINE(USE_NCURSES, 1, [Define to 1 if NCurses is found.])
-dnl		AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-dnl		LDFLAGS="${LDFLAGS} -lncurses"
-dnl		with_curses=yes
-dnl	fi
-
-dnl curses checking
 if test "$enable_curses" = "yes"; then
     AM_PATH_NCURSESW(with_curses=yes, with_curses=no)
     if test "$with_curses" = "yes"; then
@@ -296,7 +269,8 @@ if test "$enable_win" = "yes"; then
     AC_DEFINE(USE_WIN, 1, [Define to 1 if using the Windows interface.])
     CFLAGS="${CFLAGS} -DWINDOWS -static -Iwin/include"
     LDFLAGS="${LDFLAGS} -Lwin/lib"
-    LIBS="${LIBS} -mwindows -lwinmm -lzlib -llibpng -lmsimg32"
+    LIBS="${LIBS} -mwindows -lwinmm"
+dnl LIBS="${LIBS} -mwindows -lwinmm -lzlib -llibpng -lmsimg32"
 dnl Note complete replacement of all main files
     MAINFILES="\$(WINMAINFILES)"
 fi

@@ -1372,7 +1372,7 @@ void change_floor(void)
 
     /* Hack -- Munchkin characters always get whole map */
     if (p_ptr->personality == PERS_MUNCHKIN)
-        wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
+        wiz_lite(p_ptr->pclass == CLASS_NINJA);
 
     /* Remember when this level was "created" */
     old_turn = game_turn;

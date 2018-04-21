@@ -17,6 +17,7 @@ typedef void (*obj_f)(obj_ptr obj);
  * criterion, returning TRUE to accept the object, FALSE otherwise.
  * It too should never be called with NULL. */
 typedef bool (*obj_p)(obj_ptr obj);
+typedef int  (*obj_cmp_f)(obj_ptr left, obj_ptr right);
 
 /* Creation */
 extern obj_ptr obj_alloc(void);

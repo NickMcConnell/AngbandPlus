@@ -76,6 +76,8 @@ Experience   120%
 <topic:Rune-Knight><color:o>Rune-Knight</color>
 The Rune Knight is a mythical warrior-mage who is dedicated to the power of ancient Runes that hold immense power. By affixing these Runes to his equipment, the Rune Knight can become an avatar of destruction, or an invulnerable bastion. Unlike the Warrior-Mage and all other casters, the Rune Knight's mana does not regenerate on its own; rather, the Rune Knight must siphon mana from magical attacks directed at him. The Rune Knight has a fixed (though very large) selection of spells that he can use his mana on, in addition to his unique Rune spells.
 
+See <link:Runeknights.txt> for more details on rune knights.
+
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:w> +2</color>        Disarming   <color:o>Fair         </color>
 Intelligence <color:v> +2</color>        Device      <color:y>Good         </color>
@@ -936,4 +938,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.0.</color>
+<color:s>Automatically generated for PosChengband 6.0.1.</color>

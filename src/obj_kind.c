@@ -232,7 +232,7 @@ bool object_is_rare(object_type *o_ptr)
 
 bool object_is_cursed(object_type *o_ptr)
 {
-    return o_ptr->curse_flags;
+    return BOOL(o_ptr->curse_flags);
 }
 
 /*

@@ -143,7 +143,7 @@ depend: pre-depend ${SRCS}
 	fi
 
 .c.c.dep .cc.cc.dep .cxx.cxx.dep .m.m.dep .mm.mm.dep .S.S.dep:
-	${CPP} ${CPPFLAGS} -M $< | \
+	${CPP} ${CPPFLAGS} -MM $< | \
 	sed 's/^\([^\.]*\)\.o:/\1.o \1.lib.o \1.plugin.o:/' >$@ || \
 	{ rm -f $@; false; }
 
@@ -568,16 +568,28 @@ uninstall: uninstall-extra
 	-rmdir ${DESTDIR}${plugindir} >/dev/null 2>&1
 
 	for i in ${DATA}; do \
-		if test -f ${DESTDIR}${datadir}/${PACKAGE}/$$i; then \
-			if rm -f ${DESTDIR}${datadir}/${PACKAGE}/$$i; then \
+		if test -f ${DESTDIR}${libdatadir}/${PACKAGE}/$$i; then \
+			if rm -f ${DESTDIR}${libdatadir}/${PACKAGE}/$$i; then \
 				${DELETE_OK}; \
 			else \
 				${DELETE_FAILED}; \
 			fi \
 		fi; \
-		rmdir "$$(dirname ${DESTDIR}${datadir}/${PACKAGE}/$$i)" >/dev/null 2>&1 || true; \
+		rmdir "$$(dirname ${DESTDIR}${libdatadir}/${PACKAGE}/$$i)" >/dev/null 2>&1 || true; \
 	done
-	-rmdir ${DESTDIR}${datadir}/${PACKAGE} >/dev/null 2>&1
+	-rmdir ${DESTDIR}${libdatadir}/${PACKAGE} >/dev/null 2>&1
+
+	for i in ${CONFIG}; do \
+		if test -f ${DESTDIR}${configdir}/${PACKAGE}/$$i; then \
+			if rm -f ${DESTDIR}${configdir}/${PACKAGE}/$$i; then \
+				${DELETE_OK}; \
+			else \
+				${DELETE_FAILED}; \
+			fi \
+		fi; \
+		rmdir "$$(dirname ${DESTDIR}${configdir}/${PACKAGE}/$$i)" >/dev/null 2>&1 || true; \
+	done
+	-rmdir ${DESTDIR}${configdir}/${PACKAGE} >/dev/null 2>&1
 
 	for i in ${PROG}; do \
 		if test -f ${DESTDIR}${bindir}/$$i; then \
@@ -681,7 +693,7 @@ distclean: clean
 # DELETE_OK = printf "@TERM_EL@@TERM_SETAF4@Deleted @TERM_BOLD@$$i@TERM_SGR0@@TERM_SETAF4@.@TERM_SGR0@\n"
 # DELETE_FAILED = err=$$?; printf "@TERM_EL@@TERM_SETAF1@Failed to delete @TERM_BOLD@$$i@TERM_SGR0@@TERM_SETAF1@!@TERM_SGR0@\n"; exit $$err
 
-DIR_ENTER = printf "Entering directory $$@\n"; cd $$i || exit $$?
+DIR_ENTER = printf "Entering directory $$i\n"; cd $$i || exit $$?
 DIR_LEAVE = printf "Leaving directory $$i\n"; cd .. || exit $$?
 DEPEND_STATUS = printf "Generating dependencies...\n"
 DEPEND_OK = printf "Successfully generated dependencies.\n"
