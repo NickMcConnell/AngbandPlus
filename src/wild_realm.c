@@ -1,6 +1,6 @@
 #include "angband.h"
 
-/* TODO: Player counters in general could use a revamp.  I'm too lazy to fix everything
+/* TODO: Player counters in general could use a revamp. I'm too lazy to fix everything
    since there are literally hundreds of existing counters, so I'll just hack in more crud ... */
 
 typedef void(*_wild_fn)(void);
@@ -14,10 +14,10 @@ typedef struct {
 } _counter_type;
 
 /* The trouble with status messages is that you can get multiple sources of a power, so we need
-   to check all other possibilites.  Annoying ... Note that many of the current set_tim_foo()
-   routines now report incorrectly.  They are coded obtusely, so I won't even attempt to fix. 
+   to check all other possibilites. Annoying ... Note that many of the current set_tim_foo()
+   routines now report incorrectly. They are coded obtusely, so I won't even attempt to fix. 
    
-   Note: It wasn't clear to me whether wild buffs should clobber normal buff.  If so, this means
+   Note: It wasn't clear to me whether wild buffs should clobber normal buff. If so, this means
    that Haste and Double Resist are pretty hard to come by!  For now, they will clobber (i.e., when
    wild double resist shuts off, so too does normal double resist), but we can change this later
    if desired. */

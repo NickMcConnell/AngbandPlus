@@ -527,12 +527,22 @@ void virtue_add(int which, int amount)
     }
 }
 
-void virtue_dump(FILE *file)
+static char _alignment_color(void)
+{
+    if (p_ptr->align > 150) return 'g';
+    else if (p_ptr->align > 50) return 'G';
+    else if (p_ptr->align > 10) return 'B';
+    else if (p_ptr->align > -11) return 'w';
+    else if (p_ptr->align > -51) return 'o';
+    else if (p_ptr->align > -151) return 'r';
+    else return 'v';
+}
+
+void virtue_display(doc_ptr doc)
 {
     int idx = 0;
 
-    if (!file) return;
-    if (!enable_virtues) return;
+    doc_printf(doc, "<color:G>Your alignment:</color> <color:%c>%s</color>\n\n", _alignment_color(), your_alignment());
 
     for (idx = 0; idx < 8; idx++)
     {
@@ -547,31 +557,31 @@ void virtue_dump(FILE *file)
             strcpy(name, virtue_name(p_ptr->vir_types[idx]));
 
             if (tester < -100)
-                fprintf(file, "You are the polar opposite of %s.\n", name);
+                doc_printf(doc, "You are the <color:v>polar opposite</color> of %s.\n", name);
             else if (tester < -80)
-                fprintf(file, "You are an arch-enemy of %s.\n", name);
+                doc_printf(doc, "You are an <color:r>arch-enemy</color> of %s.\n", name);
             else if (tester < -60)
-                fprintf(file, "You are a bitter enemy of %s.\n", name);
+                doc_printf(doc, "You are a <color:R>bitter enemy</color> of %s.\n", name);
             else if (tester < -40)
-                fprintf(file, "You are an enemy of %s.\n", name);
+                doc_printf(doc, "You are an <color:o>enemy</color> of %s.\n", name);
             else if (tester < -20)
-                fprintf(file, "You have sinned against %s.\n", name);
+                doc_printf(doc, "You have <color:y>sinned against</color> %s.\n", name);
             else if (tester < 0)
-                fprintf(file, "You have strayed from the path of %s.\n", name);
+                doc_printf(doc, "You have <color:U>strayed</color> from the path of %s.\n", name);
             else if (tester == 0)
-                fprintf(file,"You are neutral to %s.\n", name);
+                doc_printf(doc, "You are neutral to %s.\n", name);
             else if (tester < 20)
-                fprintf(file,"You are somewhat virtuous in %s.\n", name);
+                doc_printf(doc, "You are <color:G>somewhat virtuous</color> in %s.\n", name);
             else if (tester < 40)
-                fprintf(file,"You are virtuous in %s.\n", name);
+                doc_printf(doc, "You are <color:G>virtuous</color> in %s.\n", name);
             else if (tester < 60)
-                fprintf(file,"You are very virtuous in %s.\n", name);
+                doc_printf(doc, "You are <color:g>very virtuous</color> in %s.\n", name);
             else if (tester < 80)
-                fprintf(file,"You are a champion of %s.\n", name);
+                doc_printf(doc, "You are a <color:g>champion</color> of %s.\n", name);
             else if (tester < 100)
-                fprintf(file,"You are a great champion of %s.\n",  name);
+                doc_printf(doc, "You are a <color:B>great champion</color> of %s.\n",  name);
             else
-                fprintf(file,"You are the living embodiment of %s.\n", name);
+                doc_printf(doc, "You are the <color:B>living embodiment</color> of %s.\n", name);
         }
     }
 }

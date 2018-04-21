@@ -1,0 +1,27 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:U>You attack the Druid:</color> You kick. You <color:y>double-kick</color>. He is stunned.
+You <color:y>double-kick</color>. You kick him in the ankle. He starts limping       LEVEL <color:G>    23</color>
+slower. The Druid flees in terror!                                  EXP <color:G>   3.28k</color>
+<color:U>##################################################################</color>  AU  <color:G>   21.7k</color>
+<color:U>##################################################################</color>  <color:d>  </color><color:U>}</color><color:g>==</color><color:y>"</color><color:o>~</color><color:U>(</color><color:G>(</color><color:u>]</color><color:U>]</color><color:d> </color>
+<color:U>##################################################################</color>  STR : <color:G> 18/62</color>
+<color:U>##################################################################</color>  INT : <color:G>    11</color>
+<color:U>#################################</color><color:v>+</color><color:U>################################</color>  WIS : <color:G> 18/20</color>
+<color:U>####################</color>...........................<color:U>###################</color>  DEX : <color:G>18/114</color>
+<color:U>###################</color>.............................<color:U>##################</color>  Con : <color:y>    16</color>
+<color:U>###################</color>..............@..............<color:U>##################</color>  CHR : <color:G>    14</color>
+<color:U>###################</color>..............<color:g>p</color>..............<color:U>##################</color>  AC     <color:G>   78</color>
+<color:U>###################</color>.............................<color:U>##################</color>  HP <color:y> 275</color>/<color:G> 295</color>
+<color:U>###################</color>.............................<color:U>##################</color>  SP <color:G>  75</color>/<color:G>  75</color>
+<color:U>###################</color>.............................<color:U>##################</color>
+<color:U>###################</color>.............................<color:U>##################</color>  @[<color:y>*********</color>]
+<color:U>####################</color>...........................<color:U>###################</color>  <color:G>?</color>[<color:G>*********</color>]
+<color:U>##################################################################</color>  <color:U>,</color>[*********]
+<color:U>##################################################################</color>  <color:g>p</color>[<color:B>*</color>--------]
+<color:U>##################################################################</color>
+<color:U>##################################################################</color>
+<color:U>##################################################################</color>  <color:G>Fast (+3)</color>
+<color:U>##################################################################</color>  <color:B>Study (3)</color>
+Arena
+</style>

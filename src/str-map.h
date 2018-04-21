@@ -5,9 +5,9 @@ typedef struct str_map_s str_map_t;
 typedef str_map_t *str_map_ptr;
 typedef struct str_map_iter_s str_map_iter_t;
 typedef str_map_iter_t *str_map_iter_ptr;
-typedef void (*free_value_f)(void *v);
+typedef void (*str_map_free_f)(void *v);
 
-extern str_map_ptr str_map_alloc(free_value_f free);
+extern str_map_ptr str_map_alloc(str_map_free_f free);
 extern void        str_map_free(str_map_ptr map);
 
 extern void        str_map_add(str_map_ptr map, const char *key, void *val); /* key is copied */

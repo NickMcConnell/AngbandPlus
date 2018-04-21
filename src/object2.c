@@ -5,13 +5,14 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Object code, part 2 */
 
 #include "angband.h"
 
+#include "int-map.h"
 #include "kajitips.h"
 
 #include <assert.h>
@@ -141,6 +142,7 @@ void excise_object_idx(int o_idx)
             prev_o_idx = this_o_idx;
         }
     }
+    p_ptr->window |= PW_OBJECT_LIST;
 }
 
 
@@ -177,6 +179,8 @@ void delete_object_idx(int o_idx)
 
     /* Count objects */
     o_cnt--;
+
+    p_ptr->window |= PW_OBJECT_LIST;
 }
 
 
@@ -220,6 +224,8 @@ void delete_object(int y, int x)
 
     /* Visual update */
     lite_spot(y, x);
+
+    p_ptr->window |= PW_OBJECT_LIST;
 }
 
 
@@ -430,7 +436,7 @@ void compact_objects(int size)
  *
  * Hack -- we clear the "c_ptr->o_idx" field for every grid,
  * and the "m_ptr->next_o_idx" field for every monster, since
- * we know we are clearing every object.  Technically, we only
+ * we know we are clearing every object. Technically, we only
  * clear those fields for grids/monsters containing objects,
  * and we clear it once for every such object.
  */
@@ -599,16 +605,12 @@ errr get_obj_num_prep(void)
  * same table, which is then used to choose an "appropriate" object, in
  * a relatively efficient manner.
  *
- * It is (slightly) more likely to acquire an object of the given level
- * than one of a lower level.  This is done by choosing several objects
- * appropriate to the given level and keeping the "hardest" one.
- *
  * Note that if no objects are "appropriate", then this function will
  * fail, and return zero, but this should *almost* never happen.
  */
 s16b get_obj_num(int level)
 {
-    int             i, j, p;
+    int             i;
     int             k_idx;
     long            value, total;
     object_kind     *k_ptr;
@@ -622,8 +624,13 @@ s16b get_obj_num(int level)
         /* Occasional "boost" */
         if (one_in_(GREAT_OBJ))
         {
-            /* What a bizarre calculation */
-            level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
+            int boost = level;
+            if (boost < 20)
+                boost = 20;
+            level += rand_range(boost/4, boost/2);
+
+            /* What a bizarre calculation
+            level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH)); */
         }
     }
 
@@ -668,67 +675,37 @@ s16b get_obj_num(int level)
         value = value - table[i].prob3;
     }
 
-
-    /* Power boost */
-    p = randint0(100);
-
-    /* Try for a "better" object once (50%) or twice (10%) */
-    if (p < 60)
-    {
-        /* Save old */
-        j = i;
-
-        /* Pick a object */
-        value = randint0(total);
-
-        /* Find the object */
-        for (i = 0; i < alloc_kind_size; i++)
-        {
-            /* Found the entry */
-            if (value < table[i].prob3) break;
-
-            /* Decrement */
-            value = value - table[i].prob3;
-        }
-
-        /* Keep the "best" one */
-        if (table[i].level < table[j].level) i = j;
-    }
-
-    /* Try for a "better" object twice (10%) */
-    if (p < 10)
-    {
-        /* Save old */
-        j = i;
-
-        /* Pick a object */
-        value = randint0(total);
-
-        /* Find the object */
-        for (i = 0; i < alloc_kind_size; i++)
-        {
-            /* Found the entry */
-            if (value < table[i].prob3) break;
-
-            /* Decrement */
-            value = value - table[i].prob3;
-        }
-
-        /* Keep the "best" one */
-        if (table[i].level < table[j].level) i = j;
-    }
+    /* Note: There used to be power boosting code here, but it gave very bad results in
+     * some situations. For example, I want wands, rods and staves to allocate equally, but
+     * would like wands to be available earlier than staves, which are earlier than rods.
+     * Setting things up as:
+     *   Wand:  A:1/1
+     *   Staff: A:5/1
+     *   Rod:   A:10/1
+     * gave the following allocation distribution (10,000 objects, devices are 15%, deeper than DL10
+     * so I would expect 5% allocation to each):
+     * > Wands:  286 2.8%
+     * > Staves: 486 4.8%
+     * > Rods:   747 7.4%
+     * Adding duplicate allocation entries helped, but the distribution was still unacceptably
+     * skewed and this "feature" seemed more like a bug to me. -CTK
+     */
 
     /* Result */
     return (table[i].index);
 }
 
+bool object_is_aware(object_type *o_ptr)
+{
+    return k_info[o_ptr->k_idx].aware;
+}
 
 /*
  * Known is true when the "attributes" of an object are "known".
  * These include tohit, todam, toac, cost, and pval (charges).
  *
  * Note that "knowing" an object gives you everything that an "awareness"
- * gives you, and much more.  In fact, the player is always "aware" of any
+ * gives you, and much more. In fact, the player is always "aware" of any
  * item of which he has full "knowledge".
  *
  * But having full knowledge of, say, one "wand of wonder", does not, by
@@ -748,6 +725,7 @@ void object_known(object_type *o_ptr)
 
     /* Clear the "Empty" info */
     o_ptr->ident &= ~(IDENT_EMPTY);
+    o_ptr->ident &= ~(IDENT_TRIED);
 
     /* Now we know about the item */
     o_ptr->ident |= (IDENT_KNOWN);
@@ -765,6 +743,12 @@ void ego_aware(object_type *o_ptr)
     if (o_ptr->name2)
         e_info[o_ptr->name2].aware = TRUE;
 }
+bool ego_is_aware(int which)
+{
+    if (e_info[which].aware || (e_info[which].gen_flags & TRG_AWARE))
+        return TRUE;
+    return FALSE;
+}
 
 /* Statistics
    We try hard not to leak information. For example, when picking up an
@@ -779,6 +763,27 @@ void ego_aware(object_type *o_ptr)
 */
 counts_t stats_rand_art_counts = {0};
 
+void stats_reset(void)
+{
+    int i;
+
+    for (i = 1; i < max_k_idx; i++)
+    {
+        object_kind *k_ptr = &k_info[i];
+
+        WIPE(&k_ptr->counts, counts_t);
+    }
+    for (i = 1; i < max_e_idx; i++)
+    {
+        ego_item_type *e_ptr = &e_info[i];
+
+        WIPE(&e_ptr->counts, counts_t);
+    }
+
+    WIPE(&stats_rand_art_counts, counts_t);
+    device_stats_reset();
+}
+
 void stats_on_load(savefile_ptr file)
 {
     stats_rand_art_counts.generated = savefile_read_s32b(file);
@@ -786,6 +791,8 @@ void stats_on_load(savefile_ptr file)
     stats_rand_art_counts.bought = savefile_read_s32b(file);
     stats_rand_art_counts.used = savefile_read_s32b(file);
     stats_rand_art_counts.destroyed = savefile_read_s32b(file);
+
+    device_stats_on_load(file);
 }
 
 void stats_on_save(savefile_ptr file)
@@ -795,6 +802,8 @@ void stats_on_save(savefile_ptr file)
     savefile_write_s32b(file, stats_rand_art_counts.bought);
     savefile_write_s32b(file, stats_rand_art_counts.used);      /* Artifact Devices */
     savefile_write_s32b(file, stats_rand_art_counts.destroyed); /* Certain Class Powers */
+
+    device_stats_on_save(file);
 }
 
 void stats_on_purchase(object_type *o_ptr)
@@ -803,6 +812,11 @@ void stats_on_purchase(object_type *o_ptr)
     {
         k_info[o_ptr->k_idx].counts.bought += o_ptr->number;
         o_ptr->marked |= OM_COUNTED;
+    }
+    if (object_is_device(o_ptr) && !(o_ptr->marked & OM_EFFECT_COUNTED))
+    {
+        device_stats_on_purchase(o_ptr);
+        o_ptr->marked |= OM_EFFECT_COUNTED;
     }
     if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
     {
@@ -823,6 +837,11 @@ void stats_on_sell(object_type *o_ptr)
         k_info[o_ptr->k_idx].counts.found += o_ptr->number;
         o_ptr->marked |= OM_COUNTED;
     }
+    if (object_is_device(o_ptr) && !(o_ptr->marked & OM_EFFECT_COUNTED))
+    {
+        device_stats_on_find(o_ptr);
+        o_ptr->marked |= OM_EFFECT_COUNTED;
+    }
     if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
     {
         e_info[o_ptr->name2].counts.found += o_ptr->number;
@@ -842,6 +861,9 @@ void stats_on_notice(object_type *o_ptr, int num)
         k_info[o_ptr->k_idx].counts.found += num;
         o_ptr->marked |= OM_COUNTED;
     }
+
+    /* Note: Noticing the effect of a device now identifies the device */
+
     if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
     {
         e_info[o_ptr->name2].counts.found += num;
@@ -866,6 +888,8 @@ void stats_on_combine(object_type *dest, object_type *src)
         k_info[src->k_idx].counts.found += src->number;
         src->marked |= OM_COUNTED;
     }
+
+    /* Note: Devices no longer stack */
 }
 
 void stats_on_use(object_type *o_ptr, int num)
@@ -875,6 +899,9 @@ void stats_on_use(object_type *o_ptr, int num)
         e_info[o_ptr->name2].counts.used += num;
     if (o_ptr->art_name)
         stats_rand_art_counts.used += num;
+
+    if (object_is_device(o_ptr))
+        device_stats_on_use(o_ptr, num);
 }
 
 void stats_on_p_destroy(object_type *o_ptr, int num)
@@ -883,6 +910,11 @@ void stats_on_p_destroy(object_type *o_ptr, int num)
     {
         k_info[o_ptr->k_idx].counts.found += o_ptr->number;
         o_ptr->marked |= OM_COUNTED;
+    }
+    if (object_is_device(o_ptr) && !(o_ptr->marked & OM_EFFECT_COUNTED))
+    {
+        device_stats_on_find(o_ptr);
+        o_ptr->marked |= OM_EFFECT_COUNTED;
     }
     if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
     {
@@ -900,6 +932,8 @@ void stats_on_p_destroy(object_type *o_ptr, int num)
         e_info[o_ptr->name2].counts.destroyed += num;
     if (o_ptr->art_name)
         stats_rand_art_counts.destroyed += num;
+    if (object_is_device(o_ptr))
+        device_stats_on_destroy(o_ptr);
 }
 
 void stats_on_m_destroy(object_type *o_ptr, int num)
@@ -907,6 +941,8 @@ void stats_on_m_destroy(object_type *o_ptr, int num)
     k_info[o_ptr->k_idx].counts.destroyed += num;
     if (o_ptr->name2)
         e_info[o_ptr->name2].counts.destroyed += num;
+    if (object_is_device(o_ptr))
+        device_stats_on_destroy(o_ptr);
 }
 
 void stats_on_pickup(object_type *o_ptr)
@@ -916,7 +952,11 @@ void stats_on_pickup(object_type *o_ptr)
         k_info[o_ptr->k_idx].counts.found += o_ptr->number;
         o_ptr->marked |= OM_COUNTED;
     }
-
+    if (object_is_known(o_ptr) && object_is_device(o_ptr) && !(o_ptr->marked & OM_EFFECT_COUNTED))
+    {
+        device_stats_on_find(o_ptr);
+        o_ptr->marked |= OM_EFFECT_COUNTED;
+    }
     if (object_is_known(o_ptr) && o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
     {
         e_info[o_ptr->name2].counts.found += o_ptr->number;
@@ -953,19 +993,25 @@ void stats_on_equip(object_type *o_ptr)
 
 void stats_on_identify(object_type *o_ptr)
 {
-    if (object_is_aware(o_ptr) && !(o_ptr->marked & OM_COUNTED))
+    if (!(o_ptr->marked & OM_COUNTED))
     {
         k_info[o_ptr->k_idx].counts.found += o_ptr->number;
         o_ptr->marked |= OM_COUNTED;
     }
 
-    if (object_is_known(o_ptr) && o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    if (object_is_device(o_ptr) && !(o_ptr->marked & OM_EFFECT_COUNTED))
+    {
+        device_stats_on_find(o_ptr);
+        o_ptr->marked |= OM_EFFECT_COUNTED;
+    }
+
+    if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
     {
         e_info[o_ptr->name2].counts.found += o_ptr->number;
         o_ptr->marked |= OM_EGO_COUNTED;
     }
 
-    if (object_is_known(o_ptr) && o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    if (o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
     {
         stats_rand_art_counts.found += o_ptr->number;
         o_ptr->marked |= OM_ART_COUNTED;
@@ -977,10 +1023,19 @@ void stats_on_identify(object_type *o_ptr)
  */
 void object_tried(object_type *o_ptr)
 {
-    /* Mark it as tried (even if "aware") */
-    k_info[o_ptr->k_idx].tried = TRUE;
+    if (object_is_device(o_ptr))
+        o_ptr->ident |= IDENT_TRIED;
+    else
+        k_info[o_ptr->k_idx].tried = TRUE;
 }
 
+bool object_is_tried(object_type *o_ptr)
+{
+    if (object_is_device(o_ptr))
+        return (o_ptr->ident & IDENT_TRIED) ? TRUE : FALSE;
+    else
+        return k_info[o_ptr->k_idx].tried;
+}
 
 /*
  * Return the "value" of an "unknown" item
@@ -1233,23 +1288,6 @@ s32b flag_cost(object_type *o_ptr, int plusses, bool hack)
 /*
  * Return the "real" price of a "known" item, not including discounts
  *
- * Wand and staffs get cost for each charge
- *
- * Armor is worth an extra 100 gold per bonus point to armor class.
- *
- * Weapons are worth an extra 100 gold per bonus point (AC,TH,TD).
- *
- * Missiles are only worth 5 gold per bonus point, since they
- * usually appear in groups of 20, and we want the player to get
- * the same amount of cash for any "equivalent" item.  Note that
- * missiles never have any of the "pval" flags, and in fact, they
- * only have a few of the available flags, primarily of the "slay"
- * and "brand" and "ignore" variety.
- *
- * Armor with a negative armor bonus is worthless.
- * Weapons with negative hit+damage bonuses are worthless.
- *
- * Every wearable item with a "pval" bonus is worth extra (see below).
  */
 s32b object_value_real(object_type *o_ptr)
 {
@@ -1262,17 +1300,18 @@ s32b object_value_real(object_type *o_ptr)
     /* Dave has been kind enough to come up with much better scoring.
        So use the new algorithms whenever possible.
     */
-    if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr);
-    if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr);
-    if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr);
-    if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr);
-    if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr);
+    if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr, COST_REAL);
+    if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr, COST_REAL);
+    if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr, COST_REAL);
+    if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr, COST_REAL);
+    if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, COST_REAL);
+    if (object_is_device(o_ptr)) return device_value(o_ptr, COST_REAL);
 
     /* OK, here's the old pricing algorithm :( 
        Note this algorithm cheats for artifacts by relying on cost
-       data from a_info.txt.  The result was that rand-arts get scored
-       poorly.  Also, try comparing the code calculated cost to
-       the human one in a_info.txt some time.  The new algorithms
+       data from a_info.txt. The result was that rand-arts get scored
+       poorly. Also, try comparing the code calculated cost to
+       the human one in a_info.txt some time. The new algorithms
        are much nicer. */
 
     /* Hack -- "worthless" items */
@@ -1377,28 +1416,6 @@ s32b object_value_real(object_type *o_ptr)
     /* Analyze the item */
     switch (o_ptr->tval)
     {
-        /* Wands/Staffs */
-        case TV_WAND:
-        {
-            /* Pay extra for charges, depending on standard number of
-             * charges.  Handle new-style wands correctly. -LM-
-             */
-            value += (value * o_ptr->pval / o_ptr->number / (k_ptr->pval * 2));
-
-            /* Done */
-            break;
-        }
-        case TV_STAFF:
-        {
-            /* Pay extra for charges, depending on standard number of
-             * charges.  -LM-
-             */
-            value += (value * o_ptr->pval / (k_ptr->pval * 2));
-
-            /* Done */
-            break;
-        }
-
         /* Rings/Amulets */
         case TV_RING:
         case TV_AMULET:
@@ -1523,12 +1540,41 @@ s32b object_value(object_type *o_ptr)
 {
     s32b value;
     if (object_is_known(o_ptr))
-        value = object_value_real(o_ptr);
+    {
+        if (object_is_melee_weapon(o_ptr))
+            value = weapon_cost(o_ptr, 0);
+        else if (o_ptr->tval == TV_BOW)
+            value = bow_cost(o_ptr, 0);
+        else if (object_is_armour(o_ptr) || object_is_shield(o_ptr))
+            value = armor_cost(o_ptr, 0);
+        else if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr)))
+            value = jewelry_cost(o_ptr, 0);
+        else if (o_ptr->tval == TV_LITE)
+            value = lite_cost(o_ptr, 0);
+        else if (object_is_device(o_ptr))
+            value = device_value(o_ptr, 0);
+        else
+            value = object_value_real(o_ptr);
+
+        if (!(o_ptr->ident & IDENT_FULL))
+        {
+            if (o_ptr->name2 && !e_info[o_ptr->name2].aware)
+                value += 500;
+            else if (object_is_artifact(o_ptr))
+                value += 1000;
+        }
+    }
     else
     {
-        value = object_value_base(o_ptr);
+        value = new_object_cost(o_ptr, 0);
+        if (!value)
+            value = object_value_base(o_ptr);
         if ((o_ptr->ident & IDENT_SENSE) && object_is_cursed(o_ptr))
             value /= 3;
+        if ((o_ptr->ident & IDENT_SENSE) && object_is_ego(o_ptr))
+            value += 500;
+        if ((o_ptr->ident & IDENT_SENSE) && object_is_artifact(o_ptr))
+            value += 1000;
     }
     if (o_ptr->discount) 
         value -= (value * o_ptr->discount / 100L);
@@ -1584,7 +1630,7 @@ void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
 {
     /*
      * Hack -- If rods or wands are dropped, the total maximum timeout or
-     * charges need to be allocated between the two stacks.  If all the items
+     * charges need to be allocated between the two stacks. If all the items
      * are being dropped, it makes for a neater message to leave the original
      * stack's pval alone. -LM-
      */
@@ -1593,7 +1639,7 @@ void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
         q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
         if (amt < o_ptr->number) o_ptr->pval -= q_ptr->pval;
 
-        /* Hack -- Rods also need to have their timeouts distributed.  The
+        /* Hack -- Rods also need to have their timeouts distributed. The
          * dropped stack will accept all time remaining to charge up to its
          * maximum.
          */
@@ -1710,44 +1756,9 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 
         /* Staffs */
         case TV_STAFF:
-        {
-            /* Require either knowledge or known empty for both staffs. */
-            if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
-                !object_is_known(o_ptr)) ||
-                (!(j_ptr->ident & (IDENT_EMPTY)) &&
-                !object_is_known(j_ptr))) return 0;
-
-            /* Require identical charges, since staffs are bulky. */
-            if (o_ptr->pval != j_ptr->pval) return 0;
-
-            /* Assume okay */
-            break;
-        }
-
-        /* Wands */
         case TV_WAND:
-        {
-            /* Require either knowledge or known empty for both wands. */
-            if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
-                !object_is_known(o_ptr)) ||
-                (!(j_ptr->ident & (IDENT_EMPTY)) &&
-                !object_is_known(j_ptr))) return 0;
-
-            /* Wand charges combine in O&ZAngband.  */
-
-            /* Assume okay */
-            break;
-        }
-
-        /* Staffs and Wands and Rods */
         case TV_ROD:
-        {
-            /* Prevent overflaw of timeout */
-            max_num = MIN(max_num, MAX_SHORT / k_info[o_ptr->k_idx].pval);
-
-            /* Assume okay */
-            break;
-        }
+            return 0;
 
         /* Weapons and Armor */
         case TV_BOW:
@@ -1840,8 +1851,9 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 
     /* Require identical activations */
     if ( o_ptr->activation.type != j_ptr->activation.type
-      || o_ptr->activation.timeout != j_ptr->activation.timeout
-      || o_ptr->activation.level != j_ptr->activation.level
+      || o_ptr->activation.cost != j_ptr->activation.cost
+      || o_ptr->activation.power != j_ptr->activation.power
+      || o_ptr->activation.difficulty != j_ptr->activation.difficulty
       || o_ptr->activation.extra != j_ptr->activation.extra )
     {
         return 0;
@@ -1915,7 +1927,7 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
     }
 
     /* Hack -- blend "mental" status */
-    if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
+    if (j_ptr->ident & (IDENT_FULL)) o_ptr->ident |= (IDENT_FULL);
 
     /* Hack -- blend "inscriptions" */
     if (j_ptr->inscription) o_ptr->inscription = j_ptr->inscription;
@@ -2065,7 +2077,7 @@ void object_prep(object_type *o_ptr, int k_idx)
  * we simply round the results of division in such a way as to "average" the
  * correct floating point value.
  *
- * This function has been changed.  It uses "randnor()" to choose values from
+ * This function has been changed. It uses "randnor()" to choose values from
  * a normal distribution, whose mean moves from zero towards the max as the
  * level increases, and whose standard deviation is equal to 1/4 of the max,
  * and whose values are forced to lie between zero and the max, inclusive.
@@ -2356,8 +2368,8 @@ static int _get_random_ego(int type)
                 if (e_ptr->max_level && object_level > e_ptr->max_level)
                     rarity += 3*(object_level - e_ptr->max_level)/4;
                 else if (e_ptr->level && object_level < e_ptr->level)
-                    rarity += 3*(e_ptr->level - object_level)/4;
-                total += MAX(255 / rarity, 1);
+                    rarity += 3*rarity*(e_ptr->level - object_level)/4;
+                total += MAX(10000 / rarity, 1);
             }
         }
     }
@@ -2376,8 +2388,8 @@ static int _get_random_ego(int type)
                 if (e_ptr->max_level && object_level > e_ptr->max_level)
                     rarity += 3*(object_level - e_ptr->max_level)/4;
                 else if (e_ptr->level && object_level < e_ptr->level)
-                    rarity += 3*(e_ptr->level - object_level)/4;
-                value -= MAX(255 / rarity, 1);
+                    rarity += 3*rarity*(e_ptr->level - object_level)/4;
+                value -= MAX(10000 / rarity, 1);
                 if (value <= 0) 
                     return i;
             }
@@ -2431,7 +2443,7 @@ static void _create_defender(object_type *o_ptr, int level, int power)
 {
     add_flag(o_ptr->art_flags, TR_FREE_ACT);
     add_flag(o_ptr->art_flags, TR_SEE_INVIS);
-    if (abs(power) >= 2)
+    if (abs(power) >= 2 && level > 50)
     {
         if (one_in_(2))
             add_flag(o_ptr->art_flags, TR_LEVITATION);
@@ -2514,10 +2526,9 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
     bool done = FALSE;
     bool force_great = FALSE;
 
-    if (!apply_magic_ego)
+    if (!apply_magic_ego && level > 50)
     {
-        if ( ((mode & AM_GREAT) && randint0(50) < level)
-          || ((mode & AM_GOOD) && randint0(150) < level) )
+        if ((mode & (AM_GOOD | AM_GREAT)) && randint0(150) < level)
         {
             force_great = TRUE;
         }
@@ -2927,10 +2938,9 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
     bool force_great = FALSE;
     bool done = FALSE;
 
-    if (!apply_magic_ego)
+    if (!apply_magic_ego && level > 50)
     {
-        if ( ((mode & AM_GREAT) && randint0(75) < level)
-          || ((mode & AM_GOOD) && randint0(300) < level) )
+        if ((mode & (AM_GOOD | AM_GREAT)) && randint0(300) < level)
         {
             force_great = TRUE;
         }
@@ -2941,7 +2951,8 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
         o_ptr->name2 = _get_random_ego(EGO_TYPE_AMULET);
         done = TRUE;
         if ( force_great
-          && o_ptr->name2 != EGO_AMULET_DEFENDER )
+          && o_ptr->name2 != EGO_AMULET_DEFENDER
+          && o_ptr->name2 != EGO_AMULET_HERO )
         {
             done = FALSE;
         }
@@ -3109,6 +3120,8 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
         o_ptr->to_d = randint1(3) + m_bonus(5, level);
         if (one_in_(3)) add_flag(o_ptr->art_flags, TR_SLOW_DIGEST);
         if (one_in_(3)) add_flag(o_ptr->art_flags, TR_SUST_CON);
+        if (one_in_(3)) add_flag(o_ptr->art_flags, TR_SUST_STR);
+        if (one_in_(3)) add_flag(o_ptr->art_flags, TR_SUST_DEX);
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_WARRIOR);
         break;
@@ -3340,7 +3353,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
             effect_add_random(o_ptr, BIAS_DEMON);
         break;
     case EGO_AMULET_ELEMENTAL:
-        if (abs(power) >= 2)
+        if (abs(power) >= 2 && randint1(level) > 30)
         {
             add_flag(o_ptr->art_flags, TR_RES_COLD);
             add_flag(o_ptr->art_flags, TR_RES_FIRE);
@@ -3373,6 +3386,52 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
         power--;
 }
 
+static bool _create_device(object_type *o_ptr, int level, int power, int mode)
+{
+    /* Create the device and pick the effect. This can fail if, for example,
+       mode is AM_GOOD and we are too shallow for any of the good effects. */
+    if (!device_init(o_ptr, level, mode))
+        return FALSE;
+
+    if (abs(power) > 1)
+    {
+        bool done = FALSE;
+        u32b flgs[TR_FLAG_SIZE];
+
+        object_flags(o_ptr, flgs);
+
+        while (!done)
+        {
+            o_ptr->name2 = _get_random_ego(EGO_TYPE_DEVICE);
+            done = TRUE;
+
+            if ( o_ptr->name2 == EGO_DEVICE_RESISTANCE
+              && (have_flag(flgs, TR_IGNORE_ACID) || o_ptr->tval == TV_ROD) )
+            {
+                done = FALSE;
+            }
+        }
+
+        switch (o_ptr->name2)
+        {
+        case EGO_DEVICE_CAPACITY:
+            o_ptr->pval = 1 + m_bonus(4, level);
+            o_ptr->xtra4 += o_ptr->xtra4 * o_ptr->pval * 10 / 100;
+            break;
+        case EGO_DEVICE_SIMPLICITY:
+        case EGO_DEVICE_POWER:
+        case EGO_DEVICE_REGENERATION:
+        case EGO_DEVICE_QUICKNESS:
+            o_ptr->pval = 1 + m_bonus(4, level);
+            break;
+        }
+    }
+
+    if (power < 0)
+        o_ptr->curse_flags |= TRC_CURSED;
+
+    return TRUE;
+}
 void adjust_weapon_weight(object_type *o_ptr)
 {
     /* Experimental: Maulers need heavy weapons!
@@ -3732,6 +3791,8 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                     add_flag(o_ptr->art_flags, TR_AGGRAVATE);
                 else
                     add_flag(o_ptr->art_flags, TR_DEC_STEALTH);
+                if (p_ptr->pclass == CLASS_PRIEST && (p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON))
+                    add_flag(o_ptr->art_flags, TR_BLESSED);
                 break;
             case EGO_WEAPON_DEATH:
                 if (one_in_(6))
@@ -3751,6 +3812,12 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 }
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_NECROMANTIC);
+                if (p_ptr->pclass == CLASS_PRIEST && (p_ptr->realm1 == REALM_DEATH || p_ptr->realm2 == REALM_DEATH))
+                    add_flag(o_ptr->art_flags, TR_BLESSED);
+                break;
+            case EGO_WEAPON_MORGUL:
+                if (p_ptr->pclass == CLASS_PRIEST && (p_ptr->realm1 == REALM_DEATH || p_ptr->realm2 == REALM_DEATH))
+                    add_flag(o_ptr->art_flags, TR_BLESSED);
                 break;
             case EGO_WEAPON_DEFENDER:
                 o_ptr->to_a = 5;
@@ -3889,6 +3956,8 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 }
                 break;
             case EGO_WEAPON_TRUMP:
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_CHR);
                 if (one_in_(5))
                     add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
                 if (one_in_(7))
@@ -4643,11 +4712,6 @@ static void _create_lite(object_type *o_ptr, int level, int power, int mode)
  */
 static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
 {
-    object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-    /* Unused */
-    (void)level;
-
     /* Apply magic (good or bad) according to type */
     switch (o_ptr->tval)
     {
@@ -4672,23 +4736,6 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
             o_ptr->pval = 0;
             break;
         }
-        case TV_WAND:
-        case TV_STAFF:
-        {
-            /* The wand or staff gets a number of initial charges equal
-             * to between 1/2 (+1) and the full object kind's pval. -LM-
-             */
-            o_ptr->pval = k_ptr->pval / 2 + randint1((k_ptr->pval + 1) / 2);
-            break;
-        }
-
-        case TV_ROD:
-        {
-            /* Transfer the pval. -LM- */
-            o_ptr->pval = k_ptr->pval;
-            break;
-        }
-
         case TV_CAPTURE:
         {
             o_ptr->pval = 0;
@@ -4871,26 +4918,26 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
  *
  * The base "chance" of the item being "good" increases with the "level"
  * parameter, which is usually derived from the dungeon level, being equal
- * to the level plus 10, up to a maximum of 75.  If "good" is true, then
- * the object is guaranteed to be "good".  If an object is "good", then
+ * to the level plus 10, up to a maximum of 75. If "good" is true, then
+ * the object is guaranteed to be "good". If an object is "good", then
  * the chance that the object will be "great" (ego-item or artifact), also
  * increases with the "level", being equal to half the level, plus 5, up to
- * a maximum of 20.  If "great" is true, then the object is guaranteed to be
- * "great".  At dungeon level 65 and below, 15/100 objects are "great".
+ * a maximum of 20. If "great" is true, then the object is guaranteed to be
+ * "great". At dungeon level 65 and below, 15/100 objects are "great".
  *
  * If the object is not "good", there is a chance it will be "cursed", and
- * if it is "cursed", there is a chance it will be "broken".  These chances
+ * if it is "cursed", there is a chance it will be "broken". These chances
  * are related to the "good" / "great" chances above.
  *
  * Otherwise "normal" rings and amulets will be "good" half the time and
  * "cursed" half the time, unless the ring/amulet is always good or cursed.
  *
  * If "okay" is true, and the object is going to be "great", then there is
- * a chance that an artifact will be created.  This is true even if both the
- * "good" and "great" arguments are false.  As a total hack, if "great" is
+ * a chance that an artifact will be created. This is true even if both the
+ * "good" and "great" arguments are false. As a total hack, if "great" is
  * true, then the item gets 3 extra "attempts" to become an artifact.
  */
-void apply_magic(object_type *o_ptr, int lev, u32b mode)
+bool apply_magic(object_type *o_ptr, int lev, u32b mode)
 {
     int i, rolls, f1, f2, power;
 
@@ -4902,10 +4949,6 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
     /* Base chance of being "good" */
     f1 = lev + 10;
 
-    /* Temp Hack: It's a bit too hard to find good rings early on */
-    if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
-        f1 += 30;
-
     /* Maximal chance of being "good" */
     if (f1 > d_info[dungeon_type].obj_good) f1 = d_info[dungeon_type].obj_good;
 
@@ -4915,6 +4958,14 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
     /* Maximal chance of being "great" */
     if ((p_ptr->personality != PERS_MUNCHKIN) && (f2 > d_info[dungeon_type].obj_great))
         f2 = d_info[dungeon_type].obj_great;
+
+    /* Temp Hack: It's a bit too hard to find good rings early on. Note we hack after
+       calculating f2! */
+    if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+    {
+        f1 += 30;
+        if (f1 > d_info[dungeon_type].obj_good) f1 = d_info[dungeon_type].obj_good;
+    }
 
     if (p_ptr->good_luck)
     {
@@ -4971,6 +5022,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
         if ( power == -1
           && o_ptr->tval != TV_RING
           && o_ptr->tval != TV_AMULET
+          && !object_is_device(o_ptr)
           && randint1(lev) > 10 )
         {
             power = 0;
@@ -5045,7 +5097,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
             a_ptr->floor_id = p_ptr->floor_id;
 
         if (cheat_peek) object_mention(o_ptr);
-        return;
+        return TRUE;
     }
 
     if (object_is_fixed_artifact(o_ptr))
@@ -5085,12 +5137,12 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
         if (cheat_peek) object_mention(o_ptr);
 
         /* Done */
-        return;
+        return TRUE;
     }
 
     if (o_ptr->art_name)
     {
-        return;
+        return TRUE;
     }
 
 
@@ -5175,6 +5227,10 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
         case TV_LITE:
             _create_lite(o_ptr, lev, power, mode);
             break;
+        case TV_WAND:
+        case TV_ROD:
+        case TV_STAFF:
+            return _create_device(o_ptr, lev, power, mode);
         default:
         {
             a_m_aux_4(o_ptr, lev, power, mode);
@@ -5184,7 +5240,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 
     if ((o_ptr->tval == TV_SOFT_ARMOR) &&
         (o_ptr->sval == SV_ABUNAI_MIZUGI) &&
-        (p_ptr->personality == PERS_SEXY || (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)))
+        (p_ptr->personality == PERS_SEXY || demigod_is_(DEMIGOD_APHRODITE)))
     {
         o_ptr->pval = 3;
         add_flag(o_ptr->art_flags, TR_STR);
@@ -5325,7 +5381,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
         }
 
         if (cheat_peek) object_mention(o_ptr);
-        return;
+        return TRUE;
     }
 
     if (o_ptr->art_name)
@@ -5350,6 +5406,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
         if (k_ptr->gen_flags & (TRG_RANDOM_CURSE1)) o_ptr->curse_flags |= get_curse(1, o_ptr);
         if (k_ptr->gen_flags & (TRG_RANDOM_CURSE2)) o_ptr->curse_flags |= get_curse(2, o_ptr);
     }
+    return TRUE;
 }
 
 static bool _is_favorite_weapon(int tval, int sval)
@@ -5370,7 +5427,7 @@ static bool _is_device_class(void)
     int class_idx = p_ptr->pclass;
 
     if (class_idx == CLASS_MONSTER)
-        return get_race_t()->pseudo_class_idx;
+        return get_race()->pseudo_class_idx;
 
     switch (class_idx)
     {
@@ -5575,26 +5632,10 @@ bool kind_is_great(int k_idx)
             return FALSE;
         }
         case TV_WAND:
-        {
-            if (k_ptr->sval == SV_WAND_ROCKETS) return TRUE;
-            if (k_ptr->sval == SV_WAND_DISINTEGRATE) return TRUE;
-            return FALSE;
-        }
         case TV_STAFF:
-        {
-            if (k_ptr->sval == SV_STAFF_GENOCIDE) return TRUE;
-            if (k_ptr->sval == SV_STAFF_MSTORM) return TRUE;
-            return FALSE;
-        }
         case TV_ROD:
-        {
-            if (k_ptr->sval == SV_ROD_HEALING) return TRUE;
-            if (k_ptr->sval == SV_ROD_RESTORATION) return TRUE;
-            if (k_ptr->sval == SV_ROD_HAVOC) return TRUE;
-            if (k_ptr->sval == SV_ROD_SPEED) return TRUE;
-            if (k_ptr->sval == SV_ROD_MANA_BALL) return TRUE;
-            return FALSE;
-        }
+            return TRUE;
+
         case TV_RING:
         case TV_AMULET:
             return TRUE;
@@ -5706,36 +5747,10 @@ bool kind_is_good(int k_idx)
             return FALSE;
         }
         case TV_WAND:
-        {
-            if (k_ptr->sval == SV_WAND_ROCKETS) return TRUE;
-            if (k_ptr->sval == SV_WAND_DISINTEGRATE) return TRUE;
-            if (k_ptr->sval == SV_WAND_DRAGON_FIRE) return TRUE;
-            if (k_ptr->sval == SV_WAND_DRAGON_COLD) return TRUE;
-            if (k_ptr->sval == SV_WAND_DRAGON_BREATH) return TRUE;
-            if (k_ptr->sval == SV_WAND_STRIKING) return TRUE;
-            return FALSE;
-        }
-        case TV_ROD:
-        {
-            if (k_ptr->sval == SV_ROD_MAPPING) return TRUE;
-            if (k_ptr->sval == SV_ROD_DETECTION) return TRUE;
-            if (k_ptr->sval == SV_ROD_HEALING) return TRUE;
-            if (k_ptr->sval == SV_ROD_RESTORATION) return TRUE;
-            if (k_ptr->sval == SV_ROD_SPEED) return TRUE;
-            if (k_ptr->sval == SV_ROD_MANA_BOLT) return TRUE;
-            return FALSE;
-        }
         case TV_STAFF:
-        {
-            if (k_ptr->sval == SV_STAFF_GENOCIDE) return TRUE;
-            /*if (k_ptr->sval == SV_STAFF_SPEED) return TRUE;*/
-            if (k_ptr->sval == SV_STAFF_HOLINESS) return TRUE;
-            if (k_ptr->sval == SV_STAFF_POWER) return TRUE;
-            if (k_ptr->sval == SV_STAFF_HEALING) return TRUE;
-            if (k_ptr->sval == SV_STAFF_MSTORM) return TRUE;
-            if (k_ptr->sval == SV_STAFF_DESTRUCTION) return TRUE;
-            return FALSE;
-        }
+        case TV_ROD:
+            return TRUE;
+
         case TV_RING:
         case TV_AMULET:
             return TRUE;
@@ -5803,7 +5818,7 @@ static bool _kind_is_staff(int k_idx) {
     }
     return FALSE;
 }
-/*static bool _kind_is_potion_scroll(int k_idx) {
+static bool _kind_is_potion_scroll(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_POTION:
@@ -5811,8 +5826,8 @@ static bool _kind_is_staff(int k_idx) {
         return TRUE;
     }
     return FALSE;
-}*/
-static bool _kind_is_wand_rod_staff(int k_idx) { 
+}
+bool kind_is_wand_rod_staff(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_WAND:
@@ -5877,7 +5892,7 @@ static bool _kind_is_helm_cloak(int k_idx) {
     }
     return FALSE;
 }
-static bool _kind_is_helm(int k_idx) {
+bool kind_is_helm(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_HELM: case TV_CROWN:
@@ -5942,14 +5957,14 @@ typedef struct {
     int     great;
 } _kind_alloc_entry;
 static _kind_alloc_entry _kind_alloc_table[] = {
-    { kind_is_weapon,          180,    0,    0 },  
-    { kind_is_body_armor,      165,    0,    0 },
-    { kind_is_other_armor,     200,    0,    0 },
-    { kind_is_device,          210, -160, -160 },
-    { _kind_is_potion,          40,  -25,  -40 },
+    { kind_is_weapon,          200,    0,    0 },
+    { kind_is_body_armor,      190,    0,    0 },
+    { kind_is_other_armor,     210,    0,    0 },
+    { kind_is_wand_rod_staff,   90,  -40,  -60 },
+    { _kind_is_potion_scroll,  100,  -50,  -90 },
     { kind_is_bow_ammo,         70,    0,    0 },
     { kind_is_book,             50,    0,    0 },
-    { kind_is_jewelry,          35,    0,    0 },
+    { kind_is_jewelry,          40,    0,    0 },
     { kind_is_misc,             50,  -50,  -50 },
     { NULL, 0}
 };
@@ -5995,7 +6010,7 @@ static _kind_p _choose_obj_kind(u32b mode)
             else if (one_in_(5))
                 _kind_hook1 = kind_is_weapon;
             else if (one_in_(5))
-                _kind_hook1 = _kind_is_wand_rod_staff;
+                _kind_hook1 = kind_is_wand_rod_staff;
             break;
         case CLASS_ARCHER:
         case CLASS_SNIPER:
@@ -6046,7 +6061,7 @@ static _kind_p _choose_obj_kind(u32b mode)
                 if (one_in_(5))
                     _kind_hook1 = _kind_is_ring;
                 else if (one_in_(7))
-                    _kind_hook1 = _kind_is_helm;
+                    _kind_hook1 = kind_is_helm;
                 break;
             case RACE_MON_CENTIPEDE:
                 if (one_in_(7))
@@ -6062,7 +6077,7 @@ static _kind_p _choose_obj_kind(u32b mode)
                 if (one_in_(5))
                     _kind_hook1 = _kind_is_amulet;
                 else if (one_in_(7))
-                    _kind_hook1 = _kind_is_helm;
+                    _kind_hook1 = kind_is_helm;
                 break;
             }
             break;
@@ -6079,7 +6094,7 @@ static _kind_p _choose_obj_kind(u32b mode)
             if (is_magic(p_ptr->realm1) && one_in_(5))
                 _kind_hook1 = kind_is_book;
             else if (_is_device_class() && one_in_(7))
-                _kind_hook1 = _kind_is_wand_rod_staff;
+                _kind_hook1 = kind_is_wand_rod_staff;
         }
     }
 
@@ -6186,7 +6201,8 @@ bool make_object(object_type *j_ptr, u32b mode)
     }
 
     /* Apply magic (allow artifacts) */
-    apply_magic(j_ptr, object_level, mode);
+    if (!apply_magic(j_ptr, object_level, mode))
+        return FALSE;
 
     /* Note: It is important to do this *after* apply_magic rather than in, say, 
        object_prep() since artifacts should never spawn multiple copies. Ego ammo
@@ -6417,15 +6433,15 @@ void place_gold(int y, int x)
  *
  * The initial location is assumed to be "in_bounds()".
  *
- * This function takes a parameter "chance".  This is the percentage
- * chance that the item will "disappear" instead of drop.  If the object
+ * This function takes a parameter "chance". This is the percentage
+ * chance that the item will "disappear" instead of drop. If the object
  * has been thrown, then this is the chance of disappearance on contact.
  *
  * Hack -- this function uses "chance" to determine if it should produce
  * some form of "description" of the drop event (under the player).
  *
  * We check several locations to see if we can find a location at which
- * the object can combine, stack, or be placed.  Artifacts will try very
+ * the object can combine, stack, or be placed. Artifacts will try very
  * hard to be placed, including "teleporting" to a useful grid if needed.
  */
 s16b drop_near(object_type *j_ptr, int chance, int y, int x)
@@ -6466,6 +6482,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
         /* Debug */
         if (p_ptr->wizard) msg_print("(breakage)");
 
+        stats_on_m_destroy(j_ptr, 1);
 
         /* Failure */
         return (0);
@@ -6772,6 +6789,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
     }
 
     /* XXX XXX XXX */
+    p_ptr->window |= PW_OBJECT_LIST;
 
     /* Result */
     return (o_idx);
@@ -6786,19 +6804,22 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
     object_type *i_ptr;
     object_type object_type_body;
     u32b mode = AM_GOOD | (great ? (AM_GREAT | AM_TAILORED) : 0L);
+    int  attempt = 0;
 
     /* Acquirement */
-    while (num--)
+    while (num && attempt < 1000)
     {
         /* Get local object */
         i_ptr = &object_type_body;
 
         /* Wipe the object */
         object_wipe(i_ptr);
+        attempt++;
 
         /* Make a good (or great) object (if possible) */
         if (!make_object(i_ptr, mode)) continue;
 
+        num--;
         if (known)
         {
             object_aware(i_ptr);
@@ -6933,27 +6954,18 @@ void place_trap(int y, int x)
 void inven_item_charges(int item)
 {
     object_type *o_ptr = &inventory[item];
+    int          charges;
 
-    /* Require staff/wand */
-    if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
-
-    /* Require known item */
+    if (!object_is_device(o_ptr)) return;
     if (!object_is_known(o_ptr)) return;
+    if (!o_ptr->activation.cost) return; /* Just checking ... */
 
-    /* Multiple charges */
-    if (o_ptr->pval != 1)
-    {
-        /* Print a message */
-        msg_format("You have %d charges remaining.", o_ptr->pval);
-    }
+    charges = device_sp(o_ptr) / o_ptr->activation.cost;
 
-    /* Single charge */
+    if (charges == 1)
+        msg_print("You have 1 charge remaining.");
     else
-    {
-        /* Print a message */
-        msg_format("You have %d charge remaining.", o_ptr->pval);
-    }
-
+        msg_format("You have %d charges remaining.", charges);
 }
 
 
@@ -6965,12 +6977,8 @@ void inven_item_describe(int item)
     object_type *o_ptr = &inventory[item];
     char        o_name[MAX_NLEN];
 
-    /* Get a description */
-    object_desc(o_name, o_ptr, 0);
-
-    /* Print a message */
+    object_desc(o_name, o_ptr, OD_COLOR_CODED);
     msg_format("You have %s.", o_name);
-
 }
 
 
@@ -7080,29 +7088,19 @@ void inven_item_optimize(int item)
 void floor_item_charges(int item)
 {
     object_type *o_ptr = &o_list[item];
+    int          charges;
 
-    /* Require staff/wand */
-    if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
-
-    /* Require known item */
+    if (!object_is_device(o_ptr)) return;
     if (!object_is_known(o_ptr)) return;
+    if (!o_ptr->activation.cost) return; /* Just checking ... */
 
-    /* Multiple charges */
-    if (o_ptr->pval != 1)
-    {
-        /* Print a message */
-        msg_format("There are %d charges remaining.", o_ptr->pval);
-    }
+    charges = device_sp(o_ptr) / o_ptr->activation.cost;
 
-    /* Single charge */
+    if (charges == 1)
+        msg_print("There is 1 charge remaining.");
     else
-    {
-        /* Print a message */
-        msg_format("There is %d charge remaining.", o_ptr->pval);
-    }
-
+        msg_format("There are %d charges remaining.", charges);
 }
-
 
 /*
  * Describe an item in the inventory.
@@ -7112,12 +7110,8 @@ void floor_item_describe(int item)
     object_type *o_ptr = &o_list[item];
     char        o_name[MAX_NLEN];
 
-    /* Get a description */
-    object_desc(o_name, o_ptr, 0);
-
-    /* Print a message */
+    object_desc(o_name, o_ptr, OD_COLOR_CODED);
     msg_format("You see %s.", o_name);
-
 }
 
 
@@ -7230,13 +7224,16 @@ bool object_sort_comp(object_type *o_ptr, s32b o_value, object_type *j_ptr)
     else if (object_is_ego(o_ptr)) o_type = 1;
     else o_type = 0;
 
-    if (object_is_fixed_artifact(j_ptr)) j_type = 3;
-    else if (j_ptr->art_name) j_type = 2;
-    else if (object_is_ego(j_ptr)) j_type = 1;
-    else j_type = 0;
+    if (!object_is_device(o_ptr))
+    {
+        if (object_is_fixed_artifact(j_ptr)) j_type = 3;
+        else if (j_ptr->art_name) j_type = 2;
+        else if (object_is_ego(j_ptr)) j_type = 1;
+        else j_type = 0;
 
-    if (o_type < j_type) return TRUE;
-    if (o_type > j_type) return FALSE;
+        if (o_type < j_type) return TRUE;
+        if (o_type > j_type) return FALSE;
+    }
 
     switch (o_ptr->tval)
     {
@@ -7256,11 +7253,13 @@ bool object_sort_comp(object_type *o_ptr, s32b o_value, object_type *j_ptr)
         if (o_ptr->to_h + o_ptr->to_d > j_ptr->to_h + j_ptr->to_d) return FALSE;
         break;
 
-    /* Hack:  otherwise identical rods sort by
-    increasing recharge time --dsb */
     case TV_ROD:
-        if (o_ptr->pval < j_ptr->pval) return TRUE;
-        if (o_ptr->pval > j_ptr->pval) return FALSE;
+    case TV_WAND:
+    case TV_STAFF:
+        if (o_ptr->activation.type < j_ptr->activation.type) return TRUE;
+        if (o_ptr->activation.type > j_ptr->activation.type) return FALSE;
+        if (device_level(o_ptr) < device_level(j_ptr)) return TRUE;
+        if (device_level(o_ptr) > device_level(j_ptr)) return FALSE;
         break;
     }
 
@@ -7281,7 +7280,7 @@ bool object_sort_comp(object_type *o_ptr, s32b o_value, object_type *j_ptr)
  * Note that when the pack is being "over-filled", the new item must be
  * placed into the "overflow" slot, and the "overflow" must take place
  * before the pack is reordered, but (optionally) after the pack is
- * combined.  This may be tricky.  See "dungeon.c" for info.
+ * combined. This may be tricky. See "dungeon.c" for info.
  *
  * Note that this code must remove any location/stack information
  * from the object once it is placed into the inventory.
@@ -7387,7 +7386,7 @@ s16b inven_carry(object_type *o_ptr)
     j_ptr->iy = j_ptr->ix = 0;
 
     /* Player touches it, and no longer marked */
-    j_ptr->marked &= (OM_WORN | OM_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);  /* Ah, but remember the "worn" status ... */
+    j_ptr->marked &= (OM_WORN | OM_COUNTED | OM_EFFECT_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);  /* Ah, but remember the "worn" status ... */
     j_ptr->marked |= OM_TOUCHED;
 
     /* Increase the weight */
@@ -7481,12 +7480,11 @@ s16b inven_takeoff(int item, int amt)
  */
 void inven_drop(int item, int amt)
 {
-    object_type forge;
+    object_type  forge;
     object_type *q_ptr;
-
     object_type *o_ptr;
-
-    char o_name[MAX_NLEN];
+    int          old_number;
+    char         o_name[MAX_NLEN];
 
 
     /* Access original object */
@@ -7520,22 +7518,23 @@ void inven_drop(int item, int amt)
     distribute_charges(o_ptr, q_ptr, amt);
 
     /* Modify quantity */
+    old_number = q_ptr->number;
     q_ptr->number = amt;
     q_ptr->marked &= ~OM_WORN;
 
     /* Describe local object */
-    object_desc(o_name, q_ptr, 0);
+    object_desc(o_name, q_ptr, OD_COLOR_CODED);
 
     /* Message */
     msg_format("You drop %s (%c).", o_name, index_to_label(item));
-
 
     /* Drop it near the player */
     (void)drop_near(q_ptr, 0, py, px);
 
     /* Modify, Describe, Optimize */
     inven_item_increase(item, -amt);
-    inven_item_describe(item);
+    if (amt < old_number)
+        inven_item_describe(item);
     inven_item_optimize(item);
 
     /* Runes confer benefits even when in inventory */
@@ -7736,8 +7735,14 @@ void display_koff(int k_idx)
     object_type *q_ptr;
     int         sval;
     int         use_realm;
+    rect_t      display = {0};
 
     char o_name[MAX_NLEN];
+
+    display.x = 0;
+    display.y = 2;
+    display.cy = Term->hgt - 2;
+    display.cx = Term->wid;
 
 
     /* Erase the window */
@@ -7796,7 +7801,7 @@ void display_koff(int k_idx)
         }
 
         /* Print spells */
-        print_spells(0, spells, num, 2, 0, use_realm);
+        print_spells(0, spells, num, display, use_realm);
     }
 }
 
@@ -7925,7 +7930,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
         break;
 
     case GF_DEATH_RAY:
-        if (get_race_t()->flags & RACE_IS_NONLIVING)
+        if (get_race()->flags & RACE_IS_NONLIVING)
         {
             dam = 0;
             ignore_wraith_form = TRUE;
@@ -8554,7 +8559,7 @@ static void drain_essence(void)
     o_ptr->number = number;
     if (o_ptr->tval == TV_DRAG_ARMOR) o_ptr->timeout = old_timeout;
     if (item >= 0) p_ptr->total_weight += (o_ptr->weight*o_ptr->number - weight*number);
-    o_ptr->ident |= (IDENT_MENTAL);
+    o_ptr->ident |= (IDENT_FULL);
     object_aware(o_ptr);
     object_known(o_ptr);
 

@@ -80,7 +80,7 @@ static void _calc_innate_attacks(void)
 
     calc_innate_blows(&a, _head_count() * 100);
     
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
 }
@@ -288,7 +288,7 @@ static void _gain_level(int new_level)
 /**********************************************************************
  * Public Methods
  **********************************************************************/
-race_t *mon_hydra_get_race_t(void)
+race_t *mon_hydra_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -315,6 +315,7 @@ race_t *mon_hydra_get_race_t(void)
         me.infra = 5;
         me.exp = 130;
         me.base_hp = 45;
+        me.shop_adjust = 130;
 
         me.get_powers = _get_powers;
         me.calc_innate_attacks = _calc_innate_attacks;

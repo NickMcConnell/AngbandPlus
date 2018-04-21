@@ -116,7 +116,7 @@ static void _calc_innate_attacks(void)
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         a.blows = 100;
-        a.msg = "You bite %s.";
+        a.msg = "You bite.";
         a.name = "Bite";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -134,7 +134,7 @@ static void _calc_innate_attacks(void)
         if (r >= 5)
             a.effect[1] = GF_POIS;
         a.blows = 100;
-        a.msg = "You sting %s.";
+        a.msg = "You sting.";
         a.name = "Sting";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -152,7 +152,7 @@ static void _calc_innate_attacks(void)
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         calc_innate_blows(&a, 100 + 50*r);
-        a.msg = "You crawl on %s.";
+        a.msg = "You crawl.";
         a.name = "Crawl";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -176,7 +176,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 /**********************************************************************
  * Public Methods
  **********************************************************************/
-race_t *mon_centipede_get_race_t(void)
+race_t *mon_centipede_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -199,6 +199,7 @@ race_t *mon_centipede_get_race_t(void)
         me.infra = 5;
         me.exp = 100;
         me.base_hp = 15;
+        me.shop_adjust = 120;
 
         me.calc_innate_attacks = _calc_innate_attacks;
         me.calc_bonuses = _calc_bonuses;

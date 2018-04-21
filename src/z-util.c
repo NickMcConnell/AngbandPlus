@@ -87,7 +87,7 @@ void plog(cptr str)
 void (*quit_aux)(cptr) = NULL;
 
 /*
- * Exit (ala "exit()").  If 'str' is NULL, do "exit(0)".
+ * Exit (ala "exit()"). If 'str' is NULL, do "exit(0)".
  * If 'str' begins with "+" or "-", do "exit(atoi(str))".
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.

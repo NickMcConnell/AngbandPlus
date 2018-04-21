@@ -5,14 +5,14 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Dungeon generation */
 
 /*
  * Note that Level generation is *not* an important bottleneck,
- * though it can be annoyingly slow on older machines...  Thus
+ * though it can be annoyingly slow on older machines... Thus
  * we emphasize "simplicity" and "correctness" over "speed".
  *
  * This entire file is only needed for generating levels.
@@ -23,9 +23,9 @@
  * In this file, we use the "special" granite and perma-wall sub-types,
  * where "basic" is normal, "inner" is inside a room, "outer" is the
  * outer wall of a room, and "solid" is the outer wall of the dungeon
- * or any walls that may not be pierced by corridors.  Thus the only
+ * or any walls that may not be pierced by corridors. Thus the only
  * wall type that may be pierced by a corridor is the "outer granite"
- * type.  The "basic granite" type yields the "actual" corridors.
+ * type. The "basic granite" type yields the "actual" corridors.
  *
  * Note that we use the special "solid" granite wall type to prevent
  * multiple corridors from piercing a wall in two adjacent locations,
@@ -39,28 +39,28 @@
  * as long as the tunnel can *eventually* exit from another side.
  * And note that the wall may not come back into the room by the
  * hole it left through, so it must bend to the left or right and
- * then optionally re-enter the room (at least 2 grids away).  This
+ * then optionally re-enter the room (at least 2 grids away). This
  * is not a problem since every room that is large enough to block
  * the passage of tunnels is also large enough to allow the tunnel
  * to pierce the room itself several times.
  *
  * Note that no two corridors may enter a room through adjacent grids,
  * they must either share an entryway or else use entryways at least
- * two grids apart.  This prevents "large" (or "silly") doorways.
+ * two grids apart. This prevents "large" (or "silly") doorways.
  *
  * To create rooms in the dungeon, we first divide the dungeon up
  * into "blocks" of 11x11 grids each, and require that all rooms
- * occupy a rectangular group of blocks.  As long as each room type
+ * occupy a rectangular group of blocks. As long as each room type
  * reserves a sufficient number of blocks, the room building routines
- * will not need to check bounds.  Note that most of the normal rooms
+ * will not need to check bounds. Note that most of the normal rooms
  * actually only use 23x11 grids, and so reserve 33x11 grids.
  *
  * Note that the use of 11x11 blocks (instead of the old 33x11 blocks)
  * allows more variability in the horizontal placement of rooms, and
  * at the same time has the disadvantage that some rooms (two thirds
- * of the normal rooms) may be "split" by panel boundaries.  This can
+ * of the normal rooms) may be "split" by panel boundaries. This can
  * induce a situation where a player is in a room and part of the room
- * is off the screen.  It may be annoying enough to go back to 33x11
+ * is off the screen. It may be annoying enough to go back to 33x11
  * blocks to prevent this visual situation.
  *
  * Note that the dungeon generation routines are much different (2.7.5)
@@ -72,17 +72,17 @@
  *
  * XXX XXX XXX Note that it is possible to create a set of rooms which
  * are only connected to other rooms in that set, since there is nothing
- * explicit in the code to prevent this from happening.  But this is less
+ * explicit in the code to prevent this from happening. But this is less
  * likely than the "isolated room" problem, because each room attempts to
  * connect to another room, in a giant cycle, thus requiring at least two
  * bizarre occurances to create an isolated section of the dungeon.
  *
  * Note that (2.7.9) monster pits have been split into monster "nests"
- * and monster "pits".  The "nests" have a collection of monsters of a
+ * and monster "pits". The "nests" have a collection of monsters of a
  * given type strewn randomly around the room (jelly, animal, or undead),
  * while the "pits" have a collection of monsters of a given type placed
  * around the room in an organized manner (orc, troll, giant, dragon, or
- * demon).  Note that both "nests" and "pits" are now "level dependant",
+ * demon). Note that both "nests" and "pits" are now "level dependant",
  * and both make 16 "expensive" calls to the "get_mon_num()" function.
  *
  * Note that the cave grid flags changed in a rather drastic manner
@@ -95,7 +95,7 @@
  * but we must be careful not to allow, for example, the user to display
  * hidden traps in a different way from floors, or secret doors in a way
  * different from granite walls, or even permanent granite in a different
- * way from granite.  XXX XXX XXX
+ * way from granite. XXX XXX XXX
  */
 
 #include "angband.h"
@@ -447,7 +447,7 @@ static void _mon_give_extra_drop(u32b flag, int ct)
  * Note -- Assumes "in_bounds(y1, x1)"
  *
  * XXX XXX This routine currently only counts actual "empty floor"
- * grids which are not in rooms.  We might want to also count stairs,
+ * grids which are not in rooms. We might want to also count stairs,
  * open doors, closed doors, etc.
  */
 static int next_to_corr(int y1, int x1)
@@ -487,7 +487,7 @@ static int next_to_corr(int y1, int x1)
 
 /*
  * Determine if the given location is "between" two walls,
- * and "next to" two corridor spaces.  XXX XXX XXX
+ * and "next to" two corridor spaces. XXX XXX XXX
  *
  * Assumes "in_bounds(y, x)"
  */
@@ -869,7 +869,7 @@ static bool cave_gen(void)
 
 
         /* Make a hole in the dungeon roof sometimes at level 1
-           But not in Angband.  See Issue #3 */
+           But not in Angband. See Issue #3 */
         if (dun_level == 1 && dungeon_type != DUNGEON_ANGBAND)
         {
             while (one_in_(DUN_MOS_DEN))
@@ -1279,6 +1279,19 @@ static void build_battle(void)
     x_left = xval - 32;
     x_right = xval + 32;
 
+    /* Hack: Move the arena down 5 lines so that messages do not
+       obstruct the battle. Couldn't this be read from a file just
+       like vaults/rooms in v_info?*/
+    y_height += 5;
+    y_depth += 5;
+    for (i = 0; i < y_height; i++)
+        for (j = x_left; j <= x_right; j++)
+        {
+            place_extra_perm_bold(i, j);
+            cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
+        }
+
+
     for (i = y_height; i <= y_height + 5; i++)
         for (j = x_left; j <= x_right; j++)
         {
@@ -1448,10 +1461,6 @@ static bool level_gen(cptr *why)
         cur_hgt = level_height * SCREEN_HGT;
         cur_wid = level_width * SCREEN_WID;
 
-        /* Assume illegal panel */
-        panel_row_min = cur_hgt;
-        panel_col_min = cur_wid;
-
         if (cheat_room)
           msg_format("X:%d, Y:%d.", cur_wid, cur_hgt);
     }
@@ -1460,10 +1469,6 @@ static bool level_gen(cptr *why)
         /* Big dungeon */
         cur_hgt = MAX_HGT;
         cur_wid = MAX_WID;
-
-        /* Assume illegal panel */
-        panel_row_min = cur_hgt;
-        panel_col_min = cur_wid;
     }
 
     /* Make a dungeon */

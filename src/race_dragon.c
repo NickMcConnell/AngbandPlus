@@ -380,11 +380,11 @@ static void _calc_innate_attacks(void)
 
         a.weight = 100 + l;
         calc_innate_blows(&a, 400);
-        a.msg = "You claw %s.";
+        a.msg = "You claw.";
         a.name = "Claw";
 
-        if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
-            a.flags |= INNATE_VORPAL;
+        /*if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
+            a.flags |= INNATE_VORPAL;*/
 
         if (p_ptr->dragon_realm == DRAGON_REALM_DEATH && p_ptr->lev >= 45)
             a.effect[1] = GF_OLD_DRAIN;
@@ -408,11 +408,11 @@ static void _calc_innate_attacks(void)
             calc_innate_blows(&a, 150);
         else
             a.blows = 100;
-        a.msg = "You bite %s.";
+        a.msg = "You bite.";
         a.name = "Bite";
 
-        if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
-            a.flags |= INNATE_VORPAL;
+        /*if (p_ptr->dragon_realm == DRAGON_REALM_ATTACK && p_ptr->lev >= 40)
+            a.flags |= INNATE_VORPAL;*/
 
         if (p_ptr->dragon_realm == DRAGON_REALM_DEATH && p_ptr->lev >= 45)
             a.effect[1] = GF_OLD_DRAIN;
@@ -986,13 +986,13 @@ static void _reforging_spell(int cmd, variant *res)
 
         object_aware(dest);
         object_known(dest);
-        dest->ident |= IDENT_MENTAL;
+        dest->ident |= IDENT_FULL;
 
         p_ptr->update |= PU_BONUS;
         p_ptr->window |= (PW_INVEN | PW_EQUIP);
         handle_stuff();
 
-        screen_object(dest, 0);
+        obj_display(dest);
 
         inven_item_optimize(src_idx);
 
@@ -1023,10 +1023,10 @@ static void _war_cry_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "War Cry");
+        var_set_string(res, "Dragon's Roar");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Aggravate nearby monsters.");
+        var_set_string(res, "You will roar out mightily, alerting all nearby monsters of your presence.");
         break;
     case SPELL_CAST:
         msg_print("You roar out!");
@@ -1051,8 +1051,28 @@ static void _rend_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with cutting blows.");
         break;
     case SPELL_CAST:
+        p_ptr->innate_attack_lock = TRUE;
+        p_ptr->innate_attacks[0].flags |= INNATE_VORPAL;
+        p_ptr->innate_attacks[1].flags |= INNATE_VORPAL;
         var_set_bool(res, do_blow(DRAGON_REND));
+        p_ptr->innate_attack_lock = FALSE;
+        p_ptr->update |= PU_BONUS;
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        p_ptr->innate_attacks[0].flags |= INNATE_VORPAL;
+        p_ptr->innate_attacks[1].flags |= INNATE_VORPAL;
+        do_cmd_knowledge_weapon();
+        p_ptr->innate_attacks[0].flags &= ~INNATE_VORPAL;
+        p_ptr->innate_attacks[1].flags &= ~INNATE_VORPAL;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -1136,17 +1156,25 @@ static void _deadly_bite_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent as usual, but augment your bite attacks with your breath element.");
         break;
     case SPELL_CAST:
+        p_ptr->innate_attack_lock = TRUE;
         p_ptr->innate_attacks[1].effect[1] = _breath_effect();
         var_set_bool(res, do_blow(DRAGON_DEADLY_BITE));
-        p_ptr->innate_attacks[1].effect[1] = 0;
+        p_ptr->innate_attack_lock = FALSE;
+        p_ptr->update |= PU_BONUS;
         break;
     case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
         p_ptr->innate_attacks[1].effect[1] = _breath_effect();
         do_cmd_knowledge_weapon();
         p_ptr->innate_attacks[1].effect[1] = 0;
 
+        if (screen_hack) screen_save();
         var_set_bool(res, TRUE);
         break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -1164,9 +1192,11 @@ static void _snatch_spell(int cmd, variant *res)
         var_set_string(res, "Attempt to snatch an adjacent opponent in your jaws. If successful, you may toss the monster away from you.");
         break;
     case SPELL_CAST:
+        p_ptr->innate_attack_lock = TRUE;
         p_ptr->innate_attacks[0].flags |= INNATE_SKIP;
         var_set_bool(res, do_blow(DRAGON_SNATCH));
-        p_ptr->innate_attacks[0].flags &= ~INNATE_SKIP;
+        p_ptr->innate_attack_lock = FALSE;
+        p_ptr->update |= PU_BONUS;
         break;
     default:
         default_spell(cmd, res);
@@ -1204,28 +1234,28 @@ static void _rapid_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with extra blows.");
         break;
     case SPELL_CAST:
+        p_ptr->innate_attack_lock = TRUE;
         p_ptr->innate_attacks[0].blows += 50;
         p_ptr->innate_attacks[1].blows += 25;
         var_set_bool(res, do_blow(DRAGON_RAPID_STRIKE));
-        /* Bug Note (Applies below as well):
-         * p_ptr->innate_attacks[0].blows -= 50;
-         * p_ptr->innate_attacks[1].blows -= 25;
-         * Would seem to be correct, but alas, if any code triggers a calc_bonuses() call during
-         * do_blow(), then the player would end up with fewer blows than normal. Alas, this *is*
-         * actually happening in some situations, but I haven't been able to track down the cause.
-         */
+        p_ptr->innate_attack_lock = FALSE;
         p_ptr->update |= PU_BONUS;
-        handle_stuff();
         break;
     case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
         p_ptr->innate_attacks[0].blows += 50;
         p_ptr->innate_attacks[1].blows += 25;
         do_cmd_knowledge_weapon();
-        p_ptr->update |= PU_BONUS;
-        handle_stuff();
+        p_ptr->innate_attacks[0].blows -= 50;
+        p_ptr->innate_attacks[1].blows -= 25;
 
+        if (screen_hack) screen_save();
         var_set_bool(res, TRUE);
         break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -1243,22 +1273,29 @@ static void _power_strike_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent opponent with more powerful blows.");
         break;
     case SPELL_CAST:
+        p_ptr->innate_attack_lock = TRUE;
         p_ptr->innate_attacks[0].dd += 2;
         p_ptr->innate_attacks[1].dd += 2;
         var_set_bool(res, do_blow(DRAGON_POWER_STRIKE));
+        p_ptr->innate_attack_lock = FALSE;
         p_ptr->update |= PU_BONUS;
-        handle_stuff();
         break;
 
     case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
         p_ptr->innate_attacks[0].dd += 2;
         p_ptr->innate_attacks[1].dd += 2;
         do_cmd_knowledge_weapon();
-        p_ptr->update |= PU_BONUS;
-        handle_stuff();
+        p_ptr->innate_attacks[0].dd -= 2;
+        p_ptr->innate_attacks[1].dd -= 2;
 
+        if (screen_hack) screen_save();
         var_set_bool(res, TRUE);
         break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -1465,11 +1502,12 @@ static void _smite_evil_spell(int cmd, variant *res)
         var_set_string(res, "Attack an adjacent evil opponent with holy fury!");
         break;
     case SPELL_CAST:
+        p_ptr->innate_attack_lock = TRUE;
         p_ptr->innate_attacks[0].effect[1] = GF_HOLY_FIRE;
         p_ptr->innate_attacks[1].effect[1] = GF_HOLY_FIRE;
         var_set_bool(res, do_blow(DRAGON_SMITE_EVIL));
-        p_ptr->innate_attacks[0].effect[1] = 0;
-        p_ptr->innate_attacks[1].effect[1] = 0;
+        p_ptr->innate_attack_lock = FALSE;
+        p_ptr->update |= PU_BONUS;
         break;
     default:
         default_spell(cmd, res);
@@ -1932,6 +1970,8 @@ static void _realm_calc_bonuses(void)
         p_ptr->align += 200;
         if (p_ptr->lev >= 15)
             p_ptr->hold_life = TRUE;
+        if (p_ptr->lev >= 30)
+            res_add(RES_FEAR);
         break;
     case DRAGON_REALM_DEATH:
         p_ptr->align -= 200;
@@ -1983,20 +2023,13 @@ static void _realm_get_flags(u32b flgs[TR_FLAG_SIZE])
     case DRAGON_REALM_CRUSADE:
         if (p_ptr->lev >= 15)
             add_flag(flgs, TR_HOLD_LIFE);
+        if (p_ptr->lev >= 30)
+            add_flag(flgs, TR_RES_FEAR);
         break;
     case DRAGON_REALM_DOMINATION:
         add_flag(flgs, TR_RES_FEAR);
-        break;
-    }
-}
-
-static void _realm_get_immunities(u32b flgs[TR_FLAG_SIZE]) 
-{
-    switch (p_ptr->dragon_realm)
-    {
-    case DRAGON_REALM_DOMINATION:
         if (p_ptr->lev >= 50)
-            add_flag(flgs, TR_RES_FEAR);
+            add_flag(flgs, TR_IM_FEAR);
         break;
     }
 }
@@ -2016,7 +2049,7 @@ static void _dragon_calc_bonuses(void)
     if (p_ptr->lev >= 30)
     {
         res_add(RES_CONF);
-        res_add(RES_FEAR);
+        /*Attack, Crusade, and Domination Realms: res_add(RES_FEAR);*/
     }
     _realm_calc_bonuses();
 }
@@ -2032,7 +2065,7 @@ static void _dragon_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 30)
     {
         add_flag(flgs, TR_RES_CONF);
-        add_flag(flgs, TR_RES_FEAR);
+        /*Attack, Crusade, and Domination Realms: add_flag(flgs, TR_RES_FEAR);*/
     }
     _realm_get_flags(flgs);
 }
@@ -2083,6 +2116,7 @@ static void _tail_sweep_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         /* Hack: Replace normal tooth and claw attacks with a tail attack */
+        p_ptr->innate_attack_lock = TRUE;
         p_ptr->innate_attack_ct = 0;
         {
             int             l = _attack_level();
@@ -2094,12 +2128,13 @@ static void _tail_sweep_spell(int cmd, variant *res)
 
             a.weight = 100 + l;
             a.blows = 100;
-            a.msg = "You hit %s.";
+            a.msg = "You hit.";
             a.name = "Tail";
 
             p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         }     
         var_set_bool(res, do_blow(DRAGON_TAIL_SWEEP));
+        p_ptr->innate_attack_lock = FALSE;
         /* Hack: Restore normal attacks */
         p_ptr->innate_attack_ct = 0;
         _calc_innate_attacks();
@@ -2159,29 +2194,50 @@ static int _dragon_get_powers(spell_info* spells, int max) {
     int  r_idx[5];
     cptr r_name[5];
     int  which_res;
+    cptr name; /* For Birth and Helpfiles ... */
+    cptr desc;
 } _elemental_info_t;
 
 static _elemental_info_t _elemental_info[5] = { /* relies on #define DRAGON_RED 0 ... */
     { {167, 563, 589, 644, 756},
       {"Baby Red Dragon", "Young Red Dragon", "Mature Red Dragon", "Ancient Red Dragon", "Great Hell Wyrm"},
-      RES_FIRE },
+      RES_FIRE, "Red Dragon",
+        "Red Dragons are elemental dragons of fire and are the second strongest fighters among "
+        "dragons. Their fiery breaths are the stuff of legends with damage unsurpassed. Even their "
+        "bites are likely to burn their opponents rendering their melee damage quite impressive. "
+        "As the Red Dragon matures, it becomes more and more resistant to fire, eventually gaining "
+        "total immunity." },
     { {164, 460, 549, 617, 741},
       {"Baby White Dragon", "Young White Dragon", "Mature White Dragon", "Ancient White Dragon", "Great Ice Wyrm"},
-      RES_COLD},
+      RES_COLD, "White Dragon",
+        "White Dragons are to cold what Red Dragons are to fire. Their melee is truly awe-inspiring "
+        "and their icy breath can be felt even in their bite. Like Red Dragons, White Dragons "
+        "have the most deadly breath possible among dragonkind and they too become more and more "
+        "resistant to cold as they mature." },
     { {163, 459, 560, 601, 728},
       {"Baby Blue Dragon", "Young Blue Dragon", "Mature Blue Dragon", "Ancient Blue Dragon", "Great Storm Wyrm"},
-      RES_ELEC},
+      RES_ELEC, "Blue Dragon",
+        "Blue Dragons are elemental dragons of lightning. Their melee and breaths are not so "
+        "strong as their Red and White brethren, but lightning is a bit more useful than fire or "
+        "cold. Their bites eventually shock their foes. Blue Dragons become more and more resistant "
+        "to lightning as they mature." },
     { {166, 546, 592, 624, 1066},
       {"Baby Black Dragon", "Young Black Dragon", "Mature Black Dragon", "Ancient Black Dragon", "Great Bile Wyrm"},
-      RES_ACID},
+      RES_ACID, "Black Dragon",
+        "Black Dragons are to acid what Blue Dragons are to lightning. Like the Blue Dragon, their "
+        "breaths and melee fall short of their Red and White brethren. As they mature, their bites "
+        "corrode their enemies and the Black Dragon also becomes more and more resistant to acid." },
     { {165, 461, 561, 618, 890},
       {"Baby Green Dragon", "Young Green Dragon", "Mature Green Dragon", "Ancient Green Dragon", "Great Venom Wyrm"},
-      RES_POIS},
+      RES_POIS, "Green Dragon",
+        "Green Dragons are elemental dragons of poison. They are not so strong as Red or White dragons, "
+        "but are still fearsome opponents. As they mature, their bites poison their enemies. Also, "
+        "Green Dragons become more and more resistant to poison." },
 };
 
 static void _elemental_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 15 + (l/10)*5;
     int res = _elemental_info[p_ptr->psubrace].which_res;
 
@@ -2228,14 +2284,9 @@ static void _elemental_get_flags(u32b flgs[TR_FLAG_SIZE]) {
         case RES_COLD: add_flag(flgs, TR_SH_COLD); break;
         case RES_ELEC: add_flag(flgs, TR_SH_ELEC); break;
         }
+        add_flag(flgs, res_get_object_immune_flag(res));
     }
     _dragon_get_flags(flgs);
-}
-static void _elemental_get_immunities(u32b flgs[TR_FLAG_SIZE]) {
-    int res = _elemental_info[p_ptr->psubrace].which_res;
-    if (p_ptr->lev >= 40)
-        add_flag(flgs, res_get_object_flag(res));
-    _realm_get_immunities(flgs);
 }
 static void _elemental_birth(void) { 
     p_ptr->current_r_idx = _elemental_info[p_ptr->psubrace].r_idx[0]; 
@@ -2293,12 +2344,15 @@ static race_t *_elemental_get_race_t(int subrace)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _elemental_calc_bonuses;
         me.get_flags = _elemental_get_flags;
-        me.get_immunities = _elemental_get_immunities;
         me.gain_level = _elemental_gain_level;
         init = TRUE;
     }
 
-    me.subname = _elemental_info[subrace].r_name[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = _elemental_info[subrace].name;
+    else
+        me.subname = _elemental_info[subrace].r_name[rank];
+    me.subdesc = _elemental_info[subrace].desc;
     me.stats[A_STR] =  1 + rank;
     me.stats[A_INT] = -1 + rank;
     me.stats[A_WIS] = -2 + rank;
@@ -2315,7 +2369,7 @@ static race_t *_elemental_get_race_t(int subrace)
  **********************************************************************/
 static void _nether_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2360,13 +2414,9 @@ static void _nether_get_flags(u32b flgs[TR_FLAG_SIZE]) {
         add_flag(flgs, TR_RES_POIS);
         add_flag(flgs, TR_RES_NEXUS);
         add_flag(flgs, TR_RES_DISEN);
+        add_flag(flgs, TR_IM_NETHER);
     }
     _dragon_get_flags(flgs);
-}
-static void _nether_get_immunities(u32b flgs[TR_FLAG_SIZE]) {
-    if (p_ptr->lev >= 45)
-        add_flag(flgs, TR_RES_NETHER);
-    _realm_get_immunities(flgs);
 }
 static void _nether_birth(void) { 
     p_ptr->current_r_idx = MON_SHADOW_DRAKE; 
@@ -2403,6 +2453,12 @@ static race_t *_nether_get_race_t(void)
     skills_t bs = { 28,  35,  38,   4,  25,  26,  50,  30};
     skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
 
+        me.subdesc = "Shadow Drakes are bit more stealthy than your average dragon. They are creatures of nether "
+            "and eventually evolve into Death Drakes. Their melee is the weakest among dragonkind and "
+            "their breaths also are lacking, but they still make fearsome opponents. As they advance, "
+            "these dragons eventually gain the ability to pass through walls and also become more and "
+            "more resistant to nether.";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -2413,12 +2469,14 @@ static race_t *_nether_get_race_t(void)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _nether_calc_bonuses;
         me.get_flags = _nether_get_flags;
-        me.get_immunities = _nether_get_immunities;
         me.gain_level = _nether_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Shadow Drake";
+    else
+        me.subname = titles[rank];
     me.stats[A_STR] =  0 + 2*rank;
     me.stats[A_INT] = -1 + 2*rank;
     me.stats[A_WIS] = -2 + rank;
@@ -2435,7 +2493,7 @@ static race_t *_nether_get_race_t(void)
  **********************************************************************/
 static void _law_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2492,6 +2550,12 @@ static race_t *_law_get_race_t(void)
     skills_t bs = { 28,  40,  40,   2,  25,  26,  55,  30};
     skills_t xs = {  8,  11,  11,   0,   0,   0,  15,   7};
 
+        me.subdesc = "Law Drakes are powerful dragons of order. They can breathe sound or shards and eventually "
+                    "evolve into Great Wyrms of Law, though not so quickly as you might hope. Their breaths "
+                    "are much weaker than those of the elemental dragons but very few monsters resist sound "
+                    "or shards. Their melee is among the weakest of all dragonkind but they still fight rather "
+                    "well ... What dragon doesn't?";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -2500,14 +2564,17 @@ static race_t *_law_get_race_t(void)
 
         me.birth = _law_birth;
         me.get_powers = _dragon_get_powers;
-        me.get_immunities = _realm_get_immunities;
         me.calc_bonuses = _law_calc_bonuses;
         me.get_flags = _law_get_flags;
         me.gain_level = _law_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Law Drake";
+    else
+        me.subname = titles[rank];
+
     me.stats[A_STR] =  0 + 5*rank;
     me.stats[A_INT] = -1 + 5*rank;
     me.stats[A_WIS] = -2 + 2*rank;
@@ -2524,7 +2591,7 @@ static race_t *_law_get_race_t(void)
  **********************************************************************/
 static void _chaos_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2581,6 +2648,12 @@ static race_t *_chaos_get_race_t(void)
     skills_t bs = { 28,  40,  40,   2,  25,  26,  55,  30};
     skills_t xs = {  8,  11,  11,   0,   0,   0,  15,   7};
 
+        me.subdesc = "Chaos Drakes are powerful dragons of chaos. They can breathe chaos or disenchantment and eventually "
+        "evolve into Great Wyrms of Chaos, though not so quickly as you might hope. Their breaths "
+        "are much weaker than those of the elemental dragons but fewer monsters resist chaos "
+        "or disenchantment. Their melee is among the weakest of all dragonkind but they still fight rather "
+        "well ... What dragon doesn't?";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -2591,12 +2664,14 @@ static race_t *_chaos_get_race_t(void)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _chaos_calc_bonuses;
         me.get_flags = _chaos_get_flags;
-        me.get_immunities = _realm_get_immunities;
         me.gain_level = _chaos_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Chaos Drake";
+    else
+        me.subname = titles[rank];
     me.stats[A_STR] =  0 + 5*rank;
     me.stats[A_INT] = -1 + 5*rank;
     me.stats[A_WIS] = -2 + 2*rank;
@@ -2613,7 +2688,7 @@ static race_t *_chaos_get_race_t(void)
  **********************************************************************/
 static void _balance_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 10 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2670,6 +2745,12 @@ static race_t *_balance_get_race_t(void)
     skills_t bs = { 28,  35,  35,   2,  25,  26,  50,  30};
     skills_t xs = {  8,  10,  10,   0,   0,   0,  15,   7};
 
+        me.subdesc = "Balance Drakes are a blend of Chaos and Law Drakes. They can breathe sound, shards, "
+        "chaos or disenchantment and eventually evolve into Great Wyrms of Balance, though not "
+        "so quickly as you might hope. Their breaths are much weaker than those of the elemental "
+        "dragons and they are weaker than either of Chaos or Law Drakes, though not by much.";
+
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -2680,12 +2761,14 @@ static race_t *_balance_get_race_t(void)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _balance_calc_bonuses;
         me.get_flags = _balance_get_flags;
-        me.get_immunities = _realm_get_immunities;
         me.gain_level = _balance_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Balance Drake";
+    else
+        me.subname = titles[rank];
     me.stats[A_STR] =  0 + 4*rank;
     me.stats[A_INT] = -1 + 4*rank;
     me.stats[A_WIS] = -2 + 2*rank;
@@ -2702,7 +2785,7 @@ static race_t *_balance_get_race_t(void)
  **********************************************************************/
 static void _ethereal_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2770,6 +2853,13 @@ static race_t *_ethereal_get_race_t(void)
     skills_t bs = { 28,  35,  37,   4,  25,  26,  52,  30};
     skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
 
+        me.subdesc =
+        "Ethereal Drakes are dragons of light and darkness. They actually begin life as Pseudo "
+        "Dragons but quickly evolve into Ethereal Drakes and then Ethereal Dragons. As they "
+        "mature, they gain the ability to pass through walls and become more and more resistant "
+        "to light, darkness and confusion. They are fairly weak fighters and have the weakest "
+        "breaths in all of dragonkind (except for Steel Dragons which cannot breathe at all).";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -2780,12 +2870,15 @@ static race_t *_ethereal_get_race_t(void)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _ethereal_calc_bonuses;
         me.get_flags = _ethereal_get_flags;
-        me.get_immunities = _realm_get_immunities;
         me.gain_level = _ethereal_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Ethereal Drake";
+    else
+        me.subname = titles[rank];
+
     me.stats[A_STR] =  0 + 2*rank;
     me.stats[A_INT] = -1 + 2*rank;
     me.stats[A_WIS] = -2 + rank;
@@ -2802,7 +2895,7 @@ static race_t *_ethereal_get_race_t(void)
  **********************************************************************/
 static void _crystal_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/50 + l*l*l/2500;
+    int to_a = py_prorata_level_aux(125, 1, 2, 2);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2872,6 +2965,11 @@ static race_t *_crystal_get_race_t(void)
     skills_t bs = { 28,  35,  40,   1,  25,  26,  70,  30};
     skills_t xs = {  8,   7,  12,   0,   0,   0,  22,   7};
 
+        me.subdesc =
+        "Crystal Drakes are dragons of a strange crystalline form. They breathe shards and melee "
+        "powerfully with razor sharp claws and teeth. At high levels, they gain the power of "
+        "reflection.";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -2882,12 +2980,15 @@ static race_t *_crystal_get_race_t(void)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _crystal_calc_bonuses;
         me.get_flags = _crystal_get_flags;
-        me.get_immunities = _realm_get_immunities;
         me.gain_level = _crystal_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Crystal Drake";
+    else
+        me.subname = titles[rank];
+
     me.stats[A_STR] =  1 + 5*rank;
     me.stats[A_INT] = -1 + 5*rank;
     me.stats[A_WIS] = -2 + 2*rank;
@@ -2904,7 +3005,7 @@ static race_t *_crystal_get_race_t(void)
  **********************************************************************/
 static void _bronze_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -2966,6 +3067,11 @@ static race_t *_bronze_get_race_t(void)
     skills_t bs = { 28,  35,  38,   3,  25,  26,  55,  30};
     skills_t xs = {  8,  10,  11,   0,   0,   0,  15,   7};
 
+        me.subdesc =
+        "Bronze Dragons are wyrms of confusion. While they are not quite as strong as most other "
+        "dragons, they eventually confuse monsters with their bite attack. Also, they become "
+        "more and more resistant to confusion as they mature.";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -2976,12 +3082,15 @@ static race_t *_bronze_get_race_t(void)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _bronze_calc_bonuses;
         me.get_flags = _bronze_get_flags;
-        me.get_immunities = _realm_get_immunities;
         me.gain_level = _bronze_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Bronze Dragon";
+    else
+        me.subname = titles[rank];
+
     me.stats[A_STR] =  0 + 2*rank;
     me.stats[A_INT] = -1 + 2*rank;
     me.stats[A_WIS] = -2 + rank;
@@ -2998,7 +3107,7 @@ static race_t *_bronze_get_race_t(void)
  **********************************************************************/
 static void _gold_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 15 + (l/10)*2;
 
     p_ptr->ac += ac;
@@ -3061,6 +3170,11 @@ static race_t *_gold_get_race_t(void)
     skills_t bs = { 28,  35,  38,   2,  25,  26,  55,  30};
     skills_t xs = {  8,   9,  11,   0,   0,   0,  20,   7};
 
+        me.subdesc =
+        "Gold Dragons are wyrms of sound. While they are not quite as strong as most other "
+        "dragons, they are able to breathe sound on command, stunning their foes. Also, they become "
+        "more and more resistant to sound as they mature.";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -3071,12 +3185,15 @@ static race_t *_gold_get_race_t(void)
         me.get_powers = _dragon_get_powers;
         me.calc_bonuses = _gold_calc_bonuses;
         me.get_flags = _gold_get_flags;
-        me.get_immunities = _realm_get_immunities;
         me.gain_level = _gold_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Gold Dragon";
+    else
+        me.subname = titles[rank];
+
     me.stats[A_STR] =  0 + 2*rank;
     me.stats[A_INT] = -1 + 2*rank;
     me.stats[A_WIS] = -2 + rank;
@@ -3093,7 +3210,7 @@ static race_t *_gold_get_race_t(void)
  **********************************************************************/
 static void _steel_calc_bonuses(void) {
     int l = p_ptr->lev;
-    int to_a = l + l*l/50 + l*l*l/2500;
+    int to_a = py_prorata_level(150);
     int ac = 15 + (l/10)*2;
 
     p_ptr->skill_dig += 100;
@@ -3132,11 +3249,10 @@ static void _steel_get_flags(u32b flgs[TR_FLAG_SIZE]) {
         add_flag(flgs, TR_RES_SHARDS);
         add_flag(flgs, TR_SPEED);
     }
-    _dragon_get_flags(flgs);
-}
-static void _steel_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) {
     if (p_ptr->lev < 40)
-        add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, TR_VULN_COLD);
+
+    _dragon_get_flags(flgs);
 }
 static void _steel_birth(void) { 
     p_ptr->current_r_idx = MON_STONE_DRAGON; 
@@ -3164,6 +3280,15 @@ static race_t *_steel_get_race_t(void)
     skills_t bs = { 28,  18,  40,   0,  10,   7,  75,  30};
     skills_t xs = {  8,   7,  15,   0,   0,   0,  30,   7};
 
+        me.subdesc =
+        "Steel Dragons are magical dragons formed from rock. As they mature, their form hardens "
+        "from stone into steel. Needless to say, their armor class is phenomenal, but their "
+        "dexterity actually decreases with maturity. Steel dragons begin life being susceptible "
+        "to cold damage, though they will eventually outgrow this vulnerability. They are not "
+        "as fast as other dragons and they have no powers whatsoever, not even the ubiquitous "
+        "dragon breath! But their fighting is impossibly strong, putting all the other dragons "
+        "to complete and utter shame. They also have the most hitpoints of all dragons.";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -3174,13 +3299,15 @@ static race_t *_steel_get_race_t(void)
         me.calc_bonuses = _steel_calc_bonuses;
         me.get_flags = _steel_get_flags;
         me.get_powers = _dragon_get_powers;
-        me.get_vulnerabilities = _steel_get_vulnerabilities;
-    /*  me.get_immunities = _realm_get_immunities; Steel Dragons don't currently have a realm */
         me.gain_level = _steel_gain_level;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Steel Dragon";
+    else
+        me.subname = titles[rank];
+
     me.stats[A_STR] =  5 + (p_ptr->lev / 10);
     me.stats[A_INT] = -6;
     me.stats[A_WIS] = -6;
@@ -3195,7 +3322,7 @@ static race_t *_steel_get_race_t(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_dragon_get_race_t(int psubrace)
+race_t *mon_dragon_get_race(int psubrace)
 {
     race_t *result = NULL;
 
@@ -3263,6 +3390,7 @@ race_t *mon_dragon_get_race_t(int psubrace)
     result->equip_template = mon_get_equip_template();
     result->base_hp = 40;
     result->pseudo_class_idx = CLASS_BEASTMASTER;
+    result->shop_adjust = 130;
 
     result->boss_r_idx = MON_GLAURUNG;
     return result;

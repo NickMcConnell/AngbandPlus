@@ -1,0 +1,909 @@
+Command Descriptions
+
+The following command descriptions are listed as the command name plus 
+the underlying command key. This is followed by the command name and 
+roguelike keyset key, if different from the underlying command key. 
+Then comes a brief description of the command, including information 
+about alternative methods of specifying the command in each keyset, 
+when needed.
+
+Several commands (tunnel, disarm, bash, open) are repeated 99 times if 
+the always_repeat option is set and no repeat count is given. Some 
+commands use the repeat count to automatically repeat the command 
+several times, while others use the repeat count as an argument. For 
+example, commands which need a quantity will use the repeat count 
+instead of asking for a quantity, allowing the use of 0d to drop all. 
+Commands which ask for a quantity will convert any letters into the 
+maximal legal value.
+
+Inventory Commands
+
+  Inventory List (i)
+  Displays a list of objects being carried but not equipped. You can 
+  carry up to 26 different items, not counting those in your equipment. 
+  Often, many identical objects can be "stacked" into a "pile" which 
+  will count as a single item. This is always true of things like 
+  potions, scrolls, food, ammo and spellbooks. Basically, if two 
+  objects are exactly the same, they will stack into a single pile in 
+  your inventory. Each object also has a weight, and if you carry more 
+  objects than your strength permits, you will begin to slow down. Here 
+  is a sample:
+  
+    Inventory: carrying 43.2 pounds (36% of capacity):
+      a) , 5 Rations of Food                    5.0 lb
+      b) ! 5 Flasks of oil                      5.0 lb
+      c) ~ 3 Brass Lanterns {unidentified}     15.0 lb
+      d) ( Hard Leather Armour [6]             10.0 lb
+      e) ( a Cloak [1]                          1.0 lb
+      f) ] a Pair of Soft Leather Boots [2]     2.0 lb
+  
+ 
+  Equipment List (e)
+  Use this command to display a list of the objects currently being 
+  used by your character. Your character typically has 12 slots for 
+  equipment each corresponding to a different location on the body, and 
+  each of which may contain only a single object at a time, and each of 
+  which may only contain objects of the proper type. Note, that some 
+  races and most monster forms have a different type from the typical 
+  humanoid, so the number and types of your equipment slots can vary. 
+  However, most of the time, your body will look something like the 
+  following sample (Taken from a starting Warrior):
+  
+    a) | Right Hand: a Broad Sword (2d5) (+0,+0)      15.0 lb
+    b) ) Left Hand : a Small Leather Shield [3,+0]     5.0 lb
+    c) } Shooting  : a Light Crossbow (x4) (+0,+0)    11.0 lb
+    d)   Right Ring:
+    e)   Left Ring :
+    f)   Neck      :
+    g)   Light     :
+    h) [ Body      : Chain Mail (-2) [14,+0]          22.0 lb
+    i)   Cloak     :
+    j)   Head      :
+    k)   Hands     :
+    l)   Feet      :
+  
+  Each slot has a descriptive label, like "Right Hand" that determines 
+  what type of object it may receive, like a weapon or shield. And yes, 
+  you can wield a weapon in either hand, or even in both (Using the 
+  skill of Dual Wielding). You can even wear two shields if you aren't 
+  using melee fighting at all. The choice is yours! The types for each 
+  slot should be easy to figure out: Helmets go on your "Head" slot and 
+  Gloves go on your "Hands", etc.
+
+  Drop Item (d)
+  This drops an item from your inventory or equipment onto the dungeon 
+  floor. If the floor spot you are standing on already has an object in 
+  it, the game will attempt to drop the item onto an adjacent space. Be 
+  warned that if the floor is full and you attempt to drop something, 
+  it may disappear and be destroyed. Doors and traps are considered 
+  objects for the purpose of determining if the space is occupied. If 
+  the selected pile contains multiple items, you may specify a 
+  quantity.
+
+  Destroy Item (k) or (^D)
+  This destroys an item in your inventory or on the dungeon floor. If 
+  the selected pile contains multiple objects, you may specify a 
+  quantity. You must always (currently) verify this command.
+
+  Wear/Wield Equipment (w)
+  To wear or wield an object in your inventory, use this command. Since 
+  only one object can be in each slot at a time, if you wear or wield 
+  an item into a slot which is already occupied, the old item will be 
+  first be taken off, and may in fact be dropped if there is no room 
+  for it in your inventory.
+
+  Take Off Equipment (t) or (T)
+  Use this command to take off a piece of equipment and return it to 
+  your inventory. Occasionally, you will run into a cursed item which 
+  cannot be removed. These items normally penalize you in some way and 
+  cannot be taken off until the curse is removed. If there is no room 
+  in your inventory for the item, your pack will overflow and you will 
+  drop the item after taking it off.
+
+Movement Commands
+
+  Walk (with pickup) (;)
+  Moves one step in the given direction. The square you are moving into 
+  must not be blocked by walls or doors. You will pick up any items in 
+  the destination grid if the "always_pickup" option is set, or if the 
+  "query_pickup" option is set and you respond correctly. This command 
+  can take a count and requires a direction.  You may also use the 
+  "original" direction keys (both keysets) or the "roguelike" direction 
+  keys (roguelike keyset) to walk in a direction. If object 
+  auto-picker/destroyer is set up, specified objects will be picked up 
+  or destroyed.
+
+  Walk (flip pickup) (-)
+  This is just like normal move, except that the "Pick things up" 
+  option is inverted. In other words, if you normally pick up anything 
+  you encounter (the default), you will not pick things up when using 
+  this command. If you normally do not pick things up, you will when 
+  using this command. This command can take a count and requires a 
+  direction.  If object auto-picker/destroyer is set up, specified 
+  objects will be picked up or destroyed.
+
+  Run (.) or (,)
+  This command will move in the given direction, following any bends in 
+  the corridor, until you either have to make a "choice" between two 
+  directions or you are disturbed. You can configure what will disturb 
+  you by setting the disturbance options. Run requires a direction. You 
+  may also use shift plus the "roguelike" direction keys (roguelike 
+  keyset), or shift plus the "original" direction keys on the keypad 
+  (both keysets, some machines) to run in a direction. If object 
+  auto-picker/destroyer is set up, specified objects will be picked up 
+  or destroyed.
+
+  Go Up Staircase (<)
+  Climbs up when you are standing on an up staircase. In the 
+  wilderness, enter global map mode which grants you a view of all the 
+  world unless there are some monsters in the nearby area.
+  
+  There is always at least one staircase going up on every level except 
+  for the town level (this doesn't mean it's easy to find). Going up a 
+  staircase will take you to a new dungeon level unless you are at 50 
+  feet (dungeon level 1), in which case you will return to the town 
+  level. Note that unlike many other variants, levels are persistent. 
+  This means if you go back down the same stairs you will re-enter the 
+  level you just left. Once you go back to town, however, all of the 
+  previously visited floors are forgotten, and you will need to explore 
+  anew.
+
+  Go Down Staircase (>)
+  Descends when you are standing on a down staircase. In the 
+  wilderness, return from global map mode to normal mode.
+  
+  There are always at least two staircases going down on each level, 
+  except for the town which has only one, and "quest" levels, which 
+  have none until the quest monster is killed. Going down a staircase 
+  will take you to a new dungeon level. See "Go Up Staircase" for more 
+  info.
+
+Resting Commands
+
+  Stay Still (with pickup) (,) or (.)
+  Stays in the same square for one move. If you normally pick up 
+  objects you encounter, you will pick up whatever you are standing on. 
+  This command can take a count. You may also use the "5" key (both 
+  keysets).  If object auto-picker/destroyer is set up, specified 
+  objects will be picked up or destroyed.
+
+  Stay Still (flip pickup) (g)
+  Stays in the same square for one move. If you normally pick up 
+  objects you encounter, you will not pick up whatever you are standing 
+  on. If you normally do not pick up objects, you will pick up what you 
+  are standing on. This command is normally only used when the 
+  "always_pickup" option is false. This command can take a count.  If 
+  object auto-picker/destroyer is set up, specified objects will be 
+  picked up or destroyed.
+
+  Rest (R)
+  Resting is better for you than repeatedly staying still, and can be 
+  told to automatically stop after a certain amount of time, or when 
+  various conditions are met. In any case, you always wake up when 
+  anything disturbing happens, or when you press any key. To rest, 
+  enter the Rest command, followed by the number of turns you want to 
+  rest, or "*" to rest until your hitpoints and mana are restored, or 
+  "&" to rest until you are fully "healed". This command can take a 
+  count, which is used for the number of turns to rest.
+
+Searching Commands
+
+  Search (s)
+  This command can be used to locate hidden traps and secret doors in 
+  the spaces adjacent to the player. More than a single turn of 
+  searching will be required in most cases. You should always search a 
+  chest before trying to open it, since they are generally trapped. 
+  This command can take a count, which is useful if you are fairly sure 
+  of finding something eventually, since the command stops as soon as 
+  anything is found. This command can take a count.
+
+  Toggle Search Mode (S) or (#)
+  This command will take you into and out of search mode. When first 
+  pressed, the message "Searching" will appear at the bottom of the 
+  screen. You are now taking two turns for each command, one for the 
+  command and one turn to search. This means that you are taking twice 
+  the time to move around the dungeon, and therefore twice the food. 
+  Search mode will automatically turn off if you are disturbed. You may 
+  also turn off search mode by entering the Search Mode command again.
+
+Alter Commands
+
+  Tunnel (T) or (^T)
+  Tunneling or mining is a very useful art. There are many kinds of 
+  rock, with varying hardness, including:
+  
+    # Permanent Rock   Permanent
+    # Granite          Very Hard
+    % Quartz Veins     Hard
+    % Magma veins      Soft
+    : Rubble           Very Soft
+  
+  Quartz and Magma veins may sometimes contain treasure, in which case 
+  they will be displayed as *. Rubble sometimes covers an object. It is 
+  hard to tunnel unless you are wielding a heavy weapon or a shovel or 
+  a pick. Tunneling ability increases with strength and weapon weight. 
+  This command can take a count, requires a direction, and is affected 
+  by the "always_repeat" option.
+
+  Open a Door or Chest (o)
+  To open an object such as a door or chest, you must use this command. 
+  If the object is locked, you will attempt to pick the lock based on 
+  your disarming ability. If you open a trapped chest without disarming 
+  the traps first, the trap will be set off. Some doors will be jammed 
+  shut and may have to be forced open. You may need several tries to 
+  open a door or chest. Open can take a count, requires a direction, 
+  and is affected by the "always_repeat" option.
+
+  Close a Door (c)
+  Non-intelligent and some other creatures cannot open doors, so 
+  shutting doors can be quite valuable. Broken doors cannot be closed. 
+  Bashing a door open may break it. Close can take a count, requires a 
+  direction, and is affected by the "always_repeat" option.
+
+  Jam a Door (j) or Spike a Door (S)
+  Many monsters can simply open closed doors, and can eventually get 
+  through a locked door. You may therefore occasionally want to jam a 
+  door shut with iron spikes. Each spike used on the door will make it 
+  harder to bash down the door, up to a certain limit. Smaller monsters 
+  are less able to bash down doors. In order to use this command, you 
+  must be carrying iron spikes. Jam or Spike requires a direction.
+
+  Bash a Door (B) or Force a Door (f)
+  This command allows you to bash down jammed doors. Your bashing 
+  ability increases with strength. Bashing open a door can (briefly) 
+  throw you off balance. Doors that are stuck, or which have been 
+  jammed closed with spikes can only be opened by bashing, and all 
+  closed doors can be bashed open if desired. Bashing a door open may 
+  permanently break it so that it can never be closed. Bash or Force 
+  can take a count, requires a direction, and is affected by the 
+  "always_repeat" option.
+
+  Disarm a Trap or Chest (D)
+  You can attempt to disarm traps on the floor or on chests. If you 
+  fail, there is a chance that you will blunder and set it off. You can 
+  only disarm a trap after you have found it (usually with the Search 
+  command). Disarm can take a count, requires a direction, and is 
+  affected by the "always_repeat" option.
+
+  Alter (+)
+  This special command allows the use of a single keypress to select 
+  any of the "obvious" commands above (attack, tunnel, bash, open, 
+  disarm, close), and, by using macros or keymaps, to combine this 
+  keypress with directions. In general, this allows the use of the 
+  "control" key plus the appropriate "direction" key (including the 
+  roguelike direction keys in roguelike mode) as a kind of generic 
+  "alter the terrain feature of an adjacent grid" command. Alter can 
+  take a count, requires a direction, and is affected by the 
+  "always_repeat" option.
+
+Spell and Prayer Commands
+
+  Browse Magic List (b) or Peruse Magic List (P)
+  All characters which can cast spells can use this command. When this 
+  command is used, all of the spells contained in the selected magic 
+  are displayed, along with such information as their level, the amount 
+  of mana required to cast them, and whether or not you know the spell. 
+  And when you select a spell from the list, description text of 
+  selected spell will be displayed.
+
+  Gain New Spells or Prayers (G)
+  Use this command to actually learn new spells or prayers. When you 
+  are able to learn new spells or prayers, the word "Study" will appear 
+  in the status area of the screen. If you have a book in your 
+  possession, containing spells or prayers which you may learn, then 
+  you may choose to study that book. If you are a mage, rogue, or 
+  ranger, you may actually choose which spell to study. If you are a 
+  priest or paladin, your gods will choose a prayer for you. There are 
+  nine books of each type, some normally found only in the dungeon.
+
+  Cast a Spell (m)
+  To cast a spell, you must have previously learned the spell and must 
+  have in your inventory a book from which the spell can be read. Each 
+  spell has a chance of failure which starts out fairly large but 
+  decreases as you gain levels. If you don't have enough mana to cast a 
+  spell, you will be prompted for confirmation. If you decide to go 
+  ahead, the chance of failure is greatly increased, and you may lose a 
+  point of constitution. Since you must read the spell from a book, you 
+  cannot be blind or confused while casting, and there must be some 
+  light present.
+  
+  To pray effectively, you must have previously learned the prayer and 
+  must have in your inventory a book from which the prayer can be read. 
+  Each prayer has a chance of being ignored which starts out fairly 
+  large but decreases as you gain levels. If you don't have enough mana 
+  to cast a spell, you will be prompted for confirmation. If you decide 
+  to go ahead, the chance of failure is greatly increased, and you may 
+  lose a point of constitution. Since you must read the prayer from a 
+  book, you cannot be blind or confused while praying, and there must 
+  be some light present.
+
+  Use Bonus Power (U) or (O)
+  Some races and classes have special natural abilities. For example, a 
+  Cyclops may Throw Boulders and a Gnome may Blink away from danger. A 
+  Warrior can learn the power of Sword Dancing. Also, it is possible to 
+  become mutated and gain a power, such as the ability to shoot Laser 
+  Beams from your eyes! (I know, I know ... silliness!). If you have no 
+  special powers, then this command will not do anything.
+
+
+Object Manipulation Commands
+
+  Eat Food (E)
+  You must eat regularly to prevent starvation. As you grow hungry, a 
+  message will appear in the status portion of the screen saying 
+  Hungry. If you go hungry long enough, you will become Weak, then 
+  start Fainting, and eventually, you will die of starvation. You may 
+  use this command to eat food in your inventory. Note that you can 
+  sometimes find food in the dungeon, but it is not always wise to eat 
+  strange food.
+
+  Fuel Lantern/Torch (F)
+  If you are using a torch and have more torches in your pack, or you 
+  are using a lantern and have flasks of oil in your pack, then your 
+  can refuel them with this command. Torches and Lanterns are limited 
+  in their maximal fuel. In general, two flasks will fully fuel a 
+  lantern and two torches will fully fuel a torch.
+
+  Quaff Potion (q)
+  Use this command to drink a potion. Potions affect the player in 
+  various ways, but the effects are not always immediately obvious and 
+  are sometimes detrimental.
+
+  Read a scroll (r)
+  Use this command to read a scroll. Scroll spells usually have an area 
+  effect, except for a few cases where they act on other objects. 
+  Reading a scroll causes the parchment to disintegrate as the scroll 
+  takes effect. Most scrolls which prompt for more information can be 
+  aborted (by pressing escape), which will stop reading the scroll 
+  before it disintegrates. Note that scrolls must be read carefully as 
+  the magical incantations must be pronounced properly for the scroll 
+  to work (Magic is fickle). If you are in a hurry (or never bothered 
+  to learn to read well), then reading a scroll might fail, usually 
+  just when you need it most!
+ 
+  Inscribe an object ({)
+  This command inscribes a string on an object. The inscription is 
+  displayed inside curly braces after the object description. The 
+  inscription is limited to the particular object (or pile) and is not 
+  automatically transferred to all similar objects. Under certain 
+  circumstances, the game will display fake inscriptions on certain 
+  objects (e.g., {cursed}, {broken}, {tried}, {empty}, {90% off}) when 
+  appropriate. These fake inscriptions are masked by real inscriptions 
+  (i.e., those added with this command), but will re-appear if the real 
+  inscription is removed. In addition, the game will occasionally place 
+  a real inscription on an object for you, normally as the result of 
+  your character getting a feeling about the item. All characters will 
+  get feelings about weapons and armor after carrying them for a while. 
+  Warriors get the most detailed feelings, and get them quicker than 
+  any other class. An item labeled as {empty} was found to be out of 
+  charges, and an item labeled as {tried} is a flavored item which the 
+  character has used, but whose effects are unknown. Certain 
+  inscriptions have a meaning to the game, see "@#", "@x#", "!*", and 
+  "!x", in the section on inventory object selection.
+
+  Uninscribe an object (})
+  This command removes the inscription on an object. This command will 
+  have no effect on "fake" inscriptions added by the game itself.
+
+Magical Object Commands
+
+  Activate Artifact (A)
+  You have heard rumors of special weapons and armor deep in the 
+  dungeon, items that can let you breath fire like a dragon or light 
+  rooms with just a thought. Should you ever be lucky enough to find 
+  such an item, this command will let you activate its special ability. 
+  Special abilities can only be used if you are wearing or wielding the 
+  item and they usually take a certain amount of time to recharge.
+
+  Aim Wand (a) or Zap Wand (z)
+  Wands must be aimed in a direction to be used. Wands are magical 
+  devices, and therefore there is a chance you will not be able to 
+  figure out how to use them if you aren't good with magical devices. 
+  They will fire a shot that affects the first object or creature 
+  encountered or fire a beam that affects anything in a given 
+  direction, depending on the wand. An obstruction such as a door or 
+  wall will generally stop the effects from traveling any farther. This 
+  command requires a direction and can use a target.
+
+  Use Staff (u) or Zap Staff (Z)
+  This command will use a staff. A staff is normally very similar to a 
+  scroll, in that they normally either have an area effect or affect a 
+  specific object. Staves are magical devices, and there is a chance 
+  you will not be able to figure out how to use them.
+ 
+  Zap Rod (z) or Activate Rod (a)
+  Rods are extremely powerful magical items, which cannot be burnt or 
+  shattered, and which can have either staff-like or wand-like effects, 
+  but unlike staves and wands, they don't have charges. Instead, they 
+  draw on the ambient magical energy to recharge themselves, and 
+  therefore can only be activated once every few turns. The recharging 
+  time varies depending on the type of rod. This command may require a 
+  direction (depending on the type of rod, and whether you are aware of 
+  its type) and can use a target.
+
+Throwing and Missile Weapons
+
+  Fire Item (f) or (t)
+  You may throw any object carried by your character. Depending on the 
+  weight, it may travel across the room or drop down beside you. Only 
+  one object from a pile will be thrown at a time. Note that throwing 
+  an object will often cause it to break, so be careful! If you throw 
+  something at a creature, your chances of hitting it are determined by 
+  your pluses to hit, your ability at throwing, and the object's pluses 
+  to hit. Once the creature is it, the object may or may not do any 
+  damage to it. You've heard rumors that some objects found in the 
+  dungeon can do huge amounts of damage when thrown, but you're not 
+  sure which objects those are.... Note that flasks of oil will do a 
+  fairly large chunk of damage to a monster on impact, supposedly 
+  representing fire damage, but it works against fire elementals too... 
+  If you are wielding a missile launcher compatible with the object you 
+  are throwing, then you automatically use the launcher to fire the 
+  missile with much higher range, accuracy, and damage, then you would 
+  get by just throwing the missile. Fire or Throw requires a direction. 
+  Targeting mode (see the next command) can be invoked with "*" at the 
+  "Direction?" prompt.
+
+  Throw Item (v)
+  You may throw any object carried by your character. The lighter the 
+  object, the farther you can throw it. Only one object from a stack 
+  may be thrown at a time. Throwing an object may break it. If you 
+  throw something at a monster, your chances of hitting it are 
+  determined by your pluses to hit, your ability at throwing, and the 
+  object's pluses to hit. If the object hits the monster, it may or may 
+  not do damage. Some objects, such as weapons, or flasks of oil, can 
+  do a substantial amount of damage. This command requires a direction, 
+  and can take a target.
+
+  Set Target (*)
+  This will allow you to aim your spells and such at a specific monster 
+  or grid, so that you can point directly towards that monster or grid 
+  (even if this is not a "compass" direction) when you are asked for a 
+  direction. You can set a target using this command, or you can set a 
+  new target at the "Direction?" prompt when appropriate.
+  
+  At the targeting prompt, you have many options. First of all, 
+  targeting mode starts targeting nearby monsters which can be reached 
+  by projectable spells and thrown objects. In this mode, you can press 
+  t (or 5 or .) to select the current monster, SPACE to advance to the 
+  next monster, - to back up to the previous monster, direction keys to 
+  advance to a monster more or less in that direction, r to recall the 
+  current monster, q to exit targeting mode, and p (or o) to stop 
+  targeting monsters and enter the mode for targeting a location on the 
+  floor or in a wall. Note that if there are no nearby monsters, you 
+  will automatically enter this mode. Note that hitting o is just like 
+  p, except that the location cursor starts on the last examined 
+  monster instead of on the player. In this mode, you use the 
+  "direction" keys to move around, and the q key to quit, and the t (or 
+  5 or .) key to target the cursor location. Note that targeting a 
+  location is slightly "dangerous", as the target is maintained even if 
+  you are far away. To cancel an old target, simply hit * and then 
+  ESCAPE (or q).
+  
+  Note that when you cast a spell or throw an object at the target 
+  location, the path chosen is the "optimal" path towards that 
+  location, which may or may not be the path you want. Sometimes, by 
+  clever choice of a location on the floor for your target, you may be 
+  able to convince a thrown object or cast spell to squeeze through a 
+  hole or corridor that is blocking direct access to a different grid.
+  
+    Position: open floor [q,t,p,m,+,-,?,<dir>]
+    ###########
+    #.........#############
+    #.........#...........#
+    #.........#...........#
+    #......<..#...........#
+    #.........#...........#
+    #.....................#
+    #.........#...........#
+    #.........#...........%
+    #.........####.#%###%##.
+    #..........******d......
+    ***********###.#%%%#%###+ % %
+    ###%#######%#.%.#.#.#.*.%.%.%
+               %................%
+               #%.#.#.#.%.%.%.%.%
+  
+  Launching a ball spell or breath weapon at a location in the middle 
+  of a group of monsters can often improve the effects of that attack, 
+  since ball attacks are not stopped by interposed monsters if the ball 
+  is launched at a target. This command takes no time.
+
+Looking Commands
+
+  Full screen map (M)
+  This command will show a map of the entire dungeon, reduced by a 
+  factor of nine, on the screen. Only the major dungeon features will 
+  be visible because of the scale, so even some important objects may 
+  not show up on the map. This is particularly useful in locating where 
+  the stairs are relative to your current position, or for identifying 
+  unexplored areas of the dungeon. This command takes no time.
+  
+    +------------------------------------------------------------------+
+    |                          ######  #########                       |
+    |                   ########....####.......%                       |
+    |             ######......#####.####.......#                       |
+    |             d......##            ######%%#                       |
+    |            <###.....#                                            |
+    |             ##'.....#                                            |
+    |             ##'.....#                                            |
+    |              ##+#####                                            |
+    |     #####    ..                                                  |
+    |     #...#    ##                                                  |
+    |     ###%'##%#%#                                                  |
+    |        %###%%<#                                                  |
+    |              .#                                                  |
+    |              %#                                                  |
+    |              %%                                                  |
+    |            #%#%%                                                 |
+    |            #...#                                                 |
+    |            ###%#                                                 |
+  
+  If object auto-picker/destroyer is set up, specified objects can be 
+  displayed in this command, when you press the M, N, K or D. The M 
+  displays 'auto-pickup' items, while the N displays 'leave', the K 
+  displays 'auto-destroy'. And the D is same as the M plus the N. You 
+  can press any other key to quit this map command.
+
+  Locate Player on Map (L) or Where is the Player? (W)
+  This command lets you scroll your map around, looking at all sectors 
+  of the current dungeon level, until you press escape, at which point 
+  the map will be re-centered on the player if necessary. To scroll the 
+  map around, simply press any of the "direction" keys. The top line 
+  will display the sector location, and the offset from your current 
+  sector. This command takes no time.
+
+  Recenter Viewport (^V)
+  This command re-centers the viewport on the player, and is very 
+  useful when you approach the edge of the screen. The game will adjust 
+  the viewport automatically as you move, but it currently only does so 
+  when you approach within 2 squares of the top or bottom, or within 4 
+  squares of the left or right. This command is a quicker alternative 
+  to the Locate Player on Map command just discussed.
+
+  Look Around (l) or Examine Things (x)
+  This command is used to look around at nearby monsters (to determine 
+  their type and health) and objects (to determine their type). It is 
+  also used to find out what objects (if any) are under monsters, and 
+  if a monster is currently inside a wall. This command takes no time.
+  
+  When you are looking at something, you may hit space for more 
+  details, or to advance to the next interesting monster or object, or 
+  minus ("-") to go back to the previous monster or object, or a 
+  direction key to advance to the nearest interesting monster or object 
+  (if any) in that general direction, or "r" to recall information 
+  about the current monster race, or "q" or escape to stop looking 
+  around. You always start out looking at the "nearest" interesting 
+  monster or object.
+
+  Inspect Item (I)
+  This command lets you observe a previously *identified* item. This 
+  will tell you things about the special powers of the object. 
+  Currently, it only makes sense for artifacts and ego-items.
+
+Message Commands
+
+  Repeat Level Feeling (^F)
+  Repeats the current feeling about the dungeon level.
+
+  View Previous Messages (^P)
+  This command shows you all the recent messages. You can scroll 
+  through them, or exit with ESCAPE. This command takes no time.
+
+  Take notes (:)
+  This command allows you to take notes, which will then appear in your 
+  message list (prefixed with "Note:"). This command takes no time. It 
+  also adds a tiny screenshot to your message log. For example:
+  
+    Note: These bats are so dead!!
+                  #.################.#
+                  #..........<.......#
+                  #.##############>#.#
+              #####.#              #.######
+              #.....#              #.......
+              #.#####              ########
+              #.#                         #
+      #########'########
+      #................#
+      #...........@....#
+      #.......b........#
+      #................#
+      #.........b......'
+      #................#
+      #................#
+      #................#
+      #................#
+      ##################
+    
+    Targetting a Fruit bat.
+    The Fruit bat dies.
+    
+    Targetting a Fruit bat.
+    The Fruit bat dies.
+    
+  Game Status Commands
+  
+    Character Description (C)
+    Brings up a full description of your character, including your 
+    skill levels, your current and potential stats, and various other 
+    information. From this screen, you can change your name or use the 
+    file character description command to save your character status to 
+    a file. That command saves additional information, including your 
+    background, your inventory, and the contents of your house.
+  
+    Knowledge Menu (~)
+    The command opens a menu from which you can select information 
+    about seen Artifacts, Unique monsters, identified objects, etc:
+    
+    Display current knowledge
+    
+    Object Knowledge            Dungeon Knowledge
+      (a) Artifacts               (d) Dungeons
+      (o) Objects                 (q) Quests
+      (e) Egos                    (t) Terrain Symbols.
+      (h) Home Inventory
+      (i) *Identified* Equip.   Self Knowledge
+      (_) Auto Pick/Destroy       (@) About Yourself
+                                  (M) Mutations
+    Monster Knowledge             (v) Virtues
+      (m) Known Monsters          (x) Extra info
+      (w) Wanted Monsters
+      (u) Remaining Uniques     Skills
+      (k) Kill Count              (P) Proficiency
+      (p) Pets                    (s) Spell Proficiency
+    
+    
+    Command:
+     ESC) Exit menu
+    
+    As you can see, there is a lot of information here which I won't 
+    document right now. Poke around and you'll see what sorts of 
+    information is available.
+  
+    Display game time (^T) or (')
+    This command shows you current date and time in the game.
+  
+  Saving and Exiting Commands
+  
+    Save and Quit (^X)
+    To save your game so that you can return to it later, use this 
+    command. Save files will also be generated (hopefully) if the game 
+    crashes due to a system error. After you die, you can use your 
+    savefile to play again with the same options and such.
+  
+    Save (^S)
+    This command saves the game but doesn't exit. Use this frequently 
+    if you are paranoid about having the computer crash while you are 
+    playing.
+  
+    Quit (commit suicide) (Q)
+    Kills your character and exits the game. You will be prompted to 
+    make sure you really want to do this, and then asked to verify that 
+    choice. Note that dead characters are dead forever.
+  
+  User Preference Commands
+  
+  See [a] for a description of the user preference commands together 
+  with a detailed description of this function.
+  
+    Interact with Options (=)
+    Allow you to interact with options. Note that using the cheat 
+    options may mark your savefile as unsuitable for the high score 
+    list. You may change normal options using the X and Y user pref 
+    commands. You must use the redraw command (^R) after changing 
+    certain options.
+  
+    Interact with Macros (@)
+    Allow you to interact with macros. You may load or save macros from 
+    user pref files, create macros of various types, or define keymaps.
+  
+    Interact with Visuals (%)
+    Allow you to interact with visuals. You may load or save visuals 
+    from user pref files, or modify the attr/char mappings for the 
+    monsters, objects, and terrain features.
+  
+    Interact with Colors (&)
+    Allow the user to interact with colors. This command only works on 
+    some systems.
+   
+    Reload Auto-picker/destroyer Preferences ($)
+    This command will reload "pickpref.prf" and 
+    "pickpref-<<playername>>.prf" for object auto-picker/destroyer 
+    after you edit these files with your text editor.
+  
+    Edit Auto-picker/destroyer Preferences (_)
+    Allow the user to edit the pickpref.prf in the user directory. The 
+    ESC key will open the menu in this editor.  You can see and use all 
+    edit commands from the command menu.  Press ^Q or ^W to quit the 
+    editor.
+  
+  Help
+  
+    Help (?)
+    Brings up the on-line help system. Note that the help files are 
+    just text files in a particular format, and that other help files 
+    may be available on the Net. In particular, there are a variety of 
+    spoiler files which do not come with the standard distribution. 
+    Check the place you got PosChengband from or ask on the newsgroup 
+    rec.games.roguelike.angband about them.
+  
+    Identify Symbol (/)
+    Use this command to find out what a character stands for. For 
+    instance, by pressing "/.", you can find out that the "." symbol 
+    stands for a floor spot. When used with a symbol that represents 
+    creatures, the this command will tell you only what class of 
+    creature the symbol stands for, not give you specific information 
+    about a creature you can see. To get that, use the Look command.
+    
+    There are four special symbols you can use with the Identify Symbol 
+    command to access specific parts of your monster memory. Typing 
+    Ctrl-A when asked for a symbol will recall details about all 
+    monsters, typing Ctrl-U will recall details about all unique 
+    monsters, typing Ctrl-N will recall details about all non-unique 
+    monsters, and typing Ctrl-M will let you enter a name and recall 
+    details about monsters which have the specified name as part of its 
+    name.
+    
+    If the character stands for a creature, you are asked if you want 
+    to recall details. If you answer yes, information about the 
+    creatures you have encountered with that symbol is shown in the 
+    Recall window if available, or on the screen if not. You can also 
+    answer "k" to see the list sorted by number of kills, or "p" to see 
+    the list sorted by dungeon level the monster is normally found on. 
+    Pressing ESCAPE at any point will exit this command.
+   
+    Game Version (V)
+    This command will tell you what version of the game you are using. 
+    For more information, see [b].
+  
+  Extra Commands
+  
+    Repeat Last Command (n) or (X)
+    This command repeat previously executed command with all its 
+    arguments. Very useful to repeat casting, for example, magic 
+    missile to same opponent.
+  
+    Toggle Choice Window (^I)
+    Toggles the display in the choice window (if available) between 
+    your inventory and your equipment. This command only applies if you 
+    are running PosChengband under a windowing environment and the 
+    choice window is available. This also redraws the choice window.
+  
+    Redraw Screen (^R)
+    This command adapts to various changes in global options, and 
+    redraws all of the windows. This command should be used after 
+    changing various global properties (options, attr/char mappings, 
+    color definitions, etc). When in doubt, use it.
+          
+    Create screen dump ())
+    This command creates a document of the current screen and then 
+    displays that document to you in the game's internal file viewer. 
+    You may then save the document as either plaintext or as html, 
+    using the | command. To create an html file, simply give the file 
+    an html extension. Note that if you are playing with graphics 
+    enabled, then this command will attempt to convert to normal 
+    textual display before creating the screen dump.
+  
+    Command your pets (p)
+    If you have pets then this command allows you to give orders to 
+    your pets. You can call them to you, send them out to kill other 
+    monsters, dismiss them, and allow/disallow opening of door and 
+    picking up items. Your pets will drop all picked up items when you 
+    disallow them to pick up anything.
+  
+  Summary
+  
+  Inventory Commands         Original        Roguelike
+    Inventory List              i                 
+    Equipment List              e                 
+    Drop Item                   d                 
+    Destroy Item                k               ^D
+    Wear/Wield Equipment        w                 
+    Take Off Equipment          t                T
+  
+  Movement Commands          Original        Roguelike
+    Walk (with pickup)          ;                 
+    Walk (flip pickup)          -                 
+    Run                         .                ,
+    Go Up Staircase             <                 
+    Go Down Staircase           >                 
+    Direction Keys (DIR)     7  8  9          y  k  u
+                             4     6          h     l
+                             1  2  3          b  j  n
+    Run                     SHIFT+DIR             
+  
+  Resting Commands           Original        Roguelike
+    Stay (pickup)               ,                .
+    Stay (toggle pickup)        g                 
+    Rest                        R                 
+  
+  Searching Commands         Original        Roguelike
+    Search                      s                 
+    Toggle Search Mode          S                #
+  
+  Alter Commands             Original        Roguelike
+    Tunnel                      T               ^T
+    Open a Door/Chest           o                 
+    Close a Door                c                 
+    Jam/Spike a Door            j                S
+    Bash/Force a Door           B                f
+    Disarm a Trap/Chest         D                 
+    Alter                       +                 
+    Alter                   CTRL+DIR              
+  
+  Spell Commands             Original        Roguelike
+    Browse/Peruse Spells        b                P
+    Gain Spell                  G                 
+    Cast Spell                  m                 
+    Use Power                   U                O
+  
+  Object Commands            Original        Roguelike
+    Eat Food                    E                 
+    Fuel Lantern/Torch          F                 
+    Quaff Potion                q                 
+    Read Scroll                 r                 
+    Inscribe Object             {                 
+    Un-inscribe Object          }                 
+  
+  Magic Device Commands      Original        Roguelike
+    Activate Object             A                 
+    Aim/Zap Wand                a                z
+    Use/Zap Staff               u                Z
+    Zap/Activate Rod            z                a
+  
+  Missile Commands           Original        Roguelike
+    Fire Item                   f                t
+    Throw Item                  v                 
+    Set Target                  *                 
+  
+  Looking Commands           Original        Roguelike
+    Full Screen Map             M                 
+    Locate Player on Map        L                W
+    Look Around                 l                x
+    Recenter Viewport          ^V                 
+    Inspect Item                I                 
+  
+  Message Commands           Original        Roguelike
+    Repeat Level Feeling       ^F                 
+    Previous Messages          ^P                 
+    Take Notes                  :                 
+  
+  Game Status Commands       Original        Roguelike
+    Character Description       C                 
+    Knowledge Menu              ~                 
+    Display Game Time          ^T                '
+  
+  Save/Quit Commands         Original        Roguelike
+    Save and Quit              ^X
+    Save                       ^S
+    Quit/Commit Suicide         Q
+  
+  User Preference Commands   Original        Roguelike
+    Interact with Options       =
+    Interact with Macros        @
+    Interact with Visuals       %
+    Interact with Colors        &
+    Reload Auto-Picker Prefs    $
+    Edit Auto-Picker Prefs      _
+  
+  Help Commands              Original        Roguelike
+    Help                        ?
+    Identify Symbol             /
+    Game Version                V
+  
+  Extra Commands             Original        Roguelike
+    Repeat Last Command         n                X
+    Toggle Choice Window       ^I                 
+    Redraw Screen              ^R                 
+    Create Screen Dump          )                 
+    Command Pets                p                 
+  
+  
+  Original   : Alexander Cutler and Andy Astrand
+  Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
+  Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
+  Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
+  Updated    : Zangband DevTeam
+  Updated    : Hengband 1.7.0
+  Updated    : PosChengband 4.0.0
+  
+  

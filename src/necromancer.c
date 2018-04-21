@@ -90,7 +90,7 @@ static bool _necro_do_touch(int type, int dice, int sides, int base)
 
     if (!_necro_check_touch()) return FALSE;
 
-    /* For ergonomics sake, use currently targeted monster.  This allows
+    /* For ergonomics sake, use currently targeted monster. This allows
        a macro of \e*tmaa or similar to pick an adjacent foe, while
        \emaa*t won't work, since get_rep_dir2() won't allow a target. */
     if (use_old_target && target_okay())
@@ -351,7 +351,7 @@ cptr do_necromancy_spell(int spell, int mode)
 
     case 14:
         if (name) return "Dread of Night";
-        if (desc) return "Summons Dread to do your bidding.  Beware of failure!";
+        if (desc) return "Summons Dread to do your bidding. Beware of failure!";
         if (cast || fail) _necro_do_summon(SUMMON_DREAD, 1 + randint0(3), fail);
         break;
 
@@ -407,7 +407,7 @@ cptr do_necromancy_spell(int spell, int mode)
 
     case 22:
         if (name) return "Unholy Word";
-        if (desc) return "Utter an unspeakable word.  The morale of your visible evil pets is temporarily boosted and they will serve you with renewed enthusiasm.";
+        if (desc) return "Utter an unspeakable word. The morale of your visible evil pets is temporarily boosted and they will serve you with renewed enthusiasm.";
         if (cast) project_hack(GF_UNHOLY_WORD, p_ptr->lev * 6);
         break;
 
@@ -455,7 +455,7 @@ cptr do_necromancy_spell(int spell, int mode)
 
     case 28:
         if (name) return "Repose of the Dead";
-        if (desc) return "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death.  When (if?) you wake up, you will be thoroughly refreshed!";
+        if (desc) return "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death. When (if?) you wake up, you will be thoroughly refreshed!";
         if (cast)
         {
             if (!get_check("You will enter a deep slumber. Are you sure?")) return NULL;
@@ -466,7 +466,7 @@ cptr do_necromancy_spell(int spell, int mode)
 
     case 29:
         if (name) return "Sepulchral Wind";
-        if (desc) return "You call forth the wind of the dead.  All nearby monsters are blown away!";
+        if (desc) return "You call forth the wind of the dead. All nearby monsters are blown away!";
         {
             int power = spell_power(plev * 4);
             if (info) return info_power(power);
@@ -510,7 +510,8 @@ cptr do_necromancy_spell(int spell, int mode)
                 case 1: what = SUMMON_LICH; break;
                 case 2: what = SUMMON_WIGHT; break;
                 case 3: what = SUMMON_VAMPIRE; break;
-                case 4: what = SUMMON_GHOST; break;
+                case 4:
+                default: what = SUMMON_GHOST; break;
                 }
                 summon_specific(-1, my, mx, power, what, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
             }
@@ -527,10 +528,24 @@ static void _calc_bonuses(void)
 {
     p_ptr->align -= 200;
     p_ptr->spell_cap += 2;
+
+    if (equip_find_artifact(ART_EYE_OF_VECNA))
+        p_ptr->dec_mana = TRUE;
+    if (equip_find_artifact(ART_HAND_OF_VECNA))
+        p_ptr->easy_spell = TRUE;
+
     if (p_ptr->lev >= 5) res_add(RES_COLD);
     if (p_ptr->lev >= 15) p_ptr->see_inv = TRUE;
     if (p_ptr->lev >= 25) p_ptr->hold_life = TRUE;
     if (p_ptr->lev >= 35) res_add(RES_POIS);
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    if (p_ptr->lev >= 5) add_flag(flgs, TR_RES_COLD);
+    if (p_ptr->lev >= 15) add_flag(flgs, TR_SEE_INVIS);
+    if (p_ptr->lev >= 25) add_flag(flgs, TR_HOLD_LIFE);
+    if (p_ptr->lev >= 35) add_flag(flgs, TR_RES_POIS);
 }
 
 static int _get_powers(spell_info* spells, int max)
@@ -561,13 +576,13 @@ static caster_info * _caster_info(void)
         me.magic_desc = "spell";
         me.which_stat = A_INT;
         me.weight = 430;
-        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
+        me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
     return &me;
 }
 
-class_t *necromancer_get_class_t(void)
+class_t *necromancer_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -604,6 +619,7 @@ class_t *necromancer_get_class_t(void)
 
         me.caster_info = _caster_info;
         me.calc_bonuses = _calc_bonuses;
+        me.get_flags = _get_flags;
         me.get_powers = _get_powers;
         me.character_dump = spellbook_character_dump;
         init = TRUE;

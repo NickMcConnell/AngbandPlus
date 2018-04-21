@@ -1,23 +1,24 @@
-[[[[G|=== Online Help Commands ===
+<style:title>Online Help Commands</style>
 
-You can move cursor using [[[[y|the arrow keys|.        [[[[B|Movement commands|
-Press the indicated letter [a-z] to        [[[[y|   'q'    |(Leave the help system)
-activate a link.                           [[[[y|   ESC    |(Return to the prev file)
+<style:heading>Movement Commands</style>
+<color:keypress>    q     </color>(Leave the help system)
+<color:keypress>   ESC    </color>(Return to the prev file)
 
-For example, press [[[[y|the j key| when you see  [[[[y|   Home   |(Go to the top)
-"(see monster.txt#Pets [j])" etc.          [[[[y|  PageUp  |(Go up 1 page)
-Pressing [[[[y|the ESC key| takes you back to     [[[[y| Up Arrow |(Go up 1 line)
-the previous location.                     [[[[y|Down Arrow|(Go down 1 line)
-                                           [[[[y| PageDown |(Go down 1 page)
-                                           [[[[y|   End    |(Go to the bottom)
+<color:keypress>   Home   </color>(Go to the top)
+<color:keypress>  PageUp  </color>(Go up 1 page)
+<color:keypress> Up Arrow </color>(Go up 1 line)
+<color:keypress>Down Arrow</color>(Go down 1 line)
+<color:keypress> PageDown </color>(Go down 1 page)
+<color:keypress>   End    </color>(Go to the bottom)
 
-                                           [[[[y|   '#'    |(Jump to a specific line)
-      [[[[B|Other commands|                       [[[[y|   '%'    |(Jump to a specific file)
-[[[[y|'/'| or [[[[y|'^S'| (Search for a string)                
-    [[[[y|'='|     (Highlight lines containing a string)
-    [[[[y]'|']     (Save current document to a file)
+<color:keypress>    >     </color>(Go to next section)
+<color:keypress>    <     </color>(Go to previous section)
 
---
-Updated    : Hengband 1.7.0
+<style:heading>Other Commands</style>
+<color:keypress>    /     </color>(Search forward for a string)
+<color:keypress>    \     </color>(Search backward for a string)
+<color:keypress>    |     </color>(Copy to file)
+          <color:note>(<indent>Note: You can save as html by giving the file an htm or html extension. Otherwise, color formatting will be removed.)</indent></color>
 
-***** [j] monster.txt#Pets
+<style:heading>Links</style>
+Press the indicated letter <color:link>[a-z]</color> to activate a link. For example, press the <color:keypress>a</color> key when you see "(see <link:monster.txt#Pets>)" etc.

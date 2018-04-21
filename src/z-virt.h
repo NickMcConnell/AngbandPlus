@@ -160,11 +160,12 @@ extern vptr rpanic(huge len);
 /* Allocate (and return) 'len', or dump core */
 extern vptr ralloc(huge len);
 
+/* Note: See c-string.h for a better string implementation */
 /* Create a "dynamic string" */
-extern cptr string_make(cptr str);
+extern cptr z_string_make(cptr str);
 
-/* Free a string allocated with "string_make()" */
-extern errr string_free(cptr str);
+/* Free a string allocated with "z_string_make()" */
+extern errr z_string_free(cptr str);
 
 
 

@@ -9,7 +9,7 @@ static cptr _desc =
     "divine powers which function like spells but need not be learned or cast from books. "
     "These powers can be used while blinded, but not while confused and they are also "
     "blocked by Anti-magic. The divine powers of the angel are quite powerful offering good "
-    "offense combined with detection, healing and melee enhancement.  Wisdom is the "
+    "offense combined with detection, healing and melee enhancement. Wisdom is the "
     "primary spell stat.\n \n"
     "Angels use the same equipment slots as normal player races and have no innate attacks.";
 
@@ -83,7 +83,7 @@ static spell_info _spells[] = {
     { 45, 80, 65, clairvoyance_spell},
     { 47, 60, 70, summon_angel_spell},
     { 49, 90, 70, summon_hi_dragon_spell},
-    { 50, 50, 68, starburst_II_spell},
+    { 50, 50, 65, starburst_II_spell},
     { -1, -1, -1, NULL}
 };
 static int _get_spells(spell_info* spells, int max) {
@@ -96,6 +96,12 @@ static void _calc_bonuses(void) {
     p_ptr->align += 200;
     p_ptr->levitation = TRUE;
     res_add(RES_POIS);
+
+    if (equip_find_artifact(ART_STONE_OF_LIFE) || equip_find_artifact(ART_STONE_OF_CRUSADE))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
 
     if (p_ptr->lev >= 10)
     {
@@ -262,7 +268,7 @@ static caster_info * _caster_info(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_angel_get_race_t(void)
+race_t *mon_angel_get_race(void)
 {
     race_t *result = NULL;
 
@@ -279,6 +285,7 @@ race_t *mon_angel_get_race_t(void)
     result->birth = _birth;
     result->caster_info = _caster_info;
     result->pseudo_class_idx = CLASS_PRIEST;
+    result->shop_adjust = 90;
 
     result->boss_r_idx = MON_RAPHAEL;
     return result;

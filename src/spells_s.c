@@ -8,7 +8,7 @@ void satisfy_hunger_spell(int cmd, variant *res)
         var_set_string(res, "Satisfy Hunger");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Fills your belly with pure yuminess.");
+        var_set_string(res, "Fills your belly with pure yumminess.");
         break;
     case SPELL_CAST:
         set_food(PY_FOOD_MAX - 1);
@@ -489,6 +489,11 @@ void spit_acid_spell(int cmd, variant *res)
 }
 bool cast_spit_acid(void) { return cast_spell(spit_acid_spell); }
 
+static int _starburst_I_dam(void)
+{
+    return 100 + py_prorata_level_aux(200, 1, 1, 2);
+}
+
 void starburst_I_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -500,7 +505,7 @@ void starburst_I_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of powerful light.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell)));
+        var_set_string(res, info_damage(0, 0, spell_power(_starburst_I_dam() + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -508,7 +513,7 @@ void starburst_I_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a starburst.");
-        fire_ball(GF_LITE, dir, spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell), spell_power(4));
+        fire_ball(GF_LITE, dir, spell_power(_starburst_I_dam() + p_ptr->to_d_spell), spell_power(4));
         var_set_bool(res, TRUE);
         break;
     }
@@ -516,6 +521,11 @@ void starburst_I_spell(int cmd, variant *res)
         default_spell(cmd, res);
         break;
     }
+}
+
+static int _starburst_II_dam(void)
+{
+    return py_prorata_level_aux(450, 1, 0, 2);
 }
 
 void starburst_II_spell(int cmd, variant *res)
@@ -529,7 +539,7 @@ void starburst_II_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of powerful light.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 6 + p_ptr->to_d_spell)));
+        var_set_string(res, info_damage(0, 0, spell_power(_starburst_II_dam() + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -538,7 +548,7 @@ void starburst_II_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a starburst.");
         fire_ball(GF_LITE, dir, 
-            spell_power(50 + p_ptr->lev * 6 + damroll(10, 10) + p_ptr->to_d_spell),
+            spell_power(_starburst_II_dam() + p_ptr->to_d_spell),
             spell_power(4));
         var_set_bool(res, TRUE);
         break;
@@ -594,14 +604,14 @@ void stinking_cloud_spell(int cmd, variant *res)
         var_set_string(res, "Fires a ball of poison.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(10 + p_ptr->lev / 2)));
+        var_set_string(res, info_damage(0, 0, spell_power(10 + p_ptr->lev / 2 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball(GF_POIS, dir, spell_power(10 + p_ptr->lev / 2), spell_power(2));
+        fire_ball(GF_POIS, dir, spell_power(10 + p_ptr->lev / 2 + p_ptr->to_d_spell), spell_power(2));
         var_set_bool(res, TRUE);
         break;
     }
@@ -684,7 +694,7 @@ void stop_time_spell(int cmd, variant *res)
         msg_print("You yell 'Time!'");
         msg_print(NULL);
 
-        /* Note: We pay the casting cost up front these days.  So, add back the 150
+        /* Note: We pay the casting cost up front these days. So, add back the 150
            to figure the starting sp, and then bash sp down to 0. We can't use the 
            SPELL_COST_EXTRA mechanism here ... */
         p_ptr->energy_need -= 1000 + (100 + (p_ptr->csp + 150) - 50)*TURNS_PER_TICK/10;
@@ -774,7 +784,7 @@ void summon_ants_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -901,7 +911,7 @@ void summon_dragon_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         int ct = 0;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
+        int l = p_ptr->lev + randint1(p_ptr->lev * 2 / 3);
 
         ct += summon_specific(-1, py, px, l, SUMMON_DRAGON, PM_FORCE_PET);
         if (!ct)
@@ -924,7 +934,7 @@ void summon_greater_demon_spell(int cmd, variant *res)
         var_set_string(res, "Summon Greater Demon");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Summons greater demon. It need to sacrifice a corpse of human ('p','h' or 't').");
+        var_set_string(res, "Summons greater demon. You need to sacrifice a corpse of a human ('p','h' or 't') and the more powerful the corpse, the more powerful the demon you will conjure.");
         break;
     case SPELL_CAST:
         var_set_bool(res, cast_summon_greater_demon());
@@ -947,15 +957,15 @@ void summon_hi_dragon_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
-        int l = p_ptr->lev + randint1(p_ptr->lev);
 
         if (p_ptr->dragon_realm == DRAGON_REALM_DOMINATION)
             num = 2 + randint1(3);
 
         for (i = 0; i < num; i++)
         {
+            int l = p_ptr->lev + randint1(p_ptr->lev * 2 / 3);
             ct += summon_specific(-1, py, px, l, SUMMON_HI_DRAGON, PM_FORCE_PET);
         }
         if (!ct)
@@ -981,7 +991,7 @@ void summon_hi_undead_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -1012,7 +1022,7 @@ void summon_hounds_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -1043,7 +1053,7 @@ void summon_hydras_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -1142,7 +1152,7 @@ void summon_monsters_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -1173,7 +1183,7 @@ void summon_spiders_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -1278,7 +1288,7 @@ void summon_undead_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int num = randint0(p_ptr->lev/10);
+        int num = randint1(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
 
@@ -1332,7 +1342,7 @@ void super_stealth_spell(int cmd, variant *res)
         var_set_string(res, "Hide in Darkness");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Grants the stealth of the Ninja!  You may hide in shadows and see in the dark.  Your light radius is decreased by 3.");
+        var_set_string(res, "Grants the stealth of the Ninja!  You may hide in shadows and see in the dark. Your light radius is decreased by 3.");
         break;
     case SPELL_CAST:
         if (p_ptr->tim_superstealth)
@@ -1630,9 +1640,7 @@ void teleport_to_spell(int cmd, variant *res)
 
 static int _boulder_dam(void)
 {
-    int l = p_ptr->lev;
-    int dam = 2*l + l*l/50 + l*l*l/1250;
-    return dam;
+    return py_prorata_level_aux(250, 2, 1, 2);
 }
 void throw_boulder_spell(int cmd, variant *res)
 {
@@ -1925,7 +1933,7 @@ void wraithform_spell(int cmd, variant *res)
         var_set_string(res, "Wraithform");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Leave the world of the living and travel the shadows of the underwold.  You gain passwall and great resistance to damage.");
+        var_set_string(res, "Leave the world of the living and travel the shadows of the underwold. You gain passwall and great resistance to damage.");
         break;
     case SPELL_INFO:
         var_set_string(res, info_duration(spell_power(p_ptr->lev/2), spell_power(p_ptr->lev/2)));

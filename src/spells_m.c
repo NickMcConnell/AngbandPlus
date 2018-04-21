@@ -506,7 +506,7 @@ void pattern_mindwalk_spell(int cmd, variant *res)
         var_set_string(res, "Pattern Mindwalking");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Walk the pattern in your mind.  Restores life and stats.");
+        var_set_string(res, "Walk the pattern in your mind. Restores life and stats.");
         break;
     case SPELL_CAST:
         msg_print("You picture the Pattern in your mind and walk it...");
@@ -785,7 +785,7 @@ void polymorph_self_spell(int cmd, variant *res)
         var_set_string(res, "Polymorph");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Mutates yourself.  This can be dangerous!");
+        var_set_string(res, "Mutates yourself. This can be dangerous!");
         break;
     case SPELL_GAIN_MUT:
         msg_print("Your body seems mutable.");
@@ -810,6 +810,35 @@ void polymorph_self_spell(int cmd, variant *res)
     }
 }
 bool cast_polymorph_self(void) { return cast_spell(polymorph_self_spell); }
+
+void polymorph_vampire_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Polymorph Vampire");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Mimic a powerful vampire for a while. Loses abilities of original race and gets abilities as a vampire.");
+        break;
+    case SPELL_INFO:
+    {
+        int base = spell_power(10 + p_ptr->lev / 2);
+        var_set_string(res, info_duration(base, base));
+        break;
+    }
+    case SPELL_CAST:
+    {
+        int base = spell_power(10 + p_ptr->lev / 2);
+        set_mimic(base + randint1(base), MIMIC_VAMPIRE, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 
 void power_throw_spell(int cmd, variant *res)
 {
@@ -872,7 +901,7 @@ void protection_from_evil_spell(int cmd, variant *res)
         var_set_string(res, "Protection from Evil");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attempts to prevent evil monsters from attacking you.  When a weak evil monster melees you, it may be repelled by the forces of good.");
+        var_set_string(res, "Attempts to prevent evil monsters from attacking you. When a weak evil monster melees you, it may be repelled by the forces of good.");
         break;
     case SPELL_CAST:
         set_protevil(randint1(3 * p_ptr->lev) + 25, FALSE);
@@ -1049,10 +1078,20 @@ void recharging_spell(int cmd, variant *res)
         var_set_string(res, "Recharging");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attempts to recharge staffs, wands or rods.  Items may be destroyed on failure.");
+        if (p_ptr->prace == RACE_MON_LEPRECHAUN)
+            var_set_string(res, "It attempts to recharge a device using your gold for power.");
+        else if (!p_ptr->msp)
+            var_set_string(res, "It attempts to recharge a device using another device for power.");
+        else
+            var_set_string(res, "It attempts to recharge a device using your mana for power.");
         break;
     case SPELL_CAST:
-        var_set_bool(res, recharge(4 * p_ptr->lev));
+        if (p_ptr->prace == RACE_MON_LEPRECHAUN)
+            var_set_bool(res, recharge_from_player(3 * p_ptr->lev));
+        else if (!p_ptr->msp)
+            var_set_bool(res, recharge_from_device(3 * p_ptr->lev));
+        else
+            var_set_bool(res, recharge_from_player(3 * p_ptr->lev));
         break;
     default:
         default_spell(cmd, res);
@@ -1091,7 +1130,7 @@ void remove_curse_II_spell(int cmd, variant *res)
         var_set_string(res, "*Remove Curse*");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Uncurses an item so that you may remove it.  Even heavily cursed items can be removed.");
+        var_set_string(res, "Uncurses an item so that you may remove it. Even heavily cursed items can be removed.");
         break;
     case SPELL_CAST:
         if (remove_all_curse())

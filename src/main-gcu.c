@@ -12,7 +12,7 @@
 
 /*
  * This file has been modified to use multiple text windows if your screen
- * is larger than 80x25.  By Keldon Jones (keldon@umr.edu).
+ * is larger than 80x25. By Keldon Jones (keldon@umr.edu).
  *
  * Also included is Keldon Jones patch to get better colors. To switch to
  * a term that supports this, see this posting:
@@ -51,7 +51,7 @@
  * > "right" for Angband.
  *
  *    I've noticed this myself, so I spent the evening fixing it.
- * Well, sorta fixing it.  It's not perfect yet, and it may not be
+ * Well, sorta fixing it. It's not perfect yet, and it may not be
  * possible to get it perfect with VGA hardware and/or the current
  * Linux kernel.
  *
@@ -59,12 +59,12 @@
  *
  * >    Color Handling
  * >        Most color terminals are either `Tektronix-like'  or  `HP-
- * >        like'.   Tektronix-like terminals have a predefined set of
+ * >        like'.  Tektronix-like terminals have a predefined set of
  * >        N colors (where N usually 8), and can  set  character-cell
  * >        foreground and background characters independently, mixing
- * >        them into N * N color-pairs.  On  HP-like  terminals,  the
+ * >        them into N * N color-pairs. On  HP-like  terminals,  the
  * >        use must set each color pair up separately (foreground and
- * >        background are  not  independently  settable).   Up  to  M
+ * >        background are  not  independently  settable).  Up  to  M
  * >        color-pairs  may  be  set  up  from  2*M different colors.
  * >        ANSI-compatible terminals are Tektronix-like.
  *
@@ -82,11 +82,11 @@
  * >              cyan      COLOR_CYAN        6     0,max,max
  * >              white     COLOR_WHITE       7     max,max,max
  *
- *    Well, not quite.  Using certain escape sequences, an
+ *    Well, not quite. Using certain escape sequences, an
  * application (or better yet, curses) can redefine the colors (at
- * least some of them) and then those are used.  Read the
+ * least some of them) and then those are used. Read the
  * curs_color manpage, and the part about "ccc" and "initc" in the
- * terminfo manpage.  This is what the part of main-gcu inside the
+ * terminfo manpage. This is what the part of main-gcu inside the
  * "if (can_fix_color)" code does.
  *
  * > So, what does this mean to the Angband player?  Well, it means that
@@ -95,9 +95,9 @@
  * > I'm not clever enough to figure out how to do it.
  *
  *    Well, it is possible, though you have to patch main-gcu
- * and edit a terminfo entry.  Apparently the relevant code in
+ * and edit a terminfo entry. Apparently the relevant code in
  * main-gcu was never tested (it's broken in at least one major
- * way).  Apply the patch at the end of this message (notice that
+ * way). Apply the patch at the end of this message (notice that
  * we need to define REDEFINE_COLORS at some point near the
  * beginning of the file).
  *    Next, write this termcap entry to a file:
@@ -110,24 +110,24 @@
  *         use=linux,
  *
  * and run "tic" on it to produce a new terminfo entry called
- * "linux-c".  Especially note the "ccc" flag which says that we
- * can redefine colors.  The ugly "initc" string is what tells
- * the console how to redefine a color.  Now, just set your TERM
- * variable to "linux-c" and try Angband again.  If I've
+ * "linux-c". Especially note the "ccc" flag which says that we
+ * can redefine colors. The ugly "initc" string is what tells
+ * the console how to redefine a color. Now, just set your TERM
+ * variable to "linux-c" and try Angband again. If I've
  * remembered to tell you everything that I've done, you should
  * get the weird light-blue slate changed to a gray.
  *    Now, there are still lots of problems with this.
  * Something (I don't think it's curses, either the kernel or
  * the hardware itself) seems to be ignoring my color changes to
- * colors 6 and 7, which is annoying.  Also, the normal "white"
+ * colors 6 and 7, which is annoying. Also, the normal "white"
  * color is now way too bright, but it's now necessary to
  * distinguish it from the other grays.
  *    The kernel seems to support 16 colors, but you can
  * only switch to 8 of those, due to VT102 compatibility, it
- * seems.  I think it would be possible to patch the kernel and
+ * seems. I think it would be possible to patch the kernel and
  * allow all 16 colors to be used, but I haven't built up the
  * nerve to try that yet.
- *    Let me know if you can improve on this any.  Some of
+ *    Let me know if you can improve on this any. Some of
  * this may actually work differently on other hardware (ugh).
  *
  *    Keldon
@@ -156,6 +156,12 @@
  * XXX XXX XXX Consider the use of "savetty()" and "resetty()".
  */
 
+/* Sorry, but I cannot get QtCreator to recognize that this *is* actually being set, probably
+   because it doesn't know to check out CFLAGS in ../mk/buildsys.mk where HAVE_CONFIG_H is defined
+   so that h-basic.h knows to #include "autoconf.h" so that USE_GCU gets defined. Unbelievable! :)
+   If you are having compile problems, just comment this out.
+#define USE_GCU */
+
 #include "angband.h"
 #include <assert.h>
 
@@ -176,6 +182,9 @@
 # include <curses.h>
 #endif
 
+void usleep(int);
+void putenv(const char*);
+
 typedef struct term_data term_data;
 
 struct term_data
@@ -185,7 +194,7 @@ struct term_data
    WINDOW *win;
 };
 
-#define MAX_TERM_DATA 4
+#define MAX_TERM_DATA 10
 
 static term_data data[MAX_TERM_DATA];
 
@@ -366,6 +375,11 @@ static int can_fix_color = FALSE;
  * Simple Angband to Curses color conversion table
  */
 static int colortable[16];
+
+/**
+ * Background color we should draw with; either BLACK or DEFAULT
+ */
+static int bg_color = COLOR_BLACK;
 
 #endif
 
@@ -675,7 +689,7 @@ static bool init_sound(void)
 	 path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, wav);
 
 	 /* Save the sound filename, if it exists */
-	 if (check_file(buf)) sound_file[i] = string_make(buf);
+     if (check_file(buf)) sound_file[i] = z_string_make(buf);
       }
 
       /* Sound available */
@@ -755,6 +769,7 @@ static void Term_nuke_gcu(term *t)
 
 #ifdef USE_GETCH
 
+/*
 static int _getstr(char *buf, int cb)
 {
     int   ct = 0, j;
@@ -786,7 +801,7 @@ static void _ungetstr(const char *buf, int cb)
         char ch = buf[pos];
         ungetch(ch);
     }
-}
+}*/
 
 /*
  * Process events, with optional wait
@@ -951,9 +966,9 @@ static errr Term_xtra_gcu_sound(int v)
    if (!sound_file[v]) return (1);
 
    sprintf(buf,"./gcusound.sh %s\n", sound_file[v]);
-   system(buf);
-   
-   return (0);
+   if (system(buf) == EXIT_SUCCESS)
+     return (0);
+   return -1;
 
 #if 0
    char *argv[4];
@@ -1034,7 +1049,7 @@ static errr Term_xtra_gcu_react(void)
         for (i = 0; i < 16; i++)
         {
             int fg = create_color(i, scale);
-            init_pair(i + 1, fg, COLOR_BLACK);
+            init_pair(i + 1, fg, bg_color);
             colortable[i] = COLOR_PAIR(i + 1) | A_NORMAL;
         }
     }
@@ -1064,8 +1079,9 @@ static errr Term_xtra_gcu(int n, int v)
 
       /* Make a noise */
       case TERM_XTRA_NOISE:
-      (void)write(1, "\007", 1);
-      return (0);
+      if (write(1, "\007", 1) == 1)
+        return (0);
+      return -1;
 
 #ifdef USE_SOUND
       /* Make a special sound */
@@ -1293,6 +1309,38 @@ static void hook_quit(cptr str)
        endwin();
 }
 
+/* Parse 27,15,*x30 up to the 'x'. * gets converted to a big number
+   Parse 32,* until the end. Return count of numbers parsed */
+static int _parse_size_list(cptr arg, int sizes[], int max)
+{
+    int i = 0;
+    cptr start = arg;
+    cptr stop = arg;
+
+    for (;;)
+    {
+        if (!*stop || !isdigit(*stop))
+        {
+            if (i >= max) break;
+            if (*start == '*')
+                sizes[i] = 255;
+            else
+            {
+                /* rely on atoi("23,34,*") -> 23
+                   otherwise, copy [start, stop) into a new buffer first.*/
+                sizes[i] = atoi(start);
+            }
+            i++;
+            if (!*stop || *stop != ',') break;
+
+            stop++;
+            start = stop;
+        }
+        else
+            stop++;
+    }
+    return i;
+}
 
 /*
  * Prepare "curses" for use by the file "term.c"
@@ -1306,22 +1354,14 @@ errr init_gcu(int argc, char *argv[])
 {
    int i;
    char path[1024];
-   bool big_map = FALSE;
 
-   /* Parse Args */
-   for (i = 1; i < argc; i++)
-   {
-      if (strcmp(argv[i], "-b") == 0)
-         big_map = TRUE;
-   }
-   
 #ifdef USE_SOUND
 
    /* Build the "sound" path */
    path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
 
    /* Allocate the path */
-   ANGBAND_DIR_XTRA_SOUND = string_make(path);
+   ANGBAND_DIR_XTRA_SOUND = z_string_make(path);
 
 #endif
 
@@ -1362,19 +1402,24 @@ errr init_gcu(int argc, char *argv[])
 			 (COLORS >= 16) && (COLOR_PAIRS > 8));
 #endif
 
+#ifdef HAVE_USE_DEFAULT_COLORS
+    /* Should we use curses' "default color" */
+    if (use_default_colors() == OK) bg_color = -1;
+#endif
+
    /* Attempt to use colors */
    if (can_use_color)
    {
 		/* Color-pair 0 is *always* WHITE on BLACK */
 
 		/* Prepare the color pairs */
-		init_pair(1, COLOR_RED,     COLOR_BLACK);
-		init_pair(2, COLOR_GREEN,   COLOR_BLACK);
-		init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
-		init_pair(4, COLOR_BLUE,    COLOR_BLACK);
-		init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-		init_pair(6, COLOR_CYAN,    COLOR_BLACK);
-		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
+        init_pair(1, COLOR_RED,     bg_color);
+        init_pair(2, COLOR_GREEN,   bg_color);
+        init_pair(3, COLOR_YELLOW,  bg_color);
+        init_pair(4, COLOR_BLUE,    bg_color);
+        init_pair(5, COLOR_MAGENTA, bg_color);
+        init_pair(6, COLOR_CYAN,    bg_color);
+        init_pair(7, COLOR_BLACK,   bg_color);
 
 		/* Prepare the "Angband Colors" -- Bright white is too bright */
 		/* Changed in Drangband. Cyan as grey sucks -- -TM- */
@@ -1451,64 +1496,199 @@ errr init_gcu(int argc, char *argv[])
    /* Extract the game keymap */
    keymap_game_prepare();
 
+   /* Parse Args and Prepare the Terminals. Rectangles are specified
+      as Width x Height, right? The game will allow you to have two
+      strips of extra terminals, one on the right and one on the bottom.
+      The map terminal will than fit in as big as possible in the remaining
+      space.
 
-    /*** Now prepare the term(s)
-         Sorry, but I prefer the map window to be as large as possible. This
-         requires me to hard-code the secondary term sizes based on my preferences.
-         Probably, they should be configurable. ***/
-    if (big_map)
+      Examples:
+        poschengband -mgcu -- -right 30x27,* -bottom *x7 will layout as
+
+        Term-0: Map (COLS-30)x(LINES-7) | Term-1: 30x27
+        --------------------------------|----------------------
+        <----Term-3: (COLS-30)x7------->| Term-2: 30x(LINES-27)
+
+        poschengband -mgcu -- -bottom *x7 -right 30x27,* will layout as
+
+        Term-0: Map (COLS-30)x(LINES-7) | Term-2: 30x27
+                                        |------------------------------
+                                        | Term-3: 30x(LINES-27)
+        ---------------------------------------------------------------
+        <----------Term-1: (COLS)x7----------------------------------->
+
+        Notice the effect on the bottom terminal by specifying its argument
+        second or first. Notice the sequence numbers for the various terminals
+        as you will have to blindly configure them in the window setup screen.
+    */
     {
-        term_data_init(&data[0], LINES, COLS, 0, 0);
-        angband_term[0] = Term;
-    }
-    else
-    {
-        const int desired_inv_cx = 60;
-        const int desired_msg_cy = 7;
-        const int spacer_cx = 1;
-        const int spacer_cy = 0;
-        const int inv_min = 30;
-        const int msg_min = 2;
+        int  spacer_cx = 1;
+        int  spacer_cy = 1;
+        int  min_cy = 3;
+        int  min_cx = 10;
+        int  right_cx = 0;
+        int  right_cys[10] = {0};
+        int  right_ct = 0;
+        int  bottom_cy = 0;
+        int  bottom_cxs[10] = {0};
+        int  bottom_ct = 0;
+        bool right_first = TRUE;
+        int  map_cx, map_cy;
+        int  next_win = 0;
 
-        int map_cx = MAX(80, COLS - (desired_inv_cx + spacer_cx));
-        int map_cy = MAX(27, LINES - (desired_msg_cy + spacer_cy));
-        int inv_cx = COLS - map_cx - spacer_cx;
-        int inv_cy = MIN(map_cy, 28);
-        int msg_cx = map_cx;
-        int msg_cy = LINES - map_cy - spacer_cy;
-        int recall_cx = inv_cx;
-        int recall_cy = LINES - inv_cy;
+        for (i = 1; i < argc; i++)
+        {
+            if (strcmp(argv[i], "-b") == 0)
+            {
+                term_data_init(&data[0], LINES, COLS, 0, 0);
+                angband_term[0] = Term;
+                break;
+            }
+            else if (strcmp(argv[i], "-right") == 0)
+            {
+                cptr arg, tmp;
 
-        int next_win = 0;
+                if (!bottom_cy)
+                    right_first = TRUE;
+
+                i++;
+                if (i >= argc)
+                    quit("Missing size specifier for -right");
+
+                arg = argv[i];
+                tmp = strchr(arg, 'x');
+                if (!tmp)
+                    quit("Expected something like -right 60x27,* for two right hand terminals of 60 columns, the first 27 lines and the second whatever is left.");
+                right_cx = atoi(arg);
+                tmp++;
+                right_ct = _parse_size_list(tmp, right_cys, 10);
+            }
+            else if (strcmp(argv[i], "-bottom") == 0)
+            {
+                cptr arg, tmp;
+
+                if (!right_cx)
+                    right_first = FALSE;
+
+                i++;
+                if (i >= argc)
+                    quit("Missing size specifier for -bottom");
+
+                arg = argv[i];
+                tmp = strchr(arg, 'x');
+                if (!tmp)
+                    quit("Expected something like -bottom *x7 for a single bottom terminal of 7 lines using as many columns as are available.");
+                tmp++;
+                bottom_cy = atoi(tmp);
+                bottom_ct = _parse_size_list(arg, bottom_cxs, 10);
+            }
+        }
+
+        if (right_cx)
+            map_cx = COLS - (right_cx + spacer_cx);
+        else
+            map_cx = COLS;
+
+        if (bottom_cy)
+            map_cy = LINES - (bottom_cy + spacer_cy);
+        else
+            map_cy = LINES;
+
+        if (map_cx < 80 || map_cy < 27)
+            quit(format("Failed: PosChengband needs an 80x27 map screen, not %dx%d", map_cx, map_cy));
 
         /* Map Window: Upper Left */
         term_data_init(&data[next_win], map_cy, map_cx, 0, 0);
         angband_term[next_win] = Term;
         next_win++;
 
-        /* Messages: Lower Left */
-        if (msg_cy >= msg_min)
+        /* Right Hand Strip */
+        if (right_first)
         {
-            term_data_init(&data[next_win], msg_cy, msg_cx, map_cy + spacer_cy, 0);
-            angband_term[next_win] = Term;
-            next_win++;
+            int cy_remaining = LINES;
+            int x = map_cx + spacer_cx;
+            int y = 0;
+
+            for (i = 0; i < right_ct; i++)
+            {
+                int cy = right_cys[i];
+
+                if (!cy) break;
+
+                if (cy > cy_remaining)
+                    cy = cy_remaining;
+
+                if (cy > min_cy)
+                {
+                    term_data_init(&data[next_win], cy, right_cx, y, x);
+                    angband_term[next_win] = Term;
+                    next_win++;
+
+                    y += cy + spacer_cy;
+                    cy_remaining -= cy + spacer_cy;
+                }
+            }
         }
-              
-        /* Inventory: Upper Right */
-        if (inv_cx >= inv_min)
+
+        /* Bottom Strip */
         {
-            term_data_init(&data[next_win], inv_cy, inv_cx, 0, map_cx + spacer_cx);
-            angband_term[next_win] = Term;
-            next_win++;
+            int cx_remaining = COLS;
+            int x = 0;
+            int y = map_cy + spacer_cy;
+
+            if (right_first)
+                cx_remaining -= (right_cx + spacer_cx);
+
+            for (i = 0; i < bottom_ct; i++)
+            {
+                int cx = bottom_cxs[i];
+
+                if (!cx) break;
+
+                if (cx > cx_remaining)
+                    cx = cx_remaining;
+
+                if (cx > min_cx)
+                {
+                    term_data_init(&data[next_win], bottom_cy, cx, y, x);
+                    angband_term[next_win] = Term;
+                    next_win++;
+
+                    x += cx + spacer_cx;
+                    cx_remaining -= cx + spacer_cx;
+                }
+            }
         }
-        
-        /* Recall: Lower Right */
-        if (inv_cx >= inv_min && msg_cy >= msg_min)
+
+        /* Right Hand Strip: TODO: Refactor this code duplication!
+           But note that if the user specifies -right before bottom,
+           then the terminal sequence numbers should reflect this fact! */
+        if (!right_first)
         {
-            term_data_init(&data[next_win], recall_cy, recall_cx, inv_cy + spacer_cy, map_cx + spacer_cx);
-            angband_term[next_win] = Term;
-            next_win++;
-        }        
+            int cy_remaining = LINES - bottom_cy;
+            int x = map_cx + spacer_cx;
+            int y = 0;
+
+            for (i = 0; i < right_ct; i++)
+            {
+                int cy = right_cys[i];
+
+                if (!cy) break;
+
+                if (cy > cy_remaining)
+                    cy = cy_remaining;
+
+                if (cy > min_cy)
+                {
+                    term_data_init(&data[next_win], cy, right_cx, y, x);
+                    angband_term[next_win] = Term;
+                    next_win++;
+
+                    y += cy + spacer_cy;
+                    cy_remaining -= cy + spacer_cy;
+                }
+            }
+        }
     }
 
    /* Activate the "Angband" window screen */

@@ -8,6 +8,12 @@
  * are included in all such copies.
  */
 
+/* Sorry, but I cannot get QtCreator to recognize that this *is* actually being set, probably
+   because it doesn't know to check out CFLAGS in ../mk/buildsys.mk where HAVE_CONFIG_H is defined
+   so that h-basic.h knows to #include "autoconf.h" so that USE_X11 gets defined. Unbelievable! :)
+   If you are having compile problems, just comment this out.
+#define USE_X11 */
+
 #ifdef USE_X11
 
 #include <math.h>
@@ -200,7 +206,7 @@ static void rd_u32b(FILE *fff, u32b *ip)
  * This function replaces the old ReadRaw and RemapColors functions.
  *
  * Assumes that the bitmap has a size such that no padding is needed in
- * various places.  Currently only handles bitmaps with 3 to 256 colors.
+ * various places. Currently only handles bitmaps with 3 to 256 colors.
  */
 static XImage *ReadBMP(Display *dpy, char *Name)
 {
@@ -306,11 +312,11 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 		return (NULL);
 	}
 
-	for (y = 0; y < infoheader.biHeight; y++)
+    for (y = 0; y < (int)infoheader.biHeight; y++)
 	{
 		int y2 = infoheader.biHeight - y - 1;
 
-		for (x = 0; x < infoheader.biWidth; x++)
+        for (x = 0; x < (int)infoheader.biWidth; x++)
 		{
 			int ch = getc(f);
 

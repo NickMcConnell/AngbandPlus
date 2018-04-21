@@ -1,651 +1,321 @@
 #include "angband.h"
 
-/* TODO: Stop using p_ptr->magicnum*. Rewrite load/save code and keep a local
-   map (tv,sv)->{ ... } instead. */
+#include <assert.h>
 
-#define _EATER_CHARGE 0x10000L
-#define _EATER_ROD_CHARGE 0x10L
+#define _MAX_SLOTS 10
+#define _INVALID_SLOT -1
 
-/* Magic-Eaters are a hack. They use eaten devices as if they were spells. */
-bool magic_eater_hack = FALSE;
-static cptr _do_device(int tval, int sval, int mode)
+static object_type _wands[_MAX_SLOTS];
+static object_type _staves[_MAX_SLOTS];
+static object_type _rods[_MAX_SLOTS];
+
+static void _birth(void)
 {
-    cptr res;
-    magic_eater_hack = TRUE;
-    device_known = TRUE;
-    res = do_device(tval, sval, mode);
-    magic_eater_hack = FALSE;
-    return res;
-}
-
-/* Kinds of Objects */
-typedef struct {
-    int tval;
-    int sval;
-    int k_idx;   /* memoized */
-} _kind_t, *_kind_ptr;
-
-static int _lookup_kind(_kind_ptr kind)
-{
-    if (!kind->k_idx)
-        kind->k_idx = lookup_kind(kind->tval, kind->sval);
-    return kind->k_idx;
-}
-
-static cptr _kind_name(_kind_ptr kind)
-{
-    int k_idx = _lookup_kind(kind);
-    return k_name + k_info[k_idx].name;
-}
-
-static cptr _kind_desc(_kind_ptr kind)
-{
-    static char buf[1024];
-    cptr res = _do_device(kind->tval, kind->sval, SPELL_DESC);
-    strcpy(buf, res);
-    res =  _do_device(kind->tval, kind->sval, SPELL_INFO);
-    if (res && strlen(res))
+    int i;
+    for (i = 0; i < _MAX_SLOTS; i++)
     {
-        strcat(buf, " (");
-        strcat(buf, res);
-        strcat(buf, ")");
+        memset(&_wands[i], 0, sizeof(object_type));
+        memset(&_staves[i], 0, sizeof(object_type));
+        memset(&_rods[i], 0, sizeof(object_type));
     }
-    return buf;
 }
 
-/* Allowed objects for Eating */
-typedef struct {
-    int     idx;
-    _kind_t kind;
-    int     options;
-} _spell_t, *_spell_ptr;
-typedef void (*_spell_fn)(_spell_ptr spell);
-
-static int _calc_fail_rate(_spell_ptr spell)
-{
-    int result = 0;
-    int k_idx = _lookup_kind(&spell->kind);
-    int lvl = k_info[k_idx].level;
-
-    if (spell->kind.tval == TV_ROD)
-        lvl = lvl * 5/6 - 5;
-    
-    result = lvl * 4 / 5 + 20;
-    result -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_INT]] - 1);
-    lvl /= 2;
-    if (p_ptr->lev > lvl)
-        result -= 3 * (p_ptr->lev - lvl);
-
-    result = mod_spell_chance_1(result, REALM_NONE);
-    result = MAX(result, adj_mag_fail[p_ptr->stat_ind[A_INT]]);
-
-    if (p_ptr->stun > 50) result += 25;
-    else if (p_ptr->stun) result += 15;
-    if (result> 95) result = 95;
-
-    result = mod_spell_chance_2(result, REALM_NONE);
-    return result;
-}
-
-static int _calc_charges_total(_spell_ptr spell)
-{
-    return p_ptr->magic_num2[spell->idx];
-}
-
-static int _calc_charges(_spell_ptr spell)
-{
-    int result = 0;
-    int magic = p_ptr->magic_num1[spell->idx];
-    if (spell->kind.tval == TV_ROD)
-    {
-        result = p_ptr->magic_num2[spell->idx];
-        if (magic)
-        {
-            int k_idx = _lookup_kind(&spell->kind);
-            result -= (magic - 1) / (_EATER_ROD_CHARGE * k_info[k_idx].pval) + 1;
-        }
-    }
-    else
-        result = magic/_EATER_CHARGE;
-
-    return result;
-}
-
-static void _use_charge(_spell_ptr spell)
-{
-    if (spell->kind.tval == TV_ROD)
-    {
-        int k_idx = _lookup_kind(&spell->kind);
-        p_ptr->magic_num1[spell->idx] += k_info[k_idx].pval * _EATER_ROD_CHARGE;
-    }
-    else 
-        p_ptr->magic_num1[spell->idx] -= _EATER_CHARGE;
-}
-
-/*
-static bool _suppress(_spell_ptr spell)
-{
-    object_type o = {0};
-    int         k_idx = _lookup_kind(spell->kind);
-    int         ap_idx;
-
-    object_prep(&o, k_idx);
-    identify_item(&o);
-    o.ident |= IDENT_MENTAL;
-    ap_idx = is_autopick(&o);
-    if (ap_idx >= 0 && (autopick_list[ap_idx].action & DO_AUTODESTROY))
-        return TRUE; 
-    return FALSE;
-} */
-
-/* Grouped for Cleaner Menu Display */
-#define _MAX_PER_GROUP 20
-typedef struct {
-    cptr     name;
-    _spell_t spells[_MAX_PER_GROUP];
-} _group_t, *_group_ptr;
-
-static _group_t _staves[] = {
-    { "Detection", 
-      { { 12, {TV_STAFF, SV_STAFF_DETECT_TRAP, 0}, 0},
-        { 13, {TV_STAFF, SV_STAFF_DETECT_DOOR, 0}, 0},
-        { 10, {TV_STAFF, SV_STAFF_DETECT_GOLD, 0}, 0},
-        { 11, {TV_STAFF, SV_STAFF_DETECT_ITEM, 0}, 0},
-        { 14, {TV_STAFF, SV_STAFF_DETECT_INVIS, 0}, 0},
-        { 15, {TV_STAFF, SV_STAFF_DETECT_EVIL, 0}, 0},
-        { 9, {TV_STAFF, SV_STAFF_MAPPING, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { "Healing", 
-      { { 16, {TV_STAFF, SV_STAFF_CURE_LIGHT, 0}, 0},
-        { 17, {TV_STAFF, SV_STAFF_CURING, 0}, 0},
-        { 18, {TV_STAFF, SV_STAFF_HEALING, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { "Offense", 
-      { { 7, {TV_STAFF, SV_STAFF_STARLITE, 0}, 0},
-        { 24, {TV_STAFF, SV_STAFF_DISPEL_EVIL, 0}, 0},
-        { 26, {TV_STAFF, SV_STAFF_HOLINESS, 0}, 0},
-        { 25, {TV_STAFF, SV_STAFF_POWER, 0}, 0},
-        { 27, {TV_STAFF, SV_STAFF_GENOCIDE, 0}, 0},
-        { 31, {TV_STAFF, SV_STAFF_MSTORM, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { "Utility", 
-      { { 8, {TV_STAFF, SV_STAFF_LITE, 0}, 0},
-        { 5, {TV_STAFF, SV_STAFF_IDENTIFY, 0}, 0},    
-        { 20, {TV_STAFF, SV_STAFF_SLEEP_MONSTERS, 0}, 0},
-        { 21, {TV_STAFF, SV_STAFF_SLOW_MONSTERS, 0}, 0},
-        { 6, {TV_STAFF, SV_STAFF_REMOVE_CURSE, 0}, 0},
-        { 4, {TV_STAFF, SV_STAFF_TELEPORTATION, 0}, 0},
-        { 23, {TV_STAFF, SV_STAFF_PROBING, 0}, 0},
-        { 28, {TV_STAFF, SV_STAFF_EARTHQUAKES, 0}, 0},
-        { 30, {TV_STAFF, SV_STAFF_ANIMATE_DEAD, 0}, 0},
-        { 22, {TV_STAFF, SV_STAFF_SPEED, 0}, 0},
-        { 29, {TV_STAFF, SV_STAFF_DESTRUCTION, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { "Junk", 
-      { { 0, {TV_STAFF, SV_STAFF_DARKNESS, 0}, 0},
-        { 1, {TV_STAFF, SV_STAFF_SLOWNESS, 0}, 0},
-        { 2, {TV_STAFF, SV_STAFF_HASTE_MONSTERS, 0}, 0},
-        { 3, {TV_STAFF, SV_STAFF_SUMMONING, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { NULL, {{ -1, {-1, -1, -1}, -1} }}
-};
-static _group_t _wands[] = {
-    { "Offense", 
-      { { 36+15, {TV_WAND, SV_WAND_MAGIC_MISSILE, 0}, 0},
-        { 36+14, {TV_WAND, SV_WAND_STINKING_CLOUD, 0}, 0},
-        { 36+24, {TV_WAND, SV_WAND_WONDER, 0}, 0},
-        { 36+19, {TV_WAND, SV_WAND_COLD_BOLT, 0}, 0},
-        { 36+16, {TV_WAND, SV_WAND_ACID_BOLT, 0}, 0},
-        { 36+18, {TV_WAND, SV_WAND_FIRE_BOLT, 0}, 0},
-        { 36+21, {TV_WAND, SV_WAND_ELEC_BALL, 0}, 0},
-        { 36+23, {TV_WAND, SV_WAND_COLD_BALL, 0}, 0},
-        { 36+20, {TV_WAND, SV_WAND_ACID_BALL, 0}, 0},
-        { 36+22, {TV_WAND, SV_WAND_FIRE_BALL, 0}, 0},
-        { 36+12, {TV_WAND, SV_WAND_DRAIN_LIFE, 0}, 0},
-        { 36+26, {TV_WAND, SV_WAND_DRAGON_FIRE, 0}, 0},
-        { 36+27, {TV_WAND, SV_WAND_DRAGON_COLD, 0}, 0},
-        { 36+28, {TV_WAND, SV_WAND_DRAGON_BREATH, 0}, 0},
-        { 36+31, {TV_WAND, SV_WAND_GENOCIDE, 0}, 0},
-        { 36+30, {TV_WAND, SV_WAND_STRIKING, 0}, 0},
-        { 36+25, {TV_WAND, SV_WAND_DISINTEGRATE, 0}, 0},
-        { 36+29, {TV_WAND, SV_WAND_ROCKETS, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { "Utility", 
-      { { 36+7, {TV_WAND, SV_WAND_LITE, 0}, 0},
-        { 36+5, {TV_WAND, SV_WAND_TRAP_DOOR_DEST, 0}, 0},
-        { 36+10, {TV_WAND, SV_WAND_CONFUSE_MONSTER, 0}, 0},
-        { 36+11, {TV_WAND, SV_WAND_FEAR_MONSTER, 0}, 0},
-        { 36+8, {TV_WAND, SV_WAND_SLEEP_MONSTER, 0}, 0},
-        { 36+9, {TV_WAND, SV_WAND_SLOW_MONSTER, 0}, 0},
-        { 36+13, {TV_WAND, SV_WAND_POLYMORPH, 0}, 0},
-        { 36+17, {TV_WAND, SV_WAND_CHARM_MONSTER, 0}, 0},
-        { 36+4, {TV_WAND, SV_WAND_DISARMING, 0}, 0},
-        { 36+6, {TV_WAND, SV_WAND_STONE_TO_MUD, 0}, 0},
-        { 36+3, {TV_WAND, SV_WAND_TELEPORT_AWAY, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { "Junk", 
-      { { 36+0, {TV_WAND, SV_WAND_HEAL_MONSTER, 0}, 0},
-        { 36+1, {TV_WAND, SV_WAND_HASTE_MONSTER, 0}, 0},
-        { 36+2, {TV_WAND, SV_WAND_CLONE_MONSTER, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { NULL, {{ -1, {-1, -1, -1}, -1} }}
-};
-static _group_t _rods[] = {
-    { "Detection", 
-      {    { 72+0, {TV_ROD, SV_ROD_DETECT_TRAP, 0}, 0}, 
-        { 72+1, {TV_ROD, SV_ROD_DETECT_DOOR, 0}, 0}, 
-        { 72+31, {TV_ROD, SV_ROD_DETECT_MONSTERS, 0}, 0}, 
-        { 72+5, {TV_ROD, SV_ROD_MAPPING, 0}, 0}, 
-        { 72+6, {TV_ROD, SV_ROD_DETECTION, 0}, 0}, 
-        { -1, {-1, -1, -1}, -1} }},
-    { "Healing", 
-      {    { 72+8, {TV_ROD, SV_ROD_CURING, 0}, 0}, 
-        { 72+9, {TV_ROD, SV_ROD_HEALING, 0}, 0}, 
-        { 72+10, {TV_ROD, SV_ROD_RESTORATION, 0}, 0}, 
-        { -1, {-1, -1, -1}, -1} }},
-    { "Offense", 
-      {    { 72+15, {TV_ROD, SV_ROD_LITE, 0}, 0}, 
-        { 72+12, {TV_ROD, SV_ROD_PESTICIDE, 0}, 0},
-        { 72+21, {TV_ROD, SV_ROD_ELEC_BOLT, 0}, 0},
-        { 72+23, {TV_ROD, SV_ROD_COLD_BOLT, 0}, 0},
-        { 72+20, {TV_ROD, SV_ROD_ACID_BOLT, 0}, 0},
-        { 72+22, {TV_ROD, SV_ROD_FIRE_BOLT, 0}, 0},
-        { 72+25, {TV_ROD, SV_ROD_ELEC_BALL, 0}, 0},
-        { 72+27, {TV_ROD, SV_ROD_COLD_BALL, 0}, 0},
-        { 72+24, {TV_ROD, SV_ROD_ACID_BALL, 0}, 0},
-        { 72+26, {TV_ROD, SV_ROD_FIRE_BALL, 0}, 0},
-        { 72+18, {TV_ROD, SV_ROD_DRAIN_LIFE, 0}, 0},
-        { 72+34, {TV_ROD, SV_ROD_MANA_BOLT, 0}, 0}, 
-        { 72+33, {TV_ROD, SV_ROD_MANA_BALL, 0}, 0}, 
-        { 72+28, {TV_ROD, SV_ROD_HAVOC, 0}, 0},
-        { -1, {-1, -1, -1}, -1} }},
-    { "Utility", 
-      {    { 72+30, {TV_ROD, SV_ROD_AGGRAVATE, 0}, 0},
-        { 72+4, {TV_ROD, SV_ROD_ILLUMINATION, 0}, 0}, 
-        { 72+16, {TV_ROD, SV_ROD_SLEEP_MONSTER, 0}, 0}, 
-        { 72+17, {TV_ROD, SV_ROD_SLOW_MONSTER, 0}, 0}, 
-        { 72+19, {TV_ROD, SV_ROD_POLYMORPH, 0}, 0}, 
-        { 72+14, {TV_ROD, SV_ROD_DISARMING, 0}, 0}, 
-        { 72+32, {TV_ROD, SV_ROD_ESCAPING, 0}, 0}, 
-        { 72+13, {TV_ROD, SV_ROD_TELEPORT_AWAY, 0}, 0}, 
-        { 72+29, {TV_ROD, SV_ROD_STONE_TO_MUD, 0}, 0}, 
-        { 72+7, {TV_ROD, SV_ROD_PROBING, 0}, 0}, 
-        { 72+3, {TV_ROD, SV_ROD_RECALL, 0}, 0}, 
-        { 72+2, {TV_ROD, SV_ROD_IDENTIFY, 0}, 0}, 
-        { 72+11, {TV_ROD, SV_ROD_SPEED, 0}, 0}, 
-        { -1, {-1, -1, -1}, -1} }},
-    { NULL, {{ -1, {-1, -1, -1}, -1} }}
-};
-
-static _group_ptr _which_groups(int tval)
+static object_type *_which_list(int tval)
 {
     switch (tval)
     {
-    case TV_STAFF: return _staves;
     case TV_WAND: return _wands;
+    case TV_STAFF: return _staves;
     case TV_ROD: return _rods;
     }
+    assert(0);
     return NULL;
 }
 
-static void _for_each(int tval, _spell_fn f)
+static object_type *_which_obj(int tval, int slot)
 {
-    _group_ptr gs = _which_groups(tval);
-    int i, j;
-    for (i = 0; ; i++)
+    assert (0 <= slot && slot < _MAX_SLOTS);
+    return _which_list(tval) + slot;
+}
+
+static cptr _which_name(int tval)
+{
+    switch (tval)
     {
-        _group_ptr g = gs + i;
-        if (!g->name) break;
-        for (j = 0; ; j++)
+    case TV_WAND: return "Wand";
+    case TV_STAFF: return "Staff";
+    case TV_ROD: return "Rod";
+    }
+    assert(0);
+    return NULL;
+}
+
+static void _display(object_type *list, rect_t display)
+{
+    char    buf[MAX_NLEN];
+    int     i;
+    point_t pos = rect_topleft(&display);
+    int     padding, max_o_len = 20;
+    doc_ptr doc = NULL;
+
+
+    padding = 5;   /* leading " a) " + trailing " " */
+    padding += 12; /* " Fail: 23.2%" */
+
+    /* Measure */
+    for (i = 0; i < _MAX_SLOTS; i++)
+    {
+        object_type *o_ptr = list + i;
+        if (o_ptr->k_idx)
         {
-            _spell_ptr s = g->spells + j;
-            if (s->idx < 0) break;
-            f(s);
-        }
-    }
-}
-
-static int _groups_count(_group_t *groups)
-{
-    int result = 0;
-    int i;
-    for (i = 0; ; i++)
-    {
-        if (!groups[i].name) break;
-        result++;
-    }
-    return result;
-}
-static int _spells_count(_spell_t *spells)
-{
-    int result = 0;
-    int i;
-    for (i = 0; ; i++)
-    {
-        if (spells[i].idx < 0) break;
-        result++;
-    }
-    return result;
-}
-static int _spells_count_allowed(_spell_t *spells)
-{
-    int result = 0;
-    int i;
-    for (i = 0; ; i++)
-    {
-        if (spells[i].idx < 0) break;
-        if (_calc_charges_total(&spells[i]))
-            result++;
-    }
-    return result;
-}
-
-/* Menu Code 1: Choose which type of magic to use (tval) */
-typedef struct {
-    int tval;
-    cptr name;
-} _tval_menu_t;
-static cptr _tval_choice = NULL;
-static _tval_menu_t _tval_choices[3] = {
-    { TV_STAFF, "Staff" },
-    { TV_WAND, "Wand" },
-    { TV_ROD, "Rod" },
-};
-
-static void _tval_menu_fn(int cmd, int which, vptr cookie, variant *res)
-{
-    switch (cmd)
-    {
-    case MENU_KEY:
-        var_set_int(res, _tval_choices[which].name[0]);
-        break;
-    case MENU_TEXT:
-        var_set_string(res, format("%s", _tval_choices[which].name));
-        break;
-    default:
-        default_menu(cmd, which, cookie, res);
-    }
-}
-
-static int _prompt_tval(int tval)
-{
-    int idx = -1;
-    menu_t menu = { "Use which type of device?", NULL, NULL,
-                        _tval_menu_fn, 
-                        NULL, 3};
-
-    if (tval)
-    {
-        int i;
-        for (i = 0; i < 3; i++)
-        {
-            if (_tval_choices[i].tval == tval)
-            {
-                _tval_choice = _tval_choices[i].name;
-                return tval;
-            }
+            int len;
+            object_desc(buf, o_ptr, 0);
+            len = strlen(buf);
+            if (len > max_o_len)
+                max_o_len = len;
         }
     }
 
-    idx = menu_choose(&menu);
-    if (idx < 0) return 0;
-    _tval_choice = _tval_choices[idx].name;
-    return _tval_choices[idx].tval;
-}
+    if (max_o_len + padding > display.cx)
+        max_o_len = display.cx - padding;
 
-/* Menu Code 2: Choose which group of magic to use */
-static cptr _group_choice = NULL;
-
-static void _group_menu_fn(int cmd, int which, vptr cookie, variant *res)
-{
-    _group_t *groups = (_group_t*)cookie;
-    switch (cmd)
+    /* Display */
+    doc = doc_alloc(display.cx);
+    doc_insert(doc, "<style:table>");
+    for (i = 0; i < _MAX_SLOTS; i++)
     {
-    case MENU_KEY:
-        var_set_int(res, groups[which].name[0]);
-        break;
-    case MENU_TEXT:
-        var_set_string(res, format("%s", groups[which].name));
-        break;
-    default:
-        default_menu(cmd, which, cookie, res);
-    }
-}
+        object_type *o_ptr = list + i;
 
-static _group_t *_prompt_group(int tval)
-{
-    _group_t *result = NULL;
-    _group_t *groups = _which_groups(tval);
-    if (groups)
-    {
-        int idx = -1;
-        char prompt[255];
-        menu_t menu = { prompt, NULL, NULL,
-                        _group_menu_fn,
-                        groups, _groups_count(groups)};
+        doc_printf(doc, " %c) ", I2A(i));
 
-        sprintf(prompt, "Use which type of %s?", _tval_choice);
-        idx = menu_choose(&menu);
-        if (idx < 0) return NULL;
-        _group_choice = groups[idx].name;
-        return &groups[idx];
-    }
-    return result;
-}
-
-/* Menu Code 3: Choose which spell to use */
-typedef struct {
-    _spell_t *spell;
-    int       charges;
-    int       total_charges;
-    int       fail;
-} _spell_menu_t;
-
-static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
-{
-    _spell_menu_t *ss = (_spell_menu_t*)cookie;
-    _spell_menu_t *s = ss + which;
-
-    switch (cmd)
-    {
-    case MENU_TEXT:
-        if (s->total_charges)
+        if (o_ptr->k_idx)
         {
-            char    buf[1024];
-            _kind_t k = s->spell->kind;
-            cptr    info = _do_device(s->spell->kind.tval, s->spell->kind.sval, SPELL_INFO);
+            int  fail = device_calc_fail_rate(o_ptr);
 
-            sprintf(buf, "%-22.22s %3d %3d %3d%% ", _kind_name(&k), s->charges, s->total_charges, s->fail);
-            if (info)
-                strcat(buf, info);
-            var_set_string(res, buf);
+            object_desc(buf, o_ptr, OD_COLOR_CODED);
+            doc_insert(doc, buf);
+
+            if (fail == 1000)
+                doc_printf(doc, "<tab:%d>Fail: %3d%%\n", display.cx - 12, fail/10);
+            else
+                doc_printf(doc, "<tab:%d>Fail: %2d.%d%%\n", display.cx - 12, fail/10, fail%10);
+
+            /*doc_printf(doc, "<tab:%d>SP: %3d.%2.2d\n", display.cx - 12, o_ptr->xtra5 / 100, o_ptr->xtra5 % 100);*/
         }
         else
-            var_clear(res);
-        break;            
-    case MENU_HELP:
-        var_set_string(res, _kind_desc(&s->spell->kind));
-        break;
-    case MENU_COLOR:
-        if (!s->total_charges)
-            var_set_int(res, TERM_DARK);
-        else if (!s->charges)
-            var_set_int(res, TERM_RED);
+            doc_insert_text(doc, TERM_L_DARK, "(Empty)\n");
+    }
+    doc_insert(doc, "</style>");
+    doc_sync_term(doc, doc_range_all(doc), doc_pos_create(pos.x, pos.y));
+    doc_free(doc);
+}
+
+#define _ALLOW_EMPTY    0x01 /* Absorb */
+#define _ALLOW_SWITCH   0x02 /* Browse/Use */
+#define _ALLOW_EXCHANGE 0x04
+object_type *_choose(cptr verb, int tval, int options)
+{
+    object_type *result = NULL;
+    int          slot = 0;
+    int          cmd;
+    rect_t       display = ui_menu_rect();
+    int          which_tval = tval;
+    string_ptr   prompt = NULL;
+    bool         done = FALSE;
+    bool         exchange = FALSE;
+    int          slot1 = _INVALID_SLOT, slot2 = _INVALID_SLOT;
+
+    if ((options & _ALLOW_SWITCH) && REPEAT_PULL(&cmd))
+    {
+        switch (cmd)
+        {
+        case 'w': which_tval = TV_WAND; break;
+        case 's': which_tval = TV_STAFF; break;
+        case 'r': which_tval = TV_ROD; break;
+        }
+
+        if (REPEAT_PULL(&cmd))
+        {
+            slot = A2I(cmd);
+            if (0 <= slot && slot < _MAX_SLOTS)
+                return _which_obj(which_tval, slot);
+        }
+    }
+
+    if (display.cx > 80)
+        display.cx = 80;
+
+    prompt = string_alloc();
+    screen_save();
+    while (!done)
+    {
+        string_clear(prompt);
+
+        if (exchange)
+        {
+            if (slot1 == _INVALID_SLOT)
+                string_printf(prompt, "Select the first %s:", _which_name(which_tval));
+            else
+                string_printf(prompt, "Select the second %s:", _which_name(which_tval));
+        }
         else
-            var_set_int(res, TERM_WHITE);
-        break;
-    default:
-        default_menu(cmd, which, cookie, res);
-    }
-}
-
-static _spell_t *_prompt_spell(_spell_t *spells)
-{
-    _spell_menu_t choices[_MAX_PER_GROUP];
-    int           ct_total = _spells_count(spells);
-    int           ct_avail = 0;
-    int           i;
-
-    for (i = 0; i < ct_total; i++)
-    {
-        _spell_ptr spell = &spells[i];
-        
-        /*if (_calc_charges_total(spell) && !_suppress(spell))*/
         {
-            _spell_menu_t *choice = &choices[ct_avail];
-            
-            choice->spell = spell;
-            choice->charges = _calc_charges(spell);
-            choice->total_charges = _calc_charges_total(spell);
-            choice->fail = _calc_fail_rate(spell);
-
-            ct_avail++;
-        }
-    }
-
-    if (!ct_avail)
-    {
-        msg_print("You haven't absorbed any of these items yet.");
-    }
-    else
-    {
-        int    idx = -1;
-        char   heading[255], prompt1[255], prompt2[255];
-        menu_t menu = { prompt1, prompt2, heading,
-                        _spell_menu_fn, choices, ct_avail};
-
-        sprintf(prompt1, "Use which type of %s (%s)?", _group_choice, _tval_choice);
-        sprintf(prompt2, "Browse which type of %s (%s)?", _group_choice, _tval_choice);
-        sprintf(heading, "%-22.22s Chg Tot Fail Info", "");
-        idx = menu_choose(&menu);
-        if (idx >= 0)
-            return choices[idx].spell;
-    }
-    return NULL;
-}
-
-/* Menu Code: Putting it all together
-   Hack: To address complaints about adding a single (!) extra keystroke,
-   I've added code to bypass the tval selection. Simply use normal zap,
-   aim or use commands and you end up here, provided that your inventory
-   does not have a qualifying object. It is unlikely that a magic-eater
-   would not eat a given object, but they can just use the normal 'm' 
-   command if necessary.
-*/
-static _spell_t *_prompt(int tval)
-{
-    int tval2;
-    _group_ptr group;
-    _spell_ptr spell;
-
-    for (;;)
-    {
-        tval2 = _prompt_tval(tval); /* _tval_choice needs to be set for submenus! */
-        if (tval2 <= 0) break;
-        for (;;)
-        {
-            group = _prompt_group(tval2);
-            if (!group)
+            string_printf(prompt, "%s which %s", verb, _which_name(which_tval));
+            if (options & _ALLOW_SWITCH)
             {
-                if (tval) return NULL;
-                else return NULL/*break*/;
-            }
-            spell = _prompt_spell(group->spells);
-            if (spell)
-                return spell;
-        }
-    }
-    return NULL;
-}
-
-static void _browse(void)
-{
-    int tval;
-    _group_ptr group;
-    _spell_ptr spell;
-    int i, ct, line;
-    char tmp[62*10];
-
-    for (;;)
-    {
-        tval = _prompt_tval(0);
-        if (tval <= 0) break;
-        for (;;)
-        {
-            group = _prompt_group(tval);
-            if (!group) break;
-            ct = _spells_count_allowed(group->spells);
-            screen_save();
-            for (;;)
-            {
-                spell = _prompt_spell(group->spells);
-                if (!spell) break;
-                for (i = 0; i < 7; i++)
-                    Term_erase(13, ct + i + 2, 255);
-
-                roff_to_buf(_kind_desc(&spell->kind), 62, tmp, sizeof(tmp));
-
-                for(i = 0, line = ct + 3; tmp[i]; i += 1+strlen(&tmp[i]))
+                switch (which_tval)
                 {
-                    prt(&tmp[i], line, 15);
-                    line++;
+                case TV_WAND: string_append_s(prompt, " [Press 'S' for Staves, 'R' for Rods"); break;
+                case TV_STAFF: string_append_s(prompt, " [Press 'W' for Wands, 'R' for Rods"); break;
+                case TV_ROD: string_append_s(prompt, " [Press 'W' for Wands, 'S' for Staves"); break;
+                }
+                if (options & _ALLOW_EXCHANGE)
+                    string_append_s(prompt, ", 'X' to Exchange");
+                string_append_s(prompt, "]:");
+            }
+            else
+                string_append_c(prompt, ':');
+        }
+        prt(string_buffer(prompt), 0, 0);
+        _display(_which_list(which_tval), display);
+
+        cmd = inkey_special(FALSE);
+
+        if (cmd == ESCAPE || cmd == 'q' || cmd == 'Q')
+            done = TRUE;
+
+        if (options & _ALLOW_SWITCH)
+        {
+            if (cmd == 'w' || cmd == 'W')
+                which_tval = TV_WAND;
+            else if (cmd == 's' || cmd == 'S')
+                which_tval = TV_STAFF;
+            else if (cmd == 'r' || cmd == 'R')
+                which_tval = TV_ROD;
+        }
+
+        if (options & _ALLOW_EXCHANGE)
+        {
+            if (!exchange && (cmd == 'x' || cmd == 'X'))
+            {
+                exchange = TRUE;
+                slot1 = slot2 = _INVALID_SLOT;
+            }
+        }
+
+        if ('a' <= cmd && cmd < 'a' + _MAX_SLOTS)
+        {            
+            slot = A2I(cmd);
+            if (exchange)
+            {
+                if (slot1 == _INVALID_SLOT)
+                    slot1 = slot;
+                else
+                {
+                    slot2 = slot;
+                    if (slot1 != slot2)
+                    {
+                        object_type  tmp = *_which_obj(which_tval, slot1);
+                        object_type *obj1 = _which_obj(which_tval, slot1);
+                        object_type *obj2 = _which_obj(which_tval, slot2);
+
+                        *obj1 = *obj2;
+                        *obj2 = tmp;
+                    }
+                    exchange = FALSE;
+                    slot1 = slot2 = _INVALID_SLOT;
                 }
             }
-            screen_load();            
+            else
+            {
+                object_type *o_ptr = _which_obj(which_tval, slot);
+                if (o_ptr->k_idx || (options & _ALLOW_EMPTY))
+                {
+                    result = o_ptr;
+                    done = TRUE;
+                }
+            }
         }
     }
-}
 
-/* Map (tval, sval) -> Index for "Magic Numbers"
-   The only time we need to map in this direction
-   is during "absorption". */
-static int _find_idx_spells(_spell_t *spells, int sval)
-{
-    int result = -1;
-    int i;
-    for (i = 0; ; i++)
+    if (result && (options & _ALLOW_SWITCH))
     {
-        if (spells[i].idx == -1) break;
-        if (spells[i].kind.sval == sval)
+        switch (which_tval)
         {
-            result = spells[i].idx;
-            break;
+        case TV_WAND: REPEAT_PUSH('w'); break;
+        case TV_STAFF: REPEAT_PUSH('s'); break;
+        case TV_ROD: REPEAT_PUSH('r'); break;
         }
+        REPEAT_PUSH(I2A(slot));
     }
+
+    screen_load();
+    string_free(prompt);
     return result;
 }
 
-static int _find_idx_groups(_group_t *groups, int sval)
+void _use_object(object_type *o_ptr)
 {
-    int result = -1;
-    int i;
-    for (i = 0; ; i++)
+    int  boost = device_power(100) - 100;
+    u32b flgs[TR_FLAG_SIZE];
+    bool used = FALSE;
+    int  charges = 1;
+
+    energy_use = 100;
+
+    object_flags(o_ptr, flgs);
+    if (have_flag(flgs, TR_SPEED))
+        energy_use -= energy_use * o_ptr->pval / 10;
+
+    if (!fear_allow_device())
     {
-        if (!groups[i].name) break;
-        result = _find_idx_spells(groups[i].spells, sval);
-        if (result >= 0) break;
+        msg_print("You are too scared!");
+        return;
     }
-    return result;
+
+    if (!device_try(o_ptr))
+    {
+        if (flush_failure) flush();
+        msg_print("You failed to use the device properly.");
+        sound(SOUND_FAIL);
+        return;
+    }
+
+    if (device_sp(o_ptr) < o_ptr->activation.cost)
+    {
+        if (flush_failure) flush();
+        msg_print("The device has no charges left.");
+        return;
+    }
+
+    if (o_ptr->activation.type == EFFECT_IDENTIFY)
+        device_available_charges = device_sp(o_ptr) / o_ptr->activation.cost;
+
+    sound(SOUND_ZAP);
+    used = device_use(o_ptr, boost);
+
+    if (o_ptr->activation.type == EFFECT_IDENTIFY)
+        charges = device_used_charges;
+
+    if (used)
+    {
+        stats_on_use(o_ptr, charges);
+        device_decrease_sp(o_ptr, o_ptr->activation.cost * charges);
+    }
+    else
+        energy_use = 0;
 }
 
-static int _find_idx(int tval, int sval)
-{
-    _group_t *groups = _which_groups(tval);
-    if (groups)
-        return _find_idx_groups(groups, sval);
-    return -1;
-}
-
-/* Use Magic */
 void magic_eater_browse(void)
 {
-    _browse();
+    object_type *o_ptr = _choose("Browse", TV_WAND, _ALLOW_SWITCH | _ALLOW_EXCHANGE);
+    if (o_ptr)
+        obj_display(o_ptr);
 }
 
 void magic_eater_cast(int tval)
 {
-    int chance;
-    _spell_t *spell;
+    object_type *o_ptr;
 
     /* Duplicate anti-magic checks since "device" commands might re-route here (as "magic" commands)
        For example, do_cmd_use_staff() will allow magic-eaters to invoke staff based spells. */
@@ -676,106 +346,53 @@ void magic_eater_cast(int tval)
         return;
     }
 
-    spell = _prompt(tval);
-    if (!spell)
-        return;
-    if (!_calc_charges(spell))
-    {
-        msg_print("You are out of charges!");
-        return;
-    }
+    if (!tval)
+        tval = TV_WAND;
 
-    energy_use = 100;
-    chance = _calc_fail_rate(spell);
-    if (randint0(100) < chance)
-    {
-        if (flush_failure) flush();
-        msg_format("You failed to get the magic off!");
-        sound(SOUND_FAIL);
-        if (randint1(100) >= chance)
-            virtue_add(VIRTUE_CHANCE,-1);
-        return;
-    }
-    else
-    {
-        if (_do_device(spell->kind.tval, spell->kind.sval, SPELL_CAST)) 
-            _use_charge(spell);
-        else
-            energy_use = 0;
-    }
+    o_ptr = _choose("Use", tval, _ALLOW_SWITCH);
+    if (o_ptr)
+        _use_object(o_ptr);
 }
 
 /* Absorb Magic */
 static bool gain_magic(void)
 {
     int item;
-    int pval;
-    object_type *o_ptr;
-    int idx;
+    object_type *src_ptr;
+    object_type *dest_ptr;
     char o_name[MAX_NLEN];
 
-    item_tester_hook = item_tester_hook_recharge;
+    item_tester_hook = object_is_device;
     if (!get_item(&item, "Gain power of which item? ", "You have nothing to gain power from.", (USE_INVEN | USE_FLOOR))) 
-        return (FALSE);
+        return FALSE;
 
     if (item >= 0)
-        o_ptr = &inventory[item];
+        src_ptr = &inventory[item];
     else
-        o_ptr = &o_list[0 - item];
+        src_ptr = &o_list[0 - item];
 
-    if (!object_is_known(o_ptr))
-    {
-        msg_print("You need to identify before absorbing.");
+    dest_ptr = _choose("Replace", src_ptr->tval, _ALLOW_EMPTY);
+    if (!dest_ptr)
         return FALSE;
-    }
-    if (o_ptr->timeout)
+
+    if (dest_ptr->k_idx)
     {
-        msg_print("This item is still charging.");
-        return FALSE;
+        char prompt[255];
+        object_desc(o_name, dest_ptr, OD_COLOR_CODED);
+        sprintf(prompt, "Really replace %s? <color:y>[y/N]</color>", o_name);
+        if (msg_prompt(prompt, "ny", PROMPT_DEFAULT) == 'n')
+            return FALSE;
     }
 
-    idx = _find_idx(o_ptr->tval, o_ptr->sval);
-    if (idx < 0) /* Bug? Tables need to be updated for every new device ... */
-    {
-        msg_print("You can't eat that!");
-        return FALSE;
-    }
-
-    pval = o_ptr->pval;
-    if (o_ptr->tval == TV_ROD)
-    {
-        p_ptr->magic_num2[idx] += o_ptr->number;
-        if (p_ptr->magic_num2[idx] > 99) p_ptr->magic_num2[idx] = 99;
-    }
-    else
-    {
-        int num;
-        for (num = o_ptr->number; num; num--)
-        {
-            int gain_num = pval;
-
-            if (o_ptr->tval == TV_WAND) 
-                gain_num = (pval + num - 1) / num;
-            
-            if (p_ptr->magic_num2[idx])
-                gain_num = (gain_num + randint0(2))/2;
-
-            p_ptr->magic_num2[idx] += gain_num;
-            if (p_ptr->magic_num2[idx] > 99) p_ptr->magic_num2[idx] = 99;
-            
-            p_ptr->magic_num1[idx] += pval * _EATER_CHARGE;
-            if (p_ptr->magic_num1[idx] > 99 * _EATER_CHARGE) 
-                p_ptr->magic_num1[idx] = 99 * _EATER_CHARGE;
-            if (p_ptr->magic_num1[idx] > p_ptr->magic_num2[idx] * _EATER_CHARGE) 
-                p_ptr->magic_num1[idx] = p_ptr->magic_num2[idx] * _EATER_CHARGE;
-
-            if (o_ptr->tval == TV_WAND) 
-                pval -= (pval + num - 1) / num;
-        }
-    }
-
-    object_desc(o_name, o_ptr, 0);
+    object_desc(o_name, src_ptr, OD_COLOR_CODED);
     msg_format("You absorb magic of %s.", o_name);
+
+    *dest_ptr = *src_ptr;
+
+    dest_ptr->inscription = 0;
+    identify_item(dest_ptr);
+    dest_ptr->ident |= IDENT_FULL;
+    ego_aware(dest_ptr);
 
     /* Eliminate the item (from the pack) */
     if (item >= 0)
@@ -820,181 +437,156 @@ void magic_eater_gain(void)
 }
 
 /* Regeneration */
-static int _regen_pct = 0;
-static void _do_regen(_spell_ptr s)
-{
-    s32b amt;
-    int  k_idx, lvl;
-
-    if (!p_ptr->magic_num2[s->idx]) return;
-    if (p_ptr->magic_num1[s->idx] == ((long)p_ptr->magic_num2[s->idx] *_EATER_CHARGE)) return;
-    
-    amt = ((long)p_ptr->magic_num2[s->idx]+adj_mag_mana[p_ptr->stat_ind[A_INT]]+13) * _regen_pct / 8;
-
-    /* Hack: Low level devices recharge more quickly */
-    k_idx = _lookup_kind(&s->kind);
-    lvl = k_info[k_idx].level;
-    if (lvl < 50)
-        amt = amt * (100 - lvl) / 50;
-    
-    p_ptr->magic_num1[s->idx] += amt;
-    if (p_ptr->magic_num1[s->idx] >= ((long)p_ptr->magic_num2[s->idx] *_EATER_CHARGE))
-    {
-        if (disturb_minor)
-            msg_format("Regenerated %s (%d rnds/chg)", _kind_name(&s->kind), _EATER_CHARGE/amt);
-        p_ptr->magic_num1[s->idx] = ((long)p_ptr->magic_num2[s->idx] *_EATER_CHARGE);
-    }
-}
-static void _do_regen_rod(_spell_ptr s)
-{
-    int amt;
-    if (!p_ptr->magic_num1[s->idx]) return;
-    if (!p_ptr->magic_num2[s->idx]) return;
-    
-    amt = (long)(p_ptr->magic_num2[s->idx] * (adj_mag_mana[p_ptr->stat_ind[A_INT]] + 10)) * _EATER_ROD_CHARGE/16;
-    p_ptr->magic_num1[s->idx] -= amt;
-    if (p_ptr->magic_num1[s->idx] <= 0) 
-    {
-        if (disturb_minor)
-        {
-            int k_idx = _lookup_kind(&s->kind);
-            int tot = k_info[k_idx].pval * _EATER_ROD_CHARGE;
-            msg_format("Regenerated %s (%d rnds/chg)", _kind_name(&s->kind), tot/amt);
-        }
-        p_ptr->magic_num1[s->idx] = 0;
-    }
-}
 bool magic_eater_regen(int pct)
 {
+    int i;
+    int base = 3;
     if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
-    _regen_pct = pct;
-    _for_each(TV_STAFF, _do_regen);
-    _for_each(TV_WAND, _do_regen);
-    _for_each(TV_ROD, _do_regen_rod);
+    if (p_ptr->regenerate)
+        base += 3;
+    if (p_ptr->super_regenerate)
+        base += 6;
+    for (i = 0; i < _MAX_SLOTS; i++)
+    {
+        object_type *o_ptr = _which_obj(TV_WAND, i);
+        if (o_ptr->k_idx) device_regen_sp(o_ptr, base);
+        o_ptr = _which_obj(TV_STAFF, i);
+        if (o_ptr->k_idx) device_regen_sp(o_ptr, base);
+        o_ptr = _which_obj(TV_ROD, i);
+        if (o_ptr->k_idx) device_regen_sp(o_ptr, 10*base);
+    }
     return TRUE;
 }
 
-static void _do_restore(_spell_ptr s)
-{
-    p_ptr->magic_num1[s->idx] += 
-        (p_ptr->magic_num2[s->idx] < 10) ? 
-            _EATER_CHARGE * 3 : 
-            p_ptr->magic_num2[s->idx]*_EATER_CHARGE/3;
-    if (p_ptr->magic_num1[s->idx] > p_ptr->magic_num2[s->idx]*_EATER_CHARGE) 
-        p_ptr->magic_num1[s->idx] = p_ptr->magic_num2[s->idx]*_EATER_CHARGE;
-}
-static void _do_restore_rod(_spell_ptr s)
-{
-    if (p_ptr->magic_num2[s->idx])
-    {
-        int k_idx = _lookup_kind(&s->kind);
-        int amt;
-
-        if (p_ptr->magic_num2[s->idx] < 10)
-            amt = _EATER_ROD_CHARGE*3;
-        else
-            amt = p_ptr->magic_num2[s->idx]*_EATER_ROD_CHARGE/3;
-
-        amt *= k_info[k_idx].pval; 
-        p_ptr->magic_num1[s->idx] -= amt;
-        if (p_ptr->magic_num1[s->idx] < 0) 
-            p_ptr->magic_num1[s->idx] = 0;
-    }
-}
 void magic_eater_restore(void)
 {
-    if (p_ptr->pclass == CLASS_MAGIC_EATER)
+    int i;
+    if (p_ptr->pclass != CLASS_MAGIC_EATER) return;
+    for (i = 0; i < _MAX_SLOTS; i++)
     {
-        _for_each(TV_STAFF, _do_restore);
-        _for_each(TV_WAND, _do_restore);
-        _for_each(TV_ROD, _do_restore_rod);
+        object_type *o_ptr = _which_obj(TV_WAND, i);
+        if (o_ptr->k_idx) device_regen_sp_aux(o_ptr, 350);
+        o_ptr = _which_obj(TV_STAFF, i);
+        if (o_ptr->k_idx) device_regen_sp_aux(o_ptr, 350);
+        o_ptr = _which_obj(TV_ROD, i);
+        if (o_ptr->k_idx) device_regen_sp_aux(o_ptr, 700);
     }
-    p_ptr->window |= PW_PLAYER;
 }
 
-static void _do_restore_all(_spell_ptr s)
-{
-    p_ptr->magic_num1[s->idx] = p_ptr->magic_num2[s->idx]*_EATER_CHARGE;
-}
-static void _do_restore_all_rod(_spell_ptr s)
-{
-    p_ptr->magic_num1[s->idx] = 0;
-}
 void magic_eater_restore_all(void)
 {
-    if (p_ptr->pclass == CLASS_MAGIC_EATER)
+    int i;
+    if (p_ptr->pclass != CLASS_MAGIC_EATER) return;
+    for (i = 0; i < _MAX_SLOTS; i++)
     {
-        _for_each(TV_STAFF, _do_restore_all);
-        _for_each(TV_WAND, _do_restore_all);
-        _for_each(TV_ROD, _do_restore_all_rod);
+        object_type *o_ptr = _which_obj(TV_WAND, i);
+        if (o_ptr->k_idx) device_regen_sp_aux(o_ptr, 1000);
+        o_ptr = _which_obj(TV_STAFF, i);
+        if (o_ptr->k_idx) device_regen_sp_aux(o_ptr, 1000);
+        o_ptr = _which_obj(TV_ROD, i);
+        if (o_ptr->k_idx) device_regen_sp_aux(o_ptr, 1000);
     }
 }
 
 /* Old annoyance of Magic Eaters: No automatic resting to regenerate charges! 
    See dungeon.c:process_player() */
-static bool _can_regen_hack = FALSE;
-static void _can_regen(_spell_ptr s) 
-{
-    if (!_can_regen_hack)
-    {
-        int tot = _calc_charges_total(s);
-        if (tot && _calc_charges(s) < tot)
-            _can_regen_hack = TRUE;
-    }
-}
 bool magic_eater_can_regen(void)
 {
+    int i;
     if (p_ptr->pclass != CLASS_MAGIC_EATER) return FALSE;
-    _can_regen_hack = FALSE;
-    _for_each(TV_STAFF, _can_regen);
-    if (!_can_regen_hack)
-        _for_each(TV_WAND, _can_regen);
-    if (!_can_regen_hack)
-        _for_each(TV_ROD, _can_regen);
-    return _can_regen_hack;
+    for (i = 0; i < _MAX_SLOTS; i++)
+    {
+        object_type *o_ptr = _which_obj(TV_WAND, i);
+        if (o_ptr->k_idx && device_sp(o_ptr) < device_max_sp(o_ptr))
+            return TRUE;
+        o_ptr = _which_obj(TV_STAFF, i);
+        if (o_ptr->k_idx && device_sp(o_ptr) < device_max_sp(o_ptr))
+            return TRUE;
+        o_ptr = _which_obj(TV_ROD, i);
+        if (o_ptr->k_idx && device_sp(o_ptr) < device_max_sp(o_ptr))
+            return TRUE;
+    }
+    return FALSE;
 }
 
 /* Character Dump */
-static void _dump(FILE* fff, int tval, cptr title)
+static void _dump_list(doc_ptr doc, object_type *which_list)
 {
-    _group_ptr gs = _which_groups(tval);
-    int i, j;
-    fprintf(fff, "\n\n  [%s]\n", title);
-    for (i = 0; ; i++)
+    int i;
+    char o_name[MAX_NLEN];
+    for (i = 0; i < _MAX_SLOTS; i++)
     {
-        _group_ptr g = gs + i;
-        int ct = 0;
-        if (!g->name) break;
-        for (j = 0; ;j++)
+        object_type *o_ptr = which_list + i;
+        if (o_ptr->k_idx)
         {
-            _spell_ptr s = g->spells + j;
-            if (s->idx < 0) break;
-            if (_calc_charges_total(s) /*&& !_suppress(s)*/)
-            {
-                if (!ct)
-                {
-                    fprintf(fff, "\n%-22.22s Chg Tot Fail Info\n", g->name);
-                    fprintf(fff, "---------------------- --- --- ---- ----------------\n");
-                }
-                fprintf(fff, "%-22.22s %3d %3d %3d%% %s\n", 
-                    _kind_name(&s->kind), 
-                    _calc_charges(s), 
-                    _calc_charges_total(s), 
-                    _calc_fail_rate(s),
-                    _do_device(s->kind.tval, s->kind.sval, SPELL_INFO)
-                );
-                ct++;
-            }
+            object_desc(o_name, o_ptr, 0);
+            doc_printf(doc, "%c) %s\n", I2A(i), o_name);
         }
+        else
+            doc_printf(doc, "%c) (Empty)\n", I2A(i));
+    }
+    doc_newline(doc);
+}
+
+static void _character_dump(doc_ptr doc)
+{
+    doc_printf(doc, "<topic:MagicEater>================================ Absorbed <color:keypress>M</color>agic ===============================\n\n");
+
+    _dump_list(doc, _which_list(TV_WAND));
+    _dump_list(doc, _which_list(TV_STAFF));
+    _dump_list(doc, _which_list(TV_ROD));
+
+    doc_newline(doc);
+}
+
+static void _load_list(savefile_ptr file, object_type *which_list)
+{
+    int i;
+    for (i = 0; i < _MAX_SLOTS; i++)
+    {
+        object_type *o_ptr = which_list + i;
+        memset(o_ptr, 0, sizeof(object_type));
+    }
+
+    while (1)
+    {
+        object_type *o_ptr;
+        i = savefile_read_u16b(file);
+        if (i == 0xFFFF) break;
+        assert(0 <= i && i < _MAX_SLOTS);
+        o_ptr = which_list + i;
+        rd_item(file, o_ptr);
+        assert(o_ptr->k_idx);
     }
 }
 
-static void _character_dump(FILE* fff)
+static void _load_player(savefile_ptr file)
 {
-    fprintf(fff, "\n\n==================================== Magic ====================================\n");
-    _dump(fff, TV_STAFF, "Staves");
-    _dump(fff, TV_WAND, "Wands");
-    _dump(fff, TV_ROD, "Rods");
+    _load_list(file, _which_list(TV_WAND));
+    _load_list(file, _which_list(TV_STAFF));
+    _load_list(file, _which_list(TV_ROD));
+}
+
+static void _save_list(savefile_ptr file, object_type *which_list)
+{
+    int i;
+    for (i = 0; i < _MAX_SLOTS; i++)
+    {
+        object_type *o_ptr = which_list + i;
+        if (o_ptr->k_idx)
+        {
+            savefile_write_u16b(file, (u16b)i);
+            wr_item(file, o_ptr);
+        }
+    }
+    savefile_write_u16b(file, 0xFFFF); /* sentinel */
+}
+
+static void _save_player(savefile_ptr file)
+{
+    _save_list(file, _which_list(TV_WAND));
+    _save_list(file, _which_list(TV_STAFF));
+    _save_list(file, _which_list(TV_ROD));
 }
 
 /* Class Info */
@@ -1011,7 +603,7 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-class_t *magic_eater_get_class_t(void)
+class_t *magic_eater_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -1023,20 +615,21 @@ class_t *magic_eater_get_class_t(void)
     skills_t xs = {  7,  16,  10,   0,   0,   0,  13,  11 };
 
         me.name = "Magic-Eater";
-        me.desc = "Magic-Eaters can absorb magic devices, and use these magics as "
-                    "their spells.  They are middling-poor at fighting.  A "
-                    "Magic-Eater's prime statistic is intelligence.\n \n"
-                    "Magic-Eaters can absorb the energy of wands, staffs, and rods, and "
-                    "can then use these magics as if they were carrying all of these "
-                    "absorbed devices.  Mana and changes of absorbed devices are "
-                    "regenerated naturally by a Magic-Eater's power, and speed of "
-                    "regeneration is influenced by their intelligence.  They have a "
-                    "class power - 'Absorb Magic' - which is used to absorb magic "
-                    "devices.\n \n"
-                    "Note: Magic-Eaters may now use the resting commands (R* or R&) "
-                    "to automatically regenerate all charges the same way that other "
-                    "spellcasters can use these commands to regenerate all mana.";
-    
+        me.desc = "The Magic-Eater can absorb magical devices. Once absorbed, "
+                    "these devices will function like normal objects and can be "
+                    "used whenever charges are available. In effect, it is as "
+                    "if the Magic-Eater had extra inventory slots for devices. "
+                    "However, absorbed magic can not be drained the way normal "
+                    "devices can, nor can these objects be destroyed. There are "
+                    "fixed number of slots for each kind of device, and the Magic-Eater "
+                    "will need to choose which object to replace once the slots are "
+                    "all used. Absorbed magic can not be recharged the way normal "
+                    "devices can. Instead, the Magic-Eater must rest to regain "
+                    "charges the way a normal spellcaster must rest to regain "
+                    "mana. Similarly, the Magic-Eater may quaff a potion to restore "
+                    "mana to speed this process, though this will not necessarily "
+                    "restore all of their absorbed magic.";
+
         me.stats[A_STR] = -1;
         me.stats[A_INT] =  2;
         me.stats[A_WIS] =  1;
@@ -1050,8 +643,11 @@ class_t *magic_eater_get_class_t(void)
         me.exp = 130;
         me.pets = 30;
 
+        me.birth = _birth;
         me.get_powers = _get_powers;
         me.character_dump = _character_dump;
+        me.load_player = _load_player;
+        me.save_player = _save_player;
         init = TRUE;
     }
 

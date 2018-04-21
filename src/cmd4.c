@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Interface commands */
@@ -13,6 +13,9 @@
 #include "angband.h"
 #include "equip.h"
 #include "int-map.h"
+#include "z-doc.h"
+
+#include <assert.h>
 
 static void do_cmd_knowledge_shooter(void);
 
@@ -35,16 +38,16 @@ static void do_cmd_knowledge_shooter(void);
  * point.
  *
  *     These three functions automatically delete old dumped lines 
- * before adding new ones.  Since there are various kinds of automatic 
+ * before adding new ones. Since there are various kinds of automatic 
  * dumps in a single file, we add a header and a footer with a type 
  * name for every automatic dump, and kill old lines only when the 
  * lines have the correct type of header and footer.
  *
  *     We need to be quite paranoid about correctness; the user might 
  * (mistakenly) edit the file by hand, and see all their work come
- * to nothing on the next auto dump otherwise.  The current code only 
+ * to nothing on the next auto dump otherwise. The current code only 
  * detects changes by noting inconsistencies between the actual number 
- * of lines and the number written in the footer.  Note that this will 
+ * of lines and the number written in the footer. Note that this will 
  * not catch single-line edits.
  */
 
@@ -171,7 +174,7 @@ static void remove_auto_dump(cptr orig_file)
                  * If there is an inconsistency between
                  * actual number of lines and the
                  * number here, the automatic dump
-                 * might be edited by hand.  So it's
+                 * might be edited by hand. So it's
                  * dangerous to kill these lines.
                  * Seek back to the next line of the
                  * (pseudo) header, and read again.
@@ -377,13 +380,14 @@ void do_cmd_redraw(void)
     p_ptr->update |= (PU_MONSTERS);
 
     /* Redraw everything */
-    p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+    p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY | PR_MSG_LINE);
 
     /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL);
 
     /* Window stuff */
-    p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
+    p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON |
+        PW_MONSTER | PW_MONSTER_LIST | PW_OBJECT_LIST | PW_OBJECT);
 
     update_playtime();
 
@@ -413,346 +417,44 @@ void do_cmd_redraw(void)
     }
 }
 
-
-/*
- * Hack -- change name
- */
-void do_cmd_change_name(void)
-{
-    char    c;
-    int        mode = 0;
-    char    tmp[160];
-    int      w, h;
-
-    Term_get_size(&w, &h);
-
-    /* Save the screen */
-    screen_save();
-
-    /* Forever */
-    while (1)
-    {
-        update_playtime();
-
-        /* Display the player */
-        display_player(mode);
-
-        if (mode == 4)
-        {
-            mode = 0;
-            display_player(mode);
-        }
-
-        /* Prompt */
-        Term_putstr(2, h - 1, -1, TERM_WHITE, "['c'hange name, 'f'ile, 'n'ext, 'w'eapons, 'b'ows, ESC to quit]");
-
-        /* Query */
-        c = inkey();
-
-        /* Exit */
-        if (c == ESCAPE) break;
-
-        /* Change name */
-        if (c == 'c')
-        {
-            get_name();
-
-            /* Process the player name */
-            process_player_name(FALSE);
-        }
-        else if (c == 'w')
-            do_cmd_knowledge_weapon();
-        else if (c == 'b')
-            do_cmd_knowledge_shooter();
-
-        /* File dump */
-        else if (c == 'f')
-        {
-            sprintf(tmp, "%s.txt", player_base);
-            if (get_string("File name: ", tmp, 80))
-
-            {
-                if (tmp[0] && (tmp[0] != ' '))
-                {
-                    file_character(tmp);
-                }
-            }
-        }
-
-        /* Toggle mode */
-        else if (c == 'h' || c == 'n')
-        {
-            mode++;
-        }
-
-        /* Oops */
-        else
-        {
-            bell();
-        }
-
-        /* Flush messages */
-        msg_print(NULL);
-    }
-
-    /* Restore the screen */
-    screen_load();
-
-    /* Redraw everything */
-    p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-    handle_stuff();
-}
-
-
-/*
- * Recall the most recent message
- */
-void do_cmd_message_one(void)
-{
-    /* Recall one message XXX XXX XXX */
-    prt(format("> %s", message_str(0)), 0, 0);
-}
-
-
 /*
  * Show previous messages to the user    -BEN-
  *
- * The screen format uses line 0 and 23 for headers and prompts,
- * skips line 1 and 22, and uses line 2 thru 21 for old messages.
- *
- * This command shows you which commands you are viewing, and allows
- * you to "search" for strings in the recall.
- *
- * Note that messages may be longer than 80 characters, but they are
- * displayed using "infinite" length, with a special sub-command to
- * "slide" the virtual display to the left or right.
- *
- * Attempt to only hilite the matching portions of the string.
  */
-void do_cmd_messages(int num_now)
+void do_cmd_messages(int old_now_turn)
 {
-    int i, n;
+    int     i;
+    doc_ptr doc;
+    int     current_turn = 0;
+    int     current_row = 0;
 
-    char shower_str[81];
-    char finder_str[81];
-    char back_str[81];
-    cptr shower = NULL;
-    int wid, hgt;
-    int num_lines;
-    bool done = FALSE;
-
-    /* Get size */
-    Term_get_size(&wid, &hgt);
-
-    /* Number of message lines in a screen */
-    num_lines = hgt - 4;
-
-    /* Wipe finder */
-    strcpy(finder_str, "");
-
-    /* Wipe shower */
-    strcpy(shower_str, "");
-
-    /* Total messages */
-    n = message_num();
-
-    /* Start on first message */
-    i = 0;
-
-    /* Save the screen */
-    screen_save();
-
-    /* Clear screen */
-    Term_clear();
-
-    /* Process requests until done */
-    while (!done)
+    doc = doc_alloc(80);
+    for (i = msg_count() - 1; i >= 0; i--)
     {
-        int j;
-        int skey;
+        msg_ptr m = msg_get(i);
 
-        /* Dump up to 20 lines of messages */
-        for (j = 0; (j < num_lines) && (i + j < n); j++)
+        if (m->turn != current_turn)
         {
-            cptr msg = message_str(i+j);
-
-            /* Dump the messages, bottom to top */
-            c_prt((i + j < num_now ? TERM_WHITE : TERM_SLATE), msg, num_lines + 1 - j, 0);
-
-            /* Hilite "shower" */
-            if (shower && shower[0])
-            {
-                cptr str = msg;
-
-                /* Display matches */
-                while ((str = my_strstr(str, shower)) != NULL)
-                {
-                    int len = strlen(shower);
-
-                    /* Display the match */
-                    Term_putstr(str-msg, num_lines + 1 - j, len, TERM_YELLOW, shower);
-
-                    /* Advance */
-                    str += len;
-                }
-            }
+            if (doc_cursor(doc).y > current_row + 1)
+                doc_newline(doc);
+            current_turn = m->turn;
+            current_row = doc_cursor(doc).y;
         }
 
-        /* Erase remaining lines */
-        for (; j < num_lines; j++)
+        doc_insert_text(doc, m->color, string_buffer(m->msg));
+        if (m->count > 1)
         {
-            Term_erase(0, num_lines + 1 - j, 255);
+            char buf[10];
+            sprintf(buf, " <x%d>", m->count);
+            doc_insert_text(doc, m->color, buf);
         }
-
-        /* Display header XXX XXX XXX */
-        prt(format("Message Recall (%d-%d of %d)",
-               i, i + j - 1, n), 0, 0);
-
-        /* Display prompt (not very informative) */
-        prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt - 1, 0);
-
-        /* Get a command */
-        skey = inkey_special(TRUE);
-
-        /* Exit on Escape */
-        if (skey == ESCAPE) break;
-
-        /* Hack -- Save the old index */
-        j = i;
-
-        switch (skey)
-        {
-        /* Hack -- handle show */
-        case '=':
-            /* Prompt */
-            prt("Show: ", hgt - 1, 0);
-
-            /* Get a "shower" string, or continue */
-            strcpy(back_str, shower_str);
-            if (askfor(shower_str, 80))
-            {
-                /* Show it */
-                shower = shower_str[0] ? shower_str : NULL;
-            }
-            else strcpy(shower_str, back_str);
-
-            /* Okay */
-            continue;
-
-        /* Hack -- handle find */
-        case '/':
-        case KTRL('s'):
-            {
-                int z;
-
-                /* Prompt */
-                prt("Find: ", hgt - 1, 0);
-
-                /* Get a "finder" string, or continue */
-                strcpy(back_str, finder_str);
-                if (!askfor(finder_str, 80))
-                {
-                    strcpy(finder_str, back_str);
-                    continue;
-                }
-                else if (!finder_str[0])
-                {
-                    shower = NULL; /* Stop showing */
-                    continue;
-                }
-
-                /* Show it */
-                shower = finder_str;
-
-                /* Scan messages */
-                for (z = i + 1; z < n; z++)
-                {
-                    cptr msg = message_str(z);
-
-                    /* Search for it */
-                    if (my_strstr(msg, finder_str))
-                    {
-                        /* New location */
-                        i = z;
-
-                        /* Done */
-                        break;
-                    }
-                }
-            }
-            break;
-
-        /* Recall 1 older message */
-        case SKEY_TOP:
-            /* Go to the oldest line */
-            i = n - num_lines;
-            break;
-
-        /* Recall 1 newer message */
-        case SKEY_BOTTOM:
-            /* Go to the newest line */
-            i = 0;
-            break;
-
-        /* Recall 1 older message */
-        case '8':
-        case SKEY_UP:
-        case '\n':
-        case '\r':
-            /* Go older if legal */
-            i = MIN(i + 1, n - num_lines);
-            break;
-
-        /* Recall 10 older messages */
-        case '+':
-            /* Go older if legal */
-            i = MIN(i + 10, n - num_lines);
-            break;
-
-        /* Recall 20 older messages */
-        case 'p':
-        case KTRL('P'):
-        case ' ':
-        case SKEY_PGUP:
-            /* Go older if legal */
-            i = MIN(i + num_lines, n - num_lines);
-            break;
-
-        /* Recall 20 newer messages */
-        case 'n':
-        case KTRL('N'):
-        case SKEY_PGDOWN:
-            /* Go newer (if able) */
-            i = MAX(0, i - num_lines);
-            break;
-
-        /* Recall 10 newer messages */
-        case '-':
-            /* Go newer (if able) */
-            i = MAX(0, i - 10);
-            break;
-
-        /* Recall 1 newer messages */
-        case '2':
-        case SKEY_DOWN:
-            /* Go newer (if able) */
-            i = MAX(0, i - 1);
-            break;
-
-        default:
-            done = TRUE;
-            break;
-        }
-
-        /* Hack -- Error of some kind */
-        if (i == j) bell();
+        doc_newline(doc);
     }
-
-    /* Restore the screen */
+    screen_save();
+    doc_display(doc, "Previous Messages", doc_cursor(doc).y);
     screen_load();
+    doc_free(doc);
 }
-
 
 #ifdef ALLOW_WIZARD
 
@@ -896,10 +598,7 @@ static void do_cmd_options_cheat(cptr info)
 
             case '?':
             {
-                strnfmt(buf, sizeof(buf), "option.txt#%s", cheat_info[k].o_text);
-                /* Peruse the help file */
-                (void)show_file(TRUE, buf, NULL, 0, 0);
-
+                doc_display_help("option.txt", cheat_info[k].o_text);
                 Term_clear(); 
                 break;
             }
@@ -1048,8 +747,7 @@ static void do_cmd_options_autosave(cptr info)
 
             case '?':
             {
-                (void)show_file(TRUE, "option.txt#Autosave", NULL, 0, 0);
-
+                doc_display_help("option.txt", "Autosave");
 
                 Term_clear(); 
                 break;
@@ -1105,7 +803,7 @@ void do_cmd_options_aux(int page, cptr info)
 
 
         /* HACK -- description for easy-auto-destroy options */
-        if (page == OPT_PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 6, 3);
+        if (page == OPT_PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 7, 3);
 
         /* Display the options */
         for (i = 0; i < n; i++)
@@ -1121,11 +819,11 @@ void do_cmd_options_aux(int page, cptr info)
                 (*option_info[opt[i]].o_var ? "yes" : "no "),
 
                 option_info[opt[i]].o_text);
-            if ((page == OPT_PAGE_AUTODESTROY) && i > 2) c_prt(a, buf, i + 5, 0);
+            if ((page == OPT_PAGE_AUTODESTROY) && i > 3) c_prt(a, buf, i + 5, 0);
             else c_prt(a, buf, i + 2, 0);
         }
 
-        if ((page == OPT_PAGE_AUTODESTROY) && (k > 2)) l = 3;
+        if ((page == OPT_PAGE_AUTODESTROY) && (k > 3)) l = 3;
         else l = 0;
 
         /* Hilite current option */
@@ -1195,10 +893,7 @@ void do_cmd_options_aux(int page, cptr info)
 
             case '?':
             {
-                strnfmt(buf, sizeof(buf), "option.txt#%s", option_info[opt[k]].o_text);
-                /* Peruse the help file */
-                (void)show_file(TRUE, buf, NULL, 0, 0);
-
+                doc_display_help("option.txt", option_info[opt[k]].o_text);
                 Term_clear();
                 break;
             }
@@ -1351,9 +1046,7 @@ static void do_cmd_options_win(void)
 
             case '?':
             {
-                (void)show_file(TRUE, "option.txt#Window", NULL, 0, 0);
-
-
+                doc_display_help("option.txt", "Window");
                 Term_clear(); 
                 break;
             }
@@ -1397,7 +1090,7 @@ static void do_cmd_options_win(void)
 
 
 
-#define OPT_NUM 15
+#define OPT_NUM 14
 
 static struct opts
 {
@@ -1412,7 +1105,7 @@ option_fields[OPT_NUM] =
     { '3', "Text Display Options", 5 },
     { '4', "Game-Play Options", 6 },
     { '5', "Disturbance Options", 7 },
-    { '6', "Easy Auto-Destroyer Options", 8 },
+    { '6', "Auto-Destroyer Options", 8 },
 
     { 'p', "Auto-picker/destroyer editor", 11 },
     { 'd', "Base Delay Factor", 12 },
@@ -1453,7 +1146,7 @@ void do_cmd_options(void)
         Term_clear();
 
         /* Why are we here */
-        prt("PosChengband options", 1, 0);
+        prt("PosChengband Options", 1, 0);
 
         while(1)
         {
@@ -1548,7 +1241,7 @@ void do_cmd_options(void)
             case '6':
             {
                 /* Spawn */
-                do_cmd_options_aux(OPT_PAGE_AUTODESTROY, "Easy Auto-Destroyer Options");
+                do_cmd_options_aux(OPT_PAGE_AUTODESTROY, "Auto-Destroyer Options");
                 break;
             }
 
@@ -1593,7 +1286,7 @@ void do_cmd_options(void)
                 /* Spawn */
                 do_cmd_options_win();
                 p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL |
-                          PW_PLAYER | PW_MESSAGE | PW_OVERHEAD |
+                          PW_MONSTER_LIST | PW_OBJECT_LIST | PW_MESSAGE | PW_OVERHEAD |
                           PW_MONSTER | PW_OBJECT | PW_SNAPSHOT |
                           PW_BORG_1 | PW_BORG_2 | PW_DUNGEON);
                 break;
@@ -1628,7 +1321,7 @@ void do_cmd_options(void)
                     if (k == ESCAPE) break;
                     else if (k == '?')
                     {
-                        (void)show_file(TRUE, "option.txt#BaseDelay", NULL, 0, 0);
+                        doc_display_help("option.txt", "BaseDelay");
                         Term_clear(); 
                     }
                     else if (isdigit(k)) delay_factor = D2I(k);
@@ -1658,7 +1351,7 @@ void do_cmd_options(void)
                     if (k == ESCAPE) break;
                     else if (k == '?')
                     {
-                        (void)show_file(TRUE, "option.txt#Hitpoint", NULL, 0, 0);
+                        doc_display_help("option.txt", "HitPoint");
                         Term_clear(); 
                     }
                     else if (isdigit(k)) hitpoint_warn = D2I(k);
@@ -1688,7 +1381,7 @@ void do_cmd_options(void)
                     if (k == ESCAPE) break;
                     else if (k == '?')
                     {
-                        (void)show_file(TRUE, "option.txt#Manapoint", NULL, 0, 0);
+                        doc_display_help("option.txt", "Manapoint");
                         Term_clear(); 
                     }
                     else if (isdigit(k)) mana_warn = D2I(k);
@@ -1699,7 +1392,7 @@ void do_cmd_options(void)
             }
 
             case '?':
-                (void)show_file(TRUE, "option.txt", NULL, 0, 0);
+                doc_display_help("option.txt", NULL);
                 Term_clear(); 
                 break;
 
@@ -1865,8 +1558,8 @@ static void do_cmd_macro_aux(char *buf)
 /*
  * Hack -- ask for a keymap "trigger" (see below)
  *
- * Note that both "flush()" calls are extremely important.  This may
- * no longer be true, since "util.c" is much simpler now.  XXX XXX XXX
+ * Note that both "flush()" calls are extremely important. This may
+ * no longer be true, since "util.c" is much simpler now. XXX XXX XXX
  */
 static void do_cmd_macro_aux_keymap(char *buf)
 {
@@ -1970,7 +1663,7 @@ static errr keymap_dump(cptr fname)
  *
  * Note that the macro "action" must be defined before the trigger.
  *
- * Could use some helpful instructions on this page.  XXX XXX XXX
+ * Could use some helpful instructions on this page. XXX XXX XXX
  */
 void do_cmd_macros(void)
 {
@@ -2327,10 +2020,10 @@ void do_cmd_macros(void)
                 text_to_ascii(macro__buf, tmp);
 
                 /* Free old keymap */
-                string_free(keymap_act[mode][(byte)(buf[0])]);
+                z_string_free(keymap_act[mode][(byte)(buf[0])]);
 
                 /* Make new keymap */
-                keymap_act[mode][(byte)(buf[0])] = string_make(macro__buf);
+                keymap_act[mode][(byte)(buf[0])] = z_string_make(macro__buf);
 
                 /* Prompt */
                 msg_print("Added a keymap.");
@@ -2353,7 +2046,7 @@ void do_cmd_macros(void)
             do_cmd_macro_aux_keymap(buf);
 
             /* Free old keymap */
-            string_free(keymap_act[mode][(byte)(buf[0])]);
+            z_string_free(keymap_act[mode][(byte)(buf[0])]);
 
             /* Make new keymap */
             keymap_act[mode][(byte)(buf[0])] = NULL;
@@ -3274,6 +2967,137 @@ void do_cmd_colors(void)
     screen_load();
 }
 
+void msg_add_tiny_screenshot(int cx, int cy)
+{
+    if (!statistics_hack)
+    {
+        string_ptr s = get_tiny_screenshot(cx, cy);
+        msg_add(string_buffer(s));
+        string_free(s);
+    }
+}
+
+string_ptr get_tiny_screenshot(int cx, int cy)
+{
+    string_ptr s = string_alloc_size(cx * cy);
+    bool       old_use_graphics = use_graphics;
+    int        y1, y2, x1, x2, y, x;
+
+    y1 = py - cy/2;
+    y2 = py + cy/2;
+    if (y1 < 0) y1 = 0;
+    if (y2 > cur_hgt) y2 = cur_hgt;
+
+    x1 = px - cx/2;
+    x2 = px + cx/2;
+    if (x1 < 0) x1 = 0;
+    if (x2 > cur_wid) x2 = cur_wid;
+
+    if (old_use_graphics)
+    {
+        use_graphics = FALSE;
+        reset_visuals();
+    }
+
+    for (y = y1; y < y2; y++)
+    {
+        int  current_a = -1;
+        for (x = x1; x < x2; x++)
+        {
+            byte a, ta;
+            char c, tc;
+
+            assert(in_bounds2(y, x));
+            map_info(y, x, &a, &c, &ta, &tc);
+
+            if (c == 127) /* Hack for special wall characters on Windows. See font-win.prf and main-win.c */
+                c = '#';
+
+            if (a != current_a)
+            {
+                if (current_a >= 0 && current_a != TERM_WHITE)
+                {
+                    string_append_s(s, "</color>");
+                }
+                if (a != TERM_WHITE)
+                {
+                    string_printf(s, "<color:%c>", attr_to_attr_char(a));
+                }
+                current_a = a;
+            }
+            string_append_c(s, c);
+        }
+        if (current_a >= 0 && current_a != TERM_WHITE)
+            string_append_s(s, "</color>");
+        string_append_c(s, '\n');
+    }
+    if (old_use_graphics)
+    {
+        use_graphics = TRUE;
+        reset_visuals();
+    }
+    return s;
+}
+
+/* Note: This will not work if the screen is "icky" */
+string_ptr get_screenshot(void)
+{
+    string_ptr s = string_alloc_size(80 * 27);
+    bool       old_use_graphics = use_graphics;
+    int        wid, hgt, x, y;
+
+    Term_get_size(&wid, &hgt);
+
+    if (old_use_graphics)
+    {
+        use_graphics = FALSE;
+        reset_visuals();
+
+        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY | PR_MSG_LINE);
+        redraw_stuff();
+    }
+
+    for (y = 0; y < hgt; y++)
+    {
+        int  current_a = -1;
+        for (x = 0; x < wid; x++)
+        {
+            byte a;
+            char c;
+
+            Term_what(x, y, &a, &c);
+
+            if (c == 127) /* Hack for special wall characters on Windows. See font-win.prf and main-win.c */
+                c = '#';
+
+            if (a != current_a)
+            {
+                if (current_a >= 0 && current_a != TERM_WHITE)
+                {
+                    string_append_s(s, "</color>");
+                }
+                if (a != TERM_WHITE)
+                {
+                    string_printf(s, "<color:%c>", attr_to_attr_char(a));
+                }
+                current_a = a;
+            }
+            string_append_c(s, c);
+        }
+        if (current_a >= 0 && current_a != TERM_WHITE)
+            string_append_s(s, "</color>");
+        string_append_c(s, '\n');
+    }
+    if (old_use_graphics)
+    {
+        use_graphics = TRUE;
+        reset_visuals();
+
+        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY | PR_MSG_LINE);
+        redraw_stuff();
+    }
+    return s;
+}
 
 /*
  * Note something in the message recall
@@ -3281,6 +3105,7 @@ void do_cmd_colors(void)
 void do_cmd_note(void)
 {
     char buf[80];
+    string_ptr s = 0;
 
     /* Default */
     strcpy(buf, "");
@@ -3292,7 +3117,11 @@ void do_cmd_note(void)
     if (!buf[0] || (buf[0] == ' ')) return;
 
     /* Add the note to the message recall */
-    msg_format("Note: %s", buf);
+    msg_format("<color:R>Note:</color> %s\n", buf);
+
+    s = get_tiny_screenshot(50, 24);
+    msg_add(string_buffer(s));
+    string_free(s);
 }
 
 
@@ -3309,34 +3138,40 @@ void do_cmd_version(void)
 /*
  * Array of feeling strings
  */
-static cptr do_cmd_feeling_text[11] =
+struct _feeling_info_s
 {
-    "Looks like any other level.",
-    "You feel there is something special about this level.",
-    "You nearly faint as horrible visions of death fill your mind!",
-    "This level looks very dangerous.",
-    "You have a very bad feeling...",
-    "You have a bad feeling...",
-    "You feel nervous.",
-    "You feel your luck is turning...",
-    "You don't like the look of this place.",
-    "This level looks reasonably safe.",
-    "What a boring place..."
+    byte color;
+    cptr msg;
+};
+typedef struct _feeling_info_s _feeling_info_t;
+static _feeling_info_t _level_feelings[11] =
+{
+    {TERM_SLATE, "Looks like any other level."},
+    {TERM_L_BLUE, "You feel there is something special about this level."},
+    {TERM_VIOLET, "You nearly faint as horrible visions of death fill your mind!"},
+    {TERM_RED, "This level looks very dangerous."},
+    {TERM_L_RED, "You have a very bad feeling..."},
+    {TERM_ORANGE, "You have a bad feeling..."},
+    {TERM_YELLOW, "You feel nervous."},
+    {TERM_L_UMBER, "You feel your luck is turning..."},
+    {TERM_L_WHITE, "You don't like the look of this place."},
+    {TERM_WHITE, "This level looks reasonably safe."},
+    {TERM_WHITE, "What a boring place..."},
 };
 
-static cptr do_cmd_feeling_text_lucky[11] =
+static _feeling_info_t _level_feelings_lucky[11] =
 {
-    "Looks like any other level.",
-    "You feel there is something special about this level.",
-    "You have a superb feeling about this level.",
-    "You have an excellent feeling...",
-    "You have a very good feeling...",
-    "You have a good feeling...",
-    "You feel strangely lucky...",
-    "You feel your luck is turning...",
-    "You like the look of this place...",
-    "This level can't be all bad...",
-    "What a boring place..."
+    {TERM_SLATE, "Looks like any other level."},
+    {TERM_L_BLUE, "You feel there is something special about this level."},
+    {TERM_VIOLET, "You have a superb feeling about this level."},
+    {TERM_RED, "You have an excellent feeling..."},
+    {TERM_L_RED, "You have a very good feeling..."},
+    {TERM_ORANGE, "You have a good feeling..."},
+    {TERM_YELLOW, "You feel strangely lucky..."},
+    {TERM_L_UMBER, "You feel your luck is turning..."},
+    {TERM_L_WHITE, "You like the look of this place..."},
+    {TERM_WHITE, "This level can't be all bad..."},
+    {TERM_WHITE, "What a boring place..."},
 };
 
 
@@ -3350,8 +3185,6 @@ void do_cmd_feeling(void)
     if (p_ptr->inside_quest && !random_quest_number(dun_level))
     {
         msg_print("Looks like a typical quest level.");
-
-        return;
     }
 
     /* No useful feeling in town */
@@ -3360,14 +3193,10 @@ void do_cmd_feeling(void)
         if (!strcmp(town[p_ptr->town_num].name, "wilderness"))
         {
             msg_print("Looks like a strange wilderness.");
-
-            return;
         }
         else
         {
             msg_print("Looks like a typical town.");
-
-            return;
         }
     }
 
@@ -3375,15 +3204,19 @@ void do_cmd_feeling(void)
     else if (!dun_level)
     {
         msg_print("Looks like a typical wilderness.");
-
-        return;
     }
 
     /* Display the feeling */
-    if (p_ptr->good_luck || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
-        msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
     else
-        msg_print(do_cmd_feeling_text[p_ptr->feeling]);
+    {
+        _feeling_info_t feeling;
+        assert(/*0 <= p_ptr->feeling &&*/ p_ptr->feeling < 11);
+        if (p_ptr->good_luck || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+            feeling = _level_feelings_lucky[p_ptr->feeling];
+        else
+            feeling = _level_feelings[p_ptr->feeling];
+        cmsg_print(feeling.color, feeling.msg);
+    }
 }
 
 
@@ -3717,17 +3550,17 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
  */
 static cptr object_group_text[] = 
 {
-    "Mushrooms",
+    "Food",
     "Potions",
 /*  "Flasks", */
     "Scrolls",
-    "Rings",
-    "Amulets",
+/*  "Rings",
+    "Amulets", */
 /*  "Whistle",
     "Lanterns", */
-    "Wands",
+/*  "Wands",
     "Staves",
-    "Rods",
+    "Rods", */
 /*  "Cards",
     "Capture Balls",
     "Parchments",
@@ -3772,13 +3605,13 @@ static byte object_group_tval[] =
     TV_POTION,
 /*  TV_FLASK, */
     TV_SCROLL,
-    TV_RING,
-    TV_AMULET,
+/*  TV_RING,
+    TV_AMULET, */
 /*  TV_WHISTLE,
     TV_LITE, */
-    TV_WAND,
+/*  TV_WAND,
     TV_STAFF,
-    TV_ROD,
+    TV_ROD,  */
 /*  TV_CARD,
     TV_CAPTURE,
     TV_PARCHMENT,
@@ -3996,131 +3829,8 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 }
 #endif /* 0 */
 
-
-/*
- * Encode the screen colors
- */
-static char hack[17] = "dwsorgbuDWvyRGBU";
-
-
-/*
- * Hack -- load a screen dump from a file
- */
-void do_cmd_load_screen(void)
-{
-    int i, y, x;
-
-    byte a = 0;
-    char c = ' ';
-
-    bool okay = TRUE;
-
-    FILE *fff;
-
-    char buf[1024];
-
-    int wid, hgt;
-
-    Term_get_size(&wid, &hgt);
-
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
-
-    /* Append to the file */
-    fff = my_fopen(buf, "r");
-
-    /* Oops */
-    if (!fff) {
-        msg_format("Failed to open %s.", buf);
-        msg_print(NULL);
-        return;
-    }
-
-
-    /* Save the screen */
-    screen_save();
-
-    /* Clear the screen */
-    Term_clear();
-
-
-    /* Load the screen */
-    for (y = 0; okay; y++)
-    {
-        /* Get a line of data including control code */
-        if (!fgets(buf, 1024, fff)) okay = FALSE;
-
-        /* Get the blank line */
-        if (buf[0] == '\n' || buf[0] == '\0') break;
-
-        /* Ignore too large screen image */
-        if (y >= hgt) continue;
-
-        /* Show each row */
-        for (x = 0; x < wid - 1; x++)
-        {
-            /* End of line */
-            if (buf[x] == '\n' || buf[x] == '\0') break;
-
-            /* Put the attr/char */
-            Term_draw(x, y, TERM_WHITE, buf[x]);
-        }
-    }
-
-    /* Dump the screen */
-    for (y = 0; okay; y++)
-    {
-        /* Get a line of data including control code */
-        if (!fgets(buf, 1024, fff)) okay = FALSE;
-
-        /* Get the blank line */
-        if (buf[0] == '\n' || buf[0] == '\0') break;
-
-        /* Ignore too large screen image */
-        if (y >= hgt) continue;
-
-        /* Dump each row */
-        for (x = 0; x < wid - 1; x++)
-        {
-            /* End of line */
-            if (buf[x] == '\n' || buf[x] == '\0') break;
-
-            /* Get the attr/char */
-            (void)(Term_what(x, y, &a, &c));
-
-            /* Look up the attr */
-            for (i = 0; i < 16; i++)
-            {
-                /* Use attr matches */
-                if (hack[i] == buf[x]) a = i;
-            }
-
-            /* Put the attr/char */
-            Term_draw(x, y, a, c);
-        }
-    }
-
-
-    /* Close it */
-    my_fclose(fff);
-
-
-    /* Message */
-    msg_print("Screen dump loaded.");
-
-    flush();
-    inkey();
-
-
-    /* Restore the screen */
-    screen_load();
-}
-
-
-
-
 cptr inven_res_label = 
- "                               AcElFiCoPoLiDkShSoNtNxCaDi BlFeCfFaSeHlEpSdRgLv";
+ "                               AcElFiCoPoLiDkShSoNtNxCaDi BlFeCfFaSiHlEpSdRgLv";
 
 
 #define IM_FLAG_STR  "* "
@@ -4178,7 +3888,7 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, int *j, by
 
         fprintf(fff, "%s %s", where, o_name);
 
-        if (!(o_ptr->ident & (IDENT_MENTAL)))
+        if (!(o_ptr->ident & (IDENT_FULL)))
         {
             fputs("-------unknown------------ -------unknown------\n", fff);
         }
@@ -4293,349 +4003,75 @@ static void do_cmd_knowledge_inven(void)
     fd_kill(file_name);
 }
 
-
-void do_cmd_save_screen_html_aux(char *filename, int message)
+void do_cmd_save_screen_doc(void)
 {
-    int y, x, i;
+    string_ptr s = get_screenshot();
+    char       buf[1024];
+    FILE      *fff;
 
-    byte a = 0, old_a = 0;
-    char c = ' ';
-
-    FILE *fff, *tmpfff;
-    char buf[2048];
-
-    int yomikomu = 0;
-    cptr tags[4] = {
-        "HEADER_START:",
-        "HEADER_END:",
-        "FOOTER_START:",
-        "FOOTER_END:",
-    };
-
-    cptr html_head[] = {
-        "<html>\n<body text=\"#ffffff\" bgcolor=\"#000000\">\n",
-        "<pre>",
-        0,
-    };
-    cptr html_foot[] = {
-        "</pre>\n",
-        "</body>\n</html>\n",
-        0,
-    };
-
-    int wid, hgt;
-
-    Term_get_size(&wid, &hgt);
-
-    /* File type is "TEXT" */
+    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "screen.doc");
     FILE_TYPE(FILE_TYPE_TEXT);
-
-    /* Append to the file */
-    fff = my_fopen(filename, "w");
-
-    /* Oops */
-    if (!fff) {
-        if (message) {
-            msg_format("Failed to open file %s.", filename);
-            msg_print(NULL);
-        }
-        
-        return;
-    }
-
-    /* Save the screen */
-    if (message)
-        screen_save();
-
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "htmldump.prf");
-    tmpfff = my_fopen(buf, "r");
-    if (!tmpfff) {
-        for (i = 0; html_head[i]; i++)
-            fprintf(fff, "%s", html_head[i]);
-    }
-    else {
-        yomikomu = 0;
-        while (!my_fgets(tmpfff, buf, sizeof(buf))) {
-            if (!yomikomu) {
-                if (strncmp(buf, tags[0], strlen(tags[0])) == 0)
-                    yomikomu = 1;
-            }
-            else {
-                if (strncmp(buf, tags[1], strlen(tags[1])) == 0)
-                    break;
-                fprintf(fff, "%s\n", buf);
-            }
-        }
-    }
-
-    /* Dump the screen */
-    for (y = 0; y < hgt; y++)
+    fff = my_fopen(buf, "w");
+    if (fff)
     {
-        /* Start the row */
-        if (y != 0)
-            fprintf(fff, "\n");
-
-        /* Dump each row */
-        for (x = 0; x < wid - 1; x++)
-        {
-            int rv, gv, bv;
-            cptr cc = NULL;
-            /* Get the attr/char */
-            (void)(Term_what(x, y, &a, &c));
-
-            switch (c)
-            {
-            case '&': cc = "&amp;"; break;
-            case '<': cc = "&lt;"; break;
-            case '>': cc = "&gt;"; break;
-#ifdef WINDOWS
-            case 0x1f: c = '.'; break;
-            case 0x7f: c = (a == 0x09) ? '%' : '#'; break;
-#endif
-            }
-
-            a = a & 0x0F;
-            if ((y == 0 && x == 0) || a != old_a) {
-                rv = angband_color_table[a][1];
-                gv = angband_color_table[a][2];
-                bv = angband_color_table[a][3];
-                fprintf(fff, "%s<font color=\"#%02x%02x%02x\">", 
-                    ((y == 0 && x == 0) ? "" : "</font>"), rv, gv, bv);
-                old_a = a;
-            }
-            if (cc)
-                fprintf(fff, "%s", cc);
-            else
-                fprintf(fff, "%c", c);
-        }
+        string_write_file(s, fff);
+        my_fclose(fff);
     }
-    fprintf(fff, "</font>");
-
-    if (!tmpfff) {
-        for (i = 0; html_foot[i]; i++)
-            fprintf(fff, "%s", html_foot[i]);
-    }
-    else {
-        rewind(tmpfff);
-        yomikomu = 0;
-        while (!my_fgets(tmpfff, buf, sizeof(buf))) {
-            if (!yomikomu) {
-                if (strncmp(buf, tags[2], strlen(tags[2])) == 0)
-                    yomikomu = 1;
-            }
-            else {
-                if (strncmp(buf, tags[3], strlen(tags[3])) == 0)
-                    break;
-                fprintf(fff, "%s\n", buf);
-            }
-        }
-        my_fclose(tmpfff);
-    }
-
-    /* Skip a line */
-    fprintf(fff, "\n");
-
-    /* Close it */
-    my_fclose(fff);
-
-    /* Message */
-    if (message) {
-        msg_print("Screen dump saved.");
-        msg_print(NULL);
-    }
-
-    /* Restore the screen */
-    if (message)
-        screen_load();
+    string_free(s);
 }
 
-/*
- * Hack -- save a screen dump to a file
- */
-static void do_cmd_save_screen_html(void)
+static void _save_screen_aux(int format)
 {
-    char buf[1024], tmp[256] = "screen.html";
+    string_ptr s = get_screenshot();
+    doc_ptr    doc = doc_alloc(Term->wid);
+    char       buf[1024];
+    FILE      *fff;
 
-    if (!get_string("File name: ", tmp, 80))
-        return;
+    doc_insert(doc, "<style:screenshot>");
+    doc_insert(doc, string_buffer(s));
+    doc_insert(doc, "</style>");
 
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
+    if (format == DOC_FORMAT_HTML)
+        path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "screen.html");
+    else
+        path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "screen.txt");
 
-    msg_print(NULL);
-
-    do_cmd_save_screen_html_aux(buf, 1);
+    FILE_TYPE(FILE_TYPE_TEXT);
+    fff = my_fopen(buf, "w");
+    if (fff)
+    {
+        doc_write_file(doc, fff, format);
+        my_fclose(fff);
+    }
+    string_free(s);
+    doc_free(doc);
 }
 
+void do_cmd_save_screen_txt(void)
+{
+    _save_screen_aux(DOC_FORMAT_TEXT);
+}
 
-/*
- * Redefinable "save_screen" action
- */
-void (*screendump_aux)(void) = NULL;
+void do_cmd_save_screen_html(void)
+{
+    _save_screen_aux(DOC_FORMAT_HTML);
+}
 
-
-/*
- * Hack -- save a screen dump to a file
- */
 void do_cmd_save_screen(void)
 {
-    bool old_use_graphics = use_graphics;
-    bool html_dump = FALSE;
+    string_ptr s = get_screenshot();
+    doc_ptr    doc = doc_alloc(Term->wid);
 
-    int wid, hgt;
+    doc_insert(doc, "<style:screenshot>");
+    doc_insert(doc, string_buffer(s));
+    doc_insert(doc, "</style>");
+    screen_save();
+    doc_display(doc, "Current Screenshot", 0);
+    screen_load();
 
-    prt("Save screen dump? [(y)es/(h)tml/(n)o] ", 0, 0);
-    while(TRUE)
-    {
-        char c = inkey();
-        if (c == 'Y' || c == 'y')
-            break;
-        else if (c == 'H' || c == 'h')
-        {
-            html_dump = TRUE;
-            break;
-        }
-        else
-        {
-            prt("", 0, 0);
-            return;
-        }
-    }
-
-    Term_get_size(&wid, &hgt);
-
-    if (old_use_graphics)
-    {
-        use_graphics = FALSE;
-        reset_visuals();
-
-        /* Redraw everything */
-        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-        /* Hack -- update */
-        handle_stuff();
-    }
-
-    if (html_dump)
-    {
-        do_cmd_save_screen_html();
-        do_cmd_redraw();
-    }
-
-    /* Do we use a special screendump function ? */
-    else if (screendump_aux)
-    {
-        /* Dump the screen to a graphics file */
-        (*screendump_aux)();
-    }
-    else /* Dump the screen as text */
-    {
-        int y, x;
-
-        byte a = 0;
-        char c = ' ';
-
-        FILE *fff;
-
-        char buf[1024];
-
-        /* Build the filename */
-        path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
-
-        /* File type is "TEXT" */
-        FILE_TYPE(FILE_TYPE_TEXT);
-
-        /* Append to the file */
-        fff = my_fopen(buf, "w");
-
-        /* Oops */
-        if (!fff)
-        {
-            msg_format("Failed to open file %s.", buf);
-            msg_print(NULL);
-            return;
-        }
-
-
-        /* Save the screen */
-        screen_save();
-
-
-        /* Dump the screen */
-        for (y = 0; y < hgt; y++)
-        {
-            /* Dump each row */
-            for (x = 0; x < wid - 1; x++)
-            {
-                /* Get the attr/char */
-                (void)(Term_what(x, y, &a, &c));
-
-                /* Dump it */
-                buf[x] = c;
-            }
-
-            /* Terminate */
-            buf[x] = '\0';
-
-            /* End the row */
-            fprintf(fff, "%s\n", buf);
-        }
-
-        /* Skip a line */
-        fprintf(fff, "\n");
-
-
-        /* Dump the screen */
-        for (y = 0; y < hgt; y++)
-        {
-            /* Dump each row */
-            for (x = 0; x < wid - 1; x++)
-            {
-                /* Get the attr/char */
-                (void)(Term_what(x, y, &a, &c));
-
-                /* Dump it */
-                buf[x] = hack[a&0x0F];
-            }
-
-            /* Terminate */
-            buf[x] = '\0';
-
-            /* End the row */
-            fprintf(fff, "%s\n", buf);
-        }
-
-        /* Skip a line */
-        fprintf(fff, "\n");
-
-
-        /* Close it */
-        my_fclose(fff);
-
-        /* Message */
-        msg_print("Screen dump saved.");
-
-        msg_print(NULL);
-
-
-        /* Restore the screen */
-        screen_load();
-    }
-
-    if (old_use_graphics)
-    {
-        use_graphics = TRUE;
-        reset_visuals();
-
-        /* Redraw everything */
-        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-        /* Hack -- update */
-        handle_stuff();
-    }
+    string_free(s);
+    doc_free(doc);
 }
-
 
 /*
  * Sorting hook -- Comp function -- see below
@@ -5032,106 +4468,233 @@ static void do_cmd_knowledge_uniques(void)
 
 static void do_cmd_knowledge_shooter(void)
 {
-    screen_save();
-    Term_clear();
-    display_shooter_info(0, 0);
-    flush();
-    (void)inkey();
-    screen_load();
+    doc_ptr doc = doc_alloc(80);
+
+    display_shooter_info(doc);
+    if (doc_line_count(doc))
+    {
+        screen_save();
+        doc_display(doc, "Shooting", 0);
+        screen_load();
+    }
+    else
+        msg_print("You are not wielding a bow.");
+
+    doc_free(doc);
 }
 
 void do_cmd_knowledge_weapon(void)
 {
-    int i, r;
-    int used_hands[MAX_HANDS];
-    int ct = 0;
-    bool displayed = FALSE;
-
-    screen_save();
+    int i;
+    doc_ptr doc = doc_alloc(80);
 
     for (i = 0; i < MAX_HANDS; i++)
     {
         if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
-        used_hands[ct++] = i;
-    }
 
-    for (i = 0; i < ct;)
-    {
-        int hand = used_hands[i++];
-        Term_clear();
-        if (p_ptr->weapon_info[hand].bare_hands)
-        {
-            monk_display_attack_info(hand, 0, 1);
-            displayed = TRUE;
-        }
+        if (p_ptr->weapon_info[i].bare_hands)
+            monk_display_attack_info(doc, i);
         else
-        {
-            r = display_weapon_info(hand, 0, 1);
-            if (i < ct && r < 20 && !p_ptr->weapon_info[used_hands[i]].bare_hands)
-            {
-                hand = used_hands[i++];
-                display_weapon_info(hand, r+2, 1);
-            }
-            displayed = TRUE;
-        }
-
-        flush();
-        (void)inkey();
+            display_weapon_info(doc, i);
     }
 
-    for (i = 0; i < p_ptr->innate_attack_ct;)
+    for (i = 0; i < p_ptr->innate_attack_ct; i++)
     {
-        Term_clear();
-        r = display_innate_attack_info(i++, 0, 1);
-        if (i < p_ptr->innate_attack_ct && r < 20)
-            display_innate_attack_info(i++, r+2, 1);
-        displayed = TRUE;
-        flush();
-        (void)inkey();
+        display_innate_attack_info(doc, i);
     }
 
-    screen_load();
+    if (doc_line_count(doc))
+    {
+        screen_save();
+        doc_display(doc, "Melee", 0);
+        screen_load();
+    }
+    else
+        msg_print("You have no melee attacks.");
 
-    if (!displayed)
-        msg_print("You are not wielding any weapons.");
+    doc_free(doc);
 }
 
 static void do_cmd_knowledge_extra(void)
 {
-    FILE *fff;
-    char file_name[1024];
-    class_t *class_ptr = get_class_t();
-    race_t  *race_ptr = get_race_t();
+    doc_ptr  doc = doc_alloc(80);
+    class_t *class_ptr = get_class();
+    race_t  *race_ptr = get_race();
 
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
+    doc_insert(doc, "<style:wide>");
 
-    if (class_ptr && class_ptr->character_dump)
-        class_ptr->character_dump(fff);
+    if (race_ptr->character_dump)
+        race_ptr->character_dump(doc);
 
-    if (race_ptr && race_ptr->character_dump)
-        race_ptr->character_dump(fff);
+    if (class_ptr->character_dump)
+        class_ptr->character_dump(doc);
 
-    my_fclose(fff);
-    show_file(TRUE, file_name, "Extra", 0, 0);
-    fd_kill(file_name);
+    doc_insert(doc, "</style>");
+
+    doc_display(doc, "Race/Class Extra Information", 0);
+    doc_free(doc);
 }
 
 /*
- * Display weapon-exp
+ * Display weapon-exp.
+ * Since we are writing to a file, it is a bit more cumbersome to get a
+ * proper multi-column display. In the end, I decided to just hard-code
+ * the rows rather than dynamically inspecting k_info. Also, I tried
+ * hard to make 3 columns fit on an 80 column display, but this required
+ * abbreviating the skill levels.
  */
+struct _tval_sval_s
+{
+int tval;
+int sval;
+};
+typedef struct _tval_sval_s _tval_sval_t;
+
+struct _prof_row_s
+{
+    _tval_sval_t cols[3];
+};
+typedef struct _prof_row_s _prof_row_t;
+typedef struct _prof_row_s *_prof_row_ptr;
+
+#define _HEADING -1
+#define _MISC_PROF -2
+
+static _prof_row_t _prof_rows[] = {
+    {{{TV_SWORD, _HEADING},              {TV_POLEARM, _HEADING},             {TV_HAFTED, _HEADING}}},
+    {{{TV_SWORD, SV_BROKEN_DAGGER},      {TV_POLEARM, SV_HATCHET},           {TV_HAFTED, SV_CLUB}}},
+    {{{TV_SWORD, SV_BROKEN_SWORD},       {TV_POLEARM, SV_SPEAR},             {TV_HAFTED, SV_WHIP}}},
+    {{{TV_SWORD, SV_DAGGER},             {TV_POLEARM, SV_SICKLE},            {TV_HAFTED, SV_QUARTERSTAFF}}},
+    {{{TV_SWORD, SV_MAIN_GAUCHE},        {TV_POLEARM, SV_AWL_PIKE},          {TV_HAFTED, SV_NUNCHAKU}}},
+    {{{TV_SWORD, SV_TANTO},              {TV_POLEARM, SV_TRIDENT},           {TV_HAFTED, SV_MACE}}},
+    {{{TV_SWORD, SV_RAPIER},             {TV_POLEARM, SV_FAUCHARD},          {TV_HAFTED, SV_BALL_AND_CHAIN}}},
+    {{{TV_SWORD, SV_SMALL_SWORD},        {TV_POLEARM, SV_BROAD_SPEAR},       {TV_HAFTED, SV_JO_STAFF}}},
+    {{{TV_SWORD, SV_BASILLARD},          {TV_POLEARM, SV_PIKE},              {TV_HAFTED, SV_WAR_HAMMER}}},
+    {{{TV_SWORD, SV_SHORT_SWORD},        {TV_POLEARM, SV_NAGINATA},          {TV_HAFTED, SV_THREE_PIECE_ROD}}},
+    {{{TV_SWORD, SV_SABRE},              {TV_POLEARM, SV_BEAKED_AXE},        {TV_HAFTED, SV_MORNING_STAR}}},
+    {{{TV_SWORD, SV_CUTLASS},            {TV_POLEARM, SV_BROAD_AXE},         {TV_HAFTED, SV_FLAIL}}},
+    {{{TV_SWORD, SV_WAKIZASHI},          {TV_POLEARM, SV_LUCERNE_HAMMER},    {TV_HAFTED, SV_BO_STAFF}}},
+    {{{TV_SWORD, SV_KHOPESH},            {TV_POLEARM, SV_GLAIVE},            {TV_HAFTED, SV_LEAD_FILLED_MACE}}},
+    {{{TV_SWORD, SV_TULWAR},             {TV_POLEARM, SV_LAJATANG},          {TV_HAFTED, SV_TETSUBO}}},
+    {{{TV_SWORD, SV_BROAD_SWORD},        {TV_POLEARM, SV_HALBERD},           {TV_HAFTED, SV_TWO_HANDED_FLAIL}}},
+    {{{TV_SWORD, SV_LONG_SWORD},         {TV_POLEARM, SV_GUISARME},          {TV_HAFTED, SV_GREAT_HAMMER}}},
+    {{{TV_SWORD, SV_SCIMITAR},           {TV_POLEARM, SV_SCYTHE},            {TV_HAFTED, SV_MACE_OF_DISRUPTION}}},
+    {{{TV_SWORD, SV_NINJATO},            {TV_POLEARM, SV_LANCE},             {TV_HAFTED, SV_WIZSTAFF}}},
+    {{{TV_SWORD, SV_KATANA},             {TV_POLEARM, SV_BATTLE_AXE},        {TV_HAFTED, SV_GROND}}},
+    {{{TV_SWORD, SV_BASTARD_SWORD},      {TV_POLEARM, SV_GREAT_AXE},         {TV_HAFTED, SV_NAMAKE_HAMMER}}},
+    {{{TV_SWORD, SV_GREAT_SCIMITAR},     {TV_POLEARM, SV_TRIFURCATE_SPEAR},  {0, 0}}},
+    {{{TV_SWORD, SV_CLAYMORE},           {TV_POLEARM, SV_LOCHABER_AXE},      {TV_DIGGING, _HEADING}}},
+    {{{TV_SWORD, SV_ESPADON},            {TV_POLEARM, SV_HEAVY_LANCE},       {TV_DIGGING, SV_SHOVEL}}},
+    {{{TV_SWORD, SV_TWO_HANDED_SWORD},   {TV_POLEARM, SV_SCYTHE_OF_SLICING}, {TV_DIGGING, SV_GNOMISH_SHOVEL}}},
+    {{{TV_SWORD, SV_FLAMBERGE},          {TV_POLEARM, SV_TSURIZAO},          {TV_DIGGING, SV_DWARVEN_SHOVEL}}},
+    {{{TV_SWORD, SV_NO_DACHI},           {TV_POLEARM, SV_DEATH_SCYTHE},      {TV_DIGGING, SV_PICK}}},
+    {{{TV_SWORD, SV_EXECUTIONERS_SWORD}, {0, 0},                             {TV_DIGGING, SV_ORCISH_PICK}}},
+    {{{TV_SWORD, SV_ZWEIHANDER},         {TV_BOW, _HEADING},                 {TV_DIGGING, SV_DWARVEN_PICK}}},
+    {{{TV_SWORD, SV_BLADE_OF_CHAOS},     {TV_BOW, SV_SLING},                 {TV_DIGGING, SV_MATTOCK}}},
+    {{{TV_SWORD, SV_DIAMOND_EDGE},       {TV_BOW, SV_SHORT_BOW},             {0, 0}}},
+    {{{TV_SWORD, SV_DOKUBARI},           {TV_BOW, SV_LONG_BOW},              {_MISC_PROF, _HEADING}}},
+    {{{TV_SWORD, SV_HAYABUSA},           {TV_BOW, SV_LIGHT_XBOW},            {_MISC_PROF, SKILL_MARTIAL_ARTS}}},
+    {{{TV_SWORD, SV_RUNESWORD},          {TV_BOW, SV_HEAVY_XBOW},            {_MISC_PROF, SKILL_DUAL_WIELDING}}},
+    {{{TV_SWORD, SV_DRAGON_FANG},        {TV_BOW, SV_NAMAKE_BOW},            {_MISC_PROF, SKILL_RIDING}}},
+    {{{0, 0},                            {0, 0},                             {0,0}}}
+};
+
+cptr _exp_level_str[5]=
+{"[Un]", "[Be]", "[Sk]", "[Ex]", "[Ma]"};
+
+char _exp_level_color[5] = {'w', 'G', 'y', 'r', 'v'};
+
+static void _prof_aux(FILE *fff, int tval, int sval)
+{
+    /* Case 1: Skip this column.*/
+    if (!tval)
+    {
+        fprintf(fff, "%-19s  %-4s  ", "", "");
+    }
+
+    /* Case 2: Give a group heading for this column.*/
+    else if (sval == _HEADING)
+    {
+        cptr heading = "";
+        switch (tval)
+        {
+        case TV_SWORD: heading = "Swords"; break;
+        case TV_POLEARM: heading = "Polearms"; break;
+        case TV_HAFTED: heading = "Hafted"; break;
+        case TV_DIGGING: heading = "Diggers"; break;
+        case TV_BOW: heading = "Bows"; break;
+        case _MISC_PROF: heading = "Miscellaneous"; break;
+        }
+        fprintf(fff, "[[[[r|%-19s|  %-4s  ", heading, "");
+    }
+
+    /* Case 3: Miscellaneous Skills */
+    else if (tval == _MISC_PROF)
+    {
+        cptr name = "";
+        int  exp, max, idx;
+
+        switch (sval)
+        {
+        case SKILL_MARTIAL_ARTS:
+            name = "Martial Arts";
+            exp = skills_martial_arts_current();
+            max = skills_martial_arts_max();
+            idx = weapon_exp_level(exp);
+            break;
+        case SKILL_DUAL_WIELDING:
+            name = "Dual Wielding";
+            exp = skills_dual_wielding_current();
+            max = skills_dual_wielding_max();
+            idx = weapon_exp_level(exp);
+            break;
+        case SKILL_RIDING:
+        default: /* gcc warnings ... */
+            name = "Riding";
+            exp = skills_riding_current();
+            max = skills_riding_max();
+            idx = riding_exp_level(exp);
+            break;
+        }
+        fprintf(fff, "%-19s ", name);
+
+        if (exp >= max)
+            fprintf(fff, "!");
+        else
+            fprintf(fff, " ");
+
+        fprintf(fff, "[[[[%c|%-4s|  ", _exp_level_color[idx], _exp_level_str[idx]);
+    }
+
+    /* Case 4: Weapon Skills for a tval/sval*/
+    else
+    {
+        int  exp = skills_weapon_current(tval, sval);
+        int  max = skills_weapon_max(tval, sval);
+        int  k_idx = lookup_kind(tval, sval);
+        int  idx = weapon_exp_level(exp);
+        char name[MAX_NLEN];
+
+        strip_name(name, k_idx);
+        if (equip_find_object(tval, sval))
+            fprintf(fff, "[[[[B|%-19s| ", name);
+        else
+            fprintf(fff, "%-19s ", name);
+
+        if (exp >= max)
+            fprintf(fff, "!");
+        else
+            fprintf(fff, " ");
+
+        fprintf(fff, "[[[[%c|%-4s|  ", _exp_level_color[idx], _exp_level_str[idx]);
+    }
+}
+
 static void do_cmd_knowledge_weapon_exp(void)
 {
-    int i, j, num, weapon_exp, weapon_max;
-
+    int   i;
     FILE *fff;
-
-    char file_name[1024];
-    char tmp[30];
+    char  file_name[1024];
 
     /* Open a new file */
     fff = my_fopen_temp(file_name, 1024);
@@ -5141,46 +4704,24 @@ static void do_cmd_knowledge_weapon_exp(void)
         return;
     }
 
-    for (i = 0; i < 5; i++)
+    for (i = 0; ; i++)
     {
-        for (num = 0; num < 64; num++)
-        {
-            for (j = 0; j < max_k_idx; j++)
-            {
-                object_kind *k_ptr = &k_info[j];
+        _prof_row_ptr row_ptr = &_prof_rows[i];
 
-                if ((k_ptr->tval == TV_SWORD - i) && (k_ptr->sval == num))
-                {
-                    if ((k_ptr->tval == TV_BOW) && (k_ptr->sval == SV_CRIMSON)) continue;
-                    if ((k_ptr->tval == TV_BOW) && (k_ptr->sval == SV_RAILGUN)) continue;
-                    if ((k_ptr->tval == TV_BOW) && (k_ptr->sval == SV_HARP)) continue;
+        if (!row_ptr->cols[0].tval)
+            break;
 
-                    weapon_exp = skills_weapon_current(TV_SWORD - i, num);
-                    weapon_max = skills_weapon_max(TV_SWORD - i, num);
-                    
-                    strip_name(tmp, j);
-                    fprintf(fff, "%-25s ", tmp);
-
-                    if (weapon_exp >= weapon_max) 
-                        fprintf(fff, "!");
-                    else
-                        fprintf(fff, " ");
-
-                    fprintf(fff, "%s", exp_level_str[weapon_exp_level(weapon_exp)]);
-                    if (cheat_xtra) fprintf(fff, " %d", weapon_exp);
-                    fprintf(fff, "\n");
-                    break;
-                }
-            }
-        }
+        _prof_aux(fff, row_ptr->cols[0].tval, row_ptr->cols[0].sval);
+        _prof_aux(fff, row_ptr->cols[1].tval, row_ptr->cols[1].sval);
+        _prof_aux(fff, row_ptr->cols[2].tval, row_ptr->cols[2].sval);
+        fprintf(fff, "\n");
     }
 
     /* Close the file */
     my_fclose(fff);
 
     /* Display the file contents */
-    show_file(TRUE, file_name, "Weapon Proficiency", 0, 0);
-
+    show_file(TRUE, file_name, "Proficiency", 0, 0);
 
     /* Remove the file */
     fd_kill(file_name);
@@ -5192,148 +4733,14 @@ static void do_cmd_knowledge_weapon_exp(void)
  */
 static void do_cmd_knowledge_spell_exp(void)
 {
-    int i = 0, spell_exp, exp_level;
+    doc_ptr doc = doc_alloc(80);
 
-    FILE *fff;
-    magic_type *s_ptr;
-
-    char file_name[1024];
-
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-
-    if (p_ptr->realm1 != REALM_NONE)
-    {
-        fprintf(fff, "%s Spellbook\n", realm_names[p_ptr->realm1]);
-        for (i = 0; i < 32; i++)
-        {
-            if (!is_magic(p_ptr->realm1))
-            {
-                s_ptr = &technic_info[p_ptr->realm1 - MIN_TECHNIC][i];
-            }
-            else
-            {
-                s_ptr = &mp_ptr->info[p_ptr->realm1 - 1][i];
-            }
-            if (s_ptr->slevel >= 99) continue;
-            spell_exp = p_ptr->spell_exp[i];
-            exp_level = spell_exp_level(spell_exp);
-            fprintf(fff, "%-25s ", do_spell(p_ptr->realm1, i, SPELL_NAME));
-            if (p_ptr->realm1 == REALM_HISSATSU)
-                fprintf(fff, "[--]");
-            else
-            {
-                if (exp_level >= EXP_LEVEL_MASTER) fprintf(fff, "!");
-                else fprintf(fff, " ");
-                fprintf(fff, "%s", exp_level_str[exp_level]);
-            }
-            if (cheat_xtra) fprintf(fff, " %d", spell_exp);
-            fprintf(fff, "\n");
-        }
-    }
-
-    if (p_ptr->realm2 != REALM_NONE)
-    {
-        fprintf(fff, "\n%s Spellbook\n", realm_names[p_ptr->realm2]);
-        for (i = 0; i < 32; i++)
-        {
-            if (!is_magic(p_ptr->realm1))
-            {
-                s_ptr = &technic_info[p_ptr->realm2 - MIN_TECHNIC][i];
-            }
-            else
-            {
-                s_ptr = &mp_ptr->info[p_ptr->realm2 - 1][i];
-            }
-            if (s_ptr->slevel >= 99) continue;
-
-            spell_exp = p_ptr->spell_exp[i + 32];
-            exp_level = spell_exp_level(spell_exp);
-            fprintf(fff, "%-25s ", do_spell(p_ptr->realm2, i, SPELL_NAME));
-            if (exp_level >= EXP_LEVEL_EXPERT) fprintf(fff, "!");
-            else fprintf(fff, " ");
-            fprintf(fff, "%s", exp_level_str[exp_level]);
-            if (cheat_xtra) fprintf(fff, " %d", spell_exp);
-            fprintf(fff, "\n");
-        }
-    }
-
-    /* Close the file */
-    my_fclose(fff);
-
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Spell Proficiency", 0, 0);
-
-
-    /* Remove the file */
-    fd_kill(file_name);
+    doc_insert(doc, "<style:wide>");
+    spellbook_character_dump(doc);
+    doc_insert(doc, "</style>");
+    doc_display(doc, "Spell Proficiency", 0);
+    doc_free(doc);
 }
-
-
-/*
- * Display skill-exp
- */
-static void do_cmd_knowledge_skill_exp(void)
-{
-    int skill_exp, skill_max;
-    FILE *fff;
-    char file_name[1024];
-
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) 
-    {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-
-    fprintf(fff, "%-20s ", "Martial Arts    ");
-    skill_exp = skills_martial_arts_current();
-    skill_max = skills_martial_arts_max();
-    if (skill_exp >= skill_max)
-        fprintf(fff, "!");
-    else 
-        fprintf(fff, " ");
-
-    fprintf(fff, "%s", exp_level_str[weapon_exp_level(skill_exp)]);
-    if (cheat_xtra) fprintf(fff, " %d", skill_exp);
-    fprintf(fff, "\n");
-
-
-    fprintf(fff, "%-20s ", "Dual Wielding   ");
-    skill_exp = skills_dual_wielding_current();
-    skill_max = skills_dual_wielding_max();
-    if (skill_exp >= skill_max)
-        fprintf(fff, "!");
-    else 
-        fprintf(fff, " ");
-
-    fprintf(fff, "%s", exp_level_str[weapon_exp_level(skill_exp)]);
-    if (cheat_xtra) fprintf(fff, " %d", skill_exp);
-    fprintf(fff, "\n");
-
-    fprintf(fff, "%-20s ", "Riding          ");
-    skill_exp = skills_riding_current();
-    skill_max = skills_riding_max();
-    if (skill_exp >= skill_max)
-        fprintf(fff, "!");
-    else 
-        fprintf(fff, " ");
-
-    fprintf(fff, "%s", exp_level_str[riding_exp_level(skill_exp)]);
-    if (cheat_xtra) fprintf(fff, " %d", skill_exp);
-    fprintf(fff, "\n");
-
-    my_fclose(fff);
-    show_file(TRUE, file_name, "Miscellaneous Proficiency", 0, 0);
-    fd_kill(file_name);
-}
-
 
 /*
  * Pluralize a monster name
@@ -5472,6 +4879,7 @@ static void do_cmd_knowledge_pets(void)
     int             i;
     FILE            *fff;
     monster_type    *m_ptr;
+    monster_race    *r_ptr;
     char            pet_name[80];
     int             t_friends = 0;
     int             show_upkeep = 0;
@@ -5491,6 +4899,7 @@ static void do_cmd_knowledge_pets(void)
     {
         /* Access the monster */
         m_ptr = &m_list[i];
+        r_ptr = &r_info[m_ptr->r_idx];
 
         /* Ignore "dead" monsters */
         if (!m_ptr->r_idx) continue;
@@ -5500,7 +4909,10 @@ static void do_cmd_knowledge_pets(void)
         {
             t_friends++;
             monster_desc(pet_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
-            fprintf(fff, "%s (%s)\n", pet_name, look_mon_desc(m_ptr, 0x00));
+            fprintf(fff, "%s (", pet_name);
+            if (r_ptr->r_tkills)
+                fprintf(fff, "L%d, ", r_ptr->level);
+            fprintf(fff, "%s)\n", mon_health_desc(m_ptr));
         }
     }
 
@@ -5528,7 +4940,7 @@ static void do_cmd_knowledge_pets(void)
 /*
  * Total kill count
  *
- * Note that the player ghosts are ignored.  XXX XXX XXX
+ * Note that the player ghosts are ignored. XXX XXX XXX
  */
 static void do_cmd_knowledge_kill_count(void)
 {
@@ -6181,7 +5593,7 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
 
                         sprintf(buf, "%3d  %3d  %+5d  %+4d  %s", 
                             r_ptr->level, MAX(15, r_ptr->level + 5), speed, ac,
-                            get_class_t_aux(r_ptr->body.class_idx, 0)->name
+                            get_class_aux(r_ptr->body.class_idx, 0)->name
                         );
                         c_put_str(TERM_WHITE, buf, row + i, 80);
                     }
@@ -6628,11 +6040,7 @@ static void desc_obj_fake(int k_idx)
     /* Hack -- Handle stuff */
     handle_stuff();
 
-    if (!screen_object(o_ptr, SCROBJ_FAKE_OBJECT | SCROBJ_FORCE_DETAIL))
-    {
-        msg_print("You see nothing special.");
-        msg_print(NULL);
-    }
+    obj_display(o_ptr);
 }
 
 
@@ -6658,6 +6066,7 @@ static _ego_type_t _ego_types[] = {
     { EGO_TYPE_GLOVES, "Gloves" },
     { EGO_TYPE_BOOTS, "Boots" },
     { EGO_TYPE_AMMO, "Ammo" },
+    { EGO_TYPE_DEVICE, "Devices" },
     { EGO_TYPE_NONE, NULL },
 };
 
@@ -6680,7 +6089,7 @@ static int _collect_egos(int grp_cur, int ego_idx[])
 
         if (!e_ptr->name) continue;
         /*if (!e_ptr->aware) continue;*/
-        if (!e_ptr->counts.found && !e_ptr->counts.bought) continue;
+        if (!e_ptr->aware && !e_ptr->counts.found && !e_ptr->counts.bought) continue;
         if (e_ptr->type != type) continue;
 
         ego_idx[cnt++] = i;
@@ -6732,6 +6141,14 @@ static void do_cmd_knowledge_egos(bool *need_redraw)
             grp_idx[grp_cnt++] = i;
     }
     grp_idx[grp_cnt] = -1;
+
+    if (!grp_cnt)
+    {
+        prt("You haven't found any egos just yet. Press any key to continue.", 0, 0);
+        inkey();
+        prt("", 0, 0);
+        return;
+    }
 
     ego_cnt = 0;
 
@@ -7606,34 +7023,14 @@ static void do_cmd_knowledge_kubi(void)
 /*
  * List virtues & status
  */
+
 static void do_cmd_knowledge_virtues(void)
 {
-    FILE *fff;
-    
-    char file_name[1024];
-    
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-    
-    if (fff)
-    {
-        fprintf(fff, "Your alighnment : %s\n\n", your_alignment());
-        virtue_dump(fff);
-    }
-    
-    /* Close the file */
-    my_fclose(fff);
-    
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Virtues", 0, 0);
-    
-    /* Remove the file */
-    fd_kill(file_name);
+    doc_ptr doc = doc_alloc(80);
+
+    virtue_display(doc);
+    doc_display(doc, "Virtues", 0);
+    doc_free(doc);
 }
 
 /*
@@ -7642,86 +7039,79 @@ static void do_cmd_knowledge_virtues(void)
 */
 static void do_cmd_knowledge_dungeon(void)
 {
-    FILE *fff;
-    
-    char file_name[1024];
-    int i;
-    
-    
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-    
-    if (fff)
-    {
-        for (i = 1; i < max_d_idx; i++)
-        {
-            bool seiha = FALSE;
+    doc_ptr doc = doc_alloc(80);
 
-            if (!d_info[i].maxdepth) continue;
-            if (!max_dlv[i]) continue;
-            if (d_info[i].final_guardian)
-            {
-                if (!r_info[d_info[i].final_guardian].max_num) seiha = TRUE;
-            }
-            else if (max_dlv[i] == d_info[i].maxdepth) seiha = TRUE;
-            fprintf(fff,"%c%-16s :  level %3d\n", seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
-        }
-    }
-    
-    /* Close the file */
-    my_fclose(fff);
-    
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Dungeon", 0, 0);
-
-    
-    /* Remove the file */
-    fd_kill(file_name);
+    py_display_dungeons(doc);
+    doc_display(doc, "Dungeons", 0);
+    doc_free(doc);
 }
 
-/*
-* List virtues & status
-*
-*/
 static void do_cmd_knowledge_stat(void)
 {
-    FILE *fff;
-    
-    char file_name[1024];
-    int v_nr;
-    
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) 
-    {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-    
-    if (fff)
-    {
-        if (p_ptr->knowledge & KNOW_HPRATE) fprintf(fff, "Your current Life Rating is %d/100.\n\n", life_rating());
-        else fprintf(fff, "Your current Life Rating is ???.\n\n");
-        fprintf(fff, "Limits of maximum stats\n\n");
+    doc_ptr          doc = doc_alloc(80);
+    race_t          *race_ptr = get_race();
+    class_t         *class_ptr = get_class();
+    personality_ptr  pers_ptr = get_personality();
+    int              i;
 
-        for (v_nr = 0; v_nr < 6; v_nr++)
-        {
-            if ((p_ptr->knowledge & KNOW_STAT) || p_ptr->stat_max[v_nr] == p_ptr->stat_max_max[v_nr]) fprintf(fff, "%s 18/%d\n", stat_names[v_nr], p_ptr->stat_max_max[v_nr]-18);
-            else fprintf(fff, "%s ???\n", stat_names[v_nr]);
-        }
+    if (p_ptr->knowledge & KNOW_HPRATE)
+        doc_printf(doc, "Your current Life Rating is <color:G>%d%%</color>.\n\n", life_rating());
+    else
+        doc_insert(doc, "Your current Life Rating is <color:y>\?\?\?%</color>.\n\n");
+
+    doc_insert(doc, "<color:r>Limits of maximum stats</color>\n");
+
+    for (i = 0; i < MAX_STATS; i++)
+    {
+        if ((p_ptr->knowledge & KNOW_STAT) || p_ptr->stat_max[i] == p_ptr->stat_max_max[i])
+            doc_printf(doc, "%s <color:G>18/%d</color>\n", stat_names[i], p_ptr->stat_max_max[i]-18);
+        else
+            doc_printf(doc, "%s <color:y>\?\?\?</color>\n", stat_names[i]);
+    }
+    doc_insert(doc, "\n\n");
+
+    doc_printf(doc, "<color:r>Race:</color> <color:B>%s</color>\n", race_ptr->name);
+    doc_insert(doc, race_ptr->desc);
+    if (p_ptr->pclass == CLASS_MONSTER)
+        doc_printf(doc, " For more information, see <link:MonsterRaces.txt#%s>.\n\n", race_ptr->name);
+    else
+        doc_printf(doc, " For more information, see <link:Races.txt#%s>.\n\n", race_ptr->name);
+
+    if (race_ptr->subdesc && strlen(race_ptr->subdesc))
+    {
+        doc_printf(doc, "<color:r>Subace:</color> <color:B>%s</color>\n", race_ptr->subname);
+        doc_insert(doc, race_ptr->subdesc);
+        doc_insert(doc, "\n\n");
     }
 
-    dump_yourself(fff);
-    my_fclose(fff);
-    show_file(TRUE, file_name, "HP-rate & Max stat", 0, 0);
-    fd_kill(file_name);
+    if (p_ptr->pclass != CLASS_MONSTER)
+    {
+        doc_printf(doc, "<color:r>Class:</color> <color:B>%s</color>\n", class_ptr->name);
+        doc_insert(doc, class_ptr->desc);
+        doc_printf(doc, " For more information, see <link:Classes.txt#%s>.\n\n", class_ptr->name);
+    }
+
+    doc_printf(doc, "<color:r>Personality:</color> <color:B>%s</color>\n", pers_ptr->name);
+    doc_insert(doc, pers_ptr->desc);
+    doc_printf(doc, " For more information, see <link:Personalities.txt#%s>.\n\n", pers_ptr->name);
+
+    if (p_ptr->realm1)
+    {
+        doc_printf(doc, "<color:r>Realm:</color> <color:B>%s</color>\n", realm_names[p_ptr->realm1]);
+        doc_insert(doc, realm_jouhou[technic2magic(p_ptr->realm1)-1]);
+        doc_insert(doc, "\n\n");
+    }
+
+    if (p_ptr->realm2)
+    {
+        doc_printf(doc, "<color:r>Realm:</color> <color:B>%s</color>\n", realm_names[p_ptr->realm2]);
+        doc_insert(doc, realm_jouhou[technic2magic(p_ptr->realm2)-1]);
+        doc_insert(doc, "\n\n");
+    }
+
+    doc_display(doc, "Self Knowledge", 0);
+    doc_free(doc);
 }
-
 
 /*
  * Print all active quests
@@ -7736,7 +7126,10 @@ static void do_cmd_knowledge_quests_current(FILE *fff)
     int rand_level = 100;
     int total = 0;
 
-    fprintf(fff, "< Current Quest >\n");
+    if (character_dump_hack)
+        fprintf(fff, "< Current Quests >\n");
+    else
+        fprintf(fff, "  [[[[r|Current Quests\n");
 
     for (i = 1; i < max_quests; i++)
     {
@@ -7874,7 +7267,11 @@ void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[])
     int i;
     int total = 0;
 
-    fprintf(fff, "< Completed Quest >\n");
+    if (character_dump_hack)
+        fprintf(fff, "< Completed Quests >\n");
+    else
+        fprintf(fff, "  [[[[r|Completed Quests\n");
+
     for (i = 1; i < max_quests; i++)
     {
         int q_idx = quest_num[i];
@@ -7945,7 +7342,10 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
     int i;
     int total = 0;
 
-    fprintf(fff, "< Failed Quest >\n");
+    if (character_dump_hack)
+        fprintf(fff, "< Failed Quests >\n");
+    else
+        fprintf(fff, "  [[[[r|Failed Quests\n");
     for (i = 1; i < max_quests; i++)
     {
         int q_idx = quest_num[i];
@@ -8010,7 +7410,7 @@ static void do_cmd_knowledge_quests_wiz_random(FILE *fff, int quest_num[])
     int i;
     int total = 0;
 
-    fprintf(fff, "< Remaining Random Quest >\n");
+    fprintf(fff, "  [[[[r|Remaining Random Quest\n");
     for (i = 1; i < max_quests; i++)
     {
         int            q_idx = quest_num[i];
@@ -8139,60 +7539,162 @@ static void do_cmd_knowledge_quests(void)
 
 /*
  * List my home
+ * Code snagged from store.c, and probably should be shared.
  */
 static void do_cmd_knowledge_home(void)
 {
-    FILE *fff;
+    int         w, h, i;
+    int         page_size, page_top = 0;
+    store_type *st_ptr = &town[1].store[STORE_HOME];
+    bool        done = FALSE;
+    bool        show_weights2 = show_weights;
 
-    int i;
-    char file_name[1024];
-    store_type  *st_ptr;
-    char o_name[MAX_NLEN];
-    cptr        paren = ")";
+    Term_get_size(&w, &h);
+    Term_clear();
 
-    process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
+    page_size = h - 12;
 
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-    if (!fff) {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
-
-    if (fff)
+    while (!done)
     {
-        /* Print all homes in the different towns */
-        st_ptr = &town[1].store[STORE_HOME];
+        int row, cmd;
+        int page_num = 1 + page_top / page_size;
+        int max_width = show_weights2 ? 65 : 75;
 
-        /* Home -- if anything there */
-        if (st_ptr->stock_num)
+        clear_from(1);
+        put_str("Your Home", 3, 30);
+        put_str(format("Item Description (Page %d)", page_num), 5, 3);
+        if (show_weights2)
+            put_str("Weight", 5, 70);
+
+        row = 6;
+
+        /* Draw the Inventory */
+        for (i = 0; i < page_size; i++, row++)
         {
-            /* Header with name of the town */
-            fprintf(fff, "  [Home Inventory]\n");
+            object_type *o_ptr;
+            char         buf[255];
+            char         o_name[MAX_NLEN];
+            int          col = 3;
 
-            /* Dump all available items */
-            for (i = 0; i < st_ptr->stock_num; i++)
+            col = 3;
+
+            if (page_top + i >= st_ptr->stock_num) break;
+            o_ptr = &st_ptr->stock[page_top + i];
+
+            sprintf(buf, "%c) ", ((i > 25) ? toupper(I2A(i - 26)) : I2A(i)));
+            prt(buf, row, 0);
+            if (show_item_graph)
             {
-                object_desc(o_name, &st_ptr->stock[i], 0);
-                fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
+                byte a = object_attr(o_ptr);
+                char c = object_char(o_ptr);
 
+                Term_queue_bigchar(col, row, a, c, 0, 0);
+                if (use_bigtile) col++;
+
+                col += 2;
             }
 
-            /* Add an empty line */
-            fprintf(fff, "\n\n");
+            object_desc(o_name, o_ptr, 0);
+            o_name[max_width] = '\0';
+            c_put_str(tval_to_attr[o_ptr->tval], o_name, row, col);
+            if (show_weights2)
+            {
+                int wgt = o_ptr->weight;
+                sprintf(buf, "%3d.%d lb", wgt / 10, wgt % 10);
+                put_str(buf, row, 68);
+
+            }
+        }
+
+        /* Commands */
+        row++;
+        prt(" ESC) Quit.", row, 0);
+        if (st_ptr->stock_num > page_size)
+        {
+            prt(" -) Previous page", row + 1, 0);
+            prt(" SPACE) Next page", row + 2, 0);
+        }
+        prt("x) eXamine an item", row, 27);
+        if (show_weights2)
+            prt("w) Hide Weights", row + 1, 27);
+        else
+            prt("w) Show Weights", row + 1, 27);
+
+        cmd = inkey_special(FALSE);
+
+        switch (cmd)
+        {
+        case ESCAPE:
+            done = TRUE;
+            break;
+
+        case 'w':
+            show_weights2 = show_weights2 ? FALSE : TRUE;
+            break;
+
+        case '-':
+            if (st_ptr->stock_num <= page_size)
+                msg_print("Entire inventory is shown.");
+            else
+            {
+                page_top -= page_size;
+                if (page_top < 0)
+                    page_top = ((st_ptr->stock_num - 1)/page_size)*page_size;
+            }
+            break;
+
+        case ' ':
+            if (st_ptr->stock_num <= page_size)
+                msg_print("Entire inventory is shown.");
+            else
+            {
+                page_top += page_size;
+                if (page_top >= st_ptr->stock_num)
+                    page_top = 0;
+            }
+            break;
+
+        case 'x':
+            if (st_ptr->stock_num <= 0)
+                msg_print("Your home is empty.");
+            else
+            {
+                int cmd2, which = -1;
+                prt("Which item do you want to examine? (* for All)", 0, 0);
+                cmd2 = inkey_special(FALSE);
+                prt("", 0, 0);
+                if (cmd2 == '*')
+                {
+                    doc_ptr doc = doc_alloc(80);
+                    for (i = 0; i < st_ptr->stock_num; i++, row++)
+                    {
+                        if (!object_is_weapon_armour_ammo(&st_ptr->stock[i]) && !object_is_known(&st_ptr->stock[i])) continue;
+                        obj_display_doc(&st_ptr->stock[i], doc);
+                        /*doc_newline(doc);*/
+                    }
+                    doc_display(doc, "Your Home", 0);
+                    doc_free(doc);
+                }
+                else
+                {
+                    if (islower(cmd2))
+                        which = A2I(cmd2);
+                    else if (isupper(cmd2))
+                        which = A2I(tolower(cmd2)) + 26;
+
+                    if (0 <= which && which < page_size && page_top + which < st_ptr->stock_num)
+                    {
+                        object_type *o_ptr = &st_ptr->stock[page_top + which];
+                        if (!(o_ptr->ident & IDENT_FULL))
+                            msg_print("You have no special knowledge about that item.");
+                        else
+                            obj_display(o_ptr);
+                    }
+                }
+            }
+            break;
         }
     }
-
-    /* Close the file */
-    my_fclose(fff);
-
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Home Inventory", 0, 0);
-
-
-    /* Remove the file */
-    fd_kill(file_name);
 }
 
 
@@ -8202,66 +7704,57 @@ static void do_cmd_knowledge_home(void)
 static void do_cmd_knowledge_autopick(void)
 {
     int k;
-    FILE *fff;
-    char file_name[1024];
-
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-
-    if (!fff)
-    {
-        msg_format("Failed to create temporary file %s.", file_name);
-        msg_print(NULL);
-        return;
-    }
+    doc_ptr doc = doc_alloc(80);
 
     if (!max_autopick)
     {
-        fprintf(fff, "No preference for auto picker/destroyer.");
+        doc_insert(doc, "There are no preferences for automatic pickup/destruction.");
     }
     else
     {
-        fprintf(fff, "   There are %d registered lines for auto picker/destroyer.\n\n", max_autopick);
+        doc_printf(doc, "There are %d registered lines for automatic pickup/destruction.\n", max_autopick);
     }
+    doc_insert(doc, "For help on the auto-picker, see <link:editor.txt>\n\n");
 
     for (k = 0; k < max_autopick; k++)
     {
         cptr tmp;
+        string_ptr line = 0;
+        char color = 'w';
         byte act = autopick_list[k].action;
         if (act & DONT_AUTOPICK)
         {
             tmp = "Leave";
+            color = 'U';
         }
         else if (act & DO_AUTODESTROY)
         {
             tmp = "Destroy";
+            color = 'r';
         }
         else if (act & DO_AUTOPICK)
         {
             tmp = "Pickup";
+            color = 'B';
         }
         else /* if (act & DO_QUERY_AUTOPICK) */ /* Obvious */
         {
             tmp = "Query";
+            color = 'y';
         }
 
         if (act & DO_DISPLAY)
-            fprintf(fff, "%11s", format("[%s]", tmp));
+            doc_printf(doc, "<color:%c>%-9.9s</color>", color, format("[%s]", tmp));
         else
-            fprintf(fff, "%11s", format("(%s)", tmp));
+            doc_printf(doc, "<color:%c>%-9.9s</color>", color, format("(%s)", tmp));
 
-        tmp = autopick_line_from_entry(&autopick_list[k]);
-        fprintf(fff, " %s", tmp);
-        string_free(tmp);
-        fprintf(fff, "\n");
+        line = autopick_line_from_entry(&autopick_list[k], AUTOPICK_COLOR_CODED);
+        doc_printf(doc, " <indent><style:indent>%s</style></indent>\n", string_buffer(line));
+        string_free(line);
     }
-    /* Close the file */
-    my_fclose(fff);
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Auto-picker/Destroyer", 0, 0);
 
-    /* Remove the file */
-    fd_kill(file_name);
+    doc_display(doc, "Automatic Pickup and Destroy Preferences", 0);
+    doc_free(doc);
 }
 
 
@@ -8270,63 +7763,69 @@ static void do_cmd_knowledge_autopick(void)
  */
 void do_cmd_knowledge(void)
 {
-    int i, p = 0;
-    bool need_redraw = FALSE;
+    int      i, row, col;
+    bool     need_redraw = FALSE;
+    class_t *class_ptr = get_class();
+    race_t  *race_ptr = get_race();
 
-    /* File type is "TEXT" */
-    FILE_TYPE(FILE_TYPE_TEXT);
-
-    /* Save the screen */
     screen_save();
 
-    /* Interact until done */
     while (1)
     {
-        /* Clear screen */
         Term_clear();
 
-        /* Ask for a choice */
-        prt(format("page %d/2", (p+1)), 2, 65);
-        prt("Display current knowledge", 3, 0);
+        prt("Display current knowledge", 2, 0);
 
         /* Give some choices */
-        if (p == 0)
-        {
-            int row = 6;
-            prt("(1) Display known artifacts", row++, 5);
-            prt("(2) Display known objects", row++, 5);
-            prt("(3) Display remaining uniques", row++, 5);
-            prt("(4) Display known monster", row++, 5);
-            prt("(5) Display kill count", row++, 5);
-            if (!vanilla_town) prt("(6) Display wanted monsters", row++, 5);
-            prt("(7) Display current pets", row++, 5);
-            prt("(8) Display home inventory", row++, 5);
-            prt("(9) Display *identified* equip.", row++, 5);
-            prt("(0) Display terrain symbols.", row++, 5);
-        }
-        else
-        {
-            int row = 6;
-            prt("(a) Display about yourself", row++, 5);
-            prt("(b) Display mutations", row++, 5);
-            prt("(c) Display weapon proficiency", row++, 5);
-            prt("(d) Display spell proficiency", row++, 5);
-            prt("(e) Display misc. proficiency", row++, 5);
-            prt("(f) Display dungeons", row++, 5);
-            prt("(g) Display current quests", row++, 5);
-            prt("(h) Display auto pick/destroy", row++, 5);
-            prt("(i) Display known egos", row++, 5);
-            if (enable_virtues)
-                prt("(v) Display virtues", row++, 5);
-            prt("(w) Display weapon effectiveness", row++, 5);
-            prt("(x) Display extra info", row++, 5);
-        }
+        row = 4;
+        col = 2;
+        c_prt(TERM_RED, "Object Knowledge", row++, col - 2);
+        prt("(a) Artifacts", row++, col);
+        prt("(o) Objects", row++, col);
+        prt("(e) Egos", row++, col);
+        prt("(h) Home Inventory", row++, col);
+        prt("(i) *Identified* Equip.", row++, col);
+        prt("(_) Auto Pick/Destroy", row++, col);
+        row++;
+
+        c_prt(TERM_RED, "Monster Knowledge", row++, col - 2);
+        prt("(m) Known Monsters", row++, col);
+        prt("(w) Wanted Monsters", row++, col);
+        prt("(u) Remaining Uniques", row++, col);
+        prt("(k) Kill Count", row++, col);
+        prt("(p) Pets", row++, col);
+        row++;
+
+        row = 4;
+        col = 30;
+
+        c_prt(TERM_RED, "Dungeon Knowledge", row++, col - 2);
+        prt("(d) Dungeons", row++, col);
+        prt("(q) Quests", row++, col);
+        prt("(t) Terrain Symbols.", row++, col);
+        row++;
+
+        c_prt(TERM_RED, "Self Knowledge", row++, col - 2);
+        prt("(@) About Yourself", row++, col);
+        if (p_ptr->prace != RACE_MON_RING)
+            prt("(W) Weapon Damage", row++, col);
+        if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
+            prt("(S) Shooter Damage", row++, col);
+        if (mut_count(NULL))
+            prt("(M) Mutations", row++, col);
+        if (enable_virtues)
+            prt("(v) Virtues", row++, col);
+        if (class_ptr->character_dump || race_ptr->character_dump)
+            prt("(x) Extra info", row++, col);
+        row++;
+
+        c_prt(TERM_RED, "Skills", row++, col - 2);
+        prt("(P) Proficiency", row++, col);
+        prt("(s) Spell Proficiency", row++, col);
+        row++;
 
         /* Prompt */
-        prt("-more-", 17, 8);
         prt("ESC) Exit menu", 21, 1);
-        prt("SPACE) Next page", 21, 30);
-        /*prt("-) Previous page", 21, 60);*/
         prt("Command: ", 20, 0);
 
         /* Prompt */
@@ -8336,70 +7835,78 @@ void do_cmd_knowledge(void)
         if (i == ESCAPE) break;
         switch (i)
         {
-        case ' ': /* Page change */
-        case '-':
-            p = 1 - p;
-            break;
-        case '1':
+        /* Object Knowledge */
+        case 'a':
             do_cmd_knowledge_artifacts();
             break;
-        case '2':
+        case 'o':
             do_cmd_knowledge_objects(&need_redraw, FALSE, -1);
             break;
-        case 'i':
+        case 'e':
             do_cmd_knowledge_egos(&need_redraw);
             break;
-        case '3':
-            do_cmd_knowledge_uniques();
-            break;
-        case '4':
-            do_cmd_knowledge_monsters(&need_redraw, FALSE, -1);
-            break;
-        case '5':
-            do_cmd_knowledge_kill_count();
-            break;
-        case '6':
-            if (!vanilla_town) do_cmd_knowledge_kubi();
-            break;
-        case '7':
-            do_cmd_knowledge_pets();
-            break;
-        case '8':
+        case 'h':
             do_cmd_knowledge_home();
             break;
-        case '9':
+        case 'i':
             do_cmd_knowledge_inven();
             break;
-        case '0':
+        case '_':
+            do_cmd_knowledge_autopick();
+            break;
+
+        /* Monster Knowledge */
+        case 'm':
+            do_cmd_knowledge_monsters(&need_redraw, FALSE, -1);
+            break;
+        case 'w':
+            do_cmd_knowledge_kubi();
+            break;
+        case 'u':
+            do_cmd_knowledge_uniques();
+            break;
+        case 'k':
+            do_cmd_knowledge_kill_count();
+            break;
+        case 'p':
+            do_cmd_knowledge_pets();
+            break;
+
+        /* Dungeon Knowledge */
+        case 'd':
+            do_cmd_knowledge_dungeon();
+            break;
+        case 'q':
+            do_cmd_knowledge_quests();
+            break;
+        case 't':
             {
                 int lighting_level = F_LIT_STANDARD;
                 do_cmd_knowledge_features(&need_redraw, FALSE, -1, &lighting_level);
             }
             break;
-        /* Next page */
-        case 'a':
+
+        /* Self Knowledge */
+        case '@':
             do_cmd_knowledge_stat();
             break;
-        case 'b':
-            mut_do_cmd_knowledge();
+        case 'W':
+            if (p_ptr->prace != RACE_MON_RING)
+                do_cmd_knowledge_weapon();
+            else
+                bell();
             break;
-        case 'c':
-            do_cmd_knowledge_weapon_exp();
+        case 'S':
+            if (equip_find_object(TV_BOW, SV_ANY) && !prace_is_(RACE_MON_JELLY) && p_ptr->shooter_info.tval_ammo != TV_NO_AMMO)
+                do_cmd_knowledge_shooter();
+            else
+                bell();
             break;
-        case 'd':
-            do_cmd_knowledge_spell_exp();
-            break;
-        case 'e':
-            do_cmd_knowledge_skill_exp();
-            break;
-        case 'f':
-            do_cmd_knowledge_dungeon();
-            break;
-        case 'g':
-            do_cmd_knowledge_quests();
-            break;
-        case 'h':
-            do_cmd_knowledge_autopick();
+        case 'M':
+            if (mut_count(NULL))
+                mut_do_cmd_knowledge();
+            else
+                bell();
             break;
         case 'v':
             if (enable_virtues)
@@ -8407,12 +7914,21 @@ void do_cmd_knowledge(void)
             else
                 bell();
             break;
-        case 'w':
-            do_cmd_knowledge_weapon();
-            break;
         case 'x':
-            do_cmd_knowledge_extra();
+            if (class_ptr->character_dump || race_ptr->character_dump)
+                do_cmd_knowledge_extra();
+            else
+                bell();
             break;
+
+        /* Skills */
+        case 'P':
+            do_cmd_knowledge_weapon_exp();
+            break;
+        case 's':
+            do_cmd_knowledge_spell_exp();
+            break;
+
         default:
             bell();
         }

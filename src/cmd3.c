@@ -7,11 +7,13 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "int-map.h"
+#include "z-doc.h"
+
 #include <assert.h>
 
 /*
@@ -239,7 +241,7 @@ void do_cmd_drop(void)
     if (equip_is_valid_slot(item))
         calc_android_exp();
 
-    p_ptr->redraw |= (PR_EQUIPPY);
+    p_ptr->redraw |= PR_EQUIPPY;
 }
 
 
@@ -319,7 +321,7 @@ void do_cmd_destroy(void)
     }
 
     /* Hack for Rune Knight: They can destroy worn equipment, but only
-       if it has the Sacrifice rune.  get_item() is not smart enough
+       if it has the Sacrifice rune. get_item() is not smart enough
        to handle this restriction ... */
     if (is_equipped && o_ptr->rune != RUNE_SACRIFICE)
     {
@@ -330,73 +332,36 @@ void do_cmd_destroy(void)
     /* Verify unless quantity given beforehand */
     if (!force && (confirm_destroy || (object_value(o_ptr) > 0)))
     {
-        object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+        char ch;
+        int options = OD_COLOR_CODED;
 
-        /* Make a verification */
-        sprintf(out_val, 
-            "Really destroy %s? [y/n/Auto]",
-            o_name);
+        if (o_ptr->number > 1)
+            options |= OD_OMIT_PREFIX;
+        object_desc(o_name, o_ptr, options);
+        sprintf(out_val, "Really destroy %s? <color:y>[y/n/Auto]</color>", o_name);
 
-        msg_print(NULL);
-
-        /* HACK : Add the line to message buffer */
-        message_add(out_val);
-        p_ptr->window |= (PW_MESSAGE);
-        window_stuff();
-
-        /* Get an acceptable answer */
-        while (TRUE)
+        ch = msg_prompt(out_val, "nyA", PROMPT_DEFAULT);
+        if (ch == 'n') return;
+        if (ch == 'A')
         {
-            char i;
-
-            /* Prompt */
-            prt(out_val, 0, 0);
-
-            i = inkey();
-
-            /* Erase the prompt */
-            prt("", 0, 0);
-
-
-            if (i == 'y' || i == 'Y')
-            {
-                break;
-            }
-            if (i == ESCAPE || i == 'n' || i == 'N')
-            {
-                /* Cancel */
-                return;
-            }
-            if (i == 'A')
-            {
-                /* Add an auto-destroy preference line */
-                if (autopick_autoregister(o_ptr))
-                {
-                    /* Auto-destroy it */
-                    autopick_alter_item(item, TRUE);
-                }
-
-                /* The object is already destroyed. */
-                return;
-            }
-        } /* while (TRUE) */
+            if (autopick_autoregister(o_ptr))
+                autopick_alter_item(item, TRUE); /* destroyed! */
+            return;
+        }
     }
 
-    /* See how many items */
+    /* Get a quantity */
     if (o_ptr->number > 1)
     {
-        /* Get a quantity */
         amt = get_quantity(NULL, o_ptr->number);
-
-        /* Allow user abort */
-        if (amt <= 0) return;
+       if (amt <= 0) return;
     }
 
 
     /* Describe the object */
     old_number = o_ptr->number;
     o_ptr->number = amt;
-    object_desc(o_name, o_ptr, 0);
+    object_desc(o_name, o_ptr, OD_COLOR_CODED);
     o_ptr->number = old_number;
 
     /* Take a turn */
@@ -406,11 +371,7 @@ void do_cmd_destroy(void)
     if (!can_player_destroy_object(o_ptr))
     {
         energy_use = 0;
-
-        /* Message */
         msg_format("You cannot destroy %s.", o_name);
-
-        /* Done */
         return;
     }
 
@@ -425,7 +386,12 @@ void do_cmd_destroy(void)
     else if (prace_is_(RACE_MON_RING) && object_is_jewelry(o_ptr))
         ring_absorb_object(o_ptr);
     else
-        msg_format("You destroy %s.", o_name);
+    {
+        if (old_number == 1)
+            msg_print("Destroyed.");
+        else
+            msg_format("You destroy %s.", o_name);
+    }
 
     if (o_ptr->rune == RUNE_SACRIFICE)
     {
@@ -440,7 +406,6 @@ void do_cmd_destroy(void)
         p_ptr->csp_frac = 0;
 
         p_ptr->redraw |= (PR_MANA);
-        p_ptr->window |= (PW_PLAYER);
         p_ptr->window |= (PW_SPELL);
         p_ptr->redraw |= (PR_HP);
 
@@ -464,7 +429,8 @@ void do_cmd_destroy(void)
         if (!is_equipped)
         {
             inven_item_increase(item, -amt);
-            inven_item_describe(item);
+            if (amt < old_number)
+                inven_item_describe(item);
             inven_item_optimize(item);
         }
     }
@@ -473,7 +439,8 @@ void do_cmd_destroy(void)
     else
     {
         floor_item_increase(0 - item, -amt);
-        floor_item_describe(0 - item);
+        if (amt < old_number)
+            floor_item_describe(0 - item);
         floor_item_optimize(0 - item);
     }
 
@@ -570,13 +537,11 @@ void do_cmd_destroy(void)
 /*
  * Observe an item which has been *identify*-ed
  */
-void do_cmd_observe(void)
+void do_cmd_inspect(void)
 {
     int            item;
 
     object_type        *o_ptr;
-
-    char        o_name[MAX_NLEN];
 
     cptr q, s;
 
@@ -585,38 +550,63 @@ void do_cmd_observe(void)
     q = "Examine which item? ";
     s = "You have nothing to examine.";
 
-    if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+    if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | OPTION_ALL))) return;
 
-    /* Get the item (in the pack) */
-    if (item >= 0)
+    if (item == INVEN_ALL)
     {
-        o_ptr = &inventory[item];
-    }
+        int     slot, i;
+        doc_ptr doc = doc_alloc(80);
 
-    /* Get the item (on the floor) */
+        doc_insert(doc, "<style:wide><topic:Equipment>============================= Character <color:keypress>E</color>quipment =============================</style>\n\n");
+        for (slot = EQUIP_BEGIN, i = 0; slot < EQUIP_BEGIN + equip_count(); slot++, i++)
+        {
+            object_type *o_ptr = equip_obj(slot);
+            if (!o_ptr) continue;
+
+            obj_display_doc(o_ptr, doc);
+            /*doc_newline(doc);*/
+        }
+
+        doc_printf(doc, "<style:wide><topic:Inventory>============================= Character <color:keypress>I</color>nventory =============================</style>\n\n");
+        for (i = 0; i < INVEN_PACK; i++)
+        {
+            if (!inventory[i].k_idx) break;
+            if (!object_is_weapon_armour_ammo(&inventory[i]) && !object_is_known(&inventory[i])) continue;
+            obj_display_doc(&inventory[i], doc);
+            /*doc_newline(doc);*/
+        }
+
+        screen_save();
+        doc_display(doc, "Equipment", 0);
+        screen_load();
+        doc_free(doc);
+    }
     else
     {
-        o_ptr = &o_list[0 - item];
+        /* Get the item (in the pack) */
+        if (item >= 0)
+        {
+            o_ptr = &inventory[item];
+        }
+
+        /* Get the item (on the floor) */
+        else
+        {
+            o_ptr = &o_list[0 - item];
+        }
+
+
+        /* Note, descriptions for potions, scrolls, wands, staves and rods all spoil
+           the object's effects. Some of the light and jewelry descriptions are also TMI.
+           Descriptions for weapons and armor should always be displayed. */
+        if (!object_is_weapon_armour_ammo(o_ptr) && !object_is_known(o_ptr))
+        {
+            msg_print("You have no special knowledge about that item.");
+            return;
+        }
+
+        obj_display(o_ptr);
     }
-
-
-    /* Note, descriptions for potions, scrolls, wands, staves and rods all spoil 
-       the object's effects. Some of the light and jewelry descriptions are also TMI.
-       Descriptions for weapons and armor should always be displayed. */
-    if (!object_is_weapon_armour_ammo(o_ptr) && !object_is_known(o_ptr))
-    {
-        msg_print("You have no special knowledge about that item.");
-        return;
-    }
-
-    /* Description */
-    object_desc(o_name, o_ptr, 0);
-
-    /* Describe */
-    msg_format("Examining %s...", o_name);
-
-    /* Describe it fully */
-    if (!screen_object(o_ptr, SCROBJ_FORCE_DETAIL)) msg_print("You see nothing special.");
 }
 
 
@@ -683,22 +673,15 @@ void do_cmd_uninscribe(void)
  */
 void do_cmd_inscribe(void)
 {
-    int            item;
-
-    object_type        *o_ptr;
-
-    char        o_name[MAX_NLEN];
-
-    char        out_val[80];
-
-    cptr q, s;
+    int          item;
+    object_type *o_ptr;
+    char         o_name[MAX_NLEN];
+    char         out_val[80];
 
     item_tester_no_ryoute = TRUE;
     /* Get an item */
-    q = "Inscribe which item? ";
-    s = "You have nothing to inscribe.";
 
-    if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+    if (!get_item(&item, "Inscribe which item? ", "You have nothing to inscribe.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
     /* Get the item (in the pack) */
     if (item >= 0)
@@ -713,12 +696,10 @@ void do_cmd_inscribe(void)
     }
 
     /* Describe the activity */
-    object_desc(o_name, o_ptr, OD_OMIT_INSCRIPTION);
+    object_desc(o_name, o_ptr, OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
 
     /* Message */
     msg_format("Inscribing %s.", o_name);
-
-    msg_print(NULL);
 
     /* Start with nothing */
     strcpy(out_val, "");
@@ -731,7 +712,7 @@ void do_cmd_inscribe(void)
     }
 
     /* Get a new inscription (possibly empty) */
-    if (get_string("Inscription: ", out_val, 80))
+    if (cmsg_input(TERM_YELLOW, "Inscription: ", out_val, 80))
     {
         /* Save the inscription */
         o_ptr->inscription = quark_add(out_val);
@@ -917,8 +898,18 @@ void do_cmd_target(void)
     /* Target set */
     if (target_set(TARGET_KILL))
     {
-        msg_print("Target Selected.");
+        if (target_who > 0)
+        {
+            monster_type *m_ptr = &m_list[target_who];
+            char          m_name[MAX_NLEN];
 
+            monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+            msg_format("Targetting %s.", m_name);
+        }
+        else
+        {
+            msg_format("Targetting Position %d, %d.", target_row, target_col);
+        }
     }
 
     /* Target aborted */
@@ -951,30 +942,22 @@ void do_cmd_look(void)
  */
 void do_cmd_locate(void)
 {
-    int        dir, y1, x1, y2, x2;
-
+    int     dir, y1, x1, y2, x2;
     char    tmp_val[80];
-
     char    out_val[160];
-
-    int wid, hgt;
-
-    /* Get size */
-    get_screen_size(&wid, &hgt);
-
+    rect_t  map_rect = ui_map_rect();
 
     /* Start at current panel */
-    y2 = y1 = panel_row_min;
-    x2 = x1 = panel_col_min;
+    y2 = y1 = viewport_origin.y;
+    x2 = x1 = viewport_origin.x;
 
     /* Show panels until done */
     while (1)
     {
         /* Describe the location */
-        if ((y2 == y1) && (x2 == x1))
+        if (y2 == y1 && x2 == x1)
         {
             tmp_val[0] = '\0';
-
         }
         else
         {
@@ -986,10 +969,10 @@ void do_cmd_locate(void)
 
         /* Prepare to ask which way to look */
         sprintf(out_val,
-            "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
+            "Map sector [%d(%02d),%d(%02d)], which is%s your sector. Direction?",
 
-            y2 / (hgt / 2), y2 % (hgt / 2),
-            x2 / (wid / 2), x2 % (wid / 2), tmp_val);
+            y2 / (map_rect.cy / 2), y2 % (map_rect.cy / 2),
+            x2 / (map_rect.cx / 2), x2 % (map_rect.cx / 2), tmp_val);
 
         /* Assume no direction */
         dir = 0;
@@ -1014,27 +997,18 @@ void do_cmd_locate(void)
         if (!dir) break;
 
         /* Apply the motion */
-        if (change_panel(ddy[dir], ddx[dir]))
+        if (viewport_scroll(ddy[dir], ddx[dir]))
         {
-            y2 = panel_row_min;
-            x2 = panel_col_min;
+            y2 = viewport_origin.y;
+            x2 = viewport_origin.x;
         }
     }
 
+    viewport_verify();
 
-    /* Recenter the map around the player */
-    verify_panel();
-
-    /* Update stuff */
-    p_ptr->update |= (PU_MONSTERS);
-
-    /* Redraw map */
-    p_ptr->redraw |= (PR_MAP);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-    /* Handle stuff */
+    p_ptr->update |= PU_MONSTERS;
+    p_ptr->redraw |= PR_MAP;
+    p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
     handle_stuff();
 }
 
@@ -1401,245 +1375,1154 @@ void do_cmd_query_symbol(void)
     prt(buf, 0, 0);
 }
 
+/* Display a List of Nearby Monsters
+   Idea from Vanilla 3.5, but recoded from scratch and enhanced.
+   The list is scrollable and displays the current target.
+   You can invoke monster recall.
+   You can change the current target.
+   You can travel to a given monster.
+   You can rename your pets.
+   You can view info when probing.
+
+   Apologies: MON_LIST_PROBING is a giant, ugly hack, but the old
+   probing code was a carpal tunnel death trap in a crowded room.*/
 struct _mon_list_info_s 
 {
+    int group;
+    int subgroup;
     int r_idx;
+    int level;
+    int m_idx;   /* Allows Targetting for Groups of One */
     int ct_total;
     int ct_awake;
     int ct_los;
+    int dx, dy;
+    int dis;
+    bool target; /* Current target is in this group, in which case, m_idx is the target.
+                    Otherwise, m_idx is the monster in this group that is closest to
+                    the player. */
 };
 
-typedef struct _mon_list_info_s _mon_list_info_t;
-typedef _mon_list_info_t *_mon_list_info_ptr;
+typedef struct _mon_list_info_s _mon_list_info_t, *_mon_list_info_ptr;
 
-static bool _compare_r_level(vptr u, vptr v, int a, int b)
+static _mon_list_info_ptr _mon_list_info_alloc(void)
 {
-    int *order = (int*)u;
-    int left = order[a];
-    int right = order[b];
-    return r_info[left].level >= r_info[right].level;
+    _mon_list_info_ptr result = malloc(sizeof(_mon_list_info_t));
+    memset(result, 0, sizeof(_mon_list_info_t));
+    return result;
 }
 
-static void _swap_int(vptr u, vptr v, int a, int b)
+struct _mon_list_s
 {
-    int *order = (int*)u;
-    int tmp = order[a];
-    order[a] = order[b];
-    order[b] = tmp;
+    vec_ptr list;
+    int     ct_total;
+    int     ct_los;
+    int     ct_awake;
+};
+
+typedef struct _mon_list_s _mon_list_t, *_mon_list_ptr;
+
+static _mon_list_ptr _mon_list_alloc(void)
+{
+    _mon_list_ptr result = malloc(sizeof(_mon_list_t));
+    result->list = vec_alloc(free);
+    result->ct_total = 0;
+    result->ct_los = 0;
+    result->ct_awake = 0;
+    return result;
 }
 
-/* Idea borrowed from Vanilla 3.5, but recoded from scratch ... */
-void do_cmd_list_monsters(void)
+static void _mon_list_free(_mon_list_ptr list)
 {
-    int         i, ct_types, ct_total = 0;
-    int_map_ptr info = int_map_alloc(free);
-    
-    /* Collect */
+    vec_free(list->list);
+    list->list = NULL;
+    free(list);
+}
+
+#define _GROUP_LOS   1
+#define _GROUP_AWARE 2
+
+#define _SUBGROUP_HEADER 1
+#define _SUBGROUP_DATA   2
+#define _SUBGROUP_FOOTER 3
+
+static int _mon_list_comp(_mon_list_info_ptr left, _mon_list_info_ptr right)
+{
+    if (left->group < right->group)
+        return -1;
+    if (left->group > right->group)
+        return 1;
+
+    if (left->subgroup < right->subgroup)
+        return -1;
+    if (left->subgroup > right->subgroup)
+        return 1;
+
+    if (left->level > right->level)
+        return -1;
+    else if (left->level < right->level)
+        return 1;
+
+    if (left->dis < right->dis)
+        return -1;
+    else if (left->dis > right->dis)
+        return 1;
+
+    return 0;
+}
+
+static _mon_list_ptr _create_monster_list(int mode)
+{
+    int              i;
+    _mon_list_ptr    result = _mon_list_alloc();
+    int_map_ptr      map = int_map_alloc(NULL);
+    int_map_iter_ptr iter;
+    int              ct_los_awake = 0, ct_other_awake = 0;
+
+    /* Group all aware monsters by kind. */
     for (i = 0; i < max_m_idx; i++)
     {
-        const monster_type *m_ptr = &m_list[i];
+        monster_type       *m_ptr = &m_list[i];
+        int                 key;
+        bool                los;
+        int                 r_idx = m_ptr->ap_r_idx;
         _mon_list_info_ptr  info_ptr;
-        
-        if (!m_ptr->ap_r_idx) continue;
+
+        if (!r_idx) continue;
         if (!m_ptr->ml) continue;
 
-        info_ptr = int_map_find(info, m_ptr->ap_r_idx);
+        los = projectable(py, px, m_ptr->fy, m_ptr->fx);
+        if (mode == MON_LIST_PROBING) /* No grouping and only display los monsters */
+        {
+            if (!los) continue;
+            if (!is_original_ap(m_ptr))
+            {
+                if (m_ptr->mflag2 & MFLAG2_KAGE)
+                    m_ptr->mflag2 &= ~(MFLAG2_KAGE);
+
+                m_ptr->ap_r_idx = m_ptr->r_idx;
+                lite_spot(m_ptr->fy, m_ptr->fx);
+            }
+            lore_do_probe(m_ptr->r_idx);
+            key = i;
+        }
+        else
+            key = los ? -r_idx : r_idx;
+
+        info_ptr = int_map_find(map, key);
         if (!info_ptr)
         {
-            info_ptr = malloc(sizeof(_mon_list_info_t));
-            info_ptr->r_idx = m_ptr->ap_r_idx;
-            info_ptr->ct_total = 0;
-            info_ptr->ct_awake = 0;
-            info_ptr->ct_los = 0;
-            
-            int_map_add(info, m_ptr->ap_r_idx, info_ptr);
+            monster_race *r_ptr = &r_info[r_idx];
+
+            info_ptr = _mon_list_info_alloc();
+
+            info_ptr->group = los ? _GROUP_LOS : _GROUP_AWARE;
+            info_ptr->subgroup = _SUBGROUP_DATA;
+            info_ptr->r_idx = r_idx;
+            info_ptr->m_idx = i;
+            info_ptr->level = r_ptr->level;
+            info_ptr->dy = m_ptr->fy - py;
+            info_ptr->dx = m_ptr->fx - px;
+            info_ptr->dis = m_ptr->cdis;
+
+            int_map_add(map, key, info_ptr);
         }
 
         assert(info_ptr);
         info_ptr->ct_total++;
-        ct_total++;
+        result->ct_total++;
 
-        if (!MON_CSLEEP(m_ptr)) info_ptr->ct_awake++;
-        if (projectable(py, px, m_ptr->fy, m_ptr->fx)) info_ptr->ct_los++;
-    }
-    
-    ct_types = int_map_count(info);
-    if (ct_types)
-    {
-        int_map_iter_ptr  iter;
-        int              *order;
-        int               cx, cy, row = 1, col;
-
-        /* Sort */
-        C_MAKE(order, ct_types, int);
-
-        i = 0;
-        for (iter = int_map_iter_alloc(info); 
-                int_map_iter_is_valid(iter); 
-                int_map_iter_next(iter))
+        if (target_who == i)
         {
-            _mon_list_info_ptr info_ptr = int_map_iter_current(iter);
-            order[i++] = info_ptr->r_idx;
+            info_ptr->m_idx = i;
+            info_ptr->dy = m_ptr->fy - py;
+            info_ptr->dx = m_ptr->fx - px;
+            info_ptr->dis = m_ptr->cdis;
+            info_ptr->target = TRUE;
         }
-        int_map_iter_free(iter);
-
-        ang_sort_comp = _compare_r_level;
-        ang_sort_swap = _swap_int;
-        ang_sort(order, NULL, ct_types);
-
-        /* Display */
-        Term_get_size(&cx, &cy);
-        col = cx - 52;
-        screen_save();
-        c_prt(TERM_WHITE, format("You see %d monster%s", ct_total, ct_total != 1 ? "s" : ""), 0, col);
-        for (i = 0; i < ct_types; i++)
+        else if (m_ptr->cdis < info_ptr->dis && !info_ptr->target)
         {
-            int                 r_idx = order[i];
-            const monster_race *r_ptr = &r_info[r_idx];
-            byte                attr = TERM_WHITE;
-            _mon_list_info_ptr  info_ptr = int_map_find(info, r_idx);
-            char                buf[100];
+            info_ptr->m_idx = i;
+            info_ptr->dy = m_ptr->fy - py;
+            info_ptr->dx = m_ptr->fx - px;
+            info_ptr->dis = m_ptr->cdis;
+        }
 
-            assert(info_ptr);
+        if (!MON_CSLEEP(m_ptr))
+        {
+            info_ptr->ct_awake++;
+            result->ct_awake++;
+            if (los)
+                ct_los_awake++;
+            else
+                ct_other_awake++;
+        }
+        if (los)
+        {
+            info_ptr->ct_los++;
+            result->ct_los++;
+        }
+    }
 
-            Term_erase(col - 1, row, 53);
+    /* Insert Dummy Groups if Needed and Sort */
+    if (result->ct_los)
+    {
+        _mon_list_info_ptr info_ptr = _mon_list_info_alloc();
+        info_ptr->group = _GROUP_LOS;
+        info_ptr->subgroup = _SUBGROUP_HEADER;
+        info_ptr->ct_total = result->ct_los;
+        info_ptr->ct_los = result->ct_los;
+        info_ptr->ct_awake = ct_los_awake;
+        vec_add(result->list, info_ptr);
 
-            if (row >= cy - 2) 
+        info_ptr = _mon_list_info_alloc();
+        info_ptr->group = _GROUP_LOS;
+        info_ptr->subgroup = _SUBGROUP_FOOTER;
+        vec_add(result->list, info_ptr);
+    }
+    if (result->ct_total - result->ct_los)
+    {
+        _mon_list_info_ptr info_ptr = _mon_list_info_alloc();
+        info_ptr->group = _GROUP_AWARE;
+        info_ptr->subgroup = _SUBGROUP_HEADER;
+        info_ptr->ct_total = result->ct_total - result->ct_los;
+        info_ptr->ct_awake = ct_other_awake;
+        vec_add(result->list, info_ptr);
+    }
+
+    for (iter = int_map_iter_alloc(map);
+            int_map_iter_is_valid(iter);
+            int_map_iter_next(iter) )
+    {
+        vec_add(result->list, int_map_iter_current(iter));
+    }
+    int_map_iter_free(iter);
+    int_map_free(map);
+
+    vec_sort(result->list, (vec_cmp_f)_mon_list_comp);
+    return result;
+}
+
+static int _draw_monster_list(_mon_list_ptr list, int top, rect_t rect, int mode)
+{
+    int     i;
+    int     cx_monster;
+    char    mon_fmt[50];
+    char    mon_fmt_ex[50];
+
+    cx_monster = rect.cx - 14;
+    if (cx_monster < 10)
+        cx_monster = 10;
+    sprintf(mon_fmt, "%%-%d.%ds", cx_monster, cx_monster);
+    sprintf(mon_fmt_ex, "%%-%d.%ds ", cx_monster + 10, cx_monster + 10);
+
+    for (i = 0; i < rect.cy; i++)
+    {
+        int                 idx = top + i;
+        _mon_list_info_ptr  info_ptr;
+
+        if (i >= vec_length(list->list)) break;
+
+        Term_erase(rect.x, rect.y + i, rect.cx);
+
+        info_ptr = vec_get(list->list, idx);
+        assert(info_ptr);
+
+        if (info_ptr->subgroup == _SUBGROUP_HEADER)
+        {
+            if (info_ptr->group == _GROUP_LOS)
             {
-                c_prt(TERM_YELLOW, "...", row++, col+2);
-                break;
+                c_put_str(TERM_WHITE,
+                      format("You %s %d monster%s, %d %s awake:",
+                             mode == MON_LIST_PROBING ? "probe" : "see",
+                             info_ptr->ct_los,
+                             info_ptr->ct_los != 1 ? "s" : "",
+                             info_ptr->ct_awake,
+                             info_ptr->ct_awake == 1 ? "is" : "are"),
+                      rect.y + i, rect.x);
             }
+            else if (info_ptr->group == _GROUP_AWARE)
+            {
+                c_put_str(TERM_WHITE,
+                      format("You are aware of %d %smonster%s, %d %s awake:",
+                             info_ptr->ct_total,
+                             list->ct_los ? "other " : "",
+                             info_ptr->ct_total != 1 ? "s" : "",
+                             info_ptr->ct_awake,
+                             info_ptr->ct_awake == 1 ? "is" : "are"),
+                      rect.y + i, rect.x);
+            }
+        }
+        else if (info_ptr->subgroup == _SUBGROUP_FOOTER)
+        {
+        }
+        else
+        {
+            const monster_race *r_ptr;
+            byte                attr = TERM_WHITE;
+            char                buf[100];
+            char                loc[100];
+
+            assert(info_ptr->r_idx > 0);
+            r_ptr = &r_info[info_ptr->r_idx];
 
             if (r_ptr->flags1 & RF1_UNIQUE)
                 attr = TERM_VIOLET;
-            else if (r_ptr->level > base_level)
-                attr = TERM_RED;                
             else if (!info_ptr->ct_awake)
-                attr = TERM_L_UMBER;
+                attr = TERM_L_DARK;
 
             if (info_ptr->ct_total == 1)
+            {
                 sprintf(buf, "%s", r_name + r_ptr->name);
+                if ((r_ptr->flags1 & RF1_UNIQUE) && !info_ptr->ct_awake)
+                    strcat(buf, " (asleep)");
+                sprintf(loc, "%c %2d %c %2d",
+                        (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
+                        (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
+            }
             else if (!info_ptr->ct_awake)
-                sprintf(buf, "%s (%d sleeping)", r_name + r_ptr->name, info_ptr->ct_total);
+                sprintf(buf, "%s (%d asleep)", r_name + r_ptr->name, info_ptr->ct_total);
             else if (info_ptr->ct_awake == info_ptr->ct_total)
                 sprintf(buf, "%s (%d awake)", r_name + r_ptr->name, info_ptr->ct_total);
             else
-                sprintf(buf, "%s (%d awake, %d sleeping)", r_name + r_ptr->name, 
+            {
+                sprintf(buf, "%s (%d awake, %d asleep)", r_name + r_ptr->name,
                     info_ptr->ct_awake, info_ptr->ct_total - info_ptr->ct_awake);
+            }
 
-            Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
-            c_put_str(attr, format(" %-50.50s", buf), row++, col+1);
+            Term_queue_bigchar(rect.x + 1, rect.y + i, r_ptr->x_attr, r_ptr->x_char, 0, 0);
+            if (info_ptr->ct_total == 1)
+            {
+                c_put_str(attr, format(mon_fmt, buf), rect.y + i, rect.x + 3);
+                c_put_str(TERM_WHITE, format("%-9.9s ", loc), rect.y + i, rect.x + 3 + cx_monster + 1);
+            }
+            else
+                c_put_str(attr, format(mon_fmt_ex, buf), rect.y + i, rect.x + 3);
+
+            if (info_ptr->target)
+                Term_putch(rect.x, rect.y + i, TERM_L_RED, '*');
+            else
+                Term_putch(rect.x, rect.y + i, TERM_WHITE, ' ');
         }
-        Term_erase(col - 1, row, 53);
-        c_prt(TERM_YELLOW, "Hit any key.", row, col+2);
-        inkey();
-        prt("", 0, 0);
-
-        screen_load();
-
-        C_KILL(order, ct_types, int);
     }
+    return i;
+}
+
+static byte _mon_health_color(monster_type *m_ptr)
+{
+    int pct = 100 * m_ptr->hp / m_ptr->maxhp;
+    if (pct >= 100) return 'G';
+    else if (pct >= 60) return 'y';
+    else if (pct >= 25) return 'o';
+    else if (pct >= 10) return 'R';
+    return 'r';
+}
+
+static byte _mon_exp_color(monster_type *m_ptr)
+{
+    return 'y';
+}
+
+static void _mon_display_probe(doc_ptr doc, int m_idx)
+{
+    monster_type *m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    int           speed;
+
+    speed = m_ptr->mspeed - 110;
+    if (MON_FAST(m_ptr)) speed += 10;
+    if (MON_SLOW(m_ptr)) speed -= 10;
+    if (m_ptr->nickname)
+        doc_printf(doc, "Name : <color:R>%13s</color>\n", quark_str(m_ptr->nickname));
+    doc_printf(doc, "Speed: <color:G>%+13d</color>\n", speed);
+    doc_printf(doc, "HP   : <color:%c>%6d</color>/<color:G>%6d</color>\n",
+        _mon_health_color(m_ptr),
+        m_ptr->hp,
+        m_ptr->maxhp
+    );
+    doc_printf(doc, "AC   : <color:G>%13d</color>\n", MON_AC(r_ptr, m_ptr));
+
+    if ((r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)) == (RF3_EVIL | RF3_GOOD))
+        doc_printf(doc, "Align: <color:B>%13.13s</color>\n", "Good&Evil");
+    else if (r_ptr->flags3 & RF3_EVIL)
+        doc_printf(doc, "Align: <color:r>%13.13s</color>\n", "Evil");
+    else if (r_ptr->flags3 & RF3_GOOD)
+        doc_printf(doc, "Align: <color:g>%13.13s</color>\n", "Good");
+    else if ((m_ptr->sub_align & (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD)) == (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD))
+        doc_printf(doc, "Align: <color:g>%s</color>\n", "neutral(good&evil)");
+    else if (m_ptr->sub_align & SUB_ALIGN_EVIL)
+        doc_printf(doc, "Align: <color:o>%13.13s</color>\n", "Neutral Evil");
+    else if (m_ptr->sub_align & SUB_ALIGN_GOOD)
+        doc_printf(doc, "Align: <color:G>%13.13s</color>\n", "Neutral Good");
+    else
+        doc_printf(doc, "Align: <color:w>%13.13s</color>\n", "Neutral");
+
+    if (r_ptr->next_r_idx)
+    {
+        doc_printf(doc, "Exp  : <color:%c>%6d</color>/<color:G>%6d</color>\n",
+            _mon_exp_color(m_ptr),
+            m_ptr->exp,
+            r_ptr->next_exp
+        );
+    }
+    if (p_ptr->riding == m_idx)
+        doc_printf(doc, "       <color:G>%13.13s</color>\n", "Riding");
+
+    if (is_pet(m_ptr))
+        doc_printf(doc, "       <color:G>%13.13s</color>\n", "Pet");
+    else if (is_friendly(m_ptr))
+        doc_printf(doc, "       <color:G>%13.13s</color>\n", "Friendly");
+
+    if (MON_CSLEEP(m_ptr))
+        doc_printf(doc, "       <color:b>%13.13s</color>\n", "Sleeping");
+
+    if (MON_STUNNED(m_ptr))
+        doc_printf(doc, "       <color:B>%13.13s</color>\n", "Stunned");
+
+    if (MON_MONFEAR(m_ptr))
+        doc_printf(doc, "       <color:v>%13.13s</color>\n", "Scared");
+
+    if (MON_CONFUSED(m_ptr))
+        doc_printf(doc, "       <color:U>%13.13s</color>\n", "Confused");
+
+    if (MON_INVULNER(m_ptr))
+        doc_printf(doc, "       <color:W>%13.13s</color>\n", "Invulnerable");
+
+}
+
+static void _list_monsters_aux(_mon_list_ptr list, rect_t display_rect, int mode)
+{
+    int  top = 0, page_size, pos = 1;
+    int  ct_types = vec_length(list->list);
+    bool done = FALSE;
+    bool redraw = TRUE;
+    int  cmd_queue[10]; /* A worthy hack!! */
+    int  q_pos = 0;
+    int  q_ct = 0;
+
+    page_size = display_rect.cy;
+    if (page_size > ct_types)
+        page_size = ct_types;
+
+    msg_line_clear();
+    screen_save();
+
+    while (!done)
+    {
+        int  cmd;
+
+        if (redraw)
+        {
+            int ct;
+            ct = _draw_monster_list(list, top, display_rect, mode);
+            Term_erase(display_rect.x, display_rect.y + ct, display_rect.cx);
+            if (mode == MON_LIST_PROBING)
+            {
+                c_put_str(TERM_L_BLUE, "['p' for Probing; ESC to Exit; ? for Help]",
+                        display_rect.y + ct, display_rect.x + 3);
+            }
+            else
+            {
+                c_put_str(TERM_L_BLUE, "[Press ESC to exit. Press ? for help]",
+                        display_rect.y + ct, display_rect.x + 3);
+            }
+            redraw = FALSE;
+        }
+        Term_gotoxy(display_rect.x, display_rect.y + pos);
+
+        if (q_pos < q_ct)
+            cmd = cmd_queue[q_pos++];
+        else
+            cmd = inkey_special(TRUE);
+
+        switch (cmd)
+        {
+        /* Monster Recall */
+        case 'r': case 'R':
+        {
+            int idx = top + pos;
+            if (0 <= idx && idx < ct_types)
+            {
+                _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
+                assert(info_ptr);
+                if (info_ptr->r_idx)
+                {
+                    screen_roff(info_ptr->r_idx, 0);
+                    inkey();
+                    screen_load();
+                    screen_save();
+                    redraw = TRUE;
+                }
+            }
+            break;
+        }
+        /* Probe Monster Info */
+        case 'p': case 'P':
+        {
+            if (mode == MON_LIST_PROBING)
+            {
+                int idx = top + pos;
+                if (0 <= idx && idx < ct_types)
+                {
+                    _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
+                    assert(info_ptr);
+                    if (info_ptr->m_idx)
+                    {
+                        doc_ptr   doc = doc_alloc(display_rect.cx);
+                        doc_pos_t loc = doc_pos_create(display_rect.x, display_rect.y + pos + 1);
+
+                        doc_insert(doc, "    <indent>");
+                        _mon_display_probe(doc, info_ptr->m_idx);
+                        doc_insert(doc, "</indent>\n<color:b>[</color><color:B>Up for Prev; Down for Next; Any Key to Exit</color><color:b>]</color>\n");
+
+                        if (doc_cursor(doc).y + loc.y >= Term->hgt)
+                            loc.y = Term->hgt - doc_cursor(doc).y;
+
+                        doc_sync_term(doc, doc_range_all(doc), loc);
+
+                        /* Get a key, but don't waste it! Use arrows to travel up
+                           and down and display probe info for next/prev monster */
+                        cmd = inkey_special(TRUE);
+                        if (cmd == '2' || cmd == SKEY_DOWN)
+                        {
+                            cmd_queue[0] = '2';
+                            cmd_queue[1] = 'p';
+                            q_ct = 2;
+                            q_pos = 0;
+                        }
+                        else if (cmd == '8' || cmd == SKEY_UP)
+                        {
+                            cmd_queue[0] = '8';
+                            cmd_queue[1] = 'p';
+                            q_ct = 2;
+                            q_pos = 0;
+                        }
+                        else if (cmd == 'n' || cmd == 'N')
+                        {
+                            cmd_queue[0] = 'n';
+                            cmd_queue[1] = 'p';
+                            q_ct = 2;
+                            q_pos = 0;
+                        }
+
+                        doc_free(doc);
+                        screen_load();
+                        screen_save();
+                        redraw = TRUE;
+                    }
+                }
+            }
+            break;
+        }
+        /* Rename Pet */
+        case 'n': case 'N':
+        {
+            int idx = top + pos;
+            if (0 <= idx && idx < ct_types)
+            {
+                _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
+                assert(info_ptr);
+                if (info_ptr->m_idx)
+                {
+                    monster_type *m_ptr = &m_list[info_ptr->m_idx];
+                    if (is_pet(m_ptr))
+                    {
+                        char out_val[20];
+
+                        if (m_ptr->nickname)
+                            strcpy(out_val, quark_str(m_ptr->nickname));
+                        else
+                            strcpy(out_val, "");
+
+                        prt("Name : ", display_rect.y + pos + 1, display_rect.x);
+                        if (askfor(out_val, 15))
+                        {
+                            if (out_val[0])
+                                m_ptr->nickname = quark_add(out_val);
+                            else
+                                m_ptr->nickname = 0;
+                        }
+                        screen_load();
+                        screen_save();
+                        redraw = TRUE;
+                    }
+                }
+            }
+            break;
+        }
+        /* Set Current Target */
+        case '*': case 't': case '5':
+        {
+            int idx = top + pos;
+            if (0 <= idx && idx < ct_types)
+            {
+                _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
+                assert(info_ptr);
+                if ( info_ptr->r_idx
+                  && !info_ptr->target
+                  && target_able(info_ptr->m_idx) )
+                {
+                    health_track(info_ptr->m_idx);
+                    target_who = info_ptr->m_idx;
+                    target_row = m_list[info_ptr->m_idx].fy;
+                    target_col = m_list[info_ptr->m_idx].fx;
+                    p_ptr->redraw |= PR_HEALTH_BARS;
+                    p_ptr->window |= PW_MONSTER_LIST;
+                    done = TRUE; /* Building a better target command :) */
+                }
+            }
+            break;
+        }
+        /* Travel to Location */
+        case '`':
+        {
+            int idx = top + pos;
+            if (0 <= idx && idx < ct_types)
+            {
+                _mon_list_info_ptr info_ptr = vec_get(list->list, idx);
+                assert(info_ptr);
+                if (info_ptr->m_idx)
+                {
+                    do_cmd_travel_xy(m_list[info_ptr->m_idx].fx, m_list[info_ptr->m_idx].fy);
+                    done = TRUE;
+                }
+            }
+            break;
+        }
+        /* Navigate the List */
+        case '7': case SKEY_TOP:
+            top = 0;
+            pos = 0;
+            redraw = TRUE;
+            break;
+        case '1': case SKEY_BOTTOM:
+            top = MAX(0, ct_types - page_size);
+            pos = 0;
+            redraw = TRUE;
+            break;
+        case '9': case SKEY_PGUP:
+            top -= page_size;
+            if (top < 0)
+            {
+                top = 0;
+                pos = 0;
+            }
+            redraw = TRUE;
+            break;
+        case '3': case SKEY_PGDOWN:
+            top += page_size;
+            if (top > ct_types - page_size)
+            {
+                top = MAX(0, ct_types - page_size);
+                pos = 0;
+            }
+            redraw = TRUE;
+            break;
+        case '2': case SKEY_DOWN:
+            if (top + pos < ct_types - 1)
+                pos++;
+
+            if (pos == page_size)
+            {
+                pos--;
+                top++;
+                redraw = TRUE;
+            }
+            break;
+        case '8': case SKEY_UP:
+            if (pos > 0)
+                pos--;
+
+            if (pos == 0 && top > 0)
+            {
+                top--;
+                redraw = TRUE;
+            }
+            break;
+        /* Help */
+        case '?':
+            doc_display_help("context_monster_list.txt", NULL);
+            screen_load();
+            screen_save();
+            redraw = TRUE;
+            break;
+        /* Exit */
+        case ESCAPE:
+        case 'q':
+        case 'Q':
+        case '\n':
+        case '\r':
+            done = TRUE;
+            break;
+        /* Exit on unknown key? */
+        default:
+            if (mode != MON_LIST_PROBING) /* Hey, it cost mana to get here! */
+                done = TRUE;
+        }
+    }
+    screen_load();
+}
+
+void do_cmd_list_monsters(int mode)
+{
+    _mon_list_ptr list = _create_monster_list(mode);
+    rect_t        display_rect = ui_menu_rect();
+
+    if (display_rect.cx > 50)
+        display_rect.cx = 50;
+    
+    if (list->ct_total)
+        _list_monsters_aux(list, display_rect, mode);
     else
         msg_print("You see no visible monsters.");
 
-    int_map_free(info);
+    _mon_list_free(list);
 }
 
-static bool _compare_obj_list_info(vptr u, vptr v, int a, int b)
+void _fix_monster_list_aux(void)
 {
-    int         *vec = (int*)u;
-    int          left_idx = vec[a];
-    int          right_idx = vec[b];
-    object_type *left_obj = &o_list[left_idx];
-    object_type *right_obj = &o_list[right_idx];
+    _mon_list_ptr list = _create_monster_list(MON_LIST_NORMAL);
+    rect_t        display_rect = {0};
+    int           ct = 0, i;
 
-    /* Hack -- readable books always come first */
-    if (left_obj->tval == REALM1_BOOK && right_obj->tval != REALM1_BOOK) return TRUE;
-    if (right_obj->tval == REALM1_BOOK && left_obj->tval != REALM1_BOOK) return FALSE;
+    Term_get_size(&display_rect.cx, &display_rect.cy);
 
-    if (left_obj->tval == REALM2_BOOK && right_obj->tval != REALM2_BOOK) return TRUE;
-    if (right_obj->tval == REALM2_BOOK && left_obj->tval != REALM2_BOOK) return FALSE;
+    if (list->ct_total)
+        ct = _draw_monster_list(list, 0, display_rect, MON_LIST_NORMAL);
 
-    /* Objects sort by decreasing type */
-    if (left_obj->tval > right_obj->tval) return TRUE;
-    if (left_obj->tval < right_obj->tval) return FALSE;
+    for (i = ct; i < display_rect.cy; i++)
+        Term_erase(display_rect.x, display_rect.y + i, display_rect.cx);
 
-    /* Objects sort by increasing sval */
-    if (left_obj->sval < right_obj->sval) return TRUE;
-    if (left_obj->sval > right_obj->sval) return FALSE;
-
-    return TRUE;
+    _mon_list_free(list);
 }
 
-#define _MAX_OBJ_LIST 100
-
-void do_cmd_list_objects(void)
+void fix_monster_list(void)
 {
-    int list[_MAX_OBJ_LIST];
-    int i, ct = 0;
-    int cx, cy, row = 1, col;
+    int j;
+    for (j = 0; j < 8; j++)
+    {
+        term *old = Term;
+
+        if (!angband_term[j]) continue;
+        if (!(window_flag[j] & PW_MONSTER_LIST)) continue;
+
+        Term_activate(angband_term[j]);
+
+        _fix_monster_list_aux();
+
+        Term_fresh();
+        Term_activate(old);
+    }
+}
+
+/* Display a List of Nearby Objects
+   Idea from Vanilla 3.5, but recoded from scratch ... */
+
+struct _obj_list_info_s
+{
+    int group;
+    int subgroup;
+    int o_idx;
+    int  x,  y;
+    int dx, dy;
+    int score;
+    int count;
+};
+typedef struct _obj_list_info_s _obj_list_info_t, *_obj_list_info_ptr;
+
+static _obj_list_info_ptr _obj_list_info_alloc(void)
+{
+    _obj_list_info_ptr result = malloc(sizeof(_obj_list_info_t));
+    memset(result, 0, sizeof(_obj_list_info_t));
+    return result;
+}
+
+struct _obj_list_s
+{
+    vec_ptr list;
+    int     ct_autopick;
+    int     ct_total;
+};
+
+typedef struct _obj_list_s _obj_list_t, *_obj_list_ptr;
+
+static _obj_list_ptr _obj_list_alloc(void)
+{
+    _obj_list_ptr result = malloc(sizeof(_obj_list_t));
+    result->list = vec_alloc(free);
+    result->ct_autopick = 0;
+    result->ct_total = 0;
+    return result;
+}
+
+static void _obj_list_free(_obj_list_ptr list)
+{
+    vec_free(list->list);
+    list->list = NULL;
+    free(list);
+}
+
+#define _GROUP_AUTOPICK 1
+#define _GROUP_OTHER    2
+
+static int _obj_list_comp(_obj_list_info_ptr left, _obj_list_info_ptr right)
+{
+    if (left->group < right->group)
+        return -1;
+    if (left->group > right->group)
+        return 1;
+
+    if (left->subgroup < right->subgroup)
+        return -1;
+    if (left->subgroup > right->subgroup)
+        return 1;
+
+    if (left->score > right->score)
+        return -1;
+    if (left->score < right->score)
+        return 1;
+
+    {
+        object_type *left_obj = &o_list[left->o_idx];
+        object_type *right_obj = &o_list[right->o_idx];
+
+        if (left_obj->tval < right_obj->tval)
+            return -1;
+        if (left_obj->tval > right_obj->tval)
+            return 1;
+    }
+
+    return 0;
+}
+
+static _obj_list_ptr _create_obj_list(void)
+{
+    _obj_list_ptr list = _obj_list_alloc();
+    int i;
 
     for (i = 0; i < max_o_idx; i++)
     {
-        object_type *o_ptr = &o_list[i];
-        int          auto_pick_idx;
+        object_type       *o_ptr = &o_list[i];
+        _obj_list_info_ptr info;
+        int                auto_pick_idx;
 
         if (!o_ptr->k_idx) continue;
         if (!(o_ptr->marked & OM_FOUND)) continue;
         if (o_ptr->tval == TV_GOLD) continue;
-        if (ct >= _MAX_OBJ_LIST) break;
+
+        info = _obj_list_info_alloc();
+        info->subgroup = _SUBGROUP_DATA;
+        info->o_idx = i;
+        info->x = o_ptr->ix;
+        info->y = o_ptr->iy;
+        info->dy = info->y - py;
+        info->dx = info->x - px;
+        info->score = object_value(o_ptr);
+        info->count = o_ptr->number;
 
         auto_pick_idx = is_autopick(o_ptr);
-
-        if (!p_ptr->wizard)
+        if ( auto_pick_idx >= 0
+          && (autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)) )
         {
-            if (auto_pick_idx < 0) continue;
-            if (!(autopick_list[auto_pick_idx].action & DO_DISPLAY)) continue;
-            if (!(autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK | DONT_AUTOPICK))) continue;
+            info->group = _GROUP_AUTOPICK;
+            list->ct_autopick += o_ptr->number;
         }
-        list[ct++] = i;
+        else
+            info->group = _GROUP_OTHER;
+
+        vec_add(list->list, info);
+        list->ct_total += o_ptr->number;
     }
 
-    if (!ct)
+    /* Add Headings and Sort */
+    if (list->ct_autopick)
     {
-        msg_print("No objects match your pickup preferences.");
-        return;
+        _obj_list_info_ptr info = _obj_list_info_alloc();
+        info->group = _GROUP_AUTOPICK;
+        info->subgroup = _SUBGROUP_HEADER;
+        info->count = list->ct_autopick;
+        vec_add(list->list, info);
+
+        info = _obj_list_info_alloc();
+        info->group = _GROUP_AUTOPICK;
+        info->subgroup = _SUBGROUP_FOOTER;
+        vec_add(list->list, info);
     }
-
-    ang_sort_comp = _compare_obj_list_info;
-    ang_sort_swap = _swap_int;
-    ang_sort(list, NULL, ct);
-
-    Term_get_size(&cx, &cy);
-    col = cx - 52;
-    screen_save();
-    c_prt(TERM_WHITE, format("%d object%s match your pickup preferences", ct, ct != 1 ? "s" : ""), 0, col);
-    for (i = 0; i < ct; i++)
+    if (list->ct_total - list->ct_autopick)
     {
-        char         o_name[MAX_NLEN];
-        object_type *o_ptr = &o_list[list[i]];
-        byte         a = object_attr(o_ptr);
-        char         c = object_char(o_ptr);
-        byte         attr = TERM_WHITE;
+        _obj_list_info_ptr info = _obj_list_info_alloc();
+        info->group = _GROUP_OTHER;
+        info->subgroup = _SUBGROUP_HEADER;
+        info->count = list->ct_total - list->ct_autopick;
+        vec_add(list->list, info);
+    }
+    vec_sort(list->list, (vec_cmp_f)_obj_list_comp);
 
-        Term_erase(col - 1, row, 53);
+    return list;
+}
 
-        if (row >= cy - 2) 
+static int _draw_obj_list(_obj_list_ptr list, int top, rect_t rect)
+{
+    int     i;
+    int     cx_obj;
+    char    obj_fmt[50];
+
+    cx_obj = rect.cx - 14;
+    if (cx_obj < 10)
+        cx_obj = 10;
+    sprintf(obj_fmt, "%%-%d.%ds", cx_obj, cx_obj);
+
+    for (i = 0; i < rect.cy; i++)
+    {
+        int                 idx = top + i;
+        _obj_list_info_ptr  info_ptr;
+
+        if (i >= vec_length(list->list)) break;
+
+        Term_erase(rect.x, rect.y + i, rect.cx);
+
+        info_ptr = vec_get(list->list, idx);
+        assert(info_ptr);
+
+        if (info_ptr->subgroup == _SUBGROUP_HEADER)
         {
-            c_prt(TERM_YELLOW, "...", row++, col+2);
-            break;
+            if (info_ptr->group == _GROUP_AUTOPICK)
+            {
+                c_put_str(TERM_WHITE,
+                      format("There %s %d wanted object%s:",
+                             info_ptr->count != 1 ? "are" : "is",
+                             info_ptr->count,
+                             info_ptr->count != 1 ? "s" : ""),
+                      rect.y + i, rect.x);
+            }
+            else
+            {
+                c_put_str(TERM_WHITE,
+                      format("There %s %d %sobject%s:",
+                             info_ptr->count != 1 ? "are" : "is",
+                             info_ptr->count,
+                             list->ct_autopick ? "other " : "",
+                             info_ptr->count != 1 ? "s" : ""),
+                      rect.y + i, rect.x);
+            }
         }
+        else if (info_ptr->subgroup == _SUBGROUP_FOOTER)
+        {
+        }
+        else
+        {
+            object_type *o_ptr = &o_list[info_ptr->o_idx];
+            char         o_name[MAX_NLEN];
+            char         loc[100];
+            byte         attr = tval_to_attr[o_ptr->tval % 128];
+            byte         a = object_attr(o_ptr);
+            char         c = object_char(o_ptr);
 
-        object_desc(o_name, o_ptr, 0);
-        attr = tval_to_attr[o_ptr->tval % 128];
-
-        Term_queue_bigchar(col, row, a, c, 0, 0);
-        c_put_str(attr, format(" %-50.50s", o_name), row++, col+1);
+            object_desc(o_name, o_ptr, 0);
+            sprintf(loc, "%c%3d %c%3d",
+                    (info_ptr->dy > 0) ? 'S' : 'N', abs(info_ptr->dy),
+                    (info_ptr->dx > 0) ? 'E' : 'W', abs(info_ptr->dx));
+            Term_queue_bigchar(rect.x + 1, rect.y + i, a, c, 0, 0);
+            c_put_str(attr, format(obj_fmt, o_name), rect.y + i, rect.x + 3);
+            if (p_ptr->wizard)
+                c_put_str(TERM_WHITE, format("%6d %6d ", info_ptr->score, object_value_real(o_ptr)), rect.y + i, rect.x + 3 + cx_obj + 1);
+            else
+                c_put_str(TERM_WHITE, format("%-9.9s ", loc), rect.y + i, rect.x + 3 + cx_obj + 1);
+        }
     }
-    Term_erase(col - 1, row, 53);
-    c_prt(TERM_YELLOW, "Hit any key.", row, col+2);
-    inkey();
-    prt("", 0, 0);
+    return i;
+}
 
-    screen_load();
+void do_cmd_list_objects(void)
+{
+    _obj_list_ptr list = _create_obj_list();
+    rect_t        display_rect = ui_menu_rect();
+
+    if (display_rect.cx > 50)
+        display_rect.cx = 50;
+
+    if (list->ct_total)
+    {
+        int  top = 0, page_size, pos = 1;
+        int  ct_types = vec_length(list->list);
+        bool done = FALSE;
+        bool redraw = TRUE;
+
+        page_size = display_rect.cy;
+        if (page_size > ct_types)
+            page_size = ct_types;
+
+        msg_line_clear();
+        screen_save();
+
+        while (!done)
+        {
+            int cmd;
+
+            if (redraw)
+            {
+                int ct;
+                ct = _draw_obj_list(list, top, display_rect);
+                Term_erase(display_rect.x, display_rect.y + ct, display_rect.cx);
+                c_put_str(TERM_L_BLUE, "[Press ESC to exit. Press ? for help]",
+                        display_rect.y + ct, display_rect.x + 3);
+                redraw = FALSE;
+            }
+            Term_gotoxy(display_rect.x, display_rect.y + pos);
+
+            cmd = inkey_special(TRUE);
+            switch (cmd)
+            {
+            case '?':
+                doc_display_help("context_object_list.txt", NULL);
+                screen_load();
+                screen_save();
+                redraw = TRUE;
+                break;
+            case ESCAPE:
+            case 'q':
+            case 'Q':
+            case '\n':
+            case '\r':
+                done = TRUE;
+                break;
+            case 'x':
+            case 'I':
+            {
+                int idx = top + pos;
+                if (0 <= idx && idx < ct_types)
+                {
+                    _obj_list_info_ptr info_ptr = vec_get(list->list, idx);
+                    assert(info_ptr);
+                    if (info_ptr->o_idx)
+                    {
+                        object_type *o_ptr = &o_list[info_ptr->o_idx];
+                        if (object_is_weapon_armour_ammo(o_ptr) || object_is_known(o_ptr))
+                        {
+                            obj_display(o_ptr);
+                            screen_load();
+                            screen_save();
+                            redraw = TRUE;
+                        }
+                    }
+                }
+                break;
+            }
+            case '`':
+            {
+                int idx = top + pos;
+                if (0 <= idx && idx < ct_types)
+                {
+                    _obj_list_info_ptr info_ptr = vec_get(list->list, idx);
+                    assert(info_ptr);
+                    if (info_ptr->o_idx)
+                    {
+                        do_cmd_travel_xy(info_ptr->x, info_ptr->y);
+                        done = TRUE;
+                    }
+                }
+                break;
+            }
+            case SKEY_TOP:
+            case '7':
+                top = 0;
+                pos = 0;
+                redraw = TRUE;
+                break;
+            case SKEY_BOTTOM:
+            case '1':
+                top = MAX(0, ct_types - page_size);
+                pos = 0;
+                redraw = TRUE;
+                break;
+            case SKEY_PGUP:
+            case '9':
+                top -= page_size;
+                if (top < 0)
+                {
+                    top = 0;
+                    pos = 0;
+                }
+                redraw = TRUE;
+                break;
+            case SKEY_PGDOWN:
+            case '3':
+                top += page_size;
+                if (top > ct_types - page_size)
+                {
+                    top = MAX(0, ct_types - page_size);
+                    pos = 0;
+                }
+                redraw = TRUE;
+                break;
+            case SKEY_DOWN:
+            case '2':
+                if (top + pos < ct_types - 1)
+                    pos++;
+
+                if (pos == page_size)
+                {
+                    pos--;
+                    top++;
+                    redraw = TRUE;
+                }
+                break;
+            case SKEY_UP:
+            case '8':
+                if (pos > 0)
+                    pos--;
+
+                if (pos == 0 && top > 0)
+                {
+                    top--;
+                    redraw = TRUE;
+                }
+                break;
+
+            default:
+                done = TRUE;
+            }
+        }
+        screen_load();
+    }
+    else
+        msg_print("You see no objects.");
+
+    _obj_list_free(list);
+}
+
+void _fix_object_list_aux(void)
+{
+    _obj_list_ptr list = _create_obj_list();
+    rect_t        display_rect = {0};
+    int           ct = 0, i;
+
+    Term_get_size(&display_rect.cx, &display_rect.cy);
+
+    if (list->ct_total)
+        ct = _draw_obj_list(list, 0, display_rect);
+
+    for (i = ct; i < display_rect.cy; i++)
+        Term_erase(display_rect.x, display_rect.y + i, display_rect.cx);
+
+    _obj_list_free(list);
+}
+
+void fix_object_list(void)
+{
+    int j;
+    for (j = 0; j < 8; j++)
+    {
+        term *old = Term;
+
+        if (!angband_term[j]) continue;
+        if (!(window_flag[j] & PW_OBJECT_LIST)) continue;
+
+        Term_activate(angband_term[j]);
+
+        _fix_object_list_aux();
+
+        Term_fresh();
+        Term_activate(old);
+    }
 }

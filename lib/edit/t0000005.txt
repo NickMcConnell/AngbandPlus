@@ -141,10 +141,8 @@ B:4:R:Lich:None
 B:4:R:Jelly:None
 
 B:8:N:Tower of Sorcery:Tanistil:Elf
-B:8:A:0:Recharge item:0:0:r:25:0
-B:8:A:1:Recharge all items:0:0:a:45:0
-B:8:A:2:Identify possessions:100:800:i:26:0
-B:8:A:3:Request quest:0:0:q:6:1
+B:8:A:0:Identify possessions:100:800:i:26:0
+B:8:A:1:Request quest:0:0:q:6:1
 B:8:M:*:None
 B:8:M:Sorcery:Owner
 

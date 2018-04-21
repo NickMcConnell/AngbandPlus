@@ -1,0 +1,20 @@
+Options
+
+Please choose one of the following online help files:
+
+    [a] Options
+    [b] Birth/Start-Up Options
+    [c] Input Options
+    [d] Map & Screen Options
+    [e] Text Display Options
+    [f] Game Play Options
+    [g] Disturbance Options
+    [h] Easy Auto-Destroyer Options
+    [i] Base Delay Factor
+    [j] Hitpoint Warning
+    [k] Autosave Options
+    [l] Window Flags
+    [m] Cheating Options
+
+    (?) Help System Commands
+

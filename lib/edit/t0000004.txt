@@ -177,9 +177,7 @@ B:7:C:Blood-Knight:Owner
 B:7:C:Mauler:Owner
 
 B:8:N:Wizards Tower:Valceronwe:Sprite
-B:8:A:0:Recharge item:0:0:r:25:0
-B:8:A:1:Recharge all items:0:0:a:45:0
-B:8:A:2:Identify posessions:200:1000:i:26:0
+B:8:A:0:Identify posessions:200:1000:i:26:0
 B:8:C:*:None
 B:8:C:Mage:Owner
 B:8:C:High-Mage:Owner

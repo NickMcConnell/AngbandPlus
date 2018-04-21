@@ -8,7 +8,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -492,7 +492,7 @@ void rand_dir(int *rdir, int *cdir)
 }
 
 
-/* Function that sees if a square is a floor.  (Includes range checking.) */
+/* Function that sees if a square is a floor. (Includes range checking.) */
 bool get_is_floor(int x, int y)
 {
     if (!in_bounds(y, x))
@@ -508,7 +508,7 @@ bool get_is_floor(int x, int y)
 }
 
 
-/* Set a square to be floor.  (Includes range checking.) */
+/* Set a square to be floor. (Includes range checking.) */
 void set_floor(int x, int y)
 {
     if (!in_bounds(y, x))
@@ -891,11 +891,11 @@ static void create_cata_tunnel(int x, int y)
  * It is designed to use very simple algorithms to go from (x1,y1) to (x2,y2)
  * It doesn't need to add any complexity - straight lines are fine.
  * The SOLID walls are avoided by a recursive algorithm which tries random ways
- * around the obstical until it works.  The number of itterations is counted, and it
+ * around the obstical until it works. The number of itterations is counted, and it
  * this gets too large the routine exits. This should stop any crashes - but may leave
  * small gaps in the tunnel where there are too many SOLID walls.
  *
- * Type 1 tunnels are extremely simple - straight line from A to B.  This is only used
+ * Type 1 tunnels are extremely simple - straight line from A to B. This is only used
  * as a part of the dodge SOLID walls algorithm.
  *
  * Type 2 tunnels are made of two straight lines at right angles. When this is used with
@@ -1023,11 +1023,11 @@ static void short_seg_hack(int x1, int y1, int x2, int y2, int type, int count, 
  * Permanent rock is ignored in this path finding- sometimes there is no
  * path around anyway -so there will be a crash if we try to find one.
  * This routine is much like the river creation routine in Zangband.
- * It works by dividing a line segment into two.  The segments are divided
+ * It works by dividing a line segment into two. The segments are divided
  * until they are less than "cutoff" - when the corresponding routine from
  * "short_seg_hack" is called.
  * Note it is VERY important that the "stop if hit another passage" logic
- * stays as is.  Without this the dungeon turns into Swiss Cheese...
+ * stays as is. Without this the dungeon turns into Swiss Cheese...
  */
 bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 {

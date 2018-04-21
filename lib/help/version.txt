@@ -1,7 +1,7 @@
 === History of PosChengband ===
 
 PosChengband 1.0.0 Released
-
+-<color:D>crickets</color>
 
 PosChengband is a fork of the excellent variant Hengband.
 

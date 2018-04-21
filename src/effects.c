@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: effects of various "objects" */
@@ -24,7 +24,7 @@ void set_action(int typ)
         {
         case ACTION_SEARCH:
             msg_print("You no longer walk carefully.");
-            p_ptr->redraw |= (PR_SPEED);
+            p_ptr->redraw |= PR_EFFECTS;
             break;
         case ACTION_REST:
             resting = 0;
@@ -66,7 +66,7 @@ void set_action(int typ)
     {
     case ACTION_SEARCH:
         msg_print("You begin to walk carefully.");
-        p_ptr->redraw |= (PR_SPEED);
+        p_ptr->redraw |= PR_EFFECTS;
         break;
     case ACTION_LEARN:
         msg_print("You begin Learning");
@@ -699,10 +699,10 @@ bool set_mimic(int v, int p, bool do_dec)
         disturb(0, 0);
 
     /* Redraw title */
-    p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP | PR_EQUIPPY);
+    p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP | PR_EQUIPPY | PR_EFFECTS);
 
     /* Recalculate bonuses */
-    p_ptr->update |= (PU_BONUS | PU_HP);
+    p_ptr->update |= (PU_BONUS | PU_HP | PU_TORCH);
     handle_stuff();
 
     /* Result */
@@ -767,7 +767,7 @@ bool set_blind(int v, bool do_dec)
     p_ptr->blind = v;
 
     /* Redraw status bar */
-    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->redraw |= (PR_EFFECTS);
 
     /* Nothing to notice */
     if (!notice) return (FALSE);
@@ -867,8 +867,7 @@ bool set_confused(int v, bool do_dec)
     /* Use the value */
     p_ptr->confused = v;
 
-    /* Redraw status bar */
-    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->redraw |= PR_EFFECTS;
 
     /* Nothing to notice */
     if (!notice) return (FALSE);
@@ -921,8 +920,7 @@ bool set_poisoned(int v, bool do_dec)
     /* Use the value */
     p_ptr->poisoned = v;
 
-    /* Redraw status bar */
-    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->redraw |= PR_EFFECTS;
 
     /* Nothing to notice */
     if (!notice) return (FALSE);
@@ -1017,17 +1015,13 @@ bool set_paralyzed(int v, bool do_dec)
     /* Use the value */
     p_ptr->paralyzed = v;
 
-    /* Redraw status bar */
-    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->redraw |= (PR_EFFECTS);
 
     /* Nothing to notice */
     if (!notice) return (FALSE);
 
     /* Disturb */
     if (disturb_state) disturb(0, 0);
-
-    /* Redraw the state */
-    p_ptr->redraw |= (PR_STATE);
 
     /* Handle stuff */
     handle_stuff();
@@ -1088,7 +1082,7 @@ bool set_image(int v, bool do_dec)
     p_ptr->image = v;
 
     /* Redraw status bar */
-    p_ptr->redraw |= (PR_STATUS);
+    p_ptr->redraw |= PR_EFFECTS;
 
     /* Nothing to notice */
     if (!notice) return (FALSE);
@@ -1100,7 +1094,7 @@ bool set_image(int v, bool do_dec)
     p_ptr->redraw |= (PR_MAP);
 
     /* Update the health bar */
-    p_ptr->redraw |= (PR_HEALTH | PR_UHEALTH);
+    p_ptr->redraw |= PR_HEALTH_BARS;
 
     /* Update monsters */
     p_ptr->update |= (PU_MONSTERS);
@@ -1644,7 +1638,7 @@ bool set_tim_no_device(int v, bool do_dec)
     {
         if (!p_ptr->tim_no_device)
         {
-        /*  Hack: No message.  This always comes with tim_no_spells as an added evil effect */ 
+        /*  Hack: No message. This always comes with tim_no_spells as an added evil effect */ 
         /*    msg_print("You feel surrounded by powerful antimagic."); */
             notice = TRUE;
         }
@@ -1654,7 +1648,7 @@ bool set_tim_no_device(int v, bool do_dec)
     {
         if (p_ptr->tim_no_device)
         {
-        /*  Hack: No message.  This always comes with tim_no_spells as an added evil effect */ 
+        /*  Hack: No message. This always comes with tim_no_spells as an added evil effect */ 
         /*    msg_print("You feel the antimagic forces leave you."); */
             notice = TRUE;
         }
@@ -4082,7 +4076,7 @@ bool set_tsuyoshi(int v, bool do_dec)
 
 
 /*
- * Set a temporary elemental brand.  Clear all other brands.  Print status 
+ * Set a temporary elemental brand. Clear all other brands. Print status 
  * messages. -LM-
  */
 bool set_ele_attack(u32b attack_type, int v)
@@ -4151,7 +4145,7 @@ bool set_ele_attack(u32b attack_type, int v)
 
 
 /*
- * Set a temporary elemental brand.  Clear all other brands.  Print status 
+ * Set a temporary elemental brand. Clear all other brands. Print status 
  * messages. -LM-
  */
 bool set_ele_immune(u32b immune_type, int v)
@@ -4592,19 +4586,19 @@ bool set_stun(int v, bool do_dec)
         {
             /* Stun */
             case 1:
-            msg_print("You have been stunned.");
+            msg_print("You have been <color:y>stunned</color>.");
 
             break;
 
             /* Heavy stun */
             case 2:
-            msg_print("You have been heavily stunned.");
+            msg_print("You have been <color:R>heavily stunned</color>.");
 
             break;
 
             /* Knocked out */
             case 3:
-            msg_print("You have been knocked out.");
+            msg_print("You have been <color:v>knocked out</color>.");
 
             break;
         }
@@ -4682,7 +4676,7 @@ bool set_stun(int v, bool do_dec)
     p_ptr->update |= (PU_BONUS);
 
     /* Redraw the "stun" */
-    p_ptr->redraw |= (PR_STUN);
+    p_ptr->redraw |= PR_EFFECTS;
 
     /* Handle stuff */
     handle_stuff();
@@ -4707,7 +4701,7 @@ bool set_cut(int v, bool do_dec)
 
     if (p_ptr->is_dead) return FALSE;
 
-    if (get_race_t()->flags & RACE_IS_NONLIVING)
+    if (get_race()->flags & RACE_IS_NONLIVING)
         v = 0;
 
     if (p_ptr->no_cut)
@@ -4817,43 +4811,43 @@ bool set_cut(int v, bool do_dec)
         {
             /* Graze */
             case 1:
-            msg_print("You have been given a graze.");
+            msg_print("You have been given a <color:y>graze</color>.");
 
             break;
 
             /* Light cut */
             case 2:
-            msg_print("You have been given a light cut.");
+            msg_print("You have been given a <color:y>light cut</color>.");
 
             break;
 
             /* Bad cut */
             case 3:
-            msg_print("You have been given a bad cut.");
+            msg_print("You have been given a <color:o>bad cut</color>.");
 
             break;
 
             /* Nasty cut */
             case 4:
-            msg_print("You have been given a nasty cut.");
+            msg_print("You have been given a <color:o>nasty cut</color>.");
 
             break;
 
             /* Severe cut */
             case 5:
-            msg_print("You have been given a severe cut.");
+            msg_print("You have been given a <color:r>severe cut</color>.");
 
             break;
 
             /* Deep gash */
             case 6:
-            msg_print("You have been given a deep gash.");
+            msg_print("You have been given a <color:r>deep gash</color>.");
 
             break;
 
             /* Mortal wound */
             case 7:
-            msg_print("You have been given a mortal wound.");
+            msg_print("You have been given a <color:R>mortal wound</color>.");
 
             break;
         }
@@ -4893,7 +4887,7 @@ bool set_cut(int v, bool do_dec)
     p_ptr->update |= (PU_BONUS);
 
     /* Redraw the "cut" */
-    p_ptr->redraw |= (PR_CUT);
+    p_ptr->redraw |= PR_EFFECTS;
 
     /* Handle stuff */
     handle_stuff();
@@ -4911,7 +4905,7 @@ bool set_cut(int v, bool do_dec)
  * 7500 food units, without overflowing the 32767 maximum limit.
  *
  * Perhaps we should disturb the player with various messages,
- * especially messages about hunger status changes.  XXX XXX XXX
+ * especially messages about hunger status changes. XXX XXX XXX
  *
  * Digestion of food is handled in "dungeon.c", in which, normally,
  * the player digests about 20 food units per 100 game turns, more
@@ -5130,7 +5124,9 @@ bool set_food(int v)
     }
 
     /* Redraw hunger */
-    p_ptr->redraw |= (PR_HUNGER);
+    p_ptr->redraw |= PR_EFFECTS;
+    if (display_food_bar)
+        p_ptr->redraw |= PR_HEALTH_BARS;
 
     /* Handle stuff */
     handle_stuff();
@@ -5209,10 +5205,10 @@ bool inc_stat(int stat)
  * Decreases a stat by an amount indended to vary from 0 to 100 percent.
  *
  * Amount could be a little higher in extreme cases to mangle very high
- * stats from massive assaults.  -CWS
+ * stats from massive assaults. -CWS
  *
  * Note that "permanent" means that the *given* amount is permanent,
- * not that the new value becomes permanent.  This may not work exactly
+ * not that the new value becomes permanent. This may not work exactly
  * as expected, due to "weirdness" in the algorithm, but in general,
  * if your stat is already drained, the "max" value will not drop all
  * the way down to the "cur" value.
@@ -5332,7 +5328,7 @@ bool dec_stat(int stat, int amount, int permanent)
 
 
 /*
- * Restore a stat.  Return TRUE only if this actually makes a difference.
+ * Restore a stat. Return TRUE only if this actually makes a difference.
  */
 bool res_stat(int stat)
 {
@@ -5405,9 +5401,6 @@ bool hp_player_aux(int num)
 
         /* Redraw */
         p_ptr->redraw |= (PR_HP);
-
-        /* Window stuff */
-        p_ptr->window |= (PW_PLAYER);
 
         /* Heal 0-4 */
         if (num < 5)
@@ -5527,13 +5520,10 @@ bool do_dec_stat(int stat)
     /* Sustain */
     if (sust && (!ironman_nightmare || randint0(13)))
     {
-        /* Message */
-        msg_format("You feel %s for a moment, but the feeling passes.",
+        if (disturb_minor)
+            msg_format("You feel %s for a moment, but the feeling passes.", desc_stat_neg[stat]);
 
-                desc_stat_neg[stat]);
-
-        /* Notice effect */
-        return (TRUE);
+        return TRUE;
     }
 
     /* Attempt to reduce the stat */
@@ -5600,7 +5590,7 @@ bool do_inc_stat(int stat)
             virtue_add(VIRTUE_VITALITY, 1);
 
         /* Message */
-        msg_format("Wow!  You feel very %s!", desc_stat_pos[stat]);
+        msg_format("Wow! You feel very %s!", desc_stat_pos[stat]);
 
 
         /* Notice */
@@ -5668,13 +5658,14 @@ bool lose_all_info(void)
         if (!o_ptr->k_idx) continue;
 
         /* Allow "protection" by the MENTAL flag */
-        if (o_ptr->ident & (IDENT_MENTAL)) continue;
+        if (o_ptr->ident & (IDENT_FULL)) continue;
 
         /* Remove "default inscriptions" */
         o_ptr->feeling = FEEL_NONE;
 
         /* Hack -- Clear the "empty" flag */
         o_ptr->ident &= ~(IDENT_EMPTY);
+        o_ptr->ident &= ~(IDENT_TRIED);
 
         /* Hack -- Clear the "known" flag */
         o_ptr->ident &= ~(IDENT_KNOWN);
@@ -5690,7 +5681,7 @@ bool lose_all_info(void)
     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
     /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_OBJECT_LIST);
 
     /* Mega-Hack -- Forget the map */
     wiz_dark();
@@ -5732,14 +5723,15 @@ void do_poly_wounds(void)
  */
 void change_race(int new_race, cptr effect_msg)
 {
-    cptr title = get_race_t_aux(new_race, 0)->name;
+    cptr title = get_race_aux(new_race, 0)->name;
     int  old_race = p_ptr->prace;
     static bool _lock = FALSE; /* This effect is not re-entrant! */
 
     if (_lock) return;
-    if (get_race_t()->flags & RACE_IS_MONSTER) return;
-    if (get_race_t_aux(new_race, 0)->flags & RACE_IS_MONSTER) return;
+    if (get_race()->flags & RACE_IS_MONSTER) return;
+    if (get_race_aux(new_race, 0)->flags & RACE_IS_MONSTER) return;
     if (old_race == RACE_ANDROID) return;
+    if (old_race == RACE_DOPPELGANGER) return;
     if (new_race == old_race) return;
 
     _lock = TRUE;
@@ -5798,7 +5790,7 @@ void change_race(int new_race, cptr effect_msg)
 
     if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD || p_ptr->prace == RACE_DRACONIAN)
     {
-        race_t *race_ptr = get_true_race_t();
+        race_t *race_ptr = get_true_race();
         if (race_ptr != NULL && race_ptr->gain_level != NULL)
             race_ptr->gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on poly */
     }
@@ -5912,7 +5904,7 @@ void do_poly_self(void)
         do
         {
             new_race = randint0(36); /* Hack: Skip monster races and androids ... */
-            expfact = get_race_t_aux(new_race, 0)->exp;
+            expfact = get_race_aux(new_race, 0)->exp;
         }
         while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));
 
@@ -5993,6 +5985,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
     if (p_ptr->sutemi) damage *= 2;
     if (p_ptr->special_defense & KATA_IAI) damage += (damage + 4) / 5;
     if (check_foresight()) return 0;
+    if (statistics_hack) return 0;
 
     if (easy_band) damage = (damage+1)/2;
 
@@ -6000,10 +5993,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
     {
         /* Disturb */
         disturb(1, 0);
-        if (auto_more)
-        {
-            now_damaged = TRUE;
-        }
     }
 
     if (monspell >= 0) learn_spell(monspell);
@@ -6112,11 +6101,8 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
     /* Display the hitpoints */
     p_ptr->redraw |= (PR_HP);
 
-    /* Window stuff */
-    p_ptr->window |= (PW_PLAYER);
-
     /* This might slow things down a bit ... 
-       But, Blood Knight power varies with hp.  */
+       But, Blood Knight power varies with hp. */
     if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
         p_ptr->update |= (PU_BONUS);
 
@@ -6135,7 +6121,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
     if (p_ptr->chp < 0)
     {
         bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
-
 
         /* Sound */
         sound(SOUND_DEATH);
@@ -6171,6 +6156,8 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
                 my_strcpy(p_ptr->died_from, dummy, sizeof p_ptr->died_from);
             }
 
+            msg_add_tiny_screenshot(50, 24);
+
             p_ptr->total_winner = FALSE;
             flush();
 
@@ -6182,7 +6169,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
             flush();
 
             /* Initialize "last message" buffer */
-            if (p_ptr->last_message) string_free(p_ptr->last_message);
+            if (p_ptr->last_message) z_string_free(p_ptr->last_message);
             p_ptr->last_message = NULL;
 
             /* Hack -- Note death */
@@ -6212,7 +6199,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
                 {
                     strcpy(death_message, android ? "You are broken." : "You die.");
                 }
-                else p_ptr->last_message = string_make(death_message);
+                else p_ptr->last_message = z_string_make(death_message);
                 
                 msg_print(death_message);
             }
@@ -6227,29 +6214,14 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
     {
         sound(SOUND_WARN);
 
-        if (auto_more)
-        {
-            /* stop auto_more even if DAMAGE_USELIFE */
-            now_damaged = TRUE;
-        }
-
         /* Hack -- stop the player on first crossing the threshold */
         if (old_chp >= warning) 
         {
-            msg_print("*** LOW HITPOINT WARNING! *** Press Space to continue.");
-            flush();
-            for (;;)
-            {
-                char ch = inkey();
-                if (ch == ' ') break;
-            }
-            prt("", 0, 0);
-            msg_flag = FALSE; /* prevents "-more-" message. */
+            msg_prompt("<color:v>*** LOW HITPOINT WARNING! ***</color> Press <color:y>Space</color> to continue.", " ", PROMPT_FORCE_CHOICE);
         }
         else
         {
-            msg_print("*** LOW HITPOINT WARNING! ***");
-            msg_print(NULL);
+            cmsg_print(TERM_VIOLET, "*Ouch!*");
             flush();
         }
     }

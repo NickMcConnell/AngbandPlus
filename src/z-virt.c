@@ -70,7 +70,7 @@ vptr rnfree(vptr p, huge len)
 vptr (*rpanic_aux)(huge) = NULL;
 
 /*
- * The system is out of memory, so panic.  If "rpanic_aux" is set,
+ * The system is out of memory, so panic. If "rpanic_aux" is set,
  * it can be used to free up some memory and do a new "ralloc()",
  * or if not, it can be used to save things, clean up, and exit.
  * By default, this function simply crashes the computer.
@@ -139,7 +139,7 @@ vptr ralloc(huge len)
 /*
  * Allocate a constant string, containing the same thing as 'str'
  */
-cptr string_make(cptr str)
+cptr z_string_make(cptr str)
 {
     huge len = 0;
     cptr t = str;
@@ -166,7 +166,7 @@ cptr string_make(cptr str)
  * Un-allocate a string allocated above.
  * Depends on no changes being made to the string.
  */
-errr string_free(cptr str)
+errr z_string_free(cptr str)
 {
     huge len = 0;
 

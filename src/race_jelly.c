@@ -53,7 +53,6 @@ static void _divide_spell(int cmd, variant *res)
 }
 static power_info _jelly_powers[] = {
     { A_CON, { 1, 10, 0, _divide_spell}},
-    { A_DEX, {10, 10, 70, recall_spell}},
     { -1, {-1, -1, -1, NULL} }
 };
 static int _jelly_get_powers(spell_info* spells, int max) {
@@ -74,7 +73,7 @@ static void _jelly_calc_innate_attacks(void)
         a.weight = 100;
         a.effect[0] = GF_ACID;
         calc_innate_blows(&a, 600);
-        a.msg = "You shoot acid at %s.";
+        a.msg = "You shoot acid.";
         a.name = "Pseudopod";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -94,10 +93,7 @@ static void _black_ooze_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_ACID);
     add_flag(flgs, TR_RES_POIS);
-}
-static void _black_ooze_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_BLIND);
+    add_flag(flgs, TR_IM_BLIND);
 }
 race_t *_black_ooze_get_race_t(void)
 {
@@ -125,7 +121,6 @@ race_t *_black_ooze_get_race_t(void)
 
         me.calc_bonuses = _black_ooze_calc_bonuses;
         me.get_flags = _black_ooze_get_flags;
-        me.get_immunities = _black_ooze_get_immunities;
 
         init = TRUE;
     }
@@ -176,7 +171,6 @@ race_t *_gelatinous_cube_get_race_t(void)
 
         me.calc_bonuses = _gelatinous_cube_calc_bonuses;
         me.get_flags = _gelatinous_cube_get_flags;
-        me.get_immunities = _black_ooze_get_immunities;
 
         init = TRUE;
     }
@@ -204,13 +198,10 @@ static void _acidic_cytoplasm_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_CONF);
     add_flag(flgs, TR_BRAND_ACID);
 
+    add_flag(flgs, TR_IM_ACID);
+    add_flag(flgs, TR_IM_FEAR);
+
     _gelatinous_cube_get_flags(flgs);
-}
-static void _acidic_cytoplasm_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_ACID);
-    add_flag(flgs, TR_RES_FEAR);
-    _black_ooze_get_immunities(flgs);
 }
 
 race_t *_acidic_cytoplasm_get_race_t(void)
@@ -239,7 +230,6 @@ race_t *_acidic_cytoplasm_get_race_t(void)
 
         me.calc_bonuses = _acidic_cytoplasm_calc_bonuses;
         me.get_flags = _acidic_cytoplasm_get_flags;
-        me.get_immunities = _acidic_cytoplasm_get_immunities;
 
         init = TRUE;
     }
@@ -263,10 +253,6 @@ static void _shoggoth_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_SPEED);
     add_flag(flgs, TR_REGEN);
     _acidic_cytoplasm_get_flags(flgs);
-}
-static void _shoggoth_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    _acidic_cytoplasm_get_immunities(flgs);
 }
 race_t *_shoggoth_get_race_t(void)
 {
@@ -294,7 +280,6 @@ race_t *_shoggoth_get_race_t(void)
 
         me.calc_bonuses = _shoggoth_calc_bonuses;
         me.get_flags = _shoggoth_get_flags;
-        me.get_immunities = _shoggoth_get_immunities;
 
         init = TRUE;
     }
@@ -349,7 +334,7 @@ static void _birth(void)
     add_outfit(&forge);
 }
 
-race_t *mon_jelly_get_race_t(void)
+race_t *mon_jelly_get_race(void)
 {
     race_t *result = NULL;
 
@@ -382,6 +367,7 @@ race_t *mon_jelly_get_race_t(void)
     result->base_hp = 40;
     result->equip_template = mon_get_equip_template();
     result->pseudo_class_idx = CLASS_WARRIOR;
+    result->shop_adjust = 125;
 
     result->boss_r_idx = MON_UBBO_SATHLA;
     return result;
@@ -392,7 +378,7 @@ void jelly_eat_object(object_type *o_ptr)
     char o_name[MAX_NLEN];
     object_type copy = *o_ptr;
     copy.number = 1;
-    object_desc(o_name, &copy, 0);
+    object_desc(o_name, &copy, OD_COLOR_CODED);
     set_food(MIN(PY_FOOD_FULL - 1, p_ptr->food + o_ptr->weight * 50));
     msg_format("You assimilate %s into your gelatinous frame.", o_name);
     /* TODO: Consider giving timed benefits based on what is absorbed.

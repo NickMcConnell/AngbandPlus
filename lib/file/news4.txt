@@ -1,0 +1,26 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:U>You attack the Warg:</color> You butt the Warg. How heroic! <color:R>You have slain </color>
+<color:R>the Warg.</color> How heroic! <color:B>You just completed your quest!</color> A magical      LEVEL <color:G>    10</color>
+staircase appears...                                                EXP <color:G>      36</color>
+<color:g>The Green naga attacks you:</color> She crushes. <color:U>(You retaliate:</color> You        AU  <color:G>     120</color>
+strike the Green naga. <color:R>You have slain the Green naga.</color> You feel      <color:d>      </color><color:U>~</color><color:d>   </color><color:U>]]</color>
+something roll beneath your feet.<color:U>)</color>                                  STR : <color:G>    18</color>
+    #...............<color:D>~</color><color:U>~</color>.....<color:o>*</color>     <color:s>%</color>..<color:U>'</color>........................#      INT : <color:G>    11</color>
+    <color:s>%</color>......................<color:s>%</color>     %<color:s>%%%</color>........................#      WIS : <color:G> 18/10</color>
+    %......................<color:s>%</color>        #........................#      DEX : <color:G> 18/74</color>
+    ####<color:s>%%%%%%%</color>#<color:U>+</color>%##<color:s>%</color>.#<color:s>%</color>#<color:s>%%%</color>        %........................<color:s>%</color>      CON : <color:G>    17</color>
+                    <color:s>%</color>.#             #........................<color:s>%</color>      CHR : <color:G>    12</color>
+                    #.#             <color:s>%</color>........................#      AC     <color:G>   24</color>
+                 <color:s>%</color>#<color:s>%</color>#.#             #......<color:U><</color>.................#      HP <color:y> 126</color>/<color:G> 146</color>
+                 <color:s>%</color><color:U>(</color>>@.#             %........................#      SP <color:y>  23</color>/<color:G>  37</color>
+                 <color:s>%</color>.####             #........................#
+                 #.#                #........................<color:s>%</color>      @[<color:y>********</color>-]
+                                    ###%#%#%#################<color:s>%</color>      <color:G>?</color>[<color:y>******</color>---]
+                                                                    <color:U>,</color>[******---]
+
+
+
+                                                                    <color:G>Fast (+1)</color>
+<color:W>Stronghold: L5</color>
+</style>

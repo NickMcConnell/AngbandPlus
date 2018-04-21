@@ -655,13 +655,13 @@ static caster_info * _caster_info(void)
         me.weight = 450;
         me.min_fail = 5;
         me.min_level = 2;
-        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
+        me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
     return &me;
 }
 
-class_t *chaos_warrior_get_class_t(void)
+class_t *chaos_warrior_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -701,9 +701,9 @@ class_t *chaos_warrior_get_class_t(void)
         me.pets = 40;
         
         me.calc_bonuses = _calc_bonuses;
+        me.get_flags = _get_flags;
         me.caster_info = _caster_info;
         me.get_powers = _get_powers;
-        me.get_flags = _get_flags;
         me.gain_level = _gain_level;
         me.character_dump = spellbook_character_dump;
         init = TRUE;

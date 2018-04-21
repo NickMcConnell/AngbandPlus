@@ -1,136 +1,94 @@
-  [[[[B|General Information
-  
-  This document gives a brief introduction to PosChengband. You will probably
-  want to browse through all the "help files", especially the sections on
-  available commands (see command.txt [b] and commdesc.txt [c]), before
-  beginning any serious adventuring.
-  
-  
-  The game of PosChengband is a single player dungeon simulation. A player
-  may choose from a number of races, classes and magic realms when
-  creating a character (see birth.hlp [d]), and then "run" that
-  character over a period of days, weeks, even months. Deep down inside,
-  the real objective of the game is to increase your experience, and
-  certain other characteristics, and also to collect useful items, to
-  give you a decent chance against the great Serpent of Chaos, who lurks
-  somewhere in the depths of the dungeon.
-  
-***** <First>
-  [[[[r|First Place to Go
-  
-  The player will begin his adventure on the town level where he may
-  acquire supplies, weapons, armor, and magical devices by bartering
-  with various shop owners. After preparing for his adventure, the
-  player can descend into the dungeon where fantastic adventures await
-  his coming!
-  
-  We recommend that you first explore the initial levels of Camelot.
-  The entrance to this dungeon, populated by Humans, Dragons and the
-  mythical Knights of the Round Table, is located next to your starting
-  position in the town of Outpost. The dungeon is fairly deep, though, 
-  and it will take quite some time to become powerful enough to defeat
-  Arthur Pendragon. (While he is not the most powerful of the Knights, 
-  he does command great support). By the time you are comfortable at
-  level 10, you might consider switching to the Orc Caves. To do so
-  will require you to leave Outpost and enter the wilderness outside.
-  Be sure to carry lots of food and fuel, for the journey can be a long
-  one.
-  
-  [[[[r|Wilderness
+<style:title>General Information</style>
 
-  Your adventures take place in a large and dangerous wilderness. Fortunately,
-  you begin your journey in the relative safety of the town of Outpost. But
-  beware, even inside the town walls the wilderness is not far off. Dangerous 
-  monsters do occasionally wander in to town!
+This document gives a brief introduction to the game. You will probably want to browse through all the help files, especially the sections on available commands (see <link:commdesc.txt> and <link:command.txt>), before beginning any serious adventuring. There is also a Newbie guide (see <link:tang.txt>) and I'll leave it you to decide if that is the best place to start reading. (Aside: Whenever you see a letter in <color:link>square brackets</color>, that is a link to another place in the documentation. Press that letter to follow the link, and escape to return back to where you were in this document. Go ahead and try it now! You can also press <color:keypress>?</color> for help on the help system itself.)
 
-  When you are ready to begin exploring the wilderness, you will need ample 
-  supplies of light and food. Also, if you intent is to journey to another town 
-  or to locate a new dungeon entrance, you will want to use the special global 
-  map mode for wilderness travel. Entering and leaving this special mode uses
-  the "stair climbing" keys as an abstraction: 
-  
-  [[[[G| Press '<' to enter the global wilderness map and '>' to leave it.
+The game is a single player dungeon simulation. A player may choose from a number of races, classes and magic realms when creating a character (see <link:birth_contents.txt>), and then "run" that character over a period of days, weeks, even months. Deep down inside, the real objective of the game is to increase your experience, and certain other characteristics, and also to collect useful items, to give you a decent chance against the great <color:keyword>Serpent of Chaos</color>, who lurks somewhere in the depths of the dungeon.
 
-  However, entering the global map is blocked if foes are nearby. Also, while 
-  traveling in the global map mode, beware of ambushes. These are more likely 
-  at night and occur more frequently away from the relative safety of the 
-  wilderness roads. Ambushes can be very deadly so be prepared with some means
-  of teleportation to escape.
+The game comes with a vast wilderness featuring many towns and numerous dungeons to explore. Most dungeons have a boss guarding the bottom level, and often a nice reward as well. Each dungeon has a theme too. For example, The Orc Caves are infested with ... you guessed it: Orcs! But the theme might be something else entirely, such as the Anti-Melee Caves where melee is prohibited, or the Anti-Magic Caves where no spells may be cast (by you, or by monsters). There is a lot to explore! However, some players prefer a simpler game, especially when playing the first few times, so the wilderness is optional. Much of the help documentation will refer to the wilderness since it is the default and expected way to play. Eventually, you should try it out! In the meantime, if you have disabled this option, then you should ignore those sections of the helpfiles that discuss the wilderness and various dungeons (other than Angband).
 
-  Inside the global map mode, you may look about ('l' command) to locate the 
-  towns and dungeon entrances. Pay attention to the the danger level of the
-  various tiles when walking about. This is displayed as you use the look 
-  command and indicates safe areas of travel as well as places better avoided
-  (for the time being, at least).
-  
-  Many towns and dungeons await you; good ones to explore early on
-  include the Orc Caves and the Labyrinth.  To the northeast of the town
-  of Morivant, near the center of the map, is the dread dungeon of
-  Angband.  It is home to the Serpent of Chaos, whom you must kill in
-  order to win the game. (see town.txt [f])
-  
-***** <Winning>
-  [[[[r|Winning The Game
-  
-  Once your character has killed Oberon, who lives on level 99 (4950')
-  in the dungeon, a magical staircase will appear that will finally
-  allow you to reach level 100. The Serpent of Chaos lurks on this level
-  of his dungeon, and you will not be able to go below his level until
-  you have killed him. Try to avoid wandering around on level 100 unless
-  you are ready for him, since it has a habit of coming at you across
-  the dungeon, to slay you for your impudence.
-  
-  The Serpent of Chaos cannot be killed by some of the easier methods
-  used on normal creatures. The Serpent of Chaos, like all other
-  "Unique" monsters, will simply teleport away to another region of the
-  level if you attempt to use a spell such as destruction is upon
-  it. The Serpent of Chaos, like some other monsters, cannot be
-  polymorphed, slept, charmed, or genocided. Magical spells like Mana
-  Storm and Orb of Draining are effective against it, as are some of the
-  more powerful weapons, but it is difficult to kill and if allowed to
-  escape for a time it will heal itself rapidly.
-  
-  If you should actually survive the attempt of killing the Serpent of
-  Chaos, you will receive the status of WINNER. You may continue to
-  explore, and may even save the game and play more later, but since you
-  have defeated the toughest creature alive, there is really not much
-  point. Unless you wish to listen to the rumors of a powerful ring
-  buried somewhere in the dungeon...
-  
-  When you are ready to retire, simply "commit suicide" ("^K") to have
-  your character entered into the high score list as a winner. Note that
-  until you retire, you can still be killed, so you may want to retire
-  before wandering into a hoard of Cyberdemons...
-  
-  
-***** <UponDeath>
-  [[[[r|Upon Death and Dying
-  
-  If your character falls below 0 hit points, he has died and cannot be
-  restored. You can write last word for posting on the Internet after
-  which time, a tombstone showing information about your character will
-  be displayed. You are also permitted to get a record of your character, 
-  and all your equipment (identified) either on the screen or in a file. 
-  
-  Whether your character is killed or you retire victorious, it will
-  leave behind a reduced save file, which contains only the monster
-  memory (see attack.txt#MonsterMemory [e]) and your option choices. It
-  may be restored, in which case the new character is generated exactly
-  as if the file was not there, but the new player will find his monster
-  memory containing all the experience of past incarnations.
-   
-  --
-  Original   : (??)
-  Updated    : (??)
-  Updated    : Zangband DevTeam
-  Updated    : Hengband 1.5.4
-  Updated    : PosChengband 1.0.0
-  
-***** Begin Hyperlinks
-***** [b] command.txt
-***** [c] commdesc.txt
-***** [d] birth.hlp
-***** [e] attack.txt#MonsterMemory
-***** [f] town.txt
-  
+The game also offers a few different ways to play. First, there is a <color:keyword>Beginner Mode</color> that limits the number of races and classes available and also turns off the wilderness. Playing in beginner mode is designed to simplify the birth process and get you playing as soon as possible so that you may more quickly learn the game. Eventually, you will want to upgrade to <color:keyword>Normal Mode</color>, the usual and expected way to play. This mode has a wilderness by default (though you may still turn it off with a birth option) and also offers the full repertoire of racial and class choices. Prepare to be overwhelmed! Also, as you read the help files, you will find that most of the documentation is written for this mode. Finally, you may decide you are tired of playing the game as a normal player, constantly dying to myriad powerful monsters, and decide to play as a monster yourself in <color:keyword>Monster Mode</color>. With this style, you can pick one of many types of monsters to play and will evolve into more powerful forms as you gain experience. Many monsters have unique body types so the equipment game will prove interesting. Most also have some forms of innate attacks and may not be able to wield weapons at all (e.g. Dragons can claw and bite, but it would be funny to see one wielding a sword). Truly, there is much to try!
+
+<topic:First><style:heading>First Place to Go</style>
+
+<style:note>If you have the wilderness turned off, then this section should be skipped. In this case there is only one place to go: Into the depths of Angband!</style>
+
+The player will begin his adventure on the town level where he may acquire supplies, weapons, armor, and magical devices by bartering with various shop owners. You will have some gear as a birthright, and a little bit of gold as well. I recommend buying some scrolls of teleport and potions of cure light wounds (or serious wounds if you are rich) before beginning to play. It is very easy to get in over your head, especially early on, so having a ready means of escape is essential. If you have gold left over, consider upgrading your starting torch to a lantern, which casts more light and allows you to see further in the dark.
+
+You are now ready to descend into the dungeon where fantastic adventures await! The first dungeon to explore is <color:keyword>The Stronghold</color>, a small dungeon whose entrance is located next to your starting position in Outpost. Like many of the dungeons, this one has a boss: some king or other of the Southerings. He's reasonably tough for his level, but this is mostly due to his vast host readied about him. He has many more friends at the ready as well, so you won't want to face him in the open.
+
+Once you have completed The Stronghold, you should be ready to set out into the wild, the subject of the next section.
+
+<topic:Wilderness><style:heading>Wilderness</style>
+
+Your adventures take place in a large and dangerous wilderness. Fortunately, you begin your journey in the relative safety of the town of Outpost. But beware, even inside the town walls the wilderness is not far off. Dangerous monsters do occasionally wander in to town!
+
+When you are ready to begin exploring the wilderness, you will need ample supplies of light and food. Also, if your intent is to journey to another town or to locate a new dungeon entrance, you will want to use the special global map mode for wilderness travel. Entering and leaving this special mode uses the "stair climbing" keys as an abstraction:
+
+<style:note>Press <color:keypress><</color> to enter the global wilderness map and <color:keypress>></color> to leave it.</style>
+
+However, entering the global map is blocked if foes are nearby. Also, while traveling in the global map mode, beware of ambushes. These are more likely at night and occur more frequently away from the relative safety of the wilderness roads. Ambushes can be very deadly so be prepared with some means of teleportation to escape.
+
+Inside the global map mode, you may look about (<color:keypress>l</color> command) to locate the towns and dungeon entrances. Pay attention to the the danger level of the various tiles when walking about. This is displayed as you use the look command and indicates safe areas of travel as well as places better avoided (for the time being, at least).
+
+Many towns and dungeons await you; good ones to explore early on include the <color:keyword>Orc Caves</color> and the <color:keyword>Labyrinth</color>. To the northeast of the town of Morivant, near the center of the map, is the dread dungeon of <color:keyword>Angband<color:normal>. It is home to the Serpent of Chaos, whom you must kill in order to win the game. (For more information, see <link:town.txt>)
+<style:screenshot>
+<color:b>~~~~~~</color><color:B>~~~~</color><color:g>.</color><color:B>....</color><color:u>........</color><color:B>~~~~~~~~~</color><color:g>.......</color>...<color:g>.</color>......<color:G>#</color><color:B>~</color>........<color:g>...</color><color:B>~~~~</color><color:G>#</color>
+<color:b>~~</color><color:B>~~~~~~~</color><color:g>....</color>.....<color:u>.........</color><color:B>~~~~</color><color:g>......</color>...<color:g>......</color><color:G>#</color><color:B>~~~~</color><color:G>#</color><color:o>######</color>..<color:g>.</color><color:B>~~</color><color:g>..</color><color:B>~</color><color:G>#</color>
+<color:B>~~~~~~~~</color><color:g>.</color>......<color:G>#</color><color:u>.</color>..<color:u>.....</color><color:v>></color><color:u>...</color><color:g>.....</color>.....<color:g>......</color><color:y>></color><color:g>.</color><color:G>#</color><color:B>~</color><color:G>###</color><color:o>########</color>..<color:B>~</color><color:g>...</color><color:B>~</color><color:G>#</color>
+<color:B>~~~~~~~~</color><color:g>.</color>.<color:g>...</color><color:G>###</color><color:u>..</color>..<color:u>.........</color><color:g>...</color>..<color:g>............</color><color:B>~~</color><color:G>###</color><color:o>#######</color><color:B>~~</color>.<color:B>~</color><color:g>...</color><color:B>~~</color>
+<color:B>~~~~~~~~</color><color:g>.</color>.<color:g>..</color><color:G>#####</color><color:u>..</color>....<color:u>......</color><color:g>..</color>..<color:g>...</color><color:o>###</color><color:g>.......</color><color:B>~</color><color:G>##</color><color:o>#########</color><color:B>~</color><color:o>#</color>.<color:g>......</color>
+<color:B>~~~~~~~~</color><color:g>.</color>.<color:g>...</color><color:G>#####</color><color:u>....</color>..<color:u>.....</color><color:g>.</color>..<color:g>.....</color><color:o>###</color><color:g>......</color><color:B>~~</color><color:G>#</color><color:o>###########</color>..<color:g>.....</color>
+<color:B>~~~~~~~~</color><color:g>.</color>.<color:g>....</color><color:G>##</color><color:o>##</color><color:u>.....</color>...<color:u>...</color>..<color:g>.....</color><color:o>#</color><color:g>.</color><color:o>#</color><color:g>........</color><color:B>~~~</color><color:v>></color><color:o>##########</color>...<color:g>...</color>
+<color:B>~~~~~~~~</color><color:g>.</color>.<color:g>..</color><color:o>#####</color><color:v>></color><color:g>..</color><color:u>.....</color>...<color:g>.</color>.<color:g>....</color><color:v>></color><color:g>..............</color><color:o>#</color><color:B>~~</color><color:o>###########</color>...<color:g>.</color>
+<color:B>~~~~</color><color:g>..</color>....<color:o>####</color><color:g>.............</color>...<color:g>............</color><color:B>....</color><color:g>...</color><color:o>##############</color><color:v>></color><color:o>#</color>..
+.<color:g>.</color><color:B>~~</color><color:g>.</color>..<color:B>~</color><color:g>.</color>..<color:g>...</color>.......<color:g>........</color>.....<color:g>......</color><color:B>....~~</color><color:g>....</color><color:o>################</color><color:g>.</color>
+......<color:B>~~</color><color:g>..</color>.....<color:g>.....</color>....<color:g>.........</color>..<color:g>....</color><color:B>...~~~~</color><color:g>...</color><color:o>##################</color>
+<color:g>.....</color><color:B>~~~~</color><color:g>.......</color><color:B>~~~</color><color:g>....</color>......<color:g>.....</color>.<color:g>....</color><color:B>..~~~~~</color><color:g>.....</color><color:o>################</color>
+<color:o>#</color><color:g>....</color><color:B>~~~~~~~~~~~~~~~</color><color:g>........</color>.....@<color:y>*</color><color:g>...</color><color:B>..~~~~~</color><color:g>.</color>...<color:g>....</color><color:o>##############</color>
+<color:o>##</color><color:g>.</color><color:G>#</color><color:g>..</color><color:B>~~~~~~</color><color:g>.....</color><color:B>~~~~~~~~~~~</color>.<color:B>~~~</color><color:g>..</color>...<color:g>.</color><color:B>~~..</color>.....<color:G>#</color>...<color:g>...</color><color:o>#############</color>
+<color:r>~</color><color:o>##</color><color:g>....</color><color:B>~~~~</color><color:g>.....</color>..<color:g>.</color><color:B>~~~~~~~~</color>..<color:B>~~~~~</color><color:g>..</color>.......<color:G>#######</color>...<color:g>..</color><color:o>###########</color><color:U>~</color>
+<color:v>></color><color:o>##</color><color:g>....</color><color:B>~~~</color><color:g>...</color><color:G>#</color><color:g>...</color>..<color:g>.</color><color:B>~~~~</color><color:g>...</color>.<color:g>....</color><color:B>~~~~~~</color><color:G>############</color><color:v>></color><color:G>#</color>.....<color:u>.</color><color:o>########</color><color:r>~</color>
+<color:r>~</color><color:o>##</color><color:g>.</color><color:G>#</color><color:g>..</color><color:B>~~</color><color:g>..</color><color:G>###</color><color:g>....</color>...<color:B>~~</color><color:g>..</color>...<color:g>......</color><color:B>~~~~~</color><color:G>##############</color><color:g>...</color>....<color:u>.</color><color:o>####</color><color:U>~</color><color:r>~</color>
+<color:o>##</color><color:g>.</color><color:G>#</color><color:g>.</color><color:B>~~~</color><color:g>..</color><color:G>###</color><color:g>.......</color>......<color:g>.</color><color:G>####</color><color:g>....</color><color:B>~~</color><color:G>#################</color><color:g>..</color><color:B>~~~</color>.<color:u>...</color><color:o>###</color><color:U>~</color>
+<color:o>#</color><color:g>.</color><color:G>#</color><color:g>..</color><color:B>~~~</color><color:g>.....</color><color:u>...</color><color:g>......</color>.<color:G>#########</color><color:g>...</color><color:B>~</color><color:G>##################</color><color:g>..</color><color:B>~~~</color>..<color:u>....</color><color:o>##</color>
+<color:g>...</color><color:G>#</color><color:g>..</color><color:B>~~</color><color:g>....</color><color:u>.....</color><color:g>.</color><color:v>></color><color:g>...</color>.<color:G>######</color><color:o>#</color><color:G>##</color><color:g>..</color><color:B>~~</color><color:G>###################</color><color:B>~~~~</color><color:u>.</color>.<color:u>.....</color><color:o>#</color>
+<color:o>#</color><color:g>.....</color><color:B>~~</color><color:g>.....</color><color:u>.........</color>.<color:G>#####</color><color:o>#</color><color:v>></color><color:o>#</color><color:G>###</color><color:g>.</color><color:B>~</color><color:G>###################</color><color:B>~~~</color><color:u>..</color>.......
+<color:g>.</color><color:o>#</color><color:g>.....</color><color:B>~</color><color:g>...</color><color:u>..........</color>..<color:g>..</color><color:G>####</color><color:o>#</color><color:G>####</color><color:g>.</color><color:B>~~</color><color:G>###############</color><color:B>~~~~~~~</color><color:u>........</color>
+<color:u>.</color><color:g>......</color><color:B>~~~</color><color:u>.......</color><color:B>~~~~~~</color><color:g>...</color><color:G>#######</color><color:g>..</color><color:B>~~~</color><color:G>###############</color><color:B>~~~~~~~~~~~~~~</color>
+<color:u>..</color><color:g>...</color><color:B>~~~~~~</color><color:u>....</color><color:B>~~~~~~~~~~~~</color><color:g>.........</color><color:B>~~~</color><color:G>##############</color><color:B>~~~~~~~~~~~</color><color:b>~~~</color>
+<color:u>....</color><color:g>.</color><color:B>~~~~~~~~~~~~~~~~</color><color:b>~~</color><color:B>~~~~~~~~~</color><color:g>..</color><color:B>~~~~~~~~</color><color:G>#########</color><color:B>~~~~~~</color><color:b>~~~~~~~~~~</color>
+Surface
+</style>
+From time to time, I will include screenshots in the documentation to better explain stuff. In the picture above, the player (that's me) has entered the Wilderness Travel mode by pressing <color:keypress><</color>, and then walked from the starting town of Outpost (located far off in the west) to the town of Morivant, which he is currently standing next to (it is the <color:y>*</color> on the map, while the player, in case you didn't know, is the @). The entrance to Angband is marked as <color:y>></color>.
+
+As you can see, there are many, many other dungeons to explore as well! Each dungeon in the wilderness has a starting level which is shown to you when prompted if you really wish to enter. Think of this as a difficulty level, and indeed, many of the dungeons are quite difficult if you wander into them unprepared (For example, <color:keyword>The Dragon's Lair</color> begins on level 60!). So be careful! I usually complete The Orc Caves, The Labyrinth, The Forest and The Icky Caves, in that order, after The Stronghold, but feel free to work out your own playstyle. In fact, I've heard rumors of brave players who actually prefer The Dragon's Lair as soon as possible! With more danger, comes bigger rewards, but for me, in that way lurks death.
+
+A final note on the Wilderness. To penetrate the mountains, you will need a source of levitation. Several of the dungeon entrances are buried in the mountains, so you won't be able to get to them otherwise. And as for the deep waters of the vast oceans, best to stay away. Furthermore, without levitation, you will be swimming, and should your pack be too heavy, well, you may quickly find yourself drowning! So be prepared before setting out off the beaten paths of the wilderness.
+
+<topic:Winning><style:heading>Winning The Game</style>
+
+OK, we are getting a little ahead of ourselves here, but by now, you surely have defeated <color:keyword>Oberon</color>, right? Perhaps not, but eventually you will be powerful enough to face the King of the Amberites on level 99 (4950') in the dungeon of <color:keyword>Angband</color>. Defeat this foe and a magical staircase will appear that will finally allow you to reach level 100 and face the dreaded <color:keyword>Serpent of Chaos</color>. You will not be able to go below his level until you have killed him. Try to avoid wandering around on level 100 unless you are ready for him, since the Serpent has a habit of coming at you across the dungeon, to slay you for your impudence. I should also mention that unlike the other Angband quests, you may break off and flee the final fights against Oberon and the Serpent, recalling to town if you discover that you are not prepared. Don't worry, these foes are patient and will await your return. (You may have noticed that if you flee any of the earlier random quests, you actually fail the quest and are not allowed to try again).
+
+The Serpent of Chaos is a very difficult foe and you will need to garner all of your resources in order to stand a decent chance of success. This typically means lots and lots (and lots more besides that) of Healing and *Healing*. And you will need plenty of destruction besides to deal with his summons. I won't give any more hints than that, since figuring out how to win is part of the fun, right?
+
+If you should actually survive the attempt of killing the Serpent of Chaos, you will receive the status of <color:keyword>WINNER</color>. You may continue to explore, and may even save the game and play more later, but since you have defeated the toughest creature alive, there is really not much point. Unless you wish to listen to the rumors of a powerful ring buried somewhere in the dungeon. And then some monsters have been rumored to come back from the dead!
+
+When you are ready to retire, simply "commit suicide" (<color:keypress>^K</color>) to have your character entered into the high score list as a winner. Note that until you retire, you can still be killed, so you may want to retire before wandering into a hoard of Cyberdemons...
+
+<topic:UponDeath><style:heading>Upon Death and Dying</style>
+
+If your character falls below 0 hit points, he has died and cannot be restored. You can write a last word for posting on the Internet after which time, a tombstone showing information about your character will be displayed. You are also permitted to get a record of your character, and all your equipment (identified) either on the screen or in a file.
+
+Whether your character is killed or you retire victorious, it will leave behind a reduced save file, which contains only the monster memory (see <link:monster.txt#MonsterMemory>) and your option choices. It may be restored, in which case the new character is generated exactly as if the file was not there, but the new player will find his monster memory containing all the experience of past incarnations.
+
+And don't get discouraged! Dying is very common and makes victory, when it comes at long last, all the more sweet. It may take months to win the game, perhaps even years. But there is fun in the journey, and much to try along the way. <color:keyword>Enjoy!</color>
+
+<color:D>
+--
+Original   : (??)
+Updated    : (??)
+Updated    : Zangband DevTeam
+Updated    : Hengband 1.5.4
+Updated    : PosChengband 4.0.0
+</color>
   

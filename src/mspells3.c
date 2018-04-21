@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Imitation code */
@@ -1594,7 +1594,6 @@ bool do_cmd_cast_learned(void)
 
     /* Window stuff */
     p_ptr->redraw |= (PR_MANA);
-    p_ptr->window |= (PW_PLAYER);
     p_ptr->window |= (PW_SPELL);
 
     return TRUE;

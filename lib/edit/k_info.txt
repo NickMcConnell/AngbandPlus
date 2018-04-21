@@ -7,8 +7,6 @@
 
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
-# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
-
 # The old "MULTI_HUED" objects are now "violet", and no other object
 # is violet, so all six violet objects can be made "multi-hued", though
 # this would be a heinous hack.  XXX XXX
@@ -359,7 +357,7 @@ N:34:& Broad Sword~
 G:|:W
 I:23:16:0
 W:10:0:0:150:255
-A:10/1:15/1
+A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS | RIDING | TOWN
 D:A heavy, double-edged sword with a strong grip.
@@ -387,7 +385,7 @@ N:37:& Two-Handed Sword~
 G:|:W
 I:23:25:0
 W:30:0:0:200:775
-A:30/1:40/1
+A:30/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
 D:A great, double-edged broadsword which few can wield in one hand.
@@ -434,7 +432,7 @@ N:42:& Long Sword~
 G:|:W
 I:23:17:0
 W:10:0:0:130:300
-A:10/1:20/1
+A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS | RIDING | TOWN
 D:A long, straight, two-edged blade, with two hand guards projecting out from 
@@ -444,7 +442,7 @@ N:43:& Dagger~
 G:|:W
 I:23:4:0
 W:0:0:0:12:10
-A:0/1:5/1:10/1:20/1
+A:0/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TOWN
 D:A two-edged knife with a sharp point.
@@ -781,7 +779,7 @@ N:78:& Arrow~
 G:{:U
 I:17:1:0
 W:3:0:0:2:1
-A:3/1:15/1
+A:3/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TOWN
 M:100:6d7
@@ -803,7 +801,7 @@ N:80:& Bolt~
 G:{:s
 I:18:1:0
 W:3:0:0:3:2
-A:3/1:25/1
+A:3/1
 P:0:1d5:0:0:0
 F:SHOW_MODS | TOWN
 M:100:6d7
@@ -856,7 +854,7 @@ W:20:0:0:60:100
 A:20/4
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
-D:A small spade forged of steel with gnomish craftmanship.
+D:A small spade forged of steel with gnomish craftsmanship.
 
 N:86:& Dwarven Shovel~
 G:\:B
@@ -998,7 +996,7 @@ W:50:0:0:40:2000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
-D:An elaboratedly decorated crown of massive gold, studded with a rainbow 
+D:An elaborately decorated crown of massive gold, studded with a rainbow
 D:of gems and jewels; worthy of an emperor.
 
 N:101:& Robe~
@@ -1287,7 +1285,7 @@ N:132:& Ring~
 G:=:g
 I:45:0:0
 W:10:0:0:2:500
-A:10/1:40/1:60/1
+A:10/1
 
 #sequence gap
 
@@ -1295,7 +1293,7 @@ N:163:& Amulet~
 G:":y
 I:40:0:0
 W:10:0:0:2:500
-A:10/1:40/1:60/1
+A:10/1
 
 #sequence gap
 
@@ -1334,7 +1332,7 @@ N:176:Identify:temeep aks el
 G:?:w
 I:70:12:0
 W:1:0:0:5:50
-A:1/1:5/1:10/1:30/1
+A:1/1
 F:TOWN
 M:100:3d5
 
@@ -1342,7 +1340,7 @@ N:177:*Identify*:triapp trolpet
 G:?:w
 I:70:13:0
 W:30:0:0:5:1500
-A:30/1:50/1:80/1
+A:30/1:50/1
 F:TOWN
 M:100:1d5
 
@@ -1363,8 +1361,8 @@ M:10:1d3
 N:180:Remove Curse:byti sne
 G:?:w
 I:70:14:0
-W:10:0:0:5:100
-A:10/2:20/1
+W:10:0:50:5:100
+A:10/2
 F:TOWN
 M:100:2d3
 
@@ -1372,7 +1370,7 @@ N:181:Light:misat dernin
 G:?:w
 I:70:24:0
 W:0:0:40:5:15
-A:0/1:3/1:10/1
+A:1/1
 F:TOWN
 M:100:3d5
 
@@ -1393,14 +1391,14 @@ M:10:1d3
 N:184:Summon Monster:binvom cosmung
 G:?:w
 I:70:4:0
-W:1:0:50:5:0
+W:1:0:30:5:0
 A:1/1
 M:100:3d5
 
 N:185:Phase Door:ankh sanfu bit
 G:?:w
 I:70:8:0
-W:1:0:0:5:15
+W:1:0:50:5:15
 A:1/1
 F:TOWN
 M:100:3d5
@@ -1423,7 +1421,7 @@ M:50:1d5
 N:188:Monster Confusion:blaata arze
 G:?:w
 I:70:36:0
-W:5:0:0:5:30
+W:5:0:40:5:30
 A:5/1
 F:TOWN
 M:100:1d5
@@ -1431,7 +1429,7 @@ M:100:1d5
 N:189:Magic Mapping:rea fri elip
 G:?:w
 I:70:25:0
-W:5:0:0:5:40
+W:5:0:50:5:40
 A:5/1
 F:TOWN
 M:100:2d3
@@ -1454,7 +1452,7 @@ M:25:1d5
 N:192:Treasure Detection:ner fidtri
 G:?:w
 I:70:26:0
-W:0:0:40:5:15
+W:0:0:20:5:15
 A:0/1
 F:TOWN
 M:100:1d5
@@ -1462,7 +1460,7 @@ M:100:1d5
 N:193:Object Detection:for mic rol
 G:?:w
 I:70:27:0
-W:0:0:40:5:15
+W:0:0:30:5:15
 A:0/1
 F:TOWN
 M:100:1d5
@@ -1471,7 +1469,7 @@ N:194:Trap Detection:sri nelgun
 G:?:w
 I:70:28:0
 W:5:0:30:5:15
-A:5/1:10/1
+A:5/1
 F:TOWN
 M:100:2d3
 
@@ -1502,7 +1500,7 @@ N:197:Door/Stair Location:sehsat ulkab
 G:?:w
 I:70:29:0
 W:5:0:30:5:35
-A:5/1:10/1
+A:5/1
 F:TOWN
 M:100:1d5
 
@@ -1550,7 +1548,7 @@ M:100:3d5
 N:204:Trap/Door Destruction:erk bieklis
 G:?:w
 I:70:39:0
-W:10:0:40:5:50
+W:10:0:30:5:50
 A:10/1
 M:100:1d5
 
@@ -1609,7 +1607,7 @@ A:50/1
 N:213:Curse Weapon:prokaks wahish
 G:?:w
 I:70:3:0
-W:50:0:0:5:0
+W:50:0:70:5:0
 A:50/1
 M:100:1d5
 
@@ -1622,7 +1620,7 @@ A:50/1
 N:215:Curse Armor:alacre re org
 G:?:w
 I:70:2:0
-W:50:0:0:5:0
+W:50:0:70:5:0
 A:50/1
 M:100:1d5
 
@@ -1636,7 +1634,7 @@ M:100:1d5
 N:217:Blessing:ooder dokrog
 G:?:w
 I:70:33:0
-W:1:0:0:5:15
+W:1:0:30:5:15
 A:1/1
 F:TOWN
 M:100:2d3
@@ -1644,7 +1642,7 @@ M:100:2d3
 N:218:Holy Chant:nihum khomar
 G:?:w
 I:70:34:0
-W:10:0:0:5:40
+W:10:0:50:5:40
 A:10/1
 F:TOWN
 M:100:1d5
@@ -1694,7 +1692,7 @@ M:100:1d5
 N:224:Water:Clear
 G:!:w
 I:75:0:200
-W:0:0:0:4:1
+W:0:0:20:4:1
 A:0/1
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR | TOWN
@@ -1704,7 +1702,7 @@ N:225:Strength:Azure
 G:!:B
 I:75:48:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3
+A:20/6:30/3
 P:0:1d1:0:0:0
 M:2:1d2
 
@@ -1719,7 +1717,7 @@ M:100:1d5
 N:227:Restore Strength:Blue Speckled
 G:!:b
 I:75:42:0
-W:25:0:0:4:300
+W:25:0:60:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1729,7 +1727,7 @@ N:228:Intelligence:Black
 G:!:D
 I:75:49:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3
+A:20/6:30/3
 P:0:1d1:0:0:0
 M:2:1d2
 
@@ -1744,7 +1742,7 @@ M:100:1d5
 N:230:Restore Intelligence:Brown Speckled
 G:!:u
 I:75:43:0
-W:25:0:0:4:300
+W:25:0:60:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1754,7 +1752,7 @@ N:231:Wisdom:Bubbling
 G:!:W
 I:75:50:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3
+A:20/6:30/3
 P:0:1d1:0:0:0
 M:2:1d2
 
@@ -1769,7 +1767,7 @@ M:100:1d5
 N:233:Restore Wisdom:Cloudy
 G:!:w
 I:75:44:0
-W:25:0:0:4:300
+W:25:0:60:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1779,7 +1777,7 @@ N:234:Charisma:Copper Speckled
 G:!:U
 I:75:53:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3
+A:20/6:30/3
 P:0:1d1:0:0:0
 M:2:1d2
 
@@ -1794,7 +1792,7 @@ M:100:1d5
 N:236:Restore Charisma:Cyan
 G:!:B
 I:75:47:0
-W:20:0:0:4:300
+W:20:0:60:4:300
 A:20/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1826,7 +1824,7 @@ M:5:1d2
 N:240:Cure Serious Wounds:Gold Speckled
 G:!:y
 I:75:35:100
-W:10:0:50:4:40
+W:10:0:30:4:40
 A:10/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1835,7 +1833,7 @@ M:100:3d5
 N:241:Cure Critical Wounds:Gray
 G:!:s
 I:75:36:100
-W:20:0:0:4:100
+W:20:0:60:4:100
 A:20/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1853,7 +1851,7 @@ N:243:Constitution:Green
 G:!:g
 I:75:52:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3
+A:20/6:30/3
 P:0:1d1:0:0:0
 M:2:1d2
 
@@ -1901,7 +1899,7 @@ N:249:Speed:Magenta
 G:!:r
 I:75:29:0
 W:1:0:0:4:75
-A:1/1:40/1:60/1
+A:1/1:40/1
 P:0:1d1:0:0:0
 M:100:2d3
 
@@ -1917,14 +1915,14 @@ N:251:Dexterity:Metallic Red
 G:!:r
 I:75:51:0
 W:30:0:0:4:30000
-A:20/6:30/3:60/3
+A:20/6:30/3
 P:0:1d1:0:0:0
 M:2:1d2
 
 N:252:Restore Dexterity:Metallic Green
 G:!:g
 I:75:45:0
-W:25:0:0:4:300
+W:25:0:60:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1933,7 +1931,7 @@ M:100:1d5
 N:253:Restore Constitution:Metallic Purple
 G:!:v
 I:75:46:0
-W:25:0:0:4:300
+W:25:0:60:4:300
 A:25/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -1959,7 +1957,7 @@ N:256:Enlightenment:Pink
 G:!:R
 I:75:56:0
 W:25:0:0:4:800
-A:25/1:50/1:100/1
+A:25/1
 P:0:1d1:0:0:0
 M:10:1d3
 
@@ -1967,7 +1965,7 @@ N:257:Heroism:Pink Speckled
 G:!:R
 I:75:32:0
 W:1:0:0:4:35
-A:1/1:40/1:80/1
+A:1/1
 P:0:1d1:0:0:0
 F:TOWN
 M:100:1d5
@@ -2001,7 +1999,7 @@ M:100:2d4
 N:261:Resist Heat:Red Speckled
 G:!:r
 I:75:30:0
-W:1:0:0:4:150
+W:1:0:60:4:150
 A:1/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -2010,7 +2008,7 @@ M:100:2d5
 N:262:Resist Cold:Silver Speckled
 G:!:W
 I:75:31:0
-W:1:0:0:4:150
+W:1:0:60:4:150
 A:1/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -2046,8 +2044,8 @@ M:100:3d5
 N:266:Restore Mana:Vermilion
 G:!:r
 I:75:40:0
-W:15:0:0:4:1000
-A:25/2:40/2:60/2:90/2
+W:25:0:0:4:1000
+A:25/2:90/2
 P:0:1d1:0:0:0
 M:10:1d3
 
@@ -2064,194 +2062,33 @@ N:268:Resistance:Yellow
 G:!:y
 I:75:60:100
 W:20:0:0:4:250
-A:20/1:45/1:80/1:100/1
+A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-##### Wands #####
-N:269:Light:Aluminum
+##### Devices #####
+N:269:& Wand~
 G:-:B
-I:65:7:17
-W:3:0:30:10:200
-A:3/1
-F:TOWN
-P:0:1d1:0:0:0
-
-N:270:Tame Monster:Cast Iron
-G:-:D
-I:65:17:9
-W:30:0:60:10:1500
-A:30/2
-P:0:1d1:0:0:0
-
-N:271:Frost Bolts:Chromium
-G:-:w
-I:65:19:12
-W:15:0:30:10:800
-A:15/1
-F:TOWN
-P:0:1d1:0:0:0
-
-N:272:Fire Bolts:Copper
-G:-:U
-I:65:18:15
-W:19:0:40:10:1000
-A:19/1
-P:0:1d1:0:0:0
-
-N:273:Stone to Mud:Gold
-G:-:y
-I:65:6:12
-W:10:0:0:10:300
-A:10/1:40/1
-P:0:1d1:0:0:0
-
-N:274:Polymorph:Iron
-G:-:s
-I:65:13:15
-W:15:0:40:10:400
-A:15/1
-F:TOWN
-P:0:1d1:0:0:0
-
-N:275:Heal Monster:Magnesium
-G:-:W
-I:65:0:6
-W:2:0:20:10:0
-A:2/1
-P:0:1d1:0:0:0
-
-N:276:Haste Monster:Molybdenum
-G:-:W
-I:65:1:6
-W:20:0:0:10:1
-A:20/1
-P:0:1d1:0:0:0
-
-N:277:Slow Monster:Nickel
-G:-:U
-I:65:9:17
-W:5:0:30:10:500
-A:2/1
-F:TOWN
-P:0:1d1:0:0:0
-
-N:278:Confuse Monster:Rusty
-G:-:r
-I:65:10:15
-W:5:0:30:10:500
-A:3/1
-F:TOWN
-P:0:1d1:0:0:0
-
-N:279:Sleep Monster:Silver
-G:-:W
-I:65:8:16
-W:5:0:30:10:500
+I:65:0:0
+W:1:0:0:2:1
 A:5/1
 F:TOWN
-P:0:1d1:0:0:0
 
-N:280:Drain Life:Steel
-G:-:W
-I:65:12:7
-W:40:0:0:10:1200
-A:40/1
-P:0:1d1:0:0:0
-
-N:281:Trap/Door Destruction:Tin
-G:-:W
-I:65:5:15
-W:10:0:50:10:100
+N:270:& Staff~
+G:_:U
+I:55:0:0
+W:5:0:0:50:1
 A:10/1
 F:TOWN
-P:0:1d1:0:0:0
 
-N:282:Magic Missile:Titanium
-G:-:w
-I:65:15:17
-W:2:0:30:10:200
-A:2/1
-F:TOWN
-P:0:1d1:0:0:0
-
-N:283:Clone Monster:Tungsten
-G:-:w
-I:65:2:6
-W:15:0:60:10:0
+N:271:& Rod~
+G:-:r
+I:66:0:0
+W:10:0:0:15:1
 A:15/1
-P:0:1d1:0:0:0
-
-N:284:Scare Monster:Zirconium
-G:-:W
-I:65:11:9
-W:10:0:30:10:500
-A:10/4
 F:TOWN
-P:0:1d1:0:0:0
 
-N:285:Teleport Other:Zinc
-G:-:W
-I:65:3:12
-W:20:0:0:10:350
-A:20/1
-P:0:1d1:0:0:0
-
-N:286:Disarming:Copper-Plated
-G:-:U
-I:65:4:10
-W:20:0:0:10:700
-A:20/1
-P:0:1d1:0:0:0
-
-N:287:Lightning Balls:Gold-Plated
-G:-:y
-I:65:21:13
-W:30:0:0:10:1200
-A:30/1
-P:0:1d1:0:0:0
-F:IGNORE_ELEC
-
-N:288:Cold Balls:Silver-Plated
-G:-:W
-I:65:23:9
-W:30:0:0:10:1500
-A:30/1
-P:0:1d1:0:0:0
-F:IGNORE_COLD
-
-N:289:Fire Balls:Tin-Plated
-G:-:W
-I:65:22:7
-W:30:0:0:10:1800
-A:30/1
-P:0:1d1:0:0:0
-F:IGNORE_FIRE
-
-N:290:Stinking Cloud:Zinc-Plated
-G:-:W
-I:65:14:15
-W:5:0:30:10:400
-A:5/1
-F:TOWN
-P:0:1d1:0:0:0
-
-N:291:Acid Balls:Mithril
-G:-:B
-I:65:20:8
-W:30:0:0:10:1650
-A:30/1
-P:0:1d1:0:0:0
-F:IGNORE_ACID
-
-N:292:Wonder:Bronze
-G:-:U
-I:65:24:24
-W:3:0:40:10:250
-A:3/1
-F:TOWN
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+#sequence gap
 
 ##### Extra ammunition #####
 
@@ -2263,274 +2100,6 @@ A:3/2
 P:0:1d3:0:0:0
 M:100:6d7
 F:SHOW_MODS
-
-##### Additional wands #####
-
-N:294:Acid Bolts:Brass
-G:-:U
-I:65:16:15
-W:20:0:40:10:950
-A:20/1
-P:0:1d1:0:0:0
-
-N:295:Dragon's Flame:Platinum
-G:-:w
-I:65:26:5
-W:50:0:0:10:2400
-A:50/4
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:296:Dragon's Frost:Lead
-G:-:s
-I:65:27:5
-W:50:0:0:10:2400
-A:50/4
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:297:Dragon's Breath:Lead-Plated
-G:-:s
-I:65:28:5
-W:60:0:0:10:2400
-A:60/4
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:298:Disintegrate:Ivory
-G:-:w
-I:65:25:4
-W:60:0:0:10:3000
-A:60/5
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:299:Rockets:Adamantite
-G:-:v
-I:65:29:4
-W:80:0:0:10:9500
-A:80/5
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-##### Staffs #####
-
-N:300:Trap Location:Aspen
-G:_:U
-I:55:12:12
-W:10:0:30:50:350
-A:10/1
-F:TOWN
-P:0:1d2:0:0:0
-
-N:301:Treasure Location:Balsa
-G:_:U
-I:55:10:19
-W:5:0:30:50:200
-A:5/1
-F:TOWN
-P:0:1d2:0:0:0
-
-N:302:Object Location:Banyan
-G:_:U
-I:55:11:15
-W:5:0:50:50:200
-A:5/1
-F:TOWN
-P:0:1d2:0:0:0
-
-N:303:Teleportation:Birch
-G:_:U
-I:55:4:10
-W:20:0:0:50:2000
-A:20/1
-P:0:1d2:0:0:0
-
-N:304:Earthquakes:Cedar
-G:_:U
-I:55:28:9
-W:40:0:0:50:350
-A:40/1
-P:0:1d2:0:0:0
-
-N:305:Summoning:Cottonwood
-G:_:U
-I:55:3:5
-W:10:0:0:50:0
-A:10/1:50/1
-P:0:1d2:0:0:0
-
-N:306:Light:Cypress
-G:_:U
-I:55:8:19
-W:5:0:30:50:250
-A:5/1
-F:TOWN
-P:0:1d2:0:0:0
-
-N:307:Destruction:Dogwood
-G:_:U
-I:55:29:5
-W:50:0:0:50:2500
-A:50/1
-P:0:1d2:0:0:0
-
-N:308:Starlight:Elm
-G:_:U
-I:55:7:12
-W:20:0:0:50:800
-A:20/1
-P:0:1d2:0:0:0
-
-N:309:Haste Monsters:Eucalyptus
-G:_:U
-I:55:2:12
-W:10:0:0:50:0
-A:10/1
-P:0:1d2:0:0:0
-
-N:310:Slow Monsters:Hemlock
-G:_:U
-I:55:21:12
-W:10:0:40:50:800
-A:10/1
-P:0:1d2:0:0:0
-
-N:311:Sleep Monsters:Hickory
-G:_:U
-I:55:20:12
-W:10:0:40:50:700
-A:10/1
-P:0:1d2:0:0:0
-
-N:312:Cure Wounds:Ironwood
-G:_:u
-I:55:16:12
-W:20:0:60:50:1000
-A:20/2
-P:0:1d2:0:0:0
-
-N:313:Detect Invisible:Locust
-G:_:U
-I:55:14:16
-W:5:0:30:50:200
-A:5/1
-F:TOWN
-P:0:1d2:0:0:0
-
-N:314:Speed:Mahogany
-G:_:u
-I:55:22:8
-W:40:0:0:50:1000
-A:40/1
-P:0:1d2:0:0:0
-
-N:315:Slowness:Maple
-G:_:U
-I:55:1:10
-W:40:0:0:50:0
-A:40/1
-P:0:1d2:0:0:0
-
-N:316:Door/Stair Location:Mulberry
-G:_:U
-I:55:13:15
-W:10:0:30:50:350
-A:10/1
-F:TOWN
-P:0:1d2:0:0:0
-
-N:317:Remove Curse:Oak
-G:_:U
-I:55:6:8
-W:40:0:0:50:500
-A:40/1
-P:0:1d2:0:0:0
-
-N:318:Detect Evil:Pine
-G:_:U
-I:55:15:14
-W:20:0:50:50:350
-A:20/1
-P:0:1d2:0:0:0
-
-N:319:Curing:Redwood
-G:_:r
-I:55:17:8
-W:25:0:0:50:1000
-A:25/1
-P:0:1d2:0:0:0
-
-N:320:Dispel Evil:Rosewood
-G:_:r
-I:55:24:8
-W:50:0:0:50:1200
-A:50/1
-P:0:1d2:0:0:0
-
-N:321:Probing:Spruce
-G:_:U
-I:55:23:9
-W:30:0:0:50:2000
-A:30/1
-P:0:1d2:0:0:0
-
-N:322:Darkness:Sycamore
-G:_:U
-I:55:0:10
-W:5:0:40:50:0
-A:5/1
-P:0:1d2:0:0:0
-
-N:323:Genocide:Teak
-G:_:U
-I:55:27:4
-W:80:0:0:50:30000
-A:75/5
-P:0:1d2:0:0:0
-
-N:324:Power:Walnut
-G:_:u
-I:55:25:5
-W:50:0:0:50:4000
-A:50/2
-P:0:1d2:0:0:0
-
-N:325:the Magi:Mistletoe
-G:_:g
-I:55:19:5
-W:100:0:0:50:100000
-A:100/100
-P:0:1d2:0:0:0
-
-N:326:Perception:Hawthorn
-G:_:U
-I:55:5:21
-W:10:0:0:50:400
-A:10/1
-F:TOWN
-P:0:1d2:0:0:0
-
-N:327:Holiness:Bamboo
-G:_:U
-I:55:26:5
-W:50:0:0:50:4500
-A:50/2
-P:0:1d2:0:0:0
-
-N:328:Enlightenment:Silver
-G:_:W
-I:55:9:11
-W:20:0:0:50:750
-A:20/1
-P:0:1d2:0:0:0
-
-N:329:Healing:Runed
-G:_:u
-I:55:18:4
-W:60:0:0:50:5000
-A:60/3
-P:0:1d2:0:0:0
 
 ##### Basic Books #####
 
@@ -2555,7 +2124,7 @@ M:50:1d2
 N:332:[Book of the Unicorn]
 G:?:w
 I:90:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2589,7 +2158,7 @@ M:50:1d2
 N:336:[Pattern Sorcery]
 G:?:b
 I:91:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2699,212 +2268,6 @@ A:0/1
 P:0:1d1:0:0:0
 M:100:1d5
 
-##### Here are the Rods #####
-#HACK:pval is the recharge timeout
-
-N:350:Havoc:Aluminum
-G:-:B
-I:66:28:35
-W:100:0:0:15:150000
-A:50/32:100/8
-P:0:1d1:0:0:0
-
-N:351:Door/Stair Location:Cast Iron
-G:-:D
-I:66:1:35
-W:15:0:50:15:1000
-A:7/4:15/1
-P:0:1d1:0:0:0
-
-N:352:Trap Location:Chromium
-G:-:w
-I:66:0:15
-W:5:0:50:15:100
-A:3/2:10/1
-P:0:1d1:0:0:0
-
-N:353:Probing:Copper
-G:-:U
-I:66:7:50
-W:40:0:0:15:4000
-A:20/16:40/4
-P:0:1d1:0:0:0
-
-N:354:Recall:Gold
-G:-:y
-I:66:3:60
-W:30:0:0:15:4000
-A:15/16:30/4
-P:0:1d1:0:0:0
-
-N:355:Illumination:Iron
-G:-:s
-I:66:4:16
-W:12:0:60:15:1000
-A:6/4:12/1
-P:0:1d1:0:0:0
-
-N:356:Light:Magnesium
-G:-:W
-I:66:15:9
-W:10:0:30:15:500
-A:5/4:10/1
-P:0:1d1:0:0:0
-
-N:357:Lightning Bolts:Molybdenum
-G:-:W
-I:66:21:11
-W:20:0:40:15:2000
-A:10/4:20/1
-P:0:1d1:0:0:0
-
-N:358:Frost Bolts:Nickel
-G:-:U
-I:66:23:13
-W:20:0:40:15:2500
-A:13/4:20/1
-P:0:1d1:0:0:0
-
-N:359:Fire Bolts:Rusty
-G:-:r
-I:66:22:15
-W:20:0:40:15:3000
-A:15/4:20/1
-P:0:1d1:0:0:0
-
-N:360:Polymorph:Silver
-G:-:W
-I:66:19:25
-W:35:0:40:15:1200
-A:18/4:35/1
-P:0:1d1:0:0:0
-
-N:361:Slow Monster:Steel
-G:-:W
-I:66:17:20
-W:30:0:40:15:1500
-A:15/4:30/1
-P:0:1d1:0:0:0
-
-N:362:Sleep Monster:Tin
-G:-:W
-I:66:16:18
-W:30:0:40:15:1500
-A:15/4:30/1
-P:0:1d1:0:0:0
-
-N:363:Drain Life:Titanium
-G:-:w
-I:66:18:23
-W:55:0:0:15:3600
-A:38/16:55/4
-P:0:1d1:0:0:0
-
-N:364:Teleport Other:Tungsten
-G:-:w
-I:66:13:25
-W:45:0:0:15:1400
-A:23/8:45/2
-P:0:1d1:0:0:0
-
-N:365:Disarming:Zirconium
-G:-:W
-I:66:14:22
-W:35:0:0:15:2100
-A:18/4:35/1
-P:0:1d1:0:0:0
-
-N:366:Lightning Balls:Zinc
-G:-:W
-I:66:25:23
-W:35:0:0:15:4000
-A:35/1
-P:0:1d1:0:0:0
-
-N:367:Cold Balls:Copper-Plated
-G:-:U
-I:66:27:25
-W:40:0:0:15:4500
-A:40/1
-P:0:1d1:0:0:0
-
-N:368:Fire Balls:Gold-Plated
-G:-:y
-I:66:26:30
-W:40:0:0:15:5000
-A:40/1
-P:0:1d1:0:0:0
-
-N:369:Acid Balls:Silver-Plated
-G:-:W
-I:66:24:27
-W:40:0:0:15:5500
-A:40/1
-P:0:1d1:0:0:0
-
-N:370:Acid Bolts:Tin-Plated
-G:-:W
-I:66:20:12
-W:40:0:60:15:3500
-A:20/4:40/1
-P:0:1d1:0:0:0
-
-N:371:Enlightenment:Zinc-Plated
-G:-:W
-I:66:5:30
-W:55:0:0:15:10000
-A:33/16:55/4
-P:0:1d1:0:0:0
-
-N:372:Perception:Mithril
-G:-:B
-I:66:2:10
-W:35:0:0:15:13000
-A:25/32:50/8
-P:0:1d1:0:0:0
-
-N:373:Curing:Bronze
-G:-:U
-I:66:8:50
-W:65:0:0:15:15000
-A:33/32:65/8
-P:0:1d1:0:0:0
-
-N:374:Healing:Brass
-G:-:U
-I:66:9:300
-W:80:0:0:15:20000
-A:40/32:80/8
-P:0:1d1:0:0:0
-
-N:375:Detection:Platinum
-G:-:w
-I:66:6:50
-W:30:0:0:15:5000
-A:15/32:30/6
-P:0:1d1:0:0:0
-
-N:376:Restoration:Lead
-G:-:s
-I:66:10:300
-W:80:0:0:15:25000
-A:40/64:80/16
-P:0:1d1:0:0:0
-
-N:377:Speed:Lead-Plated
-G:-:s
-I:66:11:99
-W:60:0:0:15:50000
-A:48/64:95/16
-P:0:1d1:0:0:0
-
-N:378:Pesticide:Ivory
-G:-:w
-I:66:12:2
-W:3:0:40:15:1000
-A:13/8:25/2
-P:0:1d1:0:0:0
-
 ##### Special Books (note resistances) #####
 
 N:379:[Call of the Wild]
@@ -2928,7 +2291,7 @@ M:50:1d2
 N:381:[Nature's Gifts]
 G:?:g
 I:92:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2962,7 +2325,7 @@ M:100:1d2
 N:385:[Chaos Channels]
 G:?:r
 I:93:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -3244,7 +2607,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 E:BREATHE_ELEMENTS:50:100:300
 E:You breathe the elements!
 D:A suit with scales of every color, surrounded in a nimbus of perfectly 
-D:untramelled yet inextricably intermingled and utterly mastered powers 
+D:untrammelled yet inextricably intermingled and utterly mastered powers
 D:elemental and ethereal.
 
 N:413:& Dragon Helm~
@@ -3330,7 +2693,7 @@ P:0:1d1:0:0:0
 N:423:[Black Channels]
 G:?:v
 I:94:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -3347,7 +2710,7 @@ N:437:Cure Light Wounds:Gold
 G:!:y
 I:75:34:50
 W:0:0:20:4:15
-A:0/1:1/1:3/1
+A:0/1
 P:0:1d1:0:0:0
 F:TOWN
 M:100:3d5
@@ -3572,7 +2935,7 @@ M:50:1d2
 N:514:[Trumps of Doom]
 G:?:u
 I:95:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4037,7 +3400,7 @@ A:1/2
 P:0:1d1:0:0:0
 
 N:579:Corpse~
-G:~:d
+G:~:D
 I:10:1:0
 W:1:0:0:40:0
 A:1/2
@@ -4065,13 +3428,6 @@ W:15:40:0:60:450
 A:15/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
-
-N:583:Stone to Mud:Adamantite
-G:-:v
-I:66:29:25
-W:40:0:0:10:3000
-A:20/12:40/3
-P:0:1d1:0:0:0
 
 N:584:& Set~ of Dragon Gloves
 G:]:G
@@ -4193,7 +3549,7 @@ M:50:1d2
 N:606:[Note of Acting Master]
 G:?:U
 I:97:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4205,13 +3561,6 @@ W:95:0:0:30:100000
 A:95/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:608:Animate Dead:Golden
-G:_:y
-I:55:30:8
-W:35:0:0:50:800
-A:35/1
-P:0:1d2:0:0:0
 
 N:609:& Levitation Stone~
 G:*:B
@@ -4308,22 +3657,6 @@ W:40:0:0:160:250
 A:40/2
 P:10:1d6:0:0:0
 
-N:628:Striking:Uridium
-G:-:R
-I:65:30:6
-W:55:0:0:10:4000
-A:55/3
-P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:629:Mana Storm:Ashen
-G:_:s
-I:55:31:5
-W:85:0:0:50:7000
-A:85/4
-P:0:1d2:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
 N:630:Reset Recall:unjah blu comp
 G:?:w
 I:70:53:0
@@ -4352,7 +3685,7 @@ M:50:1d2
 N:633:[Harps of Rivendell]
 G:?:w
 I:105:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4402,7 +3735,7 @@ M:50:1d2
 N:639:[Gorinnosho]
 G:?:u
 I:106:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4414,20 +3747,6 @@ W:90:0:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:641:Annihilation:Hexagonal
-G:-:r
-I:65:31:4
-W:60:0:0:10:10000
-A:60/4
-P:0:1d1:0:0:0
-
-N:642:Aggravate Monster:Uridium
-G:-:R
-I:66:30:9
-W:30:0:60:10:0
-A:15/8:30/2
-P:0:1d1:0:0:0
 
 N:643:& Photograph~ of #
 G:~:s
@@ -4464,7 +3783,7 @@ M:50:1d2
 N:648:[Demonthoughts]
 G:?:r
 I:98:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4519,7 +3838,7 @@ M:50:1d2
 N:656:[Exorcism and Dispelling]
 G:?:w
 I:99:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4531,13 +3850,6 @@ W:95:0:0:30:100000
 A:95/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-N:658:& Staff~:Gnarled
-G:_:s
-I:55:32:20
-W:1:0:0:50:20
-P:0:1d2:0:0:0
-F:FULL_NAME
 
 N:663:[Handbook of Hex]
 G:?:v
@@ -4560,7 +3872,7 @@ M:50:1d2
 N:665:[Curse and Spelling]
 G:?:D
 I:107:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4662,7 +3974,7 @@ M:50:1d2
 N:685:[Return of the Dead]
 G:?:D
 I:100:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4708,7 +4020,7 @@ M:50:1d2
 N:690:[The Sound and the Fury]
 G:?:D
 I:108:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4772,7 +4084,7 @@ M:50:1d2
 N:703:[Great Escapes]
 G:?:u
 I:109:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4858,7 +4170,7 @@ F:INSTA_ART
 N:716:Clarity:Metallic
 G:!:w
 I:75:70:100
-W:20:0:0:4:100
+W:20:0:60:4:100
 A:20/2:40/1
 P:0:1d1:0:0:0
 D:It clears your mind, restoring spell points a bit.
@@ -4903,7 +4215,7 @@ M:50:1d2
 N:721:[Path of Destruction]
 G:?:r
 I:101:2:0
-W:50:0:0:30:25000
+W:50:0:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -4923,13 +4235,6 @@ W:10:0:50:5:40
 A:10/2
 F:TOWN
 M:100:3d5
-
-N:724:Monster Location:Black
-G:-:w
-I:66:31:15
-W:15:0:50:15:1000
-A:15/3
-P:0:1d1:0:0:0
 
 N:725:& Stone
 G:*:R
@@ -4977,33 +4282,19 @@ A:90/6
 F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ACID | IGNORE_ELEC
 M:10:1d3
 
-N:742:Escaping:Translucent
-G:-:s
-I:66:32:12
-W:30:0:0:15:2500
-A:30/4
-P:0:1d1:0:0:0
-
-N:744:Mana Balls:Jade
-G:-:B
-I:66:33:35
-W:80:0:0:15:25000
-A:50/16:80/4
-P:0:1d1:0:0:0
-
-N:745:Mana Bolts:Crystal
-G:-:B
-I:66:34:35
-W:55:0:0:15:15000
-A:40/16:55/4
-P:0:1d1:0:0:0
-
 N:746:& Death Scythe~
 G:/:R
 I:22:51:0
 W:70:0:0:350:10000
 P:0:10d10:-50:30:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:747:& Stone
+G:*:B
+I:39:23:0
+W:50:0:0:5:25000
+P:0:1d1:0:0:0
+F:INSTA_ART
 
 # N: serial number : & object name~
 # G: symbol : color

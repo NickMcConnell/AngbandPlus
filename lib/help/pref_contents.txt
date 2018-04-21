@@ -1,0 +1,15 @@
+<style:title>User Preference Files</style>
+
+Please choose one of the following online help files:
+
+    <link:pref.txt> User Preferences
+    <link:pref.txt#Files> Preference Files
+    <link:pref.txt#Commands> Preference Commands
+    <link:pref.txt#Example> An Example
+    <link:pref.txt#Visuals> Interacting with Visuals
+    <link:pref.txt#Colors> Interacting with Colors
+    <link:pref.txt#Options> Interacting with Options
+    <link:pref.txt#Macros> Interacting with Macros
+    <link:pref.txt#MacroSamples> Some Macro Examples
+
+    <color:y>(?) Help System Commands</color>

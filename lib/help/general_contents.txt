@@ -1,0 +1,11 @@
+<style:title>An Introduction and General Information.<style:normal>
+
+Please choose one of the following online help files:
+
+    <link:general.txt> General Information
+    <link:general.txt#First> First Place to Go
+    <link:general.txt#Winning> Winning the Game
+    <link:general.txt#UponDeath> Upon Death and Dying
+    <link:tang_contents.txt> The Newbie Guide
+
+    <color:y>(?) Help System Commands<color:*>

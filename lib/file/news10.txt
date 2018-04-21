@@ -1,0 +1,44 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+Ahhhtatatatatatatatatatatatatatataatatatatattaaaaa!!!! <color:U>You attack </color>
+<color:U>Bleys, Master of Manipulation:</color> You <color:y>double-kick</color>. It was a <color:R>great</color> hit! You ...<color:G>#</color>. LEVEL <color:G>    45</color>
+<color:o>circle kick</color>. You <color:o>circle kick</color>. You miss. You land a <color:r>Dragon Fist</color>. It was  ...<color:G>##</color> EXP <color:G>    285k</color>
+a <color:R>great</color> hit! You land an <color:o>Eagle's Claw</color>. You <color:y>jump kick</color>. It was a <color:R>great</color>    ..... AU  <color:G>   3.39M</color>
+hit! Bleys, Master of Manipulation flees in terror! <color:U>You attack Bleys, </color>  ..... <color:d>  </color><color:u>}</color><color:g>==</color><color:y>"*</color><color:U>(</color><color:g>(</color><color:s>]</color><color:U>]]</color>
+<color:U>Master of Manipulation:</color> You <color:y>double-kick</color>. You <color:y>jump kick</color>. You land a      <color:U>##</color>... Str!: <color:y>18/150</color>
+<color:R>flying kick</color>. You <color:y>double-kick</color>. You land an <color:R>Iron Fist</color>. It was a <color:R>great</color>     .<color:U>'#+#</color> Int : <color:y> 18/62</color>
+hit! You <color:o>circle kick</color>. <color:v>Bleys, Master of Manipulation puts a terrible </color>    ...<color:U>##</color> Wis : <color:y>18/***</color>
+<color:v>blood curse on you!</color> There is a malignant black aura surrounding Hard    .<color:U>###</color>  DEX : <color:G>18/***</color>
+Studded Leather of Desert... You feel a surge of energy! You feel very  .<color:U>#</color>    Con!: <color:y>18/115</color>
+weak.<color:B>-more-</color>                                                             .<color:U>#</color>    Chr : <color:y>18/155</color>
+<color:D>xxxxxxxxxxxx</color><color:U>#</color>  <color:U>####</color>                                             <color:U>##</color> <color:U>#</color>  <color:U>##</color>.<color:U>#</color>  <color:U>#</color> AC     <color:G>  207</color>
+<color:D>xxxxxxxxxxx</color> <color:U>##</color>    <color:U>#</color>                                             <color:U>#</color>  <color:U>#</color>  <color:U>#</color>..<color:U>#</color>  <color:U>#</color> HP <color:G> 749</color>/<color:G> 749</color>
+<color:D>xxxxxxxxxxx</color>  <color:U>####</color> <color:U>#</color>                                          <color:U>####</color> <color:U>##</color>  <color:U>#</color>.<color:U>##</color>  <color:U>#</color> SP <color:y> 128</color>/<color:G> 379</color>
+<color:D>xxxxxxxxxxx</color>     <color:U>#</color> <color:U>###</color>                                        <color:U>#</color>    <color:U>#</color>   <color:U>#</color>..<color:U>#</color>
+<color:D>xxxxxxxxxx</color>      <color:U>#</color>   <color:U>#</color>                                        <color:U>#</color> <color:U>####</color>   <color:U>##</color>.<color:U>####</color> @[<color:G>*********</color>]
+<color:D>xxxxxxxxxx</color>      <color:U>###</color> <color:U>###</color>                                      <color:U>#</color>.<color:U>#</color>      <color:U>#</color>..<color:U>##</color>   <color:G>?</color>[<color:y>****</color>-----]
+<color:D>xxxxxxxxxx</color>        <color:U>#</color>   <color:U>###</color>                                   <color:U>##</color>.<color:U>########</color>.<color:U>###</color> <color:U>#</color> <color:U>,</color>[<color:G>*********</color>]
+<color:D>xxxxxxxxxx</color>        <color:U>###</color>   <color:U>##</color>                                  <color:U>#</color>..   <color:U>##</color>....<color:U>#</color> <color:U>#</color> <color:U>#</color>  [---------]
+<color:D>xxxxxxxxxx</color>          <color:U>###</color>  <color:U>#</color>                                <color:U>###</color>.<color:U>#+###</color>..<color:U>######</color> <color:U>#</color>
+<color:D>xxxxxxxxxx</color>            <color:U>##</color> <color:U>#</color>                              <color:U>###</color>..<color:U>'#</color>...<color:U>'#</color>.<color:U>#</color>..:   <color:U>#</color>
+<color:D>xxxxxxxxx</color>              <color:U>#</color> <color:U>#######</color>     <color:U>######</color>  <color:U>#####</color>      <color:U>#</color>...<color:U>##</color>.....<color:U>#'</color>..<color:U>######</color> <color:G>Fast (+23)</color>
+<color:D>xxxxxxxxx</color>       <color:U>########</color>   <color:U>#</color>   <color:U>#######</color><color:g>::</color><color:G>#</color><color:u>U</color><color:U>####</color>...<color:U>########</color>.<color:U>#</color>.<color:U>#</color>.......<color:U>####</color>      <color:D>CURSED</color>
+<color:D>xxxxxxxxx</color><color:U>########</color>  <color:U>#</color>    <color:U>##</color>       ..<color:U>#</color>..<color:g>:</color><color:U>##</color><color:u>U</color>@<color:U>p</color><color:G>#</color>..<color:U>#</color>.........<color:R>^</color><color:U>###</color>.......<color:U>#</color>         <color:G>Full</color>
+<color:D>xxxxxxxxxx</color>     <color:U>#</color>     <color:U>##</color>       <color:U>####</color>:..<color:U>######################</color> <color:U>#</color>.......<color:U>#</color>         <color:B>Study (6)</color>
+<color:D>xxxxxxxxxx</color><color:U>####</color>   <color:U>############</color> <color:U>#</color>  <color:U>#####</color>                      <color:U>##</color>....<color:r>^</color><color:U>##</color>
+<color:D>xxxxxxxxxx</color>   <color:U>#####</color>         <color:U>#</color>  <color:U>#</color>                              <color:U>##</color>...<color:U>##</color>
+<color:D>xxxxxxxxxx</color>                 <color:U>#</color> <color:U>##</color>                               <color:U>#####</color>
+<color:D>xxxxxxxxxx</color>                 <color:U>#</color> <color:U>#</color>
+<color:D>xxxxxxxxxx</color>                 <color:U>#</color> <color:U>#</color>
+<color:D>xxxxxxxxxxx</color>                <color:U>#</color> <color:U>#</color>
+<color:D>xxxxxxxxxxx</color>                <color:U>#</color> <color:U>#####</color>
+<color:D>xxxxxxxxxxx</color>                <color:U>#+#</color>   <color:U>##</color>
+<color:D>xxxxxxxxxxxx</color>               <color:U>##</color>     <color:U>#</color>
+<color:D>xxxxxxxxxxxx</color>                <color:U>#</color>     <color:U>#</color>
+<color:D>xxxxxxxxxxxx</color>                <color:U>#</color>    <color:g>^</color><color:U>#</color>
+<color:D>xxxxxxxxxxxxx</color>               <color:U>##</color>   <color:U>##</color>
+<color:D>xxxxxxxxxxxxxx</color>               <color:U>#####</color>
+<color:D>xxxxxxxxxxxxxx</color>
+
+<color:W>Arena: L67</color>                        StnSkn <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>
+</style>

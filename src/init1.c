@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Initialization (part 1) -BEN- */
@@ -15,7 +15,7 @@
 
 /*
  * This file is used to initialize various variables and arrays for the
- * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
+ * Angband game. Note the use of "fd_read()" and "fd_write()" to bypass
  * the common limitation of "read()" and "write()" to only 32767 bytes
  * at a time.
  *
@@ -25,13 +25,13 @@
  * directory, or if those files become obsolete, if we are allowed.
  *
  * Warning -- the "ascii" file parsers use a minor hack to collect the
- * name and text information in a single pass.  Thus, the game will not
+ * name and text information in a single pass. Thus, the game will not
  * be able to load any template file with more than 20K of names or 60K
  * of text, even though technically, up to 64K should be legal.
  *
  * Note that if "ALLOW_TEMPLATES" is not defined, then a lot of the code
  * in this file is compiled out, and the game will not run unless valid
- * "binary template files" already exist in "lib/data".  Thus, one can
+ * "binary template files" already exist in "lib/data". Thus, one can
  * compile Angband with ALLOW_TEMPLATES defined, run once to create the
  * "*.raw" files in "lib/data", and then quit, and recompile without
  * defining ALLOW_TEMPLATES, which will both save 20K and prevent people
@@ -328,7 +328,7 @@ static cptr r_info_flags2[] =
     "AURA_FEAR",
     "CAMELOT",
     "KNIGHT",
-    "XXX",
+    "SOUTHERING",
     "HUMAN",
     "QUANTUM"
 };
@@ -821,6 +821,13 @@ static cptr k_info_flags[TR_FLAG_MAX] =
 
     "STUN",
     "DEVICE_POWER",
+    "IM_POIS",
+    "IM_LITE",
+    "IM_DARK",
+    "IM_NETHER",
+    "IM_FEAR",
+    "DEC_BLOWS",
+    "IM_BLIND",
 };
 
 
@@ -842,7 +849,7 @@ static cptr k_info_gen_flags[] =
     "RANDOM_CURSE0",
     "RANDOM_CURSE1",
     "RANDOM_CURSE2",
-    "XXX",
+    "AWARE",
     "TOWN",
     "XXX",
     "XXX",
@@ -1298,7 +1305,7 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_t *grid_
     if (arg_ct >= 2)
     {
         char *flags[10];
-        int   flag_ct = string_split(args[1], flags, 10, "|");
+        int   flag_ct = z_string_split(args[1], flags, 10, "|");
         int   i;
                 
         trim_tokens(flags, flag_ct);
@@ -1422,7 +1429,7 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_t *grid_p
     case 2:
     {
         char *flags[10];
-        int   flag_ct = string_split(args[1], flags, 10, "|");
+        int   flag_ct = z_string_split(args[1], flags, 10, "|");
         int   i;
                 
         trim_tokens(flags, flag_ct);
@@ -1598,7 +1605,7 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
     if (arg_ct >= 1)
     {
         char *flags[10];
-        int   flag_ct = string_split(args[0], flags, 10, "|");
+        int   flag_ct = z_string_split(args[0], flags, 10, "|");
         int   i;
                 
         trim_tokens(flags, flag_ct);
@@ -1631,7 +1638,7 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
 {
     errr  result = 0;
     char *commands[10];
-    int   command_ct = string_split(buf, commands, 10, ":");
+    int   command_ct = z_string_split(buf, commands, 10, ":");
     int   i;
     bool  found_feature = FALSE;
 
@@ -1709,7 +1716,7 @@ errr parse_room_grid(char *buf, room_grid_t *grid_ptr)
 static errr _parse_room_flags(char* buf, room_template_t *room_ptr)
 {
     char *flags[10];
-    int   flag_ct = string_split(buf, flags, 10, "|");
+    int   flag_ct = z_string_split(buf, flags, 10, "|");
     int   i;
                 
     trim_tokens(flags, flag_ct);
@@ -3098,6 +3105,7 @@ static cptr e_info_types[] = /* order must match ego_e in defines.h, obviously *
     "HARP",
     "ROBE",
     "SPECIAL",
+    "DEVICE",
 };
 
 /*
@@ -3535,7 +3543,7 @@ errr parse_r_info(char *buf, header *head)
                 idx = get_race_idx(zz[1]);
                 if (idx >= 0)
                 {
-                    race_t *race_ptr = get_race_t_aux(idx, 0);
+                    race_t *race_ptr = get_race_aux(idx, 0);
                     for (i = 0; i < MAX_STATS; i++)
                         r_ptr->body.stats[i] = race_ptr->stats[i];
                     r_ptr->body.skills = race_ptr->skills;
@@ -3549,7 +3557,7 @@ errr parse_r_info(char *buf, header *head)
                 idx = lookup_class_idx(zz[2]);
                 if (idx >= 0)
                 {
-                    class_t *class_ptr = get_class_t_aux(idx, 0);
+                    class_t *class_ptr = get_class_aux(idx, 0);
                     r_ptr->body.class_idx = idx;
                     for (i = 0; i < MAX_STATS; i++)
                         r_ptr->body.stats[i] += class_ptr->stats[i];
@@ -3781,13 +3789,15 @@ errr parse_r_info(char *buf, header *head)
                 /* XXX XXX XXX Hack -- Read spell frequency */
             if (1 == sscanf(s, "1_IN_%d", &i))
             {
-                /* Extract a "frequency" */
                 r_ptr->freq_spell = 100 / i;
-
-                    /* Start at next entry */
                 s = t;
+                continue;
+            }
 
-                /* Continue */
+            if (1 == sscanf(s, "FREQ_%d", &i))
+            {
+                r_ptr->freq_spell = i;
+                s = t;
                 continue;
             }
 
@@ -4055,13 +4065,15 @@ errr parse_d_info(char *buf, header *head)
             /* XXX XXX XXX Hack -- Read Final Object */
             if (1 == sscanf(s, "FINAL_OBJECT_%d", &artif))
             {
-                /* Extract a "Final Artifact" */
                 d_ptr->final_object = artif;
-
-                /* Start at next entry */
                 s = t;
+                continue;
+            }
 
-                /* Continue */
+            if (1 == sscanf(s, "FINAL_EGO_%d", &artif))
+            {
+                d_ptr->final_ego = artif;
+                s = t;
                 continue;
             }
 
@@ -4573,6 +4585,8 @@ void drop_here(object_type *j_ptr, int y, int x)
 
     /* Place the object */
     c_ptr->o_idx = o_idx;
+
+    p_ptr->window |= PW_OBJECT_LIST;
 }
 
 
@@ -4786,8 +4800,26 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                     make_gold(o_ptr);
                     coin_type = 0;
                 }
-
-                if (ego_index)
+                else if (object_is_device(o_ptr))
+                {
+                    /* Hack: There is only a single k_idx for each class of devices, so
+                     * we use the ego index to pick an effect. This means there is no way
+                     * to actually grant an ego device ...*/
+                    if (!device_init_fixed(o_ptr, ego_index))
+                    {
+                        if (ego_index)
+                        {
+                            char     name[255];
+                            effect_t e = {0};
+                            e.type = ego_index;
+                            sprintf(name, "%s", do_effect(&e, SPELL_NAME, 0));
+                            msg_format("Software Bug: %s is not a valid effect for this device.", name);
+                            msg_print("Generating a random device instead.");
+                        }
+                        device_init(o_ptr, p_ptr->lev, 0);
+                    }
+                }
+                else if (ego_index)
                 {
                     /* TODO: Ego initialization needs a rewrite. In the meantime, enjoy this ugly hack ... */
                     apply_magic_ego = ego_index;
@@ -5270,13 +5302,13 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 
             else if (streq(b+1, "RACE"))
             {
-                v = get_true_race_t()->name;
+                v = get_true_race()->name;
             }
 
             /* Class */
             else if (streq(b+1, "CLASS"))
             {
-                v = get_class_t()->name;
+                v = get_class()->name;
             }
 
             /* First realm */
@@ -5343,7 +5375,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
             /* Random 
                OLD: $RANDOM7 evaluated as seed_town % 7
                NEW: [MOD $RANDOM37 7] where 37 refers to the seed
-               for quest 37.  Every quest gets assigned a new seed 
+               for quest 37. Every quest gets assigned a new seed 
                when it is accepted in bldg.c.
             */
             else if (prefix(b+1, "RANDOM"))
@@ -5363,10 +5395,8 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
             /* Wilderness */
             else if (streq(b+1, "WILDERNESS"))
             {
-                if (vanilla_town)
+                if (no_wilderness)
                     sprintf(tmp, "NONE");
-                else if (lite_town)
-                    sprintf(tmp, "LITE");
                 else
                     sprintf(tmp, "NORMAL");
                 v = tmp;

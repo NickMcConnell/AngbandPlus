@@ -62,7 +62,7 @@ static int _web_attempts(void)
     return 8 * (p_ptr->lev - 25) / 25;
 }
 
-void _spider_web_spell(int cmd, variant *res)
+void spider_web_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -103,9 +103,9 @@ void _spider_web_spell(int cmd, variant *res)
         break;
     case SPELL_COST_EXTRA:
         if (p_ptr->lev >= 50)
-            var_set_int(res, 40);
+            var_set_int(res, 20);
         else
-            var_set_int(res, _web_attempts() * 5);
+            var_set_int(res, _web_attempts() * 2);
         break;
     default:
         default_spell(cmd, res);
@@ -129,7 +129,7 @@ static void _cave_spider_calc_innate_attacks(void)
     a.ds = 5;
     a.weight = 70;
     calc_innate_blows(&a, 200);
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -146,10 +146,7 @@ static void _cave_spider_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_RES_DARK);
-}
-static void _cave_spider_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_LITE);
+    add_flag(flgs, TR_VULN_LITE);
 }
 race_t *_cave_spider_get_race_t(void)
 {
@@ -178,7 +175,6 @@ race_t *_cave_spider_get_race_t(void)
         me.get_powers = _cave_spider_get_powers;
         me.calc_bonuses = _cave_spider_calc_bonuses;
         me.get_flags = _cave_spider_get_flags;
-        me.get_vulnerabilities = _cave_spider_get_vulnerabilities;
         me.calc_innate_attacks = _cave_spider_calc_innate_attacks;
         init = TRUE;
     }
@@ -197,7 +193,7 @@ static void _giant_spider_calc_innate_attacks(void)
     a.effect[0] = GF_MISSILE;
     a.effect[1] = GF_POIS;
     calc_innate_blows(&a, 400);
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -254,7 +250,7 @@ static void _phase_shield_spell(int cmd, variant *res)
         var_set_string(res, "Phase Shield");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Teleport as you recieve an attack, potentially escaping damage altogether.");
+        var_set_string(res, "Teleport as you receive an attack, potentially escaping damage altogether.");
         break;
     case SPELL_CAST:
         if (!(p_ptr->special_defense & NINJA_KAWARIMI))
@@ -275,7 +271,7 @@ static power_info _phase_spider_powers[] = {
     { A_DEX, {  1,  1, 30, _detect_prey_spell } },
     { A_DEX, {  5,  1, 30, phase_door_spell } },
     { A_DEX, { 10,  5, 30, teleport_spell } },
-    { A_DEX, { 12, 10, 60, _spider_web_spell } },
+    { A_DEX, { 12, 10, 60, spider_web_spell } },
     { A_DEX, { 25, 10, 30, teleport_to_spell } },
     { A_DEX, { 30, 15, 50, teleport_level_spell } },
     { A_DEX, { 35, 20, 55, teleport_other_spell } },
@@ -298,7 +294,7 @@ static void _phase_spider_calc_innate_attacks(void)
     a.effect[1] = GF_POIS;
     a.effect[2] = GF_OLD_SLEEP;
     calc_innate_blows(&a, 500);
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -320,10 +316,8 @@ static void _phase_spider_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_NEXUS);
     add_flag(flgs, TR_RES_CONF);
     add_flag(flgs, TR_FREE_ACT);
-}
-static void _phase_spider_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_POIS);
+
+    add_flag(flgs, TR_IM_POIS);
 }
 race_t *_phase_spider_get_race_t(void)
 {
@@ -352,7 +346,6 @@ race_t *_phase_spider_get_race_t(void)
         me.get_powers = _phase_spider_get_powers;
         me.calc_bonuses = _phase_spider_calc_bonuses;
         me.get_flags = _phase_spider_get_flags;
-        me.get_immunities = _phase_spider_get_immunities;
         me.calc_innate_attacks = _phase_spider_calc_innate_attacks;
         init = TRUE;
     }
@@ -362,7 +355,7 @@ race_t *_phase_spider_get_race_t(void)
 /* Aranea */
 static power_info _aranea_powers[] = {
     { A_DEX, {  1,  1, 30, _detect_prey_spell } },
-    { A_DEX, { 12, 10, 60, _spider_web_spell } },
+    { A_DEX, { 12, 10, 60, spider_web_spell } },
     {    -1, { -1, -1, -1, NULL } }
 };
 static int _aranea_get_powers(spell_info* spells, int max) {
@@ -381,7 +374,7 @@ static void _aranea_calc_innate_attacks(void)
     a.effect[1] = GF_POIS;
     a.effect[2] = GF_OLD_SLEEP;
     calc_innate_blows(&a, 500);
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -405,10 +398,8 @@ static void _aranea_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_CONF);
     add_flag(flgs, TR_RES_FEAR);
     add_flag(flgs, TR_FREE_ACT);
-}
-static void _aranea_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_POIS);
+
+    add_flag(flgs, TR_IM_POIS);
 }
 race_t *_aranea_get_race_t(void)
 {
@@ -437,7 +428,6 @@ race_t *_aranea_get_race_t(void)
         me.get_powers = _aranea_get_powers;
         me.calc_bonuses = _aranea_calc_bonuses;
         me.get_flags = _aranea_get_flags;
-        me.get_immunities = _aranea_get_immunities;
         me.calc_innate_attacks = _aranea_calc_innate_attacks;
         init = TRUE;
     }
@@ -459,7 +449,7 @@ static void _elder_aranea_calc_innate_attacks(void)
     a.effect[2] = GF_PARALYSIS;
     a.effect_chance[2] = 25 + 5*(p_ptr->lev - 40);
     calc_innate_blows(&a, 550);
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
 }
@@ -497,14 +487,9 @@ static void _elder_aranea_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_FREE_ACT);
     add_flag(flgs, TR_SEE_INVIS);
     add_flag(flgs, TR_REGEN);
-}
-static void _elder_aranea_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_POIS);
-}
-static void _elder_aranea_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_LITE);
+
+    add_flag(flgs, TR_IM_POIS);
+    add_flag(flgs, TR_VULN_LITE);
 }
 race_t *_elder_aranea_get_race_t(void)
 {
@@ -533,8 +518,6 @@ race_t *_elder_aranea_get_race_t(void)
         me.get_powers = _aranea_get_powers;
         me.calc_bonuses = _elder_aranea_calc_bonuses;
         me.get_flags = _elder_aranea_get_flags;
-        me.get_immunities = _elder_aranea_get_immunities;
-        me.get_vulnerabilities = _elder_aranea_get_vulnerabilities;
         me.calc_innate_attacks = _elder_aranea_calc_innate_attacks;
         init = TRUE;
     }
@@ -595,7 +578,7 @@ static void _birth(void)
     add_outfit(&forge);
 }
 
-race_t *mon_spider_get_race_t(void)
+race_t *mon_spider_get_race(void)
 {
     race_t *result = NULL;
 
@@ -629,6 +612,7 @@ race_t *mon_spider_get_race_t(void)
     result->birth = _birth;
     result->base_hp = 25;
     result->pseudo_class_idx = CLASS_ROGUE;
+    result->shop_adjust = 115;
 
     result->boss_r_idx = MON_UNGOLIANT;
     return result;

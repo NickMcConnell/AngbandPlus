@@ -54,6 +54,21 @@ bool fear_add_p(int amount)
     return fear_set_p(p_ptr->afraid + amount);
 }
 
+static char _get_level_color(int v)
+{
+    int lvl = _get_level(v);
+    switch (lvl)
+    {
+    case FEAR_UNEASY: return 'U';
+    case FEAR_NERVOUS: return 'y';
+    case FEAR_SCARED: return 'R';
+    case FEAR_TERRIFIED: return 'r';
+    case FEAR_PETRIFIED: return 'v';
+    }
+
+    return 'W';
+}
+
 static cptr _get_level_name(int v)
 {
     int lvl = _get_level(v);
@@ -84,7 +99,7 @@ bool fear_set_p(int v)
 
     if (new_lvl > old_lvl)
     {
-        msg_format("You feel %s.", _get_level_name(new_lvl));
+        msg_format("You feel <color:%c>%s</color>.", _get_level_color(new_lvl), _get_level_name(new_lvl));
         if (old_lvl <= FEAR_SCARED && one_in_(6) && !fear_save_p(v/5))
             do_dec_stat(A_CHR);
         if (p_ptr->special_defense & KATA_MASK)
@@ -114,7 +129,7 @@ bool fear_set_p(int v)
     }
 
     p_ptr->afraid = v;
-    p_ptr->redraw |= PR_FEAR;
+    p_ptr->redraw |= PR_EFFECTS;
     if (!notice) return FALSE;
     if (disturb_state) disturb(0, 0);
     handle_stuff();
@@ -450,7 +465,10 @@ void fear_terrify_p(monster_type *m_ptr)
     int           r_level = _r_level(r_ptr);
 
     if (fear_save_p(r_level))
-        msg_print("You stand your ground!");
+    {
+        if (disturb_minor)
+            msg_print("You stand your ground!");
+    }
     else
         fear_add_p(r_level);
 }

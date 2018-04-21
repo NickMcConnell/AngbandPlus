@@ -1,0 +1,15 @@
+<style:title>Attacking and Weapons</style>
+
+Please choose one of the following online help files:
+
+    <link:attack.txt> Attacking and Weapons
+    <link:attack.txt#DistanceAttack> Attacking from a Distance
+    <link:attack.txt#AttackWalls> Attacking Monsters in Walls
+    <link:attack.txt#MeleeWeapons> Melee Weapons
+    <link:attack.txt#MissileLaunch> Missile Launchers
+    <link:attack.txt#EgoArtifact> Ego Weapons and Artifacts
+    <link:attack.txt#MagicalAids> Magical Aids to Physical Combat
+    <link:attack.txt#MonkAttacks> Martial Arts
+    <link:attack.txt#MeleeTactics> Basic Tactics
+
+    <color:y>(?) Help System Commands</color>

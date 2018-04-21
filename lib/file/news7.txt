@@ -1,0 +1,30 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:U>You attack the Ancient red dragon:</color> You knee. You <color:y>double-kick</color>. It
+was a <color:R>great</color> hit! You <color:U>uppercut</color>. You knee. You <color:y>double-kick</color>. The       LEVEL <color:G>    28</color>
+Ancient red dragon flees in terror!                                 EXP <color:G>   18.0k</color>
+The Ancient red dragon recovers its courage.                        AU  <color:G>   96.9k</color>
+<color:g>The Ancient red dragon attacks you:</color> It claws. <color:v>*Ouch!*</color> <color:U>(You </color>         <color:d>  </color><color:U>}</color><color:g>==</color><color:y>"!</color><color:U>(</color><color:g>(</color><color:s>]</color><color:U>]</color><color:d> </color>
+<color:U>retaliate:</color> You <color:y>jump kick</color>. <color:R>You have slain the Ancient red dragon.</color>    STR : <color:G> 18/79</color>
+You feel something roll beneath your feet.<color:U>)</color>                         Int : <color:y>    11</color>
+#          #<color:D>#</color>#   %#<color:D>#</color>%  %##     #%<color:D>#</color>###<color:D>#</color>##<color:D>#</color># #<color:D>#</color>### ##<color:D>#</color>#####<color:D>#</color>#<color:D>#</color>#####<color:D>#</color>  Wis : <color:y> 18/85</color>
+#### ###  ####   #<color:D>#</color>%#%%##%%%<color:U><</color># <color:u>..</color>#<color:o>*</color>####### ###<color:D>#</color>  ###<color:D>#</color># #<color:D>#</color>####<color:D>#</color>##<color:D>#</color>#  DEX : <color:G>18/162</color>
+##<color:D>#</color># #<color:D>#</color>####<color:D>#</color>#    ####<color:D>#</color>%<color:D>#</color>#  ##%<color:D>#</color>#<color:u>.</color># #<color:D>#</color>#       ## ## ### #<color:D>#</color>###<color:D>#</color>#<color:D>#</color>#### CON : <color:G> 18/10</color>
+#### ###<color:D>#</color>####       #%###  #%##%<color:u>.</color>############## ########<color:D>#</color>##<color:D>#</color>####  # Chr : <color:y>    14</color>
+ ###   ##<color:D>#</color>#  ###  ###<color:o>*</color>     #<color:D>#</color>% %<color:u>..</color>                     ######     # AC     <color:G>  131</color>
+  <color:U>+</color>########  #<color:D>#</color>#  #<color:D>##</color>#%#   #%# #<color:u>.</color><color:o>*</color>##%%%############### ### ######   HP <color:r> 194</color>/<color:G> 366</color>
+#         ######  ####<color:D>#</color>#   %%# %<color:u>.</color>#<color:g>(</color><color:u>.</color>%                # <color:U>'</color> # #<color:D>#</color>##<color:D>#</color>### SP <color:y> 115</color>/<color:G> 131</color>
+#             ##  #<color:D>#</color>#####%##<color:D>#</color>%%#<color:u>.</color>@<color:D>[</color><color:s>$</color>#                # # ####<color:D>#</color>##<color:D>#</color>>#
+#              ## ###<color:u>.</color><color:D>#</color>#<color:D>#</color>#<color:u>.</color>#<color:u>.</color>%<color:u>.</color>#<color:u>.</color>#<color:s>[</color><color:D>~</color><color:U>+</color>                # #  <color:D>#</color>####     @[<color:r>*****</color>----]
+##              ###<color:D>##</color>##<color:u>.</color>#<color:u>.</color>#<color:u>.</color>#<color:u>.</color>%<color:u>..</color># <color:u>$</color>%                # ##   #   ##  <color:G>?</color>[<color:y>********</color>-]
+ ####             #####<color:D>#</color>######%%<color:u>.</color>%  #                # ####   #<color:D>#</color>### <color:U>,</color>[*******--]
+    #####           #####      %<color:u>.</color>%###%#<color:o>*</color>############## #  #######
+        ##              #  #%# #<color:u>..</color>                     #       #
+       #######  #########  #<color:D>#</color>% %#%%%%%%###%%##<color:o>*</color>#################
+       #<color:D>#</color>#   ####     ###  ###                      #<color:D>###</color>#<color:D>#</color>#<color:D>#</color>#<color:D>#</color>##    <color:G>Fast (+3)</color>
+     ####### #<color:D>#</color>#     ##<color:D>#</color>####                 #%# ######<color:D>#</color>#####<color:D>#</color>#     <color:B>Study (9)</color>
+     #<color:D>#</color>###<color:D>#</color># ###     #<color:D>#</color>###<color:D>#</color>#                 #<color:D>#</color># #<color:D>#</color># #<color:D>#</color>###<color:D>#</color>#######
+     ##<color:D>#</color>####         #<color:D>#</color># ###                 #<color:D>#</color># ### ### #<color:D>#</color>#<color:D>#</color>#   #
+      <color:U>###</color>            <color:U>###</color>                     <color:U>###</color>         <color:U>#####</color>   <color:U>##</color>
+<color:W>Lonely Mountain: L35</color>                    <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:G>DTrap</color>
+</style>

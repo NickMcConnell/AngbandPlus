@@ -1,0 +1,14 @@
+<style:title>Monsters</style>
+
+Please choose one of the following online help files:
+
+    <link:monster.txt> PosChengband Monsters
+    <link:monster.txt#MonsterSymbols> Monster Symbols
+    <link:monster.txt#MonsterColors> Monster Color
+    <link:monster.txt#MonsterMemory> Monster Memory
+    <link:monster.txt#Uniques> Unique Monsters
+    <link:monster.txt#EldritchHorror> Eldritch Horrors
+    <link:monster.txt#Pets> Pets and Riding
+    <link:monster.txt#Friendly> Friendly Monsters
+
+    <color:y>(?) Help System Commands</color>

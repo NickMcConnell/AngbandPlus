@@ -14,7 +14,7 @@ static bool _summon_aux(int num, bool pet, int y, int x, int lev, int type, u32b
     int i;
     bool success = FALSE;
 
-    /*if (!lev) lev = spell_power(plev) + randint1(spell_power(plev));*/
+    /*if (!lev) lev = spell_power(plev) + randint1(spell_power(plev * 2 / 3));*/
     if (!lev) lev = MAX(plev, dun_level);
 
     if (pet)
@@ -780,7 +780,6 @@ static caster_info * _caster_info(void)
         me.magic_desc = "quivering power";
         me.which_stat = A_CHR;
         me.weight = 450;
-        me.options = CASTER_ALLOW_DEC_MANA;
         init = TRUE;
     }
     return &me;
@@ -955,7 +954,7 @@ static void _gain_level(int new_level)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_quylthulg_get_race_t(void)
+race_t *mon_quylthulg_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -984,6 +983,7 @@ race_t *mon_quylthulg_get_race_t(void)
         me.infra = 5;
         me.exp = 150;
         me.base_hp = 0;
+        me.shop_adjust = 120;
 
         me.get_spells = _get_spells;
         me.caster_info = _caster_info;

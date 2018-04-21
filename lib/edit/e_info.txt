@@ -15,7 +15,7 @@
 
 # N: serial number : ego type : descriptive name
 # C: max to-hit : max to-dam : max to-ac : pval
-# W: depth : max_depth : rarity : rating
+# W: depth : max_depth : rarity
 # F: flag | flag | etc
 
 # 'N' indicates the beginning of an entry. The serial number must
@@ -42,12 +42,12 @@ V:3.0.0
 
 N:1:GLOVES:of Free Action
 W:0:40:1
-F:FREE_ACT
+F:FREE_ACT | AWARE
 
 N:2:GLOVES:of Slaying
 W:0:*:2
 C:8:8:0:0
-F:SHOW_MODS
+F:SHOW_MODS | AWARE
 
 N:3:GLOVES:of the Thief
 W:10:*:4
@@ -122,7 +122,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:20:BODY_ARMOR:of Protection
 W:0:40:1
 C:0:0:10:0
-F:IGNORE_ACID 
+F:IGNORE_ACID | AWARE
 
 N:21:BODY_ARMOR:of Elemental Protection
 W:0:*:2
@@ -305,7 +305,7 @@ E:BERSERK:10:50
 N:80:SHIELD:of Protection
 W:0:40:1
 C:0:0:10:0
-F:IGNORE_ACID 
+F:IGNORE_ACID | AWARE
 
 N:81:SHIELD:of Elemental Protection
 W:0:80:2
@@ -360,7 +360,7 @@ F:CON
 N:100:CLOAK:of Protection
 W:0:40:1
 C:0:0:10:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | AWARE
 
 N:101:CLOAK:of Cowardice
 W:0:70:4
@@ -371,7 +371,7 @@ E:TELEPORT:20:100
 N:102:CLOAK:of Stealth
 W:0:40:2
 C:0:0:0:3
-F:STEALTH
+F:STEALTH | AWARE
 
 N:103:CLOAK:of Elemental Protection
 W:20:*:8
@@ -436,12 +436,12 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 N:120:BOOTS:of Levitation
 W:10:70:1
-F:LEVITATION
+F:LEVITATION | AWARE
 
 N:121:BOOTS:of Stealth
 W:0:50:1
 C:0:0:0:3
-F:STEALTH
+F:STEALTH | AWARE
 
 N:122:BOOTS:(Gnomish)
 W:20:60:2
@@ -457,7 +457,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:124:BOOTS:of Speed
 W:50:*:8
 C:0:0:0:10
-F:SPEED | HIDE_TYPE
+F:SPEED | HIDE_TYPE | AWARE
 
 N:125:BOOTS:of Elvenkind
 W:30:*:8
@@ -498,20 +498,23 @@ F:CHR | SUST_CHR | SUST_STR | SUST_CON | RES_FEAR | RES_BLIND
 N:140:BOW:of Accuracy
 W:0:40:1
 C:10:5:0:0
+F:AWARE
 
 N:141:BOW:of Velocity
 W:0:60:1
 C:5:10:0:0
+F:AWARE
 
 N:142:BOW:of Extra Might
 W:20:*:2
 C:2:4:0:0
 F:XTRA_RES
+F:AWARE
 
 N:143:BOW:of Extra Shots
 W:10:*:2
 C:4:2:0:5
-F:XTRA_SHOTS
+F:XTRA_SHOTS | AWARE
 
 N:144:BOW:of Lothlorien
 W:60:*:8
@@ -537,35 +540,37 @@ F:IGNORE_ACID | IGNORE_FIRE
 
 N:155:AMMO:of Hurt Animal
 W:0:60:1
-F:SLAY_ANIMAL
+F:SLAY_ANIMAL | AWARE
 
 N:156:AMMO:of Hurt Dragon
 W:0:70:2
-F:SLAY_DRAGON
+F:SLAY_DRAGON | AWARE
 
 N:157:AMMO:of Hurt Evil
 W:20:*:4
-F:SLAY_EVIL
+F:SLAY_EVIL | AWARE
 
 N:158:AMMO:of Slaying
 W:10:*:3
 C:10:10:0:0
+F:AWARE
 
 N:159:AMMO:of Wounding
 W:10:*:1
 C:5:5:0:0
+F:AWARE
 
 N:160:AMMO:of Shocking
 W:20:*:3
-F:BRAND_ELEC | IGNORE_ELEC
+F:BRAND_ELEC | IGNORE_ELEC | AWARE
 
 N:161:AMMO:of Flame
 W:20:*:3
-F:BRAND_FIRE | IGNORE_FIRE
+F:BRAND_FIRE | IGNORE_FIRE | AWARE
 
 N:162:AMMO:of Frost
 W:20:*:3
-F:BRAND_COLD | IGNORE_COLD
+F:BRAND_COLD | IGNORE_COLD | AWARE
 
 N:163:AMMO:of Prism
 W:30:*:4
@@ -594,18 +599,21 @@ N:169:SPECIAL:(Blasted)
 
 N:175:LITE:of Extra Light
 W:0:30:1
+F:AWARE
 
 N:176:LITE:of Illumination
 W:0:30:1
+F:AWARE
 E:LITE_AREA:1:10
 
 N:177:LITE:of Duration
 W:0:30:1
+F:AWARE
 
 N:178:LITE:of Infravision
 W:0:40:2
 C:0:0:0:3
-F:INFRA
+F:INFRA | AWARE
 
 N:179:LITE:of Immolation
 W:20:*:4
@@ -631,7 +639,7 @@ F:RES_LITE | SPEED | VULN_DARK
 N:190:DIGGER:of Digging
 W:0:40:1
 C:0:0:0:5
-F:TUNNEL | 
+F:TUNNEL | AWARE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:191:DIGGER:of Dissolving
@@ -655,23 +663,23 @@ E:STONE_TO_MUD:10:5
 
 N:200:WEAPON:of Burning
 W:0:50:1
-F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE | AWARE
 
 N:201:WEAPON:of Freezing
 W:0:50:1
-F:BRAND_COLD | RES_COLD | IGNORE_COLD
+F:BRAND_COLD | RES_COLD | IGNORE_COLD | AWARE
 
 N:202:WEAPON:of Melting
 W:0:60:2
-F:BRAND_ACID | RES_ACID | IGNORE_ACID
+F:BRAND_ACID | RES_ACID | IGNORE_ACID | AWARE
 
 N:203:WEAPON:of Shocking
 W:0:70:2
-F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | AWARE
 
 N:204:WEAPON:of Venom
 W:0:50:1
-F:BRAND_POIS | RES_POIS
+F:BRAND_POIS | RES_POIS | AWARE
 
 N:205:WEAPON:of Force
 W:20:*:2
@@ -683,39 +691,39 @@ F:FORCE_WEAPON | SEE_INVIS
 
 N:206:WEAPON:of Slay Animal
 W:0:10:1
-F:SLAY_ANIMAL
+F:SLAY_ANIMAL | AWARE
 
 N:207:WEAPON:of Slay Demon
 W:0:10:1
-F:SLAY_DEMON
+F:SLAY_DEMON | AWARE
 
 N:208:WEAPON:of Slay Dragon
 W:0:10:1
-F:SLAY_DRAGON | XTRA_E_RES
+F:SLAY_DRAGON | XTRA_E_RES | AWARE
 
 N:209:WEAPON:of Slay Evil
 W:0:*:3
-F:SLAY_EVIL
+F:SLAY_EVIL | AWARE
 
 N:210:WEAPON:of Slay Giant
 W:0:5:1
-F:SLAY_GIANT
+F:SLAY_GIANT | AWARE
 
 N:211:WEAPON:of Slay Human
 W:0:5:1
-F:SLAY_HUMAN
+F:SLAY_HUMAN | AWARE
 
 N:212:WEAPON:of Slay Orc
 W:0:5:1
-F:SLAY_ORC
+F:SLAY_ORC | AWARE
 
 N:213:WEAPON:of Slay Troll
 W:0:5:1
-F:SLAY_TROLL
+F:SLAY_TROLL | AWARE
 
 N:214:WEAPON:of Slay Undead
 W:0:10:1
-F:SLAY_UNDEAD | HOLD_LIFE
+F:SLAY_UNDEAD | HOLD_LIFE | AWARE
 
 ### Kills ###
 
@@ -923,14 +931,14 @@ W:20:*:2
 F:HIDE_TYPE
 
 N:304:RING:(Defender)
-W:70:*:2
+W:70:*:3
 
 N:305:RING:of Wizardry
 W:30:*:2
 
 N:306:RING:of Speed
 W:70:*:1
-F:SPEED | HIDE_TYPE
+F:SPEED | HIDE_TYPE | AWARE
 
 N:307:RING:of the Nazgul
 W:70:*:0
@@ -982,7 +990,7 @@ N:326:AMULET:of the Magi
 W:30:*:3
 
 N:327:AMULET:& Torc~ of the Hero
-W:40:*:16
+W:60:*:16
 F:FREE_ACT | SEE_INVIS | SUST_STR | SUST_DEX |
 F:RES_FEAR | REGEN | SH_FIRE | HIDE_TYPE | FULL_NAME |
 
@@ -993,4 +1001,33 @@ N:329:AMULET:of Trickery
 W:30:*:3
 F:HIDE_TYPE
 
+###############
+### Devices ###
+###############
 
+N:350:DEVICE:of Resistance
+W:10:*:1
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
+
+N:351:DEVICE:of Capacity
+W:15:*:1
+
+N:352:DEVICE:of Regeneration
+W:30:*:2
+F:REGEN
+
+N:353:DEVICE:of Simplicity
+W:15:*:1
+F:EASY_SPELL
+
+N:354:DEVICE:of Power
+W:50:*:8
+F:DEVICE_POWER
+
+N:355:DEVICE:of Holding
+W:50:*:3
+F:HOLD_LIFE
+
+N:356:DEVICE:of Quickness
+W:60:*:16
+F:SPEED

@@ -4,7 +4,7 @@ bool player_is_monster_king(void)
 {
     race_t *race_ptr;
     if (p_ptr->pclass != CLASS_MONSTER) return FALSE;
-    race_ptr = get_race_t();
+    race_ptr = get_race();
     if (!race_ptr->boss_r_idx) return FALSE;
     if (r_info[race_ptr->boss_r_idx].max_num) return FALSE;
     return TRUE;
@@ -23,7 +23,7 @@ cptr mon_name(int r_idx)
     return ""; /* Birth Menu */
 }
 
-class_t *monster_get_class_t(void)
+class_t *monster_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

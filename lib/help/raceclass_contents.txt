@@ -1,0 +1,14 @@
+<style:title>Races, Classes and Personalities</style>
+
+Please choose one of the following online help files:
+
+    <link:Races.txt> The Races
+    <link:Classes.txt> The Classes
+    <link:Personalities.txt> The Personalities
+    <link:MonsterRaces.txt> Monster Races
+
+    <link:Races.txt#Tables> Race Ability Tables
+    <link:Classes.txt#Tables> Class Ability Tables
+    <link:Personalities.txt#Tables> Personality Ability Tables
+
+    <color:y>(?) Help System Commands</color>

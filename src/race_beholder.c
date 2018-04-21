@@ -15,17 +15,13 @@ static void _birth(void)
     add_esp_weak(&forge, FALSE);
     add_outfit(&forge);
 
-    object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_ACID_BOLT));
-    apply_magic(&forge, 1, AM_AVERAGE);
-    add_outfit(&forge);
+    object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
+    if (device_init_fixed(&forge, EFFECT_BOLT_FIRE))
+        add_outfit(&forge);
 
-    object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_FIRE_BOLT));
-    apply_magic(&forge, 1, AM_AVERAGE);
-    add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_COLD_BOLT));
-    apply_magic(&forge, 1, AM_AVERAGE);
-    add_outfit(&forge);
+    object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
+    if (device_init_fixed(&forge, EFFECT_BOLT_COLD))
+        add_outfit(&forge);
 }
 
 /**********************************************************************
@@ -69,7 +65,7 @@ static void _calc_innate_attacks(void)
         }
 
         calc_innate_blows(&a, 400);
-        a.msg = "You gaze at %s.";
+        a.msg = "You gaze.";
         a.name = "Gaze";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -297,7 +293,7 @@ static caster_info * _caster_info(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_beholder_get_race_t(void)
+race_t *mon_beholder_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -334,6 +330,8 @@ race_t *mon_beholder_get_race_t(void)
         me.infra = 8;
         me.exp = 250;
         me.base_hp = 20;
+        me.life = 100;
+        me.shop_adjust = 140;
 
         me.birth = _birth;
         me.calc_innate_attacks = _calc_innate_attacks;
@@ -356,7 +354,6 @@ race_t *mon_beholder_get_race_t(void)
     me.stats[A_DEX] =  1 + rank/2;
     me.stats[A_CON] =  0;
     me.stats[A_CHR] =  0 + rank/2;
-    me.life = 100;
 
     me.pseudo_class_idx = CLASS_MAGE;
 

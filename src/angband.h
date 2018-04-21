@@ -18,16 +18,16 @@
  */
 #include "h-basic.h"
 
-
 /*
  * Then, include the header files for the low-level code
  */
+#include "rect.h"
 #include "z-util.h"
 #include "z-virt.h"
 #include "z-form.h"
 #include "z-rand.h"
 #include "z-term.h"
-
+#include "z-doc.h"
 
 /*
  * Include the "Angband" configuration header
@@ -45,6 +45,7 @@
 #include "types.h"
 #include "externs.h"
 
+#include "message.h"
 #include "mut.h"
 #include "spells.h"
 #include "menu.h"

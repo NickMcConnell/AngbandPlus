@@ -1,11 +1,12 @@
 ----- How to install -----
 
 --- LINUX
-  Download and unpack the source archive.
+  Download and unpack the source archive, or clone the git repository:
+    $ git clone https://github.com/poschengband/poschengband.git
 
   Make sure you have the appropriate development packages installed.
   For example, you might run (Ubuntu or Mint):
-    $ sudo apt-get install autoconf gcc libc6-dev libncurses5-dev libx11-dev
+    $ sudo apt-get install autoconf gcc libc6-dev libncursesw5-dev libx11-dev
 
   From the root of the source archive:
     $ sh autogen.sh
@@ -116,6 +117,48 @@
 
     [7] Smile. Grab beer to recover from step [4].
 
+--- Curses
+
+  Curses is for Linux, of course, so everything said above also applies here.
+  To run with a single 'big' terminal, simply run, for example:
+    $ ./poschengband -mgcu -uCrusher
+
+  To add additional terminal windows, you need to specify sub-options. You can
+  configure, from the command line, a strip of terminals on the right hand side
+  of the screen, or on the bottom of the screen, or both.
+
+  For example:
+    $ ./poschengband -mgcu -uCrusher -- -right 57x26,*
+
+  This specifies that the right hand strip will be be 57 columns wide, and will
+  contain 2 additional terminals. The first one, on top, will be 57x26 (i.e., 26
+  rows high) while the second terminal will be 57x(LINES-26) (i.e., * means fill
+  to whatever is leftover). These terminals will be numbered 1 and 2, respectively.
+
+  Another example:
+    $ ./poschengband -mgcu -uCrusher -- -bottom -bottom *x10
+
+  This adds a bottom strip 10 rows high, and this strip will contain a single
+  additional terminal window (numbered as Term-1) that will be as wide as the
+  screen allows (i.e, Term-1 will be COLSx10).
+
+  Finally, you can combine the -right and -bottom commands, in either order.
+  For example:
+    $ ./poschengband -mgcu -uCrusher -- -right 57x26,* -bottom *x10
+
+  Here, Term-1 and Term-2 are on the right strip, sized as 57x26 and 57x(LINES-26),
+  while Term-3 is on the bottom strip, sized (COLS-57)x10. Term-0, the Main Terminal,
+  is, of course, located in the top left and sized as (COLS-57)x(LINES-10). The
+  map terminal will always use as much space as possible.
+
+  Finally, the order of the -right and -bottom command is significant, as it affects
+  both the child terminal numbering and also resolves the conflict over the overlap
+  region in the bottom-right corner of the screen.
+
+  For example, the meaning of the following should now be clear:
+    $ ./poschengband -mgcu -uCrusher -- -bottom *x10 -right 57x26,*
+
+  You cannot specify more than 7 child terminals.
 
 --- Windows
 
@@ -130,163 +173,20 @@
 
 -----  Basic for Playing  ------
 
-  I usually play the first few levels of Camelot immediately and then take the
-  Thieve's Quest, both of which are accessible from your starting town of Outpost.
-  After the Thieve's I usually accept the Warg quest and dive to L5 in Camelot.
-  Beware, the Wargs can be difficult but if you succeed, you will usually be at
-  least 10th level and strong enough to leave Outpost in search of greater 
-  adventures.  Carry lots of food and fuel, for the journey can be a long one.  
-  Since this world is very large, it is convenient to go into global map mode by 
-  pressing the '<' key, and then return to local map mode by '>' key when you are 
-  at the destination.  When in the wilderness, stay in safe grids such as roads 
-  or plains; seas and lava fields are best avoided for a while.
-
-  Many towns and dungeons await you; good ones to explore early on include 
-  the orc caves and the Labyrinth.  To the northeast of the town of Morivant, 
-  near the center of the map, is the dread dungeon of Angband.  It is home to the 
-  Serpent of Chaos, whom you must kill in order to win the game.
-
+  I've done quite a bit of work on the in-game documentation, though it never
+  seems to be a completable task. If you are new to the game, I recommend you
+  read the Newbie Guide (Press ? to activate the help system, then choose a for
+  General Information followed by e). This will give a quick tutorial as well
+  as some additional information about the game. Helpfiles are also available
+  as html files for viewing outside the game in your favorite browser. In this
+  case, open lib/help/html/tang.html.
 
 ---------  Commands  ----------- 
 
-     Please read on-line help (Press the ? key in the game) for full
-information of the game.  Here are only descriptions of basic commands.
+  Again, please refer to the in-game help (It hurts me to keep the same information
+  up to date in multiple places). Press ? for help and then k for Commands. Choose
+  the topic that interests you (Command Descriptions for an overview, or one of the
+  Keyset options for reference on which keys to press).
 
-     The following section lists most commands, and the less frequently used 
-ones may be accessed by pressing the return key, or (if using the original 
-keyset) the 'x' key, to bring up the command menu.  Almost any command may be 
-chosen from the main menu.  "(R) Rest" can be performed by pushing 'R' (in 
-uppercase).  "Look around (l/x)" can be performed by pushing 'l' in the Original 
-keyset, and by pushing 'x' in the Rogue-like keyset.
-
-
-
-  [Movement]
-
-     Original Keyset Directions
-
-              7  8  9
-              4     6
-              1  2  3
-
-     Roguelike Keyset Directions
-
-              y  k  u
-              h     l
-              b  j  n
-
-  5/, Stay still
-  <   Go up staircase or Enter global map mode in the wilderness.
-  >   Go down staircase or return from global map mode in the wilderness
-  Shift+direction   run
-  Ctrl+direction   attack, open, close, or dig
-
-  [Tools]
-  r  Read a scroll
-  q  Quaff a potion 
-  u/Z  Use a staff
-  a/z  Aim a wand
-  z/a  Zap a rod
-  E  Eat some food
-  A  Activate an equipment
-  F  Fuel your lantern/torch
-  f/t  Fire a missile
-
-  [Action]
-  d  Drop an item
-  g  Pick up items
-  R  Rest for a period
-  o  Open a door or chest
-  s  Search for traps/doors
-  k/Ctrl+d  Destroy an item
-
-  [Magic]
-  m  Cast a spell / use mental power
-  G  Gain new spells/prayers
-  U/O  Use bonus power
-  b/P  Examine spells (choose each spell to get a description)
-
-  [Equipment] 
-  w  Wear/wield equipment
-  t  Take off equipment
-  F  Fuel your lantern/torch
-
-  [Info] 
-  x  Examine items in a store
-  C  Character description
-  I  Examine an *identified* item
-  i  Inventory list
-  l/x  Look around
-  M  Full dungeon map
-  ~  Display various information
-
-  [Other]
-  p  Command pets
-  =  Set options
-  $  Reload auto-picker preference file
-  _  Edit auto-picker preference
-  n/[  Repeat previous command
-  @  Interact with macros
-
-  [Help]
-  ?  View the on-line help 
-     (Press a-z to choose a section,  space key to go next page.)
-
-
---- Inscriptions
-
-Below, only the new features in Hengband are explained.
-
-- You can inscribe on objects with "@ma" or '@'+<any command letter>+<any tag>.
-  Then, type these alphabet letter in 'm' command to cast from the spellbook.
-
-- The inscriptions "@1" or '@'+<any tag number> make the objects able
-  to be used by pressing <tag number> key in any command.  Any
-  alphabet key cannot be used as a tag in this form.
-
-- You can inscribe on *identified* items with "%" or "%all".
-  Then, "%" or "%all" is automatically replaced by strings which describe the 
-  item's abilities. 
-  Example:  You inscribe with "%all" on a pair of gauntlets of power which 
-  provide resistance to fire. The description will look like {St;Fi} which 
-  means bonus to Strength and resistance to fire.
-  If you inscribe it with "%", its description will look like {Fi} which 
-  means its random added ability is resistance to fire.
-
-
----- Auto pickup/destroy
-
-Hengband offers two different methods of auto-pickup/destroy.
-- Powerful method
-  Hengband offers a very powerful auto-pickup/auto-destroy system
-  which you may customize.  Press '_' key to enter edit mode.  Please
-  read the file "autopick_eng.txt" about the syntax.
-
-- Easy method
-  Since the powerful method is slightly difficult to use 
-  effectively, there is another very easy option.  you can turn on 
-  the destroy_items option and/or the always_pickup option to use 
-  this method.  These options are located in (6) Easy Auto-Destroyer 
-  Options and (1) Input Options in the Set options ('=') command.
-
------- Tile graphics, Big tile, and Big screen
-
-- Tile graphics
-  To use graphics mode, choose it from menu for Windows and Mac, or
-  use -g option for Linux.  There are 8x8 size old tile and 16x16 size
-  Adam bolt tile, and you can change from menu for Windows and Mac, or
-  use -- -a option to use 16x16 tile for Linux.  Since source archive
-  doesn't include 16x16 size tile, you need to download the
-  heng_graf.tar.gz.
-
-- Big tile (Double-width tile)
-  In the Big tile mode, graphic tile have double width, and become
-  square.  You can choose Bigtile from menu for Windows and Mac, or
-  use -- -b option for Linux.
-
-- Big screen
-  You can resize each window using mouse, which allow you to have
-  terminal windows larger than 80x24.  On linux, it's convenience to
-  use environment variables: ANGBAND_X11_COLS_0 and
-  ANGBAND_X11_ROWS_0.
+  Or open lib/help/html/commdesc.html or lib/help/html/command.html in your browser.
 

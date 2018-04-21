@@ -30,97 +30,103 @@ void res_add_vuln(int which)
     p_ptr->resist[which]--;
 }
 
+bool res_is_high(int which)
+{
+    if (res_is_low(which))
+        return FALSE;
+    return TRUE;
+}
+
+bool res_is_low(int which)
+{
+    switch (which)
+    {
+    case RES_ACID:
+    case RES_ELEC:
+    case RES_FIRE:
+    case RES_COLD:
+    case RES_POIS:
+        return TRUE;
+    }
+    return FALSE;
+}
+
 typedef struct {
+    cptr name;
+    byte color;
     int flg;
-    int res;
-} _map_t;
+    int vuln_flg;
+    int im_flg;
+} _res_info_t;
 
-static _map_t _resist_map[] = {
-    { TR_RES_ACID, RES_ACID },
-    { TR_RES_ELEC, RES_ELEC },
-    { TR_RES_FIRE, RES_FIRE },
-    { TR_RES_COLD, RES_COLD },
-    { TR_RES_POIS, RES_POIS },
-    { TR_RES_LITE, RES_LITE },
-    { TR_RES_DARK, RES_DARK },
-    { TR_RES_CONF, RES_CONF },
-    { TR_RES_NETHER, RES_NETHER },
-    { TR_RES_NEXUS, RES_NEXUS },
-    { TR_RES_SOUND, RES_SOUND },
-    { TR_RES_SHARDS, RES_SHARDS },
-    { TR_RES_CHAOS, RES_CHAOS },
-    { TR_RES_DISEN, RES_DISEN }, 
-    { TR_RES_TIME, RES_TIME },
-    { TR_RES_BLIND, RES_BLIND },
-    { TR_RES_FEAR, RES_FEAR },
-    { TR_NO_TELE, RES_TELEPORT },
-    { -1, -1 }
-};
-
-static _map_t _immunity_map[] = {
-    { TR_IM_ACID, RES_ACID },
-    { TR_IM_ELEC, RES_ELEC },
-    { TR_IM_FIRE, RES_FIRE },
-    { TR_IM_COLD, RES_COLD },
-    { -1, -1 }
-};
-
-static _map_t _vulnerability_map[] = {
-    { TR_VULN_ACID, RES_ACID },
-    { TR_VULN_ELEC, RES_ELEC },
-    { TR_VULN_FIRE, RES_FIRE },
-    { TR_VULN_COLD, RES_COLD },
-    { TR_VULN_POIS, RES_POIS },
-    { TR_VULN_FEAR, RES_FEAR },
-    { TR_VULN_CONF, RES_CONF },
-    { TR_VULN_SOUND, RES_SOUND },
-    { TR_VULN_LITE, RES_LITE },
-    { TR_VULN_DARK, RES_DARK },
-    { TR_VULN_CHAOS, RES_CHAOS },
-    { TR_VULN_DISEN, RES_DISEN }, 
-    { TR_VULN_SHARDS, RES_SHARDS },
-    { TR_VULN_NEXUS, RES_NEXUS },
-    { TR_VULN_BLIND, RES_BLIND },
-    { TR_VULN_NETHER, RES_NETHER },
-    { -1, -1 }
+static _res_info_t _resist_map[RES_MAX] = {
+    { "Acid",           TERM_GREEN,   TR_RES_ACID,    TR_VULN_ACID,   TR_IM_ACID },
+    { "Electricity",    TERM_BLUE,    TR_RES_ELEC,    TR_VULN_ELEC,   TR_IM_ELEC },
+    { "Fire",           TERM_RED,     TR_RES_FIRE,    TR_VULN_FIRE,   TR_IM_FIRE },
+    { "Cold",           TERM_L_WHITE, TR_RES_COLD,    TR_VULN_COLD,   TR_IM_COLD },
+    { "Poison",         TERM_L_GREEN, TR_RES_POIS,    TR_VULN_POIS,   TR_IM_POIS },
+    { "Light",          TERM_YELLOW,  TR_RES_LITE,    TR_VULN_LITE,   TR_IM_LITE },
+    { "Dark",           TERM_L_DARK,  TR_RES_DARK,    TR_VULN_DARK,   TR_IM_DARK },
+    { "Confusion",      TERM_L_RED,   TR_RES_CONF,    TR_VULN_CONF,   TR_INVALID },
+    { "Nether",         TERM_L_DARK,  TR_RES_NETHER,  TR_VULN_NETHER, TR_IM_NETHER },
+    { "Nexus",          TERM_VIOLET,  TR_RES_NEXUS,   TR_VULN_NEXUS,  TR_INVALID },
+    { "Sound",          TERM_ORANGE,  TR_RES_SOUND,   TR_VULN_SOUND,  TR_INVALID },
+    { "Shards",         TERM_L_UMBER, TR_RES_SHARDS,  TR_VULN_SHARDS, TR_INVALID },
+    { "Chaos",          TERM_VIOLET,  TR_RES_CHAOS,   TR_VULN_CHAOS,  TR_INVALID },
+    { "Disenchantment", TERM_VIOLET,  TR_RES_DISEN,   TR_VULN_DISEN,  TR_INVALID },
+    { "Time",           TERM_L_BLUE,  TR_RES_TIME,    TR_INVALID,     TR_INVALID },
+    { "Blindness",      TERM_L_DARK,  TR_RES_BLIND,   TR_VULN_BLIND,  TR_IM_BLIND },
+    { "Fear",           TERM_L_RED,   TR_RES_FEAR,    TR_VULN_FEAR,   TR_IM_FEAR },
+    { "Teleportation",  TERM_ORANGE,  TR_NO_TELE,     TR_INVALID,     TR_INVALID }
 };
 
 void res_calc_bonuses(u32b flgs[TR_FLAG_SIZE])
 {
     int i;
-    for (i = 0; ; i++)
+    for (i = RES_BEGIN; i < RES_END; i++)
     {
-        _map_t m = _resist_map[i];
-        if (m.flg < 0) break;
-        if (have_flag(flgs, m.flg))
-            res_add(m.res);
+        _res_info_t m = _resist_map[i];
+        if (m.flg != TR_INVALID && have_flag(flgs, m.flg))
+            res_add(i);
+        if (m.vuln_flg != TR_INVALID && have_flag(flgs, m.vuln_flg))
+            res_add_vuln(i);
+        if (m.im_flg != TR_INVALID && have_flag(flgs, m.im_flg))
+            res_add_immune(i);
     }
-    for (i = 0; ; i++)
+}
+
+bool res_has_bonus(u32b flgs[TR_FLAG_SIZE])
+{
+    int i;
+    for (i = RES_BEGIN; i < RES_END; i++)
     {
-        _map_t m = _immunity_map[i];
-        if (m.flg < 0) break;
-        if (have_flag(flgs, m.flg))
-            res_add_immune(m.res);
+        _res_info_t m = _resist_map[i];
+        int    net = 0;
+        if (m.im_flg != TR_INVALID && have_flag(flgs, m.im_flg))
+            return TRUE;
+        if (m.flg != TR_INVALID && have_flag(flgs, m.flg))
+            net++;
+        if (m.vuln_flg != TR_INVALID && have_flag(flgs, m.vuln_flg))
+            net--;
+        if (net)
+            return TRUE;
     }
-    for (i = 0; ; i++)
-    {
-        _map_t m = _vulnerability_map[i];
-        if (m.flg < 0) break;
-        if (have_flag(flgs, m.flg))
-            res_add_vuln(m.res);
-    }
+    return FALSE;
 }
 
 int  res_get_object_flag(int which)
 {
-    int i;
-    for (i = 0; ; i++)
-    {
-        _map_t m = _resist_map[i];
-        if (m.flg < 0) break;
-        if (m.res == which) return m.flg;
-    }
-    return -1;
+    return _resist_map[which].flg;
+}
+
+int  res_get_object_vuln_flag(int which)
+{
+    return _resist_map[which].vuln_flg;
+}
+
+int  res_get_object_immune_flag(int which)
+{
+    return _resist_map[which].im_flg;
 }
 
 static int _randomize(int pct)
@@ -154,36 +160,19 @@ void res_clear(void)
         p_ptr->resist[i] = 0;
 }
 
-static cptr _names[RES_MAX] = {
-    "acid",
-    "lightning",
-    "fire",
-    "cold",
-    "poison",
-    "light",
-    "dark",
-    "confusion",
-    "nether",
-    "nexus",
-    "sound",
-    "shards",
-    "chaos",
-    "disenchantment",
-    "time",
-    "blindness",
-    "fear",
-    "teleportation",
-};
-
 cptr res_name(int which)
 {
-    if (which >= 0 && which < RES_MAX)
-        return _names[which];
-    return "";
+    return _resist_map[which].name;
 }
 
+byte res_color(int which)
+{
+    return _resist_map[which].color;
+}
+
+
 #define _MAX_PCTS 29
-static int _pcts[_MAX_PCTS] = {
+static int _lo_pcts[_MAX_PCTS] = {
    0, 50, 65, 72, 75,
   77, 78, 79, 80, 81,
   82, 83, 84, 85, 86,
@@ -191,6 +180,31 @@ static int _pcts[_MAX_PCTS] = {
   92, 93, 94, 95, 96,
   97, 98, 99, 100
 };
+
+static int _hi_pcts[_MAX_PCTS] = {
+   0, 30, 40, 45, 47,
+  48, 49, 50, 51, 52,
+  53, 54, 55, 56, 57,
+  58, 59, 60, 61, 62,
+  63, 64, 65, 66, 67,
+  68, 69, 70, 100
+};
+/* Note: I've decided to move back to a two-tiered resistance system.
+ * While I like the simplicity of a single system, the fact is that it
+ * forced the player to cover all resists, especially rather early on when
+ * it is practically impossible to do so. This redesign is closer to the
+ * original Hengband system. Also, you can no longer "shut-down" end game
+ * high damage with multiple resists like before:
+ * Attack  Hengband(1x) Old(3x) New(3x) New(1x)
+ * ======= ============ ======= ======= =======
+ * ROCKET           400     224     330     420
+ * BR_CHAO          439     196     330     420
+ * BR_NETH          356     182     302     385
+
+ * These are the Serpent's big three attacks. As you can see, he could be
+ * made quite tame with enough resists. But no longer ;)
+ */
+
 
 int  res_pct_aux(int which, int count)
 {
@@ -203,15 +217,15 @@ int  res_pct_aux(int which, int count)
     if (idx >= _MAX_PCTS)
         idx = _MAX_PCTS-1;
 
-    result = _pcts[idx];
+    if (res_is_low(which))
+        result = _lo_pcts[idx];
+    else
+        result = _hi_pcts[idx];
 
     if (count < 0)
         result *= -1;
     else if (result < 100)
     {
-        /* These restrictions are no laughing matter. Confusion is up to 600hp
-         * and Light is up to 500hp. In practice, players will be hard pressed to
-         * exceed 36% resistance, meaning they can expect around 400 and 320 dam */
         if (which == RES_CONF)
         {
             if (prace_is_(RACE_TONBERRY))
@@ -224,7 +238,6 @@ int  res_pct_aux(int which, int count)
                 result = (result + 1) / 2;
         }
 
-        /* Elemental Damage is more deadly, so I'm being a bit nicer here :) */
         if (which == RES_FIRE)
         {
             if (prace_is_(RACE_ENT))
@@ -246,6 +259,42 @@ int res_pct(int which)
     return res_pct_aux(which, ct);
 }
 
+int res_ct_known(int which)
+{
+    int ct = p_ptr->resist[which];
+    int hidden = 0;
+    int flg = res_get_object_flag(which);
+    int i;
+
+    /* Life is a bit hard at the moment since "player flags"
+       may account for multiple resistances. Really, the entire
+       flag based approach to resistance is just wrong, but I'm
+       too lazy to fix ...
+    */
+    for (i = 0; i < equip_count(); i++)
+    {
+        int          slot = EQUIP_BEGIN + i;
+        object_type *o_ptr = equip_obj(slot);
+        u32b         flgs[TR_FLAG_SIZE];
+        u32b         flgs_known[TR_FLAG_SIZE];
+
+        if (!o_ptr) continue;
+        object_flags(o_ptr, flgs);
+        object_flags_known(o_ptr, flgs_known);
+
+        if (have_flag(flgs, flg) && !have_flag(flgs_known, flg))
+            hidden++;
+    }
+
+    ct -= hidden;
+    return ct;
+}
+
+int res_pct_known(int which)
+{
+    return res_pct_aux(which, res_ct_known(which));
+}
+
 bool res_save(int which, int power)
 {
     int pct = res_pct(which);
@@ -257,16 +306,35 @@ bool res_save(int which, int power)
 
 bool res_save_default(int which)
 {
-    return res_save(which, 55);
+    int power = res_is_low(which) ? 55 : 33;
+    return res_save(which, power);
 }
 bool res_can_ignore(int which)
 {
-    if (res_pct(which) >= 55)
+    int power = res_is_low(which) ? 55 : 33;
+    if (res_pct(which) >= power)
         return TRUE;
     return FALSE;
 }
 
 bool res_save_inventory(int which)
 {
-    return res_save(which, 66);
+    int power = res_is_low(which) ? 66 : 41;
+
+    /* Mercy for racial vulnerabilities:
+        ResCt  Old% New%
+        =====  ==== ====
+          1    24.2 35.2
+          2     1.5 16.7
+          3     0.0  7.4
+          4          3.7
+          5          1.9
+          6          0.0
+    */
+    if (prace_is_(RACE_ENT) && which == RES_FIRE)
+        power = 54;
+    if (prace_is_(RACE_ANDROID) && which == RES_ELEC)
+        power = 54;
+
+    return res_save(which, power);
 }

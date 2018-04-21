@@ -1,0 +1,56 @@
+<style:title>The Object List</style>
+
+This command displays all known objects on the current level. Objects are grouped into two categories. <color:keyword>Wanted</color> objects are those you have set to automatically pickup in your <color:keyword>Pickup Preferences</color> while <color:keyword>Other</color> objects include everything else. Each group is sorted according to its known value and the location of each, relative to your current position, is displayed.
+
+<topic:Summary><style:heading>Quick Summary</style>
+
+  <color:keypress>UP/DOWN</color>            Scroll One Line at a Time
+  <color:keypress>PAGEUP/PAGEDOWN</color>    Scroll One Page at a Time
+  <color:keypress>HOME/END</color>           Scroll to Top/Bottom of List
+
+  <color:keypress>x/I</color>                Inspect Selected Object
+  <color:keypress>`</color>                  Travel to Selected Object
+
+  <color:keypress>ESC/q</color>              Quit this Command
+  <color:keypress>?</color>                  Display this Help Topic
+
+
+<topic:Usage><style:heading>Usage</style>
+
+This command is useful once your character has the ability to detect objects, and is essential once your character gains the power of Clairvoyance (You should be so lucky!). Below, my fledgling Monk received a Claivoyance activation very early on. As you can see, this level has many objects on it, probably because there is a vault:
+<style:screenshot>
+There are 8 wanted objects:                       #<color:u>..</color>       # #     LEVEL <color:G>    33</color>
+ <color:y>"</color> <color:o>an Amulet {unidentified}            </color> N 17 E 47 #<color:u>..</color> ##<color:u>'</color>## <color:U>+</color>##     EXP <color:G>    182k</color>
+ <color:y>"</color> <color:o>an Amulet {unidentified}            </color> N 17 E 51 #<color:u>..</color> #<color:s>Z</color> <color:s>Z</color># ##  ##% AU  <color:G>    511k</color>
+ ? a Scroll titled "ooder dokrog"       N 16 E 56 #<color:u>..</color> # <color:s>Z</color> # #   %<color:D>#</color># <color:d>  </color><color:U>}</color><color:g>==</color><color:y>"!</color><color:U>(</color><color:W>(</color><color:s>]</color><color:U>]</color><color:d> </color>
+ <color:B>!</color> <color:B>4 Light Blue Potions                </color> N 35 E130 #<color:u>..</color><color:s>Z</color>#<color:s>ZZZ</color># #   <color:o>*</color>%% STR : <color:G>18/109</color>
+ <color:u>!</color> <color:B>a Brown Speckled Potion             </color> N 18 E 54 #<color:s>Z</color>#####<color:s>Z</color># #    #<color:D>#</color> INT : <color:G>    15</color>
+                                                  #<color:u>.</color># # #<color:s>Z</color># #    %# WIS : <color:G>18/124</color>
+There are 79 other objects:                       #<color:u>.</color># ##### #       DEX : <color:G>18/163</color>
+ <color:W>[</color> <color:s>Partial Plate Armour [22]           </color> N 16 E 62 <color:D>d</color><color:u>.</color>#   #   ###     CON : <color:G> 18/64</color>
+ <color:D>[</color> <color:s>Splint Mail [19]                    </color> N 18 E 55 #<color:u>.</color># <color:s>o</color> #   #<color:D>#</color>#     CHR : <color:G>    18</color>
+ <color:D>[</color> <color:s>Haramakido [17]                     </color> N 17 E 52 <color:u>..</color>#   #   ###     AC     <color:G>  126</color>
+ <color:s>[</color> <color:s>Double Chain Mail [16]              </color> N 16 E 59 #<color:u>.</color>##<color:U>+</color>##<color:u>...</color>####    HP <color:y> 421</color>/<color:G> 471</color>
+ <color:s>[</color> <color:s>Double Ring Mail [15]               </color> N 14 E 65 <color:U>+</color><color:u>...</color>@<color:u>.....</color>##<color:D>#</color>##   SP <color:y> 180</color>/<color:G> 190</color>
+ <color:r>|</color> an Executioner's Sword (4d5)         N 20 E 62 ##<color:u>.</color>#<color:u>'</color>########<color:D>#</color>#
+ <color:r>|</color> an Executioner's Sword (4d5)         N 18 E 49  <color:U>+</color><color:u>..</color>##   #<color:D>##</color>##### @[<color:y>*********</color>]
+ ? 3 Scrolls of *Identify*              N 18 E 56  ######  ##<color:D>#</color># #<color:D>#</color>% <color:G>?</color>[<color:y>*********</color>]
+ <color:s>[</color> <color:s>Ring Mail [12]                      </color> N 17 E 60  ####<color:D>#</color>#   ### ### <color:U>,</color>[*********]
+ <color:s>[</color> <color:s>Ring Mail [12]                      </color> N 17 E 55  #<color:D>#</color>###### #<color:D>#</color>#
+ <color:W>`</color> <color:s>a Silver Statue of a Sea troll      </color> N 11 E132 ####  #<color:D>#</color>#####
+ ? a Scroll of Summon Pet               N 19 E 61 ##   ###<color:D>#</color>##<color:D>#</color>#
+ <color:W>?</color> <color:W>a Book of Life Magic [High Mass]    </color> N 15 E 47 <color:D>#</color>#   #<color:D>#</color>######     <color:G>Fast (+3)</color>
+ <color:o>`</color> <color:s>a Copper Statue of an Impact hound  </color> N  3 E134 ##   ###          <color:B>Study (11)</color>
+ <color:o>`</color> <color:s>a Copper Statue of a Clay golem     </color> N  1 E132 #  ###### ###   #
+ <color:o>`</color> <color:s>a Copper Statue of Nar, the Dwarf   </color> N 20 E 61 #  #<color:D>#</color>##<color:D>#</color># #<color:D>#</color>#   #
+ <color:s>}</color> <color:u>a Light Crossbow (x4)               </color> N 18 E 60 #  ###### ###%##%
+   <color:B>[Press ESC to exit. Press ? for help]</color>          <color:G>ap</color>
+</style>
+
+<topic:Travel><style:heading>Travel to Object</style>
+
+You may travel to the currently selected object in the object list by pressing <style:keypress>`</style>, which, incidentally, is the same key used to invoke the travel command from the top level. Be careful when traveling, however, as you may quickly get yourself into trouble (just like with running). For example, you might travel into a horde of demons that, because they are not in direct line of sight, do not disturb you, and therefore do not terminate the travel command. So while you, with telepathy no doubt, would have wisely fled as soon as they appeared, the travel command will continue until you are actually in line of sight, which might be too late to survive. So exercise caution when using this option.
+
+<topic:Window><style:heading>Setting Up a Terminal Window</style>
+
+You may also setup the Object List as a child terminal so that it is continuously displayed. For details of setting options, refer to <link:option.txt>. For details of setting window options, see <link:option.txt#Window>.

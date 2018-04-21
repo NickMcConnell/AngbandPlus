@@ -9,55 +9,58 @@
  */
 
 #include "angband.h"
+#include "z-doc.h"
 
-/* TODO: These don't belong here ... */
-static cptr pact_desc[MAX_PACTS] = 
+/*
+ * Returns adjusted stat -JK-  Algorithm by -JWT-
+ */
+static int adjust_stat(int value, int amount)
 {
-    "Undead are tough creatures, each having survived death at least once. Warlocks who make a pact "
-        "with Undead will find themselves with a slew of additional resistances, along with "
-        "significantly higher hit points and constitution. Eventually, Undead Warlocks attain "
-        "the ability to become partially incorporeal for brief periods at will. Making a pact "
-        "with Undead will reduce damage done to all undead by a substantial amount.",
-    "Dragons are powerful melee combatants, having tough hides and resistances to many common "
-        "elemental types. Warlocks who make a pact with Dragons will find themselves with "
-        "significantly strong melee abilities (both offensive and defensive), extra maximum blows "
-        "in combat, and eventually powerful melee abilities like massacre and stone skin. "
-        "Making a pact with Dragons will reduce damage done to all dragons by a substantial amount.",
-    "Angels are heavenly beings who use a variety of techniques to smite those they view as evil. "
-        "Warlocks who make pacts with Angels will find their saving throws significantly improved, "
-        "and their body immune to bolt-like effects. Eventually Angel Warlocks attain the ability "
-        "to become invulnerable for brief periods at will. Since Angels are strongly aligned with "
-        "the forces of good, making a pact with Angels will reduce damage done to all good monsters "
-        "by a substantial amount.",
-    "Demons are crafty creatures of the netherworld, using whatever means at their disposal to bring "
-        "down their enemies. Warlocks who make pacts with Demons will find their abilities to use "
-        "all magical devices improved, and gain the ability to Recharge these devices at will. "
-        "Eventually, Demon Warlocks attain the ability to crush walls beneath their footsteps. "
-        "Making a pact with Demons will reduce damage done to all demons by a substantial amount.",
-    "Aberrations are the mishmash of demihumanoid races in the world of PosChengband. Warlocks who "
-        "make pacts with Aberrations will gain great skills with shooting and may even create their "
-        "own ammo. At high levels, they gain the power of Dimension Door. Making a pact with Aberrations "
-        "will reduce damage done to all humanoids (h) and people (p) by a substantial amount.",
-};
-static cptr seikaku_jouhou[MAX_PERSONALITIES] =
-{
-"\"Ordinary\" is a personality with no special skills or talents, with unmodified stats and skills.",
-"\"Mighty\" raises your physical stats and skills, but reduces stats and skills which influence magic. It makes your stats suitable for a warrior. Also it directly influences your hit-points and spell fail rate.",
-"\"Shrewd\" reduces your physical stats, and raises your intelligence and magical skills. It makes your stats suitable for a mage. Also it directly influences your hit-points and spell fail rate.",
-"\"Pious\" deepens your faith in your God. It makes your physical ability average, and your stats suitable for priest. ",
-"\"Nimble\" renders you highly skilled comparatively well, but reduces your physical ability. ",
-"\"Fearless\" raises your melee skills and force of personality. Stats such as magic defense and constitution are reduced. Also it has a direct bad influence on your hit-points.",
-"\"Combat\" gives you comparatively high melee and shooting abilities, and average constitution. Other skills such as stealth, magic defence, and magical devices are weakened. All \"Combat\" people have great respect for the legendary \"Combat Echizen\".\n\
-(See \"Death Crimson\" / Ecole Software Corp.)",
-"A \"Lazy\" person has no good stats and can do no action well. Also it has a direct bad influence on your spell fail rate.",
-"\"Sexy\" rises all of your abilities, but your haughty attitude will aggravate all monsters. Only females can choose this personality.",
-"A \"Lucky\" man has poor stats, equivalent to a \"Lazy\" person. Mysteriously, however, he can do all things well. Only males can choose this personality.",
-"A \"Patient\" person does things carefully. Patient people have high constitution, and high resilience, but poor abilities in most other skills. Also it directly influences your hit-points.",
-"\"Munchkin\" is a personality for beginners. It raises all your stats and skills. With this personality, you can win the game easily, but gain little honor in doing so.",
-"A \"Craven\" person is a coward, preferring to avoid a fight at any cost. Craven adventurers shoot and use devices well, and their stealth is impressive. But their stats and other skills are somewhat wanting.",
-"A \"Hasty\" person edeavors to do all things quickly. Speed, rather than skill and patience, are paramount, and the Hasty adventure moves quickly through the dungeon, bungling much."
-};
-static cptr realm_jouhou[VALID_REALM] =
+    int i;
+
+    /* Negative amounts */
+    if (amount < 0)
+    {
+        /* Apply penalty */
+        for (i = 0; i < (0 - amount); i++)
+        {
+            if (value >= 18+10)
+            {
+                value -= 10;
+            }
+            else if (value > 18)
+            {
+                value = 18;
+            }
+            else if (value > 3)
+            {
+                value--;
+            }
+        }
+    }
+
+    /* Positive amounts */
+    else if (amount > 0)
+    {
+        /* Apply reward */
+        for (i = 0; i < amount; i++)
+        {
+            if (value < 18)
+            {
+                value++;
+            }
+            else
+            {
+                value += 10;
+            }
+        }
+    }
+
+    /* Return the result */
+    return (value);
+}
+
+cptr realm_jouhou[VALID_REALM] =
 {
 "Life magic is very good for healing; it relies mostly on healing, protection and detection spells. Also life magic have a few attack spells as well. It said that some high level spell of life magic can disintegrate Undead monsters into ash.",
 "Sorcery is a `meta` realm, including enchantment and general spells. It provides superb protection spells, spells to enhance your odds in combat and, most importantly, a vast selection of spells for gathering information. However, Sorcery has one weakness: it has no spells to deal direct damage to your enemies.",
@@ -182,7 +185,7 @@ static int _menu_choose(menu_ptr menu, int start_choice)
     /* Choose */
     k = -1;
     cs = start_choice;
-    os = start_choice;
+    os = /*start_choice? ... but I want the initial MENU_ON_BROWSE to display, so:*/-1;
     for (;;)
     {
         if (cs != os)
@@ -282,7 +285,24 @@ static int _menu_choose(menu_ptr menu, int start_choice)
         }
         if (c == '?')
         {
-            show_help(menu->browse_prompt);
+            /* Race and Class helpfiles should have appropriately named topics */
+            if (cs < menu->count && !strchr(menu->browse_prompt, '#'))
+            {
+                char    helpfile[255];
+                variant text;
+
+                var_init(&text);
+                menu->fn(MENU_TEXT, cs, menu->cookie, &text);
+
+                strcpy(helpfile, menu->browse_prompt);
+                if (!var_is_null(&text))
+                    sprintf(helpfile + strlen(helpfile), "#%s", var_get_string(&text));
+
+                show_help(helpfile);
+                var_clear(&text);
+            }
+            else
+                show_help(menu->browse_prompt);
         }
         else if (c == '=')
         {
@@ -352,21 +372,21 @@ static void _personality_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
     int  idx = ((int*)cookie)[which];
     char buf[100];
-    player_seikaku *pers_ptr = &seikaku_info[idx];
+    personality_ptr pers_ptr = get_personality_aux(idx);
 
     switch (cmd)
     {
     case MENU_TEXT:
-        var_set_string(res, pers_ptr->title);
+        var_set_string(res, pers_ptr->name);
         break;
     case MENU_ON_BROWSE:
-        c_put_str(TERM_L_BLUE, pers_ptr->title, 3, 40);
-        put_str(": Personality modification", 3, 40+strlen(pers_ptr->title));
+        c_put_str(TERM_L_BLUE, pers_ptr->name, 3, 40);
+        put_str(": Personality modification", 3, 40+strlen(pers_ptr->name));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
-            pers_ptr->a_adj[A_STR], pers_ptr->a_adj[A_INT], pers_ptr->a_adj[A_WIS], 
-            pers_ptr->a_adj[A_DEX], pers_ptr->a_adj[A_CON], pers_ptr->a_adj[A_CHR], 
-            pers_ptr->a_exp);
+            pers_ptr->stats[A_STR], pers_ptr->stats[A_INT], pers_ptr->stats[A_WIS],
+            pers_ptr->stats[A_DEX], pers_ptr->stats[A_CON], pers_ptr->stats[A_CHR],
+            pers_ptr->exp);
         c_put_str(TERM_L_BLUE, buf, 5, 40);
         var_set_bool(res, TRUE);
         break;
@@ -382,12 +402,19 @@ static bool _valid_personality(int which)
 
 static int _prompt_personality(void)
 {
+    if (game_mode == GAME_MODE_BEGINNER)
+    {
+        p_ptr->personality = PERS_ORDINARY;
+        return p_ptr->personality;
+    }
+
     for (;;)
     {
         char   tmp[80];
         int    idx, ct = 0, i;
         int    choices[MAX_PERSONALITIES];
-        menu_t menu = { "Personality", "Personalities.txt#Tables", "Note: Your personality determines various intrinsic abilities and bonuses.",
+        personality_ptr pers_ptr = NULL;
+        menu_t menu = { "Personality", "Personalities.txt", "Note: Your personality determines various intrinsic abilities and bonuses.",
                             _personality_menu_fn, 
                             choices, 0};
 
@@ -406,11 +433,11 @@ static int _prompt_personality(void)
         if (idx < 0) return idx;
 
         p_ptr->personality = choices[idx];
-        ap_ptr = &seikaku_info[p_ptr->personality]; /* TODO: Remove this ... */
+        pers_ptr = get_personality();
         
-        c_put_str(TERM_L_BLUE, format("%-14s", ap_ptr->title), 3, 14);
+        c_put_str(TERM_L_BLUE, format("%-14s", pers_ptr->name), 3, 14);
 
-        if (!_confirm_choice(seikaku_jouhou[p_ptr->personality], menu.count)) continue;
+        if (!_confirm_choice(pers_ptr->desc, menu.count)) continue;
         return p_ptr->personality;
     }
     /*return _BIRTH_ESCAPE;  unreachable */
@@ -532,7 +559,7 @@ static int _prompt_realm1(void)
             {
                 int    idx, ct = 0;
                 int    choices[DRAGON_REALM_MAX];
-                menu_t menu = { "Dragon Realm", "DragonRealms.txt#Tables", "", _dragon_realm_menu_fn, choices, 0 };
+                menu_t menu = { "Dragon Realm", "DragonRealms.txt", "", _dragon_realm_menu_fn, choices, 0 };
                 dragon_realm_ptr realm = NULL;
                 
                 /* TODO: Subracial restrictions? */
@@ -646,7 +673,7 @@ static void _class_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
     int idx = ((int *)cookie)[which];
     char buf[100];
-    class_t *class_ptr = get_class_t_aux(idx, 0);
+    class_t *class_ptr = get_class_aux(idx, 0);
 
     switch (cmd)
     {
@@ -669,10 +696,11 @@ static void _class_menu_fn(int cmd, int which, vptr cookie, variant *res)
 
 static void _warlock_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
+    class_t *class_ptr = get_class_aux(CLASS_WARLOCK, which);
     switch (cmd)
     {
     case MENU_TEXT:
-        var_set_string(res, pact_info[which].title);
+        var_set_string(res, class_ptr->subname);
         break;
     }
 }
@@ -701,7 +729,7 @@ static bool _valid_class(int which)
 {
     if (which == CLASS_BLOOD_KNIGHT || which == CLASS_BLOOD_MAGE)
     {
-        if (get_race_t()->flags & RACE_IS_NONLIVING)
+        if (get_race()->flags & RACE_IS_NONLIVING)
             return FALSE;
     }
     if (which == CLASS_BEASTMASTER || which == CLASS_CAVALRY)
@@ -712,9 +740,58 @@ static bool _valid_class(int which)
     return TRUE;
 }
 
+static int _beginner_classes[] = {
+  CLASS_WARRIOR,
+  CLASS_MAGE,
+  CLASS_PRIEST,
+  CLASS_ROGUE,
+  CLASS_RANGER,
+  CLASS_PALADIN,
+  CLASS_NINJA,
+  -1
+};
+
+static int _prompt_class_beginner(void)
+{
+    int idx;
+    for (;;)
+    {
+    class_t *class_ptr = NULL;
+    menu_t menu = { "Class", "Classes.txt", "Note: Your 'class' determines various intrinsic factors and bonuses.",
+                        _class_menu_fn,
+                        _beginner_classes, _count_ids(_beginner_classes)};
+
+
+        c_put_str(TERM_WHITE, "              ", 6, 14);
+        c_put_str(TERM_WHITE, "              ", 7, 14);
+        idx = _menu_choose(&menu, _find_id(_beginner_classes, p_ptr->pclass));
+        if (idx < 0) return idx;
+
+        if (_beginner_classes[idx] != p_ptr->pclass)
+        {
+            p_ptr->pclass = _beginner_classes[idx];
+            p_ptr->psubclass = 0;
+            p_ptr->realm1 = 0;
+            p_ptr->realm2 = 0;
+            p_ptr->dragon_realm = 0;
+        }
+        mp_ptr = &m_info[p_ptr->pclass];
+        class_ptr = get_class();
+
+        c_put_str(TERM_L_BLUE, format("%-14s", class_ptr->name), 6, 14);
+        if (!_confirm_choice(class_ptr->desc, menu.count)) continue;
+        p_ptr->psubclass = 0;
+        c_put_str(TERM_WHITE, "              ", 7, 14);
+        idx = _prompt_realm1();
+        if (idx == _BIRTH_ESCAPE) continue;
+        return idx;
+    }
+    /*return _BIRTH_ESCAPE;  unreachable */
+}
+
 static int _prompt_class(void)
 {
-    if (get_race_t()->flags & RACE_IS_MONSTER)
+    if (get_race()->flags & RACE_IS_MONSTER)
     {
         p_ptr->pclass = CLASS_MONSTER;
         mp_ptr = &m_info[p_ptr->pclass];
@@ -737,7 +814,7 @@ static int _prompt_class(void)
         c_put_str(TERM_WHITE, "              ", 6, 14);
         for (;;)
         {
-            menu_t menu1 = { "Class Type", "Classes.txt#Tables", "",
+            menu_t menu1 = { "Class Type", "Classes.txt", "",
                                 _class_group_menu_fn, 
                                 NULL, _MAX_CLASS_GROUPS};
             idx = _menu_choose(&menu1, group_id);
@@ -748,7 +825,7 @@ static int _prompt_class(void)
             int      choices[_MAX_CLASSES_PER_GROUP];
             int      ct = 0, i;
             class_t *class_ptr = NULL;
-            menu_t   menu2 = { "Class", "Classes.txt#Tables", "Note: Your 'class' determines various intrinsic factors and bonuses.",
+            menu_t   menu2 = { "Class", "Classes.txt", "Note: Your 'class' determines various intrinsic factors and bonuses.",
                                 _class_menu_fn, 
                                 choices, 0};
 
@@ -780,7 +857,7 @@ static int _prompt_class(void)
                     p_ptr->dragon_realm = 0;
                 }
                 mp_ptr = &m_info[p_ptr->pclass];
-                class_ptr = get_class_t();
+                class_ptr = get_class();
 
                 c_put_str(TERM_L_BLUE, format("%-14s", class_ptr->name), 6, 14);
                 if (!_confirm_choice(class_ptr->desc, menu2.count)) continue;
@@ -790,14 +867,15 @@ static int _prompt_class(void)
                     {
                     menu_t menu3 = { "Pact", "Warlocks.txt", "Its time to make your pact.",
                                         _warlock_menu_fn, 
-                                        NULL, MAX_PACTS};
+                                        NULL, WARLOCK_MAX};
                         c_put_str(TERM_WHITE, "              ", 7, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubclass);
                         if (idx == _BIRTH_ESCAPE) break;
                         if (idx < 0) return idx;
                         p_ptr->psubclass = idx;
-                        c_put_str(TERM_L_BLUE, format("%-14s", pact_info[p_ptr->psubclass].title), 7, 14);
-                        if (!_confirm_choice(pact_desc[p_ptr->psubclass], menu3.count)) continue;
+                        class_ptr = get_class();
+                        c_put_str(TERM_L_BLUE, format("%-14s", class_ptr->subname), 7, 14);
+                        if (!_confirm_choice(class_ptr->subdesc, menu3.count)) continue;
                         idx = _prompt_personality();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;
@@ -815,8 +893,9 @@ static int _prompt_class(void)
                         if (idx == _BIRTH_ESCAPE) break;
                         if (idx < 0) return idx;
                         p_ptr->psubclass = idx;
-                        c_put_str(TERM_L_BLUE, format("%-14s", weaponmaster_speciality_name(p_ptr->psubclass)), 7, 14);
-                        if (!_confirm_choice(weaponmaster_speciality_desc(p_ptr->psubclass), menu3.count)) continue;
+                        class_ptr = get_class();
+                        c_put_str(TERM_L_BLUE, format("%-14s", class_ptr->subname), 7, 14);
+                        if (!_confirm_choice(class_ptr->subdesc, menu3.count)) continue;
                         idx = _prompt_personality();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;
@@ -860,36 +939,60 @@ static int _prompt_class(void)
 }
 
 #define _MAX_RACES_PER_GROUP 23
-#define _MAX_RACE_GROUPS     9
+#define _MAX_RACE_GROUPS      8
 typedef struct _race_group_s {
     cptr name;
     cptr help;
     int ids[_MAX_RACES_PER_GROUP];
 } _race_group_t;
 static _race_group_t _race_groups[_MAX_RACE_GROUPS] = {
-    { "Human", "Races.txt#Tables", 
+    { "Human", "Races.txt",
         {RACE_AMBERITE, RACE_BARBARIAN, RACE_DEMIGOD, RACE_DUNADAN, RACE_HUMAN, -1} },
-    { "Elf", "Races.txt#Tables", 
+    { "Elf", "Races.txt",
         {RACE_DARK_ELF, RACE_HIGH_ELF, RACE_WOOD_ELF, -1} },
-    { "Hobbit/Dwarf", "Races.txt#Tables", 
+    { "Hobbit/Dwarf", "Races.txt",
         {RACE_DWARF, RACE_GNOME, RACE_HOBBIT, RACE_NIBELUNG, -1} },
-    { "Fairy", "Races.txt#Tables", 
+    { "Fairy", "Races.txt",
         {RACE_SHADOW_FAIRY, RACE_SPRITE, -1} },
-    { "Angel/Demon",  "Races.txt#Tables", 
+    { "Angel/Demon",  "Races.txt",
         {RACE_ARCHON, RACE_BALROG, RACE_IMP, -1} },
-    { "Orc/Troll/Giant", "Races.txt#Tables", 
-        {RACE_CYCLOPS, RACE_KOBOLD, RACE_HALF_GIANT, RACE_HALF_OGRE, 
-         RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_SNOTLING, -1} },
-    { "Undead", "Races.txt#Tables", 
+    { "Orc/Troll/Giant", "Races.txt",
+        {RACE_CYCLOPS, RACE_HALF_GIANT, RACE_HALF_OGRE,
+         RACE_HALF_TITAN, RACE_HALF_TROLL, RACE_KOBOLD, RACE_SNOTLING, -1} },
+    { "Undead", "Races.txt",
         {RACE_SKELETON, RACE_SPECTRE, RACE_VAMPIRE, RACE_ZOMBIE, -1} },
-    { "Other", "Races.txt#Tables", 
+    { "Other", "Races.txt",
         {RACE_ANDROID, RACE_BEASTMAN, RACE_CENTAUR, RACE_DRACONIAN, RACE_DOPPELGANGER, RACE_ENT, 
          RACE_GOLEM, RACE_KLACKON, RACE_KUTAR, RACE_MIND_FLAYER, RACE_TONBERRY, RACE_YEEK,-1 } },
-    { "Monster", "MonsterRaces.txt", 
-        {RACE_MON_ANGEL, RACE_MON_BEHOLDER, RACE_MON_CENTIPEDE, RACE_MON_SWORD, RACE_MON_DEMON, 
-            RACE_MON_DRAGON, RACE_MON_ELEMENTAL, RACE_MON_GIANT, RACE_MON_GOLEM, RACE_MON_HOUND, 
-            RACE_MON_HYDRA, RACE_MON_JELLY, RACE_MON_LEPRECHAUN, RACE_MON_LICH, RACE_MON_MIMIC, RACE_MON_POSSESSOR,
-            RACE_MON_QUYLTHULG, RACE_MON_RING, RACE_MON_SPIDER, RACE_MON_TROLL, RACE_MON_VAMPIRE, RACE_MON_XORN, -1} },
+};
+
+#define _MAX_MON_RACE_GROUPS      12
+static _race_group_t _mon_race_groups[_MAX_MON_RACE_GROUPS] = {
+    { "Animal", "MonsterRaces.txt",
+        {/*RACE_MON_ANT, RACE_MON_BEETLE, RACE_MON_BIRD, RACE_MON_CAT,*/ RACE_MON_CENTIPEDE,
+            RACE_MON_HOUND, /*RACE_MON_HORSE, */ RACE_MON_HYDRA, RACE_MON_SPIDER, -1} },
+    { "Angel/Demon", "MonsterRaces.txt",
+        {RACE_MON_ANGEL, RACE_MON_DEMON, -1} },
+    { "Beholder",  "MonsterRaces.txt#Beholder",
+        {RACE_MON_BEHOLDER, -1} },
+    { "Dragon",  "MonsterRaces.txt#Dragon",
+        {RACE_MON_DRAGON, -1} },
+    { "Elemental",  "MonsterRaces.txt#Elemental",
+        {RACE_MON_ELEMENTAL, -1} },
+    { "Golem",  "MonsterRaces.txt#Golem",
+        {RACE_MON_GOLEM, -1} },
+    { "Jelly",  "MonsterRaces.txt",
+        {RACE_MON_JELLY, /*RACE_MON_MOLD,*/ RACE_MON_QUYLTHULG, -1} },
+    { "Leprechaun",  "MonsterRaces.txt#Leprechaun",
+        {RACE_MON_LEPRECHAUN, -1} },
+    { "Mimic/Possessor", "MonsterRaces.txt",
+        {RACE_MON_SWORD, /*RACE_MON_ARMOR,*/ RACE_MON_MIMIC, RACE_MON_POSSESSOR, RACE_MON_RING, -1} },
+    { "Orc/Troll/Giant", "MonsterRaces.txt",
+        {RACE_MON_GIANT, /*RACE_MON_KOBOLD, RACE_MON_ORC,*/ RACE_MON_TROLL, -1} },
+    { "Undead", "MonsterRaces.txt",
+        {/*RACE_MON_GHOST,*/ RACE_MON_LICH, RACE_MON_VAMPIRE, /*RACE_MON_WRAITH, RACE_MON_ZOMBIE,*/ -1 } },
+    { "Xorn",  "MonsterRaces.txt#Xorn",
+        {RACE_MON_XORN, -1} },
 };
 
 static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
@@ -902,11 +1005,21 @@ static void _race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
 }
 
+static void _mon_race_group_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, _mon_race_groups[which].name);
+        break;
+    }
+}
+
 static void _race_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
     int idx = ((int *)cookie)[which];
     char buf[100];
-    race_t *race_ptr = get_race_t_aux(idx, 0);
+    race_t *race_ptr = get_race_aux(idx, 0);
 
     switch (cmd)
     {
@@ -932,15 +1045,18 @@ static void _demigod_menu_fn(int cmd, int which, vptr cookie, variant *res)
     switch (cmd)
     {
     case MENU_TEXT:
-        var_set_string(res, demigod_info[which].name);
+    {
+        race_t *race_ptr = get_race_aux(RACE_DEMIGOD, which);
+        var_set_string(res, race_ptr->subname);
         break;
+    }
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, which);
+        race_t *race_ptr = get_race_aux(RACE_DEMIGOD, which);
 
-        c_put_str(TERM_L_BLUE, demigod_info[which].name, 3, 40);
-        put_str(": Race modification", 3, 40+strlen(demigod_info[which].name));
+        c_put_str(TERM_L_BLUE, race_ptr->subname, 3, 40);
+        put_str(": Race modification", 3, 40+strlen(race_ptr->subname));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
             race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
@@ -976,7 +1092,7 @@ static void _troll_menu_fn(int cmd, int which, vptr cookie, variant *res)
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_MON_TROLL, which);
+        race_t *race_ptr = get_race_aux(RACE_MON_TROLL, which);
 
         c_put_str(TERM_L_BLUE, _troll_info[which].name, 3, 40);
         put_str(": Race modification", 3, 40+strlen(_troll_info[which].name));
@@ -1023,7 +1139,7 @@ static void _giant_menu_fn(int cmd, int which, vptr cookie, variant *res)
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_MON_GIANT, which);
+        race_t *race_ptr = get_race_aux(RACE_MON_GIANT, which);
 
         c_put_str(TERM_L_BLUE, _giant_info[which].name, 3, 40);
         put_str(": Race modification", 3, 40+strlen(_giant_info[which].name));
@@ -1061,7 +1177,7 @@ static void _golem_menu_fn(int cmd, int which, vptr cookie, variant *res)
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_MON_GOLEM, which);
+        race_t *race_ptr = get_race_aux(RACE_MON_GOLEM, which);
 
         c_put_str(TERM_L_BLUE, _golem_info[which].name, 3, 40);
         put_str(": Race modification", 3, 40+strlen(_golem_info[which].name));
@@ -1092,95 +1208,20 @@ static void _spider_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
 }
 
-static _name_desc_t _dragon_info[DRAGON_MAX] = {
-    { "Red Dragon", 
-        "Red Dragons are elemental dragons of fire and are the second strongest fighters among "
-        "dragons. Their fiery breaths are the stuff of legends with damage unsurpassed. Even their "
-        "bites are likely to burn their opponents rendering their melee damage quite impressive. "
-        "As the Red Dragon matures, it becomes more and more resistant to fire, eventually gaining "
-        "total immunity." },
-    { "White Dragon", 
-        "White Dragons are to cold what Red Dragons are to fire. Their melee is truly awe-inspiring "
-        "and their icy breath can be felt even in their bite. Like Red Dragons, White Dragons "
-        "have the most deadly breath possible among dragonkind and they too become more and more "
-        "resistant to cold as they mature." },
-    { "Blue Dragon", 
-        "Blue Dragons are elemental dragons of lightning. Their melee and breaths are not so "
-        "strong as their Red and White brethren, but lightning is a bit more useful than fire or "
-        "cold. Their bites eventually shock their foes. Blue Dragons become more and more resistant "
-        "to lightning as they mature." },
-    { "Black Dragon", 
-        "Black Dragons are to acid what Blue Dragons are to lightning. Like the Blue Dragon, their "
-        "breaths and melee fall short of their Red and White brethren. As they mature, their bites "
-        "corrode their enemies and the Black Dragon also becomes more and more resistant to acid." },
-    { "Green Dragon", 
-        "Green Dragons are elemental dragons of poison. They are not so strong as Red or White dragons, "
-        "but are still fearsome opponents. As they mature, their bites poison their enemies. Also, "
-        "Green Dragons become more and more resistant to poison." },
-    { "Shadow Drake", 
-        "Shadow Drakes are bit more stealthy than your average dragon. They are creatures of nether "
-        "and eventually evolve into Death Drakes. Their melee is the weakest among dragonkind and "
-        "their breaths also are lacking, but they still make fearsome opponents. As they advance, "
-        "these dragons eventually gain the ability to pass through walls and also become more and "
-        "more resistant to nether." }, 
-    { "Law Drake", 
-        "Law Drakes are powerful dragons of order. They can breathe sound or shards and eventually "
-        "evolve into Great Wyrms of Law, though not so quickly as you might hope. Their breaths "
-        "are much weaker than those of the elemental dragons but very few monsters resist sound "
-        "or shards. Their melee is among the weakest of all dragonkind but they still fight rather "
-        "well ... What dragon doesn't?" },
-    { "Chaos Drake", 
-        "Chaos Drakes are powerful dragons of chaos. They can breathe chaos or disenchantment and eventually "
-        "evolve into Great Wyrms of Chaos, though not so quickly as you might hope. Their breaths "
-        "are much weaker than those of the elemental dragons but fewer monsters resist chaos "
-        "or disenchantment. Their melee is among the weakest of all dragonkind but they still fight rather "
-        "well ... What dragon doesn't?" },
-    { "Balance Drake", 
-        "Balance Drakes are a blend of Chaos and Law Drakes. They can breathe sound, shards, "
-        "chaos or disenchantment and eventually evolve into Great Wyrms of Balance, though not "
-        "so quickly as you might hope. Their breaths are much weaker than those of the elemental "
-        "dragons and they are weaker than either of Chaos or Law Drakes, though not by much." },
-    { "Ethereal Drake",
-        "Ethereal Drakes are dragons of light and darkness. They actually begin life as Pseudo "
-        "Dragons but quickly evolve into Ethereal Drakes and then Ethereal Dragons. As they "
-        "mature, they gain the ability to pass through walls and become more and more resistant "
-        "to light, darkness and confusion. They are fairly weak fighters and have the weakest "
-        "breaths in all of dragonkind (except for Steel Dragons which cannot breathe at all)." },
-    { "Crystal Drake",
-        "Crystal Drakes are dragons of a strange crystalline form. They breathe shards and melee "
-        "powerfully with razor sharp claws and teeth. At high levels, they gain the power of "
-        "reflection." },
-    { "Bronze Dragon",
-        "Bronze Dragons are wyrms of confusion. While they are not quite as strong as most other "
-        "dragons, they eventually confuse monsters with their bite attack. Also, they become "
-        "more and more resistant to confusion as they mature." },
-    { "Gold Dragon",
-        "Gold Dragons are wyrms of sound. While they are not quite as strong as most other "
-        "dragons, they are able to breathe sound on command, stunning their foes. Also, they become "
-        "more and more resistant to sound as they mature." },
-    { "Steel Dragon",
-        "Steel Dragons are magical dragons formed from rock. As they mature, their form hardens "
-        "from stone into steel. Needless to say, their armor class is phenomenal, but their "
-        "dexterity actually decreases with maturity. Steel dragons begin life being susceptible "
-        "to cold damage, though they will eventually outgrow this vulnerability. They are not "
-        "as fast as other dragons and they have no powers whatsoever, not even the ubiquitous "
-        "dragon breath! But their fighting is impossibly strong, putting all the other dragons "
-        "to complete and utter shame. They also have the most hitpoints of all dragons." },
-};
 static void _dragon_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
     switch (cmd)
     {
     case MENU_TEXT:
-        var_set_string(res, _dragon_info[which].name);
+        var_set_string(res, get_race_aux(RACE_MON_DRAGON, which)->subname);
         break;
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_MON_DRAGON, which);
+        race_t *race_ptr = get_race_aux(RACE_MON_DRAGON, which);
 
-        c_put_str(TERM_L_BLUE, _dragon_info[which].name, 3, 40);
-        put_str(": Race modification", 3, 40+strlen(_dragon_info[which].name));
+        c_put_str(TERM_L_BLUE, race_ptr->subname, 3, 40);
+        put_str(": Race modification", 3, 40+strlen(race_ptr->subname));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
             race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
@@ -1233,7 +1274,7 @@ static void _draconian_menu_fn(int cmd, int which, vptr cookie, variant *res)
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_DRACONIAN, which);
+        race_t *race_ptr = get_race_aux(RACE_DRACONIAN, which);
 
         c_put_str(TERM_L_BLUE, _draconian_info[which].name, 3, 40);
         put_str(": Race modification", 3, 40+strlen(_draconian_info[which].name));
@@ -1249,39 +1290,20 @@ static void _draconian_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
     }
 }
-static _name_desc_t _demon_info[DEMON_MAX] = {
-    { "Balrog", 
-        "Balrogs are demons of shadow and flame. Their evil knows no bounds. Their spells are "
-        "the most powerful of all demonkind and at very high levels they may even call forth "
-        "fires directly from hell." },
-    { "Tanar'ri", 
-        "Tanar'ri were originally slave demons, but rose up to overthrow their masters. "
-        "They generally take on a humanoid form and are classic demons full of malice and "
-        "cruelty. The ultimate form for this demon is the Marilith, a female demon with "
-        "three sets of arms and a serpent body capable of attacking with six melee weapons!" },
-    { "Servant of Khorne",
-        "Khorne's servants come in many forms and are powerful forces of melee. They know nothing "
-        "save melee, and strike at all that dare oppose the will of their master. As they gain "
-        "experience, Khorne rewards his servants with new and more powerful forms." },
-    { "Cyberdemon",
-        "Cyberdemons are giant humanoid forms, half demon and half machine. They are a bit "
-        "slow and susceptible to confusion, but their immense bodies and unsurpassable firepower "
-        "more than make up for this. The walls of the dungeon reverberate with their heavy steps!" },
-};
 static void _demon_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
     switch (cmd)
     {
     case MENU_TEXT:
-        var_set_string(res, _demon_info[which].name);
+        var_set_string(res, get_race_aux(RACE_MON_DEMON, which)->subname);
         break;
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_MON_DEMON, which);
+        race_t *race_ptr = get_race_aux(RACE_MON_DEMON, which);
 
-        c_put_str(TERM_L_BLUE, _demon_info[which].name, 3, 40);
-        put_str(": Race modification", 3, 40+strlen(_demon_info[which].name));
+        c_put_str(TERM_L_BLUE, race_ptr->subname, 3, 40);
+        put_str(": Race modification", 3, 40+strlen(race_ptr->subname));
         put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
         sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
             race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
@@ -1328,7 +1350,7 @@ static void _elemental_menu_fn(int cmd, int which, vptr cookie, variant *res)
     case MENU_ON_BROWSE:
     {
         char buf[100];
-        race_t *race_ptr = get_race_t_aux(RACE_MON_ELEMENTAL, which);
+        race_t *race_ptr = get_race_aux(RACE_MON_ELEMENTAL, which);
 
         c_put_str(TERM_L_BLUE, _elemental_info[which].name, 3, 40);
         put_str(": Race modification", 3, 40+strlen(_elemental_info[which].name));
@@ -1345,6 +1367,50 @@ static void _elemental_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
 }
 
+static int _beginner_races[] = {
+  RACE_HUMAN,
+  RACE_DWARF,
+  RACE_HOBBIT,
+  RACE_GNOME,
+  RACE_DUNADAN,
+  RACE_HIGH_ELF,
+  RACE_HALF_TROLL,
+  -1
+};
+
+static int _prompt_race_beginner(void)
+{
+    int idx;
+    for (;;)
+    {
+    race_t *race_ptr = NULL;
+    menu_t menu = { "Race", "Races.txt", "Note: Your 'race' determines various intrinsic factors and bonuses.",
+                        _race_menu_fn,
+                        _beginner_races, _count_ids(_beginner_races)};
+
+        c_put_str(TERM_WHITE, "              ", 4, 14);
+        c_put_str(TERM_WHITE, "                   ", 5, 14);
+        idx = _menu_choose(&menu, _find_id(_beginner_races, p_ptr->prace));
+        if (idx < 0) return idx;
+
+        if (_beginner_races[idx] != p_ptr->prace)
+        {
+            p_ptr->prace = _beginner_races[idx];
+            p_ptr->psubrace = 0;
+        }
+        race_ptr = get_race();
+
+        c_put_str(TERM_L_BLUE, format("%-14s", race_ptr->name), 4, 14);
+        if (!_confirm_choice(race_ptr->desc, menu.count)) continue;
+        c_put_str(TERM_WHITE, "                   ", 5, 14);
+        p_ptr->psubrace = 0;
+        idx = _prompt_class_beginner();
+        if (idx == _BIRTH_ESCAPE) continue;
+        return idx;
+    }
+    /*return _BIRTH_ESCAPE;  unreachable */
+}
+
 static int _prompt_race(void)
 {
     for (;;)
@@ -1356,7 +1422,7 @@ static int _prompt_race(void)
         c_put_str(TERM_WHITE, "                   ", 5, 14);
         for (;;)
         {
-            menu_t menu1 = { "Race Type", "Races.txt#Tables", "",
+            menu_t menu1 = { "Race Type", "Races.txt", "",
                                 _race_group_menu_fn, 
                                 NULL, _MAX_RACE_GROUPS};
             idx = _menu_choose(&menu1, group_id);
@@ -1380,7 +1446,7 @@ static int _prompt_race(void)
                     p_ptr->prace = _race_groups[group_id].ids[idx];
                     p_ptr->psubrace = 0;
                 }
-                race_ptr = get_race_t();
+                race_ptr = get_race();
 
                 c_put_str(TERM_L_BLUE, format("%-14s", race_ptr->name), 4, 14);
                 if (!_confirm_choice(race_ptr->desc, menu2.count)) continue;
@@ -1388,7 +1454,7 @@ static int _prompt_race(void)
                 {
                     for (;;)
                     {
-                    menu_t menu3 = { "Parentage", "Demigods.txt#Tables", "Unlike in real life, you get to choose your parent.",
+                    menu_t menu3 = { "Parentage", "Demigods.txt", "Unlike in real life, you get to choose your parent.",
                                         _demigod_menu_fn, 
                                         NULL, MAX_DEMIGOD_TYPES};
 
@@ -1397,8 +1463,9 @@ static int _prompt_race(void)
                         if (idx == _BIRTH_ESCAPE) break;
                         if (idx < 0) return idx;
                         p_ptr->psubrace = idx;
-                        c_put_str(TERM_L_BLUE, format("%-19s", demigod_info[p_ptr->psubrace].name), 5, 14);
-                        if (!_confirm_choice(demigod_info[p_ptr->psubrace].desc, menu3.count)) continue;
+                        race_ptr = get_race();
+                        c_put_str(TERM_L_BLUE, format("%-19s", race_ptr->subname), 5, 14);
+                        if (!_confirm_choice(race_ptr->subdesc, menu3.count)) continue;
                         idx = _prompt_class();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;
@@ -1408,7 +1475,7 @@ static int _prompt_race(void)
                 {
                     for (;;)
                     {
-                    menu_t menu3 = { "Subrace", "Draconians.txt#Tables", "Choose your subrace",
+                    menu_t menu3 = { "Subrace", "Draconians.txt", "Choose your subrace",
                                         _draconian_menu_fn,
                                         NULL, DRACONIAN_MAX};
 
@@ -1424,12 +1491,66 @@ static int _prompt_race(void)
                         return idx;
                     }
                 }
-                else if (p_ptr->prace == RACE_MON_SPIDER)
+                else
+                {
+                    c_put_str(TERM_WHITE, "                   ", 5, 14);
+                    p_ptr->psubrace = 0;
+                    idx = _prompt_class();
+                    if (idx == _BIRTH_ESCAPE) continue;
+                    return idx;
+                }
+            }
+        }
+    }
+    /*return _BIRTH_ESCAPE;  unreachable */
+}
+
+static int _prompt_mon_race(void)
+{
+    for (;;)
+    {
+        int idx = 0;
+        int group_id = 0;
+
+        c_put_str(TERM_WHITE, "              ", 4, 14);
+        c_put_str(TERM_WHITE, "                   ", 5, 14);
+        for (;;)
+        {
+            menu_t menu1 = { "Race Type", "MonsterRaces.txt", "",
+                                _mon_race_group_menu_fn,
+                                NULL, _MAX_MON_RACE_GROUPS};
+            idx = _menu_choose(&menu1, group_id);
+            if (idx < 0) return idx;
+            group_id = idx;
+            for (;;)
+            {
+            race_t *race_ptr = NULL;
+            menu_t menu2 = { "Race", _mon_race_groups[group_id].help, "Note: Your 'race' determines various intrinsic factors and bonuses.",
+                                _race_menu_fn,
+                                _mon_race_groups[group_id].ids, _count_ids(_mon_race_groups[group_id].ids)};
+
+                c_put_str(TERM_WHITE, "              ", 4, 14);
+                c_put_str(TERM_WHITE, "                   ", 5, 14);
+                if (idx == _BIRTH_ESCAPE && menu2.count == 1) break;
+                idx = _menu_choose(&menu2, _find_id(_mon_race_groups[group_id].ids, p_ptr->prace));
+                if (idx == _BIRTH_ESCAPE) break;
+                if (idx < 0) return idx;
+
+                if (_mon_race_groups[group_id].ids[idx] != p_ptr->prace)
+                {
+                    p_ptr->prace = _mon_race_groups[group_id].ids[idx];
+                    p_ptr->psubrace = 0;
+                }
+                race_ptr = get_race();
+
+                c_put_str(TERM_L_BLUE, format("%-14s", race_ptr->name), 4, 14);
+                if (!_confirm_choice(race_ptr->desc, menu2.count)) continue;
+                if (p_ptr->prace == RACE_MON_SPIDER)
                 {
                     for (;;)
                     {
                         menu_t menu3 = { "Subrace", "MonsterRaces.txt#Spider", "",
-                                            _spider_menu_fn, 
+                                            _spider_menu_fn,
                                             NULL, SPIDER_MAX};
                         c_put_str(TERM_WHITE, "                   ", 5, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubrace);
@@ -1448,7 +1569,7 @@ static int _prompt_race(void)
                     for (;;)
                     {
                         menu_t menu3 = { "Subrace", "MonsterRaces.txt#Giant", "",
-                                            _giant_menu_fn, 
+                                            _giant_menu_fn,
                                             NULL, GIANT_MAX};
                         c_put_str(TERM_WHITE, "                   ", 5, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubrace);
@@ -1467,7 +1588,7 @@ static int _prompt_race(void)
                     for (;;)
                     {
                         menu_t menu3 = { "Subrace", "MonsterRaces.txt#Golem", "",
-                                            _golem_menu_fn, 
+                                            _golem_menu_fn,
                                             NULL, GOLEM_MAX};
                         c_put_str(TERM_WHITE, "                   ", 5, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubrace);
@@ -1486,7 +1607,7 @@ static int _prompt_race(void)
                     for (;;)
                     {
                         menu_t menu3 = { "Subrace", "MonsterRaces.txt#Troll", "",
-                                            _troll_menu_fn, 
+                                            _troll_menu_fn,
                                             NULL, TROLL_MAX};
                         c_put_str(TERM_WHITE, "                   ", 5, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubrace);
@@ -1504,16 +1625,17 @@ static int _prompt_race(void)
                 {
                     for (;;)
                     {
-                        menu_t menu3 = { "Subrace", "MonsterRaces.txt#Dragon", "",
-                                            _dragon_menu_fn, 
+                        menu_t menu3 = { "Subrace", "Dragons.txt", "",
+                                            _dragon_menu_fn,
                                             NULL, DRAGON_MAX};
                         c_put_str(TERM_WHITE, "                   ", 5, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubrace);
                         if (idx == _BIRTH_ESCAPE) break;
                         if (idx < 0) return idx;
                         p_ptr->psubrace = idx;
-                        c_put_str(TERM_L_BLUE, format("%-19s", _dragon_info[p_ptr->psubrace].name), 5, 14);
-                        if (!_confirm_choice(_dragon_info[p_ptr->psubrace].desc, menu3.count)) continue;
+                        race_ptr = get_race();
+                        c_put_str(TERM_L_BLUE, format("%-19s", race_ptr->subname), 5, 14);
+                        if (!_confirm_choice(race_ptr->subdesc, menu3.count)) continue;
                         idx = _prompt_class();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;
@@ -1523,16 +1645,17 @@ static int _prompt_race(void)
                 {
                     for (;;)
                     {
-                        menu_t menu3 = { "Subrace", "MonsterRaces.txt#Demon", "",
-                                            _demon_menu_fn, 
+                        menu_t menu3 = { "Subrace", "Demons.txt", "",
+                                            _demon_menu_fn,
                                             NULL, DEMON_MAX};
                         c_put_str(TERM_WHITE, "                   ", 5, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubrace);
                         if (idx == _BIRTH_ESCAPE) break;
                         if (idx < 0) return idx;
                         p_ptr->psubrace = idx;
-                        c_put_str(TERM_L_BLUE, format("%-19s", _demon_info[p_ptr->psubrace].name), 5, 14);
-                        if (!_confirm_choice(_demon_info[p_ptr->psubrace].desc, menu3.count)) continue;
+                        race_ptr = get_race();
+                        c_put_str(TERM_L_BLUE, format("%-19s", race_ptr->subname), 5, 14);
+                        if (!_confirm_choice(race_ptr->subdesc, menu3.count)) continue;
                         idx = _prompt_class();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;
@@ -1543,7 +1666,7 @@ static int _prompt_race(void)
                     for (;;)
                     {
                         menu_t menu3 = { "Subrace", "MonsterRaces.txt#Elemental", "",
-                                            _elemental_menu_fn, 
+                                            _elemental_menu_fn,
                                             NULL, ELEMENTAL_MAX};
                         c_put_str(TERM_WHITE, "                   ", 5, 14);
                         idx = _menu_choose(&menu3, p_ptr->psubrace);
@@ -1584,7 +1707,7 @@ static void _sex_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
 }
 
-static bool _prompt_sex(void)
+static int _prompt_sex(void)
 {
     for (;;)
     {
@@ -1595,12 +1718,176 @@ static bool _prompt_sex(void)
 
         c_put_str(TERM_WHITE, "              ", 2, 14);
         idx = _menu_choose(&menu, p_ptr->psex);
-        if (idx < 0) return FALSE;
+        if (idx < 0) return idx;
+
         p_ptr->psex = idx;
         sp_ptr = &sex_info[p_ptr->psex]; /* TODO: Remove this ... */
         c_put_str(TERM_L_BLUE, format("%-14s", sp_ptr->title), 2, 14);
 
-        idx = _prompt_race();
+        if (game_mode == GAME_MODE_MONSTER)
+            idx = _prompt_mon_race();
+        else if (game_mode == GAME_MODE_BEGINNER)
+            idx = _prompt_race_beginner();
+        else
+            idx = _prompt_race();
+        if (idx == _BIRTH_ESCAPE) continue;
+        return idx;
+    }
+    /*return _BIRTH_ESCAPE;  unreachable */
+}
+
+static _name_desc_t _game_mode_info[GAME_MODE_MAX] = {
+    {"Beginner",
+        "This option restricts the number of races and classes available. Also, instead of playing "
+        "with a normal game wilderness, you play with a special town." },
+    {"Normal",
+        "All races and classes are available and the normal wilderness is used by default." },
+    {"Real Life",
+        "Your race, sex and stats are rolled automatically and then you choose a class and "
+        "personality to match. This is how things work in real life, right?" },
+    {"Monster",
+        "Play as a monster rather than a normal player!" },
+};
+
+static void _game_mode_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, _game_mode_info[which].name);
+        break;
+    case MENU_ON_BROWSE:
+    {
+        char buf[80 * 10];
+        int  i, r = 0;
+
+        Term_erase(5, 16, 255);
+        Term_erase(5, 17, 255);
+        Term_erase(5, 18, 255);
+
+        roff_to_buf(_game_mode_info[which].desc, 70, buf, sizeof(buf));
+        for (i = 0; buf[i]; i += 1 + strlen(&buf[i]))
+        {
+            put_str(buf + i, 16 + r, 5);
+            i++;
+            r++;
+        }
+        var_set_bool(res, TRUE);
+        break;
+    }
+    }
+}
+
+static int _real_life_races[] = {
+    RACE_HUMAN, RACE_TONBERRY, RACE_DEMIGOD, RACE_HOBBIT, RACE_GNOME, RACE_DWARF,
+    RACE_SNOTLING, RACE_HALF_TROLL, RACE_AMBERITE, RACE_HIGH_ELF, RACE_BARBARIAN,
+    RACE_HALF_OGRE, RACE_HALF_GIANT, RACE_HALF_TITAN, RACE_CYCLOPS, RACE_YEEK,
+    RACE_KLACKON, RACE_KOBOLD, RACE_NIBELUNG, RACE_DARK_ELF, RACE_DRACONIAN,
+    RACE_MIND_FLAYER, RACE_IMP, RACE_GOLEM, RACE_SKELETON, RACE_ZOMBIE, RACE_VAMPIRE,
+    RACE_SPECTRE, RACE_SPRITE, RACE_BEASTMAN, RACE_ENT, RACE_ARCHON, RACE_BALROG,
+    RACE_DUNADAN, RACE_SHADOW_FAIRY, RACE_KUTAR, RACE_ANDROID,RACE_DOPPELGANGER,
+    RACE_CENTAUR, RACE_WOOD_ELF, -1
+};
+
+static bool _prompt_game_mode(void)
+{
+    for (;;)
+    {
+        int idx;
+        menu_t menu = { "Mode", "tang.txt", "Choose which kind of game to play.",
+                            _game_mode_menu_fn,
+                            NULL, GAME_MODE_MAX};
+
+        c_put_str(TERM_WHITE, "              ", 2, 14);
+        idx = _menu_choose(&menu, game_mode);
+        if (idx < 0) return FALSE;
+        game_mode = idx;
+
+        switch (game_mode)
+        {
+        case GAME_MODE_REAL_LIFE:
+        {
+            race_t *race_ptr = NULL;
+            int i, col, row;
+
+            c_put_str(TERM_WHITE, "              ", 2, 14);
+            p_ptr->psex = one_in_(2) ? SEX_MALE : SEX_FEMALE;
+            sp_ptr = &sex_info[p_ptr->psex]; /* TODO: Remove this ... */
+            c_put_str(TERM_L_BLUE, format("%-14s", sp_ptr->title), 2, 14);
+
+            c_put_str(TERM_WHITE, "              ", 4, 14);
+            c_put_str(TERM_WHITE, "                   ", 5, 14);
+            idx = randint0(_count_ids(_real_life_races));
+            p_ptr->prace = _real_life_races[idx];
+            p_ptr->psubrace = 0;
+            race_ptr = get_race();
+
+            c_put_str(TERM_L_BLUE, format("%-14s", race_ptr->name), 4, 14);
+
+            if (p_ptr->prace == RACE_DEMIGOD)
+            {
+                p_ptr->psubrace = randint0(MAX_DEMIGOD_TYPES);
+                race_ptr = get_race();
+                c_put_str(TERM_L_BLUE, format("%-19s", race_ptr->subname), 5, 14);
+            }
+            else if (p_ptr->prace == RACE_DRACONIAN)
+            {
+                p_ptr->psubrace = randint0(DRACONIAN_MAX);
+                c_put_str(TERM_L_BLUE, format("%-19s", _draconian_info[p_ptr->psubrace].name), 5, 14);
+            }
+
+            for (;;)
+            {
+                int spread = 0, i;
+                for (i = 0; i < 6; i++)
+                {
+                    int n = randint1(9) - 5;
+                    p_ptr->stat_cur[i] = 13 + n;
+                    p_ptr->stat_max[i] = 13 + n;
+                    spread += n;
+                }
+                if (spread > 2) break;
+            }
+
+            col = 42;
+            row = 1;
+
+            c_put_str(TERM_WHITE, "  Base  R  C  P Total", row, col + 8);
+            for (i = 0; i < 6; i++)
+            {
+                int total;
+                char buf[MAX_NLEN];
+
+                c_put_str(TERM_WHITE, stat_names[i], row+i+1, col+1);
+
+                cnv_stat(p_ptr->stat_max[i], buf);
+                c_put_str(TERM_L_BLUE, buf, row + i+1, col + 8 + 6 - strlen(buf));
+
+                sprintf(buf, "%3d", race_ptr->stats[i]);
+                c_put_str(TERM_L_BLUE, buf, row + i+1, col + 8 + 9 - strlen(buf));
+
+                total = adjust_stat(p_ptr->stat_cur[i], race_ptr->stats[i]);
+                cnv_stat(total, buf);
+                c_put_str(TERM_L_GREEN, buf, row + i+1, col + 8 + 21 - strlen(buf));
+            }
+
+            prt("Your are born thus. Hit any key.", 0, 0);
+            inkey();
+            prt("", 0, 0);
+
+            Term_erase(col, row, 255);
+            for (i = 0; i < 6; i++)
+            {
+                Term_erase(col, row + i + 1, 255);
+            }
+
+            idx = _prompt_class();
+            break;
+        }
+        default:
+            idx = _prompt_sex();
+        }
+
         if (idx == _BIRTH_RESTART) return FALSE;
         if (idx == _BIRTH_ESCAPE) continue;
         return TRUE;
@@ -1613,7 +1900,7 @@ static bool _prompt(void)
     /* Note: The call stack stores the users path thru the directed graph
        of birth options (up to personality). We now support escaping to 
        back up and rechoose options. */
-    return _prompt_sex();
+    return _prompt_game_mode();
 }
 
 #define AUTOROLLER_STEP 50
@@ -1633,7 +1920,8 @@ static void birth_quit(void)
 static void show_help(cptr helpfile)
 {
     screen_save();
-    (void)show_file(TRUE, helpfile, NULL, 0, 0);
+    /*(void)show_file(TRUE, helpfile, NULL, 0, 0);*/
+    doc_display_help(helpfile, NULL);
     screen_load();
 }
 
@@ -1735,57 +2023,8 @@ static void load_prev_data(bool swap)
     /*** Save the previous data ***/
     if (swap)
     {
-        COPY(&previous_char, &temp, birther);
+        (void)COPY(&previous_char, &temp, birther);
     }
-}
-
-/*
- * Returns adjusted stat -JK-  Algorithm by -JWT-
- */
-static int adjust_stat(int value, int amount)
-{
-    int i;
-
-    /* Negative amounts */
-    if (amount < 0)
-    {
-        /* Apply penalty */
-        for (i = 0; i < (0 - amount); i++)
-        {
-            if (value >= 18+10)
-            {
-                value -= 10;
-            }
-            else if (value > 18)
-            {
-                value = 18;
-            }
-            else if (value > 3)
-            {
-                value--;
-            }
-        }
-    }
-
-    /* Positive amounts */
-    else if (amount > 0)
-    {
-        /* Apply reward */
-        for (i = 0; i < amount; i++)
-        {
-            if (value < 18)
-            {
-                value++;
-            }
-            else
-            {
-                value += 10;
-            }
-        }
-    }
-
-    /* Return the result */
-    return (value);
 }
 
 /*
@@ -1888,15 +2127,15 @@ void get_max_stats(void)
 int _race_exp_factor(void)
 {
     if (p_ptr->prace == RACE_DOPPELGANGER)
-        return get_race_t()->exp;
-    return get_true_race_t()->exp;
+        return get_race()->exp;
+    return get_true_race()->exp;
 }
 int calc_exp_factor(void)
 {
     int exp;
     int r_exp = _race_exp_factor();
-    int c_exp = get_class_t()->exp;
-    int a_exp = ap_ptr->a_exp;
+    int c_exp = get_class()->exp;
+    int a_exp = get_personality()->exp;
 
     if (p_ptr->prace == RACE_ANDROID) 
         return r_exp;
@@ -1934,8 +2173,6 @@ static void get_extra(bool roll_hitdie)
         else if (p_ptr->pclass == CLASS_RED_MAGE) p_ptr->spell_exp[i] = SPELL_EXP_SKILLED;
         else p_ptr->spell_exp[i] = SPELL_EXP_UNSKILLED;
     }
-
-    skills_on_birth();
 
     /* Roll for hit point unless quick-start */
     if (roll_hitdie) do_cmd_rerate_aux();
@@ -1992,9 +2229,9 @@ static void birth_put_stats(void)
     int col;
     byte attr;
     char buf[80];
-    race_t  *race_ptr = get_race_t();
-    class_t *class_ptr = get_class_t();
-
+    race_t  *race_ptr = get_race();
+    class_t *class_ptr = get_class();
+    personality_ptr pers_ptr = get_personality();
 
     if (autoroller)
     {
@@ -2003,7 +2240,7 @@ static void birth_put_stats(void)
         for (i = 0; i < 6; i++)
         {
             /* Race/Class bonus */
-            j = race_ptr->stats[i] + class_ptr->stats[i] + ap_ptr->a_adj[i];
+            j = race_ptr->stats[i] + class_ptr->stats[i] + pers_ptr->stats[i];
 
             /* Obtain the current stat */
             m = adjust_stat(p_ptr->stat_max[i], j);
@@ -2039,7 +2276,7 @@ static void birth_put_stats(void)
     }
 }
 
-void e_info_reset(void)
+static void e_info_reset(void)
 {
     int i;
 
@@ -2049,7 +2286,6 @@ void e_info_reset(void)
         ego_item_type *e_ptr = &e_info[i];
 
         e_ptr->aware = FALSE;
-        WIPE(&e_ptr->counts, counts_t);
     }
 }
 
@@ -2064,10 +2300,7 @@ static void k_info_reset(void)
 
         k_ptr->tried = FALSE;
         k_ptr->aware = FALSE;
-        WIPE(&k_ptr->counts, counts_t);
     }
-
-    WIPE(&stats_rand_art_counts, counts_t);
 }
 
 /*
@@ -2078,7 +2311,7 @@ static void player_wipe(void)
     int i;
 
     /* Hack -- free the "last message" string */
-    if (p_ptr->last_message) string_free(p_ptr->last_message);
+    if (p_ptr->last_message) z_string_free(p_ptr->last_message);
 
     /* Hack -- zero the struct */
     (void)WIPE(p_ptr, player_type);
@@ -2121,6 +2354,7 @@ static void player_wipe(void)
     /* Reset the objects */
     k_info_reset();
     e_info_reset();
+    stats_reset();
 
     /* Reset the "monsters" */
     for (i = 1; i < max_r_idx; i++)
@@ -2265,7 +2499,7 @@ static void player_wipe(void)
     for (i = 0; i < 8; i++) p_ptr->virtues[i]=0;
 
     /* Set the recall dungeon accordingly */
-    if (vanilla_town)
+    if (no_wilderness)
     {
         dungeon_type = 0;
         p_ptr->recall_dungeon = DUNGEON_ANGBAND;
@@ -2273,7 +2507,7 @@ static void player_wipe(void)
     else
     {
         dungeon_type = 0;
-        p_ptr->recall_dungeon = DUNGEON_CAMELOT;
+        p_ptr->recall_dungeon = DUNGEON_STRONGHOLD;
     }
 }
 
@@ -2411,8 +2645,6 @@ static void init_dungeon_quests(void)
     int i;
 
     num_random_quests = 10; /*get_quantity("How many quests (0 to 49)? ", 49);*/
-    if (vanilla_town)
-        num_random_quests = 0;
 
     /* Init the random quests */
     init_flags = INIT_ASSIGN;
@@ -2472,13 +2704,13 @@ static void init_turn(void)
       || p_ptr->prace == RACE_SPECTRE )
     {
         /* Undead start just after midnight */
-        turn = (TURNS_PER_TICK*3 * TOWN_DAWN) / 4 + 1;
-        turn_limit = TURNS_PER_TICK * TOWN_DAWN * MAX_DAYS + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
+        game_turn = (TURNS_PER_TICK*3 * TOWN_DAWN) / 4 + 1;
+        game_turn_limit = TURNS_PER_TICK * TOWN_DAWN * MAX_DAYS + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
     }
     else
     {
-        turn = 1;
-        turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
+        game_turn = 1;
+        game_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
     }
 
     dungeon_turn = 1;
@@ -2489,7 +2721,7 @@ static void init_turn(void)
  * Each player starts out with a few items, given as tval/sval pairs.
  * In addition, he always has some food and a few torches.
  */
-static byte player_init[MAX_CLASS][3][2] =
+static int player_init[MAX_CLASS][3][2] =
 {
     {
         /* Warrior */
@@ -2592,7 +2824,7 @@ static byte player_init[MAX_CLASS][3][2] =
     {
         /* Sorcerer */
         { TV_HAFTED, SV_WIZSTAFF },
-        { TV_WAND, SV_WAND_MAGIC_MISSILE },
+        { TV_WAND, EFFECT_BOLT_MISSILE },
         { TV_POTION, SV_POTION_RESTORE_MANA }
     },
 
@@ -2605,7 +2837,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
     {
         /* Magic eater */
-        { TV_WAND, SV_WAND_MAGIC_MISSILE },
+        { TV_WAND, EFFECT_BOLT_MISSILE },
         { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
         { TV_SWORD, SV_SHORT_SWORD },
     },
@@ -2641,7 +2873,7 @@ static byte player_init[MAX_CLASS][3][2] =
     {
         /* Blue Mage */
         { TV_SOFT_ARMOR, SV_ROBE },
-        { TV_WAND, SV_WAND_MAGIC_MISSILE },
+        { TV_WAND, EFFECT_BOLT_MISSILE },
         { TV_SWORD, SV_DAGGER }
     },
 
@@ -2790,7 +3022,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
     {
         /* Devicemaster */
-        { TV_WAND, SV_WAND_MAGIC_MISSILE },
+        { TV_WAND, EFFECT_BOLT_MISSILE },
         { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
         { TV_SWORD, SV_SHORT_SWORD },
     },
@@ -2818,10 +3050,12 @@ void add_outfit(object_type *o_ptr)
 {
     int slot;
 
+    if (spoiler_hack) return;
+
     object_aware(o_ptr);
     ego_aware(o_ptr);
     object_known(o_ptr);
-    o_ptr->ident |= IDENT_MENTAL;
+    o_ptr->ident |= IDENT_FULL;
 
     slot = equip_first_empty_slot(o_ptr);
     if (slot && o_ptr->number == 1) /* Fix later for torches ... */
@@ -2840,16 +3074,27 @@ void add_outfit(object_type *o_ptr)
  */
 static void _birth_object(int tv, int sv, int qty)
 {
-    object_type    forge;
-    object_prep(&forge, lookup_kind(tv, sv));
+    object_type forge;
+
+    switch (tv)
+    {
+    case TV_WAND: case TV_ROD: case TV_STAFF:
+    {
+        int k_idx = lookup_kind(tv, SV_ANY);
+        object_prep(&forge, k_idx);
+        if (!device_init_fixed(&forge, sv))
+            return;
+        qty = 1;
+        break;
+    }
+    default:
+        object_prep(&forge, lookup_kind(tv, sv));
+    }
+
     forge.number = qty;
     identify_item(&forge);
-    forge.ident |= IDENT_MENTAL;
+    forge.ident |= IDENT_FULL;
     add_outfit(&forge);
-}
-void birth_object(int tv, int sv, int qty)
-{
-    _birth_object(tv, sv, qty);
 }
  
 void player_outfit(void)
@@ -2887,7 +3132,8 @@ void player_outfit(void)
     case RACE_SPECTRE:
     case RACE_MON_GOLEM:
     case RACE_MON_SWORD:
-        _birth_object(TV_STAFF, SV_STAFF_NOTHING, 1);
+    case RACE_MON_RING:
+        _birth_object(TV_STAFF, EFFECT_NOTHING, 1);
         break;
 
     case RACE_ENT:
@@ -2908,6 +3154,10 @@ void player_outfit(void)
         break;
     }
     case RACE_MON_JELLY:
+        break;
+    case RACE_MON_ELEMENTAL:
+        if (elemental_is_(ELEMENTAL_WATER))
+            _birth_object(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
         break;
     default:
         _birth_object(TV_FOOD, SV_FOOD_RATION, 2 + rand_range(3, 7));
@@ -2957,10 +3207,9 @@ void player_outfit(void)
     }
     else if (p_ptr->pclass == CLASS_HIGH_MAGE)
     {
-        object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
-        forge.number = 1;
-        forge.pval = (byte)rand_range(25, 30);
-        add_outfit(&forge);
+        object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
+        if (device_init_fixed(&forge, EFFECT_BOLT_MISSILE))
+            add_outfit(&forge);
     }
     else if (p_ptr->pclass == CLASS_SORCERER)
     {
@@ -2997,12 +3246,6 @@ void player_outfit(void)
         _birth_object(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 20));
     }
 
-    if(p_ptr->personality == PERS_SEXY && p_ptr->pclass != CLASS_MAULER && p_ptr->prace != RACE_MON_SWORD)
-    {
-        player_init[p_ptr->pclass][2][0] = TV_HAFTED;
-        player_init[p_ptr->pclass][2][1] = SV_WHIP;
-    }
-
     /* Hack -- Give the player three useful objects */
     for (i = 0; i < 3; i++)
     {
@@ -3018,30 +3261,31 @@ void player_outfit(void)
         if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
         else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
 
-        k_idx = lookup_kind(tv, sv);
-        if (!k_idx) continue;
-        object_prep(&forge, k_idx);
+        switch (tv)
+        {
+        case TV_WAND: case TV_ROD: case TV_STAFF:
+            k_idx = lookup_kind(tv, SV_ANY);
+            object_prep(&forge, k_idx);
+            if (device_init_fixed(&forge, sv))
+                add_outfit(&forge);
+            break;
+        default:
+            k_idx = lookup_kind(tv, sv);
+            if (!k_idx) continue;
+            object_prep(&forge, k_idx);
+            /* Assassins begin the game with a poisoned dagger */
+            if ((tv == TV_SWORD || tv == TV_HAFTED) && (p_ptr->pclass == CLASS_ROGUE &&
+                p_ptr->realm1 == REALM_DEATH)) /* Only assassins get a poisoned weapon */
+            {
+                forge.name2 = EGO_WEAPON_VENOM;
+            }
 
-        /* Assassins begin the game with a poisoned dagger */
-        if ((tv == TV_SWORD || tv == TV_HAFTED) && (p_ptr->pclass == CLASS_ROGUE &&
-            p_ptr->realm1 == REALM_DEATH)) /* Only assassins get a poisoned weapon */
-        {
-            forge.name2 = EGO_WEAPON_VENOM;
-        }
-
-        /* Hack: Rune-Knights begin with an Absorption Rune on their broad sword (or whip if sexy) */
-        if(p_ptr->personality == PERS_SEXY)
-        {
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_HAFTED && sv == SV_WHIP)
-                rune_add(&forge, RUNE_ABSORPTION, FALSE);
-        }
-        else
-        {
+            /* Hack: Rune-Knights begin with an Absorption Rune on their broad sword (or whip if sexy) */
             if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
                 rune_add(&forge, RUNE_ABSORPTION, FALSE);
-        }
 
-        add_outfit(&forge);
+            add_outfit(&forge);
+        }
     }
 
     /* Hack -- make aware of the water */
@@ -3055,8 +3299,9 @@ static bool get_stat_limits(void)
     char c;
     char buf[80], cur[80];
     char inp[80];
-    race_t *race_ptr = get_race_t();
-    class_t *class_ptr = get_class_t();
+    race_t *race_ptr = get_race();
+    class_t *class_ptr = get_class();
+    personality_ptr pers_ptr = get_personality();
 
     /* Clean up */
     clear_from(10);
@@ -3074,7 +3319,7 @@ static bool get_stat_limits(void)
         cval[i] = 3;
 
         /* Race/Class bonus */
-        j = race_ptr->stats[i] + class_ptr->stats[i] + ap_ptr->a_adj[i];
+        j = race_ptr->stats[i] + class_ptr->stats[i] + pers_ptr->stats[i];
 
         /* Obtain the "maximal" stat */
         m = adjust_stat(17, j);
@@ -3094,7 +3339,7 @@ static bool get_stat_limits(void)
 
         sprintf(buf, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s  %6s",
             stat_names[i], cval[i], race_ptr->stats[i], class_ptr->stats[i],
-            ap_ptr->a_adj[i], inp, cur);
+            pers_ptr->stats[i], inp, cur);
         
         put_str(buf, 14 + i, 10);
     }
@@ -3117,7 +3362,7 @@ static bool get_stat_limits(void)
             else
             {
                 /* Race/Class bonus */
-                j = race_ptr->stats[cs] + class_ptr->stats[cs] + ap_ptr->a_adj[cs];
+                j = race_ptr->stats[cs] + class_ptr->stats[cs] + pers_ptr->stats[cs];
 
                 /* Obtain the current stat */
                 m = adjust_stat(cval[cs], j);
@@ -3129,7 +3374,7 @@ static bool get_stat_limits(void)
                 
                 sprintf(cur, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s",
                     stat_names[cs], cval[cs], race_ptr->stats[cs],
-                    class_ptr->stats[cs], ap_ptr->a_adj[cs], inp);
+                    class_ptr->stats[cs], pers_ptr->stats[cs], inp);
                 c_put_str(TERM_YELLOW, cur, 14 + cs, 10);
             }
             os = cs;
@@ -3231,11 +3476,6 @@ static bool get_stat_limits(void)
     return TRUE;
 }
 
-cptr birth_get_personality_desc(int i)
-{
-    return seikaku_jouhou[i];
-}
-
 cptr birth_get_realm_desc(int i)
 {
     return realm_jouhou[i-1];
@@ -3244,11 +3484,11 @@ cptr birth_get_realm_desc(int i)
 static bool player_birth_aux(void)
 {
     int i;
-    int mode = 0;
 
     bool stop = FALSE;
     bool flag = FALSE;
     bool prev = FALSE;
+    bool use_autoroller = autoroller;
 
     char c;
 
@@ -3281,20 +3521,34 @@ static bool player_birth_aux(void)
     put_str("                                     ", 4, 40);
     put_str("                                     ", 5, 40);
 
-    screen_save();
-    do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
-    screen_load();
+    if (game_mode == GAME_MODE_BEGINNER)
+    {
+        no_wilderness = TRUE;
+    }
+    else
+    {
+        /*no_wilderness = FALSE;*/
+        screen_save();
+        do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
+        screen_load();
+    }
+
+    if (game_mode == GAME_MODE_REAL_LIFE)
+    {
+        use_autoroller = FALSE;
+        stop = TRUE;
+    }
 
     /*** Autoroll ***/
 auto_roller_barf:
-    if (autoroller)
+    if (use_autoroller)
     {
         /* Clear fields */
         auto_round = 0L;
     }
 
     /* Initialize */
-    if (autoroller)
+    if (use_autoroller)
     {
         if (!get_stat_limits()) return FALSE;
     }
@@ -3314,20 +3568,23 @@ auto_roller_barf:
 
         col = 42;
 
-        if (autoroller)
+        if (use_autoroller)
         {
             Term_clear();
             put_str("Round:", 10, col+13);
             put_str("(Hit ESC to stop)", 12, col+13);
         }
-        else
+        else if (game_mode != GAME_MODE_REAL_LIFE)
         {
             get_stats();
         }
 
-        if (autoroller)
+        if (use_autoroller)
         {
-            class_t *class_ptr = get_class_t();
+            class_t *class_ptr = get_class();
+            race_t  *race_ptr = get_race();
+            personality_ptr pers_ptr = get_personality();
+
             put_str(" Limit", 2, col+5);
             put_str("  Freq", 2, col+13);
             put_str("  Roll", 2, col+24);
@@ -3341,7 +3598,7 @@ auto_roller_barf:
                 put_str(stat_names[i], 3+i, col);
 
                 /* Race/Class bonus */
-                j = get_race_t()->stats[i] + class_ptr->stats[i] + ap_ptr->a_adj[i];
+                j = race_ptr->stats[i] + class_ptr->stats[i] + pers_ptr->stats[i];
 
                 /* Obtain the current stat */
                 m = adjust_stat(stat_limit[i], j);
@@ -3352,7 +3609,7 @@ auto_roller_barf:
             }
         }
 
-        while (autoroller)
+        while (use_autoroller)
         {
             bool accept = TRUE;
 
@@ -3364,14 +3621,14 @@ auto_roller_barf:
             {
                 auto_round = 1;
 
-                if (autoroller)
+                if (use_autoroller)
                 {
                     for (i = 0; i < 6; i++)
                         stat_match[i] = 0;
                 }
             }
 
-            if (autoroller)
+            if (use_autoroller)
             {
                 /* Check and count acceptable stats */
                 for (i = 0; i < 6; i++)
@@ -3435,15 +3692,12 @@ auto_roller_barf:
             }
         }
 
-        if (autoroller) sound(SOUND_LEVEL);
+        if (use_autoroller) sound(SOUND_LEVEL);
 
         flush();
 
 
         /*** Display ***/
-
-        /* Mode */
-        mode = 0;
 
         /* Roll for base hitpoints */
         get_extra(TRUE);
@@ -3473,7 +3727,7 @@ auto_roller_barf:
             p_ptr->csp = p_ptr->msp;
 
             /* Display the player */
-            display_player(mode);
+            py_display_birth();
 
             if (p_ptr->prace == RACE_BEASTMAN)
             {
@@ -3533,7 +3787,14 @@ auto_roller_barf:
     clear_from(23);
 
     /* Get a name, recolor it, prepare savefile */
-    get_name();
+    py_get_name();
+
+    /* Re-Draw the name (in light blue) */
+    Term_erase(34, 1, 255);
+    c_put_str(TERM_L_BLUE, player_name, 1, 14);
+
+    /* Erase the prompt, etc */
+    clear_from(22);
 
     /* Process the player name */
     process_player_name(creating_savefile);
@@ -3616,7 +3877,6 @@ static bool ask_quick_start(void)
 
     sp_ptr = &sex_info[p_ptr->psex];
     mp_ptr = &m_info[p_ptr->pclass];
-    ap_ptr = &seikaku_info[p_ptr->personality];
 
     /* Calc hitdie, but don't roll */
     get_extra(FALSE);
@@ -3646,10 +3906,12 @@ static bool ask_quick_start(void)
  * Note that we may be called with "junk" leftover in the various
  * fields, so we must be sure to clear them first.
  */
+bool birth_hack = FALSE;
 void player_birth(void)
 {
     int i, j;
 
+    birth_hack = TRUE;
     playtime = 0;
     
     wipe_m_list();
@@ -3673,13 +3935,6 @@ void player_birth(void)
             p_ptr->birth_mutation = mut_gain_random_aux(mut_good_pred);
     }
 
-    /* Note player birth in the message recall */
-    message_add(" ");
-    message_add("  ");
-    message_add("====================");
-    message_add(" ");
-    message_add("  ");
-
     /* Init the shops */
     for (i = 1; i < max_towns; i++)
     {
@@ -3702,89 +3957,13 @@ void player_birth(void)
     if (!window_flag[2])
         window_flag[2] |= PW_INVEN;
 
+    birth_hack = FALSE;
+
     /* Hack: Gain CL1 */
     {
-        class_t *class_ptr = get_class_t();
+        class_t *class_ptr = get_class();
         if (class_ptr != NULL && class_ptr->gain_level != NULL)
             (class_ptr->gain_level)(p_ptr->lev);
-    }
-}
-
-
-void dump_yourself(FILE *fff)
-{
-    char temp[80*50];
-    int i;
-    cptr t;
-    race_t *race_ptr = get_race_t();
-    class_t *class_ptr = get_class_t();
-
-    if (!fff) return;
-
-    roff_to_buf(race_ptr->desc, 78, temp, sizeof(temp));
-    fprintf(fff, "\n\n");
-    fprintf(fff, "Race: %s\n", race_ptr->name);
-    t = temp;
-    for (i = 0; i < 50; i++)
-    {
-        if(t[0] == 0)
-            break; 
-        fprintf(fff, "%s\n",t);
-        t += strlen(t) + 1;
-    }
-
-    if (p_ptr->pclass != CLASS_MONSTER)
-    {
-        roff_to_buf(class_ptr->desc, 78, temp, sizeof(temp));
-        fprintf(fff, "\n");
-        fprintf(fff, "Class: %s\n", class_ptr->name);
-        t = temp;
-        for (i = 0; i < 50; i++)
-        {
-            if(t[0] == 0)
-                break; 
-            fprintf(fff, "%s\n",t);
-            t += strlen(t) + 1;
-        }
-    }
-    roff_to_buf(seikaku_jouhou[p_ptr->personality], 78, temp, sizeof(temp));
-    fprintf(fff, "\n");
-    fprintf(fff, "Pesonality: %s\n", seikaku_info[p_ptr->personality].title);
-    t = temp;
-    for (i = 0; i < 50; i++)
-    {
-        if(t[0] == 0)
-            break; 
-        fprintf(fff, "%s\n",t);
-        t += strlen(t) + 1;
-    }
-    fprintf(fff, "\n");
-    if (p_ptr->realm1)
-    {
-        roff_to_buf(realm_jouhou[technic2magic(p_ptr->realm1)-1], 78, temp, sizeof(temp));
-        fprintf(fff, "Realm: %s\n", realm_names[p_ptr->realm1]);
-        t = temp;
-        for (i = 0; i < 50; i++)
-        {
-            if(t[0] == 0)
-                break; 
-            fprintf(fff, "%s\n",t);
-            t += strlen(t) + 1;
-        }
-    }
-    fprintf(fff, "\n");
-    if (p_ptr->realm2)
-    {
-        roff_to_buf(realm_jouhou[technic2magic(p_ptr->realm2)-1], 78, temp, sizeof(temp));
-        fprintf(fff, "Realm: %s\n", realm_names[p_ptr->realm2]);
-        t = temp;
-        for (i = 0; i < 50; i++)
-        {
-            if(t[0] == 0)
-                break; 
-            fprintf(fff, "%s\n",t);
-            t += strlen(t) + 1;
-        }
     }
 }
 

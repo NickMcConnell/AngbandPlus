@@ -193,7 +193,7 @@ bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, u32b mo
     bool success = FALSE;
 
     /* Default level */ 
-    if (!lev) lev = spell_power(plev) + randint1(spell_power(plev));
+    if (!lev) lev = spell_power(plev) + randint1(spell_power(plev * 2 / 3));
 
     if (pet)
     {
@@ -240,9 +240,9 @@ bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, u32b mo
 
 /*
  * This spell should become more useful (more controlled) as the
- * player gains experience levels.  Thus, add 1/5 of the player's
- * level to the die roll.  This eliminates the worst effects later on,
- * while keeping the results quite random.  It also allows some potent
+ * player gains experience levels. Thus, add 1/5 of the player's
+ * level to the die roll. This eliminates the worst effects later on,
+ * while keeping the results quite random. It also allows some potent
  * effects only at high level.
  */
 void cast_wonder(int dir)
@@ -729,18 +729,6 @@ static void cast_shuffle(void)
 
         do_cmd_rerate(FALSE);
         mut_lose_all();
-
-        {
-            msg_print("Press Space to continue.");
-            flush();
-            for (;;)
-            {
-                char ch = inkey();
-                if (ch == ' ') break;
-            }
-            prt("", 0, 0);
-            msg_flag = FALSE;
-        }
     }
     else if (die < 120)
     {
@@ -1445,7 +1433,7 @@ static cptr do_life_spell(int spell, int mode)
 
     case 26:
         if (name) return "Annihilate Undead";
-        if (desc) return "Eliminates all nearby undead monsters, exhausting you.  Powerful or unique monsters may be able to resist.";
+        if (desc) return "Eliminates all nearby undead monsters, exhausting you. Powerful or unique monsters may be able to resist.";
     
         {
             int power = spell_power(plev + 50);
@@ -1687,16 +1675,16 @@ static cptr do_sorcery_spell(int spell, int mode)
 
     case 7:
         if (name) return "Recharging";
-        if (desc) return "Recharges staffs, wands or rods.";
+        if (desc) return "It attempts to recharge a device using your mana for power.";
     
         {
-            int power = spell_power(plev * 4);
+            int power = spell_power(plev * 3);
 
             if (info) return info_power(power);
 
             if (cast)
             {
-                if (!recharge(power)) return NULL;
+                if (!recharge_from_player(power)) return NULL;
             }
         }
         break;
@@ -3160,7 +3148,7 @@ static cptr do_chaos_spell(int spell, int mode)
 
     case 18:
         if (name) return "Arcane Binding";
-        if (desc) return "Recharges staffs, wands or rods.";
+        if (desc) return "It attempts to recharge a device using your mana for power.";
     
         {
             int power = spell_power(90);
@@ -3169,7 +3157,7 @@ static cptr do_chaos_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!recharge(power)) return NULL;
+                if (!recharge_from_player(power)) return NULL;
             }
         }
         break;
@@ -3758,7 +3746,7 @@ static cptr do_death_spell(int spell, int mode)
 
     case 15:
         if (name) return "Genocide";
-        if (desc) return "Eliminates an entire class of monster, exhausting you.  Powerful or unique monsters may resist.";
+        if (desc) return "Eliminates an entire class of monster, exhausting you. Powerful or unique monsters may resist.";
     
         {
             int power = spell_power(plev*3);
@@ -3909,8 +3897,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of darkness.";
     
         {
-            int l = p_ptr->lev;
-            int dam = 100 + l + l*l/50 + l*l*l/1250;
+            int dam = 100 + py_prorata_level_aux(200, 1, 1, 2);
             int rad = spell_power(4);
 
             dam = spell_power(dam + p_ptr->to_d_spell);
@@ -4028,7 +4015,7 @@ static cptr do_death_spell(int spell, int mode)
 
     case 29:
         if (name) return "Mass Genocide";
-        if (desc) return "Eliminates all nearby monsters, exhausting you.  Powerful or unique monsters may be able to resist.";
+        if (desc) return "Eliminates all nearby monsters, exhausting you. Powerful or unique monsters may be able to resist.";
     
         {
             int power = spell_power(plev*3);
@@ -5219,7 +5206,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
     case 28:
         if (name) return "Recharging";
-        if (desc) return "Recharges staves, wands or rods.";
+        if (desc) return "It attempts to recharge a device using your mana for power.";
 
         {
             int power = spell_power(plev * 3 / 2);
@@ -5228,7 +5215,7 @@ static cptr do_arcane_spell(int spell, int mode)
 
             if (cast)
             {
-                if (!recharge(power)) return NULL;
+                if (!recharge_from_player(power)) return NULL;
             }
         }
         break;
@@ -6858,8 +6845,7 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of powerful light.";
     
         {
-            int l = p_ptr->lev;
-            int dam = 100 + l + l*l/50 + l*l*l/1250;
+            int dam = 100 + py_prorata_level_aux(200, 1, 1, 2);
             int rad = spell_power(4);
 
             dam = spell_power(dam + p_ptr->to_d_spell);
@@ -7332,7 +7318,7 @@ static cptr do_music_spell(int spell, int mode)
                 }
                 if (count >= 6)
                 {
-                    /* There are too many hidden treasure.  So... */
+                    /* There are too many hidden treasure. So... */
                     /* detect_treasure(rad); */
                     detect_objects_gold(rad);
                     detect_objects_normal(rad);
@@ -8278,7 +8264,7 @@ static cptr do_hex_spell(int spell, int mode)
 
     case 11:
         if (name) return "Vampiric mist";
-        if (desc) return "Deals few dameges of drain life to all monsters in your sight.";
+        if (desc) return "Deals few damages of drain life to all monsters in your sight.";
         power = (plev / 2) + 5;
         if (info) return info_damage(1, power, 0);
         if (cast || cont)
@@ -8289,7 +8275,7 @@ static cptr do_hex_spell(int spell, int mode)
 
     case 12:
         if (name) return "Swords to runeswords";
-        if (desc) return "Gives vorpal ability to your weapon. Increases damages by your weapon acccording to curse of your weapon.";
+        if (desc) return "Gives vorpal ability to your weapon. Increases damages by your weapon according to curse of your weapon.";
         if (cast)
         {
             if (p_ptr->weapon_ct > 1)
@@ -8316,7 +8302,7 @@ static cptr do_hex_spell(int spell, int mode)
 
     case 14:
         if (name) return "Building up";
-        if (desc) return "Attempts to increases your strength, dexterity and constitusion.";
+        if (desc) return "Attempts to increases your strength, dexterity and constitution.";
         if (cast)
         {
             msg_print("You feel your body is developed more now.");
@@ -8367,12 +8353,12 @@ static cptr do_hex_spell(int spell, int mode)
 
     case 18:
         if (name) return "Recharging";
-        if (desc) return "Recharges a magic device.";
+        if (desc) return "It attempts to recharge a device using your mana for power.";
         power = plev * 2;
         if (info) return info_power(power);
         if (cast)
         {
-            if (!recharge(power)) return NULL;
+            if (!recharge_from_player(power)) return NULL;
             add = FALSE;
         }
         break;
@@ -8877,7 +8863,6 @@ static cptr _rogue_pick_pocket(void)
                 sound(SOUND_SELL);
                 p_ptr->au += loot.pval;
                 p_ptr->redraw |= (PR_GOLD);
-                p_ptr->window |= (PW_PLAYER);
             }
             else if (!inven_carry_okay(&loot))
             {
@@ -8953,7 +8938,6 @@ static cptr _rogue_negotiate(void)
 
     if (target_set(TARGET_MARK))
     {
-        msg_flag = FALSE; /* Bug ... we get an extra -more- prompt after target_set() ... */
         if (target_who > 0)
             m_idx = target_who;
         else
@@ -9008,7 +8992,6 @@ static cptr _rogue_negotiate(void)
                 sound(SOUND_SELL);
                 p_ptr->au -= cost;
                 p_ptr->redraw |= PR_GOLD;
-                p_ptr->window |= PW_PLAYER;
 
                 if (mon_save_p(m_ptr->r_idx, A_CHR))
                 {

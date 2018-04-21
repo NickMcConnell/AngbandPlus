@@ -1,0 +1,30 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:U>You attack The Norsa:</color> You claw. You are frozen and <color:b>shocked</color>.
+<color:v>*Ouch!*</color> You miss. You miss. You claw. The Norsa shouts,             LEVEL <color:G>    50</color>
+'AAAARRRGGGHHH!!!' <color:R>You have slain The Norsa.</color> You feel something     EXP <color:G>   12.3M</color>
+roll beneath your feet. You feel something roll beneath your feet.  AU  <color:G>   2.18M</color>
+<color:D>xxxxxxxxxxxx</color><color:U>#</color>       <color:U>#</color>   <color:U>######</color>  <color:U>####</color>                                <color:g>======</color><color:y>"</color><color:o>~</color><color:g>(</color><color:y>]</color>
+<color:D>xxxxxxxxxxxx</color><color:U>###</color>   <color:U>###</color>        <color:U>##</color>    <color:U>##</color>                               STR!: <color:G>18/***</color>
+<color:D>xxxxxxxxxxxx</color>  <color:U>#####</color>           <color:U>####</color>  <color:U>#</color>                               INT : <color:G>18/144</color>
+<color:D>xxxxxxxxxxx</color>                      <color:U>##</color> <color:U>#</color>                               WIS!: <color:G>18/150</color>
+<color:D>xxxxxxxxxxx</color>                       <color:U>#</color> <color:U>####</color>                         <color:U>##</color> DEX!: <color:G>18/130</color>
+   <color:D>xxxxxxxx</color>                       <color:U>#</color><color:s>^</color>   <color:U>#</color>                         <color:U>#</color>  CON!: <color:G>18/***</color>
+         <color:D>x</color>                        <color:U>#</color>  <color:U>#</color> <color:U>###</color>                 <color:U>#######</color>  Chr!: <color:y>18/150</color>
+                                  <color:U>####</color>   <color:U>##</color>              <color:U>###</color>    <color:U>##'</color> AC     <color:G>  178</color>
+                                     <color:U>###</color> <color:r>^</color><color:U>#</color>             <color:U>##</color>   <color:U>##</color>     HP <color:r> 357</color>/<color:G>1148</color>
+                                       <color:U>#</color>  <color:U>##</color>           <color:U>##</color>  <color:U>######</color>   SP <color:y>  41</color>/<color:G> 497</color>
+                                       <color:U>#</color>   <color:U>#</color>         <color:U>###</color>  <color:U>##</color>    <color:U>##</color>
+                                       <color:U>###</color> <color:U>##</color>       <color:U>##</color>   <color:U>##</color>      <color:U>##</color> <color:s>D</color>[<color:r>***</color>------]
+                                         <color:U>#</color>..<color:U>#</color> <color:U>#######</color>  <color:U>###</color>          <color:W>?</color>[<color:y>*</color>--------]
+                           <color:U>####</color>        <color:U>####</color>.<color:U>###</color>.    <color:U>#</color> <color:U>##</color>            <color:U>,</color>[********-]
+                           <color:U>#</color>  <color:U>#</color>      <color:U>###</color>.......<color:U>#</color> <color:U>#+#</color>   <color:U>#</color>
+                         <color:U>###</color>  <color:U>####</color> <color:U>###</color>...<color:U>###</color>.<color:U>#</color>.<color:U>#</color>.  <color:U>##</color>  <color:U>#</color>
+              <color:U>#####</color>      <color:U>#</color>    ..<color:D>?</color><color:U>###</color>...<color:U>###</color> <color:U>###</color>.....  <color:U>###</color>
+             <color:U>##</color>   <color:U>##</color>   <color:U>###</color> <color:U>#####</color><color:g>=</color><color:s>D</color><color:U>#</color>..<color:U>###</color>    <color:U>#</color>....... <color:U>+#</color>          <color:U>##</color> <color:y>Fast (+33)</color>
+             <color:U>#</color>     <color:U>#####</color>   <color:U>#</color>   <color:U>##</color><color:W>([</color>.<color:U>##</color>     <color:U>##</color>.........<color:U>#</color>   <color:U>###</color>  <color:U>###</color>.
+             <color:U>#</color>  <color:G>h</color>    <color:U>##</color>   <color:U>##</color>    <color:U>#####</color>     <color:U>##</color> .........<color:U>#####</color>><color:U>####</color>...
+             <color:U>#</color>     <color:U>#</color> <color:U>#</color>  <color:U>###</color>             <color:U>###</color> <color:U>#</color> ............<color:U>#</color>..<color:U>#</color>...<color:U>##</color>
+             <color:U>##</color>   <color:U>#</color>    <color:U>##</color>              <color:U>##</color>   <color:U>#+</color> ......<color:U>####</color>......<color:U>###</color>
+<color:U>Arena: L75</color>                              <color:s>Cold</color> Hero
+</style>

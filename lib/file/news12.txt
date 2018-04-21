@@ -1,0 +1,26 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+
+<color:U>The Set of Dragon Gloves 'Claw of Bahamut' [4,+17]</color>                  LEVEL <color:G>    43</color>
+  <color:G>+3</color> to STR, Searching, Infravision                                 EXP <color:G>    187k</color>
+  Resist <color:g>Acid</color>, <color:b>Electricity</color>, <color:r>Fire</color>, <color:W>Cold</color>, <color:G>Poison</color>, <color:y>Light</color>, <color:D>Nether</color>,      AU  <color:G>   3.53M</color>
+<color:v>    Nexus</color>, <color:o>Sound</color>, <color:U>Shards</color>, <color:v>Chaos</color>, <color:v>Disenchantment</color>, <color:R>Fear</color>               /<color:b>*</color><color:U>}</color><color:g>==</color><color:y>"</color>*<color:s>[</color><color:g>(</color><color:s>]</color><color:G>]</color><color:U>]</color>
+  <color:B>It cannot be harmed by the elements.</color>                              STR!: <color:G>18/***</color>
+                                                                    INT : <color:G>18/***</color>
+                                                                    WIS : <color:G>18/159</color>
+[Press Any Key to Continue]                                         DEX : <color:G>18/165</color>
+                                                                    CON : <color:G>18/189</color>
+                                    # # #      ..# #                CHR : <color:G>18/155</color>
+                                    # # # ######.# #                AC     <color:G>  180</color>
+                                    # # # #<color:u>OOOO</color>.@# #    ####<color:U>#</color>       HP <color:G> 778</color>/<color:G> 778</color>
+                                    # # # #<color:u>O</color>###### # #<color:U>###</color>   #<color:U>#</color>
+                                    # # # #<color:u>O</color>#<color:u>OOO</color> # # <color:U>#</color>    #  #<color:U>#</color>#
+                                    # #   #<color:u>OOOOOO</color>#<color:G>$</color>### <color:U>##</color>#<color:U>#</color>#   #    @[<color:G>*********</color>]
+                                    # ############ #   <color:U>#</color>   <color:U>#</color>#<color:U>#</color> <color:U>#</color>### <color:U>,</color>[<color:G>*********</color>]
+                                    #              # ###     #  <color:U>#</color>
+                  ###########       ##### # ###### # <color:U>#</color>       #<color:U>#</color> # #
+                            #        <color:U>###</color>    #    <color:U>#</color>#  <color:U>#</color>        <color:U>#</color>   #
+                  ######### #        <color:U>#</color>   <color:U>##</color>#<color:U>#</color>     <color:U>##</color>##        <color:U>#</color>#<color:U>#</color>##
+                          # #        <color:U>#</color> <color:U>##</color>#                          <color:y>Fast (+23)</color>
+                    ###   # #<color:U>##</color>####<color:U>#</color>#<color:U>#</color> ##                           <color:G>Full</color>
+</style>

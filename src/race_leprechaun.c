@@ -76,7 +76,7 @@ static void _calc_innate_attacks(void)
         
         calc_innate_blows(&a, 300);
 
-        a.msg = "You pilfer %s.";
+        a.msg = "You pilfer.";
         a.name = "Greedy Hands";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -171,6 +171,7 @@ static spell_info _spells[] =
     { 20, 12, 40, telekinesis_spell}, 
     { 30, 15, 50, cause_wounds_III_spell}, 
     { 35, 15, 60, animate_dead_spell}, 
+    { 37, 20, 60, recharging_spell},  /* Using the player's gold! */
     { 40,  0,  0, blink_toggle_spell}, 
     { 45, 40, 60, _fanaticism_spell},
     { -1, -1, -1, NULL}
@@ -260,22 +261,13 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     case MON_MALICIOUS_LEPRECHAUN:
         add_flag(flgs, TR_SPEED);
         add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, TR_VULN_LITE);
         break;
     case MON_DEATH_LEPRECHAUN:
         add_flag(flgs, TR_SPEED);
         add_flag(flgs, TR_LEVITATION);
         add_flag(flgs, TR_RES_NETHER);
-        break;
-    }
-}
-
-static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
-{
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_MALICIOUS_LEPRECHAUN:
-    case MON_DEATH_LEPRECHAUN:
-        add_flag(flgs, TR_RES_LITE);
+        add_flag(flgs, TR_VULN_LITE);
         break;
     }
 }
@@ -379,7 +371,6 @@ bool leprechaun_steal(int m_idx)
                 sound(SOUND_SELL);
                 p_ptr->au += loot.pval;
                 p_ptr->redraw |= (PR_GOLD);
-                p_ptr->window |= (PW_PLAYER);
                 if (prace_is_(RACE_MON_LEPRECHAUN))
                     p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
             }
@@ -400,7 +391,7 @@ bool leprechaun_steal(int m_idx)
     return result;
 }
 
-race_t *mon_leprechaun_get_race_t(void)
+race_t *mon_leprechaun_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -424,6 +415,7 @@ race_t *mon_leprechaun_get_race_t(void)
         me.infra = 5;
         me.exp = 150;
         me.base_hp = 15;
+        me.shop_adjust = 85;
 
         me.get_spells = _get_spells;
         me.caster_info = _caster_info;
@@ -432,7 +424,6 @@ race_t *mon_leprechaun_get_race_t(void)
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_flags = _get_flags;
-        me.get_vulnerabilities = _get_vulnerabilities;
         me.gain_level = _gain_level;
         me.birth = _birth;
         me.player_action = _player_action;

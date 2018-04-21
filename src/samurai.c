@@ -1,5 +1,8 @@
 #include "angband.h"
 
+/***********************************************************************
+ * Samurai Spells (Hissatsu)
+ ***********************************************************************/
 cptr do_hissatsu_spell(int spell, int mode)
 {
     bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -899,6 +902,110 @@ cptr do_hissatsu_spell(int spell, int mode)
     return "";
 }
 
+/***********************************************************************
+ * Samurai Postures (Kata)
+ ***********************************************************************/
+void samurai_posture_calc_bonuses(void)
+{
+    if (p_ptr->special_defense & KATA_FUUJIN)
+    {
+        /* see project_p for special handling ... review?
+        if (!p_ptr->blind)
+            p_ptr->reflect = TRUE; */
+    }
+    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    {
+        p_ptr->to_a -= 50;
+        p_ptr->dis_to_a -= 50;
+        res_add_vuln(RES_ACID);
+        res_add_vuln(RES_ELEC);
+        res_add_vuln(RES_FIRE);
+        res_add_vuln(RES_COLD);
+    }
+
+    if (p_ptr->special_defense & KATA_MUSOU)
+    {
+        p_ptr->see_inv = TRUE;
+        p_ptr->free_act = TRUE;
+        p_ptr->slow_digest = TRUE;
+        p_ptr->regenerate = TRUE;
+        p_ptr->levitation = TRUE;
+        p_ptr->hold_life = TRUE;
+        p_ptr->sustain_str = TRUE;
+        p_ptr->sustain_int = TRUE;
+        p_ptr->sustain_wis = TRUE;
+        p_ptr->sustain_con = TRUE;
+        p_ptr->sustain_dex = TRUE;
+        p_ptr->sustain_chr = TRUE;
+        p_ptr->telepathy = TRUE;
+        p_ptr->lite = TRUE;
+        res_add_all();
+        p_ptr->reflect = TRUE;
+        p_ptr->sh_fire = TRUE;
+        p_ptr->sh_elec = TRUE;
+        p_ptr->sh_cold = TRUE;
+        p_ptr->to_a += 100;
+        p_ptr->dis_to_a += 100;
+    }
+}
+
+void samurai_posture_calc_stats(s16b stats[MAX_STATS])
+{
+    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    {
+        int i;
+        for (i = 0; i < MAX_STATS; i++)
+            stats[i] += 5;
+    }
+}
+
+void samurai_posture_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    if (p_ptr->special_defense & KATA_FUUJIN)
+        add_flag(flgs, TR_REFLECT);
+
+    if (p_ptr->special_defense & KATA_MUSOU)
+    {
+        add_flag(flgs, TR_RES_FEAR);
+        add_flag(flgs, TR_RES_LITE);
+        add_flag(flgs, TR_RES_DARK);
+        add_flag(flgs, TR_RES_BLIND);
+        add_flag(flgs, TR_RES_CONF);
+        add_flag(flgs, TR_RES_SOUND);
+        add_flag(flgs, TR_RES_SHARDS);
+        add_flag(flgs, TR_RES_NETHER);
+        add_flag(flgs, TR_RES_NEXUS);
+        add_flag(flgs, TR_RES_CHAOS);
+        add_flag(flgs, TR_RES_DISEN);
+        add_flag(flgs, TR_RES_TIME);
+        add_flag(flgs, TR_REFLECT);
+        add_flag(flgs, TR_HOLD_LIFE);
+        add_flag(flgs, TR_FREE_ACT);
+        add_flag(flgs, TR_SH_FIRE);
+        add_flag(flgs, TR_SH_ELEC);
+        add_flag(flgs, TR_SH_COLD);
+        add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, TR_LITE);
+        add_flag(flgs, TR_SEE_INVIS);
+        add_flag(flgs, TR_TELEPATHY);
+        add_flag(flgs, TR_SLOW_DIGEST);
+        add_flag(flgs, TR_REGEN);
+        add_flag(flgs, TR_SUST_STR);
+        add_flag(flgs, TR_SUST_INT);
+        add_flag(flgs, TR_SUST_WIS);
+        add_flag(flgs, TR_SUST_DEX);
+        add_flag(flgs, TR_SUST_CON);
+        add_flag(flgs, TR_SUST_CHR);
+    }
+
+    if (p_ptr->special_defense & KATA_KOUKIJIN)
+    {
+        add_flag(flgs, TR_VULN_ACID);
+        add_flag(flgs, TR_VULN_ELEC);
+        add_flag(flgs, TR_VULN_FIRE);
+        add_flag(flgs, TR_VULN_COLD);
+    }
+}
 
 static bool _choose_kata(void)
 {
@@ -1004,7 +1111,7 @@ static int _max_sp(void)
     return MAX(p_ptr->msp*4, p_ptr->lev*5+5);
 }
 
-static void _concentrate(void)
+static void _concentrate(bool noisy)
 {
     int max_csp = _max_sp();
     if (total_friends)
@@ -1012,7 +1119,8 @@ static void _concentrate(void)
     if (p_ptr->special_defense & KATA_MASK)
         return;
         
-    msg_print("You concentrate to charge your power.");
+    if (noisy)
+        msg_print("You concentrate to charge your power.");
 
     p_ptr->csp += p_ptr->msp / 2;
     if (p_ptr->csp >= max_csp)
@@ -1048,7 +1156,7 @@ void samurai_concentration_spell(int cmd, variant *res)
             return;
         }
 
-        _concentrate();        
+        _concentrate(TRUE);
 
         var_set_bool(res, TRUE);
         break;
@@ -1089,12 +1197,19 @@ void samurai_posture_spell(int cmd, variant *res)
 
 static void _calc_bonuses(void)
 {
+    samurai_posture_calc_bonuses();
     if (p_ptr->lev >= 30)
         res_add(RES_FEAR);
 }
 
+static void _calc_stats(s16b stats[MAX_STATS])
+{
+    samurai_posture_calc_stats(stats);
+}
+
 static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 {
+    samurai_posture_get_flags(flgs);
     if (p_ptr->lev >= 30)
         add_flag(flgs, TR_RES_FEAR);
 }
@@ -1132,7 +1247,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *samurai_get_class_t(void)
+class_t *samurai_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -1177,6 +1292,7 @@ class_t *samurai_get_class_t(void)
 
         me.caster_info = _caster_info;        
         me.calc_bonuses = _calc_bonuses;
+        me.calc_stats = _calc_stats;
         me.get_flags = _get_flags;
         me.get_powers = _get_powers;
         me.character_dump = spellbook_character_dump;
@@ -1189,7 +1305,7 @@ class_t *samurai_get_class_t(void)
 void samurai_on_rest(void)
 {
     if (p_ptr->pclass == CLASS_SAMURAI)
-        _concentrate();
+        _concentrate(FALSE);
 }
 
 bool samurai_can_concentrate(void)

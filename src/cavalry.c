@@ -30,7 +30,7 @@ void _rodeo_spell(int cmd, variant *res)
         m_ptr = &m_list[p_ptr->riding];
         r_ptr = &r_info[m_ptr->r_idx];
         monster_desc(m_name, m_ptr, 0);
-        msg_format("You ride on %s.", m_name);
+        cmsg_format(TERM_L_GREEN, "You ride on %s.", m_name);
         if (is_pet(m_ptr)) break;
         rlev = r_ptr->level;
         if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
@@ -43,12 +43,12 @@ void _rodeo_spell(int cmd, variant *res)
           && !(r_ptr->flags1 & RF1_QUESTOR)
           && rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5) )
         {
-            msg_format("You tame %s.", m_name);
+            cmsg_format(TERM_L_GREEN, "You tame %s.", m_name);
             set_pet(m_ptr);
         }
         else
         {
-            msg_format("You have thrown off by %s.", m_name);
+            cmsg_format(TERM_VIOLET, "You have been thrown off %s.", m_name);
             rakuba(1,TRUE);
             p_ptr->riding = 0;
         }
@@ -94,7 +94,7 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-class_t *cavalry_get_class_t(void)
+class_t *cavalry_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

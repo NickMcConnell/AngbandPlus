@@ -44,14 +44,6 @@
  * and increase the complexity of the code.
  */
 
-
-struct rect_s
-{
-    int  x,  y;
-    int cx, cy;
-};
-typedef struct rect_s rect_t;
-
 /*
  * Feature state structure
  *
@@ -98,13 +90,15 @@ struct feature_type
     byte x_char[F_LIT_MAX];   /* Desired feature character */
 };
 
+/* Effects are used for activations on objects (e.g. DSM) as well as devices (wand, rod, staff) */
 struct effect_s
 {
-    s16b type;
-    byte level;
-    byte xxx;
-    s16b timeout;
-    s16b extra;
+    s16b type;         /* See effect_e in defines.h. */
+    byte power;        /* Power Level (1-100): Determines damage, etc */
+    byte difficulty;   /* Difficulty Level (1-100): Determines fail rate. */
+                       /* Think of power as the player level and difficulty as the spell level. */
+    s16b cost;         /* Timeout for activations. SP for devices */
+    s16b extra;        /* Optionally override normal damage calc. See do_effect for details on a per effect basis. */
 };
 typedef struct effect_s effect_t;
 
@@ -121,7 +115,6 @@ typedef struct counts_s counts_t;
 /*
  * Information about object "kinds", including player knowledge.
  *
- * Only "aware" and "tried" are saved in the savefile
  */
 
 typedef struct object_kind object_kind;
@@ -314,7 +307,7 @@ struct object_type
 
     byte number;        /* Number of items */
 
-    s16b weight;        /* Item weight */
+    s16b weight;        /* Item weight in decipounds */
 
     s16b name1;            /* Artifact type, if any */
     s16b name2;            /* Ego-Item type, if any */
@@ -324,7 +317,7 @@ struct object_type
     byte xtra2;            /* Extra info index */
     byte xtra3;            /* Extra info: Chests and Weaponsmith */
     s16b xtra4;            /* Extra info: Lights, Capture, ... */
-    s16b xtra5;            /* Extra info */
+    s32b xtra5;            /* Extra info */
 
     s16b to_h;            /* Plusses to hit */
     s16b to_d;            /* Plusses to damage */
@@ -870,6 +863,7 @@ typedef struct quest_type quest_type;
 
 struct quest_type
 {
+    s16b id;
     s16b status;            /* Is the quest taken, completed, finished? */
 
     s16b type;              /* The quest type */
@@ -890,8 +884,8 @@ struct quest_type
     byte complev;           /* player level (complete) */
 
     u32b seed;                /* For $RANDOM_ in quest files ... using seed_town is really */
-};                            /* not a good idea, as it correlates quest results unless you are careful */
-
+                              /* not a good idea, as it correlates quest results unless you are careful */
+};
 
 /*
  * A store owner
@@ -1005,24 +999,6 @@ struct player_pact
     cptr title;
     cptr alliance;
 };
-
-typedef struct player_seikaku player_seikaku;
-struct player_seikaku
-{
-    cptr title;            /* Type of seikaku */
-
-    s16b a_adj[6];        /* seikaku stat bonuses */
-
-    skills_t skills;
-
-    s16b life;
-
-    byte XXX;            
-    byte sex;            /* seibetu seigen */
-
-    s16b a_exp;
-};
-
 
 /*
  * Most of the "player" information goes here.
@@ -1281,6 +1257,7 @@ struct player_type
 
     counter_t wild_counters[MAX_WILD_COUNTERS];    /* Wild Weapons */
 
+    bool            innate_attack_lock;
     innate_attack_t innate_attacks[MAX_INNATE_ATTACKS];
     int             innate_attack_ct;
 
@@ -1422,7 +1399,6 @@ struct player_type
 
     s16b today_mon;           /* Wanted monster */
 
-    bool dtrap;               /* Whether you are on trap-safe grids */
     s16b floor_id;            /* Current floor location */ 
 
     bool autopick_autoregister; /* auto register is in-use or not */
@@ -1781,7 +1757,7 @@ typedef struct tag_type tag_type;
 struct tag_type
 {
     int     tag;
-    void    *pointer;
+    int     value;
 };
 
 typedef bool (*monster_hook_type)(int r_idx);
@@ -1885,6 +1861,7 @@ struct dungeon_info_type {
 
     char r_char[5];     /* Monster race allowed */
     int final_object;    /* The object you'll find at the bottom */
+    int final_ego;       /* Ego type for final_object, or effect type for devices */
     int final_artifact;    /* The artifact you'll find at the bottom */
     int final_guardian;    /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
 
@@ -1905,6 +1882,9 @@ typedef struct {
     byte action;        /* Auto-pickup or Destroy or Leave items */
     byte dice;          /* Weapons which have more than 'dice' dice match */
     byte bonus;         /* Items which have more than 'bonus' magical bonus match */
+    byte level;
+    byte weight;
+    int  value;
 } autopick_type;
 
 
@@ -1943,7 +1923,7 @@ typedef struct
 {
     s16b r_idx; /* Monster (0 means victory prizing) */
     byte tval;  /* tval of prize (0 means no prize) */
-    byte sval;  /* sval of prize */
+    int  sval;  /* sval of prize, or effect_e for devices */
 } arena_type;
 
 
@@ -1962,7 +1942,6 @@ typedef struct
 } door_type;
 
 
-#ifdef TRAVEL
 /*
  *  A structure type for travel command
  */
@@ -1973,7 +1952,6 @@ typedef struct {
     int y;
     int dir;
 } travel_type;
-#endif
 
 /*
  * A new spell system, and some half baked ideas for refactoring
@@ -2021,9 +1999,8 @@ typedef spell_stats_t        *spell_stats_ptr;
    I'm shooting for a single unified interface for choosing, browsing
    and casting spells */
 
-#define CASTER_ALLOW_DEC_MANA       0x0001
+#define CASTER_ALLOW_DEC_MANA       0x0001 /* Wizardstaff and Mage Egos/Artifacts. cf equip.c for more details */
 #define CASTER_GLOVE_ENCUMBRANCE    0x0002
-#define CASTER_NO_SPELL_COST        0x0004
 #define CASTER_NO_SPELL_FAIL        0x0008
 #define CASTER_USE_HP               0x0010
 #define CASTER_GAIN_SKILL           0x0020
@@ -2052,19 +2029,18 @@ typedef caster_info*(*caster_info_fn)(void);
 typedef int(*get_spells_fn)(spell_info* spells, int max);
 typedef void(*gain_level_fn)(int new_level);
 typedef void(*change_level_fn)(int old_level, int new_level);
-typedef void(*file_dump_fn)(FILE* file);
+typedef void(*character_dump_fn)(doc_ptr doc);
 typedef void(*player_action_fn)(int energy_use);
 typedef void(*flags_fn)(u32b flgs[TR_FLAG_SIZE]);
+typedef void(*stats_fn)(s16b stats[MAX_STATS]);
 typedef void(*load_fn)(savefile_ptr file);
 typedef void(*save_fn)(savefile_ptr file);
 
-/* Note: Most of this info is still not being used.  Be sure to
-   double maintain tables in tables.c until I can get around to
-   converting all the classes */
 typedef struct {
     cptr                    name;
     cptr                    subname;
     cptr                    desc;
+    cptr                    subdesc;
     s16b                    stats[MAX_STATS];
     skills_t                base_skills;
     skills_t                extra_skills; /* Prorata every 10 levels */
@@ -2078,16 +2054,16 @@ typedef struct {
     player_action_fn        player_action;  /* Called once per player action, so long as the action consumes energy */
     move_player_fn          move_player;    /* Called every time the player actually moves */
     move_monster_fn         move_monster;    /* Called whenever a monster moves */
-    calc_bonuses_fn         calc_bonuses;
+    calc_bonuses_fn         calc_bonuses;    /* Do flag related bonuses here ... */
+    stats_fn                calc_stats;      /* ... and stat related stuff here */
     calc_weapon_bonuses_fn  calc_weapon_bonuses;
     calc_shooter_bonuses_fn calc_shooter_bonuses;
     caster_info_fn          caster_info;
     get_spells_fn           get_spells;
     get_spells_fn           get_powers;
     gain_level_fn           gain_level; /* Only ever called when a new max level is achieved */
-    file_dump_fn            character_dump;
+    character_dump_fn       character_dump;
     flags_fn                get_flags;
-    flags_fn                get_immunities;
     load_fn                 load_player;
     save_fn                 save_player;
 } class_t;
@@ -2098,6 +2074,7 @@ typedef struct {
     cptr                    name;
     cptr                    subname;
     cptr                    desc;
+    cptr                    subdesc;
     s16b                    stats[MAX_STATS];
     skills_t                skills;
     skills_t                extra_skills; /* Prorata every 10 levels (Monster Races) */
@@ -2106,7 +2083,8 @@ typedef struct {
     s16b                    exp;
     s16b                    infra;
     birth_fn                birth;
-    calc_bonuses_fn         calc_bonuses;
+    calc_bonuses_fn         calc_bonuses;    /* Do flag related bonuses here ... */
+    stats_fn                calc_stats;      /* ... and stat related stuff here */
     calc_weapon_bonuses_fn  calc_weapon_bonuses;
     calc_shooter_bonuses_fn calc_shooter_bonuses;
     calc_innate_attacks_fn  calc_innate_attacks;
@@ -2115,10 +2093,8 @@ typedef struct {
     get_spells_fn           get_powers;
     gain_level_fn           gain_level;
     change_level_fn         change_level;
-    file_dump_fn            character_dump;
+    character_dump_fn       character_dump;
     flags_fn                get_flags;
-    flags_fn                get_immunities;
-    flags_fn                get_vulnerabilities;
     u32b                    flags;
     bool                    mimic;
     struct equip_template_s *equip_template;
@@ -2129,12 +2105,8 @@ typedef struct {
     load_fn                 load_player;
     save_fn                 save_player;
     s16b                    pseudo_class_idx; /* For the "Monster" class ... */
+    s16b                    shop_adjust;
 } race_t;
-
-typedef struct {
-    cptr name;
-    cptr desc;
-} demigod_type;
 
 typedef struct {
     int  type;
@@ -2159,3 +2131,37 @@ typedef struct {
     s16b                    breath;
     s16b                    spell_stat;
 } dragon_realm_t, *dragon_realm_ptr;
+
+struct device_effect_info_s
+{
+    int      type;
+    int      level;
+    int      cost;
+    int      rarity;
+    int      max_depth;
+    int      extra;
+    int      flags;
+    counts_t counts;
+};
+
+typedef struct device_effect_info_s  device_effect_info_t;
+typedef struct device_effect_info_s *device_effect_info_ptr;
+
+#define PERSONALITY_IS_MALE     0x01  /* Lucky */
+#define PERSONALITY_IS_FEMALE   0x02  /* Sexy */
+
+struct personality_s
+{
+    cptr            name;
+    cptr            desc;
+    s16b            stats[MAX_STATS];
+    skills_t        skills;
+    s16b            life;
+    s16b            exp;
+    int             flags;
+    birth_fn        birth;
+    calc_bonuses_fn calc_bonuses;
+    flags_fn        get_flags;
+};
+
+typedef struct personality_s personality_t, *personality_ptr;

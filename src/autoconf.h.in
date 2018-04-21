@@ -111,9 +111,6 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* Define to 1 if Curses or PDCurses is found, but NCurses is not. */
-#undef USE_CURSES
-
 /* Define to 1 if using the Curses frontend. */
 #undef USE_GCU
 

@@ -61,7 +61,6 @@ of Seldon
 of the Chaos Lord
 
 N:14:BIAS_NECROMANTIC
-'Hand of Vecna'
 'Total Eclipse'
 'The Depth of Abyss'
 'Jet-black Bird'

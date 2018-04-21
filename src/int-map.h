@@ -5,9 +5,9 @@ typedef struct int_map_s int_map_t;
 typedef int_map_t *int_map_ptr;
 typedef struct int_map_iter_s int_map_iter_t;
 typedef int_map_iter_t *int_map_iter_ptr;
-typedef void (*free_value_f)(void *v);
+typedef void (*int_map_free_f)(void *v);
 
-extern int_map_ptr int_map_alloc(free_value_f free);
+extern int_map_ptr int_map_alloc(int_map_free_f free);
 extern void        int_map_free(int_map_ptr map);
 
 extern void        int_map_add(int_map_ptr map, int key, void *val);

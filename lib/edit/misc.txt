@@ -19,7 +19,7 @@ M:R:1133
 M:B:150
 
 # Maximum number of items in k_info.txt
-M:K:748
+M:K:749
 
 # Maximum number of rooms in v_info.txt
 M:ROOMS:750
@@ -28,7 +28,7 @@ M:ROOMS:750
 M:F:255
 
 # Maximum number of artifacts in a_info.txt
-M:A:328
+M:A:329
 
 # Maximum number of ego-items in e_info.txt
 M:E:500
@@ -42,5 +42,5 @@ M:O:1024
 # Maximum size for "m_list[]"
 M:M:1024
 
-# Maximum size for "pack_info_list[]"
+# Maximum size for "pack_info_list[]" for 'monster packs'
 M:P:256

@@ -1,0 +1,29 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+Oraoraoraoraoraoraoraoraoraoraoraoraoraoraoraoraora!!!! <color:U>You attack The </color>
+<color:U>Serpent of Chaos:</color> You <color:y>double-kick</color>. It was a <color:R>great</color> hit! You miss. You    ..  % LEVEL <color:G>    50</color>
+miss. You miss. You land an <color:o>Eagle's Claw</color>. You land a <color:r>Dragon Fist</color>. You   <color:g>.</color>     EXP <color:G>   22.7M</color>
+land an <color:o>Eagle's Claw</color>. <color:U>You attack The Serpent of Chaos:</color> You land a       <color:s>%%</color> %  AU  <color:G>   6.61M</color>
+<color:v>Crushing Blow</color>. You land a <color:v>Crushing Blow</color>. You miss. You land a <color:v>Crushing </color> <color:s>%</color>  %  <color:d> </color><color:U>)</color><color:u>}</color><color:g>==</color><color:y>"</color><color:u>*</color><color:U>(</color><color:g>(</color><color:s>]</color><color:U>]]</color>
+<color:v>Blow</color>. You land a <color:r>Dragon Fist</color>. You miss. You land a <color:r>Dragon Fist</color>.          %  # STR!: <color:G>18/***</color>
+<color:g>The Serpent of Chaos attacks you:</color> It crushes. <color:U>(You retaliate:</color> You land  %     INT!: <color:G>18/140</color>
+a <color:R>flying kick</color>. It was a <color:v>*GREAT*</color> hit! The Serpent of Chaos shouts,        <color:s>%%</color> % WIS!: <color:G>18/***</color>
+'AAAARRRGGGHHH!!!' <color:R>You have destroyed The Serpent of Chaos.</color> <color:B>You just </color>   %<color:s>%</color>%%# DEX!: <color:G>18/***</color>
+<color:B>completed your quest!</color> A magical staircase appears... You feel something % ##  CON!: <color:G>18/170</color>
+roll beneath your feet.<color:B>-more-</color>                                           <color:s>%</color> ##  CHR!: <color:G>18/160</color>
+                 #########  % <color:s>%</color>  % <color:s>%</color>%  % <color:s>%</color>  #<color:r>~~</color><color:U>~~~</color>  % <color:s>%</color>%  <color:s>%</color> <color:s>%</color>%<color:s>%</color>   % %<color:s>%</color>  <color:s>%</color>     AC     <color:G>  240</color>
+                     # ##  % % %<color:s>%%</color>%  %<color:s>%</color>% #   #<color:U>~~</color>.. %  %% #<color:s>%</color>%% %%<color:s>%</color> %% #% #<color:s>%</color>%<color:s>%</color>  HP <color:y> 849</color>/<color:G> 964</color>
+                     # <color:s>%</color>  %<color:s>%%</color>%  %<color:s>%%</color> %#% % <color:s>%</color>   <color:s>%%</color>..       #<color:s>%</color>   %#%     <color:s>%%</color>  # <color:s>%</color> SP <color:y> 269</color>/<color:G> 417</color>
+                     # #%%%<color:s>%</color>%% <color:s>%</color>   %<color:s>%</color>% %  ##   <color:s>%</color>.#% %      %    %% <color:s>%</color>    <color:s>%</color>  %
+         #####       #  <color:s>%</color> <color:s>%</color> <color:s>%</color>    %%% #  %  <color:s>%</color>   % % %<color:s>%</color>           %%#% %  #  #  @[<color:y>********</color>-]
+      ####   ####    %<color:s>%</color>  <color:s>%</color> %       %%% #<color:s>%</color>%   %   <color:s>%</color>   %<color:s>%</color>           #% % % %    <color:G>?</color>[<color:y>******</color>---]
+    ### # #%<color:s>%%%</color> ##  #% <color:s>%</color>%  %%<color:s>%%</color> <color:s>%</color>  <color:s>%</color>  #%  # #    %<color:U>~~~~~~</color>           <color:s>%</color>% %#      <color:U>,</color>[<color:G>*********</color>]
+  ###  %%#   #%  % ## %%%#     <color:s>%</color>     %<color:s>%</color>  %#%    %% <color:r>~~~~</color>             %          [---------]
+ ##  %% % % % % %%#<color:s>%</color> <color:s>%</color> <color:s>%</color>% % % % % %    %      <color:s>%</color>% %%<color:U>~~~~</color> %
+<color:U>#</color>#    %%  %<color:s>%</color>%#%#%<color:s>%</color> % <color:s>%</color> #<color:s>%%%</color>  # # <color:s>%</color>%    #%<color:s>%</color>  <color:s>%</color>  %<color:s>%</color><color:r>P</color>          ...             %
+<color:U>#</color>   #       %  %  %% <color:s>%</color>%#<color:s>%</color>  #<color:s>%</color> <color:U><</color>  %...# %#%       %%%      .%%<color:D>?\</color>..          %% <color:y>Fast (+40)</color>
+<color:U>#</color> %% %%   % %<color:s>%</color>#  %   %  # #   #<color:s>%</color>%<color:s>%</color>%.<color:s>%</color>%<color:s>%</color>.%%<color:s>%</color>%% ##%%<color:s>%</color> .      <color:G>(</color><color:u>\</color><color:s>/</color><color:u>\</color><color:s>)</color>.     <color:s>%</color># %#%  <color:D>*CURSED*</color>
+<color:U>#</color><color:s>%</color>   # #%%<color:s>%</color> <color:s>%</color>  %  %#    <color:s>%%</color>%<color:s>%</color>    ...<color:s>%%</color>.%#...<color:s>%</color>  %<color:s>%</color> %<color:s>%</color> .      .<color:u>\</color><color:R>J</color><color:s>/</color>%..     <color:s>%%</color>%%%<color:s>%</color> <color:G>Full</color>
+ % %  ##<color:s>%</color>%%%   % <color:s>%</color>%<color:s>%</color>%<color:s>%%</color>    %# %#.<color:s>%</color>.#<color:s>%</color>%...<color:s>%</color>%%. <color:s>%</color>#%%##.      %#@#. <color:s>%</color>    %%<color:s>%</color> %#
+<color:U>Angband: L100</color>                    StnSkn <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color> Hero
+</style>

@@ -7,18 +7,10 @@
 /****************************************************************
  * Public Helpers
  ****************************************************************/
-
 void rune_calc_bonuses(object_type *o_ptr)
 {
     if (o_ptr->rune == RUNE_ABSORPTION)
         p_ptr->magic_resistance += 15;
-    if (o_ptr->rune == RUNE_UNDERSTANDING)
-    {
-        if (o_ptr->tval == TV_LITE)
-            p_ptr->stat_add[A_INT] += 1;
-        else
-            p_ptr->stat_add[A_INT] += 2;
-    }
     if (o_ptr->rune == RUNE_SHADOW)
     {
         if (object_is_body_armour(o_ptr) || o_ptr->tval == TV_CLOAK)
@@ -26,27 +18,41 @@ void rune_calc_bonuses(object_type *o_ptr)
     }
     if (o_ptr->rune == RUNE_HASTE)
     {
-        if (o_ptr->tval == TV_GLOVES)
-            p_ptr->stat_add[A_DEX] += 2;
         if (o_ptr->tval == TV_BOOTS)
             p_ptr->pspeed += 3 * p_ptr->lev / 50;
+    }
+}
+
+void rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS])
+{
+    if (o_ptr->rune == RUNE_UNDERSTANDING)
+    {
+        if (o_ptr->tval == TV_LITE)
+            stats[A_INT] += 1;
+        else
+            stats[A_INT] += 2;
+    }
+    if (o_ptr->rune == RUNE_HASTE)
+    {
+        if (o_ptr->tval == TV_GLOVES)
+            stats[A_DEX] += 2;
     }
     if (o_ptr->rune == RUNE_LIFE)
     {
         if (object_is_body_armour(o_ptr))
-            p_ptr->stat_add[A_CON] += 1;
+            stats[A_CON] += 1;
     }
     if (o_ptr->rune == RUNE_MIND)
     {
         if (o_ptr->tval == TV_HELM)
-            p_ptr->stat_add[A_INT] += 2;
+            stats[A_INT] += 2;
     }
     if (o_ptr->rune == RUNE_MIGHT)
     {
-        p_ptr->stat_add[A_STR] += 2;
-        p_ptr->stat_add[A_CON] += 2;
+        stats[A_STR] += 2;
+        stats[A_CON] += 2;
         if (object_is_body_armour(o_ptr))
-            p_ptr->stat_add[A_DEX] += 2;
+            stats[A_DEX] += 2;
     }
 }
 
@@ -1139,9 +1145,9 @@ typedef struct {
 
 static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
     { "Runes of Creation",
-      "Augment your equipment by attaching runes of various powers.  Also, you may create "
+      "Augment your equipment by attaching runes of various powers. Also, you may create "
       "certain stand alone runes that grant powers by virtue of being present in your "
-      "inventory.  Be sure to always keep Absorption handy, for it is your only means "
+      "inventory. Be sure to always keep Absorption handy, for it is your only means "
       "of regaining spell points!",
       TERM_L_BLUE,
       { {  1,   0, 0, _rune_of_absorption_spell },
@@ -1171,7 +1177,7 @@ static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
       }
     },
     { "Runes of the Novice",
-      "Minor spells and powers, available to the weakest of Rune-Knights.  "
+      "Minor spells and powers, available to the weakest of Rune-Knights. "
       "While hardly awe-inspiring, these powers grant detection and weak "
       "utility that are designed to assist the novice in their quest for deeper "
       "understanding.",
@@ -1189,7 +1195,7 @@ static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
       }
     },
     { "Runes of the Initiate",
-      "Stronger rune powers, available to the experienced Rune-Knight.  "
+      "Stronger rune powers, available to the experienced Rune-Knight. "
       "These powers offer great utility to assist you on your journey "
       "of knowledge.",
       TERM_UMBER,
@@ -1206,7 +1212,7 @@ static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
       }
     },
     { "Runes of the Master",
-      "Mighty powers indeed.  Use them wisely, for the forces of evil have "
+      "Mighty powers indeed. Use them wisely, for the forces of evil have "
       "grown strong and don't take well to rivals in their quest for domination.",
       TERM_RED,
       { { 33,  30, 75, identify_fully_spell },
@@ -1301,7 +1307,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *rune_knight_get_class_t(void)
+class_t *rune_knight_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -1313,11 +1319,11 @@ class_t *rune_knight_get_class_t(void)
 
         me.name = "Rune-Knight";
         me.desc = "The Rune Knight is a mythical warrior-mage who is dedicated to the power "
-                  "of ancient Runes that hold immense power.  By affixing these Runes to his "
+                  "of ancient Runes that hold immense power. By affixing these Runes to his "
                   "equipment, the Rune Knight can become an avatar of destruction, or an "
-                  "invulnerable bastion.  Unlike the Warrior-Mage and all other casters, the "
+                  "invulnerable bastion. Unlike the Warrior-Mage and all other casters, the "
                   "Rune Knight's mana does not regenerate on its own; rather, the Rune Knight "
-                  "must siphon mana from magical attacks directed at him.  The Rune Knight has "
+                  "must siphon mana from magical attacks directed at him. The Rune Knight has "
                   "a fixed (though very large) selection of spells that he can use his mana on, "
                   "in addition to his unique Rune spells.";
 

@@ -1,0 +1,229 @@
+Dragon Realms
+
+Dragons are magical creatures and may choose to learn a particular 
+branch of dragon magic. Unlike normal spell casters, dragons do not 
+need spell books to cast or learn powers. Instead, they simply gain 
+spells as they mature. Each realm of dragon magic has a direct impact 
+on the player's stats and skills, and each realm also requires a 
+different stat for casting purposes.
+
+Lore
+Dragons specializing in lore are seekers of knowledge. They are the 
+most intelligent of dragonkind and use their vast intellects to drive 
+their magic. Armed with a vast array of detection and knowledge spells, 
+dragons of lore seek power through knowledge. They eventually gain 
+powers of telepathy and automatic object identification. Lore dragons 
+are quick learners and gain maturity much more rapidly than the rest of 
+their kind.
+
+  Stats                   Skills
+  Strength      -1        Disarming   Very Good    
+  Intelligence  +3        Device      Superb       
+  Wisdom        +0        Save        Excellent    
+  Dexterity     -1        Stealth     Fair         
+  Constitution  -1        Searching   Good         
+  Charisma      +0        Perception  Good         
+  Life Rating  100%       Melee       Bad          
+  Experience    80%       Bows        Good         
+  Attack       100%
+  Breath       100%
+  
+Breath
+Dragon breath is the stuff of legends, and this realm seeks to enhance 
+this most powerful attribute of dragonkind. With this speciality, you 
+will be able to shape and control your breaths to maximize deadliness 
+for a given situation. In addition, dragons of this realm may choose 
+their breath types if applicable, and breathing becomes less costly as 
+they mature. This focus requires great fortitude to master and somewhat 
+diminishes the dragon's defenses and melee.
+
+  Stats                   Skills
+  Strength      +0        Disarming   Good         
+  Intelligence  -1        Device      Good         
+  Wisdom        -1        Save        Excellent    
+  Dexterity     +0        Stealth     Fair         
+  Constitution  +3        Searching   Bad          
+  Charisma      +1        Perception  Bad          
+  Life Rating  103%       Melee       Good         
+  Experience   105%       Bows        Good         
+  Attack        90%
+  Breath       115%
+  
+Attack
+Attack dragons seek melee supremacy above all else. This realm offers 
+powerful attack spells to support a race that is already among the 
+melee elite, and the result can be truly awe-inspiring. With this 
+realm, the dragon may rend their opponents with extra sharp claws, may 
+snatch an adjacent opponent in their powerful jaws and then toss them 
+about like a rag doll, and may even augment their bite attacks with 
+their breath element! Truly, a rampaging dragon is an awe inspiring 
+sight, one that is seldom witnessed (or perhaps seldom survived?). This 
+focus values strength above all else.
+
+  Stats                   Skills
+  Strength      +3        Disarming   Poor         
+  Intelligence  -2        Device      Bad          
+  Wisdom        -2        Save        Poor         
+  Dexterity     +1        Stealth     Fair         
+  Constitution  -1        Searching   Very Bad     
+  Charisma      +0        Perception  Very Bad     
+  Life Rating   97%       Melee       Superb       
+  Experience   105%       Bows        Good         
+  Attack       115%
+  Breath        80%
+  
+Craft
+The most powerful magical items have long been believed forged by 
+dragonflame. The craft dragon gains powers of enchantment and may even 
+reforge artifacts into the objects of their choosing! Otherwise, craft 
+dragons are not particularly powerful as they trade melee and breath 
+prowess for magical understanding. This focus requires great wisdom to 
+master.
+
+  Stats                   Skills
+  Strength      -1        Disarming   Very Good    
+  Intelligence  -1        Device      Legendary[7] 
+  Wisdom        +3        Save        Excellent    
+  Dexterity     -1        Stealth     Fair         
+  Constitution  -1        Searching   Bad          
+  Charisma      -1        Perception  Bad          
+  Life Rating  100%       Melee       Poor         
+  Experience    95%       Bows        Good         
+  Attack       100%
+  Breath       100%
+  
+Armor
+Dragon scales have thwarted many a would be dragonslayer. Naturally 
+tough and resistant, the dragon's armor is even further enhanced by 
+this realm. This specialization gives enhanced armor class, reflection, 
+resistance to cuts and stunning, resistance to poison and life 
+draining, and sustaining of several key stats, albeit not all at once. 
+With all of these extra innate bonuses, the magic spells of this realm 
+are few in number but serve to offer temporary defensive augmentations. 
+Unlike their kin, dragons of this order prize agility above all else.
+
+  Stats                   Skills
+  Strength      -1        Disarming   Fair         
+  Intelligence  -1        Device      Poor         
+  Wisdom        -1        Save        Superb       
+  Dexterity     +3        Stealth     Good         
+  Constitution  +1        Searching   Bad          
+  Charisma      +1        Perception  Bad          
+  Life Rating  102%       Melee       Bad          
+  Experience   105%       Bows        Good         
+  Attack        90%
+  Breath        90%
+  
+Domination
+All dragons have a formidable presence and make fearsome opponents. But 
+Domination dragons are truly a breed apart seeking to bend and control 
+the will of all they meet. Convinced of their right to rule, these 
+dragons may subjugate the weak, terrify the uncertain, and stun the 
+unwary with their awesome presence. They are the best dragons at 
+controlling minions and can summon mighty aid. Enemy monsters summoned 
+to battle may switch sides when they notice whom they have been 
+commanded to fight. And in the end, the dragon of domination may sever 
+all oaths of allegiance, returning enemy summons to where they came. 
+Needless to say, dragons of this order value force of will above all 
+else.
+
+  Stats                   Skills
+  Strength      -1        Disarming   Fair         
+  Intelligence  -1        Device      Poor         
+  Wisdom        -1        Save        Fair         
+  Dexterity     -1        Stealth     Fair         
+  Constitution  -1        Searching   Bad          
+  Charisma      +3        Perception  Bad          
+  Life Rating   95%       Melee       Bad          
+  Experience   105%       Bows        Good         
+  Attack        95%
+  Breath        90%
+  
+Crusade
+Crusade dragons are on a mission to destroy the forces of evil. As 
+such, this realm is only available to Gold Dragons and Law Dragons. 
+Being of a single focus, the Crusade dragon is not as powerful in melee 
+or breaths as other dragons, but their spells more than make up for 
+this deficit. At least against evil opponents. For one thing, Crusade 
+dragons can breathe holy elements not normally accessible. At the sight 
+of evil, they become enraged and may haste for battle. They can even 
+heal a bit and ultimately they may smite the forces of evil with holy 
+power, both in melee and in breath. Strong in personality, dragons of 
+this order may summon like minded kin for the final battles.
+
+  Stats                   Skills
+  Strength      +1        Disarming   Poor         
+  Intelligence  -1        Device      Good         
+  Wisdom        -1        Save        Fair         
+  Dexterity     +1        Stealth     Fair         
+  Constitution  -1        Searching   Very Bad     
+  Charisma      +2        Perception  Very Bad     
+  Life Rating   95%       Melee       Excellent    
+  Experience   107%       Bows        Good         
+  Attack        90%
+  Breath        90%
+  
+Death
+Death dragons are enemies of life itself, seeking to destroy all living 
+creatures. With this realm, the dragon may bend their breath weapon to 
+suit their necromantic desires, eventually breathing mastery over both 
+death and life. At high levels, the death dragon's melee attacks gain a 
+powerful draining effect against living creatures. This focus values 
+strength above all else. This foul realm is only available to Shadow 
+and Chaos dragons.
+
+  Stats                   Skills
+  Strength      +2        Disarming   Poor         
+  Intelligence  -2        Device      Poor         
+  Wisdom        -2        Save        Poor         
+  Dexterity     +0        Stealth     Very Good    
+  Constitution  -2        Searching   Very Bad     
+  Charisma      +1        Perception  Very Bad     
+  Life Rating   95%       Melee       Excellent    
+  Experience   105%       Bows        Good         
+  Attack        90%
+  Breath        90%
+  
+Table 1 - Dragon Realm Statistic Bonus Table
+
+               STR  INT  WIS  DEX  CON  CHR  Life  Exp  Attack  Breath
+Lore            -1   +3   +0   -1   -1   +0  100%   80%   100%    100%
+Breath          +0   -1   -1   +0   +3   +1  103%  105%    90%    115%
+Attack          +3   -2   -2   +1   -1   +0   97%  105%   115%     80%
+Craft           -1   -1   +3   -1   -1   -1  100%   95%   100%    100%
+Armor           -1   -1   -1   +3   +1   +1  102%  105%    90%     90%
+Domination      -1   -1   -1   -1   -1   +3   95%  105%    95%     90%
+Crusade         +1   -1   -1   +1   -1   +2   95%  107%    90%     90%
+Death           +2   -2   -2   +0   -2   +1   95%  105%    90%     90%
+
+
+Table 2 - Dragon Realm Skill Bonus Table I
+
+               Disarming     Device        Save          Stealth      
+Lore           Very Good     Superb        Excellent     Fair         
+Breath         Good          Good          Excellent     Fair         
+Attack         Poor          Bad           Poor          Fair         
+Craft          Very Good     Legendary[7]  Excellent     Fair         
+Armor          Fair          Poor          Superb        Good         
+Domination     Fair          Poor          Fair          Fair         
+Crusade        Poor          Good          Fair          Fair         
+Death          Poor          Poor          Poor          Very Good    
+
+
+Table 3 - Dragon Realm Skill Bonus Table II
+
+               Searching     Perception    Melee         Bows         
+Lore           Good          Good          Bad           Good         
+Breath         Bad           Bad           Good          Good         
+Attack         Very Bad      Very Bad      Superb        Good         
+Craft          Bad           Bad           Poor          Good         
+Armor          Bad           Bad           Bad           Good         
+Domination     Bad           Bad           Bad           Good         
+Crusade        Very Bad      Very Bad      Excellent     Good         
+Death          Very Bad      Very Bad      Excellent     Good         
+
+
+
+
+Automatically generated for PosChengband 4.0.0.
+

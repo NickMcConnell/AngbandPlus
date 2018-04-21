@@ -149,7 +149,6 @@ static caster_info * _caster_info(void)
         me.magic_desc = "song";
         me.which_stat = A_CHR;
         me.weight = 400;
-        me.options = CASTER_ALLOW_DEC_MANA;
         init = TRUE;
     }
     return &me;
@@ -158,6 +157,11 @@ static caster_info * _caster_info(void)
 static void _calc_bonuses(void)
 {
     res_add(RES_SOUND);
+    if (equip_find_artifact(ART_DAERON) || equip_find_artifact(ART_MAGLOR))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
 }
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -165,7 +169,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_SOUND);
 }
 
-class_t *bard_get_class_t(void)
+class_t *bard_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

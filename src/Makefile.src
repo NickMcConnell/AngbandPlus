@@ -41,14 +41,15 @@ ANGFILES = \
 	monk.o monster.o monster1.o monster2.o mspells1.o mspells2.o mspells3.o mut.o \
 	mut_a.o mystic.o necromancer.o ninja.o object1.o object2.o object3.o obj_kind.o paladin.o \
 	priest.o psion.o races.o races_a.o races_k.o races_mimic.o race_angel.o \
-	race_beholder.o race_centipede.o race_demon.o race_dragon.o race_elemental.o race_ghost.o race_giant.o race_golem.o \
+    race_beholder.o race_centipede.o race_demon.o race_dragon.o race_elemental.o race_giant.o race_golem.o \
 	race_hound.o race_hydra.o race_jelly.o race_leprechaun.o race_lich.o race_mimic.o race_possessor.o race_quylthulg.o race_spider.o \
-	race_ring.o race_sword.o race_troll.o race_vampire.o race_xorn.o race_zombie.o racial.o rage-mage.o ranger.o red_mage.o \
+    race_ring.o race_sword.o race_troll.o race_vampire.o race_xorn.o racial.o rage-mage.o ranger.o red_mage.o \
 	resist.o rogue.o rooms.o rune_knight.o samurai.o save.o savefile.o scores.o scout.o \
 	skills.o sniper.o sorcerer.o spells.o spells1.o spells2.o spells3.o spells_a.o \
 	spells_c.o spells_h.o spells_m.o spells_s.o spoilers.o store.o streams.o \
 	tables.o time_lord.o tourist.o util.o variable.o variant.o warlock.o warrior.o \
 	warrior_mage.o weaponmaster.o weaponsmith.o wild.o wild_realm.o wild_talent.o \
-	wizard1.o wizard2.o xtra1.o xtra2.o int-map.o str-map.o main-gcu.o
+    wizard1.o wizard2.o xtra1.o xtra2.o int-map.o str-map.o \
+    c-string.o z-doc.o c-vec.o message.o rect.o obj_display.o personality.o py_display.o
 
 

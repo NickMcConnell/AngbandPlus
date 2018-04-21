@@ -25,7 +25,7 @@ static void _klackon_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev > 9)
         add_flag(flgs, TR_SPEED);
 }
-race_t *klackon_get_race_t(void)
+race_t *klackon_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -59,6 +59,7 @@ race_t *klackon_get_race_t(void)
         me.base_hp = 23;
         me.exp = 170;
         me.infra = 2;
+        me.shop_adjust = 115;
 
         me.calc_bonuses = _klackon_calc_bonuses;
         me.get_powers = _klackon_get_powers;
@@ -89,7 +90,7 @@ static void _kobold_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_POIS);
 }
-race_t *kobold_get_race_t(void)
+race_t *kobold_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -121,6 +122,7 @@ race_t *kobold_get_race_t(void)
         me.base_hp = 19;
         me.exp = 90;
         me.infra = 3;
+        me.shop_adjust = 120;
 
         me.calc_bonuses = _kobold_calc_bonuses;
         me.get_powers = _kobold_get_powers;
@@ -152,7 +154,7 @@ static void _kutar_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_CONF);
 }
-race_t *kutar_get_race_t(void)
+race_t *kutar_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -188,6 +190,7 @@ race_t *kutar_get_race_t(void)
         me.base_hp = 21;
         me.exp = 175;
         me.infra = 0;
+        me.shop_adjust = 95;
 
         me.calc_bonuses = _kutar_calc_bonuses;
         me.get_powers = _kutar_get_powers;
@@ -226,7 +229,7 @@ static void _mindflayer_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 30)
         add_flag(flgs, TR_TELEPATHY);
 }
-race_t *mindflayer_get_race_t(void)
+race_t *mindflayer_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -238,7 +241,7 @@ race_t *mindflayer_get_race_t(void)
                     "be older than any other on our planet, and their intelligence and wisdom are "
                     "naturally sustained, and are so great that they enable Mindflayers to become more "
                     "powerful spellcasters than any other race, even if their physical attributes are "
-                    "a good deal less admirable.  As they advance levels, they gain the powers of "
+                    "a good deal less admirable. As they advance levels, they gain the powers of "
                     "See Invisible and Telepathy.";
 
         me.stats[A_STR] = -3;
@@ -261,6 +264,7 @@ race_t *mindflayer_get_race_t(void)
         me.base_hp = 18;
         me.exp = 150;
         me.infra = 4;
+        me.shop_adjust = 115;
 
         me.calc_bonuses = _mindflayer_calc_bonuses;
         me.get_powers = _mindflayer_get_powers;
@@ -295,7 +299,7 @@ static void _nibelung_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_DISEN);
     add_flag(flgs, TR_RES_DARK);
 }
-race_t *nibelung_get_race_t(void)
+race_t *nibelung_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -327,6 +331,7 @@ race_t *nibelung_get_race_t(void)
         me.base_hp = 22;
         me.exp = 165;
         me.infra = 5;
+        me.shop_adjust = 115;
 
         me.calc_bonuses = _nibelung_calc_bonuses;
         me.get_powers = _nibelung_get_powers;
@@ -349,12 +354,9 @@ static void _shadow_fairy_calc_bonuses(void)
 static void _shadow_fairy_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_LEVITATION);
+    add_flag(flgs, TR_VULN_LITE);
 }
-static void _shadow_fairy_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_LITE);
-}
-race_t *shadow_fairy_get_race_t(void)
+race_t *shadow_fairy_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -390,10 +392,10 @@ race_t *shadow_fairy_get_race_t(void)
         me.base_hp = 13;
         me.exp = 140;
         me.infra = 4;
+        me.shop_adjust = 110;
 
         me.calc_bonuses = _shadow_fairy_calc_bonuses;
         me.get_flags = _shadow_fairy_get_flags;
-        me.get_vulnerabilities = _shadow_fairy_get_vulnerabilities;
         init = TRUE;
     }
 
@@ -430,7 +432,7 @@ static void _skeleton_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 10)
         add_flag(flgs, TR_RES_COLD);
 }
-race_t *skeleton_get_race_t(void)
+race_t *skeleton_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -469,6 +471,7 @@ race_t *skeleton_get_race_t(void)
         me.exp = 115;
         me.infra = 2;
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.shop_adjust = 125;
 
         me.calc_bonuses = _skeleton_calc_bonuses;
         me.get_powers = _skeleton_get_powers;
@@ -522,7 +525,7 @@ static void _snotling_calc_bonuses(void)
 static void _snotling_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 }
-race_t *snotling_get_race_t(void)
+race_t *snotling_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -555,6 +558,7 @@ race_t *snotling_get_race_t(void)
         me.base_hp = 10;
         me.exp = 45;
         me.infra = 2;
+        me.shop_adjust = 125;
 
         me.calc_bonuses = _snotling_calc_bonuses;
         me.get_powers = _snotling_get_powers;
@@ -599,7 +603,7 @@ static void _spectre_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_SLOW_DIGEST);
 }
-race_t *spectre_get_race_t(void)
+race_t *spectre_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -637,6 +641,7 @@ race_t *spectre_get_race_t(void)
         me.exp = 250;
         me.infra = 5;
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.shop_adjust = 135;
 
         me.calc_bonuses = _spectre_calc_bonuses;
         me.get_powers = _spectre_get_powers;
@@ -672,7 +677,7 @@ static void _sprite_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 10)
         add_flag(flgs, TR_SPEED);
 }
-race_t *sprite_get_race_t(void)
+race_t *sprite_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -707,6 +712,7 @@ race_t *sprite_get_race_t(void)
         me.base_hp = 14;
         me.exp = 135;
         me.infra = 4;
+        me.shop_adjust = 90;
 
         me.calc_bonuses = _sprite_calc_bonuses;
         me.get_powers = _sprite_get_powers;
@@ -758,7 +764,7 @@ static void _tonberry_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_FEAR);
     add_flag(flgs, TR_SPEED);
 }
-race_t *tonberry_get_race_t(void)
+race_t *tonberry_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -795,6 +801,7 @@ race_t *tonberry_get_race_t(void)
         me.base_hp = 26;
         me.exp = 175;
         me.infra = 2;
+        me.shop_adjust = 115;
 
         me.calc_bonuses = _tonberry_calc_bonuses;
         me.get_flags = _tonberry_get_flags;
@@ -828,6 +835,8 @@ static void _vampire_calc_bonuses(void)
 }
 static void _vampire_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
+    add_flag(flgs, TR_VULN_LITE);
+
     add_flag(flgs, TR_HOLD_LIFE);
     add_flag(flgs, TR_RES_DARK);
     add_flag(flgs, TR_RES_NETHER);
@@ -835,14 +844,7 @@ static void _vampire_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_RES_COLD);
 }
-static void _vampire_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-}
-static void _vampire_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_LITE);
-}
-race_t *vampire_get_race_t(void)
+race_t *vampire_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -880,12 +882,11 @@ race_t *vampire_get_race_t(void)
         me.exp = 200;
         me.infra = 5;
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.shop_adjust = 130;
 
         me.calc_bonuses = _vampire_calc_bonuses;
         me.get_powers = _vampire_get_powers;
         me.get_flags = _vampire_get_flags;
-        me.get_immunities = _vampire_get_immunities;
-        me.get_vulnerabilities = _vampire_get_vulnerabilities;
         init = TRUE;
     }
 
@@ -904,7 +905,7 @@ static int _wood_elf_get_powers(spell_info* spells, int max)
 {
     return get_powers_aux(spells, max, _wood_elf_powers);
 }
-race_t *wood_elf_get_race_t(void)
+race_t *wood_elf_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -936,6 +937,7 @@ race_t *wood_elf_get_race_t(void)
         me.base_hp = 16;
         me.exp = 125;
         me.infra = 3;
+        me.shop_adjust = 95;
 
         me.get_powers = _wood_elf_get_powers;
         init = TRUE;
@@ -959,18 +961,16 @@ static int _yeek_get_powers(spell_info* spells, int max)
 static void _yeek_calc_bonuses(void)
 {
     res_add(RES_ACID);
-    if (p_ptr->lev >= 20) res_add_immune(RES_ACID);
+    if (p_ptr->lev >= 20)
+        res_add_immune(RES_ACID);
 }
 static void _yeek_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_ACID);
+    if (p_ptr->lev >= 20)
+        add_flag(flgs, TR_IM_ACID);
 }
-static void _yeek_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    if (p_ptr->lev >= 20) 
-        add_flag(flgs, TR_RES_ACID);
-}
-race_t *yeek_get_race_t(void)
+race_t *yeek_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1003,11 +1003,11 @@ race_t *yeek_get_race_t(void)
         me.base_hp = 14;
         me.exp = 70;
         me.infra = 2;
+        me.shop_adjust = 105;
 
         me.calc_bonuses = _yeek_calc_bonuses;
         me.get_powers = _yeek_get_powers;
         me.get_flags = _yeek_get_flags;
-        me.get_immunities = _yeek_get_immunities;
         init = TRUE;
     }
 
@@ -1045,7 +1045,7 @@ static void _zombie_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 5)
         add_flag(flgs, TR_RES_COLD);
 }
-race_t *zombie_get_race_t(void)
+race_t *zombie_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1081,6 +1081,7 @@ race_t *zombie_get_race_t(void)
         me.exp = 180;
         me.infra = 2;
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD;
+        me.shop_adjust = 140;
 
         me.calc_bonuses = _zombie_calc_bonuses;
         me.get_powers = _zombie_get_powers;

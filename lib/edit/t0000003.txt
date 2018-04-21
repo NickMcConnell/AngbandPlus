@@ -58,7 +58,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:20
 # Quest 20 rewarding, reward is a Rod of Detection, continue with quest 24
 ?:[EQU $QUEST20 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:375
+F:~:FLOOR:3:0:271:8
 
 # Quest 20 finished, continue with quest 24
 ?:[EQU $QUEST20 4]
@@ -123,10 +123,10 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:21
 ?:[EQU $QUEST21 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:21
 
-# Quest 21 rewarding (?Artifact)
+# Quest 21 rewarding (_Healing)
 ?:[EQU $QUEST21 3]
 F:b:BUILDING_1:3
-F:~:FLOOR:3:0:205
+F:~:FLOOR:3:0:270:205
 
 # Quest 21 finished, no new quest available
 ?:[EQU $QUEST21 4]
@@ -285,10 +285,7 @@ B:7:C:Blood-Knight:Owner
 B:7:C:Mauler:Owner
 
 B:8:N:Tower of Sorcery:Tanistil:Elf
-B:8:A:0:Recharge item:0:0:r:25:0
-B:8:A:1:Recharge all items:0:0:a:45:0
-B:8:A:2:Identify possessions:100:800:i:26:0
-#B:8:A:3:Request quest:0:0:q:6:2
+B:8:A:0:Identify possessions:100:800:i:26:0
 B:8:M:*:None
 B:8:M:Sorcery:Owner
 
@@ -331,9 +328,10 @@ B:14:A:1:Random Scroll:12000:12000:b:48:0
 B:14:A:2:Random Staff:15000:15000:c:49:0
 B:14:A:3:Random Wand:15000:15000:d:50:0
 B:14:A:4:Random Rod:20000:20000:e:51:0
-B:14:A:5:Random Armor:150000:150000:f:52:0
-B:14:A:6:Random Weapon:150000:150000:g:53:0
-B:14:A:7:Random Artifact:10000000:10000000:h:54:0
+B:14:A:5:Random Armor:50000:50000:f:52:0
+B:14:A:6:Random Weapon:30000:30000:g:53:0
+#This costs so much it overflows a 32-bit int on scaling!
+#B:14:A:7:Random Artifact:10000000:10000000:h:54:0
 
 # Town Layout
 D:---------------------------------------------------------------------------------------------------.--------------------------------------------------------------------------------------------------

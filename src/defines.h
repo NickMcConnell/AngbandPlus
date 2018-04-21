@@ -16,10 +16,16 @@
 #define VERSION_NAME "PosChengband"
 
 
-#define VER_MAJOR 3
-#define VER_MINOR 5
+#define VER_MAJOR 4
+#define VER_MINOR 0
 #define VER_PATCH 0
-#define VER_EXTRA 2
+#define VER_EXTRA 6
+
+#define GAME_MODE_BEGINNER  0
+#define GAME_MODE_NORMAL    1
+#define GAME_MODE_REAL_LIFE 2
+#define GAME_MODE_MONSTER   3
+#define GAME_MODE_MAX       4
 
 /*
  * Number of grids in each block (vertically)
@@ -789,6 +795,7 @@ enum _mimic_types {
 /*#define prace_is_(A) (p_ptr->mimic_form == (A) || (p_ptr->mimic_form == MIMIC_NONE && (A) < MAX_RACES && p_ptr->prace == (A)))*/
 #define psubclass_is_(A, B) (p_ptr->pclass == (A) && p_ptr->psubclass == (B))
 #define weaponmaster_is_(B) (p_ptr->pclass == CLASS_WEAPONMASTER && p_ptr->psubclass == (B))
+#define warlock_is_(B) (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == (B))
 #define devicemaster_is_(B) (p_ptr->pclass == CLASS_DEVICEMASTER && p_ptr->psubclass == (B))
 #define demigod_is_(B) (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == (B))
 #define dragon_is_(B) (prace_is_(RACE_MON_DRAGON) && p_ptr->psubrace == (B))
@@ -850,12 +857,16 @@ enum _mimic_types {
 #define MAX_CLASS               45
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
-#define PACT_UNDEAD         0
-#define PACT_DRAGON         1
-#define PACT_ANGEL         2
-#define PACT_DEMON         3
-#define PACT_ABERRATION     4
-#define MAX_PACTS         5
+enum {
+    WARLOCK_UNDEAD,
+    WARLOCK_DRAGONS,
+    WARLOCK_ANGELS,
+    WARLOCK_DEMONS,
+    WARLOCK_HOUNDS,
+    WARLOCK_SPIDERS,
+    WARLOCK_GIANTS,
+    WARLOCK_MAX
+};
 
 /* Weaponmaster Specialities ... stored in p_ptr->psubclass */
 #define WEAPONMASTER_NONE      -1
@@ -895,100 +906,6 @@ enum _mimic_types {
 #define PERS_CRAVEN       12
 #define PERS_HASTY        13
 #define MAX_PERSONALITIES 14
-
-/*** Screen Locations ***/
-
-/*
- * Some screen locations for various display routines
- * Currently, row 8 and 15 are the only "blank" rows.
- * That leaves a "border" around the "stat" values.
- */
-
-#define ROW_RACE                1
-#define COL_RACE                0       /* <race name> */
-
-/*#define ROW_CLASS               2 */
-/*#define COL_CLASS               0 */      /* <class name> */
-
-#define ROW_TITLE               2
-#define COL_TITLE               0       /* <title> or <mode> */
-
-/*#define ROW_SEIKAKU        4 */
-/*#define COL_SEIKAKU          0*/    /* <seikaku> */
-
-#define ROW_DAY                 22
-#define COL_DAY                 0       /* day */
-
-#define ROW_DUNGEON             23
-#define COL_DUNGEON             0       /* dungeon */
-
-#define ROW_LEVEL               3
-#define COL_LEVEL               0       /* "LEVEL xxxxxx" */
-
-#define ROW_EXP                 4
-#define COL_EXP                 0       /* "EXP xxxxxxxx" */
-
-#define ROW_GOLD                5
-#define COL_GOLD                0       /* "AU xxxxxxxxx" */
-
-#define ROW_EQUIPPY             6
-#define COL_EQUIPPY             0       /* equippy chars */
-
-#define ROW_STAT                7
-#define COL_STAT                0       /* "xxx   xxxxxx" */
-
-#define ROW_AC                  13
-#define COL_AC                  0       /* "Cur AC xxxxx" */
-
-#define ROW_HPMP                14
-#define COL_HPMP                0
-
-#define ROW_CURHP               14
-#define COL_CURHP               0       /* "Cur HP xxxxx" */
-
-#define ROW_CURSP               15
-#define COL_CURSP               0       /* "Cur SP xxxxx" */
-
-#define ROW_RIDING_INFO          16
-#define COL_RIDING_INFO          0       /* "xxxxxxxxxxxx" */
-
-#define ROW_INFO                17
-#define COL_INFO                0       /* "xxxxxxxxxxxx" */
-
-#define ROW_MAP                        0
-#define COL_MAP                  12
-
-#define ROW_CUT                 18
-#define COL_CUT                 0       /* <cut> */
-
-#define ROW_STUN                19
-#define COL_STUN                0       /* <stun> */
-
-#define ROW_HUNGRY              20
-#define COL_HUNGRY              0       /* "Weak" / "Hungry" / "Full" / "Gorged" */
-
-#define ROW_STATE               20
-#define COL_STATE                7      /* <state> */
-
-#define ROW_FEAR                 21
-#define COL_FEAR                0  
-
-#define ROW_FOOD                 25
-#define COL_FOOD                0  
-
-#define ROW_SPEED               (-1)
-#define COL_SPEED               (-24)      /* "Slow (-NN)" or "Fast (+NN)" */
-
-#define ROW_STUDY               (-1)
-#define COL_STUDY               (-13)      /* "Study" */
-
-#define ROW_DEPTH               (-1)
-#define COL_DEPTH               (-8)      /* "Lev NNN" / "NNNN ft" */
-
-#define ROW_STATBAR             (-1)
-#define COL_STATBAR              0
-#define MAX_COL_STATBAR         (-26)
-
 
 /*
  * Number of feats we change to (Excluding default). Used in f_info.txt.
@@ -1320,7 +1237,7 @@ enum _mimic_types {
 #define ART_HITHLOMIR           27
 #define ART_THALKETTOTH         28
 #define ART_HIMRING             127
-#define ART_ICANUS              131
+#define ART_INCANUS             131
 #define ART_NAMAKE_ARMOR        183
 #define ART_GHB                 192
 #define ART_DASAI               200
@@ -1480,6 +1397,7 @@ enum _mimic_types {
 #define ART_AEGLOS              187
 #define ART_BLOOD               199
 #define ART_NUMAHOKO            202
+#define ART_DRAGONLANCE         322
 
 /* The sword of the Dawn */
 #define ART_DAWN                110
@@ -1537,7 +1455,7 @@ enum _mimic_types {
 /* Arrows */
 #define ART_BARD_ARROW          153
 
-
+#define ART_ETERNITY            244
 #define ART_ZEUS            256
 #define ART_POSEIDON        257
 #define ART_HADES            258
@@ -1571,6 +1489,7 @@ enum _mimic_types {
 #define ART_STONE_OF_CRAFT      290
 #define ART_STONE_OF_WAR        291
 #define ART_STONE_OF_ARMAGEDDON 297
+#define ART_STONE_OF_MIND       328
 
 #define ART_HOLY_GRAIL      293
 
@@ -1951,118 +1870,11 @@ enum _mimic_types {
 #define SV_LITE_WAR                     20
 #define SV_LITE_ARMAGEDDON              21
 #define SV_LITE_HYDRA                   22
+#define SV_LITE_MIND                    23
 
 #define SV_AMULT                         0
 #define SV_RING                          0
 #define SV_EXPRESS_CARD                  0
-
-/* The "sval" codes for TV_STAFF */
-#define SV_STAFF_DARKNESS                0
-#define SV_STAFF_SLOWNESS                1
-#define SV_STAFF_HASTE_MONSTERS          2
-#define SV_STAFF_SUMMONING               3
-#define SV_STAFF_TELEPORTATION           4
-#define SV_STAFF_IDENTIFY                5
-#define SV_STAFF_REMOVE_CURSE            6
-#define SV_STAFF_STARLITE                7
-#define SV_STAFF_LITE                    8
-#define SV_STAFF_MAPPING                 9
-#define SV_STAFF_DETECT_GOLD            10
-#define SV_STAFF_DETECT_ITEM            11
-#define SV_STAFF_DETECT_TRAP            12
-#define SV_STAFF_DETECT_DOOR            13
-#define SV_STAFF_DETECT_INVIS           14
-#define SV_STAFF_DETECT_EVIL            15
-#define SV_STAFF_CURE_LIGHT             16
-#define SV_STAFF_CURING                 17
-#define SV_STAFF_HEALING                18
-#define SV_STAFF_THE_MAGI               19
-#define SV_STAFF_SLEEP_MONSTERS         20
-#define SV_STAFF_SLOW_MONSTERS          21
-#define SV_STAFF_SPEED                  22
-#define SV_STAFF_PROBING                23
-#define SV_STAFF_DISPEL_EVIL            24
-#define SV_STAFF_POWER                  25
-#define SV_STAFF_HOLINESS               26
-#define SV_STAFF_GENOCIDE               27
-#define SV_STAFF_EARTHQUAKES            28
-#define SV_STAFF_DESTRUCTION            29
-#define SV_STAFF_ANIMATE_DEAD           30
-#define SV_STAFF_MSTORM                 31
-#define SV_STAFF_NOTHING                32
-
-
-/* The "sval" codes for TV_WAND */
-#define SV_WAND_HEAL_MONSTER             0
-#define SV_WAND_HASTE_MONSTER            1
-#define SV_WAND_CLONE_MONSTER            2
-#define SV_WAND_TELEPORT_AWAY            3
-#define SV_WAND_DISARMING                4
-#define SV_WAND_TRAP_DOOR_DEST           5
-#define SV_WAND_STONE_TO_MUD             6
-#define SV_WAND_LITE                     7
-#define SV_WAND_SLEEP_MONSTER            8
-#define SV_WAND_SLOW_MONSTER             9
-#define SV_WAND_CONFUSE_MONSTER         10
-#define SV_WAND_FEAR_MONSTER            11
-#define SV_WAND_DRAIN_LIFE              12
-#define SV_WAND_POLYMORPH               13
-#define SV_WAND_STINKING_CLOUD          14
-#define SV_WAND_MAGIC_MISSILE           15
-#define SV_WAND_ACID_BOLT               16
-#define SV_WAND_CHARM_MONSTER           17
-#define SV_WAND_FIRE_BOLT               18
-#define SV_WAND_COLD_BOLT               19
-#define SV_WAND_ACID_BALL               20
-#define SV_WAND_ELEC_BALL               21
-#define SV_WAND_FIRE_BALL               22
-#define SV_WAND_COLD_BALL               23
-#define SV_WAND_WONDER                  24
-#define SV_WAND_DISINTEGRATE            25
-#define SV_WAND_DRAGON_FIRE             26
-#define SV_WAND_DRAGON_COLD             27
-#define SV_WAND_DRAGON_BREATH           28
-#define SV_WAND_ROCKETS                 29
-#define SV_WAND_STRIKING                30
-#define SV_WAND_GENOCIDE                31
-
-/* The "sval" codes for TV_ROD */
-#define SV_ROD_DETECT_TRAP               0
-#define SV_ROD_DETECT_DOOR               1
-#define SV_ROD_IDENTIFY                  2
-#define SV_ROD_RECALL                    3
-#define SV_ROD_ILLUMINATION              4
-#define SV_ROD_MAPPING                   5
-#define SV_ROD_DETECTION                 6
-#define SV_ROD_PROBING                   7
-#define SV_ROD_CURING                    8
-#define SV_ROD_HEALING                   9
-#define SV_ROD_RESTORATION              10
-#define SV_ROD_SPEED                    11
-#define SV_ROD_PESTICIDE                12
-#define SV_ROD_TELEPORT_AWAY            13
-#define SV_ROD_DISARMING                14
-#define SV_ROD_LITE                     15
-#define SV_ROD_SLEEP_MONSTER            16
-#define SV_ROD_SLOW_MONSTER             17
-#define SV_ROD_DRAIN_LIFE               18
-#define SV_ROD_POLYMORPH                19
-#define SV_ROD_ACID_BOLT                20
-#define SV_ROD_ELEC_BOLT                21
-#define SV_ROD_FIRE_BOLT                22
-#define SV_ROD_COLD_BOLT                23
-#define SV_ROD_ACID_BALL                24
-#define SV_ROD_ELEC_BALL                25
-#define SV_ROD_FIRE_BALL                26
-#define SV_ROD_COLD_BALL                27
-#define SV_ROD_HAVOC                    28
-#define SV_ROD_STONE_TO_MUD             29
-#define SV_ROD_AGGRAVATE                30
-#define SV_ROD_DETECT_MONSTERS          31
-#define SV_ROD_ESCAPING                 32
-#define SV_ROD_MANA_BALL                33
-#define SV_ROD_MANA_BOLT                34
-
 
 /* The "sval" codes for TV_SCROLL */
 #define SV_SCROLL_DARKNESS               0
@@ -2295,7 +2107,6 @@ enum _mimic_types {
 #define CAVE_MASK (CAVE_FLOOR | CAVE_EXTRA | CAVE_INNER | CAVE_OUTER | CAVE_SOLID | CAVE_VAULT)
 
 /* Used only after cave generation */
-#define CAVE_DETECT_EDGE 0x0200
 #define CAVE_NOTE       0x0400    /* Flag for delayed visual update (needs note_spot()) */
 #define CAVE_REDRAW     0x0800    /* Flag for delayed visual update (needs lite_spot()) */
 #define CAVE_OBJECT     0x1000    /* Mirror, glyph, etc. */
@@ -2341,11 +2152,13 @@ enum _mimic_types {
 #define PROJECT_FAST        0x4000
 #define PROJECT_LOS         0x8000
 #define PROJECT_FULL_DAM    0x10000
+#define PROJECT_NO_PAIN     0x20000  /* Omit the pain messages. Note: Mon vs Mon melee is implemented with project()! */
 
 
 /*
  * Special caster ID for project()
  */
+#define PROJECT_WHO_PLAYER        0
 #define PROJECT_WHO_UNCTRL_POWER -1
 #define PROJECT_WHO_GLASS_SHARDS -2
 
@@ -2476,35 +2289,24 @@ enum _mimic_types {
 /*
  * Bit flags for the "p_ptr->redraw" variable
  */
-#define PR_MISC         0x00000001     /* Display Race/Class */
-#define PR_TITLE        0x00000002     /* Display Title */
-#define PR_LEV          0x00000004     /* Display Level */
-#define PR_EXP          0x00000008     /* Display Experience */
-#define PR_STATS        0x00000010     /* Display Stats */
-#define PR_ARMOR        0x00000020     /* Display Armor */
-#define PR_HP           0x00000040     /* Display Hitpoints */
-#define PR_MANA         0x00000080     /* Display Mana */
-#define PR_GOLD         0x00000100     /* Display Gold */
-#define PR_DEPTH        0x00000200     /* Display Depth */
-#define PR_EQUIPPY      0x00000400     /* Display equippy chars */
-#define PR_HEALTH       0x00000800     /* Display Health Bar */
-#define PR_CUT          0x00001000     /* Display Extra (Cut) */
-#define PR_STUN         0x00002000     /* Display Extra (Stun) */
-#define PR_HUNGER       0x00004000     /* Display Extra (Hunger) */
-#define PR_STATUS       0x00008000     /* Display Status Bar */
-#define PR_XXX0         0x00010000     
-#define PR_UHEALTH      0x00020000     /* Display Uma Health Bar */
-#define PR_XXX1         0x00040000     /* (unused) */
-#define PR_XXX2         0x00080000     /* (unused) */
-#define PR_STATE        0x00100000     /* Display Extra (State) */
-#define PR_SPEED        0x00200000     /* Display Extra (Speed) */
-#define PR_STUDY        0x00400000     /* Display Extra (Study) */
-#define PR_IMITATION    0x00800000     /* Display Extra (Imitation) */
-#define PR_EXTRA        0x01000000     /* Display Extra Info */
-#define PR_BASIC        0x02000000     /* Display Basic Info */
-#define PR_MAP          0x04000000     /* Display Map */
-#define PR_WIPE         0x08000000     /* Hack -- Total Redraw */
-#define PR_FEAR         0x10000000
+#define PR_LEV              0x00000001     /* Display Level */
+#define PR_EXP              0x00000002     /* Display Experience */
+#define PR_STATS            0x00000004     /* Display Stats */
+#define PR_ARMOR            0x00000008     /* Display Armor */
+#define PR_HP               0x00000010     /* Display Hitpoints */
+#define PR_MANA             0x00000020     /* Display Mana */
+#define PR_GOLD             0x00000040     /* Display Gold */
+#define PR_DEPTH            0x00000080     /* Display Depth */
+#define PR_EQUIPPY          0x00000100     /* Display equippy chars */
+#define PR_EFFECTS          0x00000200     /* Display Extra (Cut) */
+#define PR_STATUS           0x00000400     /* Display Status Bar */
+#define PR_HEALTH_BARS      0x00000800
+#define PR_STATE            0x00001000     /* Display Extra (State) */
+#define PR_EXTRA            0x00002000     /* Display Extra Info */
+#define PR_BASIC            0x00004000     /* Display Basic Info */
+#define PR_MAP              0x00008000     /* Display Map */
+#define PR_WIPE             0x00010000     /* Hack -- Total Redraw */
+#define PR_MSG_LINE         0x00020000
 
 /* xxx */
 /* xxx */
@@ -2517,9 +2319,9 @@ enum _mimic_types {
 #define PW_INVEN        0x00000001     /* Display inven/equip */
 #define PW_EQUIP        0x00000002     /* Display equip/inven */
 #define PW_SPELL        0x00000004     /* Display spell list */
-#define PW_PLAYER       0x00000008     /* Display character */
-/* xxx */
-/* xxx */
+#define PW_XXX          0x00000008
+#define PW_OBJECT_LIST  0x00000010     /* Display object list */
+#define PW_MONSTER_LIST 0x00000020     /* Display monster list */
 #define PW_MESSAGE      0x00000040     /* Display messages */
 #define PW_OVERHEAD     0x00000080     /* Display overhead view */
 #define PW_MONSTER      0x00000100     /* Display monster recall */
@@ -2575,6 +2377,7 @@ enum _mimic_types {
 #define OD_NO_FLAVOR        0x00000040  /* Allow to hidden flavor */
 #define OD_FORCE_FLAVOR     0x00000080  /* Get un-shuffled flavor name */
 #define OD_NAME_AND_DICE    0x00000100
+#define OD_COLOR_CODED      0x00000200  /* For msg_print only */
 
 
 /*
@@ -2859,8 +2662,9 @@ enum summon_specific_e {
 #define GF_CHARM_RING_BEARER  143
 #define GF_SUBJUGATION 144
 #define GF_PARALYSIS 145
+#define GF_CONTROL_PACT_MONSTER  146
 
-#define MAX_GF                145
+#define MAX_GF                147
 
 /*
  * Some things which induce learning
@@ -2969,10 +2773,8 @@ enum summon_specific_e {
 #define IDENT_EMPTY     0x04    /* Item charges are known */
 #define IDENT_KNOWN     0x08    /* Item abilities are known */
 #define IDENT_STORE     0x10    /* Item is storebought !!!! */
-#define IDENT_MENTAL    0x20    /* Item information is known */
-#if 0
-#define IDENT_CURSED    0x40    /* Item is temporarily cursed */
-#endif
+#define IDENT_FULL      0x20    /* Item information is known */
+#define IDENT_TRIED     0x40    /* Device has been tried, but still unknown */
 #define IDENT_BROKEN    0x80    /* Item is permanently worthless */
 
 
@@ -2982,16 +2784,17 @@ enum summon_specific_e {
  * OM_NOMSG --- temporary flag to suppress messages which were
  *              already printed in autopick_pickup_items().
  */
-#define OM_FOUND        0x0001    /* original boolean flag */
-#define OM_NOMSG        0x0002    /* temporary flag to suppress messages */
-#define OM_NO_QUERY     0x0004    /* Query for auto-pick was already answered as 'No' */
-#define OM_AUTODESTROY  0x0008    /* Destroy later to avoid illegal inventry shift */
-#define OM_TOUCHED      0x0010    /* Object was touched by player */
-#define OM_RESERVED     0x0020    /* Object reserved in the shop */
-#define OM_WORN         0x0040    /* Object was previously being worn but is possibly no longer a legal piece of equipment (Mimics) */
-#define OM_COUNTED      0x0080    /* Stats */
-#define OM_EGO_COUNTED  0x0100    /* Stats */
-#define OM_ART_COUNTED  0x0200    /* Stats */
+#define OM_FOUND           0x0001    /* original boolean flag */
+#define OM_NOMSG           0x0002    /* temporary flag to suppress messages */
+#define OM_NO_QUERY        0x0004    /* Query for auto-pick was already answered as 'No' */
+#define OM_AUTODESTROY     0x0008    /* Destroy later to avoid illegal inventry shift */
+#define OM_TOUCHED         0x0010    /* Object was touched by player */
+#define OM_RESERVED        0x0020    /* Object reserved in the shop */
+#define OM_WORN            0x0040    /* Object was previously being worn but is possibly no longer a legal piece of equipment (Mimics) */
+#define OM_COUNTED         0x0080    /* Stats */
+#define OM_EGO_COUNTED     0x0100    /* Stats */
+#define OM_ART_COUNTED     0x0200    /* Stats */
+#define OM_EFFECT_COUNTED  0x0400    /* Stats */
 
 
 /*
@@ -3051,6 +2854,7 @@ enum summon_specific_e {
 #define add_flag(ARRAY, INDEX) ((ARRAY)[(INDEX)/32] |= (1L << ((INDEX)%32)))
 #define remove_flag(ARRAY, INDEX) ((ARRAY)[(INDEX)/32] &= ~(1L << ((INDEX)%32)))
 
+#define TR_INVALID            -1
 #define TR_STR                 0
 #define TR_INT                 1
 #define TR_WIS                 2
@@ -3218,8 +3022,15 @@ enum summon_specific_e {
 
 #define TR_STUN                160
 #define TR_DEVICE_POWER        161
+#define TR_IM_POIS             162
+#define TR_IM_LITE             163
+#define TR_IM_DARK             164
+#define TR_IM_NETHER           165
+#define TR_IM_FEAR             166
+#define TR_DEC_BLOWS           167
+#define TR_IM_BLIND            168
 
-#define TR_FLAG_MAX            162
+#define TR_FLAG_MAX            169
 /*#define TR_LAST_FLAG!!!!     191  (6 * 32 - 1)*/
 #define TR_FLAG_SIZE           6  
 
@@ -3239,7 +3050,7 @@ enum summon_specific_e {
 #define TRG_RANDOM_CURSE0       0x00002000     /* Item is Random Cursed */
 #define TRG_RANDOM_CURSE1       0x00004000     /* Item is Random Cursed */
 #define TRG_RANDOM_CURSE2       0x00008000     /* Item is Random Cursed */
-#define TRG_XXX                 0x00010000
+#define TRG_AWARE               0x00010000
 #define TRG_TOWN                0x00020000     /* Item is allowed to be stocked in town */
 
 
@@ -3266,9 +3077,8 @@ enum summon_specific_e {
 #define TRC_FAST_DIGEST         0x00040000
 #define TRC_DRAIN_HP            0x00080000
 #define TRC_DRAIN_MANA          0x00100000
-
-#define TRC_TELEPORT_SELF       0x00000001
-#define TRC_CHAINSWORD          0x00000002
+#define TRC_TELEPORT_SELF       0x00200000
+#define TRC_CHAINSWORD          0x00400000
 
 #define TRC_SPECIAL_MASK \
     (TRC_TY_CURSE | TRC_AGGRAVATE)
@@ -3297,6 +3107,8 @@ enum summon_specific_e {
 #define AM_AVERAGE      0x00000040
 #define AM_TAILORED     0x00000080 /* For player monster races to force a wearable item */
 #define AM_FORCE_EGO    0x00000100
+#define AM_STOCK_TOWN   0x00000200
+#define AM_STOCK_BM     0x00000400
 
 
 /*** Monster blow constants ***/
@@ -3441,7 +3253,7 @@ enum summon_specific_e {
 #define RF2_AURA_FEAR       0x04000000
 #define RF2_CAMELOT         0x08000000
 #define RF2_KNIGHT          0x10000000
-#define RF2_XXX6            0x20000000
+#define RF2_SOUTHERING      0x20000000
 #define RF2_HUMAN           0x40000000  /* Human */
 #define RF2_QUANTUM         0x80000000  /* Monster has quantum behavior */
 
@@ -3985,19 +3797,6 @@ enum summon_specific_e {
 
 
 /*
- * Determine if a given inventory item is "aware"
- */
-#define object_is_aware(T) \
-    (k_info[(T)->k_idx].aware)
-
-/*
- * Determine if a given inventory item is "tried"
- */
-#define object_is_tried(T) \
-    (k_info[(T)->k_idx].tried)
-
-
-/*
  * Determine if a given inventory item is "known"
  * Test One -- Check for special "known" tag
  * Test Two -- Check for "Easy Know" + "Aware"
@@ -4111,9 +3910,7 @@ enum summon_specific_e {
  * Note that "panel_contains(Y,X)" always implies "in_bounds2(Y,X)".
  */
 #define panel_contains(Y,X) \
-  (((Y) >= panel_row_min) && ((Y) <= panel_row_max) && \
-   ((X) >= panel_col_min) && ((X) <= panel_col_max))
-
+    (cave_xy_is_visible((X), (Y)))
 
 /*
  * Determine if player is on this grid
@@ -4518,6 +4315,7 @@ extern int PlayerUID;
 #define BACT_GAMBLE_SHOP_ARTIFACT   54
 #define BACT_REPUTATION             55
 #define BACT_REFORGE_ARTIFACT       56
+#define BACT_CHANGE_NAME            57
 
 /*
  * Quest status
@@ -5408,6 +5206,8 @@ extern int PlayerUID;
 #define DRACONIAN_STRIKE_VORPAL 83
 #define DRACONIAN_STRIKE_VAMP 84
 
+#define WEAPONMASTER_FLURRY  85
+
 #define HISSATSU_IAI    100
 
 /*
@@ -5492,6 +5292,7 @@ extern int PlayerUID;
 #define DUNGEON_DARKNESS 19
 #define DUNGEON_OLYMPUS  22
 #define DUNGEON_ARENA    25
+#define DUNGEON_STRONGHOLD 30
 
 
 #define DUNGEON_FEAT_PROB_NUM 3
@@ -5556,10 +5357,11 @@ enum object_save_fields_e {
     SAVE_ITEM_XTRA2,
     SAVE_ITEM_XTRA3,
     SAVE_ITEM_XTRA4,
-    SAVE_ITEM_XTRA5,
+    SAVE_ITEM_XTRA5_OLD,
     SAVE_ITEM_ACTIVATION,
     SAVE_ITEM_MULT,
     SAVE_ITEM_MARKED,
+    SAVE_ITEM_XTRA5
 };
 
 /*
@@ -5622,7 +5424,7 @@ enum mon_save_fields_e {
 #define IS_WRAITH() (p_ptr->wraith_form || wild_has_power(WILD_WRAITH))
 
 /* Multishadow effects is determined by turn */
-#define CHECK_MULTISHADOW() (p_ptr->multishadow && (turn & 1))
+#define CHECK_MULTISHADOW() (p_ptr->multishadow && (game_turn & 1))
 
 /* Is "teleport level" ineffective to this target? */
 #define TELE_LEVEL_IS_INEFF(TARGET) \
@@ -5696,11 +5498,6 @@ enum mon_save_fields_e {
  */
 #define SCROBJ_FAKE_OBJECT  0x00000001
 #define SCROBJ_FORCE_DETAIL 0x00000002
-
-/*
- * For travel command (auto run)
- */
-#define TRAVEL
 
 /* Sniper */
 #define SP_NONE          0
@@ -5847,10 +5644,6 @@ enum mon_save_fields_e {
 #define TOGGLE_PIERCING_STRIKE        18
 #define TOGGLE_TRIP                    19
 
-/* Staffmaster */
-#define TOGGLE_FLURRY_OF_BLOWS        20
-#define TOGGLE_GREATER_FLURRY        21
-
 /* Pickmaster */
 #define TOGGLE_STRENGTH_OF_THE_UNDERTAKER    22
 #define TOGGLE_STOICISM                        23
@@ -5886,6 +5679,12 @@ enum mon_save_fields_e {
 #define MYSTIC_TOGGLE_DEFENSE    43
 
 #define LEPRECHAUN_TOGGLE_BLINK  44
+
+#define WARLOCK_DRAGON_TOGGLE_BLESS 45
+#define WARLOCK_DRAGON_TOGGLE_CANTER 46
+#define WARLOCK_DRAGON_TOGGLE_GALLOP 47
+#define WARLOCK_DRAGON_TOGGLE_HEALING 48
+#define WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE 49
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1
@@ -5954,6 +5753,7 @@ enum ego_e {
     EGO_TYPE_HARP,
     EGO_TYPE_ROBE,
     EGO_TYPE_SPECIAL,
+    EGO_TYPE_DEVICE,
     EGO_TYPE_MAX
 };
 
@@ -6167,7 +5967,7 @@ enum ego_ring_e {
     EGO_RING_WIZARDRY,
     EGO_RING_SPEED,
     EGO_RING_NAZGUL,
-    EGO_RING_DWARVES,
+    EGO_RING_DWARVES = 308,
 };
 
 enum ego_amulet_e {
@@ -6180,7 +5980,17 @@ enum ego_amulet_e {
     EGO_AMULET_MAGI,
     EGO_AMULET_HERO,
     EGO_AMULET_DEVOTION,
-    EGO_AMULET_TRICKERY,
+    EGO_AMULET_TRICKERY = 329,
+};
+
+enum ego_device_e {
+    EGO_DEVICE_RESISTANCE = 350,
+    EGO_DEVICE_CAPACITY,
+    EGO_DEVICE_REGENERATION,
+    EGO_DEVICE_SIMPLICITY,
+    EGO_DEVICE_POWER,
+    EGO_DEVICE_HOLDING,
+    EGO_DEVICE_QUICKNESS = 356,
 };
 
 enum effect_e
@@ -6197,6 +6007,10 @@ enum effect_e
     EFFECT_DETECT_MONSTERS,
     EFFECT_DETECT_OBJECTS,
     EFFECT_DETECT_ALL,
+    EFFECT_DETECT_GOLD,
+    EFFECT_DETECT_INVISIBLE = 10,
+    EFFECT_DETECT_DOOR_STAIRS,
+    EFFECT_DETECT_EVIL,
 
     /* Utility */
     EFFECT_PHASE_DOOR = 50,
@@ -6210,10 +6024,10 @@ enum effect_e
     EFFECT_STONE_TO_MUD,
     EFFECT_EARTHQUAKE,
     EFFECT_DESTRUCTION,
-    EFFECT_GENOCIDE,
+    EFFECT_GENOCIDE,         /*60*/
     EFFECT_MASS_GENOCIDE,
 
-    EFFECT_RECHARGING,
+    EFFECT_RECHARGE_FROM_DEVICE,
     EFFECT_ENCHANTMENT,
     EFFECT_IDENTIFY,
     EFFECT_IDENTIFY_FULL,
@@ -6222,7 +6036,7 @@ enum effect_e
     EFFECT_RUNE_PROTECTION,
 
     EFFECT_SATISFY_HUNGER,
-    EFFECT_DESTROY_TRAP,
+    EFFECT_DESTROY_TRAP,    /*70*/
     EFFECT_DESTROY_TRAPS,
     EFFECT_WHIRLWIND_ATTACK,
     EFFECT_LIST_UNIQUES,
@@ -6232,6 +6046,9 @@ enum effect_e
     EFFECT_TELEKINESIS,
     EFFECT_ALCHEMY,
     EFFECT_SELF_KNOWLEDGE,
+
+    EFFECT_GENOCIDE_ONE,   /*80*/
+    EFFECT_RECHARGE_FROM_PLAYER,
 
     /* Timed Buffs */
     EFFECT_STONE_SKIN = 100,
@@ -6275,6 +6092,7 @@ enum effect_e
     EFFECT_CHARM_ANIMAL = 175,
     EFFECT_CHARM_DEMON,
     EFFECT_CHARM_UNDEAD,
+    EFFECT_CHARM_MONSTER,
 
     EFFECT_RETURN_PETS = 190,
     EFFECT_CAPTURE_PET,
@@ -6294,6 +6112,7 @@ enum effect_e
     EFFECT_REMOVE_CURSE,
     EFFECT_REMOVE_ALL_CURSE,
     EFFECT_CLARITY,
+    EFFECT_GREAT_CLARITY,
 
     /* Offense: Bolts */
     EFFECT_BOLT_MISSILE = 300,
@@ -6306,7 +6125,7 @@ enum effect_e
     EFFECT_BOLT_DARK,
     EFFECT_BOLT_CONF,
     EFFECT_BOLT_NETHER,
-    EFFECT_BOLT_NEXUS,
+    EFFECT_BOLT_NEXUS = 310,
     EFFECT_BOLT_SOUND,
     EFFECT_BOLT_SHARDS,
     EFFECT_BOLT_CHAOS,
@@ -6314,10 +6133,20 @@ enum effect_e
     EFFECT_BOLT_TIME,
     EFFECT_BOLT_WATER,
     EFFECT_BOLT_MANA,
+    EFFECT_BOLT_ICE,
+    EFFECT_BOLT_PLASMA = 319,
 
     /* Offense: Beams */
     EFFECT_BEAM_LITE_WEAK = 350,
     EFFECT_BEAM_LITE,
+    EFFECT_BEAM_GRAVITY,
+    EFFECT_BEAM_DISINTEGRATE,
+    EFFECT_BEAM_ACID,
+    EFFECT_BEAM_ELEC,
+    EFFECT_BEAM_FIRE,
+    EFFECT_BEAM_COLD,
+    EFFECT_BEAM_SOUND,
+    EFFECT_BEAM_CHAOS = 359,
 
     /* Offense: Balls */
     EFFECT_BALL_ACID = 400,
@@ -6330,13 +6159,14 @@ enum effect_e
     EFFECT_BALL_CONF,
     EFFECT_BALL_NETHER,
     EFFECT_BALL_NEXUS,
-    EFFECT_BALL_SOUND,
+    EFFECT_BALL_SOUND = 410,
     EFFECT_BALL_SHARDS,
     EFFECT_BALL_CHAOS,
     EFFECT_BALL_DISEN,
     EFFECT_BALL_TIME,
     EFFECT_BALL_WATER,
     EFFECT_BALL_MANA,
+    EFFECT_BALL_DISINTEGRATE,
 
     /* Offense: Breaths */
     EFFECT_BREATHE_ACID = 450,
@@ -6372,23 +6202,48 @@ enum effect_e
     EFFECT_DRAIN_LIFE,
     EFFECT_STAR_BALL,
     EFFECT_ROCKET,
-    EFFECT_MANA_STORM,
+    EFFECT_MANA_STORM = 560,    /* Centered on player. cf EFFECT_BALL_MANA */
     EFFECT_CONFUSING_LITE,
     EFFECT_ARROW,
     EFFECT_WRATH_OF_GOD,
+    EFFECT_METEOR,
+    EFFECT_HOLINESS,
+    EFFECT_STARBURST,      /* Centered on player. cf EFFECT_BALL_LITE */
+    EFFECT_DARKNESS_STORM, /* Centered on player. cf EFFECT_BALL_DARK */
+    EFFECT_PESTICIDE,
 
     /* Misc */
     EFFECT_POLY_SELF = 600,
     EFFECT_ANIMATE_DEAD,
+
+    EFFECT_SCARE_MONSTER,
     EFFECT_SCARE_MONSTERS,
+    EFFECT_SLEEP_MONSTER,
     EFFECT_SLEEP_MONSTERS,
+    EFFECT_SLOW_MONSTER,
     EFFECT_SLOW_MONSTERS,
     EFFECT_STASIS_MONSTERS,
+    EFFECT_CONFUSE_MONSTER,
     EFFECT_CONFUSE_MONSTERS,
+
     EFFECT_FISHING,
-    EFFECT_AGGRAVATE,
     EFFECT_PIERCING_SHOT,
     EFFECT_CHARGE,
+    EFFECT_WALL_BUILDING,
+    EFFECT_POLYMORPH,
+    EFFECT_STARLITE,
+    EFFECT_NOTHING,      /* Food for undead players */
+
+    /* Bad Effects */
+    EFFECT_AGGRAVATE = 900,
+    EFFECT_HEAL_MONSTER,
+    EFFECT_HASTE_MONSTER,
+    EFFECT_HASTE_MONSTERS,
+    EFFECT_CLONE_MONSTER,
+    EFFECT_DARKNESS,
+    EFFECT_SUMMON_ANGRY_MONSTERS,
+    EFFECT_SLOWNESS,
+
 
     /* Specific Artifacts ... Try to minimize! */
     EFFECT_JEWEL = 1000,

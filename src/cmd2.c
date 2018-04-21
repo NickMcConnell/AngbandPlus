@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Movement commands (part 2) */
@@ -402,8 +402,8 @@ static s16b chest_check(int y, int x)
  * Disperse treasures from the given chest, centered at (x,y).
  *
  * Small chests often contain "gold", while Large chests always contain
- * items.  Wooden chests contain 2 items, Iron chests contain 4 items,
- * and Steel chests contain 6 items.  The "value" of the items in a
+ * items. Wooden chests contain 2 items, Iron chests contain 4 items,
+ * and Steel chests contain 6 items. The "value" of the items in a
  * chest is based on the "power" of the chest, which is in turn based
  * on the level on which the chest is generated.
  */
@@ -2488,7 +2488,7 @@ void do_cmd_run(void)
 
 
 /*
- * Stay still.  Search.  Enter stores.
+ * Stay still. Search. Enter stores.
  * Pick up treasure if "pickup" is true.
  */
 void do_cmd_stay(bool pickup)
@@ -2535,10 +2535,12 @@ void do_cmd_rest(void)
     /* Hex */
     if (hex_spelling_any()) stop_hex_spell_all();
 
+    warlock_stop_singing();
+
     /* Prompt for time if needed */
     if (command_arg <= 0)
     {
-        cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
+        cptr p = "<color:y>Rest</color> (0-9999, '*' for HP/SP, '&' as needed): ";
 
 
         char out_val[80];
@@ -2546,8 +2548,9 @@ void do_cmd_rest(void)
         /* Default */
         strcpy(out_val, "&");
 
-        /* Ask for duration */
-        if (!get_string(p, out_val, 4)) return;
+        /* Ask for duration
+        if (!get_string(p, out_val, 4)) return;*/
+        if (!msg_input(p, out_val, 4)) return;
 
         /* Rest until done */
         if (out_val[0] == '&')
@@ -2621,9 +2624,11 @@ void do_cmd_rest(void)
         !p_ptr->stun && !p_ptr->cut &&
         !p_ptr->slow && !p_ptr->paralyzed &&
         !p_ptr->image && !p_ptr->word_recall &&
-        !p_ptr->alter_reality)
-            virtue_add(VIRTUE_DILIGENCE, -1);
-
+        !p_ptr->alter_reality &&
+        !magic_eater_can_regen())
+    {
+        virtue_add(VIRTUE_DILIGENCE, -1);
+    }
     /* Save the rest code */
     resting = command_arg;
     p_ptr->action = ACTION_REST;
@@ -3117,7 +3122,6 @@ bool do_cmd_fire_aux1(int item, object_type *bow)
     {
         if (target_set(TARGET_DISI))
         {
-            msg_flag = FALSE; /* Bug ... we get an extra -more- prompt after target_set() ... */
             if (target_who > 0)
             {
                 tx = m_list[target_who].fx;
@@ -3282,8 +3286,8 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 
         bonus -= 20;
         /* In this mode, whenever the player fires, all of their shots go
-           at a single target in rapid succession.  Full energy is consumed, and
-           the player gets a slight bonus to the number of shots.  Think of
+           at a single target in rapid succession. Full energy is consumed, and
+           the player gets a slight bonus to the number of shots. Think of
            a rapid fire machine gun :) */
         no_energy = TRUE;
         energy_use = 100;
@@ -3345,7 +3349,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
         {
             if (inventory[item].tval != p_ptr->shooter_info.tval_ammo)
             {
-                msg_print("Your ammo has run out.  Time to reload!");
+                msg_print("Your ammo has run out. Time to reload!");
                 break;
             }
         }
@@ -3956,7 +3960,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
             o_ptr = &o_list[o_idx];
             object_copy(o_ptr, q_ptr);
 
-            o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
+            o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EFFECT_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
             o_ptr->iy = o_ptr->ix = 0;
             o_ptr->held_m_idx = m_idx;
             o_ptr->next_o_idx = m_ptr->hold_o_idx;
@@ -4648,7 +4652,6 @@ void do_cmd_throw(void)
 }
 
 
-#ifdef TRAVEL
 /*
  * Hack: travel command
  */
@@ -4756,13 +4759,22 @@ static void travel_flow(int ty, int tx)
     flow_head = flow_tail = 0;
 }
 
-void do_cmd_travel(void)
+void do_cmd_travel_xy(int x, int y)
 {
-    int x, y, i;
+    int i;
     int dx, dy, sx, sy;
     feature_type *f_ptr;
 
-    if (!tgt_pt(&x, &y, -1)) return;
+    travel.run = 0;
+
+    /* Bug with wilderness scrolling yet to be located ... */
+    if (!in_bounds2(y, x))
+    {
+        forget_travel_flow();
+        travel.y = py;
+        travel.x = px;
+        return;
+    }
 
     if ((x == px) && (y == py))
     {
@@ -4804,4 +4816,10 @@ void do_cmd_travel(void)
         if ((sx == ddx[i]) && (sy == ddy[i])) travel.dir = i;
     }
 }
-#endif
+
+void do_cmd_travel(void)
+{
+    int x, y;
+    if (!tgt_pt(&x, &y, -1)) return;
+    do_cmd_travel_xy(x, y);
+}

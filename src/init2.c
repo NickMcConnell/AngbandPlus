@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Initialization (part 2) -BEN- */
@@ -13,6 +13,7 @@
 #include "angband.h"
 
 #include "init.h"
+#include "z-doc.h"
 
 #ifndef MACINTOSH
 //#ifdef CHECK_MODIFICATION_TIME
@@ -23,7 +24,7 @@
 
 /*
  * This file is used to initialize various variables and arrays for the
- * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
+ * Angband game. Note the use of "fd_read()" and "fd_write()" to bypass
  * the common limitation of "read()" and "write()" to only 32767 bytes
  * at a time.
  *
@@ -33,14 +34,14 @@
  * directory, or if those files become obsolete, if we are allowed.
  *
  * Warning -- the "ascii" file parsers use a minor hack to collect the
- * name and text information in a single pass.  Thus, the game will not
+ * name and text information in a single pass. Thus, the game will not
  * be able to load any template file with more than 20K of names or 60K
  * of text, even though technically, up to 64K should be legal.
  *
  * The "init1.c" file is used only to parse the ascii template files,
- * to create the binary image files.  If you include the binary image
+ * to create the binary image files. If you include the binary image
  * files instead of the ascii template files, then you can undefine
- * "ALLOW_TEMPLATES", saving about 20K by removing "init1.c".  Note
+ * "ALLOW_TEMPLATES", saving about 20K by removing "init1.c". Note
  * that the binary image files are extremely system dependant.
  */
 
@@ -56,7 +57,7 @@
  *
  * This function takes a writable buffer, initially containing the
  * "path" to the "lib" directory, for example, "/pkg/lib/angband/",
- * or a system dependant string, for example, ":lib:".  The buffer
+ * or a system dependant string, for example, ":lib:". The buffer
  * must be large enough to contain at least 32 more characters.
  *
  * Various command line options may allow some of the important
@@ -65,7 +66,7 @@
  * but this is done after this function, see "main.c".
  *
  * In general, the initial path should end in the appropriate "PATH_SEP"
- * string.  All of the "sub-directory" paths (created below or supplied
+ * string. All of the "sub-directory" paths (created below or supplied
  * by the user) will NOT end in the "PATH_SEP" string, see the special
  * "path_build()" function in "util.c" for more information.
  *
@@ -75,7 +76,7 @@
  *
  * Hack -- first we free all the strings, since this is known
  * to succeed even if the strings have not been allocated yet,
- * as long as the variables start out as "NULL".  This allows
+ * as long as the variables start out as "NULL". This allows
  * this function to be called multiple times, for example, to
  * try several base "path" values until a good one is found.
  */
@@ -92,26 +93,26 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     /*** Free everything ***/
 
     /* Free the main path */
-    string_free(ANGBAND_DIR);
+    z_string_free(ANGBAND_DIR);
 
     /* Free the sub-paths */
-    string_free(ANGBAND_DIR_APEX);
-    string_free(ANGBAND_DIR_BONE);
-    string_free(ANGBAND_DIR_DATA);
-    string_free(ANGBAND_DIR_EDIT);
-    string_free(ANGBAND_DIR_SCRIPT);
-    string_free(ANGBAND_DIR_FILE);
-    string_free(ANGBAND_DIR_HELP);
-    string_free(ANGBAND_DIR_INFO);
-    string_free(ANGBAND_DIR_SAVE);
-    string_free(ANGBAND_DIR_USER);
-    string_free(ANGBAND_DIR_XTRA);
+    z_string_free(ANGBAND_DIR_APEX);
+    z_string_free(ANGBAND_DIR_BONE);
+    z_string_free(ANGBAND_DIR_DATA);
+    z_string_free(ANGBAND_DIR_EDIT);
+    z_string_free(ANGBAND_DIR_SCRIPT);
+    z_string_free(ANGBAND_DIR_FILE);
+    z_string_free(ANGBAND_DIR_HELP);
+    z_string_free(ANGBAND_DIR_INFO);
+    z_string_free(ANGBAND_DIR_SAVE);
+    z_string_free(ANGBAND_DIR_USER);
+    z_string_free(ANGBAND_DIR_XTRA);
 
 
     /*** Prepare the "path" ***/
 
     /* Hack -- save the main directory */
-    ANGBAND_DIR = string_make(libpath);
+    ANGBAND_DIR = z_string_make(libpath);
 
 #ifdef NeXT  
     /* Prepare to append to the Base Path */
@@ -124,29 +125,29 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     /*** Use "flat" paths with VM/ESA ***/
 
     /* Use "blank" path names */
-    ANGBAND_DIR_APEX = string_make("");
-    ANGBAND_DIR_BONE = string_make("");
-    ANGBAND_DIR_DATA = string_make("");
-    ANGBAND_DIR_EDIT = string_make("");
-    ANGBAND_DIR_SCRIPT = string_make("");
-    ANGBAND_DIR_FILE = string_make("");
-    ANGBAND_DIR_HELP = string_make("");
-    ANGBAND_DIR_INFO = string_make("");
-    ANGBAND_DIR_SAVE = string_make("");
-    ANGBAND_DIR_USER = string_make("");
-    ANGBAND_DIR_XTRA = string_make("");
+    ANGBAND_DIR_APEX = z_string_make("");
+    ANGBAND_DIR_BONE = z_string_make("");
+    ANGBAND_DIR_DATA = z_string_make("");
+    ANGBAND_DIR_EDIT = z_string_make("");
+    ANGBAND_DIR_SCRIPT = z_string_make("");
+    ANGBAND_DIR_FILE = z_string_make("");
+    ANGBAND_DIR_HELP = z_string_make("");
+    ANGBAND_DIR_INFO = z_string_make("");
+    ANGBAND_DIR_SAVE = z_string_make("");
+    ANGBAND_DIR_USER = z_string_make("");
+    ANGBAND_DIR_XTRA = z_string_make("");
 
 
 #else /* VM */
 
 
     /* Build path names */
-    ANGBAND_DIR_EDIT = string_make(format("%sedit", configpath));
-    ANGBAND_DIR_FILE = string_make(format("%sfile", libpath));
-    ANGBAND_DIR_HELP = string_make(format("%shelp", libpath));
-    ANGBAND_DIR_INFO = string_make(format("%sinfo", libpath));
-    ANGBAND_DIR_PREF = string_make(format("%spref", configpath));
-    ANGBAND_DIR_XTRA = string_make(format("%sxtra", libpath));
+    ANGBAND_DIR_EDIT = z_string_make(format("%sedit", configpath));
+    ANGBAND_DIR_FILE = z_string_make(format("%sfile", libpath));
+    ANGBAND_DIR_HELP = z_string_make(format("%shelp", libpath));
+    ANGBAND_DIR_INFO = z_string_make(format("%sinfo", libpath));
+    ANGBAND_DIR_PREF = z_string_make(format("%spref", configpath));
+    ANGBAND_DIR_XTRA = z_string_make(format("%sxtra", libpath));
 
     /*** Build the sub-directory names ***/
 
@@ -156,32 +157,32 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
     path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
 
     /* Build a relative path name */
-    ANGBAND_DIR_USER = string_make(buf);
+    ANGBAND_DIR_USER = z_string_make(buf);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
-    ANGBAND_DIR_APEX = string_make(buf);
+    ANGBAND_DIR_APEX = z_string_make(buf);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
-    ANGBAND_DIR_BONE = string_make(buf);
+    ANGBAND_DIR_BONE = z_string_make(buf);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
-    ANGBAND_DIR_DATA = string_make(buf);
+    ANGBAND_DIR_DATA = z_string_make(buf);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "script");
-    ANGBAND_DIR_SCRIPT = string_make(buf);
+    ANGBAND_DIR_SCRIPT = z_string_make(buf);
 
     path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
-    ANGBAND_DIR_SAVE = string_make(buf);
+    ANGBAND_DIR_SAVE = z_string_make(buf);
 
 #else /* PRIVATE_USER_PATH */
 
     /* Build pathnames */
-    ANGBAND_DIR_USER = string_make(format("%suser", datapath));
-    ANGBAND_DIR_APEX = string_make(format("%sapex", datapath));
-    ANGBAND_DIR_BONE = string_make(format("%sbone", datapath));
-    ANGBAND_DIR_DATA = string_make(format("%sdata", datapath));
-    ANGBAND_DIR_SCRIPT = string_make(format("%sscript", datapath));
-    ANGBAND_DIR_SAVE = string_make(format("%ssave", datapath));
+    ANGBAND_DIR_USER = z_string_make(format("%suser", datapath));
+    ANGBAND_DIR_APEX = z_string_make(format("%sapex", datapath));
+    ANGBAND_DIR_BONE = z_string_make(format("%sbone", datapath));
+    ANGBAND_DIR_DATA = z_string_make(format("%sdata", datapath));
+    ANGBAND_DIR_SCRIPT = z_string_make(format("%sscript", datapath));
+    ANGBAND_DIR_SAVE = z_string_make(format("%ssave", datapath));
 
 #endif /* PRIVATE_USER_PATH */
 
@@ -215,11 +216,11 @@ void init_file_paths(const char *configpath, const char *libpath, const char *da
         if (next)
         {
             /* Forget the old path name */
-            string_free(ANGBAND_DIR_DATA);
+            z_string_free(ANGBAND_DIR_DATA);
 
             /* Build a new path name */
             sprintf(tail, "data-%s", next);
-            ANGBAND_DIR_DATA = string_make(libpath);
+            ANGBAND_DIR_DATA = z_string_make(libpath);
         }
     }
 
@@ -926,7 +927,7 @@ static errr init_misc(void)
  */
 static errr init_towns(void)
 {
-    int i, j, k;
+    int i, j;
 
     /*** Prepare the Towns ***/
 
@@ -1242,6 +1243,7 @@ static errr init_other(void)
     C_MAKE(macro__pat, MACRO_MAX, cptr);
     C_MAKE(macro__act, MACRO_MAX, cptr);
     C_MAKE(macro__cmd, MACRO_MAX, bool);
+    macro__num = 0;
 
     /* Macro action buffer */
     C_MAKE(macro__buf, 1024, char);
@@ -1249,13 +1251,7 @@ static errr init_other(void)
     /* Quark variables */
     quark_init();
 
-    /* Message variables */
-    C_MAKE(message__ptr, MESSAGE_MAX, u16b);
-    C_MAKE(message__buf, MESSAGE_BUF, char);
-
-    /* Hack -- No messages yet */
-    message__tail = MESSAGE_BUF;
-
+    msg_on_startup();
 
     /*** Prepare the Player inventory ***/
 
@@ -1460,7 +1456,7 @@ static errr init_alloc(void)
     for (i = 1; i < max_r_idx; i++)
     {
         elements[i].tag = r_info[i].level;
-        elements[i].pointer = (void*)i;
+        elements[i].value = i;
     }
 
     tag_sort(elements, max_r_idx);
@@ -1477,7 +1473,7 @@ static errr init_alloc(void)
     for (i = 1; i < max_r_idx; i++)
     {
         /* Get the i'th race */
-        r_ptr = &r_info[(int)elements[i].pointer];
+        r_ptr = &r_info[elements[i].value];
 
         /* Count valid pairs */
         if (r_ptr->rarity)
@@ -1488,7 +1484,7 @@ static errr init_alloc(void)
             p = (100 / r_ptr->rarity);
 
             /* Load the entry */
-            alloc_race_table[i].index = (int)elements[i].pointer;
+            alloc_race_table[i].index = elements[i].value;
             alloc_race_table[i].level = r_ptr->level;
             alloc_race_table[i].max_level = r_ptr->max_level;
             alloc_race_table[i].prob1 = p;
@@ -1639,6 +1635,75 @@ static void init_angband_aux(cptr why)
 
 }
 
+static void _display_file(cptr name)
+{
+    FILE *fp;
+    char buf[1024];
+    Term_clear();
+    path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, name);
+    fp = my_fopen(buf, "r");
+
+    if (fp)
+    {
+        int w, h;
+        doc_ptr doc;
+
+        Term_get_size(&w, &h);
+        doc = doc_alloc(w);
+        doc_read_file(doc, fp);
+        doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 0));
+        doc_free(doc);
+        my_fclose(fp);
+
+        c_prt(TERM_YELLOW, "              [Press ? for Credits. Press Any Other Key to Play]", Term->hgt - 1, 0);
+        Term_fresh();
+    }
+}
+
+void display_news(void)
+{
+    const int max_n = 14;
+    int n;
+    bool done = FALSE;
+
+    srand(time(NULL));
+    n = (rand() % max_n) + 1;
+
+    while (!done)
+    {
+        char name[100];
+        int  cmd;
+        sprintf(name, "news%d.txt", n);
+        _display_file(name);
+
+        /* Windows is an odd duck, indeed! */
+        if (strcmp(ANGBAND_SYS, "win") == 0)
+            break;
+
+        cmd = inkey_special(TRUE);
+        switch (cmd)
+        {
+        case '?':
+            _display_file("credits.txt");
+            inkey();
+            break;
+        case SKEY_DOWN:
+        case '2':
+            n++;
+            if (n > max_n)
+                n = 1;
+            break;
+        case SKEY_UP:
+        case '8':
+            n--;
+            if (n == 0)
+                n = max_n;
+            break;
+        default:
+            done = TRUE;
+        }
+    }
+}
 
 /*
  * Hack -- main Angband initialization entry point
@@ -1657,7 +1722,7 @@ static void init_angband_aux(cptr why)
  * Note that this function attempts to verify the "news" file,
  * and the game aborts (cleanly) on failure, since without the
  * "news" file, it is likely that the "lib" folder has not been
- * correctly located.  Otherwise, the news file is displayed for
+ * correctly located. Otherwise, the news file is displayed for
  * the user.
  *
  * Note that this function attempts to verify (or create) the
@@ -1678,7 +1743,7 @@ static void init_angband_aux(cptr why)
  * in the "lib/data" and sometimes the "lib/edit" directories.
  *
  * Note that the "template" files are initialized first, since they
- * often contain errors.  This means that macros and message recall
+ * often contain errors. This means that macros and message recall
  * and things like that are not available until after they are done.
  *
  * We load the default "user pref files" here in case any "color"
@@ -1690,13 +1755,8 @@ static void init_angband_aux(cptr why)
 void init_angband(void)
 {
     int fd = -1;
-
     int mode = 0664;
-
-    FILE *fp;
-
     char buf[1024];
-
 
     /*** Verify the "news" file ***/
 
@@ -1725,36 +1785,6 @@ void init_angband(void)
 
 
     /*** Display the "news" file ***/
-
-    /* Clear screen */
-    Term_clear();
-
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
-
-
-    /* Open the News file */
-    fp = my_fopen(buf, "r");
-
-    /* Dump */
-    if (fp)
-    {
-        int i = 0;
-
-        /* Dump the file to the screen */
-        while (0 == my_fgets(fp, buf, sizeof(buf)))
-        {
-            /* Display and advance */
-            Term_putstr(0, i++, -1, TERM_WHITE, buf);
-        }
-
-        /* Close */
-        my_fclose(fp);
-    }
-
-    /* Flush it */
-    Term_fresh();
-
 
     /*** Verify (or create) the "high score" file ***/
 

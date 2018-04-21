@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Spell code (part 2) */
@@ -15,10 +15,10 @@
 
 
 /*
- * self-knowledge... idea from nethack.  Useful for determining powers and
- * resistences of items.  It saves the screen, clears it, then starts listing
- * attributes, a screenful at a time.  (There are a LOT of attributes to
- * list.  It will probably take 2 or 3 screens for a powerful character whose
+ * self-knowledge... idea from nethack. Useful for determining powers and
+ * resistences of items. It saves the screen, clears it, then starts listing
+ * attributes, a screenful at a time. (There are a LOT of attributes to
+ * list. It will probably take 2 or 3 screens for a powerful character whose
  * using several artifacts...) -CFT
  *
  * It is now a lot more efficient. -BEN-
@@ -94,7 +94,7 @@ void self_knowledge(void)
 
     if (enable_virtues)
     {
-        sprintf(Dummy, "Your alighnment : %s (%d)", your_alignment(), p_ptr->align);
+        sprintf(Dummy, "Your alignment : %s (%d)", your_alignment(), p_ptr->align);
         strcpy(buf[1], Dummy);
         info[i++] = buf[1];
         for (v_nr = 0; v_nr < 8; v_nr++)
@@ -1277,13 +1277,8 @@ static bool detect_feat_flag(int range, int flag, bool known)
                 /* Mark as detected */
                 if (dist <= range && known)
                 {
-                    if (dist <= range - 1) 
-                    {
-                        c_ptr->info &= ~CAVE_DETECT_EDGE;
+                    if (dist <= range - 1)
                         c_ptr->info |= CAVE_IN_DETECT;
-                    }
-                    else if (!(c_ptr->info & CAVE_IN_DETECT)) /* overlapping regions */
-                        c_ptr->info |= CAVE_DETECT_EDGE;
 
                     c_ptr->info &= ~CAVE_UNSAFE;
 
@@ -1324,8 +1319,6 @@ static bool detect_feat_flag(int range, int flag, bool known)
 bool detect_traps(int range, bool known)
 {
     bool detect = detect_feat_flag(range, FF_TRAP, known);
-
-    if (known) p_ptr->dtrap = TRUE;
 
     if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 0) detect = FALSE;
 
@@ -1498,6 +1491,7 @@ bool detect_objects_normal(int range)
         {
             /* Hack -- memorize it */
             o_ptr->marked |= OM_FOUND;
+            p_ptr->window |= PW_OBJECT_LIST;
 
             /* Redraw */
             lite_spot(y, x);
@@ -1594,6 +1588,7 @@ bool detect_objects_magic(int range)
         {
             /* Memorize the item */
             o_ptr->marked |= OM_FOUND;
+            p_ptr->window |= PW_OBJECT_LIST;
 
             /* Redraw */
             lite_spot(y, x);
@@ -2194,7 +2189,7 @@ bool detect_all(int range)
     if (detect_doors(range)) detect = TRUE;
     if (detect_stairs(range)) detect = TRUE;
 
-    /* There are too many hidden treasure.  So... */
+    /* There are too many hidden treasure. So... */
     /* if (detect_treasure(range)) detect = TRUE; */
 
     if (detect_objects_gold(range)) detect = TRUE;
@@ -2496,9 +2491,6 @@ bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spe
     /* Redraw */
     p_ptr->redraw |= (PR_HP);
 
-    /* Window stuff */
-    p_ptr->window |= (PW_PLAYER);
-
     /* Handle */
     handle_stuff();
 
@@ -2519,16 +2511,17 @@ bool symbol_genocide(int power, bool player_cast)
 {
     int  i;
     char typ;
-    bool result = FALSE;
+    bool do_virtue = FALSE;
 
     /* Prevent genocide in quest levels */
     if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle)
     {
-        return (FALSE);
+        return TRUE; /* But charge the player for the (stupid) action! */
     }
 
     /* Mega-Hack -- Get a monster symbol */
-    while (!get_com("Choose a monster race (by symbol) to genocide: ", &typ, FALSE)) ;
+    if (!get_com("Choose a monster race (by symbol) to genocide: ", &typ, FALSE))
+        return FALSE;
 
     /* Delete the monsters of that "type" */
     for (i = 1; i < m_max; i++)
@@ -2536,23 +2529,20 @@ bool symbol_genocide(int power, bool player_cast)
         monster_type *m_ptr = &m_list[i];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-        /* Paranoia -- Skip dead monsters */
         if (!m_ptr->r_idx) continue;
-
-        /* Skip "wrong" monsters */
         if (r_ptr->d_char != typ) continue;
 
-        /* Take note */
-        result |= genocide_aux(i, power, player_cast, 4, "Genocide");
+        if (genocide_aux(i, power, player_cast, 4, "Genocide"))
+            do_virtue = TRUE;
     }
 
-    if (result)
+    if (do_virtue)
     {
         virtue_add(VIRTUE_VITALITY, -2);
         virtue_add(VIRTUE_CHANCE, -1);
     }
 
-    return result;
+    return TRUE;
 }
 
 
@@ -2644,6 +2634,9 @@ bool mass_genocide_undead(int power, bool player_cast)
  */
 bool probing(void)
 {
+    do_cmd_list_monsters(MON_LIST_PROBING);
+    return TRUE; /*?? */
+#if 0
     int     i, speed;
     int cu, cv;
     bool    probe = FALSE;
@@ -2724,7 +2717,7 @@ sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_
             prt(buf,0,0);
 
             /* HACK : Add the line to message buffer */
-            message_add(buf);
+            msg_add(buf);
             p_ptr->window |= (PW_MESSAGE);
             window_stuff();
 
@@ -2770,6 +2763,7 @@ sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_
 
     /* Result */
     return (probe);
+#endif
 }
 
 
@@ -3227,7 +3221,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
             }
             default:
             {
-                msg_print("The cave quakes!  You are pummeled with debris!");
+                msg_print("The cave quakes! You are pummeled with debris!");
                 break;
             }
         }
@@ -3238,8 +3232,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
         {
             if (!mut_present(MUT_EVASION) || one_in_(2))
             {
-                /* Message and damage */
-                msg_print("You are severely crushed!");
+                msg_print("You are <color:v>severely crushed</color>!");
                 damage = 200;
             }
         }
@@ -3259,7 +3252,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
                 {
                     if (!mut_present(MUT_EVASION) || one_in_(2))
                     {
-                        msg_print("You are bashed by rubble!");
+                        msg_print("You are <color:R>bashed by rubble</color>!");
                         damage = damroll(10, 4);
                         (void)set_stun(p_ptr->stun + randint1(50), FALSE);
                     }
@@ -3269,7 +3262,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
                 {
                     if (!mut_present(MUT_EVASION) || one_in_(2))
                     {
-                        msg_print("You are crushed between the floor and ceiling!");
+                        msg_print("You are <color:R>crushed between the floor and ceiling</color>!");
                         damage = damroll(10, 4);
                         (void)set_stun(p_ptr->stun + randint1(50), FALSE);
                     }
@@ -3555,7 +3548,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
         p_ptr->update |= PU_BONUS;
 
     /* Update the health bar */
-    p_ptr->redraw |= (PR_HEALTH | PR_UHEALTH);
+    p_ptr->redraw |= PR_HEALTH_BARS;
 
     /* Redraw map */
     p_ptr->redraw |= (PR_MAP);
@@ -4119,7 +4112,7 @@ bool fire_ball_aux(int typ, int dir, int dam, int rad, int xtra_flgs)
         ty = target_row;
     }
 
-    /* Analyze the "dir" and the "target".  Hurt items on floor. */
+    /* Analyze the "dir" and the "target". Hurt items on floor. */
     return (project(0, rad, ty, tx, dam, typ, flg, -1));
 }
 
@@ -4147,7 +4140,7 @@ bool fire_rocket(int typ, int dir, int dam, int rad)
         ty = target_row;
     }
 
-    /* Analyze the "dir" and the "target".  Hurt items on floor. */
+    /* Analyze the "dir" and the "target". Hurt items on floor. */
     return (project(0, rad, ty, tx, dam, typ, flg, -1));
 }
 
@@ -4176,7 +4169,7 @@ bool fire_ball_hide(int typ, int dir, int dam, int rad)
         ty = target_row;
     }
 
-    /* Analyze the "dir" and the "target".  Hurt items on floor. */
+    /* Analyze the "dir" and the "target". Hurt items on floor. */
     return (project(0, rad, ty, tx, dam, typ, flg, -1));
 }
 
@@ -4184,7 +4177,7 @@ bool fire_ball_hide(int typ, int dir, int dam, int rad)
 /*
  * Cast a meteor spell, defined as a ball spell cast by an arbitary monster, 
  * player, or outside source, that starts out at an arbitrary location, and 
- * leaving no trail from the "caster" to the target.  This function is 
+ * leaving no trail from the "caster" to the target. This function is 
  * especially useful for bombardments and similar. -LM-
  *
  * Option to hurt the player.
@@ -4645,6 +4638,8 @@ bool activate_ty_curse(bool stop_ty, int *count)
     int     i = 0;
 
     int flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
+
+    if (statistics_hack) return TRUE;
 
     do
     {

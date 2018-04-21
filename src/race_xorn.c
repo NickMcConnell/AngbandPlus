@@ -31,7 +31,7 @@ static void _calc_innate_attacks(void)
         a.effect[0] = GF_OLD_CONF;
         a.blows = 100;
         a.to_h = p_ptr->lev/5;
-        a.msg = "You gaze at %s.";
+        a.msg = "You gaze.";
         a.name = "Gaze";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -39,8 +39,7 @@ static void _calc_innate_attacks(void)
 }
 
 static void _calc_bonuses(void) {
-    int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
     int ac = 10;
 
     p_ptr->ac += ac;
@@ -103,7 +102,7 @@ static void _gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-race_t *mon_xorn_get_race_t(void)
+race_t *mon_xorn_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -135,6 +134,7 @@ race_t *mon_xorn_get_race_t(void)
         me.infra = 5;
         me.exp = 150;
         me.base_hp = 30;
+        me.shop_adjust = 120;
 
         me.calc_innate_attacks = _calc_innate_attacks;
         me.calc_bonuses = _calc_bonuses;

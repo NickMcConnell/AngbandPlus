@@ -93,7 +93,7 @@ static void _history_on_possess(int r_idx)
         }
 
         p->p_lvl = p_ptr->lev;
-        p->turn = turn;
+        p->turn = game_turn;
 
         p->next = _history;
         _history = p;
@@ -102,38 +102,33 @@ static void _history_on_possess(int r_idx)
 
 static void _history_on_load(savefile_ptr file)
 {
-    if (savefile_is_older_than(file, 3, 3, 6, 1))
-        _history_clear();
-    else
+    int          ct = savefile_read_s32b(file);
+    int          i;
+    _history_ptr c, t, lst = NULL;
+
+    _history_clear();
+    for (i = 0; i < ct; i++)
     {
-        int          ct = savefile_read_s32b(file);
-        int          i;
-        _history_ptr c, t, lst = NULL;
+        c = malloc(sizeof(_history_t));
+        assert(c);
 
-        _history_clear();
-        for (i = 0; i < ct; i++)
-        {
-            c = malloc(sizeof(_history_t));
-            assert(c);
-            
-            c->r_idx = savefile_read_s32b(file);
-            c->d_idx = savefile_read_s32b(file);
-            c->d_lvl = savefile_read_s32b(file);
-            c->p_lvl = savefile_read_s32b(file);
-            c->turn  = savefile_read_s32b(file);
+        c->r_idx = savefile_read_s32b(file);
+        c->d_idx = savefile_read_s32b(file);
+        c->d_lvl = savefile_read_s32b(file);
+        c->p_lvl = savefile_read_s32b(file);
+        c->turn  = savefile_read_s32b(file);
 
-            c->next = lst;
-            lst = c;
-        }
-        
-        /* Reverse List */
-        while (lst)
-        {
-            t = lst;
-            lst = lst->next;
-            t->next = _history;
-            _history = t;
-        }
+        c->next = lst;
+        lst = c;
+    }
+
+    /* Reverse List */
+    while (lst)
+    {
+        t = lst;
+        lst = lst->next;
+        t->next = _history;
+        _history = t;
     }
 }
 
@@ -178,11 +173,10 @@ static void _birth(void)
 
     p_ptr->current_r_idx = MON_POSSESSOR_SOUL;
     equip_on_change_race();
-    
-    object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
-    forge.number = 1;
-    forge.pval = (byte)rand_range(25, 30);
-    add_outfit(&forge);
+
+    object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
+    if (device_init_fixed(&forge, EFFECT_BOLT_MISSILE))
+        add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
@@ -336,112 +330,112 @@ void possessor_calc_innate_attacks(void)
         switch (blow_ptr->method)
         {
         case RBM_HIT:
-            a.msg = "You hit %s.";
+            a.msg = "You hit.";
             a.name = "Hit";
             a.weight = MIN(r_ptr->weight / 2, 400);
             break;
         case RBM_TOUCH:
-            a.msg = "You touch %s.";
+            a.msg = "You touch.";
             a.name = "Touch";
             a.weight = MIN(r_ptr->weight / 10, 100);
             break;
         case RBM_PUNCH:
-            a.msg = "You punch %s.";
+            a.msg = "You punch.";
             a.name = "Punch";
             a.weight = MIN(r_ptr->weight / 2, 300);
             break;
         case RBM_KICK:
-            a.msg = "You kick %s.";
+            a.msg = "You kick.";
             a.name = "Kick";
             a.weight = MIN(r_ptr->weight, 400);
             break;
         case RBM_CLAW:
-            a.msg = "You claw %s.";
+            a.msg = "You claw.";
             a.name = "Claw";
             a.weight = MIN(r_ptr->weight / 2, 300);
             break;
         case RBM_BITE:
-            a.msg = "You bite %s.";
+            a.msg = "You bite.";
             a.name = "Bite";
             a.weight = MIN(r_ptr->weight, 500);
             break;
         case RBM_STING:
-            a.msg = "You sting %s.";
+            a.msg = "You sting.";
             a.name = "Sting";
             a.weight = MIN(r_ptr->weight, 250);
             break;
         case RBM_SLASH:
-            a.msg = "You slash %s.";
+            a.msg = "You slash.";
             a.name = "Slash";
             a.weight = MIN(r_ptr->weight, 300);
             break;
         case RBM_BUTT:
-            a.msg = "You butt %s.";
+            a.msg = "You butt.";
             a.name = "Butt"; /* :) */
             a.weight = MIN(r_ptr->weight * 2, 500);
             break;
         case RBM_CRUSH:
-            a.msg = "You crush %s.";
+            a.msg = "You crush.";
             a.name = "Crush";
             a.weight = MIN(r_ptr->weight * 2, 500);
             break;
         case RBM_ENGULF:
-            a.msg = "You engulf %s.";
+            a.msg = "You engulf.";
             a.name = "Engulf";
             a.weight = MIN(r_ptr->weight * 2, 400);
             break;
         case RBM_CHARGE:
-            a.msg = "You charge %s.";
+            a.msg = "You charge.";
             a.name = "Charge";
             a.weight = MIN(r_ptr->weight * 2, 500);
             break;
         case RBM_CRAWL:
-            a.msg = "You crawl %s.";
+            a.msg = "You crawl.";
             a.name = "Crawl";
             a.weight = MIN(r_ptr->weight, 400);
             break;
         case RBM_DROOL:
-            a.msg = "You drool on %s.";
+            a.msg = "You drool.";
             a.name = "Drool";
             a.weight = MIN(r_ptr->weight / 10, 100);
             break;
         case RBM_SPIT:
-            a.msg = "You spit %s.";
+            a.msg = "You spit.";
             a.name = "Spit";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
         case RBM_GAZE:
-            a.msg = "You gaze at %s.";
+            a.msg = "You gaze.";
             a.name = "Gaze";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
         case RBM_WAIL:
-            a.msg = "You wail at %s.";
+            a.msg = "You wail.";
             a.name = "Wail";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
         case RBM_SPORE:
-            a.msg = "You release spores at %s.";
+            a.msg = "You release spores.";
             a.name = "Spores";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
         case RBM_BEG:
-            a.msg = "You beg %s for money.";
+            a.msg = "You beg.";
             a.name = "Beg";
             a.weight = MIN(r_ptr->weight / 10, 100);
             break;
         case RBM_INSULT:
-            a.msg = "You insult %s.";
+            a.msg = "You insult.";
             a.name = "Wit";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
         case RBM_MOAN:
-            a.msg = "You moan at %s.";
+            a.msg = "You moan.";
             a.name = "Moan";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
         case RBM_SHOW:
-            a.msg = "You sing to %s.";
+            a.msg = "You sing.";
             a.name = "Voice";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
@@ -1261,7 +1255,7 @@ caster_info *possessor_caster_info(void)
 
     if (r_ptr->body.class_idx)
     {
-        class_t *class_ptr = get_class_t_aux(r_ptr->body.class_idx, 0);
+        class_t *class_ptr = get_class_aux(r_ptr->body.class_idx, 0);
         if (class_ptr && class_ptr->caster_info)
         {
             info = *class_ptr->caster_info();
@@ -1660,33 +1654,24 @@ void possessor_get_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_RES_DISEN);
         add_flag(flgs, TR_RES_TIME);
     }
-}
 
-void possessor_get_immunities(u32b flgs[TR_FLAG_SIZE]) 
-{
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     if (r_ptr->flagsr & RFR_IM_ACID)
-        add_flag(flgs, TR_RES_ACID);
+        add_flag(flgs, TR_IM_ACID);
     if (r_ptr->flagsr & RFR_IM_ELEC)
-        add_flag(flgs, TR_RES_ELEC);
+        add_flag(flgs, TR_IM_ELEC);
     if (r_ptr->flagsr & RFR_IM_FIRE)
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, TR_IM_FIRE);
     if (r_ptr->flagsr & RFR_IM_COLD)
-        add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, TR_IM_COLD);
     if (r_ptr->flagsr & RFR_IM_POIS)
-        add_flag(flgs, TR_RES_POIS);
-}
-
-void possessor_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
-{
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+        add_flag(flgs, TR_IM_POIS);
 
     if (r_ptr->flags3 & RF3_HURT_LITE)
-        add_flag(flgs, TR_RES_LITE);
+        add_flag(flgs, TR_VULN_LITE);
     if (r_ptr->flags3 & RF3_HURT_FIRE)
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, TR_VULN_FIRE);
     if (r_ptr->flags3 & RF3_HURT_COLD)
-        add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, TR_VULN_COLD);
 }
 
 /**********************************************************************
@@ -1738,7 +1723,7 @@ int           r_idx = p_ptr->current_r_idx, i;
         race_ptr->subname = mon_name(r_idx);
     }
 }
-race_t *mon_possessor_get_race_t(void)
+race_t *mon_possessor_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -1764,6 +1749,7 @@ race_t *mon_possessor_get_race_t(void)
                     "command ('U') and the magic command ('m') after possessing a new body.";
 
         me.exp = 250;
+        me.shop_adjust = 110; /* Really should depend on current form */
 
         me.birth = _birth;
 
@@ -1772,8 +1758,6 @@ race_t *mon_possessor_get_race_t(void)
         me.calc_bonuses = possessor_calc_bonuses;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_flags = possessor_get_flags;
-        me.get_immunities = possessor_get_immunities;
-        me.get_vulnerabilities = possessor_get_vulnerabilities;
         me.player_action = _player_action;
         me.save_player = possessor_on_save;
         me.load_player = possessor_on_load;
@@ -1873,7 +1857,7 @@ void possessor_set_current_r_idx(int r_idx)
             p_ptr->csp = p_ptr->msp * mana_ratio / 100;
             p_ptr->csp_frac = 0;
             p_ptr->redraw |= PR_MANA;
-            p_ptr->window |= PW_PLAYER | PW_SPELL;
+            p_ptr->window |= PW_SPELL;
 
             if (p_ptr->current_r_idx != MON_MIMIC)
                 _history_on_possess(r_idx);
@@ -1911,16 +1895,15 @@ void possessor_explode(int dam)
     }
 }
 
-void possessor_character_dump(FILE *file)
+void possessor_character_dump(doc_ptr doc)
 {
     _history_ptr p = _history;
     int          ct = 0;
     char         lvl[80];
     char         loc[255];
     
-    fprintf(file, "\n\n================================ Recent Forms =================================\n");
-    fprintf(file, "\n%-33.33s CL Day  Time  DL %-28.28s\n", "Most Recent Forms", "Location");
-    fprintf(file, "--------------------------------- -- --- ----- --- ----------------------------\n");
+    doc_printf(doc, "<topic:RecentForms>================================ <color:keypress>R</color>ecent Forms =================================\n\n");
+    doc_printf(doc, "<color:G>%-33.33s CL Day  Time  DL %-28.28s</color>\n", "Most Recent Forms", "Location");
 
     while (p && ct < 100)
     {
@@ -1967,7 +1950,7 @@ void possessor_character_dump(FILE *file)
                 sprintf(lvl, "%s", "   ");
             break;
         }
-        fprintf(file, "%-33.33s %2d %3d %2d:%02d %s %-15.15s\n", 
+        doc_printf(doc, "%-33.33s %2d %3d %2d:%02d %s %-15.15s\n",
             mon_name(p->r_idx), 
             p->p_lvl, 
             day, hour, min,
@@ -1976,6 +1959,7 @@ void possessor_character_dump(FILE *file)
         p = p->next;
         ct++;
     }
+    doc_newline(doc);
 }
 
 void possessor_on_save(savefile_ptr file)

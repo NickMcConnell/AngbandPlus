@@ -1,0 +1,28 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+[Previous Messages, Line 3054/3935]
+
+<color:U>You attack the Clear hound: </color>You claw.<color:U> </color><color:R>You have slain the Clear hound.</color>
+You see <color:U>a Cloak [1] {average}</color>. Auto-destroying.
+You sense the presence of traps! You sense the presence of doors! You
+sense the presence of objects! You sense the presence of monsters!
+
+<color:y>Note:</color> Whoa!
+
+<color:s>p</color><color:o>p</color><color:v>p</color><color:o>p</color><color:s>p</color><color:U>'</color>    <color:U>'</color> #      # # # <color:U>+</color>  <color:D>~</color>    <color:D>~</color># #        <color:U>'</color> #
+<color:s>p</color><color:o>ppp</color><color:s>p</color>#<color:D>p</color>   # #      # # # # ~..    # #        # #
+##<color:U>+</color>######## #      # # # # .<color:D>~</color>.<color:D>~</color>   # #        # #
+<color:s>ppppp</color>#<color:U>]</color>#    #  ##### # #.###.################# #
+  <color:y>pp</color> #<color:U>+</color><color:s>%</color>    #  #     # #.............          #
+<color:s>%%</color><color:U>'</color>###      #  # ##### ##.####.###<color:U>'</color>#############
+            #  # #     ##.#  #.# #.#
+#####<color:s>%%%</color>######## #     #..#### # #.#
+      <color:s>%</color>         <color:r>^</color>#   ###....   # #.####
+      <color:s>%</color> ##<color:s>%</color>#######   #...#### ## #....#
+      # #          ###.##.# # #  ####.####
+<color:s>%%</color>####<color:s>%</color><color:U>+</color><color:s>%</color>##<color:s>%</color>###### #   #.######     #....#
+                 ### ####<color:D>D</color>..#   ########.#########
+                 #   #  #####   #.................
+                 # ###          #.................
+                 <color:U>'</color> #            #...<color:s>^</color>.............
+</style>

@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PosChengband, 3.4.4, https://github.com/poschengband/poschengband/issues)
+AC_INIT(PosChengband, 4.0.0, https://github.com/poschengband/poschengband/issues)
 AC_CONFIG_SRCDIR(src)
 
 AC_CANONICAL_HOST
@@ -217,31 +217,43 @@ AC_ARG_ENABLE(sdl_mixer,
 MAINFILES="\$(BASEMAINFILES)"
 
 dnl curses checking
-	AC_CHECK_LIB(curses  , initscr, found_curses=yes,found_curses=no)
-	AC_CHECK_LIB(ncurses , initscr, found_ncurses=yes,found_ncurses=no)
-	AC_CHECK_LIB(pdcurses, initscr, found_pdcurses=yes,found_pdcurses=no)
-	if test "x$found_ncurses" = "xno"; then
-		if test "x$found_pdcurses" = "xno"; then
-			if test "x$found_curses" = "xno"; then
-				with_curses=no
-			else
-				AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
-				AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-				LDFLAGS="${LDFLAGS} -lcurses"
-				with_curses=yes
-			fi
-		else
-			AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
-			AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-			LDFLAGS="${LDFLAGS} -lpdcurses"
-			with_curses=yes
-		fi
-	else
-		AC_DEFINE(USE_NCURSES, 1, [Define to 1 if NCurses is found.])
-		AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
-		LDFLAGS="${LDFLAGS} -lncurses"
-		with_curses=yes
-	fi
+dnl	AC_CHECK_LIB(curses  , initscr, found_curses=yes,found_curses=no)
+dnl	AC_CHECK_LIB(ncurses , initscr, found_ncurses=yes,found_ncurses=no)
+dnl	AC_CHECK_LIB(pdcurses, initscr, found_pdcurses=yes,found_pdcurses=no)
+dnl	if test "x$found_ncurses" = "xno"; then
+dnl		if test "x$found_pdcurses" = "xno"; then
+dnl			if test "x$found_curses" = "xno"; then
+dnl				with_curses=no
+dnl			else
+dnl				AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
+dnl				AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
+dnl				LDFLAGS="${LDFLAGS} -lcurses"
+dnl				with_curses=yes
+dnl			fi
+dnl		else
+dnl			AC_DEFINE(USE_CURSES, 1, [Define to 1 if Curses or PDCurses is found, but NCurses is not.])
+dnl			AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
+dnl			LDFLAGS="${LDFLAGS} -lpdcurses"
+dnl			with_curses=yes
+dnl		fi
+dnl	else
+dnl		AC_DEFINE(USE_NCURSES, 1, [Define to 1 if NCurses is found.])
+dnl		AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
+dnl		LDFLAGS="${LDFLAGS} -lncurses"
+dnl		with_curses=yes
+dnl	fi
+
+dnl curses checking
+if test "$enable_curses" = "yes"; then
+    AM_PATH_NCURSESW(with_curses=yes, with_curses=no)
+    if test "$with_curses" = "yes"; then
+        AC_DEFINE(USE_NCURSES, 1, [Define to 1 if NCurses is found.])
+        AC_DEFINE(USE_GCU, 1, [Define to 1 if using the Curses frontend.])
+        CFLAGS="${CFLAGS} ${NCURSES_CFLAGS}"
+        LIBS="${LIBS} ${NCURSES_LIBS}"
+        MAINFILES="${MAINFILES} \$(GCUMAINFILES)"
+    fi
+fi
 
 AC_CHECK_FUNCS([mvwaddnwstr use_default_colors can_change_color])
 

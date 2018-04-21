@@ -2102,7 +2102,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     while (powers > 0)
     {
         powers--;
-        /* Attempt to craft artifacts by appropriate to type.  For example, arrows should
+        /* Attempt to craft artifacts by appropriate to type. For example, arrows should
            not grant extra blows or +3 strength :)  More realistically, weapons should
            preferentially get slays while armor should favor resists */
         switch (o_ptr->tval)
@@ -2674,7 +2674,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     if (object_is_melee_weapon(o_ptr))
         adjust_weapon_weight(o_ptr);
 
-    total_flags = new_object_cost(o_ptr);
+    total_flags = new_object_cost(o_ptr, COST_REAL);
     if (cheat_peek) msg_format("Score: %d", total_flags);
 
     if (object_is_jewelry(o_ptr))
@@ -2722,9 +2722,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         object_known(o_ptr);
 
         /* Mark the item as fully known */
-        o_ptr->ident |= (IDENT_MENTAL);
+        o_ptr->ident |= (IDENT_FULL);
 
-        (void)screen_object(o_ptr, 0L);
+        obj_display(o_ptr);
 
         if (!get_string(ask_msg, dummy_name, sizeof dummy_name)
             || !dummy_name[0])
@@ -2745,7 +2745,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             curse_object(o_ptr);
             if (has_pval && !o_ptr->pval)
                 o_ptr->pval = randint1(5);
-            total_flags = new_object_cost(o_ptr);
+            total_flags = new_object_cost(o_ptr, COST_REAL);
         }
     }
 
@@ -2922,6 +2922,16 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
     {
         if (p_ptr->pclass == CLASS_MONK)
             add_flag(o_ptr->art_flags, TR_BLOWS);
+    }
+
+    if (o_ptr->name1 == ART_DRAGONLANCE)
+    {
+        if (warlock_is_(WARLOCK_DRAGONS))
+        {
+            add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
+            add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
+            add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD);
+        }
     }
 
     if (o_ptr->name1 == ART_BLOOD)

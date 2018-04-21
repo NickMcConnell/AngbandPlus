@@ -15,7 +15,7 @@ static void _clay_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_FREE_ACT);
     add_flag(flgs, TR_HOLD_LIFE);
 }
-race_t *clay_golem_get_race_t(void)
+race_t *clay_golem_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -85,7 +85,7 @@ static void _colossus_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_SOUND);
     add_flag(flgs, TR_RES_DISEN);
 }
-race_t *colossus_get_race_t(void)
+race_t *colossus_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -160,7 +160,7 @@ static void _demon_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_SEE_INVIS);
     add_flag(flgs, TR_SPEED);
 }
-race_t *demon_get_race_t(void)
+race_t *demon_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -257,12 +257,10 @@ static void _demon_lord_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_TELEPATHY);
     add_flag(flgs, TR_LEVITATION);
     add_flag(flgs, TR_SPEED);
+
+    add_flag(flgs, TR_IM_FIRE);
 }
-static void _demon_lord_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_FIRE);
-}
-race_t *demon_lord_get_race_t(void)
+race_t *demon_lord_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -297,7 +295,6 @@ race_t *demon_lord_get_race_t(void)
         me.calc_bonuses = _demon_lord_calc_bonuses;
         me.get_powers = _demon_lord_get_powers;
         me.get_flags = _demon_lord_get_flags;
-        me.get_immunities = _demon_lord_get_immunities;
         init = TRUE;
     }
 
@@ -325,7 +322,7 @@ static void _iron_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_SPEED);
 }
-race_t *iron_golem_get_race_t(void)
+race_t *iron_golem_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -368,7 +365,7 @@ race_t *iron_golem_get_race_t(void)
 /****************************************************************
  * Mangy Leper
  ****************************************************************/
-race_t *mangy_leper_get_race_t(void)
+race_t *mangy_leper_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -432,7 +429,7 @@ static void _mithril_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_SHARDS);
     add_flag(flgs, TR_REFLECT);
 }
-race_t *mithril_golem_get_race_t(void)
+race_t *mithril_golem_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -483,7 +480,7 @@ static void _small_kobold_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_POIS);
 }
-race_t *small_kobold_get_race_t(void)
+race_t *small_kobold_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -539,6 +536,7 @@ static int _vampire_lord_get_powers(spell_info* spells, int max)
 static void _vampire_lord_calc_bonuses(void)
 {
     res_add(RES_DARK);
+    res_add_immune(RES_DARK);
     p_ptr->hold_life = TRUE;
     res_add(RES_NETHER);
     res_add(RES_COLD);
@@ -553,6 +551,9 @@ static void _vampire_lord_calc_bonuses(void)
 }
 static void _vampire_lord_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
+    add_flag(flgs, TR_VULN_LITE);
+    add_flag(flgs, TR_IM_DARK);
+
     add_flag(flgs, TR_HOLD_LIFE);
     add_flag(flgs, TR_RES_DARK);
     add_flag(flgs, TR_RES_NETHER);
@@ -562,15 +563,7 @@ static void _vampire_lord_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_SEE_INVIS);
     add_flag(flgs, TR_SPEED);
 }
-static void _vampire_lord_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_DARK);
-}
-static void _vampire_lord_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_LITE);
-}
-race_t *vampire_lord_get_race_t(void)
+race_t *vampire_lord_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -605,8 +598,6 @@ race_t *vampire_lord_get_race_t(void)
         me.calc_bonuses = _vampire_lord_calc_bonuses;
         me.get_powers = _vampire_lord_get_powers;
         me.get_flags = _vampire_lord_get_flags;
-        me.get_immunities = _vampire_lord_get_immunities;
-        me.get_vulnerabilities = _vampire_lord_get_vulnerabilities;
         init = TRUE;
     }
 

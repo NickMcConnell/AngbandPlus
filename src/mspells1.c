@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Monster spells (attack player) */
@@ -24,15 +24,15 @@
  * the monster to "cheat" and know the player status.
  *
  * Maintain an idea of the player status, and use that information
- * to occasionally eliminate "ineffective" spell attacks.  We could
+ * to occasionally eliminate "ineffective" spell attacks. We could
  * also eliminate ineffective normal attacks, but there is no reason
  * for the monster to do this, since he gains no benefit.
  * Note that MINDLESS monsters are not allowed to use this code.
  * And non-INTELLIGENT monsters only use it partially effectively.
  *
  * Actually learn what the player resists, and use that information
- * to remove attacks or spells before using them.  This will require
- * much less space, if I am not mistaken.  Thus, each monster gets a
+ * to remove attacks or spells before using them. This will require
+ * much less space, if I am not mistaken. Thus, each monster gets a
  * set of 32 bit flags, "smart", build from the various "SM_*" flags.
  *
  * This has the added advantage that attacks and spells are related.
@@ -932,7 +932,7 @@ bool dispel_check(int m_idx)
        so will always trigger a dispel. */
     if (p_ptr->mimic_form != MIMIC_NONE)
     {
-        if (randint1(500) < get_race_t()->exp) return TRUE;
+        if (randint1(500) < get_race()->exp) return TRUE;
     }
 
     if (p_ptr->tim_shrike) return TRUE;
@@ -1022,9 +1022,9 @@ bool dispel_check(int m_idx)
  *
  * Note that this list does NOT include spells that will just hit
  * other monsters, and the list is restricted when the monster is
- * "desperate".  Should that be the job of this function instead?
+ * "desperate". Should that be the job of this function instead?
  *
- * Stupid monsters will just pick a spell randomly.  Smart monsters
+ * Stupid monsters will just pick a spell randomly. Smart monsters
  * will choose more "intelligently".
  *
  * Use the helper functions above to put spells into categories.
@@ -1356,7 +1356,7 @@ static bool adjacent_grid_check(monster_type *m_ptr, int *yp, int *xp,
  * Verify the various "blind-ness" checks in the code.
  *
  * XXX XXX XXX Note that several effects should really not be "seen"
- * if the player is blind.  See also "effects.c" for other "mistakes".
+ * if the player is blind. See also "effects.c" for other "mistakes".
  *
  * Perhaps monsters should breathe at locations *near* the player,
  * since this would allow them to inflict "partial" damage.
@@ -1377,23 +1377,23 @@ static bool adjacent_grid_check(monster_type *m_ptr, int *yp, int *xp,
  * the player, but which in fact is nowhere near the player, since this
  * might induce all sorts of messages about the attack itself, and about
  * the effects of the attack, which the player might or might not be in
- * a position to observe.  Thus, for simplicity, it is probably best to
+ * a position to observe. Thus, for simplicity, it is probably best to
  * only allow "faulty" attacks by a monster if one of the important grids
  * (probably the initial or final grid) is in fact in view of the player.
  * It may be necessary to actually prevent spell attacks except when the
- * monster actually has line of sight to the player.  Note that a monster
+ * monster actually has line of sight to the player. Note that a monster
  * could be left in a bizarre situation after the player ducked behind a
  * pillar and then teleported away, for example.
  *
  * Note that certain spell attacks do not use the "project()" function
  * but "simulate" it via the "direct" variable, which is always at least
- * as restrictive as the "project()" function.  This is necessary to
+ * as restrictive as the "project()" function. This is necessary to
  * prevent "blindness" attacks and such from bending around walls, etc,
  * and to allow the use of the "track_target" option in the future.
  *
  * Note that this function attempts to optimize the use of spells for the
  * cases in which the monster has no spells, or has spells but cannot use
- * them, or has spells but they will have no "useful" effect.  Note that
+ * them, or has spells but they will have no "useful" effect. Note that
  * this function has been an efficiency bottleneck in the past.
  *
  * Note the special "MFLAG_NICE" flag, which prevents a monster from using
@@ -1406,7 +1406,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     u32b            f4, f5, f6;
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-    char            m_name[80];
+    char            tmp[MAX_NLEN];
+    char            m_name[MAX_NLEN];
     char            m_poss[80];
     bool            no_inate = FALSE;
     bool            do_spell = DO_SPELL_NONE;
@@ -1809,7 +1810,9 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     if (p_ptr->leaving) return (FALSE);
 
     /* Get the monster name (or "it") */
-    monster_desc(m_name, m_ptr, 0x00);
+    monster_desc(tmp, m_ptr, 0x00);
+    tmp[0] = toupper(tmp[0]);
+    sprintf(m_name, "<color:g>%s</color>", tmp);
 
     /* Get the monster possessive ("his"/"her"/"its") */
     monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
@@ -1937,7 +1940,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s shoots something.", m_name);
             else msg_format("%^s fires a rocket.", m_name);
-            dam = MIN(m_ptr->hp / 4, 800);
+            dam = MIN(m_ptr->hp / 4, 600);
             breath(y, x, m_idx, GF_ROCKET,
                 dam, 2, FALSE, MS_ROCKET, learnable);
             update_smart_learn(m_idx, DRS_SHARD);
@@ -1991,7 +1994,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
         {
             if (blind) msg_format("%^s mumbles powerfully.", m_name);
             else msg_format("%^s invokes polymorph other.", m_name);
-            if (prace_is_(RACE_ANDROID) || p_ptr->pclass == CLASS_MONSTER)
+            if (prace_is_(RACE_ANDROID) || p_ptr->pclass == CLASS_MONSTER || p_ptr->prace == RACE_DOPPELGANGER)
                 msg_print("You are unaffected!");
             else if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
                 msg_print("You are unaffected!");
@@ -2030,9 +2033,10 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                         which = randint0(MAX_RACES);
                         if ( which != RACE_HUMAN 
                           && which != RACE_DEMIGOD 
+                          && which != RACE_DRACONIAN
                           && which != RACE_ANDROID 
                           && p_ptr->prace != which 
-                          && !(get_race_t_aux(which, 0)->flags & RACE_IS_MONSTER) )
+                          && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
                         {
                             break;
                         }
@@ -2102,7 +2106,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes gas.", m_name);
-            dam = MIN(m_ptr->hp / 5, 700);
+            dam = MIN(m_ptr->hp / 5, 600);
             breath(y, x, m_idx, GF_POIS, dam, 0, TRUE, MS_BR_POIS, learnable);
             update_smart_learn(m_idx, DRS_POIS);
             break;
@@ -2113,7 +2117,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes nether.", m_name);
-            dam = MIN(m_ptr->hp / 6, 650);
+            dam = MIN(m_ptr->hp / 6, 550);
             breath(y, x, m_idx, GF_NETHER, dam,0, TRUE, MS_BR_NETHER, learnable);
             update_smart_learn(m_idx, DRS_NETH);
             break;
@@ -2124,7 +2128,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes light.", m_name);
-            dam = MIN(m_ptr->hp / 6, 500);
+            dam = MIN(m_ptr->hp / 6, 400);
             breath(y_br_lite, x_br_lite, m_idx, GF_LITE, dam,0, TRUE, MS_BR_LITE, learnable);
             update_smart_learn(m_idx, DRS_LITE);
             break;
@@ -2135,7 +2139,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes darkness.", m_name);
-            dam = MIN(m_ptr->hp / 6, 500);
+            dam = MIN(m_ptr->hp / 6, 400);
             breath(y, x, m_idx, GF_DARK, dam,0, TRUE, MS_BR_DARK, learnable);
             update_smart_learn(m_idx, DRS_DARK);
             break;
@@ -2146,7 +2150,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes confusion.", m_name);
-            dam = MIN(m_ptr->hp / 6, 600);
+            dam = MIN(m_ptr->hp / 6, 400);
             breath(y, x, m_idx, GF_CONFUSION, dam,0, TRUE, MS_BR_CONF, learnable);
             update_smart_learn(m_idx, DRS_CONF);
             break;
@@ -2159,7 +2163,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             if (m_ptr->r_idx == MON_JAIAN) msg_format("'Booooeeeeee'");
             else if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes sound.", m_name);
-            dam = MIN(m_ptr->hp / 6, 600);
+            dam = MIN(m_ptr->hp / 6, 450);
             breath(y, x, m_idx, GF_SOUND, dam,0, TRUE, MS_BR_SOUND, learnable);
             update_smart_learn(m_idx, DRS_SOUND);
             break;
@@ -2170,7 +2174,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes chaos.", m_name);
-            dam = MIN(m_ptr->hp / 6, 700);
+            dam = MIN(m_ptr->hp / 6, 600);
             breath(y, x, m_idx, GF_CHAOS, dam,0, TRUE, MS_BR_CHAOS, learnable);
             update_smart_learn(m_idx, DRS_CHAOS);
             break;
@@ -2181,7 +2185,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes disenchantment.", m_name);
-            dam = MIN(m_ptr->hp / 6, 600);
+            dam = MIN(m_ptr->hp / 6, 500);
             breath(y, x, m_idx, GF_DISENCHANT, dam,0, TRUE, MS_BR_DISEN, learnable);
             update_smart_learn(m_idx, DRS_DISEN);
             break;
@@ -2192,7 +2196,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes nexus.", m_name);
-            dam = MIN(m_ptr->hp / 5, 400);
+            dam = MIN(m_ptr->hp / 3, 250);
             breath(y, x, m_idx, GF_NEXUS, dam,0, TRUE, MS_BR_NEXUS, learnable);
             update_smart_learn(m_idx, DRS_NEXUS);
             break;
@@ -2203,7 +2207,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes time.", m_name);
-            dam = MIN(m_ptr->hp / 3, 200);
+            dam = MIN(m_ptr->hp / 3, 150);
             breath(y, x, m_idx, GF_TIME, dam,0, TRUE, MS_BR_TIME, learnable);
             break;
         }
@@ -2234,7 +2238,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             if (m_ptr->r_idx == MON_BOTEI) msg_format("'Botei-Build cutter!!!'");
             else if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes shards.", m_name);
-            dam = MIN(m_ptr->hp / 6, 700);
+            dam = MIN(m_ptr->hp / 6, 500);
             breath(y, x, m_idx, GF_SHARDS, dam,0, TRUE, MS_BR_SHARDS, learnable);
             update_smart_learn(m_idx, DRS_SHARD);
             break;
@@ -2286,7 +2290,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes toxic waste.", m_name);
-            dam = MIN(m_ptr->hp / 3, 700);
+            dam = MIN(m_ptr->hp / 5, 600);
             breath(y, x, m_idx, GF_NUKE, dam,0, TRUE, MS_BR_NUKE, learnable);
             update_smart_learn(m_idx, DRS_POIS);
             break;
@@ -2921,8 +2925,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             }
 
             /* Redraw (later) if needed */
-            if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-            if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+            check_mon_health_redraw(m_idx);
 
             /* Cancel fear */
             if (MON_MONFEAR(m_ptr))
@@ -3316,7 +3319,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             msg_format("%^s commands you to return.", m_name);
 
             /* Only powerful monsters can choose this spell when the player is not in 
-               los.  In this case, it is nasty enough to warrant a saving throw. */
+               los. In this case, it is nasty enough to warrant a saving throw. */
             if (!projectable(m_ptr->fy, m_ptr->fx, py, px) 
               && randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2 )
             {
@@ -3346,7 +3349,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
               && p_ptr->duelist_target_idx == m_idx
               && p_ptr->lev >= 30 )
             {
-                if (get_check(format("%^s is attempting to teleport you.  Prevent? ", m_name)))
+                if (get_check(format("%^s is attempting to teleport you. Prevent? ", m_name)))
                 {
                     if (one_in_(3))
                         msg_print("Failed!");
@@ -3392,7 +3395,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s mumbles.", m_name);
 
-            else msg_format("%^s throw a Psycho-Spear.", m_name);
+            else msg_format("%^s throws a Psycho-Spear.", m_name);
 
             dam = (r_ptr->flags2 & RF2_POWERFUL) ? (randint1(rlev * 2) + 150) : (randint1(rlev * 3 / 2) + 100);
             beam(m_idx, GF_PSY_SPEAR, dam, MS_PSY_SPEAR, learnable);
@@ -4101,7 +4104,7 @@ msg_format("They say 'The %d meets! We are the Ring-Ranger!'.", count);
             p_ptr->mane_num++;
             new_mane = TRUE;
 
-            p_ptr->redraw |= (PR_IMITATION);
+            p_ptr->redraw |= PR_EFFECTS;
         }
     }
 

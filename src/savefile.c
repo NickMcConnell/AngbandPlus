@@ -213,7 +213,7 @@ void savefile_write_s32b(savefile_ptr file, s32b v)
     savefile_write_u32b(file, (u32b)v);
 }
 
-void savefile_read_string(savefile_ptr file, char *buf, int max)
+void savefile_read_cptr(savefile_ptr file, char *buf, int max)
 {
     int i;
     for (i = 0; ; i++)
@@ -225,7 +225,19 @@ void savefile_read_string(savefile_ptr file, char *buf, int max)
     buf[max-1] = '\0';
 }
 
-void savefile_write_string(savefile_ptr file, const char *buf)
+string_ptr savefile_read_string(savefile_ptr file)
+{
+    string_ptr s = string_alloc();
+    for (;;)
+    {
+        byte c = savefile_read_byte(file);
+        if (!c) break;
+        string_append_c(s, c);
+    }
+    return s;
+}
+
+void savefile_write_cptr(savefile_ptr file, const char *buf)
 {
     while (*buf)
         savefile_write_byte(file, *buf++);

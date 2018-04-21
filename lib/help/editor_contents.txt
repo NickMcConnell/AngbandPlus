@@ -1,0 +1,23 @@
+<style:title>The Mogaminator</style>
+
+Please choose one of the following online help files:
+
+    <link:editor.txt> The Mogaminator
+
+  The following topics are in tutorial format:
+    <link:editor.txt#Review> Review of Object Knowledge
+    <link:editor.txt#ManagingObjects> Managing Objects
+    <link:editor.txt#BasicUsage> Basic Usage
+    <link:editor.txt#CorrectingMistakes> Correcting Mistakes
+    <link:editor.txt#WantedObjects> What About Stuff I Want?
+    <link:editor.txt#IntroRulesEvents> Introduction to Rules and Events
+    <link:editor.txt#Rules> Rules
+    <link:editor.txt#Scenarios> Scenarios
+    <link:editor.txt#Conditionals> Conditional Rules
+    <link:editor.txt#Editor> Using the Editor
+
+  The following topics are boring reference material:
+    <link:editor.txt#Reference> Reference Tables
+    <link:editor.txt#EasyDestroyer> The Easy Destroyer
+
+    <color:y>(?) Help System Commands</color>

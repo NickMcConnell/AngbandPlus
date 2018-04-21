@@ -3,50 +3,43 @@
 #########################################
 mushroom of restoring#!E
 
-potion of resist#!k!q
-potion of resistance#!k!q
-potion of stone skin#!k
-potion of heroism
-potion of speed#!k!q
-potion of giant strength#!k
+potions:resist#!k!q
+potions:resistance#!k!q
+potions:stone skin#!k
+potions:heroism
+potions:speed#!k!q
+potions:giant strength#!k
 
-potion of enlightenment
+potions:enlightenment
 
-potion of strength#!k
-potion of intelligence#!k
-potion of wisdom#!k
-potion of dexterity#!k
-potion of constitution#!k
-potion of charisma#!k
-potion of augmentation#!k
+potions:of strength#!k
+potions:of intelligence#!k
+potions:of wisdom#!k
+potions:of dexterity#!k
+potions:of constitution#!k
+potions:of charisma#!k
+potions:augmentation#!k
 
-potion of experience
-potion of polymorph#!k
-potion of new life#!*!*
-potion of self knowledge#!k
+potions:experience
+potions:polymorph#!k
+potions:new life#!*!*
+potions:self knowledge#!k
 
-potion of curing
-potion of healing#!k!q
-potion of life#!k!q
-potion of *healing*#!k!q
-potion of restore mana#!k!q
+potions:curing
+potions:healing#!k!q
+potions:of life#!k!q
+potions:*healing*#!k!q
+potions:restore mana#!k!q
 
 ?:[NOT [EQU $CLASS Berserker]]
-scroll of artifact creation#!*
-scroll of destruction#!*
-scroll of mass genocide#!*
-scroll of genocide#!*
-scroll of forest creation
-scroll of wall of stone
-acquirement#!*
+scrolls:artifact creation#!*
+scrolls:of destruction#!*
+scrolls:mass genocide#!*
+scrolls:genocide#!*
+scrolls:forest creation
+scrolls:wall of stone
+scrolls:acquirement#!*
 ?:1
-
-#?staff of perception#@ui
-#~scroll of teleport#@rt
-#~scroll of phase door#@rb
-#~scroll of word of recall#@rr
-#~scroll of magic mapping#@rm
-#~scroll of identify#@ri
 
 #########################################
 # Devices
@@ -55,27 +48,21 @@ acquirement#!*
 ?unidentified rings
 ?unidentified amulets
 
-rod of healing#@zh
-?staff of healing#@uh
-?staff of speed#@us
-?staff of destruction#@ud
-?wand of rockets#@ar!s!d!k
-?wand of disintegrate#@ad!s!d!k
+rods:angelic healing#@zh!s!d!k
+rods:heroic speed#@zs!s!d!k
+?staves:healing#@uh!s!d!k
+?staves:speed#@us!s!d!k
+?staves:destruction#@ud!s!d!k
+?wands:rocket#@ar!s!d!k
+?wands:disintegrate#@ad!s!d!k
 
-?:[OR [EQU $CLASS Mage High-Mage] [EQU $RACE Beholder Lich] ]
-rod of cold balls#!s!d!k
-rod of fire balls#!s!d!k
-rod of lightning balls#!s!d!k
-rod of acid balls#!s!d!k
-rod of mana balls#!s!d!k
+?:[OR [EQU $CLASS Mage High-Mage Sorcerer] [EQU $RACE Beholder Lich] ]
 wizardstaff
-
-?:[EQU $CLASS Magic-Eater]
-magical devices:rod
-magical devices:staff
-magical devices:wand
-
 ?:1
+
+?unidentified rods
+?unidentified staves
+?unidentified wands
 
 #########################################
 # Armor
@@ -106,31 +93,41 @@ rune sword
 blade of chaos
 
 ?unidentified dice boosted weapons
+?unidentified dice boosted shooters
 ~?unidentified ego
 
 ~dice boosted weapons
+~dice boosted shooters
 
 #########################################
 # Corpses
 #########################################
 
 ?:[EQU $RACE Possessor]
-
 ~wanted corpses#Wanted!k!k!k
 wanted skeletons#Wanted!k!k!k
 ~corpses more level than 0
 
 ?:[NOT [EQU $RACE Possessor]]
-
 wanted corpses#Wanted!k!k!k
 wanted skeletons#Wanted!k!k!k
-
 ?:1
 
 #########################################
 # Spellbooks
 #########################################
 
+?:[EQU $CLASS Sorcerer]
+fourth spellbooks#!s!d!k
+third spellbooks#!k
+~second spellbooks#@mb!k
+~first spellbooks#@ma!k
+
+?:[EQU $CLASS Sorcerer Red-Mage]
+~second spellbooks#@mb!k
+~first spellbooks#@ma!k
+
+?:[NOT [EQU $CLASS Sorcerer Red-Mage]]
 first realm's fourth spellbooks#@md!s!d!k
 first realm's third spellbooks#@mc!k
 ~first realm's second spellbooks#@mb!k
@@ -140,6 +137,7 @@ second realm's fourth spellbooks#@mh!s!d!k
 second realm's third spellbooks#@mg!k
 ~second realm's second spellbooks#@mf!k
 ~second realm's first spellbooks#@me!k
+?:1
 
 #########################################
 # Auto-ID Unaware and Collecting Items
@@ -147,11 +145,8 @@ second realm's third spellbooks#@mg!k
 
 ?unaware items
 
-collecting rod
-collecting potion
-collecting scroll
-?collecting staff
-?collecting wand
+collecting potions
+collecting scrolls
 (collecting items
 
 #########################################
@@ -159,8 +154,8 @@ collecting scroll
 #########################################
 
 ?:[EQU $CLASS Archer]
-junks:^broken skull
-junks:^broken bone
+junk:^broken skull
+junk:^broken bone
 skeletons
 
 ?:[EQU $CLASS Ninja]
@@ -169,7 +164,7 @@ feanorian
 Iron Spike#@v0
 ?:1
 
-!potion of apple juice
+!potions:apple juice
 #!statue
 #!figurine
 
@@ -178,17 +173,20 @@ Iron Spike#@v0
 
 ?:[GEQ $LEVEL 30]
 !nameless common weapons
+!nameless common shooters
 
 ?:[GEQ $LEVEL 20]
 !average common weapons
+!average common shooters
 !average common armors
 ?:1
 
 ?:[LEQ $LEVEL 34]
 #(unidentified armors
 #(unidentified weapons
+#(unidentified shooters
 ?:1
 
 ~special items
 !worthless items
-
+#!unusable items

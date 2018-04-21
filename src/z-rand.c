@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 
@@ -18,14 +18,14 @@
 /*
  * Angband 2.7.9 introduced a new (optimized) random number generator,
  * based loosely on the old "random.c" from Berkeley but with some major
- * optimizations and algorithm changes.  See below for more details.
+ * optimizations and algorithm changes. See below for more details.
  *
  * Code by myself (benh@phial.com) and Randy (randy@stat.tamu.edu).
  *
  * This code provides (1) a "decent" RNG, based on the "BSD-degree-63-RNG"
  * used in Angband 2.7.8, but rather optimized, and (2) a "simple" RNG,
  * based on the simple "LCRNG" currently used in Angband, but "corrected"
- * to give slightly better values.  Both of these are available in two
+ * to give slightly better values. Both of these are available in two
  * flavors, first, the simple "mod" flavor, which is fast, but slightly
  * biased at high values, and second, the simple "div" flavor, which is
  * less fast (and potentially non-terminating) but which is not biased
@@ -238,12 +238,12 @@ static s16b randnor_table[RANDNOR_NUM] =
  *
  * Basically, entry 64*N in the table above represents the number of
  * times out of 32767 that a random variable with normal distribution
- * will fall within N standard deviations of the mean.  That is, about
+ * will fall within N standard deviations of the mean. That is, about
  * 68 percent of the time for N=1 and 95 percent of the time for N=2.
  *
  * The table above contains a "faked" final entry which allows us to
  * pretend that all values in a normal distribution are strictly less
- * than four standard deviations away from the mean.  This results in
+ * than four standard deviations away from the mean. This results in
  * "conservative" distribution of approximately 1/32768 values.
  *
  * Note that the binary search takes up to 16 quick iterations.
@@ -314,7 +314,7 @@ s16b maxroll(int num, int sides)
 
 /*
  * Given a numerator and a denominator, supply a properly rounded result,
- * using the RNG to smooth out remainders.  -LM-
+ * using the RNG to smooth out remainders. -LM-
  */
 s32b div_round(s32b n, s32b d)
 {
@@ -345,7 +345,7 @@ s32b div_round(s32b n, s32b d)
  * Extract a "random" number from 0 to m-1, using the "simple" RNG.
  *
  * This function should be used when generating random numbers in
- * "external" program parts like the main-*.c files.  It preserves
+ * "external" program parts like the main-*.c files. It preserves
  * the current RNG state to prevent influences on game-play.
  *
  * Could also use rand() from <stdlib.h> directly. XXX XXX XXX

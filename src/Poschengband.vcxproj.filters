@@ -564,6 +564,30 @@
     <ClCompile Include="race_centipede.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="c-string.c">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="z-doc.c">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="c-vec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="message.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rect.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj_display.c">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="personality.c">
+      <Filter>Player</Filter>
+    </ClCompile>
+    <ClCompile Include="py_display.c">
+      <Filter>Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
@@ -663,6 +687,21 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="msvc_warnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="c-string.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="z-doc.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="c-vec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,9 +5,9 @@
  ****************************************************************/
 
 /* Finding what monster to evolve into is trivial, since the monster_race type
-   keeps a pointer in that direction.  However, we would like to reverse evolution
-   turning harder monsters into easier ones.  This fn will scan the monster race
-   table looking for a monster that evolves into this one.  Of course, we assume
+   keeps a pointer in that direction. However, we would like to reverse evolution
+   turning harder monsters into easier ones. This fn will scan the monster race
+   table looking for a monster that evolves into this one. Of course, we assume
    there is at most one such race to be found (Not True!)
    Returns 0 if no such race can be found.
 */
@@ -36,7 +36,7 @@ static int _find_devolution_idx(int r_idx)
     return 0;
 }
 
-/*    Evolve or Devolve a Monster.  I spiked this from monster_gain_exp() in melee2.c without
+/*    Evolve or Devolve a Monster. I spiked this from monster_gain_exp() in melee2.c without
     any great understanding on my part.
 */
 static void _change_monster_race(int m_idx, int new_r_idx)
@@ -845,6 +845,11 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
+    if (equip_find_artifact(ART_ETERNITY))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
     if (p_ptr->lev >= 30) res_add(RES_TIME);
     p_ptr->pspeed += (p_ptr->lev) / 7;
 }
@@ -897,21 +902,20 @@ static caster_info * _caster_info(void)
         me.which_stat = A_WIS;
         me.weight = 400;
         me.on_fail = _on_fail;
-        me.options = CASTER_ALLOW_DEC_MANA;
         init = TRUE;
     }
     return &me;
 }
 
-static void _character_dump(FILE* file)
+static void _character_dump(doc_ptr doc)
 {
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    dump_spells_aux(file, spells, ct);
+    py_display_spells(doc, spells, ct);
 }
 
-class_t *time_lord_get_class_t(void)
+class_t *time_lord_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

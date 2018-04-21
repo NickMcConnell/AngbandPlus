@@ -1,0 +1,19 @@
+<style:title>Options</style>
+
+Please choose one of the following online help files:
+
+    <link:option.txt> Options
+    <link:option.txt#Birth> Birth/Start-Up Options
+    <link:option.txt#Input> Input Options
+    <link:option.txt#MapScreen> Map & Screen Options
+    <link:option.txt#TextDisplay> Text Display Options
+    <link:option.txt#GamePlay> Game Play Options
+    <link:option.txt#Disturbance> Disturbance Options
+    <link:option.txt#AutoDestroyer> Easy Auto-Destroyer Options
+    <link:option.txt#BaseDelay> Base Delay Factor
+    <link:option.txt#Hitpoint> Hitpoint Warning
+    <link:option.txt#Autosave> Autosave Options
+    <link:option.txt#Window> Window Flags
+    <link:option.txt#Cheating> Cheating Options
+
+    <color:y>(?) Help System Commands</color>

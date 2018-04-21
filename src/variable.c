@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Angband variables */
@@ -13,6 +13,8 @@
 #include "angband.h"
 
 bool initialized = FALSE;
+
+int game_mode = GAME_MODE_NORMAL;
 
 /*
  * Hack -- Link a copyright message into the executable
@@ -108,8 +110,6 @@ s16b command_new;        /* Command chaining from inven/equip view */
 
 s16b energy_use;        /* Energy use this turn */
 
-bool msg_flag;            /* Used in msg_print() for "buffering" */
-
 s16b running;            /* Current counter for running, if any */
 s16b resting;            /* Current counter for resting, if any */
 
@@ -123,12 +123,13 @@ s16b object_level;        /* Current object creation level */
 s16b monster_level;        /* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
 
-s32b turn;                /* Current game turn */
-s32b turn_limit;        /* Limit of game turn */
+s32b game_turn;                /* Current game turn */
+s32b game_turn_limit;        /* Limit of game turn */
 s32b dungeon_turn;            /* Game turn in dungeon */
 s32b dungeon_turn_limit;    /* Limit of game turn in dungeon */
 s32b old_turn;            /* Turn when level began */
 s32b old_battle;
+s32b player_turn;
 
 bool use_sound;            /* The "sound" mode is enabled */
 bool use_graphics;        /* The "graphics" mode is enabled */
@@ -179,7 +180,7 @@ bool reinit_wilderness = FALSE;
 int current_flow_depth = 0;
 
 /*
- * Software options (set via the '=' command).  See "tables.c"
+ * Software options (set via the '=' command). See "tables.c"
  */
 
 /*** Input Options ***/
@@ -188,7 +189,6 @@ bool rogue_like_commands;    /* Rogue-like commands */
 bool always_pickup;    /* Pick things up by default */
 bool carry_query_flag;    /* Prompt before picking things up */
 bool quick_messages;    /* Activate quick messages */
-bool auto_more;    /* Automatically clear '-more-' prompts */
 bool command_menu;    /* Enable command selection menu */
 bool other_query_flag;    /* Prompt for floor item selection */
 bool use_old_target;    /* Use old target by default */
@@ -210,7 +210,6 @@ bool easy_disarm;    /* Automatically disarm traps */
 bool easy_floor;    /* Display floor stacks in a list */
 #endif
 
-bool use_command;    /* Allow unified use command */
 bool over_exert;    /* Allow casting spells when short of mana */
 bool numpad_as_cursorkey;    /* Use numpad keys as cursor key in editor mode */
 
@@ -226,7 +225,6 @@ bool view_special_lite;    /* Use special colors for floor grids (slow) */
 bool view_perma_grids;    /* Map remembers all perma-lit grids */
 bool view_torch_grids;    /* Map remembers all torch-lit grids */
 bool view_unsafe_grids;    /* Map marked by detect traps */
-bool view_reduce_view;    /* Reduce view-radius in town */
 bool fresh_before;    /* Flush output while continuous command */
 bool fresh_after;    /* Flush output after monster's move */
 bool fresh_message;    /* Flush output after every message */
@@ -246,7 +244,8 @@ bool show_discounts;
 bool show_item_graph;    /* Show items graphics */
 bool equippy_chars;    /* Display 'equippy' chars */
 bool display_food_bar;
-bool display_mutations;    /* Display mutations in 'C'haracter Display */
+bool display_hp_bar;
+bool display_sp_bar;
 bool compress_savefile;    /* Compress messages in savefiles */
 bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation */
 bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
@@ -287,6 +286,7 @@ bool disturb_pets;    /* Disturb when visible pets move */
 bool disturb_panel;    /* Disturb whenever map panel changes */
 bool disturb_state;    /* Disturb whenever player state changes */
 bool disturb_minor;    /* Disturb whenever boring things happen */
+bool town_no_disturb;
 bool ring_bell;    /* Audible bell (on errors, etc) */
 bool disturb_trap_detect;    /* Disturb when leaving trap detected area */
 bool alert_trap_detect;    /* Alert when leaving trap detected area */
@@ -294,12 +294,10 @@ bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 /*** Birth Options ***/
 
-bool manual_haggle;    /* Manually haggle in stores */
 bool easy_band;    /* Easy Mode (*) */
 bool smart_learn;    /* Monsters learn from their mistakes (*) */
 bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
-bool vanilla_town;    /* Use 'vanilla' town without quests and wilderness */
-bool lite_town;    /* Use 'lite' town without a wilderness */
+bool no_wilderness;
 bool ironman_shops;    /* Stores are permanently closed (*) */
 bool ironman_small_levels;    /* Always create unusually small dungeon levels (*) */
 bool ironman_downward;    /* Disable recall and use of up stairs (*) */
@@ -323,6 +321,7 @@ bool enable_virtues;
 /*** Easy Object Auto-Destroyer ***/
 
 bool destroy_items;    /* Use easy auto-destroyer */
+bool destroy_debug;
 bool destroy_feeling;    /* Apply auto-destroy as sense feeling */
 bool destroy_identify;    /* Apply auto-destroy as identify an item */
 bool leave_worth;    /* Auto-destroyer leaves known worthy items */
@@ -368,10 +367,7 @@ bool closing_flag;        /* Dungeon is closing */
 /*
  * Dungeon size info
  */
-
-s16b panel_row_min, panel_row_max;
-s16b panel_col_min, panel_col_max;
-s16b panel_col_prt, panel_row_prt;
+point_t viewport_origin;
 
 /*
  * Player location in dungeon
@@ -483,38 +479,6 @@ s16b quark__num;
  * The pointers to the quarks [QUARK_MAX]
  */
 cptr *quark__str;
-
-
-/*
- * The next "free" index to use
- */
-u16b message__next;
-
-/*
- * The index of the oldest message (none yet)
- */
-u16b message__last;
-
-/*
- * The next "free" offset
- */
-u16b message__head;
-
-/*
- * The offset to the oldest used char (none yet)
- */
-u16b message__tail;
-
-/*
- * The array of offsets, by index [MESSAGE_MAX]
- */
-u16b *message__ptr;
-
-/*
- * The array of chars, by offset [MESSAGE_BUF]
- */
-char *message__buf;
-
 
 /*
  * The array of normal options
@@ -779,7 +743,6 @@ player_type *p_ptr = &p_body;
  * (sex, race, class, magic)
  */
 player_sex *sp_ptr;
-player_seikaku *ap_ptr;
 player_magic *mp_ptr;
 
 
@@ -1012,7 +975,6 @@ bool easy_disarm;
 bool easy_floor;
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
-bool use_command;
 bool center_player;
 bool center_running;
 
@@ -1284,15 +1246,11 @@ s16b feat_wall_inner;
 s16b feat_wall_solid;
 s16b floor_type[100], fill_type[100];
 
-bool now_damaged;
-s16b now_message;
+s32b now_turn;
 bool use_menu;
 
 
-#ifdef TRAVEL
-/* for travel */
 travel_type travel;
-#endif
 
 /* for snipers */
 int snipe_type = SP_NONE;

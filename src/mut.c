@@ -275,6 +275,139 @@ void mut_calc_bonuses(void)
     var_clear(&v);
 }
 
+void mut_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    /* Unfortunately, there is no way to send a SPELL_GET_FLAGS
+       event to our mutation "objects" ... So we need to delocalize
+       our logic. */
+
+    if (mut_present(MUT_FLESH_ROT))
+        remove_flag(flgs, TR_REGEN);
+
+    if (mut_present(MUT_XTRA_FAT) ||
+        mut_present(MUT_XTRA_LEGS) ||
+        mut_present(MUT_SHORT_LEG))
+    {
+        add_flag(flgs, TR_SPEED);
+    }
+
+    if (mut_present(MUT_ELEC_AURA))
+        add_flag(flgs, TR_SH_ELEC);
+
+    if (mut_present(MUT_FIRE_AURA))
+    {
+        add_flag(flgs, TR_SH_FIRE);
+        add_flag(flgs, TR_LITE);
+    }
+
+    if (mut_present(MUT_WINGS))
+        add_flag(flgs, TR_LEVITATION);
+
+    if (mut_present(MUT_FEARLESS))
+        add_flag(flgs, TR_RES_FEAR);
+
+    if (mut_present(MUT_REGEN))
+        add_flag(flgs, TR_REGEN);
+
+    if (mut_present(MUT_ESP))
+        add_flag(flgs, TR_TELEPATHY);
+
+    if (mut_present(MUT_MOTION))
+        add_flag(flgs, TR_FREE_ACT);
+
+    if (mut_present(MUT_TREAD_SOFTLY))
+        add_flag(flgs, TR_STEALTH);
+
+    if (mut_present(MUT_DRACONIAN_SHIELD))
+    {
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED:
+            add_flag(flgs, TR_SH_FIRE);
+            break;
+        case DRACONIAN_WHITE:
+            add_flag(flgs, TR_SH_COLD);
+            break;
+        case DRACONIAN_BLUE:
+            add_flag(flgs, TR_SH_ELEC);
+            break;
+        case DRACONIAN_CRYSTAL:
+            add_flag(flgs, TR_SH_SHARDS);
+            break;
+        }
+    }
+
+    if (mut_present(MUT_DRACONIAN_REGEN))
+        add_flag(flgs, TR_REGEN);
+
+    if (mut_present(MUT_VULN_ELEM))
+    {
+        add_flag(flgs, TR_VULN_ACID);
+        add_flag(flgs, TR_VULN_ELEC);
+        add_flag(flgs, TR_VULN_FIRE);
+        add_flag(flgs, TR_VULN_COLD);
+    }
+}
+
+void mut_calc_stats(s16b stats[MAX_STATS])
+{
+    /* Note: Do not modify stats in SPELL_CALC_BONUS for the mutation. This would
+       seem correct, but we also need to report stat mods to the user on the character
+       sheet. I don't want to duplicate the code, so calc_bonuses() will call mut_get_stats()
+       and adjust the stats at the correct time. And py_display() will call mut_get_stats()
+       and report the adjustments in the correct place and in the correct way. OK?
+       Someday I'll redesign the entire approach to calc_bonuses() ...
+    */
+    if (mut_present(MUT_HYPER_STR))
+        stats[A_STR] += 4;
+    if (mut_present(MUT_PUNY))
+        stats[A_STR] -= 4;
+    if (mut_present(MUT_FELL_SORCERY))
+    {
+        stats[A_STR] -= 1;
+        stats[A_DEX] -= 1;
+        stats[A_CON] -= 1;
+    }
+    if (mut_present(MUT_HYPER_INT))
+    {
+        stats[A_INT] += 4;
+        stats[A_WIS] += 4;
+    }
+    if (mut_present(MUT_MORONIC))
+    {
+        stats[A_INT] -= 4;
+        stats[A_WIS] -= 4;
+    }
+    if (mut_present(MUT_STEEL_SKIN))
+        stats[A_DEX] -= 1;
+    if (mut_present(MUT_LIMBER))
+        stats[A_DEX] += 3;
+    if (mut_present(MUT_ARTHRITIS))
+        stats[A_DEX] -= 3;
+    if (mut_present(MUT_RESILIENT))
+        stats[A_CON] += 4;
+    if (mut_present(MUT_XTRA_FAT))
+        stats[A_CON] += 2;
+    if (mut_present(MUT_ALBINO))
+        stats[A_CON] -= 4;
+    if (mut_present(MUT_FLESH_ROT))
+    {
+        stats[A_CON] -= 2;
+        stats[A_CHR] -= 1;
+    }
+    if (mut_present(MUT_SILLY_VOICE))
+        stats[A_CHR] -= 4;
+    if (mut_present(MUT_BLANK_FACE))
+        stats[A_CHR] -= 1;
+    if (mut_present(MUT_SCALES))
+        stats[A_CHR] -= 1;
+    if (mut_present(MUT_WARTS))
+        stats[A_CHR] -= 2;
+
+    if (mut_present(MUT_ILL_NORM))
+        stats[A_CHR] = 0;
+}
+
 int mut_count(mut_pred pred)
 {
     int i;
@@ -293,26 +426,13 @@ int mut_count(mut_pred pred)
 
 void mut_do_cmd_knowledge(void)
 {
-    FILE *fff;
-    char file_name[1024];
-
-    /* Open a new file */
-    fff = my_fopen_temp(file_name, 1024);
-
-    /* Dump the mutations to file */
-    if (fff) mut_dump_file(fff);
-
-    /* Close the file */
-    my_fclose(fff);
-
-    /* Display the file contents */
-    show_file(TRUE, file_name, "Mutations", 0, 0);
-
-    /* Remove the file */
-    fd_kill(file_name);
+    doc_ptr doc = doc_alloc(80);
+    mut_display(doc);
+    doc_display(doc, "Mutations", 0);
+    doc_free(doc);
 }
 
-void mut_dump_file(FILE* file)
+void mut_display(doc_ptr doc)
 {
     int i;
     variant desc;
@@ -322,7 +442,7 @@ void mut_dump_file(FILE* file)
         if (mut_present(i))
         {
             (_mutations[i].spell.fn)(SPELL_MUT_DESC, &desc);
-            fprintf(file, "%s\n", var_get_string(&desc));
+            doc_printf(doc, "%s\n", var_get_string(&desc));
         }
     }
     var_clear(&desc);
@@ -398,7 +518,7 @@ int mut_gain_choice(mut_pred pred)
             char buf2[1024];
             int idx = choices[i];
             mut_name(idx, buf2);
-            sprintf(buf, "You will gain %s.  Are you sure?", buf2);
+            sprintf(buf, "You will gain %s. Are you sure?", buf2);
             if (get_check(buf))
             {
                 mut_gain(idx);

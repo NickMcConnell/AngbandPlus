@@ -1,0 +1,30 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:U>You attack the Topaz monk:</color> You miss. You miss. You kick him in the
+ankle. You <color:U>butt</color>. You land a <color:y>Cat's Claw</color>. <color:R>You have slain the Topaz </color>   LEVEL <color:G>    29</color>
+<color:R>monk.</color> You feel something roll beneath your feet.                    EXP <color:G>   63.2k</color>
+<color:g>The Topaz monk attacks you:</color> He misses. He hits. He misses. He       AU  <color:G>    130k</color>
+hits. It was a critical hit! <color:U>(You retaliate:</color> You <color:U>butt</color>. It was a     <color:d>  </color><color:U>}</color><color:g>==</color><color:y>"!</color><color:U>(</color><color:g>(</color><color:s>]</color><color:U>]</color><color:d> </color>
+<color:r>superb</color> hit! <color:G>Welcome to level 29.</color><color:U>)</color>                                   STR : <color:G> 18/79</color>
+<color:g>The Topaz monk attacks you:</color> He misses. He misses. He kicks. He      INT : <color:G>    12</color>
+misses.                                                             WIS : <color:G> 18/90</color>
+       #<color:s>%</color><color:D>#</color><color:s>%%</color>  <color:s>%</color><color:D>#</color><color:s>%</color>#<color:s>%</color><color:u>.................</color><color:s>%%%%</color><color:u>...........</color>#####<color:D>#</color><color:s>%</color>    #<color:u>.</color>##<color:D>#</color> DEX : <color:G>18/162</color>
+       #<color:s>%</color>#<color:D>#</color><color:s>%</color>  ##<color:s>%%</color><color:u>....................................</color><color:s>%%</color>##<color:s>%</color>#<color:s>%</color>##<color:u>.</color>#<color:s>%</color># CON : <color:G> 18/10</color>
+        <color:s>%</color>##<color:s>%</color>  <color:s>%</color><color:D>#</color>##<color:s>%</color><color:u>............................</color><color:U>+</color><color:s>%</color><color:u>.</color>###<color:u>.</color><color:s>%</color><color:D>#</color>###<color:D>#</color><color:u>.....</color>#<color:u>.</color> CHR : <color:G>    15</color>
+        <color:o>*</color>     ##<color:s>%</color> #<color:s>%%</color><color:u>.........................</color><color:s>%</color>#<color:u>.</color>#<color:s>%</color> #<color:u>...</color>#<color:u>..</color>#<color:u>.</color>#<color:U>'</color>#<color:u>.</color>#<color:u>.</color> AC     <color:G>  137</color>
+       ####<color:s>%</color><color:o>*</color><color:s>%%</color>     ###<color:u>......................</color>#<color:s>%%</color>##  #<color:s>%%</color><color:u>.....</color><color:U>'</color><color:s>%</color><color:u>.....</color> HP <color:y> 274</color>/<color:G> 384</color>
+       <color:s>%</color><color:D>#</color><color:s>%</color>#<color:D>#</color>#<color:D>#</color><color:s>%</color>     #<color:D>#</color>###<color:u>...............</color><color:U>'</color>#<color:s>%%</color>##        ##<color:s>%</color>>#<color:s>%</color>#<color:u>......</color> SP <color:y> 112</color>/<color:G> 143</color>
+     <color:s>%%%</color>##<color:D>#</color>#<color:D>#</color>##     <color:s>%</color>#<color:s>%</color> <color:s>%</color>#<color:u>.</color><color:s>%</color><color:U>+</color>#<color:s>%</color>##<color:u>.....</color>####              #<color:s>%</color>##<color:u>.......</color>
+#######<color:s>%</color>####<color:s>%%</color>##<color:s>%</color>        #<color:s>%</color><color:u>.</color>  #<color:s>%</color><color:y>p</color><color:s>%%%%%</color>#    <color:s>%%%</color>            #<color:u>........</color> @[<color:y>*******</color>--]
+      <color:o>*</color><color:D>#</color><color:s>%</color>   <color:s>%%%</color><color:D>#</color>#         <color:s>%%</color># <color:s>%</color><color:D>#</color><color:s>%</color>@<color:s>%</color>        #<color:D>#</color>#            #<color:u>........</color> <color:G>?</color>[<color:y>********</color>-]
+      ##<color:s>%</color>  ##<color:D>#</color><color:s>%</color>###          # <color:u>.</color><color:s>%</color>###        <color:s>%</color>##   <color:s>%%</color>#    <color:s>%%</color><color:o>*</color><color:u>.....</color>#<color:s>%</color># <color:U>,</color>[<color:G>*********</color>]
+   ### #<color:s>%</color># #<color:D>#</color><color:s>%</color>##<color:D>#</color>#<color:s>%</color>#<color:s>%</color>#      #<color:D>#</color>  ####  ##<color:s>%</color>  ###   <color:s>%</color><color:D>#</color>#  ###<color:D>#</color><color:s>%</color><color:u>..</color><color:g>^</color><color:u>..</color>#<color:u>.</color># <color:y>p</color>[<color:y>*********</color>]
+   #<color:D>#</color># #<color:D>#</color># ### ##<color:D>#</color>##<color:D>#</color>#  ####### ##<color:D>#</color>## #<color:D>#</color>#  #<color:D>#</color>#   ###  #<color:D>#</color>#<color:D>#</color>#<color:u>.....</color>#<color:U>'</color>#
+   #######      ######  #<color:D>#</color>##<color:D>#</color>#  ###<color:D>#</color>#####  ####       ##<color:D>##</color>#<color:u>..</color><color:G>^</color><color:u>.....</color>
+#####<color:D>#</color>#     ####   ###  ####<color:D>#</color># ######<color:D>#</color>#     #<color:D>#</color>#  ###   ####<color:u>........</color> <color:G>Fast (+3)</color>
+#<color:D>#</color>##<color:D>#</color>########<color:D>##</color>#   #<color:D>#</color>#     ###?#<color:D>#</color>##<color:D>#</color>####    #### #<color:D>#</color>#      ##<color:u>.....</color><color:g>^</color><color:u>.</color> <color:G>Full</color>
+#######<color:D>#</color>##<color:D>#</color>#####   ###       # ###     ##### #<color:D>#</color># ###       ##<color:u>......</color> <color:B>Study (9)</color>
+###   ########<color:D>#</color>###           #  ## ###  ##<color:D>#</color># ####           ##<color:u>.....</color>
+#<color:D>#</color>####     #<color:D>#</color>###<color:D>#</color>#           ##    ##<color:D>#</color># #<color:D>#</color>#####<color:D>#</color>#            ######
+<color:s>Lonely Mountain: L35</color>
+</style>

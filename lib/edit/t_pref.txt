@@ -3,7 +3,7 @@
 # Defines the preferences for the town features
 
 # Dungeon entrance
-F:>:ENTRANCE:3:0:0:0:0:NONE:2
+F:>:ENTRANCE:3:0:0:0:0:NONE:30
 
 # Vanilla Dungeon entrance
 F:<:ENTRANCE:3:0:0:0:0:NONE:1

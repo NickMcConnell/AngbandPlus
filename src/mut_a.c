@@ -1,7 +1,7 @@
 /*
  * Mutations that cannot be activated as normal spells.
  * These mutations might be timed effects, or just things
- * like "Horns" that you simply have.  They might be augmentations
+ * like "Horns" that you simply have. They might be augmentations
  * like "Super Human He-man".
  *
  * We are still implementing all mutations as spells for
@@ -55,9 +55,6 @@ void albino_mut(int cmd, variant *res)
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "You are albino (-4 CON).");
-        break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CON] -= 4;
         break;
     default:
         default_spell(cmd, res);
@@ -186,9 +183,6 @@ void arthritis_mut(int cmd, variant *res)
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "Your joints ache constantly (-3 DEX).");
-        break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_DEX] -= 3;
         break;
     default:
         default_spell(cmd, res);
@@ -377,9 +371,6 @@ void blank_face_mut(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "Your face is featureless (-1 CHR).");
         break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CHR] -= 1;
-        break;
     default:
         default_spell(cmd, res);
         break;
@@ -433,7 +424,7 @@ void beak_mut(int cmd, variant *res)
         a.ds = 4;
         a.weight = 30;
         a.blows = 100;
-        a.msg = "You hit %s with your beak.";
+        a.msg = "You peck.";
         a.name = "Beak";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         break;
@@ -997,10 +988,6 @@ void einstein_mut(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "Your brain is a living computer (+4 INT/WIS).");
         break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_INT] += 4;
-        p_ptr->stat_add[A_WIS] += 4;
-        break;
     default:
         default_spell(cmd, res);
         break;
@@ -1200,7 +1187,6 @@ void fat_mut(int cmd, variant *res)
         var_set_string(res, "You are extremely fat (+2 CON, -2 speed).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CON] += 2;
         p_ptr->pspeed -= 2;
         break;
     default:
@@ -1256,9 +1242,6 @@ void fell_sorcery_mut(int cmd, variant *res)
         break;
     case SPELL_CALC_BONUS:
         p_ptr->spell_power++;
-        p_ptr->stat_add[A_STR]--;
-        p_ptr->stat_add[A_DEX]--;
-        p_ptr->stat_add[A_CON]--;
         break;
     default:
         default_spell(cmd, res);
@@ -1380,7 +1363,7 @@ void fumbling_mut(int cmd, variant *res)
                 object_type *o_ptr = equip_obj(slot);
                 if (!object_is_cursed(o_ptr))
                 {
-                    msg_print("You drop your weapon!");
+                    cmsg_print(TERM_VIOLET, "You drop your weapon!");
                     inven_drop(slot, 1);
                     msg_print("Press 'Y' to continue.");
                     flush();
@@ -1389,8 +1372,7 @@ void fumbling_mut(int cmd, variant *res)
                         char ch = inkey();
                         if (ch == 'Y') break;
                     }
-                    prt("", 0, 0);
-                    msg_flag = FALSE;
+                    msg_line_clear();
                 }
             }
         }
@@ -1471,9 +1453,6 @@ void he_man_mut(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "You are superhumanly strong (+4 STR).");
         break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_STR] += 4;
-        break;
     default:
         default_spell(cmd, res);
         break;
@@ -1503,7 +1482,7 @@ void horns_mut(int cmd, variant *res)
         a.ds = 6;
         a.weight = 150;
         a.blows = 100;
-        a.msg = "You hit %s with your horns.";
+        a.msg = "You impale.";
         a.name = "Horns";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         break;
@@ -1554,7 +1533,7 @@ void infernal_deal_mut(int cmd, variant *res)
         var_set_string(res, "You have made an infernal deal.");
         break;
     case SPELL_HELP_DESC:
-        var_set_string(res, "You will regain hp and sp whenever a nearby monster is slain.");
+        var_set_string(res, "You will regain hp and sp whenever a nearby enemy monster is slain.");
         break;
     default:
         default_spell(cmd, res);
@@ -1635,9 +1614,6 @@ void limber_mut(int cmd, variant *res)
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "Your body is very limber (+3 DEX).");
-        break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_DEX] += 3;
         break;
     default:
         default_spell(cmd, res);
@@ -1740,10 +1716,6 @@ void moron_mut(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "You are moronic (-4 INT/WIS).");
         break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_INT] -= 4;
-        p_ptr->stat_add[A_WIS] -= 4;
-        break;
     default:
         default_spell(cmd, res);
         break;
@@ -1804,6 +1776,7 @@ void nausea_mut(int cmd, variant *res)
             
             if (music_singing_any()) bard_stop_singing();
             if (hex_spelling_any()) stop_hex_spell_all();
+            warlock_stop_singing();
         }
         break;
     default:
@@ -2033,9 +2006,6 @@ void puny_mut(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "You are puny (-4 STR).");
         break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_STR] -= 4;
-        break;
     default:
         default_spell(cmd, res);
         break;
@@ -2194,9 +2164,6 @@ void resilient_mut(int cmd, variant *res)
     case SPELL_MUT_DESC:
         var_set_string(res, "You are very resilient (+4 CON).");
         break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CON] += 4;
-        break;
     default:
         default_spell(cmd, res);
         break;
@@ -2222,8 +2189,6 @@ void rotting_flesh_mut(int cmd, variant *res)
         var_set_string(res, "Your flesh is rotting (-2 CON, -1 CHR).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CON] -= 2;
-        p_ptr->stat_add[A_CHR] -= 1;
         p_ptr->regenerate = FALSE; /* Equip and spells processed later ... */
         break;
     default:
@@ -2275,7 +2240,6 @@ void scales_mut(int cmd, variant *res)
         var_set_string(res, "Your skin has turned into scales (-1 CHR, +10 AC).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CHR] -= 1;
         p_ptr->to_a += 10;
         p_ptr->dis_to_a += 10;
         break;
@@ -2309,7 +2273,7 @@ void scorpion_tail_mut(int cmd, variant *res)
         a.weight = 50;
         a.blows = 100;
         a.effect[0] = GF_POIS;
-        a.msg = "You hit %s with your tail.";
+        a.msg = "You lash.";
         a.name = "Tail";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         break;
@@ -2386,9 +2350,6 @@ void silly_voice_mut(int cmd, variant *res)
         break;
     case SPELL_MUT_DESC:
         var_set_string(res, "Your voice is a silly squeak (-4 CHR).");
-        break;
-    case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CHR] -= 4;        
         break;
     default:
         default_spell(cmd, res);
@@ -2487,7 +2448,6 @@ void steel_skin_mut(int cmd, variant *res)
         var_set_string(res, "Your skin is made of steel (-1 DEX, +25 AC).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_DEX] -= 1;
         p_ptr->to_a += 25;
         p_ptr->dis_to_a += 25;
         break;
@@ -2570,7 +2530,7 @@ void tentacles_mut(int cmd, variant *res)
         a.ds = 5;
         a.weight = 50;
         a.blows = 100;
-        a.msg = "You hit %s with your tentacles.";
+        a.msg = "You hit with your tentacles.";
         a.name = "Tentacles";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         break;
@@ -2633,7 +2593,7 @@ void trunk_mut(int cmd, variant *res)
         a.ds = 4;
         a.weight = 200;
         a.blows = 100;
-        a.msg = "You hit %s with your trunk.";
+        a.msg = "You hit with your trunk.";
         a.name = "Trunk";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         break;
@@ -2799,7 +2759,6 @@ void warts_mut(int cmd, variant *res)
         var_set_string(res, "Your skin is covered with warts (-2 CHR, +5 AC).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->stat_add[A_CHR] -= 2;
         p_ptr->to_a += 5;
         p_ptr->dis_to_a += 5;
         break;

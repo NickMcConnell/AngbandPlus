@@ -8,7 +8,7 @@
  *
  * COPYRIGHT:
  *
- *   (C) Copyright Microsoft Corp. 1993.  All rights reserved.
+ *   (C) Copyright Microsoft Corp. 1993. All rights reserved.
  *
  *   You have a royalty-free right to use, modify, reproduce and
  *   distribute the Sample Files (and/or any modified version) in
@@ -129,7 +129,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
     }
 
     /*
-     * 24-bit DIB with no color table.  return default palette.  Another
+     * 24-bit DIB with no color table. return default palette. Another
      * option would be to create a 256 color "rainbow" palette to provide
      * some good color choices.
      */
@@ -145,7 +145,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
  * device-dependent representation of the image.
  *
  * Returns TRUE on success (phPal and phBitmap are filled with appropriate
- * handles.  Caller is responsible for freeing objects) and FALSE on failure
+ * handles. Caller is responsible for freeing objects) and FALSE on failure
  * (unable to create objects, both pointer are invalid).
  */
 static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
@@ -190,7 +190,7 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
 
 /*
  * Reads a DIB from a file, obtains a handle to its BITMAPINFO struct, and
- * loads the DIB.  Once the DIB is loaded, the function also creates a bitmap
+ * loads the DIB. Once the DIB is loaded, the function also creates a bitmap
  * and palette out of the DIB for a device-dependent form.
  *
  * Returns TRUE if the DIB is loaded and the bitmap/palette created, in which

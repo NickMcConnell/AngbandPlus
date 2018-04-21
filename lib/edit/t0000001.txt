@@ -183,6 +183,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:130
 
+# Wand: Frost Bolt
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Magic-Eater] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:269:304
+
 # Another Long Sword
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Death-Sword] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
@@ -283,7 +288,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:25
 # continue with quest 28
 ?:[EQU $QUEST25 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:28
-F:!:FLOOR:3:0:320
+F:!:FLOOR:3:0:270:550
 
 # Quest 25 finished, continue with quest 28
 ?:[EQU $QUEST25 4]
@@ -725,13 +730,11 @@ F:@:FLOOR:3:0:0:0:94
 
 ##########################################################################
 # Beastmaster
-# TODO
-# Eorlingas
+# Impaler
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:100
+F:@:FLOOR:3:0:0:0:324
 
-# TODO
 # Eorlingas
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
@@ -739,13 +742,11 @@ F:@:FLOOR:3:0:0:0:100
 
 ##########################################################################
 # Cavalry
-# TODO
-# GaeBolg
+# Dragonlance
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Cavalry] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:163
+F:@:FLOOR:3:0:0:0:322
 
-# TODO
 # GaeBolg
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Cavalry] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
@@ -766,17 +767,25 @@ F:@:FLOOR:3:0:0:0:80
 ##########################################################################
 # Devicemaster
 
-# Wand of Rockets
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Wands] ]
-F:@:FLOOR:3:0:299
+# Wand: Rocket
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Wands] [EQU [MOD $RANDOM27 5] 0] ]
+F:@:FLOOR:3:0:269:559
 
-# Staff of Mana Storm
+# Wand: Disintegrate
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Wands] [GEQ [MOD $RANDOM27 5] 1] ]
+F:@:FLOOR:3:0:269:417
+
+# Staff: Mana Storm
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Staves] ]
-F:@:FLOOR:3:0:629
+F:@:FLOOR:3:0:270:560
 
-# Rod of Havoc
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Rods] ]
-F:@:FLOOR:3:0:350
+# Rod: Starburst
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Rods] [EQU [MOD $RANDOM27 5] 0] ]
+F:@:FLOOR:3:0:271:405
+
+# Rod: Mana Ball
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Devicemaster] [EQU $SPECIALITY Rods] [GEQ [MOD $RANDOM27 5] 1] ]
+F:@:FLOOR:3:0:271:416
 
 ##########################################################################
 # Weaponmaster
@@ -866,15 +875,15 @@ F:@:FLOOR:3:0:0:0:138
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:134
 
-# Monkey King's Cudgel
+# Ruyi Jingu Bang
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:255
 
-# Nar-i-vagil
+# Asclepius
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] [GEQ [MOD $RANDOM27 5] 1] ] 
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:118
+F:@:FLOOR:3:0:0:0:225
 
 # Werewindle
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] [EQU [MOD $RANDOM27 5] 0] ]
@@ -1157,12 +1166,13 @@ B:0:R:Jelly:None
 B:1:N:Mayor:Uldrik:Human
 B:1:A:0:Request quest:0:0:q:6:0
 B:1:A:1:Identify item:100:100:i:44:0
+B:1:A:2:Legal Name Change:10:10:c:57:0
 
 B:13:N:Hunter's office:Kopei:Human
 B:13:A:0:Today's wanted:0:0:a:38:0
 B:13:A:1:Wanted unique list:0:0:b:39:0
 B:13:A:2:Special target:0:0:s:37:0
-B:13:A:3:Recieve prize:0:0:c:40:0
+B:13:A:3:Receive prize:0:0:c:40:0
 
 
 ############### Town Layout ###############

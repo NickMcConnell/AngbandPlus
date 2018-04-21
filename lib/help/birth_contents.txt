@@ -1,0 +1,17 @@
+<style:title>Creating a Character</style>
+
+Please choose one of the following online help files:
+
+    <link:birth.txt> Creating a Character
+    <link:birth.txt#GameMode> The Game Mode
+    <link:birth.txt#CharAttributes> Character Attributes
+    <link:birth.txt#PrimaryStats> Primary Statistics
+    <link:birth.txt#PrimarySkills> Primary Skills
+    <link:birth.txt#Proficiency> Proficiency Levels
+    <link:birth.txt#BirthOptions> Birth Options
+    <link:birth.txt#AutoRoller> The Auto-Roller
+    <link:birth.txt#QuickStart> Quick Start
+    <link:birth.txt#Name> Your Character's Name
+
+    <color:y>(?) Help System Commands</color>
+

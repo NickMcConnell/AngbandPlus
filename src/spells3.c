@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Spell code (part 3) */
@@ -452,7 +452,7 @@ void teleport_player(int dis, u32b mode)
                 monster_type *m_ptr = &m_list[tmp_m_idx];
                 monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-                /* Hack: Duelist Disengage.  Marked foe can never follow */
+                /* Hack: Duelist Disengage. Marked foe can never follow */
                 if ((mode & TELEPORT_DISENGAGE) && tmp_m_idx == p_ptr->duelist_target_idx)
                     continue;
 
@@ -794,7 +794,7 @@ int choose_dungeon(cptr note, int y, int x)
     s16b *dun;
 
     /* Hack -- No need to choose dungeon in some case */
-    if (lite_town || vanilla_town || ironman_downward)
+    if (no_wilderness || ironman_downward)
     {
         if (max_dlv[DUNGEON_ANGBAND]) return DUNGEON_ANGBAND;
         else
@@ -903,14 +903,14 @@ bool recall_player(int turns)
         p_ptr->word_recall = turns;
         p_ptr->leaving_method = LEAVING_RECALL;
 
-        msg_print("The air about you becomes charged...");
+        cmsg_print(TERM_L_BLUE, "The air about you becomes charged...");
 
         p_ptr->redraw |= (PR_STATUS);
     }
     else
     {
         p_ptr->word_recall = 0;
-        msg_print("A tension leaves the air around you...");
+        cmsg_print(TERM_L_BLUE, "A tension leaves the air around you...");
 
         p_ptr->leaving_method = LEAVING_UNKOWN;
         p_ptr->redraw |= (PR_STATUS);
@@ -1033,7 +1033,7 @@ bool apply_disenchant(int mode)
             virtue_add(VIRTUE_ENCHANTMENT, -2);
 
             p_ptr->update |= (PU_BONUS);
-            p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+            p_ptr->window |= (PW_EQUIP);
             calc_android_exp();
         }
         return TRUE;
@@ -1706,6 +1706,7 @@ static int remove_curse_aux(int all)
         o_ptr->feeling = FEEL_NONE;
         p_ptr->update |= (PU_BONUS);
         p_ptr->window |= (PW_EQUIP);
+        p_ptr->redraw |= PR_EFFECTS;
         ct++;
     }
 
@@ -1826,9 +1827,6 @@ bool alchemy(void)
         /* Redraw gold */
         p_ptr->redraw |= (PR_GOLD);
 
-        /* Window stuff */
-        p_ptr->window |= (PW_PLAYER);
-
         if (prace_is_(RACE_MON_LEPRECHAUN))
             p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
@@ -1876,12 +1874,12 @@ static void break_curse(object_type *o_ptr)
  * Enchants a plus onto an item. -RAK-
  *
  * Revamped!  Now takes item pointer, number of times to try enchanting,
- * and a flag of what to try enchanting.  Artifacts resist enchantment
+ * and a flag of what to try enchanting. Artifacts resist enchantment
  * some of the time, and successful enchantment to at least +0 might
  * break a curse on the item. -CFT-
  *
  * Note that an item can technically be enchanted all the way to +15 if
- * you wait a very, very, long time.  Going from +9 to +10 only works
+ * you wait a very, very, long time. Going from +9 to +10 only works
  * about 5% of the time, and from +10 to +11 only about 1% of the time.
  *
  * Note that this function can now be used on "piles" of items, and
@@ -2021,7 +2019,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
     /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
     calc_android_exp();
 
@@ -2125,6 +2123,7 @@ bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
         return FALSE;
 
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) return FALSE;
+    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) return FALSE;
 
     return TRUE;
 }
@@ -2263,7 +2262,7 @@ bool identify_item(object_type *o_ptr)
     if (o_ptr->ident & IDENT_KNOWN)
         old_known = TRUE;
 
-    if (!(o_ptr->ident & (IDENT_MENTAL)))
+    if (!(o_ptr->ident & (IDENT_FULL)))
     {
         if (object_is_artifact(o_ptr) || one_in_(5))
             virtue_add(VIRTUE_KNOWLEDGE, 1);
@@ -2275,6 +2274,13 @@ bool identify_item(object_type *o_ptr)
 
     stats_on_identify(o_ptr);
 
+    /* Experimental: Jewelry is a bit tedious to *id*, and id often reveals very little. */
+    if (object_is_jewelry(o_ptr) && !object_is_artifact(o_ptr))
+    {
+        o_ptr->ident |= IDENT_FULL;
+        ego_aware(o_ptr);
+    }
+
     /* Player touches it */
     o_ptr->marked |= OM_TOUCHED;
 
@@ -2285,10 +2291,10 @@ bool identify_item(object_type *o_ptr)
     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
     /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
     strcpy(record_o_name, o_name);
-    record_turn = turn;
+    record_turn = game_turn;
 
     /* Description */
     object_desc(o_name, o_ptr, OD_NAME_ONLY);
@@ -2429,7 +2435,7 @@ bool mundane_spell(bool only_equip)
 
 static bool item_tester_hook_identify_fully(object_type *o_ptr)
 {
-    if ( (!object_is_known(o_ptr) || !(o_ptr->ident & IDENT_MENTAL))
+    if ( (!object_is_known(o_ptr) || !(o_ptr->ident & IDENT_FULL))
       && (!_hack_obj_p || _hack_obj_p(o_ptr)) )
     {
         return TRUE;
@@ -2473,19 +2479,20 @@ bool identify_fully(object_p p)
         o_ptr = &o_list[0 - item];
 
     old_known = identify_item(o_ptr);
-    o_ptr->ident |= (IDENT_MENTAL);
+    o_ptr->ident |= (IDENT_FULL);
     ego_aware(o_ptr);
 
     handle_stuff();
     object_desc(o_name, o_ptr, 0);
 
+/*  Message seems redundant ...
     if (equip_is_valid_slot(item))
         msg_format("%^s: %s (%c).", equip_describe_slot(item), o_name, index_to_label(item));
     else if (item >= 0)
         msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
     else
         msg_format("On the ground: %s.", o_name);
-
+*/
     if ( p_ptr->prace == RACE_MON_POSSESSOR 
       && o_ptr->tval == TV_CORPSE 
       && o_ptr->sval == SV_CORPSE )
@@ -2495,353 +2502,196 @@ bool identify_fully(object_p p)
         lore_do_probe(o_ptr->pval);
     }
 
-    (void)screen_object(o_ptr, 0L);
+    obj_display(o_ptr);
     autopick_alter_item(item, (bool)(destroy_identify && !old_known));
     return TRUE;
 }
 
-/*
- * Hook for "get_item()".  Determine if something is rechargable.
+/* Recharging
+ * Move mana from either the player or another device into a target device.
+ * The source device is destroyed (but not the player :) but the target never is.
+ * The effect may fail, however, wasting either the source device or the player's sp.
  */
-bool item_tester_hook_recharge(object_type *o_ptr)
+
+static object_type *_obj_recharge_src_ptr = NULL;
+static bool _obj_recharge_dest(object_type *o_ptr)
 {
-    /* Recharge staffs */
-    if (o_ptr->tval == TV_STAFF) return (TRUE);
+    /* dest must be different from source */
+    if (o_ptr == _obj_recharge_src_ptr)
+        return FALSE;
 
-    /* Recharge wands */
-    if (o_ptr->tval == TV_WAND) return (TRUE);
-
-    /* Hack -- Recharge rods */
-    if (o_ptr->tval == TV_ROD) return (TRUE);
-
-    /* Nope */
-    return (FALSE);
+    switch (o_ptr->tval)
+    {
+    case TV_WAND: case TV_ROD: case TV_STAFF:
+        if (device_sp(o_ptr) < device_max_sp(o_ptr))
+            return TRUE;
+        break;
+    }
+    return FALSE;
 }
 
-
-/*
- * Recharge a wand/staff/rod from the pack or on the floor.
- * This function has been rewritten in Oangband and ZAngband.
- *
- * Sorcery/Arcane -- Recharge  --> recharge(plev * 4)
- * Chaos -- Arcane Binding     --> recharge(90)
- *
- * Scroll of recharging        --> recharge(130)
- * Artifact activation/Thingol --> recharge(130)
- *
- * It is harder to recharge high level, and highly charged wands,
- * staffs, and rods.  The more wands in a stack, the more easily and
- * strongly they recharge.  Staffs, however, each get fewer charges if
- * stacked.
- *
- * XXX XXX XXX Beware of "sliding index errors".
- */
-bool recharge(int power)
+static bool _obj_recharge_src(object_type *o_ptr)
 {
-    int item, lev;
-    int recharge_strength, recharge_amount;
+    switch (o_ptr->tval)
+    {
+    case TV_WAND: case TV_ROD: case TV_STAFF:
+        if (device_sp(o_ptr) > 0)
+            return TRUE;
+        break;
+    }
+    return FALSE;
+}
 
+static void _recharge_aux(object_type *o_ptr, int amt, int power)
+{
+    int fail_odds = 0;
+    int lev = o_ptr->activation.difficulty;
+    int div = 15;
+
+    if (devicemaster_is_speciality(o_ptr))
+        div = 8;
+
+    if (power > lev/2)
+        fail_odds = (power - lev/2) / div;
+
+    if (one_in_(fail_odds))
+    {
+        /* Do nothing for now. My experience is that players get too conservative
+         * using recharge in the dungeon if there is any chance of failure at all.
+         * Remember, you're lucky if you find just one wand of rockets all game long!
+         * I plan on removing the town recharging service to compensate for this
+         * generosity, though. */
+         msg_print("Failed!");
+         return;
+    }
+
+    device_increase_sp(o_ptr, amt);
+}
+
+bool recharge_from_player(int power)
+{
+    int          item;
+    int          amt, max;
     object_type *o_ptr;
-    object_kind *k_ptr;
 
-    bool fail = FALSE;
-    byte fail_type = 1;
+    /* Get destination device */
+    _obj_recharge_src_ptr = NULL;
+    item_tester_hook = _obj_recharge_dest;
+    if (!get_item(&item, "Recharge which item? ", "You have nothing to recharge.", USE_INVEN | USE_FLOOR))
+        return FALSE;
 
-    cptr q, s;
-    char o_name[MAX_NLEN];
-
-    /* Only accept legal items */
-    item_tester_hook = item_tester_hook_recharge;
-
-    /* Get an item */
-    q = "Recharge which item? ";
-    s = "You have nothing to recharge.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
-
-    /* Get the item (in the pack) */
     if (item >= 0)
-    {
         o_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
     else
-    {
         o_ptr = &o_list[0 - item];
-    }
 
-    /* Get the object kind. */
-    k_ptr = &k_info[o_ptr->k_idx];
-
-    /* Extract the object "level" */
-    lev = k_info[o_ptr->k_idx].level;
-
-
-    /* Recharge a rod */
-    if (o_ptr->tval == TV_ROD)
+    amt = power;
+    max = device_max_sp(o_ptr) - device_sp(o_ptr);
+    if (amt > max)
+        amt = max;
+    if (p_ptr->prace == RACE_MON_LEPRECHAUN)
     {
-        /* Extract a recharge strength by comparing object level to power. */
-        recharge_strength = ((power > lev/2) ? (power - lev/2) : 0) / 5;
-
-
-        /* Back-fire */
-        if (one_in_(recharge_strength))
-        {
-            /* Activate the failure code. */
-            fail = TRUE;
-        }
-
-        /* Recharge */
-        else
-        {
-            /* Recharge amount */
-            recharge_amount = (power * damroll(3, 2));
-
-            /* Recharge by that amount */
-            if (o_ptr->timeout > recharge_amount)
-                o_ptr->timeout -= recharge_amount;
-            else
-                o_ptr->timeout = 0;
-        }
+        if (amt > p_ptr->au / 100)
+            amt = p_ptr->au / 100;
     }
+    else if (amt > p_ptr->csp)
+        amt = p_ptr->csp;
 
-
-    /* Recharge wand/staff */
+    if (p_ptr->prace == RACE_MON_LEPRECHAUN)
+    {
+        p_ptr->au -= amt * 100;
+        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+    }
     else
-    {
-        /* Extract a recharge strength by comparing object level to power.
-         * Divide up a stack of wands' charges to calculate charge penalty.
-         */
-        if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
-            recharge_strength = (100 + power - lev -
-            (8 * o_ptr->pval / o_ptr->number)) / 15;
+        sp_player(-amt);
 
-        /* All staffs, unstacked wands. */
-        else recharge_strength = (100 + power - lev -
-            (8 * o_ptr->pval)) / 15;
+    _recharge_aux(o_ptr, amt, power);
 
-        /* Paranoia */
-        if (recharge_strength < 0) recharge_strength = 0;
-
-        /* Back-fire */
-        if (one_in_(recharge_strength))
-        {
-            /* Activate the failure code. */
-            fail = TRUE;
-        }
-
-        /* If the spell didn't backfire, recharge the wand or staff. */
-        else
-        {
-            /* Recharge based on the standard number of charges. */
-            recharge_amount = randint1(1 + k_ptr->pval / 2);
-
-            /* Multiple wands in a stack increase recharging somewhat. */
-            if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
-            {
-                recharge_amount +=
-                    (randint1(recharge_amount * (o_ptr->number - 1))) / 2;
-                if (recharge_amount < 1) recharge_amount = 1;
-                if (recharge_amount > 12) recharge_amount = 12;
-            }
-
-            /* But each staff in a stack gets fewer additional charges,
-             * although always at least one.
-             */
-            if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
-            {
-                recharge_amount /= o_ptr->number;
-                if (recharge_amount < 1) recharge_amount = 1;
-            }
-
-            /* Recharge the wand or staff. */
-            o_ptr->pval += recharge_amount;
-
-
-            /* Hack -- we no longer "know" the item */
-            o_ptr->ident &= ~(IDENT_KNOWN);
-
-            /* Hack -- we no longer think the item is empty */
-            o_ptr->ident &= ~(IDENT_EMPTY);
-        }
-    }
-
-
-    /* Inflict the penalties for failing a recharge. */
-    if (fail)
-    {
-        /* Artifacts are never destroyed. */
-        if (object_is_fixed_artifact(o_ptr))
-        {
-            object_desc(o_name, o_ptr, OD_NAME_ONLY);
-            msg_format("The recharging backfires - %s is completely drained!", o_name);
-
-
-            /* Artifact rods. */
-            if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout < 10000))
-                o_ptr->timeout = (o_ptr->timeout + 100) * 2;
-
-            /* Artifact wands and staffs. */
-            else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
-                o_ptr->pval = 0;
-        }
-        else
-        {
-            /* Get the object description */
-            object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-            /*** Determine Seriousness of Failure ***/
-
-            /* Mages recharge objects more safely. */
-            if ( p_ptr->pclass == CLASS_MAGE 
-              || p_ptr->pclass == CLASS_BLOOD_MAGE 
-              || p_ptr->pclass == CLASS_HIGH_MAGE 
-              || p_ptr->pclass == CLASS_SORCERER 
-              || p_ptr->pclass == CLASS_MAGIC_EATER 
-              || p_ptr->pclass == CLASS_DEVICEMASTER
-              || p_ptr->pclass == CLASS_BLUE_MAGE)
-            {
-                /* 10% chance to blow up one rod, otherwise draining. */
-                if (o_ptr->tval == TV_ROD)
-                {
-                    if (one_in_(10)) fail_type = 2;
-                    else fail_type = 1;
-                }
-                /* 75% chance to blow up one wand, otherwise draining. */
-                else if (o_ptr->tval == TV_WAND)
-                {
-                    if (!one_in_(3)) fail_type = 2;
-                    else fail_type = 1;
-                }
-                /* 50% chance to blow up one staff, otherwise no effect. */
-                else if (o_ptr->tval == TV_STAFF)
-                {
-                    if (one_in_(2)) fail_type = 2;
-                    else fail_type = 0;
-                }
-            }
-
-            /* All other classes get no special favors. */
-            else
-            {
-                /* 33% chance to blow up one rod, otherwise draining. */
-                if (o_ptr->tval == TV_ROD)
-                {
-                    if (one_in_(3)) fail_type = 2;
-                    else fail_type = 1;
-                }
-                /* 20% chance of the entire stack, else destroy one wand. */
-                else if (o_ptr->tval == TV_WAND)
-                {
-                    if (one_in_(5)) fail_type = 3;
-                    else fail_type = 2;
-                }
-                /* Blow up one staff. */
-                else if (o_ptr->tval == TV_STAFF)
-                {
-                    fail_type = 2;
-                }
-            }
-
-            /*** Apply draining and destruction. ***/
-
-            /* Drain object or stack of objects. */
-            if (fail_type == 1)
-            {
-                if (o_ptr->tval == TV_ROD)
-                {
-                    msg_print("The recharge backfires, draining the rod further!");
-
-                    if (o_ptr->timeout < 10000)
-                        o_ptr->timeout = (o_ptr->timeout + 100) * 2;
-                }
-                else if (o_ptr->tval == TV_WAND)
-                {
-                    msg_format("You save your %s from destruction, but all charges are lost.", o_name);
-
-                    o_ptr->pval = 0;
-                }
-                /* Staffs aren't drained. */
-            }
-
-            /* Destroy an object or one in a stack of objects. */
-            if (fail_type == 2)
-            {
-                if (o_ptr->number > 1)
-                    msg_format("Wild magic consumes one of your %s!", o_name);
-
-                else
-                    msg_format("Wild magic consumes your %s!", o_name);
-
-
-                /* Reduce rod stack maximum timeout, drain wands. */
-                if (o_ptr->tval == TV_ROD) o_ptr->timeout = (o_ptr->number - 1) * k_ptr->pval;
-                if (o_ptr->tval == TV_WAND) o_ptr->pval = 0;
-
-                /* Reduce and describe inventory */
-                if (item >= 0)
-                {
-                    inven_item_increase(item, -1);
-                    inven_item_describe(item);
-                    inven_item_optimize(item);
-                }
-
-                /* Reduce and describe floor item */
-                else
-                {
-                    floor_item_increase(0 - item, -1);
-                    floor_item_describe(0 - item);
-                    floor_item_optimize(0 - item);
-                }
-            }
-
-            /* Destroy multiple members of a stack of objects. */
-            if (fail_type == 3)
-            {
-                int num = randint1(3);
-
-                if (num > o_ptr->number)
-                    num = o_ptr->number;
-
-                if (o_ptr->number == num)
-                    msg_format("Wild magic consumes all of your %s!", o_name);
-                else if (num > 1)
-                    msg_format("Wild magic consumes some of your %s!", o_name);
-                else
-                    msg_format("Wild magic consumes one of your %s!", o_name);
-
-
-
-                /* Reduce and describe inventory */
-                if (item >= 0)
-                {
-                    inven_item_increase(item, -num);
-                    inven_item_describe(item);
-                    inven_item_optimize(item);
-                }
-
-                /* Reduce and describe floor item */
-                else
-                {
-                    floor_item_increase(0 - item, -num);
-                    floor_item_describe(0 - item);
-                    floor_item_optimize(0 - item);
-                }
-            }
-        }
-    }
-
-    /* Combine / Reorder the pack (later) */
     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+    p_ptr->window |= PW_INVEN;
 
-    /* Window stuff */
-    p_ptr->window |= (PW_INVEN);
-
-    /* Something was done */
-    return (TRUE);
+    return TRUE;
 }
 
+bool recharge_from_device(int power)
+{
+    int          src_item, dest_item;
+    int          amt, max;
+    bool         destroy = TRUE;
+    object_type *src_ptr, *dest_ptr;
+
+    /* Get source device */
+    item_tester_hook = _obj_recharge_src;
+    if (!get_item(&src_item, "Pick a source device? ", "You need a source device to power the recharging.", USE_INVEN | USE_FLOOR))
+        return FALSE;
+
+    if (src_item >= 0)
+        src_ptr = &inventory[src_item];
+    else
+        src_ptr = &o_list[0 - src_item];
+
+    /* Get destination device */
+    _obj_recharge_src_ptr = src_ptr;
+    item_tester_hook = _obj_recharge_dest;
+    if (!get_item(&dest_item, "Recharge which item? ", "You have nothing to recharge.", USE_INVEN | USE_FLOOR))
+        return FALSE;
+
+    if (dest_item >= 0)
+        dest_ptr = &inventory[dest_item];
+    else
+        dest_ptr = &o_list[0 - dest_item];
+
+    amt = device_sp(src_ptr);
+    max = device_max_sp(dest_ptr) - device_sp(dest_ptr);
+    if (max > power)
+        max = power;
+
+    if (amt > max)
+        amt = max;
+
+    if (!one_in_(3) || devicemaster_is_speciality(src_ptr))
+    {
+        device_decrease_sp(src_ptr, amt);
+        destroy = FALSE;
+    }
+
+    _recharge_aux(dest_ptr, amt, power);
+
+    /* Destroy at the end ... otherwise, the inventory may slide and
+     * invalidate our pointers (dest_ptr could end up pointing at
+     * the wrong object!) */
+    if (destroy)
+    {
+        if (object_is_fixed_artifact(src_ptr))
+            device_decrease_sp(src_ptr, amt);
+        else
+        {
+            char name[MAX_NLEN];
+
+            object_desc(name, src_ptr, OD_OMIT_PREFIX);
+            src_ptr = NULL;
+
+            msg_format("Recharging consumes your %s!", name);
+            if (src_item >= 0)
+            {
+                inven_item_increase(src_item, -1);
+                inven_item_describe(src_item);
+                inven_item_optimize(src_item);
+            }
+            else
+            {
+                floor_item_increase(0 - src_item, -1);
+                floor_item_describe(0 - src_item);
+                floor_item_optimize(0 - src_item);
+            }
+        }
+    }
+
+    p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+    p_ptr->window |= PW_INVEN;
+
+    return TRUE;
+}
 
 /*
  * Bless a weapon
@@ -2992,7 +2842,7 @@ bool bless_weapon(void)
     p_ptr->update |= (PU_BONUS);
 
     /* Window stuff */
-    p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+    p_ptr->window |= PW_EQUIP;
 
     calc_android_exp();
 
@@ -3512,10 +3362,10 @@ bool spell_okay(int spell, bool learned, bool study_pray, int use_realm)
 /*
  * Print a list of spells (for browsing or casting or viewing)
  */
-void print_spells(int target_spell, byte *spells, int num, int y, int x, int use_realm)
+void print_spells(int target_spell, byte *spells, int num, rect_t display, int use_realm)
 {
     int             i, spell, exp_level, increment = 64;
-    magic_type      *s_ptr;
+    magic_type     *s_ptr;
     cptr            comment;
     char            info[80];
     char            out_val[160];
@@ -3523,8 +3373,8 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
     int             need_mana;
     char            ryakuji[15];
     char            buf[256];
-    bool max = FALSE;
-    caster_info        *caster_ptr = get_caster_info();
+    bool            max = FALSE;
+    caster_info    *caster_ptr = get_caster_info();
 
 
     if (((use_realm <= REALM_NONE) || (use_realm > MAX_REALM)) && p_ptr->wizard)
@@ -3532,7 +3382,6 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 
 
     /* Title the list */
-    prt("", y, x);
     if (use_realm == REALM_HISSATSU)
         strcpy(buf,"  Lvl  SP");
     else
@@ -3543,8 +3392,9 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
             strcpy(buf,"Profic Lvl  SP Fail Desc");
     }
 
-    put_str("Name", y, x + 5);
-    put_str(buf, y, x + 29);
+    Term_erase(display.x, display.y, display.cx);
+    put_str("Name", display.y, display.x + 5);
+    put_str(buf, display.y, display.x + 29);
 
     if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE)) increment = 0;
     else if (use_realm == p_ptr->realm1) increment = 0;
@@ -3553,6 +3403,8 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
     /* Dump the spells */
     for (i = 0; i < num; i++)
     {
+        Term_erase(display.x, display.y + i + 1, display.cx);
+
         /* Access the spell */
         spell = spells[i];
 
@@ -3602,7 +3454,7 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
         {
                 strcat(out_val, format("%-30s", "(illegible)"));
 
-                c_prt(TERM_L_DARK, out_val, y + i + 1, x);
+                c_prt(TERM_L_DARK, out_val, display.y + i + 1, display.x);
                 continue;
         }
 
@@ -3678,17 +3530,17 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
                 (max ? '!' : ' '), ryakuji,
                 s_ptr->slevel, need_mana, spell_chance(spell, use_realm), comment));
         }
-        c_prt(line_attr, out_val, y + i + 1, x);
+        c_put_str(line_attr, out_val, display.y + i + 1, display.x);
     }
 
     /* Clear the bottom line */
-    prt("", y + i + 1, x);
+    Term_erase(display.x, display.y + i + 1, display.cx);
 }
 
 
 /*
  * Note that amulets, rods, and high-level spell books are immune
- * to "inventory damage" of any kind.  Also sling ammo and shovels.
+ * to "inventory damage" of any kind. Also sling ammo and shovels.
  */
 
 
@@ -3950,7 +3802,7 @@ int inven_damage(inven_func typ, int p1, int which)
             if (amt)
             {
                 /* Get a description */
-                object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+                object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_COLOR_CODED);
 
                 msg_format("%d of your %s (%c) %s destroyed!", 
                             amt, o_name, index_to_label(i), (amt > 1) ? "were" : "was");
@@ -4012,8 +3864,8 @@ static int minus_ac(void)
 
         msg_format("Your %s is damaged!", o_name);
         o_ptr->to_a--;
-        p_ptr->update |= (PU_BONUS);
-        p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+        p_ptr->update |= PU_BONUS;
+        p_ptr->window |= PW_EQUIP;
         calc_android_exp();
         return TRUE;
     }
@@ -4254,7 +4106,7 @@ void blast_object(object_type *o_ptr)
 
     p_ptr->update |= (PU_BONUS);
     p_ptr->update |= (PU_MANA);
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }
 
 /*
@@ -4474,22 +4326,23 @@ bool dimension_door_aux(int x, int y, int rng)
     if (!mut_present(MUT_ASTRAL_GUIDE))
         p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
 
-    if (!cave_player_teleportable_bold(y, x, 0L) ||
-        (distance(y, x, py, px) > rng) ||
-        (!randint0(plev / 10 + 10)))
+    if (p_ptr->wizard)
+    {
+        teleport_player_to(y, x, 0L);
+        return TRUE;
+    }
+    else if ( !cave_player_teleportable_bold(y, x, 0L)
+           || distance(y, x, py, px) > rng
+           || !randint0(plev / 10 + 10) )
     {
         if (!mut_present(MUT_ASTRAL_GUIDE))
             p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
         teleport_player((plev + 2) * 2, TELEPORT_PASSIVE);
-
-        /* Failed */
         return FALSE;
     }
     else
     {
         teleport_player_to(y, x, 0L);
-
-        /* Success */
         return TRUE;
     }
 }
@@ -4516,21 +4369,11 @@ bool dimension_door(int rng)
 }
 
 
-
 bool eat_magic(int power)
 {
     object_type * o_ptr;
-    object_kind *k_ptr;
-    int lev, item;
-    int recharge_strength = 0;
-
-    bool fail = FALSE;
-    byte fail_type = 1;
-
-    cptr q, s;
-    char o_name[MAX_NLEN];
-
-    item_tester_hook = item_tester_hook_recharge;
+    int item, amt;
+    int fail_odds = 0, lev;
 
     if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
     {
@@ -4539,274 +4382,66 @@ bool eat_magic(int power)
     }
 
     /* Get an item */
-    q = "Drain which item? ";
-    s = "You have nothing to drain.";
-
-    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
+    item_tester_hook = _obj_recharge_src;
+    if (!get_item(&item, "Drain which item? ", "You have nothing to drain.", USE_INVEN | USE_FLOOR))
+        return FALSE;
 
     if (item >= 0)
-    {
         o_ptr = &inventory[item];
-    }
     else
-    {
         o_ptr = &o_list[0 - item];
-    }
 
-    k_ptr = &k_info[o_ptr->k_idx];
-    lev = k_info[o_ptr->k_idx].level;
+    amt = o_ptr->activation.difficulty;
+    if (amt > device_sp(o_ptr))
+        amt = device_sp(o_ptr);
 
-    if (o_ptr->tval == TV_ROD)
+    lev = o_ptr->activation.difficulty;
+    if (power > lev/2)
+        fail_odds = (power - lev/2) / 5;
+
+    if (one_in_(fail_odds))
     {
-        recharge_strength = ((power > lev/2) ? (power - lev/2) : 0) / 5;
+        char name[MAX_NLEN];
+        bool drain = FALSE;
 
-        /* Back-fire */
-        if (one_in_(recharge_strength))
+        object_desc(name, o_ptr, OD_OMIT_PREFIX);
+
+        if (object_is_fixed_artifact(o_ptr) || !one_in_(10))
+            drain = TRUE;
+
+        if (drain)
         {
-            /* Activate the failure code. */
-            fail = TRUE;
+            msg_format("Failed! Your %s is completely drained.", name);
+            device_decrease_sp(o_ptr, device_sp(o_ptr));
         }
         else
         {
-            if (o_ptr->timeout > (o_ptr->number - 1) * k_ptr->pval)
+            msg_format("Failed! Your %s is destroyed.", name);
+            if (item >= 0)
             {
-                msg_print("You can't absorb energy from a discharged rod.");
-
+                inven_item_increase(item, -1);
+                inven_item_describe(item);
+                inven_item_optimize(item);
             }
+
+            /* Reduce and describe floor item */
             else
             {
-                p_ptr->csp += lev;
-                o_ptr->timeout += k_ptr->pval;
+                floor_item_increase(0 - item, -1);
+                floor_item_describe(0 - item);
+                floor_item_optimize(0 - item);
             }
         }
     }
     else
     {
-        /* All staffs, wands. */
-        recharge_strength = (100 + power - lev) / 15;
-
-        /* Paranoia */
-        if (recharge_strength < 0) recharge_strength = 0;
-
-        /* Back-fire */
-        if (one_in_(recharge_strength))
-        {
-            /* Activate the failure code. */
-            fail = TRUE;
-        }
-        else
-        {
-            if (o_ptr->pval > 0)
-            {
-                p_ptr->csp += lev / 2;
-                o_ptr->pval --;
-
-                /* XXX Hack -- unstack if necessary */
-                if ((o_ptr->tval == TV_STAFF) && (item >= 0) && (o_ptr->number > 1))
-                {
-                    object_type forge;
-                    object_type *q_ptr;
-
-                    /* Get local object */
-                    q_ptr = &forge;
-
-                    /* Obtain a local object */
-                    object_copy(q_ptr, o_ptr);
-
-                    /* Modify quantity */
-                    q_ptr->number = 1;
-
-                    /* Restore the charges */
-                    o_ptr->pval++;
-
-                    /* Unstack the used item */
-                    o_ptr->number--;
-                    p_ptr->total_weight -= q_ptr->weight;
-                    item = inven_carry(q_ptr);
-
-                    /* Message */
-                    msg_print("You unstack your staff.");
-
-                }
-            }
-            else
-            {
-                msg_print("There's no energy there to absorb!");
-
-            }
-            if (!o_ptr->pval) o_ptr->ident |= IDENT_EMPTY;
-        }
+        device_decrease_sp(o_ptr, amt);
+        sp_player(amt);
     }
 
-    /* Inflict the penalties for failing a recharge. */
-    if (fail)
-    {
-        /* Artifacts are never destroyed. */
-        if (object_is_fixed_artifact(o_ptr))
-        {
-            object_desc(o_name, o_ptr, OD_NAME_ONLY);
-            msg_format("The recharging backfires - %s is completely drained!", o_name);
-
-
-            /* Artifact rods. */
-            if (o_ptr->tval == TV_ROD)
-                o_ptr->timeout = k_ptr->pval * o_ptr->number;
-
-            /* Artifact wands and staffs. */
-            else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
-                o_ptr->pval = 0;
-        }
-        else
-        {
-            /* Get the object description */
-            object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
-
-            /*** Determine Seriousness of Failure ***/
-
-            /* Mages recharge objects more safely. */
-            if ( p_ptr->pclass == CLASS_MAGE 
-              || p_ptr->pclass == CLASS_BLOOD_MAGE 
-              || p_ptr->pclass == CLASS_HIGH_MAGE 
-              || p_ptr->pclass == CLASS_SORCERER 
-              || p_ptr->pclass == CLASS_MAGIC_EATER 
-              || p_ptr->pclass == CLASS_DEVICEMASTER
-              || p_ptr->pclass == CLASS_BLUE_MAGE )
-            {
-                /* 10% chance to blow up one rod, otherwise draining. */
-                if (o_ptr->tval == TV_ROD)
-                {
-                    if (one_in_(10)) fail_type = 2;
-                    else fail_type = 1;
-                }
-                /* 75% chance to blow up one wand, otherwise draining. */
-                else if (o_ptr->tval == TV_WAND)
-                {
-                    if (!one_in_(3)) fail_type = 2;
-                    else fail_type = 1;
-                }
-                /* 50% chance to blow up one staff, otherwise no effect. */
-                else if (o_ptr->tval == TV_STAFF)
-                {
-                    if (one_in_(2)) fail_type = 2;
-                    else fail_type = 0;
-                }
-            }
-
-            /* All other classes get no special favors. */
-            else
-            {
-                /* 33% chance to blow up one rod, otherwise draining. */
-                if (o_ptr->tval == TV_ROD)
-                {
-                    if (one_in_(3)) fail_type = 2;
-                    else fail_type = 1;
-                }
-                /* 20% chance of the entire stack, else destroy one wand. */
-                else if (o_ptr->tval == TV_WAND)
-                {
-                    if (one_in_(5)) fail_type = 3;
-                    else fail_type = 2;
-                }
-                /* Blow up one staff. */
-                else if (o_ptr->tval == TV_STAFF)
-                {
-                    fail_type = 2;
-                }
-            }
-
-            /*** Apply draining and destruction. ***/
-
-            /* Drain object or stack of objects. */
-            if (fail_type == 1)
-            {
-                if (o_ptr->tval == TV_ROD)
-                {
-                    msg_format("You save your rod from destruction, but all charges are lost.", o_name);
-
-                    o_ptr->timeout = k_ptr->pval * o_ptr->number;
-                }
-                else if (o_ptr->tval == TV_WAND)
-                {
-                    msg_format("You save your %s from destruction, but all charges are lost.", o_name);
-
-                    o_ptr->pval = 0;
-                }
-                /* Staffs aren't drained. */
-            }
-
-            /* Destroy an object or one in a stack of objects. */
-            if (fail_type == 2)
-            {
-                if (o_ptr->number > 1)
-                {
-                    msg_format("Wild magic consumes one of your %s!", o_name);
-
-                    /* Reduce rod stack maximum timeout, drain wands. */
-                    if (o_ptr->tval == TV_ROD) o_ptr->timeout = MIN(o_ptr->timeout, k_ptr->pval * (o_ptr->number - 1));
-                    else if (o_ptr->tval == TV_WAND) o_ptr->pval = o_ptr->pval * (o_ptr->number - 1) / o_ptr->number;
-
-                }
-                else
-                    msg_format("Wild magic consumes your %s!", o_name);
-
-                /* Reduce and describe inventory */
-                if (item >= 0)
-                {
-                    inven_item_increase(item, -1);
-                    inven_item_describe(item);
-                    inven_item_optimize(item);
-                }
-
-                /* Reduce and describe floor item */
-                else
-                {
-                    floor_item_increase(0 - item, -1);
-                    floor_item_describe(0 - item);
-                    floor_item_optimize(0 - item);
-                }
-            }
-
-            /* Destroy all members of a stack of objects. */
-            if (fail_type == 3)
-            {
-                if (o_ptr->number > 1)
-                    msg_format("Wild magic consumes all your %s!", o_name);
-
-                else
-                    msg_format("Wild magic consumes your %s!", o_name);
-
-
-
-                /* Reduce and describe inventory */
-                if (item >= 0)
-                {
-                    inven_item_increase(item, -999);
-                    inven_item_describe(item);
-                    inven_item_optimize(item);
-                }
-
-                /* Reduce and describe floor item */
-                else
-                {
-                    floor_item_increase(0 - item, -999);
-                    floor_item_describe(0 - item);
-                    floor_item_optimize(0 - item);
-                }
-            }
-        }
-    }
-
-    if (p_ptr->csp > p_ptr->msp)
-    {
-        p_ptr->csp = p_ptr->msp;
-    }
-
-    /* Redraw mana and hp */
-    p_ptr->redraw |= (PR_MANA);
-
+    p_ptr->redraw |= PR_MANA;
     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-    p_ptr->window |= (PW_INVEN);
-
+    p_ptr->window |= PW_INVEN;
     return TRUE;
 }
 
@@ -4924,6 +4559,9 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
         summon_kin_type = 'g';
         break;
     }    
+
+    if (warlock_is_(WARLOCK_GIANTS))
+        summon_kin_type = 'P';
 
     if (p_ptr->current_r_idx)
         summon_kin_type = r_info[p_ptr->current_r_idx].d_char;

@@ -1,0 +1,28 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+[Previous Messages, Line 3857/3917]
+
+<color:U>You attack Combat-Echizen "Because it's time": </color>You claw.<color:U> </color>You claw.<color:U> </color>You
+miss.<color:U> </color>You miss.<color:U> </color>You bite.<color:U> </color>It was a <color:R>great</color> hit!<color:U> </color>You bite.
+
+<color:U>You attack Combat-Echizen "Because it's time": </color>You claw.<color:U> </color>It was a
+<color:r>superb</color> hit!<color:U> </color>Combat-Echizen "Because it's time" says shiftlessly, 'Oh.
+No.'<color:U> </color><color:R>You have slain Combat-Echizen "Because it's time".</color><color:U> </color><color:B>You just </color>
+<color:B>completed your quest!</color>
+<color:D>xxxxxxxx</color>                              # #
+<color:D>xxxxxxx</color>                               # #
+<color:D>xxxxxxx</color>#<color:s>%</color>#                            # <color:s>%</color>
+<color:D>xxxxx</color>#<color:D>x</color>  #                  ########### #########<color:o>*</color>
+<color:D>xxxxx</color># ############         #            <color:W>|</color>
+<color:D>xxxxxx</color>            #         # ##################<color:s>%</color>
+<color:D>xxxx</color>#%%####       #     ### # #                 #
+<color:D>xxxxx</color>     #       #     #.# # #########<color:U>'</color>######<color:s>%</color>##
+<color:D>xxxx</color>#   # #     # #     #.# #   #             #
+<color:D>xxxx</color>#   # #     # #     #.# #   #######<color:U>'</color>#####<color:s>%</color>#
+<color:D>xxxx</color>%   #       # #     #.# #.....#         #
+<color:D>xxxx</color>#   ######### #     #.###.....#####<color:U>'</color>#####
+<color:D>xxxxx</color>             #     #<color:s>D</color>#.#.......#     #
+<color:D>xxxx</color>###############     ##<color:R>p</color>#........###<color:U>'</color>###
+<color:D>xxxx</color>                     ####.....<color:U><</color>..
+<color:D>xxxx</color>                        ######################
+</style>

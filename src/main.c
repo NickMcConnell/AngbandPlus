@@ -99,8 +99,8 @@ static void create_user_dir(void)
  * DEFAULT_PATH, and in either case, branch off appropriately.
  *
  * First, we'll look for the ANGBAND_PATH environment variable,
- * and then look for the files in there.  If that doesn't work,
- * we'll try the DEFAULT_PATH constant.  So be sure that one of
+ * and then look for the files in there. If that doesn't work,
+ * we'll try the DEFAULT_PATH constant. So be sure that one of
  * these two things works...
  *
  * We must ensure that the path ends with "PATH_SEP" if needed,
@@ -110,7 +110,7 @@ static void create_user_dir(void)
  * Note that the "path" must be "Angband:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
  *
- * Make sure that the path doesn't overflow the buffer.  We have
+ * Make sure that the path doesn't overflow the buffer. We have
  * to leave enough space for the path separator, directory, and
  * filenames.
  */
@@ -177,43 +177,43 @@ static void change_path(cptr info)
 	{
 		case 'a':
 		{
-			string_free(ANGBAND_DIR_APEX);
-			ANGBAND_DIR_APEX = string_make(s+1);
+            z_string_free(ANGBAND_DIR_APEX);
+            ANGBAND_DIR_APEX = z_string_make(s+1);
 			break;
 		}
 
 		case 'f':
 		{
-			string_free(ANGBAND_DIR_FILE);
-			ANGBAND_DIR_FILE = string_make(s+1);
+            z_string_free(ANGBAND_DIR_FILE);
+            ANGBAND_DIR_FILE = z_string_make(s+1);
 			break;
 		}
 
 		case 'h':
 		{
-			string_free(ANGBAND_DIR_HELP);
-			ANGBAND_DIR_HELP = string_make(s+1);
+            z_string_free(ANGBAND_DIR_HELP);
+            ANGBAND_DIR_HELP = z_string_make(s+1);
 			break;
 		}
 
 		case 'i':
 		{
-			string_free(ANGBAND_DIR_INFO);
-			ANGBAND_DIR_INFO = string_make(s+1);
+            z_string_free(ANGBAND_DIR_INFO);
+            ANGBAND_DIR_INFO = z_string_make(s+1);
 			break;
 		}
 
 		case 'u':
 		{
-			string_free(ANGBAND_DIR_USER);
-			ANGBAND_DIR_USER = string_make(s+1);
+            z_string_free(ANGBAND_DIR_USER);
+            ANGBAND_DIR_USER = z_string_make(s+1);
 			break;
 		}
 
 		case 'x':
 		{
-			string_free(ANGBAND_DIR_XTRA);
-			ANGBAND_DIR_XTRA = string_make(s+1);
+            z_string_free(ANGBAND_DIR_XTRA);
+            ANGBAND_DIR_XTRA = z_string_make(s+1);
 			break;
 		}
 
@@ -231,36 +231,36 @@ static void change_path(cptr info)
 
 		case 'b':
 		{
-			string_free(ANGBAND_DIR_BONE);
-			ANGBAND_DIR_BONE = string_make(s+1);
+            z_string_free(ANGBAND_DIR_BONE);
+            ANGBAND_DIR_BONE = z_string_make(s+1);
 			break;
 		}
 
 		case 'd':
 		{
-			string_free(ANGBAND_DIR_DATA);
-			ANGBAND_DIR_DATA = string_make(s+1);
+            z_string_free(ANGBAND_DIR_DATA);
+            ANGBAND_DIR_DATA = z_string_make(s+1);
 			break;
 		}
 
 		case 'e':
 		{
-			string_free(ANGBAND_DIR_EDIT);
-			ANGBAND_DIR_EDIT = string_make(s+1);
+            z_string_free(ANGBAND_DIR_EDIT);
+            ANGBAND_DIR_EDIT = z_string_make(s+1);
 			break;
 		}
 
 		case 's':
 		{
-			string_free(ANGBAND_DIR_SAVE);
-			ANGBAND_DIR_SAVE = string_make(s+1);
+            z_string_free(ANGBAND_DIR_SAVE);
+            ANGBAND_DIR_SAVE = z_string_make(s+1);
 			break;
 		}
 
 		case 'z':
 		{
-			string_free(ANGBAND_DIR_SCRIPT);
-			ANGBAND_DIR_SCRIPT = string_make(s+1);
+            z_string_free(ANGBAND_DIR_SCRIPT);
+            ANGBAND_DIR_SCRIPT = z_string_make(s+1);
 			break;
 		}
 
@@ -278,7 +278,7 @@ static void change_path(cptr info)
  * Simple "main" function for multiple platforms.
  *
  * Note the special "--" option which terminates the processing of
- * standard options.  All non-standard options (if any) are passed
+ * standard options. All non-standard options (if any) are passed
  * directly to the "init_xxx()" function.
  */
 int main(int argc, char *argv[])
@@ -770,9 +770,6 @@ int main(int argc, char *argv[])
 
 	/* Initialize */
 	init_angband();
-
-	/* Wait for response */
-	pause_line(23);
 
         /* Play the game */
 	play_game(new_game);

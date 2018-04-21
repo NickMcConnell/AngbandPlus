@@ -1,0 +1,13 @@
+The Magic System
+
+Please choose one of the following online help files:
+
+    [a] The Magic System
+    [b] Spellbook Magic
+    [c] General Realms of Spellbook Magic
+    [d] Class Specific Realms of Spellbook Magic
+    [e] On Casting Spells
+    [f] Spell Types
+
+    (?) Help System Commands
+

@@ -1,0 +1,250 @@
+Attacking and Weapons
+ 
+Attacking is simple: if you move into a creature, you attack it 
+provided you are wielding a weapon (including digging implements which 
+are considered to be weapons). Unlike most other classes, monks and 
+forcetrainers can attack using their bare hands to great effect and 
+generally prefer not to use a weapon at all. Also, if you are playing 
+in Monster mode, there is a good chance that you have innate attacks 
+rather than weapons (e.g. Hounds, Dragons, Beholders, etc). Again, 
+simply move into a monster to attack.
+
+Melee can do more damage per turn than any other form of attack, and 
+the basic equipment (a weapon) is easy to find. On the other hand, 
+melee only works against adjacent monsters and takes a great deal of 
+training and equipment to come into its own deeper in the dungeon. 
+Upgrading to weapons with higher base damages is vital but heavy 
+weapons are harder to master. You will have to find a compromise, 
+depending on class, experience level, and available equipment (use the 
+~W screen to see how various weapons affect your melee skill).
+
+You may wield both a primary weapon for melee combat, and a bow or 
+other missile launcher for launching missiles at the same time. Most 
+classes will benefit from carrying an assortment of attacking magical 
+devices.
+
+Attacking from a Distance
+
+You can attack creatures from a distance by firing a missile from a bow 
+or other missile launcher, by throwing an object or by using magical 
+items such as wands, rods and staves. If you have chosen to play a 
+spell casting class, you may be able to learn some spells which allow 
+you to attack a creature from a distance. You can use distance attacks 
+even when your target is next to you.
+
+Whenever you give a command to fire a weapon, cast a spell, or use an 
+attacking magical device (unless the spell or device has an area 
+effect), you will be prompted for a direction. You may choose any of 
+the eight movement directions or press '*' to enter targeting mode. A 
+detailed explanation of targeting mode can be found in the section on 
+Command Descriptions (see [a]).
+
+You may also wish to make use of the use_old_target option which 
+automatically selects the last target. This prevents you from having to 
+target the same monster every time you attack it. An explanation of 
+this option is found the section on User Interface Options (see [b]).
+
+Attacking Monsters in Walls
+
+You should note that some creatures, for example ghosts, can pass 
+through the dungeon walls. You can attack a creature in a wall with 
+your weapon by trying to move into the wall space which contains the 
+creature. If the creature is invisible and you do not have the ability 
+to see invisible creatures, you must tunnel into the wall space 
+containing the creature.
+
+Bolt spells do full damage to such creature in a wall, but ball spells 
+will be stopped and blow up just in front of a wall doing only half 
+damage. Conversely, when you have ghost like form, and are in a wall, 
+you will take only half damage from ball spells and breathes of 
+monsters, which is very important privilege.
+
+Melee Weapons
+
+Carrying a weapon in your backpack does you no good. You must wield a 
+weapon before it can be used in a fight. A secondary weapon can be kept 
+by keeping it in the backpack, and switching it with the primary weapon 
+when needed.
+
+Weapons have two main magical characteristics, their enchanted ability 
+to hit and their enchanted ability to do damage, expressed as, say, 
+(+3,+4). A normal weapon would be (+0,+0). Many weapons in PosChengband 
+have bonuses to hit and/or to damage. Some weapons are cursed, and have 
+penalties that hurt the player. Cursed weapons cannot be unwielded 
+until the curse is lifted. Identifying a weapon will inform you of the 
+magical bonuses and penalties and whether or not it is cursed.
+
+PosChengband assumes that your youth in the rough environment near the 
+dungeons has taught you the relative merits of different weapons, and 
+displays as part of their description the damage dice which define 
+their capabilities. Any damage enchantment is added to the dice roll 
+for that weapon. The dice used for a given weapon is displayed as XdY. 
+The first number, X, indicates how many dice to roll, and the second, 
+Y, indicates how many sides they have. A 2d6 weapon will give damage 
+from 2 to 12, plus any damage bonus. The weight of a weapon is also a 
+consideration. Heavy weapons may hit harder, but they are also harder 
+to use. Depending on your strength, dexterity, character class, and 
+weapon weight, you may get several attacks per turn.
+
+Missile Launchers
+
+Firing a missile while wielding the appropriate launcher is the only 
+way to get the "full" power out of the missile. You may of course throw 
+an arrow at a monster without firing it from a bow, but you will find 
+the effects may not be what you had hoped. Slings will fire pebbles or 
+shots, bows will fire arrows and crossbows will fire bolts. Missiles of 
+varying type and quality can be bought in the town and may be found 
+throughout the dungeon.
+
+Missile launchers, have their characteristics added to those of the 
+missile used, if the proper weapon/missile combination is used, and the 
+launcher multiplier is applied to the total damage, making missile 
+weapons very powerful given the proper missiles. This is especially 
+true if both the launcher and the missile are enchanted.
+
+Hits and misses are determined by your ability to hit versus your 
+target's armor class. A hit is a strike that does some damage; a miss 
+may in fact reach a target, but fails to do any damage. Higher armor 
+class makes it harder to do damage, and so leads to more misses; it 
+will also reduce the damage from a strike that actually occurs.
+
+The varying types of missile launchers each have their own strengths 
+and weaknesses. Which can be summarized as follows (Note: This 
+information is subject to change):
+
+                 Shots per turn    Multiplier    Range
+Sling                 1.25             2         Full
+Short Bow             1.00             3         Reduced
+Long Bow              1.00             3         Full
+Light Crossbow        0.83             4         Reduced
+Heavy Crossbow        0.75             4         Full
+
+Bows tend to be good at dealing constant streams of damage. A sling is 
+good for killing many small monsters - it even does more damage per 
+round than a short bow if you can carry enough ammunition. Crossbows 
+deal enormous amounts of damage in one shot. However, the reload time 
+is such that a longbow will deal more damage over time.
+
+Certain classes automatically receive additional shots as they become 
+more experienced. Rangers and Cavalry receive some additional shots 
+with a bow. Rogues receive some extra shots with a sling. Archers and 
+Warriors receive some additional shots with any missile launcher.
+
+Ego Weapons and Artifacts
+
+In addition to the ordinary weapons your character may find in the 
+dungeon, some of them may be endowed with additional powers. These 
+weapons fall into two types: (1) artifacts; and (2) ego weapons. Unlike 
+artifacts which are unique and may only be found once in each game, it 
+is not unusual to find several ego weapons of the same type during the 
+course of a character's adventures.
+
+In general, artifacts and ego weapons may boost one or more of your 
+primary statistics, may confer certain abilities upon your character, 
+may grant resistance to certain forms of attack and may be especially 
+deadly against certain types of creature. Take note that if your weapon 
+has two attributes that make it deadly to your opponent (for example 
+you are fighting a demon and your weapon slays both evil and demons 
+(demons are evil)), only the most effective slay will apply. Also keep 
+in mind that slays work by increasing the base damage dice roll of you 
+weapon; that's the XdY we discussed above. And this increase is by a 
+specific multiplier, such as 2x, 3x or perhaps as high as 5x. So, for 
+example, slay evil on a (1d4) dagger is not so good, but slay evil on a 
+(6d5) blade of chaos is nice, indeed.
+
+There are many different types of ego weapons. Some, like weapons of 
+slay orc, will have obvious bonuses that your player automatically 
+knows about. Others, like (Trump) weapons, must be learned as you play. 
+You will need to *Identify* an object of the given type to learn the 
+base ego bonuses. After this, the next time you find a (Trump) weapon, 
+for instance, your player will be aware of its base ego attributes. But 
+keep in mind that many ego types grant additional random powers above 
+and beyond their base bonuses, so *Identification* is usually a good 
+idea if you are dealing with a strong ego type. Over time, you will 
+learn which egos are potentially good (and some are potentially very 
+good) as well as which ego types are "junk".
+
+A list of the ego types and their bonuses is considered a spoiler, so 
+won't be presented here. You can probably find out about them by asking 
+on forums, or by viewing character dumps on the wonderful Angband 
+ladder (angband.oook.cz). But keep in mind that this is one of my 
+favorite areas of the game to modify, so what was true last release 
+might be different now :)
+
+Magical Aids to Physical Combat
+
+There are several magical means of increasing your physical combat 
+ability. The most common of these are potions of heroism and berserk 
+strength and various scrolls (blessing, holy prayer, etc.). Typically, 
+these grant small cumulative bonuses to your combat skill. Some magic 
+realms contain equivalent spells.
+
+
+Martial Arts
+
+Monks, Mystics and Forcetrainers prefer to fight using martial arts 
+rather than with weapons. Indeed, they are much more powerful attacking 
+barehanded then with normal weapons. As they gain experience, they gain 
+more powerful forms of attacks and more of them. Higher level attacks 
+also have a chance to stun your opponent, which is very powerful since 
+stunned monsters often miss turns and fail when casting spells.
+
+The exact types of attacks are displayed in game by using the Weapon 
+Damage screen (~W).
+
+Basic Tactics
+
+Pillardancing
+-------------
+Not recommended since monsters move at irregular speeds. Monsters will 
+also "splash" the player with area of effect spells, curses, or 
+summoning, so this tactic is probably the last thing you will want to 
+try. It is mentioned here because it is a popular tactic in other 
+variants.
+
+
+Shoot'n Scoot
+-------------
+Requires a large room, Phase Door, and some type of missile weapon. 
+Stand at one end of the room, your enemy at the other. Fire your 
+missile weapon at him until he gets close, and then Phase Door. Fire 
+again, until he gets close, and repeat. By the time you run out of 
+ammunition, he should be dead or weak enough for you to finish him HTH 
+(Hand to Hand). However, note that monsters get angry when players use 
+this tactic, and will cast spells/breathe more often as a result. 
+Sometimes your best course of action, even as a spellcaster, is to 
+attack while next to the monster. Try things out to see what works best 
+as results will vary from monster type to monster type.
+
+
+Wail'n Bail
+-----------
+Requires Teleport items. Fight the monster until you're almost dead, 
+teleport out, find him, and resume fighting. This is dangerous, because 
+you could teleport right next to some nasty that will kill you. Also, 
+it is not generally useful for killing unique monsters, as they 
+regenerate damage very quickly, and by the time you find them again, 
+they will have healed what you did to them.
+
+
+The Anti-Summoning Corridor
+---------------------------
+Requires a little time to set up. This can be done just about anywhere. 
+Dig a twisting corridor into the rock, and station yourself at one end 
+of it. However, most monsters that summon are smart about this as well, 
+and will refuse to approach if they detect the player using this 
+tactic. If you are quick enough, you can bull rush them and still fight 
+in somewhat contained quarters. Hey, getting a stray summon or two 
+behind your back is still much better than fighting in large open 
+rooms, right?
+
+
+
+Original   : (??) Chris Weisiger and Leon Marrick
+Updated    : (??)
+Updated    : Zangband DevTeam
+Updated    : Hengband 1.5.2
+Updated    : PosChengband 1.0.0
+Updated    : PosChengband 4.0.0
+
+

@@ -52,6 +52,10 @@ C:0:X
 
 ##### Roguelike Keyset Mappings #####
 
+# Repeat Last Command
+A:n
+C:1:X
+
 # Run
 A:,
 C:1:.
@@ -59,9 +63,6 @@ C:1:.
 # Stay still
 A:.
 C:1:,
-
-A:n
-C:1:^V
 
 # Stay still
 A:,
@@ -191,18 +192,14 @@ C:1:z
 A:z
 C:1:a
 
-# Hack -- Commit suicide
+# Commit suicide
 A:Q
 C:1:^C
 
-# Hack -- swap equipment
-A:w0
-C:1:X
-
-# Hack - race/mutation power activation
+# Use Racial Power
 A:U
 C:1:O
 
-# Hack - race/mutation power activation
+# Display Game Time
 A:^t
 C:1:'

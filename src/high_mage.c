@@ -26,6 +26,7 @@ static int _get_powers(spell_info* spells, int max)
 static void _calc_bonuses(void)
 {
     p_ptr->spell_cap += 3;
+    p_ptr->to_d_spell += 5 + p_ptr->lev/5;
 /*  p_ptr->spell_power += 2; 
     p_ptr->device_power += 2; */
 }
@@ -52,7 +53,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *high_mage_get_class_t(void)
+class_t *high_mage_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

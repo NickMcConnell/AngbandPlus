@@ -551,7 +551,7 @@ void equip_wield(void)
     /* Double Check */
     if (object_is_cursed(&inventory[slot]))
     {
-        object_desc(o_name, &inventory[slot], (OD_OMIT_PREFIX | OD_NAME_ONLY));
+        object_desc(o_name, &inventory[slot], (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED));
         msg_format("The %s you are wearing appears to be cursed.", o_name);
         return;
     }
@@ -579,7 +579,7 @@ void equip_wield(void)
 		if (do_prompt)
 		{
 			char dummy[MAX_NLEN+80];
-			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+            object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY | OD_COLOR_CODED));
 			sprintf(dummy, "Really use the %s {cursed}? ", o_name);
 			if (!get_check(dummy)) return;
 		}
@@ -588,7 +588,7 @@ void equip_wield(void)
       && object_is_known(o_ptr) 
       && p_ptr->prace != RACE_VAMPIRE 
       && p_ptr->prace != RACE_ANDROID 
-      && !(get_race_t()->flags & RACE_IS_MONSTER)
+      && !(get_race()->flags & RACE_IS_MONSTER)
       && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
     {
         char dummy[MAX_NLEN+80];
@@ -606,6 +606,7 @@ void equip_wield(void)
             (quest[i].k_idx == o_ptr->name1 || quest[i].k_idx == o_ptr->name3))
         {
             quest[i].status = QUEST_STATUS_COMPLETED;
+            p_ptr->redraw |= PR_DEPTH;
             quest[i].complev = (byte)p_ptr->lev;
             msg_print("You completed the quest!");
             msg_print(NULL);
@@ -656,7 +657,7 @@ void equip_wield_aux(object_type *src, int slot)
     p_ptr->update |= PU_BONUS;
     handle_stuff();
 
-    object_desc(o_name, dest, 0);
+    object_desc(o_name, dest, OD_COLOR_CODED);
     if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING)
         msg_format("You are %s.", o_name);
     else
@@ -692,7 +693,7 @@ void equip_wield_aux(object_type *src, int slot)
     p_ptr->update |= PU_TORCH;
     p_ptr->update |= PU_MANA;
     p_ptr->redraw |= PR_EQUIPPY;
-    p_ptr->window |= PW_INVEN | PW_EQUIP | PW_PLAYER;
+    p_ptr->window |= PW_INVEN | PW_EQUIP;
     calc_android_exp();
 }
 
@@ -758,7 +759,7 @@ void equip_takeoff_aux(int slot)
         char o_name[MAX_NLEN];
 
         object_copy(&copy, o_ptr);
-        object_desc(o_name, &copy, 0);
+        object_desc(o_name, &copy, OD_COLOR_CODED);
         inven_item_increase(slot, -1);
         inven_item_optimize(slot);
 
@@ -769,7 +770,7 @@ void equip_takeoff_aux(int slot)
         p_ptr->update |= PU_TORCH;
         p_ptr->update |= PU_MANA;
         p_ptr->redraw |= PR_EQUIPPY;
-        p_ptr->window |= PW_INVEN | PW_EQUIP | PW_PLAYER;
+        p_ptr->window |= PW_INVEN | PW_EQUIP;
     }
 }
 
@@ -1093,7 +1094,9 @@ void equip_calc_bonuses(void)
 
         object_flags(o_ptr, flgs);
 
-        p_ptr->cursed |= (o_ptr->curse_flags & (0xFFFFFFF0L));
+        p_ptr->cursed |= (o_ptr->curse_flags & (0xFFFFFFFFL));
+        if (p_ptr->cursed)
+            p_ptr->redraw |= PR_EFFECTS;
         if (o_ptr->name1 == ART_CHAINSWORD) p_ptr->cursed |= TRC_CHAINSWORD;
 
         if (o_ptr->name1 == ART_MAUL_OF_VICE)
@@ -1117,7 +1120,11 @@ void equip_calc_bonuses(void)
                 p_ptr->weapon_info[lhand].giant_wield = TRUE;
         }
 
-        rune_calc_bonuses(o_ptr);
+        if (o_ptr->rune)
+        {
+            rune_calc_bonuses(o_ptr);
+            rune_calc_stats(o_ptr, p_ptr->stat_add);
+        }
 
         if (have_flag(flgs, TR_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
         if (have_flag(flgs, TR_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
@@ -1154,10 +1161,18 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_SPEED)) p_ptr->pspeed += o_ptr->pval;
         if (have_flag(flgs, TR_DEC_SPEED)) p_ptr->pspeed -= o_ptr->pval;
 
-        if (have_flag(flgs, TR_BLOWS) && (p_ptr->pclass != CLASS_MAULER || o_ptr->pval < 0))
+        if (have_flag(flgs, TR_BLOWS) || have_flag(flgs, TR_DEC_BLOWS))
         {
             int hand = _template->slots[i].hand;
-            int amt = o_ptr->pval * 50;
+            int amt = 0;
+
+            if (have_flag(flgs, TR_BLOWS))
+                amt += o_ptr->pval * 50;
+            if (have_flag(flgs, TR_DEC_BLOWS))
+                amt -= o_ptr->pval * 100;
+            if (p_ptr->pclass == CLASS_MAULER && amt > 0)
+                amt = 0;
+
             switch (_template->slots[i].type)
             {
             case EQUIP_SLOT_GLOVES:
@@ -1250,7 +1265,32 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, TR_DRAIN_EXP))   p_ptr->cursed |= TRC_DRAIN_EXP;
         if (have_flag(flgs, TR_TY_CURSE))    p_ptr->cursed |= TRC_TY_CURSE;
 
-        if (have_flag(flgs, TR_DEC_MANA))    p_ptr->dec_mana = TRUE;
+        if (have_flag(flgs, TR_DEC_MANA))
+        {
+            /* In general, you need to be a Mage/Priest to gain from wizardstaves, et. al.
+             * There are exceptions (e.g. Bards and the two artifact harps; Vampires
+             * and The Amulet of the Pitch Dark Night; etc). You will find code
+             * for these exceptions in class/race specific calc_bonuses functions.
+             * However, The Yumi of Irresponsibility works for everybody! */
+            if (o_ptr->name1 == ART_NAMAKE_BOW)
+            {
+                p_ptr->dec_mana = TRUE;
+            }
+            else
+            {
+                caster_info *caster_ptr = get_caster_info();
+                if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+                    p_ptr->dec_mana = TRUE;
+            }
+
+        }
+        if (have_flag(flgs, TR_EASY_SPELL))
+        {
+            caster_info *caster_ptr = get_caster_info();
+            if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+                p_ptr->easy_spell = TRUE;
+        }
+
         if (have_flag(flgs, TR_SPELL_POWER)) p_ptr->spell_power += o_ptr->pval;
         if (have_flag(flgs, TR_DEC_SPELL_POWER)) p_ptr->spell_power -= o_ptr->pval;
         if (have_flag(flgs, TR_SPELL_CAP))   p_ptr->spell_cap += o_ptr->pval;
@@ -1341,8 +1381,6 @@ void equip_calc_bonuses(void)
             p_ptr->no_passwall_dam = TRUE;
         }
 
-        if (have_flag(flgs, TR_EASY_SPELL)) p_ptr->easy_spell = TRUE;
-
         if (o_ptr->curse_flags & TRC_LOW_MAGIC)
         {
             if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
@@ -1368,7 +1406,7 @@ void equip_calc_bonuses(void)
             {
             case EQUIP_SLOT_BOW:
                 p_ptr->shooter_info.to_h += penalty;
-                if (o_ptr->ident & IDENT_MENTAL)
+                if (o_ptr->ident & IDENT_FULL)
                     p_ptr->shooter_info.dis_to_h += penalty;
                 break;                
             case EQUIP_SLOT_WEAPON_SHIELD:
@@ -1376,7 +1414,7 @@ void equip_calc_bonuses(void)
             {
                 int hand = _template->slots[i].hand;
                 p_ptr->weapon_info[hand].to_h += penalty;
-                if (o_ptr->ident & IDENT_MENTAL)
+                if (o_ptr->ident & IDENT_FULL)
                     p_ptr->weapon_info[hand].dis_to_h += penalty;
                 break;
             }
@@ -1387,12 +1425,12 @@ void equip_calc_bonuses(void)
             if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
             {
                 p_ptr->to_a -= 30;
-                if (o_ptr->ident & IDENT_MENTAL) p_ptr->dis_to_a -= 30;
+                if (o_ptr->ident & IDENT_FULL) p_ptr->dis_to_a -= 30;
             }
             else
             {
                 p_ptr->to_a -= 10;
-                if (o_ptr->ident & IDENT_MENTAL) p_ptr->dis_to_a -= 10;
+                if (o_ptr->ident & IDENT_FULL) p_ptr->dis_to_a -= 10;
             }
         }
 
@@ -1462,7 +1500,7 @@ void equip_calc_bonuses(void)
 
 void equip_on_init(void)
 {
-    race_t *race_ptr = get_race_t();
+    race_t *race_ptr = get_race();
     if (race_ptr->equip_template)
         _template = race_ptr->equip_template;
     else
@@ -1528,7 +1566,7 @@ void equip_on_load(void)
 void equip_on_change_race(void)
 {
     equip_template_ptr old_template = _template;
-    equip_template_ptr new_template = get_race_t()->equip_template;
+    equip_template_ptr new_template = get_race()->equip_template;
 
     if (!new_template)
         new_template = &b_info[0];
@@ -1620,7 +1658,7 @@ void equip_on_change_race(void)
         p_ptr->update |= PU_TORCH;
         p_ptr->update |= PU_MANA;
         p_ptr->redraw |= PR_EQUIPPY;
-        p_ptr->window |= PW_INVEN | PW_EQUIP | PW_PLAYER;
+        p_ptr->window |= PW_INVEN | PW_EQUIP;
         calc_android_exp();
     }
 }

@@ -1,0 +1,28 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+You have The Long Sword 'Ringil' (5d5) (+22,+25) (+5) (p).
+                                                                    LEVEL <color:G>    23</color>
+ ##############################%#######%<color:s>%</color>%<color:s>%%</color>%########<color:D>xxxxxxxxxxxx</color>   EXP <color:G>   3.31k</color>
+ #             #   #               #           #    <color:D>xxxxxxxxxxxxx</color>   AU  <color:G>   25.2k</color>
+ <color:s>%</color>## ##<color:s>%</color> <color:s>%</color>##<color:s>%</color># # # # <color:s>%</color>%##%##<color:s>%</color>##%<color:s>%%</color> <color:s>%</color>             #####<color:D>xxxxxxxxxxx</color>   <color:d>  </color><color:U>}</color><color:g>==</color><color:y>"</color><color:U>~(</color><color:G>(</color><color:u>]</color><color:U>]</color><color:d> </color>
+ <color:s>%</color>   #   <color:s>%</color>   <color:s>%</color>   #   #       %     <color:o>*</color>       % <color:s>%</color> <color:s>%</color>     <color:D>xxxxxxxxxxxx</color>   STR : <color:G> 18/62</color>
+ ##<color:s>%</color> # <color:s>%</color>#<color:s>%</color> # ###<color:s>%</color>#<color:s>%</color><color:u>'</color>#<color:U>'</color> %%#%<color:s>%%</color># %<color:s>%%</color>%<color:o>*</color>%<color:s>%</color><color:U>'</color>### <color:s>%</color> <color:s>%</color> ## ####<color:D>xxxxxxxxxxx</color>   INT : <color:G>    11</color>
+ #   #   # <color:s>%</color>         #       <color:s>%</color>           # # # #     <color:D>xxxxxxxxxxxx</color>   WIS : <color:G> 18/20</color>
+ # <color:s>%</color> #<color:s>%%%</color># ##<color:o>*</color><color:s>%</color><color:u>'</color>#<color:s>%</color>#<color:s>%</color> #<color:s>%</color><color:u>'</color>#<color:s>%</color> #<color:s>%%%%%</color>#<color:s>%%</color>%##<color:s>%</color> % # # <color:s>%</color> #   <color:D>xxxxxxxxxxxx</color>   DEX : <color:G>18/114</color>
+ <color:s>%</color> <color:s>%</color>     # <color:s>%</color>      <color:u>^</color>#     #               # # # # # # <color:D>xxxxxxxxxxxx</color>   Con : <color:y>    16</color>
+ #<color:s>%%</color> ##<color:s>%</color> <color:s>%</color> <color:s>%</color> <color:s>%</color>##<color:s>%%</color> <color:s>%%%</color>#<color:s>%</color>.<color:s>%</color> <color:s>%</color>#%<color:o>*</color><color:s>%%</color>#<color:s>%</color>#%<color:s>%</color>#<color:s>%%</color>  % # ### ###<color:D>xxxxxxxxxxx</color>   CHR : <color:G>    14</color>
+ #   <color:s>%</color>   # <color:s>%</color>   #     <color:s>%</color>.@.#   #   %         % # #   #  <color:D>xxxxxxxxxxx</color>   AC     <color:G>   78</color>
+ <color:s>%%%</color> <color:s>%</color> ##<color:s>%</color> <color:s>%%</color>  <color:s>%%</color>#<color:s>%%</color> <color:s>%</color>.<color:s>%%</color><color:o>*</color>#<color:s>%</color> <color:s>%</color> ##<color:s>%</color> ##<color:s>%</color> <color:o>*</color>#<color:o>*</color><color:s>%</color><color:U>'</color> <color:s>%</color> # ######<color:D>xxxxxxxxxx</color>   HP <color:G> 295</color>/<color:G> 295</color>
+ #   #   <color:U>'</color>   <color:s>%</color>   <color:s>%</color> <color:o>*</color> <color:U>+</color>  <  <color:s>%</color> %       <color:s>%</color> <color:s>%</color>     <color:s>%</color> #     #<color:D>xxxxxxxxxxx</color>   SP <color:y>  51</color>/<color:G>  75</color>
+ #<color:s>%%</color> <color:s>%</color> <color:s>%</color>## <color:s>%%</color>#<color:s>%</color># <color:s>%</color> <color:U>+</color> <color:s>%%%%%</color> <color:s>%</color> <color:s>%</color>%<color:s>%</color> <color:s>%%%%</color>% # <color:s>%%%</color> # ##### #<color:D>xxxxxxxxxxx</color>
+ #   #   <color:s>%</color> #   # # <color:s>%</color> #     <color:s>%</color> %       <color:s>%</color> # <color:s>%</color>   # #     #<color:D>xxxxxxxxxxx</color>   @[<color:G>*********</color>]
+ <color:s>%</color> # ###<color:o>*</color># <color:s>%</color> <color:s>%</color> <color:s>%</color> <color:s>%</color> <color:o>*</color> <color:s>%</color> ##### #<color:s>%</color>%##<color:s>%</color>##<color:s>%</color> <color:s>%</color> <color:s>%</color>##<color:s>%</color># ##### #<color:D>xxxxxxxxxxx</color>   <color:G>?</color>[<color:y>*******</color>--]
+ # # <color:U><</color>     <color:s>%</color> #   <color:s>%</color> <color:s>%</color> <color:s>%</color>   % # #   <color:s>%</color>     <color:s>%</color>     <color:s>%</color> #   # #<color:D>xxxxxxxxxxx</color>   <color:U>,</color>[******---]
+ # #<color:s>%%%</color>###<color:s>%</color># <color:s>%</color>%<color:o>*</color>%<color:o>*</color> <color:s>%</color> %%<color:s>%</color> # <color:s>%</color> <color:s>%</color> # % ####<color:s>%</color> <color:s>%%</color># <color:s>%</color> <color:s>%</color> # # #<color:D>xxxxxxxxxxx</color>
+ <color:s>%</color>   #       <color:s>%</color>           <color:s>%</color>     #   <color:s>%</color>       <color:s>%</color>     #  <color:D>x</color>#<color:D>xxxxxxxxxxx</color>
+ ###<color:s>%</color>####<color:s>%</color>#<color:s>%%%%</color>#<color:s>%</color>###<color:s>%</color>#%%<color:o>*</color>#<color:s>%</color>#<color:s>%</color>%####%<color:s>%</color>####<color:s>%</color>##<color:s>%%</color>##<color:s>%%</color>####<color:D>xxxxxxxxxxxx</color>
+  #<color:U>+</color>#      %<color:U>+</color>#                #<color:U>+</color>#<color:U>+</color>#                 <color:D>xxxxxxxxxxxxx</color>   <color:G>Fast (+3)</color>
+  <color:U>###</color>      <color:U>###</color>                <color:U>#####</color>                                 <color:D>Cursed</color>
+                                                                    <color:B>Study (3)</color>
+<color:W>Labyrinth: L28</color>
+</style>

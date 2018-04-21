@@ -23,7 +23,7 @@ static void _amberite_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_SUST_CON);
     add_flag(flgs, TR_REGEN);
 }
-race_t *amberite_get_race_t(void)
+race_t *amberite_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -58,6 +58,8 @@ race_t *amberite_get_race_t(void)
         me.base_hp = 20;
         me.exp = 190;
         me.infra = 0;
+        me.shop_adjust = 100;
+
 
         me.calc_bonuses = _amberite_calc_bonuses;
         me.get_powers = _amberite_get_powers;
@@ -132,12 +134,9 @@ static void _android_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_SLOW_DIGEST);
     add_flag(flgs, TR_HOLD_LIFE);
+    /*add_flag(flgs, TR_VULN_ELEC);*/
 }
-static void _android_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    /*add_flag(flgs, TR_RES_ELEC); cf resists.c res_pct_aux() for an alternative*/
-}
-race_t *android_get_race_t(void)
+race_t *android_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -148,10 +147,10 @@ race_t *android_get_race_t(void)
         me.desc = "An android is a artificial creation with a body of machinery. Over the millenia, artificial "
                     "intelligence has improved to the point where androids are nearly as smart as humans, though "
                     "perhaps not so wise. Of course, their mechanical body offers great physical advantages, far "
-                    "surpassing the powers of man.  Androids don't acquire experience like other "
+                    "surpassing the powers of man. Androids don't acquire experience like other "
                     "races, but rather gain in power as they attach new equipment to their frame. "
-                    "Rings, amulets, and lights do not influence growth.  Androids are resistant to "
-                    "poison, can move freely, and are immune to life-draining attacks.  Moreover, "
+                    "Rings, amulets, and lights do not influence growth. Androids are resistant to "
+                    "poison, can move freely, and are immune to life-draining attacks. Moreover, "
                     "because of their hard metallic bodies, they get a bonus to AC. Androids have "
                     "electronic circuits throughout their body and must beware of electric shocks. "
                     "They gain very little nutrition from the food of mortals, but they can use flasks "
@@ -177,11 +176,12 @@ race_t *android_get_race_t(void)
         me.base_hp = 26;
         me.exp = 200;
         me.infra = 0;
+        me.shop_adjust = 120;
+
 
         me.calc_bonuses = _android_calc_bonuses;
         me.get_powers = _android_get_powers;
         me.get_flags = _android_get_flags;
-        me.get_vulnerabilities = _android_get_vulnerabilities;
         me.flags = RACE_IS_NONLIVING;
 
         init = TRUE;
@@ -204,7 +204,7 @@ static void _archon_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_LEVITATION);
     add_flag(flgs, TR_SEE_INVIS);
 }
-race_t *archon_get_race_t(void)
+race_t *archon_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -238,6 +238,7 @@ race_t *archon_get_race_t(void)
         me.base_hp = 22;
         me.exp = 200;
         me.infra = 3;
+        me.shop_adjust = 90;
 
         me.calc_bonuses = _archon_calc_bonuses;
         me.get_flags = _archon_get_flags;
@@ -276,7 +277,7 @@ static void _balrog_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 10)
         add_flag(flgs, TR_SEE_INVIS);
 }
-race_t *balrog_get_race_t(void)
+race_t *balrog_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -312,6 +313,7 @@ race_t *balrog_get_race_t(void)
         me.exp = 180;
         me.infra = 5;
         me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
+        me.shop_adjust = 140;
 
         me.calc_bonuses = _balrog_calc_bonuses;
         me.get_powers = _balrog_get_powers;
@@ -342,7 +344,7 @@ static void _barbarian_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_FEAR);
 }
-race_t *barbarian_get_race_t(void)
+race_t *barbarian_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -375,6 +377,7 @@ race_t *barbarian_get_race_t(void)
         me.base_hp = 22;
         me.exp = 135;
         me.infra = 0;
+        me.shop_adjust = 120;
 
         me.calc_bonuses = _barbarian_calc_bonuses;
         me.get_powers = _barbarian_get_powers;
@@ -406,7 +409,7 @@ static void _beastman_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_SOUND);
     add_flag(flgs, TR_RES_CONF);
 }
-race_t *beastman_get_race_t(void)
+race_t *beastman_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -443,6 +446,7 @@ race_t *beastman_get_race_t(void)
         me.base_hp = 22;
         me.exp = 150;
         me.infra = 0;
+        me.shop_adjust = 130;
 
         me.calc_bonuses = _beastman_calc_bonuses;
         me.gain_level = _beastman_gain_level;
@@ -463,7 +467,7 @@ static void _centaur_birth(void)
     skills_innate_init("Hooves", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 }
 
-static void _jump_spell(int cmd, variant *res)
+void jump_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -510,7 +514,7 @@ static void _jump_spell(int cmd, variant *res)
 
 static power_info _centaur_powers[] =
 {
-    { A_DEX, {15, 10, 50, _jump_spell}},
+    { A_DEX, {15, 10, 50, jump_spell}},
     { -1, {-1, -1, -1, NULL} }
 };
 
@@ -544,7 +548,7 @@ static void _centaur_get_flags(u32b flgs[TR_FLAG_SIZE])
 static void _centaur_calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
-    int to_d = l/10 + l*l/500 + l*l*l/25000;
+    int to_d = py_prorata_level(15);
     int to_h = l/2;
     innate_attack_t    a = {0};
 
@@ -555,13 +559,13 @@ static void _centaur_calc_innate_attacks(void)
 
     a.weight = 150;
     calc_innate_blows(&a, 200);
-    a.msg = "You kick %s.";
+    a.msg = "You kick.";
     a.name = "Hooves";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
 }
 
-race_t *centaur_get_race_t(void)
+race_t *centaur_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -598,6 +602,7 @@ race_t *centaur_get_race_t(void)
         me.base_hp = 22;
         me.exp = 190;
         me.infra = 0;
+        me.shop_adjust = 95;
 
         me.birth = _centaur_birth;
         me.calc_innate_attacks = _centaur_calc_innate_attacks;
@@ -633,7 +638,7 @@ static void _cyclops_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_SOUND);
 }
-race_t *cyclops_get_race_t(void)
+race_t *cyclops_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -666,6 +671,7 @@ race_t *cyclops_get_race_t(void)
         me.base_hp = 24;
         me.exp = 155;
         me.infra = 1;
+        me.shop_adjust = 135;
 
         me.calc_bonuses = _cyclops_calc_bonuses;
         me.get_powers = _cyclops_get_powers;
@@ -701,7 +707,7 @@ static void _dark_elf_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 20)
         add_flag(flgs, TR_SEE_INVIS);
 }
-race_t *dark_elf_get_race_t(void)
+race_t *dark_elf_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -735,6 +741,7 @@ race_t *dark_elf_get_race_t(void)
         me.base_hp = 18;
         me.exp = 155;
         me.infra = 5;
+        me.shop_adjust = 120;
 
         me.calc_bonuses = _dark_elf_calc_bonuses;
         me.get_powers = _dark_elf_get_powers;
@@ -921,7 +928,7 @@ static void _draconian_calc_bonuses(void)
     if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
     {
         int l = p_ptr->lev;
-        int to_a = l/2 + l*l/100 + l*l*l/5000;
+        int to_a = py_prorata_level(75);
         int ac = 15 + (l/10)*5;
 
         p_ptr->ac += ac;
@@ -1063,7 +1070,7 @@ static void _draconian_calc_innate_attacks(void)
 
         a.weight = 100 + l;
         calc_innate_blows(&a, 400);
-        a.msg = "You claw %s.";
+        a.msg = "You claw.";
         a.name = "Claw";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -1091,13 +1098,13 @@ static void _draconian_calc_innate_attacks(void)
             calc_innate_blows(&a, 150);
         else
             a.blows = 100;
-        a.msg = "You bite %s.";
+        a.msg = "You bite.";
         a.name = "Bite";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
     }
 }
-static void _draconian_gain_power()
+static void _draconian_gain_power(void)
 {
     if (p_ptr->draconian_power < 0)
     {
@@ -1123,7 +1130,7 @@ static void _draconian_gain_level(int new_level)
     if (new_level >= 35)
         _draconian_gain_power();
 }
-race_t *draconian_get_race_t(int psubrace)
+race_t *draconian_get_race(int psubrace)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1140,7 +1147,6 @@ race_t *draconian_get_race_t(int psubrace)
                     "draconian power.";
         
         me.base_hp = 22;
-        me.infra = 2;
 
         me.calc_bonuses = _draconian_calc_bonuses;
         me.get_powers = _draconian_get_powers;
@@ -1152,10 +1158,9 @@ race_t *draconian_get_race_t(int psubrace)
 
     if (subrace_init != psubrace)
     {
-        cptr names[DRACONIAN_MAX] = {"Red", "White", "Blue", "Black", "Green", "Bronze", "Crystal", "Gold", "Shadow"};
-
         /* Reset to baseline */
-        me.subname = "";
+        me.subname = NULL;
+        me.subdesc = NULL;
         me.stats[A_STR] =  1;
         me.stats[A_INT] =  1;
         me.stats[A_WIS] =  1;
@@ -1172,35 +1177,102 @@ race_t *draconian_get_race_t(int psubrace)
         me.skills.thn = 5;
         me.skills.thb = 5;
 
-        me.exp = 160;
+        me.infra = 2;
+
+        me.exp = 190;
         me.life = 103;
+        me.shop_adjust = 105;
+
 
         /* Override with New Type */
-        if (psubrace >= 0 && psubrace < DRACONIAN_MAX)
-            me.subname = names[psubrace];
-
         switch (psubrace)
         {
         case DRACONIAN_RED:
+            me.subname = "Red";
+            me.subdesc = "Red Draconians have an affinity for fire, which they both breathe at will and resist. "
+                         "Together with their White kin, they are the strongest in combat of the draconians. "
+                         "But they are not so good with magic and their stealth is quite poor. Should they choose "
+                         "the power of Dragon Skin, they will gain a fiery aura as well. Should they choose the "
+                         "power of Dragon Strike, their blows will burn their enemies.";
+            me.stats[A_STR] += 2;
+            me.stats[A_INT] -= 1;
+            me.stats[A_WIS] -= 1;
+            me.skills.dev -= 5;
+            me.skills.stl -= 2;
+            me.skills.thn += 10;
+            me.life += 3;
+            me.shop_adjust = 115;
+            break;
         case DRACONIAN_WHITE:
+            me.subname = "White";
+            me.subdesc = "White Draconians have an affinity for frost, which they both breathe at will and resist. "
+                         "Together with their Red kin, they are the strongest in combat of the draconians. "
+                         "But they are not so good with magic and their stealth is quite poor. Should they choose "
+                         "the power of Dragon Skin, they will gain an aura of cold as well. Should they choose the "
+                         "power of Dragon Strike, their blows will freeze their enemies.";
+            me.stats[A_STR] += 2;
+            me.stats[A_INT] -= 1;
+            me.stats[A_WIS] -= 1;
+            me.skills.dev -= 5;
+            me.skills.stl -= 2;
+            me.skills.thn += 9;
+            me.life += 3;
+            me.shop_adjust = 115;
+            break;
         case DRACONIAN_BLUE:
-        case DRACONIAN_BLACK:
+            me.subname = "Blue";
+            me.subdesc = "Blue Draconians have an affinity for lightning, which they both breathe at will "
+                         "and resist. They are strong in combat but not so good with magic or stealth. "
+                         "Should they choose the power of Dragon Skin, they will gain a shocking aura as well. "
+                         "Should they choose the power of Dragon Strike, their blows will electrocute "
+                         "their enemies.";
             me.stats[A_STR] += 1;
-            me.skills.dev -= 3;
+            me.skills.dev -= 4;
             me.skills.stl -= 1;
-            me.skills.thn += 5;
-            me.life += 1;
+            me.skills.thn += 7;
+            me.life += 2;
+            me.shop_adjust = 110;
+            break;
+        case DRACONIAN_BLACK:
+            me.subname = "Black";
+            me.subdesc = "Black Draconians have an affinity for acid, which they both breathe at will "
+                         "and resist. They are strong in combat but not so good with magic or stealth. "
+                         "With the power of Dragon Strike, their blows will corrode their enemies.";
+            me.stats[A_STR] += 1;
+            me.skills.dev -= 4;
+            me.skills.stl -= 1;
+            me.skills.thn += 8;
+            me.life += 2;
+            me.shop_adjust = 110;
             break;
         case DRACONIAN_GREEN:
+            me.subname = "Green";
+            me.subdesc = "Green Draconians have an affinity for poison, which they both breathe at will "
+                         "and resist. They are average in all respects among the draconians. With the "
+                         "power of Dragon Strike, their blows will poison their enemies.";
             me.exp += 15;
             break;
         case DRACONIAN_BRONZE:
+            me.subname = "Bronze";
+            me.subdesc = "Bronze Draconians are the most intelligent of their kind, and the best with "
+                         "magic as well. They are seldom confused, though the same may not be said of "
+                         "their enemies. With the power of Dragon Strike, even the melee attacks of "
+                         "the Bronze Draconian will baffle their enemies.";
             me.stats[A_INT] += 1;
+            me.skills.sav += 1;
+            me.skills.thn -= 2;
             me.skills.dev += 7;
             me.exp += 25;
+            me.shop_adjust = 100;
             break;
         case DRACONIAN_CRYSTAL:
-            me.stats[A_INT] -= 1;
+            me.subname = "Crystal";
+            me.subdesc = "Hard of skin, the Crystal Draconian is difficult to hit in melee. But their agility "
+                         "suffers and they are not the brightest of their kind. They resist shards, which they "
+                         "may also breathe on command. With the power of Dragon Skin, they gain an aura of "
+                         "shards as well. With the power of Dragon Strike, even their melee attacks will shred "
+                         "their enemies.";
+            me.stats[A_INT] -= 2;
             me.stats[A_DEX] -= 1;
             me.stats[A_CON] += 1;
             me.skills.dev -= 5;
@@ -1210,13 +1282,25 @@ race_t *draconian_get_race_t(int psubrace)
             me.exp += 60;
             break;
         case DRACONIAN_GOLD:
+            me.subname = "Gold";
+            me.subdesc = "The wisest of their kind, Gold Draconians are resilient in the face of magical "
+                         "attacks. They are resistant to sound which they may also breathe at will, stunning "
+                         "their enemies. With the power of Dragon Strike, even their melee attacks will "
+                         "stun their enemies.";
             me.stats[A_WIS] += 1;
             me.skills.dev += 5;
             me.skills.sav += 3;
             me.life += 1;
             me.exp += 30;
+            me.shop_adjust = 95;
             break;
         case DRACONIAN_SHADOW:
+            me.subname = "Shadow";
+            me.subdesc = "Lithe, stealthy and nimble, the Shadow Draconian is seldom seen in this world. "
+                         "They are resistant to the forces of nether which they may also breathe. They are the "
+                         "weakest of the draconians, and the poorest in melee. But they are better than average "
+                         "with magic. With the power of Dragon Strike, they may steal life from their enemies "
+                         "in melee.";
             me.stats[A_STR] -= 1;
             me.stats[A_DEX] += 2;
             me.skills.dev += 3;
@@ -1224,6 +1308,7 @@ race_t *draconian_get_race_t(int psubrace)
             me.skills.thn -= 5;
             me.life -= 1;
             me.exp += 35;
+            me.infra += 2;
             break;
         }
         subrace_init = psubrace;
@@ -1249,7 +1334,7 @@ static void _dunadan_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_SUST_CON);
 }
-race_t *dunadan_get_race_t(void)
+race_t *dunadan_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1282,6 +1367,7 @@ race_t *dunadan_get_race_t(void)
         me.base_hp = 20;
         me.exp = 160;
         me.infra = 0;
+        me.shop_adjust = 100;
 
         me.calc_bonuses = _dunadan_calc_bonuses;
         me.get_flags = _dunadan_get_flags;
@@ -1313,7 +1399,7 @@ static void _dwarf_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_BLIND);
 }
-race_t *dwarf_get_race_t(void)
+race_t *dwarf_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1347,6 +1433,7 @@ race_t *dwarf_get_race_t(void)
         me.base_hp = 22;
         me.exp = 135;
         me.infra = 5;
+        me.shop_adjust = 115;
 
         me.calc_bonuses = _dwarf_calc_bonuses;
         me.get_powers = _dwarf_get_powers;
@@ -1377,12 +1464,9 @@ static void _ent_calc_bonuses(void)
 }
 static void _ent_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
+    /*add_flag(flgs, TR_VULN_FIRE);*/
 }
-static void _ent_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    /*add_flag(flgs, TR_RES_FIRE);  cf resists.c res_pct_aux() for an alternative*/
-}
-race_t *ent_get_race_t(void)
+race_t *ent_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1409,11 +1493,11 @@ race_t *ent_get_race_t(void)
         me.base_hp = 25;
         me.exp = 135;
         me.infra = 0;
+        me.shop_adjust = 95;
 
         me.calc_bonuses = _ent_calc_bonuses;
         me.get_powers = _ent_get_powers;
         me.get_flags = _ent_get_flags;
-        me.get_vulnerabilities = _ent_get_vulnerabilities;
         init = TRUE;
     }
 
@@ -1462,7 +1546,7 @@ static void _gnome_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_FREE_ACT);
 }
-race_t *gnome_get_race_t(void)
+race_t *gnome_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1497,6 +1581,7 @@ race_t *gnome_get_race_t(void)
         me.base_hp = 16;
         me.exp = 115;
         me.infra = 4;
+        me.shop_adjust = 115;
 
         me.calc_bonuses = _gnome_calc_bonuses;
         me.get_powers = _gnome_get_powers;
@@ -1545,7 +1630,7 @@ static void _golem_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 16)
         add_flag(flgs, TR_SPEED);
 }
-race_t *golem_get_race_t(void)
+race_t *golem_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1584,6 +1669,8 @@ race_t *golem_get_race_t(void)
         me.exp = 185;
         me.infra = 4;
         me.flags = RACE_IS_NONLIVING;
+        me.shop_adjust = 120;
+
 
         me.get_powers = _golem_get_powers;
         me.calc_bonuses = _golem_calc_bonuses;
@@ -1617,7 +1704,7 @@ static void _half_giant_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_SHARDS);
     add_flag(flgs, TR_SUST_STR);
 }
-race_t *half_giant_get_race_t(void)
+race_t *half_giant_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1650,6 +1737,7 @@ race_t *half_giant_get_race_t(void)
         me.base_hp = 26;
         me.exp = 150;
         me.infra = 3;
+        me.shop_adjust = 125;
 
         me.calc_bonuses = _half_giant_calc_bonuses;
         me.get_powers = _half_giant_get_powers;
@@ -1682,7 +1770,7 @@ static void _half_ogre_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_SUST_STR);
     add_flag(flgs, TR_RES_DARK);
 }
-race_t *half_ogre_get_race_t(void)
+race_t *half_ogre_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1694,7 +1782,7 @@ race_t *half_ogre_get_race_t(void)
                     "For warriors, they have all the necessary attributes, and they can even "
                     "become wizards: after all, they are related to Ogre Magi, from whom they "
                     "have learned the skill of setting trapped runes once their level is high "
-                    "enough.  Like Half-Orcs, they resist darkness, and like Half-Trolls, they "
+                    "enough. Like Half-Orcs, they resist darkness, and like Half-Trolls, they "
                     "have their strength sustained.";
 
         me.stats[A_STR] =  3;
@@ -1717,6 +1805,7 @@ race_t *half_ogre_get_race_t(void)
         me.base_hp = 23;
         me.exp = 140;
         me.infra = 3;
+        me.shop_adjust = 125;
 
         me.calc_bonuses = _half_ogre_calc_bonuses;
         me.get_powers = _half_ogre_get_powers;
@@ -1747,7 +1836,7 @@ static void _half_titan_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_CHAOS);
 }
-race_t *half_titan_get_race_t(void)
+race_t *half_titan_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1781,6 +1870,7 @@ race_t *half_titan_get_race_t(void)
         me.base_hp = 28;
         me.exp = 200;
         me.infra = 0;
+        me.shop_adjust = 90;
 
         me.calc_bonuses = _half_titan_calc_bonuses;
         me.get_powers = _half_titan_get_powers;
@@ -1815,7 +1905,7 @@ static void _half_troll_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 15)
         add_flag(flgs, TR_REGEN);
 }
-race_t *half_troll_get_race_t(void)
+race_t *half_troll_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1849,6 +1939,7 @@ race_t *half_troll_get_race_t(void)
         me.base_hp = 25;
         me.exp = 150;
         me.infra = 3;
+        me.shop_adjust = 135;
 
         me.calc_bonuses = _half_troll_calc_bonuses;
         me.get_powers = _half_troll_get_powers;
@@ -1872,7 +1963,7 @@ static void _high_elf_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_LITE);
     add_flag(flgs, TR_SEE_INVIS);
 }
-race_t *high_elf_get_race_t(void)
+race_t *high_elf_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1907,6 +1998,7 @@ race_t *high_elf_get_race_t(void)
         me.base_hp = 19;
         me.exp = 190;
         me.infra = 4;
+        me.shop_adjust = 90;
 
         me.calc_bonuses = _high_elf_calc_bonuses;
         me.get_flags = _high_elf_get_flags;
@@ -1928,7 +2020,7 @@ static int _hobbit_get_powers(spell_info* spells, int max)
 {
     return get_powers_aux(spells, max, _hobbit_powers);
 }
-race_t *hobbit_get_race_t(void)
+race_t *hobbit_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -1962,6 +2054,7 @@ race_t *hobbit_get_race_t(void)
         me.base_hp = 14;
         me.exp = 120;
         me.infra = 4;
+        me.shop_adjust = 100;
 
         me.get_powers = _hobbit_get_powers;
         init = TRUE;
@@ -1991,7 +2084,7 @@ race_t *hobbit_get_race_t(void)
     }
 }
 
-race_t *human_get_race_t(void)
+race_t *human_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -2026,6 +2119,7 @@ race_t *human_get_race_t(void)
         me.base_hp = 20;
         me.exp = 100;
         me.infra = 0;
+        me.shop_adjust = 100;
 
         me.gain_level = _human_gain_level;
         init = TRUE;
@@ -2057,7 +2151,7 @@ static void _imp_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 10)
         add_flag(flgs, TR_SEE_INVIS);
 }
-race_t *imp_get_race_t(void)
+race_t *imp_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -2091,6 +2185,7 @@ race_t *imp_get_race_t(void)
         me.exp = 90;
         me.infra = 3;
         me.flags = RACE_IS_DEMON;
+        me.shop_adjust = 120;
 
         me.calc_bonuses = _imp_calc_bonuses;
         me.get_powers = _imp_get_powers;

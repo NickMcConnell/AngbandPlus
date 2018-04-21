@@ -27,7 +27,13 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *rogue_get_class_t(void)
+static void _calc_bonuses(void)
+{
+    if (p_ptr->realm1 == REALM_BURGLARY && equip_find_ego(EGO_GLOVES_THIEF))
+        p_ptr->dec_mana = TRUE;
+}
+
+class_t *rogue_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -69,6 +75,7 @@ class_t *rogue_get_class_t(void)
         me.exp = 125;
         me.pets = 40;
         
+        me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         /* TODO: This class uses spell books, so we are SOL

@@ -7,14 +7,14 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 #include "angband.h"
 
 
 /*
- * Critical blow.  All hits that do 95% of total possible damage,
+ * Critical blow. All hits that do 95% of total possible damage,
  * and which also do at least 20 damage, or, sometimes, N damage.
  * This is used only to determine "cuts" and "stuns".
  */
@@ -95,17 +95,16 @@ int check_hit(int power, int level, int stun, int m_idx)
  */
 static cptr desc_insult[] =
 {
-    "insults you!",
-    "insults your mother!",
-    "gives you the finger!",
-    "humiliates you!",
-    "defiles you!",
-    "dances around you!",
-    "makes obscene gestures!",
-    "moons you!!!",
-    "calls you a parasite!",
-    "calls you a cyborg!"
-
+    "insults you",
+    "insults your mother",
+    "gives you the finger",
+    "humiliates you",
+    "defiles you",
+    "dances around you",
+    "makes obscene gestures",
+    "moons you",
+    "calls you a parasite",
+    "calls you a cyborg"
 };
 
 
@@ -115,10 +114,10 @@ static cptr desc_insult[] =
  */
 static cptr desc_moan[] =
 {
-    "seems sad about something.",
-    "asks if you have seen his dogs.",
-    "tells you to get off his land.",
-    "mumbles something about mushrooms."
+    "seems sad about something",
+    "asks if you have seen his dogs",
+    "tells you to get off his land",
+    "mumbles something about mushrooms"
 
 };
 
@@ -207,6 +206,10 @@ bool make_attack_normal(int m_idx)
         if (kawarimi(TRUE)) return TRUE;
     }
 
+    if (!retaliation_hack)
+        cmsg_format(TERM_GREEN, "%^s attacks you:", m_name);
+    monster_desc(m_name, m_ptr, MD_PRON_VISIBLE);
+
     /* Assume no blink */
     blinked = FALSE;
 
@@ -229,9 +232,9 @@ bool make_attack_normal(int m_idx)
 
         /* Revenge aura only gives a single retaliatory attempt per player strike 
            We'll cycle thru monster attacks on each revenge strike, and the revenge
-           will stop after the monster runs out of attacks.  So 20 attack players need
-           not fear insta-death (as much).  All the hackery is communicated between
-           here, py_attack_* and touch_zap_player().  Enjoy! 
+           will stop after the monster runs out of attacks. So 20 attack players need
+           not fear insta-death (as much). All the hackery is communicated between
+           here, py_attack_* and touch_zap_player(). Enjoy! 
            (Note: If I had a mon_attack_p(int m_idx, int blow_idx), we could
            avoid all this nonsense ... )
          */
@@ -277,7 +280,7 @@ bool make_attack_normal(int m_idx)
         if (retaliation_hack)
         {
             if (m_ptr->ml)
-                msg_format("%^s retaliates!", m_name);
+                cmsg_format(TERM_GREEN, "(%^s retaliates:", m_name);
             if (is_original_ap_and_seen(m_ptr))
                 r_ptr->r_flags2 |= RF2_AURA_REVENGE;
         }
@@ -301,7 +304,7 @@ bool make_attack_normal(int m_idx)
                 !one_in_(3))
             {
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
-                msg_format("%^s is repelled.", m_name);
+                cmsg_format(TERM_L_BLUE, "%^s is repelled.", m_name);
                 if (retaliation_hack) break;
                 continue;
             }
@@ -313,106 +316,106 @@ bool make_attack_normal(int m_idx)
             switch (method)
             {
             case RBM_HIT:
-                act = "hits you.";
+                act = "hits";
                 do_cut = do_stun = 1;
                 touched = TRUE;
                 sound(SOUND_HIT);
                 break;
             case RBM_TOUCH:
-                act = "touches you.";
+                act = "touches";
                 touched = TRUE;
                 sound(SOUND_TOUCH);
                 break;
             case RBM_PUNCH:
-                act = "punches you.";
+                act = "punches";
                 touched = TRUE;
                 do_stun = 1;
                 sound(SOUND_HIT);
                 break;
             case RBM_KICK:
-                act = "kicks you.";
+                act = "kicks";
                 touched = TRUE;
                 do_stun = 1;
                 sound(SOUND_HIT);
                 break;
             case RBM_CLAW:
-                act = "claws you.";
+                act = "claws";
                 touched = TRUE;
                 do_cut = 1;
                 sound(SOUND_CLAW);
                 break;
             case RBM_BITE:
-                act = "bites you.";
+                act = "bites";
                 do_cut = 1;
                 touched = TRUE;
                 sound(SOUND_BITE);
                 break;
             case RBM_STING:
-                act = "stings you.";
+                act = "stings";
                 touched = TRUE;
                 sound(SOUND_STING);
                 break;
             case RBM_SLASH:
-                act = "slashes you.";
+                act = "slashes";
                 touched = TRUE;
                 do_cut = 1;
                 sound(SOUND_CLAW);
                 break;
             case RBM_BUTT:
-                act = "butts you.";
+                act = "butts";
                 do_stun = 1;
                 touched = TRUE;
                 sound(SOUND_HIT);
                 break;
             case RBM_CRUSH:
-                act = "crushes you.";
+                act = "crushes";
                 do_stun = 1;
                 touched = TRUE;
                 sound(SOUND_CRUSH);
                 break;
             case RBM_ENGULF:
-                act = "engulfs you.";
+                act = "engulfs";
                 touched = TRUE;
                 sound(SOUND_CRUSH);
                 break;
             case RBM_CHARGE:
-                act = "charges you.";
+                act = "charges";
                 touched = TRUE;
                 sound(SOUND_BUY); /* Note! This is "charges", not "charges at". */
                 break;
             case RBM_CRAWL:
-                act = "crawls on you.";
+                act = "crawls";
                 touched = TRUE;
                 sound(SOUND_SLIME);
                 break;
             case RBM_DROOL:
-                act = "drools on you.";
+                act = "drools";
                 sound(SOUND_SLIME);
                 break;
             case RBM_SPIT:
-                act = "spits on you.";
+                act = "spits";
                 sound(SOUND_SLIME);
                 break;
             case RBM_EXPLODE:
-                act = "explodes.";
+                act = "explodes";
                 explode = TRUE;
                 break;
             case RBM_GAZE:
-                act = "gazes at you.";
+                act = "gazes";
                 break;
             case RBM_WAIL:
-                act = "wails at you.";
+                act = "wails";
                 sound(SOUND_WAIL);
                 break;
             case RBM_SPORE:
-                act = "releases spores at you.";
+                act = "releases spores";
                 sound(SOUND_SLIME);
                 break;
             case RBM_XXX4:
-                act = "projects XXX4's at you.";
+                act = "projects XXX4's at you";
                 break;
             case RBM_BEG:
-                act = "begs you for money.";
+                act = "begs";
                 sound(SOUND_MOAN);
                 break;
             case RBM_INSULT:
@@ -444,7 +447,7 @@ bool make_attack_normal(int m_idx)
                 {
                     act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
                 }
-                msg_format("%^s %s%s", m_name, act, do_silly_attack ? " you." : "");
+                msg_format("%^s %s%s%s", m_name, act, do_silly_attack ? " you" : "", retaliation_hack ? ".<color:g>)</color>" : ".");
             }
 
             /* Hack -- assume all attacks are obvious */
@@ -556,7 +559,7 @@ bool make_attack_normal(int m_idx)
                     }
                     else 
                     {
-                        if (!res_save(RES_DISEN, 51) && !CHECK_MULTISHADOW())
+                        if (!res_save(RES_DISEN, 31) && !CHECK_MULTISHADOW())
                         {
                             /* Apply disenchantment */
                             if (apply_disenchant(0))
@@ -580,7 +583,11 @@ bool make_attack_normal(int m_idx)
 
                 case RBE_UN_POWER:
                 {
+                    u32b flgs[TR_FLAG_SIZE];
+                    char buf[MAX_NLEN];
                     bool drained = FALSE;
+                    bool drain_amt = rlev; /* TODO: Consider using damage instead. Indeed, I nerfed this effect
+                                              so all monsters should probably do some damage here as well. */
 
                     /* Take some damage */
                     damage = reduce_melee_dam_p(damage);
@@ -600,69 +607,68 @@ bool make_attack_normal(int m_idx)
                         /* Skip non-objects */
                         if (!o_ptr->k_idx) continue;
 
-                        /* Drain charged wands/staffs */
-                        if (((o_ptr->tval == TV_STAFF) ||
-                             (o_ptr->tval == TV_WAND)) &&
-                            (o_ptr->pval))
+                        /* Skip non-devices */
+                        if (o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF && o_ptr->tval != TV_ROD) continue;
+
+                        object_flags(o_ptr, flgs);
+                        if (have_flag(flgs, TR_HOLD_LIFE))
                         {
-                            /* Calculate healed hitpoints */
-                            int heal=rlev * o_ptr->pval;
-                            if( o_ptr->tval == TV_STAFF)
-                                heal *=  o_ptr->number;
-
-                            /* Don't heal more than max hp. Two star cap. */
-                            heal = MIN(heal, m_ptr->max_maxhp / 5);
-                            heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
-
-                            obvious = TRUE;
-
-                            if (p_ptr->pclass == CLASS_DEVICEMASTER)
-                            {
-                                int pl = p_ptr->lev;
-                                int dl = k_info[o_ptr->k_idx].level;
-
-                                if (o_ptr->tval == TV_STAFF && devicemaster_is_(DEVICEMASTER_STAVES))
-                                    pl *= 2;
-                                if (o_ptr->tval == TV_WAND && devicemaster_is_(DEVICEMASTER_WANDS))
-                                    pl *= 2;
-
-                                if (pl >= randint1(dl))
-                                {
-                                    msg_print("Energy begins to drain from your pack ... But you pull it back!");
-                                    drained = TRUE; /* No food drain! */
-                                    break;
-                                }
-                            }
-
-                            if (p_ptr->no_charge_drain)
-                                break;
-
-                            msg_print("Energy drains from your pack!");
-                            drained = TRUE;
-
-                            /* Heal the monster */
-                            m_ptr->hp += heal;
-
-                            /* Redraw (later) if needed */
-                            if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-                            if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
-                            /* Uncharge */
-                            o_ptr->pval = 0;
-
-                            /* Combine / Reorder the pack */
-                            p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-                            /* Window stuff */
-                            p_ptr->window |= (PW_INVEN);
-
-                            /* Done */
+                            drained = TRUE; /* No food drain! */
                             break;
                         }
+
+                        if (o_ptr->tval == TV_ROD)
+                            drain_amt /= 3;
+
+                        if (drain_amt > device_sp(o_ptr))
+                            drain_amt = device_sp(o_ptr);
+
+                        obvious = TRUE;
+
+                        if (p_ptr->no_charge_drain)
+                            break;
+
+                        if (p_ptr->pclass == CLASS_DEVICEMASTER)
+                        {
+                            int pl = p_ptr->lev;
+                            int dl = o_ptr->activation.difficulty;
+
+                            if (devicemaster_is_speciality(o_ptr))
+                                pl *= 2;
+
+                            if (pl >= randint1(dl))
+                            {
+                                msg_print("Energy begins to drain from your pack ... But you pull it back!");
+                                drained = TRUE; /* No food drain! */
+                                break;
+                            }
+                        }
+
+                        object_desc(buf, o_ptr, OD_OMIT_PREFIX);
+                        msg_format("Energy drains from your %s!", buf);
+                        device_decrease_sp(o_ptr, drain_amt);
+                        drained = TRUE;
+
+                        /* Heal the monster */
+                        m_ptr->hp += drain_amt;
+                        if (m_ptr->hp > m_ptr->maxhp)
+                            m_ptr->hp = m_ptr->maxhp;
+
+                        /* Redraw (later) if needed */
+                        check_mon_health_redraw(m_idx);
+
+                        /* Combine / Reorder the pack */
+                        p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+                        /* Window stuff */
+                        p_ptr->window |= (PW_INVEN);
+
+                        /* Done */
+                        break;
                     }
 
                     if ( !drained 
-                      && !(get_race_t()->flags & RACE_IS_NONLIVING)
+                      && !(get_race()->flags & RACE_IS_NONLIVING)
                       && !prace_is_(RACE_MON_JELLY) )
                     {
                         msg_print("Food drains from your belly!");
@@ -733,7 +739,6 @@ bool make_attack_normal(int m_idx)
                         p_ptr->redraw |= (PR_GOLD);
 
                         /* Window stuff */
-                        p_ptr->window |= (PW_PLAYER);
                         if (prace_is_(RACE_MON_LEPRECHAUN))
                             p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
@@ -1433,7 +1438,7 @@ bool make_attack_normal(int m_idx)
                     resist_drain = !drain_exp(d, d / 10, 50);
 
                     /* Heal the attacker? */
-                    if (get_race_t()->flags & RACE_IS_NONLIVING)
+                    if (get_race()->flags & RACE_IS_NONLIVING)
                         resist_drain = TRUE;
 
                     if ((damage > 5) && !resist_drain)
@@ -1447,8 +1452,7 @@ bool make_attack_normal(int m_idx)
                         if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
                         /* Redraw (later) if needed */
-                        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-                        if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+                        check_mon_health_redraw(m_idx);
 
                         /* Special message */
                         if (m_ptr->ml && did_heal)
@@ -1603,9 +1607,10 @@ bool make_attack_normal(int m_idx)
                     if (weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS)
                         msg_format("You trade blows with %^s.", m_name);
                     else
-                        msg_print("You retaliate.");
+                        cmsg_print(TERM_L_UMBER, "(You retaliate:");
 
                     py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_RETALIATION);
+                    cmsg_print(TERM_L_UMBER, ")");
                     if (mystic_get_toggle() == MYSTIC_TOGGLE_RETALIATE)
                         sp_player(-7);
                 }
@@ -1644,7 +1649,7 @@ bool make_attack_normal(int m_idx)
                         /* Modify the damage */
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-                        msg_format("%^s is suddenly very hot!", m_name);
+                        msg_format("%^s is <color:r>burned</color>!", m_name);
 
                         if (mon_take_hit(m_idx, dam, &fear,
                             " turns into a pile of ash."))
@@ -1670,7 +1675,7 @@ bool make_attack_normal(int m_idx)
                         /* Modify the damage */
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-                        msg_format("%^s gets zapped!", m_name);
+                        msg_format("%^s is <color:b>zapped</color>!", m_name);
 
                         if (mon_take_hit(m_idx, dam, &fear,
                             " turns into a pile of cinder."))
@@ -1696,7 +1701,7 @@ bool make_attack_normal(int m_idx)
                         /* Modify the damage */
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
 
-                        msg_format("%^s is very cold!", m_name);
+                        msg_format("%^s is <color:w>frozen</color>!", m_name);
 
                         if (mon_take_hit(m_idx, dam, &fear,
                             " was frozen."))
@@ -1721,7 +1726,7 @@ bool make_attack_normal(int m_idx)
                         int dam = _aura_dam_p();
 
                         dam = mon_damage_mod(m_ptr, dam, FALSE);
-                        msg_format("%^s gets shredded!", m_name);
+                        msg_format("%^s is <color:u>shredded</color>!", m_name);
                         if (mon_take_hit(m_idx, dam, &fear," was torn to pieces."))
                         {
                             blinked = FALSE;
@@ -1763,13 +1768,13 @@ bool make_attack_normal(int m_idx)
                         switch (randint1(3))
                         {
                         case 1:
-                            msg_format("%^s gets chronosmashed!", m_name);
+                            msg_format("%^s gets <color:B>chronosmashed</color>!", m_name);
                             break;
                         case 2:
-                            msg_format("%^s gets flux capacitated!", m_name);
+                            msg_format("%^s gets <color:B>flux capacitated</color>!", m_name);
                             break;
                         case 3:
-                            msg_format("%^s withers!", m_name);
+                            msg_format("%^s <color:B>withers</color>!", m_name);
                             break;
                         }
                         project(0, 0, m_ptr->fy, m_ptr->fx, dam, GF_TIME, PROJECT_STOP | PROJECT_KILL | PROJECT_GRID, -1);
@@ -1920,31 +1925,53 @@ bool make_attack_normal(int m_idx)
             /* Analyze failed attacks */
             switch (method)
             {
-                case RBM_HIT:
-                case RBM_TOUCH:
-                case RBM_PUNCH:
-                case RBM_KICK:
-                case RBM_CLAW:
-                case RBM_BITE:
-                case RBM_STING:
-                case RBM_SLASH:
-                case RBM_BUTT:
-                case RBM_CRUSH:
-                case RBM_ENGULF:
-                case RBM_CHARGE:
-
-                /* Visible monsters */
+            case RBM_HIT:
+            case RBM_TOUCH:
+            case RBM_PUNCH:
+            case RBM_KICK:
+            case RBM_CLAW:
+            case RBM_BITE:
+            case RBM_STING:
+            case RBM_SLASH:
+            case RBM_BUTT:
+            case RBM_CRUSH:
+            case RBM_ENGULF:
+            case RBM_CHARGE:
+            case RBM_CRAWL:
+            case RBM_SPIT:
+            case RBM_EXPLODE:
                 if (m_ptr->ml)
                 {
-                    /* Disturbing */
                     disturb(1, 0);
-
-                    /* Message */
-                    msg_format("%^s misses you.", m_name);
-
+                    msg_format("%^s misses%s", m_name, retaliation_hack ? ".<color:g>)</color>" : ".");
                 }
                 damage = 0;
-
+                break;
+            case RBM_DROOL:
+                if (m_ptr->ml)
+                {
+                    disturb(1, 0);
+                    msg_format("%^s slobbers ineffectually%s", m_name, retaliation_hack ? ".<color:g>)</color>" : ".");
+                }
+                damage = 0;
+                break;
+            case RBM_WAIL:
+                if (m_ptr->ml)
+                {
+                    disturb(1, 0);
+                    msg_format("%^s wails ineffectually%s", m_name, retaliation_hack ? ".<color:g>)</color>" : ".");
+                }
+                damage = 0;
+                break;
+            case RBM_GAZE:
+                if (m_ptr->ml)
+                {
+                    char tmp[MAX_NLEN];
+                    disturb(1, 0);
+                    monster_desc(tmp, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
+                    msg_format("You avoid %s gaze%s", tmp, retaliation_hack ? ".<color:g>)</color>" : ".");
+                }
+                damage = 0;
                 break;
             }
         }

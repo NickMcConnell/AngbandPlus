@@ -19,10 +19,10 @@ struct _node_s
 
 struct str_map_s
 {
-    _node_ptr   *buckets;
-    int          prime_idx;
-    int          count;
-    free_value_f free;
+    _node_ptr     *buckets;
+    int            prime_idx;
+    int            count;
+    str_map_free_f free;
 };
 
 struct str_map_iter_s
@@ -107,7 +107,7 @@ static void _grow(str_map_ptr map)
     free(old_buckets);
 }
 
-str_map_ptr str_map_alloc(free_value_f free)
+str_map_ptr str_map_alloc(str_map_free_f free)
 {
     str_map_ptr result = malloc(sizeof(str_map_t));
     result->buckets = 0;

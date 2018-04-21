@@ -1,0 +1,30 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+You breathe sound. Stop, you brute! That was rather dishonorable.
+The Large white snake jerks limply. The Large white snake flees in  LEVEL <color:G>     1</color>
+terror!                                                             EXP <color:G>      24</color>
+                                                                    AU  <color:G>      36</color>
+                                                                    <color:g>=</color><color:d>      </color><color:U>~</color><color:d>  </color>
+                                                                    STR : <color:G>    17</color>
+                                              ####           #..... INT : <color:G>     6</color>
+                                              #<color:y>d</color>.J           ...... WIS : <color:G>     9</color>
+                                              #.##           ###### DEX : <color:G>    14</color>
+                             ##################.#                   CON : <color:G> 18/30</color>
+                             #>.................#                   CHR : <color:G>    12</color>
+                             #####.##############                   AC     <color:G>   15</color>
+                                 #.###################              HP <color:G>  53</color>/<color:G>  53</color>
+                         #########.#.................#              SP <color:y>  13</color>/<color:G>  14</color>
+                         #<........#.................#
+                         ######.####.................#              J<color:R>[</color><color:B>*</color><color:R>--------]</color>
+                              #.#  #.................#
+                              #.####.................#
+                              #....<color:U>'</color>.................#
+                              ######.................#
+                               #####.................#
+                               #...<color:U>'</color>.................#
+                               ##.#####<color:U>+</color>######.#######
+                                #.#
+                                #.##
+    ###############             #...
+<color:s>Stronghold: L1</color>
+</style>

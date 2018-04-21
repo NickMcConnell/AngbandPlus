@@ -55,7 +55,7 @@
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>angband.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -73,7 +73,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /DMSVC %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>angband.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -102,6 +102,8 @@
     <ClCompile Include="blood_knight.c" />
     <ClCompile Include="blood_mage.c" />
     <ClCompile Include="blue_mage.c" />
+    <ClCompile Include="c-string.c" />
+    <ClCompile Include="c-vec.c" />
     <ClCompile Include="cavalry.c" />
     <ClCompile Include="cave.c" />
     <ClCompile Include="chaos_warrior.c" />
@@ -147,6 +149,7 @@
     <ClCompile Include="melee1.c" />
     <ClCompile Include="melee2.c" />
     <ClCompile Include="menu.c" />
+    <ClCompile Include="message.c" />
     <ClCompile Include="mindcrafter.c" />
     <ClCompile Include="mirror_master.c" />
     <ClCompile Include="monk.c" />
@@ -164,10 +167,13 @@
     <ClCompile Include="object1.c" />
     <ClCompile Include="object2.c" />
     <ClCompile Include="object3.c" />
+    <ClCompile Include="obj_display.c" />
     <ClCompile Include="obj_kind.c" />
     <ClCompile Include="paladin.c" />
+    <ClCompile Include="personality.c" />
     <ClCompile Include="priest.c" />
     <ClCompile Include="psion.c" />
+    <ClCompile Include="py_display.c" />
     <ClCompile Include="races.c" />
     <ClCompile Include="races_a.c" />
     <ClCompile Include="races_k.c" />
@@ -203,6 +209,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="rect.c" />
     <ClCompile Include="red_mage.c" />
     <ClCompile Include="resist.c" />
     <ClCompile Include="rogue.c" />
@@ -254,6 +261,7 @@
     <ClCompile Include="wizard2.c" />
     <ClCompile Include="xtra1.c" />
     <ClCompile Include="xtra2.c" />
+    <ClCompile Include="z-doc.c" />
     <ClCompile Include="z-form.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -274,6 +282,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h" />
+    <ClInclude Include="c-string.h" />
+    <ClInclude Include="c-vec.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="equip.h" />
     <ClInclude Include="externs.h" />
@@ -289,9 +299,11 @@
     <ClInclude Include="int-map.h" />
     <ClInclude Include="kajitips.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="message.h" />
     <ClInclude Include="msvc_warnings.h" />
     <ClInclude Include="mut.h" />
     <ClInclude Include="readdib.h" />
+    <ClInclude Include="rect.h" />
     <ClInclude Include="resist.h" />
     <ClInclude Include="rooms.h" />
     <ClInclude Include="savefile.h" />
@@ -301,6 +313,7 @@
     <ClInclude Include="types.h" />
     <ClInclude Include="variant.h" />
     <ClInclude Include="z-config.h" />
+    <ClInclude Include="z-doc.h" />
     <ClInclude Include="z-form.h" />
     <ClInclude Include="z-rand.h" />
     <ClInclude Include="z-term.h" />

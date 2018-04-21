@@ -8,7 +8,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -20,15 +20,15 @@
  * [from SAngband (originally from OAngband)]
  *
  * Table of values that control how many times each type of room will
- * appear.  Each type of room has its own row, and each column
- * corresponds to dungeon levels 0, 10, 20, and so on.  The final
- * value is the minimum depth the room can appear at.  -LM-
+ * appear. Each type of room has its own row, and each column
+ * corresponds to dungeon levels 0, 10, 20, and so on. The final
+ * value is the minimum depth the room can appear at. -LM-
  *
  * Level 101 and below use the values for level 100.
  *
  * Rooms with lots of monsters or loot may not be generated if the
- * object or monster lists are already nearly full.  Rooms will not
- * appear above their minimum depth.  Tiny levels will not have space
+ * object or monster lists are already nearly full. Rooms will not
+ * appear above their minimum depth. Tiny levels will not have space
  * for all the rooms you ask for.
  */
 static room_info_type room_info_normal[ROOM_T_MAX] =
@@ -328,13 +328,13 @@ static bool find_space_aux(int blocks_high, int blocks_wide, int block_y, int bl
 
 
 /*
- * Find a good spot for the next room.  -LM-
+ * Find a good spot for the next room. -LM-
  *
  * Find and allocate a free space in the dungeon large enough to hold
  * the room calling this function.
  *
  * We allocate space in 11x11 blocks, but want to make sure that rooms
- * align neatly on the standard screen.  Therefore, we make them use
+ * align neatly on the standard screen. Therefore, we make them use
  * blocks in few 11x33 rectangles as possible.
  *
  * Be careful to include the edges of the room in height and width!
@@ -527,7 +527,7 @@ static bool build_room_template(int type, int subtype)
     if (x < 0) xoffset = -x - 1;
     if (y < 0) yoffset = -y - 1;
 
-    /* Find and reserve some space in the dungeon.  Get center of room.
+    /* Find and reserve some space in the dungeon. Get center of room.
      * Hack -- Prepare a bit larger space (+2, +2) to 
      * prevent generation of vaults with no-entrance. */
     if (!find_space(&yval, &xval, abs(y) + 2, abs(x) + 2))
@@ -564,7 +564,7 @@ static bool build_type1(void)
     xsize = x1 + x2 + 1;
     ysize = y1 + y2 + 1;
 
-    /* Find and reserve some space in the dungeon.  Get center of room. */
+    /* Find and reserve some space in the dungeon. Get center of room. */
     if (!find_space(&yval, &xval, ysize + 2, xsize + 2))
         return FALSE;
 
@@ -734,7 +734,7 @@ static bool build_type2(void)
     bool        light;
     cave_type   *c_ptr;
 
-    /* Find and reserve some space in the dungeon.  Get center of room. */
+    /* Find and reserve some space in the dungeon. Get center of room. */
     if (!find_space(&yval, &xval, 11, 25)) return FALSE;
 
     /* Choose lite or dark */
@@ -2371,10 +2371,10 @@ static void store_height(int x, int y, int val)
 * The new points midway between two 'known' points can be calculated
 * by taking the average value of the 'known' ones and randomly adding
 * or subtracting an amount proportional to the distance between those
-* points.  The final 'middle' points of the grid are then calculated
-* by averaging all four of the originally 'known' corner points.  An
+* points. The final 'middle' points of the grid are then calculated
+* by averaging all four of the originally 'known' corner points. An
 * random amount is added or subtracted from this to get a value of the
-* height at that point.  The scaling factor here is adjusted to the
+* height at that point. The scaling factor here is adjusted to the
 * slightly larger distance diagonally as compared to orthogonally.
 *
 * This is then repeated recursively to fill an entire 'height-map'
@@ -2382,9 +2382,9 @@ static void store_height(int x, int y, int val)
 * scaling factors along the x and y directions.
 *
 * A hack to change the amount of correlation between points is done using
-* the grd variable.  If the current step size is greater than grd then
+* the grd variable. If the current step size is greater than grd then
 * the point will be random, otherwise it will be calculated by the
-* above algorithm.  This makes a maximum distance at which two points on
+* above algorithm. This makes a maximum distance at which two points on
 * the height map can affect each other.
 *
 * How fractal caves are made:
@@ -2397,9 +2397,9 @@ static void store_height(int x, int y, int val)
 * The grd variable affects the width of passages.
 * The roug variable affects the roughness of those passages
 *
-* The tricky part is making sure the created cave is connected.  This
+* The tricky part is making sure the created cave is connected. This
 * is done by 'filling' from the inside and only keeping the 'filled'
-* floor.  Walls bounding the 'filled' floor are also kept.  Everything
+* floor. Walls bounding the 'filled' floor are also kept. Everything
 * else is converted to the normal _extra_.
  */
 
@@ -2410,8 +2410,8 @@ static void store_height(int x, int y, int val)
  *  is used as a "heightmap"
  *  The heightmap then needs to be converted back into the "feat" format.
  *
- *  grd=level at which fractal turns on.  smaller gives more mazelike caves
- *  roug=roughness level.  16=normal.  higher values make things more convoluted
+ *  grd=level at which fractal turns on. smaller gives more mazelike caves
+ *  roug=roughness level. 16=normal. higher values make things more convoluted
  *    small values are good for smooth walls.
  *  size=length of the side of the square cave system.
  */
@@ -2944,9 +2944,9 @@ static bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff, b
 
     /*
      * XXX XXX XXX There is a slight problem when tunnels pierce the caves:
-     * Extra doors appear inside the system.  (Its not very noticeable though.)
-     * This can be removed by "filling" from the outside in.  This allows a separation
-     * from _outer_ with _inner_.  (Internal walls are  _outer_ instead.)
+     * Extra doors appear inside the system. (Its not very noticeable though.)
+     * This can be removed by "filling" from the outside in. This allows a separation
+     * from _outer_ with _inner_. (Internal walls are  _outer_ instead.)
      * The extra effort for what seems to be only a minor thing (even non-existant if you
      * think of the caves not as normal rooms, but as holes in the dungeon), doesn't seem
      * worth it.
@@ -2969,14 +2969,14 @@ static bool build_type9(void)
     xsize = randint1(22) * 2 + 8;
     ysize = randint1(15) * 2 + 6;
 
-    /* Find and reserve some space in the dungeon.  Get center of room. */
+    /* Find and reserve some space in the dungeon. Get center of room. */
     if (!find_space(&y0, &x0, ysize + 1, xsize + 1))
     {
         /* Limit to the minimum room size, and retry */
         xsize = 8;
         ysize = 8;
 
-        /* Find and reserve some space in the dungeon.  Get center of room. */
+        /* Find and reserve some space in the dungeon. Get center of room. */
         if (!find_space(&y0, &x0, ysize + 1, xsize + 1))
         {
             /*
@@ -3622,8 +3622,8 @@ static int dist2(int x1, int y1, int x2, int y2,
 
     /* Basically this works by taking the normal pythagorean formula
      * and using an expansion to express this in a way without the
-     * square root.  This approximate formula is then perturbed to give
-     * the distorted results.  (I found this by making a mistake when I was
+     * square root. This approximate formula is then perturbed to give
+     * the distorted results. (I found this by making a mistake when I was
      * trying to fix the circular rooms.)
      */
 
@@ -3660,7 +3660,7 @@ static bool build_type12(void)
 
     rad = randint1(9);
 
-    /* Find and reserve some space in the dungeon.  Get center of room. */
+    /* Find and reserve some space in the dungeon. Get center of room. */
     if (!find_space(&y0, &x0, rad * 2 + 3, rad * 2 + 3)) return FALSE;
 
     /* Make floor */
@@ -3755,7 +3755,7 @@ static bool build_type14(void)
     xsize = x1 + x2 + 1;
     ysize = y1 + y2 + 1;
 
-    /* Find and reserve some space in the dungeon.  Get center of room. */
+    /* Find and reserve some space in the dungeon. Get center of room. */
     if (!find_space(&yval, &xval, ysize + 2, xsize + 2)) return FALSE;
 
     /* Choose lite or dark */
@@ -3826,7 +3826,7 @@ static bool build_type16(void)
 
     rad = 3+randint0(5);
 
-    /* Find and reserve some space in the dungeon.  Get center of room. */
+    /* Find and reserve some space in the dungeon. Get center of room. */
     if (!find_space(&y0, &x0, rad * 2 + 1, rad * 2 + 1)) return FALSE;
 
     /* Make circular floor */
@@ -3903,7 +3903,7 @@ static bool room_build(int typ)
 /*
  * [from SAngband (originally from OAngband)]
  * 
- * Generate rooms in dungeon.  Build bigger rooms at first.
+ * Generate rooms in dungeon. Build bigger rooms at first.
  */
 bool generate_rooms(void)
 {

@@ -30,13 +30,13 @@ static caster_info * _caster_info(void)
         me.weight = 430;
         me.min_fail = 5;
         me.min_level = 3;
-        me.options = CASTER_ALLOW_DEC_MANA | CASTER_GLOVE_ENCUMBRANCE;
+        me.options = CASTER_GLOVE_ENCUMBRANCE;
         init = TRUE;
     }
     return &me;
 }
 
-class_t *beastmaster_get_class_t(void)
+class_t *beastmaster_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

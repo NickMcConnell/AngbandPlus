@@ -46,7 +46,7 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-class_t *warrior_get_class_t(void)
+class_t *warrior_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -59,10 +59,10 @@ class_t *warrior_get_class_t(void)
         me.name = "Warrior";
         me.desc = "A Warrior is a hack-and-slash character, who solves most of his "
                     "problems by cutting them to pieces, but will occasionally fall "
-                    "back on the help of a magical device.  Unfortunately, many "
+                    "back on the help of a magical device. Unfortunately, many "
                     "high-level devices may be forever beyond their use.\n \n"
-                    "Warriors cast no spells.  They hate magic.  In fact, they even "
-                    "gain experience for destroying high level spellbooks.  They have a "
+                    "Warriors cast no spells. They hate magic. In fact, they even "
+                    "gain experience for destroying high level spellbooks. They have a "
                     "class power - 'Sword Dancing' - which allows them to conduct a "
                     "melee attack in six random directions.";
 

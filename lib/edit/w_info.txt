@@ -140,14 +140,13 @@ W:D:############################################################################
 # Starting position
 W:P:48:5
 
-?:[EQU $WILDERNESS NONE LITE]
+?:[EQU $WILDERNESS NONE]
 
 # Edge of the world
 W:F:#:0
 
 # Town 1
 W:E:1:1:0:1:0:Town
-W:J:1:1:0:1:0:³¹
 
 # Wilderness layout
 W:D:###

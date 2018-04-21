@@ -1,0 +1,15 @@
+Races, Classes and Personalities
+
+Please choose one of the following online help files:
+
+    [a] The Races
+    [b] The Classes
+    [c] The Personalities
+    [d] Monster Races
+
+    [e] Race Ability Tables
+    [f] Class Ability Tables
+    [g] Personality Ability Tables
+
+    (?) Help System Commands
+

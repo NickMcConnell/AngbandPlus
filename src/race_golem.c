@@ -95,7 +95,7 @@ static void _calc_innate_attacks(void)
             a.effect[1] = GF_STUN;
 
         a.blows = 100;
-        a.msg = "You punch %s.";
+        a.msg = "You punch.";
         a.name = "Fist";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -353,7 +353,7 @@ void _breathe_disintegration_spell(int cmd, variant *res)
         var_set_string(res, "Breathe Disintegration");
         break;
     case SPELL_DESC:
-        var_set_string(res, "A disintegration breath.  Not even the dungeon walls can withstand its power!");
+        var_set_string(res, "A disintegration breath. Not even the dungeon walls can withstand its power!");
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, p_ptr->chp / 4));
@@ -546,7 +546,7 @@ static int _get_powers(spell_info* spells, int max)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_golem_get_race_t(int psubrace)
+race_t *mon_golem_get_race(int psubrace)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -561,7 +561,7 @@ race_t *mon_golem_get_race_t(int psubrace)
         me.extra_skills = xs;
 
         me.infra = 5;
-        init = TRUE;
+        me.shop_adjust = 130;
 
         me.name = "Golem";
         me.desc = _desc;
@@ -575,6 +575,9 @@ race_t *mon_golem_get_race_t(int psubrace)
         me.base_hp = 50;
         me.boss_r_idx = MON_DESTROYER;
         me.pseudo_class_idx = CLASS_MAULER;
+
+        init = TRUE;
+
     }
 
     me.subname = _mon_name(p_ptr->current_r_idx);
@@ -616,7 +619,6 @@ race_t *mon_golem_get_race_t(int psubrace)
         me.exp = 200;
         break;
     }
-
 
     return &me;
 }

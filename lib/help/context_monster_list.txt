@@ -1,0 +1,54 @@
+<style:title>The Monster List</style>
+
+This command lists all monsters you are currently aware of. The list is grouped by monsters in line of sight and those outside of line of sight. Within each group, monsters are sorted by their difficulty so that the most dangerous monsters are listed first.
+
+<topic:Summary><style:heading>Quick Summary</style>
+
+  <color:keypress>UP/DOWN</color>            Scroll One Line at a Time
+  <color:keypress>PAGEUP/PAGEDOWN</color>    Scroll One Page at a Time
+  <color:keypress>HOME/END</color>           Scroll to Top/Bottom of List
+
+  <color:keypress>r</color>                  Recall Selected Monster
+  <color:keypress>p</color>                  Probe Selected Monster (if allowed)
+  <color:keypress>n</color>                  Name Selected Pet (if allowed)
+  <color:keypress>`</color>                  Travel to Selected Monster
+  <color:keypress>*/t/5</color>              Target Selected Monster
+
+  <color:keypress>ESC/q</color>              Quit this Command
+  <color:keypress>?</color>                  Display this Help Topic
+
+<topic:Usage><style:heading>Usage</style>
+
+This command is very useful in crowded situations, allowing you to quickly ascertain whether any dangerous enemies are lurking nearby. For instance,
+<style:screenshot>
+You see 1 monster, 0 are awake:                   <color:s>%</color>#%#<color:s>%%</color>#%######### LEVEL <color:G>     1</color>
+ <color:U>o</color> <color:D>Cave orc                            </color> N  3 W  2 %<color:s>%%%</color>###%##%###### EXP <color:G>      25</color>
+                                                  <color:s>%%</color>%<color:s>%</color>#<color:s>%</color>########### AU  <color:G>     262</color>
+You are aware of 15 other monsters, 0 are awake:  #<color:s>%</color>##<color:s>%</color>######.##### <color:W>|</color><color:d>     </color><color:y>*</color><color:U>(</color><color:d>   </color><color:U>]</color>
+ <color:s>o</color> <color:D>Orc digger                          </color> S  5 E  5 #%%##<color:s>%</color>%%%%#.%#### STR : <color:G> 18/50</color>
+ <color:u>o</color> <color:v>Lagduf, the Snaga (asleep)          </color> S  3 W  3 %##<color:s>%</color>%<color:s>%</color><color:o>*</color>%%...##<color:U>></color>## INT : <color:G>    11</color>
+ <color:s>o</color> <color:D>Hill orc                            </color> S  5 W  2 <color:s>%</color>.<color:s>%%</color><color:o>*</color>%#%.#%....%% WIS : <color:G>    11</color>
+ <color:U>o</color> <color:D>Cave orc (11 asleep)                           </color>......#.%#####.%% DEX : <color:G> 18/20</color>
+ <color:G>o</color> <color:D>Snaga                               </color> N  0 W  3 ......%#.#%###.## CON : <color:G>    16</color>
+   <color:B>[Press ESC to exit. Press ? for help]</color>          ........#.###%.%# CHR : <color:G> 18/20</color>
+########<color:s>%</color>#<color:s>%</color>##<color:s>%</color>#.............########<color:s>%</color>#<color:s>%%</color>##%#<color:o>*</color>...............%#%#.<color:o>*</color># AC     <color:G>    9</color>
+####<color:s>%</color>####<color:s>%</color>#<color:s>%%%%</color>.............####<color:s>%</color>##<color:s>%%</color><color:U>></color><color:s>%</color>#%<color:s>%</color>##%.................##.## HP <color:G>  54</color>/<color:G>  54</color>
+#######<color:s>%</color>#<color:s>%%</color><color:o>*</color>##<color:s>%</color>.............%#<color:s>%</color>#####<color:s>%</color>.<color:s>%</color>#<color:o>*</color><color:s>%%</color>#<color:o>*</color>.................##.##
+########<color:s>%%</color>#<color:s>%%</color>##.............#%%######..........................%.##
+###<color:s>%</color>#<color:s>%%</color>##<color:s>%</color>#<color:s>%%%%</color>.............##<color:s>%</color>#<color:s>%</color>#%<<color:s>%</color>.#<color:o>*</color>##%##.................#%... @[<color:G>*********</color>]
+###<color:s>%</color>####<color:s>%%</color>#<color:s>%</color>#<color:s>%%</color>.............##<color:U>oo</color>.##...#<color:s>%</color>#####.................####. <color:U>,</color>[*********]
+###<color:s>%</color>###<color:s>%%%%</color>#<color:o>*</color>#<color:s>%</color>#<color:s>%</color>#<color:s>%</color>#####%#<color:u>'</color>#<color:s>%</color>#<color:U>o</color>#.##.###<color:s>%</color>#####.................####.
+#<color:s>%</color>#<color:s>%%</color>#<color:s>%</color>..##<color:s>%%%</color>..##<color:s>%</color>###<color:s>%</color>###<color:U>ooooo</color><color:s>%</color>..#.<color:s>%</color>########................######
+......<color:s>%</color>..#<color:s>%%</color>##.............##<color:s>%</color><color:G>o</color>#.@..#########.................#####
+#####.........:.#<color:s>%</color>###<color:s>%</color>#<color:s>%</color>#<color:s>%</color>####<color:U>o</color>#..###########......................
+##<color:s>%</color>#####<color:s>%</color>#<color:s>%</color>#<color:s>%%%%%%%</color>#<color:s>%</color>#<color:s>%</color>#<color:s>%</color>#<color:s>%%</color>##<color:U>o</color>#<color:s>%</color>.#########.#................###### <color:G>Fast (+15)</color>
+###<color:s>%</color>#######<color:s>%</color>####<color:s>%%%</color>#<color:s>%%%%%%</color>###<color:s>%</color><color:u>o</color>##>#########.#................######
+<color:s>%</color>#####<color:s>%%</color>###<color:s>%</color>#####<color:s>%%</color>###<color:s>%%</color>#<color:s>%%%%</color>#<color:U>o</color>#<color:s>%</color>##########.#<color:s>%</color>...............######
+....................:.....<color:s>%%%</color><color:o>*</color><color:U>o</color><color:s>o</color>#<color:s>%</color>####<color:s>o</color>......#...........<color:r>$</color>.........
+###<color:o>*</color>#####<color:s>%%</color>######<color:s>%%%</color>#<color:s>%</color>##<color:s>%</color>..<color:s>%%</color>##<color:s>%</color>######.####.................#######
+##<color:s>%</color>#####<color:s>%</color>###<color:s>%%%</color>###<color:s>%</color>###<color:s>%%%</color>.......:......####..##.............#######
+##########<color:s>%</color>######<color:s>%</color>######<color:s>%%%</color>########<color:s>%%</color>########<color:s>%</color>###...........#######
+<color:s>Angband: L30</color>
+</style>
+Here, I can quickly see that it is Lagduf who is hiding amongst all those Orcs. I guess I better run!
+

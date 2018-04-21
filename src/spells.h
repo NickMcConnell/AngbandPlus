@@ -23,8 +23,10 @@ extern void spell_stats_on_cast(spell_info *spell);
 extern void spell_stats_gain_skill(spell_info *spell);
 extern void spell_stats_on_fail(spell_info *spell);
 extern spell_stats_ptr spell_stats_aux(cptr name);
+extern spell_stats_ptr spell_stats(spell_info *spell);
 extern int spell_stats_fail(spell_stats_ptr stats);
 
+extern spell_stats_ptr spell_stats_old(int realm, int spell); /* Deprecated */
 extern void spell_stats_on_cast_old(int realm, int spell); /* Deprecated */
 extern void spell_stats_on_fail_old(int realm, int spell); /* Deprecated */
 
@@ -183,6 +185,7 @@ extern void flow_of_lava_spell(int cmd, variant *res);
 extern void force_branding_spell(int cmd, variant *res);
 extern void frost_ball_spell(int cmd, variant *res);
 extern void frost_bolt_spell(int cmd, variant *res);
+extern void genocide_spell(int cmd, variant *res);
 extern void glyph_of_warding_spell(int cmd, variant *res);
 extern void grow_mold_spell(int cmd, variant *res);
 extern void hand_of_doom_spell(int cmd, variant *res);
@@ -193,6 +196,7 @@ extern void hellfire_spell(int cmd, variant *res);
 extern void hell_lance_spell(int cmd, variant *res);
 extern void heroism_spell(int cmd, variant *res);
 extern void hide_in_flame_spell(int cmd, variant *res);
+extern void hide_in_mist_spell(int cmd, variant *res);
 extern void hide_in_mud_spell(int cmd, variant *res);
 extern void holy_lance_spell(int cmd, variant *res);
 extern void hp_to_sp_spell(int cmd, variant *res);
@@ -236,6 +240,7 @@ extern void polymorph_colossus_spell(int cmd, variant *res);
 extern void polymorph_demon_spell(int cmd, variant *res);
 extern void polymorph_demonlord_spell(int cmd, variant *res);
 extern void polymorph_self_spell(int cmd, variant *res);
+extern void polymorph_vampire_spell(int cmd, variant *res);
 extern void power_throw_spell(int cmd, variant *res);
 extern void probing_spell(int cmd, variant *res);
 extern void protection_from_evil_spell(int cmd, variant *res);

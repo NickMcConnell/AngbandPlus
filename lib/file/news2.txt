@@ -1,0 +1,30 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:U>You attack the Frost giant:</color> You miss. You hit. You are frozen. You
+hit. You are frozen. You hit. You are frozen. You hit. You are      LEVEL <color:G>    22</color>
+frozen.                                                             EXP <color:G>   1.37k</color>
+<color:g>The Frost giant attacks you:</color> He misses. He hits. You are covered    AU  <color:G>    121k</color>
+with frost! 1 of your <color:B>Potion of Speed {!k!q}</color> (d) was destroyed!     <color:D>\</color><color:d>     </color><color:R>*</color><color:U>(</color><color:g>(</color><color:s>]</color><color:U>]]</color>
+The Frost giant starts moving faster. It is unharmed. He hits. You  STR!: <color:G>18/130</color>
+are covered with frost! 1 of your <color:B>Potions of Detect Invisible</color> (c)   INT : <color:G>    14</color>
+was destroyed!                                                      WIS : <color:G> 18/40</color>
+          %<color:o>*</color>#%<color:s>%%</color>%#<color:s>%%%</color>##<color:s>%</color>###<color:s>%</color>##  ####################### #   # #     DEX!: <color:G>18/120</color>
+                                 <color:U>+</color>                      ##  # #     CON : <color:G> 18/10</color>
+          ####%####<color:s>%</color>#<color:s>%</color>#<color:o>*</color><color:s>%</color>####    ######################  #### #     CHR : <color:G>    12</color>
+                        <color:o>*</color> <color:o>*</color><color:s>%</color>      ##               ## ##  ##  ##### AC     <color:G>   38</color>
+                        <color:o>**</color> <color:s>%</color>       ##             ##   ##           HP <color:y> 170</color>/<color:G> 250</color>
+             <color:o>*</color>  <color:o>*</color>       <color:o>*</color> <color:s>%</color>#        ##           ##     ##########  SP <color:y>  70</color>/<color:G>  79</color>
+        <color:s>%%</color>#<color:s>%%</color>#<color:o>*</color><color:s>%%</color><color:o>*</color><color:s>%</color><color:o>**</color>##<color:s>%</color>#<color:s>%</color>#          <color:s>%</color>#     <color:s>%</color><color:o>*</color><color:s>%</color>###       ##      #
+                         <color:u>'</color>  ..........#     #             #      #  @[<color:y>*******</color>--]
+        %%%<color:o>*</color>%#<color:s>%</color>#<color:s>%%</color>%<color:o>*</color>#%<color:s>%</color>%<color:o>*</color>#............<color:s>%</color>#    # <color:s>%%</color><color:o>*</color>#       <color:s>%%</color>##<color:s>%</color> <color:o>*</color> <color:s>%</color>  <color:W>?</color>[<color:y>********</color>-]
+                <color:o>*</color>      <color:o>*</color><color:s>%</color> .............# <color:s>%</color>### <color:s>%</color>  #<color:s>%</color>     <color:o>*</color><color:s>%</color> <color:s>%</color><color:U>></color><color:s>%</color>   #  <color:U>,</color>[<color:y>****</color>-----]
+         <color:o>*</color>   <color:o>*</color>    <color:o>***</color>  #<color:s>%</color>.?............<color:s>%</color>#<color:s>%</color>    #<color:o>*</color> <color:o>*</color><color:s>%</color>#   ##  <color:s>%</color> #<color:s>%</color>###  P[<color:y>*******</color>--]
+       ###<color:o>*</color><color:s>%</color>%<color:o>*</color><color:s>%</color>%<color:s>%</color>##<color:o>*</color>%#<color:o>*</color># <color:s>[</color>...............<color:s>%</color><color:U>+</color>##<color:o>*</color>#<color:s>%</color>#<color:s>%</color><color:o>**</color># <color:o>**</color>   #     <color:s>%</color>
+                   <color:U>+</color> <color:u>'</color> <color:U>+</color> ................<color:U>+</color> <color:U>+</color>        % #    <color:s>%</color> #<color:s>%</color>#
+       ##<color:s>%</color>%#%<color:s>%</color>##<color:s>%%</color>#<color:o>*</color><color:U>'</color>%#<color:s>%%</color> .............<color:s>%</color>##<color:s>%</color>#%#%#<color:s>%%</color>%  #%    # #<color:o>*</color>#
+              <color:o>*</color>   <color:o>*</color><color:s>%</color> %<color:o>*</color> <color:s>%</color> .............<color:U>'</color>..@<color:s>%</color><color:o>*</color><color:s>%</color>#<color:s>%</color>#<color:o>**</color><color:s>%</color> <color:s>%</color><color:o>*</color>  #<color:s>%</color># # ###
+            <color:o>*</color>      <color:s>%</color> <color:s>%</color>  #<color:s>%</color> ...........<color:s>%</color><color:o>*</color>...P... <color:s>%</color>#<color:s>%</color># #<color:s>%</color>#<color:s>%</color>#   <color:s>%</color>   #
+                <color:o>*</color>  <color:o>*</color> #   #  ..........<color:o>*</color><color:s>%</color>#<color:s>%%%</color>%<color:o>*</color>#   #%    ## # <color:s>%</color> <color:o>*</color> #
+        ###       <color:o>**</color> %   #<color:o>*</color>   .......<color:s>%%</color>       ##<color:o>*</color> ##<color:o>*</color>#% ## ###   #
+<color:s>Angband: 1500 ft</color>                             <color:G>DTrap</color>
+</style>

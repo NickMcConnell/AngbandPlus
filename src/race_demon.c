@@ -4,19 +4,10 @@ static cptr _desc =
     "Demons are powerful servants of evil and come in many forms. Being monsters, they "
     "may not choose a normal class. Instead, they rely on their devilish powers or their "
     "brutish strength to survive.\n \n"
-    "Balrogs are powerful in melee and have access to a wide array of demonic spells "
-    "of great power. Their devilish offense is unrivaled among all the monster races and "
-    "at high levels they may unleash deadly hellfire upon their foes. Their summoning talents "
-    "are also very good, but summoning a high demon requires a human sacrifice. "
-    "Intelligence determines their casting abilities. Eventually, balrogs become "
-    "immune to the charge draining attacks of their enemies.\n \n"
-    "Tanar'ri are a bit weaker then Balrogs, but eventually evolve into multi-armed demons "
-    "capable of attacking their enemies with many weapons. Their devilish powers are influenced "
-    "by their intelligence.\n \n"
-    "Cyberdemons are evil constructions. Big, slow and stupid, they possess unsurpassable firepower. "
-    "Their cyberpowers are influenced by their constitution.\n \n"
-    "Servants of Khorne come in many forms and are powerful demons in melee. They lack special "
-    "powers.\n \n"
+    "The various demonic races include the Balrog, powerful demons of fire; the Sevants "
+    "of Khorne, mighty warriors of destruction; the Tanar'ri, weaker demons whose ultimate "
+    "form has three sets of arms, but prefers to fight naked; and Cyberdemons, whose firepower "
+    "is unsurpassable.\n \n"
     "All demon races cannot eat normal food, but must feast upon the remains of their human "
     "enemies. They are unaffected by the Eldritch Horror.";
 
@@ -68,9 +59,8 @@ static void _khorne_calc_innate_attacks(void)
 {
     if (p_ptr->current_r_idx == MON_FLESHHOUND_KHORNE)
     {
-        int l = p_ptr->lev;
-        int to_d = l/10 + l*l/500 + l*l*l/25000;
-        int to_h = l/5 + l*l/250 + l*l*l/12500;
+        int to_d = py_prorata_level(15);
+        int to_h = py_prorata_level(30);
 
         /* Claws */
         {
@@ -83,7 +73,7 @@ static void _khorne_calc_innate_attacks(void)
 
             a.weight = 100;
             calc_innate_blows(&a, 200);
-            a.msg = "You claw %s.";
+            a.msg = "You claw.";
             a.name = "Claw";
 
             p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -100,16 +90,15 @@ static void _khorne_calc_innate_attacks(void)
             a.weight = 200;
 
             calc_innate_blows(&a, 300);
-            a.msg = "You bite %s.";
+            a.msg = "You bite.";
             a.name = "Bite";
             p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         }
     }
     else if (p_ptr->current_r_idx == MON_JUGGERNAUT_KHORNE)
     {
-        int l = p_ptr->lev;
-        int to_d = l/10 + l*l/500 + l*l*l/25000;
-        int to_h = l/5 + l*l/250 + l*l*l/12500;
+        int to_d = py_prorata_level(15);
+        int to_h = py_prorata_level(30);
 
         /* Claws */
         {
@@ -122,7 +111,7 @@ static void _khorne_calc_innate_attacks(void)
 
             a.weight = 200;
             calc_innate_blows(&a, 400);
-            a.msg = "You crush %s.";
+            a.msg = "You crush.";
             a.name = "Claw";
 
             p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -139,7 +128,7 @@ static void _khorne_calc_innate_attacks(void)
             a.weight = 500;
 
             calc_innate_blows(&a, 200);
-            a.msg = "You butt %s.";
+            a.msg = "You butt.";
             a.name = "Head";
             p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
         }
@@ -303,6 +292,9 @@ static race_t *_khorne_get_race_t(void)
     skills_t bs = { 20,  20,  40,  -1,  13,   7,  70,  30};
     skills_t xs = { 12,   8,  10,   0,   0,   0,  32,   7};
 
+        me.subdesc = "Khorne's servants come in many forms and are powerful forces of melee. They know nothing "
+        "save melee, and strike at all that dare oppose the will of their master. As they gain "
+        "experience, Khorne rewards his servants with new and more powerful forms.";
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -321,7 +313,10 @@ static race_t *_khorne_get_race_t(void)
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Servant of Khorne";
+    else
+        me.subname = titles[rank];
     me.stats[A_STR] =  3 + rank;
     me.stats[A_INT] = -5;
     me.stats[A_WIS] = -5;
@@ -392,7 +387,7 @@ static void _marilith_calc_innate_attacks(void) {
         a.effect[0] = GF_MISSILE;
         a.blows = 100;
 
-        a.msg = "You sting %s.";
+        a.msg = "You sting.";
         a.name = "Tail";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -530,6 +525,10 @@ static race_t *_marilith_get_race_t(void)
     skills_t bs = { 20,  35,  36,   3,  16,  10,  56,  35};
     skills_t xs = { 12,  11,  10,   0,   0,   0,  20,  11};
 
+        me.subdesc = "Tanar'ri were originally slave demons, but rose up to overthrow their masters. "
+        "They generally take on a humanoid form and are classic demons full of malice and "
+        "cruelty. The ultimate form for this demon is the Marilith, a female demon with "
+        "three sets of arms and a serpent body capable of attacking with six melee weapons!";
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -549,7 +548,10 @@ static race_t *_marilith_get_race_t(void)
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Tanar'ri";
+    else
+        me.subname = titles[rank];
     me.stats[A_STR] =  rank;
     me.stats[A_INT] =  rank/2;
     me.stats[A_WIS] = -5;
@@ -624,6 +626,12 @@ static void _balrog_calc_bonuses(void) {
     p_ptr->no_eldritch = TRUE;
     p_ptr->pspeed += p_ptr->lev/8; /* Angels get +7 speed. Demons get +6 speed. */
     p_ptr->sh_fire = TRUE;
+
+    if (equip_find_artifact(ART_STONE_OF_DAEMON))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
     
     if (p_ptr->lev >= 10) 
         p_ptr->see_inv = TRUE;
@@ -654,13 +662,9 @@ static void _balrog_get_flags(u32b flgs[TR_FLAG_SIZE]) {
     if (p_ptr->lev >= 10)
         add_flag(flgs, TR_SEE_INVIS);
     if (p_ptr->lev >= 30)
-    {
         add_flag(flgs, TR_RES_CHAOS);
-    }
-}
-static void _balrog_get_immunities(u32b flgs[TR_FLAG_SIZE]) {
     if (p_ptr->lev >= 40)
-        add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, TR_IM_FIRE);
 }
 static void _balrog_gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_LESSER_BALROG && new_level >= 40)
@@ -684,6 +688,11 @@ static race_t *_balrog_get_race_t(void)
     skills_t bs = { 20,  35,  40,  -2,  10,   7,  75,  30};
     skills_t xs = { 12,  11,  15,   0,   0,   0,  35,   7};
 
+
+        me.subdesc = "Balrogs are demons of shadow and flame. Their evil knows no bounds. Their spells are "
+        "the most powerful of all demonkind and at very high levels they may even call forth "
+        "fires directly from hell.";
+
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -694,14 +703,16 @@ static race_t *_balrog_get_race_t(void)
         me.get_spells = _balrog_get_spells;
         me.calc_bonuses = _balrog_calc_bonuses;
         me.get_flags = _balrog_get_flags;
-        me.get_immunities = _balrog_get_immunities;
         me.gain_level = _balrog_gain_level;
         me.caster_info = _caster_info;
         me.pseudo_class_idx = CLASS_CHAOS_WARRIOR;
         init = TRUE;
     }
 
-    me.subname = titles[rank];
+    if (spoiler_hack || birth_hack)
+        me.subname = "Balrog";
+    else
+        me.subname = titles[rank];
     me.stats[A_STR] =  4 + 3*rank;
     me.stats[A_INT] =  1 + 2*rank;
     me.stats[A_WIS] = -10;
@@ -721,8 +732,7 @@ static race_t *_balrog_get_race_t(void)
  ******************************************************************************/
 static int _rocket_amount(void)
 {
-    int l = p_ptr->lev;
-    int pct = 15 + l/5 + l*l/250 + l*l*l/12500;
+    int pct = 15 + py_prorata_level(30);
     return 25 + p_ptr->chp * pct / 100;
 }
 
@@ -788,8 +798,7 @@ static void _cyber_birth(void)
 
 static void _cyber_calc_bonuses(void) 
 {
-    int l = p_ptr->lev;
-    int to_a = l/2 + l*l/100 + l*l*l/5000;
+    int to_a = py_prorata_level(75);
 
     p_ptr->move_random = TRUE;
 
@@ -814,11 +823,6 @@ static void _cyber_get_flags(u32b flgs[TR_FLAG_SIZE])
 
     add_flag(flgs, TR_HOLD_LIFE);
     add_flag(flgs, TR_FREE_ACT);
-}
-
-static void _cyber_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
-{
-/*    add_flag(flgs, TR_RES_CONF); */
 }
 
 static void _cyber_move_player(void)
@@ -854,7 +858,9 @@ static race_t *_cyber_get_race_t(void)
     skills_t xs = { 12,   6,   9,   0,   0,   0,  35,   7};
 
         me.subname = "Cyberdemon";
-
+        me.subdesc = "Cyberdemons are giant humanoid forms, half demon and half machine. They are a bit "
+        "slow and move erratically, but their immense bodies and unsurpassable firepower "
+        "more than make up for this. The walls of the dungeon reverberate with their heavy steps!";
         me.skills = bs;
         me.extra_skills = xs;
 
@@ -868,7 +874,6 @@ static race_t *_cyber_get_race_t(void)
         me.get_powers = _cyber_get_powers;
         me.calc_bonuses = _cyber_calc_bonuses;
         me.get_flags = _cyber_get_flags;
-        me.get_vulnerabilities = _cyber_get_vulnerabilities;
         me.move_player = _cyber_move_player;
         me.pseudo_class_idx = CLASS_WARRIOR;
 
@@ -890,7 +895,7 @@ static race_t *_cyber_get_race_t(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_demon_get_race_t(int psubrace)
+race_t *mon_demon_get_race(int psubrace)
 {
     race_t *result = NULL;
 
@@ -915,6 +920,7 @@ race_t *mon_demon_get_race_t(int psubrace)
     result->name = "Demon";
     result->desc = _desc;
     result->flags = RACE_IS_MONSTER | RACE_IS_DEMON | RACE_IS_NONLIVING;
+    result->shop_adjust = 140;
 
     return result;
 }

@@ -1,0 +1,16 @@
+Attacking and Weapons
+
+Please choose one of the following online help files:
+
+    [a] Attacking and Weapons
+    [b] Attacking from a Distance
+    [c] Attacking Monsters in Walls
+    [d] Melee Weapons
+    [e] Missile Launchers
+    [f] Ego Weapons and Artifacts
+    [g] Magical Aids to Physical Combat
+    [h] Martial Arts
+    [i] Basic Tactics
+
+    (?) Help System Commands
+

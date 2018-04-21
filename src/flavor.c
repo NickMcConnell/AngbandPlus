@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -58,7 +58,6 @@ static bool object_easy_know(int i)
         case TV_FOOD:
         case TV_POTION:
         case TV_SCROLL:
-        case TV_ROD:
         {
             return (TRUE);
         }
@@ -226,11 +225,11 @@ static void shuffle_flavors(byte tval)
  * The first 4 entries for potions are fixed (Water, Apple Juice,
  * Slime Mold Juice, Unused Potion).
  *
- * Scroll titles are always between 6 and 14 letters long.  This is
+ * Scroll titles are always between 6 and 14 letters long. This is
  * ensured because every title is composed of whole words, where every
  * word is from 1 to 8 letters long (one or two syllables of 1 to 4
  * letters each), and that no scroll is finished until it attempts to
- * grow beyond 15 letters.  The first time this can happen is when the
+ * grow beyond 15 letters. The first time this can happen is when the
  * current title has 6 letters and the new word has 8 letters, which
  * would result in a 6 letter scroll title.
  *
@@ -240,7 +239,7 @@ static void shuffle_flavors(byte tval)
  *
  * Hack -- make sure everything stays the same for each saved game
  * This is accomplished by the use of a saved "random seed", as in
- * "town_gen()".  Since no other functions are called while the special
+ * "town_gen()". Since no other functions are called while the special
  * seed is in effect, so this function is pretty "safe".
  *
  * Note that the "hacked seed" may provide an RNG with alternating parity!
@@ -270,15 +269,6 @@ void flavor_init(void)
          */
         k_ptr->flavor = i;
     }
-
-    /* Shuffle Staves */
-    shuffle_flavors(TV_STAFF);
-
-    /* Shuffle Wands */
-    shuffle_flavors(TV_WAND);
-
-    /* Shuffle Rods */
-    shuffle_flavors(TV_ROD);
 
     /* Shuffle Mushrooms */
     shuffle_flavors(TV_FOOD);
@@ -496,16 +486,16 @@ static flag_insc_table flag_insc_resistance[] =
     { "Po", TR_RES_POIS, -1 },
     { "Li", TR_RES_LITE, -1 },
     { "Dk", TR_RES_DARK, -1 },
-    { "Sh", TR_RES_SHARDS, -1 },
-    { "Bl", TR_RES_BLIND, -1 },
     { "Cf", TR_RES_CONF, -1 },
-    { "So", TR_RES_SOUND, -1 },
     { "Nt", TR_RES_NETHER, -1 },
     { "Nx", TR_RES_NEXUS, -1 },
+    { "So", TR_RES_SOUND, -1 },
+    { "Sh", TR_RES_SHARDS, -1 },
     { "Ca", TR_RES_CHAOS, -1 },
     { "Di", TR_RES_DISEN, -1 },
-    { "Fe", TR_RES_FEAR, -1 },
     { "Ti", TR_RES_TIME, -1 },
+    { "Bl", TR_RES_BLIND, -1 },
+    { "Fe", TR_RES_FEAR, -1 },
     { NULL, 0, -1 }
 };
 
@@ -518,14 +508,14 @@ static flag_insc_table flag_insc_vulnerability[] =
     { "Po", TR_VULN_POIS, -1 },
     { "Li", TR_VULN_LITE, -1 },
     { "Dk", TR_VULN_DARK, -1 },
-    { "Sh", TR_VULN_SHARDS, -1 },
-    { "Bl", TR_VULN_BLIND, -1 },
-    { "Cf", TR_VULN_CONF, -1 },
-    { "So", TR_VULN_SOUND, -1 },
     { "Nt", TR_VULN_NETHER, -1 },
     { "Nx", TR_VULN_NEXUS, -1 },
+    { "Cf", TR_VULN_CONF, -1 },
+    { "So", TR_VULN_SOUND, -1 },
+    { "Sh", TR_VULN_SHARDS, -1 },
     { "Ca", TR_VULN_CHAOS, -1 },
     { "Di", TR_VULN_DISEN, -1 },
+    { "Bl", TR_VULN_BLIND, -1 },
     { "Fe", TR_VULN_FEAR, -1 },
     { NULL, 0, -1 }
 };
@@ -610,7 +600,7 @@ static flag_insc_table flag_insc_slay[] =
     { "U", TR_SLAY_DEMON, TR_KILL_DEMON },
     { "L", TR_SLAY_UNDEAD, TR_KILL_UNDEAD },
     { "Z", TR_SLAY_ANIMAL, TR_KILL_ANIMAL },
-    { "Good", TR_SLAY_GOOD, -1 },
+    { "A", TR_SLAY_GOOD, -1 },
     { "Lv", TR_SLAY_LIVING, -1 },
     { NULL, 0, -1 }
 };
@@ -835,7 +825,7 @@ static void get_inscription(char *buff, object_type *o_ptr)
     char *ptr = buff;
 
     /* Not fully identified */
-    if (!(o_ptr->ident & IDENT_MENTAL))
+    if (!(o_ptr->ident & IDENT_FULL))
     {
         /* Copy until end of line or '#' */
         while (*insc)
@@ -886,6 +876,17 @@ static void get_inscription(char *buff, object_type *o_ptr)
     *ptr = '\0';
 }
 
+char attr_to_attr_char(byte a)
+{
+    char hack[17] = "dwsorgbuDWvyRGBU";
+    char c = hack[a&0x0F];
+    return c;
+}
+
+char tval_to_attr_char(int tval)
+{
+    return attr_to_attr_char(tval_to_attr[tval % 128]);
+}
 
 /*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
@@ -916,7 +917,7 @@ static void get_inscription(char *buff, object_type *o_ptr)
  *
  * Special Ring's and Amulet's, if not "aware", use the same code as normal
  * rings and amulets, and if "aware", use the "k_info" base-name (Ring or
- * Amulet or Necklace).  They will NEVER "append" the "k_info" name.  But,
+ * Amulet or Necklace). They will NEVER "append" the "k_info" name. But,
  * they will append the artifact name, just like any artifact, if known.
  *
  * Hack -- Display "The One Ring" as "a Plain Gold Ring" until aware.
@@ -949,6 +950,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     bool            aware = FALSE;
     bool            known = FALSE;
     bool            flavor = TRUE;
+    bool            device = FALSE;
 
     bool            show_weapon = FALSE;
     bool            show_armour = FALSE;
@@ -977,6 +979,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
     /* See if the object is "aware" */
     if (object_is_aware(o_ptr)) aware = TRUE;
+    /* Devices no longer use flavor system ... k_info[].aware is meaningless! */
+    if (object_is_device(o_ptr) && object_is_known(o_ptr)) aware = TRUE;
 
     /* Hack object_is_aware() is wrong in this case.
        Anybody know how k_info[].aware gets set?  Perhaps flavor_init? */
@@ -1166,39 +1170,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         case TV_STAFF:
-        {
-            /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
-
-            if (!flavor)    basenm = "& Staff~ of %";
-            else if (aware) basenm = "& # Staff~ of %";
-            else            basenm = "& # Staff~";
-
-            break;
-        }
-
         case TV_WAND:
-        {
-            /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
-
-            if (!flavor)    basenm = "& Wand~ of %";
-            else if (aware) basenm = "& # Wand~ of %";
-            else            basenm = "& # Wand~";
-
-            break;
-        }
-
         case TV_ROD:
-        {
-            /* Color the object */
-            modstr = k_name + flavor_k_ptr->flavor_name;
-
-            if (!flavor)    basenm = "& Rod~ of %";
-            else if (aware) basenm = "& # Rod~ of %";
-            else            basenm = "& # Rod~";
+            device = TRUE;
             break;
-        }
 
         case TV_SCROLL:
         {
@@ -1380,7 +1355,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         /* Hack -- Gold/Gems */
         case TV_GOLD:
         {
-            strcpy(buf, basenm);
+            if (mode & OD_COLOR_CODED)
+                sprintf(buf, "<color:%c>%s</color>", tval_to_attr_char(o_ptr->tval), basenm);
+            else
+                strcpy(buf, basenm);
             return;
         }
 
@@ -1612,6 +1590,26 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
+    if (known && object_is_device(o_ptr))
+    {
+        if (o_ptr->activation.type)
+        {
+            char buf[255];
+            if (mode & OD_COLOR_CODED)
+            {
+                byte color = effect_color(&o_ptr->activation);
+                sprintf(buf, ": <color:%c>%s</color>",
+                        attr_to_attr_char(color),
+                        do_effect(&o_ptr->activation, SPELL_NAME, 0));
+            }
+            else
+            {
+                sprintf(buf, ": %s", do_effect(&o_ptr->activation, SPELL_NAME, 0));
+            }
+            t = object_desc_str(t, buf);
+        }
+    }
+
     /* No more details wanted */
     if (mode & OD_NAME_ONLY) goto object_desc_done;
 
@@ -1834,9 +1832,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     /* If have a firing weapon + ammo matches bow */
     if (bow_ptr && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
     {
-        int avgdam;        
+#if 0
+        int avgdam;
         int tmul = bow_mult(bow_ptr);
-        s16b energy_fire = bow_energy(bow_ptr->sval);
+        /*s16b energy_fire = bow_energy(bow_ptr->sval);*/
 
         if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
             avgdam = o_ptr->dd * 2 * (o_ptr->ds + 1) * 10 / 2;
@@ -1864,7 +1863,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         if (avgdam < 0) avgdam = 0;
 
         /* Display (shot damage/ avg damage) */
-        t = object_desc_chr(t, ' ');
+        t = object_desc_chr(t, ' ');       
         t = object_desc_chr(t, p1);
         t = object_desc_num(t, avgdam);
         t = object_desc_chr(t, '/');
@@ -1882,6 +1881,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
 
         t = object_desc_chr(t, p2);
+#endif
     }
     else if ((p_ptr->pclass == CLASS_NINJA) && (o_ptr->tval == TV_SPIKE))
     {
@@ -1957,123 +1957,44 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
     if (known) /* Known item only */
     {
-        /*
-         * Hack -- Wands and Staffs have charges.  Make certain how many charges
-         * a stack of staffs really has is clear. -LM-
-         */
-        if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)))
+        if (object_is_device(o_ptr))
         {
-            /* Dump " (N charges)" */
-            t = object_desc_chr(t, ' ');
-            t = object_desc_chr(t, p1);
-
-            /* Clear explaination for staffs. */
-            if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
+            if (o_ptr->activation.cost)
             {
-                t = object_desc_num(t, o_ptr->number);
-                t = object_desc_str(t, "x ");
-            }
-            t = object_desc_num(t, o_ptr->pval);
-            t = object_desc_str(t, " charge");
-            if (o_ptr->pval != 1) t = object_desc_chr(t, 's');
+                int  charges = device_sp(o_ptr) / o_ptr->activation.cost;
+                int  max_charges = device_max_sp(o_ptr) / o_ptr->activation.cost;
 
-            t = object_desc_chr(t, p2);
-        }
-        /* Hack -- Rods have a "charging" indicator.  Now that stacks of rods may
-         * be in any state of charge or discharge, this now includes a number. -LM-
-         */
-        else if (o_ptr->tval == TV_ROD)
-        {
-            /* Hack -- Dump " (# charging)" if relevant */
-            if (o_ptr->timeout)
-            {
-                /* Stacks of rods display an exact count of charging rods. */
-                if (o_ptr->number > 1)
+                t = object_desc_chr(t, ' ');
+                t = object_desc_chr(t, p1);
+                if ((mode & OD_COLOR_CODED) && charges < max_charges)
                 {
-                    /* Paranoia. */
-                    if (k_ptr->pval == 0) k_ptr->pval = 1;
-
-                    /* Find out how many rods are charging, by dividing
-                     * current timeout by each rod's maximum timeout.
-                     * Ensure that any remainder is rounded up.  Display
-                     * very discharged stacks as merely fully discharged.
-                     */
-                    power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
-                    if (power > o_ptr->number) power = o_ptr->number;
-
-                    /* Display prettily. */
-                    t = object_desc_str(t, " (");
-                    t = object_desc_num(t, power);
-                    t = object_desc_str(t, " charging)");
+                    if (!charges)
+                        t = object_desc_str(t, format("<color:r>%d/%d charges</color>", charges, max_charges));
+                    else
+                        t = object_desc_str(t, format("<color:y>%d/%d charges</color>", charges, max_charges));
                 }
-
-                /* "one Rod of Perception (1 charging)" would look tacky. */
                 else
-                {
-                    t = object_desc_str(t, " (charging)");
-                }
+                    t = object_desc_str(t, format("%d/%d charges", charges, max_charges));
+                t = object_desc_chr(t, p2);
             }
         }
 
-        /* Dump "pval" flags for wearable items */
-        if (have_pval_flags(flgs) && o_ptr->pval)
+        /* Dump "pval" flags for wearable items
+           have_pval_flags doesn't work correctly for devices, so assume all
+           devices with a pval need display. TODO: Fix this!
+        */
+        if ((have_pval_flags(flgs) || object_is_device(o_ptr)) && o_ptr->pval)
         {
-            /* Start the display */
-            t = object_desc_chr(t, ' ');
-            t = object_desc_chr(t, p1);
-
-            /* Dump the "pval" itself */
-            t = object_desc_int(t, o_ptr->pval);
-
-            /* Do not display the "pval" flags */
-            if (have_flag(flgs, TR_HIDE_TYPE))
+            if (o_ptr->name2 == EGO_DEVICE_POWER)
             {
-                /* Nothing */
             }
-
-            /* Speed */
-            else if (have_flag(flgs, TR_SPEED))
+            else
             {
-                /* Dump " to speed"
-                t = object_desc_str(t, " to speed");*/
+                t = object_desc_chr(t, ' ');
+                t = object_desc_chr(t, p1);
+                t = object_desc_int(t, o_ptr->pval);
+                t = object_desc_chr(t, p2);
             }
-#if 0
-            TODO: Blows are now fractional (currently +.50 attacks per pval)
-                  As a result, the display would be wrong if we appended "attacks"
-                  after the pval.
-            /* Attack speed */
-            else if (have_flag(flgs, TR_BLOWS))
-            {
-                /* Add " attack" */
-                t = object_desc_str(t, " attack");
-
-                /* Add "attacks" */
-                if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
-            }
-#endif
-            /* Stealth */
-            else if (have_flag(flgs, TR_STEALTH))
-            {
-                /* Dump " to stealth"
-                t = object_desc_str(t, " to stealth"); */
-            }
-
-            /* Search */
-            else if (have_flag(flgs, TR_SEARCH))
-            {
-                /* Dump " to searching"
-                t = object_desc_str(t, " to searching"); */
-            }
-
-            /* Infravision */
-            else if (have_flag(flgs, TR_INFRA))
-            {
-                /* Dump " to infravision"
-                t = object_desc_str(t, " to infravision"); */
-            }
-
-            /* Finish the display */
-            t = object_desc_chr(t, p2);
         }
         if (have_flag(flgs, TR_DEVICE_POWER))
         {
@@ -2141,7 +2062,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     tmp_val2[0] = '\0';
 
     /* Auto abbreviation inscribe */
-    if ((abbrev_extra || abbrev_all) && (o_ptr->ident & IDENT_MENTAL))
+    if ((abbrev_extra || abbrev_all) && (o_ptr->ident & IDENT_FULL))
     {
         if (!o_ptr->inscription || !my_strchr(quark_str(o_ptr->inscription), '%'))
         {
@@ -2155,8 +2076,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     if ( (abbrev_extra || abbrev_all)
-      && (o_ptr->ident & IDENT_MENTAL)
-      && obj_has_effect(o_ptr) )
+      && (o_ptr->ident & IDENT_FULL)
+      && obj_has_effect(o_ptr)
+      && !device )
     {
         char     buf[255];
         effect_t e = obj_get_effect(o_ptr);
@@ -2170,37 +2092,41 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
     if (o_ptr->name3 && object_is_known(o_ptr))
     {
-        char  buf[255];
         cptr  t = a_name + a_info[o_ptr->name3].name;
-        char *u = buf;
 
-        /* of Hammerhand -> Hammerhand 
-           'Thalkettoth' -> Thalkettoth
-           of the Dwarves -> Dwarves
-        */        
-        if (*t == 'o' && *(t+1) == 'f')
-             t += 2;
-
-        while (*t && *t == ' ')
-            t++;
-
-        if (*t == 't' && *(t+1) == 'h' && *(t+2) == 'e')
-             t += 3;
-
-        while (*t && *t == ' ')
-            t++;
-
-        *u++ = ' ';
-        while (*t)
+        if (!o_ptr->art_name || !streq(t, quark_str(o_ptr->art_name)))
         {
-            if (*t == '\'' || *t == '&')
-                t++;
-            else
-                *u++ = *t++;
-        }
+            char  buf[255];
+            char *u = buf;
 
-        *u = '\0';
-        strcat(tmp_val2, buf);
+            /* of Hammerhand -> Hammerhand
+               'Thalkettoth' -> Thalkettoth
+               of the Dwarves -> Dwarves
+            */
+            if (*t == 'o' && *(t+1) == 'f')
+                 t += 2;
+
+            while (*t && *t == ' ')
+                t++;
+
+            if (*t == 't' && *(t+1) == 'h' && *(t+2) == 'e')
+                 t += 3;
+
+            while (*t && *t == ' ')
+                t++;
+
+            *u++ = ' ';
+            while (*t)
+            {
+                if (*t == '\'' || *t == '&')
+                    t++;
+                else
+                    *u++ = *t++;
+            }
+
+            *u = '\0';
+            strcat(tmp_val2, buf);
+        }
     }
 
     /* Use the standard inscription if available */
@@ -2230,7 +2156,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     /* Note "cursed" if the item is known to be cursed */
     else if (object_is_cursed(o_ptr) && (known || (o_ptr->ident & IDENT_SENSE)))
     {
-        strcpy(fake_insc_buf, "cursed");
+        if (object_is_device(o_ptr) && !(o_ptr->ident & IDENT_FULL))
+        {
+            /* Hide cursed status of devices until *Identified* */
+        }
+        else
+            strcpy(fake_insc_buf, "cursed");
     }
 
     /* Note "unidentified" if the item is unidentified */
@@ -2248,6 +2179,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
     /* Note "tried" if the object has been tested unsuccessfully */
+    else if (!known && object_is_device(o_ptr) && object_is_tried(o_ptr))
+    {
+        strcpy(fake_insc_buf, "tried");
+    }
     else if (!aware && object_is_tried(o_ptr))
     {
         strcpy(fake_insc_buf, "tried");
@@ -2300,7 +2235,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     }
 
 object_desc_done:
-    my_strcpy(buf, tmp_val, MAX_NLEN);
+    if (mode & OD_COLOR_CODED)
+        sprintf(buf, "<color:%c>%s</color>", tval_to_attr_char(o_ptr->tval), tmp_val);
+    else
+        my_strcpy(buf, tmp_val, MAX_NLEN);
 }
 
 

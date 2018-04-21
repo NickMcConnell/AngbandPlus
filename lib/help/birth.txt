@@ -1,421 +1,156 @@
-=== Creating a Character ===
+<style:title>Creating a Character</style>
 
-PosChengband is a role playing game, in which you, the player, control a
-character in a dangerous world of myth and magic. The most important
-decision you make on your quest to the Kill the Serpent of Chaos is
-what kind of character to play: Spell-wielding magician or sword-waving
-warrior? Stealthy rogue or muscial bard? Holy priest or evil spawn of
-chaos? The choices are myriad and the process of generating a new
-character is described in this help file.
+PosChengband is a role playing game, in which you, the player, control a character in a dangerous world of myth and magic. The most important decision you make on your quest to the Kill the Serpent of Chaos is what kind of character to play: Spell-wielding magician or sword-waving warrior? Stealthy rogue or muscial bard? Holy priest or evil spawn of chaos? The choices are myriad and the process of generating a new character is described in this help file, which will also serve to introduce you to many of the core concepts of the game.
 
-Character creation, or birth, is controlled through a variety of
-choices. You must choose your character's race (Human, Elf, Hobbit,
-Orc, Undead, Demon, etc), your character's class (Warrior, Mage, 
-Priest, Rogue, etc) and you character's personality (Mighty, Shrewd, 
-Patient, etc). Each of these choices are described in the help
-files.
+Character creation, or birth, is controlled through a variety of choices. You must choose your character's race (<color:keyword>Human</color>, <color:keyword>Elf</color>, <color:keyword>Hobbit</color>, <color:keyword>Orc</color>, <color:keyword>Undead</color>, <color:keyword>Demon</color>, etc), your character's class (<color:keyword>Warrior</color>, <color:keyword>Mage</color>, <color:keyword>Priest</color>, <color:keyword>Rogue</color>, etc) and you character's personality (<color:keyword>Mighty</color>, <color:keyword>Shrewd</color>, <color:keyword>Patient</color>, etc). Each of these choices are described in the help files (see <link:raceclass_contents.txt>).
 
-You may start the entire process over at any time by pressing 'S' at
-any prompt. Also, you can press 'Esc' to back up to the previous option.
-Finally, you can press 'Q' to quit at any time, but this is highly
-discouraged!
+You may start the entire process over at any time by pressing <color:keypress>S</color> at any prompt. Also, you can press <color:keypress>ESC</color> to back up to the previous option. Finally, you can press <color:keypress>Q</color> to quit at any time, but this is highly discouraged!
 
+<topic:GameMode><style:heading>The Game Mode</style>
 
-***** <CharAttributes>
-=== Character Attributes ===
+The first prompt you get when beginning the game is to choose how you wish to play. If you are new to the game, then it is highly recommended you choose the <color:keyword>Beginner</color> option. With this mode, you won't be so overwhelmed with choices as is normally the case, allowing you to breeze through the birth process and quickly begin playing (and enjoying) this game. Once you have played a few times and wish to experience more that the game has to offer, including a vast wilderness with many diverse dungeons to explore, then you should choose the <color:keyword>Normal</color> option.
 
-Once you begin character generation you will be asked to choose your
-character's four primary attributes - its sex, race, class and
-personality.  If you have selected a spellcasting class, you will also
-be prompted for your choice of magic realm(s).  Your character's sex
-has a minimal effect on game play, but some personalities are
-restricted to male only or female only.  More details of attributes
-are found in the Races, Classes and Personalities section (see [a]) 
-and the Magic System section (see [b]).
+If you are truly bold, you can experiment with the <color:keyword>Monster</color> option which allows you to play as one of many different types of monster. Monsters don't have a class, but instead evolve into more powerful forms as they gain experience. They also tend to have variable body types, making the equipment sub-game both more fun, and more challenging.
 
-In addition to these attributes, there are several statistics which
-are used to determine your character's relative skills and abilities
-as follows:
+Finally, there is a <color:keyword>Real Life</color> mode, for the truly obsessed. With this option, your sex, race and stats are rolled up automatically, just like in real life. You then need to choose a Class and Personality that best match your natural talents. There is no auto-roller and you really should accept and play with whatever is given to you to keep with the spirit of this option.
 
+For the remainer of this document, and most of the rest of the help files, we will be assuming you are playing with the <color:keyword>Normal</color> option, which includes the full array of race and class choices as well as a vast wilderness to explore.
 
---- Primary Statistics ---
+<topic:CharAttributes><style:heading>Character Attributes</style>
 
-Each character has six primary statistics or 'stats'.  These are
-strength, intelligence, wisdom, dexterity, constitution and charisma,
-which modify the abilities of the character in a variety of ways.  For
-example, strength affects your carrying capacity, the amount of damage
-you do to a monster when you hit it and the number of blows per round 
-you get with a weapon. A more complete discussion of the primary
-statistics is contained later in this document (see below [c]).
+Once you begin character generation you will be asked to choose your character's four primary attributes: sex, race, class and personality. If you have selected a spellcasting class, you will also be prompted for your choice of magic realm(s). Your character's sex has a minimal effect on game play, but some personalities are restricted to male only or female only. More details of attributes are found in the Races, Classes and Personalities section (see <link:raceclass_contents.txt>) and the Magic System section (see <link:magic_contents.txt>).
 
---- Experience ---
+In addition to these attributes, there are several statistics which are used to determine your character's relative skills and abilities as follows:
 
-Experience affects almost everything else about your character.
-Experience can be gained as your character kills monsters, casts
-spells for the first time, learns about an object kind by using it, 
-disarms traps and unlocks doors.  Certain classes may also gain 
-experience by destroying specific dungeon spell books and there
-are potions in the dungeon that will boost your experience if you
-quaff them.
+  <indent><color:B>Primary Statistics</color>
+Each character has six primary statistics or 'stats'. These are strength, intelligence, wisdom, dexterity, constitution and charisma, and they modify the abilities of the character in a variety of ways. For example, strength affects your carrying capacity, the amount of damage you do to a monster when you hit it and the number of blows per round you get with a weapon. A more complete discussion of the primary statistics is contained later in this document (see <link:birth.txt#PrimaryStats> below).
+</indent>
+  <indent><color:B>Experience</color>
+Experience affects almost everything else about your character. Experience can be gained as your character kills monsters, casts spells for the first time, learns about an object kind by using it, disarms traps and unlocks doors. Certain classes may also gain experience by destroying specific dungeon spell books and there are potions in the dungeon that will boost your experience if you quaff them.
 
-When your character's experience crosses certain fixed boundaries, you
-will attain a new experience level (up to a maximum of 50).  When this
-happens, your hitpoints, mana (if any), certain skills such as melee
-fighting and bows and throws will all increase.  Some races and
-classes will also gain new powers and abilities when crossing certain
-experience thresholds.
+When your character's experience crosses certain fixed boundaries, you will attain a new experience level (up to a maximum of 50). When this happens, your hitpoints, mana (if any), certain skills such as melee fighting and bows and throws will all increase. Some races and classes will also gain new powers and abilities when crossing certain experience thresholds.
 
-Deep down inside, the real objective of the game is to increase your
-experience, and certain other characteristics, and also to collect
-useful items, to give you a decent chance against the great Serpent of
-Chaos.  Certain monsters can "drain" your experience, and thus your
-level, which will cause you to lose all of the effects of the higher
-level.  Luckily, you can restore drained experience through magical
-means, or by simply regaining the experience all over again.
+Deep down inside, the real objective of the game is to increase your experience, and certain other characteristics, and also to collect useful items, to give you a decent chance against the dreaded <color:keyword>Serpent of Chaos</color>. Certain monsters can "drain" your experience, and thus your level, which will cause you to lose all of the effects of the higher level. Luckily, you can restore drained experience through magical means, or by simply regaining the experience all over again.
+</indent>
+  <indent><color:B>Gold (Au)</color>
+Each character has some gold, which can be used to buy items and services from the shops and other buildings on the town level. Gold can be obtained by selling items to the shops, taking it from the corpses of dead monsters, mining it and by finding it lying on the dungeon floor.
 
---- Gold (AU) ---
+Each character starts out with some gold, the amount of which is random. Each character also starts out with a few useful items, which may be kept, or sold to a shop-keeper for more gold.
+</indent>
+  <indent><color:B>Hit Points (HP)</color>
+Each character has hit points, representing how much damage the character can sustain before he dies. Your hit points are derived from your race, class, level, and constitution, and can be boosted by magical means. Hit points may be regained by resting, or by a variety of magical means.
+</indent>
+  <indent><color:B>Spell Points (Mana)</color>
+Many characters have spell points, or mana, which represents how many spells a character can cast. Your spell points (sometimes called mana) are derived from your class, level, the primary spell stat of your class, and the race modifier of that stat. Spell points may be regained by resting, or by a few magical means.
+</indent>
+  <indent><color:B>Character Skills</color>
+Each character also has several primary skills: disarming, magic devices, saving throws, stealth, searching, perception, melee and bows and throws, which are derived from the character's race, class, experience level, stats and their current equipment. These skills have fairly obvious effects, but will be described more completely below. The starting abilities of a character are based upon race and class. Abilities may be adjusted by high or low stats, and may increase with the level of the character (see <link:birth.txt#PrimarySkills> below for details).
+</indent>
+  <indent><color:B>Speed</color>
+Speed is arguably the most important attribute of any character. In the beginning, you, and most monsters, will move at <color:keyword>Normal</color> speed. However, occasionally you will see a monster that is moving very fast, taking multiple actions for each of yours. That monster is <color:keyword>Fast</color> and has quite an advantage. Indeed, were it smart, it could nip you on your heels (I'm imagining one of Farmer Maggot's dogs to be concrete), and then back away before you could strike! Wouldn't you love to be able to do the same?
 
-Each character has some gold, which can be used to buy items and
-services from the shops and other buildings on the town level.  Gold
-can be obtained by selling items to the shops, taking it from the
-corpses of dead monsters, mining it and by finding it lying on the
-dungeon floor.
+To increase your player's speed, you will generally need magic, either in the form of a spell or potion, or in the form of an enchanted piece of equipment (such as <color:keyword>Boots of Speed</color>). Potions of Speed will serve the early player well, and you should use them liberally against foes that seem too powerful otherwise (especially those pesky uniques). They are quite common. As you dive deeper, increasing your speed becomes more and more important as the monsters become more and more deadly. A slow player with lots of hitpoints can still die without getting a single action if they are slow and their opponent is fast.
+</indent>
+<topic:PrimaryStats><style:heading>Primary Statistics</style>
 
-Each character starts out with some gold, the amount of which is random.
-Each character also starts out with a few useful items, which may be kept, 
-or sold to a shop-keeper for more gold.
+Each character has six primary stats (strength, intelligence, wisdom, dexterity, constitution, and charisma) which modify the abilities of the character in a variety of ways. Every stat has a numerical value, ranging from a minimum of 3, up to a normal maximum of 18, and even higher, into the percentile range, represented as <color:keyword>18/01</color> through <color:keyword>18/220</color>, the maximal value which is generally displayed as <color:keyword>18/***</color>.
 
---- Hit Points ---
+During the birth process, you will (typically) roll for your starting stat values. It is very important that you roll for good values in the key areas that your player intends to exploit. For example, if you are rolling up a mage, then you will want to make sure that your Intelligence is as high as possible. For a warrior, focus on Strength and Dexterity instead. You can't have it all, so you will need to balance good stats with bad stats.
 
-Each character has hit points, representing how much damage the
-character can sustain before he dies.  Your hit points are derived
-from your race, class, level, and constitution, and can be boosted by
-magical means.  Hit points may be regained by resting, or by a variety
-of magical means.
+As you play the game, your stats can be increased through magical means, or as a reward for accomplishing a difficult task, or as a reward for gaining enough experience to advance to a key level. Eventually, your stats will reach their internal maximum value, which is a value between 18/70 and 18/130 and which is randomly chosen at your player's birth. At this point, it will be up to your racial and class modifiers, and your equipment to boost your stats further up to the 18/*** limit.
 
---- Spell Points (Mana) ---
+  <indent><color:B>Strength</color>
+Strength is critical to fighting effectively in melee combat and with missile weapons. A high strength will improve your chances of getting multiple blows with your melee weapon and, in addition, will dramatically increase the amount of damage done with each hit. Strength also has a marginal effect on your chance to hit your opponent. Characters with low strength may receive penalties. Strength is also useful in tunneling, bashing and in carrying heavy items without being slowed down.</indent>
 
-Many characters have spell points, or mana, which represents how many
-spells a character can cast.  Your spell points (sometimes called
-mana) are derived from your class, level, a primary stat of your
-class, and race modifier of that stat.  Spell points may be regained
-by resting, or by a few magical means.
+  <indent><color:B>Intelligence</color>
+Intelligence affects the spellcasting abilities of mage-like spellcasters (high mages, mages, warrior-mages, chaos-warriors and rogues). Intelligence will affect the number of spells these classes may learn each level, the number of spell points they receive and their spell fail rates. These classes cannot learn spells if their intelligence is 7 or lower. Also, intelligent characters are better at using magic devices, picking locks and disarming traps. Finally, intelligence influences how quickly all characters learn from their experiences.</indent>
 
---- Character Skills ---
+  <indent><color:B>Wisdom</color>
+Wisdom affects the ability of priest-like spellcasters (priests, paladins and monks) to use prayers. WIS will affect the number of spells these classes may learn each level, the number of spell points they receive and their spell fail rates. In addition, WIS is also used to determine a Mindcrafter's ability to use his or her mental powers. These classes cannot learn spells if their wisdom is 7 or lower. Wise character's will have better chances of resisting magical spells cast upon them by monsters. Wisdom also affects the players awareness of their surroundings, granting faster or slower pseudo-id and level feelings.</indent>
 
-Each character also has several primary skills: disarming, magic
-devices, saving throws, stealth, searching, perception, melee and bows
-and throws, which are derived from the character's race, class,
-experience level, stats and their current equipment.  These skills
-have fairly obvious effects, but will be described more completely
-below.  The starting abilities of a character are based upon race and
-class.  Abilities may be adjusted by high or low stats, and may
-increase with the level of the character (see below for details [d]).
+  <indent><color:B>Dexterity</color>
+Dexterity is a combination of agility and quickness. A high dexterity may allow a character to get multiple blows with lighter weapons, thus greatly increasing his kill power, and will increase his chances of hitting with any weapon and dodging blows from enemies. Dexterity is also useful in picking locks, disarming traps, and protecting yourself from some of the thieves that inhabit the dungeons.</indent>
 
+  <indent><color:B>Constitution</color>
+Constitution is a character's ability to resist damage to his body, and to recover from damage received. Therefore a character with a high constitution will receive more hit points and also recover them faster while resting.</indent>
 
-***** <BirthOptions>
-=== Birth Options ===
+  <indent><color:B>Charisma</color>
+Charisma represents a character's personality and force of will. A character with a high charisma will be better able to dominate foes and pets. Also, charisma is the primary stat used for determining player and monster fear. A low charisma player is often frightened, sometimes even to the point of paralysis! A high charisma player can more easily break the morale of their foes. In this game, fear is a very important and deadly component of gameplay. As such, charisma is a very important stat. Finally, some classes (Bards, Sorcerers, etc) use Charisma as their primary spell stat.</indent>
 
-During character generation you may press '=' at any time to access
-the birth options.  A more detailed description of the various birth
-options can be found in the section on the Options Page (see [e]).  
-Some options have "(*)" mark that means these options effect to the 
-difficulty of the game and effect to estimation of your score.
+<topic:PrimarySkills><style:heading>Primary Skills</style>
 
-Perhaps one of the most important features of the birth options is the
-ability to decide what type of town level you want.  The various town
-options are discussed on the Town page (see [f]).
+Characters possess some different abilities which can help them to survive. The starting abilities of a character are based upon race and class. Abilities may be adjusted by high or low stats, and may increase with the level of the character.
 
+  <indent><color:B>Melee</color>
+Melee is the ability to hit and do damage with weapons or fists. Normally a character gets a single blow from any weapon, but if his dexterity and strength are high enough, he may receive more blows per round with lighter weapons. Strength and dexterity both modify the ability to hit an opponent. This skill increases with the level of the character.</indent>
 
-***** <AutoRoller>
-=== The Auto-Roller ===
+  <indent><color:B>Bows and Throws</color>
+Using ranged missile weapons (and throwing objects) is included in this skill. Different stats apply to different weapons, but this ability may modify the distance an object is thrown/fired, the amount of damage done, and the ability to hit a creature. This skill increases with the level of the character.</indent>
 
-The auto-roller is a quick means of generating start-up characters
-based on a set of user-selected criteria.  If you choose to use the
-auto-roller, you will be presented with a column giving the maximum
-possible statistics (see below [c]) for your choice of race, class and
-personality (see [a]).  Then you can specify your desired statistics 
-using keypad or cursor keys.
+  <indent><color:B>Saving Throws</color>
+A Saving Throw is the ability of a character to resist the effects of a spell cast on him by another person/creature. This does not include spells cast on the player by his own stupidity, such as quaffing a nasty potion. This ability increases with the level of the character, but then most high level creatures are better at casting spells, so it tends to even out. A high wisdom also increases this ability.</indent>
 
-Once you have specified your desired statistics, the computer will
-then randomly roll successive start-up characters and compare them to
-your specified criteria.  Each stat is rolled as a number from 8 to
-17, with a normal distribution, and is then immediately modified based
-upon the race, class and personality which you have chosen.  The exact
-quantum of this modification can be found in the stat bonus table (see
-[h], [i] and [j]).
+  <indent><color:B>Stealth</color>
+The ability to move silently about is very useful. Characters with good stealth can usually surprise their opponents, gaining the first blow. Also, creatures may fail to notice a stealthy character entirely, allowing a player to avoid certain fights. This skill is based entirely upon race and class, and will never improve unless magically enhanced.</indent>
 
-Once a character that matches or exceeds your expectations has been
-rolled, PosChengband stops to ask you whether you accept or not.  If you
-accept the rolled character (by pressing Enter), you will be asked for
-its name.  If not, you may press 'r' to resume rolling and searching
-for the next match or, if this is not your first match, 'p' to return
-to the previous character which met your criteria.
+  <indent><color:B>Disarming</color>
+Disarming is the ability to remove traps (safely), and includes picking locks on traps and doors. A successful disarming will gain the character some experience. A trap must be found before it can be disarmed. Dexterity and intelligence both modify the ability to disarm, and this ability increases with the level of the character.</indent>
 
-Note: The statistics are not independent of each other and trying to
-maximize each one using the auto-roller will not work.  A good idea is
-to specify statistics close to maximum that are critical for your
-class (for example, high wisdom for priests, intelligence for mages
-and strength and dexterity for warriors).  You should set minimum
-acceptable levels for the remaining statistics rather than looking for
-high rolls. Also note that PosChengband significantly "nerfs" the power
-of the Auto-roller relative to other variants such as Hengband. After
-50,000 rolls the Auto-roller simply stops and forces you to accept the
-best match (if any) or to repick minimums. In general, you can pick 2 
-stats to be maximal but no more.
+  <indent><color:B>Magical Devices</color>
+Using a magical device such as a wand or staff requires experience and knowledge. Spell users such as magi and priests are therefore much better at using a magical device than say a warrior. This skill is modified by intelligence, and increases with the level of the character.</indent>
 
-If you select not to use the auto-roller, the computer will roll one
-random character at a time and then display it for you to either
-accept or reject.  The 'r', 'p' and Enter keys will work as outlined
-above. Since PosChengband is a difficult game, we recommend using the
-auto-roller.
+  <indent><color:B>Perception (Searching Frequency)</color>
+Perception is the ability to notice something without actively seeking it out. This skill is based entirely upon race and class, and will never improve unless magically enhanced.</indent>
 
+  <indent><color:B>Searching (Searching Ability)</color>
+To search is to actively look for secret doors, floor traps, and traps on chests. Rogues are the best at searching, but magi, rangers, and priests are also good at it. This skill is based entirely upon race and class, and will never improve unless magically enhanced.</indent>
 
-***** <BackgroundEditor>
-=== Background Edit-Mode ===
+  <indent><color:B>Infra-vision</color>
+Infra-vision is the ability to see heat sources. Since most of the dungeon is cool or cold, infra-vision will not allow the player to see walls and objects. Infra-vision will allow a character to see any warm-blooded creatures up to a certain distance. This ability works equally well with or with out a light source. The majority of monsters are cold-blooded, and will not be detected unless lit up by a light source. Most non-human races have innate infra-vision ability. Humans can gain infra-vision only if it is magically enhanced.</indent>
 
-The computer will randomly generate background information text of the
-character for you.  But you can modify or rewrite it after rolling up
-the character in Background edit-mode.  Use key-pad or cursor keys to
-move cursor, the Enter key to finish edit-mode, and the Escape key to
-finish edit-mode with discarding changes. Use Ctrl-A key to load the
-background information text from "histpref-<<playername>>.prf" or
-"histpref.prf" on lib/user.
+<topic:Proficiency><style:heading>Proficiency Levels</style>
 
-You can use conditional expressions like other pref files. Background
-information text can be modified in background information pref files
-as lines of the form "H:<str>".
+In PosChengband, characters possess different proficiency levels or experiences for each weapon type, spells, and a few other skills. The starting proficiency levels and the maximum proficiency levels of a character are based upon class. Each proficiency level may increase when you practice with it, and can be checked by the 'Check various information' command (~).
 
+For weapon proficiency, you need to hit monsters many times with a weapon of that type to practice. And your to-hit bonus of the weapon will increases with the proficiency level of it. The rate of increase is dependent upon the level of the character and the level of the opponents.
 
-***** <QuickStart>
-=== Quick Start ===
+For spell proficiency, you need to cast the spell many times in a deep level of the dungeon to practice. However, simply casting the spell repeatedly for no purpose other than gaining experience will not work. Rather, the game detects this "spamming" so you really should practice spells out in the real world, not sequestered in some safe corner of the dungeon. Finally, the fail-rate and mana consumption rate of the spell decreases when the proficiency level increases.
 
-Once an existing character dies you may create a new one from the same
-savefile. If so, you will be asked whether you want to use quick start 
-or not at start up.  If you choose to use quick start, you get new 
-character with exactly same race, class, stat, background and etc. as 
-your last character. Since it is common to die early on, this option
-can save you the tedium of re-rolling a new character from scratch.
+The effect of the proficiency level of the Dual Wielding and the Martial Arts is almost same as the weapon proficiency; These will effect upon your to-hit bonus of dual wielding combat or bare handed combat.
 
+For the proficiency level of the Riding, you need to attack in melee or shoot with missile weapon when riding. And your speed increases up to the mount's speed when the proficiency level increases. (see <link:monster.txt#Pets>)
 
-***** <PrimaryStats>
-=== Primary Statistics ===
+<topic:BirthOptions><style:heading>Birth Options</style>
 
-Each character has six primary "stats", strength, intelligence,
-wisdom, dexterity, constitution, and charisma, which modify the
-abilities of the character in a variety of ways.  Every stat has a
-numerical value, ranging from a minimum of 3, up to a normal maximum
-of 18, and even higher, into the "percentile" range, represented as
-"18/01" through "18/120".  The true maximum of each base stat is 
-randomly chosen from 18/80 to 18/120, and average of all your stat 
-maximums are always 18/100. These maximums are chosen randomly when your
-character is created or your character quaffs a Potion of New Life.
-Actually, every stat can be raised even above these maximum of base
-stat by modification from race, class, personality and magical
-equipment, up to a pure maximum of 18/220, which is represented as
-"18/***".
+During character generation you may press '=' at any time to access the birth options. A more detailed description of the various birth options can be found in the section on the Options Page (see <link:option.txt#Birth>). Feel free to ignore these options if you are new to the game. In fact, if you chose the <color:keyword>Beginner</color> startup option as suggested, then the birth options won't even be displayed to you (i.e., you will play with the default options).
 
-Traditionally, a percentile stat such as "18/50" has been thought of as
-representing a value part way between 18 and 19, and this is one way to
-think of them.  However, often, the best way to view the "bonus" values
-after the "18/" is as "tenth" points, since it often takes the same
-magic to raise a stat from, say, 4 to 5, or 16 to 17, as it does from,
-say, 18/40 to 18/50.  The important thing to remember is that almost all
-internal calculations "ignore" the final digit of any "bonus", so that,
-for example, "18/40" and "18/49" always have the same effects.
+Perhaps one of the most important features of the birth options is the ability to decide what type of town level you want. The various town options are discussed on the Town page (see <link:town.txt#TownLevel>).
 
---- The Primary Statistics ---
+<topic:AutoRoller><style:heading>The Auto-Roller</style>
 
-Strength
-     Strength is critical to fighting effectively in melee combat and
-     with missile weapons.  A high strength will improve your chances
-     of getting multiple blows with your melee weapon and, in
-     addition, will dramatically increase the amount of damage done
-     with each hit.  Strength also has a marginal effect on your
-     chance to hit your opponent.  Characters with low strength may
-     receive penalties.  Strength is also useful in tunneling, bashing
-     and in carrying heavy items without being slowed down.
- 
-Intelligence
-     Intelligence affects the spellcasting abilities of mage-like
-     spellcasters (high mages, mages, warrior-mages, chaos-warriors 
-     and rogues).  Intelligence will affect the number of spells 
-     these classes may learn each level, the number of spell points 
-     they receive and their spell fail rates.  These classes cannot 
-     learn spells if their intelligence is 7 or lower.  Also, intelligent 
-     characters are better at using magic devices, picking locks and 
-     disarming traps. Finally, intelligence influences how quickly all
-     characters learn from their experiences.
+The auto-roller is a quick means of generating start-up characters based on a set of user-selected criteria. If you choose to use the auto-roller, you will be presented with a column giving the maximum possible statistics (see <link:birth.txt#PrimaryStats> below) for your choice of race, class and personality (see <link:raceclass_contents.txt>). Then you can specify your desired statistics using keypad or cursor keys.
 
- 
-Wisdom
-     Wisdom affects the ability of priest-like spellcasters (priests,
-     paladins and monks) to use prayers.  WIS will affect the number
-     of spells these classes may learn each level, the number of spell
-     points they receive and their spell fail rates.  In addition, WIS
-     is also used to determine a Mindcrafter's ability to use his or
-     her mental powers.  These classes cannot learn spells if their
-     wisdom is 7 or lower.  Wise character's will have better chances
-     of resisting magical spells cast upon them by monsters. Wisdom
-     also affects the players awareness of their surroundings, granting
-     faster or slower pseudo-id and level feelings.
- 
-Dexterity
-     Dexterity is a combination of agility and quickness.  A high
-     dexterity may allow a character to get multiple blows with
-     lighter weapons, thus greatly increasing his kill power, and will
-     increase his chances of hitting with any weapon and dodging blows
-     from enemies.  Dexterity is also useful in picking locks,
-     disarming traps, and protecting yourself from some of the thieves
-     that inhabit the dungeons.
- 
-Constitution
-     Constitution is a character's ability to resist damage to his
-     body, and to recover from damage received.  Therefore a character
-     with a high constitution will receive more hit points and also
-     recover them faster while resting.
+Once you have specified your desired statistics, the computer will then randomly roll successive start-up characters and compare them to your specified criteria. Each stat is rolled as a number from 8 to 17, with a normal distribution, and is then immediately modified based upon the race, class and personality which you have chosen. The exact quantum of this modification can be found in the stat bonus table (see <link:Races.txt#Tables>, <link:Classes.txt#Tables> and <link:Personalities.txt#Tables>).
 
-Charisma
-     Charisma represents a character's personality and force of will.
-     A character with a high charisma will be better able to dominate
-     foes as pets. Also, charisma is the primary stat used for 
-     determining player and monster fear. A low charisma player is
-     often frightened, sometimes even to the point of paralysis! A
-     high charisma player can more easily break the morale of their
-     foes. In PosChengband, Fear is a very important and deadly component
-     of gameplay. As such, charisma is a very important stat. Finally,
-     some classes (Bards, Sorcerers, etc) use Charisma as their primary
-     spell stat.
+Once a character that matches or exceeds your expectations has been rolled, the Auto-Roller stops to ask you whether you accept or not. If you accept the rolled character (by pressing <color:keypress>Enter</color>), you will be asked for its name. If not, you may press <color:keypress>r</color> to resume rolling and searching for the next match or, if this is not your first match, <color:keypress>p</color> to return to the previous character which met your criteria.
 
+Note: The statistics are not independent of each other and trying to maximize each one using the auto-roller will not work. A good idea is to specify statistics close to maximum that are critical for your class (for example, high wisdom for priests, intelligence for mages and strength and dexterity for warriors). You should set minimum acceptable levels for the remaining statistics rather than looking for high rolls. Also note that the game significantly "nerfs" the power of the Auto-roller relative to other variants. After 50,000 rolls the Auto-roller simply stops and forces you to accept the best match (if any) or to repick minimums. In general, you can pick 2 stats to be maximal but no more.
 
-***** <PrimarySkills>
-=== Primary Skills ===
+If you select not to use the auto-roller, the computer will roll one random character at a time and then display it for you to either accept or reject. The 'r', 'p' and Enter keys will work as outlined above. Since this is a difficult game, we recommend using the auto-roller. However, if you are bold, you might consider playing the game in the <color:keyword>Real Life</color> mode. With this option, the game rolls up your sex, race and stats just once, and you must accept this, just like in real life. However, you are still free to choose your class and personality based upon your strengths and weaknesses.
 
-Characters possess some different abilities which can help them to
-survive.  The starting abilities of a character are based upon race
-and class.  Abilities may be adjusted by high or low stats, and may
-increase with the level of the character with the rate of increase
-dependent upon the level of the character.
- 
-Melee
-     Melee is the ability to hit and do damage with weapons or fists.
-     Normally a character gets a single blow from any weapon, but if
-     his dexterity and strength are high enough, he may receive more
-     blows per round with lighter weapons.  Strength and dexterity
-     both modify the ability to hit an opponent.  This skill increases
-     with the level of the character.
- 
-Bows and Throws
-     Using ranged missile weapons (and throwing objects) is included in
-     this skill.  Different stats apply to different weapons, but this
-     ability may modify the distance an object is thrown/fired, the
-     amount of damage done, and the ability to hit a creature.  This
-     skill increases with the level of the character.
- 
-Saving Throws
-     A Saving Throw is the ability of a character to resist the
-     effects of a spell cast on him by another person/creature.  This
-     does not include spells cast on the player by his own stupidity,
-     such as quaffing a nasty potion.  This ability increases with the
-     level of the character, but then most high level creatures are
-     better at casting spells, so it tends to even out.  A high wisdom
-     also increases this ability.
- 
-Stealth
-     The ability to move silently about is very useful.  Characters
-     with good stealth can usually surprise their opponents, gaining
-     the first blow.  Also, creatures may fail to notice a stealthy
-     character entirely, allowing a player to avoid certain fights.
-     This skill is based entirely upon race and class, and will never
-     improve unless magically enhanced.
- 
-Disarming
-     Disarming is the ability to remove traps (safely), and includes
-     picking locks on traps and doors.  A successful disarming will
-     gain the character some experience.  A trap must be found before
-     it can be disarmed.  Dexterity and intelligence both modify the
-     ability to disarm, and this ability increases with the level of
-     the character.
- 
-Magical Devices
-     Using a magical device such as a wand or staff requires
-     experience and knowledge.  Spell users such as magi and priests
-     are therefore much better at using a magical device than say a
-     warrior.  This skill is modified by intelligence, and increases
-     with the level of the character.
- 
-Perception (Searching Frequency)
-     Perception is the ability to notice something without actively
-     seeking it out.  This skill is based entirely upon race and
-     class, and will never improve unless magically enhanced.
- 
-Searching (Searching Ability)
-     To search is to actively look for secret doors, floor traps, and
-     traps on chests.  Rogues are the best at searching, but magi,
-     rangers, and priests are also good at it.  This skill is based
-     entirely upon race and class, and will never improve unless
-     magically enhanced.
+<topic:QuickStart><style:heading>Quick Start</style>
 
-Infra-vision
-     Infra-vision is the ability to see heat sources.  Since most of
-     the dungeon is cool or cold, infra-vision will not allow the
-     player to see walls and objects.  Infra-vision will allow a
-     character to see any warm-blooded creatures up to a certain
-     distance.  This ability works equally well with or with out a
-     light source.  The majority of PosChengband's creatures are
-     cold-blooded, and will not be detected unless lit up by a light
-     source.  Most non-human races have innate infra-vision ability.
-     Humans can gain infra-vision only if it is magically enhanced.
+Once an existing character dies you may create a new one from the same savefile. If so, you will be asked whether you want to use quick start or not at start up. If you choose to use quick start, you get new character with exactly same race, class, stats, and personality as your last character. Since it is common to die early on, this option can save you the tedium of re-rolling a new character from scratch.
 
+<topic:Name><style:heading>Your Character's Name</style>
 
-***** <Proficiency>
-=== Proficiency Levels ===
+During the birth process, you will be asked to name your character. This name will be used for your savefile (unless you created this character inside an existing, already named savefile) and any options and preferences you may set. So choose your name carefully. Changing your name, as you may imagine, is a complicated legal process involving much paperwork (and a hefty fee). Should you decide to change your name in the future, inquire at the Mayor's office and he will direct you how to proceed.
 
-In PosChengband, characters possess different proficiency levels or
-experiences for each weapon type, spells, and a few other skills.  The
-starting proficiency levels and the maximum proficiency levels of a
-character are based upon class.  Each proficiency level may increase
-when you practice with it, and can be checked by the 'Check various
-information' command (~).
-
-For weapon proficiency, you need to hit monsters many times with a
-weapon of that type to practice.  And your to-hit bonus of the weapon
-will increases with the proficiency level of it. The rate of increase
-is dependent upon the level of the character and the level of the
-opponents.
-
-For spell proficiency, you need to cast the spell many times in a deep
-level of the dungeon to practice. However, simply casting the spell
-repeatedly for no purpose other than gaining experience will not work.
-Rather, the game detects this "spamming" so you really should practice
-spells out in the real world, not sequestered in some safe corner
-of the dungeon.  Finally, the fail-rate and mana consumption rate 
-of the spell decreases when the proficiency level increases.
-
-The effect of the proficiency level of the Dual Wielding and the
-Martial Arts is almost same as the weapon proficiency; These will
-effect upon your to-hit bonus of dual wielding combat or bare handed
-combat.
-
-For the proficiency level of the Riding, you need to attack in melee
-or shoot with missile weapon when riding.  And your speed increases up
-to the mount's speed when the proficiency level increases.  (see [k])
-
-
---
-Original   : (??)
-Updated    : (??)
-Updated    : Zangband DevTeam
-Updated    : Hengband 1.5.2
-Updated    : PosChengband 1.0.0
-
-***** [a] raceclas.hlp
-***** [b] magic.hlp
-***** [c] birth.txt#PrimaryStats
-***** [d] birth.txt#PrimarySkills
-***** [e] option.txt#Birth
-***** [f] town.txt#TownLevel
-***** [h] Races.txt#Tables
-***** [i] Classes.txt#Tables
-***** [j] Personalities.txt#Tables
-***** [k] monster.txt#Pets
+<color:D>
+Original : (??)
+Updated  : (??)
+Updated  : Zangband DevTeam
+Updated  : Hengband 1.5.2
+Updated  : PosChengband 1.0.0
+Updated  : PosChengband 4.0.0
+</color>

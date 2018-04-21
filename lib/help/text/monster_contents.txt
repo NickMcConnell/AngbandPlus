@@ -1,0 +1,15 @@
+Monsters
+
+Please choose one of the following online help files:
+
+    [a] PosChengband Monsters
+    [b] Monster Symbols
+    [c] Monster Color
+    [d] Monster Memory
+    [e] Unique Monsters
+    [f] Eldritch Horrors
+    [g] Pets and Riding
+    [h] Friendly Monsters
+
+    (?) Help System Commands
+

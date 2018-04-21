@@ -72,8 +72,7 @@ static void _gain_level(int new_level)
  ******************************************************************************/
 static int _bite_amt(void)
 {
-    int l = p_ptr->lev;
-    return 5 + l + l*l/25 + l*l*l*3/2500; /* 5 + 50 + 100 + 150 = 305 */
+    return 5 + py_prorata_level_aux(300, 1, 2, 3);
 }
 static void _bite_spell(int cmd, variant *res)
 {
@@ -384,7 +383,7 @@ void _repose_of_the_dead_spell(int cmd, variant *res)
         var_set_string(res, "Repose of the Dead");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death.  When (if?) you wake up, you will be thoroughly refreshed!");
+        var_set_string(res, "Sleep the sleep of the dead for a few rounds, during which time nothing can awaken you, except perhaps death. When (if?) you wake up, you will be thoroughly refreshed!");
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
@@ -453,6 +452,12 @@ static void _calc_bonuses(void)
     p_ptr->hold_life = TRUE;
     p_ptr->see_nocto = TRUE;
 
+    if (equip_find_artifact(ART_NIGHT))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
+
     if (p_ptr->lev >= 35)
     {
         res_add(RES_DARK);
@@ -487,6 +492,8 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
 {
+    add_flag(flgs, TR_VULN_LITE);
+
     add_flag(flgs, TR_RES_NETHER);
     add_flag(flgs, TR_RES_COLD);
     add_flag(flgs, TR_RES_POIS);
@@ -498,19 +505,8 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_SPEED);
         add_flag(flgs, TR_REGEN);
     }
-}
-
-static void _get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
     if (p_ptr->lev >= 45)
-    {
-        add_flag(flgs, TR_RES_DARK);
-    }
-}
-
-static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_LITE);
+        add_flag(flgs, TR_IM_DARK);
 }
 
 static void _move_player(void)
@@ -521,7 +517,7 @@ static void _move_player(void)
 /******************************************************************************
  * Public
  ******************************************************************************/
-race_t *mon_vampire_get_race_t(void)
+race_t *mon_vampire_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -546,6 +542,7 @@ race_t *mon_vampire_get_race_t(void)
         me.base_hp = 20;
         me.exp = 250;
         me.infra = 5;
+        me.shop_adjust = 130;
 
         me.birth = _birth;
         me.gain_level = _gain_level;
@@ -556,8 +553,6 @@ race_t *mon_vampire_get_race_t(void)
         me.calc_bonuses = _calc_bonuses;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.get_flags = _get_flags;
-        me.get_immunities = _get_immunities;
-        me.get_vulnerabilities = _get_vulnerabilities;
 
         me.flags = RACE_IS_NONLIVING | RACE_IS_UNDEAD | RACE_IS_MONSTER;
         me.pseudo_class_idx = CLASS_ROGUE;
@@ -739,7 +734,7 @@ static void _bat_calc_innate_attacks(void)
     a.effect[0] = GF_OLD_DRAIN;
     calc_innate_blows(&a, 400);
 
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -767,7 +762,7 @@ static void _bat_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_HOLD_LIFE);
 }
-race_t *bat_get_race_t(void)
+race_t *bat_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -794,6 +789,7 @@ race_t *bat_get_race_t(void)
         me.base_hp = 10;
         me.exp = 75;
         me.infra = 10;
+        me.shop_adjust = 120;
 
         me.get_spells = _mimic_get_spells;
         me.calc_innate_attacks = _bat_calc_innate_attacks;
@@ -842,7 +838,7 @@ static void _mist_get_flags(u32b flgs[TR_FLAG_SIZE])
 
     add_flag(flgs, TR_MAGIC_RESISTANCE);
 }
-race_t *mist_get_race_t(void)
+race_t *mist_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -871,6 +867,7 @@ race_t *mist_get_race_t(void)
         me.base_hp = 15;
         me.exp = 75;
         me.infra = 10;
+        me.shop_adjust = 130;
 
         me.get_spells = _mimic_get_spells;
         me.calc_bonuses = _mist_calc_bonuses;
@@ -911,7 +908,7 @@ static void _wolf_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_SPEED);
 }
-race_t *wolf_get_race_t(void)
+race_t *wolf_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -931,6 +928,7 @@ race_t *wolf_get_race_t(void)
         me.base_hp = 22;
         me.exp = 120;
         me.infra = 5;
+        me.shop_adjust = 115;
 
         me.get_spells = _mimic_get_spells;
         me.get_powers = _wolf_get_powers;

@@ -1,635 +1,690 @@
-=== The PosChengband Newbie Guide ===
+<style:title>The Newbie Guide</style>
+
+Welcome to <color:keyword>PosChengband</color>! This guide will attempt to give you a quick overview of the game and get you started on your path to slay the dreaded Serpent of Chaos.
+
+<topic:Overview><style:heading>Overview</style>
+
+PosChengband is a single player role playing game where you, the brave adventurer, attempt to save the world by defeating evil monsters including, eventually, the <color:keyword>Serpent of Chaos</color>. The road is long, and the path is treacherous. Many have tried and failed, and the dungeons are littered with the bones of would be heroes. Do you have what it takes to succeed where so many others have failed? If so, read on.
+
+<topic:CreatingACharacter><style:heading>Creating a Character</style>
+
+Your first step will be to create your character. Since you are new to the game, I suggest you choose <color:keyword>Beginner Mode</color> at the initial prompt. This will greatly limit the complexity of the character creation process and also remove the wilderness option. After playing a few characters to get an idea of how to play, you can start a new character in <color:keyword>Normal Mode</color> to view all the options as well as enable the wilderness. Hey, it's not like your first character is going to win anyway!
+
+After choosing Beginner Mode, the game is going to walk you through creating your character. You can refer to <link:birth.txt> for more detailed info, but the basics are that you will choose a sex, a race and a class and then roll for stats. While your sex is not important (to the game), your race and class are key to everything that follows. Normally, the game has a vast (overwhelming?) array of choices that offer myriad, diverse playstyles, and it can take a while to even learn what is available. For now, we'll consider a few basic playstyles in order to get you going.
+
+The easiest style is 'Hack and Slash' and it is the essence of the warrior. Almost any race will make a good one, but you might consider trying a High-Elf or a Hobbit. Both are stealthy and have good magic skills that will assist the warriors weak points. But if you really want to turn on the melee power, nothing beats a Half-Troll. Be warned: Trolls are ugly and stupid, not to mention widely hated. Shopkeepers are loath to sell to one as ugly as you so you'll have a harder time shopping. You can compensate by going on a killing rampage, which is more fun anyway. As a warrior, there isn't much strategy: simply find monsters and kill them! Look for better armor and weapons. Perhaps you can shoot a crossbow for a little bit of distance damage but your mainstay will be hand to hand combat. For stats, you'll want to start with 17 in both Strength and Dexterity and can ignore everything else.
+
+Another style is to take the stealthy approach and play a rogue. Again, Hobbits and High-Elves are good for beginners. You'll want good fighting stats (Strength and Dexterity) as before, but this time, you also have the ability to cast magic spells. And while magic is not your forte, it eventually becomes very useful, so you'll want a decent Intelligence as well. (Every spellcaster has a primary stat for purposes of casting spells, and you can find this information out by reading the various class descriptions during the birth process, or by refering to the help files). Now you can't just roll 17 for every stat you need, so you'll need to be less greedy. I'd go with 16 for each, or perhaps 17 for Str and Dex and 14 for Int. Play around to see what you can get from the auto-roller. Also, once you pick your class, you'll need to pick a spell realm as well. Try Sorcery or, better yet, Burglary. Both have good detection but Burglary is uniquely designed for rogues allowing the player to do things like set traps and pick pockets. Fun stuff!
+
+Finally, you can play with Magic as your forte as a mage. Gnomes and High-Elves are excellent choices here (Some would say that High-Elves are a munchkin race!). But magic takes some time to get good with, so I don't recommend this right away unless you are a patient person. Pick Chaos and then Sorcery for your spell realms and then roll a 17 Intelligence and a high Strength as well (say 15 or more). You'll need the Strength to carry goodies that you find in the dungeon. The Chaos realm gives good offense while Sorcery complements that with utility.
+
+We'll discuss these three styles more as we proceed through this guide.
+
+<topic:EquippingForDanger><style:heading>Equipping for Danger</style>
+
+Once you have completed the birth process, you will find yourself in the town on the surface. Since you picked <color:keyword>Beginner Mode</color>, there will be no wilderness to explore. In this case, the only reason to return to the surface is to buy and sell equipment in the town. When you start, you have some initial gear that varies with your class, and it should already be equipped for you. You also have a small amount of gold which you can use to augment your supplies for that first trip into danger.
+
+So, what do you see at first?
+<style:screenshot>
+LEVEL <color:G>     1</color> ..................................................................
+EXP <color:G>       6</color> ..................................................................
+AU  <color:G>     228</color> <color:U>################################</color>.<color:U>################################</color>.
+<color:d>            </color> <color:U>################################</color>.<color:U>#################################</color>
+STR : <color:G> 18/10</color> <color:U>#####</color>.......................................................<color:U>######</color>
+INT : <color:G> 18/30</color> <color:U>####</color><color:u>+</color>.......................................................<color:B>+</color><color:U>#####</color>
+WIS : <color:G>    11</color> <color:U>#####</color>.......................................................<color:U>######</color>
+DEX : <color:G> 18/50</color> <color:U>####</color>.........<color:U>###</color><color:v>0</color><color:U>###</color>..<color:U>####</color><color:o>+</color><color:U>####</color>...<color:U>####+####</color>..<color:U>###</color><color:G>+</color><color:U>###</color>.........<color:U>#####</color>
+CON : <color:G>    11</color> <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:B>+</color><color:U>##</color>
+CHR : <color:G>    12</color> ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
+AC     <color:G>    7</color> ......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>3<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
+HP <color:G>  43</color>/<color:G>  43</color> .................................................................<color:U>#</color>
+             ......................................<color:U>f</color>..........................<color:U>#</color>
+             .................................................................<color:U>#</color>
+@[<color:G>*********</color>] ................................<color:v>></color>@................................
+<color:U>,</color>[*********] .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
+             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
+             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
+             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+                                                                           Town
+</style>
+Well, that @ in the center of the screen is you for starters. Also, those <color:U>#</color> characters are walls and you can see they are shaped into buildings for the various shops. Each building has a number or '+' character that you may enter by moving onto that square. Each number stands for a different type of shop. You can move about with the arrow keys and look about with the <color:keypress>l</color> command followed by the arrow keys. That <color:U>f</color> is a monster and you should look at it with the <color:keypress>l</color> command to see if it seems threatening:
+<style:screenshot>
+The Scrawny cat ('<color:U>f</color>')/('<color:U>f</color>'): [r,q,t,p,o,+,-,<dir>]
+No battles to the death are recalled.
+A skinny little furball with sharp claws and a menacing look.
+It lives in the town, and moves a bit erratically at normal speed. Nothing is
+known about its attack.
+</style>
+Hmmm, probably no need to worry about Ms. Kitty.
+
+If you are playing a mage, your first order of business is to learn a new spell (<color:keypress>G</color> to Gain a spell). At first level, you can only learn one, so make it count. I recommend learning Magic Missile first, assuming you followed my advice and chose the Chaos realm. As a mage, you really need to use magic to kill stuff so your first spell has to be something offensive. Later on, when you are more experienced, you may pick Detect Monsters from the Sorcery realm. To cast a spell, use the magic command (<color:keypress>m</color>) and follow the instructions. Not every class can learn a spell right away, however. A rogue, for example, must reach level 5 (CL5) in order to learn their first spell.
+
+Next, you should shop for gear. I recommend buying some means of escape, such as scrolls of teleport or phase door from the Alchemy Shop (<$:FF_ALCHEMY_SHOP>). Also, you will want some means of healing from the Temple (<$:FF_TEMPLE>). If you are playing a rogue, try to buy a sling and some ammo (pebbles or shots) from the Weapon Smiths (<$:FF_WEAPON_SMITHS>). When you enter a store, you will see a list of inventory as well as a list of commands to use. Simply follow the instructions to make a purchase.
+<style:screenshot>
+          Eddie Beast-Master (Snotling)           Weapon Smiths (25000)
+
+   Item Description                                         Weight      Price
+a) <color:o>?</color> <color:u>2 Books of Kendo [Yagyuu Bugeichou]</color>                       3.0  <color:D>     1510  </color>
+b) <color:W>|</color> a Dagger (1d4) (+1,+2)                                    1.2        230
+c) <color:W>|</color> a Bastard Sword (3d4) (+0,+0)                            14.0  <color:D>      720  </color>
+d) <color:y>/</color> a Trident (1d8) (+0,+0)                                   7.0  <color:D>      267  </color>
+e) / a Broad Spear (1d9) (+3,+2)                              10.0  <color:D>      926  </color>
+f) <color:u>}</color> <color:u>a Sling (x2) (+0,+0)</color>                                      0.5         54
+g) <color:U>}</color> <color:u>a Short Bow (x3) (+0,+0)</color>                                  3.0        122
+h) <color:s>}</color> <color:u>2 Light Crossbows (x4) (+0,+0)</color>                           11.0  <color:D>      489  </color>
+i) <color:s>{</color> <color:U>26 Bolts (1d5) (+0,+0)</color>                                    0.3          3
+j) <color:s>{</color> <color:U>36 Rounded Pebbles (1d2) (+0,+0)</color>                          0.4          2
+k) <color:s>{</color> <color:U>17 Iron Shots (1d3) (+0,+0)</color>                               0.5          3
 
 
-Note: This guide has been adapted from The Angband Newbie Guide by
-Chris Weisiger and has undergone certain revisions to conform more
-closely to PosChengband. And since PosChengband is a fork of PosChengband, it
-has again been modified to account for gameplay changes. So even
-if you are not a PosChengband Newbie (or even if you have played the
-beta releases of PosChengband) this guide might still be worth a quick
-look.
 
+
+
+                                                     Gold Remaining:   231
+You may:
+ ESC) Exit from Building.     p) Purchase an item       i/e) Inventry/Equipment
+                              s) Sell an item           w/t) Wear/Take off equi
+                              x) eXamine an item          b) Buyout store
+</style>
+After buying something, it will be added to your pack. Use the <color:keypress>i</color> command to view your pack:
+<style:screenshot>
+Inventory: carrying 39.2 pounds (30% of capacity). Command:
+LEVEL <color:G>     1</color> ...  a) <color:o>?</color> <color:u>a Thieves' Guide [Burglar's Handbook] {@ma!k}</color>     3.0 lb
+EXP <color:G>       6</color> ...  b) <color:U>,</color> <color:U>6 Rations of Food</color>                                 6.0 lb
+AU  <color:G>     126</color> <color:U>###</color>  c) <color:u>~</color> <color:y>3 Wooden Torches (with 2500 turns of light)</color>       9.0 lb
+<color:d>            </color> <color:U>###</color>  d) <color:u>}</color> <color:u>a Sling (x2) (+0,+0)</color>                              0.5 lb
+STR : <color:G> 18/10</color> <color:U>###</color>  e) <color:s>{</color> <color:U>17 Iron Shots (1d3) (+0,+0)</color>                       8.5 lb
+INT : <color:G> 18/30</color> <color:U>###</color>
+WIS : <color:G>    11</color> <color:U>#####</color>.......................................................<color:U>######</color>
+DEX : <color:G> 18/50</color> <color:U>####</color>.........<color:U>###</color><color:v>0</color><color:U>###</color>..<color:U>####</color><color:o>+</color><color:U>####</color>...<color:U>####+####</color>..<color:U>###</color><color:G>+</color><color:U>###</color>.........<color:U>#####</color>
+CON : <color:G>    11</color> <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:B>+</color><color:U>##</color>
+CHR : <color:G>    12</color> ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
+AC     <color:G>    7</color> ......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>@<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
+HP <color:G>  43</color>/<color:G>  43</color> .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+@[<color:G>*********</color>] ................................<color:v>></color>.................................
+<color:U>,</color>[*********] .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
+             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
+             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
+             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+                                                                           Town
+</style>
+In my case, I bought a sling and some ammo (Each type of missile weapon uses a corresponding type of ammo. Obviously, arrows are for bows and bolts are for crossbows, so they wouldn't work with my sling!). Now the sling is doing me no good in my pack: I need to equip it first in order to use it in combat, and I do this with the <color:keypress>w</color> command, after which is it visible in the equipment list which can be viewed with the <color:keypress>e</color> command.
+<style:screenshot>
+Equipment: carrying 39.2 pounds (30% of capacity). Command:
+LEVEL <color:G>  </color>  a) <color:W>|</color> Right Hand: a Dagger (1d4) (+0,+0)                        1.2 lb
+EXP <color:G>    </color>  b)   Left Hand :
+AU  <color:G>    </color>  c) <color:u>}</color> Shooting  : <color:u>a Sling (x2) (+0,+0)</color>                          0.5 lb
+<color:d>        </color>  d)   Right Ring:
+STR : <color:G> 1</color>  e)   Left Ring :
+INT : <color:G> 1</color>  f)   Neck      :
+WIS : <color:G>  </color>  g) <color:u>~</color> Light     : <color:y>a Wooden Torch (with 2442 turns of light)</color>     3.0 lb
+DEX : <color:G> 1</color>  h) <color:U>(</color> Body      : <color:s>Soft Leather Armour [4,+0]</color>                    8.0 lb
+CON : <color:G>  </color>  i)   Cloak     :
+CHR : <color:G>  </color>  j)   Head      :
+AC     <color:G> </color>  k)   Hands     :
+HP <color:G>  43</color>/  l)   Feet      :
+
+             .................................................................<color:U>#</color>
+@[<color:G>*********</color>] ................................<color:v>></color>.................................
+<color:U>,</color>[*********] .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
+             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
+             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
+             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+                                                                           Town
+</style>
+To shoot something simply fire (<color:keypress>f</color>) one of your bolts and see if you hit:
+<style:screenshot>
+             You have <color:U>16 Iron Shots (1d3) (+0,+0) (4/5)</color>. That was rather
+LEVEL <color:G>     1</color> dishonorable. The Iron Shot (1d3) (+0,+0) (4/5) hits the Scrawny
+EXP <color:G>       6</color> cat. The Scrawny cat mewls pitifully. The Scrawny cat flees in
+AU  <color:G>     126</color> terror!
+<color:d>            </color> <color:U>################################</color>.<color:U>#################################</color>
+STR : <color:G> 18/10</color> <color:U>#####</color>.......................................................<color:U>######</color>
+INT : <color:G> 18/30</color> <color:U>####</color><color:u>+</color>.......................................................<color:B>+</color><color:U>#####</color>
+WIS : <color:G>    11</color> <color:U>#####</color>.......................................................<color:U>######</color>
+DEX : <color:G> 18/50</color> <color:U>####</color>.........<color:U>###</color><color:v>0</color><color:U>###</color>..<color:U>####</color><color:o>+</color><color:U>####</color>...<color:U>####+####</color>..<color:U>###</color><color:G>+</color><color:U>###</color>.........<color:U>#####</color>
+CON : <color:G>    11</color> <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:B>+</color><color:U>##</color>
+CHR : <color:G>    12</color> ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
+AC     <color:G>    7</color> ......<color:U>##+##</color>..<color:U>###</color><color:o>9</color><color:U>###</color>..<color:U>####</color>3<color:U>####</color>...<color:U>####</color><color:r>6</color><color:U>####</color>..<color:U>###</color><color:g>4</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
+HP <color:G>  43</color>/<color:G>  43</color> .......................................<color:U>f</color>.........................<color:U>#</color>
+             ..............................@.......<color:s>{</color>..........................<color:U>#</color>
+             .................................................................<color:U>#</color>
+@[<color:G>*********</color>] ................................<color:v>></color>.................................
+<color:U>,</color>[*********] .................................................................<color:U>#</color>
+<color:U>f</color><color:R>[</color><color:v>*</color><color:R>--------]</color> .................................................................<color:U>#</color>
+             .................................................................<color:U>#</color>
+             ......<color:U>##1##</color>..<color:U>###</color><color:D>7</color><color:U>###</color>..<color:U>####</color><color:s>2</color><color:U>####</color>...<color:U>####</color><color:b>5</color><color:U>####</color>..<color:U>###</color><color:y>8</color><color:U>###</color>..<color:U>##+##</color>......<color:U>#</color>
+             ......<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>......<color:U>#</color>
+             <color:U>#+#</color>...<color:U>#####</color>..<color:U>#######</color>..<color:U>#########</color>...<color:U>#########</color>..<color:U>#######</color>..<color:U>#####</color>...<color:U>#</color><color:R>+</color><color:U>##</color>
+             <color:U>####</color>.........<color:U>###</color><color:v>+</color><color:U>###</color>..<color:U>####</color>+<color:U>####</color>...<color:U>####</color><color:B>+</color><color:U>####</color>..<color:U>#######</color>.........<color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+             <color:U>#####</color>.......................................................<color:v>+</color><color:U>#####</color>
+             <color:U>#####</color>.......................................................<color:U>######</color>
+                                                                           Town
+</style>
+Sorry about that, Ms. Kitty! She's not dead yet, but will be shortly. I want you to notice a few things. First, as you play the game, notice that messages will be displayed in the top region of the screen. Back when I was a youngster, the game only had a single message line, and we hapless players were plagued with <color:B>-more-</color> prompts out the wazoo, not to mention sore fingers from all the extra keypresses! You may still get a <color:B>-more-</color> from time to time. If you do, simply press <color:keypress>SPACE</color> when you are finished reading and the next batch of output will be displayed. The messages will clear automatically after you enter your next command, so make sure you are done reading before pressing any keys. You can always review messages with the <color:keyword>Previous Messages</color> command (<color:keypress>CTRL+P</color>).
+
+Next, on the left hand side of the screen you can see 3 status bars. The first one (@[<color:G>*********</color>]) is for the player's hp. It is full since I haven't been hurt yet. The second one (<color:U>,</color>[*********]) displays my food status. I'm not hungry yet, so this one is full as well. Both of these are optional (and the food one in particular might not interest you). But the third one (<color:U>f</color><color:R>[</color><color:v>*</color><color:R>--------]</color>) is very important. It tracks your current target, or the monster you most recently damaged. In this case, it shows me the health of Ms. Kitty, and you can see she is in some pretty dire straits.
+
+Finally, notice my shot (<color:s>{</color>) laying on the ground next to Ms. Kitty. Sometimes your missile ammo will break on impact, but if it doesn't you'll want to go gather it up after you are done fighting. You can pickup objects by moving on top of them and using the get command (<color:keypress>g</color>).
+
+Killing cats is fun, but it is time to move on. If you have money left over, go to the General Store (<color:U>1</color>) and buy a lantern and some oil. Lanterns cast more light than torches and allow you to see further in the dark. Sell your starting torches. Oh, and be sure to equip your lantern to actually use it (<color:keypress>w</color> to wear an item).
+
+Of course, it's possible that these items will not be available in the stores. The stores will "refresh" themselves every so often, getting rid of old items and buying new ones. If you ever find that there's something you need which the stores don't currently have, you can come back a bit later. However, to prevent <color:keyword>town scumming</color>, the stores won't actually restock unless you do a bit of adventuring first.
+
+Hopefully, you managed all of this without too much trouble from the locals (<color:G>t</color>), but occasionally the townsfolk will interact with you. This may be simply annoying, as there are plenty of drunks about, but it can also be dangerous as urchins have been known to steal gold and you look like an easy mark. You can attack a monster by simply moving into it, assuming you have a weapon equipped. If you are playing a mage, you should learn your Magic Missile spell first (<color:keypress>G</color> allows you to Gain a spell) and fight with that instead (<color:keypress>m</color> allows you to cast a magic spell).
+
+<topic:MyFirstTripDown><style:heading>My First Trip Down</style>
+
+Since this is the 'Beginner' mode, there is only one dungeon to enter. The <color:v>></color> character represents the entrance to a dungeon. >, in general refers to stairs down, but dungeon entrances <color:v>></color> and quest entrances <color:y>></color> are color coded to stand out. Similarly, < refers to stairs up. By some cosmic accident, these are also the keys you press to take the stairs: <color:keypress>></color> to go down and <color:keypress><</color> to go up. What could be easier to remember? So move to the stairs down to <color:keyword>Angband</color> and enter the dungeon!
+
+As you walk about, beware of monsters and use the look command (<color:keypress>l</color>) together with the recall option (<color:keypress>r</color>) to get a verbose monster description. For example:
+<style:screenshot>
+The Soldier ant ('<color:u>a</color>')/('<color:u>a</color>'):  [r,q,t,p,o,+,-,?,<dir>]
+Your ancestors have killed at least 1 of these creatures.
+A large ant with powerful mandibles.
+It is normally found on dungeon level 1, won't be found deeper than dungeon
+level 10, and moves at normal speed.  A kill of this<color:G> natural</color> creature is worth
+about 1.50 points for a 2nd level character.  Nothing is known about its
+attack.
+
+DEX : <color:G> 18/50</color>
+CON : <color:G>    11</color>
+CHR : <color:G>    12</color>
+AC     <color:G>    7</color>
+HP <color:G>  47</color>/<color:G>  47</color>
+
+
+@[<color:G>*********</color>]
+<color:U>,</color>[*********]     #######<color:U>+</color>##<color:U>+</color>######<color:U>+</color>##.####
+<color:u>a</color>[<color:b>*********</color>]     #................<color:U>R</color>......#
+                 #.......................#
+                 #.......................#
+                 #.............<color:u>a</color>.........#
+                 #.......................#
+                 #............@..........#
+                 #.......................#
+                 #.......................#
+                 #########################
+                                                                    <color:s>Angband: L1</color>
+</style>
+In this case, a previous character had encountered and slain a soldier ant, so I have some basic knowledge of this type of monster. This illustrates what the game calls <color:keyword>Monster Memory</color>. As you battle monsters, you learn more about them, and the game tracks your knowledge for you. All of the memory is retained in your savefile so that future characters may benefit. After killing a foe, you can recall details of your glory with the <color:keypress>/</color> command, followed by the letter representing the monster (<color:u>a</color> in this case) and then follow the prompts to choose the recall option. Notice that the description updates.
+
+At this point, you basically explore the current level. You can walk back to town at any time by going back up those stairs you just descended. You can also find new stairs down to deeper depths. Basically, the deeper you go, the more difficult things become, so you'll want to take it easy on the stairs at first.
+
+So, walk around a bit and kill stuff. Don't worry too much about dying as it will probably happen quite a bit at first. And if it does, the next time you load this savefile the birth process will give you an extra option to <color:keyword>Quick Start</color> this character, which basically skips the entire birth process and rolls a character identical to the last one. So it's easy to start up again after you die. (See, we streamline the common cases :)
+
+So, I will continue to play a bit. You can just sit back and watch! ... Oops, I think I'm in trouble:
+<style:screenshot>
+             <color:g>The Novice warrior attacks you: </color>He hits. He hits. He hits.
+LEVEL <color:G>     2</color> <color:g>The Novice warrior attacks you: </color>He hits. He hits. You stand your
+EXP <color:G>      24</color> ground! He hits. <color:v>*** LOW HITPOINT WARNING! ***</color> Press <color:y>Space</color> to
+AU  <color:G>     144</color> continue.
+<color:d>            </color>
+STR : <color:G> 18/10</color>
+INT : <color:G> 18/30</color>                                              #<color:s>%</color>##################<color:U>#</color>
+WIS : <color:G>    11</color>                                              <color:U>+</color>...................<color:U>#</color>
+DEX : <color:G> 18/50</color>                                              %...................<color:U>#</color>
+CON : <color:G>    11</color>                                              ....................<color:U>#</color>
+CHR : <color:G>    12</color>                                              #.......<...........<color:U>#</color>
+AC     <color:G>    6</color>                                              #...................<color:U>#</color>
+HP <color:r>  10</color>/<color:G>  47</color>                                              #<color:s>%</color>##.###############<color:U>#</color>
+                                                             #.#
+                                                             #.#
+@[<color:r>**</color>-------]                                       <color:s>%%%</color>%#%<color:s>%</color>##%%.#%#####%
+<color:U>,</color>[********-]                                       %<color:y>!</color>.................#
+<color:U>p</color>[<color:R>***</color>------]                                       <color:s>%</color>........<color:U>p</color>.........%
+                                                   %.....<color:U>CC</color>@.........<color:r>~</color>%
+                                                   <color:s>%</color>..................#
+                                                   <color:s>%</color>..............j...#
+                                                   <color:s>%</color>..................#
+                                                   <color:s>%</color>..................%
+                                                   %%#<color:s>%</color>%<color:s>%%%%</color>##.####%<color:U>+</color><color:s>%%</color>
+
+
+                                                                    <color:s>Angband: L2</color>
+</style>
+Notice my <color:r>10</color> hp? Well, if my hp go below 0, I am dead. Also notice the very loud <color:v>*** LOW HITPOINT WARNING! ***</color>? This is to make sure you notice when you are in trouble. The game even forces me to press <color:keypress>SPACE</color> before continuing. Really, I think I am about to die!
+<style:screenshot>
+             <color:g>The Novice warrior attacks you: </color>He hits. What a noble sacrifice!
+LEVEL <color:G>     2</color>
+EXP <color:G>      23</color>
+AU  <color:G>     144</color>
+<color:d>            </color>
+STR : <color:G> 18/10</color>
+INT : <color:G> 18/30</color>                                              #<color:s>%</color>##################<color:U>#</color>
+WIS : <color:G>    11</color>                                              <color:U>+</color>...................<color:U>#</color>
+DEX : <color:G> 18/50</color>                                              %...................<color:U>#</color>
+CON : <color:G>    11</color>                                              ....................<color:U>#</color>
+CHR : <color:G>    12</color>                                              #.......<...........<color:U>#</color>
+AC     <color:G>    6</color>                                              #...................<color:U>#</color>
+HP <color:r>  -3</color>/<color:G>  47</color>                                              #<color:s>%</color>##.###############<color:U>#</color>
+                                                             #.#
+                                                             #.#
+@[<color:r>*</color>--------]                                       <color:s>%%%</color>%#%<color:s>%</color>##%%.#%#####%
+<color:U>,</color>[********-]                                       %<color:y>!</color>.................#
+                                                   <color:s>%</color>..................%
+                                                   %.....<color:U>C</color>@<color:U>p</color>.........<color:r>~</color>%
+                                                   <color:s>%</color>..................#
+                                                   <color:s>%</color>..............j...#
+                                                   <color:s>%</color>..................#
+                                                   <color:s>%</color>..................%
+                                                   %%#<color:s>%</color>%<color:s>%%%%</color>##.####%<color:U>+</color><color:s>%%</color>
+
+
+                                                                    <color:s>Angband: L2</color>
+</style>
+<color:v>Ouch!</color> That really hurt!
+<style:screenshot>
+             Goodbye, Filcher! <color:B>-more-</color>
+               _______________________
+              /                       \         ___
+             /                         \ ___   /   \      ___
+            /            RIP            \   \  :   :     /   \
+           /                             \  : _;,,,;_    :   :
+          /            Filcher            \,;_          _;,,,;_
+         |               the               |   ___
+         |            Cutpurse             |  /   \
+         |                                 |  :   :
+         |              Rogue              | _;,,,;_   ____
+         |            Level: 2             |          /    \
+         |             Exp: 36             |          :    :
+         |             AU: 144             |          :    :
+         |        Killed on Level 2        |         _;,,,,;_
+         |      by a Novice warrior.       |
+         |                                 |
+         |    Tue Sep 22 14:41:58 2015     |
+        *|   *     *     *    *   *     *  | *
+________)/\\_)_/___(\/___(//_\)/_\//__\\(/_|_)_______
+</style>
+But never fear, I can quickly start over. Notice the new birth option:
+<style:screenshot>
+  Do you want to use the quick start function(same character as your last one).
+
+
+          Use quick start? [y/N]
+</style>
+Choosing <color:keypress>y</color> immediately recreates a new character with the same race, class and stats as the old one and immediately places me back in town. This is a brand new character, so any objects I acquired (like that sling) are gone, and I have no experience. However, my monster memory survives, so I don't have to memorize all the monsters as you encounter them.
+
+Go ahead an play a bit. At this point, the tutorial is over and I'll just give some basic tidbits about the game.
+
+<topic:Tidbits><style:heading>Tidbits</style>
+
+Every monster uses a unique ASCII character that sort of tells you what it is. For example, rats use the letter 'r' while orcs use the letter 'o'. When you see a character you don't understand, press <color:keypress>l</color> to look at it. If it is a monster, you can then press <color:keypress>r</color> to recall information about it, including a description that will give you more information. Other characters like '/' and '!' represent objects that you may pick up (<color:keypress>g</color> to get) and then use.
+
+How you use an object will depend upon its type. Some common examples are:
+<style:screenshot>
+Char  Object         Usage
+====  ============== =========================================================
+<color:U>,</color>     Food           <color:keypress>E</color> to eat it. Do this whenever you feel hungry.
+<color:B>!</color>     Potion         <color:keypress>q</color> to quaff it. Try to identify the potion first.
+?     Scroll         <color:keypress>r</color> to read it.
+<color:R>?</color>     Spellbook      <color:keypress>b</color> to browse it. <color:keypress>G</color> to gain a spell. <color:keypress>m</color> to cast.
+<color:B>-</color>     Wand           <color:keypress>a</color> to aim it.
+<color:r>-</color>     Rod            <color:keypress>z</color> to zap it.
+<color:U>_</color>     Staff          <color:keypress>u</color> to use it.
+<color:U>~</color>     Lantern        <color:keypress>w</color> to wear it. <color:keypress>F</color> to refill it with oil.
+<color:o>/</color>     Polearm        <color:keypress>w</color> to wield it.
+<color:B>\</color>     Hafted Weapon  <color:keypress>w</color> to wield it.
+|     Sword          <color:keypress>w</color> to wield it.
+<color:U>(</color>     Soft Armor     <color:keypress>w</color> to wear it.
+<color:s>[</color>     Hard Armor     <color:keypress>w</color> to wear it.
+<color:U>]</color>     Misc. Armor    <color:keypress>w</color> to wear it.
+</style>
+If you want to know what a specific symbol stands for, type <color:keypress>/</color>, and then the symbol. For instance, if you're wondering what all the t's are, type <color:keypress>/t</color>, and the game will tell you that these are townspeople. You can also <color:keypress>l</color>ook at an item, feature, or monster. While looking, pressing space or enter will cycle through the different interesting things in view. There is also a full map function: type <color:keypress>M</color>. It will bring up a map of the entire area. Finally, if you type <color:keypress>L</color>, you can scroll the (full-zoom) map around the dungeon. In general, you can use <color:keypress>M</color> to find areas that look interesting and <color:keypress>L</color> to look at them in detail.
+
+From here on we'll be giving detailed dungeon survival information. Some of it is intuitive, and some of it you aren't likely to find out without a lot of deaths first. If you want to experience the painful learning process in all it's glory, don't read further. If, however, you're sick and tired of dying, read ahead.
  
-=== Basic Training ===
- 
-When you load the game, select "Start a new character." Go through 
-the step-by-step instructions for picking a gender, race, class and 
-personality. For your first time, we recommend choosing a Golem Warrior. 
-Avoid the spellcaster types; they're much more difficult to play. 
-Another option to try is a High-Elf Ninja. While Ninja's possess a
-unique playstyle very different from anything else in PosChengband, they
-are rather Newbie friendly. They have wonderful stealth and great
-early detection. They learn spells intrinsically as they gain levels
-so their are no books to find/buy (Simply press 'm' to use a power).
-Plus, they are my favorite class so I can't resist a shameless plug :)
-If you want basic information about races and classes, go to the on-line 
-help (type "?") and read "Character Attributes". You should probably 
-read most of the help files here; the commands list is especially 
-important to someone new to PosChengband.
+<topic:MultipleBlows><style:heading>On Weapons and Multiple Blows</style>
 
-After naming your character, you'll start in the town. The various
-numbers represent stores, where you can buy new equipment and sell
-stuff you've found in the dungeon. The little ">" is a staircase, the
-entrance to the dungeon.  Stand on the entrance to the dungeon, and
-type ">", and you enter into the dungeon, and then type "<", and you
-return to the surface. (Beware, when entering some of the dangerous
-dungeons from the wilderness, the stairs may sometimes collapse behind
-you, trapping you. This won't happen with the early dungeons, however).
+Some characters will start the game being able to get multiple blows per round with their weapon when attacking. Whether or not you get more blows than this later in the game will be determined by your class, your weapon weight, your Strength, and your Dexterity. Check your Character Sheet (type <color:keypress>C</color>):
+<style:screenshot>
+ Name       : <color:B>Filcher</color>                      ========== Stats ==========
+ Sex        : <color:B>Male</color>                               STR  :    <color:G> 18/20</color>
+ Personality: <color:B>Ordinary</color>                           INT  :    <color:G>    18</color>
+ Race       : <color:B>High-Elf</color>                           WIS  :    <color:G>     9</color>
+ Subrace    : <color:B>None</color>                               DEX  :    <color:G> 18/50</color>
+ Class      : <color:B>Rogue</color>                              CON  :    <color:G>    11</color>
+ Realm      : <color:B>Burglary</color>                           CHR  :    <color:G>    14</color>
 
-Next, type "<" again on the surface. If there are no hostile monsters
-near you, you will enters the Global Map mode which displays all the
-world of PosChengband. Type ">" to return from global map mode to normal
-map mode.
+ Level      :        <color:G>1</color>                           HP   :     <color:G>43/43</color>
+ Cur Exp    :        <color:G>0</color>                           SP   :       <color:G>0/0</color>
+ Max Exp    :        <color:G>0</color>                           AC   :         <color:G>7</color>
+ Adv Exp    :       <color:G>23</color>                           Speed:        <color:B>+0</color>
 
-If you want to know what a specific symbol stands for, type "/", and
-then the symbol. For instance, if you're wondering what all the t's
-are, type "/t", and the game will tell you that these are
-townspeople. You can also "l"ook at an item, feature, or monster. 
-While looking, pressing space or enter will cycle through the
-different "interesting" things in view. There is also a full map
-function: type "M". It will bring up a map of the entire area (just a
-single screen in the case of the town, but useful later on in the
-dungeon). Finally, if you type "L", you can scroll the (full-zoom) map
-around the dungeon. In general, you can use "M" to find areas that
-look interesting and "L" to look at them in detail.
+                                           ========== Skills =========
+ Gold       :      <color:G>341</color>                     <color:y>Melee</color>      : <color:G>Excellent</color>
+ Kills      :        <color:G>0</color>                     <color:y>Ranged</color>     : <color:G>Excellent</color>
+ Uniques    :        <color:G>0</color>                     SavingThrow: <color:G>Excellent</color>
+ Artifacts  :      <color:G>0+0</color>                     Stealth    : <color:g>Superb</color>
+                                           Perception : <color:y>Very Good</color>
+ Game Day   :        <color:G>1</color>                     Searching  : <color:y>Good</color>
+ Game Time  :     <color:G>6:01</color>                     Disarming  : <color:G>Excellent</color>
+ Play Time  :    <color:G>00:00</color>                     Device     : <color:g>Superb</color>
 
-Take a look around the town, but avoid the Mean-Looking Mercenaries and
-Battle-Scarred Veterans; they can kill you fairly easily. A note on
-shop #7; it's the black market, where very powerful items are sold for
-an absolutely ridiculous price. Any good item can show up in this store
-(barring standard artifacts), so look here for those items that don't
-show up in other stores.
+</style>
+And then either scroll down to the Melee section, or press <color:keypress>m</color> to navigate more quickly:
+<style:screenshot>
+<color:y> Hand #1: a Dagger (1d4) (+0,+0)                           </color> <color:G>Accuracy</color>
+ Weight : 1.2 lbs                                            AC Hit
+ Profic : Beginner (+0 To Hit)                               25 75%
+ To Hit : 0 + 5 = 5                                          50 55%
+ To Dam : 0 + 3 = 3                                          75 34%
+ Blows  : 2.74                                              100 13%
+<color:G> Damage </color>                                                    125  5%
+ Crits  : 1.00x (0.7%)                                      150  5%
+ Normal : 14 (10-19) [1.00x]                                175  5%
+                                                            200  5%
+</style>
+In my case, this is a newborn adventurer still using his starting dagger. But you'll notice that he is getting multiple blows per round, 2.74 in this case. What could that possibly mean? Actually, it's rather simple: 74% of the time I will get 3 attacks per round while 26% of the time, only 2. How is that number determined and what can I do to make it bigger? Good questions! The melee calculation is a little complicated, but basically it depends on the weapon and how heavy it is, your stats and how strong and dextrous you are, and your class. Rogues often get extra blows quicker, especially with lighter weapons. This is because their class favors light weapons such as daggers, and the game encourages this. Most other characters won't start with so many attacks. And you'll notice that while I get 2.74 attacks per round, my damage is rather pathetic (14 damage per round).
 
+The Weapon Info screen also displays melee accuracy. Of course, you won't hit every time you swing. Accuracy depends on you skill with the weapon as well as its magical bonuses, if any. It also depends on your fighting skill (Shown on the initial Character Sheet above under the Skills section for Melee. My Melee skill is 'Excellent' in this case) which increases with stats (Strength and Dexterity) as well as experience (Level). All of this competes against the monster's armor class (AC). Basically, some monsters are harder to hit than others. Dragons are notoriously tough skinned, for example.
 
-Be sure to visit shops #1 and #2, the General Store and Armory,
-respectively. At the General Store, buy a cloak and a Brass Lantern,
-and a flask of oil or two. Sell your torches. At the Armory, buy some
-of the light armor. Suggested: Hard Leather Boots, a Leather Cap,
-Leather Gloves. If a Small Leather Shield is on sale and you can afford
-it, buy it.
+You may also see detailed information on your missile weapon in your character sheet. It is displayed right after the melee section (provided you are actually wielding a shooter), and can be quickly navigated to by pressing <color:keypress>s</color>:
+<style:screenshot>
+<color:y> Shooting: a Sling (x2) (+0,+0)                                                </color>
+ Range   : 160'
+ Shots   : 1.30
+ Mult    : 2.06x
+ To Hit  : 0 + 5 = 5
+ To Dam  : 0 (Multiplier Applies)
+ Xtra Dam: 0 (Multiplier Does Not Apply)
 
-This should have cleaned out your money. However, if it hasn't, it is
-strongly recommended that you go to the Alchemist's shop (#5) and
-purchase a scroll of Phase Door. If you get surrounded by monsters,
-read it, and you'll be teleported a short distance away.
+<color:u> Ammo #1 : 30 Rounded Pebbles (1d2) (+0,+0) (3/3)                </color> <color:G> AC Hit</color>
+ Weight  : 0.4 lbs                                                 50 62%
+ To Hit  : 0 + 5 = 5                                              100 28%
+ To Dam  : 0 + 0 = 0 (Multiplier Applies)                         150  5%
+<color:G> Damage  </color>                                                         175  5%
+ Crits   : 1.00x                                                  200  5%
+ Normal  : 3 (2-5) [2.06x]
+</style>
+In this case, you see I get multiple shots, but ranged combat works a bit differently than melee combat. Rather than taking all of your allowed shots in a single round, you take one at a time, but the game charges you less than the full amount of energy per shot. I haven't explained the speed system yet, but suffice it to say that less energy per action means you move faster, and can do more before any nearby monsters get a chance to act.
 
-Of course, it's possible that these items will not be available in the
-stores. The stores will "refresh" themselves every so often, getting
-rid of old items and buying new ones. If you ever find that there's
-something you need which the stores don't currently have, you can 
-come back a bit later. However, to prevent "town scumming," the stores
-won't actually restock unless you do a bit of adventuring first.
+These two screens, Weapon Info and Shooter Info, will become more and more useful to you as you play the game. Don't worry if you don't understand everything displayed on them at the moment.
 
-PosChengband's not actually all that difficult to learn to play. You should
-get the hang of it fairly quickly.
- 
-From here on we'll be giving detailed dungeon survival information.
-Some of it is intuitive, and some of it you aren't likely to find out
-without a lot of deaths first. If you want to experience the painful
-learning process in all it's glory, don't read further. If, however,
-you're sick and tired of dying, read ahead.
- 
-=== On weapons and multiple blows ===
+<topic:OnArmorAndResistance><style:heading>On Armor and Resistance</style>
 
-Some characters will start the game being able to get two blows per
-round with their weapon when attacking.  Whether or not you get more
-blows than this later in the game will be determined by your class, 
-your weapon weight, your Strength, and your Dexterity. Check your
-Character display (type "C"). Somewhere on this page, there is a number
-that is your number of blows/round.
+We just saw how monsters have this attribute called armor class, and how this makes them harder to hit. Similarly, the player has an armor class which is determined by the armor they are currently wearing as well as their dexterity. In addition to making you harder to hit, AC also actually reduces the damage from certain types of melee attacks, so it is a very important attribute that you will want to increase as much as possible. If every you find yourself getting destroyed in melee, you'll want to look for better AC from your gear.
 
-Multiple blows become very important later in the dungeon since the
-more times you hit, the more damage your weapon does (obviously).
+Here is my Character Screen where you can see my starting AC:
+<style:screenshot>
+ Name       : <color:B>Filcher</color>                      ========== Stats ==========
+ Sex        : <color:B>Male</color>                               STR  :    <color:G> 18/20</color>
+ Personality: <color:B>Ordinary</color>                           INT  :    <color:G>    18</color>
+ Race       : <color:B>High-Elf</color>                           WIS  :    <color:G>     9</color>
+ Subrace    : <color:B>None</color>                               DEX  :    <color:G> 18/50</color>
+ Class      : <color:B>Rogue</color>                              CON  :    <color:G>    11</color>
+ Realm      : <color:B>Burglary</color>                           CHR  :    <color:G>    14</color>
 
- 
-=== On important magical items ===
+ Level      :        <color:G>1</color>                           HP   :     <color:G>43/43</color>
+ Cur Exp    :        <color:G>0</color>                           SP   :       <color:G>0/0</color>
+ Max Exp    :        <color:G>0</color>                           <color:y>AC   :         7</color>
+ Adv Exp    :       <color:G>23</color>                           Speed:        <color:B>+0</color>
 
-You might think that you can get by without magical items. If so,
-you're bound for an interesting, but short, stay in the dungeon. It'll
-probably be one-way, too.
+                                           ========== Skills =========
+ Gold       :      <color:G>341</color>                     Melee      : <color:G>Excellent</color>
+ Kills      :        <color:G>0</color>                     Ranged     : <color:G>Excellent</color>
+ Uniques    :        <color:G>0</color>                     SavingThrow: <color:G>Excellent</color>
+ Artifacts  :      <color:G>0+0</color>                     Stealth    : <color:g>Superb</color>
+                                           Perception : <color:y>Very Good</color>
+ Game Day   :        <color:G>1</color>                     Searching  : <color:y>Good</color>
+ Game Time  :     <color:G>6:01</color>                     Disarming  : <color:G>Excellent</color>
+ Play Time  :    <color:G>00:00</color>                     Device     : <color:g>Superb</color>
+</style>
+In addition to AC, though, the player has a very important set of resistances. Or, in this case, rather a lack of resistances. Scroll down to the equipment section of your character sheet, or press <color:keypress>e</color> to navigate more quickly. Here you get to see, in all its gritty detail, how woefully inadequate your starting character actually is. Here is my screen:
+<style:screenshot>
+[Character Sheet, Line 26/286]
 
---- Teleportation Items ---
+============================= Character <color:o>E</color>quipment =============================
 
-The most important items have be those of teleportation. There are many
-basic types:
+ a) a Dagger (1d4) (+0,+0)
+ h) <color:W>Soft Leather Armour [4,+0]</color>
 
-Phase Door
-     teleports you up to 10 squares away. Useful for the Shoot 'n Scoot
-     maneuver; more on this later.
+              <color:W>|</color>      <color:U>(</color>    <color:d>              </color>              <color:W>|</color>      <color:U>(</color>    <color:d>              </color>
+ <color:G>Resistances</color>  abcdefghijkl@<color:d>             </color> <color:G>Abilities  </color>  abcdefghijkl@<color:d>             </color>
+ Acid       : <color:D>.............</color>   0%<color:d>        </color> Speed      : <color:D>.............</color><color:d>             </color>
+ Electricity: <color:D>.............</color>   0%<color:d>        </color> Free Act   : <color:D>.............</color><color:d>             </color>
+ Fire       : <color:D>.............</color>   0%<color:d>        </color> See Invis  : <color:D>............</color>+<color:d>             </color>
+ Cold       : <color:D>.............</color>   0%<color:d>        </color> Warning    : <color:D>.............</color><color:d>             </color>
+ Poison     : <color:D>.............</color>   0%<color:d>        </color> Slow Digest: <color:D>.............</color><color:d>             </color>
+ Light      : <color:D>............</color>+ <color:y> 30%</color><color:d>        </color> Regenerate : <color:D>.............</color><color:d>             </color>
+ Dark       : <color:D>.............</color>   0%<color:d>        </color> Levitation : <color:D>.............</color><color:d>             </color>
+ Confusion  : <color:D>.............</color>   0%<color:d>        </color> Perm Lite  : <color:D>.............</color><color:d>             </color>
+ Nether     : <color:D>.............</color>   0%<color:d>        </color> Reflection : <color:D>.............</color><color:d>             </color>
+ Nexus      : <color:D>.............</color>   0%<color:d>        </color> Hold Life  : <color:D>.............</color><color:d>             </color>
+ Sound      : <color:D>.............</color>   0%<color:d>        </color> Dec Mana   : <color:D>.............</color><color:d>             </color>
+ Shards     : <color:D>.............</color>   0%<color:d>        </color> Easy Spell : <color:D>.............</color><color:d>             </color>
+ Chaos      : <color:D>.............</color>   0%<color:d>        </color> Anti Magic : <color:D>.............</color><color:d>             </color>
+ Disenchantm: <color:D>.............</color>   0%<color:d>        </color> Magic Skill: <color:D>.............</color><color:d>             </color>
+ Time       : <color:D>.............</color>   0%<color:d>        </color> Spell Power: <color:D>.............</color><color:d>             </color>
+ Blindness  : <color:D>.............</color>   0%<color:d>        </color> Spell Cap  : <color:D>.............</color><color:d>             </color>
+ Fear       : <color:D>.............</color>   0x<color:d>        </color> Magic Res  : <color:D>.............</color><color:d>             </color>
+<color:d>                                        </color> Infravision: <color:D>............</color>+  40'<color:d>        </color>
+              <color:W>|</color>      <color:U>(</color>    <color:d>              </color> Stealth    : <color:D>.............</color><color:d>             </color>
+ <color:G>Auras      </color>  abcdefghijkl@<color:d>             </color> Searching  : <color:D>.............</color><color:d>             </color>
+ Aura Elec  : <color:D>.............</color><color:d>                                                     </color>
+ Aura Fire  : <color:D>.............</color><color:d>             </color>              <color:W>|</color>      <color:U>(</color>    <color:d>              </color>
+ Aura Cold  : <color:D>.............</color><color:d>             </color> <color:G>Sustains   </color>  abcdefghijkl@<color:d>             </color>
+ Aura Shards: <color:D>.............</color><color:d>             </color> Sust Str   : <color:D>.............</color><color:d>             </color>
+ Revenge    : <color:D>.............</color><color:d>             </color> Sust Int   : <color:D>.............</color><color:d>             </color>
+<color:d>                                        </color> Sust Wis   : <color:D>.............</color><color:d>             </color>
+              <color:W>|</color>      <color:U>(</color>    <color:d>              </color> Sust Dex   : <color:D>.............</color><color:d>             </color>
+ <color:G>Slays      </color>  abcdefghijkl@<color:d>             </color> Sust Con   : <color:D>.............</color><color:d>             </color>
+ Slay Evil  : <color:D>.............</color><color:d>             </color> Sust Chr   : <color:D>.............</color><color:d>             </color>
+ Slay Undead: <color:D>.............</color><color:d>                                                     </color>
 
-Teleport
-     teleports you across the dungeon, sometimes landing you in more
-     trouble than you started in. Better than certain death, though.
+[Press ESC to exit. Press ? for help]
+</style>
+You'll notice a group of attributes for resistances and another for miscellaneous abilities along with some additional groupings for Slays and such. Let's just focus on Resistances for the time being.
 
-Teleport Away
-     teleports a monster (or several monsters) away from you. Safer
-     than Teleport, but you might not be able to get them all in one
-     strike. Plus, many monsters resist teleportation and some are
-     completely immune.
+So what is resistance and why should you care? Basically, monster attacks often have an elemental flavor to them. Their damage has a 'type'. For example, a fire breathing dragon breathes ... well, fire! And your fire resistance helps you withstand that particular type of damage. Many damage types also have effects as well. Sticking with our fiery example, this type of attack can destroy items in your pack, especially scrolls and spellbooks. Your fire resistance helps out here as well. Here is a short summary of attack types as well as when you'd like to have resistance. Be warned that some monster attacks can be very deadly, killing you in a single attack if you are unprepared!
+<style:screenshot>
+<color:w>Type       Comment
+====       =============================================================</color>
+<color:D>Acid</color>       Destroys scrolls/staves. Damages armor. DL30.
+<color:b>Elec</color>       Destroys rings/wands and reduces Dex. DL30.
+<color:R>Fire</color>       Destroys scrolls/staves/spellbooks. DL20.
+<color:w>Cold</color>       Destroys potions. DL30.
+<color:G>Poison</color>     Known to instantly kill many an adventurer. DL40
+<color:R>Nexus</color>      Scrambles stats and teleports player. Not very damaging.
+<color:r>Confusion</color>  Confuses you so you can't act. DL30.
+<color:v>Paralysis</color>  Freezes the player so you lose turns. Get Free Action by DL30.
+</style>
+My character is not completely hopeless. Being a High-Elf, I begin with Light Resistance (30%) and See Invisible. The latter allows me to see ghosts and other invisible monsters. Without it, I wouldn't be able to see when certain monsters attack me, which can be very annoying, not to mention deadly. See Invisible (like Free Action) is one of the required abilities that you will want as soon as possible.
 
-Teleport Level
-     moves you up or down one level. If the level you're on is full of
-     dangerous monsters and you need to teleport, this could be your
-     ticket to safety.
+And while your race can grant resistances and abilities, most of the time these come from your gear. The 'abcd...' list across the top of each column corresponds to my current equipment set, and the corresponding item character is displayed if an item is actually equipped in that slot (e.g. | for my dagger, which is categorized by the game as a sword). So you can track your current resistances and abilities here as well as see where you are getting a given attribute. The '@' character corresponds to the player (displayed as an @, remember?) and lists innate racial abilities, as well as temporarily acquired magical enhancements (There might be a potion that grants temporary resistance, for example).
 
-Destruction
-     This powerful spell removes everything (including artifacts!)
-     from the area around you, blasting the surroundings and causing
-     rock to fall from the ceiling. If you're ever in deep trouble,
-     this is the safest way to escape. However, even Destruction
-     isn't foolproof. Monsters get a saving throw and can avoid being
-     removed. And their is even a certain monster that is completely
-     immune to Destruction!
+In general, you will want to cover as many resistances as possible. They are not so important early in the game, but as you descend deeper, you will learn what you need and when. Abilities are often optional, except for Free Action and See Invisible which you will want by DL20 if possible. Hold Life starts to become desirable around DL35 or so. You can play without it, but it's just to darn annoying!
 
---- Healing Items ---
+Also note that resistances stack. If two items grant fire resistance, your percentage resistance goes up (but not linearly). Multiple sources of a given resistance also help to prevent many of the nasty side effects for various damage types.
 
-The second most important items are those of healing. Healing, in this
-case, covers Cure Light/Serious/Critical Wounds, Healing, *Healing*,
-and Life Potions, from weakest to strongest.
+OK, I cannot help thinking that the starting character sheet is lame, since every single attribute is empty. Here is a more interesting sample from a Dragon character I am playing (Notice the different body type? He is playing in <color:r>Monster</color> mode where you get to play as a monster rather than a normal player):
+<style:screenshot>
+[Character Sheet, Line 26/780]
 
-Cure Light Wounds
-     restores 2d8 hitpoints and removes cuts, blindness and berserk.
+============================= Character <color:o>E</color>quipment =============================
 
-Cure Serious Wounds
-     restores 4d8 hitpoints and removes cuts, blindness, confusion and
-     berserk.
+ a) <color:r>The Ring of Power (Narya) (+1) {A:Fire Ball}</color>
+ b) <color:r>a Ring of the Dwarves (-8,+18) (+2) {-Dx;Di}</color>
+ c) <color:r>The Ring of Tulkas (+4) {A:Heroic Speed, !!}</color>
+ d) <color:r>a Ring (Defender) [+16] {LiDkShBlCfSoCaFe;FaSiLv(Cn}</color>
+ e) <color:r>a Ring (Defender) [+3] {ShCa;FaSi(St}</color>
+ f) <color:r>a Ring of Speed (+11)</color>
+ g) <color:o>an Amulet (Defender) [+12] {AcElFiCoPo;FaSiLv}</color>
+ h) <color:y>The Feanorian Lamp of Shiva's Avatar (+6,+6) (+4) </color>
+<color:y>      {StWiChSl;AcLiSoNtDi;SiHlLu}</color>
+ i) <color:U>The Cloak of Jack of Shadows [1,+19] (+7)</color>
+ j) <color:U>The Golden Crown of Dragonkind (+5,+5) [0,+15] (+2) {Nx}</color>
 
-Cure Critical Wounds
-     restores 6d8 hitpoints and removes cuts, blindness, confusion,
-     stun, poison and berserk.
+              <color:g>======</color><color:y>"</color><color:o>~</color><color:g>(</color><color:y>]</color><color:d>                </color>              <color:g>======</color><color:y>"</color><color:o>~</color><color:g>(</color><color:y>]</color><color:d>                </color>
+ <color:G>Resistances</color>  abcdefghij@<color:d>               </color> <color:G>Abilities  </color>  abcdefghij@<color:d>               </color>
+ Acid       : <color:D>......</color>++<color:D>.</color>+<color:v>*</color> <color:v>100%</color><color:d>          </color> Speed      : +<color:D>.</color>+<color:D>..</color>+<color:D>...</color>++<color:d>               </color>
+ Electricity: <color:D>......</color>+<color:D>..</color>+<color:D>.</color> <color:R> 65%</color><color:d>          </color> Free Act   : ++<color:D>.</color>++<color:D>.</color>+<color:D>.</color>+<color:D>.</color>+<color:d>               </color>
+ Fire       : <color:v>*</color><color:D>.....</color>+<color:D>..</color>+<color:D>.</color> <color:v>100%</color><color:d>          </color> See Invis  : ++<color:D>.</color>++<color:D>.</color>+++<color:D>.</color>+<color:d>               </color>
+ Cold       : <color:D>......</color>+<color:D>..</color>+<color:D>.</color> <color:R> 65%</color><color:d>          </color> Warning    : <color:D>...........</color><color:d>               </color>
+ Poison     : <color:D>......</color>+<color:D>..</color>+<color:D>.</color> <color:R> 65%</color><color:d>          </color> Slow Digest: +<color:D>..........</color><color:d>               </color>
+ Light      : <color:D>...</color>+<color:D>...</color>+<color:D>...</color> <color:R> 40%</color><color:d>          </color> Regenerate : ++<color:D>.......</color>+<color:D>.</color><color:d>               </color>
+ Dark       : <color:D>...</color>+<color:D>.......</color> <color:y> 30%</color><color:d>          </color> Levitation : <color:D>...</color>+<color:D>..</color>+<color:D>...</color>+<color:d>               </color>
+ Confusion  : <color:D>...</color>+<color:D>......</color>+ <color:R> 40%</color><color:d>          </color> Perm Lite  : <color:D>.......</color>+<color:D>...</color><color:d>               </color>
+ Nether     : <color:D>.......</color>+<color:D>...</color> <color:y> 30%</color><color:d>          </color> Reflection : <color:D>...........</color><color:d>               </color>
+ Nexus      : <color:D>.........</color>+<color:D>.</color> <color:y> 30%</color><color:d>          </color> Hold Life  : <color:D>.......</color>+++<color:D>.</color><color:d>               </color>
+ Sound      : <color:D>...</color>+<color:D>...</color>+<color:D>...</color> <color:R> 40%</color><color:d>          </color> Dec Mana   : <color:D>...........</color><color:d>               </color>
+ Shards     : <color:D>...</color>++<color:D>......</color> <color:R> 40%</color><color:d>          </color> Easy Spell : <color:D>...........</color><color:d>               </color>
+ Chaos      : <color:D>...</color>++<color:D>......</color> <color:R> 40%</color><color:d>          </color> Anti Magic : <color:D>...........</color><color:d>               </color>
+ Disenchantm: <color:D>.</color>+<color:D>.....</color>+<color:D>...</color> <color:R> 40%</color><color:d>          </color> Magic Skill: <color:D>...........</color><color:d>               </color>
+ Time       : <color:D>...........</color>   0%<color:d>          </color> Spell Power: <color:D>...........</color><color:d>               </color>
+ Blindness  : <color:D>.</color>+<color:D>.</color>+<color:D>......</color>+ <color:r> 45%</color><color:d>          </color> Spell Cap  : <color:D>...........</color><color:d>               </color>
+ Fear       : <color:D>...</color>+<color:D>......</color><color:y>#</color>   3x<color:d>          </color> Magic Res  : <color:D>...........</color><color:d>               </color>
+<color:d>                                        </color> Infravision: <color:D>..........</color>+  50'<color:d>          </color>
+              <color:g>======</color><color:y>"</color><color:o>~</color><color:g>(</color><color:y>]</color><color:d>                </color> Stealth    : <color:D>.</color><color:R>-</color><color:D>.....</color>++<color:D>..</color><color:d>               </color>
+ <color:G>Auras      </color>  abcdefghij@<color:d>               </color> Searching  : <color:D>........</color>+<color:D>..</color><color:d>               </color>
 
-Curing
-     restores 50 hitpoints and removes cuts, blindness, confusion,
-     stun, poison and hallucination.
+[Press ESC to exit. Press ? for help]
+</style>
+Notice how the resistances stack, as well as how I have most of the resistances covered? This character is almost ready to face The Serpent of Chaos!
 
-Healing
-     restores 300 hitpoints and removes cuts, blindness, confusion,
-     stun, poison and berserk.
+<topic:OnMagicalItems><style:heading>On Important Magical Items</style>
 
-*Healing*
-     restores 1200 hitpoints and removes cuts, blindness, confusion,
-     stun, poison and berserk.
+Magical Items are an important part of every players repertoire, even the warrior's. There are seveal types of magic that every player needs.
 
+  <indent><color:B>Teleporation and Escape</color>
 
-Potions of Life
-     restores 5000 hitpoints (about 5 times more than you'll ever
-     have), restores all drained stats and experience, and removes all
-     bad effects except hunger. These are very rare; save them in your
-     home for a dangerous fight.
+It is very easy to become surrounded, or cut off from a safe retreat. Even the mightiest of warriors can become overwhelmed by sheer numbers. And this doesn't even account for the fact that many monsters can summon other monsters who can themselves summon other monster summoning monsters. Things can go bad in a heart beat, and when it does, you'll want to have a magical means of escape at the ready.
 
---- Items for Identifying Objects ---
+<color:r>Phase Door</color>     <indent>This is a short range teleport that usually won't get you out of danger. It is useful for distance damage tactics such as the Shoot 'n Scoot maneuver discussed below.</indent>
 
-There are various methods of Identify which you *need*. Identify comes
-in the form of scrolls, Staffs of Perception, Rods of Perception, the
-spell Identify, and the prayer Perception. These will tell you any
-magical properties of the item, like magical bonuses to hit and to
-damage, and magical bonuses to stats. It also tells you if the item is
-cursed. It tells you what a wand/rod/staff/potion/scroll/mushroom/etc.
-does, and this is very important. There are nasty potions deep in the
-dungeon that you *do not* want to drink! Sometimes, the descriptions of
-the items are a little obscure; things like Staves of Holiness and
-Power, Mushrooms of Unhealth, and others. You may have to experiment a
-bit to determine their powers. 
+<color:r>Teleport</color>       <indent>A longer range escape that is the mainstay of most retreats. However, this escape is a bit risky as you may land in a worse situation than you started in.</indent>
 
-There is also an advanced form of Identify, called *Identify*. This is
-available primarily as a Scroll of *Identify* but certain magic realms
-contain a similar spell although it may be called something different.
-In addition, some towns may provide a shop offering *identify* as a
-service. Identifying an item by one of these means tells you every
-single property of the item, like whether or not it lets you see
-invisible monsters, sustains stats, gives you regeneration, and so on.
-You should only use *identify* on artifacts and certain powerful
-ego-items some of which may have random abilities which can only be
-discovered by this method. 
+<color:r>Teleport Away</color>  <indent>This teleports all monsters in a line away, but many monsters resist and some are immune. It is generally useful for getting rid of a single troublesome opponent while preserving your current position. It is also essential for attempting to clear treasure vaults.</indent>
 
---- Items for Lighting the Dungeon ---
+<color:r>Teleport Level</color> <indent>This is the safest escape, moving you up or down an entire dungeon level. You abandon the current level and all of its goodies, although sometimes you can find your way back through the new level's staircases.</indent>
 
-Notes on lighting: You can't do much without light. You won't be able
-to see most monsters, cast spells or read scrolls, or, in general, see
-the dungeon. You should carry a light source of which torches and brass
-lanterns are the most common and this will light up the area which is
-immediately around you. There are items which will light up the
-dungeon, but only parts of it. Any item/spell of Light or Illumination
-will light up the room you are standing it (or part of the corridor). A
-potion of Enlightenment/the prayer Clairvoyance will light up the
-entire level.
+<color:r>Destruction</color>    <indent>This powerful spell removes everything (including artifacts!) from the area around you, blasting the surroundings and causing rock to fall from the ceiling. If you're ever in deep trouble, this is a good way to escape. However, even Destruction isn't foolproof: monsters get a saving throw and can avoid being removed. I recommend saving scrolls of destruction for the final battle. You will need plenty to deal with all of the Serpent's summons.</indent>
+</indent>
+  <indent><color:B>Healing and Recovery</color>
 
---- Word of Recall ---
+During your adventures, things will hurt you. This cannot be avoided. Fortunately, there are many magical potions that cure your wounds as well as various status ailments like blindness, confusion and poison.
 
-Finally, the most useful magical item in general is a Scroll of
-Word-of-Recall (often abbreviated WoR). When you are in the town and
-read it, you are teleported to the lowest level you have been to in the
-dungeon. When read in the dungeon, you are teleported to the town. The
-activation takes place about 50 turns after reading the scroll, so it's
-not a perfect escape method.
+<color:r>Cure Light Wounds</color>    <indent>Restores a small amount of hitpoints, perhaps 10 or so. And while it won't completely cure cuts, it does reduce their effects (Cuts cause you to bleed out, losing hitpoints every few turns). It also cures blindness which is important since you need to be able to see in order to read a scroll or cast a spell from your spellbook (Not to mention see who is attacking you!).</indent>
 
-=== On Resistances ====
+<color:r>Cure Serious Wounds</color>  <indent>Restores a bit more hp, perhaps 20 or so. It also cures blindness and confusion and reduces your cut status.</indent>
 
-There are many different kinds of attacks in PosChengband, generally
-falling under physical, magical, and breath attacks. They can all cause
-specialized kinds of damage, which can kill a character if he/she does
-not have resistance to that attack. The majority of attack types have a
-corresponding resistance. These resistances include: acid, electricity,
-fire, and cold (often collectively referred to as "low" or "elemental"
-resists) and poison, light, dark, shards, confusion, sound, nether,
-nexus, chaos, disenchantment, blindness and fear (often collectively
-referred to as "high" resists). Two other abilities - free action, and
-hold life, can be considered as resists in some sense since they
-provide resistance to paralyzing/slowing attacks and to experience
-draining attacks respectively.
+<color:r>Cure Critical Wounds</color> <indent>Even better! It heals about 30 hp and cures most ailments: blindness, confusion, cuts and stuns are completely cured. So is poison.</indent>
 
-Resistances can be provided by certain items and also may be part of
-your racial characteristics. There are certain types of items that
-provide all four elemental resistances. These include Defender weapons,
-Robes of Permanence, armors/shields of Resistance, armor of Elvenkind,
-and Helms/Crowns of the Magi. Many artifacts also provide some or all
-of the basic resistances, and also perhaps one or two "high"
-resistances.
+The above three are readily available in the town at the Temple, and you should stock up on them as much as possible. The following must be found in the dungeon or purchased in the Black Market:
 
-Resistances generally chop off a significant amount of damage, ranging
-from 35% to 75%. Also, resistances in PosChengband stack, so having multiple
-sources of a single type of resistance is beneficial, although each added
-source of the resistance offers diminishing returns. Finally, their are
-spells (and potions) that provide temporary resistances that likewise
-stack with those provided by your equipment. Having a single source of
-resistance provides 50% damage reduction on average, though the actual
-damage reduction per attack is slightly randomized. Having a second source
-bumps the coverage up to 65%, and so on (These numbers are subject to change,
-of course. Quaff a potion of self knowledge to view the correct values).
+<color:r>Curing</color>    <indent>Like Cure Critical Wounds, only better. It heals around 50hp and cures every status ailment excluding Fear. Even Hallucination is cured which is often very welcome as the mere sight of certain monsters is enough to trigger this crippling effect.</indent>
 
-Resistances are vital to survival in the dungeon. For instance, the
-most powerful of fire dragons, the Great Hell Wyrm, can breath fire
-(big surprise). Unresisted, the damage caused is 900 HPs worth; more
-than enough to kill the average character. However, if you have fire
-resistance, this is chopped to 360 HP to 540 HP (depending on the 
-randomness of your 50% damage reduction) which is far easier to survive. 
-Add a second source of resistance to fire and your damage is reduced 
-even more: 220 HP to 390 HP. Add a third source and ... You get the idea.
+<color:r>Healing</color>   <indent>Big time hp recovery at about 300hp. Also, most status ailments are cured except for fear and hallucination.</indent>
 
-In PosChengband, every resistance matters so you will eventually want
-to cover them all. As you gain experience, you will learn which situations
-warrant which resistances and may be able to play successfully even
-with multiple "resistance holes." But it is only a matter of time before
-some monster (probably off-screen) takes you down, so err on the side
-of caution.
- 
-=== On Important Depths ===
+<color:r>*Healing*</color> <indent>Bigger time hp recovery at about 1000hp. Also, most status ailments are cured except for fear and hallucination. These potions are very rare and should be saved for the final two battles.</indent>
 
-There are certain depths in the dungeon beyond which it is important to
-have a certain resist or attribute. The depths given here are
-guidelines, and should not be taken literally. However, if you decide
-to go past the depth without the attribute, be very careful and don't
-complain if you get the dreaded "It breathes -more- You are dead"
-message.
+<color:r>Life</color>      <indent>Restores your stats, all your hp and removes all status ailments except Fear. These potions are so rare, they should be saved for the final battle.</indent>
+</indent>
+  <indent><color:B>Knowledge</color>
 
-20 (1000'): Free Action, See Invisible, Fire resistance
-25 (1250'): Basic four Resistances
-30 (1500'): Confusion Res, Blindness Res(Magician only), (Nexus Res)
-35 (1750'): Poison Resistance, Blindness Resistance (for all)
-40 (2000'): Nether Res, Chaos Res, Darkness Res (Beware of Jack!)
-50 (2500'): Hold Life, Telepathy
-60 (3000'): Permanent Speed of +10 or greater
-70 (3500'): Permanent Speed of +15 or greater, Shard Res
-90 (4500'): Permanent Speed of +25 or greater
-99 (4950'): As much as you can get. Sustains, Speed, every resistance, 
- 
-Notes: If you have high infravision, you can probably hold off on See
-Invisible for a few levels. Not very many, however; Ghosts start
-showing up soon, and they're cold-blooded.
+When you find a new object, you generally won't know anything about it. In order to learn about the objects you find, you need some means of knowledge. Every player has an innate sense about some of the objects they find and simply carrying the object around in your pack for a while can give you a clue as to its worth. This ability is called pseudo-id and is discussed elsewhere in the documentation. In general, it only works on equipment such as weapons and armor, although certain classes like Mages can sense the worth of rings and amulets. I mention pseudo-id since it is your most important means of knowledge in the early game. You can also learn what some objects are by trying them out. For example, you can eat a newly found mushroom, or quaff that new potion in your pack. However, if you try this, you'll quickly learn it is a bad idea for mushrooms and potions. For magical devices like wands, rods and staves, it is acceptable to try them as you find them. But once you have Identify, you'll want to use that instead.
 
-Without Free Action you are very dead. Some monsters have a melee
-paralyzation attack, which can keep you immobile until death. Also,
-monsters start getting the paralyze spell about here. Nothing is more
-aggravating than watching a puny monster slowly kill your character as
-you watch, helpless.
+Later on, you'll want to improve your means of knowledge and there are two steps in this process (after pseudo-id). The first is called Identify and the second is called *Identify*. The first gives cursory knowledge of an object, revealing its full name and magical combat bonuses or AC bonuses. For potions and scrolls it reveals the name of the object which is often enough for you to tell whether or not it is useful (And once you learn a given flavor of potion, scroll or mushroom, you will automatically recognize the next one you find. So identifying 'flavors' is important in the early game. By the way, you can also sell an object to *Identify* it, but then you won't have it anymore! Still, it's something to consider for the early game when most stuff is junk anyway). The second means of enhanced knowledge, *Identify*, gives complete information about the object, including all of its powers and resistances, many of which won't be learned by simply Identifying the object. Both Identify and *Identify* are available in scroll and device form. Both are also available as a town service (for a price). In general, you'll want to carry lots of Identify to weed out the junk while exploring the dungeon. Once you return to town, you can then pay to *Identify* whatever needs it.
 
-Confusion and Blindness resistance are vital. If you have these, you
-can rely on scrolls of Teleportation to get you out of any situation.
-Before this, you need Staves of Teleportation which can be activated
-when blinded or confused, although with a decent failure rate. Scrolls
-are fail-safe.
+In addition to Identifying objects, you also need to map the dungeon, detect traps, detect monsters and learn about unfamiliar monsters, especially uniques. There are magic items for all of these, so be on the lookout!
+</indent>
+  <indent><color:B>Travel</color>
 
-Poison Resistance is necessary because two monsters, Ancient
-Multi-Hued Dragons, and Drolems, start showing up at about L38. Both
-of these monsters breath poison for huge amounts of damage (700 and
-800 points, respectively). Moreover Poison Resistance is necessary
-to prevent fearful side effect of Toxic waste.
+Finally, you don't need to climb up and down the stairs all the time to return to town. There is a magic item called Word of Recall (scrolls) or just Recall (devices) that will take you back and forth between the town and your current dungeon level. And this is a good thing too since it would be rather onerous to walk up and down 100 flights of stairs in the end game!
+</indent>
+<topic:OnWeapons><style:heading>On Weapons, Armor and Slays</style>
 
-Hold Life is very nice, but not important. If you can't get it, carry
-lots of Potions of Restore Life Levels. Or you can have your life
-restored in the town, but it can be aggravating to have to wait for
-a recall, especially if you are in the middle of exploring an
-interesting level.
+Potions, Scrolls and devices are not the only magical items around. You can also find magical armor and equipment. We already discussed resistances above, and magical equipment is the usual place to find these attributes. Magical weapons often are more deadly against certain enemies, an attribute known as slays.
 
-Chaos Resistance is *vital* since it not only does significant damage
-but can also have nasty side effects like causing hallucinations or
-mutating your character.
+Your equipment will always carry around little numbers that tell you how effective it is. Armors take this form:
 
-Nether Resistance is also very important since there are a fairly large
-number of monsters with attacks of this type and because it can do
-significant damage.
- 
-=== On Secret Doors ===
+  A Robe (+x,+y) [a,+b] (+c)
 
-Throughout the dungeon, many doors are hidden from view. To find them,
-use the (S)earch command, which toggles on and off the Searching mode.
-However, it is often difficult enough just knowing where to search.
-Usually, situations like this will have secret doors (walls containing
-secret doors are marked by *s):
+Weapons take this form:
+
+  A Long Sword (XdY) (+x,+y) [+b] (+c)
+
+When unidentified, armors will show just this:
+
+  A Robe [a]
+
+Weapons will show this:
+
+  A Long Sword (XdY)
+
+What do all these numbers mean?
+
+<color:B>(+x,+y)</color> <indent>This is the item's magical bonuses to your to-hit and to-damage bonus respectively. These are added to whatever other bonuses you have when you attack. Some armors have similar bonuses to your to-hit and to-damage, but they are mostly artifacts, the exceptions being Gloves/Gauntlets/Cesti of Slaying. Many body armors have a small negative number before the base armor bonus (see below); this is a penalty to your skill (the armor is so heavy that you have trouble moving around in it). However, this penalty is small enough for all but the youngest of characters to ignore.</indent>
+
+<color:B>[a,+b]</color>  <indent>This is the item's base armor class and magical bonus to armor. The higher, the better. While theoretically, a weapon could provide a base armor bonus, none of them do, and only a few weapons have a magical bonus to armor.</indent>
+
+<color:B>(+c)</color>    <indent>This is the item's magical bonus to other statistics (and is sometimes referred to as its <color:keyword>pval</color>). Possibilities include one or more of your stats (Strength, Intelligence, Wisdom, Dexterity, Constitution, Charisma), your speed or your stealth. Your searching or infravision might also be improved. There are other possibilities and learning the effects of this bonus often requires you to *Identify* the object.</indent>
+
+<color:B>(XdY)</color>   <indent>This is the damage dice of a melee weapon. When you hit an opponent, the game rolls a Y sided die X times to figure out a base damage. This base damage can be multiplied by any slays on the weapon, and also by critical hits (lucky blows on your part). Then, the game adds all the plusses to damage to the total, including the +y from the (+x,+y) discussed above. So a melee weapon can be good because it has good damage dice (e.g. (6d5) (+0,+0)) or because it has a high damage bonus (e.g. (1d4) (+5,+30)). Ideally, it would have both: (6d5) (+5,+30)!</indent>
+
+In addition to these attributes, all of which are revealed by Identify, weapons and armors may have additional bonuses. Both may grant a particular resistance that we discussed earlier. In additions, weapons often have slays that target a specific class of monster. Slays work by multiplying the base damage roll (The (XdY) just discussed), and the multiplier varies with the type of slay. For example, a weapon of Slay Orc multiplies the damage dice by a factor of 3, while a *Slay Orc* weapon might (I say, might!) multiply by as high a factor as 5. Obviously, this means more on a (6d5) weapon than on a (1d4) weapon, so the quality of a magical weapon depends heavily on the base type of the object (Daggers do 1d4 while Blades of Chaos do 6d5). You sometimes need to *Identify* a weapon to learn its slays. But sometimes it is obvious from the name of the object (Slay Orc) and you only need to Identify the weapon. Artifacts always required *Identify* to learn their attributes.
+
+<topic:OnExploration><style:heading>On Dungeon Exploration</style>
+
+We'll close this Newbie guide with some various tips on exploring the dungeon.
+
+  <indent><color:B>On Secret Doors</color>
+
+Throughout the dungeon, many doors are hidden from view. To find them, use the (S)earch command, which toggles on and off the Searching mode. However, it is often difficult enough just knowing where to search. Usually, situations like this will have secret doors (walls containing secret doors are marked by *s):
  
 #*###  ###'###  ####*#    ###*###
 *@...  ..'@'..  ..@'.*    ..'@...
 #*###  ###*###  ####'#    #######
  
-In general, if you see a door by itself in a corridor, there are
-usually others nearby. If you find a corner in a corridor with two
-doors, look for more. Intersections often have some secret doors.
-Finally, secret doors will never be in a situation where you have to
-move diagonally to open them. The dead-end situation (the first one)
-usually does have a secret door, but not always. If you search for a
-while and don't find anything, just give up and move on. Sometimes a
-dead end will occur near the end of a map, where there is no room to
-have a continuing corridor, and so no secret door is generated.
- 
-=== On the Preserve mode ===
+In general, if you see a door by itself in a corridor, there are usually others nearby. If you find a corner in a corridor with two doors, look for more. Intersections often have some secret doors. Finally, secret doors will never be in a situation where you have to move diagonally to open them. The dead-end situation (the first one) usually does have a secret door, but not always. If you search for a while and don't find anything, just give up and move on. Sometimes a dead end will occur near the end of a map, where there is no room to have a continuing corridor, and so no secret door is generated.
+</indent>
+  <indent><color:B>On Level Feelings</color>
 
-This is selected on or off at character creation, and cannot be
-changed after that.
+After you have been on a new level for a considerable length of time, you receive a feeling giving you a vague idea how good the level is. In general, the more scary the feeling sounds, the better the items on the level, or the more difficult the monsters. Probably the latter. Each unusual item or monster bumps up the rating of the level a bit. An item or monster is considered unusual if it is out of depth [normally occurs at a lower depth; for instance, a Longsword has a base level of 20, and would be considered unusual anywhere above that level (although not below it)]. Items can be out of depth without necessarily being anything special; a normal, non-magical katana could provoke a high level feeling at low depths, because it is so unusual. Also, pits (large rooms filled with a single type of monster) and vaults (dense, dangerous rooms with many out of depth monsters and items) can cause high level feelings. There is also a Special feeling which tells the player that there is an artifact on the level.
 
-Preserve mode: with Preserve mode off, if a level is created with an
-artifact on it, and you don't get that artifact, it is gone forever.
-When Preserve mode is on, you always can find the artifact again unless
-you have already identified it and then leave it behind.
- 
-=== On Level Feelings ===
+The speed at which you receive level feelings is influenced by your Wisdom, so if your big, stupid warrior seems to wait forever for level feeling, check out his Wisdom and maybe roll up a better one next time.
+</indent>
+  <indent><color:B>On the Monster Memory</color>
 
-When you enter a level, you receive a feeling giving you a vague idea
-how good the level is. In general, the more scary the feeling sounds,
-the better the items on the level, and the more difficult the monsters.
-Each unusual item or monster bumps up the rating of the level a bit. An
-item or monster is considered unusual if it is out of depth [normally
-occurs at a lower depth; for instance, a Longsword has a base level of
-20, and would be considered unusual anywhere above that level (although
-not below it)]. Items can be out of depth without necessarily being
-anything special; a normal, non-magical katana could provoke a high
-level feeling at low depths, because it is so unusual. Also, pits
-(large rooms filled with a single type of monster) and vaults (dense,
-dangerous rooms with many out of depth monsters and items) can cause
-high level feelings. There is also a Special feeling which tells the 
-player that there is an artifact on the level. Also, if you have not 
-spent enough time on the previous level before entering the new one, 
-you get the feeling "Looks like any other level" which gives you no 
-information whatsoever. The speed at which you receive level feelings
-is influenced by your Wisdom, so if your big, stupid warrior seems to
-wait forever for level feeling, check out his Wisdom and maybe roll
-up a better one next time.
- 
-=== On weapons and armor ===
+In many other games, you are required to take notes on monster's weaknesses, strengths, spells, etc. However, we are not so cruel as that, and will automatically take notes for you with the handy Monster Memory. Every time you find out something new about a monster, like that it can breathe fire, this is added to your knowledge of the monster. To look over this knowledge, type /, then the symbol of the monster. You may have to scroll through other monster memories to get to the one you're looking for. Or use the look ('l') and recall ('r') commands the next time you see one.
 
-Your equipment will always carry around little numbers that tell you
-how effective it is. Armors take this form:
- 
-A Robe (+x,+y) [a,+b] (+c)
- 
-Weapons take this form:
- 
-A Long Sword (XdY) (+x,+y) [+b] (+c)
- 
-When unidentified, armors will show just this:
- 
-A Robe [a]
- 
-Weapons will show this:
- 
-A Long Sword (XdY)
- 
-(+x,+y). This is the item's magical bonuses to your to-hit and
-to-damage bonus respectively. These are added to whatever other
-bonuses you have when you attack. Some armors have similar bonuses to
-your to-hit and to-damage, but they are mostly artifacts, the
-exceptions being Gloves/Gauntlets/Cesti of Slaying and Power. Many
-body armors have a small negative number before the base armor bonus
-(see below); this is a penalty to your skill (the armor is so heavy
-that you have trouble moving around in it). However, this penalty is
-small enough for all but the youngest of characters to ignore.
+In the unpleasant event of your character's death, you can create a new character using your old character's file (instead of simply creating a new character, open the dead character's savefile, and the Creating a Character section will come up). This new character will have all of the old one's monster memories, and some special text for the monster that killed him.
+</indent>
+  <indent><color:B>On Death</color>
 
-Rings of Damage or Accuracy have a single (+y) or (+x). When worn, they
-affect your to-damage and to-hit bonus in melee battle respectively.
+Death in PosChengband is permanent. Saving is meant only to let you pick up where you left off; if you die, your savefile is marked. The next time you try to use the savefile, you will get the new character dialogue. Ancestors of dead characters will retain their monster memory and preferences. Many people here have characters like "Yuppy XIV"; people die very often and death is common, so don't get discouraged. In general, you will kill monsters more often than they kill you!
+</indent>
+<topic:OnBigBoyPants><style:heading>On Big Boy Pants</style>
 
-[a,+b]. This is the item's base armor class and magical bonus to
-armor. The higher, the better. While theoretically, a weapon could
-provide a base armor bonus, none of them do, and only a few weapons
-have a magical bonus to armor.
+When you are ready to move past Beginner Mode, the game will open up a huge variety of race and class options for you as well as giving you a full wilderness to explore. All of this is discussed in the remainder of the help system, so when you are ready to move on, be sure to check out the rest of the documentation. Pay special attention to sections on the wilderness as well as the various gameplay options. And when you're ready for a real treat, fire up a game in Monster Mode and play as a Cyberdemon!
 
-Rings of Protection have a single [+b], which increases your AC and
-are very useful if you find that monsters are hitting to hard in 
-melee. With a better AC, monsters will miss more often, and when they
-do hit, their damage will be slightly lessened.
+<color:v>Have Fun! :)</color>
 
-(+c). This is the item's magical bonus to other statistics: Strength,
-Intelligence, Wisdom, Constitution, Dexterity, Charisma, Speed,
-Stealth, Searching, Infravision, Attacks, and Tunneling. Not on every
-item, it is generally a good reason to choose the item. [Note that it
-does not affect every stat in this list! Most items that have a +c only
-affect one or two of these stats. Some items affect more (A Weapon of
-Westernesse affects Strength, Dexterity, and Constitution)].
- 
-As a side note for the above: PosChengband follows the parenthesis for any
-item. If you see a number in brackets, like this: [b], it is a bonus to
-AC. If it is in parenthesis, like this: (+x), it is either a bonus to a
-stat or to hit/damage (and which should normally be obvious by the name
-of the item). For instance, a Holy Avenger (a powerful ego-item), looks
-like this:
- 
-A Mace (Holy Avenger) (2d4) (+7, +5) [+4] (+1)
- 
-Thus, it rolls 2 four-sided dice when attacking, has +7 bonus to hit
-and +5 bonus to damage, increases your AC by 4, and increases a stat
-(In this case Wisdom) by 1.
- 
-XdY. This is the weapon's base damage. When you successfully hit a
-monster, X number of Y-sided dice are rolled. This number represents
-the amount of damage you do to the monster before magical bonuses, 
-slays, brands, criticals, etc are applied. A Longsword, for example,
-rolls 2 five-sided dice (2d5) when you hit a monster.
-
-Ammunition, as well as having the normal weapon information, also 
-shows how much damage they will do per shot and per round.  This
-information will only be displayed if you have the proper shooting
-weapon.  (Your melee weapon's average damage is displayed on the info-
-screen.)  The format of this is:
-
-An arrow (1d5) (+0, +0) (26/26)
-
-The first number is the average damage per shot, and the second is
-average damage per round.  The two numbers can differ because the
-shooting weapons have different energy requirements per shot (unlike
-melee weapons.)
-
-=== On Slays ===
-
-Many weapons you find in the dungeon are considered to be particularly
-deadly against a type of creature. These qualities are collectively
-known as slays. They double, triple, or multiply by five *the damage
-done by the damage dice*. They DO NOT affect bonuses to damage. Thus
-the utility of slays is highly dependant on the type of weapon in question.
-For example, a Broken dagger (1d1) with a slay is hardly useful, but
-a Mace of Disruption (5d8) with a slay is. Especially when you also
-factor in Critical Hits.
-
-The rundown on slays:
-
-     Slay (or *Slay*) Evil: x2 damage dice against evil monsters
-     Slay (or *Slay*) Animal, Undead, Demon, Giant, Dragon: x3 damage
-       dice against the relevant monster type
-
-The brands ("of Melting", "of Burning", "of Freezing", "of Shocking",
-and "of Poisoning") all do x2.5 damage dice to those monsters not
-resistant to the relevant element. There is also a "(Vampiric)" brand
-which will suck life from your foes and heal you at the same time and
-a "(Chaotic)" brand which can cause some unexpected results when using
-it!
-
- 
-=== On the Monster Memory ===
-
-In many other games, you are required to take notes on monster's
-weaknesses, strengths, spells, et cetera. PosChengband takes care of this
-for you, with the handy Monster Memory. Every time you find out
-something new about a monster, like that it can breathe fire, this is
-added to your knowledge of the monster. To look over this knowledge,
-type /, then the symbol of the monster. You may have to scroll through
-other monster memories to get to the one you're looking for. [Note: you
-can set a window to display the monster memory at the preferences
-screen (see below). This window will then automatically update as you
-fight monsters].
-
-In the unpleasant event of your character's death, you can create a new
-character using your old character's file (instead of simply creating a
-new character, open the dead character's savefile, and the Creating a
-Character section will come up). This new character will have all of
-the old one's monster memories, and some special text for the monster
-that killed him.
-
- 
-=== On the Colors of Monsters ===
-
-You can often determine some information about a monster based solely
-on it's color. This would be the color it is described as, like "a
-White Dragon," not the color of it's image on the screen (you can't
-rely on a white "p" to be a cold based monster! It will probably be a
-paladin or some such). In general, White monsters are cold-based, Red
-are fire-based, Blue are electrical, Black is acidic, and Yellow/Green
-are poisonous. A Multi-Hued monster is all of these.
- 
- 
-=== On the Preferences ===
-
-The preferences screen is reached by typing "=". It contains many
-different preferences that make PosChengband more enjoyable. There are a few
-that I would recommend. Turn both stacking options ON. This maximizes
-your treasure collection. Turn the Low Hitpoint Warning ON, and place
-the warning percent at about 50%. You'll see the effects of this
-whenever you start to die :). The Delay Factor determines how long it
-takes for special effects to "move;" that is: balls exploding, bolts
-moving, missile weapons flying, et cetera. This is machine dependant;
-I usually set mine at about 3 or 4. The Window Flags screen allows you
-to set various windows (assuming your platform supports them) to show
-certain things. Using this, you can set some windows to always show
-monster memory, your character's inventory and/or equipment, a dungeon
-map, and others.
- 
-=== On Death ===
-
-Death in PosChengband is permanent. Saving in PosChengband is meant only to let
-you pick up where you left off; if you die, your savefile is marked.
-The next time you try to use the savefile, you will get the new
-character dialogue. Ancestors of dead characters will retain their
-monster memory and preferences. Many people here have characters like
-"Yuppy XIV"; people die very often in PosChengband, so don't get discouraged
-if you do too.
-
-Some people make backup savefiles; if their character dies, they simply
-load the older character, and pick up where they left off. They lose
-what happened after making the backup, but they're alive. However, this
-is considered cheating of the highest degree. The only really legal
-reason to use savefile abuse ("savefile scumming") is if your computer
-crashed or some other external problem killed your character (e.g.
-a software bug, but PosChengband has been rigorously proven to be bug
-free so this should never happen </sarc>).
-
-There is an option in the Cheating menu in the preferences which
-allows you to cheat death. However, like all the other cheating
-options, it invalidates your high-score and makes it impossible to
-truly win the game.
-
- 
-=== On PosChengband Time ===
-
-If there is one feature of PosChengband that tends to confuse people
-(especially veterans of other *band), it is how the speed system in
-PosChengband works. 
-
-As in other variants, the energy you and monsters get each turn depends 
-on speed.  Unlike in other variants, this value is only an average; be 
-watchful for opportunities to get a double move on monsters, and be 
-aware that they can do the same to you!  This rule change has a lot of 
-consequences; playing the game will teach them to you...
-
-Apart from this, things are pretty familiar.  The amount of energy you 
-can gain each game turn is 10 for an average-speed player or monster, 
-can be almost 50 for very fast ones, and most actions you take cost 100 
-energy to perform.  The biggest exception is weapons of Extra Shots; 
-firing one of these takes less energy, making monsters appear to move 
-in slow motion.  
-
-Be aware that speeds increases above about +28 to +35 are much less useful.
-
-
-=== Advanced techniques for killing monsters ===
-
-Pillardancing.
-     Not recommended in PosChengband:  monsters move at irregular speeds.
-     Also, monsters may "splash" the player with powerful breaths or
-     spells, so you will quickly take life threatening damage when 
-     facing high level opponents. Monsters can also summon if they
-     can see the square next to you, so this is also a good way
-     to become surrounded by powerful enemies. Finally, the most
-     deadly of foes can simply disintegrate the pillar, exposing
-     you to the full wrath of their fury.
-
-Shoot'n Scoot.
-     Requires a large room, Phase Door, and some type of missile
-     weapon. Stand at one end of the room, your enemy at the other.
-     Fire your missile weapon at him until he gets close, and then
-     Phase Door. Fire again, until he gets close, and repeat. By the
-     time you run out of ammunition, he should be dead or weak enough
-     for you to finish him HTH (Hand to Hand).
-
-Wail'n Bail.
-     Requires Teleport items. Fight the monster until you're almost
-     dead, teleport out, find him, and resume fighting. This is
-     dangerous, because you could teleport right next to some nasty
-     that will kill you. Also, it is not generally useful for killing
-     unique monsters, as they regenerate damage very quickly, and by
-     the time you find them again, they may have healed the damage you 
-     did to them.
- 
-The Anti-Summoning Corridor.
-     Required a little time to set up. This can be done just about
-     anywhere. Dig a twisting corridor into the rock, and station
-     yourself at one end of it. When your opponent arrives, he won't be
-     able to summon any monsters next to you. This is a very important
-     technique for fighting many higher-end monsters which very quickly
-     bring in a horde of other monsters. Well, actually monsters might
-     be able to summon a bit as they approach and gain line of sight to
-     a square adjacent to you, but having a single monster or two appear
-     is far, far better than facing a rampant, scummy summoner out in
-     the open!
- 
-
---
+<color:D>
 Original   : Chris Weisiger (TANG version 1.6.2)
 Updated    : Zangband DevTeam
 Updated    : Hengband 1.0.11
 Updated    : PosChengband 1.0.0
+Updated    : PosChengband 4.0.0
+</color>

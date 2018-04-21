@@ -1,0 +1,255 @@
+Draconians
+
+Draconians are a humanoid race with dragon-like attributes. There are 
+several subtypes of draconians with different resistances, breaths and 
+attributes. For example, Red Draconians are resistant to fire which 
+they may also breathe at will, while White Draconians breathe and 
+resist cold instead. All draconians levitate. In addition, when they 
+mature enough, they may choose a special draconian power.
+
+Red
+Red Draconians have an affinity for fire, which they both breathe at 
+will and resist. Together with their White kin, they are the strongest 
+in combat of the draconians. But they are not so good with magic and 
+their stealth is quite poor. Should they choose the power of Dragon 
+Skin, they will gain a fiery aura as well. Should they choose the power 
+of Dragon Strike, their blows will burn their enemies.
+
+  Stats                   Skills
+  Strength      +3        Disarming   Bad          
+  Intelligence  +0        Device      Poor         
+  Wisdom        +0        Save        Fair         
+  Dexterity     +1        Stealth     Bad          
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  106%       Melee       Superb       
+  Base HP       22        Bows        Good         
+  Experience   190%       Infravision 20'
+  
+White
+White Draconians have an affinity for frost, which they both breathe at 
+will and resist. Together with their Red kin, they are the strongest in 
+combat of the draconians. But they are not so good with magic and their 
+stealth is quite poor. Should they choose the power of Dragon Skin, 
+they will gain an aura of cold as well. Should they choose the power of 
+Dragon Strike, their blows will freeze their enemies.
+
+  Stats                   Skills
+  Strength      +3        Disarming   Bad          
+  Intelligence  +0        Device      Poor         
+  Wisdom        +0        Save        Fair         
+  Dexterity     +1        Stealth     Bad          
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  106%       Melee       Superb       
+  Base HP       22        Bows        Good         
+  Experience   190%       Infravision 20'
+  
+Blue
+Blue Draconians have an affinity for lightning, which they both breathe 
+at will and resist. They are strong in combat but not so good with 
+magic or stealth. Should they choose the power of Dragon Skin, they 
+will gain a shocking aura as well. Should they choose the power of 
+Dragon Strike, their blows will electrocute their enemies.
+
+  Stats                   Skills
+  Strength      +2        Disarming   Bad          
+  Intelligence  +1        Device      Fair         
+  Wisdom        +1        Save        Fair         
+  Dexterity     +1        Stealth     Poor         
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  105%       Melee       Excellent    
+  Base HP       22        Bows        Good         
+  Experience   190%       Infravision 20'
+  
+Black
+Black Draconians have an affinity for acid, which they both breathe at 
+will and resist. They are strong in combat but not so good with magic 
+or stealth. With the power of Dragon Strike, their blows will corrode 
+their enemies.
+
+  Stats                   Skills
+  Strength      +2        Disarming   Bad          
+  Intelligence  +1        Device      Fair         
+  Wisdom        +1        Save        Fair         
+  Dexterity     +1        Stealth     Poor         
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  105%       Melee       Superb       
+  Base HP       22        Bows        Good         
+  Experience   190%       Infravision 20'
+  
+Green
+Green Draconians have an affinity for poison, which they both breathe 
+at will and resist. They are average in all respects among the 
+draconians. With the power of Dragon Strike, their blows will poison 
+their enemies.
+
+  Stats                   Skills
+  Strength      +1        Disarming   Bad          
+  Intelligence  +1        Device      Good         
+  Wisdom        +1        Save        Fair         
+  Dexterity     +1        Stealth     Fair         
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  103%       Melee       Good         
+  Base HP       22        Bows        Good         
+  Experience   205%       Infravision 20'
+  
+Bronze
+Bronze Draconians are the most intelligent of their kind, and the best 
+with magic as well. They are seldom confused, though the same may not 
+be said of their enemies. With the power of Dragon Strike, even the 
+melee attacks of the Bronze Draconian will baffle their enemies.
+
+  Stats                   Skills
+  Strength      +1        Disarming   Bad          
+  Intelligence  +2        Device      Excellent    
+  Wisdom        +1        Save        Fair         
+  Dexterity     +1        Stealth     Fair         
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  103%       Melee       Fair         
+  Base HP       22        Bows        Good         
+  Experience   215%       Infravision 20'
+  
+Crystal
+Hard of skin, the Crystal Draconian is difficult to hit in melee. But 
+their agility suffers and they are not the brightest of their kind. 
+They resist shards, which they may also breathe on command. With the 
+power of Dragon Skin, they gain an aura of shards as well. With the 
+power of Dragon Strike, even their melee attacks will shred their 
+enemies.
+
+  Stats                   Skills
+  Strength      +1        Disarming   Bad          
+  Intelligence  -1        Device      Poor         
+  Wisdom        +1        Save        Fair         
+  Dexterity     +0        Stealth     Poor         
+  Constitution  +3        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  105%       Melee       Excellent    
+  Base HP       22        Bows        Good         
+  Experience   250%       Infravision 20'
+  
+Gold
+The wisest of their kind, Gold Draconians are resilient in the face of 
+magical attacks. They are resistant to sound which they may also 
+breathe at will, stunning their enemies. With the power of Dragon 
+Strike, even their melee attacks will stun their enemies.
+
+  Stats                   Skills
+  Strength      +1        Disarming   Bad          
+  Intelligence  +1        Device      Excellent    
+  Wisdom        +2        Save        Good         
+  Dexterity     +1        Stealth     Fair         
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  104%       Melee       Good         
+  Base HP       22        Bows        Good         
+  Experience   220%       Infravision 20'
+  
+Shadow
+Lithe, stealthy and nimble, the Shadow Draconian is seldom seen in this 
+world. They are resistant to the forces of nether which they may also 
+breathe. They are the weakest of the draconians, and the poorest in 
+melee. But they are better than average with magic. With the power of 
+Dragon Strike, they may steal life from their enemies in melee.
+
+  Stats                   Skills
+  Strength      +0        Disarming   Bad          
+  Intelligence  +1        Device      Very Good    
+  Wisdom        +1        Save        Fair         
+  Dexterity     +3        Stealth     Very Good    
+  Constitution  +2        Searching   Bad          
+  Charisma      +2        Perception  Superb       
+  Life Rating  102%       Melee       Poor         
+  Base HP       22        Bows        Good         
+  Experience   225%       Infravision 40'
+  
+Table 1 - Draconian Statistic Bonus Table
+
+               STR  INT  WIS  DEX  CON  CHR  Life  Exp  Shop
+Red             +3   +0   +0   +1   +2   +2  106%  190%  115%
+White           +3   +0   +0   +1   +2   +2  106%  190%  115%
+Blue            +2   +1   +1   +1   +2   +2  105%  190%  110%
+Black           +2   +1   +1   +1   +2   +2  105%  190%  110%
+Green           +1   +1   +1   +1   +2   +2  103%  205%  105%
+Bronze          +1   +2   +1   +1   +2   +2  103%  215%  100%
+Crystal         +1   -1   +1   +0   +3   +2  105%  250%  105%
+Gold            +1   +1   +2   +1   +2   +2  104%  220%   95%
+Shadow          +0   +1   +1   +3   +2   +2  102%  225%  105%
+
+
+Table 2 - Draconian Skill Bonus Table I
+
+             Disarming     Device        Save          Stealth      
+Red          Bad           Poor          Fair          Bad          
+White        Bad           Poor          Fair          Bad          
+Blue         Bad           Fair          Fair          Poor         
+Black        Bad           Fair          Fair          Poor         
+Green        Bad           Good          Fair          Fair         
+Bronze       Bad           Excellent     Fair          Fair         
+Crystal      Bad           Poor          Fair          Poor         
+Gold         Bad           Excellent     Good          Fair         
+Shadow       Bad           Very Good     Fair          Very Good    
+
+
+Table 3 - Draconian Skill Bonus Table II
+
+             Searching     Perception    Melee         Bows          Infra
+Red          Bad           Superb        Superb        Good            20'
+White        Bad           Superb        Superb        Good            20'
+Blue         Bad           Superb        Excellent     Good            20'
+Black        Bad           Superb        Superb        Good            20'
+Green        Bad           Superb        Good          Good            20'
+Bronze       Bad           Superb        Fair          Good            20'
+Crystal      Bad           Superb        Excellent     Good            20'
+Gold         Bad           Superb        Good          Good            20'
+Shadow       Bad           Superb        Poor          Good            40'
+
+
+Table 4 - Draconian Special Powers
+
+All draconians have access to special powers. When they reach level 35, 
+they may choose a single power from the following list. These powers 
+can never be removed or changed, so you might want to study this list 
+to decide which power you will choose for your character.
+
+  Ancient Knowledge
+  Items will automatically identify as you pick them up.
+
+  Deadly Breath
+  Your breath will become more deadly.
+
+  Dragon Skin
+  You will gain extra armor class and a defensive aura if available.
+
+  Dragon Strike
+  You will be able to attack an adjacent opponent with a special blow 
+  (Fire, Cold, etc).
+
+  Magic Resistance
+  You will gain an improved saving throw versus magical attacks.
+
+  Metamorphosis
+  Your body will transform into a dragon (e.g. 6 ring slots and no 
+  weapons)
+
+  Regeneration
+  You will regenerate much more quickly.
+
+  Resistance
+  You will gain extra resistance of the appropriate type (e.g. Fire or 
+  Cold).
+
+  Summon Kin
+  You will be able to summon aid from dragons.
+
+
+
+
+
+Automatically generated for PosChengband 4.0.0.
+

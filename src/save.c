@@ -5,14 +5,14 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: interact with savefiles */
 
 #include "angband.h"
 
-static void wr_item(savefile_ptr file, object_type *o_ptr)
+void wr_item(savefile_ptr file, object_type *o_ptr)
 {
     savefile_write_s16b(file, o_ptr->k_idx);
     savefile_write_byte(file, o_ptr->iy);
@@ -154,7 +154,7 @@ static void wr_item(savefile_ptr file, object_type *o_ptr)
     if (o_ptr->xtra5)
     {
         savefile_write_byte(file, SAVE_ITEM_XTRA5);
-        savefile_write_s16b(file, o_ptr->xtra5);
+        savefile_write_s32b(file, o_ptr->xtra5);
     }
     if (o_ptr->feeling)
     {
@@ -164,19 +164,20 @@ static void wr_item(savefile_ptr file, object_type *o_ptr)
     if (o_ptr->inscription)
     {
         savefile_write_byte(file, SAVE_ITEM_INSCRIPTION);
-        savefile_write_string(file, quark_str(o_ptr->inscription));
+        savefile_write_cptr(file, quark_str(o_ptr->inscription));
     }
     if (o_ptr->art_name)
     {
         savefile_write_byte(file, SAVE_ITEM_ART_NAME);
-        savefile_write_string(file, quark_str(o_ptr->art_name));
+        savefile_write_cptr(file, quark_str(o_ptr->art_name));
     }
     if (o_ptr->activation.type)
     {
         savefile_write_byte(file, SAVE_ITEM_ACTIVATION);
         savefile_write_s16b(file, o_ptr->activation.type);
-        savefile_write_byte(file, o_ptr->activation.level);
-        savefile_write_s16b(file, o_ptr->activation.timeout);
+        savefile_write_byte(file, o_ptr->activation.power);
+        savefile_write_byte(file, o_ptr->activation.difficulty);
+        savefile_write_s16b(file, o_ptr->activation.cost);
         savefile_write_s16b(file, o_ptr->activation.extra);
     }
 
@@ -243,7 +244,7 @@ static void wr_monster(savefile_ptr file, monster_type *m_ptr)
     if (m_ptr->nickname)
     {
         savefile_write_byte(file, SAVE_MON_NICKNAME);
-        savefile_write_string(file, quark_str(m_ptr->nickname));
+        savefile_write_cptr(file, quark_str(m_ptr->nickname));
     }
     if (m_ptr->parent_m_idx)
     {
@@ -492,11 +493,12 @@ static void wr_extra(savefile_ptr file)
     int i,j;
     byte tmp8u;
 
-    savefile_write_string(file, player_name);
-    savefile_write_string(file, p_ptr->died_from);
-    savefile_write_string(file, p_ptr->last_message ? p_ptr->last_message : "");
+    savefile_write_cptr(file, player_name);
+    savefile_write_cptr(file, p_ptr->died_from);
+    savefile_write_cptr(file, p_ptr->last_message ? p_ptr->last_message : "");
     wr_quick_start(file);
 
+    savefile_write_s32b(file, game_mode);
     savefile_write_byte(file, p_ptr->prace);
     savefile_write_byte(file, p_ptr->pclass);
     savefile_write_byte(file, p_ptr->personality);
@@ -759,7 +761,8 @@ static void wr_extra(savefile_ptr file)
     savefile_write_byte(file, p_ptr->feeling);
     savefile_write_s32b(file, old_turn);
     savefile_write_s32b(file, p_ptr->feeling_turn);
-    savefile_write_s32b(file, turn);
+    savefile_write_s32b(file, game_turn);
+    savefile_write_s32b(file, player_turn);
     savefile_write_s32b(file, dungeon_turn);
     savefile_write_s32b(file, old_battle);
     savefile_write_s16b(file, today_mon);
@@ -771,8 +774,8 @@ static void wr_extra(savefile_ptr file)
     savefile_write_u32b(file, p_ptr->count);
 
     {
-    race_t  *race_ptr = get_true_race_t();
-    class_t *class_ptr = get_class_t();
+    race_t  *race_ptr = get_true_race();
+    class_t *class_ptr = get_class();
 
         if (race_ptr->save_player)
             race_ptr->save_player(file);
@@ -859,10 +862,10 @@ static void wr_saved_floor(savefile_ptr file, saved_floor_type *sf_ptr)
     /*********** Make template for cave_type **********/
 
     /*
-     * Usually number of templates are fewer than 255.  Even if
+     * Usually number of templates are fewer than 255. Even if
      * more than 254 are exist, the occurrence of each template
      * with larger ID is very small when we sort templates by
-     * occurrence.  So we will use two (or more) bytes for
+     * occurrence. So we will use two (or more) bytes for
      * templete ID larger than 254.
      *
      * Ex: 256 will be "0xff" "0x01".
@@ -1163,12 +1166,7 @@ static bool wr_savefile_new(savefile_ptr file)
     wr_randomizer(file);
     wr_options(file);
 
-    tmp16u = message_num();
-    if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
-    savefile_write_u16b(file, tmp16u);
-    for (i = tmp16u - 1; i >= 0; i--)
-        savefile_write_string(file, message_str((s16b)i));
-
+    msg_on_save(file);
 
     tmp16u = max_r_idx;
     savefile_write_u16b(file, tmp16u);
@@ -1276,9 +1274,9 @@ static bool wr_savefile_new(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->pet_extra_flags);
 
     if (screen_dump && (p_ptr->wait_report_score || !p_ptr->is_dead))
-        savefile_write_string(file, screen_dump);
+        savefile_write_cptr(file, screen_dump);
     else
-        savefile_write_string(file, "");
+        savefile_write_cptr(file, "");
 
     spell_stats_on_save(file);
     skills_on_save(file);
@@ -1490,7 +1488,8 @@ bool load_player(void)
 
 
     /* Paranoia */
-    turn = 0;
+    game_turn = 0;
+    player_turn = 0;
 
     /* Paranoia */
     p_ptr->is_dead = FALSE;
@@ -1623,7 +1622,7 @@ bool load_player(void)
     if (!err)
     {
         /* Invalid turn */
-        if (!turn) err = -1;
+        if (!game_turn) err = -1;
 
         /* Message (below) */
         if (err) what = "Broken savefile";

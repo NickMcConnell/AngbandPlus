@@ -95,7 +95,7 @@ bool do_blow(int type)
     int dir;
     int m_idx = 0;
 
-    /* For ergonomics sake, use currently targeted monster.  This allows
+    /* For ergonomics sake, use currently targeted monster. This allows
        a macro of \e*tmaa or similar to pick an adjacent foe, while
        \emaa*t won't work, since get_rep_dir2() won't allow a target. */
     if (use_old_target && target_okay())
@@ -215,6 +215,19 @@ static void _critical_blow_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MAULER_CRITICAL_BLOW));
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        display_weapon_mode = MAULER_CRITICAL_BLOW;
+        do_cmd_knowledge_weapon();
+        display_weapon_mode = 0;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -234,6 +247,19 @@ static void _crushing_blow_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MAULER_CRUSHING_BLOW));
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        display_weapon_mode = MAULER_CRUSHING_BLOW;
+        do_cmd_knowledge_weapon();
+        display_weapon_mode = 0;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -315,6 +341,19 @@ static void _knockback_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MAULER_KNOCKBACK));
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        display_weapon_mode = MAULER_KNOCKBACK;
+        do_cmd_knowledge_weapon();
+        display_weapon_mode = 0;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -334,6 +373,19 @@ static void _knockout_blow_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MAULER_KNOCKOUT_BLOW));
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        display_weapon_mode = MAULER_KNOCKOUT_BLOW;
+        do_cmd_knowledge_weapon();
+        display_weapon_mode = 0;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -470,7 +522,7 @@ static void _splatter_spell(int cmd, variant *res)
     }
 }
 
-static void _stunning_blow_spell(int cmd, variant *res)
+void stunning_blow_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -483,6 +535,19 @@ static void _stunning_blow_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(MAULER_STUNNING_BLOW));
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        display_weapon_mode = MAULER_STUNNING_BLOW;
+        do_cmd_knowledge_weapon();
+        display_weapon_mode = 0;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -513,7 +578,7 @@ static spell_info _spells[] =
     /*lvl cst fail spell */
     {  5,  5, 30, _smash_wall_spell},
     {  8,  5, 30, _detect_ferocity_spell},
-    { 10,  7,  0, _stunning_blow_spell},
+    { 10,  7,  0, stunning_blow_spell},
     { 12, 10,  0, _critical_blow_spell},
     { 15,  0,  0, _splatter_spell},
     { 17,  0,  0, _block_spell},
@@ -560,7 +625,7 @@ static void _calc_bonuses(void)
             p_ptr->dis_to_a += a;
         }
 
-        /* TODO: This should cost more energy too ...  */
+        /* TODO: This should cost more energy too ... */
         if (_get_toggle() == MAULER_TOGGLE_TUNNEL)
             p_ptr->kill_wall = TRUE;
 
@@ -653,18 +718,18 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-static void _character_dump(FILE* file)
+static void _character_dump(doc_ptr doc)
 {
     if (_weapon_check() && p_ptr->lev >= 5)
     {
         spell_info spells[MAX_SPELLS];
         int        ct = _get_spells(spells, MAX_SPELLS);
 
-        dump_spells_aux(file, spells, ct);
+        py_display_spells(doc, spells, ct);
     }
 }
 
-class_t *mauler_get_class_t(void)
+class_t *mauler_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

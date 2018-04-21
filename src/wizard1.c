@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Spoiler generation -BEN- */
@@ -381,857 +381,40 @@ static void spoil_obj_desc(cptr fname)
     msg_print("Successfully created a spoiler file.");
 }
 
-
-/*
- * Artifact Spoilers by: randy@PICARD.tamu.edu (Randy Hutson)
- */
-
-
-/*
- * Returns a "+" string if a number is non-negative and an empty
- * string if negative
- */
-#define POSITIZE(v) (((v) >= 0) ? "+" : "")
-
-/*
- * These are used to format the artifact spoiler file. INDENT1 is used
- * to indent all but the first line of an artifact spoiler. INDENT2 is
- * used when a line "wraps". (Bladeturner's resistances cause this.)
- */
-#define INDENT1 "    "
-#define INDENT2 "      "
-
-/*
- * MAX_LINE_LEN specifies when a line should wrap.
- */
-#define MAX_LINE_LEN 75
-
-/*
- * Given an array, determine how many elements are in the array
- */
-#define N_ELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
-
 /*
  * The artifacts categorized by type
  */
 static grouper group_artifact[] =
 {
-    { TV_SWORD,             "Edged Weapons" },
+    { TV_SWORD,             "Edged-Weapons" },
     { TV_POLEARM,           "Polearms" },
-    { TV_HAFTED,            "Hafted Weapons" },
-    { TV_DIGGING,           "Shovels/Picks" },
+    { TV_HAFTED,            "Hafted-Weapons" },
+    { TV_DIGGING,           "Diggers" },
     { TV_BOW,               "Bows" },
     { TV_ARROW,             "Ammo" },
 
-    { TV_SOFT_ARMOR,        "Body Armor" },
+    { TV_SOFT_ARMOR,        "Body-Armor" },
     { TV_HARD_ARMOR,        NULL },
     { TV_DRAG_ARMOR,        NULL },
 
     { TV_CLOAK,             "Cloaks" },
     { TV_SHIELD,            "Shields" },
     { TV_CARD,              NULL },
-    { TV_HELM,              "Helms/Crowns" },
+    { TV_HELM,              "Headgear" },
     { TV_CROWN,             NULL },
     { TV_GLOVES,            "Gloves" },
     { TV_BOOTS,             "Boots" },
 
-    { TV_LITE,              "Light Sources" },
+    { TV_LITE,              "Light-Sources" },
     { TV_AMULET,            "Amulets" },
     { TV_RING,              "Rings" },
 
     { 0, NULL }
 };
 
-
-
-/*
- * Pair together a constant flag with a textual description.
- *
- * Used by both "init.c" and "wiz-spo.c".
- *
- * Note that it sometimes more efficient to actually make an array
- * of textual names, where entry 'N' is assumed to be paired with
- * the flag whose value is "1L << N", but that requires hard-coding.
- */
-
-typedef struct flag_desc flag_desc;
-
-struct flag_desc
-{
-    const int flag;
-    const char *const desc;
-};
-
-
-
-/*
- * These are used for "+3 to STR, DEX", etc. These are separate from
- * the other pval affected traits to simplify the case where an object
- * affects all stats.  In this case, "All stats" is used instead of
- * listing each stat individually.
- */
-
-static flag_desc stat_flags_desc[] =
-{
-    { TR_STR,        "STR" },
-    { TR_INT,        "INT" },
-    { TR_WIS,        "WIS" },
-    { TR_DEX,        "DEX" },
-    { TR_CON,        "CON" },
-    { TR_CHR,        "CHR" }
-};
-
-/*
- * Besides stats, these are the other player traits
- * which may be affected by an object's pval
- */
-
-static flag_desc pval_flags1_desc[] =
-{
-    { TR_STEALTH,    "Stealth" },
-    { TR_SEARCH,     "Searching" },
-    { TR_INFRA,      "Infravision" },
-    { TR_TUNNEL,     "Tunneling" },
-    { TR_BLOWS,      "Attacks" },
-    { TR_SPEED,      "Speed" }
-};
-
-/*
- * Slaying preferences for weapons
- */
-
-static flag_desc slay_flags_desc[] =
-{
-    { TR_SLAY_ANIMAL,        "Animal" },
-    { TR_KILL_ANIMAL,        "XAnimal" },
-    { TR_SLAY_EVIL,          "Evil" },
-    { TR_KILL_EVIL,          "XEvil" },
-    { TR_SLAY_HUMAN,         "Human" },
-    { TR_KILL_HUMAN,         "XHuman" },
-    { TR_SLAY_UNDEAD,        "Undead" },
-    { TR_KILL_UNDEAD,        "XUndead" },
-    { TR_SLAY_DEMON,         "Demon" },
-    { TR_KILL_DEMON,         "XDemon" },
-    { TR_SLAY_ORC,           "Orc" },
-    { TR_KILL_ORC,           "XOrc" },
-    { TR_SLAY_TROLL,         "Troll" },
-    { TR_KILL_TROLL,         "XTroll" },
-    { TR_SLAY_GIANT,         "Giant" },
-    { TR_KILL_GIANT,         "Xgiant" },
-    { TR_SLAY_DRAGON,        "Dragon" },
-    { TR_KILL_DRAGON,        "Xdragon" }
-};
-
-/*
- * Elemental brands for weapons
- *
- * Clearly, TR1_IMPACT is a bit out of place here. To simplify
- * coding, it has been included here along with the elemental
- * brands. It does seem to fit in with the brands and slaying
- * more than the miscellaneous section.
- */
-static flag_desc brand_flags_desc[] =
-{
-    { TR_BRAND_ACID,         "Acid Brand" },
-    { TR_BRAND_ELEC,         "Lightning Brand" },
-    { TR_BRAND_FIRE,         "Flame Tongue" },
-    { TR_BRAND_COLD,         "Frost Brand" },
-    { TR_BRAND_POIS,         "Poisoned" },
-
-    { TR_FORCE_WEAPON,       "Force" },
-    { TR_CHAOTIC,            "Mark of Chaos" },
-    { TR_VAMPIRIC,           "Vampiric" },
-    { TR_IMPACT,             "Earthquake impact on hit" },
-    { TR_VORPAL,             "Very sharp" },
-};
-
-
-/*
- * The 15 resistables
- */
-static const flag_desc resist_flags_desc[] =
-{
-    { TR_RES_ACID,   "Acid" },
-    { TR_RES_ELEC,   "Lightning" },
-    { TR_RES_FIRE,   "Fire" },
-    { TR_RES_COLD,   "Cold" },
-    { TR_RES_POIS,   "Poison" },
-    { TR_RES_FEAR,   "Fear"},
-    { TR_RES_LITE,   "Light" },
-    { TR_RES_DARK,   "Dark" },
-    { TR_RES_BLIND,  "Blindness" },
-    { TR_RES_CONF,   "Confusion" },
-    { TR_RES_SOUND,  "Sound" },
-    { TR_RES_SHARDS, "Shards" },
-    { TR_RES_NETHER, "Nether" },
-    { TR_RES_NEXUS,  "Nexus" },
-    { TR_RES_CHAOS,  "Chaos" },
-    { TR_RES_DISEN,  "Disenchantment" },
-    { TR_RES_TIME,   "Time" },
-};
-
-/*
- * Elemental immunities (along with poison)
- */
-
-static const flag_desc immune_flags_desc[] =
-{
-    { TR_IM_ACID,    "Acid" },
-    { TR_IM_ELEC,    "Lightning" },
-    { TR_IM_FIRE,    "Fire" },
-    { TR_IM_COLD,    "Cold" },
-};
-
-/*
- * Sustain stats -  these are given their "own" line in the
- * spoiler file, mainly for simplicity
- */
-static const flag_desc sustain_flags_desc[] =
-{
-    { TR_SUST_STR,   "STR" },
-    { TR_SUST_INT,   "INT" },
-    { TR_SUST_WIS,   "WIS" },
-    { TR_SUST_DEX,   "DEX" },
-    { TR_SUST_CON,   "CON" },
-    { TR_SUST_CHR,   "CHR" },
-};
-
-/*
- * Miscellaneous magic given by an object's "flags2" field
- */
-
-static const flag_desc misc_flags2_desc[] =
-{
-    { TR_THROW,      "Throwing" },
-    { TR_REFLECT,    "Reflection" },
-    { TR_FREE_ACT,   "Free Action" },
-    { TR_HOLD_LIFE,  "Hold Life" },
-};
-
-/*
- * Miscellaneous magic given by an object's "flags3" field
- *
- * Note that cursed artifacts and objects with permanent light
- * are handled "directly" -- see analyze_misc_magic()
- */
-
-static const flag_desc misc_flags3_desc[] =
-{
-    { TR_SH_FIRE,            "Fiery Aura" },
-    { TR_SH_ELEC,            "Electric Aura" },
-    { TR_SH_COLD,            "Coldly Aura" },
-    { TR_NO_TELE,            "Prevent Teleportation" },
-    { TR_NO_MAGIC,           "Anti-Magic" },
-    { TR_LEVITATION,            "Levitation" },
-    { TR_SEE_INVIS,          "See Invisible" },
-    { TR_TELEPATHY,          "ESP" },
-    { TR_SLOW_DIGEST,        "Slow Digestion" },
-    { TR_REGEN,              "Regeneration" },
-    { TR_WARNING,            "Warning" },
-/*    { TR_XTRA_MIGHT,         "Extra Might" }, */
-    { TR_XTRA_SHOTS,         "Extra Shot" },        /* always +1? */
-    { TR_DRAIN_EXP,          "Drains Experience" },
-    { TR_AGGRAVATE,          "Aggravates" },
-    { TR_BLESSED,            "Blessed Blade" },
-    { TR_DEC_MANA,           "Decrease Mana Consumption Rate" },
-};
-
-
-/*
- * A special type used just for deailing with pvals
- */
-typedef struct
-{
-    /*
-     * This will contain a string such as "+2", "-10", etc.
-     */
-    char pval_desc[12];
-
-    /*
-     * A list of various player traits affected by an object's pval such
-     * as stats, speed, stealth, etc.  "Extra attacks" is NOT included in
-     * this list since it will probably be desirable to format its
-     * description differently.
-     *
-     * Note that room need only be reserved for the number of stats - 1
-     * since the description "All stats" is used if an object affects all
-     * all stats. Also, room must be reserved for a sentinel NULL pointer.
-     *
-     * This will be a list such as ["STR", "DEX", "Stealth", NULL] etc.
-     *
-     * This list includes extra attacks, for simplicity.
-     */
-    cptr pval_affects[N_ELEMENTS(stat_flags_desc) - 1 +
-              N_ELEMENTS(pval_flags1_desc) + 1];
-
-} pval_info_type;
-
-
-/*
- * An "object analysis structure"
- *
- * It will be filled with descriptive strings detailing an object's
- * various magical powers. The "ignore X" traits are not noted since
- * all artifacts ignore "normal" destruction.
- */
-
-typedef struct
-{
-    /* "The Longsword Dragonsmiter (6d4) (+20, +25)" */
-    char description[MAX_NLEN];
-
-    /* Description of what is affected by an object's pval */
-    pval_info_type pval_info;
-
-    /* A list of an object's slaying preferences */
-    cptr slays[N_ELEMENTS(slay_flags_desc) + 1];
-
-    /* A list if an object's elemental brands */
-    cptr brands[N_ELEMENTS(brand_flags_desc) + 1];
-
-    /* A list of immunities granted by an object */
-    cptr immunities[N_ELEMENTS(immune_flags_desc) + 1];
-
-    /* A list of resistances granted by an object */
-    cptr resistances[N_ELEMENTS(resist_flags_desc) + 1];
-
-    /* A list of stats sustained by an object */
-    cptr sustains[N_ELEMENTS(sustain_flags_desc)  - 1 + 1];
-
-    /* A list of various magical qualities an object may have */
-    cptr misc_magic[N_ELEMENTS(misc_flags2_desc) + N_ELEMENTS(misc_flags3_desc)
-            + 1       /* Permanent Light */
-            + 1       /* TY curse */
-            + 1       /* type of curse */
-            + 1];     /* sentinel NULL */
-
-    /* Additional ability or resistance */
-    char addition[80];
-
-    /* A string describing an artifact's activation */
-    cptr activation;
-
-    /* "Level 20, Rarity 30, 3.0 lbs, 20000 Gold" */
-    char misc_desc[80];
-} obj_desc_list;
-
-
-/*
- * Write out `n' of the character `c' to the spoiler file
- */
-static void spoiler_out_n_chars(int n, char c)
-{
-    while (--n >= 0) fputc(c, fff);
-}
-
-
-/*
- * Write out `n' blank lines to the spoiler file
- */
-static void spoiler_blanklines(int n)
-{
-    spoiler_out_n_chars(n, '\n');
-}
-
-
-/*
- * Write a line to the spoiler file and then "underline" it with hypens
- */
-static void spoiler_underline(cptr str)
-{
-    fprintf(fff, "%s\n", str);
-    spoiler_out_n_chars(strlen(str), '-');
-    fprintf(fff, "\n");
-}
-
-
-
-/*
- * This function does most of the actual "analysis". Given a set of bit flags
- * (which will be from one of the flags fields from the object in question),
- * a "flag description structure", a "description list", and the number of
- * elements in the "flag description structure", this function sets the
- * "description list" members to the appropriate descriptions contained in
- * the "flag description structure".
- *
- * The possibly updated description pointer is returned.
- */
-static cptr *spoiler_flag_aux(const u32b art_flags[TR_FLAG_SIZE],
-                  const flag_desc *flag_ptr,
-                  cptr *desc_ptr, const int n_elmnts)
-{
-    int i;
-
-    for (i = 0; i < n_elmnts; ++i)
-    {
-        if (have_flag(art_flags, flag_ptr[i].flag))
-        {
-            *desc_ptr++ = flag_ptr[i].desc;
-        }
-    }
-
-    return desc_ptr;
-}
-
-
-/*
- * Acquire a "basic" description "The Cloak of Death [1,+10]"
- */
-static void analyze_general(object_type *o_ptr, char *desc_ptr)
-{
-    /* Get a "useful" description of the object */
-    object_desc(desc_ptr, o_ptr, (OD_NAME_AND_ENCHANT | OD_STORE));
-}
-
-
-/*
- * List "player traits" altered by an artifact's pval. These include stats,
- * speed, infravision, tunneling, stealth, searching, and extra attacks.
- */
-static void analyze_pval(object_type *o_ptr, pval_info_type *p_ptr)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    cptr *affects_list;
-
-    /* If pval == 0, there is nothing to do. */
-    if (!o_ptr->pval)
-    {
-        /* An "empty" pval description indicates that pval == 0 */
-        p_ptr->pval_desc[0] = '\0';
-        return;
-    }
-
-    /* Extract the flags */
-    object_flags(o_ptr, flgs);
-
-    affects_list = p_ptr->pval_affects;
-
-    /* Create the "+N" string */
-    sprintf(p_ptr->pval_desc, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
-
-    /* First, check to see if the pval affects all stats */
-    if (have_flag(flgs, TR_STR) && have_flag(flgs, TR_INT) &&
-        have_flag(flgs, TR_WIS) && have_flag(flgs, TR_DEX) &&
-        have_flag(flgs, TR_CON) && have_flag(flgs, TR_CHR))
-    {
-        *affects_list++ = "All stats";
-    }
-
-    /* Are any stats affected? */
-    else if (have_flag(flgs, TR_STR) || have_flag(flgs, TR_INT) ||
-         have_flag(flgs, TR_WIS) || have_flag(flgs, TR_DEX) ||
-         have_flag(flgs, TR_CON) || have_flag(flgs, TR_CHR))
-    {
-        affects_list = spoiler_flag_aux(flgs, stat_flags_desc,
-                        affects_list,
-                        N_ELEMENTS(stat_flags_desc));
-    }
-
-    /* And now the "rest" */
-    affects_list = spoiler_flag_aux(flgs, pval_flags1_desc,
-                    affects_list,
-                    N_ELEMENTS(pval_flags1_desc));
-
-    /* Terminate the description list */
-    *affects_list = NULL;
-}
-
-
-/* Note the slaying specialties of a weapon */
-static void analyze_slay(object_type *o_ptr, cptr *slay_list)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    object_flags(o_ptr, flgs);
-
-    slay_list = spoiler_flag_aux(flgs, slay_flags_desc, slay_list,
-                     N_ELEMENTS(slay_flags_desc));
-
-    /* Terminate the description list */
-    *slay_list = NULL;
-}
-
-/* Note an object's elemental brands */
-static void analyze_brand(object_type *o_ptr, cptr *brand_list)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    object_flags(o_ptr, flgs);
-
-    brand_list = spoiler_flag_aux(flgs, brand_flags_desc, brand_list,
-                      N_ELEMENTS(brand_flags_desc));
-
-    /* Terminate the description list */
-    *brand_list = NULL;
-}
-
-
-/* Note the resistances granted by an object */
-static void analyze_resist(object_type *o_ptr, cptr *resist_list)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    object_flags(o_ptr, flgs);
-
-    resist_list = spoiler_flag_aux(flgs, resist_flags_desc,
-                       resist_list, N_ELEMENTS(resist_flags_desc));
-
-    /* Terminate the description list */
-    *resist_list = NULL;
-}
-
-
-/* Note the immunities granted by an object */
-static void analyze_immune(object_type *o_ptr, cptr *immune_list)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    object_flags(o_ptr, flgs);
-
-    immune_list = spoiler_flag_aux(flgs, immune_flags_desc,
-                       immune_list, N_ELEMENTS(immune_flags_desc));
-
-    /* Terminate the description list */
-    *immune_list = NULL;
-}
-
-
-/* Note which stats an object sustains */
-static void analyze_sustains(object_type *o_ptr, cptr *sustain_list)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    object_flags(o_ptr, flgs);
-
-    /* Simplify things if an item sustains all stats */
-    if (have_flag(flgs, TR_SUST_STR) && have_flag(flgs, TR_SUST_INT) &&
-        have_flag(flgs, TR_SUST_WIS) && have_flag(flgs, TR_SUST_DEX) &&
-        have_flag(flgs, TR_SUST_CON) && have_flag(flgs, TR_SUST_CHR))
-    {
-        *sustain_list++ = "All stats";
-    }
-
-    /* Should we bother? */
-    else if (have_flag(flgs, TR_SUST_STR) || have_flag(flgs, TR_SUST_INT) ||
-         have_flag(flgs, TR_SUST_WIS) || have_flag(flgs, TR_SUST_DEX) ||
-         have_flag(flgs, TR_SUST_CON) || have_flag(flgs, TR_SUST_CHR))
-    {
-        sustain_list = spoiler_flag_aux(flgs, sustain_flags_desc,
-                        sustain_list,
-                        N_ELEMENTS(sustain_flags_desc));
-    }
-
-    /* Terminate the description list */
-    *sustain_list = NULL;
-}
-
-
-/*
- * Note miscellaneous powers bestowed by an artifact such as see invisible,
- * free action, permanent light, etc.
- */
-static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
-{
-    u32b flgs[TR_FLAG_SIZE];
-
-    object_flags(o_ptr, flgs);
-
-    misc_list = spoiler_flag_aux(flgs, misc_flags2_desc, misc_list,
-                     N_ELEMENTS(misc_flags2_desc));
-
-    misc_list = spoiler_flag_aux(flgs, misc_flags3_desc, misc_list,
-                     N_ELEMENTS(misc_flags3_desc));
-
-    /*
-     * Artifact lights -- large radius light.
-     */
-    if ((o_ptr->tval == TV_LITE) && object_is_fixed_artifact(o_ptr))
-    {
-        *misc_list++ = "Permanent Light(3)";
-    }
-
-    /*
-     * Glowing artifacts -- small radius light.
-     */
-    if (have_flag(flgs, TR_LITE))
-    {
-        *misc_list++ = "Permanent Light(1)";
-    }
-
-    /*
-     * Handle cursed objects here to avoid redundancies such as noting
-     * that a permanently cursed object is heavily cursed as well as
-     * being "lightly cursed".
-     */
-
-/*    if (object_is_cursed(o_ptr)) */
-    {
-        if (have_flag(flgs, TR_TY_CURSE))
-        {
-            *misc_list++ = "Ancient Curse";
-        }
-        if (o_ptr->curse_flags & TRC_PERMA_CURSE)
-        {
-            *misc_list++ = "Permanently Cursed";
-        }
-        else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
-        {
-            *misc_list++ = "Heavily Cursed";
-        }
-/*        else */
-        else if (o_ptr->curse_flags & TRC_CURSED)
-        {
-            *misc_list++ = "Cursed";
-        }
-    }
-
-    /* Terminate the description list */
-    *misc_list = NULL;
-}
-
-
-/*
- * Note additional ability and/or resistance of fixed artifacts
- */
-static void analyze_addition(object_type *o_ptr, char *addition)
-{
-    artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-    /* Init */
-    strcpy(addition, "");
-
-    if ((a_ptr->gen_flags & TRG_XTRA_POWER) && (a_ptr->gen_flags & TRG_XTRA_H_RES)) strcat(addition, "Ability and Resistance");
-    else if (a_ptr->gen_flags & TRG_XTRA_POWER)
-    {
-        strcat(addition, "Ability");
-        if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "(plus Resistance about 1/2)");
-    }
-    else if (a_ptr->gen_flags & TRG_XTRA_H_RES)
-    {
-        strcat(addition, "Resistance");
-        if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "(plus Ability about 1/2)");
-    }
-    else if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "Ability or Resistance");
-}
-
-
-/*
- * Determine the minimum depth an artifact can appear, its rarity, its weight,
- * and its value in gold pieces
- */
-static void analyze_misc(object_type *o_ptr, char *misc_desc)
-{
-    artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-    sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %d Gold",
-        a_ptr->level, a_ptr->rarity,
-        a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
-}
-
-
-/*
- * Fill in an object description structure for a given object
- */
-static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
-{
-    analyze_general(o_ptr, desc_ptr->description);
-    analyze_pval(o_ptr, &desc_ptr->pval_info);
-    analyze_brand(o_ptr, desc_ptr->brands);
-    analyze_slay(o_ptr, desc_ptr->slays);
-    analyze_immune(o_ptr, desc_ptr->immunities);
-    analyze_resist(o_ptr, desc_ptr->resistances);
-    analyze_sustains(o_ptr, desc_ptr->sustains);
-    analyze_misc_magic(o_ptr, desc_ptr->misc_magic);
-    analyze_addition(o_ptr, desc_ptr->addition);
-    analyze_misc(o_ptr, desc_ptr->misc_desc);
-}
-
-
-static void print_header(void)
-{
-    char buf[80];
-    sprintf(buf, "Spoiler File -- Artifacts (PosChengband %d.%d.%d)\n\n\n",
-        VER_MAJOR, VER_MINOR, VER_PATCH);
-    spoiler_underline(buf);
-}
-
-/*
- * This is somewhat ugly.
- *
- * Given a header ("Resist", e.g.), a list ("Fire", "Cold", Acid", e.g.),
- * and a separator character (',', e.g.), write the list to the spoiler file
- * in a "nice" format, such as:
- *
- *      Resist Fire, Cold, Acid
- *
- * That was a simple example, but when the list is long, a line wrap
- * should occur, and this should induce a new level of indention if
- * a list is being spread across lines. So for example, Bladeturner's
- * list of resistances should look something like this
- *
- *     Resist Acid, Lightning, Fire, Cold, Poison, Light, Dark, Blindness,
- *       Confusion, Sound, Shards, Nether, Nexus, Chaos, Disenchantment
- *
- * However, the code distinguishes between a single list of many items vs.
- * many lists. (The separator is used to make this determination.) A single
- * list of many items will not cause line wrapping (since there is no
- * apparent reason to do so). So the lists of Ulmo's miscellaneous traits
- * might look like this:
- *
- *     Free Action; Hold Life; See Invisible; Slow Digestion; Regeneration
- *     Blessed Blade
- *
- * So comparing the two, "Regeneration" has no trailing separator and
- * "Blessed Blade" was not indented. (Also, Ulmo's lists have no headers,
- * but that's not relevant to line wrapping and indention.)
- */
-
-/* ITEM_SEP separates items within a list */
-#define ITEM_SEP ','
-
-
-/* LIST_SEP separates lists */
-#define LIST_SEP ';'
-
-static void spoiler_outlist(cptr header, cptr *list, char separator)
-{
-    int line_len, buf_len;
-    char line[MAX_LINE_LEN+1], buf[80];
-
-    /* Ignore an empty list */
-    if (*list == NULL) return;
-
-    /* This function always indents */
-    strcpy(line, INDENT1);
-
-    /* Create header (if one was given) */
-    if (header && (header[0]))
-    {
-        strcat(line, header);
-        strcat(line, " ");
-    }
-
-    line_len = strlen(line);
-
-    /* Now begin the tedious task */
-    while (1)
-    {
-        /* Copy the current item to a buffer */
-        strcpy(buf, *list);
-
-        /* Note the buffer's length */
-        buf_len = strlen(buf);
-
-        /*
-         * If there is an item following this one, pad with separator and
-         * a space and adjust the buffer length
-         */
-
-        if (list[1])
-        {
-            sprintf(buf + buf_len, "%c ", separator);
-            buf_len += 2;
-        }
-
-        /*
-         * If the buffer will fit on the current line, just append the
-         * buffer to the line and adjust the line length accordingly.
-         */
-
-        if (line_len + buf_len <= MAX_LINE_LEN)
-        {
-            strcat(line, buf);
-            line_len += buf_len;
-        }
-
-        /* Apply line wrapping and indention semantics described above */
-        else
-        {
-            /*
-             * Don't print a trailing list separator but do print a trailing
-             * item separator.
-             */
-            if (line_len > 1 && line[line_len - 1] == ' '
-                && line[line_len - 2] == LIST_SEP)
-            {
-                /* Ignore space and separator */
-                line[line_len - 2] = '\0';
-
-                /* Write to spoiler file */
-                fprintf(fff, "%s\n", line);
-
-                /* Begin new line at primary indention level */
-                sprintf(line, "%s%s", INDENT1, buf);
-            }
-
-            else
-            {
-                /* Write to spoiler file */
-                fprintf(fff, "%s\n", line);
-
-                /* Begin new line at secondary indention level */
-                sprintf(line, "%s%s", INDENT2, buf);
-            }
-
-            line_len = strlen(line);
-        }
-
-        /* Advance, with break */
-        if (!*++list) break;
-    }
-
-    /* Write what's left to the spoiler file */
-    fprintf(fff, "%s\n", line);
-}
-
-
-/* Create a spoiler file entry for an artifact */
-
-static void spoiler_print_art(obj_desc_list *art_ptr)
-{
-    pval_info_type *pval_ptr = &art_ptr->pval_info;
-
-    char buf[80];
-
-    /* Don't indent the first line */
-    fprintf(fff, "%s\n", art_ptr->description);
-
-    /* An "empty" pval description indicates that the pval affects nothing */
-    if (pval_ptr->pval_desc[0])
-    {
-        /* Mention the effects of pval */
-        sprintf(buf, "%s to", pval_ptr->pval_desc);
-        spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
-    }
-
-    /* Now deal with the description lists */
-
-    spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
-    spoiler_outlist("", art_ptr->brands, LIST_SEP);
-    spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
-    spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
-    spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
-    spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
-
-    if (art_ptr->addition[0])
-    {
-        fprintf(fff, "%sAdditional %s\n", INDENT1, art_ptr->addition);
-    }
-
-    /* Write out the possible activation at the primary indention level */
-    if (art_ptr->activation)
-    {
-        fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
-    }
-
-    /* End with the miscellaneous facts */
-    fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
-}
-
-
 /*
  * Hack -- Create a "forged" artifact
+ * Compare to create_named_art_aux() in artifact.c
  */
 static bool make_fake_artifact(object_type *o_ptr, int name1)
 {
@@ -1269,91 +452,42 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
     return (TRUE);
 }
 
-
-/*
- * Create a spoiler file for artifacts
- */
-static void spoil_artifact(cptr fname)
+static void spoil_artifact_doc(void)
 {
-    int i, j;
+    int i,j;
+    doc_ptr doc = doc_alloc(80);
 
-    object_type forge;
-    object_type *q_ptr;
-
-    obj_desc_list artifact;
-
-    char buf[1024];
-
-
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
-
-    /* File type is "TEXT" */
-    FILE_TYPE(FILE_TYPE_TEXT);
-
-    /* Open the file */
-    fff = my_fopen(buf, "w");
-
-    /* Oops */
-    if (!fff)
-    {
-        msg_print("Cannot create spoiler file.");
-        return;
-    }
-
-    /* Dump the header */
-    print_header();
-
-    /* List the artifacts by tval */
+    spoiler_hack = TRUE;
     for (i = 0; group_artifact[i].tval; i++)
     {
-        /* Write out the group title */
         if (group_artifact[i].name)
         {
-            spoiler_blanklines(2);
-            spoiler_underline(group_artifact[i].name);
-            spoiler_blanklines(1);
+            if (i) doc_insert(doc, "</indent>\n");
+            doc_printf(doc, "<topic:%s><style:heading>%s</style>\n  <indent>\n",
+                group_artifact[i].name, group_artifact[i].name);
         }
 
-        /* Now search through all of the artifacts */
         for (j = 1; j < max_a_idx; ++j)
         {
             artifact_type *a_ptr = &a_info[j];
+            object_type    forge = {0};
 
-            /* We only want objects in the current group */
             if (a_ptr->tval != group_artifact[i].tval) continue;
 
-            /* Get local object */
-            q_ptr = &forge;
+            if (!make_fake_artifact(&forge, j)) continue;
 
-            /* Wipe the object */
-            object_wipe(q_ptr);
+            identify_item(&forge);
+            forge.ident |= IDENT_FULL;
 
-            /* Attempt to "forge" the artifact */
-            if (!make_fake_artifact(q_ptr, j)) continue;
-
-            /* Analyze the artifact */
-            object_analyze(q_ptr, &artifact);
-
-            /* Write out the artifact description to the spoiler file */
-            spoiler_print_art(&artifact);
+            obj_display_doc(&forge, doc);
+            doc_newline(doc);
         }
     }
 
-    /* Check for errors */
-    if (ferror(fff) || my_fclose(fff))
-    {
-        msg_print("Cannot close spoiler file.");
-        return;
-    }
-
-    /* Message */
-    msg_print("Successfully created a spoiler file.");
+    doc_display(doc, "Artifact Spoilers", 0);
+    doc_free(doc);
+    spoiler_hack = FALSE;
 }
-
-
-
-
 
 /*
  * Create a spoiler file for monsters   -BEN-
@@ -2038,6 +1172,8 @@ extern void do_cmd_spoilers(void);
 
 /*
  * Create Spoiler files -BEN-
+ * Converted from File Creation to Document Creation, with online
+ * viewing (as well as the option for HTML output).  -CHRIS-
  */
 void do_cmd_spoilers(void)
 {
@@ -2051,11 +1187,11 @@ void do_cmd_spoilers(void)
         Term_clear();
 
         /* Info */
-        prt("Create a spoiler file.", 2, 0);
+        prt("View Spoilers", 2, 0);
 
         /* Prompt for a file */
         prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
-        prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
+        prt("(2) Brief Artifact Info", 6, 5);
         prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
         prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
         prt("(5) Monster Evolution Info (mon-evol.spo)", 9, 5);
@@ -2079,7 +1215,7 @@ void do_cmd_spoilers(void)
 
         /* Option (2) */
         case '2':
-            spoil_artifact("artifact.spo");
+            spoil_artifact_doc();
             break;
 
         /* Option (3) */

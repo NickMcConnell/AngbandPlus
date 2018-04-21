@@ -34,7 +34,7 @@ void mimic_race(int new_race, const char *msg)
         msg_print("You resume your true form.");
     else
     {
-        race_t *race_ptr = get_race_t_aux(new_race, 0);
+        race_t *race_ptr = get_race_aux(new_race, 0);
         if (is_a_vowel(race_ptr->name[0]))
             msg_format("You turn into an %s!", race_ptr->name);
         else
@@ -47,7 +47,7 @@ void mimic_race(int new_race, const char *msg)
 
     if (new_race == RACE_HUMAN || new_race == RACE_DEMIGOD)
     {
-        get_race_t()->gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on mimicry */
+        get_race()->gain_level(p_ptr->lev);    /* This is OK ... Just make sure we get to choose racial powers on mimicry */
     }
 
     if (new_race == RACE_BEASTMAN)
@@ -110,7 +110,7 @@ void mimic_upkeep(void)
     if (p_ptr->tim_mimic) return;
     if (p_ptr->mimic_form == MIMIC_NONE) return;
 
-    cost = _form_upkeep(get_race_t()->exp);
+    cost = _form_upkeep(get_race()->exp);
     if (cost > p_ptr->csp + p_ptr->chp)
         mimic_race(MIMIC_NONE, "You can no longer afford the upkeep for this form.");
     else
@@ -215,7 +215,7 @@ static void _list_forms(int ct)
         byte   attr = TERM_WHITE;
         int    level = _forms[i].level;
         int    race_idx = _forms[i].race;
-        race_t *race_ptr = get_race_t_aux(race_idx, 0);
+        race_t *race_ptr = get_race_aux(race_idx, 0);
         int    cost = _form_cost(race_ptr->exp);
         int    fail = calculate_fail_rate(level, _forms[i].fail, p_ptr->stat_ind[A_DEX]);
 
@@ -253,7 +253,7 @@ static void _describe_form(int idx, int col_height)
     char tmp[80*9];
     int i, line;
     int    race_idx = _forms[idx].race;
-    race_t *race_ptr = get_race_t_aux(race_idx, 0);
+    race_t *race_ptr = get_race_aux(race_idx, 0);
 
     /* 2 lines below list of spells, X lines for description */
     for (i = 0; i < 11; i++)
@@ -385,7 +385,7 @@ static void _mimic_spell(int cmd, variant *res)
             {
             int    level = _forms[i].level;
             int    race_idx = _forms[i].race;
-            race_t *race_ptr = get_race_t_aux(race_idx, 0);
+            race_t *race_ptr = get_race_aux(race_idx, 0);
             int    cost = _form_cost(race_ptr->exp);
             int    fail = calculate_fail_rate(level, _forms[i].fail, p_ptr->stat_ind[A_DEX]);
 
@@ -426,7 +426,7 @@ static int _get_powers(spell_info* spells, int max)
     return get_powers_aux(spells, max, _powers);
 }
 
-race_t *doppelganger_get_race_t(void)
+race_t *doppelganger_get_race(void)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -458,6 +458,7 @@ race_t *doppelganger_get_race_t(void)
         me.base_hp = 12;
         me.exp = 150;
         me.infra = 0;
+        me.shop_adjust = 150; /* But really, you should shapeshift first, no? */
 
         me.get_powers = _get_powers;
         init = TRUE;

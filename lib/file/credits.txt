@@ -1,0 +1,15 @@
+          Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
+              and Umoria:   Copyright (c) 1989 James E. Wilson
+       Angband 2.7 - 2.9:   Ben Harrison
+    Japanese version 1.2:   Sitoshin, sayu, FIRST, TeO
+       Old ZAngband code:   (Mr) Topi Ylinen
+       New ZAngband code:   Robert Ruehlmann
+    ZAngband 2.3.0 - ???:   The ZAngband DevTeam
+       ZAngband Jap ver.:   Mitsuhiro Itakura
+       Based on Hengband:   Mr.Hoge & Many others
+      Based on Chengband:   Chris Kousky, Dave Zhang and Andrew Levy
+      Ideas from Posband:   Alexander Ulyanov, Graham Philips
+
+            PosChengband:   Chris Kousky
+
+

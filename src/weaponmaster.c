@@ -200,7 +200,7 @@ static bool _do_blow(int type)
 {
     if (!_check_speciality_equip())
     {
-        msg_print("Failed!  You do not feel comfortable with your weapon.");
+        msg_print("Failed! You do not feel comfortable with your weapon.");
         return FALSE;
     }
     return do_blow(type);
@@ -217,7 +217,7 @@ static void _fire_spell(int which, int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your shooter.");
+            msg_print("Failed! You do not feel comfortable with your shooter.");
             return;
         }
         if (_fire(which))
@@ -240,7 +240,7 @@ static void _toggle_spell(int which, int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         if (_get_toggle() == which)
@@ -295,7 +295,7 @@ static void _crusaders_strike_spell(int cmd, variant *res)
         var_set_string(res, "Crusaders Strike");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attack an adjacent opponent with a single blow.  You regain hp.");
+        var_set_string(res, "Attack an adjacent opponent with a single blow. You regain hp.");
         break;
     case SPELL_CAST:
         var_set_bool(res, _do_blow(WEAPONMASTER_CRUSADERS_STRIKE));
@@ -387,7 +387,7 @@ static void _piercing_arrow_spell(int cmd, variant *res)
         var_set_string(res, "Piercing Arrow");
         break;
     case SPELL_DESC:
-        var_set_string(res, "If an arrow hits opponent, it pierces and can also hit next opponent in same direction (requires another attack roll), up to 5 opponents. Each successive pierce suffers a cumulative penalty tohit.");
+        var_set_string(res, "If an arrow hits opponent, it pierces and can also hit next opponent in same direction (requires another attack roll), up to 5 opponents. Each successive pierce suffers a cumulative penalty to hit.");
         break;
     default:
         _toggle_spell(TOGGLE_PIERCING_ARROW, cmd, res);
@@ -413,7 +413,7 @@ static void _readied_shot_spell(int cmd, variant *res)
             return;
         }
         if (_get_toggle() == TOGGLE_READIED_SHOT)
-            _set_toggle(TOGGLE_READIED_SHOT);
+            _set_toggle(TOGGLE_NONE);
         else
         {
             /* Prompt for ammo to use, but disallow choosing from the floor since
@@ -573,7 +573,7 @@ static void _smash_ground_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         msg_print("You smash your weapon mightily on the ground.");
@@ -938,7 +938,7 @@ static void _throw_weapon_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         for (hand = 0; hand < MAX_HANDS; hand++)
@@ -967,7 +967,7 @@ static void _trade_blows_spell(int cmd, variant *res)
         var_set_string(res, "Trade Blows");
         break;
     case SPELL_DESC:
-        var_set_string(res, "When using this technique, you are somewhat exposed.  However, you will retaliate whenever a monster hits you.");
+        var_set_string(res, "When using this technique, you are somewhat exposed. However, you will retaliate whenever a monster hits you.");
         break;
     default:
         _toggle_spell(TOGGLE_TRADE_BLOWS, cmd, res);
@@ -1185,15 +1185,14 @@ static bool _dagger_toss(int hand)
 
         if (TRUE) /* This is a showstopper, so force the player to notice! */
         {
-            msg_print("Press Space to continue.");
+            msg_print("Press <color:y>Space</color> to continue.");
             flush();
             for (;;)
             {
                 char ch = inkey();
                 if (ch == ' ') break;
             }
-            prt("", 0, 0);
-            msg_flag = FALSE; /* prevents "-more-" message. */
+            msg_line_clear();
         }
 
         object_copy(&copy, info.o_ptr);
@@ -1404,7 +1403,7 @@ static void _dagger_toss_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         for (hand = 0; hand < MAX_HANDS; hand++)
@@ -1433,13 +1432,13 @@ static void _flying_dagger_spell(int cmd, variant *res)
         var_set_string(res, "Flying Dagger Stance");
         break;
     case SPELL_DESC:
-        var_set_string(res, "When using this technique, you gain great prowess with the Dagger Toss.  Thrown weapons return more often and damage is greatly increased.  However, this stance leaves you somewhat exposed to your enemies.");
+        var_set_string(res, "When using this technique, you gain great prowess with the Dagger Toss. Thrown weapons return more often and damage is greatly increased. However, this stance leaves you somewhat exposed to your enemies.");
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         if (_get_toggle() == TOGGLE_FLYING_DAGGER_STANCE)
@@ -1487,7 +1486,7 @@ static void _frenzy_spell(int cmd, variant *res)
         var_set_string(res, "Frenzy Stance");
         break;
     case SPELL_DESC:
-        var_set_string(res, "In this posture, you attack foes with great power in melee.  However, your rage exposes you to your enemies!");
+        var_set_string(res, "In this posture, you attack foes with great power in melee. However, your rage exposes you to your enemies!");
         break;
     default:
         _toggle_spell(TOGGLE_FRENZY_STANCE, cmd, res);
@@ -1503,7 +1502,7 @@ static void _shadow_stance_spell(int cmd, variant *res)
         var_set_string(res, "Shadow Stance");
         break;
     case SPELL_DESC:
-        var_set_string(res, "When using this technique, you walk quickly and stealthily.  On attacking a foe, you will swap positions.");
+        var_set_string(res, "When using this technique, you walk quickly and stealthily. On attacking a foe, you will swap positions.");
         break;
     default:
         _toggle_spell(TOGGLE_SHADOW_STANCE, cmd, res);
@@ -1528,7 +1527,7 @@ static void _tunnel_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         if (!cave_valid_bold(py, px))
@@ -1562,7 +1561,7 @@ static void _calamity_of_the_living_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         if (p_ptr->lev >= 50 || one_in_(3))
@@ -1610,7 +1609,7 @@ static void _bury_dead_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
 
@@ -1690,7 +1689,7 @@ static void _barricade_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         
@@ -1770,7 +1769,7 @@ static void _stoicism_spell(int cmd, variant *res)
         var_set_string(res, "Stoicism");
         break;
     case SPELL_DESC:
-        var_set_string(res, "You gain additional constitution based on the quality of your digger.");
+        var_set_string(res, "You gain additional constitution and stealth based on the quality of your digger.");
         break;
     default:
         _toggle_spell(TOGGLE_STOICISM, cmd, res);
@@ -1786,7 +1785,7 @@ static void _industrious_mortician_spell(int cmd, variant *res)
         var_set_string(res, "Industrious Mortician");
         break;
     case SPELL_DESC:
-        var_set_string(res, "You gain additional attacks when using this technique based on the quality of your digger.");
+        var_set_string(res, "You gain additional attacks and speed when using this technique based on the quality of your digger.");
         break;
     default:
         _toggle_spell(TOGGLE_INDUSTRIOUS_MORTICIAN, cmd, res);
@@ -1871,7 +1870,7 @@ static void _reach_spell(int cmd, variant *res)
         }
         else
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             var_set_bool(res, FALSE);
         }
         break;
@@ -1941,13 +1940,13 @@ static void _desperation_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do need a shield.");
+            msg_print("Failed! You do need a shield.");
             return;
         }
         slot = equip_random_slot(object_is_melee_weapon);
         if (!slot)
         {
-            msg_print("Failed!  You do need a weapon to disenchant.");
+            msg_print("Failed! You do need a weapon to disenchant.");
             return;
         }
         o_ptr = equip_obj(slot);
@@ -1998,7 +1997,7 @@ static void _sanctuary_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do need a shield.");
+            msg_print("Failed! You do need a shield.");
             return;
         }
         set_sanctuary(TRUE);
@@ -2069,7 +2068,7 @@ static void _bouncing_pebble_spell(int cmd, variant *res)
         var_set_string(res, "Bouncing Pebble");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Fires a pebble or shot at an opponent.  If you hit, the pebble or shot will ricochet in a random direction.");
+        var_set_string(res, "Fires a pebble or shot at an opponent. If you hit, the pebble or shot will ricochet in a random direction.");
         break;
     default:
         _fire_spell(SHOOT_BOUNCE, cmd, res);
@@ -2090,7 +2089,7 @@ static void _greater_many_shot_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your shooter.");
+            msg_print("Failed! You do not feel comfortable with your shooter.");
             return;
         }
         else
@@ -2138,13 +2137,13 @@ static void _many_shot_spell(int cmd, variant *res)
         var_set_string(res, "Many Shot");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Fires pebbles at all visible monsters.  You need to have a direct line of fire to each target, though.");
+        var_set_string(res, "Fires pebbles at all visible monsters. You need to have a direct line of fire to each target, though.");
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your shooter.");
+            msg_print("Failed! You do not feel comfortable with your shooter.");
             return;
         }
         else
@@ -2214,7 +2213,7 @@ static void _shot_on_the_run_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your shooter.");
+            msg_print("Failed! You do not feel comfortable with your shooter.");
             return;
         }
         if (_get_toggle() == TOGGLE_SHOT_ON_THE_RUN)
@@ -2372,7 +2371,7 @@ static void _monkey_king_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         if (_design_monkey_clone() && summon_named_creature(0, py, px, MON_MONKEY_CLONE, PM_FORCE_PET))
@@ -2464,7 +2463,7 @@ static void _circle_kick_spell(int cmd, variant *res)
         var_set_string(res, "Circle Kick");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Kicks all adjacent opponents, stunning them.  Damage depends on your boots!");
+        var_set_string(res, "Kicks all adjacent opponents, stunning them. Damage depends on your boots!");
         break;
     case SPELL_INFO:
     {
@@ -2483,7 +2482,7 @@ static void _circle_kick_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         _circle_kick();
@@ -2603,7 +2602,7 @@ static void _vault_attack_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!_check_speciality_equip())
         {
-            msg_print("Failed!  You do not feel comfortable with your weapon.");
+            msg_print("Failed! You do not feel comfortable with your weapon.");
             return;
         }
         if (_vault_attack())
@@ -2624,29 +2623,20 @@ static void _flurry_of_blows_spell(int cmd, variant *res)
         var_set_string(res, "Flurry of Blows");
         break;
     case SPELL_DESC:
-        var_set_string(res, "You gain additional attacks when using this technique, but you lose accuracy.");
+        var_set_string(res, "Attack a single opponent with a great number of blows, exhausting yourself in the process.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, _do_blow(WEAPONMASTER_FLURRY));
+        break;
+    case SPELL_ENERGY:
+        var_set_int(res, 100 + ENERGY_NEED());
         break;
     default:
-        _toggle_spell(TOGGLE_FLURRY_OF_BLOWS, cmd, res);
+        default_spell(cmd, res);
         break;
     }
 }
 
-static void _greater_flurry_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Greater Flurry");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "You gain additional attacks when using this technique, but you lose accuracy.");
-        break;
-    default:
-        _toggle_spell(TOGGLE_GREATER_FLURRY, cmd, res);
-        break;
-    }
-}
 
 /****************************************************************
  * Swordmaster
@@ -2755,7 +2745,7 @@ static void _wild_blade_spell(int cmd, variant *res)
         var_set_string(res, "Wild Blade");
         break;
     case SPELL_DESC:
-        var_set_string(res, "This is too crazy to describe.  You wouldn't believe me anyway!");
+        var_set_string(res, "This is too crazy to describe. You wouldn't believe me anyway!");
         break;
     default:
         _toggle_spell(TOGGLE_WILD_BLADE, cmd, res);
@@ -2768,9 +2758,9 @@ static void _wild_blade_spell(int cmd, variant *res)
  * Spell Table and Exports
  ****************************************************************/
 
-#define _MAX_OBJECTS_PER_SPECIALITY        32
-#define _MAX_SPECIALITIES                11
-#define _MAX_SPELLS_PER_SPECIALITY        10
+#define _MAX_OBJECTS_PER_SPECIALITY 32
+#define _MAX_SPECIALITIES           11
+#define _MAX_SPELLS_PER_SPECIALITY  10
 
 int weaponmaster_get_toggle(void)
 {
@@ -2802,13 +2792,16 @@ typedef struct {
     cptr name;
     cptr help;
     int kind;
+    int stats[MAX_STATS];
+    skills_t base_skills;
+    skills_t extra_skills;
     _object_kind objects[_MAX_OBJECTS_PER_SPECIALITY];    /* There is always a sentinel at the end */
     spell_info spells[_MAX_SPELLS_PER_SPECIALITY];        /* There is always a sentinel at the end */
     _object_kind birth_obj;
 } _speciality;
 
 
-/*    p_ptr->psubclass indexes into _specialities.
+/*  p_ptr->psubclass indexes into _specialities.
     This index is persisted in savefiles and are chosen
     by the player at startup, so moving things around is 
     unwise unless you put code to fix up old savefiles 
@@ -2816,11 +2809,16 @@ typedef struct {
 */
 static _speciality _specialities[_MAX_SPECIALITIES] = {
     { "Axes",
-      "The mighty axe! Your blows will cleave with damage unsurpassed! "
+      "The mighty axe! Your blows will cleave with damage unsurpassed. "
       "Specializing in axes gives great offensive prowess, especially when "
       "your axe is wielded with two hands. However, this speciality offers "
       "little in the way of utility. Kill quickly as your life depends on it!",
       _WEAPONMASTER_MELEE,
+    /*  S   I   W   D   C   C */
+      {+3, -2, -1, -2, +1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  25,  23,  31,   1,  14,   2, 70, 25},
+      {   9,   7,  10,   0,   0,   0, 30, 11},
       { { TV_POLEARM, SV_BATTLE_AXE },
         { TV_POLEARM, SV_BEAKED_AXE },
         { TV_POLEARM, SV_BROAD_AXE },
@@ -2845,6 +2843,11 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       "single arrow and much more. As a shooter, your missile prowess will be quite "
       "formidable, though your melee will be somewhat lacking.",
       _WEAPONMASTER_BOWS,
+    /*  S   I   W   D   C   C */
+      { 0,  0,  0, +2, -1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  30,  30,  29,   4,  23,  13, 48, 72},
+      {   8,  10,  10,   0,   0,   0, 13, 28},
       { { TV_BOW, SV_SHORT_BOW },
         { TV_BOW, SV_LONG_BOW },
         { TV_BOW, SV_NAMAKE_BOW },
@@ -2862,11 +2865,16 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       { TV_BOW, SV_SHORT_BOW },
     },
     { "Clubs",
-        "You will seek to club your opponents senseless!  This speciality gains passive "
+        "You will seek to club your opponents senseless! This speciality gains passive "
         "status effects against monsters, such as confusion, knock out and stunning. Also, "
         "you will gain some limited utility techniques. At high levels, your weapons will "
         "become more likely to score devastating, crushing blows against your hapless enemies.",
         _WEAPONMASTER_MELEE,
+    /*  S   I   W   D   C   C */
+      {+2, -1, -1, -2, +1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  25,  25,  35,   1,  14,   2, 65, 60},
+      {   9,  10,  12,   0,   0,   0, 20, 18},
         { { TV_HAFTED, SV_BALL_AND_CHAIN },
           { TV_HAFTED, SV_CLUB },
           { TV_HAFTED, SV_FLAIL },
@@ -2897,6 +2905,11 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       "powerfully damaging nearby monsters. Also, they may shoot so hard as to knock "
       "their opponents backwards!",
       _WEAPONMASTER_BOWS,
+    /*  S   I   W   D   C   C */
+      {+1, -1, -1, +1, +1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  30,  30,  29,   3,  18,  10, 48, 72},
+      {   8,   9,   9,   0,   0,   0, 13, 28},
       { { TV_BOW, SV_LIGHT_XBOW },
         { TV_BOW, SV_HEAVY_XBOW },
         { 0, 0 },
@@ -2913,185 +2926,231 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
       { TV_BOW, SV_LIGHT_XBOW },
     },
     { "Daggers",
-        "A knife in the back!  This speciality favors dual wielding and rogue-like behavior. "
-        "The daggermaster can even assume the posture of The Flying Dagger which greatly "
-        "enhances their low level dagger toss capability. Indeed, their prowess with the "
-        "dagger toss is legendary and appears almost magical! At high levels, you will also "
-        "gain formidable melee prowess with the Frenzy Stance. Finally, daggermasters have "
-        "very strong short ranged teleport techniques that synergize well with their toss "
-        "abilities.",
-        _WEAPONMASTER_MELEE,
-        { { TV_SWORD, SV_BASILLARD },
-          { TV_SWORD, SV_BROKEN_DAGGER },
-          { TV_SWORD, SV_DAGGER },
-          { TV_SWORD, SV_FALCON_SWORD },
-          { TV_SWORD, SV_MAIN_GAUCHE },
-          { TV_SWORD, SV_NINJATO },
-          { TV_SWORD, SV_RAPIER },
-          { TV_SWORD, SV_SABRE },
-          { TV_SWORD, SV_TANTO },
-          { TV_SWORD, SV_DRAGON_FANG },
-          { 0, 0 },
-        },
-        {
-          {  5,   5,  0, _dagger_toss_spell },
-          { 10,   5, 40, strafing_spell },
-          { 15,   0,  0, _flying_dagger_spell },
-          { 25,  20, 50, _judge_spell },
-          { 30,  10,  0, _elusive_strike_spell },
-          { 35,   0,  0, _shadow_stance_spell },
-          { 45,   0,  0, _frenzy_spell },
-          { -1,   0,  0, NULL },
-        },
+      "A knife in the back! This speciality favors dual wielding and rogue-like behavior. "
+      "The daggermaster can even assume the posture of The Flying Dagger which greatly "
+      "enhances their low level dagger toss capability. Indeed, their prowess with the "
+      "dagger toss is legendary and appears almost magical! At high levels, you will also "
+      "gain formidable melee prowess with the Frenzy Stance. Finally, daggermasters have "
+      "very strong short ranged teleport techniques that synergize well with their toss "
+      "abilities.",
+      _WEAPONMASTER_MELEE,
+    /*  S   I   W   D   C   C */
+      { 0, +1,  0, +3, -1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  30,  32,  31,   5,  30,  20, 60, 66},
+      {  12,  10,  10,   0,   0,   0, 18, 20},
+      { { TV_SWORD, SV_BASILLARD },
+        { TV_SWORD, SV_BROKEN_DAGGER },
         { TV_SWORD, SV_DAGGER },
+        { TV_SWORD, SV_FALCON_SWORD },
+        { TV_SWORD, SV_MAIN_GAUCHE },
+        { TV_SWORD, SV_NINJATO },
+        { TV_SWORD, SV_RAPIER },
+        { TV_SWORD, SV_SABRE },
+        { TV_SWORD, SV_TANTO },
+        { TV_SWORD, SV_DRAGON_FANG },
+        { 0, 0 },
+      },
+      {
+        {  5,   5,  0, _dagger_toss_spell },
+        { 10,   5, 40, strafing_spell },
+        { 15,   0,  0, _flying_dagger_spell },
+        { 25,  20, 50, _judge_spell },
+        { 30,  10,  0, _elusive_strike_spell },
+        { 35,   0,  0, _shadow_stance_spell },
+        { 45,   0,  0, _frenzy_spell },
+        { -1,   0,  0, NULL },
+      },
+      { TV_SWORD, SV_DAGGER },
     },
     { "Polearms",
-        "You don a grim face before setting out to reap your harvest of death.  You will swing "
-        "your weapon wide often affecting multiple surrounding opponents.",
-        _WEAPONMASTER_MELEE,
-        { 
-          { TV_POLEARM, SV_AWL_PIKE },
-          { TV_POLEARM, SV_BROAD_SPEAR },
-          { TV_POLEARM, SV_DEATH_SCYTHE },
-          { TV_POLEARM, SV_HALBERD },
-          { TV_POLEARM, SV_FAUCHARD },
-          { TV_POLEARM, SV_GLAIVE },
-          { TV_POLEARM, SV_GUISARME },
-          { TV_POLEARM, SV_LUCERNE_HAMMER },
-          { TV_POLEARM, SV_NAGINATA },
-          { TV_POLEARM, SV_PIKE },
-          { TV_POLEARM, SV_SCYTHE },
-          { TV_POLEARM, SV_SCYTHE_OF_SLICING },
-          { TV_POLEARM, SV_SPEAR },
-          { TV_POLEARM, SV_TRIDENT },
-          { TV_POLEARM, SV_LANCE },
-          { TV_POLEARM, SV_HEAVY_LANCE },
-          { TV_POLEARM, SV_TRIFURCATE_SPEAR },
-          { 0, 0 },
-        },
-        {
-          {  5,   0,  0, _many_strike_spell },
-          { 10,   5,  0, _reach_spell },
-          { 15,  15,  0, _knock_back_spell },
-          { 25,  20, 50, _judge_spell },
-          { 25,   0,  0, _piercing_strike_spell },
-          { 35,   0,  0, _trip_spell },
-          { 40,  40,  0, _reaping_spell },
-          { -1,   0,  0, NULL },
-        },
+      "You don a grim face before setting out to reap your harvest of death. You will swing "
+      "your weapon wide often affecting multiple surrounding opponents.",
+      _WEAPONMASTER_MELEE,
+    /*  S   I   W   D   C   C */
+      {+2, -1, -1,  0, +1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  25,  23,  31,   1,  14,   2, 68, 25},
+      {  10,   8,  10,   0,   0,   0, 28, 11},
+      {
+        { TV_POLEARM, SV_AWL_PIKE },
+        { TV_POLEARM, SV_BROAD_SPEAR },
+        { TV_POLEARM, SV_DEATH_SCYTHE },
+        { TV_POLEARM, SV_HALBERD },
+        { TV_POLEARM, SV_FAUCHARD },
+        { TV_POLEARM, SV_GLAIVE },
+        { TV_POLEARM, SV_GUISARME },
+        { TV_POLEARM, SV_LUCERNE_HAMMER },
+        { TV_POLEARM, SV_NAGINATA },
+        { TV_POLEARM, SV_PIKE },
+        { TV_POLEARM, SV_SCYTHE },
+        { TV_POLEARM, SV_SCYTHE_OF_SLICING },
         { TV_POLEARM, SV_SPEAR },
+        { TV_POLEARM, SV_TRIDENT },
+        { TV_POLEARM, SV_LANCE },
+        { TV_POLEARM, SV_HEAVY_LANCE },
+        { TV_POLEARM, SV_TRIFURCATE_SPEAR },
+        { 0, 0 },
+      },
+      {
+        {  5,   0,  0, _many_strike_spell },
+        { 10,   5,  0, _reach_spell },
+        { 15,  15,  0, _knock_back_spell },
+        { 25,  20, 50, _judge_spell },
+        { 25,   0,  0, _piercing_strike_spell },
+        { 35,   0,  0, _trip_spell },
+        { 40,  40,  0, _reaping_spell },
+        { -1,   0,  0, NULL },
+      },
+      { TV_POLEARM, SV_SPEAR },
     },
-        { "Shields",
-          "",
-          _WEAPONMASTER_SHIELDS,
-          { 
-            { TV_SHIELD, SV_DRAGON_SHIELD },
-            { TV_SHIELD, SV_KNIGHT_SHIELD },
-            { TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
-            { TV_SHIELD, SV_LARGE_METAL_SHIELD },
-            { TV_SHIELD, SV_MIRROR_SHIELD },
-            { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-            { TV_SHIELD, SV_SMALL_METAL_SHIELD },
-            { 0, 0 },
-          },
-          {
-            { 10,  0,  0, _shield_bash_spell },
-            { 15, 10,  0, _desperation_spell },
-            { 25,  20, 50, _judge_spell },
-            { 30,  0,  0, _bulwark_spell },
-            { 35, 50,  0, _sanctuary_spell },
-            { 40,  0,  0, _shield_revenge_spell },
-            { -1,  0,  0, NULL },
-          },
-          { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-        },
-        { "Slings",
-          "Watch out, Goliath!",
-          _WEAPONMASTER_BOWS,
-          { { TV_BOW, SV_SLING },
-            { 0, 0 },
-          },
-          {
-            {  5,   5,  0, _bouncing_pebble_spell },
-            { 15,  15,  0, _many_shot_spell },
-            { 25,  20, 50, _judge_spell },
-            { 25,   0,  0, _shot_on_the_run_spell },
-            { 30,  15,  0, _greater_many_shot_spell },
-            { 35,   0,  0, _rapid_shot_spell },
-            { -1,   0,  0, NULL },
-          },
-          { TV_BOW, SV_SLING },
-        },
-        { "Staves",
-          "Monkey King!  You will battle opponents with a flurry of blows from your mighty "
-          "staff.  You may eventually clone yourself at great cost.",
-          _WEAPONMASTER_MELEE,
-          { 
-            { TV_HAFTED, SV_BO_STAFF },
-            { TV_HAFTED, SV_JO_STAFF },
-            { TV_HAFTED, SV_QUARTERSTAFF },
-            { TV_HAFTED, SV_WIZSTAFF },
-            { TV_HAFTED, SV_THREE_PIECE_ROD },
-            { 0, 0 },
-          },
-          {
-            { 10,  0, 0, _flurry_of_blows_spell },
-            { 15, 15, 0, _vault_attack_spell },
-            { 25, 20,50, _judge_spell },
-            { 25, 25, 0, _circle_kick_spell },
-            { 40,  0, 0, _monkey_king_spell },
-            { 45,  0, 0, _greater_flurry_spell },
-            { -1,  0, 0, NULL },
-          },
-          { TV_HAFTED, SV_QUARTERSTAFF },
-        },
+    { "Shields",
+      "Specializing in shields gives excellent powers of defense and retaliation. In addition, "
+      "you can even choose to melee with your shield rather than a normal weapon, bashing your "
+      "opponents senseless. This form of combat is known as Shield Bashing and is unique to this "
+      "speciality.",
+      _WEAPONMASTER_SHIELDS,
+    /*  S   I   W   D   C   C */
+      {+2,  0, +1,  0, +2,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  25,  24,  40,   1,  12,   2, 68, 25},
+      {  10,   9,  12,   0,   0,   0, 21, 11},
+      {
+        { TV_SHIELD, SV_DRAGON_SHIELD },
+        { TV_SHIELD, SV_KNIGHT_SHIELD },
+        { TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
+        { TV_SHIELD, SV_LARGE_METAL_SHIELD },
+        { TV_SHIELD, SV_MIRROR_SHIELD },
+        { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+        { TV_SHIELD, SV_SMALL_METAL_SHIELD },
+        { 0, 0 },
+      },
+      {
+        { 10,  0,  0, _shield_bash_spell },
+        { 15, 10,  0, _desperation_spell },
+        { 25,  20, 50, _judge_spell },
+        { 30,  0,  0, _bulwark_spell },
+        { 35, 50,  0, _sanctuary_spell },
+        { 40,  0,  0, _shield_revenge_spell },
+        { -1,  0,  0, NULL },
+      },
+      { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+    },
+    { "Slings",
+      "Watch out, Goliath! As a master of slings you will shoot pebbles with uncanny speed. Your "
+      "shots may even ricochet off other monsters to score multiple hits. As with other archery "
+      "specializations, your ammo will break less often and, at high levels you will gain access "
+      "to an 'unlimited quiver' which allows you to shoot an infinite amount of (average) ammo.",
+      _WEAPONMASTER_BOWS,
+    /*  S   I   W   D   C   C */
+      {-1, +1, +1, +3, -1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  30,  30,  29,   4,  23,  13, 48, 72},
+      {   8,  10,  10,   0,   0,   0, 13, 28},
+      { { TV_BOW, SV_SLING },
+        { 0, 0 },
+      },
+      {
+        {  5,   5,  0, _bouncing_pebble_spell },
+        { 15,  15,  0, _many_shot_spell },
+        { 25,  20, 50, _judge_spell },
+        { 25,   0,  0, _shot_on_the_run_spell },
+        { 30,  15,  0, _greater_many_shot_spell },
+        { 35,   0,  0, _rapid_shot_spell },
+        { -1,   0,  0, NULL },
+      },
+      { TV_BOW, SV_SLING },
+    },
+    { "Staves",
+      "Monkey King! You will battle opponents with a flurry of blows from your mighty "
+      "staff and will be prepared to counter the attacks of your enemies. You can vault into "
+      "battle and circle kick enemies for stunning effects, attacking them with your boots! "
+      "You may even eventually clone yourself at great cost.",
+      _WEAPONMASTER_MELEE,
+    /*  S   I   W   D   C   C */
+      { 0,  0,  0, +2, +1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  25,  25,  31,   2,  14,   4, 63, 25},
+      {  10,   9,  10,   0,   0,   0, 26, 11},
+      {
+        { TV_HAFTED, SV_BO_STAFF },
+        { TV_HAFTED, SV_JO_STAFF },
+        { TV_HAFTED, SV_QUARTERSTAFF },
+        { TV_HAFTED, SV_WIZSTAFF },
+        { TV_HAFTED, SV_THREE_PIECE_ROD },
+        { 0, 0 },
+      },
+      {
+        { 15, 15, 0, _vault_attack_spell },
+        { 25, 20,50, _judge_spell },
+        { 25, 25, 0, _circle_kick_spell },
+        { 40,  0, 0, _monkey_king_spell },
+        { 45, 80, 0, _flurry_of_blows_spell },
+        { -1,  0, 0, NULL },
+      },
+      { TV_HAFTED, SV_QUARTERSTAFF },
+    },
     { "Swords",
-        "You will become a true swordmaster!  Mastery of the blade will augment "
-        "your weapon with elemental, vorpal or vampiric powers.",
-        _WEAPONMASTER_MELEE,
-        { { TV_SWORD, SV_BASTARD_SWORD } ,
-          { TV_SWORD, SV_BROKEN_SWORD } ,
-          { TV_SWORD, SV_BLADE_OF_CHAOS } ,
-          { TV_SWORD, SV_BROAD_SWORD } ,
-          { TV_SWORD, SV_CLAYMORE } ,
-          { TV_SWORD, SV_CUTLASS } ,
-          { TV_SWORD, SV_DIAMOND_EDGE } ,
-          { TV_SWORD, SV_ESPADON } ,
-          { TV_SWORD, SV_EXECUTIONERS_SWORD } ,
-          { TV_SWORD, SV_FLAMBERGE } ,
-          { TV_SWORD, SV_GREAT_SCIMITAR } , /* Falchion */
-          { TV_SWORD, SV_KATANA } ,
-          { TV_SWORD, SV_LONG_SWORD } ,
-          { TV_SWORD, SV_KHOPESH } ,
-          { TV_SWORD, SV_NO_DACHI },
-          { TV_SWORD, SV_SCIMITAR } ,
-          { TV_SWORD, SV_SHORT_SWORD } ,
-          { TV_SWORD, SV_SMALL_SWORD } ,
-          { TV_SWORD, SV_TULWAR } ,
-          { TV_SWORD, SV_TWO_HANDED_SWORD } ,
-          { TV_SWORD, SV_WAKIZASHI } ,
-          { TV_SWORD, SV_ZWEIHANDER } ,
-          { TV_SWORD, SV_RUNESWORD } ,
-          { 0, 0 },
-        },
-        {
-          {  5,   0,  0, _burning_blade_spell },
-          { 10,   0,  0, _ice_blade_spell },
-          { 15,   0,  0, _thunder_blade_spell },
-          { 25,  20, 50, _judge_spell },
-          { 25,   0,  0, _blood_blade_spell },
-          { 30,   0,  0, _holy_blade_spell },
-          { 35,   0,  0, _order_blade_spell },
-          { 40,   0,  0, _wild_blade_spell },
-          { -1,   0,  0, NULL },
-        },
+      "You will become a true swordmaster! Mastery of the blade will augment "
+      "your weapon with elemental, vorpal or vampiric powers.",
+      _WEAPONMASTER_MELEE,
+    /*  S   I   W   D   C   C */
+      {+1, -1, -1, +1, +1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  25,  23,  31,   1,  14,   2, 70, 25},
+      {  11,   9,  10,   0,   0,   0, 29, 11},
+      { { TV_SWORD, SV_BASTARD_SWORD } ,
+        { TV_SWORD, SV_BROKEN_SWORD } ,
+        { TV_SWORD, SV_BLADE_OF_CHAOS } ,
+        { TV_SWORD, SV_BROAD_SWORD } ,
+        { TV_SWORD, SV_CLAYMORE } ,
+        { TV_SWORD, SV_CUTLASS } ,
+        { TV_SWORD, SV_DIAMOND_EDGE } ,
+        { TV_SWORD, SV_ESPADON } ,
+        { TV_SWORD, SV_EXECUTIONERS_SWORD } ,
+        { TV_SWORD, SV_FLAMBERGE } ,
+        { TV_SWORD, SV_GREAT_SCIMITAR } , /* Falchion */
+        { TV_SWORD, SV_KATANA } ,
         { TV_SWORD, SV_LONG_SWORD } ,
+        { TV_SWORD, SV_KHOPESH } ,
+        { TV_SWORD, SV_NO_DACHI },
+        { TV_SWORD, SV_SCIMITAR } ,
+        { TV_SWORD, SV_SHORT_SWORD } ,
+        { TV_SWORD, SV_SMALL_SWORD } ,
+        { TV_SWORD, SV_TULWAR } ,
+        { TV_SWORD, SV_TWO_HANDED_SWORD } ,
+        { TV_SWORD, SV_WAKIZASHI } ,
+        { TV_SWORD, SV_ZWEIHANDER } ,
+        { TV_SWORD, SV_RUNESWORD } ,
+        { 0, 0 },
+      },
+      {
+        {  5,   0,  0, _burning_blade_spell },
+        { 10,   0,  0, _ice_blade_spell },
+        { 15,   0,  0, _thunder_blade_spell },
+        { 25,  20, 50, _judge_spell },
+        { 25,   0,  0, _blood_blade_spell },
+        { 30,   0,  0, _holy_blade_spell },
+        { 35,   0,  0, _order_blade_spell },
+        { 40,   0,  0, _wild_blade_spell },
+        { -1,   0,  0, NULL },
+      },
+      { TV_SWORD, SV_LONG_SWORD } ,
     },
     { "Diggers",
-      "A master of digging.  You prefer rocky enclosures and don't mind "
-      "lugging around a corpse or two.",
+      "A master of digging. You prefer rocky enclosures and don't mind "
+      "lugging around a corpse or two, which you can bury in a pinch for "
+      "a temporary bonus. You can choose one of several postures which allow "
+      "you to use the digging bonus of your current weapon as an additional "
+      "bonus, such as increased strength, constitution, or even speed! So keep "
+      "your eye open for those +8 diggers!",
       _WEAPONMASTER_MELEE,
-      { 
+    /*  S   I   W   D   C   C */
+      {+2, -1, -1,  0, +1,  0},
+    /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
+      {  25,  25,  33,   3,  14,   2, 60, 25},
+      {   9,   9,  11,   0,   0,   0, 26, 11},
+      {
         { TV_DIGGING, SV_SHOVEL},
         { TV_DIGGING, SV_GNOMISH_SHOVEL},
         { TV_DIGGING, SV_DWARVEN_SHOVEL},
@@ -3206,7 +3265,7 @@ int weaponmaster_get_max_blows(object_type *o_ptr, int hand)
     return num;
 }
 
-static int _get_spells(spell_info* spells, int max)
+static int _get_spells_aux(spell_info* spells, int max)
 {
     int i;
     int ct = 0;
@@ -3222,12 +3281,19 @@ static int _get_spells(spell_info* spells, int max)
             current->fn = base->fn;
             current->level = base->level;
             current->cost = base->cost;
-            current->fail = calculate_fail_rate(base->level, base->fail, p_ptr->stat_ind[A_STR]);            
+            current->fail = calculate_fail_rate(base->level, base->fail, p_ptr->stat_ind[A_STR]);
         }
     }
 
+    return ct;
+}
+
+static int _get_spells(spell_info* spells, int max)
+{
+    int ct = _get_spells_aux(spells, max);
+
     if (ct == 0)
-        msg_print("You need more experience.  Why not kill something?");
+        msg_print("You need more experience. Why not kill something?");
 
     return ct;
 }
@@ -3306,7 +3372,7 @@ void weaponmaster_adjust_skills(void)
     int i, j;
     _object_kind kind;
 
-    /* Fix up skills for Speciality.  This needs to be called every time the game is loaded! */
+    /* Fix up skills for Speciality. This needs to be called every time the game is loaded! */
     /* Bang everything in class (melee, bows, shields) down to unskilled max */
     switch (_specialities[p_ptr->psubclass].kind)
     {
@@ -3322,7 +3388,7 @@ void weaponmaster_adjust_skills(void)
         break;
 
     case _WEAPONMASTER_SHIELDS:
-        /* TODO: We do not keep skills for shields.  Probably never will, either ... */
+        /* TODO: We do not keep skills for shields. Probably never will, either ... */
         break;
     }
 
@@ -3377,7 +3443,6 @@ static void _calc_bonuses(void)
         /* This assumes all bonus calcs are handled here and in _calc_weapon_bonuses() */
         p_ptr->magic_num1[0] = TOGGLE_NONE;
         p_ptr->redraw |= (PR_STATUS);
-        redraw_stuff();
     }
 
     if (p_ptr->psubclass == WEAPONMASTER_SLINGS)
@@ -3435,10 +3500,6 @@ static void _calc_bonuses(void)
 
             switch (_get_toggle())
             {
-            case TOGGLE_FLYING_DAGGER_STANCE:
-                p_ptr->stat_add[A_CON] -= 4;
-                break;
-
             case TOGGLE_SHADOW_STANCE:
                 p_ptr->shooter_info.to_d -= 10;
                 p_ptr->shooter_info.dis_to_d -= 10;
@@ -3584,6 +3645,9 @@ static void _calc_bonuses(void)
                 p_ptr->dis_to_a += 10 + p_ptr->lev*2/3;
             }
 
+            if (p_ptr->lev >= 10)
+                p_ptr->sh_retaliation = TRUE;
+
             if (p_ptr->lev >= 20)
                 p_ptr->pspeed += 2;
 
@@ -3635,11 +3699,7 @@ static void _calc_bonuses(void)
             }
             switch (_get_toggle())
             {
-            case TOGGLE_STRENGTH_OF_THE_UNDERTAKER:
-                p_ptr->stat_add[A_STR] += pval;
-                break;
             case TOGGLE_STOICISM:
-                p_ptr->stat_add[A_CON] += pval;
                 p_ptr->skills.stl += pval;
                 break;
             case TOGGLE_INDUSTRIOUS_MORTICIAN:
@@ -3698,6 +3758,97 @@ static void _calc_bonuses(void)
 
         init = TRUE;
         last_spec = spec;
+    }
+}
+
+static void _calc_stats(s16b stats[MAX_STATS])
+{
+    /* Note: _calc_stats() gets called before _calc_bonuses, so p_ptr->speciality_equip
+       won't be set yet. I suppose we could take over setting this field, but I don't like
+       relying on the non-obvious ordering of callbacks */
+    if (p_ptr->psubclass == WEAPONMASTER_DAGGERS)
+    {
+        if (_check_speciality_equip())
+        {
+            switch (_get_toggle())
+            {
+            case TOGGLE_FLYING_DAGGER_STANCE:
+                stats[A_CON] -= 4;
+                break;
+            }
+        }
+    }
+    else if (p_ptr->psubclass == WEAPONMASTER_DIGGERS)
+    {
+        if (_check_speciality_equip())
+        {
+            int pval = _max_pval();
+
+            switch (_get_toggle())
+            {
+            case TOGGLE_STRENGTH_OF_THE_UNDERTAKER:
+                stats[A_STR] += pval;
+                break;
+            case TOGGLE_STOICISM:
+                stats[A_CON] += pval;
+                break;
+            }
+        }
+    }
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    if (p_ptr->psubclass == WEAPONMASTER_DAGGERS)
+    {
+        if (p_ptr->speciality_equip)
+        {
+            if (p_ptr->lev >= 10) add_flag(flgs, TR_STEALTH);
+        }
+    }
+    else if (p_ptr->psubclass == WEAPONMASTER_SWORDS)
+    {
+        if (p_ptr->speciality_equip)
+        {
+            if (p_ptr->lev >= 45) add_flag(flgs, TR_VORPAL);
+        }
+    }
+    else if (p_ptr->psubclass == WEAPONMASTER_SHIELDS)
+    {
+        if (p_ptr->speciality_equip)
+        {
+            if (p_ptr->lev >= 45)
+            {
+                add_flag(flgs, TR_RES_ACID);
+                add_flag(flgs, TR_RES_COLD);
+                add_flag(flgs, TR_RES_FIRE);
+                add_flag(flgs, TR_RES_ELEC);
+                add_flag(flgs, TR_REFLECT);
+            }
+        }
+    }
+    else if (p_ptr->psubclass == WEAPONMASTER_STAVES)
+    {
+        if (p_ptr->speciality_equip)
+        {
+            if (p_ptr->lev >= 10) add_flag(flgs, TR_SH_REVENGE);
+            if (p_ptr->lev >= 20) add_flag(flgs, TR_SPEED);
+        }
+    }
+    else if (p_ptr->psubclass == WEAPONMASTER_DIGGERS)
+    {
+        if (p_ptr->speciality_equip)
+        {
+            switch (_get_toggle())
+            {
+            case TOGGLE_STOICISM:
+                add_flag(flgs, TR_STEALTH);
+                break;
+            case TOGGLE_INDUSTRIOUS_MORTICIAN:
+                add_flag(flgs, TR_SPEED);
+                break;
+            }
+        }
     }
 }
 
@@ -3857,24 +4008,6 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     {
         if (spec1 && p_ptr->speciality_equip && p_ptr->lev >= 30 && p_ptr->chp == p_ptr->mhp)
             info_ptr->xtra_blow += 100;
-
-        if (spec1 && p_ptr->speciality_equip)
-        {
-            switch (_get_toggle())
-            {
-            case TOGGLE_FLURRY_OF_BLOWS:
-                info_ptr->xtra_blow += 100;
-                info_ptr->to_h -= 15;
-                info_ptr->dis_to_h -= 15;
-                break;
-
-            case TOGGLE_GREATER_FLURRY:
-                info_ptr->xtra_blow += 200;
-                info_ptr->to_h -= 30;
-                info_ptr->dis_to_h -= 30;
-                break;
-            }
-        }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_DIGGERS)
     {
@@ -3970,9 +4103,9 @@ static void _move_player(void)
 
         for (i = 0; i < num_shots; i++)
         {
-            /* End the technique when the ammo runs out.   Note that "return ammo"
-               might not consume the current shot.  Note that we will intentionally spill
-               over into the next stack of shots, provided they are legal for this shooter.  */
+            /* End the technique when the ammo runs out.  Note that "return ammo"
+               might not consume the current shot. Note that we will intentionally spill
+               over into the next stack of shots, provided they are legal for this shooter. */
             if (shoot_item != INVEN_UNLIMITED_QUIVER)
             {
                 if (inventory[shoot_item].tval != p_ptr->shooter_info.tval_ammo)
@@ -3983,7 +4116,7 @@ static void _move_player(void)
                     shoot_item = _find_ammo_slot();
                     if (shoot_item < 0)
                     {
-                        msg_print("Your ammo has run out.  Time to reload!");
+                        msg_print("Your ammo has run out. Time to reload!");
                         _set_toggle(TOGGLE_NONE);
                         return;
                     }
@@ -4036,145 +4169,145 @@ static void _move_player(void)
     }
 }
 
-static void _character_dump(FILE* file)
+static void _character_dump(doc_ptr doc)
 {
-    fprintf(file, "\n\n================================== Abilities ==================================\n\n");
+    doc_printf(doc, "<topic:Abilities>================================== <color:keypress>A</color>bilities ==================================\n\n");
     
     if (p_ptr->psubclass == WEAPONMASTER_AXES)
     {
         if (p_ptr->lev >= 45)
-            fprintf(file, "  * You gain a huge bonus to damage when wielding an axe.\n");    
+            doc_printf(doc, "  * You gain a huge bonus to damage when wielding an axe.\n");
         else if (p_ptr->lev >= 20)
-            fprintf(file, "  * You gain a large bonus to damage when wielding an axe.\n");    
+            doc_printf(doc, "  * You gain a large bonus to damage when wielding an axe.\n");
         else
-            fprintf(file, "  * You gain a small bonus to damage when wielding an axe.\n");    
+            doc_printf(doc, "  * You gain a small bonus to damage when wielding an axe.\n");
         
-        fprintf(file, "  * You gain +1 max attack when wielding an axe with two hands.\n");
+        doc_printf(doc, "  * You gain +1 max attack when wielding an axe with two hands.\n");
 
         if (p_ptr->lev >= 5)
-            fprintf(file, "  * You gain a bonus to tunneling when wielding an axe.\n");
+            doc_printf(doc, "  * You gain a bonus to tunneling when wielding an axe.\n");
 
         if (p_ptr->lev >= 30)
-            fprintf(file, "  * You occasionally attack an adjacent opponent after killing a foe when wielding an axe.\n");
+            doc_printf(doc, "  * <indent>You occasionally attack an adjacent opponent after killing a foe when wielding an axe.</indent>\n");
     }
     else if (p_ptr->psubclass == WEAPONMASTER_CLUBS)
     {
-        fprintf(file, "  * Your attacks have a chance to confuse when wielding a club.\n");    
+        doc_printf(doc, "  * Your attacks have a chance to confuse when wielding a club.\n");
         
         if (p_ptr->lev >= 20)
-            fprintf(file, "  * Your attacks have a chance to knock out when wielding a club.\n");    
+            doc_printf(doc, "  * Your attacks have a chance to knock out when wielding a club.\n");
         
         if (p_ptr->lev >= 45)
-            fprintf(file, "  * Your attacks have a chance to stun when wielding a club.\n");    
+            doc_printf(doc, "  * Your attacks have a chance to stun when wielding a club.\n");
 
         if (p_ptr->lev >= 25)
-            fprintf(file, "  * You gain a bonus to hit when wielding a club.\n");
+            doc_printf(doc, "  * You gain a bonus to hit when wielding a club.\n");
 
         if (p_ptr->lev >= 40)
-            fprintf(file, "  * You gain crushing blows when wielding a club.\n");
+            doc_printf(doc, "  * You gain crushing blows when wielding a club.\n");
     }
     else if (p_ptr->psubclass == WEAPONMASTER_DAGGERS)
     {
-        fprintf(file, "  * You pay reduced energy costs when equipping a dagger.\n");    
-        fprintf(file, "  * You dual wield very effectively with daggers.\n");    
+        doc_printf(doc, "  * You pay reduced energy costs when equipping a dagger.\n");
+        doc_printf(doc, "  * You dual wield very effectively with daggers.\n");
         if (p_ptr->lev >= 20)
-            fprintf(file, "  * You gain a bonus to AC when wielding a dagger.\n");
+            doc_printf(doc, "  * You gain a bonus to AC when wielding a dagger.\n");
         if (p_ptr->lev >= 12)
-            fprintf(file, "  * You gain a bonus to stealth when wielding a dagger.\n");
+            doc_printf(doc, "  * You gain a bonus to stealth when wielding a dagger.\n");
         if (p_ptr->lev >= 30)
-            fprintf(file, "  * You gain sneak attack and backstab when wielding a dagger.\n");
+            doc_printf(doc, "  * You gain sneak attack and backstab when wielding a dagger.\n");
     }
     else if (p_ptr->psubclass == WEAPONMASTER_DIGGERS)
     {
-        fprintf(file, "  * You gain a bonus to tunneling when wielding a digger.\n");
+        doc_printf(doc, "  * You gain a bonus to tunneling when wielding a digger.\n");
         if (p_ptr->lev >= 45)
-            fprintf(file, "  * Your steps break walls when wielding a digger.\n");
+            doc_printf(doc, "  * Your steps break walls when wielding a digger.\n");
 
         if (p_ptr->lev >= 15)
-            fprintf(file, "  * You gain an AC bonus depending on the number of adjacent walls when wielding a digger.\n");
+            doc_printf(doc, "  * <indent>You gain an AC bonus depending on the number of adjacent walls when wielding a digger.</indent>\n");
     }
     else if (p_ptr->psubclass == WEAPONMASTER_POLEARMS)
     {
-        fprintf(file, "  * You occasionally get a free round of attacks after moving when wielding a polearm.\n");
+        doc_printf(doc, "  * You occasionally get a free round of attacks after moving when wielding a polearm.\n");
         if (p_ptr->lev >= 20)
-            fprintf(file, "  * You automatically attack any enemy that steps next to you when wielding a polearm.\n");
+            doc_printf(doc, "  * You automatically attack any enemy that steps next to you when wielding a polearm.\n");
         if (p_ptr->lev >= 45)
-            fprintf(file, "  * You occasionally strike all adjacent foes when wielding a polearm.\n");
+            doc_printf(doc, "  * You occasionally strike all adjacent foes when wielding a polearm.\n");
 
         if (p_ptr->lev >= 30)
-            fprintf(file, "  * You gain a bonus to hit and to AC when you don't move for 3 rounds when wielding a polearm.\n");
+            doc_printf(doc, "  * <indent>You gain a bonus to hit and to AC when you don't move for 3 rounds when wielding a polearm.</indent>\n");
     }
     else if (p_ptr->psubclass == WEAPONMASTER_SLINGS)
     {
-        fprintf(file, "  * Your ammo often returns to you when wielding a sling.\n");
+        doc_printf(doc, "  * Your ammo often returns to you when wielding a sling.\n");
         if (p_ptr->lev >= 20)
-            fprintf(file, "  * Your ammo gains extra damage dice when wielding a sling.\n");
+            doc_printf(doc, "  * Your ammo gains extra damage dice when wielding a sling.\n");
         if (p_ptr->lev >= 45)
-            fprintf(file, "  * You have access to an unlimited quiver when wielding a sling.\n");
+            doc_printf(doc, "  * You have access to an unlimited quiver when wielding a sling.\n");
 
         if (p_ptr->lev >= 10)
-            fprintf(file, "  * Your shots never miss your target once you score 3 consecutive hits when wielding a sling.\n");
+            doc_printf(doc, "  * <indent>Your shots never miss your target once you score 3 consecutive hits when wielding a sling.</indent>\n");
         if (p_ptr->lev >= 40)
-            fprintf(file, "  * You gain extra shots when wielding a sling.\n");
+            doc_printf(doc, "  * You gain extra shots when wielding a sling.\n");
     }
     else if (p_ptr->psubclass == WEAPONMASTER_SHIELDS)
     {
-        fprintf(file, "  * You gain two handed wielding bonuses even when wielding a shield.\n");
+        doc_printf(doc, "  * You gain two handed wielding bonuses even when wielding a shield.\n");
         if (p_ptr->lev >= 20)
-            fprintf(file, "  * Your inventory items are somewhat protected from destruction when wielding a shield.\n");
+            doc_printf(doc, "  * <indent>Your inventory items are somewhat protected from destruction when wielding a shield.</indent>\n");
         if (p_ptr->lev >= 45)
-            fprintf(file, "  * You gain basic resistance and reflection when wielding a shield.\n");
+            doc_printf(doc, "  * You gain basic resistance and reflection when wielding a shield.\n");
 
         if (p_ptr->lev >= 5)
-            fprintf(file, "  * You gain double the AC benefit when wielding a shield.\n");
+            doc_printf(doc, "  * You gain double the AC benefit when wielding a shield.\n");
 
         if (p_ptr->lev >= 25)
-            fprintf(file, "  * You gain a bonus to saving throws when wielding a shield.\n");
+            doc_printf(doc, "  * You gain a bonus to saving throws when wielding a shield.\n");
     
     }
     else if (p_ptr->psubclass == WEAPONMASTER_STAVES)
     {
-        fprintf(file, "  * You gain a bonus to AC until your next turn after any successful hit when wielding a staff.\n");
-        fprintf(file, "  * You suffer a penalty to speed when wielding a shield.\n");
+        doc_printf(doc, "  * <indent>You gain a bonus to AC until your next turn after any successful hit when wielding a staff.</indent>\n");
+        doc_printf(doc, "  * You suffer a penalty to speed when wielding a shield.\n");
         if (p_ptr->lev >= 5)
-            fprintf(file, "  * You gain a bonus AC after moving until your next turn when wielding a staff.\n");
+            doc_printf(doc, "  * You gain a bonus AC after moving until your next turn when wielding a staff.\n");
+        if (p_ptr->lev >= 10)
+            doc_printf(doc, "  * You retaliate when struck when wielding a staff.\n");
         if (p_ptr->lev >= 20)
-            fprintf(file, "  * You gain a bonus to speed when wielding a staff.\n");
+            doc_printf(doc, "  * You gain a bonus to speed when wielding a staff.\n");
         if (p_ptr->lev >= 30)
-            fprintf(file, "  * You gain an extra attack when you are at full health and wielding a staff.\n");
+            doc_printf(doc, "  * You gain an extra attack when you are at full health and wielding a staff.\n");
         if (p_ptr->lev >= 35)
-            fprintf(file, "  * You are unaffected by monster auras when wielding a staff.\n");
+            doc_printf(doc, "  * You are unaffected by monster auras when wielding a staff.\n");
     }
     else if (p_ptr->psubclass == WEAPONMASTER_SWORDS)
     {
-        fprintf(file, "  * You gain a bonus to hit when wielding a sword.\n");
+        doc_printf(doc, "  * You gain a bonus to hit when wielding a sword.\n");
         if (p_ptr->lev >= 20)
-            fprintf(file, "  * You gain constant heroism when wielding a sword.\n");
+            doc_printf(doc, "  * You gain constant heroism when wielding a sword.\n");
         if (p_ptr->lev >= 45)
-            fprintf(file, "  * You gain vorpal attacks when wielding a sword.\n");
+            doc_printf(doc, "  * You gain vorpal attacks when wielding a sword.\n");
     }
 
-    fprintf(file, "\n");
+    doc_newline(doc);
 
     {
         spell_info spells[MAX_SPELLS];
-        int        ct = _get_spells(spells, MAX_SPELLS);
+        int        ct = _get_spells_aux(spells, MAX_SPELLS);
 
-        dump_spells_aux(file, spells, ct);
+        if (ct)
+            py_display_spells(doc, spells, ct);
     }
 }
 
-class_t *weaponmaster_get_class_t(void)
+class_t *weaponmaster_get_class(int subclass)
 {
     static class_t me = {0};
-    static bool init = FALSE;
+    static bool    init = FALSE;
 
     /* static info never changes */
     if (!init)
-    {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  28,  28,   1,  20,  10,  60,  45};
-    skills_t xs = { 10,  10,  10,   0,   0,   0,  21,  15};
-
+    {
         me.name = "Weaponmaster";
         me.desc = "The weaponmaster is great with a single class of weapons. "
                   "The character gets combat bonuses and special powers "
@@ -4182,16 +4315,6 @@ class_t *weaponmaster_get_class_t(void)
                   "weaponmaster is truly lousy when using any weapon "
                   "outside their chosen specialty so focus is key.";
 
-        me.stats[A_STR] =  3;
-        me.stats[A_INT] = -1;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  1;
-        me.stats[A_CON] =  1;
-        me.stats[A_CHR] =  1;
-
-        me.base_skills = bs;
-        me.extra_skills = xs;
-        
         me.life = 109;
         me.base_hp = 12;
         me.exp = 135;
@@ -4201,6 +4324,8 @@ class_t *weaponmaster_get_class_t(void)
         me.get_spells = _get_spells;
         me.birth = _on_birth;
         me.calc_bonuses = _calc_bonuses;
+        me.calc_stats = _calc_stats;
+        me.get_flags = _get_flags;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.move_player = _move_player;
@@ -4209,14 +4334,32 @@ class_t *weaponmaster_get_class_t(void)
         me.character_dump = _character_dump;
         init = TRUE;
     }
-    
-    if (_specialities[p_ptr->psubclass].kind == _WEAPONMASTER_BOWS)
     {
-        me.base_skills.thb = 60;
-        me.extra_skills.thb = 21;
+        me.stats[A_STR] =  1;
+        me.stats[A_INT] = -1;
+        me.stats[A_WIS] = -1;
+        me.stats[A_DEX] =  1;
+        me.stats[A_CON] =  1;
+        me.stats[A_CHR] =  1;
+    }
+    if (0 <= subclass && subclass < WEAPONMASTER_MAX)
+    {
+        _speciality *ptr = &_specialities[subclass];
+        int          i;
 
-        me.base_skills.thn = 45;
-        me.extra_skills.thn = 15;
+        for (i = 0; i < MAX_STATS; i++)
+            me.stats[i] += ptr->stats[i];
+
+        me.base_skills = ptr->base_skills;
+        me.extra_skills = ptr->extra_skills;
+
+        me.subname = ptr->name;
+        me.subdesc = ptr->help;
+    }
+    else
+    {
+        me.subname = "";
+        me.subdesc = "";
     }
 
     return &me;
@@ -4241,12 +4384,6 @@ cptr weaponmaster_speciality_name(int psubclass)
 {
     /* assert(p_ptr->pclass == CLASS_WEAPONMASTER); */
     return _specialities[psubclass].name;
-}
-
-cptr weaponmaster_speciality_desc(int psubclass)
-{
-    /* assert(p_ptr->pclass == CLASS_WEAPONMASTER); */
-    return _specialities[psubclass].help;
 }
 
 void weaponmaster_do_readied_shot(monster_type *m_ptr)

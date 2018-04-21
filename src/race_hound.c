@@ -128,7 +128,7 @@ static int _bite_effect(void)
 void hound_calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
-    int to_d = l/10 + l*l/500 + l*l*l/25000;
+    int to_d = py_prorata_level(15);
     int to_h = l/2;
 
     /* Claws */
@@ -142,7 +142,7 @@ void hound_calc_innate_attacks(void)
 
         a.weight = 100;
         calc_innate_blows(&a, 200);
-        a.msg = "You claw %s.";
+        a.msg = "You claw.";
         a.name = "Claw";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -160,7 +160,7 @@ void hound_calc_innate_attacks(void)
         a.effect[0] = _bite_effect();
 
         calc_innate_blows(&a, 300);
-        a.msg = "You bite %s.";
+        a.msg = "You bite.";
         a.name = "Bite";
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
     }
@@ -231,8 +231,7 @@ static int _breath_effect(void)
 
 static int _breath_amount(void)
 {
-    int l = p_ptr->lev;
-    int pct = 15 + l/10 + l*l/500 + l*l*l/12500;
+    int pct = 15 + py_prorata_level(15);
     return MAX(5, p_ptr->chp * pct / 100);
 }
 
@@ -386,8 +385,7 @@ static int _get_powers(spell_info* spells, int max) {
     return ct;
 }
 static void _calc_bonuses(void) {
-    int l = p_ptr->lev;
-    int to_a = l/10 + l*l/250 + l*l*l/12500;
+    int to_a = py_prorata_level_aux(25, 1, 2, 2);
     int tier = _find_tier(p_ptr->current_r_idx);
 
     p_ptr->skill_dig += 100;
@@ -546,12 +544,15 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
         break;
     case MON_SHADOW_HOUND:
         add_flag(flgs, TR_RES_DARK);
+        add_flag(flgs, TR_VULN_LITE);
         break;
     case MON_FIRE_HOUND:
         add_flag(flgs, TR_RES_FIRE);
+        add_flag(flgs, TR_VULN_COLD);
         break;
     case MON_COLD_HOUND:
         add_flag(flgs, TR_RES_COLD);
+        add_flag(flgs, TR_VULN_FIRE);
         break;
     case MON_ENERGY_HOUND:
         add_flag(flgs, TR_RES_ELEC);
@@ -659,20 +660,6 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
         break;
     }
 }
-static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_SHADOW_HOUND:
-        add_flag(flgs, TR_RES_LITE);
-        break;
-    case MON_FIRE_HOUND:
-        add_flag(flgs, TR_RES_COLD);
-        break;
-    case MON_COLD_HOUND:
-        add_flag(flgs, TR_RES_FIRE);
-        break;
-    }
-}
 static void _gain_level(int new_level) {
     int tier = _find_tier(p_ptr->current_r_idx);
     if (tier < 0 || tier == _MAX_TIERS - 1) return;
@@ -683,7 +670,7 @@ static void _gain_level(int new_level) {
         p_ptr->redraw |= PR_MAP;
     }
 }
-race_t *mon_hound_get_race_t(void)
+race_t *mon_hound_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -719,12 +706,12 @@ race_t *mon_hound_get_race_t(void)
         me.exp = 150;
         me.life = 100;
         me.base_hp = 22;
+        me.shop_adjust = 110;
 
         me.calc_innate_attacks = hound_calc_innate_attacks;
         me.calc_bonuses = _calc_bonuses;
         me.get_powers = _get_powers;
         me.get_flags = _get_flags;
-        me.get_vulnerabilities = _get_vulnerabilities;
         me.gain_level = _gain_level;
         me.birth = _birth;
 

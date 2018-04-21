@@ -1,0 +1,12 @@
+An Introduction and General Information.
+
+Please choose one of the following online help files:
+
+    [a] General Information
+    [b] First Place to Go
+    [c] Winning the Game
+    [d] Upon Death and Dying
+    [e] The Newbie Guide
+
+    (?) Help System Commands
+

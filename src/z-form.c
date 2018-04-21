@@ -40,11 +40,11 @@
  *
  * Note that a "^" inside a "format sequence" causes the first non-space
  * character in the string resulting from the combination of the format
- * sequence and the argument(s) to be "capitalized" if possible.  Note
+ * sequence and the argument(s) to be "capitalized" if possible. Note
  * that the "^" character is removed before the "standard" formatting
- * routines are called.  Likewise, a "*" inside a "format sequence" is
+ * routines are called. Likewise, a "*" inside a "format sequence" is
  * removed from the "format sequence", and replaced by the textual form
- * of the next argument in the argument list.  See examples below.
+ * of the next argument in the argument list. See examples below.
  *
  * Legal format characters: %,n,p,c,s,d,i,o,u,X,x,E,e,F,f,G,g,r,v.
  *
@@ -155,7 +155,7 @@
 typedef uint (*vstrnfmt_aux_func)(char *buf, uint max, cptr fmt, vptr arg);
 
 /*
- * The "default" user defined print routine.  Ignore the "fmt" string.
+ * The "default" user defined print routine. Ignore the "fmt" string.
  */
 static uint vstrnfmt_aux_dflt(char *buf, uint max, cptr fmt, vptr arg)
 {
@@ -175,7 +175,7 @@ static uint vstrnfmt_aux_dflt(char *buf, uint max, cptr fmt, vptr arg)
 }
 
 /*
- * The "current" user defined print routine.  It can be changed
+ * The "current" user defined print routine. It can be changed
  * dynamically by sending the proper "%r" sequence to "vstrnfmt()"
  */
 static vstrnfmt_aux_func vstrnfmt_aux = vstrnfmt_aux_dflt;
@@ -187,15 +187,15 @@ static vstrnfmt_aux_func vstrnfmt_aux = vstrnfmt_aux_dflt;
  *
  * This function takes a buffer, a max byte count, a format string, and
  * a va_list of arguments to the format string, and uses the format string
- * and the arguments to create a string to the buffer.  The string is
+ * and the arguments to create a string to the buffer. The string is
  * derived from the format string and the arguments in the manner of the
- * "sprintf()" function, but with some extra "format" commands.  Note that
+ * "sprintf()" function, but with some extra "format" commands. Note that
  * this function will never use more than the given number of bytes in the
- * buffer, preventing messy invalid memory references.  This function then
+ * buffer, preventing messy invalid memory references. This function then
  * returns the total number of non-null bytes written into the buffer.
  *
  * Method: Let "str" be the (unlimited) created string, and let "len" be the
- * smaller of "max-1" and "strlen(str)".  We copy the first "len" chars of
+ * smaller of "max-1" and "strlen(str)". We copy the first "len" chars of
  * "str" into "buf", place "\0" into buf[len], and return "len".
  *
  * In English, we do a sprintf() into "buf", a buffer with size "max",
@@ -203,20 +203,20 @@ static vstrnfmt_aux_func vstrnfmt_aux = vstrnfmt_aux_dflt;
  * special format commands, and we are more careful than "sprintf()".
  *
  * Typically, "max" is in fact the "size" of "buf", and thus represents
- * the "number" of chars in "buf" which are ALLOWED to be used.  An
+ * the "number" of chars in "buf" which are ALLOWED to be used. An
  * alternative definition would have required "buf" to hold at least
  * "max+1" characters, and would have used that extra character only
- * in the case where "buf" was too short for the result.  This would
+ * in the case where "buf" was too short for the result. This would
  * give an easy test for "overflow", but a less "obvious" semantics.
  *
  * Note that if the buffer was "too short" to hold the result, we will
  * always return "max-1", but we also return "max-1" if the buffer was
- * "just long enough".  We could have returned "max" if the buffer was
+ * "just long enough". We could have returned "max" if the buffer was
  * too short, not written a null, and forced the programmer to deal with
  * this special case, but I felt that it is better to at least give a
  * "usable" result when the buffer was too long instead of either giving
  * a memory overwrite like "sprintf()" or a non-terminted string like
- * "strncpy()".  Note that "strncpy()" also "null-pads" the result.
+ * "strncpy()". Note that "strncpy()" also "null-pads" the result.
  *
  * Note that in most cases "just long enough" is probably "too short".
  *

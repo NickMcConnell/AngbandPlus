@@ -435,7 +435,7 @@ static void _birth(void)
     forge.number = 10;
     add_outfit(&forge);
 
-    show_file(TRUE, "rings.txt", NULL, 0, 0);
+    doc_display_help("rings.txt", NULL);
 }
 
 static bool _drain_essences(int div)
@@ -598,6 +598,7 @@ static void _detect_spell(int cmd, variant *res)
             if (distance(py, px, y, x) > rng) continue;
             if (!object_is_jewelry(o_ptr)) continue;
             o_ptr->marked |= OM_FOUND;
+            p_ptr->window |= PW_OBJECT_LIST;
             lite_spot(y, x);
             detect = TRUE;
         }
@@ -646,7 +647,7 @@ static void _glitter_spell(int cmd, variant *res)
         var_set_string(res, "Glitter");
         break;
     case SPELL_DESC:
-        var_set_string(res, "This spell makes yourself irresistable to potential ring bearers.");
+        var_set_string(res, "This spell makes yourself irresistible to potential ring bearers.");
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
@@ -901,7 +902,7 @@ static _group_t _groups[] = {
         { EFFECT_EARTHQUAKE,          25,  20, 60 },
         { EFFECT_RUNE_EXPLOSIVE,      29,  25, 65 },
         { EFFECT_ENCHANTMENT,         30,  80, 85 },
-        { EFFECT_RECHARGING,          35,  30, 65 },
+        { EFFECT_RECHARGE_FROM_DEVICE,35,  30, 65 },
         { EFFECT_RUNE_PROTECTION,     37,  50, 70 },
         { EFFECT_DESTRUCTION,         40,  35, 70 },
         { EFFECT_ALCHEMY,             43,  90, 70 },
@@ -1042,7 +1043,8 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
         effect_t effect = {0};
 
         effect.type = s->effect;
-        effect.level = s->level;
+        effect.power = s->level;
+        effect.difficulty = s->level;
 
         sprintf(name, "%s", do_effect(&effect, SPELL_NAME, 0));
         sprintf(info, "%s", do_effect(&effect, SPELL_INFO, _boost(s->effect)));
@@ -1057,7 +1059,8 @@ static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
         effect_t effect;
 
         effect.type = s->effect;
-        effect.level = s->level;
+        effect.power = s->level;
+        effect.difficulty = s->level;
         var_set_string(res, do_effect(&effect, SPELL_DESC, 0));
         break;
     }
@@ -1174,7 +1177,8 @@ void ring_cast(void)
     {
         effect_t effect = {0};
         effect.type = spell.effect;
-        effect.level = spell.level;
+        effect.power = spell.level;
+        effect.difficulty = spell.level;
         device_known = TRUE; /* Hack */
         if (!do_effect(&effect, SPELL_CAST, _boost(spell.effect)))
         {
@@ -1184,7 +1188,6 @@ void ring_cast(void)
     energy_use = 100;
     p_ptr->redraw |= PR_MANA;
     p_ptr->redraw |= PR_HP;
-    p_ptr->window |= PW_PLAYER;
     p_ptr->window |= PW_SPELL;
 }
 
@@ -1211,7 +1214,8 @@ static void _browse(void)
                 Term_erase(13, ct + i + 2, 255);
 
             effect.type = spell.effect;
-            effect.level = spell.level;
+            effect.power = spell.level;
+            effect.difficulty = spell.level;
             sprintf(desc, "%s", do_effect(&effect, SPELL_DESC, 0));
             roff_to_buf(desc, 62, tmp, sizeof(tmp));
 
@@ -1250,9 +1254,6 @@ static void _calc_bonuses(void)
 
     /* Speed rings come very late, and very unreliably ... */
     p_ptr->pspeed += p_ptr->lev / 10;
-
-    for (i = 0; i < 6; i++) /* Assume in order */
-        p_ptr->stat_add[A_STR + i] += _calc_stat_bonus(TR_STR + i);
 
     for (i = 0; i < RES_MAX; i++)
     {
@@ -1352,21 +1353,11 @@ static void _calc_bonuses(void)
         p_ptr->sh_cold = TRUE;
 }
 
-static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
+static void _calc_stats(s16b stats[MAX_STATS])
 {
-    add_flag(flgs, TR_RES_ELEC);
-}
-
-static void _get_immunities(u32b flgs[TR_FLAG_SIZE]) 
-{
-    if (_essences[TR_IM_ACID] >= 3)
-        add_flag(flgs, TR_RES_ACID);
-    if (_essences[TR_IM_ELEC] >= 3)
-        add_flag(flgs, TR_RES_ELEC);
-    if (_essences[TR_IM_FIRE] >= 3)
-        add_flag(flgs, TR_RES_FIRE);
-    if (_essences[TR_IM_COLD] >= 3)
-        add_flag(flgs, TR_RES_COLD);
+    int i;
+    for (i = 0; i < 6; i++)
+        stats[i] += _calc_stat_bonus(TR_STR + i);
 }
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
@@ -1374,6 +1365,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     int i;
 
     add_flag(flgs, TR_LITE);
+    add_flag(flgs, TR_VULN_ELEC);
 
     for (i = 0; i < 6; i++) /* Assume in order */
     {
@@ -1440,17 +1432,26 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_SH_ELEC);
     if (_essences[TR_SH_COLD] >= 7)
         add_flag(flgs, TR_SH_COLD);
+
+    if (_essences[TR_IM_ACID] >= 3)
+        add_flag(flgs, TR_IM_ACID);
+    if (_essences[TR_IM_ELEC] >= 3)
+        add_flag(flgs, TR_IM_ELEC);
+    if (_essences[TR_IM_FIRE] >= 3)
+        add_flag(flgs, TR_IM_FIRE);
+    if (_essences[TR_IM_COLD] >= 3)
+        add_flag(flgs, TR_IM_COLD);
 }
 
 /**********************************************************************
  * Character Dump
  **********************************************************************/
-static void _dump_ability_flag(FILE* fff, int which, int threshold, cptr name)
+static void _dump_ability_flag(doc_ptr doc, int which, int threshold, cptr name)
 {
     int n = _essences[which];
     if (n > 0)
     {
-        fprintf(fff, "   %-22.22s %5d %5d %5.5s\n", 
+        doc_printf(doc, "   %-22.22s %5d %5d %5.5s\n",
             name,
             n, 
             threshold,
@@ -1458,12 +1459,12 @@ static void _dump_ability_flag(FILE* fff, int which, int threshold, cptr name)
         );
     }
 }
-static void _dump_bonus_flag(FILE* fff, int which, int power, int rep, cptr name)
+static void _dump_bonus_flag(doc_ptr doc, int which, int power, int rep, cptr name)
 {
     int n = _essences[which];
     if (n > 0)
     {
-        fprintf(fff, "   %-22.22s %5d %5d %+5d\n", 
+        doc_printf(doc, "   %-22.22s %5d %5d %+5d\n",
             name,
             n, 
             _calc_needed(n, power, rep),
@@ -1472,7 +1473,7 @@ static void _dump_bonus_flag(FILE* fff, int which, int power, int rep, cptr name
     }
 }
 
-static void _dump_effects(FILE* fff)
+static void _dump_effects(doc_ptr doc)
 {
     int i, j;
     for (i = 0; ; i++)
@@ -1492,7 +1493,8 @@ static void _dump_effects(FILE* fff)
                 effect_t effect = {0};
 
                 effect.type = s->effect;
-                effect.level = s->level;
+                effect.power = s->level;
+                effect.difficulty = s->level;
 
                 sprintf(name, "%s", do_effect(&effect, SPELL_NAME, 0));
                 sprintf(info, "%s", do_effect(&effect, SPELL_INFO, _boost(s->effect)));
@@ -1504,91 +1506,87 @@ static void _dump_effects(FILE* fff)
 
                 if (!ct)
                 {
-                    fprintf(fff, "\n   %-30.30s  Ct Lvl Cst Fail Info\n", g->name);
-                    fprintf(fff, "   ------------------------------ --- --- --- ---- ----------------\n");
+                    doc_printf(doc, "\n   <color:G>%-30.30s  Ct Lvl Cst Fail Info</color>\n", g->name);
                 }
-                fprintf(fff, "   %s\n", buf);
+                doc_printf(doc, "   %s\n", buf);
                 ct++;
             }
         }
     }
 }
 
-static void _character_dump(FILE* fff)
+static void _character_dump(doc_ptr doc)
 {
     int i;
-    fprintf(fff, "\n\n=================================== Essences ==================================\n");
-    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Stats");
-    fprintf(fff, "   ---------------------- ----- ----- -----\n");
+    doc_printf(doc, "<topic:Essences>=================================== <color:keypress>E</color>ssences ==================================\n\n");
+    doc_printf(doc, "   <color:G>%-22.22s Total  Need Bonus</color>\n", "Stats");
     for (i = 0; i < 6; i++) /* Assume in order */
-        _dump_bonus_flag(fff, TR_STR + i, 2, 1, stat_name_true[A_STR + i]);
+        _dump_bonus_flag(doc, TR_STR + i, 2, 1, stat_name_true[A_STR + i]);
 
-    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Skills");
-    fprintf(fff, "   ---------------------- ----- ----- -----\n");
-    _dump_bonus_flag(fff, TR_ES_AC, 1, 15, "To AC");
-    _dump_bonus_flag(fff, TR_STEALTH, 2, 1, "Stealth");
-    _dump_bonus_flag(fff, TR_SPEED, 1, 5, "Speed");
-    _dump_bonus_flag(fff, TR_LIFE, 7, 1, "Life");
-    _dump_bonus_flag(fff, TR_SEARCH, 2, 1, "Searching");
-    _dump_bonus_flag(fff, TR_INFRA, 2, 1, "Infravision");
-    _dump_bonus_flag(fff, TR_TUNNEL, 2, 1, "Digging");
-    _dump_bonus_flag(fff, TR_LITE, 1, 1, "Light");
-    _dump_bonus_flag(fff, TR_MAGIC_MASTERY, 2, 1, "Magic Mastery");
-    _dump_bonus_flag(fff, TR_DEVICE_POWER, 2, 1, "Device Power");
-    _dump_bonus_flag(fff, TR_SPELL_POWER, 2, 1, "Spell Power");
-    _dump_bonus_flag(fff, TR_SPELL_CAP, 2, 1, "Spell Capacity");
+    doc_printf(doc, "\n   <color:G>%-22.22s Total  Need Bonus</color>\n", "Skills");
+    _dump_bonus_flag(doc, TR_ES_AC, 1, 15, "To AC");
+    _dump_bonus_flag(doc, TR_STEALTH, 2, 1, "Stealth");
+    _dump_bonus_flag(doc, TR_SPEED, 1, 5, "Speed");
+    _dump_bonus_flag(doc, TR_LIFE, 7, 1, "Life");
+    _dump_bonus_flag(doc, TR_SEARCH, 2, 1, "Searching");
+    _dump_bonus_flag(doc, TR_INFRA, 2, 1, "Infravision");
+    _dump_bonus_flag(doc, TR_TUNNEL, 2, 1, "Digging");
+    _dump_bonus_flag(doc, TR_LITE, 1, 1, "Light");
+    _dump_bonus_flag(doc, TR_MAGIC_MASTERY, 2, 1, "Magic Mastery");
+    _dump_bonus_flag(doc, TR_DEVICE_POWER, 2, 1, "Device Power");
+    _dump_bonus_flag(doc, TR_SPELL_POWER, 2, 1, "Spell Power");
+    _dump_bonus_flag(doc, TR_SPELL_CAP, 2, 1, "Spell Capacity");
  
-    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Resistances");
-    fprintf(fff, "   ---------------------- ----- ----- -----\n");
+    doc_printf(doc, "\n   <color:G>%-22.22s Total  Need Bonus</color>\n", "Resistances");
     for (i = 0; i < RES_MAX; i++)
-        _dump_bonus_flag(fff, res_get_object_flag(i), _res_power(i), 1, format("%^s", res_name(i)));
+        _dump_bonus_flag(doc, res_get_object_flag(i), _res_power(i), 1, format("%^s", res_name(i)));
 
-    _dump_ability_flag(fff, TR_IM_ACID, 2, "Immune Acid");
-    _dump_ability_flag(fff, TR_IM_ELEC, 2, "Immune Elec");
-    _dump_ability_flag(fff, TR_IM_FIRE, 2, "Immune Fire");
-    _dump_ability_flag(fff, TR_IM_COLD, 2, "Immune Cold");
+    _dump_ability_flag(doc, TR_IM_ACID, 2, "Immune Acid");
+    _dump_ability_flag(doc, TR_IM_ELEC, 2, "Immune Elec");
+    _dump_ability_flag(doc, TR_IM_FIRE, 2, "Immune Fire");
+    _dump_ability_flag(doc, TR_IM_COLD, 2, "Immune Cold");
 
-    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "Abilities");
-    fprintf(fff, "   ---------------------- ----- ----- -----\n");
-    _dump_ability_flag(fff, TR_FREE_ACT, 1, "Free Action");
-    _dump_ability_flag(fff, TR_SEE_INVIS, 1, "See Invisible");
-    _dump_ability_flag(fff, TR_LEVITATION, 2, "Levitation");
-    _dump_ability_flag(fff, TR_SLOW_DIGEST, 2, "Slow Digestion");
-    _dump_ability_flag(fff, TR_HOLD_LIFE, 7, "Hold Life");
-    _dump_ability_flag(fff, TR_REGEN, 7, "Regeneration");
-    _dump_bonus_flag(fff, TR_DEC_MANA, 1, 1, "Economical Mana");
-    _dump_ability_flag(fff, TR_EASY_SPELL, 7, "Wizardry");
-    _dump_ability_flag(fff, TR_REFLECT, 7, "Reflection");
-    _dump_ability_flag(fff, TR_SH_FIRE, 7, "Aura Fire");
-    _dump_ability_flag(fff, TR_SH_ELEC, 7, "Aura Elec");
-    _dump_ability_flag(fff, TR_SH_COLD, 7, "Aura Cold");
+    doc_printf(doc, "\n   <color:G>%-22.22s Total  Need Bonus</color>\n", "Abilities");
+    _dump_ability_flag(doc, TR_FREE_ACT, 1, "Free Action");
+    _dump_ability_flag(doc, TR_SEE_INVIS, 1, "See Invisible");
+    _dump_ability_flag(doc, TR_LEVITATION, 2, "Levitation");
+    _dump_ability_flag(doc, TR_SLOW_DIGEST, 2, "Slow Digestion");
+    _dump_ability_flag(doc, TR_HOLD_LIFE, 7, "Hold Life");
+    _dump_ability_flag(doc, TR_REGEN, 7, "Regeneration");
+    _dump_bonus_flag(doc, TR_DEC_MANA, 1, 1, "Economical Mana");
+    _dump_ability_flag(doc, TR_EASY_SPELL, 7, "Wizardry");
+    _dump_ability_flag(doc, TR_REFLECT, 7, "Reflection");
+    _dump_ability_flag(doc, TR_SH_FIRE, 7, "Aura Fire");
+    _dump_ability_flag(doc, TR_SH_ELEC, 7, "Aura Elec");
+    _dump_ability_flag(doc, TR_SH_COLD, 7, "Aura Cold");
     for (i = 0; i < 6; i++) /* Assume in order */
-        _dump_ability_flag(fff, TR_SUST_STR + i, 5, format("Sustain %s", stat_name_true[A_STR + i]));
+        _dump_ability_flag(doc, TR_SUST_STR + i, 5, format("Sustain %s", stat_name_true[A_STR + i]));
 
-    fprintf(fff, "\n   %-22.22s Total  Need Bonus\n", "ESP");
-    fprintf(fff, "   ---------------------- ----- ----- -----\n");
-    _dump_ability_flag(fff, TR_TELEPATHY, 2, "Telepathy");
-    _dump_ability_flag(fff, TR_ESP_ANIMAL, 2, "ESP Animals");
-    _dump_ability_flag(fff, TR_ESP_UNDEAD, 2, "ESP Undead");
-    _dump_ability_flag(fff, TR_ESP_DEMON, 2, "ESP Demon");
-    _dump_ability_flag(fff, TR_ESP_ORC, 2, "ESP Orc");
-    _dump_ability_flag(fff, TR_ESP_TROLL, 2, "ESP Troll");
-    _dump_ability_flag(fff, TR_ESP_GIANT, 2, "ESP Giant");
-    _dump_ability_flag(fff, TR_ESP_DRAGON, 2, "ESP Dragon");
-    _dump_ability_flag(fff, TR_ESP_HUMAN, 2, "ESP Human");
-    _dump_ability_flag(fff, TR_ESP_EVIL, 2, "ESP Evil");
-    _dump_ability_flag(fff, TR_ESP_GOOD, 2, "ESP Good");
-    _dump_ability_flag(fff, TR_ESP_NONLIVING, 2, "ESP Nonliving");
-    _dump_ability_flag(fff, TR_ESP_UNIQUE, 2, "ESP Unique");
+    doc_printf(doc, "\n   <color:G>%-22.22s Total  Need Bonus</color>\n", "ESP");
+    _dump_ability_flag(doc, TR_TELEPATHY, 2, "Telepathy");
+    _dump_ability_flag(doc, TR_ESP_ANIMAL, 2, "ESP Animals");
+    _dump_ability_flag(doc, TR_ESP_UNDEAD, 2, "ESP Undead");
+    _dump_ability_flag(doc, TR_ESP_DEMON, 2, "ESP Demon");
+    _dump_ability_flag(doc, TR_ESP_ORC, 2, "ESP Orc");
+    _dump_ability_flag(doc, TR_ESP_TROLL, 2, "ESP Troll");
+    _dump_ability_flag(doc, TR_ESP_GIANT, 2, "ESP Giant");
+    _dump_ability_flag(doc, TR_ESP_DRAGON, 2, "ESP Dragon");
+    _dump_ability_flag(doc, TR_ESP_HUMAN, 2, "ESP Human");
+    _dump_ability_flag(doc, TR_ESP_EVIL, 2, "ESP Evil");
+    _dump_ability_flag(doc, TR_ESP_GOOD, 2, "ESP Good");
+    _dump_ability_flag(doc, TR_ESP_NONLIVING, 2, "ESP Nonliving");
+    _dump_ability_flag(doc, TR_ESP_UNIQUE, 2, "ESP Unique");
 
-    fprintf(fff, "\n\n==================================== Spells ===================================\n");
-    _dump_effects(fff);
+    doc_printf(doc, "\n<topic:Spells>==================================== <color:keypress>S</color>pells ===================================\n");
+    _dump_effects(doc);
+
+    doc_newline(doc);
 }
 
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_ring_get_race_t(void)
+race_t *mon_ring_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -1625,23 +1623,23 @@ race_t *mon_ring_get_race_t(void)
         me.infra = 5;
         me.exp = 150;
         me.base_hp = 10;
+        me.shop_adjust = 110; /* Really should depend on current bearer */
 
         me.calc_bonuses = _calc_bonuses;
+        me.calc_stats = _calc_stats;
 
         me.get_powers = _get_powers;
         me.caster_info = _caster_info;
 
         me.character_dump = _character_dump;
         me.get_flags = _get_flags;
-        me.get_immunities = _get_immunities;
-        me.get_vulnerabilities = _get_vulnerabilities;
         me.gain_level = _gain_level;
         me.birth = _birth;
 
         me.load_player = _load;
         me.save_player = _save;
 
-        me.flags = RACE_IS_MONSTER;
+        me.flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
         me.pseudo_class_idx = CLASS_MAGE;
         me.boss_r_idx = MON_ONE_RING;
 
@@ -1676,7 +1674,7 @@ int ring_calc_torch(void)
 bool ring_disenchant(void)
 {
     bool result = FALSE;
-    if (!res_save(RES_DISEN, 70) && _drain_essences(20))
+    if (!res_save(RES_DISEN, 44) && _drain_essences(20))
     {
         msg_print("You feel power draining from your body!");
         result = TRUE;
@@ -1766,7 +1764,7 @@ bool ring_dominate_m(int m_idx)
             p_ptr->update |= PU_UN_VIEW | PU_UN_LITE;
             p_ptr->update |= PU_BONUS;
             p_ptr->redraw |= PR_MAP | PR_EXTRA;
-            p_ptr->redraw |= PR_UHEALTH;
+            p_ptr->redraw |= PR_HEALTH_BARS;
             move_player_effect(m_ptr->fy, m_ptr->fx, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
         
             return TRUE;
@@ -1822,14 +1820,14 @@ void ring_process_m(int m_idx)
             }
             if (sn && sy && sx)
             {
-                msg_format("%^s removes you in disgust.", m_name);
+                cmsg_format(TERM_VIOLET, "%^s removes you in disgust.", m_name);
                 oy = py;
                 ox = px;
                 py = sy;
                 px = sx;
                 lite_spot(oy, ox);
                 lite_spot(py, px);
-                verify_panel();
+                viewport_verify();
                 set_hostile(m_ptr);
                 p_ptr->riding = 0;
                 calc_bonuses();
@@ -1837,7 +1835,7 @@ void ring_process_m(int m_idx)
                 p_ptr->update |= PU_BONUS | PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS;
                 p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
                 p_ptr->redraw |= PR_EXTRA;
-                p_ptr->redraw |= PR_UHEALTH;
+                p_ptr->redraw |= PR_HEALTH_BARS;
 
                 move_player_effect(py, px, MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
                 handle_stuff();
@@ -1850,8 +1848,7 @@ void ring_process_m(int m_idx)
                     char ch = inkey();
                     if (ch == ' ') break;
                 }
-                prt("", 0, 0);
-                msg_flag = FALSE; /* prevents "-more-" message. */
+                msg_line_clear();
            }
         }
     }

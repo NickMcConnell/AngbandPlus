@@ -5,12 +5,14 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Object code, part 1 */
 
 #include "angband.h"
+
+#include <assert.h>
 
 #if defined(MACINTOSH) || defined(MACH_O_CARBON)
 #ifdef verify
@@ -24,12 +26,12 @@
  *
  * If the "prefs" flag is TRUE, then we will also load the appropriate
  * "user pref file" based on the current setting of the "use_graphics"
- * flag.  This is useful for switching "graphics" on/off.
+ * flag. This is useful for switching "graphics" on/off.
  *
  * The features, objects, and monsters, should all be encoded in the
- * relevant "font.pref" and/or "graf.prf" files.  XXX XXX XXX
+ * relevant "font.pref" and/or "graf.prf" files. XXX XXX XXX
  *
- * The "prefs" parameter is no longer meaningful.  XXX XXX XXX
+ * The "prefs" parameter is no longer meaningful. XXX XXX XXX
  */
 void reset_visuals(void)
 {
@@ -271,7 +273,6 @@ void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
  */
 void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 {
-    bool spoil = FALSE;
     int i;
 
     object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -294,7 +295,7 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
     {
         ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-        if (e_ptr->aware)
+        if (ego_is_aware(o_ptr->name2) || (o_ptr->ident & IDENT_STORE))
         {
             for (i = 0; i < TR_FLAG_SIZE; i++)
                 flgs[i] |= e_ptr->flags[i];
@@ -315,19 +316,8 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
         }
     }
 
-
-#ifdef SPOIL_ARTIFACTS
-    /* Full knowledge for some artifacts */
-    if (object_is_artifact(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_ARTIFACTS */
-
-#ifdef SPOIL_EGO_ITEMS
-    /* Full knowledge for some ego-items */
-    if (object_is_ego(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_EGO_ITEMS */
-
     /* Need full knowledge or spoilers */
-    if (spoil || (o_ptr->ident & IDENT_MENTAL))
+    if (o_ptr->ident & (IDENT_STORE | IDENT_FULL))
     {
         /* Artifact */
         if (object_is_fixed_artifact(o_ptr))
@@ -391,863 +381,6 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
         }
     }
 }
-
-/*
- * Describe a "fully identified" item
- */
-bool screen_object(object_type *o_ptr, u32b mode)
-{
-    int  i = 0, j, k;
-    u32b flgs[TR_FLAG_SIZE];
-    char block1[70 * 20]; /* TODO: Rewrite me! */
-    char block3[70 * 20];
-    cptr info[128]; /* Might point into blockX or be a static string */
-    char o_name[MAX_NLEN];
-    char replacement_name[MAX_NLEN];
-    int  wid, hgt;
-
-    int trivial_info = 0;
-
-    /* Extract the flags */
-    object_flags_known(o_ptr, flgs);
-
-    /* Extract the description */
-    if (object_is_device(o_ptr))
-    {
-        char scratch[70 * 20];
-        cptr res = do_device(o_ptr->tval, o_ptr->sval, SPELL_DESC);
-        strcpy(scratch, res);
-        if (o_ptr->ident & IDENT_MENTAL)
-        {
-            res = do_device(o_ptr->tval, o_ptr->sval, SPELL_INFO);
-            if (res && strlen(res))
-            {   /* Here is a classic case where calling format() leads to bugs ... sigh */
-                strcat(scratch, "\nInfo: ");
-                strcat(scratch, res);
-            }   /* But format() here is fine ... Obvious, huh? */
-            if (o_ptr->tval != TV_POTION)
-            {
-                int fail = device_calc_fail_rate(o_ptr);
-                strcat(scratch, format("\nFail: %d.%d%%", fail/10, fail%10));    
-            }
-        }
-        roff_to_buf(scratch, 77-15, block1, sizeof(block1));
-        for (j = 0; block1[j]; j += 1 + strlen(&block1[j]))
-        { info[i] = &block1[j]; i++;}
-    }
-    else
-    {
-        cptr text;
-        if (o_ptr->name1 && object_is_known(o_ptr))
-            text = a_text + a_info[o_ptr->name1].text;
-        else
-            text = k_text + k_info[o_ptr->k_idx].text;
-        if (strlen(text))
-        {
-            roff_to_buf(text, 77 - 15, block1, sizeof(block1));
-            for (j = 0; block1[j]; j += 1 + strlen(&block1[j]))
-            { info[i] = &block1[j]; i++;}
-            info[i++] = "";
-        }
-    }
-    if (obj_has_effect(o_ptr) && object_is_known(o_ptr))
-    {
-        char     scratch[70 * 20];
-        effect_t e = obj_get_effect(o_ptr);
-        cptr     res = do_effect(&e, SPELL_NAME, 0);
-
-        strcpy(scratch, "Activation: ");
-        strcat(scratch, res);
-
-        if (o_ptr->ident & IDENT_MENTAL)
-        {
-            /*res = do_effect(&e, SPELL_DESC, 0);
-            if (res && strlen(res))
-            {
-                strcat(scratch, " \n      Desc: ");
-                strcat(scratch, res);
-            }*/
-
-            res = do_effect(&e, SPELL_INFO, 0);
-            if (res && strlen(res))
-            {
-                strcat(scratch, "\n      Info: ");
-                strcat(scratch, res);
-            }
-            {
-                int fail = effect_calc_fail_rate(&e);
-                strcat(scratch, format("\n      Fail: %d.%d%%", fail/10, fail%10));    
-            }
-            if (e.timeout)
-            {
-                strcat(scratch, "\n   Timeout: ");
-                strcat(scratch, format("%d", e.timeout));
-            }
-        }
-        strcat(scratch, "\n ");
-
-        roff_to_buf(scratch, 77-15, block3, sizeof(block3));
-        for (j = 0; block3[j]; j += 1 + strlen(&block3[j]))
-        { info[i] = &block3[j]; i++;}
-    }
-
-    if (object_is_equipment(o_ptr))
-    {
-        /* Descriptions of a basic equipment is just a flavor */
-        trivial_info = i;
-    }
-
-    /* Figurines, a hack */
-    if (o_ptr->tval == TV_FIGURINE)
-    {
-        info[i++] = "It will transform into a pet when thrown.";
-
-    }
-
-    if (o_ptr->name1 == ART_STONE_OF_NATURE)
-        info[i++] = "It greatly enhances Nature magic.";
-    if (o_ptr->name1 == ART_STONE_OF_LIFE)
-        info[i++] = "It greatly enhances Life magic.";
-    if (o_ptr->name1 == ART_STONE_OF_SORCERY)
-        info[i++] = "It greatly enhances Sorcery magic.";
-    if (o_ptr->name1 == ART_STONE_OF_CHAOS)
-        info[i++] = "It greatly enhances Chaos magic.";
-    if (o_ptr->name1 == ART_STONE_OF_DEATH)
-        info[i++] = "It greatly enhances Death magic.";
-    if (o_ptr->name1 == ART_STONE_OF_TRUMP)
-        info[i++] = "It greatly enhances Trump magic.";
-    if (o_ptr->name1 == ART_STONE_OF_DAEMON)
-        info[i++] = "It greatly enhances Daemon magic.";
-    if (o_ptr->name1 == ART_STONE_OF_CRUSADE)
-        info[i++] = "It greatly enhances Crusade magic.";
-    if (o_ptr->name1 == ART_STONE_OF_CRAFT)
-        info[i++] = "It greatly enhances Craft magic.";
-    if (o_ptr->name1 == ART_STONE_OF_ARMAGEDDON)
-        info[i++] = "It greatly enhances Armageddon magic.";
-
-    if (o_ptr->name1 == ART_STONEMASK)
-    {
-        info[i++] = "It makes you turn into a vampire permanently.";
-
-    }
-
-    if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI))
-    {
-        info[i++] = "It will attempt to kill a monster instantly.";
-
-    }
-
-    if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE))
-    {
-        info[i++] = "It causes you to strike yourself sometimes.";
-
-        info[i++] = "It always penetrates invulnerability barriers.";
-    }
-
-    if (o_ptr->name2 == EGO_GLOVES_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY || o_ptr->name1 == ART_MEPHISTOPHELES)
-        info[i++] = "It affects your ability to hit when you are wielding two weapons.";
-
-    if (have_flag(flgs, TR_WEAPONMASTERY))
-        info[i++] = "It increases the damage dice of your melee weapon.";
-
-    if (have_flag(flgs, TR_EASY_SPELL))
-    {
-        info[i++] = "It affects your ability to cast spells.";
-    }
-
-    if (o_ptr->tval == TV_STATUE)
-    {
-        monster_race *r_ptr = &r_info[o_ptr->pval];
-
-        if (o_ptr->pval == MON_BULLGATES)
-            info[i++] = "It is shameful.";
-        else if ( r_ptr->flags2 & (RF2_ELDRITCH_HORROR))
-            info[i++] = "It is fearful.";
-        else
-            info[i++] = "It is cheerful.";
-    }
-    
-    /* Hack -- describe lite's */
-    if (o_ptr->tval == TV_LITE)
-    {
-        if (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS))
-        {
-            info[i++] = "It provides no light.";
-
-            if (o_ptr->sval == SV_LITE_LANTERN)
-            {
-                info[i++] = "It decreases radius of light source by 2.";
-            }
-            else if (o_ptr->sval == SV_LITE_TORCH)
-            {
-                info[i++] = "It decreases radius of light source by 1.";
-            }
-            else
-            {
-                info[i++] = "It decreases radius of light source by 3.";
-            }
-        }
-        else if (o_ptr->name1 || o_ptr->art_name)
-        {
-            if (o_ptr->name1 == ART_EYE_OF_VECNA)
-            {
-                info[i++] = "It allows you to see in the dark.";
-            }
-            else
-            {
-                info[i++] = "It provides light (radius 3) forever.";
-            }
-        }
-        else if (o_ptr->name2 == EGO_LITE_EXTRA_LIGHT)
-        {
-            if (o_ptr->sval == SV_LITE_FEANOR)
-            {
-                info[i++] = "It provides light (radius 3) forever.";
-
-            }
-            else if (o_ptr->sval == SV_LITE_LANTERN)
-            {
-                info[i++] = "It provides light (radius 3) when fueled.";
-
-            }
-            else
-            {
-                info[i++] = "It provides light (radius 2) when fueled.";
-
-            }
-        }
-        else
-        {
-            if (o_ptr->sval == SV_LITE_FEANOR)
-            {
-                info[i++] = "It provides light (radius 2) forever.";
-
-            }
-            else if (o_ptr->sval == SV_LITE_LANTERN)
-            {
-                info[i++] = "It provides light (radius 2) when fueled.";
-
-            }
-            else
-            {
-                info[i++] = "It provides light (radius 1) when fueled.";
-
-            }
-        }
-        if (o_ptr->name2 == EGO_LITE_DURATION)
-        {
-            info[i++] = "It provides light for much longer time.";
-        }
-    }
-
-
-    /* And then describe it fully */
-
-    if (have_flag(flgs, TR_RIDING))
-    {
-        if ((o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
-            info[i++] = "It is made for use while riding.";
-        else
-        {
-            info[i++] = "It is suitable for use while riding.";
-            /* This information is not important enough */
-            trivial_info++;
-        }
-    }
-    if (have_flag(flgs, TR_STR))
-    {
-        if (o_ptr->pval > 0)
-            info[i++] = "It increases your strength.";
-        else if (o_ptr->pval < 0)
-            info[i++] = "It decreases your strength.";
-    }
-    if (have_flag(flgs, TR_DEC_STR))
-       info[i++] = "It decreases your strength.";
-    
-    if (have_flag(flgs, TR_INT))
-    {
-        if (o_ptr->pval > 0)
-            info[i++] = "It increases your intelligence.";
-        else if (o_ptr->pval < 0)
-            info[i++] = "It decreases your intelligence.";
-    }
-    if (have_flag(flgs, TR_DEC_INT))
-       info[i++] = "It decreases your intelligence.";
-    
-    if (have_flag(flgs, TR_WIS))
-    {
-        if (o_ptr->pval > 0)
-            info[i++] = "It increases your wisdom.";
-        else if (o_ptr->pval < 0)
-            info[i++] = "It decreases your wisdom.";
-    }
-    if (have_flag(flgs, TR_DEC_WIS))
-       info[i++] = "It decreases your wisdom.";
-
-    if (have_flag(flgs, TR_DEX))
-    {
-        if (o_ptr->pval > 0)
-            info[i++] = "It increases your dexterity.";
-        else if (o_ptr->pval < 0)
-            info[i++] = "It decreases your dexterity.";
-    }
-    if (have_flag(flgs, TR_DEC_DEX))
-       info[i++] = "It decreases your dexterity.";
-
-    if (have_flag(flgs, TR_CON))
-    {
-        if (o_ptr->pval > 0)
-            info[i++] = "It increases your constitution.";
-        else if (o_ptr->pval < 0)
-            info[i++] = "It decreases your constitution.";
-    }
-    if (have_flag(flgs, TR_DEC_CON))
-       info[i++] = "It decreases your constitution.";
-
-    if (have_flag(flgs, TR_CHR))
-    {
-        if (o_ptr->pval > 0)
-            info[i++] = "It increases your charisma.";
-        else if (o_ptr->pval < 0)
-            info[i++] = "It decreases your charisma.";
-    }
-    if (have_flag(flgs, TR_DEC_CHR))
-       info[i++] = "It decreases your charisma.";
-
-    if (have_flag(flgs, TR_MAGIC_MASTERY))
-        info[i++] = "It affects your ability to use magic devices.";
-    if (have_flag(flgs, TR_DEC_MAGIC_MASTERY))
-        info[i++] = "It decreases your ability to use magic devices.";
-
-    if (have_flag(flgs, TR_DEVICE_POWER))
-        info[i++] = "It increases the power of your magic devices.";
-
-    if (have_flag(flgs, TR_STEALTH))
-    {
-        if (o_ptr->pval > 0)
-            info[i++] = "It increases your stealth.";
-        else if (o_ptr->pval < 0)
-            info[i++] = "It decreases your stealth.";
-    }
-    if (have_flag(flgs, TR_DEC_STEALTH))
-       info[i++] = "It decreases your stealth.";
-
-
-    if (have_flag(flgs, TR_SEARCH))
-        info[i++] = "It affects your searching.";
-    if (have_flag(flgs, TR_INFRA))
-        info[i++] = "It affects your infravision.";
-    if (have_flag(flgs, TR_TUNNEL))
-        info[i++] = "It affects your ability to tunnel.";
-
-    if (have_flag(flgs, TR_SPEED))
-        info[i++] = "It affects your speed.";
-    if (have_flag(flgs, TR_DEC_SPEED))
-        info[i++] = "It decreases your speed.";
-
-    if (have_flag(flgs, TR_BLOWS))
-        info[i++] = "It affects your attack speed.";
-    if (have_flag(flgs, TR_BRAND_ACID))
-        info[i++] = "It does extra damage from acid.";
-    if (have_flag(flgs, TR_BRAND_ELEC))
-        info[i++] = "It does extra damage from electricity.";
-    if (have_flag(flgs, TR_BRAND_FIRE))
-        info[i++] = "It does extra damage from fire.";
-    if (have_flag(flgs, TR_BRAND_COLD))
-        info[i++] = "It does extra damage from frost.";
-    if (have_flag(flgs, TR_BRAND_POIS))
-        info[i++] = "It poisons your foes.";
-
-    if (have_flag(flgs, TR_CHAOTIC))
-        info[i++] = "It produces chaotic effects.";
-
-    if (have_flag(flgs, TR_VAMPIRIC))
-        info[i++] = "It drains life from your foes.";
-
-    if (have_flag(flgs, TR_IMPACT))
-        info[i++] = "It can cause earthquakes.";
-
-    if (have_flag(flgs, TR_VORPAL2))
-        info[i++] = "It is extremely sharp and can cut your foes.";
-
-    else if (have_flag(flgs, TR_VORPAL))
-        info[i++] = "It is very sharp and can cut your foes.";
-
-    if (have_flag(flgs, TR_STUN))
-        info[i++] = "It stuns your enemies.";
-
-    if (have_flag(flgs, TR_ORDER))
-        info[i++] = "It is a weapon of order.";
-
-    if (have_flag(flgs, TR_WILD))
-        info[i++] = "It is a wild weapon.";
-
-    if (have_flag(flgs, TR_KILL_DRAGON))
-        info[i++] = "It is a great bane of dragons.";
-    else if (have_flag(flgs, TR_SLAY_DRAGON))
-        info[i++] = "It is especially deadly against dragons.";
-
-    if (have_flag(flgs, TR_KILL_ORC))
-        info[i++] = "It is a great bane of orcs.";
-    else if (have_flag(flgs, TR_SLAY_ORC))
-        info[i++] = "It is especially deadly against orcs.";
-
-    if (have_flag(flgs, TR_KILL_TROLL))
-        info[i++] = "It is a great bane of trolls.";
-    else if (have_flag(flgs, TR_SLAY_TROLL))
-        info[i++] = "It is especially deadly against trolls.";
-
-    if (have_flag(flgs, TR_KILL_GIANT))
-        info[i++] = "It is a great bane of giants.";
-    else if (have_flag(flgs, TR_SLAY_GIANT))
-        info[i++] = "It is especially deadly against giants.";
-
-    if (have_flag(flgs, TR_KILL_DEMON))
-        info[i++] = "It is a great bane of demons.";
-    else if (have_flag(flgs, TR_SLAY_DEMON))
-        info[i++] = "It strikes at demons with holy wrath.";
-
-    if (have_flag(flgs, TR_KILL_UNDEAD))
-        info[i++] = "It is a great bane of undead.";
-    else if (have_flag(flgs, TR_SLAY_UNDEAD))
-        info[i++] = "It strikes at undead with holy wrath.";
-
-    if (have_flag(flgs, TR_KILL_EVIL))
-        info[i++] = "It is a great bane of evil monsters.";
-    else if (have_flag(flgs, TR_SLAY_EVIL))
-        info[i++] = "It fights against evil with holy fury.";
-
-    if (have_flag(flgs, TR_SLAY_GOOD))
-        info[i++] = "It fights against good with hellish glee.";
-
-    if (have_flag(flgs, TR_SLAY_LIVING))
-        info[i++] = "It destroys living creatures.";
-
-    if (have_flag(flgs, TR_KILL_ANIMAL))
-        info[i++] = "It is a great bane of natural creatures.";
-    else if (have_flag(flgs, TR_SLAY_ANIMAL))
-        info[i++] = "It is especially deadly against natural creatures.";
-
-    if (have_flag(flgs, TR_KILL_HUMAN))
-        info[i++] = "It is a great bane of humans.";
-    else if (have_flag(flgs, TR_SLAY_HUMAN))
-        info[i++] = "It is especially deadly against humans.";
-
-    if (have_flag(flgs, TR_FORCE_WEAPON))
-        info[i++] = "It powerfully strikes at a monster using your mana.";
-
-    if (have_flag(flgs, TR_DEC_MANA))
-        info[i++] = "It decreases your mana consumption.";
-
-    if (have_flag(flgs, TR_SPELL_POWER))
-        info[i++] = "It increases your spell power.";
-    if (have_flag(flgs, TR_DEC_SPELL_POWER))
-        info[i++] = "It decreases your spell power.";
-
-    if (have_flag(flgs, TR_SPELL_CAP))
-        info[i++] = "It increases your spell capacity.";
-    if (have_flag(flgs, TR_DEC_SPELL_CAP))
-        info[i++] = "It decreases your spell capacity.";
-
-    if (have_flag(flgs, TR_LIFE))
-        info[i++] = "It increases your hitpoints.";
-    if (have_flag(flgs, TR_DEC_LIFE))
-        info[i++] = "It decreases your hitpoints.";
-
-    if (have_flag(flgs, TR_SUST_STR))
-        info[i++] = "It sustains your strength.";
-    if (have_flag(flgs, TR_SUST_INT))
-        info[i++] = "It sustains your intelligence.";
-    if (have_flag(flgs, TR_SUST_WIS))
-        info[i++] = "It sustains your wisdom.";
-    if (have_flag(flgs, TR_SUST_DEX))
-        info[i++] = "It sustains your dexterity.";
-    if (have_flag(flgs, TR_SUST_CON))
-        info[i++] = "It sustains your constitution.";
-    if (have_flag(flgs, TR_SUST_CHR))
-        info[i++] = "It sustains your charisma.";
-
-    if (have_flag(flgs, TR_THROW))
-        info[i++] = "It is perfectly balanced for throwing.";
-    if (have_flag(flgs, TR_FREE_ACT))
-        info[i++] = "It provides immunity to paralysis.";
-    if (have_flag(flgs, TR_HOLD_LIFE))
-        info[i++] = "It provides resistance to life draining.";
-    
-    if (have_flag(flgs, TR_RES_FEAR))
-        info[i++] = "It provides resistance to fear.";
-    if (have_flag(flgs, TR_VULN_FEAR))
-        info[i++] = "It makes you vulnerable to fear.";
-
-    if (have_flag(flgs, TR_IM_ACID))
-        info[i++] = "It provides immunity to acid.";
-    if (have_flag(flgs, TR_RES_ACID))
-        info[i++] = "It provides resistance to acid.";
-    if (have_flag(flgs, TR_VULN_ACID))
-        info[i++] = "It makes you vulnerable to acid.";
-
-    if (have_flag(flgs, TR_IM_ELEC))
-        info[i++] = "It provides immunity to electricity.";
-    if (have_flag(flgs, TR_RES_ELEC))
-        info[i++] = "It provides resistance to electricity.";
-    if (have_flag(flgs, TR_VULN_ELEC))
-        info[i++] = "It makes you vulnerable to electricity.";
-
-    if (have_flag(flgs, TR_IM_FIRE))
-        info[i++] = "It provides immunity to fire.";
-    if (have_flag(flgs, TR_RES_FIRE))
-        info[i++] = "It provides resistance to fire.";
-    if (have_flag(flgs, TR_VULN_FIRE))
-        info[i++] = "It makes you vulnerable to fire.";
-
-    if (have_flag(flgs, TR_IM_COLD))
-        info[i++] = "It provides immunity to cold.";
-    if (have_flag(flgs, TR_RES_COLD))
-        info[i++] = "It provides resistance to cold.";
-    if (have_flag(flgs, TR_VULN_COLD))
-        info[i++] = "It makes you vulnerable to cold.";
-
-    if (have_flag(flgs, TR_RES_POIS))
-        info[i++] = "It provides resistance to poison.";
-    if (have_flag(flgs, TR_VULN_POIS))
-        info[i++] = "It makes you vulnerable to poison.";
-
-    if (have_flag(flgs, TR_RES_LITE))
-        info[i++] = "It provides resistance to light.";
-    if (have_flag(flgs, TR_VULN_LITE))
-        info[i++] = "It makes you vulnerable to light.";
-
-    if (have_flag(flgs, TR_RES_DARK))
-        info[i++] = "It provides resistance to darkness.";
-    if (have_flag(flgs, TR_VULN_DARK))
-        info[i++] = "It makes you vulnerable to darkness.";
-
-    if (have_flag(flgs, TR_RES_BLIND))
-        info[i++] = "It provides resistance to blindness.";
-    if (have_flag(flgs, TR_VULN_BLIND))
-        info[i++] = "It makes you vulnerable to blindness.";
-
-    if (have_flag(flgs, TR_RES_CONF))
-        info[i++] = "It provides resistance to confusion.";
-    if (have_flag(flgs, TR_VULN_CONF))
-        info[i++] = "It makes you vulnerable to confusion.";
-
-    if (have_flag(flgs, TR_RES_SOUND))
-        info[i++] = "It provides resistance to sound.";
-    if (have_flag(flgs, TR_VULN_SOUND))
-        info[i++] = "It makes you vulnerable to sound.";
-
-    if (have_flag(flgs, TR_RES_SHARDS))
-        info[i++] = "It provides resistance to shards.";
-    if (have_flag(flgs, TR_VULN_SHARDS))
-        info[i++] = "It makes you vulnerable to shards.";
-
-    if (have_flag(flgs, TR_RES_NETHER))
-        info[i++] = "It provides resistance to nether.";
-    if (have_flag(flgs, TR_VULN_NETHER))
-        info[i++] = "It makes you vulnerable to nether.";
-
-    if (have_flag(flgs, TR_RES_TIME))
-        info[i++] = "It provides resistance to time.";
-
-    if (have_flag(flgs, TR_RES_NEXUS))
-        info[i++] = "It provides resistance to nexus.";
-    if (have_flag(flgs, TR_VULN_NEXUS))
-        info[i++] = "It makes you vulnerable to nexus.";
-
-    if (have_flag(flgs, TR_RES_CHAOS))
-        info[i++] = "It provides resistance to chaos.";
-    if (have_flag(flgs, TR_VULN_CHAOS))
-        info[i++] = "It makes you vulnerable to chaos.";
-
-    if (have_flag(flgs, TR_RES_DISEN))
-        info[i++] = "It provides resistance to disenchantment.";
-    if (have_flag(flgs, TR_VULN_DISEN))
-        info[i++] = "It makes you vulnerable to disenchantment.";
-
-    if (have_flag(flgs, TR_LEVITATION))
-        info[i++] = "It allows you to levitate.";
-    if (have_flag(flgs, TR_LITE))
-    {
-        if ((o_ptr->name2 == EGO_HELMET_VAMPIRE) || (o_ptr->name1 == ART_NIGHT))
-            info[i++] = "It decreases radius of your light source by 1.";
-        else
-            info[i++] = "It provides permanent light. (radius +1)";
-
-    }
-    if (have_flag(flgs, TR_SEE_INVIS))
-        info[i++] = "It allows you to see invisible monsters.";
-    if (have_flag(flgs, TR_TELEPATHY))
-        info[i++] = "It gives telepathic powers.";
-    if (have_flag(flgs, TR_ESP_ANIMAL))
-        info[i++] = "It senses natural creatures.";
-    if (have_flag(flgs, TR_ESP_UNDEAD))
-        info[i++] = "It senses undead.";
-    if (have_flag(flgs, TR_ESP_DEMON))
-        info[i++] = "It senses demons.";
-    if (have_flag(flgs, TR_ESP_ORC))
-        info[i++] = "It senses orcs.";
-    if (have_flag(flgs, TR_ESP_TROLL))
-        info[i++] = "It senses trolls.";
-    if (have_flag(flgs, TR_ESP_GIANT))
-        info[i++] = "It senses giants.";
-    if (have_flag(flgs, TR_ESP_DRAGON))
-        info[i++] = "It senses dragons.";
-    if (have_flag(flgs, TR_ESP_HUMAN))
-        info[i++] = "It senses humans.";
-    if (have_flag(flgs, TR_ESP_EVIL))
-        info[i++] = "It senses evil creatures.";
-    if (have_flag(flgs, TR_ESP_GOOD))
-        info[i++] = "It senses good creatures.";
-    if (have_flag(flgs, TR_ESP_NONLIVING))
-        info[i++] = "It senses non-living creatures.";
-    if (have_flag(flgs, TR_ESP_UNIQUE))
-        info[i++] = "It senses unique monsters.";
-    if (have_flag(flgs, TR_SLOW_DIGEST))
-        info[i++] = "It slows your metabolism.";
-    if (have_flag(flgs, TR_REGEN))
-        info[i++] = "It speeds your regenerative powers.";
-    if (have_flag(flgs, TR_WARNING))
-        info[i++] = "It warns you of danger";
-    if (have_flag(flgs, TR_REFLECT))
-        info[i++] = "It reflects bolts and arrows.";
-    if (have_flag(flgs, TR_SH_FIRE))
-        info[i++] = "It produces a fiery sheath.";
-    if (have_flag(flgs, TR_SH_SHARDS))
-        info[i++] = "It produces a shard aura.";
-    if (have_flag(flgs, TR_SH_REVENGE))
-        info[i++] = "It produces an aura of retaliation.";
-    if (have_flag(flgs, TR_SH_ELEC))
-        info[i++] = "It produces an electric sheath.";
-    if (have_flag(flgs, TR_SH_COLD))
-        info[i++] = "It produces a sheath of coldness.";
-    if (have_flag(flgs, TR_NO_MAGIC))
-        info[i++] = "It produces an anti-magic shell.";
-    if (have_flag(flgs, TR_NO_SUMMON))
-        info[i++] = "It disrupts summoning spells.";
-    if (have_flag(flgs, TR_NO_TELE))
-        info[i++] = "It prevents teleportation.";
-    if (have_flag(flgs, TR_XTRA_MIGHT))
-        info[i++] = "It fires missiles with extra might.";
-    if (have_flag(flgs, TR_XTRA_SHOTS))
-        info[i++] = "It fires missiles excessively fast.";
-    if (have_flag(flgs, TR_BLESSED))
-        info[i++] = "It has been blessed by the gods.";
-
-    if (object_is_cursed(o_ptr))
-    {
-        if (o_ptr->curse_flags & TRC_PERMA_CURSE)
-        {
-            info[i++] = "It is permanently cursed.";
-
-        }
-        else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
-        {
-            info[i++] = "It is heavily cursed.";
-
-        }
-        else
-        {
-            info[i++] = "It is cursed.";
-
-            /*
-             * It's a trivial infomation since there is
-             * fake inscription {cursed}
-             */
-            trivial_info++;
-        }
-    }
-
-    if ((have_flag(flgs, TR_TY_CURSE)) || (o_ptr->curse_flags & TRC_TY_CURSE))
-    {
-        info[i++] = "It carries an ancient foul curse.";
-
-    }
-    if ((have_flag(flgs, TR_AGGRAVATE)) || (o_ptr->curse_flags & TRC_AGGRAVATE))
-    {
-        info[i++] = "It aggravates nearby creatures.";
-
-    }
-    if ((have_flag(flgs, TR_DRAIN_EXP)) || (o_ptr->curse_flags & TRC_DRAIN_EXP))
-    {
-        info[i++] = "It drains experience.";
-
-    }
-    if (o_ptr->curse_flags & TRC_SLOW_REGEN)
-    {
-        info[i++] = "It slows your regenerative powers.";
-
-    }
-    if (o_ptr->curse_flags & TRC_ADD_L_CURSE)
-    {
-        info[i++] = "It adds weak curses.";
-
-    }
-    if (o_ptr->curse_flags & TRC_ADD_H_CURSE)
-    {
-        info[i++] = "It adds heavy curses.";
-
-    }
-    if (o_ptr->curse_flags & TRC_CALL_ANIMAL)
-    {
-        info[i++] = "It attracts animals.";
-
-    }
-    if (o_ptr->curse_flags & TRC_CALL_DEMON)
-    {
-        info[i++] = "It attracts demons.";
-
-    }
-    if (o_ptr->curse_flags & TRC_CALL_DRAGON)
-    {
-        info[i++] = "It attracts dragons.";
-
-    }
-    if (o_ptr->curse_flags & TRC_COWARDICE)
-    {
-        info[i++] = "It makes you subject to cowardice.";
-
-    }
-    if ((have_flag(flgs, TR_TELEPORT)) || (o_ptr->curse_flags & TRC_TELEPORT))
-    {
-        info[i++] = "It induces random teleportation.";
-
-    }
-    if (o_ptr->curse_flags & TRC_LOW_MELEE)
-    {
-        info[i++] = "It causes you to miss blows.";
-
-    }
-    if (o_ptr->curse_flags & TRC_LOW_AC)
-    {
-        info[i++] = "It helps your enemies' blows.";
-
-    }
-    if (o_ptr->curse_flags & TRC_LOW_MAGIC)
-    {
-        info[i++] = "It encumbers you while spellcasting.";
-
-    }
-    if (o_ptr->curse_flags & TRC_FAST_DIGEST)
-    {
-        info[i++] = "It speeds your metabolism.";
-
-    }
-    if (o_ptr->curse_flags & TRC_DRAIN_HP)
-    {
-        info[i++] = "It drains you.";
-
-    }
-    if (o_ptr->curse_flags & TRC_DRAIN_MANA)
-    {
-        info[i++] = "It drains your mana.";
-
-    }
-
-    /* Describe about this kind of object instead of THIS fake object */
-    if (mode & SCROBJ_FAKE_OBJECT)
-    {
-    }
-
-    if (have_flag(flgs, TR_IGNORE_ACID) &&
-        have_flag(flgs, TR_IGNORE_ELEC) &&
-        have_flag(flgs, TR_IGNORE_FIRE) &&
-        have_flag(flgs, TR_IGNORE_COLD))
-    {
-        info[i++] = "It cannot be harmed by the elements.";
-    }
-    else
-    {
-        if (have_flag(flgs, TR_IGNORE_ACID))
-        {
-            info[i++] = "It cannot be harmed by acid.";
-        }
-        if (have_flag(flgs, TR_IGNORE_ELEC))
-        {
-            info[i++] = "It cannot be harmed by electricity.";
-        }
-        if (have_flag(flgs, TR_IGNORE_FIRE))
-        {
-            info[i++] = "It cannot be harmed by fire.";
-        }
-        if (have_flag(flgs, TR_IGNORE_COLD))
-        {
-            info[i++] = "It cannot be harmed by cold.";
-        }
-    }
-
-    if (o_ptr->name3)
-    {
-        sprintf(replacement_name, "It reminds you of the artifact %s.", a_name + a_info[o_ptr->name3].name);
-        info[i++] = replacement_name;
-    }
-
-    if (!(o_ptr->ident & IDENT_MENTAL))
-    {
-        if (i) info[i++] = "";
-        info[i++] = "This object may have additional powers.";
-    }
-
-    if (mode & SCROBJ_FORCE_DETAIL) trivial_info = 0;
-
-    /* No relevant informations */
-    if (i <= trivial_info) return (FALSE);
-
-    /* Save the screen */
-    screen_save();
-
-    /* Get size */
-    Term_get_size(&wid, &hgt);
-
-    /* Display Item name */
-    if (!(mode & SCROBJ_FAKE_OBJECT))
-        object_desc(o_name, o_ptr, 0);
-    else
-        object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
-
-    prt(o_name, 0, 0);
-
-    /* Erase the screen */
-    for (k = 1; k < hgt; k++) prt("", k, 13);
-
-    /* Label the information */
-    if ((o_ptr->tval == TV_STATUE) && (o_ptr->sval == SV_PHOTO))
-    {
-        monster_race *r_ptr = &r_info[o_ptr->pval];
-        int namelen = strlen(r_name + r_ptr->name);
-        prt(format("%s: '", r_name + r_ptr->name), 1, 15);
-        Term_queue_bigchar(18 + namelen, 1, r_ptr->x_attr, r_ptr->x_char, 0, 0);
-        prt("'", 1, (use_bigtile ? 20 : 19) + namelen);
-    }
-
-    /* We will print on top of the map (column 13) */
-    for (k = 2, j = 0; j < i; j++)
-    {
-        /* Show the info */
-        prt(info[j], k++, 15);
-
-        /* Every 20 entries (lines 2 to 21), start over */
-        if ((k == hgt - 2) && (j+1 < i))
-        {
-            prt("-- more --", k, 15);
-            inkey();
-            for (; k > 2; k--) prt("", k, 15);
-        }
-    }
-
-    /* Wait for it */
-    prt("[Press any key to continue]", k, 15);
-
-    inkey();
-
-    /* Restore the screen */
-    screen_load();
-
-    /* Gave knowledge */
-    return (TRUE);
-}
-
-
 
 /*
  * Convert an inventory index into a one character label
@@ -1536,7 +669,7 @@ void display_equip(void)
  * Find the "first" inventory object with the given "tag".
  *
  * A "tag" is a numeral "n" appearing as "@n" anywhere in the
- * inscription of an object.  Alphabetical characters don't work as a
+ * inscription of an object. Alphabetical characters don't work as a
  * tag in this form.
  *
  * Also, the tag "@xn" will work as well, where "n" is a any tag-char,
@@ -1655,7 +788,7 @@ static bool get_tag(int *cp, char tag, int mode)
  * Find the "first" floor object with the given "tag".
  *
  * A "tag" is a numeral "n" appearing as "@n" anywhere in the
- * inscription of an object.  Alphabetical characters don't work as a
+ * inscription of an object. Alphabetical characters don't work as a
  * tag in this form.
  *
  * Also, the tag "@xn" will work as well, where "n" is a any tag-char,
@@ -1810,7 +943,7 @@ static void prepare_label_string_floor(char *label, int floor_list[], int floor_
 int show_inven(int target_item, int mode)
 {
     int             i, j, k, l, z = 0;
-    int             col, cur_col, len;
+    int             cur_col, len = 0, padding, max_o_len;
     object_type     *o_ptr;
     char            o_name[MAX_NLEN];
     char            tmp_val[80];
@@ -1818,17 +951,19 @@ int show_inven(int target_item, int mode)
     byte            out_color[INVEN_PACK];
     char            out_desc[INVEN_PACK][MAX_NLEN];
     int             target_item_label = 0;
-    int             wid, hgt;
+    rect_t          rect = ui_menu_rect();
     char            inven_label[52 + 1];
 
-    /* Starting column */
-    col = command_gap;
-
-    /* Get size */
-    Term_get_size(&wid, &hgt);
-
-    /* Default "max-length" */
-    len = wid - col - 1;
+    /* Compute Padding */
+    padding = 5; /* " a) " + trailing " " */
+    if (mode & SHOW_FAIL_RATES) padding += 12;  /* " Fail: 23.2%" */
+    else if (mode & SHOW_VALUE) padding += 13;  /* " Pow: 1234567" */
+    else if (show_weights) padding += 9;        /* " 123.0 lb" */
+    if (show_item_graph)
+    {
+        padding += 2;
+        if (use_bigtile) padding++;
+    }
 
     /* Find the "final" slot */
     for (i = 0; i < INVEN_PACK; i++)
@@ -1844,35 +979,29 @@ int show_inven(int target_item, int mode)
 
     prepare_label_string(inven_label, USE_INVEN);
 
-    /* Display the inventory */
+    /* Compute/Measure Display Strings */
     for (k = 0, i = 0; i < z; i++)
     {
         o_ptr = &inventory[i];
-
-        /* Is this item acceptable? */
         if (!item_tester_okay(o_ptr)) continue;
-
-        /* Describe the object */
         object_desc(o_name, o_ptr, 0);
-
-        /* Save the object index, color, and description */
         out_index[k] = i;
         out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
         /* Grey out charging items */
-        if (o_ptr->timeout)
+        if (obj_has_effect(o_ptr))
         {
-            bool darken = TRUE;
+            bool darken = FALSE;
 
-            if (o_ptr->tval == TV_ROD && o_ptr->number > 1)
+            switch (o_ptr->tval)
             {
-                int power;
-                object_kind *k_ptr = &k_info[o_ptr->k_idx];
+            case TV_WAND: case TV_ROD: case TV_STAFF:
+                if (device_sp(o_ptr) < o_ptr->activation.cost)
+                    darken = TRUE;
+                break;
 
-                darken = FALSE;
-                if (k_ptr->pval == 0) k_ptr->pval = 1;
-                power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
-                if (power >= o_ptr->number)
+            default:
+                if (o_ptr->timeout)
                     darken = TRUE;
             }
 
@@ -1880,37 +1009,39 @@ int show_inven(int target_item, int mode)
                 out_color[k] = TERM_L_DARK;
         }
 
-        (void)strcpy(out_desc[k], o_name);
+        strcpy(out_desc[k], o_name);
 
-        /* Find the predicted "line length" */
-        l = strlen(out_desc[k]) + 5;
+        l = strlen(out_desc[k]);
+        if (l > len)
+            len = l;
 
-        /* Be sure to account for the weight */
-        if (mode & SHOW_FAIL_RATES) l += 12;
-        else if (mode & SHOW_VALUE) l += 12;
-        else if (show_weights) l += 9;
-
-        /* Account for icon if displayed */
-        if (show_item_graph)
-        {
-            l += 2;
-            if (use_bigtile) l++;
-        }
-
-        /* Maintain the maximum length */
-        if (l > len) len = l;
-
-        /* Advance to next "line" */
         k++;
     }
 
-    /* Find the column to start in */
-    col = (len > wid - 4) ? 0 : (wid - len - 1);
+    /* Shorten Display Strings if Too Long */
+    max_o_len = rect.cx - padding;
+    if (len > max_o_len)
+    {
+        for (j = 0; j < k; j++)
+        {
+            l = strlen(out_desc[j]);
+            if (l > max_o_len)
+            {
+                assert(max_o_len >= 3);
+                /*out_desc[j][max_o_len - 3] = '.';
+                out_desc[j][max_o_len - 2] = '.';
+                out_desc[j][max_o_len - 1] = '.';*/
+                out_desc[j][max_o_len] = '\0';
+            }
+        }
+    }
+    else
+        rect.cx = padding + len;
 
-    /* Output each entry */
+    /* Display */
     for (j = 0; j < k; j++)
     {
-        if (j + 1 >= hgt) break; /* out of bounds on the terminal currently = GPF! */
+        if (j >= rect.cy) break; /* out of bounds on the terminal currently = GPF! */
 
         /* Get the index */
         i = out_index[j];
@@ -1919,8 +1050,9 @@ int show_inven(int target_item, int mode)
         o_ptr = &inventory[i];
 
         /* Clear the line */
-        prt("", j + 1, col ? col - 2 : col);
+        Term_erase(rect.x, rect.y + j, rect.cx);
 
+        /* " a) " */
         if (use_menu && target_item)
         {
             if (j == (target_item-1))
@@ -1940,11 +1072,9 @@ int show_inven(int target_item, int mode)
             /* Prepare an index --(-- */
             sprintf(tmp_val, "%c)", index_to_label(i));
         }
+        put_str(tmp_val, rect.y + j, rect.x + 1);
 
-        /* Clear the line with the (possibly indented) index */
-        put_str(tmp_val, j + 1, col);
-
-        cur_col = col + 3;
+        cur_col = rect.x + 4;
 
         /* Display graphics for object, if desired */
         if (show_item_graph)
@@ -1956,7 +1086,7 @@ int show_inven(int target_item, int mode)
             if (a & 0x80) a |= 0x40;
 #endif
 
-            Term_queue_bigchar(cur_col, j + 1, a, c, 0, 0);
+            Term_queue_bigchar(cur_col, rect.y + j, a, c, 0, 0);
             if (use_bigtile) cur_col++;
 
             cur_col += 2;
@@ -1964,34 +1094,35 @@ int show_inven(int target_item, int mode)
 
 
         /* Display the entry itself */
-        c_put_str(out_color[j], out_desc[j], j + 1, cur_col);
+        c_put_str(out_color[j], out_desc[j], rect.y + j, cur_col);
 
         /* Display the weight if needed */
         if (mode & SHOW_FAIL_RATES)
         {
             int fail = device_calc_fail_rate(o_ptr);
-            sprintf(tmp_val, "Fail: %2d.%d%%", fail/10, fail%10);
-            prt(tmp_val, j + 1, wid - 12);
+            if (fail == 1000)
+                sprintf(tmp_val, "Fail: %3d%%", fail/10);
+            else
+                sprintf(tmp_val, "Fail: %2d.%d%%", fail/10, fail%10);
+            put_str(tmp_val, rect.y + j, rect.x + rect.cx - 12);
         }
         else if (mode & SHOW_VALUE)
         {
             int value = object_value_real(o_ptr);
             sprintf(tmp_val, "Pow: %7d", value);
-            prt(tmp_val, j + 1, wid - 12);
+            put_str(tmp_val, rect.y + j, rect.x + rect.cx - 13);
         }
         else if (show_weights)
         {
             int wgt = o_ptr->weight * o_ptr->number;
             (void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-            prt(tmp_val, j + 1, wid - 9);
+            put_str(tmp_val, rect.y + j, rect.x + rect.cx - 9);
         }
     }
 
     /* Make a "shadow" below the list (only if needed) */
-    if (j && (j < INVEN_PACK)) prt("", j + 1, col ? col - 2 : col);
-
-    /* Save the new column */
-    /*command_gap = col;*/
+    if (j && j < rect.cy)
+        Term_erase(rect.x, rect.y + j, rect.cx);
 
     return target_item_label;
 }
@@ -2004,26 +1135,29 @@ int show_inven(int target_item, int mode)
 int show_equip(int target_item, int mode)
 {
     int             i, j, k, l;
-    int             col, cur_col, len;
+    int             cur_col, o_len = 0, lbl_len = 0, padding, max_o_len;
     object_type     *o_ptr;
     char            tmp_val[80];
     int             out_index[EQUIP_MAX_SLOTS];
     byte            out_color[EQUIP_MAX_SLOTS];
+    char            out_label[EQUIP_MAX_SLOTS][MAX_NLEN];
     char            out_desc[EQUIP_MAX_SLOTS][MAX_NLEN];
     int             target_item_label = 0;
-    int             wid, hgt;
+    rect_t          rect = ui_menu_rect();
     char            equip_label[52 + 1];
 
-    /* Starting column */
-    col = command_gap;
+    /* Compute Padding */
+    padding = 5; /* " a) " + trailing " " */
+    if (mode & SHOW_FAIL_RATES) padding += 12;  /* " Fail: 23.2%" */
+    else if (mode & SHOW_VALUE) padding += 13;  /* " Pow: 1234567" */
+    else if (show_weights) padding += 9;        /* " 123.0 lb" */
+    if (show_item_graph)
+    {
+        padding += 2;
+        if (use_bigtile) padding++;
+    }
 
-    /* Get size */
-    Term_get_size(&wid, &hgt);
-
-    /* Maximal length */
-    len = wid - col - 1;
-
-    /* Scan the equipment list */
+    /* Compute/Measure Display Strings */
     for (k = 0, i = EQUIP_BEGIN; i < EQUIP_BEGIN + equip_count(); i++)
     {
         o_ptr = equip_obj(i);
@@ -2042,32 +1176,58 @@ int show_equip(int target_item, int mode)
         else
             sprintf(out_desc[k], "%s", "");
 
+        if (show_labels)
+            sprintf(out_label[k], "%-10.10s: ", equip_describe_slot(i));
+        else
+            sprintf(out_label[k], "%s", "");
+
         out_index[k] = i;
 
         /* Extract the maximal length (see below) */
-        l = strlen(out_desc[k]) + (2 + 3);
-        if (show_labels) l += (10 + 2);
-        if (mode & SHOW_FAIL_RATES) l += 12;
-        else if (mode & SHOW_VALUE) l += 12;
-        else if (show_weights) l += 9;
-        if (show_item_graph) l += 2;
-        if (l > len) len = l;
+        l = strlen(out_desc[k]);
+        if (l > o_len)
+            o_len = l;
+
+        l = strlen(out_label[k]);
+        if (l > lbl_len)
+            lbl_len = l;
 
         k++;
     }
 
-    /* Hack -- Find a column to start in */
-    col = (len > wid - 4) ? 0 : (wid - len - 1);
+    /* Shorten Display Strings if Too Long */
+    padding += lbl_len;
+    max_o_len = rect.cx - padding;
+    if (o_len > max_o_len)
+    {
+        for (j = 0; j < k; j++)
+        {
+            l = strlen(out_desc[j]);
+            if (l > max_o_len)
+            {
+                assert(max_o_len >= 3);
+                /*out_desc[j][max_o_len - 3] = '.';
+                out_desc[j][max_o_len - 2] = '.';
+                out_desc[j][max_o_len - 1] = '.';*/
+                out_desc[j][max_o_len] = '\0';
+            }
+        }
+        o_len = max_o_len;
+    }
+    else
+        rect.cx = padding + o_len;
 
     prepare_label_string(equip_label, USE_EQUIP);
 
-    /* Output each entry */
+    /* Display */
     for (j = 0; j < k; j++)
     {
+        if (j >= rect.cy) break; /* out of bounds on the terminal currently = GPF! */
+
         i = out_index[j];
         o_ptr = equip_obj(i);
 
-        prt("", j + 1, col ? col - 2 : col);
+        Term_erase(rect.x, rect.y + j, rect.cx);
 
         if (use_menu && target_item)
         {
@@ -2084,9 +1244,9 @@ int show_equip(int target_item, int mode)
         }
 
         /* Clear the line with the (possibly indented) index */
-        put_str(tmp_val, j+1, col);
+        put_str(tmp_val, rect.y + j, rect.x + 1);
 
-        cur_col = col + 3;
+        cur_col = rect.x + 4;
 
         /* Display graphics for object, if desired */
         if (show_item_graph)
@@ -2100,20 +1260,19 @@ int show_equip(int target_item, int mode)
                 if (use_bigtile) cur_col++;
             }
             else
-                put_str(" ", j+1, cur_col);
+                put_str(" ", rect.y + j, cur_col);
 
             cur_col += 2;
         }
 
         if (show_labels)
         {
-            (void)sprintf(tmp_val, "%-10.10s: ", equip_describe_slot(i));
-            put_str(tmp_val, j+1, cur_col);
-            c_put_str(out_color[j], out_desc[j], j+1, cur_col + 12);
+            put_str(out_label[j], rect.y + j, cur_col);
+            c_put_str(out_color[j], out_desc[j], rect.y + j, cur_col + lbl_len);
         }
         else
         {
-            c_put_str(out_color[j], out_desc[j], j+1, cur_col);
+            c_put_str(out_color[j], out_desc[j], rect.y + j, cur_col);
         }
 
         if (!o_ptr) continue;
@@ -2121,33 +1280,33 @@ int show_equip(int target_item, int mode)
         {
             effect_t e = obj_get_effect(o_ptr);
             int      fail = effect_calc_fail_rate(&e);
-            sprintf(tmp_val, "Fail: %2d.%d%%", fail/10, fail%10);
-            prt(tmp_val, j + 1, wid - 12);
+
+            if (fail == 1000)
+                sprintf(tmp_val, "Fail: %3d%%", fail/10);
+            else
+                sprintf(tmp_val, "Fail: %2d.%d%%", fail/10, fail%10);
+            put_str(tmp_val, rect.y + j, rect.x + rect.cx - 12);
         }
         else if (mode & SHOW_VALUE)
         {
             int value = object_value_real(o_ptr);
             sprintf(tmp_val, "Pow: %7d", value);
-            prt(tmp_val, j + 1, wid - 12);
+            put_str(tmp_val, rect.y + j, rect.cx - 13);
         }
         else if (show_weights)
         {
             int wgt = o_ptr->weight * o_ptr->number;
             (void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-            prt(tmp_val, j + 1, wid - 9);
+            put_str(tmp_val, rect.y + j, rect.cx - 9);
         }
     }
 
     /* Make a "shadow" below the list (only if needed) */
-    if (j && (j < EQUIP_MAX_SLOTS)) prt("", j + 1, col ? col - 2 : col);
-
-    /* Save the new column */
-    /*command_gap = col;*/
+    if (j && j < rect.cy)
+        Term_erase(rect.x, rect.y + j, rect.cx);
 
     return target_item_label;
 }
-
-
 
 
 /*
@@ -2355,7 +1514,7 @@ bool can_get_item(void)
  * also to induce "auto-enter" of stores, and other such stuff.
  *
  * Global "p_ptr->command_see" may be set before calling this function to start
- * out in "browse" mode.  It is cleared before this function returns.
+ * out in "browse" mode. It is cleared before this function returns.
  *
  * Global "p_ptr->command_wrk" is used to choose between equip/inven listings.
  * If it is TRUE then we are viewing inventory, else equipment.
@@ -4653,9 +3812,6 @@ void py_pickup_floor(bool pickup)
 
             /* Redraw gold */
             p_ptr->redraw |= (PR_GOLD);
-
-            /* Window stuff */
-            p_ptr->window |= (PW_PLAYER);
 
             if (prace_is_(RACE_MON_LEPRECHAUN))
                 p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);

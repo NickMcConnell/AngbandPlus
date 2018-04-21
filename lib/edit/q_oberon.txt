@@ -10,6 +10,6 @@ Q:8:Q:1:0:0:1:99:860:0:1
 ?:[LEQ $QUEST8 2]
 Q:8:T:It is time to take the battle to the Serpent. But, before you can
 Q:8:T:reach it, you must find and kill Oberon.  Only after defeating
-Q:8:T:the powerful king of Amber, will the stairs leading to the Serpents
+Q:8:T:the powerful king of Amber will the stairs leading to the Serpent's
 Q:8:T:lair be opened.
 ?:1

@@ -335,7 +335,7 @@ static void _list(_choice_array_t *choices)
 
                     sprintf(buf, "%3d  %3d  %+5d  %+4d  %s", 
                         r_ptr->level, MAX(15, r_ptr->level + 5), speed, ac,
-                        get_class_t_aux(r_ptr->body.class_idx, 0)->name
+                        get_class_aux(r_ptr->body.class_idx, 0)->name
                     );
                     c_put_str(TERM_WHITE, buf, row, extra_col);
                 }
@@ -876,7 +876,7 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-void _character_dump(FILE* file)
+void _character_dump(doc_ptr doc)
 {
     int i;
     bool first = TRUE;
@@ -887,19 +887,20 @@ void _character_dump(FILE* file)
         {
             if (first)
             {
-                fprintf(file, "\n================================ Learned Forms ================================\n\n");
+                doc_printf(doc, "<topic:LearnedForms>================================ <color:keypress>L</color>earned Forms ================================\n\n");
                 first = FALSE;
             }
-            fprintf(file, " %s\n", r_name + r_info[_forms[i]].name);
+            doc_printf(doc, " %s\n", r_name + r_info[_forms[i]].name);
         }
     }
-    possessor_character_dump(file);
+    doc_newline(doc);
+    possessor_character_dump(doc);
 }
 
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_mimic_get_race_t(void)
+race_t *mon_mimic_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -925,6 +926,7 @@ race_t *mon_mimic_get_race_t(void)
                     "command ('U') and the magic command ('m') after assuming a new body.";
 
         me.exp = 250;
+        me.shop_adjust = 110; /* Really should depend on current form */
 
         me.birth = _birth;
 
@@ -932,8 +934,6 @@ race_t *mon_mimic_get_race_t(void)
 
         me.calc_bonuses = possessor_calc_bonuses;
         me.get_flags = possessor_get_flags;
-        me.get_immunities = possessor_get_immunities;
-        me.get_vulnerabilities = possessor_get_vulnerabilities;
         me.player_action = _player_action;
         me.character_dump = _character_dump;
 

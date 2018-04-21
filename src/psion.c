@@ -243,7 +243,7 @@ bool psion_process_monster(int m_idx)
         if (psion_mon_save_p(m_ptr->r_idx, m_ptr->ego_whip_pow))
         {
             msg_format("%^s shakes off your ego whip!", m_name);
-            p_ptr->redraw |= PR_HEALTH;
+            p_ptr->redraw |= PR_HEALTH_BARS;
             m_ptr->ego_whip_ct = 0;
             m_ptr->ego_whip_pow = 0;
         }
@@ -257,7 +257,7 @@ bool psion_process_monster(int m_idx)
             if (!m_ptr->ego_whip_ct)
             {
                 msg_format("Your ego whip on %s disappears.", m_name);
-                p_ptr->redraw |= PR_HEALTH;
+                p_ptr->redraw |= PR_HEALTH_BARS;
             }
         }
     }
@@ -767,7 +767,7 @@ static void _psionic_clarity_spell(int power, int cmd, variant *res)
         var_set_string(res, format("Clarity %s", _roman_numeral[power]));
         break;
     case SPELL_DESC:
-        var_set_string(res, "For the duration of this power, you gain increased mental focus.  Your psionic powers become cheaper to cast.");
+        var_set_string(res, "For the duration of this power, you gain increased mental focus. Your psionic powers become cheaper to cast.");
         break;
     case SPELL_INFO:
         var_set_string(res, format("Costs: %d%%", 85-7*power));
@@ -1134,9 +1134,9 @@ static void _psionic_seeing_spell(int power, int cmd, variant *res)
         const cptr _descriptions[_MAX_POWER] = {
             "Detects monsters.", 
             "Detects monsters, doors, stairs, traps and objects.",
-            "Detects monsters, doors, stairs, traps and objects.  Maps nearby area.",
-            "Detects monsters, doors, stairs, traps and objects.  Maps nearby area and grants temporary telepathy.",
-            "Detects monsters, doors, stairs, traps and objects.  Maps entire level and grants temporary telepathy.",
+            "Detects monsters, doors, stairs, traps and objects. Maps nearby area.",
+            "Detects monsters, doors, stairs, traps and objects. Maps nearby area and grants temporary telepathy.",
+            "Detects monsters, doors, stairs, traps and objects. Maps entire level and grants temporary telepathy.",
             };
         var_set_string(res, _descriptions[power-1]);
         break;
@@ -1834,12 +1834,12 @@ static void _study(int level)
             for (t = desc, j = 0; t[0]; t += strlen(t) + 1, j++)
                 prt(t, 2+j, 13);
 
-            sprintf(prompt, "You will learn %s.  Are you sure?", spell->name);
+            sprintf(prompt, "You will learn %s. Are you sure?", spell->name);
             if (get_check(prompt))
             {
                 screen_load();
                 p_ptr->spell_order[_num_spells_learned()] = spell->id;
-                p_ptr->redraw |= PR_STUDY;
+                p_ptr->redraw |= PR_EFFECTS;
                 msg_format("You have gained %s.", spell->name);
                 break;
             }
@@ -1943,6 +1943,12 @@ static int _get_spells(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
+    if (equip_find_artifact(ART_STONE_OF_MIND))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
+
     if (p_ptr->lev >= 15)
         p_ptr->clear_mind = TRUE;
 
@@ -1992,6 +1998,28 @@ static void _calc_bonuses(void)
         p_ptr->sustain_con = TRUE;
         p_ptr->sustain_chr = TRUE;
         p_ptr->hold_life = TRUE;
+    }
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    if (p_ptr->magic_num1[_BLENDING])
+        add_flag(flgs, TR_STEALTH);
+    if (p_ptr->magic_num1[_SHIELDING])
+        add_flag(flgs, TR_FREE_ACT);
+    if (p_ptr->magic_num1[_SPEED])
+        add_flag(flgs, TR_SPEED);
+    if (p_ptr->magic_num1[_FORTRESS])
+    {
+        add_flag(flgs, TR_SPELL_POWER);
+        add_flag(flgs, TR_RES_TIME);
+        add_flag(flgs, TR_SUST_STR);
+        add_flag(flgs, TR_SUST_INT);
+        add_flag(flgs, TR_SUST_WIS);
+        add_flag(flgs, TR_SUST_DEX);
+        add_flag(flgs, TR_SUST_CON);
+        add_flag(flgs, TR_SUST_CHR);
+        add_flag(flgs, TR_HOLD_LIFE);
     }
 }
 
@@ -2099,7 +2127,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-static void _character_dump(FILE* file)
+static void _character_dump(doc_ptr doc)
 {
     int     i, j;
     int     stat = _spell_stat_idx();
@@ -2109,13 +2137,13 @@ static void _character_dump(FILE* file)
     var_init(&name);
     var_init(&info);
 
-    fprintf(file, "\n=================================== Spells ====================================\n");
+    doc_printf(doc, "<topic:Spells>=================================== <color:keypress>S</color>pells ====================================\n");
 
     for (i = 0; i < num_learned; i++)
     {
         _spell_t *power = _get_spell(p_ptr->spell_order[i]);
 
-        fprintf(file, "\n%-23.23s Cost Fail %-15.15s Cast Fail\n", power->name, "Info");
+        doc_printf(doc, "\n<color:G>%-23.23s Cost Fail %-15.15s Cast Fail</color>\n", power->name, "Info");
         for (j = 0; j < _MAX_POWER; j++)
         {
             _spell_info_t  *spell = &power->info[j];
@@ -2141,7 +2169,7 @@ static void _character_dump(FILE* file)
             stats = spell_stats_aux(var_get_string(&name));
 
             (spell->fn)(SPELL_INFO, &info);
-            fprintf(file, "%-23.23s %4d %3d%% %-15.15s %4d %4d %3d%%\n", 
+            doc_printf(doc, "%-23.23s %4d %3d%% %-15.15s %4d %4d %3d%%\n",
                             var_get_string(&name),
                             cost,
                             fail,
@@ -2155,6 +2183,7 @@ static void _character_dump(FILE* file)
 
     var_clear(&name);
     var_clear(&info);
+    doc_newline(doc);
 }
 
 static void _player_action(int energy_use)
@@ -2162,7 +2191,7 @@ static void _player_action(int energy_use)
     psion_do_mindspring(energy_use);
 }
 
-class_t *psion_get_class_t(void)
+class_t *psion_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -2199,6 +2228,7 @@ class_t *psion_get_class_t(void)
         me.pets = 35;
 
         me.calc_bonuses = _calc_bonuses;
+        me.get_flags = _get_flags;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.caster_info = _caster_info;

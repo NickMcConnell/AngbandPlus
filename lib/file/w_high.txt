@@ -81,7 +81,6 @@ of Vishnu
 
 N:14:BIAS_NECROMANTIC
 'Soulsucker'
-'Hand of Vecna'
 'Deathstorm'
 'Word of Death'
 'Haradekket'

@@ -4,7 +4,7 @@
 Q:14:N:Warg problem
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:14:Q:1:0:0:16:5:257:0:2
+Q:14:Q:1:0:0:16:5:257:0:30
 
 # Description for quest
 ?:[LEQ $QUEST14 2]

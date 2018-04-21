@@ -28,7 +28,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *mage_get_class_t(void)
+class_t *mage_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -43,17 +43,17 @@ class_t *mage_get_class_t(void)
                     "hope to simply hack his way through the dungeon like a warrior. "
                     "In addition to his spellbooks, a Mage should carry a range of "
                     "magical devices to help him in his endeavors which he can master "
-                    "far more easily than anyone else.  A Mage's prime statistic is "
+                    "far more easily than anyone else. A Mage's prime statistic is "
                     "Intelligence as this determines his spell casting ability.\n \n"
                     "Mages have the least restrictions in choosing and learning spells. "
                     "They can freely choose any two realms when a character is created. "
                     "Their natural inclination makes Life magic fairly hard to learn. "
                     "Otherwise, a mage tends to learn and cast all the spells in his or "
-                    "her realms better than any other character.  The ability to choose "
+                    "her realms better than any other character. The ability to choose "
                     "second realm of magic has a special meaning: Only the "
-                    "second realm can be changed in the middle of the game.  You can "
+                    "second realm can be changed in the middle of the game. You can "
                     "change second realm by studying ('G') from a spellbook of new "
-                    "realm.  They have a class power - 'Eat Magic' - which absorbs mana "
+                    "realm. They have a class power - 'Eat Magic' - which absorbs mana "
                     "from wands, staves or rods.";
 
         me.stats[A_STR] = -4;

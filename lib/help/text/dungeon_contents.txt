@@ -1,0 +1,15 @@
+The Town and Dungeon
+
+Please choose one of the following online help files:
+
+    [a] Town and Dungeon
+    [b] Symbols on Your Map
+    [c] Within the Dungeon
+    [d] Objects in the Dungeon
+    [e] Mining
+    [f] Staircases, Doors, Passages & Rooms
+    [g] Level Feelings
+    [h] Random Quests
+
+    (?) Help System Commands
+

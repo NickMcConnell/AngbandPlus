@@ -73,6 +73,9 @@
 
 #include "angband.h"
 
+/* This is my debugging prop for QtCreator on Linux. Hopefully, I remember
+   to comment this out when I am finished debugging!
+#define WINDOWS */
 
 #ifdef WINDOWS
 
@@ -1016,7 +1019,7 @@ static void load_prefs_aux(int i)
     td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", td->bizarre, ini_file) != 0);
 
     /* Analyze font, save desired font name */
-    td->font_want = string_make(tmp);
+    td->font_want = z_string_make(tmp);
     hgt = 15; wid = 0;
     td->lf.lfWidth  = GetPrivateProfileInt(sec_name, "FontWid", wid, ini_file);
     td->lf.lfHeight = GetPrivateProfileInt(sec_name, "FontHgt", hgt, ini_file);
@@ -1151,7 +1154,7 @@ static void load_sound_prefs(void)
 
             /* Save the sound filename, if it exists */
             if (check_file(wav_path))
-                sound_file[i][j] = string_make(zz[j]);
+                sound_file[i][j] = z_string_make(zz[j]);
         }
     }
 }
@@ -3016,9 +3019,6 @@ static void process_menus(WORD wCmd)
                     break;
                 }
 
-                /* Hack -- Forget messages */
-                msg_flag = FALSE;
-
                 /* Save the game */
                 do_cmd_save_game(FALSE);
             }
@@ -3042,9 +3042,6 @@ static void process_menus(WORD wCmd)
 
                     break;
                 }
-
-                /* Hack -- Forget messages */
-                msg_flag = FALSE;
 
                 forget_lite();
                 forget_view();
@@ -3450,7 +3447,7 @@ static void process_menus(WORD wCmd)
 
             if (GetSaveFileName(&ofn))
             {
-                do_cmd_save_screen_html_aux(buf, 0);
+                /*do_cmd_save_screen_html_aux(buf, 0);*/
             }
             break;
         }
@@ -3813,9 +3810,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                     return 0;
                 }
 
-                /* Hack -- Forget messages */
-                msg_flag = FALSE;
-
                 forget_lite();
                 forget_view();
                 clear_mon_lite();
@@ -3831,9 +3825,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
         {
             if (game_in_progress && character_generated)
             {
-                /* Hack -- Forget messages */
-                msg_flag = FALSE;
-
                 /* Mega-Hack -- Delay death */
                 if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
 
@@ -4372,7 +4363,7 @@ static void hook_quit(cptr str)
     for (i = MAX_TERM_DATA - 1; i >= 0; --i)
     {
         term_force_font(&data[i], NULL);
-        if (data[i].font_want) string_free(data[i].font_want);
+        if (data[i].font_want) z_string_free(data[i].font_want);
         if (data[i].w) DestroyWindow(data[i].w);
         if (data[i].hDC) DeleteDC(data[i].hDC);
         if (data[i].hBitmap) DeleteObject(data[i].hBitmap);
@@ -4432,7 +4423,7 @@ static void init_stuff(void)
     strcpy(path + strlen(path) - 4, ".INI");
 
     /* Save the the name of the ini-file */
-    ini_file = string_make(path);
+    ini_file = z_string_make(path);
 
     /* Analyze the path */
     i = strlen(path);
@@ -4493,7 +4484,7 @@ static void init_stuff(void)
     path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "graf");
 
     /* Allocate the path */
-    ANGBAND_DIR_XTRA_GRAF = string_make(path);
+    ANGBAND_DIR_XTRA_GRAF = z_string_make(path);
 
     /* Validate the "graf" directory */
     validate_dir(ANGBAND_DIR_XTRA_GRAF, TRUE);
@@ -4507,7 +4498,7 @@ static void init_stuff(void)
     path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
 
     /* Allocate the path */
-    ANGBAND_DIR_XTRA_SOUND = string_make(path);
+    ANGBAND_DIR_XTRA_SOUND = z_string_make(path);
 
     /* Validate the "sound" directory */
     validate_dir(ANGBAND_DIR_XTRA_SOUND, FALSE);
@@ -4520,7 +4511,7 @@ static void init_stuff(void)
     path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "music");
 
     /* Allocate the path */
-    ANGBAND_DIR_XTRA_MUSIC = string_make(path);
+    ANGBAND_DIR_XTRA_MUSIC = z_string_make(path);
 
     /* Validate the "music" directory */
     validate_dir(ANGBAND_DIR_XTRA_MUSIC, FALSE);
@@ -4531,7 +4522,7 @@ static void init_stuff(void)
     path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "help");
 
     /* Allocate the path */
-    ANGBAND_DIR_XTRA_HELP = string_make(path);
+    ANGBAND_DIR_XTRA_HELP = z_string_make(path);
 
     /* Validate the "help" directory */
     /* validate_dir(ANGBAND_DIR_XTRA_HELP); */
@@ -4671,8 +4662,9 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
     /* Did the user double click on a save file? */
     check_for_save_file(lpCmdLine);
 
-    prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
-
+    Term_flush();
+    display_news();
+    c_prt(TERM_YELLOW, "                 [Choose 'New' or 'Open' from the 'File' menu]", Term->hgt - 1, 0);
     Term_fresh();
 
     /* Process messages forever */

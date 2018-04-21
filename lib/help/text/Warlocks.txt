@@ -1,0 +1,217 @@
+Warlocks
+
+A Warlock is a magical class but, unlike normal spellcasters, they 
+derive their powers, stats, skills and bonuses by making a pact with a 
+given class of monsters. This pact is irrevocable and is made at the 
+outset of the Warlock's career. Depending on the class of monsters with 
+whom they ally, the warlock will gain unique bonuses, abilities and 
+magical powers. For example, alliance with the forces of the 
+netherworld grants resistances to poison and nether, enhanced 
+constitution and spells to control and conjure the unliving as well as 
+spells to access the damaging forces of the netherworld directly. Each 
+such alliance has thematic bonuses and powers, and you can read the 
+details in the respective help sections. On final comment: allying with 
+a given class of monsters dramatically reduces the warlock's ability to 
+fight these foes. Instead, the warlock seeks cooperation with their 
+brethren, or, perhaps, domination over them. But direct assaults are 
+rarely successful.
+ 
+In addition to pact related spells, all warlocks gain access to the 
+unique power of the Eldritch Blast. Their primary spell stat is 
+Charisma since they seek dominion and alliance with their chosen kin, 
+and these monsters tend to have a strong will of their own, resisting 
+the binding forces which the warlock imposes to gain both mastery and 
+power.
+
+Undead
+Undead are tough creatures, each having survived death at least once. 
+Warlocks who make a pact with Undead will find themselves gaining 
+additional resistances such as cold, poison, darkness and nether. In 
+addition, they will be able to see their kind, which tend to be 
+invisible, and gain resistance to life draining forces. They will also 
+gain access to undeadly powers, which typically involve detection and 
+control over the forces of the netherworld. In the end, this pact will 
+allow its practitioners to destroy monsters with a single word, and, 
+perhaps, to even partially leave the world of the living altogether. Of 
+course, allying with the undead substantially reduces the warlock's 
+ability to fight these creatures.
+
+  Stats                   Skills
+  Strength      -1        Disarming   Poor         
+  Intelligence  +2        Device      Superb       
+  Wisdom        -3        Save        Excellent    
+  Dexterity     +0        Stealth     Very Good    
+  Constitution  +2        Searching   Poor         
+  Charisma      +4        Perception  Fair         
+  Life Rating  107%       Melee       Fair         
+  Base HP       15        Bows        Poor         
+  Experience   135%
+  
+Dragons
+The bond between a Dragonrider and a Dragon is one of the strongest and 
+most enduring ties seen the world over. Each draws strength, power, and 
+encouragement from the other, and together they make a formidable foe. 
+An alliance with Dragonkind enables this bond to form, and the Warlock 
+of this pact gains impressive powers for mounted combat. Indeed, they 
+are among the elite riders of the world, only slightly inferior to 
+Cavalry and Beastmasters. But where they have a slight deficiency in 
+skill (and perhaps in melee as well), they have a strong advantage in 
+riding techniques and magical enhancements. Dragonriders favor the 
+lance above all other weapons and seek continuously for the lengendary 
+'Dragonlance' which they view as their long lost birthright.
+
+  Stats                   Skills
+  Strength      +2        Disarming   Bad          
+  Intelligence  +0        Device      Good         
+  Wisdom        +0        Save        Fair         
+  Dexterity     -1        Stealth     Fair         
+  Constitution  +1        Searching   Poor         
+  Charisma      +3        Perception  Poor         
+  Life Rating  102%       Melee       Fair         
+  Base HP       10        Bows        Poor         
+  Experience   130%
+  
+Angels
+Angels are heavenly beings who use a variety of techniques to smite 
+those they view as evil. Warlocks who make pacts with Angels will also 
+find their saving throws significantly improved, and (eventually) their 
+body immune to bolt-like effects. Since Angels are strongly aligned 
+with the forces of good, making a pact with Angels will reduce damage 
+done to all good monsters by a substantial amount.
+
+  Stats                   Skills
+  Strength      +1        Disarming   Bad          
+  Intelligence  +1        Device      Very Good    
+  Wisdom        +2        Save        Superb       
+  Dexterity     +1        Stealth     Fair         
+  Constitution  +1        Searching   Poor         
+  Charisma      +3        Perception  Bad          
+  Life Rating   98%       Melee       Fair         
+  Base HP        4        Bows        Poor         
+  Experience   150%
+  
+Demons
+Demons are crafty creatures of the netherworld, using whatever means at 
+their disposal to bring down their enemies. Warlocks who make pacts 
+with Demons will find their abilities to use all magical devices 
+improved, and gain the ability to Recharge these devices at will. 
+Eventually, Demon Warlocks attain the ability to crush walls beneath 
+their footsteps. Making a pact with Demons will reduce damage done to 
+all demons by a substantial amount.
+
+  Stats                   Skills
+  Strength      +3        Disarming   Bad          
+  Intelligence  +1        Device      Superb       
+  Wisdom       -10        Save        Excellent    
+  Dexterity     +1        Stealth     Poor         
+  Constitution  +1        Searching   Poor         
+  Charisma      +3        Perception  Bad          
+  Life Rating  100%       Melee       Excellent    
+  Base HP       15        Bows        Poor         
+  Experience   150%
+  
+Hounds
+An alliance with hounds is one of the weaker pacts the warlock may 
+make. Hounds are fast, stealthy and nimble, and the warlock will gain 
+these attributes as well, in addition to basic elemental resistances. 
+They also gain decent melee, but other skills, especially device 
+skills, are somewhat lacking. Of course, they may call on their kin for 
+assistance, but this may not be enough against the more difficult foes 
+of the world. Still, hounds are very common and many consider them to 
+be annoying as well, so perhaps an alliance is in order?
+
+  Stats                   Skills
+  Strength      +0        Disarming   Bad          
+  Intelligence  -2        Device      Fair         
+  Wisdom        -2        Save        Fair         
+  Dexterity     +2        Stealth     Excellent    
+  Constitution  +2        Searching   Poor         
+  Charisma      +2        Perception  Bad          
+  Life Rating  102%       Melee       Very Good    
+  Base HP       12        Bows        Bad          
+  Experience   110%
+  
+Spiders
+Of all the icky, crawling things in the world, you have chosen to make 
+an alliance with spiders? Sure, they are stealthy, and fast, and very 
+adept at hiding. Able to extrude a fine sticky substance to ensnare the 
+unwary, the spider lurks nearby, or so you assume since you very seldom 
+see them. Moreover, many spiders are adept at the powers of 
+teleportation, able to jump quickly from one location to another, which 
+can be quite baffling to a would be predator. They are comfortable with 
+both poison and nexus. But, aside from all of this, they are a bit on 
+the squishy side. That is, if you can manage to catch one!
+
+  Stats                   Skills
+  Strength      -1        Disarming   Bad          
+  Intelligence  +0        Device      Excellent    
+  Wisdom        -2        Save        Fair         
+  Dexterity     +2        Stealth     Superb       
+  Constitution  +0        Searching   Poor         
+  Charisma      +2        Perception  Bad          
+  Life Rating   97%       Melee       Fair         
+  Base HP        1        Bows        Very Good    
+  Experience   120%
+  
+Giants
+An alliance with giants and titans grants impressive physical strength 
+and fortitude, but other stats will generally suffer. Later in life, 
+you will gain giant-like resistances including sound, shards and chaos. 
+Your combat will be impressive, but, like giants, you will favor heavy 
+weapons. Oh, and you won't mind tossing a boulder or two should the 
+need arise. Since this alliance offers so much in the way of physical 
+advantages, it offers very little in the way of magical abilities or 
+skill. Warlocks with this alliance are the best possible fighters being 
+nearly indistiguishable in skill from Warriors!
+
+  Stats                   Skills
+  Strength      +2        Disarming   Bad          
+  Intelligence  -4        Device      Bad          
+  Wisdom        -4        Save        Fair         
+  Dexterity     -2        Stealth     Poor         
+  Constitution  +2        Searching   Poor         
+  Charisma      +2        Perception  Bad          
+  Life Rating  112%       Melee       Superb       
+  Base HP       25        Bows        Very Good    
+  Experience   140%
+  
+Table 1 - Warlock Statistic Bonus Table
+
+                  STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+Undead             -1   +2   -3   +0   +2   +4  107%  +15  135%
+Dragons            +2   +0   +0   -1   +1   +3  102%  +10  130%
+Angels             +1   +1   +2   +1   +1   +3   98%   +4  150%
+Demons             +3   +1  -10   +1   +1   +3  100%  +15  150%
+Hounds             +0   -2   -2   +2   +2   +2  102%  +12  110%
+Spiders            -1   +0   -2   +2   +0   +2   97%   +1  120%
+Giants             +2   -4   -4   -2   +2   +2  112%  +25  140%
+
+
+Table 2 - Warlock Skill Bonus Table I
+
+                  Disarming     Device        Save          Stealth      
+Undead            Poor          Superb        Excellent     Very Good    
+Dragons           Bad           Good          Fair          Fair         
+Angels            Bad           Very Good     Superb        Fair         
+Demons            Bad           Superb        Excellent     Poor         
+Hounds            Bad           Fair          Fair          Excellent    
+Spiders           Bad           Excellent     Fair          Superb       
+Giants            Bad           Bad           Fair          Poor         
+
+
+Table 3 - Warlock Skill Bonus Table II
+
+                  Searching     Perception    Melee         Bows         
+Undead            Poor          Fair          Fair          Poor         
+Dragons           Poor          Poor          Fair          Poor         
+Angels            Poor          Bad           Fair          Poor         
+Demons            Poor          Bad           Excellent     Poor         
+Hounds            Poor          Bad           Very Good     Bad          
+Spiders           Poor          Bad           Fair          Very Good    
+Giants            Poor          Bad           Superb        Very Good    
+
+
+
+
+Automatically generated for PosChengband 4.0.0.
+

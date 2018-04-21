@@ -910,8 +910,7 @@ bool imitator_cast(bool revenge)
     }
 
     energy_use = 100;
-    p_ptr->redraw |= (PR_IMITATION);
-    p_ptr->window |= (PW_PLAYER);
+    p_ptr->redraw |= PR_EFFECTS;
     p_ptr->window |= (PW_SPELL);
     return TRUE;
 }
@@ -949,7 +948,7 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-class_t *imitator_get_class_t(void)
+class_t *imitator_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

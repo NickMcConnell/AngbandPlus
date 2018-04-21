@@ -42,7 +42,7 @@ static void _calc_innate_attacks(void)
         break;
     }
 
-    a.msg = "You bite %s.";
+    a.msg = "You bite.";
     a.name = "Bite";
 
     p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -95,6 +95,19 @@ static void _super_attack_spell(int cmd, variant *res)
     case SPELL_CAST:
         var_set_bool(res, do_blow(PY_POWER_ATTACK));
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        display_weapon_mode = PY_POWER_ATTACK;
+        do_cmd_knowledge_weapon();
+        display_weapon_mode = 0;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -252,8 +265,7 @@ static void _gain_level(int new_level)
  ******************************************************************************/
 static void _calc_bonuses(void) 
 {
-    int l = p_ptr->lev;
-    int to_a = l/10 + l*l/250 + l*l*l/12500;
+    int to_a = py_prorata_level_aux(25, 1, 2, 2);
 
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;
@@ -325,16 +337,22 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     switch (p_ptr->current_r_idx)
     {
     case MON_FOREST_TROLL:
+        add_flag(flgs, TR_VULN_LITE);
         break;
     case MON_STONE_TROLL:
+        add_flag(flgs, TR_VULN_LITE);
         break;
     case MON_ICE_TROLL:
         add_flag(flgs, TR_RES_COLD);
         add_flag(flgs, TR_BRAND_COLD);
+        add_flag(flgs, TR_VULN_LITE);
+        add_flag(flgs, TR_VULN_FIRE);
         break;
     case MON_FIRE_TROLL:
         add_flag(flgs, TR_RES_FIRE);
         add_flag(flgs, TR_BRAND_FIRE);
+        add_flag(flgs, TR_VULN_LITE);
+        add_flag(flgs, TR_VULN_COLD);
         break;
     case MON_ALGROTH:
         add_flag(flgs, TR_BRAND_POIS);
@@ -376,27 +394,6 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     }
 }
 
-static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
-{
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_FOREST_TROLL:
-        add_flag(flgs, TR_RES_LITE);
-        break;
-    case MON_STONE_TROLL:
-        add_flag(flgs, TR_RES_LITE);
-        break;
-    case MON_ICE_TROLL:
-        add_flag(flgs, TR_RES_LITE);
-        add_flag(flgs, TR_RES_FIRE);
-        break;
-    case MON_FIRE_TROLL:
-        add_flag(flgs, TR_RES_LITE);
-        add_flag(flgs, TR_RES_COLD);
-        break;
-    }    
-}
-
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     switch (p_ptr->current_r_idx)
@@ -423,7 +420,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 /******************************************************************************
  * Troll Public API
  ******************************************************************************/
-race_t *mon_troll_get_race_t(void)
+race_t *mon_troll_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
@@ -444,13 +441,13 @@ race_t *mon_troll_get_race_t(void)
         me.infra = 5;
         me.exp = 150;
         me.base_hp = 50;
+        me.shop_adjust = 135;
 
         me.calc_bonuses = _calc_bonuses;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.calc_innate_attacks = _calc_innate_attacks;
         me.get_powers = _get_powers;
         me.get_flags = _get_flags;
-        me.get_vulnerabilities = _get_vulnerabilities;
         me.gain_level = _gain_level;
         me.birth = _birth;
 

@@ -19,7 +19,7 @@
  *
  * Part of this file provides a user interface package composed of several
  * pseudo-objects, including "metadpy" (a display), "infowin" (a window),
- * "infoclr" (a color), and "infofnt" (a font).  Actually, the package was
+ * "infoclr" (a color), and "infofnt" (a font). Actually, the package was
  * originally much more interesting, but it was bastardized to keep this
  * file simple.
  *
@@ -33,7 +33,7 @@
  * it was extracted into "~/Angband", and compiled using "USE_X11", on a
  * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
  * characteristics), with gamma correction of 1.8 -> (1 / 1.8) * 256 = 142,
- * and without graphics (add "-g" for graphics).  Just copy this comment
+ * and without graphics (add "-g" for graphics). Just copy this comment
  * into a file, remove the leading " * " characters (and the head/tail of
  * this comment), and make the file executable.
  * 
@@ -92,6 +92,11 @@
  *
  */
 
+/* Sorry, but I cannot get QtCreator to recognize that this *is* actually being set, probably
+   because it doesn't know to check out CFLAGS in ../mk/buildsys.mk where HAVE_CONFIG_H is defined
+   so that h-basic.h knows to #include "autoconf.h" so that USE_X11 gets defined. Unbelievable! :)
+   If you are having compile problems, just comment this out.
+#define USE_X11 */
 
 #include "angband.h"
 
@@ -119,6 +124,8 @@ char *XSetIMValues(XIM, ...); /* Hack for XFree86 4.0 */
  */
 #include "maid-x11.c"
 
+/* Which header?? */
+extern void usleep(int);
 
 /*
  * Hack -- avoid some compiler warnings
@@ -131,7 +138,7 @@ char *XSetIMValues(XIM, ...); /* Hack for XFree86 4.0 */
  *
  *   1) On a monochrome (or "fake-monochrome") display, all colors
  *   will be "cast" to "fg," except for the bg color, which is,
- *   obviously, cast to "bg".  Thus, one can ignore this setting.
+ *   obviously, cast to "bg". Thus, one can ignore this setting.
  *
  *   2) Because of the inner functioning of the color allocation
  *   routines, colors may be specified as (a) a typical color name,
@@ -139,7 +146,7 @@ char *XSetIMValues(XIM, ...); /* Hack for XFree86 4.0 */
  *   or (c) by strings such as "fg", "bg", "zg".
  *
  *   3) Due to the workings of the init routines, many colors
- *   may also be dealt with by their actual pixel values.  Note that
+ *   may also be dealt with by their actual pixel values. Note that
  *   the pixel with all bits set is "zg = (1<<metadpy->depth)-1", which
  *   is not necessarily either black or white.
  */
@@ -525,7 +532,7 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 	m->bg = m->black;
 	m->fg = m->white;
 
-	/* Calculate the Maximum allowed Pixel value.  */
+	/* Calculate the Maximum allowed Pixel value. */
 	m->zg = (1 << m->depth) - 1;
 
 	/* Save various default Flag Settings */
@@ -603,6 +610,10 @@ static errr Infowin_set_name(cptr name)
 	strcpy(buf, name);
 	st = XStringListToTextProperty(&bp, 1, &tp);
 	if (st) XSetWMName(Metadpy->dpy, Infowin->win, &tp);
+    /* "To free the storage for the value field, use ."
+         -- Official X11 Documentation for XStringListToTextProperty
+       Thanks, guys. I'll call that mysterious function right away! */
+    free(tp.value);
 	return (0);
 }
 
@@ -982,7 +993,7 @@ static int Infoclr_Opcode(cptr str)
 #ifndef IGNORE_UNUSED_FUNCTIONS
 
 /*
- * Request a Pixell by name.  Note: uses 'Metadpy'.
+ * Request a Pixell by name. Note: uses 'Metadpy'.
  *
  * Inputs:
  *      name: The name of the color to try to load (see below)
@@ -1200,7 +1211,7 @@ static errr Infofnt_nuke(void)
 	if (ifnt->name)
 	{
 		/* Free the name */
-		string_free(ifnt->name);
+        z_string_free(ifnt->name);
 	}
 
 
@@ -1378,7 +1389,7 @@ static void Infofnt_init_data(cptr name)
 	}
 
 	/* Save a copy of the font name */
-	Infofnt->name = string_make(name);
+    Infofnt->name = z_string_make(name);
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
@@ -2115,7 +2126,7 @@ static bool paste_x11_send_text(XSelectionRequestEvent *rq)
 		/* End of string */
 		buf[l] = '\0';
 
-		list[n++] = (char *)string_make(buf);
+        list[n++] = (char *)z_string_make(buf);
 	}
 
 	/* End of the list */
@@ -2164,7 +2175,7 @@ static bool paste_x11_send_text(XSelectionRequestEvent *rq)
 	/* Free the list of strings */
 	for (n = 0; list[n]; n++)
 	{
-		string_free(list[n]);
+        z_string_free(list[n]);
 	}
 
 	return TRUE;
@@ -2206,15 +2217,15 @@ static void paste_x11_send(XSelectionRequestEvent *rq)
 		target_list[2] = xa_compound_text;
 		target_list[3] = xa_targets;
 		XChangeProperty(DPY, rq->requestor, rq->property, rq->target,
-			(8 * sizeof(target_list[0])), PropModeReplace,
+            8, PropModeReplace,
 			(unsigned char *)target_list,
-			(sizeof(target_list) / sizeof(target_list[0])));
+            sizeof(target_list));
 	}
 	else if (rq->target == xa_timestamp)
 	{
 		XChangeProperty(DPY, rq->requestor, rq->property, rq->target,
-			(8 * sizeof(Time)), PropModeReplace,
-			(unsigned char *)s_ptr->time, 1);
+            8, PropModeReplace,
+            (unsigned char *)s_ptr->time, sizeof(Time));
 	}
 	else
 	{
@@ -2414,7 +2425,7 @@ static errr CheckEvent(bool wait)
 
 		case SelectionRequest:
 		{
-			paste_x11_send(&(xev->xselectionrequest));
+            paste_x11_send(&(xev->xselectionrequest));
 			break;
 		}
 
@@ -2604,7 +2615,7 @@ static void init_sound(void)
 		path_build(buf, sizeof(buf), dir_xtra_sound, wav);
 		
 		/* Save the sound filename, if it exists */
-		if (check_file(buf)) sound_file[i] = string_make(buf);
+        if (check_file(buf)) sound_file[i] = z_string_make(buf);
 	}
 	use_sound = TRUE;
 	return;
@@ -2627,9 +2638,9 @@ static errr Term_xtra_x11_sound(int v)
 	if (!sound_file[v]) return (1);
 	
 	sprintf(buf,"./playwave.sh %s\n", sound_file[v]);
-	system(buf);
-	
-	return (0);
+    if (system(buf) == EXIT_SUCCESS)
+        return (0);
+    return -1;
 	
 }
 #endif /* USE_SOUND */
@@ -2749,7 +2760,7 @@ static errr Term_xtra_x11(int n, int v)
 /*
  * Draw the cursor as an inverted rectangle.
  *
- * Consider a rectangular outline like "main-mac.c".  XXX XXX
+ * Consider a rectangular outline like "main-mac.c". XXX XXX
  */
 static errr Term_curs_x11(int x, int y)
 {
@@ -3342,13 +3353,6 @@ static void hook_quit(const char *str)
         {
             XDestroyImage(td->TmpImage);
         }
-        /* TODO: This still leaks:
-            ================================================================
-            ==14300==ERROR: LeakSanitizer: detected memory leaks
-
-            Direct leak of 136 byte(s) in 1 object(s) allocated from:
-                #0 0x4be960 in calloc (/home/chris/Src/poschengband/poschengband+0x4be960)
-                #1 0x7f6769567877 in XCreateImage (/usr/lib/x86_64-linux-gnu/libX11.so.6+0x26877) */
 #endif
 
         /* Free size hints */

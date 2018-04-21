@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: effects of various "objects" */
@@ -149,6 +149,8 @@ int exp_requirement(int level)
 void gain_chosen_stat(void)
 {
     int choice;
+    if (statistics_hack)
+        return;
     screen_save();
     while(1)
     {
@@ -214,10 +216,6 @@ void check_experience(void)
     /* Redraw experience */
     p_ptr->redraw |= (PR_EXP);
 
-    /* Handle stuff */
-    handle_stuff();
-
-
     /* Lose levels while possible */
     while ((p_ptr->lev > 1) &&
            (p_ptr->exp < exp_requirement(p_ptr->lev - 1)))
@@ -229,10 +227,7 @@ void check_experience(void)
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
         /* Redraw some stuff */
-        p_ptr->redraw |= (PR_LEV | PR_TITLE);
-
-        /* Window stuff */
-        p_ptr->window |= (PW_PLAYER);
+        p_ptr->redraw |= (PR_LEV);
 
         /* Handle stuff */
         handle_stuff();
@@ -249,12 +244,12 @@ void check_experience(void)
         /* Save the highest level */
         if (p_ptr->lev > p_ptr->max_plv)
         {
-            class_t *class_ptr = get_class_t();
+            class_t *class_ptr = get_class();
 
             p_ptr->max_plv = p_ptr->lev;
 
             sound(SOUND_LEVEL);
-            msg_format("Welcome to level %d.", p_ptr->lev);
+            cmsg_format(TERM_L_GREEN, "Welcome to level %d.", p_ptr->lev);
 
             if (class_ptr->gain_level != NULL)
                 (class_ptr->gain_level)(p_ptr->lev);
@@ -266,10 +261,10 @@ void check_experience(void)
                change (stupid Chaos-Warriors), so we better always requery the player's 
                race to make sure the correct racial hook is called. */
             {
-                race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
+                race_t *race_ptr = get_true_race(); /* So players don't miss if they Polymorph Demon, etc */
 
                 if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
-                    race_ptr = get_race_t();
+                    race_ptr = get_race();
 
                 if (race_ptr->gain_level != NULL)
                     (race_ptr->gain_level)(p_ptr->lev);
@@ -284,10 +279,10 @@ void check_experience(void)
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
         /* Redraw some stuff */
-        p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+        p_ptr->redraw |= (PR_LEV | PR_EXP);
 
         /* Window stuff */
-        p_ptr->window |= (PW_PLAYER | PW_SPELL | PW_INVEN);
+        p_ptr->window |= (PW_SPELL | PW_INVEN);
 
         level_up = 1;
 
@@ -302,17 +297,17 @@ void check_experience(void)
                 gain_chosen_stat();
         }
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-        p_ptr->redraw |= (PR_LEV | PR_TITLE);
-        p_ptr->window |= (PW_PLAYER | PW_SPELL);
+        p_ptr->redraw |= (PR_LEV);
+        p_ptr->window |= (PW_SPELL);
         handle_stuff();
     }
 
     if (old_lev != p_ptr->lev) 
     {
-        race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
+        race_t *race_ptr = get_true_race(); /* So players don't miss if they Polymorph Demon, etc */
 
         if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
-            race_ptr = get_race_t();
+            race_ptr = get_race();
 
         if (race_ptr->change_level)
             race_ptr->change_level(old_lev, p_ptr->lev);
@@ -549,14 +544,15 @@ void check_quest_completion(monster_type *m_ptr)
                 {
                     /* completed quest */
                     quest[i].status = QUEST_STATUS_COMPLETED;
+                    p_ptr->redraw |= PR_DEPTH;
+
                     quest[i].complev = (byte)p_ptr->lev;
                     virtue_add(VIRTUE_VALOUR, 2);
                     p_ptr->fame += randint1(2);
 
                     if (!(quest[i].flags & QUEST_FLAG_SILENT))
                     {
-                        msg_print("You just completed your quest!");
-                        msg_print(NULL);
+                        cmsg_print(TERM_L_BLUE, "You just completed your quest!");
                     }
 
                     quest[i].cur_num = 0;
@@ -586,11 +582,11 @@ void check_quest_completion(monster_type *m_ptr)
                     else
                     {
                         quest[i].status = QUEST_STATUS_COMPLETED;
+                        p_ptr->redraw |= PR_DEPTH;
                         quest[i].complev = (byte)p_ptr->lev;
                         virtue_add(VIRTUE_VALOUR, 2);
                         p_ptr->fame += randint1(2);
-                        msg_print("You just completed your quest!");
-                        msg_print(NULL);
+                        cmsg_print(TERM_L_BLUE, "You just completed your quest!");
                     }
                 }
                 break;
@@ -608,6 +604,7 @@ void check_quest_completion(monster_type *m_ptr)
                 {
                     /* completed quest */
                     quest[i].status = QUEST_STATUS_COMPLETED;
+                    p_ptr->redraw |= PR_DEPTH;
                     quest[i].complev = (byte)p_ptr->lev;
                     virtue_add(VIRTUE_VALOUR, 2);
                     p_ptr->fame += randint1(2);
@@ -619,8 +616,7 @@ void check_quest_completion(monster_type *m_ptr)
 
                     if (!(quest[i].flags & QUEST_FLAG_SILENT))
                     {
-                        msg_print("You just completed your quest!");
-                        msg_print(NULL);
+                        cmsg_print(TERM_L_BLUE, "You just completed your quest!");
                     }
 
                     /* Finish the two main quests without rewarding */
@@ -634,6 +630,7 @@ void check_quest_completion(monster_type *m_ptr)
                     {
                         reward = TRUE;
                         quest[i].status = QUEST_STATUS_FINISHED;
+                        msg_add_tiny_screenshot(50, 24);
                     }
                 }
                 break;
@@ -645,14 +642,14 @@ void check_quest_completion(monster_type *m_ptr)
                 {
                      /* completed quest */
                     quest[i].status = QUEST_STATUS_COMPLETED;
+                    p_ptr->redraw |= PR_DEPTH;
                     quest[i].complev = (byte)p_ptr->lev;
                     virtue_add(VIRTUE_VALOUR, 2);
                     p_ptr->fame += randint1(2);
 
                     if (!(quest[i].flags & QUEST_FLAG_SILENT))
                     {
-                        msg_print("You just completed your quest!");
-                        msg_print(NULL);
+                        cmsg_print(TERM_L_BLUE, "You just completed your quest!");
                     }
                     quest[i].cur_num = 0;
                 }
@@ -692,15 +689,17 @@ void check_quest_completion(monster_type *m_ptr)
     {
         for (j = 0; j < (dun_level / 15)+1; j++)
         {
-            /* Get local object */
-            q_ptr = &forge;
-
-            /* Wipe the object */
-            object_wipe(q_ptr);
-
-            /* Make a great object */
-            if (make_object(q_ptr, AM_GOOD | AM_GREAT | AM_TAILORED))
-                (void)drop_near(q_ptr, -1, y, x);
+            /* Make a great object ... make_object can fail, you know! */
+            while (1)
+            {
+                q_ptr = &forge;
+                object_wipe(q_ptr);
+                if (make_object(q_ptr, AM_GOOD | AM_GREAT | AM_TAILORED))
+                {
+                    (void)drop_near(q_ptr, -1, y, x);
+                    break;
+                }
+            }
         }
     }
 }
@@ -844,7 +843,7 @@ static bool _mon_is_wanted(int m_idx)
 {
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
-    if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED) && !vanilla_town)
+    if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED))
     {
         int i;
         for (i = 0; i < MAX_KUBI; i++)
@@ -975,33 +974,6 @@ static bool _kind_is_utility(int k_idx)
             return TRUE;
         }
         break;
-
-    case TV_STAFF:
-        switch (k_ptr->sval)
-        {
-        case SV_STAFF_MAPPING:
-        case SV_STAFF_DETECT_EVIL:
-        case SV_STAFF_CURING:
-        case SV_STAFF_CURE_LIGHT:
-        case SV_STAFF_SPEED:
-            return TRUE;
-        }
-        break;
-
-    case TV_ROD:
-        switch (k_ptr->sval)
-        {
-        case SV_ROD_DETECT_TRAP:
-        case SV_ROD_DETECT_DOOR:
-        case SV_ROD_IDENTIFY:
-        case SV_ROD_RECALL:
-        case SV_ROD_ILLUMINATION:
-        case SV_ROD_MAPPING:
-        case SV_ROD_DETECTION:
-        case SV_ROD_TELEPORT_AWAY:
-            return TRUE;
-        }
-        break;
     }
     return FALSE;
 }
@@ -1060,7 +1032,7 @@ void monster_death(int m_idx, bool drop_item)
         p_ptr->update |= (PU_MON_LITE);
     }
 
-    if (mut_present(MUT_INFERNAL_DEAL) && los(py, px, m_ptr->fy, m_ptr->fx))
+    if (mut_present(MUT_INFERNAL_DEAL) && los(py, px, m_ptr->fy, m_ptr->fx) && !is_pet(m_ptr))
     {
         if ( p_ptr->msp > 0 
           && p_ptr->pclass != CLASS_RUNE_KNIGHT 
@@ -1121,10 +1093,22 @@ void monster_death(int m_idx, bool drop_item)
 
         if (arena_info[p_ptr->arena_number].tval)
         {
+            int tval = arena_info[p_ptr->arena_number].tval;
+            int sval = arena_info[p_ptr->arena_number].sval;
+
             q_ptr = &forge;
-            object_prep(q_ptr, lookup_kind(arena_info[p_ptr->arena_number].tval, arena_info[p_ptr->arena_number].sval));
-            apply_magic(q_ptr, object_level, AM_NO_FIXED_ART);
-            mass_produce(q_ptr);
+            switch (tval)
+            {
+            case TV_WAND: case TV_ROD: case TV_STAFF:
+                object_prep(q_ptr, lookup_kind(tval, SV_ANY));
+                device_init_fixed(q_ptr, sval);
+                break;
+            default:
+                object_prep(q_ptr, lookup_kind(tval, sval));
+                apply_magic(q_ptr, object_level, AM_NO_FIXED_ART);
+                mass_produce(q_ptr);
+            }
+
             (void)drop_near(q_ptr, -1, y, x);
         }
 
@@ -1651,7 +1635,7 @@ void monster_death(int m_idx, bool drop_item)
     {
         int a_idx = 0;
         int chance = 0;
-        race_t *race_ptr = get_race_t();
+        race_t *race_ptr = get_race();
 
         switch (m_ptr->r_idx)
         {
@@ -1684,7 +1668,7 @@ void monster_death(int m_idx, bool drop_item)
             break;
 
         case MON_GANDALF:
-            a_idx = ART_ICANUS;
+            a_idx = ART_INCANUS;
             chance = 20;
             break;
 
@@ -1923,7 +1907,7 @@ void monster_death(int m_idx, bool drop_item)
 
         case MON_FANG:
             a_idx = ART_FANG;
-            if (prace_is_(RACE_MON_HOUND))
+            if (prace_is_(RACE_MON_HOUND) || warlock_is_(WARLOCK_HOUNDS))
                 chance = 50;
             else
                 chance = 10;
@@ -1931,7 +1915,7 @@ void monster_death(int m_idx, bool drop_item)
 
         case MON_WOLF:
             a_idx = ART_WOLF;
-            if (prace_is_(RACE_MON_HOUND))
+            if (prace_is_(RACE_MON_HOUND) || warlock_is_(WARLOCK_HOUNDS))
                 chance = 50;
             else
                 chance = 10;
@@ -1939,7 +1923,7 @@ void monster_death(int m_idx, bool drop_item)
 
         case MON_GRIP:
             a_idx = ART_GRIP;
-            if (prace_is_(RACE_MON_HOUND))
+            if (prace_is_(RACE_MON_HOUND) || warlock_is_(WARLOCK_HOUNDS))
                 chance = 50;
             else
                 chance = 10;
@@ -1955,7 +1939,10 @@ void monster_death(int m_idx, bool drop_item)
             else
             {
                 a_idx = ART_VECNA;
-                chance = 5;
+                if (warlock_is_(WARLOCK_UNDEAD))
+                    chance = 50;
+                else
+                    chance = 5;
             }
             break;
         case MON_UBBO_SATHLA:
@@ -1964,45 +1951,62 @@ void monster_death(int m_idx, bool drop_item)
             break;
         case MON_UNGOLIANT:
             a_idx = ART_UNGOLIANT;
-            chance = 5;
+            if (warlock_is_(WARLOCK_SPIDERS))
+                chance = 50;
+            else
+                chance = 5;
             break;
         case MON_GLAURUNG:
             a_idx = ART_GLAURUNG;
-            chance = 5;
+            if (warlock_is_(WARLOCK_DRAGONS))
+                chance = 50;
+            else
+                chance = 5;
             break;
         case MON_RAPHAEL:
             a_idx = ART_LOHENGRIN;
-            chance = 5;
+            if (warlock_is_(WARLOCK_ANGELS))
+                chance = 50;
+            else
+                chance = 5;
             break;
         case MON_CARCHAROTH:
             a_idx = ART_CARCHAROTH;
             chance = 5;
+            if (warlock_is_(WARLOCK_HOUNDS))
+                chance = 50;
             break;
         case MON_SURTUR:
             a_idx = ART_TWILIGHT;
-            chance = 5;
+            if (warlock_is_(WARLOCK_GIANTS))
+                chance = 50;
+            else
+                chance = 5;
             break;
         case MON_YMIR:
             a_idx = ART_YMIR;
             chance = 5;
-            if (p_ptr->pclass == CLASS_MAULER)
+            if (p_ptr->pclass == CLASS_MAULER || warlock_is_(WARLOCK_GIANTS))
                 chance = 50;
             break;
         case MON_TYPHOEUS:
             a_idx = ART_TYPHOEUS;
             chance = 5;
-            if (p_ptr->pclass == CLASS_MAULER)
+            if (p_ptr->pclass == CLASS_MAULER || warlock_is_(WARLOCK_GIANTS))
                 chance = 50;
             break;
         case MON_ATLAS:
             a_idx = ART_ATLAS;
             chance = 5;
-            if (p_ptr->pclass == CLASS_MAULER)
+            if (p_ptr->pclass == CLASS_MAULER || warlock_is_(WARLOCK_GIANTS))
                 chance = 25;
             break;
         case MON_KRONOS:
             a_idx = ART_KRONOS;
-            chance = 5;
+            if (warlock_is_(WARLOCK_GIANTS))
+                chance = 25;
+            else
+                chance = 5;
             break;
         case MON_OMARAX:
             a_idx = ART_OMARAX;
@@ -2086,6 +2090,8 @@ void monster_death(int m_idx, bool drop_item)
             /* Centipedes can only take the final evolutionary step if the boss is dead */
             if (p_ptr->prace == RACE_MON_CENTIPEDE && p_ptr->lev >= 35)
                 race_ptr->gain_level(p_ptr->lev);
+
+            msg_add_tiny_screenshot(50, 24);
         }
 
         if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))
@@ -2196,19 +2202,71 @@ void monster_death(int m_idx, bool drop_item)
 
             if (k_idx)
             {
+                int ego_index = d_info[dungeon_type].final_ego;
+
                 /* Get local object */
                 q_ptr = &forge;
 
                 /* Prepare to make a reward */
                 object_prep(q_ptr, k_idx);
 
-                apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD);
+                if (ego_index)
+                {
+                    if (object_is_device(q_ptr))
+                    {
+                        /* Hack: There is only a single k_idx for each class of devices, so
+                         * we use the ego index to pick an effect. This means there is no way
+                         * to actually grant an ego device ...*/
+                        if (!device_init_fixed(q_ptr, ego_index))
+                        {
+                            if (ego_index)
+                            {
+                                char     name[255];
+                                effect_t e = {0};
+                                e.type = ego_index;
+                                sprintf(name, "%s", do_effect(&e, SPELL_NAME, 0));
+                                msg_format("Software Bug: %s is not a valid effect for this device.", name);
+                                msg_print("Generating a random device instead.");
+                            }
+                            device_init(q_ptr, object_level, 0);
+                        }
+                    }
+                    else
+                    {
+                        apply_magic_ego = ego_index;
+                        apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD | AM_FORCE_EGO);
+                    }
+                }
+                else
+                {
+#if 0
+                    if (p_ptr->wizard)
+                    {
+                        int iii;
+                        char buf[MAX_NLEN];
+                        for (iii = 0; iii < 100; )
+                        {
+                            object_type forge = {0};
+                            object_prep(&forge, k_idx);
+                            if (!apply_magic(&forge, object_level, AM_NO_FIXED_ART | AM_GOOD)) continue;
+                            iii++;
+                            identify_item(&forge);
+                            forge.ident |= IDENT_FULL;
+                            ego_aware(&forge);
 
+                            object_desc(buf, &forge, OD_COLOR_CODED);
+                            msg_format("%d) %s\n", iii, buf);
+                        }
+                    }
+#endif
+                    apply_magic(q_ptr, object_level, AM_NO_FIXED_ART | AM_GOOD);
+                }
                 /* Drop it in the dungeon */
                 (void)drop_near(q_ptr, -1, y, x);
             }
-            msg_format("You have conquered %s!",d_name+d_info[dungeon_type].name);
+            cmsg_format(TERM_L_GREEN, "You have conquered %s!",d_name+d_info[dungeon_type].name);
             virtue_add(VIRTUE_VALOUR, 5);
+            msg_add_tiny_screenshot(50, 24);
         }
     }
 
@@ -2246,10 +2304,10 @@ void monster_death(int m_idx, bool drop_item)
         if (!one_in_(3))
         {
             mode = PM_FORCE_FRIENDLY;
-            msg_format("%^s is transformed in undeath!", m_name);
+            cmsg_format(TERM_RED, "%^s is transformed in undeath!", m_name);
         }
         else
-            msg_format("%^s rises to serve you!", m_name);
+            cmsg_format(TERM_RED, "%^s rises to serve you!", m_name);
 
         if (r_ptr->flags1 & RF1_UNIQUE)
             r_lvl += 10;
@@ -2279,8 +2337,6 @@ void monster_death(int m_idx, bool drop_item)
         p_ptr->total_winner = TRUE;
 
         /* Redraw the "title" */
-        p_ptr->redraw |= (PR_TITLE);
-
         if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
         {
             msg_format("The voice of %s booms out:", chaos_patrons[p_ptr->chaos_patron]);
@@ -2291,6 +2347,7 @@ void monster_death(int m_idx, bool drop_item)
         msg_print("*** CONGRATULATIONS ***");
         msg_print("You have won the game!");
         msg_print("You may retire (commit suicide) when you are ready.");
+        msg_add_tiny_screenshot(50, 24);
     }
 }
 
@@ -2338,12 +2395,13 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
     /* Hack: Pact monsters have special resistance to all damage from the player
        I'm not sure if this is the correct spot for this code ...*/
     if ( p_ptr->pclass == CLASS_WARLOCK
-      && warlock_is_pact_monster(r_ptr) )
+      && warlock_is_pact_monster(r_ptr)
+      && dam )
     {
         /* Let the player notice this for this monster race only the first time */
         if (!(r_ptr->r_flagsr & RFR_PACT_MONSTER))
         {
-            msg_print("You are less effective against monsters you have made a pact with.");
+            msg_print("<color:v>You are less effective against monsters you have made a pact with.</color>");
             r_ptr->r_flagsr |= (RFR_PACT_MONSTER);
         }
         dam = dam/2;
@@ -2590,7 +2648,7 @@ void mon_check_kill_unique(int m_idx)
  *
  * Only "physical attacks" can induce the "You have slain" message.
  * Missile and Spell attacks will induce the "dies" message, or
- * various "specialized" messages.  Note that "You have destroyed"
+ * various "specialized" messages. Note that "You have destroyed"
  * and "is destroyed" are synonyms for "You have slain" and "dies".
  *
  * Hack -- unseen monsters yield "You have killed it." message.
@@ -2606,7 +2664,7 @@ void mon_check_kill_unique(int m_idx)
  * XXX XXX XXX Consider decreasing monster experience over time, say,
  * by using "(m_exp * m_lev * (m_lev)) / (p_lev * (m_lev + n_killed))"
  * instead of simply "(m_exp * m_lev) / (p_lev)", to make the first
- * monster worth more than subsequent monsters.  This would also need
+ * monster worth more than subsequent monsters. This would also need
  * to induce changes in the monster recall code.
  */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
@@ -2652,8 +2710,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     }
 
     /* Redraw (later) if needed */
-    if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-    if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+    check_mon_health_redraw(m_idx);
 
     /* Wake it up */
     if (shoot_hack != SHOOT_TRANQUILIZE)
@@ -2812,7 +2869,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
             bool stop_ty = FALSE;
             int count = 0;
 
-            msg_format("%^s puts a terrible blood curse on you!", m_name);
+            cmsg_format(TERM_VIOLET, "%^s puts a terrible blood curse on you!", m_name);
 
             curse_equipment(100, 50);
 
@@ -2958,7 +3015,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         /* Death by physical attack -- invisible monster */
         else if (!m_ptr->ml)
         {
-            msg_format("You have killed %s.", m_name);
+            cmsg_format(TERM_L_RED, "You have killed %s.", m_name);
         }
 
         /* Death by Physical attack -- non-living monster */
@@ -2974,14 +3031,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
             /* Special note at death */
             if (explode)
-                msg_format("%^s explodes into tiny shreds.", m_name);
+                cmsg_format(TERM_L_RED, "%^s explodes into tiny shreds.", m_name);
             else
-                msg_format("You have destroyed %s.", m_name);
+                cmsg_format(TERM_L_RED, "You have destroyed %s.", m_name);
         }
 
         /* Death by Physical attack -- living monster */
         else
-            msg_format("You have slain %s.", m_name);
+            cmsg_format(TERM_L_RED, "You have slain %s.", m_name);
 
         if (_mon_is_wanted(m_idx))
         {
@@ -3042,36 +3099,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     return (FALSE);
 }
 
-
-/*
- * Get term size and calculate screen size
- */
-void get_screen_size(int *wid_p, int *hgt_p)
-{
-    Term_get_size(wid_p, hgt_p);
-    *hgt_p -= ROW_MAP + 2;
-    *wid_p -= COL_MAP + 2;
-    if (use_bigtile) *wid_p /= 2;
-}
-
-
-/*
- * Calculates current boundaries
- * Called below and from "do_cmd_locate()".
- */
-void panel_bounds_center(void)
-{
-    int wid, hgt;
-
-    get_screen_size(&wid, &hgt);
-
-    panel_row_max = panel_row_min + hgt - 1;
-    panel_row_prt = panel_row_min - 1;
-    panel_col_max = panel_col_min + wid - 1;
-    panel_col_prt = panel_col_min - 13;
-}
-
-
 /*
  * Map resizing whenever the main term changes size
  */
@@ -3080,15 +3107,8 @@ void resize_map(void)
     /* Only if the dungeon exists */
     if (!character_dungeon) return;
     
-    /* Mega-Hack -- no panel yet */
-    panel_row_max = 0;
-    panel_col_max = 0;
-
-    /* Reset the panels */
-    panel_row_min = cur_hgt;
-    panel_col_min = cur_wid;
-                
-    verify_panel();
+    viewport_verify();
+    msg_line_clear();
 
     /* Update stuff */
     p_ptr->update |= (PU_TORCH | PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -3117,6 +3137,8 @@ void resize_map(void)
      */
     if (can_save) move_cursor_relative(py, px);
 
+    msg_line_init(NULL);
+
     /* Refresh */
     Term_fresh();
 }
@@ -3130,7 +3152,7 @@ void redraw_window(void)
     if (!character_dungeon) return;
 
     /* Window stuff */
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL);
 
     /* Window stuff */
     p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
@@ -3143,60 +3165,119 @@ void redraw_window(void)
 }
 
 
+point_t ui_pt_to_cave_pt(point_t pt)
+{
+    rect_t  r = ui_map_rect();
+    point_t v = point_subtract(pt, rect_topleft(&r));
+    return point_add(viewport_origin, v);
+}
+
+point_t ui_xy_to_cave_pt(int x, int y)
+{
+    return ui_pt_to_cave_pt(point_create(x, y));
+}
+
+point_t cave_pt_to_ui_pt(point_t pt)
+{
+    rect_t  r = ui_map_rect();
+    point_t v = point_subtract(pt, viewport_origin);
+    return point_add(rect_topleft(&r), v);
+}
+
+point_t cave_xy_to_ui_pt(int x, int y)
+{
+    return cave_pt_to_ui_pt(point_create(x, y));
+}
+
+bool cave_pt_is_visible(point_t pt)
+{
+    point_t ui = cave_pt_to_ui_pt(pt);
+    rect_t  r = ui_map_rect();
+    return rect_contains_pt(&r, ui.x, ui.y);
+}
+
+bool cave_xy_is_visible(int x, int y)
+{
+    return in_bounds2(y, x) /* This is for legacy code ... */
+        && cave_pt_is_visible(point_create(x, y));
+}
+
+bool ui_pt_is_visible(point_t pt)
+{
+    rect_t  r = ui_map_rect();
+    return rect_contains_pt(&r, pt.x, pt.y);
+}
+
+bool ui_xy_is_visible(int x, int y)
+{
+    rect_t  r = ui_map_rect();
+    return rect_contains_pt(&r, x, y);
+}
+
+rect_t ui_map_rect(void)
+{
+    return rect_create(
+        0,
+        1,
+        Term->wid - 12 - 1,
+        Term->hgt - 1 - 1
+    );
+}
+
+rect_t ui_menu_rect(void)
+{
+    return ui_map_rect();
+}
+
+rect_t ui_char_info_rect(void)
+{
+    return rect_create(
+        Term->wid - 12,
+        1,
+        12,
+        Term->hgt - 1
+    );
+}
+
 /*
- * Handle a request to change the current panel
+ * Handle a request to change the current viewport
  *
  * Return TRUE if the panel was changed.
  *
  * Also used in do_cmd_locate
  */
-bool change_panel(int dy, int dx)
+bool viewport_scroll(int dy, int dx)
 {
     int y, x;
-    int wid, hgt;
-
-    /* Get size */
-    get_screen_size(&wid, &hgt);
+    rect_t r = ui_map_rect();
 
     /* Apply the motion */
-    y = panel_row_min + dy * hgt / 2;
-    x = panel_col_min + dx * wid / 2;
+    y = viewport_origin.y + dy * r.cy / 2;
+    x = viewport_origin.x + dx * r.cx / 2;
 
     /* Verify the row */
-    if (y > cur_hgt - hgt) y = cur_hgt - hgt;
+    if (y > cur_hgt - r.cy) y = cur_hgt - r.cy;
     if (y < 0) y = 0;
 
     /* Verify the col */
-    if (x > cur_wid - wid) x = cur_wid - wid;
+    if (x > cur_wid - r.cx) x = cur_wid - r.cx;
     if (x < 0) x = 0;
 
     /* Handle "changes" */
-    if ((y != panel_row_min) || (x != panel_col_min))
+    if ((y != viewport_origin.y) || (x != viewport_origin.x))
     {
-        /* Save the new panel info */
-        panel_row_min = y;
-        panel_col_min = x;
+        viewport_origin.y = y;
+        viewport_origin.x = x;
 
-        /* Recalculate the boundaries */
-        panel_bounds_center();
-
-        /* Update stuff */
         p_ptr->update |= (PU_MONSTERS);
-
-        /* Redraw map */
         p_ptr->redraw |= (PR_MAP);
-
-        /* Handle stuff */
         handle_stuff();
-
-        /* Success */
-        return (TRUE);
+        return TRUE;
     }
 
     /* No change */
-    return (FALSE);
+    return FALSE;
 }
-
 
 /*
  * Given an row (y) and col (x), this routine detects when a move
@@ -3206,210 +3287,78 @@ bool change_panel(int dy, int dx)
  *
  * The map is reprinted if necessary.
  */
-void verify_panel_aux(u32b options)
+void viewport_verify_aux(u32b options)
 {
-    int y = py;
-    int x = px;
-    int wid, hgt;
+    point_t p = cave_xy_to_ui_pt(px, py);
+    rect_t  r = ui_map_rect();
+    point_t o = viewport_origin;
 
-    int prow_min;
-    int pcol_min;
-    int max_prow_min;
-    int max_pcol_min;
-
-    /* Get size */
-    get_screen_size(&wid, &hgt);
-
-    max_prow_min = cur_hgt - hgt;
-    max_pcol_min = cur_wid - wid;
-
-    /* Bounds checking */
-    if (max_prow_min < 0) max_prow_min = 0;
-    if (max_pcol_min < 0) max_pcol_min = 0;
-
-    /* Center on player */
-    if (options & PANEL_FORCE_CENTER)
+    if ((options & VIEWPORT_FORCE_CENTER) || !rect_contains_pt(&r, p.x, p.y))
     {
-        /* Center vertically */
-        prow_min = y - hgt / 2;
-        if (prow_min < 0) prow_min = 0;
-        else if (prow_min > max_prow_min) prow_min = max_prow_min;
-
-        /* Center horizontally */
-        pcol_min = x - wid / 2;
-        if (pcol_min < 0) pcol_min = 0;
-        else if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
+        point_t c = rect_center(&r);
+        point_t d = point_subtract(p, c);
+        o = point_add(o, d);
     }
     else
     {
-        prow_min = panel_row_min;
-        pcol_min = panel_col_min;
-
-        /* Scroll screen when 2 grids from top/bottom edge */
-        if (y > panel_row_max - 2)
-        {
-            while (y > prow_min + hgt-1 - 2)
-            {
-                prow_min += (hgt / 2);
-            }
-        }
-
-        if (y < panel_row_min + 2)
-        {
-            while (y < prow_min + 2)
-            {
-                prow_min -= (hgt / 2);
-            }
-        }
-
-        if (prow_min > max_prow_min) prow_min = max_prow_min;
-        if (prow_min < 0) prow_min = 0;
-
-        /* Scroll screen when 4 grids from left/right edge */
-        if (x > panel_col_max - 4)
-        {
-            while (x > pcol_min + wid-1 - 4)
-            {
-                pcol_min += (wid / 2);
-            }
-        }
-        
-        if (x < panel_col_min + 4)
-        {
-            while (x < pcol_min + 4)
-            {
-                pcol_min -= (wid / 2);
-            }
-        }
-
-        if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
-        if (pcol_min < 0) pcol_min = 0;
+        if (p.y > r.y + r.cy - 2)
+            o.y += r.cy/2;
+        else if (p.y < r.y + 2)
+            o.y -= r.cy/2;
+        if (p.x > r.x + r.cx - 4)
+            o.x += r.cx/2;
+        else if (p.x < r.x + 4)
+            o.x -= r.cx/2;
     }
-
-    /* Check for "no change" */
-    if ((prow_min == panel_row_min) && (pcol_min == panel_col_min)) return;
-
-    /* Save the new panel info */
-    panel_row_min = prow_min;
-    panel_col_min = pcol_min;
-
-    /* Hack -- optional disturb on "panel change" */
-    if (disturb_panel && !center_player) disturb(0, 0);
-
-    /* Recalculate the boundaries */
-    panel_bounds_center();
-
-    /* Update stuff */
-    p_ptr->update |= (PU_MONSTERS);
-
-    /* Redraw map */
-    p_ptr->redraw |= (PR_MAP);
-
-    /* Window stuff */
-    p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+    if (o.x > cur_wid - 3*r.cx/4) o.x = cur_wid - 3*r.cx/4;
+    if (o.y > cur_hgt - 3*r.cy/4) o.y = cur_hgt - 3*r.cy/4;
+    if (o.x < -r.cx/4) o.x = -r.cx/4;
+    if (o.y < -r.cy/4) o.y = -r.cy/4;
+    if (point_compare(viewport_origin, o) != 0)
+    {
+        viewport_origin = o;
+        if (disturb_panel && !center_player) disturb(0, 0);
+        p_ptr->update |= PU_MONSTERS;
+        p_ptr->redraw |= PR_MAP;
+        p_ptr->window |= PW_OVERHEAD | PW_DUNGEON;
+    }
 }
 
-void verify_panel(void)
+void viewport_verify(void)
 {
     int options = 0;
     if (center_player && (center_running || !running))
-        options |= PANEL_FORCE_CENTER;
-    verify_panel_aux(options);
+        options |= VIEWPORT_FORCE_CENTER;
+    viewport_verify_aux(options);
 }
 
 
-/*
- * Monster health description
- */
-cptr look_mon_desc(monster_type *m_ptr, u32b mode)
+cptr mon_health_desc(monster_type *m_ptr)
 {
     monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
-    bool         living;
-    int          perc;
-    cptr desc;
-    cptr attitude;
-    cptr clone;
+    bool          living = monster_living(ap_r_ptr);
+    int           perc = 100 * m_ptr->hp / m_ptr->maxhp;
 
-    /* Determine if the monster is "living" */
-    living = monster_living(ap_r_ptr);
-
-    /* Calculate a health "percentage" */
-    perc = 100L * m_ptr->hp / m_ptr->maxhp;
-
-    /* Healthy monsters */
     if (m_ptr->hp >= m_ptr->maxhp)
-    {
-        /* No damage */
-        desc = living ? "unhurt" : "undamaged";
-
-    }
-
+        return living ? "unhurt" : "undamaged";
     else if (perc >= 60)
-    {
-        desc = living ? "somewhat wounded" : "somewhat damaged";
-
-    }
-
+        return living ? "somewhat wounded" : "somewhat damaged";
     else if (perc >= 25)
-    {
-        desc = living ? "wounded" : "damaged";
-
-    }
-
+        return living ? "wounded" : "damaged";
     else if (perc >= 10)
-    {
-        desc = living ? "badly wounded" : "badly damaged";
+        return living ? "badly wounded" : "badly damaged";
 
-    }
-
-    else 
-    {
-        desc = living ? "almost dead" : "almost destroyed";
-    }
-
-
-    /* Need attitude information? */
-    if (!(mode & 0x01))
-    {
-        /* Full information is not needed */
-        attitude = "";
-    }
-    else if (is_pet(m_ptr))
-    {
-        attitude = ", pet";
-    }
-    else if (is_friendly(m_ptr))
-    {
-        attitude = ", friendly";
-    }
-    else
-    {
-        attitude = "";
-    }
-
-
-    /* Clone monster? */
-    if (m_ptr->smart & SM_CLONED)
-    {
-        clone = ", clone";
-    }
-    else
-    {
-        clone = "";
-    }
-
-    /* Display monster's level --- idea borrowed from ToME */
-    if ((ap_r_ptr->r_tkills || p_ptr->wizard) && !(m_ptr->mflag2 & MFLAG2_KAGE))
-    {
-        return format("Level %d, %s%s%s", ap_r_ptr->level, desc, attitude, clone);
-    }
-    else 
-    {
-        return format("Level ???, %s%s%s", desc, attitude, clone);
-    }
+    return living ? "almost dead" : "almost destroyed";
 }
 
-
+cptr mon_allegiance_desc(monster_type *m_ptr)
+{
+    if (is_pet(m_ptr))
+        return "pet";
+    else if (is_friendly(m_ptr))
+        return "friendly";
+    return ""; /* Hostile is to be assumed! */
+}
 
 /*
  * Angband sorting algorithm -- quick sort in place
@@ -3488,7 +3437,7 @@ void ang_sort(vptr u, vptr v, int n)
  *
  * Currently, a monster is "target_able" if it is visible, and if
  * the player can hit it with a projection, and the player is not
- * hallucinating.  This allows use of "use closest target" macros.
+ * hallucinating. This allows use of "use closest target" macros.
  *
  * Future versions may restrict the ability to target "trappers"
  * and "mimics", but the semantics is a little bit weird.
@@ -3800,22 +3749,23 @@ static bool target_set_accept(int y, int x)
  */
 static void target_set_prepare(int mode)
 {
-    int y, x;
+    rect_t map_rect = ui_map_rect();
+    point_t uip;
 
     /* Reset "temp" array */
     temp_n = 0;
 
     /* Scan the current panel */
-    for (y = panel_row_min; y <= panel_row_max; y++)
+    for (uip.y = map_rect.y; uip.y < map_rect.y + map_rect.cy; uip.y++)
     {
-        for (x = panel_col_min; x <= panel_col_max; x++)
+        for (uip.x = map_rect.x; uip.x < map_rect.x + map_rect.cx; uip.x++)
         {
+            point_t cp = ui_pt_to_cave_pt(uip);
             cave_type *c_ptr;
 
-            /* Require "interesting" contents */
-            if (!target_set_accept(y, x)) continue;
+            if (!target_set_accept(cp.y, cp.x)) continue;
 
-            c_ptr = &cave[y][x];
+            c_ptr = &cave[cp.y][cp.x];
 
             /* Require target_able monsters for "TARGET_KILL" */
             if ((mode & (TARGET_KILL)) && !target_able(c_ptr->m_idx)) continue;
@@ -3830,8 +3780,8 @@ static void target_set_prepare(int mode)
             }
 
             /* Save the location */
-            temp_x[temp_n] = x;
-            temp_y[temp_n] = y;
+            temp_x[temp_n] = cp.x;
+            temp_y[temp_n] = cp.y;
             temp_n++;
         }
     }
@@ -3867,59 +3817,6 @@ static void target_set_prepare(int mode)
 }
 
 
-/*
- * Evaluate number of kill needed to gain level
- */
-static void evaluate_monster_exp(char *buf, monster_type *m_ptr)
-{
-    monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
-    u32b num;
-    s32b exp_mon, exp_adv;
-    u32b exp_mon_frac, exp_adv_frac;
-
-    if ((p_ptr->lev >= PY_MAX_LEVEL) || (p_ptr->prace == RACE_ANDROID))
-    {
-        sprintf(buf,"**");
-        return;
-    }
-    else if (!ap_r_ptr->r_tkills || (m_ptr->mflag2 & MFLAG2_KAGE))
-    {
-        if (!p_ptr->wizard)
-        {
-            sprintf(buf,"??");
-            return;
-        }
-    }
-
-
-    /* The monster's experience point (assuming average monster speed) */
-    exp_mon = ap_r_ptr->mexp * ap_r_ptr->level;
-    exp_mon_frac = 0;
-    s64b_div(&exp_mon, &exp_mon_frac, 0, (p_ptr->max_plv + 2));
-
-
-    /* Total experience value for next level */
-    exp_adv = exp_requirement(p_ptr->lev);
-
-    /* Experience value need to get */
-    s64b_sub(&exp_adv, &exp_adv_frac, p_ptr->exp, p_ptr->exp_frac);
-
-
-    /* You need to kill at least one monster to get any experience */
-    s64b_add(&exp_adv, &exp_adv_frac, exp_mon, exp_mon_frac);
-    s64b_sub(&exp_adv, &exp_adv_frac, 0, 1);
-
-    /* Extract number of monsters needed */
-    s64b_div(&exp_adv, &exp_adv_frac, exp_mon, exp_mon_frac);
-
-    /* If 999 or more monsters needed, only display "999". */
-    num = MIN(999, exp_adv_frac);
-
-    /* Display the number */
-    sprintf(buf,"%03u", num);
-}
-
-
 bool show_gold_on_floor = FALSE;
 
 /*
@@ -3927,12 +3824,12 @@ bool show_gold_on_floor = FALSE;
  *
  * The "mode" argument contains the "TARGET_LOOK" bit flag, which
  * indicates that the "space" key should scan through the contents
- * of the grid, instead of simply returning immediately.  This lets
+ * of the grid, instead of simply returning immediately. This lets
  * the "look" command get complete information, without making the
  * "target" command annoying.
  *
  * The "info" argument contains the "commands" which should be shown
- * inside the "[xxx]" text.  This string must never be empty, or grids
+ * inside the "[xxx]" text. This string must never be empty, or grids
  * containing monsters will be displayed with an extra comma.
  *
  * Note that if a monster is in the grid, we update both the monster
@@ -3981,7 +3878,15 @@ static int target_set_aux(int y, int x, int mode, cptr info)
     }
     else
     {
-        s1 = "Target:";
+        s1 = "Target: ";
+        /* Hack: I get confused about whether I am selecting a monster,
+           or the position that the monster happens to currently occupy.
+           This happens after a fat finger incident or a failed <dir>
+           navigation that really should have worked.*/
+        if (strstr(info, "o,"))
+            s1 = (mode == TARGET_LOOK) ? "Feature: " : "Monster: ";
+        else if (strstr(info, "m,"))
+            s1 = "Position: ";
     }
 
     /* Hack -- hallucination */
@@ -4031,8 +3936,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
         /* Interact */
         while (1)
         {
-            char acount[10];
-
             /* Recall */
             if (recall)
             {
@@ -4064,9 +3967,14 @@ static int target_set_aux(int y, int x, int mode, cptr info)
             /*** Normal ***/
 
             /* Describe, and prompt for recall */
-            evaluate_monster_exp(acount, m_ptr);
-
-            sprintf(out_val, "[%s]%s%s%s%s(%s) [r, %s%s]", acount, s1, s2, s3, m_name, look_mon_desc(m_ptr, 0x01), x_info, info);
+            sprintf(out_val, "%s%s%s%s ", s1, s2, s3, m_name);
+            if (is_pet(m_ptr))
+                strcat(out_val, "(Pet) ");
+            else if (is_friendly(m_ptr))
+                strcat(out_val, "(Friendly) ");
+            else if (m_ptr->smart & SM_CLONED)
+                strcat(out_val, "(Clone) ");
+            sprintf(out_val + strlen(out_val), "[r,%s%s]", x_info, info);
 
             prt(out_val, 0, 0);
 
@@ -4434,11 +4342,11 @@ static int target_set_aux(int y, int x, int mode, cptr info)
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel.  Consider the use of
+ * All locations must be on the current panel. Consider the use of
  * "panel_bounds()" to allow "off-panel" targets, perhaps by using
- * some form of "scrolling" the map around the cursor.  XXX XXX XXX
+ * some form of "scrolling" the map around the cursor. XXX XXX XXX
  * That is, consider the possibility of "auto-scrolling" the screen
- * while the cursor moves around.  This may require changes in the
+ * while the cursor moves around. This may require changes in the
  * "update_mon()" code to allow "visibility" even if off panel, and
  * may require dynamic recalculation of the "temp" grid set.
  *
@@ -4449,7 +4357,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
  * grids in a heuristic manner, or the "space", "+", and "-" keys to
  * move through the "interesting" grids in a sequential manner, or
  * can enter "location" mode, and use the direction keys to move one
- * grid at a time in any direction.  The "t" (set target) command will
+ * grid at a time in any direction. The "t" (set target) command will
  * only target a monster (as opposed to a location) if the monster is
  * target_able and the "interesting" mode is being used.
  *
@@ -4458,7 +4366,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
  * "TARGET_LOOK" bit flag is set (or if we are in "location" mode,
  * where "space" has no obvious meaning) then "space" will scan
  * through the description of the current grid until done, instead
- * of immediately jumping to the next "interesting" grid.  This
+ * of immediately jumping to the next "interesting" grid. This
  * allows the "target" command to retain its old semantics.
  *
  * The "*", "+", and "-" keys may always be used to jump immediately
@@ -4475,22 +4383,14 @@ bool target_set(int mode)
     int        i, d, m, t, bd;
     int        y = py;
     int        x = px;
+    bool       done = FALSE;
+    bool       flag = TRUE;
+    char       query;
+    char       info[80];
 
-    bool    done = FALSE;
+    cave_type *c_ptr;
+    rect_t     map_rect = ui_map_rect();
 
-    bool    flag = TRUE;
-
-    char    query;
-
-    char    info[80];
-
-    cave_type        *c_ptr;
-
-    int wid, hgt;
-
-
-    /* Get size */
-    get_screen_size(&wid, &hgt);
 
     /* Cancel target */
     target_who = 0;
@@ -4528,14 +4428,14 @@ bool target_set(int mode)
             if ( target_able(c_ptr->m_idx) 
              || ((mode & (TARGET_MARK|TARGET_DISI)) && m_list[c_ptr->m_idx].ml))
             {
-                strcpy(info, "q,t,p,o,+,-,<dir>");
+                strcpy(info, "q,t,p,o,+,-,?,<dir>");
 
             }
 
             /* Dis-allow target */
             else
             {
-                strcpy(info, "q,p,o,+,-,<dir>");
+                strcpy(info, "q,p,o,+,-,?,<dir>");
 
             }
 
@@ -4556,6 +4456,11 @@ bool target_set(int mode)
             /* Analyze */
             switch (query)
             {
+                case '?':
+                    screen_save();
+                    show_file(TRUE, "context_targetting.txt", NULL, 0, 0);
+                    screen_load();
+                    break;
                 case ESCAPE:
                 case 'q':
                 {
@@ -4609,7 +4514,7 @@ bool target_set(int mode)
                 case 'p':
                 {
                     /* Recenter the map around the player */
-                    verify_panel();
+                    viewport_verify();
 
                     /* Update stuff */
                     p_ptr->update |= (PU_MONSTERS);
@@ -4655,8 +4560,8 @@ bool target_set(int mode)
             if (d)
             {
                 /* Modified to scroll to monster */
-                int y2 = panel_row_min;
-                int x2 = panel_col_min;
+                int y2 = viewport_origin.y;
+                int x2 = viewport_origin.x;
 
                 /* Find a new monster */
                 i = target_pick(temp_y[m], temp_x[m], ddy[d], ddx[d]);
@@ -4665,7 +4570,7 @@ bool target_set(int mode)
                 while (flag && (i < 0))
                 {
                     /* Note the change */
-                    if (change_panel(ddy[d], ddx[d]))
+                    if (viewport_scroll(ddy[d], ddx[d]))
                     {
                         int v = temp_y[m];
                         int u = temp_x[m];
@@ -4690,9 +4595,8 @@ bool target_set(int mode)
                         int dy = ddy[d];
 
                         /* Restore previous position */
-                        panel_row_min = y2;
-                        panel_col_min = x2;
-                        panel_bounds_center();
+                        viewport_origin.y = y2;
+                        viewport_origin.x = x2;
 
                         /* Update stuff */
                         p_ptr->update |= (PU_MONSTERS);
@@ -4717,24 +4621,23 @@ bool target_set(int mode)
                         y += dy;
 
                         /* Do not move horizontally if unnecessary */
-                        if (((x < panel_col_min + wid / 2) && (dx > 0)) ||
-                             ((x > panel_col_min + wid / 2) && (dx < 0)))
+                        if (((x < viewport_origin.x + map_rect.cx / 2) && (dx > 0)) ||
+                             ((x > viewport_origin.x + map_rect.cx / 2) && (dx < 0)))
                         {
                             dx = 0;
                         }
 
                         /* Do not move vertically if unnecessary */
-                        if (((y < panel_row_min + hgt / 2) && (dy > 0)) ||
-                             ((y > panel_row_min + hgt / 2) && (dy < 0)))
+                        if (((y < viewport_origin.y + map_rect.cy / 2) && (dy > 0)) ||
+                             ((y > viewport_origin.y + map_rect.cy / 2) && (dy < 0)))
                         {
                             dy = 0;
                         }
 
                         /* Apply the motion */
-                        if ((y >= panel_row_min+hgt) || (y < panel_row_min) ||
-                            (x >= panel_col_min+wid) || (x < panel_col_min))
+                        if (!cave_xy_is_visible(x, y))
                         {
-                            if (change_panel(dy, dx)) target_set_prepare(mode);
+                            if (viewport_scroll(dy, dx)) target_set_prepare(mode);
                         }
 
                         /* Slide into legality */
@@ -4767,9 +4670,9 @@ bool target_set(int mode)
             c_ptr = &cave[y][x];
 
             if ((mode & TARGET_MARK) && !m_list[c_ptr->m_idx].ml)
-                strcpy(info, "q,p,o,+,-,<dir>");
+                strcpy(info, "q,p,o,+,-,?,<dir>");
             else
-                strcpy(info, "q,t,p,m,+,-,<dir>");
+                strcpy(info, "q,t,p,m,+,-,?,<dir>");
 
 
             /* Describe and Prompt (enable "TARGET_LOOK") */
@@ -4789,6 +4692,11 @@ bool target_set(int mode)
             /* Analyze the keypress */
             switch (query)
             {
+                case '?':
+                    screen_save();
+                    show_file(TRUE, "context_targetting.txt", NULL, 0, 0);
+                    screen_load();
+                    break;
                 case ESCAPE:
                 case 'q':
                 {
@@ -4820,7 +4728,7 @@ bool target_set(int mode)
                 case 'p':
                 {
                     /* Recenter the map around the player */
-                    verify_panel();
+                    viewport_verify();
 
                     /* Update stuff */
                     p_ptr->update |= (PU_MONSTERS);
@@ -4898,7 +4806,7 @@ bool target_set(int mode)
                 /* XTRA HACK MOVEFAST */
                 if (move_fast)
                 {
-                    int mag = MIN(wid / 2, hgt / 2);
+                    int mag = MIN(map_rect.cx / 2, map_rect.cy / 2);
                     x += dx * mag;
                     y += dy * mag;
                 }
@@ -4909,24 +4817,23 @@ bool target_set(int mode)
                 }
 
                 /* Do not move horizontally if unnecessary */
-                if (((x < panel_col_min + wid / 2) && (dx > 0)) ||
-                     ((x > panel_col_min + wid / 2) && (dx < 0)))
+                if (((x < viewport_origin.x + map_rect.cx / 2) && (dx > 0)) ||
+                     ((x > viewport_origin.x + map_rect.cx / 2) && (dx < 0)))
                 {
                     dx = 0;
                 }
 
                 /* Do not move vertically if unnecessary */
-                if (((y < panel_row_min + hgt / 2) && (dy > 0)) ||
-                     ((y > panel_row_min + hgt / 2) && (dy < 0)))
+                if (((y < viewport_origin.y + map_rect.cy / 2) && (dy > 0)) ||
+                     ((y > viewport_origin.y + map_rect.cy / 2) && (dy < 0)))
                 {
                     dy = 0;
                 }
 
                 /* Apply the motion */
-                if ((y >= panel_row_min + hgt) || (y < panel_row_min) ||
-                     (x >= panel_col_min + wid) || (x < panel_col_min))
+                if (!cave_xy_is_visible(x, y))
                 {
-                    if (change_panel(dy, dx)) target_set_prepare(mode);
+                    if (viewport_scroll(dy, dx)) target_set_prepare(mode);
                 }
 
                 /* Slide into legality */
@@ -4943,20 +4850,20 @@ bool target_set(int mode)
     /* Forget */
     temp_n = 0;
 
-    /* Clear the top line */
+    msg_line_clear();
     prt("", 0, 0);
 
     /* Recenter the map around the player */
-    verify_panel();
+    viewport_verify();
 
     /* Update stuff */
     p_ptr->update |= (PU_MONSTERS);
 
     /* Redraw map */
-    p_ptr->redraw |= (PR_MAP);
+    p_ptr->redraw |= (PR_MAP | PR_HEALTH_BARS);
 
     /* Window stuff */
-    p_ptr->window |= (PW_OVERHEAD);
+    p_ptr->window |= (PW_OVERHEAD | PW_MONSTER_LIST);
 
     /* Handle stuff */
     handle_stuff();
@@ -5124,7 +5031,7 @@ bool get_aim_dir(int *dp)
  * This function should be used for all "repeatable" commands, such as
  * run, walk, open, close, bash, disarm, spike, tunnel, etc, as well
  * as all commands which must reference a grid adjacent to the player,
- * and which may not reference the grid under the player.  Note that,
+ * and which may not reference the grid under the player. Note that,
  * for example, it is no longer possible to "disarm" or "open" chests
  * in the same grid as the player.
  *
@@ -5425,11 +5332,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
     char ch = 0;
     int d, x, y, n = 0;
     bool success = FALSE;
-
-    int wid, hgt;
-
-    /* Get size */
-    get_screen_size(&wid, &hgt);
+    rect_t map_rect = ui_map_rect();
 
     x = px;
     y = py;
@@ -5440,8 +5343,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
         n = 0;
     }
 
-    msg_print("Select a point and press space.");
-    msg_flag = FALSE; /* prevents "-more-" message. */
+    msg_print("Select a point and press <color:y>space</color>.");
 
     while ((ch != ESCAPE) && !success)
     {
@@ -5472,8 +5374,8 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
             if (expand_list && temp_n)
             {
                 int dx, dy;
-                int cx = (panel_col_min + panel_col_max) / 2;
-                int cy = (panel_row_min + panel_row_max) / 2;
+                int cx = map_rect.cy / 2;
+                int cy = map_rect.cx / 2;
 
                 n++;
 
@@ -5504,7 +5406,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
                     n = 0;
                     y = py;
                     x = px;
-                    verify_panel();    /* Move cursor to player */
+                    viewport_verify();    /* Move cursor to player */
 
                     /* Update stuff */
                     p_ptr->update |= (PU_MONSTERS);
@@ -5523,9 +5425,9 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
                     y = temp_y[n];
                     x = temp_x[n];
 
-                    dy = 2 * (y - cy) / hgt;
-                    dx = 2 * (x - cx) / wid;
-                    if (dy || dx) change_panel(dy, dx);
+                    dy = 2 * (y - cy) / map_rect.cy;
+                    dx = 2 * (x - cx) / map_rect.cx;
+                    if (dy || dx) viewport_scroll(dy, dx);
                 }
             }
             break;
@@ -5548,7 +5450,7 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
                 /* XTRA HACK MOVEFAST */
                 if (move_fast)
                 {
-                    int mag = MIN(wid / 2, hgt / 2);
+                    int mag = MIN(map_rect.cx / 2, map_rect.cy / 2);
                     x += dx * mag;
                     y += dy * mag;
                 }
@@ -5567,25 +5469,24 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
                 }
 
                 /* Do not move horizontally if unnecessary */
-                if (((x < panel_col_min + wid / 2) && (dx > 0)) ||
-                     ((x > panel_col_min + wid / 2) && (dx < 0)))
+                if (((x < viewport_origin.x + map_rect.cx / 2) && (dx > 0)) ||
+                     ((x > viewport_origin.x + map_rect.cx / 2) && (dx < 0)))
                 {
                     dx = 0;
                 }
 
                 /* Do not move vertically if unnecessary */
-                if (((y < panel_row_min + hgt / 2) && (dy > 0)) ||
-                     ((y > panel_row_min + hgt / 2) && (dy < 0)))
+                if (((y < viewport_origin.y + map_rect.cy / 2) && (dy > 0)) ||
+                     ((y > viewport_origin.y + map_rect.cy / 2) && (dy < 0)))
                 {
                     dy = 0;
                 }
 
                 /* Apply the motion */
-                if ((y >= panel_row_min + hgt) || (y < panel_row_min) ||
-                     (x >= panel_col_min + wid) || (x < panel_col_min))
+                if (!cave_xy_is_visible(x, y))
                 {
                     /* if (change_panel(dy, dx)) target_set_prepare(mode); */
-                    change_panel(dy, dx);
+                    viewport_scroll(dy, dx);
                 }
 
                 /* Slide into legality */
@@ -5601,11 +5502,10 @@ bool tgt_pt(int *x_ptr, int *y_ptr, int rng)
         }
     }
 
-    /* Clear the top line */
-    prt("", 0, 0);
+    msg_line_clear();
 
     /* Recenter the map around the player */
-    verify_panel();
+    viewport_verify();
 
     /* Update stuff */
     p_ptr->update |= (PU_MONSTERS);

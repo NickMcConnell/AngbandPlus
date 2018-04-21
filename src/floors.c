@@ -20,7 +20,7 @@ static u32b latest_visit_mark;  /* Max number of visit_mark */
 
 
 /*
- * Initialize saved_floors array.  Make sure that old temporal files
+ * Initialize saved_floors array. Make sure that old temporal files
  * are not remaining as gurbages.
  */
 void init_saved_floors(bool force)
@@ -217,7 +217,7 @@ static void kill_saved_floor(saved_floor_type *sf_ptr)
 
 
 /*
- * Initialize new saved floor and get its floor id.  If number of
+ * Initialize new saved floor and get its floor id. If number of
  * saved floors are already MAX_SAVED_FLOORS, kill the oldest one.
  */
 s16b get_new_floor_id(void)
@@ -846,7 +846,7 @@ static void locate_connected_stairs(saved_floor_type *sf_ptr)
         /* No stairs found! -- No return */
         prepare_change_floor_mode(CFM_RAND_PLACE | CFM_NO_RETURN);
 
-        /* Mega Hack -- It's not the stairs you enter.  Disable it.  */
+        /* Mega Hack -- It's not the stairs you enter. Disable it. */
         if (!feat_uses_special(cave[py][px].feat)) cave[py][px].special = 0;
     }
     else
@@ -968,7 +968,7 @@ void leave_floor(void)
         /* Get back to old saved floor? */
         if (c_ptr->special && !have_flag(f_ptr->flags, FF_SPECIAL) && get_sf_ptr(c_ptr->special))
         {
-            /* Saved floor is exist.  Use it. */
+            /* Saved floor is exist. Use it. */
             new_floor_id = c_ptr->special;
         }
 
@@ -1022,7 +1022,7 @@ void leave_floor(void)
 
         if (!(d_info[dungeon_type].flags1 & DF1_RANDOM))
         {
-            if (!vanilla_town && !lite_town)
+            if (!no_wilderness)
             {
                 p_ptr->wilderness_y = d_info[dungeon_type].dy;
                 p_ptr->wilderness_x = d_info[dungeon_type].dx;
@@ -1093,7 +1093,7 @@ void leave_floor(void)
         get_out_monster();
 
         /* Record the last visit turn of current floor */
-        sf_ptr->last_visit = turn;
+        sf_ptr->last_visit = game_turn;
 
         /* Forget the lite */
         forget_lite();
@@ -1118,8 +1118,8 @@ void leave_floor(void)
 
 
 /*
- * Enter new floor.  If the floor is an old saved floor, it will be
- * restored from the temporal file.  If the floor is new one, new cave
+ * Enter new floor. If the floor is an old saved floor, it will be
+ * restored from the temporal file. If the floor is new one, new cave
  * will be generated.
  */
 void change_floor(void)
@@ -1129,15 +1129,6 @@ void change_floor(void)
 
     /* The dungeon is not ready */
     character_dungeon = FALSE;
-
-    /* No longer in the trap detecteded region */
-    p_ptr->dtrap = FALSE;
-
-    /* Mega-Hack -- no panel yet */
-    panel_row_min = 0;
-    panel_row_max = 0;
-    panel_col_min = 0;
-    panel_col_max = 0;
 
     /* No saved floors (On the surface etc.) */
     if (!(change_floor_mode & CFM_SAVE_FLOORS) &&
@@ -1235,8 +1226,8 @@ void change_floor(void)
             int alloc_chance = d_info[dungeon_type].max_m_alloc_chance;
             int alloc_times;
 
-            while (tmp_last_visit > turn) tmp_last_visit -= TURNS_PER_TICK * TOWN_DAWN;
-            absence_ticks = (turn - tmp_last_visit) / TURNS_PER_TICK;
+            while (tmp_last_visit > game_turn) tmp_last_visit -= TURNS_PER_TICK * TOWN_DAWN;
+            absence_ticks = (game_turn - tmp_last_visit) / TURNS_PER_TICK;
 
             /* Maintain monsters */
             for (i = 1; i < m_max; i++)
@@ -1352,7 +1343,7 @@ void change_floor(void)
             }
 
             /* Record last visit turn */
-            sf_ptr->last_visit = turn;
+            sf_ptr->last_visit = game_turn;
 
             /* Set correct dun_level value */
             sf_ptr->dun_level = dun_level;
@@ -1409,7 +1400,7 @@ void change_floor(void)
          * Update visit mark
          *
          * The "turn" is not always different number because
-         * the level teleport doesn't take any turn.  Use
+         * the level teleport doesn't take any turn. Use
          * visit mark instead of last visit turn to find the
          * oldest saved floor.
          */
@@ -1433,7 +1424,7 @@ void change_floor(void)
         wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
 
     /* Remember when this level was "created" */
-    old_turn = turn;
+    old_turn = game_turn;
 
     /* No dungeon feeling yet */
     p_ptr->feeling_turn = old_turn;

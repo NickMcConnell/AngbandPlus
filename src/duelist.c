@@ -1,8 +1,8 @@
 #include "angband.h"
 
-/* Check for valid equipment.  Note, the pointer we return
+/* Check for valid equipment. Note, the pointer we return
    will point to a descriptive error message indefinitely.
-   We don't use format(...).  Also, different messages will
+   We don't use format(...). Also, different messages will
    have different addresses, so that _calc_bonuses() can
    keep the user up to date as to why their powers don't work. */
 cptr _equip_error(void)
@@ -65,7 +65,6 @@ bool duelist_issue_challenge(void)
 
     if (target_set(TARGET_MARK))
     {
-        msg_flag = FALSE; /* Bug ... we get an extra -more- prompt after target_set() ... */
         if (target_who > 0)
             m_idx = target_who;
         else
@@ -144,7 +143,7 @@ _rush_result _rush_attack(int rng, _rush_type type)
 
     dis = distance(ty, tx, py, px);
 
-    /* Foe must be visible.  For all charges except the phase charge, the
+    /* Foe must be visible. For all charges except the phase charge, the
        foe must also be in your line of sight */
     if (!m_list[p_ptr->duelist_target_idx].ml ||
         (type != _rush_phase && !los(ty, tx, py, px)))
@@ -309,7 +308,7 @@ static void _darting_duel_spell(int cmd, variant *res)
         var_set_string(res, "Darting Duel");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Move up to 5 squares and attack your marked foe.  Strafe if you attack your foe.");
+        var_set_string(res, "Move up to 5 squares and attack your marked foe. Strafe if you attack your foe.");
         break;
     case SPELL_CAST:
         {
@@ -343,7 +342,7 @@ static void _disengage_spell(int cmd, variant *res)
         var_set_string(res, "Disengage");
         break;
     case SPELL_DESC:
-        var_set_string(res, "You teleport (range 100), and prevent your marked foe from following, even if it's a monster that can normally follow teleportation.  After the teleport, your foe is no longer marked.");
+        var_set_string(res, "You teleport (range 100), and prevent your marked foe from following, even if it's a monster that can normally follow teleportation. After the teleport, your foe is no longer marked.");
         break;
     case SPELL_CAST:
         if (!p_ptr->duelist_target_idx)
@@ -408,7 +407,7 @@ static void _mark_target_spell(int cmd, variant *res)
         var_set_string(res, "Mark Target");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Mark selected monster as designated foe.  You may only mark a single target at a time, and receive great benefits when fighting this target.");
+        var_set_string(res, "Mark selected monster as designated foe. You may only mark a single target at a time, and receive great benefits when fighting this target.");
         break;
 
     case SPELL_INFO:
@@ -432,7 +431,7 @@ static void _phase_charge_spell(int cmd, variant *res)
         var_set_string(res, "Phase Charge");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Move up to 10 squares and attack your marked foe.  Functions even if there are walls or closed doors between you and your target.");
+        var_set_string(res, "Move up to 10 squares and attack your marked foe. Functions even if there are walls or closed doors between you and your target.");
         break;
     case SPELL_CAST:
         var_set_bool(res, _rush_attack(10, _rush_phase) != _rush_cancelled);
@@ -567,7 +566,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
         info_ptr->dis_to_d += to_d;
 
         /* Blows should always be 1 ... even with Quickthorn and Shiva's Jacket! 
-           But, don't make Tonberry gloves a gimme.  Negative attacks now are 0 attacks!
+           But, don't make Tonberry gloves a gimme. Negative attacks now are 0 attacks!
         */
         if (info_ptr->base_blow + info_ptr->xtra_blow > 100)
         {
@@ -591,7 +590,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *duelist_get_class_t(void)
+class_t *duelist_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Mutation effects (and racial powers) */
@@ -2068,38 +2068,11 @@ void dump_mutations(FILE *OutFile)
 	}
 }
 
-
-/*
- * List mutations we have...
- */
-void do_cmd_knowledge_mutations(void)
-{
-	FILE *fff;
-	char file_name[1024];
-
-	/* Open a new file */
-	fff = my_fopen_temp(file_name, 1024);
-
-	/* Dump the mutations to file */
-	if (fff) dump_mutations(fff);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(TRUE, file_name, "Mutations", 0, 0);
-
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
 int count_unlocked_mutations(void)
 {
 	return (count_bits(p_ptr->muta1 & ~(p_ptr->muta1_lock)) +
 		count_bits(p_ptr->muta2 & ~(p_ptr->muta2_lock)) +
-		count_bits(p_ptr->muta3 & ~(p_ptr->muta3_lock)));
+        count_bits(p_ptr->muta3 & ~(p_ptr->muta3_lock)));
 }
 
 

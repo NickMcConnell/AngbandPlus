@@ -455,7 +455,6 @@ void do_cmd_snipe(void)
     if (!cast) return;
 
     p_ptr->redraw |= (PR_HP | PR_MANA);
-    p_ptr->window |= (PW_PLAYER);
     p_ptr->window |= (PW_SPELL);
 }
 
@@ -514,7 +513,7 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-class_t *sniper_get_class_t(void)
+class_t *sniper_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;

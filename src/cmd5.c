@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Spell/Prayer commands */
@@ -53,6 +53,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
     magic_type  *s_ptr;
     char        out_val[160];
     cptr        p;
+    rect_t      display = ui_menu_rect();
     int menu_line = (use_menu ? 1 : 0);
 
 #ifdef ALLOW_REPEAT /* TNB */
@@ -167,7 +168,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
             }
             if (menu_line > num) menu_line -= num;
             /* Display a list of spells */
-            print_spells(menu_line, spells, num, 1, 15, use_realm);
+            print_spells(menu_line, spells, num, display, use_realm);
             if (ask) continue;
         }
         else
@@ -185,7 +186,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
                     screen_save();
 
                     /* Display a list of spells */
-                    print_spells(menu_line, spells, num, 1, 15, use_realm);
+                    print_spells(menu_line, spells, num, display, use_realm);
                 }
 
                 /* Hide the list */
@@ -407,9 +408,9 @@ void do_cmd_browse(void)
     int        item, sval, use_realm = 0, j, line;
     int        spell = -1;
     int        num = 0;
-
-    byte        spells[64];
-    char            temp[62*4];
+    rect_t     display = ui_menu_rect();
+    byte       spells[64];
+    char       temp[62*4];
 
     object_type    *o_ptr;
 
@@ -502,7 +503,7 @@ void do_cmd_browse(void)
     /* Clear the top line */
     prt("", 0, 0);
 
-    /* Keep browsing spells.  Exit browsing on cancel. */
+    /* Keep browsing spells. Exit browsing on cancel. */
     while(TRUE)
     {
         /* Ask for a spell, allow cancel */
@@ -512,7 +513,7 @@ void do_cmd_browse(void)
             if (spell == -1) break;
 
             /* Display a list of spells */
-            print_spells(0, spells, num, 1, 15, use_realm);
+            print_spells(0, spells, num, display, use_realm);
 
             /* Notify that there's nothing to see, and wait. */
             if (use_realm == REALM_HISSATSU)
@@ -529,17 +530,17 @@ void do_cmd_browse(void)
         }
 
         /* Clear lines, position cursor  (really should use strlen here) */
-        Term_erase(14, 14, 255);
-        Term_erase(14, 13, 255);
-        Term_erase(14, 12, 255);
-        Term_erase(14, 11, 255);
+        line = display.y + num + 1;
+        Term_erase(display.x, line, display.cx);
+        Term_erase(display.x, line + 1, display.cx);
+        Term_erase(display.x, line + 2, display.cx);
+        Term_erase(display.x, line + 3, display.cx);
 
         roff_to_buf(do_spell(use_realm, spell, SPELL_DESC), 62, temp, sizeof(temp));
 
-        for (j = 0, line = 11; temp[j]; j += 1 + strlen(&temp[j]))
+        for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
         {
-            prt(&temp[j], line, 15);
-            line++;
+            put_str(&temp[j], ++line, display.x);
         }
     }
 
@@ -630,10 +631,11 @@ void do_cmd_study(void)
         set_action(ACTION_NONE);
     }
 
+/*  Please, no more -more-!
     msg_format("You can learn %d new %s%s.", p_ptr->new_spells, p,
         (p_ptr->new_spells == 1?"":"s"));
 
-    msg_print(NULL);
+    msg_print(NULL);*/
 
 
     /* Restrict choices to "useful" books */
@@ -831,12 +833,9 @@ void do_cmd_study(void)
     }
 #endif
 
-    /* Update Study */
-    p_ptr->update |= (PU_SPELLS);
-    update_stuff();
-
-    /* Redraw object recall */
-    p_ptr->window |= (PW_OBJECT);
+    p_ptr->update |= PU_SPELLS;
+    p_ptr->redraw |= PR_EFFECTS;
+    p_ptr->window |= PW_OBJECT;
 }
 
 
@@ -1393,7 +1392,7 @@ msg_print("An infernal sound echoed.");
                Note: One still might be able to macro up a cast followed by a rest command.
             */
             if ( last_pexp != p_ptr->exp 
-              || (!p_ptr->inside_quest && turn > last_turn + 50 + randint1(50)) )
+              || (!p_ptr->inside_quest && game_turn > last_turn + 50 + randint1(50)) )
             {
                 if (cur_exp < SPELL_EXP_BEGINNER)
                     exp_gain += 60;
@@ -1415,11 +1414,11 @@ msg_print("An infernal sound echoed.");
                 p_ptr->spell_exp[(increment ? 32 : 0) + spell] += exp_gain;
             }
             last_pexp = p_ptr->exp;
-            p_ptr->spell_turn[(increment ? 32 : 0)+spell] = turn;
+            p_ptr->spell_turn[(increment ? 32 : 0)+spell] = game_turn;
         }
     }
 
-    /* In general, we already charged the players sp.  However, in the event the 
+    /* In general, we already charged the players sp. However, in the event the 
        player knowingly exceeded their csp, then, well, they get what they deserve!
     */
     if (take_mana == 0)
@@ -1498,7 +1497,6 @@ msg_print("An infernal sound echoed.");
     p_ptr->redraw |= (PR_MANA);
 
     /* Window stuff */
-    p_ptr->window |= (PW_PLAYER);
     p_ptr->window |= (PW_SPELL);
 }
 
@@ -1582,7 +1580,13 @@ int calculate_upkeep(void)
         if (is_pet(m_ptr))
         {
             total_friends++;
-            if (r_ptr->flags1 & RF1_UNIQUE)
+            if (warlock_is_pact_monster(r_ptr))
+            {
+                total_friend_levels += r_ptr->level/2;
+                if (r_ptr->flags1 & RF1_UNIQUE)
+                    total_friend_levels += r_ptr->level/2;
+            }
+            else if (r_ptr->flags1 & RF1_UNIQUE)
             {
                 if (p_ptr->pclass == CLASS_CAVALRY || p_ptr->prace == RACE_MON_RING)
                 {
@@ -1609,7 +1613,7 @@ int calculate_upkeep(void)
     if (total_friends)
     {
         int upkeep_factor;
-        int div = get_class_t()->pets;
+        int div = get_class()->pets;
 
         /* Lower divs are better ... I think. */
         if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)
@@ -1734,12 +1738,12 @@ void do_cmd_pet_dismiss(void)
                 msg_format("You have got off %s. ", friend_name);
                 p_ptr->riding = 0;
                 p_ptr->update |= (PU_BONUS | PU_MONSTERS);
-                p_ptr->redraw |= (PR_EXTRA | PR_UHEALTH);
+                p_ptr->redraw |= (PR_EXTRA | PR_HEALTH_BARS);
             }
 
             sprintf(buf, "Dismissed %s.", friend_name);
 
-            message_add(buf);
+            msg_add(buf);
             p_ptr->window |= (PW_MESSAGE);
             window_stuff();
 
@@ -1833,12 +1837,13 @@ bool rakuba(int dam, bool force)
                 p_ptr->skill_exp[SKILL_RIDING] = MIN(max, cur + inc);
             }
 
+            /* see design/riding.ods */
             if (randint0(dam / 2 + rakubalevel * 2) < cur / 30 + 10)
             {
-                if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY)) && !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3) + 30))
-                {
+                if (max == RIDING_EXP_MASTER && !p_ptr->riding_ryoute)
                     return FALSE;
-                }
+                if (!one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3) + 30))
+                    return FALSE;
             }
         }
 
@@ -1893,7 +1898,7 @@ bool rakuba(int dam, bool force)
         lite_spot(py, px);
 
         /* Check for new panel */
-        verify_panel();
+        viewport_verify();
     }
 
     p_ptr->riding = 0;
@@ -1913,7 +1918,7 @@ bool rakuba(int dam, bool force)
     p_ptr->redraw |= (PR_EXTRA);
 
     /* Update health track of mount */
-    p_ptr->redraw |= (PR_UHEALTH);
+    p_ptr->redraw |= PR_HEALTH_BARS;
 
     if (p_ptr->levitation && !force)
     {
@@ -2011,6 +2016,11 @@ bool do_riding(bool force)
 
                 return FALSE;
             }
+            if (warlock_is_(WARLOCK_DRAGONS) && !(r_info[m_ptr->r_idx].flags3 & RF3_DRAGON))
+            {
+                msg_print("You are a dragon rider!");
+                return FALSE;
+            }
         }
 
         if (!pattern_seq(py, px, y, x)) return FALSE;
@@ -2064,7 +2074,7 @@ bool do_riding(bool force)
     /* Redraw map */
     p_ptr->redraw |= (PR_MAP | PR_EXTRA);
 
-    p_ptr->redraw |= (PR_UHEALTH);
+    p_ptr->redraw |= PR_HEALTH_BARS;
 
     /* Move the player */
     (void)move_player_effect(y, x, MPE_HANDLE_STUFF | MPE_ENERGY_USE | MPE_DONT_PICKUP | MPE_DONT_SWAP_MON);
@@ -2144,7 +2154,7 @@ void do_cmd_pet(void)
     int            powers[36];
     cptr            power_desc[36];
     bool            flag, redraw;
-    int            ask;
+    int            ask = FALSE;
     char            choice;
     char            out_val[160];
     int            pet_ctr;
@@ -2502,7 +2512,6 @@ void do_cmd_pet(void)
                 pet_t_m_idx = 0;
             else
             {
-                msg_flag = FALSE; /* Bug ... we get an extra -more- prompt after target_set() ... */
                 if (target_who > 0)
                     pet_t_m_idx = target_who;
                 else

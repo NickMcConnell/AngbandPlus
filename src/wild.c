@@ -6,7 +6,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Wilderness generation 
@@ -27,76 +27,6 @@ monster_hook_type wilderness_mon_hook = NULL;
    Let's prevent any encounters when the player leaves wild mode (excepting ambushes, 
    of course). To get encounters, the player must seek them by traveling about. */
 bool no_encounters_hack = FALSE;
-
-/* Trivial rectangle utility to make code a bit more readable */
-
-rect_t rect_create(int x, int y, int cx, int cy)
-{
-    /* rect_t r = { x, y, cx, cy }; is not ANSI legal C ... 
-       You can only initialize with constants and statics, or now with
-       rect_t r = rect_create(x, y, cx, cy); */
-    rect_t result;
-    result.x = x;
-    result.y = y;
-    result.cx = cx;
-    result.cy = cy;
-    return result;
-}
-
-bool rect_is_valid(const rect_t *r)
-{
-    return r->cx > 0 && r->cy > 0;
-}
-
-bool rect_contains_pt(const rect_t *r, int x, int y)
-{
-    return rect_is_valid(r)
-        && (r->x <= x && x < r->x + r->cx)
-        && (r->y <= y && y < r->y + r->cy);
-}
-
-bool rect_contains(const rect_t *r1, const rect_t *r2)
-{
-    return rect_is_valid(r1)
-        && rect_is_valid(r2)
-        && rect_contains_pt(r1, r2->x, r2->y)
-        && rect_contains_pt(r1, r2->x + r2->cx - 1, r2->y + r2->cy - 1);
-}
-
-rect_t rect_intersect(const rect_t *r1, const rect_t *r2)
-{
-    rect_t result = {0};
-
-    if (rect_is_valid(r1) && rect_is_valid(r2))
-    {
-        int     left = MAX(r1->x, r2->x);
-        int     right = MIN(r1->x + r1->cx, r2->x + r2->cx);
-        int     top = MAX(r1->y, r2->y);
-        int     bottom = MIN(r1->y + r1->cy, r2->y + r2->cy);
-        int     cx = right - left;
-        int     cy = bottom - top;
-
-        if (cx > 0 && cy > 0)
-            result = rect_create(left, top, cx, cy);
-    }
-    return result;
-}
-
-rect_t rect_translate(const rect_t *r, int dx, int dy)
-{
-    rect_t result = {0};
-    if (rect_is_valid(r))
-        result = rect_create(r->x + dx, r->y + dy, r->cx, r->cy);
-    return result;
-}
-
-int rect_area(const rect_t *r)
-{
-    int result = 0;
-    if (rect_is_valid(r))
-        result = r->cx * r->cy;
-    return result;
-}
 
 /* Scratch buffer for wilderness terrain creation */
 s16b *_cave[MAX_HGT];
@@ -172,25 +102,21 @@ static void _unset_boundary(void)
 static bool _scroll_panel(int dx, int dy)
 {
     int y, x;
-    int wid, hgt;
+    rect_t r = ui_map_rect();
 
-    get_screen_size(&wid, &hgt);
+    y = viewport_origin.y + dy;
+    x = viewport_origin.x + dx;
 
-    y = panel_row_min + dy;
-    x = panel_col_min + dx;
-
-    if (y > cur_hgt - hgt) y = cur_hgt - hgt;
+    if (y > cur_hgt - r.cy) y = cur_hgt - r.cy;
     if (y < 0) y = 0;
 
-    if (x > cur_wid - wid) x = cur_wid - wid;
+    if (x > cur_wid - r.cx) x = cur_wid - r.cx;
     if (x < 0) x = 0;
 
-    if (y != panel_row_min || x != panel_col_min)
+    if (y != viewport_origin.y || x != viewport_origin.x)
     {
-        panel_row_min = y;
-        panel_col_min = x;
-
-        panel_bounds_center();
+        viewport_origin.x = x;
+        viewport_origin.y = y;
 
         p_ptr->update |= PU_MONSTERS;
         p_ptr->redraw |= PR_MAP;
@@ -379,7 +305,7 @@ static void _scroll_cave(int dx, int dy)
            fails to actually center the player as they approach
            the boundary of the cave. Shrink your display window
            enough and you will gain a very smooth scrolling experience! */
-        verify_panel_aux(PANEL_FORCE_CENTER);
+        viewport_verify_aux(VIEWPORT_FORCE_CENTER);
     }
     else
         _scroll_panel(dx, dy);
@@ -442,7 +368,7 @@ void wilderness_move_player(int old_x, int old_y)
     rect_t  valid;
     bool    do_disturb = FALSE;
 
-    if (vanilla_town || lite_town)
+    if (no_wilderness)
         return;
 
     /* There are several ways we could scroll:
@@ -533,6 +459,9 @@ void wilderness_move_player(int old_x, int old_y)
     if (do_disturb) disturb(0, 0);
     p_ptr->redraw |= PR_BASIC; /* In case the user left/entered a town ... */
     handle_stuff();  /* Is this necessary?? */
+
+    if (travel.run)
+        do_cmd_travel_xy(travel.x - dx*WILD_SCROLL_CX, travel.y - dy*WILD_SCROLL_CY);
 
 #if 0
     c_put_str(TERM_WHITE, format("P:%3d/%3d", px, py), 26, 0);
@@ -689,15 +618,14 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
         }
         if (room_ptr->type == ROOM_AMBUSH)
         {
-            msg_print("Press Space to continue.");
+            msg_print("Press <color:y>Space</color> to continue.");
             flush();
             for (;;)
             {
                 char ch = inkey();
                 if (ch == ' ') break;
             }
-            prt("", 0, 0);
-            msg_flag = FALSE; /* prevents "-more-" message. */
+            msg_line_clear();
         }
         return TRUE;
     }
@@ -730,8 +658,7 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     if ( !wilderness[y][x].town 
       && !wilderness[y][x].road 
       && !wilderness[y][x].entrance
-      && !vanilla_town
-      && !lite_town
+      && !no_wilderness
       && !generate_encounter
       && !no_encounters_hack
       && one_in_(_WILD_ENCOUNTER_CHANCE))
@@ -744,8 +671,7 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     /* Scripted Ambush? */
     if ( !wilderness[y][x].town
       && generate_encounter
-      && !vanilla_town
-      && !lite_town
+      && !no_wilderness
       && one_in_(5))
     {
         room_template_t *room_ptr = choose_room_template(ROOM_AMBUSH, _encounter_terrain_type(x, y));
@@ -1184,10 +1110,6 @@ void wilderness_gen(void)
     cur_hgt = MAX_HGT;
     cur_wid = MAX_WID;
 
-    /* Assume illegal panel */
-    panel_row_min = cur_hgt;
-    panel_col_min = cur_wid;
-
     /* Init the wilderness */
     process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
 
@@ -1256,7 +1178,7 @@ void wilderness_gen(void)
 
     /* Force scroll after wilderness travel since we are typically
        placed in a boundary "quadrant" */
-    verify_panel();
+    viewport_verify();
     wilderness_move_player(p_ptr->oldpx, p_ptr->oldpy);
 }
 
@@ -1306,10 +1228,6 @@ void wilderness_gen_small(void)
 
     if (cur_hgt > MAX_HGT) cur_hgt = MAX_HGT;
     if (cur_wid > MAX_WID) cur_wid = MAX_WID;
-
-    /* Assume illegal panel */
-    panel_row_min = cur_hgt;
-    panel_col_min = cur_wid;
 
     /* Place the player */
     px = p_ptr->wilderness_x;
@@ -1656,7 +1574,7 @@ bool change_wild_mode(void)
     if (p_ptr->leaving) return FALSE;
 
 
-    if (lite_town || vanilla_town)
+    if (no_wilderness)
     {
         msg_print("No global map.");
         return FALSE;

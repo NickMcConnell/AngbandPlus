@@ -14,7 +14,7 @@ static cptr _desc =
     "Air Elementals are shockingly fast, but perhaps that is just the "
     "crackle of their electrified bodies? They may hurl bolts and balls "
     "electricity at their enemies and may even imbue their weapons with "
-    "deadly lightning.  However, being surrounded by lightning, rings, "
+    "deadly lightning. However, being surrounded by lightning, rings, "
     "amulets, wands and rods are quickly destroyed!\n \n"
     "Fire Elementals are somewhat fast (They definitely run circles around "
     "their earthen brethren) and are cloaked in fire. Of course, they may attack "
@@ -32,6 +32,7 @@ static void _calc_bonuses(void)
     p_ptr->no_cut = TRUE;
     p_ptr->no_eldritch = TRUE;
     p_ptr->levitation = TRUE;
+    p_ptr->slow_digest = TRUE;
 
     if (p_ptr->lev >= 5)
         res_add(RES_POIS);
@@ -46,6 +47,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_RES_CONF);
     add_flag(flgs, TR_RES_FEAR);
     add_flag(flgs, TR_LEVITATION);
+    add_flag(flgs, TR_SLOW_DIGEST);
     if (p_ptr->lev >= 5)
         add_flag(flgs, TR_RES_POIS);
     if (p_ptr->lev >= 10)
@@ -160,7 +162,7 @@ static void _elemental_pack_destroy(object_p p, cptr destroy_fmt, int chance)
         p_ptr->update |= PU_TORCH;
         p_ptr->update |= PU_MANA;
         p_ptr->redraw |= PR_EQUIPPY;
-        p_ptr->window |= PW_EQUIP | PW_PLAYER;
+        p_ptr->window |= PW_EQUIP;
     }
     if (inven_ct)
         p_ptr->window |= PW_INVEN;
@@ -280,8 +282,7 @@ static void _earthen_portal_spell(int cmd, variant *res)
 
 static void _shard_ball_spell(int cmd, variant *res)
 {
-    int l = p_ptr->lev;
-    int dam = l*2 + l*l/25 + l*l*l/1250;
+    int dam = py_prorata_level(300);
 
     switch (cmd)
     {
@@ -289,7 +290,7 @@ static void _shard_ball_spell(int cmd, variant *res)
         var_set_string(res, "Shard Ball");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Fires a ball of shards at chosent target");
+        var_set_string(res, "Fires a ball of shards at chosen target");
         break;
     case SPELL_INFO:
         var_set_string(res, info_damage(0, 0, dam));
@@ -334,7 +335,7 @@ static void _wall_of_earth_spell(int cmd, variant *res)
 
 static power_info _earth_powers[] = 
 {
-    { A_STR, {  1,  1, 35, stone_to_mud_spell}},
+    { A_STR, {  1,  1, 35, eat_rock_spell}},
     { A_STR, {  7,  5, 35, _shard_bolt_spell}},
     { A_CON, { 10, 10, 40, stone_skin_spell}},
     { A_CON, { 15, 10, 40, sense_surroundings_spell}},
@@ -353,8 +354,7 @@ static int _earth_get_powers(spell_info* spells, int max)
 
 static void _earth_calc_bonuses(void) 
 {
-    int l = p_ptr->lev;
-    int to_a = l/3 + l*l/150 + l*l*l/7500;
+    int to_a = py_prorata_level(50);
 
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;
@@ -463,6 +463,10 @@ static void _air_birth(void)
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
     add_outfit(&forge);
 
+    object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
+    if (device_init_fixed(&forge, EFFECT_NOTHING))
+        add_outfit(&forge);
+
     p_ptr->current_r_idx = MON_AIR_SPIRIT; 
 }
 
@@ -516,8 +520,7 @@ static void _lightning_strike_spell(int cmd, variant *res)
 
 static void _lightning_storm_spell(int cmd, variant *res)
 {
-    int l = p_ptr->lev;
-    int dam = l*2 + l*l/25 + l*l*l/1250;
+    int dam = py_prorata_level(350);
 
     switch (cmd)
     {
@@ -633,13 +636,10 @@ static void _air_get_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_SH_ELEC);
     }
 
-    _get_flags(flgs);
-}
-
-static void _air_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
     if (p_ptr->lev >= 50)
-        add_flag(flgs, TR_RES_ELEC);
+        add_flag(flgs, TR_IM_ELEC);
+
+    _get_flags(flgs);
 }
 
 static bool _air_p(object_type *o_ptr)
@@ -687,7 +687,6 @@ static race_t *_air_get_race_t(void)
         me.get_powers = _air_get_powers;
         me.calc_bonuses = _air_calc_bonuses;
         me.get_flags = _air_get_flags;
-        me.get_immunities = _air_get_immunities;
         me.gain_level = _air_gain_level;
         me.process_world = _air_process_world;
         init = TRUE;
@@ -762,8 +761,7 @@ static void _acid_strike_spell(int cmd, variant *res)
 
 static void _water_ball_spell(int cmd, variant *res)
 {
-    int l = p_ptr->lev;
-    int dam = l*2 + l*l/25 + l*l*l/1250;
+    int dam = py_prorata_level(300);
 
     switch (cmd)
     {
@@ -880,13 +878,10 @@ static void _water_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 25)
         add_flag(flgs, TR_SPEED);
 
-    _get_flags(flgs);
-}
-
-static void _water_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
     if (p_ptr->lev >= 50)
-        add_flag(flgs, TR_RES_ACID);
+        add_flag(flgs, TR_IM_ACID);
+
+    _get_flags(flgs);
 }
 
 static void _water_process_world(void)
@@ -910,7 +905,7 @@ static void _water_process_world(void)
         if (have_flag(flgs, TR_IM_ACID)) continue;
         if (have_flag(flgs, TR_RES_ACID)) continue;
         if (have_flag(flgs, TR_IGNORE_ACID) && !one_in_(10)) continue;
-        if (object_is_artifact(o_ptr) && !one_in_(50)) continue;
+        if (object_is_artifact(o_ptr) && !one_in_(2)) continue;
 
         object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
         msg_format("Your watery touch corrodes your %s!", o_name);
@@ -925,7 +920,7 @@ static void _water_process_world(void)
     if (equip_ct)
     {
         p_ptr->update |= PU_BONUS;
-        p_ptr->window |= PW_EQUIP | PW_PLAYER;
+        p_ptr->window |= PW_EQUIP;
     }
 
     if (equip_ct + inven_ct)
@@ -954,7 +949,6 @@ static race_t *_water_get_race_t(void)
 
         me.birth = _water_birth;
         me.get_powers = _water_get_powers;
-        me.get_immunities = _water_get_immunities;
         me.calc_bonuses = _water_calc_bonuses;
         me.get_flags = _water_get_flags;
         me.gain_level = _water_gain_level;
@@ -994,6 +988,11 @@ static void _fire_birth(void)
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
+    add_outfit(&forge);
+
+    object_prep(&forge, lookup_kind(TV_FLASK, SV_ANY));
+    apply_magic(&forge, 1, AM_NO_FIXED_ART);
+    forge.number = (byte)rand_range(7, 12);
     add_outfit(&forge);
 
     p_ptr->current_r_idx = MON_FIRE_SPIRIT; 
@@ -1050,8 +1049,7 @@ static void _fire_whip_spell(int cmd, variant *res)
 
 static void _fire_storm_spell(int cmd, variant *res)
 {
-    int l = p_ptr->lev;
-    int dam = l*2 + l*l/25 + l*l*l/1250;
+    int dam = py_prorata_level(400);
 
     switch (cmd)
     {
@@ -1195,6 +1193,7 @@ static void _fire_calc_bonuses(void)
 
 static void _fire_get_flags(u32b flgs[TR_FLAG_SIZE]) 
 {
+    add_flag(flgs, TR_VULN_COLD);
     add_flag(flgs, TR_RES_FIRE);
     add_flag(flgs, TR_SH_FIRE);
 
@@ -1204,18 +1203,10 @@ static void _fire_get_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->lev >= 40)
         add_flag(flgs, TR_RES_ELEC);
 
-    _get_flags(flgs);
-}
-
-static void _fire_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
     if (p_ptr->lev >= 50)
-        add_flag(flgs, TR_RES_FIRE);
-}
+        add_flag(flgs, TR_IM_FIRE);
 
-static void _fire_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_COLD);
+    _get_flags(flgs);
 }
 
 static bool _fire_p(object_type *o_ptr)
@@ -1258,8 +1249,6 @@ static race_t *_fire_get_race_t(void)
         me.get_powers = _fire_get_powers;
         me.calc_bonuses = _fire_calc_bonuses;
         me.get_flags = _fire_get_flags;
-        me.get_immunities = _fire_get_immunities;
-        me.get_vulnerabilities = _fire_get_vulnerabilities;
         me.gain_level = _fire_gain_level;
         me.process_world = _fire_process_world;
         init = TRUE;
@@ -1281,7 +1270,7 @@ static race_t *_fire_get_race_t(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_elemental_get_race_t(int psubrace)
+race_t *mon_elemental_get_race(int psubrace)
 {
     race_t *result = NULL;
 
@@ -1305,11 +1294,10 @@ race_t *mon_elemental_get_race_t(int psubrace)
 
     result->name = "Elemental";
     result->desc = _desc;
-    result->flags = RACE_IS_MONSTER;
-    /* TODO: Nonliving makes sense, but then what will elementals eat?
-    result->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;*/
+    result->flags = RACE_IS_MONSTER | RACE_IS_NONLIVING;
     result->base_hp = 30;
     result->pseudo_class_idx = CLASS_WARRIOR;
+    result->shop_adjust = 120;
 
     return result;
 }

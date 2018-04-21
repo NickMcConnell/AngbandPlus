@@ -24,13 +24,9 @@ static void _birth(void)
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
     add_outfit(&forge);
 
-    object_prep(&forge, lookup_kind(TV_STAFF, SV_STAFF_POWER));
-    apply_magic(&forge, 1, AM_AVERAGE);
-    add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_STAFF, SV_STAFF_ANIMATE_DEAD));
-    apply_magic(&forge, 1, AM_AVERAGE);
-    add_outfit(&forge);
+    object_prep(&forge, lookup_kind(TV_STAFF, SV_ANY));
+    if (device_init_fixed(&forge, EFFECT_ANIMATE_DEAD))
+        add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_ROBE));
     add_outfit(&forge);
@@ -59,7 +55,7 @@ static void _calc_innate_attacks(void)
             a.effect[i++] = GF_DISENCHANT;
         
         calc_innate_blows(&a, 400);
-        a.msg = "You touch %s.";
+        a.msg = "You touch.";
         a.name = "Finger";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -181,6 +177,9 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
     add_flag(flgs, TR_RES_POIS);
     add_flag(flgs, TR_RES_NETHER);
 
+    if (p_ptr->lev < 25)
+        add_flag(flgs, TR_VULN_LITE);
+
     if (p_ptr->lev >= 25)
     {
         add_flag(flgs, TR_SPEED);
@@ -194,15 +193,8 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE]) {
     if (p_ptr->lev >= 50)
     {
         add_flag(flgs, TR_LEVITATION);
+        add_flag(flgs, TR_IM_NETHER);
     }
-}
-static void _get_immunities(u32b flgs[TR_FLAG_SIZE]) {
-    if (p_ptr->lev >= 50)
-        add_flag(flgs, TR_RES_NETHER);
-}
-static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) {
-    if (p_ptr->lev < 25)
-        add_flag(flgs, TR_RES_LITE);
 }
 static void _gain_level(int new_level) {
     if (p_ptr->current_r_idx == MON_LICH && new_level >= 25)
@@ -251,8 +243,6 @@ static race_t *_archlich_get_race_t(void)
         me.get_powers = _get_powers;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
-        me.get_immunities = _get_immunities;
-        me.get_vulnerabilities = _get_vulnerabilities;
         me.gain_level = _gain_level;
         init = TRUE;
     }
@@ -287,7 +277,7 @@ static caster_info * _caster_info(void)
 /**********************************************************************
  * Public
  **********************************************************************/
-race_t *mon_lich_get_race_t(void)
+race_t *mon_lich_get_race(void)
 {
     race_t *result = NULL;
 
@@ -307,6 +297,7 @@ race_t *mon_lich_get_race_t(void)
     result->birth = _birth;
     result->caster_info = _caster_info;
     result->pseudo_class_idx = CLASS_MAGE;
+    result->shop_adjust = 135;
 
     result->boss_r_idx = MON_VECNA;
     return result;

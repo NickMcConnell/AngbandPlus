@@ -87,7 +87,7 @@ spell_info    spell;
 } talent_t;
 
 /*
- * Talents are grouped.  Each group of talent will contain abilities
+ * Talents are grouped. Each group of talent will contain abilities
  * of a similar kind, such as offense, defense, detection.
  */
 #define _MAX_TALENTS 25
@@ -368,8 +368,8 @@ static int _get_spells_imp(spell_info* spells, int max, int start, int stop)
 }
 
 /*
- * We now group wild talents.  Its hard to pick from a large list of seemingly unsorted
- * choices.  Also, there is wide variety in monitor sizes and resolutions, so attempting
+ * We now group wild talents. Its hard to pick from a large list of seemingly unsorted
+ * choices. Also, there is wide variety in monitor sizes and resolutions, so attempting
  * to prompt for more than 15 or so choices at a time is a bad idea anyway.
  */
 typedef struct {
@@ -381,9 +381,9 @@ typedef struct {
 } group_choice;
 
 group_choice _groups[] =  {
-    { "Wild Beginnings", "Your early wild talents.  Perhaps these are not so awe inspiring, but they will allow you to survive early on.", 0, 7, TERM_GREEN},
+    { "Wild Beginnings", "Your early wild talents. Perhaps these are not so awe inspiring, but they will allow you to survive early on.", 0, 7, TERM_GREEN},
     { "Wild Musings", "Your middle powers, more useful and destructive.", 8, 16, TERM_L_UMBER},
-    { "Wild Destructions", "Your most powerful wild talents.  Death!  Destruction!  Devastation!  Monsters tremble in fear before the awesomeness of your power!", 17, _MAX_TALENTS - 1, TERM_RED},
+    { "Wild Destructions", "Your most powerful wild talents. Death!  Destruction!  Devastation!  Monsters tremble in fear before the awesomeness of your power!", 17, _MAX_TALENTS - 1, TERM_RED},
 };
 
 static void _spell_menu_fn(int cmd, int which, vptr cookie, variant *res)
@@ -577,11 +577,25 @@ void wild_talent_new_life(void)
 
 static void _calc_bonuses(void)
 {
+    samurai_posture_calc_bonuses();
+    monk_posture_calc_bonuses();
     if (p_ptr->lev >= 30)
         p_ptr->regenerate = TRUE;
 }
+static void _calc_stats(s16b stats[MAX_STATS])
+{
+    samurai_posture_calc_stats(stats);
+    monk_posture_calc_stats(stats);
+}
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    samurai_posture_get_flags(flgs);
+    monk_posture_get_flags(flgs);
+    if (p_ptr->lev >= 30)
+        add_flag(flgs, TR_REGEN);
+}
 
-static void _character_dump(FILE* file)
+static void _character_dump(doc_ptr doc)
 {
     int i;
     spell_info spells[MAX_SPELLS];
@@ -602,8 +616,8 @@ static void _character_dump(FILE* file)
         var_init(&name);
         var_init(&info);
 
-        fprintf(file, "\n\n================================= Wild Talents ================================\n\n");
-        fprintf(file, "%-23.23s Lv Stat Cost Fail Info\n", "");
+        doc_printf(doc, "<topic:WildTalent>================================= <color:keypress>W</color>ild Talents ================================\n\n");
+        doc_printf(doc, "<color:G>%-23.23s Lv Stat Cost Fail Info</color>\n", "");
         for (i = 0; i < ct; ++i)
         {
             spell_info *spell = &spells[i];
@@ -611,7 +625,7 @@ static void _character_dump(FILE* file)
             (spell->fn)(SPELL_NAME, &name);
             (spell->fn)(SPELL_INFO, &info);
 
-            fprintf(file, "%-23.23s %2d %4.4s %4d %3d%% %s\n", 
+            doc_printf(doc, "%-23.23s %2d %4.4s %4d %3d%% %s\n",
                             var_get_string(&name),
                             spell->level,
                             stat_abbrev_true[_which_stat(i)],
@@ -622,6 +636,8 @@ static void _character_dump(FILE* file)
 
         var_clear(&name);
         var_clear(&info);
+
+        doc_newline(doc);
     }
 }
 
@@ -639,7 +655,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *wild_talent_get_class_t(void)
+class_t *wild_talent_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -647,19 +663,25 @@ class_t *wild_talent_get_class_t(void)
     /* static info never changes */
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  40,  31,   1,  24,  16,  68,  50 };
-    skills_t xs = {  8,  15,  10,   0,   0,   0,  18,  20 };
+    skills_t bs = { 30,  25,  31,   2,  24,  16,  56,  50 };
+    skills_t xs = {  8,  11,  10,   0,   0,   0,  18,  18 };
 
         me.name = "Wild-Talent";
         me.desc = "The Wild-Talent gains random talents and abilities as they "
-                  "level up.  They are good fighters, and decent with magical devices, "
+                  "level up. They are good fighters, and decent with magical devices, "
                   "but their true forte is their vast array of potential random "
-                  "powers.  Except you never know what those might be!";
+                  "powers. Except you never know what those might be!\n \n"
+                  "Wild-Talents do not have a spell stat. Instead, each ability that "
+                  "they gain requires its own individual stat for purposes of fail "
+                  "rate calculation. For example, Tossing a Boulder requires Strength "
+                  "while Magic Missile requires Intelligence. Each spell requires mana "
+                  "to cast, but the amount of mana available is not influenced by any "
+                  "particular stat and is simply determined by experience.";
         
         me.stats[A_STR] = -1;
-        me.stats[A_INT] =  2;
-        me.stats[A_WIS] = -1;
-        me.stats[A_DEX] =  2;
+        me.stats[A_INT] =  1;
+        me.stats[A_WIS] =  1;
+        me.stats[A_DEX] =  1;
         me.stats[A_CON] = -2;
         me.stats[A_CHR] =  1;
         
@@ -672,6 +694,8 @@ class_t *wild_talent_get_class_t(void)
         me.pets = 35;
         
         me.calc_bonuses = _calc_bonuses;
+        me.calc_stats = _calc_stats;
+        me.get_flags = _get_flags;
         me.get_spells = _get_spells;
         me.caster_info = _caster_info;
         me.gain_level = _gain_level;

@@ -10,7 +10,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -201,8 +201,8 @@ void add_river(int feat1, int feat2)
  * Places "streamers" of rock through dungeon
  *
  * Note that their are actually six different terrain features used
- * to represent streamers.  Three each of magma and quartz, one for
- * basic vein, one with hidden gold, and one with known gold.  The
+ * to represent streamers. Three each of magma and quartz, one for
+ * basic vein, one with hidden gold, and one with known gold. The
  * hidden gold types are currently unused.
  */
 void build_streamer(int feat, int chance)

@@ -3971,7 +3971,7 @@ R:11:0
 
 ### Blue Mage ###
 N:21
-I:SORCERY:INT:0x01:0:99:430
+I:NONE:INT:0x01:0:99:430
 # Life
 R:0:0
 

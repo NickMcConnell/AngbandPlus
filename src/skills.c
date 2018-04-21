@@ -10,7 +10,7 @@ static int _class_idx(void)
     int result = p_ptr->pclass;
     if (result == CLASS_MONSTER)
     {
-        race_t *race_ptr = get_race_t();
+        race_t *race_ptr = get_race();
         result = race_ptr->pseudo_class_idx;
     }
     return result;
@@ -50,6 +50,75 @@ void skills_init(skills_t *dest)
     dest->fos = 0;
     dest->thn = 0;
     dest->thb = 0;
+}
+
+skill_desc_t skills_describe(int amt, int div)
+{
+    skill_desc_t result = {0};
+
+    if (div <= 0) div = 1;
+    if (amt < 0)
+    {
+        result.desc = "Very Bad";
+        result.color = TERM_L_DARK;
+    }
+    else
+    {
+        int n = amt / div;
+        switch (n)
+        {
+        case 0:
+        case 1:
+            result.desc = "Bad";
+            result.color = TERM_RED;
+            break;
+        case 2:
+            result.desc = "Poor";
+            result.color = TERM_L_RED;
+            break;
+        case 3:
+        case 4:
+            result.desc = "Fair";
+            result.color = TERM_ORANGE;
+            break;
+        case 5:
+            result.desc = "Good";
+            result.color = TERM_YELLOW;
+            break;
+        case 6:
+            result.desc = "Very Good";
+            result.color = TERM_YELLOW;
+            break;
+        case 7:
+        case 8:
+            result.desc = "Excellent";
+            result.color = TERM_L_GREEN;
+            break;
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+            result.desc = "Superb";
+            result.color = TERM_GREEN;
+            break;
+        case 14:
+        case 15:
+        case 16:
+        case 17:
+            result.desc = "Heroic";
+            result.color = TERM_BLUE;
+            break;
+        default:
+        {
+            int k = (n - 17) * 5 / 2;
+            result.desc = format("Legendary[%d]", k);
+            result.color = TERM_VIOLET;
+            break;
+        }
+        }
+    }
+    return result;
 }
 
 int skills_bow_current(int sval)
@@ -101,8 +170,16 @@ void skills_bow_gain(int sval)
 
 int skills_weapon_current(int tval, int sval)
 {
-    int max = skills_weapon_max(tval, sval);
-    int cur = p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval];
+    int max;
+    int cur;
+
+    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
+
+    if (tval == TV_BOW)
+        return skills_bow_current(sval);
+
+    max = skills_weapon_max(tval, sval);
+    cur = p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval];
 
     if (cur > max)
         cur = max;
@@ -112,20 +189,56 @@ int skills_weapon_current(int tval, int sval)
 
 int skills_weapon_max(int tval, int sval)
 {
+    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
+
+    if (tval == TV_BOW)
+        return skills_bow_max(sval);
+
     if (mut_present(MUT_WEAPON_SKILLS))
         return WEAPON_EXP_MASTER;
 
-    /* Hack: In case somebody calls this instead of skills_bow_max() */
-    if (tval == TV_BOW && demigod_is_(DEMIGOD_ARTEMIS))
+    /* Dragon Warlocks are Dragon Riders! */
+    if ( warlock_is_(WARLOCK_DRAGONS)
+      && tval == TV_POLEARM
+      && (sval == SV_LANCE || sval == SV_HEAVY_LANCE) )
+    {
         return WEAPON_EXP_MASTER;
+    }
+
+    if (warlock_is_(WARLOCK_GIANTS) && tval != TV_BOW)
+    {
+        int k_idx = lookup_kind(tval, sval);
+        if (k_info[k_idx].weight >= 200)
+            return WEAPON_EXP_MASTER;
+        if (k_info[k_idx].weight <= 100)
+            return WEAPON_EXP_BEGINNER;
+    }
 
     return s_info[_class_idx()].w_max[tval-TV_WEAPON_BEGIN][sval];
 }
 
+static int _weapon_calc_bonus_aux(int skill)
+{
+    int bonus = (skill - WEAPON_EXP_BEGINNER) / 200; /* -20 to +20 */
+    return bonus;
+}
+
+int skills_weapon_calc_bonus(int tval, int sval)
+{
+    int current = skills_weapon_current(tval, sval);
+    return _weapon_calc_bonus_aux(current);
+}
+
 void skills_weapon_gain(int tval, int sval)
 {
-    int max = skills_weapon_max(tval, sval);
-    int cur = p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval];
+    int max;
+    int cur;
+
+    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
+    assert(tval != TV_BOW);
+
+    max = skills_weapon_max(tval, sval);
+    cur = p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval];
 
     if (cur < max)
     {
@@ -138,11 +251,15 @@ void skills_weapon_gain(int tval, int sval)
 
         if (add > 0)
         {
+            int old_bonus = _weapon_calc_bonus_aux(cur);
+            int new_bonus;
             cur += add;
             if (cur > max)
                 cur = max;
+            new_bonus = _weapon_calc_bonus_aux(cur);
             p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval] += add;
-            p_ptr->update |= (PU_BONUS);
+            if (old_bonus != new_bonus)
+                p_ptr->update |= PU_BONUS;
         }
     }
 }
@@ -150,6 +267,8 @@ void skills_weapon_gain(int tval, int sval)
 bool skills_weapon_is_icky(int tval, int sval)
 {
     bool result = FALSE;
+
+    assert(TV_WEAPON_BEGIN <= tval && tval <= TV_WEAPON_END);
 
     /* Some classes use weapon skill tables to determine allowable weapons.
        But if the character gains the Weapon Versatility ability, all weapons
@@ -170,6 +289,78 @@ bool skills_weapon_is_icky(int tval, int sval)
         break;
     }
     return result;
+}
+
+static cptr _weapon_describe_aux(int skill, int max)
+{
+    cptr        desc;
+    static char buf[MAX_NLEN];
+
+    buf[0] = '\0';
+
+    if (skill < WEAPON_EXP_BEGINNER)
+        desc = "Unskilled";
+    else if (skill < WEAPON_EXP_SKILLED)
+        desc = "Beginner";
+    else if (skill < WEAPON_EXP_EXPERT)
+        desc = "Skilled";
+    else if (skill < WEAPON_EXP_MASTER)
+        desc = "Expert";
+    else
+        desc = "Master";
+
+    if (skill == max)
+    {
+        sprintf(buf, "!%s", desc);
+        return buf;
+    }
+    return desc;
+}
+
+cptr skills_weapon_describe_current(int tval, int sval)
+{
+    return _weapon_describe_aux(
+        skills_weapon_current(tval, sval),
+        skills_weapon_max(tval, sval));
+}
+
+/* Shieldmasters 'Shield Bash' technique */
+static cptr skills_shield_calc_name(int sval)
+{
+    static char buf[MAX_NLEN];
+    sprintf(buf, "Shield.%d", sval);
+    return buf;
+}
+
+int skills_shield_current(int sval)
+{
+    return skills_innate_current(
+        skills_shield_calc_name(sval));
+}
+
+int skills_shield_max(int sval)
+{
+    return skills_innate_max(
+        skills_shield_calc_name(sval));
+}
+
+void skills_shield_gain(int sval)
+{
+    skills_innate_gain(
+        skills_shield_calc_name(sval));
+}
+
+int skills_shield_calc_bonus(int sval)
+{
+    return _weapon_calc_bonus_aux(
+        skills_shield_current(sval));
+}
+
+cptr skills_shield_describe_current(int sval)
+{
+    return _weapon_describe_aux(
+        skills_shield_current(sval),
+        skills_shield_max(sval));
 }
 
 void skills_martial_arts_gain(void)
@@ -291,7 +482,7 @@ void skills_riding_gain_archery(monster_race *r_ptr)
 int skills_riding_current(void)
 {
     int current = p_ptr->skill_exp[SKILL_RIDING];
-    int max = s_info[_class_idx()].s_max[SKILL_RIDING];
+    int max = skills_riding_max();
     if (p_ptr->prace == RACE_MON_RING)
         return RIDING_EXP_MASTER;
     return MIN(current, max);
@@ -299,6 +490,9 @@ int skills_riding_current(void)
 
 int skills_riding_max(void)
 {
+    /* Dragon Warlocks are Dragon Riders! */
+    if (warlock_is_(WARLOCK_DRAGONS))
+        return RIDING_EXP_MASTER;
     return s_info[_class_idx()].s_max[SKILL_RIDING];
 }
 
@@ -374,6 +568,18 @@ int skills_innate_current(cptr name)
     return result;
 }
 
+static int _innate_calc_bonus_aux(int skill)
+{
+    int bonus = (skill - WEAPON_EXP_BEGINNER) / 200; /* -20 to +20 */
+    return bonus;
+}
+
+int skills_innate_calc_bonus(cptr name)
+{
+    int current = skills_innate_current(name);
+    return _innate_calc_bonus_aux(current);
+}
+
 void skills_innate_gain(cptr name)
 {
     _skill_info_ptr info = _innate_info(name);
@@ -398,19 +604,16 @@ void skills_innate_gain(cptr name)
 
         if (add > 0)
         {
+            int old_bonus = _innate_calc_bonus_aux(info->current);
+            int new_bonus;
             info->current += add;
             if (info->current > info->max)
                 info->current = info->max;
-            p_ptr->update |= PU_BONUS;
+            new_bonus = _innate_calc_bonus_aux(info->current);
+            if (old_bonus != new_bonus)
+                p_ptr->update |= PU_BONUS;
         }
     }
-}
-
-int skills_innate_calc_bonus(cptr name)
-{
-    int current = skills_innate_current(name);
-    int bonus = (current - WEAPON_EXP_BEGINNER) / 200; /* -20 to +20 */
-    return bonus;
 }
 
 cptr skills_innate_calc_name(innate_attack_ptr attack)
@@ -470,7 +673,7 @@ void skills_on_load(savefile_ptr file)
         char            name[255];
         _skill_info_ptr info = malloc(sizeof(_skill_info_t));
 
-        savefile_read_string(file, name, sizeof(name));
+        savefile_read_cptr(file, name, sizeof(name));
         info->current = savefile_read_s32b(file);
         info->max = savefile_read_s32b(file);
 
@@ -495,7 +698,7 @@ void skills_on_save(savefile_ptr file)
         cptr            name = str_map_iter_current_key(iter);
         _skill_info_ptr info = (_skill_info_ptr)str_map_iter_current(iter);
 
-        savefile_write_string(file, name);
+        savefile_write_cptr(file, name);
         savefile_write_s32b(file, info->current);
         savefile_write_s32b(file, info->max);
     }

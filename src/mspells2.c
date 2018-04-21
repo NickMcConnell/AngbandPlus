@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Monster spells (attack monster) */
@@ -279,7 +279,7 @@ static bool dispel_check_monster(int m_idx, int t_idx)
  *
  * The player is only disturbed if able to be affected by the spell.
  */
-bool monst_spell_monst(int m_idx)
+bool mon_spell_mon(int m_idx, int options)
 {
     int y = 0, x = 0;
     int i, k, t_idx = 0;
@@ -294,10 +294,10 @@ bool monst_spell_monst(int m_idx)
 
     byte spell[96], num = 0;
 
-    char m_name[160];
-    char t_name[160];
-
-    char m_poss[160];
+    char m_name[MAX_NLEN];
+    char t_name[MAX_NLEN];
+    char tmp[MAX_NLEN];
+    char m_poss[MAX_NLEN];
 
     monster_type *m_ptr = &m_list[m_idx];
     monster_type *t_ptr = NULL;
@@ -341,100 +341,119 @@ bool monst_spell_monst(int m_idx)
     f5 = r_ptr->flags5;
     f6 = r_ptr->flags6;
 
-    /* Target is given for pet? */
-    if (pet_t_m_idx && pet)
+
+    /* Dragonrider guided breaths will piggy back the pet target for now. I'd like to be
+       able to guide the breath to a chosen grid location in addition to a monster, but
+       this doesn't look easy to accomplish */
+    if (options & DRAGONRIDER_HACK)
     {
-        t_idx = pet_t_m_idx;
-        t_ptr = &m_list[t_idx];
-
-        /* Cancel if not projectable (for now) */
-        if ((m_idx == t_idx) || !projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
-        {
-            t_idx = 0;
-        }
-    }
-
-    /* Is there counter attack target? */
-    if (!t_idx && m_ptr->target_y)
-    {
-        t_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
-
+        f4 &= RF4_BREATH_MASK;
+        f5 &= RF5_BREATH_MASK;
+        f6 &= RF6_BREATH_MASK;
+        if (!target_okay()) return FALSE;
+        y = target_row;
+        x = target_col;
+        t_idx = cave[y][x].m_idx;
         if (t_idx)
         {
             t_ptr = &m_list[t_idx];
+            tr_ptr = &r_info[t_ptr->r_idx];
+        }
+    }
+    else
+    {
+        /* Target is given for pet? */
+        if (pet_t_m_idx && pet)
+        {
+            t_idx = pet_t_m_idx;
+            t_ptr = &m_list[t_idx];
 
-            /* Cancel if neither enemy nor a given target */
-            if ((m_idx == t_idx) ||
-                ((t_idx != pet_t_m_idx) && !are_enemies(m_ptr, t_ptr)))
+            /* Cancel if not projectable (for now) */
+            if ((m_idx == t_idx) || !projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
             {
                 t_idx = 0;
             }
+        }
+        /* Is there counter attack target? */
+        if (!t_idx && m_ptr->target_y)
+        {
+            t_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
 
-            /* Allow only summoning etc.. if not projectable */
-            else if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
+            if (t_idx)
             {
-                f4 &= (RF4_INDIRECT_MASK);
-                f5 &= (RF5_INDIRECT_MASK);
-                f6 &= (RF6_INDIRECT_MASK);
+                t_ptr = &m_list[t_idx];
+
+                /* Cancel if neither enemy nor a given target */
+                if ((m_idx == t_idx) ||
+                    ((t_idx != pet_t_m_idx) && !are_enemies(m_ptr, t_ptr)))
+                {
+                    t_idx = 0;
+                }
+
+                /* Allow only summoning etc.. if not projectable */
+                else if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
+                {
+                    f4 &= (RF4_INDIRECT_MASK);
+                    f5 &= (RF5_INDIRECT_MASK);
+                    f6 &= (RF6_INDIRECT_MASK);
+                }
             }
         }
-    }
 
-    /* Look for enemies normally */
-    if (!t_idx)
-    {
-        bool success = FALSE;
-
-        if (p_ptr->inside_battle)
+        /* Look for enemies normally */
+        if (!t_idx)
         {
-            start = randint1(m_max-1) + m_max;
-            if (randint0(2)) plus = -1;
-        }
-        else start = m_max + 1;
+            bool success = FALSE;
 
-        /* Scan thru all monsters */
-        for (i = start; ((i < start + m_max) && (i > start - m_max)); i += plus)
+            if (p_ptr->inside_battle)
+            {
+                start = randint1(m_max-1) + m_max;
+                if (randint0(2)) plus = -1;
+            }
+            else start = m_max + 1;
+
+            /* Scan thru all monsters */
+            for (i = start; ((i < start + m_max) && (i > start - m_max)); i += plus)
+            {
+                int dummy = (i % m_max);
+                if (!dummy) continue;
+
+                t_idx = dummy;
+                t_ptr = &m_list[t_idx];
+
+                /* Skip dead monsters */
+                if (!t_ptr->r_idx) continue;
+
+                /* Monster must be 'an enemy' */
+                if ((m_idx == t_idx) || !are_enemies(m_ptr, t_ptr)) continue;
+
+                /* Monster must be projectable */
+                if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx)) continue;
+
+                /* Get it */
+                success = TRUE;
+                break;
+            }
+
+            /* No enemy found */
+            if (!success) return FALSE;
+        }
+        /* OK -- we've got a target */
+        y = t_ptr->fy;
+        x = t_ptr->fx;
+        tr_ptr = &r_info[t_ptr->r_idx];
+
+        /* No monster fighting (option) except involving pets */
+        if ( !p_ptr->inside_battle
+          && !allow_hostile_monster
+          && !(pet || is_pet(t_ptr)) )
         {
-            int dummy = (i % m_max);
-            if (!dummy) continue;
-
-            t_idx = dummy;
-            t_ptr = &m_list[t_idx];
-
-            /* Skip dead monsters */
-            if (!t_ptr->r_idx) continue;
-
-            /* Monster must be 'an enemy' */
-            if ((m_idx == t_idx) || !are_enemies(m_ptr, t_ptr)) continue;
-
-            /* Monster must be projectable */
-            if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx)) continue;
-
-            /* Get it */
-            success = TRUE;
-            break;
+            return (FALSE);
         }
 
-        /* No enemy found */
-        if (!success) return FALSE;
+        /* Forget old counter attack target */
+        reset_target(m_ptr);
     }
-
-
-    /* OK -- we've got a target */
-    y = t_ptr->fy;
-    x = t_ptr->fx;
-    tr_ptr = &r_info[t_ptr->r_idx];
-
-    /* No monster fighting (option) except involving pets */
-    if ( !p_ptr->inside_battle
-      && !allow_hostile_monster
-      && !(pet || is_pet(t_ptr)) )
-    {    
-        return (FALSE);
-    }
-
-    /* Forget old counter attack target */
-    reset_target(m_ptr);
 
     /* Extract the monster level */
     rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
@@ -444,7 +463,7 @@ bool monst_spell_monst(int m_idx)
 
     if (f4 & RF4_BR_LITE)
     {
-        if (!los(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
+        if (!los(m_ptr->fy, m_ptr->fx, y, x))
             f4 &= ~(RF4_BR_LITE);
     }
 
@@ -572,7 +591,7 @@ bool monst_spell_monst(int m_idx)
             if (((f4 & RF4_BEAM_MASK) ||
                  (f5 & RF5_BEAM_MASK) ||
                  (f6 & RF6_BEAM_MASK)) &&
-                !direct_beam(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, m_ptr))
+                !direct_beam(m_ptr->fy, m_ptr->fx, y, x, m_ptr))
             {
                 f4 &= ~(RF4_BEAM_MASK);
                 f5 &= ~(RF5_BEAM_MASK);
@@ -586,19 +605,19 @@ bool monst_spell_monst(int m_idx)
                 /* Expected breath radius */
                 int rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
 
-                if (!breath_direct(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, rad, 0, TRUE))
+                if (!breath_direct(m_ptr->fy, m_ptr->fx, y, x, rad, 0, TRUE))
                 {
                     f4 &= ~(RF4_BREATH_MASK);
                     f5 &= ~(RF5_BREATH_MASK);
                     f6 &= ~(RF6_BREATH_MASK);
                 }
                 else if ((f4 & RF4_BR_LITE) &&
-                     !breath_direct(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, rad, GF_LITE, TRUE))
+                     !breath_direct(m_ptr->fy, m_ptr->fx, y, x, rad, GF_LITE, TRUE))
                 {
                     f4 &= ~(RF4_BR_LITE);
                 }
                 else if ((f4 & RF4_BR_DISI) &&
-                     !breath_direct(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, rad, GF_DISINTEGRATE, TRUE))
+                     !breath_direct(m_ptr->fy, m_ptr->fx, y, x, rad, GF_DISINTEGRATE, TRUE))
                 {
                     f4 &= ~(RF4_BR_DISI);
                 }
@@ -630,7 +649,7 @@ bool monst_spell_monst(int m_idx)
         if (((f4 & RF4_BOLT_MASK) ||
              (f5 & RF5_BOLT_MASK) ||
              (f6 & RF6_BOLT_MASK)) &&
-            !clean_shot(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, pet))
+            !clean_shot(m_ptr->fy, m_ptr->fx, y, x, pet))
         {
             f4 &= ~(RF4_BOLT_MASK);
             f5 &= ~(RF5_BOLT_MASK);
@@ -641,7 +660,7 @@ bool monst_spell_monst(int m_idx)
         if (((f4 & RF4_SUMMON_MASK) ||
              (f5 & RF5_SUMMON_MASK) ||
              (f6 & RF6_SUMMON_MASK)) &&
-            !(summon_possible(t_ptr->fy, t_ptr->fx)))
+            !(summon_possible(y, x)))
         {
             /* Remove summoning spells */
             f4 &= ~(RF4_SUMMON_MASK);
@@ -650,7 +669,7 @@ bool monst_spell_monst(int m_idx)
         }
 
         /* Dispel magic */
-        if ((f4 & RF4_DISPEL) && !dispel_check_monster(m_idx, t_idx))
+        if ((f4 & RF4_DISPEL) && (!t_idx || !dispel_check_monster(m_idx, t_idx)))
         {
             /* Remove dispel spell */
             f4 &= ~(RF4_DISPEL);
@@ -672,7 +691,7 @@ bool monst_spell_monst(int m_idx)
         /* Special moves restriction */
         if (f6 & RF6_SPECIAL)
         {
-            if ((m_ptr->r_idx == MON_ROLENTO) && !summon_possible(t_ptr->fy, t_ptr->fx))
+            if ((m_ptr->r_idx == MON_ROLENTO) && !summon_possible(y, x))
             {
                 f6 &= ~(RF6_SPECIAL);
             }
@@ -729,22 +748,37 @@ bool monst_spell_monst(int m_idx)
     if (p_ptr->leaving) return (FALSE);
 
     /* Get the monster name (or "it") */
-    monster_desc(m_name, m_ptr, 0x00);
+    monster_desc(tmp, m_ptr, 0x00);
+    tmp[0] = toupper(tmp[0]);
+    sprintf(m_name, "<color:B>%s</color>", tmp);
 
     /* Get the monster possessive ("his"/"her"/"its") */
     monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
 
     /* Get the target's name (or "it") */
-    monster_desc(t_name, t_ptr, 0x00);
+    if (t_ptr)
+    {
+        monster_desc(tmp, t_ptr, 0x00);
+        sprintf(t_name, "<color:o>%s</color>", tmp);
+    }
+    else
+        sprintf(t_name, "<color:o>%s</color>", "the target");
 
     /* Choose a spell to cast */
     thrown_spell = spell[randint0(num)];
 
-    see_t = is_seen(t_ptr);
+    if (t_ptr)
+        see_t = is_seen(t_ptr);
+    else
+        see_t = los(y, x, py, px);
+
     see_either = (see_m || see_t);
 
     /* Can the player be aware of this attack? */
-    known = (m_ptr->cdis <= MAX_SIGHT) || (t_ptr->cdis <= MAX_SIGHT);
+    if (t_ptr)
+        known = (m_ptr->cdis <= MAX_SIGHT) || (t_ptr->cdis <= MAX_SIGHT);
+    else
+        known = see_t;
 
     if (disturb_minor && p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
@@ -2352,185 +2386,195 @@ bool monst_spell_monst(int m_idx)
 
     /* RF5_SCARE */
     case 128+27:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s casts a fearful illusion in front of %s.", m_name, t_name);
+                if (see_either)
+                {
+                    msg_format("%^s casts a fearful illusion in front of %s.", m_name, t_name);
+
+                }
+                else
+                {
+                    mon_fight = TRUE;
+                }
+            }
+
+            if (tr_ptr->flags3 & RF3_NO_FEAR)
+            {
+                if (see_t) msg_format("%^s refuses to be frightened.", t_name);
+
+            }
+            else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+            {
+                if (see_t) msg_format("%^s refuses to be frightened.", t_name);
 
             }
             else
             {
-                mon_fight = TRUE;
+                if (set_monster_monfear(t_idx, MON_MONFEAR(t_ptr) + randint0(4) + 4)) fear = TRUE;
             }
+
+            wake_up = TRUE;
         }
-
-        if (tr_ptr->flags3 & RF3_NO_FEAR)
-        {
-            if (see_t) msg_format("%^s refuses to be frightened.", t_name);
-
-        }
-        else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
-        {
-            if (see_t) msg_format("%^s refuses to be frightened.", t_name);
-
-        }
-        else
-        {
-            if (set_monster_monfear(t_idx, MON_MONFEAR(t_ptr) + randint0(4) + 4)) fear = TRUE;
-        }
-
-        wake_up = TRUE;
-
         break;
 
     /* RF5_BLIND */
     case 128+28:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s casts a spell, burning %s%s eyes.", m_name, t_name,
-                       (streq(t_name, "it") ? "s" : "'s"));
+                if (see_either)
+                {
+                    msg_format("%^s casts a spell, burning %s%s eyes.", m_name, t_name,
+                           (streq(t_name, "it") ? "s" : "'s"));
+
+                }
+                else
+                {
+                    mon_fight = TRUE;
+                }
+            }
+
+            /* Simulate blindness with confusion */
+            if (tr_ptr->flags3 & RF3_NO_CONF)
+            {
+                if (see_t) msg_format("%^s is unaffected.", t_name);
+
+            }
+            else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+            {
+                if (see_t) msg_format("%^s is unaffected.", t_name);
 
             }
             else
             {
-                mon_fight = TRUE;
+                if (see_t) msg_format("%^s is blinded!", t_name);
+
+                (void)set_monster_confused(t_idx, MON_CONFUSED(t_ptr) + 12 + randint0(4));
             }
+
+            wake_up = TRUE;
         }
-
-        /* Simulate blindness with confusion */
-        if (tr_ptr->flags3 & RF3_NO_CONF)
-        {
-            if (see_t) msg_format("%^s is unaffected.", t_name);
-
-        }
-        else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
-        {
-            if (see_t) msg_format("%^s is unaffected.", t_name);
-
-        }
-        else
-        {
-            if (see_t) msg_format("%^s is blinded!", t_name);
-
-            (void)set_monster_confused(t_idx, MON_CONFUSED(t_ptr) + 12 + randint0(4));
-        }
-
-        wake_up = TRUE;
-
         break;
 
     /* RF5_CONF */
     case 128+29:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s casts a mesmerizing illusion in front of %s.", m_name, t_name);
+                if (see_either)
+                {
+                    msg_format("%^s casts a mesmerizing illusion in front of %s.", m_name, t_name);
+
+                }
+                else
+                {
+                    mon_fight = TRUE;
+                }
+            }
+
+            if (tr_ptr->flags3 & RF3_NO_CONF)
+            {
+                if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
+
+            }
+            else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+            {
+                if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
 
             }
             else
             {
-                mon_fight = TRUE;
+                if (see_t) msg_format("%^s seems confused.", t_name);
+
+                (void)set_monster_confused(t_idx, MON_CONFUSED(t_ptr) + 12 + randint0(4));
             }
+
+            wake_up = TRUE;
         }
-
-        if (tr_ptr->flags3 & RF3_NO_CONF)
-        {
-            if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
-
-        }
-        else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
-        {
-            if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
-
-        }
-        else
-        {
-            if (see_t) msg_format("%^s seems confused.", t_name);
-
-            (void)set_monster_confused(t_idx, MON_CONFUSED(t_ptr) + 12 + randint0(4));
-        }
-
-        wake_up = TRUE;
-
         break;
 
     /* RF5_SLOW */
     case 128+30:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s drains power from %s%s muscles.", m_name, t_name,
-                       (streq(t_name, "it") ? "s" : "'s"));
+                if (see_either)
+                {
+                    msg_format("%^s drains power from %s%s muscles.", m_name, t_name,
+                           (streq(t_name, "it") ? "s" : "'s"));
+
+                }
+                else
+                {
+                    mon_fight = TRUE;
+                }
+            }
+
+            if (tr_ptr->flags1 & RF1_UNIQUE)
+            {
+                if (see_t) msg_format("%^s is unaffected.", t_name);
+
+            }
+            else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+            {
+                if (see_t) msg_format("%^s is unaffected.", t_name);
 
             }
             else
             {
-                mon_fight = TRUE;
+                if (set_monster_slow(t_idx, MON_SLOW(t_ptr) + 50))
+                {
+                    if (see_t) msg_format("%^s starts moving slower.", t_name);
+                }
             }
+
+            wake_up = TRUE;
         }
-
-        if (tr_ptr->flags1 & RF1_UNIQUE)
-        {
-            if (see_t) msg_format("%^s is unaffected.", t_name);
-
-        }
-        else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
-        {
-            if (see_t) msg_format("%^s is unaffected.", t_name);
-
-        }
-        else
-        {
-            if (set_monster_slow(t_idx, MON_SLOW(t_ptr) + 50))
-            {
-                if (see_t) msg_format("%^s starts moving slower.", t_name);
-            }
-        }
-
-        wake_up = TRUE;
-
         break;
 
     /* RF5_HOLD */
     case 128+31:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s stares intently at %s.", m_name, t_name);
+                if (see_either)
+                {
+                    msg_format("%^s stares intently at %s.", m_name, t_name);
+
+                }
+                else
+                {
+                    mon_fight = TRUE;
+                }
+            }
+
+            if ((tr_ptr->flags1 & RF1_UNIQUE) ||
+                (tr_ptr->flags3 & RF3_NO_STUN))
+            {
+                if (see_t) msg_format("%^s is unaffected.", t_name);
+
+            }
+            else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+            {
+                if (see_t) msg_format("%^s is unaffected.", t_name);
 
             }
             else
             {
-                mon_fight = TRUE;
+                if (see_t) msg_format("%^s is paralyzed!", t_name);
+
+                (void)set_monster_stunned(t_idx, MON_STUNNED(t_ptr) + randint1(4) + 4);
             }
+
+            wake_up = TRUE;
         }
-
-        if ((tr_ptr->flags1 & RF1_UNIQUE) ||
-            (tr_ptr->flags3 & RF3_NO_STUN))
-        {
-            if (see_t) msg_format("%^s is unaffected.", t_name);
-
-        }
-        else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
-        {
-            if (see_t) msg_format("%^s is unaffected.", t_name);
-
-        }
-        else
-        {
-            if (see_t) msg_format("%^s is paralyzed!", t_name);
-
-            (void)set_monster_stunned(t_idx, MON_STUNNED(t_ptr) + randint1(4) + 4);
-        }
-
-        wake_up = TRUE;
-
         break;
 
 
@@ -2628,8 +2672,7 @@ bool monst_spell_monst(int m_idx)
         }
 
         /* Redraw (later) if needed */
-        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-        if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+        check_mon_health_redraw(m_idx);
 
         /* Cancel fear */
         if (MON_MONFEAR(m_ptr))
@@ -2748,7 +2791,7 @@ bool monst_spell_monst(int m_idx)
             break;
 
         default:
-            if (r_ptr->d_char == 'B')
+            if (r_ptr->d_char == 'B' && t_ptr)
             {
                 if (one_in_(3))
                 {
@@ -2828,126 +2871,135 @@ bool monst_spell_monst(int m_idx)
 
     /* RF6_TELE_TO */
     case 160+8:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s commands %s to return.", m_name, t_name);
-
-            }
-            else
-            {
-                mon_fight = TRUE;
-            }
-        }
-
-        if (tr_ptr->flagsr & RFR_RES_TELE)
-        {
-            if ((tr_ptr->flags1 & RF1_UNIQUE) || (tr_ptr->flagsr & RFR_RES_ALL))
-            {
-                if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
-                if (see_t)
+                if (see_either)
                 {
-                    msg_format("%^s is unaffected!", t_name);
-                }
+                    msg_format("%^s commands %s to return.", m_name, t_name);
 
-                resists_tele = TRUE;
-            }
-            else if (tr_ptr->level > randint1(100))
-            {
-                if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
-                if (see_t)
+                }
+                else
                 {
-                    msg_format("%^s resists!", t_name);
+                    mon_fight = TRUE;
                 }
-
-                resists_tele = TRUE;
             }
-        }
 
-        if (!resists_tele)
-        {
-            if (t_idx == p_ptr->riding) teleport_player_to(m_ptr->fy, m_ptr->fx, TELEPORT_PASSIVE);
-            else teleport_monster_to(t_idx, m_ptr->fy, m_ptr->fx, 100, TELEPORT_PASSIVE);
-        }
+            if (tr_ptr->flagsr & RFR_RES_TELE)
+            {
+                if ((tr_ptr->flags1 & RF1_UNIQUE) || (tr_ptr->flagsr & RFR_RES_ALL))
+                {
+                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    if (see_t)
+                    {
+                        msg_format("%^s is unaffected!", t_name);
+                    }
 
-        wake_up = TRUE;
+                    resists_tele = TRUE;
+                }
+                else if (tr_ptr->level > randint1(100))
+                {
+                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    if (see_t)
+                    {
+                        msg_format("%^s resists!", t_name);
+                    }
+
+                    resists_tele = TRUE;
+                }
+            }
+
+            if (!resists_tele)
+            {
+                if (t_idx == p_ptr->riding) teleport_player_to(m_ptr->fy, m_ptr->fx, TELEPORT_PASSIVE);
+                else teleport_monster_to(t_idx, m_ptr->fy, m_ptr->fx, 100, TELEPORT_PASSIVE);
+            }
+
+            wake_up = TRUE;
+        }
         break;
 
     /* RF6_TELE_AWAY */
     case 160+9:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s teleports %s away.", m_name, t_name);
-
-            }
-            else
-            {
-                mon_fight = TRUE;
-            }
-        }
-
-        if (tr_ptr->flagsr & RFR_RES_TELE)
-        {
-            if ((tr_ptr->flags1 & RF1_UNIQUE) || (tr_ptr->flagsr & RFR_RES_ALL))
-            {
-                if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
-                if (see_t)
+                if (see_either)
                 {
-                    msg_format("%^s is unaffected!", t_name);
-                }
+                    msg_format("%^s teleports %s away.", m_name, t_name);
 
-                resists_tele = TRUE;
-            }
-            else if (tr_ptr->level > randint1(100))
-            {
-                if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
-                if (see_t)
+                }
+                else
                 {
-                    msg_format("%^s resists!", t_name);
+                    mon_fight = TRUE;
                 }
-
-                resists_tele = TRUE;
             }
-        }
 
-        if (!resists_tele)
-        {
-            if (t_idx == p_ptr->riding) teleport_player_away(m_idx, MAX_SIGHT * 2 + 5);
-            else teleport_away(t_idx, MAX_SIGHT * 2 + 5, TELEPORT_PASSIVE);
-        }
+            if (tr_ptr->flagsr & RFR_RES_TELE)
+            {
+                if ((tr_ptr->flags1 & RF1_UNIQUE) || (tr_ptr->flagsr & RFR_RES_ALL))
+                {
+                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    if (see_t)
+                    {
+                        msg_format("%^s is unaffected!", t_name);
+                    }
 
-        wake_up = TRUE;
+                    resists_tele = TRUE;
+                }
+                else if (tr_ptr->level > randint1(100))
+                {
+                    if (is_original_ap_and_seen(t_ptr)) tr_ptr->r_flagsr |= RFR_RES_TELE;
+                    if (see_t)
+                    {
+                        msg_format("%^s resists!", t_name);
+                    }
+
+                    resists_tele = TRUE;
+                }
+            }
+
+            if (!resists_tele)
+            {
+                if (t_idx == p_ptr->riding) teleport_player_away(m_idx, MAX_SIGHT * 2 + 5);
+                else teleport_away(t_idx, MAX_SIGHT * 2 + 5, TELEPORT_PASSIVE);
+            }
+
+            wake_up = TRUE;
+        }
         break;
 
     /* RF6_TELE_LEVEL */
     case 160+10:
-        if (known)
+        if (t_ptr)
         {
-            if (see_either)
+            if (known)
             {
-                msg_format("%^s gestures at %s's feet.", m_name, t_name);
+                if (see_either)
+                {
+                    msg_format("%^s gestures at %s's feet.", m_name, t_name);
+                }
+                else
+                {
+                    mon_fight = TRUE;
+                }
             }
-            else
+
+            if (tr_ptr->flagsr & (RFR_EFF_RES_NEXU_MASK | RFR_RES_TELE))
             {
-                mon_fight = TRUE;
+                if (see_t) msg_format("%^s is unaffected!", t_name);
             }
-        }
+            else if ((tr_ptr->flags1 & RF1_QUESTOR) ||
+                    (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
+            {
+                if (see_t) msg_format("%^s resist the effects!", t_name);
+            }
+            else teleport_level((t_idx == p_ptr->riding) ? 0 : t_idx);
 
-        if (tr_ptr->flagsr & (RFR_EFF_RES_NEXU_MASK | RFR_RES_TELE))
-        {
-            if (see_t) msg_format("%^s is unaffected!", t_name);
+            wake_up = TRUE;
         }
-        else if ((tr_ptr->flags1 & RF1_QUESTOR) ||
-                (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
-        {
-            if (see_t) msg_format("%^s resist the effects!", t_name);
-        }
-        else teleport_level((t_idx == p_ptr->riding) ? 0 : t_idx);
-
-        wake_up = TRUE;
         break;
 
     /* RF6_PSY_SPEAR */
@@ -2956,7 +3008,7 @@ bool monst_spell_monst(int m_idx)
         {
             if (see_either)
             {
-                msg_format("%^s throw a Psycho-spear at %s.", m_name, t_name);
+                msg_format("%^s throws a Psycho-spear at %s.", m_name, t_name);
 
             }
             else
@@ -3627,13 +3679,15 @@ bool monst_spell_monst(int m_idx)
         break;
     }
 
-    if (wake_up) (void)set_monster_csleep(t_idx, 0);
-
-    if (fear && see_t)
+    if (t_idx)
     {
-        msg_format("%^s flees in terror!", t_name);
-    }
+        if (wake_up) (void)set_monster_csleep(t_idx, 0);
 
+        if (fear && see_t)
+        {
+            msg_format("%^s flees in terror!", t_name);
+        }
+    }
     if (m_ptr->ml && maneable && !world_monster && !p_ptr->blind && (p_ptr->pclass == CLASS_IMITATOR))
     {
         if (thrown_spell != 167) /* Not RF6_SPECIAL */
@@ -3652,7 +3706,7 @@ bool monst_spell_monst(int m_idx)
             p_ptr->mane_num++;
             new_mane = TRUE;
 
-            p_ptr->redraw |= (PR_IMITATION);
+            p_ptr->redraw |= PR_EFFECTS;
         }
     }
 

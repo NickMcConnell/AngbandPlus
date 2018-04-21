@@ -1,0 +1,13 @@
+Commands
+
+Please choose one of the following online help files:
+
+    [a] Commands
+    [b] Original Keyset
+    [c] Roguelike Keyset
+    [d] Command Counts
+    [e] Selecting Objects
+    [f] Command Descriptions
+
+    (?) Help System Commands
+

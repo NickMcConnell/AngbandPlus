@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: describe monsters (using monster memory) */
@@ -25,7 +25,7 @@ static cptr wd_his[3] =
 
 
 /*
- * Pluralizer.  Args(count, singular, plural)
+ * Pluralizer. Args(count, singular, plural)
  */
 #define plural(c,s,p) \
     (((c) == 1) ? (s) : (p))
@@ -173,7 +173,7 @@ static void hooked_roff(cptr str)
  *
  * This function should only be called with the cursor placed at the
  * left edge of the screen, on a cleared line, in which the recall is
- * to take place.  One extra blank line is left after the recall.
+ * to take place. One extra blank line is left after the recall.
  */
 static void roff_aux(int r_idx, int mode)
 {
@@ -335,7 +335,7 @@ static void roff_aux(int r_idx, int mode)
             /* Unavenged (ever) */
             else
             {
-                hooked_roff(format(", who %s unavenged.  ",
+                hooked_roff(format(", who %s unavenged. ",
                         plural(r_ptr->r_deaths, "remains", "remain")));
 
             }
@@ -347,7 +347,7 @@ static void roff_aux(int r_idx, int mode)
         /* Dead unique who never hurt us */
         else if (dead)
         {
-            hooked_roff("You have slain this foe.  ");
+            hooked_roff("You have slain this foe. ");
 
             /* Start a new line */
             hooked_roff("\n");
@@ -365,14 +365,14 @@ static void roff_aux(int r_idx, int mode)
         /* Some kills this life */
         if (r_ptr->r_pkills)
         {
-            hooked_roff(format("and you have exterminated at least %d of the creatures.  ", r_ptr->r_pkills));
+            hooked_roff(format("and you have exterminated at least %d of the creatures. ", r_ptr->r_pkills));
 
         }
 
         /* Some kills past lives */
         else if (r_ptr->r_tkills)
         {
-            hooked_roff(format("and %s have exterminated at least %d of the creatures.  ",
+            hooked_roff(format("and %s have exterminated at least %d of the creatures. ",
                     "your ancestors", r_ptr->r_tkills));
 
         }
@@ -380,7 +380,7 @@ static void roff_aux(int r_idx, int mode)
         /* No kills */
         else
         {
-            hooked_roff(format("and %s is not ever known to have been defeated.  ", wd_he[msex]));
+            hooked_roff(format("and %s is not ever known to have been defeated. ", wd_he[msex]));
 
         }
 
@@ -394,21 +394,21 @@ static void roff_aux(int r_idx, int mode)
         /* Killed some this life */
         if (r_ptr->r_pkills)
         {
-            hooked_roff(format("You have killed at least %d of these creatures.  ", r_ptr->r_pkills));
+            hooked_roff(format("You have killed at least %d of these creatures. ", r_ptr->r_pkills));
 
         }
 
         /* Killed some last life */
         else if (r_ptr->r_tkills)
         {
-            hooked_roff(format("Your ancestors have killed at least %d of these creatures.  ", r_ptr->r_tkills));
+            hooked_roff(format("Your ancestors have killed at least %d of these creatures. ", r_ptr->r_tkills));
 
         }
 
         /* Killed none */
         else
         {
-            hooked_roff("No battles to the death are recalled.  ");
+            hooked_roff("No battles to the death are recalled. ");
         }
 
         /* Start a new line */
@@ -574,7 +574,7 @@ static void roff_aux(int r_idx, int mode)
     /* End this sentence */
     if (old)
     {
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
         old = FALSE;
     }
@@ -661,55 +661,55 @@ static void roff_aux(int r_idx, int mode)
             if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
             /* Mention the dependance on the player's level */
-            hooked_roff(format(" for a%s %u%s level character.  ",
+            hooked_roff(format(" for a%s %u%s level character. ",
                     q, i, p));
         }
     }
 
     if (flags2 & RF2_AURA_REVENGE)
-        hook_c_roff(TERM_VIOLET, format("%^s retaliates when struck.  ", wd_he[msex]));
+        hook_c_roff(TERM_VIOLET, format("%^s retaliates when struck. ", wd_he[msex]));
     if (flags2 & RF2_AURA_FEAR)
-        hook_c_roff(TERM_VIOLET, format("%^s inspires fear.  ", wd_he[msex]));
+        hook_c_roff(TERM_VIOLET, format("%^s inspires fear. ", wd_he[msex]));
 
     if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC) && (flags3 & RF3_AURA_COLD))
     {
-        hook_c_roff(TERM_VIOLET, format("%^s is surrounded by flames, ice and electricity.  ", wd_he[msex]));
+        hook_c_roff(TERM_VIOLET, format("%^s is surrounded by flames, ice and electricity. ", wd_he[msex]));
     }
     else if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC))
     {
-        hook_c_roff(TERM_L_RED, format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
+        hook_c_roff(TERM_L_RED, format("%^s is surrounded by flames and electricity. ", wd_he[msex]));
     }
     else if ((flags2 & RF2_AURA_FIRE) && (flags3 & RF3_AURA_COLD))
     {
-        hook_c_roff(TERM_BLUE, format("%^s is surrounded by flames and ice.  ", wd_he[msex]));
+        hook_c_roff(TERM_BLUE, format("%^s is surrounded by flames and ice. ", wd_he[msex]));
     }
     else if ((flags3 & RF3_AURA_COLD) && (flags2 & RF2_AURA_ELEC))
     {
-        hook_c_roff(TERM_L_GREEN, format("%^s is surrounded by ice and electricity.  ", wd_he[msex]));
+        hook_c_roff(TERM_L_GREEN, format("%^s is surrounded by ice and electricity. ", wd_he[msex]));
     }
     else if (flags2 & RF2_AURA_FIRE)
     {
-        hook_c_roff(TERM_RED, format("%^s is surrounded by flames.  ", wd_he[msex]));
+        hook_c_roff(TERM_RED, format("%^s is surrounded by flames. ", wd_he[msex]));
     }
     else if (flags3 & RF3_AURA_COLD)
     {
-        hook_c_roff(TERM_BLUE, format("%^s is surrounded by ice.  ", wd_he[msex]));
+        hook_c_roff(TERM_BLUE, format("%^s is surrounded by ice. ", wd_he[msex]));
     }
     else if (flags2 & RF2_AURA_ELEC)
     {
-        hook_c_roff(TERM_L_BLUE, format("%^s is surrounded by electricity.  ", wd_he[msex]));
+        hook_c_roff(TERM_L_BLUE, format("%^s is surrounded by electricity. ", wd_he[msex]));
     }
 
     if (flags2 & RF2_REFLECTING)
     {
-        hooked_roff(format("%^s reflects bolt spells.  ", wd_he[msex]));
+        hooked_roff(format("%^s reflects bolt spells. ", wd_he[msex]));
 
     }
 
     /* Describe escorts */
     if ((flags1 & RF1_ESCORT) || (flags1 & RF1_ESCORTS))
     {
-        hooked_roff(format("%^s usually appears with escorts.  ",
+        hooked_roff(format("%^s usually appears with escorts. ",
 
                 wd_he[msex]));
     }
@@ -717,7 +717,7 @@ static void roff_aux(int r_idx, int mode)
     /* Describe friends */
     else if (flags1 & RF1_FRIENDS)
     {
-        hooked_roff(format("%^s usually appears in groups.  ",
+        hooked_roff(format("%^s usually appears in groups. ",
 
                 wd_he[msex]));
     }
@@ -754,7 +754,7 @@ static void roff_aux(int r_idx, int mode)
         }
 
         /* End */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1034,20 +1034,20 @@ static void roff_aux(int r_idx, int mode)
         /* Describe the spell frequency */
         if (m > 100 || know_everything)
         {
-            hooked_roff(format("; 1 time in %d", 100 / n));
-
+            /*hooked_roff(format("; 1 time in %d", 100 / n));*/
+            hooked_roff(format("; %d%% of the time", n));
         }
 
         /* Guess at the frequency */
         else if (m)
         {
             n = ((n + 9) / 10) * 10;
-            hooked_roff(format("; about 1 time in %d", 100 / n));
-
+            /*hooked_roff(format("; about 1 time in %d", 100 / n));*/
+            hooked_roff(format("; about %d%% of the time", n));
         }
 
         /* End this sentence */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1063,14 +1063,14 @@ static void roff_aux(int r_idx, int mode)
         if ((flags1 & RF1_FORCE_MAXHP) || (r_ptr->hside == 1))
         {
             u32b hp = r_ptr->hdice * (nightmare ? 2 : 1) * r_ptr->hside;
-            hooked_roff(format(" and a life rating of %d.  ",
+            hooked_roff(format(" and a life rating of %d. ",
                     (s16b)MIN(30000, hp)));
         }
 
         /* Variable hitpoints */
         else
         {
-            hooked_roff(format(" and a life rating of %dd%d.  ",
+            hooked_roff(format(" and a life rating of %dd%d. ",
                     r_ptr->hdice * (nightmare ? 2 : 1), r_ptr->hside));
         }
     }
@@ -1121,7 +1121,7 @@ static void roff_aux(int r_idx, int mode)
         }
 
         /* End */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1129,47 +1129,47 @@ static void roff_aux(int r_idx, int mode)
     /* Describe special abilities. */
     if (flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
     {
-        hooked_roff(format("%^s is shining.  ", wd_he[msex]));
+        hooked_roff(format("%^s is shining. ", wd_he[msex]));
 
     }
     if (flags7 & (RF7_SELF_DARK_1 | RF7_SELF_DARK_2))
     {
-        hook_c_roff(TERM_L_DARK, format("%^s is surrounded by darkness.  ", wd_he[msex]));
+        hook_c_roff(TERM_L_DARK, format("%^s is surrounded by darkness. ", wd_he[msex]));
 
     }
     if (flags2 & RF2_INVISIBLE)
     {
-        hooked_roff(format("%^s is invisible.  ", wd_he[msex]));
+        hooked_roff(format("%^s is invisible. ", wd_he[msex]));
 
     }
     if (flags2 & RF2_COLD_BLOOD)
     {
-        hooked_roff(format("%^s is cold blooded.  ", wd_he[msex]));
+        hooked_roff(format("%^s is cold blooded. ", wd_he[msex]));
 
     }
     if (flags2 & RF2_EMPTY_MIND)
     {
-        hooked_roff(format("%^s is not detected by telepathy.  ", wd_he[msex]));
+        hooked_roff(format("%^s is not detected by telepathy. ", wd_he[msex]));
 
     }
     else if (flags2 & RF2_WEIRD_MIND)
     {
-        hooked_roff(format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
+        hooked_roff(format("%^s is rarely detected by telepathy. ", wd_he[msex]));
 
     }
     if (flags2 & RF2_MULTIPLY)
     {
-        hook_c_roff(TERM_L_UMBER, format("%^s breeds explosively.  ", wd_he[msex]));
+        hook_c_roff(TERM_L_UMBER, format("%^s breeds explosively. ", wd_he[msex]));
 
     }
     if (flags2 & RF2_REGENERATE)
     {
-        hook_c_roff(TERM_L_WHITE, format("%^s regenerates quickly.  ", wd_he[msex]));
+        hook_c_roff(TERM_L_WHITE, format("%^s regenerates quickly. ", wd_he[msex]));
 
     }
     if (flags7 & RF7_RIDING)
     {
-        hook_c_roff(TERM_SLATE, format("%^s is suitable for riding.  ", wd_he[msex]));
+        hook_c_roff(TERM_SLATE, format("%^s is suitable for riding. ", wd_he[msex]));
 
     }
 
@@ -1206,7 +1206,7 @@ static void roff_aux(int r_idx, int mode)
         }
 
         /* End */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1244,7 +1244,7 @@ static void roff_aux(int r_idx, int mode)
         }
 
         /* End */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1316,7 +1316,7 @@ static void roff_aux(int r_idx, int mode)
         }
 
         /* End */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1327,11 +1327,11 @@ static void roff_aux(int r_idx, int mode)
         {
             hooked_roff(format("%^s will evolve into ", wd_he[msex]));
             hook_c_roff(TERM_YELLOW, format("%s", r_name+r_info[r_ptr->next_r_idx].name));
-            hooked_roff(format(" when %s gets enough experience.  ", wd_he[msex]));
+            hooked_roff(format(" when %s gets enough experience. ", wd_he[msex]));
         }
         else if (!(r_ptr->flags1 & RF1_UNIQUE))
         {
-            hooked_roff(format("%^s won't evolve.  ", wd_he[msex]));
+            hooked_roff(format("%^s won't evolve. ", wd_he[msex]));
         }
     }
 
@@ -1368,7 +1368,7 @@ static void roff_aux(int r_idx, int mode)
         }
 
         /* End */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1436,7 +1436,7 @@ static void roff_aux(int r_idx, int mode)
 
         }
 
-        hooked_roff(format("%^s %s intruders, which %s may notice from %d feet.  ",
+        hooked_roff(format("%^s %s intruders, which %s may notice from %d feet. ",
                 wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf));
 
     }
@@ -1534,7 +1534,7 @@ static void roff_aux(int r_idx, int mode)
         }
 
         /* End this sentence */
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
@@ -1745,21 +1745,21 @@ static void roff_aux(int r_idx, int mode)
     /* Finish sentence above */
     if (r)
     {
-        hooked_roff(".  ");
+        hooked_roff(". ");
 
     }
 
     /* Notice lack of attacks */
     else if (flags1 & RF1_NEVER_BLOW)
     {
-        hooked_roff(format("%^s has no physical attacks.  ", wd_he[msex]));
+        hooked_roff(format("%^s has no physical attacks. ", wd_he[msex]));
 
     }
 
     /* Or describe the lack of knowledge */
     else
     {
-        hooked_roff(format("Nothing is known about %s attack.  ", wd_his[msex]));
+        hooked_roff(format("Nothing is known about %s attack. ", wd_his[msex]));
 
     }
 
@@ -1770,11 +1770,11 @@ static void roff_aux(int r_idx, int mode)
      */
     if ((flags1 & RF1_QUESTOR) && ((r_ptr->r_sights) && (r_ptr->max_num) && ((r_idx == MON_OBERON) || (r_idx == MON_SERPENT))))
     {
-        hook_c_roff(TERM_VIOLET, "You feel an intense desire to kill this monster...  ");
+        hook_c_roff(TERM_VIOLET, "You feel an intense desire to kill this monster... ");
 
     }
 
-    else if ((flags7 & RF7_GUARDIAN) && !(vanilla_town || lite_town))
+    else if ((flags7 & RF7_GUARDIAN) && !no_wilderness)
     {
         hook_c_roff(TERM_L_RED, "This monster is the master of a dungeon.");
 

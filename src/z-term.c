@@ -34,11 +34,11 @@
  * on a graphic platform such as the Macintosh.
  *
  * This package was designed to help port the game "Angband" to a wide
- * variety of different platforms.  Angband, like many other games in
+ * variety of different platforms. Angband, like many other games in
  * the "rogue-like" heirarchy, requires, at the minimum, the ability
  * to display "colored textual symbols" in a standard 80x24 "window",
  * such as that provided by most dumb terminals, and many old personal
- * computers, and to check for "keypresses" from the user.  The major
+ * computers, and to check for "keypresses" from the user. The major
  * concerns were thus portability and efficiency, so Angband could be
  * easily ported to many different systems, with minimal effort, and
  * yet would run quickly on each of these systems, no matter what kind
@@ -78,7 +78,7 @@
  * This package provides support for multiple windows, each of an
  * arbitrary size (up to 255x255), each with its own set of flags,
  * and its own hooks to handle several low-level procedures which
- * differ from platform to platform.  Then the main program simply
+ * differ from platform to platform. Then the main program simply
  * creates one or more "term" structures, setting the various flags
  * and hooks in a manner appropriate for the current platform, and
  * then it can use the various "term" structures without worrying
@@ -87,11 +87,11 @@
  *
  * This package allows each "grid" in each window to hold an attr/char
  * pair, with each ranging from 0 to 255, and makes very few assumptions
- * about the meaning of any attr/char values.  Normally, we assume that
+ * about the meaning of any attr/char values. Normally, we assume that
  * "attr 0" is "black", with the semantics that "black" text should be
  * sent to "Term_wipe()" instead of "Term_text()", but this sematics is
  * modified if either the "always_pict" or the "always_text" flags are
- * set.  We assume that "char 0" is "dangerous", since placing such a
+ * set. We assume that "char 0" is "dangerous", since placing such a
  * "char" in the middle of a string "terminates" the string, and usually
  * we prevent its use.
  *
@@ -103,21 +103,21 @@
  *
  *
  * This package provides several functions which allow a program to
- * interact with the "term" structures.  Most of the functions allow
+ * interact with the "term" structures. Most of the functions allow
  * the program to "request" certain changes to the current "term",
  * such as moving the cursor, drawing an attr/char pair, erasing a
- * region of grids, hiding the cursor, etc.  Then there is a special
+ * region of grids, hiding the cursor, etc. Then there is a special
  * function which causes all of the "pending" requests to be performed
- * in an efficient manner.  There is another set of functions which
+ * in an efficient manner. There is another set of functions which
  * allow the program to query the "requested state" of the current
  * "term", such as asking for the cursor location, or what attr/char
- * is at a given location, etc.  There is another set of functions
+ * is at a given location, etc. There is another set of functions
  * dealing with "keypress" events, which allows the program to ask if
  * the user has pressed any keys, or to forget any keys the user pressed.
  * There is a pair of functions to allow this package to memorize the
  * contents of the current "term", and to restore these contents at
- * a later time.  There is a special function which allows the program
- * to specify which "term" structure should be the "current" one.  At
+ * a later time. There is a special function which allows the program
+ * to specify which "term" structure should be the "current" one. At
  * the lowest level, there is a set of functions which allow a new
  * "term" to be initialized or destroyed, and which allow this package,
  * or a program, to access the special "hooks" defined for the current
@@ -131,17 +131,17 @@
  * entire window, plus "Term_resize()" to note a new size.
  *
  *
- * Note that the current "term" contains two "window images".  One of
+ * Note that the current "term" contains two "window images". One of
  * these images represents the "requested" contents of the "term", and
  * the other represents the "actual" contents of the "term", at the time
- * of the last performance of pending requests.  This package uses these
+ * of the last performance of pending requests. This package uses these
  * two images to determine the "minimal" amount of work needed to make
  * the "actual" contents of the "term" match the "requested" contents of
- * the "term".  This method is not perfect, but it often reduces the
+ * the "term". This method is not perfect, but it often reduces the
  * amount of work needed to perform the pending requests, which thus
- * increases the speed of the program itself.  This package promises
+ * increases the speed of the program itself. This package promises
  * that the requested changes will appear to occur either "all at once"
- * or in a "top to bottom" order.  In addition, a "cursor" is maintained,
+ * or in a "top to bottom" order. In addition, a "cursor" is maintained,
  * and this cursor is updated along with the actual window contents.
  *
  * Currently, the "Term_fresh()" routine attempts to perform the "minimum"
@@ -151,10 +151,10 @@
  * the "Term_text()" hook, and that "black" text can often be sent to the
  * "Term_wipe()" hook instead of the "Term_text()" hook, and if something
  * is already displayed in a window, then it is not necessary to display
- * it again.  Unfortunately, this may induce slightly non-optimal results
+ * it again. Unfortunately, this may induce slightly non-optimal results
  * in some cases, in particular, those in which, say, a string of ten
  * characters needs to be written, but the fifth character has already
- * been displayed.  Currently, this will cause the "Term_text()" routine
+ * been displayed. Currently, this will cause the "Term_text()" routine
  * to be called once for each half of the string, instead of once for the
  * whole string, which, on some machines, may be non-optimal behavior.
  *
@@ -172,12 +172,12 @@
  *
  * The "soft_cursor" flag indicates the use of a "soft" cursor, which
  * only moves when explicitly requested,and which is "erased" when
- * any characters are drawn on top of it.  This flag is used for all
+ * any characters are drawn on top of it. This flag is used for all
  * "graphic" systems which handle the cursor by "drawing" it.
  *
  * The "icky_corner" flag indicates that the bottom right "corner"
  * of the windows are "icky", and "printing" anything there may
- * induce "messy" behavior, such as "scrolling".  This flag is used
+ * induce "messy" behavior, such as "scrolling". This flag is used
  * for most old "dumb terminal" systems.
  *
  *
@@ -194,55 +194,55 @@
  *   Term->pict_hook = Draw some attr/chars in the window
  *
  * The "Term->user_hook" hook provides a simple hook to an implementation
- * defined function, with application defined semantics.  It is available
+ * defined function, with application defined semantics. It is available
  * to the program via the "Term_user()" function.
  *
  * The "Term->xtra_hook" hook provides a variety of different functions,
  * based on the first parameter (which should be taken from the various
  * TERM_XTRA_* defines) and the second parameter (which may make sense
- * only for some first parameters).  It is available to the program via
+ * only for some first parameters). It is available to the program via
  * the "Term_xtra()" function, though some first parameters are only
  * "legal" when called from inside this package.
  *
  * The "Term->curs_hook" hook provides this package with a simple way
  * to "move" or "draw" the cursor to the grid "x,y", depending on the
- * setting of the "soft_cursor" flag.  Note that the cursor is never
+ * setting of the "soft_cursor" flag. Note that the cursor is never
  * redrawn if "nothing" has happened to the screen (even temporarily).
  * This hook is required.
  *
  * The "Term->wipe_hook" hook provides this package with a simple way
- * to "erase", starting at "x,y", the next "n" grids.  This hook assumes
- * that the input is valid.  This hook is required, unless the setting
+ * to "erase", starting at "x,y", the next "n" grids. This hook assumes
+ * that the input is valid. This hook is required, unless the setting
  * of the "always_pict" or "always_text" flags makes it optional.
  *
  * The "Term->text_hook" hook provides this package with a simple way
  * to "draw", starting at "x,y", the "n" chars contained in "cp", using
- * the attr "a".  This hook assumes that the input is valid, and that
+ * the attr "a". This hook assumes that the input is valid, and that
  * "n" is between 1 and 256 inclusive, but it should NOT assume that
- * the contents of "cp" are null-terminated.  This hook is required,
+ * the contents of "cp" are null-terminated. This hook is required,
  * unless the setting of the "always_pict" flag makes it optional.
  *
  * The "Term->pict_hook" hook provides this package with a simple way
  * to "draw", starting at "x,y", the "n" attr/char pairs contained in
- * the arrays "ap" and "cp".  This hook assumes that the input is valid,
+ * the arrays "ap" and "cp". This hook assumes that the input is valid,
  * and that "n" is between 1 and 256 inclusive, but it should NOT assume
- * that the contents of "cp" are null-terminated.  This hook is optional,
+ * that the contents of "cp" are null-terminated. This hook is optional,
  * unless the setting of the "always_pict" or "higher_pict" flags make
- * it required.  Note that recently, this hook was changed from taking
+ * it required. Note that recently, this hook was changed from taking
  * a byte "a" and a char "c" to taking a length "n", an array of bytes
- * "ap" and an array of chars "cp".  Old implementations of this hook
+ * "ap" and an array of chars "cp". Old implementations of this hook
  * should now iterate over all "n" attr/char pairs.
  *
  *
  * The game "Angband" uses a set of files called "main-xxx.c", for
- * various "xxx" suffixes.  Most of these contain a function called
+ * various "xxx" suffixes. Most of these contain a function called
  * "init_xxx()", that will prepare the underlying visual system for
  * use with Angband, and then create one or more "term" structures,
  * using flags and hooks appropriate to the given platform, so that
  * the "main()" function can call one (or more) of the "init_xxx()"
  * functions, as appropriate, to prepare the required "term" structs
  * (one for each desired sub-window), and these "init_xxx()" functions
- * are called from a centralized "main()" function in "main.c".  Other
+ * are called from a centralized "main()" function in "main.c". Other
  * "main-xxx.c" systems contain their own "main()" function which, in
  * addition to doing everything needed to initialize the actual program,
  * also does everything that the normal "init_xxx()" functions would do.
@@ -250,16 +250,16 @@
  * The game "Angband" defines, in addition to "attr 0", all of the
  * attr codes from 1 to 15, using definitions in "defines.h", and
  * thus the "main-xxx.c" files used by Angband must handle these
- * attr values correctly.  Also, they must handle all other attr
+ * attr values correctly. Also, they must handle all other attr
  * values, though they may do so in any way they wish, for example,
- * by always taking every attr code mod 16.  Many of the "main-xxx.c"
+ * by always taking every attr code mod 16. Many of the "main-xxx.c"
  * files use "white space" ("attr 1" / "char 32") to "erase" or "clear"
  * any window, for efficiency.
  *
  * The game "Angband" uses the "Term_user" hook to allow any of the
  * "main-xxx.c" files to interact with the user, by calling this hook
  * whenever the user presses the "!" key when the game is waiting for
- * a new command.  This could be used, for example, to provide "unix
+ * a new command. This could be used, for example, to provide "unix
  * shell commands" to the Unix versions of the game.
  *
  * See "main-xxx.c" for a simple skeleton file which can be used to
@@ -1132,8 +1132,8 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  *
  * Note that when "soft_cursor" is true, we erase the cursor (if needed)
  * whenever anything has changed, and redraw it (if needed) after all of
- * the screen updates are complete.  This will induce a small amount of
- * "cursor flicker" but only when the screen has been updated.  If the
+ * the screen updates are complete. This will induce a small amount of
+ * "cursor flicker" but only when the screen has been updated. If the
  * screen is updated and then restored, you may still get this flicker.
  *
  * When "soft_cursor" is not true, we make the cursor invisible before
@@ -1160,8 +1160,8 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  * of the helper functions to call to flush each row.
  *
  * The helper functions currently "skip" any grids which already contain
- * the desired contents.  This may or may not be the best method, especially
- * when the desired content fits nicely into the current stripe.  For example,
+ * the desired contents. This may or may not be the best method, especially
+ * when the desired content fits nicely into the current stripe. For example,
  * it might be better to go ahead and queue them while allowed, but keep a
  * count of the "trailing skipables", then, when time to flush, or when a
  * "non skippable" is found, force a flush if there are too many skippables.
@@ -1182,13 +1182,13 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  * the grids between them are unchanged.
  *
  * If the "Term->always_pict" flag is set, then "Term_fresh_row_pict()"
- * will be used instead of "Term_fresh_row_text()".  This allows all the
+ * will be used instead of "Term_fresh_row_text()". This allows all the
  * modified grids to be collected into stripes of attr/char pairs, which
  * are then sent to the "Term->pict_hook" hook, which can draw these pairs
  * in whatever way it would like.
  *
  * If the "Term->higher_pict" flag is set, then "Term_fresh_row_both()"
- * will be used instead of "Term_fresh_row_text()".  This allows all the
+ * will be used instead of "Term_fresh_row_text()". This allows all the
  * "special" attr/char pairs (in which both the attr and char have the
  * high-bit set) to be sent (one pair at a time) to the "Term->pict_hook"
  * hook, which can draw these pairs in whatever way it would like.
@@ -1196,13 +1196,13 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  * Normally, the "Term_wipe()" function is used only to display "blanks"
  * that were induced by "Term_clear()" or "Term_erase()", and then only
  * if the "attr_blank" and "char_blank" fields have not been redefined
- * to use "white space" instead of the default "black space".  Actually,
+ * to use "white space" instead of the default "black space". Actually,
  * the "Term_wipe()" function is used to display all "black" text, such
  * as the default "spaces" created by "Term_clear()" and "Term_erase()".
  *
  * Note that the "Term->always_text" flag will disable the use of the
  * "Term_wipe()" function hook entirely, and force all text, even text
- * drawn in the color "black", to be explicitly drawn.  This is useful
+ * drawn in the color "black", to be explicitly drawn. This is useful
  * for machines which implement "Term_wipe()" by just drawing spaces.
  *
  * Note that the "Term->always_pict" flag will disable the use of the
@@ -1219,17 +1219,17 @@ static void Term_fresh_row_text(int y, int x1, int x2)
  * On systems with a "soft" cursor, we must explicitly erase the cursor
  * before flushing the output, if needed, to prevent a "jumpy" refresh.
  * The actual method for this is horrible, but there is very little that
- * we can do to simplify it efficiently.  XXX XXX XXX
+ * we can do to simplify it efficiently. XXX XXX XXX
  *
  * On systems with a "hard" cursor, we will "hide" the cursor before
- * flushing the output, if needed, to avoid a "flickery" refresh.  It
+ * flushing the output, if needed, to avoid a "flickery" refresh. It
  * would be nice to *always* hide the cursor during the refresh, but
  * this might be expensive (and/or ugly) on some machines.
  *
  * The "Term->icky_corner" flag is used to avoid calling "Term_wipe()"
  * or "Term_pict()" or "Term_text()" on the bottom right corner of the
  * window, which might induce "scrolling" or other nasty stuff on old
- * dumb terminals.  This flag is handled very efficiently.  We assume
+ * dumb terminals. This flag is handled very efficiently. We assume
  * that the "Term_curs()" call will prevent placing the cursor in the
  * corner, if needed, though I doubt such placement is ever a problem.
  * Currently, the use of "Term->icky_corner" and "Term->soft_cursor"
@@ -1996,7 +1996,7 @@ errr Term_locate(int *x, int *y)
 /*
  * At a given location, determine the "current" attr and char
  * Note that this refers to what will be on the window after the
- * next call to "Term_fresh()".  It may or may not already be there.
+ * next call to "Term_fresh()". It may or may not already be there.
  */
 errr Term_what(int x, int y, byte *a, char *c)
 {

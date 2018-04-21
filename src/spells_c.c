@@ -356,6 +356,12 @@ void crafting_spell(int cmd, variant *res)
         {
             virtue_add(VIRTUE_ENCHANTMENT, 1);
             calc_android_exp();
+
+            object_aware(o_ptr);
+            ego_aware(o_ptr);
+            object_known(o_ptr);
+            o_ptr->ident |= (IDENT_FULL);
+            obj_display(o_ptr);
         }
         var_set_bool(res, TRUE);
         break;
@@ -600,6 +606,11 @@ void curing_spell(int cmd, variant *res)
     }
 }
 
+static int _darkness_storm_I_dam(void)
+{
+    return 100 + py_prorata_level_aux(200, 1, 1, 2);
+}
+
 void darkness_storm_I_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -611,7 +622,7 @@ void darkness_storm_I_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of darkness.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell)));
+        var_set_string(res, info_damage(0, 0, spell_power(_darkness_storm_I_dam() + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -622,7 +633,7 @@ void darkness_storm_I_spell(int cmd, variant *res)
         fire_ball(
             GF_DARK,
             dir,
-            spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell),
+            spell_power(_darkness_storm_I_dam() + p_ptr->to_d_spell),
             spell_power(4)
         );
         var_set_bool(res, TRUE);
@@ -632,6 +643,11 @@ void darkness_storm_I_spell(int cmd, variant *res)
         default_spell(cmd, res);
         break;
     }
+}
+
+static int _darkness_storm_II_dam(void)
+{
+    return py_prorata_level_aux(450, 1, 0, 2);
 }
 
 void darkness_storm_II_spell(int cmd, variant *res)
@@ -645,7 +661,7 @@ void darkness_storm_II_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of darkness of unmatched power");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 6 + p_ptr->to_d_spell)));
+        var_set_string(res, info_damage(0, 0, spell_power(_darkness_storm_II_dam() + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -654,7 +670,7 @@ void darkness_storm_II_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a darkness storm.");
         fire_ball(GF_DARK, dir, 
-            spell_power(50 + p_ptr->lev * 6 + damroll(10, 10) + p_ptr->to_d_spell),
+            spell_power(_darkness_storm_II_dam() + p_ptr->to_d_spell),
             spell_power(4));
         var_set_bool(res, TRUE);
         break;
@@ -917,7 +933,7 @@ void detect_menace_spell(int cmd, variant *res)
         var_set_string(res, "Detect Ferocity");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Detects nearby menacing monsters.  Only intelligent monsters are detected.");
+        var_set_string(res, "Detects nearby menacing monsters. Only intelligent monsters are detected.");
         break;
     case SPELL_CAST:
         detect_monsters_mind(DETECT_RAD_DEFAULT);
@@ -1458,7 +1474,7 @@ void earthquake_spell(int cmd, variant *res)
         var_set_string(res, "Earthquake");
         break;
     case SPELL_DESC:
-        var_set_string(res, "The walls will tremble and the gound will shake.");
+        var_set_string(res, "The walls will tremble and the ground will shake.");
         break;
     case SPELL_GAIN_MUT:
         msg_print("You gain the ability to wreck the dungeon.");
@@ -1582,17 +1598,35 @@ void eat_rock_spell(int cmd, variant *res)
         }
         else if (have_flag(f_ptr->flags, FF_DOOR) || have_flag(f_ptr->flags, FF_CAN_DIG))
         {
-            set_food(p_ptr->food + 3000);
+            if (elemental_is_(ELEMENTAL_EARTH))
+                set_food(MIN(p_ptr->food + 500, PY_FOOD_MAX - 1));
+            else
+                set_food(p_ptr->food + 3000);
         }
         else if (have_flag(f_ptr->flags, FF_MAY_HAVE_GOLD) || have_flag(f_ptr->flags, FF_HAS_GOLD))
         {
-            set_food(p_ptr->food + 5000);
+            if (elemental_is_(ELEMENTAL_EARTH))
+                set_food(MIN(p_ptr->food + 1000, PY_FOOD_MAX - 1));
+            else
+                set_food(p_ptr->food + 5000);
         }
         else
         {
-            msg_format("This %s is very filling!", 
-                f_name + mimic_f_ptr->name);
-            set_food(p_ptr->food + 10000);
+            if (elemental_is_(ELEMENTAL_EARTH))
+                set_food(MIN(p_ptr->food + 2000, PY_FOOD_MAX - 1));
+            else
+            {
+                msg_format("This %s is very filling!",
+                    f_name + mimic_f_ptr->name);
+
+                set_food(p_ptr->food + 10000);
+            }
+        }
+        if (p_ptr->fasting)
+        {
+            msg_print("You break your fast.");
+            p_ptr->redraw |= PR_STATUS;
+            p_ptr->fasting = FALSE;
         }
 
         /* Destroy the wall */
@@ -2034,6 +2068,31 @@ void frost_bolt_spell(int cmd, variant *res)
             spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
         );
         var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void genocide_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Genocide");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Eliminates an entire class of monster, exhausting you. Powerful or unique monsters may resist.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_power(spell_power(p_ptr->lev*3)));
+        break;
+    case SPELL_CAST:
+    {
+        int power = spell_power(p_ptr->lev*3);
+        var_set_bool(res, symbol_genocide(power, TRUE));
         break;
     }
     default:

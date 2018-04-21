@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Angband Tables */
@@ -532,49 +532,6 @@ byte adj_gold[] =
     79      /* 18/210-18/219 */,
     78      /* 18/220+ */
 };
-
-byte warlock_damage_sides[] =
-{
-    4    /* 3 */,
-    5    /* 4 */,
-    5    /* 5 */,
-    6    /* 6 */,
-    6    /* 7 */,
-    6    /* 8 */,
-    6    /* 9 */,
-    6    /* 10 */,
-    6    /* 11 */,
-    6    /* 12 */,
-    6    /* 13 */,
-    6    /* 14 */,
-    7    /* 15 */,
-    7    /* 16 */,
-    7    /* 17 */,
-    8    /* 18/00-18/09 */,
-    8    /* 18/10-18/19 */,
-    8    /* 18/20-18/29 */,
-    8    /* 18/30-18/39 */,
-    8    /* 18/40-18/49 */,
-    9    /* 18/50-18/59 */,
-    9    /* 18/60-18/69 */,
-    10    /* 18/70-18/79 */,
-    10    /* 18/80-18/89 */,
-    11    /* 18/90-18/99 */,
-    11    /* 18/100-18/109 */,
-    12    /* 18/110-18/119 */,
-    12    /* 18/120-18/129 */,
-    13    /* 18/130-18/139 */,
-    13    /* 18/140-18/149 */,
-    14    /* 18/150-18/159 */,
-    14    /* 18/160-18/169 */,
-    15    /* 18/170-18/179 */,
-    16    /* 18/180-18/189 */,
-    17    /* 18/190-18/199 */,
-    19    /* 18/200-18/209 */,
-    19    /* 18/210-18/219 */,
-    20    /* 18/220+ */
-};
-
 
 /*
  * Stat Table (INT) -- Magic devices
@@ -1356,6 +1313,8 @@ byte adj_chr_chm[] =
     85      /* 18/220+ */
 };
 
+/* For devices, the sval is actually the effect you want, and it needs
+ * to be present in the corresponding device effect table in devices.c */
 arena_type arena_info[MAX_ARENA_MONS + 2] =
 {
     { MON_NOBORTA,       0,         0                             },
@@ -1365,37 +1324,37 @@ arena_type arena_info[MAX_ARENA_MONS + 2] =
     { MON_HILL_GIANT,    TV_POTION, SV_POTION_SPEED               },
     { MON_WERERAT,       0,         0                             },
     { MON_ORC_CAPTAIN,   0,         0                             },
-    { MON_BERSERKER,     TV_ROD,    SV_ROD_DETECT_TRAP            },
+    { MON_BERSERKER,     TV_ROD,    EFFECT_DETECT_TRAPS           },
     { MON_STONE_GIANT,   0,         0                             },
     { MON_D_ELF_LORD,    TV_POTION, SV_POTION_HEALING             },
     { MON_IRON_GOLEM,    0,         0                             },
     { MON_C_CRAWLER,     0,         0                             },
     { MON_XICLOTLAN,     0,         0                             },
     { MON_TROLL_PRIEST,  0,         0                             },
-    { MON_ANGEL,         TV_ROD,    SV_ROD_DETECT_MONSTERS        },
+    { MON_ANGEL,         TV_ROD,    EFFECT_DETECT_MONSTERS        },
     { MON_SPIRIT_NAGA,   0,         0                             },
     { MON_BASILISK,      0,         0                             },
-    { MON_MITHRIL_GOLEM, TV_ROD,    SV_ROD_STONE_TO_MUD           },
+    { MON_MITHRIL_GOLEM, TV_WAND,   EFFECT_BALL_ACID              },
     { MON_SHADOW_DRAKE,  0,         0                             },
     { MON_OGRE_SHAMAN,   TV_SCROLL, SV_SCROLL_ACQUIREMENT         },
     { MON_BICLOPS,       TV_POTION, SV_POTION_SELF_KNOWLEDGE      },
     { MON_ETHER_DRAKE,   TV_SCROLL, SV_SCROLL_RUNE_OF_PROTECTION  },
     { MON_HALFLING_S,    0,         0                             },
-    { MON_ELDER_THING,   TV_ROD,    SV_ROD_DRAIN_LIFE             },
+    { MON_ELDER_THING,   TV_WAND,   EFFECT_DRAIN_LIFE             },
     { MON_M_MH_DRAGON,   0,         0                             },
     { MON_ETTIN,         TV_SCROLL, SV_SCROLL_STAR_ENCHANT_WEAPON },
-    { MON_VAMPIRE_LORD,  TV_ROD,    SV_ROD_DETECTION              },
+    { MON_VAMPIRE_LORD,  TV_ROD,    EFFECT_DETECT_ALL             },
     { MON_BARNEY,        TV_SCROLL, SV_SCROLL_GENOCIDE            },
     { MON_GROO,          TV_SCROLL, SV_SCROLL_MUNDANITY           },
-    { MON_D_ELF_SORC,    TV_WAND,   SV_WAND_STRIKING              },
+    { MON_D_ELF_SORC,    TV_WAND,   EFFECT_METEOR                 },
     { MON_IRON_LICH,     TV_POTION, SV_POTION_NEW_LIFE            },
     { MON_G_TITAN,       TV_POTION, SV_POTION_STAR_ENLIGHTENMENT  },
-    { MON_G_BALROG,      TV_ROD,    SV_ROD_MAPPING                },
-    { MON_NIGHTWALKER,   TV_ROD,    SV_ROD_IDENTIFY               },
-    { MON_SHAMBLER,      TV_STAFF,  SV_STAFF_HOLINESS             },
+    { MON_G_BALROG,      TV_ROD,    EFFECT_ENLIGHTENMENT          },
+    { MON_NIGHTWALKER,   TV_ROD,    EFFECT_BEAM_DISINTEGRATE      },
+    { MON_SHAMBLER,      TV_STAFF,  EFFECT_HOLINESS               },
     { MON_BLACK_REAVER,  TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT    },
-    { MON_FENGHUANG,     TV_STAFF,  SV_STAFF_THE_MAGI             },
-    { MON_WYRM_POWER,    TV_ROD,    SV_ROD_HEALING                },
+    { MON_FENGHUANG,     TV_STAFF,  EFFECT_RESTORE_MANA           },
+    { MON_WYRM_POWER,    TV_ROD,    EFFECT_HEAL_CURING_HERO       },
     { 0,                 0,         0                             }, /* Victory prizing */
     { MON_HAGURE,        TV_SCROLL, SV_SCROLL_ARTIFACT            },
 };
@@ -1816,14 +1775,14 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
  * The basic function WAS ((S>=110) ? (S-110) : (100 / (120-S)))
  * Note that table access is *much* quicker than computation.
  *
- * Note that the table has been changed at high speeds.  From
+ * Note that the table has been changed at high speeds. From
  * "Slow (-40)" to "Fast (+30)" is pretty much unchanged, but
  * at speeds above "Fast (+30)", one approaches an asymptotic
- * effective limit of 50 energy per turn.  This means that it
+ * effective limit of 50 energy per turn. This means that it
  * is relatively easy to reach "Fast (+30)" and get about 40
  * energy per turn, but then speed becomes very "expensive",
  * and you must get all the way to "Fast (+50)" to reach the
- * point of getting 45 energy per turn.  After that point,
+ * point of getting 45 energy per turn. After that point,
  * further increases in speed are more or less pointless,
  * except to balance out heavy inventory.
  *                                             v---- Liar!! There are +80 speed monsters! :D
@@ -1831,7 +1790,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
  *
  * It should be possible to lower the energy threshhold from
  * 100 units to 50 units, though this may interact badly with
- * the (compiled out) small random energy boost code.  It may
+ * the (compiled out) small random energy boost code. It may
  * also tend to cause more "clumping" at high speeds.
  */
 byte extract_energy[200] =
@@ -1879,83 +1838,8 @@ player_sex sex_info[MAX_SEXES] =
     }
 };
 
-/* Some of the following descriptions are from wikipedia ... */
-demigod_type demigod_info[MAX_DEMIGOD_TYPES] = 
-{
-    {"Minor God", 
-        "Fathered by a minor god, you gain no starting powers."},
-    {"Zeus", 
-        "Zeus, King of the gods and ruler of Mount Olympus, is god of the Sky "
-        "and Thunder, and nominal husband of Hera.  You inherit increased stature "
-        "and your divine birth will be marked by your aura of electricity. You also "
-        "resist lightning."},
-    {"Poseidon", 
-        "Poseidon, Brother of Zeus, is Lord of the Seas and Storm.  You inherit "
-        "elemental protection and corrosive attacks that melt the armor of your foes."},
-    {"Hades", 
-        "Hades is Ruler of the Underworld.  You gain resistance to nether forces, "
-        "increased fortitude and have a firm grasp on your life and health."},
-    {"Athena", 
-        "Athena is the great goddess of wisdom and the protector of Athens. She was "
-        "born of Zeus and the Titan Metis, and her cunning far surpasses that of the "
-        "other deities.  You inherit great clarity of thought and magic and will be "
-        "able to cast spells more reliably than other mortals. And should you fail to "
-        "cast a spell, you will pay a reduced casting cost rather than the full amount. "
-        "You have a firm grip on your mental prowess."},
-    {"Ares", 
-        "Ares is the bold son of Zeus and Hera, whose very name is feared and respected "
-        "by warriors and citizens alike. His legendary combat prowess exceeds that of "
-        "Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  "
-        "You inherit exceptional bonuses to combat and have a firm grip on your strength. "
-        "Later in life, you will be able to fly into a berserk rage on command. However, "
-        "your lust for combat decreases your stealth as you call out challenges "
-        "to all that you meet. And your resistance to magic is suspect."},
-    {"Hermes", 
-        "Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians "
-        "to negotiate truces. With his Winged Sandals and his powerful magic, there "
-        "is no place barred from him, and there is no way to detain him.  You inherit "
-        "great powers of motion and will never become slowed. Your stealth is better "
-        "than your brethren and your speed will increase with experience."},
-    {"Apollo", 
-        "Apollo has been variously recognized as a god of light and the sun, "
-        "truth and prophecy, medicine, healing, plague, music, poetry, arts, "
-        "archery, and more.  You inherit powers of illumination and are completely "
-        "immune to light based attacks. You are seldom blinded."},
-    {"Artemis", 
-        "Artemis was often described as the daughter of Zeus and Leto, and the "
-        "twin sister of Apollo. She was the Hellenic goddess of the hunt, wild "
-        "animals, wilderness, childbirth, virginity and young girls, bringing "
-        "and relieving disease in women; she often was depicted as a huntress "
-        "carrying a bow and arrows.  You inherit powers of archery and are very "
-        "nimble. Your skills with the bow are unmatched and you shoot arrows "
-        "with increased range and deadliness."}, 
-    {"Hephaestus", 
-        "Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, "
-        "sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths "
-        "but unlike most other gods, Hephaestus was lame, which gave him a "
-        "grotesque appearance in Greek eyes. He served as the blacksmith of the "
-        "gods.  You inherit powers of enchantment and protection. Your equipment "
-        "will not suffer diminution by corrosion or magical attack."},
-    {"Hera", 
-        "Hera was the wife and one of three sisters of Zeus.  Her chief function "
-        "was as the goddess of women and marriage.  You inherit great clarity of "
-        "mind and capacity for magic. You are very wise and have a firm grasp on "
-        "your magical energy, which is even augmented."},
-    {"Demeter", 
-        "Demeter is the goddess of the harvest, who presided over grains, the "
-        "fertility of the earth, and the seasons.  You gain powers of regeneration, "
-        "healing, and temperance. Eventually, you will become resistant to the "
-        "ravages of time."},
-    {"Aphrodite", 
-        "Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  "
-        "You inherit her sex appeal. As such, your pets are more obedient and shopkeepers "
-        "fawn over you in their efforts to please you. You may kiss monsters and they "
-        "might even decide to follow you with slavish devotion, though sometimes this "
-        "just angers them."},
-};
-
 /* Warlock Pacts */
-player_pact pact_info[MAX_PACTS] = 
+player_pact pact_info[WARLOCK_MAX] =
 {
     {
         "Undead",
@@ -1977,108 +1861,6 @@ player_pact pact_info[MAX_PACTS] =
         "Aberrations",
         "hp"
     },
-};
-
-player_seikaku seikaku_info[MAX_PERSONALITIES] =
-{
-    {
-        "Ordinary",
-        {  0,  0,  0,  0,  0,  0 },
-        {0,  0,  0,  0,  0,  0,  0,  0},
-        100, 1, 0, 100
-    },
-
-    {
-        "Mighty",
-        {  2,  -2,  -2,  0,  1,  1 },
-        {-5,  -5,  -3,  -1,  -2,  -2,  10,  0},
-        102, 1, 0, 100
-    },
-
-    {
-        "Shrewd",
-        {  -2,  2,  0,  1,  -1,  -1 },
-        {3,  8,  2,  0,  -2,  5,  -8,  -5},
-        97, 1, 0, 100
-    },
-
-    {
-        "Pious",
-        {  0,  -1,  2,  -1,  0,  0 },
-        {-5,  2,  4,  -1,  3,  -2,  -3,  -6},
-        100, 1, 0, 100
-    },
-
-    {
-        "Nimble",
-        {  -1,  1,  -1,  2,  -1,  0 },
-        {7,  3,  -1,  1,  5,  5,  0,  10},
-        99, 0, 0, 100
-    },
-
-    {
-        "Fearless",
-        {  1,  0,  0,  -1,  -1,  1 },
-        {-5,  2,  -2,  0,  2,  -2,  5,  0},
-        98, 1, 0, 100
-    },
-
-    {
-        "Combat",
-        {  1,  -1,  -1,  1,  0,  0 },
-        {-2,  -3,  -3,  0,  -1,  2,  5,  5},
-        100, 0, 0, 100
-    },
-
-    {
-        "Lazy",
-        {  -2,  -2,  -2,  -2,  -2,  -2 },
-        {-5,  -5,  -3,  -1,  -4,  -2,  -8,  -8},
-        95, 1, 0, 100
-    },
-
-    {
-        "Sexy",
-        {  1,  1,  1,  1,  1,  1 },
-        {10,  5,  3,  0,  4,  2,  10,  10},
-        100, 1, 1, 100
-    },
-
-    {
-        "Lucky",
-        { -2,  -2,  -2,  -2,  -2, -2 },
-        {10,  7,  3,  2, 10,  8,  15,  15},
-        100, 1, 2, 100
-    },
-
-    {
-        "Patient",
-        {  -1,  -1,  1,  -2,  2,  0 },
-        {-5,  -3,  3,  1,  0,  -3,  -6,  -6},
-        102, 0, 0, 100
-    },
-
-    {
-        "Munchkin",
-        { 3,  3,  3,  3,  3,  3 },
-        {10, 20, 15, 5, 20, 20,  40, 40},
-        150, 1, 0, 50
-    },
-
-    {
-        "Craven",
-        { -1, 1, 1, -1, -1, -3 },
-        {5, 6, -1, 3, 0, 0, -10, 10},
-        99, 0, 0, 100
-    },
-
-    {
-        "Hasty",
-        { 0, -1, -2, 2, -1, 0 },
-        {-5, -5, -3, -1, -4, -2, -5, -5},
-        100, 1, 0, 100
-    },
-
 };
 
 magic_type technic_info[NUM_TECHNIC][32] =
@@ -3350,10 +3132,10 @@ cptr window_flag_desc[32] =
 
     NULL,
 
-    "Display character",
+    NULL,
 
-    NULL,
-    NULL,
+    "Display object list",
+    "Display monster list",
     "Display messages",
 
     "Display overhead view (*SLOW*)",
@@ -3364,7 +3146,7 @@ cptr window_flag_desc[32] =
 
     "Display dungeon view",
 
-    "Display snap-shot",
+    NULL,
 
     NULL,
     NULL,
@@ -3411,9 +3193,6 @@ option_type option_info[] =
     { &quick_messages,              TRUE,  OPT_PAGE_INPUT, 0, 1,
     "quick_messages",               "Activate quick messages" },
 
-    { &auto_more,                   FALSE, OPT_PAGE_INPUT, 2, 6,
-    "auto_more",                    "Automatically clear '-more-' prompts" },
-
     { &command_menu,                TRUE,  OPT_PAGE_INPUT, 2, 7,
     "command_menu",                 "Enable command selection menu" },
 
@@ -3453,9 +3232,6 @@ option_type option_info[] =
     "easy_floor",                   "Display floor stacks in a list" },
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
-    { &use_command,                 FALSE, OPT_PAGE_INPUT, 5, 10,
-    "use_command",                  "Allow unified use command" },
-
     { &over_exert,                  FALSE, OPT_PAGE_INPUT, 0, 29,
     "over_exert",                   "Allow casting spells when short of mana" },
 
@@ -3490,9 +3266,6 @@ option_type option_info[] =
 
     { &view_unsafe_grids,           FALSE, OPT_PAGE_MAPSCREEN, 1, 8,
     "view_unsafe_grids",            "Map marked by detect traps" },
-
-    { &view_reduce_view,            FALSE, OPT_PAGE_MAPSCREEN, 1, 17,
-    "view_reduce_view",             "Reduce view-radius in town" },
 
     { &fresh_before,                TRUE,  OPT_PAGE_MAPSCREEN, 1, 23,
     "fresh_before",                 "Flush output while continuous command" },
@@ -3538,11 +3311,14 @@ option_type option_info[] =
     { &equippy_chars,               TRUE,  OPT_PAGE_TEXT, 1, 12,
     "equippy_chars",                "Display 'equippy' chars" },
 
+    { &display_hp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 1,
+    "display_hp_bar",               "Display player hp bar" },
+
+    { &display_sp_bar,              FALSE,  OPT_PAGE_TEXT, 1, 2,
+    "display_sp_bar",               "Display player sp bar" },
+
     { &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
     "display_food_bar",             "Display detailed food status" },
-    
-    { &display_mutations,           FALSE, OPT_PAGE_TEXT, 5, 0,
-    "display_mutations",            "Display mutations in 'C'haracter Display" },
 
     { &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
     "compress_savefile",            "Compress messages in savefiles" },
@@ -3557,7 +3333,7 @@ option_type option_info[] =
     "exp_need",                     "Show the experience needed for next level" },
 
     { &ignore_unview,               FALSE, OPT_PAGE_TEXT, 2, 13,
-    "ignore_unview",                "Ignore whenever any monster does" },
+    "ignore_unview",                "Ignore actions of out of sight monsters" },
 
     /*** Game-Play ***/
 
@@ -3631,6 +3407,9 @@ option_type option_info[] =
     { &disturb_minor,               TRUE,  OPT_PAGE_DISTURBANCE, 0, 24,
     "disturb_minor",                "Disturb whenever boring things happen" },
 
+    { &town_no_disturb,            FALSE, OPT_PAGE_DISTURBANCE, 1, 17,
+    "town_no_disturb",             "Never disturb when a town monster moves" },
+
     { &ring_bell,                   FALSE, OPT_PAGE_DISTURBANCE, 0, 14,
     "ring_bell",                    "Audible bell (on errors, etc)" },
 
@@ -3642,9 +3421,6 @@ option_type option_info[] =
 
     /*** Birth Options ***/
 
-    { &manual_haggle,               FALSE, OPT_PAGE_BIRTH, 1, 0,
-    "manual_haggle",                "Manually haggle in stores" },
-
     { &easy_band,                   FALSE, OPT_PAGE_BIRTH, 6, 31,
     "easy_band",                    "Easy Mode (*)" },
 
@@ -3654,11 +3430,8 @@ option_type option_info[] =
     { &smart_cheat,                 FALSE, OPT_PAGE_BIRTH, 1, 15,
     "smart_cheat",                  "Monsters exploit players weaknesses (*)" },
 
-    { &vanilla_town,                FALSE, OPT_PAGE_BIRTH, 6, 0,
-    "vanilla_town",                 "Use 'vanilla' town without quests and wilderness" },
-
-    { &lite_town,                   FALSE, OPT_PAGE_BIRTH, 6, 1,
-    "lite_town",                    "Use 'lite' town without a wilderness" },
+    { &no_wilderness,               FALSE, OPT_PAGE_BIRTH, 6, 1,
+    "no_wilderness",                "Play without a wilderness" },
 
     { &ironman_shops,               FALSE, OPT_PAGE_BIRTH, 6, 2,
     "ironman_shops",                "Stores are permanently closed (*)" },
@@ -3728,6 +3501,9 @@ option_type option_info[] =
     { &destroy_identify,            FALSE, OPT_PAGE_AUTODESTROY, 7, 9,
     "destroy_identify",             "Apply auto-destroy as identify an item" },
 
+    { &destroy_debug,               FALSE, OPT_PAGE_AUTODESTROY, 7, 10,
+    "destroy_debug",                "List the rule used when applying the Mogaminator" },
+
     { &leave_worth,                 TRUE,  OPT_PAGE_AUTODESTROY, 7, 2,
     "leave_worth",                  "Auto-destroyer leaves known worthy items" },
 
@@ -3781,23 +3557,23 @@ cptr chaos_patrons[MAX_PATRON] =
 
 martial_arts ma_blows[MAX_MA] =
 {
-    { "Punch",         "You punch %s.",                          1, 0, 1, 4, 0 },
-    { "Kick",          "You kick %s.",                           2, 0, 1, 6, 0 },
-    { "Strike",        "You strike %s.",                         3, 0, 1, 7, 0 },
-    { "Knee",          "You hit %s with your knee.",             5, 5, 2, 3, MA_KNEE },
-    { "Elbow",         "You hit %s with your elbow.",            7, 5, 1, 8, 0 },
-    { "Butt",          "You butt %s.",                           9, 10, 2, 5, 0 },
-    { "Kick",          "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-    { "Uppercut",      "You uppercut %s.",                       13, 12, 4, 4, 6 },
-    { "Double Kick",   "You double-kick %s.",                    16, 15, 5, 4, 8 },
-    { "Cat's Claw",    "You hit %s with a Cat's Claw.",          20, 20, 5, 5, 0 },
-    { "Jump Kick",     "You hit %s with a jump kick.",           25, 25, 5, 6, 10 },
-    { "Eagle's Claw",  "You hit %s with an Eagle's Claw.",       29, 25, 6, 6, 0 },
-    { "Circle Kick",   "You hit %s with a circle kick.",         33, 30, 6, 8, 10 },
-    { "Iron Fist",     "You hit %s with an Iron Fist.",          37, 35, 8, 8, 10 },
-    { "Flying Kick",   "You hit %s with a flying kick.",         41, 35, 8, 10, 12 },
-    { "Dragon Fist",   "You hit %s with a Dragon Fist.",         45, 35, 10, 10, 16 },
-    { "Crushing Blow", "You hit %s with a Crushing Blow.",       48, 35, 10, 12, 18 },
+    { "Punch",         "You punch.",                                 1, 0, 1, 4, 0 },
+    { "Kick",          "You kick.",                                  2, 0, 1, 6, 0 },
+    { "Strike",        "You strike.",                                3, 0, 1, 7, 0 },
+    { "Knee",          "You knee.",                                  5, 5, 2, 3, MA_KNEE },
+    { "Elbow",         "You elbow.",                                 7, 5, 1, 8, 0 },
+    { "Butt",          "You <color:U>butt</color>.",                 9, 10, 2, 5, 0 },
+    { "Kick",          "You <color:U>kick</color>.",                 11, 10, 3, 4, MA_SLOW },
+    { "Uppercut",      "You <color:U>uppercut</color>.",             13, 12, 4, 4, 6 },
+    { "Double Kick",   "You <color:y>double-kick</color>.",          16, 15, 5, 4, 8 },
+    { "Cat's Claw",    "You land a <color:y>Cat's Claw</color>.",     20, 20, 5, 5, 0 },
+    { "Jump Kick",     "You <color:y>jump kick</color>.",            25, 25, 5, 6, 10 },
+    { "Eagle's Claw",  "You land an <color:o>Eagle's Claw</color>.", 29, 25, 6, 6, 0 },
+    { "Circle Kick",   "You <color:o>circle kick</color>.",          33, 30, 6, 8, 10 },
+    { "Iron Fist",     "You land an <color:R>Iron Fist</color>.",    37, 35, 8, 8, 10 },
+    { "Flying Kick",   "You land a <color:R>flying kick</color>.",   41, 35, 8, 10, 12 },
+    { "Dragon Fist",   "You land a <color:r>Dragon Fist</color>.",   45, 35, 10, 10, 16 },
+    { "Crushing Blow", "You land a <color:v>Crushing Blow</color>.", 48, 35, 10, 12, 18 },
 };
 
 /*

@@ -1,0 +1,25 @@
+<style:title>Command Descriptions</style>
+
+Please choose one of the following online help files:
+
+    <link:commdesc.txt> Command Descriptions
+    <link:commdesc.txt#Inventory> Inventory Commands
+    <link:commdesc.txt#Movement> Movement Commands
+    <link:commdesc.txt#Resting> Resting Commands
+    <link:commdesc.txt#Searching> Searching Commands
+    <link:commdesc.txt#Alter> Alter Commands
+    <link:commdesc.txt#SpellPrayer> Spell and Prayer Commands
+    <link:commdesc.txt#ObjectManip> Object Manipulation Commands
+    <link:commdesc.txt#MagicalObject> Magical Item Commands
+    <link:commdesc.txt#ThrowFire> Throwing and Missile Weapons
+    <link:commdesc.txt#Looking> Looking Commands
+    <link:commdesc.txt#Message> Message Commands
+    <link:commdesc.txt#GameStatus> Game Status Commands
+    <link:commdesc.txt#SaveExit> Saving and Exiting Commands
+    <link:commdesc.txt#UserPref> User Preference Commands
+    <link:commdesc.txt#Help> Help Commands
+    <link:commdesc.txt#Extra> Extra Commands
+    <link:commdesc.txt#Summary> Summary
+
+    <color:y>(?) Help System Commands</color>
+

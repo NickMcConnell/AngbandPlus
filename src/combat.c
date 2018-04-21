@@ -68,7 +68,7 @@ static _blow_info_t _get_blow_info(int hand)
         break;
 
     case CLASS_MAULER:
-        result.num = 150; result.wgt = 280; result.mul = 75; break;
+        result.num = 175; result.wgt = 280; result.mul = 75; break;
 
     case CLASS_BERSERKER:
         result.num = 600; result.wgt = 70; result.mul = 75; break;
@@ -84,12 +84,28 @@ static _blow_info_t _get_blow_info(int hand)
         result.num = 400; result.wgt = 100; result.mul = 20; break;
 
     case CLASS_WARLOCK:
-        result.num = 400; result.wgt = 70; result.mul = 25;
-        if (p_ptr->psubclass == PACT_DRAGON) 
+        result.num = 400; result.wgt = 100; result.mul = 35;
+        switch (p_ptr->psubclass)
         {
-            result.mul = 40;
-            if (p_ptr->lev >= 40) result.num = 550;
-            else result.num = 500;
+        case WARLOCK_DRAGONS:
+            if ( p_ptr->riding
+              && (object_is_(o_ptr, TV_POLEARM, SV_LANCE) || object_is_(o_ptr, TV_POLEARM, SV_HEAVY_LANCE)) )
+            {
+                result.mul = 65;
+            }
+            break;
+        case WARLOCK_ANGELS:
+        case WARLOCK_DEMONS:
+            result.num = 450;
+            break;
+        case WARLOCK_HOUNDS:
+            result.num = 475;
+            break;
+        case WARLOCK_GIANTS:
+            result.wgt = 200;
+            result.mul = 50 + p_ptr->lev/5;
+            result.num = 500;
+            break;
         }
         break;
 
@@ -404,9 +420,8 @@ void calc_innate_blows(innate_attack_ptr a, int max)
  * Display Weapon Information to the Player
  **********************************************************************/
 static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int blows, 
-                                 int dd, int ds, int to_d, cptr name, int color, int row, int col)
+                                 int dd, int ds, int to_d, cptr name, int color, doc_ptr doc)
 {
-    char buf[80];
     int mult, min, max;
 
     mult = slay_mult;
@@ -417,31 +432,18 @@ static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int b
     min = blows * (mult*dd/100 + to_d) / 100;
     max = blows * (mult*dd*ds/100 + to_d) / 100;
 
-    sprintf(buf, " %-7.7s", name);
-    c_put_str(color, buf, row, col);
-
-    sprintf(buf, ": %d (%d-%d) [%d.%02dx]", 
+    doc_printf(doc, "<color:%c> %-7.7s</color>", attr_to_attr_char(color), name);
+    doc_printf(doc, ": %d (%d-%d) [%d.%02dx]\n",
                     (min + max)/2, min, max,
                     mult/100, mult%100);
-    put_str(buf, row, col+8);
 }
 
-void _desc_stat_idx(char *buf, int idx)
-{
-    idx += 3;
-    if (idx <= 18)
-        sprintf(buf, "%d", idx);
-    else if (idx == 40)
-        strcpy(buf, "18/***");
-    else
-        sprintf(buf, "18/%d", (idx-18)*10);
-}
+int display_weapon_mode = 0;
 
-int display_weapon_info(int hand, int row, int col)
+void display_weapon_info(doc_ptr doc, int hand)
 {
     object_type *o_ptr = equip_obj(p_ptr->weapon_info[hand].slot);
     char o_name[MAX_NLEN];
-    char buf[80];
     u32b flgs[TR_FLAG_SIZE];
     int dd;
     int ds;
@@ -451,12 +453,11 @@ int display_weapon_info(int hand, int row, int col)
     critical_t crit = {0};
     int crit_pct = 0;
     int num_blow = NUM_BLOWS(hand);
-    int r,c;
     bool force = FALSE;
-    int result = row;
+    doc_ptr cols[2] = {0};
 
-    if (p_ptr->weapon_info[hand].wield_how == WIELD_NONE) return row;
-    if (!o_ptr) return row;
+    if (p_ptr->weapon_info[hand].wield_how == WIELD_NONE) return;
+    if (!o_ptr) return;
 
     dd = o_ptr->dd + p_ptr->weapon_info[hand].to_dd;
     ds = o_ptr->ds + p_ptr->weapon_info[hand].to_ds;
@@ -464,6 +465,24 @@ int display_weapon_info(int hand, int row, int col)
     {
         to_d = o_ptr->to_d;
         to_h = o_ptr->to_h;
+    }
+
+    switch (display_weapon_mode)
+    {
+    case MAULER_STUNNING_BLOW:
+    case MAULER_CRITICAL_BLOW:
+    case MAULER_CRUSHING_BLOW:
+    case MAULER_KNOCKBACK:
+        num_blow = 100;
+        break;
+    case MAULER_KNOCKOUT_BLOW:
+        num_blow = 100;
+        to_h -= 50;
+        break;
+    case PY_POWER_ATTACK:
+        to_h += 10;
+        to_d += p_ptr->lev / 2;
+        break;
     }
 
     weapon_flags_known(hand, flgs);
@@ -476,7 +495,7 @@ int display_weapon_info(int hand, int row, int col)
     if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && object_is_shield(o_ptr))
     {
         dd = 3 + p_ptr->weapon_info[hand].to_dd;
-        ds = k_info[o_ptr->k_idx].ac + p_ptr->weapon_info[hand].to_ds;
+        ds = o_ptr->ac + p_ptr->weapon_info[hand].to_ds;
         if (object_is_known(o_ptr))
         {
             to_h = o_ptr->to_a;
@@ -494,6 +513,14 @@ int display_weapon_info(int hand, int row, int col)
 
     mult += mult * p_ptr->weapon_info[hand].to_mult / 100;
 
+    if (display_weapon_mode == MAULER_CRUSHING_BLOW)
+    {
+        int d = p_ptr->lev/5;
+        int n = 10*(1 + d)/2; /* scale by 10 */
+
+        mult = mult * (50 + n)/30;
+    }
+
     if (!have_flag(flgs, TR_ORDER))
     {
         const int attempts = 10 * 1000;
@@ -502,7 +529,7 @@ int display_weapon_info(int hand, int row, int col)
         /* Compute Average Effects of Criticals by sampling */
         for (i = 0; i < attempts; i++)
         {
-            critical_t tmp = critical_norm(o_ptr->weight, to_h, p_ptr->weapon_info[hand].to_h, 0, hand);
+            critical_t tmp = critical_norm(o_ptr->weight, to_h, p_ptr->weapon_info[hand].to_h, display_weapon_mode, hand);
             if (tmp.desc)
             {
                 crit.mul += tmp.mul;
@@ -520,187 +547,174 @@ int display_weapon_info(int hand, int row, int col)
         crit.mul = 100;
 
 
-    /* First Column */
-    r = row;
-    c = col;
-    object_desc(o_name, o_ptr, OD_OMIT_INSCRIPTION);
+    /* Display in 2 columns, side by side */
+    cols[0] = doc_alloc(60);
+    cols[1] = doc_alloc(10);
+
+    /* Column #1 */
+    object_desc(o_name, o_ptr, OD_COLOR_CODED | OD_NAME_AND_ENCHANT);
     if (prace_is_(RACE_MON_SWORD))
-        sprintf(buf, " You    : %-49.49s", o_name);
+        doc_printf(cols[0], "<color:y> You    :</color> <indent><style:indent>%s</style></indent>\n", o_name);
     else
-        sprintf(buf, " Hand #%d: %-49.49s", hand+1, o_name);
-    c_put_str(TERM_YELLOW, buf, r++, c);
+        doc_printf(cols[0], "<color:y> Hand #%d:</color> <indent><style:indent>%s</style></indent>\n", hand+1, o_name);
 
-    sprintf(buf, " %-7.7s: %d.%d lbs", "Weight", o_ptr->weight/10, o_ptr->weight%10);
-    put_str(buf, r++, c);
+    doc_printf(cols[0], " %-7.7s: %d.%d lbs\n", "Weight", o_ptr->weight/10, o_ptr->weight%10);
 
-    sprintf(buf, " %-7.7s: %d + %d = %d", "To Hit", to_h, p_ptr->weapon_info[hand].to_h, to_h + p_ptr->weapon_info[hand].to_h);
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-7.7s: %d + %d = %d", "To Dam", to_d, p_ptr->weapon_info[hand].to_d, to_d + p_ptr->weapon_info[hand].to_d);
-    put_str(buf, r++, c);
-    
-    sprintf(buf, " %-7.7s: %d.%2.2d", "Blows", num_blow/100, num_blow%100);
-    put_str(buf, r++, c);
+    if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+    {
+        assert(o_ptr->tval == TV_SHIELD);
+        doc_printf(cols[0], " %-7.7s: %dd%d (%+d,%+d)\n", "Bash", dd, ds, to_h, to_d);
+        doc_printf(cols[0], " %-7.7s: %s (%+d To Hit)\n",
+                    "Profic",
+                    skills_shield_describe_current(o_ptr->sval),
+                    skills_shield_calc_bonus(o_ptr->sval));
+    }
+    else
+    {
+        doc_printf(cols[0], " %-7.7s: %s (%+d To Hit)\n",
+                    "Profic",
+                    skills_weapon_describe_current(o_ptr->tval, o_ptr->sval),
+                    skills_weapon_calc_bonus(o_ptr->tval, o_ptr->sval));
+    }
+    doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Hit", to_h, p_ptr->weapon_info[hand].to_h, to_h + p_ptr->weapon_info[hand].to_h);
+    doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Dam", to_d, p_ptr->weapon_info[hand].to_d, to_d + p_ptr->weapon_info[hand].to_d);
+    doc_printf(cols[0], " %-7.7s: %d.%2.2d\n", "Blows", num_blow/100, num_blow%100);
 
     if (p_ptr->weapon_info[hand].dual_wield_pct < 1000)
     {
-        sprintf(buf, " %-7.7s: %d.%d%%", "Skill", p_ptr->weapon_info[hand].dual_wield_pct/ 10, p_ptr->weapon_info[hand].dual_wield_pct % 10);
-        put_str(buf, r++, c);
+        doc_printf(cols[0], " %-7.7s: %d.%d%%\n", "Skill",
+            p_ptr->weapon_info[hand].dual_wield_pct/ 10,
+            p_ptr->weapon_info[hand].dual_wield_pct % 10);
     }
 
     mult = mult * crit.mul / 100;
     to_d = to_d + crit.to_d/100 + p_ptr->weapon_info[hand].to_d;
 
-    sprintf(buf, " %-7.7s", "Damage");
-    c_put_str(TERM_L_GREEN, buf, r++, c);
+    doc_printf(cols[0], "<color:G> %-7.7s</color>\n", "Damage");
 
     if (!have_flag(flgs, TR_ORDER))
     {
         if (crit.to_d)
         {
-            sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits",
+            doc_printf(cols[0], " %-7.7s: %d.%02dx + %d.%02d\n", "Crits",
                             crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
         }
         else
         {
-            sprintf(buf, " %-7.7s: %d.%02dx (%d.%d%%)", "Crits",
+            doc_printf(cols[0], " %-7.7s: %d.%02dx (%d.%d%%)\n", "Crits",
                             crit.mul/100, crit.mul%100, crit_pct / 10, crit_pct % 10);
         }
-        put_str(buf, r++, c);
     }
     if (p_ptr->weapon_info[hand].to_mult)
     {
         int m = 100 + p_ptr->weapon_info[hand].to_mult;
-        sprintf(buf, " %-7.7s: %d.%02dx", "Mauler", 
-            m / 100, m % 100);
-        put_str(buf, r++, c);
+        doc_printf(cols[0], " %-7.7s: %d.%02dx\n", "Mauler", m / 100, m % 100);
     }
 
 
-    _display_weapon_slay(mult, 100, FALSE, num_blow, dd, ds, to_d, "Normal", TERM_WHITE, r++, c);
+    _display_weapon_slay(mult, 100, FALSE, num_blow, dd, ds, to_d, "Normal", TERM_WHITE, cols[0]);
     if (force)
-        _display_weapon_slay(mult, 100, force, num_blow, dd, ds, to_d, "Force", TERM_L_BLUE, r++, c);
+        _display_weapon_slay(mult, 100, force, num_blow, dd, ds, to_d, "Force", TERM_L_BLUE, cols[0]);
 
     if (p_ptr->tim_slay_sentient)
-        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Sent.", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Sent.", TERM_YELLOW, cols[0]);
     
     if (have_flag(flgs, TR_KILL_ANIMAL)) 
-        _display_weapon_slay(mult, 400, force, num_blow, dd, ds, to_d, "Animals", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 400, force, num_blow, dd, ds, to_d, "Animals", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_ANIMAL))
-        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Animals", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Animals", TERM_YELLOW, cols[0]);
     
     if (have_flag(flgs, TR_KILL_EVIL))   
-        _display_weapon_slay(mult, 350, force, num_blow, dd, ds, to_d, "Evil", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 350, force, num_blow, dd, ds, to_d, "Evil", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_EVIL))
-        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Evil", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Evil", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_SLAY_GOOD))
-        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Good", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Good", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_SLAY_LIVING))
-        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Living", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 200, force, num_blow, dd, ds, to_d, "Living", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_HUMAN))
-        _display_weapon_slay(mult, 400, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 400, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_HUMAN))
-        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Human", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_UNDEAD))
-        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Undead", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Undead", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_UNDEAD))
-        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Undead", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Undead", TERM_YELLOW, cols[0]);
     
     if (have_flag(flgs, TR_KILL_DEMON))  
-        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Demons", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Demons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_DEMON))
-        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Demons", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Demons", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_ORC))  
-        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Orcs", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Orcs", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_ORC))
-        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Orcs", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Orcs", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_TROLL))  
-        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Trolls", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Trolls", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_TROLL))
-        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Trolls", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Trolls", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_GIANT))  
-        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Giants", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Giants", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_GIANT))
-        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Giants", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Giants", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_DRAGON))  
-        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Dragons", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 500, force, num_blow, dd, ds, to_d, "Dragons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_DRAGON))
-        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Dragons", TERM_YELLOW, r++, c);
+        _display_weapon_slay(mult, 300, force, num_blow, dd, ds, to_d, "Dragons", TERM_YELLOW, cols[0]);
     
     if (have_flag(flgs, TR_BRAND_ACID))
-        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Acid", TERM_RED, r++, c);
+        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Acid", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_ELEC))
-        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Elec", TERM_RED, r++, c);
+        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Elec", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_FIRE))
-        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Fire", TERM_RED, r++, c);
+        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Fire", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_COLD))
-        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Cold", TERM_RED, r++, c);
+        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Cold", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_POIS))
-        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Poison", TERM_RED, r++, c);
+        _display_weapon_slay(mult, 250, force, num_blow, dd, ds, to_d, "Poison", TERM_RED, cols[0]);
 
-    r++;
     if (p_ptr->weapon_info[hand].wield_how == WIELD_TWO_HANDS)
     {
         if (p_ptr->weapon_info[hand].omoi)
-            put_str(" Your weapon requires two hands to wield properly.", r++, c);
-        /*else
-            put_str(" You are getting a two handed wielding bonus.", r++, c);*/
+            doc_insert(cols[0], " Your weapon requires two hands to wield properly.\n");
     }
 
     if (p_ptr->weapon_info[hand].info)
     {
         byte a = p_ptr->weapon_info[hand].info_attr;
         if (!a) a = TERM_WHITE; /* uninitialized is TERM_DARK???! */
-        c_put_str(a, format(" %s", p_ptr->weapon_info[hand].info), r++, c);
+        doc_printf(cols[0], " <color:%c>%s</color>\n", attr_to_attr_char(a), p_ptr->weapon_info[hand].info);
     }
 
-    result = MAX(result, r);
+    /* Column #1 */
+    doc_insert(cols[1], "<color:G>Accuracy</color>\n");
+    doc_insert(cols[1], " AC Hit\n");
 
-    /* Second Column */
-    r = row;
-    c = col + 60;
+    doc_printf(cols[1], "%3d %2d%%\n", 25, hit_chance(hand, to_h, 25));
+    doc_printf(cols[1], "%3d %2d%%\n", 50, hit_chance(hand, to_h, 50));
+    doc_printf(cols[1], "%3d %2d%%\n", 75, hit_chance(hand, to_h, 75));
+    doc_printf(cols[1], "%3d %2d%%\n", 100, hit_chance(hand, to_h, 100));
+    doc_printf(cols[1], "%3d %2d%%\n", 125, hit_chance(hand, to_h, 125));
+    doc_printf(cols[1], "%3d %2d%%\n", 150, hit_chance(hand, to_h, 150));
+    doc_printf(cols[1], "%3d %2d%%\n", 175, hit_chance(hand, to_h, 175));
+    doc_printf(cols[1], "%3d %2d%%\n", 200, hit_chance(hand, to_h, 200));
 
-    c_put_str(TERM_L_GREEN, "Accuracy", r++, c);
-    put_str(" AC Hit", r++, c);
-
-    sprintf(buf, "%3d %2d%%", 25, hit_chance(hand, to_h, 25));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 50, hit_chance(hand, to_h, 50));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 75, hit_chance(hand, to_h, 75));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 100, hit_chance(hand, to_h, 100));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 125, hit_chance(hand, to_h, 125));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 150, hit_chance(hand, to_h, 150));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 175, hit_chance(hand, to_h, 175));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 200, hit_chance(hand, to_h, 200));
-    put_str(buf, r++, c);
-
-    result = MAX(result, r);
-    return result;
+    /* Assemble the result */
+    doc_insert_cols(doc, cols, 2, 1);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
 }
 
 /**********************************************************************
@@ -730,7 +744,7 @@ static cptr _effect_name(int which)
     return "Unknown";
 }
 
-int display_innate_attack_info(int which, int row, int col)
+void display_innate_attack_info(doc_ptr doc, int which)
 {
     innate_attack_ptr a = &p_ptr->innate_attacks[which];
     int blows, min, max, min_base, max_base, min2, max2;
@@ -738,62 +752,49 @@ int display_innate_attack_info(int which, int row, int col)
     int to_h = p_ptr->to_h_m + a->to_h;
     int to_d = p_ptr->to_d_m + a->to_d;
     int dd = a->dd + p_ptr->innate_attack_info.to_dd;
-    char buf[100];
     int mult;
-    int r, c;
-    int result = row;
+    doc_ptr cols[2] = {0};
 
     blows = a->blows;
     if (which == 0)
         blows += p_ptr->innate_attack_info.xtra_blow;
 
+    cols[0] = doc_alloc(60);
+    cols[1] = doc_alloc(10);
+
     /* First Column */
-    r = row;
-    c = col;
     if (a->flags & INNATE_NO_DAM)
-        sprintf(buf, " %-7.7s: Your %s", "Attack", a->name);
+        doc_printf(cols[0], "<color:y> %-7.7s</color>: Your %s\n", "Attack", a->name);
     else
-        sprintf(buf, " %-7.7s: Your %s (%dd%d)", "Attack", a->name, dd, a->ds);
-    c_put_str(TERM_YELLOW, buf, r++, c);
+        doc_printf(cols[0], "<color:y> %-7.7s</color>: Your %s (%dd%d)\n", "Attack", a->name, dd, a->ds);
 
     if (a->weight && !(a->flags & INNATE_NO_DAM))
-    {
-        sprintf(buf, " %-7.7s: %d.%d lbs", "Weight", a->weight/10, a->weight%10);
-        put_str(buf, r++, c);
-    }
+        doc_printf(cols[0], " %-7.7s: %d.%d lbs\n", "Weight", a->weight/10, a->weight%10);
 
     {
         cptr name = skills_innate_calc_name(a);
-        sprintf(buf, " %-7.7s: %s (%+d To Hit)",
+        doc_printf(cols[0], " %-7.7s: %s (%+d To Hit)\n",
                     "Profic",
                     skills_innate_describe_current(name),
                     skills_innate_calc_bonus(name));
-        put_str(buf, r++, c);
     }
 
-    sprintf(buf, " %-7.7s: %d + %d = %d", "To Hit", a->to_h, p_ptr->to_h_m, to_h);
-    put_str(buf, r++, c);
+    doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Hit", a->to_h, p_ptr->to_h_m, to_h);
 
     if (!(a->flags & INNATE_NO_DAM))
-    {
-        sprintf(buf, " %-7.7s: %d + %d = %d", "To Dam", a->to_d, p_ptr->to_d_m, to_d);
-        put_str(buf, r++, c);
-    }    
-    sprintf(buf, " %-7.7s: %d.%2.2d", "Blows", blows/100, blows%100);
-    put_str(buf, r++, c);
+        doc_printf(cols[0], " %-7.7s: %d + %d = %d\n", "To Dam", a->to_d, p_ptr->to_d_m, to_d);
+
+    doc_printf(cols[0], " %-7.7s: %d.%2.2d\n", "Blows", blows/100, blows%100);
 
     mult = 100;
 
     if (!(a->flags & INNATE_NO_DAM))
     {
-        sprintf(buf, " %-7.7s", "Damage");
-        c_put_str(TERM_L_GREEN, buf, r++, c);
-
+        doc_printf(cols[0], "<color:G> %-7.7s</color>\n", "Damage");
         if (a->flags & INNATE_VORPAL)
         {
             mult = mult * 11 / 9;
-            sprintf(buf, " %-7.7s: %d.%02dx", "Vorpal", mult/100, mult%100);
-            put_str(buf, r++, c);
+            doc_printf(cols[0], " %-7.7s: %d.%02dx\n", "Vorpal", mult/100, mult%100);
         }
     }
 
@@ -815,10 +816,9 @@ int display_innate_attack_info(int which, int row, int col)
         crit.mul = crit.mul / ct;
         crit.to_d = crit.to_d * 100 / ct;
         if (crit.to_d)
-            sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits", crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
+            doc_printf(cols[0], " %-7.7s: %d.%02dx + %d.%02d\n", "Crits", crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
         else
-            sprintf(buf, " %-7.7s: %d.%02dx", "Crits", crit.mul/100, crit.mul%100);
-        put_str(buf, r++, c);
+            doc_printf(cols[0], " %-7.7s: %d.%02dx\n", "Crits", crit.mul/100, crit.mul%100);
         crit.to_d /= 100;
         mult = mult * crit.mul / 100;
         to_d = to_d + crit.to_d;
@@ -833,17 +833,16 @@ int display_innate_attack_info(int which, int row, int col)
     
     if (a->effect[0] == GF_OLD_CONF) /* Hack for Umber Hulk ... */
     {
-        c_put_str(TERM_L_BLUE, "Confuses", r++, c+10);
+        doc_insert(cols[0], "<tab:10><color:B>Confuses</color>\n");
     }
     else if (!(a->flags & INNATE_NO_DAM))
     {
-        sprintf(buf, " %-7.7s: %d (%d-%d)",
+        doc_printf(cols[0], " %-7.7s: %d (%d-%d)\n",
                 _effect_name(a->effect[0]),
                 blows * (min + max)/200,
                 blows * min/100,
                 blows * max/100
         );
-        c_put_str(TERM_WHITE, buf, r++, c);
     }
 
     for (i = 1; i < MAX_INNATE_EFFECTS; i++)
@@ -859,78 +858,59 @@ int display_innate_attack_info(int which, int row, int col)
         switch (a->effect[i])
         {
         case GF_STEAL: 
-            c_put_str(TERM_L_BLUE, format("Steals%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Steals%s</color>\n", xtra);
             break;
         case GF_OLD_SLOW: 
-            c_put_str(TERM_L_BLUE, format("Slows%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Slows%s</color>\n", xtra);
             break;
         case GF_OLD_CONF: 
-            c_put_str(TERM_L_BLUE, format("Confuses%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Confuses%s</color>\n", xtra);
             break;
         case GF_OLD_SLEEP: 
-            c_put_str(TERM_L_BLUE, format("Sleeps%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Sleeps%s</color>\n", xtra);
             break;
         case GF_STASIS:
         case GF_PARALYSIS:
-            c_put_str(TERM_L_BLUE, format("Paralyzes%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Paralyzes%s</color>\n", xtra);
             break;
         case GF_DRAIN_MANA:
-            c_put_str(TERM_L_BLUE, format("Drains Mana%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Drains Mana%s</color>\n", xtra);
             break;
         case GF_STUN:
-            c_put_str(TERM_L_BLUE, format("Stuns%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Stuns%s</color>\n", xtra);
             break;
         case GF_TURN_ALL:
-            c_put_str(TERM_RED, format("Terrifies%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:r>Terrifies%s</color>\n", xtra);
             break;
         case GF_QUAKE:
-            c_put_str(TERM_L_BLUE, format("Shatters%s", xtra), r++, c+10);
+            doc_printf(cols[0], "<tab:10><color:B>Shatters%s</color>\n", xtra);
             break;
         default:
-            sprintf(buf, " %-7.7s: %d (%d-%d)",
+            doc_printf(cols[0], "<color:r> %-7.7s</color>: %d (%d-%d)\n",
                     _effect_name(a->effect[i]),
                     blows * (min2 + max2)/200,
                     blows * min2/100,
                     blows * max2/100
             );
-            c_put_str(TERM_RED, buf, r++, c);
         }
     }
 
-    result = MAX(result, r);
-
     /* Second Column */
-    r = row;
-    c = col + 60;
-    c_put_str(TERM_L_GREEN, "Accuracy", r++, c);
-    put_str(" AC Hit", r++, c);
+    doc_insert(cols[1], "<color:G>Accuracy</color>\n");
+    doc_insert(cols[1], " AC Hit\n");
 
-    sprintf(buf, "%3d %2d%%", 25, hit_chance_innate(to_h, 25));
-    put_str(buf, r++, c);
+    doc_printf(cols[1], "%3d %2d%%\n", 25, hit_chance_innate(to_h, 25));
+    doc_printf(cols[1], "%3d %2d%%\n", 50, hit_chance_innate(to_h, 50));
+    doc_printf(cols[1], "%3d %2d%%\n", 75, hit_chance_innate(to_h, 75));
+    doc_printf(cols[1], "%3d %2d%%\n", 100, hit_chance_innate(to_h, 100));
+    doc_printf(cols[1], "%3d %2d%%\n", 125, hit_chance_innate(to_h, 125));
+    doc_printf(cols[1], "%3d %2d%%\n", 150, hit_chance_innate(to_h, 150));
+    doc_printf(cols[1], "%3d %2d%%\n", 175, hit_chance_innate(to_h, 175));
+    doc_printf(cols[1], "%3d %2d%%\n", 200, hit_chance_innate(to_h, 200));
 
-    sprintf(buf, "%3d %2d%%", 50, hit_chance_innate(to_h, 50));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 75, hit_chance_innate(to_h, 75));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 100, hit_chance_innate(to_h, 100));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 125, hit_chance_innate(to_h, 125));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 150, hit_chance_innate(to_h, 150));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 175, hit_chance_innate(to_h, 175));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 200, hit_chance_innate(to_h, 200));
-    put_str(buf, r++, c);
-
-    result = MAX(result, r);
-    return result;
+    doc_insert_cols(doc, cols, 2, 1);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
 }
 
 /**********************************************************************
@@ -994,9 +974,8 @@ int bow_range(object_type *o_ptr)
 
 static void _display_missile_slay(int base_mult, int slay_mult, int shots, 
                                   int dd, int ds, int to_d, int to_d_xtra, 
-                                  cptr name, int color, int row, int col)
+                                  cptr name, int color, doc_ptr doc)
 {
-    char buf[80];
     int mult, min, max;
 
     mult = slay_mult;
@@ -1013,21 +992,16 @@ static void _display_missile_slay(int base_mult, int slay_mult, int shots,
         max = shots * (mult*(dd*ds + to_d)/100 + to_d_xtra) / 100;
     }
 
-    sprintf(buf, " %-8.8s", name);
-    c_put_str(color, buf, row, col);
-
-    sprintf(buf, ": %d (%d-%d) [%d.%02dx]", 
+    doc_printf(doc, " <color:%c>%-8.8s</color>", attr_to_attr_char(color), name);
+    doc_printf(doc, ": %d (%d-%d) [%d.%02dx]\n",
                     (min + max)/2, min, max,
                     mult/100, mult%100);
-    put_str(buf, row, col+9);
 }
 
 
-static int _shooter_info_aux(object_type *bow, object_type *arrow, int row, int col, int ct)
+static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow, int ct)
 {
-    int          result = row;
     char         o_name[MAX_NLEN];
-    char         buf[255];
     u32b         flgs[TR_FLAG_SIZE];
     int          mult;
     int          to_h = 0;
@@ -1040,12 +1014,17 @@ static int _shooter_info_aux(object_type *bow, object_type *arrow, int row, int 
     int          ds = arrow->ds;
     critical_t   crit = {0}; 
     int          num_fire = 0;
-    int          r,c;
+    doc_ptr      cols[2] = {0};
+
+    cols[0] = doc_alloc(60);
+    cols[1] = doc_alloc(10);
 
     missile_flags_known(arrow, flgs);
     mult = bow_mult(bow);
 
-    if (p_ptr->shooter_info.num_fire)
+    if (object_is_artifact(arrow))
+        num_fire = 100;
+    else if (p_ptr->shooter_info.num_fire)
         num_fire = p_ptr->shooter_info.num_fire * 100 * 100 / bow_energy(bow->sval);
 
     if (object_is_known(bow))
@@ -1084,158 +1063,127 @@ static int _shooter_info_aux(object_type *bow, object_type *arrow, int row, int 
         crit.to_d = crit.to_d * 100 / ct;
     }
 
-    r = row;
-    c = col;
-    object_desc(o_name, arrow, OD_OMIT_INSCRIPTION);
-    sprintf(buf, " Ammo #%-2d: %-54.54s", ct, o_name);
-    c_put_str(TERM_UMBER, buf, r++, c);
+    /* First Column */
+    object_desc(o_name, arrow, OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
+    doc_printf(cols[0], "<color:u> Ammo #%-2d</color>: <indent><style:indent>%s</style></indent>\n", ct, o_name);
 
-    sprintf(buf, " %-8.8s: %d.%d lbs", "Weight", arrow->weight/10, arrow->weight%10);
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s: %d + %d = %d", "To Hit", to_h, to_h_bow + to_h_xtra, to_h + to_h_bow + to_h_xtra);
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s: %d + %d = %d (%s)", "To Dam", to_d, to_d_bow, to_d + to_d_bow, "Multiplier Applies");
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s", "Damage");
-    c_put_str(TERM_L_GREEN, buf, r++, c);
+    doc_printf(cols[0], " %-8.8s: %d.%d lbs\n", "Weight", arrow->weight/10, arrow->weight%10);
+    doc_printf(cols[0], " %-8.8s: %d + %d = %d\n", "To Hit", to_h, to_h_bow + to_h_xtra, to_h + to_h_bow + to_h_xtra);
+    doc_printf(cols[0], " %-8.8s: %d + %d = %d (%s)\n", "To Dam", to_d, to_d_bow, to_d + to_d_bow, "Multiplier Applies");
+    doc_printf(cols[0], " <color:G>%-8.8s</color>\n", "Damage");
 
     if (crit.to_d)
     {
-        sprintf(buf, " %-8.8s: %d.%02dx + %d.%02d", "Crits",
+        doc_printf(cols[0], " %-8.8s: %d.%02dx + %d.%02d\n", "Crits",
                         crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
     }
     else
     {
-        sprintf(buf, " %-8.8s: %d.%02dx", "Crits",
+        doc_printf(cols[0], " %-8.8s: %d.%02dx\n", "Crits",
                         crit.mul/100, crit.mul%100);
     }
-    put_str(buf, r++, c);
 
     to_d = to_d + to_d_bow;
     mult = mult * crit.mul / 100;
     to_d_xtra = to_d_xtra + crit.to_d/100;
 
-    _display_missile_slay(mult, 100, num_fire, dd, ds, to_d, to_d_xtra, "Normal", TERM_WHITE, r++, c);
+    _display_missile_slay(mult, 100, num_fire, dd, ds, to_d, to_d_xtra, "Normal", TERM_WHITE, cols[0]);
 
     if (p_ptr->tim_force && p_ptr->csp > (p_ptr->msp / 30))
     {
         mult = mult * 3 / 2;
-        _display_missile_slay(mult, 100, num_fire, dd, ds, to_d, to_d_xtra, "Force", TERM_L_BLUE, r++, c);
+        _display_missile_slay(mult, 100, num_fire, dd, ds, to_d, to_d_xtra, "Force", TERM_L_BLUE, cols[0]);
     }
 
     if (have_flag(flgs, TR_KILL_ANIMAL)) 
-        _display_missile_slay(mult, 270, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 270, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_ANIMAL))
-        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, cols[0]);
     
     if (have_flag(flgs, TR_KILL_EVIL))   
-        _display_missile_slay(mult, 250, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 250, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_EVIL))
-        _display_missile_slay(mult, 150, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 150, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_HUMAN))
-        _display_missile_slay(mult, 270, num_fire, dd, ds, to_d, to_d_xtra, "Human", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 270, num_fire, dd, ds, to_d, to_d_xtra, "Human", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_HUMAN))
-        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Human", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Human", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_UNDEAD))
-        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Undead", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Undead", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_UNDEAD))
-        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Undead", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Undead", TERM_YELLOW, cols[0]);
     
     if (have_flag(flgs, TR_KILL_DEMON))  
-        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Demons", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Demons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_DEMON))
-        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Demons", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Demons", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_ORC))  
-        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Orcs", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Orcs", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_ORC))
-        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Orcs", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Orcs", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_TROLL))  
-        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Trolls", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Trolls", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_TROLL))
-        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Trolls", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Trolls", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_GIANT))  
-        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Giants", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Giants", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_GIANT))
-        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Giants", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Giants", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, TR_KILL_DRAGON))  
-        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Dragons", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 300, num_fire, dd, ds, to_d, to_d_xtra, "Dragons", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, TR_SLAY_DRAGON))
-        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Dragons", TERM_YELLOW, r++, c);
+        _display_missile_slay(mult, 200, num_fire, dd, ds, to_d, to_d_xtra, "Dragons", TERM_YELLOW, cols[0]);
     
     if (have_flag(flgs, TR_BRAND_ACID))
-        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Acid", TERM_RED, r++, c);
+        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Acid", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_ELEC))
-        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Elec", TERM_RED, r++, c);
+        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Elec", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_FIRE))
-        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Fire", TERM_RED, r++, c);
+        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Fire", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_COLD))
-        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Cold", TERM_RED, r++, c);
+        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Cold", TERM_RED, cols[0]);
 
     if (have_flag(flgs, TR_BRAND_POIS))
-        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Poison", TERM_RED, r++, c);
-
-    result = MAX(result, r);
+        _display_missile_slay(mult, 170, num_fire, dd, ds, to_d, to_d_xtra, "Poison", TERM_RED, cols[0]);
 
     /* Second Column */
-    r = row;
-    c = col + 66;
-
     to_h = to_h + to_h_bow + to_h_xtra;
 
-    c_put_str(TERM_L_GREEN, " AC Hit", r++, c);
+    doc_insert(cols[1], " <color:G>AC Hit</color>\n");
+    doc_printf(cols[1], "%3d %2d%%\n", 25, bow_hit_chance(bow->sval, to_h, 25));
+    doc_printf(cols[1], "%3d %2d%%\n", 50, bow_hit_chance(bow->sval, to_h, 50));
+    doc_printf(cols[1], "%3d %2d%%\n", 100, bow_hit_chance(bow->sval, to_h, 100));
+    doc_printf(cols[1], "%3d %2d%%\n", 150, bow_hit_chance(bow->sval, to_h, 150));
+    doc_printf(cols[1], "%3d %2d%%\n", 175, bow_hit_chance(bow->sval, to_h, 175));
+    doc_printf(cols[1], "%3d %2d%%\n", 200, bow_hit_chance(bow->sval, to_h, 200));
 
-    sprintf(buf, "%3d %2d%%", 50, bow_hit_chance(bow->sval, to_h, 50));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 100, bow_hit_chance(bow->sval, to_h, 100));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 150, bow_hit_chance(bow->sval, to_h, 150));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 175, bow_hit_chance(bow->sval, to_h, 175));
-    put_str(buf, r++, c);
-
-    sprintf(buf, "%3d %2d%%", 200, bow_hit_chance(bow->sval, to_h, 200));
-    put_str(buf, r++, c);
-
-    result = MAX(result, r);
-
-    return result;
+    doc_insert_cols(doc, cols, 2, 1);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
 }
 
-int display_shooter_info(int row, int col)
+void display_shooter_info(doc_ptr doc)
 {
     object_type *bow_ptr = NULL;
     int          slot = equip_find_object(TV_BOW, SV_ANY);
     char         o_name[MAX_NLEN];
-    char         buf[255];
     int          mult;
     int          num_fire = 0;
     int          to_h = 0;
     int          to_d = 0;
-    int          r, c, i, j, w, h;
+    int          i, j;
 
-    Term_get_size(&w, &h);
-    
-    if (!slot || prace_is_(RACE_MON_JELLY))
-    {
-        sprintf(buf, " Shooting: %-49.49s", "Nothing");
-        c_put_str(TERM_YELLOW, buf, row, col);
-        return row+1;
-    }
+    if (!slot || prace_is_(RACE_MON_JELLY) || p_ptr->shooter_info.tval_ammo == TV_NO_AMMO)
+        return;
 
     bow_ptr = equip_obj(slot);
     assert(bow_ptr);
@@ -1253,43 +1201,25 @@ int display_shooter_info(int row, int col)
             to_d += 1 + p_ptr->lev/10;
     }
 
-    /* Header */
-    r = row;
-    c = col;
-    object_desc(o_name, bow_ptr, OD_OMIT_INSCRIPTION);
-    sprintf(buf, " Shooting: %-70.70s", o_name);
-    c_put_str(TERM_YELLOW, buf, r++, c);
+    /* Shooter */
+    object_desc(o_name, bow_ptr, OD_OMIT_INSCRIPTION | OD_COLOR_CODED);
+    doc_printf(doc, " <color:y>Shooting</color>: <indent><style:indent>%s</style></indent>\n", o_name);
     
-    sprintf(buf, " %-8.8s: %d'", "Range", (bow_range(bow_ptr) + 1) * 10);
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s: %d.%02d", "Shots", num_fire/100, num_fire%100);
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s: %d.%02dx", "Mult", mult/100, mult%100);
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s: %d + %d = %d", "To Hit", to_h, p_ptr->shooter_info.dis_to_h, to_h + p_ptr->shooter_info.dis_to_h);
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s: %d (%s)", "To Dam", to_d, "Multiplier Applies");
-    put_str(buf, r++, c);
-
-    sprintf(buf, " %-8.8s: %d (%s)", "Xtra Dam", p_ptr->shooter_info.dis_to_d, "Multiplier Does Not Apply");
-    put_str(buf, r++, c);
-
-    r++;
+    doc_printf(doc, " %-8.8s: %d'\n", "Range", (bow_range(bow_ptr) + 1) * 10);
+    doc_printf(doc, " %-8.8s: %d.%02d\n", "Shots", num_fire/100, num_fire%100);
+    doc_printf(doc, " %-8.8s: %d.%02dx\n", "Mult", mult/100, mult%100);
+    doc_printf(doc, " %-8.8s: %d + %d = %d\n", "To Hit", to_h, p_ptr->shooter_info.dis_to_h, to_h + p_ptr->shooter_info.dis_to_h);
+    doc_printf(doc, " %-8.8s: %d (%s)\n", "To Dam", to_d, "Multiplier Applies");
+    doc_printf(doc, " %-8.8s: %d (%s)\n", "Xtra Dam", p_ptr->shooter_info.dis_to_d, "Multiplier Does Not Apply");
+    doc_newline(doc);
 
     /* Ammo */
     j = 0;
-    for (i = 0; i < INVEN_PACK && r < h; i++)
+    for (i = 0; i < INVEN_PACK; i++)
     {
         if (inventory[i].tval == p_ptr->shooter_info.tval_ammo)
-        {
-            r = _shooter_info_aux(bow_ptr, &inventory[i], r, c, ++j) + 1;
-        }
+            _shooter_info_aux(doc, bow_ptr, &inventory[i], ++j);
     }
 
-    return r;
 }
 

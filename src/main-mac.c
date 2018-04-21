@@ -5651,9 +5651,6 @@ static void menu(long mc)
 						break;
 					}
 					
-					/* Hack -- Forget messages */
-					msg_flag = FALSE;
-
 					/* Hack -- Save the game */
 					do_cmd_save_game(FALSE);
 
@@ -5670,9 +5667,6 @@ static void menu(long mc)
 							plog("You may not do that right now.");
 							break;
 						}
-						/* Hack -- Forget messages */
-						msg_flag = FALSE;
-
 						/* Save the game */
 #if 0
 						do_cmd_save_game(FALSE);

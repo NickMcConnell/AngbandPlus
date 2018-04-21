@@ -8,7 +8,7 @@ static void _charge_spell(int cmd, variant *res)
         var_set_string(res, "Charge");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Attacks monster with your weapons normaly, then move through counter side of the monster.");
+        var_set_string(res, "Attacks monster with your weapons normally, then move through counter side of the monster.");
         break;
     case SPELL_CAST:
     {
@@ -127,19 +127,14 @@ static void _calc_bonuses(void)
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 {
+    add_flag(flgs, TR_IM_FEAR);
     add_flag(flgs, TR_SUST_STR);
     add_flag(flgs, TR_SUST_DEX);
     add_flag(flgs, TR_SUST_CON);
     add_flag(flgs, TR_REGEN);
     add_flag(flgs, TR_FREE_ACT);
     add_flag(flgs, TR_SPEED);
-    add_flag(flgs, TR_RES_FEAR);
     if (p_ptr->lev >= 40) add_flag(flgs, TR_REFLECT);
-}
-
-static void _get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_RES_FEAR);
 }
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
@@ -190,7 +185,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *berserker_get_class_t(void)
+class_t *berserker_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -222,7 +217,7 @@ class_t *berserker_get_class_t(void)
         me.stats[A_WIS] = -20;
         me.stats[A_DEX] =   4;
         me.stats[A_CON] =   4;
-        me.stats[A_CHR] = -20;
+        me.stats[A_CHR] =   4;
         me.base_skills = bs;
         me.extra_skills = xs;
         me.life = 200;
@@ -232,7 +227,6 @@ class_t *berserker_get_class_t(void)
         
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
-        me.get_immunities = _get_immunities;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.get_powers = _get_powers;
         me.get_spells = _get_spells;

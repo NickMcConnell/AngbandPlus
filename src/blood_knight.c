@@ -81,7 +81,8 @@ void _blood_spray_spell(int cmd, variant *res)
         int rad = (p_ptr->lev < 30) ? 3 : 4;
         int base = p_ptr->lev + p_ptr->lev/4;
 
-        fire_ball(GF_BLOOD, 5, 2*(damroll(dice, sides) + base), rad);
+        project(0, rad, py, px, 2*(damroll(dice, sides) + base), GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+
         var_set_bool(res, TRUE);
         break;
     }
@@ -124,7 +125,7 @@ void _blood_shield_spell(int cmd, variant *res)
         var_set_string(res, "Blood Shield");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Gives bonus to AC depending on how wounded you are.  Grants reflection if you are really hurting.");
+        var_set_string(res, "Gives bonus to AC depending on how wounded you are. Grants reflection if you are really hurting.");
         break;
 
     case SPELL_SPOIL_DESC:
@@ -175,7 +176,7 @@ void _blood_rage_spell(int cmd, variant *res)
         var_set_string(res, "Blood Rage");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Enter a blood frenzy.  Gives speed and big bonuses to hit and damage.");
+        var_set_string(res, "Enter a blood frenzy. Gives speed and big bonuses to hit and damage.");
         break;
     case SPELL_SPOIL_DESC:
         var_set_string(res, "For L/2+d(L/2) rounds, player is hasted and berserk.");
@@ -236,7 +237,7 @@ void _blood_revenge_spell(int cmd, variant *res)
         var_set_string(res, "Blood Revenge");
         break;
     case SPELL_DESC:
-        var_set_string(res, "Gives an aura of bloody revenge.  Monsters take damaged based on your cut status.");
+        var_set_string(res, "Gives an aura of bloody revenge. Monsters take damaged based on your cut status.");
         break;
     case SPELL_SPOIL_DESC:
         var_set_string(res, "For 5+d5 rounds, any foe that does X melee damage to the player takes X*C/100 damage in revenge, where C is the player's current cut status. However, this retaliatory damage is bounded between C/10 and 50 per strike.");
@@ -291,7 +292,7 @@ void _blood_pool_spell(int cmd, variant *res)
 
         if (ct >= 30)
         {
-            msg_print("You have too many blood potions at the moment.  Why not drink some?");
+            msg_print("You have too many blood potions at the moment. Why not drink some?");
             var_set_bool(res, FALSE);
             return;
         }
@@ -402,6 +403,14 @@ static int _get_powers(spell_info* spells, int max)
     return get_powers_aux(spells, max, _powers);
 }
 
+static void _character_dump(doc_ptr doc)
+{
+    spell_info spells[MAX_SPELLS];
+    int        ct = _get_spells(spells, MAX_SPELLS);
+
+    py_display_spells(doc, spells, ct);
+}
+
 static void _calc_bonuses(void)
 {
     p_ptr->regenerate = TRUE;
@@ -488,6 +497,11 @@ static void _calc_bonuses(void)
     }
 }
 
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    add_flag(flgs, TR_REGEN);
+}
+
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     int frac = p_ptr->chp * 100 / p_ptr->mhp;
@@ -525,7 +539,7 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-class_t *blood_knight_get_class_t(void)
+class_t *blood_knight_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -566,10 +580,12 @@ class_t *blood_knight_get_class_t(void)
         me.pets = 40;
 
         me.calc_bonuses = _calc_bonuses;
+        me.get_flags = _get_flags;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;
+        me.character_dump = _character_dump;
         init = TRUE;
     }
 

@@ -5,7 +5,7 @@
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * are included in all such copies. Other copyrights may also apply.
  */
 
 /* Purpose: Monster spells and movement */
@@ -209,8 +209,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
     /* Redraw (later) if needed */
     if (m_ptr->ml)
     {
-        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-        if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+        check_mon_health_redraw(m_idx);
     }
 
     /* Wake it up */
@@ -378,11 +377,11 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 /*
  * Returns whether a given monster will try to run from the player.
  *
- * Monsters will attempt to avoid very powerful players.  See below.
+ * Monsters will attempt to avoid very powerful players. See below.
  *
  * Because this function is called so often, little details are important
- * for efficiency.  Like not using "mod" or "div" when possible.  And
- * attempting to check the conditions in an optimal order.  Note that
+ * for efficiency. Like not using "mod" or "div" when possible. And
+ * attempting to check the conditions in an optimal order. Note that
  * "(x << 2) == (x * 4)" if "x" has enough bits to hold the result.
  *
  * Note that this function is responsible for about one to five percent
@@ -553,7 +552,7 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
  * to angle slightly towards the player's actual location.
  *
  * Allow very perceptive monsters to track old "spoor" left by
- * previous locations occupied by the player.  This will tend
+ * previous locations occupied by the player. This will tend
  * to have monsters end up either near the player or on a grid
  * recently occupied by the player (and left via "teleport").
  *
@@ -562,7 +561,7 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
  * Also note that teleporting away from a location will cause
  * the monsters who were chasing you to converge on that location
  * as long as you are still near enough to "annoy" them without
- * being close enough to chase directly.  I have no idea what will
+ * being close enough to chase directly. I have no idea what will
  * happen if you combine "smell" with low "aaf" values.
  */
 static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
@@ -766,14 +765,14 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
  *
  * It is probably better to replace these arrays with code to compute
  * the relevant arrays, even if the storage is pre-allocated in hard
- * coded sizes.  At the very least, code should be included which is
- * able to generate and dump these arrays (ala "los()").  XXX XXX XXX
+ * coded sizes. At the very least, code should be included which is
+ * able to generate and dump these arrays (ala "los()"). XXX XXX XXX
  *
- * Also, the storage needs could be halved by using bytes.  XXX XXX XXX
+ * Also, the storage needs could be halved by using bytes. XXX XXX XXX
  *
  * These arrays could be combined into two big arrays, using sub-arrays
  * to hold the offsets and lengths of each portion of the sub-arrays, and
- * this could perhaps also be used somehow in the "look" code.  XXX XXX XXX
+ * this could perhaps also be used somehow in the "look" code. XXX XXX XXX
  */
 
 
@@ -892,8 +891,8 @@ static sint *dist_offsets_x[10] =
 * Choose a "safe" location near a monster for it to run toward.
 *
 * A location is "safe" if it can be reached quickly and the player
-* is not able to fire into it (it isn't a "clean shot").  So, this will
-* cause monsters to "duck" behind walls.  Hopefully, monsters will also
+* is not able to fire into it (it isn't a "clean shot"). So, this will
+* cause monsters to "duck" behind walls. Hopefully, monsters will also
 * try to run towards corridor openings if they are in a room.
 *
 * This function may take lots of CPU time if lots of monsters are
@@ -1486,7 +1485,7 @@ static int check_hit2(int power, int level, int ac, int stun)
 
 
 /* Monster attacks monster */
-static bool monst_attack_monst(int m_idx, int t_idx)
+bool mon_attack_mon(int m_idx, int t_idx)
 {
     monster_type    *m_ptr = &m_list[m_idx];
     monster_type    *t_ptr = &m_list[t_idx];
@@ -1495,9 +1494,8 @@ static bool monst_attack_monst(int m_idx, int t_idx)
     monster_race    *tr_ptr = &r_info[t_ptr->r_idx];
 
     int             ap_cnt;
-    int             ac, rlev, pt;
+    int             ac, rlev, pt, to_dd = 0;
     char            m_name[80], t_name[80];
-    char            temp[MAX_NLEN];
     bool            blinked;
     bool            explode = FALSE, touched = FALSE, fear = FALSE;
     int             y_saver = t_ptr->fy;
@@ -1524,7 +1522,22 @@ static bool monst_attack_monst(int m_idx, int t_idx)
     ac = MON_AC(tr_ptr, t_ptr);
 
     /* Extract the effective monster level */
-    rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+    rlev = MON_MELEE_LVL(r_ptr, m_ptr);
+
+    /* Apply Dragon Songs to the player's mount */
+    if (p_ptr->riding == m_idx && warlock_is_(WARLOCK_DRAGONS))
+    {
+        switch (warlock_get_toggle())
+        {
+        case WARLOCK_DRAGON_TOGGLE_BLESS:
+            rlev += 5;
+            break;
+        case WARLOCK_DRAGON_TOGGLE_HEROIC_CHARGE:
+            rlev += 20;
+            to_dd += 2;
+            break;
+        }
+    }
 
     /* Get the monster name (or "it") */
     monster_desc(m_name, m_ptr, 0);
@@ -1544,6 +1557,11 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
     if (!retaliation_hack)
         retaliation_count = 0;
+
+    if (!retaliation_hack && see_either)
+        cmsg_format(TERM_GREEN, "<color:B>%^s</color> attacks <color:o>%s</color>:", m_name, t_name);
+    monster_desc(m_name, m_ptr, MD_PRON_VISIBLE);
+    monster_desc(t_name, t_ptr, MD_PRON_VISIBLE);
 
     /* Scan through all four blows */
     for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -1569,7 +1587,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
         effect = r_ptr->blow[ap_cnt].effect;
         method = r_ptr->blow[ap_cnt].method;
-        d_dice = r_ptr->blow[ap_cnt].d_dice;
+        d_dice = r_ptr->blow[ap_cnt].d_dice + to_dd;
         d_side = r_ptr->blow[ap_cnt].d_side;
 
         if (!m_ptr->r_idx) break;
@@ -1587,10 +1605,11 @@ static bool monst_attack_monst(int m_idx, int t_idx)
              continue;
         }
 
-        if (retaliation_hack)
+        if (retaliation_hack && see_either)
         {
-            if (m_ptr->ml)
-                msg_format("%^s retaliates!", m_name);
+            cmsg_format(TERM_GREEN, "(<color:o>%^s</color> retaliates:", m_name);
+            if (is_original_ap_and_seen(m_ptr))
+                r_ptr->r_flags2 |= RF2_AURA_REVENGE;
         }
 
         /* Extract the attack "power" */
@@ -1605,8 +1624,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
             if (t_ptr->ml)
             {
                 /* Redraw the health bar */
-                if (p_ptr->health_who == t_idx) p_ptr->redraw |= (PR_HEALTH);
-                if (p_ptr->riding == t_idx) p_ptr->redraw |= (PR_UHEALTH);
+                check_mon_health_redraw(t_idx);
             }
 
             /* Describe the attack method */
@@ -1614,83 +1632,83 @@ static bool monst_attack_monst(int m_idx, int t_idx)
             {
             case RBM_HIT:
                 {
-                    act = "hits %s.";
+                    act = "hits";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_TOUCH:
                 {
-                    act = "touches %s.";
+                    act = "touches";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_PUNCH:
                 {
-                    act = "punches %s.";
+                    act = "punches";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_KICK:
                 {
-                    act = "kicks %s.";
+                    act = "kicks";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_CLAW:
                 {
-                    act = "claws %s.";
+                    act = "claws";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_BITE:
                 {
-                    act = "bites %s.";
+                    act = "bites";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_STING:
                 {
-                    act = "stings %s.";
+                    act = "stings";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_SLASH:
                 {
-                    act = "slashes %s.";
+                    act = "slashes";
                     break;
                 }
 
             case RBM_BUTT:
                 {
-                    act = "butts %s.";
+                    act = "butts";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_CRUSH:
                 {
-                    act = "crushes %s.";
+                    act = "crushes";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_ENGULF:
                 {
-                    act = "engulfs %s.";
+                    act = "engulfs";
                     touched = TRUE;
                     break;
                 }
 
             case RBM_CHARGE:
                 {
-                    act = "charges %s.";
+                    act = "charges";
 
                     touched = TRUE;
                     break;
@@ -1698,7 +1716,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_CRAWL:
                 {
-                    act = "crawls on %s.";
+                    act = "crawls";
 
                     touched = TRUE;
                     break;
@@ -1706,7 +1724,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_DROOL:
                 {
-                    act = "drools on %s.";
+                    act = "drools";
 
                     touched = FALSE;
                     break;
@@ -1714,7 +1732,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_SPIT:
                 {
-                    act = "spits on %s.";
+                    act = "spits";
 
                     touched = FALSE;
                     break;
@@ -1723,7 +1741,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
             case RBM_EXPLODE:
                 {
                     if (see_either) disturb(1, 0);
-                    act = "explodes.";
+                    act = "explodes";
 
                     explode = TRUE;
                     touched = FALSE;
@@ -1732,7 +1750,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_GAZE:
                 {
-                    act = "gazes at %s.";
+                    act = "gazes";
 
                     touched = FALSE;
                     break;
@@ -1740,7 +1758,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_WAIL:
                 {
-                    act = "wails at %s.";
+                    act = "wails";
 
                     touched = FALSE;
                     break;
@@ -1748,7 +1766,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_SPORE:
                 {
-                    act = "releases spores at %s.";
+                    act = "releases spores";
 
                     touched = FALSE;
                     break;
@@ -1764,7 +1782,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_BEG:
                 {
-                    act = "begs %s for money.";
+                    act = "begs";
 
                     touched = FALSE;
                     break;
@@ -1772,7 +1790,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_INSULT:
                 {
-                    act = "insults %s.";
+                    act = "insults";
 
                     touched = FALSE;
                     break;
@@ -1780,7 +1798,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_MOAN:
                 {
-                    act = "moans at %s.";
+                    act = "moans";
 
                     touched = FALSE;
                     break;
@@ -1788,7 +1806,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
             case RBM_SHOW:
                 {
-                    act = "sings to %s.";
+                    act = "sings";
 
                     touched = FALSE;
                     break;
@@ -1796,15 +1814,16 @@ static bool monst_attack_monst(int m_idx, int t_idx)
             }
 
             /* Message */
-            if (act && see_either)
+            if (act && see_m)
             {
                 if (do_silly_attack)
                 {
                     act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
-                    strfmt(temp, "%s %s.", act, t_name);
+                    msg_format("<color:B>%^s</color> %s <color:o>%s</color>%s", m_name, act, t_name, retaliation_hack ? ".<color:g>)</color>" : ".");
                 }
-                else strfmt(temp, act, t_name);
-                msg_format("%^s %s", m_name, temp);
+                else
+                    msg_format("%^s %s%s", m_name, act, retaliation_hack ? ".<color:g>)</color>" : ".");
+
             }
 
             /* Hack -- assume all attacks are obvious */
@@ -1927,7 +1946,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
                 if (!explode)
                 {
                     project(m_idx, 0, t_ptr->fy, t_ptr->fx,
-                        damage, pt, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
+                        damage, pt, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED | PROJECT_NO_PAIN, -1);
                 }
 
                 switch (effect_type)
@@ -1954,8 +1973,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
                         if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
                         /* Redraw (later) if needed */
-                        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-                        if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+                        check_mon_health_redraw(m_idx);
 
                         /* Special message */
                         if (see_m && did_heal)
@@ -1971,7 +1989,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
                     if (tr_ptr->flags2 & RF2_AURA_REVENGE && !retaliation_hack)
                     {
                         retaliation_hack = TRUE;
-                        monst_attack_monst(t_idx, m_idx);
+                        mon_attack_mon(t_idx, m_idx);
                         retaliation_count++;
                         retaliation_hack = FALSE;
                     }
@@ -1983,13 +2001,13 @@ static bool monst_attack_monst(int m_idx, int t_idx)
                         {
                             if (see_either)
                             {
-                                msg_format("%^s is suddenly very hot!", m_name);
+                                msg_format("%^s is <color:r>burned</color>!", m_name);
                             }
                             if (m_ptr->ml && is_original_ap_and_seen(t_ptr)) tr_ptr->r_flags2 |= RF2_AURA_FIRE;
                             project(t_idx, 0, m_ptr->fy, m_ptr->fx,
                                 damroll (1 + ((tr_ptr->level) / 26),
                                 1 + ((tr_ptr->level) / 17)),
-                                GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
+                                GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED | PROJECT_NO_PAIN, -1);
                         }
                         else
                         {
@@ -2004,13 +2022,13 @@ static bool monst_attack_monst(int m_idx, int t_idx)
                         {
                             if (see_either)
                             {
-                                msg_format("%^s is suddenly very cold!", m_name);
+                                msg_format("%^s is <color:w>frozen</color>!", m_name);
                             }
                             if (m_ptr->ml && is_original_ap_and_seen(t_ptr)) tr_ptr->r_flags3 |= RF3_AURA_COLD;
                             project(t_idx, 0, m_ptr->fy, m_ptr->fx,
                                 damroll (1 + ((tr_ptr->level) / 26),
                                 1 + ((tr_ptr->level) / 17)),
-                                GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
+                                GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED | PROJECT_NO_PAIN, -1);
                         }
                         else
                         {
@@ -2025,13 +2043,13 @@ static bool monst_attack_monst(int m_idx, int t_idx)
                         {
                             if (see_either)
                             {
-                                msg_format("%^s gets zapped!", m_name);
+                                msg_format("%^s is <color:b>zapped</color>!", m_name);
                             }
                             if (m_ptr->ml && is_original_ap_and_seen(t_ptr)) tr_ptr->r_flags2 |= RF2_AURA_ELEC;
                             project(t_idx, 0, m_ptr->fy, m_ptr->fx,
                                 damroll (1 + ((tr_ptr->level) / 26),
                                 1 + ((tr_ptr->level) / 17)),
-                                GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
+                                GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED | PROJECT_NO_PAIN, -1);
                         }
                         else
                         {
@@ -2042,7 +2060,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
             }
         }
 
-        /* Monster missed player */
+        /* Monster missed monster */
         else
         {
             /* Analyze failed attacks */
@@ -2060,19 +2078,29 @@ static bool monst_attack_monst(int m_idx, int t_idx)
             case RBM_CRUSH:
             case RBM_ENGULF:
             case RBM_CHARGE:
+            case RBM_CRAWL:
+            case RBM_SPIT:
+            case RBM_EXPLODE:
+                set_monster_csleep(t_idx, 0);
+                if (see_m)
+                    msg_format("%^s misses%s", m_name, retaliation_hack ? ".<color:g>)</color>" : ".");
+                break;
+            case RBM_DROOL:
+                if (see_m)
+                    msg_format("%^s slobbers ineffectually%s", m_name, retaliation_hack ? ".<color:g>)</color>" : ".");
+                break;
+            case RBM_WAIL:
+                if (see_m)
+                    msg_format("%^s wails ineffectually%s", m_name, retaliation_hack ? ".<color:g>)</color>" : ".");
+                break;
+            case RBM_GAZE:
+                if (see_m)
                 {
-                    /* Wake it up */
-                    (void)set_monster_csleep(t_idx, 0);
-
-                    /* Visible monsters */
-                    if (see_m)
-                    {
-                        /* Message */
-                        msg_format("%^s misses %s.", m_name, t_name);
-                    }
-
-                    break;
+                    char tmp[MAX_NLEN];
+                    monster_desc(tmp, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
+                    msg_format("<color:o>%^s</color> avoids <color:B>%s</color> gaze%s", t_name, tmp, retaliation_hack ? ".<color:g>)</color>" : ".");
                 }
+                break;
             }
         }
 
@@ -2156,13 +2184,13 @@ static bool check_hp_for_feat_destruction(feature_type *f_ptr, monster_type *m_p
  *
  * Note that a monster is only allowed to "reproduce" if there
  * are a limited number of "reproducing" monsters on the current
- * level.  This should prevent the level from being "swamped" by
- * reproducing monsters.  It also allows a large mass of mice to
+ * level. This should prevent the level from being "swamped" by
+ * reproducing monsters. It also allows a large mass of mice to
  * prevent a louse from multiplying, but this is a small price to
  * pay for a simple multiplication method.
  *
  * XXX Monster fear is slightly odd, in particular, monsters will
- * fixate on opening a door even if they cannot open it.  Actually,
+ * fixate on opening a door even if they cannot open it. Actually,
  * the same thing happens to normal monsters when they hit a door
  *
  * XXX XXX XXX In addition, monsters which *cannot* open or bash
@@ -2178,7 +2206,7 @@ static void process_monster(int m_idx)
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
     monster_race    *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
-    class_t         *class_ptr = get_class_t();
+    class_t         *class_ptr = get_class();
 
     int             i, d, oy, ox, ny, nx;
 
@@ -2572,7 +2600,10 @@ static void process_monster(int m_idx)
                 filename = "monspeak.txt";
 
             if (get_rnd_line(filename, m_ptr->ap_r_idx, monmessage) == 0)
-                msg_format("%^s %s", m_name, monmessage);
+            {
+                msg_format("<color:g>%^s</color> %s", m_name, monmessage);
+                msg_boundary();
+            }
         }
     }
 
@@ -2661,8 +2692,8 @@ static void process_monster(int m_idx)
             char m_name[80];
             monster_desc(m_name, m_ptr, 0);
 
-            /* Monsters that spell 1 in 1 get a save on each action.  Make the
-               save and the spell is broken.  Fail, and a turn is lost. */
+            /* Monsters that spell 1 in 1 get a save on each action. Make the
+               save and the spell is broken. Fail, and a turn is lost. */
             if (r_ptr->freq_spell == 100)
             {
                 if (!mon_save_p(m_ptr->r_idx, A_STR))
@@ -2717,12 +2748,12 @@ static void process_monster(int m_idx)
                  * Attempt to cast a spell at an enemy other than the player
                  * (may slow the game a smidgeon, but I haven't noticed.)
                  */
-                if (monst_spell_monst(m_idx)) return;
+                if (mon_spell_mon(m_idx, 0)) return;
             }
             else
             {
                 /* Attempt to do counter attack at first */
-                if (monst_spell_monst(m_idx)) return;
+                if (mon_spell_mon(m_idx, 0)) return;
 
                 if (aware && make_attack_spell(m_idx, FALSE)) return;
             }
@@ -2781,7 +2812,7 @@ static void process_monster(int m_idx)
         mm[0] = mm[1] = mm[2] = mm[3] = 5;
 
         /* Look for an enemy */
-#if 0  /* Hack - Too slow.  Mimic pits are horrible with this on. */
+#if 0  /* Hack - Too slow. Mimic pits are horrible with this on. */
         get_enemy_dir(m_idx, mm);
 #endif /* 0 */
     }
@@ -3153,7 +3184,7 @@ static void process_monster(int m_idx)
                 }
             }
 
-            /* The player is in the way.  Attack him. */
+            /* The player is in the way. Attack him. */
             if (do_move)
             {
                 if (!p_ptr->riding || one_in_(2))
@@ -3194,7 +3225,7 @@ static void process_monster(int m_idx)
                     /* attack */
                     if (y_ptr->r_idx && (y_ptr->hp >= 0))
                     {
-                        if (monst_attack_monst(m_idx, c_ptr->m_idx)) return;
+                        if (mon_attack_mon(m_idx, c_ptr->m_idx)) return;
 
                         /* In anti-melee dungeon, stupid or confused monster takes useless turn */
                         else if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
@@ -3375,6 +3406,7 @@ static void process_monster(int m_idx)
                 /* Move the monster */
                 m_ptr->fy = ny;
                 m_ptr->fx = nx;
+                p_ptr->window |= PW_MONSTER_LIST; /* May have moved in our out of LOS */
 
                 /* Update the monster */
                 update_mon(m_idx, TRUE);
@@ -3410,8 +3442,16 @@ static void process_monster(int m_idx)
                  (disturb_near && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
                  (disturb_high && ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)))
             {
-                /* Disturb */
-                if (is_hostile(m_ptr))
+                if ( town_no_disturb
+                  && !dun_level
+                  && p_ptr->town_num
+                  && !p_ptr->inside_arena
+                  && !p_ptr->inside_battle
+                  && !p_ptr->inside_quest
+                  && r_ptr->level == 0 )
+                {
+                }
+                else if (is_hostile(m_ptr))
                     disturb(0, 0);
             }
 
@@ -3519,7 +3559,7 @@ static void process_monster(int m_idx)
                         excise_object_idx(this_o_idx);
 
                         /* Forget mark */
-                        o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
+                        o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EFFECT_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
 
                         /* Forget location */
                         o_ptr->iy = o_ptr->ix = 0;
@@ -3666,7 +3706,7 @@ static void process_monster(int m_idx)
  * especially when the player is running.
  *
  * Note the special "MFLAG_BORN" flag, which allows us to ignore "fresh"
- * monsters while they are still being "born".  A monster is "fresh" only
+ * monsters while they are still being "born". A monster is "fresh" only
  * during the turn in which it is created, and we use the "hack_m_idx" to
  * determine if the monster is yet to be processed during the current turn.
  *
@@ -3889,7 +3929,8 @@ void process_monsters(void)
         hack_m_spell = 0;
 
         /* Process the monster */
-        process_monster(i); 
+        msg_boundary();
+        process_monster(i);
 
         reset_target(m_ptr);
 
@@ -4010,8 +4051,7 @@ bool set_monster_paralyzed(int m_idx, int v)
     {
         if (m_ptr->ml)
         {
-            if (p_ptr->health_who == m_idx) p_ptr->redraw |= PR_HEALTH;
-            if (p_ptr->riding == m_idx) p_ptr->redraw |= PR_UHEALTH;
+            check_mon_health_redraw(m_idx);
         }
 
         if (r_info[m_ptr->r_idx].flags7 & RF7_HAS_LD_MASK) p_ptr->update |= PU_MON_LITE;
@@ -4058,11 +4098,12 @@ bool set_monster_csleep(int m_idx, int v)
     if (m_ptr->ml)
     {
         /* Update health bar as needed */
-        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-        if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+        check_mon_health_redraw(m_idx);
     }
 
     if (r_info[m_ptr->r_idx].flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+
+    p_ptr->window |= PW_MONSTER_LIST;
 
     return TRUE;
 }
@@ -4188,7 +4229,7 @@ bool set_monster_stunned(int m_idx, int v)
 
     if (m_ptr->ml)
     {
-        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+        check_mon_health_redraw(m_idx);
     }
 
     return notice;
@@ -4231,7 +4272,7 @@ bool set_monster_confused(int m_idx, int v)
 
     if (m_ptr->ml)
     {
-        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+        check_mon_health_redraw(m_idx);
     }
 
     return notice;
@@ -4276,9 +4317,7 @@ bool set_monster_monfear(int m_idx, int v)
 
     if (m_ptr->ml)
     {
-        /* Update health bar as needed */
-        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-        if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+        check_mon_health_redraw(m_idx);
     }
 
     return TRUE;
@@ -4324,9 +4363,7 @@ bool set_monster_invulner(int m_idx, int v, bool energy_need)
 
     if (m_ptr->ml)
     {
-        /* Update health bar as needed */
-        if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-        if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+        check_mon_health_redraw(m_idx);
     }
 
     return TRUE;

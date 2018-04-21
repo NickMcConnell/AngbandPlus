@@ -231,11 +231,7 @@ static int _apollo_get_powers(spell_info* spells, int max)
 static void _apollo_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
     add_flag(flgs, TR_RES_BLIND);
-    add_flag(flgs, TR_LITE);
-}
-static void _apollo_get_immunities(u32b flgs[TR_FLAG_SIZE])
-{
-    add_flag(flgs, TR_LITE);
+    add_flag(flgs, TR_IM_LITE);
 }
 
 /****************************************************************
@@ -429,7 +425,7 @@ static void _zeus_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_SH_ELEC);
 }
 
-race_t *demigod_get_race_t(int psubrace)
+race_t *demigod_get_race(int psubrace)
 {
     static race_t me = {0};
     static bool init = FALSE;
@@ -474,32 +470,59 @@ race_t *demigod_get_race_t(int psubrace)
         me.life = 100;
         me.base_hp = 20;
         me.exp = 180;
+        me.shop_adjust = 100;
 
         me.calc_bonuses = NULL;
         me.get_powers = NULL;
         me.get_flags = NULL;
-        me.get_immunities = NULL;
+
+        me.subname = NULL;
+        me.subdesc = NULL;
 
         /* Override with New Type */
+        /* Some of the following descriptions were inspired by wikipedia ... */
         switch (psubrace)
         {
+        case DEMIGOD_MINOR:
+            me.subname = "Minor-God";
+            me.subdesc = "Fathered by a minor god, you gain no starting powers.";
+            break;
         case DEMIGOD_APHRODITE:
+            me.subname = "Aphrodite";
+            me.subdesc = "Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation. "
+                         "You inherit her sex appeal. As such, your pets are more obedient and shopkeepers "
+                         "fawn over you in their efforts to please you. You may kiss monsters and they "
+                         "might even decide to follow you with slavish devotion, though sometimes this "
+                         "just angers them.";
             me.stats[A_CHR] += 2;
             me.exp += 40;
             me.skills.dev += 2;
+            me.shop_adjust = 70;
             me.calc_bonuses = _aphrodite_calc_bonuses;
             me.get_powers = _aphrodite_get_powers;
             me.get_flags = _aphrodite_get_flags;
             break;
         case DEMIGOD_APOLLO:
+            me.subname = "Apollo";
+            me.subdesc = "Apollo has been variously recognized as a god of light and the sun, "
+                         "truth and prophecy, medicine, healing, plague, music, poetry, arts, "
+                         "archery, and more. You inherit powers of illumination and are completely "
+                         "immune to light based attacks. You are seldom blinded.";
             me.exp += 50;
             me.skills.dev += 3;
             me.calc_bonuses = _apollo_calc_bonuses;
             me.get_powers = _apollo_get_powers;
             me.get_flags = _apollo_get_flags;
-            me.get_immunities = _apollo_get_immunities;
             break;
         case DEMIGOD_ARES:
+            me.subname = "Ares";
+            me.subdesc = "Ares is the bold son of Zeus and Hera, whose very name is feared and respected "
+                         "by warriors and citizens alike. His legendary combat prowess exceeds that of "
+                         "Zeus and Poseidon, but he is less skilled in wiles than the other Olympians. "
+                         "You inherit exceptional bonuses to combat and have a firm grip on your strength. "
+                         "Later in life, you will be able to fly into a berserk rage on command. However, "
+                         "your lust for combat decreases your stealth as you call out challenges "
+                         "to all that you meet. And your resistance to magic is suspect as well.";
             me.stats[A_STR] += 2;
             me.skills.dev -= 3;
             me.skills.sav -= 5;
@@ -511,6 +534,14 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _ares_get_flags;
             break;
         case DEMIGOD_ARTEMIS:
+            me.subname = "Artemis";
+            me.subdesc = "Artemis was often described as the daughter of Zeus and Leto, and the "
+                         "twin sister of Apollo. She was the Hellenic goddess of the hunt, wild "
+                         "animals, wilderness, childbirth, virginity and young girls, bringing "
+                         "and relieving disease in women; she often was depicted as a huntress "
+                         "carrying a bow and arrows. You inherit powers of archery and are very "
+                         "nimble. Your skills with the bow are unmatched and you shoot arrows "
+                         "with increased range and deadliness.";
             me.stats[A_DEX] += 2;
             me.skills.thb += 15;
             me.exp += 50;
@@ -518,6 +549,13 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _artemis_get_flags;
             break;
         case DEMIGOD_ATHENA:
+            me.subname = "Athena";
+            me.subdesc = "Athena is the great goddess of wisdom and the protector of Athens. She was "
+                         "born of Zeus and the Titan Metis, and her cunning far surpasses that of the "
+                         "other deities. You inherit great clarity of thought and magic and will be "
+                         "able to cast spells more reliably than other mortals. And should you fail to "
+                         "cast a spell, you will pay a reduced casting cost rather than the full amount. "
+                         "You also have a firm grip on your mental prowess.";
             me.stats[A_INT] += 2;
             me.exp += 60;
             me.skills.dev += 10;
@@ -526,6 +564,11 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _athena_get_flags;
             break;
         case DEMIGOD_DEMETER:
+            me.subname = "Demeter";
+            me.subdesc = "Demeter is the goddess of the harvest, who presided over grains, the "
+                         "fertility of the earth, and the seasons. You gain powers of regeneration, "
+                         "healing, and temperance. Eventually, you will become resistant to the "
+                         "ravages of time.";
             me.exp += 40;
             me.skills.sav += 5;
             me.calc_bonuses = _demeter_calc_bonuses;
@@ -533,6 +576,9 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _demeter_get_flags;
             break;
         case DEMIGOD_HADES:
+            me.subname = "Hades";
+            me.subdesc = "Hades is Ruler of the Underworld. You gain resistance to nether forces, "
+                         "increased fortitude and have a firm grasp on your life and health.";
             me.stats[A_CON] += 2;
             me.skills.sav += 10;
             me.skills.thn += 5;
@@ -543,6 +589,13 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _hades_get_flags;
             break;
         case DEMIGOD_HEPHAESTUS:
+            me.subname = "Hephaestus";
+            me.subdesc = "Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, "
+                         "sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths "
+                         "but unlike most other gods, Hephaestus was lame, which gave him a "
+                         "grotesque appearance in Greek eyes. He served as the blacksmith of the "
+                         "gods. You inherit powers of enchantment and protection. Your equipment "
+                         "will not suffer diminution by corrosion or magical attack.";
             me.exp += 50;
             me.skills.thn += 10;
             me.skills.sav += 2;
@@ -550,6 +603,11 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _hephaestus_get_flags;
             break;
         case DEMIGOD_HERA:
+            me.subname = "Hera";
+            me.subdesc = "Hera was the wife and one of three sisters of Zeus. Her chief function "
+                         "was as the goddess of women and marriage. You inherit great clarity of "
+                         "mind and capacity for magic. You are very wise and have a firm grasp on "
+                         "your magical energy, which is even augmented.";
             me.stats[A_WIS] += 2;
             me.exp += 40;
             me.skills.sav += 5;
@@ -559,6 +617,12 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _hera_get_flags;
             break;
         case DEMIGOD_HERMES:
+            me.subname = "Hermes";
+            me.subdesc = "Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians "
+                         "to negotiate truces. With his Winged Sandals and his powerful magic, there "
+                         "is no place barred from him, and there is no way to detain him. You inherit "
+                         "great powers of motion and will never become slowed. Your stealth is better "
+                         "than your brethren and your speed will increase with experience.";
             me.skills.dis += 10;
             me.skills.stl += 3;
             me.skills.srh += 5;
@@ -568,6 +632,9 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _hermes_get_flags;
             break;
         case DEMIGOD_POSEIDON:
+            me.subname = "Poseidon";
+            me.subdesc = "Poseidon, Brother of Zeus, is Lord of the Seas and Storm. You inherit "
+                         "elemental protection and corrosive attacks that melt the armor of your foes.";
             me.stats[A_STR] += 1;
             me.stats[A_DEX] += 1;
             me.skills.thn += 7;
@@ -576,6 +643,11 @@ race_t *demigod_get_race_t(int psubrace)
             me.get_flags = _poseidon_get_flags;
             break;
         case DEMIGOD_ZEUS:
+            me.subname = "Zeus";
+            me.subdesc = "Zeus, King of the gods and ruler of Mount Olympus, is god of the Sky "
+                         "and Thunder, and nominal husband of Hera. You inherit increased stature "
+                         "and your divine birth will be marked by your aura of electricity. You also "
+                         "resist lightning.";
             me.skills.dis += 2;
             me.skills.dev += 5;
             me.skills.sav += 5;
@@ -584,6 +656,7 @@ race_t *demigod_get_race_t(int psubrace)
             for (i = 0; i < 6; i++)
                 me.stats[i]++;
             me.exp += 70;
+            me.shop_adjust = 90;
             me.calc_bonuses = _zeus_calc_bonuses;
             me.get_flags = _zeus_get_flags;
             break;

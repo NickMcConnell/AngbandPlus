@@ -584,12 +584,30 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _calc_bonuses(void)
 {
-    if (p_ptr->lev >= 15) p_ptr->clear_mind = TRUE;
+    if (equip_find_artifact(ART_STONE_OF_MIND))
+    {
+        p_ptr->dec_mana = TRUE;
+        p_ptr->easy_spell = TRUE;
+    }
+
     if (p_ptr->lev >= 10) res_add(RES_FEAR);
+    if (p_ptr->lev >= 15) p_ptr->clear_mind = TRUE;
     if (p_ptr->lev >= 20) p_ptr->sustain_wis = TRUE;
     if (p_ptr->lev >= 25) p_ptr->auto_id_sp = 12;
     if (p_ptr->lev >= 30) res_add(RES_CONF);
     if (p_ptr->lev >= 40) p_ptr->telepathy = TRUE;
+}
+
+static void _get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+    if (p_ptr->lev >= 10)
+        add_flag(flgs, TR_RES_FEAR);
+    if (p_ptr->lev >= 20)
+        add_flag(flgs, TR_SUST_WIS);
+    if (p_ptr->lev >= 30)
+        add_flag(flgs, TR_RES_CONF);
+    if (p_ptr->lev >= 40)
+        add_flag(flgs, TR_TELEPATHY);
 }
 
 static void _on_fail(const spell_info *spell)
@@ -638,21 +656,20 @@ static caster_info * _caster_info(void)
         me.which_stat = A_WIS;
         me.weight = 400;
         me.on_fail = _on_fail;
-        me.options = CASTER_ALLOW_DEC_MANA;
         init = TRUE;
     }
     return &me;
 }
 
-static void _character_dump(FILE* file)
+static void _character_dump(doc_ptr doc)
 {
     spell_info spells[MAX_SPELLS];
     int        ct = _get_spells(spells, MAX_SPELLS);
 
-    dump_spells_aux(file, spells, ct);
+    py_display_spells(doc, spells, ct);
 }
 
-class_t *mindcrafter_get_class_t(void)
+class_t *mindcrafter_get_class(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
@@ -690,6 +707,7 @@ class_t *mindcrafter_get_class_t(void)
         me.pets = 35;
 
         me.calc_bonuses = _calc_bonuses;
+        me.get_flags = _get_flags;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;
