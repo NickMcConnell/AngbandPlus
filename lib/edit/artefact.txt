@@ -157,7 +157,7 @@
 
 # Version stamp (required)
 
-V:1.2.1
+V:1.3.0
 
 #################################################################
 # Here is the list of 'Special' artefacts. 
@@ -1748,9 +1748,9 @@ F:INSTA_ART
 
 N:193:'Ultimate'
 I:35:0:0
-F:DEX | CON | GRA | NEG_DEX | NEG_CON | NEG_GRA
+F:DEX | CON | NEG_DEX | NEG_CON
 F:STEALTH | SONG
-F:SUST_DEX | SUST_CON | SUST_GRA
+F:SUST_DEX | SUST_CON
 F:RES_FIRE | RES_COLD
 F:RES_FEAR | RES_CONFU | RES_STUN | RES_HALLU
 F:SLOW_DIGEST | LIGHT | REGEN | FREE_ACT

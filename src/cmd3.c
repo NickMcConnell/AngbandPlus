@@ -1929,7 +1929,7 @@ static cptr ident_info[] =
 	"#:A wall",
 	/* "$:unused", */
 	"%:A quartz vein",
-	/* "&:unused", */
+	"&:A plant",
 	"':An open door",
 	"(:Soft armour",
 	"):A shield",
@@ -1990,7 +1990,7 @@ static cptr ident_info[] =
 	/* "`:unused", */
 	/* "a:unused", */
 	"b:Bat/Bird",
-	"c:Centipede",
+	/* "c:unused", */
 	"d:Dragon",
 	/* "e:unused", */
 	"f:Feline",
@@ -2000,17 +2000,17 @@ static cptr ident_info[] =
 	/* "j:unused", */
 	/* "k:unused", */
 	/* "l:unused", */
-	"m:Mold",
+	"m:Young Spider",
 	/* "n:unused", */
 	"o:Orc",
-	"p:Person",
+	/* "p:unused", */
 	/* "q:unused", */
 	/* "r:unused", */
 	"s:Serpent",
 	/* "t:unused", */
 	/* "u:unused", */
 	"v:Vampire",
-	"w:Worm Mass",
+	"w:Creeping Shadow",
 	/* "x:unused", */
 	/* "y:unused", */
 	/* "z:unused", */

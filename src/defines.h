@@ -50,15 +50,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.2.1"
+#define VERSION_STRING	"1.3.0"
 
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	2
-#define VERSION_PATCH	1
+#define VERSION_MINOR	3
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 
@@ -66,7 +66,7 @@
  * Oldest version number that can still be imported
  */
 #define OLD_VERSION_MAJOR	1
-#define OLD_VERSION_MINOR	2
+#define OLD_VERSION_MINOR	3
 #define OLD_VERSION_PATCH	0
 
 
@@ -217,17 +217,17 @@
  */
 
 #define R_IDX_ORC_ARCHER		 51
-#define R_IDX_EASTERLING_SPY	 74
 #define R_IDX_ORC_CHAMPION		 81
 #define R_IDX_ORC_CAPTAIN		 91
-#define R_IDX_BARROW_WIGHT		103
+#define R_IDX_BARROW_WIGHT		112
 #define R_IDX_ALDOR             117
+#define R_IDX_EASTERLING_SPY	121
 #define R_IDX_OATHWRAITH        152
 #define R_IDX_CAT_WARRIOR		154
 #define R_IDX_YOUNG_COLD_DRAKE  164
-#define R_IDX_TROLL_GUARD		172
 #define R_IDX_CAT_ASSASSIN		175
 #define R_IDX_YOUNG_FIRE_DRAKE  181
+#define R_IDX_TROLL_GUARD		192
 #define R_IDX_SILENT_WATCHER	203
 #define R_IDX_GOTHMOG			241	// the location of Gothmog
 #define R_IDX_UNGOLIANT			242	// the location of Ungoliant
@@ -1541,6 +1541,19 @@
 #define PW_OVERHEAD         0x00000100L /* Display overhead view */
 #define PW_MONLIST          0x00000200L /* Display monster list */
 
+#define PW_MAX_FLAGS        16
+
+/*
+ *  Default terms to put these in:
+ */
+#define WINDOW_MAIN           0
+#define WINDOW_INVEN          1
+#define WINDOW_EQUIP          2
+#define WINDOW_COMBAT_ROLLS   3
+#define WINDOW_MONSTER        4
+#define WINDOW_PLAYER_0       5
+#define WINDOW_MESSAGE        6
+#define WINDOW_MONLIST        7
 
 
 /*** Cave flags ***/
@@ -2119,6 +2132,7 @@
 #define RBM_CRUSH        11
 #define RBM_ENGULF       12
 #define RBM_CRAWL        13
+#define RBM_THORN        14
 #define RBM_SPORE        19
 
 

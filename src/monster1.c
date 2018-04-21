@@ -140,15 +140,20 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		/* Damage */
 		if (attack > -1)
 		{
-			// GF_BOULDER
-			if (attack == 96+2)
-			{
-				text_out_c(TERM_UMBER, format(" (%+d, 6d%d)", r_ptr->spell_power, get_sides(attack)));
-			}
-			// other (arrows)
-			else
+			// RF4_ARROW1
+            if (attack == 96+0)
 			{
 				text_out_c(TERM_UMBER, format(" (%+d, 1d%d)", r_ptr->spell_power, get_sides(attack)));
+			}
+			// RF4_ARROW2
+			else if (attack == 96+1)
+			{
+				text_out_c(TERM_UMBER, format(" (%+d, 2d%d)", r_ptr->spell_power, get_sides(attack)));
+			}
+			// GF_BOULDER
+			else if (attack == 96+2)
+			{
+				text_out_c(TERM_UMBER, format(" (%+d, 6d%d)", r_ptr->spell_power, get_sides(attack)));
 			}
 		}
 
@@ -395,6 +400,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_CRUSH:         p = "crush"; break;
 			case RBM_ENGULF:        p = "engulf"; break;
 			case RBM_CRAWL:         p = "crawl on you"; break;
+			case RBM_THORN:         p = "pierce you with thorns"; break;
 			case RBM_SPORE:         p = "release spores (ignoring evasion and armour)"; break;
 		}
 

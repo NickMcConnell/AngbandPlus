@@ -258,22 +258,6 @@ void identify_pack(void)
 }
 
 
-
-#define ENCHANT_MAX 15
-
-
-/*
- * Used by the "enchant" function (chance of failure)
- */
-static const int enchant_table[ENCHANT_MAX+1] =
-{
-	0, 10,  50, 100, 200,
-	300, 400, 500, 700, 950,
-	990, 992, 995, 997, 999,
-	1000
-};
-
-
 /*
  * Hack -- Removes curse from an object.
  */
@@ -3623,10 +3607,10 @@ bool light_line(int dir)
 	return (fire_bolt_beam_special(GF_LIGHT, dir, 6, 4, -1, MAX_RANGE, flg));
 }
 
-bool blast(int dir, int dd, int ds)
+bool blast(int dir, int dd, int ds, int dif)
 {
 	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (fire_bolt_beam_special(GF_KILL_WALL, dir, dd, ds, -1, MAX_RANGE, flg));
+	return (fire_bolt_beam_special(GF_KILL_WALL, dir, dd, ds, dif, MAX_RANGE, flg));
 }
 
 bool destroy_door(int dir)

@@ -1155,9 +1155,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (fuelable_light_p(o_ptr))
 	{
 		/* Hack -- Turns of light for normal lites */
-		object_desc_str_macro(t, " (with ");
+		object_desc_str_macro(t, " (");
 		object_desc_num_macro(t, o_ptr->timeout);
-		object_desc_str_macro(t, " turns of light)");
+		object_desc_str_macro(t, " turns)");
 	}
 
 	/* Dump "pval" flags for wearable items */

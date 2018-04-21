@@ -569,17 +569,23 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 static bool play_instrument(object_type *o_ptr, bool *ident)
 {
-	int dir, lev, will_score, difficulty;
-	
-	/* Get a direction */
-	if (o_ptr->tval == TV_HORN)
+    int voice_cost = p_ptr->active_ability[S_WIL][WIL_CHANNELING] ? 10 : 20;
+	int will_score;
+    int dir;
+    
+    if (o_ptr->tval == TV_HORN)
 	{
+        /* Check that you have enough voice */
+        if (p_ptr->csp < voice_cost)
+        {
+            flush();
+            msg_print("You are out of breath.");
+            return (FALSE);
+        }
+
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir, 0)) return (FALSE);
 	}
-	
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
 	
 	/* Base chance of success */
 	will_score = p_ptr->skill_use[S_WIL];
@@ -590,36 +596,7 @@ static bool play_instrument(object_type *o_ptr, bool *ident)
 		will_score += 5;
 	}
 	
-	// Base difficulty
-	difficulty = lev / 2;
-	
-	/* Roll for usage */
-	if (skill_check(PLAYER, will_score, difficulty, NULL) <= 0)
-	{
-		flush();
-		msg_print("You fail to sound a note.");
-
-        /* Take a turn */
-        p_ptr->energy_use = 100;
-        
-        // store the action type
-        p_ptr->previous_action[0] = ACTION_MISC;
-        
-        // end the current song
-        change_song(SNG_NOTHING);
-        
-        return (FALSE);
-	}
-
-	/* Check that you have enough voice */
-	if (p_ptr->csp < 20)
-	{
-		flush();
-		msg_print("You are out of breath.");
-		return (FALSE);
-	}
-	
-	p_ptr->csp -= 20;
+	p_ptr->csp -= voice_cost;
 
 	/* Redraw voice */
 	p_ptr->redraw |= (PR_VOICE);
@@ -722,7 +699,7 @@ static bool play_instrument(object_type *o_ptr, bool *ident)
                     monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
                     // skill check of Will+10 vs Con*2
-                    if (skill_check(PLAYER, p_ptr->skill_use[S_WIL] + 10, monster_stat(m_ptr, A_CON) * 2, m_ptr) > 0)
+                    if (skill_check(PLAYER, will_score + 10, monster_stat(m_ptr, A_CON) * 2, m_ptr) > 0)
                     {
                         if (m_ptr->ml)
                         {
@@ -761,77 +738,96 @@ static bool play_instrument(object_type *o_ptr, bool *ident)
         }    
             
 		case SV_HORN_BLASTING:
-		{			
+		{
 			if (dir == DIRECTION_UP)
 			{
-				int dam = damroll(4,8);
-				int prt = protection_roll(GF_HURT, FALSE);
-				int net_dam = dam - prt;
-				
-				// no negative damage
-				if (net_dam < 0) net_dam = 0;
-				
-				msg_print("The ceiling cracks and rock rains down upon you!");
-				earthquake(p_ptr->py, p_ptr->px, -1, -1, 3, -1);
-				
-				update_combat_rolls1b(PLAYER, PLAYER, TRUE);
-				update_combat_rolls2(4, 8, dam, -1, -1, prt, 100, GF_HURT, FALSE);
-				
-				take_hit(net_dam, "a collapsing ceiling");
-				
-				if (allow_player_stun(NULL))
-				{ 
-					set_stun(p_ptr->stun + net_dam * 4);
-				}
-				
-				*ident = TRUE;
+                // skill check of Will vs 10
+                if (skill_check(PLAYER, will_score, 10, NULL) > 0)
+                {
+                    int dam = damroll(4,8);
+                    int prt = protection_roll(GF_HURT, FALSE);
+                    int net_dam = dam - prt;
+                    
+                    // no negative damage
+                    if (net_dam < 0) net_dam = 0;
+                    
+                    msg_print("The ceiling cracks and rock rains down upon you!");
+                    earthquake(p_ptr->py, p_ptr->px, -1, -1, 3, -1);
+                    
+                    update_combat_rolls1b(PLAYER, PLAYER, TRUE);
+                    update_combat_rolls2(4, 8, dam, -1, -1, prt, 100, GF_HURT, FALSE);
+                    
+                    take_hit(net_dam, "a collapsing ceiling");
+                    
+                    if (allow_player_stun(NULL))
+                    { 
+                        set_stun(p_ptr->stun + net_dam * 4);
+                    }
+                    
+                    *ident = TRUE;
+                }
+                else
+                {
+                    msg_print("The blast hits the ceiling, but you did not blow hard enough to bring it down.");
+                    *ident = TRUE;
+                }
 			}
 			else if (dir == DIRECTION_DOWN)
 			{
-				if (p_ptr->depth < (MORGOTH_DEPTH - 1))
-				{
-                    // Store information for the combat rolls window
-                    combat_roll_special_char = object_char(o_ptr);
-                    combat_roll_special_attr = object_attr(o_ptr);
-					
-                    msg_print("The floor crumbles beneath you!");
-					message_flush();
-					msg_print("You fall through...");
-					message_flush();
-					msg_print("...and land somewhere deeper in the Iron Hells.");
-					message_flush();
+                // skill check of Will vs 10
+                if (skill_check(PLAYER, will_score, 10, NULL) > 0)
+                {
+                    if (p_ptr->depth < (MORGOTH_DEPTH - 1))
+                    {
+                        // Store information for the combat rolls window
+                        combat_roll_special_char = object_char(o_ptr);
+                        combat_roll_special_attr = object_attr(o_ptr);
+                        
+                        msg_print("The floor crumbles beneath you!");
+                        message_flush();
+                        msg_print("You fall through...");
+                        message_flush();
+                        msg_print("...and land somewhere deeper in the Iron Hells.");
+                        message_flush();
 
-					// add to the notes file
-					do_cmd_note("Fell through the floor with a horn blast.", p_ptr->depth);
-					
-					// take some damage
-					falling_damage(TRUE);
-					
-					message_flush();
-					
-					// make a note if the player loses a greater vault
-					note_lost_greater_vault();
+                        // add to the notes file
+                        do_cmd_note("Fell through the floor with a horn blast.", p_ptr->depth);
+                        
+                        // take some damage
+                        falling_damage(TRUE);
+                        
+                        message_flush();
+                        
+                        // make a note if the player loses a greater vault
+                        note_lost_greater_vault();
 
-					/* New depth */
-					p_ptr->depth++;
-					
-					/* Leaving */
-					p_ptr->leaving = TRUE;
+                        /* New depth */
+                        p_ptr->depth++;
+                        
+                        /* Leaving */
+                        p_ptr->leaving = TRUE;
 
-					/* Generate rubble on arrival */
-					p_ptr->create_rubble = TRUE;
-					
-					*ident = TRUE;
-				}
-				else
-				{
-					msg_print("Cracks spread across the floor, but it holds firm.");
-					*ident = TRUE;
-				}
+                        /* Generate rubble on arrival */
+                        p_ptr->create_rubble = TRUE;
+                        
+                        *ident = TRUE;
+                    }
+                    else
+                    {
+                        msg_print("Cracks spread across the floor, but it holds firm.");
+                        *ident = TRUE;
+                    }
+                }
+                else
+                {
+                    msg_print("The blast hits the floor, but you did not blow hard enough to collapse it.");
+                    *ident = TRUE;
+                }
+
 			}
 			else
 			{
-				if (blast(dir, 4, 4)) *ident = TRUE;
+				if (blast(dir, 4, 4, will_score)) *ident = TRUE;
 			}
 
 			/* Make a lot of noise */
@@ -1196,7 +1192,7 @@ static bool activate_object(object_type *o_ptr)
 			{
 				msg_format("Your %s pulsates...", o_name);
 				if (!get_aim_dir(&dir, 0)) return FALSE;
-				blast(dir, 4, 4);
+				blast(dir, 4, 4, 0);
 				break;
 			}
 

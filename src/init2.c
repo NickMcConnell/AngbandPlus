@@ -1146,13 +1146,13 @@ extern void re_init_some_things(void)
 	}
 	
 	// Set some sensible defaults
-	op_ptr->window_flag[1] |= (PW_INVEN);
-	op_ptr->window_flag[2] |= (PW_EQUIP);
-	op_ptr->window_flag[3] |= (PW_COMBAT_ROLLS);
-	op_ptr->window_flag[4] |= (PW_MONSTER);
-	op_ptr->window_flag[5] |= (PW_PLAYER_0);
-	op_ptr->window_flag[6] |= (PW_MESSAGE);
-	op_ptr->window_flag[7] |= (PW_MONLIST);
+	op_ptr->window_flag[WINDOW_INVEN]        |= (PW_INVEN);
+	op_ptr->window_flag[WINDOW_EQUIP]        |= (PW_EQUIP);
+	op_ptr->window_flag[WINDOW_COMBAT_ROLLS] |= (PW_COMBAT_ROLLS);
+	op_ptr->window_flag[WINDOW_MONSTER]      |= (PW_MONSTER);
+	op_ptr->window_flag[WINDOW_PLAYER_0]     |= (PW_PLAYER_0);
+	op_ptr->window_flag[WINDOW_MESSAGE]      |= (PW_MESSAGE);
+	op_ptr->window_flag[WINDOW_MONLIST]      |= (PW_MONLIST);
 	
 	// re-initialize the objects and flavors
 	if (init_k_info()) quit("Cannot initialize objects");
@@ -1260,13 +1260,13 @@ static errr init_other(void)
 	}
 
 	// Set some sensible defaults
-	op_ptr->window_flag[1] |= (PW_INVEN);
-	op_ptr->window_flag[2] |= (PW_EQUIP);
-	op_ptr->window_flag[3] |= (PW_COMBAT_ROLLS);
-	op_ptr->window_flag[4] |= (PW_MONSTER);
-	op_ptr->window_flag[5] |= (PW_PLAYER_0);
-	op_ptr->window_flag[6] |= (PW_MESSAGE);
-	op_ptr->window_flag[7] |= (PW_MONLIST);
+	op_ptr->window_flag[WINDOW_INVEN]        |= (PW_INVEN);
+	op_ptr->window_flag[WINDOW_EQUIP]        |= (PW_EQUIP);
+	op_ptr->window_flag[WINDOW_COMBAT_ROLLS] |= (PW_COMBAT_ROLLS);
+	op_ptr->window_flag[WINDOW_MONSTER]      |= (PW_MONSTER);
+	op_ptr->window_flag[WINDOW_PLAYER_0]     |= (PW_PLAYER_0);
+	op_ptr->window_flag[WINDOW_MESSAGE]      |= (PW_MESSAGE);
+	op_ptr->window_flag[WINDOW_MONLIST]      |= (PW_MONLIST);
 	
 	/*** Pre-allocate space for the "format()" buffer ***/
 

@@ -3529,6 +3529,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	bool do_view = FALSE;
 
 	/* Assume nothing */
+    bool did_swap = FALSE;
 	bool did_pass_door = FALSE;
 	bool did_open_door = FALSE;
 	bool did_unlock_door = FALSE;
@@ -3868,6 +3869,8 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 			/* Swap with or push aside the other monster */
 			else
 			{
+                did_swap = TRUE;
+                
 				/* If other monster can't move, then abort the swap */
 				
 				// Sil-y: should no longer need this
@@ -3899,7 +3902,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
         // deal with possible flanking attack
         if ((r_ptr->flags2 & (RF2_FLANKING)) &&
             (distance(oy, ox, p_ptr->py, p_ptr->px) == 1) && (distance(ny, nx, p_ptr->py, p_ptr->px) == 1) &&
-            (m_ptr->alertness >= ALERTNESS_ALERT) && (m_ptr->stance != STANCE_FLEEING) && !m_ptr->confused)
+            (m_ptr->alertness >= ALERTNESS_ALERT) && (m_ptr->stance != STANCE_FLEEING) && !m_ptr->confused && !did_swap)
         {
             char m_name[80];
             
@@ -3914,9 +3917,6 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 
 		/* Move the monster */
 		monster_swap(oy, ox, ny, nx);
-        
-        // record the direction of travel (for charge attacks)
-        m_ptr->previous_action[0] = rough_direction(oy, ox, ny, nx);
         
 		/* Cancel target when reached */
 		if ((m_ptr->target_y == ny) && (m_ptr->target_x == nx))
@@ -3937,8 +3937,16 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 			n_ptr = &mon_list[cave_m_idx[oy][ox]];
 			
 			n_ptr->mflag |= (MFLAG_PUSHED);
-			
-		}
+
+            // exchanging places doesn't count as movement in a direction for abilities
+        }
+        
+        // if it moved into a free space
+        else
+        {
+            // record the direction of travel (for charge attacks)
+            m_ptr->previous_action[0] = rough_direction(oy, ox, ny, nx);
+        }
 
 		/*
 		 * If a member of a monster group capable of smelling hits a
@@ -5425,6 +5433,9 @@ void process_monsters(s16b minimum_energy)
 		// Monsters who have just noticed you miss their turns (as do those who have been knocked back...)
 		if (m_ptr->skip_next_turn)
 		{
+            // reset its previous movement to stop it charging etc.
+            m_ptr->previous_action[0] = ACTION_MISC;
+			
 			m_ptr->skip_next_turn = FALSE;
 			continue;
 		}

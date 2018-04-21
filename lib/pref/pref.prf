@@ -39,6 +39,7 @@ A:/5
 C:0:^Z
 
 # Movement (numerical)
+
 A:;1
 C:0:1
 A:;2
@@ -403,7 +404,6 @@ C:3:^t
 
 # Message colors
 %:message.prf
-
 
 ##### System Specific Subfiles #####
 

@@ -104,7 +104,7 @@ APPRES = $(APPCONT)/Resources
 # the actual size of image.  When you have them ready, put them in the src
 # directory and "make install-tiles".
 ICONFILES = Sil.icns Save.icns Edit.icns Data.icns
-TILES = 8x8.png 16x16.png 32x32.png
+TILES = ../lib/xtra/graf/8x8.png ../lib/xtra/graf/16x16.png ../lib/xtra/graf/32x32.png
 PLIST = Sil.xml
 RESSRCS = Sil.r
 # RESSRCS = Sil.r Sound.r
@@ -119,6 +119,7 @@ install: Sil $(RESSRCS) $(ICONFILES) $(PLIST)
 	install -m 644 $(ICONFILES) $(APPRES)
 	$(REZ) $(RFLAGS) -o $(APPRES)/Sil.rsrc $(RESSRCS)
 	install -m 644 $(PLIST) $(APPCONT)/Info.plist
+	install -m 644 $(TILES) $(APPRES)
 	$(SETFILE) -a B $(APPBNDL)
 
 install-tiles: $(TILES)

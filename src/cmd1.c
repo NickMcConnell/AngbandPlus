@@ -264,7 +264,7 @@ void set_alertness(monster_type *m_ptr, int alertness)
 		{
 			// Monster must spend its next turn noticing you
 			m_ptr->skip_next_turn = TRUE;
-			
+            
 			// Notice the "noticing" (!)
 			if (m_ptr->ml)
 			{

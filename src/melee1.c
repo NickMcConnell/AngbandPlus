@@ -574,6 +574,15 @@ bool make_attack_normal(monster_type *m_ptr)
 
 					break;
 				}
+				case RBM_THORN:
+				{
+					act = "tears at you";
+                    
+					// stopped by armor
+					prt_percent = 100;
+                    
+					break;
+				}
 				case RBM_SPORE:
 				{
 					act = "releases a cloud of spores";

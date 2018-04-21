@@ -67,7 +67,7 @@ static cptr r_info_blow_method[] =
 	"CRUSH",
 	"ENGULF",
 	"CRAWL",
-	"XXX",
+	"THORN",
 	"XXX",
 	"XXX",
 	"XXX",

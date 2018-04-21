@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		A903FB5E1A18EA8600560F2C /* main-cocoa.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "main-cocoa.m"; path = "src/main-cocoa.m"; sourceTree = "<group>"; };
 		A9BB7A3B087416CC00E8B486 /* birth.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = birth.c; path = src/birth.c; sourceTree = "<group>"; };
 		A9BB7A3C087416CC00E8B486 /* cave.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = cave.c; path = src/cave.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		A9BB7A3D087416CC00E8B486 /* cmd1.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = cmd1.c; path = src/cmd1.c; sourceTree = "<group>"; };
@@ -99,6 +100,7 @@
 				A9BB7A50087416CD00E8B486 /* init1.c */,
 				A9BB7A51087416CD00E8B486 /* init2.c */,
 				A9BB7A52087416CD00E8B486 /* load.c */,
+				A903FB5E1A18EA8600560F2C /* main-cocoa.m */,
 				A9BB7A53087416CD00E8B486 /* main-crb.c */,
 				A9BB7A55087416CD00E8B486 /* main.c */,
 				A9BB7A56087416CD00E8B486 /* main.h */,
@@ -143,7 +145,7 @@
 /* Begin PBXLegacyTarget section */
 		A9E8BDEE0907B86200A7232C /* Sil */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = " -f Makefile.osx OPT=-g $(ACTION)";
+			buildArgumentsString = " -f Makefile.cocoa";
 			buildConfigurationList = A930C5160BBFEDD800AE4611 /* Build configuration list for PBXLegacyTarget "Sil" */;
 			buildPhases = (
 			);
@@ -161,7 +163,7 @@
 		A9BB7A2E0874154C00E8B486 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = A930C51A0BBFEDD800AE4611 /* Build configuration list for PBXProject "Sil" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -193,11 +195,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Sil;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
+				WARNING_CFLAGS = "";
 			};
 			name = Development;
 		};
@@ -209,13 +207,9 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Untitled;
+				PRODUCT_NAME = Sil;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
+				WARNING_CFLAGS = "";
 			};
 			name = Deployment;
 		};
@@ -226,13 +220,9 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Untitled;
+				PRODUCT_NAME = Sil;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
+				WARNING_CFLAGS = "";
 			};
 			name = Default;
 		};

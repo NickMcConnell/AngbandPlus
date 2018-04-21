@@ -263,7 +263,7 @@ bool set_poisoned(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Redraw the "cut" */
+	/* Redraw the "poison" */
 	p_ptr->redraw |= (PR_POISONED);
 
 	/* Handle stuff */
@@ -4323,7 +4323,7 @@ bool target_set_interactive(int mode, int range)
 			}
 
 			// summon a creature
-			else if (strchr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@", query) || inc_monster || reroll_monster)
+			else if (strchr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&@", query) || inc_monster || reroll_monster)
 			{
 				monster_race *r_ptr;
 				monster_race *old_r_ptr;

@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.2.1
+V:1.3.0
 
 # Melee ---------------------------------------------
 
@@ -234,7 +234,7 @@ T:34:0:99  # Shields
 
 N:42:Parry
 I:2:2:4
-D:Doubles the evasion bonus granted by your weapon.
+D:Doubles the evasion bonus granted by your primary melee weapon.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -250,14 +250,13 @@ T:31:0:99  # Gloves
 
 N:44:Leaping
 I:2:4:6
-P:2/0
 D:You can leap over a chasm, pit, or false floor if you moved
 D: towards it the previous turn.
 T:30:0:99  # Boots
 
 N:45:Sprinting
 I:2:5:7
-P:2/0
+P:2/0:2/4
 D:You start moving more quickly if you run four or more squares
 D: in roughly the same direction.
 T:30:0:99  # Boots
@@ -439,8 +438,8 @@ D:You gain a point of grace.
 
 N:100:Channeling
 I:5:0:2
-D:Gives you a bonus of +5 to using staves and horns, and lets
-D: you know how many charges staves have.
+D:Gives you bonuses to using staves and horns
+D: (+5 to skill checks, always know charges, half voice cost).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 

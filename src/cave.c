@@ -404,76 +404,15 @@ bool cave_valid_bold(int y, int x)
 	return (TRUE);
 }
 
-/*
- * Table of breath colors.  Must match listings in a single set of
- * monster spell flags.
- *
- * The value "255" is special.  Monsters with that kind of breath
- * may be any color.
- */
-static byte breath_to_attr[32][2] =
-{
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  TERM_RED,    TERM_L_RED   },     /* RF4_BRTH_FIRE */
-	{  TERM_WHITE,  TERM_L_WHITE },     /* RF4_BRTH_COLD */
-	{  TERM_GREEN,  TERM_L_GREEN },     /* RF4_BRTH_POIS */
-	{  TERM_L_DARK, TERM_SLATE   },     /* RF4_BRTH_DARK */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            },     /*  */
-	{  0,           0            }      /*  */
-};
 
 
 /*
- * Multi-hued monsters shimmer according to their default attr or to their
- * breaths.  -LM-
- *
- * If a monster has an attr other than 'v', it uses both colors associated
- * with that attr.
- * If a monster has only one kind of breath, it uses both colors
- * associated with that breath.  Otherwise, it just uses the first
- * color for any of its breaths.
- *
- * If a monster does not breath anything, it can be any color.
+ * Multi-hued monsters shimmer according to their base colour.
  */
 static byte multi_hued_attr(monster_race *r_ptr)
 {
-	byte allowed_attrs[15];
-
-	int i, j;
-
-	int stored_colors = 0;
-	int breaths = 0;
-	int first_color = 0;
-	int second_color = 0;
-
-
-	/* Monsters with an attr other than 'v' choose colors according to attr */
-	if (r_ptr->d_attr != TERM_VIOLET)
+	/* Monsters with an attr other than 'w' choose colors according to attr */
+	if (r_ptr->d_attr != TERM_WHITE)
 	{
 		if ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED))
 			return ((one_in_(2)) ? TERM_RED : TERM_L_RED);
@@ -489,70 +428,12 @@ static byte multi_hued_attr(monster_race *r_ptr)
 			return ((one_in_(2)) ? TERM_ORANGE : TERM_YELLOW);
 		if ((r_ptr->d_attr == TERM_L_DARK) || (r_ptr->d_attr == TERM_SLATE))
 			return ((one_in_(2)) ? TERM_L_DARK : TERM_SLATE);
+		if ((r_ptr->d_attr == TERM_VIOLET) || (r_ptr->d_attr == TERM_VIOLET + TERM_SHADE))
+			return ((one_in_(2)) ? TERM_VIOLET :  TERM_VIOLET + TERM_SHADE);
 	}
 
-	/* Monsters with no ranged attacks can be any color */
-	if (!r_ptr->freq_ranged) return (dieroll(15));
-
-	/* Check breaths */
-	for (i = 0; i < 32; i++)
-	{
-		bool stored = FALSE;
-
-		/* Don't have that breath */
-		if (!(r_ptr->flags4 & (1L << i))) continue;
-
-		/* Get the first color of this breath */
-		first_color = breath_to_attr[i][0];
-
-		/* Breath has no color associated with it */
-		if (first_color == 0) continue;
-
-		/* Monster can be of any color */
-		if (first_color == 255) return (dieroll(15));
-
-
-		/* Increment the number of breaths */
-		breaths++;
-
-		/* Monsters with lots of breaths may be any color. */
-		if (breaths == 6) return (dieroll(15));
-
-
-		/* Always store the first color */
-		for (j = 0; j < stored_colors; j++)
-		{
-			/* Already stored */
-			if (allowed_attrs[j] == first_color) stored = TRUE;
-		}
-		if (!stored)
-		{
-			allowed_attrs[stored_colors] = first_color;
-			stored_colors++;
-		}
-
-		/*
-		 * Remember (but do not immediately store) the second color
-		 * of the first breath.
-		 */
-		if (breaths == 1)
-		{
-			second_color = breath_to_attr[i][1];
-		}
-	}
-
-	/* Monsters with no breaths may be of any color. */
-	if (breaths == 0) return (dieroll(15));
-
-	/* If monster has one breath, store the second color too. */
-	if (breaths == 1)
-	{
-		allowed_attrs[stored_colors] = second_color;
-		stored_colors++;
-	}
-
-	/* Pick a color at random */
-	return (allowed_attrs[rand_int(stored_colors)]);
+	/* Otherwise can be any color */
+	return (dieroll(15));
 }
 
 
@@ -775,10 +656,10 @@ static void special_lighting_wall(byte *a, char *c, int feat, int info)
 					*a = *a + (MAX_COLORS * BG_SAME);
 				}
 			}
-				break;
+            break;
 		}
 	}
-	
+
 }
 
 

@@ -1835,6 +1835,8 @@ void describe_floor_object(void)
 
 /*
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
+ *
+ * Note that this assumes the monster at y1-x1 is actively moving to y2-x2
  */
 void monster_swap(int y1, int x1, int y2, int x2)
 {
@@ -1970,6 +1972,9 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 		/* Update monster */
 		(void)update_mon(m2, TRUE);
+
+        // reset its previous movement to stop it charging etc.
+        m_ptr->previous_action[0] = ACTION_MISC;
 	}
 
 	/* Player 2 */

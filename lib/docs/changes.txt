@@ -1,3 +1,61 @@
+- Sil 1.3 ----------------------------------------------------------------------------------------------
+
+- broke savefile compatibility
+	- sorry about this
+	- it needs to happen every now and then and I schedule it for the 1.X.0 releases
+
+- monsters
+	- large changes to the early game monsters
+		- many new monsters
+		- replaced many of the more generic early monsters as many players had requested
+		- a few changes to some later game monsters
+	- stopped the Orc warrior "chain charging"
+		- it used to be that swapping with another orc counted as movement, setting up a charge
+		- it no longer does (in line with how the player abilities work)
+		- also anything that makes them skip a turn interrupts their charging
+			- (such as when they become aware of you)
+	- Gave Boldog resistance to fear (from his spear)
+
+- new mac version
+	- replaced the old Carbon version with a Cocoa version
+	- the old version was really out of date and wouldn't compile or run on recent systems
+	- this should also remove some stubborn old bugs (see bugfixes)
+	- this version isn’t perfect (e.g. some minor problems with displaying text)
+		- but it does allow Sil to run on all new systems
+
+- objects
+	- horns
+		- no longer require a will check to use
+		- this is because they all require a will check to have an effect anyway
+
+- abilities
+	- made Leaping easier to acquire
+		- it no longer has a pre-requisite
+		- it now acts as a pre-requisite to Sprinting
+	- Channelling now halves the voice cost for blowing horns
+
+- smithing
+	- now allows artefact rings to have bonuses to attack, evasion, and protection
+		- (since there are regular rings with these)
+	- removed the ability to add Grace to artefact cloaks
+		- (just a minor nerf to the extreme +Grace smiths)
+
+- tunnelling
+	- attempting to tunnel but failing now takes a turn if you are confused
+		- otherwise control-dir in a corridor would effectively overcome confusion
+
+- bugfixes
+	- stopped Great Cold-Drakes and Scatha the Worm having radius 40 light (!)
+	- fixed the 'could not find a vault at 100ft depth' bug
+	- control-t no longer aims successfully for throwing while confused
+	- smithing gloves of treachery now correctly forces a <-1> penalty to strength
+	- now correctly displays 'cut' status on the first turn on a new dungeon level
+	- fixed a bug where channeling's +5 bonus didn't apply to horns of force
+	- hopefully fixed various bugs with the Mac version
+		- crash on startup
+		- requiring admin password sometimes when opening saved games
+
+
 - Sil 1.2.1 ----------------------------------------------------------------------------------------------
 
 - monster songs
@@ -82,6 +140,11 @@
 
 - added chasms to the dungeon
 	- these block movement of you and most enemies, but not sight or line of fire
+
+- added a player AI inspired by the Angband Borg
+	- called the 'automaton'
+	- it serves no real purpose, but people might want to try experimenting with its code and parameters
+		- and see how deep they can get it to go
 
 - abilities
 	- Throwing Mastery now prevents thrown items from breaking

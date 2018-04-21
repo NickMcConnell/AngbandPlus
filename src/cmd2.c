@@ -1884,15 +1884,28 @@ static bool do_cmd_tunnel_aux(int y, int x)
     // abort if you have no digger
     if (digging_score == 0)
     {
-        msg_print("You are not carrying a shovel or mattock.");
-
-        // reset the action type
-        p_ptr->previous_action[0] = ACTION_NOTHING;
+        // confused players trying to dig without a digger waste their turn
+        // (otherwise control-dir is safe in a corridor)
+        if (p_ptr->confused)
+        {
+            if (cave_feat[y][x] == FEAT_RUBBLE)     msg_print("You bump into the rubble.");
+            else                                    msg_print("You bump into the wall.");
+            
+            return (FALSE);
+        }
         
-        // don't take a turn
-        p_ptr->energy_use = 0;
-        
-        return (FALSE);
+        else
+        {
+            msg_print("You are not carrying a shovel or mattock.");
+            
+            // reset the action type
+            p_ptr->previous_action[0] = ACTION_NOTHING;
+            
+            // don't take a turn
+            p_ptr->energy_use = 0;
+            
+            return (FALSE);
+        }
     }
     
     // get the short name of the item
@@ -1992,16 +2005,22 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	}
     
 	else
-	{		
-        // reset the action type
-        p_ptr->previous_action[0] = ACTION_NOTHING;
-        
-        // don't take a turn
-        p_ptr->energy_use = 0;
-        
-		msg_print(failure_message);
-        
+	{
+        msg_print(failure_message);
+
+        // confused players trying to dig without a digger waste their turn
+        // (otherwise control-dir is safe in a corridor)
+        if (!p_ptr->confused)
+        {
+            // reset the action type
+            p_ptr->previous_action[0] = ACTION_NOTHING;
+            
+            // don't take a turn
+            p_ptr->energy_use = 0;
+        }
+                        
         return (FALSE);
+        
 	}
 
 	// Break the truce if creatures see
@@ -4143,7 +4162,7 @@ void do_cmd_throw(bool automatic)
     if (automatic)
     {
         bool found = FALSE;
-        
+     
         /* Scan the inventory */
         for (i = 0; i < INVEN_PACK; i++)
         {
@@ -4238,6 +4257,11 @@ void do_cmd_throw(bool automatic)
                 msg_print("No clear target for automatic throwing.");
                 return;
             }
+        }
+        
+        if (p_ptr->confused)
+        {
+            dir = ddd[rand_int(8)];
         }
     }
     

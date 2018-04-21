@@ -854,6 +854,7 @@ static void process_command(void)
 		/* Ignore */
 		case ' ':
 		case '\n':
+        case '\r':
 		case '\a':
 		{
 			break;
@@ -1351,9 +1352,8 @@ static void process_command(void)
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
-
 			break;
-		}
+        }
 
 		/* Quit (commit suicide) */
 		case 'Q':
@@ -1375,7 +1375,7 @@ static void process_command(void)
 			do_cmd_save_screen();
 			break;
 		}
-
+        
 		/* Hack -- Unknown command */
 		default:
 		{

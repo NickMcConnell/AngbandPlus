@@ -2424,7 +2424,11 @@ void object_into_special(object_type *o_ptr, int lev, bool smithing)
 		if (e_ptr->to_ps > 0) o_ptr->ps += 1;
 		
 		/* Hack -- obtain pval */
-		if (e_ptr->max_pval > 0) o_ptr->pval += 1;
+		if (e_ptr->max_pval > 0)
+        {
+            if (cursed_p(smith_o_ptr))  o_ptr->pval -= 1;
+            else                        o_ptr->pval += 1;
+        }
 	}
 	else
 	{

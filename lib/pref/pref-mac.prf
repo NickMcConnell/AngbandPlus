@@ -14,56 +14,112 @@
 #
 # If <trigger template> is null string, all trigger definition will be cleared.
 
-T:&#:CSOX:control-:shift-:option-:command-
+T:&x#:CSOX:control-:shift-:option-:command-
 
 # T:<trigger name>:<keycode>:<keycode with shiftkey>
 # '\' in <trigger name> is escape character.
 
-T:KP_Decimal:1
-T:KP_Multiply:3
-T:KP_Add:5
-T:KP_Clear:7
-T:KP_Divide:11
-T:KP_Enter:12
-T:KP_Subtract:14
-T:KP_Equal:17
-T:KP_0:18
-T:KP_1:19
-T:KP_2:20
-T:KP_3:21
-T:KP_4:22
-T:KP_5:23
-T:KP_6:24
-T:KP_7:25
-T:KP_8:27
-T:KP_9:28
-T:F1:58
-T:F2:56
-T:F3:35
-T:F4:54
-T:F5:32
-T:F6:33
-T:F7:34
-T:F8:36
-T:F9:37
-T:F10:45
-T:F11:39
-T:F12:47
-T:F13:41
-T:F14:43
-T:F15:49
-T:Help:50
-T:Home:51
-T:Page_Up:52
-T:Delete:53
-T:End:55
-T:Page_Down:57
-T:Left:59
-T:Right:60
-T:Down:61
-T:Up:62
+#
+# These keycodes come from <HIToolbox/Events.h>.
+
+T:KP_Decimal:41
+T:KP_Multiply:43
+T:KP_Add:45
+T:KP_Clear:47
+T:KP_Divide:4B
+T:KP_Enter:4C
+T:KP_Subtract:4E
+T:KP_Equal:51
+T:KP_0:52
+T:KP_1:53
+T:KP_2:54
+T:KP_3:55
+T:KP_4:56
+T:KP_5:57
+T:KP_6:58
+T:KP_7:59
+T:KP_8:5B
+T:KP_9:5C
+T:F1:7A
+T:F2:78
+T:F3:63
+T:F4:76
+T:F5:60
+T:F6:61
+T:F7:62
+T:F8:64
+T:F9:65
+T:F10:6D
+T:F11:67
+T:F12:6F
+T:F13:69
+T:F14:6B
+T:F15:71
+T:Help:72
+T:Home:73
+T:Page_Up:74
+T:Delete:75
+T:End:77
+T:Page_Down:79
+T:Left:7B
+T:Right:7C
+T:Down:7D
+T:Up:7E
+T:Backspace:33
+
+T:A:00
+T:S:01
+T:D:02
+T:F:03
+T:H:04
+T:G:05
+T:Z:06
+T:X:07
+T:C:08
+T:V:09
+T:B:0B
+T:Q:0C
+T:W:0D
+T:E:0E
+T:R:0F
+T:Y:10
+T:T:11
+T:1:12
+T:2:13
+T:3:14
+T:4:15
+T:6:16
+T:5:17
+T:=:18
+T:9:19
+T:7:1A
+T:-:1B
+T:8:1C
+T:0:1D
+T:]:1E
+T:O:1F
+T:U:20
+T:[:21
+T:I:22
+T:P:23
+T:L:25
+T:J:26
+T:':27
+T:K:28
+T:::29
+T:\:2A
+T:,:2B
+T:/:2C
+T:N:2D
+T:M:2E
+T:.:2F
+T:`:32
 
 
+# Hack: For some reason Enter is producing a ^C character instead of a return.
+#       This macro changes that send a return instead.
+A:\r
+P:^C
 
 
 ##### Simple Macros #####
@@ -73,7 +129,52 @@ T:Up:62
 
 ###########################
 #
-# Shift Keypad -- Directed Running
+# Directed Walking
+# 
+# 789
+# 4 6  - these walk in the specified direction
+# 123
+#
+#  5   - rest
+
+A:0
+P:\[KP_0]
+
+A:1
+P:\[KP_1]
+
+A:2
+P:\[KP_2]
+P:\[Down]
+
+A:3
+P:\[KP_3]
+
+A:4
+P:\[KP_4]
+P:\[Left]
+
+A:5
+P:\[KP_5]
+
+A:6
+P:\[KP_6]
+P:\[Right]
+
+A:7
+P:\[KP_7]
+
+A:8
+P:\[KP_8]
+P:\[Up]
+
+A:9
+P:\[KP_9]
+
+
+###########################
+#
+# Shift-Direction -- Directed Running
 # 
 # 789
 # 4 6  - these run in the specified direction
@@ -81,99 +182,41 @@ T:Up:62
 #
 #  5   - rest until needed
 
-A:\e\e.1
+A:.1
 P:\[shift-KP_1]
 
-A:\e\e.2
+A:.2
 P:\[shift-KP_2]
+P:\[shift-Down]
 
-A:\e\e.3
+A:.3
 P:\[shift-KP_3]
 
-A:\e\e.4
+A:.4
 P:\[shift-KP_4]
+P:\[shift-Left]
 
-A:\e\eZ
+A:Z
 P:\[shift-KP_5]
 
-A:\e\e.6
+A:.6
 P:\[shift-KP_6]
+P:\[shift-Right]
 
-A:\e\e.7
+A:.7
 P:\[shift-KP_7]
 
-A:\e\e.8
+A:.8
 P:\[shift-KP_8]
+P:\[shift-Up]
 
-A:\e\e.9
+A:.9
 P:\[shift-KP_9]
 
 
 ###########################
 #
-# Shift-Arrowkeys -- Directed Running
-# 
-#  8
-# 4 6  - these run in the specified direction
-#  2 
-
-A:\e\e.2
-P:\[shift-Down]
-
-A:\e\e.4
-P:\[shift-Left]
-
-A:\e\e.6
-P:\[shift-Right]
-
-A:\e\e.8
-P:\[shift-Up]
-
-
-###########################
-#
-# Option-Keypad -- Directed firing from the 1st quiver
-# 
-# 789
-# 4 6  - these fire in the specified direction
-# 123
-#
-# 5/0   - picks the target or closest monster and fires at it
-
-A:\e\e\e\e\\ff
-P:\[option-KP_0]
-
-A:\e\e\e\e\\f1
-P:\[option-KP_1]
-
-A:\e\e\e\e\\f2
-P:\[option-KP_2]
-
-A:\e\e\e\e\\f3
-P:\[option-KP_3]
-
-A:\e\e\e\e\\f4
-P:\[option-KP_4]
-
-A:\e\e\e\e\\ff
-P:\[option-KP_5]
-
-A:\e\e\e\e\\f6
-P:\[option-KP_6]
-
-A:\e\e\e\e\\f7
-P:\[option-KP_7]
-
-A:\e\e\e\e\\f8
-P:\[option-KP_8]
-
-A:\e\e\e\e\\f9
-P:\[option-KP_9]
-
-
-###########################
-#
-# Option-Numkeys -- Directed firing from the 1st quiver
+# Option-Direction -- Directed firing from the 1st quiver
 # 
 # 789
 # 4 6  - these fire in the specified direction
@@ -185,179 +228,87 @@ P:\[option-KP_9]
 # In this case Option-3 doesn't work and you need Shift-3
 
 
-A:\e\e\e\e\\ff
-P:\xBC
+A:\\ff
+P:\[option-KP_0]
 
-A:\e\e\e\e\\f1
-P:\xC1
+A:\\f1
+P:\[option-KP_1]
 
-A:\e\e\e\e\\f2
-P:\xDB
-
-A:\e\e\e\e\\f3
-P:\xA3
-
-A:\e\e\e\e\\f4
-P:\xA2
-
-A:\e\e\e\e\\ff
-P:\xB0
-
-A:\e\e\e\e\\f6
-P:\xA4
-
-A:\e\e\e\e\\f7
-P:\xA6
-
-A:\e\e\e\e\\f8
-P:\xA5
-
-A:\e\e\e\e\\f9
-P:\xBB
-
-
-###########################
-#
-# Option-Arrowkeys -- Directed firing from 1st quiver
-# 
-#  8
-# 4 6  - these fire in the specified direction
-#  2 
-
-A:\e\e\e\e\\f2
+A:\\f2
+P:\[option-KP_2]
 P:\[option-Down]
 
-A:\e\e\e\e\\f4
+A:\\f3
+P:\[option-KP_3]
+
+A:\\f4
+P:\[option-KP_4]
 P:\[option-Left]
 
-A:\e\e\e\e\\f6
+A:\\ff
+P:\[option-KP_5]
+
+A:\\f6
+P:\[option-KP_6]
 P:\[option-Right]
 
-A:\e\e\e\e\\f8
+A:\\f7
+P:\[option-KP_7]
+
+A:\\f8
+P:\[option-KP_8]
 P:\[option-Up]
+
+A:\\f9
+P:\[option-KP_9]
 
 
 # Option-z -- Fire from 1st quiver at target, or nearest monster
 
-A:\e\e\e\e\\ff
-P:\xBD
+A:\\ff
+P:\[option-z]
 
 
 ###########################
 #
-# Control-Keypad -- Interact with terrain in chosen direction
+# Control-Direction -- Interact with terrain in chosen direction
 # 
 # 789
 # 456
 # 123
 
 
-#A:\e\e\e\e\\/0
-#P:\[control-KP_0]
-
-A:\e\e\e\e\\/1
+A:\\/1
 P:\[control-KP_1]
 
-A:\e\e\e\e\\/2
+A:\\/2
 P:\[control-KP_2]
-
-A:\e\e\e\e\\/3
-P:\[control-KP_3]
-
-A:\e\e\e\e\\/4
-P:\[control-KP_4]
-
-A:\e\e\e\e\\/5
-P:\[control-KP_5]
-
-A:\e\e\e\e\\/6
-P:\[control-KP_6]
-
-A:\e\e\e\e\\/7
-P:\[control-KP_7]
-
-A:\e\e\e\e\\/8
-P:\[control-KP_8]
-
-A:\e\e\e\e\\/9
-P:\[control-KP_9]
-
-
-
-
-###########################
-#
-# Control-Arrowkeys -- Interact with terrain in specified direction
-# 
-#  8 
-# 4 6
-#  2 
-
-A:\e\e\e\e\\/2
 P:\[control-Down]
 
-A:\e\e\e\e\\/4
+A:\\/3
+P:\[control-KP_3]
+
+A:\\/4
+P:\[control-KP_4]
 P:\[control-Left]
 
-A:\e\e\e\e\\/6
+A:\\/5
+P:\[control-KP_5]
+
+A:\\/6
+P:\[control-KP_6]
 P:\[control-Right]
 
-A:\e\e\e\e\\/8
+A:\\/7
+P:\[control-KP_7]
+
+A:\\/8
+P:\[control-KP_8]
 P:\[control-Up]
 
+A:\\/9
+P:\[control-KP_9]
 
-
-
-#
-# Keypad -- (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
-#
-A:/
-P:^_K/\r
-A:*
-P:^_K*\r
-A:7
-P:^_K7\r
-A:8
-P:^_K8\r
-A:9
-P:^_K9\r
-A:-
-P:^_K-\r
-A:4
-P:^_K4\r
-A:5
-P:^_K5\r
-A:6
-P:^_K6\r
-A:+
-P:^_K+\r
-A:1
-P:^_K1\r
-A:2
-P:^_K2\r
-A:3
-P:^_K3\r
-A:0
-P:^_K0\r
-A:.
-P:^_K.\r
-
-
-#
-# Hack -- Arrow-Keys
-#
-
-A:4
-P:^_59\r
-
-A:6
-P:^_60\r
-
-A:2
-P:^_61\r
-
-A:8
-P:^_62\r
 
 
 # Diagonals via 'fn' key (useful for laptops)
@@ -377,15 +328,15 @@ P:\[End]
 
 # Running on diagonals via 'fn' key (useful for laptops)
 
-A:\e\e.7
+A:.7
 P:\[shift-Page_Up]
 
-A:\e\e.1
+A:.1
 P:\[shift-Home]
 
-A:\e\e.3
+A:.3
 P:\[shift-Page_Down]
 
-A:\e\e.9
+A:.9
 P:\[shift-End]
 

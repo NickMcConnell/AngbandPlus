@@ -1154,8 +1154,7 @@ static void prt_frame_basic(void)
  */
 static void prt_frame_extra(void)
 {
-	/* Cut/Stun */
-	prt_cut();
+	/* Stun */
 	prt_stun();
 
 	/* Food */
@@ -1166,6 +1165,7 @@ static void prt_frame_extra(void)
 	prt_confused();
 	prt_afraid();
 	prt_poisoned();
+	prt_cut();
     prt_terrain();
     
 	/* State */

@@ -810,7 +810,7 @@ extern void cave_temp_mark(int y, int x, bool room);
 extern void spread_cave_temp(int y1, int x1, int range, bool room);
 extern bool explosion(int who, int rad, int y0, int x0, int dd, int ds, int dif, int typ);
 extern bool light_line(int dir);
-extern bool blast(int dir, int dd, int ds);
+extern bool blast(int dir, int dd, int ds, int dif);
 extern bool destroy_door(int dir);
 extern bool disarm_trap(int dir);
 extern bool curse_armor(void);
@@ -1072,13 +1072,10 @@ extern void repeat_check(void);
 extern char *riscosify_name(cptr path);
 #endif /* RISCOS */
 
-#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+#if defined(MACH_O_CARBON)
 /* main-mac.c, or its derivatives */
 extern u32b _fcreator;
 extern u32b _ftype;
-# if defined(MAC_MPW) && defined(CARBON)
-extern void convert_pathname(char *path);
-# endif
 # if defined(MACH_O_CARBON)
 extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 # endif

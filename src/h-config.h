@@ -263,14 +263,22 @@
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(MACINTOSH) || defined(MACH_O_CARBON)
+
+#if (defined(MACINTOSH) || defined(MACH_O_CARBON))
 # define FILE_TYPE_TEXT 'TEXT'
 # define FILE_TYPE_DATA 'DATA'
 # define FILE_TYPE_SAVE 'SAVE'
 # define FILE_TYPE(X) (_ftype = (X))
-#else
-# define FILE_TYPE(X) ((void)0)
 #endif
+
+////half hack %%%%
+#ifndef FILE_TYPE_TEXT
+# define FILE_TYPE_TEXT
+# define FILE_TYPE_DATA
+# define FILE_TYPE_SAVE
+# define FILE_TYPE(X)
+#endif
+
 
 
 /*

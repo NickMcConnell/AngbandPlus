@@ -2747,9 +2747,9 @@ static bool build_type6(int y0, int x0)
         /* Accept the first interesting room */
 		if ((v_ptr->typ == 6) && (v_ptr->depth <= p_ptr->depth) && (one_in_(v_ptr->rarity))) break;
 		
-		if (tries > 2000)
+		if (tries > 20000)
 		{
-			msg_format("Bug: Could not find a record for an Interesting Room in vault.txt");
+			if (!DEPLOYMENT || cheat_room) msg_format("Bug: Could not find a record for an Interesting Room in vault.txt");
 			return (FALSE);
 		}
 	}

@@ -312,10 +312,10 @@ FILE *my_fopen(cptr file, cptr mode)
 	/* Attempt to fopen the file anyway */
 	fff = fopen(buf, mode);
 
-#if defined(MAC_MPW) || defined(MACH_O_CARBON)
-
+#if defined(MACH_O_CARBON)
+    
 	/* Set file creator and type */
-	if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
+    if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
 
 #endif
 
@@ -433,7 +433,6 @@ errr my_fgets(FILE *fff, char *buf, size_t n)
 
 
 #if defined(MACINTOSH) || defined(MACH_O_CARBON)
-
 
 		/*
 		 * Be nice to the Macintosh, where a file can have Mac or Unix
@@ -631,8 +630,8 @@ int fd_make(cptr file, int mode)
 #if defined(MAC_MPW) || defined(MACH_O_CARBON)
 
 	/* Set file creator and type */
-	if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
-
+    if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+    
 #endif
 
 	/* Return descriptor */
@@ -1933,8 +1932,7 @@ char inkey(void)
 	bool done = FALSE;
 
 	term *old = Term;
-
-
+    
 	/* Hack -- Use the "inkey_next" pointer */
 	if (inkey_next && *inkey_next && !inkey_xtra)
 	{

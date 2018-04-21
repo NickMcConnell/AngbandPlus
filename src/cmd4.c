@@ -1736,6 +1736,7 @@ int att_valid(void)
 		case TV_RING:
 		{
 			if (smith_o_ptr->sval == SV_RING_ACCURACY) return (TRUE);
+			if (smith_o_ptr->name1) return (TRUE);
 		}
 	}
 	
@@ -1952,6 +1953,7 @@ int evn_valid(void)
 		case TV_RING:
 		{
 			if (smith_o_ptr->sval == SV_RING_EVASION) return (TRUE);
+			if (smith_o_ptr->name1) return (TRUE);
 		}
 	}
 	
@@ -1995,7 +1997,7 @@ int evn_max(bool assume_artistry)
 		case TV_RING:
 		{
 			if (smith_o_ptr->sval == SV_RING_EVASION)	evn = 4;
-			if (smith_o_ptr->name1)						evn += 4;
+			if (smith_o_ptr->name1)						evn = 4;
 			break;
 		}
 			
@@ -2074,7 +2076,8 @@ int ps_valid(void)
 			
 		case TV_RING:
 		{
-			if (smith_o_ptr->sval == SV_RING_PROTECTION) return (TRUE);
+			if (smith_o_ptr->sval == SV_RING_PROTECTION)    return (TRUE);
+			if (smith_o_ptr->name1)                         return (TRUE);
 		}
 	}
 	
@@ -2123,8 +2126,8 @@ int ps_max(bool assume_artistry)
 			
 		case TV_RING:
 		{
-			if (smith_o_ptr->sval == SV_RING_PROTECTION)	ps =  3;
-			if (smith_o_ptr->name1)							ps += 3;
+			if (smith_o_ptr->sval == SV_RING_PROTECTION)	ps = 3;
+			if (smith_o_ptr->name1)							ps = 3;
 			break;
 		}
 	}
@@ -4848,6 +4851,7 @@ void artefact_menu(void)
         {
             create_base_object(TV_RING, SV_RING_SELF_MADE);
             object_copy(smith2_o_ptr, smith_o_ptr);
+            smith2_o_ptr->pd = 1;
         }
         if (smith_o_ptr->tval == TV_AMULET)
         {
@@ -8791,13 +8795,6 @@ void ghost_challenge(void)
 }
 
 
-/*
- * Encode the screen colors
- */
-static const char hack[17] = "dwsorgbuDWvyRGBU";
-
-
-
 /*display the notes file*/
 void do_cmd_knowledge_notes(void)
 {
@@ -9481,58 +9478,59 @@ void do_cmd_knowledge_artefacts(void)
 static cptr monster_group_text[] =
 {
 	"Uniques",						/*All uniques, all letters*/
-	"Ants",  						/*'a'*/
-	"Ainur",						/*'A'*/
-	"Bats",							/*'b'*/
-	"Birds",						/*'B'*/
-	"Centipedes",					/*'c'*/
+	/*Unused*/						/*'a'*/
+	/*Unused*/						/*'A'*/
+	"Bats & Birds",					/*'b'*/
+	/*Unused*/						/*'B'*/
+	/*Unused*/						/*'c'*/
 	"Canines",						/*'C'*/
 	"Young Dragons",				/*'d'*/
 	"Great Dragons",				/*'D'*/
-	"Floating Eyes",				/*'e'*/
-	"Elementals",					/*'E'*/
+	/*Unused*/						/*'e'*/
+	/*Unused*/						/*'E'*/
 	"Felines",						/*'f'*/
-	"Dragon Flies",					/*'F'*/
-	"Golems",						/*'g'*/
+	/*Unused*/						/*'F'*/
+	/*Unused*/						/*'g'*/
 	"Giants",						/*'G'*/
-	"Hobbits/Elves/Dwarves",		/*'h'*/
+	/*Unused*/						/*'h'*/
 	"Horrors",						/*'H'*/
-	"Icky Things",					/*'i'*/
+	/*Unused*/						/*'i'*/
 	"Insects",						/*'I'*/
-	"Jellies",						/*'j'*/
-	"Snakes",						/*'J'*/
-	"Kobolds",						/*'k'*/
-	"Killer Beetles",				/*'K'*/
-	"Louses",						/*'l'*/
-	"Lichs",						/*'L'*/
-	"Molds",						/*'m'*/
+	/*Unused*/						/*'j'*/
+	/*Unused*/						/*'J'*/
+	/*Unused*/						/*'k'*/
+	/*Unused*/						/*'K'*/
+	/*Unused*/						/*'l'*/
+	/*Unused*/						/*'L'*/
+	"Young Spiders",				/*'m'*/
 	"Spiders",						/*'M'*/
-	"Nagas",						/*'n'*/
+	/*Unused*/						/*'n'*/
 	"Nameless Things",				/*'N'*/
 	"Orcs",							/*'o'*/
-	"Ogres",						/*'O'*/
-	"People",						/*'p'*/
-	"Giants",						/*'P'*/
-	"Quadrupeds",					/*'q'*/
-	"Quylthulgs",					/*'Q'*/
-	"Rodents",						/*'r'*/
+	/*Unused*/						/*'O'*/
+	/*Unused*/						/*'p'*/
+	/*Unused*/						/*'P'*/
+	/*Unused*/						/*'q'*/
+	/*Unused*/						/*'Q'*/
+	/*Unused*/						/*'r'*/
 	"Raukar",						/*'R'*/
 	"Serpents",						/*'s'*/
 	"Ancient Serpents",				/*'S'*/
-	"Townpersons",					/*'t'*/
+	/*Unused*/						/*'t'*/
 	"Trolls",						/*'T'*/
-	"Minor Demons",					/*'u'*/
-	"Major Demons",					/*'U'*/
+	/*Unused*/						/*'u'*/
+	/*Unused*/						/*'U'*/
 	"Vampires",						/*'v'*/
 	"Valar",						/*'V'*/
-	"Worm Masses",					/*'w'*/
+	"Creeping Shadows",             /*'w'*/
 	"Wights and Wraiths",			/*'W'*/
 	/*Unused*/						/*'x'*/
-	"Xorn/Xaren/etc",				/*'X'*/
-	"Yeeks",						/*'y'*/
-	"Yetis",						/*'Y'*/
-	"Zombies/Mummies",				/*'z'*/
-	"Zephyr Hounds",				/*'Z'*/
+	/*Unused*/						/*'X'*/
+	/*Unused*/						/*'y'*/
+	/*Unused*/						/*'Y'*/
+	/*Unused*/						/*'Z'*/
+	/*Unused*/						/*'Z'*/
+	"Plants",						/*'&'*/
 	"People",						/*'@'*/
 	"Blades",					    /*'|'*/
 	NULL
@@ -9545,58 +9543,59 @@ static cptr monster_group_text[] =
 static cptr monster_group_char[] =
 {
 	(char *) -1L,
-	"a",
-	"A",
+	/*"a", Unused*/
+	/*"A", Unused*/
 	"b",
-	"B",
-	"c",
+	/*"B", Unused*/
+	/*"c", Unused*/
 	"C",
 	"d",
 	"D",
-	"e",
-	"E",
+	/*"e", Unused*/
+	/*"E", Unused*/
 	"f",
-	"F",
-	"g",
+	/*"F", Unused*/
+	/*"g", Unused*/
 	"G",
-	"h",
+	/*"h", Unused*/
 	"H",
-	"i",
+	/*"i", Unused*/
 	"I",
-	"j",
-	"J",
-	"k",
-	"K",
-	"l",
-	"L",
+	/*"j", Unused*/
+	/*"J", Unused*/
+	/*"k", Unused*/
+	/*"K", Unused*/
+	/*"l", Unused*/
+	/*"L", Unused*/
 	"m",
 	"M",
-	"n",
+	/*"n", Unused*/
 	"N",
 	"o",
-	"O",
-	"p",
-	"P",
-	"q",
-	"Q",
-	"r",
+	/*"O", Unused*/
+	/*"p", Unused*/
+	/*"P", Unused*/
+	/*"q", Unused*/
+	/*"Q", Unused*/
+	/*"r", Unused*/
 	"R",
 	"s",
 	"S",
-	"t",
+	/*"t", Unused*/
 	"T",
-	"u",
-	"U",
+	/*"u", Unused*/
+	/*"U", Unused*/
 	"v",
 	"V",
 	"w",
 	"W",
 	/*"x", Unused*/
-	"X",
-	"y",
-	"Y",
-	"z",
-	"Z",
+	/*"X", Unused*/
+	/*"y", Unused*/
+	/*"Y", Unused*/
+	/*"z", Unused*/
+	/*"Z", Unused*/
+	"&",  // plants
 	"@",  // human/elf/dwarf
 	"|",  // deathblades
 	NULL
@@ -9759,12 +9758,12 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 	if (monster_group_char[grp_cur] != (char *) -1L)
    	{
 
-		c_put_str(TERM_L_BLUE, format("Total Creatures Slain:  %d. ", slay_count), 23, col);
+		c_put_str(TERM_L_BLUE, format("Total Creatures Slain: %d. ", slay_count), 23, col+2);
 	}
 	else
 	{
-		c_put_str(TERM_L_BLUE, format("Known Uniques: %2d, Slain Uniques: %2d.", known_uniques, dead_uniques),
-						23, col);
+		c_put_str(TERM_L_BLUE, format("Known Uniques: %d, Slain Uniques: %d.", known_uniques, dead_uniques),
+						23, col+2);
 	}
 }
 

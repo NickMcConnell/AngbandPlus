@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.2.1
+V:1.3.0
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -1737,10 +1737,10 @@ I:2:6:0
 W:0:1:1:0
 P:0:0d0:0:0d0
 F:EASY_KNOW
-D:You are now ready to try some combat. Creatures in Sil are
+D:You are now ready to try some combat. Creatures in Sil are usually
 D: represented by letters of the alphabet. In the next room
-D: lies the least fearsome creature in the game: a grey mold.
-D: Molds don't move, so simply walk up to it and move into it
+D: lies the least fearsome enemy in the game: the tanglethorn.
+D: It cannot move, so simply walk up to it and move into it
 D: to attack. However, remember that in Sil death is final.
 D: If things start going badly, you can always retreat.
 

@@ -5124,7 +5124,6 @@ static void handle_signal_simple(int sig)
 	/* Count the signals */
 	signal_count++;
 
-
 	/* Terminate dead characters */
 	if (p_ptr->is_dead)
 	{
