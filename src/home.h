@@ -9,6 +9,7 @@ extern void    home_for_each(obj_f f);
 extern void    home_optimize(void);
 
 extern obj_ptr home_obj(slot_t slot);
+extern void    home_carry(obj_ptr obj); /* wizard mode stat runs ... */
 extern int     home_max(void);
 extern int     home_count(obj_p p);
 

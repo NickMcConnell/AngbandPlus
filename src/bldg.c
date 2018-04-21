@@ -13,6 +13,7 @@
 
 #include "angband.h"
 #include "equip.h"
+#include <assert.h>
 
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
@@ -1207,9 +1208,19 @@ static bool gamble_comm(int cmd)
     return (TRUE);
 }
 
+static bool _has_attack_spells(mon_race_ptr race)
+{
+    if (!race->spells) return FALSE;
+    if (race->spells->groups[MST_BREATH]) return TRUE;
+    if (race->spells->groups[MST_BALL]) return TRUE;
+    if (race->spells->groups[MST_BOLT]) return TRUE;
+    if (race->spells->groups[MST_BEAM]) return TRUE;
+    if (race->spells->groups[MST_CURSE]) return TRUE;
+    return FALSE;
+}
 static bool vault_aux_battle(int r_idx)
 {
-    int i;
+    int i, j;
     int dam = 0;
 
     monster_race *r_ptr = &r_info[r_idx];
@@ -1227,15 +1238,19 @@ static bool vault_aux_battle(int r_idx)
     if (r_ptr->flags7 & (RF7_AQUATIC)) return (FALSE);
     if (r_ptr->flags7 & (RF7_CHAMELEON)) return (FALSE);
 
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < MAX_MON_BLOWS; i++)
     {
-        if (r_ptr->blow[i].method == RBM_EXPLODE) return (FALSE);
-        if (r_ptr->blow[i].effect != RBE_DR_MANA) dam += r_ptr->blow[i].d_dice;
+        if (r_ptr->blows[i].method == RBM_EXPLODE) return (FALSE);
+        for (j = 0; j < MAX_MON_BLOW_EFFECTS; j++)
+        {
+            if (r_ptr->blows[i].effects[j].effect != GF_DRAIN_MANA)
+                dam += r_ptr->blows[i].effects[j].dd;
+        }
     }
-    if (!dam && !(r_ptr->flags4 & (RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK | RF4_BREATH_MASK)) && !(r_ptr->flags5 & (RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_BREATH_MASK)) && !(r_ptr->flags6 & (RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_BREATH_MASK))) return (FALSE);
+    if (!dam && !_has_attack_spells(r_ptr))
+        return FALSE;
 
-    /* Okay */
-    return (TRUE);
+    return TRUE;
 }
 
 void battle_monsters(void)
@@ -1319,11 +1334,11 @@ void battle_monsters(void)
                 power[i] = power[i] * (r_ptr->speed - 20) / 100;
             if (num_taisei > 2)
                 power[i] = power[i] * (num_taisei*2+5) / 10;
-            else if (r_ptr->flags6 & RF6_INVULNER)
+            else if (mon_race_has_invulnerability(r_ptr))
                 power[i] = power[i] * 4 / 3;
-            else if (r_ptr->flags6 & RF6_HEAL)
+            else if (mon_race_has_healing(r_ptr))
                 power[i] = power[i] * 4 / 3;
-            else if (r_ptr->flags5 & RF5_DRAIN_MANA)
+            else if (mon_race_has_drain_mana(r_ptr))
                 power[i] = power[i] * 11 / 10;
             if (r_ptr->flags1 & RF1_RAND_25)
                 power[i] = power[i] * 9 / 10;
@@ -1629,26 +1644,32 @@ static void shoukinkubi(void)
     clear_bldg(4,18);
 
     prt("Offer a prize when you bring a wanted monster's corpse",4 ,10);
-c_put_str(TERM_YELLOW, "Wanted monsters", 6, 10);
+    c_put_str(TERM_YELLOW, "Wanted monsters", 6, 10);
 
     for (i = 0; i < MAX_KUBI; i++)
     {
         byte color;
         cptr done_mark;
-        monster_race *r_ptr = &r_info[(kubi_r_idx[i] > 10000 ? kubi_r_idx[i] - 10000 : kubi_r_idx[i])];
+        int  id = kubi_r_idx[i];
+        mon_race_ptr race;
 
-        if (kubi_r_idx[i] > 10000)
+        if (!id) continue; /* SUPPRESSED by reduce_uniques options */
+
+        if (id > 10000)
         {
             color = TERM_RED;
             done_mark = "(done)";
+            id -= 10000;
         }
         else
         {
             color = TERM_WHITE;
             done_mark = "";
         }
+        assert(0 < id && id < max_r_idx);
+        race = &r_info[id];
 
-        c_prt(color, format("%s %s", r_name + r_ptr->name, done_mark), y+7, 10);
+        c_prt(color, format("%s %s", r_name + race->name, done_mark), y+7, 10);
 
         y = (y+1) % 10;
         if (!y && (i < MAX_KUBI -1))
@@ -1976,7 +1997,7 @@ void have_nightmare(int r_idx)
         {
             (void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
         }
-        if (!p_ptr->free_act)
+        if (!free_act_save_p(power))
         {
             (void)set_paralyzed(randint1(4), FALSE);
         }
@@ -2282,7 +2303,7 @@ static bool eval_ac(int iAC)
     /* AC lower than zero has no effect */
     if (iAC < 0) iAC = 0;
 
-    protection = 100 * MIN(iAC, 150) / 250;
+    protection = 100 - ac_melee_pct(iAC);
 
     screen_save();
     clear_bldg(0, 22);
@@ -2589,7 +2610,7 @@ static bool _reforge_artifact(void)
     char o_name[MAX_NLEN];
     object_type *src, *dest;
     int f = MIN(200, p_ptr->fame);
-    int src_max_power = f*250 + f*f*3;
+    int src_max_power = f*150 + f*f*3/2; /* 90k max */
     int dest_max_power = 0;
 
     if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING)
@@ -2655,6 +2676,12 @@ static bool _reforge_artifact(void)
     if (dest->tval == TV_QUIVER)
     {
         msg_print("I am unable to reforge quivers.");
+        return FALSE;
+    }
+
+    if (object_is_ammo(dest))
+    {
+        msg_print("I'm a weaponsmith not a fletcher. Perhaps you should check elsewhere?");
         return FALSE;
     }
 
@@ -3340,7 +3367,7 @@ static void bldg_process_command(building_type *bldg, int i)
         town_history();
         break;
     case BACT_RACE_LEGENDS:
-        race_legends();
+        /*race_legends();*/
         break;
     case BACT_QUEST:
         castle_quest();
@@ -3348,7 +3375,7 @@ static void bldg_process_command(building_type *bldg, int i)
     case BACT_KING_LEGENDS:
     case BACT_ARENA_LEGENDS:
     case BACT_LEGENDS:
-        show_highclass();
+        /*show_highclass();*/
         break;
     case BACT_POSTER:
     case BACT_ARENA_RULES:

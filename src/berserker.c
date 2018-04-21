@@ -40,7 +40,6 @@ static void _charge_spell(int cmd, variant *res)
             x += ddx[dir];
             if (player_can_enter(cave[y][x].feat, 0) && !is_trap(cave[y][x].feat) && !cave[y][x].m_idx)
             {
-                msg_print(NULL);
                 move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
             }
         }
@@ -111,7 +110,7 @@ static void _calc_bonuses(void)
     p_ptr->sustain_dex = TRUE;
     p_ptr->sustain_con = TRUE;
     p_ptr->regen += 100;
-    p_ptr->free_act = TRUE;
+    p_ptr->free_act++;
     p_ptr->pspeed += 2;
     if (p_ptr->lev >= 30) p_ptr->pspeed++;
     if (p_ptr->lev >= 40) p_ptr->pspeed++;

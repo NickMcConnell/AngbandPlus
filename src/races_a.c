@@ -215,10 +215,10 @@ static void _android_calc_bonuses(void)
     p_ptr->dis_to_a += ac;
 
     p_ptr->slow_digest = TRUE;
-    p_ptr->free_act = TRUE;
+    p_ptr->free_act++;
     res_add(RES_POIS);
     /*res_add_vuln(RES_ELEC); cf resists.c res_pct_aux() for an alternative*/
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
 }
 static void _android_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -301,7 +301,7 @@ race_t *android_get_race(void)
 static void _archon_calc_bonuses(void)
 {
     p_ptr->levitation = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
     p_ptr->align += 200;
 }
 static void _archon_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -369,8 +369,8 @@ static void _balrog_calc_bonuses(void)
 {
     res_add(RES_FIRE);
     res_add(RES_NETHER);
-    p_ptr->hold_life = TRUE;
-    if (p_ptr->lev >= 10) p_ptr->see_inv = TRUE;
+    p_ptr->hold_life++;
+    if (p_ptr->lev >= 10) p_ptr->see_inv++;
     if (p_ptr->lev >= 45) res_add(RES_FIRE);
     p_ptr->align -= 200;
 }
@@ -829,7 +829,7 @@ static void _dark_elf_calc_bonuses(void)
 {
     res_add(RES_DARK);
     p_ptr->spell_cap += 3;
-    if (p_ptr->lev >= 20) p_ptr->see_inv = TRUE;
+    if (p_ptr->lev >= 20) p_ptr->see_inv++;
 }
 static void _dark_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -1149,7 +1149,6 @@ static int _draconian_attack_level(void)
     case CLASS_CHAOS_WARRIOR:
         l = MAX(1, l * 110 / 100);
         break;
-    case CLASS_IMITATOR:
     case CLASS_RED_MAGE:
     case CLASS_WEAPONSMITH:
     case CLASS_ROGUE:
@@ -1168,7 +1167,6 @@ static int _draconian_attack_level(void)
         /*l = MAX(1, l * 100 / 100);*/
         break;
     case CLASS_BARD:
-    case CLASS_BLUE_MAGE:
     case CLASS_TIME_LORD:
     case CLASS_WARLOCK:
     case CLASS_RAGE_MAGE:
@@ -1615,7 +1613,7 @@ race_t *dwarf_get_race(void)
  ****************************************************************/
 static power_info _ent_powers[] =
 {
-    { A_CHR, {10, 20, 70, summon_tree_spell}},
+    { A_WIS, {10, 20, 70, summon_tree_spell}},
     { -1, {-1, -1, -1, NULL} }
 };
 static int _ent_get_powers(spell_info* spells, int max)
@@ -1713,7 +1711,7 @@ static int _gnome_get_powers(spell_info* spells, int max)
 }
 static void _gnome_calc_bonuses(void)
 {
-    p_ptr->free_act = TRUE;
+    p_ptr->free_act++;
 }
 static void _gnome_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -1785,10 +1783,10 @@ static void _golem_calc_bonuses(void)
     p_ptr->no_stun = TRUE;
 
     p_ptr->slow_digest = TRUE;
-    p_ptr->free_act = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->free_act++;
+    p_ptr->see_inv++;
     res_add(RES_POIS);
-    if (p_ptr->lev >= 35) p_ptr->hold_life = TRUE;
+    if (p_ptr->lev >= 35) p_ptr->hold_life++;
 
     p_ptr->pspeed -= p_ptr->lev/16;
 }
@@ -2134,7 +2132,7 @@ race_t *half_troll_get_race(void)
 static void _high_elf_calc_bonuses(void)
 {
     res_add(RES_LITE);
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
 }
 static void _high_elf_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -2321,7 +2319,7 @@ static int _imp_get_powers(spell_info* spells, int max)
 static void _imp_calc_bonuses(void)
 {
     res_add(RES_FIRE);
-    if (p_ptr->lev >= 10) p_ptr->see_inv = TRUE;
+    if (p_ptr->lev >= 10) p_ptr->see_inv++;
 }
 static void _imp_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {

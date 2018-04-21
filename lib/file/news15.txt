@@ -1,0 +1,27 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:U>You attack the Demonite:</color> You hit. You hit. It was a <color:R>great</color> hit! The                
+Demonite shouts, 'AAAARRRGGGHHH!!!' <color:R>You have destroyed the Demonite.</color>  LEVEL <color:G>    37</color>
+<color:U>You attack the Arch-vile:</color> You miss. You hit. You miss. You hit. <color:R>You </color>  EXP <color:G>   30.1k</color>
+<color:R>have destroyed the Arch-vile.</color> <color:U>You attack Father Dagon:</color> You miss. <color:G>You </color> AU  <color:G>   1.06M</color>
+<color:G>backstab him!</color> <color:G>You backstab him!</color> <color:G>You backstab him!</color> <color:G>You backstab him!</color>   <color:d>            </color>
+Father Dagon shouts, 'AAAARRRGGGHHH!!!' <color:R>You have destroyed Father </color>    STR!: <color:G>18/160</color>
+<color:R>Dagon.</color> <color:U>You attack the Arch-vile:</color> You hit. You hit. You hit. <color:R>You have </color> INT : <color:G>18/190</color>
+<color:R>destroyed the Arch-vile.</color> <color:B>You are getting more proficient with </color>        Wis : <color:y> 18/51</color>
+<color:R>Whirlwind Attack</color><color:B>.</color>                                                     DEX : <color:G>18/***</color>
+<color:D>xxxxxx</color>%     <color:s>%</color>%%                                               <color:D>xxxxxxx</color> CON : <color:G>18/116</color>
+<color:D>xxxxxxx</color>       #%                                              <color:D>xxxxxxx</color> CHR : <color:G> 18/95</color>
+<color:D>xxxxxx</color>        <color:W>|</color>%%%%#%##########<color:s>%</color>##<color:s>%</color>#<color:s>%</color>##<color:s>%%</color>##%#<color:s>%</color>##################<color:D>xxxxx</color> AC     <color:G>  183</color>
+<color:D>xxxxxx</color>     <color:u>,</color>           :                      <color:g>^</color>                <color:D>xxxxxx</color> HP <color:y> 617</color>/<color:G> 618</color>
+<color:D>xxxxxx</color>         %################%###<color:s>%</color>#<color:s>%</color>###%<color:s>%</color>###    #############<color:D>xxxxx</color> SP <color:y> 131</color>/<color:G> 280</color>
+<color:D>xxxxx</color>         ##                #     <color:U>'</color> <color:G>$</color>..<color:u>$</color># # #  #            <color:D>xxxxx</color>             
+<color:D>xxxx</color><color:s>%</color>         #                 #  {  # .<color:G>]</color><color:D>~</color>@# % #  #            <color:D>xxxxx</color> @ <color:y> 99%</color>      
+<color:D>xxxx</color>##       #%#%######         # <color:b>(</color> #<color:s>%%</color>##.<color:g>!</color>.##% #  #            <color:D>xxxxx</color> <color:y>?</color> <color:y> 46%</color>      
+<color:D>xxxx</color>###               ####<color:s>%%</color>####<color:s>%</color>  <color:W>|</color>#   #...%#  ####            <color:D>xxxxx</color> <color:U>,</color> <color:G>147%</color>      
+<color:D>xxxxx</color>        #<color:o>*</color>%#             <color:U>+</color> <color:U>+'</color>##<color:s>%</color>   ###<color:U>'</color>%#  #               <color:D>xxxxx</color>             
+<color:D>xxxx</color>###      #  ##########<color:s>%</color>###<color:s>%</color><color:D>~</color>#   #   #   ##  #               <color:D>xxxxx</color>             
+<color:D>xxxx</color>  %#    ##               #?<color:U>}</color><color:s>?</color><color:y>!</color>  <color:s>%</color>####      :%                <color:D>xxxx</color>             
+<color:D>xxxx</color>   %#  %#                <color:s>%%%</color>#     #  D  #%% #                <color:D>xxxx</color> <color:y>Fast (+23)</color>  
+<color:D>xxxx</color>    #% %                    #     <color:U>+</color>     # # %                <color:D>xxxx</color> <color:G>Full</color>        
+<color:s>Angband: L47</color>                 StnSkn <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color> Hero                 
+</style>

@@ -14,6 +14,33 @@
 
 #include <assert.h>
 
+bool free_act_save_p(int ml)
+{
+    int i, skill = p_ptr->skills.sav;
+    if (p_ptr->pclass == CLASS_BERSERKER) return TRUE; /* negative skills */
+    for (i = 0; i < p_ptr->free_act; i++)
+    {
+        if (randint0(100 + ml/2) < skill)
+        {
+            equip_learn_flag(OF_FREE_ACT);
+            return TRUE;
+        }
+        /* OF_FREE_ACT is very common. End game with 4 sources is not unusual.
+         * Sample CL50 (sav=97) vs Umbaba on DL98:
+         * Ct  Fail1 Fail2
+         * ===============
+         *  1  33.6% 22.1%
+         *  2  18.9% 10.7%
+         *  3  13.4%  7.1%
+         *  4  10.9%  5.5%
+         *  5   9.5%  4.7%
+         *  Notice the diminishing returns with multiple sources. 3 is much better
+         *  than 1, but 5 only marginally better than 3. */
+        skill = skill * 2 / 3;
+    }
+    return FALSE;
+}
+
 void set_action(int typ)
 {
     int prev_typ = p_ptr->action;
@@ -861,7 +888,7 @@ bool set_poisoned(int v, bool do_dec)
     bool notice = FALSE;
 
     /* Hack -- Force good values */
-    v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+    v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
     if (p_ptr->is_dead) return FALSE;
 
@@ -926,7 +953,7 @@ bool set_paralyzed(int v, bool do_dec)
             if (repose_of_the_dead)
                 msg_print("You enter a deep sleep!");
             else
-                msg_print("You are paralyzed!");
+                msg_print("<color:v>You are paralyzed!</color>");
 
             /* Sniper */
             if (p_ptr->concent) reset_concentration(TRUE);
@@ -948,6 +975,7 @@ bool set_paralyzed(int v, bool do_dec)
             {
                 msg_print("You awake refreshed!");
                 restore_level();
+                lp_player(1000);
                 set_poisoned(0, TRUE);
                 set_blind(0, TRUE);
                 set_confused(0, TRUE);
@@ -976,7 +1004,7 @@ bool set_paralyzed(int v, bool do_dec)
                 repose_of_the_dead = FALSE;
             }
             else
-                msg_print("You can move again.");
+                msg_print("<color:B>You can move again.</color>");
 
             notice = TRUE;
         }
@@ -2108,7 +2136,7 @@ bool set_slow(int v, bool do_dec)
 
     if (p_ptr->is_dead) return FALSE;
 
-    if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HERMES) v = 0;
+    if (p_ptr->no_slow) v = 0;
 
     /* Open */
     if (v)
@@ -4342,11 +4370,67 @@ bool set_oppose_pois(int v, bool do_dec)
  * Set "p_ptr->stun", notice observable changes
  *
  * Note the special code to only notice "range" changes.
+ * Note that stun effects no longer require PU_BONUS. Instead
+ * the effects are computed on the fly in various areas of the system.
  */
+stun_info_t stun_info(int stun)
+{
+    stun_info_t result = {0};
+    if (stun >= STUN_KNOCKED_OUT)
+    {
+        result.level = STUN_KNOCKED_OUT;
+        result.name = "Knocked Out";  /* <== PR_EFFECTS */
+        result.msg = "knocked out";   /* <== You have been %s */
+        result.attr = TERM_VIOLET;
+    }
+    else if (stun >= STUN_MASSIVE)
+    {
+        result.level = STUN_MASSIVE;
+        result.name = "Massive Stun";
+        result.msg = "massively stunned";
+        result.attr = TERM_RED;
+    }
+    else if (stun >= STUN_HEAVY)
+    {
+        result.level = STUN_HEAVY;
+        result.name = "Heavy Stun";
+        result.msg = "heavily stunned";
+        result.attr = TERM_L_RED;
+    }
+    else if (stun >= STUN_MODERATE)
+    {
+        result.level = STUN_MODERATE;
+        result.name = "Stun";
+        result.msg = "stunned";
+        result.attr = TERM_ORANGE;
+    }
+    else if (stun >= STUN_LIGHT)
+    {
+        result.level = STUN_LIGHT;
+        result.name = "Light Stun";
+        result.msg = "lightly stunned";
+        result.attr = TERM_YELLOW;
+    }
+    else if (stun >= STUN_DAZE)
+    {
+        result.level = STUN_DAZE;
+        result.name = "Dazed";
+        result.msg = "dazed";
+        result.attr = TERM_L_UMBER;
+    }
+    else
+    {
+        assert(result.level == STUN_NONE);
+    }
+    return result;
+}
+
 bool set_stun(int v, bool do_dec)
 {
-    int old_aux, new_aux, slot;
-    bool notice = FALSE;
+    stun_info_t old_stun = stun_info(p_ptr->stun);
+    stun_info_t new_stun;
+    slot_t      slot;
+    bool        notice = FALSE;
 
     /* Hack -- Force good values */
     v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -4358,79 +4442,12 @@ bool set_stun(int v, bool do_dec)
     if (slot && equip_obj(slot)->rune == RUNE_WATER) v = 0;
     if (psion_mental_fortress()) v = 0;
 
-    /* Knocked out */
-    if (p_ptr->stun > 100)
+    new_stun = stun_info(v);
+
+    /* Increase stun level */
+    if (new_stun.level > old_stun.level)
     {
-        old_aux = 3;
-    }
-
-    /* Heavy stun */
-    else if (p_ptr->stun > 50)
-    {
-        old_aux = 2;
-    }
-
-    /* Stun */
-    else if (p_ptr->stun > 0)
-    {
-        old_aux = 1;
-    }
-
-    /* None */
-    else
-    {
-        old_aux = 0;
-    }
-
-    /* Knocked out */
-    if (v > 100)
-    {
-        new_aux = 3;
-    }
-
-    /* Heavy stun */
-    else if (v > 50)
-    {
-        new_aux = 2;
-    }
-
-    /* Stun */
-    else if (v > 0)
-    {
-        new_aux = 1;
-    }
-
-    /* None */
-    else
-    {
-        new_aux = 0;
-    }
-
-    /* Increase stun */
-    if (new_aux > old_aux)
-    {
-        /* Describe the state */
-        switch (new_aux)
-        {
-            /* Stun */
-            case 1:
-            msg_print("You have been <color:y>stunned</color>.");
-
-            break;
-
-            /* Heavy stun */
-            case 2:
-            msg_print("You have been <color:R>heavily stunned</color>.");
-
-            break;
-
-            /* Knocked out */
-            case 3:
-            msg_print("You have been <color:v>knocked out</color>.");
-
-            break;
-        }
-
+        msg_format("You have been <color:%c>%s</color>.", attr_to_attr_char(new_stun.attr), new_stun.msg);
         if (randint1(1000) < v || one_in_(16))
         {
             msg_print("A vicious blow hits your head.");
@@ -4459,58 +4476,32 @@ bool set_stun(int v, bool do_dec)
             p_ptr->redraw |= (PR_STATUS);
             p_ptr->action = ACTION_NONE;
         }
-
-        /* Sniper */
         if (p_ptr->concent) reset_concentration(TRUE);
-
-        /* Hex */
         if (hex_spelling_any()) stop_hex_spell_all();
-
-        /* Notice */
         notice = TRUE;
     }
 
-    /* Decrease stun */
-    else if (new_aux < old_aux)
+    /* Decrease stun level */
+    else if (new_stun.level < old_stun.level)
     {
-        if (old_aux == 3 && new_aux < 3 && new_aux > 0)
-            msg_print("You are no longer knocked out.");
+        if (old_stun.level == STUN_KNOCKED_OUT && new_stun.level > STUN_NONE)
+            msg_format("You are no longer <color:%c>%s</color>.", attr_to_attr_char(old_stun.attr), old_stun.msg); 
 
-        /* Describe the state */
-        switch (new_aux)
+        if  (new_stun.level == STUN_NONE)
         {
-            /* None */
-            case 0:
-            msg_print("You are no longer stunned.");
-
+            msg_format("You are no longer <color:%c>%s</color>.", attr_to_attr_char(old_stun.attr), old_stun.msg);
             if (disturb_state) disturb(0, 0);
-            break;
         }
-
-        /* Notice */
         notice = TRUE;
     }
 
-    /* Use the value */
     p_ptr->stun = v;
-
-    /* No change */
     if (!notice) return (FALSE);
 
-    /* Disturb */
     if (disturb_state) disturb(0, 0);
-
-    /* Recalculate bonuses */
-    p_ptr->update |= (PU_BONUS);
-
-    /* Redraw the "stun" */
     p_ptr->redraw |= PR_EFFECTS;
-
-    /* Handle stuff */
     handle_stuff();
-
-    /* Result */
-    return (TRUE);
+    return TRUE;
 }
 
 
@@ -4521,53 +4512,49 @@ bool set_stun(int v, bool do_dec)
  */
 cut_info_t cut_info(int cut)
 {
+    point_t tbl[7] = { {CUT_GRAZE, 1}, {CUT_LIGHT, 3}, {CUT_BAD, 7}, {CUT_NASTY, 16},
+                       {CUT_SEVERE, 32}, {CUT_DEEP_GASH, 80}, {CUT_MORTAL_WOUND, 200} };
     cut_info_t result = {0};
+    if (cut) result.dam = interpolate(cut, tbl, 7);
     if (cut >= CUT_MORTAL_WOUND)
     {
         result.level = CUT_MORTAL_WOUND;
-        result.dam = 200;
         result.desc = "Mortal Wound";
         result.attr = TERM_L_RED;
     }
     else if (cut >= CUT_DEEP_GASH)
     {
         result.level = CUT_DEEP_GASH;
-        result.dam = 80;
         result.desc = "Deep Gash";
         result.attr = TERM_RED;
     }
     else if (cut >= CUT_SEVERE)
     {
         result.level = CUT_SEVERE;
-        result.dam = 32;
         result.desc = "Severe Cut";
         result.attr = TERM_RED;
     }
     else if (cut >= CUT_NASTY)
     {
         result.level = CUT_NASTY;
-        result.dam = 16;
         result.desc = "Nasty Cut";
         result.attr = TERM_ORANGE;
     }
     else if (cut >= CUT_BAD)
     {
         result.level = CUT_BAD;
-        result.dam = 7;
         result.desc = "Bad Cut";
         result.attr = TERM_ORANGE;
     }
     else if (cut >= CUT_LIGHT)
     {
         result.level = CUT_LIGHT;
-        result.dam = 3;
         result.desc = "Light Cut";
         result.attr = TERM_YELLOW;
     }
     else if (cut >= CUT_GRAZE)
     {
         result.level = CUT_GRAZE;
-        result.dam = 1;
         result.desc = "Graze";
         result.attr = TERM_YELLOW;
     }
@@ -5164,6 +5151,61 @@ bool hp_player_aux(int num)
     return (FALSE);
 }
 
+bool lp_player(int num)
+{
+    bool notice = FALSE;
+    int old_clp = p_ptr->clp;
+
+    p_ptr->clp += num;
+    if (p_ptr->clp > 1000) p_ptr->clp = 1000;
+    if (p_ptr->clp <= 0)
+    {
+        if (p_ptr->pclass != CLASS_MONSTER)
+        {
+            int which;
+            switch (randint1(4))
+            {
+            case 1: which = RACE_VAMPIRE; break;
+            case 2: which = RACE_SKELETON; break;
+            case 3: which = RACE_ZOMBIE; break;
+            case 4: which = RACE_SPECTRE; break;
+            }
+
+            msg_print("<color:v>Your life force is exhausted!</color>");
+            change_race(which, "");
+            p_ptr->clp = 1000; /* full unlife */
+            assert(get_race()->flags & RACE_IS_NONLIVING); /* no more life drain */
+        }
+        else
+            p_ptr->clp = 0; /* monsters can't change their race ... */
+    }
+    if (p_ptr->clp != old_clp)
+    {
+        if (num < 0) msg_print("<color:D>You feel your life draining away!</color>");
+        else if (num > 0) msg_print("<color:B>You feel your life returning.</color>");
+        p_ptr->update |= PU_HP;
+        p_ptr->redraw |= PR_EFFECTS;
+        notice = TRUE;
+    }
+    return notice;
+}
+
+/* vampiric drain goes first to recovering the player's life,
+ * and then, if any is left over, to recovering hit points */
+bool vamp_player(int num)
+{
+    if (p_ptr->clp + num <= 1000)
+        return lp_player(num);
+    else if (p_ptr->clp < 1000)
+    {
+        int lp = 1000 - p_ptr->clp;
+        lp_player(lp);
+        num -= lp;
+        assert(num > 0);
+    }
+    return hp_player_aux(num);
+}
+
 bool sp_player(int num)
 {
     bool notice = FALSE;
@@ -5255,7 +5297,7 @@ bool do_dec_stat(int stat)
     if (dec_stat(stat, 10, (ironman_nightmare && !randint0(13))))
     {
         /* Message */
-        msg_format("You feel very %s.", desc_stat_neg[stat]);
+        msg_format("You feel very <color:r>%s</color>.", desc_stat_neg[stat]);
 
 
         /* Notice effect */
@@ -5363,7 +5405,6 @@ bool restore_level(void)
     return FALSE;
 }
 
-
 /*
  * Forget everything
  */
@@ -5415,7 +5456,7 @@ void do_poly_wounds(void)
     if (Nasty_effect)
     {
         msg_print("A new wound was created!");
-        take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound", -1);
+        take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound");
 
         set_cut(change, FALSE);
     }
@@ -5634,7 +5675,7 @@ void do_poly_self(void)
         if (one_in_(6))
         {
             msg_print("You find living difficult in your present form!");
-            take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "a lethal mutation", -1);
+            take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "a lethal mutation");
 
             power -= 10;
         }
@@ -5678,7 +5719,7 @@ void do_poly_self(void)
  * setting the player to "dead".
  */
 
-int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
+int take_hit(int damage_type, int damage, cptr hit_from)
 {
     int old_chp = p_ptr->chp;
 
@@ -5687,6 +5728,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
     /* Paranoia */
     if (p_ptr->is_dead) return 0;
+    if (!damage) return 0;
 
     if (p_ptr->sutemi) damage *= 2;
     if (p_ptr->special_defense & KATA_IAI) damage += (damage + 4) / 5;
@@ -5698,8 +5740,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
         /* Disturb */
         disturb(1, 0);
     }
-
-    if (monspell >= 0) learn_spell(monspell);
 
     /* Mega-Hack -- Apply "invulnerability" */
     if ((damage_type != DAMAGE_USELIFE) && (damage_type != DAMAGE_LOSELIFE))
@@ -5787,7 +5827,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
     }
 
     
-    if (p_ptr->wizard && damage > 10)
+    if (p_ptr->wizard && damage > 0)
         msg_format("You take %d damage.", damage);
 
     p_ptr->chp -= damage;
@@ -5962,8 +6002,13 @@ void gain_exp_64(s32b amount, u32b amount_frac)
         p_ptr->max_exp += amount / 5;
     }
 
-    /* Check Experience */
-    check_experience();
+    /* Check Experience ... later. Definitely not during melee attacks.
+     * However, stat runs can check now ... otherwise, they gain CL1 exp
+     * from all kills until the stat run is finished! */
+    if (statistics_hack)
+        check_experience();
+    else
+        p_ptr->notice |= PN_EXP;
 }
 
 
@@ -5995,33 +6040,33 @@ void lose_exp(s32b amount)
 
 /*
  * Drain experience
- * If resisted to draining, return FALSE
+ * Return amount drained.
  */
-bool drain_exp(s32b drain, s32b slip, int hold_life_prob)
+int drain_exp(s32b drain, s32b slip, int hold_life_prob)
 {
-    /* Androids and their mimics are never drained */
-    if (p_ptr->prace == RACE_ANDROID) return FALSE;
+    int i;
 
-    if (p_ptr->hold_life && (randint0(100) < hold_life_prob))
+    /* Androids use construction points, not experience points */
+    if (p_ptr->prace == RACE_ANDROID) return 0;
+
+    for (i = 0; i < p_ptr->hold_life; i++)
     {
-        /* Hold experience */
-        msg_print("You keep hold of your life force!");
-        return FALSE;
+        if (p_ptr->hold_life && (randint0(100) < hold_life_prob))
+        {
+            msg_print("You keep hold of your life force!");
+            return 0;
+        }
     }
 
-    /* Hold experience failed */
     if (p_ptr->hold_life)
     {
         msg_print("You feel your life slipping away!");
         lose_exp(slip);
+        return slip;
     }
-    else
-    {
-        msg_print("You feel your life draining away!");
-        lose_exp(drain);
-    }
-
-    return TRUE;
+    msg_print("You feel your life draining away!");
+    lose_exp(drain);
+    return drain;
 }
 
 

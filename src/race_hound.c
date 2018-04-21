@@ -114,20 +114,6 @@ static void _birth(void)
 /**********************************************************************
  * Hound Attacks
  **********************************************************************/
-static int _bite_effect(void)
-{
-    switch (p_ptr->current_r_idx)
-    {
-/*    case MON_FIRE_HOUND: return GF_FIRE;
-    case MON_COLD_HOUND: return GF_COLD;
-    case MON_ENERGY_HOUND: return GF_ELEC;
-    case MON_AIR_HOUND: return GF_POIS;
-    case MON_WATER_HOUND: return GF_ACID; */
-    case MON_HOUND_OF_TINDALOS: return GF_TIME;
-    }
-    return GF_MISSILE;
-}
-
 void hound_calc_innate_attacks(void)
 {
     int l = p_ptr->lev;
@@ -160,7 +146,14 @@ void hound_calc_innate_attacks(void)
         a.to_h += to_h;
 
         a.weight = 200;
-        a.effect[0] = _bite_effect();
+        a.effect[0] = GF_MISSILE;
+        if (p_ptr->current_r_idx == MON_HOUND_OF_TINDALOS)
+        {
+            a.effect[1] = GF_TIME;
+            a.effect_chance[1] = 50;
+            a.dd = 2; /* 3d14+15 -> 2d14+10 with 50% 2d14+10 additional time damage */
+            a.to_d = py_prorata_level(10);
+        }
 
         calc_innate_blows(&a, 300);
         a.msg = "You bite.";
@@ -460,12 +453,12 @@ static void _calc_bonuses(void) {
     case MON_VIBRATION_HOUND:
         res_add(RES_SOUND);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     case MON_NEXUS_HOUND:
         res_add(RES_NEXUS);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     case MON_MULTI_HUED_HOUND:
         p_ptr->pspeed += 3;
@@ -475,46 +468,47 @@ static void _calc_bonuses(void) {
         res_add(RES_ELEC);
         res_add(RES_POIS);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     /* Tier 4 */
     case MON_INERTIA_HOUND:
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
+        p_ptr->no_slow = TRUE;
         break;
     case MON_IMPACT_HOUND:
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     case MON_NETHER_HOUND:
         p_ptr->pspeed += 5;
         res_add(RES_NETHER);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     /* Tier 5 */
     case MON_GRAVITY_HOUND:
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     case MON_TIME_HOUND:
         p_ptr->pspeed += 7;
         res_add(RES_TIME);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     case MON_PLASMA_HOUND:
         p_ptr->pspeed += 5;
         res_add(RES_ELEC);
         res_add(RES_FIRE);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     case MON_CHAOS_HOUND:
         p_ptr->pspeed += 5;
         res_add(RES_CHAOS);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     /* Tier 6 */
     case MON_HOUND_OF_TINDALOS:
@@ -522,7 +516,7 @@ static void _calc_bonuses(void) {
         res_add(RES_NETHER);
         res_add(RES_TIME);
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         p_ptr->levitation = TRUE;
         p_ptr->pass_wall = TRUE;
         p_ptr->no_passwall_dam = TRUE;
@@ -530,7 +524,7 @@ static void _calc_bonuses(void) {
     case MON_MANA_HOUND:
         p_ptr->pspeed += 10;
         res_add(RES_CONF);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     case MON_AETHER_HOUND:
         p_ptr->pspeed += 5;
@@ -552,7 +546,7 @@ static void _calc_bonuses(void) {
         p_ptr->sh_cold = TRUE;
         p_ptr->sh_fire = TRUE;
         p_ptr->sh_elec = TRUE;
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         break;
     }
 }

@@ -1,0 +1,26 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+<color:D>xxxxxxxxxxxx</color>                               ###  ##     %              LEVEL <color:G>    39</color>
+<color:D>xxxxxxxxxxx</color>                                  ## ###    #              EXP <color:G>    269k</color>
+<color:D>xxxxxxxxxxx</color>                                   #<color:U><</color>       #              AU  <color:G>   1.51M</color>
+<color:D>xxxxxxxx</color>###<color:s>%</color>##############                    #####    #              <color:d>            </color>
+<color:D>xxxxxxxxx</color>      <color:s>/</color>         #                        #   #%              STR!: <color:G>18/160</color>
+<color:D>xxxxxxx</color>#<color:o>*</color>#<color:s>%</color>###<color:u>'</color>######### #                        ###%#               INT : <color:G>18/***</color>
+<color:D>xxxxxxxx</color><color:B>###############</color># #                                            WIS : <color:G> 18/56</color>
+<color:D>xxxxxxx</color>###<color:s>%</color>###<color:U>'</color>######### #                                            DEX!: <color:G>18/***</color>
+<color:D>xxxxxxx</color>#<color:y>PPP</color>  <color:y>PPP</color> <color:y>P</color> <color:y>PP</color>#   #                                            CON : <color:G>18/146</color>
+<color:D>xxxxxxx</color><color:s>%%</color>##<color:s>%</color>##<color:U>'</color><color:s>%</color>%#####   #                                            CHR : <color:G>18/103</color>
+<color:D>xxxxxx</color>   #  <color:s>P</color> <color:s>P</color> <color:y>P</color> <color:y>P</color>      <color:s>%</color>                                            AC     <color:G>  185</color>
+<color:D>xxxxxx</color>   <color:s>%%</color>#<color:s>%%</color><color:U>'</color><color:s>P</color>P<color:y>P</color> PP    #                                            HP <color:G> 688</color>/<color:G> 688</color>
+<color:D>xxxxxx</color>     <color:s>%</color>   <color:y>P</color> %P P    #                                            SP <color:y> 255</color>/<color:G> 328</color>
+<color:D>xxxxx</color>      %#<color:s>%</color>#%%% <color:s>P</color> <color:s>P</color>   #                                                        
+<color:D>xxxxx</color>                 <color:s>P</color>  #                                            @ <color:G>100%</color>      
+<color:D>xxxx</color><color:s>%%</color>#%<color:s>%%%%</color>#<color:s>%%</color>#%%<color:s>%</color>%<color:s>%</color>#% <color:s>PP</color>                                            <color:y>?</color> <color:y> 77%</color>      
+<color:D>xxxxx</color>                  <color:s>%</color> <color:s>P</color>                                            <color:U>,</color> <color:G>140%</color>      
+<color:D>xxxxx</color>                  <color:s>%</color> <color:s>%%%</color>#<color:s>%%</color>#<color:s>%</color>                                                 
+<color:D>xxxxx</color>                  <color:s>%</color>     <color:R>v</color>  #                            <color:s>%</color>%#<color:s>%</color>###<color:s>%</color>             
+<color:D>xxxx</color>                   %<color:s>%</color>#<color:s>%</color>#%#<color:s>%</color><color:U>+</color><color:o>*</color>%#<color:s>%%</color>#%<color:s>%%</color>#%#%<color:s>%</color>%<color:s>%</color><color:o>*</color><color:s>%%%</color>##<color:s>%</color>%%<color:s>%</color>#<color:s>%</color>#%     #              
+<color:D>xxxx</color>                          <color:o>*</color>...@...>                        <color:s>%</color>## #  <color:y>Fast (+21)</color>  
+<color:D>xxxx</color>                          #<color:U>'</color>%<color:s>%%%</color>#<color:s>%</color>###<color:s>%</color>#%#%%#<color:s>%</color>%<color:s>%%</color>## <color:s>%%</color>%###### #    <color:G>Full</color>        
+<color:D>xxxxx</color>                         <color:s>%</color>     %               ##<color:s>%</color> #        #    <color:B>Study (17)</color>  
+</style>

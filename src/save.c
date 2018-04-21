@@ -40,7 +40,7 @@ static void wr_monster(savefile_ptr file, monster_type *m_ptr)
         savefile_write_byte(file, SAVE_MON_SUB_ALIGN);
         savefile_write_byte(file, m_ptr->sub_align);
     }
-    for (i = 0; i < MTIMED_MAX; i++)
+    for (i = 0; i < MTIMED_COUNT; i++)
     {
         if (m_ptr->mtimed[i])
         {
@@ -94,10 +94,10 @@ static void wr_monster(savefile_ptr file, monster_type *m_ptr)
         savefile_write_byte(file, SAVE_MON_AC);
         savefile_write_s16b(file, m_ptr->ac_adj);
     }
-    if (m_ptr->melee_adj)
+    if (m_ptr->mpower != 1000)
     {
-        savefile_write_byte(file, SAVE_MON_MELEE);
-        savefile_write_s16b(file, m_ptr->melee_adj);
+        savefile_write_byte(file, SAVE_MON_POWER);
+        savefile_write_s16b(file, m_ptr->mpower);
     }
     if (m_ptr->drop_ct)
     {
@@ -108,11 +108,6 @@ static void wr_monster(savefile_ptr file, monster_type *m_ptr)
     {
         savefile_write_byte(file, SAVE_MON_STOLEN_CT);
         savefile_write_byte(file, m_ptr->stolen_ct);
-    }
-    if (m_ptr->summon_ct)
-    {
-        savefile_write_byte(file, SAVE_MON_SUMMON_CT);
-        savefile_write_u16b(file, m_ptr->summon_ct);
     }
     if (m_ptr->ego_whip_ct)
     {
@@ -130,54 +125,111 @@ static void wr_monster(savefile_ptr file, monster_type *m_ptr)
         savefile_write_byte(file, SAVE_MON_PEXP);
         savefile_write_s32b(file, m_ptr->pexp);
     }
-    if (m_ptr->paralyzed)
+    if (m_ptr->anger)
     {
-        savefile_write_byte(file, SAVE_MON_PARALYZED);
-        savefile_write_s16b(file, m_ptr->paralyzed);
+        savefile_write_byte(file, SAVE_MON_ANGER);
+        savefile_write_byte(file, m_ptr->anger);
     }
-    if (m_ptr->anger_ct)
+    if (m_ptr->mana)
     {
-        savefile_write_byte(file, SAVE_MON_ANGER_CT);
-        savefile_write_byte(file, m_ptr->anger_ct);
+        savefile_write_byte(file, SAVE_MON_MANA);
+        savefile_write_s16b(file, m_ptr->mana);
     }
 
     savefile_write_byte(file, SAVE_MON_DONE);
 }
 
-static void wr_lore(savefile_ptr file, int r_idx)
+static void wr_race_lore(savefile_ptr file, mon_race_ptr race)
 {
-    monster_race *r_ptr = &r_info[r_idx];
+    int i, j, ct_blows = 0, ct_auras = 0;
+    savefile_write_s16b(file, race->r_sights);
+    savefile_write_s16b(file, race->r_deaths);
+    savefile_write_s16b(file, race->r_pkills);
+    savefile_write_s16b(file, race->r_akills);
+    savefile_write_s16b(file, race->r_skills);
+    savefile_write_s16b(file, race->r_tkills);
+    savefile_write_byte(file, race->r_wake);
+    savefile_write_byte(file, race->r_ignore);
+    savefile_write_byte(file, race->r_xtra1);
+    savefile_write_byte(file, race->r_xtra2);
+    savefile_write_byte(file, race->r_drop_gold);
+    savefile_write_byte(file, race->r_drop_item);
+    savefile_write_u32b(file, race->r_spell_turns);
+    savefile_write_u32b(file, race->r_move_turns);
+    savefile_write_u32b(file, race->r_flags1);
+    savefile_write_u32b(file, race->r_flags2);
+    savefile_write_u32b(file, race->r_flags3);
+    savefile_write_u32b(file, race->r_flagsr);
+    mon_spells_save(race->spells, file); /* 2 + 5S' bytes where S' is a seen spell */
+    for (i = 0; i < MAX_MON_BLOWS; i++) /* was 40 bytes ... slightly optimized (cost 2 bytes) */
+    {
+        mon_blow_ptr blow = &race->blows[i];
+        if (!blow->method) break;
+        ct_blows++;
+    }
+    savefile_write_byte(file, ct_blows);
+    for (i = 0; i < ct_blows; i++)
+    {
+        mon_blow_ptr blow = &race->blows[i];
+        int          ct_effects = 0;
+        savefile_write_s16b(file, blow->lore);
+        for (j = 0; j < MAX_MON_BLOW_EFFECTS; j++)
+        {
+            mon_effect_ptr effect = &blow->effects[j];
+            if (!effect->effect) break;
+            ct_effects++;
+        }
+        savefile_write_byte(file, ct_effects);
+        for (j = 0; j < ct_effects; j++)
+        {
+            mon_effect_ptr effect = &blow->effects[j];
+            savefile_write_s16b(file, effect->lore);
+        }
+    }
+    for (i = 0; i < MAX_MON_AURAS; i++) /* was 6 bytes ... very very slight optimization */
+    {                                   /* but most monsters have no A:* auras (save 6k perhaps)*/
+        mon_effect_ptr aura = &race->auras[i];
+        if (!aura->effect) break;
+        ct_auras++;
+    }
+    savefile_write_byte(file, ct_auras);
+    for (i = 0; i < ct_auras; i++)
+    {
+        mon_effect_ptr aura = &race->auras[i];
+        savefile_write_s16b(file, aura->lore);
+    }
+}
+static bool _race_has_lore(mon_race_ptr race)
+{
+    return race->r_sights || race->r_tkills; /* XXX */
+}
+static void wr_r_info(savefile_ptr file)
+{
+    int i;
+    savefile_write_u16b(file, max_r_idx);
+    for (i = 0; i < max_r_idx; i++)
+    {
+        mon_race_ptr race = &r_info[i];
+        byte         header = 0;
 
-    savefile_write_s16b(file, r_ptr->r_sights);
-    savefile_write_s16b(file, r_ptr->r_deaths);
-    savefile_write_s16b(file, r_ptr->r_pkills);
-    savefile_write_s16b(file, r_ptr->r_akills);
-    savefile_write_s16b(file, r_ptr->r_skills);
-    savefile_write_s16b(file, r_ptr->r_tkills);
-    savefile_write_byte(file, r_ptr->r_wake);
-    savefile_write_byte(file, r_ptr->r_ignore);
-    savefile_write_byte(file, r_ptr->r_xtra1);
-    savefile_write_byte(file, r_ptr->r_xtra2);
-    savefile_write_byte(file, r_ptr->r_drop_gold);
-    savefile_write_byte(file, r_ptr->r_drop_item);
-    savefile_write_byte(file, r_ptr->r_cast_spell);
-    savefile_write_u32b(file, r_ptr->r_spell_turns);
-    savefile_write_u32b(file, r_ptr->r_move_turns);
-    savefile_write_byte(file, r_ptr->r_blows[0]);
-    savefile_write_byte(file, r_ptr->r_blows[1]);
-    savefile_write_byte(file, r_ptr->r_blows[2]);
-    savefile_write_byte(file, r_ptr->r_blows[3]);
-    savefile_write_u32b(file, r_ptr->r_flags1);
-    savefile_write_u32b(file, r_ptr->r_flags2);
-    savefile_write_u32b(file, r_ptr->r_flags3);
-    savefile_write_u32b(file, r_ptr->r_flags4);
-    savefile_write_u32b(file, r_ptr->r_flags5);
-    savefile_write_u32b(file, r_ptr->r_flags6);
-    savefile_write_u32b(file, r_ptr->r_flagsr);
-    savefile_write_byte(file, r_ptr->max_num);
-    savefile_write_s16b(file, r_ptr->floor_id);
-    savefile_write_byte(file, r_ptr->stolen_ct);
-    savefile_write_u32b(file, r_ptr->flagsx);
+        if (race->flagsx) header |= 0x01;
+        if (_race_has_lore(race)) header |= 0x02;
+
+        savefile_write_byte(file, header);
+        savefile_write_byte(file, race->max_num);
+        savefile_write_s16b(file, race->floor_id);
+        savefile_write_byte(file, race->stolen_ct);
+
+        if (race->flagsx)
+            savefile_write_u32b(file, race->flagsx);
+        if (_race_has_lore(race))
+            wr_race_lore(file, race);
+    }
+}
+
+static bool _have_counts(counts_ptr counts)
+{
+    return counts->found || counts->bought || counts->used || counts->destroyed;
 }
 
 static void wr_xtra_kind(savefile_ptr file, int k_idx)
@@ -188,43 +240,99 @@ static void wr_xtra_kind(savefile_ptr file, int k_idx)
 
     if (k_ptr->aware) tmp8u |= 0x01;
     if (k_ptr->tried) tmp8u |= 0x02;
+    if (_have_counts(&k_ptr->counts)) tmp8u |= 0x04;
 
     savefile_write_byte(file, tmp8u);
-    savefile_write_s32b(file, k_ptr->counts.generated);
-    savefile_write_s32b(file, k_ptr->counts.found);
-    savefile_write_s32b(file, k_ptr->counts.bought);
-    savefile_write_s32b(file, k_ptr->counts.used);
-    savefile_write_s32b(file, k_ptr->counts.destroyed);
+    if (_have_counts(&k_ptr->counts))
+    {
+        savefile_write_s16b(file, k_ptr->counts.generated);
+        savefile_write_s16b(file, k_ptr->counts.found);
+        savefile_write_s16b(file, k_ptr->counts.bought);
+        savefile_write_s16b(file, k_ptr->counts.used);
+        savefile_write_s16b(file, k_ptr->counts.destroyed);
+    }
 }
 
-static void wr_xtra_ego(savefile_ptr file, int e_idx)
+static bool _ego_has_lore(ego_ptr ego)
 {
-    int       i;
-    ego_type *e_ptr = &e_info[e_idx];
-
-    savefile_write_byte(file, OF_ARRAY_SIZE);
+    int i;
+    if (_have_counts(&ego->counts)) return TRUE;
     for (i = 0; i < OF_ARRAY_SIZE; i++)
-        savefile_write_u32b(file, e_ptr->known_flags[i]);
-
-    savefile_write_byte(file, OF_ARRAY_SIZE);
+    {
+        if (ego->known_flags[i]) return TRUE;
+        if (ego->xtra_flags[i]) return TRUE;
+    }
+    return FALSE;
+}
+static void wr_xtra_ego_aux(savefile_ptr file, ego_ptr ego)
+{
+    int i;
     for (i = 0; i < OF_ARRAY_SIZE; i++)
-        savefile_write_u32b(file, e_ptr->xtra_flags[i]);
+    {
+        if (!ego->known_flags[i]) continue;
+        savefile_write_byte(file, i);
+        savefile_write_u32b(file, ego->known_flags[i]);
+    }
+    savefile_write_byte(file, 0xFF);
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+    {
+        if (!ego->xtra_flags[i]) continue;
+        savefile_write_byte(file, i);
+        savefile_write_u32b(file, ego->xtra_flags[i]);
+    }
+    savefile_write_byte(file, 0xFF);
 
-    savefile_write_s32b(file, e_ptr->counts.generated);
-    savefile_write_s32b(file, e_ptr->counts.found);
-    savefile_write_s32b(file, e_ptr->counts.bought);
-    /*savefile_write_s32b(file, e_ptr->counts.used);*/
-    savefile_write_s32b(file, e_ptr->counts.destroyed);
+    savefile_write_s16b(file, ego->counts.generated);
+    savefile_write_s16b(file, ego->counts.found);
+    savefile_write_s16b(file, ego->counts.bought);
+    savefile_write_s16b(file, ego->counts.destroyed);
+}
+static void wr_xtra_ego(savefile_ptr file)
+{
+    int i;
+    for (i = 0; i < max_e_idx; i++)
+    {
+        ego_ptr ego = &e_info[i];
+        if (!ego->name) continue;
+        if (!_ego_has_lore(ego)) continue;
+        savefile_write_s16b(file, i);
+        wr_xtra_ego_aux(file, ego);
+    }
+    savefile_write_s16b(file, -1);
 }
 
-static void wr_xtra_art(savefile_ptr file, int a_idx)
+static bool _art_has_lore(art_ptr art)
 {
-    int            i;
-    artifact_type *a_ptr = &a_info[a_idx];
-
-    savefile_write_byte(file, OF_ARRAY_SIZE);
+    int i;
     for (i = 0; i < OF_ARRAY_SIZE; i++)
-        savefile_write_u32b(file, a_ptr->known_flags[i]);
+    {
+        if (art->known_flags[i]) return TRUE;
+    }
+    return FALSE;
+}
+static void wr_xtra_art_aux(savefile_ptr file, art_ptr art)
+{
+    int i;
+    for (i = 0; i < OF_ARRAY_SIZE; i++)
+    {
+        if (!art->known_flags[i]) continue;
+        savefile_write_byte(file, i);
+        savefile_write_u32b(file, art->known_flags[i]);
+    }
+    savefile_write_byte(file, 0xFF);
+}
+static void wr_xtra_art(savefile_ptr file)
+{
+    int i;
+    for (i = 0; i < max_a_idx; i++)
+    {
+        art_ptr art = &a_info[i];
+        if (!art->name) continue;
+        if (!_art_has_lore(art)) continue;
+        savefile_write_s16b(file, i);
+        wr_xtra_art_aux(file, art);
+    }
+    savefile_write_s16b(file, -1);
 }
 
 static void wr_randomizer(savefile_ptr file)
@@ -316,6 +424,7 @@ static void wr_extra(savefile_ptr file)
     int i,j;
     byte tmp8u;
 
+    savefile_write_s32b(file, p_ptr->id);
     savefile_write_cptr(file, player_name);
     savefile_write_cptr(file, p_ptr->died_from);
     savefile_write_cptr(file, p_ptr->last_message ? p_ptr->last_message : "");
@@ -380,12 +489,14 @@ static void wr_extra(savefile_ptr file)
     savefile_write_byte(file, p_ptr->exit_bldg);
     savefile_write_s16b(file, p_ptr->oldpx);
     savefile_write_s16b(file, p_ptr->oldpy);
+    savefile_write_s32b(file, p_ptr->mmhp);
     savefile_write_s32b(file, p_ptr->mhp);
     savefile_write_s32b(file, p_ptr->chp);
     savefile_write_u32b(file, p_ptr->chp_frac);
     savefile_write_s32b(file, p_ptr->msp);
     savefile_write_s32b(file, p_ptr->csp);
     savefile_write_u32b(file, p_ptr->csp_frac);
+    savefile_write_s16b(file, p_ptr->clp);
     savefile_write_s16b(file, p_ptr->max_plv);
 
     tmp8u = (byte)max_d_idx;
@@ -499,12 +610,12 @@ static void wr_extra(savefile_ptr file)
             savefile_write_byte(file, r_ptr->hside); /* Probably not required ... */
             savefile_write_s16b(file, r_ptr->ac);
             savefile_write_byte(file, r_ptr->speed); /* Probably not required ... */
-            for (i = 0; i < 4; i++)
+            for (i = 0; i < MAX_MON_BLOWS; i++)
             {
-                savefile_write_byte(file, r_ptr->blow[i].method);
-                savefile_write_byte(file, r_ptr->blow[i].effect);
-                savefile_write_byte(file, r_ptr->blow[i].d_dice);
-                savefile_write_byte(file, r_ptr->blow[i].d_side);
+                savefile_write_byte(file, r_ptr->blows[i].method);
+                savefile_write_byte(file, r_ptr->blows[i].effects[0].effect);
+                savefile_write_byte(file, r_ptr->blows[i].effects[0].dd);
+                savefile_write_byte(file, r_ptr->blows[i].effects[0].ds);
             }
             savefile_write_u32b(file, r_ptr->flags3);
             savefile_write_u32b(file, r_ptr->flagsr);
@@ -955,7 +1066,7 @@ static bool wr_dungeon(savefile_ptr file)
 
 static bool wr_savefile_new(savefile_ptr file)
 {
-    int        i, j;
+    int        i;
 
     u32b              now;
     u16b            tmp16u;
@@ -979,21 +1090,14 @@ static bool wr_savefile_new(savefile_ptr file)
 
     msg_on_save(file);
 
-    tmp16u = max_r_idx;
-    savefile_write_u16b(file, tmp16u);
-    for (i = 0; i < tmp16u; i++) wr_lore(file, i);
+    wr_r_info(file);
 
     tmp16u = max_k_idx;
     savefile_write_u16b(file, tmp16u);
     for (i = 0; i < tmp16u; i++) wr_xtra_kind(file, i);
 
-    tmp16u = max_e_idx;
-    savefile_write_u16b(file, tmp16u);
-    for (i = 0; i < tmp16u; i++) wr_xtra_ego(file, i);
-
-    tmp16u = max_a_idx;
-    savefile_write_u16b(file, tmp16u);
-    for (i = 0; i < tmp16u; i++) wr_xtra_art(file, i);
+    wr_xtra_ego(file);
+    wr_xtra_art(file);
 
     quests_save(file);
 
@@ -1006,11 +1110,7 @@ static bool wr_savefile_new(savefile_ptr file)
     savefile_write_s32b(file, max_wild_x);
     savefile_write_s32b(file, max_wild_y);
 
-    for (i = 0; i < max_wild_x; i++)
-    {
-        for (j = 0; j < max_wild_y; j++)
-            savefile_write_u32b(file, wilderness[j][i].seed);
-    }
+    savefile_write_u32b(file, wilderness_seed);
 
     tmp16u = max_a_idx;
     savefile_write_u16b(file, tmp16u);

@@ -1,12 +1,5 @@
 #include "angband.h"
 
-static cptr _mon_name(int r_idx)
-{
-    if (r_idx)
-        return r_name + r_info[r_idx].name;
-    return ""; /* Birth Menu */
-}
-
 /******************************************************************************
  * Troll Bite
  ******************************************************************************/
@@ -304,15 +297,15 @@ static void _calc_bonuses(void)
         res_add(RES_POIS);
         break;
     case MON_ETTIN:
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         res_add(RES_POIS);
         res_add(RES_CONF);
         break;
     case MON_SPIRIT_TROLL:
         p_ptr->pass_wall = TRUE;
         p_ptr->no_passwall_dam = TRUE;
-        p_ptr->free_act = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->free_act++;
+        p_ptr->see_inv++;
         p_ptr->levitation = TRUE;
         res_add(RES_COLD);
         res_add(RES_ELEC);
@@ -327,7 +320,7 @@ static void _calc_bonuses(void)
         break;
     case MON_TROLL_KING:
         p_ptr->pspeed += 7;
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         res_add(RES_POIS);
         res_add(RES_CONF);
         break;
@@ -474,7 +467,7 @@ race_t *mon_troll_get_race(int psubrace)
         init = TRUE;
     }
 
-    me.subname = _mon_name(p_ptr->current_r_idx);
+    me.subname = mon_name(p_ptr->current_r_idx);
     me.stats[A_STR] =  3 + p_ptr->lev/12;
     me.stats[A_INT] = -5;
     me.stats[A_WIS] = -5;

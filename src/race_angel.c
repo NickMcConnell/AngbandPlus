@@ -109,7 +109,7 @@ static void _calc_bonuses(void) {
     if (p_ptr->lev >= 10)
     {
         res_add(RES_FIRE);
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
     }
     if (p_ptr->lev >= 20)
     {

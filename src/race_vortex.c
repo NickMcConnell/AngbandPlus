@@ -406,7 +406,7 @@ static void _unleash_elements_spell(int cmd, variant *res)
                 if (!player_bold(y, x)) break;
             }
             project(0, 3, y, x, dam, _breath_effect(),
-                (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+                (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
         }
         var_set_bool(res, TRUE);
         break;
@@ -441,7 +441,7 @@ static void _calc_bonuses(void)
     p_ptr->to_a += 5 + 5*r;
     p_ptr->dis_to_a += 5 + 5*r;
 
-    p_ptr->free_act = TRUE;
+    p_ptr->free_act++;
     res_add(RES_CONF);
     res_add_immune(RES_BLIND);
     res_add_immune(RES_FEAR);
@@ -450,7 +450,7 @@ static void _calc_bonuses(void)
     p_ptr->no_cut = TRUE;
     p_ptr->no_eldritch = TRUE;
     p_ptr->move_random = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     p_ptr->levitation = TRUE;
 
     switch (p_ptr->current_r_idx)

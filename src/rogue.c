@@ -93,7 +93,7 @@ static cptr _rogue_pick_pocket(int power)
               && ((r_ptr->flags1 & RF1_UNIQUE) || mon_save_aux(m_ptr->r_idx, power)) )
             {
                 msg_format("%^s wakes up and looks very mad!", m_name);
-                m_ptr->anger_ct++;
+                mon_anger(m_ptr);
             }
             else
                 msg_format("%^s wakes up.", m_name);
@@ -116,7 +116,7 @@ static cptr _rogue_pick_pocket(int power)
         if (allow_ticked_off(r_ptr))
         {
             msg_format("Failed! %^s wakes up and looks very mad!", m_name);
-            m_ptr->anger_ct++;
+            mon_anger(m_ptr);
         }
         else
             msg_format("Failed! %^s wakes up.", m_name);
@@ -124,7 +124,7 @@ static cptr _rogue_pick_pocket(int power)
     else if (allow_ticked_off(r_ptr))
     {
         msg_format("Failed! %^s looks very mad!", m_name);
-        m_ptr->anger_ct++;
+        mon_anger(m_ptr);
     }
     else
     {
@@ -207,7 +207,7 @@ static cptr _rogue_negotiate(void)
                 if (mon_save_p(m_ptr->r_idx, A_CHR))
                 {
                     msg_format("%^s says 'Fool! Never trust a thief!'", m_name);
-                    m_ptr->anger_ct++;
+                    mon_anger(m_ptr);
                 }
                 else
                 {
@@ -221,7 +221,7 @@ static cptr _rogue_negotiate(void)
             else
             {
                 msg_format("%^s says 'Scoundrel!'", m_name);
-                m_ptr->anger_ct++;
+                mon_anger(m_ptr);
             }
         }
         else
@@ -232,7 +232,7 @@ static cptr _rogue_negotiate(void)
     else
     {
         msg_format("%^s is insulted you would ask such a question!", m_name);
-        m_ptr->anger_ct++;
+        mon_anger(m_ptr);
     }
     return "";
 }
@@ -683,7 +683,7 @@ cptr do_burglary_spell(int spell, int mode)
                     if (cave_empty_bold2(my, mx)) break;
                 }
                 if (attempt < 0) continue;
-                summon_specific(-1, my, mx, plev*2, SUMMON_THIEF, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
+                summon_specific(-1, my, mx, plev*3/2, SUMMON_THIEF, PM_FORCE_PET | PM_HASTE);
             }
         }
         break;
@@ -736,14 +736,12 @@ cptr do_burglary_spell(int spell, int mode)
 /****************************************************************************
  * Bonuses
  ****************************************************************************/
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
-{
-    if (p_ptr->shooter_info.tval_ammo != TV_SHOT )
-        p_ptr->shooter_info.base_shot = 100;
-}
-
 static void _calc_bonuses(void)
 {
+    /* rogues are decent shooters all around, but especially good with slings */
+    slot_t slot = equip_find_obj(TV_BOW, SV_SLING); /* fyi, shooter_info not set yet ... */
+    if (slot) p_ptr->skills.thb += 20 + p_ptr->lev;
+
     if (p_ptr->realm1 == REALM_BURGLARY && equip_find_ego(EGO_GLOVES_THIEF))
         p_ptr->dec_mana = TRUE;
 }
@@ -796,8 +794,8 @@ class_t *rogue_get_class(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 45,  37,  36,   5,  32,  24,  60,  66};
-    skills_t xs = { 15,  12,  10,   0,   0,   0,  21,  20};
+    skills_t bs = { 45,  37,  36,   5,  32,  24,  60,  60};
+    skills_t xs = { 15,  12,  10,   0,   0,   0,  21,  14};
 
         me.name = "Rogue";
         me.desc = "A Rogue is a character that prefers to live by his cunning, but is "
@@ -838,7 +836,6 @@ class_t *rogue_get_class(void)
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.caster_info = _caster_info;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
         /* TODO: This class uses spell books, so we are SOL
         me.get_spells = _get_spells;*/
         me.character_dump = spellbook_character_dump;

@@ -186,55 +186,6 @@ static personality_ptr _get_hasty_personality(void)
 }
 
 /****************************************************************
- * Lazy
- ****************************************************************/
-static void _lazy_birth(void)
-{
-    p_ptr->au /= 2;
-}
-static void _lazy_calc_bonuses(void)
-{
-    p_ptr->to_m_chance += 10;
-}
-static personality_ptr _get_lazy_personality(void)
-{
-    static personality_t me = {0};
-    static bool init = FALSE;
-
-    if (!init)
-    {
-        me.name = "Lazy";
-        me.desc = "A Lazy person has no good stats and can do no action well. "
-                    "Also it has a direct bad influence on your spell fail rate.";
-
-        me.stats[A_STR] = -2;
-        me.stats[A_INT] = -2;
-        me.stats[A_WIS] = -2;
-        me.stats[A_DEX] = -2;
-        me.stats[A_CON] = -2;
-        me.stats[A_CHR] = -2;
-
-        me.skills.dis = -5;
-        me.skills.dev = -5;
-        me.skills.sav = -3;
-        me.skills.stl = -1;
-        me.skills.srh = -4;
-        me.skills.fos = -2;
-        me.skills.thn = -8;
-        me.skills.thb = -5;
-
-        me.life = 95;
-        me.exp = 100;
-
-        me.birth = _lazy_birth;
-        me.calc_bonuses = _lazy_calc_bonuses;
-
-        init = TRUE;
-    }
-    return &me;
-}
-
-/****************************************************************
  * Lucky
  ****************************************************************/
 static void _lucky_birth(void)
@@ -320,75 +271,6 @@ static personality_ptr _get_mighty_personality(void)
         me.exp = 100;
 
         me.calc_bonuses = _mighty_calc_bonuses;
-
-        init = TRUE;
-    }
-    return &me;
-}
-
-/****************************************************************
- * Munchkin
- ****************************************************************/
-static void _munchkin_birth(void)
-{
-    p_ptr->au = 10 * 1000 * 1000;
-}
-
-static void _munchkin_calc_bonuses(void)
-{
-    p_ptr->auto_id = TRUE;
-    res_add(RES_BLIND);
-    res_add(RES_CONF);
-    p_ptr->hold_life = TRUE;
-    if (p_ptr->pclass != CLASS_NINJA)
-        p_ptr->lite = TRUE;
-
-    p_ptr->pspeed += p_ptr->lev/10 + 5;
-}
-static void _munchkin_get_flags(u32b flgs[OF_ARRAY_SIZE])
-{
-    add_flag(flgs, OF_RES_BLIND);
-    add_flag(flgs, OF_RES_CONF);
-    add_flag(flgs, OF_HOLD_LIFE);
-    if (p_ptr->pclass != CLASS_NINJA)
-        add_flag(flgs, OF_LITE);
-    add_flag(flgs, OF_SPEED);
-}
-static personality_ptr _get_munchkin_personality(void)
-{
-    static personality_t me = {0};
-    static bool init = FALSE;
-
-    if (!init)
-    {
-        me.name = "Munchkin";
-        me.desc = "The Munchkin personality is for beginners. It raises all your "
-                    "stats and skills. With this personality, you can win the game "
-                    "easily, but gain little honor in doing so.";
-
-        me.stats[A_STR] = 3;
-        me.stats[A_INT] = 3;
-        me.stats[A_WIS] = 3;
-        me.stats[A_DEX] = 3;
-        me.stats[A_CON] = 3;
-        me.stats[A_CHR] = 3;
-
-        me.skills.dis = 10;
-        me.skills.dev = 20;
-        me.skills.sav = 15;
-        me.skills.stl =  5;
-        me.skills.srh = 20;
-        me.skills.fos = 20;
-        me.skills.thn = 40;
-        me.skills.thb = 24;
-
-        me.life = 150;
-        me.exp = 50;
-        me.flags = DEPRECATED;
-
-        me.birth = _munchkin_birth;
-        me.calc_bonuses = _munchkin_calc_bonuses;
-        me.get_flags = _munchkin_get_flags;
 
         init = TRUE;
     }
@@ -551,6 +433,7 @@ static void _sexy_birth(void)
         if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
             rune_add(&forge, RUNE_ABSORPTION, FALSE);
         py_birth_obj(&forge);
+        skills_weapon_init(TV_HAFTED, SV_WHIP, WEAPON_EXP_BEGINNER);
     }
 }
 static void _sexy_calc_bonuses(void)
@@ -665,17 +548,11 @@ personality_ptr get_personality_aux(int index)
     case PERS_HASTY:
         result = _get_hasty_personality();
         break;
-    case PERS_LAZY:
-        result = _get_lazy_personality();
-        break;
     case PERS_LUCKY:
         result = _get_lucky_personality();
         break;
     case PERS_MIGHTY:
         result = _get_mighty_personality();
-        break;
-    case PERS_MUNCHKIN:
-        result = _get_munchkin_personality();
         break;
     case PERS_NIMBLE:
         result = _get_nimble_personality();

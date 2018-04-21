@@ -1,0 +1,27 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+The Mithril Shot of Endurance (5d3) (+15,+15) hits Dworkin Barimen.               
+<color:v>Dworkin Barimen puts a terrible blood curse on you!</color> There is a        Level <color:y>    44</color>
+malignant black aura surrounding Set of Leather Gloves 'Cambeleg'...  Exp <color:y>   62.8k</color>
+You feel like a statue! <color:v>You are paralyzed!</color> You feel your life         AU  <color:G>   1.72M</color>
+draining away... You feel very <color:r>stupid</color>. You feel a sudden stirring     <color:d>            </color>
+nearby! Dworkin Barimen shouts, 'AAAARRRGGGHHH!!!' <color:R>You have slain </color>    STR!: <color:G>18/***</color>
+<color:R>Dworkin Barimen.</color> You feel something roll beneath your feet. You feel  Int!: <color:y>18/214</color>
+something roll beneath your feet. <color:B>You can move again.</color>                 WIS!: <color:G> 18/30</color>
+                                                                      DEX!: <color:G>18/***</color>
+                                                                      CON!: <color:G>18/***</color>
+                                                                      CHR!: <color:G>18/170</color>
+                                       <color:U>###</color>                            AC     <color:G>  196</color>
+<color:D>xx</color>                                     # #                 <color:D>xxxxxxxxxx</color> HP <color:G> 909</color>/<color:G> 909</color>
+<color:D>xx</color>                                     # #                 <color:D>xxxxxxxxxx</color> SP <color:y> 210</color>/<color:G> 341</color>
+<color:D>xx</color>                                     # #                 <color:D>xxxxxxxxxx</color>             
+<color:D>x</color>                ####################### ###########        <color:D>xxxxxxxxx</color> @ <color:G>100%</color>      
+<color:D>x</color>                                                <color:G>$</color> :        <color:D>xxxxxxxxx</color> <color:y>?</color> <color:y> 61%</color>      
+<color:D>x</color>           <color:U>+</color>    ###################################        <color:D>xxxxxxxxx</color> <color:U>,</color> <color:G>130%</color>      
+<color:D>x</color>            <color:U>+</color>   #                       #                  <color:D>xxxxxxxxx</color>             
+<color:D>x</color>           <color:s>%</color> <color:s>%</color>  # <color:s>%</color>#################### #                  <color:D>xxxxxxxxx</color>             
+<color:D>x</color>           # ##<color:s>%</color># #   #   # ..#   #   # #                  <color:D>xxxxxxxxx</color>             
+            <color:s>%</color> #    #   # # # #@# # # # # #                   <color:D>xxxxxxxx</color> <color:y>Fast (+32)</color>  
+            <color:s>%</color> <color:U>'</color> #<color:s>%</color> # <color:s>}</color> # # # #<color:B>!</color># # # # # #                   <color:D>xxxxxxxx</color> <color:D>Cursed</color>      
+<color:U>Angband: L65</color>      <color:s>PassWall</color> StnSkn <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color> Hero <color:o>Telepa</color> <color:B>Regen</color>      
+</style>

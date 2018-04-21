@@ -1,30 +1,30 @@
 <color:y>PosChengband <$:version></color>
 <style:screenshot>
-<color:U>You attack the Ancient red dragon:</color> You knee. You <color:y>double-kick</color>. It
-was a <color:R>great</color> hit! You <color:U>uppercut</color>. You knee. You <color:y>double-kick</color>. The       LEVEL <color:G>    28</color>
-Ancient red dragon flees in terror!                                 EXP <color:G>   18.0k</color>
-The Ancient red dragon recovers its courage.                        AU  <color:G>   96.9k</color>
-<color:g>The Ancient red dragon attacks you:</color> It claws. <color:v>*Ouch!*</color> <color:U>(You </color>         <color:d>  </color><color:U>}</color><color:g>==</color><color:y>"!</color><color:U>(</color><color:g>(</color><color:s>]</color><color:U>]</color><color:d> </color>
-<color:U>retaliate:</color> You <color:y>jump kick</color>. <color:R>You have slain the Ancient red dragon.</color>    STR : <color:G> 18/79</color>
-You feel something roll beneath your feet.<color:U>)</color>                         Int : <color:y>    11</color>
-#          #<color:D>#</color>#   %#<color:D>#</color>%  %##     #%<color:D>#</color>###<color:D>#</color>##<color:D>#</color># #<color:D>#</color>### ##<color:D>#</color>#####<color:D>#</color>#<color:D>#</color>#####<color:D>#</color>  Wis : <color:y> 18/85</color>
-#### ###  ####   #<color:D>#</color>%#%%##%%%<color:U><</color># <color:u>..</color>#<color:o>*</color>####### ###<color:D>#</color>  ###<color:D>#</color># #<color:D>#</color>####<color:D>#</color>##<color:D>#</color>#  DEX : <color:G>18/162</color>
-##<color:D>#</color># #<color:D>#</color>####<color:D>#</color>#    ####<color:D>#</color>%<color:D>#</color>#  ##%<color:D>#</color>#<color:u>.</color># #<color:D>#</color>#       ## ## ### #<color:D>#</color>###<color:D>#</color>#<color:D>#</color>#### CON : <color:G> 18/10</color>
-#### ###<color:D>#</color>####       #%###  #%##%<color:u>.</color>############## ########<color:D>#</color>##<color:D>#</color>####  # Chr : <color:y>    14</color>
- ###   ##<color:D>#</color>#  ###  ###<color:o>*</color>     #<color:D>#</color>% %<color:u>..</color>                     ######     # AC     <color:G>  131</color>
-  <color:U>+</color>########  #<color:D>#</color>#  #<color:D>##</color>#%#   #%# #<color:u>.</color><color:o>*</color>##%%%############### ### ######   HP <color:r> 194</color>/<color:G> 366</color>
-#         ######  ####<color:D>#</color>#   %%# %<color:u>.</color>#<color:g>(</color><color:u>.</color>%                # <color:U>'</color> # #<color:D>#</color>##<color:D>#</color>### SP <color:y> 115</color>/<color:G> 131</color>
-#             ##  #<color:D>#</color>#####%##<color:D>#</color>%%#<color:u>.</color>@<color:D>[</color><color:s>$</color>#                # # ####<color:D>#</color>##<color:D>#</color>>#
-#              ## ###<color:u>.</color><color:D>#</color>#<color:D>#</color>#<color:u>.</color>#<color:u>.</color>%<color:u>.</color>#<color:u>.</color>#<color:s>[</color><color:D>~</color><color:U>+</color>                # #  <color:D>#</color>####     @[<color:r>*****</color>----]
-##              ###<color:D>##</color>##<color:u>.</color>#<color:u>.</color>#<color:u>.</color>#<color:u>.</color>%<color:u>..</color># <color:u>$</color>%                # ##   #   ##  <color:G>?</color>[<color:y>********</color>-]
- ####             #####<color:D>#</color>######%%<color:u>.</color>%  #                # ####   #<color:D>#</color>### <color:U>,</color>[*******--]
-    #####           #####      %<color:u>.</color>%###%#<color:o>*</color>############## #  #######
-        ##              #  #%# #<color:u>..</color>                     #       #
-       #######  #########  #<color:D>#</color>% %#%%%%%%###%%##<color:o>*</color>#################
-       #<color:D>#</color>#   ####     ###  ###                      #<color:D>###</color>#<color:D>#</color>#<color:D>#</color>#<color:D>#</color>##    <color:G>Fast (+3)</color>
-     ####### #<color:D>#</color>#     ##<color:D>#</color>####                 #%# ######<color:D>#</color>#####<color:D>#</color>#     <color:B>Study (9)</color>
-     #<color:D>#</color>###<color:D>#</color># ###     #<color:D>#</color>###<color:D>#</color>#                 #<color:D>#</color># #<color:D>#</color># #<color:D>#</color>###<color:D>#</color>#######
-     ##<color:D>#</color>####         #<color:D>#</color># ###                 #<color:D>#</color># ### ### #<color:D>#</color>#<color:D>#</color>#   #
-      <color:U>###</color>            <color:U>###</color>                     <color:U>###</color>         <color:U>#####</color>   <color:U>##</color>
-<color:W>Lonely Mountain: L35</color>                    <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:G>DTrap</color>
+The Bolt of Wilhelm Tell (6d5) (+20,+16) hits the Grand master                    
+thief. It was a <color:y>decent</color> shot! <color:R>You have slain the Grand master thief.</color>   LEVEL <color:G>    50</color>
+You feel something roll beneath your feet. You feel something roll    EXP <color:G>   22.7M</color>
+beneath your feet.                                                    AU  <color:G>   5.96M</color>
+                                                                      <color:d>            </color>
+                                                                      STR!: <color:G>18/***</color>
+                                                                      INT!: <color:G>18/130</color>
+                                                                      WIS!: <color:G>18/***</color>
+                                       ####             <color:s>%%</color>#######     DEX!: <color:G>18/150</color>
+                    ###      #######   #@<color:s>{</color>##           ##.......#     CON!: <color:G>18/170</color>
+                   ##.########.....#   ###<color:G>$</color>%         <color:s>%</color>#<color:s>%</color>.......##     CHR!: <color:G>18/***</color>
+ ####              #.....#.....###.###  # ##         #......<color:U>,</color>..#      AC     <color:G>  270</color>
+%#..###%<color:s>%</color>##%<color:s>%</color>#######<color:U>'</color>##<color:U>'</color>#.##...# #...#  ## #         #<color:s>%</color>........#      HP <color:G>1068</color>/<color:G>1068</color>
+...%................<color:g>^</color>.......#### ###.###% ##      <color:s>%</color>%<color:s>%</color>%.<color:U>'</color>.......#      SP <color:G> 397</color>/<color:G> 397</color>
+###..##<color:s>%</color>%%%#%#%.##########.####    #...### #      <color:s>%</color>....#.......#                  
+  <color:s>%</color>#.#........#.#........#.## #    ###.## #%   %%#<color:s>%</color>.%#>#......##      @ <color:G>100%</color>      
+##<color:s>%</color>#.#........#.#........#.# ##      #..##.###<color:s>%%</color>....###.....#.#       <color:W>?</color> <color:G>100%</color>      
+...%.%........#.########<color:U>'</color>#.## #      ##...#%<color:s>%</color>....#<color:s>%</color>#<color:s>%</color>#......#.#       <color:U>,</color> <color:G>134%</color>      
+<color:s>%%</color>.<color:u>'</color>.%........<color:U>'</color>............# ##     ####%.#<color:s>%</color><color:U>'</color><color:s>%</color><color:u>'</color>#####<color:s>%</color>.....#<color:U>'</color>#.#                   
+ #.#.%........#.########<color:U>'</color>#.## # ####<color:s>%</color>.......................#.#                   
+ %%..#........#.#........#.# ####...........................###                   
+  <color:s>%%</color>.#........#.#........#.## ##....#.......................#         <color:y>Fast (+32)</color>  
+#<color:s>%</color>#<color:s>%</color>.#%########.##########.#.###<color:U>'</color>#%.%.......................######### <color:G>Full</color>        
+...........................<color:U>'</color>...<color:U>'</color>.<color:U>'</color>.........<color:r>$</color>......................... <color:B>Study (1)</color>   
+<color:s>%</color>#<color:s>%</color>#####<color:U>'</color>#######################<color:s>%</color>%..%.......................#########             
+       #....####   ##.###       <color:s>%</color>...<color:s>%</color>.......................#                     
+<color:B>Angband: L90</color>                   <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                    
 </style>

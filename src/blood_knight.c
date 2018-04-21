@@ -81,7 +81,7 @@ void _blood_spray_spell(int cmd, variant *res)
         int rad = (p_ptr->lev < 30) ? 3 : 4;
         int base = p_ptr->lev + p_ptr->lev/4;
 
-        project(0, rad, py, px, 2*(damroll(dice, sides) + base), GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+        project(0, rad, py, px, 2*(damroll(dice, sides) + base), GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
 
         var_set_bool(res, TRUE);
         break;
@@ -106,7 +106,7 @@ void _blood_bath_spell(int cmd, variant *res)
     {
         bool chg = FALSE;
         if (do_res_stat(A_CON)) chg = TRUE;
-        if (set_poisoned(0, TRUE)) chg = TRUE;
+        if (set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE)) chg = TRUE;
         if (!chg) msg_print("You don't need a bath just yet.");
         var_set_bool(res, TRUE);
         break;

@@ -675,7 +675,7 @@ void inv_display(inv_ptr inv, slot_t start, slot_t stop, obj_p p, doc_ptr doc, i
                 if (object_is_aware(obj) && obj_is_identified_fully(obj))
                 {
                     int fail;
-                    if (obj_is_device(obj))
+                    if (obj_is_device(obj) || obj->tval == TV_SCROLL)
                         fail = device_calc_fail_rate(obj);
                     else
                     {

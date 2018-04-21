@@ -19,17 +19,12 @@ DISTCLEAN = autoconf.h
 
 export CFLAGS LDFLAGS LIBS
 
-$(PROG): $(PROGNAME).o $(MAINFILES)
-	$(CC) -o $@ $(PROGNAME).o $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
+$(PROG): $(OBJECTS) $(MAINFILES)
+	$(CC) -o $@ $(OBJECTS) $(MAINFILES) $(LDFLAGS) $(LDADD) $(LIBS)
 	@printf "%10s %-20s\n" LINK $@
 
 $(PROGNAME).res: $(PROGNAME).rc
 	$(RC) $< -O coff -o $@
 
-$(PROGNAME).o: $(OBJECTS)
-	$(LD) -nostdlib -Wl,-r -o $@ $(OBJECTS)
-	@printf "%10s %-20s\n" LINK $@
-
 splint:
 	splint -f .splintrc ${OBJECTS:.o=.c} main.c main-gcu.c
-

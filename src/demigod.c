@@ -54,10 +54,7 @@ static void _kiss_spell(int cmd, variant *res)
                     }
 
                     if (allow_ticked_off(r_ptr))
-                    {
-                        m_ptr->anger_ct++;
-                    }
-
+                        mon_anger(m_ptr);
                 }
                 else
                     msg_format("%^s ignores you.", desc);
@@ -338,7 +335,7 @@ static void _demeter_get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _hades_calc_bonuses(void)
 {
     res_add(RES_NETHER);
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     p_ptr->sustain_con = TRUE;
 }
 static void _hades_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -389,6 +386,7 @@ static void _hera_get_flags(u32b flgs[OF_ARRAY_SIZE])
 static void _hermes_calc_bonuses(void)
 {
     p_ptr->pspeed += 5 * p_ptr->lev/50;
+    p_ptr->no_slow = TRUE;
 }
 static void _hermes_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -399,6 +397,14 @@ static void _hermes_get_flags(u32b flgs[OF_ARRAY_SIZE])
 /****************************************************************
  * Poseidon
  ****************************************************************/
+static void _poseidon_birth(void)
+{
+    py_birth_obj_aux(TV_POLEARM, SV_TRIDENT, 1);
+    skills_weapon_init(TV_POLEARM, SV_TRIDENT, WEAPON_EXP_BEGINNER);
+    py_birth_food();
+    py_birth_light();
+}
+
 static void _poseidon_calc_bonuses(void)
 {
     p_ptr->melt_armor = TRUE;
@@ -648,6 +654,7 @@ race_t *demigod_get_race(int psubrace)
             me.stats[A_DEX] += 1;
             me.skills.thn += 7;
             me.exp += 60;
+            me.birth = _poseidon_birth;
             me.calc_bonuses = _poseidon_calc_bonuses;
             me.get_flags = _poseidon_get_flags;
             break;

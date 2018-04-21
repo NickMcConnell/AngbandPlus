@@ -214,11 +214,29 @@ Input Options
   extends) the auto_get_ammo option since ammo inscribed with =g is 
   certainly registered for auto-pickup.
   
-  Display floor stacks in a list (easy_floor)
-  Lets you select an item from a stack on the floor by browsing a list. 
-  Also the look command will describe floor stack as "You see a stack 
-  of n items.", when there is more than one item on a floor grid, and 
-  display a list of items when you press 'x' at that time.
+  Automatically detect traps while running (auto_detect_traps)
+  With this option enabled, the game will attempt to automatically 
+  detect traps whenever you run outside a trap-detected region. Use the 
+  view_unsafe_grids to make trap detected regions more visually 
+  obvious. For this option to work, you must be carrying a scroll, 
+  staff or rod able to detect traps. The game will use the object for 
+  you automatically, consuming a scroll or a single charge from an 
+  appropriate device.
+  
+  Automatically map area while running (auto_map_area)
+  With this option enabled, the game will attempt to automatically map 
+  your surroundings whenever you run outside a previously mapped zone. 
+  Unlike auto_detect_traps, there is no visual indication of regions 
+  that are flagged as mapped versus those that are not. When you invoke 
+  magic mapping, the game maps your surroundings, and it also sets a 
+  flag on each tile in the area of effect. When your player runs from a 
+  tile so flagged onto one not so flagged, then the game attempts to 
+  automatically map for you by locating an appropriate scroll or device 
+  and using it for you. Both this option and auto_detect_traps work 
+  best if you always run when travelling about. When you enter a new 
+  level, manually detect traps and map your surroundings. If you always 
+  run when travelling, the game will automatically take care of the 
+  detection tedium for the rest of the level.
   
   Use numpad keys as cursor keys in editor mode (numpad_as_cursorkey)
   This option makes numpad keys work as cursor movement keys while text 
@@ -643,25 +661,25 @@ Easy Auto-Destroyer Options
       Autopick: ~*identified* amulets more value than 10000
     
   Auto-destroyer leaves known worthy items (leave_worth)
-  This option protects known objects that can be sold in stores from auto-destrD
+  This option protects known objects that can be sold in stores from auto-destr 
   
   Auto-destroyer leaves weapons and armour (leave_equip)
   This option protects all weapons and armour from auto-destruction by The EasyD
   
   Auto-destroyer leaves closed chests (leave_chest)
-  This option protects all chests which are not yet opened from auto-destructioD
+  This option protects all chests which are not yet opened from auto-destructio 
   
   Auto-destroyer leaves wanted corpses (leave_wanted)
-  This option protects corpses of monsters wanted at the Hunter's office from aD
+  This option protects corpses of monsters wanted at the Hunter's office from a 
   
   Auto-destroyer leaves corpses and skeletons (leave_corpse)
-  This option protects all corpses and skeletons from auto-destruction by The ED
+  This option protects all corpses and skeletons from auto-destruction by The E 
   
   Auto-destroyer leaves junk (leave_junk)
-  This option protects all 'junk', such as Shards of Pottery or Broken Stick, fA
+  This option protects all 'junk', such as Shards of Pottery or Broken Stick, f 
   
   Auto-destroyer leaves items your race/class needs (leave_special)
-  This option protects specific items which are normally worthless, but very ime
+  This option protects specific items which are normally worthless, but very im 
   
   Base Delay Factor
   

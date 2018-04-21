@@ -22,7 +22,7 @@ L:.:FLOOR
 L:~:SHALLOW_WATER
 L:*:DEEP_WATER
 L:a:MON(giant white rat)
-L:b:MON(bat of gorgoroth)
+L:b:MON(bat of gorgoroth, NO_GROUP)
 L:c:SHALLOW_WATER:MON(giant slug)
 L:d:SHALLOW_WATER:MON(^devilfish$)
 L:e:MON(wererat)

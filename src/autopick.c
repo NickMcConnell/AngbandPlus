@@ -1268,6 +1268,8 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     {
         object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+        if (!object_is_known(o_ptr)) return FALSE;
+
         if (object_is_bow(o_ptr))
         {
             if (o_ptr->mult == k_ptr->mult)
@@ -1285,6 +1287,7 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     /*** Weapons which dd*ds is more than nn ***/
     if (IS_FLG(FLG_MORE_DICE))
     {
+        if (!object_is_known(o_ptr)) return FALSE;
         if (o_ptr->dd * o_ptr->ds <= entry->dice)
             return FALSE;
     }
@@ -1395,8 +1398,9 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
     if (IS_FLG(FLG_SPECIAL)) /* leave_special ... I'm trying to obsolesce the easy destroyer. */
     {
         bool is_special = FALSE;
-        if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON)
-            || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
+        if ( (get_race()->flags & RACE_IS_DEMON)
+          || p_ptr->realm1 == REALM_DAEMON
+          || p_ptr->realm2 == REALM_DAEMON )
         {
             if (o_ptr->tval == TV_CORPSE &&
                 o_ptr->sval == SV_CORPSE &&
@@ -2170,11 +2174,14 @@ bool autopick_auto_id(object_type *o_ptr)
         if (slot && !p_ptr->blind && !(race->flags & RACE_IS_ILLITERATE))
         {
             obj_ptr scroll = pack_obj(slot);
-            identify_item(o_ptr);
-            stats_on_use(scroll, 1);
-            scroll->number--;
-            obj_release(scroll, OBJ_RELEASE_DELAYED_MSG);
-            return TRUE;
+            if (obj_is_known(scroll))
+            {
+                identify_item(o_ptr);
+                stats_on_use(scroll, 1);
+                scroll->number--;
+                obj_release(scroll, OBJ_RELEASE_DELAYED_MSG);
+                return TRUE;
+            }
         }
 
         slot = pack_find_device(EFFECT_IDENTIFY);

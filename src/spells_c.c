@@ -280,7 +280,7 @@ void confusing_lights_spell(int cmd, variant *res)
     case SPELL_CAST:
         msg_print("You glare nearby monsters with a dazzling array of confusing lights!");
         slow_monsters(p_ptr->lev * 4);
-        stun_monsters(p_ptr->lev * 4);
+        stun_monsters(5 + p_ptr->lev/5);
         confuse_monsters(p_ptr->lev * 4);
         turn_monsters(p_ptr->lev * 4);
         stasis_monsters(p_ptr->lev * 3 / 2);
@@ -545,7 +545,7 @@ void cure_poison_spell(int cmd, variant *res)
         var_set_string(res, "Cure poison status.");
         break;
     case SPELL_CAST:
-        set_poisoned(0, TRUE);
+        set_poisoned(p_ptr->poisoned - MAX(25, p_ptr->poisoned / 10), TRUE);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -643,7 +643,7 @@ void curing_spell(int cmd, variant *res)
     case SPELL_CAST:
         hp_player(spell_power(50));
         set_blind(0, TRUE);
-        set_poisoned(0, TRUE);
+        set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
         set_confused(0, TRUE);
         set_stun(0, TRUE);
         set_cut(0, TRUE);
@@ -659,6 +659,8 @@ void curing_spell(int cmd, variant *res)
 
 static int _darkness_storm_I_dam(void)
 {
+    if (p_ptr->pclass == CLASS_WILD_TALENT) /* Wild-Talents gain both I and II versions ... */
+        return 100 + py_prorata_level_aux(100, 1, 1, 0);
     return 100 + py_prorata_level_aux(200, 1, 1, 2);
 }
 
@@ -776,7 +778,7 @@ void dazzle_spell(int cmd, variant *res)
         var_set_string(res, "You can emit confusing, blinding radiation.");
         break;
     case SPELL_CAST:
-        stun_monsters(p_ptr->lev * 4);
+        stun_monsters(5 + p_ptr->lev/5);
         confuse_monsters(p_ptr->lev * 4);
         turn_monsters(p_ptr->lev * 4);
         var_set_bool(res, TRUE);

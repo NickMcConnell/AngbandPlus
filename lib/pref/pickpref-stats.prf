@@ -1,0 +1,71 @@
+#*** Pickup Preferences for sample statistics runs. Not intended
+#*** for actual game play!!!
+
+#########################################
+# Consumables
+#########################################
+mushroom of restoring#!E
+mushroom of cure poison#!E
+potions:resistance#!kq
+potions:healing#!kq
+potions:of life#!kq
+potions:*healing*#!kq
+potions:restore mana#!kq
+potions:curing
+
+?:[NOT [EQU $CLASS Berserker]]
+scrolls:of destruction#!*
+scrolls:mass genocide#!*
+scrolls:genocide#!*
+scrolls:forest creation
+scrolls:teleport$
+?:1
+
+#########################################
+# Devices
+#########################################
+rods:angelic healing#@zh!sdk
+rods:heroic speed#@zs!sdk
+?staves:healing#@uh!sdk
+?staves:destruction#@ud!sdk
+?wands:rocket#@ar!sdk
+?wands:disintegrate#@ad!sdk
+
+#########################################
+# Spellbooks
+#########################################
+
+?:[EQU $CLASS Sorcerer]
+fourth spellbooks#!sdk
+third spellbooks#!k
+
+?:[NOT [EQU $CLASS Sorcerer Red-Mage]]
+first realm's fourth spellbooks#@md!sdk
+first realm's third spellbooks#@mc!k
+first realm's second spellbooks#@mb!k
+first realm's first spellbooks#@ma!k
+
+second realm's fourth spellbooks#@mh!sdk
+second realm's third spellbooks#@mg!k
+second realm's second spellbooks#@mf!k
+second realm's first spellbooks#@me!k
+?:1
+
+!weapons:death scythe
+!weapons:rune sword
+!weapons more weight than 40
+!armors more weight than 30
+
+?:[EQU $CLASS Rogue]
+shooters:sling
+!shooters
+!weapons more weight than 12
+!wizardstaff
+!armors more weight than 20
+?:1
+
+?:[EQU $CLASS Priest]
+favorite weapons
+!weapons
+?:1
+

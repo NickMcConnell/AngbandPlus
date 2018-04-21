@@ -15,7 +15,7 @@
 #include <assert.h>
 
 #define REWARD_CHANCE 10
-#define OLYMPIAN_CHANCE 35
+#define OLYMPIAN_CHANCE 20 /* Olympians are now a bit easier */
 
  /* Experience required to advance from level to level + 1
     Note the table is off by 1, so we encapsulate that fact.
@@ -479,7 +479,7 @@ cptr extract_note_dies(monster_race *r_ptr)
 
         for (i = 0; i < 4; i++)
         {
-            if (r_ptr->blow[i].method == RBM_EXPLODE)
+            if (r_ptr->blows[i].method == RBM_EXPLODE)
             {
                 return " explodes into tiny shreds.";
             }
@@ -550,6 +550,17 @@ byte get_monster_drop_ct(monster_type *m_ptr)
     return number;
 }
 
+static int _mon_drop_lvl(int dl, int rl)
+{
+    /* return (dl + rl) / 2; */
+    /* Just some variability ... killing L50 monsters on DL90
+     * would give L70 drops ... always. Now, it gives L60-L80 drops */
+    int M = MAX(dl, rl);
+    int m = MIN(dl, rl);
+    int d = M - m;
+    return rand_range(m + d/4, m + 3*d/4);
+}
+
 bool get_monster_drop(int m_idx, object_type *o_ptr)
 {
     monster_type *m_ptr = &m_list[m_idx];
@@ -594,7 +605,7 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     }
 
     coin_type = force_coin;
-    object_level = (MAX(base_level, dun_level) + r_ptr->level) / 2;
+    object_level = _mon_drop_lvl(MAX(base_level, dun_level), r_ptr->level);
     object_wipe(o_ptr);
 
     if (do_gold && (!do_item || (randint0(100) < 20)))
@@ -625,7 +636,7 @@ static bool _mon_is_wanted(int m_idx)
 {
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
-    if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED))
+    if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & (1U << SM_CLONED)))
     {
         int i;
         for (i = 0; i < MAX_KUBI; i++)
@@ -792,7 +803,7 @@ void monster_death(int m_idx, bool drop_item)
 
     u32b mo_mode = 0L;
 
-    bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
+    bool cloned = (m_ptr->smart & (1U << SM_CLONED)) ? TRUE : FALSE;
     bool do_vampire_servant = FALSE;
     char m_name[MAX_NLEN];
     int corpse_chance = 3;
@@ -838,15 +849,15 @@ void monster_death(int m_idx, bool drop_item)
     /* Let monsters explode! */
     for (i = 0; i < 4; i++)
     {
-        if (r_ptr->blow[i].method == RBM_EXPLODE)
+        if (r_ptr->blows[i].method == RBM_EXPLODE)
         {
             int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-            int typ = mbe_info[r_ptr->blow[i].effect].explode_type;
-            int d_dice = r_ptr->blow[i].d_dice;
-            int d_side = r_ptr->blow[i].d_side;
+            int typ = r_ptr->blows[i].effects[0].effect;
+            int d_dice = r_ptr->blows[i].effects[0].dd;
+            int d_side = r_ptr->blows[i].effects[0].ds;
             int damage = damroll(d_dice, d_side);
 
-            project(m_idx, 3, y, x, damage, typ, flg, -1);
+            project(m_idx, 3, y, x, damage, typ, flg);
             break;
         }
     }
@@ -1138,50 +1149,7 @@ void monster_death(int m_idx, bool drop_item)
         /* One more ultra-hack: An Unmaker goes out with a big bang! */
         {
             int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-            (void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg, -1);
-        }
-        break;
-
-    case MON_UNICORN_ORD:
-    case MON_MORGOTH:
-    case MON_ONE_RING:
-        /* Reward for "lazy" player */
-        if (p_ptr->personality == PERS_LAZY)
-        {
-            int a_idx = 0;
-            artifact_type *a_ptr = NULL;
-
-            if (!drop_chosen_item) break;
-
-            do
-            {
-                switch (randint0(3))
-                {
-                case 0:
-                    a_idx = ART_NAMAKE_HAMMER;
-                    break;
-                case 1:
-                    a_idx = ART_NAMAKE_BOW;
-                    break;
-                case 2:
-                    a_idx = ART_NAMAKE_ARMOR;
-                    break;
-                }
-
-                a_ptr = &a_info[a_idx];
-            }
-            while (a_ptr->generated);
-
-            /* Create the artifact */
-            if (create_named_art(a_idx, y, x))
-            {
-                a_ptr->generated = TRUE;
-
-                /* Hack -- Memorize location of artifact in saved floors */
-                if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
-            }
-            else if (!preserve_mode)
-                a_ptr->generated = TRUE;
+            (void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
         }
         break;
 
@@ -1228,7 +1196,7 @@ void monster_death(int m_idx, bool drop_item)
     case MON_ROLENTO:
         {
             int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-            (void)project(m_idx, 3, y, x, damroll(20, 10), GF_FIRE, flg, -1);
+            (void)project(m_idx, 3, y, x, damroll(20, 10), GF_FIRE, flg);
         }
         break;
 
@@ -1448,11 +1416,6 @@ void monster_death(int m_idx, bool drop_item)
             }
             break;
 
-        case MON_GHB:
-            a_idx = ART_GHB;
-            chance = 100;
-            break;
-
         case MON_STORMBRINGER:
             a_idx = ART_STORMBRINGER;
             chance = 100;
@@ -1500,12 +1463,12 @@ void monster_death(int m_idx, bool drop_item)
             break;
 
         case MON_BRAND:
-            if (!one_in_(3))
+            /*if (!one_in_(3))
             {
                 a_idx = ART_BRAND;
                 chance = 25;
             }
-            else
+            else*/
             {
                 a_idx = ART_WEREWINDLE;
                 chance = 33;
@@ -1550,10 +1513,10 @@ void monster_death(int m_idx, bool drop_item)
             chance = 10;
             break;
 
-        case MON_MASTER_TONBERRY:
+        /*case MON_MASTER_TONBERRY:
             a_idx = ART_MASTER_TONBERRY;
-            chance = 25;
-            break;
+            chance = 10;
+            break;*/
 
         case MON_ZEUS:
             a_idx = ART_ZEUS;
@@ -1855,7 +1818,7 @@ void monster_death(int m_idx, bool drop_item)
             break;
         case MON_DESTROYER:
             a_idx = ART_DESTROYER;
-            chance = 5;
+            chance = 0; /* RACE_MON_GOLEM only! */
             break;
         case MON_VLAD:
             a_idx = ART_STONEMASK;
@@ -2141,10 +2104,8 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
     {
         if (is_psy_spear)
         {
-            if (!p_ptr->blind && is_seen(m_ptr))
-            {
+            if (mon_show_msg(m_ptr))
                 msg_print("The barrier is penetrated!");
-            }
         }
         else if (!one_in_(PENETRATE_INVULNERABILITY))
         {
@@ -2183,10 +2144,8 @@ int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear)
     {
         if (is_psy_spear)
         {
-            if (!p_ptr->blind && is_seen(m_ptr))
-            {
+            if (mon_show_msg(m_ptr))
                 msg_print("The barrier is penetrated!");
-            }
         }
         else if (!one_in_(PENETRATE_INVULNERABILITY))
         {
@@ -2353,7 +2312,7 @@ void mon_check_kill_unique(int m_idx)
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
-    if (!(m_ptr->smart & SM_CLONED))
+    if (!(m_ptr->smart & (1U << SM_CLONED)))
     {
         /* When the player kills a Unique, it stays dead */
         if (r_ptr->flags1 & RF1_UNIQUE)
@@ -2461,7 +2420,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     if (!(r_ptr->flags7 & RF7_KILL_EXP))
     {
         expdam = (m_ptr->hp > dam) ? dam : m_ptr->hp;
-        if (r_ptr->flags6 & RF6_HEAL) expdam = (expdam+1) * 2 / 3;
+        if (mon_race_has_healing(r_ptr)) expdam = (expdam+1) * 2 / 3;
 
         get_exp_from_mon(expdam, m_ptr);
 
@@ -2498,7 +2457,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         msg_format("%^s armor melts.", m_name);
         m_ptr->ac_adj -= randint1(2);
         if (p_ptr->wizard || cheat_xtra)
-            msg_format("Melt Armor: AC is now %d", MON_AC(r_ptr, m_ptr));
+            msg_format("Melt Armor: AC is now %d", mon_ac(m_ptr));
     }
 
     /* Rage Mage: "Blood Lust" */
@@ -2538,7 +2497,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
             if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
         }
 
-        if (!(m_ptr->smart & SM_CLONED))
+        if (!(m_ptr->smart & (1U << SM_CLONED)))
         {
             /* When the player kills a Unique, it stays dead */
             if (r_ptr->flags1 & RF1_UNIQUE)
@@ -2619,7 +2578,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
             else if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
 
             /* Hack -- Auto-recall */
-            monster_race_track(m_ptr->ap_r_idx);
+            mon_track(m_ptr);
         }
 
         /* Don't kill Amberites */
@@ -2734,10 +2693,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
         for (i = 0; i < 4; i++)
         {
-            if (r_ptr->blow[i].d_dice != 0) innocent = FALSE; /* Murderer! */
+            if (r_ptr->blows[i].effects[0].dd != 0) innocent = FALSE; /* Murderer! */
 
-            if ((r_ptr->blow[i].effect == RBE_EAT_ITEM)
-                || (r_ptr->blow[i].effect == RBE_EAT_GOLD))
+            if ((r_ptr->blows[i].effects[0].effect == RBE_EAT_ITEM)
+                || (r_ptr->blows[i].effects[0].effect == RBE_EAT_GOLD))
 
                 thief = TRUE; /* Thief! */
         }
@@ -2758,7 +2717,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
             virtue_add (VIRTUE_JUSTICE, -1);
         }
 
-        if ((r_ptr->flags3 & RF3_ANIMAL) && !(r_ptr->flags3 & RF3_EVIL) && !(r_ptr->flags4 & ~(RF4_NOMAGIC_MASK))  && !(r_ptr->flags5 & ~(RF5_NOMAGIC_MASK)) && !(r_ptr->flags6 & ~(RF6_NOMAGIC_MASK)))
+        if ((r_ptr->flags3 & RF3_ANIMAL) && !(r_ptr->flags3 & RF3_EVIL) && !mon_race_is_magical(r_ptr))
         {
             if (one_in_(4)) virtue_add(VIRTUE_NATURE, -1);
         }
@@ -2786,7 +2745,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
             for (i = 0; i < 4; i++)
             {
-                if (r_ptr->blow[i].method == RBM_EXPLODE) explode = TRUE;
+                if (r_ptr->blows[i].method == RBM_EXPLODE) explode = TRUE;
             }
 
             /* Special note at death */
@@ -3060,9 +3019,11 @@ bool viewport_scroll(int dy, int dx)
         viewport_origin.y = y;
         viewport_origin.x = x;
 
-        p_ptr->update |= (PU_MONSTERS);
+        p_ptr->update |= (PU_MONSTERS); /* XXX Why? */
         p_ptr->redraw |= (PR_MAP);
+        redraw_hack = TRUE;
         handle_stuff();
+        redraw_hack = FALSE;
         return TRUE;
     }
 
@@ -3126,7 +3087,7 @@ void viewport_verify(void)
 
 cptr mon_health_desc(monster_type *m_ptr)
 {
-    monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
+    monster_race *ap_r_ptr = mon_apparent_race(m_ptr);
     bool          living = monster_living(ap_r_ptr);
     int           perc = 100 * m_ptr->hp / m_ptr->maxhp;
 
@@ -3696,30 +3657,28 @@ static int target_set_aux(int y, int x, int mode, cptr info)
     if (c_ptr->m_idx && m_list[c_ptr->m_idx].ml)
     {
         monster_type *m_ptr = &m_list[c_ptr->m_idx];
-        monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
+        bool          fuzzy = BOOL(m_ptr->mflag2 & MFLAG2_FUZZY);
+        monster_race *ap_r_ptr = mon_apparent_race(m_ptr);
         char m_name[80];
         bool recall = FALSE;
 
-        /* Not boring */
         boring = FALSE;
 
-        /* Get the monster name ("a kobold") */
-        monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-
-        /* Hack -- track this monster race */
-        monster_race_track(m_ptr->ap_r_idx);
-
-        /* Hack -- health bar for this monster */
-        health_track(c_ptr->m_idx);
-
-        /* Hack -- handle stuff */
-        handle_stuff();
+        if (fuzzy)
+            strcpy(m_name, "Monster");
+        else
+        {
+            monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+            mon_track(m_ptr);
+            health_track(c_ptr->m_idx);
+            handle_stuff();
+        }
 
         /* Interact */
         while (1)
         {
             /* Recall */
-            if (recall)
+            if (recall && !fuzzy)
             {
                 doc_ptr doc = doc_alloc(72);
 
@@ -3727,7 +3686,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
                 screen_save();
 
                 /* Recall on screen */
-                mon_display_doc(&r_info[m_ptr->ap_r_idx], doc);
+                mon_display_doc(ap_r_ptr, doc);
                 doc_sync_term(doc, doc_range_all(doc), doc_pos_create(0, 1));
                 doc_free(doc);
 
@@ -3756,10 +3715,13 @@ static int target_set_aux(int y, int x, int mode, cptr info)
             sprintf(out_val, "%s%s%s%s ", s1, s2, s3, m_name);
             if (is_pet(m_ptr))
                 strcat(out_val, "(Pet) ");
-            else if (is_friendly(m_ptr))
-                strcat(out_val, "(Friendly) ");
-            else if (m_ptr->smart & SM_CLONED)
-                strcat(out_val, "(Clone) ");
+            else if (!fuzzy)
+            {
+                if (is_friendly(m_ptr))
+                    strcat(out_val, "(Friendly) ");
+                else if (m_ptr->smart & (1U << SM_CLONED))
+                    strcat(out_val, "(Clone) ");
+            }
             if (display_distance)
                 sprintf(out_val + strlen(out_val), "(Rng %d) ", m_ptr->cdis);
             sprintf(out_val + strlen(out_val), "[r,%s%s]", x_info, info);
@@ -4304,7 +4266,7 @@ bool target_set(int mode)
                         viewport_origin.x = x2;
 
                         /* Update stuff */
-                        p_ptr->update |= (PU_MONSTERS);
+                        p_ptr->update |= (PU_MONSTERS); /* XXX Why? */
 
                         /* Redraw map */
                         p_ptr->redraw |= (PR_MAP);
@@ -4313,7 +4275,9 @@ bool target_set(int mode)
                         p_ptr->window |= (PW_OVERHEAD);
 
                         /* Handle stuff */
+                        redraw_hack = TRUE;
                         handle_stuff();
+                        redraw_hack = FALSE;
 
                         /* Recalculate interesting grids */
                         target_set_prepare(mode);
@@ -4570,8 +4534,10 @@ bool target_set(int mode)
     /* Window stuff */
     p_ptr->window |= (PW_OVERHEAD | PW_MONSTER_LIST);
 
-    /* Handle stuff */
+    /* Prevent losing visibility on newly acquired target (PU_MONSTERS above) */
+    redraw_hack = TRUE;
     handle_stuff();
+    redraw_hack = FALSE;
 
     /* Failure to set target */
     if (!target_who) return (FALSE);
@@ -4609,6 +4575,7 @@ bool get_fire_dir_aux(int *dp, int target_mode)
             monster_type *m_ptr = &m_list[i];
             if (!m_ptr->r_idx) continue;
             if (!m_ptr->ml) continue;
+            if (!target_pet && is_pet(m_ptr)) continue;
             if (target_mode != TARGET_DISI && !projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
             if (m_ptr->cdis < best_dis)
             {

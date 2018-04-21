@@ -1034,7 +1034,7 @@ static bool cave_gen(void)
     }
 
     /* Place some traps in the dungeon */
-    alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(k*3/2));
+    alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(k));
 
     /* Put some rubble in corridors (except NO_CAVE dungeon (Castle)) */
     if (!(d_info[dungeon_type].flags1 & DF1_NO_CAVE)) alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint1(k));

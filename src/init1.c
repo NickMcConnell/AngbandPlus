@@ -49,6 +49,12 @@
 
 
 /*** Helper arrays for parsing ascii template files ***/
+static int _get_gf_type(cptr which)
+{
+    gf_info_ptr gf = gf_parse_name(which);
+    if (gf) return gf->id;
+    return 0;
+}
 
 /*
  * Monster Blow Methods
@@ -84,48 +90,46 @@ static cptr r_info_blow_method[] =
     NULL
 };
 
-
-/*
- * Monster Blow Effects
- */
-static cptr r_info_blow_effect[] =
+static int _get_r_blow_method(cptr name)
 {
-    "",
-    "HURT",
-    "POISON",
-    "UN_BONUS",
-    "UN_POWER",
-    "EAT_GOLD",
-    "EAT_ITEM",
-    "EAT_FOOD",
-    "EAT_LITE",
-    "ACID",
-    "ELEC",
-    "FIRE",
-    "COLD",
-    "BLIND",
-    "CONFUSE",
-    "TERRIFY",
-    "PARALYZE",
-    "LOSE_STR",
-    "LOSE_INT",
-    "LOSE_WIS",
-    "LOSE_DEX",
-    "LOSE_CON",
-    "LOSE_CHR",
-    "LOSE_ALL",
-    "SHATTER",
-    "EXP_10",
-    "EXP_20",
-    "EXP_40",
-    "EXP_80",
-    "DISEASE",
-    "TIME",
-    "EXP_VAMP",
-    "DR_MANA",
-    "SUPERHURT",
-    NULL
-};
+    int i;
+    for (i = 0; ; i++)
+    {
+        if (!r_info_blow_method[i]) return 0;
+        if (streq(r_info_blow_method[i], name)) return i;
+    }
+}
+
+static int _get_r_blow_effect(cptr which)
+{
+    int i;
+    struct { cptr name; int id; } _table[] = {
+        {"HURT", RBE_HURT},
+        {"SHATTER", RBE_SHATTER},
+        {"EAT_GOLD", RBE_EAT_GOLD},
+        {"EAT_ITEM", RBE_EAT_ITEM},
+        {"EAT_FOOD", RBE_EAT_FOOD},
+        {"EAT_LITE", RBE_EAT_LITE},
+        {"LOSE_STR", RBE_LOSE_STR},
+        {"LOSE_INT", RBE_LOSE_INT},
+        {"LOSE_WIS", RBE_LOSE_WIS},
+        {"LOSE_DEX", RBE_LOSE_DEX},
+        {"LOSE_CON", RBE_LOSE_CON},
+        {"LOSE_CHR", RBE_LOSE_CHR},
+        {"LOSE_ALL", RBE_LOSE_ALL},
+        {"DISEASE", RBE_DISEASE},
+        {"DRAIN_CHARGES", RBE_DRAIN_CHARGES},
+        {"DRAIN_EXP", RBE_DRAIN_EXP},
+        {"VAMP", RBE_VAMP},
+        {"CUT", RBE_CUT},
+        {0}};
+    for (i = 0;; i++)
+    {
+        if (!_table[i].name) break;
+        if (streq(_table[i].name, which)) return _table[i].id;
+    }
+    return _get_gf_type(which);
+}
 
 
 /*
@@ -276,7 +280,7 @@ static cptr r_info_flags1[] =
     "ATTR_SEMIRAND",
     "FRIENDS",
     "ESCORT",
-    "ESCORTS",
+    "XXX16",
     "NEVER_BLOW",
     "NEVER_MOVE",
     "RAND_25",
@@ -312,7 +316,7 @@ static cptr r_info_flags2[] =
     "REGENERATE",
     "CHAR_MULTI",
     "ATTR_ANY",
-    "POWERFUL",
+    "XXX",
     "ELDRITCH_HORROR",
     "AURA_FIRE",
     "AURA_ELEC",
@@ -372,124 +376,6 @@ static cptr r_info_flags3[] =
     "NO_CONF",
     "NO_SLEEP"
 };
-
-/*
- * Monster race flags
- */
-static cptr r_info_flags4[] =
-{
-    "SHRIEK",
-    "THROW",
-    "DISPEL",
-    "ROCKET",
-    "SHOOT",
-    "ANTI_MAGIC",
-    "POLY",
-    "BR_STORM",
-    "BR_ACID",
-    "BR_ELEC",
-    "BR_FIRE",
-    "BR_COLD",
-    "BR_POIS",
-    "BR_NETH",
-    "BR_LITE",
-    "BR_DARK",
-    "BR_CONF",
-    "BR_SOUN",
-    "BR_CHAO",
-    "BR_DISE",
-    "BR_NEXU",
-    "BR_TIME",
-    "BR_INER",
-    "BR_GRAV",
-    "BR_SHAR",
-    "BR_PLAS",
-    "BR_WALL",
-    "BR_MANA",
-    "BA_NUKE",
-    "BR_NUKE",
-    "BA_CHAO",
-    "BR_DISI",
-};
-
-/*
- * Monster race flags
- */
-static cptr r_info_flags5[] =
-{
-    "BA_ACID",
-    "BA_ELEC",
-    "BA_FIRE",
-    "BA_COLD",
-    "BA_POIS",
-    "BA_NETH",
-    "BA_WATE",
-    "BA_MANA",
-    "BA_DARK",
-    "DRAIN_MANA",
-    "MIND_BLAST",
-    "BRAIN_SMASH",
-    "CAUSE_1",
-    "CAUSE_2",
-    "CAUSE_3",
-    "CAUSE_4",
-    "BO_ACID",
-    "BO_ELEC",
-    "BO_FIRE",
-    "BO_COLD",
-    "BA_LITE",
-    "BO_NETH",
-    "BO_WATE",
-    "BO_MANA",
-    "BO_PLAS",
-    "BO_ICEE",
-    "MISSILE",
-    "SCARE",
-    "BLIND",
-    "CONF",
-    "SLOW",
-    "HOLD"
-};
-
-/*
- * Monster race flags
- */
-static cptr r_info_flags6[] =
-{
-    "HASTE",
-    "HAND_DOOM",
-    "HEAL",
-    "INVULNER",
-    "BLINK",
-    "TPORT",
-    "WORLD",
-    "SPECIAL",
-    "TELE_TO",
-    "TELE_AWAY",
-    "TELE_LEVEL",
-    "PSY_SPEAR",
-    "DARKNESS",
-    "TRAPS",
-    "FORGET",
-    "ANIM_DEAD", /* ToDo: Implement ANIM_DEAD */
-    "S_KIN",
-    "S_CYBER",
-    "S_MONSTER",
-    "S_MONSTERS",
-    "S_ANT",
-    "S_SPIDER",
-    "S_HOUND",
-    "S_HYDRA",
-    "S_ANGEL",
-    "S_DEMON",
-    "S_UNDEAD",
-    "S_DRAGON",
-    "S_HI_UNDEAD",
-    "S_HI_DRAGON",
-    "S_AMBERITES",
-    "S_UNIQUE"
-};
-
 
 /*
  * Monster race flags
@@ -589,16 +475,16 @@ static cptr r_info_flags9[] =
     "POS_SUST_CHR",
     "XXX13",
     "XXX14",
-    "POS_DETECT_TRAPS",
-    "POS_DETECT_EVIL",
-    "POS_DETECT_MONSTERS",
-    "POS_DETECT_OBJECTS",
-    "POS_MAPPING",
-    "POS_IDENTIFY",
-    "POS_HEROISM",
-    "POS_BLESSING",
-    "POS_BERSERK",
-    "POS_CLAIRVOYANCE",
+    "XXX15",
+    "XXX16",
+    "XXX17",
+    "XXX18",
+    "XXX19",
+    "XXX20",
+    "XXX21",
+    "XXX22",
+    "XXX23",
+    "XXX24",
     "POS_BACKSTAB",
     "XXX26",
     "XXX27",
@@ -606,7 +492,7 @@ static cptr r_info_flags9[] =
     "XXX29",
     "XXX30",
     "XXX31",
-    "XXX32",
+    "DEPRECATED",
 };
 
 static cptr r_drop_themes[R_DROP_MAX] =
@@ -899,7 +785,7 @@ static cptr k_info_gen_flags[] =
     "AWARE",
     "TOWN",
     "FIXED_ART",
-    "XXX",
+    "FIXED_ACT",
     "XXX",
     "XXX",
     "XXX",
@@ -1244,91 +1130,124 @@ static void _prep_name(char *dest, const char *src)
    These are legal monster types for the MON() directive when
    specifying room_grid_t
  */
-static const char *_summon_specific_types[] = {
-    "XXX",
-    "ANT",
-    "SPIDER",
-    "HOUND",
-    "HYDRA",
-    "ANGEL",
-    "DEMON",
-    "UNDEAD",
-    "DRAGON",
-    "HI_UNDEAD",
-    "HI_DRAGON",
-    "HI_DEMON",
-    "AMBERITE",
-    "UNIQUE",
-    "BIZARRE1",
-    "BIZARRE2",
-    "BIZARRE3",
-    "BIZARRE4",
-    "BIZARRE5",
-    "BIZARRE6",
-    "CYBER",
-    "KIN",
-    "DAWN",
-    "ANIMAL",
-    "ANIMAL_RANGER",
-    "PHANTOM",
-    "BLUE_HORROR",
-    "LIVING",
-    "HI_DRAGON_LIVING",
-    "GOLEM",
-    "ELEMENTAL",
-    "VORTEX",
-    "HYBRID",
-    "BIRD",
-    "KAMIKAZE",
-    "KAMIKAZE_LIVING",
-    "MANES",
-    "LOUSE",
-    "GUARDIAN",
-    "KNIGHT",
-    "EAGLE",
-    "PIRANHA",
-    "ARMAGE_GOOD",
-    "ARMAGE_EVIL",
-    "SOFTWARE_BUG",
-    "OLYMPIAN",
-    "RAT",
-    "BAT",
-    "WOLF",
-    "DREAD",
-    "ZOMBIE",
-    "SKELETON",
-    "GHOST",
-    "VAMPIRE",
-    "WIGHT",
-    "LICH",
-    "KRAKEN",
-    "THIEF",
-    "ENT",
-    "CAMELOT",
-    "NIGHTMARE",
-    "YEEK",
-    "ORC",
-    "DARK_ELF",
-    "GIANT",
-    "UNDEAD_SUMMONER",
-    "MATURE_DRAGON",
-    "DRAGON_SUMMONER",
-    "CLUBBER_DEMON",
-    "BALROG",
-    "DEMON_SUMMONER",
-    "ULTIMATE",
-    "HUMAN",
-    "HORSE",
-    "MAGICAL",
-    "TROLL",
-    "CHAPEL_GOOD",
-    "CHAPEL_EVIL",
-    "RING_BEARER",
-    "ARCHER",
-    "MONK",
-    "MAGE",
-    0,
+static parse_tbl_t _summon_type_tbl[] = {
+    { SUMMON_MONSTER, "Monsters", TERM_WHITE, "", "MONSTER", 10 },
+    { SUMMON_ANT, "Ants", TERM_WHITE, "", "ANT", 10 },
+    { SUMMON_SPIDER, "Spiders", TERM_WHITE, "", "SPIDER", 10 },
+    { SUMMON_HOUND, "Hounds", TERM_WHITE, "", "HOUND", 15 },
+    { SUMMON_HYDRA, "Hydras", TERM_WHITE, "", "HYDRA", 20 },
+    { SUMMON_ANGEL, "Angels", TERM_WHITE, "", "ANGEL", 60 },
+    { SUMMON_DEMON, "Demons", TERM_WHITE, "", "DEMON", 40 },
+    { SUMMON_UNDEAD, "Undead", TERM_WHITE, "", "UNDEAD", 40 },
+    { SUMMON_DRAGON, "Dragons", TERM_WHITE, "", "DRAGON", 40 },
+    { SUMMON_HI_UNDEAD, "Mighty Undead", TERM_L_DARK, "", "HI_UNDEAD", 60 },
+    { SUMMON_HI_DRAGON, "Ancient Dragons", TERM_RED, "", "HI_DRAGON", 70 },
+    { SUMMON_HI_DEMON, "Foul Demons", TERM_RED, "", "HI_DEMON", 66 },
+    { SUMMON_AMBERITE, "Amberites", TERM_WHITE, "", "AMBERITE", 100 },
+    { SUMMON_UNIQUE, "Uniques", TERM_VIOLET, "", "UNIQUE", 125 },
+    { SUMMON_BIZARRE1, "Mold", TERM_WHITE, "", "BIZARRE1", 15 },
+    { SUMMON_BIZARRE2, "Bats", TERM_WHITE, "", "BIZARRE2", 5 },
+    { SUMMON_BIZARRE3, "Quylthulgs", TERM_WHITE, "", "BIZARRE3", 20 },
+    { SUMMON_BIZARRE4, "Vortices", TERM_WHITE, "", "BIZARRE4", 20 },
+    { SUMMON_BIZARRE5, "Creeping Coins", TERM_WHITE, "", "BIZARRE5", 5 },
+    { SUMMON_BIZARRE6, "Mimics", TERM_WHITE, "", "BIZARRE6", 10 },
+    { SUMMON_CYBER, "Cyberdemons", TERM_WHITE, "", "CYBER", 80 },
+    { SUMMON_KIN, "Kin", TERM_WHITE, "", "KIN", 35 },
+    { SUMMON_DAWN, "Warriors of the Dawn", TERM_WHITE, "", "DAWN", 30 },
+    { SUMMON_ANIMAL, "Animals", TERM_WHITE, "", "ANIMAL", 15 },
+    { SUMMON_ANIMAL_RANGER, "Animals", TERM_WHITE, "", "ANIMAL_RANGER", 15 },
+    { SUMMON_PHANTOM, "Phantom Beasts", TERM_WHITE, "", "PHANTOM", 20 },
+    { SUMMON_BLUE_HORROR, "Blue Horrors", TERM_WHITE, "", "BLUE_HORROR", 5 },
+    { SUMMON_LIVING, "Life", TERM_WHITE, "", "LIVING", 10 },
+    { SUMMON_HI_DRAGON_LIVING, "Dragons", TERM_WHITE, "", "HI_DRAGON_LIVING", 70 },
+    { SUMMON_GOLEM, "Golems", TERM_WHITE, "", "GOLEM", 20 },
+    { SUMMON_ELEMENTAL, "Elementals", TERM_WHITE, "", "ELEMENTAL", 15 },
+    { SUMMON_VORTEX, "Vortices", TERM_WHITE, "", "VORTEX", 20 },
+    { SUMMON_HYBRID, "Abominations", TERM_WHITE, "", "HYBRID", 15 },
+    { SUMMON_BIRD, "Birds", TERM_WHITE, "", "BIRD", 20 },
+    { SUMMON_KAMIKAZE, "Fanatics", TERM_WHITE, "", "KAMIKAZE", 10 },
+    { SUMMON_KAMIKAZE_LIVING, "Fanatics", TERM_WHITE, "", "KAMIKAZE_LIVING", 15 },
+    { SUMMON_MANES, "Manes", TERM_WHITE, "", "MANES", 5 },
+    { SUMMON_LOUSE, "Lice", TERM_WHITE, "", "LOUSE", 1 },
+    { SUMMON_GUARDIAN, "Dungeon Guardians", TERM_VIOLET, "", "GUARDIAN", 150 },
+    { SUMMON_KNIGHT, "Knights", TERM_WHITE, "", "KNIGHT", 20 },
+    { SUMMON_EAGLE, "Eagles", TERM_WHITE, "", "EAGLE", 25 },
+    { SUMMON_PIRANHA, "Piranhas", TERM_WHITE, "", "PIRANHA", 5 },
+    { SUMMON_ARMAGE_GOOD, "Holy Monsters", TERM_WHITE, "", "ARMAGE_GOOD", 40 },
+    { SUMMON_ARMAGE_EVIL, "Foul Monsters", TERM_WHITE, "", "ARMAGE_EVIL", 40 },
+    { SUMMON_SOFTWARE_BUG, "Software Bugs", TERM_WHITE, "", "SOFTWARE_BUG", 1 },
+    { SUMMON_OLYMPIAN, "Olympians", TERM_WHITE, "", "OLYMPIAN", 150 },
+    { SUMMON_RAT, "Rats", TERM_WHITE, "", "RAT", 2 },
+    { SUMMON_BAT, "Bats", TERM_WHITE, "", "BAT", 5 },
+    { SUMMON_WOLF, "Wolves", TERM_WHITE, "", "WOLF", 7 },
+    { SUMMON_DREAD, "Dread", TERM_WHITE, "", "DREAD", 20 },
+    { SUMMON_ZOMBIE, "Zombies", TERM_WHITE, "", "ZOMBIE", 10 },
+    { SUMMON_SKELETON, "Skeletons", TERM_WHITE, "", "SKELETON", 20 },
+    { SUMMON_GHOST, "Ghosts", TERM_WHITE, "", "GHOST", 20 },
+    { SUMMON_VAMPIRE, "Vampires", TERM_WHITE, "", "VAMPIRE", 25 },
+    { SUMMON_WIGHT, "Wights", TERM_WHITE, "", "WIGHT", 25 },
+    { SUMMON_LICH, "Liches", TERM_WHITE, "", "LICH", 30 },
+    { SUMMON_KRAKEN, "Kraken", TERM_WHITE, "", "KRAKEN", 50 },
+    { SUMMON_THIEF, "Thieves", TERM_WHITE, "", "THIEF", 15 },
+    { SUMMON_ENT, "Ents", TERM_WHITE, "", "ENT", 50 },
+    { SUMMON_CAMELOT, "Camelot Knights", TERM_WHITE, "", "CAMELOT", 25 },
+    { SUMMON_NIGHTMARE, "Nightmares", TERM_WHITE, "", "NIGHTMARE", 20 },
+    { SUMMON_YEEK, "Yeeks", TERM_WHITE, "", "YEEK", 2 },
+    { SUMMON_ORC, "Orcs", TERM_WHITE, "", "ORC", 5 },
+    { SUMMON_DARK_ELF, "Dark Elves", TERM_WHITE, "", "DARK_ELF", 15 },
+    { SUMMON_GIANT, "Giants", TERM_WHITE, "", "GIANT", 20 },
+    { SUMMON_UNDEAD_SUMMONER, "Undead Summoners", TERM_WHITE, "", "UNDEAD_SUMMONER", 25 },
+    { SUMMON_MATURE_DRAGON, "Mature Dragons", TERM_WHITE, "", "MATURE_DRAGON", 15 },
+    { SUMMON_DRAGON_SUMMONER, "Dragon Summoners", TERM_WHITE, "", "DRAGON_SUMMONER", 25 },
+    { SUMMON_CLUBBER_DEMON, "Clubber Demons", TERM_WHITE, "", "CLUBBER_DEMON", 20 },
+    { SUMMON_BALROG, "Balrogs", TERM_WHITE, "", "BALROG", 35 },
+    { SUMMON_DEMON_SUMMONER, "Demon Summoners", TERM_WHITE, "", "DEMON_SUMMONER", 35 },
+    { SUMMON_ULTIMATE, "Ultimate", TERM_WHITE, "", "ULTIMATE", 100 },
+    { SUMMON_HUMAN, "Human", TERM_WHITE, "", "HUMAN", 10 },
+    { SUMMON_HORSE, "Horsies", TERM_WHITE, "", "HORSE", 10 },
+    { SUMMON_MAGICAL, "Magical Monsters", TERM_WHITE, "", "MAGICAL", 15 },
+    { SUMMON_TROLL, "Trolls", TERM_WHITE, "", "TROLL", 10 },
+    { SUMMON_CHAPEL_GOOD, "Good Monsters", TERM_WHITE, "", "CHAPEL_GOOD", 25 },
+    { SUMMON_CHAPEL_EVIL, "Evil Monsters", TERM_WHITE, "", "CHAPEL_EVIL", 25 },
+    { SUMMON_RING_BEARER, "Ring Bearers", TERM_WHITE, "", "RING_BEARER", 20 },
+    { SUMMON_ARCHER, "Archers", TERM_WHITE, "", "ARCHER", 10 },
+    { SUMMON_MONK, "Monks", TERM_WHITE, "", "MONK", 20 },
+    { SUMMON_MAGE, "Mages", TERM_WHITE, "", "MAGE", 20 },
+    { SUMMON_SPECIAL, "Special", TERM_WHITE, "", "SPECIAL", 30 },
+    { 0 }
 };
+
+parse_tbl_ptr parse_tbl_parse(parse_tbl_ptr tbl, cptr token)
+{
+    int i;
+    for (i = 0;; i++)
+    {
+        parse_tbl_ptr p = &tbl[i];
+        if (!p->name) return NULL;
+        if (strcmp(p->parse, token) == 0) return p;
+    }
+}
+
+parse_tbl_ptr parse_tbl_lookup(parse_tbl_ptr tbl, int id)
+{
+    int i;
+    for (i = 0;; i++)
+    {
+        parse_tbl_ptr p = &tbl[i];
+        if (!p->name) return NULL;
+        if (p->id == id) return p;
+    }
+}
+
+parse_tbl_ptr summon_type_parse(cptr token)
+{
+    return parse_tbl_parse(_summon_type_tbl, token);
+}
+        
+parse_tbl_ptr summon_type_lookup(int id)
+{
+    return parse_tbl_lookup(_summon_type_tbl, id);
+}
 
 int parse_lookup_monster(cptr name, int options)
 {
@@ -1403,24 +1322,19 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_ptr grid
     }
     else
     {
-        int i;
-        for (i = 0; ; i++)
+        parse_tbl_ptr p = summon_type_parse(args[0]);
+        if (p)
         {
-            if (!_summon_specific_types[i])
+            grid->flags |= ROOM_GRID_MON_TYPE;
+            grid->monster = p->id;
+        }
+        else
+        {
+            grid->monster = parse_lookup_monster(args[0], options);
+            if (!grid->monster)
             {
-                grid->monster = parse_lookup_monster(args[0], options);
-                if (!grid->monster)
-                {
-                    msg_format("Error: Invalid monster specifier %s.", args[0]);
-                    return PARSE_ERROR_GENERIC;
-                }
-                break;
-            }
-            if (streq(args[0], _summon_specific_types[i]))
-            {
-                grid->flags |= ROOM_GRID_MON_TYPE;
-                grid->monster = i;
-                break;
+                msg_format("Error: Invalid monster specifier %s.", args[0]);
+                return PARSE_ERROR_GENERIC;
             }
         }
     }
@@ -1432,7 +1346,6 @@ static errr _parse_room_grid_monster(char **args, int arg_ct, room_grid_ptr grid
         int   flag_ct = z_string_split(args[1], flags, 10, "|");
         int   i;
 
-        trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
             char* flag = flags[i];
@@ -1539,6 +1452,7 @@ static _object_type_t _object_types[] =
     { "DEVICE",             OBJ_TYPE_DEVICE, EGO_TYPE_DEVICE },
     { "JEWELRY",            OBJ_TYPE_JEWELRY },
     { "BOOK",               OBJ_TYPE_BOOK },
+    { "HI_BOOK",            OBJ_TYPE_HI_BOOK },
     { "BODY_ARMOR",         OBJ_TYPE_BODY_ARMOR, EGO_TYPE_BODY_ARMOR },
     { "OTHER_ARMOR",        OBJ_TYPE_OTHER_ARMOR },
     { "WEAPON",             OBJ_TYPE_WEAPON, EGO_TYPE_WEAPON },
@@ -1636,7 +1550,6 @@ static errr _parse_room_grid_object(char **args, int arg_ct, room_grid_ptr grid,
         int   flag_ct = z_string_split(args[1], flags, 10, "|");
         int   i;
 
-        trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
             char* flag = flags[i];
@@ -1890,7 +1803,6 @@ static errr _parse_room_grid_feature(char* name, char **args, int arg_ct, room_g
         int   flag_ct = z_string_split(args[0], flags, 10, "|");
         int   i;
 
-        trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
             char* flag = flags[i];
@@ -1992,7 +1904,6 @@ static errr _parse_room_flags(char* buf, room_ptr room)
     int   flag_ct = z_string_split(buf, flags, 10, "|");
     int   i;
 
-    trim_tokens(flags, flag_ct);
     for (i = 0; i < flag_ct; i++)
     {
         char* flag = flags[i];
@@ -3518,29 +3429,6 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
     return (1);
 }
 
-
-/*
- * Grab one (spell) flag in a monster_race from a textual string
- */
-static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
-{
-    if (grab_one_flag(&r_ptr->flags4, r_info_flags4, what) == 0)
-        return 0;
-
-    if (grab_one_flag(&r_ptr->flags5, r_info_flags5, what) == 0)
-        return 0;
-
-    if (grab_one_flag(&r_ptr->flags6, r_info_flags6, what) == 0)
-        return 0;
-
-    /* Oops */
-    msg_format("Unknown monster flag '%s'.", what);
-
-
-    /* Failure */
-    return (1);
-}
-
 /*
  * b_info for monster body types
  */
@@ -3655,6 +3543,230 @@ errr parse_b_info(char *buf, header *head)
     return 0;
 }
 
+/* BITE(60) or perhaps just BITE */
+static errr parse_mon_blow_method(char *command, mon_blow_ptr blow)
+{
+    char *name;
+    char *args[10];
+    int   arg_ct = parse_args(command, &name, args, 10);
+
+    if (arg_ct < 0)
+    {
+        msg_format("Error: Malformed argument %s. Missing )?", name);
+        return PARSE_ERROR_GENERIC;
+    }
+
+    blow->method = _get_r_blow_method(name);
+    if (!blow->method)
+    {
+        msg_format("Error: Unknown monster blow method %s.", name);
+        return PARSE_ERROR_UNDEFINED_DIRECTIVE;
+    }
+
+    if (arg_ct > 1)
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS; /* too many, actually */
+
+    if (arg_ct)
+    {
+        cptr arg = args[0];
+        blow->power = atoi(arg);
+    }
+    return 0;
+}
+
+/* historically in mbe_info ... */
+static int _default_blow_power(int effect)
+{
+    switch (effect)
+    {
+    case RBE_HURT:
+    case RBE_SHATTER:
+        return 60;
+    case RBE_LOSE_STR:
+    case RBE_LOSE_INT:
+    case RBE_LOSE_WIS:
+    case RBE_LOSE_DEX:
+    case RBE_LOSE_CON:
+    case RBE_LOSE_CHR:
+    case GF_ACID:
+        return 0;
+    case GF_ELEC:
+    case GF_FIRE:
+    case GF_COLD:
+        return 10;
+    case RBE_LOSE_ALL:
+        return 2;
+    case GF_DISENCHANT:
+        return 20;
+    case RBE_DRAIN_CHARGES:
+        return 15;
+    }
+    return 5;
+}
+
+/*   V------------------- buf
+ * B:BITE:SUPERHURT:15d10   <===== The old syntax, supported for *sanity*
+ * B:BITE(60):HURT(15d10):HURT(15d10, 20%):STUN(5d5, 10%)  <=== New syntax, multiple effects
+ *   ^------------------- buf
+ */
+static errr parse_mon_blow(char *buf, mon_blow_ptr blow)
+{
+    errr  rc = 0;
+    char *commands[10];
+    int   command_ct = z_string_split(buf, commands, 10, ":");
+    int   i, j, dd, ds, pct; /* sscanf probably wants int*, not byte* */
+
+    if (command_ct < 1)
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+
+    rc = parse_mon_blow_method(commands[0], blow);
+    if (rc) return rc;
+
+    if (command_ct - 1 > MAX_MON_BLOW_EFFECTS)
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+
+    for (i = 1; i < command_ct; i++)
+    {
+        char *command = commands[i];
+        char *name;
+        char *args[10];
+        int   arg_ct = parse_args(command, &name, args, 10);
+        mon_effect_ptr effect = &blow->effects[i-1];
+
+        if (arg_ct < 0)
+        {
+            msg_format("Error: Malformed argument %s. Missing )?", name);
+            return PARSE_ERROR_GENERIC;
+        }
+
+        effect->effect = _get_r_blow_effect(name);
+        if (!effect->effect)
+        {
+            msg_format("Error: Unknown monster blow effect %s.", name);
+            return PARSE_ERROR_UNDEFINED_DIRECTIVE;
+        }
+        if (arg_ct > 2)
+            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        for (j = 0; j < arg_ct; j++)
+        {
+            char arg[100], sentinel = '~', check;
+            /* sscanf tricks learned from vanilla ... */
+            sprintf(arg, "%s%c", args[j], sentinel);
+            
+            if (2 == sscanf(arg, "%d%%%c", &pct, &check) && check == sentinel)
+                effect->pct = MAX(0, MIN(100, pct));
+            else if (3 == sscanf(arg, "%dd%d%c", &dd, &ds, &check) && check == sentinel)
+            {
+                effect->dd = MAX(0, MIN(100, dd)); /* 100d100 max */
+                effect->ds = MAX(0, MIN(100, ds));
+            }
+            else
+            {
+                msg_format("Error: Unknown argument %s.", args[j]);
+                return PARSE_ERROR_GENERIC;
+            }
+        }
+        /* For convenience, use the implied power on the first effect for the
+         * overall blow power. For example: B:BITE:HURT(7d7) == B:BITE(60):HURT(7d7) */
+        if (i == 1 && !blow->power)
+            blow->power = _default_blow_power(effect->effect);
+    }
+
+    return rc;
+}
+/*   V---buf
+ * A:INERT(3d4, 20%):FIRE(3d4):GRAVITY(3d4, 25%)
+ * Multiple auras on a single line. Assume all only a single A: line per monster.
+ * Up to MAX_MON_AURAS allowed. Effects are GF_**** (see list above).
+ */
+static errr parse_mon_auras(char *buf, mon_race_ptr r_ptr)
+{
+    errr  rc = 0;
+    char *commands[10];
+    int   command_ct = z_string_split(buf, commands, 10, ":");
+    int   i, j, dd, ds, pct; /* sscanf probably wants int*, not byte* */
+
+    if (command_ct > MAX_MON_AURAS)
+        return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+
+    for (i = 0; i < command_ct; i++)
+    {
+        char *command = commands[i];
+        char *name;
+        char *args[10];
+        int   arg_ct = parse_args(command, &name, args, 10);
+        mon_effect_ptr aura = &r_ptr->auras[i];
+
+        if (arg_ct < 0)
+        {
+            msg_format("Error: Malformed argument %s. Missing )?", name);
+            return PARSE_ERROR_GENERIC;
+        }
+        if (aura->effect)
+        {
+            msg_print("Duplicate A: line. Put all auras on a single line, please!");
+            return PARSE_ERROR_GENERIC;
+        }
+
+        aura->effect = _get_gf_type(name);
+        if (!aura->effect)
+        {
+            msg_format("Error: Unknown monster aura effect %s.", name);
+            return PARSE_ERROR_UNDEFINED_DIRECTIVE;
+        }
+        if (arg_ct > 2)
+            return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+        for (j = 0; j < arg_ct; j++)
+        {
+            char arg[100], sentinel = '~', check;
+            /* sscanf tricks learned from vanilla ... */
+            sprintf(arg, "%s%c", args[j], sentinel);
+            
+            if (2 == sscanf(arg, "%d%%%c", &pct, &check) && check == sentinel)
+                aura->pct = MAX(0, MIN(100, pct));
+            else if (3 == sscanf(arg, "%dd%d%c", &dd, &ds, &check) && check == sentinel)
+            {
+                aura->dd = MAX(0, MIN(100, dd)); /* 100d100 max */
+                aura->ds = MAX(0, MIN(100, ds));
+            }
+            else
+            {
+                msg_format("Error: Unknown argument %s.", args[j]);
+                return PARSE_ERROR_GENERIC;
+            }
+        }
+    }
+
+    return rc;
+}
+static errr parse_mon_spells(char *buf, mon_race_ptr race)
+{
+    errr  rc = 0;
+    char *tokens[10];
+    int   token_ct = z_string_split(buf, tokens, 10, "|");
+    int   i, n;
+
+    assert(race->spells);
+
+    for (i = 0; i < token_ct; i++)
+    {
+        char *token = tokens[i];
+
+        if (!strlen(token)) continue;
+
+        if (1 == sscanf(token, "1_IN_%d", &n))
+            race->spells->freq = 100 / n;
+        else if (1 == sscanf(token, "FREQ_%d", &n))
+            race->spells->freq = n;
+        else
+        {
+            rc = mon_spells_parse(race->spells, race->level, token);
+            if (rc)
+                return rc;
+        }
+    }
+    return rc;
+}
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file
  */
@@ -3916,6 +4028,17 @@ errr parse_r_info(char *buf, header *head)
 
             if (!found) return PARSE_ERROR_OUT_OF_BOUNDS;
         }
+        else if (strcmp(zz[0], "Blows") == 0)
+        {
+            if (num < 2) return PARSE_ERROR_TOO_FEW_ARGUMENTS;
+            if (num > 4) return PARSE_ERROR_TOO_FEW_ARGUMENTS; /* s/FEW/MANY */
+            switch (num)
+            {
+            case 4: r_ptr->body.blows_calc.mult = atoi(zz[3]);
+            case 3: r_ptr->body.blows_calc.wgt = atoi(zz[2]);
+            case 2: r_ptr->body.blows_calc.max = atoi(zz[1]);
+            }
+        }
         else
             return PARSE_ERROR_UNDEFINED_DIRECTIVE;
     }
@@ -3941,64 +4064,24 @@ errr parse_r_info(char *buf, header *head)
         r_ptr->next_r_idx = nextmon;
     }
 
-    /* Process 'B' for "Blows" (up to four lines) */
+    /* Process 'B' for "Blows" (up to MAX_MON_BLOWS lines) */
     else if (buf[0] == 'B')
     {
-        int n1, n2;
+        errr rc = 0;
 
         /* Find the next empty blow slot (if any) */
-        for (i = 0; i < 4; i++) if (!r_ptr->blow[i].method) break;
+        for (i = 0; i < MAX_MON_BLOWS; i++) if (!r_ptr->blows[i].method) break;
+        if (i == MAX_MON_BLOWS) return (1);
 
-        /* Oops, no more slots */
-        if (i == 4) return (1);
-
-        /* Analyze the first field */
-        for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
-
-        /* Terminate the field (if necessary) */
-        if (*t == ':') *t++ = '\0';
-
-        /* Analyze the method */
-        for (n1 = 0; r_info_blow_method[n1]; n1++)
-        {
-            if (streq(s, r_info_blow_method[n1])) break;
-        }
-
-        /* Invalid method */
-        if (!r_info_blow_method[n1]) return (1);
-
-        /* Analyze the second field */
-        for (s = t; *t && (*t != ':'); t++) /* loop */;
-
-        /* Terminate the field (if necessary) */
-        if (*t == ':') *t++ = '\0';
-
-        /* Analyze effect */
-        for (n2 = 0; r_info_blow_effect[n2]; n2++)
-        {
-            if (streq(s, r_info_blow_effect[n2])) break;
-        }
-
-        /* Invalid effect */
-        if (!r_info_blow_effect[n2]) return (1);
-
-        /* Analyze the third field */
-        for (s = t; *t && (*t != 'd'); t++) /* loop */;
-
-        /* Terminate the field (if necessary) */
-        if (*t == 'd') *t++ = '\0';
-
-        /* Save the method */
-        r_ptr->blow[i].method = n1;
-
-        /* Save the effect */
-        r_ptr->blow[i].effect = n2;
-
-        /* Extract the damage dice and sides */
-        r_ptr->blow[i].d_dice = atoi(s);
-        r_ptr->blow[i].d_side = atoi(t);
+        rc = parse_mon_blow(buf + 2, &r_ptr->blows[i]);
+        if (rc) return rc;
     }
 
+    /* Process 'A' for "Auras" (up to MAX_MON_AURAS, all on a single line) */
+    else if (buf[0] == 'A')
+    {
+        return parse_mon_auras(buf + 2, r_ptr);
+    }
     /* Process 'F' for "Basic Flags" (multiple lines) */
     else if (buf[0] == 'F')
     {
@@ -4026,40 +4109,9 @@ errr parse_r_info(char *buf, header *head)
     /* Process 'S' for "Spell Flags" (multiple lines) */
     else if (buf[0] == 'S')
     {
-        /* Parse every entry */
-        for (s = buf + 2; *s; )
-        {
-                /* Find the end of this entry */
-            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-                /* Nuke and skip any dividers */
-            if (*t)
-            {
-                *t++ = '\0';
-                while ((*t == ' ') || (*t == '|')) t++;
-            }
-
-                /* XXX XXX XXX Hack -- Read spell frequency */
-            if (1 == sscanf(s, "1_IN_%d", &i))
-            {
-                r_ptr->freq_spell = 100 / i;
-                s = t;
-                continue;
-            }
-
-            if (1 == sscanf(s, "FREQ_%d", &i))
-            {
-                r_ptr->freq_spell = i;
-                s = t;
-                continue;
-            }
-
-                /* Parse this entry */
-            if (0 != grab_one_spell_flag(r_ptr, s)) return (5);
-
-                /* Start the next entry */
-            s = t;
-        }
+        if (!r_ptr->spells)
+            r_ptr->spells = mon_spells_alloc();
+        return parse_mon_spells(buf + 2, r_ptr);
     }
     /* O:DROP_WARRIOR */
     else if (buf[0] == 'O')
@@ -4140,27 +4192,6 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 
 
 /*
- * Grab one (spell) flag in a monster_race from a textual string
- */
-static errr grab_one_spell_monster_flag(dungeon_info_type *d_ptr, cptr what)
-{
-    if (grab_one_flag(&d_ptr->mflags4, r_info_flags4, what) == 0)
-        return 0;
-
-    if (grab_one_flag(&d_ptr->mflags5, r_info_flags5, what) == 0)
-        return 0;
-
-    if (grab_one_flag(&d_ptr->mflags6, r_info_flags6, what) == 0)
-        return 0;
-
-    /* Oops */
-    msg_format("Unknown monster flag '%s'.", what);
-
-    /* Failure */
-    return (1);
-}
-
-/*
  * Initialize the "d_info" array, by parsing an ascii "template" file
  */
 errr parse_d_info(char *buf, header *head)
@@ -4201,6 +4232,7 @@ errr parse_d_info(char *buf, header *head)
 
         /* Point at the "info" */
         d_ptr = &d_info[i];
+        d_ptr->id = i;
 
         /* Store the name */
         if (!add_name(&d_ptr->name, head, s)) return (7);
@@ -4433,39 +4465,6 @@ errr parse_d_info(char *buf, header *head)
         }
     }
 
-    /* Process 'S' for "Spell Flags" (multiple lines) */
-    else if (buf[0] == 'S')
-    {
-        /* Parse every entry */
-        for (s = buf + 2; *s; )
-        {
-                /* Find the end of this entry */
-            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-                /* Nuke and skip any dividers */
-            if (*t)
-            {
-                *t++ = '\0';
-                while ((*t == ' ') || (*t == '|')) t++;
-            }
-
-                /* XXX XXX XXX Hack -- Read spell frequency */
-            if (1 == sscanf(s, "1_IN_%d", &i))
-            {
-                /* Start at next entry */
-                s = t;
-
-                    /* Continue */
-                continue;
-            }
-
-                /* Parse this entry */
-            if (0 != grab_one_spell_monster_flag(d_ptr, s)) return (5);
-
-                /* Start the next entry */
-            s = t;
-        }
-    }
 
     /* Oops */
     else return (6);

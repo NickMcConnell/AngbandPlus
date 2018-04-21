@@ -947,12 +947,6 @@ static errr init_other(void)
 
     C_MAKE(pack_info_list, max_pack_info_idx, pack_info_t);
 
-    /* Allocate and Wipe the monster process list */
-    for (i = 0; i < MAX_MTIMED; i++)
-    {
-        C_MAKE(mproc_list[i], max_m_idx, s16b);
-    }
-
     /* Allocate and Wipe the max dungeon level */
     C_MAKE(max_dlv, max_d_idx, s16b);
     C_MAKE(dungeon_flags, max_d_idx, u32b);
@@ -1374,7 +1368,7 @@ static void _display_file(cptr name)
 
 void display_news(void)
 {
-    const int max_n = 14;
+    const int max_n = 19;
     int n;
     bool done = FALSE;
 
@@ -1467,7 +1461,6 @@ void display_news(void)
 void init_angband(void)
 {
     int fd = -1;
-    int mode = 0664;
     char buf[1024];
 
     /*** Verify the "news" file ***/
@@ -1490,49 +1483,6 @@ void init_angband(void)
 
         /* Crash and burn */
         init_angband_aux(why);
-    }
-
-    /* Close it */
-    (void)fd_close(fd);
-
-
-    /*** Display the "news" file ***/
-
-    /*** Verify (or create) the "high score" file ***/
-
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
-
-    /* Attempt to open the high score file */
-    fd = fd_open(buf, O_RDONLY);
-
-    /* Failure */
-    if (fd < 0)
-    {
-        /* File type is "DATA" */
-        FILE_TYPE(FILE_TYPE_DATA);
-
-        /* Grab permissions */
-        safe_setuid_grab();
-
-        /* Create a new high score file */
-        fd = fd_make(buf, mode);
-
-        /* Drop permissions */
-        safe_setuid_drop();
-
-        /* Failure */
-        if (fd < 0)
-        {
-            char why[1024];
-
-            /* Message */
-            sprintf(why, "Cannot create the '%s' file!", buf);
-
-
-            /* Crash and burn */
-            init_angband_aux(why);
-        }
     }
 
     /* Close it */

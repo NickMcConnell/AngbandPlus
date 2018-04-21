@@ -239,6 +239,18 @@ static object_type *_choose(cptr verb, int tval, int options)
                 }
             }
         }
+        else if ('A' <= cmd && cmd < 'A' + _MAX_SLOTS)
+        {
+            obj_ptr obj;
+            slot = A2I(tolower(cmd));
+            obj = _which_obj(which_tval, slot);
+            if (obj->k_idx)
+            {
+                screen_load();
+                obj_display(obj);
+                screen_save();
+            }
+        }
     }
 
     if (result && (options & _ALLOW_SWITCH))

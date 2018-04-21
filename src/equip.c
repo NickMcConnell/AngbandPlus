@@ -282,6 +282,19 @@ bool equip_can_wield_kind(int tval, int sval)
     return FALSE;
 }
 
+bool equip_has_slot_type(int which)
+{
+    slot_t slot;
+    for (slot = 1; slot <= _template->max; slot++)
+    {
+        int type = _template->slots[slot].type;
+        if (which != EQUIP_SLOT_BOW && type == EQUIP_SLOT_ANY) return TRUE; /* XXX Jellies can't shoot */
+        if (which == EQUIP_SLOT_WEAPON && type == EQUIP_SLOT_WEAPON_SHIELD) return TRUE;
+        if (which == type) return TRUE;
+    }
+    return FALSE;
+}
+
 int equip_first_slot(obj_ptr obj)
 {
     return equip_next_slot(obj, 0);
@@ -616,11 +629,6 @@ static void _wield_after(slot_t slot)
     char    o_name[MAX_NLEN];
     obj_ptr obj = inv_obj(_inv, slot);
 
-    if (p_ptr->personality == PERS_MUNCHKIN)
-    {
-        identify_item(obj);
-        autopick_alter_obj(obj, FALSE);
-    }
     obj_learn_equipped(obj);
     stats_on_equip(obj);
     obj->marked |= OM_TOUCHED;
@@ -1241,8 +1249,11 @@ void equip_calc_bonuses(void)
 
         if (have_flag(flgs, OF_STEALTH)) p_ptr->skills.stl += obj->pval;
         if (have_flag(flgs, OF_DEC_STEALTH)) p_ptr->skills.stl -= obj->pval;
-        if (have_flag(flgs, OF_SEARCH)) p_ptr->skills.srh += (obj->pval * 5);
-        if (have_flag(flgs, OF_SEARCH)) p_ptr->skills.fos += (obj->pval * 5);
+        if (have_flag(flgs, OF_SEARCH))
+        {
+            p_ptr->skills.srh += (obj->pval * 5);
+            p_ptr->skills.fos += (obj->pval * 5);
+        }
         if (have_flag(flgs, OF_INFRA)) p_ptr->see_infra += obj->pval;
         if (have_flag(flgs, OF_TUNNEL)) p_ptr->skill_dig += (obj->pval * 20);
         if (have_flag(flgs, OF_SPEED)) p_ptr->pspeed += obj->pval;
@@ -1405,10 +1416,10 @@ void equip_calc_bonuses(void)
         if (have_flag(flgs, OF_ESP_NONLIVING)) p_ptr->esp_nonliving = TRUE;
         if (have_flag(flgs, OF_ESP_UNIQUE))  p_ptr->esp_unique = TRUE;
 
-        if (have_flag(flgs, OF_SEE_INVIS))   p_ptr->see_inv = TRUE;
+        if (have_flag(flgs, OF_SEE_INVIS))   p_ptr->see_inv++;
         if (have_flag(flgs, OF_LEVITATION))  p_ptr->levitation = TRUE;
-        if (have_flag(flgs, OF_FREE_ACT))    p_ptr->free_act = TRUE;
-        if (have_flag(flgs, OF_HOLD_LIFE))   p_ptr->hold_life = TRUE;
+        if (have_flag(flgs, OF_FREE_ACT))    p_ptr->free_act++;
+        if (have_flag(flgs, OF_HOLD_LIFE))   p_ptr->hold_life++;
         if (have_flag(flgs, OF_WARNING))
         {
             if (!obj->inscription || !(my_strchr(quark_str(obj->inscription),'$')))

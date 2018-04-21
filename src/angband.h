@@ -51,9 +51,12 @@
 #include "home.h"
 #include "rooms.h"
 #include "shop.h"
+#include "mon.h"
 #include "obj_prompt.h"
 #include "py_throw.h"
 #include "quest.h"
+#include "gf.h"
+#include "mon_spell.h"
 
 #include "types.h"
 #include "externs.h"
@@ -63,6 +66,7 @@
 #include "spells.h"
 #include "menu.h"
 #include "fear.h"
+#include "scores.h"
 
 /***** Some copyright messages follow below *****/
 

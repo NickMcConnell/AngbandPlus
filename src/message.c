@@ -5,7 +5,7 @@
 #include <assert.h>
 
 /* The Message Queue */
-static int       _msg_max = 2048;
+static int       _msg_max = 500;
 static int       _msg_count = 0;
 static msg_ptr  *_msgs = NULL;
 static int       _msg_head = 0;

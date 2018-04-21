@@ -17,6 +17,7 @@ extern bool fear_set_p(int amount);
 extern int  fear_threat_level(void);
 extern bool fear_save_p(int ml);
 extern bool fear_save_m(monster_type *m_ptr);
+extern bool life_save_p(int ml);
 
 /* Fear restricts player options */
 extern bool fear_allow_device(void);

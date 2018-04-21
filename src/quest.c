@@ -383,7 +383,6 @@ static errr _parse_q_info(char *line, int options)
         int   flag_ct = z_string_split(line + 2, flags, 10, "|");
         int   i;
 
-        trim_tokens(flags, flag_ct);
         for (i = 0; i < flag_ct; i++)
         {
             char* flag = flags[i];
@@ -1138,16 +1137,6 @@ void quests_load(savefile_ptr file)
 
         if (q->goal == QG_FIND_ART)
             a_info[q->goal_idx].gen_flags |= OFG_QUESTITEM;
-
-        if (savefile_is_older_than(file, 6, 0, 3, 1))
-        {
-            if (q->goal == QG_KILL_MON && !p_ptr->is_dead && q->status < QS_COMPLETED)
-            {
-                monster_race *r_ptr = &r_info[q->goal_idx];
-                if (r_ptr->flags1 & RF1_UNIQUE)
-                    r_ptr->flagsx |= RFX_QUESTOR;
-            }
-        }
     }
     _current = savefile_read_s16b(file);
 }

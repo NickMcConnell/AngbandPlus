@@ -104,7 +104,7 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
     case SP_LITE:
         if (!r_ptr || (r_ptr->flags3 & RF3_HURT_LITE))
         {
-            mult = 30 + p_ptr->concent;
+            mult = 20 + p_ptr->concent;
             if (m_ptr) mon_lore_3(m_ptr, RF3_HURT_LITE);
         }
         break;
@@ -115,9 +115,9 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
         }
         else
         {
-            mult = 10 + 5*p_ptr->concent;
+            mult = 15 + 3*p_ptr->concent;
             if (have_flag(flgs, OF_BRAND_FIRE))
-                mult += 10;
+                mult += 5;
             if (r_ptr && (r_ptr->flags3 & RF3_HURT_FIRE))
             {
                 mult *= 2;
@@ -132,9 +132,9 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
         }
         else
         {
-            mult = 10 + 5*p_ptr->concent;
+            mult = 15 + 3*p_ptr->concent;
             if (have_flag(flgs, OF_BRAND_COLD))
-                mult += 10;
+                mult += 5;
             if (r_ptr && (r_ptr->flags3 & RF3_HURT_COLD))
             {
                 mult *= 2;
@@ -149,50 +149,50 @@ int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
         }
         else
         {
-            mult = 13 + 6*p_ptr->concent;
+            mult = 18 + 4*p_ptr->concent;
             if (have_flag(flgs, OF_BRAND_ELEC))
-                mult += 15;
+                mult += 7;
         }
         break;
     case SP_KILL_WALL:
         if (!r_ptr || (r_ptr->flags3 & RF3_HURT_ROCK))
         {
-            mult = 20 + 2*p_ptr->concent;
+            mult = 15 + 2*p_ptr->concent;
             if (m_ptr) mon_lore_3(m_ptr, RF3_HURT_ROCK);
         }
         else if (!r_ptr || (r_ptr->flags3 & RF3_NONLIVING))
         {
-            mult = 20 + 2*p_ptr->concent;
+            mult = 15 + 2*p_ptr->concent;
             if (m_ptr) mon_lore_3(m_ptr, RF3_NONLIVING);
         }
         break;
     case SP_EVILNESS:
         if (!r_ptr || (r_ptr->flags3 & RF3_GOOD))
         {
-            mult = 10 + 4*p_ptr->concent;
+            mult = 15 + 4*p_ptr->concent;
             if (m_ptr) mon_lore_3(m_ptr, RF3_GOOD);
             if (have_flag(flgs, OF_SLAY_GOOD))
-                mult += 10;
+                mult += 5;
         }
         break;
     case SP_HOLYNESS:
         if (!r_ptr || (r_ptr->flags3 & RF3_EVIL))
         {
-            mult = 10 + 4*p_ptr->concent;
+            mult = 15 + 4*p_ptr->concent;
             if (m_ptr) mon_lore_3(m_ptr, RF3_EVIL);
             if (r_ptr && (r_ptr->flags3 & RF3_HURT_LITE))
             {
-                mult += 4*p_ptr->concent;
+                mult += 3*p_ptr->concent;
                 mon_lore_3(m_ptr, RF3_HURT_LITE);
             }
             if (have_flag(flgs, OF_KILL_EVIL))
-                mult += 20;
-            if (have_flag(flgs, OF_SLAY_EVIL))
                 mult += 10;
+            if (have_flag(flgs, OF_SLAY_EVIL))
+                mult += 5;
         }
         break;
     case SP_FINAL:
-        mult = 70;
+        mult = 50;
         break;
     }
 

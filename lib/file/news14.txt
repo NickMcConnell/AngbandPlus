@@ -1,28 +1,30 @@
 <color:y>PosChengband <$:version></color>
 <style:screenshot>
-[Previous Messages, Line 3857/3917]
-
-<color:U>You attack Combat-Echizen "Because it's time": </color>You claw.<color:U> </color>You claw.<color:U> </color>You
-miss.<color:U> </color>You miss.<color:U> </color>You bite.<color:U> </color>It was a <color:R>great</color> hit!<color:U> </color>You bite.
-
-<color:U>You attack Combat-Echizen "Because it's time": </color>You claw.<color:U> </color>It was a
-<color:r>superb</color> hit!<color:U> </color>Combat-Echizen "Because it's time" says shiftlessly, 'Oh.
-No.'<color:U> </color><color:R>You have slain Combat-Echizen "Because it's time".</color><color:U> </color><color:B>You just </color>
-<color:B>completed your quest!</color>
-<color:D>xxxxxxxx</color>                              # #
-<color:D>xxxxxxx</color>                               # #
-<color:D>xxxxxxx</color>#<color:s>%</color>#                            # <color:s>%</color>
-<color:D>xxxxx</color>#<color:D>x</color>  #                  ########### #########<color:o>*</color>
-<color:D>xxxxx</color># ############         #            <color:W>|</color>
-<color:D>xxxxxx</color>            #         # ##################<color:s>%</color>
-<color:D>xxxx</color>#%%####       #     ### # #                 #
-<color:D>xxxxx</color>     #       #     #.# # #########<color:U>'</color>######<color:s>%</color>##
-<color:D>xxxx</color>#   # #     # #     #.# #   #             #
-<color:D>xxxx</color>#   # #     # #     #.# #   #######<color:U>'</color>#####<color:s>%</color>#
-<color:D>xxxx</color>%   #       # #     #.# #.....#         #
-<color:D>xxxx</color>#   ######### #     #.###.....#####<color:U>'</color>#####
-<color:D>xxxxx</color>             #     #<color:s>D</color>#.#.......#     #
-<color:D>xxxx</color>###############     ##<color:R>p</color>#........###<color:U>'</color>###
-<color:D>xxxx</color>                     ####.....<color:U><</color>..
-<color:D>xxxx</color>                        ######################
+<color:U>You attack Abhoth, Source of Uncleanness:</color> You hit. You are <color:G>poisoned</color>!              
+You hit. It was a <color:R>great</color> hit! You are <color:G>poisoned</color>! You hit. You are       LEVEL <color:G>    50</color>
+<color:G>poisoned</color>! You miss. You hit. You are <color:G>poisoned</color>! You hit. You are       EXP <color:G>   27.3M</color>
+<color:G>poisoned</color>!                                                             AU  <color:G>   6.81M</color>
+<color:g>Abhoth, Source of Uncleanness attacks you:</color> It touches. You are        <color:d>            </color>
+<color:G>dissolved</color>! It is <color:r>burned</color>! Abhoth, Source of Uncleanness shouts,        STR!: <color:G>18/***</color>
+'AAAARRRGGGHHH!!!' Abhoth, Source of Uncleanness turns into a pile    INT!: <color:G>18/100</color>
+of ash.                                                               WIS!: <color:G>18/***</color>
+.............#       ##...#..........##.#                 #.......... DEX!: <color:G>18/130</color>
+............##    ###%...#%.........#####                 #.......... CON!: <color:G>18/200</color>
+...........##   #<color:s>%</color>#....#............#                     ###........ CHR!: <color:G>18/190</color>
+...........##   #...%<color:s>%%</color>%##%####...###                       %#<color:o>*</color>##.... AC     <color:G>  229</color>
+.........##.#####.##%         #.##.#                            ##... HP <color:y> 877</color>/<color:G>1108</color>
+........<color:D>\</color>#........%           #....######                        #.## SP <color:y> 165</color>/<color:G> 437</color>
+#.....###<color:U>(</color>###<color:s>%</color>##..#           #.#..##...##### ####               #.#              
+##<color:U>'</color>###<color:U>'</color>.<color:G>{</color>##    #<color:s>%%</color>%           #.#.%<color:s>%</color>#...%<color:s>%</color>..###..#               %.#  @ <color:y> 79%</color>      
+...# #...#                   ##...<color:s>%%</color>..#%...#.##..<color:o>*</color>##            ##.#  <color:W>?</color> <color:y> 37%</color>      
+##.# ###.<color:s>%</color>                 ##%....<color:u>,</color><color:G>{</color>.<color:s>%</color>%<color:s>%</color>%.<color:s>%</color>..%.#...#          #%#..## <color:U>,</color> <color:G>119%</color>      
+ #.#  #..<color:s>%</color>              #%%#....%%<color:G>(</color><color:u>?</color>..%....#%%%.##.#%%##      #......             
+ #.#  <color:s>%</color>.#<color:s>%</color>              <color:s>%</color>...%.%..%<color:g>=</color><color:s>%</color>..%%...#..%.<color:s>%</color>......%###%####.#.#.             
+ #.#  <color:s>%</color>.#               #<color:U>'</color>#.<color:s>%</color>#%<color:s>%%</color>#<color:G>$</color>%<color:s>%%</color>..%..<color:s>%</color>#<color:s>%</color>.....%#%.........#.#.#.             
+ <color:s>%</color>.####.<color:s>%</color>              ##..%....%<color:U>_</color><color:D>\</color>%...<color:s>%</color>%.%<color:s>%</color>.%.#....#%#%######.<color:U>+</color>...#. <color:y>Fast (+38)</color>  
+ <color:s>%</color>.##.<color:o>^</color>.<color:s>%</color>              <color:s>%</color>..%.%....%%<color:s>%</color>#%.<color:s>%</color>.#%.#.<color:s>%</color>........##   ##<color:U>+</color>###.#. <color:g>Poison:</color><color:G>75</color>   
+ #.<color:s>%</color>..<color:s>%%%</color>              #<color:s>%</color>..........<color:s>%</color>%#.#.<color:s>%</color>..%....#%%%#..#####..# #..# <color:G>Full</color>        
+##<color:U>'</color><color:s>%</color>.<color:s>%</color><color:U>'</color><color:s>%%%</color>###<color:s>%%</color>#      #<color:s>%</color>%%.<color:s>%</color>..#.#<color:s>%</color>%%.#..<color:s>%</color>..#.<color:s>%</color>%%#.%##.....#...## #### <color:B>Study (1)</color>   
+...............#     ##.%.% %<color:s>%</color>#..%#.%<color:s>%</color>.<color:s>%</color>...%%%<color:s>%</color>.#<color:s>%</color>#.%####...###     #             
+<color:W>Angband: L98</color>                   <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                    
 </style>

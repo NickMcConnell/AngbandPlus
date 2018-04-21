@@ -155,16 +155,18 @@ void shoot_arrow_spell(int cmd, variant *res)
         }
         else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
         {
+            /* XXX Remove this spell for Possessors.
             monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
             int i;
             for (i = 0; i < 4; i++)
             {
-                if (r_ptr->blow[i].method == RBM_SHOOT)
+                if (r_ptr->blows[i].method == RBM_SHOOT)
                 {
-                    var_set_string(res, info_damage(r_ptr->blow[i].d_dice, r_ptr->blow[i].d_side, 0));
+                    var_set_string(res, info_damage(r_ptr->blows[i].effects[0].dd, r_ptr->blows[i].effects[0].ds, 0));
                     return;
                 }
             }
+            */
         }
         else
             var_set_string(res, info_damage(0, 0, 1));
@@ -189,16 +191,7 @@ void shoot_arrow_spell(int cmd, variant *res)
         }
         else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
         {
-            monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-            int i;
-            for (i = 0; i < 4; i++)
-            {
-                if (r_ptr->blow[i].method == RBM_SHOOT)
-                {
-                    dam = damroll(r_ptr->blow[i].d_dice, r_ptr->blow[i].d_side);
-                    break;
-                }
-            }
+            /* XXX Remove me! */
         }
 
         fire_bolt(GF_ARROW, dir, spell_power(dam));
@@ -491,6 +484,8 @@ bool cast_spit_acid(void) { return cast_spell(spit_acid_spell); }
 
 static int _starburst_I_dam(void)
 {
+    if (p_ptr->pclass == CLASS_WILD_TALENT) /* Wild-Talents gain both I and II versions ... */
+        return 100 + py_prorata_level_aux(100, 1, 1, 0);
     return 100 + py_prorata_level_aux(200, 1, 1, 2);
 }
 
@@ -580,7 +575,7 @@ void sterility_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         msg_print("You suddenly have a headache!");
-        take_hit(DAMAGE_LOSELIFE, randint1(17) + 17, "the strain of forcing abstinence", -1);
+        take_hit(DAMAGE_LOSELIFE, randint1(17) + 17, "the strain of forcing abstinence");
 
         /* Fake a population explosion. */
         num_repro += MAX_REPRO;
@@ -1779,7 +1774,7 @@ void vampirism_spell(int cmd, variant *res)
             {
                 /* No heal if we are "full" */
                 if (p_ptr->food < PY_FOOD_FULL)
-                    hp_player(dummy);
+                    vamp_player(dummy);
                 else
                     msg_print("You were not hungry.");
 

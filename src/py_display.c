@@ -162,10 +162,10 @@ static void _build_general2(doc_ptr doc)
     doc_newline(doc);
 
     string_clear(s);
-    string_printf(s, "%d/%d", p_ptr->chp , p_ptr->mhp);
+    string_printf(s, "%d/%d", p_ptr->chp , p_ptr->mmhp);
     doc_printf(doc, "<tab:9>HP   : <color:%c>%9.9s</color>\n",
                     p_ptr->chp >= p_ptr->mhp ? 'G' :
-                        p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10 ? 'y' : 'r',
+                        p_ptr->chp > (p_ptr->mmhp * hitpoint_warn) / 10 ? 'y' : 'r',
                     string_buffer(s));
 
     string_clear(s);
@@ -605,14 +605,39 @@ static void _build_flags1(doc_ptr doc, _flagzilla_ptr flagzilla)
     _build_flags(doc, "Throwing", OF_THROWING, OF_INVALID, flagzilla);
 }
 
+static void _display_known_count(doc_ptr doc, int total, int flg)
+{
+    int ct = total;
+    slot_t slot;
+    for (slot = 1; slot <= equip_max(); slot++)
+    {
+        obj_ptr obj = equip_obj(slot);
+        u32b    flgs[OF_ARRAY_SIZE];
+        u32b    flgs_known[OF_ARRAY_SIZE];
+
+        if (!obj) continue;
+        obj_flags(obj, flgs);
+        obj_flags_known(obj, flgs_known);
+        if (have_flag(flgs, flg) && !have_flag(flgs_known, flg))
+            ct--;
+    }
+    if (ct)
+        doc_printf(doc, " %3dx", ct);
+    doc_newline(doc);
+}
 static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
 {
     _equippy_chars(doc, 14);
     _equippy_heading(doc, "Abilities", 14);
 
     _build_flags(doc, "Speed", OF_SPEED, OF_DEC_SPEED, flagzilla);
-    _build_flags(doc, "Free Act", OF_FREE_ACT, OF_INVALID, flagzilla);
-    _build_flags(doc, "See Invis", OF_SEE_INVIS, OF_INVALID, flagzilla);
+
+    _build_flags_imp(doc, "Free Act", OF_FREE_ACT, OF_INVALID, flagzilla);
+    _display_known_count(doc, p_ptr->free_act, OF_FREE_ACT);
+
+    _build_flags_imp(doc, "See Invis", OF_SEE_INVIS, OF_INVALID, flagzilla);
+    _display_known_count(doc, p_ptr->see_inv, OF_SEE_INVIS);
+
     _build_flags(doc, "Warning", OF_WARNING, OF_INVALID, flagzilla);
     _build_flags(doc, "Slow Digest", OF_SLOW_DIGEST, OF_INVALID, flagzilla);
 
@@ -622,7 +647,10 @@ static void _build_flags2(doc_ptr doc, _flagzilla_ptr flagzilla)
     _build_flags(doc, "Levitation", OF_LEVITATION, OF_INVALID, flagzilla);
     _build_flags(doc, "Perm Lite", OF_LITE, OF_INVALID, flagzilla);
     _build_flags(doc, "Reflection", OF_REFLECT, OF_INVALID, flagzilla);
-    _build_flags(doc, "Hold Life", OF_HOLD_LIFE, OF_INVALID, flagzilla);
+
+    _build_flags_imp(doc, "Hold Life", OF_HOLD_LIFE, OF_INVALID, flagzilla);
+    _display_known_count(doc, p_ptr->hold_life, OF_HOLD_LIFE);
+
     _build_flags(doc, "Dec Mana", OF_DEC_MANA, OF_INVALID, flagzilla);
     _build_flags(doc, "Easy Spell", OF_EASY_SPELL, OF_INVALID, flagzilla);
     _build_flags(doc, "Anti Magic", OF_NO_MAGIC, OF_INVALID, flagzilla);
@@ -911,7 +939,8 @@ static void _build_equipment(doc_ptr doc)
 /****************************** Combat ************************************/
 static void _build_melee(doc_ptr doc)
 {
-    if (p_ptr->prace != RACE_MON_RING)
+    if (p_ptr->prace == RACE_MON_RING) return;
+    if (possessor_can_attack() && !p_ptr->weapon_ct && !p_ptr->innate_attack_ct) return;
     {
         int i;
         doc_insert(doc, "<topic:Melee>==================================== <color:keypress>M</color>elee ====================================\n\n");
@@ -1130,7 +1159,7 @@ static void _build_uniques(doc_ptr doc)
     {
         int     i;
         vec_ptr v = vec_alloc(NULL);
-        int     ctu;
+        int     ct_uniques_dead, ct_uniques_alive = 0;
 
         doc_printf(doc, "<topic:Kills>================================ Monster <color:keypress>K</color>ills ================================\n\n");
 
@@ -1141,20 +1170,35 @@ static void _build_uniques(doc_ptr doc)
             {
                 if (r_ptr->max_num == 0)
                     vec_add(v, r_ptr);
+                /* When playing with reduce_uniques, it is helpful to know just
+                 * how many you are dealing with. Skip the Arena uniques and any
+                 * uniques suppressed this game, but count up the rest. */
+                else if ( 0 < r_ptr->rarity && r_ptr->rarity <= 100
+                       && !(r_ptr->flagsx & RFX_SUPPRESS) )
+                {
+                    ct_uniques_alive++;
+                }
             }
         }
 
-        ctu = vec_length(v);
-        if (ctu)
+        ct_uniques_dead = vec_length(v);
+        if (ct_uniques_dead)
         {
-            doc_printf(doc, "You have defeated %d %s including %d unique monster%s in total.\n\n",
+            doc_printf(doc, "You have defeated %d %s including %d unique monster%s in total. ",
                 ct, ct == 1 ? "enemy" : "enemies",
-                ctu, ctu == 1 ? "" : "s");
+                ct_uniques_dead, ct_uniques_dead == 1 ? "" : "s");
+
+            if (ct_uniques_alive == 1)
+                doc_insert(doc, "There is 1 unique remaining.");
+            else
+                doc_printf(doc, "There are %d uniques remaining.", ct_uniques_alive);
+
+            doc_insert(doc, "\n\n");
 
             vec_sort(v, (vec_cmp_f)_compare_monsters);
 
             doc_printf(doc, "  <color:G>%-40.40s <color:R>%3s</color></color>\n", "Uniques", "Lvl");
-            for (i = ctu - 1; i >= 0 && i >= ctu - 20; i--)
+            for (i = ct_uniques_dead - 1; i >= 0 && i >= ct_uniques_dead - 20; i--)
             {
                 monster_race *r_ptr = vec_get(v, i);
                 doc_printf(doc, "  %-40.40s %3d\n", (r_name + r_ptr->name), r_ptr->level);
@@ -1463,7 +1507,8 @@ static bool _kind_is_other(int k_idx) {
       || _kind_is_spellbook(k_idx)
       || tval == TV_SHOT
       || tval == TV_ARROW
-      || tval == TV_BOLT )
+      || tval == TV_BOLT 
+      || tval == TV_CHEST )
     {
         return TRUE;
     }
@@ -1548,18 +1593,6 @@ static void _ego_counts_imp(doc_ptr doc, int idx, cptr text)
 }
 
 typedef bool (*_mon_p)(int r_idx);
-static bool _mon_drops_good(int r_idx)
-{
-    if (r_info[r_idx].flags1 & RF1_DROP_GOOD)
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_drops_great(int r_idx)
-{
-    if (r_info[r_idx].flags1 & RF1_DROP_GREAT)
-        return TRUE;
-    return FALSE;
-}
 static bool _mon_is_animal(int r_idx)
 {
     if (r_info[r_idx].flags3 & RF3_ANIMAL)
@@ -1646,42 +1679,6 @@ static bool _mon_is_unique(int r_idx)
         return TRUE;
     return FALSE;
 }
-static bool _mon_res_acid(int r_idx)
-{
-    if (r_info[r_idx].flagsr & (RFR_RES_ACID | RFR_IM_ACID))
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_res_elec(int r_idx)
-{
-    if (r_info[r_idx].flagsr & (RFR_RES_ELEC | RFR_IM_ELEC))
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_res_fire(int r_idx)
-{
-    if (r_info[r_idx].flagsr & (RFR_RES_FIRE | RFR_IM_FIRE))
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_res_cold(int r_idx)
-{
-    if (r_info[r_idx].flagsr & (RFR_RES_COLD | RFR_IM_COLD))
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_res_pois(int r_idx)
-{
-    if (r_info[r_idx].flagsr & (RFR_RES_POIS | RFR_IM_POIS))
-        return TRUE;
-    return FALSE;
-}
-static bool _mon_res_conf(int r_idx)
-{
-    if (r_info[r_idx].flags3 & RF3_NO_CONF)
-        return TRUE;
-    return FALSE;
-}
 static bool _mon_is_pact(int r_idx)
 {
     return warlock_is_pact_monster(&r_info[r_idx]);
@@ -1717,9 +1714,114 @@ static void _kill_counts_imp(doc_ptr doc, _mon_p p, cptr text, int total)
     }
 }
 
+static void _build_mon_kill_stats(doc_ptr doc)
+{
+    int total_kills = ct_kills_all();
+    doc_printf(doc, "  <color:G>Monsters             Kills   Pct</color>\n");
+    _kill_counts_imp(doc, _mon_is_animal, "Animals", total_kills);
+    _kill_counts_imp(doc, _mon_is_breeder, "Breeders", total_kills);
+    _kill_counts_imp(doc, _mon_is_demon, "Demons", total_kills);
+    _kill_counts_imp(doc, _mon_is_dragon, "Dragons", total_kills);
+    _kill_counts_imp(doc, _mon_is_giant, "Giants", total_kills);
+    _kill_counts_imp(doc, _mon_is_hound, "Hounds", total_kills);
+    _kill_counts_imp(doc, _mon_is_human, "Humans", total_kills);
+    _kill_counts_imp(doc, _mon_is_orc, "Orcs", total_kills);
+    _kill_counts_imp(doc, _mon_is_troll, "Trolls", total_kills);
+    _kill_counts_imp(doc, _mon_is_undead, "Undead", total_kills);
+    _kill_counts_imp(doc, _mon_is_unique, "Uniques", total_kills);
+    if (p_ptr->pclass == CLASS_WARLOCK)
+        _kill_counts_imp(doc, _mon_is_pact, "Pact", total_kills);
+    doc_newline(doc);
+    _kill_counts_imp(doc, _mon_is_evil, "Evil Monsters", total_kills);
+    _kill_counts_imp(doc, _mon_is_good, "Good Monsters", total_kills);
+    _kill_counts_imp(doc, _mon_is_neutral, "Neutral Monsters", total_kills);
+    doc_printf(doc, "\n  %-20.20s %5d\n", "Totals", total_kills);
+}
+
+static void _spell_count_imp(doc_ptr doc, cptr heading, int ct, int total)
+{
+    if (!total) return;
+    doc_printf(doc, "  %-20.20s %5d %3d.%1d%%\n", heading, ct,
+        ct*100/total,
+        (ct*1000/total)%10);
+}
+static void _build_mon_spell_stats(doc_ptr doc, cptr heading, mon_race_p filter)
+{
+    int ct_total_moves = 0;
+    int ct_spell_moves = 0;
+    int ct_spells = 0;
+    int total_freq = 0;
+    double expected_freq;
+    int expected_spells;
+    int allocation[MST_COUNT] = {0};
+    int i, j, k;
+
+    for (i = 1; i < max_r_idx; i++)
+    {
+        mon_race_ptr race = &r_info[i];
+        int          moves;
+        if (!race->name) continue;
+        if (!race->spells) continue;
+        if (filter && !filter(race)) continue;
+        moves = race->r_move_turns + race->r_spell_turns;
+        ct_total_moves += moves;
+        ct_spell_moves += race->r_spell_turns;
+        total_freq += race->spells->freq * moves;
+        for (j = 0; j < MST_COUNT; j++)
+        {
+            mon_spell_group_ptr group = race->spells->groups[j];
+            if (!group) continue;
+            for (k = 0; k < group->count; k++)
+            {
+                mon_spell_ptr spell = &group->spells[k];
+                allocation[j] += spell->lore;
+                ct_spells += spell->lore; /* ct_spell_moves includes spell failures */
+            }
+        }
+    }
+    if (!ct_total_moves) return;
+    doc_printf(doc, "  <color:G>%-20.20s Count   Pct</color>\n", heading);
+    _spell_count_imp(doc, "Observed", ct_spell_moves, ct_total_moves);
+    expected_freq = (double)total_freq/(ct_total_moves * 100.0);
+    expected_spells = ct_total_moves * expected_freq; 
+    doc_printf(doc, "  %-20.20s %5d %5.1f%%\n", "Expected", expected_spells, expected_freq * 100.0);
+    _spell_count_imp(doc, "Failures", ct_spell_moves - ct_spells, ct_spell_moves);
+    _spell_count_imp(doc, "Summon", allocation[MST_SUMMON], ct_spell_moves);
+    _spell_count_imp(doc, "Heal", allocation[MST_HEAL], ct_spell_moves);
+    _spell_count_imp(doc, "Escape", allocation[MST_ESCAPE], ct_spell_moves);
+    _spell_count_imp(doc, "Offense",
+        allocation[MST_BREATH] + allocation[MST_BALL] + allocation[MST_BOLT]
+            + allocation[MST_BEAM] + allocation[MST_CURSE],
+        ct_spell_moves);
+    _spell_count_imp(doc, "Other",
+        allocation[MST_BUFF] + allocation[MST_BIFF] + allocation[MST_ANNOY]
+            + allocation[MST_TACTIC] + allocation[MST_WEIRD],
+        ct_spell_moves);
+}
+static bool _is_unique(mon_race_ptr race) { return BOOL(race->flags1 & RF1_UNIQUE); }
+/*static bool _is_hound(mon_race_ptr race) { return race->d_char == 'Z'; }*/
+/*static bool _is_deep(mon_race_ptr race) { return race->level >= 60; }*/
+static void _build_monster_stats(doc_ptr doc)
+{
+    doc_ptr cols[2];
+    cols[0] = doc_alloc(40);
+    cols[1] = doc_alloc(40);
+    _build_mon_kill_stats(cols[0]);
+    _build_mon_spell_stats(cols[1], "Spells", NULL);
+    doc_newline(cols[1]);
+    _build_mon_spell_stats(cols[1], "Unique Spells", _is_unique);
+    /*doc_newline(cols[1]);
+    _build_mon_spell_stats(cols[1], "Hound Spells", _is_hound);
+    doc_newline(cols[1]);
+    _build_mon_spell_stats(cols[1], "Deep Spells", _is_deep);*/
+    doc_insert_cols(doc, cols, 2, 0);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
+}
+
 static void _build_statistics(doc_ptr doc)
 {
-    int i, total_kills = ct_kills_all();
+    int i;
     counts_t totals = {0};
 
     doc_printf(doc, "<topic:Statistics>================================== <color:keypress>S</color>tatistics =================================\n\n");
@@ -1786,6 +1888,7 @@ static void _build_statistics(doc_ptr doc)
     _group_counts_tval_imp(doc, TV_FOOD, "Food");
     _group_counts_imp(doc, _kind_is_corpse, "Corpses");
     _group_counts_imp(doc, _kind_is_skeleton, "Skeletons");
+    _group_counts_tval_imp(doc, TV_CHEST, "Chests");
     _group_counts_imp(doc, _kind_is_other, "Totals");
 
     doc_printf(doc, "\n  <color:G>Potions              Found Bought  Used  Dest</color>\n");
@@ -1866,6 +1969,7 @@ static void _build_statistics(doc_ptr doc)
     {
         _device_counts_imp(doc, TV_STAFF, EFFECT_IDENTIFY);
         _device_counts_imp(doc, TV_STAFF, EFFECT_ENLIGHTENMENT);
+        _device_counts_imp(doc, TV_STAFF, EFFECT_CURING);
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL);
         _device_counts_imp(doc, TV_STAFF, EFFECT_TELEPATHY);
         _device_counts_imp(doc, TV_STAFF, EFFECT_SPEED);
@@ -1940,64 +2044,48 @@ static void _build_statistics(doc_ptr doc)
     _ego_counts_imp(doc, EGO_BOOTS_SPEED, "Boots of Speed");
     _ego_counts_imp(doc, EGO_BOOTS_FEANOR, "Boots of Feanor");
 
-    /* Monsters */
-    doc_printf(doc, "\n  <color:G>Monsters             Kills   Pct</color>\n");
-    _kill_counts_imp(doc, _mon_is_animal, "Animals", total_kills);
-    _kill_counts_imp(doc, _mon_is_breeder, "Breeders", total_kills);
-    _kill_counts_imp(doc, _mon_is_demon, "Demons", total_kills);
-    _kill_counts_imp(doc, _mon_is_dragon, "Dragons", total_kills);
-    _kill_counts_imp(doc, _mon_is_giant, "Giants", total_kills);
-    _kill_counts_imp(doc, _mon_is_hound, "Hounds", total_kills);
-    _kill_counts_imp(doc, _mon_is_human, "Humans", total_kills);
-    _kill_counts_imp(doc, _mon_is_orc, "Orcs", total_kills);
-    _kill_counts_imp(doc, _mon_is_troll, "Trolls", total_kills);
-    _kill_counts_imp(doc, _mon_is_undead, "Undead", total_kills);
-    _kill_counts_imp(doc, _mon_is_unique, "Uniques", total_kills);
-    if (p_ptr->pclass == CLASS_WARLOCK)
-        _kill_counts_imp(doc, _mon_is_pact, "Pact", total_kills);
     doc_newline(doc);
-    _kill_counts_imp(doc, _mon_is_evil, "Evil Monsters", total_kills);
-    _kill_counts_imp(doc, _mon_is_good, "Good Monsters", total_kills);
-    _kill_counts_imp(doc, _mon_is_neutral, "Neutral Monsters", total_kills);
-    if (0)
-    {
-        doc_newline(doc);
-        _kill_counts_imp(doc, _mon_drops_good, "Good Droppers", total_kills);
-        _kill_counts_imp(doc, _mon_drops_great, "Great Droppers", total_kills);
-        doc_newline(doc);
-        _kill_counts_imp(doc, _mon_res_acid, "Resist Acid", total_kills);
-        _kill_counts_imp(doc, _mon_res_elec, "Resist Elec", total_kills);
-        _kill_counts_imp(doc, _mon_res_fire, "Resist Fire", total_kills);
-        _kill_counts_imp(doc, _mon_res_cold, "Resist Cold", total_kills);
-        _kill_counts_imp(doc, _mon_res_pois, "Resist Pois", total_kills);
-        _kill_counts_imp(doc, _mon_res_conf, "Resist Conf", total_kills);
-    }
-    doc_printf(doc, "\n  %-20.20s %5d\n", "Totals", total_kills);
-
-    doc_newline(doc);
+    _build_monster_stats(doc);
 }
 
 /****************************** Dungeons ************************************/
+typedef dungeon_info_type *dun_ptr;
+static int _cmp_d_lvl(dun_ptr l, dun_ptr r)
+{
+    if (l->maxdepth < r->maxdepth) return -1;
+    if (l->maxdepth > r->maxdepth) return 1;
+    if (l->id < r->id) return -1;
+    if (l->id > r->id) return 1;
+    return 0;
+}
 void py_display_dungeons(doc_ptr doc)
 {
-    int i;
+    int     i;
+    vec_ptr v = vec_alloc(NULL);
     for (i = 1; i < max_d_idx; i++)
     {
-        bool conquered = FALSE;
-
-        if (!d_info[i].maxdepth) continue;
+        dun_ptr d_ptr = &d_info[i];
+        if (!d_ptr->maxdepth) continue;
         if (!max_dlv[i]) continue;
-        if (d_info[i].final_guardian)
+        vec_add(v, d_ptr);
+    }
+    vec_sort(v, (vec_cmp_f)_cmp_d_lvl);
+    for (i = 0; i < vec_length(v); i++)
+    {
+        bool    conquered = FALSE;
+        dun_ptr d_ptr = vec_get(v, i);
+        if (d_ptr->final_guardian)
         {
-            if (!r_info[d_info[i].final_guardian].max_num) conquered = TRUE;
+            if (!r_info[d_ptr->final_guardian].max_num) conquered = TRUE;
         }
-        else if (max_dlv[i] == d_info[i].maxdepth) conquered = TRUE;
+        else if (max_dlv[d_ptr->id] == d_ptr->maxdepth) conquered = TRUE;
 
         if (conquered)
-            doc_printf(doc, "!<color:G>%-16s</color>: level %3d\n", d_name+d_info[i].name, max_dlv[i]);
+            doc_printf(doc, "!<color:G>%-16s</color>: level %3d\n", d_name+d_ptr->name, max_dlv[d_ptr->id]);
         else
-            doc_printf(doc, " %-16s: level %3d\n", d_name+d_info[i].name, max_dlv[i]);
+            doc_printf(doc, " %-16s: level %3d\n", d_name+d_ptr->name, max_dlv[d_ptr->id]);
     }
+    vec_free(v);
     doc_newline(doc);
 
     if (p_ptr->is_dead)
@@ -2188,8 +2276,75 @@ static void _build_quests(doc_ptr doc)
             p_ptr->arena_number > 1 ? "ies" : "y");
     }
 }
+
+static int _max_depth(void)
+{
+    int result = 0;
+    int i;
+
+    for(i = 1; i < max_d_idx; i++)
+    {
+        if (!d_info[i].maxdepth) continue;
+        if (d_info[i].flags1 & DF1_RANDOM) continue;
+        if (!max_dlv[i]) continue;
+        result = MAX(result, max_dlv[i]);
+    }
+
+    return result;
+}
+
+static bool _is_retired(void)
+{
+    if (p_ptr->total_winner && p_ptr->is_dead && strcmp(p_ptr->died_from, "Ripe Old Age") == 0)
+        return TRUE;
+    return FALSE;
+}
+
+static void _add_html_header(doc_ptr doc)
+{
+    string_ptr s = string_alloc_format("%s.html", player_base);
+    string_ptr header = string_alloc();
+
+    doc_change_name(doc, string_buffer(s));
+
+    string_append_s(header, "<head>\n");
+    string_append_s(header, " <meta name='filetype' value='character dump'>\n");
+    string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
+    string_printf(header,  " <meta name='variant_version' value='%d.%d.%d'>\n", VER_MAJOR, VER_MINOR, VER_PATCH);
+    string_printf(header,  " <meta name='character_name' value='%s'>\n", player_name);
+    string_printf(header,  " <meta name='race' value='%s'>\n", get_race()->name);
+    string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
+    string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->lev);
+    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->exp);
+    string_printf(header,  " <meta name='turncount' value='%d'>\n", game_turn);
+    string_printf(header,  " <meta name='max_depth' value='%d'>\n", _max_depth());
+    string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->exp); /* ?? Does oook need this? */
+    string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
+
+    /* For angband.oook.cz ... I'm not sure what is best for proper display of html dumps so I'll need to ask pav
+     * Note: A retired winning player is_dead, but has died_from set to 'Ripe Old Age'.
+     * Approach #1: Give oook a string status field */
+    string_printf(header,  " <meta name='status' value='%s'>\n",
+        p_ptr->total_winner ? "winner" : (p_ptr->is_dead ? "dead" : "alive"));
+    /* Approach #2: Give oook some boolean fields */
+    string_printf(header,  " <meta name='winner' value='%d'>\n", p_ptr->total_winner ? 1 : 0);
+    string_printf(header,  " <meta name='dead' value='%d'>\n", p_ptr->is_dead ? 1 : 0);
+    string_printf(header,  " <meta name='retired' value='%d'>\n", _is_retired() ? 1 : 0);
+
+    if (p_ptr->is_dead)
+        string_printf(header,  " <meta name='killer' value='%s'>\n", p_ptr->died_from);
+    string_append_s(header, "</head>");
+
+    doc_change_html_header(doc, string_buffer(header));
+
+    string_free(s);
+    string_free(header);
+}
+
 void py_display_character_sheet(doc_ptr doc)
 {
+    _add_html_header(doc);
+
     doc_insert(doc, "<style:wide>  [PosChengband <$:version> Character Dump]\n");
     if (p_ptr->total_winner)
         doc_insert(doc, "              <color:B>***WINNER***</color>\n");
@@ -2233,64 +2388,9 @@ void py_display_character_sheet(doc_ptr doc)
     doc_insert(doc, "</style>");
 }
 
-static int _max_depth(void)
-{
-    int result = 0;
-    int i;
-
-    for(i = 1; i < max_d_idx; i++)
-    {
-        if (!d_info[i].maxdepth) continue;
-        if (d_info[i].flags1 & DF1_RANDOM) continue;
-        if (!max_dlv[i]) continue;
-        result = MAX(result, max_dlv[i]);
-    }
-
-    return result;
-}
-
-static bool _is_retired(void)
-{
-    if (p_ptr->total_winner && p_ptr->is_dead && strcmp(p_ptr->died_from, "Ripe Old Age") == 0)
-        return TRUE;
-    return FALSE;
-}
 void py_display(void)
 {
-    doc_ptr    d = doc_alloc(80);
-    string_ptr s = string_alloc_format("%s.html", player_base);
-    string_ptr header = string_alloc();
-
-    doc_change_name(d, string_buffer(s));
-
-    string_append_s(header, "<head>\n");
-    string_append_s(header, " <meta name='filetype' value='character dump'>\n");
-    string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
-    string_printf(header,  " <meta name='variant_version' value='%d.%d.%d'>\n", VER_MAJOR, VER_MINOR, VER_PATCH);
-    string_printf(header,  " <meta name='character_name' value='%s'>\n", player_name);
-    string_printf(header,  " <meta name='race' value='%s'>\n", get_race()->name);
-    string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
-    string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->lev);
-    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->exp);
-    string_printf(header,  " <meta name='turncount' value='%d'>\n", game_turn);
-    string_printf(header,  " <meta name='max_depth' value='%d'>\n", _max_depth());
-    string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->exp); /* ?? Does oook need this? */
-    string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
-
-    /* For angband.oook.cz ... I'm not sure what is best for proper display of html dumps so I'll need to ask pav
-     * Note: A retired winning player is_dead, but has died_from set to 'Ripe Old Age'.
-     * Approach #1: Give oook a string status field */
-    string_printf(header,  " <meta name='status' value='%s'>\n",
-        p_ptr->total_winner ? "winner" : (p_ptr->is_dead ? "dead" : "alive"));
-    /* Approach #2: Give oook some boolean fields */
-    string_printf(header,  " <meta name='winner' value='%d'>\n", p_ptr->total_winner ? 1 : 0);
-    string_printf(header,  " <meta name='dead' value='%d'>\n", p_ptr->is_dead ? 1 : 0);
-    string_printf(header,  " <meta name='retired' value='%d'>\n", _is_retired() ? 1 : 0);
-
-    if (p_ptr->is_dead)
-        string_printf(header,  " <meta name='killer' value='%s'>\n", p_ptr->died_from);
-    string_append_s(header, "</head>");
-    doc_change_html_header(d, string_buffer(header));
+    doc_ptr d = doc_alloc(80);
 
     py_display_character_sheet(d);
 
@@ -2299,8 +2399,6 @@ void py_display(void)
     screen_load();
 
     doc_free(d);
-    string_free(s);
-    string_free(header);
 }
 
 /* This is used by the birth process ... Note that there

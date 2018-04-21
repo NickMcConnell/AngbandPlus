@@ -152,7 +152,7 @@ doc_style_ptr doc_current_style(doc_ptr doc);
               /* Build a document from a text file */
 doc_pos_t     doc_insert(doc_ptr doc, cptr text);
 doc_pos_t     doc_read_file(doc_ptr doc, FILE *fp);
-              enum { DOC_FORMAT_TEXT, DOC_FORMAT_HTML };
+              enum { DOC_FORMAT_TEXT, DOC_FORMAT_HTML, DOC_FORMAT_DOC };
 void          doc_write_file(doc_ptr doc, FILE *fp, int format);
 
               /* Build a document in code */

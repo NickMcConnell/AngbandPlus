@@ -485,7 +485,7 @@ static void _calc_bonuses(void)
     {
         p_ptr->pspeed += p_ptr->lev/10;
         if  (p_ptr->lev >= 25)
-            p_ptr->free_act = TRUE;
+            p_ptr->free_act++;
 
         switch (_get_toggle())
         {

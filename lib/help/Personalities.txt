@@ -96,19 +96,6 @@ Charisma      +0        Perception  <color:y>Good         </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
 Experience   100%       Bows        <color:G>Excellent    </color>
 </style></indent>
-<topic:Lazy><color:o>Lazy</color>
-A Lazy person has no good stats and can do no action well. Also it has a direct bad influence on your spell fail rate.
-
-  <indent><style:table><color:G>Stats                   Skills</color>
-Strength      -2        Disarming   <color:D>Very Bad     </color>
-Intelligence  -2        Device      <color:D>Very Bad     </color>
-Wisdom        -2        Save        <color:D>Very Bad     </color>
-Dexterity     -2        Stealth     <color:r>Bad          </color>
-Constitution  -2        Searching   <color:D>Very Bad     </color>
-Charisma      -2        Perception  <color:r>Bad          </color>
-Life Rating   95%       Melee       <color:D>Very Bad     </color>
-Experience   100%       Bows        <color:D>Very Bad     </color>
-</style></indent>
 <topic:Sexy><color:o>Sexy</color>
 Sexy increases all of your stats and skills, but your haughty attitude will aggravate all monsters.
 
@@ -184,7 +171,6 @@ Pious           +0   -1   +2   -1   +0   +0  100%  100%
 Nimble          -1   +1   -1   +2   -1   +0   99%  100%
 Fearless        +1   +0   +0   -1   -1   +1   98%  100%
 Combat          +1   -1   -1   +1   +0   +0  100%  100%
-Lazy            -2   -2   -2   -2   -2   -2   95%  100%
 Sexy            +1   +1   +1   +1   +1   +1  100%  100%
 Lucky           -2   -2   -2   -2   -2   -2   98%  100%
 Patient         -1   -1   +1   -2   +2   +0  102%  100%
@@ -202,7 +188,6 @@ Pious        <color:D>Very Bad     </color> <color:o>Fair         </color> <colo
 Nimble       <color:g>Superb       </color> <color:y>Good         </color> <color:r>Bad          </color> <color:o>Fair         </color>
 Fearless     <color:D>Very Bad     </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:R>Poor         </color>
 Combat       <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:R>Poor         </color>
-Lazy         <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 Sexy         <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color> <color:R>Poor         </color>
 Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Good         </color> <color:o>Fair         </color>
 Patient      <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:y>Good         </color> <color:o>Fair         </color>
@@ -220,7 +205,6 @@ Pious        <color:y>Very Good    </color> <color:r>Bad          </color> <colo
 Nimble       <color:G>Excellent    </color> <color:G>Excellent    </color> <color:R>Poor         </color> <color:g>Superb       </color>
 Fearless     <color:y>Good         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:o>Fair         </color>
 Combat       <color:R>Poor         </color> <color:y>Good         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
-Lazy         <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Sexy         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:g>Superb       </color>
 Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:b>Heroic       </color> <color:g>Superb       </color>
 Patient      <color:o>Fair         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
@@ -230,4 +214,4 @@ Hasty        <color:D>Very Bad     </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.7.</color>
+<color:s>Automatically generated for PosChengband 7.0.0.</color>

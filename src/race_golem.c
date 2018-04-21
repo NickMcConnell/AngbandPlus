@@ -160,8 +160,8 @@ static void _calc_bonuses(void)
     /* Clay Golem */
     p_ptr->to_a += 5;
     p_ptr->dis_to_a += 5;
-    p_ptr->free_act = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->free_act++;
+    p_ptr->hold_life++;
     res_add(RES_POIS);
 
     /* Stone Golem */
@@ -177,7 +177,7 @@ static void _calc_bonuses(void)
     {
         p_ptr->to_a += 10;
         p_ptr->dis_to_a += 10;
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
         res_add(RES_FIRE);
         res_add(RES_COLD);
         res_add(RES_ELEC);

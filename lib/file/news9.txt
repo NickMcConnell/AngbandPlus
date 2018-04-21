@@ -1,30 +1,27 @@
 <color:y>PosChengband <$:version></color>
 <style:screenshot>
-<color:U>You attack Glaurung, Father of the Dragons:</color> You land an <color:o>Eagle's </color>
-<color:o>Claw</color>. You drain life from him! You feel a little better. You        LEVEL <color:G>    36</color>
-<color:y>double-kick</color>. You feel a little better. You miss. You <color:y>double-kick</color>.   EXP <color:G>    215k</color>
-You feel a little better. You miss. You <color:o>circle kick</color>. It was a <color:y>good</color>  AU  <color:G>   1.11M</color>
-hit! You feel better. He seems weakened.                            <color:d>  </color><color:u>}</color><color:g>==</color><color:y>"!</color><color:U>(</color><color:g>(</color><color:u>]</color><color:U>]]</color>
-<color:g>Glaurung, Father of the Dragons attacks you:</color> He claws. He claws.    STR : <color:G>18/131</color>
-<color:U>(You retaliate:</color> You land an <color:o>Eagle's Claw</color>.<color:U>)</color> He bites. <color:U>(You </color>          INT : <color:G> 18/10</color>
-<color:U>retaliate:</color> You <color:y>double-kick</color>.<color:U>)</color> He bites. You feel uneasy. You feel    WIS : <color:G>18/205</color>
-very insecure. <color:U>(You retaliate:</color> You are too afraid to attack him!<color:U>)</color>   DEX : <color:G>18/193</color>
-Your fears finally subside.                                         CON : <color:G> 18/94</color>
-                                    <color:U>##</color>..<color:U>#</color>       <color:U>##</color>     <color:U>#</color> <color:U>#</color>  <color:U>#</color>  :<color:U>##</color>  Chr : <color:y> 18/20</color>
-                              <color:U>####</color>  <color:U>#</color>..<color:U>##</color>       <color:U>#</color>       <color:U>###########</color> AC     <color:G>  161</color>
-                      <color:U>###</color>     <color:U>#</color><color:G>##</color><color:U>####</color>.<color:U>##</color>        <color:U>#</color>       <color:U>#</color>     <color:U>###</color>   HP <color:y> 397</color>/<color:G> 547</color>
-                    <color:U>###</color> <color:U>###</color> <color:U>###</color><color:G>##</color>@<color:G>#</color><color:U>##</color>.<color:U>#</color>         <color:U>#</color>       <color:U>#</color>     <color:U>#</color>  <color:U>##</color> SP <color:y> 212</color>/<color:G> 315</color>
-                 <color:U>####</color>   ..<color:U>###</color>..<color:G>#</color><color:U>##</color><color:r>D</color>...<color:U>#</color>         <color:U>##</color>     <color:U>##</color>    <color:U>##</color> <color:U>#+</color>
-                <color:U>##</color>..  <color:U>###</color>.....<color:U>#########</color>          <color:U>##</color>   <color:U>##</color>   <color:U>###</color> :<color:U>#</color>   @[<color:y>*******</color>--]
-                <color:U>#</color>..<color:U>####</color> <color:U>##</color>..<color:U>#</color>.....<color:U>####</color>            <color:U>#####</color>   <color:U>##</color>   <color:U>#</color>    <color:G>?</color>[<color:y>*******</color>--]
-           <color:U>######</color>.<color:U>##</color>     <color:U>####</color>..<color:U>##</color>.<color:U>#</color>..<color:U>#</color>      <color:U>########</color>      <color:U>#</color>  <color:U>#</color> <color:U>#</color>    <color:U>,</color>[******---]
-<color:U>##</color>         <color:U>#</color>..<color:U>#</color>...<color:U>#</color>        <color:U>##</color>.<color:U>###</color>....<color:U>###</color>   <color:U>##</color>.<color:G>#</color>....<color:U>#</color>   <color:U>####</color>.<color:U>##</color>      <color:r>D</color><color:R>[</color><color:o>****</color><color:R>-----]</color>
-.<color:U>###</color>       <color:U>#</color>..<color:u>'</color>..<color:U>##</color>      <color:U>###</color>..<color:U>#</color> <color:U>####</color>...<color:U>#####</color><color:G>##</color><color:U>####</color>.<color:U>#####</color><color:G>###</color>.<color:U>####</color>
-...<color:U>###</color>   <color:U>###</color>.<color:U>###</color>.<color:U>##</color>    <color:U>###</color>...<color:U>##</color>    <color:U>###</color>....<color:U>##</color>.<color:U>##</color>  <color:U>#</color>.<color:U>#</color>...<color:G>##</color><color:U>#</color><color:G>#</color>.<color:U>#</color>  <color:U>##</color>
-<color:U>##</color>...<color:U>#####</color>...<color:U>#</color> <color:U>#</color>..<color:U>#</color>    <color:U>#</color>...<color:U>###</color>       <color:U>####</color>....<color:U>#</color>   <color:U>#</color>...<color:U>########</color>   <color:U>#</color>   <color:G>Fast (+22)</color>
- <color:U>###</color>.......<color:U>###</color> <color:U>#</color>..<color:U>######</color>.<color:U>###</color>            <color:U>######</color>   <color:U>#####</color>          <color:U>##</color>  <color:B>Study (9)</color>
-   <color:U>#########</color>   <color:U>#</color>..<color:U>#</color>......<color:U>#</color>                                       <color:U>##</color>
-               <color:U>##</color>...<color:U>######</color>
-                <color:U>#####</color>
-<color:U>Arena: L50</color>                   StnSkn <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>
+                                                                                
+You are aware of 40 monsters, 40 are awake:                         LEVEL <color:G>    50</color>
+ . Time bomb (40 awake)                                             EXP <color:G>   23.0M</color>
+   <color:B>[Press ESC to exit. Press ? for help]</color>                 <color:D>xxxxxxxxxx</color> AU  <color:G>   5.97M</color>
+........#                                                 <color:D>xxxxxxxxx</color> <color:d>            </color>
+........###                                                <color:D>xxxxxxxx</color> STR!: <color:G>18/***</color>
+......##..#                                                <color:D>xxxxxxxx</color> INT!: <color:G>18/130</color>
+.......#..##                #####################%##%       <color:D>xxxxxxx</color> WIS!: <color:G>18/***</color>
+####....#..#                #...............<color:y>"</color>.......#        <color:D>xxxxxx</color> DEX!: <color:G>18/150</color>
+<color:D>xxx</color>######..#                #.#####################.%        <color:D>xxxxxx</color> CON!: <color:G>18/170</color>
+<color:D>xxxxxx</color>  #.##                #.#...................#.#        <color:D>xx</color>%### CHR!: <color:G>18/***</color>
+<color:D>xxxxx</color>   #..#                #.#...................#.####%%#   <color:D>x</color>#... AC     <color:G>  170</color>
+<color:D>xxxxx</color>   ##.####             #.#...................<color:U>+</color>.......####<color:D>x</color>%.%# HP <color:G>1068</color>/<color:G>1068</color>
+<color:D>xxxx</color>     #....#             #.#...................#.#####....#<color:D>x</color>%.#<color:D>x</color> SP <color:y> 364</color>/<color:G> 397</color>
+<color:D>xxx</color>      ####.######        #.#...................#.#   ##%%.% #.#<color:D>x</color>             
+<color:D>xx</color>          #......#        #.#####################.#      #.# #.%<color:D>x</color> @ <color:G>100%</color>      
+<color:D>x</color>           ######.##       #.......................#      #.# #.#<color:D>x</color> <color:W>?</color> <color:y> 91%</color>      
+                 #..#       #########################      #.<color:o>*</color> #.#<color:D>x</color> <color:U>,</color>  55%      
+#########        ##.###                                    #.# #.%<color:D>x</color>             
+........#         #...#                ###########         #.%##<color:U>'</color>#%             
+...######         ###.#         ########.........##        #......#             
+.### ####           #.#####    ##@..#....#######..#        #####%<color:U>'</color>% <color:G>Fast (+23)</color>  
+.#  ##..##          #.....###  #..#...####     ##.#        #....<color:U>'</color>.. <color:B>Study (1)</color>   
+<color:o>Angband: L90</color>                                                                    
 </style>

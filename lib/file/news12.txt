@@ -1,26 +1,27 @@
 <color:y>PosChengband <$:version></color>
 <style:screenshot>
-
-<color:U>The Set of Dragon Gloves 'Claw of Bahamut' [4,+17]</color>                  LEVEL <color:G>    43</color>
-  <color:G>+3</color> to STR, Searching, Infravision                                 EXP <color:G>    187k</color>
-  Resist <color:g>Acid</color>, <color:b>Electricity</color>, <color:r>Fire</color>, <color:W>Cold</color>, <color:G>Poison</color>, <color:y>Light</color>, <color:D>Nether</color>,      AU  <color:G>   3.53M</color>
-<color:v>    Nexus</color>, <color:o>Sound</color>, <color:U>Shards</color>, <color:v>Chaos</color>, <color:v>Disenchantment</color>, <color:R>Fear</color>               /<color:b>*</color><color:U>}</color><color:g>==</color><color:y>"</color>*<color:s>[</color><color:g>(</color><color:s>]</color><color:G>]</color><color:U>]</color>
-  <color:B>It cannot be harmed by the elements.</color>                              STR!: <color:G>18/***</color>
-                                                                    INT : <color:G>18/***</color>
-                                                                    WIS : <color:G>18/159</color>
-[Press Any Key to Continue]                                         DEX : <color:G>18/165</color>
-                                                                    CON : <color:G>18/189</color>
-                                    # # #      ..# #                CHR : <color:G>18/155</color>
-                                    # # # ######.# #                AC     <color:G>  180</color>
-                                    # # # #<color:u>OOOO</color>.@# #    ####<color:U>#</color>       HP <color:G> 778</color>/<color:G> 778</color>
-                                    # # # #<color:u>O</color>###### # #<color:U>###</color>   #<color:U>#</color>
-                                    # # # #<color:u>O</color>#<color:u>OOO</color> # # <color:U>#</color>    #  #<color:U>#</color>#
-                                    # #   #<color:u>OOOOOO</color>#<color:G>$</color>### <color:U>##</color>#<color:U>#</color>#   #    @[<color:G>*********</color>]
-                                    # ############ #   <color:U>#</color>   <color:U>#</color>#<color:U>#</color> <color:U>#</color>### <color:U>,</color>[<color:G>*********</color>]
-                                    #              # ###     #  <color:U>#</color>
-                  ###########       ##### # ###### # <color:U>#</color>       #<color:U>#</color> # #
-                            #        <color:U>###</color>    #    <color:U>#</color>#  <color:U>#</color>        <color:U>#</color>   #
-                  ######### #        <color:U>#</color>   <color:U>##</color>#<color:U>#</color>     <color:U>##</color>##        <color:U>#</color>#<color:U>#</color>##
-                          # #        <color:U>#</color> <color:U>##</color>#                          <color:y>Fast (+23)</color>
-                    ###   # #<color:U>##</color>####<color:U>#</color>#<color:U>#</color> ##                           <color:G>Full</color>
+The Mithril Bolt of Slaying (5d5) (+12,+12) hits Kronos, Lord of                
+the Titans. Kronos, Lord of the Titans cries out in pain. Kronos,   LEVEL <color:G>    50</color>
+Lord of the Titans flees in terror!                                 EXP <color:G>   25.9M</color>
+%.%##..%.%<color:s>%</color>...%%...%#%%....%#                             #.###.### AU  <color:G>   6.57M</color>
+.<color:s>%</color>.%%<color:s>%</color>...<color:s>%</color>%..##%#.%<color:s>%%%</color>.#..<color:s>%</color>.#                            ##........ <color:d>            </color>
+.%<color:s>%</color>......%...#%<color:s>%</color>.%....<color:s>%</color>%%%<color:s>%</color>.#                          ###<color:U>'</color>.###.### STR!: <color:G>18/***</color>
+......%..%%.<color:s>%</color>%..%#.<color:s>%%</color>.%.%...#                          #..#...#.#.. INT!: <color:G>18/130</color>
+%.%%#.<color:s>%</color>.<color:s>%</color>.%..%%..%.%%.#%<color:s>%</color>.%.#                          #..<color:u>'</color>##.#.#.# WIS!: <color:G>18/***</color>
+..%...%<color:s>%</color>%.%..<color:s>%</color>%....%..<color:s>%</color>.....#                     ######.####.....# DEX!: <color:G>18/150</color>
+.%<color:s>%</color>%%%<color:s>%</color>...<color:s>%%</color>..<color:s>%</color>##.<color:s>%%</color>.##..<color:s>%</color>###                     #..##..#  ####### CON!: <color:G>18/170</color>
+....<color:s>%</color>%...%#.%<color:s>%</color>..%<color:s>%</color>.<color:s>%%</color>%#%.# ######               ###.....##          CHR!: <color:G>18/***</color>
+%.<color:s>%%%</color>%...#.%.....%...#..%###....#################...######          AC     <color:G>  256</color>
+%<color:s>%</color>..#.<color:U>></color>%.<color:s>%</color>.#%#...%..<color:s>%</color>.%%##...##.#@..<color:v>P</color><color:B>{{{{{{{</color><color:r>{{{{</color><color:U>'</color><color:r>{</color>.......#          HP <color:G>1068</color>/<color:G>1068</color>
+%<color:s>%%</color>.%<color:s>%</color>%%.%.....%%%..%......####.##.#####################.#          SP <color:y> 272</color>/<color:G> 437</color>
+.%%.%##<color:s>%</color>%%%........<color:s>%</color>.<color:s>%</color>######  #....#                   #.#                      
+#..%.#%..#.%#..#%%%.%#        ###..#                   #.#          @ <color:G>100%</color>      
+<color:s>%</color>#.#<color:s>%</color>%.%%<color:s>%%</color>%<color:s>%%%</color>.%..##           #..<color:s>%</color>                   %.#          <color:W>?</color> <color:y> 62%</color>      
+<color:s>%</color>#.###...%...%.<color:s>%</color>%<color:s>%%</color>%            <color:s>%</color>.<color:s>%%</color>                   %.<color:s>%</color>          <color:U>,</color>  64%      
+.....#<color:s>%%</color>##.<color:s>%%%</color>#.<color:s>%</color>               %<color:U>'</color>#                    #.##         <color:v>P</color> <color:r>  3%</color> <color:R>*</color><color:v>F</color>   
+......#<color:s>%</color>#<color:s>%</color>#%%%.%###<color:s>%</color>#<color:s>%</color>%%##<color:s>%</color>##   <color:s>%</color>.<color:s>%</color>                   <color:s>%%</color>..<color:s>%</color>##                   
+......<color:U>'</color>..<color:U>'</color>.:................<color:s>%</color>   %.%                 ###.....#<color:s>%%</color>                 
+%<color:s>%</color><color:U>+</color>#%<color:s>%</color>#%%<color:s>%</color><color:u>'</color><color:s>%%</color>%<color:s>%</color>####<color:s>%%%</color>%#<color:s>%%</color>#<<color:s>%</color>   #.<color:s>%</color>                %#.........#     <color:y>Fast (+34)</color>  
+ <color:s>%</color>.#     #.#<color:s>%%</color>%%%##       #.<color:s>%</color>   %.<color:s>%</color>               %#..........<color:s>%%</color>%#  <color:B>Study (1)</color>   
+<color:U>Angband: L96</color>                  <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                   
 </style>

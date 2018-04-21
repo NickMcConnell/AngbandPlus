@@ -162,8 +162,6 @@ s16b m_max = 1;            /* Number of allocated monsters */
 s16b m_cnt = 0;            /* Number of live monsters */
 
 s16b hack_m_idx = 0;    /* Hack -- see "process_monsters()" */
-int hack_m_spell = 0;   /* Hack -- see process_monsters(), make_attack_spell() and project_p() */
-                        /* This is used to implement spell absorption */
 s16b hack_m_idx_ii = 0;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
@@ -202,6 +200,8 @@ bool easy_disarm;    /* Automatically disarm traps */
 
 bool auto_get_ammo;
 bool auto_get_objects;
+bool auto_detect_traps;
+bool auto_map_area;
 
 bool numpad_as_cursorkey;    /* Use numpad keys as cursor key in editor mode */
 bool use_pack_slots;
@@ -291,6 +291,7 @@ bool alert_trap_detect;    /* Alert when leaving trap detected area */
 
 bool easy_id;        /* Easy Identify */
 bool easy_lore;      /* Easy Monster Lore */
+bool allow_spoilers;
 bool smart_learn;    /* Monsters learn from their mistakes (*) */
 bool smart_cheat;    /* Monsters exploit players weaknesses (*) */
 bool no_wilderness;
@@ -655,13 +656,6 @@ s16b pack_info_count;
 
 
 /*
- * The array to process dungeon monsters [max_m_idx]
- */
-s16b *mproc_list[MAX_MTIMED];
-s16b mproc_max[MAX_MTIMED]; /* Number of monsters to be processed */
-
-
-/*
  * The size of "alloc_kind_table" (at most max_k_idx * 4)
  */
 s16b alloc_kind_size;
@@ -945,6 +939,7 @@ bool leave_special;
  * Wilderness
  */
 wilderness_type **wilderness;
+u32b wilderness_seed;
 
 
 /*
@@ -1014,12 +1009,7 @@ s32b max_wild_y;
 /*
  * Default spell color table (quark index)
  */
-s16b gf_color[MAX_GF];
-
-/*
- * The "highscore" file descriptor, if available.
- */
-int highscore_fd = -1;
+s16b gf_color[GF_COUNT];
 
 int mutant_regenerate_mod = 100;
 

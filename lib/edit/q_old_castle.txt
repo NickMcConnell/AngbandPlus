@@ -33,7 +33,7 @@ L:I:MON(iron lich)
 L:K:MON(death drake)
 L:l:MON(monastic lich)
 L:L:MON(vampire lord)
-L:m:MON(raal's tome):OBJ(BOOK, DEPTH+5)
+L:m:MON(raal's tome):OBJ(HI_BOOK)
 L:M:MON(greater mummy)
 L:N:MON(ancient red dragon)
 L:o:MON(olog)
@@ -69,7 +69,7 @@ L:|:LOCKED_DOOR_7
 
 ###################################
 # Goodies
-L:?:OBJ(BOOK, DEPTH+5)
+L:?:OBJ(HI_BOOK)
 L:!:OBJ(potion of *healing*)
 L:e:OBJ(scroll of *identify*)
 L:h:OBJ(*)

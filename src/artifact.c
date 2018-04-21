@@ -608,7 +608,7 @@ static void random_plus(object_type * o_ptr)
         {
             if (slaying_hack == 0)
             {
-                if (one_in_(3))
+                if (one_in_(13))
                 {
                     add_flag(o_ptr->flags, OF_BLOWS);
                     if (!artifact_bias && one_in_(11))
@@ -1360,7 +1360,7 @@ static void random_misc(object_type * o_ptr)
 
 static void random_slay_aux(object_type *o_ptr)
 {
-    switch (randint1(29 + object_level/10))
+    switch (randint1(29 + object_level/15))
     {
         case 1:
         case 2:
@@ -1371,8 +1371,11 @@ static void random_slay_aux(object_type *o_ptr)
             add_flag(o_ptr->flags, OF_SLAY_HUMAN);
             break;
         case 5:
-            add_flag(o_ptr->flags, OF_SLAY_EVIL);
-            break;
+            if (one_in_(5)) /* low level slay evil is rare ... */
+            {
+                add_flag(o_ptr->flags, OF_SLAY_EVIL);
+                break;
+            }
         case 6:
             add_flag(o_ptr->flags, OF_SLAY_ORC);
             break;
@@ -1498,8 +1501,18 @@ static void random_slay_aux(object_type *o_ptr)
                 add_flag(o_ptr->flags, OF_BRAND_WILD);
             else
             {
-                if (randint1(2500) <= object_level)
+                if (randint1(1250) <= object_level - 50)
                     add_flag(o_ptr->flags, OF_KILL_EVIL);
+                else if (o_ptr->tval == TV_SWORD && randint1(625) <= object_level - 50)
+                {
+                    add_flag(o_ptr->flags, OF_VORPAL2);
+                    break;
+                }
+                else if (o_ptr->tval == TV_HAFTED && randint1(625) <= object_level - 50)
+                {
+                    add_flag(o_ptr->flags, OF_STUN);
+                    break;
+                }
                 else
                     add_flag(o_ptr->flags, OF_SLAY_EVIL);
                 if (!artifact_bias && one_in_(2))
@@ -1865,9 +1878,9 @@ typedef struct {
 } _slot_weight_t, *_slot_weight_ptr;
 static _slot_weight_t _slot_weight_tbl[] = {
     {"Weapons", object_is_melee_weapon, 80},
-    {"Shields", object_is_shield, 40},
+    {"Shields", object_is_shield, 45},
     {"Bows", object_is_bow, 45},
-    {"Rings", object_is_ring, 80}, /* rings of power */
+    {"Rings", object_is_ring, 40},
     {"Amulets", object_is_amulet, 40},
     {"Lights", object_is_lite, 30},
     {"Body Armor", object_is_body_armour, 80},
@@ -1897,6 +1910,12 @@ int get_slot_power(obj_ptr obj)
         int d = k_info[obj->k_idx].dd * k_info[obj->k_idx].ds;
         if (d < 12)
             w = w * d / 12;
+    }
+    else if (object_is_body_armour(obj))
+    {
+        int ac = k_info[obj->k_idx].ac;
+        if (ac < 16)
+            w = w * (ac + 20) / 36;
     }
     return 100 * w / 80;
 }
@@ -1943,9 +1962,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     int     esp_count = 0;
     int     lev = object_level;
     bool    is_falcon_sword = FALSE;
-    int     max_a = 15 + m_bonus(15, object_level);
-    int     max_h = 15 + m_bonus(15, object_level);
-    int     max_d = 15 + m_bonus(15, object_level);
 
     if (no_artifacts) return 0;
     if (have_flag(o_ptr->flags, OF_NO_REMOVE)) return 0;
@@ -2045,7 +2061,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             case CLASS_HIGH_MAGE:
             case CLASS_SORCERER:
             case CLASS_MAGIC_EATER:
-            case CLASS_BLUE_MAGE:
             case CLASS_WARLOCK:
             case CLASS_BLOOD_MAGE:
             case CLASS_NECROMANCER:
@@ -2101,10 +2116,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
             case CLASS_ARCHAEOLOGIST:
             case CLASS_TIME_LORD:
                 warrior_artifact_bias = 20;
-                break;
-            case CLASS_IMITATOR:
-                artifact_bias = BIAS_RANGER;
-                warrior_artifact_bias = 40;
                 break;
             case CLASS_BEASTMASTER:
                 artifact_bias = BIAS_CHR;
@@ -2297,57 +2308,58 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                 break;
             case 3:
                 if ( slaying_hack == 0 /* OK: Slaying can now only happen once! */
-                    && (is_falcon_sword || !have_flag(o_ptr->flags, OF_BLOWS))
-                    && randint1(225) < lev)
+                    && (is_falcon_sword || !have_flag(o_ptr->flags, OF_BLOWS)))
                 {
-                    int odds = o_ptr->dd * o_ptr->ds / 2;
-                    if (odds < 3) odds = 3;
-                    /* spiked code from EGO_SLAYING_WEAPON */
-                    if (slaying_hack == 0 && one_in_(odds)) /* double damage */
+                    object_kind *k_ptr = &k_info[o_ptr->k_idx];
+                    int          max = MIN(81, k_ptr->dd * k_ptr->ds * 4); /* 9d9 */
+                    int          dd = o_ptr->dd;
+                    int          ds = o_ptr->ds;
+                    slaying_hack++;
+                    dd++;
+                    while (randint0(1000) < 4000 / (dd * ds)) /* <--> 1 in (dd*ds/4) */
                     {
-                        powers -= o_ptr->dd - 1;
-                        slaying_hack += o_ptr->dd;
-                        o_ptr->dd *= 2;
-                    }
-                    else
-                    {
-                        powers++;
-                        powers++;
-                        do
+                        if (one_in_(2))
                         {
-                            o_ptr->dd++;
-                            powers--;
-                            slaying_hack++;
+                            dd++;
+                            if (dd * ds > max)
+                            {
+                                dd--;
+                                break;
+                            }
                         }
-                        while (one_in_(o_ptr->dd));
-
-                        do
+                        else
                         {
-                            o_ptr->ds++;
-                            powers--;
-                            slaying_hack++;
+                            ds++;
+                            if (dd * ds > max)
+                            {
+                                ds--;
+                                break;
+                            }
                         }
-                        while (one_in_(o_ptr->ds));
+                        powers--;
+                        slaying_hack++;
                     }
+                    o_ptr->dd = dd;
+                    o_ptr->ds = ds;
+                    assert(dd * ds <= max);
                 }
-                else if (!boosted_dam && !boosted_hit && randint1(225) < lev)
+                else if (!boosted_dam && !boosted_hit)
                 {
                     if (one_in_(7))
                     {
-                        o_ptr->to_h = 10 + randint1(22);
-                        o_ptr->to_d = 10 + randint1(22);
+                        o_ptr->to_h += randint1(8);
+                        o_ptr->to_d += randint1(8);
                         boosted_dam = TRUE;
                         boosted_hit = TRUE;
-                        powers--;
                     }
                     else if (one_in_(2))
                     {
-                        o_ptr->to_h = 10 + randint1(22);
+                        o_ptr->to_h += randint1(8);
                         boosted_hit = TRUE;
                     }
                     else
                     {
-                        o_ptr->to_d = 10 + randint1(22);
+                        o_ptr->to_d += randint1(8);
                         boosted_dam = TRUE;
                     }
                 }
@@ -2616,14 +2628,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                             add_esp_weak(o_ptr, FALSE);
                         ++esp_count;
                     }
-                    else if (!boosted_ac && randint1(225) < lev)
+                    else if (!boosted_ac)
                     {
-                        o_ptr->to_a = 20 + randint1(20);
+                        o_ptr->to_a += randint1(8);
                         if (object_is_body_armour(o_ptr) && one_in_(7))
                             o_ptr->ac += 5;
 
                         boosted_ac = TRUE;
-                        powers--;
                     }
                     else if (o_ptr->tval == TV_GLOVES && one_in_(2))
                     {
@@ -2721,30 +2732,23 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     /* give it some plusses... */
     if (object_is_armour(o_ptr))
     {
-        if (!boosted_ac && o_ptr->to_a < max_a)
-        {
-            int n = max_a - o_ptr->to_a;
-            n = (n+2)/3;
-            o_ptr->to_a += n;
-            o_ptr->to_a += randint1(n);
-            o_ptr->to_a += randint0(n);
-        }
-        if (o_ptr->to_a > max_a)
-            o_ptr->to_a = max_a;
+        int a = randint1(5) + m_bonus(5, lev) + m_bonus(10, lev);
+        int max = 20;
+        if (object_is_body_armour(o_ptr)) max += 5;
+        o_ptr->to_a += a;
+        if (o_ptr->to_a > max)
+            o_ptr->to_a = max;
     }
     else if (object_is_weapon_ammo(o_ptr))
     {
-        if (!boosted_dam)
-            o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
-
-        if (!boosted_hit)
-            o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
-
-        if (o_ptr->to_h > max_h)
-            o_ptr->to_h = max_h;
-
-        if (o_ptr->to_d > max_d)
-            o_ptr->to_d = max_d;
+        int h = randint1(5) + m_bonus(5, lev) + m_bonus(10, lev);
+        int d = randint1(5) + m_bonus(5, lev) + m_bonus(10, lev);
+        o_ptr->to_h += h;
+        o_ptr->to_d += d;
+        if (o_ptr->to_h > 25)
+            o_ptr->to_h = 25;
+        if (o_ptr->to_d > 25)
+            o_ptr->to_d = 25;
 
         if ((have_flag(o_ptr->flags, OF_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->flags, OF_BLESSED);
     }
@@ -2786,7 +2790,10 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
         int lower1 = 20, lower2 = 10;
 
         if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
-            lower1 = 25; lower2 = 20;
+        {
+            lower1 = 25;
+            lower2 = 20;
+        }
 
         while ((o_ptr->to_d+o_ptr->to_h) > lower1)
         {
@@ -2820,6 +2827,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     {
         o_ptr->mult += (25 + m_bonus(75, object_level)) * bow_energy(o_ptr->sval) / 10000;
         remove_flag(o_ptr->flags, OF_XTRA_MIGHT);
+    }
+    if (o_ptr->tval == TV_BOW)
+    {
+        /* rescale damage ... heavy crossbows shoot 0.75 while slings shoot 1.40x
+         * damage on the bow should reflect this! */
+        o_ptr->to_d = o_ptr->to_d * bow_energy(o_ptr->sval) / 7150;
     }
 
     if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI))
@@ -3287,6 +3300,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
     object_type    forge2 = {0};
     object_type    best = {0}, worst = {0};
     int            base_power, best_power, power = 0, worst_power = 10000000;
+    int            min_power, max_power;
     int            old_level;
     artifact_type *a_ptr = &a_info[a_idx];
     int            i;
@@ -3306,20 +3320,10 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
         forge1.to_a = MAX(10, forge1.to_a);
     }
     base_power = obj_value_real(&forge1);
-    /* Harps and Guns seem to replace too strongly. The best I can figure, the
-     * activation costs are the problem (e.g. Restore Mana is 20k, Angelic Healing is
-     * 32k.) These costs make sense, but create_artifact will almost never replace them
-     * with an equivalent activation. Instead, you get a ridiculous amount of resists
-     * and stats/speed.
-     * XXX: Crimson's activation is 15k, Railgun's 12k. */
-    switch (a_idx)
-    {
-    case ART_CRIMSON: case ART_RAILGUN: case ART_DAERON: case ART_MAGLOR:
-        base_power /= 2;
-        break;
-    }
     if (!obj_is_ammo(&forge1) && base_power < 7500)
         base_power = 7500;
+    min_power = MAX(base_power * 4 / 5, base_power - 10000);
+    max_power = MIN(base_power * 6 / 5, base_power + 10000);
 
     original_score += base_power;
     best_power = -10000000;
@@ -3331,6 +3335,11 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
     {
         object_prep(&forge2, forge1.k_idx);
         create_artifact(&forge2, CREATE_ART_GOOD);
+        if (a_ptr->gen_flags & OFG_FIXED_ACT)
+        {
+            forge2.activation = a_ptr->activation;
+            add_flag(forge2.flags, OF_ACTIVATE); /* for object lore */
+        }
         power = obj_value_real(&forge2);
 
         if (power > best_power)
@@ -3344,7 +3353,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
             worst_power = power;
         }
 
-        if (power > base_power * 4 / 5 && power < base_power * 7 / 5)
+        if (min_power <= power && power <= max_power)
         {
             replacement_score += power;
             object_level = old_level;

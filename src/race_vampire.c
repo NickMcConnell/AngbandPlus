@@ -134,7 +134,7 @@ static void _bite_spell(int cmd, variant *res)
             amt = _bite_amt();
 
             vampiric_drain_hack = TRUE;
-            if (project(0, 0, y, x, amt, GF_OLD_DRAIN, PROJECT_STOP | PROJECT_KILL | PROJECT_THRU, -1))
+            if (project(0, 0, y, x, amt, GF_OLD_DRAIN, PROJECT_STOP | PROJECT_KILL | PROJECT_THRU))
             {
                 vampire_feed(amt);
             }
@@ -443,7 +443,7 @@ static void _calc_bonuses(void)
     res_add(RES_COLD);
     res_add(RES_POIS);
     res_add_vuln(RES_LITE);
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     p_ptr->see_nocto = TRUE;
 
     if (equip_find_art(ART_NIGHT))
@@ -741,14 +741,14 @@ static void _bat_calc_innate_attacks(void)
 static void _bat_calc_bonuses(void)
 {
     p_ptr->levitation = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
     p_ptr->regen += 100;
     res_add(RES_DARK);
     res_add(RES_COLD);
     res_add(RES_POIS);
     p_ptr->see_nocto = TRUE;
     p_ptr->pspeed += 5 + p_ptr->lev * 3 / 10;
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
 }
 static void _bat_get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
@@ -813,9 +813,9 @@ static void _mist_calc_bonuses(void)
     p_ptr->levitation = TRUE;
     p_ptr->pass_wall = TRUE;
     p_ptr->no_passwall_dam = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
     p_ptr->see_nocto = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
 
     res_add(RES_ACID);
     res_add(RES_COLD);

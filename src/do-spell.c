@@ -791,7 +791,7 @@ static void cast_meteor(int dam, int rad)
 
         if (count > 20) continue;
 
-        project(0, rad, y, x, dam, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM, -1);
+        project(0, rad, y, x, dam, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
     }
 }
 
@@ -875,7 +875,7 @@ bool cast_wrath_of_the_god(int dam, int rad)
             !in_disintegration_range(ty, tx, y, x))
             continue;
 
-        project(0, rad, y, x, dam, GF_DISINTEGRATE, PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+        project(0, rad, y, x, dam, GF_DISINTEGRATE, PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
     }
 
     return TRUE;
@@ -1052,31 +1052,18 @@ static cptr do_life_spell(int spell, int mode)
             }
         }
         break;
-
     case 6:
         if (name) return "Cure Poison";
         if (desc) return "Cure poison status.";
-
-        {
-            if (cast)
-            {
-                set_poisoned(0, TRUE);
-            }
-        }
+        if (cast)
+            set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
         break;
-
     case 7:
         if (name) return "Satisfy Hunger";
         if (desc) return "Satisfies hunger.";
-
-        {
-            if (cast)
-            {
-                set_food(PY_FOOD_MAX - 1);
-            }
-        }
+        if (cast)
+            set_food(PY_FOOD_MAX - 1);
         break;
-
     case 8:
         if (name) return "Remove Curse";
         if (desc) return "Removes normal curses from equipped items.";
@@ -1421,7 +1408,7 @@ static cptr do_life_spell(int spell, int mode)
 
     case 28:
         if (name) return "Restoration";
-        if (desc) return "Restores all stats and experience.";
+        if (desc) return "Restores all stats, life and experience.";
 
         {
             if (cast)
@@ -1433,6 +1420,7 @@ static cptr do_life_spell(int spell, int mode)
                 do_res_stat(A_CON);
                 do_res_stat(A_CHR);
                 restore_level();
+                lp_player(1000);
             }
         }
         break;
@@ -1926,7 +1914,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 
         if (cast)
         {
-            project(0, 1, py, px, 0, GF_MAKE_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE, -1);
+            project(0, 1, py, px, 0, GF_MAKE_DOOR, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE);
             p_ptr->update |= (PU_FLOW);
             p_ptr->redraw |= (PR_MAP);
         }
@@ -2145,7 +2133,7 @@ static cptr do_nature_spell(int spell, int mode)
                   && !res_save_default(RES_LITE) )
                 {
                     msg_print("The daylight scorches your flesh!");
-                    take_hit(DAMAGE_NOESCAPE, damroll(2, 2), "daylight", -1);
+                    take_hit(DAMAGE_NOESCAPE, damroll(2, 2), "daylight");
                 }
             }
         }
@@ -2198,7 +2186,7 @@ static cptr do_nature_spell(int spell, int mode)
                 if (p_ptr->pclass != CLASS_BLOOD_MAGE)
                     hp_player(damroll(dice, sides));
                 set_cut(0, TRUE);
-                set_poisoned(0, TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
             }
         }
         break;
@@ -2367,7 +2355,7 @@ static cptr do_nature_spell(int spell, int mode)
 
     case 15:
         if (name) return "Herbal Healing";
-        if (desc) return "Heals HP greatly. And heals cut, stun and poison completely.";
+        if (desc) return "Heals HP greatly. And heals cut, stun and perhaps poison.";
 
         {
             int heal = spell_power(500);
@@ -2379,7 +2367,7 @@ static cptr do_nature_spell(int spell, int mode)
                 hp_player(heal);
                 set_stun(0, TRUE);
                 set_cut(0, TRUE);
-                set_poisoned(0, TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
             }
         }
         break;
@@ -2502,7 +2490,7 @@ static cptr do_nature_spell(int spell, int mode)
                   && !res_save_default(RES_LITE) )
                 {
                     msg_print("The sunlight scorches your flesh!");
-                    take_hit(DAMAGE_NOESCAPE, 50, "sunlight", -1);
+                    take_hit(DAMAGE_NOESCAPE, 50, "sunlight");
                 }
             }
         }
@@ -2658,8 +2646,7 @@ static cptr do_nature_spell(int spell, int mode)
                     px,
                     spell_power((100 + plev + p_ptr->to_d_spell) * 2),
                     GF_DISINTEGRATE,
-                    PROJECT_KILL | PROJECT_ITEM,
-                    -1
+                    PROJECT_KILL | PROJECT_ITEM
                 );
                 break;
 
@@ -2692,8 +2679,7 @@ static cptr do_nature_spell(int spell, int mode)
                     px,
                     spell_power((120 + plev + p_ptr->to_d_spell) * 2),
                     GF_FIRE,
-                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL,
-                    -1
+                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL
                 );
                 project(
                     0,
@@ -2702,8 +2688,7 @@ static cptr do_nature_spell(int spell, int mode)
                     px,
                     spell_power((120 + plev + p_ptr->to_d_spell) * 2),
                     GF_COLD,
-                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL,
-                    -1
+                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL
                 );
                 project(
                     0,
@@ -2712,8 +2697,7 @@ static cptr do_nature_spell(int spell, int mode)
                     px,
                     spell_power((120 + plev + p_ptr->to_d_spell) * 2),
                     GF_ELEC,
-                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL,
-                    -1
+                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL
                 );
                 break;
 
@@ -2969,17 +2953,19 @@ static cptr do_chaos_spell(int spell, int mode)
         if (name) return "Sonic Boom";
         if (desc) return "Generates a ball of sound centered on you.";
 
-        {
-            int dam = spell_power(60 + plev*3/2 + p_ptr->to_d_spell*2);
+        {   /* Note: Damage is high relative to say fireball, but this is
+               an adjacent spell while fireball is a distance spell. So it should
+               do something like 33% *more* damage than a fireball. However, stunning
+               is a bonus to be reckoned with ... (Design: Ranged = 75% Melee) */
+            int dam = spell_power(50 + plev + p_ptr->to_d_spell);
             int rad = spell_power(plev / 10 + 2);
 
-            if (info) return info_damage(0, 0, dam/2);
+            if (info) return info_damage(0, 0, dam);
 
             if (cast)
             {
                 msg_print("BOOM! Shake the room!");
-
-                project(0, rad, py, px, dam, GF_SOUND, PROJECT_KILL | PROJECT_ITEM, -1);
+                project(0, rad, py, px, dam*2, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
             }
         }
         break;
@@ -3358,7 +3344,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires an extremely powerful ball of chaos.";
 
         {
-            int dam = spell_power(p_ptr->chp + p_ptr->to_d_spell);
+            int dam = spell_power(3*p_ptr->chp/4 + p_ptr->to_d_spell);
             int rad = spell_power(2);
 
             if (info) return info_damage(0, 0, dam);
@@ -3542,7 +3528,7 @@ static cptr do_death_spell(int spell, int mode)
                 if (!get_fire_dir(&dir)) return NULL;
 
                 fear_monster(dir, power);
-                stun_monster(dir, power);
+                stun_monster(dir, 5 + plev/5);
             }
         }
         break;
@@ -3638,7 +3624,7 @@ static cptr do_death_spell(int spell, int mode)
 
             if (cast)
             {
-                project(0, rad, py, px, dam, GF_POIS, PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM, -1);
+                project(0, rad, py, px, dam, GF_POIS, PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM);
             }
         }
         break;
@@ -3862,7 +3848,7 @@ static cptr do_death_spell(int spell, int mode)
                 for (i = 0; i < 3; i++)
                 {
                     if (drain_life(dir, dam) && p_ptr->pclass != CLASS_BLOOD_MAGE)
-                        hp_player(dam);
+                        vamp_player(dam);
                 }
             }
         }
@@ -3995,12 +3981,13 @@ static cptr do_death_spell(int spell, int mode)
 
     case 28:
         if (name) return "Restore Life";
-        if (desc) return "Restore lost experience.";
+        if (desc) return "Restore lost life force and experience.";
 
         {
             if (cast)
             {
                 restore_level();
+                lp_player(1000);
             }
         }
         break;
@@ -4963,7 +4950,7 @@ static cptr do_arcane_spell(int spell, int mode)
         {
             if (cast)
             {
-                set_poisoned(0, TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(25, p_ptr->poisoned / 10), TRUE);
             }
         }
         break;
@@ -5583,7 +5570,7 @@ static cptr do_craft_spell(int spell, int mode)
             if (cast)
             {
                 fear_clear_p();
-                set_poisoned(0, TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
                 set_stun(0, TRUE);
                 set_cut(0, TRUE);
                 set_image(0, TRUE);
@@ -5960,7 +5947,7 @@ static cptr do_daemon_spell(int spell, int mode)
                 if (!get_fire_dir(&dir)) return NULL;
 
                 fear_monster(dir, power);
-                stun_monster(dir, power);
+                stun_monster(dir, 5 + plev/5);
             }
         }
         break;
@@ -6433,7 +6420,7 @@ static cptr do_daemon_spell(int spell, int mode)
                 if (!get_fire_dir(&dir)) return NULL;
 
                 fire_ball(GF_HELL_FIRE, dir, dam, rad);
-                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire", -1);
+                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire");
             }
         }
         break;
@@ -6615,7 +6602,7 @@ static cptr do_crusade_spell(int spell, int mode)
             if (cast)
             {
                 set_cut(0, TRUE);
-                set_poisoned(0, TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(50, p_ptr->poisoned / 5), TRUE);
                 set_stun(0, TRUE);
             }
         }
@@ -6769,7 +6756,6 @@ static cptr do_crusade_spell(int spell, int mode)
                 dispel_evil(spell_power(randint1(dam_sides) + p_ptr->to_d_spell));
                 if (p_ptr->pclass != CLASS_BLOOD_MAGE)
                     hp_player(heal);
-                set_poisoned(0, TRUE);
                 set_stun(0, TRUE);
                 set_cut(0, TRUE);
             }
@@ -7035,10 +7021,10 @@ static cptr do_crusade_spell(int spell, int mode)
 
             if (cast)
             {
-                project(0, 1, py, px, b_dam, GF_HOLY_FIRE, PROJECT_KILL, -1);
+                project(0, 1, py, px, b_dam, GF_HOLY_FIRE, PROJECT_KILL);
                 dispel_monsters(d_dam);
                 slow_monsters(power);
-                stun_monsters(power);
+                stun_monsters(5 + plev/5);
                 confuse_monsters(power);
                 turn_monsters(power);
                 stasis_monsters(power/3);
@@ -7395,7 +7381,7 @@ static cptr do_music_spell(int spell, int mode)
 
             if (cont || cast)
             {
-                project(0, rad, py, px, 0, GF_IDENTIFY, PROJECT_ITEM, -1);
+                project(0, rad, py, px, 0, GF_IDENTIFY, PROJECT_ITEM);
             }
         }
 
@@ -7541,7 +7527,7 @@ static cptr do_music_spell(int spell, int mode)
             if (cont || cast)
             {
                 project(0, 0, py, px,
-                    0, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM | PROJECT_HIDE, -1);
+                    0, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM | PROJECT_HIDE);
             }
         }
         break;
@@ -7629,7 +7615,7 @@ static cptr do_music_spell(int spell, int mode)
             {
                 msg_print("Reality whirls wildly as you sing a dizzying melody...");
 
-                project(0, rad, py, px, power, GF_AWAY_ALL, PROJECT_KILL, -1);
+                project(0, rad, py, px, power, GF_AWAY_ALL, PROJECT_KILL);
             }
         }
         break;
@@ -7899,6 +7885,7 @@ static cptr do_music_spell(int spell, int mode)
                 (void)do_res_stat(A_CON);
                 (void)do_res_stat(A_CHR);
                 (void)restore_level();
+                lp_player(1000);
             }
         }
         break;
@@ -8200,7 +8187,7 @@ static cptr do_hex_spell(int spell, int mode)
                 if (power)
                 {
                     project(0, rad, py, px, power, GF_HELL_FIRE,
-                        (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+                        (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
                 }
                 if (p_ptr->wizard)
                 {
@@ -8341,7 +8328,6 @@ static cptr do_hex_spell(int spell, int mode)
             hp_player(damroll(4, 10));
             set_stun(0, TRUE);
             set_cut(0, TRUE);
-            set_poisoned(0, TRUE);
         }
         break;
 
@@ -8648,11 +8634,9 @@ static cptr do_hex_spell(int spell, int mode)
     case 28:
         if (name) return "Word of stun";
         if (desc) return "Stuns all monsters in your sight.";
-        power = plev * 4;
-        if (info) return info_power(power);
         if (cast || cont)
         {
-            stun_monsters(power);
+            stun_monsters(5 + plev/5);
         }
         break;
 
@@ -9058,7 +9042,7 @@ static cptr do_armageddon_spell(int spell, int mode)
             if (cast)
             {
                 msg_print("BOOM!");
-                project(0, rad, py, px, dam, GF_SOUND, PROJECT_KILL | PROJECT_ITEM, -1);
+                project(0, rad, py, px, dam, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
             }
         }
         break;

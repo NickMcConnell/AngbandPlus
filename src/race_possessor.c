@@ -221,47 +221,71 @@ static int _max_lvl(void)
 
 /**********************************************************************
  * Attacks
- * We could either write new attack code, or translate to existing innate
- * attack code (which also has nice display code already written for us!)
  **********************************************************************/
-static bool _is_monk(void)
+bool possessor_can_attack(void)
 {
-    switch (p_ptr->current_r_idx)
-    {
-    case MON_JADE_MONK:
-    case MON_IVORY_MONK:
-    case MON_EBONY_MONK:
-    case MON_TOPAZ_MONK:
-    case MON_MYSTIC:
-    case MON_MASTER_MYSTIC:
-    case MON_GRAND_MASTER_MYSTIC:
-    case MON_MONASTIC_LICH:
-    case MON_LOGRUS_MASTER:
-    case MON_LORD_CHAOS:
-    case MON_KENSHIROU:
-    case MON_LEMS:
-    case MON_RAOU:
-    case MON_ECHIZEN:
-        return TRUE;
-    }
+    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+        return p_ptr->current_r_idx != 0;
     return FALSE;
 }
 
-static bool _blow_is_masked(monster_blow *blow_ptr)
+static cptr _hit_msg(mon_blow_ptr blow)
 {
-    switch (blow_ptr->effect)
+    switch (blow->method) /* XXX table this up ... monsters need this too! */
     {
-    case RBE_EAT_LITE:
-        return TRUE;
+    case RBM_HIT: return "hit";
+    case RBM_TOUCH: return "touch";
+    case RBM_PUNCH: return "punch";
+    case RBM_KICK: return "kick";
+    case RBM_CLAW: return "claw";
+    case RBM_BITE: return "bite";
+    case RBM_STING: return "sting";
+    case RBM_SLASH: return "slash";
+    case RBM_BUTT: return "butt";
+    case RBM_CRUSH: return "crush";
+    case RBM_ENGULF: return "engulf";
+    case RBM_CHARGE: return "charge";
+    case RBM_CRAWL: return "crawl on";
+    case RBM_DROOL: return "drool on";
+    case RBM_SPIT: return "spit on";
+    case RBM_GAZE: return "gaze at";
+    case RBM_WAIL: return "wail at";
+    case RBM_SPORE: return "release spores on";
+    case RBM_BEG: return "beg to";
+    case RBM_INSULT: return "insult";
+    case RBM_MOAN: return "moan at";
+    case RBM_SHOW: return "sing to";
+    case RBM_EXPLODE: return "explode at";
     }
-
-    switch (blow_ptr->method)
+    return "hit";
+}
+static bool _touched(mon_blow_ptr blow)
+{
+    switch (blow->method) /* XXX table this up ... monsters need this too! */
     {
-    case 0:
-    /*case RBM_EXPLODE:*/
-    case RBM_SHOOT:
-        return TRUE;
-
+    case RBM_DROOL: /* XXX */
+    case RBM_SPIT:
+    case RBM_GAZE:
+    case RBM_WAIL:
+    case RBM_SPORE:
+    case RBM_BEG:
+    case RBM_INSULT:
+    case RBM_MOAN:
+    case RBM_SHOW:
+    case RBM_EXPLODE: return FALSE;
+    }
+    return TRUE;
+}
+static mon_ptr _get_mon(point_t where)
+{
+    int m_idx = cave[where.y][where.x].m_idx;
+    if (!m_idx) return NULL;
+    return &m_list[m_idx];
+}
+static bool _blow_is_masked(mon_blow_ptr blow)
+{
+    switch (blow->method)
+    {
     case RBM_GAZE:
         if (p_ptr->blind)
             return TRUE;
@@ -287,284 +311,228 @@ static bool _blow_is_masked(monster_blow *blow_ptr)
 
     return FALSE;
 }
-
-void possessor_calc_innate_attacks(void)
+static int _dam_boost(int method, int rlev)
 {
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-    monster_blow  blows[4] = {{0}};
-    int           cts[4] = {0};
-    int           ct = 0;
-    int           i, j;
-
-    for (i = 0; i < 4; i++)
+    /* Most early monsters with innate attacks aren't worth possessing as
+       their damage is just too low ... Heck, a Mean Looking Mercenary with
+       a good longsword is usually a much better option! */
+    switch (method)
     {
-        bool dup = FALSE;
-        
-        if (!r_ptr->blow[i].effect)
-            continue;
-
-        /* Look for a duplicate. TODO: Add monster_blow.num so monsters can get more than 4 blows :) */
-        for (j = 0; j < ct; j++)
+    case RBM_HIT:
+    case RBM_PUNCH:
+    case RBM_KICK:
+    case RBM_CLAW:
+    case RBM_BITE:
+    case RBM_STING:
+    case RBM_SLASH:
+    case RBM_BUTT:
+    case RBM_CRUSH:
+        return  2 + (rlev + 4) / 5;
+    }
+    return 0;
+}
+static int _vorpal_pct(mon_blow_ptr blow)
+{
+    int i;
+    /* Assume CUT is never the first effect ... */
+    for (i = 1; i < MAX_MON_BLOW_EFFECTS; i++)
+    {
+        if (blow->effects[i].effect == RBE_CUT)
         {
-            if ( blows[j].method == r_ptr->blow[i].method
-              && blows[j].effect == r_ptr->blow[i].effect
-              && blows[j].d_dice == r_ptr->blow[i].d_dice
-              && blows[j].d_side == r_ptr->blow[i].d_side )
+            int chance = blow->effects[i].pct;
+            if (!chance) chance = 100;
+            return chance;
+        }
+    }
+    return 0;
+}
+static bool _skip_effect(int which)
+{
+    switch (which)
+    {
+    case RBE_CUT:
+    case RBE_DRAIN_EXP:
+    case RBE_LOSE_STR: case RBE_LOSE_INT: case RBE_LOSE_WIS:
+    case RBE_LOSE_DEX: case RBE_LOSE_CON: case RBE_LOSE_CHR:
+    case RBE_LOSE_ALL:
+    case RBE_EAT_LITE:
+        return TRUE;
+    }
+    return FALSE;
+}
+void possessor_attack(point_t where, bool *fear, bool *mdeath, int mode)
+{
+    mon_race_ptr body, foe_race;
+    mon_ptr      foe = _get_mon(where);
+    int          i, j, ac, skill, steal_ct = 0;
+    bool         delay_quake = FALSE;
+    char         m_name_subject[MAX_NLEN], m_name_object[MAX_NLEN];
+
+    if (!possessor_can_attack()) return;
+    if (!foe) return;
+
+    set_monster_csleep(foe->id, 0);
+    monster_desc(m_name_subject, foe, MD_PRON_VISIBLE);
+    monster_desc(m_name_object, foe, MD_PRON_VISIBLE | MD_OBJECTIVE);
+
+    body = &r_info[p_ptr->current_r_idx];
+    foe_race = mon_race(foe);
+    ac = mon_ac(foe);
+
+    for (i = 0; i < MAX_MON_BLOWS; i++)
+    {
+        mon_blow_ptr blow = &body->blows[i];
+        if (mode == WEAPONMASTER_RETALIATION) /* mystics */
+        {
+            for (;;)
             {
-                cts[j]++;
-                dup = TRUE;
+                i = randint0(4);
+                blow = &body->blows[i];
+                if (blow->method) break;
             }
         }
-        if (!dup)
-        {
-            blows[ct] = r_ptr->blow[i];            
-            cts[ct] = 1;
-            ct++;
-        }
-    }
 
-    for (i = 0; i < ct; i++)
+        if (*mdeath) break;
+        if (!blow->method) break;
+        if (_blow_is_masked(blow)) continue;
+        if (foe->fx != where.x || foe->fy != where.y) break; /* teleport effect? */
+        if (p_ptr->afraid && !fear_allow_melee(foe->id))
+        {
+            if (foe->ml)
+                cmsg_format(TERM_VIOLET, "You are too afraid to attack %s!", m_name_object);
+            else
+                cmsg_format(TERM_VIOLET, "There is something scary in your way!");
+            return;
+        }
+
+        skill = p_ptr->skills.thn + (p_ptr->to_h_m * BTH_PLUS_ADJ);
+        skill += blow->power;
+        if (p_ptr->stun)
+            skill -= skill * MIN(100, p_ptr->stun) / 150;
+        if (test_hit_norm(skill, ac, foe->ml))
+        {
+            msg_format("You %s %s.", _hit_msg(blow), m_name_object);
+            for (j = 0; j < MAX_MON_BLOW_EFFECTS; j++)
+            {
+                mon_effect_ptr effect = &blow->effects[j];
+                int            dam;
+
+                if (*mdeath) break;
+                if (!effect->effect) break;
+                if (_skip_effect(effect->effect)) continue;
+                if (effect->pct && randint1(100) > effect->pct) continue;
+
+                /* The first effect is the base damage, and gets boosted by combat boosting
+                 * magic (e.g. rings of combat, weaponmaster, et. al.) */
+                if (j == 0)
+                {
+                    dam = damroll(effect->dd + p_ptr->innate_attack_info.to_dd, effect->ds);
+                    /* Translate CUT into vorpal since monsters cannot bleed the way players can */
+                    if (randint0(100) < _vorpal_pct(blow))
+                    {
+                        int m = 2;
+                        while (one_in_(4)) m++;
+                        dam *= m;
+                        switch (m)
+                        {
+                        case 2: msg_format("You <color:U>gouge</color> %s!", m_name_object); break;
+                        case 3: msg_format("You <color:y>maim</color> %s!", m_name_object); break;
+                        case 4: msg_format("You <color:R>carve</color> %s!", m_name_object); break;
+                        case 5: msg_format("You <color:r>cleave</color> %s!", m_name_object); break;
+                        case 6: msg_format("You <color:v>smite</color> %s!", m_name_object); break;
+                        case 7: msg_format("You <color:v>eviscerate</color> %s!", m_name_object); break;
+                        default: msg_format("You <color:v>shred</color> %s!", m_name_object); break;
+                        }
+                    }
+                    dam += p_ptr->to_d_m; /* XXX Need to subtract out later for non-damage effects */
+                    dam += _dam_boost(blow->method, body->level);
+                }
+                /* Subsequent effects are add-ons, and should not be damage boosted */
+                else
+                    dam = damroll(effect->dd, effect->ds);
+
+                if (p_ptr->stun)
+                    dam -= dam*MIN(100, p_ptr->stun) / 150;
+                if (blow->method == RBM_EXPLODE)
+                {
+                    possessor_explode(dam);
+                    return;
+                }
+                switch (effect->effect)
+                {
+                case RBE_SHATTER:
+                    if (dam > 23) delay_quake = TRUE;
+                case RBE_HURT:
+                    dam = mon_damage_mod(foe, dam, FALSE);
+                    if (dam > 0)
+                        anger_monster(foe);
+                    *mdeath = mon_take_hit(foe->id, dam, fear, NULL);
+                    break;
+                case RBE_EAT_GOLD:
+                case RBE_EAT_ITEM:
+                case RBE_EAT_FOOD:
+                    if (leprechaun_steal(foe->id))
+                        steal_ct++;
+                    break;
+                case RBE_DISEASE:
+                    if (dam)
+                        gf_affect_m(GF_WHO_PLAYER, foe, GF_POIS, dam, GF_AFFECT_ATTACK);
+                    break;
+                case RBE_DRAIN_CHARGES:
+                    gf_affect_m(GF_WHO_PLAYER, foe, GF_DRAIN_MANA,
+                        (dam ? dam : p_ptr->lev), GF_AFFECT_ATTACK);
+                    break;
+                case RBE_VAMP:
+                    if (monster_living(foe_race) && gf_affect_m(GF_WHO_PLAYER, foe, GF_OLD_DRAIN, dam, GF_AFFECT_ATTACK))
+                    {
+                        msg_format("You <color:D>drain life</color> from %s!", m_name_object);
+                        hp_player(dam);
+                        /* XXX limit amt per turn? */
+                    }
+                    break;
+                default:
+                    gf_affect_m(GF_WHO_PLAYER, foe, effect->effect, dam, GF_AFFECT_ATTACK);
+                }
+                *mdeath = (foe->r_idx == 0);
+            }
+            if (_touched(blow) && !*mdeath)
+                touch_zap_player(foe->id);
+        }
+        else
+        {
+            msg_print("You miss.");
+        }
+        if (mode == WEAPONMASTER_RETALIATION) break;
+    }
+    if (delay_quake)
+        earthquake(py, px, 10);
+    if (steal_ct && !*mdeath)
     {
-        monster_blow    *blow_ptr = &blows[i];
-        innate_attack_t  a = {0};
-
-        if (_blow_is_masked(blow_ptr))
-            continue;
-
-        a.dd = blow_ptr->d_dice;
-        a.ds = blow_ptr->d_side;
-        a.to_h += mbe_info[blow_ptr->effect].power / 3;
-        a.to_h += r_ptr->level / 2;
-
-        switch (blow_ptr->method)
-        {
-        case RBM_HIT:
-            a.msg = "You hit.";
-            a.name = "Hit";
-            a.weight = MIN(r_ptr->weight / 2, 400);
-            break;
-        case RBM_TOUCH:
-            a.msg = "You touch.";
-            a.name = "Touch";
-            a.weight = MIN(r_ptr->weight / 10, 100);
-            break;
-        case RBM_PUNCH:
-            a.msg = "You punch.";
-            a.name = "Punch";
-            a.weight = MIN(r_ptr->weight / 2, 300);
-            break;
-        case RBM_KICK:
-            a.msg = "You kick.";
-            a.name = "Kick";
-            a.weight = MIN(r_ptr->weight, 400);
-            break;
-        case RBM_CLAW:
-            a.msg = "You claw.";
-            a.name = "Claw";
-            a.weight = MIN(r_ptr->weight / 2, 300);
-            break;
-        case RBM_BITE:
-            a.msg = "You bite.";
-            a.name = "Bite";
-            a.weight = MIN(r_ptr->weight, 500);
-            break;
-        case RBM_STING:
-            a.msg = "You sting.";
-            a.name = "Sting";
-            a.weight = MIN(r_ptr->weight, 250);
-            break;
-        case RBM_SLASH:
-            a.msg = "You slash.";
-            a.name = "Slash";
-            a.weight = MIN(r_ptr->weight, 300);
-            break;
-        case RBM_BUTT:
-            a.msg = "You butt.";
-            a.name = "Butt"; /* :) */
-            a.weight = MIN(r_ptr->weight * 2, 500);
-            break;
-        case RBM_CRUSH:
-            a.msg = "You crush.";
-            a.name = "Crush";
-            a.weight = MIN(r_ptr->weight * 2, 500);
-            break;
-        case RBM_ENGULF:
-            a.msg = "You engulf.";
-            a.name = "Engulf";
-            a.weight = MIN(r_ptr->weight * 2, 400);
-            break;
-        case RBM_CHARGE:
-            a.msg = "You charge.";
-            a.name = "Charge";
-            a.weight = MIN(r_ptr->weight * 2, 500);
-            break;
-        case RBM_CRAWL:
-            a.msg = "You crawl.";
-            a.name = "Crawl";
-            a.weight = MIN(r_ptr->weight, 400);
-            break;
-        case RBM_DROOL:
-            a.msg = "You drool.";
-            a.name = "Drool";
-            a.weight = MIN(r_ptr->weight / 10, 100);
-            break;
-        case RBM_SPIT:
-            a.msg = "You spit.";
-            a.name = "Spit";
-            a.weight = MIN(r_ptr->weight / 20, 100);
-            break;
-        case RBM_GAZE:
-            a.msg = "You gaze.";
-            a.name = "Gaze";
-            a.weight = MIN(r_ptr->weight / 20, 100);
-            break;
-        case RBM_WAIL:
-            a.msg = "You wail.";
-            a.name = "Wail";
-            a.weight = MIN(r_ptr->weight / 20, 100);
-            break;
-        case RBM_SPORE:
-            a.msg = "You release spores.";
-            a.name = "Spores";
-            a.weight = MIN(r_ptr->weight / 20, 100);
-            break;
-        case RBM_BEG:
-            a.msg = "You beg.";
-            a.name = "Beg";
-            a.weight = MIN(r_ptr->weight / 10, 100);
-            break;
-        case RBM_INSULT:
-            a.msg = "You insult.";
-            a.name = "Wit";
-            a.weight = MIN(r_ptr->weight / 20, 100);
-            break;
-        case RBM_MOAN:
-            a.msg = "You moan.";
-            a.name = "Moan";
-            a.weight = MIN(r_ptr->weight / 20, 100);
-            break;
-        case RBM_SHOW:
-            a.msg = "You sing.";
-            a.name = "Voice";
-            a.weight = MIN(r_ptr->weight / 20, 100);
-            break;
-        case RBM_EXPLODE:
-            a.msg = "You explode!";
-            a.name = "Explosion";
-            a.flags |= INNATE_EXPLODE;
-            a.weight = MIN(r_ptr->weight / 2, 100);
-            break;
-        }
-        if (a.weight < 10) /* 1 lb minimum ... */
-            a.weight = 10;
-
-        /* Most early monsters with innate attacks aren't worth possessing as
-           their damage is just too low ... Heck, a Mean Looking Mercenary with
-           a good longsword is usually a much better option! */
-        switch (blow_ptr->method)
-        {
-        case RBM_HIT:
-        case RBM_PUNCH:
-        case RBM_KICK:
-        case RBM_CLAW:
-        case RBM_BITE:
-        case RBM_STING:
-        case RBM_SLASH:
-        case RBM_BUTT:
-        case RBM_CRUSH:
-            a.to_d += 2 + (r_ptr->level + 4) / 5;
-            break;
-        }
-
-        switch (blow_ptr->effect)
-        {
-        case RBE_ACID:
-            a.effect[1] = GF_ACID;
-            a.dd = (a.dd + 1)/2;
-            break;
-        case RBE_ELEC:
-            a.effect[1] = GF_ELEC;
-            a.dd = (a.dd + 1)/2;
-            break;
-        case RBE_FIRE:
-            a.effect[1] = GF_FIRE;
-            a.dd = (a.dd + 1)/2;
-            break;
-        case RBE_COLD:
-            a.effect[1] = GF_COLD;
-            a.dd = (a.dd + 1)/2;
-            break;
-        case RBE_POISON:
-            a.effect[1] = GF_POIS;
-            a.dd = (a.dd + 1)/2;
-            break;
-        case RBE_DISEASE:
-            a.effect[0] = GF_POIS;
-            break;
-        case RBE_CONFUSE:
-            a.effect[1] = GF_OLD_CONF;
-            break;
-        case RBE_TERRIFY:
-            a.effect[1] = GF_TURN_ALL;
-            break;
-        case RBE_PARALYZE:
-            a.effect[1] = GF_PARALYSIS;
-            break;
-        case RBE_SUPERHURT:
-            a.to_d += a.dd * (a.ds + 1) / 4;
-            break;
-        case RBE_UN_BONUS:
-            a.effect[0] = GF_DISENCHANT;
-            break;
-        case RBE_UN_POWER:
-            a.effect[1] = GF_DRAIN_MANA;
-            break;
-        case RBE_EAT_GOLD:
-        case RBE_EAT_ITEM:
-        case RBE_EAT_FOOD:
-            a.effect[1] = GF_STEAL;
-            break;
-        case RBE_EXP_10:
-        case RBE_EXP_20:
-        case RBE_EXP_40:
-        case RBE_EXP_80:
-            a.effect[0] = GF_NETHER;
-            break;
-        case RBE_TIME:
-            a.effect[0] = GF_TIME;
-            break;
-        case RBE_EXP_VAMP:
-            a.effect[0] = GF_OLD_DRAIN;
-            break;
-        case RBE_DR_MANA:
-            a.effect[1] = GF_DRAIN_MANA;
-            break;
-        case RBE_SHATTER:
-            a.effect[1] = GF_QUAKE;
-            break;
-        }
-
-        /* Monster Stunning is a bit obtuse ... Perhaps it could be made into an effect? */
-        if ( (blow_ptr->method == RBM_KICK || blow_ptr->method == RBM_PUNCH)
-          && _is_monk())
-        {
-            a.effect[2] = GF_STUN;
-        }
-        else if ( (blow_ptr->method == RBM_BUTT || blow_ptr->method == RBM_CRUSH)
-               && a.dd >= 15
-               && a.ds <= 2 )
-        {
-            a.effect[2] = GF_STUN;
-        }
-
-        if (a.dd * a.ds == 0)
-            a.flags |= INNATE_NO_DAM;
-
-        calc_innate_blows(&a, 100 * cts[i]);
-        if (p_ptr->weapon_ct)
-            a.blows /= 2;
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+        if (mon_save_p(foe->r_idx, A_DEX))
+            msg_print("You fail to run away!");
+        else
+            teleport_player(25 + p_ptr->lev/2, 0);
     }
+}
+
+/**********************************************************************
+ * Spells
+ **********************************************************************/
+void possessor_cast(void)
+{
+    mon_race_ptr race = &r_info[p_ptr->current_r_idx];
+    if (!race->spells)
+    {
+        msg_print("Your current body has no spells.");
+        return;
+    }
+    if (p_ptr->confused)
+    {
+        msg_print("You are too confused.");
+        return;
+    }
+    if (mon_spell_cast_possessor(race))
+        energy_use = 100;
 }
 
 /**********************************************************************
@@ -595,11 +563,17 @@ static void _possess_spell(int cmd, variant *res)
 
         var_set_bool(res, FALSE);
 
-        if ( p_ptr->current_r_idx != MON_POSSESSOR_SOUL 
+        if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+        {
+            msg_print("You must leave your current body first. Be careful!");
+            return;
+        }
+
+        /*if ( p_ptr->current_r_idx != MON_POSSESSOR_SOUL 
           && !get_check("Your current body may be destroyed. Are you sure? ") )
         {
             return;
-        }
+        }*/
 
         prompt.prompt = "Possess which corpse?";
         prompt.error = "You have nothing to possess.";
@@ -689,212 +663,6 @@ static void _unpossess_spell(int cmd, variant *res)
         break;
     }
 }
-/**********************************************************************
- * Innate Powers
- **********************************************************************/
-static int _breath_amount(int type)
-{
-    int           l = p_ptr->lev;
-    int           mul = 1, div = 1;
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-        
-    switch (r_ptr->d_char)
-    {
-    case 'D': mul = 1; div = 1; break;
-    case 'd': mul = 2; div = 3; break;
-    case 'Z': mul = 1; div = 2; break;
-    }
-
-    switch (type)
-    {
-    case GF_ACID: case GF_ELEC: case GF_FIRE : case GF_COLD:
-        return MAX(1, MIN(600, p_ptr->chp * (25 + l*l*l/2500) * mul / (100 *div)));
-
-    case GF_POIS: case GF_NUKE:
-        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l/2500) * mul / (100 *div)));
-
-    case GF_NETHER:
-        return MAX(1, MIN(500, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
-
-    case GF_LITE: case GF_DARK:
-        return MAX(1, MIN(350, p_ptr->chp * (20 + l*l*l*15/125000) * mul / (100 *div)));
-
-    case GF_CONFUSION: case GF_NEXUS: 
-        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*15/125000) * mul / (100 *div)));
-
-    case GF_TIME: case GF_INERT: case GF_GRAVITY: case GF_DISINTEGRATE:
-    case GF_PLASMA: case GF_FORCE:
-        return MAX(1, MIN(250, p_ptr->chp * (20 + l*l*l*15/125000) * mul / (100 *div)));
-
-    case GF_SOUND:
-        return MAX(1, MIN(400, p_ptr->chp * (20 + l*l*l*25/125000) * mul / (100 *div)));
-
-    case GF_STORM:
-        return MAX(1, MIN(300, p_ptr->chp * (20 + l*l*l*20/125000) * mul / (100 *div)));
-
-    case GF_CHAOS: case GF_SHARDS:
-        return MAX(1, MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
-
-    case GF_MANA:
-        return MAX(1, MIN(350, p_ptr->chp * (20 + l*l*l*25/125000) * mul / (100 *div)));
-
-    case GF_DISENCHANT:
-        return MAX(1, MIN(450, p_ptr->chp * (20 + l*l*l*30/125000) * mul / (100 *div)));
-    }
-    return 0;
-}
-
-static void _breathe_spell(int what, int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, format("Breathe %^s", gf_name(what)));
-        break;
-    case SPELL_DESC:
-        var_set_string(res, format("Breathes %s at your opponent.", gf_name(what)));
-        break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, _breath_amount(what)));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        int mode = (what == GF_DISINTEGRATE) ? TARGET_DISI : TARGET_KILL;
-        var_set_bool(res, FALSE);
-        if (get_fire_dir_aux(&dir, mode))
-        {
-            if (p_ptr->current_r_idx == MON_BOTEI) 
-                msg_print("'Botei-Build cutter!!!'");
-            else
-                msg_format("You breathe %s!", gf_name(what));
-            fire_ball(what, dir, _breath_amount(what), -1 - (p_ptr->lev / 20));
-            var_set_bool(res, TRUE);
-        }
-        break;
-    }
-    case SPELL_COST_EXTRA:
-    {
-        int           div = 7;
-        monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-        
-        switch (r_ptr->d_char)
-        {
-        case 'b': div = 6; break;
-        case 'D': div = 15; break;
-        case 'd': div = 12; break;
-        case 'Z': div = 8; break;
-        case 'C': div = 10; break; /* Cerberus */
-        case 'B': div = 12; break; /* Fenghuang, Petshop */
-        case 'R': div = 12; break; /* Tarrasque, Godzilla */
-        }
-        
-        var_set_int(res, (_breath_amount(what) + div - 1) / div);
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _breathe_acid_spell(int cmd, variant *res) { _breathe_spell(GF_ACID, cmd, res); }
-static void _breathe_elec_spell(int cmd, variant *res) { _breathe_spell(GF_ELEC, cmd, res); }
-static void _breathe_fire_spell(int cmd, variant *res) { _breathe_spell(GF_FIRE, cmd, res); }
-static void _breathe_cold_spell(int cmd, variant *res) { _breathe_spell(GF_COLD, cmd, res); }
-static void _breathe_poison_spell(int cmd, variant *res) { _breathe_spell(GF_POIS, cmd, res); }
-static void _breathe_nether_spell(int cmd, variant *res) { _breathe_spell(GF_NETHER, cmd, res); }
-static void _breathe_light_spell(int cmd, variant *res) { _breathe_spell(GF_LITE, cmd, res); }
-static void _breathe_dark_spell(int cmd, variant *res) { _breathe_spell(GF_DARK, cmd, res); }
-static void _breathe_confusion_spell(int cmd, variant *res) { _breathe_spell(GF_CONFUSION, cmd, res); }
-static void _breathe_sound_spell(int cmd, variant *res) { _breathe_spell(GF_SOUND, cmd, res); }
-static void _breathe_chaos_spell(int cmd, variant *res) { _breathe_spell(GF_CHAOS, cmd, res); }
-static void _breathe_disenchantment_spell(int cmd, variant *res) { _breathe_spell(GF_DISENCHANT, cmd, res); }
-static void _breathe_nexus_spell(int cmd, variant *res) { _breathe_spell(GF_NEXUS, cmd, res); }
-static void _breathe_storm_spell(int cmd, variant *res) { _breathe_spell(GF_STORM, cmd, res); }
-static void _breathe_time_spell(int cmd, variant *res) { _breathe_spell(GF_TIME, cmd, res); }
-static void _breathe_inertia_spell(int cmd, variant *res) { _breathe_spell(GF_INERT, cmd, res); }
-static void _breathe_gravity_spell(int cmd, variant *res) { _breathe_spell(GF_GRAVITY, cmd, res); }
-static void _breathe_shards_spell(int cmd, variant *res) { _breathe_spell(GF_SHARDS, cmd, res); }
-static void _breathe_plasma_spell(int cmd, variant *res) { _breathe_spell(GF_PLASMA, cmd, res); }
-static void _breathe_force_spell(int cmd, variant *res) { _breathe_spell(GF_FORCE, cmd, res); }
-static void _breathe_mana_spell(int cmd, variant *res) { _breathe_spell(GF_MANA, cmd, res); }
-static void _breathe_disintegration_spell(int cmd, variant *res) { _breathe_spell(GF_DISINTEGRATE, cmd, res); }
-static void _breathe_nuke_spell(int cmd, variant *res) { _breathe_spell(GF_NUKE, cmd, res); }
-
-static void _multiply_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Multiply");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Engage in breeding activities. No mate required!");
-        break;
-    case SPELL_CAST:
-    {
-        summon_named_creature(-1, py, px, p_ptr->current_r_idx, PM_FORCE_PET);
-        var_set_bool(res, TRUE);
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _rocket_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Rocket");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Launches a powerful rocket at your opponent.");
-        break;
-    case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, p_ptr->chp / 3));
-        break;
-    case SPELL_CAST:
-    {
-        int dir = 0;
-        var_set_bool(res, FALSE);
-        if (!get_fire_dir(&dir)) return;
-
-        msg_print("You launch a rocket.");
-        fire_rocket(GF_ROCKET, dir, p_ptr->chp / 3, 2);
-
-        var_set_bool(res, TRUE);
-        break;
-    }
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _shriek_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Shriek");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Make a very loud annoying sound hoping that nearby monsters will assist you.");
-        break;
-    case SPELL_CAST:
-        msg_print("You make a high pitched shriek.");
-        aggravate_monsters(0);
-        var_set_bool(res, TRUE);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
 
 static void _add_power(spell_info* spell, int lvl, int cost, int fail, ang_spell fn, int stat_idx)
 {
@@ -905,97 +673,14 @@ static void _add_power(spell_info* spell, int lvl, int cost, int fail, ang_spell
     spell->fn = fn;
 }
 
-static int _breath_fail(int base_fail)
-{
-    if (strchr("Zv", r_info[p_ptr->current_r_idx].d_char))
-        base_fail -= 30;
-
-    return MAX(20, base_fail);
-}
-
-static int _breath_lvl(int base_lvl)
-{
-    if (strchr("Zv", r_info[p_ptr->current_r_idx].d_char))
-        base_lvl = MIN(r_info[p_ptr->current_r_idx].level - 5, base_lvl);
-
-    return MAX(1, base_lvl);
-}
-
 int possessor_get_powers(spell_info* spells, int max)
 {
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-    int           ct = 0;
-    if (ct < max && (r_ptr->flags1 & RF1_TRUMP))
+    mon_race_ptr race = &r_info[p_ptr->current_r_idx];
+    int          ct = 0;
+    if (ct < max && (race->flags1 & RF1_TRUMP))
         _add_power(&spells[ct++], 1, 0, 0, blink_toggle_spell, p_ptr->stat_ind[A_DEX]);
-    if (ct < max && (r_ptr->flags2 & RF2_MULTIPLY))
-        _add_power(&spells[ct++], 1, 5, 40, _multiply_spell, p_ptr->stat_ind[A_CHR]);
-    if (ct < max && (r_ptr->flags4 & RF4_SHRIEK))
-        _add_power(&spells[ct++], 1, 1, 10, _shriek_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_SHOOT))
-        _add_power(&spells[ct++], 2, 1, 15, shoot_arrow_spell, p_ptr->stat_ind[A_DEX]);
-    if (ct < max && r_ptr->d_char == 'V')
-        _add_power(&spells[ct++], 2, 1, 60, vampirism_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_THROW))
-        _add_power(&spells[ct++], 5, 0, 50, throw_boulder_spell, p_ptr->stat_ind[A_STR]);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_BERSERK))
-        _add_power(&spells[ct++], 13, 9, 50, berserk_spell, p_ptr->stat_ind[A_STR]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_ACID))
-        _add_power(&spells[ct++], _breath_lvl(20), 0, _breath_fail(55), _breathe_acid_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_ELEC))
-        _add_power(&spells[ct++], _breath_lvl(20), 0, _breath_fail(55), _breathe_elec_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_FIRE))
-        _add_power(&spells[ct++], _breath_lvl(20), 0, _breath_fail(55), _breathe_fire_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_COLD))
-        _add_power(&spells[ct++], _breath_lvl(20), 0, _breath_fail(55), _breathe_cold_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_POIS))
-        _add_power(&spells[ct++], _breath_lvl(20), 0, _breath_fail(55), _breathe_poison_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_NETH))
-        _add_power(&spells[ct++], _breath_lvl(20), 0, _breath_fail(70), _breathe_nether_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_LITE))
-        _add_power(&spells[ct++], _breath_lvl(20), 5, _breath_fail(70), _breathe_light_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_DARK))
-        _add_power(&spells[ct++], _breath_lvl(20), 5, _breath_fail(70), _breathe_dark_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_CONF))
-        _add_power(&spells[ct++], _breath_lvl(20), 10, _breath_fail(70), _breathe_confusion_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_SOUN))
-        _add_power(&spells[ct++], _breath_lvl(20), 15, _breath_fail(70), _breathe_sound_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_CHAO))
-        _add_power(&spells[ct++], _breath_lvl(20), 15, _breath_fail(70), _breathe_chaos_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_DISE))
-        _add_power(&spells[ct++], _breath_lvl(20), 5, _breath_fail(70), _breathe_disenchantment_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->body.class_idx == CLASS_MAGE || r_ptr->body.class_idx == CLASS_HIGH_MAGE || r_ptr->body.class_idx == CLASS_SORCERER))
+    if (ct < max && (race->body.class_idx == CLASS_MAGE || race->body.class_idx == CLASS_HIGH_MAGE || race->body.class_idx == CLASS_SORCERER))
         _add_power(&spells[ct++], 25, 1, 90, eat_magic_spell, p_ptr->stat_ind[A_INT]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_NUKE))
-        _add_power(&spells[ct++], _breath_lvl(25), 0, _breath_fail(70), _breathe_nuke_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_SHAR))
-        _add_power(&spells[ct++], _breath_lvl(25), 10, _breath_fail(70), _breathe_shards_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_NEXU))
-        _add_power(&spells[ct++], _breath_lvl(30), 15, _breath_fail(80), _breathe_nexus_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_INER))
-        _add_power(&spells[ct++], _breath_lvl(30), 20, _breath_fail(80), _breathe_inertia_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_GRAV))
-        _add_power(&spells[ct++], _breath_lvl(30), 20, _breath_fail(90), _breathe_gravity_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_WALL))
-        _add_power(&spells[ct++], _breath_lvl(30), 15, _breath_fail(80), _breathe_force_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_MANA))
-        _add_power(&spells[ct++], _breath_lvl(30), 15, _breath_fail(80), _breathe_mana_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && _is_monk())
-        _add_power(&spells[ct++], 30, 30, 80, monk_double_attack_spell, p_ptr->stat_ind[A_STR]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_PLAS))
-        _add_power(&spells[ct++], _breath_lvl(35), 15, _breath_fail(80), _breathe_plasma_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_STORM))
-        _add_power(&spells[ct++], _breath_lvl(35), 20, _breath_fail(80), _breathe_storm_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_TIME))
-        _add_power(&spells[ct++], _breath_lvl(35), 15, _breath_fail(80), _breathe_time_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_BR_DISI))
-        _add_power(&spells[ct++], _breath_lvl(35), 25, _breath_fail(95), _breathe_disintegration_spell, p_ptr->stat_ind[A_CON]);
-    if (ct < max && (r_ptr->flags4 & RF4_ROCKET))
-    {
-        if (r_ptr->id == MON_ECHIZEN)
-            _add_power(&spells[ct++], 35, 5, 50, _rocket_spell, p_ptr->stat_ind[A_STR]);
-        else
-            _add_power(&spells[ct++], 35, 30, 80, _rocket_spell, p_ptr->stat_ind[A_STR]);
-    }
     return ct;
 }
 
@@ -1003,230 +688,12 @@ static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
 
-    if (ct < max)
+    if (/*p_ptr->current_r_idx == MON_POSSESSOR_SOUL &&*/ ct < max)
         _add_power(&spells[ct++], 1, 0, 0, _possess_spell, p_ptr->stat_ind[A_DEX]);
-    if (ct < max && p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+    if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL && ct < max)
         _add_power(&spells[ct++], 1, 0, 0, _unpossess_spell, p_ptr->stat_ind[A_DEX]);
 
     ct += possessor_get_powers(spells + ct, max - ct);
-    return ct;
-}
-/**********************************************************************
- * Spells
- **********************************************************************/
-static int _healing_amt(void)
-{
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-    return MIN(300, r_ptr->level * 5);
-}
-void _healing_spell(int cmd, variant *res)
-{
-    switch (cmd)
-    {
-    case SPELL_NAME:
-        var_set_string(res, "Healing");
-        break;
-    case SPELL_DESC:
-        var_set_string(res, "Heals hitpoints, cuts and stun.");
-        break;
-    case SPELL_INFO:
-        var_set_string(res, format("Heals %d", _healing_amt()));
-        break;
-    case SPELL_CAST:
-        hp_player(_healing_amt());
-        set_stun(0, TRUE);
-        set_cut(0, TRUE);
-        var_set_bool(res, TRUE);
-        break;
-    case SPELL_COST_EXTRA:
-        var_set_int(res, _healing_amt()/8);
-        break;
-    default:
-        default_spell(cmd, res);
-        break;
-    }
-}
-
-static void _add_spell(spell_info* spell, int lvl, int cost, int fail, ang_spell fn, int stat_idx)
-{
-    int l = MIN(_max_lvl(), lvl); /* It's frustrating when a corpse can *never* use a given power ... */
-    spell->level = l;
-    spell->cost = cost;
-    spell->fail = calculate_fail_rate(l, fail, stat_idx); 
-    spell->fn = fn;
-}
-
-int possessor_get_spells(spell_info* spells, int max) 
-{
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
-    int           ct = 0;
-    int           stat_idx = p_ptr->stat_ind[r_ptr->body.spell_stat];
-
-    if (ct < max && (r_ptr->flags9 & RF9_POS_BLESSING))
-        _add_spell(&spells[ct++], 1, 1, 30, bless_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_MISSILE))
-        _add_spell(&spells[ct++], 1, 1, 30, magic_missile_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_CAUSE_1))
-        _add_spell(&spells[ct++], 3, 1, 25, cause_wounds_I_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_DETECT_TRAPS))
-        _add_spell(&spells[ct++], 3, 2, 30, detect_traps_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_DETECT_EVIL))
-        _add_spell(&spells[ct++], 3, 2, 30, detect_evil_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_DARKNESS))
-        _add_spell(&spells[ct++], 5, 1, 20, create_darkness_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_TRAPS))
-        _add_spell(&spells[ct++], 5, 1, 20, create_minor_trap_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_BLINK))
-        _add_spell(&spells[ct++], 5, 1, 30, phase_door_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_POIS))
-        _add_spell(&spells[ct++], 5, 3, 40, stinking_cloud_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_SCARE))
-        _add_spell(&spells[ct++], 5, 3, 35, scare_monster_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_DETECT_MONSTERS))
-        _add_spell(&spells[ct++], 7, 3, 40, detect_monsters_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_HEROISM))
-        _add_spell(&spells[ct++], 8, 5, 40, heroism_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_DETECT_OBJECTS))
-        _add_spell(&spells[ct++], 9, 5, 40, detect_objects_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_IDENTIFY))
-        _add_spell(&spells[ct++], 10, 7, 50, identify_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_CONF))
-        _add_spell(&spells[ct++], 10, 5, 40, confuse_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_SLOW))
-        _add_spell(&spells[ct++], 10, 5, 40, slow_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_HOLD))
-        _add_spell(&spells[ct++], 10, 5, 40, paralyze_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_DRAIN_MANA))
-        _add_spell(&spells[ct++], 10, 5, 50, drain_mana_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_ELEC))
-        _add_spell(&spells[ct++], 10, 5, 35, lightning_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_CAUSE_2))
-        _add_spell(&spells[ct++], 12, 2, 35, cause_wounds_II_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_COLD))
-        _add_spell(&spells[ct++], 12, 6, 35, frost_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_ACID))
-        _add_spell(&spells[ct++], 13, 7, 40, acid_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_ELEC))
-        _add_spell(&spells[ct++], 14, 10, 45, lightning_ball_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_MAPPING))
-        _add_spell(&spells[ct++], 15, 10, 50, magic_mapping_spell, stat_idx);
-    if (ct < max && (r_ptr->flags9 & RF9_POS_CLAIRVOYANCE)) /* Leprechauns */
-        _add_spell(&spells[ct++], 15, 20, 50, clairvoyance_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_FORGET))
-        _add_spell(&spells[ct++], 15, 3, 40, amnesia_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_HEAL) && r_ptr->level < 20)
-        _add_spell(&spells[ct++], 15, 8, 50, cure_wounds_III_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_TPORT))
-        _add_spell(&spells[ct++], 15, 8, 40, teleport_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_SPECIAL) && r_ptr->d_char == 'B') /* Birds ... */
-        _add_spell(&spells[ct++], 15, 8, 40, teleport_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_TELE_TO))
-        _add_spell(&spells[ct++], 15, 8, 50, teleport_to_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_FIRE))
-        _add_spell(&spells[ct++], 15, 9, 50, fire_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_COLD))
-        _add_spell(&spells[ct++], 15, 11, 50, frost_ball_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_ACID))
-        _add_spell(&spells[ct++], 18, 13, 55, acid_ball_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_MANA) && r_ptr->level < 25) /* DE Warlock */
-        _add_spell(&spells[ct++], 20, 10, 55, mana_bolt_I_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_HASTE))
-        _add_spell(&spells[ct++], 20, 10, 70, haste_self_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_TELE_AWAY))
-        _add_spell(&spells[ct++], 20, 13, 80, teleport_other_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_FIRE))
-        _add_spell(&spells[ct++], 20, 14, 60, fire_ball_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_HEAL) && r_ptr->level >= 20)
-        _add_spell(&spells[ct++], 20, 1, 70, _healing_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_CAUSE_3))
-        _add_spell(&spells[ct++], 22, 6, 50, cause_wounds_III_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_MIND_BLAST))
-        _add_spell(&spells[ct++], 25, 10, 60, mind_blast_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_NETH))
-        _add_spell(&spells[ct++], 25, 12, 60, nether_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_ICEE))
-        _add_spell(&spells[ct++], 25, 16, 60, ice_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_NETH))
-        _add_spell(&spells[ct++], 25, 18, 70, nether_ball_spell, stat_idx);
-    if (ct < max && (r_ptr->flags4 & RF4_BA_NUKE))
-        _add_spell(&spells[ct++], 25, 20, 95, radiation_ball_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_WATE))
-        _add_spell(&spells[ct++], 25, 20, 65, water_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_PLAS))
-        _add_spell(&spells[ct++], 25, 20, 80, plasma_bolt_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BO_MANA) && r_ptr->level >= 25)
-        _add_spell(&spells[ct++], 25, 24, 90, mana_bolt_II_spell, stat_idx);
-    if (ct < max && (r_ptr->flags2 & RF2_THIEF))
-        _add_spell(&spells[ct++], 30, 20, 60, panic_hit_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BRAIN_SMASH))
-        _add_spell(&spells[ct++], 30, 14, 65, brain_smash_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_WATE))
-        _add_spell(&spells[ct++], 30, 22, 65, water_ball_spell, stat_idx);
-    if (ct < max && (r_ptr->flags4 & RF4_BA_CHAO))
-        _add_spell(&spells[ct++], 30, 25, 65, invoke_logrus_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_RAISE_DEAD))
-        _add_spell(&spells[ct++], 30, 30, 70, animate_dead_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_TELE_LEVEL))
-        _add_spell(&spells[ct++], 30, 40, 70, teleport_level_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_CAUSE_4))
-        _add_spell(&spells[ct++], 32, 10, 70, cause_wounds_IV_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_DARK) && r_ptr->level < 43) /* Jack */
-        _add_spell(&spells[ct++], 32, 20, 80, darkness_storm_I_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_PSY_SPEAR))
-        _add_spell(&spells[ct++], 35, 30, 80, psycho_spear_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_TRAPS) && r_ptr->level >= 30)
-        _add_spell(&spells[ct++], 37, 30, 80, create_major_trap_spell, stat_idx);
-    if (ct < max && (r_ptr->flags4 & RF4_DISPEL))
-        _add_spell(&spells[ct++], 40, 35, 85, dispel_magic_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_DARK) && r_ptr->level >= 43) /* !Jack */
-        _add_spell(&spells[ct++], 40, 42, 90, darkness_storm_II_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_LITE))
-        _add_spell(&spells[ct++], 40, 42, 90, starburst_II_spell, stat_idx);
-    if (ct < max && (r_ptr->flags5 & RF5_BA_MANA))
-        _add_spell(&spells[ct++], 44, 45, 85, mana_storm_II_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_HAND_DOOM))
-        _add_spell(&spells[ct++], 45, 120, 95, hand_of_doom_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_INVULNER))
-        _add_spell(&spells[ct++], 45, 65, 80, invulnerability_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_WORLD))
-        _add_spell(&spells[ct++], 45, 150, 85, stop_time_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_TRAPS) && r_ptr->level >= 43) /* !Jack */
-        _add_spell(&spells[ct++], 50, 100, 95, create_ultimate_trap_spell, stat_idx);
-
-    /* I prefer summoning at the bottom ... */
-    if (ct < max && (r_ptr->flags6 & RF6_S_MONSTER))
-        _add_spell(&spells[ct++], 25, 20, 65, summon_monster_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_SPIDER))
-        _add_spell(&spells[ct++], 25, 20, 60, summon_spiders_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_ANT))
-        _add_spell(&spells[ct++], 25, 20, 65, summon_ants_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_HYDRA))
-        _add_spell(&spells[ct++], 30, 23, 70, summon_hydras_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_UNDEAD))
-        _add_spell(&spells[ct++], 30, 30, 75, summon_undead_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_KIN)) /* Birds ... */
-        _add_spell(&spells[ct++], 30, 40, 85, summon_kin_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_HOUND))
-        _add_spell(&spells[ct++], 35, 26, 75, summon_hounds_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_MONSTERS))
-        _add_spell(&spells[ct++], 35, 30, 75, summon_monsters_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_DEMON))
-        _add_spell(&spells[ct++], 35, 50, 80, summon_demon_II_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_DRAGON))
-        _add_spell(&spells[ct++], 39, 70, 80, summon_dragon_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_ANGEL))
-        _add_spell(&spells[ct++], 40, 50, 85, summon_angel_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_HI_UNDEAD))
-        _add_spell(&spells[ct++], 43, 85, 85, summon_hi_undead_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_CYBER))
-        _add_spell(&spells[ct++], 45, 90, 90, summon_cyberdemon_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_HI_DRAGON))
-        _add_spell(&spells[ct++], 46, 90, 85, summon_hi_dragon_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_AMBERITES))
-        _add_spell(&spells[ct++], 48, 120, 90, summon_amberites_spell, stat_idx);
-    if (ct < max && (r_ptr->flags6 & RF6_S_UNIQUE))
-        _add_spell(&spells[ct++], 50, 150, 95, summon_uniques_spell, stat_idx);
-
     return ct;
 }
 
@@ -1235,7 +702,7 @@ caster_info *possessor_caster_info(void)
     static caster_info info = {0};
     monster_race      *r_ptr = &r_info[p_ptr->current_r_idx];
 
-    /* This is a hack since the mimic's default class (Imitator)
+    /* This is a hack since the mimic's default class
        normally lacks mana. But if we do this, then every time the
        mimic assumes a magical form, they will start with 0sp! */
     if (p_ptr->current_r_idx == MON_MIMIC)
@@ -1257,7 +724,17 @@ caster_info *possessor_caster_info(void)
         {
             info = *class_ptr->caster_info();
             info.which_stat = r_ptr->body.spell_stat; /* r_info can now override the default spell stat */
-            info.options &=  ~CASTER_USE_HP;
+            /*XXX Why? I suppose that many giant forms have HEALING
+             * and cast as 'Maulers'. Giving a HP based healing spell
+             * would probably be broken! */
+            if (info.options & CASTER_USE_HP)
+            {
+                info.options &= ~CASTER_USE_HP;
+                /* Most CASTER_USE_HP info ignores encumbrance */
+                info.encumbrance.max_wgt = 3000;
+                info.encumbrance.weapon_pct = 0;
+                info.encumbrance.enc_wgt = 1200;
+            }
             return &info;
         }
     }
@@ -1370,6 +847,17 @@ int possessor_r_ac(int r_idx)
     return MAX(0, ac);
 }
 
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+    if (r_ptr->body.blows_calc.max)
+        info_ptr->blows_calc.max = r_ptr->body.blows_calc.max;
+    if (r_ptr->body.blows_calc.wgt)
+        info_ptr->blows_calc.max = r_ptr->body.blows_calc.wgt;
+    if (r_ptr->body.blows_calc.mult)
+        info_ptr->blows_calc.max = r_ptr->body.blows_calc.mult;
+}
+
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
     if (p_ptr->current_r_idx && !p_ptr->shooter_info.heavy_shoot)
@@ -1423,15 +911,15 @@ void possessor_calc_bonuses(void)
         p_ptr->align -= 200;
 
     if (r_ptr->flags9 & RF9_POS_HOLD_LIFE)
-        p_ptr->hold_life = TRUE;
+        p_ptr->hold_life++;
     /*if (r_ptr->flags1 & (RF1_RAND_25 | RF1_RAND_50))
         p_ptr->move_random = TRUE;*/
     if (r_ptr->flags9 & RF9_POS_TELEPATHY)
         p_ptr->telepathy = TRUE;
     if (r_ptr->flags9 & RF9_POS_SEE_INVIS)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
     if (r_ptr->flags2 & RF2_INVISIBLE)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
     if (r_ptr->flags9 & RF9_POS_BACKSTAB)
         p_ptr->ambush = TRUE;
 
@@ -1485,7 +973,7 @@ void possessor_calc_bonuses(void)
     if (r_ptr->flags3 & RF3_NO_CONF)
         res_add(RES_CONF);
     if (r_ptr->flags3 & RF3_NO_SLEEP)
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
 
     if (r_ptr->flags7 & RF7_CAN_FLY)
         p_ptr->levitation = TRUE;
@@ -1599,6 +1087,8 @@ void possessor_get_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_RES_CONF);
     if (r_ptr->flags3 & RF3_NO_SLEEP)
         add_flag(flgs, OF_FREE_ACT);
+    if (r_ptr->flags2 & RF2_AURA_REVENGE)
+        add_flag(flgs, OF_AURA_REVENGE);
 
     if (r_ptr->flags7 & RF7_CAN_FLY)
         add_flag(flgs, OF_LEVITATION);
@@ -1695,7 +1185,7 @@ int           r_idx = p_ptr->current_r_idx, i;
         race_ptr->caster_info = NULL;
         if (r_ptr->body.spell_stat != A_NONE)
         {
-            race_ptr->get_spells = possessor_get_spells;
+            /*race_ptr->get_spells = possessor_get_spells;*/
             race_ptr->caster_info = possessor_caster_info;
         }
 
@@ -1716,6 +1206,14 @@ int           r_idx = p_ptr->current_r_idx, i;
         race_ptr->pseudo_class_idx = r_ptr->body.class_idx;
 
         race_ptr->subname = mon_name(r_idx);
+
+        race_ptr->flags = RACE_IS_MONSTER;
+        if (r_ptr->flags3 & RF3_UNDEAD)
+            race_ptr->flags |= RACE_IS_UNDEAD | RACE_IS_NONLIVING;
+        if (r_ptr->flags3 & RF3_NONLIVING)
+            race_ptr->flags |= RACE_IS_NONLIVING;
+        if (r_ptr->flags3 & RF3_DEMON)
+            race_ptr->flags |= RACE_IS_DEMON | RACE_IS_NONLIVING;
     }
     if (birth_hack || spoiler_hack)
     {
@@ -1757,15 +1255,13 @@ race_t *mon_possessor_get_race(void)
 
         me.calc_bonuses = possessor_calc_bonuses;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
+        me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.get_flags = possessor_get_flags;
         me.player_action = _player_action;
         me.save_player = possessor_on_save;
         me.load_player = possessor_on_load;
         me.character_dump = possessor_character_dump;
         
-        me.calc_innate_attacks = possessor_calc_innate_attacks;
-
-        me.flags = RACE_IS_MONSTER;
         init = TRUE;
     }
 
@@ -1862,8 +1358,26 @@ void possessor_set_current_r_idx(int r_idx)
             if (p_ptr->current_r_idx != MON_MIMIC)
                 _history_on_possess(r_idx);
         }
-        else
+        else if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
             _history_on_possess(r_idx);    
+    }
+}
+
+void possessor_do_auras(mon_ptr mon)
+{
+    mon_race_ptr race;
+    int          i;
+    if (p_ptr->prace != RACE_MON_POSSESSOR && p_ptr->prace != RACE_MON_MIMIC) return;
+    race = &r_info[p_ptr->current_r_idx];
+    for (i = 0; i < MAX_MON_AURAS; i++)
+    {
+        mon_effect_ptr aura = &race->auras[i];
+        int            dam;
+        if (!aura->effect) continue;
+        if (aura->pct && randint1(100) > aura->pct) continue;
+        dam = damroll(aura->dd, aura->ds);
+        if (!dam) continue;
+        gf_affect_m(GF_WHO_PLAYER, mon, aura->effect, dam, GF_AFFECT_AURA);
     }
 }
 
@@ -1874,13 +1388,13 @@ void possessor_explode(int dam)
         int           i;
         monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
 
-        for (i = 0; i < 4; i++)
+        for (i = 0; i < MAX_MON_BLOWS; i++)
         {
-            if (r_ptr->blow[i].method == RBM_EXPLODE)
+            if (r_ptr->blows[i].method == RBM_EXPLODE)
             {
                 int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-                int typ = mbe_info[r_ptr->blow[i].effect].explode_type;
-                project(0, 3, py, px, dam, typ, flg, -1);
+                int typ = r_ptr->blows[i].effects[0].effect;
+                project(0, 3, py, px, dam, typ, flg);
                 break;
             }
         }
@@ -1890,7 +1404,7 @@ void possessor_explode(int dam)
         else
             possessor_set_current_r_idx(MON_POSSESSOR_SOUL);
 
-        take_hit(DAMAGE_NOESCAPE, dam, "Exploding", -1);
+        take_hit(DAMAGE_NOESCAPE, dam, "Exploding");
         set_stun(p_ptr->stun + 10, FALSE);
     }
 }
@@ -1902,6 +1416,16 @@ void possessor_character_dump(doc_ptr doc)
     char         lvl[80];
     char         loc[255];
     
+    if (p_ptr->current_r_idx)
+    {
+        mon_race_ptr race = &r_info[p_ptr->current_r_idx];
+        bool old_use_graphics = use_graphics;
+        use_graphics = FALSE;
+        doc_printf(doc, "<topic:CurrentForm>================================ <color:keypress>C</color>urrent Form =================================\n\n");
+        mon_display_possessor(race, doc);
+        doc_newline(doc);
+        use_graphics = old_use_graphics;
+    }
     doc_printf(doc, "<topic:RecentForms>================================ <color:keypress>R</color>ecent Forms =================================\n\n");
     doc_insert(doc, "<style:table>");
     doc_printf(doc, "<color:G>%-33.33s CL Day  Time  DL %-28.28s</color>\n", "Most Recent Forms", "Location");

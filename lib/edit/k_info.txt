@@ -185,7 +185,7 @@ D:You take 10d10 damage and it decreases your strength when you eat it.
 N:*:Cure Poison:Dark Blue
 G:,:b
 I:80:12:500
-W:10:0:30:1:60
+W:10:0:0:1:60
 A:10/1
 M:70:1d4
 D:It cures poison when you eat it.
@@ -1294,8 +1294,8 @@ D:A mighty quarrel, bound about with battle magics.
 N:189:& Adamantine Bolt~
 G:{:G
 I:18:5:0
-W:90:0:0:5:35
-A:90/4
+W:100:0:0:5:35
+A:100/4
 P:0:7d5:0:0:0
 F:SHOW_MODS
 F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
@@ -2801,7 +2801,7 @@ M:100:2d5
 N:*:Neutralize Poison:Violet
 G:!:v
 I:75:27:0
-W:5:0:30:4:75
+W:5:0:50:4:75
 A:5/1
 P:0:1d1:0:0:0
 F:TOWN
@@ -3184,8 +3184,8 @@ M:50:1d2
 N:*:[Book of the Unicorn]
 G:?:w
 I:90:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3218,8 +3218,8 @@ M:50:1d2
 N:*:[Pattern Sorcery]
 G:?:b
 I:91:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3252,8 +3252,8 @@ M:50:1d2
 N:*:[Nature's Gifts]
 G:?:g
 I:92:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3286,8 +3286,8 @@ M:100:1d2
 N:*:[Chaos Channels]
 G:?:r
 I:93:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3320,8 +3320,8 @@ M:50:1d2
 N:*:[Black Channels]
 G:?:v
 I:94:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3354,8 +3354,8 @@ M:50:1d2
 N:*:[Trumps of Doom]
 G:?:u
 I:95:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3422,8 +3422,8 @@ M:50:1d2
 N:*:[Note of Acting Master]
 G:?:U
 I:97:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3456,8 +3456,8 @@ M:50:1d2
 N:*:[Demonthoughts]
 G:?:r
 I:98:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3490,8 +3490,8 @@ M:50:1d2
 N:*:[Exorcism and Dispelling]
 G:?:w
 I:99:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3524,8 +3524,8 @@ M:50:1d2
 N:*:[Return of the Dead]
 G:?:D
 I:100:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3558,8 +3558,8 @@ M:50:1d2
 N:*:[Path of Destruction]
 G:?:r
 I:101:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3592,8 +3592,8 @@ M:50:1d2
 N:*:[Harps of Rivendell]
 G:?:w
 I:105:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3626,8 +3626,8 @@ M:50:1d2
 N:*:[Gorinnosho]
 G:?:u
 I:106:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3660,8 +3660,8 @@ M:50:1d2
 N:*:[Curse and Spelling]
 G:?:D
 I:107:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3694,8 +3694,8 @@ M:50:1d2
 N:*:[The Sound and the Fury]
 G:?:D
 I:108:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3726,8 +3726,8 @@ M:50:1d2
 N:*:[Great Escapes]
 G:?:u
 I:109:2:0
-W:40:0:90:30:15000
-A:40/1
+W:45:0:90:30:15000
+A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 

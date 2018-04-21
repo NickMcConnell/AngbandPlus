@@ -464,9 +464,9 @@ static void _first_aid_spell(int cmd, variant *res)
         if (p_ptr->lev >= 8)
             set_cut(0, TRUE);
         if (p_ptr->lev >= 12 && p_ptr->lev < 16)
-            set_poisoned(p_ptr->poisoned / 2, TRUE);
+            set_poisoned(p_ptr->poisoned - MAX(25, p_ptr->poisoned / 10), TRUE);
         if (p_ptr->lev >= 16)
-            set_poisoned(0, TRUE);
+            set_poisoned(p_ptr->poisoned - MAX(50, p_ptr->poisoned / 5), TRUE);
         if (p_ptr->lev >= 20)
             set_blind(0, TRUE);
         if (p_ptr->lev >= 30)
@@ -592,7 +592,7 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
             if (p_ptr->lev >= 48)
                 turn_monsters(power);
             if (p_ptr->lev >= 49)
-                stun_monsters(power);
+                stun_monsters(5 + p_ptr->lev/5);
             if (one_in_(5))
             {
                 int mode = 0;
@@ -603,7 +603,7 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
                     msg_print("You have disturbed the rest of an ancient pharaoh!");
                 }
             }
-            take_hit(DAMAGE_USELIFE, p_ptr->lev + randint1(p_ptr->lev), "the Pharaoh's Curse", -1);
+            take_hit(DAMAGE_USELIFE, p_ptr->lev + randint1(p_ptr->lev), "the Pharaoh's Curse");
             var_set_bool(res, TRUE);
         }
         break;
@@ -664,7 +664,7 @@ static void _remove_obstacles_spell(int cmd, variant *res)
             int dir = 5;
             if (get_aim_dir(&dir))
             {
-                project(0, 1, py, px, 0, GF_REMOVE_OBSTACLE, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE, -1);
+                project(0, 1, py, px, 0, GF_REMOVE_OBSTACLE, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE);
                 project_hook(GF_REMOVE_OBSTACLE, dir, 0, PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM);
                 b = TRUE;
             }
@@ -749,7 +749,7 @@ static void _calc_bonuses(void)
     p_ptr->see_infra += p_ptr->lev/10;
     p_ptr->skill_dig += 2*p_ptr->lev;
     if (p_ptr->lev >= 20)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
     if (p_ptr->lev >= 38)
         res_add(RES_DARK);
 

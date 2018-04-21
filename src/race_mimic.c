@@ -942,8 +942,6 @@ race_t *mon_mimic_get_race(void)
         me.load_player = _load;
         me.save_player = _save;
 
-        me.calc_innate_attacks = possessor_calc_innate_attacks;
-
         me.flags = RACE_IS_MONSTER;
         me.boss_r_idx = MON_CHAMELEON_K;
 

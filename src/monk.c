@@ -34,8 +34,10 @@ static int _get_attack_idx(int lvl, u32b defense)
     int min_level;
 
     assert(lvl > 0);
-    if (p_ptr->stun || p_ptr->confused)
+    if (p_ptr->confused)
         tries = 1;
+    if (p_ptr->stun)
+        tries -= tries * MIN(100, p_ptr->stun) / 150;
 
     for (i = 0; i < tries; i++)
     {
@@ -182,6 +184,11 @@ void monk_display_attack_info(doc_ptr doc, int hand)
     /* Account for criticals in all that follows ... */
     tot_dam = tot_dam * crit.mul/100;
     to_d += crit.to_d;
+    if (p_ptr->stun)
+    {
+        tot_dam -= tot_dam * MIN(100, p_ptr->stun)/150;
+        to_d -= to_d * MIN(100, p_ptr->stun)/150;
+    }
 
     doc_printf(cols[0], "<tab:8>%20s %3d.%1d +%3d\n", "One Strike:", tot_dam/10, tot_dam%10, to_d/10);
 
@@ -661,7 +668,7 @@ static void _calc_bonuses(void)
         p_ptr->pspeed += p_ptr->lev/10;
         p_ptr->sh_retaliation = TRUE;
         if  (p_ptr->lev >= 25)
-            p_ptr->free_act = TRUE;
+            p_ptr->free_act++;
     }
     monk_ac_bonus();
 }

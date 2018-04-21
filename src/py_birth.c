@@ -226,6 +226,7 @@ static int _welcome_ui(void)
         if (game_mode != GAME_MODE_BEGINNER)
             doc_insert(_doc, "  <color:y>=</color>) Options\n");
         doc_insert(_doc, "  <color:y>?</color>) Help\n");
+        doc_insert(_doc, "  <color:y>s</color>) View Scores\n");
         doc_insert(_doc, "<color:y>ESC</color>) <color:v>Quit</color>\n");
 
 
@@ -291,6 +292,12 @@ static int _welcome_ui(void)
         }
         else if (cmd == 'M')
             doc_display_help("birth.txt", "MonsterMode");
+        else if (cmd == 's')
+        {
+            vec_ptr scores = scores_load(NULL);
+            scores_display(scores);
+            vec_free(scores);
+        }
     }
 }
 
@@ -955,7 +962,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
                     CLASS_WEAPONSMITH, -1} },
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
-    { "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
+    { "Magic", {CLASS_BLOOD_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
                     CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
@@ -965,7 +972,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
     { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
-    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, CLASS_RAGE_MAGE,
+    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_RAGE_MAGE,
                     CLASS_SKILLMASTER, CLASS_TOURIST, CLASS_WILD_TALENT, -1} },
 };
 
@@ -2108,8 +2115,6 @@ static void _stats_init(void)
         }
         case CLASS_MAGE:
         case CLASS_HIGH_MAGE:
-        case CLASS_SORCERER:
-        case CLASS_BLUE_MAGE:
         case CLASS_GRAY_MAGE:
         case CLASS_YELLOW_MAGE:
         case CLASS_MIRROR_MASTER:
@@ -2120,6 +2125,12 @@ static void _stats_init(void)
             _stats_init_aux(stats);
             break;
         }
+        case CLASS_SORCERER:
+        {
+            int stats[6] = { 16, 9, 9, 9, 16, 17 };
+            _stats_init_aux(stats);
+            break;
+        }
         case CLASS_PRIEST:
         case CLASS_RANGER:
         case CLASS_PALADIN:
@@ -2127,6 +2138,7 @@ static void _stats_init(void)
         case CLASS_FORCETRAINER:
         case CLASS_TIME_LORD:
         case CLASS_ARCHAEOLOGIST:
+        case CLASS_SCOUT:
         {
             int stats[6] = { 16, 8, 17, 16, 11, 8 };
             _stats_init_aux(stats);
@@ -2139,7 +2151,6 @@ static void _stats_init(void)
         case CLASS_MAGIC_EATER:
         case CLASS_RED_MAGE:
         case CLASS_RUNE_KNIGHT:
-        case CLASS_SCOUT:
         case CLASS_DEVICEMASTER:
         {
             int stats[6] = { 16, 16, 9, 16, 14, 10 };
@@ -2563,6 +2574,64 @@ static void _birth_options(void)
     }
 }
 
+static int _compare_rlvl(mon_race_ptr left, mon_race_ptr right)
+{
+    if (left->level < right->level)
+        return -1;
+    if (left->level > right->level)
+        return 1;
+    if (left->id < right->id)
+        return -1;
+    if (left->id > right->id)
+        return 1;
+    return 0;
+}
+
+static void _bounty_uniques(void)
+{
+    vec_ptr v = vec_alloc(NULL);
+    int     skip = 0, i;
+
+    get_mon_num_prep(NULL, NULL);
+    for (i = 0; i < MAX_KUBI; i++)
+    {
+        while (1)
+        {
+            int          id = get_mon_num(MAX_DEPTH - 1);
+            mon_race_ptr race = &r_info[id];
+
+            if (!(race->flags1 & RF1_UNIQUE)) continue;
+            if (race->flags1 & RF1_NO_QUEST) continue;
+            if (race->flagsx & RFX_WANTED) continue;
+            if (!(race->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON))) continue;
+            if (race->rarity > 100) continue;
+
+            race->flagsx |= RFX_WANTED;
+            vec_add(v, race);
+            break;
+        }
+    }
+    assert(vec_length(v) == MAX_KUBI);
+    vec_sort(v, (vec_cmp_f)_compare_rlvl);
+    /* skip the first N wanted uniques in a reduce uniques game. we keep the
+     * last and most difficult uniques only so that the player has a shot at
+     * the scroll of artifact creation. */
+    if (reduce_uniques_pct)
+        skip = MAX_KUBI * (100 - reduce_uniques_pct) / 100;
+    for (i = 0; i < MAX_KUBI; i++)
+    {
+        mon_race_ptr race = vec_get(v, i);
+        if (i < skip)
+        {
+            kubi_r_idx[i] = 0;
+            race->flagsx &= ~RFX_WANTED;
+        }
+        else
+            kubi_r_idx[i] = race->id;
+    }
+    vec_free(v);
+}
+
 static void _reduce_uniques(void)
 {
     vec_ptr buckets[10] = {0};
@@ -2585,9 +2654,8 @@ static void _reduce_uniques(void)
         monster_race *r_ptr = &r_info[i];
         int           bucket;
 
-        assert (!(r_ptr->flagsx & RFX_SUPPRESS));
-
         if (!r_ptr->name) continue;
+        if (r_ptr->flagsx & RFX_SUPPRESS) continue;  /* RF9_DEPRECATED */
         if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
         if (r_ptr->flags1 & RF1_FIXED_UNIQUE) continue;
         if (r_ptr->flagsx & RFX_WANTED) continue;
@@ -2634,6 +2702,8 @@ static void _birth_finalize(void)
 {
     int i;
 
+    p_ptr->id = scores_next_id();
+
     /* Quick Start */
     previous_char.quick_ok = TRUE;
     previous_char.game_mode = game_mode;
@@ -2661,8 +2731,20 @@ static void _birth_finalize(void)
     towns_init();
     home_init();
     virtue_init();
+
+    /* Suppress any deprecated monsters for this new game. Upgrading an existing
+     * game should continue to generate deprecated monsters, since they may be wanted
+     * or questors. We do this before choosing questors and bounty uniques, of course. */
+    for (i = 0; i < max_r_idx; i++)
+    {
+        monster_race *r_ptr = &r_info[i];
+
+        if (r_ptr->flags9 & RF9_DEPRECATED)
+            r_ptr->flagsx |= RFX_SUPPRESS;
+    }
+
     quests_on_birth();
-    determine_bounty_uniques(); /* go before reducing uniques for speed ... (e.g. 10% uniques) */
+    _bounty_uniques(); /* go before reducing uniques for speed ... (e.g. 10% uniques) */
     _reduce_uniques(); /* quests go first, rolling up random quest uniques without restriction */
 
     p_ptr->au = randint1(600) + randint1(100) + 100;

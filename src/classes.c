@@ -11,6 +11,7 @@ int lookup_class_idx(cptr name)
     int i;
     for (i = 0; i < MAX_CLASS; i++)
     {
+        if (i == CLASS_XXX12 || i == CLASS_XXX21) continue;
         if (strcmp(name, get_class_aux(i, 0)->name) == 0)
             return i;
     }
@@ -72,9 +73,6 @@ class_t *result = NULL;
     case CLASS_BERSERKER:
         result = berserker_get_class();
         break;
-    case CLASS_BLUE_MAGE:
-        result = blue_mage_get_class();
-        break;
     case CLASS_BLOOD_KNIGHT:
         result = blood_knight_get_class();
         break;
@@ -101,9 +99,6 @@ class_t *result = NULL;
         break;
     case CLASS_HIGH_MAGE:
         result = high_mage_get_class();
-        break;
-    case CLASS_IMITATOR:
-        result = imitator_get_class();
         break;
     case CLASS_MAGE:
         result = mage_get_class();

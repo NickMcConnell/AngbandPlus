@@ -1,28 +1,27 @@
 <color:y>PosChengband <$:version></color>
 <style:screenshot>
-[Previous Messages, Line 3054/3935]
-
-<color:U>You attack the Clear hound: </color>You claw.<color:U> </color><color:R>You have slain the Clear hound.</color>
-You see <color:U>a Cloak [1] {average}</color>. Auto-destroying.
-You sense the presence of traps! You sense the presence of doors! You
-sense the presence of objects! You sense the presence of monsters!
-
-<color:y>Note:</color> Whoa!
-
-<color:s>p</color><color:o>p</color><color:v>p</color><color:o>p</color><color:s>p</color><color:U>'</color>    <color:U>'</color> #      # # # <color:U>+</color>  <color:D>~</color>    <color:D>~</color># #        <color:U>'</color> #
-<color:s>p</color><color:o>ppp</color><color:s>p</color>#<color:D>p</color>   # #      # # # # ~..    # #        # #
-##<color:U>+</color>######## #      # # # # .<color:D>~</color>.<color:D>~</color>   # #        # #
-<color:s>ppppp</color>#<color:U>]</color>#    #  ##### # #.###.################# #
-  <color:y>pp</color> #<color:U>+</color><color:s>%</color>    #  #     # #.............          #
-<color:s>%%</color><color:U>'</color>###      #  # ##### ##.####.###<color:U>'</color>#############
-            #  # #     ##.#  #.# #.#
-#####<color:s>%%%</color>######## #     #..#### # #.#
-      <color:s>%</color>         <color:r>^</color>#   ###....   # #.####
-      <color:s>%</color> ##<color:s>%</color>#######   #...#### ## #....#
-      # #          ###.##.# # #  ####.####
-<color:s>%%</color>####<color:s>%</color><color:U>+</color><color:s>%</color>##<color:s>%</color>###### #   #.######     #....#
-                 ### ####<color:D>D</color>..#   ########.#########
-                 #   #  #####   #.................
-                 # ###          #.................
-                 <color:U>'</color> #            #...<color:s>^</color>.............
+The Mithril Bolt (Elemental) (5d5) (+14,+15) hits Sekhmet the                   
+Mistress of Fury. It was a <color:v>*GREAT*</color> shot! Sekhmet the Mistress of    LEVEL <color:G>    50</color>
+Fury shouts, 'AAAARRRGGGHHH!!!' <color:R>You have slain Sekhmet the </color>         EXP <color:G>   26.9M</color>
+<color:R>Mistress of Fury.</color>                                                   AU  <color:G>   6.72M</color>
+...%        #.#                                     #......<color:g>^</color>#       <color:d>            </color>
+##<color:s>%%%</color>%###<color:s>%</color>  #.#                                     #########       STR!: <color:G>18/***</color>
+#>#...%..<color:s>%</color>  #.<color:s>%</color>                                                     INT!: <color:G>18/130</color>
+<color:U>'</color>...<color:s>%</color>....#  #.#                                                     WIS!: <color:G>18/***</color>
+%#%#<color:s>%</color>#%.###<color:s>%</color>#<color:U>'</color>##<color:s>%</color>                    #######                        DEX!: <color:G>18/150</color>
+#%#.....<color:U>'</color>.......<color:s>%</color>               ###%%%.....##                       CON!: <color:G>18/170</color>
+.....##%#.......#       ##%#    %..##.......##                      CHR!: <color:G>18/***</color>
+.<color:r>!</color>..%%%<color:s>%%</color>.......<color:s>%</color>## ####%?<color:s>(</color>#####%.#<color:U>'</color>.........##                     AC     <color:G>  262</color>
+<color:g>!</color>........#......#.##<color:s>%</color>.<color:B>{{</color><color:s>/</color><color:U>)</color><color:s>/</color><color:W>(</color><color:y>(</color><color:G>$</color>...@%...........#                     HP <color:G>1068</color>/<color:G>1068</color>
+.<color:D>~</color><color:g>,</color><color:o>{</color>#%....#......<color:r>^</color>.#<color:s>%</color>.#.<color:s>)</color>{###<color:o>*</color>#%#.#..........##                     SP <color:y> 423</color>/<color:G> 437</color>
+...<color:y>!</color>.%..##<color:s>%</color>.....<color:s>%</color>.....#####     %..##.......##                                  
+#.#......##.....<color:U>'</color>.<color:s>%</color>##<color:s>%</color>#         ######.....## <color:D>xx</color>                    @ <color:G>100%</color>      
+###.#%.#..<color:U>'</color>#.<color:s>%</color><color:U>+</color><color:s>%</color>##<color:s>%</color>                  ###%##%  <color:D>xxxx</color>                  <color:W>?</color> <color:y> 96%</color>      
+<color:U>#</color> <color:U>##############</color>                                                    <color:U>,</color> <color:G>127%</color>      
+                                                                                
+                                                                                
+                                                                                
+                                                                    <color:y>Fast (+34)</color>  
+                                                                    <color:G>Full</color>        
+<color:B>Angband: L98</color>                  <color:y>Ultima</color> <color:g>Acid</color> <color:b>Elec</color> <color:r>Fire</color> <color:s>Cold</color> <color:g>Pois</color>                   
 </style>

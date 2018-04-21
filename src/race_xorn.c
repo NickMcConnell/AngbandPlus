@@ -53,7 +53,7 @@ static void _calc_bonuses(void) {
 
     p_ptr->skill_dig += 500;
 
-    p_ptr->free_act = TRUE;
+    p_ptr->free_act++;
     res_add(RES_POIS);
     res_add(RES_CONF);
     p_ptr->sustain_str = TRUE;

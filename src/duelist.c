@@ -51,11 +51,27 @@ int duelist_skill_sav(int m_idx)
 {
     int result = p_ptr->skills.sav;
     if ( p_ptr->pclass == CLASS_DUELIST
+      && m_idx > 0
       && p_ptr->duelist_target_idx == m_idx )
     {
         result = result + 15 + p_ptr->lev;
     }
     return result;
+}
+
+bool duelist_can_challenge(void)
+{
+    int i;
+    for (i = 1; i < max_m_idx; i++)
+    {
+        mon_ptr mon = & m_list[i];
+        if (!mon->r_idx) continue;
+        if (is_pet(mon)) continue;
+        if (!mon->ml) continue;
+        if (mon->cdis > MAX_RANGE) continue; /* wizard mode */
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool duelist_issue_challenge(void)
@@ -322,7 +338,7 @@ static void _darting_duel_spell(int cmd, variant *res)
                 if (r == _rush_succeeded && tmp == p_ptr->duelist_target_idx)
                 {
                     monster_type *m_ptr = &m_list[p_ptr->duelist_target_idx];
-                    m_ptr->anger_ct++;
+                    mon_anger(m_ptr);
                     teleport_player(10, TELEPORT_LINE_OF_SIGHT);
                 }
             }
@@ -584,6 +600,7 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "challenge";
         me.options = CASTER_USE_HP;
+        me.which_stat = A_DEX;
         init = TRUE;
     }
     return &me;

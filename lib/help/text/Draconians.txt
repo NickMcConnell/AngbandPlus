@@ -251,5 +251,5 @@ to decide which power you will choose for your character.
 
 
 
-Automatically generated for PosChengband 6.0.7.
+Automatically generated for PosChengband 7.0.0.
 

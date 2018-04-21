@@ -56,7 +56,7 @@ crushing blows against your hapless enemies.
   Constitution  +2        Searching   Poor         
   Charisma      +1        Perception  Bad          
   Life Rating  109%       Melee       Excellent    
-  Base HP       12        Bows        Excellent    
+  Base HP       12        Bows        Fair         
   Experience   135%
   
 Crossbows
@@ -236,7 +236,7 @@ Table 3 - Weaponmaster Skill Bonus Table II
                   Searching     Perception    Melee         Bows         
 Axes              Poor          Bad           Superb        Bad          
 Bows              Fair          Poor          Fair          Superb       
-Clubs             Poor          Bad           Excellent     Excellent    
+Clubs             Poor          Bad           Excellent     Fair         
 Crossbows         Fair          Bad           Fair          Superb       
 Daggers           Good          Fair          Very Good     Excellent    
 Polearms          Poor          Bad           Superb        Bad          
@@ -249,5 +249,5 @@ Diggers           Poor          Bad           Superb        Bad
 
 
 
-Automatically generated for PosChengband 6.0.7.
+Automatically generated for PosChengband 7.0.0.
 

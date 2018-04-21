@@ -527,14 +527,14 @@ Mimic/Possessor
   and the magic command ('m') after assuming a new body.
   
     Stats                   Skills
-    Strength      +0        Disarming   Poor         
-    Intelligence  +1        Device      Good         
-    Wisdom        -1        Save        Fair         
+    Strength      +4        Disarming   Good         
+    Intelligence  -2        Device      Bad          
+    Wisdom        -2        Save        Fair         
     Dexterity     +2        Stealth     Fair         
-    Constitution  +0        Searching   Fair         
-    Charisma      -1        Perception  Fair         
-    Life Rating  108%       Melee       Very Good    
-    Base HP       15        Bows        Excellent    
+    Constitution  +2        Searching   Poor         
+    Charisma      +1        Perception  Poor         
+    Life Rating  115%       Melee       Superb       
+    Base HP       15        Bows        Superb       
     Experience   250%       Infravision 0'
     
   Possessor
@@ -627,7 +627,7 @@ Orc/Troll/Giant
     Constitution  +3        Searching   Poor         
     Charisma      +0        Perception  Bad          
     Life Rating  107%       Melee       Heroic       
-    Base HP       46        Bows        Superb       
+    Base HP       46        Bows        Fair         
     Experience   200%       Infravision 50'
     
   Troll
@@ -756,7 +756,7 @@ Jelly         +1   -5   -5   +1   +1   -2   90%  +40  150%  125%
 Quylthulg     -5   -5   -5   -5   -5   +6   95%   +0  150%  120%
 Leprechaun    -2   +1   +1   +3   -2   -2   80%  +15  150%   85%
 Death-Sword   +1   -5   -5   +0   +1   +0   85%  +30  150%  110%
-Mimic         +0   +1   -1   +2   +0   -1  108%  +15  250%  110%
+Mimic         +4   -2   -2   +2   +2   +1  115%  +15  250%  110%
 Possessor     -3   +0   -3   +0   -3   -7   60%  +15  250%  110%
 Ring          -3   +4   +1   +0   -1   +3   85%  +10  150%  110%
 Giant         +6   -3   -3   -2   +3   +0  107%  +46  200%  130%
@@ -783,7 +783,7 @@ Jelly        Good          Bad           Good          Superb
 Quylthulg    Fair          Superb        Excellent     Superb       
 Leprechaun   Very Good     Heroic        Good          Heroic       
 Death-Sword  Good          Fair          Excellent     Very Good    
-Mimic        Poor          Good          Fair          Fair         
+Mimic        Good          Bad           Fair          Fair         
 Possessor    Bad           Bad           Poor          Superb       
 Ring         Fair          Superb        Good          Excellent    
 Giant        Fair          Bad           Fair          Poor         
@@ -810,10 +810,10 @@ Jelly        Poor          Bad           Superb        Bad              0'
 Quylthulg    Fair          Good          Very Bad      Very Bad        50'
 Leprechaun   Fair          Poor          Fair          Superb          50'
 Death-Sword  Poor          Bad           Excellent     Very Bad        30'
-Mimic        Fair          Fair          Very Good     Excellent        0'
+Mimic        Poor          Poor          Superb        Superb           0'
 Possessor    Poor          Poor          Fair          Bad             70'
 Ring         Poor          Fair          Very Bad      Very Bad        50'
-Giant        Poor          Bad           Heroic        Superb          50'
+Giant        Poor          Bad           Heroic        Fair            50'
 Troll        Poor          Bad           Superb        Bad             50'
 Lich         Fair          Good          Very Bad      Very Bad        50'
 Vampire      Good          Fair          Excellent     Poor            50'
@@ -822,5 +822,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 6.0.7.
+Automatically generated for PosChengband 7.0.0.
 

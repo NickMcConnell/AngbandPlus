@@ -360,13 +360,13 @@ static void _undead_calc_bonuses(void)
     res_add(RES_COLD);
     if (p_ptr->lev >= 15)
     {
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
         res_add(RES_POIS);
     }
     if (p_ptr->lev >= 30)
     {
         res_add(RES_NETHER);
-        p_ptr->hold_life = TRUE;
+        p_ptr->hold_life++;
     }
     if (p_ptr->lev >= 35)
         res_add(RES_DARK);
@@ -903,6 +903,42 @@ static void _mount_attack_spell(int cmd, variant *res)
     }
 }
 
+static int _hack_dir;
+static bool _dragonrider_ai(mon_spell_cast_ptr cast)
+{
+    mon_spells_ptr spells = cast->race->spells;
+    mon_spell_group_ptr group;
+
+    /* steel dragons? */
+    if (!spells) return FALSE; 
+    if (!spells->groups[MST_BREATH]) return FALSE;
+
+    if (_hack_dir == 5)
+    {
+        cast->dest = point(target_col, target_row);
+        if (target_who > 0)
+        {
+            char tmp[MAX_NLEN];
+            cast->mon2 = &m_list[target_who];
+            monster_desc(tmp, cast->mon2, 0);
+            tmp[0] = toupper(tmp[0]);
+            sprintf(cast->name2, "<color:o>%s</color>", tmp);
+        }
+    }
+    else
+    {
+        cast->dest.x = px + 99 * ddx[_hack_dir];
+        cast->dest.y = py + 99 * ddy[_hack_dir];
+    }
+
+    if (!cast->mon2)
+        strcpy(cast->name2, "<color:o>the ground</color>");
+
+    group = spells->groups[MST_BREATH];
+    cast->spell = &group->spells[randint0(group->count)];
+    return TRUE;
+}
+
 static void _mount_breathe_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -916,7 +952,6 @@ static void _mount_breathe_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         monster_type *mount = _get_mount();
-        int dir;
 
         var_set_bool(res, FALSE);
         if (!mount)
@@ -931,9 +966,9 @@ static void _mount_breathe_spell(int cmd, variant *res)
             return;
         }
 
-        if (!get_fire_dir(&dir)) return;
+        if (!get_fire_dir(&_hack_dir)) return;
 
-        if (mon_spell_mon(p_ptr->riding, DRAGONRIDER_HACK))
+        if (mon_spell_cast_mon(mount, _dragonrider_ai))
             mount->energy_need += ENERGY_NEED();
 
         var_set_bool(res, TRUE);
@@ -958,7 +993,7 @@ static void _pets_breathe_spell(int cmd, variant *res)
     case SPELL_CAST:
     {
         monster_type *mount = _get_mount();
-        int dir, i;
+        int i;
 
         var_set_bool(res, FALSE);
         if (!mount)
@@ -973,12 +1008,12 @@ static void _pets_breathe_spell(int cmd, variant *res)
             return;
         }
 
-        if (!get_fire_dir(&dir)) return;
+        if (!get_fire_dir(&_hack_dir)) return;
 
         msg_print("<color:v>Dragons: As One!!</color>");
         msg_boundary();
 
-        if (mon_spell_mon(p_ptr->riding, DRAGONRIDER_HACK))
+        if (mon_spell_cast_mon(mount, _dragonrider_ai))
         {
             mount->energy_need += ENERGY_NEED();
             msg_boundary();
@@ -996,12 +1031,12 @@ static void _pets_breathe_spell(int cmd, variant *res)
             r_ptr = &r_info[m_ptr->r_idx];
             if (!(r_ptr->flags3 & RF3_DRAGON)) continue;
 
-            if (mon_spell_mon(i, DRAGONRIDER_HACK))
+            if (mon_spell_cast_mon(m_ptr, _dragonrider_ai))
             {
                 m_ptr->energy_need += ENERGY_NEED();
                 if (one_in_(2))
                 {
-                    if (is_seen(m_ptr))
+                    if (mon_show_msg(m_ptr))
                     {
                         char m_name[MAX_NLEN];
                         monster_desc(m_name, m_ptr, 0);
@@ -1074,7 +1109,7 @@ static void _angel_calc_bonuses(void)
     p_ptr->align += 200;
     p_ptr->levitation = TRUE;
     if (p_ptr->lev >= 15)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
     if (p_ptr->lev >= 35)
         p_ptr->reflect = TRUE;
 
@@ -1180,7 +1215,7 @@ static void _demon_calc_bonuses(void)
     p_ptr->skills.dev += 50 * p_ptr->lev/50;
     p_ptr->device_power += 5 * p_ptr->lev/50;
     if (p_ptr->lev >= 15)
-        p_ptr->hold_life = TRUE;
+        p_ptr->hold_life++;
     if (p_ptr->lev >= 30)
         p_ptr->no_eldritch = TRUE;
     if (p_ptr->lev >= 40)
@@ -1236,7 +1271,7 @@ static void _vengeful_blast(int cmd, variant *res)
         if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_ELDRITCH, dir, dam, 0);
-        take_hit(DAMAGE_USELIFE, 100, "vengeful blast", -1);
+        take_hit(DAMAGE_USELIFE, 100, "vengeful blast");
 
         var_set_bool(res, TRUE);
         break;
@@ -1393,7 +1428,7 @@ static void _dog_whistle_spell(int cmd, variant *res)
         var_set_string(res, "By emitting a shrill whistle, unaudible to most, you attempt to control nearby canines.");
         break;
     case SPELL_CAST:
-        project(0, 18, py, px, 1000, GF_CONTROL_PACT_MONSTER, PROJECT_KILL | PROJECT_HIDE, -1);
+        project(0, 18, py, px, 1000, GF_CONTROL_PACT_MONSTER, PROJECT_KILL | PROJECT_HIDE);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1682,6 +1717,7 @@ static void _giant_calc_bonuses(void)
         res_add(RES_SHARDS);
     if (p_ptr->lev >= 50)
         res_add(RES_CHAOS);
+    p_ptr->skill_tht += 2*p_ptr->lev;
 }
 
 static void _giant_calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
@@ -1789,8 +1825,8 @@ static _pact_t _giants_pact = {
 /*  S   I   W   D   C   C */
   { 2, -4, -4, -3,  2,  2},
 /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-  {  20,  20,  31,   0,  12,   2, 70, 40},
-  {   7,   8,  10,   0,   0,   0, 30, 20},
+  {  20,  20,  31,   0,  12,   2, 70, 30},
+  {   7,   8,  10,   0,   0,   0, 30, 15},
 /*Life  BaseHP     Exp */
    112,     25,    140,
   {

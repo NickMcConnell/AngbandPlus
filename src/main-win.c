@@ -109,7 +109,6 @@
 #define IDM_FILE_NEW            100
 #define IDM_FILE_OPEN            101
 #define IDM_FILE_SAVE            110
-#define IDM_FILE_SCORE            120
 #define IDM_FILE_MOVIE            121
 #define IDM_FILE_EXIT            130
 
@@ -2691,8 +2690,6 @@ static void setup_menus(void)
                MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
     EnableMenuItem(hm, IDM_FILE_EXIT,
                MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-    EnableMenuItem(hm, IDM_FILE_SCORE,
-               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 
 
     /* No character available */
@@ -2715,9 +2712,6 @@ static void setup_menus(void)
 
     /* Menu "File", Item "Exit" */
     EnableMenuItem(hm, IDM_FILE_EXIT,
-               MF_BYCOMMAND | MF_ENABLED);
-
-    EnableMenuItem(hm, IDM_FILE_SCORE,
                MF_BYCOMMAND | MF_ENABLED);
 
 
@@ -3053,48 +3047,6 @@ static void process_menus(WORD wCmd)
         }
 
         /* Show scores */
-        case IDM_FILE_SCORE:
-        {
-            char buf[1024];
-
-            /* Build the filename */
-            path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
-
-            /* Open the binary high score file, for reading */
-            highscore_fd = fd_open(buf, O_RDONLY);
-
-            /* Paranoia -- No score file */
-            if (highscore_fd < 0)
-            {
-                msg_print("Score file unavailable.");
-            }
-            else
-            {
-                /* Save Screen */
-                screen_save();
-
-                /* Clear screen */
-                Term_clear();
-
-                /* Display the scores */
-                display_scores_aux(0, MAX_HISCORES, -1, NULL);
-
-                /* Shut the high score file */
-                (void)fd_close(highscore_fd);
-
-                /* Forget the high score fd */
-                highscore_fd = -1;
-
-                /* Load screen */
-                screen_load();
-
-                /* Hack - Flush it */
-                Term_fresh();
-            }
-
-            break;
-        }
-
         case IDM_WINDOW_VIS_0:
         {
             plog("You are not allowed to do that!");

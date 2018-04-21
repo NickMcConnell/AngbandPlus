@@ -49,10 +49,10 @@ The duelist only ever gains a single attack in combat, but they make the most of
 Duelists favor light armors and cannot equip a shield. They gain no extra bonus when wielding a weapon with both hands. For their techniques the duelist relies on dexterity.
 
   <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:v> +2</color>        Disarming   <color:y>Good         </color>
+Strength     <color:w> +2</color>        Disarming   <color:y>Good         </color>
 Intelligence <color:w> +1</color>        Device      <color:o>Fair         </color>
 Wisdom       <color:w> -2</color>        Save        <color:r>Bad          </color>
-Dexterity    <color:w> +2</color>        Stealth     <color:y>Good         </color>
+Dexterity    <color:v> +2</color>        Stealth     <color:y>Good         </color>
 Constitution <color:w> -3</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +2</color>        Perception  <color:R>Poor         </color>
 Life Rating  100%       Melee       <color:o>Fair         </color>
@@ -257,22 +257,6 @@ Life Rating  108%       Melee       <color:D>Very Bad     </color>
 Base HP       10        Bows        <color:D>Very Bad     </color>
 Experience   135%
 </style></indent>
-<topic:Blue-Mage><color:o>Blue-Mage</color>
-A Blue-Mage is a spell caster that must live by his wits, as he cannot hope to simply hack his way through the dungeon like a warrior. A major difference between the Mage and the Blue-Mage is the method of learning spells: Blue-Mages may learn spells from monsters. A Blue-Mage's prime statistic is Intelligence as this determines his spell casting ability.
- 
-A Blue-Mage can learn and cast monster ranged attacks, spells, or summons as their own spells; this technique is called Blue magic. Unlike Imitators, Blue-Mages remember their spells permanently, but they must get hit by a monster's spell while their class power 'Learning' is active to learn spells. Because of this requirement, they do not learn spells, like healing, that affect the monster itself.
-
-  <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> -4</color>        Disarming   <color:o>Fair         </color>
-Intelligence <color:v> +4</color>        Device      <color:g>Superb       </color>
-Wisdom       <color:w> -1</color>        Save        <color:y>Good         </color>
-Dexterity    <color:w> +1</color>        Stealth     <color:y>Good         </color>
-Constitution <color:w> -2</color>        Searching   <color:o>Fair         </color>
-Charisma     <color:w> -2</color>        Perception  <color:R>Poor         </color>
-Life Rating  100%       Melee       <color:r>Bad          </color>
-Base HP        4        Bows        <color:r>Bad          </color>
-Experience   130%
-</style></indent>
 <topic:Gray-Mage><color:o>Gray-Mage</color>
 The Gray-Mage casts spells from memory, rather than from a book.  Indeed, the spell book is only required for the initial learning process. However, only a small number of spells may be learned at any given time, and while the Gray-Mage may replace old spells with new ones, they can only learn a fixed number of total spells (based upon Intelligence and Experience).
  
@@ -438,7 +422,7 @@ Dexterity    <color:v> +3</color>        Stealth     <color:g>Superb       </col
 Constitution <color:w> +2</color>        Searching   <color:G>Excellent    </color>
 Charisma     <color:w> +2</color>        Perception  <color:y>Good         </color>
 Life Rating  100%       Melee       <color:g>Superb       </color>
-Base HP        4        Bows        <color:G>Excellent    </color>
+Base HP        4        Bows        <color:R>Poor         </color>
 Experience   120%
 </style></indent>
 <topic:Rogue><color:o>Rogue</color>
@@ -454,7 +438,7 @@ Dexterity    <color:w> +3</color>        Stealth     <color:G>Excellent    </col
 Constitution <color:w> +1</color>        Searching   <color:y>Good         </color>
 Charisma     <color:w> +1</color>        Perception  <color:o>Fair         </color>
 Life Rating  110%       Melee       <color:G>Excellent    </color>
-Base HP       12        Bows        <color:G>Excellent    </color>
+Base HP       12        Bows        <color:y>Good         </color>
 Experience   125%
 </style></indent>
 <topic:Scout><color:o>Scout</color>
@@ -518,7 +502,7 @@ Dexterity    <color:w> +1</color>        Stealth     <color:y>Good         </col
 Constitution <color:w> +1</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +0</color>        Perception  <color:R>Poor         </color>
 Life Rating  106%       Melee       <color:y>Very Good    </color>
-Base HP        8        Bows        <color:g>Superb       </color>
+Base HP        8        Bows        <color:y>Good         </color>
 Experience   140%
 </style></indent>
 <topic:Red-Mage><color:o>Red-Mage</color>
@@ -550,7 +534,7 @@ Dexterity    <color:w> +1</color>        Stealth     <color:o>Fair         </col
 Constitution <color:w> +0</color>        Searching   <color:o>Fair         </color>
 Charisma     <color:w> +1</color>        Perception  <color:R>Poor         </color>
 Life Rating  106%       Melee       <color:o>Fair         </color>
-Base HP        8        Bows        <color:r>Bad          </color>
+Base HP        8        Bows        <color:y>Good         </color>
 Experience   140%
 </style></indent>
 </indent>
@@ -701,22 +685,6 @@ Life Rating  100%       Melee       <color:r>Bad          </color>
 Base HP        4        Bows        <color:r>Bad          </color>
 Experience   140%
 </style></indent>
-<topic:Imitator><color:o>Imitator</color>
-Imitators have enough fighting skills to survive, but rely on their unique technique - 'Imitation' - which imitates monster spells/techniques including their damage and duration. Dexterity determines general imitation ability, but a stat related to the specific action is often also taken into account.
- 
-To use imitation, Imitators must see monster's spell at first. When a viewable monsters uses a spell, it is added to a temporary spell list which the imitator can choose from. Spells should be imitated quickly, because timing and situation are everything. An imitator can only repeat a spell once each time he observes it. They only have a small long-term memory for spells, which ranges from one to three, depending on their level. When they memorize more spells than this, they will forget the oldest spell in the list. They have a class power - 'Double Revenge' - which allows them to imitate spells at double damage or duration.
-
-  <indent><style:table><color:G>Stats                   Skills</color>
-Strength     <color:w> +0</color>        Disarming   <color:R>Poor         </color>
-Intelligence <color:w> +1</color>        Device      <color:y>Good         </color>
-Wisdom       <color:w> -1</color>        Save        <color:o>Fair         </color>
-Dexterity    <color:w> +2</color>        Stealth     <color:o>Fair         </color>
-Constitution <color:w> +0</color>        Searching   <color:o>Fair         </color>
-Charisma     <color:w> -1</color>        Perception  <color:R>Poor         </color>
-Life Rating  108%       Melee       <color:y>Very Good    </color>
-Base HP       10        Bows        <color:G>Excellent    </color>
-Experience   110%
-</style></indent>
 <topic:Rage-Mage><color:o>Rage-Mage</color>
 The Rage Mage is part of a secret sect descending from the Barbarians in response to their natural foes, the mages. As time passed, other races have also begun to learn their arts. The powers of the Rage Mage are spells learned from books, but they don't work the way normal spells do. First of all, the Rage Mage must perform a special Ritual of Anger to learn a spell, and this ritual destroys the spell book in the process. As a result, it may take a long time for the Rage Mage to learn all of their high level powers. Once learned, the Rage Mage no longers requires the spell book in order to perform the power.
  
@@ -789,7 +757,7 @@ Experience   110%
               <color:G>STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp</color>
 Berserker    <color:v>  +8 </color> -20  -20   +4   +4   +4  200%  +22  160%
 Blood-Knight   +2   -2   -2   +0 <color:v>  +3 </color>  +2  120%  +20  150%
-Duelist      <color:v>  +2 </color>  +1   -2   +2   -3   +2  100%   +4  150%
+Duelist        +2   +1   -2 <color:v>  +2 </color>  -3   +2  100%   +4  150%
 Mauler       <color:v>  +5 </color>  -2   -2   -1   +3   +2  111%  +18  120%
 Rune-Knight    +2 <color:v>  +1 </color>  -1   +1   +0   +1  102%   +6  150%
 Samurai        +3   -2 <color:v>  +1 </color>  +2   +1   +1  111%  +12  130%
@@ -802,7 +770,6 @@ Force-Trainer  +0   -1 <color:v>  +3 </color>  +2   +1   +0  100%   +4  135%
 Monk           +2   -1 <color:v>  +1 </color>  +3   +2   +1  110%  +12  130%
 Mystic         +2   -1   -2   +3   +1 <color:v>  +2 </color> 100%   +4  130%
 Blood-Mage     -4 <color:v>  +3 </color>  -2   +1   +2   -2  108%  +10  135%
-Blue-Mage      -4 <color:v>  +4 </color>  -1   +1   -2   -2  100%   +4  130%
 Gray-Mage      -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
 High-Mage      -4 <color:v>  +4 </color>  +0   +0   -2   -2   94%   +0  130%
 Mage           -4 <color:v>  +3 </color>  +0   +1   -2   -2   95%   +0  130%
@@ -829,7 +796,6 @@ Time-Lord      -1   +0 <color:v>  +3 </color>  -1   -1   +0   96%   +0  125%
 Warlock        -1   +2   -3   +0   +2 <color:v>  +4 </color> 107%  +15  135%
 Archaeologist  -1   +1 <color:v>  +2 </color>  +1   -1   +0  106%   +8  120%
 Bard           -2   +1   +2   -1   -2 <color:v>  +4 </color> 100%   +4  140%
-Imitator       +0   +1   -1   +2   +0   -1  108%  +10  110%
 Rage-Mage    <color:v>  +3 </color>  -2   -2   -2   +2   +1  106%   +6  150%
 Skillmaster    +0   +0   +0   +0   +0   +0  100%  +10  130%
 Tourist        -1 <color:v>  -1 </color>  -1   -1   -1   -3   95%   +0   70%
@@ -854,7 +820,6 @@ Force-Trainer <color:y>Good         </color> <color:y>Very Good    </color> <col
 Monk          <color:g>Superb       </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Mystic        <color:g>Superb       </color> <color:y>Very Good    </color> <color:o>Fair         </color> <color:G>Excellent    </color>
 Blood-Mage    <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
-Blue-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 Gray-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 High-Mage     <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
 Mage          <color:o>Fair         </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>
@@ -881,7 +846,6 @@ Time-Lord     <color:R>Poor         </color> <color:y>Very Good    </color> <col
 Warlock       <color:R>Poor         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Very Good    </color>
 Archaeologist <color:g>Superb       </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:y>Very Good    </color>
 Bard          <color:R>Poor         </color> <color:G>Excellent    </color> <color:o>Fair         </color> <color:D>Very Bad     </color>
-Imitator      <color:R>Poor         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Rage-Mage     <color:r>Bad          </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>
 Skillmaster   <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:R>Poor         </color>
 Tourist       <color:r>Bad          </color> <color:r>Bad          </color> <color:r>Bad          </color> <color:o>Fair         </color>
@@ -906,7 +870,6 @@ Force-Trainer <color:y>Good         </color> <color:o>Fair         </color> <col
 Monk          <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
 Mystic        <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
 Blood-Mage    <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
-Blue-Mage     <color:o>Fair         </color> <color:R>Poor         </color> <color:r>Bad          </color> <color:r>Bad          </color>
 Gray-Mage     <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 High-Mage     <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Mage          <color:R>Poor         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
@@ -916,14 +879,14 @@ Yellow-Mage   <color:R>Poor         </color> <color:o>Fair         </color> <col
 Devicemaster  <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Magic-Eater   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Priest        <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
-Ninja         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:G>Excellent    </color>
-Rogue         <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
+Ninja         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:R>Poor         </color>
+Rogue         <color:y>Good         </color> <color:o>Fair         </color> <color:G>Excellent    </color> <color:y>Good         </color>
 Scout         <color:G>Excellent    </color> <color:o>Fair         </color> <color:y>Very Good    </color> <color:g>Superb       </color>
 Chaos-Warrior <color:R>Poor         </color> <color:R>Poor         </color> <color:G>Excellent    </color> <color:y>Good         </color>
 Paladin       <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:y>Good         </color>
-Ranger        <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:g>Superb       </color>
+Ranger        <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:y>Good         </color>
 Red-Mage      <color:R>Poor         </color> <color:r>Bad          </color> <color:y>Very Good    </color> <color:r>Bad          </color>
-Warrior-Mage  <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:r>Bad          </color>
+Warrior-Mage  <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:y>Good         </color>
 Beastmaster   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:g>Superb       </color>
 Cavalry       <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color>
 Mindcrafter   <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:y>Good         </color>
@@ -933,7 +896,6 @@ Time-Lord     <color:R>Poor         </color> <color:r>Bad          </color> <col
 Warlock       <color:R>Poor         </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Archaeologist <color:G>Excellent    </color> <color:y>Good         </color> <color:y>Very Good    </color> <color:R>Poor         </color>
 Bard          <color:R>Poor         </color> <color:o>Fair         </color> <color:r>Bad          </color> <color:r>Bad          </color>
-Imitator      <color:o>Fair         </color> <color:R>Poor         </color> <color:y>Very Good    </color> <color:G>Excellent    </color>
 Rage-Mage     <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Skillmaster   <color:r>Bad          </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Tourist       <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:r>Bad          </color>
@@ -942,4 +904,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.7.</color>
+<color:s>Automatically generated for PosChengband 7.0.0.</color>

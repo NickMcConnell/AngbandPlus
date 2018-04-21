@@ -370,7 +370,7 @@ void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 
     if (k < 0) k = 0;
 
-    take_hit(DAMAGE_FORCE, k, "Death scythe", -1);
+    take_hit(DAMAGE_FORCE, k, "Death scythe");
 }
 
 /*
@@ -392,9 +392,6 @@ bool test_hit_fire(int chance, int ac, int vis)
 
     /* Hack -- Instant miss or hit */
     if (k < 10) return (k < 5);
-
-    if (p_ptr->personality == PERS_LAZY)
-        if (one_in_(20)) return (FALSE);
 
     /* Power competes against armor */
     if (randint0(chance) < (ac * 3 / 4)) return (FALSE);
@@ -425,9 +422,6 @@ bool test_hit_norm(int chance, int ac, int vis)
 
     /* Hack -- Instant miss or hit */
     if (k < 10) return (k < 5);
-
-    if (p_ptr->personality == PERS_LAZY)
-        if (one_in_(20)) return (FALSE);
 
     /* Power must defeat armor */
     if (randint0(chance) < (ac * 3 / 4)) return (FALSE);
@@ -465,16 +459,12 @@ critical_t critical_shot(int weight, int plus)
 
         if (result.mul < 200)
             result.desc = "It was a <color:y>decent</color> shot!";
-        /* k >= 500 */
         else if (result.mul < 240)
             result.desc = "It was a <color:R>good</color> shot!";
-        /* k >= 900 */
         else if (result.mul < 270)
             result.desc = "It was a <color:r>great</color> shot!";
-        /* k >= 1200 */
         else if (result.mul < 300)
             result.desc = "It was a <color:v>superb</color> shot!";
-        /* k >= 1500 */
         else
             result.desc = "It was a <color:v>*GREAT*</color> shot!";
     }
@@ -1452,7 +1442,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
             }
             if (p_ptr->tim_blood_feast)
             {
-                take_hit(DAMAGE_ATTACK, 15, "blood feast", -1);
+                take_hit(DAMAGE_ATTACK, 15, "blood feast");
             }
             break;
         }
@@ -1570,9 +1560,6 @@ static int _check_hit(int power)
     /* Hack -- 5% hit, 5% miss */
     if (k < 10) return (k < 5);
 
-    if (p_ptr->personality == PERS_LAZY)
-        if (one_in_(20)) return (TRUE);
-
     /* Paranoia -- No power */
     if (power <= 0) return (FALSE);
 
@@ -1625,7 +1612,7 @@ static void hit_trap(bool break_trap)
                 dam = damroll(2, 8);
                 name = "a trap door";
 
-                take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+                take_hit(DAMAGE_NOESCAPE, dam, name);
 
                 /* Still alive and autosave enabled */
                 if (autosave_l && (p_ptr->chp >= 0))
@@ -1653,7 +1640,7 @@ static void hit_trap(bool break_trap)
                 dam = damroll(2, 6);
                 name = "a pit trap";
 
-                take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+                take_hit(DAMAGE_NOESCAPE, dam, name);
             }
             break;
         }
@@ -1688,7 +1675,7 @@ static void hit_trap(bool break_trap)
                 }
 
                 /* Take the damage */
-                take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+                take_hit(DAMAGE_NOESCAPE, dam, name);
             }
             break;
         }
@@ -1727,13 +1714,12 @@ static void hit_trap(bool break_trap)
                         msg_print("The poison does not affect you!");
                     else
                     {
-                        dam = dam * 2;
-                        (void)set_poisoned(p_ptr->poisoned + randint1(dam), FALSE);
+                        (void)set_poisoned(p_ptr->poisoned + dam, FALSE);
                     }
                 }
 
                 /* Take the damage */
-                take_hit(DAMAGE_NOESCAPE, dam, name, -1);
+                take_hit(DAMAGE_NOESCAPE, dam, name);
             }
 
             break;
@@ -1776,7 +1762,7 @@ static void hit_trap(bool break_trap)
             msg_print("You are enveloped in flames!");
 
             dam = damroll(4, 6);
-            (void)fire_dam(dam, "a fire trap", -1);
+            (void)fire_dam(dam, "a fire trap");
 
             break;
         }
@@ -1786,7 +1772,7 @@ static void hit_trap(bool break_trap)
             msg_print("You are splashed with acid!");
 
             dam = damroll(4, 6);
-            (void)acid_dam(dam, "an acid trap", -1);
+            (void)acid_dam(dam, "an acid trap");
 
             break;
         }
@@ -1798,9 +1784,10 @@ static void hit_trap(bool break_trap)
                 msg_print("A small dart hits you!");
 
                 dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap", -1);
+                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
 
-                if (!CHECK_MULTISHADOW()) (void)set_slow(p_ptr->slow + randint0(20) + 20, FALSE);
+                if (!CHECK_MULTISHADOW() && !free_act_save_p(dun_level))
+                    (void)set_slow(p_ptr->slow + randint0(20) + 20, FALSE);
             }
             else
             {
@@ -1817,7 +1804,7 @@ static void hit_trap(bool break_trap)
                 msg_print("A small dart hits you!");
 
                 dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap", -1);
+                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
 
                 if (!CHECK_MULTISHADOW()) (void)do_dec_stat(A_STR);
             }
@@ -1836,7 +1823,7 @@ static void hit_trap(bool break_trap)
                 msg_print("A small dart hits you!");
 
                 dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap", -1);
+                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
 
                 if (!CHECK_MULTISHADOW()) (void)do_dec_stat(A_DEX);
             }
@@ -1855,7 +1842,7 @@ static void hit_trap(bool break_trap)
                 msg_print("A small dart hits you!");
 
                 dam = damroll(1, 4);
-                take_hit(DAMAGE_ATTACK, dam, "a dart trap", -1);
+                take_hit(DAMAGE_ATTACK, dam, "a dart trap");
 
                 if (!CHECK_MULTISHADOW()) (void)do_dec_stat(A_CON);
             }
@@ -1895,7 +1882,7 @@ static void hit_trap(bool break_trap)
         {
             msg_print("A strange white mist surrounds you!");
 
-            if (!p_ptr->free_act)
+            if (!free_act_save_p(0))
             {
                 msg_print("You fall asleep.");
 
@@ -1925,7 +1912,7 @@ static void hit_trap(bool break_trap)
             msg_print("There is a bright flash of light!");
 
             /* Make some new traps */
-            project(0, 1, y, x, 0, GF_MAKE_TRAP, PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID, -1);
+            project(0, 1, y, x, 0, GF_MAKE_TRAP, PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID);
 
             break;
         }
@@ -1943,7 +1930,7 @@ static void hit_trap(bool break_trap)
         {
             msg_print("Suddenly, surrounding walls are opened!");
             /*TODO: Fire beams in 4 principle directions that kill adjacent walls ... */
-            project(0, 10, y, x, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
+            project(0, 10, y, x, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE);
             aggravate_monsters(0);
 
             break;
@@ -2024,78 +2011,89 @@ void touch_zap_player(int m_idx)
 {
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
+    int           i;
 
-    if ((r_ptr->flags2 & RF2_AURA_REVENGE) && !MON_CONFUSED(m_ptr) && randint0(120) < r_ptr->level)
+    /* beholders gaze on their enemies without touching (even as a ranged py_attack())
+     * staffmasters gain a quick strike that avoids monster auras
+     * other classes, like samurai, have a range 2 attack, but this is still a touch */
+    if (p_ptr->prace == RACE_MON_BEHOLDER || p_ptr->lightning_reflexes)
+        return;
+
+    if ( (r_ptr->flags2 & RF2_AURA_REVENGE)
+      && !retaliation_hack
+      && !MON_CONFUSED(m_ptr)
+      && !MON_PARALYZED(m_ptr)
+      && randint0(150) < r_ptr->level )
     {
-        if (p_ptr->lightning_reflexes)
-        {
-        }
-        else
-        {
-            retaliation_hack = TRUE;
-            make_attack_normal(m_idx);
-            retaliation_count++; /* Indexes which blow to use per retaliation, but start at 0 ... See py_attack() for initialization.*/
-            retaliation_hack = FALSE;
-        }
+        retaliation_hack = TRUE;
+        make_attack_normal(m_idx);
+        retaliation_count++; /* Indexes which blow to use per retaliation, but start at 0 ... See py_attack() for initialization.*/
+        retaliation_hack = FALSE;
     }
 
     if ((r_ptr->flags2 & (RF2_AURA_FIRE | RF2_AURA_ELEC)) || (r_ptr->flags3 & RF3_AURA_COLD))
     {
-        if (p_ptr->lightning_reflexes)
+        int dd = 1 + r_ptr->level/26;
+        int ds = 1 + r_ptr->level/17;
+        int fire_dam = 0, cold_dam = 0, elec_dam = 0;
+
+        if (r_ptr->flags2 & RF2_AURA_FIRE)
         {
+            fire_dam = res_calc_dam(RES_FIRE, damroll(dd, ds));
+            if (fire_dam > 0)
+                mon_lore_2(m_ptr, RF2_AURA_FIRE);
         }
-        else
+        if (r_ptr->flags3 & RF3_AURA_COLD)
         {
-            int dd = 1 + r_ptr->level/26;
-            int ds = 1 + r_ptr->level/17;
-            int fire_dam = 0, cold_dam = 0, elec_dam = 0;
-
-            if (r_ptr->flags2 & RF2_AURA_FIRE)
-            {
-                fire_dam = res_calc_dam(RES_FIRE, damroll(dd, ds));
-                if (fire_dam > 0)
-                    mon_lore_2(m_ptr, RF2_AURA_FIRE);
-            }
-            if (r_ptr->flags3 & RF3_AURA_COLD)
-            {
-                cold_dam = res_calc_dam(RES_COLD, damroll(dd, ds));
-                if (cold_dam > 0)
-                    mon_lore_3(m_ptr, RF3_AURA_COLD);
-            }
-            if (r_ptr->flags2 & RF2_AURA_ELEC)
-            {
-                elec_dam = res_calc_dam(RES_ELEC, damroll(dd, ds));
-                if (elec_dam > 0)
-                    mon_lore_2(m_ptr, RF2_AURA_ELEC);
-            }
-
-            if (fire_dam + cold_dam + elec_dam)
-            {
-                char m_name[MAX_NLEN];
-                char buf[100];
-
-                buf[0] = '\0';
-                if (fire_dam)
-                    strcat(buf, "<color:r>burned</color>");
-                if (cold_dam)
-                {
-                    if (strlen(buf))
-                        strcat(buf, elec_dam ? ", " : " and ");
-                    strcat(buf, "<color:w>frozen</color>");
-                }
-                if (elec_dam)
-                {
-                    if (strlen(buf))
-                        strcat(buf, " and ");
-                    strcat(buf, "<color:b>shocked</color>");
-                }
-
-                msg_format("You are %s.", buf);
-                monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
-                take_hit(DAMAGE_NOESCAPE, fire_dam + cold_dam + elec_dam, m_name, -1);
-                handle_stuff();
-            }
+            cold_dam = res_calc_dam(RES_COLD, damroll(dd, ds));
+            if (cold_dam > 0)
+                mon_lore_3(m_ptr, RF3_AURA_COLD);
         }
+        if (r_ptr->flags2 & RF2_AURA_ELEC)
+        {
+            elec_dam = res_calc_dam(RES_ELEC, damroll(dd, ds));
+            if (elec_dam > 0)
+                mon_lore_2(m_ptr, RF2_AURA_ELEC);
+        }
+
+        if (fire_dam + cold_dam + elec_dam)
+        {
+            char m_name[MAX_NLEN];
+            char buf[100];
+
+            buf[0] = '\0';
+            if (fire_dam)
+                strcat(buf, "<color:r>burned</color>");
+            if (cold_dam)
+            {
+                if (strlen(buf))
+                    strcat(buf, elec_dam ? ", " : " and ");
+                strcat(buf, "<color:w>frozen</color>");
+            }
+            if (elec_dam)
+            {
+                if (strlen(buf))
+                    strcat(buf, " and ");
+                strcat(buf, "<color:b>shocked</color>");
+            }
+
+            msg_format("You are %s.", buf);
+            monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
+            take_hit(DAMAGE_NOESCAPE, fire_dam + cold_dam + elec_dam, m_name);
+            handle_stuff();
+        }
+    }
+
+    for (i = 0; i < MAX_MON_AURAS; i++)
+    {
+        mon_effect_ptr aura = &r_ptr->auras[i];
+        int            dam;
+        if (!aura->effect) continue;
+        if (aura->pct && randint1(100) > aura->pct) continue;
+        dam = damroll(aura->dd, aura->ds);
+        if (!dam) continue;
+        gf_affect_p(m_idx, aura->effect, dam, GF_AFFECT_AURA);
+        mon_lore_effect(m_ptr, aura);
     }
 }
 
@@ -2146,6 +2144,11 @@ void wizard_report_damage(int amt)
     total += amt;
     cmsg_format(TERM_L_RED, "You did %d damage (%d Avg).", amt, total / count);
 #endif
+}
+
+static bool _gf_innate(mon_ptr m, int type, int dam)
+{
+    return gf_affect_m(GF_WHO_PLAYER, m, type, dam, GF_AFFECT_ATTACK);
 }
 
 static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
@@ -2235,12 +2238,14 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 
         for (j = 0; j < blows; j++)
         {
-            int ac = MON_AC(r_ptr, m_ptr);
+            int ac = mon_ac(m_ptr);
 
             if (m_ptr->fy != old_fy || m_ptr->fx != old_fx) break; /* Teleport Effect? */
 
             to_h = a->to_h + p_ptr->to_h_m;
             chance = p_ptr->skills.thn + (to_h * BTH_PLUS_ADJ);
+            if (p_ptr->stun)
+                chance -= chance * MIN(100, p_ptr->stun) / 150;
 
             if (prace_is_(RACE_MON_GOLEM))
                 ac = ac * (100 - p_ptr->lev) / 100;
@@ -2306,6 +2311,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 }
 
                 dam = base_dam + p_ptr->to_d_m;
+                if (p_ptr->stun)
+                {
+                    dam -= dam * MIN(100, p_ptr->stun) / 150;
+                    base_dam -= base_dam * MIN(100, p_ptr->stun) / 150;
+                }
 
                 /* More slop for Draconian Metamorphosis ... */
                 if ( p_ptr->pclass == CLASS_NINJA
@@ -2502,19 +2512,19 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     case GF_OLD_CONF:
                     case GF_OLD_SLOW:
                     case GF_STUN:
-                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
+                        _gf_innate(m_ptr, e, effect_pow);
                         *mdeath = (m_ptr->r_idx == 0);
                         break;
                     case GF_DRAIN_MANA:
                     {
                         int amt = MIN(effect_pow, max_drain_amt - drain_amt);
-                        if (amt && project(0, 0, m_ptr->fy, m_ptr->fx, amt, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1))
+                        if (amt && _gf_innate(m_ptr, e, amt))
                             drain_amt += amt;
                         *mdeath = (m_ptr->r_idx == 0);
                         break;
                     }
                     case GF_OLD_DRAIN:
-                        if (monster_living(r_ptr) && project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1))
+                        if (monster_living(r_ptr) && _gf_innate(m_ptr, e, effect_pow))
                         {
                             int amt = MIN(effect_pow, max_drain_amt - drain_amt);
                             if (prace_is_(MIMIC_BAT))
@@ -2524,7 +2534,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                             else
                             {
                                 msg_format("You <color:D>drain life</color> from %s!", m_name_object);
-                                hp_player(amt);
+                                vamp_player(amt);
                             }
                             drain_amt += amt;
                         }
@@ -2538,11 +2548,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         if (base_dam > 50 || one_in_(7))
                         {
                             delay_quake = TRUE;
-                            project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, GF_STUN, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1);
+                            _gf_innate(m_ptr, GF_STUN, base_dam);
                         }
                         break;
-                    default:                             /* v--- Check for pure elemental attack (e.g. Fire vortex) */
-                        project(0, 0, m_ptr->fy, m_ptr->fx, k ? effect_pow : dam, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1);
+                    default:              /* v--- Check for pure elemental attack (e.g. Fire vortex) */
+                        _gf_innate(m_ptr, e, k ? effect_pow : dam);
                         *mdeath = (m_ptr->r_idx == 0);
                         /* Polymorph effect? */
                         if (m_ptr->r_idx && m_ptr->r_idx != old_r_idx)
@@ -2553,7 +2563,6 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         }
                     }
                 }
-                /* TODO: Should rings of power brand innate attacks? */
                 touch_zap_player(m_idx);
 
                 if (a->flags & INNATE_EXPLODE)
@@ -2599,11 +2608,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     if (delay_quake)
         earthquake(py, px, 10);
     if (delay_sleep && !*mdeath)
-        project(0, 0, m_ptr->fy, m_ptr->fx, delay_sleep, GF_OLD_SLEEP, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
+        _gf_innate(m_ptr, GF_OLD_SLEEP, delay_sleep);
     if (delay_stasis && !*mdeath)
-        project(0, 0, m_ptr->fy, m_ptr->fx, delay_stasis, GF_STASIS, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
+        _gf_innate(m_ptr, GF_STASIS, delay_stasis);
     if (delay_paralysis && !*mdeath)
-        project(0, 0, m_ptr->fy, m_ptr->fx, delay_paralysis, GF_PARALYSIS, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
+        _gf_innate(m_ptr, GF_PARALYSIS, delay_paralysis);
     if (steal_ct && !*mdeath)
     {
         if (mon_save_p(m_ptr->r_idx, A_DEX))
@@ -2746,7 +2755,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     bool            is_lowlevel;
     bool            zantetsu_mukou = FALSE, e_j_mukou = FALSE;
     int             knock_out = 0;
-    int             dd, ds;
+    int             dd, ds, old_hp;
     bool            hit_ct = 0;
     bool            poison_needle = FALSE;
 
@@ -2757,6 +2766,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     }
 
     m_ptr = &m_list[c_ptr->m_idx];
+    old_hp = m_ptr->hp;
     r_ptr = &r_info[m_ptr->r_idx];
     is_human = (r_ptr->d_char == 'p');
     is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
@@ -2916,6 +2926,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (p_ptr->sutemi) chance = MAX(chance * 3 / 2, chance + 60);
 
     chance += virtue_current(VIRTUE_VALOUR) / 10;
+    if (p_ptr->stun)
+        chance -= chance * MIN(100, p_ptr->stun) / 150;
 
     num_blow = _get_num_blow(hand, mode);
 
@@ -2932,7 +2944,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     /* Attack once for each legal blow */
     while ((num++ < num_blow) && !p_ptr->is_dead)
     {
-    bool do_whirlwind = FALSE;
+        bool do_whirlwind = FALSE;
 
         /* We now check fear on every blow, and only lose energy equal to the number of blows attempted.
            Monsters with AURA_FEAR can induce fear any time the player damages them! */
@@ -2950,7 +2962,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             }
         }
 
-        if (p_ptr->stun >= 100) /* Grand Master Mystic retaliation knocked the player out! */
+        if (p_ptr->stun >= STUN_KNOCKED_OUT) /* Grand Master Mystic retaliation knocked the player out! */
             break;
 
         if (p_ptr->paralyzed)
@@ -2980,7 +2992,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             success_hit = TRUE;
         }
         else if (weaponmaster_get_toggle() == TOGGLE_BURNING_BLADE) success_hit = TRUE;
-        else success_hit = test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml);
+        else success_hit = test_hit_norm(chance, mon_ac(m_ptr), m_ptr->ml);
 
         if (mode == HISSATSU_MAJIN)
         {
@@ -3063,7 +3075,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 martial_arts *ma_ptr = &ma_blows[monk_get_attack_idx()];
                 int resist_stun = 0;
 
-                if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += (10*r_ptr->level);
+                if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += r_ptr->level;
                 if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 33;
                 if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 33;
                 if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
@@ -3144,21 +3156,22 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (r_ptr->flags3 & RF3_NO_STUN) stun_effect = 0;
                 if (r_ptr->flagsr & RFR_RES_SOUN) stun_effect = 0;
 
-                if (mon_save_p(m_ptr->r_idx, A_DEX))
-                    stun_effect = 0;
-
                 if (stun_effect && ((k + p_ptr->weapon_info[hand].to_d) < m_ptr->hp))
                 {
                     if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
                     {
-                        if (MON_STUNNED(m_ptr))
-                            stun_effect /= 4;
+                        int cur_stun = MON_STUNNED(m_ptr);
+                        if (cur_stun)
+                        {
+                            int div = 1 + cur_stun / 20;
+                            stun_effect = MAX(1, stun_effect/div);
+                        }
 
                         if (stun_effect == 0)
                         {
                             /* No message */
                         }
-                        else if (set_monster_stunned(c_ptr->m_idx, stun_effect + MON_STUNNED(m_ptr)))
+                        else if (set_monster_stunned(c_ptr->m_idx, cur_stun + stun_effect))
                             msg_format("%^s is stunned.", m_name_subject);
                         else
                             msg_format("%^s is more stunned.", m_name_subject);
@@ -3212,40 +3225,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (mode == MAULER_CRUSHING_BLOW)
                     k = k * NUM_BLOWS(hand) / 50;
 
-                if ( (have_flag(flgs, OF_IMPACT) && (k > 50 || one_in_(7)))
-                  || chaos_effect == 2
-                  || mode == HISSATSU_QUAKE
-                  || (mauler_get_toggle() == MAULER_TOGGLE_SHATTER && (k > 50 || one_in_(7))) )
-                {
-                    do_quake = TRUE;
-                    if ( k <= 50
-                      || (r_ptr->flagsr & RFR_RES_ALL)
-                      || (r_ptr->flags3 & RF3_NO_STUN)
-                      || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_STR)) )
-                    {
-                    }
-                    else
-                    {
-                        msg_format("%^s is stunned.", m_name_subject);
-                        set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 3 + randint1(3)));
-                    }
-                }
-
-                if (have_flag(flgs, OF_STUN) && randint1(100) < k)
-                {
-                    if ( (r_ptr->flagsr & RFR_RES_ALL)
-                      || (r_ptr->flags3 & RF3_NO_STUN)
-                      || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_STR)) )
-                    {
-                    }
-                    else
-                    {
-                        msg_format("%^s is stunned.", m_name_subject);
-                        set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 3 + randint1(3)));
-                        obj_learn_slay(o_ptr, OF_STUN, "<color:o>Stuns</color> your enemies");
-                    }
-                }
-
                 if (!poison_needle
                  && mode != HISSATSU_KYUSHO
                  && mode != MYSTIC_KILL
@@ -3259,6 +3238,38 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     {
                         k = k * crit.mul/100 + crit.to_d;
                         msg_print(crit.desc);
+                    }
+                }
+
+                if ( (have_flag(flgs, OF_IMPACT) && (k > 50 || one_in_(7)))
+                  || chaos_effect == 2
+                  || mode == HISSATSU_QUAKE
+                  || (mauler_get_toggle() == MAULER_TOGGLE_SHATTER && (k > 50 || one_in_(7))) )
+                {
+                    do_quake = TRUE;
+                    if ( k <= 50
+                      || (r_ptr->flagsr & RFR_RES_ALL)
+                      || (r_ptr->flags3 & RF3_NO_STUN) )
+                    {
+                    }
+                    else
+                    {
+                        msg_format("%^s is stunned.", m_name_subject);
+                        mon_stun(m_ptr, mon_stun_amount(k));
+                    }
+                }
+
+                if (have_flag(flgs, OF_STUN) && randint1(100) < k)
+                {
+                    if ( (r_ptr->flagsr & RFR_RES_ALL)
+                      || (r_ptr->flags3 & RF3_NO_STUN) )
+                    {
+                    }
+                    else
+                    {
+                        msg_format("%^s is stunned.", m_name_subject);
+                        mon_stun(m_ptr, mon_stun_amount(k));
+                        obj_learn_slay(o_ptr, OF_STUN, "<color:o>Stuns</color> your enemies");
                     }
                 }
 
@@ -3375,9 +3386,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (duelist_attack)
             {
                 int d = k;
-                /* Duelist: Careful Aim */
-                if (duelist_attack &&
-                    p_ptr->lev >= 10)
+                
+                if (p_ptr->lev >= 10) /* Careful Aim */
                 {
                     k += d;
                 }
@@ -3388,22 +3398,22 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     msg_format("You <color:y>hamstring</color> %s.", m_name_object);
                     set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50);
                 }
-                if ( p_ptr->lev >= 20    /* Wounding Strike */
+                if ( p_ptr->lev >= 25    /* Stunning Blow */
+                    && !(r_ptr->flags3 & (RF3_NO_STUN))
                     && !mon_save_p(m_ptr->r_idx, A_DEX) )
+                {
+                    msg_format("%^s is dealt a <color:B>stunning</color> blow (%d).", m_name_subject, k);
+                    mon_stun(m_ptr, mon_stun_amount(d));
+                }
+                if ( p_ptr->lev >= 20    /* Wounding Strike */
+                  && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
                     msg_format("%^s is dealt a <color:r>wounding</color> strike.", m_name_subject);
                     k += MIN(m_ptr->hp / 5, randint1(3) * d);
                     drain_result = k;
                 }
-                if ( p_ptr->lev >= 25    /* Stunning Blow */
-                    && !(r_ptr->flags3 & (RF3_NO_STUN))
-                    && !mon_save_p(m_ptr->r_idx, A_DEX) )
-                {
-                    msg_format("%^s is dealt a <color:B>stunning</color> blow.", m_name_subject);
-                    set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
-                }
                 if ( p_ptr->lev >= 40    /* Greater Wounding Strike */
-                    && !mon_save_p(m_ptr->r_idx, A_DEX) )
+                  && !mon_save_p(m_ptr->r_idx, A_DEX) )
                 {
                     msg_format("%^s is dealt a <color:v>*WOUNDING*</color> strike.", m_name_subject);
                     k += MIN(m_ptr->hp * 2 / 5, rand_range(2, 10) * d);
@@ -3504,14 +3514,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                             mon_lore_3(m_ptr, RF3_NO_STUN);
                             msg_format("%^s is immune.", m_name_subject);
                         }
-                        else if (mon_save_p(m_ptr->r_idx, A_STR))
+                        else if (mon_stun_save(r_ptr->level, k))
                         {
                             msg_format("%^s resists.", m_name_subject);
                         }
                         else
                         {
                             msg_format("%^s is stunned.", m_name_subject);
-                            set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
+                            mon_stun(m_ptr, mon_stun_amount(k));
                         }
                     }
                     break;
@@ -3601,10 +3611,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     {
                         if ( one_in_(5)
                           && !(r_ptr->flags3 & RF3_NO_STUN)
-                          && !mon_save_p(m_ptr->r_idx, A_STR) )
+                          && !mon_stun_save(r_ptr->level, k) )
                         {
                             msg_format("%^s is shocked convulsively.", m_name_subject);
-                            set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 4));
+                            mon_stun(m_ptr, mon_stun_amount(k));
                         }
                     }
                     break;
@@ -3616,6 +3626,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
                 k = k * 3 / 2;
+
+            if (p_ptr->stun)
+                k -= k * MIN(100, p_ptr->stun) / 150;
 
             dam_tot += k;
 
@@ -3674,7 +3687,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (mauler_get_toggle() == MAULER_TOGGLE_SPLATTER)
                 {
                     project(0, 2, y, x, k,
-                            GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_FULL_DAM, -1);
+                            GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_FULL_DAM);
                 }
 
                 if ( o_ptr
@@ -3689,12 +3702,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     p_ptr->duelist_target_idx = 0;
                     p_ptr->redraw |= PR_STATUS;
 
-                    if (p_ptr->lev >= 35)    /* Endless Duel */
+                    if (p_ptr->lev >= 35 && duelist_can_challenge())    /* Endless Duel */
                     {
                         /* Hacks so that get_fire_dir() actually allows user to select a new target */
                         target_who = 0;
                         command_dir = 0;
                         msg_print("Your chosen target is vanquished!  Select another.");
+                        msg_print(NULL);
                         duelist_issue_challenge();
                     }
                     else
@@ -3720,7 +3734,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (o_ptr && o_ptr->name1 == ART_ETERNAL_BLADE)
                 {
                     /* Hack: Time Brand. Effectively a 2x slay ... k2 is damage from dice alone.*/
-                    project(0, 0, y, x, k2, GF_TIME, PROJECT_HIDE | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID | PROJECT_NO_PAIN, -1);
+                    gf_affect_m(GF_WHO_PLAYER, m_ptr, GF_TIME, k2, GF_AFFECT_ATTACK);
                     *mdeath = (m_ptr->r_idx == 0);
                     if (*mdeath) break;
                 }
@@ -3743,14 +3757,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         mon_lore_3(m_ptr, RF3_NO_STUN);
                         msg_format("%^s is immune.", m_name_subject);
                     }
-                    else if ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_STR))
+                    else if ((r_ptr->flags1 & RF1_UNIQUE) && mon_stun_save(r_ptr->level, k))
                     {
                         msg_format("%^s resists.", m_name_subject);
                     }
                     else
                     {
                         msg_format("%^s is stunned.", m_name_subject);
-                        set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 3 + randint1(3)));
+                        mon_stun(m_ptr, mon_stun_amount(k));
                     }
                 }
                 if (mode == MELEE_AWESOME_BLOW)
@@ -3854,7 +3868,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         }
                         else
                         {
-                            msg_format("%^s appears confused.", m_name_subject);
+                            msg_format("%^s appears <color:U>confused</color>.", m_name_subject);
                             set_monster_confused(c_ptr->m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
                         }
                     }
@@ -3877,7 +3891,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         }
                         else
                         {
-                            msg_format("%^s is knocked out.", m_name_subject);
+                            msg_format("%^s is <color:b>knocked out</color>.", m_name_subject);
                             knock_out++;
                             /* No more retaliation this round! */
                             retaliation_count = 100; /* Any number >= 4 will do ... */
@@ -3897,14 +3911,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                             mon_lore_3(m_ptr, RF3_NO_STUN);
                             msg_format("%^s is immune.", m_name_subject);
                         }
-                        else if (mon_save_p(m_ptr->r_idx, A_STR))
+                        else if (mon_stun_save(r_ptr->level, k))
                         {
                             msg_format("%^s resists.", m_name_subject);
                         }
                         else
                         {
-                            msg_format("%^s is stunned.", m_name_subject);
-                            set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
+                            msg_format("%^s is <color:B>stunned</color>.", m_name_subject);
+                            mon_stun(m_ptr, mon_stun_amount(k));
                         }
                     }
                 }
@@ -3914,6 +3928,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
             touch_zap_player(c_ptr->m_idx);
             touch_ct++;
+            /* XXX if (distance(py, px, m_ptr->fy, m_ptr->fx) > 1)  monster aura moved us!
+                return success_hit; */
 
             if (can_drain && (drain_result > 0))
             {
@@ -3970,7 +3986,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                                 drain_msg = FALSE;
                             }
                             drain_heal = (drain_heal * mutant_regenerate_mod) / 100;
-                            hp_player_aux(drain_heal);
+                            vamp_player(drain_heal);
                             obj_learn_slay(o_ptr, OF_BRAND_VAMP, "is <color:D>Vampiric</color>");
                         }
                     }
@@ -4055,7 +4071,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     !(m_ptr->mflag2 & MFLAG2_QUESTOR) && 
                     !(r_ptr->flagsr & RFR_EFF_RES_CHAO_MASK))
                 {
-                    if (polymorph_monster(y, x))
+                    if (polymorph_monster(m_ptr))
                     {
                         msg_format("%^s changes!", m_name_subject);
                         *fear = FALSE;
@@ -4210,7 +4226,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
     if (weaponmaster_get_toggle() == TOGGLE_TRIP && mode == 0 && !(*mdeath) && !fear_stop)
     {
-        if (test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
+        if (test_hit_norm(chance, mon_ac(m_ptr), m_ptr->ml))
         {
             if (m_ptr->mflag2 & MFLAG2_TRIPPED)
                 msg_format("%^s is already tripped up.", m_name_subject);
@@ -4251,7 +4267,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (p_ptr->pclass == CLASS_DUELIST)
         c_put_str(TERM_WHITE, format("Duel:%5d", dam_tot), 24, 0);
 #endif
-
+    if (*mdeath)
+        wizard_report_damage(old_hp);
+    else
+        wizard_report_damage(old_hp - m_ptr->hp);
 
     return success_hit;
 }
@@ -4300,7 +4319,7 @@ bool py_attack(int y, int x, int mode)
 
     energy_use = 100;
 
-    if (!p_ptr->weapon_ct && !p_ptr->innate_attack_ct)
+    if (!p_ptr->weapon_ct && !p_ptr->innate_attack_ct && !possessor_can_attack())
     {
         msg_print("You have no melee attacks.");
         energy_use = 0;
@@ -4317,7 +4336,7 @@ bool py_attack(int y, int x, int mode)
     monster_desc(m_name, m_ptr, 0);
     if (m_ptr->ml)
     {
-        if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
+        if (!p_ptr->image) mon_track(m_ptr);
         health_track(c_ptr->m_idx);
     }
 
@@ -4606,6 +4625,13 @@ bool py_attack(int y, int x, int mode)
         return TRUE;
     }
 
+    if (possessor_can_attack() && !mdeath && !fear_stop)
+    {
+        if (mode == WEAPONMASTER_RETALIATION && p_ptr->weapon_ct > 0)
+        {
+        }
+        else possessor_attack(point(x,y), &fear, &mdeath, mode);
+    }
     if (p_ptr->innate_attack_ct && !mdeath && !fear_stop)
     {
         bool do_innate_attacks = TRUE;
@@ -4863,6 +4889,7 @@ bool player_can_enter(s16b feature, u16b mode)
 static bool _auto_detect_traps(void)
 {
     slot_t slot;
+    if (!auto_detect_traps) return FALSE;
     if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
     if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_detect_traps()) return TRUE;
 
@@ -4870,11 +4897,14 @@ static bool _auto_detect_traps(void)
     if (slot && !p_ptr->blind && !(get_race()->flags & RACE_IS_ILLITERATE))
     {
         obj_ptr scroll = pack_obj(slot);
-        detect_traps(DETECT_RAD_DEFAULT, TRUE);
-        stats_on_use(scroll, 1);
-        scroll->number--;
-        obj_release(scroll, 0);
-        return TRUE;
+        if (obj_is_known(scroll))
+        {
+            detect_traps(DETECT_RAD_DEFAULT, TRUE);
+            stats_on_use(scroll, 1);
+            scroll->number--;
+            obj_release(scroll, 0);
+            return TRUE;
+        }
     }
     slot = pack_find_device(EFFECT_DETECT_TRAPS);
     if (slot)
@@ -4900,6 +4930,7 @@ static bool _auto_detect_traps(void)
 static bool _auto_mapping(void)
 {
     slot_t slot;
+    if (!auto_map_area) return FALSE;
     if (p_ptr->pclass == CLASS_BERSERKER) return FALSE;
     /*if (p_ptr->pclass == CLASS_MAGIC_EATER && magic_eater_auto_mapping()) return TRUE;*/
 
@@ -4907,11 +4938,14 @@ static bool _auto_mapping(void)
     if (slot && !p_ptr->blind && !(get_race()->flags & RACE_IS_ILLITERATE))
     {
         obj_ptr scroll = pack_obj(slot);
-        map_area(DETECT_RAD_MAP);
-        stats_on_use(scroll, 1);
-        scroll->number--;
-        obj_release(scroll, 0);
-        return TRUE;
+        if (obj_is_known(scroll))
+        {
+            map_area(DETECT_RAD_MAP);
+            stats_on_use(scroll, 1);
+            scroll->number--;
+            obj_release(scroll, 0);
+            return TRUE;
+        }
     }
     slot = pack_find_device(EFFECT_ENLIGHTENMENT);
     if (slot)
@@ -5123,7 +5157,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
         if (music_singing(MUSIC_WALL))
         {
             (void)project(0, 0, py, px, (60 + p_ptr->lev), GF_DISINTEGRATE,
-                PROJECT_KILL | PROJECT_ITEM, -1);
+                PROJECT_KILL | PROJECT_ITEM);
 
             if (!player_bold(ny, nx) || p_ptr->is_dead || p_ptr->leaving) return FALSE;
         }
@@ -5253,9 +5287,6 @@ bool trap_can_be_ignored(int feat)
     case TRAP_POISON:
         if (res_can_ignore(RES_POIS)) return TRUE;
         break;
-    case TRAP_SLEEP:
-        if (p_ptr->free_act) return TRUE;
-        break;
     }
 
     return FALSE;
@@ -5342,7 +5373,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             if (m_ptr->ml)
             {
                 /* Auto-Recall if possible and visible */
-                if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
+                if (!p_ptr->image) mon_track(m_ptr);
 
                 /* Track a new monster */
                 health_track(c_ptr->m_idx);
@@ -5445,7 +5476,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             oktomove = FALSE;
             disturb(0,0);
         }
-        else if (riding_m_ptr->paralyzed)
+        else if (MON_PARALYZED(riding_m_ptr))
         {
             char m_name[80];
             monster_desc(m_name, riding_m_ptr, 0);

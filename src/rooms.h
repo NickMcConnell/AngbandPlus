@@ -134,6 +134,7 @@ enum obj_types_e                           /* OBJ(DEVICE), etc */
     OBJ_TYPE_DEVICE,
     OBJ_TYPE_JEWELRY,
     OBJ_TYPE_BOOK,
+    OBJ_TYPE_HI_BOOK,
     OBJ_TYPE_BODY_ARMOR,
     OBJ_TYPE_OTHER_ARMOR,
     OBJ_TYPE_WEAPON,

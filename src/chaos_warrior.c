@@ -464,7 +464,7 @@ void chaos_warrior_reward(void)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Suffer, pathetic fool!'");
             fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
-            take_hit(DAMAGE_NOESCAPE, p_ptr->lev * 4, wrath_reason, -1);
+            take_hit(DAMAGE_NOESCAPE, p_ptr->lev * 4, wrath_reason);
             break;
        case REW_HEAL_FUL:
             msg_format("The voice of %s booms out:",
@@ -541,7 +541,7 @@ void chaos_warrior_reward(void)
             msg_format("The voice of %s thunders:", chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Die, mortal!'");
 
-            take_hit(DAMAGE_LOSELIFE, p_ptr->lev * 4, wrath_reason, -1);
+            take_hit(DAMAGE_LOSELIFE, p_ptr->lev * 4, wrath_reason);
             for (dummy = 0; dummy < 6; dummy++)
                 dec_stat(dummy, 10 + randint1(15), FALSE);
             activate_hi_summon(py, px, FALSE);

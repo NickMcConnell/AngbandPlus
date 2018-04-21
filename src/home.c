@@ -39,7 +39,7 @@ void home_optimize(void)
     inv_optimize(_home);
 }
 
-static void home_carry(obj_ptr obj)
+void home_carry(obj_ptr obj)
 {
     if (obj->number)
         inv_combine_ex(_home, obj);

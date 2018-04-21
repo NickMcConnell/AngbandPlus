@@ -802,8 +802,8 @@ static void _calc_bonuses(void)
     p_ptr->regen += 100;
     p_ptr->slow_digest = TRUE;
     p_ptr->telepathy = TRUE;
-    p_ptr->free_act = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->free_act++;
+    p_ptr->see_inv++;
     p_ptr->sustain_chr = TRUE;
 
     if (p_ptr->current_r_idx == MON_NEXUS_QUYLTHULG)
@@ -813,7 +813,7 @@ static void _calc_bonuses(void)
       || p_ptr->current_r_idx == MON_GREATER_ROTTING_QUYLTHULG )
     {
         res_add(RES_NETHER);
-        p_ptr->hold_life = TRUE;
+        p_ptr->hold_life++;
     }
 
     if ( p_ptr->current_r_idx == MON_DRACONIC_QUYLTHULG

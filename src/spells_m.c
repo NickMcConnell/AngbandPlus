@@ -524,6 +524,7 @@ void pattern_mindwalk_spell(int cmd, variant *res)
         do_res_stat(A_CON);
         do_res_stat(A_CHR);
         restore_level();
+        lp_player(1000);
 
         var_set_bool(res, TRUE);
         break;
@@ -1376,6 +1377,7 @@ void restoration_spell(int cmd, variant *res)
         do_res_stat(A_CON);
         do_res_stat(A_CHR);
         restore_level();
+        lp_player(1000);
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1396,6 +1398,7 @@ void restore_life_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         restore_level();
+        lp_player(150);
         var_set_bool(res, TRUE);
         break;
     default:

@@ -463,7 +463,7 @@ static void preserve_pet(void)
         {
             /* Its parent have gone, it also goes away. */
 
-            if (is_seen(m_ptr))
+            if (mon_show_msg(m_ptr))
             {
                 char m_name[80];
 
@@ -567,20 +567,11 @@ static void place_pet(void)
             *m_ptr = party_mon[i];
             r_ptr = real_r_ptr(m_ptr);
 
+            m_ptr->id = m_idx;
             m_ptr->fy = cy;
             m_ptr->fx = cx;
             m_ptr->ml = TRUE;
             m_ptr->mtimed[MTIMED_CSLEEP] = 0;
-            /* TODO: Leaving summons behind on a level is not fixing this up!
-               Here's my guess to the problem:
-               [1] preserve_pet copies monsters into party_mon (order undefined, but currently the mount is copied first)
-                   preserve_pet loops thru all monsters, and calls delete_monster_idx on anything left behind.
-               [2] delete_monster_idx, of course, patches up the parents summon count, but knows nothing
-                   about any memory copies that may or may not have been made (Copying may happen later
-                   depending on random monster order and order of processing. Only p_ptr-riding seems to
-                   have deterministic behavior).
-             */
-            m_ptr->summon_ct = 0; 
 
             /* Paranoia */
             m_ptr->hold_o_idx = 0;
@@ -1369,10 +1360,6 @@ void change_floor(void)
 
     /* The dungeon is ready */
     character_dungeon = TRUE;
-
-    /* Hack -- Munchkin characters always get whole map */
-    if (p_ptr->personality == PERS_MUNCHKIN)
-        wiz_lite(p_ptr->pclass == CLASS_NINJA);
 
     /* Remember when this level was "created" */
     old_turn = game_turn;

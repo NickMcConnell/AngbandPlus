@@ -141,9 +141,9 @@ static void _calc_bonuses(void) {
         res_add_vuln(RES_LITE);
 
     p_ptr->align -= 200;
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
     p_ptr->slow_digest = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     res_add(RES_COLD);
     res_add(RES_POIS);
     res_add(RES_NETHER);
@@ -152,7 +152,7 @@ static void _calc_bonuses(void) {
         p_ptr->pspeed += 1;
         res_add(RES_CONF);
         res_add(RES_TELEPORT);
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
     }
     if (p_ptr->lev >= 40)
     {

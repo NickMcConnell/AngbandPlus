@@ -172,7 +172,7 @@ nearly indistiguishable in skill from Warriors!
   Constitution  +2        Searching   Poor         
   Charisma      +2        Perception  Bad          
   Life Rating  112%       Melee       Superb       
-  Base HP       25        Bows        Very Good    
+  Base HP       25        Bows        Fair         
   Experience   140%
   
 Table 1 - Warlock Statistic Bonus Table
@@ -208,10 +208,10 @@ Angels            Poor          Bad           Fair          Poor
 Demons            Poor          Bad           Excellent     Poor         
 Hounds            Fair          Poor          Excellent     Bad          
 Spiders           Poor          Bad           Fair          Very Good    
-Giants            Poor          Bad           Superb        Very Good    
+Giants            Poor          Bad           Superb        Fair         
 
 
 
 
-Automatically generated for PosChengband 6.0.7.
+Automatically generated for PosChengband 7.0.0.
 

@@ -13,7 +13,7 @@
  * don't blame -BEN- :) */
 
 #include "angband.h"
-
+#include <math.h>
 
 #ifdef ALLOW_SPOILERS
 
@@ -504,7 +504,7 @@ static void _spoil_table_aux(doc_ptr doc, cptr title, _obj_p pred, int options)
     int     score_std = 0, score_rnd = 0, score_ego = 0;
     int     max_score_std = 0, max_score_rnd = 0, max_score_ego = 0;
 
-    if ((options & _SPOIL_ARTS) && (!random_artifacts || random_artifact_pct < 100))
+    if ((options & _SPOIL_ARTS) /* FIXED_ART ... && (!random_artifacts || random_artifact_pct < 100)*/)
     {
         for (i = 1; i < max_a_idx; ++i)
         {
@@ -880,9 +880,8 @@ static void _display_res(doc_ptr doc, int res)
     }
     doc_printf(doc, " <color:%c>%3d</color>", color, pct);
 }
-static void _display_dam(doc_ptr doc, int res, int amt)
+static void _display_dam(doc_ptr doc, int dam)
 {
-    int dam = amt - amt * res_pct_known(res) / 100;
     int ratio = dam * 100 / p_ptr->chp;
     char color;
     if (ratio > 100) color = 'v';
@@ -896,106 +895,599 @@ static void _display_dam(doc_ptr doc, int res, int amt)
     doc_printf(doc, " <color:%c>%3d</color>", color, dam);
 }
 
-static void _spoil_mon_dam_aux(doc_ptr doc, vec_ptr v)
+static char _melee_dam_color(int dam)
+{
+    int ratio = dam * 100 / p_ptr->chp;
+    if (ratio > 40) return 'v';
+    else if (ratio > 25) return 'r';
+    else if (ratio > 15) return 'R';
+    else if (ratio > 10) return 'o';
+    else if (ratio >  5) return 'y';
+    else if (ratio >  3) return 'U';
+    else if (dam == 0) return 'D';
+    return 'w';
+}
+
+static void _display_melee_dam(doc_ptr doc, int dam1, int dam2)
+{
+    if (dam1 != dam2)
+    {
+        doc_printf(doc, " <color:%c>%3d</color>-><color:%c>%3d</color>",
+            _melee_dam_color(dam1), dam1,
+            _melee_dam_color(dam2), dam2);
+    }
+    else
+    {
+        doc_printf(doc, " <color:%c>%3d</color>     ", _melee_dam_color(dam1), dam1);
+    }
+}
+
+static void _display_speed(doc_ptr doc, int speed)
+{
+    char color;
+    if (speed >= 30) color = 'v';
+    else if (speed >= 20) color = 'r';
+    else if (speed >= 10) color = 'R';
+    else if (speed >=  5) color = 'y';
+    else color = 'w';
+    doc_printf(doc, " <color:%c>%5d</color>", color, speed);
+}
+
+static int _avg_dam_roll(int dd, int ds) { return dd * (ds + 1) / 2; }
+static int _mon_hp(mon_race_ptr r)
+{
+    if (r->flags1 & RF1_FORCE_MAXHP)
+        return r->hdice * r->hside;
+    return _avg_dam_roll(r->hdice, r->hside);
+}
+
+typedef struct {
+    int dam[RES_MAX];
+    int unresist;
+    int total;
+    int count;
+} _spell_dam_info_t, *_spell_dam_info_ptr;
+
+static _spell_dam_info_ptr _spell_dam_info_alloc(void)
+{
+    _spell_dam_info_ptr info = malloc(sizeof(_spell_dam_info_t));
+    memset(info, 0, sizeof(_spell_dam_info_t));
+    return info;
+}
+static void _add_spell_dam(_spell_dam_info_ptr info, int which, int amt)
+{
+    if (which == RES_INVALID)
+    {
+        if (info->unresist < amt)
+            info->unresist = amt;
+    }
+    else
+    {
+        if (info->dam[which] < amt)
+            info->dam[which] = amt;
+    }
+    info->total += amt;
+    info->count++;
+}
+
+static void _add_bolt_dam(_spell_dam_info_ptr info, int which, int amt)
+{
+    if (p_ptr->reflect)
+        _add_spell_dam(info, which, amt/7);
+    else
+        _add_spell_dam(info, which, amt);
+}
+
+static void _add_curse_dam(_spell_dam_info_ptr info, mon_race_ptr mon, int amt)
+{
+    int roll = 100 + mon->level/2;
+    int sav = p_ptr->skills.sav;
+    int success = sav * 100 / roll;
+    int fail = 100 - success;
+    int dam = amt * fail / 100;
+    if (mon->id == MON_KENSHIROU) dam = amt; /* his curses never fail */
+    _add_spell_dam(info, RES_INVALID, dam);
+}
+
+static _spell_dam_info_ptr _calc_spell_dam_info(mon_race_ptr r)
+{
+    int                 i;
+    _spell_dam_info_ptr info = _spell_dam_info_alloc();
+    mon_spells_ptr      spells = r->spells;
+    mon_spell_group_ptr group;
+
+    if (!spells) return info;
+    group = spells->groups[MST_BREATH];
+    if (group)
+    {
+        for (i = 0; i < group->count; i++)
+        {
+            mon_spell_ptr spell = &group->spells[i];
+            int           dam = mon_spell_avg_dam(spell, r, TRUE);
+            gf_info_ptr   gf = gf_lookup(spell->id.effect);
+            int           res = RES_INVALID;
+            if (gf) res = gf->resist;
+            _add_spell_dam(info, res, dam);
+        }
+    }
+    group = spells->groups[MST_BALL];
+    if (group)
+    {
+        for (i = 0; i < group->count; i++)
+        {
+            mon_spell_ptr spell = &group->spells[i];
+            int           dam = mon_spell_avg_dam(spell, r, TRUE);
+            gf_info_ptr   gf = gf_lookup(spell->id.effect);
+            int           res = RES_INVALID;
+            if (gf) res = gf->resist;
+            if ( spell->id.effect == GF_MIND_BLAST
+              || spell->id.effect == GF_BRAIN_SMASH )
+            {
+                _add_curse_dam(info, r, dam);
+            }
+            else
+                _add_spell_dam(info, res, dam);
+        }
+    }
+    group = spells->groups[MST_BOLT];
+    if (group)
+    {
+        for (i = 0; i < group->count; i++)
+        {
+            mon_spell_ptr spell = &group->spells[i];
+            int           dam = mon_spell_avg_dam(spell, r, TRUE);
+            gf_info_ptr   gf = gf_lookup(spell->id.effect);
+            int           res = RES_INVALID;
+            if (gf) res = gf->resist;
+            _add_bolt_dam(info, res, dam);
+        }
+    }
+    group = spells->groups[MST_BEAM];
+    if (group)
+    {
+        for (i = 0; i < group->count; i++)
+        {
+            mon_spell_ptr spell = &group->spells[i];
+            int           dam = mon_spell_avg_dam(spell, r, TRUE);
+            gf_info_ptr   gf = gf_lookup(spell->id.effect);
+            int           res = RES_INVALID;
+            if (gf) res = gf->resist;
+            _add_spell_dam(info, res, dam);
+        }
+    }
+    group = spells->groups[MST_CURSE];
+    if (group)
+    {
+        for (i = 0; i < group->count; i++)
+        {
+            mon_spell_ptr spell = &group->spells[i];
+            int           dam = mon_spell_avg_dam(spell, r, TRUE);
+            _add_curse_dam(info, r, dam);
+        }
+    }
+    return info;
+}
+
+static void _spoil_mon_spell_dam_aux(doc_ptr doc, vec_ptr v)
 {
     int i, j;
     for (i = 0; i < vec_length(v); i++)
     {
-        mon_race_ptr r = vec_get(v, i);
-        int          hp = 0;
-        int          dam[RES_MAX] = {0};
+        mon_race_ptr        r = vec_get(v, i);
+        _spell_dam_info_ptr info = _calc_spell_dam_info(r);
+        int                 hp = 0;
+        char                color = 'w';
 
         if (r->flags1 & RF1_FORCE_MAXHP)
             hp = r->hdice * r->hside;
         else
             hp = r->hdice * (1 + r->hside)/2;
 
-        /* Damage Logic Duplicated from mspells1.c */
-        if (r->flags4 & RF4_ROCKET)
-            dam[RES_SHARDS] = MAX(dam[RES_SHARDS], MIN(hp / 4, 600));
-        if (r->flags4 & RF4_BR_ACID)
-            dam[RES_ACID] = MAX(dam[RES_ACID], MIN(hp / 4, 900));
-        if (r->flags4 & RF4_BR_ELEC)
-            dam[RES_ELEC] = MAX(dam[RES_ELEC], MIN(hp / 4, 900));
-        if (r->flags4 & RF4_BR_FIRE)
-            dam[RES_FIRE] = MAX(dam[RES_FIRE], MIN(hp / 4, 900));
-        if (r->flags4 & RF4_BR_COLD)
-            dam[RES_COLD] = MAX(dam[RES_COLD], MIN(hp / 4, 900));
-        if (r->flags4 & RF4_BR_POIS)
-            dam[RES_POIS] = MAX(dam[RES_POIS], MIN(hp / 5, 600));
-        if (r->flags4 & RF4_BR_NETH)
-            dam[RES_NETHER] = MAX(dam[RES_NETHER], MIN(hp / 7, 550));
-        if (r->flags4 & RF4_BR_LITE)
-            dam[RES_LITE] = MAX(dam[RES_LITE], MIN(hp / 6, 400));
-        if (r->flags4 & RF4_BR_DARK)
-            dam[RES_DARK] = MAX(dam[RES_DARK], MIN(hp / 6, 400));
-        if (r->flags4 & RF4_BR_CONF)
-            dam[RES_CONF] = MAX(dam[RES_CONF], MIN(hp / 6, 400));
-        if (r->flags4 & RF4_BR_SOUN)
-            dam[RES_SOUND] = MAX(dam[RES_SOUND], MIN(hp / 6, 450));
-        if (r->flags4 & RF4_BR_CHAO)
-            dam[RES_CHAOS] = MAX(dam[RES_CHAOS], MIN(hp / 6, 600));
-        if (r->flags4 & RF4_BR_DISE)
-            dam[RES_DISEN] = MAX(dam[RES_DISEN], MIN(hp / 6, 500));
-        if (r->flags4 & RF4_BR_NEXU)
-            dam[RES_NEXUS] = MAX(dam[RES_NEXUS], MIN(hp / 3, 250));
-        if (r->flags4 & RF4_BR_SHAR)
-            dam[RES_SHARDS] = MAX(dam[RES_SHARDS], MIN(hp / 6, 500));
-        if (r->flags4 & RF4_BR_NUKE)
-            dam[RES_POIS] = MAX(dam[RES_POIS], MIN(hp / 5, 600));
-        if (r->flags5 & RF5_BA_DARK)
-            dam[RES_DARK] = MAX(dam[RES_DARK], r->level*4 + 105);
-        if (r->flags5 & RF5_BA_LITE)
-            dam[RES_LITE] = MAX(dam[RES_LITE], r->level*4 + 105);
-        if (r->flags4 & RF4_BA_CHAO)
-        {
-            int d;
-            if (r->flags2 & RF2_POWERFUL) d = r->level * 3;
-            else d = r->level * 2;
-            d += 55;
-            dam[RES_CHAOS] = MAX(dam[RES_CHAOS], d);
-        }
-
         if (i%25 == 0)
         {
-            doc_printf(doc, "\n<tab:21><color:B>%3d %5d</color>", p_ptr->lev, p_ptr->chp);
+            doc_printf(doc, "\n<tab:21><color:B>%3d %5d     </color>", p_ptr->lev, p_ptr->chp);
             for (j = RES_ACID; j <= RES_DISEN; j++)
                 _display_res(doc, j);
-            doc_printf(doc, "\n<color:G>%-20.20s Lvl    HP  Ac  El  Fi  Co  Po  Li  Dk  Cf  Nt  Nx  So  Sh  Ca  Di</color>\n", "Name");
+            doc_printf(doc, "\n<color:G>%-20.20s Lvl    HP Freq  Ac  El  Fi  Co  Po  Li  Dk  Cf  Nt  Nx  So  Sh  Ca  Di  Un</color>\n", "Name");
         }
 
-        doc_printf(doc, "%-20.20s %3d %5d", r_name + r->name, r->level, hp);
+        if (r->flags9 & RF9_DEPRECATED)
+            color = 'D';
+        else if (r->flags3 & RF3_OLYMPIAN)
+            color = 'U';
+        else if (r->id > 1132)
+            color = 'B';
+        doc_printf(doc, "<color:%c>%-20.20s</color> %3d %5d", color, r_name + r->name, r->level, hp);
+        if (r->spells)
+        {
+            char color;
+            if (r->spells->freq > 70) color = 'v';
+            else if (r->spells->freq >= 50) color = 'r';
+            else if (r->spells->freq >= 40) color = 'R';
+            else if (r->spells->freq >= 30) color = 'o';
+            else if (r->spells->freq >= 20) color = 'y';
+            else if (r->spells->freq >= 10) color = 'U';
+            else color = 'w';
+            doc_printf(doc, " <color:%c>%3d%%</color>", color, r->spells->freq);
+        }
+        else
+            doc_insert(doc, "     ");
         for (j = RES_ACID; j <= RES_DISEN; j++)
-            _display_dam(doc, j, dam[j]);
+            _display_dam(doc, info->dam[j]);
+        _display_dam(doc, info->unresist);
+        if (info->count)
+            _display_dam(doc, info->total / info->count);
+        doc_newline(doc);
+        free(info);
+    }
+}
+typedef struct {
+    int raw;
+    int reduced;  /* HURT, SUPERHURT, SHATTER reduce by player's AC */
+    int effective;/* account for 'dodge rate' (ie melee accuracy) */
+} _melee_dam_t;
+
+typedef struct {
+    mon_race_ptr mon;
+    _spell_dam_info_ptr spells;
+    _melee_dam_t melee1;
+    _melee_dam_t melee2;
+    int          hits;
+    int          auras;
+    int          retaliation;
+    int          nasty1;
+    int          nasty2;
+} _mon_dam_info_t, *_mon_dam_info_ptr;
+
+static int _gf_resist(int which, int dam)
+{
+    switch (which)
+    {
+    case GF_HOLY_FIRE:
+        dam = gf_holy_dam(dam);
+        break;
+    case GF_HELL_FIRE:
+        dam = gf_hell_dam(dam);
+        break;
+    default: {
+        gf_info_ptr gf = gf_lookup(which);
+        if (gf && gf->resist != RES_INVALID)
+        {
+            int pct = res_pct_known(gf->resist);
+            dam -= dam * pct / 100;
+        }
+        break; }
+    }
+    return dam;
+}
+
+static int _calc_py_hits(mon_race_ptr r) /* scaled by 100 */
+{
+    int i;
+    int hits = 0;
+    if (p_ptr->prace == RACE_MON_RING) return 0;
+    for (i = 0; i < MAX_HANDS; i++)
+    {
+        if (p_ptr->weapon_info[i].wield_how == WIELD_NONE) continue;
+        if (p_ptr->weapon_info[i].bare_hands)
+        {
+            int blows = NUM_BLOWS(i);
+            int chance = hit_chance(0, 0, r->ac);
+            hits += blows * chance / 100;
+        }
+        else
+        {
+            int blows = NUM_BLOWS(i);
+            obj_ptr obj = equip_obj(p_ptr->weapon_info[i].slot);
+            int chance = hit_chance(i, obj->to_h, r->ac);
+            hits += blows * chance / 100;
+        }
+    }
+    for (i = 0; i < p_ptr->innate_attack_ct; i++)
+    {
+        innate_attack_ptr a = &p_ptr->innate_attacks[i];
+        int to_h = p_ptr->to_h_m + a->to_h;
+        int chance = hit_chance_innate(to_h, r->ac);
+        int blows = a->blows;
+        if (i == 0)
+            blows += p_ptr->innate_attack_info.xtra_blow;
+        hits += blows * chance / 100;
+    }
+    return hits;
+}
+
+static _mon_dam_info_ptr _mon_dam_info_alloc(mon_race_ptr r)
+{
+    int j, k, blows = 0;
+    int ac = p_ptr->ac + p_ptr->to_a;
+    int ac2 = 3*ac/4;
+    int freq = r->spells ? r->spells->freq : 0;
+    _mon_dam_info_ptr info = malloc(sizeof(_mon_dam_info_t));
+    memset(info, 0, sizeof(_mon_dam_info_t));
+
+    info->mon = r;
+    info->spells = _calc_spell_dam_info(r);
+
+    for (j = 0; j < MAX_MON_BLOWS; j++)
+    {
+        int dam = 0, dam1 = 0, dam2 = 0;
+        mon_blow_ptr blow = &r->blows[j];
+        int skill, chance;
+
+        if (freq == 100) break;
+        if (!blow->method) continue;
+        if (blow->method == RBM_EXPLODE) continue;
+
+        for (k = 0; k < MAX_MON_BLOW_EFFECTS; k++)
+        {
+            mon_effect_ptr effect = &blow->effects[k];
+            int            effect_dam;
+
+            if (!effect->effect) continue;
+            /* skip non-damaging effects */
+            if (effect->effect == RBE_CUT) continue;
+            if (effect->effect == RBE_DRAIN_EXP) continue;
+            if (effect->effect == GF_TURN_ALL) continue;
+            if (effect->effect == GF_STUN) continue;
+            if (effect->effect == GF_PARALYSIS) continue;
+            if (effect->effect == GF_DRAIN_MANA) continue;
+            /* XXX Delayed damage: if (effect->effect == GF_POIS) continue;*/
+
+            effect_dam = _avg_dam_roll(effect->dd, effect->ds);
+            effect_dam = _gf_resist(effect->effect, effect_dam);
+            if (effect->pct)
+                effect_dam = effect_dam * effect->pct / 100;
+
+            /* reduce for player AC, keeping old and new amounts so I can
+             * see the effects of changes side by side */
+            dam += effect_dam;
+            switch (effect->effect)
+            {
+            case RBE_HURT: case RBE_SHATTER:
+                dam1 += effect_dam * ac_melee_pct_aux(ac, 60, 150) / 100;
+                dam2 += effect_dam * ac_melee_pct(ac) / 100;
+                break;
+            default:
+                dam1 += effect_dam;
+                dam2 += effect_dam;
+            }
+        }
+        skill = blow->power;
+        skill += 3 * r->level;
+        if (skill > ac2)
+            chance = 50 + 19*(1000 - ac2*1000/skill)/20;
+        else
+            chance = 50;
+
+        /* now keep totals */
+        info->melee1.raw += dam;
+        info->melee1.reduced += dam1;
+        info->melee1.effective += chance * dam1 / 1000;
+
+        info->melee2.raw += dam;
+        info->melee2.reduced += dam2;
+        info->melee2.effective += chance * dam2 / 1000;
+
+        blows++;
+    }
+    if (!p_ptr->lightning_reflexes)
+    {
+        int dd = 1 + r->level/26;
+        int ds = 1 + r->level/17;
+        int base_dam = _avg_dam_roll(dd, ds);
+        if ((r->flags2 & RF2_AURA_REVENGE) && blows > 0)
+            info->retaliation += info->melee2.effective;
+        if (r->flags2 & RF2_AURA_FIRE)
+        {
+            int pct = res_pct_known(RES_FIRE);
+            int dam = base_dam - base_dam * pct / 100;
+            info->auras += dam;
+        }
+        if (r->flags3 & RF3_AURA_COLD)
+        {
+            int pct = res_pct_known(RES_COLD);
+            int dam = base_dam - base_dam * pct / 100;
+            info->auras += dam;
+        }
+        if (r->flags2 & RF2_AURA_ELEC)
+        {
+            int pct = res_pct_known(RES_ELEC);
+            int dam = base_dam - base_dam * pct / 100;
+            info->auras += dam;
+        }
+        for (j = 0; j < MAX_MON_AURAS; j++)
+        {
+            mon_effect_ptr aura = &r->auras[j];
+            int dam;
+            if (!aura->effect) continue;
+            dam = _avg_dam_roll(aura->dd, aura->ds);
+            dam = _gf_resist(aura->effect, dam);
+            if (aura->pct)
+                dam = dam * aura->pct / 100;
+            info->auras += dam;
+        }
+    }
+    if (info->spells->count)
+        info->nasty1 += (info->spells->total / info->spells->count) * freq/100;
+    info->nasty1 += info->melee2.effective * (100 - freq)/100;
+
+    if (info->spells->count)
+        info->nasty2 += (info->spells->total / info->spells->count) * MIN(100, freq + 12)/100;
+
+    if (1)
+    {
+        int mf = SPEED_TO_ENERGY(r->speed);
+        int pf = SPEED_TO_ENERGY(p_ptr->pspeed);
+        info->nasty1 = info->nasty1 * mf / pf;
+        info->nasty2 = info->nasty2 * mf / pf;
+    }
+
+    info->hits = _calc_py_hits(r);
+    info->nasty1 += info->auras * info->hits / 100;
+    if (info->retaliation)
+    {
+        int chance = r->level * 100 / 150;
+        int returns = info->hits * chance / 100;
+        if (returns > blows * 100) returns = blows * 100;
+        info->nasty1 += info->retaliation * returns/100;
+    }
+    return info;
+}
+static void _mon_dam_info_free(_mon_dam_info_ptr info)
+{
+    free(info->spells);
+    free(info);
+}
+
+static int _cmp_info1(_mon_dam_info_ptr left, _mon_dam_info_ptr right)
+{
+    if (left->mon->level < right->mon->level) return -1;
+    if (left->mon->level > right->mon->level) return 1;
+    return 0;
+}
+static int _cmp_info2(_mon_dam_info_ptr left, _mon_dam_info_ptr right)
+{
+    if (left->nasty1 < right->nasty1) return 1;
+    if (left->nasty1 > right->nasty1) return -1;
+    return 0;
+}
+static int _cmp_info3(_mon_dam_info_ptr left, _mon_dam_info_ptr right)
+{
+    if (left->nasty2 < right->nasty2) return 1;
+    if (left->nasty2 > right->nasty2) return -1;
+    return 0;
+}
+
+static void _spoil_mon_melee_dam_aux_aux(doc_ptr doc, vec_ptr v)
+{
+    int i;
+    for (i = 0; i < vec_length(v); i++)
+    {
+        _mon_dam_info_ptr info = vec_get(v, i);
+        int               hp = _mon_hp(info->mon);
+        char              color = 'w';
+
+        if (i%25 == 0)
+            doc_printf(doc, "\n<color:G>%-30.30s Lvl    HP Speed  AC   Exp Damage   Damage   Auras Nastiness</color>\n", "Name");
+
+        if (info->mon->flags9 & RF9_DEPRECATED)
+            color = 'D';
+        else if (info->mon->flags3 & RF3_OLYMPIAN)
+            color = 'U';
+        else if (info->mon->id > 1132)
+            color = 'B';
+        doc_printf(doc, "<color:%c>%-30.30s</color>", color, r_name + info->mon->name);
+        color = (info->mon->flags1 & RF1_FORCE_DEPTH) ? 'r' : 'w';
+        doc_printf(doc, " <color:%c>%3d</color> %5d", color, info->mon->level, hp);
+        _display_speed(doc, info->mon->speed - 110);
+        if (info->mon->ac < 999)
+            doc_printf(doc, " %3d", info->mon->ac);
+        else
+            doc_insert(doc, " <color:y>***</color>"); /* metal babble */
+        {
+            int plev = spoiler_hack ? 50 : p_ptr->max_plv;
+            int xp = info->mon->mexp * info->mon->level / (plev + 2);
+            char buf[10];
+
+            if (quickband) xp *= 2;
+            big_num_display(xp, buf);
+            doc_printf(doc, " %5.5s", buf);
+        }
+        _display_melee_dam(doc, info->melee1.reduced, info->melee2.reduced);
+        _display_melee_dam(doc, info->melee1.effective, info->melee2.effective);
+        if (info->auras + info->retaliation)
+            doc_printf(doc, " %5d", info->auras + info->retaliation);
+        else
+            doc_insert(doc, "      ");
+
+        _display_dam(doc, info->nasty1);
+        _display_dam(doc, info->nasty2);
+        doc_printf(doc, " %d", info->hits);
         doc_newline(doc);
     }
 }
 
-#define RF4_DAM_MASK \
-    (RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | \
-     RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | \
-     RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | RF4_BR_DISE | \
-     RF4_BR_NEXU | RF4_BR_SHAR | RF4_BR_NUKE | RF4_BR_DISI | \
-     RF4_ROCKET | RF4_BA_CHAO)
-
-#define RF5_DAM_MASK (RF5_BA_DARK | RF5_BA_LITE)
-
-static bool _mon_dam_p(mon_race_ptr r)
+static void _spoil_mon_melee_dam_aux(doc_ptr doc, vec_ptr v)
 {
-    if (r->flags4 & RF4_DAM_MASK) return TRUE;
-    if (r->flags5 & RF5_DAM_MASK) return TRUE;
+    int i;
+    vec_ptr v2 = vec_alloc((vec_free_f)_mon_dam_info_free);
+
+    for (i = 0; i < vec_length(v); i++)
+    {
+        mon_race_ptr r = vec_get(v, i);
+        vec_add(v2, _mon_dam_info_alloc(r));
+    }
+
+    vec_sort(v2, (vec_cmp_f)_cmp_info1);
+    doc_insert(doc, "<topic:ByLevel><style:heading>Monster Damage by Level</style>\n");
+    _spoil_mon_melee_dam_aux_aux(doc, v2);
+
+    vec_sort(v2, (vec_cmp_f)_cmp_info2);
+    doc_insert(doc, "\n<topic:ByNasty1><style:heading>Monster Damage by Melee Nastiness</style>\n");
+    _spoil_mon_melee_dam_aux_aux(doc, v2);
+
+    vec_sort(v2, (vec_cmp_f)_cmp_info3);
+    doc_insert(doc, "\n<topic:ByNasty2><style:heading>Monster Damage by Distance Nastiness</style>\n");
+    _spoil_mon_melee_dam_aux_aux(doc, v2);
+
+    vec_free(v2);
+}
+
+typedef bool (_blow_p)(mon_blow_ptr blow);
+static bool _martial_arts(mon_blow_ptr blow)
+{
+    return blow->method == RBM_KICK || blow->method == RBM_PUNCH;
+}
+
+static bool _has_blow(mon_race_ptr r, _blow_p p)
+{
+    int i;
+    for (i = 0; i < MAX_MON_BLOWS; i++)
+    {
+        mon_blow_ptr blow = &r->blows[i];
+        if (!blow->method) continue;
+        if (p(blow)) return TRUE;
+    }
     return FALSE;
 }
 
-static void spoil_mon_dam(void)
+static bool _is_monk(mon_race_ptr r)
 {
-    doc_ptr doc = doc_alloc(100);
+    if (r->d_char != 'p') return FALSE;
+    return _has_blow(r, _martial_arts);
+}
+
+static bool _mon_dam_p(mon_race_ptr r)
+{
+    int min = 0, max = 200;
+    if (dun_level)
+    {
+        min = dun_level - 20;
+        max = dun_level + 20;
+    }
+    if (r->id == MON_HAGURE2) return FALSE;
+    if (r->level < min || r->level > max) return FALSE;
+
+    return BOOL(r->flags1 & RF1_UNIQUE);
+    return TRUE;
+    return r->d_char == 'd' || r->d_char == 'D';
+    return r->d_char == 'P';
+    return r->d_char == 'J' && r->spells && r->spells->groups[MST_BREATH];
+    return BOOL(r->flags3 & RF3_UNDEAD);
+    return !(r->flags9 & RF9_DEPRECATED);
+    return _is_monk(r);
+    return BOOL(r->flags2 & RF2_CAMELOT);
+}
+
+static void spoil_mon_spell_dam(void)
+{
+    doc_ptr doc = doc_alloc(120);
     vec_ptr v = _mon_table(_mon_dam_p); 
 
-    doc_change_name(doc, "mon-damage.html");
+    doc_change_name(doc, "mon-spells.html");
     doc_insert(doc, "<style:table>");
 
-    _spoil_mon_dam_aux(doc, v);
+    _spoil_mon_spell_dam_aux(doc, v);
 
     doc_insert(doc, "</style>");
     doc_printf(doc, "\n<color:D>Generated for PosChengband Version %d.%d.%d</color>\n\n",
@@ -1003,6 +1495,253 @@ static void spoil_mon_dam(void)
     doc_display(doc, "Monster Tables", 0);
     doc_free(doc);
     vec_free(v);
+}
+
+static void spoil_mon_melee_dam(void)
+{
+    doc_ptr doc = doc_alloc(120);
+    vec_ptr v = _mon_table(_mon_dam_p); 
+
+    doc_change_name(doc, "mon-melee.html");
+    doc_insert(doc, "<style:table>");
+
+    _spoil_mon_melee_dam_aux(doc, v);
+
+    doc_insert(doc, "</style>");
+    doc_printf(doc, "\n<color:D>Generated for PosChengband Version %d.%d.%d</color>\n\n",
+                     VER_MAJOR, VER_MINOR, VER_PATCH);
+    doc_display(doc, "Monster Tables", 0);
+    doc_free(doc);
+    vec_free(v);
+}
+
+static void _display_mon_resist(doc_ptr doc, mon_race_ptr race, u32b res_flag, u32b im_flag, u32b vuln_flag)
+{
+    if (im_flag && (race->flagsr & im_flag))
+        doc_insert(doc, " <color:v>*</color>");
+    else if (vuln_flag && (race->flags3 & vuln_flag)) /* XXX all HURT_* flags are in flags3 atm */
+        doc_insert(doc, " <color:y>v</color>");
+    else if (race->flagsr & res_flag)
+        doc_insert(doc, " <color:r>+</color>");
+    else
+        doc_insert(doc, " <color:D>-</color>");
+}
+
+static void _spoil_mon_resist_aux(doc_ptr doc, vec_ptr v)
+{
+    int i;
+    for (i = 0; i < vec_length(v); i++)
+    {
+        mon_race_ptr race = vec_get(v, i);
+        int          hp = 0;
+        char         color = 'w';
+
+        if (race->flags1 & RF1_FORCE_MAXHP)
+            hp = race->hdice * race->hside;
+        else
+            hp = race->hdice * (1 + race->hside)/2;
+
+        if (i%10 == 0)
+        {
+            doc_printf(doc, "\n<color:G>%-30.30s Lvl    HP AcElFiCoPo LiDkCfNtNx SoShCaDiTm</color>\n", "Name");
+        }
+
+        if (race->flags9 & RF9_DEPRECATED)
+            color = 'D';
+        else if (race->flags3 & RF3_OLYMPIAN)
+            color = 'U';
+        else if (race->id > 1132)
+            color = 'B';
+        doc_printf(doc, "<color:%c>%-30.30s</color> %3d %5d ", color, r_name + race->name, race->level, hp);
+        _display_mon_resist(doc, race, RFR_RES_ACID, RFR_IM_ACID, 0);
+        _display_mon_resist(doc, race, RFR_RES_ELEC, RFR_IM_ELEC, 0);
+        _display_mon_resist(doc, race, RFR_RES_FIRE, RFR_IM_FIRE, RF3_HURT_FIRE);
+        _display_mon_resist(doc, race, RFR_RES_COLD, RFR_IM_COLD, RF3_HURT_COLD);
+        _display_mon_resist(doc, race, RFR_RES_POIS, RFR_IM_POIS, 0);
+        doc_insert(doc, " ");
+        _display_mon_resist(doc, race, RFR_RES_LITE, 0, RF3_HURT_LITE);
+        _display_mon_resist(doc, race, RFR_RES_DARK, 0, 0);
+        if (race->flags3 & RF3_NO_CONF)
+            doc_insert(doc, " <color:r>+</color>");
+        else
+            doc_insert(doc, " <color:D>-</color>");
+        _display_mon_resist(doc, race, RFR_RES_NETH, 0, 0);
+        _display_mon_resist(doc, race, RFR_RES_NEXU, 0, 0);
+        doc_insert(doc, " ");
+        _display_mon_resist(doc, race, RFR_RES_SOUN, 0, 0);
+        _display_mon_resist(doc, race, RFR_RES_SHAR, 0, 0);
+        _display_mon_resist(doc, race, RFR_RES_CHAO, 0, 0);
+        _display_mon_resist(doc, race, RFR_RES_DISE, 0, 0);
+        _display_mon_resist(doc, race, RFR_RES_TIME, 0, 0);
+        doc_newline(doc);
+    }
+}
+static void spoil_mon_resist(void)
+{
+    doc_ptr doc = doc_alloc(120);
+    vec_ptr v = _mon_table(_mon_dam_p); 
+
+    doc_change_name(doc, "mon-resist.html");
+    doc_insert(doc, "<style:table>");
+
+    _spoil_mon_resist_aux(doc, v);
+
+    doc_insert(doc, "</style>");
+    doc_printf(doc, "\n<color:D>Generated for PosChengband Version %d.%d.%d</color>\n\n",
+                     VER_MAJOR, VER_MINOR, VER_PATCH);
+    doc_display(doc, "Monster Tables", 0);
+    doc_free(doc);
+    vec_free(v);
+}
+
+typedef struct {
+    double mean;
+    double variance;
+    double sigma;
+    int    max;
+} _stat_t, *_stat_ptr;
+_stat_t _calc_stats(vec_ptr v)
+{
+    _stat_t r;
+    int n = vec_length(v);
+    int i, max = 0;
+    double tx2 = 0.0, tx = 0.0;
+    for (i = 0; i < n; i++)
+    {
+        int x = vec_get_int(v, i);
+        tx += (double)x;
+        tx2 += (double)x*(double)x;
+        if (x > max) max = x;
+    }
+    r.mean = tx/(double)n;
+    r.variance = tx2/(double)n - r.mean;  /* XXX check this ... */
+    r.sigma = sqrt(r.variance);
+    r.max = max;
+    return r;
+}
+static void spoil_mon_anger(void)
+{
+    /* I tried to spreadsheet this, but I must be too dumb to get accurate results! */
+    doc_ptr doc = doc_alloc(80);
+    doc_ptr cols[2];
+    int boosts[] = { 0, 5, 7, 10, 12, 15, -1 };
+    int freqs[] = { 10, 15, 20, 25, 30, 33, 35, 40, 50, -1 };
+    int doc_idx = 1, boost_idx, freq_idx;
+    cols[0] = doc_alloc(36);
+    cols[1] = doc_alloc(36);
+    for (boost_idx = 0;; boost_idx++)
+    {
+        int boost = boosts[boost_idx];
+        if (boost < 0) break;
+        doc_idx = !doc_idx;
+        doc_printf(cols[doc_idx], "<color:R>Anger Boost: <color:B>%d</color></color>\n", boost);
+        doc_insert(cols[doc_idx], "<color:G>Base Actual Mean  Std Max</color>\n");
+        for (freq_idx = 0;; freq_idx++)
+        {
+            vec_ptr runs;
+            _stat_t stat;
+            int i, j, cast = 0, total = 0;
+            int freq = freqs[freq_idx];
+            if (freq < 0) break;
+            runs = vec_alloc(NULL);
+            for (i = 0; i < 10000; i++)
+            {
+                int a = 0;    /* anger */
+                for (j = 0; ; j++) /* loop until we cast a spell */
+                {
+                    total++;
+                    if (randint0(100) < freq + a)
+                    {
+                        vec_add_int(runs, j+1);
+                        cast++;
+                        break;
+                    }
+                    /* angering each turn ... there are lots of ways to do
+                     * this, but the following vastly decreases stat.max while
+                     * only slightly affecting stat.mean and stat.sigma */
+                    a += boost + a/2;
+                }
+            }
+            stat = _calc_stats(runs);
+            doc_printf(cols[doc_idx], "%4d  %2d.%d%% %.2f %.2f %3d\n",
+                freq, cast*100/total, (cast*1000/total)%10, stat.mean, stat.sigma, stat.max);
+            vec_free(runs);
+        }
+        doc_newline(cols[doc_idx]);
+    }
+    doc_insert_cols(doc, cols, 2, 0);
+    doc_insert(doc, "The stats are on the number of turns it takes to actually cast a spell. "
+                    "This is very important for mage-like distance tactics where very long runs "
+                    "of no player damage are to be avoided.\n");
+    doc_display(doc, "Dynamic Spell Frequencies", 0);
+    doc_free(cols[0]);
+    doc_free(cols[1]);
+    doc_free(doc);
+}
+typedef bool (*_cast_simulator)(int freq, int mana);
+static bool _baseline_caster(int freq, int mana) { return randint0(100) < freq; }
+static bool _adaptive_caster1(int freq, int mana) {
+    int f = freq;
+    f -= MAX(1, freq/5) * mana;
+    if (f < 1) f = 1;
+    return randint0(100) < f;
+}
+static bool _adaptive_caster2(int freq, int mana) { return randint0(100) < freq && one_in_(1+mana); }
+static void _spoil_mon_spell_freq_aux(doc_ptr doc, int freq, _cast_simulator caster)
+{
+    vec_ptr runs;
+    _stat_t stat;
+    int i, mana = 0, run = 0, total = 0, cast = 0;
+    runs = vec_alloc(NULL);
+    for (i = 0; i < 100 * 1000; i++)
+    {
+        total++;
+        if (caster(freq, mana))
+        {
+            cast++;
+            run++;
+            mana++;
+        }
+        else
+        {
+            if (mana) mana--;
+            if (run)
+            {
+                vec_add_int(runs, run);
+                run = 0;
+            }
+        }
+    }
+    stat = _calc_stats(runs);
+    doc_printf(doc, " %2d.%d%% %.2f %.2f %3d  ",
+        cast*100/total, (cast*1000/total)%10, stat.mean, stat.sigma, stat.max);
+    vec_free(runs);
+}
+static void spoil_mon_spell_freq(void)
+{
+    doc_ptr doc = doc_alloc(80);
+    int     freqs[] = { 10, 15, 20, 25, 30, 33, 35, 40, 50, -1 };
+    int     freq_idx;
+
+    doc_insert(doc, "<color:R>     ------Baseline------  ------Approach I----  ----Approach II-----</color>\n");
+    doc_insert(doc, "<color:G>Freq Actual Mean  Std Max  Actual Mean  Std Max  Actual Mean  Std Max</color>\n");
+    for (freq_idx = 0;; freq_idx++)
+    {
+        int freq = freqs[freq_idx];
+        if (freq < 0) break;
+        doc_printf(doc, "%4d ", freq);
+        _spoil_mon_spell_freq_aux(doc, freq, _baseline_caster);
+        doc_insert(doc, "<color:U>");
+        _spoil_mon_spell_freq_aux(doc, freq, _adaptive_caster1);
+        doc_insert(doc, "</color>");
+        _spoil_mon_spell_freq_aux(doc, freq, _adaptive_caster2);
+        doc_newline(doc);
+    }
+    doc_insert(doc, "\n\nThe stats are on the number of casts in a row. This if very important for "
+                    "melee characters where long runs of monster spell casting are to be avoided.\n");
+    doc_newline(doc);
+    doc_display(doc, "Dynamic Spell Frequencies in Melee", 0);
+    doc_free(doc);
 }
 
 /************************************************************************
@@ -1248,7 +1987,10 @@ static void spoil_spells_by_class(void)
     vec_ptr vec = vec_alloc(NULL);
 
     for (i = 0; i < MAX_CLASS; i++)
+    {
+        if (i == CLASS_XXX12 || i == CLASS_XXX21) continue;
         vec_add_int(vec, i);
+    }
 
     vec_sort(vec, (vec_cmp_f)_cmp_class_name);
 
@@ -1346,6 +2088,7 @@ static void _spoil_spells_by_realm_aux2(int realm_idx, int class1_idx)
 
     for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
     {
+        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
         if (_check_realm(class_idx, realm_idx))
             vec_add_int(vec, class_idx);
     }
@@ -1393,6 +2136,7 @@ static void _spoil_spells_by_realm_aux1(int realm_idx)
 
     for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
     {
+        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
         if (_check_realm(class_idx, realm_idx))
             vec_add_int(vec, class_idx);
     }
@@ -1530,6 +2274,10 @@ void do_cmd_spoilers(void)
         prt("(M) Full Descriptions", row++, col);
         prt("(e) Evolution", row++, col);
         prt("(d) Damage by Resistance", row++, col);
+        prt("(D) Damage by Melee", row++, col);
+        prt("(R) Resistance", row++, col);
+        prt("(f) Spell Frequency (Anger)", row++, col);
+        prt("(F) Spell Frequency (Melee)", row++, col);
         row++;
 
         c_prt(TERM_RED, "Class Spoilers", row++, col - 2);
@@ -1546,8 +2294,8 @@ void do_cmd_spoilers(void)
         row++;
 
         /* Prompt */
-        prt("ESC) Exit menu", 21, 1);
-        prt("Command: ", 20, 0);
+        prt("ESC) Exit menu", 27, 1);
+        prt("Command: ", 26, 0);
 
         /* Prompt */
         i = inkey();
@@ -1581,7 +2329,19 @@ void do_cmd_spoilers(void)
             spoil_mon_evol();
             break;
         case 'd':
-            spoil_mon_dam();
+            spoil_mon_spell_dam();
+            break;
+        case 'D':
+            spoil_mon_melee_dam();
+            break;
+        case 'R':
+            spoil_mon_resist();
+            break;
+        case 'f':
+            spoil_mon_anger();
+            break;
+        case 'F':
+            spoil_mon_spell_freq();
             break;
 
         /* Class Spoilers */

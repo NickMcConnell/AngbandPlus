@@ -1358,7 +1358,7 @@ void fumbling_mut(int cmd, variant *res)
 
             disturb(0, 0);
             msg_print("You trip over your own feet!");
-            take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), "tripping", -1);
+            take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), "tripping");
             msg_print(NULL);
 
             if (slot)
@@ -1742,7 +1742,7 @@ void motion_mut(int cmd, variant *res)
         var_set_string(res, "Your movements are precise and forceful (+1 STL).");
         break;
     case SPELL_CALC_BONUS:
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         p_ptr->skills.stl += 1;
         break;
     default:

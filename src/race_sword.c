@@ -390,7 +390,7 @@ static void _calc_bonuses(void)
     p_ptr->no_cut = TRUE;
     res_add(RES_BLIND);
     res_add(RES_POIS);
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
 
     if (p_ptr->lev >= 10)
         p_ptr->pspeed += 1;
@@ -478,9 +478,9 @@ static void _calc_bonuses(void)
     if (_essences[OF_NO_MAGIC] >= 5)
         p_ptr->anti_magic = TRUE;
     if (_essences[OF_FREE_ACT] >= 2)
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
     if (_essences[OF_SEE_INVIS] >= 3)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
     if (_essences[OF_SLOW_DIGEST] >= 2)
         p_ptr->slow_digest = TRUE;
     if (_essences[OF_REGEN] >= 7)

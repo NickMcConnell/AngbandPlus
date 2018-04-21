@@ -371,7 +371,7 @@ static void wreck_the_pattern(void)
     msg_print("Something terrible happens!");
 
     if (!IS_INVULN())
-        take_hit(DAMAGE_NOESCAPE, damroll(10, 8), "corrupting the Pattern", -1);
+        take_hit(DAMAGE_NOESCAPE, damroll(10, 8), "corrupting the Pattern");
 
     to_ruin = randint1(45) + 35;
 
@@ -422,6 +422,7 @@ static bool pattern_effect(void)
         (void)do_res_stat(A_CHR);
         (void)restore_level();
         (void)hp_player(1000);
+        lp_player(1000);
 
         cave_set_feat(py, px, feat_pattern_old);
 
@@ -445,14 +446,14 @@ static bool pattern_effect(void)
 
     case PATTERN_TILE_WRECKED:
         if (!IS_INVULN())
-            take_hit(DAMAGE_NOESCAPE, 200, "walking the corrupted Pattern", -1);
+            take_hit(DAMAGE_NOESCAPE, 200, "walking the corrupted Pattern");
         break;
 
     default:
         if (prace_is_(RACE_AMBERITE) && !one_in_(2))
             return TRUE;
         else if (!IS_INVULN())
-            take_hit(DAMAGE_NOESCAPE, damroll(1, 3), "walking the Pattern", -1);
+            take_hit(DAMAGE_NOESCAPE, damroll(1, 3), "walking the Pattern");
         break;
     }
 
@@ -950,12 +951,17 @@ static void process_world_aux_hp_and_sp(void)
 
     /*** Damage over Time ***/
 
-    /* Take damage from poison */
+    /* Take damage from poison.
+     * Note: Poison is now a delayed damage pool. No longer is there
+     * any immediate damage. It's also much harder to 'cure'. */
     if (p_ptr->poisoned && !IS_INVULN())
-    {
-        /* Take damage */
-        take_hit(DAMAGE_NOESCAPE, 1, "poison", -1);
-
+    {   /*                   v--- make waiting for poison to clear less tedious */
+        int amt = MAX(MAX(1, p_ptr->mhp/150), p_ptr->poisoned/15);
+        /* Take 15 "game turns" for the entire effect ------^ */
+        if (amt > p_ptr->poisoned) amt = p_ptr->poisoned;
+        /*msg_format("<color:G> %d Poison Damage</color>", amt);*/
+        take_hit(DAMAGE_NOESCAPE, amt, "poison");
+        set_poisoned(p_ptr->poisoned - amt, TRUE);
     }
 
     /* Take damage from cuts */
@@ -963,7 +969,10 @@ static void process_world_aux_hp_and_sp(void)
     {
         cut_info_t cut = cut_info(p_ptr->cut);
         if (cut.dam)
-            take_hit(DAMAGE_NOESCAPE, cut.dam, "a fatal wound", -1);
+        {
+            /*msg_format("<color:r> %d Cut Damage</color>", cut.dam);*/
+            take_hit(DAMAGE_NOESCAPE, cut.dam, "a fatal wound");
+        }
     }
 
 
@@ -978,7 +987,7 @@ static void process_world_aux_hp_and_sp(void)
             if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
             {
                 msg_print("The sun's rays scorch your undead flesh!");
-                take_hit(DAMAGE_NOESCAPE, 1, "sunlight", -1);
+                take_hit(DAMAGE_NOESCAPE, 1, "sunlight");
                 cave_no_regen = TRUE;
             }
         }
@@ -1000,7 +1009,7 @@ static void process_world_aux_hp_and_sp(void)
                 cave_no_regen = TRUE;
                 object_desc(o_name, lite, OD_NAME_ONLY);
                 sprintf(ouch, "wielding %s", o_name);
-                if (!IS_INVULN()) take_hit(DAMAGE_NOESCAPE, 1, ouch, -1);
+                if (!IS_INVULN()) take_hit(DAMAGE_NOESCAPE, 1, ouch);
             }
         }
     }
@@ -1028,13 +1037,13 @@ static void process_world_aux_hp_and_sp(void)
             if (p_ptr->levitation)
             {
                 msg_print("The heat burns you!");
-                take_hit(DAMAGE_NOESCAPE, damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name), -1);
+                take_hit(DAMAGE_NOESCAPE, damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name));
             }
             else
             {
                 cptr name = f_name + f_info[get_feat_mimic(&cave[py][px])].name;
                 msg_format("The %s burns you!", name);
-                take_hit(DAMAGE_NOESCAPE, damage, name, -1);
+                take_hit(DAMAGE_NOESCAPE, damage, name);
             }
 
             cave_no_regen = TRUE;
@@ -1048,7 +1057,7 @@ static void process_world_aux_hp_and_sp(void)
         {
             /* Take damage */
             msg_print("You are drowning!");
-            take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "drowning", -1);
+            take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "drowning");
 
             cave_no_regen = TRUE;
         }
@@ -1064,7 +1073,7 @@ static void process_world_aux_hp_and_sp(void)
             if (dam > 0)
             {
                 msg_print("It's hot!");
-                take_hit(DAMAGE_NOESCAPE, dam, "Fire aura", -1);
+                take_hit(DAMAGE_NOESCAPE, dam, "Fire aura");
             }
         }
         if (r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_ELEC)
@@ -1075,7 +1084,7 @@ static void process_world_aux_hp_and_sp(void)
             if (dam > 0)
             {
                 msg_print("It hurts!");
-                take_hit(DAMAGE_NOESCAPE, dam, "Elec aura", -1);
+                take_hit(DAMAGE_NOESCAPE, dam, "Elec aura");
             }
         }
         if (r_info[m_list[p_ptr->riding].r_idx].flags3 & RF3_AURA_COLD)
@@ -1085,7 +1094,7 @@ static void process_world_aux_hp_and_sp(void)
             if (dam > 0)
             {
                 msg_print("It's cold!");
-                take_hit(DAMAGE_NOESCAPE, dam, "Cold aura", -1);
+                take_hit(DAMAGE_NOESCAPE, dam, "Cold aura");
             }
         }
     }
@@ -1128,7 +1137,7 @@ static void process_world_aux_hp_and_sp(void)
             if (dam)
             {
                 cave_no_regen = TRUE;
-                take_hit(DAMAGE_NOESCAPE, dam, dam_desc, -1);
+                take_hit(DAMAGE_NOESCAPE, dam, dam_desc);
             }
         }
     }
@@ -1252,13 +1261,15 @@ static void process_world_aux_timeout(void)
     /* Hack -- Hallucinating */
     if (p_ptr->image)
     {
-        (void)set_image(p_ptr->image - 1, TRUE);
+        do { set_image(p_ptr->image - 1, TRUE); }
+            while (p_ptr->image && res_save_default(RES_CHAOS));
     }
 
     /* Blindness */
     if (p_ptr->blind)
     {
-        (void)set_blind(p_ptr->blind - 1, TRUE);
+        do { set_blind(p_ptr->blind - 1, TRUE); }
+            while (p_ptr->blind && res_save_default(RES_BLIND));
     }
 
     /* Times see-invisible */
@@ -1403,7 +1414,8 @@ static void process_world_aux_timeout(void)
     /* Confusion */
     if (p_ptr->confused)
     {
-        (void)set_confused(p_ptr->confused - 1, TRUE);
+        do { set_confused(p_ptr->confused - 1, TRUE); }
+            while (p_ptr->confused && res_save_default(RES_CONF));
     }
 
     /* Fast */
@@ -1646,7 +1658,7 @@ static void process_world_aux_timeout(void)
     {
         if (randint1(PY_FOOD_ALERT) > p_ptr->food)
         {
-            switch (randint1(7))
+            switch (randint1(8))
             {
             case 1: do_res_stat(A_STR); break;
             case 2: do_res_stat(A_INT); break;
@@ -1655,23 +1667,15 @@ static void process_world_aux_timeout(void)
             case 5: do_res_stat(A_CON); break;
             case 6: do_res_stat(A_CHR); break;
             case 7: restore_level(); break;
+            case 8: lp_player(150); break;
             }
         }
     }
 
     /*** Poison and Stun and Cut ***/
 
-    /* Poison */
-    if (p_ptr->poisoned)
-    {
-        int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
-
-        /* Apply some healing */
-        (void)set_poisoned(p_ptr->poisoned - adjust, TRUE);
-    }
-
     /* Stun */
-    if (p_ptr->stun > 0 && p_ptr->stun < 100)
+    if (p_ptr->stun > STUN_NONE && p_ptr->stun < STUN_KNOCKED_OUT)
     {
         int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
 
@@ -1929,7 +1933,7 @@ static void process_world_aux_curse(void)
 
             object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
             msg_format("Your %s drains HP from you!", o_name);
-            take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev*2, 100), o_name, -1);
+            take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev*2, 100), o_name);
             obj_learn_curse(o_ptr, OFC_DRAIN_HP);
         }
         /* Handle mana draining */
@@ -1962,7 +1966,7 @@ static void process_world_aux_curse(void)
                 msg_print("The Jewel of Judgement drains life from you!");
             else
                 msg_print("Something drains life from you!");
-            take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "the Jewel of Judgement", -1);
+            take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "the Jewel of Judgement");
         }
     }
 
@@ -2011,7 +2015,7 @@ static void process_world_aux_curse(void)
                 msg_print("The Hand of Vecna strangles you!");
             else
                 msg_print("The Hand strangles you!");
-            take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "the Hand of Vecna", -1);
+            take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "the Hand of Vecna");
         }
     }
 
@@ -2739,18 +2743,6 @@ static void process_world(void)
     if (!(game_turn % (TURNS_PER_TICK*10)) && !p_ptr->inside_battle) regen_monsters();
     if (!(game_turn % (TURNS_PER_TICK*3))) regen_captured_monsters();
 
-    if (!p_ptr->leaving)
-    {
-        int i;
-
-        /* Hack -- Process the counters of monsters if needed */
-        for (i = 0; i < MAX_MTIMED; i++)
-        {
-            if (mproc_max[i] > 0) process_monsters_mtimed(i);
-        }
-    }
-
-
     /* Date changes */
     if (!hour && !min)
     {
@@ -2870,7 +2862,7 @@ static void process_world(void)
                 int dam = (PY_FOOD_STARVE - p_ptr->food) / 10;
 
                 /* Take damage */
-                if (!IS_INVULN()) take_hit(DAMAGE_LOSELIFE, dam, "starvation", -1);
+                if (!IS_INVULN()) take_hit(DAMAGE_LOSELIFE, dam, "starvation");
             }
         }
     }
@@ -3050,23 +3042,12 @@ static void _dispatch_command(int old_now_turn)
 #endif /* ALLOW_WIZARD */
 
 
-#ifdef ALLOW_BORG
-
-        /* Special "borg" commands */
+#ifdef ALLOW_SPOILERS
         case KTRL('Z'):
-        {
-            /* Enter borg mode */
-            if (enter_borg_mode())
-            {
-                if (!p_ptr->wild_mode) do_cmd_borg();
-            }
-
+            if (allow_spoilers)
+                do_cmd_spoilers();
             break;
-        }
-
-#endif /* ALLOW_BORG */
-
-
+#endif /* ALLOW_SPOILERS */
 
         /*** Inventory Commands ***/
 
@@ -3392,26 +3373,28 @@ static void _dispatch_command(int old_now_turn)
                 msg_print("You are too scared!");
                 energy_use = 100;
             }
-            else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
-                && p_ptr->pclass != CLASS_BERSERKER
-                && p_ptr->pclass != CLASS_BLOOD_KNIGHT
-                && p_ptr->pclass != CLASS_WEAPONMASTER
-                && p_ptr->pclass != CLASS_MAULER )
+            else if ( dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC)
+                   && p_ptr->pclass != CLASS_BERSERKER
+                   && p_ptr->pclass != CLASS_BLOOD_KNIGHT
+                   && p_ptr->pclass != CLASS_WEAPONMASTER
+                   && p_ptr->pclass != CLASS_MAULER
+                   && p_ptr->prace  != RACE_MON_POSSESSOR
+                   && p_ptr->prace  != RACE_MON_MIMIC)
             {
                 msg_print("The dungeon absorbs all attempted magic!");
                 msg_print(NULL);
             }
-            else if (p_ptr->anti_magic
-                    && p_ptr->pclass != CLASS_BERSERKER
-                    && p_ptr->pclass != CLASS_BLOOD_KNIGHT
-                    && p_ptr->pclass != CLASS_WEAPONMASTER
-                    && p_ptr->pclass != CLASS_MAULER )
+            else if ( p_ptr->anti_magic
+                   && p_ptr->pclass != CLASS_BERSERKER
+                   && p_ptr->pclass != CLASS_BLOOD_KNIGHT
+                   && p_ptr->pclass != CLASS_WEAPONMASTER
+                   && p_ptr->pclass != CLASS_MAULER
+                   && p_ptr->prace  != RACE_MON_POSSESSOR
+                   && p_ptr->prace  != RACE_MON_MIMIC)
             {
                 cptr which_power = "magic";
                 if (p_ptr->pclass == CLASS_MINDCRAFTER || p_ptr->pclass == CLASS_PSION)
                     which_power = "psionic powers";
-                else if (p_ptr->pclass == CLASS_IMITATOR)
-                    which_power = "imitation";
                 else if (p_ptr->pclass == CLASS_SAMURAI)
                     which_power = "hissatsu";
                 else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
@@ -3436,16 +3419,14 @@ static void _dispatch_command(int old_now_turn)
             {
                 if (p_ptr->prace == RACE_MON_RING)
                     ring_cast();
-                else if (p_ptr->pclass == CLASS_IMITATOR)
-                    imitator_cast(FALSE);
+                else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+                    possessor_cast();
                 else if (p_ptr->pclass == CLASS_MAGIC_EATER)
                     magic_eater_cast(0);
                 else if (p_ptr->pclass == CLASS_SKILLMASTER)
                     skillmaster_cast();
                 else if (p_ptr->pclass == CLASS_SAMURAI)
                     do_cmd_hissatsu();
-                else if (p_ptr->pclass == CLASS_BLUE_MAGE)
-                    do_cmd_cast_learned();
                 else if (p_ptr->pclass == CLASS_GRAY_MAGE)
                     gray_mage_cast_spell();
                 else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
@@ -4314,10 +4295,11 @@ static void process_player(void)
         else if (p_ptr->paralyzed)
         {
             energy_use = 100;
-            set_paralyzed(p_ptr->paralyzed - 1, TRUE);
+            do { set_paralyzed(p_ptr->paralyzed - 1, TRUE); }
+            while (p_ptr->paralyzed && free_act_save_p(dun_level/2));
         }
         /* Knocked Out */
-        else if (p_ptr->stun >= 100)
+        else if (p_ptr->stun >= STUN_KNOCKED_OUT)
         {
             energy_use = 100;
             set_stun(p_ptr->stun - 25, TRUE);
@@ -4519,20 +4501,6 @@ static void process_player(void)
                         }
                     }
                 }
-            }
-            if (p_ptr->pclass == CLASS_IMITATOR)
-            {
-                if (p_ptr->mane_num > (p_ptr->lev > 44 ? 3 : p_ptr->lev > 29 ? 2 : 1))
-                {
-                    p_ptr->mane_num--;
-                    for (i = 0; i < p_ptr->mane_num; i++)
-                    {
-                        p_ptr->mane_spell[i] = p_ptr->mane_spell[i+1];
-                        p_ptr->mane_dam[i] = p_ptr->mane_dam[i+1];
-                    }
-                }
-                new_mane = FALSE;
-                p_ptr->redraw |= PR_EFFECTS;
             }
             if (p_ptr->action == ACTION_LEARN)
             {
@@ -4738,9 +4706,6 @@ static void dungeon(bool load_game)
 
     /* Not leaving dungeon */
     p_ptr->leaving_dungeon = 0;
-
-    /* Initialize monster process */
-    mproc_init();
 
     /* Main loop */
     while (TRUE)
@@ -4954,51 +4919,6 @@ void extract_option_vars(void)
     }
 }
 
-
-/*
- * Determine bounty uniques
- */
-void determine_bounty_uniques(void)
-{
-    int          i, j, tmp;
-    monster_race *r_ptr;
-
-    get_mon_num_prep(NULL, NULL);
-    for (i = 0; i < MAX_KUBI; i++)
-    {
-        while (1)
-        {
-            int r_idx = get_mon_num(MAX_DEPTH - 1);
-            r_ptr = &r_info[r_idx];
-
-            if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-            if (r_ptr->flags1 & RF1_NO_QUEST) continue;
-            if (r_ptr->flagsx & RFX_WANTED) continue;
-            if (!(r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON))) continue;
-            if (r_ptr->rarity > 100) continue;
-
-            kubi_r_idx[i] = r_idx;
-            r_ptr->flagsx |= RFX_WANTED;
-            break;
-        }
-    }
-
-    /* Sort them */
-    for (i = 0; i < MAX_KUBI - 1; i++)
-    {
-        for (j = i; j < MAX_KUBI; j++)
-        {
-            if (r_info[kubi_r_idx[i]].level > r_info[kubi_r_idx[j]].level)
-            {
-                tmp = kubi_r_idx[i];
-                kubi_r_idx[i] = kubi_r_idx[j];
-                kubi_r_idx[j] = tmp;
-            }
-        }
-    }
-}
-
-
 /*
  * Determine today's bounty monster
  * Note: conv_old is used if loaded 0.0.3 or older save file
@@ -5208,14 +5128,8 @@ void play_game(bool new_game)
 
     /* TODO: py_skills_init() or some such ... w_max needs to be reset each time you play, 
      * not just on player birth */
-    if (p_ptr->prace == RACE_TONBERRY)
-        s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_SABRE] = WEAPON_EXP_MASTER;
-
     if (p_ptr->pclass == CLASS_WEAPONMASTER && !new_game)
         weaponmaster_adjust_skills();
-
-    if (p_ptr->personality == PERS_SEXY)
-        s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_MASTER;
 
     /* Fill the arrays of floors and walls in the good proportions */
     set_floor_and_wall(dungeon_type);

@@ -35,7 +35,17 @@ int obj_prompt(obj_prompt_ptr prompt)
     if (REPEAT_PULL(&tmp))
     {
         int repeat_tab = _find_tab(context.tabs, tmp);
-        if (repeat_tab >= 0 && REPEAT_PULL(&tmp))
+        if (repeat_tab < 0)
+        {
+            /* XXX This might need further thought ... tested for force-trainers */
+            if ( prompt->cmd_handler
+              && prompt->cmd_handler(&context, tmp) == OP_CMD_DISMISS )
+            {
+                _context_unmake(&context);
+                return OP_CUSTOM;
+            }
+        }
+        else if (repeat_tab >= 0 && REPEAT_PULL(&tmp))
         {
             obj_prompt_tab_ptr tab = vec_get(context.tabs, repeat_tab);
             slot_t             slot;
@@ -69,6 +79,7 @@ int obj_prompt(obj_prompt_ptr prompt)
             if (tmp == OP_CMD_DISMISS)
             {
                 result = OP_CUSTOM;
+                REPEAT_PUSH(cmd);
                 break;
             }
         }

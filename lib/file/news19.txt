@@ -1,0 +1,27 @@
+<color:y>PosChengband <$:version></color>
+<style:screenshot>
+The Mithril Shot (Elemental) (6d3) (+15,+15) hits Tsukuyomi, Spirit               
+of Moon. It was a <color:v>*GREAT*</color> shot! Tsukuyomi, Spirit of Moon shouts,     LEVEL <color:G>    48</color>
+'AAAARRRGGGHHH!!!' <color:R>You have slain Tsukuyomi, Spirit of Moon.</color> <color:B>You </color>     EXP <color:G>    914k</color>
+<color:B>just completed your quest!</color> <color:B>A magical staircase appears...</color>             AU  <color:G>   2.18M</color>
+<color:D>xxxxxxxx</color>%<color:D>x</color>              <color:s>%</color> <color:s>%</color>                       # #               # <color:d>            </color>
+<color:D>xxxxxxxx</color>%               <color:s>%</color> <color:s>%</color>#<color:s>%</color>#                   ## #               # STR!: <color:G>18/***</color>
+<color:D>xxxxxxxx</color>#               # ###<color:s>%</color>############       ####               # INT!: <color:G>18/150</color>
+<color:D>xxxxxxxx</color><color:U>'</color>               <color:s>%</color> <color:s>%%</color>##<color:s>%</color>#  #   #####     ####               ## WIS!: <color:G> 18/50</color>
+<color:D>xxxxxx</color>##<color:s>%</color>%%%#%###%#%#<color:s>%%%</color><color:G>$</color>  ####   #   ######    ####               #  DEX!: <color:G>18/***</color>
+<color:D>xxxxxxx</color>                   <color:s>%</color>#<color:o>*</color><color:s>%</color>###     # #####  ####                #  CON!: <color:G>18/***</color>
+<color:D>xxxxxx</color><color:s>%</color>%%#%####%%##<color:s>%%%</color>##<color:s>%</color># #  ###     #  ##### ####                #  CHR!: <color:G>18/150</color>
+<color:D>xxxxxx</color>                   # <color:s>%</color>#<color:s>%</color>#       #   ########              ####  AC     <color:G>  216</color>
+<color:D>xxxxxx</color>                   # #<color:s>%%%</color>       #    #######              #     HP <color:y> 978</color>/<color:G> 994</color>
+<color:D>xxxxxx</color>              <color:s>%%%</color>##<color:s>%</color> ###<color:u>'</color>       #    #######              # ### SP <color:y> 115</color>/<color:G> 295</color>
+<color:D>xxxxx</color>####           <color:s>%</color><color:W>|</color><color:r>!</color><color:s>%%</color>     ##<color:U>+</color>######   #####  #              # #               
+<color:D>xxxxx</color>   #         %##<color:g>!(</color><color:r>-</color><color:B>{</color>     ...@#####  ##########             # ### @ <color:y> 98%</color>      
+<color:D>xxxxx</color>%# ##        # <color:U>_</color><color:y>p</color><color:s>%</color><color:G>{</color> ##<color:s>%</color>#<color:s>%</color>######################            #  ## <color:y>?</color> <color:y> 38%</color>      
+<color:D>xxxxx</color> %  ###### ### ##<color:s>%%%%</color>#<color:s>%</color><color:o>*</color><color:s>%</color>################# ####            # #<color:U>+</color># <color:U>,</color>  67%      
+<color:D>xxxxx</color> ## %    ###   #     <color:s>%</color> #<color:s>%</color>################## ###            ##                
+<color:D>xxxxx</color>  % %     ##<color:U>'</color>###     <color:s>%</color> <color:s>%</color>##<color:s>%</color>############### ####           ##                 
+<color:D>xxxx</color>   #%         ##<color:s>%</color>#<color:s>%%</color>###   #<color:s>%</color>################ ###           #                  
+<color:D>xxxx</color>    #       # <color:U>'</color>                        <color:U>+</color>    ####           #      <color:y>Fast (+32)</color>  
+<color:D>xxxx</color>    #       #<color:U>+</color>#<color:s>%</color>#######  <color:s>%</color>#<color:s>%</color>############ ##<color:U>'</color>#############  #      <color:B>Study (12)</color>  
+<color:B>Angband: L71</color>            <color:s>PassWall</color> StnSkn <color:g>Acid</color> <color:b>Elec</color> <color:s>Cold</color> <color:g>Pois</color> Hero <color:B>Regen</color>            
+</style>

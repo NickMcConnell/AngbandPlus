@@ -115,7 +115,7 @@ struct counts_s
     s32b used;
     s32b destroyed;
 };
-typedef struct counts_s counts_t;
+typedef struct counts_s counts_t, *counts_ptr;
 
 typedef struct {
     s32b found;
@@ -202,7 +202,7 @@ struct object_kind
  * Note that "max_num" is always "1" (if that artifact "exists")
  */
 
-typedef struct artifact_type artifact_type;
+typedef struct artifact_type artifact_type, *art_ptr;
 
 struct artifact_type
 {
@@ -249,7 +249,7 @@ struct artifact_type
  * Information about "ego-items".
  */
 
-typedef struct ego_type ego_type;
+typedef struct ego_type ego_type, *ego_ptr;
 
 struct ego_type
 {
@@ -385,34 +385,26 @@ struct object_type
 };
 #define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
 
-/*
- * Monster blow structure
- *
- *    - Method (RBM_*)
- *    - Effect (RBE_*)
- *    - Damage Dice
- *    - Damage Sides
- */
+/* Monster blows ... Redone. Note that changing any
+ * of the following values will break savefiles (or
+ * at least require special code to read old files). */
+#define MAX_MON_BLOW_EFFECTS 4
+#define MAX_MON_BLOWS        4
+#define MAX_MON_AURAS        3
+typedef struct {
+    s16b effect; /* either RBE_* or GF_* */
+    byte dd;
+    byte ds;
+    byte pct;    /* 0 => 100% (as does 100) */
+    s16b lore;   /* monster lore: number of times this effect experienced */
+} mon_effect_t, *mon_effect_ptr;
 
-typedef struct monster_blow monster_blow;
-
-struct monster_blow
-{
+typedef struct {
     byte method;
-    byte effect;
-    byte d_dice;
-    byte d_side;
-};
-
-
-typedef struct mbe_info_type mbe_info_type;
-
-struct mbe_info_type
-{
-    int power;        /* The attack "power" */
-    int explode_type; /* Explosion effect */
-};
-
+    byte power;
+    s16b lore;   /* monster lore: number of times this blow seen (hit or miss) */
+    mon_effect_t effects[MAX_MON_BLOW_EFFECTS];
+} mon_blow_t, *mon_blow_ptr;
 
 /*
  * Monster "race" information, including racial memories
@@ -457,6 +449,15 @@ typedef struct {
     char thb[SKILL_DESC_LEN];
 } skills_desc_t, *skills_desc_ptr;
 
+/* For the blows calculation, see calculate_base_blows in combat.c
+ * This structure should be initialized in the appropriate calc_weapon_bonuses
+ * cf calc_bonuses in xtra1.c */
+typedef struct {
+    int max;
+    int wgt;
+    int mult;
+} _blows_calc_t;
+
 struct monster_body_s
 {
     s16b     stats[MAX_STATS];
@@ -468,14 +469,12 @@ struct monster_body_s
     s16b     body_idx;
     s16b     class_idx;
     s16b     speed;
+    _blows_calc_t blows_calc;
 };
 typedef struct monster_body_s monster_body_t;
 
 
-typedef struct monster_race monster_race, *mon_race_ptr;
-
-#define MON_AC(r_ptr, m_ptr) MAX((r_ptr)->ac + (m_ptr)->ac_adj, 0)
-#define MON_MELEE_LVL(r_ptr, m_ptr) MAX(((r_ptr)->melee_level ? (r_ptr)->melee_level : (r_ptr)->level) + (m_ptr)->melee_adj, 1)
+typedef struct monster_race monster_race;
 
 struct monster_race
 {
@@ -484,7 +483,7 @@ struct monster_race
 
     byte hdice;               /* Creatures hit dice count */
     byte hside;               /* Creatures hit dice sides */
-    s16b ac;                  /* Armour Class */
+    s16b ac;                  /* Armour Class: Always use mon_ac(mon) instead! */
 
     s16b sleep;               /* Inactive counter (base) */
     byte aaf;                 /* Area affect radius (1-100) */
@@ -496,12 +495,10 @@ struct monster_race
     byte freq_spell;          /* Spell frequency */
     byte drop_theme;
 
+    mon_spells_ptr spells;
     u32b flags1;              /* Flags 1 (general) */
     u32b flags2;              /* Flags 2 (abilities) */
     u32b flags3;              /* Flags 3 (race/resist) */
-    u32b flags4;              /* Flags 4 (inate/breath) */
-    u32b flags5;              /* Flags 5 (normal spells) */
-    u32b flags6;              /* Flags 6 (special spells) */
     u32b flags7;              /* Flags 7 (movement related abilities) */
     u32b flags8;              /* Flags 8 (wilderness info) */
     u32b flags9;              /* Flags 9 (drops info; possessor info) */
@@ -510,7 +507,8 @@ struct monster_race
                                  For example, this unique is a questor. Or this
                                  unique is suppressed and won't appear in this game. */
 
-    monster_blow blow[4];
+    mon_blow_t blows[MAX_MON_BLOWS];
+    mon_effect_t auras[MAX_MON_AURAS];
 
     s16b next_r_idx;
     u32b next_exp;
@@ -553,21 +551,13 @@ struct monster_race
     byte r_drop_gold;         /* Max number of gold dropped at once */
     byte r_drop_item;         /* Max number of item dropped at once */
 
-    byte r_cast_spell;        /* (DEPRECATED) Max number of other spells seen */
-
-    u32b r_spell_turns;       /* Same as r_cast_spell, but keep on counting 'em (savefile compat) */
+    u32b r_spell_turns;       /* Number of spells cast or failed (so may exceed sum(spell->lore)) */
     u32b r_move_turns;        /* Includes attacking the player */
                               /* Now we can report accurate observed spell frequencies! */
-
-    byte r_blows[4];          /* Number of times each blow type was seen */
 
     u32b r_flags1;            /* Observed racial flags */
     u32b r_flags2;            /* Observed racial flags */
     u32b r_flags3;            /* Observed racial flags */
-    u32b r_flags4;            /* Observed racial flags */
-    u32b r_flags5;            /* Observed racial flags */
-    u32b r_flags6;            /* Observed racial flags */
-    /* u32b r_flags7; */      /* Observed racial flags */
     u32b r_flagsr;            /* Observed racial resistance flags */
 
     byte stolen_ct;           /* For uniques in this lifetime only. Prevents PickPocket scumming of excellent drop uniques */
@@ -663,9 +653,40 @@ struct coord
  */
 
 typedef struct monster_type monster_type;
+enum {
+    SM_REFLECTION = RES_MAX,
+    SM_FREE_ACTION,
+    SM_GUARDIAN,
+    SM_CLONED,
+    SM_PET,
+    SM_FRIENDLY,
+    SM_MAX
+};
+
+enum {
+    MTIMED_CSLEEP,
+    MTIMED_FAST,
+    MTIMED_SLOW,
+    MTIMED_STUNNED,
+    MTIMED_CONFUSED,
+    MTIMED_MONFEAR,
+    MTIMED_INVULNER,
+    MTIMED_PARALYZED,
+    MTIMED_COUNT
+};
+
+#define MON_CSLEEP(M_PTR)   ((M_PTR)->mtimed[MTIMED_CSLEEP])
+#define MON_FAST(M_PTR)     ((M_PTR)->mtimed[MTIMED_FAST])
+#define MON_SLOW(M_PTR)     ((M_PTR)->mtimed[MTIMED_SLOW])
+#define MON_STUNNED(M_PTR)  ((M_PTR)->mtimed[MTIMED_STUNNED])
+#define MON_CONFUSED(M_PTR) ((M_PTR)->mtimed[MTIMED_CONFUSED])
+#define MON_MONFEAR(M_PTR)  ((M_PTR)->mtimed[MTIMED_MONFEAR])
+#define MON_INVULNER(M_PTR) ((M_PTR)->mtimed[MTIMED_INVULNER])
+#define MON_PARALYZED(M_PTR) ((M_PTR)->mtimed[MTIMED_PARALYZED])
 
 struct monster_type
 {
+    int  id;
     s16b r_idx;        /* Monster race index */
     s16b ap_r_idx;        /* Monster race appearance index */
     byte sub_align;        /* Sub-alignment for a neutral monster */
@@ -677,10 +698,10 @@ struct monster_type
     s16b maxhp;        /* Max Hit points */
     s16b max_maxhp;        /* Max Max Hit points */
     s16b ac_adj;
-    s16b melee_adj;
+    s16b mpower;    /* Monster power scales various things like melee skill, damage, AC, etc.
+                       This field is a per mill value, just like p_ptr->clp */
 
-    s16b mtimed[MAX_MTIMED];    /* Timed status counter */
-    s16b paralyzed;
+    s16b mtimed[MTIMED_COUNT];    /* Timed status counter */
 
     byte mspeed;            /* Monster "speed" */
     s16b energy_need;    /* Monster "energy" */
@@ -708,16 +729,12 @@ struct monster_type
 
     byte drop_ct;
     byte stolen_ct;
-    u16b summon_ct;
 
     byte ego_whip_ct;
     byte ego_whip_pow;
     byte anti_magic_ct;
-    byte anger_ct;
-
-    u32b forgot4;
-    u32b forgot5;
-    u32b forgot6;
+    byte anger;
+    s16b mana;
 
     s32b pexp;    /* player experience gained (x100). kept <= r_ptr->mexp */
 };
@@ -880,15 +897,6 @@ struct player_pact
 #define MAX_ARMS  3
 #define HAND_NONE -1
 
-/* For the blows calculation, see calculate_base_blows in combat.c
- * This structure should be initialized in the appropriate calc_weapon_bonuses
- * cf calc_bonuses in xtra1.c */
-typedef struct {
-    int max;
-    int wgt;
-    int mult;
-} _blows_calc_t;
-
 typedef struct {
     int  wield_how;
     bool omoi;   /* WIELD_TWO_HANDS but too heavy for WIELD_ONE_HAND */
@@ -973,6 +981,7 @@ typedef struct {
 
 struct player_type
 {
+    s32b id;
     s16b oldpy;        /* Previous player location -KMW- */
     s16b oldpx;        /* Previous player location -KMW- */
 
@@ -1011,13 +1020,16 @@ struct player_type
     s16b wilderness_dy;
     bool wild_mode;
 
+    s32b mmhp;           /* Max Max hit pts */
     s32b mhp;            /* Max hit pts */
     s32b chp;            /* Cur hit pts */
-    u32b chp_frac;        /* Cur hit frac (times 2^16) */
+    u32b chp_frac;       /* Cur hit frac (times 2^16) */
 
     s32b msp;            /* Max mana pts */
     s32b csp;            /* Cur mana pts */
-    u32b csp_frac;        /* Cur mana frac (times 2^16) */
+    u32b csp_frac;       /* Cur mana frac (times 2^16) */
+
+    s16b clp;            /* Cur life pts (per mill) */
 
     s16b max_plv;        /* Max Player Level */
 
@@ -1342,6 +1354,7 @@ struct player_type
     bool no_eldritch;
     bool no_stun;
     bool no_cut;
+    bool no_slow;
     bool no_passwall_dam;
     bool no_charge_drain;
     bool melt_armor;
@@ -1362,10 +1375,10 @@ struct player_type
     bool can_swim;       /* No damage falling */
     bool levitation;     /* No damage falling */
     bool lite;           /* Permanent light */
-    bool free_act;       /* Never (?) paralyzed */
-    bool see_inv;        /* Can see invisible */
+    s16b free_act;       /* Resist paralysis; perhaps slowing */
+    s16b see_inv;        /* Can see invisible */
     s16b regen;          /* Rate of regeneration: 100 = 100%, 200 = 200%, etc. */
-    bool hold_life;      /* Resist life draining */
+    s16b hold_life;      /* Resist life draining */
 
     bool auto_id;
     bool auto_pseudo_id;
@@ -1671,6 +1684,7 @@ feat_prob;
 /* A structure for the != dungeon types */
 typedef struct dungeon_info_type dungeon_info_type;
 struct dungeon_info_type {
+    int  id;
     u32b name;        /* Name */
     u32b text;        /* Description */
 
@@ -1805,6 +1819,15 @@ typedef struct {
     int dir;
     int mode;
 } travel_type;
+
+typedef struct {
+    int  id;
+    cptr name;
+    byte color;
+    cptr desc;
+    cptr parse;
+    int  xtra;
+} parse_tbl_t, *parse_tbl_ptr;
 
 /*
  * A new spell system, and some half baked ideas for refactoring

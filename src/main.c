@@ -298,8 +298,6 @@ int main(int argc, char *argv[])
 
 	bool new_game = FALSE;
 
-	int show_score = 0;
-
 	cptr mstr = NULL;
 
 	bool args = TRUE;
@@ -466,14 +464,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'S':
-			case 's':
-			{
-				show_score = atoi(&argv[i][2]);
-				if (show_score <= 0) show_score = 10;
-				break;
-			}
-
 			case 'u':
 			case 'U':
 			{
@@ -534,7 +524,6 @@ int main(int argc, char *argv[])
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
 				puts("  -M       Request monochrome mode");
-				puts("  -s<num>  Show <num> high scores");
 				puts("  -u<who>  Use your <who> savefile");
 				puts("  -m<sys>  Force 'main-<sys>.c' usage");
 				puts("  -d<def>  Define a 'lib' dir sub-path");
@@ -779,9 +768,6 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
-
-	/* Hack -- If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
 
 	/* Catch nasty signals */
 	signals_init();

@@ -759,7 +759,7 @@ cptr do_hissatsu_spell(int spell, int mode)
                 equip_learn_flag(OF_NO_TELE);
                 break;
             }
-            project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, -1);
+            project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL);
             teleport_player_to(y, x, 0L);
         }
         break;
@@ -844,7 +844,7 @@ cptr do_hissatsu_spell(int spell, int mode)
                 damage *= NUM_BLOWS(hand)/100;
                 total_damage += damage / 200;
             }
-            project(0, (cave_have_flag_bold(y, x, FF_PROJECT) ? 5 : 0), y, x, total_damage * 3 / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM, -1);
+            project(0, (cave_have_flag_bold(y, x, FF_PROJECT) ? 5 : 0), y, x, total_damage * 3 / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
         }
         break;
 
@@ -869,7 +869,7 @@ cptr do_hissatsu_spell(int spell, int mode)
                 msg_print("There is no monster.");
                 return NULL;
             }
-            take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "exhaustion on using Keiun-Kininken", -1);
+            take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "exhaustion on using Keiun-Kininken");
         }
         break;
 
@@ -890,13 +890,13 @@ cptr do_hissatsu_spell(int spell, int mode)
             if (i != '@') return NULL;
             if (p_ptr->total_winner)
             {
-                take_hit(DAMAGE_FORCE, 9999, "Seppuku", -1);
+                take_hit(DAMAGE_FORCE, 9999, "Seppuku");
                 p_ptr->total_winner = TRUE;
             }
             else
             {
                 msg_print("Meaning of Bushi-do is found in the death.");
-                take_hit(DAMAGE_FORCE, 9999, "Seppuku", -1);
+                take_hit(DAMAGE_FORCE, 9999, "Seppuku");
             }
         }
         break;
@@ -928,12 +928,12 @@ void samurai_posture_calc_bonuses(void)
 
     if (p_ptr->special_defense & KATA_MUSOU)
     {
-        p_ptr->see_inv = TRUE;
-        p_ptr->free_act = TRUE;
+        p_ptr->see_inv++;
+        p_ptr->free_act++;
         p_ptr->slow_digest = TRUE;
         p_ptr->regen += 100;
         p_ptr->levitation = TRUE;
-        p_ptr->hold_life = TRUE;
+        p_ptr->hold_life++;
         p_ptr->sustain_str = TRUE;
         p_ptr->sustain_int = TRUE;
         p_ptr->sustain_wis = TRUE;
@@ -1303,7 +1303,7 @@ class_t *samurai_get_class(void)
         me.flags = CLASS_SENSE1_FAST | CLASS_SENSE1_STRONG;
 
         me.birth = _birth;
-        me.caster_info = _caster_info;        
+        me.caster_info = _caster_info;
         me.calc_bonuses = _calc_bonuses;
         me.calc_stats = _calc_stats;
         me.get_flags = _get_flags;

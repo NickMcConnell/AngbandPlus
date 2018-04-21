@@ -264,6 +264,9 @@
     <ClCompile Include="z-virt.c">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="gf.c">
+      <Filter>Player\Spells</Filter>
+    </ClCompile>
     <ClCompile Include="spells1.c">
       <Filter>Player\Spells</Filter>
     </ClCompile>
@@ -282,16 +285,19 @@
     <ClCompile Include="melee2.c">
       <Filter>Monsters</Filter>
     </ClCompile>
+    <ClCompile Include="mon.c">
+      <Filter>Monsters</Filter>
+    </ClCompile>
     <ClCompile Include="mspells1.c">
       <Filter>Monsters</Filter>
     </ClCompile>
     <ClCompile Include="mspells2.c">
       <Filter>Monsters</Filter>
     </ClCompile>
-    <ClCompile Include="mspells3.c">
+    <ClCompile Include="mon_display.c">
       <Filter>Monsters</Filter>
     </ClCompile>
-    <ClCompile Include="mon_display.c">
+    <ClCompile Include="mon_spell.c">
       <Filter>Monsters</Filter>
     </ClCompile>
     <ClCompile Include="monster1.c">
@@ -377,9 +383,6 @@
     </ClCompile>
     <ClCompile Include="blood_mage.c">
       <Filter>Player\Classes\Chengband</Filter>
-    </ClCompile>
-    <ClCompile Include="blue_mage.c">
-      <Filter>Player\Classes\Hengband</Filter>
     </ClCompile>
     <ClCompile Include="cavalry.c">
       <Filter>Player\Classes\Hengband</Filter>
@@ -467,9 +470,6 @@
     </ClCompile>
     <ClCompile Include="high_mage.c">
       <Filter>Player\Classes\Zangband</Filter>
-    </ClCompile>
-    <ClCompile Include="imitator.c">
-      <Filter>Player\Classes\Hengband</Filter>
     </ClCompile>
     <ClCompile Include="tourist.c">
       <Filter>Player\Classes\Hengband</Filter>

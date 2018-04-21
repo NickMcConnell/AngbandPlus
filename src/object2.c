@@ -681,6 +681,7 @@ s16b get_obj_num(int level)
         k_idx = table[i].index;
         k_ptr = &k_info[k_idx];
         if (k_ptr->tval == TV_FOOD && k_ptr->sval == SV_FOOD_AMBROSIA && dungeon_type != DUNGEON_OLYMPUS) continue;
+        if (k_ptr->tval == TV_BOW && k_ptr->sval == SV_HARP && p_ptr->pclass != CLASS_BARD) continue;
         if (easy_id && k_ptr->tval == TV_SCROLL && k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) continue;
         /* Hack -- prevent embedded chests */
         if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
@@ -1969,9 +1970,13 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
 
             /* Hack -- pick a "difficulty" */
             o_ptr->pval = randint1(obj_level);
-            if (o_ptr->sval == SV_CHEST_KANDUME) o_ptr->pval = 6;
-
-            o_ptr->xtra3 = dun_level + 5;
+            if (o_ptr->sval == SV_CHEST_KANDUME)
+            {
+                o_ptr->pval = 6;
+                o_ptr->xtra3 = dun_level + 5;
+            }
+            else
+                o_ptr->xtra3 = level + 5;
 
             /* Never exceed "difficulty" of 55 to 59 */
             if (o_ptr->pval > 55) o_ptr->pval = 55 + (byte)randint0(5);
@@ -2019,7 +2024,6 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     int maxf1 = d_info[dungeon_type].obj_good;
     int maxf2 = d_info[dungeon_type].obj_great;
 
-    if (p_ptr->personality == PERS_MUNCHKIN) lev += randint0(p_ptr->lev/2+10);
     if (quickband && !(mode & AM_STOCK_TOWN))
     {
         lev += 10;
@@ -2043,7 +2047,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     f2 = f1 * 2 / 3;
 
     /* Maximal chance of being "great" */
-    if (p_ptr->personality != PERS_MUNCHKIN && f2 > maxf2)
+    if (f2 > maxf2)
         f2 = maxf2;
 
     /* Temp Hack: It's a bit too hard to find good rings early on. Note we hack after
@@ -2078,7 +2082,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         power = 1;
 
         /* Roll for "great" */
-        if (no_egos)
+        if (no_egos && !object_is_jewelry(o_ptr))
         {
         }
         else if ((mode & AM_GREAT) || magik(f2))
@@ -2097,7 +2101,7 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         power = -1;
 
         /* Roll for "broken" */
-        if (no_egos)
+        if (no_egos && !object_is_jewelry(o_ptr))
         {
         }
         else if (magik(f2))
@@ -2488,10 +2492,14 @@ static bool kind_is_tailored(int k_idx)
     case TV_MUSIC_BOOK:
     case TV_HISSATSU_BOOK:
     case TV_HEX_BOOK:
-    case TV_RAGE_BOOK:
     case TV_BURGLARY_BOOK:
         return check_book_realm(k_ptr->tval, k_ptr->sval)
-            && k_ptr->sval >= SV_BOOK_MIN_GOOD;
+            && k_ptr->sval >= SV_BOOK_MIN_GOOD
+            && k_ptr->counts.found < 3;
+    case TV_RAGE_BOOK:
+        return check_book_realm(k_ptr->tval, k_ptr->sval)
+            && k_ptr->sval >= SV_BOOK_MIN_GOOD
+            && k_ptr->counts.found < 8;
 
     case TV_WAND:
         return devicemaster_is_(DEVICEMASTER_WANDS)
@@ -2576,12 +2584,18 @@ bool kind_is_great(int k_idx)
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
-        case TV_RAGE_BOOK:
         case TV_BURGLARY_BOOK:
         {
-            if (k_ptr->sval == SV_BOOK_MIN_GOOD) return TRUE; /* Third Spellbooks: I want ?Acquirement to grant these! */
-            if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
-            return (FALSE);
+            if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < 2; /* Third Spellbooks: I want ?Acquirement to grant these! */
+            if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < 2;   /* Fourth Spellbooks */
+            return FALSE;
+        }
+        case TV_RAGE_BOOK:
+        {
+            int max = (p_ptr->pclass == CLASS_RAGE_MAGE) ? 8 : 2;
+            if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < max; /* Third Spellbooks: I want ?Acquirement to grant these! */
+            if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < max;   /* Fourth Spellbooks */
+            return FALSE;
         }
         case TV_POTION:
         {
@@ -2674,12 +2688,18 @@ bool kind_is_good(int k_idx)
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
-        case TV_RAGE_BOOK:
         case TV_BURGLARY_BOOK:
         {
-            if (k_ptr->sval == SV_BOOK_MIN_GOOD) return TRUE; /* Third Spellbooks */
-            if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
-            return (FALSE);
+            if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < 2; /* Third Spellbooks */
+            if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < 2;   /* Fourth Spellbooks */
+            return FALSE;
+        }
+        case TV_RAGE_BOOK:
+        {
+            int max = (p_ptr->pclass == CLASS_RAGE_MAGE) ? 8 : 2;
+            if (k_ptr->sval == SV_BOOK_MIN_GOOD) return k_ptr->counts.found < max; /* Third Spellbooks: I want ?Acquirement to grant these! */
+            if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return k_ptr->counts.found < max;   /* Fourth Spellbooks */
+            return FALSE;
         }
         case TV_POTION:
         {
@@ -2954,26 +2974,28 @@ typedef struct {
     int     base;
     int     good;
     int     great;
+    int     slot_type;
 } _kind_alloc_entry;
 static _kind_alloc_entry _kind_alloc_table[] = {
     /* Equipment by Slot */
-    { kind_is_weapon,          195,    0,    0 },
-    { _kind_is_shield,          30,    0,    0 },
-    { _kind_is_bow_quiver,      60,    0,    0 },
-    { kind_is_jewelry,          40,    0,    0 },
-    { _kind_is_lite,            10,    0,    0 },
-    { kind_is_body_armor,      195,    0,    0 },
-    { _kind_is_cloak,           30,    0,    0 },
-    { kind_is_helm,             30,    0,    0 },
-    { _kind_is_gloves,          30,    0,    0 },
-    { _kind_is_boots,           30,    0,    0 },
+    { kind_is_weapon,          195,    0,    0, EQUIP_SLOT_WEAPON }, /* jellies */
+    { _kind_is_shield,          30,    0,    0, EQUIP_SLOT_WEAPON_SHIELD },
+    { _kind_is_bow_quiver,      60,    0,    0, EQUIP_SLOT_BOW },
+    { _kind_is_ring,            20,    0,    0, EQUIP_SLOT_RING },   /* beholders = rings only */
+    { _kind_is_amulet,          20,    0,    0, EQUIP_SLOT_AMULET }, /* hydras = amulets only */
+    { _kind_is_lite,            10,    0,    0, EQUIP_SLOT_LITE },
+    { kind_is_body_armor,      195,    0,    0, EQUIP_SLOT_BODY_ARMOR },
+    { _kind_is_cloak,           30,    0,    0, EQUIP_SLOT_CLOAK },
+    { kind_is_helm,             30,    0,    0, EQUIP_SLOT_HELMET },
+    { _kind_is_gloves,          30,    0,    0, EQUIP_SLOT_GLOVES },
+    { _kind_is_boots,           30,    0,    0, EQUIP_SLOT_BOOTS },
     /*                         650              */
 
-    { kind_is_wand_rod_staff,   95,  -40,  -60 },
-    { _kind_is_potion_scroll,  100,  -50,  -90 },
-    { _kind_is_ammo,            80,    0,    0 },
-    { kind_is_book,             25,   10,   15 }, /* R_DROP_MAGE is covering this ... */
-    { kind_is_misc,             50,  -50,  -50 },
+    { kind_is_wand_rod_staff,   95,  -40,  -60, EQUIP_SLOT_NONE },
+    { _kind_is_potion_scroll,  100,  -50,  -90, EQUIP_SLOT_NONE },
+    { _kind_is_ammo,            80,    0,    0, EQUIP_SLOT_BOW },
+    { kind_is_book,             25,   10,   15, EQUIP_SLOT_NONE }, /* R_DROP_MAGE is covering this ... */
+    { kind_is_misc,             50,  -50,  -50, EQUIP_SLOT_NONE },
     /*                         350              */
     { NULL, 0}
 };
@@ -2988,6 +3010,12 @@ static int _kind_alloc_weight(_kind_alloc_entry *entry, u32b mode)
 
     if (p_ptr->prace == RACE_MON_RING && entry->hook == kind_is_jewelry)
         w = w * 2;
+
+    /* EXPERIMENTAL: Adjust frequencies of unusable objects down. For example, hounds
+     * can neither wield weapons nor employ archery. Beholders are much worse, only using
+     * rings, lights and a helmet. The effect should be noticeable, but not too strong. */
+    if (entry->slot_type != EQUIP_SLOT_NONE && !equip_has_slot_type(entry->slot_type))
+        w /= 2;
 
     return MAX(0, w);
 }
@@ -3347,6 +3375,60 @@ static bool _kind_theme_junk(int k_idx) {
     return FALSE;
 
 }
+
+static bool _needs_book(void)
+{
+    int tval, k_idx;
+    if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_RAGE_MAGE)
+    {
+        return TRUE;
+    }
+    else if (p_ptr->pclass == CLASS_RED_MAGE)
+    {
+        return FALSE;
+    }
+    else if (p_ptr->pclass == CLASS_GRAY_MAGE)
+    {
+        for (tval = TV_BOOK_BEGIN; tval < TV_BOOK_END; tval++)
+        {
+            if (!gray_mage_is_allowed_book(tval, 0)) continue;
+            k_idx = lookup_kind(tval, 2);
+            if (k_info[k_idx].counts.found > 2) continue;
+            k_idx = lookup_kind(tval, 3);
+            if (k_info[k_idx].counts.found > 1) continue;
+            return TRUE;
+        }
+        return FALSE;
+    }
+    else if (p_ptr->pclass == CLASS_SKILLMASTER)
+    {
+        for (tval = TV_BOOK_BEGIN; tval < TV_BOOK_END; tval++)
+        {
+            if (!skillmaster_is_allowed_book(tval, 0)) continue;
+            k_idx = lookup_kind(tval, 2);
+            if (k_info[k_idx].counts.found > 2) continue;
+            k_idx = lookup_kind(tval, 3);
+            if (k_info[k_idx].counts.found > 1) continue;
+            return TRUE;
+        }
+        return FALSE;
+    }
+    if (p_ptr->realm1)
+    {
+        k_idx = lookup_kind(REALM1_BOOK, 2);
+        if (k_info[k_idx].counts.found < 3) return TRUE;
+        k_idx = lookup_kind(REALM1_BOOK, 3);
+        if (k_info[k_idx].counts.found < 2) return TRUE;
+    }
+    if (p_ptr->realm2)
+    {
+        k_idx = lookup_kind(REALM2_BOOK, 2);
+        if (k_info[k_idx].counts.found < 3) return TRUE;
+        k_idx = lookup_kind(REALM2_BOOK, 3);
+        if (k_info[k_idx].counts.found < 2) return TRUE;
+    }
+    return FALSE;
+}
 /****************** End of Themed Drops ***************************************/
 
 static _kind_p _choose_obj_kind(u32b mode)
@@ -3506,7 +3588,7 @@ static _kind_p _choose_obj_kind(u32b mode)
         }
         if (!_kind_hook1)
         {
-            if (is_magic(p_ptr->realm1) && one_in_(10))
+            if (_needs_book() && one_in_(10))
                 _kind_hook1 = kind_is_book;
             else if (_is_device_class() && one_in_(7))
                 _kind_hook1 = kind_is_wand_rod_staff;

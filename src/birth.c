@@ -267,6 +267,7 @@ static void player_wipe(void)
 
     /* Level one */
     p_ptr->max_plv = p_ptr->lev = 1;
+    p_ptr->clp = 1000;
 
     /* Initialize arena and rewards information -KMW- */
     p_ptr->arena_number = 0;

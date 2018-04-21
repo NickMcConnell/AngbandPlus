@@ -1,30 +1,30 @@
 <color:y>PosChengband <$:version></color>
 <style:screenshot>
-You breathe sound. Stop, you brute! That was rather dishonorable.
-The Large white snake jerks limply. The Large white snake flees in  LEVEL <color:G>     1</color>
-terror!                                                             EXP <color:G>      24</color>
-                                                                    AU  <color:G>      36</color>
-                                                                    <color:g>=</color><color:d>      </color><color:U>~</color><color:d>  </color>
-                                                                    STR : <color:G>    17</color>
-                                              ####           #..... INT : <color:G>     6</color>
-                                              #<color:y>d</color>.J           ...... WIS : <color:G>     9</color>
-                                              #.##           ###### DEX : <color:G>    14</color>
-                             ##################.#                   CON : <color:G> 18/30</color>
-                             #>.................#                   CHR : <color:G>    12</color>
-                             #####.##############                   AC     <color:G>   15</color>
-                                 #.###################              HP <color:G>  53</color>/<color:G>  53</color>
-                         #########.#.................#              SP <color:y>  13</color>/<color:G>  14</color>
-                         #<........#.................#
-                         ######.####.................#              J<color:R>[</color><color:B>*</color><color:R>--------]</color>
-                              #.#  #.................#
-                              #.####.................#
-                              #....<color:U>'</color>.................#
-                              ######.................#
-                               #####.................#
-                               #...<color:U>'</color>.................#
-                               ##.#####<color:U>+</color>######.#######
-                                #.#
-                                #.##
-    ###############             #...
-<color:s>Stronghold: L1</color>
+The Steel Bolt (Elemental) (4d5) (+12,+12) misses Hastur the                      
+Unspeakable.                                                          LEVEL <color:G>    50</color>
+<color:G>Hastur the Unspeakable</color> breathes <color:D>Nether</color>. You nimbly dodge the attack!  EXP <color:G>   10.0M</color>
+#   #%###%      <color:s>%%</color>#  <color:s>%</color>    % % <color:D>#</color>#<color:u>.......</color>#  #<color:D>#</color>###<color:u>..............</color>####<color:u>.</color>### AU  <color:G>   7.36M</color>
+#####<color:D>#</color>###%%## <color:s>%</color>##  <color:s>%</color>%% %  ##<color:s>%</color> #<color:s>%</color><color:u>.......</color>#  ####<color:u>...............</color><color:s>%%</color><color:u>...</color># # <color:d>            </color>
+#<color:u>...</color>###%<color:D>#</color>##<color:D>#</color>###  %  %  %%%    # % <color:u>.....</color>#   ##<color:u>......</color><color:U>D</color><color:u>.........</color>##<color:u>.</color><color:D>#</color>## # STR!: <color:G>18/***</color>
+%<color:u>...</color>#  %%%%#<color:D>#</color>#% % <color:s>%</color>   # <color:s>%</color>   <color:s>%</color>#%%  #<color:u>....</color>#  ##<color:u>.................</color><color:U>'</color><color:u>..</color>##    INT!: <color:G>18/120</color>
+#<color:u>...</color>#    %#%  <color:s>%</color>% <color:s>%</color>   #%# % %  %  %   <color:u>..</color># ##<color:u>............</color><color:B>M</color><color:u>.....</color>#<color:u>.</color>##  ## WIS!: <color:G>18/200</color>
+##<color:U>'</color>#%%   #<color:D>#</color>%%  <color:s>%</color>   % %%   <color:s>%</color>%%% <color:s>%</color>   % <color:u>..</color># #<color:u>...............</color>?<color:u>....</color>##   #<color:D>#</color> DEX!: <color:G>18/120</color>
+ #<color:u>...</color>##  ##%%%   <color:s>%</color># #        %<color:s>%</color>%%%<color:s>%</color> %<color:s>%</color><color:u>.</color>###<color:u>...................</color>###   #<color:D>#</color> CON!: <color:G>18/***</color>
+ ###<color:u>..</color>###%  <color:s>%</color>%#   % % %%%%<color:s>%</color>  <color:s>%</color>#   %  % #<color:D>#</color>#<color:u>............</color><color:b>$</color><color:u>........</color>##  ## CHR!: <color:G>18/150</color>
+   #<color:u>....</color>%#<color:s>%</color>% % # %%<color:s>%</color> <color:s>%</color>    %<color:s>%</color>     # %<color:s>%</color>  <color:D>#</color>###<color:u>.....................</color>###   AC     <color:G>  202</color>
+## ####<color:u>..</color>% <color:s>%%</color>   <color:s>%</color>%  #<color:s>%</color> %<color:s>%</color>%<color:s>%%</color># % # <color:s>%</color>   %<color:u>.................</color><color:r>D</color><color:u>.........</color>### HP <color:y> 920</color>/<color:G>1059</color>
+<color:u>.</color>####<color:D>#</color>%#<color:u>.</color>%  <color:s>%</color>%%%<color:s>%</color>#   %   %  #%#  #   %<color:s>%</color>%<color:u>.</color><color:D>#</color>@<color:u>............</color>{<color:b>H</color>{<color:u>..........</color># SP <color:y> 246</color>/<color:G> 409</color>
+<color:u>..</color>##<color:D>#</color>%##%% % <color:s>%%</color>  %<color:s>%</color>#<color:s>%</color> <color:s>%</color>% %<color:s>%</color> %%%     % <color:u>...</color><color:D>#</color><color:u>...</color><color:U>'</color><color:u>..........</color>{<color:u>............</color>             
+#<color:u>..</color>#<color:D>#</color>#<color:D>#</color>%<color:s>%</color>   %<color:s>%</color> %<color:s>%</color> %#%%#%   % % #%#%<color:s>%</color>  %<color:s>%</color>%<color:s>%%</color>#<color:u>.</color>##<color:u>....</color>d<color:u>........</color><color:g>p</color><color:u>........</color> @ <color:y> 86%</color>      
+##<color:u>...</color>#<color:D>#</color>#  <color:s>%</color> %#<color:s>%</color> %% #  ## #<color:s>%</color>%#% %  <color:s>%</color>   #  ###<color:u>...</color>#<color:u>.....................</color> <color:W>?</color> <color:y> 60%</color>      
+####<color:u>.</color>###<color:s>%</color> %%  %# #<color:s>%</color>     %% #  %#%%%     <color:s>%</color>#<color:u>....</color>#<color:s>%</color><color:u>'...</color>D<color:u>................</color> <color:U>,</color> <color:G>147%</color>      
+<color:u>...</color><color:U>'</color><color:r>^</color><color:u>..</color> # <color:s>%</color> # %    #<color:s>%</color>    % <color:s>%%</color> %<color:s>%</color> #%    <color:s>%%</color>%<color:u>.</color>#<color:u>.</color>#<color:u>'......................</color> <color:b>H</color> <color:R> 20%</color> <color:R>*</color>    
+<color:u>...</color>#<color:u>.</color>##% #  % %# %%%#%<color:s>%</color>%    <color:s>%%</color> <color:s>%</color>#<color:s>%</color> <color:s>%</color>%  <color:s>%</color>% <color:u>.</color>#<color:u>.</color>#<color:u>.......................</color>             
+#<color:U>'</color>#<color:U>'</color><color:u>.</color>##<color:s>%</color> %<color:s>%</color>%  %  %    <color:s>%</color>%<color:s>%</color>  %<color:s>%</color> % <color:s>%</color>  % # # <color:s>%%%</color>#<color:u>........................</color>             
+<color:u>...</color>### #  <color:s>%%</color>   %<color:s>%</color>  %  <color:s>%%</color> <color:s>%</color> ## <color:s>%</color>    #    <color:s>%</color># ##<color:u>...</color>U<color:u>........</color>#<color:u>...........</color> <color:y>Fast (+26)</color>  
+##<color:u>.</color>#####  %<color:s>%%</color>#   #<color:s>%</color>% <color:s>%%</color>   # #   %  <color:s>%</color>  % %# <color:s>%</color><color:u>...........</color>#####<color:u>.</color><color:b>(</color><color:u>.......</color> <color:G>Full</color>        
+#<color:U>'</color><color:u>.</color>##<color:D>#</color>##<color:s>%%</color>%% %      <color:s>%</color>   %     %## ##<color:s>%</color>#<color:s>%</color>%%# #<color:u>..........</color>##<color:D>#</color># ##<color:u>........</color>             
+<color:u>.</color>#<color:u>..</color>#<color:D>#</color># <color:s>%</color>#  % <color:s>%</color> %<color:s>%</color>       % #   %   #<color:s>%%</color>%# # <color:s>%</color><color:u>..........</color>########<color:u>.....</color><color:b>$</color><color:u>.</color>             
+<color:u>....</color>#<color:D>#</color># # <color:s>%%</color>  <color:s>%</color> <color:s>%%</color>% #%#<color:s>%</color> %%   %%%  #  # ## <color:s>%</color><color:u>..........</color>#   #<color:D>##</color>#<color:u>..</color><color:r>^</color><color:u>....</color>             
+<color:W>Dragon's lair: L71</color>                    Hero <color:D>Stealth</color> <color:B>Dodge</color> <color:u>Snipe</color>                    
 </style>

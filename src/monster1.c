@@ -43,16 +43,13 @@ while end game uniques keep their nearly 60% fail (Serpent goes from
 power 100 to 127 with this change so his save goes from 60% to 65%).
 */
 
-static int _r_level(int r_idx)
+int mon_save_r_level(int r_idx)
 {
     monster_race *r_ptr = &r_info[r_idx];
     int           ml = r_ptr->level;
 
     if (r_ptr->flags1 & RF1_UNIQUE)
         ml += ml/5;
-
-    if (r_ptr->flags2 & RF2_POWERFUL)
-        ml += 7;
 
     if (ml < 1)
         ml = 1;
@@ -62,12 +59,14 @@ static int _r_level(int r_idx)
 
 bool mon_save_aux(int r_idx, int power)
 {
-    int  ml = _r_level(r_idx);
+    int  ml = mon_save_r_level(r_idx);
     bool result = FALSE;
 
     if (power < 1)
         power = 1;
 
+    /*if (p_ptr->wizard)
+        msg_format("mon_save_aux: 1d%d <= 1d%d", power, ml);*/
     if (randint1(power) <= randint1(ml))
         result = TRUE;
 
@@ -82,6 +81,11 @@ bool mon_save_p(int r_idx, int stat)
         pl += adj_stat_save[p_ptr->stat_ind[stat]];
 
     return mon_save_aux(r_idx, pl);
+}
+
+bool mon_save_m(int r_idx, int src_r_idx)
+{
+    return mon_save_aux(r_idx, mon_save_r_level(src_r_idx));
 }
 
 void mon_lore_1(monster_type *m_ptr, u32b mask)
@@ -102,52 +106,78 @@ void mon_lore_3(monster_type *m_ptr, u32b mask)
         mon_lore_aux_3(&r_info[m_ptr->r_idx], mask);
 }
 
-void mon_lore_4(monster_type *m_ptr, u32b mask)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_4(&r_info[m_ptr->r_idx], mask);
-}
-
-void mon_lore_5(monster_type *m_ptr, u32b mask)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_5(&r_info[m_ptr->r_idx], mask);
-}
-
-void mon_lore_6(monster_type *m_ptr, u32b mask)
-{
-    if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_6(&r_info[m_ptr->r_idx], mask);
-}
-
 void mon_lore_r(monster_type *m_ptr, u32b mask)
 {
     if (is_original_ap_and_seen(m_ptr))
         mon_lore_aux_r(&r_info[m_ptr->r_idx], mask);
 }
 
-void mon_lore_blows(monster_type *m_ptr, int which, int options)
+void mon_lore_blow(monster_type *m_ptr, mon_blow_ptr blow, int options)
 {
     if (is_original_ap_and_seen(m_ptr))
-        mon_lore_aux_blows(&r_info[m_ptr->r_idx], which, options);
+        mon_lore_aux_blow(&r_info[m_ptr->r_idx], blow, options);
 }
 
-void mon_lore_aux_blows(monster_race *r_ptr, int which, int options)
+void mon_lore_aux_blow(monster_race *r_ptr, mon_blow_ptr blow, int options)
 {
     if (!(options & MON_BLOW_SILLY))
     {
         if ( (options & MON_BLOW_OBVIOUS)
           || (options & MON_BLOW_DAMAGE)
-          || r_ptr->r_blows[which] > 10 )
+          || blow->lore > 10 )
         {
-            if (r_ptr->r_blows[which] < MAX_UCHAR)
+            if (blow->lore < MAX_SHORT)
             {
-                r_ptr->r_blows[which]++;
+                blow->lore++;
                 if (r_ptr->id == p_ptr->monster_race_idx)
                     p_ptr->window |= PW_MONSTER;
             }
         }
     }
+}
+
+void mon_lore_effect(monster_type *m_ptr, mon_effect_ptr effect)
+{
+    if (is_original_ap_and_seen(m_ptr))
+        mon_lore_aux_effect(&r_info[m_ptr->r_idx], effect);
+}
+
+void mon_lore_aux_effect(monster_race *r_ptr, mon_effect_ptr effect)
+{
+    if (effect->lore < MAX_SHORT)
+    {
+        effect->lore++;
+        if (r_ptr->id == p_ptr->monster_race_idx)
+            p_ptr->window |= PW_MONSTER;
+    }
+}
+
+void mon_lore_spell(mon_ptr mon, mon_spell_ptr spell)
+{
+    if (is_original_ap_and_seen(mon))
+        mon_lore_aux_spell(&r_info[mon->r_idx], spell);
+}
+
+void mon_lore_aux_spell(mon_race_ptr race, mon_spell_ptr spell)
+{
+    if (spell->lore < MAX_SHORT)
+    {
+        spell->lore++;
+        if (race->id == p_ptr->monster_race_idx)
+            p_ptr->window |= PW_MONSTER;
+    }
+    mon_lore_aux_spell_turns(race);
+}
+
+void mon_lore_aux_spell_turns(mon_race_ptr race)
+{
+    u32b old = race->r_spell_turns;
+    race->r_spell_turns++;
+    if (race->r_spell_turns < old) /* wrap? */
+        race->r_spell_turns = old;
+
+    if (race->r_spell_turns != old && race->id == p_ptr->monster_race_idx)
+        p_ptr->window |= PW_MONSTER;
 }
 
 void mon_lore_aux_1(monster_race *r_ptr, u32b mask)
@@ -177,24 +207,6 @@ void mon_lore_aux_3(monster_race *r_ptr, u32b mask)
         p_ptr->window |= PW_MONSTER;
 }
 
-void mon_lore_aux_spell(monster_race *r_ptr)
-{
-    u32b old = r_ptr->r_spell_turns;
-    r_ptr->r_spell_turns++;
-    if (r_ptr->r_spell_turns < old) /* wrap? */
-        r_ptr->r_spell_turns = old;
-
-    if (r_ptr->r_spell_turns != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-
-    if (r_ptr->r_cast_spell < MAX_UCHAR)
-    {
-        r_ptr->r_cast_spell++;
-        if (r_ptr->id == p_ptr->monster_race_idx)
-            p_ptr->window |= PW_MONSTER;
-    }
-}
-
 static void _mon_lore_aux_move(monster_race *r_ptr)
 {
     u32b old = r_ptr->r_move_turns;
@@ -209,38 +221,6 @@ void mon_lore_move(monster_type *m_ptr)
 {
     if (is_original_ap_and_seen(m_ptr))
         _mon_lore_aux_move(&r_info[m_ptr->r_idx]);
-}
-
-void mon_lore_aux_4(monster_race *r_ptr, u32b mask)
-{
-    u32b old = r_ptr->r_flags4;
-
-    mon_lore_aux_spell(r_ptr);
-    r_ptr->r_flags4 |= (r_ptr->flags4 & mask);
-    if (r_ptr->r_flags4 != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-}
-
-void mon_lore_aux_5(monster_race *r_ptr, u32b mask)
-{
-    u32b old = r_ptr->r_flags5;
-
-    mon_lore_aux_spell(r_ptr);
-    r_ptr->r_flags5 |= (r_ptr->flags5 & mask);
-    if (r_ptr->r_flags5 != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
-}
-
-void mon_lore_aux_6(monster_race *r_ptr, u32b mask)
-{
-    u32b old = r_ptr->r_flags6;
-
-    if (r_ptr->id != MON_OHMU) /* The one and only example of RF6_* not being a spell ... sigh */
-        mon_lore_aux_spell(r_ptr);
-
-    r_ptr->r_flags6 |= (r_ptr->flags6 & mask);
-    if (r_ptr->r_flags6 != old && r_ptr->id == p_ptr->monster_race_idx)
-        p_ptr->window |= PW_MONSTER;
 }
 
 void mon_lore_aux_r(monster_race *r_ptr, u32b mask)
@@ -552,7 +532,7 @@ monster_hook_type get_monster_hook2(int y, int x)
 
 void set_friendly(monster_type *m_ptr)
 {
-    m_ptr->smart |= SM_FRIENDLY;
+    m_ptr->smart |= (1U << SM_FRIENDLY);
 }
 
 void set_pet(monster_type *m_ptr)
@@ -561,7 +541,7 @@ void set_pet(monster_type *m_ptr)
 
     quests_on_kill_mon(m_ptr);
 
-    m_ptr->smart |= SM_PET;
+    m_ptr->smart |= (1U << SM_PET);
     if (!(r_info[m_ptr->r_idx].flags3 & (RF3_EVIL | RF3_GOOD)))
         m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
 }
@@ -575,8 +555,8 @@ void set_hostile(monster_type *m_ptr)
 
     if (is_pet(m_ptr)) check_pets_num_and_align(m_ptr, FALSE);
 
-    m_ptr->smart &= ~SM_PET;
-    m_ptr->smart &= ~SM_FRIENDLY;
+    m_ptr->smart &= ~(1U << SM_PET);
+    m_ptr->smart &= ~(1U << SM_FRIENDLY);
 }
 
 

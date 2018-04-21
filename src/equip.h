@@ -89,6 +89,7 @@ extern void    equip_init(void);
 extern void    equip_on_load(void);
 extern void    equip_on_change_race(void);
 extern bool    equip_can_wield_kind(int tval, int sval);
+extern bool    equip_has_slot_type(int type);
 
 extern bool    equip_is_empty_hand(int hand);
 extern bool    equip_is_valid_hand(int hand);

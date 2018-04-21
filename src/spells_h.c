@@ -239,7 +239,7 @@ void hellfire_spell(int cmd, variant *res)
         {
             fire_ball(GF_HELL_FIRE, dir, spell_power(666 + p_ptr->to_d_spell), 3);
             if (!demon_is_(DEMON_BALROG))
-                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire", -1);
+                take_hit(DAMAGE_USELIFE, 20 + randint1(30), "the strain of casting Hellfire");
             var_set_bool(res, TRUE);
         }
         break;
@@ -348,14 +348,14 @@ void hp_to_sp_spell(int cmd, variant *res)
                 p_ptr->csp += healing;
 
                 p_ptr->redraw |= (PR_MANA);
-                take_hit(DAMAGE_LOSELIFE, healing, "blood rushing to the head", -1);
+                take_hit(DAMAGE_LOSELIFE, healing, "blood rushing to the head");
             }
         }
         break;
 
     case SPELL_CAST:
     {
-        int gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "thoughtless convertion from HP to SP", -1) / 5;
+        int gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "thoughtless convertion from HP to SP") / 5;
         if (gain_sp && p_ptr->pclass != CLASS_RUNE_KNIGHT)
         {
             p_ptr->csp += gain_sp;

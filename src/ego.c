@@ -304,6 +304,7 @@ static bool _check_rand_art(int base, int level, int power, int mode)
     if (mode & AM_CRAFTING) return FALSE;
     if (power > 2) return TRUE;
     /*if (statistics_hack && one_in_(3)) return TRUE;  XXX Temp */
+    base -= base * level / 200;
     if (one_in_(base)) return TRUE;
     return FALSE;
 }
@@ -312,17 +313,11 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
 {
     int     i;
     u32b    mode = CREATE_ART_NORMAL;
-    point_t min_tbl[4] = {            {30,     0}, {50, 15000}, {70, 40000},               {100,  50000} };
-    point_t max_tbl[6] = { {0, 5000}, {30, 20000}, {50, 40000}, {70, 80000}, {90, 130000}, {100, 300000} };
-    int     min = interpolate(level, min_tbl, 4);
-    int     max = interpolate(level, max_tbl, 6);
+    point_t min_tbl[2] = { {20, 0}, {70, 50000} };
+    point_t max_tbl[5] = { {0, 5000}, {10, 10000}, {30, 30000}, {70, 110000}, {100, 200000} };
+    int     min = interpolate(level, min_tbl, 2);
+    int     max = interpolate(level, max_tbl, 5);
     int     pct = get_slot_power(o_ptr);
-
-    if (one_in_(GREAT_OBJ))
-    {
-        min = MAX(5000, min);
-        max = MAX(20000, max*3/2);
-    }
 
     /* normalize based on the slot for this object (cf artifact.c)
      * weapons/armor are 100%; amulets/lights 50%; etc. */
@@ -515,7 +510,7 @@ static void _ego_create_jewelry_defender(object_type *o_ptr, int level, int powe
             add_flag(o_ptr->flags, OF_LEVITATION);
         while (one_in_(2))
             one_sustain(o_ptr);
-        o_ptr->to_a = 5 + randint1(7) + m_bonus(7, level);
+        o_ptr->to_a = randint1(7) + m_bonus(7, level);
         switch (randint1(4))
         {
         case 1: /* Classic Defender */
@@ -528,14 +523,11 @@ static void _ego_create_jewelry_defender(object_type *o_ptr, int level, int powe
             else
                 one_high_resistance(o_ptr);
             break;
-        case 2: /* High Defender */
+        case 2: {/* High Defender */
+            int ct = 0;
             one_high_resistance(o_ptr);
-            do
-            {
-                one_high_resistance(o_ptr);
-            }
-            while (one_in_(2));
-            break;
+            do { one_high_resistance(o_ptr); ct++; } while(one_in_(2 + ct));
+            break; } 
         case 3: /* Lordly Protection */
             o_ptr->to_a += 5;
             add_flag(o_ptr->flags, OF_RES_POIS);
@@ -737,6 +729,7 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                 {
                     add_flag(o_ptr->flags, OF_CON);
                     if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                    if (one_in_(3)) add_flag(o_ptr->flags, OF_SUST_CON);
                     break;
                 }
             case 2:
@@ -744,11 +737,13 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                 {
                     add_flag(o_ptr->flags, OF_DEX);
                     if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                    if (one_in_(3)) add_flag(o_ptr->flags, OF_SUST_DEX);
                     break;
                 }
             case 3:
                 add_flag(o_ptr->flags, OF_STR);
                 if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                if (one_in_(3)) add_flag(o_ptr->flags, OF_SUST_STR);
                 break;
             case 4:
                 o_ptr->to_h += randint1(5) + m_bonus(5, level);
@@ -886,7 +881,8 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                 one_high_resistance(o_ptr);
                 if (abs(power) >= 2)
                 {
-                    do { one_high_resistance(o_ptr); --power; } while(one_in_(3));
+                    int ct = 0;
+                    do { one_high_resistance(o_ptr); --power; ct++; } while(one_in_(2 + ct));
                 }
                 break;
             case 2:
@@ -1161,7 +1157,8 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
             case 5:
                 if (abs(power) >= 2 && one_in_(2) && level >= 30)
                 {
-                    do { one_high_resistance(o_ptr); } while (one_in_(3));
+                    int ct = 0;
+                    do { one_high_resistance(o_ptr); powers--; ct++; } while (one_in_(2 + ct));
                     break;
                 }
             default:
@@ -1312,17 +1309,17 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
                 if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(4, level);
                 break;
             case 6:
-                o_ptr->to_a += randint1(5) + m_bonus(5, level);
+                o_ptr->to_a += 1 + m_bonus(4, level);
                 break;
             }
         }
-        if (o_ptr->to_a > 15) o_ptr->to_a = 15;
+        if (o_ptr->to_a > 12) o_ptr->to_a = 12;
         if (one_in_(ACTIVATION_CHANCE*2))
             effect_add(o_ptr, EFFECT_BERSERK);
         break;
     case EGO_AMULET_SACRED:
         add_flag(o_ptr->flags, OF_BLESSED);
-        o_ptr->to_a = 5;
+        o_ptr->to_a = randint1(5);
         if (one_in_(2)) add_flag(o_ptr->flags, OF_LITE);
         for (powers = _jewelry_powers(5, level, power); powers > 0; --powers)
         {
@@ -1370,10 +1367,10 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
                     add_flag(o_ptr->flags, OF_HOLD_LIFE);
                 break;
             default:
-                o_ptr->to_a += randint1(5) + m_bonus(5, level);
+                o_ptr->to_a += 1 + m_bonus(5, level);
             }
         }
-        if (o_ptr->to_a > 20) o_ptr->to_a = 20;
+        if (o_ptr->to_a > 15) o_ptr->to_a = 15;
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_LAW);
         break;
@@ -1608,7 +1605,7 @@ static void _ego_create_bow(object_type *o_ptr, int level)
             o_ptr->to_d += 5;
             break;
         case EGO_BOW_EXTRA_MIGHT:
-            _increase_bow_mult(o_ptr, 25 + m_bonus(75, level));
+            _increase_bow_mult(o_ptr, 25 + randint1(25) + m_bonus(50, level));
             break;
         case EGO_BOW_EXTRA_SHOTS:
             o_ptr->pval = 1 + m_bonus(4, level);
@@ -1623,7 +1620,7 @@ static void _ego_create_bow(object_type *o_ptr, int level)
                 done = FALSE;
             else
             {
-                _increase_bow_mult(o_ptr, 25 + m_bonus(85, level));
+                _increase_bow_mult(o_ptr, 25 + randint1(35) + m_bonus(50, level));
 
                 if (one_in_(3))
                     add_flag(o_ptr->flags, OF_XTRA_SHOTS);
@@ -1637,7 +1634,7 @@ static void _ego_create_bow(object_type *o_ptr, int level)
             else
             {
                 if (one_in_(3))
-                    _increase_bow_mult(o_ptr, 25 + m_bonus(75, level));
+                    _increase_bow_mult(o_ptr, 25 + randint1(25) + m_bonus(50, level));
                 else
                     one_high_resistance(o_ptr);
             }
@@ -1647,11 +1644,12 @@ static void _ego_create_bow(object_type *o_ptr, int level)
                 done = FALSE;
             else
             {
-                _increase_bow_mult(o_ptr, 25 + m_bonus(85, level));
-                if (one_in_(3))
+                _increase_bow_mult(o_ptr, 25 + randint1(35) + m_bonus(50, level));
+                if (one_in_(6))
                 {
                     add_flag(o_ptr->flags, OF_XTRA_SHOTS);
                     add_flag(o_ptr->flags, OF_DEC_SPEED);
+                    add_flag(o_ptr->flags, OF_DEC_STEALTH);
                 }
                 else
                     one_high_resistance(o_ptr);
@@ -1738,25 +1736,36 @@ static void _ego_create_weapon_slaying(object_type *o_ptr, int level)
     if (one_in_(GREAT_OBJ))
         rolls *= 2;
 
+    if (obj_is_ammo(o_ptr))
+        rolls = (rolls + 1) / 2;
+
     for (i = 0; i < rolls; i++)
     {
         int               j = _choose_slaying_info(level);
         _slaying_info_ptr info;
+
         if (j == -1) continue;
         info = &_slaying_info[j];
 
-        if (info->kill_flag != OF_INVALID && one_in_(info->rarity*info->rarity*info->rarity))
+        /* Try to add the kill flag ... */
+        if (info->kill_flag != OF_INVALID)
         {
-            add_flag(o_ptr->flags, info->kill_flag);
-            if (info->esp_flag != OF_INVALID && !obj_is_ammo(o_ptr))
-                add_flag(o_ptr->flags, info->esp_flag);
+            int r = info->rarity;
+            int p = r * r * r;
+            if (obj_is_ammo(o_ptr))
+                 p *= r;
+            if (one_in_(p))
+            {
+                add_flag(o_ptr->flags, info->kill_flag);
+                if (info->esp_flag != OF_INVALID && !obj_is_ammo(o_ptr))
+                    add_flag(o_ptr->flags, info->esp_flag);
+                continue;
+            }
         }
-        else
-        {
-            add_flag(o_ptr->flags, info->slay_flag);
-            if (info->esp_flag != OF_INVALID && one_in_(6) && !obj_is_ammo(o_ptr))
-                add_flag(o_ptr->flags, info->esp_flag);
-        }
+        /* ... but if that fails, at least give it the slay */
+        add_flag(o_ptr->flags, info->slay_flag);
+        if (info->esp_flag != OF_INVALID && one_in_(6) && !obj_is_ammo(o_ptr))
+            add_flag(o_ptr->flags, info->esp_flag);
     }
 }
 static void _ego_create_weapon_armageddon(object_type *o_ptr, int level)
@@ -1839,6 +1848,9 @@ static void _ego_create_weapon_craft(object_type *o_ptr, int level)
 
     if (one_in_(GREAT_OBJ))
         rolls *= 2;
+
+    if (obj_is_ammo(o_ptr))
+        rolls = (rolls + 1) / 2;
 
     for (i = 0; i < rolls; i++)
     {
@@ -2177,6 +2189,11 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
         if (!crafting && power >= 2 && !one_in_(7)) return;
     }
     if (object_is_(o_ptr, TV_SWORD, SV_POISON_NEEDLE)) return;
+    if (obj_is_ammo(o_ptr))
+    {
+        tohit2 = (tohit2 + 1)/2;
+        todam2 = (todam2 + 1)/2;
+    }
 
     if (!crafting && !object_is_(o_ptr, TV_BOW, SV_HARP))
     {
@@ -2214,11 +2231,22 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
     {
     case TV_BOW:
         if (_check_rand_art(20, level, power, mode))
+        {
             _art_create_random(o_ptr, level, power);
+            /* XXX Rescaling the damage (below) massively changes the scoring for
+             * slow shooters, blowing our threshold limits. Instead, the same scaling
+             * has been copied to create_artifact() in artifact.c */
+            break;
+        }
         else if (o_ptr->sval == SV_HARP)
             _ego_create_harp(o_ptr, level);
         else
+        {
             _ego_create_bow(o_ptr, level);
+            /* rescale damage ... heavy crossbows shoot 0.75 while slings shoot 1.40x
+             * damage on the bow should reflect this! */
+            o_ptr->to_d = o_ptr->to_d * bow_energy(o_ptr->sval) / 7150;
+        }
         break;
 
     case TV_BOLT:
@@ -3195,10 +3223,13 @@ void ego_finalize(object_type *o_ptr, int level, int power, int mode)
             }
             else if (o_ptr->name2 == EGO_WEAPON_EXTRA_ATTACKS)
             {
+                int odds = 3 + o_ptr->dd * o_ptr->ds/3;
                 o_ptr->pval = randint1(e_ptr->max_pval*level/100+1);
-                if (o_ptr->pval > 6) o_ptr->pval = 6;
-                if (o_ptr->pval == 6 && !one_in_(o_ptr->dd * o_ptr->ds / 2)) o_ptr->pval = 5;
-                if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
+                if (o_ptr->pval > 4 && !one_in_(odds)) o_ptr->pval = 4;
+                else if (o_ptr->pval > 5 && !one_in_(odds)) o_ptr->pval = 5;
+                else if (o_ptr->pval > 6) o_ptr->pval = 6;
+
+                if (object_is_(o_ptr, TV_SWORD, SV_FALCON_SWORD))
                     o_ptr->pval += randint1(2);
 
                 if (o_ptr->dd*o_ptr->ds > 30)

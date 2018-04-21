@@ -180,7 +180,7 @@ race_t *_gelatinous_cube_get_race_t(void)
 static void _acidic_cytoplasm_calc_bonuses(void)
 {
     p_ptr->pspeed += 3;
-    p_ptr->free_act = TRUE;
+    p_ptr->free_act++;
     p_ptr->to_a += p_ptr->lev/3;
     p_ptr->dis_to_a += p_ptr->lev/3;
     res_add_immune(RES_ACID);

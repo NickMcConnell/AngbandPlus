@@ -161,7 +161,7 @@ static void _khorne_calc_bonuses(void)
     res_add(RES_NETHER);
 
     p_ptr->slow_digest = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     p_ptr->no_eldritch = TRUE;
 
     switch (p_ptr->current_r_idx)
@@ -183,8 +183,8 @@ static void _khorne_calc_bonuses(void)
         p_ptr->to_a += 100;
         p_ptr->dis_to_a += 100;
         p_ptr->reflect = TRUE;
-        p_ptr->free_act = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->free_act++;
+        p_ptr->see_inv++;
 
         res_add(RES_COLD);
         res_add(RES_ELEC);
@@ -198,8 +198,8 @@ static void _khorne_calc_bonuses(void)
         p_ptr->dis_to_a += 50;
         p_ptr->regen += 150;
         p_ptr->levitation = TRUE;
-        p_ptr->free_act = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->free_act++;
+        p_ptr->see_inv++;
         res_add(RES_ACID);
         res_add(RES_COLD);
         res_add(RES_POIS);
@@ -421,21 +421,21 @@ static void _marilith_calc_bonuses(void) {
     res_add(RES_NETHER);
 
     p_ptr->slow_digest = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     p_ptr->no_eldritch = TRUE;
 
     switch (p_ptr->current_r_idx)
     {
     case MON_QUASIT:
         p_ptr->levitation = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
         break;
     case MON_BODAK:
         res_add(RES_CONF);
         res_add(RES_POIS);
         p_ptr->sh_fire = TRUE;
-        p_ptr->free_act = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->free_act++;
+        p_ptr->see_inv++;
         break;
     case MON_DEATH_QUASIT:
         res_add(RES_CONF);
@@ -445,16 +445,16 @@ static void _marilith_calc_bonuses(void) {
         p_ptr->levitation = TRUE;
         p_ptr->pass_wall = TRUE;
         p_ptr->no_passwall_dam = TRUE;
-        p_ptr->free_act = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->free_act++;
+        p_ptr->see_inv++;
         break;
     case MON_MARILITH:
         res_add(RES_POIS);
         res_add(RES_CONF);
         res_add(RES_CHAOS);
         p_ptr->pspeed += 5;
-        p_ptr->free_act = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->free_act++;
+        p_ptr->see_inv++;
         break;
     }
 }
@@ -644,7 +644,7 @@ static void _balrog_calc_bonuses(void) {
     res_add(RES_FIRE);
     res_add(RES_NETHER);
 
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     p_ptr->no_eldritch = TRUE;
     p_ptr->pspeed += p_ptr->lev/8; /* Angels get +7 speed. Demons get +6 speed. */
     p_ptr->sh_fire = TRUE;
@@ -656,7 +656,7 @@ static void _balrog_calc_bonuses(void) {
     }
 
     if (p_ptr->lev >= 10)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
 
     if (p_ptr->lev >= 30)
     {
@@ -835,9 +835,9 @@ static void _cyber_calc_bonuses(void)
 /*  Cyberdemons are vulnerable to confusion. See res_pct_aux() in resist.c
     res_add_vuln(RES_CONF); */
 
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     p_ptr->no_eldritch = TRUE;
-    p_ptr->free_act = TRUE;
+    p_ptr->free_act++;
 }
 
 static void _cyber_get_flags(u32b flgs[OF_ARRAY_SIZE])

@@ -70,10 +70,10 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     },
     /* CL3: Weak utility */
     {
-        { A_WIS, "like a Yeek", {3, 5, 30, scare_monster_spell}},
-        { A_WIS, "like a Half Orc", {3, 5, 50, remove_fear_spell}},
-        { A_CHR, "like a Warlock", {3, 5, 60, satisfy_hunger_spell}},
-        { A_CHR, "like a Warlock", {3, 5, 40, light_area_spell}},
+        { A_CHR, "like a Yeek", {3, 5, 30, scare_monster_spell}},
+        { A_CHR, "like a Half Orc", {3, 5, 50, remove_fear_spell}},
+        { A_WIS, "like a Priest", {3, 5, 60, satisfy_hunger_spell}},
+        { A_INT, "like a Mage", {3, 5, 40, light_area_spell}},
         { A_CHR, "like a Mutant", {3, 12, 40, hypnotic_gaze_spell}},
         { A_WIS, "like a Priest", {3, 5, 40, bless_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
@@ -84,13 +84,13 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_DEX, "like an Archer", {1, 0, 0, create_ammo_spell}},
         { A_WIS, "like a Dwarf", {5, 5, 50, detect_doors_stairs_traps_spell}},
         { A_INT, "like a Mutant", {3, 2, 30, smell_metal_spell}},
-        { A_CHR, "like a Warlock", {5, 5, 50, detect_objects_spell}},
+        { A_CHR, "like a Dragon", {5, 5, 50, detect_objects_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
 
     /* CL7: Middle Utility */
     {
-        { A_CHR, "like a Warlock", {5, 5, 40, detect_monsters_spell}},
+        { A_CHR, "like a Sorcerer", {5, 5, 40, detect_monsters_spell}},
         { A_STR, "like a Berserker", {7, 5, 40, detect_menace_spell}},
         { A_INT, "like a Trump Mage", {7, 12, 50, telepathy_spell}},
         { A_WIS, "like a Priest", {7, 5, 40, detect_evil_spell}},
@@ -99,7 +99,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     /* CL9: Middle Offense */
     {
         { A_CHR, "like a Beastmaster", {1, 0, 30, dominate_living_I_spell}},
-        { A_WIS, "like an Imp", {9, 7, 50, imp_fire_spell}},
+        { A_INT, "like an Imp", {9, 7, 50, imp_fire_spell}},
         { A_STR, "like an Android", {9, 7, 30, android_blaster_spell}},
         { A_DEX, "like a Kobold", {9, 8, 50, poison_dart_spell}},
         { A_WIS, "like a Moon Beast", {9, 7, 40, cause_wounds_II_spell}},
@@ -143,8 +143,8 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     {
         { A_INT, "like a Half Titan", {15, 10, 40, probing_spell}},
         { A_STR, "like a Half Giant", {19, 10, 40, stone_to_mud_spell}},
-        { A_CHR, "like a Warlock", {19, 20, 50, identify_spell}},
-        { A_CHR, "like a Warlock", {19, 10, 40, teleport_spell}},
+        { A_CHR, "like a Sorcerer", {19, 20, 50, identify_spell}},
+        { A_CHR, "like a Mage", {19, 10, 40, teleport_spell}},
         { A_INT, "like a Mutant", {15, 12, 40, swap_pos_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
@@ -153,15 +153,15 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_STR, "like a Half Troll", {10, 12, 50, berserk_spell}},
         { A_CON, "like a Golem", {20, 15, 50, stone_skin_spell}},
         { A_CHR, "like a Kutar", {20, 15, 40, kutar_expand_spell}},
-        { A_CHR, "like a Warlock", {15, 10, 30, heroism_spell}},
-        { A_CHR, "like a Warlock", {21, 40, 40, protection_from_evil_spell}},
+        { A_CHR, "like a Holy Knight", {15, 10, 30, heroism_spell}},
+        { A_CHR, "like a Crusade Paladin", {21, 40, 40, protection_from_evil_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
     /* CL23: Good Recovery */
     {
-        { A_WIS, "like a Zombie", {23, 30, 50, restore_life_spell}},
+        { A_CON, "like a Zombie", {23, 30, 50, restore_life_spell}},
         { A_WIS, "like a Force-Trainer", {15, 0, 30, clear_mind_spell}},
-        { A_CHR, "like a Warlock", {20, 20, 50, remove_curse_I_spell}},
+        { A_CHR, "like a Priest", {20, 20, 50, remove_curse_I_spell}},
         { A_WIS, "like a Priest", {20, 15, 50, cure_wounds_III_spell}},
         { A_WIS, "like a Ranger", {8, 7, 50, resist_environment_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
@@ -178,10 +178,10 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     {
         { A_DEX, "like a Rogue", {8, 12, 50, panic_hit_spell}},
         { A_INT, "like a Half Ogre", {25, 35, 40, explosive_rune_spell}},
-        { A_CHR, "like a Warlock", {25, 20, 50, magic_mapping_spell}},
-        { A_CHR, "like a Warlock", {25, 40, 50, recharging_spell}},
+        { A_CHR, "like a Wizard", {25, 20, 50, magic_mapping_spell}},
+        { A_CHR, "like a Mage", {25, 40, 50, recharging_spell}},
         { A_INT, "like a Mutant", {10, 5, 50, alchemy_spell}},
-        { A_WIS, "like a Mutant", {9, 9, 40, telekinesis_spell}},
+        { A_WIS, "like a Mindcrafter", {9, 9, 40, telekinesis_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
     /* CL29: Good Recovery/Ability */
@@ -204,8 +204,8 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     {
         { A_INT, "like an Amberite", {30, 50, 50, shadow_shifting_spell}},
         { A_INT, "like a Tourist", {25, 20, 30, identify_fully_spell}},
-        { A_CHR, "like a Warlock", {30, 10, 40, earthquake_spell}},
-        { A_CHR, "like a Warlock", {30, 20, 40, teleport_level_spell}},
+        { A_CHR, "like an Earth Elemental", {30, 10, 40, earthquake_spell}},
+        { A_CHR, "like a Wizard", {30, 20, 40, teleport_level_spell}},
         { A_WIS, "like a Priest", {30, 30, 50, healing_I_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
@@ -214,7 +214,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_DEX, "like a Samurai", {33, 20, 60, lightning_eagle_spell}},
         { A_DEX, "like a Monk", {30, 30, 60, monk_double_attack_spell}},
         { A_INT, "like Jack of Shadows", {35, 30, 50, darkness_storm_I_spell}},
-        { A_INT, "like a Solar", {35, 30, 50, starburst_I_spell}},
+        { A_WIS, "like a Solar", {35, 30, 50, starburst_I_spell}},
         { A_CON, "like a Greater Balrog", {35, 10, 50, breathe_fire_II_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
@@ -224,6 +224,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_DEX, "like a Samurai", {25, 0, 0, samurai_posture_spell}},
         { A_CON, "like a Mutant", {25, 10, 50, resist_elements_spell}},
         { A_INT, "like a Daemon Mage", {35, 40, 80, polymorph_demon_spell}},
+        { A_CHR, "like a Warlock", {35, 40, 80, polymorph_vampire_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
     /* CL39: Great Utility */
@@ -247,8 +248,8 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
     /* CL43: Great Utility */
     {
         { A_WIS, "like an Amberite", {40, 75, 75, pattern_mindwalk_spell}},
-        { A_CHR, "like a Warlock", {35, 70, 60, destruction_spell}},
-        { A_CHR, "like a Warlock", {40, 50, 65, dimension_door_spell}},
+        { A_CHR, "like a Lord of Chaos", {35, 70, 60, destruction_spell}},
+        { A_CHR, "like a Trump Mage", {40, 50, 65, dimension_door_spell}},
         { A_WIS, "like a Life Priest", {35, 70, 90, clairvoyance_spell}},
         { -1, NULL, {0, 0, 0, NULL}},
     },
@@ -415,7 +416,7 @@ int group_idx = -1;
         var_init(&name);
         (talent->spell.fn)(SPELL_NAME, &name);
 
-        msg_format("You gain the power of '%s' %s.", var_get_string(&name), talent->gain_desc);
+        msg_format("<color:B>You gain the power of <color:R>%s</color> %s.</color>", var_get_string(&name), talent->gain_desc);
         p_ptr->magic_num1[group_idx] = idx + 1;
 
         var_clear(&name);
@@ -542,6 +543,8 @@ static void _calc_bonuses(void)
 {
     samurai_posture_calc_bonuses();
     monk_posture_calc_bonuses();
+    if (equip_find_ego(EGO_WEAPON_WILD))
+        p_ptr->dec_mana = TRUE;
 }
 static void _calc_stats(s16b stats[MAX_STATS])
 {

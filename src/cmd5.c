@@ -909,7 +909,7 @@ void do_cmd_cast(void)
             (caster_ptr->on_fail)(&hack);
         }
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-            take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
+            take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard");
 
         virtue_on_fail_spell(use_realm, chance);
 
@@ -931,7 +931,7 @@ void do_cmd_cast(void)
             {
                 msg_print("It hurts!");
 
-                take_hit(DAMAGE_LOSELIFE, damroll(book->sval + 1, 6), "a miscast Death spell", -1);
+                take_hit(DAMAGE_LOSELIFE, damroll(book->sval + 1, 6), "a miscast Death spell");
 
                 if ((spell > 15) && one_in_(6) && !p_ptr->hold_life)
                     lose_exp(spell * 250);
@@ -960,7 +960,7 @@ void do_cmd_cast(void)
         spell_stats_on_cast_old(use_realm, spell);
 
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-            take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
+            take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard");
 
         if (caster_ptr && caster_ptr->on_cast != NULL)
         {
@@ -1092,10 +1092,11 @@ void do_cmd_cast(void)
             {
                 int  old_level = spell_exp_level(cur_exp);
                 int  new_level = old_level;
+                int  max = increment ? SPELL_EXP_EXPERT : SPELL_EXP_MASTER;
 
                 p_ptr->spell_exp[index] += exp_gain;
-                if (p_ptr->spell_exp[index] > SPELL_EXP_MASTER)
-                    p_ptr->spell_exp[index] = SPELL_EXP_MASTER;
+                if (p_ptr->spell_exp[index] > max)
+                    p_ptr->spell_exp[index] = max;
                 new_level = spell_exp_level(p_ptr->spell_exp[index]);
                 if (new_level > old_level)
                 {
@@ -1606,7 +1607,7 @@ bool rakuba(int dam, bool force)
         {
             monster_desc(m_name, m_ptr, 0);
             msg_format("You have nearly fallen from %s, but bumped into wall.",m_name);
-            take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "bumping into wall", -1);
+            take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "bumping into wall");
             return FALSE;
         }
 
@@ -1652,7 +1653,7 @@ bool rakuba(int dam, bool force)
     }
     else
     {
-        take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "Falling from riding", -1);
+        take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "Falling from riding");
         fall_dam = TRUE;
     }
 

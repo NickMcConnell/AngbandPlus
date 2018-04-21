@@ -63,8 +63,8 @@ static int _get_nearest_target_los(void)
         m_ptr = &m_list[i];
         if (!m_ptr->r_idx
         ) continue;
-        if (m_ptr->smart & SM_FRIENDLY) continue;
-        if (m_ptr->smart & SM_PET) continue;
+        if (m_ptr->smart & (1U << SM_FRIENDLY)) continue;
+        if (m_ptr->smart & (1U << SM_PET)) continue;
         if (m_ptr->cdis > rng) continue;
         if (!m_ptr->ml) continue;
         if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
@@ -94,8 +94,8 @@ static int _get_greater_many_shot_targets(int *targets, int max)
     {
         m_ptr = &m_list[i];
         if (!m_ptr->r_idx) continue;
-        if (m_ptr->smart & SM_FRIENDLY) continue;
-        if (m_ptr->smart & SM_PET) continue;
+        if (m_ptr->smart & (1U << SM_FRIENDLY)) continue;
+        if (m_ptr->smart & (1U << SM_PET)) continue;
         if (m_ptr->cdis > rng) continue;
         if (!m_ptr->ml) continue;
         if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
@@ -125,8 +125,8 @@ static int _get_many_shot_targets(int *targets, int max)
     {
         m_ptr = &m_list[i];
         if (!m_ptr->r_idx) continue;
-        if (m_ptr->smart & SM_FRIENDLY) continue;
-        if (m_ptr->smart & SM_PET) continue;
+        if (m_ptr->smart & (1U << SM_FRIENDLY)) continue;
+        if (m_ptr->smart & (1U << SM_PET)) continue;
         if (m_ptr->cdis > rng) continue;
         if (!m_ptr->ml) continue;
         if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
@@ -582,7 +582,7 @@ static void _smash_ground_spell(int cmd, variant *res)
             return;
         }
         msg_print("You smash your weapon mightily on the ground.");
-        project(0, 8, py, px, device_power(dam*2), GF_SOUND, PROJECT_KILL | PROJECT_ITEM, -1);
+        project(0, 8, py, px, device_power(dam*2), GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
 
         var_set_bool(res, TRUE);
         break;
@@ -598,7 +598,7 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
     char          m_name[80];
-    int           odds = 5;
+    int           odds = 2;
 
     monster_desc(m_name, m_ptr, 0);
     if (one_in_(odds))
@@ -614,7 +614,7 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
         }
         else
         {
-            msg_format("%^s appears confused.", m_name);
+            msg_format("%^s appears <color:U>confused</color>.", m_name);
             set_monster_confused(m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
         }
     }
@@ -632,7 +632,7 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
         }
         else
         {
-            msg_format("%^s is knocked out.", m_name);
+            msg_format("%^s is <color:b>knocked out</color>.", m_name);
             set_monster_csleep(m_idx, MON_CSLEEP(m_ptr) + 500);
         }
     }
@@ -644,16 +644,23 @@ static void _toss_hit_mon(py_throw_ptr context, int m_idx)
             mon_lore_3(m_ptr, RF3_NO_STUN);
             msg_format("%^s is unaffected.", m_name);
         }
-        else if (mon_save_p(m_ptr->r_idx, A_STR))
+        else if (mon_stun_save(r_ptr->level, context->dam))
         {
             msg_format("%^s is unaffected.", m_name);
         }
         else
         {
-            msg_format("%^s is stunned.", m_name);
-            set_monster_stunned(m_idx, MAX(MON_STUNNED(m_ptr), 2));
+            msg_format("%^s is <color:B>stunned</color>.", m_name);
+            mon_stun(m_ptr, mon_stun_amount(context->dam));
         }
     }
+}
+static void _init_throw_context(py_throw_ptr context)
+{
+    context->type = THROW_BOOMERANG;
+    context->mult = 100 + 4 * p_ptr->lev;
+    context->back_chance = 24 + randint1(5);
+    context->after_hit_f = _toss_hit_mon;
 }
 static void _throw_weapon_spell(int cmd, variant *res)
 {
@@ -674,14 +681,30 @@ static void _throw_weapon_spell(int cmd, variant *res)
         else
         {
             py_throw_t context = {0};
-
-            context.type = THROW_BOOMERANG;
-            context.mult = 100 + 4 * p_ptr->lev;
-            context.back_chance = 24 + randint1(5);
-            context.after_hit_f = _toss_hit_mon;
+            _init_throw_context(&context);
             var_set_bool(res, py_throw(&context));
         }
         break;
+    case SPELL_ON_BROWSE:
+    {
+        bool       screen_hack = screen_is_saved();
+        py_throw_t context = {0};
+        doc_ptr    doc = doc_alloc(80);
+
+        _init_throw_context(&context);
+        context.type |= THROW_DISPLAY;
+        py_throw_doc(&context, doc);
+
+        if (screen_hack) screen_load();
+        screen_save();
+        doc_display(doc, "Throw Weapon", 0);
+        screen_load();
+        if (screen_hack) screen_save();
+
+        doc_free(doc);
+        var_set_bool(res, TRUE);
+        break;
+    }
     default:
         default_spell(cmd, res);
         break;
@@ -1726,15 +1749,15 @@ bool _design_monkey_clone(void)
 
     for (i = 0; i < 4 && i < blows; i++)
     {
-        r_ptr->blow[i].method = 0;
+        r_ptr->blows[i].method = 0;
     }
 
     for (i = 0; i < 4; i++)
     {
-        r_ptr->blow[i].method = RBM_HIT;
-        r_ptr->blow[i].effect = RBE_HURT;
-        r_ptr->blow[i].d_dice = dd;
-        r_ptr->blow[i].d_side = ds;
+        r_ptr->blows[i].method = RBM_HIT;
+        r_ptr->blows[i].effects[0].effect = RBE_HURT;
+        r_ptr->blows[i].effects[0].dd = dd;
+        r_ptr->blows[i].effects[0].ds = ds;
     }
 
     /* Resistances */
@@ -1831,12 +1854,12 @@ void _circle_kick(void)
 
         if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
         {
-        monster_race *r_ptr = &r_info[m_ptr->r_idx];
-        char          m_name[MAX_NLEN];
+            monster_race *r_ptr = &r_info[m_ptr->r_idx];
+            char          m_name[MAX_NLEN];
 
             monster_desc(m_name, m_ptr, 0);
 
-            if (test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
+            if (test_hit_norm(chance, mon_ac(m_ptr), m_ptr->ml))
             {
                 int dam = damroll(dd, ds) + p_ptr->to_d_m;
 
@@ -1845,12 +1868,10 @@ void _circle_kick(void)
 
                 if (!(r_ptr->flags3 & RF3_NO_STUN))
                 {
-                    if (MON_STUNNED(m_ptr))
-                        msg_format("%s is more dazed.", m_name);
-                    else
+                    if (mon_stun(m_ptr, mon_stun_amount(dam)))
                         msg_format("%s is dazed.", m_name);
-
-                    set_monster_stunned(c_ptr->m_idx, MON_STUNNED(m_ptr) + 1);
+                    else
+                        msg_format("%s is more dazed.", m_name);
                 }
                 else
                     msg_format("%s is not affected.", m_name);
@@ -2295,8 +2316,8 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
     /*  S   I   W   D   C   C */
       {+2, -1, -1, -2, +1,  0},
     /* Dsrm Dvce Save Stlh Srch Prcp Thn Thb*/
-      {  25,  25,  35,   1,  14,   2, 65, 60},
-      {   9,  10,  12,   0,   0,   0, 20, 18},
+      {  25,  25,  35,   1,  14,   2, 65, 30},
+      {   9,  10,  12,   0,   0,   0, 20, 15},
         { { TV_HAFTED, SV_BALL_AND_CHAIN },
           { TV_HAFTED, SV_CLUB },
           { TV_HAFTED, SV_FLAIL },
@@ -2543,7 +2564,6 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
         { TV_SWORD, SV_TWO_HANDED_SWORD } ,
         { TV_SWORD, SV_WAKIZASHI } ,
         { TV_SWORD, SV_ZWEIHANDER } ,
-        { TV_SWORD, SV_RUNESWORD } ,
         { 0, 0 },
       },
       {
@@ -2927,6 +2947,7 @@ static void _calc_bonuses(void)
                 p_ptr->dis_to_a += 5 + p_ptr->lev;
                 break;
             }
+            p_ptr->skill_tht += 2*p_ptr->lev;
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_AXES)

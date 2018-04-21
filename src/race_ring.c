@@ -1369,7 +1369,7 @@ static void _calc_bonuses(void)
         p_ptr->easy_spell = TRUE;
 
     if (_essences[OF_HOLD_LIFE] >= 7)
-        p_ptr->hold_life = TRUE;
+        p_ptr->hold_life++; /* XXX */
 
     if (_essences[OF_SUST_STR] >= 5)
         p_ptr->sustain_str = TRUE;
@@ -1414,9 +1414,9 @@ static void _calc_bonuses(void)
     if (_essences[OF_LEVITATION] >= 2)
         p_ptr->levitation = TRUE;
     if (_essences[OF_FREE_ACT] >= 1)
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
     if (_essences[OF_SEE_INVIS] >= 1)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
     if (_essences[OF_SLOW_DIGEST] >= 2)
         p_ptr->slow_digest = TRUE;
     if (_essences[OF_REGEN] >= 7)
@@ -1801,9 +1801,6 @@ static int _r_level(monster_race *r_ptr)
 {
 int ml = r_ptr->level;
     
-    if (r_ptr->flags2 & RF2_POWERFUL)
-        ml += 7;
-
     if (r_ptr->flags1 & RF1_UNIQUE)
         ml += ml/5;
 

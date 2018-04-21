@@ -150,7 +150,7 @@ static void _improve_force_spell(int cmd, variant *res)
         {
             msg_print("The Force exploded!");
             fire_ball(GF_MANA, 0, p_ptr->magic_num1[0] / 2, 10);
-            take_hit(DAMAGE_LOSELIFE, p_ptr->magic_num1[0] / 2, "Explosion of the Force", -1);
+            take_hit(DAMAGE_LOSELIFE, p_ptr->magic_num1[0] / 2, "Explosion of the Force");
             p_ptr->magic_num1[0] = 0;
             p_ptr->update |= (PU_BONUS);
             var_set_bool(res, FALSE); /* no energy consumed?? */
@@ -217,7 +217,8 @@ static void _shock_power_spell(int cmd, variant *res)
     {
         int y, x, dam, dir;
         project_length = 1;
-        if (!get_fire_dir(&dir))
+        /*if (!get_fire_dir(&dir)) XXX blow away won't work if a target is chosen ... dir == 5 */
+        if (!get_rep_dir2(&dir))
         { 
             var_set_bool(res, FALSE);
             return;
@@ -548,7 +549,7 @@ static void _calc_bonuses(void)
         p_ptr->pspeed += (p_ptr->lev) / 10;
         p_ptr->sh_retaliation = TRUE;
         if  (p_ptr->lev >= 25)
-            p_ptr->free_act = TRUE;
+            p_ptr->free_act++;
 
     }
     monk_ac_bonus();

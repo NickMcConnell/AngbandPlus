@@ -971,7 +971,7 @@ static void _generate_entrance(int x, int y, int dx, int dy)
             {
                 if (!m_list[i].r_idx) continue;
 
-                if ( (m_list[i].smart & SM_GUARDIAN)
+                if ( (m_list[i].smart & (1U << SM_GUARDIAN))
                   && m_list[i].pack_idx
                   && pack_info_list[m_list[i].pack_idx].guard_idx == dun_idx )
                 {
@@ -1007,7 +1007,7 @@ static void _generate_entrance(int x, int y, int dx, int dy)
                     pack_info_t  *pack_ptr = &pack_info_list[pack_idx];
 
                     m_ptr->pack_idx = pack_idx;
-                    m_ptr->smart |= SM_GUARDIAN;
+                    m_ptr->smart |= (1U << SM_GUARDIAN);
 
                     pack_ptr->count++;
                     pack_ptr->ai = AI_GUARD_POS;
@@ -1423,11 +1423,11 @@ errr parse_line_wilderness(char *buf, int options)
 /*
  * Generate the random seeds for the wilderness
  */
-void seed_wilderness(void)
+void seed_wilderness_aux(void)
 {
     int x, y;
-
-    /* Init wilderness seeds */
+    Rand_quick = TRUE;
+    Rand_value = wilderness_seed;
     for (x = 0; x < max_wild_x; x++)
     {
         for (y = 0; y < max_wild_y; y++)
@@ -1436,6 +1436,12 @@ void seed_wilderness(void)
             wilderness[y][x].entrance = 0;
         }
     }
+    Rand_quick = FALSE;
+}
+void seed_wilderness(void)
+{
+    wilderness_seed = randint0(0x10000000);
+    seed_wilderness_aux();
 }
 
 

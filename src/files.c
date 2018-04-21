@@ -228,6 +228,7 @@ int z_string_split(char *buf, char **tokens, int max, cptr delim)
     }
 
     tokens[i++] = s;
+    trim_tokens(tokens, i);
     return i;
 }
 
@@ -293,134 +294,8 @@ int parse_args(char *buf, char **name, char **args, int max)
 
     *t++ = '\0';
     ct = z_string_split(s, args, max, ",");
-
-    trim_tokens(args, ct);
     return ct;
 }
-
-
-/* A number with a name */
-typedef struct named_num named_num;
-
-struct named_num
-{
-    cptr name;        /* The name of this thing */
-    int num;            /* A number associated with it */
-};
-
-
-/* Index of spell type names */
-static named_num gf_desc[] =
-{
-    {"GF_ELEC",                 GF_ELEC                },
-    {"GF_POIS",                 GF_POIS                },
-    {"GF_ACID",                 GF_ACID                },
-    {"GF_COLD",                 GF_COLD                },
-    {"GF_FIRE",                     GF_FIRE                },
-    {"GF_PSY_SPEAR",            GF_PSY_SPEAR            },
-    {"GF_MISSILE",                GF_MISSILE            },
-    {"GF_ARROW",                GF_ARROW                },
-    {"GF_PLASMA",                GF_PLASMA            },
-    {"GF_WATER",                GF_WATER                },
-    {"GF_LITE",                    GF_LITE                },
-    {"GF_DARK",                    GF_DARK                },
-    {"GF_LITE_WEAK",            GF_LITE_WEAK        },
-    {"GF_DARK_WEAK",            GF_DARK_WEAK        },
-    {"GF_SHARDS",                GF_SHARDS            },
-    {"GF_SOUND",                GF_SOUND                },
-    {"GF_CONFUSION",            GF_CONFUSION        },
-    {"GF_FORCE",                GF_FORCE                },
-    {"GF_INERTIA",                GF_INERT            },
-    {"GF_MANA",                    GF_MANA                },
-    {"GF_METEOR",                GF_METEOR            },
-    {"GF_ICE",                    GF_ICE                },
-    {"GF_CHAOS",                GF_CHAOS                },
-    {"GF_NETHER",                GF_NETHER            },
-    {"GF_DISENCHANT",            GF_DISENCHANT        },
-    {"GF_NEXUS",                GF_NEXUS                },
-    {"GF_TIME",                    GF_TIME                },
-    {"GF_GRAVITY",                GF_GRAVITY            },
-    {"GF_KILL_WALL",            GF_KILL_WALL        },
-    {"GF_KILL_DOOR",            GF_KILL_DOOR        },
-    {"GF_KILL_TRAP",            GF_KILL_TRAP        },
-    {"GF_MAKE_WALL",            GF_MAKE_WALL        },
-    {"GF_MAKE_DOOR",            GF_MAKE_DOOR        },
-    {"GF_MAKE_TRAP",            GF_MAKE_TRAP        },
-    {"GF_MAKE_TREE",            GF_MAKE_TREE        },
-    {"GF_OLD_CLONE",            GF_OLD_CLONE        },
-    {"GF_OLD_POLY",            GF_OLD_POLY            },
-    {"GF_OLD_HEAL",            GF_OLD_HEAL            },
-    {"GF_OLD_SPEED",        GF_OLD_SPEED        },
-    {"GF_OLD_SLOW",            GF_OLD_SLOW            },
-    {"GF_OLD_CONF",            GF_OLD_CONF            },
-    {"GF_OLD_SLEEP",        GF_OLD_SLEEP        },
-    {"GF_OLD_DRAIN",        GF_OLD_DRAIN        },
-    {"GF_AWAY_UNDEAD",        GF_AWAY_UNDEAD        },
-    {"GF_AWAY_EVIL",        GF_AWAY_EVIL        },
-    {"GF_AWAY_ALL",            GF_AWAY_ALL            },
-    {"GF_TURN_UNDEAD",        GF_TURN_UNDEAD        },
-    {"GF_TURN_EVIL",        GF_TURN_EVIL        },
-    {"GF_TURN_ALL",            GF_TURN_ALL            },
-    {"GF_DISP_UNDEAD",        GF_DISP_UNDEAD        },
-    {"GF_DISP_EVIL",        GF_DISP_EVIL        },
-    {"GF_DISP_ALL",            GF_DISP_ALL            },
-    {"GF_DISP_DEMON",        GF_DISP_DEMON        },
-    {"GF_DISP_LIVING",        GF_DISP_LIVING        },
-    {"GF_ROCKET",            GF_ROCKET            },
-    {"GF_NUKE",                GF_NUKE                },
-    {"GF_MAKE_GLYPH",        GF_MAKE_GLYPH        },
-    {"GF_STASIS",            GF_STASIS            },
-    {"GF_STONE_WALL",        GF_STONE_WALL        },
-    {"GF_DEATH_RAY",        GF_DEATH_RAY        },
-    {"GF_STUN",                GF_STUN                },
-    {"GF_HOLY_FIRE",        GF_HOLY_FIRE        },
-    {"GF_HELL_FIRE",        GF_HELL_FIRE        },
-    {"GF_DISINTEGRATE",        GF_DISINTEGRATE    },
-    {"GF_CHARM",            GF_CHARM                },
-    {"GF_CONTROL_UNDEAD",    GF_CONTROL_UNDEAD    },
-    {"GF_CONTROL_ANIMAL",    GF_CONTROL_ANIMAL    },
-    {"GF_PSI",                GF_PSI                },
-    {"GF_PSI_DRAIN",        GF_PSI_DRAIN        },
-    {"GF_TELEKINESIS",        GF_TELEKINESIS        },
-    {"GF_JAM_DOOR",            GF_JAM_DOOR            },
-    {"GF_DOMINATION",        GF_DOMINATION        },
-    {"GF_DISP_GOOD",        GF_DISP_GOOD        },
-    {"GF_DRAIN_MANA",        GF_DRAIN_MANA        },
-    {"GF_MIND_BLAST",        GF_MIND_BLAST        },
-    {"GF_BRAIN_SMASH",        GF_BRAIN_SMASH        },
-    {"GF_CAUSE_1",            GF_CAUSE_1        },
-    {"GF_CAUSE_2",            GF_CAUSE_2        },
-    {"GF_CAUSE_3",            GF_CAUSE_3        },
-    {"GF_CAUSE_4",            GF_CAUSE_4        },
-    {"GF_HAND_DOOM",        GF_HAND_DOOM        },
-    {"GF_CAPTURE",            GF_CAPTURE        },
-    {"GF_ANIM_DEAD",        GF_ANIM_DEAD        },
-    {"GF_CONTROL_LIVING",    GF_CONTROL_LIVING    },
-    {"GF_IDENTIFY",            GF_IDENTIFY    },
-    {"GF_ATTACK",            GF_ATTACK    },
-    {"GF_ENGETSU",            GF_ENGETSU    },
-    {"GF_GENOCIDE",            GF_GENOCIDE    },
-    {"GF_PHOTO",            GF_PHOTO    },
-    {"GF_CONTROL_DEMON",    GF_CONTROL_DEMON    },
-    {"GF_LAVA_FLOW",        GF_LAVA_FLOW    },
-    {"GF_BLOOD_CURSE",        GF_BLOOD_CURSE    },
-    {"GF_SEEKER",            GF_SEEKER            },
-    {"GF_SUPER_RAY",        GF_SUPER_RAY            },
-    {"GF_STAR_HEAL",        GF_STAR_HEAL            },
-    {"GF_WATER_FLOW",        GF_WATER_FLOW            },
-    {"GF_CRUSADE",            GF_CRUSADE            },
-    {"GF_STASIS_EVIL",        GF_STASIS_EVIL        },
-    {"GF_WOUNDS",            GF_WOUNDS        },
-    {"GF_BLOOD",             GF_BLOOD                },
-    {"GF_ELDRITCH",             GF_ELDRITCH                },
-    {"GF_ELDRITCH_STUN",    GF_ELDRITCH_STUN        },
-    {"GF_ELDRITCH_DRAIN",    GF_ELDRITCH_DRAIN        },
-    {"GF_ELDRITCH_DISPEL",    GF_ELDRITCH_DISPEL        },
-    {"GF_ELDRITCH_CONFUSE",    GF_ELDRITCH_CONFUSE        },
-    {"GF_PHARAOHS_CURSE",    GF_PHARAOHS_CURSE        },
-    {NULL,                     0                        }
-};
-
 
 /*
  * Parse a sub-file of the "extra info" (format shown below)
@@ -735,6 +610,7 @@ errr process_pref_file_command(char *buf)
     {
         /* Find the colon */
         char *t = my_strchr(buf + 2, ':');
+        gf_info_ptr gf;
 
         /* Oops */
         if (!t) return 1;
@@ -742,19 +618,12 @@ errr process_pref_file_command(char *buf)
         /* Nuke the colon */
         *(t++) = '\0';
 
-        for (i = 0; gf_desc[i].name; i++)
+        gf = gf_parse_name(buf+2);
+        if (gf)
         {
-            /* Match this type */
-            if (streq(gf_desc[i].name, buf + 2))
-            {
-                /* Remember this color set */
-                gf_color[gf_desc[i].num] = quark_add(t);
-
-                /* Success */
-                return 0;
-            }
+            gf_color[gf->id] = quark_add(t);
+            return 0;
         }
-
         break;
     }
 
@@ -1600,6 +1469,8 @@ void tim_player_flags(u32b flgs[OF_ARRAY_SIZE])
         add_flag(flgs, OF_IM_FEAR);
     if (p_ptr->tim_invis)
         add_flag(flgs, OF_SEE_INVIS);
+    if (p_ptr->tim_infra)
+        add_flag(flgs, OF_INFRA);
     if (p_ptr->tim_regen)
         add_flag(flgs, OF_REGEN);
     if (IS_TIM_ESP())
@@ -2959,9 +2830,6 @@ void do_cmd_save_game(int is_autosave)
     /* Update stuff */
     update_stuff();
 
-    /* Initialize monster process */
-    mproc_init();
-
     /* HACK -- reset the hackish flag */
     hack_mind = TRUE;
 }
@@ -3025,12 +2893,6 @@ long total_points(void)
     {
         if ( p_ptr->prace == RACE_SPECTRE )
             point = point / 5;
-    }
-
-    if ((p_ptr->personality == PERS_MUNCHKIN) && point)
-    {
-        point = 1;
-        if (p_ptr->total_winner) point = 2;
     }
 
     return point;
@@ -3321,19 +3183,10 @@ static void show_info(void)
 }
 
 
-static bool check_score(void)
+bool check_score(void)
 {
     /* Clear screen */
     Term_clear();
-
-    /* No score file */
-    if (highscore_fd < 0)
-    {
-        msg_print("Score file unavailable.");
-
-        msg_print(NULL);
-        return FALSE;
-    }
 
 #ifndef SCORE_WIZARDS
     /* Wizard-mode pre-empts scoring */
@@ -3378,7 +3231,7 @@ static bool check_score(void)
         return FALSE;
     }
 
-    /* Quitter */
+    /* Quitter 
     if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
 
     {
@@ -3386,10 +3239,70 @@ static bool check_score(void)
 
         msg_print(NULL);
         return FALSE;
-    }
+    } */
     return TRUE;
 }
 
+/*
+ * Change the player into a King!            -RAK-
+ */
+void kingly(void)
+{
+    int wid, hgt;
+    int cx, cy;
+    bool seppuku = streq(p_ptr->died_from, "Seppuku");
+
+    /* Hack -- retire in town */
+    dun_level = 0;
+
+    /* Fake death */
+    if (!seppuku)
+        (void)strcpy(p_ptr->died_from, "Ripe Old Age");
+
+
+    /* Restore the experience */
+    p_ptr->exp = p_ptr->max_exp;
+
+    /* Restore the level */
+    p_ptr->lev = p_ptr->max_plv;
+
+    Term_get_size(&wid, &hgt);
+    cy = hgt / 2;
+    cx = wid / 2;
+
+    /* Hack -- Instant Gold */
+    p_ptr->au += 10000000;
+    stats_on_gold_winnings(10000000);
+
+    /* Clear screen */
+    Term_clear();
+
+    /* Display a crown */
+    put_str("#", cy - 11, cx - 1);
+    put_str("#####", cy - 10, cx - 3);
+    put_str("#", cy - 9, cx - 1);
+    put_str(",,,  $$$  ,,,", cy - 8, cx - 7);
+    put_str(",,=$   \"$$$$$\"   $=,,", cy - 7, cx - 11);
+    put_str(",$$        $$$        $$,", cy - 6, cx - 13);
+    put_str("*>         <*>         <*", cy - 5, cx - 13);
+    put_str("$$         $$$         $$", cy - 4, cx - 13);
+    put_str("\"$$        $$$        $$\"", cy - 3, cx - 13);
+    put_str("\"$$       $$$       $$\"", cy - 2, cx - 12);
+    put_str("*#########*#########*", cy - 1, cx - 11);
+    put_str("*#########*#########*", cy, cx - 11);
+
+    /* Display a message */
+    put_str("Veni, Vidi, Vici!", cy + 3, cx - 9);
+    put_str("I came, I saw, I conquered!", cy + 4, cx - 14);
+    put_str(format("All Hail the Mighty %s!", sex_info[p_ptr->psex].winner), cy + 5, cx - 13);
+
+
+    /* Flush input */
+    flush();
+
+    /* Wait for response */
+    pause_line(hgt - 1);
+}
 /*
  * Close up the current game (player may or may not be dead)
  *
@@ -3397,8 +3310,6 @@ static bool check_score(void)
  */
 void close_game(void)
 {
-    char buf[1024];
-    bool do_send = TRUE;
 
     /* Handle stuff */
     handle_stuff();
@@ -3418,18 +3329,6 @@ void close_game(void)
     character_icky = TRUE;
 
 
-    /* Build the filename */
-    path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
-
-    /* Grab permissions */
-    safe_setuid_grab();
-
-    /* Open the high score file, for reading/writing */
-    highscore_fd = fd_open(buf, O_RDWR);
-
-    /* Drop permissions */
-    safe_setuid_drop();
-
     /* Handle death */
     if (p_ptr->is_dead)
     {
@@ -3439,10 +3338,8 @@ void close_game(void)
         /* Save memories */
         if (!cheat_save || get_check("Save death? "))
         {
-
             if (!save_player()) msg_print("death save failed!");
         }
-        else do_send = FALSE;
 
         /* You are dead */
         print_tomb();
@@ -3455,24 +3352,6 @@ void close_game(void)
         /* Clear screen */
         Term_clear();
 
-        if (check_score())
-        {
-            if ((!send_world_score(do_send)))
-            {
-                if (get_check_strict("Stand by for later score registration? ", (CHECK_NO_ESCAPE | CHECK_NO_HISTORY)))
-                {
-                    p_ptr->wait_report_score = TRUE;
-                    p_ptr->is_dead = FALSE;
-                    if (!save_player()) msg_print("death save failed!");
-                }
-            }
-            if (!p_ptr->wait_report_score)
-                (void)top_twenty();
-        }
-        else if (highscore_fd >= 0)
-        {
-            display_scores_aux(0, 10, -1, NULL);
-        }
 #if 0
         /* Dump bones file */
         make_bones();
@@ -3484,21 +3363,10 @@ void close_game(void)
     {
         /* Save the game */
         do_cmd_save_game(FALSE);
-
-        /* Prompt for scores XXX XXX XXX */
-        prt("Press Return (or Escape).", 0, 40);
-
-
-        /* Predict score (or ESCAPE) */
-        if (inkey() != ESCAPE) predict_score();
     }
 
-
-    /* Shut the high score file */
-    (void)fd_close(highscore_fd);
-
-    /* Forget the high score fd */
-    highscore_fd = -1;
+    if (check_score())
+        scores_update();
 
     /* Kill all temporal files */
     clear_saved_floor_files();

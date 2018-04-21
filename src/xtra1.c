@@ -1409,7 +1409,7 @@ static void prt_hp(void)
 
     if (p_ptr->chp >= p_ptr->mhp)
         color = TERM_L_GREEN;
-    else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
+    else if (p_ptr->chp > (p_ptr->mmhp * hitpoint_warn) / 10)
         color = TERM_YELLOW;
     else
         color = TERM_RED;
@@ -1418,10 +1418,10 @@ static void prt_hp(void)
 
     put_str( "/", r.y + ROW_CURHP, r.x + COL_CURHP + 7 );
 
-    sprintf(tmp, "%4d", p_ptr->mhp);
+    sprintf(tmp, "%4d", p_ptr->mmhp);
     color = TERM_L_GREEN;
 
-    c_put_str(color, tmp, r.y + ROW_CURHP, r.x + COL_CURHP + 8 );
+    c_put_str(color, tmp, r.y + ROW_CURHP, r.x + COL_CURHP + 8);
 }
 
 /*
@@ -1771,16 +1771,9 @@ static void prt_cut(int row, int col)
 
 static void prt_stun(int row, int col)
 {
-    int s = p_ptr->stun;
-
-    if (s > 100)
-        c_put_str(TERM_RED, "Knocked out ", row, col);
-
-    else if (s > 50)
-        c_put_str(TERM_ORANGE, "Heavy Stun", row, col);
-
-    else if (s)
-        c_put_str(TERM_ORANGE, "Stun", row, col);
+    stun_info_t s = stun_info(p_ptr->stun);
+    if (s.level == STUN_NONE) return; /* paranoia */
+    c_put_str(s.attr, s.name, row, col);
 }
 
 static void prt_fear(int row, int col)
@@ -1893,7 +1886,28 @@ static void prt_effects(void)
     if (p_ptr->confused)
         c_put_str(TERM_VIOLET, "Confused", row++, col);
     if (p_ptr->poisoned)
-        c_put_str(TERM_GREEN, "Poisoned", row++, col);
+    {
+        char tmp[20];
+        sprintf(tmp, "%d", p_ptr->poisoned);
+        c_put_str(TERM_GREEN, "Poison:", row, col);
+        c_put_str(TERM_L_GREEN, tmp, row, col + 7);
+        row++;
+    }
+    if (p_ptr->clp < 1000)
+    {
+        char tmp[20];
+        byte color;
+        int  pct = p_ptr->clp/10;
+        sprintf(tmp, "%d%%", pct);
+        if (pct < 25) color = TERM_VIOLET;
+        else if (pct < 50) color = TERM_RED;
+        else if (pct < 70) color = TERM_L_RED;
+        else if (pct < 90) color = TERM_YELLOW;
+        else color = TERM_L_UMBER;
+        c_put_str(TERM_WHITE, "Life:", row, col);
+        c_put_str(color, tmp, row, col + 6);
+        row++;
+    }
     if (p_ptr->food >= PY_FOOD_FULL || p_ptr->food < PY_FOOD_ALERT)
         prt_food(row++, col);
     if (p_ptr->wizard)
@@ -1914,8 +1928,6 @@ static void prt_effects(void)
         sprintf(tmp, "Study (%d)", p_ptr->new_spells);
         c_put_str(TERM_L_BLUE, tmp, row++, col);
     }
-    else if (p_ptr->pclass == CLASS_IMITATOR && p_ptr->mane_num)
-        c_put_str(TERM_L_BLUE, "Imitate", row++, col);
 }
 
 /*****************************************************************************
@@ -2032,7 +2044,7 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
     /* Tracking an unseen monster */
     if (!m_ptr->ml)
     {
-        const monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
+        const monster_race *r_ptr = mon_apparent_race(m_ptr);
         Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
 
         /* Indicate that the monster health is "unknown" */
@@ -2066,9 +2078,12 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
 
         /* Default to almost dead */
         byte attr = TERM_RED;
-        const monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
+        const monster_race *r_ptr = mon_apparent_race(m_ptr);
 
-        Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
+        if (m_ptr->mflag2 & MFLAG2_FUZZY)
+            Term_queue_bigchar(col, row, TERM_WHITE, r_ptr->d_char, 0, 0);
+        else
+            Term_queue_bigchar(col, row, r_ptr->x_attr, r_ptr->x_char, 0, 0);
 
         if (pct >= 100) attr = TERM_L_GREEN;
         else if (pct >= 60) attr = TERM_YELLOW;
@@ -2082,18 +2097,22 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
             col += 2;
             Term_putstr(col, row, strlen(buf), attr, buf);
             col += strlen(buf) + 1;
+            if (MON_STUNNED(m_ptr))
+            {
+                sprintf(buf, "%d%%", MON_STUNNED(m_ptr));
+                Term_putstr(col, row, strlen(buf), TERM_L_BLUE, buf);
+                col += strlen(buf) + 1;
+            }
             if (m_idx == target_who)
                 Term_queue_char(col++, row, TERM_L_RED, '*', 0, 0);
             if (m_idx == p_ptr->riding)
                 Term_queue_char(col++, row, TERM_L_BLUE, '@', 0, 0);
             if (MON_INVULNER(m_ptr))
                 Term_queue_char(col++, row, TERM_WHITE, 'I', 0, 0);
-            if (m_ptr->paralyzed)
+            if (MON_PARALYZED(m_ptr))
                 Term_queue_char(col++, row, TERM_BLUE, 'P', 0, 0);
             if (MON_CSLEEP(m_ptr))
                 Term_queue_char(col++, row, TERM_BLUE, 'Z', 0, 0); /* ZZZ */
-            if (MON_STUNNED(m_ptr))
-                Term_queue_char(col++, row, TERM_L_BLUE, 'S', 0, 0);
             if (MON_CONFUSED(m_ptr))
                 Term_queue_char(col++, row, TERM_UMBER, 'C', 0, 0);
             if (MON_MONFEAR(m_ptr))
@@ -2102,7 +2121,7 @@ static void prt_mon_health_bar(int m_idx, int row, int col)
         else
         {
             if (MON_INVULNER(m_ptr)) attr = TERM_WHITE;
-            else if (m_ptr->paralyzed) attr = TERM_BLUE;
+            else if (MON_PARALYZED(m_ptr)) attr = TERM_BLUE;
             else if (MON_CSLEEP(m_ptr)) attr = TERM_BLUE;
             else if (MON_STUNNED(m_ptr)) attr = TERM_L_BLUE;
             else if (MON_CONFUSED(m_ptr)) attr = TERM_UMBER;
@@ -2594,7 +2613,7 @@ static void calc_spells(void)
     if (levels < 0) levels = 0;
 
     /* Extract total allowed spells */
-    num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2);
+    num_allowed = (adj_mag_study[p_ptr->stat_ind[get_spell_stat()]] * levels / 2);
 
     if ((p_ptr->pclass != CLASS_SAMURAI) && (mp_ptr->spell_book != TV_LIFE_BOOK))
     {
@@ -2643,6 +2662,7 @@ static void calc_spells(void)
         /* Efficiency -- all done */
         if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
         if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
+        if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
 
         /* Access the spell */
         j = p_ptr->spell_order[i];
@@ -2714,6 +2734,7 @@ static void calc_spells(void)
         if (p_ptr->new_spells >= 0) break;
 
         if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
+        if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
 
         /* Efficiency -- all done */
         if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
@@ -2770,6 +2791,7 @@ static void calc_spells(void)
         /* None left to remember */
         if (p_ptr->new_spells <= 0) break;
         if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
+        if (p_ptr->pclass == CLASS_GRAY_MAGE) break;
 
         /* Efficiency -- all done */
         if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
@@ -2837,7 +2859,7 @@ static void calc_spells(void)
 
     k = 0;
 
-    if (p_ptr->realm2 == REALM_NONE)
+    if (p_ptr->realm2 == REALM_NONE && p_ptr->realm1)
     {
         /* Count spells that can be learned */
         for (j = 0; j < 32; j++)
@@ -3077,7 +3099,6 @@ static void calc_mana(void)
             msp += (msp * adj / 20);
         }
 
-        if (msp && (p_ptr->personality == PERS_MUNCHKIN)) msp += msp/2;
         if (msp && (get_class_idx() == CLASS_SORCERER)) msp += msp*(25+p_ptr->lev)/100;
     }
 
@@ -3188,13 +3209,11 @@ static int _calc_xtra_hp(int amt)
 
     case CLASS_ROGUE:
     case CLASS_MONK:
-    case CLASS_IMITATOR:
     case CLASS_NINJA:
     case CLASS_RUNE_KNIGHT:
         w1 = 1; w2 = 1; w3 = 0;
         break;
 
-    case CLASS_BLUE_MAGE:
     case CLASS_RED_MAGE:
     case CLASS_MIRROR_MASTER:
     case CLASS_TIME_LORD:
@@ -3244,39 +3263,46 @@ static int _calc_xtra_hp(int amt)
  */
 static void calc_hitpoints(void)
 {
-    int      mhp;
+    int      mmhp, mhp;
     race_t  *race_ptr = get_race();
     class_t *class_ptr = get_class();
     personality_ptr pers_ptr = get_personality();
 
-    mhp = p_ptr->player_hp[p_ptr->lev - 1] * 10 / 100; /* 255 hp total */
-    mhp += _calc_xtra_hp(300);
+    mmhp = p_ptr->player_hp[p_ptr->lev - 1] * 10 / 100; /* 255 hp total */
+    mmhp += _calc_xtra_hp(300);
 
-    mhp = mhp * race_ptr->life / 100;
-    mhp = mhp * class_ptr->life / 100;
-    mhp = mhp * pers_ptr->life / 100;
-    mhp = mhp * p_ptr->life / 100;
+    mmhp = mmhp * race_ptr->life / 100;
+    mmhp = mmhp * class_ptr->life / 100;
+    mmhp = mmhp * pers_ptr->life / 100;
+    mmhp = mmhp * p_ptr->life / 100;
 
     if (p_ptr->prace == RACE_MON_DRAGON)
     {
         dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
-        mhp = mhp * realm->life / 100;
+        mmhp = mmhp * realm->life / 100;
     }
 
-    mhp += class_ptr->base_hp;
-    mhp += race_ptr->base_hp;
+    mmhp += class_ptr->base_hp;
+    mmhp += race_ptr->base_hp;
 
-    if (mhp < 1)
-        mhp = 1;
+    if (mmhp < 1)
+        mmhp = 1;
 
-    if (IS_HERO()) mhp += 10;
-    if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;
-    if (p_ptr->tsuyoshi) mhp += 50;
-    if (hex_spelling(HEX_XTRA_MIGHT)) mhp += 15;
-    if (hex_spelling(HEX_BUILDING)) mhp += 60;
-    if (p_ptr->tim_building_up) mhp += 10 + p_ptr->lev/2;
-    if (mut_present(MUT_UNYIELDING)) mhp += p_ptr->lev;
+    if (IS_HERO()) mmhp += 10;
+    if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER)) mmhp += 30;
+    if (p_ptr->tsuyoshi) mmhp += 50;
+    if (hex_spelling(HEX_XTRA_MIGHT)) mmhp += 15;
+    if (hex_spelling(HEX_BUILDING)) mmhp += 60;
+    if (p_ptr->tim_building_up) mmhp += 10 + p_ptr->lev/2;
+    if (mut_present(MUT_UNYIELDING)) mmhp += p_ptr->lev;
 
+    mhp = mmhp;
+    mhp -= mhp*(1000 - p_ptr->clp)/2000;
+    if (p_ptr->mmhp != mmhp)
+    {
+        p_ptr->mmhp = mmhp;
+        p_ptr->redraw |= PR_HP;
+    }
     if (p_ptr->mhp != mhp)
     {
         if (p_ptr->mhp)
@@ -3286,7 +3312,7 @@ static void calc_hitpoints(void)
 
         p_ptr->chp_frac = 0;
         p_ptr->mhp = mhp;
-        p_ptr->redraw |= (PR_HP);
+        p_ptr->redraw |= PR_HP;
     }
 }
 
@@ -3462,7 +3488,7 @@ void calc_bonuses(void)
     bool old_esp_nonliving = p_ptr->esp_nonliving;
     bool old_esp_unique = p_ptr->esp_unique;
     bool old_esp_magical = p_ptr->esp_magical;
-    bool old_see_inv = p_ptr->see_inv;
+    s16b old_see_inv = p_ptr->see_inv;
 
     /* Save the old armor class */
     s16b old_dis_ac = p_ptr->dis_ac;
@@ -3562,13 +3588,13 @@ void calc_bonuses(void)
     p_ptr->spell_cap = 0;
     p_ptr->easy_spell = FALSE;
     p_ptr->heavy_spell = FALSE;
-    p_ptr->see_inv = FALSE;
-    p_ptr->free_act = FALSE;
+    p_ptr->see_inv = 0;
+    p_ptr->free_act = 0;
     p_ptr->slow_digest = FALSE;
     p_ptr->regen = 100;
     p_ptr->can_swim = FALSE;
     p_ptr->levitation = FALSE;
-    p_ptr->hold_life = FALSE;
+    p_ptr->hold_life = 0;
     p_ptr->auto_id = FALSE;
     p_ptr->auto_pseudo_id = FALSE;
     p_ptr->auto_id_sp = 0;
@@ -3625,6 +3651,7 @@ void calc_bonuses(void)
     p_ptr->no_charge_drain = FALSE;
     p_ptr->no_stun = FALSE;
     p_ptr->no_cut = FALSE;
+    p_ptr->no_slow = FALSE;
     p_ptr->no_passwall_dam = FALSE;
     p_ptr->melt_armor = FALSE;
 
@@ -3665,7 +3692,7 @@ void calc_bonuses(void)
     if (p_ptr->tim_sustain_dex) p_ptr->sustain_dex = TRUE;
     if (p_ptr->tim_sustain_con) p_ptr->sustain_con = TRUE;
     if (p_ptr->tim_sustain_chr) p_ptr->sustain_chr = TRUE;
-    if (p_ptr->tim_hold_life) p_ptr->hold_life = TRUE;
+    if (p_ptr->tim_hold_life) p_ptr->hold_life++;
     if (p_ptr->tim_inven_prot) p_ptr->inven_prot = TRUE;
     if (p_ptr->tim_quick_walk) p_ptr->quick_walk = TRUE;
 
@@ -3794,23 +3821,18 @@ void calc_bonuses(void)
 
     if (p_ptr->ult_res)
     {
-        p_ptr->see_inv = TRUE;
-        p_ptr->free_act = TRUE;
+        p_ptr->see_inv++;
+        p_ptr->free_act++;
         p_ptr->slow_digest = TRUE;
         p_ptr->regen += 100;
         p_ptr->levitation = TRUE;
-
-        if (p_ptr->special_defense & KATA_MUSOU)
-        {
-            p_ptr->hold_life = TRUE;
-            p_ptr->sustain_str = TRUE;
-            p_ptr->sustain_int = TRUE;
-            p_ptr->sustain_wis = TRUE;
-            p_ptr->sustain_con = TRUE;
-            p_ptr->sustain_dex = TRUE;
-            p_ptr->sustain_chr = TRUE;
-        }
-
+        p_ptr->hold_life++;
+        p_ptr->sustain_str = TRUE;
+        p_ptr->sustain_int = TRUE;
+        p_ptr->sustain_wis = TRUE;
+        p_ptr->sustain_con = TRUE;
+        p_ptr->sustain_dex = TRUE;
+        p_ptr->sustain_chr = TRUE;
         p_ptr->telepathy = TRUE;
         p_ptr->lite = TRUE;
         res_add_all();
@@ -3954,40 +3976,6 @@ void calc_bonuses(void)
         }
     }
 
-    /* Apply temporary "stun" */
-    if (p_ptr->stun > 50)
-    {
-        for (i = 0; i < MAX_HANDS; i++)
-        {
-            p_ptr->weapon_info[i].to_h -= 20;
-            p_ptr->weapon_info[i].dis_to_h -= 20;
-            p_ptr->weapon_info[i].to_d -= 20;
-            p_ptr->weapon_info[i].dis_to_d -= 20;
-        }
-        p_ptr->shooter_info.to_h  -= 20;
-        p_ptr->to_h_m  -= 20;
-        p_ptr->shooter_info.dis_to_h  -= 20;
-        p_ptr->to_d_m -= 20;
-        p_ptr->shooter_info.to_d -= 20;
-        p_ptr->shooter_info.dis_to_d -= 20;
-    }
-    else if (p_ptr->stun)
-    {
-        for (i = 0; i < MAX_HANDS; i++)
-        {
-            p_ptr->weapon_info[i].to_h -= 5;
-            p_ptr->weapon_info[i].dis_to_h -= 5;
-            p_ptr->weapon_info[i].to_d -= 5;
-            p_ptr->weapon_info[i].dis_to_d -= 5;
-        }
-        p_ptr->shooter_info.to_h -= 5;
-        p_ptr->to_h_m -= 5;
-        p_ptr->shooter_info.dis_to_h -= 5;
-        p_ptr->to_d_m -= 5;
-        p_ptr->shooter_info.to_d -= 5;
-        p_ptr->shooter_info.dis_to_d -= 5;
-    }
-
     if (IS_WRAITH())
     {
         res_add_immune(RES_DARK);
@@ -4022,7 +4010,7 @@ void calc_bonuses(void)
         res_add(RES_BLIND);
         res_add(RES_CONF);
         p_ptr->reflect = TRUE;
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         p_ptr->levitation = TRUE;
     }
 
@@ -4102,7 +4090,7 @@ void calc_bonuses(void)
     }
 
     if (p_ptr->tim_invis)
-        p_ptr->see_inv = TRUE;
+        p_ptr->see_inv++;
 
     if (IS_TIM_INFRA())
         p_ptr->see_infra+=3;
@@ -4201,7 +4189,7 @@ void calc_bonuses(void)
             p_ptr->stat_ind[i] = ind;
             if (i == A_CON)
                 p_ptr->update |= (PU_HP);
-            else if (mp_ptr->spell_stat == i)
+            else if (get_spell_stat() == i)
                 p_ptr->update |= (PU_MANA | PU_SPELLS);
         }
     }
@@ -5097,6 +5085,12 @@ void notice_stuff(void)
     /* Notice stuff */
     if (!p_ptr->notice) return;
 
+    if (p_ptr->notice & PN_EXP)
+    {
+        p_ptr->notice &= ~PN_EXP;
+        check_experience();
+    }
+
     if (p_ptr->notice & PN_OPTIMIZE_PACK)
     {
         /* Clear the bit first ... */
@@ -5128,7 +5122,6 @@ void update_stuff(void)
 {
     /* Update stuff */
     if (!p_ptr->update) return;
-
 
     if (p_ptr->update & (PU_BONUS))
     {

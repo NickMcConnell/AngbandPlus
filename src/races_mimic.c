@@ -5,8 +5,8 @@
  ****************************************************************/
 static void _clay_golem_calc_bonuses(void)
 {
-    p_ptr->free_act = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->free_act++;
+    p_ptr->hold_life++;
     p_ptr->to_a += 10;
     p_ptr->dis_to_a += 10;
 }
@@ -61,9 +61,9 @@ race_t *clay_golem_get_race(void)
  ****************************************************************/
 static void _colossus_calc_bonuses(void)
 {
-    p_ptr->free_act = TRUE;
-    p_ptr->see_inv = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->free_act++;
+    p_ptr->see_inv++;
+    p_ptr->hold_life++;
     res_add(RES_POIS);
     res_add(RES_SHARDS);
     res_add(RES_SOUND);
@@ -139,12 +139,12 @@ static int _demon_get_powers(spell_info* spells, int max)
 }
 static void _demon_calc_bonuses(void)
 {
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     res_add(RES_CHAOS);
     res_add(RES_NETHER);
     res_add(RES_FIRE);
     res_add(RES_FIRE);
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
     p_ptr->pspeed += 3;
     p_ptr->redraw |= PR_STATUS;
     p_ptr->to_a += 10;
@@ -215,7 +215,7 @@ static int _demon_lord_get_powers(spell_info* spells, int max)
 }
 static void _demon_lord_calc_bonuses(void)
 {
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     res_add(RES_CHAOS);
     res_add(RES_NETHER);
     res_add_immune(RES_FIRE);
@@ -228,7 +228,7 @@ static void _demon_lord_calc_bonuses(void)
     res_add(RES_NEXUS);
     res_add(RES_FEAR);
     p_ptr->sh_fire = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
     p_ptr->telepathy = TRUE;
     p_ptr->levitation = TRUE;
     p_ptr->kill_wall = TRUE;
@@ -306,9 +306,9 @@ race_t *demon_lord_get_race(void)
  ****************************************************************/
 static void _iron_golem_calc_bonuses(void)
 {
-    p_ptr->free_act = TRUE;
-    p_ptr->see_inv = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->free_act++;
+    p_ptr->see_inv++;
+    p_ptr->hold_life++;
     res_add(RES_POIS);
     p_ptr->pspeed -= 1;
     p_ptr->to_a += 15;
@@ -409,9 +409,9 @@ race_t *mangy_leper_get_race(void)
  ****************************************************************/
 static void _mithril_golem_calc_bonuses(void)
 {
-    p_ptr->free_act = TRUE;
-    p_ptr->see_inv = TRUE;
-    p_ptr->hold_life = TRUE;
+    p_ptr->free_act++;
+    p_ptr->see_inv++;
+    p_ptr->hold_life++;
     res_add(RES_POIS);
     res_add(RES_SHARDS);
     p_ptr->reflect = TRUE;
@@ -537,14 +537,14 @@ static void _vampire_lord_calc_bonuses(void)
 {
     res_add(RES_DARK);
     res_add_immune(RES_DARK);
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     res_add(RES_NETHER);
     res_add(RES_COLD);
     res_add(RES_POIS);
     res_add_vuln(RES_LITE);
     if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
 
-    p_ptr->see_inv = TRUE;
+    p_ptr->see_inv++;
     p_ptr->pspeed += 3;
     p_ptr->to_a += 10;
     p_ptr->dis_to_a += 10;

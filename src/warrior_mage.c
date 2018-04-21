@@ -50,8 +50,8 @@ class_t *warrior_mage_get_class(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  35,  36,   2,  18,  16,  50,  25};
-    skills_t xs = {  7,  10,  10,   0,   0,   0,  15,  11};
+    skills_t bs = { 30,  35,  36,   2,  18,  16,  50,  50};
+    skills_t xs = {  7,  10,  10,   0,   0,   0,  15,  15};
 
         me.name = "Warrior-Mage";
         me.desc = "A Warrior-Mage is precisely what the name suggests: a cross "

@@ -265,6 +265,11 @@ bool teleport_barrier(int m_idx)
 bool magic_barrier(int m_idx)
 {
     monster_type *m_ptr = &m_list[m_idx];
+    return magic_barrier_aux(m_ptr);
+}
+
+bool magic_barrier_aux(mon_ptr m_ptr)
+{
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
     if (!hex_spelling(HEX_ANTI_MAGIC)) return FALSE;

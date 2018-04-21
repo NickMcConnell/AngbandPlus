@@ -99,7 +99,7 @@ Dexterity    <color:w> -3</color>        Stealth     <color:R>Poor         </col
 Constitution <color:w> +2</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:v> +2</color>        Perception  <color:r>Bad          </color>
 Life Rating  112%       Melee       <color:g>Superb       </color>
-Base HP       25        Bows        <color:y>Very Good    </color>
+Base HP       25        Bows        <color:o>Fair         </color>
 Experience   140%
 </style></indent>
 <topic:Tables><style:heading>Table 1 - Warlock Statistic Bonus Table</style>
@@ -135,9 +135,9 @@ Angels            <color:R>Poor         </color> <color:r>Bad          </color> 
 Demons            <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:R>Poor         </color>
 Hounds            <color:o>Fair         </color> <color:R>Poor         </color> <color:G>Excellent    </color> <color:r>Bad          </color>
 Spiders           <color:R>Poor         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:y>Very Good    </color>
-Giants            <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:y>Very Good    </color>
+Giants            <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:o>Fair         </color>
 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.7.</color>
+<color:s>Automatically generated for PosChengband 7.0.0.</color>

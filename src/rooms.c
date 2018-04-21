@@ -972,8 +972,8 @@ static int vault_aux_race;
 /* Race index for "monster pit (symbol clone)" */
 static char vault_aux_char;
 
-/* Breath mask for "monster pit (dragon)" */
-static u32b vault_aux_dragon_mask4;
+/* Breath mask for "monster pit (dragon)"
+static u32b vault_aux_dragon_mask4; XXX */
 
 /*
  * Helper monster selection function
@@ -1244,7 +1244,7 @@ static bool vault_aux_giant(int r_idx)
 
     if (!vault_monster_okay(r_idx)) return (FALSE);
     if (!(r_ptr->flags3 & RF3_GIANT)) return (FALSE);
-    if (r_ptr->flags4 & RF4_THROW) return FALSE;
+    /*if (r_ptr->flags4 & RF4_THROW) return FALSE;*/
     if (r_ptr->flags3 & RF3_GOOD) return (FALSE);
     if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
 
@@ -1266,7 +1266,7 @@ static bool vault_aux_dragon(int r_idx)
     if (!(r_ptr->flags3 & RF3_DRAGON)) return (FALSE);
 
     /* Hack -- Require correct "breath attack" */
-    if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
+    /*if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);*/
 
     /* Decline undead */
     if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
@@ -1358,6 +1358,7 @@ static void vault_prep_symbol(void)
  */
 static void vault_prep_dragon(void)
 {
+    #if 0
     /* Pick dragon type */
     switch (randint0(6))
     {
@@ -1423,6 +1424,7 @@ static void vault_prep_dragon(void)
             break;
         }
     }
+    #endif
 }
 
 
@@ -1627,9 +1629,22 @@ static room_grid_ptr _find_room_grid(room_ptr room, char letter)
 
 static bool _obj_kind_is_good = FALSE;
 static int _obj_kind_hack = 0;
+static bool _kind_is_hi_book(int k_idx)
+{
+    obj_kind_ptr kind;
+    if (!kind_is_book(k_idx)) return FALSE;
+    kind = &k_info[k_idx];
+    if (kind->sval < SV_BOOK_MIN_GOOD) return FALSE;
+    if (kind->tval == TV_ARCANE_BOOK) return FALSE;
+    return TRUE;
+}
 static bool _obj_kind_hook(int k_idx)
 {
-    if (_obj_kind_is_good && !kind_is_good(k_idx))
+    /* Aside: kind_is_good() will reject high level books once a certain number have been
+     * found. For monsters with DROP_GOOD, this means they will roll a new object until
+     * they get a non-book class of objects. For Quests and Room templates, OBJ(BOOK, DEPTH+5),
+     * for example, will yield no object at all which is probably a bad thing. */
+    if (_obj_kind_is_good && !kind_is_good(k_idx) && _obj_kind_hack != OBJ_TYPE_HI_BOOK)
         return FALSE;
 
     switch (_obj_kind_hack)
@@ -1637,6 +1652,7 @@ static bool _obj_kind_hook(int k_idx)
     case OBJ_TYPE_DEVICE:       return kind_is_device(k_idx);
     case OBJ_TYPE_JEWELRY:      return kind_is_jewelry(k_idx);
     case OBJ_TYPE_BOOK:         return kind_is_book(k_idx);
+    case OBJ_TYPE_HI_BOOK:      return _kind_is_hi_book(k_idx);
     case OBJ_TYPE_BODY_ARMOR:   return kind_is_body_armor(k_idx);
     case OBJ_TYPE_OTHER_ARMOR:  return kind_is_other_armor(k_idx);
     case OBJ_TYPE_WEAPON:       return kind_is_weapon(k_idx);
@@ -1814,7 +1830,7 @@ static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, u16b room_flags)
         place_monster_aux(0, p.y, p.x, grid->monster, mode | PM_NO_KAGE);
         if (grid->flags & ROOM_GRID_MON_CLONED)
         {
-            m_list[hack_m_idx_ii].smart |= SM_CLONED;
+            m_list[hack_m_idx_ii].smart |= (1U << SM_CLONED);
 
             /* Make alive again for real unique monster */
             r_info[grid->monster].cur_num = old_cur_num;
@@ -2329,9 +2345,11 @@ void build_room_template_aux(room_ptr room, transform_ptr xform, wild_scroll_ptr
                     int r_idx = _formation_monsters[idx];
 
                     if (r_idx)
-                    {
                         place_monster_aux(0, p.y, p.x, r_idx, PM_NO_KAGE);
-                    }
+                    /* cf Oval Crypt V: The '0' letter should get a good ego item! */
+                    grid = _find_room_grid(room, letter);
+                    if (grid)
+                        _apply_room_grid_obj(p, grid, room->flags);
                     continue;
                 }
             }

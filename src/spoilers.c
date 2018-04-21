@@ -1061,7 +1061,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
                     CLASS_WEAPONSMITH, -1} },
     { "Archery", {CLASS_ARCHER, CLASS_SNIPER, -1} },
     { "Martial Arts", {CLASS_FORCETRAINER, CLASS_MONK, CLASS_MYSTIC, -1} },
-    { "Magic", {CLASS_BLOOD_MAGE, CLASS_BLUE_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
+    { "Magic", {CLASS_BLOOD_MAGE, CLASS_GRAY_MAGE, CLASS_HIGH_MAGE, CLASS_MAGE,
                     CLASS_NECROMANCER, CLASS_SORCERER, CLASS_YELLOW_MAGE, -1} },
     { "Devices", {CLASS_DEVICEMASTER, CLASS_MAGIC_EATER, -1} },
     { "Prayer", {CLASS_PRIEST, -1} },
@@ -1071,7 +1071,7 @@ static _class_group_t _class_groups[_MAX_CLASS_GROUPS] = {
     { "Riding", {CLASS_BEASTMASTER, CLASS_CAVALRY, -1} },
     { "Mind", {CLASS_MINDCRAFTER, CLASS_MIRROR_MASTER, CLASS_PSION,
                     CLASS_TIME_LORD, CLASS_WARLOCK, -1} },
-    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_IMITATOR, CLASS_RAGE_MAGE,
+    { "Other", {CLASS_ARCHAEOLOGIST, CLASS_BARD, CLASS_RAGE_MAGE,
                     CLASS_SKILLMASTER, CLASS_TOURIST, CLASS_WILD_TALENT, -1} },
 };
 
@@ -1433,20 +1433,21 @@ static void _possessor_stats_table(FILE* fp)
 
         /*XXX if (r_ptr->flags9 & RF9_DROP_CORPSE)*/
         {
-            int ac = 0, dam = 0, attacks = 0, j;
+            int ac = 0, dam = 0, attacks = 0/*, j*/;
 
             if (r_ptr->flags9 & RF9_POS_GAIN_AC)
                 ac = r_ptr->ac;
 
+            #if 0
             for (j = 0; j < 4; j++)
             {
                 if (!r_ptr->blow[j].effect) continue;
                 if (r_ptr->blow[j].method == RBM_EXPLODE) continue;
-                if (r_ptr->blow[j].method == RBM_SHOOT) continue;
 
                 dam += r_ptr->blow[j].d_dice * (r_ptr->blow[j].d_side + 1) / 2;
                 attacks++;
             }
+            #endif
 
             fprintf(fp, "\"%s\",%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,%d,=\"%d+%d\",=\"%d+%d\"\n",
                 i == MON_ECHIZEN ? "Combat Echizen" : r_name + r_ptr->name, i, r_ptr->level,
@@ -1521,7 +1522,7 @@ static void _skills_class_table(FILE* fp)
     {
         int max_j = 1;
 
-        if (i == CLASS_MONSTER)
+        if (i == CLASS_MONSTER || i == CLASS_XXX12 || i == CLASS_XXX21)
             continue;
         else if (i == CLASS_WEAPONMASTER)
             max_j = WEAPONMASTER_MAX;
@@ -1564,8 +1565,11 @@ static void _spells_table(FILE* fp) /*m_info.txt*/
     fputs("Class,Realm,Index,Name,Level,Cost,Fail\n", fp);
     for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
     {
-        class_t      *class_ptr = get_class_aux(class_idx, 0);
-        player_magic *magic_ptr = &m_info[class_idx];
+        class_t      *class_ptr;
+        player_magic *magic_ptr;
+        if (class_idx == CLASS_XXX12 || class_idx == CLASS_XXX21) continue;
+        class_ptr = get_class_aux(class_idx, 0);
+        magic_ptr = &m_info[class_idx];
         for (realm_idx = REALM_LIFE; realm_idx <= MAX_MAGIC; realm_idx++)
         {
             for (spell_idx = 0; spell_idx < 32; spell_idx++)

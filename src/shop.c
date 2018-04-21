@@ -535,7 +535,7 @@ static bool _general_create(obj_ptr obj, int mode)
     else if (one_in_(3))
         k_idx = lookup_kind(TV_FLASK, SV_FLASK_OIL);
     else if (one_in_(3))
-        k_idx = lookup_kind(TV_LITE, SV_LITE_LANTERN);
+        k_idx = lookup_kind(TV_LITE, one_in_(2) ? SV_LITE_LANTERN : SV_LITE_TORCH);
     else if (one_in_(3))
         k_idx = _get_k_idx(_stock_ammo_p, _mod_lvl(10));
     else if (one_in_(3))
@@ -618,6 +618,17 @@ static bool _weapon_stock_p(int k_idx)
     {
     case TV_POLEARM:
     case TV_SWORD:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _weapon_book_p(int k_idx)
+{
+    if (!_stock_p(k_idx))
+        return FALSE;
+
+    switch (k_info[k_idx].tval)
+    {
     case TV_HISSATSU_BOOK:
     case TV_RAGE_BOOK:
         return TRUE;
@@ -640,7 +651,9 @@ static bool _weapon_create(obj_ptr obj, int mode)
     int k_idx;
     int l1 = _mod_lvl(20);
     int l2 = _mod_lvl(rand_range(1, 5));
-    if (one_in_(4))
+    if (one_in_(3))
+        k_idx = _get_k_idx(_weapon_book_p, l1);
+    else if (one_in_(4))
         k_idx = _get_k_idx(_weapon_stock_shooter_p, l1);
     else if (one_in_(3))
         k_idx = _get_k_idx(_stock_ammo_p, l1);
@@ -830,6 +843,8 @@ static bool _magic_will_buy(obj_ptr obj)
     case TV_HAFTED:
         if(obj->sval == SV_WIZSTAFF) break;
         else return FALSE;
+    case TV_LITE:
+        return obj->name1 == ART_STONE_OF_SORCERY;
     default:
         return FALSE;
     }
@@ -914,7 +929,7 @@ static bool _black_market_stock_p(int k_idx)
     case TV_CHEST: return FALSE;
     case TV_WAND:
     case TV_ROD:
-    case TV_STAFF: return TRUE;
+    case TV_STAFF: return one_in_(3);
     }
 
     return !(k_ptr->gen_flags & OFG_TOWN);
@@ -1740,7 +1755,7 @@ static void _sellout(shop_ptr shop)
     slot_t slot, max = inv_last(shop->inv, obj_exists);
     int    price, total_price = 0;
 
-    if (!get_check("Are you sure you want to buy the entire inventory of this store? "))
+    if (1 && !get_check("Are you sure you want to buy the entire inventory of this store? "))
         return;
 
     for (slot = 1; slot <= max; slot++)

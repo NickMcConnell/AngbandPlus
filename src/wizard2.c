@@ -569,34 +569,6 @@ static int wiz_create_itemtype(void)
     return (choice[num]);
 }
 
-/* debug command for blue mage */
-static void do_cmd_wiz_blue_mage(void)
-{
-
-    int                i = 0;
-    int                j = 0;
-    s32b            f4 = 0, f5 = 0, f6 = 0;
-
-    for (j=1; j<6; j++)
-    {
-
-        set_rf_masks(&f4, &f5, &f6, j);
-
-        for (i = 0; i < 32; i++)
-        {
-            if ((0x00000001 << i) & f4) p_ptr->magic_num2[i] = 1;
-        }
-        for (; i < 64; i++)
-        {
-            if ((0x00000001 << (i - 32)) & f5) p_ptr->magic_num2[i] = 1;
-        }
-        for (; i < 96; i++)
-        {
-            if ((0x00000001 << (i - 64)) & f6) p_ptr->magic_num2[i] = 1;
-        }
-    }
-}
-
 /*
  * Wizard routine for creating objects        -RAK-
  * Heavily modified to allow magification and artifactification  -Bernd-
@@ -653,7 +625,13 @@ static void wiz_create_item(void)
     }
     else if (k_info[k_idx].tval == TV_CORPSE) /* Possessor Testing! */
     {
-        n = get_quantity("Which monster? ", max_r_idx);
+        char buf[81];
+        buf[0] = 0;
+        if (msg_input("Which monster? ", buf, 80))
+        {
+            n = parse_lookup_monster(buf, 0);
+            if (!n) n = atoi(buf);
+        }
     }
     else
     {
@@ -1021,16 +999,6 @@ static void do_cmd_wiz_create_feature(void)
     prev_mimic = tmp_mimic;
 }
 
-#ifdef ALLOW_SPOILERS
-
-/*
- * External function
- */
-extern void do_cmd_spoilers(void);
-
-#endif /* ALLOW_SPOILERS */
-
-
 static doc_ptr _wiz_doc = NULL;
 static bool    _wiz_show_scores = TRUE;
 static int     _wiz_obj_count = 0;
@@ -1167,7 +1135,9 @@ static void _wiz_kill_monsters(int level)
         /* Skip out of depth monsters */
         r_ptr = &r_info[m_ptr->r_idx];
         if (0 && r_ptr->level > level) continue;
+        if (r_ptr->id == MON_DAWN) continue; /* inflates pct of humans */
 
+        r_ptr->r_sights++;
         _stats_note_monster_level(level, r_ptr->level);
         mon_take_hit(i, m_ptr->hp + 1, &fear, NULL);
         if (slot) rune_sword_kill(equip_obj(slot), r_ptr);
@@ -1200,8 +1170,8 @@ static bool _wiz_improve_gear_aux(obj_ptr obj, slot_t slot)
         old_score = obj_value_real(old);
         if (score > old_score)
         {
-            old->marked |= OM_COUNTED;
-            equip_drop(old); /* prevent pack from filling with 'junk' */
+            home_carry(old);
+            equip_remove(slot);
             equip_wield(obj, slot);
             return TRUE;
         }
@@ -1217,11 +1187,90 @@ static bool _wiz_improve_gear_aux(obj_ptr obj, slot_t slot)
 static void _wiz_improve_gear(obj_ptr obj)
 {
     slot_t slot;
+
+    /* XXX this is tedious ... */
+    if (object_is_gloves(obj))
+    {
+        class_t *class_ptr = get_class();
+        caster_info *caster = NULL;
+
+        if (class_ptr->caster_info)
+            caster = class_ptr->caster_info();
+
+        if (caster && caster->options & CASTER_GLOVE_ENCUMBRANCE)
+        {
+            u32b flags[OF_ARRAY_SIZE];
+            obj_flags(obj, flags);
+            if ( !have_flag(flags, OF_FREE_ACT)
+              && !have_flag(flags, OF_DEX)
+              && !have_flag(flags, OF_MAGIC_MASTERY) )
+            {
+                return;
+            }
+        }
+    }
+    if (object_is_melee_weapon(obj) && skills_weapon_is_icky(obj->tval, obj->sval)) return;
+
+    if (obj->name1 == ART_POWER || obj->name1 == ART_STONEMASK || have_flag(obj->flags, OF_NO_SUMMON)) return;
+    if (obj->name2 == EGO_RING_NAZGUL) return;
     /* hydras have many heads ... */
     for (slot = equip_first_slot(obj); slot; slot = equip_next_slot(obj, slot))
     {
         if (_wiz_improve_gear_aux(obj, slot))
             break;
+    }
+}
+
+static obj_ptr _pack_obj = NULL;
+static bool _improve_pack_p(obj_ptr obj)
+{
+    assert(_pack_obj);
+    return obj->tval == _pack_obj->tval && obj->sval == _pack_obj->sval;
+}
+
+static void _wiz_improve_pack(obj_ptr obj)
+{
+    if (obj->tval == TV_POTION || obj->tval == TV_SCROLL)
+    {
+        int ct;
+        _pack_obj = obj;
+        ct = pack_count(_improve_pack_p);
+        if (ct + obj->number < 30)
+            pack_carry_aux(obj);
+        else
+            home_carry(obj);
+    }
+    else if (obj_is_device(obj))
+    {
+        int slot = pack_find_device(obj->activation.type);
+
+        if (!slot)
+            pack_carry_aux(obj);
+        else
+        {
+            obj_ptr old = pack_obj(slot);
+            int score, old_score;
+            score = obj_value_real(obj);
+            old_score = obj_value_real(old);
+            if (score > old_score)
+            {
+                home_carry(old);
+                pack_remove(slot);
+                pack_carry_aux(obj);
+            }
+        }
+    }
+    else if (obj_is_readable_book(obj))
+    {
+        int ct;
+        _pack_obj = obj;
+        ct = pack_count(_improve_pack_p);
+        if (ct < 2)
+            pack_carry_aux(obj);
+    }
+    else
+    {
+        pack_carry_aux(obj);
     }
 }
 
@@ -1236,7 +1285,11 @@ static void _wiz_inspect_objects(int level)
         object_type *o_ptr = &o_list[i];
 
         if (!o_ptr->k_idx) continue;
-        if (o_ptr->tval == TV_GOLD) continue;
+        if (o_ptr->tval == TV_GOLD)
+        {
+            pack_get(o_ptr);
+            continue;
+        }
         if (o_ptr->held_m_idx) continue;
         if (o_ptr->marked & OM_COUNTED) continue; /* skip player drops */
 
@@ -1260,9 +1313,9 @@ static void _wiz_inspect_objects(int level)
 
         if (0) _wiz_stats_log_speed(level, o_ptr);
         if (0) _wiz_stats_log_books(level, o_ptr, 20, 20);
-        if (1) _wiz_stats_log_devices(level, o_ptr);
-        if (0) _wiz_stats_log_arts(level, o_ptr);
-        if (0) _wiz_stats_log_rand_arts(level, o_ptr);
+        if (0) _wiz_stats_log_devices(level, o_ptr);
+        if (1) _wiz_stats_log_arts(level, o_ptr);
+        if (1) _wiz_stats_log_rand_arts(level, o_ptr);
 
         if (0 && o_ptr->name3)
             _wiz_stats_log_obj(level, o_ptr);
@@ -1292,16 +1345,37 @@ static void _wiz_inspect_objects(int level)
         if (_is_stat_potion(o_ptr))
             do_device(o_ptr, SPELL_CAST, 0);
 
-        if (1 && !object_is_nameless(o_ptr))
-            _wiz_improve_gear(o_ptr);
+        /* Use the autopicker to 'improve' this character. For example, you can
+         * conditionally have rogues only use weapons less than a certain weight
+         * and only shoot slings. */
+        if (o_ptr->number)
+        {
+            int auto_pick_idx = is_autopick(o_ptr);
+            if (auto_pick_idx >= 0 && autopick_list[auto_pick_idx].action & DO_AUTOPICK)
+            {
+                if (object_is_wearable(o_ptr))
+                    _wiz_improve_gear(o_ptr);
+                else
+                    _wiz_improve_pack(o_ptr);
+            }
+            else if ( (auto_pick_idx < 0 || !(autopick_list[auto_pick_idx].action & DO_AUTODESTROY))
+                   && object_is_wearable(o_ptr) )
+            {
+                _wiz_improve_gear(o_ptr);
+            }
+        }
 
-        if (race_ptr->destroy_object)
-            race_ptr->destroy_object(o_ptr);
+        if (o_ptr->number)
+        {
+            if (race_ptr->destroy_object)
+                race_ptr->destroy_object(o_ptr);
 
-        if (class_ptr->destroy_object)
-            class_ptr->destroy_object(o_ptr);
+            if (class_ptr->destroy_object)
+                class_ptr->destroy_object(o_ptr);
+        }
     }
     pack_overflow();
+    home_optimize();
     if (p_ptr->cursed) remove_all_curse();
 }
 static void _wiz_gather_stats(int which_dungeon, int level, int reps)
@@ -1415,14 +1489,6 @@ void do_cmd_debug(void)
     /* Edit character */
     case 'e':
         do_cmd_wiz_change();
-        break;
-
-    /* Blue Mage Only */
-    case 'E':
-        if (p_ptr->pclass == CLASS_BLUE_MAGE)
-        {
-            do_cmd_wiz_blue_mage();
-        }
         break;
 
     /* View item info */
@@ -1578,6 +1644,18 @@ void do_cmd_debug(void)
         teleport_player(10, 0L);
         break;
 
+    /* Wizard Probe */
+    case 'P':
+        if (target_who > 0)
+        {
+            mon_ptr mon = &m_list[target_who];
+            doc_ptr doc = doc_alloc(80);
+            mon_spell_wizard(mon, NULL, doc);
+            doc_display(doc, "Spells", 0);
+            doc_free(doc);
+            do_cmd_redraw();
+        }
+        break;
     case 'q':
     {
         quests_wizard();
@@ -1587,6 +1665,12 @@ void do_cmd_debug(void)
     case 's':
         if (command_arg <= 0) command_arg = 1;
         do_cmd_wiz_summon(command_arg);
+        break;
+
+    case 'S':
+#ifdef ALLOW_SPOILERS
+        generate_spoilers();
+#endif
         break;
 
     /* Teleport */
@@ -1651,12 +1735,6 @@ void do_cmd_debug(void)
     /* Zap Monsters (Omnicide) */
     case 'Z':
         do_cmd_wiz_zap_all();
-        break;
-
-    case 'S':
-#ifdef ALLOW_SPOILERS
-        generate_spoilers();
-#endif
         break;
 
     case '-':
@@ -1786,28 +1864,12 @@ void do_cmd_debug(void)
     }
     case '_':
     {
-        static point_t tbl[9] = {
-            {0, 1280}, {1000, 640}, {2000, 320}, {3000, 160}, {4000, 80},
-            {5000, 40}, {6000, 20}, {7000, 10}, {8000, 1} };
-        int skill = 0, max = 8000, i = 0;
-        if (!msg_input_num("Start: ", &skill, 0, 8000)) return;
-        if (!msg_input_num("Stop: ", &max, skill, 8000)) return;
-        while (skill < max)
-        {
-            int step = interpolate(skill, tbl, 9);
-            skill += step/10;
-            if ((step % 10) && randint0(10) < (step % 10))
-                skill++;
-            i++;
-            msg_format("%d", skill);
-        }
-        msg_boundary();
-        msg_format("%d steps", i);
+        int i;
+        for (i = 1; i < max_a_idx; i++)
+            if (!a_info[i].name)
+                msg_format("%d ", i);
         break;
     }
-    case '+':
-        mutate_player();
-        break;
     default:
         msg_print("That is not a valid debug command.");
         break;

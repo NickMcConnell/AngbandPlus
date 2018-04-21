@@ -109,7 +109,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             {
                 if (!res_save_default(RES_BLIND))
                 {
-                    if (set_blind(p_ptr->blind + randint0(200) + 200, FALSE))
+                    if (set_blind(p_ptr->blind + randint0(25) + 25, FALSE))
                         ident = TRUE;
                 }
                 break;
@@ -144,20 +144,14 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_PARALYSIS:
             {
-                if (!p_ptr->free_act)
-                {
-                    if (set_paralyzed(randint1(4), FALSE))
-                    {
-                        ident = TRUE;
-                    }
-                }
-                else equip_learn_flag(OF_FREE_ACT);
+                if (!free_act_save_p(0))
+                    ident = set_paralyzed(randint1(4), FALSE);
                 break;
             }
 
             case SV_FOOD_WEAKNESS:
             {
-                take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food", -1);
+                take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food");
                 do_dec_stat(A_STR);
                 ident = TRUE;
                 break;
@@ -165,7 +159,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_SICKNESS:
             {
-                take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food", -1);
+                take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food");
                 do_dec_stat(A_CON);
                 ident = TRUE;
                 break;
@@ -173,7 +167,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_STUPIDITY:
             {
-                take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food", -1);
+                take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food");
                 do_dec_stat(A_INT);
                 ident = TRUE;
                 break;
@@ -181,7 +175,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_NAIVETY:
             {
-                take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food", -1);
+                take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food");
                 do_dec_stat(A_WIS);
                 ident = TRUE;
                 break;
@@ -189,7 +183,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_UNHEALTH:
             {
-                take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food", -1);
+                take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food");
                 do_dec_stat(A_CON);
                 ident = TRUE;
                 break;
@@ -197,7 +191,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
 
             case SV_FOOD_DISEASE:
             {
-                take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food", -1);
+                take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food");
                 do_dec_stat(A_STR);
                 ident = TRUE;
                 break;
@@ -272,7 +266,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             case SV_FOOD_AMBROSIA:
             {
                 msg_print("That tastes divine!");
-                set_poisoned(0, TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
                 hp_player(damroll(15, 15));
                 do_res_stat(A_STR);
                 do_res_stat(A_INT);
@@ -288,7 +282,7 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
             case SV_FOOD_WAYBREAD:
             {
                 msg_print("That tastes good.");
-                set_poisoned(0, TRUE);
+                set_poisoned(p_ptr->poisoned - MAX(100, p_ptr->poisoned / 5), TRUE);
                 hp_player(damroll(4, 8));
                 ident = TRUE;
                 break;
@@ -385,8 +379,10 @@ static void do_cmd_eat_food_aux(obj_ptr obj)
         /* Don't consume the object */
         return;
     }
-    else if ((p_ptr->mimic_form == MIMIC_DEMON || p_ptr->mimic_form == MIMIC_DEMON_LORD || prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON))
-           && (obj->tval == TV_CORPSE && obj->sval == SV_CORPSE && my_strchr("pht", r_info[obj->pval].d_char)))
+    else if ( (get_race()->flags & RACE_IS_DEMON)
+           && obj->tval == TV_CORPSE
+           && obj->sval == SV_CORPSE
+           && my_strchr("pht", r_info[obj->pval].d_char) )
     {
         /* Drain vitality of humanoids */
         char o_name[MAX_NLEN];
@@ -461,7 +457,7 @@ static bool _can_eat(object_type *o_ptr)
         if (object_is_device(o_ptr))
             return TRUE;
     }
-    else if (prace_is_(RACE_BALROG) || prace_is_(RACE_MON_DEMON) || p_ptr->mimic_form == MIMIC_DEMON || p_ptr->mimic_form == MIMIC_DEMON_LORD)
+    else if (get_race()->flags & RACE_IS_DEMON)
     {
         if (o_ptr->tval == TV_CORPSE &&
             o_ptr->sval == SV_CORPSE &&
@@ -786,12 +782,6 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
         if (object_is_(o_ptr, TV_SCROLL, SV_SCROLL_IDENTIFY))
             number = device_used_charges;
     }
-    else if (o_ptr->name1 == ART_GHB)
-    {
-        msg_print("I had a very hard time to kill the Greater hell-beast, ");
-        msg_print("but all I got was this lousy t-shirt!");
-        used_up = FALSE;
-    }
     else if (o_ptr->name1 == ART_POWER)
     {
         msg_print("'One Ring to rule them all, ");
@@ -854,7 +844,7 @@ static void do_cmd_read_scroll_aux(obj_ptr o_ptr)
 static bool _can_read(object_type *o_ptr)
 {
     if (!o_ptr) return FALSE;
-    if (o_ptr->tval==TV_SCROLL || o_ptr->tval==TV_PARCHMENT || o_ptr->name1 == ART_GHB || o_ptr->name1 == ART_POWER)
+    if (o_ptr->tval==TV_SCROLL || o_ptr->tval==TV_PARCHMENT || o_ptr->name1 == ART_POWER)
         return TRUE;
     return FALSE;
 }
@@ -962,7 +952,7 @@ static void do_cmd_device_aux(obj_ptr obj)
         project(
             PROJECT_WHO_UNCTRL_POWER, 4, py, px,
             device_sp(obj), GF_MANA,
-            PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+            PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
         obj->number = 0;
         obj_release(obj, OBJ_RELEASE_QUIET);
         return;

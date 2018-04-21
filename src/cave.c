@@ -1258,8 +1258,14 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
                 a = r_ptr->x_attr;
                 c = r_ptr->x_char;
 
+                if (m_ptr->mflag2 & MFLAG2_FUZZY)
+                {
+                    a = TERM_WHITE;
+                    *ap = a;
+                    *cp = r_ptr->d_char; /* non-graphics */
+                }
                 /* Pets: Ideally, we could tweak the background. And what about tiles? */
-                if (!use_graphics && (p_ptr->pet_extra_flags & PF_HILITE) && is_pet(m_ptr))
+                else if (!use_graphics && (p_ptr->pet_extra_flags & PF_HILITE) && is_pet(m_ptr))
                 {
                     a = TERM_YELLOW;
                     *ap = a;
@@ -1391,15 +1397,15 @@ void py_get_display_char_attr(char *c, byte *a)
         {
             switch(p_ptr->psubrace)
             {
-            case DRACONIAN_RED: r_ptr = &r_info[644]; /* Ancient red dragon */
-            case DRACONIAN_WHITE: r_ptr = &r_info[617]; /* etc... */
-            case DRACONIAN_BLUE: r_ptr = &r_info[601];
-            case DRACONIAN_BLACK: r_ptr = &r_info[624];
-            case DRACONIAN_GREEN: r_ptr = &r_info[618];
-            case DRACONIAN_BRONZE: r_ptr = &r_info[MON_ANCIENT_BRONZE_DRAGON];
-            case DRACONIAN_GOLD: r_ptr = &r_info[MON_ANCIENT_GOLD_DRAGON];
-            case DRACONIAN_SHADOW: r_ptr = &r_info[MON_DEATH_DRAKE];
-            case DRACONIAN_CRYSTAL: r_ptr = &r_info[MON_GREAT_CRYSTAL_DRAKE];
+            case DRACONIAN_RED: r_ptr = &r_info[644]; break; /* Ancient red dragon */
+            case DRACONIAN_WHITE: r_ptr = &r_info[617]; break; /* etc... */
+            case DRACONIAN_BLUE: r_ptr = &r_info[601]; break;
+            case DRACONIAN_BLACK: r_ptr = &r_info[624]; break;
+            case DRACONIAN_GREEN: r_ptr = &r_info[618]; break;
+            case DRACONIAN_BRONZE: r_ptr = &r_info[MON_ANCIENT_BRONZE_DRAGON]; break;
+            case DRACONIAN_GOLD: r_ptr = &r_info[MON_ANCIENT_GOLD_DRAGON]; break;
+            case DRACONIAN_SHADOW: r_ptr = &r_info[MON_DEATH_DRAKE]; break;
+            case DRACONIAN_CRYSTAL: r_ptr = &r_info[MON_GREAT_CRYSTAL_DRAKE]; break;
             }
         }
     }
@@ -4713,7 +4719,7 @@ void cave_alter_feat(int y, int x, int action)
         if (have_flag(old_f_ptr->flags, FF_GLASS) && character_dungeon)
         {
             project(PROJECT_WHO_GLASS_SHARDS, 1, y, x, MIN(dun_level, 100) / 4, GF_SHARDS,
-                    (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_HIDE | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_HIDE | PROJECT_JUMP));
         }
     }
 }
@@ -4763,17 +4769,17 @@ void hit_mon_trap(int y, int x, int m_idx)
                 case 1: /* Sleep */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a small dart.", m_name);
-                    project(0, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev, GF_OLD_SLEEP, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev, GF_OLD_SLEEP, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP));
                     break;
                 case 2: /* Confuse */
                     if (m_ptr->ml)
                         msg_format("A gas of scintillating colors surrounds %s!", m_name);
-                    project(0, 3, y, x, p_ptr->lev, GF_OLD_CONF, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 3, y, x, p_ptr->lev, GF_OLD_CONF, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP));
                     break;
                 case 3: /* Slow */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a small dart.", m_name);
-                    project(0, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev, GF_OLD_SLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev, GF_OLD_SLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP));
                     break;
                 case 4: /* Teleport */
                     if (r_ptr->flagsr & RFR_RES_TELE)
@@ -4809,7 +4815,7 @@ void hit_mon_trap(int y, int x, int m_idx)
                 case 6: case 7: case 8: case 9: /* Arrow Trap */
                     if (m_ptr->ml)
                         msg_format("%s is hit by an arrow.", m_name);
-                    project(0, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev/2 + damroll(5, 5), GF_MISSILE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev/2 + damroll(5, 5), GF_MISSILE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP));
                     break;
                 }
             }
@@ -4820,41 +4826,41 @@ void hit_mon_trap(int y, int x, int m_idx)
                 case 1: /* Seeker Bolt */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a seeker bolt.", m_name);
-                    project(0, 1, m_ptr->fy, m_ptr->fx, 4*(damroll(6, 5) + p_ptr->lev/2), GF_MISSILE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 1, m_ptr->fy, m_ptr->fx, 4*(damroll(6, 5) + p_ptr->lev/2), GF_MISSILE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 2: /* Sound Ball */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a ball of sound.", m_name);
-                    project(0, 2, y, x, 2*(damroll(10, 10) + p_ptr->lev), GF_SOUND, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 2, y, x, 2*(damroll(10, 10) + p_ptr->lev), GF_SOUND, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 3: /* Shard Ball */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a large rock.", m_name);
-                    project(0, 2, y, x, damroll(10, 10) + 3*p_ptr->lev, GF_SHARDS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 2, y, x, damroll(10, 10) + 3*p_ptr->lev, GF_SHARDS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 4: /* Elemental Balls */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a shower of elements.", m_name);
-                    project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_FIRE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-                    project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_COLD, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-                    project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_ELEC, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-                    project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_ACID, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-                    project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_POIS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_FIRE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
+                    project(PROJECT_WHO_TRAP, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_COLD, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
+                    project(PROJECT_WHO_TRAP, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_ELEC, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
+                    project(PROJECT_WHO_TRAP, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_ACID, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
+                    project(PROJECT_WHO_TRAP, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_POIS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 5: /* Disintegration Ball */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a disintegration ball.", m_name);
-                    project(0, 5, y, x, 2*(damroll(10, 10) + 3*p_ptr->lev), GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 5, y, x, 2*(damroll(10, 10) + 3*p_ptr->lev), GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 6: /* Stasis */
-                    project(0, 1, m_ptr->fy, m_ptr->fx, 4*p_ptr->lev, GF_STASIS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 1, m_ptr->fy, m_ptr->fx, 4*p_ptr->lev, GF_STASIS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 7: /* Piranha Trap */
                 {
                     int i, num;
                     msg_print("Your trap explodes and suddenly the room is filled with water and piranhas!");
-                    project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-                    project(0, 10, y, x, 1, GF_WATER_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI | PROJECT_HIDE), -1);
+                    project(PROJECT_WHO_TRAP, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
+                    project(PROJECT_WHO_TRAP, 10, y, x, 1, GF_WATER_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP  | PROJECT_HIDE));
 
                     num = 1 + p_ptr->lev/10;
                     for (i = 0; i < num; i++)
@@ -4873,7 +4879,7 @@ void hit_mon_trap(int y, int x, int m_idx)
                 {
                     int i, num;
                     msg_format("Your trap explodes and suddenly a storm of birds swirls around %s!", m_name);
-                    project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
 
                     num = 1 + p_ptr->lev/10;
                     for (i = 0; i < num; i++)
@@ -4886,8 +4892,8 @@ void hit_mon_trap(int y, int x, int m_idx)
                 {
                     int i, num;
                     msg_print("Your trap explodes and suddenly the room is filled with fire and brimstone!");
-                    project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-                    project(0, 10, y, x, 1, GF_LAVA_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI | PROJECT_HIDE), -1);
+                    project(PROJECT_WHO_TRAP, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
+                    project(PROJECT_WHO_TRAP, 10, y, x, 1, GF_LAVA_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP  | PROJECT_HIDE));
 
                     num = 1 + p_ptr->lev/10;
                     for (i = 0; i < num; i++)
@@ -4900,7 +4906,7 @@ void hit_mon_trap(int y, int x, int m_idx)
                 {
                     int i, num;
                     msg_print("Your trap explodes and suddenly the room is filled with a heavenly choir singing!");
-                    project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
 
                     num = 1 + p_ptr->lev/10;
                     for (i = 0; i < num; i++)
@@ -4912,18 +4918,18 @@ void hit_mon_trap(int y, int x, int m_idx)
                 case 4: /* Mana Storm */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a mana storm.", m_name);
-                    project(0, 5, y, x, 2*400, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 5, y, x, 2*400, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 5: /* Rocket */
                     if (m_ptr->ml)
                         msg_format("%s is hit by a Rocket.", m_name);
-                    project(0, 5, y, x, 2*400, GF_SHARDS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 5, y, x, 2*400, GF_SHARDS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
                     break;
                 case 6: /* Dragon Trap */
                 {
                     int i, num;
                     msg_format("Your trap explodes and suddenly ancient dragons surround %s!", m_name);
-                    project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                    project(PROJECT_WHO_TRAP, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP ));
 
                     num = 1 + p_ptr->lev/10;
                     for (i = 0; i < num; i++)
@@ -4937,7 +4943,7 @@ void hit_mon_trap(int y, int x, int m_idx)
             else
             {
                 msg_print("The rune explodes!");
-                project(0, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+                project(PROJECT_WHO_TRAP, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP));
             }
         }
     }
@@ -5121,13 +5127,16 @@ void health_track(int m_idx)
 /*
  * Hack -- track the given monster race
  */
+void mon_track(mon_ptr mon)
+{
+    if (!(mon->mflag2 & MFLAG2_FUZZY))
+        monster_race_track(mon->ap_r_idx);
+}
 void monster_race_track(int r_idx)
 {
     p_ptr->monster_race_idx = r_idx;
     p_ptr->window |= PW_MONSTER;
 }
-
-
 
 /*
  * Hack -- track the given object kind

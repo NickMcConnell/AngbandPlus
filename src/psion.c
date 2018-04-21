@@ -167,9 +167,13 @@ bool psion_disruption(void)
 
 bool psion_check_disruption(int m_idx)
 {
+    monster_type *m_ptr = &m_list[m_idx];
+    return psion_check_disruption_aux(m_ptr);
+}
+bool psion_check_disruption_aux(mon_ptr m_ptr)
+{
     if (psion_disruption())
     {
-        monster_type *m_ptr = &m_list[m_idx];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
         int           pl = p_ptr->lev + 8*p_ptr->magic_num2[_DISRUPTION];
 
@@ -186,17 +190,20 @@ bool psion_drain(void)
     return FALSE;
 }
 
-int psion_do_drain(int spell_idx, int dam)
+int psion_do_drain(int dam)
 {
-    int result = dam;
-    if (psion_drain() && !spell_is_inate(spell_idx))
-    {
-        int drain = dam * 5 * p_ptr->magic_num2[_DRAIN] / 100;
-        result -= drain;
-        sp_player(MAX(drain, 3 * p_ptr->magic_num2[_DRAIN]));
-        if (disturb_minor)
-            msg_print("You draw power from the magics around you!");
-    }
+    int result = dam, drain;
+    mon_spell_ptr spell = mon_spell_current();
+
+    if (!psion_drain()) return result;
+    if (!spell) return result;
+    if (spell->flags & MSF_INNATE) return result;
+
+    drain = dam * 5 * p_ptr->magic_num2[_DRAIN] / 100;
+    result -= drain;
+    sp_player(MAX(drain, 3 * p_ptr->magic_num2[_DRAIN]));
+    if (disturb_minor)
+        msg_print("You draw power from the magics around you!");
     return result;
 }
 
@@ -253,7 +260,7 @@ bool psion_process_monster(int m_idx)
             result = mon_take_hit(m_idx, spell_power(40*m_ptr->ego_whip_pow), &fear, NULL);
             m_ptr->ego_whip_ct--;
             if (!projectable(py, px, m_ptr->fy, m_ptr->fx))
-                m_ptr->anger_ct++;
+                mon_anger(m_ptr);
             if (!m_ptr->ego_whip_ct)
             {
                 msg_format("Your ego whip on %s disappears.", m_name);
@@ -1971,7 +1978,7 @@ static void _calc_bonuses(void)
 
     if (p_ptr->magic_num1[_SHIELDING])
     {
-        p_ptr->free_act = TRUE;
+        p_ptr->free_act++;
         if (!p_ptr->shield)
         {
             p_ptr->to_a += 15 * p_ptr->magic_num2[_SHIELDING];
@@ -2007,7 +2014,7 @@ static void _calc_bonuses(void)
         p_ptr->sustain_dex = TRUE;
         p_ptr->sustain_con = TRUE;
         p_ptr->sustain_chr = TRUE;
-        p_ptr->hold_life = TRUE;
+        p_ptr->hold_life++;
     }
 }
 

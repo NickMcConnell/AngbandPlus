@@ -1,5 +1,12 @@
 #include "angband.h"
 
+static void _calc_bonuses(void)
+{
+    /* rangers are decent shooters all around, but especially good with bows */
+    slot_t slot = equip_find_obj(TV_BOW, SV_ANY); /* fyi, shooter_info not set yet ... */
+    if (slot) p_ptr->skills.thb += 20 + p_ptr->lev;
+}
+
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
     if (p_ptr->shooter_info.tval_ammo != TV_ARROW )
@@ -54,8 +61,8 @@ class_t *ranger_get_class(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  37,  36,   3,  24,  16,  56,  72};
-    skills_t xs = {  8,  11,  10,   0,   0,   0,  18,  28};
+    skills_t bs = { 30,  37,  36,   3,  24,  16,  56,  50};
+    skills_t xs = {  8,  11,  10,   0,   0,   0,  18,  16};
 
         me.name = "Ranger";
         me.desc = "A Ranger is a combination of a warrior and a mage who has "
@@ -90,6 +97,7 @@ class_t *ranger_get_class(void)
         
         me.birth = _birth;
         me.caster_info = _caster_info;
+        me.calc_bonuses = _calc_bonuses;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         /* TODO: This class uses spell books, so we are SOL
         me.get_spells = _get_spells;*/

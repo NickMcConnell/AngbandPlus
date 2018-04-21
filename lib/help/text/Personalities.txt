@@ -121,20 +121,6 @@ Echizen".
   Life Rating  100%       Melee       Excellent    
   Experience   100%       Bows        Excellent    
   
-Lazy
-A Lazy person has no good stats and can do no action well. Also it has 
-a direct bad influence on your spell fail rate.
-
-  Stats                   Skills
-  Strength      -2        Disarming   Very Bad     
-  Intelligence  -2        Device      Very Bad     
-  Wisdom        -2        Save        Very Bad     
-  Dexterity     -2        Stealth     Bad          
-  Constitution  -2        Searching   Very Bad     
-  Charisma      -2        Perception  Bad          
-  Life Rating   95%       Melee       Very Bad     
-  Experience   100%       Bows        Very Bad     
-  
 Sexy
 Sexy increases all of your stats and skills, but your haughty attitude 
 will aggravate all monsters.
@@ -219,7 +205,6 @@ Pious           +0   -1   +2   -1   +0   +0  100%  100%
 Nimble          -1   +1   -1   +2   -1   +0   99%  100%
 Fearless        +1   +0   +0   -1   -1   +1   98%  100%
 Combat          +1   -1   -1   +1   +0   +0  100%  100%
-Lazy            -2   -2   -2   -2   -2   -2   95%  100%
 Sexy            +1   +1   +1   +1   +1   +1  100%  100%
 Lucky           -2   -2   -2   -2   -2   -2   98%  100%
 Patient         -1   -1   +1   -2   +2   +0  102%  100%
@@ -237,7 +222,6 @@ Pious        Very Bad      Fair          Very Good     Bad
 Nimble       Superb        Good          Bad           Fair         
 Fearless     Very Bad      Fair          Bad           Poor         
 Combat       Bad           Very Bad      Very Bad      Poor         
-Lazy         Very Bad      Very Bad      Very Bad      Bad          
 Sexy         Superb        Excellent     Good          Poor         
 Lucky        Superb        Superb        Good          Fair         
 Patient      Very Bad      Very Bad      Good          Fair         
@@ -255,7 +239,6 @@ Pious        Very Good     Bad           Very Bad      Bad
 Nimble       Excellent     Excellent     Poor          Superb       
 Fearless     Good          Bad           Excellent     Fair         
 Combat       Poor          Good          Excellent     Excellent    
-Lazy         Very Bad      Bad           Very Bad      Very Bad     
 Sexy         Excellent     Good          Superb        Superb       
 Lucky        Superb        Superb        Heroic        Superb       
 Patient      Fair          Bad           Very Bad      Bad          
@@ -265,5 +248,5 @@ Hasty        Very Bad      Bad           Very Bad      Bad
 
 
 
-Automatically generated for PosChengband 6.0.7.
+Automatically generated for PosChengband 7.0.0.
 

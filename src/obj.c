@@ -298,6 +298,37 @@ bool obj_is_staff(obj_ptr obj)   { return obj->tval == TV_STAFF; }
 bool obj_is_unknown(obj_ptr obj) { return !obj_is_known(obj); }
 bool obj_is_wand(obj_ptr obj)    { return obj->tval == TV_WAND; }
 
+bool obj_is_shooter(obj_ptr obj) { return obj->tval == TV_BOW; }
+bool obj_is_bow(obj_ptr obj)
+{
+    if (!obj_is_shooter(obj)) return FALSE;
+    if (obj->sval != SV_SHORT_BOW && obj->sval != SV_LONG_BOW) return FALSE;
+    return TRUE;
+}
+bool obj_is_sling(obj_ptr obj)
+{
+    if (!obj_is_shooter(obj)) return FALSE;
+    if (obj->sval != SV_SLING) return FALSE;
+    return TRUE;
+}
+bool obj_is_crossbow(obj_ptr obj)
+{
+    if (!obj_is_shooter(obj)) return FALSE;
+    if (obj->sval != SV_LIGHT_XBOW && obj->sval != SV_HEAVY_XBOW) return FALSE;
+    return TRUE;
+}
+bool obj_is_harp(obj_ptr obj)
+{
+    if (!obj_is_shooter(obj)) return FALSE;
+    if (obj->sval != SV_HARP) return FALSE;
+    return TRUE;
+}
+bool obj_is_gun(obj_ptr obj)
+{
+    if (!obj_is_shooter(obj)) return FALSE;
+    if (obj->sval != SV_CRIMSON && obj->sval != SV_RAILGUN) return FALSE;
+    return TRUE;
+}
 /************************************************************************
  * Sorting
  ***********************************************************************/

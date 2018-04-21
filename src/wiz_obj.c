@@ -558,7 +558,7 @@ static int _smith_brands(object_type *o_ptr)
 
 static void _reroll_aux(object_type *o_ptr, int flags, int min)
 {
-    int attempts = 1000; /* param? */
+    int attempts = 1 * 1000; /* param?  better gcc -O2 if more than 1k */
     int i, score, best_score = -1; /* scores are never negative */
     object_type forge, best = {0};
 
@@ -574,6 +574,14 @@ static void _reroll_aux(object_type *o_ptr, int flags, int min)
             forge.number = o_ptr->number; /* ammo */
             *o_ptr = forge;
             return;
+        }
+        else if (object_is_melee_weapon(o_ptr))
+        {
+            if (forge.dd * forge.ds > best_score)
+            {
+                best_score = forge.dd * forge.ds;
+                best = forge;
+            }
         }
         else if (score > best_score)
         {
@@ -634,7 +642,7 @@ static int _smith_reroll(object_type *o_ptr)
             {
                 min = atoi(buf);
                 if (min < 0) min = 0;
-                else if (min > 200000) min = 200000;
+                else if (min > 500000) min = 500000;
             }
             break;
         }

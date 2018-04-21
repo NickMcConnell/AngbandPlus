@@ -468,7 +468,7 @@ static void _smash_wall_spell(int cmd, variant *res)
         else
         {
             int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-            project(0, 0, y, x, 0, GF_KILL_DOOR, flg, -1);
+            project(0, 0, y, x, 0, GF_KILL_DOOR, flg);
         }
         var_set_bool(res, TRUE);
         break;

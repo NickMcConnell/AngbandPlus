@@ -225,6 +225,8 @@ bool _init_context(py_throw_ptr context)
             context->to_d += ((p_ptr->lev+30)*(p_ptr->lev+30)-900)/55; /* +100 at CL50 */
         }
     }
+    if (p_ptr->stun)
+        context->skill -= context->skill * MIN(100, p_ptr->stun) / 150;
 
     return TRUE;
 }
@@ -233,7 +235,7 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
 {
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
-    int           ac = MON_AC(r_ptr, m_ptr);
+    int           ac = mon_ac(m_ptr);
     bool          visible = m_ptr->ml;
 
     if (test_hit_fire(context->skill - (context->path_pos + 1), ac, m_ptr->ml))
@@ -252,7 +254,7 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
                 cmsg_format(TERM_RED, "The %s cruelly hits %s.", context->obj_name, m_name);
             else
                 msg_format("The %s hits %s.", context->obj_name, m_name);
-            if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
+            if (!p_ptr->image) mon_track(m_ptr);
             health_track(m_idx);
         }
 
@@ -308,8 +310,12 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
         if (context->mod_damage_f)
             tdam = context->mod_damage_f(context, tdam);
 
+        if (p_ptr->stun)
+            tdam -= tdam * MIN(100, p_ptr->stun) / 150;
+
         if (tdam < 0) tdam = 0;
         tdam = mon_damage_mod(m_ptr, tdam, FALSE);
+        context->dam = tdam;
         if (mon_take_hit(m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
         {
             /* Dead monster */
@@ -331,13 +337,8 @@ bool _hit_mon(py_throw_ptr context, int m_idx)
 
             if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
             {
-                if (mut_present(MUT_PEERLESS_SNIPER))
-                {
-                }
-                else
-                {
-                    m_ptr->anger_ct++;
-                }
+                if (!mut_present(MUT_PEERLESS_SNIPER))
+                    mon_anger_shoot(m_ptr, tdam);
             }
 
             if (fear && m_ptr->ml)
@@ -496,6 +497,8 @@ static void _display_weapon_slay(int base_mult, int slay_mult, bool force, int t
 
     dam = mult * dd * (ds + 1)/200 + to_d;
     dam = throw_mult * dam / 100;
+    if (p_ptr->stun)
+        dam -= dam * MIN(100, p_ptr->stun) / 150;
 
     doc_printf(doc, "<color:%c> %-7.7s</color>", attr_to_attr_char(color), name);
     doc_printf(doc, ": %d/%d [%d.%02dx]\n",

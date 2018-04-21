@@ -192,7 +192,7 @@ bool monster_toss(int m_idx)
         return TRUE;
     }
     chance = p_ptr->skills.thn + ((p_ptr->lev + p_ptr->to_h_m) * BTH_PLUS_ADJ);
-    if (!test_hit_norm(chance, MON_AC(r_ptr, m_ptr), TRUE))
+    if (!test_hit_norm(chance, mon_ac(m_ptr), TRUE))
     {
         msg_format("You lose hold of %s.", m_name);
         return TRUE;
@@ -319,13 +319,12 @@ static void _monster_toss_imp(_monster_toss_info *info)
         {
             cave_type *c_ptr = &cave[ny][nx];
             monster_type *m_ptr2 = &m_list[c_ptr->m_idx];
-            monster_race *r_ptr2 = &r_info[m_ptr->r_idx];
             char m_name2[80];
             bool visible = m_ptr2->ml;
 
             monster_desc(m_name2, m_ptr2, 0);
 
-            if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr2, m_ptr2), visible))
+            if (test_hit_fire(chance - cur_dis, mon_ac(m_ptr2), visible))
             {
                 bool fear = FALSE;
                 critical_t crit;
@@ -337,7 +336,7 @@ static void _monster_toss_imp(_monster_toss_info *info)
                     msg_format("%^s hits %s.", m_name, m_name2);
                     if (visible)
                     {
-                        if (!p_ptr->image) monster_race_track(m_ptr2->ap_r_idx);
+                        if (!p_ptr->image) mon_track(m_ptr2);
                         health_track(c_ptr->m_idx);
                     }
                 }
@@ -366,10 +365,8 @@ static void _monster_toss_imp(_monster_toss_info *info)
                     if (dam > 0)
                         anger_monster(m_ptr);
 
-                    if (dam > 0 && m_ptr2->cdis > 1 && allow_ticked_off(r_ptr))
-                    {
-                        m_ptr->anger_ct++;
-                    }
+                    if (dam > 0 && m_ptr2->cdis > 1)
+                        mon_anger_spell(m_ptr2, dam);
 
                     if (fear && visible)
                     {
@@ -423,13 +420,13 @@ static void _monster_toss_imp(_monster_toss_info *info)
             if ( !do_stun
               || (r_ptr->flagsr & RFR_RES_ALL)
               || (r_ptr->flags3 & RF3_NO_STUN)
-              || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_STR)) )
+              || ((r_ptr->flags1 & RF1_UNIQUE) && mon_stun_save(r_ptr->level, dam)) )
             {
             }
             else
             {
                 msg_format("%^s is stunned.", m_name);
-                set_monster_stunned(info->m_idx, MAX(MON_STUNNED(m_ptr), 3 + randint1(3)));
+                mon_stun(m_ptr, mon_stun_amount(dam));
             }
 
             message_pain(info->m_idx, dam);
@@ -511,6 +508,7 @@ static void _hru_calc_bonuses(void) {
         p_ptr->to_a += 15;
         p_ptr->dis_to_a += 15;
     }
+    p_ptr->skill_tht += 2*p_ptr->lev;
 }
 static void _hru_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_SUST_STR);
@@ -550,8 +548,8 @@ static race_t *_hru_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  55};
-    skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  31};
+    skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  30};
+    skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  15};
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -642,6 +640,7 @@ static void _fire_calc_bonuses(void) {
     }
     if (p_ptr->lev >= 40)
         res_add(RES_FIRE);
+    p_ptr->skill_tht += 2*p_ptr->lev;
 }
 static void _fire_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_SUST_STR);
@@ -692,8 +691,8 @@ static race_t *_fire_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  55};
-    skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  31};
+    skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  30};
+    skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  15};
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -775,6 +774,7 @@ static void _frost_calc_bonuses(void) {
     }
     if (p_ptr->lev >= 40)
         res_add(RES_COLD);
+    p_ptr->skill_tht += 2*p_ptr->lev;
 }
 static void _frost_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_SUST_STR);
@@ -825,8 +825,8 @@ static race_t *_frost_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  55};
-    skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  31};
+    skills_t bs = { 25,  18,  30,   0,  13,   7,  75,  30};
+    skills_t xs = { 10,   7,  10,   0,   0,   0,  34,  15};
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -944,6 +944,7 @@ static void _storm_calc_bonuses(void) {
         p_ptr->sh_elec = TRUE;
         res_add(RES_ELEC);
     }
+    p_ptr->skill_tht += 2*p_ptr->lev;
 }
 static void _storm_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_SUST_STR);
@@ -1001,8 +1002,8 @@ static race_t *_storm_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  18,  30,   0,  13,   7,  70,  55};
-    skills_t xs = { 10,   7,  10,   0,   0,   0,  30,  30};
+    skills_t bs = { 25,  18,  30,   0,  13,   7,  70,  30};
+    skills_t xs = { 10,   7,  10,   0,   0,   0,  30,  15};
 
         me.skills = bs;
         me.extra_skills = xs;
@@ -1057,6 +1058,7 @@ static void _titan_calc_bonuses(void) {
     }
     if (p_ptr->lev >= 40)
         p_ptr->pspeed += 3;
+    p_ptr->skill_tht += 2*p_ptr->lev;
 }
 static void _titan_get_flags(u32b flgs[OF_ARRAY_SIZE]) {
     add_flag(flgs, OF_SUST_STR);
@@ -1099,8 +1101,8 @@ static race_t *_titan_get_race_t(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  20,  32,   0,  15,  10,  75,  50};
-    skills_t xs = { 11,   8,  10,   0,   0,   0,  35,  30};
+    skills_t bs = { 25,  20,  32,   0,  15,  10,  75,  30};
+    skills_t xs = { 11,   8,  10,   0,   0,   0,  35,  15};
 
         me.skills = bs;
         me.extra_skills = xs;

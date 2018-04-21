@@ -217,7 +217,7 @@ static void _mindflayer_calc_bonuses(void)
 {
     p_ptr->sustain_int = TRUE;
     p_ptr->sustain_wis = TRUE;
-    if (p_ptr->lev >= 15) p_ptr->see_inv = TRUE;
+    if (p_ptr->lev >= 15) p_ptr->see_inv++;
     if (p_ptr->lev >= 30) p_ptr->telepathy = TRUE;
 }
 static void _mindflayer_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -418,8 +418,8 @@ static int _skeleton_get_powers(spell_info* spells, int max)
 static void _skeleton_calc_bonuses(void)
 {
     res_add(RES_SHARDS);
-    p_ptr->hold_life = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->hold_life++;
+    p_ptr->see_inv++;
     res_add(RES_POIS);
     if (p_ptr->lev >= 10) res_add(RES_COLD);
 }
@@ -507,7 +507,7 @@ static void _devour_flesh_spell(int cmd, variant *res)
         msg_print("You devour your own flesh!");
         set_food(PY_FOOD_MAX - 1);
         set_cut(p_ptr->cut + CUT_SEVERE, FALSE);
-        take_hit(DAMAGE_USELIFE, p_ptr->mhp / 3, "devouring your own flesh", -1);
+        take_hit(DAMAGE_USELIFE, p_ptr->mhp / 3, "devouring your own flesh");
         var_set_bool(res, TRUE);
         break;
     default:
@@ -599,8 +599,8 @@ static void _spectre_calc_bonuses(void)
 {
     p_ptr->levitation = TRUE;
     res_add(RES_NETHER);
-    p_ptr->hold_life = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->hold_life++;
+    p_ptr->see_inv++;
     res_add(RES_POIS);
     p_ptr->slow_digest = TRUE;
     res_add(RES_COLD);
@@ -850,7 +850,7 @@ static void _vampire_calc_bonuses(void)
     res_add(RES_COLD);
     res_add(RES_POIS);
     res_add_vuln(RES_LITE);
-    p_ptr->hold_life = TRUE;
+    p_ptr->hold_life++;
     if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
 }
 static void _vampire_get_flags(u32b flgs[OF_ARRAY_SIZE])
@@ -1055,8 +1055,8 @@ static int _zombie_get_powers(spell_info* spells, int max)
 static void _zombie_calc_bonuses(void)
 {
     res_add(RES_NETHER);
-    p_ptr->hold_life = TRUE;
-    p_ptr->see_inv = TRUE;
+    p_ptr->hold_life++;
+    p_ptr->see_inv++;
     res_add(RES_POIS);
     p_ptr->slow_digest = TRUE;
     if (p_ptr->lev >= 5) res_add(RES_COLD);
@@ -1084,12 +1084,11 @@ race_t *zombie_get_race(void)
     if (!init)
     {
         me.name = "Zombie";
-        me.desc = "Much like Skeletons, Zombies too are undead horrors: they are resistant to life-draining "
-                    "attacks, and can learn to restore their life-force. Like skeletons, they become "
-                    "resistant to cold-based attacks (actually earlier than skeletons), resist poison "
-                    "and can see invisible. While still vulnerable to cuts (unlike skeletons), Zombies "
-                    "are resistant to Nether. Like Golems, they gain very little nutrition from the food "
-                    "of mortals, but can absorb mana from staves and wands as their energy source.";
+        me.desc = "Zombies are undead horrors, resistant to life draining and the forces "
+            "of the netherworld. The grave is cold but this does not bother the undead and "
+            "poison scarcely affects the unliving. Zombies gain little nutrition from "
+            "ordinary food. Instead, they must absorb mana from magical devices to maintain "
+            "their undead existence.";
 
         me.stats[A_STR] =  2;
         me.stats[A_INT] = -6;

@@ -44,8 +44,8 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
     char buf[128];
     int  which;
 
-    WIPE(m_ptr, monster_type);
-
+    assert(m_ptr->id);
+    m_ptr->mpower = 1000;
     m_ptr->r_idx = savefile_read_s16b(file);
     m_ptr->ap_r_idx = m_ptr->r_idx;
     m_ptr->fy = savefile_read_byte(file);
@@ -70,10 +70,13 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
         case SAVE_MON_SUB_ALIGN:
             m_ptr->sub_align = savefile_read_byte(file);
             break;
-        case SAVE_MON_TIMER:
+        case SAVE_MON_TIMER: {
+            int n;
             which = savefile_read_byte(file);
-            m_ptr->mtimed[which] = savefile_read_s16b(file);
-            break;
+            n = savefile_read_s16b(file);
+            if (0 <= which && which < MTIMED_COUNT)
+                m_ptr->mtimed[which] = n;
+            break; }
         case SAVE_MON_TARGET_Y:
             m_ptr->target_y = savefile_read_s16b(file);
             break;
@@ -102,8 +105,8 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
         case SAVE_MON_AC:
             m_ptr->ac_adj = savefile_read_s16b(file);
             break;
-        case SAVE_MON_MELEE:
-            m_ptr->melee_adj = savefile_read_s16b(file);
+        case SAVE_MON_POWER:
+            m_ptr->mpower = savefile_read_s16b(file);
             break;
         case SAVE_MON_DROP_CT:
             m_ptr->drop_ct = savefile_read_byte(file);
@@ -112,7 +115,7 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
             m_ptr->stolen_ct = savefile_read_byte(file);
             break;
         case SAVE_MON_SUMMON_CT:
-            m_ptr->summon_ct = savefile_read_u16b(file);
+            savefile_read_u16b(file);
             break;
         case SAVE_MON_EGO_WHIP:
             m_ptr->ego_whip_ct = savefile_read_byte(file);
@@ -124,11 +127,11 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
         case SAVE_MON_PEXP:
             m_ptr->pexp = savefile_read_s32b(file);
             break;
-        case SAVE_MON_PARALYZED:
-            m_ptr->paralyzed = savefile_read_s16b(file);
+        case SAVE_MON_ANGER:
+            m_ptr->anger = savefile_read_byte(file);
             break;
-        case SAVE_MON_ANGER_CT:
-            m_ptr->anger_ct = savefile_read_byte(file);
+        case SAVE_MON_MANA:
+            m_ptr->mana = savefile_read_s16b(file);
             break;
         /* default:
             TODO: Report an error back to the load routine!!*/
@@ -136,62 +139,62 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
     }
 }
 
-static void rd_lore(savefile_ptr file, int r_idx)
+static void rd_lore_aux(savefile_ptr file, mon_race_ptr race)
 {
     bool pact = FALSE;
+    int  i, j, ct_blows, ct_effects, ct_auras;
 
-    monster_race *r_ptr = &r_info[r_idx];
+    race->r_sights = savefile_read_s16b(file);
+    race->r_deaths = savefile_read_s16b(file);
+    race->r_pkills = savefile_read_s16b(file);
+    race->r_akills = savefile_read_s16b(file);
+    race->r_skills = savefile_read_s16b(file);
+    race->r_tkills = savefile_read_s16b(file);
+    race->r_wake = savefile_read_byte(file);
+    race->r_ignore = savefile_read_byte(file);
+    race->r_xtra1 = savefile_read_byte(file);
+    race->r_xtra2 = savefile_read_byte(file);
+    race->r_drop_gold = savefile_read_byte(file);
+    race->r_drop_item = savefile_read_byte(file);
+    race->r_spell_turns = savefile_read_u32b(file);
+    race->r_move_turns = savefile_read_u32b(file);
 
-    r_ptr->r_sights = savefile_read_s16b(file);
-    r_ptr->r_deaths = savefile_read_s16b(file);
-    r_ptr->r_pkills = savefile_read_s16b(file);
-    r_ptr->r_akills = savefile_read_s16b(file);
-    r_ptr->r_skills = savefile_read_s16b(file);
-    r_ptr->r_tkills = savefile_read_s16b(file);
-    r_ptr->r_wake = savefile_read_byte(file);
-    r_ptr->r_ignore = savefile_read_byte(file);
-    r_ptr->r_xtra1 = savefile_read_byte(file);
-    r_ptr->r_xtra2 = savefile_read_byte(file);
-    r_ptr->r_drop_gold = savefile_read_byte(file);
-    r_ptr->r_drop_item = savefile_read_byte(file);
-    r_ptr->r_cast_spell = savefile_read_byte(file);
-    r_ptr->r_spell_turns = savefile_read_u32b(file);
-    r_ptr->r_move_turns = savefile_read_u32b(file);
+    race->r_flags1 = savefile_read_u32b(file);
+    race->r_flags2 = savefile_read_u32b(file);
+    race->r_flags3 = savefile_read_u32b(file);
+    race->r_flagsr = savefile_read_u32b(file);
 
-    r_ptr->r_blows[0] = savefile_read_byte(file);
-    r_ptr->r_blows[1] = savefile_read_byte(file);
-    r_ptr->r_blows[2] = savefile_read_byte(file);
-    r_ptr->r_blows[3] = savefile_read_byte(file);
-    r_ptr->r_flags1 = savefile_read_u32b(file);
-    r_ptr->r_flags2 = savefile_read_u32b(file);
-    r_ptr->r_flags3 = savefile_read_u32b(file);
-    r_ptr->r_flags4 = savefile_read_u32b(file);
-    r_ptr->r_flags5 = savefile_read_u32b(file);
-    r_ptr->r_flags6 = savefile_read_u32b(file);
-    r_ptr->r_flagsr = savefile_read_u32b(file);
-    r_ptr->max_num = savefile_read_byte(file);
-    r_ptr->floor_id = savefile_read_s16b(file);
-    r_ptr->stolen_ct = savefile_read_byte(file);
-    if (savefile_is_older_than(file, 6, 0, 3, 1))
-        r_ptr->flagsx = 0; /* we will repair RFX_QUESTOR later ... */
-    else
-        r_ptr->flagsx = savefile_read_u32b(file);
+    mon_spells_load(race->spells, file);
+    ct_blows = savefile_read_byte(file);
+    for (i = 0; i < ct_blows; i++)
+    {
+        mon_blow_ptr blow = &race->blows[i];
+        blow->lore = savefile_read_s16b(file);
+        ct_effects = savefile_read_byte(file);
+        for (j = 0; j < ct_effects; j++)
+        {
+            mon_effect_ptr effect = &blow->effects[j];
+            effect->lore = savefile_read_s16b(file);
+        }
+    }
+    ct_auras = savefile_read_byte(file);
+    for (i = 0; i < ct_auras; i++)
+    {
+        mon_effect_ptr aura = &race->auras[i];
+        aura->lore = savefile_read_s16b(file);
+    }
 
-    if (r_ptr->r_flagsr & (RFR_PACT_MONSTER)) pact = TRUE;
+    if (race->r_flagsr & (RFR_PACT_MONSTER)) pact = TRUE;
 
     /* Repair the lore flags */
-    r_ptr->r_flags1 &= r_ptr->flags1;
-    r_ptr->r_flags2 &= r_ptr->flags2;
-    r_ptr->r_flags3 &= r_ptr->flags3;
-    r_ptr->r_flags4 &= r_ptr->flags4;
-    r_ptr->r_flags5 &= r_ptr->flags5;
-    r_ptr->r_flags6 &= r_ptr->flags6;
-    r_ptr->r_flagsr &= r_ptr->flagsr;
+    race->r_flags1 &= race->flags1;
+    race->r_flags2 &= race->flags2;
+    race->r_flags3 &= race->flags3;
+    race->r_flagsr &= race->flagsr;
 
     if (pact)
-        r_ptr->r_flagsr |= RFR_PACT_MONSTER;
+        race->r_flagsr |= RFR_PACT_MONSTER;
 }
-
 static void rd_randomizer(savefile_ptr file)
 {
     int i;
@@ -226,15 +229,8 @@ static void rd_options(savefile_ptr file)
     delay_factor = savefile_read_byte(file);
     hitpoint_warn = savefile_read_byte(file);
     mana_warn = savefile_read_byte(file);
-    if (savefile_is_older_than(file, 6, 0, 1, 1))
-        random_artifact_pct = 100;
-    else
-        random_artifact_pct = savefile_read_byte(file);
-
-    if (savefile_is_older_than(file, 6, 0, 3, 2))
-        reduce_uniques_pct = 100;
-    else
-        reduce_uniques_pct = savefile_read_byte(file);
+    random_artifact_pct = savefile_read_byte(file);
+    reduce_uniques_pct = savefile_read_byte(file);
 
     /*** Cheating options ***/
     c = savefile_read_u16b(file);
@@ -324,6 +320,10 @@ static void rd_extra(savefile_ptr file)
     int i,j;
     char buf[1024];
 
+    if (savefile_is_older_than(file, 7, 0, 0, 4))
+        p_ptr->id = scores_next_id();
+    else
+        p_ptr->id = savefile_read_s32b(file);
     savefile_read_cptr(file, player_name, sizeof(player_name));
     savefile_read_cptr(file, p_ptr->died_from, sizeof(p_ptr->died_from));
 
@@ -359,10 +359,6 @@ static void rd_extra(savefile_ptr file)
     p_ptr->lev = savefile_read_s16b(file);
 
     for (i = 0; i < 64; i++) p_ptr->spell_exp[i] = savefile_read_s16b(file);
-    if (savefile_is_older_than(file, 6, 0, 6, 1))
-    {
-        for (i = 0; i < 64; i++) savefile_read_s32b(file);
-    }
     for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) p_ptr->weapon_exp[i][j] = savefile_read_s16b(file);
     for (i = 0; i < 10; i++) p_ptr->skill_exp[i] = savefile_read_s16b(file);
     for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num1[i] = savefile_read_s32b(file);
@@ -400,12 +396,14 @@ static void rd_extra(savefile_ptr file)
     p_ptr->oldpx = savefile_read_s16b(file);
     p_ptr->oldpy = savefile_read_s16b(file);
 
+    p_ptr->mmhp = savefile_read_s32b(file);
     p_ptr->mhp = savefile_read_s32b(file);
     p_ptr->chp = savefile_read_s32b(file);
     p_ptr->chp_frac = savefile_read_u32b(file);
     p_ptr->msp = savefile_read_s32b(file);
     p_ptr->csp = savefile_read_s32b(file);
     p_ptr->csp_frac = savefile_read_u32b(file);
+    p_ptr->clp = savefile_read_s16b(file);
     p_ptr->max_plv = savefile_read_s16b(file);
 
     {
@@ -524,12 +522,12 @@ static void rd_extra(savefile_ptr file)
             r_ptr->hside = savefile_read_byte(file);
             r_ptr->ac = savefile_read_s16b(file);
             r_ptr->speed = savefile_read_byte(file);
-            for (i = 0; i < 4; i++)
+            for (i = 0; i < MAX_MON_BLOWS; i++)
             {
-                r_ptr->blow[i].method = savefile_read_byte(file);
-                r_ptr->blow[i].effect = savefile_read_byte(file);
-                r_ptr->blow[i].d_dice = savefile_read_byte(file);
-                r_ptr->blow[i].d_side = savefile_read_byte(file);
+                r_ptr->blows[i].method = savefile_read_byte(file);
+                r_ptr->blows[i].effects[0].effect = savefile_read_byte(file);
+                r_ptr->blows[i].effects[0].dd = savefile_read_byte(file);
+                r_ptr->blows[i].effects[0].ds = savefile_read_byte(file);
             }
             r_ptr->flags3 = savefile_read_u32b(file);
             r_ptr->flagsr = savefile_read_u32b(file);
@@ -964,7 +962,7 @@ static errr rd_dungeon(savefile_ptr file)
 
 static errr rd_savefile_new_aux(savefile_ptr file)
 {
-    int i, j;
+    int i;
 
     s32b wild_x_size;
     s32b wild_y_size;
@@ -1024,11 +1022,21 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     if (tmp16u > max_r_idx)
     {
         note(format("Too many (%u) monster races!", tmp16u));
-        return (21);
+        return 22;
     }
     for (i = 0; i < tmp16u; i++)
-        rd_lore(file, i);
+    {
+        mon_race_ptr race = &r_info[i];
+        byte header = savefile_read_byte(file);
 
+        race->max_num = savefile_read_byte(file);
+        race->floor_id = savefile_read_s16b(file);
+        race->stolen_ct = savefile_read_byte(file);
+        if (header & 0x01)
+            race->flagsx = savefile_read_u32b(file);
+        if (header & 0x02)
+            rd_lore_aux(file, race);
+    }
     if (arg_fiddle) note("Loaded Monster Memory");
 
 
@@ -1050,88 +1058,67 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
         k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
 
-        k_ptr->counts.generated = savefile_read_s32b(file);
-        k_ptr->counts.found = savefile_read_s32b(file);
-        k_ptr->counts.bought = savefile_read_s32b(file);
-        k_ptr->counts.used = savefile_read_s32b(file);
-        k_ptr->counts.destroyed = savefile_read_s32b(file);
+        if (tmp8u & 0x04)
+        {
+            k_ptr->counts.generated = savefile_read_s16b(file);
+            k_ptr->counts.found = savefile_read_s16b(file);
+            k_ptr->counts.bought = savefile_read_s16b(file);
+            k_ptr->counts.used = savefile_read_s16b(file);
+            k_ptr->counts.destroyed = savefile_read_s16b(file);
+        }
     }
 
+    for (;;)
     {
-        tmp16u = savefile_read_u16b(file);
-
-        if (tmp16u > max_e_idx)
+        int e_idx = savefile_read_s16b(file);
+        ego_ptr ego;
+        if (e_idx < 0) break;
+        if (e_idx > max_e_idx)
         {
-            note(format("Too many (%u) ego kinds!", tmp16u));
+            note(format("Ego (%d) out of range!", e_idx));
             return (22);
         }
-        for (i = 0; i < tmp16u; i++)
+        ego = &e_info[e_idx];
+        for (;;)
         {
-            int       ct, j;
-            ego_type *e_ptr = &e_info[i];
-
-            ct = savefile_read_byte(file);
-            if (ct > OF_ARRAY_SIZE)
-            {
-                note(format("Too many (%d) ego known flags!", ct));
-                return (22);
-            }
-            for (j = 0; j < ct; j++)
-                e_ptr->known_flags[j] = savefile_read_u32b(file);
-            for (j = ct; j < OF_ARRAY_SIZE; j++)
-                e_ptr->known_flags[j] = 0;
-
-            ct = savefile_read_byte(file);
-            if (ct > OF_ARRAY_SIZE)
-            {
-                note(format("Too many (%d) ego xtra flags!", ct));
-                return (22);
-            }
-            for (j = 0; j < ct; j++)
-                e_ptr->xtra_flags[j] = savefile_read_u32b(file);
-            for (j = ct; j < OF_ARRAY_SIZE; j++)
-                e_ptr->xtra_flags[j] = 0;
-
-            e_ptr->counts.generated = savefile_read_s32b(file);
-            e_ptr->counts.found = savefile_read_s32b(file);
-            e_ptr->counts.bought = savefile_read_s32b(file);
-            /*e_ptr->counts.used = savefile_read_s32b(file);*/
-            e_ptr->counts.destroyed = savefile_read_s32b(file);
+            byte b = savefile_read_byte(file);
+            if (b == 0xFF) break;
+            assert(/*0 <= b &&*/ b < OF_ARRAY_SIZE);
+            ego->known_flags[b] = savefile_read_u32b(file);
         }
-
-        tmp16u = savefile_read_u16b(file);
-        if (tmp16u > max_a_idx)
+        for (;;)
         {
-            note(format("Too many (%u) artifacts!", tmp16u));
+            byte b = savefile_read_byte(file);
+            if (b == 0xFF) break;
+            assert(/*0 <= b &&*/ b < OF_ARRAY_SIZE);
+            ego->xtra_flags[b] = savefile_read_u32b(file);
+        }
+        ego->counts.generated = savefile_read_s16b(file);
+        ego->counts.found = savefile_read_s16b(file);
+        ego->counts.bought = savefile_read_s16b(file);
+        /*ego->counts.used = savefile_read_s16b(file);*/
+        ego->counts.destroyed = savefile_read_s16b(file);
+    }
+    for (;;)
+    {
+        int a_idx = savefile_read_s16b(file);
+        art_ptr art;
+        if (a_idx < 0) break;
+        if (a_idx > max_a_idx)
+        {
+            note(format("Art (%d) out of range!", a_idx));
             return (22);
         }
-        for (i = 0; i < tmp16u; i++)
+        art = &a_info[a_idx];
+        for (;;)
         {
-            int            ct, j;
-            artifact_type *a_ptr = &a_info[i];
-
-            ct = savefile_read_byte(file);
-            if (ct > OF_ARRAY_SIZE)
-            {
-                note(format("Too many (%d) artifact known flags!", ct));
-                return (22);
-            }
-            for (j = 0; j < ct; j++)
-                a_ptr->known_flags[j] = savefile_read_u32b(file);
-            for (j = ct; j < OF_ARRAY_SIZE; j++)
-                a_ptr->known_flags[j] = 0;
+            byte b = savefile_read_byte(file);
+            if (b == 0xFF) break;
+            assert(/*0 <= b &&*/ b < OF_ARRAY_SIZE);
+            art->known_flags[b] = savefile_read_u32b(file);
         }
     }
     if (arg_fiddle) note("Loaded Object Memory");
-
-    /* Init the wilderness seeds */
-    for (i = 0; i < max_wild_x; i++)
-    {
-        for (j = 0; j < max_wild_y; j++)
-        {
-            wilderness[j][i].seed = randint0(0x10000000);
-        }
-    }
 
     quests_load(file); /* quests must load after monster lore ... see above */
     if (arg_fiddle) note("Loaded Quests");
@@ -1151,11 +1138,8 @@ static errr rd_savefile_new_aux(savefile_ptr file)
         return (23);
     }
 
-    for (i = 0; i < wild_x_size; i++)
-    {
-        for (j = 0; j < wild_y_size; j++)
-            wilderness[j][i].seed = savefile_read_u32b(file);
-    }
+    wilderness_seed = savefile_read_u32b(file);
+    seed_wilderness_aux();
 
     /* Load the Artifacts */
     tmp16u = savefile_read_u16b(file);

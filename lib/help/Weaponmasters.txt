@@ -41,7 +41,7 @@ Dexterity    <color:w> -1</color>        Stealth     <color:o>Fair         </col
 Constitution <color:w> +2</color>        Searching   <color:R>Poor         </color>
 Charisma     <color:w> +1</color>        Perception  <color:r>Bad          </color>
 Life Rating  109%       Melee       <color:G>Excellent    </color>
-Base HP       12        Bows        <color:G>Excellent    </color>
+Base HP       12        Bows        <color:o>Fair         </color>
 Experience   135%
 </style></indent>
 <topic:Crossbows><color:o>Crossbows</color>
@@ -193,7 +193,7 @@ Diggers           <color:o>Fair         </color> <color:o>Fair         </color> 
                   <color:w>Searching     Perception    Melee         Bows         </color>
 Axes              <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>
 Bows              <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color> <color:g>Superb       </color>
-Clubs             <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
+Clubs             <color:R>Poor         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:o>Fair         </color>
 Crossbows         <color:o>Fair         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:g>Superb       </color>
 Daggers           <color:y>Good         </color> <color:o>Fair         </color> <color:y>Very Good    </color> <color:G>Excellent    </color>
 Polearms          <color:R>Poor         </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:r>Bad          </color>
@@ -206,4 +206,4 @@ Diggers           <color:R>Poor         </color> <color:r>Bad          </color> 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.7.</color>
+<color:s>Automatically generated for PosChengband 7.0.0.</color>

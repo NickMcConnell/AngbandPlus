@@ -64,38 +64,18 @@ static void _do_breathe(int effect, int dir, int dam)
 
 cptr gf_name(int which)
 {
+    gf_info_ptr gf;
     switch (which)
     {
-    case GF_FIRE: return "fire";
-    case GF_ACID: return "acid";
-    case GF_COLD: return "cold";
-    case GF_ELEC: return "lightning";
-    case GF_POIS: return "poison";
-    case GF_LITE: return "light";
-    case GF_DARK: return "dark";
-    case GF_CONFUSION: return "confusion";
-    case GF_NETHER: return "nether";
-    case GF_NEXUS: return "nexus";
-    case GF_SOUND: return "sound";
-    case GF_SHARDS: return "shards";
-    case GF_CHAOS: return "chaos";
-    case GF_DISENCHANT: return "disenchantment";
-    case GF_TIME: return "time";
-    case GF_MANA: return "mana";
-    case GF_GRAVITY: return "gravity";
-    case GF_INERT: return "inerta";
-    case GF_PLASMA: return "plasma";
-    case GF_FORCE: return "force";
-    case GF_NUKE: return "nuke";
-    case GF_DISINTEGRATE: return "disintegration";
-    case GF_STORM: return "storm";
-    case GF_HOLY_FIRE: return "holy fire";
-    case GF_ELDRITCH_HOWL: return "fear";
-    case GF_ANIM_DEAD: return "reanimation";
-    case GF_OLD_DRAIN: return "vampirism";
-    case GF_HELL_FIRE: return "hell fire";
-    case GF_GENOCIDE: return "death";
+    case GF_ELDRITCH_HOWL: return "<color:R>Fear</color>";
+    case GF_ANIM_DEAD: return "<color:D>Reanimation</color>";
+    case GF_OLD_DRAIN: return "<color:D>Vampirism</color>";
+    case GF_GENOCIDE: return "<color:D>Death</color>";
+    case GF_OLD_POLY: return "<color:v>Change</color>";
     }
+    gf = gf_lookup(which);
+    if (gf)
+        return format("<color:%c>%s</color>", attr_to_attr_char(gf->color), gf->name);
     return "something";
 }
 
@@ -121,7 +101,7 @@ static void _effect_menu_fn(int cmd, int which, vptr cookie, variant *res)
     switch (cmd)
     {
     case MENU_TEXT:
-        var_set_string(res, format("%^s", gf_name(idx)));
+        var_set_string(res, format("%s", gf_name(idx)));
         break;
     }
 }
@@ -853,7 +833,7 @@ static void _star_ball_spell(int cmd, variant *res)
                 if (!player_bold(y, x)) break;
             }
             project(0, 3, y, x, dam, e,
-                (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+                (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
         }
         var_set_bool(res, TRUE);
         break;
@@ -1984,7 +1964,7 @@ static void _realm_calc_bonuses(void)
         if (p_ptr->lev >= 20)
             p_ptr->sustain_chr = TRUE;
         if (p_ptr->lev >= 25)
-            p_ptr->hold_life = TRUE;
+            p_ptr->hold_life++;
         if (p_ptr->lev >= 30)
             p_ptr->no_cut = TRUE;
         if (p_ptr->lev >= 35)
@@ -2000,7 +1980,7 @@ static void _realm_calc_bonuses(void)
     case DRAGON_REALM_CRUSADE:
         p_ptr->align += 200;
         if (p_ptr->lev >= 15)
-            p_ptr->hold_life = TRUE;
+            p_ptr->hold_life++;
         if (p_ptr->lev >= 30)
             res_add(RES_FEAR);
         break;
@@ -2074,8 +2054,8 @@ static void _dragon_calc_bonuses(void)
     p_ptr->levitation = TRUE;
     if (p_ptr->lev >= 20)
     {
-        p_ptr->free_act = TRUE;
-        p_ptr->see_inv = TRUE;
+        p_ptr->free_act++;
+        p_ptr->see_inv++;
     }
     if (p_ptr->lev >= 30)
     {
@@ -2188,7 +2168,7 @@ static void _wing_storm_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         msg_print("You bring your wings down powerfully!");
-        project(0, 5, py, px, randint1(p_ptr->lev * 3), GF_STORM, PROJECT_KILL | PROJECT_ITEM, -1);
+        project(0, 5, py, px, randint1(p_ptr->lev * 3), GF_STORM, PROJECT_KILL | PROJECT_ITEM);
         var_set_bool(res, TRUE);
         break;
     default:

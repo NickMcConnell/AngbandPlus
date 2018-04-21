@@ -463,7 +463,7 @@ void teleport_player(int dis, u32b mode)
                  * The latter limitation is to avoid
                  * totally unkillable suckers...
                  */
-                if ((r_ptr->flags6 & RF6_TPORT) &&
+                if (mon_race_can_teleport(r_ptr) &&
                     !(r_ptr->flagsr & RFR_RES_TELE))
                 {
                     if (!MON_CSLEEP(m_ptr)) teleport_monster_to(tmp_m_idx, py, px, r_ptr->level, 0L);
@@ -504,7 +504,7 @@ void teleport_player_away(int m_idx, int dis)
                  * The latter limitation is to avoid
                  * totally unkillable suckers...
                  */
-                if ((r_ptr->flags6 & RF6_TPORT) &&
+                if (mon_race_can_teleport(r_ptr) &&
                     !(r_ptr->flagsr & RFR_RES_TELE))
                 {
                     if (!MON_CSLEEP(m_ptr)) teleport_monster_to(tmp_m_idx, py, px, r_ptr->level, 0L);
@@ -597,7 +597,7 @@ void teleport_away_followable(int m_idx)
     {
         bool follow = FALSE;
 
-        if (mut_present(MUT_TELEPORT) || (p_ptr->pclass == CLASS_IMITATOR)) follow = TRUE;
+        if (mut_present(MUT_TELEPORT)) follow = TRUE;
         else if (p_ptr->pclass == CLASS_DUELIST
               && p_ptr->duelist_target_idx == m_idx
               && p_ptr->lev >= 30 )
@@ -658,7 +658,7 @@ void teleport_level(int m_idx)
         /* Get the monster name (or "it") */
         monster_desc(m_name, m_ptr, 0);
 
-        see_m = is_seen(m_ptr);
+        see_m = mon_show_msg(m_ptr);
     }
 
     /* No effect in some case */
@@ -1140,7 +1140,7 @@ void apply_nexus(monster_type *m_ptr)
 
         case 7:
         {
-            if (randint0(100) < p_ptr->skills.sav)
+            if (randint0(100) < p_ptr->skills.sav || res_save_default(RES_NEXUS))
             {
                 msg_print("You resist the effects!");
                 break;
@@ -1497,7 +1497,7 @@ void call_the_(void)
                 msg_print("The dungeon trembles.");
         }
 
-        take_hit(DAMAGE_NOESCAPE, 100 + randint1(150), "a suicidal Call the Void", -1);
+        take_hit(DAMAGE_NOESCAPE, 100 + randint1(150), "a suicidal Call the Void");
     }
 }
 
@@ -2500,7 +2500,7 @@ bool recharge_from_player(int power)
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
     }
     else if (p_ptr->pclass == CLASS_BLOOD_MAGE)
-        take_hit(DAMAGE_NOESCAPE, amt, "recharging", -1);
+        take_hit(DAMAGE_NOESCAPE, amt, "recharging");
     else
         sp_player(-amt);
 
@@ -2922,7 +2922,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
     }
 
     (void)project(who, radius, y, x, dam, dt,
-        (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL), -1);
+        (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
 
     /* XXX  those potions that explode need to become "known" */
     return angry;
@@ -3077,7 +3077,7 @@ s16b spell_chance(int spell, int use_realm)
     chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
     /* Reduce failure rate by INT/WIS adjustment */
-    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[caster_ptr->which_stat]] - 1);
 
     if (p_ptr->riding)
         chance += MAX(r_info[m_list[p_ptr->riding].r_idx].level - skills_riding_current() / 100 - 10, 0);
@@ -3105,16 +3105,15 @@ s16b spell_chance(int spell, int use_realm)
     }
 
     /* Extract the minimum failure rate */
-    minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+    minfail = adj_mag_fail[p_ptr->stat_ind[caster_ptr->which_stat]];
 
     /*
      * Non mage/priest characters never get too good
      * (added high mage, mindcrafter)
      */
-    if (mp_ptr->spell_xtra & MAGIC_FAIL_5PERCENT)
-    {
-        if (minfail < 5) minfail = 5;
-    }
+    if (caster_ptr && minfail < caster_ptr->min_fail)
+        minfail = caster_ptr->min_fail;
+
     if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA && minfail > 0)
         minfail -= 1;
 
@@ -3129,8 +3128,8 @@ s16b spell_chance(int spell, int use_realm)
     if (chance < minfail) chance = minfail;
 
     /* Stunning makes spells harder */
-    if (p_ptr->stun > 50) chance += 25;
-    else if (p_ptr->stun) chance += 15;
+    if (p_ptr->stun)
+        chance += 50 * p_ptr->stun / 100;
 
     /* Always a 5 percent chance of working */
     if (chance > 95) chance = 95;
@@ -3718,7 +3717,8 @@ static int minus_ac(void)
         }
         if (have_flag(flgs, OF_IGNORE_ACID))
         {
-            msg_format("Your %s is unaffected!", o_name);
+            if (disturb_minor)
+                msg_format("Your %s is unaffected!", o_name);
             obj_learn_flag(o_ptr, OF_IGNORE_ACID);
             return TRUE;
         }
@@ -3742,7 +3742,7 @@ static int _inv_dam_pct(int dam)
     return (dam < 30) ? 3 : (dam < 60) ? 6 : 9;
 }
 
-int acid_dam(int dam, cptr kb_str, int monspell)
+int acid_dam(int dam, cptr kb_str)
 {
     int get_damage;
     int inv = _inv_dam_pct(dam);
@@ -3750,11 +3750,7 @@ int acid_dam(int dam, cptr kb_str, int monspell)
     dam = res_calc_dam(RES_ACID, dam);
 
     /* Total Immunity */
-    if (dam <= 0)
-    {
-        learn_spell(monspell);
-        return 0;
-    }
+    if (dam <= 0) return 0;
 
     if (!CHECK_MULTISHADOW())
     {
@@ -3766,7 +3762,7 @@ int acid_dam(int dam, cptr kb_str, int monspell)
     }
 
     /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
 
     /* Inventory damage */
     inven_damage(set_acid_destroy, inv, RES_ACID);
@@ -3778,7 +3774,7 @@ int acid_dam(int dam, cptr kb_str, int monspell)
 /*
  * Hurt the player with electricity
  */
-int elec_dam(int dam, cptr kb_str, int monspell)
+int elec_dam(int dam, cptr kb_str)
 {
     int get_damage;
     int inv = _inv_dam_pct(dam);
@@ -3786,11 +3782,7 @@ int elec_dam(int dam, cptr kb_str, int monspell)
     dam = res_calc_dam(RES_ELEC, dam);
 
     /* Total immunity */
-    if (dam <= 0)
-    {
-        learn_spell(monspell);
-        return 0;
-    }
+    if (dam <= 0) return 0;
 
     if (!CHECK_MULTISHADOW())
     {
@@ -3799,7 +3791,7 @@ int elec_dam(int dam, cptr kb_str, int monspell)
     }
 
     /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
 
     /* Inventory damage */
     inven_damage(set_elec_destroy, inv, RES_ELEC);
@@ -3811,7 +3803,7 @@ int elec_dam(int dam, cptr kb_str, int monspell)
 /*
  * Hurt the player with Fire
  */
-int fire_dam(int dam, cptr kb_str, int monspell)
+int fire_dam(int dam, cptr kb_str)
 {
     int get_damage;
     int inv = _inv_dam_pct(dam);
@@ -3819,11 +3811,7 @@ int fire_dam(int dam, cptr kb_str, int monspell)
     dam = res_calc_dam(RES_FIRE, dam);
 
     /* Totally immune */
-    if (dam <= 0)
-    {
-        learn_spell(monspell);
-        return 0;
-    }
+    if (dam <= 0) return 0;
 
     if (!CHECK_MULTISHADOW())
     {
@@ -3832,7 +3820,7 @@ int fire_dam(int dam, cptr kb_str, int monspell)
     }
 
     /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
 
     /* Inventory damage */
     inven_damage(set_fire_destroy, inv, RES_FIRE);
@@ -3844,7 +3832,7 @@ int fire_dam(int dam, cptr kb_str, int monspell)
 /*
  * Hurt the player with Cold
  */
-int cold_dam(int dam, cptr kb_str, int monspell)
+int cold_dam(int dam, cptr kb_str)
 {
     int get_damage;
     int inv = _inv_dam_pct(dam);
@@ -3852,11 +3840,7 @@ int cold_dam(int dam, cptr kb_str, int monspell)
     dam = res_calc_dam(RES_COLD, dam);
 
     /* Total immunity */
-    if (dam <= 0)
-    {
-        learn_spell(monspell);
-        return 0;
-    }
+    if (dam <= 0) return 0;
 
     if (!CHECK_MULTISHADOW())
     {
@@ -3865,7 +3849,7 @@ int cold_dam(int dam, cptr kb_str, int monspell)
     }
 
     /* Take damage */
-    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+    get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str);
 
     /* Inventory damage */
     inven_damage(set_cold_destroy, inv, RES_COLD);
@@ -4080,15 +4064,14 @@ static s16b poly_r_idx(int r_idx)
 }
 
 
-bool polymorph_monster(int y, int x)
+bool polymorph_monster(mon_ptr mon)
 {
-    cave_type    *c_ptr = &cave[y][x];
-    monster_type *m_ptr = &m_list[c_ptr->m_idx];
-    int           r_idx = poly_r_idx(m_ptr->r_idx);
+    int r_idx;
 
-    if (m_ptr->mflag2 & MFLAG2_QUESTOR) return FALSE;
-    if (r_idx != m_ptr->r_idx || p_ptr->wizard)
-        mon_change_race(c_ptr->m_idx, r_idx, "polymorphed");
+    if (mon->mflag2 & MFLAG2_QUESTOR) return FALSE;
+    r_idx = poly_r_idx(mon->r_idx);
+    if (r_idx != mon->r_idx || p_ptr->wizard)
+        mon_change_race(mon, r_idx, "polymorphed");
     return TRUE;
 }
 

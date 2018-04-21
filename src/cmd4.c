@@ -349,6 +349,7 @@ cptr get_ordinal_number_suffix(int num)
  * selecting various things, such as graphics mode, so it must call
  * the "TERM_XTRA_REACT" hook before redrawing the windows.
  */
+bool redraw_hack;
 void do_cmd_redraw(void)
 {
     int j;
@@ -391,8 +392,10 @@ void do_cmd_redraw(void)
 
     update_playtime();
 
-    /* Hack -- update */
+    /* Prevent spamming ^R to circumvent fuzzy detection */
+    redraw_hack = TRUE;
     handle_stuff();
+    redraw_hack = FALSE;
 
     if (p_ptr->prace == RACE_ANDROID) android_calc_exp();
 
@@ -3550,7 +3553,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
 
     /* Check every race */
-    for (i = 0; i < max_r_idx; i++)
+    for (i = 1; i < max_r_idx; i++)
     {
         /* Access the race */
         monster_race *r_ptr = &r_info[i];
@@ -4043,11 +4046,13 @@ static void do_cmd_knowledge_artifacts(void)
 
     if (random_artifacts)
     {
+        /* FIXED_ART ... 
         if (random_artifact_pct >= 100)
         {
             cmsg_print(TERM_L_RED, "You won't find any fixed artifacts this game.");
             return;
         }
+        */
     }
     else if (no_artifacts)
     {
@@ -6849,10 +6854,10 @@ static void do_cmd_knowledge_kubi(void)
 
         for (i = 0; i < MAX_KUBI; i++)
         {
-            if (kubi_r_idx[i] <= 10000)
+            int id = kubi_r_idx[i];
+            if (0 < id && id < 10000)
             {
-                fprintf(fff,"%s\n", r_name + r_info[kubi_r_idx[i]].name);
-
+                fprintf(fff,"%s\n", r_name + r_info[id].name);
                 listed = TRUE;
             }
         }
@@ -7084,6 +7089,7 @@ void do_cmd_knowledge(void)
             prt("(v) Virtues", row++, col);
         if (class_ptr->character_dump || race_ptr->character_dump)
             prt("(x) Extra info", row++, col);
+        prt("(H) High Score List", row++, col);
         row++;
 
         c_prt(TERM_RED, "Skills", row++, col - 2);
@@ -7182,6 +7188,14 @@ void do_cmd_knowledge(void)
             else
                 bell();
             break;
+        case 'H': {
+            vec_ptr scores;
+            if (check_score())
+                scores_update();
+            scores = scores_load(NULL);
+            scores_display(scores);
+            vec_free(scores);
+            break; }
 
         /* Skills */
         case 'P':

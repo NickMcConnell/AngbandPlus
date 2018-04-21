@@ -269,7 +269,7 @@ static void _focus_rage_spell(int cmd, variant *res)
     case SPELL_FAIL:
     {
         int hp = 10 + p_ptr->lev/2;
-        take_hit(DAMAGE_NOESCAPE, hp, "Rage", -1);
+        take_hit(DAMAGE_NOESCAPE, hp, "Rage");
         break;
     }
     case SPELL_CAST:
@@ -283,7 +283,7 @@ static void _focus_rage_spell(int cmd, variant *res)
             if (!get_check("Really? This will kill you!")) return;
         }
 
-        take_hit(DAMAGE_NOESCAPE, hp, "Rage", -1);
+        take_hit(DAMAGE_NOESCAPE, hp, "Rage");
         sp_player(hp);
 
         _unclear_mind = FALSE; /* Hack to avoid automatic mana drain for this action */
@@ -342,7 +342,7 @@ static void _greater_focus_rage_spell(int cmd, variant *res)
         int hp = 10 + p_ptr->lev;
         if (p_ptr->shero)
             hp = 2 * p_ptr->lev;
-        take_hit(DAMAGE_NOESCAPE, hp, "Rage", -1);
+        take_hit(DAMAGE_NOESCAPE, hp, "Rage");
         break;
     }
     case SPELL_CAST:
@@ -359,7 +359,7 @@ static void _greater_focus_rage_spell(int cmd, variant *res)
             if (!get_check("Really? This will kill you!")) return;
         }
 
-        take_hit(DAMAGE_NOESCAPE, hp, "Rage", -1);
+        take_hit(DAMAGE_NOESCAPE, hp, "Rage");
         sp_player(hp * 2);
 
         _unclear_mind = FALSE; /* Hack to avoid automatic mana drain for this action */
@@ -461,7 +461,7 @@ static void _rage_strike_spell(int cmd, variant *res)
         if (!get_fire_dir(&dir)) return;
 
         fire_ball(GF_MISSILE, dir, _rage_strike_dam(), 0);
-        take_hit(DAMAGE_NOESCAPE, 100, "Rage", -1);
+        take_hit(DAMAGE_NOESCAPE, 100, "Rage");
         if (!p_ptr->shero)
             set_stun(99, FALSE); /* 100 is Knocked Out */
 
@@ -674,6 +674,7 @@ static void _shatter_device_spell(int cmd, variant *res)
         {
             msg_print("You feel life flow through your body!");
             restore_level();
+            lp_player(1000);
             (void)set_poisoned(0, TRUE);
             (void)set_blind(0, TRUE);
             (void)set_confused(0, TRUE);
@@ -700,7 +701,7 @@ static void _shatter_device_spell(int cmd, variant *res)
             project(0, 5, py, px,
                 prompt.obj->activation.difficulty * 16,
                 _object_dam_type(prompt.obj),
-                PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+                PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
         }
         prompt.obj->number--;
         obj_release(prompt.obj, 0);
@@ -771,7 +772,7 @@ static void _smash_spell(int cmd, variant *res)
         else
         {
             int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-            project(0, 0, y, x, 0, GF_KILL_DOOR, flg, -1);
+            project(0, 0, y, x, 0, GF_KILL_DOOR, flg);
         }
         var_set_bool(res, TRUE);
         break;

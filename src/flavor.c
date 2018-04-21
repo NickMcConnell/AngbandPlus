@@ -1751,31 +1751,31 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     case TV_POLEARM:
     case TV_SWORD:
     case TV_DIGGING:
-    {
-        int hand = equip_which_hand(o_ptr);
-        int dd = o_ptr->dd;
-        int ds = o_ptr->ds;
-
-        if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
-            ds += 2;
-
-        if (hand >= 0 && hand < MAX_HANDS && !(mode & OD_THROWING))
+        if (known)
         {
-            dd += p_ptr->weapon_info[hand].to_dd;
-            ds += p_ptr->weapon_info[hand].to_ds;
+            int hand = equip_which_hand(o_ptr);
+            int dd = o_ptr->dd;
+            int ds = o_ptr->ds;
+
+            if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
+                ds += 2;
+
+            if (hand >= 0 && hand < MAX_HANDS && !(mode & OD_THROWING))
+            {
+                dd += p_ptr->weapon_info[hand].to_dd;
+                ds += p_ptr->weapon_info[hand].to_ds;
+            }
+
+            /* Append a "damage" string */
+            t = object_desc_chr(t, ' ');
+            t = object_desc_chr(t, p1);
+            t = object_desc_num(t, dd);
+            t = object_desc_chr(t, 'd');
+            t = object_desc_num(t, ds);
+            t = object_desc_chr(t, p2);
         }
-
-        /* Append a "damage" string */
-        t = object_desc_chr(t, ' ');
-        t = object_desc_chr(t, p1);
-        t = object_desc_num(t, dd);
-        t = object_desc_chr(t, 'd');
-        t = object_desc_num(t, ds);
-        t = object_desc_chr(t, p2);
-
         /* All done */
         break;
-    }
     /* Bows get a special "damage string" */
     case TV_BOW:
     {
@@ -1784,6 +1784,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         if (o_ptr->sval == SV_HARP) break;
         if (o_ptr->sval == SV_CRIMSON) break;
         if (o_ptr->sval == SV_RAILGUN) break;
+        if (!known) break;
 
         /* Mega-Hack -- Extract the "base power" */
         power = o_ptr->mult;
@@ -1906,14 +1907,14 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         }
     }
 
-    /* Hack -- always show base armor */
+    /* Hack -- always show base armor
     else if (show_armour)
     {
         t = object_desc_chr(t, ' ');
         t = object_desc_chr(t, b1);
         t = object_desc_num(t, o_ptr->ac);
         t = object_desc_chr(t, b2);
-    }
+    } */
 
     if (o_ptr->rune)
     {

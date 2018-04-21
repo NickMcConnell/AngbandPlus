@@ -189,10 +189,9 @@ static void _illusion_light_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         slow_monsters(power);
-        stun_monsters(power);
+        stun_monsters(5 + p_ptr->lev/5);
         confuse_monsters(power);
         turn_monsters(power);
-        stun_monsters(power);
         stasis_monsters(power);
         var_set_bool(res, TRUE);
         break;
@@ -460,8 +459,8 @@ static void _mirror_shifting_spell(int cmd, variant *res)
 
 static void _mirror_sleeping_fn(int y, int x)
 {
-    project(0, 2, y, x, p_ptr->lev, GF_OLD_SLEEP, 
-        PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI, -1);
+    project(PROJECT_WHO_MIRROR, 2, y, x, p_ptr->lev, GF_OLD_SLEEP, 
+        PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
 }
 static void _mirror_sleeping_spell(int cmd, variant *res)
 {
@@ -805,7 +804,7 @@ static void _on_fail(const spell_info *spell)
             msg_print("Your mind unleashes its power in an uncontrollable storm!");
 
             project(PROJECT_WHO_UNCTRL_POWER, 2 + p_ptr->lev / 10, py, px, p_ptr->lev * 2,
-                GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, -1);
+                GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM);
             p_ptr->csp = MAX(0, p_ptr->csp - p_ptr->lev * MAX(1, p_ptr->lev / 10));
         }
     }
@@ -921,8 +920,8 @@ void remove_mirror(int y, int x)
 static void _explode_fn(int y, int x)
 {
     remove_mirror(y, x);
-    project(0, 2, y, x, p_ptr->lev / 2 + 5, GF_SHARDS,
-            PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI, -1);
+    project(PROJECT_WHO_MIRROR, 2, y, x, p_ptr->lev / 2 + 5, GF_SHARDS,
+            PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
 }
 void remove_all_mirrors(bool explode)
 {

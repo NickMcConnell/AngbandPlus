@@ -285,13 +285,8 @@ void virtue_init(void)
         p_ptr->vir_types[i++] = VIRTUE_ENLIGHTENMENT;
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
         break;
-    case CLASS_IMITATOR:
     case CLASS_WILD_TALENT:
         p_ptr->vir_types[i++] = VIRTUE_CHANCE;
-        break;
-    case CLASS_BLUE_MAGE:
-        p_ptr->vir_types[i++] = VIRTUE_CHANCE;
-        p_ptr->vir_types[i++] = VIRTUE_KNOWLEDGE;
         break;
     case CLASS_BEASTMASTER:
         p_ptr->vir_types[i++] = VIRTUE_NATURE;
