@@ -1130,6 +1130,7 @@ extern void object_prep(object_type *o_ptr, int k_idx);
 extern void object_copy(object_type *o_ptr, object_type *j_ptr);
 extern void apply_magic(object_type *o_ptr, int lev, u32b mode);
 extern int  apply_magic_ego;
+extern void choose_obj_kind(int mode); /* Hack for BM to use new object tval frequencies */
 extern bool make_object(object_type *j_ptr, u32b mode);
 extern bool kind_is_device(int k_idx);
 extern bool kind_is_jewelry(int k_idx);

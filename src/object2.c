@@ -4972,9 +4972,12 @@ static bool kind_is_tailored(int k_idx)
     case TV_HELM:
     case TV_CROWN:
     case TV_BOW:
+        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
+
     case TV_RING:
     case TV_AMULET:
-        return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
+        if (p_ptr->prace == RACE_MON_RING) return TRUE;
+        else return equip_can_wield_kind(k_ptr->tval, k_ptr->sval);
 
     case TV_SWORD:
     case TV_HAFTED:
@@ -5352,6 +5355,10 @@ static int _kind_alloc_weight(_kind_alloc_entry *entry, u32b mode)
         w += entry->great;
     else if (mode & AM_GOOD)
         w += entry->good;
+
+    if (p_ptr->prace == RACE_MON_RING && entry->hook == kind_is_jewelry)
+        w = w * 2;
+
     return MAX(0, w);
 }
 static _kind_p _choose_obj_kind(u32b mode)
@@ -5390,6 +5397,12 @@ static _kind_p _choose_obj_kind(u32b mode)
     }
 
     return _kind_hook;
+}
+
+void choose_obj_kind(int mode)
+{
+    if (!get_obj_num_hook)
+        get_obj_num_hook = _choose_obj_kind(mode);
 }
 
 /*

@@ -3750,7 +3750,7 @@ void process_monsters(void)
         {
             if (p_ptr->prace != RACE_MON_RING)
                 m_ptr->mflag2 |= MFLAG2_AWARE;
-            else if (p_ptr->riding && player_has_los_bold(fy, fx))
+            else if (p_ptr->riding && player_has_los_bold(fy, fx) && !MON_CSLEEP(m_ptr))
             {
                 /* Player has a ring bearer, which this monster can see */
                 m_ptr->mflag2 |= MFLAG2_AWARE;

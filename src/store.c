@@ -1848,7 +1848,7 @@ static bool _get_store_obj2(object_type *o_ptr)
 {
     int level1 = 20; /* Level of get_obj_num ... Second books are L20 */
     int level2 = rand_range(1, STORE_OBJ_LEVEL); /* Level of apply_magic */
-    int k_idx;
+    int k_idx = 0;
     switch (cur_store_num)
     {
     case STORE_GENERAL:
@@ -1874,6 +1874,7 @@ static bool _get_store_obj2(object_type *o_ptr)
         get_obj_num_hook = _book_accept;
         break;
     case STORE_BLACK:
+        choose_obj_kind(0);
         level1 = 25 + randint0(25);
         level2 = 25 + randint0(25);
         break;
@@ -1895,7 +1896,8 @@ static bool _get_store_obj2(object_type *o_ptr)
     {
         k_idx = lookup_kind(TV_CAPTURE, 0);
     }
-    else
+    
+    if (!k_idx)
     {    
         if (get_obj_num_hook) get_obj_num_prep();
         k_idx = get_obj_num(level1);
@@ -1905,6 +1907,8 @@ static bool _get_store_obj2(object_type *o_ptr)
             get_obj_num_prep();
         }
     }
+    else
+        get_obj_num_hook = NULL;
     
     object_prep(o_ptr, k_idx);
     apply_magic(o_ptr, level2, AM_NO_FIXED_ART);

@@ -19,8 +19,6 @@ static int _count(int list[])
 
 static int _random(int list[])
 {
-    if (spoiler_hack)
-        return list[0];
     return list[randint0(_count(list))];
 }
 
@@ -564,7 +562,7 @@ static void _detect_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        int rng = DETECT_RAD_DEFAULT;
+        int rng = DETECT_RAD_ALL;
         int i, y, x;
         bool detect = FALSE;
 
@@ -1759,7 +1757,8 @@ bool ring_dominate_m(int m_idx)
 void ring_process_m(int m_idx)
 {
     if ( p_ptr->prace == RACE_MON_RING 
-      && p_ptr->riding == m_idx )
+      && p_ptr->riding == m_idx 
+      && !p_ptr->wild_mode )
     {
         monster_type *m_ptr = &m_list[m_idx];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
