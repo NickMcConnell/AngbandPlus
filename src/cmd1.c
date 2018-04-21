@@ -175,8 +175,6 @@ void drop_iron_crown(monster_type *m_ptr, const char *msg)
 	
 	if ((&a_info[ART_MORGOTH_3])->cur_num == 0)
 	{
-		object_type *o_ptr;
-
 		msg_print(msg);
 		
 		// choose a nearby location, but not his own square
@@ -190,8 +188,6 @@ void drop_iron_crown(monster_type *m_ptr, const char *msg)
 		
 		// drop it there
 		create_chosen_artefact(ART_MORGOTH_3, near_y, near_x, TRUE);
-		o_ptr = &o_list[cave_o_idx[near_y][near_x]];
-		o_ptr->xtra1 = FIRST_SILMARIL | SECOND_SILMARIL | THIRD_SILMARIL;
 		
 		// lower Morgoth's protection, remove his light source, increase his will and perception and evasion
 		(&r_info[R_IDX_MORGOTH])->pd -= 1;
@@ -844,7 +840,7 @@ int crit_bonus(int hit_result, int weight, const monster_race *r_ptr, int skill_
 			
 		// Can have improved criticals for melee with one handed weapons
 		if ((skill_type == S_MEL) && p_ptr->active_ability[S_MEL][MEL_CONTROL] &&
-			!thrown && !two_handed_melee() && !inventory[INVEN_ARM].k_idx)					crit_seperation -= 20;
+			!thrown && !two_handed_melee() && !inventory[INVEN_ARM].k_idx)					crit_seperation -= 30;
 		
 		// Can have inferior criticals for melee
 		if ((skill_type == S_MEL) && p_ptr->active_ability[S_MEL][MEL_POWER])				crit_seperation += 10;
@@ -993,6 +989,12 @@ extern void ident_on_wield(object_type *o_ptr)
 
     // identify true sight if it cures blindness
 	if (p_ptr->blind && (f2 & (TR2_SEE_INVIS)))
+	{
+		notice = TRUE;
+	}
+
+	// Currently tunneling is an unambiguous ego on mattocks, so auto-ID
+	if (f1 & TR1_TUNNEL)
 	{
 		notice = TRUE;
 	}
@@ -1260,6 +1262,14 @@ extern void ident_on_wield(object_type *o_ptr)
 			notice = TRUE;
 			msg_print("You feel a loss of inspiration.");
 		}
+	}
+
+	// identify the item types that grant abilities
+	else if (k_ptr->abilities > 0)
+	{
+		notice = TRUE;
+		msg_format("You have gained the ability '%s'.", 
+			   b_name + (&b_info[ability_index(k_ptr->skilltype[0], k_ptr->abilitynum[0])])->name);
 	}
 
 	// identify the special item types that grant abilities
@@ -2536,6 +2546,7 @@ void py_pickup(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+	bool done_pickup = FALSE;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -2595,8 +2606,15 @@ void py_pickup(void)
         
 		/* Pick up the object */
 		py_pickup_aux(this_o_idx);
+
+		done_pickup = TRUE;
 	}
 
+	if (!done_pickup)
+	{
+		p_ptr->previous_action[0] = ACTION_NOTHING;
+		p_ptr->energy_use = 0;
+	}
 }
 
 
@@ -5244,7 +5262,15 @@ static bool run_test(void)
 		{
 			/* Primary option */
 			p_ptr->run_cur_dir = option;
-			
+
+			/* Stop in the doorway of a room */
+			row = py + 2*ddy[option];
+			col = px + 2*ddx[option];
+			if ((cave_info[row][col] & CAVE_MARK) && !cave_wall_bold(row,col))
+			{
+				return (TRUE);
+			}
+
 			/* Hack -- allow curving */
 			p_ptr->run_old_dir = option2;
 		}

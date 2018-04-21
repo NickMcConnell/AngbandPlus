@@ -1438,6 +1438,7 @@ bool make_attack_normal(monster_type *m_ptr)
 
 			if (net_dam > 0 && p_ptr->active_ability[S_WIL][WIL_VENGEANCE])
 			{
+				msg_print("You feel vengeful!");
 				p_ptr->vengeance = 1;
 			}
 
@@ -1578,13 +1579,13 @@ bool make_attack_normal(monster_type *m_ptr)
 
 					// Extra earthquakes as more damaged
 					// (really for Morgoth, who has more
-					// health to lose) - binomial
+					// health to lose) - dice
 					// distribution means low probabilty
 					// at first, gradually increasing
-					quake_anyway = damage > damroll(2, 1000);
+					quake_anyway = damage > damroll(20, 50);
 
 					// deal with earthquakes if they miss you by 1 or 2 or 3 points
-					if (((effect == RBE_SHATTER) && (hit_result > -3)) || quake_anyway)
+					if ((effect == RBE_SHATTER) && ((hit_result > -3) || quake_anyway))
 					{
 						/* Message */
 						msg_format("%^s just misses you.", m_name);

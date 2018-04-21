@@ -34,8 +34,8 @@ int challenge_check(monster_type *m_ptr)
 		(r_ptr->flags3 & (RF3_NO_CONF)) ||
 		m_ptr->r_idx == R_IDX_MORGOTH) return 0;
 
-	// Adjust to work best against low-will monsters.
-	resistance = (resistance * resistance) / 5;
+	// Adjust to work best against lower-will monsters.
+	resistance = (resistance * resistance) / 7;
 
 	// adjust difficulty by the distance to the monster
 	return skill_check(PLAYER, challenge, resistance + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx), m_ptr);
@@ -4564,25 +4564,30 @@ static void process_monster(monster_type *m_ptr)
 	// Sil-y: but this might be irrelevant as he can be unwary...
 	if ((m_ptr->r_idx == R_IDX_MORGOTH) && p_ptr->on_the_run) m_ptr->mflag |= (MFLAG_ACTV);
 
-	if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_BADLY_WOUNDED &&
+	if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_WOUNDED &&
 		p_ptr->morgoth_state < 1)
 	{
 		msg_print("Morgoth grows angry.");
 		message_flush();
-
-		p_ptr->morgoth_state++;
-		(&r_info[R_IDX_MORGOTH])->evn += 4;
-		(&r_info[R_IDX_MORGOTH])->blow[0].att += 6;
+		p_ptr->morgoth_state = 1;
+		anger_morgoth();
 	}
-	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_ALMOST_DEAD &&
+	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_BADLY_WOUNDED &&
 		p_ptr->morgoth_state < 2)
 	{
-		msg_print("Morgoth grows desperate!");
+		msg_print("Morgoth grows more angry.");
 		message_flush();
-
-		p_ptr->morgoth_state++;
-		(&r_info[R_IDX_MORGOTH])->evn += 4;
-		(&r_info[R_IDX_MORGOTH])->blow[0].att += 6;
+		p_ptr->morgoth_state = 2;
+		anger_morgoth();
+	}
+	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_ALMOST_DEAD &&
+		p_ptr->morgoth_state < 3)
+	{
+		msg_print("Morgoth grows desperate.");
+		message_flush();
+		p_ptr->morgoth_state = 3;
+		anger_morgoth();
+		anger_morgoth();
 	}
 
 	// Pursuing creatures are always active at the Gates

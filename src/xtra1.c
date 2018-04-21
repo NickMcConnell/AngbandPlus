@@ -1915,7 +1915,7 @@ int ability_bonus(int skilltype, int abilitynum)
 			}
 			case SNG_DELVINGS:
 			{
-				bonus = skill * 3;
+				bonus = skill;
 				break;
 			}
 			case SNG_MASTERY:
@@ -2499,8 +2499,11 @@ static void calc_bonuses(void)
 	if (p_ptr->pspeed < 1) p_ptr->pspeed = 1;
 	if (p_ptr->pspeed > 3) p_ptr->pspeed = 3;
 	
-	// Increase food consumption if regenerating
-	if (p_ptr->regenerate) p_ptr->hunger += 1;
+	// Increase food consumption if actively regenerating
+	if (p_ptr->regenerate && (p_ptr->chp < p_ptr->mhp || p_ptr->csp < p_ptr->msp))
+	{
+		p_ptr->hunger += 1;
+	}
 
 	/* armour weight (not inventory weight reduces stealth */
 	/* by 1 point per 10 pounds (rounding down) */
@@ -2600,7 +2603,8 @@ static void calc_bonuses(void)
 		int feat = cave_feat[p_ptr->py][p_ptr->px];
 		if (feat == FEAT_BROKEN || feat == FEAT_OPEN)
 		{
-			p_ptr->skill_misc_mod[S_EVN] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 3;
+			p_ptr->skill_misc_mod[S_EVN] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 4;
+			p_ptr->skill_misc_mod[S_MEL] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 4;
 		}
 	}
 

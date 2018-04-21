@@ -4535,7 +4535,7 @@ void song_of_piercing(monster_type *m_ptr)
     char m_name[80];
     cptr description;
     
-    int song_skill = 20; // Morgoth's song skill. If more monsters get songs I'll put this in monster.txt
+    int song_skill = r_info[m_ptr->r_idx].wil; // Use Will as song skill
 
     /* Get the monster name */
     monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
@@ -5020,7 +5020,6 @@ void sing_song_of_challenge(int score)
 		/* Access the monster */
 		monster_type *m_ptr = &mon_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Ignore dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -5074,7 +5073,7 @@ void sing_song_of_delvings(int score)
 			{
 				for (xx = x - 1; xx <= x + 1; ++xx)
 				{
-					int chance = dieroll(1000);
+					int chance = dieroll(20);
 					if (known_to_delvings(yy, xx) && chance < adjusted_score)
 						neighbour_known = TRUE;
 				}
@@ -5117,6 +5116,32 @@ void sing_song_of_delvings(int score)
 				else
 				{
 					map_feature(y, x);
+				}
+			}
+			if (cave_stair_bold(y,x) || cave_forge_bold(y,x))
+			{
+				// Special case for stairs and forges - if we know a square within
+				// a distance of 5 along an axis, we spot them.
+				int i, j;
+				int start_y = MAX(min_y, y - 5);
+				int end_y = MIN(max_y, y + 5);
+				int start_x = MAX(min_x, x - 5);
+				int end_x = MIN(max_x, x + 5);
+
+				for (j = start_y; j < end_y; ++j)
+				{
+					if (delvings[(j * x_range) + dx] == TRUE)
+					{
+						map_feature(y, x);
+					}
+				}
+
+				for (i = start_x; i < end_x; ++i)
+				{
+					if (delvings[(dy * x_range) + i] == TRUE)
+					{
+						map_feature(y, x);
+					}
 				}
 			}
 		}

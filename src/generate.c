@@ -1830,7 +1830,7 @@ static bool connect_rooms_stairs(void)
     else if (width == 4)    stairs = 2;
     else                    stairs = 4;
 
-	if (p_ptr->on_the_run)
+	if (p_ptr->on_the_run && p_ptr->depth >= 2)
 	{
 		initial_up = FEAT_LESS_SHAFT;
 		stairs *= 2;
@@ -2742,7 +2742,7 @@ static bool build_vault(int y0, int x0, vault_type *v_ptr, bool flip_d)
 /*
  * Type 6 -- least vaults (see "vault.txt")
  */
-static bool build_type6(int y0, int x0)
+static bool build_type6(int y0, int x0, bool force_forge)
 {
 	vault_type *v_ptr;
 	int tries = 0;
@@ -2758,7 +2758,7 @@ static bool build_type6(int y0, int x0)
 		v_ptr = &v_info[rand_int(z_info->v_max)];
 		
 		// if forcing a forge, then skip vaults without forges in them
-		if (p_ptr->force_forge && !v_ptr->forge) continue;
+		if (force_forge && !v_ptr->forge) continue;
         
         // unless forcing a forge, try additional times to place any vault marked TEST
         if ((tries < 1000) && !(v_ptr->flags & (VLT_TEST)) && !p_ptr->force_forge) continue;
@@ -3194,7 +3194,7 @@ static bool room_build(int typ)
 		// Least Vault
 		case 6:
 		{
-			if (!build_type6(y, x))
+			if (!build_type6(y, x, FALSE))
 			{
 				return (FALSE);
 			}
@@ -3345,22 +3345,22 @@ static bool cave_gen(void)
 	// guarantee a forge at 100, 500, 900
 	if ((8 * p_ptr->fixed_forge_count) <= (p_ptr->depth - 2) || p_ptr->fixed_forge_count > p_ptr->forge_count)
 	{
+		int y = rand_range(5, p_ptr->cur_map_hgt - 5);
+		int x = rand_range(5, p_ptr->cur_map_wid - 5);
+		
 		if (cheat_room) msg_format("Trying to force a forge:");
 		p_ptr->force_forge = TRUE;
 		p_ptr->fixed_forge_count++;
-		
-		if (!room_build(6))
-		{
-			p_ptr->fixed_forge_count--;
-			p_ptr->force_forge = FALSE;
 
+		if (!build_type6(y, x, TRUE))
+		{
 			if (cheat_room) msg_format("failed.");
 
+			p_ptr->fixed_forge_count--;
 			return (FALSE);
 		}
 
 		if (cheat_room) msg_format("succeeded.");
-		p_ptr->force_forge = FALSE;
 	}
 	
 	/* Build some rooms */
@@ -3408,6 +3408,7 @@ static bool cave_gen(void)
 	if (dun->cent_n < ROOM_MIN)
 	{
 		if (cheat_room) msg_format("Not enough rooms.");
+		if (p_ptr->force_forge) p_ptr->fixed_forge_count--;
 		return (FALSE);
 	}
 
@@ -3416,6 +3417,7 @@ static bool cave_gen(void)
 	if (!connect_rooms_stairs())
 	{
 		if (cheat_room) msg_format("Couldn't connect the rooms.");
+		if (p_ptr->force_forge) p_ptr->fixed_forge_count--;
 		return (FALSE);
 	}
 	
@@ -3436,6 +3438,7 @@ static bool cave_gen(void)
 	if (!place_rubble_player())
 	{
 		if (cheat_room) msg_format("Couldn't place, rubble, or player.");
+		if (p_ptr->force_forge) p_ptr->fixed_forge_count--;
 		return (FALSE);
 	}
 
@@ -3443,6 +3446,7 @@ static bool cave_gen(void)
 	if (!check_connectivity())
 	{
 		if (cheat_room) msg_format("Failed connectivity.");
+		if (p_ptr->force_forge) p_ptr->fixed_forge_count--;
 		return (FALSE);
 	}
 	
@@ -3496,6 +3500,8 @@ static bool cave_gen(void)
 	{
 		place_item_randomly(TV_SWORD, SV_CURVED_SWORD, TRUE);
 	}
+
+	p_ptr->force_forge = FALSE;
 
 	return (TRUE);
 }

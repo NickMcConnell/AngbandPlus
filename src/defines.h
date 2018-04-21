@@ -996,10 +996,6 @@
 
 #define ART_ULTIMATE		182
 
-// Flags for the Silmarils in the crown
-#define FIRST_SILMARIL		1
-#define SECOND_SILMARIL		2
-#define THIRD_SILMARIL		4
 
 /*
  * Maximum length of artefact names
@@ -1212,7 +1208,7 @@
 #define SV_RING_WARMTH				7
 #define SV_RING_ACCURACY			8
 #define SV_RING_FREE_ACTION			9
-#define SV_RING_ARCHERY				10
+#define SV_RING_COWARDICE			10
 #define SV_RING_TRUE_SIGHT			11
 #define SV_RING_VENOM				12
 #define SV_RING_HUNGER				21

@@ -799,9 +799,6 @@ void object_known(object_type *o_ptr)
 	/* The object is not "sensed" */
 	o_ptr->ident &= ~(IDENT_SENSE);
 
-	/* Clear the "Empty" info */
-	o_ptr->ident &= ~(IDENT_EMPTY);
-
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
 }
@@ -2116,14 +2113,6 @@ static void a_m_aux_3(object_type *o_ptr, int level)
 						o_ptr->ident |= (IDENT_CURSED);
 					}
 
-					break;
-				}
-
-				/* Ring of damage */
-				case SV_RING_ARCHERY:
-				{
-					/* Bonus to archery  */
-					o_ptr->pval = (level + dieroll(10)) / 10 + 1;
 					break;
 				}
 
@@ -4284,7 +4273,7 @@ void place_forge(int y, int x)
 		power = MAX(power, p);
 	}
 
-	uses = damroll(2,2);
+	uses = 2 + damroll(1,2);
 
 	// to prevent start-scumming on the initial forge
 	if (p_ptr->depth <= 2)
