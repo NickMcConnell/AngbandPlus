@@ -6491,6 +6491,9 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
             sp_player(MAX(x, 3 + p_ptr->lev/5));
     }
 
+    if (psion_drain())
+        dam = psion_do_drain(hack_m_spell, dam);
+
     /* If the player is blind, be more descriptive */
     if (blind) fuzzy = TRUE;
 

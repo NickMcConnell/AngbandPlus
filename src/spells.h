@@ -22,6 +22,8 @@ extern void spell_stats_on_learn(spell_info *spell, int max_skill);
 extern void spell_stats_on_cast(spell_info *spell);
 extern void spell_stats_gain_skill(spell_info *spell);
 extern void spell_stats_on_fail(spell_info *spell);
+extern spell_stats_ptr spell_stats_aux(cptr name);
+extern int spell_stats_fail(spell_stats_ptr stats);
 
 extern void spell_stats_on_cast_old(int realm, int spell); /* Deprecated */
 extern void spell_stats_on_fail_old(int realm, int spell); /* Deprecated */

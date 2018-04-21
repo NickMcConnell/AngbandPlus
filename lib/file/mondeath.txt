@@ -35,7 +35,7 @@ N:880:Wong, Master of Time
 shouts, 'This CAN'T be happening!'
 
 N:921:Internet Exploder
-was deleted.
+was deprecated.
 
 N:931:Caldarm the third
 says, 'I desire peace ... for all people... '

@@ -1413,7 +1413,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     int             dam = 0;
     u32b mode = 0L;
     int s_num_6 = (easy_band ? 2 : 6);
-    int s_num_4 = (easy_band ? 1 : 4);
+    int s_num_4 = (easy_band ? 1 : 3);
 
     /* Target location */
     int x = px;
@@ -1609,7 +1609,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             /* Hack: Is player hiding in walls? Note MONSTER_FLOW_DEPTH is cranked up
                to 100 but is still might be possible that there exists a viable path
                to the player that is longer. */
-            if ( current_flow_depth < MONSTER_FLOW_DEPTH
+            if ( current_flow_depth < 30 /*MONSTER_FLOW_DEPTH*/
               && !(r_ptr->flags2 & RF2_PASS_WALL)
               && !(r_ptr->flags2 & RF2_KILL_WALL)
               && !(r_ptr->flags1 & RF1_NEVER_MOVE)
@@ -1622,7 +1622,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 y = m_ptr->fy;
                 x = m_ptr->fx;
 
-                if (one_in_(10))
+                if (one_in_(20))
                 {
                     f4 &= RF4_NO_FLOW_MASK_HARD;
                     f5 &= RF5_NO_FLOW_MASK_HARD;
@@ -1868,8 +1868,14 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     /* Hex: Anti Magic Barrier */
     if (!spell_is_inate(thrown_spell) && magic_barrier(m_idx))
     {
-        msg_format("Anti magic barrier cancels the spell which %^s casts.", m_name);
+        msg_format("Your anti-magic barrier blocks the spell which %^s casts.", m_name);
         return (TRUE);
+    }
+
+    if (!spell_is_inate(thrown_spell) && psion_check_disruption(m_idx))
+    {
+        msg_format("Your psionic disruption blocks the spell which %^s casts.", m_name);
+        return TRUE;
     }
 
     /* Projectable? */
@@ -2048,7 +2054,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes acid.", m_name);
-            dam = MIN(m_ptr->hp / 3, 900);
+            dam = MIN(m_ptr->hp / 4, 900);
             breath(y, x, m_idx, GF_ACID, dam, 0, TRUE, MS_BR_ACID, learnable);
             update_smart_learn(m_idx, DRS_ACID);
             break;
@@ -2059,7 +2065,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes lightning.", m_name);
-            dam = MIN(m_ptr->hp / 3, 900);
+            dam = MIN(m_ptr->hp / 4, 900);
             breath(y, x, m_idx, GF_ELEC, dam,0, TRUE, MS_BR_ELEC, learnable);
             update_smart_learn(m_idx, DRS_ELEC);
             break;
@@ -2070,7 +2076,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes fire.", m_name);
-            dam = MIN(m_ptr->hp / 3, 900);
+            dam = MIN(m_ptr->hp / 4, 900);
             breath(y, x, m_idx, GF_FIRE, dam,0, TRUE, MS_BR_FIRE, learnable);
             update_smart_learn(m_idx, DRS_FIRE);
             break;
@@ -2081,7 +2087,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes frost.", m_name);
-            dam = MIN(m_ptr->hp / 3, 900);
+            dam = MIN(m_ptr->hp / 4, 900);
             breath(y, x, m_idx, GF_COLD, dam,0, TRUE, MS_BR_COLD, learnable);
             update_smart_learn(m_idx, DRS_COLD);
             break;
@@ -2092,7 +2098,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes gas.", m_name);
-            dam = MIN(m_ptr->hp / 4, 700);
+            dam = MIN(m_ptr->hp / 5, 700);
             breath(y, x, m_idx, GF_POIS, dam, 0, TRUE, MS_BR_POIS, learnable);
             update_smart_learn(m_idx, DRS_POIS);
             break;
@@ -2149,7 +2155,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             if (m_ptr->r_idx == MON_JAIAN) msg_format("'Booooeeeeee'");
             else if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes sound.", m_name);
-            dam = MIN(m_ptr->hp / 6, 700);
+            dam = MIN(m_ptr->hp / 6, 600);
             breath(y, x, m_idx, GF_SOUND, dam,0, TRUE, MS_BR_SOUND, learnable);
             update_smart_learn(m_idx, DRS_SOUND);
             break;
@@ -2160,7 +2166,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes chaos.", m_name);
-            dam = MIN(m_ptr->hp / 6, 800);
+            dam = MIN(m_ptr->hp / 6, 700);
             breath(y, x, m_idx, GF_CHAOS, dam,0, TRUE, MS_BR_CHAOS, learnable);
             update_smart_learn(m_idx, DRS_CHAOS);
             break;
@@ -2171,7 +2177,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes disenchantment.", m_name);
-            dam = MIN(m_ptr->hp / 6, 700);
+            dam = MIN(m_ptr->hp / 6, 600);
             breath(y, x, m_idx, GF_DISENCHANT, dam,0, TRUE, MS_BR_DISEN, learnable);
             update_smart_learn(m_idx, DRS_DISEN);
             break;
@@ -3091,7 +3097,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             }
             case MON_HADES:
             {
-                int num = randint1(4);
+                int num = randint1(2);
                 fire_ball_hide(GF_LAVA_FLOW, 0, 3, 8);
                 msg_format("%^s summons Death!", m_name);
                 for (k = 0; k < num; k++)
@@ -3966,7 +3972,7 @@ msg_format("They say 'The %d meets! We are the Ring-Ranger!'.", count);
 
                 else msg_format("%^s magically summons greater undead!", m_name);
 
-                for (k = 0; k < s_num_6; k++)
+                for (k = 0; k < s_num_4; k++)
                 {
                     count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_UNDEAD, PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | mode);
                 }

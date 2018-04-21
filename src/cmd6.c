@@ -762,6 +762,8 @@ static void do_cmd_quaff_potion_aux(int item)
             o_ptr = &o_list[0 - item];
         if (o_ptr->k_idx == q_ptr->k_idx)
             stats_on_notice(o_ptr, o_ptr->number + number);
+        else
+            k_info[q_ptr->k_idx].counts.found += number;
     }
 
     /* Window stuff */

@@ -2230,7 +2230,6 @@ extern bool     player_is_monster_king(void);
 extern class_t *priest_get_class_t(void);
 extern class_t *psion_get_class_t(void);
 extern int      psion_backlash_dam(int dam);
-extern bool     psion_check_foresight(void);
 extern void     psion_decrement_counters(void);
 extern void     psion_do_mindspring(int energy);
 extern bool     psion_mon_save_p(int r_idx, int power);
@@ -2243,7 +2242,6 @@ extern bool     psion_backlash(void);
 extern bool     psion_blending(void);
 extern bool     psion_clarity(void);
 extern bool     psion_combat(void);
-extern bool     psion_foresight(void);
 extern bool     psion_mental_fortress(void);
 extern bool     psion_mindspring(void);
 extern bool     psion_shielding(void);
@@ -2251,6 +2249,17 @@ extern bool     psion_speed(void);
 extern bool     psion_weapon_graft(void);
 extern bool     psion_can_wield(object_type *o_ptr);
 extern bool     psion_check_dispel(void);
+
+extern bool     psion_foresight(void);
+extern bool     psion_check_foresight(void);
+
+extern bool     psion_disruption(void);
+extern bool     psion_check_disruption(int m_idx);
+
+extern bool     psion_drain(void);
+extern int      psion_do_drain(int spell_idx, int dam);
+
+
 extern void     rage_mage_browse_spell(void);
 extern void     rage_mage_gain_spell(void);
 extern class_t *rage_mage_get_class_t(void);

@@ -137,6 +137,7 @@ teleports away.
 N:409:Kharis the Powerslave
 howls, 'Nnnnooo!'
 says, 'I don't want to die, I'm a god, why can't I live on?'
+says, 'In my last hour, I'm a slave to the power of death.'
 curses you.
 
 #N:413:Ulwarth, Son of Ulfang
@@ -189,6 +190,7 @@ wails, 'Help! Murder! Murder!'
 N:616:Kavlax the Many-Headed
 says, 'This is YOUR fault!' and bites itself.
 blames its problems on the head you've managed to kill.
+says, 'Run while you can, I'll breathe inertia next!'
 
 N:628:Malekith the Accursed
 says, 'C'mon! I'm sure we can work this out...'
@@ -243,6 +245,7 @@ N:733:Santa Claus
 sobs, 'Think of the children you'll disappoint!'
 sobs, 'No, Virginia, there isn't... not any more...'
 attempts to buy you off with offers of goodies.
+cries, 'Naughty! You are going on the naughty list!'
 
 #N:738:Khamul the Easterling
 
@@ -265,6 +268,7 @@ screams, 'My God, my God, why hast thou forsaken me?'
 N:766:Ancalagon the Black
 writhes as he spouts acidic blood from many wounds.
 says, 'My friends the Wyrms of Power will get you!'
+says, 'This would be a lot different if this was Sil!'
 
 
 #N:770:Artsi the Champion of Chaos
@@ -299,6 +303,7 @@ howls with pain and fear.
 N:820:Corwin, Lord of Avalon
 says, 'Who am I? Where is here? Why do you attack me?'
 says, 'Let's make it a clean game as Olympics'
+says, 'Something something Champs d'Elysees'
 
 N:773:Brand, Mad Visionary of Amber
 N:789:Bleys, Master of Manipulation
@@ -309,6 +314,7 @@ N:807:Gerard, Strongman of Amber
 N:813:Eric the Usurper
 N:824:Benedict, the Ideal Warrior
 says, 'Do you know the terrors of Amberite blood curse?!'
+says, 'Dammit! I knew I should have brought my Trumps along!'
 
 
 N:825:The Witch-King of Angmar
@@ -346,11 +352,11 @@ N:848:Shub-Niggurath, Black Goat of the Woods
 N:849:Nodens, Lord of the Great Abyss
 N:851:Nyarlathotep, the Crawling Chaos
 N:857:Great Cthulhu
-sobs, 'I'm not bad, I was just born like this!'
+sobs, 'I'm not bad, I was just born this way!'
 gibbers weakly.
 mumbles, 'kill -9 adventurer, kill -9 adventurer', and you say 'No such process'
 oozes greenish blood from many wounds.
-burbles with terror.
+burbles 'kyary pamyu pamyu!'
 
 N:850:Carcharoth, the Jaws of Thirst
 N:846:Fenris Wolf
@@ -358,6 +364,7 @@ N:840:Draugluin, Sire of All Werewolves
 cringes and whimpers.
 says, 'Look, I promise I won't bite the mailman anymore!'
 says, 'Hey, put that rolled-up newspaper down!'
+begins a song of oaths.
 
 N:830:Cantoras, the Skeletal Lord
 N:831:Mephistopheles, Lord of Hell
@@ -379,6 +386,7 @@ N:873:Combat-Echizen
 says shiftlessly, 'Shit...!'
 says shiftlessly, 'Yegg...!'
 says shiftlessly, 'yariyagattana!'
+says 'I knew I should have picked the Mighty personality!'
 
 N:878:Dio Brando
 says, 'This CAN'T be happening! I feel horror?!'
@@ -386,10 +394,12 @@ says, 'This CAN'T be happening! I feel horror?!'
 N:880:Wong
 says, 'You are no fool.'
 says, 'What you are doing is pointless.'
+says, 'Two Wongs don't make a Wight!'
 
 N:921:Internet Exploder
 is slow.
 throws off some dorky packets.
+says, 'Can't we just fix this with a patch???'
 
 N:1004:Pip, the Braver from Another World
 says, 'Magic ducks, Cover me. I don't shit hits the fan!'
@@ -421,9 +431,11 @@ pleads, 'Let's make a deal instead. What do you want? Ringil? Vorpal Blade? Harp
 boasts, 'You can kill me, but I will only have my revenge later!'
 pleads, 'Wait! I can tell the RNG to play fair!'
 cries, 'Where's a scroll of teleport level when you need one?'
-cries, 'No fair, players get 23 inventory slots and I get none!'
+cries, 'No fair, players get 26 inventory slots and I get none!'
 whimpers, 'Don't you like this game?'
-whimpers, 'If I die, who will take over Chengband?'
+whimpers, 'If I die, who will take over Poschengband?'
+whimpers, 'But I had this really good idea for a new monster race!'
+whimpers, 'Shit, why did I add fail rates to scrolls of teleportation?'
 
 N:*:Default lines
 says, 'I am too young to die.'

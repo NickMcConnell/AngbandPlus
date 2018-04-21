@@ -5099,7 +5099,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
         }
 
         /* Function: IOR */
-        else if (streq(t, "IOR"))
+        else if (streq(t, "IOR") || streq(t, "OR"))
         {
             v = "0";
             while (*s && (f != b2))

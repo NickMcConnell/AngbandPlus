@@ -2789,6 +2789,7 @@ bool effect_try(effect_t *effect)
 
 bool effect_use(effect_t *effect, int boost)
 {
+    device_known = TRUE;
     if (do_effect(effect, SPELL_CAST, boost))
         return TRUE;
     return FALSE;

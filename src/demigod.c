@@ -103,7 +103,7 @@ static void _demeter_clw_spell(int cmd, variant *res)
         var_set_string(res, "Heals cut and HP a little.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(p_ptr->lev/12 + 1, 10, 0));
+        var_set_string(res, info_heal(p_ptr->lev/12 + 1, 10, 0));
         break;
     case SPELL_CAST:
         if (p_ptr->pclass == CLASS_BLOOD_MAGE)

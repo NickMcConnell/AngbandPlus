@@ -19,6 +19,9 @@ static void _calc_innate_attacks(void)
     a.weight = 250 + p_ptr->lev * 2;
     a.to_h = p_ptr->lev/2;
 
+    a.blows = 50 + p_ptr->lev;
+    a.effect[0] = GF_MISSILE;
+
     switch (p_ptr->current_r_idx)
     {
     case MON_ICE_TROLL:
@@ -32,13 +35,12 @@ static void _calc_innate_attacks(void)
         a.effect[0] = GF_POIS;
         break;
     case MON_STORM_TROLL:
-        a.effect[0] = GF_MISSILE;
         a.effect[1] = GF_ELEC;
         break;
-    default:
-        a.effect[0] = GF_MISSILE;
+    case MON_ETTIN:
+        a.blows += 50;
+        break;
     }
-    a.blows = 100;
 
     a.msg = "You bite %s.";
     a.name = "Bite";

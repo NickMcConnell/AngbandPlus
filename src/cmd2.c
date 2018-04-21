@@ -456,7 +456,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 
         /* Small chests often drop gold. Wilderness chests almost always
            drop gold. */
-        if ( (!dun_level && (randint0(100) < 95))
+        if ( (!dun_level && (randint0(100) < 75))
           || (small && (randint0(100) < 25)) )
         {
             /* Make some gold */

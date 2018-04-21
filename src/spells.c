@@ -14,7 +14,7 @@ static str_map_ptr _spell_stats_map(void)
     return _map;
 }
 
-static spell_stats_ptr _spell_stats_aux(cptr name)
+spell_stats_ptr spell_stats_aux(cptr name)
 {
     str_map_ptr     map = _spell_stats_map();
     spell_stats_ptr result = str_map_find(map, name);
@@ -31,7 +31,7 @@ static spell_stats_ptr _spell_stats_aux(cptr name)
 static spell_stats_ptr _spell_stats(spell_info *spell)
 {
     cptr name = get_spell_name(spell->fn);
-    return _spell_stats_aux(name);
+    return spell_stats_aux(name);
 }
 
 void spell_stats_on_birth(void)
@@ -161,7 +161,7 @@ void spell_stats_on_fail(spell_info *spell)
 static spell_stats_ptr _spell_stats_old(int realm, int spell)
 {
     cptr name = do_spell(realm, spell, SPELL_NAME);
-    return _spell_stats_aux(name);
+    return spell_stats_aux(name);
 }
 
 
@@ -683,6 +683,20 @@ static void _add_extra_costs(spell_info* spells, int max)
     }
 }
 
+static void _add_extra_costs_powers(spell_info* spells, int max)
+{
+    int i;
+    /* Some spells give extra abilities depending on player level ...
+       Ideally, these spells should scale the costs as well! */
+    for (i = 0; i < max; i++)
+    {
+        spell_info* current = &spells[i];
+        current->cost += get_spell_cost_extra(current->fn);
+        current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
+        /*Oops: Powers should not benefit from DEC_MANA or CASTER_NO_SPELL_COST!!!
+        current->cost = calculate_cost(current->cost);*/
+    }
+}
 
 static int _get_spell_table(spell_info* spells, int max)
 {
@@ -867,7 +881,7 @@ void do_cmd_power(void)
         return;
     }
 
-    _add_extra_costs(spells, ct);
+    _add_extra_costs_powers(spells, ct);
 
     choice = choose_spell(spells, ct, "power", p_ptr->csp + p_ptr->chp);
 
@@ -989,7 +1003,7 @@ int get_spells_aux(spell_info* spells, int max, spell_info* table)
     return ct;
 }
 
-static int _spell_stats_fail(spell_stats_ptr stats)
+int spell_stats_fail(spell_stats_ptr stats)
 {
     int result = 0;
     int attempts = stats->ct_cast + stats->ct_fail;
@@ -1006,13 +1020,14 @@ static int _spell_stats_fail(spell_stats_ptr stats)
 void dump_spells_aux(FILE *fff, spell_info *table, int ct)
 {        
     int i;
-    variant vn, vd, vc;
+    variant vn, vd, vc, vfm;
 
     if (!ct) return;
 
     var_init(&vn);
     var_init(&vd);
     var_init(&vc);
+    var_init(&vfm);
 
     fprintf(fff, "=================================== Spells ====================================\n\n");
     fprintf(fff, "%-20.20s Lvl Cost Fail %-15.15s Cast Fail\n", "", "Desc");
@@ -1024,30 +1039,33 @@ void dump_spells_aux(FILE *fff, spell_info *table, int ct)
         spell->fn(SPELL_NAME, &vn);
         spell->fn(SPELL_INFO, &vd);
         spell->fn(SPELL_COST_EXTRA, &vc);
+        spell->fn(SPELL_FAIL_MIN, &vfm);
 
         fprintf(fff, "%-20.20s %3d %4d %3d%% %-15.15s %4d %4d %3d%%\n", 
             var_get_string(&vn), 
-            spell->level, calculate_cost(spell->cost + var_get_int(&vc)), spell->fail, 
+            spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)), 
             var_get_string(&vd),
             stats->ct_cast, stats->ct_fail,
-            _spell_stats_fail(stats)
+            spell_stats_fail(stats)
         );
     }
 
     var_clear(&vn);
     var_clear(&vd);
     var_clear(&vc);
+    var_clear(&vfm);
 }
 
 void dump_powers_aux(FILE *fff, spell_info *table, int ct)
 {        
     int i;
-    variant vn, vd, vc;
+    variant vn, vd, vc, vfm;
     if (!ct) return;
 
     var_init(&vn);
     var_init(&vd);
     var_init(&vc);
+    var_init(&vfm);
 
     fprintf(fff, "=================================== Powers ====================================\n\n");
     fprintf(fff, "%-20.20s Lvl Cost Fail %-15.15s Cast Fail\n", "", "Desc");
@@ -1059,19 +1077,21 @@ void dump_powers_aux(FILE *fff, spell_info *table, int ct)
         spell->fn(SPELL_NAME, &vn);
         spell->fn(SPELL_INFO, &vd);
         spell->fn(SPELL_COST_EXTRA, &vc);
+        spell->fn(SPELL_FAIL_MIN, &vfm);
 
         fprintf(fff, "%-20.20s %3d %4d %3d%% %-15.15s %4d %4d %3d%%\n", 
             var_get_string(&vn), 
-            spell->level, calculate_cost(spell->cost + var_get_int(&vc)), spell->fail, 
+            spell->level, calculate_cost(spell->cost + var_get_int(&vc)), MAX(spell->fail, var_get_int(&vfm)), 
             var_get_string(&vd),
             stats->ct_cast, stats->ct_fail, 
-            _spell_stats_fail(stats)
+            spell_stats_fail(stats)
         );
     }
 
     var_clear(&vn);
     var_clear(&vd);
     var_clear(&vc);
+    var_clear(&vfm);
 }
 
 static void _dump_book(FILE *fff, int realm, int book)
@@ -1192,7 +1212,7 @@ static void _dump_book(FILE *fff, int realm, int book)
                     comment,
                     stats->ct_cast, 
                     stats->ct_fail,
-                    _spell_stats_fail(stats)
+                    spell_stats_fail(stats)
                 )
             );
         }

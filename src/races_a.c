@@ -71,18 +71,47 @@ race_t *amberite_get_race_t(void)
 /****************************************************************
  * Android
  ****************************************************************/
-static power_info _android_powers[] =
-{
-    { A_STR, {1, 7, 30, android_ray_gun_spell}},
-    { A_STR, {10, 13, 30, android_blaster_spell}},
-    { A_STR, {25, 26, 40, android_bazooka_spell}},
-    { A_STR, {35, 40, 50, android_beam_cannon_spell}},
-    { A_STR, {45, 60, 70, android_rocket_spell}},
-    { -1, {-1, -1, -1, NULL} }
-};
 static int _android_get_powers(spell_info* spells, int max)
 {
-    return get_powers_aux(spells, max, _android_powers);
+    int         ct = 0;
+    spell_info *spell = &spells[ct++];
+
+    if (p_ptr->lev < 10)
+    {
+        spell->level = 1;
+        spell->cost = 7;
+        spell->fail = calculate_fail_rate(1, 30, p_ptr->stat_ind[A_STR]);
+        spell->fn = android_ray_gun_spell;
+    }
+    else if (p_ptr->lev < 25)
+    {
+        spell->level = 10;
+        spell->cost = 13;
+        spell->fail = calculate_fail_rate(10, 30, p_ptr->stat_ind[A_STR]);
+        spell->fn = android_blaster_spell;
+    }
+    else if (p_ptr->lev < 35)
+    {
+        spell->level = 25;
+        spell->cost = 26;
+        spell->fail = calculate_fail_rate(25, 40, p_ptr->stat_ind[A_STR]);
+        spell->fn = android_bazooka_spell;
+    }
+    else if (p_ptr->lev < 45)
+    {
+        spell->level = 35;
+        spell->cost = 40;
+        spell->fail = calculate_fail_rate(35, 50, p_ptr->stat_ind[A_STR]);
+        spell->fn = android_beam_cannon_spell;
+    }
+    else
+    {
+        spell->level = 45;
+        spell->cost = 60;
+        spell->fail = calculate_fail_rate(45, 70, p_ptr->stat_ind[A_STR]);
+        spell->fn = android_rocket_spell;
+    }
+    return ct;
 }
 static void _android_calc_bonuses(void)
 {

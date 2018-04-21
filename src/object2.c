@@ -5793,42 +5793,38 @@ bool make_object(object_type *j_ptr, u32b mode)
     if (!one_in_(prob) || !make_artifact_special(j_ptr))
     {
         int k_idx;
+        int max_attempts = 1;
+        int attempt = 1;
 
         _drop_tailored = FALSE;
         if (mode & AM_TAILORED)
+        {
             _drop_tailored = TRUE;
-
-        /* Experimental: Restrict object allocation by type, even for DROP_GOOD and DROP_GREAT!
-        if ((mode & AM_GREAT) && !get_obj_num_hook)
-        {
-            get_obj_num_hook = kind_is_great;
+            max_attempts = 1000; /* Tailored drops can fail for certain _choose_obj_kind()s */
         }
-        if ((mode & AM_GOOD) && !get_obj_num_hook)
+
+        for (;;)
         {
-            get_obj_num_hook = kind_is_good;
-        }*/
+            if (!get_obj_num_hook)
+                get_obj_num_hook = _choose_obj_kind(mode);
 
-        if (_drop_tailored && !get_obj_num_hook && p_ptr->pclass == CLASS_MONSTER)
-            get_obj_num_hook = kind_is_tailored;
+            if (get_obj_num_hook) 
+                get_obj_num_prep();
 
-        /* Experimental: Restrict object allocation by type. */
-        if (!get_obj_num_hook)
-            get_obj_num_hook = _choose_obj_kind(mode);
+            k_idx = get_obj_num(base);
 
-        /* Restricted objects - prepare allocation table */
-        if (get_obj_num_hook) get_obj_num_prep();
+            if (get_obj_num_hook)
+            {
+                get_obj_num_hook = NULL;
+                get_obj_num_prep();
+            }
 
-        /* Pick a random object */
-        k_idx = get_obj_num(base);
+            if (k_idx)
+                break;
 
-        /* Restricted objects */
-        if (get_obj_num_hook)
-        {
-            /* Clear restriction */
-            get_obj_num_hook = NULL;
-
-            /* Reset allocation table to default */
-            get_obj_num_prep();
+            attempt++;
+            if (attempt > max_attempts)
+                break;
         }
 
         /* Handle failure */

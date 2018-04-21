@@ -41,6 +41,8 @@ static int _spell_stat_idx(void)
 #define _MINDSPRING   8
 #define _FORESIGHT    9
 #define _ARCHERY     10
+#define _DISRUPTION  11
+#define _DRAIN       12
 
 bool psion_weapon_graft(void)
 {
@@ -69,6 +71,8 @@ bool psion_check_dispel(void)
     if (p_ptr->magic_num1[_FORTRESS] > 0) return TRUE;
     /*if (p_ptr->magic_num1[_MINDSPRING] > 0) return TRUE;*/
     if (p_ptr->magic_num1[_FORESIGHT] > 0) return TRUE;
+    if (p_ptr->magic_num1[_DISRUPTION] > 0) return TRUE;
+    if (p_ptr->magic_num1[_DRAIN] > 0) return TRUE;
     return FALSE;
 }
 
@@ -154,6 +158,47 @@ void psion_do_mindspring(int energy)
     p_ptr->redraw |= PR_MANA;
 }
 
+bool psion_disruption(void)
+{
+    if (p_ptr->pclass != CLASS_PSION) return FALSE;
+    if (p_ptr->magic_num1[_DISRUPTION] > 0) return TRUE;
+    return FALSE;
+}
+
+bool psion_check_disruption(int m_idx)
+{
+    if (psion_disruption())
+    {
+        monster_type *m_ptr = &m_list[m_idx];
+        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        int           pl = p_ptr->lev + 8*p_ptr->magic_num2[_DISRUPTION];
+
+        if (randint0(r_ptr->level) < pl) 
+            return TRUE;
+    }
+    return FALSE;
+}
+
+bool psion_drain(void)
+{
+    if (p_ptr->pclass != CLASS_PSION) return FALSE;
+    if (p_ptr->magic_num1[_DRAIN] > 0) return TRUE;
+    return FALSE;
+}
+
+int psion_do_drain(int spell_idx, int dam)
+{
+    int result = dam;
+    if (psion_drain() && !spell_is_inate(spell_idx))
+    {
+        int drain = dam * 5 * p_ptr->magic_num2[_DRAIN] / 100;
+        result -= drain;
+        sp_player(MAX(drain, 3 * p_ptr->magic_num2[_DRAIN]));
+        if (disturb_minor)
+            msg_print("You draw power from the magics around you!");
+    }
+    return result;
+}
 
 bool psion_foresight(void)
 {
@@ -252,7 +297,7 @@ static void _archery_transformation_spell(int power, int cmd, variant *res)
         }
         _clear_counter(_COMBAT, "Your combat transformation expires.");    
         msg_print("You transform into a shooting machine!");
-        p_ptr->magic_num1[_ARCHERY] = spell_power(power * 20);
+        p_ptr->magic_num1[_ARCHERY] = spell_power(power*20 + 15);
         p_ptr->magic_num2[_ARCHERY] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -333,7 +378,7 @@ static void _combat_transformation_spell(int power, int cmd, variant *res)
         }
         _clear_counter(_ARCHERY, "Your archery transformation expires.");    
         msg_print("You transform into a fighting machine!");
-        p_ptr->magic_num1[_COMBAT] = spell_power(power * 20);
+        p_ptr->magic_num1[_COMBAT] = spell_power(power*20 + 15);
         p_ptr->magic_num2[_COMBAT] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -506,7 +551,7 @@ static void _graft_weapon_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("Your weapon fuses to your arm!");
-        p_ptr->magic_num1[_WEAPON_GRAFT] = spell_power(12*(power+1));
+        p_ptr->magic_num1[_WEAPON_GRAFT] = spell_power(12*power + 20);
         p_ptr->magic_num2[_WEAPON_GRAFT] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -580,7 +625,7 @@ static void _mental_fortress_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("You erect a mental fortress.");
-        p_ptr->magic_num1[_FORTRESS] = spell_power(power);
+        p_ptr->magic_num1[_FORTRESS] = spell_power(power + 3);
         p_ptr->magic_num2[_FORTRESS] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -619,7 +664,7 @@ static void _mindspring_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("Your mindspring flows.");
-        p_ptr->magic_num1[_MINDSPRING] = spell_power(power * 2);
+        p_ptr->magic_num1[_MINDSPRING] = spell_power(power*2 + 3);
         p_ptr->magic_num2[_MINDSPRING] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -658,7 +703,7 @@ static void _psionic_backlash_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("You contemplate revenge!");
-        p_ptr->magic_num1[_BACKLASH] = spell_power(power * 5);
+        p_ptr->magic_num1[_BACKLASH] = spell_power(power*5 + 5);
         p_ptr->magic_num2[_BACKLASH] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -687,7 +732,7 @@ static void _psionic_blending_spell(int power, int cmd, variant *res)
         var_set_string(res, "You will temporarily blend into your surroundings, gaining increased stealth.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("+%d stealth", 4*power));
+        var_set_string(res, format("+%d stealth", 5*power));
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
@@ -697,7 +742,7 @@ static void _psionic_blending_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("You blending into your surroundings.");
-        p_ptr->magic_num1[_BLENDING] = spell_power(power * 20);
+        p_ptr->magic_num1[_BLENDING] = spell_power(power*25 + 50);
         p_ptr->magic_num2[_BLENDING] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -726,7 +771,7 @@ static void _psionic_clarity_spell(int power, int cmd, variant *res)
         var_set_string(res, "For the duration of this power, you gain increased mental focus.  Your psionic powers become cheaper to cast.");
         break;
     case SPELL_INFO:
-        var_set_string(res, format("Spell Costs: %d%%", 95-7*power));
+        var_set_string(res, format("Costs: %d%%", 85-7*power));
         break;
     case SPELL_CAST:
         var_set_bool(res, FALSE);
@@ -736,7 +781,7 @@ static void _psionic_clarity_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("You focus your mind.");
-        p_ptr->magic_num1[_CLARITY] = spell_power(2*power + 3);
+        p_ptr->magic_num1[_CLARITY] = spell_power(2*power + 5);
         p_ptr->magic_num2[_CLARITY] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -790,7 +835,7 @@ void _psionic_crafting_spell(int power, int cmd, variant *res)
         _enchant_power = power; /* Hack for enchant(), which I'm too lazy to rewrite ... */
         if (power == 5 && object_is_nameless(o_ptr))
         {
-            if (object_is_melee_weapon(o_ptr))
+            if (object_is_weapon(o_ptr))
             {
                 brand_weapon_aux(item);
                 okay = TRUE;
@@ -845,6 +890,84 @@ void _psionic_crafting3_spell(int cmd, variant *res) { _psionic_crafting_spell(3
 void _psionic_crafting4_spell(int cmd, variant *res) { _psionic_crafting_spell(4, cmd, res); }
 void _psionic_crafting5_spell(int cmd, variant *res) { _psionic_crafting_spell(5, cmd, res); }
 
+/* Psionic Disruption */
+static void _psionic_disruption_spell(int power, int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, format("Disruption %s", _roman_numeral[power]));
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "For a short while, your mental focus will disrupt the minds of others.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, format("Power: %d", p_ptr->lev + 8*power));
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (p_ptr->magic_num1[_DISRUPTION])
+        {
+            msg_print("Your disruption is already active.");
+            return;
+        }
+        msg_print("You project disrupting thoughts!");
+        p_ptr->magic_num1[_DISRUPTION] = spell_power(power*2 + 3);
+        p_ptr->magic_num2[_DISRUPTION] = power;
+        p_ptr->update |= PU_BONUS;
+        p_ptr->redraw |= PR_STATUS;
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+static void _psionic_disruption1_spell(int cmd, variant *res) { _psionic_disruption_spell(1, cmd, res); }
+static void _psionic_disruption2_spell(int cmd, variant *res) { _psionic_disruption_spell(2, cmd, res); }
+static void _psionic_disruption3_spell(int cmd, variant *res) { _psionic_disruption_spell(3, cmd, res); }
+static void _psionic_disruption4_spell(int cmd, variant *res) { _psionic_disruption_spell(4, cmd, res); }
+static void _psionic_disruption5_spell(int cmd, variant *res) { _psionic_disruption_spell(5, cmd, res); }
+
+/* Psionic Drain */
+static void _psionic_drain_spell(int power, int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, format("Drain %s", _roman_numeral[power]));
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "For a short while you will draw mental energy from enemy magic spells, reducing their damage in the process.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, format("Drain: %d%%", 5*power));
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, FALSE);
+        if (p_ptr->magic_num1[_DRAIN])
+        {
+            msg_print("Your drain is already active.");
+            return;
+        }
+        msg_print("You prepare to draw power from surrounding magics.");
+        p_ptr->magic_num1[_DRAIN] = spell_power(power*5 + 10);
+        p_ptr->magic_num2[_DRAIN] = power;
+        p_ptr->update |= PU_BONUS;
+        p_ptr->redraw |= PR_STATUS;
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+static void _psionic_drain1_spell(int cmd, variant *res) { _psionic_drain_spell(1, cmd, res); }
+static void _psionic_drain2_spell(int cmd, variant *res) { _psionic_drain_spell(2, cmd, res); }
+static void _psionic_drain3_spell(int cmd, variant *res) { _psionic_drain_spell(3, cmd, res); }
+static void _psionic_drain4_spell(int cmd, variant *res) { _psionic_drain_spell(4, cmd, res); }
+static void _psionic_drain5_spell(int cmd, variant *res) { _psionic_drain_spell(5, cmd, res); }
+
 /* Psionic Foresight */
 static void _psionic_foresight_spell(int power, int cmd, variant *res)
 {
@@ -867,7 +990,7 @@ static void _psionic_foresight_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("You see the future!");
-        p_ptr->magic_num1[_FORESIGHT] = spell_power(power * 2);
+        p_ptr->magic_num1[_FORESIGHT] = spell_power(power*2 + 3);
         p_ptr->magic_num2[_FORESIGHT] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -941,30 +1064,44 @@ static void _psionic_protection_spell(int power, int cmd, variant *res)
     case SPELL_NAME:
     {
         const cptr _names[_MAX_POWER] = {
-            "Resist Fire", "and Cold", "and Lightning", "and Acid", "and Poison"};
+            "Resist Fire and Cold", "Resist Environment", "Resistance", "Elemental Protection", "Immunity"};
         var_set_string(res, _names[power-1]);
         break;
     }
     case SPELL_DESC:
     {
         const cptr _descriptions[_MAX_POWER] = {
-            "Gain temporary resistance to fire.", 
             "Gain temporary resistance to fire and cold.",
             "Gain temporary resistance to fire, cold and lightning.",
-            "Gain temporary resistance to fire, cold, lightning and acid.",
-            "Gain temporary resistance to fire, cold, lightning, acid and poison."
+            "Gain temporary resistance to fire, cold, lightning, acid and poison.",
+            "Gain temporary resistance to fire, cold, lightning, acid and poison. Gain temporary elemental auras.",
+            "Gain temporary immunity to the element of your choice."
             };
         var_set_string(res, _descriptions[power-1]);
         break;
     }
     case SPELL_CAST:
     {
-        int dur = spell_power(10 * power);
-        set_oppose_fire(dur, FALSE);
-        if (power >= 2) set_oppose_cold(dur, FALSE);
-        if (power >= 3) set_oppose_elec(dur, FALSE);
-        if (power >= 4) set_oppose_acid(dur, FALSE);
-        if (power >= 5) set_oppose_pois(dur, FALSE);
+        int dur = spell_power(10*power + 25);
+        var_set_bool(res, FALSE);
+        if (power >= 5)
+        {
+            if (!choose_ele_immune(dur)) return;
+        }
+        else
+        {
+            set_oppose_fire(dur, FALSE);
+            set_oppose_cold(dur, FALSE);
+            if (power >= 2) 
+                set_oppose_elec(dur, FALSE);
+            if (power >= 3) 
+            {
+                set_oppose_acid(dur, FALSE);
+                set_oppose_pois(dur, FALSE);
+            }
+            if (power >= 4) 
+                set_tim_sh_elements(dur, FALSE);
+        }
         var_set_bool(res, TRUE);
         break;
     }
@@ -987,7 +1124,7 @@ static void _psionic_seeing_spell(int power, int cmd, variant *res)
     case SPELL_NAME:
     {
         const cptr _names[_MAX_POWER] = {
-            "Detect Monsters", "and Doors & Traps", "and Objects", "and Surroundings", "and Telepathy"};
+            "Detect Monsters", "and Traps, Objects", "and Surroundings", "and Telepathy", "and Clairvoyance"};
         var_set_string(res, _names[power-1]);
         break;
     }
@@ -995,32 +1132,35 @@ static void _psionic_seeing_spell(int power, int cmd, variant *res)
     {
         const cptr _descriptions[_MAX_POWER] = {
             "Detects monsters.", 
-            "Detects monsters, doors, stairs and traps.",
             "Detects monsters, doors, stairs, traps and objects.",
             "Detects monsters, doors, stairs, traps and objects.  Maps nearby area.",
-            "Detects monsters, doors, stairs, traps and objects.  Maps nearby area and grants temporary telepathy."
+            "Detects monsters, doors, stairs, traps and objects.  Maps nearby area and grants temporary telepathy.",
+            "Detects monsters, doors, stairs, traps and objects.  Maps entire level and grants temporary telepathy.",
             };
         var_set_string(res, _descriptions[power-1]);
         break;
     }
     case SPELL_CAST:
         detect_monsters_normal(DETECT_RAD_DEFAULT);
+        if (power >= 4)
+            set_tim_esp(spell_power(randint1(30) + 25), FALSE);
+
+        if (power >= 5)
+        {
+            virtue_add(VIRTUE_KNOWLEDGE, 1);
+            virtue_add(VIRTUE_ENLIGHTENMENT, 1);
+            wiz_lite(p_ptr->tim_superstealth > 0);
+        }
+        else if (power >= 3)
+            map_area(DETECT_RAD_MAP);
 
         if (power >= 2)
         {
-                detect_traps(DETECT_RAD_DEFAULT, TRUE);
-                detect_doors(DETECT_RAD_DEFAULT);
-                detect_stairs(DETECT_RAD_DEFAULT);
-        }
-
-        if (power >= 3)
+            detect_traps(DETECT_RAD_DEFAULT, TRUE);
+            detect_doors(DETECT_RAD_DEFAULT);
+            detect_stairs(DETECT_RAD_DEFAULT);
             detect_objects_normal(DETECT_RAD_DEFAULT);
-
-        if (power >= 4)
-            map_area(DETECT_RAD_MAP);
-
-        if (power >= 5)
-            set_tim_esp(spell_power(randint1(30) + 25), FALSE);
+        }
 
         var_set_bool(res, TRUE);
         break;
@@ -1057,7 +1197,7 @@ static void _psionic_shielding_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("You create a psionic shield.");
-        p_ptr->magic_num1[_SHIELDING] = spell_power(power * 8);
+        p_ptr->magic_num1[_SHIELDING] = spell_power(power*8 + 20);
         p_ptr->magic_num2[_SHIELDING] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -1096,7 +1236,7 @@ static void _psionic_speed_spell(int power, int cmd, variant *res)
             return;
         }
         msg_print("You gain psionic speed.");
-        p_ptr->magic_num1[_SPEED] = spell_power(power * 10);
+        p_ptr->magic_num1[_SPEED] = spell_power(power*10 + 20);
         p_ptr->magic_num2[_SPEED] = power;
         p_ptr->update |= PU_BONUS;
         p_ptr->redraw |= PR_STATUS;
@@ -1122,10 +1262,10 @@ static void _psionic_storm_spell(int power, int cmd, variant *res)
         var_set_string(res, format("Storm %s", _roman_numeral[power]));
         break;
     case SPELL_DESC:
-        var_set_string(res, "Fires a huge ball of mana.");
+        var_set_string(res, "Fires a ball of psionic energy.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(power*150 - 50)));
+        var_set_string(res, info_damage(0, 0, spell_power(power*125 - 25)));
         break;
     case SPELL_CAST:
     {
@@ -1136,9 +1276,9 @@ static void _psionic_storm_spell(int power, int cmd, variant *res)
         fire_ball_aux(
             GF_PSI_STORM, 
             dir, 
-            spell_power(power*150 - 50),
-            4 + power,
-            PROJECT_FULL_DAM
+            spell_power(power*125 - 25),
+            2 + power/5,
+            0
         );
 
         var_set_bool(res, TRUE);
@@ -1216,6 +1356,35 @@ static void _psionic_travel3_spell(int cmd, variant *res) { _psionic_travel_spel
 static void _psionic_travel4_spell(int cmd, variant *res) { _psionic_travel_spell(4, cmd, res); }
 static void _psionic_travel5_spell(int cmd, variant *res) { _psionic_travel_spell(5, cmd, res); }
 
+/* Psionic Wave */
+static void _psionic_wave_spell(int power, int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, format("Mind Wave %s", _roman_numeral[power]));
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Inflict mental damage on all visible monsters.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(0, 0, spell_power(power*50)));
+        break;
+    case SPELL_CAST:
+        project_hack(GF_PSI_STORM, spell_power(power*50));
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+static void _psionic_wave1_spell(int cmd, variant *res) { _psionic_wave_spell(1, cmd, res); }
+static void _psionic_wave2_spell(int cmd, variant *res) { _psionic_wave_spell(2, cmd, res); }
+static void _psionic_wave3_spell(int cmd, variant *res) { _psionic_wave_spell(3, cmd, res); }
+static void _psionic_wave4_spell(int cmd, variant *res) { _psionic_wave_spell(4, cmd, res); }
+static void _psionic_wave5_spell(int cmd, variant *res) { _psionic_wave_spell(5, cmd, res); }
+
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
@@ -1228,17 +1397,44 @@ typedef struct {
 
 typedef struct {
     cptr name;
+    int id;
     int level;
     _spell_info_t info[_MAX_POWER];
     cptr desc;
-} _spell_t;
+} _spell_t, *_spell_ptr;
 
-/* Note: Indices into this array are persisted in p_ptr->spell_order.
-   Please do not reorder or delete!
-*/
-static _spell_t _spells[] = 
+/* Here are the unique spell ids, which can never change */
+enum {
+    _PSION_MANA_THRUST = 0,
+    _PSION_ENERGY_BLAST,
+    _PSION_SEEING,
+    _PSION_GRAFT_WEAPON,
+    _PSION_CLARITY,
+    _PSION_BLENDING,
+    _PSION_SHIELDING,
+    _PSION_TRAVEL,
+    _PSION_PROTECTION,
+    _PSION_COMBAT_TRANSFORMATION,
+    _PSION_ARCHERY_TRANSFORMATION,
+    _PSION_EGO_WHIP,
+    _PSION_SPEED,
+    _PSION_HEALING,
+    _PSION_BRAIN_SMASH,
+    _PSION_CRAFTING,
+    _PSION_STORM,
+    _PSION_BACKLASH,
+    _PSION_FORTRESS,
+    _PSION_MINDSPRING,
+    _PSION_FORESIGHT,
+    _PSION_DISRUPTION,
+    _PSION_DRAIN,
+    _PSION_WAVE,
+};
+
+/* Here are the spells: Use _get_spell(id) to find the correct spell. */
+static _spell_t __spells[] = 
 {
-    { "Mana Thrust", 1, {  
+    { "Mana Thrust", _PSION_MANA_THRUST, 1, {  
         {  1,  20, _mana_thrust1_spell },
         {  5,  70, _mana_thrust2_spell },
         { 13, 120, _mana_thrust3_spell },
@@ -1250,7 +1446,7 @@ static _spell_t _spells[] =
           "No monster can resist the Mana Thrust but this attack only effects "
           "a single monster at a time and some monsters might reflect the spell."
     },
-    { "Energy Blast", 1, {  
+    { "Energy Blast", _PSION_ENERGY_BLAST, 1, {  
         {  1,  20, _energy_blast1_spell },
         {  5,  70, _energy_blast2_spell },
         { 13, 120, _energy_blast3_spell },
@@ -1264,18 +1460,19 @@ static _spell_t _spells[] =
           "much focus you invest in the blast. This is also an area based "
           "attack so you may damage multiple monsters at a time."
     },
-    { "Psionic Seeing", 1, {  
+    { "Psionic Seeing", _PSION_SEEING, 1, {  
         {  1,  20, _psionic_seeing1_spell },
-        {  4,  35, _psionic_seeing2_spell },
-        {  7,  70, _psionic_seeing3_spell },
-        { 15, 100, _psionic_seeing4_spell },
-        { 25, 130, _psionic_seeing5_spell }},
+        {  7,  50, _psionic_seeing2_spell },
+        { 15, 100, _psionic_seeing3_spell },
+        { 25, 130, _psionic_seeing4_spell },
+        { 50, 180, _psionic_seeing5_spell }},
         "Psionic Seeing grants you considerable powers of detection. "
           "Depending on how hard you focus, you may detect monsters, traps, "
           "doors, stairs, and objects. Concentrate even more and you can "
-          "map your surroundings or even gain temporary powers of telepathy!"
+          "map your surroundings, gain temporary powers of telepathy or even "
+          "map the entire level!"
     },
-    { "Graft Weapon", 1, {  
+    { "Graft Weapon", _PSION_GRAFT_WEAPON, 1, {  
         {  5,  20, _graft_weapon1_spell },
         { 15,  70, _graft_weapon2_spell },
         { 30, 120, _graft_weapon3_spell },
@@ -1287,19 +1484,19 @@ static _spell_t _spells[] =
         "effectively. However, while this spell is active, you will not be "
         "able to remove your weapon."
     },
-    { "Psionic Clarity", 1, {  
+    { "Psionic Clarity", _PSION_CLARITY, 1, {  
         {  6,  50, _psionic_clarity1_spell },
         { 18,  70, _psionic_clarity2_spell },
         { 36, 120, _psionic_clarity3_spell },
-        { 60, 155, _psionic_clarity4_spell },
-        { 90, 180, _psionic_clarity5_spell }},
+        { 60, 160, _psionic_clarity4_spell },
+        { 90, 212, _psionic_clarity5_spell }},
         "Psionic Clarity focuses the mind of the psion. While only active for "
         "a short while, this power lowers the casting costs of all other psionic "
         "powers and can be quite useful. However, the utility of Psionic Clarity "
         "may only become manifest late in the game, so it is not recommended as "
         "an early choice."
     },
-    { "Psionic Blending", 10, {  
+    { "Psionic Blending", _PSION_BLENDING, 10, {  
         {  4,  40, _psionic_blending1_spell },
         { 12,  55, _psionic_blending2_spell },
         { 24,  70, _psionic_blending3_spell },
@@ -1310,7 +1507,7 @@ static _spell_t _spells[] =
         "With maximal focus, you may even suppress aggravation (from your equipment), "
         "though your stealth will still be somewhat disrupted."
     },
-    { "Psionic Shielding", 10, {  
+    { "Psionic Shielding", _PSION_SHIELDING, 10, {  
         {  7,  40, _psionic_shielding1_spell },
         { 21,  60, _psionic_shielding2_spell },
         { 42,  80, _psionic_shielding3_spell },
@@ -1321,7 +1518,7 @@ static _spell_t _spells[] =
           "paralyzation attacks from your enemies. With the latter, monsters will have "
           "a much harder time hitting you."
     },
-    { "Psionic Travel", 10, {  
+    { "Psionic Travel", _PSION_TRAVEL, 10, {  
         {  2,  25, _psionic_travel1_spell },
         {  7,  35, _psionic_travel2_spell },
         {  9,  50, _psionic_travel3_spell },
@@ -1331,17 +1528,17 @@ static _spell_t _spells[] =
           "ranged 'blinking' to long ranged escapes, you will have it all. Indeed, with great "
           "focus you will even be able to control your teleportation and choose where you land!"
     },
-    { "Psionic Protection", 20, {  
+    { "Psionic Protection", _PSION_PROTECTION, 20, {  
         {  5,  25, _psionic_protection1_spell },
         { 10,  35, _psionic_protection2_spell },
-        { 15,  50, _psionic_protection3_spell },
-        { 20,  75, _psionic_protection4_spell },
-        { 25,  85, _psionic_protection5_spell }},
+        { 20,  55, _psionic_protection3_spell },
+        { 30,  75, _psionic_protection4_spell },
+        { 70, 125, _psionic_protection5_spell }},
         "Psionic Protection is a defensive power. While active you will gain resistance to "
           "elemental attacks (Fire, Cold, Lightning, Acid and Poison). The more you mental "
           "focus you devote to this power, the more of the elements you will resist."
     },
-    { "Combat Transformation", 20, {  
+    { "Combat Transformation", _PSION_COMBAT_TRANSFORMATION, 20, {  
         { 13,  50, _combat_transformation1_spell },
         { 49,  65, _combat_transformation2_spell },
         { 78,  80, _combat_transformation3_spell },
@@ -1353,7 +1550,7 @@ static _spell_t _spells[] =
           "accuity affecting the speed of your attacks. This power requires your constant "
           "focus and as a result, increases the casting costs of all other psionic powers."
     },
-    { "Archery Transformation", 20, {  
+    { "Archery Transformation", _PSION_ARCHERY_TRANSFORMATION, 20, {  
         { 13,  50, _archery_transformation1_spell },
         { 49,  65, _archery_transformation2_spell },
         { 78,  80, _archery_transformation3_spell },
@@ -1365,7 +1562,7 @@ static _spell_t _spells[] =
           "This power requires your constant focus and as a result, increases the casting "
           "costs of all other psionic powers."
     },
-    { "Ego Whip", 20, {  
+    { "Ego Whip", _PSION_EGO_WHIP, 20, {  
         {  6,  40, _ego_whip1_spell },
         { 18,  65, _ego_whip2_spell },
         { 36,  80, _ego_whip3_spell },
@@ -1377,7 +1574,7 @@ static _spell_t _spells[] =
           "the ego whip every turn, and if they make a save, they are able to shake off the "
           "whip completely."
     },
-    { "Psionic Speed", 30, {  
+    { "Psionic Speed", _PSION_SPEED, 30, {  
         {  6,  40, _psionic_speed1_spell },
         { 18,  65, _psionic_speed2_spell },
         { 36,  80, _psionic_speed3_spell },
@@ -1387,7 +1584,7 @@ static _spell_t _spells[] =
           "powers of haste. With increased focus come increased speed, and the total "
           "amount of haste can greatly exceed what is possible for other classes."
     },
-    { "Psionic Healing", 30, {  
+    { "Psionic Healing", _PSION_HEALING, 30, {  
         {  7,  40, _psionic_healing1_spell }, /*  70hp */
         { 21,  60, _psionic_healing2_spell }, /* 190hp */
         { 42,  80, _psionic_healing3_spell }, /* 310hp */
@@ -1397,7 +1594,7 @@ static _spell_t _spells[] =
           "to heal your wounds. In addition, cuts, stuns and poison will be cured. With "
           "total focus, you can even restore your stats."
     },
-    { "Brain Smash", 30, {  
+    { "Brain Smash", _PSION_BRAIN_SMASH, 30, {  
         { 10,  60, _brain_smash1_spell },
         { 20,  75, _brain_smash2_spell },
         { 40,  90, _brain_smash3_spell },
@@ -1406,7 +1603,16 @@ static _spell_t _spells[] =
         "Brain Smash is an offensive spell. Although it does no physical damage, it inflicts "
           "a powerful mental attack on your foes which may confuse, stun or slow them."
     },
-    { "Psionic Crafting", 40, {  
+    { "Mind Wave", _PSION_WAVE, 30, {  
+        { 10,  60, _psionic_wave1_spell }, /*  50hp */
+        { 20,  75, _psionic_wave2_spell }, /* 100hp */
+        { 40,  90, _psionic_wave3_spell }, /* 150hp */
+        { 70, 105, _psionic_wave4_spell }, /* 200hp */
+        {100, 125, _psionic_wave5_spell }},/* 250hp */
+        "Mind Wave unleashes the effects of your mental focus on all visible monsters. The damage is not "
+        "as great as Psionic Storm but the ability to affect many monsters at once compensates for this."
+    },
+    { "Psionic Crafting", _PSION_CRAFTING, 40, {  
         { 10,  50, _psionic_crafting1_spell },
         { 30,  65, _psionic_crafting2_spell },
         { 60,  80, _psionic_crafting3_spell },
@@ -1415,16 +1621,16 @@ static _spell_t _spells[] =
         "Psionic Crafting channels your mental focus into an object, enchanting it in the "
           "process. With maximal focus, you can even craft excellent items!"
     },
-    { "Psionic Storm", 40, {  
+    { "Psionic Storm", _PSION_STORM, 40, {  
         { 12,  50, _psionic_storm1_spell }, /* 100hp */
-        { 35,  65, _psionic_storm2_spell }, /* 250hp */
-        { 65,  80, _psionic_storm3_spell }, /* 400hp */
-        {100,  95, _psionic_storm4_spell }, /* 550hp */
-        {135, 110, _psionic_storm5_spell }},/* 700hp */
+        { 35,  65, _psionic_storm2_spell }, /* 225hp */
+        { 65,  80, _psionic_storm3_spell }, /* 350hp */
+        {100,  95, _psionic_storm4_spell }, /* 475hp */
+        {135, 110, _psionic_storm5_spell }},/* 600hp */
         "Psionic Storm unleashes your mental focus in a large, powerful blast of mana. All monsters "
           "hit by the blast will take full damage."
     },
-    { "Psionic Backlash", 40, {  
+    { "Psionic Backlash", _PSION_BACKLASH, 40, {  
         { 24,  50, _psionic_backlash1_spell },
         { 40,  65, _psionic_backlash2_spell },
         { 60,  80, _psionic_backlash3_spell },
@@ -1434,7 +1640,27 @@ static _spell_t _spells[] =
           "take a proportional amount of damage in retaliation. The greater your focus, the "
           "greater the retaliatory damage."
     },
-    { "Mental Fortress", 50, {  
+    { "Psychic Drain", _PSION_DRAIN, 40, {  
+        { 24,  50, _psionic_drain1_spell },
+        { 40,  65, _psionic_drain2_spell },
+        { 60,  80, _psionic_drain3_spell },
+        { 90,  95, _psionic_drain4_spell },
+        {130, 110, _psionic_drain5_spell }},
+        "Psychic drain allows you to draw mental energy and focus from the magic around you. "
+        "Whenever you are hit by a magic spell you will convert some of the damage into mana. This "
+        "power has no effect on non-magical damage like breaths, rockets or melee."
+    },
+    { "Psionic Disruption", _PSION_DISRUPTION, 50, {  
+        { 40,  40, _psionic_disruption1_spell },
+        {120,  55, _psionic_disruption2_spell },
+        {240,  70, _psionic_disruption3_spell },
+        {400,  85, _psionic_disruption4_spell },
+        {600, 100, _psionic_disruption5_spell }},
+        "Psionic Disruption allows you to block the minds of others hindering their ability "
+        "to cast spells. But be warned: innate monster attacks (breaths and rockets) will not "
+        "be affected!"
+    },
+    { "Mental Fortress", _PSION_FORTRESS, 50, {  
         { 40,  40, _mental_fortress1_spell },
         {120,  55, _mental_fortress2_spell },
         {240,  70, _mental_fortress3_spell },
@@ -1443,7 +1669,7 @@ static _spell_t _spells[] =
         "Mental Fortress grants immunity to Dispel Magic and Anti-magic. In addition, it "
           "increases the power of your spells."
     },
-    { "Mindspring", 50, {  
+    { "Mindspring", _PSION_MINDSPRING, 50, {  
         { 40,  40, _mindspring1_spell },
         {120,  55, _mindspring2_spell },
         {240,  70, _mindspring3_spell },
@@ -1451,7 +1677,7 @@ static _spell_t _spells[] =
         {600, 100, _mindspring5_spell }},
         "Mindspring greatly enhances your mana recovery."
     },
-    { "Psionic Foresight", 50, {  
+    { "Psionic Foresight", _PSION_FORESIGHT, 50, {  
         { 40,  40, _psionic_foresight1_spell },
         {120,  55, _psionic_foresight2_spell },
         {240,  70, _psionic_foresight3_spell },
@@ -1464,6 +1690,20 @@ static _spell_t _spells[] =
     { 0 }
 };
 
+static _spell_ptr _get_spell(int id)
+{
+    int i;
+    for (i = 0; ; i++)
+    {
+        _spell_ptr current = &__spells[i];
+        if (!current->level)
+            break;
+        if (current->id == id)
+            return current;
+    }
+    msg_format("Software Bug: Invalid psionic spell id = %d.", id);
+    return &__spells[0];
+}
 
 static int _num_spells_learned(void)
 {
@@ -1523,18 +1763,19 @@ bool _can_study(void)
 
 static void _study_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
-    int idx = ((int*)cookie)[which];
+    int id = ((int*)cookie)[which];
+    _spell_ptr spell = _get_spell(id);
     switch (cmd)
     {
     case MENU_TEXT:
-        var_set_string(res, _spells[idx].name);
+        var_set_string(res, spell->name);
         break;
     case MENU_HELP:
-        var_set_string(res, _spells[idx].desc);
+        var_set_string(res, spell->desc);
         break;
     case MENU_COLOR:
     {
-        int lvl = _spells[idx].level;
+        int lvl = spell->level;
         int i;
         var_set_int(res, TERM_WHITE);
         for (i = 0; ; i++)
@@ -1563,11 +1804,11 @@ static void _study(int level)
 
     for (i = 0; ; i++)
     {
-        _spell_t *s_ptr = &_spells[i];
-        if (!s_ptr->level) break;
-        if (s_ptr->level <= level && !_spell_is_known(i))
+        _spell_t *spell = &__spells[i];
+        if (!spell->level) break;
+        if (spell->level <= level && !_spell_is_known(spell->id))
         {
-            choices[ct] = i;
+            choices[ct] = spell->id;
             ct++;
         }
     }
@@ -1580,7 +1821,8 @@ static void _study(int level)
         {
             char prompt[1024];
             char desc[255*10];
-            int idx = choices[i];
+            int id = choices[i];
+            _spell_ptr spell = _get_spell(id);
             int j;
             cptr t;
 
@@ -1588,17 +1830,17 @@ static void _study(int level)
             for (j = 0; j < 10+1; j++)
                 Term_erase(13, 1+j, 255);
             
-            roff_to_buf(_spells[idx].desc, 80-13, desc, sizeof(desc));
+            roff_to_buf(spell->desc, 80-13, desc, sizeof(desc));
             for (t = desc, j = 0; t[0]; t += strlen(t) + 1, j++)
                 prt(t, 2+j, 13);
 
-            sprintf(prompt, "You will learn %s.  Are you sure?", _spells[idx].name);
+            sprintf(prompt, "You will learn %s.  Are you sure?", spell->name);
             if (get_check(prompt))
             {
                 screen_load();
-                p_ptr->spell_order[_num_spells_learned()] = idx;
+                p_ptr->spell_order[_num_spells_learned()] = spell->id;
                 p_ptr->redraw |= PR_STUDY;
-                msg_format("You have gained %s.", _spells[idx].name);
+                msg_format("You have gained %s.", spell->name);
                 break;
             }
             screen_load();
@@ -1628,7 +1870,7 @@ static int _get_powers(spell_info* spells, int max)
 
 static void _choose_menu_fn(int cmd, int which, vptr cookie, variant *res)
 {
-    _spell_t *spell = &_spells[p_ptr->spell_order[which]];
+    _spell_ptr spell = _get_spell(p_ptr->spell_order[which]);
     switch (cmd)
     {
     case MENU_TEXT:
@@ -1656,15 +1898,15 @@ static int _choose_spell(void)
 
 static int _get_spells(spell_info* spells, int max)
 {
-    int       i, idx, stat, ct = 0;
+    int       i, id, stat, ct = 0;
     _spell_t *base;
 
     /* First Choose which Psionic Spell to use */
-    idx = _choose_spell();
-    if (idx < 0) return 0;
+    id = _choose_spell();
+    if (id < 0) return 0;
 
     stat = _spell_stat_idx();
-    base = &_spells[idx];
+    base = _get_spell(id);
 
     /* Then Choose which power level of that spell to use */
     for (i = 0; i < _MAX_POWER; i++)
@@ -1681,7 +1923,9 @@ static int _get_spells(spell_info* spells, int max)
 
             if (p_ptr->magic_num1[_CLARITY])
             {
-                cost = cost * (95 - 7 * p_ptr->magic_num2[_CLARITY]) / 100;
+                cost = cost * (85 - 7 * p_ptr->magic_num2[_CLARITY]) / 100;
+                if (cost < 1)
+                    cost = 1;
             }
 
             if (p_ptr->magic_num1[_COMBAT] || p_ptr->magic_num1[_ARCHERY])
@@ -1701,7 +1945,7 @@ static void _calc_bonuses(void)
 {
     if (p_ptr->magic_num1[_BLENDING])
     {
-        p_ptr->skills.stl += 4 * p_ptr->magic_num2[_BLENDING];
+        p_ptr->skills.stl += 5 * p_ptr->magic_num2[_BLENDING];
         if ((p_ptr->cursed & TRC_AGGRAVATE) && p_ptr->magic_num2[_BLENDING] == 5)
         {
             p_ptr->cursed &= ~(TRC_AGGRAVATE);
@@ -1803,6 +2047,8 @@ void psion_decrement_counters(void)
     _decrement_counter(_FORTRESS, "Your mental fortress collapses.");    
     _decrement_counter(_MINDSPRING, "Your mindspring dries up.");    
     _decrement_counter(_FORESIGHT, "Your foresight fades.");    
+    _decrement_counter(_DISRUPTION, "Your mental disruption vanishes.");
+    _decrement_counter(_DRAIN, "You no longer drain power from surrounding magics.");
 }
 
 static void _clear_counter(int which, cptr off)
@@ -1832,6 +2078,8 @@ void psion_dispel_player(void)
     _clear_counter(_FORTRESS, "Your mental fortress collapses.");    
     /*_clear_counter(_MINDSPRING, "Your mindspring dries up.");    */
     _clear_counter(_FORESIGHT, "Your foresight fades.");    
+    _clear_counter(_DISRUPTION, "Your mental disruption is calmed.");    
+    _clear_counter(_DRAIN, "You no longer drain power from surrounding magics.");
 }
 
 static caster_info * _caster_info(void)
@@ -1848,58 +2096,63 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
-/*
 static void _character_dump(FILE* file)
 {
-    int i, j;
-    const int max = 1;
+    int     i, j;
+    int     stat = _spell_stat_idx();
+    int     num_learned = _num_spells_learned();
+    variant name, info;
 
-    for (j = 1; j <= max; j++)
+    var_init(&name);
+    var_init(&info);
+
+    fprintf(file, "\n=================================== Spells ====================================\n");
+
+    for (i = 0; i < num_learned; i++)
     {
-        spell_info spells[MAX_SPELLS];
-        int ct;
+        _spell_t *power = _get_spell(p_ptr->spell_order[i]);
 
-        _power = j;
-        ct = _get_spells(spells, MAX_SPELLS);
-
-        if (ct > 0)
+        fprintf(file, "\n%-23.23s Cost Fail %-15.15s Cast Fail\n", power->name, "Info");
+        for (j = 0; j < _MAX_POWER; j++)
         {
-            variant name, info;
+            _spell_info_t  *spell = &power->info[j];
+            int             fail = spell->fail;
+            int             cost = spell->cost;
+            spell_stats_ptr stats = NULL;
 
-            var_init(&name);
-            var_init(&info);
-
-            for (i = 0; i < ct; i++)
+            if (p_ptr->magic_num1[_CLARITY])
             {
-                spell_info* current = &spells[i];
-                current->cost += get_spell_cost_extra(current->fn);
-                current->cost = calculate_cost(current->cost);
-                current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
+                cost = cost * (85 - 7 * p_ptr->magic_num2[_CLARITY]) / 100;
+                if (cost < 1)
+                    cost = 1;
             }
 
-            fprintf(file, "\n  [Psionic Powers %d]\n", _power);
-            fprintf(file, "%-23.23s Lv Cost Fail Info\n", "");
-            for (i = 0; i < ct; ++i)
+            if (p_ptr->magic_num1[_COMBAT] || p_ptr->magic_num1[_ARCHERY])
             {
-                spell_info *spell = &spells[i];
-
-                (spell->fn)(SPELL_NAME, &name);
-                (spell->fn)(SPELL_INFO, &info);
-
-                fprintf(file, "%-23.23s %2d %4d %3d%% %s\n", 
-                                var_get_string(&name),
-                                spell->level,
-                                spell->cost,
-                                spell->fail,
-                                var_get_string(&info));
+                cost = cost * 3 / 2;
             }
 
-            var_clear(&name);
-            var_clear(&info);
+            fail = calculate_fail_rate(power->level, fail, stat);
+
+            (spell->fn)(SPELL_NAME, &name);
+            stats = spell_stats_aux(var_get_string(&name));
+
+            (spell->fn)(SPELL_INFO, &info);
+            fprintf(file, "%-23.23s %4d %3d%% %-15.15s %4d %4d %3d%%\n", 
+                            var_get_string(&name),
+                            cost,
+                            fail,
+                            var_get_string(&info),
+                            stats->ct_cast, stats->ct_fail,
+                            spell_stats_fail(stats)
+            );
+
         }
     }
+
+    var_clear(&name);
+    var_clear(&info);
 }
-*/
 
 static void _player_action(int energy_use)
 {
@@ -1948,7 +2201,7 @@ class_t *psion_get_class_t(void)
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;
-    /*    me.character_dump = _character_dump; */
+        me.character_dump = _character_dump;
         me.gain_level = _gain_level;
         me.player_action = _player_action;
         init = TRUE;

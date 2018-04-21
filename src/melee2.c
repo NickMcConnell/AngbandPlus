@@ -2221,11 +2221,6 @@ static void process_monster(int m_idx)
             teleport_away(m_idx, 5, 0L);
     }
 
-    if (p_ptr->pclass == CLASS_PSION)
-    {                                     /* v------ Ego Whip killed it! */
-        if (psion_process_monster(m_idx)) return;
-    }
-
     if (is_riding_mon)
     {
         if (p_ptr->prace == RACE_MON_RING)
@@ -3842,6 +3837,14 @@ void process_monsters(void)
 
         /* Use up "some" energy */
         m_ptr->energy_need += ENERGY_NEED();
+
+        /* Process the Psion's Ego Whip first since
+           (a) it may kill the monster, obviating the need for further processing;
+           (b) it should always fire even if (especially if!) the monster is frightened */
+        if (p_ptr->pclass == CLASS_PSION)
+        {                                     /* v------ Ego Whip killed it! */
+            if (psion_process_monster(i)) continue;
+        }
 
         if (m_ptr->mflag2 & MFLAG2_TRIPPED)
         {

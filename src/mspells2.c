@@ -759,8 +759,14 @@ bool monst_spell_monst(int m_idx)
     /* Hex: Anti Magic Barrier */
     if (!spell_is_inate(thrown_spell) && magic_barrier(m_idx))
     {
-        if (see_m) msg_format("Anti magic barrier cancels the spell which %^s casts.");
+        if (see_m) msg_format("Your anti-magic barrier blocks the spell which %^s casts.");
         return (TRUE);
+    }
+
+    if (!spell_is_inate(thrown_spell) && psion_check_disruption(m_idx))
+    {
+        msg_format("Your psionic disruption blocks the spell which %^s casts.", m_name);
+        return TRUE;
     }
 
     can_remember = is_original_ap_and_seen(m_ptr);

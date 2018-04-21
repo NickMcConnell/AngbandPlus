@@ -422,6 +422,8 @@ static void prt_stat(int stat)
 #define BAR_VAMPIRE_DARK  164
 #define BAR_SH_SHARDS 165
 #define BAR_SH_DOMINATION 166
+#define BAR_PSIONIC_DISRUPTION 167
+#define BAR_PSIONIC_DRAIN 168
 
 static struct {
     byte attr;
@@ -597,6 +599,8 @@ static struct {
     {TERM_L_DARK, "Dk", "Dark"},
     {TERM_UMBER, "SSh", "SShards"},
     {TERM_L_BLUE, "Dom", "Dominate"},
+    {TERM_RED, "[M", "Disruption"},
+    {TERM_YELLOW, "Dr", "Drain"},
     {0, NULL, NULL}
 };
 
@@ -978,6 +982,8 @@ static void prt_status(void)
         if (psion_mental_fortress()) ADD_FLG(BAR_MENTAL_FORTRESS);
         if (psion_mindspring()) ADD_FLG(BAR_MINDSPRING);
         if (psion_foresight()) ADD_FLG(BAR_PSIONIC_FORESIGHT);
+        if (psion_disruption()) ADD_FLG(BAR_PSIONIC_DISRUPTION);
+        if (psion_drain()) ADD_FLG(BAR_PSIONIC_DRAIN);
     }
 
     if (p_ptr->sense_artifact) ADD_FLG(BAR_SPECIAL);

@@ -2875,12 +2875,12 @@ E:Your ballista glows black...
 N:272:of the Kamikaze Warrior
 I:36:2:2
 W:50:40:20:80000
-P:2:0d0:10:10:-50
+P:2:0d0:10:10:-20
 F:STR | DEX | DEC_WIS | SPEED | HIDE_TYPE 
 F:SUST_STR | SUST_DEX | HOLD_LIFE | LEVITATION
 F:RES_FIRE | RES_POIS | RES_CONF | RES_SOUND | RES_NETHER | RES_FEAR
 F:NO_MAGIC | WEAPONMASTERY
-E:SPEED_ESSENTIA:25:111
+E:BERSERK:8:100
 E:Your robe glows crimson...
 D:This robe is stained with the the blood of many fallen heros.
 D:So much death. So much destruction. What could cause such a thing?

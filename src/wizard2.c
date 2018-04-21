@@ -3029,32 +3029,28 @@ void do_cmd_debug(void)
 
     case '_':
     {
+        int ct = 10 * 1000;
         int i;
-        for (i = 0; i < 100*1000; i++)
+        for (i = 0; i < ct; i++)
         {
             object_type forge;
-            make_object(&forge, AM_GOOD | AM_TAILORED);
-            switch (forge.tval)
+            if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED))
             {
-            case TV_LIFE_BOOK:
-            case TV_SORCERY_BOOK:
-            case TV_NATURE_BOOK:
-            case TV_CHAOS_BOOK:
-            case TV_DEATH_BOOK:
-            case TV_TRUMP_BOOK:
-            case TV_CRAFT_BOOK:
-            case TV_DAEMON_BOOK:
-            case TV_CRUSADE_BOOK:
-            case TV_NECROMANCY_BOOK:
-            case TV_ARMAGEDDON_BOOK:
-            case TV_MUSIC_BOOK:
-            case TV_HISSATSU_BOOK:
-            case TV_HEX_BOOK:
-                assert(forge.sval >= SV_BOOK_MIN_GOOD);
-                break;
-            }
-        }
+                if (!(forge.name1 || forge.name2 || forge.art_name))
+                {
+                    char buf[MAX_NLEN];
+                    identify_item(&forge);
+                    forge.ident |= (IDENT_MENTAL); 
         
+                    object_desc(buf, &forge, 0);
+                    msg_format("%d) %s", i, buf);
+                }
+            }
+            else
+            {
+                msg_format("%d) FAILED!!", i);
+            }
+        }        
         break;
     }
     default:
