@@ -1885,7 +1885,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
      * special INVEN_* codes are not ascii printable characters. */
     if (repeat_pull(cp))
     {
-        bool is_tag = command_cmd && isprint(*cp);
+        bool is_tag = command_cmd && *cp > 0 && *cp < 255 && isprint(*cp); /* Range checking required for Windows isprint */
 
         /* Hack: Distinguish between pushed tags and inventory[] indices
          * which may, after all, be valid ascii printable characters */

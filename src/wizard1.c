@@ -1029,7 +1029,7 @@ static int _compare_r_level_desc(monster_race *l, monster_race *r)
 {
     return -_compare_r_level(l, r);
 }
-static void spoil_mon_info()
+static void spoil_mon_info(void)
 {
     int     i;
     vec_ptr v = vec_alloc(NULL);

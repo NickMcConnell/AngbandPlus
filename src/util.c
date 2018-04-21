@@ -4051,7 +4051,8 @@ static void _repeat_list_aux(doc_ptr doc, int i)
         for (j = 0; j < buf->ct; j++)
         {
             c = buf->keys[j];
-            if (isprint(c))
+            /* Range checking is required before calling isprint on Windows */
+            if (0 < c && c < 256 && isprint(c))
                 doc_printf(doc, "'%c' ", (char)c);
             else
                 doc_printf(doc, "%d ", c);

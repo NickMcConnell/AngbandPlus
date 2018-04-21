@@ -71,6 +71,10 @@ int py_birth(void)
 {
     int result = UI_OK;
 
+    /* Windows is not setting a player name for new files */
+    if (0 == strlen(player_name))
+        strcpy(player_name, "PLAYER");
+
     assert(!_doc);
     _doc = doc_alloc(80);
 
@@ -2146,7 +2150,7 @@ static void _stat_inc(int which)
     _stats_changed = TRUE;
 }
 
-static int _stats_score()
+static int _stats_score(void)
 {
     int i, score = 0;
 

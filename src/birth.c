@@ -392,7 +392,7 @@ static bool mon_hook_quest_nonunique(int r_idx)
  */
 void determine_random_questor(quest_type *q_ptr)
 {
-    int          r_idx;
+    int          r_idx = 0;
     monster_race *r_ptr;
     int             attempt = 0;
     bool         force_unique = FALSE;

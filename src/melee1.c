@@ -1611,6 +1611,8 @@ bool make_attack_normal(int m_idx)
                         cmsg_print(TERM_L_UMBER, "(You retaliate:");
 
                     py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_RETALIATION);
+                    if (!m_ptr->r_idx) /* Dead? */
+                        alive = FALSE;
                     equip_learn_flag(OF_AURA_REVENGE);
                     cmsg_print(TERM_L_UMBER, ")");
                     if (mystic_get_toggle() == MYSTIC_TOGGLE_RETALIATE)

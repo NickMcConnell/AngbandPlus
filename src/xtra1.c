@@ -1883,6 +1883,8 @@ static void prt_effects(void)
             break;
         }
     }
+    if (p_ptr->shooter_info.heavy_shoot)
+        c_put_str(TERM_RED, "Heavy Shoot", row++, col);
     if (p_ptr->cut)
         prt_cut(row++, col);
     if (p_ptr->stun)
@@ -4921,6 +4923,7 @@ void calc_bonuses(void)
             msg_print("You feel relieved to put down your heavy bow.");
 
         p_ptr->old_heavy_shoot = p_ptr->shooter_info.heavy_shoot;
+        p_ptr->redraw |= PR_EFFECTS;
     }
 
     for (i = 0 ; i < MAX_HANDS ; i++)

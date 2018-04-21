@@ -3508,7 +3508,15 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                 {
                     bool fear = FALSE;
                     int tdam = tdam_base;
+                    bool ambush = FALSE;
 
+                    if (MON_CSLEEP(m_ptr) && m_ptr->ml && !p_ptr->confused && !p_ptr->image && !p_ptr->stun)
+                    {
+                        if (shoot_hack == SHOOT_SNIPING || (p_ptr->pclass == CLASS_SKILLMASTER && p_ptr->ambush))
+                        {
+                            ambush = TRUE;
+                        }
+                    }
                     /* Get extra damage from concentration */
                     if (p_ptr->concent) tdam = boost_concentration_damage(tdam);
 
@@ -3522,7 +3530,10 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                     {
                         char m_name[80];
                         monster_desc(m_name, m_ptr, 0);
-                        msg_format("The %s hits %s.", o_name, m_name);
+                        if (ambush)
+                            cmsg_format(TERM_VIOLET, "You cruelly shoot %s!", m_name);
+                        else
+                            msg_format("The %s hits %s.", o_name, m_name);
 
                         if (m_ptr->ml)
                         {
@@ -3562,16 +3573,8 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                         if (shoot_hack != SHOOT_SHATTER && shoot_hack != SHOOT_ELEMENTAL)
                             tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
 
-                        if (MON_CSLEEP(m_ptr))
-                        {
-                            if (shoot_hack == SHOOT_SNIPING || (p_ptr->pclass == CLASS_SKILLMASTER && p_ptr->ambush))
-                            {
-                                char m_name[MAX_NLEN];
-                                monster_desc(m_name, m_ptr, 0);
-                                cmsg_format(TERM_VIOLET, "You cruelly shoot the sleeping %s!", m_name);
-                                tdam *= 2;
-                            }
-                        }
+                        if (ambush)
+                            tdam *= 2;
 
                         crit = critical_shot(q_ptr->weight, q_ptr->to_h);
                         if (crit.desc)

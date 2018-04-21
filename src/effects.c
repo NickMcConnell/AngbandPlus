@@ -7125,7 +7125,10 @@ bool set_tim_inven_prot(int v, bool do_dec)
         }
         else
         {
-            msg_print("You feel your loot is safe.");
+            if (p_ptr->pclass == CLASS_ROGUE)
+                msg_print("You feel your loot is safe.");
+            else
+                msg_print("Your inventory seems safer now.");
             notice = TRUE;
         }
     }
@@ -7134,7 +7137,10 @@ bool set_tim_inven_prot(int v, bool do_dec)
     {
         if (p_ptr->tim_inven_prot)
         {
-            msg_print("Your loot feels exposed once again.");
+            if (p_ptr->pclass == CLASS_ROGUE)
+                msg_print("Your loot feels exposed once again.");
+            else
+                msg_print("Your inventory is no longer protected.");
             notice = TRUE;
         }
     }
