@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 3
-#define VER_PATCH 5
-#define VER_EXTRA 2
+#define VER_PATCH 6
+#define VER_EXTRA 1
 
 /*
  * Number of grids in each block (vertically)
@@ -5010,6 +5010,7 @@ extern int PlayerUID;
 #define MON_BULLGATES           732
 #define MON_SANTACLAUS          733
 #define MON_LORD_CHAOS          737
+#define MON_KHAMUL              738
 #define MON_TINDALOS            739
 #define MON_HOUND_OF_TINDALOS   739
 #define MON_LESSER_KRAKEN       740
@@ -5132,7 +5133,7 @@ extern int PlayerUID;
 #define MON_KENSHIROU           936
 #define MON_LEMS                937
 #define MON_W_KNIGHT            938
-#define MON_HOARMOUTH           939
+#define MON_HOARMURATH          939
 #define MON_LESSER_BALROG       940
 #define MON_BONE_DRAGON         941
 #define MON_PLANETAR            942
@@ -5157,6 +5158,7 @@ extern int PlayerUID;
 #define MON_KAKU                1002
 #define MON_GHOST_Q             1003
 #define MON_PIP                 1004
+#define MON_DWAR                1009
 #define MON_A_GOLD              1010
 #define MON_A_SILVER            1011
 #define MON_ROLENTO             1013

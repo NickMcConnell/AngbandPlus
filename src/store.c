@@ -517,8 +517,6 @@ void mass_produce(object_type *o_ptr)
     if (!store_hack)
     {
         k_ptr->counts.generated += size - 1;
-        if (p_ptr->wizard)
-            msg_format("Generated %d %s", size - 1, k_name + k_ptr->name);
         if (o_ptr->name2)
             e_info[o_ptr->name2].counts.generated += size - 1;
     }

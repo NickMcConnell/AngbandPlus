@@ -1220,7 +1220,8 @@ void equip_calc_bonuses(void)
             _weapon_info_flag(i, flgs, TR_BRAND_ACID);
             _weapon_info_flag(i, flgs, TR_BRAND_POIS);
             _weapon_info_flag(i, flgs, TR_IMPACT);     /* Quaker */
-            _weapon_info_flag(i, flgs, TR_SLAY_GOOD);  /* Thanos */
+            _weapon_info_flag(i, flgs, TR_SLAY_GOOD);  /* Thanos, Nazgul */
+            _weapon_info_flag(i, flgs, TR_SLAY_HUMAN); /* Nazgul */
         }
 
         if (have_flag(flgs, TR_XTRA_SHOTS))

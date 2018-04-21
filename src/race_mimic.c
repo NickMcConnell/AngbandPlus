@@ -674,6 +674,7 @@ static void _load(savefile_ptr file)
         if (i < _MAX_FORMS)
             _forms[i] = r_idx;
     }
+    possessor_on_load(file);
 }
 
 static void _save(savefile_ptr file)
@@ -687,6 +688,7 @@ static void _save(savefile_ptr file)
         if (_forms[i])
             savefile_write_s16b(file, _forms[i]);
     }
+    possessor_on_save(file);
 }
 
 /**********************************************************************
@@ -722,6 +724,8 @@ static void _birth(void)
 { 
     object_type forge;
     int i;
+
+    possessor_on_birth(); /* Cleanup history from last character */
 
     for (i = 0; i < _MAX_FORMS; i++)
         _forms[i] = 0;
@@ -889,6 +893,7 @@ void _character_dump(FILE* file)
             fprintf(file, " %s\n", r_name + r_info[_forms[i]].name);
         }
     }
+    possessor_character_dump(file);
 }
 
 /**********************************************************************

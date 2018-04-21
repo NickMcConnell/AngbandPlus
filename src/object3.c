@@ -325,7 +325,7 @@ static s32b _resistances_q(u32b flgs[TR_FLAG_SIZE])
     cost += _check_flag_and_score(flgs, TR_RES_DISEN, 15000, &count);
     cost += _check_flag_and_score(flgs, TR_RES_TIME, 25000, &count);
 
-    cost += _check_flag_and_score(flgs, TR_IM_ACID, 100000, &count);
+    cost += _check_flag_and_score(flgs, TR_IM_ACID,  80000, &count);
     cost += _check_flag_and_score(flgs, TR_IM_ELEC, 130000, &count);
     cost += _check_flag_and_score(flgs, TR_IM_FIRE, 120000, &count);
     cost += _check_flag_and_score(flgs, TR_IM_COLD, 140000, &count);

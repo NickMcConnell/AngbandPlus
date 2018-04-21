@@ -3894,7 +3894,7 @@ static void dump_aux_recall(FILE *fff)
 {
     int y;
 
-    fprintf(fff, "\n=================================== Dungeons ==================================\n\n");
+    fprintf(fff, "\n\n=================================== Dungeons ==================================\n\n");
     for (y = 1; y < max_d_idx; y++)
     {
         bool seiha = FALSE;

@@ -2219,7 +2219,7 @@ static void do_monster_knockback(int x, int y, int dist);
 
 static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 {
-    int             dam, base_dam, to_h, chance;
+    int             dam, base_dam, effect_pow, to_h, chance;
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
     char            m_name[80];
@@ -2261,8 +2261,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
             chance = p_ptr->skills.thn + (to_h * BTH_PLUS_ADJ);
             if (test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
             {
-                critical_t crit;
-                int        dd = a->dd + p_ptr->innate_attack_info.to_dd;
+                int dd = a->dd + p_ptr->innate_attack_info.to_dd;
 
                 hit_ct++;
                 sound(SOUND_HIT);
@@ -2289,17 +2288,30 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     }
                 }
                 base_dam += a->to_d;
-                crit = critical_norm(a->weight, to_h, 0, mode, HAND_NONE);
-                if (crit.desc)
+                if (!(a->flags & INNATE_NO_DAM))
                 {
-                    base_dam = base_dam * crit.mul/100 + crit.to_d;
-                    msg_print(crit.desc);
+                    critical_t crit = critical_norm(a->weight, to_h, 0, mode, HAND_NONE);
+                    if (crit.desc)
+                    {
+                        base_dam = base_dam * crit.mul/100 + crit.to_d;
+                        msg_print(crit.desc);
+                    }
                 }
 
                 dam = base_dam + p_ptr->to_d_m;
-                if (dam < 0) dam = 0;
+                if (a->flags & INNATE_NO_DAM)
+                {
+                    base_dam = 0;
+                    effect_pow = p_ptr->lev * 2;
+                    dam = 0;
+                }
+                else
+                    effect_pow = base_dam;
+                if (dam < 0) 
+                    dam = 0;
                 dam = mon_damage_mod(m_ptr, dam, FALSE);
-                if (dam > 0) anger_monster(m_ptr);
+                if (dam > 0) 
+                    anger_monster(m_ptr);
 
                 for (k = 0; k < MAX_INNATE_EFFECTS && !*mdeath; k++)
                 {
@@ -2307,7 +2319,12 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     int p = a->effect_chance[k];
 
                     if (p == 0) p = 100;
-                    if (!e && k == 0) e = GF_MISSILE;
+                    if (!e && k == 0) 
+                    {
+                        if (a->flags & INNATE_NO_DAM)
+                            continue;
+                        e = GF_MISSILE;
+                    }
 
                     /* Hack: When I decreased monster base resistance (89% -> 50%)
                        I inadvertantly made dragon bite attacks too strong. Let's
@@ -2459,35 +2476,32 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         }
                         break;
                     case GF_OLD_SLEEP:
-                        delay_sleep += base_dam;
+                        delay_sleep += effect_pow;
                         break;
                     case GF_STASIS:
-                        if (a->dd * a->ds == 0)
-                            delay_stasis += p_ptr->lev*2;
-                        else
-                            delay_stasis += base_dam;
+                        delay_stasis += effect_pow;
                         break;
                     case GF_PARALYSIS:
-                        delay_paralysis += base_dam;
+                        delay_paralysis += effect_pow;
                         break;
                     case GF_OLD_CONF:
                     case GF_OLD_SLOW:
                     case GF_STUN:
-                        project(0, 0, m_ptr->fy, m_ptr->fx, MAX(2*p_ptr->lev, base_dam), e, PROJECT_KILL|PROJECT_HIDE, -1);
+                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE, -1);
                         *mdeath = (m_ptr->r_idx == 0);
                         break;
                     case GF_DRAIN_MANA:
                     {
-                        int amt = MIN(base_dam, max_drain_amt - drain_amt);
+                        int amt = MIN(effect_pow, max_drain_amt - drain_amt);
                         if (amt && project(0, 0, m_ptr->fy, m_ptr->fx, amt, e, PROJECT_KILL|PROJECT_HIDE, -1))
                             drain_amt += amt;
                         *mdeath = (m_ptr->r_idx == 0);
                         break;
                     }
                     case GF_OLD_DRAIN:
-                        if (monster_living(r_ptr) && project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1))
+                        if (monster_living(r_ptr) && project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE, -1))
                         {
-                            int amt = MIN(base_dam, max_drain_amt - drain_amt);
+                            int amt = MIN(effect_pow, max_drain_amt - drain_amt);
                             if (prace_is_(MIMIC_BAT))
                             {
                                 vampire_feed(amt);
@@ -2513,7 +2527,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         }
                         break;
                     default:
-                        project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1);
+                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE, -1);
                         *mdeath = (m_ptr->r_idx == 0);
                     }
                 }

@@ -12,6 +12,7 @@
 
 #include "angband.h"
 #include "equip.h"
+#include "int-map.h"
 
 static void do_cmd_knowledge_weapon(void);
 static void do_cmd_knowledge_shooter(void);
@@ -3392,6 +3393,7 @@ void do_cmd_feeling(void)
  */
 static cptr monster_group_text[] = 
 {
+    "Corpses",
     "Uniques",
     "Ridable monsters",
     "Wanted monsters",
@@ -3468,6 +3470,7 @@ static cptr monster_group_char[] =
     (char *) -3L,
     (char *) -4L,
     (char *) -5L,
+    (char *) -6L,
     "a",
     "b",
     "c",
@@ -3544,8 +3547,8 @@ static bool ang_sort_comp_monster_level(vptr u, vptr v, int a, int b)
     /* Unused */
     (void)v;
 
-    if (r_ptr2->level > r_ptr1->level) return TRUE;
-    if (r_ptr1->level > r_ptr2->level) return FALSE;
+    if (r_ptr2->level > r_ptr1->level) return FALSE;
+    if (r_ptr1->level > r_ptr2->level) return TRUE;
 
     if ((r_ptr2->flags1 & RF1_UNIQUE) && !(r_ptr1->flags1 & RF1_UNIQUE)) return TRUE;
     if ((r_ptr1->flags1 & RF1_UNIQUE) && !(r_ptr2->flags1 & RF1_UNIQUE)) return FALSE;
@@ -3567,18 +3570,60 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
     /* Get a list of x_char in this group */
     cptr group_char = monster_group_char[grp_cur];
 
-    /* XXX Hack -- Check if this is the "Uniques" group */
-    bool grp_unique = (monster_group_char[grp_cur] == (char *) -1L);
+    /* XXX Hack -- Check for special groups */
+    bool        grp_corpses = (monster_group_char[grp_cur] == (char *) -1L);
+    bool        grp_unique = (monster_group_char[grp_cur] == (char *) -2L);
+    bool        grp_riding = (monster_group_char[grp_cur] == (char *) -3L);
+    bool        grp_wanted = (monster_group_char[grp_cur] == (char *) -4L);
+    bool        grp_amberite = (monster_group_char[grp_cur] == (char *) -5L);
+    bool        grp_olympian = (monster_group_char[grp_cur] == (char *) -6L);
+    int_map_ptr available_corpses = NULL;
 
-    /* XXX Hack -- Check if this is the "Riding" group */
-    bool grp_riding = (monster_group_char[grp_cur] == (char *) -2L);
+    if (grp_corpses)
+    {
+        store_type *store_ptr = &town[1].store[STORE_HOME];
 
-    /* XXX Hack -- Check if this is the "Wanted" group */
-    bool grp_wanted = (monster_group_char[grp_cur] == (char *) -3L);
+        available_corpses = int_map_alloc(NULL);
 
-    /* XXX Hack -- Check if this is the "Amberite" group */
-    bool grp_amberite = (monster_group_char[grp_cur] == (char *) -4L);
-    bool grp_olympian = (monster_group_char[grp_cur] == (char *) -5L);
+        /* In Pack */
+        for (i = 0; i < INVEN_PACK; i++)
+        {
+            object_type *o_ptr = &inventory[i];
+            if (!o_ptr->k_idx) continue;
+            if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
+            int_map_add(available_corpses, o_ptr->pval, NULL);
+        }
+
+        /* At Home */
+        for (i = 0; i < store_ptr->stock_num; i++)
+        {
+            object_type *o_ptr = &store_ptr->stock[i];
+            if (!o_ptr->k_idx) continue;
+            if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
+            int_map_add(available_corpses, o_ptr->pval, NULL);
+        }
+
+        /* Underfoot */
+        if (in_bounds2(py, px))
+        {
+            cave_type  *c_ptr = &cave[py][px];
+            s16b        o_idx = c_ptr->o_idx;
+            
+            while (o_idx)
+            {
+                object_type *o_ptr = &o_list[o_idx];
+                if (!o_ptr->k_idx) continue;
+                if (!object_is_(o_ptr, TV_CORPSE, SV_CORPSE)) continue;
+                int_map_add(available_corpses, o_ptr->pval, NULL);
+                o_idx = o_ptr->next_o_idx;
+            }
+        }
+
+        /* Current Form for Easier Comparisons */
+        if (p_ptr->prace == RACE_MON_POSSESSOR && p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+            int_map_add(available_corpses, p_ptr->current_r_idx, NULL);
+
+    }
 
 
     /* Check every race */
@@ -3588,12 +3633,18 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
         monster_race *r_ptr = &r_info[i];
 
         /* Skip empty race */
-        if (!r_ptr->name) continue ;
+        if (!r_ptr->name) continue;
 
         /* Require known monsters */
         if (!(mode & 0x02) && !cheat_know && !r_ptr->r_sights) continue;
 
-        if (grp_unique)
+        if (grp_corpses)
+        {
+            if (!int_map_contains(available_corpses, i)) 
+                continue;
+        }
+
+        else if (grp_unique)
         {
             if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
         }
@@ -3651,6 +3702,9 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
     /* Sort by monster level */
     ang_sort(mon_idx, &dummy_why, mon_cnt);
+
+    if (grp_corpses)
+        int_map_free(available_corpses);
 
     /* Return the number of races */
     return mon_cnt;
@@ -6179,6 +6233,9 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
         /* Check every group */
         for (i = 0; monster_group_text[i] != NULL; i++)
         {
+            if (monster_group_char[i] == ((char *) -1L) && p_ptr->prace != RACE_MON_POSSESSOR) 
+                continue;
+
             /* Measure the label */
             len = strlen(monster_group_text[i]);
 
@@ -6186,7 +6243,7 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
             if (len > max) max = len;
 
             /* See if any monsters are known */
-            if ((monster_group_char[i] == ((char *) -1L)) || collect_monsters(i, mon_idx, mode))
+            if ((monster_group_char[i] == ((char *) -2L)) || collect_monsters(i, mon_idx, mode))
             {
                 /* Build a list of groups with known monsters */
                 grp_idx[grp_cnt++] = i;

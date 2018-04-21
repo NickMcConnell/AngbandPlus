@@ -33,6 +33,34 @@ static void _birth(void)
  *              10           20        30        40        45          50 
  * Angel: Angel -> Archangel -> Cherub -> Seraph -> Archon -> Planetar -> Solar
  ******************************************************************************/
+static void _psycho_spear_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Psycho-Spear");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Fires a beam of pure energy which penetrate the invulnerability barrier.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 3), spell_power(p_ptr->lev * 3)));
+        break;
+    case SPELL_CAST:
+    {
+        int dir = 0;
+        var_set_bool(res, FALSE);
+        if (!get_aim_dir(&dir)) return;
+        fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*3) + p_ptr->lev*3));
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 static spell_info _spells[] = {
     {  1,  1, 30, punishment_spell},
     {  2,  2, 30, bless_spell},
@@ -50,7 +78,7 @@ static spell_info _spells[] = {
     { 32, 20, 60, healing_I_spell},
     { 35, 25, 60, destruction_spell},
     { 37, 25, 60, summon_monsters_spell},
-    { 40, 30, 65, psycho_spear_spell},
+    { 40, 30, 65, _psycho_spear_spell},
     { 42, 30, 65, restoration_spell},
     { 45, 80, 65, clairvoyance_spell},
     { 47, 60, 70, summon_angel_spell},
@@ -195,7 +223,7 @@ static race_t *_solar_get_race_t(void)
         me.extra_skills = xs;
 
         me.infra = 3;
-        me.exp = 275;
+        me.exp = 325; /* 14.6 Mxp */
         me.base_hp = 26;
 
         me.get_spells = _get_spells;

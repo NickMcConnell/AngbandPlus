@@ -491,29 +491,6 @@ static int _hru_get_powers(spell_info* spells, int max) {
     return get_powers_aux(spells, max, _hru_powers);
 }
 
-static void _hru_calc_innate_attacks(void)
-{
-    if (p_ptr->lev >= 30 && p_ptr->weapon_ct == 0 && equip_find_empty_hand())
-    {
-        innate_attack_t a = {0};
-        int l = p_ptr->lev;
-
-        a.dd = l / 5;
-        a.ds = 1 + l / 5;
-        a.weight = l * 10;
-        a.to_h = l;
-        a.to_d = l/2;
-
-        a.effect[1] = GF_QUAKE;
-        calc_innate_blows(&a, 500);
-
-        a.msg = "You punch %s.";
-        a.name = "Fist";
-
-        p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
-    }
-}
-
 static void _hru_calc_bonuses(void) {
     p_ptr->sustain_str = TRUE;
     if (p_ptr->lev >= 30)

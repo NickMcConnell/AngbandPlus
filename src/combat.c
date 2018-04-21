@@ -717,8 +717,6 @@ int display_innate_attack_info(int which, int row, int col)
 {
     innate_attack_ptr a = &p_ptr->innate_attacks[which];
     int blows, min, max, min_base, max_base, min2, max2;
-    critical_t crit = {0};
-    const int ct = 10 * 1000;
     int i;
     int to_h = p_ptr->to_h_m + a->to_h;
     int to_d = p_ptr->to_d_m + a->to_d;
@@ -735,10 +733,13 @@ int display_innate_attack_info(int which, int row, int col)
     /* First Column */
     r = row;
     c = col;
-    sprintf(buf, " %-7.7s: Your %s (%dd%d)", "Attack", a->name, dd, a->ds);
+    if (a->flags & INNATE_NO_DAM)
+        sprintf(buf, " %-7.7s: Your %s", "Attack", a->name);
+    else
+        sprintf(buf, " %-7.7s: Your %s (%dd%d)", "Attack", a->name, dd, a->ds);
     c_put_str(TERM_YELLOW, buf, r++, c);
 
-    if (a->weight)
+    if (a->weight && !(a->flags & INNATE_NO_DAM))
     {
         sprintf(buf, " %-7.7s: %d.%d lbs", "Weight", a->weight/10, a->weight%10);
         put_str(buf, r++, c);
@@ -747,45 +748,55 @@ int display_innate_attack_info(int which, int row, int col)
     sprintf(buf, " %-7.7s: %d + %d = %d", "To Hit", a->to_h, p_ptr->to_h_m, to_h);
     put_str(buf, r++, c);
 
-    sprintf(buf, " %-7.7s: %d + %d = %d", "To Dam", a->to_d, p_ptr->to_d_m, to_d);
-    put_str(buf, r++, c);
-    
+    if (!(a->flags & INNATE_NO_DAM))
+    {
+        sprintf(buf, " %-7.7s: %d + %d = %d", "To Dam", a->to_d, p_ptr->to_d_m, to_d);
+        put_str(buf, r++, c);
+    }    
     sprintf(buf, " %-7.7s: %d.%2.2d", "Blows", blows/100, blows%100);
     put_str(buf, r++, c);
 
-    sprintf(buf, " %-7.7s", "Damage");
-    c_put_str(TERM_L_GREEN, buf, r++, c);
-
     mult = 100;
-    if (a->flags & INNATE_VORPAL)
-    {
-        mult = mult * 11 / 9;
-        sprintf(buf, " %-7.7s: %d.%02dx", "Vorpal", mult/100, mult%100);
-        put_str(buf, r++, c);
-    }
 
-    for (i = 0; i < ct; i++)
+    if (!(a->flags & INNATE_NO_DAM))
     {
-        critical_t tmp = critical_norm(a->weight, to_h, 0, 0, HAND_NONE);
-        if (tmp.desc)
+        sprintf(buf, " %-7.7s", "Damage");
+        c_put_str(TERM_L_GREEN, buf, r++, c);
+
+        if (a->flags & INNATE_VORPAL)
         {
-            crit.mul += tmp.mul;
-            crit.to_d += tmp.to_d;
+            mult = mult * 11 / 9;
+            sprintf(buf, " %-7.7s: %d.%02dx", "Vorpal", mult/100, mult%100);
+            put_str(buf, r++, c);
         }
-        else
-            crit.mul += 100;
     }
-    crit.mul = crit.mul / ct;
-    crit.to_d = crit.to_d * 100 / ct;
-    if (crit.to_d)
-        sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits", crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
-    else
-        sprintf(buf, " %-7.7s: %d.%02dx", "Crits", crit.mul/100, crit.mul%100);
 
-    put_str(buf, r++, c);
-    crit.to_d /= 100;
-    mult = mult * crit.mul / 100;
-    to_d = to_d + crit.to_d;
+    if (!(a->flags & INNATE_NO_DAM))
+    {
+        critical_t crit = {0};
+        const int ct = 10 * 1000;
+        for (i = 0; i < ct; i++)
+        {
+            critical_t tmp = critical_norm(a->weight, to_h, 0, 0, HAND_NONE);
+            if (tmp.desc)
+            {
+                crit.mul += tmp.mul;
+                crit.to_d += tmp.to_d;
+            }
+            else
+                crit.mul += 100;
+        }
+        crit.mul = crit.mul / ct;
+        crit.to_d = crit.to_d * 100 / ct;
+        if (crit.to_d)
+            sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits", crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
+        else
+            sprintf(buf, " %-7.7s: %d.%02dx", "Crits", crit.mul/100, crit.mul%100);
+        put_str(buf, r++, c);
+        crit.to_d /= 100;
+        mult = mult * crit.mul / 100;
+        to_d = to_d + crit.to_d;
+    }
 
     min_base = mult * dd / 100;
     min = min_base + to_d;
@@ -798,7 +809,7 @@ int display_innate_attack_info(int which, int row, int col)
     {
         c_put_str(TERM_L_BLUE, "Confuses", r++, c+10);
     }
-    else
+    else if (!(a->flags & INNATE_NO_DAM))
     {
         sprintf(buf, " %-7.7s: %d (%d-%d)",
                 _effect_name(a->effect[0]),

@@ -1453,6 +1453,38 @@ void monster_death(int m_idx, bool drop_item)
         }
         break;
 
+    case MON_NAZGUL:
+    case MON_ANGMAR:
+    case MON_KHAMUL:
+    case MON_DWAR:
+    case MON_HOARMURATH:
+    {
+        if (one_in_(3))
+        {
+            int         k_idx = lookup_kind(TV_RING, 0);
+            object_type forge;
+
+            object_prep(&forge, k_idx);
+
+            apply_magic_ego = EGO_RING_NAZGUL;
+            apply_magic(&forge, object_level, AM_GOOD | AM_GREAT | AM_FORCE_EGO);
+
+            drop_near(&forge, -1, y, x);
+        }
+        else if (one_in_(6))
+        {
+            int         k_idx = lookup_kind(TV_CLOAK, SV_CLOAK);
+            object_type forge;
+
+            object_prep(&forge, k_idx);
+
+            apply_magic_ego = EGO_CLOAK_NAZGUL;
+            apply_magic(&forge, object_level, AM_GOOD | AM_GREAT | AM_FORCE_EGO);
+
+            drop_near(&forge, -1, y, x);
+        }
+        break;
+    }
     default:
         if (!drop_chosen_item) break;
 
@@ -2442,7 +2474,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
             s64b_div(&n_h, &new_exp_frac, 0, 100);
         }
         m_ptr->pexp += pexp;
-#ifdef _DEBUG        
+#if 0
         msg_format(
             "Gain %d.%2.2d XP (Max %d.%2.2d, Mon %d.%2.2d, Actual %d %u)", 
             pexp/100, pexp%100, 

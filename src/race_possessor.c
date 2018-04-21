@@ -1,13 +1,180 @@
 #include "angband.h"
 
+#include <assert.h>
+
+/***********************************************************************
+ Possession History: Track the most recently assumed forms for the Possessor
+ and Mimic races. Report these on the character dump.
+
+ TODO: Free memory on quit().
+ ***********************************************************************/
+#define _HISTORY_MAX 1000
+
+/* Special Codes for dungeon_type */
+#define DUNGEON_WILD   0
+#define DUNGEON_TOWN  -1   /* lvl gives which town */
+#define DUNGEON_QUEST -2   /* lvl gives which quest */
+
+typedef struct _history_s _history_t;
+typedef struct _history_s *_history_ptr;
+
+struct _history_s
+{
+    int r_idx;
+    int d_idx;
+    int d_lvl;
+    int p_lvl;
+    int turn;
+
+    _history_ptr next;
+};
+
+static _history_ptr _history = NULL;
+
+static int _history_count(void)
+{
+    int          ct = 0;
+    _history_ptr p = _history;
+    
+    while (p)
+    {
+        ct++;
+        p = p->next;
+    }
+    
+    return ct;
+}
+
+static void _history_clear(void)
+{
+    _history_ptr p = _history;
+    while (p)
+    {
+        _history = p->next;
+        free(p);
+        p = _history;
+    }
+}
+
+static void _history_on_birth(void)
+{
+    _history_clear();
+}
+
+static void _history_on_possess(int r_idx)
+{
+    _history_ptr p = malloc(sizeof(_history_t));
+    if (p)
+    {
+        p->r_idx = r_idx;
+
+        if (!dungeon_type)
+        {
+            if (p_ptr->inside_quest)
+            {
+                p->d_idx = DUNGEON_QUEST;
+                p->d_lvl = p_ptr->inside_quest;
+            }
+            else if (p_ptr->town_num)
+            {
+                p->d_idx = DUNGEON_TOWN;
+                p->d_lvl = p_ptr->town_num;
+            }
+            else
+            {
+                p->d_idx = DUNGEON_WILD;
+                p->d_lvl = wilderness_level(p_ptr->wilderness_x, p_ptr->wilderness_y);
+            }
+        }
+        else
+        {
+            p->d_idx = dungeon_type;
+            p->d_lvl = dun_level;
+        }
+
+        p->p_lvl = p_ptr->lev;
+        p->turn = turn;
+
+        p->next = _history;
+        _history = p;
+    }
+}
+
+static void _history_on_load(savefile_ptr file)
+{
+    if (savefile_is_older_than(file, 3, 3, 6, 1))
+        _history_clear();
+    else
+    {
+        int          ct = savefile_read_s32b(file);
+        int          i;
+        _history_ptr c, t, lst = NULL;
+
+        _history_clear();
+        for (i = 0; i < ct; i++)
+        {
+            c = malloc(sizeof(_history_t));
+            assert(c);
+            
+            c->r_idx = savefile_read_s32b(file);
+            c->d_idx = savefile_read_s32b(file);
+            c->d_lvl = savefile_read_s32b(file);
+            c->p_lvl = savefile_read_s32b(file);
+            c->turn  = savefile_read_s32b(file);
+
+            c->next = lst;
+            lst = c;
+        }
+        
+        /* Reverse List */
+        while (lst)
+        {
+            t = lst;
+            lst = lst->next;
+            t->next = _history;
+            _history = t;
+        }
+    }
+}
+
+static void _history_on_save(savefile_ptr file)
+{
+    _history_ptr p = _history;
+    int          ct = MIN(_HISTORY_MAX, _history_count());
+    int          i = 0;
+
+    savefile_write_s32b(file, ct);
+    while (i < ct)
+    {
+        assert(p);
+        savefile_write_s32b(file, p->r_idx);
+        savefile_write_s32b(file, p->d_idx);
+        savefile_write_s32b(file, p->d_lvl);
+        savefile_write_s32b(file, p->p_lvl);
+        savefile_write_s32b(file, p->turn);
+        p = p->next;
+        i++;
+    }
+}
+
+/***********************************************************************
+ ...
+ ***********************************************************************/
 static int _calc_level(int l)
 {
     return l + l*l*l/2500;
 }
 
+void possessor_on_birth(void)
+{
+    _history_on_birth();
+}
+
 static void _birth(void) 
 { 
     object_type forge;
+
+    possessor_on_birth();
 
     p_ptr->current_r_idx = MON_POSSESSOR_SOUL;
     equip_on_change_race();
@@ -384,6 +551,9 @@ void possessor_calc_innate_attacks(void)
         {
             a.effect[2] = GF_STUN;
         }
+
+        if (a.dd * a.ds == 0)
+            a.flags |= INNATE_NO_DAM;
 
         calc_innate_blows(&a, 100 * cts[i]);
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
@@ -1548,6 +1718,9 @@ race_t *mon_possessor_get_race_t(void)
         me.get_immunities = possessor_get_immunities;
         me.get_vulnerabilities = possessor_get_vulnerabilities;
         me.player_action = _player_action;
+        me.save_player = possessor_on_save;
+        me.load_player = possessor_on_load;
+        me.character_dump = possessor_character_dump;
         
         me.calc_innate_attacks = possessor_calc_innate_attacks;
 
@@ -1644,7 +1817,12 @@ void possessor_set_current_r_idx(int r_idx)
             p_ptr->csp_frac = 0;
             p_ptr->redraw |= PR_MANA;
             p_ptr->window |= PW_PLAYER | PW_SPELL;
-        }    
+
+            if (p_ptr->current_r_idx != MON_MIMIC)
+                _history_on_possess(r_idx);
+        }
+        else
+            _history_on_possess(r_idx);    
     }
 }
 
@@ -1674,4 +1852,81 @@ void possessor_explode(int dam)
         take_hit(DAMAGE_NOESCAPE, dam, "Exploding", -1);
         set_stun(p_ptr->stun + 10, FALSE);
     }
+}
+
+void possessor_character_dump(FILE *file)
+{
+    _history_ptr p = _history;
+    int          ct = 0;
+    char         lvl[80];
+    char         loc[255];
+    
+    fprintf(file, "\n\n================================ Recent Forms =================================\n");
+    fprintf(file, "\n%-33.33s CL Day  Time  DL %-28.28s\n", "Most Recent Forms", "Location");
+    fprintf(file, "--------------------------------- -- --- ----- --- ----------------------------\n");
+
+    while (p && ct < 100)
+    {
+        int day, hour, min;
+        extract_day_hour_min_imp(p->turn, &day, &hour, &min);
+
+        switch (p->d_idx)
+        {
+        case DUNGEON_QUEST:
+            /* Yikes!! Quest names are not guaranteed to have been loaded!*/
+            if (!strlen(quest[p->d_lvl].name))
+            {
+                int old_quest = p_ptr->inside_quest;
+                int j;
+
+                for (j = 0; j < 10; j++) 
+                    quest_text[j][0] = '\0';
+                quest_text_line = 0;
+
+                p_ptr->inside_quest = p->d_lvl;
+                init_flags = INIT_SHOW_TEXT;
+                process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+                p_ptr->inside_quest = old_quest;
+            }
+
+            sprintf(loc, "%s", quest[p->d_lvl].name);
+            sprintf(lvl, "%3d", quest[p->d_lvl].level);
+            break;
+        case DUNGEON_TOWN:
+            /* Yikes!! Town names are not guaranteed to have ever been loaded! */
+            if (!strlen(town[p->d_lvl].name))
+            {
+                init_flags = INIT_SHOW_TEXT;
+                process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
+            }
+            sprintf(loc, "%s", town[p->d_lvl].name);
+            sprintf(lvl, "%s", "   ");
+            break;
+        default: /* DUNGEON_WILD is present in the pref file d_info.txt with the name: Wilderness */
+            sprintf(loc, "%s", d_name + d_info[p->d_idx].name);
+            if (p->d_lvl)
+                sprintf(lvl, "%3d", p->d_lvl);
+            else
+                sprintf(lvl, "%s", "   ");
+            break;
+        }
+        fprintf(file, "%-33.33s %2d %3d %2d:%02d %s %-15.15s\n", 
+            mon_name(p->r_idx), 
+            p->p_lvl, 
+            day, hour, min,
+            lvl, loc
+        );
+        p = p->next;
+        ct++;
+    }
+}
+
+void possessor_on_save(savefile_ptr file)
+{
+    _history_on_save(file);
+}
+
+void possessor_on_load(savefile_ptr file)
+{
+    _history_on_load(file);
 }

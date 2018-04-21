@@ -1950,8 +1950,6 @@ void object_prep(object_type *o_ptr, int k_idx)
     if (k_ptr->tval != TV_GOLD && !store_hack)
     {
         k_ptr->counts.generated++;
-        if (p_ptr->wizard)
-            msg_format("Generated 1 %s", k_name + k_ptr->name);
     }
 
     /* Efficiency -- tval/sval */
@@ -2294,12 +2292,14 @@ static int _get_random_ego(int type)
         if (e_ptr->type == type)
         {
             int rarity = e_ptr->rarity;
-            if (e_ptr->max_level && object_level > e_ptr->max_level)
-                rarity += 3*(object_level - e_ptr->max_level)/4;
-            else if (e_ptr->level && object_level < e_ptr->level)
-                rarity += 3*(e_ptr->level - object_level)/4;
             if (rarity)
+            {
+                if (e_ptr->max_level && object_level > e_ptr->max_level)
+                    rarity += 3*(object_level - e_ptr->max_level)/4;
+                else if (e_ptr->level && object_level < e_ptr->level)
+                    rarity += 3*(e_ptr->level - object_level)/4;
                 total += MAX(255 / rarity, 1);
+            }
         }
     }
 
@@ -2312,14 +2312,16 @@ static int _get_random_ego(int type)
         if (e_ptr->type == type)
         {
             int rarity = e_ptr->rarity;
-            if (e_ptr->max_level && object_level > e_ptr->max_level)
-                rarity += 3*(object_level - e_ptr->max_level)/4;
-            else if (e_ptr->level && object_level < e_ptr->level)
-                rarity += 3*(e_ptr->level - object_level)/4;
             if (rarity)
+            {
+                if (e_ptr->max_level && object_level > e_ptr->max_level)
+                    rarity += 3*(object_level - e_ptr->max_level)/4;
+                else if (e_ptr->level && object_level < e_ptr->level)
+                    rarity += 3*(e_ptr->level - object_level)/4;
                 value -= MAX(255 / rarity, 1);
-            if (value <= 0) 
-                return i;
+                if (value <= 0) 
+                    return i;
+            }
         }
     }
 
@@ -2334,6 +2336,14 @@ static void _create_artifact(object_type *o_ptr, int power)
         mode = CREATE_ART_CURSED;
 
     create_artifact(o_ptr, mode);
+}
+
+static bool _create_level_check(int power, int lvl)
+{
+    lvl = MAX(1, lvl);
+    if (randint0(power * 100 / lvl) < 100)
+        return TRUE;
+    return FALSE;
 }
 
 static int _jewelry_pval(int max, int level)
@@ -2383,6 +2393,18 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
     case EGO_RING_NAZGUL:
         o_ptr->to_d += 6;
         o_ptr->to_h += 6;
+        if (one_in_(6))
+            o_ptr->curse_flags |= TRC_PERMA_CURSE;
+        if (one_in_(66))
+            add_flag(o_ptr->art_flags, TR_IM_COLD);
+        if (one_in_(6))
+            add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
+        if (one_in_(6))
+            add_flag(o_ptr->art_flags, TR_BRAND_COLD);
+        if (one_in_(6))
+            add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
+        if (one_in_(6))
+            one_high_resistance(o_ptr);
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_NECROMANTIC);
         break;
@@ -2483,7 +2505,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                 o_ptr->to_d += randint1(5) + m_bonus(5, level);
                 break;
             case 5:
-                if ( (abs(power) >= 2 || one_in_(200 / level))
+                if ( (abs(power) >= 2 || _create_level_check(200, level))
                   && (!have_flag(o_ptr->art_flags, TR_XTRA_MIGHT) || one_in_(7) ) )
                 {
                     add_flag(o_ptr->art_flags, TR_XTRA_SHOTS);
@@ -2491,7 +2513,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     break;
                 }
             case 6:
-                if ( (abs(power) >= 2  || one_in_(200 / level))
+                if ( (abs(power) >= 2  || _create_level_check(200, level))
                   && (!have_flag(o_ptr->art_flags, TR_XTRA_SHOTS) || one_in_(7) ) )
                 {
                     add_flag(o_ptr->art_flags, TR_XTRA_MIGHT);
@@ -4363,8 +4385,16 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
             o_ptr->to_h -= 6;
             break;
         case EGO_CLOAK_NAZGUL:
+            o_ptr->to_d += 6;
+            o_ptr->to_h += 6;
             if (one_in_(6))
                 o_ptr->curse_flags |= TRC_PERMA_CURSE;
+            if (one_in_(66))
+                add_flag(o_ptr->art_flags, TR_IM_COLD);
+            while (one_in_(6))
+                one_high_resistance(o_ptr);
+            if (one_in_(ACTIVATION_CHANCE))
+                effect_add_random(o_ptr, BIAS_NECROMANTIC);
             break;
         case EGO_CLOAK_RETRIBUTION:
             if (one_in_(2))

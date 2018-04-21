@@ -135,6 +135,10 @@ bool is_daytime(void)
  */
 void extract_day_hour_min(int *day, int *hour, int *min)
 {
+    extract_day_hour_min_imp(turn, day, hour, min);
+}
+void extract_day_hour_min_imp(int turn, int *day, int *hour, int *min)
+{
     const s32b A_DAY = TURNS_PER_TICK * TOWN_DAWN;
     s32b turn_in_today = (turn + A_DAY / 4) % A_DAY;
 

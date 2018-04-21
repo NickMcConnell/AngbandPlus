@@ -2480,6 +2480,15 @@ bool identify_fully(object_p p)
     else
         msg_format("On the ground: %s.", o_name);
 
+    if ( p_ptr->prace == RACE_MON_POSSESSOR 
+      && o_ptr->tval == TV_CORPSE 
+      && o_ptr->sval == SV_CORPSE )
+    {
+        if (!(r_info[o_ptr->pval].r_xtra1 & MR1_POSSESSOR))
+            msg_print("You learn more about this body.");
+        lore_do_probe(o_ptr->pval);
+    }
+
     (void)screen_object(o_ptr, 0L);
     autopick_alter_item(item, (bool)(destroy_identify && !old_known));
     return TRUE;

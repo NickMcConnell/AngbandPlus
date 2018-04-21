@@ -1977,11 +1977,17 @@ static bool _rod_is_charging(object_type *o_ptr)
    safe place and then repeat until successful anyway. */
 bool autopick_auto_id(object_type *o_ptr)
 {
-    if (!object_is_known(o_ptr))
+    int     class_idx = p_ptr->pclass;
+    race_t *race = get_race_t();
+    
+    if (class_idx == CLASS_MONSTER)
+        class_idx = race->pseudo_class_idx;
+
+    if (!object_is_known(o_ptr) && class_idx != CLASS_BERSERKER)
     {
         int i = _pack_find(TV_SCROLL, SV_SCROLL_IDENTIFY);
 
-        if (!p_ptr->blind && i >= 0)
+        if (i >= 0 && !p_ptr->blind && !(race->flags & RACE_IS_ILLITERATE))
         {
             identify_item(o_ptr);
          
@@ -2023,9 +2029,6 @@ bool autopick_auto_id(object_type *o_ptr)
         }
 
         /* Player spells not supported ... */
-
-        if (disturb_minor)
-            msg_print("Unable to auto-identify. Get some more scrolls of identify!");
     }
     return FALSE;
 }
