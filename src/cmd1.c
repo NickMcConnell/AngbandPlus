@@ -916,6 +916,9 @@ void slay_desc(char *description, u32b flag, const monster_type *m_ptr)
 		case TR1_SLAY_TROLL:
         	sprintf(description, "strikes truly");
 			break;
+		case TR1_SLAY_MAN_OR_ELF:
+        	sprintf(description, "strikes truly");
+			break;
 		case TR1_BRAND_ELEC:
         	sprintf(description, "shocks %s with the force of lightning", m_name);
 			break;
@@ -1561,6 +1564,83 @@ extern void ident_passive(void)
 	return;
 }
 
+extern void ident_betrayal(object_type *o_ptr)
+{
+	u32b f1, f2, f3;
+
+	bool notice = FALSE;
+
+	char o_full_name[80];
+	char o_short_name[80];
+
+	/* Extract the item flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+	
+	if (!object_known_p(o_ptr))
+	{
+		if ((f2 & (TR2_TRAITOR)))
+		{
+			notice = TRUE;
+		}
+	}
+	
+	if (notice)
+	{
+		/* Short, pre-identification object description */
+		object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+		
+		/* identify the object */
+		ident(o_ptr);
+		
+		/* Full object description */
+		object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+		
+		/* Print the messages */
+		msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
+		
+		return;
+	}
+}
+
+extern void ident_cheat_death(object_type *o_ptr)
+{
+	u32b f1, f2, f3;
+
+	bool notice = FALSE;
+
+	char o_full_name[80];
+	char o_short_name[80];
+
+	/* Extract the item flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+	
+	if (!object_known_p(o_ptr))
+	{
+		if ((f3 & (TR3_CHEAT_DEATH)))
+		{
+			notice = TRUE;
+		}
+	}
+	
+	if (notice)
+	{
+		/* Short, pre-identification object description */
+		object_desc(o_short_name, sizeof(o_short_name), o_ptr, FALSE, 0);
+		
+		/* identify the object */
+		ident(o_ptr);
+		
+		/* Full object description */
+		object_desc(o_full_name, sizeof(o_full_name), o_ptr, TRUE, 3);
+		
+		/* Print the messages */
+		msg_format("You realize that your %s is %s.", o_short_name, o_full_name);
+		
+		return;
+	}
+}
+
+
 
 extern void ident_see_invisible(const monster_type *m_ptr)
 {
@@ -2049,6 +2129,22 @@ int slay_bonus(const object_type *o_ptr, const monster_type *m_ptr, u32b *notice
 
 				*noticed_flag = maybe_notice_slay(o_ptr, TR1_SLAY_DRAGON);
 			}
+
+			/* Slay Men and Elves */
+			if ((f1 & (TR1_SLAY_MAN_OR_ELF)) &&
+			    ((r_ptr->flags3 & (RF3_MAN)) || (r_ptr->flags3 & (RF3_ELF))))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_MAN);
+					l_ptr->flags3 |= (RF3_ELF);
+				}
+
+				slay_bonus_dice += 1;
+
+				*noticed_flag = maybe_notice_slay(o_ptr, TR1_SLAY_MAN_OR_ELF);
+			}
+
 
 			/* Brand (Elec) */
 			if (f1 & (TR1_BRAND_ELEC))
@@ -3244,7 +3340,8 @@ void possible_follow_through(int fy, int fx, int attack_type)
 	int deltax = fx - p_ptr->px;
 	
 	if (p_ptr->active_ability[S_MEL][MEL_FOLLOW_THROUGH] && !(p_ptr->confused) &&
-	    (is_normal_attack(attack_type) || (attack_type == ATT_FOLLOW_THROUGH)))
+	    (is_normal_attack(attack_type) || (attack_type == ATT_FOLLOW_THROUGH) || 
+	    (attack_type == ATT_WHIRLWIND)))
 	{
         // look through adjacent squares in an anticlockwise direction
         for (i = 1; i < 8; i++)
@@ -3628,7 +3725,7 @@ int py_attack_aux(int y, int x, int attack_type)
 	}
 	
 	// Attack types that take place in the opponents' turns only allow a single attack
-	if (!is_normal_attack(attack_type))
+	if (!is_normal_attack(attack_type) && attack_type != ATT_WHIRLWIND)
 	{
 		blows = 1;
 		
@@ -3702,13 +3799,23 @@ int py_attack_aux(int y, int x, int attack_type)
 		// Determine the monster's evasion score after all modifiers
 		total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
 				
-		coup_de_grace = p_ptr->active_ability[S_MEL][MEL_COUP_DE_GRACE] &&
-				m_ptr && m_ptr->hp <= (p_ptr->stat_use[A_STR] + p_ptr->stat_use[A_DEX]);
+		coup_de_grace = p_ptr->active_ability[S_STL][STL_COUP_DE_GRACE] &&
+				m_ptr && m_ptr->hp <= (p_ptr->skill_use[S_STL]);
 
 		if (!coup_de_grace)
 		{
 			/* Test for hit */
 			hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
+		}
+
+		if (hit_result <= 0 && p_ptr->active_ability[S_MEL][MEL_ANTICIPATE] && m_ptr->stance == STANCE_AGGRESSIVE)
+		{
+			// Reroll on miss twice
+			hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
+
+			if (hit_result <= 0) hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
+
+			if (hit_result > 0 && !(r_ptr->flags2 & (RF2_MINDLESS))) msg_format("You anticipate %s's aggression.", m_name);
 		}
 
 		/* If the attack connects... */
@@ -3744,7 +3851,7 @@ int py_attack_aux(int y, int x, int attack_type)
 
 			/* No negative damage */
 			if (net_dam < 0) net_dam = 0;
-			if (net_dam > 0) attack_result = ATTACK_DAMAGED;
+			if (net_dam > 0 || coup_de_grace) attack_result = ATTACK_DAMAGED;
 
 			if (o_ptr->tval == TV_HAFTED)
 			{
@@ -3775,7 +3882,7 @@ int py_attack_aux(int y, int x, int attack_type)
 				/* Message */
 				if (coup_de_grace)
 				{
-					message_format(MSG_HIT, m_ptr->r_idx, "You deliver a killing blow to %s%s", m_name, punctuation);
+					message_format(MSG_HIT, m_ptr->r_idx, "You deliver a killing blow to %s.", m_name);
 				}
 				else if (charge)
 				{
@@ -3828,7 +3935,6 @@ int py_attack_aux(int y, int x, int attack_type)
 				display_hit(y, x, net_dam, GF_HURT, fatal_blow);
 			}
 			
-			
 			// if a slay was noticed, then identify the weapon
 			if (noticed_flag)
 			{
@@ -3861,8 +3967,23 @@ int py_attack_aux(int y, int x, int attack_type)
 				// deal with knock back ability if it triggered
 				if (do_knock_back)
 				{
-                    knocked = knock_back(p_ptr->py, p_ptr->px, y, x);
+					knocked = knock_back(p_ptr->py, p_ptr->px, y, x);
  				}
+				if (singing(SNG_VALOUR) && dieroll(ability_bonus(S_SNG, SNG_VALOUR)) > monster_skill(m_ptr, S_WIL) && !(r_ptr->flags2 & RF2_MINDLESS))
+				{
+					if (r_ptr->flags3 & RF3_NO_STUN)
+					{
+						monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+						/*mark the lore*/
+						if (m_ptr->ml) l_ptr->flags3 |= (RF3_NO_STUN);
+					}
+					else
+					{
+						stun_monster(m_ptr, ability_bonus(S_SNG, SNG_VALOUR) / 2);
+						msg_format("Your mighty blow stuns %s!", m_name);
+					}
+				}
 
 				// Morgoth drops his iron crown if he is hit for 10 or more net damage twice
 				if ((m_ptr->r_idx == R_IDX_MORGOTH) && ((&a_info[ART_MORGOTH_3])->cur_num == 0))
@@ -4024,23 +4145,14 @@ void py_attack(int y, int x, int attack_type)
 
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
+					if (i != 0) msg_print("You continue your attack!");
+
 					result = py_attack_aux(yy, xx, ATT_WHIRLWIND);
 					if (result == ATTACK_DAMAGED)
 					{
 						if (!lucky) break;
-						else msg_format("Your weapon tears into %s and keeps going!", m_name);
-					}
-					else if (result == ATTACK_HIT)
-					{
-						msg_format("Your weapon bounces off %s.", m_name);
-					}
-					else
-					{
-						msg_format("Your weapon whirls past %s.", m_name);
 					}
 				}
-
-				if (i == 7) msg_print("You finish your swing.");
 			}
 		}
 	}

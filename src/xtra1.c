@@ -492,7 +492,6 @@ static void prt_song(void)
 {
 	char *song1_name = b_name + (&b_info[ability_index(S_SNG, p_ptr->song1)])->name;
 	char *song2_name = b_name + (&b_info[ability_index(S_SNG, p_ptr->song2)])->name;
-	char buf[80];
 
 	// wipe old songs
 	put_str("             ", ROW_SONG, COL_SONG);
@@ -956,6 +955,67 @@ byte health_attr(int current, int max)
 }
 
 /*
+ * Gets a text string denoting the alertness level / stance into a buffer, along with the associated colour.
+ */
+bool get_alertness_text(monster_type *m_ptr, int text_size, char* text, int* color)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	if (m_ptr->alertness < ALERTNESS_UNWARY)
+	{
+		my_strcpy(text, "Sleeping", text_size);
+		*color = TERM_BLUE;
+	}
+	else if (m_ptr->alertness < ALERTNESS_ALERT)
+	{
+		my_strcpy(text, "Unwary", text_size);
+		*color = TERM_L_BLUE;
+	}
+	else
+	{
+		if (r_ptr->flags2 & (RF2_MINDLESS))
+		{
+			my_strcpy(text, "Mindless", text_size);
+			*color = TERM_L_DARK;
+		}
+		else
+		{
+			char morale_buf[6];
+
+			if (m_ptr->stance == STANCE_FLEEING)
+			{
+				my_strcpy(text, "Fleeing", text_size);
+				*color = TERM_VIOLET;
+			}
+			else if (m_ptr->stance == STANCE_CONFIDENT)
+			{
+				my_strcpy(text, "Confident", text_size);
+				*color = TERM_L_WHITE;
+			}
+			else if (m_ptr->stance == STANCE_AGGRESSIVE)
+			{
+				my_strcpy(text, "Aggress", text_size);
+				*color = TERM_L_WHITE;
+			}
+
+			// sometimes (only in debugging?) we are looking at a monster before it has a stance
+			// in this case return FALSE so we don't print the strings
+			else
+			{
+				return FALSE;
+			}
+
+			if (m_ptr->morale >= 0)	sprintf(morale_buf, " %d", (m_ptr->morale + 9) / 10);
+			else			sprintf(morale_buf, " %d", m_ptr->morale / 10);
+
+			strncat(text, morale_buf, text_size - strlen(text));
+		}
+	}
+
+	return TRUE;
+}
+
+/*
  * Redraw the "monster health bar"
  *
  * The "monster health bar" provides visual feedback on the "health"
@@ -1008,11 +1068,10 @@ static void health_redraw(void)
 	else
 	{
 		int len;
-		char tmp[20];
+		int color;
 		char buf[20];
 
 		monster_type *m_ptr = &mon_list[p_ptr->health_who];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Default to almost dead */
 		byte attr = health_attr(m_ptr->hp, m_ptr->maxhp);
@@ -1039,56 +1098,9 @@ static void health_redraw(void)
 
 		Term_erase(COL_INFO, ROW_INFO+1, 12);
 
-		if (m_ptr->alertness < ALERTNESS_UNWARY)
-		{
-			my_strcpy(buf, "Sleeping", sizeof(tmp));
-			attr = TERM_BLUE;
-		}
-		else if (m_ptr->alertness < ALERTNESS_ALERT)
-		{
-			my_strcpy(buf, "Unwary", sizeof(tmp));
-			attr = TERM_L_BLUE;
-		}
-		else
-		{
-			if (r_ptr->flags2 & (RF2_MINDLESS))
-			{
-				my_strcpy(buf, "Mindless", sizeof(tmp));
-				attr = TERM_L_DARK;
-			}
-			else
-			{
-				if (m_ptr->stance == STANCE_FLEEING)
-				{
-					my_strcpy(tmp, "Fleeing", sizeof(tmp));
-					attr = TERM_VIOLET;
-				}
-				else if (m_ptr->stance == STANCE_CONFIDENT)
-				{
-					my_strcpy(tmp, "Confident", sizeof(tmp));
-					attr = TERM_L_WHITE;
-				}
-				else if (m_ptr->stance == STANCE_AGGRESSIVE)
-				{
-					my_strcpy(tmp, "Aggress", sizeof(tmp));
-					attr = TERM_L_WHITE;
-				}
-                
-                // sometimes (only in debugging?) we are looking at a monster before it has a stance
-                // in this case just exit and don't do anything (to avoid printing uninitialised strings!)
-                else
-                {
-					return;
-                }
-				
-				if (m_ptr->morale >= 0)	sprintf(buf, "%s %d", tmp, (m_ptr->morale + 9) / 10);
-				else					sprintf(buf, "%s %d", tmp, m_ptr->morale / 10);
-			}
+		if (!get_alertness_text(m_ptr, sizeof(buf), buf, &color)) return;
 
-		}
-		
-		Term_putstr(COL_INFO+(13-strlen(buf))/2, ROW_INFO+1, MIN(strlen(buf),12), attr, buf);
-
+		Term_putstr(COL_INFO+(13-strlen(buf))/2, ROW_INFO+1, MIN(strlen(buf),12), color, buf);
 	}
 	
 	
@@ -1655,6 +1667,7 @@ bool weapon_glows(object_type *o_ptr)
 		if ((f1 & (TR1_SLAY_ORC)) && (r_ptr->flags3 & (RF3_ORC)))			target = TRUE;
 		if ((f1 & (TR1_SLAY_TROLL)) && (r_ptr->flags3 & (RF3_TROLL)))		target = TRUE;
 		if ((f1 & (TR1_SLAY_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))		target = TRUE;
+		// No glow for Morgoth's weapons that slay men and elves
 		
 		// skip inapplicable monsters
 		if (!target) continue;
@@ -1893,11 +1906,6 @@ int ability_bonus(int skilltype, int abilitynum)
 				bonus = skill / 5;
 				break;
 			}
-			case SNG_AULE:
-			{
-				bonus = skill / 4;
-				break;
-			}
 			case SNG_STAYING:
 			{
 				bonus = skill / 3;
@@ -1914,6 +1922,11 @@ int ability_bonus(int skilltype, int abilitynum)
 				break;
 			}
 			case SNG_DELVINGS:
+			{
+				bonus = skill;
+				break;
+			}
+			case SNG_VALOUR:
 			{
 				bonus = skill;
 				break;
@@ -1995,6 +2008,23 @@ bool sprinting(void)
 	}
 	
 	return (turns >= 4);
+}
+
+/* Calculate stats */
+void calc_stats(void)
+{
+	for (int i = 0; i < A_MAX; i++)
+	{
+		/* Extract the new "stat_use" value for the stat */
+		p_ptr->stat_use[i] = p_ptr->stat_base[i] + p_ptr->stat_equip_mod[i]
+		                     + p_ptr->stat_drain[i] + p_ptr->stat_misc_mod[i];
+
+		/* cap to -9 and 20 */
+		if (p_ptr->stat_use[i] < BASE_STAT_MIN)
+			p_ptr->stat_use[i] = BASE_STAT_MIN;
+		else if (p_ptr->stat_use[i] > BASE_STAT_MAX)
+			p_ptr->stat_use[i] = BASE_STAT_MAX;
+	}
 }
 
 /*
@@ -2449,20 +2479,7 @@ static void calc_bonuses(void)
 	}
 
 	/*** Handle stats ***/
-
-	/* Calculate stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Extract the new "stat_use" value for the stat */
-		p_ptr->stat_use[i] = p_ptr->stat_base[i] + p_ptr->stat_equip_mod[i]
-		                     + p_ptr->stat_drain[i] + p_ptr->stat_misc_mod[i];
-
-		/* cap to -9 and 20 */
-		if (p_ptr->stat_use[i] < BASE_STAT_MIN)
-			p_ptr->stat_use[i] = BASE_STAT_MIN;
-		else if (p_ptr->stat_use[i] > BASE_STAT_MAX)
-			p_ptr->stat_use[i] = BASE_STAT_MAX;
-	}
+	calc_stats();
 
 	/*** Analyze weight ***/
 
@@ -2528,11 +2545,11 @@ static void calc_bonuses(void)
 				case SNG_SILENCE:	song_noise += 0; break;
 				case SNG_FREEDOM:	song_noise += 4; break;
 				case SNG_TREES:		song_noise += 4; break;
-				case SNG_AULE:		song_noise += 8; break;
 				case SNG_STAYING:	song_noise += 4; break;
 				case SNG_LORIEN:	song_noise += 4; break;
 				case SNG_THRESHOLDS:	song_noise += 4; break;
 				case SNG_DELVINGS:	song_noise += 4; break;
+				case SNG_VALOUR:	song_noise += 12; break;
 				case SNG_MASTERY:	song_noise += 8; break;
 			}		
 		}
@@ -2552,7 +2569,6 @@ static void calc_bonuses(void)
 	p_ptr->skill_misc_mod[S_WIL] += affinity_level(S_WIL);
 	p_ptr->skill_misc_mod[S_SMT] += affinity_level(S_SMT);
 	p_ptr->skill_misc_mod[S_SNG] += affinity_level(S_SNG);
-	
 
 	/*** Modify skills by ability scores ***/
 
@@ -2585,11 +2601,6 @@ static void calc_bonuses(void)
 							  p_ptr->skill_stat_mod[S_SNG] + p_ptr->skill_misc_mod[S_SNG];
 
 	// Apply song effects that modify skills
-	if (singing(SNG_AULE))
-	{
-		p_ptr->skill_misc_mod[S_SMT] += ability_bonus(S_SNG, SNG_AULE);
-		p_ptr->resist_fire += 1;
-	}
 	if (singing(SNG_STAYING))
 	{
 		p_ptr->skill_misc_mod[S_WIL] += ability_bonus(S_SNG, SNG_STAYING);
@@ -2606,6 +2617,22 @@ static void calc_bonuses(void)
 			p_ptr->skill_misc_mod[S_EVN] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 4;
 			p_ptr->skill_misc_mod[S_MEL] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 4;
 		}
+	}
+
+	// this has to go before calculation of DEX-based skills
+	// so we have to temporarily add the Grace bonus
+	if (singing(SNG_VALOUR))
+	{
+		p_ptr->stat_misc_mod[A_STR] += 3;
+		p_ptr->stat_misc_mod[A_DEX] += 3;
+		// recalculate stats
+		calc_stats();
+
+		// Needs redone as DEX has changed
+		p_ptr->skill_stat_mod[S_MEL] = p_ptr->stat_use[A_DEX];
+		p_ptr->skill_stat_mod[S_ARC] = p_ptr->stat_use[A_DEX];
+		p_ptr->skill_stat_mod[S_EVN] = p_ptr->stat_use[A_DEX];
+		p_ptr->skill_stat_mod[S_STL] = p_ptr->stat_use[A_DEX];
 	}
 
 	/*** Finalise all skills other than combat skills  (as bows/weapons must be analysed first) ***/

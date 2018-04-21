@@ -1979,7 +1979,6 @@ int calc_hesitance(monster_type *m_ptr)
 	int fx = m_ptr->fx;
 	int hesitance = 1;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	monster_type *n_ptr;
 
 	// gain hesitance for up to one nearby similar monster
 	// who isn't yet engaged in combat
@@ -1991,8 +1990,6 @@ int calc_hesitance(monster_type *m_ptr)
 			{
 				if (cave_m_idx[fy+y][fx+x] > 0)
 				{
-					n_ptr = &mon_list[cave_m_idx[fy+y][fx+x]];
-					
 					if (similar_monsters(fy, fx, fy+y, fx+x) &&
 					    (distance(fy+y,fx+x,p_ptr->py,p_ptr->px) > 1) && (hesitance < 2))
 					{
@@ -4152,6 +4149,11 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 				if (f1 & (TR1_SLAY_UNDEAD))  flg3 |= (RF3_UNDEAD);
 				if (f1 & (TR1_SLAY_WOLF))    flg3 |= (RF3_WOLF);
 				if (f1 & (TR1_SLAY_SPIDER))  flg3 |= (RF3_SPIDER);
+				if (f1 & (TR1_SLAY_MAN_OR_ELF)) 
+				{
+					flg3 |= (RF3_MAN);
+					flg3 |= (RF3_ELF);
+				}
 
 				/* Don't pick up cursed items */
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) && (cursed_p(o_ptr) || broken_p(o_ptr)))
@@ -4471,9 +4473,40 @@ static void process_monster(monster_type *m_ptr)
 
 	/* Will the monster move randomly? */
 	bool random_move = FALSE;
-    
-    // assume we are not under the influence of the Song of Mastery
-    m_ptr->skip_this_turn = FALSE;
+
+	// Morgoth is always active during the escape
+	// Sil-y: but this might be irrelevant as he can be unwary...
+	if ((m_ptr->r_idx == R_IDX_MORGOTH) && p_ptr->on_the_run) m_ptr->mflag |= (MFLAG_ACTV);
+
+	// do this before Mastery and Lorien effects kick in...
+	if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_WOUNDED &&
+		p_ptr->morgoth_state < 1)
+	{
+		msg_print("Morgoth grows angry.");
+		message_flush();
+		p_ptr->morgoth_state = 1;
+		anger_morgoth();
+	}
+	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_BADLY_WOUNDED &&
+		p_ptr->morgoth_state < 2)
+	{
+		msg_print("Morgoth grows more angry.");
+		message_flush();
+		p_ptr->morgoth_state = 2;
+		anger_morgoth();
+	}
+	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_ALMOST_DEAD &&
+		p_ptr->morgoth_state < 3)
+	{
+		msg_print("Morgoth grows desperate.");
+		message_flush();
+		p_ptr->morgoth_state = 3;
+		anger_morgoth();
+		anger_morgoth();
+	}
+ 
+	// assume we are not under the influence of the Song of Mastery
+	m_ptr->skip_this_turn = FALSE;
 
 	// first work out if the song of mastery stops the monster's turn
 	if (singing(SNG_MASTERY))
@@ -4534,7 +4567,7 @@ static void process_monster(monster_type *m_ptr)
     }
     // put in a default for this turn
     m_ptr->previous_action[0] = ACTION_MISC;
-    
+   
 	// unwary but awake monsters can wander around the dungeon
 	if (m_ptr->alertness < ALERTNESS_ALERT)
 	{
@@ -4559,36 +4592,6 @@ static void process_monster(monster_type *m_ptr)
 
 	// monsters that are fleeing are active, otherwise they can't get far enough away
 	if (m_ptr->stance == STANCE_FLEEING) m_ptr->mflag |= (MFLAG_ACTV);
-
-	// Morgoth is always active during the escape
-	// Sil-y: but this might be irrelevant as he can be unwary...
-	if ((m_ptr->r_idx == R_IDX_MORGOTH) && p_ptr->on_the_run) m_ptr->mflag |= (MFLAG_ACTV);
-
-	if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_WOUNDED &&
-		p_ptr->morgoth_state < 1)
-	{
-		msg_print("Morgoth grows angry.");
-		message_flush();
-		p_ptr->morgoth_state = 1;
-		anger_morgoth();
-	}
-	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_BADLY_WOUNDED &&
-		p_ptr->morgoth_state < 2)
-	{
-		msg_print("Morgoth grows more angry.");
-		message_flush();
-		p_ptr->morgoth_state = 2;
-		anger_morgoth();
-	}
-	else if (m_ptr->r_idx == R_IDX_MORGOTH && health_level(m_ptr->hp, m_ptr->maxhp) <= HEALTH_ALMOST_DEAD &&
-		p_ptr->morgoth_state < 3)
-	{
-		msg_print("Morgoth grows desperate.");
-		message_flush();
-		p_ptr->morgoth_state = 3;
-		anger_morgoth();
-		anger_morgoth();
-	}
 
 	// Pursuing creatures are always active at the Gates
 	if ((r_ptr->level > 17) && (p_ptr->depth == 0)) m_ptr->mflag |= (MFLAG_ACTV);
@@ -4742,7 +4745,7 @@ static void process_monster(monster_type *m_ptr)
 		if ((k <= 3) && (one_in_(k * 8)))
 		{
 			/* Try to multiply */
-			if (multiply_monster(cave_m_idx[m_ptr->fy][m_ptr->fx]))
+			if (reproduce_monster(cave_m_idx[m_ptr->fy][m_ptr->fx], m_ptr->r_idx))
 			{
 				/* Take note if visible */
 				if (m_ptr->ml)
@@ -5690,14 +5693,14 @@ void monster_perception(bool player_centered, bool main_roll, int difficulty)
 			// deal with bane ability (theoretically should modify player roll, but this is equivalent)
 			m_perception -= bane_bonus(m_ptr);
 
-			// monsters on earlier levels are a little less alert
-			m_perception -= (MORGOTH_DEPTH - p_ptr->depth) / 5;
-
             // increase morale for the Elf-Bane ability
             m_perception += elf_bane_bonus(m_ptr);
             
 			// monsters are looking more carefully during the escape
 			if (p_ptr->on_the_run) m_perception += 5;
+			// otherwise monsters on earlier levels are a little less alert
+			else m_perception -= ((MORGOTH_DEPTH - p_ptr->depth) / 5) - 1;
+
 			
 			// monsters that are already alert get a penalty to the roll to stop them getting *too* alert
 			if (m_ptr->alertness >= ALERTNESS_ALERT) m_perception -= m_ptr->alertness;

@@ -376,8 +376,9 @@ D: The miserable creature tries to stay away from you and
 D: attract attention. It has a crude spear.
 
 
+# Can't move from idx 32, used by monster ability HATCH_SPIDER
 N:32:Spider hatchling
-W:3:1
+W:3:4
 G:m:U
 I:2:1d4:0
 A:15:2:8:2
@@ -403,6 +404,19 @@ S:BRTH_COLD
 D:A snake the length of a man, with hard blue scales.
 D: There is a chill in the air around it.
 
+
+N:34:Brood spider
+W:3:1
+G:M:U
+I:1:8d4:0
+A:10:6:2:4
+P:[+3,3d4]
+B:BITE:POISON:(+10,2d6)
+F:SPIDER | TERRITORIAL | RES_POIS
+S:SPELL_PCT_10
+S:HATCH_SPIDER
+D:A huge ponderous spider with clusters of eggs on its back.
+D: Its hairy mandibles are wet with a dark fluid.
 
 ##### 4 #####
 
@@ -550,10 +564,10 @@ N:64:Mewlip
 W:6:3
 G:H:u
 I:2:12d4:0
-A:15:5:3:6
+A:15:5:3:2
 P:[+4,2d4]
 B:CLAW:WOUND:(+9,3d4)
-B:TOUCH:BLIND:(+4)
+B:TOUCH:BLIND:(+1)
 F:DROP_100 | OPEN_DOOR | UNLOCK_DOOR | BASH_DOOR | SMART
 F:NO_FEAR
 S:SPELL_PCT_10
@@ -677,7 +691,7 @@ I:2:10d4:1
 A:15:4:1:7
 P:[+5,3d4]
 B:HIT:HURT:(+7,2d8)
-F:MALE | DROP_33 | OPEN_DOOR | BASH_DOOR | FRIENDS
+F:MAN | MALE | DROP_33 | OPEN_DOOR | BASH_DOOR | FRIENDS
 F:SMART
 F:FLANKING
 D:Yet neither by wolf, nor by Balrog, nor by Dragon, would
@@ -702,7 +716,7 @@ N:84:Balcmeg, the Relentless
 W:8:20
 G:o:o
 I:2:15d4:0
-A:15:8:1:9
+A:15:4:1:8
 P:[+4,4d4]
 B:HIT:HURT:(+8,3d8)
 F:UNIQUE | MALE | OPEN_DOOR | BASH_DOOR | SMART | ORC
@@ -716,7 +730,7 @@ N:85:Lug, the Grotesque
 W:8:20
 G:o:v
 I:2:10d4:0
-A:15:8:1:6
+A:15:6:1:4
 P:[+16,2d4]
 B:HIT:HURT:(+16,1d7)
 F:UNIQUE | MALE | OPEN_DOOR | UNLOCK_DOOR | SMART | ORC
@@ -837,7 +851,7 @@ I:2:9d4:1
 A:15:5:3:7
 P:[+9,2d4]
 B:HIT:HURT:(+9,1d7)
-F:MALE | DROP_33 | OPEN_DOOR | BASH_DOOR | FRIEND
+F:MAN | MALE | DROP_33 | OPEN_DOOR | BASH_DOOR | FRIEND
 F:SMART
 S:SPELL_PCT_75 | POW_11
 S:ARROW2
@@ -936,7 +950,7 @@ A:15:2:0:7
 P:[+5,1d4]
 B:HIT:HURT:(+6,4d9)
 F:DROP_100 | OPEN_DOOR | BASH_DOOR | SMART
-S:SPELL_PCT_10 | POW_6
+S:SPELL_PCT_15 | POW_6
 S:BOULDER
 D:As tall as three men, this hulking opponent is crudely
 D: armed with a great club.
@@ -951,7 +965,7 @@ P:[+13,3d4]
 B:HIT:HURT:(+16,2d7)
 S:SPELL_PCT_75 | POW_21
 S:ARROW1
-F:UNIQUE | MALE | DROP_100 | ESCORT | SMART
+F:UNIQUE | MAN | MALE | DROP_100 | ESCORT | SMART
 F:DROP_GOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | UNLOCK_DOOR
 F:CRIPPLING
 D:Son of Ulfang, the Black, and the leader in the treason against
@@ -991,7 +1005,7 @@ I:2:8d4:1
 A:5:15:15:8
 P:[+13,1d4]
 B:HIT:HURT:(+12,1d8)
-F:MALE | DROP_33 | OPEN_DOOR | UNLOCK_DOOR
+F:MAN | MALE | DROP_33 | OPEN_DOOR | UNLOCK_DOOR
 F:SMART
 S:SPELL_PCT_20 | POW_15
 S:ARROW1 | SHRIEK
@@ -1049,7 +1063,7 @@ I:2:15d4:1
 A:15:6:1:10
 P:[+13,4d4]
 B:HIT:HURT:(+19,2d8)
-F:UNIQUE | MALE | DROP_2D2 | ESCORT | SMART
+F:UNIQUE | MAN | MALE | DROP_2D2 | ESCORT | SMART
 F:DROP_GOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:OPPORTUNIST
 D:Ulfang was a great leader of the Easterlings and led them in
@@ -1330,7 +1344,7 @@ I:2:10d4:0
 A:10:7:0:12
 P:[+12,4d4]
 B:HIT:SHATTER:(+11,4d8)
-F:BASH_DOOR | KILL_WALL | STONE | RAUKO | SMART
+F:BASH_DOOR | TUNNEL_WALL | STONE | RAUKO | SMART
 F:RES_COLD | RES_FIRE
 F:RES_POIS | RES_CRIT
 D:It seems the very stone from which Angband is hewn
@@ -1689,7 +1703,7 @@ I:1:70d4:0
 A:5:5:0:12
 P:[+7,6d4]
 B:CRUSH:ACID:(+17,5d10)
-F:BASH_DOOR | KILL_WALL | REGENERATE | MINDLESS | TERRITORIAL
+F:BASH_DOOR | TUNNEL_WALL | REGENERATE | MINDLESS | TERRITORIAL
 F:RAND_25 | RAND_50 | FORCE_DEPTH
 D:'Far, far below the deepest delvings of the Dwarves, the world is
 D: gnawed by nameless things...' It is as a vast grub,
@@ -1722,7 +1736,7 @@ I:2:15d4:2
 A:15:15:5:18
 P:[+23,5d4]
 B:HIT:HURT:(+33,2d8)
-F:UNIQUE | MALE | DROP_1D2 | UNLOCK_DOOR | DROP_CHOSEN
+F:UNIQUE | ELF | MALE | DROP_1D2 | UNLOCK_DOOR | DROP_CHOSEN
 F:DROP_GREAT | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | SMART
 F:RIPOSTE
 D:Named "sharp-glance" by his father Eol, the dark elf. Maeglin
@@ -2183,7 +2197,7 @@ D: eyes.
 N:251:Morgoth, Lord of Darkness
 W:25:1
 G:V:D
-I:2:200d4:7
+I:2:220d4:7
 A:10:10:0:20
 P:[+20,5d4]
 B:HIT:SHATTER:(+20,6d10)

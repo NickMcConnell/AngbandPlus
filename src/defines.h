@@ -215,6 +215,7 @@
  * Locations of various monsters in the monster.txt file
  */
 
+#define R_IDX_SPIDER_HATCHLING		 32
 #define R_IDX_ORC_ARCHER		 51
 #define R_IDX_ORC_CHAMPION		 81
 #define R_IDX_ORC_CAPTAIN		 91
@@ -461,7 +462,7 @@
 #define	MEL_IMPALE				 8
 #define	MEL_RAPID_ATTACK			 9
 #define	MEL_TWO_WEAPON				10
-#define	MEL_COUP_DE_GRACE				11
+#define	MEL_ANTICIPATE				11
 #define	MEL_WHIRLWIND_ATTACK		12
 #define	MEL_STR						13
 
@@ -501,7 +502,8 @@
 #define	STL_OPPORTUNIST				 3
 #define	STL_EXCHANGE_PLACES			 4
 #define	STL_VANISH					 5
-#define	STL_DEX						 6
+#define	STL_COUP_DE_GRACE				 6
+#define	STL_DEX						 7
 
 /* 
  * Perception abilities 
@@ -547,16 +549,16 @@
 /* 
  * Songs 
  */
-#define	SNG_ELBERETH				 0
-#define	SNG_CHALLENGE					 1
-#define	SNG_SILENCE					 2
-#define	SNG_FREEDOM					 3
-#define	SNG_TREES					 4
-#define	SNG_AULE					 5
-#define	SNG_STAYING					 6
-#define	SNG_LORIEN					 7
-#define	SNG_THRESHOLDS					 8
-#define	SNG_DELVINGS				 9
+#define	SNG_ELBERETH				 	0
+#define	SNG_CHALLENGE					1
+#define	SNG_SILENCE					2
+#define	SNG_FREEDOM					3
+#define	SNG_TREES					4
+#define	SNG_DELVINGS					5
+#define	SNG_STAYING					6
+#define	SNG_LORIEN					7
+#define	SNG_THRESHOLDS					8
+#define	SNG_VALOUR					9
 #define	SNG_MASTERY					10
 #define	SNG_WOVEN_THEMES			11
 #define	SNG_GRA						12
@@ -1443,16 +1445,20 @@
 /*
  * Bit flags for the "target_set" function
  *
- *	KILL: Target monsters
+ *	KILL: Target monsters to kill
  *	LOOK: Describe grid fully
  *	XTRA: Currently unused flag
  *	GRID: Select from all grids
+ *	LIST_OBJECT: List objects in sight
+ *	LIST_MONSTER: List monsters in sight
  */
 #define TARGET_KILL		0x01
 #define TARGET_LOOK		0x02
 #define TARGET_XTRA		0x04
 #define TARGET_GRID		0x08
 #define TARGET_WIZ		0x10
+#define TARGET_LIST_OBJECT	0x20
+#define TARGET_LIST_MONSTER	0x40
 
 
 /*
@@ -1742,7 +1748,7 @@
 #define TR1_WIL             0x00001000L /* WIL += "pval" */
 #define TR1_SMT             0x00002000L /* SMT += "pval" */
 #define TR1_SNG             0x00004000L /* SNG += "pval" */
-#define TR1_TR1XXX1         0x00008000L /* xxx */
+#define TR1_SLAY_MAN_OR_ELF    0x00008000L /* Weapon slays humans and elves */
 #define TR1_DAMAGE_SIDES	0x00010000L /* damage sides += "pval" */
 #define TR1_TUNNEL          0x00020000L /* Tunnel += "pval" */
 #define TR1_SHARPNESS       0x00040000L /* Weapon ignores half of protection */
@@ -1786,7 +1792,7 @@
 #define TR2_REGEN           0x00020000L /* Regeneration */
 #define TR2_SEE_INVIS       0x00040000L /* See Invis */
 #define TR2_FREE_ACT        0x00080000L /* Free action */
-#define TR2_TR2XXX1         0x00100000L /* xxx */
+#define TR2_TRAITOR         0x00100000L /* Item will betray user */
 #define TR2_SPEED           0x00200000L /* Speed += 1 */
 #define TR2_FEAR            0x00400000L /* Causes fear when you take damage */
 #define TR2_HUNGER          0x00800000L /* Hunger */
@@ -1805,7 +1811,7 @@
 
 
 #define TR3_DAMAGED         0x00000001L /* xxx */
-#define TR3_TR3XXX2         0x00000002L /* xxx */
+#define TR3_CHEAT_DEATH     0x00000002L /* xxx */
 #define TR3_TR3XXX3         0x00000004L /* xxx */
 #define TR3_TR3XXX4         0x00000008L /* xxx */
 #define TR3_TR3XXX14        0x00000010L /* xxx */
@@ -1960,7 +1966,7 @@
 
 #define TR1_SLAY_MASK \
 	(TR1_SLAY_SPIDER | TR1_SLAY_UNDEAD | TR1_SLAY_RAUKO | TR1_SLAY_ORC | TR1_SLAY_TROLL | \
-         TR1_SLAY_WOLF | TR1_SLAY_DRAGON)
+         TR1_SLAY_WOLF | TR1_SLAY_DRAGON | TR1_SLAY_MAN_OR_ELF)
 
 #define TR2_SLAY_MASK \
 	(0L)
@@ -2330,8 +2336,8 @@
 #define RF3_UNDEAD			0x00000020	/* Undead */
 #define RF3_SPIDER			0x00000040	/* Spider */
 #define RF3_WOLF			0x00000080	/* Wolf */
-#define RF3_RF3XXX1			0x00000100	/* (?) */
-#define RF3_RF3XXX2			0x00000200	/* (?) */
+#define RF3_MAN				0x00000100	/* Man */
+#define RF3_ELF				0x00000200	/* Elf */
 #define RF3_RF3XXX3			0x00000400	/* Non-Vocal (?) */
 #define RF3_RF3XXX4			0x00000800	/* Non-Living (?) */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
@@ -2383,7 +2389,7 @@
 #define RF4_SNG_BINDING    0x00010000  /* Sing a song of binding */
 #define RF4_SNG_PIERCING   0x00020000  /* Sing a song of piercing */
 #define RF4_SNG_OATHS      0x00040000  /* Sing a song of oaths */
-#define RF4_RF4XXX20       0x00080000  /*  */
+#define RF4_HATCH_SPIDER   0x00080000  /* Hatch a spider */
 #define RF4_RF4XXX21       0x00100000  /*  */
 #define RF4_RF4XXX22       0x00200000  /*  */
 #define RF4_RF4XXX23       0x00400000  /*  */
@@ -2412,7 +2418,7 @@
 
 #define RF3_RACE_MASK \
 	(RF3_ORC | RF3_TROLL | RF3_SERPENT | RF3_DRAGON | \
-	 RF3_RAUKO | RF3_UNDEAD | RF3_SPIDER | RF3_WOLF)
+	 RF3_RAUKO | RF3_UNDEAD | RF3_SPIDER | RF3_WOLF | RF3_MAN | RF3_ELF)
 
 
 /*
@@ -2446,7 +2452,7 @@
  */
 #define RF4_HARASS_MASK \
         (RF4_EARTHQUAKE | RF4_SHRIEK | RF4_SCREECH | RF4_DARKNESS | \
-		 RF4_FORGET | RF4_SCARE | RF4_CONF | RF4_HOLD | RF4_SLOW)
+		 RF4_FORGET | RF4_SCARE | RF4_CONF | RF4_HOLD | RF4_SLOW | RF4_HATCH_SPIDER)
 
 /*
  * Harassment (not direct damage) attacks.

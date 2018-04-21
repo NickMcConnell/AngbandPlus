@@ -335,6 +335,8 @@ extern void ident(object_type *o_ptr);
 extern void ident_on_wield(object_type *o_ptr);
 extern void ident_resist(u32b flag);
 extern void ident_passive(void);
+extern void ident_betrayal(object_type *o_ptr);
+extern void ident_cheat_death(object_type *o_ptr);
 extern void ident_see_invisible(const monster_type *m_ptr);
 extern void ident_haunted(void);
 extern void ident_cowardice(void);
@@ -412,6 +414,7 @@ extern void do_cmd_target(void);
 extern void do_cmd_look(void);
 extern void do_cmd_locate(void);
 extern void do_cmd_query_symbol(void);
+extern void do_cmd_view_monsters(void);
 extern bool ang_sort_comp_hook(const void *u, const void *v, int a, int b);
 extern void ang_sort_swap_hook(void *u, void *v, int a, int b);
 extern void py_steal(int y, int x);
@@ -549,6 +552,7 @@ extern void update_combat_rolls1(const monster_type *m_ptr1, const monster_type 
 extern void update_combat_rolls1b(const monster_type *m_ptr1, const monster_type *m_ptr2, bool vis);
 extern void update_combat_rolls2(int dd, int ds, int dam, int pd, int ps, int prot, int prt_percent, int dam_type, bool melee);
 extern void display_combat_rolls(void);
+extern void do_betrayal_ring_amulet();
 
 /* melee2.c */
 extern int adj_mon_count(int y, int x);
@@ -598,7 +602,7 @@ extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp);
 extern bool place_monster(int y, int x, bool slp, bool grp, bool vault);
 extern bool alloc_monster(bool on_stairs, bool force_undead);
 extern bool summon_specific(int y1, int x1, int lev, int type);
-extern bool multiply_monster(int m_idx);
+extern bool reproduce_monster(int old_m_idx, int new_r_idx);
 extern void message_pain(int m_idx, int dam);
 
 /* obj-info.c */
@@ -707,6 +711,7 @@ extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_towards(int oy, int ox, int ny, int nx);
 extern void teleport_player_level(void);
+extern void stun_monster(monster_type *m_ptr, int stun);
 extern void take_hit(int dam, cptr kb_str);
 extern bool hates_acid(const object_type *o_ptr);
 extern bool hates_elec(const object_type *o_ptr);
@@ -736,6 +741,7 @@ extern bool project(int who, int rad, int y0, int x0, int y1, int x1, int dd, in
 extern void song_of_binding(monster_type *m_ptr);
 extern void song_of_piercing(monster_type *m_ptr);
 extern void song_of_oaths(monster_type *m_ptr);
+extern void hatch_spider(monster_type *m_ptr);
 extern void change_song(int song);
 extern bool singing(int song);
 extern void sing(void);
@@ -951,6 +957,7 @@ extern int polearm_bonus(const object_type *o_ptr);
 extern byte total_ads(const object_type *j_ptr, bool single_shot);
 extern void cnv_stat(int val, char *out_val);
 extern int health_level(int current, int max);
+extern bool get_alertness_text(monster_type *m_ptr, int text_size, char* text, int* color);
 extern byte health_attr(int current, int max);
 extern void notice_stuff(void);
 extern void update_stuff(void);
@@ -1025,7 +1032,7 @@ extern bool target_okay(int range);
 extern bool target_sighted(void);
 extern void target_set_monster(int m_idx);
 extern void target_set_location(int y, int x);
-extern void target_set_interactive_prepare(int mode, int range);
+extern void get_sorted_target_list(int mode, int range);
 extern bool target_set_interactive(int mode, int range);
 extern int dir_from_delta(int deltay, int deltax);
 extern int rough_direction(int y1, int x1, int y2, int x2);

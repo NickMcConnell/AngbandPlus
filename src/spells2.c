@@ -836,7 +836,7 @@ void self_knowledge(void)
 		{
             identify[INVEN_WIELD] = TRUE;
             strnfmt(s[i], 80, "Your weapon cuts easily through armour");
-            strnfmt(t[i], 80, "(ignore 50% of protection)");
+            strnfmt(t[i], 80, "(ignore 50\% of protection)");
             good[i] = TRUE;
             i++;
 		}
@@ -845,7 +845,7 @@ void self_knowledge(void)
 		{
             identify[INVEN_WIELD] = TRUE;
             strnfmt(s[i], 80, "Your weapon cuts exceptionally easily through armour");
-            strnfmt(t[i], 80, "(ignore 100% of protection)");
+            strnfmt(t[i], 80, "(ignore 100\% of protection)");
             good[i] = TRUE;
             i++;
 		}
@@ -949,6 +949,18 @@ void self_knowledge(void)
             good[i] = TRUE;
             i++;
 		}
+		if (f1 & (TR1_SLAY_MAN_OR_ELF))
+		{
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your weapon is especially effective against men");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+            strnfmt(s[i], 80, "Your weapon is especially effective against elves");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
 	}
 
 	// *******************************************
@@ -968,7 +980,7 @@ void self_knowledge(void)
 		{
             identify[INVEN_ARM] = TRUE;
             strnfmt(s[i], 80, "Your off-hand weapon cuts easily through armour");
-            strnfmt(t[i], 80, "(ignore 50% of protection)");
+            strnfmt(t[i], 80, "(ignore 50\% of protection)");
             good[i] = TRUE;
             i++;
 		}
@@ -976,7 +988,7 @@ void self_knowledge(void)
 		{
             identify[INVEN_ARM] = TRUE;
             strnfmt(s[i], 80, "Your off-hand weapon cuts exceptionally easily through armour");
-            strnfmt(t[i], 80, "(ignore 100% of protection)");
+            strnfmt(t[i], 80, "(ignore 100\% of protection)");
             good[i] = TRUE;
             i++;
 		}
@@ -1079,7 +1091,20 @@ void self_knowledge(void)
             strnfmt(t[i], 80, "(+1 damage die)");
             good[i] = TRUE;
             i++;
-		}	}
+		}	
+		if (f1 & (TR1_SLAY_MAN_OR_ELF))
+		{
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially effective against men");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+            strnfmt(s[i], 80, "Your off-hand weapon is especially effective against elves");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+	}
 	
 	// *******************************************
 	// Do some analysis just on the wielded bow
@@ -1179,6 +1204,18 @@ void self_knowledge(void)
 		{
             identify[INVEN_BOW] = TRUE;
             strnfmt(s[i], 80, "Your bow is especially effective against the undead");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+		}
+		if (f1 & (TR1_SLAY_MAN_OR_ELF))
+		{
+            identify[INVEN_WIELD] = TRUE;
+            strnfmt(s[i], 80, "Your bow is especially effective against men");
+            strnfmt(t[i], 80, "(+1 damage die)");
+            good[i] = TRUE;
+            i++;
+            strnfmt(s[i], 80, "Your bow is especially effective against elves");
             strnfmt(t[i], 80, "(+1 damage die)");
             good[i] = TRUE;
             i++;
@@ -2052,6 +2089,11 @@ bool recharge(int num)
 	/* Attempt to Recharge a staff, or handle failure to recharge . */
 	if (o_ptr->tval == TV_STAFF)
 	{
+		if (o_ptr->sval == SV_STAFF_RECHARGING && p_ptr->active_ability[S_WIL][WIL_CHANNELING])
+		{
+			num /= 2;
+		}
+
 		/* Recharge the staff. */
 		o_ptr->pval += num;
 				
@@ -2989,7 +3031,7 @@ void earthquake(int cy, int cx, int pit_y, int pit_x, int r, int who)
 						
 						else
 						{
-							m_ptr->stunned += net_dam * 4;
+							stun_monster(m_ptr, net_dam * 4);
 						}
 						
 						// Alert it

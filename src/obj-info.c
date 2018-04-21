@@ -205,6 +205,11 @@ static bool describe_slay(const object_type *o_ptr, u32b f1)
 	if (f1 & (TR1_SLAY_DRAGON))	slays[slcnt++] = "dragons";
 	if (f1 & (TR1_SLAY_RAUKO))	slays[slcnt++] = "raukar";
 	if (f1 & (TR1_SLAY_UNDEAD))	slays[slcnt++] = "undead";
+	if (f1 & (TR1_SLAY_MAN_OR_ELF))
+	{
+		slays[slcnt++] = "men";
+		slays[slcnt++] = "elves";
+	}
 
 	/* Describe */
 	if (slcnt)
@@ -470,6 +475,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 	if ((f2 & (TR2_RADIANCE)) && (o_ptr->tval == TV_BOW))	good[gc++] = "fires shining arrows";
 	if ((f2 & (TR2_RADIANCE)) && (o_ptr->tval == TV_BOOTS))	good[gc++] = "lights your path behind you";
 	if (f2 & (TR2_REGEN))									good[gc++] = "speeds your regeneration (which increases your hunger while active)";
+	if (f3 & (TR3_CHEAT_DEATH))								good[gc++] = "preserves you from death once";
 
 	/* Describe */
 	output_desc_list("It ", good, gc);
@@ -491,6 +497,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f2, u32b f3)
 	if (f2 & (TR2_SLOWNESS))   bad[bc++] = "slows your movement";
 	if (f2 & (TR2_AGGRAVATE))  bad[bc++] = "enrages nearby creatures";
 	if (f2 & (TR2_HAUNTED))	   bad[bc++] = "draws wraiths to your level";
+	if (f2 & (TR2_TRAITOR))	   bad[bc++] = "may betray you when you need it most";
 
 	/* Deal with cursed stuff */
 	if (cursed_p(o_ptr))

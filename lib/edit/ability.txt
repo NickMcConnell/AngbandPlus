@@ -70,7 +70,7 @@ T:31:0:99  # Gloves
 N:4:Charge
 I:0:4:5
 D:When you attack an opponent immediately after moving towards it,
-D: your attack is calculated as if you you had 3 points more
+D: your attack is calculated as if you had 3 points more
 D: strength and dexterity.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
@@ -135,10 +135,10 @@ T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
 
-N:11:Coup de Grace
+N:11:Anticipate
 I:0:11:12
-D:Attacks on enemies who have less health than the sum of your Strength and
-D: Dexterity kill them instantly.
+P:0/0:7/1
+D:Missed attacks on opponents with an Aggressive stance are rerolled up to twice.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -207,6 +207,7 @@ D:Lets you fire two arrows per round, but they are calculated as
 D: if you had 3 points less strength and dexterity.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
+T:45:0:99  # Ring
 
 N:27:Dexterity
 I:1:7:10
@@ -220,6 +221,9 @@ I:2:0:2
 D:Gives you a +3 bonus to evasion if you moved on your last
 D: turn.
 T:30:0:99  # Boots
+T:36:0:99  # Soft Armour
+T:35:0:99  # Cloak
+T:45:0:99  # Ring
 
 N:41:Blocking
 I:2:1:3
@@ -242,6 +246,7 @@ T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
+T:37:0:99  # Mail
 
 N:44:Leaping
 I:2:4:6
@@ -266,13 +271,13 @@ T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
 T:31:0:99  # Gloves
+T:36:0:99  # Soft Armour
 
 N:47:Heavy Armour Use
 I:2:7:9
 P:2/1:2/3
 D:Gives you [1dX] protection, where X is your total armour weight
 D: divided by 15 lbs.
-T:36:0:99  # Soft Armour
 T:37:0:99  # Mail
 
 N:48:Riposte
@@ -344,6 +349,7 @@ P:3/0:2/3
 D:Allows you to use the 'X' command to exchange places with
 D: an adjacent enemy (who gets a free attack on you as you pass).
 T:30:0:99  # Boots
+T:36:0:99  # Soft Armour
 
 N:65:Vanish
 I:3:5:8
@@ -352,9 +358,17 @@ D:Gives a +10 stealth bonus towards making enemies become unwary
 D: when you are out of their line of sight.
 T:35:0:99  # Cloak
 T:36:0:99  # Soft Armour
+T:45:0:99  # Ring
 
-N:66:Dexterity
+N:66:Coup de Grace
 I:3:6:11
+D:Attacks on enemies who have less health than your Stealth score
+D: kill them outright without rolling to hit or to damage.
+P:3/2
+T:23:4:4   # Daggers
+
+N:67:Dexterity
+I:3:7:12
 D:You gain a point of dexterity.
 
 # Perception ---------------------------------------------
@@ -388,6 +402,7 @@ D: as well as staves and horns. Allows you to spot curses on enchanted
 D: items.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:45:0:99  # Ring
 
 N:84:Concentration
 I:4:4:5
@@ -395,6 +410,7 @@ D:Gives you a +1 bonus to attack for every consecutive round
 D: spent attacking the same enemy (to a maximum of Perception/2).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:36:0:99  # Soft Armour
 
 N:85:Bane
 I:4:5:6
@@ -404,12 +420,13 @@ D: you kill more.
 
 N:86:Forewarned
 I:4:6:7
-P:4/1:4/4
 D:You have full knowledge of all your opponents.
 D: If your base Perception exceeds your Evasion, you gain a bonus to your
 D: Evasion of one quarter your Perception score.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:39:0:99  # Light Source
+T:40:0:99  # Amulet
 
 N:87:Listen
 I:4:7:8
@@ -426,6 +443,7 @@ D:Gives you an attack bonus of +1 for each time you have killed
 D: an opponent of the same type (up to a maximum of Perception/4).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:30:0:99  # Boots
 
 N:89:Grace
 I:4:9:10
@@ -438,6 +456,7 @@ I:5:0:2
 D:You automatically recognise all staves and horns and can use them twice as efficiently.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:45:0:99  # Ring
 
 N:101:Strength in Adversity
 I:5:1:3
@@ -453,6 +472,7 @@ N:102:Curse Breaking
 I:5:2:4
 D:Allows you to break the curses on items when you
 D: attempt to take them off.
+T:40:0:99  # Amulet
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 
@@ -463,13 +483,18 @@ D: (without increasing the radius).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:39:0:99  # Light Source
+T:36:0:99  # Soft Armour
+T:21:9:9   # Sceptre
 
 N:104:Indomitable
 I:5:4:5
 D:Gives you resistance to fear, confusion, stunning, and hallucination.
 D: Slows hunger to one third the normal rate.
+T:40:0:99  # Amulet
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:37:0:99  # Mail
+T:21:9:9   # Sceptre
 
 N:105:Hardiness
 I:5:5:6
@@ -486,6 +511,8 @@ P:5/1
 D:When you are damaged in melee by an enemy, an additional damage
 D: die is added to your next successful strike. This effect does not stack.
 T:40:0:99  # Amulet
+T:32:0:99  # Helm
+T:33:0:99  # Crown
 
 N:108:Critical Resistance
 I:5:8:9
@@ -504,6 +531,8 @@ P:5/0:5/3
 D:Lowers monster morale by half the difference between your Will and theirs.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:36:2:2   # Robe
+T:21:9:9   # Sceptre
 
 N:110:Constitution
 I:5:10:12
@@ -569,13 +598,15 @@ I:7:0:1
 D:Causes fear in nearby servants of Morgoth.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:141:Song of Challenge
 I:7:1:2
-D:Causes weak-willed foes to attack without regard to strategy.
-D: Enemies with ranged weapons will close to melee range.
+D:Causes weak-willed foes to attack aggressively without regard to 
+D: strategy. Enemies with ranged weapons will close to melee range.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:142:Song of Silence
 I:7:2:3
@@ -583,12 +614,14 @@ D:Dampens all nearby sounds, making it harder for
 D: opponents to hear you and each other.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:143:Song of Freedom
 I:7:3:4
 D:Discovers and overcomes nearby doors, traps, and rubble.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:144:Song of the Trees
 I:7:4:5
@@ -596,13 +629,16 @@ D:Increases your light level by 1 point per 5 points
 D: of Song.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+T:39:0:99  # Light Source
 
-N:145:Song of Aule
+N:145:Song of Delvings
 I:7:5:6
-D:Gives you a bonus of +1 to Smithing per 4 points
-D: of Song and resistance to fire.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
+D:Reveals terrain adjacent to already known areas and shows
+D: features concealed in the stonework including traps and
+D: secret doors. Lowers tunneling difficulty by 1 point per
+D: 6 points of Song.
+T:20:0:99  # Shovels and Mattocks
 
 N:146:Song of Staying
 I:7:6:7
@@ -610,6 +646,7 @@ D:Gives you a bonus of +X to Will and [1dX] protection,
 D: where X = Song/3.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:147:Song of Lorien
 I:7:7:8
@@ -617,23 +654,27 @@ P:7/2
 D:Gradually puts nearby opponents to sleep.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:148:Song of Thresholds
 I:7:8:9
 D:Doors you close while singing this song are warded against
-D: your enemies. When defending a threshold, you gain a bonus
+D: your enemies. When defending a doorway, you gain a bonus
 D: of +1 to Evasion and Melee for every 4 points of Song.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
-N:149:Song of Delvings
+N:149:Song of Valour
 I:7:9:10
-D:Every turn terrain adjacent to already known areas has a
-D: chance of becoming known proportional to your Song skill.
-D: You may also learn of movements made by creatures of stone.
-T:20:0:99  # Shovels and Mattocks
+P:7/1:7/6
+D:A desperate song of heroism. Increases Strength and
+D: Dexterity by 3 points. Your strikes may stun opponents
+D: whose Will is less than your Song score. Drains health
+D: as well as voice.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:150:Song of Mastery
 I:7:10:11
@@ -641,6 +682,8 @@ P:7/0:7/7
 D:Occasionally prevents nearby opponents from moving or acting.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
+T:21:9:9   # Sceptre
 
 N:151:Woven Themes
 I:7:11:12
@@ -648,6 +691,7 @@ D:Allows you to add a 'minor theme' to your song. This means you
 D: can have the effect of a second song, but at half your normal Song score.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 
 N:152:Grace
 I:7:12:15

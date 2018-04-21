@@ -45,7 +45,6 @@ struct object_list_entry
 };
 
 
-
 /*
  * Remove old lines from pref files
  */
@@ -1666,6 +1665,7 @@ static const smithing_flag_desc smithing_flag_types[] =
 	{ CAT_MISC,		TR2_FREE_ACT,		2,	"Free Action"			},
 	{ CAT_MISC,		TR2_SPEED,			2,	"Speed"					},
 	{ CAT_MISC,		TR2_RADIANCE,		2,	"Radiance"				},
+	{ CAT_MISC,		TR3_CHEAT_DEATH,	3,	"Cheat Death"				},
 	{ CAT_MEL,		TR1_TUNNEL,			1,	"Tunneling Bonus"		},
 	{ CAT_MEL,		TR1_SHARPNESS,		1,	"Sharpness"				},
 	{ CAT_MEL,		TR1_VAMPIRIC,		1,	"Vampiric"				},
@@ -2651,7 +2651,7 @@ int object_difficulty(object_type *o_ptr)
 	
 	// damage bonus
 	x = (o_ptr->ds - k_ptr->ds);
-	dif_mod(x, 9 + o_ptr->dd, &dif_inc);
+	dif_mod(x, 6 + o_ptr->dd, &dif_inc);
 
 
 	// protection bonus
@@ -2663,22 +2663,22 @@ int object_difficulty(object_type *o_ptr)
 	if ((smith_o_ptr->tval == TV_MAIL) && (smith_o_ptr->sval == SV_LONG_CORSLET) && (x > 0))
 	{
 		dif_mod(x, 1, &dif_inc);
-		dif_inc += 4;
+		dif_inc += 3;
 	}
 	else
 	{
-		dif_mod(x, 4, &dif_inc);
+		dif_mod(x, 3, &dif_inc);
 	}
 
 
 	// weapon modifiers
-	if (f1 & TR1_SLAY_ORC)			{	dif_inc += 4;	}
-	if (f1 & TR1_SLAY_TROLL)		{	dif_inc += 5;	}
-	if (f1 & TR1_SLAY_WOLF)			{	dif_inc += 5;	}
-	if (f1 & TR1_SLAY_SPIDER)		{	dif_inc += 5;	}
-	if (f1 & TR1_SLAY_UNDEAD)		{	dif_inc += 5;	}
-	if (f1 & TR1_SLAY_RAUKO)		{	dif_inc += 6;	}
-	if (f1 & TR1_SLAY_DRAGON)		{	dif_inc += 6;	}
+	if (f1 & TR1_SLAY_ORC)			{	dif_inc += 3;	}
+	if (f1 & TR1_SLAY_TROLL)		{	dif_inc += 3;	}
+	if (f1 & TR1_SLAY_WOLF)			{	dif_inc += 3;	}
+	if (f1 & TR1_SLAY_SPIDER)		{	dif_inc += 4;	}
+	if (f1 & TR1_SLAY_UNDEAD)		{	dif_inc += 3;	}
+	if (f1 & TR1_SLAY_RAUKO)		{	dif_inc += 4;	}
+	if (f1 & TR1_SLAY_DRAGON)		{	dif_inc += 4;	}
 
 	if (f1 & TR1_BRAND_COLD)		{	dif_inc += 18;	smithing_cost.str += 2;	brands++; }
 	if (f1 & TR1_BRAND_FIRE)		{	dif_inc += 14;	smithing_cost.str += 2;	brands++; }
@@ -2731,35 +2731,39 @@ int object_difficulty(object_type *o_ptr)
 	if (f2 & TR2_SLOW_DIGEST) 	{	dif_inc += 2; }
 	if (f2 & TR2_RADIANCE) 		{	dif_inc += 8;	smithing_cost.gra += 1;	}
 	if (f2 & TR2_LIGHT)		{	dif_inc += 8;	smithing_cost.gra += 1;	}
-	if (f2 & TR2_REGEN) 		{	dif_inc += 8;	smithing_cost.con += 1;	}
-	if (f2 & TR2_SEE_INVIS) 	{	dif_inc += 8;	}
-	if (f2 & TR2_FREE_ACT) 		{	dif_inc += 7;	}
+	if (f2 & TR2_REGEN) 		{	dif_inc += 6;	}
+	if (f2 & TR2_SEE_INVIS) 	{	dif_inc += 7;	}
+	if (f2 & TR2_FREE_ACT) 		{	dif_inc += 6;	}
 	if (f2 & TR2_SPEED)		{	dif_inc += 40;	smithing_cost.con += 5;	}
+	if (f3 & TR3_CHEAT_DEATH) 	{	dif_inc += 14;	}
 	
 	// Elemental Resistances
-	if (f2 & TR2_RES_COLD)		{	dif_inc += 7;	smithing_cost.con += 1;	}
-	if (f2 & TR2_RES_FIRE)		{	dif_inc += 7;	smithing_cost.con += 1;	}
-	if (f2 & TR2_RES_POIS)		{	dif_inc += 7;	smithing_cost.con += 1;	}
-	if (f2 & TR2_RES_DARK)		{	dif_inc += 7;	smithing_cost.gra += 1;	}
+	if (f2 & TR2_RES_COLD)		{	dif_inc += 5;	}
+	if (f2 & TR2_RES_FIRE)		{	dif_inc += 5;	}
+	if (f2 & TR2_RES_POIS)		{	dif_inc += 5;	}
 	
 	// Other Resistances
-	if (f2 & TR2_RES_BLIND)		{	dif_inc += 4;	}
-	if (f2 & TR2_RES_CONFU)		{	dif_inc += 4;	}
+	if (f2 & TR2_RES_BLIND)		{	dif_inc += 3;	}
+	if (f2 & TR2_RES_CONFU)		{	dif_inc += 3;	}
 	if (f2 & TR2_RES_STUN)		{	dif_inc += 2;	}
 	if (f2 & TR2_RES_FEAR)		{	dif_inc += 2;	}
 	if (f2 & TR2_RES_HALLU)		{	dif_inc += 2;	}
 
 	// Penalty Flags
-	if (f2 & TR2_FEAR)		{	dif_dec += 0;	}
-	if (f2 & TR2_HUNGER)		{	dif_dec += 0;	}
-	if (f2 & TR2_DARKNESS)		{	dif_dec += 0;	}
 	if (f2 & TR2_DANGER)		{	dif_dec += 5;	} // only Danger counts
-	if (f2 & TR2_AGGRAVATE)		{	dif_dec += 0;	}
-	if (f2 & TR2_HAUNTED)		{	dif_dec += 0;	}
-	if (f2 & TR2_VUL_COLD)		{	dif_dec += 0;	}
-	if (f2 & TR2_VUL_FIRE)		{	dif_dec += 0;	}
-	if (f2 & TR2_VUL_POIS)		{	dif_dec += 0;	}
-	
+
+	// Count the other curses only for known items which aren't smithing gear...
+	if (!o_ptr->name1)
+	{
+		if (f2 & TR2_DARKNESS)		{	dif_dec += 3;	}
+		if (f2 & TR2_AGGRAVATE)		{	dif_dec += 3;	}
+		if (f2 & TR2_HAUNTED)		{	dif_dec += 5;	}
+		if (f2 & TR2_VUL_COLD)		{	dif_dec += 4;	}
+		if (f2 & TR2_VUL_FIRE)		{	dif_dec += 4;	}
+		if (f2 & TR2_VUL_POIS)		{	dif_dec += 4;	}
+		if (f3 & TR3_LIGHT_CURSE)	{	dif_dec += 2;	}
+
+	}
 
 	// Abilities
 	for (i = 0; i < o_ptr->abilities; i++)
@@ -10527,3 +10531,270 @@ void do_cmd_knowledge(void)
 	/* Load screen */
 	screen_load();
 }
+
+/*
+ * Determines the direction from the player and writes it as text into a buffer of at least size 10.
+ */
+void write_direction_from_player_to_buffer(int y, int x, char* buffer, int buffer_size)
+{
+	bool north, south, east, west;
+	int buffer_offset = 0;
+
+	if (buffer_size < 10) return;
+
+	north = p_ptr->py > y;
+	south = p_ptr->py < y;
+	east = p_ptr->px < x;
+	west = p_ptr->px > x;
+
+	if (north)
+	{
+		strncpy(buffer, "north", 6);
+		strcpy(buffer, "north");
+		buffer_offset += 5;
+	}
+	else if (south)
+	{
+		strncpy(buffer, "south", 6);
+		buffer_offset += 5;
+	}
+
+	if (east)
+	{
+		strncpy(buffer + buffer_offset, "east", 5);
+		buffer_offset += 4;
+	}
+	else if (west)
+	{
+		strncpy(buffer + buffer_offset, "west", 5);
+		buffer_offset += 4;
+	}
+}
+
+#define MAX_VIEW_LINES 20
+
+typedef struct view_monster_data_line view_monster_data_line;
+struct view_monster_data_line
+{
+	int distance;
+	char monster_character;
+	int monster_color;
+	int alert_color;
+	char direction[12];
+	char name[40];
+	char stance[20];
+};
+
+typedef struct view_object_data_line view_object_data_line;
+struct view_object_data_line
+{
+	int distance;
+	char object_character;
+	int object_color;
+	char direction[12];
+	char name[60];
+};
+
+void show_nearby_monsters(bool line_of_sight_only)
+{
+	view_monster_data_line lines[MAX_VIEW_LINES];
+
+	int i, j;
+	int col;
+	int longest_name_length = 0;
+
+	get_sorted_target_list(TARGET_LIST_MONSTER, 0);
+
+	j = 0;
+	for (i = 0; i < temp_n; i++)
+	{
+		int m_idx = cave_m_idx[temp_y[i]][temp_x[i]];
+		monster_type *m_ptr = &mon_list[m_idx];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		char m_name[40];
+		int name_length;
+
+		if (j >= 20) break;
+		if (!m_ptr->ml) break;
+		if (!player_has_los_bold(temp_y[i], temp_x[i]) && line_of_sight_only) break;
+
+		memset(lines[j].direction, '\0', sizeof(lines[j].direction));
+		memset(lines[j].name, '\0', sizeof(lines[j].name));
+		memset(lines[j].stance, '\0', sizeof(lines[j].stance));
+
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0x80);
+		name_length = strlen(m_name);
+
+		longest_name_length = MAX(longest_name_length, name_length);
+
+		write_direction_from_player_to_buffer(temp_y[i], temp_x[i], lines[j].direction, sizeof(lines[j].direction));
+		if (!get_alertness_text(m_ptr, sizeof(lines[j].stance), lines[j].stance, &lines[j].alert_color)) return;
+
+		lines[j].monster_character = r_ptr->d_char;
+		lines[j].monster_color = r_ptr->d_attr;
+
+		lines[j].distance = distance(p_ptr->py, p_ptr->px, temp_y[i], temp_x[i]);
+
+		strncpy(lines[j].name, m_name, sizeof(lines[j].name));
+
+		j++;
+	}
+
+	col = 79 - longest_name_length - sizeof(lines[j].direction) - sizeof(lines[j].stance) - 9;
+	col = MAX(0, col);
+
+	for (i = 0; i < j; ++i)
+	{
+		int distance_color;
+		char monster_char[2];
+
+		monster_char[0] = lines[i].monster_character;
+		monster_char[1] = '\0';
+
+		if (lines[i].distance < 5) 		distance_color = TERM_WHITE;
+		else if (lines[i].distance < 10) 	distance_color = TERM_L_WHITE;
+		else 					distance_color = TERM_L_DARK;
+
+		/* Clear the line */
+		prt("", i + 1, col);
+
+		c_put_str(lines[i].monster_color, monster_char, i + 1, col + 2);
+		c_put_str(distance_color, lines[i].direction, i + 1, col + 6);
+		c_put_str(TERM_WHITE, lines[i].name, i + 1, col + sizeof(lines[j].direction) + 6);
+		c_put_str(lines[i].alert_color, lines[i].stance, i + 1, col + sizeof(lines[j].direction) + longest_name_length + 8);
+	}
+
+	if (j)
+	{
+		prt("", j + 1, col);
+	}
+	else
+	{
+		prt("", 1, 40);
+		c_put_str(TERM_WHITE, "No visible monsters.", 1, 50);
+		prt("", 2, 40);
+		prt("", 3, 40);
+	}
+
+}
+
+void show_nearby_objects(bool line_of_sight_only)
+{
+	view_object_data_line lines[MAX_VIEW_LINES];
+
+	int i, j;
+	int col;
+	int longest_name_length = 0;
+
+	get_sorted_target_list(TARGET_LIST_OBJECT, 0);
+
+	j = 0;
+	for (i = 0; i < temp_n; i++)
+	{
+		int o_idx = cave_o_idx[temp_y[i]][temp_x[i]];
+		object_type *o_ptr = &o_list[o_idx];
+		char o_name[60];
+		int name_length;
+
+		if (j >= 20) break;
+		if (!player_has_los_bold(temp_y[i], temp_x[i]) && line_of_sight_only) break;
+
+		memset(lines[j].direction, '\0', sizeof(lines[j].direction));
+		memset(lines[j].name, '\0', sizeof(lines[j].name));
+		memset(o_name, '\0', sizeof(o_name));
+
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		name_length = strlen(o_name);
+
+		longest_name_length = MAX(longest_name_length, name_length);
+
+		write_direction_from_player_to_buffer(temp_y[i], temp_x[i], lines[j].direction, sizeof(lines[j].direction));
+
+		lines[j].distance = distance(p_ptr->py, p_ptr->px, temp_y[i], temp_x[i]);
+
+		if (strlen(lines[j].direction) == 0) strncpy(lines[j].direction, "underfoot", 9);
+
+		lines[j].object_character = object_char(o_ptr);
+		lines[j].object_color = object_attr(o_ptr);
+
+		strncpy(lines[j].name, o_name, sizeof(lines[j].name));
+
+		j++;
+	}
+
+	col = 79 - longest_name_length - sizeof(lines[j].direction) - 9;
+	col = MAX(0, col);
+
+	prt("", 1, col);
+
+	for (i = 0; i < j; ++i)
+	{
+		int distance_color;
+
+		char o_char[2];
+
+		o_char[0] = lines[i].object_character;
+		o_char[1] = '\0';
+
+		if (lines[i].distance < 5) 		distance_color = TERM_WHITE;
+		else if (lines[i].distance < 10) 	distance_color = TERM_L_WHITE;
+		else 					distance_color = TERM_L_DARK;
+
+		/* Clear the line */
+		prt("", i + 1, col);
+
+		c_put_str(lines[i].object_color, o_char, i + 1, col + 2);
+		c_put_str(distance_color, lines[i].direction, i + 1, col + 6);
+		c_put_str(TERM_WHITE, lines[i].name, i + 1, col + sizeof(lines[j].direction) + 6);
+	}
+
+	if (j)
+	{
+		prt("", j + 1, col);
+	}
+	else
+	{
+		prt("", 1, 40);
+		c_put_str(TERM_WHITE, "No visible objects.", 1, 50);
+		prt("", 2, 40);
+		prt("", 3, 40);
+	}
+
+}
+
+void do_cmd_view_monsters()
+{
+	char get_char = '[';
+	bool show_los = TRUE;
+
+	while (get_char == '[')
+	{
+		screen_save();
+		show_nearby_monsters(show_los);
+		/* Show the prompt */
+		if (show_los) 	prt("Monsters you can see (press [ to toggle):", 0, 0);
+		else		prt("Monsters on screen (press [ to toggle):", 0, 0);
+		get_char = inkey();
+		show_los = !show_los;
+		screen_load();
+	}
+}
+
+void do_cmd_view_objects()
+{
+	char get_char = ']';
+	bool show_los = TRUE;
+
+	while (get_char == ']')
+	{
+		screen_save();
+		show_nearby_objects(show_los);
+		/* Show the prompt */
+		if (show_los) 	prt("Objects you can see (press ] to toggle):", 0, 0);
+		else		prt("Objects on screen (press ] to toggle):", 0, 0);
+		get_char = inkey();
+		show_los = !show_los;
+		screen_load();
+	}
+}
+

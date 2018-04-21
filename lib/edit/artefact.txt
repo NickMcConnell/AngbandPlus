@@ -261,6 +261,19 @@ F:INSTA_ART
 D:The Nauglamir; a carencet of gold set with a multitude of shining gems
 D: of Valinor. It was made by the dwarves of Ered Luin for Finrod Felagund. 
 
+## The Ring of Mairon
+## (ability 3/5 is Vanish)
+
+N:7:of Mairon
+I:45:31:3
+W:12:18:1:10000
+P:0:0d0:0:0d0
+F:STEALTH | SONG | DARKNESS | TRAITOR | SEE_INVIS
+F:INSTA_ART
+B:3/5
+D:This ring was wrought by Mairon under Melkor's tuition, while Mairon
+D: pretended still to be faithful to the Valar. Shadows twist and weave about
+D: its surface, and it is deathly cold.
 
 
 #################################################################
@@ -498,17 +511,15 @@ D: as the stars of Varda twinkle in the night sky.
 ##### Shields #####
 
 
-## The Round Shield of Angrod
-## 1st age namesake
+## The Round Shield of the Bloody Hand
 
-N:42:of Angrod
-G:):b
-I:34:3:0
-W:10:10:50:25000
-P:0:0d0:0:1d4
-F:RES_STUN | RES_CONFU | RES_FIRE
-D:A gleaming metal shield, once borne by Angrod, Prince
-D: of the Noldor.
+N:42:of the Bloody Hand
+I:34:3:1
+W:6:8:60:25000
+P:0:0d0:1:1d4
+F:STR | DAMAGE_SIDES | TRAITOR
+D:An black shield with scalloped edges. It bears the
+D: emblem of a white hand dripping blood.
 
 
 ## The Round shield of Glorfindel
@@ -716,20 +727,6 @@ D:The beautiful sword of Thingol, justly named 'King's Ire'.  You are
 D: filled with unshakeable confidence when you clasp its jeweled hilt.
 
 
-## The Bastard Sword 'Anglachel'
-## 1st age
-
-N:70:'Anglachel'
-G:|:D
-I:23:21:0
-W:15:15:50:100000
-P:1:3d3:1:0d0
-F:SHARPNESS | DANGER
-D:Forged of black meteoric iron by the Eol the Dark Elf, 
-D:it is the twin to Anguirel and was given to Thingol in exchange for 
-D:suffering Eol to live in Nan Elmoth.
-
-
 ## The Bastard Sword 'Anguirel'
 ## 1st age
 
@@ -737,8 +734,8 @@ N:71:'Anguirel'
 G:|:D
 I:23:21:0
 W:15:15:50:100000
-P:1:3d3:1:0d0
-F:SHARPNESS | HUNGER
+P:1:3d4:1:0d0
+F:SHARPNESS | TRAITOR
 D:Forged of black meteoric iron by the Eol the Dark Elf, 
 D:it is the twin to Anglachel.
 
@@ -817,15 +814,14 @@ D: might should he face it again.
 ##
 
 N:85:'Dugrakh'
-I:22:1:0
+I:22:1:-1
 W:6:10:25:50000
-P:0:1d9:0:0d0
-F:REGEN | SEE_INVIS | RES_COLD | RES_FIRE
-F:AGGRAVATE | THROWING
-D:A weapon forged long ago in Utumno by Sauron,
-D: soon after he declared allegiance to Melkor and departed
-D: the Blessed Realms. Black-hafted, with a bronze head,
-D: it throws no shadow.
+P:0:1d10:0:0d0
+F:SLAY_RAUKO | SLAY_MAN_OR_ELF | SEE_INVIS | FREE_ACT
+F:GRA | AGGRAVATE | THROWING
+D:A weapon forged after the Dagor Bragollach by Sauron,
+D: tainted to slay Morgoth's foes whether they be man, elf or Maiar. 
+D: Black-hafted, with a bronze head, it throws no shadow.
 
 
 ## The Spear of Boldog
@@ -1056,6 +1052,17 @@ B:4/7
 D:A helm worn by Curufin, son of Feanor, whose dark schemes
 D: snared many in Beleriand.
 
+## The Helm of the Oathbreaker
+## (ability 5/7 is Vengeance)
+
+N:119:of the Oathbreaker
+I:32:5:2
+W:5:10:15:45000
+P:0:0d0:0:1d3
+F:TRAITOR | LIGHT_CURSE
+B:5/7
+D:A helm wrought of grey metal and the dull bones of some forgotten
+D: orc who once raised his blade against his master.
 
 ## The Great Helm of Dor-Lomin
 ## 1st age
@@ -1127,7 +1134,6 @@ F:SONG
 D: '... Daeron the Dark with ferny crown
 D: played with bewildering wizard's art
 D: music for breaking of the heart.'
-
 
 ## The Jewelled Crown of Feanor
 ## 1st age namesake
@@ -1549,8 +1555,8 @@ D: in his hand.
 N:182:'Ultimate'
 I:23:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
-F:ARCHERY | STEALTH | PERCEPTION | WILL | SONG
-F:TUNNEL | SHARPNESS | VAMPIRIC
+F:STEALTH | PERCEPTION | WILL | SONG
+F:TUNNEL | SHARPNESS | VAMPIRIC | CHEAT_DEATH
 F:SLAY_ORC | SLAY_TROLL | SLAY_WOLF | SLAY_SPIDER
 F:SLAY_UNDEAD | SLAY_RAUKO | SLAY_DRAGON
 F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
@@ -1568,8 +1574,8 @@ F:INSTA_ART
 N:183:'Ultimate'
 I:22:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
-F:ARCHERY | STEALTH | PERCEPTION | WILL | SONG
-F:TUNNEL | SHARPNESS | VAMPIRIC
+F:STEALTH | PERCEPTION | WILL | SONG
+F:TUNNEL | SHARPNESS | VAMPIRIC | CHEAT_DEATH
 F:SLAY_ORC | SLAY_TROLL | SLAY_WOLF | SLAY_SPIDER
 F:SLAY_UNDEAD | SLAY_RAUKO | SLAY_DRAGON
 F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
@@ -1587,7 +1593,7 @@ F:INSTA_ART
 N:184:'Ultimate'
 I:21:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
-F:ARCHERY | STEALTH | PERCEPTION | WILL | SONG
+F:STEALTH | PERCEPTION | WILL | SONG | CHEAT_DEATH
 F:TUNNEL
 F:SLAY_ORC | SLAY_TROLL | SLAY_WOLF | SLAY_SPIDER
 F:SLAY_UNDEAD | SLAY_RAUKO | SLAY_DRAGON
@@ -1666,8 +1672,8 @@ F:INSTA_ART
 N:189:'Ultimate'
 I:40:0:0
 F:CON | GRA | NEG_CON | NEG_GRA
-F:ARCHERY | STEALTH | PERCEPTION | WILL | SONG
-F:SUST_CON | SUST_GRA
+F:STEALTH | PERCEPTION | WILL | SONG
+F:SUST_CON | SUST_GRA | CHEAT_DEATH
 F:RES_FEAR | RES_BLIND | RES_CONFU | RES_STUN | RES_HALLU
 F:SLOW_DIGEST | LIGHT | REGEN | SEE_INVIS | FREE_ACT
 F:HUNGER | DARKNESS | DANGER | AGGRAVATE | LIGHT_CURSE
@@ -1681,7 +1687,7 @@ N:190:'Ultimate'
 I:39:0:0
 F:GRA | NEG_GRA
 F:PERCEPTION | WILL
-F:SUST_GRA
+F:SUST_GRA | CHEAT_DEATH
 F:RES_FEAR | RES_BLIND | RES_HALLU
 F:LIGHT | SEE_INVIS
 F:HUNGER | DARKNESS | DANGER | AGGRAVATE | LIGHT_CURSE
@@ -1694,7 +1700,7 @@ F:INSTA_ART
 N:191:'Ultimate'
 I:36:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
-F:ARCHERY | STEALTH | PERCEPTION | WILL | SONG
+F:STEALTH | PERCEPTION | WILL | SONG
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_GRA
 F:RES_FIRE | RES_COLD | RES_POIS
 F:RES_FEAR | RES_BLIND | RES_CONFU | RES_STUN | RES_HALLU
@@ -1709,7 +1715,7 @@ F:INSTA_ART
 N:192:'Ultimate'
 I:37:0:0
 F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
-F:ARCHERY | STEALTH | PERCEPTION | WILL | SONG
+F:STEALTH | PERCEPTION | WILL | SONG
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_GRA
 F:RES_FIRE | RES_COLD | RES_POIS
 F:RES_FEAR | RES_BLIND | RES_CONFU | RES_STUN | RES_HALLU
@@ -1739,7 +1745,7 @@ F:INSTA_ART
 N:194:'Ultimate'
 I:34:0:0
 F:STR | CON | NEG_STR | NEG_CON
-F:WILL
+F:WILL | CHEAT_DEATH
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_GRA
 F:RES_FIRE | RES_COLD | RES_POIS
 F:RES_FEAR | RES_BLIND | RES_CONFU | RES_STUN
@@ -1812,7 +1818,7 @@ F:INSTA_ART
 #
 #F:STR | DEX | CON | GRA | NEG_STR | NEG_DEX | NEG_CON | NEG_GRA
 #F:ARCHERY | STEALTH | PERCEPTION | WILL | SMITHING | SONG
-#F:DAMAGE_SIDES
+#F:DAMAGE_SIDES | CHEAT_DEATH
 #F:TUNNEL | SHARPNESS | VAMPIRIC
 #F:SLAY_ORC | SLAY_TROLL | SLAY_WOLF | SLAY_SPIDER
 #F:SLAY_UNDEAD | SLAY_RAUKO | SLAY_DRAGON

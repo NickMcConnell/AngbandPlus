@@ -336,6 +336,8 @@ static void regenhp(int regen_multiplier)
 {
 	int old_chp;
 
+	if (singing(SNG_VALOUR)) return;
+
 	// exit immediately if the multiplier is zero (avoids div by zero error)
 	if (regen_multiplier == 0) return;
 	
@@ -1375,6 +1377,18 @@ static void process_command(void)
 			do_cmd_save_screen();
 			break;
 		}
+
+		case '[':
+		{
+			do_cmd_view_monsters();
+			break;
+		}
+
+		case ']':
+		{
+			do_cmd_view_objects();
+			break;
+		}
         
 		/* Hack -- Unknown command */
 		default:
@@ -1691,6 +1705,8 @@ static void process_player(void)
 		}
 
 		/*** Other checks ***/
+
+		do_betrayal_ring_amulet();
 
 		// Make the stealth-modified noise (has to occur after monsters have had a chance to move)
 		monster_perception(TRUE, TRUE, stealth_score);
