@@ -2591,7 +2591,7 @@ int object_difficulty(object_type *o_ptr)
     // special rules for horns
     if (o_ptr->tval == TV_HORN)
     {
-        dif_inc += k_ptr->level;
+        dif_inc += k_ptr->level - 1;
         switch (o_ptr->sval)
         {
             case SV_HORN_TERROR:    smithing_cost.gra += 1; break;
@@ -2621,11 +2621,25 @@ int object_difficulty(object_type *o_ptr)
 		// base item
 		dif_inc += k_ptr->level / 2;
 	}
-		
-	// unsual weight
-    if (o_ptr->weight == 0)                 weight_factor = 1100;
-	else if (o_ptr->weight > k_ptr->weight)	weight_factor = 100 * o_ptr->weight / k_ptr->weight;
-	else                                    weight_factor = 100 * k_ptr->weight / o_ptr->weight;
+
+	// unusual weight
+	if (o_ptr->weight == 0)
+	{
+		weight_factor = 1100;
+	}
+	else if (o_ptr->weight > k_ptr->weight)
+	{
+		weight_factor = 100 * o_ptr->weight / k_ptr->weight;
+	}
+	else
+	{
+		int low_weight_adjust;
+		weight_factor = 100 * k_ptr->weight / o_ptr->weight;
+		low_weight_adjust = (weight_factor - 100) * (o_ptr->ds / 4);
+
+		if (o_ptr->weight < 150) weight_factor = weight_factor + low_weight_adjust;
+	}
+
 	dif_inc += (weight_factor - 100) / 10;
 
 	// attack bonus
@@ -2643,32 +2657,41 @@ int object_difficulty(object_type *o_ptr)
 	else
 	{
 		dif_mod(x, 6, &dif_inc);
+		if (x > 0) dif_inc -= 1;
 	}
 	
 	// evasion bonus
 	x = o_ptr->evn - k_ptr->evn;
 	dif_mod(x, 6, &dif_inc);
+	if (x > 0) dif_inc -= 1;
 	
 	// damage bonus
 	x = (o_ptr->ds - k_ptr->ds);
-	dif_mod(x, 6 + o_ptr->dd, &dif_inc);
-
+	// dd used to be a factor here, but a shortsword is far more breakable than a great axe
+	dif_mod(x, 8, &dif_inc);
+	if (x > 0) dif_inc -= 5;
 
 	// protection bonus
 	base = (k_ptr->ps > 0) ? ((k_ptr->ps + 1) * k_ptr->pd) : 0;
 	new = (o_ptr->ps > 0) ? ((o_ptr->ps + 1) * o_ptr->pd) : 0;
 	x = new - base;
 
-	// special costs for protection sides on hauberks
+	// special costs for protection sides on hauberks and rings
 	if ((smith_o_ptr->tval == TV_MAIL) && (smith_o_ptr->sval == SV_LONG_CORSLET) && (x > 0))
 	{
 		dif_mod(x, 1, &dif_inc);
-		dif_inc += 3;
+		dif_inc += 2;
+	}
+	else if ((o_ptr->tval == TV_RING) && (x > 0))
+	{
+		dif_mod(x, 1, &dif_inc);
+		dif_inc += 4;
 	}
 	else
 	{
 		dif_mod(x, 3, &dif_inc);
 	}
+
 
 
 	// weapon modifiers
@@ -2705,13 +2728,13 @@ int object_difficulty(object_type *o_ptr)
 		if (f1 & TR1_DEX)			{	dif_mod(x, 12, &dif_inc);	smithing_cost.dex += x;		}
 		if (f1 & TR1_CON)			{	dif_mod(x, 12, &dif_inc);	smithing_cost.con += x;		}
 		if (f1 & TR1_GRA)			{	dif_mod(x, 12, &dif_inc);	smithing_cost.gra += x;		}
-		if (f1 & TR1_MEL)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_ARC)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_STL)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_PER)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_WIL)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_SMT)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
-		if (f1 & TR1_SNG)			{	dif_mod(x, 4, &dif_inc);	smithing_cost.exp += x*100;	}
+		if (f1 & TR1_MEL)			{	dif_mod(x, 4, &dif_inc);	}
+		if (f1 & TR1_ARC)			{	dif_mod(x, 4, &dif_inc);	}
+		if (f1 & TR1_STL)			{	dif_mod(x, 4, &dif_inc);	}
+		if (f1 & TR1_PER)			{	dif_mod(x, 2, &dif_inc);	}
+		if (f1 & TR1_WIL)			{	dif_mod(x, 3, &dif_inc);	}
+		if (f1 & TR1_SMT)			{	dif_mod(x, 4, &dif_inc);	}
+		if (f1 & TR1_SNG)			{	dif_mod(x, 4, &dif_inc);	}
 
 		x = (o_ptr->pval < 0) ? o_ptr->pval : 0;
 
@@ -2731,11 +2754,11 @@ int object_difficulty(object_type *o_ptr)
 	if (f2 & TR2_SLOW_DIGEST) 	{	dif_inc += 2; }
 	if (f2 & TR2_RADIANCE) 		{	dif_inc += 8;	smithing_cost.gra += 1;	}
 	if (f2 & TR2_LIGHT)		{	dif_inc += 8;	smithing_cost.gra += 1;	}
-	if (f2 & TR2_REGEN) 		{	dif_inc += 6;	}
+	if (f2 & TR2_REGEN) 		{	dif_inc += 8;	}
 	if (f2 & TR2_SEE_INVIS) 	{	dif_inc += 7;	}
 	if (f2 & TR2_FREE_ACT) 		{	dif_inc += 6;	}
 	if (f2 & TR2_SPEED)		{	dif_inc += 40;	smithing_cost.con += 5;	}
-	if (f3 & TR3_CHEAT_DEATH) 	{	dif_inc += 14;	}
+	if (f3 & TR3_CHEAT_DEATH) 	{	dif_inc += 13;	}
 	
 	// Elemental Resistances
 	if (f2 & TR2_RES_COLD)		{	dif_inc += 5;	}
@@ -2857,11 +2880,11 @@ int object_difficulty(object_type *o_ptr)
     }
     if (p_ptr->active_ability[S_SMT][SMT_EXPERTISE])
     {
-		smithing_cost.str /= 2;
-		smithing_cost.dex /= 2;
-		smithing_cost.con /= 2;
-		smithing_cost.gra /= 2;
-		smithing_cost.exp /= 2;
+		smithing_cost.str = 0;
+		smithing_cost.dex = 0;
+		smithing_cost.con = 0;
+		smithing_cost.gra = 0;
+		smithing_cost.exp = 0;
     }
     
 	return (dif);
@@ -9995,6 +10018,14 @@ void apply_magic_fake(object_type *o_ptr)
 								
 					break;
 				}
+
+				/* Ring of Ered Luin */
+				case SV_RING_ERED_LUIN:
+				{
+					/* Bonus to will */
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
+					break;
+				}
 			}
 
 			/*break for TVAL-Rings*/
@@ -10016,6 +10047,13 @@ void apply_magic_fake(object_type *o_ptr)
 
 				/* Amulet of the Blessed Realm */
 				case SV_AMULET_BLESSED_REALM:
+				{
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
+					break;
+				}
+
+				/* Amulet of the Vigilant Eye */
+				case SV_AMULET_VIGILANT_EYE:
 				{
 					if (o_ptr->pval < 1) o_ptr->pval = 1;
 					break;
@@ -10615,8 +10653,8 @@ void show_nearby_monsters(bool line_of_sight_only)
 		int name_length;
 
 		if (j >= 20) break;
-		if (!m_ptr->ml) break;
-		if (!player_has_los_bold(temp_y[i], temp_x[i]) && line_of_sight_only) break;
+		if (!m_ptr->ml) continue;
+		if (!player_has_los_bold(temp_y[i], temp_x[i]) && line_of_sight_only) continue;
 
 		memset(lines[j].direction, '\0', sizeof(lines[j].direction));
 		memset(lines[j].name, '\0', sizeof(lines[j].name));
@@ -10697,7 +10735,7 @@ void show_nearby_objects(bool line_of_sight_only)
 		int name_length;
 
 		if (j >= 20) break;
-		if (!player_has_los_bold(temp_y[i], temp_x[i]) && line_of_sight_only) break;
+		if (!player_can_see_bold(temp_y[i], temp_x[i]) && line_of_sight_only) continue;
 
 		memset(lines[j].direction, '\0', sizeof(lines[j].direction));
 		memset(lines[j].name, '\0', sizeof(lines[j].name));

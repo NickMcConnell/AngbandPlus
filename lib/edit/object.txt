@@ -65,7 +65,7 @@
 
 # Version stamp (required)
 
-V:1.3.2
+V:1.3.3
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -432,7 +432,7 @@ N:71:& Spear~
 G:/:U
 I:22:1:0
 W:1:0:30:36
-P:-1:1d9:0:0d0
+P:0:1d9:0:0d0
 A:1/1:10/4
 F:THROWING | HAND_AND_A_HALF | POLEARM
 
@@ -785,7 +785,7 @@ G:":d
 I:40:0:0
 W:7:0:1:20
 P:0:0d0:0:0d0
-A:7/3
+A:6/8
 F:CHEAT_DEATH | EASY_KNOW
 
 
@@ -836,9 +836,6 @@ A:16/6
 F:GRA | SUST_GRA | LIGHT
 
 
-##
-
-
 N:138:Haunted Dreams
 G:":d
 I:40:6:0
@@ -847,6 +844,16 @@ P:0:0d0:0:0d0
 A:9/3
 F:HAUNTED | SEE_INVIS | EASY_KNOW
 
+
+# (ability 4/2 is Keen Senses)
+N:139:the Vigilant Eye
+G:":d
+I:40:7:0
+W:4:0:1:0
+P:0:0d0:0:0d0
+A:4/8
+F:PERCEPTION | RES_HALLU
+B:4/2
 
 ##### Rings #####
 
@@ -860,13 +867,13 @@ A:5/3
 F:PERCEPTION
 
 
-N:151:Sustenance
+N:151:Ered Luin
 G:=:d
 I:45:1:0
 W:7:0:1:150
 P:0:0d0:0:0d0
-A:7/3
-F:SLOW_DIGEST | EASY_KNOW
+A:4/8
+F:WILL | RES_FEAR | RES_CONFU
 
 
 N:152:Evasion
@@ -1039,7 +1046,7 @@ G:_:d
 I:55:6:0
 W:10:0:50:400
 P:0:0d0:0:0d0
-A:10/2:15/1
+A:8/2:14/1
 D:It identifies an item. 
 D: (This may be aborted without using up a charge.) 
 
@@ -1094,7 +1101,7 @@ G:_:d
 I:55:12:0
 W:7:0:50:400
 P:0:0d0:0:0d0
-A:7/2
+A:4/1
 D:It lets you know all of your abilities.
 
 
@@ -1657,7 +1664,7 @@ N:420:& Rusty Helm~
 G:]:s1
 I:32:1:0
 W:1:0:50:15
-P:0:0d0:-2:1d1
+P:0:0d0:-1:1d1
 A:1/1
 F:DAMAGED | NO_SMITHING
 

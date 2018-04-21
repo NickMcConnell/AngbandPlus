@@ -115,6 +115,8 @@ static void find_range(monster_type *m_ptr)
 			msg_format("%^s is agitated by your song.", m_name);
 		}
 
+		m_ptr->tmp_morale = MAX(m_ptr->tmp_morale, 30);
+
 		m_ptr->mana = 0;
 		m_ptr->best_range = 0;
 		m_ptr->min_range = 0;
@@ -4513,7 +4515,7 @@ static void process_monster(monster_type *m_ptr)
 	{
 		if (skill_check(PLAYER,
 		                ability_bonus(S_SNG, SNG_MASTERY),
-			            monster_skill(m_ptr, S_WIL) + 3 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx),
+			            monster_skill(m_ptr, S_WIL) + 5 + flow_dist(FLOW_PLAYER_NOISE, m_ptr->fy, m_ptr->fx),
 						m_ptr) > 0)
 		{
             
@@ -4778,6 +4780,9 @@ static void process_monster(monster_type *m_ptr)
 
 		/* Stunned monsters use ranged attacks half as often. */
 		if ((chance) && (m_ptr->stunned)) chance /= 2;
+
+		/* Smitten monsters get no ranged attacks. */
+		if (singing(SNG_FIERCE_BLOWS) && m_ptr->stunned) chance = 0;
 
 		/* Monster can use ranged attacks */
 		if ((chance) && percent_chance(chance))
@@ -5252,8 +5257,8 @@ void calc_stance(monster_type *m_ptr)
 		stances[0] = STANCE_CONFIDENT;
 	}
 
-	// Song of Challenge makes non-fleeing monsters attack overconfidently
-	if (singing(SNG_CHALLENGE) && m_ptr->morale > 20 && !(r_ptr->flags3 & (RF3_NO_CONF)))
+	// Song of Challenge makes monsters attack overconfidently
+	if (singing(SNG_CHALLENGE) && m_ptr->morale > 50 && !(r_ptr->flags3 & (RF3_NO_CONF)))
 	{
 		stances[1] = STANCE_AGGRESSIVE;
 	}

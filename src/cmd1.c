@@ -836,11 +836,11 @@ int crit_bonus(int hit_result, int weight, const monster_race *r_ptr, int skill_
 	if (r_ptr->level != 0)
 	{
 		// Can have improved criticals for melee
-		if ((skill_type == S_MEL) && p_ptr->active_ability[S_MEL][MEL_FINESSE])				crit_seperation -= 10;
+		if ((skill_type == S_MEL) && p_ptr->active_ability[S_MEL][MEL_FINESSE])				crit_seperation -= 20;
 			
 		// Can have improved criticals for melee with one handed weapons
 		if ((skill_type == S_MEL) && p_ptr->active_ability[S_MEL][MEL_CONTROL] &&
-			!thrown && !two_handed_melee() && !inventory[INVEN_ARM].k_idx)					crit_seperation -= 30;
+			!thrown && !two_handed_melee() && !inventory[INVEN_ARM].k_idx)					crit_seperation -= 20;
 		
 		// Can have inferior criticals for melee
 		if ((skill_type == S_MEL) && p_ptr->active_ability[S_MEL][MEL_POWER])				crit_seperation += 10;
@@ -2388,7 +2388,7 @@ void search_square(int y, int x, int dist, int searching)
 		if (p_ptr->confused)								difficulty +=  5;   // confused
 		if (dist == 2)				difficulty +=  2;   // distance 2
 		if (dist == 3)				difficulty +=  4;   // distance 3
-		if (dist == 4)				difficulty +=  8;   // distance 4
+		if (dist == 4)				difficulty +=  6;   // distance 4
 		if cave_trap_bold(y,x)			difficulty +=  5;   // dungeon trap
 		if (cave_feat[y][x] == FEAT_SECRET)	difficulty += 10;   // secret door
 		if (chest_trap_present)			difficulty += 15;   // chest trap
@@ -3602,7 +3602,6 @@ int py_attack_aux(int y, int x, int attack_type)
 	bool rapid_attack = FALSE;
 	bool off_hand_blow = FALSE;
 	bool fatal_blow = FALSE;
-	bool coup_de_grace = FALSE;
 
 	u32b f1, f2, f3; // the weapon's flags
 
@@ -3719,7 +3718,7 @@ int py_attack_aux(int y, int x, int attack_type)
 		blows++;
 		rapid_attack = TRUE;
 	}
-	if (p_ptr->mds2 > 0)
+	if (p_ptr->mds2 > 0 && attack_type != ATT_IMPALE)
 	{
 		blows++;
 	}
@@ -3755,7 +3754,7 @@ int py_attack_aux(int y, int x, int attack_type)
 		}
 
 		// adjust for off-hand weapon if it is being used
-		if ((num == blows) && (num != 1) && (p_ptr->mds2 > 0))
+		if ((num == blows) && (num != 1) && (p_ptr->mds2 > 0) && attack_type != ATT_IMPALE)
 		{
 			off_hand_blow = TRUE;
 			rapid_attack = FALSE;
@@ -3799,15 +3798,7 @@ int py_attack_aux(int y, int x, int attack_type)
 		// Determine the monster's evasion score after all modifiers
 		total_evasion_mod = total_monster_evasion(m_ptr, FALSE);
 				
-		coup_de_grace = p_ptr->active_ability[S_STL][STL_COUP_DE_GRACE] &&
-				m_ptr && m_ptr->hp <= (p_ptr->skill_use[S_STL]);
-
-		if (!coup_de_grace)
-		{
-			/* Test for hit */
-			hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
-		}
-
+		hit_result = hit_roll(total_attack_mod, total_evasion_mod, PLAYER, m_ptr, TRUE);
 		if (hit_result <= 0 && p_ptr->active_ability[S_MEL][MEL_ANTICIPATE] && m_ptr->stance == STANCE_AGGRESSIVE)
 		{
 			// Reroll on miss twice
@@ -3819,7 +3810,7 @@ int py_attack_aux(int y, int x, int attack_type)
 		}
 
 		/* If the attack connects... */
-		if (hit_result > 0 || coup_de_grace)
+		if (hit_result > 0)
 		{
 			attack_result = ATTACK_HIT;
 
@@ -3851,7 +3842,7 @@ int py_attack_aux(int y, int x, int attack_type)
 
 			/* No negative damage */
 			if (net_dam < 0) net_dam = 0;
-			if (net_dam > 0 || coup_de_grace) attack_result = ATTACK_DAMAGED;
+			if (net_dam > 0) attack_result = ATTACK_DAMAGED;
 
 			if (o_ptr->tval == TV_HAFTED)
 			{
@@ -3862,15 +3853,8 @@ int py_attack_aux(int y, int x, int attack_type)
 			// determine the punctuation for the attack ("...", ".", "!" etc)
 			attack_punctuation(punctuation, net_dam, crit_bonus_dice);
 			
-			if (coup_de_grace)
-			{
-				net_dam = m_ptr->hp;
-			}
-			else
-			{
-				update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps,
-						     prt, prt_percent, damage_type, TRUE);
-			}
+			update_combat_rolls2(total_dice, mds, dam, r_ptr->pd, r_ptr->ps,
+					     prt, prt_percent, damage_type, TRUE);
 
 			/* Special message for visible unalert creatures */
 			if (stealth_bonus)
@@ -3880,11 +3864,7 @@ int py_attack_aux(int y, int x, int attack_type)
 			else
 			{
 				/* Message */
-				if (coup_de_grace)
-				{
-					message_format(MSG_HIT, m_ptr->r_idx, "You deliver a killing blow to %s.", m_name);
-				}
-				else if (charge)
+				if (charge)
 				{
 					message_format(MSG_HIT, m_ptr->r_idx, "You charge %s%s", m_name, punctuation);
 				}
@@ -3969,7 +3949,7 @@ int py_attack_aux(int y, int x, int attack_type)
 				{
 					knocked = knock_back(p_ptr->py, p_ptr->px, y, x);
  				}
-				if (singing(SNG_VALOUR) && dieroll(ability_bonus(S_SNG, SNG_VALOUR)) > monster_skill(m_ptr, S_WIL) && !(r_ptr->flags2 & RF2_MINDLESS))
+				if (singing(SNG_FIERCE_BLOWS) && skill_check(PLAYER, ability_bonus(S_SNG, SNG_FIERCE_BLOWS), monster_skill(m_ptr, S_WIL), m_ptr) > 0 && !(r_ptr->flags2 & RF2_MINDLESS))
 				{
 					if (r_ptr->flags3 & RF3_NO_STUN)
 					{
@@ -3980,8 +3960,14 @@ int py_attack_aux(int y, int x, int attack_type)
 					}
 					else
 					{
-						stun_monster(m_ptr, ability_bonus(S_SNG, SNG_VALOUR) / 2);
-						msg_format("Your mighty blow stuns %s!", m_name);
+						int stun_period = weapon_weight / 5;
+						if (o_ptr->tval == TV_HAFTED) stun_period *= 2;
+
+						if (stun_period > 1)
+						{
+							stun_monster(m_ptr, stun_period);
+							msg_format("Your fierce blow stuns %s.", m_name);
+						}
 					}
 				}
 

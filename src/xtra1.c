@@ -210,7 +210,7 @@ int polearm_bonus(const object_type *o_ptr)
 	
 	if (p_ptr->active_ability[S_MEL][MEL_POLEARMS] && (f3 & (TR3_POLEARM)))
 	{
-	    bonus += 1;
+	    bonus += 2;
 	}
 	
 	return bonus;
@@ -1926,7 +1926,7 @@ int ability_bonus(int skilltype, int abilitynum)
 				bonus = skill;
 				break;
 			}
-			case SNG_VALOUR:
+			case SNG_FIERCE_BLOWS:
 			{
 				bonus = skill;
 				break;
@@ -2549,7 +2549,7 @@ static void calc_bonuses(void)
 				case SNG_LORIEN:	song_noise += 4; break;
 				case SNG_THRESHOLDS:	song_noise += 4; break;
 				case SNG_DELVINGS:	song_noise += 4; break;
-				case SNG_VALOUR:	song_noise += 12; break;
+				case SNG_FIERCE_BLOWS:	song_noise += 12; break;
 				case SNG_MASTERY:	song_noise += 8; break;
 			}		
 		}
@@ -2614,25 +2614,9 @@ static void calc_bonuses(void)
 		int feat = cave_feat[p_ptr->py][p_ptr->px];
 		if (feat == FEAT_BROKEN || feat == FEAT_OPEN)
 		{
-			p_ptr->skill_misc_mod[S_EVN] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 4;
-			p_ptr->skill_misc_mod[S_MEL] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 4;
+			p_ptr->skill_misc_mod[S_EVN] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 3;
+			p_ptr->skill_misc_mod[S_MEL] += ability_bonus(S_SNG, SNG_THRESHOLDS) / 3;
 		}
-	}
-
-	// this has to go before calculation of DEX-based skills
-	// so we have to temporarily add the Grace bonus
-	if (singing(SNG_VALOUR))
-	{
-		p_ptr->stat_misc_mod[A_STR] += 3;
-		p_ptr->stat_misc_mod[A_DEX] += 3;
-		// recalculate stats
-		calc_stats();
-
-		// Needs redone as DEX has changed
-		p_ptr->skill_stat_mod[S_MEL] = p_ptr->stat_use[A_DEX];
-		p_ptr->skill_stat_mod[S_ARC] = p_ptr->stat_use[A_DEX];
-		p_ptr->skill_stat_mod[S_EVN] = p_ptr->stat_use[A_DEX];
-		p_ptr->skill_stat_mod[S_STL] = p_ptr->stat_use[A_DEX];
 	}
 
 	/*** Finalise all skills other than combat skills  (as bows/weapons must be analysed first) ***/
@@ -2686,7 +2670,7 @@ static void calc_bonuses(void)
 	// deal with the 'Forewarned' ability
 	if (p_ptr->active_ability[S_PER][PER_FOREWARNED] && (p_ptr->skill_base[S_PER] > p_ptr->skill_base[S_EVN]))
 	{
-		p_ptr->skill_misc_mod[S_EVN] += p_ptr->skill_use[S_PER] / 4;
+		p_ptr->skill_misc_mod[S_EVN] += p_ptr->skill_use[S_PER] / 3;
 	}
 
 	/* generate the melee dice/sides from weapon, to_mdd, to_mds and strength */
@@ -2833,7 +2817,7 @@ static void calc_bonuses(void)
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
-	if (p_ptr->active_ability[S_PER][PER_ALCHEMY])
+	if (p_ptr->active_ability[S_PER][PER_FOREWARNED])
 	{
 		pseudo_id_everything();
 	}
@@ -2887,15 +2871,19 @@ void update_lore_aux(object_type *o_ptr)
 	{
 		bool alchemy = p_ptr->active_ability[S_PER][PER_ALCHEMY];
 		bool channeling = p_ptr->active_ability[S_WIL][WIL_CHANNELING];
+		bool jeweller = p_ptr->active_ability[S_SMT][SMT_JEWELLER];
 		bool enchantment = p_ptr->active_ability[S_SMT][SMT_ENCHANTMENT];
 
 		bool staffOrHorn = o_ptr->tval == TV_HORN || o_ptr->tval == TV_STAFF;
 		bool foodOrPotion = o_ptr->tval == TV_FOOD || o_ptr->tval == TV_POTION;
+		bool jewellery = o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET ||
+				o_ptr->tval == TV_LIGHT || o_ptr->tval == TV_HORN;
 		bool enchantedItem = !staffOrHorn && !foodOrPotion &&
 				o_ptr->tval != TV_CHEST && o_ptr->tval != TV_SKELETON;
 
 		if ((channeling && staffOrHorn) ||
                     (alchemy && (staffOrHorn || foodOrPotion)) ||
+		    (jeweller && (jewellery)) ||
                     (enchantment && enchantedItem))
 		{
 			ident(o_ptr);

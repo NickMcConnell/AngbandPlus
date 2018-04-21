@@ -50,7 +50,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.3.2-q"
+#define VERSION_STRING	"1.3.3"
 
 
 /*
@@ -58,7 +58,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	3
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 
@@ -502,8 +502,7 @@
 #define	STL_OPPORTUNIST				 3
 #define	STL_EXCHANGE_PLACES			 4
 #define	STL_VANISH					 5
-#define	STL_COUP_DE_GRACE				 6
-#define	STL_DEX						 7
+#define	STL_DEX						 6
 
 /* 
  * Perception abilities 
@@ -511,8 +510,8 @@
 #define	PER_EYE_FOR_DETAIL			 0
 #define	PER_FOCUSED_ATTACK			 1
 #define	PER_KEEN_SENSES				 2
-#define	PER_ALCHEMY				 3
-#define	PER_CONCENTRATION			 4
+#define	PER_CONCENTRATION			 3
+#define	PER_ALCHEMY				 4
 #define	PER_BANE				 5
 #define	PER_FOREWARNED				 6
 #define	PER_LISTEN				 7
@@ -558,7 +557,7 @@
 #define	SNG_STAYING					6
 #define	SNG_LORIEN					7
 #define	SNG_THRESHOLDS					8
-#define	SNG_VALOUR					9
+#define	SNG_FIERCE_BLOWS				9
 #define	SNG_MASTERY					10
 #define	SNG_WOVEN_THEMES			11
 #define	SNG_GRA						12
@@ -1191,6 +1190,7 @@
 #define SV_AMULET_PRESERVATION		4
 #define SV_AMULET_BLESSED_REALM		5
 #define SV_AMULET_DANGER			6
+#define SV_AMULET_VIGILANT_EYE			7
 
 #define SV_AMULET_TINFANG_GELION	10
 #define SV_AMULET_DWARVES			12
@@ -1201,7 +1201,7 @@
 
 /* The sval codes for TV_RING */
 #define SV_RING_PERCEPTION			0
-#define SV_RING_SUSTENANCE			1
+#define SV_RING_ERED_LUIN			1
 #define SV_RING_EVASION				2
 #define SV_RING_PROTECTION			3
 #define SV_RING_STR					4

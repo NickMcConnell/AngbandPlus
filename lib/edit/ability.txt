@@ -28,7 +28,7 @@
 
 # Version stamp (required)
 
-V:1.3.2
+V:1.3.3
 
 # Melee ---------------------------------------------
 
@@ -44,7 +44,7 @@ T:31:0:99  # Gloves
 N:1:Finesse
 I:0:1:2
 D:Lowers the base number needed to get critical hits with melee
-D: from 7 to 6.
+D: from 7 to 5.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
 T:23:0:99  # Swords
@@ -61,7 +61,7 @@ T:31:0:99  # Gloves
 
 N:3:Polearm Mastery
 I:0:3:4
-D:Gives you +1 to attack with polearms (spears & glaives)
+D:Gives you +2 to attack with polearms (spears & glaives)
 D: and lets you set them to receive free attacks on advancing enemies
 D: when you wait (z or 5).
 T:31:0:99  # Gloves
@@ -101,7 +101,7 @@ N:7:Subtlety
 I:0:7:8
 P:0/1
 D:Lowers the base number needed to get critical hits with melee
-D: by 3 points, when you are using a one handed weapon with the
+D: by 2 points, when you are using a one handed weapon with the
 D: other hand free.
 T:21:0:99  # Hafted
 T:22:0:99  # Polearms
@@ -173,6 +173,7 @@ D:Lowers the base number needed to get critical hits with archery
 D: from 7 to 6.
 T:19:0:99  # Bows
 T:31:1:1   # Gloves (leather gloves only)
+T:45:0:99  # Ring
 
 N:22:Point Blank Archery
 I:1:2:4
@@ -313,6 +314,7 @@ D:Halves any bonuses that awake but unwary enemies have
 D: to notice you due to you being in their line of sight.
 T:35:0:99  # Cloak
 T:36:0:99  # Soft Armour
+T:45:0:99  # Ring
 
 N:61:Assassination
 I:3:1:4
@@ -350,6 +352,7 @@ D:Allows you to use the 'X' command to exchange places with
 D: an adjacent enemy (who gets a free attack on you as you pass).
 T:30:0:99  # Boots
 T:36:0:99  # Soft Armour
+T:40:0:99  # Amulet
 
 N:65:Vanish
 I:3:5:8
@@ -360,16 +363,8 @@ T:35:0:99  # Cloak
 T:36:0:99  # Soft Armour
 T:45:0:99  # Ring
 
-N:66:Coup de Grace
+N:66:Dexterity
 I:3:6:11
-D:Attacks on enemies who have less health than your Stealth score
-D: kill them outright without rolling to hit or to damage.
-P:3/2
-T:23:4:4   # Daggers
-
-N:67:Dexterity
-I:3:7:12
-D:You gain a point of dexterity.
 
 # Perception ---------------------------------------------
 
@@ -379,13 +374,17 @@ D:Gives you a bonus of +5 for finding traps and secret doors.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:39:0:99  # Light Source
+T:40:0:99  # Amulet
 
 N:81:Focused attack
 I:4:1:2
 D:Gives you a bonus of half your Perception score to your
 D: attacks if you passed the previous turn.
+T:22:0:99  # Polearms
+T:23:0:99  # Swords
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:40:0:99  # Amulet
 
 N:82:Keen Senses
 I:4:2:3
@@ -394,23 +393,24 @@ D: pool of light, and gives a +5 bonus to spot 'invisible' creatures.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:39:0:99  # Light Source
+T:40:0:99  # Amulet
 
-N:83:Alchemy
+N:83:Concentration
 I:4:3:4
-D:Lets you determine the purpose of all herbs and potions you encounter,
-D: as well as staves and horns. Allows you to spot curses on enchanted 
-D: items.
-T:32:0:99  # Helm
-T:33:0:99  # Crown
-T:45:0:99  # Ring
-
-N:84:Concentration
-I:4:4:5
 D:Gives you a +1 bonus to attack for every consecutive round
 D: spent attacking the same enemy (to a maximum of Perception/2).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:36:0:99  # Soft Armour
+T:40:0:99  # Amulet
+
+N:84:Alchemy
+I:4:4:5
+D:Lets you determine the purpose of all herbs and potions you encounter,
+D: as well as staves and horns.
+T:32:0:99  # Helm
+T:33:0:99  # Crown
+T:45:0:99  # Ring
 
 N:85:Bane
 I:4:5:6
@@ -420,9 +420,9 @@ D: you kill more.
 
 N:86:Forewarned
 I:4:6:7
-D:You have full knowledge of all your opponents.
-D: If your base Perception exceeds your Evasion, you gain a bonus to your
-D: Evasion of one quarter your Perception score.
+D:You have full knowledge of all your opponents and can tell when an item
+D: is cursed.  If your base Perception exceeds your Evasion, you gain a
+D: bonus to your Evasion of one third your Perception score.
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:39:0:99  # Light Source
@@ -438,12 +438,13 @@ T:33:0:99  # Crown
 
 N:88:Master Hunter
 I:4:8:9
-P:4/4:4/5
+P:4/3:4/5
 D:Gives you an attack bonus of +1 for each time you have killed
 D: an opponent of the same type (up to a maximum of Perception/4).
 T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:30:0:99  # Boots
+T:19:0:99  # Bows
 
 N:89:Grace
 I:4:9:10
@@ -475,6 +476,7 @@ D: attempt to take them off.
 T:40:0:99  # Amulet
 T:32:0:99  # Helm
 T:33:0:99  # Crown
+T:45:0:99  # Ring
 
 N:103:Inner Light
 I:5:3:5
@@ -533,6 +535,7 @@ T:32:0:99  # Helm
 T:33:0:99  # Crown
 T:36:2:2   # Robe
 T:21:9:9   # Sceptre
+T:40:0:99  # Amulet
 
 N:110:Constitution
 I:5:10:12
@@ -554,7 +557,9 @@ T:31:0:99  # Gloves
 
 N:122:Jeweller
 I:6:2:4
-D:Allows you to create rings, amulets, and light sources.
+D:Allows you to create rings, amulets, horns and light
+D: sources and identify rings, amulets, horns and light
+D: sources you encounter.
 T:31:0:99  # Gloves
 
 N:123:Enchantment
@@ -574,8 +579,8 @@ T:31:0:99  # Gloves
 N:125:Expertise
 I:6:5:7
 P:6/3
-D:Reduces the time taken to forge an item by half.
-D: Also halves all experience and stat costs, rounding down odd numbers.
+D:Reduces the time taken to forge an item by half and
+D: negates all experience and stat costs.
 T:21:8:8   # Hafted (War Hammer only)
 T:31:0:99  # Gloves
 
@@ -638,15 +643,19 @@ D:Reveals terrain adjacent to already known areas and shows
 D: features concealed in the stonework including traps and
 D: secret doors. Lowers tunneling difficulty by 1 point per
 D: 6 points of Song.
+T:33:0:99  # Crown
+T:40:0:99  # Amulet
+T:35:0:99  # Cloak
 T:20:0:99  # Shovels and Mattocks
 
 N:146:Song of Staying
 I:7:6:7
 D:Gives you a bonus of +X to Will and [1dX] protection,
 D: where X = Song/3.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
+T:32:0:99  # Helm
+T:34:0:99  # Shields
 T:35:0:99  # Cloak
+T:45:0:99  # Ring
 
 N:147:Song of Lorien
 I:7:7:8
@@ -659,22 +668,23 @@ T:35:0:99  # Cloak
 N:148:Song of Thresholds
 I:7:8:9
 D:Doors you close while singing this song are warded against
-D: your enemies. When defending a doorway, you gain a bonus
-D: of +1 to Evasion and Melee for every 4 points of Song.
+D: your enemies. When standing in a doorway, you gain a bonus
+D: of +1 to Evasion and Melee for every 3 points of Song.
 T:33:0:99  # Crown
 T:40:0:99  # Amulet
 T:35:0:99  # Cloak
 
-N:149:Song of Valour
+N:149:Song of Fierce Blows
 I:7:9:10
 P:7/1:7/6
-D:A desperate song of heroism. Increases Strength and
-D: Dexterity by 3 points. Your strikes may stun opponents
-D: whose Will is less than your Song score. Drains health
-D: as well as voice.
-T:33:0:99  # Crown
-T:40:0:99  # Amulet
-T:35:0:99  # Cloak
+D:Your strikes may stun opponents depending on their Will and
+D: your Song score. Stunned opponents are reduced to rolling
+D: half of their damage dice while the song is in effect.
+D: Heavy and blunt weapons stun opponents for longer.
+T:21:0:99  # Hafted
+T:22:0:99  # Polearms
+T:23:0:99  # Swords
+T:34:0:99  # Shields
 
 N:150:Song of Mastery
 I:7:10:11
