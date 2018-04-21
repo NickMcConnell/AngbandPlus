@@ -1004,6 +1004,14 @@ bool dispel_check(int m_idx)
 
     if (psion_check_dispel()) return TRUE;
 
+    if ( p_ptr->prace == RACE_MON_MIMIC
+      && p_ptr->current_r_idx != MON_MIMIC )
+    {
+        int lvl = r_info[p_ptr->current_r_idx].level;
+        if (lvl >= 50 && randint1(100) < lvl)
+            return TRUE;
+    }
+
     /* No need to cast dispel spell */
     return (FALSE);
 }
@@ -1604,8 +1612,10 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             if ( current_flow_depth < MONSTER_FLOW_DEPTH
               && !(r_ptr->flags2 & RF2_PASS_WALL)
               && !(r_ptr->flags2 & RF2_KILL_WALL)
+              && !(r_ptr->flags1 & RF1_NEVER_MOVE)
               && !cave[m_ptr->fy][m_ptr->fx].dist
-              && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY) )
+              && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY)
+              && !p_ptr->inside_quest )
             {
                 y = m_ptr->fy;
                 x = m_ptr->fx;

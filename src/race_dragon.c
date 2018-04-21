@@ -369,8 +369,8 @@ static void _calc_innate_attacks(void)
     {
         innate_attack_t    a = {0};
 
-        a.dd = 1 + l / 30;
-        a.ds = 3 + l / 10;
+        a.dd = 1 + l / 15;
+        a.ds = 3 + l / 30;
         a.to_h += to_h;
         a.to_d += to_d;
 

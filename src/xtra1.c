@@ -930,7 +930,7 @@ static void prt_status(void)
             break;
         }
     }
-    if (p_ptr->prace == RACE_MON_POSSESSOR)
+    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
     {
         switch(possessor_get_toggle())
         {
@@ -2693,7 +2693,7 @@ static int _racial_mana_adjust(int i)
         result = race_ptr->stats[i];
 
     /* TODO: Some possessor forms have too much mana ... */
-    if (p_ptr->prace == RACE_MON_POSSESSOR)
+    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
     {
         switch (i)
         {
@@ -4873,7 +4873,9 @@ void calc_bonuses(void)
     /* Apply some maximums ... */
     if ( p_ptr->magic_resistance > 15 
       && !prace_is_(RACE_MON_GOLEM) 
-      && !prace_is_(MIMIC_MIST) )
+      && !prace_is_(MIMIC_MIST)
+      && !prace_is_(RACE_MON_POSSESSOR)
+      && !prace_is_(RACE_MON_MIMIC) )
     {
         p_ptr->magic_resistance = 15;
     }

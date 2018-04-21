@@ -243,7 +243,39 @@ static void do_cmd_wiz_hack_chris1(void)
 
 }
 
-static void _test_frequencies(void)
+static bool _is_stat_potion(object_type *o_ptr)
+{
+    if (o_ptr->tval == TV_POTION)
+    {
+        switch (o_ptr->sval)
+        {
+        case SV_POTION_INC_STR:
+        case SV_POTION_INC_INT:
+        case SV_POTION_INC_WIS:
+        case SV_POTION_INC_DEX:
+        case SV_POTION_INC_CON:
+        case SV_POTION_INC_CHR:
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+static bool _is_rune_sword(object_type *o_ptr)
+{
+    if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD)
+        return TRUE;
+    return FALSE;
+}
+
+static bool _is_foo(object_type *o_ptr)
+{
+    if (o_ptr->tval == TV_CRAFT_BOOK && o_ptr->sval == 2)
+        return TRUE;
+    return FALSE;
+}
+
+static void _test_frequencies(object_p pred)
 {
     const int tries = 10 * 1000;
     int hits = 0;
@@ -254,20 +286,8 @@ static void _test_frequencies(void)
 
         object_wipe(&forge);
         if (!make_object(&forge, 0)) continue;
-        if (forge.tval == TV_POTION)
-        {
-            switch (forge.sval)
-            {
-            case SV_POTION_INC_STR:
-            case SV_POTION_INC_INT:
-            case SV_POTION_INC_WIS:
-            case SV_POTION_INC_DEX:
-            case SV_POTION_INC_CON:
-            case SV_POTION_INC_CHR:
-                hits++;
-                break;
-            }
-        }
+        if (pred(&forge))
+            hits++;
     }
     msg_format("%d hits in %d tries (%.4f%%)", hits, tries, (double)hits/(double)tries*100.0);
 }
@@ -301,8 +321,12 @@ static void _test_specific_k_idx(void)
 
 static void do_cmd_wiz_hack_chris2(void)
 {
-    _test_frequencies();
-    /* _test_specific_k_idx(); */
+    _test_frequencies(_is_foo);
+    /* 
+    _test_frequencies(_is_rune_sword);
+    _test_frequencies(_is_stat_potion);
+    _test_specific_k_idx(); 
+    */
 }
 
 static void do_cmd_wiz_hack_chris3_imp(FILE* file)

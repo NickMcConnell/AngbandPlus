@@ -186,6 +186,7 @@
     <ClCompile Include="race_jelly.c" />
     <ClCompile Include="race_leprechaun.c" />
     <ClCompile Include="race_lich.c" />
+    <ClCompile Include="race_mimic.c" />
     <ClCompile Include="race_possessor.c" />
     <ClCompile Include="race_quylthulg.c" />
     <ClCompile Include="race_ring.c" />

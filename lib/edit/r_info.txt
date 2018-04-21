@@ -168,6 +168,10 @@ B:BITE:HURT:1d3
 F:RAND_25 | CAN_FLY | WILD_TOWN | WILD_ONLY
 F:ANIMAL | DROP_SKELETON
 D:Utterly harmless, except when angry.
+P:Copy:Yeek:Tourist
+P:Stats:-5:0:0:0:-5:0
+P:Life:50
+P:Body:Scrawny
 
 #Instead, we have chaffinches for wilderness
 
@@ -179,6 +183,10 @@ B:BITE:HURT:1d3
 F:RAND_25 | CAN_FLY | WILD_ONLY | WILD_WOOD | WILD_GRASS
 F:ANIMAL | DROP_SKELETON
 D:Utterly harmless, except when angry.
+P:Copy:Yeek:Tourist
+P:Stats:-5:0:0:0:-5:0
+P:Life:50
+P:Body:Scrawny
 
 N:5:Wild rabbit
 G:r:U
@@ -399,6 +407,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:RES_POIS | DROP_CORPSE
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
 P:Copy:Snotling:Tourist
 P:Life:50
 P:Body:Mold
@@ -429,6 +438,7 @@ F:RES_POIS | DROP_CORPSE
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 |
 S:BLINK
+F:POS_GAIN_AC
 P:Copy:Snotling:Tourist
 P:Life:50
 P:Body:Mold
@@ -457,6 +467,10 @@ B:STING:HURT:1d5
 F:RAND_50 | DROP_SKELETON |
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL |
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Yeek:Tourist
+P:Life:60
+P:Body:Small Centipede
 D:It is about four feet long and carnivorous.
 
 N:25:White icky thing
@@ -546,6 +560,10 @@ B:CRAWL:POISON:1d5
 F:RAND_50 | RAND_25 | CAN_SWIM |
 F:STUPID | WEIRD_MIND | MULTIPLY | 
 F:ANIMAL | RES_POIS | HURT_LITE | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Worm
 D:It is a large slimy mass of worms.
 
 N:32:Floating eye
@@ -580,6 +598,10 @@ B:BITE:ELEC:1d7
 F:RAND_25 | FRIENDS | CAN_FLY |
 F:STUPID | WEIRD_MIND | SELF_LITE_1
 F:ANIMAL | RES_ELEC
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:50
+P:Body:Scrawny
 D:A strange electric bug. 
 
 N:35:Jackal
@@ -626,6 +648,10 @@ B:BITE:HURT:1d5
 B:STING:HURT:1d5
 F:ANIMAL | WEIRD_MIND | CAN_FLY | RAND_25 | WILD_GRASS |
 F:WILD_WOOD | WILD_SWAMP
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:50
+P:Body:Scrawny
 D:A lone insect may be harmless, but there's a whole swarm of 
 D:them here!
 
@@ -658,6 +684,7 @@ F:RES_POIS | WILD_SWAMP | DROP_CORPSE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:SHRIEK
+F:POS_GAIN_AC
 P:Copy:Snotling:Tourist
 P:Life:50
 P:Body:Mold
@@ -687,6 +714,10 @@ B:CRAWL:HURT:1d3
 F:RAND_50 | WILD_ALL | DROP_SKELETON
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Yeek:Tourist
+P:Life:80
+P:Body:Small Centipede
 D:It is about four feet long and carnivorous.
 
 N:43:Novice warrior
@@ -768,6 +799,9 @@ F:NEVER_MOVE | CAN_SWIM |
 F:STUPID | EMPTY_MIND | 
 F:RES_POIS | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Human:Tourist
+P:Body:Jelly3
 D:Its a large pile of white flesh.
 
 N:49:Giant black ant
@@ -890,6 +924,9 @@ F:UNIQUE |
 F:FORCE_MAXHP | DROP_SKELETON
 F:BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Human:Rogue
+P:Body:Hound
 D:A striped housecat who enjoys hunting. 
 
 N:58:Green worm mass
@@ -901,6 +938,10 @@ F:RAND_50 | RAND_25 |
 F:STUPID | WEIRD_MIND | MULTIPLY | 
 F:ANIMAL | RES_ACID | CAN_SWIM | 
 F:HURT_LITE | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Worm
 D:It is a large slimy mass of worms.
 
 N:59:Large yellow snake
@@ -987,6 +1028,9 @@ F:RAND_50 | RAND_25 | DROP_90 |
 F:STUPID | EMPTY_MIND | 
 F:RES_ACID | RES_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Yeek:Warrior
+P:Body:Jelly3
 D:It's green and it's oozing.
 
 N:65:Poltergeist
@@ -999,6 +1043,8 @@ F:DROP_60 | DROP_90 |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | TAKE_ITEM | 
 F:EVIL | UNDEAD | 
 F:RES_COLD | IM_POIS | RES_NETH | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS
+P:Copy:Spectre:Tourist
 S:1_IN_15 | 
 S:BLINK
 D:It is a ghastly, ghostly form.
@@ -1014,6 +1060,9 @@ F:RES_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_15 | 
 S:DRAIN_MANA
+F:POS_GAIN_AC
+P:Copy:Human:Tourist
+P:Body:Jelly3
 D:It's a large pile of yellow flesh.
 
 N:67:Metallic blue centipede
@@ -1024,6 +1073,10 @@ B:CRAWL:HURT:1d4
 F:RAND_50 | DROP_SKELETON
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL |
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Yeek:Tourist
+P:Life:80
+P:Body:Small Centipede
 D:It is about four feet long and carnivorous.
 
 N:68:Raven
@@ -1046,6 +1099,10 @@ B:BITE:HURT:1d3
 F:RAND_50 | RAND_25 | CAN_FLY |
 F:MULTIPLY | WEIRD_MIND | 
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:50
+P:Body:Scrawny
 D:It is six inches long.
 
 N:70:Piranha
@@ -1054,6 +1111,9 @@ I:120:2d6:20:8:5:5
 W:3:1:60:9:40:187
 B:BITE:HURT:13d1
 F:FRIENDS | AQUATIC | ANIMAL | WILD_ALL | RES_WATE
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Fish
 D:Bloodthirsty fish who can smell your blood from a great distance.
 
 N:71:Black naga
@@ -1092,6 +1152,9 @@ F:RES_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_15 | 
 S:DRAIN_MANA
+F:POS_GAIN_AC
+P:Copy:Imp:Tourist
+P:Body:Jelly3
 D:It is a large pile of silver flesh that sucks all light from its 
 D:surroundings.
 
@@ -1131,6 +1194,10 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Yeek:Tourist
+P:Life:50
+P:Body:Mold
 D:It is a strange growth on the dungeon floor.
 
 N:77:Metallic red centipede
@@ -1141,6 +1208,10 @@ B:CRAWL:HURT:1d4
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | WILD_ALL | DROP_SKELETON
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Yeek:Tourist
+P:Life:90
+P:Body:Small Centipede
 D:It is about four feet long and carnivorous.
 
 N:78:Yellow worm mass
@@ -1151,6 +1222,10 @@ B:CRAWL:LOSE_DEX:1d5
 F:RAND_50 | RAND_25 | CAN_SWIM |
 F:STUPID | WEIRD_MIND | MULTIPLY
 F:ANIMAL | HURT_LITE | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Worm
 D:It is a large slimy mass of worms.
 
 N:79:Clear worm mass
@@ -1163,6 +1238,10 @@ F:RAND_50 | RAND_25 |
 F:STUPID | WEIRD_MIND | INVISIBLE | MULTIPLY | 
 F:ANIMAL
 F:RES_POIS | HURT_LITE | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Worm
 D:It is a disgusting mass of poisonous worms.
 
 N:80:Radiation eye
@@ -1185,6 +1264,9 @@ I:120:2d6:8:12:30:10
 W:4:1:30:5:0:0
 B:EXPLODE:BLIND
 F:RES_LITE | EMPTY_MIND | CAN_FLY | NONLIVING | SELF_LITE_1 | SELF_LITE_2
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Wisp
 D:A fast-moving bright light.
 
 N:82:Cave lizard
@@ -1225,6 +1307,9 @@ F:NEVER_MOVE | COLD_BLOOD |
 F:STUPID | EMPTY_MIND | CAN_SWIM |
 F:RES_COLD | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Imp:Tourist
+P:Body:Jelly3
 D:It's a large pile of pulsing blue flesh.
 
 N:85:Creeping copper coins
@@ -1247,6 +1332,9 @@ B:BITE:POISON:1d6
 F:RAND_25 | 
 F:MULTIPLY | 
 F:ANIMAL
+P:Copy:Snotling:Warrior
+P:Life:60
+P:Body:Scrawny
 D:It is a very vicious rodent.
 
 N:87:Snotling
@@ -1269,6 +1357,9 @@ W:4:2:40:15:0:0
 B:STING:HURT:7d1
 B:STING:HURT:7d1
 F:ANIMAL | AQUATIC | WILD_ALL | RES_WATE
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Fish
 D:An animal with a swordlike "beak".
 
 N:89:Blue worm mass
@@ -1280,6 +1371,10 @@ F:RAND_50 | RAND_25 |
 F:STUPID | WEIRD_MIND | COLD_BLOOD | MULTIPLY | 
 F:ANIMAL | RES_COLD | CAN_SWIM |
 F:HURT_LITE | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Worm
 D:It is a large slimy mass of worms.
 
 N:90:Large grey snake
@@ -1305,6 +1400,8 @@ B:HIT:HURT:1d10
 F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE
+P:Copy:Kobold:Warrior
 D:It is a small animated kobold skeleton.
 
 N:92:Ewok
@@ -1359,6 +1456,10 @@ W:5:1:40:20:0:0
 B:BITE:HURT:4d1
 B:BITE:HURT:4d1
 F:ANIMAL | AQUATIC | WEIRD_MIND | RAND_25 | RES_WATE
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:60
+P:Body:Scrawny
 D:Yech! The disgusting thing only wants your blood!
 
 N:96:Barracuda
@@ -1368,6 +1469,9 @@ W:5:2:40:30:0:0
 B:BITE:HURT:13d1
 B:BITE:HURT:2d7
 F:AQUATIC | ANIMAL | WILD_ALL | RES_WATE
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Fish
 D:A predatory fish with razor-sharp teeth.
 
 N:97:Novice paladin
@@ -1396,6 +1500,7 @@ B:HIT:HURT:2d5
 B:HIT:HURT:2d5
 B:DROOL
 F:EVIL | OPEN_DOOR | BASH_DOOR | DROP_90 | DROP_SKELETON
+P:Copy:Imp:Warrior
 D:Drooling, insectoid aliens with disgusting habits.
 
 N:99:Blue ooze
@@ -1407,6 +1512,9 @@ F:RAND_50 | RAND_25 | DROP_60 |
 F:STUPID | EMPTY_MIND | CAN_SWIM |
 F:RES_COLD | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Yeek:Tourist
+P:Body:Jelly3
 D:It's blue and it's oozing.
 
 N:100:Green glutton ghost
@@ -1418,6 +1526,8 @@ F:RAND_50 | RAND_25 |
 F:DROP_60 | DROP_90 | CAN_FLY |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS
+P:Copy:Spectre:Tourist
 D:It is a very ugly green ghost with a voracious appetite.
 
 N:101:Green jelly
@@ -1429,6 +1539,9 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | CAN_SWIM |
 F:RES_ACID | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Imp:Tourist
+P:Body:Jelly3
 D:It is a large pile of pulsing green flesh.
 
 N:102:Large kobold
@@ -1479,6 +1592,10 @@ F:RAND_50 | RAND_25 |
 F:STUPID | EMPTY_MIND | MULTIPLY | BASH_DOOR | 
 F:ANIMAL | RES_FIRE | CAN_SWIM |
 F:HURT_LITE | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:60
+P:Body:Worm
 D:It is a large slimy mass of worms.
 
 N:106:Copperhead snake
@@ -1585,6 +1702,10 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:RES_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Human:Tourist
+P:Life:70
+P:Body:Mold
 D:A strange brown growth on the dungeon floor.
 
 N:114:Giant brown bat
@@ -1728,6 +1849,8 @@ B:HIT:HURT:1d3
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Tourist
 D:It is an animated kobold corpse.  Flesh falls off in large chunks as it 
 D:shambles forward. 
 
@@ -1742,6 +1865,8 @@ F:RAND_25
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | FRIENDS |
 F:EVIL | UNDEAD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | HURT_LITE
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Skeleton:Mage
 S:1_IN_10
 S:CAUSE_1 | S_UNDEAD
 D:Frightening skeletal figures in black robes. 
@@ -1755,6 +1880,8 @@ B:CLAW:POISON:1d4
 F:OPEN_DOOR | BASH_DOOR | FRIENDS |
 F:NO_CONF | NO_SLEEP | UNDEAD | EVIL | NO_FEAR | IM_POIS
 F:RES_COLD | RES_NETH | COLD_BLOOD | EMPTY_MIND
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Tourist
 D:Corpses awakened from their sleep by dark sorceries. 
 
 N:126:Cave orc
@@ -1791,6 +1918,8 @@ B:HIT:HURT:1d10
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | RES_FIRE | 
+F:POS_HOLD_LIFE
+P:Copy:Imp:Warrior
 D:It is a minor but aggressive demon.
 
 N:129:Bloodshot eye
@@ -1830,6 +1959,9 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:HURT_LITE | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Jelly3
 D:It is a large pulsating mound of red flesh.
 
 N:132:Green icky thing
@@ -1856,6 +1988,8 @@ F:RAND_50 | DROP_60 | DROP_90 | CAN_FLY |
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
 F:EVIL | UNDEAD | 
 F:RES_COLD | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_15 | 
 S:TPORT | DRAIN_MANA
 D:It is almost insubstantial.
@@ -1900,6 +2034,8 @@ F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ORC | UNDEAD | 
 F:RES_COLD | IM_POIS | RES_NETH | RES_DARK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Kobold:Warrior
 D:It is an animated orc skeleton.
 
 N:137:Wormtongue, Agent of Saruman
@@ -1947,6 +2083,8 @@ B:BITE:DISEASE:1d9
 F:FRIENDS |
 F:OPEN_DOOR | BASH_DOOR | IM_POIS |
 F:EVIL | DEMON | RES_FIRE | 
+F:POS_HOLD_LIFE
+P:Copy:Imp:Warrior
 D:It is a minor demon servitor of Nurgle. It looks like a hairless 
 D:teddy bear, with twisted eyes and rotting, ghoulish skin.
 
@@ -2042,6 +2180,10 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:RES_ACID | RES_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Human:Tourist
+P:Life:90
+P:Body:Mold
 D:It is a strange growth on the dungeon floor.
 
 N:147:Novice paladin
@@ -2069,6 +2211,8 @@ B:HIT:HURT:1d9
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | RES_FIRE | 
+F:POS_HOLD_LIFE
+P:Copy:Imp:Warrior
 D:It is the larval form of a major demon.
 
 N:149:Hill orc
@@ -2118,6 +2262,8 @@ B:HIT:HURT:1d12
 B:HIT:HURT:1d12
 F:PASS_WALL | NO_SLEEP | FRIENDS | COLD_BLOOD | NONLIVING |
 F:NO_FEAR | EMPTY_MIND | CAN_FLY
+F:POS_SEE_INVIS
+P:Copy:Barbarian:Warrior
 D:Creatures that are half real, half illusion.
 
 N:153:Gremlin
@@ -2129,6 +2275,7 @@ B:CLAW:EAT_FOOD:1d2
 B:BITE:EAT_FOOD:1d4
 F:MULTIPLY | RES_POIS | RES_DARK | HURT_LITE | EVIL | DEMON | OPEN_DOOR | 
 F:TAKE_ITEM | CAN_SWIM 
+P:Copy:Yeek:Rogue
 D:Don't splash water on them, and don't feed them after midnight!
 
 N:154:Yeti
@@ -2168,6 +2315,9 @@ B:BITE:POISON:1d5
 F:RAND_25 | 
 F:MULTIPLY | 
 F:ANIMAL | RES_POIS
+P:Copy:Snotling:Warrior
+P:Life:80
+P:Body:Scrawny
 D:It is a rodent of unusual size.
 
 N:157:Black harpy
@@ -2221,6 +2371,9 @@ W:9:2:40:25:0:0
 B:TOUCH:PARALYZE:1d7
 B:TOUCH:PARALYZE:1d7
 F:ANIMAL | AQUATIC | RES_POIS | RES_WATE | WILD_ALL |
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Jelly3
 D:A strange water creature, whose touch can be deadly.
 
 N:161:Rock mole
@@ -2441,6 +2594,9 @@ B:STING:POISON:1d5
 B:STING:LOSE_STR:1d4
 F:WEIRD_MIND | FRIENDS | CAN_FLY | WILD_ALL |
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Scrawny
 D:It is poisonous and aggressive.
 
 N:175:Giant spider
@@ -2516,6 +2672,7 @@ W:10:1:40:10:0:0
 B:EXPLODE:HURT:15d2
 F:OPEN_DOOR | BASH_DOOR | HAS_LITE_1 |
 F:ANIMAL | RES_ACID | NO_FEAR
+P:Copy:Yeek:Warrior
 D:The evil wizard Bruce has trained them to be living weapons.
 
 N:180:Orfax, Son of Boldor
@@ -2548,6 +2705,8 @@ B:CLAW:DISEASE:1d3
 F:OPEN_DOOR | BASH_DOOR | FRIENDS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | UNDEAD | EVIL | IM_POIS
 F:RES_COLD | RES_NETH | COLD_BLOOD 
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Priest
 S:1_IN_12
 S:CAUSE_1 | SCARE
 D:"...the hand of a corpse -- bloodless and skeletal, and with 
@@ -2578,6 +2737,7 @@ B:CLAW:HURT:1d6
 F:FRIENDS | WILD_WASTE | DROP_SKELETON
 F:OPEN_DOOR | BASH_DOOR | HURT_LITE | EVIL | DROP_60 | DROP_90
 F:MALE
+P:Copy:Beastman:Warrior
 D:"Rough-skinned, large-eyed, large-eared, with a horrible, 
 D:distorted resemblance to the koala bear facially, though 
 D:his body had an appearance of emaciation."
@@ -2630,6 +2790,9 @@ B:BITE:HURT:9d1
 B:BITE:HURT:9d1
 F:NO_SLEEP | WILD_ALL | RES_WATE |
 F:FRIENDS | AQUATIC | ANIMAL
+F:POS_GAIN_AC
+P:Copy:Kobold:Warrior
+P:Body:Fish
 D:A very large and bloodthirsty fish.
 
 N:188:Owlbear
@@ -2654,6 +2817,8 @@ B:CLAW:TERRIFY:1d8
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | RES_FIRE | NO_CONF
+F:POS_HOLD_LIFE
+P:Copy:Imp:Warrior
 D:An ugly screaming little demon servant of Tzeentch.
 
 N:190:Hairy mold
@@ -2665,6 +2830,9 @@ F:NEVER_MOVE | CAN_SWIM |
 F:STUPID | EMPTY_MIND | 
 F:RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Human:Tourist
+P:Body:Mold
 D:It is a strange hairy growth on the dungeon floor.
 
 N:191:Grizzly bear
@@ -2690,6 +2858,9 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | RES_DISE |
 F:RES_POIS | ATTR_MULTI | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR | SELF_LITE_1 |
+F:POS_GAIN_AC
+P:Copy:Human:Rogue
+P:Body:Mold
 S:1_IN_11 | 
 S:DRAIN_MANA
 D:It is a strange glowing growth on the dungeon floor.
@@ -2719,6 +2890,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DEMON | RES_FIRE | RES_TELE | CAN_FLY
 S:1_IN_3 | 
 S:BLINK | TELE_TO | TELE_AWAY | TPORT
+F:POS_HOLD_LIFE
+P:Copy:Imp:Rogue
 D:It is a fast-moving demon that blinks quickly in and out of existence; no 
 D:other demon matches its teleporting mastery.
 
@@ -2756,6 +2929,10 @@ B:BITE:HURT:1d2
 F:RAND_50 | RAND_25 | CAN_FLY |
 F:MULTIPLY | WEIRD_MIND | 
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:50
+P:Body:Scrawny
 D:A fast-breeding, annoying pest.
 
 N:198:Panther
@@ -2807,6 +2984,7 @@ B:HIT:HURT:1d7
 B:HIT:HURT:1d7
 F:BASH_DOOR | OPEN_DOOR | FRIENDS | DROP_60 | RES_POIS | NO_SLEEP | NO_CONF
 F:MALE | DROP_SKELETON
+P:Copy:Dark-Elf:Warrior
 D:"There was something unusual about their appearance... For one thing, 
 D:all had uniformly bloodshot eyes. Very, very bloodshot eyes. With them, 
 D:though, the condition seemed normal. For another, all had an extra joint 
@@ -2825,6 +3003,9 @@ B:TOUCH:DISEASE:1d6
 B:TOUCH:LOSE_CON:1d6
 F:UNDEAD | EMPTY_MIND | NO_CONF | NO_SLEEP | IM_POIS | RES_COLD | NO_FEAR |
 F:HURT_LITE | RES_NETH | COLD_BLOOD | EVIL | NEVER_MOVE | MULTIPLY
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_SUST_CON
+P:Copy:Human:Priest
+P:Body:Jelly3
 D:A sickening mound of decaying flesh, bones, hands and so on. It seems to 
 D:be growing.
 
@@ -2836,6 +3017,8 @@ B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 B:HIT:CONFUSE:1d3
 F:DROP_60 | EVIL | SHAPECHANGER | ATTR_MULTI | ATTR_ANY
+F:POS_GAIN_AC
+P:Copy:Beastman:Chaos-Warrior
 S:1_IN_5
 S:BO_FIRE | BO_COLD | CONF
 D:A vaguely humanoid form constantly changing its appearance.
@@ -2922,6 +3105,8 @@ F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ORC | UNDEAD | 
 F:RES_COLD | IM_POIS | RES_NETH | RES_DARK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Warrior
 D:It is a shambling orcish corpse leaving behind a trail of flesh.
 
 N:209:Hippogriff
@@ -2947,6 +3132,7 @@ B:BITE:POISON:4d4
 F:RAND_50 | 
 F:BASH_DOOR | CAN_SWIM | WILD_WOOD | WILD_GRASS | WILD_SWAMP
 F:ANIMAL | RES_POIS | DROP_SKELETON | DROP_CORPSE
+F:POS_GAIN_AC
 P:Copy:Human:Rogue
 P:Life:60
 P:Body:Snake
@@ -2980,6 +3166,9 @@ F:RES_POIS | HURT_LITE | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_11 | 
 S:DRAIN_MANA
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Imp:Priest
+P:Body:Jelly5
 D:It is a pulsing mound of glowing flesh.
 
 N:213:Nether worm mass
@@ -2990,6 +3179,9 @@ B:TOUCH:EXP_10
 F:RAND_50 | RAND_25 | CAN_SWIM |
 F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | 
 F:ANIMAL | HURT_LITE | RES_NETH | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Worm
 D:It is a disgusting mass of dark worms, eating each other, the floor, 
 D:the air, you....
 
@@ -3001,6 +3193,9 @@ B:CRAWL:EXP_10
 F:RAND_50 | RAND_25 | 
 F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | EVIL | CAN_SWIM |
 F:ANIMAL | HURT_LITE | RES_DARK | NO_FEAR | KILL_WALL | COLD_BLOOD | INVISIBLE
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Worm
 D:Even more disgusting dark worms, their essence that of unbeing.
 
 N:215:Golfimbul, the Hill Orc Chief
@@ -3088,6 +3283,9 @@ W:12:1:50:40:600:406
 B:STING:POISON:2d5
 B:STING:POISON:2d5
 F:ANIMAL | EVIL | AQUATIC | RES_POIS | RES_WATE | WILD_ALL
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Fish
 D:A devil ray of the depths.
 
 N:221:Mine-dog
@@ -3098,6 +3296,9 @@ B:EXPLODE:HURT:6d6
 F:RAND_50 | 
 F:FRIENDS | 
 F:BASH_DOOR | ANIMAL 
+P:Copy:Human:Warrior
+P:Life:80
+P:Body:Puppy
 D:An explosive charge has been attached to this poor animal, who 
 D:has been trained to search for its target and detonate.
 
@@ -3109,6 +3310,9 @@ B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
 B:BITE:HURT:1d8
 F:ANIMAL | WEIRD_MIND | FRIENDS | RAND_25 | RES_FIRE | EVIL
+F:POS_GAIN_AC
+P:Copy:Kutar:Rogue
+P:Body:Hound
 D:It is as large as a tiger, its yellow eyes are pupilless.
 
 N:223:Moon beast
@@ -3189,6 +3393,8 @@ F:RAND_50 | RAND_25 | NONLIVING |
 F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | BASH_DOOR | 
 F:EVIL | RES_POIS | CAN_FLY |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Human:Rage-Mage
 D:A whirlwind of sentient air.
 
 N:228:Skeleton human
@@ -3200,6 +3406,8 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | RES_COLD | 
 F:IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Human:Warrior
 D:It is an animated human skeleton.
 
 N:229:Zombified human
@@ -3211,6 +3419,8 @@ B:HIT:HURT:1d4
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Zombie:Warrior
 D:It is a shambling human corpse dropping chunks of flesh behind it.
 
 N:230:Tiger
@@ -3238,6 +3448,8 @@ F:FORCE_SLEEP | RAND_25 |
 F:DROP_60 | DROP_90 | CAN_FLY |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | RES_COLD | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_15 | 
 S:TPORT | SCARE
 D:A ghostly apparition that shrieks horribly.
@@ -3251,6 +3463,9 @@ B:BITE:HURT:2d4
 B:STING:HURT:2d4
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | DROP_SKELETON
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Giant Centipede
 D:It is a vast armoured centipede with massive mandibles and a spiked tail.
 
 N:233:Spotted jelly
@@ -3264,6 +3479,9 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | COLD_BLOOD | 
 F:RES_ACID | RES_POIS | HURT_LITE | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Imp:Warrior
+P:Body:Jelly5
 D:A jelly thing.
 
 N:234:Drider
@@ -3392,6 +3610,8 @@ B:BITE:CONFUSE:1d6
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | RES_FIRE | NO_CONF
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_8
 S:CONF | SCARE
 D:An ugly screaming little demon servant of Tzeentch.
@@ -3434,6 +3654,9 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:RES_ACID | RES_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Imp:Warrior
+P:Body:Jelly5
 D:A fast moving highly acidic jelly thing, that is eating away the floor it 
 D:rests on.
 
@@ -3445,6 +3668,10 @@ B:BITE:HURT:1d2
 F:RAND_50 | RAND_25 | 
 F:MULTIPLY | WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:50
+P:Body:Scrawny
 D:Oh no! They are everywhere!
 
 N:247:Lurker
@@ -3468,6 +3695,7 @@ B:HIT:HURT:6d3
 B:HIT:HURT:6d3
 F:AQUATIC | WILD_ALL | RES_WATE |
 F:MALE
+P:Copy:Dark-Elf:Warrior
 D:A race of fair yet belligrent sea elves.
 
 N:249:Vlasta
@@ -3492,6 +3720,10 @@ F:FORCE_SLEEP | WILD_WASTE |
 F:RAND_50 | CAN_FLY |
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | RES_COLD
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Scrawny
 S:1_IN_10 | 
 S:BR_COLD
 D:It is a large fly that drips frost.
@@ -3506,6 +3738,7 @@ F:MALE |
 F:WILD_ALL | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE | RES_DARK
+P:Copy:Snotling:Warrior
 D:He is one of the many weaker 'slave' orcs, often mistakenly known as a 
 D:goblin. He is equipped with an explosive charge.
 
@@ -3536,6 +3769,9 @@ W:14:4:50:20:0:0
 B:CRAWL:POISON:1d4
 F:NEVER_MOVE | MULTIPLY | EVIL | CAN_SWIM |
 F:RES_POIS | EMPTY_MIND | NO_FEAR | RES_LITE
+F:POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Imp:Priest
+P:Body:Jelly5
 S:1_IN_7
 S:SCARE | CONF | BR_LITE
 D:A chaotic mass of pulsating flesh, mouths and eyes.
@@ -3580,6 +3816,8 @@ B:HIT:HURT:1d6
 F:EMPTY_MIND | BASH_DOOR | CAN_SWIM |
 F:RES_ELEC | RES_COLD |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:A shambling humanoid monster with long scars.
 
 N:257:Warg
@@ -3620,6 +3858,10 @@ B:BITE:HURT:1d2
 F:RAND_50 | CAN_FLY |
 F:WEIRD_MIND | MULTIPLY | 
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:50
+P:Body:Scrawny
 D:It makes you itch just to look at it. 
 
 N:260:Ufthak of Cirith Ungol
@@ -3650,6 +3892,8 @@ F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | 
 F:HURT_ROCK | NONLIVING |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:It is a massive animated statue made out of hardened clay.
 
 N:262:Black ogre
@@ -3675,7 +3919,7 @@ B:GAZE:CONFUSE
 F:NEVER_MOVE | DROP_60 | EVIL | DEMON | 
 F:RES_POIS | RES_COLD |RES_FIRE | NO_FEAR | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
 S:1_IN_6
 S:BO_ACID | S_MONSTER | SCARE | DRAIN_MANA
 D:A creature like a giant purple Buddha with lots of teeth.
@@ -3722,6 +3966,9 @@ B:CRUSH:SUPERHURT:8d3
 B:CRUSH:SUPERHURT:8d3
 B:CRUSH:SUPERHURT:8d3
 F:RAND_25 | RES_COLD | RES_WATE | AQUATIC | ANIMAL | WILD_ALL | RIDING
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Octopus
 D:It doesn't move very fast, but when it does - watch out!
 
 N:267:Magic mushroom patch
@@ -3745,6 +3992,8 @@ B:BUTT:HURT:3d5
 F:FORCE_MAXHP | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | RES_COLD |
 F:EVIL | DEMON | UNDEAD | IM_POIS | RES_NETH | NONLIVING 
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Priest
 S:1_IN_8
 S:SCARE | S_ANT | CAUSE_2 | SLOW
 D:An unfortunate individual, who was killed by the incurable 
@@ -3827,6 +4076,9 @@ B:BITE:POISON:1d3
 B:BITE:LOSE_STR:1d4
 F:UNDEAD | EVIL | IM_POIS | RES_COLD | WEIRD_MIND | CAN_FLY |
 F:RES_NETH | NO_CONF | NO_SLEEP | DROP_60 | BASH_DOOR | FRIENDS | COLD_BLOOD
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Skeleton:Warrior
+P:Body:Skull
 D:A skullpack animated by necromantic spells.
 
 N:274:Mi-Go
@@ -3837,6 +4089,9 @@ B:STING:POISON:1d4
 B:BITE:LOSE_STR:1d2
 F:RES_POIS | RES_COLD | COLD_BLOOD | ANIMAL | EVIL | 
 F:NO_SLEEP | NO_CONF | CAN_FLY | DROP_SKELETON
+F:POS_GAIN_AC
+P:Copy:Snotling:Rogue
+P:Body:Dragon
 S:1_IN_6
 S:CONF | S_MONSTER | S_DEMON
 D:"They were pinkish things about five feet long; with crustaceous 
@@ -3868,6 +4123,9 @@ B:STING:HURT:2d4
 F:ATTR_CLEAR | 
 F:INVISIBLE | WEIRD_MIND | BASH_DOOR | WILD_ALL |
 F:ANIMAL | DROP_SKELETON
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Small Centipede
 D:It is about four feet long and carnivorous.
 
 N:277:Mirkwood spider
@@ -3929,6 +4187,8 @@ B:HIT:PARALYZE:1d2
 B:HIT:HURT:1d10
 F:OPEN_DOOR | BASH_DOOR | NONLIVING | CAN_FLY |
 F:EVIL | DEMON | RES_FIRE | 
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Warrior
 D:It is a small demonic spirit full of malevolence.
 
 N:281:Gnome mage
@@ -4028,11 +4288,13 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_DETECT_OBJECTS
+P:Copy:Barbarian:Warrior
+P:Body:Jelly5
 D:It is a strange, vast gelatinous structure that assumes cubic proportions 
 D:as it lines all four walls of the corridors it patrols.  Through its 
 D:transparent jelly structure you can see treasures it has engulfed, and a 
 D:few corpses as well.
-P:Body:Jelly5
 
 N:287:Giant green dragon fly
 G:F:G
@@ -4042,6 +4304,10 @@ B:BITE:POISON:1d6
 F:FORCE_SLEEP | RAND_50 | RAND_25 | WILD_SWAMP |
 F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL | RES_POIS
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Scrawny
 S:1_IN_10 | 
 S:BR_POIS
 D:A vast, foul-smelling dragonfly.
@@ -4071,6 +4337,10 @@ B:BITE:CONFUSE:2d2
 F:RAND_50 | RAND_25 | CAN_FLY |
 F:MULTIPLY | WEIRD_MIND | 
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:50
+P:Body:Scrawny
 D:A giant buzzing wasp, its stinger drips venom.
 
 N:290:Lizardman
@@ -4111,6 +4381,9 @@ B:BITE:HURT:4d4
 B:BUTT:HURT:4d4
 B:BITE:HURT:4d4
 F:ANIMAL | AQUATIC | WILD_ALL | RES_WATE
+F:POS_GAIN_AC
+P:Copy:Kobold:Warrior
+P:Body:Fish
 D:A hungry shark with a strange head.
 
 N:293:Berserker
@@ -4140,6 +4413,8 @@ F:RAND_25 |
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | INVISIBLE | BASH_DOOR | 
 F:EVIL | DEMON | RES_FIRE | NONLIVING |
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Rogue
 S:1_IN_10 | 
 S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE
 D:The chaotic evil master's favourite pet.
@@ -4172,6 +4447,8 @@ F:RAND_25 |
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | INVISIBLE | COLD_BLOOD | BASH_DOOR | 
 F:EVIL | DEMON | RES_FIRE | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Rogue
 S:1_IN_10 | 
 S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE | BO_FIRE
 D:The lawful evil master's favourite pet.
@@ -4199,6 +4476,9 @@ B:EXPLODE:COLD:8d8
 F:FORCE_SLEEP | CAN_FLY | COLD_BLOOD |
 F:EMPTY_MIND | AURA_COLD | HURT_FIRE |
 F:IM_COLD | NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Orb
 D:The embodiment of cold.
 
 N:299:Jumping fireball
@@ -4209,6 +4489,9 @@ B:EXPLODE:FIRE:8d8
 F:FORCE_SLEEP | CAN_FLY | SELF_LITE_2 |
 F:EMPTY_MIND | AURA_FIRE | HURT_COLD |
 F:IM_FIRE | NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Orb
 D:The embodiment of heat.
 
 N:300:Ball lightning
@@ -4219,6 +4502,9 @@ B:EXPLODE:ELEC:8d8
 F:FORCE_SLEEP | CAN_FLY | SELF_LITE_2 |
 F:EMPTY_MIND | AURA_ELEC |
 F:IM_ELEC | NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Orb
 D:A crackling ball of energy.
 
 N:301:2-headed hydra
@@ -4245,6 +4531,8 @@ W:17:2:70:80:0:0
 B:CLAW:TERRIFY:2d5
 B:CLAW:TERRIFY:5d2
 F:CAN_SWIM | OPEN_DOOR | BASH_DOOR | WILD_SWAMP
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
 D:A creature that was once human, but is now as green as moss.
 
 N:303:Water spirit
@@ -4257,6 +4545,8 @@ F:RAND_25 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:EVIL | RES_POIS | CAN_FLY | NONLIVING |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Human:Rage-Mage
 D:A whirlpool of sentient liquid.
 
 N:304:Giant red scorpion
@@ -4282,6 +4572,8 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:PASS_WALL | CAN_FLY | NONLIVING |
 F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_SHAR | HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Human:Rage-Mage
 D:A whirling form of sentient rock.
 
 N:306:Fire spirit
@@ -4294,6 +4586,8 @@ F:RAND_25 | SELF_LITE_1 |
 F:EMPTY_MIND | BASH_DOOR | CAN_FLY | NONLIVING | HURT_COLD |
 F:EVIL | RES_FIRE | RES_POIS | WILD_VOLCANO |
 F:NO_CONF | NO_SLEEP | NO_FEAR | AURA_FIRE
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Human:Rage-Mage
 D:A whirlwind of sentient flame.
 
 N:307:Fire hound
@@ -4473,6 +4767,9 @@ W:18:1:999:68:400:386
 B:BITE:HURT:3d5
 B:BITE:HURT:3d5
 F:ANIMAL | AQUATIC | WILD_ALL | RES_WATE
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Fish
 D:Fast moving hunter of the depths, when this creature moves, 
 D:everybody in water is in danger!
 
@@ -4501,6 +4798,9 @@ B:CLAW:CONFUSE:3d5
 F:FORCE_MAXHP | DROP_60 | FEMALE |
 F:OPEN_DOOR | BASH_DOOR | RES_COLD | NO_CONF | NO_SLEEP |
 F:EVIL | DEMON | RES_POIS | RES_FIRE
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Chaos-Warrior
+P:Body:Monk
 S:1_IN_8
 S:SCARE | S_DEMON | CAUSE_2 | CONF | BO_FIRE | BO_COLD 
 D:It is minor female demon, vaguely human-like, but with crab-like 
@@ -4515,6 +4815,10 @@ F:FORCE_SLEEP | NEVER_BLOW |
 F:RAND_50 | RAND_25 | CAN_FLY |
 F:WEIRD_MIND | BASH_DOOR | WILD_MOUNTAIN |
 F:ANIMAL | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:60
+P:Body:Scrawny
 S:1_IN_9 | 
 S:BR_CONF
 D:This vast gleaming bronze fly has wings which beat mesmerically fast.
@@ -4542,6 +4846,10 @@ W:18:2:999:68:0:0
 F:FORCE_SLEEP | NEVER_BLOW | RAND_50 | RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | CAN_FLY | WILD_SWAMP |
 F:ANIMAL | RES_ACID
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:60
+P:Body:Scrawny
 S:1_IN_9 | 
 S:BR_ACID
 D:The size of a large bird, this fly drips caustic acid.
@@ -4556,6 +4864,8 @@ F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | 
 F:HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:It is a massive animated statue.
 
 N:324:Red mold
@@ -4567,6 +4877,9 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:RES_FIRE | RES_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Kobold:Warrior
+P:Body:Mold
 D:It is a strange red growth on the dungeon floor; it seems to burn with 
 D:flame.
 
@@ -4579,6 +4892,10 @@ F:FORCE_SLEEP |
 F:RAND_50 | RAND_25 | WILD_MOUNTAIN |
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | RES_FIRE | RES_SOUN | CAN_FLY
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:70
+P:Body:Scrawny
 S:1_IN_9 | 
 S:BR_SOUN
 D:Large beating wings support this dazzling insect.  A loud buzzing noise 
@@ -4606,6 +4923,8 @@ F:DROP_60 |
 F:NO_SLEEP | NO_CONF | UNDEAD | EVIL | IM_POIS | RES_COLD |
 F:COLD_BLOOD | HURT_LITE | RES_NETH | CAN_SWIM | ELDRITCH_HORROR
 F:BASH_DOOR | OPEN_DOOR
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Warrior
 D:A repulsive being which leaps on long hind legs like a kangaroo. 
 D:Its face is curiously human despite the absence of a nose, a 
 D:forehead, and "other important particulars".
@@ -4617,6 +4936,9 @@ W:19:1:80:80:0:0
 B:STING:POISON:2d7
 B:STING:POISON:2d7
 F:ANIMAL | EVIL | AQUATIC | RES_POIS | RES_WATE | WILD_ALL |
+F:POS_GAIN_AC
+P:Copy:Kobold:Priest
+P:Body:Fish
 S:1_IN_6
 S:TELE_TO | HEAL | SCARE | CAUSE_2 | BLIND | S_MONSTER
 D:A devil ray of the depths, with priestly magic.
@@ -4632,7 +4954,7 @@ B:CRUSH:HURT:3d6
 F:DROP_60 | NO_SLEEP | NO_CONF | ANIMAL | WEIRD_MIND | EVIL
 F:RES_WATE | RES_COLD | HURT_FIRE | NEVER_MOVE | WILD_ONLY | WILD_WOOD |
 F:DROP_CORPSE | POS_GAIN_AC
-P:Copy:Ent:Mystic
+P:Copy:Ent:Beastmaster
 P:Body:Tree
 S:1_IN_9
 S:BLINK | TELE_TO
@@ -4850,6 +5172,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR |
 S:1_IN_4 | 
 S:BLINK | 
 S:S_MONSTER
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:5
 P:Body:Quylthulg
 D:It is a strange pulsing mound of flesh.
 
@@ -4886,6 +5211,9 @@ B:CRUSH:HURT:1d20
 B:CRUSH:HURT:1d20
 F:RAND_25 | FORCE_MAXHP | RES_WATE
 F:ANIMAL | AQUATIC | WILD_ALL |
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Fish
 D:Although it looks like a fish and lives in water, it is in fact 
 D:a mammal. And it is huge!
 
@@ -4897,6 +5225,10 @@ B:TOUCH:ELEC:2d7
 B:TOUCH:ELEC:7d2
 B:TOUCH:ELEC:2d7
 F:AQUATIC | ANIMAL | RAND_25 | RES_ELEC | RES_WATE | WILD_ALL |
+F:POS_GAIN_AC
+P:Copy:Human:Rogue
+P:Life:60
+P:Body:Snake
 D:This cute little serpentine creature can create a deadly voltage. 
 D:Better watch out!
 
@@ -4910,6 +5242,9 @@ B:BITE:HURT:1d10
 F:RAND_25 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | DROP_SKELETON |
 F:ANIMAL | EVIL
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Hound
 D:It is a huge wolf with eyes that glow with manly intelligence.
 
 N:348:Dark elven lord
@@ -5024,6 +5359,10 @@ B:ENGULF:FIRE:3d3
 F:FORCE_SLEEP | RAND_50 | CAN_FLY | WILD_VOLCANO | WILD_ALL | SELF_LITE_2 |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | AURA_FIRE | HURT_COLD |
 F:IM_FIRE | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN |  NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-5:0:0:0:0:0
+P:Body:Vortex3
 S:1_IN_6 | 
 S:BR_FIRE
 D:A whirling maelstrom of fire.
@@ -5036,6 +5375,10 @@ B:ENGULF:ACID:3d3
 F:FORCE_SLEEP | RAND_50 | 
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | CAN_FLY |
 F:IM_ACID | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN |  NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-5:0:0:0:0:0
+P:Body:Vortex3
 S:1_IN_6 | 
 S:BR_ACID
 D:A caustic spinning whirlpool of water.
@@ -5066,6 +5409,8 @@ B:CLAW:HURT:3d9
 F:RAND_50 | EVIL | DEMON | FORCE_SLEEP | FORCE_MAXHP |
 F:OPEN_DOOR | BASH_DOOR | COLD_BLOOD |
 F:IM_FIRE | RES_NETH | NO_CONF | NO_SLEEP | NONLIVING | NO_STUN
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_3 |
 S:BA_FIRE | ANIM_DEAD
 D:A pale, corpse-like lesser demon, who moves very fast and spawns evil 
@@ -5079,6 +5424,10 @@ B:ENGULF:COLD:3d3
 F:FORCE_SLEEP | RAND_50 | AURA_COLD | COLD_BLOOD |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | CAN_FLY | HURT_FIRE |
 F:IM_COLD | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-5:0:0:0:0:0
+P:Body:Vortex3
 S:1_IN_6 | 
 S:BR_COLD
 D:A twisting whirlpool of frost.
@@ -5091,6 +5440,10 @@ B:ENGULF:ELEC:5d5
 F:FORCE_SLEEP | RAND_50 | CAN_FLY | SELF_LITE_2 |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | AURA_ELEC |
 F:IM_ELEC | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN |  NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-5:0:0:0:0:0
+P:Body:Vortex3
 S:1_IN_6 | 
 S:BR_ELEC
 D:A shimmering tornado of air, sparks crackle along its length.
@@ -5103,6 +5456,9 @@ B:BITE:POISON:5d5
 B:BITE:POISON:5d5
 F:EMPTY_MIND | BASH_DOOR | AQUATIC | 
 F:RES_POIS | RES_WATE | NO_STUN | WILD_ALL | FORCE_MAXHP
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Fish
 S:1_IN_7 | 
 S:BR_POIS
 D:This cute fish is among the most poisonous creatures there are.
@@ -5119,6 +5475,10 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ANIMAL | UNDEAD | RIDING |
 F:NO_CONF | NO_SLEEP | 
 F:RES_ACID | RES_FIRE | IM_POIS | RES_NETH
+F:POS_GAIN_AC
+P:Copy:Zombie:Warrior
+P:Stats:-3:0:0:-1:-2:-2
+P:Body:Bird
 D:A mummified, undead great avian creature, who now serves as 
 D:a steed for mighty undead creatures.
 
@@ -5133,6 +5493,8 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ORC | UNDEAD | 
 F:RES_COLD | IM_POIS | RES_NETH | RES_DARK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Warrior
 D:It is an orcish figure covered in wrappings.
 
 N:363:Killer whale
@@ -5143,6 +5505,9 @@ B:BITE:HURT:8d3
 B:BITE:HURT:8d3
 F:AQUATIC | WILD_OCEAN | RES_WATE |
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Fish
 D:An almost beautiful, deadly beast.
 
 N:364:Serpent man
@@ -5199,6 +5564,8 @@ F:FORCE_SLEEP |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
 S:1_IN_7 | 
 S:SLOW
 D:It is a massive metal statue that moves steadily towards you.
@@ -5214,6 +5581,9 @@ B:CRUSH:HURT:1d8
 F:FORCE_SLEEP | RES_TELE
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS
 F:NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
+P:Body:Auto-roller
 D:It looks like a huge spiked roller, moving on its own towards you.
 
 N:369:Giant yellow scorpion
@@ -5255,10 +5625,12 @@ F:RAND_50 | DROP_60 |
 F:STUPID | EMPTY_MIND | MULTIPLY | CAN_SWIM |
 F:TAKE_ITEM | KILL_BODY | OPEN_DOOR | BASH_DOOR | 
 F:RES_POIS | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Yeek:Tourist
+P:Body:Jelly3
 S:1_IN_11 | 
 S:DRAIN_MANA
 D:It is a strangely moving puddle.
-P:Body:Jelly3
 
 N:372:Hardened warrior
 G:p:u
@@ -5303,6 +5675,8 @@ B:BITE:HURT:6d1
 F:BASH_DOOR | DEMON | NO_STUN | 
 F:ANIMAL | EVIL | RES_FIRE | NO_SLEEP | NO_CONF 
 F:RES_NETH | RES_NEXU | RES_DISE | RES_PLAS
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
 P:Body:Hound
 D:A revolting canine creature, a huge demon hound with a somewhat 
 D:reptilian head.
@@ -5377,6 +5751,8 @@ F:ONLY_ITEM | DROP_90 |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | 
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Skeleton:Warrior
 D:It is a skeleton covered in frost.
 
 N:380:Angamaite of Umbar
@@ -5409,6 +5785,8 @@ F:DROP_60 | DROP_90 |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | RES_DARK | HURT_LITE | 
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_10 |
 S:SCARE | DRAIN_MANA
 D:It is a ghostly apparition with a humanoid form.
@@ -5478,6 +5856,8 @@ B:HIT:HURT:44d2
 B:HIT:LOSE_CHR:22d2
 F:PASS_WALL | NO_SLEEP | COLD_BLOOD | NONLIVING | NO_FEAR |
 F:FORCE_MAXHP | RES_TELE | EMPTY_MIND | CAN_FLY 
+F:POS_SEE_INVIS
+P:Copy:Barbarian:Warrior
 D:A creature that is half real, half illusion.
 
 N:386:Great white shark
@@ -5489,6 +5869,9 @@ B:BITE:HURT:3d6
 B:BITE:HURT:3d6
 F:FORCE_SLEEP | AQUATIC | RES_WATE |
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Fish
 D:A very large carnivorous fish.
 
 N:387:4-headed hydra
@@ -5550,6 +5933,8 @@ F:ONLY_ITEM | DROP_90 |
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Warrior
 D:It is a human form encased in mouldy wrappings.
 
 N:391:Vampire bat
@@ -5561,8 +5946,11 @@ B:BITE:EXP_40:1d4
 F:RAND_50 | COLD_BLOOD | REGENERATE | CAN_FLY |
 F:EVIL | ANIMAL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | 
-D:An undead bat that flies at your neck hungrily.
+F:POS_GAIN_AC
+P:Copy:Yeek:Rogue
+P:Life:60
 P:Body:Vampire Bat
+D:An undead bat that flies at your neck hungrily.
 
 N:392:Sangahyando of Umbar
 G:p:o
@@ -5612,6 +6000,8 @@ F:FEMALE |
 F:RAND_50 | DROP_1D2 | 
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | CAN_FLY |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Spectre:Rogue
 S:1_IN_15 | 
 S:TPORT | DRAIN_MANA
 D:It is a ghostly woman's form that wails mournfully.
@@ -5625,6 +6015,9 @@ B:STING:PARALYZE:2d6
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | DROP_SKELETON
 F:ANIMAL | RES_POIS
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Centipede
 D:A hideous centipede covered in slime and with glowing tentacles around its 
 D:head.
 
@@ -5658,6 +6051,8 @@ F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | NONLIVING | NEVER_MOVE |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | EVIL |
 F:HURT_ROCK | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR | RES_TELE
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Beastmaster
 S:1_IN_6 | 
 S:SHRIEK | S_MONSTER | S_MONSTERS | HOLD | CONF | MIND_BLAST | DRAIN_MANA
 D:A figure carved from stone, with three vulture faces. Their eyes glow 
@@ -5674,6 +6069,8 @@ F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | 
 F:HURT_ROCK | NONLIVING |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
 D:A stumpy figure carved from stone, with glittering eyes.
@@ -5740,6 +6137,9 @@ B:ENGULF:EXP_VAMP:2d6
 F:RAND_25 | 
 F:RES_COLD | IM_POIS | RES_ACID | RES_NETH |
 F:EVIL | EMPTY_MIND | COLD_BLOOD | FRIENDS
+F:POS_GAIN_AC
+P:Copy:Imp:Warrior
+P:Body:Jelly5
 D:The eldritch blood of Yibb-Tstll is know only as "the Black": it is 
 D:an amorphous substance, who will suck your life and deliver it to 
 D:Yibb-Tstll.
@@ -5797,6 +6197,9 @@ W:26:1:70:120:0:0
 B:STING:POISON:2d8
 B:STING:EXP_VAMP:2d8
 F:ANIMAL | EVIL | AQUATIC | RES_NETH | RES_POIS | RES_WATE | WILD_ALL
+F:POS_GAIN_AC
+P:Copy:Kobold:Priest
+P:Body:Fish
 S:1_IN_6
 S:HEAL | SCARE | CAUSE_3 | BLIND | FORGET | HASTE
 D:A devil ray of the depths, with vampiric powers.
@@ -5812,7 +6215,7 @@ F:RAND_25 | DROP_90 | DROP_60
 F:OPEN_DOOR | BASH_DOOR | AURA_COLD | RES_COLD |
 F:ANIMAL | EVIL | RIDING | 
 F:DROP_CORPSE | POS_GAIN_AC
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
 P:Body:Horse
 S:1_IN_8
 S:BR_COLD | BO_ICEE | BO_COLD | BA_COLD
@@ -5845,6 +6248,8 @@ F:UNIQUE | MALE | CAN_SPEAK | UNDEAD | EVIL | ESCORTS | ESCORT
 F:FORCE_MAXHP | COLD_BLOOD | IM_POIS | RES_COLD | RES_NETH | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | RES_TELE
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_5 |
 S:TRAPS | CAUSE_3 | DARKNESS | S_UNDEAD | SCARE | SLOW
 S:S_KIN | ANIM_DEAD
@@ -5946,6 +6351,8 @@ F:FORCE_SLEEP |
 F:DROP_1D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY | RES_NETH |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_8 | 
 S:SCARE | CAUSE_2 | DARKNESS
 D:It is a tangible but ghostly form made of white fog.
@@ -5962,6 +6369,8 @@ F:FORCE_MAXHP | FORCE_SLEEP | SELF_LITE_1 |
 F:ONLY_ITEM | DROP_2D2 | GOOD | CAN_FLY |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_GAIN_AC | POS_DETECT_EVIL | POS_BLESSING
+P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | FORGET
 D:A lesser angel wearing little more than a loincloth - its steely skin 
@@ -5977,6 +6386,8 @@ B:BITE:PARALYZE:1d5
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | CAN_SWIM | RES_NETH |
 F:EVIL | UNDEAD | FRIENDS | IM_POIS | RES_COLD | NO_CONF | NO_SLEEP
 F:COLD_BLOOD | HURT_LITE
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_9
 S:SCARE | HOLD
 D:Flesh is falling off in chunks from this decaying abomination.
@@ -6037,6 +6448,9 @@ B:TOUCH:DISEASE:3d3
 B:BITE:ACID:4d5
 F:WEIRD_MIND | BASH_DOOR | RES_ACID | RES_POIS |
 F:DEMON | EVIL | RES_FIRE | CAN_SWIM
+F:POS_GAIN_AC
+P:Copy:Beastman:Warrior
+P:Body:Unicorn
 D:It walks on four legs, but mostly resembles a slug-shaped jelly. 
 D:It even has two disgusting antennae in its head. Yecch!
 
@@ -6092,6 +6506,9 @@ B:CRUSH:PARALYZE:3d5
 F:FORCE_MAXHP | FORCE_SLEEP | NO_FEAR | NEVER_MOVE |
 F:ONLY_GOLD | DROP_2D2 | DROP_60 | DROP_1D2 | EVIL 
 F:RES_ACID | RES_POIS | NO_CONF | NO_SLEEP | RES_COLD | RES_FIRE |
+F:POS_GAIN_AC
+P:Copy:Ent:Mauler
+P:Body:Tree
 S:1_IN_5 | 
 S:BA_FIRE | BA_ELEC | BA_POIS | HASTE | 
 S:TRAPS | SHRIEK | HOLD | CONF
@@ -6204,11 +6621,13 @@ F:FORCE_SLEEP |
 F:COLD_BLOOD | DROP_60 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | REGENERATE | CAN_FLY | RES_NETH |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_9 | 
 S:TELE_TO | HOLD | SCARE | CAUSE_2 | MIND_BLAST | FORGET | DARKNESS
 D:It is a humanoid with an aura of power.  You notice a sharp set of front 
 D:teeth.
-P:Body:Vampire
 
 N:433:Gorgimera
 G:H:D
@@ -6255,6 +6674,8 @@ F:FORCE_SLEEP | SELF_LITE_1 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | CAN_FLY |
 F:IM_ELEC | RES_POIS | AURA_ELEC | REFLECTING |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
 S:1_IN_3 | 
 S:BO_ELEC
 D:A man-shaped form of living lightning, sparks and shocks crackle all over 
@@ -6307,6 +6728,9 @@ B:STING:LOSE_STR:8d1
 B:WAIL:TERRIFY:1d4
 F:BASH_DOOR | 
 F:EVIL | DEMON | 
+F:POS_GAIN_AC
+P:Copy:Beastman:Warrior
+P:Body:Spider
 D:Slaanesh's pet, a large scorpion-like creature with a human face and 
 D:reptile skin.
 
@@ -6391,6 +6815,9 @@ B:BITE:LOSE_DEX:4d5
 B:BITE:LOSE_CON:4d5
 F:FORCE_SLEEP | AQUATIC | GOOD | ANIMAL |
 F:RES_COLD | RES_POIS | RES_FIRE | RES_ELEC | RES_WATE | WILD_OCEAN 
+F:POS_GAIN_AC
+P:Copy:Sprite:Mage
+P:Body:Fish
 S:1_IN_5 | 
 S:BO_WATE | BO_COLD | BO_ICEE | BO_MANA
 D:Your mind is filled with admiration as you view this wondrous, 
@@ -6522,6 +6949,9 @@ B:CRUSH:SUPERHURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | KILL_BODY | KILL_ITEM | UNIQUE | REFLECTING |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS
 F:NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING | RES_SHAR | RES_TELE
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
+P:Body:Auto-roller
 D:It looks like a huge spiked roller. It was designed to keep this dungeon 
 D:clean, and you are the biggest spot of dirt in sight.
 
@@ -6611,6 +7041,8 @@ F:FORCE_MAXHP | FORCE_SLEEP | GOOD |
 F:ONLY_ITEM | DROP_2D2 | CAN_FLY | SELF_LITE_1 |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:RES_FIRE | RES_COLD | RES_POIS | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_HOLD_LIFE | POS_GAIN_AC | POS_DETECT_EVIL | POS_BLESSING
+P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | CONF | SCARE
 D:A lesser angel protected by an aura of holiness.  Its muscular form looks 
@@ -6760,6 +7192,8 @@ F:ONLY_GOLD | DROP_2D2 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | REFLECTING | 
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:It is a massive statue of purest mithril.  It looks expensive!
 
 N:465:Skeleton troll
@@ -6773,6 +7207,8 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | UNDEAD | 
 F:RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Half-Troll:Warrior
 D:It is a troll skeleton animated by dark dweomers.
 
 N:466:Skeletal tyrannosaurus
@@ -6787,6 +7223,9 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ANIMAL | UNDEAD | 
 F:RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR | RIDING
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Half-Troll:Warrior
+P:Body:Giant Reptile
 D:It is the skeleton of a tyrannosaurus, animated by dark dweomers.
 
 N:467:Jaws
@@ -6849,6 +7288,8 @@ F:ONLY_ITEM | DROP_1D2 |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | CAN_FLY |
 F:RES_COLD | IM_POIS | RES_NETH | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_8 | 
 S:SCARE | CAUSE_3 | DARKNESS
 D:It is a ghostly form with eyes that haunt you.
@@ -6864,6 +7305,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | SELF_DARK_1
 F:ONLY_ITEM | DROP_2D2 |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
+F:POS_DETECT_OBJECTS | POS_GAIN_AC
+P:Copy:Demigod:Beastmaster
 P:Body:Dragon
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | DARKNESS | BR_NETH
@@ -6965,6 +7408,8 @@ F:FORCE_SLEEP | RAND_25 | DROP_60 | DROP_1D2 |
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
 F:EVIL | UNDEAD | RES_COLD | CAN_FLY |
 F:IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Spectre:Rogue
 S:1_IN_15 | 
 S:BLIND | HOLD | DRAIN_MANA
 D:You don't believe in them.
@@ -7009,6 +7454,9 @@ F:INVISIBLE | EMPTY_MIND | RES_NEXU |
 F:NO_CONF | NO_SLEEP | NO_FEAR | RES_TELE |
 S:1_IN_1 | 
 S:BLINK | TELE_AWAY
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:6
 P:Body:Quylthulg
 D:It is a very unstable, strange pulsing mound of flesh.
 
@@ -7048,6 +7496,9 @@ B:CRUSH:HURT:8d4
 B:CRUSH:HURT:8d4
 F:RES_ACID | RES_WATE | AQUATIC | ANIMAL | RES_COLD | MOVE_BODY | RIDING
 F:FORCE_MAXHP | WILD_OCEAN |
+F:POS_GAIN_AC
+P:Copy:Kobold:Warrior
+P:Body:Octopus
 S:1_IN_8
 S:BR_ELEC | BR_ACID | BR_POIS
 D:Besides being capable of dragging whole ships underwater, 
@@ -7065,6 +7516,8 @@ F:DROP_60 | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:DROP_1D2 | FORCE_MAXHP | ESCORT | FORCE_SLEEP |
 F:EVIL | UNDEAD | IM_POIS | RES_COLD | NO_CONF | NO_SLEEP |
 F:COLD_BLOOD | HURT_LITE | RES_NETH
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_7
 S:SCARE | HOLD | DARKNESS | S_UNDEAD | ANIM_DEAD
 D:Flesh is falling off in chunks from this decaying abomination.
@@ -7160,6 +7613,9 @@ F:ESCORT | ESCORTS | ELDRITCH_HORROR |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:EVIL | RES_COLD | RES_POIS | DEMON
+F:POS_GAIN_AC
+P:Copy:Barbarian:Beastmaster
+P:Body:Reptile
 S:1_IN_5
 S:S_UNDEAD | MIND_BLAST | CAUSE_3 | SCARE | BO_WATE | S_KIN
 D:A lizard-like Great Old One worshipped by the men of Sarnath.
@@ -7332,6 +7788,8 @@ B:TOUCH:EXP_40
 F:FORCE_SLEEP | FRIENDS | DROP_60 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY | RES_NETH |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_8 | 
 S:HOLD | SCARE | CAUSE_2 | DARKNESS
 D:It is a ghostly nightmare of an entity.
@@ -7349,6 +7807,8 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | UNDEAD | 
 F:RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Half-Giant:Warrior
 D:It is the animated form of a massive troll.
 
 N:501:Chaos drake
@@ -7423,6 +7883,8 @@ F:EVIL | DRAGON | RES_LITE | RES_DARK | NO_CONF | NO_SLEEP | RIDING |
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_LITE | BR_DARK
+F:POS_DETECT_OBJECTS | POS_GAIN_AC
+P:Copy:Demigod:Beastmaster
 P:Body:Dragon
 D:A dragon of elemental power, with control over light and dark, the 
 D:ethereal drake's eyes glare with white hatred from the shadows.
@@ -7472,6 +7934,8 @@ F:ONLY_ITEM | DROP_90 | DROP_2D2 |
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | CAN_FLY |
 F:NO_CONF | NO_SLEEP | ATTR_MULTI | ATTR_ANY |
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Spectre:Rogue
 S:1_IN_15 | 
 S:BLIND | HOLD | DRAIN_MANA | FORGET
 D:An almost life-like creature which is nothing more than a phantom 
@@ -7490,6 +7954,8 @@ F:ONLY_ITEM | DROP_90 | DROP_2D2 | CAN_FLY |
 F:COLD_BLOOD | TAKE_ITEM | PASS_WALL |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Spectre:Rogue
 S:1_IN_15 | 
 S:BLIND | HOLD | DRAIN_MANA | FORGET
 D:A phantasmal shrieking spirit.  Its wail drives the intense cold of pure 
@@ -7523,6 +7989,8 @@ F:EMPTY_MIND | CAN_FLY | WILD_VOLCANO |
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | AURA_FIRE |
 F:EVIL | IM_FIRE | RES_POIS | NONLIVING | HURT_COLD |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_6 | 
 S:BO_FIRE
 D:It is a towering inferno of flames.
@@ -7540,6 +8008,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | REFLECTING | RES_TELE |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_EVIL | POS_BLESSING
+P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE | 
 S:S_MONSTERS
@@ -7558,6 +8028,8 @@ F:EMPTY_MIND | COLD_BLOOD | CAN_FLY |
 F:KILL_BODY | KILL_ITEM | BASH_DOOR |
 F:EVIL | RES_WATE | RES_POIS | NONLIVING |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_6 | 
 S:BO_COLD
 D:It is a towering tempest of water.
@@ -7593,6 +8065,8 @@ F:EMPTY_MIND | INVISIBLE | COLD_BLOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
 F:EVIL | RES_COLD | RES_POIS | UNDEAD | RES_ELEC | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 D:It is impossible to define its form but its violence is legendary.
 
 N:515:Carrion crawler
@@ -7604,6 +8078,9 @@ B:STING:PARALYZE:2d6
 F:RAND_25 | FRIENDS | DROP_SKELETON
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | RES_POIS
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Centipede
 D:A hideous centipede covered in slime and with glowing tentacles around its 
 D:head.
 
@@ -7652,6 +8129,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | DROP_1D2 |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | HURT_LITE | 
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
+P:Copy:Skeleton:Warrior-Mage
 S:1_IN_4 | 
 S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE | 
 S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
@@ -7665,6 +8144,9 @@ B:EXPLODE:DISEASE:40d2
 F:FORCE_SLEEP |
 F:STUPID | EMPTY_MIND | CAN_FLY |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Hobbit:Warrior
+P:Body:Eye6
 D:From a distance, this creature is often mistaken for the 
 D:much more dangerous beholder.
 
@@ -7680,12 +8162,14 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_4D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | CAN_FLY | RES_NETH |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_6 | 
 S:TELE_TO | HOLD | CONF | SCARE | CAUSE_3 | MIND_BLAST | FORGET | 
 S:DARKNESS | BO_NETH
 D:It is a humanoid form dressed in robes.  Power emanates from its chilling 
 D:frame.
-P:Body:Vampire
 
 N:521:Oriental vampire
 G:V:g
@@ -7699,6 +8183,9 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_4D2 | CAN_FLY | RES_NETH | RES_DARK |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | INVISIBLE | PASS_WALL |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_6 | 
 S:TELE_TO | HOLD | CONF | SCARE | CAUSE_3 | MIND_BLAST | FORGET | 
 S:DARKNESS | BO_NETH
@@ -7718,6 +8205,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | RES_TELE
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Zombie:Rage-Mage
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | SCARE | S_UNDEAD | ANIM_DEAD
 S:BA_POIS | BA_NETH | BA_COLD | DRAIN_MANA |
@@ -7734,6 +8223,8 @@ B:HIT:LOSE_CHR:2d8
 F:FORCE_MAXHP | OPEN_DOOR | FRIENDS | DROP_60 | REGENERATE |
 F:ONLY_ITEM | NONLIVING |
 F:EVIL | RES_POIS | RES_COLD | RES_FIRE | RES_CHAO | DEMON
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Warrior
 D:Slender, red-skinned demons twisting in nightmarish shapes. 
 D:They are armed with hellblades, which will suck the life from 
 D:your body.
@@ -7762,6 +8253,8 @@ F:EMPTY_MIND | COLD_BLOOD | NONLIVING |
 F:KILL_ITEM | KILL_BODY | PASS_WALL |
 F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_SHAR | HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_8 | 
 S:BO_ACID
 D:It is a towering form composed of rock with fists of awesome power.
@@ -7778,6 +8271,8 @@ F:EMPTY_MIND | COLD_BLOOD | CAN_FLY | NONLIVING |
 F:KILL_BODY | KILL_ITEM | BASH_DOOR |
 F:EVIL | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_8 | 
 S:BO_ELEC
 D:It is a towering tornado of winds.
@@ -7812,6 +8307,8 @@ B:BITE:HURT:1d6
 F:DROP_60 | ONLY_GOLD | EVIL | DEMON | FRIENDS | HURT_LITE |
 F:WILD_MOUNTAIN | WILD_WASTE |
 F:RES_POIS | RES_FIRE | RES_COLD | RES_ELEC | HURT_ROCK | NONLIVING 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Warrior
 S:1_IN_12
 S:BR_ELEC | BR_FIRE
 D:A weird demon creature with a stone-like skin.
@@ -7844,6 +8341,8 @@ F:ONLY_GOLD | DROP_2D2 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | REFLECTING |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:It is a massive deep brown statue, striding towards you with an 
 D:all-too-familiar purpose.  Your magic surprisingly feels much less 
 D:powerful now.
@@ -7885,6 +8384,9 @@ F:ONLY_ITEM | DROP_90 | DROP_2D2 | CAN_FLY |
 F:COLD_BLOOD | TAKE_ITEM | PASS_WALL |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Spectre:Rogue
+P:Body:Headless
 S:1_IN_15 | 
 S:BLIND | DRAIN_MANA | SCARE | BO_COLD | FORGET
 D:A phantasmal apparition with no head
@@ -7901,6 +8403,8 @@ F:ONLY_ITEM | DROP_60 | DROP_2D2 |
 F:TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | CAN_FLY |
 F:NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:High-Elf:Rogue
 S:1_IN_15 | 
 S:BLIND | HOLD | CONF | DRAIN_MANA | BO_NETH
 D:It is a form that screams its presence against the eye.  Death incarnate, 
@@ -7931,6 +8435,9 @@ B:BITE:EXP_VAMP:4d4
 F:EVIL | ELDRITCH_HORROR | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS |
 F:NONLIVING | CAN_FLY |
 F:NO_CONF | NO_SLEEP | NO_STUN
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Rogue
+P:Body:Jelly6
 D:"It was red and dripping; an immensity of pulsing, moving jelly;
 D:a scarlet blob with myriad tentacular trunks that waved and waved. 
 D:There were suckers on the tips of the appendages, and these were 
@@ -7949,6 +8456,8 @@ F:EMPTY_MIND |
 F:KILL_ITEM | KILL_BODY | BASH_DOOR |
 F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_5 | 
 S:DARKNESS | BO_FIRE
 D:It is a towering blackened form, crackling with heat.
@@ -8016,8 +8525,10 @@ F:DROP_1D2 | DROP_4D2 | CAN_SWIM |
 F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_FEAR | NO_CONF | NO_SLEEP
-D:A disgusting animated blob of destruction.  Flee its gruesome hunger!
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
 P:Body:Jelly6
+D:A disgusting animated blob of destruction.  Flee its gruesome hunger!
 
 N:542:Inertia hound
 G:Z:W
@@ -8072,6 +8583,8 @@ F:FORCE_MAXHP | AQUATIC |
 F:FRIENDS | DROP_60 | WILD_OCEAN | REGENERATE |
 F:OPEN_DOOR | BASH_DOOR | RES_WATE
 F:EVIL | TROLL | RES_COLD | RES_POIS | HURT_LITE
+F:POS_GAIN_AC | POS_BERSERK
+P:Copy:Half-Troll:Warrior
 D:He is a troll that reeks of brine, close relative to water trolls.
 
 N:545:Ooze elemental
@@ -8087,6 +8600,8 @@ F:KILL_ITEM | KILL_BODY | BASH_DOOR |
 F:EVIL | RES_ACID | RES_FIRE | CAN_SWIM | NONLIVING |
 F:RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_5 | 
 S:BO_ACID | BA_ACID
 D:It is a towering mass of filth, an eyesore of ooze.
@@ -8225,6 +8740,8 @@ F:FORCE_SLEEP |
 F:ONLY_ITEM | DROP_1D2 | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | CAN_FLY |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Spectre:Rogue
 S:1_IN_5 | 
 S:FORGET | MIND_BLAST
 D:An almost life-like creature which is nothing more than a phantom 
@@ -8241,6 +8758,8 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_60 | DROP_90 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | RES_NETH |
 F:EVIL | UNDEAD | HURT_LITE | RES_COLD | IM_POIS | RES_DARK | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_7 |
 S:HOLD | SCARE | CAUSE_3 | DARKNESS
 D:A tangible but ghostly form, made of grey fog.  The air around it feels 
@@ -8256,7 +8775,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE |
 F:DROP_60 | DROP_90 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_NETH |
 F:EVIL | UNDEAD | HURT_LITE | RES_COLD | IM_POIS | RES_DARK | NO_CONF | NO_SLEEP
-S:1_IN_4|
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Paladin
+S:1_IN_4 |
 S:BO_FIRE
 D:Back from the grave, to wreak vengeance upon the living. A gaunt, tall, 
 D:skeletal figure wearing a ruined plate mail.
@@ -8312,6 +8833,9 @@ F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | 
 F:IM_POIS | NONLIVING | REFLECTING |
 F:NO_CONF | NO_SLEEP | NO_FEAR | HURT_ROCK
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
+P:Life:120
 S:1_IN_8
 S:SHOOT
 D:An enormous construct resembling a titan made from stone.  It strides 
@@ -8455,6 +8979,8 @@ B:GAZE:EXP_20
 F:FORCE_SLEEP | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
 F:EVIL | DEMON | RES_FIRE | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_4 | 
 S:BO_FIRE | BA_FIRE | 
 S:S_DEMON
@@ -8481,6 +9007,9 @@ F:FORCE_SLEEP | PASS_WALL | INVISIBLE |
 F:RES_POIS | RES_COLD | RES_ACID | RES_FIRE |
 F:NO_SLEEP | NO_CONF | NO_STUN | NONLIVING |
 F:EVIL | DEMON 
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Chaos-Warrior
+P:Body:Monk
 S:1_IN_4 | 
 S:BLINK | DARKNESS | S_DEMON
 D:An ugly demon with insect-like extremities and large bulbous eyes.
@@ -8496,6 +9025,9 @@ B:TOUCH:LOSE_CHR
 F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | NONLIVING |
 F:DEMON | RES_POIS | RES_ACID | NO_CONF | NO_SLEEP | RES_TELE |
 F:CAN_SWIM |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Chaos-Warrior
+P:Body:Elder Thing
 S:1_IN_4 |
 S:SCARE | TELE_AWAY | BA_NUKE | CAUSE_3 | BA_POIS |
 S:CONF | S_DEMON | S_UNDEAD
@@ -8519,6 +9051,8 @@ F:KILL_ITEM | KILL_BODY | BASH_DOOR |
 F:EVIL | IM_COLD | RES_ELEC | CAN_SWIM | HURT_FIRE |
 F:RES_POIS | NONLIVING |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_5 | 
 S:BO_ICEE | BA_COLD
 D:It is a towering glacier of ice.
@@ -8556,6 +9090,9 @@ F:RES_CHAO | RES_NEXU | RES_DISE | RES_WALL | RES_INER | RES_TIME | RES_GRAV |
 F:SMART | NONLIVING | RES_TELE | KILL_WALL | ELDRITCH_HORROR |
 F:BASH_DOOR | DEMON | COLD_BLOOD | ANIMAL | CAN_SWIM |
 F:DROP_GOOD | DROP_GREAT | ONLY_ITEM | DROP_2D2 
+F:POS_GAIN_AC | POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Half-Giant:Beastmaster
+P:Body:Demonic Horror
 S:1_IN_3 | 
 S:BLINK | SLOW | SCARE | DARKNESS | HEAL | ANIM_DEAD
 S:TPORT | TELE_AWAY | HASTE | S_MONSTER | DRAIN_MANA |
@@ -8580,7 +9117,7 @@ S:1_IN_4 |
 S:TELE_TO | 
 S:S_KIN
 D:A Lord of Chaos famous for his skill at arms.
-P:Copy:Dunadan:Mystic
+P:Copy:Dunadan:Beastmaster
 
 N:574:Chaos spawn
 G:e:u
@@ -8591,6 +9128,9 @@ B:GAZE:UN_BONUS:5d2
 B:GAZE:EXP_VAMP:5d2
 B:GAZE:PARALYZE:5d2
 F:FORCE_MAXHP | BASH_DOOR | EVIL | CAN_FLY | RES_CHAO
+F:POS_TELEPATHY | POS_GAIN_AC
+P:Copy:Hobbit:Warrior
+P:Body:Eye2
 D:It has two eyestalks and a large central eye. Its gaze can kill.
 
 N:575:Mummified troll
@@ -8604,6 +9144,8 @@ F:DROP_60 |
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE
+P:Copy:Zombie:Warrior
 D:It is a massive figure clothed in wrappings.  You are wary of its massive 
 D:fists.
 
@@ -8637,6 +9179,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | DROP_1D2 |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | HURT_LITE | 
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
+P:Copy:Skeleton:Warrior-Mage
 S:1_IN_3 | 
 S:BLINK | TELE_TO | TELE_AWAY | TELE_LEVEL |
 S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
@@ -8670,6 +9214,8 @@ B:TOUCH:TIME:3d4
 B:TOUCH:TIME:3d4
 F:PASS_WALL | RES_POIS | RES_FIRE | RES_ELEC | RES_TIME | NONLIVING | CAN_FLY |
 F:NO_CONF | NO_SLEEP | EVIL | EMPTY_MIND | KILL_ITEM | RAND_50
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_7
 S:SLOW | BR_TIME |
 D:You have not seen it yet.
@@ -8684,6 +9230,9 @@ B:CRUSH:PARALYZE:8d4
 F:PASS_WALL | INVISIBLE | FORCE_MAXHP | RES_DISE | 
 F:RES_POIS | RES_COLD | RES_ACID | RES_WALL | ELDRITCH_HORROR |
 F:NO_CONF | NO_SLEEP | EVIL | CAN_FLY |
+F:POS_GAIN_AC
+P:Copy:Beastman:Warrior
+P:Body:Polyp
 S:1_IN_7
 S:BR_WALL |
 D:"They were only partly material and had the power of aerial motion, 
@@ -8726,6 +9275,9 @@ F:SMART | EMPTY_MIND | INVISIBLE |
 F:PASS_WALL | POWERFUL | CAN_FLY | WILD_SWAMP |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Body:Wisp
 S:1_IN_2 | 
 S:BLINK | TPORT | CONF | CAUSE_2
 D:A strange ball of glowing light.  It disappears and reappears and seems to 
@@ -8738,6 +9290,9 @@ I:120:20d10:20:120:20:25
 W:37:4:70:250:0:0
 F:RES_POIS | RES_COLD | COLD_BLOOD | ANIMAL | EVIL | 
 F:NO_SLEEP | NO_CONF | CAN_FLY | NEVER_BLOW
+F:POS_GAIN_AC
+P:Copy:Beastman:Chaos-Warrior
+P:Body:Shan
 S:1_IN_2
 S:CONF | HOLD | DRAIN_MANA | FORGET | MIND_BLAST | SHRIEK
 D:"Those huge lidless eyes which stared with hate at me, the jointed 
@@ -8761,6 +9316,8 @@ F:KILL_ITEM | KILL_BODY | PASS_WALL |
 F:EVIL | RES_FIRE | RES_ELEC | NONLIVING |
 F:RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_7 | 
 S:BO_PLAS | BA_FIRE
 D:It is a towering glowing form of molten hate.
@@ -8780,6 +9337,9 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_SWIM
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Jelly6
 D:A lump of rotting black flesh that slurrrrrrrps across the dungeon floor.
 
 N:586:Killer iridescent beetle
@@ -8807,6 +9367,10 @@ F:FORCE_SLEEP |
 F:RAND_50 | RAND_25 | RES_NEXU | CAN_FLY |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | RES_TELE |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN |  NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-4:0:0:0:0:0
+P:Body:Vortex5
 S:1_IN_6 | 
 S:BR_NEXU
 D:A maelstrom of potent magical energy.
@@ -8821,6 +9385,10 @@ F:RAND_50 | RAND_25 | RES_PLAS | AURA_FIRE | AURA_ELEC |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | 
 F:RES_ELEC | RES_FIRE | CAN_FLY |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN |  NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-4:0:0:0:0:0
+P:Body:Vortex5
 S:1_IN_6 | 
 S:BR_PLAS
 D:A whirlpool of intense flame, charring the stones at your feet.
@@ -9031,6 +9599,10 @@ F:FORCE_SLEEP |
 F:RAND_50 | RAND_25 | 
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | CAN_FLY |
 F:RES_TIME | NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN |  NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-4:0:0:0:0:0
+P:Body:Vortex5
 S:1_IN_6 | 
 S:BR_TIME
 D:You haven't seen it yet.
@@ -9044,6 +9616,10 @@ F:FORCE_SLEEP | NEVER_BLOW |
 F:RAND_50 | RAND_25 | CAN_FLY |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | RES_TELE |
 F:RES_LITE | NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-4:0:0:0:0:0
+P:Body:Vortex7
 S:1_IN_4 | 
 S:BR_LITE | SHRIEK
 D:A strange pillar of shining light that hurts your eyes.  Its shape changes 
@@ -9121,6 +9697,8 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_90 | DROP_4D2 | CAN_FLY |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | RES_NETH |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_6 | 
 S:HOLD | SCARE | CAUSE_3 | BO_NETH
 D:Your life force is torn from your body as this powerful unearthly being 
@@ -9139,6 +9717,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | REFLECTING | RES_TELE |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_EVIL | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
 S:1_IN_11 | 
 S:HEAL | HASTE | TELE_AWAY | CONF | BO_MANA | BO_PLAS | 
 S:S_MONSTERS
@@ -9159,6 +9739,8 @@ F:EMPTY_MIND | CAN_SPEAK | MALE | AURA_FIRE |
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL |
 F:EVIL | IM_FIRE | NONLIVING |
 F:IM_POIS | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_4 |
 S:BO_PLAS | BA_FIRE
 D:A towering fire elemental, Loge burns everything beyond recognition.
@@ -9175,6 +9757,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | RES_NETH |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_7 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BO_NETH
 D:A figure that seems made of void, its strangely human shape is cloaked in 
@@ -9191,6 +9775,9 @@ F:ONLY_ITEM | DROP_60 | ELDRITCH_HORROR |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
 F:EVIL | DEMON | 
 F:RES_FIRE | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Chaos-Warrior
+P:Body:Bloodthirster
 S:1_IN_7 | 
 S:BLIND | CONF | BO_FIRE
 D:"Shocking and uncouth black things with smooth, oily, whale-like 
@@ -9210,6 +9797,8 @@ B:CLAW:HURT:11d2
 B:CLAW:HURT:22d1
 F:RES_POIS | OPEN_DOOR | BASH_DOOR | MALE | RES_PLAS | NONLIVING |
 F:RES_FIRE | NO_CONF | NO_SLEEP | EVIL | DEMON | FORCE_MAXHP | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_2 |
 S:BO_PLAS
 D:A minor demon lord with a goat's head, tough to kill.
@@ -9245,6 +9834,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART | RES_TELE
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
+P:Copy:Skeleton:Monk
+P:Body:Monk
 S:1_IN_3 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | ANIM_DEAD 
@@ -9264,6 +9856,8 @@ F:ONLY_ITEM | DROP_90 | DROP_4D2 |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | RES_DARK |
 F:HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Spectre:Rogue
 S:1_IN_6 | 
 S:BLIND | SCARE | CAUSE_3 | MIND_BLAST | DARKNESS | BO_NETH
 D:A form that hurts the eye, death permeates the air around it.  As it nears 
@@ -9281,6 +9875,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | CAN_FLY | EVIL | SELF_LITE_1 |
 F:SMART | EMPTY_MIND | AURA_FIRE | AURA_ELEC | RES_PLAS | KILL_ITEM |
 F:PASS_WALL | RES_ACID | RES_FIRE | RES_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | NO_STUN
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_4 | 
 S:BLINK | TPORT | CONF | BA_FIRE | DRAIN_MANA | HASTE | BO_PLAS
 D:It is a living entity of fire. Fire springs up wherever this 
@@ -9321,7 +9918,7 @@ F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL |
 F:EVIL | RES_POIS | WILD_SHORE | WILD_SWAMP |
 F:NO_CONF | NO_SLEEP 
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS
-P:Copy:Demigod:Mystic
+P:Copy:Demigod:Beastmaster
 S:1_IN_4 |
 S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
 D:The Queen of the Sea where the Pattern is reflected is a cunning 
@@ -9467,6 +10064,9 @@ F:ONLY_GOLD | DROP_2D2 |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP | RIDING
 F:AURA_FEAR | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Skeleton:Warrior
+P:Body:Horse
 D:A fearsome skeletal horse with glowing eyes, that watch you with little 
 D:more than a hatred of all that lives. Flying hooves don't touch the 
 D:ground...
@@ -9484,6 +10084,9 @@ F:DROP_60 | DROP_4D2 |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_TELE |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | RES_DARK | HURT_LITE |
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_7 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | DARKNESS | BO_NETH
@@ -9535,6 +10138,9 @@ F:FORCE_SLEEP | ATTR_MULTI | ATTR_ANY | MULTIPLY | EVIL |
 F:RAND_25 | RES_NEXU | AURA_ELEC | RES_FIRE | RES_ELEC |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | KILL_BODY |
 F:CAN_SWIM | NO_CONF | NO_SLEEP | 
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Jelly6
 D:Weird, jelly like creatures. No two look the same.
 
 N:627:Hammer of hell
@@ -9598,6 +10204,8 @@ F:DROP_90 |
 F:INVISIBLE | PASS_WALL | CAN_FLY | REGENERATE |
 F:EVIL | TROLL | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP
+F:POS_GAIN_AC | POS_BERSERK
+P:Copy:Half-Troll:Warrior
 D:A weird troll from the elemental planes.
 
 N:631:War troll
@@ -9624,6 +10232,9 @@ B:CRAWL:UN_BONUS:1d4
 F:RAND_50 | RES_DISE | ATTR_MULTI | CAN_SWIM |
 F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | 
 F:ANIMAL | HURT_LITE | NO_FEAR | SELF_LITE_1
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Worm
 D:It is a strange mass of squirming worms.  Magical energy crackles 
 D:around its disgusting form.
 
@@ -9638,6 +10249,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR |
 S:1_IN_2 | 
 S:BLINK | TPORT | 
 S:S_UNDEAD
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:6
 P:Body:Quylthulg
 D:It is a pulsing flesh mound that reeks of death and putrefaction.
 
@@ -9694,7 +10308,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | HUMAN |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | NO_CONF | NO_SLEEP
 F:DROP_SKELETON | DROP_CORPSE | POS_DETECT_MONSTERS | POS_SEE_INVIS
-P:Copy:Dark-Elf:Mystic
+P:Copy:Dark-Elf:Beastmaster
 S:1_IN_2 | 
 S:BLIND | 
 S:S_DRAGON
@@ -9826,10 +10440,12 @@ F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | RES_TELE
 F:INVISIBLE | TAKE_ITEM | CAN_FLY |
 F:PASS_WALL | POWERFUL | MOVE_BODY | RES_NETH |
 F:EVIL | DRAGON | RES_COLD | NO_CONF | NO_SLEEP | RIDING | 
+F:POS_DETECT_OBJECTS | POS_GAIN_AC
+P:Copy:Half-Titan:Beastmaster
+P:Body:Dragon
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_NETH
-P:Body:Dragon
 D:It is a dragon-like form wrapped in darkness.  You cannot make out its 
 D:true form but you sense its evil.
 
@@ -9927,6 +10543,8 @@ F:FRIENDS |
 F:ONLY_ITEM | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | NONLIVING |
 F:EVIL | DEMON | RES_FIRE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Mauler
 S:1_IN_8 | 
 S:BLIND | CONF
 D:It is a demon swinging wildly with two clubs.
@@ -9943,6 +10561,8 @@ F:ONLY_ITEM | DROP_90 | DROP_2D2 | DROP_4D2 | NONLIVING |
 F:SMART | INVISIBLE | PASS_WALL | CAN_FLY |
 F:EVIL | DEMON | RES_FIRE | RES_POIS | RES_TELE
 F:NO_CONF | NO_SLEEP | 
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_10 | 
 S:BLIND | CONF | SCARE | CAUSE_3 | FORGET | 
 S:S_DEMON
@@ -9981,6 +10601,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | MOVE_BODY | NONLIVING |
 F:OPEN_DOOR | BASH_DOOR | RES_POIS | RES_COLD | DEMON | EVIL 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_3 |
 S:CAUSE_3 | HOLD | SCARE | BLIND | BO_ACID | S_DEMON |
 S:FORGET | BO_NETH | MIND_BLAST | DARKNESS
@@ -10003,6 +10625,8 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD | EVIL | REFLECTING |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | RES_DARK |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_TELE | RES_NETH |
 F:CAN_FLY | SELF_LITE_2 |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
 S:S_DEMON | BO_NETH | INVULNER
@@ -10039,6 +10663,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | POWERFUL |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | HURT_COLD | IM_POIS | IM_FIRE | RES_PLAS | RES_NETH |
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Skeleton:Chaos-Warrior
 S:1_IN_3 | 
 S:CAUSE_3 | BO_FIRE | BA_FIRE | BR_FIRE | BO_PLAS
 S:DARKNESS | S_MONSTER | S_DEMON | S_UNDEAD | TPORT | BLINK | SCARE
@@ -10058,6 +10684,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | ESCORT |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | REGENERATE |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | KILL_BODY |
 F:EVIL | HURT_FIRE | RES_COLD | RES_POIS
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
+P:Copy:Barbarian:Warrior
+P:Body:Jelly7
 D:"There, in the gray beginning of Earth, the formless mass that was 
 D:Ubbo-Sathla reposed amid the slime and the vapors. Headless, 
 D:without organs or members..."
@@ -10076,6 +10705,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:EVIL | UNDEAD | HURT_FIRE | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Zombie:Rage-Mage
 S:1_IN_3 |
 S:BLIND | SCARE | CAUSE_3 | BO_ACID | BO_NETH | BR_POIS |
 S:BR_NETH | BLINK | TPORT | ANIM_DEAD |
@@ -10117,6 +10748,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART | RES_TELE
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
+P:Copy:Skeleton:Mage
 S:1_IN_3 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | 
@@ -10134,6 +10767,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | FRIENDS |
 F:ONLY_ITEM | DROP_2D2 | ELDRITCH_HORROR |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
 F:EVIL | DEMON | RES_FIRE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_9 | 
 S:BO_FIRE | 
 S:S_DEMON | CONF
@@ -10159,7 +10794,7 @@ S:1_IN_2 |
 S:CAUSE_3 | BO_WATE | BO_MANA | BA_CHAO | POLY
 D:The madman's son is a Logrus Master, almost as great a 
 D:menace as his father.
-P:Copy:Amberite:Mystic
+P:Copy:Amberite:Beastmaster
 
 N:661:Archon
 G:A:v
@@ -10173,6 +10808,8 @@ F:FORCE_SLEEP | SELF_LITE_2 |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD | GOOD | REFLECTING |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | RES_LITE |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_TELE | CAN_FLY 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
 S:S_MONSTERS | INVULNER
@@ -10192,6 +10829,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | NONLIVING |
 F:ONLY_ITEM | DROP_90 | REGENERATE | RES_TELE
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_SWIM |
 F:EVIL | DEMON | NO_CONF | NO_SLEEP | HURT_FIRE | RES_POIS
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Chaos-Warrior
+P:Body:Jelly6
 S:1_IN_9 | 
 S:BO_FIRE | BO_ACID | 
 S:S_DEMON | MIND_BLAST | DARKNESS | 
@@ -10212,6 +10852,8 @@ F:ONLY_ITEM | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
 F:EVIL | DEMON | HURT_LITE | RES_POIS | 
 F:RES_FIRE | RES_DARK | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Chaos-Warrior
 S:1_IN_9 |
 S:BLIND | CONF | S_DEMON | BR_DARK
 D:"And in the air there were great viperine creatures, 
@@ -10232,11 +10874,13 @@ F:COLD_BLOOD | BASH_DOOR |
 F:EVIL | UNDEAD | CAN_FLY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP
+F:POS_TELEPATHY | POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Hobbit:Mage
+P:Body:Eye6
 S:1_IN_2 | 
 S:SLOW | CAUSE_4 | DRAIN_MANA | MIND_BLAST | BRAIN_SMASH | FORGET | 
-S:BO_MANA | ANIM_DEAD 
+S:BO_MANA | ANIM_DEAD | BA_NETH
 S:S_UNDEAD
-P:Body:Eye6
 D:A disembodied eye, floating in the air.  Black nether storms rage around 
 D:its bloodshot pupil and light seems to bend as it sucks its power from the 
 D:very air around it.  Your soul chills as it drains your vitality for its 
@@ -10254,6 +10898,8 @@ F:FORCE_SLEEP | CAN_FLY |
 F:ONLY_ITEM | DROP_1D2 | POWERFUL | REGENERATE | HURT_LITE | SELF_DARK_1 |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | FRIENDS | RES_NETH |
 F:EVIL | DEMON | RES_COLD | RES_POIS | NO_CONF | RES_DARK | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Spectre:Priest
 S:1_IN_8 | 
 S:BO_NETH
 D:A mighty spirit of darkness of vaguely humanoid form.  Razor-edged claws 
@@ -10273,6 +10919,9 @@ F:EVIL | UNDEAD | SMART |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | RES_NETH | RES_TELE
 F:ONLY_ITEM | DROP_60 | DROP_GOOD |
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Skeleton:Mauler
+P:Body:Skull
 S:1_IN_2 |
 S:BA_WATE | BR_FIRE | BO_ICEE | BA_ELEC | BA_COLD |
 S:CAUSE_4 | DRAIN_MANA | BRAIN_SMASH | 
@@ -10293,6 +10942,8 @@ F:ONLY_ITEM | DROP_60 |
 F:TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:High-Elf:Rogue
 S:1_IN_15 | 
 S:BLIND | HOLD | CONF | DRAIN_MANA | BO_NETH
 D:It is a form that screams its presence against the eye.  Death incarnate, 
@@ -10374,6 +11025,8 @@ F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | IM_POIS | RES_NETH |
 F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
 F:NO_STUN | NO_CONF | NO_SLEEP |
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
 S:1_IN_5 | 
 S:SHRIEK | S_HOUND
 D:An undead master of the vicious Zephyr hounds.
@@ -10389,6 +11042,8 @@ B:BUTT:HURT:8d6
 F:BASH_DOOR | REFLECTING | KILL_ITEM |
 F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | DEMON |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | EVIL | RIDING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 P:Body:Hound
 D:A great, vicious beast whose flesh is made of steel and whose 
 D:blood is fire. It charges at you ignoring everything else.
@@ -10422,6 +11077,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:INVISIBLE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | RES_FIRE | RES_COLD | IM_POIS | RES_NETH | RES_DARK |
 F:HURT_LITE | NO_CONF | NO_SLEEP | AURA_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | MIND_BLAST | BRAIN_SMASH | 
 S:S_UNDEAD | DRAIN_MANA | FORGET | ANIM_DEAD
@@ -10462,10 +11119,13 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 |
 F:INVISIBLE | CAN_FLY | 
 F:PASS_WALL | POWERFUL | MOVE_BODY | 
 F:DRAGON | RES_LITE | RES_DARK | NO_CONF | NO_SLEEP | RIDING
+F:POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Half-Titan:Beastmaster
+P:Life:110
+P:Body:Dragon
 S:1_IN_5 | 
 S:BLIND | CONF | 
 S:BR_LITE | BR_DARK | BR_CONF
-P:Body:Dragon
 D:A huge dragon emanating from the elemental plains, the ethereal dragon is 
 D:a master of light and dark.  Its form disappears from sight as it cloaks 
 D:itself in unearthly shadows.
@@ -10482,6 +11142,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR |
 F:ONLY_ITEM | DROP_1D2 | NONLIVING | CAN_SWIM |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | HURT_LITE |
 F:EVIL | DEMON | RES_FIRE | RES_DARK | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_GAIN_AC
+P:Copy:Ent:Mauler
+P:Body:Tree
 S:1_IN_9 | 
 S:BLIND | CAUSE_2 | 
 S:S_DEMON | HEAL 
@@ -10525,6 +11188,8 @@ F:KILL_ITEM | KILL_BODY | PASS_WALL | POWERFUL |
 F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_SHAR |
 F:HURT_ROCK | NONLIVING |
 F:NO_CONF | NO_SLEEP | 
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_6 | 
 S:BO_ACID | BA_ACID
 D:A towering stone elemental stands before you.  The walls and ceiling are 
@@ -10562,6 +11227,8 @@ F:ELDRITCH_HORROR | POWERFUL |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Beastman:Chaos-Warrior
 S:1_IN_6 | 
 S:HOLD | CAUSE_4 | CONF | SCARE | FORGET | BRAIN_SMASH |
 S:MIND_BLAST | CAUSE_3 | S_DEMON | S_MONSTERS
@@ -10581,6 +11248,10 @@ F:FORCE_SLEEP | ELDRITCH_HORROR | PASS_WALL | FORCE_MAXHP |
 F:INVISIBLE | DROP_2D2 | DROP_4D2 | CAN_FLY | EVIL |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | NONLIVING | RES_WALL |
 F:SMART | RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | RES_GRAV |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-4:0:0:0:0:0
+P:Body:Vortex7
 S:1_IN_4 | 
 S:BR_WALL | TELE_AWAY | BR_GRAV |
 S:S_KIN | MIND_BLAST | BLIND | BLINK
@@ -10619,6 +11290,8 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | KILL_BODY | DROP_GREAT |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | DEMON | REGENERATE |
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Human:Rage-Mage
 S:1_IN_3 | 
 S:BR_TIME | SLOW | HASTE | HEAL 
 D:"It was a figure no larger than a young child, but sere and 
@@ -10642,6 +11315,9 @@ F:BASH_DOOR | EVIL | DEMON | NO_CONF | NO_SLEEP | KILL_BODY |
 F:CAN_SWIM | RES_DARK |
 F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | POWERFUL | ELDRITCH_HORROR | 
 F:IM_ACID | RES_FIRE | RES_PLAS | RES_POIS | RES_COLD | RES_ELEC | RES_TELE
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
+P:Copy:Barbarian:Warrior
+P:Body:Jelly7
 D:"The nightmare, plastic column of fetid, black iridescence oozed 
 D:tightly onward... A shapeless congerie of protoplasmic bubbles, 
 D:faintly self-luminous and with myriads of temporary eyes forming 
@@ -10650,7 +11326,6 @@ D:tunnel-filling front that bore down upon us, crushing the frantic
 D:penguins and slithering over glistening floor that it and its 
 D:kind had swept so evilly free of all litter. Still came that eldritch 
 D:mocking cry -- 'Tekeli-li! Tekeli-li!'"
-P:Body:Jelly7
 
 N:686:Judge Death
 G:W:D
@@ -10666,6 +11341,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | RES_ELEC | RES_COLD | RES_NETH | HURT_FIRE | 
 F:IM_POIS | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_4 | BA_FIRE | BA_NETH | ANIM_DEAD 
 S:S_MONSTERS | S_UNDEAD | S_HI_UNDEAD | DRAIN_MANA | 
@@ -10686,6 +11363,8 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
 F:EVIL | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | 
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
 S:1_IN_5 | 
 S:BO_ELEC | BA_COLD | BA_ELEC
 D:A towering air elemental, Ariel, the sorceress, avoids your blows 
@@ -10745,6 +11424,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | CAN_FLY |
 F:SMART | TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | NO_CONF | RES_NETH | NO_SLEEP
 F:AURA_FEAR | NO_FEAR
+F:POS_SEE_INVIS | POS_HOLD_LIFE | POS_DETECT_MONSTERS
+P:Copy:High-Elf:Rogue
 S:1_IN_9 | 
 S:TELE_LEVEL | BLIND | HOLD | CONF | CAUSE_4 | DRAIN_MANA | BO_NETH | 
 S:S_UNDEAD
@@ -10765,6 +11446,9 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:DRAGON | RES_FIRE | RES_COLD | 
 F:RES_ELEC | IM_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | RIDING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
+P:Body:Dragon
 S:1_IN_6 | 
 S:BLIND | SLOW | CONF | SHOOT | 
 S:BR_POIS
@@ -10806,6 +11490,7 @@ F:RES_POIS | RES_FIRE | RES_ELEC | RES_ACID | RES_COLD |
 F:NO_SLEEP | HUMAN |
 F:FRIENDS |
 F:MALE | OPEN_DOOR | BASH_DOOR
+P:Copy:Dunadan:Warrior
 D:Fierce, barbaric warriors, armed with great spiked clubs, and surrounded 
 D:in an aura of scarlet. Whenever one of them is slain, another appears 
 D:out of nowhere to take his place.
@@ -10823,6 +11508,8 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | CAN_SWIM |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | RES_NETH | RES_TELE |
 F:NO_CONF | NO_SLEEP | KILL_WALL | 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
+P:Copy:Skeleton:Mage
 S:1_IN_3 | 
 S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | DRAIN_MANA | 
 S:MIND_BLAST |BA_NETH | ANIM_DEAD
@@ -10842,6 +11529,9 @@ F:RAND_25 | CAN_SWIM | ELDRITCH_HORROR |
 F:KILL_ITEM | BASH_DOOR | POWERFUL | 
 F:EVIL | RES_ACID | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP 
+F:POS_GAIN_AC
+P:Copy:Barbarian:Mauler
+P:Body:Giant Reptile
 S:1_IN_5 | 
 S:S_MONSTER | SCARE | CAUSE_4 | S_HYDRA | S_SPIDER | 
 S:BA_NETH | BA_POIS | BA_ACID | CAUSE_3 | HOLD | MIND_BLAST
@@ -10867,6 +11557,9 @@ F:FORCE_MAXHP | NAZGUL |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | RES_TELE | RES_DARK |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_NETH | SMART |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
+P:Stats:0:0:0:0:0:2
 S:1_IN_4 |
 S:SCARE | HOLD | DRAIN_MANA | BR_NETH
 D:A tall black cloaked Ringwraith, radiating an aura of fear.
@@ -10936,6 +11629,7 @@ W:46:6:80:80:0:0
 B:EXPLODE:HURT:20d5
 F:MULTIPLY | RAND_25 | TAKE_ITEM | SMART |
 F:EVIL | OPEN_DOOR | MALE | HAS_LITE_1 |
+P:Copy:Dark-Elf:Rogue
 S:1_IN_6
 S:BLINK | TPORT | TELE_TO
 D:These leprechauns are not afraid to die for their cause. They are 
@@ -10955,10 +11649,13 @@ F:COLD_BLOOD | CAN_FLY |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | RIDING
+F:POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Half-Titan:Beastmaster
+P:Life:110
+P:Body:Dragon
 S:1_IN_6 | 
 S:CONF | SCARE | 
 S:BR_COLD | BR_NETH
-P:Body:Dragon
 D:The skeletal form of a once-great dragon, enchanted by magic most 
 D:perilous.  Its animated form strikes with speed and drains life from its 
 D:prey to satisfy its hunger.
@@ -11017,9 +11714,12 @@ B:CRUSH:POISON:3d10
 F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | AQUATIC | WILD_OCEAN |
 F:RES_FIRE | RES_ACID | RES_COLD | RES_POIS | RES_WATE |
 F:DRAGON | NO_CONF | NO_SLEEP | RIDING
+F:POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Half-Titan:Beastmaster
+P:Life:110
+P:Body:Dragon
 S:1_IN_6 | 
 S:BR_FIRE | BR_ACID
-P:Body:Dragon
 D:A huge aquatic dragon, its shell is as large as a small island. Some 
 D:have called this creature a dragon-turtle.
 
@@ -11037,6 +11737,9 @@ F:NO_CONF | NO_SLEEP |
 F:IM_POIS | RES_ACID | RES_COLD |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | RIDING
+F:POS_GAIN_AC
+P:Copy:Barbarian:Rage-Mage
+P:Body:Giant Reptile
 S:1_IN_6 | 
 S:HOLD | SCARE | 
 S:BR_NEXU | BR_POIS | BR_NETH
@@ -11053,6 +11756,9 @@ F:FORCE_SLEEP | ELDRITCH_HORROR | NEVER_MOVE | REGENERATE |
 F:DROP_2D2 | DROP_4D2 | CAN_FLY | DROP_GOOD | ONLY_ITEM |
 F:POWERFUL | EVIL | CAN_SPEAK | UNIQUE | FORCE_MAXHP |
 F:SMART | RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | RES_CHAO
+F:POS_SUST_STR
+P:Copy:Half-Giant:Mauler
+P:Body:Demonic Horror
 S:1_IN_4 | 
 S:BR_NUKE | S_DEMON | DARKNESS | S_UNDEAD | ANIM_DEAD 
 S:BR_NEXU | BR_CHAO | TELE_TO
@@ -11074,6 +11780,9 @@ F:INVISIBLE | DROP_2D2 | DROP_4D2 | CAN_FLY | DROP_GOOD | ONLY_ITEM |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | EVIL |
 F:SMART | RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS |
 F:RES_WALL | RES_GRAV | RES_INER
+F:POS_GAIN_AC
+P:Copy:Barbarian:Mauler
+P:Body:Demonic Horror
 S:1_IN_4 | 
 S:BR_WALL | TELE_AWAY | BR_GRAV | TELE_LEVEL | S_DEMON | S_UNDEAD |
 S:BRAIN_SMASH | HASTE | BLIND | BLINK | BR_INER | CAUSE_3 | CAUSE_4
@@ -11212,6 +11921,9 @@ B:CRUSH:HURT:23d13
 F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE | ELDRITCH_HORROR |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | KILL_BODY |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
+F:POS_GAIN_AC
+P:Copy:Barbarian:Mauler
+P:Body:Demonic Horror
 F:EVIL
 S:1_IN_6
 S:S_DEMON | SHRIEK | CONF | SCARE | MIND_BLAST | BLIND 
@@ -11315,6 +12027,8 @@ F:REGENERATE | RES_ACID | RES_COLD | RES_FIRE | CAN_FLY |
 F:NO_SLEEP | NO_STUN | NO_CONF | EVIL | DEMON |
 F:INVISIBLE | KILL_WALL |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
 S:1_IN_4 | 
 S:HOLD | BLINK | CONF | S_DEMON | BRAIN_SMASH | BR_NETH
 D:A loathsome, sturdy, winged, horned demon, with talons that could tear 
@@ -11332,11 +12046,13 @@ F:FORCE_SLEEP | FORCE_MAXHP | AURA_FIRE | CAN_FLY | SELF_LITE_1 |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | NONLIVING |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | SMART | 
 F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP | KILL_WALL |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
 S:1_IN_4 | 
 S:BLIND | CONF | BRAIN_SMASH | 
 S:BR_FIRE | BO_PLAS | BA_NETH | S_HI_UNDEAD | S_UNDEAD |
 S:S_DEMON
-D:"A Balrog. A demon of the ancient world.  This foe is beyond any of you ... Run!"
+D:"A Balrog. A demon of the ancient world. This foe is beyond any of you ... Run!"
 
 N:721:Goat of Mendes
 G:q:D
@@ -11350,6 +12066,9 @@ F:EVIL | DEMON | FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | SMART | NONLIVING |
 F:NO_CONF | NO_SLEEP | HURT_LITE | RES_FIRE | RES_COLD | RES_DARK
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Vampire:Warrior-Mage
+P:Body:Horse
 S:1_IN_4 | 
 S:BLIND | CONF | BRAIN_SMASH | SCARE | ANIM_DEAD
 S:BA_NETH | FORGET | S_UNDEAD | DRAIN_MANA |
@@ -11369,6 +12088,9 @@ F:FORCE_SLEEP | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | RES_TELE | RES_NETH |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
+P:Stats:0:0:0:0:0:1
 S:1_IN_4 | 
 S:BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_MANA | BO_NETH | BA_NETH | 
@@ -11471,6 +12193,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | 
 S:S_DEMON
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:6
 P:Body:Quylthulg
 D:A pile of pulsing flesh that glows with an inner hellish fire.  The world 
 D:itself seems to cry out against it.
@@ -11616,6 +12341,9 @@ F:EVIL | RES_ACID | RES_FIRE | RES_COLD | RES_POIS |
 F:HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_4 | 
 S:S_UNDEAD | S_DEMON | S_MONSTER | BLINK | BA_ACID | FORGET
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
+P:Copy:Barbarian:Mauler
+P:Body:Jelly7
 D:"Then came pale movement in the well, and something clambered 
 D:up from the dark, a bloated blanched oval supported on myriad 
 D:fleshless legs. Eyes formed in the gelatinous oval and stared 
@@ -11635,6 +12363,8 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | RES_ACID | RES_FIRE | RES_COLD | IM_POIS | RES_NETH |
 F:HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
+P:Copy:Skeleton:Chaos-Warrior
 S:1_IN_2 | 
 S:S_DEMON | S_UNDEAD | S_KIN | SCARE | CAUSE_3 | CAUSE_4 | ANIM_DEAD 
 S:TELE_AWAY | TPORT | BRAIN_SMASH | CONF
@@ -11657,6 +12387,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | ELDRITCH_HORROR |
 F:OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | DROP_GOOD | KILL_BODY |
 F:RES_ACID | RES_COLD | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP
 F:KILL_ITEM 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
+P:Body:Demonic Horror
 S:1_IN_3
 S:BR_ACID | BR_POIS | BR_NUKE | SCARE | ANIM_DEAD 
 S:CAUSE_3 | CAUSE_4 | S_DEMON | S_UNDEAD 
@@ -11701,6 +12434,9 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | RES_ACID | RES_FIRE | RES_COLD | IM_POIS | RES_NETH | RES_DARK |
 F:HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
+P:Stats:0:0:0:0:0:2
 S:1_IN_2 | 
 S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
 S:BA_FIRE | BA_COLD | BA_NETH | ANIM_DEAD | 
@@ -11784,6 +12520,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART | RES_TELE
 F:ONLY_ITEM | DROP_2D2 | DROP_1D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_FLY |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY | POS_TELEPATHY
+P:Copy:Skeleton:Mage
+P:Stats:0:2:0:0:0:0
 S:1_IN_3 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | S_HI_UNDEAD | S_UNDEAD | FORGET |
@@ -11803,6 +12542,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | RES_LITE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | RIDING | GOOD |
 F:ANIMAL | RES_ACID | IM_FIRE | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Dunadan:Mystic
+P:Body:Giant Bird
 S:1_IN_3 | 
 S:BO_FIRE | BO_PLAS | BA_FIRE | 
 S:BR_FIRE | BR_LITE | BR_PLAS
@@ -11822,6 +12564,9 @@ F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_FIRE | RES_COLD | IM_POIS | RES_DARK | RES_TELE |
 F:HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Half-Titan:Mauler
+P:Body:Giant Worm
 S:1_IN_4 | 
 S:BLIND | SCARE | BRAIN_SMASH | 
 S:BO_MANA | BO_NETH | BA_NETH | 
@@ -11843,6 +12588,9 @@ F:DEMON | EVIL | ATTR_MULTI | DROP_GOOD | MOVE_BODY | NONLIVING |
 F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | ELDRITCH_HORROR |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | CAN_FLY | RES_CHAO |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP | RIDING
+F:POS_GAIN_AC
+P:Copy:Dunadan:Mystic
+P:Body:Giant Bird
 S:1_IN_3
 S:MIND_BLAST | BA_CHAO | SCARE | BRAIN_SMASH | DRAIN_MANA |
 S:S_HOUND | S_DEMON | S_DRAGON | TPORT | HASTE | CONF |
@@ -11863,6 +12611,9 @@ F:DEMON | EVIL | DROP_GOOD | NONLIVING | CAN_SWIM |
 F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | ELDRITCH_HORROR |
 F:OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_POIS | NO_CONF | RES_CHAO | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Barbarian:Mauler
+P:Body:Keeper of Secrets
 S:1_IN_3
 S:SCARE | BRAIN_SMASH | DRAIN_MANA | 
 S:BR_CONF | S_DEMON | S_UNDEAD | TPORT | HEAL |
@@ -11903,6 +12654,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | RES_TELE
 F:SMART | COLD_BLOOD | CAN_SWIM |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_CLAIRVOYANCE
+P:Copy:Skeleton:Mage
+P:Body:Disembodied Hand
 S:1_IN_1 | 
 S:TELE_AWAY | BLIND | CONF | SCARE | CAUSE_3 | FORGET | DARKNESS | DISPEL | ANTI_MAGIC
 D:A skeletal hand floating in the air, motionless except for its flexing 
@@ -11921,6 +12675,9 @@ F:SMART | COLD_BLOOD |
 F:EVIL | UNDEAD | CAN_SWIM |
 F:RES_FIRE | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_CLAIRVOYANCE
+P:Copy:Skeleton:Mage
+P:Body:Disembodied Eye
 S:1_IN_1 | 
 S:BO_MANA | BO_NETH | BA_NETH | 
 S:S_UNDEAD
@@ -11940,6 +12697,9 @@ F:SMART | COLD_BLOOD |
 F:EVIL | UNDEAD | CAN_SWIM |
 F:RES_FIRE | RES_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR | SELF_LITE_1 |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_CLAIRVOYANCE
+P:Copy:Skeleton:Mage
+P:Body:Skull
 S:1_IN_1 | 
 S:SLOW | CAUSE_4 | MIND_BLAST | BRAIN_SMASH | TRAPS | BO_PLAS | 
 S:BO_NETH | BA_WATE | 
@@ -11955,6 +12715,10 @@ F:FORCE_SLEEP | NEVER_BLOW |
 F:RAND_50 | RAND_25 | CAN_FLY |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | KILL_WALL
 F:RES_TIME | RES_DISE | RES_NETH | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-3:0:0:0:0:0
+P:Body:Vortex8
 S:1_IN_4 | 
 S:BR_TIME | BR_DISI | BR_NETH
 D:Void, nothingness, spinning destructively. Run!
@@ -11975,6 +12739,10 @@ F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:RES_LITE | RES_DARK | RES_SOUN | RES_CHAO | RES_NETH | RES_DISE |
 F:RES_WALL | RES_INER | RES_TIME | RES_GRAV | RES_PLAS | RES_NEXU | RES_SHAR |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING | 
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-3:0:0:0:0:0
+P:Body:Vortex8
 S:1_IN_6 | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
 S:BR_LITE | BR_DARK | BR_SOUN | BR_CONF | BR_CHAO |
@@ -12046,6 +12814,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_SPEAK | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_NETH | RES_DARK |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | BA_NETH | S_KIN
@@ -12090,6 +12861,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_SPEAK | AURA_ELEC |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | POWERFUL | NONLIVING | RES_NETH |
 F:RES_COLD | RES_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_GAIN_AC
+P:Copy:Barbarian:Mauler
+P:Body:Dragon
 S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_4 | DRAIN_MANA |
 S:BRAIN_SMASH | BA_WATE | S_DEMON | HASTE |
@@ -12108,6 +12882,8 @@ F:DEMON | EVIL | DROP_GOOD | REGENERATE | CAN_FLY | NONLIVING |
 F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_4D2 | ELDRITCH_HORROR |
 F:OPEN_DOOR | BASH_DOOR | RES_NETH | RES_NEXU | RES_TELE | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_POIS | NO_CONF | NO_SLEEP | 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_BERSERK
+P:Copy:Balrog:Chaos-Warrior
 P:Body:Bloodthirster
 D:Khorne's mightiest servant, a winged hound-demon walking on 
 D:two paws and wielding a mighty axe and a whip in the other 
@@ -12125,6 +12901,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | 
 S:S_DRAGON
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:6
 P:Body:Quylthulg
 D:It looks like it was once a dragon corpse, now deeply infected with 
 D:magical bacteria that make it pulse in a foul and degrading way.
@@ -12148,6 +12927,9 @@ S:1_IN_5 |
 S:BRAIN_SMASH | MIND_BLAST | HASTE | TPORT |
 S:S_DEMON | S_UNDEAD | S_HI_UNDEAD | S_KIN |
 S:BR_DARK | BR_NUKE | BR_ACID | BR_POIS
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
+P:Copy:Barbarian:Mauler
+P:Body:Jelly7
 D:"...a little finger of blackness crept out from beneath its edge 
 D:a great wave of iridescent blackness, neither liquid nor solid,
 D:a frightful gelatinous mass."
@@ -12164,6 +12946,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE | CAN_SPEAK |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | MOVE_BODY |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | DEMON | NONLIVING | ELDRITCH_HORROR
+F:POS_GAIN_AC
+P:Copy:Ent:Mauler
+P:Body:Tree
 S:1_IN_6
 S:BR_FIRE | S_DEMON | CAUSE_4 | BR_PLAS | BR_NETH | BRAIN_SMASH |
 S:S_UNDEAD | BA_DARK 
@@ -12225,7 +13010,7 @@ D:'Oh? None of us knew that Dad had locked you up.' (Corwin) heard
 D:(Dworkin) weeping. 'Yes,' he said after a long time. 'He didn't 
 D:trust me.' 'Why not?' 'I told him I'd thought of a way to 
 D:destroy Amber. I described it to him, and he locked me in.'"
-P:Copy:Amberite:Mystic
+P:Copy:Amberite:Beastmaster
 
 N:764:Uriel, Angel of Fire
 G:A:R
@@ -12241,6 +13026,9 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:RES_ACID | IM_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE | RES_TELE |
 F:NO_CONF | NO_SLEEP | SELF_LITE_2 |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
+P:Stats:1:0:3:1:1:3
 S:1_IN_2 | 
 S:TELE_TO | BLIND | 
 S:BO_MANA | BA_FIRE |
@@ -12264,6 +13052,9 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | CAN_FLY |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_DARK | RES_TELE
 F:NO_CONF | NO_SLEEP |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
+P:Stats:1:0:3:1:1:3
 S:1_IN_2 | 
 S:TELE_TO | BLIND | 
 S:BO_MANA | BA_NETH |
@@ -12314,6 +13105,9 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:RES_ACID | RES_FIRE | RES_POIS | RES_COLD | ELDRITCH_HORROR |
 F:NEVER_MOVE | RES_NEXU | REFLECTING | PASS_WALL |
 F:NO_CONF | NO_SLEEP | EVIL 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
+P:Body:Demonic Horror
 S:1_IN_3 | 
 S:TELE_AWAY | S_MONSTERS | TELE_LEVEL | BR_NEXU | TPORT | BLINK
 D:"Not shapeless, but so complex that the eye could recognize no 
@@ -12338,6 +13132,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | CAN_SWIM |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | RES_TELE
 F:EVIL | UNDEAD | RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | RES_NETH | RES_DARK |
 F:HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Half-Titan:Mauler
 S:1_IN_4 | 
 S:BLIND | SCARE | BRAIN_SMASH | 
 S:BO_MANA | BO_NETH | BA_NETH | 
@@ -12363,6 +13159,9 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_ACID | RES_FIRE | RES_COLD | IM_ELEC | IM_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | AURA_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
+P:Stats:2:2:5:2:2:5
 S:1_IN_2 |
 S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN | INVULNER | DISPEL | ANTI_MAGIC | PSY_SPEAR
 S:BR_MANA | BR_LITE | BR_ELEC | BA_MANA | HAND_DOOM | S_HI_DRAGON |
@@ -12468,7 +13267,7 @@ D:like Bleys and (Corwin). (Corwin's) features, though smaller, his eyes,
 D:Bleys' hair, beardless. He wore a riding suit of green and sat atop a white 
 D:horse... There was a quality of both strength and weakness, questing and 
 D:abandonment about him."
-P:Copy:Amberite:Mystic
+P:Copy:Amberite:Beastmaster
 
 N:774:Shadowlord
 G:G:b
@@ -12483,6 +13282,8 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 |
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
 F:EVIL | UNDEAD | CAN_FLY |
 F:IM_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_SEE_INVIS | POS_HOLD_LIFE | POS_DETECT_MONSTERS
+P:Copy:High-Elf:Rogue
 S:1_IN_3 |
 S:HOLD | DRAIN_MANA | BLIND | S_UNDEAD | CONF |
 S:SCARE | TELE_TO | TPORT | BRAIN_SMASH | ANIM_DEAD
@@ -12523,6 +13324,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART | RES_TELE | CAN_FLY |
 F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | PASS_WALL |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY | POS_TELEPATHY
+P:Copy:Skeleton:Mage
+P:Stats:0:3:0:0:0:0
 S:1_IN_3 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | S_HI_UNDEAD | S_UNDEAD | FORGET |
@@ -12546,8 +13350,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:RES_FIRE | RES_COLD | RES_POIS | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_SEE_INVIS
-P:Copy:High-Elf:Ninja
-P:Skills:0:0:0:7:0:0:0:0
+P:Copy:High-Elf:Rogue
+P:Skills:0:0:0:10:0:0:0:0
 P:Body:Hound
 S:1_IN_3 | 
 S:TELE_TO | HEAL | S_KIN
@@ -12613,6 +13417,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_SPEAK | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_NETH | RES_DARK |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | BA_NETH | S_KIN | DARKNESS | BA_DARK 
@@ -12794,6 +13601,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | EVIL | SMART | DEMON |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:NO_SLEEP | NO_CONF | NO_STUN |
 F:RES_POIS | RES_COLD | RES_ACID
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Beastman:Warlock
+P:Body:Glaaki
 S:1_IN_5
 S:BA_WATE | S_HYDRA | S_DRAGON | S_DEMON | SCARE |
 S:BLIND | CONF | CAUSE_4 | BR_POIS
@@ -12889,6 +13699,8 @@ F:INVISIBLE | COLD_BLOOD | PASS_WALL |
 F:EVIL | UNDEAD | IM_COLD | RES_NETH | AURA_COLD |
 F:IM_POIS | NO_CONF | NO_SLEEP
 F:AURA_FEAR | NO_FEAR
+F:POS_SEE_INVIS | POS_HOLD_LIFE | POS_DETECT_MONSTERS
+P:Copy:High-Elf:Rogue
 S:1_IN_3 | 
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
@@ -13013,6 +13825,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:RES_ACID | RES_ELEC | RES_POIS | NO_CONF | NO_SLEEP | RES_WATE
+F:POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Beastman:Mauler
+P:Body:Spider
 S:1_IN_5 | 
 S:S_DEMON | BR_ACID | S_UNDEAD | S_KIN | CONF | SCARE |
 S:MIND_BLAST | BR_CONF 
@@ -13035,6 +13850,9 @@ F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | POWERFUL |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_DARK | RES_NETH | RES_TELE |
 F:NO_CONF | NO_SLEEP | KILL_WALL | 
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY
+P:Copy:Skeleton:Mage
+P:Stats:0:2:0:0:0:0
 S:1_IN_3 | 
 S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | BA_MANA | BA_NETH | S_UNDEAD
@@ -13077,6 +13895,9 @@ F:ANIMAL | EVIL | RES_TELE
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD | S_HI_DRAGON
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:10
 P:Body:Quylthulg
 D:A pulsating mound of flesh, shining with silver pulses of throbbing light.
 
@@ -13091,6 +13912,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TELE_TO | 
 S:S_HI_DRAGON
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:10
 P:Body:Quylthulg
 D:A massive mound of scaled flesh, throbbing and pulsating with multi-hued 
 D:light.
@@ -13106,6 +13930,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TELE_TO | 
 S:S_HI_UNDEAD
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:10
 P:Body:Quylthulg
 D:A massive pile of rotting flesh.  A disgusting stench fills the air as it 
 D:throbs and writhes.
@@ -13142,6 +13969,9 @@ F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | 
 F:IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY | POS_TELEPATHY
+P:Copy:Skeleton:Mage
+P:Stats:0:4:0:0:0:0
 S:1_IN_2 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:BRAIN_SMASH | TRAPS | BA_MANA | 
@@ -13163,6 +13993,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:SMART | BASH_DOOR | 
 F:EVIL | RES_POIS | 
 F:NO_CONF | NO_SLEEP
+F:POS_TELEPATHY | POS_GAIN_AC
+P:Copy:High-Elf:Warrior-Mage
+P:Body:Eye8
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
 S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
@@ -13184,6 +14017,9 @@ F:ONLY_ITEM | DROP_GOOD | MOVE_BODY |
 F:SMART | BASH_DOOR | 
 F:EVIL | RES_POIS | RES_ACID | RES_COLD |
 F:NO_CONF | NO_SLEEP
+F:POS_GAIN_AC | POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Beastman:Beastmaster
+P:Body:Demonic Horror
 S:1_IN_2 | 
 S:S_DEMON | S_MONSTERS | S_UNDEAD | HOLD | SCARE | MIND_BLAST |
 S:BR_ACID | BR_NETH | CAUSE_4 
@@ -13259,6 +14095,9 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | MOVE_BODY | NONLIVING |
 F:ANIMAL | EVIL | IM_POIS | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Hobbit:Rogue
+P:Life:120
 P:Body:Spider
 S:1_IN_3 |
 S:SCARE | BLIND | CONF | HOLD | BR_POIS |
@@ -13280,6 +14119,9 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:SMART | BASH_DOOR | MOVE_BODY | NONLIVING |
 F:EVIL | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Barbarian:Mauler
+P:Body:Headless
 S:1_IN_3 |
 S:SCARE | BLIND | CONF | HOLD | HASTE | DRAIN_MANA |
 S:CAUSE_3 | CAUSE_4 | DARKNESS | FORGET | S_DEMON | S_HOUND |
@@ -13328,6 +14170,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | INVISIBLE |
 F:DROP_GOOD | DROP_60 | DROP_1D2 | SMART | PASS_WALL |
 F:RES_NEXU | RES_NETH | NONLIVING | CAN_FLY |
 F:EVIL | RES_POIS | RES_ELEC | RES_COLD | IM_FIRE | DEMON
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
 S:1_IN_4 |
 S:HEAL | TPORT | S_DEMON |
 S:BRAIN_SMASH | DRAIN_MANA | BR_PLAS
@@ -13377,6 +14221,9 @@ F:OPEN_DOOR | BASH_DOOR |
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
 F:EVIL | RES_POIS | RES_ACID | RES_ELEC | REGENERATE |
+F:POS_GAIN_AC
+P:Copy:Half-Giant:Mauler
+P:Body:Giant Reptile
 S:1_IN_4 |
 S:BR_POIS | BR_NUKE | BR_ACID | S_HYDRA | S_KIN | S_DEMON |
 D:"The half-human father of serpents... the snake-god of the central 
@@ -13400,6 +14247,9 @@ F:BASH_DOOR | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_ACID |
 F:RES_LITE | RES_DARK | RES_WATE | RES_PLAS | RES_SHAR | RES_SOUN |
 F:RES_CHAO | RES_NEXU | RES_DISE | RES_WALL | RES_INER | RES_TIME | RES_GRAV |
 F:COLD_BLOOD | NONLIVING | RAND_50
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Body:Demonic Horror
 S:1_IN_5 |
 S:BR_CHAO
 D:Summoned from the Courts of Chaos, it is a mass of sentient Logrus, 
@@ -13416,6 +14266,8 @@ B:HIT:LOSE_CHR:1d30
 F:RAND_25 | EVIL | DEMON |
 F:DROP_2D2 | DROP_GOOD | ONLY_ITEM | RES_TELE |
 F:RES_POIS | RES_FIRE | FORCE_SLEEP | FORCE_MAXHP | NONLIVING
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
 S:1_IN_4 |
 S:ROCKET
 D:Reverbrant metal steps announce the arrival of this huge creature, 
@@ -13435,6 +14287,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GREAT | DROP_GOOD |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | CAN_FLY |
 F:EVIL | RES_NETH | RES_COLD | RES_POIS |
 F:RES_FIRE | NO_CONF | NO_SLEEP |
+P:Copy:Amberite:Priest
 S:1_IN_3 | 
 S:CAUSE_3 | CAUSE_4 | HAND_DOOM | TELE_TO | HOLD |
 S:S_UNDEAD | S_HI_UNDEAD | S_HI_DRAGON | FORGET | SCARE | BLIND |
@@ -13577,6 +14430,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | NONLIVING | SELF_LITE_2 | RES_ELEC |
 F:ONLY_ITEM | DROP_4D2 | SMART | ELDRITCH_HORROR |
 F:EVIL | KILL_ITEM | KILL_BODY |
 F:NO_CONF | NO_SLEEP | 
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Body:Demonic Horror
 S:1_IN_4 | 
 S:BR_FIRE | S_KIN
 D:"But even though we had shielded our eyes, it was impossible not 
@@ -13628,6 +14484,9 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | 
 F:IM_COLD | IM_POIS | RES_NETH | RES_DARK | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
+P:Stats:0:0:0:0:0:3
 S:1_IN_2 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE | CAUSE_3 | BRAIN_SMASH | 
 S:BO_MANA | BA_NETH | PSY_SPEAR |
@@ -13651,6 +14510,9 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | DEMON | RES_ACID | RES_ELEC | RES_DARK |
 F:RES_COLD | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_TELEPATHY | POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:High-Elf:Warrior-Mage
+P:Body:Cyaegha
 S:1_IN_3 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE | BRAIN_SMASH | 
 S:BR_DARK | BA_DARK | BR_NETH | HAND_DOOM | FORGET |
@@ -13677,6 +14539,9 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | RES_ACID | RES_FIRE | RES_COLD | IM_ELEC | 
 F:RES_POIS | NO_CONF | NO_SLEEP | POWERFUL |
+F:POS_GAIN_AC
+P:Copy:Half-Titan:Beastmaster
+P:Stats:0:0:0:7:0:0
 S:1_IN_3 | 
 S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC | PSY_SPEAR
 D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
@@ -13696,6 +14561,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | AURA_ELEC |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | NONLIVING |
 F:EVIL | DEMON | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | 
 F:RES_POIS | NO_CONF | NO_SLEEP | POWERFUL |
+F:POS_GAIN_AC
+P:Copy:Half-Titan:Beastmaster
 S:1_IN_3 | 
 S:BO_MANA | SCARE | BR_COLD | S_DEMON | BO_ELEC | BA_ELEC | PSY_SPEAR |
 S:MIND_BLAST | CAUSE_4 | BA_CHAO | BA_WATE | S_HI_UNDEAD | S_KIN
@@ -13738,6 +14605,9 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | RES_FIRE | IM_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | POWERFUL | AURA_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_CLAIRVOYANCE | POS_TELEPATHY
+P:Copy:Skeleton:Mage
+P:Stats:0:4:0:0:0:7
 S:1_IN_1 | 
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
@@ -13760,6 +14630,8 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:IM_FIRE | RES_PLAS | RES_NETH | AURA_FIRE |
 F:NO_CONF | NO_SLEEP | NONLIVING | EVIL | DEMON |
 F:RES_COLD | RES_POIS
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
 S:1_IN_3 |
 S:TELE_TO | SCARE | HOLD | BRAIN_SMASH |
 S:S_DEMON | S_HI_UNDEAD | S_UNDEAD |
@@ -13802,6 +14674,9 @@ F:CAN_SPEAK | EVIL | UNIQUE | NEVER_MOVE | FORCE_MAXHP | FORCE_SLEEP |
 F:RES_ACID | RES_POIS | RES_COLD | RES_ELEC | RES_NETH | RES_WATE | RES_NEXU 
 F:NO_FEAR | NO_CONF | NO_SLEEP | DEMON | SMART | ELDRITCH_HORROR | RES_CHAO |
 F:COLD_BLOOD | RES_DISE | NO_STUN
+F:POS_GAIN_AC
+P:Copy:Half-Giant:Mauler
+P:Body:Demonic Horror
 S:1_IN_6 |
 S:S_MONSTERS | S_DEMON | S_HI_DRAGON | S_HI_UNDEAD | HEAL |
 S:TELE_AWAY | TPORT | CAUSE_4 | BRAIN_SMASH | DRAIN_MANA
@@ -13872,6 +14747,9 @@ F:RAND_25 | KILL_ITEM | OPEN_DOOR | BASH_DOOR | RES_NETH | ELDRITCH_HORROR |
 F:DROP_1D2 | DROP_2D2 | DROP_90 | ONLY_ITEM | FORCE_SLEEP | FORCE_MAXHP |
 F:EVIL | DEMON | RES_POIS | RES_COLD | RES_ACID | RES_ELEC | RES_TELE | NONLIVING |
 F:POWERFUL | IM_FIRE | CAN_SWIM | NO_CONF | DROP_GOOD | AURA_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
+P:Body:Cthulhu
 S:1_IN_3
 S:SCARE | CONF | S_DEMON | S_UNDEAD | DRAIN_MANA | BR_ACID |
 S:BR_FIRE | TPORT | S_MONSTERS | BRAIN_SMASH | BR_NETH |
@@ -13896,6 +14774,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | RES_NETH | RES_PLAS | MALE |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | EVIL | AURA_FIRE | DEMON |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | TAKE_ITEM | CAN_SPEAK |
 F:IM_FIRE | NO_CONF | NO_SLEEP | RES_POIS | HURT_COLD | GIANT |
+F:POS_SUST_STR
+P:Copy:Half-Titan:Mauler
 S:1_IN_5 |
 S:BR_FIRE | BR_PLAS | BLIND | TELE_TO | S_KIN | S_HI_UNDEAD |
 S:HAND_DOOM | TELE_AWAY | S_CYBER | S_DEMON | THROW
@@ -13941,6 +14821,8 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DEMON | IM_FIRE | 
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
 S:1_IN_4 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE | 
@@ -13985,6 +14867,9 @@ F:CAN_SPEAK | EVIL | UNIQUE | NEVER_MOVE | FORCE_MAXHP | FORCE_SLEEP |
 F:RES_ACID | RES_POIS | RES_COLD | RES_ELEC | RES_NETH | RES_WATE | RES_NEXU |
 F:NO_CONF | NO_SLEEP | DEMON | SMART | ELDRITCH_HORROR | RES_CHAO |
 F:COLD_BLOOD | RES_DISE | NO_STUN | POWERFUL |
+F:POS_TELEPATHY | POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:High-Elf:High-Mage
+P:Body:Cyaegha
 S:1_IN_2 |
 S:FORGET | HEAL | HAND_DOOM | BA_MANA | TPORT | TELE_AWAY |
 S:TELE_LEVEL | CONF | BLIND | BRAIN_SMASH | DRAIN_MANA |
@@ -14006,6 +14891,9 @@ F:DROP_2D2 | DROP_4D2 | DROP_GOOD | ONLY_ITEM | RES_TELE |
 F:RES_POIS | IM_FIRE | FORCE_SLEEP | FORCE_MAXHP | NONLIVING |
 F:RES_COLD | RES_ACID | RES_ELEC | RES_NEXU | RES_NETH | RES_PLAS |
 F:REGENERATE | UNIQUE | SELF_LITE_2 |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Body:Demonic Horror
 S:1_IN_3 |
 S:BR_NEXU | BR_NETH | BR_COLD | BR_FIRE
 D:"A belching column of sick greenish flame... spouting volcanically 
@@ -14025,6 +14913,8 @@ B:HIT:LOSE_CHR:8d12
 F:RAND_25 | EVIL | DEMON |
 F:DROP_2D2 | DROP_GOOD | ONLY_ITEM | RES_TELE | DROP_GREAT | UNIQUE |
 F:RES_POIS | RES_FIRE | FORCE_SLEEP | FORCE_MAXHP | NONLIVING
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
 S:1_IN_3 |
 S:ROCKET | S_CYBER
 D:The mightiest of Cyberdemons, their lord and ruler.
@@ -14044,6 +14934,9 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | POWERFUL | AURA_FEAR
 F:RES_FIRE | IM_COLD | RES_ELEC | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_IDENTIFY | POS_TELEPATHY
+P:Copy:Skeleton:Mage
+P:Stats:0:5:0:0:0:0
 S:1_IN_3 | 
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | POLY
 S:BA_MANA | BO_MANA | BA_FIRE | DISPEL | ANTI_MAGIC | PSY_SPEAR |
@@ -14066,6 +14959,9 @@ F:EVIL | RES_ACID | RES_COLD | RES_ELEC | RES_POIS | RES_FIRE | NO_CONF | NO_SLE
 S:1_IN_3 |
 S:BO_MANA | BRAIN_SMASH | BA_MANA | S_MONSTERS | S_CYBER | DISPEL | ANTI_MAGIC | BA_LITE |
 S:BA_CHAO | S_DEMON | S_HI_UNDEAD | S_HOUND | BR_MANA | BR_DISI | PSY_SPEAR
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | POS_SUST_STR | POS_SUST_CON
+P:Copy:Barbarian:Mauler
+P:Body:Jelly7
 D:"Great globes of light massing towards the opening... the breaking 
 D:apart of the nearest globes, and the protoplasmic flesh that 
 D:flowed blackly outward to join together and form that eldritch, 
@@ -14139,6 +15035,9 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_90 | NONLIVING | CAN_FLY |
 F:SMART | OPEN_DOOR | BASH_DOOR | REGENERATE | DEMON | AURA_COLD 
 F:EVIL | RES_ACID | RES_COLD | RES_POIS | NO_CONF | NO_SLEEP | RES_CHAO
 F:AURA_FEAR | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
+P:Body:Demonic Horror
 S:1_IN_3 |
 S:BO_MANA | BRAIN_SMASH | BA_DARK | S_MONSTERS |
 S:CAUSE_4 | HEAL | BR_CHAO | BR_CONF | BR_POIS | BR_NUKE |
@@ -14158,6 +15057,9 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_90 | DROP_GREAT |
 F:SMART | OPEN_DOOR | BASH_DOOR | REGENERATE | CAN_FLY |
 F:GOOD | RES_ACID | RES_COLD | RES_POIS | RES_FIRE | RES_ELEC | NO_CONF | 
 F:NO_SLEEP | RES_NEXU | RES_NETH | RES_WATE | POWERFUL |
+F:POS_TELEPATHY
+P:Copy:Mindflayer:High-Mage
+P:Stats:0:2:0:0:-2:0
 S:1_IN_1 |
 S:TELE_AWAY | TELE_TO | TELE_LEVEL | TPORT |
 S:BO_MANA | BA_MANA | S_MONSTERS | HEAL |
@@ -14206,6 +15108,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT | DROP_90 |
 F:SMART | OPEN_DOOR | BASH_DOOR | REGENERATE | AURA_COLD |
 F:EVIL | RES_ACID | RES_POIS | RES_FIRE | NO_CONF | NO_SLEEP | POWERFUL |
 F:AURA_FEAR | NO_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Warrior-Mage
 S:1_IN_3 |
 S:TELE_AWAY | TELE_TO | TELE_LEVEL | TPORT | BR_NEXU | BA_CHAO |
 S:BA_MANA | BA_FIRE | S_MONSTERS | BRAIN_SMASH | MIND_BLAST |
@@ -14235,6 +15139,9 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_90 | RES_CHAO | RES_DISE |
 F:STUPID | OPEN_DOOR | BASH_DOOR | REGENERATE | EMPTY_MIND |
 F:EVIL | RES_ACID | RES_POIS | RES_FIRE | NO_CONF | NO_SLEEP
 F:AURA_FEAR | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Body:Demonic Horror
 S:1_IN_5 |
 S:S_DEMON | BR_CHAO | BR_DISE | BR_MANA | BA_WATE | BR_DISI
 D:"That last amorphous blight of nethermost confusion which 
@@ -14263,7 +15170,6 @@ S:BA_DARK |
 S:BR_FIRE | BR_NETH | 
 S:S_HOUND
 P:Copy:Barbarian:Mauler
-P:Life:115
 P:Body:Cerberus
 D:A three-headed hell hound of fearsome aspect.  Flame burns merrily from its 
 D:hide as it snarls and roars its defiance.
@@ -14302,6 +15208,11 @@ F:RES_NETH | RES_WATE | RES_PLAS | RES_NEXU |
 F:RES_DISE | RES_WALL | RES_INER | RES_GRAV | NO_STUN | REGENERATE |
 F:NO_CONF | NO_SLEEP | CAN_FLY |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | POWERFUL |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
+P:Stats:7:0:0:0:5:5
+P:Life:120
+P:Body:Monk
 S:1_IN_3 |
 S:BR_DISI | BO_MANA
 D:The Destroyer was built by the Norse deities to be their ultimate weapon 
@@ -14326,6 +15237,8 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DEMON | AURA_FEAR
 F:IM_FIRE | RES_ELEC | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
 S:1_IN_3 | 
 S:BR_FIRE | BR_NETH | BA_NETH | S_KIN |
 S:S_DEMON | S_HI_UNDEAD | S_CYBER 
@@ -14348,6 +15261,9 @@ F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | REGENERATE | RES_NETH |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_1D2 | DROP_GOOD |
 F:DROP_GREAT | RES_DISE | RES_CHAO | RES_DARK | RES_TELE | CAN_SWIM |
 F:EVIL | IM_FIRE | RES_POIS | RES_ELEC | RES_ACID | NO_CONF | NO_SLEEP | AURA_FEAR
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Mauler
+P:Body:Cthulhu
 S:1_IN_3
 S:TPORT | SCARE | BLIND | MIND_BLAST | BRAIN_SMASH | DRAIN_MANA |
 S:BR_POIS | BR_ACID | BR_FIRE | CONF | DARKNESS | FORGET | S_HI_UNDEAD |
@@ -14378,6 +15294,8 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
 F:EVIL | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_DARK |
 F:NO_CONF | NO_SLEEP | RES_TELE | POWERFUL |
+P:Copy:Amberite:Sorcerer
+P:Life:150
 S:1_IN_2 | 
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
 S:BRAIN_SMASH | FORGET |
@@ -14406,6 +15324,10 @@ F:SMART | KILL_BODY | POWERFUL | SELF_LITE_1 |
 F:REGENERATE | NONLIVING | CAN_FLY |
 F:GOOD | RES_ACID | RES_FIRE | IM_COLD | IM_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_STUN | RES_TELE | RIDING | AURA_FEAR
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Archon:Paladin
+P:Stats:1:0:3:1:0:3
+P:Body:Unicorn
 S:1_IN_3 | 
 S:SHRIEK | BR_SOUN | BR_LITE | BR_INER | BR_TIME | BR_SHAR | 
 S:BR_PLAS | BR_MANA | BR_DISI | DRAIN_MANA | HEAL | HASTE |
@@ -14469,6 +15391,10 @@ F:SMART | KILL_WALL | MOVE_BODY | AURA_COLD |
 F:REFLECTING | REGENERATE | POWERFUL |
 F:EVIL | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_DARK |
 F:NO_CONF | NO_SLEEP | AURA_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE | POS_SEE_INVIS | POS_TELEPATHY
+F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR
+P:Copy:Half-Giant:Mauler
+P:Life:120
 S:1_IN_3 | 
 S:BRAIN_SMASH | DISPEL | ANTI_MAGIC |
 S:BA_MANA | BO_MANA | BA_NETH | ANIM_DEAD 
@@ -14504,6 +15430,11 @@ F:SMART | KILL_WALL | KILL_BODY | POWERFUL |
 F:NONLIVING | CAN_FLY | RIDING | REGENERATE
 F:EVIL | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_STUN | RES_TELE | GUARDIAN |
+F:POS_GAIN_AC | POS_HOLD_LIFE | POS_SEE_INVIS | POS_TELEPATHY
+F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR
+P:Copy:Half-Giant:Mauler
+P:Life:125
+P:Body:Jormungand
 S:1_IN_3 | 
 S:S_MONSTERS | BR_CHAO | BA_CHAO | ROCKET | S_CYBER | S_KIN |
 S:BR_NETH | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
@@ -14570,6 +15501,8 @@ F:COLD_BLOOD | EMPTY_MIND | REGENERATE | BASH_DOOR | KILL_BODY | KILL_ITEM |
 F:ANIMAL | HURT_LITE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_TELE | RES_NETH | RES_DISE | RES_DARK |
 F:NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | 
+F:POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Hobbit:Rogue
 P:Body:Spider
 D:Small brown spiders that lurk in the darkness deep underground.
 D:  An individual would be nearly harmless, but their size allows many
@@ -14584,7 +15517,7 @@ W:90:8:999:70000:0:0
 B:TOUCH:UN_POWER:13d13
 B:TOUCH:UN_BONUS:13d13
 B:TOUCH:LOSE_ALL:13d13
-B:TOUCH:DR_MANA:100d100
+B:TOUCH:DR_MANA:13d13
 F:FORCE_MAXHP | NEVER_MOVE | 
 F:STUPID | KILL_EXP |
 F:CAN_SWIM | CAN_FLY | 
@@ -14594,6 +15527,9 @@ F:RES_LITE | RES_DARK | RES_NETH | RES_WATE | RES_PLAS | RES_SHAR | RES_SOUN |
 F:RES_CHAO | RES_NEXU | RES_DISE | RES_WALL | RES_INER | RES_TIME | RES_GRAV |
 F:RES_TELE | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | 
 F:WILD_WASTE | WILD_SWAMP | 
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Body:Jelly7
 S:1_IN_5
 S:HEAL | INVULNER | DISPEL | ANTI_MAGIC
 D:A thing like a massive, jet black oyster with four groping tendrils.
@@ -14606,6 +15542,9 @@ I:110:8d5:20:13:40:50
 W:8:2:50:25:0:0
 B:SHOOT:HURT:4d6
 F:NEVER_BLOW | RAND_25 | ANIMAL | WILD_WOOD |
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Culverin
 S:1_IN_1
 S:SHOOT |
 D:A many legged scuttling thing, it spits pebbles with deadly force.
@@ -14636,6 +15575,9 @@ B:CRUSH:HURT:2d8
 F:FORCE_MAXHP | STUPID | COLD_BLOOD | BASH_DOOR |
 F:ANIMAL | RES_WATE | CAN_SWIM | WILD_SHORE |
 F:WILD_OCEAN |
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Reptile
 D:"...Head something like a croc's, only bigger. Around forty
 D: feet long. Able to roll itself into a big beachball with teeth.
 D:  Fast on land or in water - and a hell of a lot of little legs
@@ -14675,6 +15617,11 @@ F:RES_ALL | POWERFUL | KILL_EXP |
 F:NO_CONF | NO_SLEEP | NO_STUN | EMPTY_MIND | RES_TELE |
 S:1_IN_1 |
 S:BLINK | BO_MANA | BA_CHAO | BA_FIRE | TPORT  | PSY_SPEAR
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | 
+F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR
+P:Copy:Sprite:Rogue
+P:Life:10
+P:Body:Babble
 
 N:872:The Yamata-no-Orochi
 G:M:v
@@ -14715,7 +15662,7 @@ F:RES_TELE | NO_CONF | NO_SLEEP | NO_STUN |
 F:DROP_CORPSE | POS_GAIN_AC
 S:1_IN_2 | 
 S:ROCKET | HEAL | BLINK | INVULNER
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
 D:His favorite food is roasting rice noodle. 
 D:He is the lone wolf filled with the adventurous spirit. 
 D:His righteousness and courage are more than the average. 
@@ -14737,11 +15684,15 @@ F:POWERFUL | MOVE_BODY | PASS_WALL | INVISIBLE |
 F:DRAGON | NO_CONF | NO_SLEEP | RES_TELE |
 F:RES_POIS | RES_COLD |
 F:RES_NETH | RES_NEXU | RES_DISE | RIDING |
+F:POS_DETECT_OBJECTS | POS_SEE_INVIS | POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Half-Titan:Beastmaster
+P:Stats:1:0:0:0:1:1
+P:Life:110
+P:Body:Dragon
 S:1_IN_3 |
 S:BR_NEXU | BR_NETH | BR_DISE |
 S:S_HI_DRAGON
 S:SCARE | BLINK | SHRIEK
-P:Body:Dragon
 D:The tortured soul of a once powerful wyrm.
 
 N:875:Storm troll
@@ -14772,6 +15723,9 @@ B:EXPLODE:FIRE:5d5
 F:RAND_50 | RAND_25 | CAN_SWIM |
 F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | 
 F:ANIMAL | HURT_LITE | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Worm
 D:A seething mass of thick, glowing worms.
 
 N:877:Bat of Gorgoroth
@@ -14806,6 +15760,9 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH | RES_DARK | HURT_LITE |
 F:NO_CONF | NO_SLEEP | RES_TIME | RES_TELE | REFLECTING |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_4 | 
 S:SCARE | S_KIN | WORLD | TELE_TO
 
@@ -14899,6 +15856,11 @@ F:SMART | KILL_WALL | KILL_BODY | POWERFUL |
 F:REGENERATE | NONLIVING | CAN_FLY |
 F:EVIL | RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_STUN | RES_TELE | NO_FEAR | AURA_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE | POS_SEE_INVIS | POS_TELEPATHY
+F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR
+P:Copy:Half-Giant:Mauler
+P:Life:125
+P:Body:Jormungand
 S:1_IN_3 | 
 S:S_MONSTERS | BR_CHAO | BA_CHAO | ROCKET | S_CYBER | S_KIN |
 S:BR_NETH | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
@@ -14942,6 +15904,7 @@ F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
 F:SMART | INVISIBLE | COLD_BLOOD | UNDEAD |
 F:EVIL | HURT_LITE | RES_NETH | RES_DARK | NO_CONF | NO_SLEEP |
+P:Copy:Dark-Elf:Mage
 S:1_IN_2 | 
 S:HEAL | BLINK | BLIND | CONF | CAUSE_3 | DARKNESS | 
 S:ANIM_DEAD | SHRIEK | TELE_AWAY | BA_DARK | DRAIN_MANA |
@@ -15036,7 +15999,7 @@ S:1_IN_2 |
 S:CAUSE_3 | BO_WATE | BO_MANA
 D:This once-mighty warrior was so dominated by Morgoth's power that he 
 D:became little more than a mindless creature of evil.
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
 
 N:892:Djinni
 G:P:b
@@ -15047,6 +16010,8 @@ B:HIT:HURT:8d4
 F:DROP_60 | WEIRD_MIND | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:TAKE_ITEM | GOOD | RES_ELEC | NO_CONF | NO_SLEEP |
 F:CAN_FLY |
+F:POS_SUST_STR
+P:Copy:Half-Giant:Mauler
 S:1_IN_6 |
 S:BO_ELEC | MISSILE | BLINK | S_MONSTER | BA_ELEC
 D:Supported by a whirlwind, the djinni turns to face you.
@@ -15059,6 +16024,8 @@ B:HIT:FIRE:8d4
 B:HIT:FIRE:8d4
 F:DROP_60 | AURA_FIRE | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | SELF_LITE_2 |
 F:EVIL | RES_FIRE | RES_PLAS | NO_CONF | NO_SLEEP |
+F:POS_SUST_STR
+P:Copy:Half-Giant:Mauler
 S:1_IN_6 |
 S:BO_FIRE | BO_PLAS | BA_FIRE
 D:Wrapped in fire, this giant red figure turns to face you.
@@ -15091,6 +16058,8 @@ B:SPIT:COLD:10d10
 B:GAZE:BLIND
 F:EMPTY_MIND | BASH_DOOR | RES_LITE | RES_TIME |
 F:RES_COLD | NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | FORCE_MAXHP
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
 S:1_IN_5
 S:BR_LITE | BA_COLD | BR_COLD | BO_ICEE | BO_COLD | BR_TIME | SHOOT
 D:Obsidian eyes stare at you as you bend before the shower of heavenly
@@ -15120,6 +16089,10 @@ B:ENGULF:HURT:6d6
 B:ENGULF:HURT:6d6
 F:FORCE_SLEEP | RAND_50 | EMPTY_MIND | BASH_DOOR | CAN_FLY |
 F:RES_SHAR | NO_FEAR | NO_CONF | NO_SLEEP | NO_STUN | POWERFUL | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-4:0:0:0:0:0
+P:Body:Vortex5
 S:1_IN_4 | 
 S:BR_SHAR
 D:A howling blast of razor-sharp mountain fragments, kept intact by perilous 
@@ -15230,6 +16203,8 @@ B:HIT:ELEC:4d4
 F:EMPTY_MIND | BASH_DOOR |
 F:RES_ELEC | RES_COLD | CAN_FLY |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:Lightning crackes around this huge animated cloud entity, sending shivers
 D:down your spine.
 
@@ -15243,6 +16218,8 @@ B:HIT:FIRE:6d4
 F:EMPTY_MIND | BASH_DOOR
 F:RES_FIRE | NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | KILL_BODY
 F:KILL_ITEM
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:It burns everything in its path with the heat its magma-like body
 D:produces.
 
@@ -15300,6 +16277,8 @@ B:HIT:HURT:3d10
 F:COLD_BLOOD | EMPTY_MIND | AQUATIC | NONLIVING
 F:RES_FIRE | RES_COLD | RES_POIS | RES_WATE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
 D:An ingenious gnomish invention -- a golem designed for underwater
 D:usage.
 
@@ -15320,6 +16299,9 @@ I:120:10d7:25:25:5:10
 W:15:2:50:50:0:0
 F:NEVER_BLOW | NEVER_MOVE | NO_SLEEP | NO_FEAR | NO_CONF | CAN_FLY
 F:RES_COLD | RES_FIRE | RES_POIS | RES_ACID | ONLY_ITEM | DROP_60 | NONLIVING
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Body:Orb
 S:1_IN_1
 S:MISSILE
 D:A metallic ball floating in the air, that turns to track you with evil
@@ -15449,6 +16431,9 @@ B:BITE:HURT:1d8
 F:FEMALE | AQUATIC | RES_WATE |
 F:ONLY_ITEM | DROP_90 | DROP_2D2 |
 F:EVIL | NO_CONF | NO_SLEEP | SMART
+F:POS_SEE_INVIS
+P:Copy:Demigod:Priest
+P:Body:Naga
 S:1_IN_7 |
 S:DARKNESS | CAUSE_4 | BO_ICEE
 D:A naga adapted to underwater life. She has a fish-like tail and a pair
@@ -15469,6 +16454,9 @@ F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DEMON | IM_FIRE | IM_POIS | RES_DARK |
 F:NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
+P:Body:Demogorgon
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
 S:BA_DARK | BO_NETH | BR_NETH | BR_DARK | BR_NUKE | BR_POIS | HAND_DOOM |
@@ -15485,6 +16473,8 @@ F:NONLIVING | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
 F:RES_LITE | RES_DARK | RES_NETH | RES_WATE | RES_PLAS | RES_SHAR | RES_SOUN |
 F:RES_CHAO | RES_DISE | RES_WALL | RES_INER | RES_TIME | RES_GRAV | RES_TELE |
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP | CAN_FLY |
+P:Copy:Snotling:Tourist
+P:Body:Eye2
 S:1_IN_3 |
 S:HOLD | BLIND | CONF | SCARE | SLOW
 
@@ -15511,6 +16501,7 @@ B:TOUCH:COLD:3d5
 B:TOUCH:COLD:3d5
 B:TOUCH:COLD:3d5
 F:FEMALE | RES_COLD | DROP_1D2 | NONLIVING | AURA_COLD |
+P:Copy:Dunadan:Warrior-Mage
 S:1_IN_5
 S:BR_COLD | BO_COLD | BA_COLD
 
@@ -15737,6 +16728,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | RES_NETH | RES_PLAS |
 F:EVIL | RES_FIRE | NO_CONF | NO_SLEEP
+P:Copy:Dark-Elf:Chaos-Warrior
 S:1_IN_3 |
 S:S_DEMON | BA_CHAO | BO_PLAS | BR_FIRE | BR_PLAS
 
@@ -15809,6 +16801,9 @@ F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH | RES_DARK |
 F:HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
+P:Stats:0:0:0:0:0:1
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST | 
 S:BO_COLD | BA_COLD | BA_NETH | 
@@ -15828,6 +16823,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | SELF_LITE_1 |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DEMON | RES_FIRE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
 S:1_IN_4 | 
 S:BLIND | CONF | 
 S:BR_FIRE | 
@@ -15846,6 +16843,8 @@ F:RES_COLD | RES_POIS |
 F:NO_CONF | NO_SLEEP | DROP_SKELETON | RIDING
 S:1_IN_10
 S:BR_NETH
+F:POS_DETECT_OBJECTS | POS_GAIN_AC
+P:Copy:Barbarian:Beastmaster
 P:Body:Dragon
 D:An undead dragon skeleton.
 
@@ -15862,6 +16861,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | CAN_FLY |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
 S:1_IN_4 | 
 S:HEAL | HASTE | TELE_AWAY | BO_MANA | BO_PLAS | CAUSE_4 |
 S:S_MONSTERS | S_ANGEL | INVULNER | PSY_SPEAR | S_DRAGON | DISPEL | ANTI_MAGIC
@@ -15881,6 +16882,8 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | CAN_FLY |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_BLESSING | POS_HEROISM | POS_MAPPING
+P:Copy:Archon:Paladin
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_4 | BO_MANA | PSY_SPEAR | INVULNER
 S:S_ANGEL | S_DRAGON | BA_LITE | HEAL | DISPEL | ANTI_MAGIC
@@ -15912,6 +16915,9 @@ F:UNIQUE | FORCE_MAXHP | EVIL | FORCE_SLEEP | CAN_SPEAK | DEMON |
 F:ONLY_ITEM | DROP_3D2 | DROP_1D2 | DROP_GOOD | KILL_BODY |
 F:IM_FIRE | RES_ELEC | RES_POIS | POWERFUL | ESCORT | SELF_LITE_2 |
 F:NO_SLEEP | NO_CONF | OPEN_DOOR | CAN_FLY | REGENERATE |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
+P:Body:Demonic Horror
 S:1_IN_3 |
 S:BR_FIRE | DISPEL | ANTI_MAGIC | BR_POIS | BO_PLAS | BR_PLAS | BA_FIRE |
 S:CONF | SCARE | HOLD | S_DEMON | HEAL
@@ -15928,6 +16934,8 @@ F:UNIQUE | FORCE_MAXHP | FORCE_SLEEP | CAN_SPEAK | DEMON |
 F:ONLY_ITEM | DROP_3D2 | DROP_1D2 | DROP_GOOD | MOVE_BODY |
 F:IM_COLD | RES_ELEC | RES_POIS | POWERFUL |
 F:NO_SLEEP | NO_CONF | OPEN_DOOR | CAN_FLY | REGENERATE |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Balrog:Chaos-Warrior
 S:1_IN_3 |
 S:BR_COLD | DISPEL | ANTI_MAGIC | BR_POIS | BA_COLD | BO_ICEE |
 S:CONF | SCARE | HOLD | S_DEMON
@@ -15972,6 +16980,7 @@ F:ONLY_ITEM | DROP_3D2 | DROP_2D2 | DROP_GOOD | HAS_LITE_2 |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS |
 F:RES_WATE | RES_NETH | RES_DISE | HUMAN |
 F:NO_SLEEP | NO_CONF | OPEN_DOOR | CAN_SWIM | REGENERATE |
+P:Copy:Amberite:Paladin
 S:1_IN_5 |
 S:BO_MANA | BA_FIRE | BA_COLD | BA_ELEC | BA_ACID | BO_ICEE | BO_PLAS |
 S:BO_WATE | BA_WATE | PSY_SPEAR | CAUSE_3 | CAUSE_4 |
@@ -16007,6 +17016,9 @@ F:ONLY_GOLD | DROP_90 |
 F:EMPTY_MIND | BASH_DOOR | REFLECTING |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_ACID |
 F:NO_CONF | NO_SLEEP | NONLIVING
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Beetle
 
 N:952:Kamikaze hound
 G:Z:o
@@ -16017,6 +17029,8 @@ F:FORCE_SLEEP |
 F:FRIENDS |
 F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Kutar:Rogue
 P:Body:Hound
 
 N:953:Broken death sword
@@ -16102,6 +17116,9 @@ B:EXPLODE:FIRE:10d2
 F:RES_ACID | RES_COLD | RES_ELEC | RES_POIS |
 F:NEVER_MOVE | MULTIPLY |
 F:EMPTY_MIND | NO_FEAR | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Jelly5
 D:A mysterious red jelly thing.  It looks ready to explode.
 
 N:959:Blue puyo
@@ -16112,6 +17129,9 @@ B:EXPLODE:COLD:10d2
 F:RES_ACID | RES_FIRE | RES_ELEC | RES_POIS |
 F:NEVER_MOVE | MULTIPLY |
 F:EMPTY_MIND | NO_FEAR | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Jelly5
 D:A mysterious blue jelly thing.  It looks ready to explode.
 
 N:960:Yellow puyo
@@ -16122,6 +17142,9 @@ B:EXPLODE:ELEC:10d2
 F:RES_ACID | RES_FIRE | RES_COLD | RES_POIS |
 F:NEVER_MOVE | MULTIPLY |
 F:EMPTY_MIND | NO_FEAR | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Jelly5
 D:A mysterious yellow jelly thing.  It looks ready to explode.
 
 N:961:Green puyo
@@ -16132,6 +17155,9 @@ B:EXPLODE:ACID:10d2
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:NEVER_MOVE | MULTIPLY |
 F:EMPTY_MIND | NO_FEAR | NO_CONF | NO_SLEEP
+F:POS_GAIN_AC
+P:Copy:Barbarian:Warrior
+P:Body:Jelly5
 D:A mysterious green jelly thing.  It looks ready to explode.
 
 N:962:Slime Mold
@@ -16509,6 +17535,7 @@ B:HIT:CONFUSE:6d8
 F:FORCE_MAXHP | 
 F:COLD_BLOOD | OPEN_DOOR | CAN_FLY |
 F:EVIL | UNDEAD | RES_COLD | RES_POIS | RES_NETH | NO_CONF | NO_SLEEP |
+P:Copy:Dunadan:Priest
 S:1_IN_5
 S:BLIND | HOLD | SCARE | CAUSE_4 | BO_NETH | S_UNDEAD
 
@@ -16532,6 +17559,9 @@ B:CLAW:HURT:1d10
 B:BITE:POISON:1d10
 F:FORCE_SLEEP | ANIMAL |
 F:BASH_DOOR | WILD_MOUNTAIN |
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Dragon
 
 N:985:Unicorn
 G:q:W
@@ -16675,6 +17705,8 @@ B:HIT:ACID:8d4
 B:HIT:ACID:8d4
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:EVIL | RES_ACID | RES_SHAR | RES_DISE | NO_CONF | NO_SLEEP |
+F:POS_SUST_STR
+P:Copy:Half-Giant:Mauler
 S:1_IN_6 |
 S:BO_ACID | BO_PLAS | BA_ACID
 D:A Dao is a genie from the elemental plane of Earth.
@@ -16687,6 +17719,8 @@ B:HIT:HURT:9d6
 B:HIT:HURT:9d6
 F:DROP_60 | WEIRD_MIND | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:RES_COLD | RES_WATE | NO_CONF | NO_SLEEP |
+F:POS_SUST_STR
+P:Copy:Half-Giant:Mauler
 S:1_IN_6 |
 S:BO_WATE | BA_WATE | BLINK | S_MONSTER
 D:The marid are said to be born of the ocean, 
@@ -16702,6 +17736,9 @@ B:WAIL:TERRIFY
 F:ESCORTS | FORCE_MAXHP | RES_COLD | RES_ACID | ANIMAL |
 F:SMART | ESCORT | FEMALE | 
 F:OPEN_DOOR | BASH_DOOR | 
+F:POS_GAIN_AC
+P:Copy:Barbarian:Beastmaster
+P:Body:Hound
 S:1_IN_5 | 
 S:DARKNESS
 D:She commands a pack of wargs in the service of her dark master, and her 
@@ -16838,6 +17875,8 @@ F:FORCE_MAXHP | CAN_SPEAK |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | RES_NETH
 F:UNDEAD | NO_SLEEP
+F:POS_SEE_INVIS | POS_HOLD_LIFE
+P:Copy:Hobbit:Warrior
 D:He has only three hair. He is careless, but kind, and always a bit hungry.
 
 N:1004:Pip, the Braver from Another World
@@ -16898,6 +17937,10 @@ B:BITE:HURT:1d2
 F:RAND_50 | RAND_25 | RES_DISE | RES_POIS | 
 F:MULTIPLY | WEIRD_MIND | BASH_DOOR | TAKE_ITEM
 F:ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Tourist
+P:Life:60
+P:Body:Scrawny
 D:Oh no! They are everywhere!
 
 N:1008:Demonologist
@@ -16932,6 +17975,8 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | RES_FIRE | RES_COLD | RES_NETH | RES_DARK |
 F:IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BA_FIRE | BA_NETH | 
 S:S_MONSTERS | S_UNDEAD | S_HOUND
@@ -16948,6 +17993,8 @@ F:FORCE_MAXHP | FORCE_SLEEP |
 F:CAN_FLY | UNIQUE2 |
 F:TAKE_ITEM | OPEN_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Archon:Rogue
 S:1_IN_3 | 
 S:TPORT | HASTE | TELE_AWAY | TELE_LEVEL | BLINK
 D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel! 
@@ -16962,6 +18009,8 @@ F:FORCE_MAXHP | FORCE_SLEEP |
 F:CAN_FLY | UNIQUE2 |
 F:TAKE_ITEM | OPEN_DOOR |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Archon:Rogue
 S:1_IN_3 | 
 S:TPORT | HASTE | TELE_AWAY | TELE_LEVEL | BLINK
 D:Collect 5 marks of Silver Angel or 1 mark of Gold Angel! 
@@ -16976,6 +18025,8 @@ B:TOUCH:LOSE_WIS
 F:NEVER_MOVE | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | CAN_FLY |
 F:EVIL | UNDEAD | RES_COLD | RES_POIS | RES_NETH | NO_CONF | NO_SLEEP
+F:POS_SEE_INVIS
+P:Copy:Barbarian:Warrior
 D:A lost soul of an adventurer still lingering in this world.
 
 N:1013:Rolento
@@ -17029,6 +18080,9 @@ B:EXPLODE:HURT:30d2
 F:EMPTY_MIND | COLD_BLOOD |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING | RES_TELE
+F:POS_GAIN_AC | POS_DETECT_MONSTERS
+P:Copy:Hobbit:Rogue
+P:Body:Spider
 D:It is a small bomb of a form like a spider. 
 D:It walks toward you!
 
@@ -17039,6 +18093,10 @@ W:1:3:20:3:0:0
 B:EXPLODE:HURT:1d2
 F:RAND_50 | CAN_FLY |
 F:WEIRD_MIND | ANIMAL
+F:POS_GAIN_AC
+P:Copy:Snotling:Warrior
+P:Life:50
+P:Body:Scrawny
 
 N:1018:Raou the Conqueror
 G:p:W
@@ -17116,7 +18174,7 @@ D:He looks like brawny human being apparently.
 D:However, unlike man, it has the tail of a monkey. 
 D:This tail proves he is a Saiyan. 
 D:A Saiyan's fighting power is far superior to human's and will bring many destruction.
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
 
 N:1023:Hand grenade
 G:{:r
@@ -17162,6 +18220,8 @@ F:ONLY_GOLD | DROP_3D2 | DROP_4D2 |
 F:COLD_BLOOD | PASS_WALL | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:EVIL | UNDEAD | RES_COLD | IM_POIS | RES_NETH |
 F:NO_STUN | NO_CONF | NO_SLEEP | RES_TELE |
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Vampire:Beastmaster
 S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | DARKNESS |
 S:BO_ICEE | BO_NETH | BA_COLD | BA_NETH | BA_WATE |
@@ -17232,6 +18292,8 @@ B:CLAW:HURT:3d5
 B:CLAW:HURT:3d5
 F:OPEN_DOOR | DEMON | CAN_SPEAK | NONLIVING |
 F:EVIL | RAND_25 | RES_COLD | RES_FIRE | RES_POIS | CAN_SWIM |
+F:POS_HOLD_LIFE | POS_SEE_INVIS
+P:Copy:Imp:Rogue
 S:1_IN_6 |
 S:BR_COLD
 D:A demon small in stature whose face you can't help but love.
@@ -17500,6 +18562,10 @@ F:FORCE_SLEEP | NEVER_BLOW |
 F:RAND_50 | RAND_25 | CAN_FLY |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | KILL_WALL | KILL_ITEM |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Zombie:Rage-Mage
+P:Stats:-3:0:0:0:0:0
+P:Body:Vortex8
 S:1_IN_6 | 
 S:BR_DISI
 
@@ -17613,7 +18679,6 @@ F:EVIL | GIANT | ESCORT | RES_SHAR | RES_SOUN | RES_TIME |
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:DROP_CORPSE | POS_SUST_STR
 P:Copy:Half-Titan:Mauler
-P:Life:110
 S:1_IN_4 |
 S:BR_FIRE | BR_COLD | BR_SHAR | BR_SOUN |
 S:S_MONSTERS | S_KIN | TELE_TO | HEAL | THROW
@@ -17631,6 +18696,7 @@ F:FORCE_MAXHP | FORCE_SLEEP | NO_FEAR | GOOD |
 F:ONLY_ITEM | DROP_2D2 | NONLIVING | 
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | 
 F:RES_FIRE | RES_COLD | RES_POIS | NO_CONF | NO_SLEEP | RES_TELE | 
+P:Copy:Dark-Elf:Warrior-Mage
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | CONF | SCARE | TPORT | BLINK
 D:A shabby humanoid with a wrinkled skin. It seems to shift 
@@ -17727,6 +18793,9 @@ F:DROP_60 | DROP_4D2 |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_TELE | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH | RES_DARK | HURT_LITE | 
 F:NO_CONF | NO_SLEEP |
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_DETECT_MONSTERS | POS_MAPPING | POS_IDENTIFY
+P:Copy:Vampire:Rogue
+P:Body:Vampire
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | BA_NETH
 S:BRAIN_SMASH | DARKNESS | BO_NETH | S_UNDEAD | BA_DARK
@@ -17745,6 +18814,7 @@ F:UNIQUE | MALE | CAN_SPEAK | UNDEAD |
 F:FORCE_MAXHP | WILD_TOWN | WILD_ONLY |
 F:OPEN_DOOR | BASH_DOOR | 
 F:RES_NETH | NO_CONF | NO_SLEEP
+P:Copy:Yeek:Tourist
 S:1_IN_4 |
 S:TELE_AWAY
 D:He weighs 127 kg. He is the president of some remote country. 
@@ -17758,6 +18828,8 @@ F:UNIQUE | MALE | GIANT | CAN_SPEAK | HUMAN |
 F:FORCE_MAXHP | WILD_TOWN | WILD_ONLY
 F:OPEN_DOOR | BASH_DOOR | HAS_LITE_1 |
 F:NO_CONF | NO_SLEEP
+F:POS_GAIN_AC | POS_BERSERK
+P:Copy:Half-Troll:Tourist
 D:Brazen faced this creature is more impudent than normal troll.
 
 N:1061:Barney the Dinosaur
@@ -17849,6 +18921,9 @@ B:CRUSH:HURT:6d6
 B:CRAWL:POISON:4d4
 F:FRIENDS | ANIMAL | CAN_SWIM | WEIRD_MIND
 F:RES_POIS | RES_DARK | RES_WATE
+F:POS_GAIN_AC
+P:Copy:Kobold:Warrior
+P:Body:Octopus
 S:1_IN_4 | BR_DARK
 
 N:1066:Great Bile Wyrm
@@ -17883,6 +18958,9 @@ B:HIT:HURT:1d5
 B:CRUSH:HURT:1d6
 F:TAKE_ITEM | OPEN_DOOR | DROP_CORPSE | RAND_25
 F:ANIMAL | TANUKI
+F:POS_GAIN_AC
+P:Copy:Human:Warrior
+P:Body:Horse
 D:Tanuki (raccoon dog) is thought to bewitch people in Japanese. 
 D:Tanuki can disguise as human beings by putting a magic leaf on his/her head.
 
@@ -18055,7 +19133,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR
 S:1_IN_6 |
 S:S_ANT | S_SPIDER
 D:He is one of chiefs of Nanman. He is also good beast master.
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
 
 N:1078:Wutugu, the Chief of Southerings
 G:P:u
@@ -18133,6 +19211,9 @@ B:BITE:HURT:9d9
 F:FORCE_MAXHP | ANIMAL | CAN_FLY
 F:REGENERATE | BASH_DOOR | RES_FIRE | RES_COLD | RES_ELEC |
 F:RES_POIS | NO_CONF | NO_SLEEP | RIDING
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Klackon:Warrior
+P:Body:Horse
 D:A denizen of nothern climes.  It stares at you menacingly.
 
 N:1082:Death Beast
@@ -18203,6 +19284,9 @@ F:FORCE_SLEEP
 F:NONLIVING | COLD_BLOOD |
 F:RES_ALL | POWERFUL | FORCE_MAXHP |
 F:NO_CONF | NO_SLEEP | NO_STUN | EMPTY_MIND | RES_TELE |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Warrior
+P:Life:120
 S:1_IN_5 |
 S:BR_DISI
 D:An enormous figure made by powerful magic.  Slow, but
@@ -18220,6 +19304,10 @@ F:FORCE_SLEEP
 F:NONLIVING | COLD_BLOOD | UNIQUE
 F:RES_ALL | POWERFUL | FORCE_MAXHP |
 F:NO_CONF | NO_SLEEP | NO_STUN | EMPTY_MIND | RES_TELE |
+F:POS_GAIN_AC | POS_HOLD_LIFE
+P:Copy:Golem:Mauler
+P:Life:120
+P:Body:Monk
 S:1_IN_3 |
 S:BA_MANA | BR_DISI | BR_CHAO | PSY_SPEAR | DISPEL | S_KIN
 D:A giant figure of a man, shaped from bronze.  Your spells
@@ -18233,6 +19321,7 @@ W:80:4:999:5000:0:0
 B:HIT:HURT:50d30
 F:RAND_50 | RAND_25 | FORCE_MAXHP
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | AURA_REVENGE
+P:Copy:Tonberry:Warrior
 D:This sluggish lizard-like being approaches you with a large knife brandished. 
 D:You have trouble taking this monster seriously, as it repeatedly seems to trip 
 D:over its own feet. Yet you don't remember any tales of heroes who's fought one and lived...
@@ -18244,6 +19333,7 @@ I:125:20d100:30:150:30:90
 W:80:7:999:5000:0:0
 B:HIT:EAT_ITEM:30d15
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | AURA_REVENGE | THIEF
+P:Copy:Tonberry:Ninja
 D:This sluggish lizard-like being approaches you with a large knife brandished. 
 D:It is cloaked in brown, and attempting to hide in the shadows ... not very well
 D:though.  But perhaps now is not the time to laugh?
@@ -18256,6 +19346,7 @@ B:HIT:HURT:70d30
 F:RAND_50 | RAND_25 | FORCE_MAXHP | UNIQUE
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT
 F:NO_CONF | NO_SLEEP | AURA_REVENGE
+P:Copy:Tonberry:Beastmaster
 S:1_IN_3 |
 S:S_KIN | HEAL | TPORT | TELE_LEVEL
 D:This sluggish lizard-like being approaches you with a large knife brandished. 
@@ -18364,6 +19455,10 @@ F:OLYMPIAN | REGENERATE | CAN_SWIM
 F:RES_SHAR | RES_DISE | RES_CHAO
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | IM_ELEC
 F:NO_STUN | NO_CONF | NO_SLEEP | POWERFUL | AURA_FEAR
+F:POS_SUST_STR
+P:Copy:Half-Titan:Warrior-Mage
+P:Stats:2:2:2:2:2:2
+P:Life:110
 S:1_IN_3 | 
 S:BR_ELEC | BR_DISE | HASTE | TELE_TO | S_KIN | SPECIAL
 S:PSY_SPEAR | DISPEL | ANTI_MAGIC | TPORT | ROCKET | BR_CHAO
@@ -18387,6 +19482,9 @@ F:SMART | TAKE_ITEM | BASH_DOOR | HAS_LITE_2 |
 F:OLYMPIAN | REGENERATE | POWERFUL | CAN_SWIM
 F:RES_FIRE | IM_ACID | RES_POIS | RES_ELEC | RES_COLD
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+P:Copy:Half-Titan:Beastmaster
+P:Stats:1:0:0:1:1:2
+P:Life:105
 S:1_IN_3 | 
 S:BA_WATE | SPECIAL | BR_DISI
 D:Poseidon, Brother of Zeus, Lord of the Seas and Storm. Entire
@@ -18411,6 +19509,9 @@ F:PASS_WALL | POWERFUL | CAN_SWIM
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:RES_NETH | RES_DARK | RES_DISE | RES_TELE
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+P:Copy:Half-Titan:Blood-Knight
+P:Stats:2:0:0:0:3:2
+P:Life:110
 S:1_IN_3 | 
 S:BR_DARK | BR_NETH | BA_NETH |
 S:HAND_DOOM | SPECIAL | BR_DISI
@@ -18435,6 +19536,8 @@ F:POWERFUL | CAN_SWIM
 F:RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:RES_SHAR | RES_SOUN | RES_LITE
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+P:Copy:Half-Titan:Priest
+P:Stats:0:0:3:0:0:3
 S:1_IN_2 | 
 S:SPECIAL | PSY_SPEAR | HASTE | HEAL | INVULNER
 S:BA_MANA | TELE_TO | TELE_AWAY
@@ -18457,6 +19560,9 @@ F:OLYMPIAN | REGENERATE | REFLECTING
 F:POWERFUL | CAN_SWIM
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR | NO_FEAR
+F:POS_GAIN_AC
+P:Copy:Half-Titan:Mauler
+P:Stats:1:0:3:1:0:0
 S:1_IN_5 | 
 S:TELE_TO | SPECIAL
 D:Ares is the bold son of Zeus and Hera, whose very name is
@@ -18480,6 +19586,9 @@ F:OLYMPIAN | REGENERATE | WEIRD_MIND
 F:POWERFUL | CAN_SWIM
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+P:Copy:Half-Titan:Rogue
+P:Stats:0:0:0:7:0:0
+P:Skills:0:0:0:7:0:0:0:0
 S:1_IN_3 | 
 S:HASTE | SLOW | DISPEL | BR_TIME | BR_NEXU | TPORT
 S:TELE_TO | TELE_AWAY | PSY_SPEAR | S_KIN | HEAL
@@ -18506,6 +19615,8 @@ F:POWERFUL | CAN_SWIM
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS
 F:RES_LITE | RES_SOUN | RES_DISE
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+P:Copy:Half-Titan:Priest
+P:Stats:0:0:3:0:0:3
 S:1_IN_3 | 
 S:BA_LITE | BLINK | BR_LITE | SPECIAL
 
@@ -18523,6 +19634,8 @@ F:POWERFUL | CAN_SWIM
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS
 F:RES_LITE | RES_SOUN | RES_DISE
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+P:Copy:Half-Titan:Ranger
+P:Stats:0:0:2:0:0:0
 S:1_IN_2
 S:BLINK | SHOOT | HEAL | SPECIAL
 
@@ -18540,6 +19653,9 @@ F:POWERFUL | CAN_SWIM
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:RES_SOUN | RES_SHAR | RES_CHAO
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+F:POS_GAIN_AC
+P:Copy:Half-Titan:Mauler
+P:Stats:3:0:0:0:0:0
 S:1_IN_5 | 
 S:ROCKET | HEAL | TPORT | TELE_TO | SPECIAL
 
@@ -18559,6 +19675,8 @@ F:OLYMPIAN | REGENERATE |
 F:RES_DISE | RES_CHAO | POWERFUL
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:NO_STUN | NO_CONF | NO_SLEEP | CAN_SWIM | AURA_FEAR
+P:Copy:Half-Titan:Priest
+P:Stats:0:0:4:0:0:4
 S:1_IN_2 | 
 S:BA_MANA | BO_MANA | BA_LITE | HASTE | TELE_TO | SPECIAL |
 S:PSY_SPEAR | DISPEL | ANTI_MAGIC | TPORT | BLINK
@@ -18579,6 +19697,8 @@ F:OLYMPIAN | REGENERATE | CAN_SWIM
 F:RES_DISE | RES_CHAO | POWERFUL
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+P:Copy:Half-Titan:Beastmaster
+P:Stats:0:0:0:0:0:3
 S:1_IN_3 | 
 S:HEAL | TPORT | BLINK | SPECIAL
 
@@ -18598,6 +19718,8 @@ F:OLYMPIAN | REGENERATE | REFLECTING
 F:RES_DISE | RES_CHAO | CAN_SWIM
 F:RES_FIRE | RES_COLD | RES_ACID | RES_POIS | RES_ELEC
 F:NO_STUN | NO_CONF | NO_SLEEP | POWERFUL | AURA_FEAR
+P:Copy:Half-Titan:Beastmaster
+P:Stats:0:0:0:0:0:7
 S:1_IN_3 | 
 S:HEAL | BLINK | S_UNIQUE | S_KIN | TPORT
 
@@ -18643,6 +19765,11 @@ F:RES_ALL | POWERFUL | KILL_EXP |
 F:NO_CONF | NO_SLEEP | NO_STUN | EMPTY_MIND | RES_TELE |
 S:1_IN_1 |
 S:BLINK | BO_MANA | BA_CHAO | BA_FIRE | TPORT  | PSY_SPEAR
+F:POS_GAIN_AC | POS_SEE_INVIS | POS_HOLD_LIFE | 
+F:POS_SUST_STR | POS_SUST_INT | POS_SUST_WIS | POS_SUST_DEX | POS_SUST_CON | POS_SUST_CHR
+P:Copy:Sprite:Rogue
+P:Life:10
+P:Body:Babble
 
 N:1111:Arthur Pendragon
 G:p:r
@@ -18845,7 +19972,7 @@ S:1_IN_3 | SCARE
 D:A human, covered in bleached leather and decorated with
 D:bones of foes defeated.  The sight of him puts fear 
 D:into your heart.
-P:Copy:Human:Mystic
+P:Copy:Human:Beastmaster
 
 N:1121:Grand Fearlord
 G:p:U
@@ -18863,7 +19990,7 @@ S:1_IN_2 | SCARE | S_KIN | TELE_TO
 D:A human, covered in bone armor and decorated with the
 D:shriveled, preserved eyeballs of foes defeated.  The 
 D:sight of him strikes terror into your soul.
-P:Copy:Demigod:Mystic
+P:Copy:Demigod:Beastmaster
 
 N:1122:The Questing Beast
 G:q:v
@@ -18877,6 +20004,9 @@ F:FORCE_MAXHP | OPEN_DOOR | BASH_DOOR |
 F:ONLY_ITEM | DROP_GOOD | DROP_GREAT | DROP_2D2 |
 F:SMART | REGENERATE | NO_CONF | NO_SLEEP |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_POIS | RES_COLD | CAMELOT
+F:POS_GAIN_AC
+P:Copy:Dunadan:Paladin
+P:Body:Questing Beast
 S:1_IN_3 |
 S:BLINK | HEAL | SHRIEK | SCARE | CONF | BLIND |
 S:MIND_BLAST | BR_CHAO | BR_NEXU
@@ -18898,6 +20028,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | 
 S:S_DEMON
+F:POS_SEE_INVIS | POS_TELEPATHY
+P:Copy:Human:Sorcerer
+P:Stats:0:0:0:0:0:10
 P:Body:Quylthulg
 D:A massive pile of pulsing flesh that glows with an inner hellish fire.
 D:You suddenly feel very uncertain.
@@ -18972,6 +20105,8 @@ F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE | RES_NETH | MALE | SMART
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | EVIL | AURA_ELEC |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | TAKE_ITEM | CAN_SPEAK |
 F:IM_ELEC | RES_POIS | NO_CONF | NO_SLEEP | GIANT | REGENERATE
+F:POS_SUST_STR
+P:Copy:Half-Titan:Mauler
 S:1_IN_2 |
 S:BR_ELEC | BR_STORM | THROW
 S:TELE_TO | TELE_AWAY | TPORT 
@@ -19027,7 +20162,17 @@ F:NONLIVING | REGENERATE | FEMALE | EVIL | DEMON |
 F:FORCE_MAXHP | OPEN_DOOR | 
 F:DROP_60 | ONLY_ITEM | 
 F:RES_POIS | RES_FIRE | RES_CHAO
+F:POS_HOLD_LIFE | POS_SEE_INVIS | POS_GAIN_AC
+P:Copy:Imp:Warrior
 P:Body:Marilith
+
+#Base form for the Mimic
+N:1131:Mimic
+G:@:w
+I:110:1d1:4:1:40:60
+W:50:0:0:0:10:14
+P:Copy:Human:Imitator
+F:CAN_SWIM
 
 # N: serial number : monster name
 # G: symbol : color

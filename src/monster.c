@@ -16,6 +16,13 @@ equip_template_ptr mon_get_equip_template(void)
     return &b_info[r_ptr->body.body_idx];
 }
 
+cptr mon_name(int r_idx)
+{
+    if (r_idx)
+        return r_name + r_info[r_idx].name;
+    return ""; /* Birth Menu */
+}
+
 class_t *monster_get_class_t(void)
 {
     static class_t me = {0};

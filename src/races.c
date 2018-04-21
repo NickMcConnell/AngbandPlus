@@ -36,6 +36,7 @@ int get_race_idx(cptr name)
             case RACE_MON_GOLEM:
             case RACE_MON_QUYLTHULG:
             case RACE_MON_POSSESSOR:
+            case RACE_MON_MIMIC:
             case RACE_MON_VAMPIRE:
                 continue;
             }
@@ -177,6 +178,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
         break;
     case RACE_MON_LICH:
         result = mon_lich_get_race_t();
+        break;
+    case RACE_MON_MIMIC:
+        result = mon_mimic_get_race_t();
         break;
     case RACE_MON_POSSESSOR:
         result = mon_possessor_get_race_t();

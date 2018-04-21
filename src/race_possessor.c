@@ -5,13 +5,6 @@ static int _calc_level(int l)
     return l + l*l*l/2500;
 }
 
-static cptr _mon_name(int r_idx)
-{
-    if (r_idx)
-        return r_name + r_info[r_idx].name;
-    return ""; /* Birth Menu */
-}
-
 static void _birth(void) 
 { 
     object_type forge;
@@ -38,7 +31,7 @@ static int _get_toggle(void)
 int possessor_get_toggle(void)
 {
     int result = TOGGLE_NONE;
-    if (p_ptr->prace == RACE_MON_POSSESSOR)
+    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
         result = _get_toggle();
     return result;
 }
@@ -95,7 +88,7 @@ static bool _blow_is_masked(monster_blow *blow_ptr)
     switch (blow_ptr->method)
     {
     case 0:
-    case RBM_EXPLODE:
+    /*case RBM_EXPLODE:*/
     case RBM_SHOOT:
         return TRUE;
 
@@ -125,7 +118,7 @@ static bool _blow_is_masked(monster_blow *blow_ptr)
     return FALSE;
 }
 
-static void _calc_innate_attacks(void)
+void possessor_calc_innate_attacks(void)
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     monster_blow  blows[4] = {0};
@@ -285,6 +278,12 @@ static void _calc_innate_attacks(void)
             a.name = "Voice";
             a.weight = MIN(r_ptr->weight / 20, 100);
             break;
+        case RBM_EXPLODE:
+            a.msg = "You explode!";
+            a.name = "Explosion";
+            a.flags |= INNATE_EXPLODE;
+            a.weight = MIN(r_ptr->weight / 2, 100);
+            break;
         }
         if (a.weight < 10) /* 1 lb minimum ... */
             a.weight = 10;
@@ -421,7 +420,7 @@ static void _possess_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
 
         if ( p_ptr->current_r_idx != MON_POSSESSOR_SOUL 
-          && !get_check("Your current body will be destroyed. Are you sure? ") )
+          && !get_check("Your current body may be destroyed. Are you sure? ") )
         {
             return;
         }
@@ -444,8 +443,22 @@ static void _possess_spell(int cmd, variant *res)
             msg_format("You are not powerful enough to possess %s (Lvl %d).", o_name, r_info[copy.pval].level);
             return;
         }
-        else
-            msg_format("You possess %s.", o_name);
+
+        msg_format("You possess %s.", o_name);
+        if (p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+        {
+            if (one_in_(3))
+            {
+                object_type forge;
+                object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
+                apply_magic(&forge, object_level, AM_NO_FIXED_ART);
+                forge.pval = p_ptr->current_r_idx;
+                forge.weight = MIN(500*10, MAX(40, r_info[p_ptr->current_r_idx].weight * 10));
+                drop_near(&forge, -1, py, px);
+            }
+            else
+                msg_print("Your previous body quickly decays!");
+        }
 
         /* Order is important. Changing body forms may result in illegal
            equipment being placed in the pack, invalidating the item index.
@@ -463,22 +476,7 @@ static void _possess_spell(int cmd, variant *res)
             floor_item_optimize(0 - item);
         }
         o_ptr = NULL;
-
-        p_ptr->current_r_idx = copy.pval;
-        if (p_ptr->exp > possessor_max_exp())
-        {
-            p_ptr->exp = possessor_max_exp();
-            check_experience();
-        }
-        else
-            restore_level();
-
-        p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-        p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP | PR_EQUIPPY;
-
-        /* Apply the new body type to our equipment */
-        equip_on_change_race();
-
+        possessor_set_current_r_idx(copy.pval);
         var_set_bool(res, TRUE);
         break;
     }
@@ -487,7 +485,49 @@ static void _possess_spell(int cmd, variant *res)
         break;
     }
 }
+static void _unpossess_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Unpossess");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Leave your current body, returning to your native form. Your current body may be destroyed in the process.");
+        break;
+    case SPELL_CAST:
+    {
+        var_set_bool(res, FALSE);
+        if (p_ptr->current_r_idx == MON_POSSESSOR_SOUL) return; /* paranoia */
 
+        if (get_check("Your current body may be destroyed. Are you sure? "))
+        {
+            int old_r_idx = p_ptr->current_r_idx;
+            monster_race *old_r_ptr = &r_info[old_r_idx];
+
+            msg_print("You leave your current body!");
+            if (one_in_(3))
+            {
+                object_type forge;
+                object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
+                apply_magic(&forge, object_level, AM_NO_FIXED_ART);
+                forge.pval = old_r_idx;
+                forge.weight = MIN(500*10, MAX(40, old_r_ptr->weight * 10));
+                drop_near(&forge, -1, py, px);
+            }
+            else
+                msg_print("Your previous body quickly decays!");
+
+            possessor_set_current_r_idx(MON_POSSESSOR_SOUL);
+            var_set_bool(res, TRUE);
+        }
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
 /**********************************************************************
  * Innate Powers
  **********************************************************************/
@@ -700,13 +740,11 @@ static void _add_power(spell_info* spell, int lvl, int cost, int fail, ang_spell
     spell->fn = fn;
 }
 
-static int _get_powers(spell_info* spells, int max)
+int possessor_get_powers(spell_info* spells, int max)
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     int           ct = 0;
 
-    if (ct < max)
-        _add_power(&spells[ct++], 1, 0, 0, _possess_spell, p_ptr->stat_ind[A_DEX]);
     if (ct < max && (r_ptr->flags1 & RF1_TRUMP))
         _add_power(&spells[ct++], 1, 0, 0, blink_toggle_spell, p_ptr->stat_ind[A_DEX]);
     if (ct < max && (r_ptr->flags2 & RF2_MULTIPLY))
@@ -715,6 +753,8 @@ static int _get_powers(spell_info* spells, int max)
         _add_power(&spells[ct++], 1, 1, 10, _shriek_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_SHOOT))
         _add_power(&spells[ct++], 2, 1, 15, shoot_arrow_spell, p_ptr->stat_ind[A_DEX]);
+    if (ct < max && r_ptr->d_char == 'V')
+        _add_power(&spells[ct++], 2, 1, 60, vampirism_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_THROW))
         _add_power(&spells[ct++], 5, 0, 50, throw_boulder_spell, p_ptr->stat_ind[A_STR]);
     if (ct < max && (r_ptr->flags9 & RF9_POS_BERSERK))
@@ -743,6 +783,8 @@ static int _get_powers(spell_info* spells, int max)
         _add_power(&spells[ct++], 20, 15, 70, _breathe_chaos_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_DISE))
         _add_power(&spells[ct++], 20, 5, 70, _breathe_disenchantment_spell, p_ptr->stat_ind[A_CON]);
+    if (ct < max && (r_ptr->body.class_idx == CLASS_MAGE || r_ptr->body.class_idx == CLASS_HIGH_MAGE))
+        _add_power(&spells[ct++], 25, 1, 90, eat_magic_spell, p_ptr->stat_ind[A_INT]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_NUKE))
         _add_power(&spells[ct++], 25, 0, 70, _breathe_nuke_spell, p_ptr->stat_ind[A_CON]);
     if (ct < max && (r_ptr->flags4 & RF4_BR_SHAR))
@@ -773,6 +815,18 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
+static int _get_powers(spell_info* spells, int max)
+{
+    int ct = 0;
+
+    if (ct < max)
+        _add_power(&spells[ct++], 1, 0, 0, _possess_spell, p_ptr->stat_ind[A_DEX]);
+    if (ct < max && p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+        _add_power(&spells[ct++], 1, 0, 0, _unpossess_spell, p_ptr->stat_ind[A_DEX]);
+
+    ct += possessor_get_powers(spells + ct, max - ct);
+    return ct;
+}
 /**********************************************************************
  * Spells
  **********************************************************************/
@@ -818,7 +872,7 @@ static void _add_spell(spell_info* spell, int lvl, int cost, int fail, ang_spell
     spell->fn = fn;
 }
 
-static int _get_spells(spell_info* spells, int max) 
+int possessor_get_spells(spell_info* spells, int max) 
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     int           ct = 0;
@@ -995,7 +1049,7 @@ static int _get_spells(spell_info* spells, int max)
     return ct;
 }
 
-static caster_info * _caster_info(void)
+caster_info *possessor_caster_info(void)
 {
     static caster_info me = {0};
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
@@ -1058,7 +1112,7 @@ static void _ac_bonus_imp(int slot)
     }
 }
 
-static void _calc_bonuses(void) 
+void possessor_calc_bonuses(void) 
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     int           r_lvl = MAX(1, r_ptr->level);
@@ -1135,6 +1189,8 @@ static void _calc_bonuses(void)
     if (r_ptr->flags9 & RF9_POS_TELEPATHY)
         p_ptr->telepathy = TRUE;
     if (r_ptr->flags9 & RF9_POS_SEE_INVIS)
+        p_ptr->see_inv = TRUE;
+    if (r_ptr->flags2 & RF2_INVISIBLE)
         p_ptr->see_inv = TRUE;
 
     if (r_ptr->flags9 & RF9_POS_SUST_STR)
@@ -1234,10 +1290,18 @@ static void _calc_bonuses(void)
     if (r_ptr->flagsr & RFR_RES_TELE)
         res_add(RES_TELEPORT);
     if (r_ptr->flagsr & RFR_RES_ALL)
+    {
         res_add_all();
+        p_ptr->magic_resistance = 95;
+    }
+
+    if (strchr("sGLVWz", r_ptr->d_char))
+        p_ptr->no_cut = TRUE;
+    if (strchr("sg", r_ptr->d_char))
+        p_ptr->no_stun = TRUE;
 }
 
-static void _get_flags(u32b flgs[TR_FLAG_SIZE]) 
+void possessor_get_flags(u32b flgs[TR_FLAG_SIZE]) 
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
 
@@ -1332,7 +1396,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     }
 }
 
-static void _get_immunities(u32b flgs[TR_FLAG_SIZE]) 
+void possessor_get_immunities(u32b flgs[TR_FLAG_SIZE]) 
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
     if (r_ptr->flagsr & RFR_IM_ACID)
@@ -1347,7 +1411,7 @@ static void _get_immunities(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_RES_POIS);
 }
 
-static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
+void possessor_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
 {
     monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
 
@@ -1362,12 +1426,57 @@ static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
 /**********************************************************************
  * Public
  **********************************************************************/
+void possessor_init_race_t(race_t *race_ptr, int default_r_idx)
+{
+static int    last_r_idx = -1;
+int           r_idx = p_ptr->current_r_idx, i;
+
+    if (!r_idx) /* Birthing menus. p_ptr->prace not chosen yet. _birth() not called yet. */
+        r_idx = default_r_idx; 
+
+    if (r_idx != last_r_idx)
+    {
+        monster_race *r_ptr;
+    
+        if (p_ptr->current_r_idx == r_idx) /* Birthing menus. current_r_idx = 0 but r_idx = default_r_idx. */
+            last_r_idx = r_idx;            /* BTW, the game really needs a "current state" concept ... */
+
+        r_ptr = &r_info[r_idx];
+
+        race_ptr->base_hp = 15;
+
+        race_ptr->get_spells = NULL;
+        race_ptr->caster_info = NULL;
+        if (r_ptr->body.spell_stat != A_NONE)
+        {
+            race_ptr->get_spells = possessor_get_spells;
+            race_ptr->caster_info = possessor_caster_info;
+        }
+
+        race_ptr->infra = r_ptr->body.infra;
+
+        race_ptr->life = r_ptr->body.life;
+        if (!race_ptr->life)
+            race_ptr->life = 100;
+    
+        race_ptr->equip_template = mon_get_equip_template();
+
+        for (i = 0; i < MAX_STATS; i++)
+            race_ptr->stats[i] = r_ptr->body.stats[i];
+
+        race_ptr->skills = r_ptr->body.skills;
+        race_ptr->extra_skills = r_ptr->body.extra_skills;
+
+        race_ptr->pseudo_class_idx = r_ptr->body.class_idx;
+
+        race_ptr->subname = mon_name(r_idx);
+    }
+}
+
 race_t *mon_possessor_get_race_t(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static int    last_r_idx = -1;
-    int           r_idx = p_ptr->current_r_idx, i;
 
     if (!init)
     {
@@ -1395,58 +1504,19 @@ race_t *mon_possessor_get_race_t(void)
 
         me.get_powers = _get_powers;
 
-        me.calc_bonuses = _calc_bonuses;
-        me.get_flags = _get_flags;
-        me.get_immunities = _get_immunities;
-        me.get_vulnerabilities = _get_vulnerabilities;
+        me.calc_bonuses = possessor_calc_bonuses;
+        me.get_flags = possessor_get_flags;
+        me.get_immunities = possessor_get_immunities;
+        me.get_vulnerabilities = possessor_get_vulnerabilities;
         me.player_action = _player_action;
         
-        me.calc_innate_attacks = _calc_innate_attacks;
+        me.calc_innate_attacks = possessor_calc_innate_attacks;
 
         me.flags = RACE_IS_MONSTER;
         init = TRUE;
     }
 
-    if (!r_idx)
-        r_idx = MON_POSSESSOR_SOUL; /* Birth hack ... */
-
-    if (r_idx != last_r_idx)
-    {
-        monster_race *r_ptr;
-    
-        if (p_ptr->current_r_idx == r_idx) /* Birth hack ... */
-            last_r_idx = r_idx;
-
-        r_ptr = &r_info[r_idx];
-
-        me.base_hp = 15;
-
-        me.get_spells = NULL;
-        me.caster_info = NULL;
-        if (r_ptr->body.spell_stat != A_NONE)
-        {
-            me.get_spells = _get_spells;
-            me.caster_info = _caster_info;
-        }
-
-        me.infra = r_ptr->body.infra;
-
-        me.life = r_ptr->body.life;
-        if (!me.life)
-            me.life = 100;
-    
-        me.equip_template = mon_get_equip_template();
-
-        for (i = 0; i < MAX_STATS; i++)
-            me.stats[i] = r_ptr->body.stats[i];
-
-        me.skills = r_ptr->body.skills;
-        me.extra_skills = r_ptr->body.extra_skills;
-
-        me.pseudo_class_idx = r_ptr->body.class_idx;
-
-        me.subname = _mon_name(r_idx);
-    }
+    possessor_init_race_t(&me, MON_POSSESSOR_SOUL);
     return &me;
 }
 
@@ -1491,24 +1561,77 @@ void possessor_on_take_hit(void)
             else
                 msg_print("Your previous body quickly decays!");
 
-            p_ptr->current_r_idx = MON_POSSESSOR_SOUL;
-            p_ptr->chp = p_ptr->mhp;
+            possessor_set_current_r_idx(MON_POSSESSOR_SOUL);
+            p_ptr->chp = p_ptr->mhp; /* Be kind. This effect is nasty! */
             p_ptr->chp_frac = 0;
-            if (p_ptr->exp > possessor_max_exp())
-            {
-                p_ptr->exp = possessor_max_exp();
-                check_experience();
-            }
-            else
-                restore_level();
-
-            p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
-            p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP | PR_EQUIPPY;
-            equip_on_change_race();
         }
         else
         {
             msg_print("You struggle to maintain possession of your current body!");
         }
+    }
+}
+
+void possessor_set_current_r_idx(int r_idx)
+{
+    if (r_idx != p_ptr->current_r_idx)
+    {
+        int old_r_idx = p_ptr->current_r_idx;
+        p_ptr->current_r_idx = r_idx;
+        lore_do_probe(r_idx);
+
+        if (p_ptr->exp > possessor_max_exp())
+        {
+            p_ptr->exp = possessor_max_exp();
+            check_experience();
+        }
+        else
+            restore_level();
+
+        p_ptr->update |= PU_BONUS | PU_HP | PU_MANA;
+        p_ptr->redraw |= PR_MAP | PR_BASIC | PR_MANA | PR_EXP | PR_EQUIPPY;
+
+        /* Apply the new body type to our equipment */
+        equip_on_change_race();
+
+        /* Switching from native form to a magical form should not start out with 0sp!
+           Note: p_ptr->msp is often a stale old value, suppressed elsewhere in the code. */
+        if (old_r_idx == MON_MIMIC)
+        {
+            handle_stuff();
+        
+            p_ptr->csp = p_ptr->msp;
+            p_ptr->csp_frac = 0;
+            p_ptr->redraw |= PR_MANA;
+            p_ptr->window |= PW_PLAYER | PW_SPELL;
+        }
+    }
+}
+
+void possessor_explode(int dam)
+{
+    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+    {
+        int           i;
+        monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+
+        for (i = 0; i < 4; i++)
+        {
+            if (r_ptr->blow[i].method == RBM_EXPLODE)
+            {
+                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+                int typ = mbe_info[r_ptr->blow[i].effect].explode_type;
+                project(0, 3, py, px, dam, typ, flg, -1);
+                break;
+            }
+        }
+
+        if (p_ptr->prace == RACE_MON_MIMIC)
+            possessor_set_current_r_idx(MON_MIMIC);
+        else
+            possessor_set_current_r_idx(MON_POSSESSOR_SOUL);
+
+        take_hit(DAMAGE_NOESCAPE, dam, "Exploding", -1);
+        set_stun(p_ptr->stun + 10, FALSE);
     }
 }

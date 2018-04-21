@@ -1,118 +1,136 @@
-=== General Information ===
-
-This document gives a brief introduction to PosChengband. You will probably
-want to browse through all the "help files", especially the sections on
-available commands (see command.txt [b] and commdesc.txt [c]), before
-beginning any serious adventuring...
-
-
-The game of PosChengband is a single player dungeon simulation. A player
-may choose from a number of races, classes and magic realms when
-creating a character (see birth.hlp [d]), and then "run" that
-character over a period of days, weeks, even months. Deep down inside,
-the real objective of the game is to increase your experience, and
-certain other characteristics, and also to collect useful items, to
-give you a decent chance against the great Serpent of Chaos, who lurks
-somewhere in the depths of the dungeon.
-
+  [[[[B|General Information
+  
+  This document gives a brief introduction to PosChengband. You will probably
+  want to browse through all the "help files", especially the sections on
+  available commands (see command.txt [b] and commdesc.txt [c]), before
+  beginning any serious adventuring.
+  
+  
+  The game of PosChengband is a single player dungeon simulation. A player
+  may choose from a number of races, classes and magic realms when
+  creating a character (see birth.hlp [d]), and then "run" that
+  character over a period of days, weeks, even months. Deep down inside,
+  the real objective of the game is to increase your experience, and
+  certain other characteristics, and also to collect useful items, to
+  give you a decent chance against the great Serpent of Chaos, who lurks
+  somewhere in the depths of the dungeon.
+  
 ***** <First>
---- First Place to Go ---
+  [[[[r|First Place to Go
+  
+  The player will begin his adventure on the town level where he may
+  acquire supplies, weapons, armor, and magical devices by bartering
+  with various shop owners. After preparing for his adventure, the
+  player can descend into the dungeon where fantastic adventures await
+  his coming!
+  
+  We recommend that you first explore the initial levels of Camelot.
+  The entrance to this dungeon, populated by Humans, Dragons and the
+  mythical Knights of the Round Table, is located next to your starting
+  position in the town of Outpost. The dungeon is fairly deep, though, 
+  and it will take quite some time to become powerful enough to defeat
+  Arthur Pendragon. (While he is not the most powerful of the Knights, 
+  he does command great support). By the time you are comfortable at
+  level 10, you might consider switching to the Orc Caves. To do so
+  will require you to leave Outpost and enter the wilderness outside.
+  Be sure to carry lots of food and fuel, for the journey can be a long
+  one.
+  
+  [[[[r|Wilderness
 
-The player will begin his adventure on the town level where he may
-acquire supplies, weapons, armor, and magical devices by bartering
-with various shop owners. After preparing for his adventure, the
-player can descend into the dungeon where fantastic adventures await
-his coming!
+  Your adventures take place in a large and dangerous wilderness. Fortunately,
+  you begin your journey in the relative safety of the town of Outpost. But
+  beware, even inside the town walls the wilderness is not far off. Dangerous 
+  monsters do occasionally wander in to town!
 
-We recommend that you first explore the initial levels of Camelot.
-The entrance to this dungeon, populated by Humans, Dragons and the
-mythical Knights of the Round Table, is located next to your starting
-position in the town of Outpost. The dungeon is fairly deep, though, 
-and it will take quite some time to become powerful enough to defeat
-Arthur Pendragon. (While he is not the most powerful of the Knights, 
-he does command great support). By the time you are comfortable at
-level 10, you might consider switching to the Orc Caves. To do so
-will require you to leave Outpost and enter the wilderness outside.
-Be sure to carry lots of food and fuel, for the journey can be a long
-one.
+  When you are ready to begin exploring the wilderness, you will need ample 
+  supplies of light and food. Also, if you intent is to journey to another town 
+  or to locate a new dungeon entrance, you will want to use the special global 
+  map mode for wilderness travel. Entering and leaving this special mode uses
+  the "stair climbing" keys as an abstraction: 
+  
+  [[[[G| Press '<' to enter the global wilderness map and '>' to leave it.
 
---- The Global Map ---
+  However, entering the global map is blocked if foes are nearby. Also, while 
+  traveling in the global map mode, beware of ambushes. These are more likely 
+  at night and occur more frequently away from the relative safety of the 
+  wilderness roads. Ambushes can be very deadly so be prepared with some means
+  of teleportation to escape.
 
-[[[[G|Press the '<' key, and you see all of the world!
-
-Since this world is very large, it is convenient to go into global map
-mode by pressing the '<' key, and then return to local map mode by '>'
-key when you are at the destination.  When in the wilderness, stay in
-safe grids such as roads or plains; seas and lava fields are best
-avoided for a while.
-
-Many towns and dungeons await you; good ones to explore early on
-include the Orc Caves and the Labyrinth.  To the northeast of the town
-of Morivant, near the center of the map, is the dread dungeon of
-Angband.  It is home to the Serpent of Chaos, whom you must kill in
-order to win the game. (see town.txt [f])
-
+  Inside the global map mode, you may look about ('l' command) to locate the 
+  towns and dungeon entrances. Pay attention to the the danger level of the
+  various tiles when walking about. This is displayed as you use the look 
+  command and indicates safe areas of travel as well as places better avoided
+  (for the time being, at least).
+  
+  Many towns and dungeons await you; good ones to explore early on
+  include the Orc Caves and the Labyrinth.  To the northeast of the town
+  of Morivant, near the center of the map, is the dread dungeon of
+  Angband.  It is home to the Serpent of Chaos, whom you must kill in
+  order to win the game. (see town.txt [f])
+  
 ***** <Winning>
---- Winning The Game ---
-
-Once your character has killed Oberon, who lives on level 99 (4950')
-in the dungeon, a magical staircase will appear that will finally
-allow you to reach level 100. The Serpent of Chaos lurks on this level
-of his dungeon, and you will not be able to go below his level until
-you have killed him. Try to avoid wandering around on level 100 unless
-you are ready for him, since it has a habit of coming at you across
-the dungeon, to slay you for your impudence.
-
-The Serpent of Chaos cannot be killed by some of the easier methods
-used on normal creatures. The Serpent of Chaos, like all other
-"Unique" monsters, will simply teleport away to another region of the
-level if you attempt to use a spell such as destruction is upon
-it. The Serpent of Chaos, like some other monsters, cannot be
-polymorphed, slept, charmed, or genocided. Magical spells like Mana
-Storm and Orb of Draining are effective against it, as are some of the
-more powerful weapons, but it is difficult to kill and if allowed to
-escape for a time it will heal itself rapidly.
-
-If you should actually survive the attempt of killing the Serpent of
-Chaos, you will receive the status of WINNER. You may continue to
-explore, and may even save the game and play more later, but since you
-have defeated the toughest creature alive, there is really not much
-point. Unless you wish to listen to the rumors of a powerful ring
-buried somewhere in the dungeon...
-
-When you are ready to retire, simply "commit suicide" ("^K") to have
-your character entered into the high score list as a winner. Note that
-until you retire, you can still be killed, so you may want to retire
-before wandering into a hoard of Cyberdemons...
-
-
+  [[[[r|Winning The Game
+  
+  Once your character has killed Oberon, who lives on level 99 (4950')
+  in the dungeon, a magical staircase will appear that will finally
+  allow you to reach level 100. The Serpent of Chaos lurks on this level
+  of his dungeon, and you will not be able to go below his level until
+  you have killed him. Try to avoid wandering around on level 100 unless
+  you are ready for him, since it has a habit of coming at you across
+  the dungeon, to slay you for your impudence.
+  
+  The Serpent of Chaos cannot be killed by some of the easier methods
+  used on normal creatures. The Serpent of Chaos, like all other
+  "Unique" monsters, will simply teleport away to another region of the
+  level if you attempt to use a spell such as destruction is upon
+  it. The Serpent of Chaos, like some other monsters, cannot be
+  polymorphed, slept, charmed, or genocided. Magical spells like Mana
+  Storm and Orb of Draining are effective against it, as are some of the
+  more powerful weapons, but it is difficult to kill and if allowed to
+  escape for a time it will heal itself rapidly.
+  
+  If you should actually survive the attempt of killing the Serpent of
+  Chaos, you will receive the status of WINNER. You may continue to
+  explore, and may even save the game and play more later, but since you
+  have defeated the toughest creature alive, there is really not much
+  point. Unless you wish to listen to the rumors of a powerful ring
+  buried somewhere in the dungeon...
+  
+  When you are ready to retire, simply "commit suicide" ("^K") to have
+  your character entered into the high score list as a winner. Note that
+  until you retire, you can still be killed, so you may want to retire
+  before wandering into a hoard of Cyberdemons...
+  
+  
 ***** <UponDeath>
---- Upon Death and Dying ---
-
-If your character falls below 0 hit points, he has died and cannot be
-restored. You can write last word for posting on the Internet after
-which time, a tombstone showing information about your character will
-be displayed. You are also permitted to get a record of your character, 
-and all your equipment (identified) either on the screen or in a file. 
-
-Whether your character is killed or you retire victorious, it will
-leave behind a reduced save file, which contains only the monster
-memory (see attack.txt#MonsterMemory [e]) and your option choices. It
-may be restored, in which case the new character is generated exactly
-as if the file was not there, but the new player will find his monster
-memory containing all the experience of past incarnations.
- 
---
-Original   : (??)
-Updated    : (??)
-Updated    : Zangband DevTeam
-Updated    : Hengband 1.5.4
-Updated    : PosChengband 1.0.0
-
+  [[[[r|Upon Death and Dying
+  
+  If your character falls below 0 hit points, he has died and cannot be
+  restored. You can write last word for posting on the Internet after
+  which time, a tombstone showing information about your character will
+  be displayed. You are also permitted to get a record of your character, 
+  and all your equipment (identified) either on the screen or in a file. 
+  
+  Whether your character is killed or you retire victorious, it will
+  leave behind a reduced save file, which contains only the monster
+  memory (see attack.txt#MonsterMemory [e]) and your option choices. It
+  may be restored, in which case the new character is generated exactly
+  as if the file was not there, but the new player will find his monster
+  memory containing all the experience of past incarnations.
+   
+  --
+  Original   : (??)
+  Updated    : (??)
+  Updated    : Zangband DevTeam
+  Updated    : Hengband 1.5.4
+  Updated    : PosChengband 1.0.0
+  
 ***** Begin Hyperlinks
-***** [b] birth.hlp
+***** [b] command.txt
 ***** [c] commdesc.txt
-***** [d] charattr.txt
+***** [d] birth.hlp
 ***** [e] attack.txt#MonsterMemory
 ***** [f] town.txt
-
+  
+  

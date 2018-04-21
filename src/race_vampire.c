@@ -244,7 +244,7 @@ void _grasp_spell(int cmd, variant *res)
     }
 }
 
-static void _equip_shuffle(cptr tag)
+void equip_shuffle(cptr tag)
 {
     int i;
     for (i = INVEN_PACK - 1; i >= 0; i--)
@@ -300,7 +300,7 @@ static void _polymorph_undo_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         _set_mimic_form(MIMIC_NONE);
-        _equip_shuffle("vampire");
+        equip_shuffle("@vampire");
         msg_print("You revert to your natural form.");
         var_set_bool(res, TRUE);
         break;
@@ -322,7 +322,7 @@ static void _polymorph_bat_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         _set_mimic_form(MIMIC_BAT);
-        _equip_shuffle("bat");
+        equip_shuffle("@bat");
         msg_print("You transform into a vampire bat!");
         var_set_bool(res, TRUE);
         break;
@@ -344,7 +344,7 @@ static void _polymorph_mist_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         _set_mimic_form(MIMIC_MIST);
-        _equip_shuffle("mist");
+        equip_shuffle("@mist");
         msg_print("You transform into vampiric mist!");
         var_set_bool(res, TRUE);
         break;
@@ -366,7 +366,7 @@ static void _polymorph_wolf_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
         _set_mimic_form(MIMIC_WOLF);
-        _equip_shuffle("wolf");
+        equip_shuffle("@wolf");
         msg_print("You transform into a dire wolf!");
         var_set_bool(res, TRUE);
         break;

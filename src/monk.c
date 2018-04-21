@@ -245,7 +245,7 @@ static bool _monk_check_spell(void)
 {
     if (p_ptr->pclass == CLASS_WILD_TALENT)
         return TRUE;
-    if (p_ptr->prace == RACE_MON_POSSESSOR && !p_ptr->weapon_ct)
+    if ((p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC) && !p_ptr->weapon_ct)
         return TRUE;
     if (!p_ptr->weapon_info[0].bare_hands)
     {

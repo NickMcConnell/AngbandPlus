@@ -1994,6 +1994,8 @@ extern race_t *vampire_get_race_t(void);
 extern race_t *yeek_get_race_t(void);
 extern race_t *zombie_get_race_t(void);
 
+extern void equip_shuffle(cptr tag); /* For shapeshifters ... */
+
 /* Monster Races */
 extern race_t *mon_angel_get_race_t(void);
 extern race_t *mon_beholder_get_race_t(void);
@@ -2007,6 +2009,7 @@ extern race_t *mon_hydra_get_race_t(void);
 extern race_t *mon_jelly_get_race_t(void);
 extern race_t *mon_leprechaun_get_race_t(void);
 extern race_t *mon_lich_get_race_t(void);
+extern race_t *mon_mimic_get_race_t(void);
 extern race_t *mon_possessor_get_race_t(void);
 extern race_t *mon_quylthulg_get_race_t(void);
 extern race_t *mon_ring_get_race_t(void);
@@ -2032,6 +2035,20 @@ extern bool    possessor_can_gain_exp(void);
 extern int     possessor_get_toggle(void);
 extern s32b    possessor_max_exp(void);
 extern void    possessor_on_take_hit(void);
+extern void    possessor_calc_innate_attacks(void);
+extern int     possessor_get_powers(spell_info* spells, int max);
+extern int     possessor_get_spells(spell_info* spells, int max);
+extern 
+caster_info   *possessor_caster_info(void);
+extern void    possessor_calc_bonuses(void);
+extern void    possessor_get_flags(u32b flgs[TR_FLAG_SIZE]);
+extern void    possessor_get_immunities(u32b flgs[TR_FLAG_SIZE]);
+extern void    possessor_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]);
+extern void    possessor_set_current_r_idx(int r_idx);
+extern void    possessor_explode(int dam);
+extern void    possessor_init_race_t(race_t *race_ptr, int default_r_idx);
+extern void    mimic_dispel_player(void);
+extern void    mimic_on_kill_monster(int r_idx);
 
 extern bool    giant_is_favorite(object_type *o_ptr);
 extern void    jelly_eat_object(object_type *o_ptr);
@@ -2165,6 +2182,7 @@ extern class_t *imitator_get_class_t(void);
 extern void     spellbook_character_dump(FILE *fff);
 extern class_t *mage_get_class_t(void);
 extern equip_template_ptr mon_get_equip_template(void);
+extern cptr     mon_name(int r_idx);
 extern class_t *monk_get_class_t(void);
 extern void     monk_posture_calc_bonuses(void);
 extern void     monk_ac_bonus(void);

@@ -5946,6 +5946,21 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
     return FALSE;
 }
 
+enum monster_mode_e
+{
+    MONSTER_MODE_STATS,
+    MONSTER_MODE_SKILLS,
+    MONSTER_MODE_EXTRA,
+    MONSTER_MODE_MAX
+};
+static int monster_mode = MONSTER_MODE_STATS;
+
+static void _prt_equippy(int col, int row, int tval, int sval)
+{
+    int k_idx = lookup_kind(tval, sval);
+    object_kind *k_ptr = &k_info[k_idx];
+    Term_putch(col, row, k_ptr->x_attr, k_ptr->x_char);
+}
 
 /*
  * Display the monsters in a group.
@@ -5993,6 +6008,122 @@ static void display_monster_list(int col, int row, int per_page, s16b mon_idx[],
             /* Display kills */
             if (!(r_ptr->flags1 & RF1_UNIQUE)) put_str(format("%5d", r_ptr->r_pkills), row + i, 73);
             else c_put_str((r_ptr->max_num == 0 ? TERM_L_DARK : TERM_WHITE), (r_ptr->max_num == 0 ? " dead" : "alive"), row + i, 73);
+
+            /* Only Possessors get the extra body info display */
+            if (p_ptr->wizard || p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+            {
+                /* And then, they must learn about the body first. (Or be a cheating wizard :) */
+                if ((p_ptr->wizard || (r_ptr->r_xtra1 & MR1_POSSESSOR)) && r_ptr->body.life)
+                {
+                    char buf[255];
+                    equip_template_ptr body = &b_info[r_ptr->body.body_idx];
+                    if (monster_mode == MONSTER_MODE_STATS)
+                    {
+                        int j;
+                        for (j = 0; j < 6; j++)
+                        {                      
+                            sprintf(buf, "%+3d", r_ptr->body.stats[j]);
+                            c_put_str(j == r_ptr->body.spell_stat ? TERM_L_GREEN : TERM_WHITE,
+                                      buf, row + i, 80 + j * 5);
+                        }
+                        sprintf(buf, "%+3d%%", r_ptr->body.life);
+                        c_put_str(TERM_WHITE, buf, row + i, 110);
+
+                        for (j = 0; j < body->count; j++)
+                        {
+                            int c = 116 + j;
+                            int r = row + i;
+                            switch (body->slots[j].type)
+                            {
+                            case EQUIP_SLOT_GLOVES:
+                                _prt_equippy(c, r, TV_GLOVES, SV_SET_OF_GAUNTLETS);
+                                break;
+                            case EQUIP_SLOT_WEAPON_SHIELD:
+                                if (body->slots[j].hand % 2)
+                                    _prt_equippy(c, r, TV_SHIELD, SV_LARGE_METAL_SHIELD);
+                                else
+                                    _prt_equippy(c, r, TV_SWORD, SV_LONG_SWORD);
+                                break;
+                            case EQUIP_SLOT_WEAPON:
+                                _prt_equippy(c, r, TV_SWORD, SV_LONG_SWORD);
+                                break;
+                            case EQUIP_SLOT_RING:         
+                                _prt_equippy(c, r, TV_RING, 0);
+                                break;
+                            case EQUIP_SLOT_BOW:          
+                                _prt_equippy(c, r, TV_BOW, SV_LONG_BOW);
+                                break;
+                            case EQUIP_SLOT_AMULET:       
+                                _prt_equippy(c, r, TV_AMULET, 0);
+                                break;
+                            case EQUIP_SLOT_LITE:         
+                                _prt_equippy(c, r, TV_LITE, SV_LITE_FEANOR);
+                                break;
+                            case EQUIP_SLOT_BODY_ARMOR:   
+                                _prt_equippy(c, r, TV_HARD_ARMOR, SV_CHAIN_MAIL);
+                                break;
+                            case EQUIP_SLOT_CLOAK:        
+                                _prt_equippy(c, r, TV_CLOAK, SV_CLOAK);
+                                break;
+                            case EQUIP_SLOT_BOOTS:        
+                                _prt_equippy(c, r, TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS);
+                                break;
+                            case EQUIP_SLOT_HELMET:       
+                                _prt_equippy(c, r, TV_HELM, SV_IRON_HELM);
+                                break;
+                            case EQUIP_SLOT_ANY:             
+                                Term_putch(c, r, TERM_WHITE, '*');
+                                break;
+                            case EQUIP_SLOT_CAPTURE_BALL:
+                                _prt_equippy(c, r, TV_CAPTURE, 0);
+                                break;
+                            }
+                        }
+                    }
+                    else if (monster_mode == MONSTER_MODE_SKILLS)
+                    {
+                        sprintf(buf, "%2d+%-2d  %2d+%-2d  %2d+%-2d  %4d  %4d  %4d  %2d+%-2d  %2d+%-2d\n", 
+                            r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis, 
+                            r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev, 
+                            r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
+                            r_ptr->body.skills.stl, 
+                            r_ptr->body.skills.srh, 
+                            r_ptr->body.skills.fos,
+                            r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn, 
+                            r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
+                        );
+                        c_put_str(TERM_WHITE, buf, row + i, 80);
+                    }
+                    else if (monster_mode == MONSTER_MODE_EXTRA)
+                    {
+                        int speed = 0;
+                        int ac = 0;
+
+                        /* Copied from race_possessor.c _calc_bonuses() */
+                        if (r_ptr->flags9 & RF9_POS_GAIN_AC)
+                            ac = r_ptr->ac;
+                    
+                        if (r_ptr->speed != 110)
+                        {
+                            speed = (int)r_ptr->speed - 110;
+
+                            if (speed > 0)
+                            {
+                                if (strchr("ghknoOpPTVWz", r_ptr->d_char))
+                                    speed /= 3;
+                                if (strchr("H", r_ptr->d_char))
+                                    speed = speed * 2/3;
+                            }
+                        }
+
+                        sprintf(buf, "%3d  %3d  %+5d  %+4d  %s", 
+                            r_ptr->level, MAX(15, r_ptr->level + 5), speed, ac,
+                            get_class_t_aux(r_ptr->body.class_idx, 0)->name
+                        );
+                        c_put_str(TERM_WHITE, buf, row + i, 80);
+                    }
+                }
+            }
         }
     }
 
@@ -6102,6 +6233,32 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
             prt("Sym", 4, 68);
             if (!visual_only) prt("Kills", 4, 73);
 
+            if (p_ptr->wizard || p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+            {
+                char buf[255];
+                if (monster_mode == MONSTER_MODE_STATS)
+                {
+                    sprintf(buf, "STR  INT  WIS  DEX  CON  CHR  Life  Body");    
+                    c_put_str(TERM_WHITE, buf, 4, 80);
+                    for (i = 78; i < 130; i++)
+                        Term_putch(i, 5, TERM_WHITE, '=');
+                }
+                else if (monster_mode == MONSTER_MODE_SKILLS)
+                {
+                    sprintf(buf, "Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows");
+                    c_put_str(TERM_WHITE, buf, 4, 80);
+                    for (i = 78; i < 130; i++)
+                        Term_putch(i, 5, TERM_WHITE, '=');
+                }
+                else if (monster_mode == MONSTER_MODE_EXTRA)
+                {
+                    sprintf(buf, "Lvl  Max  Speed    AC  Pseudo-Class");
+                    c_put_str(TERM_WHITE, buf, 4, 80);
+                    for (i = 78; i < 130; i++)
+                        Term_putch(i, 5, TERM_WHITE, '=');
+                }
+            }
+
             for (i = 0; i < 78; i++)
             {
                 Term_putch(i, 5, TERM_WHITE, '=');
@@ -6159,11 +6316,23 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
         }
 
         /* Prompt */
-        prt(format("<dir>%s%s%s, ESC",
-            (!visual_list && !visual_only) ? ", 'r' to recall" : "",
-            visual_list ? ", ENTER to accept" : ", 'v' for visuals",
-            (attr_idx || char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"),
-            hgt - 1, 0);
+        if (p_ptr->wizard || p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
+        {
+            prt(format("<dir>%s%s%s%s, ESC",
+                (!visual_list && !visual_only) ? ", '?' to recall" : "",
+                visual_list ? ", ENTER to accept" : ", 'v' for visuals",
+                (attr_idx || char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy",
+                ", '=' for more info"),
+                hgt - 1, 0);
+        }
+        else
+        {
+            prt(format("<dir>%s%s%s, ESC",
+                (!visual_list && !visual_only) ? ", '?' to recall" : "",
+                visual_list ? ", ENTER to accept" : ", 'v' for visuals",
+                (attr_idx || char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"),
+                hgt - 1, 0);
+        }
 
         /* Get the current monster */
         r_ptr = &r_info[mon_idx[mon_cur]];
@@ -6219,6 +6388,7 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
 
             case 'R':
             case 'r':
+            case '?':
             {
                 /* Recall on screen */
                 if (!visual_list && !visual_only && (mon_idx[mon_cur] > 0))
@@ -6231,6 +6401,16 @@ static void do_cmd_knowledge_monsters(bool *need_redraw, bool visual_only, int d
                 }
                 break;
             }
+
+            case 'm':
+            case 'n':
+            case 'h':
+            case '=':
+                monster_mode++;
+                if (monster_mode == MONSTER_MODE_MAX)
+                    monster_mode = MONSTER_MODE_STATS;
+                redraw = TRUE;
+                break;
 
             default:
             {

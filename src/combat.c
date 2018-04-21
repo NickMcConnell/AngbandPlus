@@ -244,7 +244,7 @@ static _blow_info_t _get_blow_info(int hand)
         break;
     }
 
-    if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { result.num++; result.wgt /= 2; result.mul += 2; }
+    if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { result.num++; result.wgt /= 2; result.mul += 20; }
     if (p_ptr->tim_building_up && p_ptr->pclass != CLASS_MAULER) 
     { 
         if (result.num < 400 && p_ptr->lev >= 40) 

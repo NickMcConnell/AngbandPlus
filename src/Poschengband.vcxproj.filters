@@ -561,6 +561,9 @@
     <ClCompile Include="race_ring.c">
       <Filter>Player\Races</Filter>
     </ClCompile>
+    <ClCompile Include="race_mimic.c">
+      <Filter>Player\Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

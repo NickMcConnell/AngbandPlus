@@ -167,11 +167,14 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 ?:[EQU $QUEST14 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 
-# Quest 14 rewarding, reward is a Small Metal Shield,
+# Quest 14 rewarding, reward is a Ring of Combat
 # continue with quest 25
 ?:[EQU $QUEST14 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
-F:!:FLOOR:3:0:130
+F:!:FLOOR:3:0:132:302
+# Old:
+# Quest 14 rewarding, reward is a Small Metal Shield,
+#F:!:FLOOR:3:0:130
 
 # Another Long Sword
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Death-Sword] ]

@@ -2033,6 +2033,12 @@ int lore_do_probe(int r_idx)
     if (!(r_ptr->r_xtra1 & MR1_SINKA)) n++;
     r_ptr->r_xtra1 |= MR1_SINKA;
 
+    if (!(r_ptr->r_xtra1 & MR1_POSSESSOR)) n++;
+    r_ptr->r_xtra1 |= MR1_POSSESSOR;
+
+    if (!(r_ptr->r_xtra1 & MR1_LORE)) n++;
+    r_ptr->r_xtra1 |= MR1_LORE;
+
     /* Update monster recall window */
     if (p_ptr->monster_race_idx == r_idx)
     {

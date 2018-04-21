@@ -3048,6 +3048,13 @@ void display_player(int mode)
         {
             if (p_ptr->prace == RACE_MON_RING)
                 _print_field(5, 1, "Controlling:", format("%-27.27s", race_ptr->subname), TERM_L_BLUE, 0);
+            else if (p_ptr->prace == RACE_MON_MIMIC)
+            {
+                if (p_ptr->current_r_idx == MON_MIMIC)
+                    _print_field(5, 1, "Mimicking  :", "Nothing", TERM_L_BLUE, 0);
+                else
+                    _print_field(5, 1, "Mimicking  :", format("%-27.27s", race_ptr->subname), TERM_L_BLUE, 0);
+            }
             else
                 _print_field(5, 1, "Subrace    :", format("%-27.27s", race_ptr->subname), TERM_L_BLUE, 0);
         }

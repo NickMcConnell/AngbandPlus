@@ -192,6 +192,9 @@ static void roff_aux(int r_idx, int mode)
     if (p_ptr->wizard)
         know_everything = TRUE;
 
+    if (r_ptr->r_xtra1 & MR1_LORE)
+        know_everything = TRUE;
+
     /* Cheat -- Know everything */
     if (know_everything)
     {
@@ -217,7 +220,6 @@ static void roff_aux(int r_idx, int mode)
         flags6 = r_ptr->flags6;
         flagsr = r_ptr->flagsr;
     }
-
 
     /* Extract a gender (if applicable) */
     if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
@@ -1007,7 +1009,7 @@ static void roff_aux(int r_idx, int mode)
     }
 
     /* Describe monster "toughness" */
-    if (know_armour(r_idx))
+    if (know_armour(r_idx) || know_everything)
     {
         /* Armor */
         hooked_roff(format("%^s has an armor rating of %d",

@@ -723,7 +723,7 @@ static void do_cmd_quaff_potion_aux(int item)
     if (q_ptr->tval == TV_POTION)
         device_use(q_ptr);
 
-    if (prace_is_(RACE_SKELETON))
+    if (prace_is_(RACE_SKELETON) || (p_ptr->current_r_idx && r_info[p_ptr->current_r_idx].d_char == 's'))
     {
         msg_print("Some of the fluid falls through your jaws!");
         potion_smash_effect(0, py, px, q_ptr->k_idx);

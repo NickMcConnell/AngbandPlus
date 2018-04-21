@@ -17,7 +17,7 @@
 
 
 #define VER_MAJOR 3
-#define VER_MINOR 2
+#define VER_MINOR 3
 #define VER_PATCH 0
 #define VER_EXTRA 0
 
@@ -669,11 +669,12 @@
 #define RACE_MON_POSSESSOR      56
 #define RACE_MON_VAMPIRE        57
 #define RACE_MON_RING           58
+#define RACE_MON_MIMIC          59
 /* TODO: New races are in progress! ... */
-    #define RACE_MON_GHOST          59
-    #define RACE_MON_ZOMBIE         60
-    #define RACE_MON_CENTIPEDE      61
-    #define MAX_RACES               59 /* TODO: Bump me!! */
+    #define RACE_MON_GHOST          60
+    #define RACE_MON_ZOMBIE         61
+    #define RACE_MON_CENTIPEDE      62
+    #define MAX_RACES               60 /* TODO: Bump me!! */
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -3892,7 +3893,9 @@ enum summon_specific_e {
 #define RFR_EFF_RES_TIME_MASK (RFR_RES_TIME | RFR_RES_ALL)
 
 
-#define MR1_SINKA 0x01
+#define MR1_SINKA      0x01  /* Evolution */
+#define MR1_POSSESSOR  0x02  /* Body Type */
+#define MR1_LORE       0x04  /* Probed */
 
 
 #define is_friendly(A) \
@@ -5198,6 +5201,7 @@ extern int PlayerUID;
 #define MON_ELDER_STORM_GIANT   1128
 #define MON_POSSESSOR_SOUL      1129
 #define MON_MARILITH            1130
+#define MON_MIMIC               1131
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle 

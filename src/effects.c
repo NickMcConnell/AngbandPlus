@@ -610,6 +610,7 @@ void dispel_player(void)
     */
     wild_dispel_player();
     psion_dispel_player();
+    mimic_dispel_player();
 
 
     /* Cancel glowing hands */
@@ -5627,7 +5628,7 @@ bool restore_level(void)
     s32b max_exp = p_ptr->max_exp;
 
     /* Possessor Max Lvl is limited by their current form */
-    if (p_ptr->prace == RACE_MON_POSSESSOR)
+    if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
     {
         s32b racial_max = possessor_max_exp();
         if (max_exp > racial_max)
@@ -6253,7 +6254,11 @@ void gain_exp_64(s32b amount, u32b amount_frac)
 
     if (p_ptr->prace == RACE_ANDROID) return;
 
-    if (p_ptr->prace == RACE_MON_POSSESSOR && !possessor_can_gain_exp()) return;
+    if ( (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC) 
+      && !possessor_can_gain_exp() )
+    {
+        return;
+    }
 
     /* Gain some experience */
     s64b_add(&(p_ptr->exp), &(p_ptr->exp_frac), amount, amount_frac);

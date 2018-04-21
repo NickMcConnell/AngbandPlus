@@ -189,8 +189,7 @@ void self_knowledge(void)
             break;
         case RACE_SNOTLING:
             info[i++] = "You can devour your own flesh for sustenance.";
-            info[i++] = "You are often bullied by other monsters.";
-            info[i++] = "You recoil when shooting missiles.";
+            info[i++] = "Other monsters often make fun of you.";
             info[i++] = "You are addicted to mushrooms.";
             break;
         case RACE_HALF_TROLL:

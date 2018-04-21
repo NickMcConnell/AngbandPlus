@@ -397,7 +397,6 @@ bool screen_object(object_type *o_ptr, u32b mode)
     int  i = 0, j, k;
     u32b flgs[TR_FLAG_SIZE];
     char block1[70 * 20]; /* TODO: Rewrite me! */
-    char block2[70 * 20];
     char block3[70 * 20];
     cptr info[128]; /* Might point into blockX or be a static string */
     char o_name[MAX_NLEN];
@@ -447,29 +446,6 @@ bool screen_object(object_type *o_ptr, u32b mode)
             { info[i] = &block1[j]; i++;}
             info[i++] = "";
         }
-    }
-    if ( p_ptr->prace == RACE_MON_POSSESSOR 
-      && o_ptr->tval == TV_CORPSE 
-      && o_ptr->sval == SV_CORPSE
-      && (o_ptr->ident & IDENT_MENTAL) )
-    {
-        monster_race *r_ptr = &r_info[o_ptr->pval];
-        char          scratch[70 * 20];
-
-        sprintf(scratch, "Body: %s\n \nStr : %+3d       Disarm : %d+%d\nInt : %+3d       Device : %d+%d\nWis : %+3d       Save   : %d+%d\nDex : %+3d       Stealth: %d+%d\nCon : %+3d       Search : %d/%d\nChr : %+3d       Melee  : %d+%d\nLife: %3d%%      Ranged : %d+%d\n \n \n",
-            b_name + b_info[r_ptr->body.body_idx].name,
-            r_ptr->body.stats[A_STR], r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis,
-            r_ptr->body.stats[A_INT], r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev,
-            r_ptr->body.stats[A_WIS], r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
-            r_ptr->body.stats[A_DEX], r_ptr->body.skills.stl, r_ptr->body.extra_skills.stl,
-            r_ptr->body.stats[A_CON], r_ptr->body.skills.srh, r_ptr->body.skills.fos,
-            r_ptr->body.stats[A_CHR], r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn,
-            r_ptr->body.life, r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
-        );
-            
-        roff_to_buf(scratch, 77-15, block2, sizeof(block2));
-        for (j = 0; block2[j]; j += 1 + strlen(&block2[j]))
-        { info[i] = &block2[j]; i++;}
     }
     if (obj_has_effect(o_ptr))
     {

@@ -165,13 +165,6 @@ static void sense_inventory_aux(int slot, bool heavy)
 
 /*
  * Sense the inventory
- *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow but heavy  (changed!)
- *   Class 5 = Paladin --> slow but heavy
  */
 static int _adj_pseudo_id(int num)
 {
@@ -268,8 +261,11 @@ static void sense_inventory1(void)
         case CLASS_MAGIC_EATER:
         case CLASS_DEVICEMASTER:
         {
-            /* Very bad (light) sensing */
-            if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5))) return;
+            /* Good (light) sensing ... I never understood why the classes with the
+               greatest magical understanding were so oblivious to the magic around them.
+               Probably, this was an ancient decision from the days of a universal early
+               identify spell. That no longer makes sense, though. */
+            if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
 
             /* Done */
             break;

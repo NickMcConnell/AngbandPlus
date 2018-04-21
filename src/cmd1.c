@@ -2515,6 +2515,13 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 }
                 /* TODO: Should rings of power brand innate attacks? */
                 touch_zap_player(m_idx);
+
+                if (a->flags & INNATE_EXPLODE)
+                {
+                    possessor_explode(dam);
+                    return;
+                }
+
                 if (*mdeath) return;
 
                 if (mode == DRAGON_SNATCH)
@@ -5100,7 +5107,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         }
     }
 
-    if (oktomove && p_ptr->prace == RACE_MON_POSSESSOR)
+    if (oktomove && (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC))
     {
         monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
         if (r_ptr->flags1 & RF1_NEVER_MOVE)

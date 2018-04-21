@@ -1881,7 +1881,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
     bool    res = FALSE;
     bool    a = object_is_artifact(o_ptr);
     bool    force = (eflag & ENCH_FORCE);
-    int     minor_limit = MIN(2 + p_ptr->lev / 5, 5);
+    int     minor_limit = 2 + p_ptr->lev/5; /* This matches the town service ... */
 
 
     /* Large piles resist enchantment */
