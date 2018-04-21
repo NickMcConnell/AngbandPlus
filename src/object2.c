@@ -7127,16 +7127,12 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 			/* Skip illegal grids */
 			if (!in_bounds_fully(ty, tx)) continue;
 
-			/* We are not placing an object exactly */
-			if ((chance != -2) || (ty != y) || (tx != x))
-			{
-				/* Require drop space */
-				if ((f_info[cave_feat[ty][tx]].flags1 & (FF1_DROP)) == 0) continue;
-	
-				/* Requires terrain that won't destroy it */
-				if ((chance <= 0) && hates_terrain(j_ptr, cave_feat[ty][tx])) continue;
-			}
+			/* Require drop space */
+			if ((f_info[cave_feat[ty][tx]].flags1 & (FF1_DROP)) == 0) continue;
 
+			/* Requires terrain that won't destroy it */
+			if ((chance <= 0) && hates_terrain(j_ptr, cave_feat[ty][tx])) continue;
+	
 			/* No objects */
 			k = 0;
 
@@ -8833,7 +8829,7 @@ bool inven_carry_okay(const object_type *o_ptr)
 	int j;
 
 	/* Empty slot? - note hack for bags taking up two slots */
-	if (p_ptr->inven_cnt < INVEN_PACK - p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_study - p_ptr->pack_size_reduce_bags - (o_ptr->tval == TV_BAG ? 1 : 0)) return (TRUE);
+	if (p_ptr->inven_cnt < INVEN_PACK - p_ptr->pack_size_reduce_quiver - (p_ptr->pack_size_reduce_study/3) - p_ptr->pack_size_reduce_bags - (o_ptr->tval == TV_BAG ? 1 : 0)) return (TRUE);
 
 	/* Similar slot? */
 	for (j = 0; j < INVEN_PACK; j++)
@@ -8928,7 +8924,7 @@ s16b inven_carry(object_type *o_ptr)
 		 * Hack -- Force pack overflow if we reached the slots of the
 		 * inventory reserved for the quiver. -DG-
 		 */
-		if (j >= INVEN_PACK - p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_study - p_ptr->pack_size_reduce_bags - (o_ptr->tval == TV_BAG ? 1 : 0))
+		if (j >= INVEN_PACK - p_ptr->pack_size_reduce_quiver - (p_ptr->pack_size_reduce_study/3) - p_ptr->pack_size_reduce_bags - (o_ptr->tval == TV_BAG ? 1 : 0))
 		{
 			/* Jump to INVEN_PACK to not mess up pack reordering */
 			j = INVEN_PACK;
