@@ -289,7 +289,7 @@ void hound_leap_spell(int cmd, variant *res)
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Leaping Attack");
+        var_set_string(res, "Pounce");
         break;
     case SPELL_DESC:
         var_set_string(res, "Leap towards a nearby prey and attack in a single action.");

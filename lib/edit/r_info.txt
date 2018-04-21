@@ -472,7 +472,7 @@ F:ANIMAL
 F:POS_GAIN_AC
 P:Copy:Yeek:Tourist
 P:Life:60
-P:Body:Small Centipede
+P:Body:Centipede2
 D:It is about four feet long and carnivorous.
 
 N:25:White icky thing
@@ -719,7 +719,7 @@ F:ANIMAL
 F:POS_GAIN_AC
 P:Copy:Yeek:Tourist
 P:Life:80
-P:Body:Small Centipede
+P:Body:Centipede3
 D:It is about four feet long and carnivorous.
 
 N:43:Novice warrior
@@ -1078,7 +1078,7 @@ F:ANIMAL
 F:POS_GAIN_AC
 P:Copy:Yeek:Tourist
 P:Life:80
-P:Body:Small Centipede
+P:Body:Centipede3
 D:It is about four feet long and carnivorous.
 
 N:68:Raven
@@ -1213,8 +1213,9 @@ F:ANIMAL
 F:POS_GAIN_AC
 P:Copy:Yeek:Tourist
 P:Life:90
-P:Body:Small Centipede
+P:Body:Centipede3
 D:It is about four feet long and carnivorous.
+
 
 N:78:Yellow worm mass
 G:w:y
@@ -3467,7 +3468,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | DROP_SKELETON
 F:POS_GAIN_AC
 P:Copy:Human:Warrior
-P:Body:Giant Centipede
+P:Body:Centipede4
 D:It is a vast armoured centipede with massive mandibles and a spiked tail.
 
 N:233:Spotted jelly
@@ -4132,7 +4133,7 @@ F:INVISIBLE | WEIRD_MIND | BASH_DOOR | WILD_ALL |
 F:ANIMAL | DROP_SKELETON
 F:POS_GAIN_AC
 P:Copy:Human:Warrior
-P:Body:Small Centipede
+P:Body:Centipede4
 D:It is about four feet long and carnivorous.
 
 N:277:Mirkwood spider
@@ -6045,7 +6046,7 @@ F:WEIRD_MIND | BASH_DOOR | DROP_SKELETON
 F:ANIMAL | RES_POIS
 F:POS_GAIN_AC
 P:Copy:Human:Warrior
-P:Body:Centipede
+P:Body:Centipede4
 D:A hideous centipede covered in slime and with glowing tentacles around its 
 D:head.
 
@@ -8118,7 +8119,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | RES_POIS
 F:POS_GAIN_AC
 P:Copy:Human:Warrior
-P:Body:Centipede
+P:Body:Centipede4
 D:A hideous centipede covered in slime and with glowing tentacles around its 
 D:head.
 
@@ -9775,7 +9776,7 @@ D:and try to resist all desires to obey it.
 N:606:Loge, Spirit of Fire
 G:E:R
 I:120:15d100:12:50:50:300
-W:38:3:999:3000:0:0
+W:38:2:999:3000:0:0
 B:HIT:FIRE:6d6
 B:HIT:FIRE:6d6
 B:HIT:FIRE:6d6
@@ -11225,7 +11226,7 @@ D:colour left the well it seemed to flow directly into the sky."
 N:679:Quaker, Master of Earth
 G:E:u
 I:110:18d100:10:97:90:800
-W:43:4:999:6000:0:0
+W:43:2:999:6000:0:0
 B:HIT:SUPERHURT:6d6
 B:HIT:SUPERHURT:6d6
 B:HIT:SUPERHURT:6d6
@@ -11403,7 +11404,7 @@ D:The most powerful Dark Judge, whose touch means death.
 N:687:Ariel, Queen of Air
 G:E:B
 I:130:27d100:12:50:50:250
-W:44:4:999:8000:0:0
+W:44:2:999:8000:0:0
 B:HIT:HURT:4d6
 B:HIT:CONFUSE:1d4
 B:HIT:HURT:4d6
@@ -12358,6 +12359,7 @@ S:1_IN_6 |
 S:TRAPS | S_KIN
 D:He may not code worth a dime, but he certainly knows how to make money.
 P:Copy:Gnome:Rogue
+P:Speed:+15
 
 N:733:Santa Claus
 G:h:r
@@ -14515,9 +14517,12 @@ F:OPEN_DOOR | BASH_DOOR |
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | HUMAN |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
 F:EVIL | RES_COLD | RES_POIS | RES_ACID | RES_ELEC | RES_FIRE | REGENERATE
-F:DROP_CORPSE | DROP_SKELETON
+F:DROP_CORPSE | DROP_SKELETON | POS_GAIN_AC
 P:Copy:Amberite:Paladin
 P:Life:105
+P:Speed:+10
+P:Skills:0:0:5:0:0:0:80:0
+P:Stats:2:0:2:2:2:3
 P:Body:Benedict
 S:1_IN_4 |
 S:SCARE | CONF | TPORT | TELE_TO | DRAIN_MANA | TRAPS | BRAIN_SMASH |
@@ -19878,7 +19883,7 @@ P:Body:Babble
 N:1111:Arthur Pendragon
 G:p:r
 I:120:60d20:30:90:15:170
-W:32:2:999:2000:0:0
+W:32:1:999:2000:0:0
 B:HIT:HURT:4d8
 B:HIT:HURT:4d8
 B:HIT:BLIND:2d8
@@ -19901,7 +19906,7 @@ P:Copy:Dunadan:Paladin
 N:1112:Sir Lancelot
 G:p:b
 I:125:65d20:30:120:15:180
-W:30:2:999:1800:0:0
+W:30:1:999:1800:0:0
 B:SLASH:TERRIFY:25d1
 B:SLASH:TERRIFY:25d1
 F:UNIQUE | MALE | 
@@ -19922,7 +19927,7 @@ P:Copy:Dunadan:Paladin
 N:1113:Sir Gawain
 G:p:o
 I:122:40d20:30:90:15:170
-W:29:2:999:1800:0:0
+W:29:1:999:1800:0:0
 B:HIT:CONFUSE:14d6
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
@@ -19940,7 +19945,7 @@ P:Copy:Demigod:Paladin
 N:1114:Sir Galahad
 G:p:g
 I:124:50d20:30:110:15:170
-W:28:2:999:1800:0:0
+W:28:1:999:1800:0:0
 B:SLASH:TERRIFY:25d1
 B:HIT:CONFUSE:2d6
 B:HIT:BLIND:2d8
@@ -19961,7 +19966,7 @@ P:Copy:Demigod:Paladin
 N:1115:Sir Gareth
 G:p:g
 I:120:50d20:30:80:15:170
-W:28:2:999:1800:0:0
+W:28:1:999:1800:0:0
 B:HIT:BLIND:8d6
 B:HIT:BLIND:2d8
 B:HIT:HURT:2d8
@@ -20003,7 +20008,7 @@ P:Copy:Human:Paladin
 N:1117:Camelot Knight
 G:p:w
 I:120:70d20:30:80:15:170
-W:26:2:999:1400:0:0
+W:26:1:999:1400:0:0
 B:HIT:BLIND:6d8
 B:HIT:HURT:2d6
 B:HIT:HURT:2d6
@@ -20021,7 +20026,7 @@ P:Copy:Demigod:Paladin
 N:1118:Morgana Le Fay
 G:p:r
 I:122:35d20:30:90:15:110
-W:35:3:999:2500:0:0
+W:35:2:999:2500:0:0
 B:HIT:CONFUSE:2d6
 B:HIT:UN_BONUS:1d12
 B:HIT:PARALYZE:1d10
@@ -20044,7 +20049,7 @@ P:Copy:Demigod:Mage
 N:1119:Mordred
 G:p:r
 I:122:55d20:30:90:15:170
-W:32:3:999:1800:0:0
+W:32:2:999:1800:0:0
 B:SLASH:TERRIFY:20d1
 B:HIT:CONFUSE:4d8
 B:HIT:PARALYZE:3d10
@@ -20278,6 +20283,24 @@ W:50:0:0:0:10:14
 F:CAN_SWIM
 P:Copy:Human:Imitator
 P:SpellStat:Dex
+
+N:1132:The Multi-hued Centipede
+G:c:v
+I:130:10d100:30:100:10:50
+W:30:2:999:750:0:0
+B:BITE:HURT:1d10
+B:STING:HURT:1d15
+B:CRAWL:HURT:1d10
+B:CRAWL:HURT:1d10
+F:RAND_25 | WEIRD_MIND | OPEN_DOOR | BASH_DOOR | 
+F:ATTR_MULTI | FORCE_SLEEP | FORCE_MAXHP | 
+F:UNIQUE | ESCORT | ESCORTS | 
+F:ANIMAL | NO_CONF | NO_SLEEP
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:DROP_CORPSE | POS_GAIN_AC
+P:Copy:Human:Mauler
+P:Body:Centipede6
+D:Oh my god, it's changing colors! Run!!
 
 # N: serial number : monster name
 # G: symbol : color

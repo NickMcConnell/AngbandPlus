@@ -3251,6 +3251,7 @@ void calc_bonuses(void)
         p_ptr->weapon_info[i].heavy_wield = FALSE;
         p_ptr->weapon_info[i].icky_wield = FALSE;
         p_ptr->weapon_info[i].riding_wield = FALSE;
+        p_ptr->weapon_info[i].giant_wield = FALSE;
 
         p_ptr->weapon_info[i].info_attr = TERM_WHITE;
         p_ptr->weapon_info[i].info = 0;
@@ -4749,7 +4750,7 @@ void calc_bonuses(void)
     p_ptr->skills.stl += 1;
 
     if (IS_TIM_STEALTH()) p_ptr->skills.stl += 99;
-    if (p_ptr->action == ACTION_STALK) p_ptr->skills.stl += 99;
+    if (p_ptr->action == ACTION_STALK) p_ptr->skills.stl += (p_ptr->lev+2)/3;
 
     if (p_ptr->tim_dark_stalker)
         p_ptr->skills.stl += 3 + p_ptr->lev/5;

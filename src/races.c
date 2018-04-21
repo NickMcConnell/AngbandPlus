@@ -149,6 +149,9 @@ race_t *get_race_t_aux(int prace, int psubrace)
     case RACE_MON_BEHOLDER:
         result = mon_beholder_get_race_t();
         break;
+    case RACE_MON_CENTIPEDE:
+        result = mon_centipede_get_race_t();
+        break;
     case RACE_MON_DEMON:
         result = mon_demon_get_race_t(psubrace);
         break;

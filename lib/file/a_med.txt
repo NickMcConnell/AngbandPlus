@@ -152,7 +152,7 @@ N:11:BIAS_CHR
 'Snow White'
 'Maiden's Hope'
 'Undiscoverd Paradise'
-'Kiss of Saccubus'
+'Kiss of Succubus'
 of Cinderella
 of Benten
 of Nimue

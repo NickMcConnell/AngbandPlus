@@ -14,7 +14,6 @@
 #include "equip.h"
 #include "int-map.h"
 
-static void do_cmd_knowledge_weapon(void);
 static void do_cmd_knowledge_shooter(void);
 
 /*
@@ -5040,7 +5039,7 @@ static void do_cmd_knowledge_shooter(void)
     screen_load();
 }
 
-static void do_cmd_knowledge_weapon(void)
+void do_cmd_knowledge_weapon(void)
 {
     int i, r;
     int used_hands[MAX_HANDS];

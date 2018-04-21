@@ -3,7 +3,7 @@
 static void _calc_bonuses(void)
 {
     if (p_ptr->lev >= 40)
-        res_add(TR_RES_FEAR);
+        res_add(RES_FEAR);
 }
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE])

@@ -902,7 +902,7 @@ static void _reforging_spell(int cmd, variant *res)
         char o_name[MAX_NLEN];
         char buf[255];
         object_type *src, *dest;
-        int power = p_ptr->lev * 5 / 2;
+        int power = p_ptr->lev * 5 / 2 + (p_ptr->lev >= 50 ? 5 : 0);
         int src_max_power = power * power * 10;
         int dest_max_power = 0;
 
@@ -1008,7 +1008,7 @@ static spell_info _craft_spells[] = {
     { 17, 15, 60, identify_spell },
     { 30, 25, 70, enchantment_spell },
     { 32, 30, 70, recharging_spell },
-    { 35, 90, 90, _reforging_spell },
+    { 35, 90, 70, _reforging_spell },
     { 40, 30, 70, dispel_magic_spell },
     { -1, -1, -1, NULL}
 };
@@ -1136,6 +1136,13 @@ static void _deadly_bite_spell(int cmd, variant *res)
         var_set_bool(res, do_blow(DRAGON_DEADLY_BITE));
         p_ptr->innate_attacks[1].effect[1] = 0;
         break;
+    case SPELL_ON_BROWSE:
+        p_ptr->innate_attacks[1].effect[1] = _breath_effect();
+        do_cmd_knowledge_weapon();
+        p_ptr->innate_attacks[1].effect[1] = 0;
+
+        var_set_bool(res, TRUE);
+        break;
     default:
         default_spell(cmd, res);
         break;
@@ -1199,6 +1206,15 @@ static void _rapid_strike_spell(int cmd, variant *res)
         p_ptr->innate_attacks[0].blows -= 100;
         p_ptr->innate_attacks[1].blows -= 50;
         break;
+    case SPELL_ON_BROWSE:
+        p_ptr->innate_attacks[0].blows += 100;
+        p_ptr->innate_attacks[1].blows += 50;
+        do_cmd_knowledge_weapon();
+        p_ptr->innate_attacks[0].blows -= 100;
+        p_ptr->innate_attacks[1].blows -= 50;
+
+        var_set_bool(res, TRUE);
+        break;
     default:
         default_spell(cmd, res);
         break;
@@ -1221,6 +1237,16 @@ static void _power_strike_spell(int cmd, variant *res)
         var_set_bool(res, do_blow(DRAGON_POWER_STRIKE));
         p_ptr->innate_attacks[0].dd -= 2;
         p_ptr->innate_attacks[1].dd -= 2;
+        break;
+
+    case SPELL_ON_BROWSE:
+        p_ptr->innate_attacks[0].dd += 2;
+        p_ptr->innate_attacks[1].dd += 2;
+        do_cmd_knowledge_weapon();
+        p_ptr->innate_attacks[0].dd -= 2;
+        p_ptr->innate_attacks[1].dd -= 2;
+
+        var_set_bool(res, TRUE);
         break;
     default:
         default_spell(cmd, res);

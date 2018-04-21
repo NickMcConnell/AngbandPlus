@@ -181,9 +181,12 @@ static int _get_powers(spell_info* spells, int max)
 static void _calc_bonuses(void) 
 {
     int ac = 20 + p_ptr->lev/10;
+
+    p_ptr->skill_dig += 50;
     p_ptr->to_a += ac;
     p_ptr->dis_to_a += ac;
     p_ptr->regenerate = TRUE;
+
     switch (p_ptr->current_r_idx)
     {
     case MON_TWO_HEADED_HYDRA:

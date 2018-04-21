@@ -93,6 +93,9 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:24
 ?:[EQU $QUEST24 3]
 F:~:FLOOR:3:0:132:304
 
+?:[AND [EQU $QUEST24 3] [EQU $RACE Hydra] ]
+F:~:FLOOR:3:0:163:322
+
 # Continue with "Quest 21 - Doom Quest 2
 # "Quest 24 - The Rise and Fall of Micro$oft" and
 # "Quest 19 - Doom Quest 1" have to be finished first
@@ -166,6 +169,11 @@ F:@:FLOOR:3:0:132:300
 F:k:BUILDING_10:3:0:0:0:0:NONE:30
 F:@:FLOOR:3:0:43:247
 
+# Elemental Charm
+?:[AND [EQU $QUEST29 3] [EQU $RACE Hydra] ]
+F:k:BUILDING_10:3:0:0:0:0:NONE:30
+F:@:FLOOR:3:0:163:321
+
 # Quest 29 finished, continue with quest 30
 ?:[EQU $QUEST29 4]
 F:k:BUILDING_10:3:0:0:0:0:NONE:30
@@ -197,6 +205,11 @@ F:k:BUILDING_10:3:0:0:0:0:NONE:30
 ?:[EQU $QUEST30 3]
 F:k:BUILDING_10:3
 F:@:FLOOR:3:0:132:300
+
+# Trickery
+?:[AND [EQU $QUEST30 3] [EQU $RACE Hydra] ]
+F:k:BUILDING_10:3
+F:@:FLOOR:3:0:163:329
 
 # Quest 30 finished, no new quest available
 ?:[EQU $QUEST30 4]

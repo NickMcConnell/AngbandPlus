@@ -5402,7 +5402,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 
     if (oktomove)
     {
-        if (have_flag(f_ptr->flags, FF_CAN_PASS) && !p_can_kill_walls /*&& !elemental_is_(ELEMENTAL_EARTH)*/)
+        if (have_flag(f_ptr->flags, FF_CAN_PASS) && !p_can_kill_walls && !elemental_is_(ELEMENTAL_EARTH))
             energy_use *= 2;
 
         if (have_flag(f_ptr->flags, FF_LAVA) && elemental_is_(ELEMENTAL_FIRE))

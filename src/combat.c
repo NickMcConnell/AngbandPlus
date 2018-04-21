@@ -67,7 +67,7 @@ static _blow_info_t _get_blow_info(int hand)
         result.num = 600; result.wgt = 70; result.mul = 55; 
         if (p_ptr->lev >= 40) 
         {
-            result.mul = 65;
+            result.mul = 75;
             result.num = 700;
         }
         break;
@@ -337,6 +337,7 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     object_type   *o_ptr = NULL;
     int            blow_str_idx;
     int            div = 0;
+    int            wgt = 0;
     _blow_info_t   blow_info = {0};
     _range_t       rng = _blows_range[dex_idx];
 
@@ -348,7 +349,11 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
 
     blow_info = _get_blow_info(hand);
 
-    div = (o_ptr->weight < blow_info.wgt) ? blow_info.wgt : o_ptr->weight;
+    wgt = o_ptr->weight;
+    if (info_ptr->giant_wield && wgt > 300)
+        wgt = 300;
+
+    div = (wgt < blow_info.wgt) ? blow_info.wgt : wgt;
 
     blow_str_idx = adj_str_blow[str_idx] * blow_info.mul / div; /* Scaled by 10 */
     if (info_ptr->wield_how == WIELD_TWO_HANDS)
@@ -365,7 +370,7 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
 
     if (p_ptr->pclass == CLASS_MAULER)
         result = 100 + (result - 100)/2;
-
+        
     if (result > blow_info.num) 
         result = blow_info.num;
 

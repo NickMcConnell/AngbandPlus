@@ -98,7 +98,7 @@ N:14:BIAS_NECROMANTIC
 'Dark Banisher'
 'Bloody Mary'
 of Helthing
-of Darkness Strom
+of Darkness Storm
 of Genocide
 of Thuringwethil
 

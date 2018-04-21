@@ -54,7 +54,7 @@
 
 # L:<letter>:<Directives>+
 # You will use "letters" in the map lines to determine the contents
-# of each square in your room. Their are a bunch of built-in hard
+# of each square in your room. There are a bunch of built-in hard
 # coded letters described below, but you might want to add some of
 # your own as well. The letter field is required, and must be a single
 # character in length. It may override built-in letters if you like.
@@ -528,7 +528,7 @@ M:####                                         ####
 #Nivim
 N:Villa
 T:WILD:GRASS
-W:4:30:24
+W:10:30:24
 L:_:FLOOR
 L:.:FLOOR(ROOM)
 L:0:FLOOR(ROOM):MON(p, NO_GROUP | DEPTH+25)
@@ -557,7 +557,7 @@ M: #############
 #Nivim (Unfinished)
 N:Keep of Four Pillars
 T:WILD:GRASS
-W:8:*:32
+W:20:*:32
 L:.:FLOOR(ROOM)
 L:_:FLOOR
 L:x:CLOSED_DOOR(ROOM)

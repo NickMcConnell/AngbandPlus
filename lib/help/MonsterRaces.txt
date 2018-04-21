@@ -349,13 +349,13 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Angel                  +1   +1   +4   +1   +1   +1   90%  +26  275%
-  Archangel              +1   +1   +4   +1   +1   +2   93%  +26  275%
-  Cherub                 +2   +2   +5   +2   +2   +3   96%  +26  275%
-  Seraph                 +2   +2   +5   +2   +2   +4   99%  +26  275%
-  Archon                 +3   +3   +6   +3   +3   +5  102%  +26  275%
-  Planetar               +3   +3   +6   +3   +3   +6  105%  +26  275%
-  Solar                  +4   +4   +7   +4   +4   +7  108%  +26  275%
+  Angel                  +1   +1   +4   +1   +1   +1   90%  +26  325%
+  Archangel              +1   +1   +4   +1   +1   +2   93%  +26  325%
+  Cherub                 +2   +2   +5   +2   +2   +3   96%  +26  325%
+  Seraph                 +2   +2   +5   +2   +2   +4   99%  +26  325%
+  Archon                 +3   +3   +6   +3   +3   +5  102%  +26  325%
+  Planetar               +3   +3   +6   +3   +3   +6  105%  +26  325%
+  Solar                  +4   +4   +7   +4   +4   +7  108%  +26  325%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Angel                 25+7   35+13  40+15   3+0  18+0  12+0  48+18  35+13
@@ -1034,10 +1034,40 @@
   Mimic                 25+7   30+10  36+10   2+0  18+0  26+0  60+18  50+20
 
 
+***** <Centipede>
+[[[[r|  Centipede
+
+  Centipedes are natural creatures with many legs. As they evolve, they change
+  colors, but not much else seems to differentiate the various forms. Perhaps
+  you prefer blue to red or green? Eventually, once you have evolved into your
+  ultimate evolutionary form, you will be able to change colors at will and
+  thereby become very powerful indeed.
+   
+  As a centipede, your main survival attribute will be the many pairs of boots
+  you can wear. Hopefully, this will be enough.
+
+
+[[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
+  Giant white centipede  +0   -3   -3   +0   +0   -3   90%  +15  100%
+  Metallic green centip  +0   -3   -3   +1   +1   -3   92%  +15  100%
+  Metallic blue centipe  +0   -3   -3   +2   +1   -3   94%  +15  100%
+  Metallic red centiped  +1   -3   -3   +3   +2   -3   96%  +15  100%
+  Giant clear centipede  +1   -3   -3   +4   +2   -3   98%  +15  100%
+  The Multi-hued Centip  +1   -3   -3   +5   +3   -3  100%  +15  100%
+
+[[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+  Giant white centipede 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
+  Metallic green centip 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
+  Metallic blue centipe 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
+  Metallic red centiped 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
+  Giant clear centipede 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
+  The Multi-hued Centip 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
+
+
 
 
 ***** [a] Rings.txt
 ***** [b] DragonRealms.txt
 
 
-[[[[s|  Automatically generated for PosChengband 3.3.5.
+[[[[s|  Automatically generated for PosChengband 3.4.1.

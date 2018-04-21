@@ -1105,6 +1105,18 @@ void equip_calc_bonuses(void)
         if (o_ptr->name2 == EGO_BOOTS_FAIRY || o_ptr->name2 == EGO_CLOAK_FAIRY)
             p_ptr->fairy_stealth = TRUE;
 
+        if (o_ptr->name2 == EGO_GLOVES_GIANT)
+        {
+            int hand = _template->slots[i].hand;
+            int arm = hand / 2;
+            int rhand = arm*2;
+            int lhand = arm*2 + 1;
+            if (p_ptr->weapon_info[rhand].wield_how == WIELD_TWO_HANDS)
+                p_ptr->weapon_info[rhand].giant_wield = TRUE;
+            else if (p_ptr->weapon_info[lhand].wield_how == WIELD_TWO_HANDS)
+                p_ptr->weapon_info[lhand].giant_wield = TRUE;
+        }
+
         rune_calc_bonuses(o_ptr);
 
         if (have_flag(flgs, TR_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -1186,6 +1198,8 @@ void equip_calc_bonuses(void)
                         other_hand = hand - 1;
                     if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
                         p_ptr->weapon_info[other_hand].xtra_blow += amt;
+                    else if (p_ptr->weapon_info[other_hand].wield_how == WIELD_NONE)
+                        p_ptr->innate_attack_info.xtra_blow += amt;
                 }
                 break;
             case EQUIP_SLOT_WEAPON_SHIELD:

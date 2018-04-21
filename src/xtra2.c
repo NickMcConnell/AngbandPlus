@@ -824,7 +824,7 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     object_level = (MAX(base_level, dun_level) + r_ptr->level) / 2;
     object_wipe(o_ptr);
 
-    if (do_gold && (!do_item || (randint0(100) < 50)))
+    if (do_gold && (!do_item || (randint0(100) < 20)))
     {
         if (!make_gold(o_ptr))
             return FALSE;
@@ -1125,6 +1125,7 @@ void monster_death(int m_idx, bool drop_item)
             q_ptr = &forge;
             object_prep(q_ptr, lookup_kind(arena_info[p_ptr->arena_number].tval, arena_info[p_ptr->arena_number].sval));
             apply_magic(q_ptr, object_level, AM_NO_FIXED_ART);
+            mass_produce(q_ptr);
             (void)drop_near(q_ptr, -1, y, x);
         }
 
@@ -1453,6 +1454,27 @@ void monster_death(int m_idx, bool drop_item)
         }
         break;
 
+    case MON_ALBERICH:
+    case MON_NAR:
+    case MON_FUNDIN:
+    {
+        int odds = 150;
+        if (r_ptr->level)
+            odds /= r_ptr->level;
+        if (one_in_(odds))
+        {
+            int         k_idx = lookup_kind(TV_RING, 0);
+            object_type forge;
+
+            object_prep(&forge, k_idx);
+
+            apply_magic_ego = EGO_RING_DWARVES;
+            apply_magic(&forge, object_level, AM_GOOD | AM_GREAT | AM_FORCE_EGO);
+
+            drop_near(&forge, -1, y, x);
+        }
+        break;
+    }
     case MON_NAZGUL:
     case MON_ANGMAR:
     case MON_KHAMUL:
@@ -2044,11 +2066,16 @@ void monster_death(int m_idx, bool drop_item)
             a_idx = ART_POWER;
             chance = 5;
             break;
+        case MON_MULTIHUED_CENTIPEDE:
+            a_idx = ART_MULTIHUED_CENTIPEDE;
+            chance = 5;
+            break;
         }
 
         /* I think the bug is Kill Amberite, get Blood Curse, entomb said Amberite,
            zeroing out the m_ptr while processing monster death, and continuing to call 
            this routine after m_list[m_idx] has been corrupted. */
+
         if (race_ptr->boss_r_idx && race_ptr->boss_r_idx == m_ptr->r_idx)
         {
             msg_print("Congratulations! You have killed the boss of your race!");
@@ -2056,6 +2083,10 @@ void monster_death(int m_idx, bool drop_item)
             chance = 100;
             p_ptr->update |= PU_BONUS; /* Player is now a "Hero" (cf IS_HERO()) */
             p_ptr->redraw |= PR_STATUS;
+
+            /* Centipedes can only take the final evolutionary step if the boss is dead */
+            if (p_ptr->prace == RACE_MON_CENTIPEDE && p_ptr->lev >= 35)
+                race_ptr->gain_level(p_ptr->lev);
         }
 
         if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))

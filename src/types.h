@@ -1067,6 +1067,7 @@ struct player_seikaku
     bool heavy_wield;
     bool icky_wield;
     bool riding_wield;
+    bool giant_wield;
     int dual_wield_pct; /* Scaled by 10 so 123 = 12.3%. Set to 1000 (ie 100%) if not dual wielding */
     u32b flags[TR_FLAG_SIZE];
     byte info_attr;

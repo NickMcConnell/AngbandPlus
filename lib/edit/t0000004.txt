@@ -69,6 +69,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:19
 F:b:BUILDING_1:3:0:0:0:0:NONE:23
 F:!:FLOOR:3:0:132:301
 
+# Elemental Charm
+?:[AND [EQU $QUEST19 3] [EQU $RACE Hydra] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:23
+F:!:FLOOR:3:0:163:321
+
 # Quest 19 finished, continue with quest 23
 ?:[EQU $QUEST19 4]
 F:b:BUILDING_1:3:0:0:0:0:NONE:23

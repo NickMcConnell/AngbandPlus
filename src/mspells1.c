@@ -1615,6 +1615,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
               && !(r_ptr->flags1 & RF1_NEVER_MOVE)
               && !cave[m_ptr->fy][m_ptr->fx].dist
               && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY)
+              && !(cave[py][px].info & CAVE_ICKY)
               && !p_ptr->inside_quest 
               && dun_level )
             {

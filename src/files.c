@@ -2010,6 +2010,7 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_RES_NEXUS);
         add_flag(flgs, TR_RES_CHAOS);
         add_flag(flgs, TR_RES_DISEN);
+        add_flag(flgs, TR_RES_TIME);
         add_flag(flgs, TR_REFLECT);
         add_flag(flgs, TR_HOLD_LIFE);
         add_flag(flgs, TR_FREE_ACT);

@@ -719,6 +719,7 @@ static void do_cmd_quaff_potion_aux(int item)
         }
         else
         {
+            stats_on_pickup(q_ptr);
             floor_item_increase(0 - item, -number);
             floor_item_describe(0 - item);
             floor_item_optimize(0 - item);

@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 4
-#define VER_PATCH 0
-#define VER_EXTRA 1
+#define VER_PATCH 1
+#define VER_EXTRA 0
 
 /*
  * Number of grids in each block (vertically)
@@ -568,6 +568,7 @@
 #define SPELL_SPOIL_DESC     17
 #define SPELL_HELP_DESC      18
 #define SPELL_VALUE          19      /* For valuing object activations */
+#define SPELL_ON_BROWSE      20      /* Custom Handler for browsing the spell */
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -672,11 +673,11 @@
 #define RACE_MON_RING           58
 #define RACE_MON_MIMIC          59
 #define RACE_WOOD_ELF           60
+#define RACE_MON_CENTIPEDE      61
 /* TODO: New races are in progress! ... */
-    #define RACE_MON_GHOST          61
-    #define RACE_MON_ZOMBIE         62
-    #define RACE_MON_CENTIPEDE      63
-    #define MAX_RACES               61 /* TODO: Bump me!! */
+    #define RACE_MON_GHOST          62
+    #define RACE_MON_ZOMBIE         63
+    #define MAX_RACES               62 /* TODO: Bump me!! */
 
 #define DEMIGOD_MINOR           0
 #define DEMIGOD_ZEUS            1
@@ -1583,6 +1584,7 @@ enum _mimic_types {
 #define ART_EMPEROR_QUYLTHULG 319
 #define ART_DESTROYER       320
 #define ART_ATLAS           321
+#define ART_MULTIHUED_CENTIPEDE 327
 
 /*** Object "tval" and "sval" codes ***/
 
@@ -4865,6 +4867,7 @@ extern int PlayerUID;
 #define MON_TROLL_PRIEST        403
 #define MON_GWAIHIR             410
 #define MON_ANGEL               417
+#define MON_ALBERICH            419
 #define MON_HELLBLADE           420
 #define MON_ADAMANT_COINS       423
 #define MON_ALGROTH             424
@@ -5156,6 +5159,7 @@ extern int PlayerUID;
 #define MON_SHUTEN              979
 #define MON_FENGHUANG           988
 #define MON_KIRIN               989
+#define MON_NAR                 996
 #define MON_BAHAMUT             1000
 #define MON_SUKE                1001
 #define MON_KAKU                1002
@@ -5220,6 +5224,7 @@ extern int PlayerUID;
 #define MON_POSSESSOR_SOUL      1129
 #define MON_MARILITH            1130
 #define MON_MIMIC               1131
+#define MON_MULTIHUED_CENTIPEDE 1132
 
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle 
@@ -6131,6 +6136,7 @@ enum ego_ring_e {
     EGO_RING_WIZARDRY,
     EGO_RING_SPEED,
     EGO_RING_NAZGUL,
+    EGO_RING_DWARVES,
 };
 
 enum ego_amulet_e {

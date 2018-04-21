@@ -29,6 +29,11 @@
 F:50:2/127:LIT
 F:52:2/127:LIT
 
+# Mountain (umber / solid block)
+
+F:97:7/127:LIT
+F:98:7/127:LIT
+
 
 # Quartz (light slate / solid block)
 

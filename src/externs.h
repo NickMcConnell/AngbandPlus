@@ -783,6 +783,7 @@ extern void do_cmd_list_objects(void);
 extern cptr get_ordinal_number_suffix(int num);
 extern void do_cmd_redraw(void);
 extern void do_cmd_change_name(void);
+extern void do_cmd_knowledge_weapon(void);
 extern void do_cmd_message_one(void);
 extern void do_cmd_messages(int num_now);
 extern void do_cmd_options_aux(int page, cptr info);
@@ -2027,6 +2028,7 @@ extern void equip_shuffle(cptr tag); /* For shapeshifters ... */
 /* Monster Races */
 extern race_t *mon_angel_get_race_t(void);
 extern race_t *mon_beholder_get_race_t(void);
+extern race_t *mon_centipede_get_race_t(void);
 extern race_t *mon_demon_get_race_t(int psubrace);
 extern race_t *mon_dragon_get_race_t(int psubrace);
 extern race_t *mon_elemental_get_race_t(int psubrace);

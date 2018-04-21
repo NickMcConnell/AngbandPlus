@@ -3,7 +3,7 @@
 static void _calc_bonuses(void)
 {
     if (p_ptr->lev >= 30)
-        res_add(TR_RES_FEAR);
+        res_add(RES_FEAR);
     if (p_ptr->lev >= 45)
         p_ptr->regenerate = TRUE;
 }

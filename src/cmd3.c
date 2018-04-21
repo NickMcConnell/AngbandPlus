@@ -375,8 +375,6 @@ void do_cmd_destroy(void)
                     /* Auto-destroy it */
                     autopick_alter_item(item, TRUE);
                 }
-                else
-                    msg_print("Initialize the auto-pick preferences first (Type '_').");
 
                 /* The object is already destroyed. */
                 return;

@@ -1,7 +1,10 @@
 #include "angband.h"
 
+#include <assert.h>
+
 void res_add(int which)
 {
+    assert(0 <= which && which < RES_MAX);
     p_ptr->resist[which]++;
 }
 

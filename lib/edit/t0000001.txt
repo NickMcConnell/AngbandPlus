@@ -62,6 +62,11 @@ F:!:FLOOR:3:0:42
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:132:300
 
+# Boots
+?:[AND [EQU $QUEST1 3] [EQU $RACE Centipede] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:14
+F:!:FLOOR:3:0:92
+
 # Cloak
 ?:[AND [EQU $QUEST1 3] [EQU $RACE Dragon] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
@@ -353,6 +358,11 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:31
 F:a:BUILDING_0:3:0:0:0:0:NONE:32
 F:@:FLOOR:3:0:132:301
 
+# Elemental Charm
+?:[AND [EQU $QUEST31 3] [EQU $RACE Hydra] ]
+F:a:BUILDING_0:3:0:0:0:0:NONE:32
+F:@:FLOOR:3:0:163:321
+
 # Quest 31 finished, continue with quest 32
 ?:[EQU $QUEST31 4]
 F:a:BUILDING_0:3:0:0:0:0:NONE:32
@@ -542,6 +552,18 @@ F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:9
 
 ##########################################################################
+# Centipede
+# Shiva's Avatar
+?:[AND [EQU $QUEST27 3] [EQU $RACE Centipede] [EQU [MOD $RANDOM27 5] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:63
+
+# Stone of War
+?:[AND [EQU $QUEST27 3] [EQU $RACE Centipede] [GEQ [MOD $RANDOM27 5] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:291
+
+##########################################################################
 # Dragon
 # Colluin
 ?:[AND [EQU $QUEST27 3] [EQU $RACE Dragon] [EQU [MOD $RANDOM27 5] 0] ]
@@ -628,13 +650,13 @@ F:@:FLOOR:3:0:0:0:174
 
 ##########################################################################
 # Mauler
-# Nyoi-bou
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [EQU [MOD $RANDOM27 9] 0] ]
+# Impaler
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:157
+F:@:FLOOR:3:0:0:0:324
 
 # Benkei
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [GEQ [MOD $RANDOM27 9] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:152
 

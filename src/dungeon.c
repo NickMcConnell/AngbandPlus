@@ -2763,6 +2763,7 @@ static byte get_dungeon_feeling(void)
     const int base = 10;
     int rating = 0;
     int i;
+    const race_t *race_ptr = get_race_t();
 
     /* Hack -- no feeling in the town */
     if (!dun_level) return 0;
@@ -2779,6 +2780,10 @@ static byte get_dungeon_feeling(void)
 
         /* Ignore pet */
         if (is_pet(m_ptr)) continue;
+
+        /* Experimental Hack: Monster Boss is "Special" */
+        if (race_ptr->boss_r_idx == m_ptr->r_idx)
+            return 1;
 
         r_ptr = &r_info[m_ptr->r_idx];
 

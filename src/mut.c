@@ -118,7 +118,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_GREAT,                     0,             0, 0, {0,  0,   0, evasion_mut}},
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, potion_chugger_mut}},
     {MUT_RATING_GREAT,                     0,             0, 0, {0,  0,   0, one_with_magic_mut}},
-    {MUT_RATING_GREAT,        MUT_TYPE_ACTIVATION, A_INT, 0, {20, 25, 40, peerless_tracker_mut}},
+    {MUT_RATING_GREAT,        MUT_TYPE_ACTIVATION, A_WIS, 0, {20, 25, 40, peerless_tracker_mut}},
     {MUT_RATING_GREAT,                     0,             0, 0, {0,  0,   0, infernal_deal_mut}},
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, merchants_friend_mut}},
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, sacred_vitality_mut}},

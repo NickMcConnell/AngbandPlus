@@ -237,6 +237,10 @@ void default_spell(int cmd, variant *res) /* Base class */
         var_set_int(res, TERM_WHITE);
         break;
 
+    case SPELL_ON_BROWSE:
+        var_set_bool(res, FALSE);
+        break;
+
     default:
         var_clear(res);
         break;
@@ -440,32 +444,39 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
     var_clear(&color);
 }
 
-static void _describe_spell(spell_info *spell, int col_height)
+static bool _describe_spell(spell_info *spell, int col_height)
 {
-    char tmp[62*5];
-    int i, line;
+    bool result = TRUE;
     variant info;
 
     var_init(&info);
 
-    /* 2 lines below list of spells, 5 lines for description */
-    for (i = 0; i < 7; i++)
-        Term_erase(13, col_height + i + 2, 255);
-
-    /* Get the description, and line break it (max 5 lines) */
-    (spell->fn)(SPELL_DESC, &info);
-    roff_to_buf(var_get_string(&info), 62, tmp, sizeof(tmp));
-
-    for(i = 0, line = col_height + 3; tmp[i]; i += 1+strlen(&tmp[i]))
+    (spell->fn)(SPELL_ON_BROWSE, &info);
+    if (!var_get_bool(&info))
     {
-        prt(&tmp[i], line, 15);
-        line++;
+        char tmp[62*5];
+        int i, line;
+
+        /* 2 lines below list of spells, 5 lines for description */
+        for (i = 0; i < 7; i++)
+            Term_erase(13, col_height + i + 2, 255);
+
+        /* Get the description, and line break it (max 5 lines) */
+        (spell->fn)(SPELL_DESC, &info);
+        roff_to_buf(var_get_string(&info), 62, tmp, sizeof(tmp));
+
+        for(i = 0, line = col_height + 3; tmp[i]; i += 1+strlen(&tmp[i]))
+        {
+            prt(&tmp[i], line, 15);
+            line++;
+        }
+
+        (spell->fn)(SPELL_INFO, &info);
+        prt(format("%^s", var_get_string(&info)), line, 15);
+        result = FALSE;
     }
-
-    (spell->fn)(SPELL_INFO, &info);
-    prt(format("%^s", var_get_string(&info)), line, 15);
-
     var_clear(&info);
+    return result;
 }
 
 static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
@@ -556,7 +567,8 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
         choice = _choose_spell(spells, ct, desc, 10000);
         if (choice < 0 || choice >= ct) break;
 
-        _describe_spell(&spells[choice], _col_height(ct));
+        if (_describe_spell(&spells[choice], _col_height(ct)))
+            break;
     }
     screen_load();
 }

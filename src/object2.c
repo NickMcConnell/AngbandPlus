@@ -2190,14 +2190,7 @@ static bool make_artifact_special(object_type *o_ptr)
         }
         else
         {
-            /* Assign the template */
-            object_prep(o_ptr, k_idx);
-
-            /* Mega-Hack -- mark the item as an artifact */
-            o_ptr->name1 = i;
-
-            /* Hack: Some artifacts get random extra powers */
-            random_artifact_resistance(o_ptr, a_ptr);
+            create_named_art_aux(i, o_ptr);
         }
         /* Success */
         return (TRUE);
@@ -2257,10 +2250,7 @@ static bool make_artifact(object_type *o_ptr)
         }
         else
         {
-            o_ptr->name1 = i;
-
-            /* Hack: Some artifacts get random extra powers */
-            random_artifact_resistance(o_ptr, a_ptr);
+            create_named_art_aux(i, o_ptr);
         }
         /* Success */
         return (TRUE);
@@ -2380,8 +2370,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
         if ( ((mode & AM_GREAT) && randint0(50) < level)
           || ((mode & AM_GOOD) && randint0(200) < level) )
         {
-            if ( o_ptr->name2 != EGO_RING_SPEED
-              && o_ptr->name2 != EGO_RING_NAZGUL
+            if ( !apply_magic_ego
+              && o_ptr->name2 != EGO_RING_SPEED
               && o_ptr->name2 != EGO_RING_DEFENDER )
             {
                 done = FALSE;
@@ -2390,6 +2380,21 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
     }
     switch (o_ptr->name2)
     {
+    case EGO_RING_DWARVES:
+        o_ptr->to_d += 5;
+        if (one_in_(6))
+            o_ptr->curse_flags |= TRC_PERMA_CURSE;
+        if (one_in_(6))
+            add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+        if (one_in_(2))
+            add_flag(o_ptr->art_flags, TR_RES_DARK);
+        if (one_in_(3))
+            add_flag(o_ptr->art_flags, TR_RES_DISEN);
+        if (one_in_(6))
+            one_high_resistance(o_ptr);
+        if (one_in_(ACTIVATION_CHANCE))
+            effect_add_random(o_ptr, BIAS_PRIESTLY);
+        break;
     case EGO_RING_NAZGUL:
         o_ptr->to_d += 6;
         o_ptr->to_h += 6;
@@ -3640,15 +3645,29 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_PRIESTLY);
                 break;
+            case EGO_WEAPON_DAEMON:
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+                else
+                    add_flag(o_ptr->art_flags, TR_DEC_STEALTH);
+                break;
             case EGO_WEAPON_DEATH:
+                if (one_in_(6))
+                    add_flag(o_ptr->art_flags, TR_VULN_LITE);
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_SLAY_GOOD);
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_RES_NETHER);
                 if (one_in_(5))
                     add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
                 else if (one_in_(13))
                 {
-                    /* add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
+                    add_flag(o_ptr->art_flags, TR_SLAY_LIVING);
                     o_ptr->dd++; 
                     o_ptr->curse_flags |= TRC_CURSED;
-                    o_ptr->curse_flags |= get_curse(2, o_ptr); */
+                    o_ptr->curse_flags |= get_curse(2, o_ptr);
                 }
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_NECROMANTIC);
@@ -3685,12 +3704,7 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                 if (o_ptr->tval != TV_HAFTED)
                     done = FALSE;
                 else
-                {
-                    if (one_in_(3) && level > 60)
-                        add_flag(o_ptr->art_flags, TR_BLOWS);
-                    else
-                        o_ptr->pval = m_bonus(3, level);
-                }
+                    o_ptr->pval = m_bonus(3, level);
                 break;
             case EGO_WEAPON_KILL_DEMON:
                 if (one_in_(3))
@@ -4314,6 +4328,8 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 break;
 
             case EGO_HELMET_SUNLIGHT:
+                if (one_in_(3))
+                    add_flag(o_ptr->art_flags, TR_VULN_DARK);
                 if (one_in_(ACTIVATION_CHANCE))
                 {
                     int choices[] = {
@@ -4325,6 +4341,8 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 break;
 
             case EGO_HELMET_KNOWLEDGE:
+                if (one_in_(15))
+                    add_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
                 if (one_in_(ACTIVATION_CHANCE))
                 {
                     int choices[] = {
@@ -4380,9 +4398,20 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 effect_add_random(o_ptr, BIAS_ELEMENTAL);
             break;
         case EGO_CLOAK_BAT:
+            o_ptr->to_d -= 6;
+            o_ptr->to_h -= 6;
+            if (one_in_(3))
+                add_flag(o_ptr->art_flags, TR_VULN_LITE);
+            if (one_in_(3))
+                add_flag(o_ptr->art_flags, TR_DEC_STR);
+            break;
         case EGO_CLOAK_FAIRY:
             o_ptr->to_d -= 6;
             o_ptr->to_h -= 6;
+            if (one_in_(3))
+                add_flag(o_ptr->art_flags, TR_VULN_DARK);
+            if (one_in_(3))
+                add_flag(o_ptr->art_flags, TR_DEC_STR);
             break;
         case EGO_CLOAK_NAZGUL:
             o_ptr->to_d += 6;
@@ -4828,7 +4857,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
     }
 
     /* Roll for "cursed" */
-    else if (magik(f1))
+    else if (magik((f1+2)/3))
     {
         /* Assume "cursed" */
         power = -1;
@@ -5216,13 +5245,17 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
     }
 }
 
-static bool _is_favorite(int tval, int sval)
+static bool _is_favorite_weapon(int tval, int sval)
 {
-    object_type forge;
-    int         k_idx = lookup_kind(tval, sval);
+    if (p_ptr->pclass != CLASS_ARCHER)
+    {
+        object_type forge;
+        int         k_idx = lookup_kind(tval, sval);
 
-    object_prep(&forge, k_idx);
-    return object_is_favorite(&forge);
+        object_prep(&forge, k_idx);
+        return object_is_favorite(&forge);
+    }
+    return FALSE;
 }
 
 static bool kind_is_tailored(int k_idx)
@@ -5264,7 +5297,7 @@ static bool kind_is_tailored(int k_idx)
     case TV_POLEARM:
     case TV_DIGGING:
         return equip_can_wield_kind(k_ptr->tval, k_ptr->sval)
-            && _is_favorite(k_ptr->tval, k_ptr->sval);
+            && _is_favorite_weapon(k_ptr->tval, k_ptr->sval);
 
     case TV_SHOT:
         /*return equip_can_wield_kind(TV_BOW, SV_SLING);*/
@@ -5562,6 +5595,33 @@ bool kind_is_device(int k_idx) {
     }
     return FALSE;
 }
+static bool _kind_is_potion(int k_idx) { 
+    switch (k_info[k_idx].tval)
+    {
+    case TV_POTION:
+        return TRUE;
+    }
+    return FALSE;
+}
+/*static bool _kind_is_potion_scroll(int k_idx) { 
+    switch (k_info[k_idx].tval)
+    {
+    case TV_POTION:
+    case TV_SCROLL:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_is_wand_rod_staff(int k_idx) { 
+    switch (k_info[k_idx].tval)
+    {
+    case TV_WAND:
+    case TV_ROD:
+    case TV_STAFF:
+        return TRUE;
+    }
+    return FALSE;
+}*/
 bool kind_is_jewelry(int k_idx) { 
     switch (k_info[k_idx].tval)
     {
@@ -5627,14 +5687,15 @@ typedef struct {
     int     great;
 } _kind_alloc_entry;
 static _kind_alloc_entry _kind_alloc_table[] = {
-    { kind_is_weapon,       180,    0,    0 },  
-    { kind_is_body_armor,   165,    0,    0 },
-    { kind_is_other_armor,  200,    0,    0 },
-    { kind_is_device,       250, -200, -200 },
-    { kind_is_bow_ammo,      70,    0,    0 },
-    { kind_is_book,          50,    0,    0 },
-    { kind_is_jewelry,       35,    0,    0 },
-    { kind_is_misc,          50,  -50,  -50 },
+    { kind_is_weapon,          180,    0,    0 },  
+    { kind_is_body_armor,      165,    0,    0 },
+    { kind_is_other_armor,     200,    0,    0 },
+    { kind_is_device,          200, -150, -150 },
+    { _kind_is_potion,          50,  -25,  -50 },
+    { kind_is_bow_ammo,         70,    0,    0 },
+    { kind_is_book,             50,    0,    0 },
+    { kind_is_jewelry,          35,    0,    0 },
+    { kind_is_misc,             50,  -50,  -50 },
     { NULL, 0}
 };
 static int _kind_alloc_weight(_kind_alloc_entry *entry, u32b mode)
