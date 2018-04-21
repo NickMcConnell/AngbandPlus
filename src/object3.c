@@ -1119,6 +1119,17 @@ s32b weapon_cost(object_type *o_ptr, int options)
     return p;
 }
 
+s32b ammo_cost(object_type *o_ptr, int options)
+{
+    /* TODO: Implement this properly. Many weapon flags will not apply here.
+       Also, some egos, like EGO_AMMO_RETURNING will not score properly */
+    s32b result = weapon_cost(o_ptr, options);
+    result /= 25;
+    if (!result)
+        result = 1;
+    return result;
+}
+
 static s32b _avg_dam_bow(object_type *o_ptr, int options)
 {
     s32b d = 0;
@@ -1330,6 +1341,7 @@ s32b new_object_cost(object_type *o_ptr, int options)
 {
     if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr, options);
     else if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr, options);
+    else if (object_is_ammo(o_ptr)) return ammo_cost(o_ptr, options);
     else if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr, options);
     else if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr, options);
     else if (o_ptr->tval == TV_LITE) return lite_cost(o_ptr, options);

@@ -284,7 +284,7 @@ Base HP       15        Bows        <color:G>Excellent    </color>
 Experience   250%       Infravision 0'
 </style></indent>
 <topic:Possessor><color:o>Possessor</color>
-The Possessor is an odd creature, completely harmless in its natural form. However, they are capable of possessing the corpses of monsters they have slain, and gain powers and abilities based on their current body. As such, they can become quite powerful indeed! Unfortunately, not every type of monster will drop a corpse, and getting suitable corspes to inhabit can be difficult. If the possessor ever leaves their current body (and they must do so to inhabit a new form) then all of their equipment will be removed (except a light source) and they will temporarily be in their native, vulnerable state. Finally, leaving their current body will destroy that corpse most of the time, so the possessor should only do so if they have a better corpse on hand (and also only if there are no monsters nearby!).
+The Possessor is an odd creature, completely harmless in its natural form. However, they are capable of possessing the corpses of monsters they have slain, and gain powers and abilities based on their current body. As such, they can become quite powerful indeed! Unfortunately, not every type of monster will drop a corpse, and getting suitable corspes to inhabit can be difficult. If the possessor ever leaves their current body then all of their equipment will be removed (except a light source) and they will temporarily be in their native, vulnerable state. Finally, leaving their current body will destroy that corpse most of the time, so the possessor should only do so if they have a better corpse on hand (and also only if there are no monsters nearby!).
  
 Possessors are monsters and do not choose a normal class. Their stats, skills, resistances and spells are completely determined by the body they inhabit. Their current body also determines their spell stat (e.g. a novice priest uses wisdom, a novice mage uses intelligence). Their current body may offer innate powers (e.g. breath weapons or rockets) in addition to or in lieu of magical powers (e.g. mana storms and frost bolts). Be sure to check both the racial power command ('U') and the magic command ('m') after possessing a new body.
 
@@ -490,4 +490,4 @@ Xorn         <color:R>Poor         </color> <color:r>Bad          </color> <colo
 </style>
 
 
-<color:s>Automatically generated for PosChengband 4.0.0.</color>
+<color:s>Automatically generated for PosChengband 4.0.1.</color>

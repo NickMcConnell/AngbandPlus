@@ -70,6 +70,8 @@ static bool _pack_find_tval(int tval)
 bool restore_mana(void)
 {
     bool result = FALSE;
+    int  i;
+
     if (p_ptr->pclass == CLASS_MAGIC_EATER)
     {
         magic_eater_restore();
@@ -87,6 +89,17 @@ bool restore_mana(void)
         p_ptr->window |= (PW_SPELL);
         result = TRUE;
     }
+
+    for (i = 0; i < INVEN_PACK; i++)
+    {
+        if (!inventory[i].k_idx) continue;
+        if (!object_is_device(&inventory[i])) continue;
+        if (inventory[i].tval == TV_ROD)
+            device_regen_sp_aux(&inventory[i], 700);
+        else
+            device_regen_sp_aux(&inventory[i], 350);
+    }
+
     msg_print("You feel your head clear.");
     return result;
 }
@@ -1600,7 +1613,7 @@ static void do_cmd_activate_aux(int item)
         _do_capture_ball(o_ptr);
         return;
     }
-    
+
     if (effect_use(&effect, boost))
     {
         o_ptr->timeout = effect.cost;

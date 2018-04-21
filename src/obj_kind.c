@@ -188,6 +188,10 @@ bool object_is_rare(object_type *o_ptr)
 {
     switch(o_ptr->tval)
     {
+    case TV_BOW:
+        if (o_ptr->sval == SV_HARP) return TRUE;
+        break;
+
     case TV_HAFTED:
         if (o_ptr->sval == SV_MACE_OF_DISRUPTION ||
             o_ptr->sval == SV_WIZSTAFF) return TRUE;

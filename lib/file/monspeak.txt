@@ -374,7 +374,7 @@ says, 'Soul? What is it of use to?'
 casts Light Speed.
 
 N:685:Shoggoth
-says, 'barrels towards you horrifyingly.'
+barrels towards you horrifyingly.
 wails, 'Tekeli-li!  Tekeli-li!'
 
 #N:681:Chaugnar Faugn, Horror from the Hills

@@ -1366,49 +1366,9 @@ static void process_world_aux_hp_and_sp(void)
     /* Take damage from cuts */
     if (p_ptr->cut && !IS_INVULN())
     {
-        int dam;
-
-        /* Mortal wound or Deep Gash */
-        if (p_ptr->cut > 1000)
-        {
-            dam = 200;
-        }
-
-        else if (p_ptr->cut > 200)
-        {
-            dam = 80;
-        }
-
-        /* Severe cut */
-        else if (p_ptr->cut > 100)
-        {
-            dam = 32;
-        }
-
-        else if (p_ptr->cut > 50)
-        {
-            dam = 16;
-        }
-
-        else if (p_ptr->cut > 25)
-        {
-            dam = 7;
-        }
-
-        else if (p_ptr->cut > 10)
-        {
-            dam = 3;
-        }
-
-        /* Other cuts */
-        else
-        {
-            dam = 1;
-        }
-
-        /* Take damage */
-        take_hit(DAMAGE_NOESCAPE, dam, "a fatal wound", -1);
-
+        cut_info_t cut = cut_info(p_ptr->cut);
+        if (cut.dam)
+            take_hit(DAMAGE_NOESCAPE, cut.dam, "a fatal wound", -1);
     }
 
 

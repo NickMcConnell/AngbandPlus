@@ -1752,29 +1752,10 @@ static bool prt_speed(int row, int col)
  *****************************************************************************/
 static void prt_cut(int row, int col)
 {
-    int c = p_ptr->cut;
+    cut_info_t cut = cut_info(p_ptr->cut);
 
-    if (c >= CUT_MORTAL_WOUND)
-        c_put_str(TERM_L_RED, "Mortal Wound", row, col);
-
-    else if (c >= CUT_DEEP_GASH)
-        c_put_str(TERM_RED, "Deep Gash", row, col);
-
-    else if (c >= CUT_SEVERE)
-        c_put_str(TERM_RED, "Severe Cut", row, col);
-
-    else if (c >= CUT_NASTY)
-        c_put_str(TERM_ORANGE, "Nasty Cut", row, col);
-
-    else if (c >= CUT_BAD)
-        c_put_str(TERM_ORANGE, "Bad Cut", row, col);
-
-    else if (c >= CUT_LIGHT)
-        c_put_str(TERM_YELLOW, "Light Cut", row, col);
-
-    else if (c >= CUT_GRAZE)
-        c_put_str(TERM_YELLOW, "Graze", row, col);
-
+    if (cut.level != CUT_NONE)
+        c_put_str(cut.attr, cut.desc, row, col);
 }
 
 
@@ -3452,6 +3433,10 @@ void calc_bonuses(void)
     if (p_ptr->tim_speed_essentia)
         p_ptr->shooter_info.num_fire += 100;
 
+    if (p_ptr->tim_weaponmastery)
+        p_ptr->shooter_info.to_mult += (p_ptr->lev/23) * 25;
+
+
     p_ptr->dis_to_a = p_ptr->to_a = 0;
     p_ptr->to_h_m = 0;
     p_ptr->to_d_m = 0;
@@ -3490,7 +3475,7 @@ void calc_bonuses(void)
         p_ptr->weapon_info[i].heavy_wield = FALSE;
         p_ptr->weapon_info[i].icky_wield = FALSE;
         p_ptr->weapon_info[i].riding_wield = FALSE;
-        p_ptr->weapon_info[i].giant_wield = FALSE;
+        p_ptr->weapon_info[i].giant_wield = 0;
 
         p_ptr->weapon_info[i].info_attr = TERM_WHITE;
         p_ptr->weapon_info[i].info = 0;
@@ -4237,7 +4222,8 @@ void calc_bonuses(void)
             w1 = robj->weight;
             w2 = lobj->weight;
 
-            pct = 550 * skill/WEAPON_EXP_MASTER;
+            /* cf design/combat.ods ... This is very generous! */
+            pct = 650 * skill/WEAPON_EXP_MASTER;
 
             if (p_ptr->weapon_info[rhand].genji)
             {
@@ -4291,10 +4277,10 @@ void calc_bonuses(void)
             {
                 int new_to_d = to_d * skill/WEAPON_EXP_MASTER;
 
-                p_ptr->weapon_info[0].to_d -= (to_d - new_to_d);
-                p_ptr->weapon_info[0].dis_to_d -= (to_d - new_to_d);
-                p_ptr->weapon_info[1].to_d -= (to_d - new_to_d);
-                p_ptr->weapon_info[1].dis_to_d -= (to_d - new_to_d);
+                p_ptr->weapon_info[rhand].to_d -= (to_d - new_to_d);
+                p_ptr->weapon_info[rhand].dis_to_d -= (to_d - new_to_d);
+                p_ptr->weapon_info[lhand].to_d -= (to_d - new_to_d);
+                p_ptr->weapon_info[lhand].dis_to_d -= (to_d - new_to_d);
             }
         }
     }

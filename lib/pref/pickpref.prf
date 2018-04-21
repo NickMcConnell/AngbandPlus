@@ -39,14 +39,18 @@ scrolls:genocide#!*
 scrolls:forest creation
 scrolls:wall of stone
 scrolls:acquirement#!*
+scrolls:banish
 ?:1
 
 #########################################
 # Devices
 #########################################
-
+#*identified* rings more value than 5000
+#*identified* amulets more value than 5000
 ?unidentified rings
 ?unidentified amulets
+#!*identified* rings
+#!*identified* amulets
 
 rods:angelic healing#@zh!s!d!k
 rods:heroic speed#@zs!s!d!k
@@ -89,7 +93,7 @@ mirror shield
 
 weapons:poison needle
 diamond edge
-rune sword
+#rune sword
 blade of chaos
 
 ?unidentified dice boosted weapons
@@ -120,12 +124,12 @@ wanted skeletons#Wanted!k!k!k
 ?:[EQU $CLASS Sorcerer]
 fourth spellbooks#!s!d!k
 third spellbooks#!k
-~second spellbooks#@mb!k
-~first spellbooks#@ma!k
+~second spellbooks#!k
+~first spellbooks#!k
 
 ?:[EQU $CLASS Sorcerer Red-Mage]
-~second spellbooks#@mb!k
-~first spellbooks#@ma!k
+~second spellbooks#!k
+~first spellbooks#!k
 
 ?:[NOT [EQU $CLASS Sorcerer Red-Mage]]
 first realm's fourth spellbooks#@md!s!d!k
@@ -179,6 +183,7 @@ Iron Spike#@v0
 !average common weapons
 !average common shooters
 !average common armors
+!cursed nameless common items
 ?:1
 
 ?:[LEQ $LEVEL 34]

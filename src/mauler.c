@@ -738,7 +738,7 @@ class_t *mauler_get_class(void)
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 25,  25,  35,   0,  14,   2,  70,  20 };
-    skills_t xs = { 12,  11,  12,   0,   0,   0,  30,   7 };
+    skills_t xs = { 12,   9,  12,   0,   0,   0,  30,   7 };
 
         me.name = "Mauler";
         me.desc = 

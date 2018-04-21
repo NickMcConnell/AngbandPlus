@@ -501,12 +501,12 @@ Mimic/Possessor
   body. As such, they can become quite powerful indeed! Unfortunately, 
   not every type of monster will drop a corpse, and getting suitable 
   corspes to inhabit can be difficult. If the possessor ever leaves 
-  their current body (and they must do so to inhabit a new form) then 
-  all of their equipment will be removed (except a light source) and 
-  they will temporarily be in their native, vulnerable state. Finally, 
-  leaving their current body will destroy that corpse most of the time, 
-  so the possessor should only do so if they have a better corpse on 
-  hand (and also only if there are no monsters nearby!).
+  their current body then all of their equipment will be removed 
+  (except a light source) and they will temporarily be in their native, 
+  vulnerable state. Finally, leaving their current body will destroy 
+  that corpse most of the time, so the possessor should only do so if 
+  they have a better corpse on hand (and also only if there are no 
+  monsters nearby!).
    
   Possessors are monsters and do not choose a normal class. Their 
   stats, skills, resistances and spells are completely determined by 
@@ -776,5 +776,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 4.0.0.
+Automatically generated for PosChengband 4.0.1.
 

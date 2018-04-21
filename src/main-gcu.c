@@ -182,8 +182,17 @@
 # include <curses.h>
 #endif
 
-void usleep(int);
-void putenv(const char*);
+/* gcc warns that these are implicitly declared:
+main-gcu.c:1123:7: warning: implicit declaration of function ‘usleep’ [-Wimplicit-function-declaration]
+       usleep(1000 * v);
+       ^
+main-gcu.c:1374:8: warning: implicit declaration of function ‘putenv’ [-Wimplicit-function-declaration]
+        putenv("ESCDELAY=20");
+        ^
+   Anybody know how to remove the warning? #include <stdlib.h> does not work ...
+*/
+extern int usleep(__useconds_t);
+extern int putenv(char*);
 
 typedef struct term_data term_data;
 

@@ -1301,6 +1301,7 @@ s32b object_value_real(object_type *o_ptr)
        So use the new algorithms whenever possible.
     */
     if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr, COST_REAL);
+    if (object_is_ammo(o_ptr)) return ammo_cost(o_ptr, COST_REAL);
     if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr, COST_REAL);
     if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr, COST_REAL);
     if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr, COST_REAL);
@@ -1545,6 +1546,8 @@ s32b object_value(object_type *o_ptr)
             value = weapon_cost(o_ptr, 0);
         else if (o_ptr->tval == TV_BOW)
             value = bow_cost(o_ptr, 0);
+        else if (object_is_ammo(o_ptr))
+            value = ammo_cost(o_ptr, 0);
         else if (object_is_armour(o_ptr) || object_is_shield(o_ptr))
             value = armor_cost(o_ptr, 0);
         else if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr)))
@@ -1558,10 +1561,12 @@ s32b object_value(object_type *o_ptr)
 
         if (!(o_ptr->ident & IDENT_FULL))
         {
-            if (o_ptr->name2 && !e_info[o_ptr->name2].aware)
-                value += 500;
+            if (o_ptr->name2 && !ego_is_aware(o_ptr->name2))
+                value += 500 / o_ptr->number;
             else if (object_is_artifact(o_ptr))
                 value += 1000;
+            if (object_is_cursed(o_ptr))
+                value /= 3;
         }
     }
     else
@@ -1569,12 +1574,21 @@ s32b object_value(object_type *o_ptr)
         value = new_object_cost(o_ptr, 0);
         if (!value)
             value = object_value_base(o_ptr);
+
+        if ( (o_ptr->ident & IDENT_SENSE)
+          && (o_ptr->feeling == FEEL_EXCELLENT || o_ptr->feeling == FEEL_AWFUL)
+          && object_is_ego(o_ptr))
+        {
+            value += 500 / o_ptr->number;
+        }
+        if ( (o_ptr->ident & IDENT_SENSE)
+          && (o_ptr->feeling == FEEL_SPECIAL || o_ptr->feeling == FEEL_TERRIBLE)
+          && object_is_artifact(o_ptr))
+        {
+            value += 1000;
+        }
         if ((o_ptr->ident & IDENT_SENSE) && object_is_cursed(o_ptr))
             value /= 3;
-        if ((o_ptr->ident & IDENT_SENSE) && object_is_ego(o_ptr))
-            value += 500;
-        if ((o_ptr->ident & IDENT_SENSE) && object_is_artifact(o_ptr))
-            value += 1000;
     }
     if (o_ptr->discount) 
         value -= (value * o_ptr->discount / 100L);
@@ -4219,6 +4233,9 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
             o_ptr->to_d = 10;
             o_ptr->to_a = -10;
             break;
+        case EGO_GLOVES_SNIPER:
+            o_ptr->to_h = 5 + randint1(10);
+            break;
         }
         break;
 
@@ -4278,8 +4295,11 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
             case EGO_BODY_ELVENKIND:
                 if (one_in_(4))
                 {
-                    add_flag(o_ptr->art_flags, TR_DEC_STR);
                     add_flag(o_ptr->art_flags, TR_DEX);
+                    if (one_in_(2))
+                        add_flag(o_ptr->art_flags, TR_DEC_STR);
+                    if (one_in_(7))
+                        add_flag(o_ptr->art_flags, TR_SPEED);
                 }
                 break;
             case EGO_BODY_DWARVEN:
@@ -5773,7 +5793,7 @@ static bool _kind_hook(int k_idx) {
 bool kind_is_device(int k_idx) { 
     switch (k_info[k_idx].tval)
     {
-    case TV_POTION: case TV_SCROLL: case TV_WAND: case TV_ROD: case TV_STAFF:
+    case TV_WAND: case TV_ROD: case TV_STAFF:
         return TRUE;
     }
     return FALSE;
@@ -5929,7 +5949,17 @@ static bool _kind_is_lance(int k_idx) {
     return FALSE;
 }
 static bool _kind_is_bow(int k_idx) {
+    if (k_info[k_idx].tval == TV_BOW)
+        return TRUE;
+    return FALSE;
+}
+static bool _kind_is_bow2(int k_idx) {
     if (k_info[k_idx].tval == TV_BOW && k_info[k_idx].sval != SV_HARP) /* Assume tailored Archer reward, and a harp is just insulting! */
+        return TRUE;
+    return FALSE;
+}
+static bool _kind_is_ammo(int k_idx) {
+    if (TV_MISSILE_BEGIN <= k_info[k_idx].tval && k_info[k_idx].tval <= TV_MISSILE_END)
         return TRUE;
     return FALSE;
 }
@@ -5957,13 +5987,14 @@ typedef struct {
     int     great;
 } _kind_alloc_entry;
 static _kind_alloc_entry _kind_alloc_table[] = {
-    { kind_is_weapon,          200,    0,    0 },
-    { kind_is_body_armor,      190,    0,    0 },
+    { kind_is_weapon,          210,    0,    0 },
+    { kind_is_body_armor,      200,    0,    0 },
     { kind_is_other_armor,     210,    0,    0 },
     { kind_is_wand_rod_staff,   90,  -40,  -60 },
     { _kind_is_potion_scroll,  100,  -50,  -90 },
-    { kind_is_bow_ammo,         70,    0,    0 },
-    { kind_is_book,             50,    0,    0 },
+    { _kind_is_bow,             45,    0,   25 },
+    { _kind_is_ammo,            30,    0,  -25 },
+    { kind_is_book,             25,   10,   15 },
     { kind_is_jewelry,          40,    0,    0 },
     { kind_is_misc,             50,  -50,  -50 },
     { NULL, 0}
@@ -6015,7 +6046,7 @@ static _kind_p _choose_obj_kind(u32b mode)
         case CLASS_ARCHER:
         case CLASS_SNIPER:
             if (one_in_(5))
-                _kind_hook1 = _kind_is_bow;
+                _kind_hook1 = _kind_is_bow2;
             break;
         case CLASS_DEVICEMASTER:
             if (one_in_(5))
@@ -6091,7 +6122,7 @@ static _kind_p _choose_obj_kind(u32b mode)
         }
         if (!_kind_hook1)
         {
-            if (is_magic(p_ptr->realm1) && one_in_(5))
+            if (is_magic(p_ptr->realm1) && one_in_(10))
                 _kind_hook1 = kind_is_book;
             else if (_is_device_class() && one_in_(7))
                 _kind_hook1 = kind_is_wand_rod_staff;
@@ -6344,12 +6375,6 @@ bool make_gold(object_type *j_ptr)
 
     /* Determine how much the treasure is "worth" */
     j_ptr->pval = (base + (8 * randint1(base)) + randint1(8));
-
-    if (no_selling)
-    {
-        j_ptr->pval += j_ptr->pval / 2;
-        j_ptr->pval += j_ptr->pval * 2 * object_level / 100;
-    }
 
     j_ptr->pval = j_ptr->pval * (625 - virtue_current(VIRTUE_SACRIFICE)) / 625;
 

@@ -334,7 +334,6 @@ extern bool ironman_quests; /* Random quests must be completed */
 extern bool random_artifacts;
 extern bool no_artifacts;
 extern bool no_egos;
-extern bool no_selling;
 extern bool enable_virtues;
 
 /*** Easy Object Auto-Destroyer ***/
@@ -791,6 +790,7 @@ extern void do_cmd_save_screen(void);
 extern void do_cmd_save_screen_doc(void);
 extern void do_cmd_save_screen_html(void);
 extern void do_cmd_save_screen_txt(void);
+extern void save_screen_aux(cptr file, int format);
 extern void do_cmd_knowledge_quests_completed(FILE *fff, int quest_num[]);
 extern void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[]);
 extern bool ang_sort_comp_quest_num(vptr u, vptr v, int a, int b);
@@ -1253,6 +1253,7 @@ typedef void (*debug_hook)(cptr msg);
 extern debug_hook cost_calc_hook;
 enum { COST_REAL = 0x01 };
 extern s32b weapon_cost(object_type *o_ptr, int options);
+extern s32b ammo_cost(object_type *o_ptr, int options);
 extern s32b bow_cost(object_type *o_ptr, int options);
 extern s32b armor_cost(object_type *o_ptr, int options);
 extern s32b jewelry_cost(object_type *o_ptr, int options);
@@ -1695,6 +1696,8 @@ extern bool set_oppose_cold(int v, bool do_dec);
 extern bool set_oppose_pois(int v, bool do_dec);
 extern bool set_stun(int v, bool do_dec);
 extern bool set_cut(int v, bool do_dec);
+typedef struct { int level; int dam; cptr desc; byte attr; } cut_info_t;
+extern cut_info_t cut_info(int v);
 extern bool set_food(int v);
 extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);

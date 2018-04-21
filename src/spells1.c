@@ -5987,7 +5987,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             if (do_time)
             {
-                note = " seems weakened.";
+                if (!(flg & PROJECT_NO_PAIN))
+                    note = " seems weakened.";
                 m_ptr->maxhp -= do_time;
                 if ((m_ptr->hp - dam) > m_ptr->maxhp) dam = m_ptr->hp - m_ptr->maxhp;
             }

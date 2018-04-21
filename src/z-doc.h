@@ -170,6 +170,7 @@ doc_char_ptr  doc_char(doc_ptr doc, doc_pos_t pos);
 void          doc_sync_term(doc_ptr doc, doc_region_t range, doc_pos_t term_pos);
 
 void          doc_change_name(doc_ptr doc, cptr name);
+void          doc_change_html_header(doc_ptr doc, cptr header);
 vec_ptr       doc_get_links(doc_ptr doc);
 
 /* Parsing */

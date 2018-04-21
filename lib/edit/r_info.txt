@@ -929,6 +929,8 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:POS_GAIN_AC
 P:Copy:Human:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:Body:Hound
 D:A striped housecat who enjoys hunting. 
 
@@ -2948,6 +2950,8 @@ B:CLAW:HURT:1d8
 F:BASH_DOOR | WILD_WOOD | WILD_GRASS | ANIMAL
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:Body:Hound
 D:A large black cat, stalking you with intent. It thinks you're its next
 D:meal.
@@ -2977,6 +2981,8 @@ F:BASH_DOOR | UNIQUE | FORCE_MAXHP | NO_CONF | NO_SLEEP
 F:ANIMAL | MALE | CAN_SPEAK
 F:DROP_CORPSE | POS_GAIN_AC
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:Body:Hound
 D:Fast-moving, with a taste for tuna sandwiches.
 
@@ -3316,6 +3322,8 @@ B:BITE:HURT:1d8
 F:ANIMAL | WEIRD_MIND | FRIENDS | RAND_25 | RES_FIRE | EVIL
 F:POS_GAIN_AC
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:Body:Hound
 D:It is as large as a tiger, its yellow eyes are pupilless.
 
@@ -3437,6 +3445,8 @@ B:BITE:HURT:1d6
 F:BASH_DOOR | WILD_GRASS | WILD_WOOD | WILD_MOUNTAIN | ANIMAL
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
 P:Copy:Human:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:Body:Hound
 D:One of the largest of its species, a sleek orange and black shape creeps 
 D:towards you, ready to pounce.
@@ -4053,6 +4063,8 @@ F:BASH_DOOR |
 F:ANIMAL | RES_LITE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -4070,6 +4082,8 @@ F:BASH_DOOR | HURT_LITE |
 F:ANIMAL | RES_DARK
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -4228,6 +4242,8 @@ F:INVISIBLE | BASH_DOOR |
 F:ANIMAL
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_SEE_INVIS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 D:A completely translucent hound.
@@ -4612,9 +4628,10 @@ F:FORCE_SLEEP | SELF_LITE_2 |
 F:FRIENDS | 
 F:BASH_DOOR | HURT_COLD |
 F:ANIMAL | RES_FIRE |
-F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
@@ -4633,9 +4650,10 @@ F:FORCE_SLEEP |
 F:FRIENDS | HURT_FIRE |
 F:BASH_DOOR |
 F:ANIMAL | RES_COLD
-F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
@@ -4654,9 +4672,10 @@ F:FORCE_SLEEP | SELF_LITE_2 |
 F:FRIENDS |
 F:BASH_DOOR | 
 F:ANIMAL | RES_ELEC
-F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
@@ -4706,6 +4725,8 @@ F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
 S:1_IN_4 | 
 S:BLINK | TELE_TO
 P:Copy:Human:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 D:A strange magical member of the canine race, its form seems to shimmer and 
@@ -5100,9 +5121,10 @@ F:FORCE_SLEEP |
 F:FRIENDS |
 F:BASH_DOOR | HURT_ROCK |
 F:ANIMAL | RES_SHAR
-F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
@@ -5122,9 +5144,10 @@ F:FORCE_SLEEP |
 F:FRIENDS | CAN_FLY |
 F:BASH_DOOR |
 F:ANIMAL | RES_POIS
-F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
@@ -5143,6 +5166,8 @@ B:BITE:HURT:1d10
 F:BASH_DOOR | WILD_WOOD | WILD_GRASS | ANIMAL
 F:DROP_SKELETON | DROP_CORPSE | POS_GAIN_AC
 P:Copy:Dunadan:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:Body:Hound
 D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate 
 D:even the strongest armour.
@@ -5161,6 +5186,8 @@ F:BASH_DOOR | CAN_SWIM
 F:ANIMAL | RES_ACID
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_10 | 
@@ -6577,6 +6604,8 @@ F:ANIMAL | RES_SOUN | NO_CONF | NO_SLEEP |
 F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -6599,6 +6628,8 @@ F:ANIMAL | NO_CONF | NO_SLEEP
 F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -8087,6 +8118,8 @@ F:RES_ELEC | RES_POIS | RES_ACID | RES_FIRE | RES_COLD
 F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5
@@ -8548,6 +8581,8 @@ F:ANIMAL | RES_GRAV | NO_CONF | NO_SLEEP |
 F:WILD_GRASS | WILD_WOOD | WILD_WASTE
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -8588,6 +8623,8 @@ F:BASH_DOOR |
 F:ANIMAL | RES_INER | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -8609,6 +8646,8 @@ F:BASH_DOOR |
 F:ANIMAL | RES_WALL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_8 | 
@@ -11041,7 +11080,7 @@ D:of innumerable sailors!
 
 N:670:Jack of Shadows
 G:p:s
-I:150:30d100:70:150:4:150
+I:130:30d100:70:150:4:150
 W:42:4:999:10000:0:0
 B:HIT:HURT:5d10
 B:HIT:HURT:5d10
@@ -11053,14 +11092,14 @@ F:RES_TELE | HUMAN | THIEF
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | UNIQUE |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL |
 F:DROP_SKELETON | DROP_CORPSE | POS_TELEPATHY
-S:1_IN_3
+S:1_IN_4
 S:BLIND | HEAL | BA_DARK | HASTE | CONF | TRAPS
 D:Deriving his strength from the shadows, this king of thieves 
 D:steals only for the challenge.
 P:Copy:High-Elf:Rogue
 P:Skills:0:0:0:7:0:0:0:0
 P:Life:90
-P:Speed:+20
+P:Speed:+15
 
 N:671:Zephyr Lord
 G:W:v
@@ -12188,6 +12227,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -12209,6 +12250,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | RES_TIME | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_8 | 
@@ -12231,6 +12274,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | RES_ELEC | RES_FIRE | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -12515,6 +12560,8 @@ F:INVISIBLE | PASS_WALL | EVIL | CAN_FLY |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS | POS_SEE_INVIS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 |
@@ -13459,6 +13506,8 @@ F:BASH_DOOR |
 F:ANIMAL | RES_CHAO | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -14212,6 +14261,8 @@ F:RES_WALL | RES_INER | RES_TIME | RES_GRAV | RES_PLAS | RES_NEXU | RES_SHAR |
 F:NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_5 | 
@@ -16005,6 +16056,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:1_IN_8 |
@@ -17120,6 +17173,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 F:POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 
@@ -19334,6 +19389,8 @@ F:RES_TIME | NO_CONF | NO_SLEEP | FORCE_MAXHP | KILL_WALL
 F:AURA_FEAR | NO_FEAR
 F:DROP_CORPSE | POS_GAIN_AC | POS_DETECT_MONSTERS
 P:Copy:Kutar:Rogue
+P:Skills:0:-7:0:0:0:0:0:0
+P:ExtraSkills:0:-4:0:0:0:0:0:0
 P:SpellStat:Dex
 P:Body:Hound
 S:FREQ_35 |

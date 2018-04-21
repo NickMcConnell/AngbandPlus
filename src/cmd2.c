@@ -3314,7 +3314,6 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
 
     /* Calculate the Multiplier */
     tmul = bow_mult(bow);
-    tmul += p_ptr->shooter_info.to_mult;
 
     /* Boost the damage */
     tdam_base *= tmul;

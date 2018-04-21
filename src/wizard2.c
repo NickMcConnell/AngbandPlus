@@ -64,16 +64,16 @@ void do_cmd_rerate_aux(void)
 
         /* These extra early checks give a slight boost to average life ratings (~102%) */
         pct = _life_rating_aux(5);
-        if (pct < 85) continue;
+        if (pct < 87) continue;
 
         pct = _life_rating_aux(10);
-        if (pct < 85) continue;
+        if (pct < 87) continue;
 
         pct = _life_rating_aux(25);
-        if (pct < 85) continue;
+        if (pct < 87) continue;
 
         pct = life_rating();
-        if (85 <= pct && pct <= 115) break;
+        if (87 <= pct && pct <= 117) break;
     }
 }
 
@@ -898,11 +898,13 @@ static void do_cmd_wiz_hack_chris8(void)
         apply_magic(&forge, object_level, AM_GREAT);
         identify_item(&forge);
 
-        if (forge.name2 == EGO_HELMET_RAGE)
+        if (forge.name2 == EGO_GLOVES_SNIPER)
         {
             forge.ident |= (IDENT_FULL); 
-            object_desc(buf, &forge, 0);
+            object_desc(buf, &forge, OD_COLOR_CODED);
             msg_format(" %d) %s", i+1, buf);
+            msg_boundary();
+            drop_near(&forge, -1, py, px);
         }
     }
 }
@@ -3081,10 +3083,10 @@ void do_cmd_debug(void)
             switch (lev)
             {
             case 30: reps =  5; break;
-            case 40: reps = 10; break;
-            case 60: reps = 10; break;
-            case 80: reps = 10; break;
-            case 98: reps = 15; break;
+            case 40: reps =  5; break;
+            case 60: reps =  5; break;
+            case 80: reps =  5; break;
+            case 98: reps =  5; break;
             }
 
             _wiz_gather_stats(DUNGEON_ANGBAND, lev, reps);
@@ -3176,8 +3178,14 @@ void do_cmd_debug(void)
         break;
     }
     case ';':
-        py_display();
+    {
+        object_type forge;
+        object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
+        if (device_init_fixed(&forge, EFFECT_WALL_BUILDING))
+            add_outfit(&forge);
+        /*py_display();*/
         break;
+    }
     default:
         msg_print("That is not a valid debug command.");
         break;

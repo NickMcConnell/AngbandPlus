@@ -737,6 +737,11 @@ static bool _valid_class(int which)
         if (p_ptr->prace == RACE_CENTAUR)
             return FALSE;
     }
+    if (which == CLASS_DUELIST || which == CLASS_MAULER)
+    {
+        if (p_ptr->prace == RACE_TONBERRY)
+            return FALSE;
+    }
     return TRUE;
 }
 
@@ -2761,7 +2766,7 @@ static int player_init[MAX_CLASS][3][2] =
     {
         /* Paladin */
         { TV_SORCERY_BOOK, 0 },
-        { TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
+        { TV_HARD_ARMOR, SV_RING_MAIL },
         { TV_SWORD, SV_BROAD_SWORD }
     },
 

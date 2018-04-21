@@ -8,7 +8,7 @@ static void _calc_bonuses(void)
 
 static void _get_flags(u32b flgs[TR_FLAG_SIZE])
 {
-    if (p_ptr->lev >= 30)
+    if (p_ptr->lev >= 40)
         add_flag(flgs, TR_RES_FEAR);
 }
 

@@ -113,6 +113,7 @@ static void _calc_innate_attacks(void)
         a.dd = 1;
         a.ds = 3 + r;
         a.to_h = p_ptr->lev/3;
+        a.to_d = r;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         a.blows = 100;
@@ -129,6 +130,7 @@ static void _calc_innate_attacks(void)
         a.dd = 1;
         a.ds = 2 + r;
         a.to_h = p_ptr->lev/3;
+        a.to_d = r;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         if (r >= 5)
@@ -149,6 +151,7 @@ static void _calc_innate_attacks(void)
         if (r >= 5)
             a.ds += 7;
         a.to_h = p_ptr->lev/3;
+        a.to_d = r;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         calc_innate_blows(&a, 100 + 50*r);
@@ -187,7 +190,7 @@ race_t *mon_centipede_get_race(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 25,  21,  35,   5,  10,   7,  45,  10};
+    skills_t bs = { 25,  21,  35,   5,  10,   7,  50,  10};
     skills_t xs = { 12,  10,  10,   0,   0,   0,  15,   2};
 
         me.skills = bs;
@@ -215,7 +218,7 @@ race_t *mon_centipede_get_race(void)
     }
 
     me.subname = titles[r];
-    me.stats[A_STR] = r/3;
+    me.stats[A_STR] = (r + 1)/3;
     me.stats[A_INT] = -3;
     me.stats[A_WIS] = -3;
     me.stats[A_DEX] = r;

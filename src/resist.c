@@ -206,7 +206,7 @@ static int _hi_pcts[_MAX_PCTS] = {
  */
 
 
-int  res_pct_aux(int which, int count)
+int res_pct_aux(int which, int count)
 {
     int result = 0;
     int idx = count;
@@ -228,7 +228,7 @@ int  res_pct_aux(int which, int count)
     {
         if (which == RES_CONF)
         {
-            if (prace_is_(RACE_TONBERRY))
+            if (prace_is_(RACE_TONBERRY) || demon_is_(DEMON_CYBERDEMON))
                 result = (result + 1) / 2;
         }
 

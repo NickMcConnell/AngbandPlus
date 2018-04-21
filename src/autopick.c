@@ -2269,7 +2269,7 @@ int pack_find_device(int effect)
         object_type *o_ptr = &inventory[i];
 
         if (!o_ptr->k_idx) continue;
-        if (object_is_device(o_ptr) && o_ptr->activation.type == effect)
+        if (object_is_device(o_ptr) && object_is_known(o_ptr) && o_ptr->activation.type == effect)
         {
             if (device_sp(o_ptr) >= o_ptr->activation.cost)
                 return i;

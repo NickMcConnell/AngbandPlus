@@ -175,7 +175,7 @@ static void _birth(void)
     equip_on_change_race();
 
     object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
-    if (device_init_fixed(&forge, EFFECT_BOLT_MISSILE))
+    if (device_init_fixed(&forge, EFFECT_BOLT_COLD))
         add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_RING, 0));
@@ -922,7 +922,7 @@ static int _breath_fail(int base_fail)
 static int _breath_lvl(int base_lvl)
 {
     if (strchr("Zv", r_info[p_ptr->current_r_idx].d_char))
-        base_lvl = MIN(r_info[p_ptr->current_r_idx].level, base_lvl);
+        base_lvl = MIN(r_info[p_ptr->current_r_idx].level - 5, base_lvl);
 
     return MAX(1, base_lvl);
 }
@@ -1228,9 +1228,6 @@ int possessor_get_spells(spell_info* spells, int max)
         _add_spell(&spells[ct++], 48, 120, 90, summon_amberites_spell, stat_idx);
     if (ct < max && (r_ptr->flags6 & RF6_S_UNIQUE))
         _add_spell(&spells[ct++], 50, 150, 95, summon_uniques_spell, stat_idx);
-
-    if (ct == 0)
-        msg_print("You have no spells!");
 
     return ct;
 }
@@ -1542,7 +1539,10 @@ void possessor_calc_bonuses(void)
     if (r_ptr->flagsr & RFR_RES_ALL)
     {
         res_add_all();
-        p_ptr->magic_resistance = 95;
+        if (p_ptr->current_r_idx == MON_SPELLWARP_AUTOMATON)
+            p_ptr->magic_resistance = 35;
+        else
+            p_ptr->magic_resistance = 95;
     }
 
     if (strchr("sGLVWz", r_ptr->d_char))
@@ -1735,8 +1735,8 @@ race_t *mon_possessor_get_race(void)
                     "are capable of possessing the corpses of monsters they have slain, and gain powers and "
                     "abilities based on their current body. As such, they can become quite powerful indeed! "
                     "Unfortunately, not every type of monster will drop a corpse, and getting suitable corspes "
-                    "to inhabit can be difficult. If the possessor ever leaves their current body (and they "
-                    "must do so to inhabit a new form) then all of their equipment will be removed (except a "
+                    "to inhabit can be difficult. If the possessor ever leaves their current body then all of "
+                    "their equipment will be removed (except a "
                     "light source) and they will temporarily be in their native, vulnerable state. Finally, "
                     "leaving their current body will destroy that corpse most of the time, so the possessor "
                     "should only do so if they have a better corpse on hand (and also only if there are no "

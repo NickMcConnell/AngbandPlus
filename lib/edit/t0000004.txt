@@ -124,7 +124,7 @@ B:0:N:Library:Vanerion:Half-Elf
 B:0:A:0:Research item:1500:1500:a:1:0
 B:0:A:1:Town Overview:0:0:h:2:0
 #B:0:A:2:Race legends:0:0:l:3:0
-B:0:A:2:Identify item:100:100:i:44:0
+B:0:A:2:Identify item:50:50:i:44:0
 
 B:1:N:Manor:Colmanwen:High-Elf
 #B:1:A:0:Look at busts of Mayors:0:0:l:5:0

@@ -342,6 +342,7 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     object_type   *o_ptr = NULL;
     int            blow_str_idx;
     int            div = 0;
+    int            mul = 0;
     int            wgt = 0;
     _blow_info_t   blow_info = {0};
     _range_t       rng = _blows_range[dex_idx];
@@ -355,12 +356,10 @@ int calculate_base_blows(int hand, int str_idx, int dex_idx)
     blow_info = _get_blow_info(hand);
 
     wgt = o_ptr->weight;
-    if (info_ptr->giant_wield && wgt > 300)
-        wgt = 300;
-
     div = (wgt < blow_info.wgt) ? blow_info.wgt : wgt;
+    mul = blow_info.mul + info_ptr->giant_wield * 10;
 
-    blow_str_idx = adj_str_blow[str_idx] * blow_info.mul / div; /* Scaled by 10 */
+    blow_str_idx = adj_str_blow[str_idx] * mul / div; /* Scaled by 10 */
     if (info_ptr->wield_how == WIELD_TWO_HANDS)
     {
         if (!info_ptr->omoi)

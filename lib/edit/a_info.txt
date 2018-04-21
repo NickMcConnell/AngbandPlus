@@ -625,7 +625,7 @@ D:shielded by his cloak from a multitude of hostile eyes.
 
 N:52:'Cambeleg'
 I:31:1:2
-W:10:6:5:36000
+W:30:6:5:36000
 P:1:0d0:8:8:15
 F:STR | CON | HIDE_TYPE | FREE_ACT | SHOW_MODS
 D:A hero's handgear that lends great prowess in battle.
@@ -1664,7 +1664,7 @@ F:RANDOM_CURSE0
 N:140:'Silver Chariot'
 I:23:7:3
 W:30:15:75:100000
-P:0:3d6:17:12:0
+P:0:2d6:17:12:0
 F:DEX | BLOWS | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_DEMON |
 F:FREE_ACT | SEE_INVIS | SHOW_MODS | RES_DARK | RES_DISEN | SPEED
 
@@ -2338,12 +2338,12 @@ E:BALL_DARK:50:100:250
 E:Your collar harness is covered in pitch-darkness...
 
 N:219:Charmed Pendant
-I:40:0:2
+I:40:0:3
 W:50:50:2:100000
 P:0:0d0:0:0:5
 F:INT | CHR | INFRA | SEARCH | HIDE_TYPE | FULL_NAME |
 F:SEE_INVIS | FREE_ACT | SLOW_DIGEST | REGEN | LITE | WARNING |
-F:SH_FIRE | SH_ELEC | SH_COLD | EASY_SPELL
+F:SH_FIRE | SH_ELEC | SH_COLD | EASY_SPELL | MAGIC_MASTERY
 E:RESTORE_MANA:50:777
 E:Your pendant glows pale...
 
@@ -2351,7 +2351,7 @@ N:220:of Gogo
 I:40:0:4
 W:50:50:2:55555
 P:0:0d0:0:0:0
-F:INT | WIS | DEX | 
+F:INT | WIS | DEX |
 F:SEE_INVIS | LITE |
 
 N:221:of Robin Hood
@@ -2556,7 +2556,7 @@ I:37:20:1
 W:60:4:70:200000
 P:28:1d4:1:1:7
 F:STEALTH | DEC_STR | SEE_INVIS | DEX | SPEED |
-F:RES_ACID | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | XTRA_H_RES
 D:"Also there is this!" said Bilbo, bringing out a parcel which seemed
 D:to be rather heavy for its size. He unwound several folds of old cloth,
 D:and held up a small shirt of mail. It was close-woven of many rings,
@@ -2782,7 +2782,7 @@ D:The is the lyre of Apollo, the sun god.
 N:263:of Artemis
 I:19:12:3
 W:90:127:30:555555
-P:0:x4.50:12:18:0
+P:0:x4.00:12:18:0
 F:STR | DEX | CHR | STEALTH | 
 F:XTRA_SHOTS | SUST_STR | SUST_DEX | SUST_CHR | SEE_INVIS |
 F:RES_BLIND | PERMA_CURSE | QUESTITEM

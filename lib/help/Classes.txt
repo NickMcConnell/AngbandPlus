@@ -64,7 +64,7 @@ The Mauler favors extremely heavy weapons, and possesses powerful abilities whos
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength     <color:v> +5</color>        Disarming   <color:y>Good         </color>
-Intelligence <color:w> -2</color>        Device      <color:y>Good         </color>
+Intelligence <color:w> -2</color>        Device      <color:o>Fair         </color>
 Wisdom       <color:w> -2</color>        Save        <color:y>Very Good    </color>
 Dexterity    <color:w> -1</color>        Stealth     <color:R>Poor         </color>
 Constitution <color:w> +3</color>        Searching   <color:R>Poor         </color>
@@ -781,7 +781,7 @@ Wild-Talent    -1   +1   +1   +1   -2   +1  100%   +4  110%
 Berserker     <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Blood-Knight  <color:y>Good         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Duelist       <color:y>Good         </color> <color:y>Very Good    </color> <color:r>Bad          </color> <color:y>Good         </color>
-Mauler        <color:y>Good         </color> <color:y>Good         </color> <color:y>Very Good    </color> <color:R>Poor         </color>
+Mauler        <color:y>Good         </color> <color:o>Fair         </color> <color:y>Very Good    </color> <color:R>Poor         </color>
 Rune-Knight   <color:o>Fair         </color> <color:y>Good         </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Samurai       <color:y>Good         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Warrior       <color:y>Good         </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
@@ -875,4 +875,4 @@ Wild-Talent   <color:o>Fair         </color> <color:R>Poor         </color> <col
 </style>
 
 
-<color:s>Automatically generated for PosChengband 4.0.0.</color>
+<color:s>Automatically generated for PosChengband 4.0.1.</color>

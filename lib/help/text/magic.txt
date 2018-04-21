@@ -310,16 +310,15 @@ Armor and Spell Casting
 
 Mage-Types and Gloves
   Spellcasters who cast spells from spellbooks using INT as the stat 
-  determining their spellcasting ability, or Blue-Mages, will be 
-  penalized heavily for wielding armor on their hands. The exception to 
-  this is that wielding gloves, gauntlets or cesti which boost DEX or 
-  which grant Free Action will result in no penalty. The rationale 
-  behind this is that the hands are needed to perform intricate 
-  gestures that accompany the casting of the spell and anything 
-  encumbering the hands would interfere with this. The priest-type 
-  classes (priest, paladin and monk) do not have the same restrictions 
-  as they are viewed as invoking the power of their deity directly 
-  through prayer.
+  determining their spellcasting ability will usually be penalized 
+  heavily for wielding armor on their hands. The exception to this is 
+  that wielding gloves, gauntlets or cesti which boost DEX or which 
+  grant Free Action will result in no penalty. The rationale behind 
+  this is that the hands are needed to perform intricate gestures that 
+  accompany the casting of the spell and anything encumbering the hands 
+  would interfere with this. The priest-type classes (priest, paladin 
+  and monk) do not have the same restrictions as they are viewed as 
+  invoking the power of their deity directly through prayer.
 
 Casting Spells With Insufficient Mana
   Occasionally, you may try (either by accident or in desperation) to 

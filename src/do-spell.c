@@ -977,7 +977,6 @@ static cptr do_life_spell(int spell, int mode)
     case 0:
         if (name) return "Cure Light Wounds";
         if (desc) return "Heals cut and HP a little.";
-        if (spoil) return "Reduces player cut status by 10 and heals player 2d10 hp.";
     
         {
             int dice = 2;
@@ -996,7 +995,6 @@ static cptr do_life_spell(int spell, int mode)
     case 1:
         if (name) return "Bless";
         if (desc) return "Gives bonus to hit and AC for a few turns.";
-        if (spoil) return "Grants +5 AC and +10 To Hit for 12 rounds.";
     
         {
             int base = spell_power(12);
@@ -1013,7 +1011,6 @@ static cptr do_life_spell(int spell, int mode)
     case 2:
         if (name) return "Regeneration";
         if (desc) return "Gives regeneration ability for a while.";
-        if (spoil) return "Player regenerates hp and sp twice as fast as normal for 80+d80 rounds.";
     
         {
             int base = spell_power(80);
@@ -1066,10 +1063,9 @@ static cptr do_life_spell(int spell, int mode)
     case 5:
         if (name) return "Cure Medium Wounds";
         if (desc) return "Heals cut and HP more.";
-        if (spoil) return "Reduces player cut status to cut/2 - 20 and heals player 4d10 hp.";
     
         {
-            int dice = 4;
+            int dice = 6;
             int sides = 10;
 
             if (info) return info_heal(dice, sides, 0);
@@ -1149,11 +1145,10 @@ static cptr do_life_spell(int spell, int mode)
     case 10:
         if (name) return "Cure Critical Wounds";
         if (desc) return "Heals cut, stun and HP greatly.";
-        if (spoil) return "Removes cuts and stuns and heals player 8d10 hp.";
     
         {
-            int dice = 8;
-            int sides = 10;
+            int dice = 12;
+            int sides = 12;
 
             if (info) return info_heal(dice, sides, 0);
 
@@ -1214,7 +1209,6 @@ static cptr do_life_spell(int spell, int mode)
     case 14:
         if (name) return "Healing";
         if (desc) return "Much powerful healing magic, and heals cut and stun completely.";
-        if (spoil) return "Removes cuts and stuns and heals player 300 hp.";
     
         {
             int heal = spell_power(300);
@@ -1265,6 +1259,7 @@ static cptr do_life_spell(int spell, int mode)
             if (cast)
             {
                 if (!ident_spell(NULL)) return NULL;
+                /*identify_pack();*/
             }
         }
         break;
@@ -1272,18 +1267,14 @@ static cptr do_life_spell(int spell, int mode)
     case 18:
         if (name) return "Dispel Undead";
         if (desc) return "Damages all undead monsters in sight.";
-        if (spoil) return "All undead monsters in the player's line of sight take 1d(L*5) damage.";
     
         {
-            int dice = 1;
-            int sides = plev * 5;
+            int dam = spell_power(plev * 3 + p_ptr->to_d_spell);
 
-            if (info) return info_damage(dice, spell_power(sides), spell_power(p_ptr->to_d_spell));
+            if (info) return info_damage(0, 0, dam);
 
             if (cast)
-            {
-                dispel_undead(spell_power(damroll(dice, sides) + p_ptr->to_d_spell));
-            }
+                dispel_undead(dam);
         }
         break;
 
@@ -6800,14 +6791,14 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Damages all undead and demons in sight.";
     
         {
-            int sides = spell_power(plev * 4);
+            int dam = spell_power(plev * 3 + p_ptr->to_d_spell);
 
-            if (info) return info_damage(1, sides, 0);
+            if (info) return info_damage(0, 0, dam);
 
             if (cast)
             {
-                dispel_undead(randint1(sides));
-                dispel_demons(randint1(sides));
+                dispel_undead(dam);
+                dispel_demons(dam);
             }
         }
         break;
@@ -6817,13 +6808,13 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Damages all evil monsters in sight.";
     
         {
-            int sides = plev * 4;
+            int dam = spell_power(plev * 3 + p_ptr->to_d_spell);
 
-            if (info) return info_damage(1, spell_power(sides), spell_power(p_ptr->to_d_spell));
+            if (info) return info_damage(0, 0, dam);
 
             if (cast)
             {
-                dispel_evil(spell_power(randint1(sides) + p_ptr->to_d_spell));
+                dispel_evil(dam);
             }
         }
         break;

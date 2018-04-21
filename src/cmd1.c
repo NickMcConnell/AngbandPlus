@@ -2234,7 +2234,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     const int       max_drain_amt = _max_vampiric_drain();
 
     set_monster_csleep(m_idx, 0);
-    monster_desc(m_name, m_ptr, 0);
+    monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
+
 
     if (p_ptr->afraid)
     {

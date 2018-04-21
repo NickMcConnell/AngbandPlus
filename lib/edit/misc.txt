@@ -19,7 +19,7 @@ M:R:1133
 M:B:150
 
 # Maximum number of items in k_info.txt
-M:K:749
+M:K:750
 
 # Maximum number of rooms in v_info.txt
 M:ROOMS:750

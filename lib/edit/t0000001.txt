@@ -203,6 +203,11 @@ F:!:FLOOR:3:0:132:305
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:302
 
+# Metal Shod Boots
+?:[AND [EQU $QUEST14 3] [EQU $RACE Centipede] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:93
+
 # Elemental Ring
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Ring] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
@@ -1165,7 +1170,7 @@ B:0:R:Jelly:None
 
 B:1:N:Mayor:Uldrik:Human
 B:1:A:0:Request quest:0:0:q:6:0
-B:1:A:1:Identify item:100:100:i:44:0
+B:1:A:1:Identify item:50:50:i:44:0
 B:1:A:2:Legal Name Change:10:10:c:57:0
 
 B:13:N:Hunter's office:Kopei:Human

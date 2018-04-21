@@ -1023,26 +1023,26 @@ struct player_pact
  #define HAND_NONE -1
 
  typedef struct {
-    int wield_how;
+    int  wield_how;
     bool omoi;   /* WIELD_TWO_HANDS but too heavy for WIELD_ONE_HAND */
     bool bare_hands; /* Monks and Forcetrainers */
     bool riding; /* Riding requires one hand to control your mount */
-    int slot;
-    int to_h;
-    int to_d;
-    int dis_to_h;
-    int dis_to_d;
-    int to_dd;
-    int to_ds;
-    int to_mult;
-    int base_blow;
-    int xtra_blow;
+    int  slot;
+    int  to_h;
+    int  to_d;
+    int  dis_to_h;
+    int  dis_to_d;
+    int  to_dd;
+    int  to_ds;
+    int  to_mult;
+    int  base_blow;
+    int  xtra_blow;
     bool genji;
     bool heavy_wield;
     bool icky_wield;
     bool riding_wield;
-    bool giant_wield;
-    int dual_wield_pct; /* Scaled by 10 so 123 = 12.3%. Set to 1000 (ie 100%) if not dual wielding */
+    int  giant_wield;
+    int  dual_wield_pct; /* Scaled by 10 so 123 = 12.3%. Set to 1000 (ie 100%) if not dual wielding */
     u32b flags[TR_FLAG_SIZE];
     byte info_attr;
     cptr info;

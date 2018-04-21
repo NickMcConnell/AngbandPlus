@@ -158,19 +158,19 @@ void gain_chosen_stat(void)
         char tmp[32];
 
         cnv_stat(p_ptr->stat_max[0], tmp);
-        prt(format("        a) Str (cur %s)", tmp), 2, 14);
+        put_str(format("        a) Str (cur %6.6s)              ", tmp), 2, 14);
         cnv_stat(p_ptr->stat_max[1], tmp);
-        prt(format("        b) Int (cur %s)", tmp), 3, 14);
+        put_str(format("        b) Int (cur %6.6s)              ", tmp), 3, 14);
         cnv_stat(p_ptr->stat_max[2], tmp);
-        prt(format("        c) Wis (cur %s)", tmp), 4, 14);
+        put_str(format("        c) Wis (cur %6.6s)              ", tmp), 4, 14);
         cnv_stat(p_ptr->stat_max[3], tmp);
-        prt(format("        d) Dex (cur %s)", tmp), 5, 14);
+        put_str(format("        d) Dex (cur %6.6s)              ", tmp), 5, 14);
         cnv_stat(p_ptr->stat_max[4], tmp);
-        prt(format("        e) Con (cur %s)", tmp), 6, 14);
+        put_str(format("        e) Con (cur %6.6s)              ", tmp), 6, 14);
         cnv_stat(p_ptr->stat_max[5], tmp);
-        prt(format("        f) Chr (cur %s)", tmp), 7, 14);
-        prt("", 8, 14);
-        prt("        Which stat do you want to raise?", 1, 14);
+        put_str(format("        f) Chr (cur %6.6s)              ", tmp), 7, 14);
+        put_str("                                         ", 8, 14);
+        c_put_str(TERM_YELLOW, "        Which stat do you want to raise? ", 1, 14);
 
         while(1)
         {
@@ -180,7 +180,7 @@ void gain_chosen_stat(void)
         for(n = 0; n < 6; n++)
         {
             if (n != choice - 'a')
-                prt("",n+2,14);
+                put_str("                                         ", n+2, 14);
         }
         if (get_check("Are you sure? ")) break;
     }
@@ -1625,7 +1625,8 @@ void monster_death(int m_idx, bool drop_item)
         }
 
         object_prep(&forge, k_idx);
-        apply_magic(&forge, object_level, mode);
+        if (!apply_magic(&forge, object_level, mode) && object_is_device(&forge))
+            apply_magic(&forge, object_level, 0);
         mass_produce(&forge);
         drop_near(&forge, -1, y, x);
     }
@@ -2094,7 +2095,7 @@ void monster_death(int m_idx, bool drop_item)
             msg_add_tiny_screenshot(50, 24);
         }
 
-        if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))
+        if (a_idx > 0 && randint0(100) < chance)
         {
             artifact_type *a_ptr = &a_info[a_idx];
 
@@ -5137,7 +5138,7 @@ bool get_rep_dir(int *dp, bool under)
             msg_print("You are confused.");
         }
         else if (p_ptr->move_random)
-            msg_print("You are moving erratically.");
+            cmsg_print(TERM_YELLOW, "You are moving erratically.");
         else
         {
             char m_name[80];

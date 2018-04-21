@@ -18,8 +18,8 @@
 
 #define VER_MAJOR 4
 #define VER_MINOR 0
-#define VER_PATCH 0
-#define VER_EXTRA 6
+#define VER_PATCH 1
+#define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
 #define GAME_MODE_NORMAL    1
@@ -1939,6 +1939,7 @@ enum {
 #define SV_SCROLL_ICE                   59
 #define SV_SCROLL_CHAOS                 60
 #define SV_SCROLL_MANA                  61
+#define SV_SCROLL_BANISHMENT            62
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
@@ -5569,6 +5570,7 @@ enum mon_save_fields_e {
 #define CUT_BAD            25
 #define CUT_LIGHT          10
 #define CUT_GRAZE           1
+#define CUT_NONE            0
 
 /* object_type.rune */
 #define RUNE_ABSORPTION           1

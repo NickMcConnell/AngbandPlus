@@ -1398,6 +1398,8 @@ static bool _get_store_obj(object_type *o_ptr)
     {
         if (one_in_(3))
             k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
+        else if (one_in_(7))
+            k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_REMOVE_CURSE);
         else if (one_in_(20))
             k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     }
@@ -1405,6 +1407,10 @@ static bool _get_store_obj(object_type *o_ptr)
     {
         if (one_in_(3))
             k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
+        else if (one_in_(5))
+            k_idx = lookup_kind(TV_POTION, SV_POTION_RES_STR + randint0(6));
+        else if (one_in_(7))
+            k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY);
         else if (one_in_(10))
             k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT);
         else if (one_in_(20))
@@ -2263,11 +2269,6 @@ static void store_sell(void)
     else if (cur_store_num == STORE_MUSEUM)
         q = "Give which item? ";
 
-    else if (no_selling)
-    {
-        msg_print("Selling is prohibited!");
-        return;
-    }
     else
         q = "Sell which item? ";
 
@@ -3095,7 +3096,7 @@ void do_cmd_store(void)
     /* Maintain the store max. 10 times */
     if (maintain_num > 10) maintain_num = 10;
 
-    if (maintain_num && which != STORE_GENERAL && which != STORE_BOOK)
+    if (maintain_num && (which == STORE_BLACK || which == STORE_JEWELER))
     {
         int xp = town[p_ptr->town_num].store[which].last_exp;
         xp += MIN(MAX(xp / 20, 1000), 100000);
@@ -3209,8 +3210,7 @@ void do_cmd_store(void)
         else
         {
             prt("p) Purchase an item", 21 + xtra_stock, 30);
-            if (!no_selling)
-                prt("s) Sell an item", 22 + xtra_stock, 30);
+            prt("s) Sell an item", 22 + xtra_stock, 30);
             prt("x) eXamine an item", 23 + xtra_stock,30);
             if (rogue_like_commands) /* P -> b coincidentally and 'P'urchase entire stock works */
                 prt("  P) Purchase entire stock", 23 + xtra_stock, 56);

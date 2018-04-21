@@ -225,11 +225,23 @@ static void _calc_bonuses(void)
     if (p_ptr->current_r_idx == MON_SPELLWARP_AUTOMATON)
     {
         res_add(RES_TELEPORT);
+
         p_ptr->pspeed -= 1;
         p_ptr->no_stun = TRUE;
         p_ptr->to_a += 10;
         p_ptr->dis_to_a += 10;
         p_ptr->magic_resistance += 20;
+
+        /* RES_ALL ... Magic Resistance no longer applies
+           to innate breath attacks which are not really magical */
+        res_add(RES_ACID);
+        res_add(RES_LITE);
+        res_add(RES_DARK);
+        res_add(RES_NETHER);
+        res_add(RES_NEXUS);
+        res_add(RES_SOUND);
+        res_add(RES_CHAOS);
+        res_add(RES_DISEN);
     }
 }
 

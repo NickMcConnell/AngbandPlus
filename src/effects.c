@@ -12,6 +12,8 @@
 
 #include "angband.h"
 
+#include <assert.h>
+
 void set_action(int typ)
 {
     int prev_typ = p_ptr->action;
@@ -4691,9 +4693,68 @@ bool set_stun(int v, bool do_dec)
  *
  * Note the special code to only notice "range" changes.
  */
+cut_info_t cut_info(int cut)
+{
+    cut_info_t result = {0};
+    if (cut >= CUT_MORTAL_WOUND)
+    {
+        result.level = CUT_MORTAL_WOUND;
+        result.dam = 200;
+        result.desc = "Mortal Wound";
+        result.attr = TERM_L_RED;
+    }
+    else if (cut >= CUT_DEEP_GASH)
+    {
+        result.level = CUT_DEEP_GASH;
+        result.dam = 80;
+        result.desc = "Deep Gash";
+        result.attr = TERM_RED;
+    }
+    else if (cut >= CUT_SEVERE)
+    {
+        result.level = CUT_SEVERE;
+        result.dam = 32;
+        result.desc = "Severe Cut";
+        result.attr = TERM_RED;
+    }
+    else if (cut >= CUT_NASTY)
+    {
+        result.level = CUT_NASTY;
+        result.dam = 16;
+        result.desc = "Nasty Cut";
+        result.attr = TERM_ORANGE;
+    }
+    else if (cut >= CUT_BAD)
+    {
+        result.level = CUT_BAD;
+        result.dam = 7;
+        result.desc = "Bad Cut";
+        result.attr = TERM_ORANGE;
+    }
+    else if (cut >= CUT_LIGHT)
+    {
+        result.level = CUT_LIGHT;
+        result.dam = 3;
+        result.desc = "Light Cut";
+        result.attr = TERM_YELLOW;
+    }
+    else if (cut >= CUT_GRAZE)
+    {
+        result.level = CUT_GRAZE;
+        result.dam = 1;
+        result.desc = "Graze";
+        result.attr = TERM_YELLOW;
+    }
+    else
+    {
+        assert(result.level == CUT_NONE);
+    }
+    return result;
+}
+
 bool set_cut(int v, bool do_dec)
 {
-    int old_aux, new_aux;
+    cut_info_t old_cut = {0}, new_cut = {0};
     bool notice = FALSE;
 
     /* Hack -- Force good values */
@@ -4707,170 +4768,20 @@ bool set_cut(int v, bool do_dec)
     if (p_ptr->no_cut)
         v = 0;
 
-    /* Mortal wound */
-    if (p_ptr->cut > 1000)
-    {
-        old_aux = 7;
-    }
-
-    /* Deep gash */
-    else if (p_ptr->cut > 200)
-    {
-        old_aux = 6;
-    }
-
-    /* Severe cut */
-    else if (p_ptr->cut > 100)
-    {
-        old_aux = 5;
-    }
-
-    /* Nasty cut */
-    else if (p_ptr->cut > 50)
-    {
-        old_aux = 4;
-    }
-
-    /* Bad cut */
-    else if (p_ptr->cut > 25)
-    {
-        old_aux = 3;
-    }
-
-    /* Light cut */
-    else if (p_ptr->cut > 10)
-    {
-        old_aux = 2;
-    }
-
-    /* Graze */
-    else if (p_ptr->cut > 0)
-    {
-        old_aux = 1;
-    }
-
-    /* None */
-    else
-    {
-        old_aux = 0;
-    }
-
-    /* Mortal wound */
-    if (v > 1000)
-    {
-        new_aux = 7;
-    }
-
-    /* Deep gash */
-    else if (v > 200)
-    {
-        new_aux = 6;
-    }
-
-    /* Severe cut */
-    else if (v > 100)
-    {
-        new_aux = 5;
-    }
-
-    /* Nasty cut */
-    else if (v > 50)
-    {
-        new_aux = 4;
-    }
-
-    /* Bad cut */
-    else if (v > 25)
-    {
-        new_aux = 3;
-    }
-
-    /* Light cut */
-    else if (v > 10)
-    {
-        new_aux = 2;
-    }
-
-    /* Graze */
-    else if (v > 0)
-    {
-        new_aux = 1;
-    }
-
-    /* None */
-    else
-    {
-        new_aux = 0;
-    }
+    old_cut = cut_info(p_ptr->cut);
+    new_cut = cut_info(v);
 
     /* Increase cut */
-    if (new_aux > old_aux)
+    if (new_cut.level > old_cut.level)
     {
-        /* Describe the state */
-        switch (new_aux)
-        {
-            /* Graze */
-            case 1:
-            msg_print("You have been given a <color:y>graze</color>.");
-
-            break;
-
-            /* Light cut */
-            case 2:
-            msg_print("You have been given a <color:y>light cut</color>.");
-
-            break;
-
-            /* Bad cut */
-            case 3:
-            msg_print("You have been given a <color:o>bad cut</color>.");
-
-            break;
-
-            /* Nasty cut */
-            case 4:
-            msg_print("You have been given a <color:o>nasty cut</color>.");
-
-            break;
-
-            /* Severe cut */
-            case 5:
-            msg_print("You have been given a <color:r>severe cut</color>.");
-
-            break;
-
-            /* Deep gash */
-            case 6:
-            msg_print("You have been given a <color:r>deep gash</color>.");
-
-            break;
-
-            /* Mortal wound */
-            case 7:
-            msg_print("You have been given a <color:R>mortal wound</color>.");
-
-            break;
-        }
-
-        /* Notice */
+        msg_format("You have been given a <color:%c>%s</color>.", attr_to_attr_char(new_cut.attr), new_cut.desc);
         notice = TRUE;
     }
-
     /* Decrease cut */
-    else if (new_aux < old_aux)
+    if (new_cut.level < old_cut.level)
     {
-        /* Describe the state */
-        switch (new_aux)
-        {
-            /* None */
-            case 0:
+        if (new_cut.level == CUT_NONE)
             msg_print("You are no longer bleeding.");
-
-            if (disturb_state) disturb(0, 0);
-            break;
-        }
-
-        /* Notice */
         notice = TRUE;
     }
 
@@ -5401,34 +5312,6 @@ bool hp_player_aux(int num)
 
         /* Redraw */
         p_ptr->redraw |= (PR_HP);
-
-        /* Heal 0-4 */
-        if (num < 5)
-        {
-            msg_print("You feel a little better.");
-
-        }
-
-        /* Heal 5-14 */
-        else if (num < 15)
-        {
-            msg_print("You feel better.");
-
-        }
-
-        /* Heal 15-34 */
-        else if (num < 35)
-        {
-            msg_print("You feel much better.");
-
-        }
-
-        /* Heal 35+ */
-        else
-        {
-            msg_print("You feel very good.");
-
-        }
 
         fear_heal_p(old_hp, p_ptr->chp);
 

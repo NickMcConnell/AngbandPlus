@@ -3447,7 +3447,7 @@ static void process_menus(WORD wCmd)
 
             if (GetSaveFileName(&ofn))
             {
-                /*do_cmd_save_screen_html_aux(buf, 0);*/
+                save_screen_aux(buf, DOC_FORMAT_HTML)
             }
             break;
         }

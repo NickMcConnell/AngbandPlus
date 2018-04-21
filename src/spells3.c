@@ -3453,8 +3453,7 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
         if (s_ptr->slevel >= 99)
         {
                 strcat(out_val, format("%-30s", "(illegible)"));
-
-                c_prt(TERM_L_DARK, out_val, display.y + i + 1, display.x);
+                c_put_str(TERM_L_DARK, out_val, display.y + i + 1, display.x);
                 continue;
         }
 

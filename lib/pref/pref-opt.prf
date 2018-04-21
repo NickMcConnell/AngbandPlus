@@ -14,7 +14,7 @@
 X:rogue_like_commands
 X:always_pickup
 X:carry_query_flag
-Y:quick_messages
+X:quick_messages
 Y:command_menu
 X:other_query_flag
 Y:use_old_target

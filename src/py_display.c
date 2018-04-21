@@ -386,6 +386,8 @@ static void _build_res_flags(doc_ptr doc, int which, _flagzilla_ptr flagzilla)
     {
         if (im_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], im_flg))
             doc_insert_char(doc, TERM_VIOLET, '*');
+        else if (vuln_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg) && have_flag(flagzilla->obj_flgs[i], flg))
+            doc_insert_char(doc, TERM_L_DARK, '.');
         else if (vuln_flg != TR_INVALID && have_flag(flagzilla->obj_flgs[i], vuln_flg))
             doc_insert_char(doc, TERM_L_RED, '-');
         else if (have_flag(flagzilla->obj_flgs[i], flg))
@@ -2309,9 +2311,6 @@ static void _build_options(doc_ptr doc)
     if (no_egos)
         doc_printf(doc, " No Egos:            Enabled\n");
 
-    if (no_selling)
-        doc_printf(doc, " No Selling:         Enabled\n");
-
     if (p_ptr->noscore)
         doc_printf(doc, "\n <color:v>You have done something illegal.</color>\n");
 
@@ -2363,12 +2362,46 @@ void py_display_character_sheet(doc_ptr doc)
     doc_insert(doc, "</style>");
 }
 
+static int _max_depth(void)
+{
+    int result = 0;
+    int i;
+
+    for(i = 1; i < max_d_idx; i++)
+    {
+        if (!d_info[i].maxdepth) continue;
+        if (d_info[i].flags1 & DF1_RANDOM) continue;
+        if (!max_dlv[i]) continue;
+        result = MAX(result, max_dlv[i]);
+    }
+
+    return result;
+}
+
 void py_display(void)
 {
     doc_ptr    d = doc_alloc(80);
     string_ptr s = string_alloc_format("%s.txt", player_base);
+    string_ptr header = string_alloc();
 
     doc_change_name(d, string_buffer(s));
+
+    string_append_s(header, "<head>\n");
+    string_append_s(header, " <meta name='filetype' value='character dump'>\n");
+    string_printf(header,  " <meta name='variant' value='%s'>\n", VERSION_NAME);
+    string_printf(header,  " <meta name='variant_version' value='%d.%d.%d'>\n", VER_MAJOR, VER_MINOR, VER_PATCH);
+    string_printf(header,  " <meta name='character_name' value='%s'>\n", player_name);
+    string_printf(header,  " <meta name='race' value='%s'>\n", get_race()->name);
+    string_printf(header,  " <meta name='class' value='%s'>\n", get_class()->name);
+    string_printf(header,  " <meta name='level' value='%d'>\n", p_ptr->lev);
+    string_printf(header,  " <meta name='experience' value='%d'>\n", p_ptr->exp);
+    string_printf(header,  " <meta name='turncount' value='%d'>\n", game_turn);
+    string_printf(header,  " <meta name='max_depth' value='%d'>\n", _max_depth());
+    string_printf(header,  " <meta name='score' value='%d'>\n", p_ptr->exp); /* ?? Does oook need this? */
+    string_printf(header,  " <meta name='fame' value='%d'>\n", p_ptr->fame);
+    string_append_s(header, "</head>");
+    doc_change_html_header(d, string_buffer(header));
+
     py_display_character_sheet(d);
 
     screen_save();
@@ -2377,6 +2410,7 @@ void py_display(void)
 
     doc_free(d);
     string_free(s);
+    string_free(header);
 }
 
 /* This is used by the birth process ... Note that there
