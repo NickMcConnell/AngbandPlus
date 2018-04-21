@@ -265,11 +265,6 @@ void self_knowledge(void)
                 info[i++] = Dummy;
             }
             break;
-        case RACE_DRACONIAN:
-            sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 2 * plev, plev);
-
-            info[i++] = Dummy;
-            break;
         case RACE_MIND_FLAYER:
             if (plev > 14)
                 sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).", plev);
@@ -387,16 +382,10 @@ void self_knowledge(void)
                 }
             }
             break;
-        case CLASS_ROGUE:
-            if (plev > 7)
-            {
-                info[i++] = "You can hit a monster and teleport at a time (cost 12).";
-            }
-            break;
         case CLASS_RANGER:
             if (plev > 14)
             {
-                info[i++] = "You can prove monsters (cost 20).";
+                info[i++] = "You can probe monsters (cost 20).";
             }
             break;
         case CLASS_PALADIN:

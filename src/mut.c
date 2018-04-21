@@ -132,6 +132,17 @@ static mutation_info _mutations[MAX_MUTATIONS] =
     {MUT_RATING_GOOD,                     0,             0, 0, {0,  0,   0, speed_reader_mut}},
     {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, fell_sorcery_mut}},
     {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, tread_softly_mut}},
+
+    {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, draconian_shield_mut}},
+    {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, draconian_magic_resistance_mut}},
+    {MUT_RATING_GOOD,       MUT_TYPE_ACTIVATION,  A_DEX, 0, {30,   0,   0, draconian_strike_mut}},
+    {MUT_RATING_GOOD,                    0,             0, 0, {0,  0,   0, draconian_breath_mut}},
+    {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, draconian_regen_mut}},
+    {MUT_RATING_GOOD,       MUT_TYPE_ACTIVATION,  A_CHR, 0, {30,  30,  70, draconian_kin_mut}},
+    {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, draconian_lore_mut}},
+    {MUT_RATING_GOOD,       MUT_TYPE_BONUS,             0, 0, {0,  0,   0, draconian_resistance_mut}},
+    {MUT_RATING_GOOD,                    0,             0, 0, {0,  0,   0, draconian_metamorphosis_mut}},
+
 };
 
 int _mut_prob_gain(int i)
@@ -554,6 +565,49 @@ bool mut_demigod_pred(int mut_idx)
     case MUT_ASTRAL_GUIDE:
     case MUT_FANTASTIC_FRENZY:
         if (p_ptr->pclass != CLASS_BERSERKER) return TRUE;
+        break;
+    }
+    return FALSE;
+}
+
+bool mut_draconian_pred(int mut_idx)
+{
+    switch (mut_idx)
+    {
+    case MUT_DRACONIAN_SHIELD:
+    case MUT_DRACONIAN_MAGIC_RES:
+    case MUT_DRACONIAN_STRIKE:
+    case MUT_DRACONIAN_BREATH:
+    case MUT_DRACONIAN_REGEN:
+    case MUT_DRACONIAN_KIN:
+    case MUT_DRACONIAN_LORE:
+    case MUT_DRACONIAN_RESISTANCE:
+        return TRUE;
+
+    case MUT_DRACONIAN_METAMORPHOSIS:
+        /* OK, what classes will actually work with no bow or weapon slots? */
+        switch (p_ptr->pclass)
+        {
+        case CLASS_MONK:
+        case CLASS_BEASTMASTER: /* No riding, either! */
+        case CLASS_ARCHER:
+        case CLASS_SAMURAI:
+        case CLASS_FORCETRAINER:
+        case CLASS_CAVALRY:
+        case CLASS_WEAPONSMITH:
+        case CLASS_NINJA:
+        case CLASS_SNIPER:
+        case CLASS_DUELIST:
+        case CLASS_WEAPONMASTER:
+        case CLASS_RUNE_KNIGHT:
+        case CLASS_NECROMANCER:
+        case CLASS_MAULER:
+        case CLASS_MYSTIC:
+            return FALSE;
+            break;
+        default:
+            return TRUE;
+        }
         break;
     }
     return FALSE;

@@ -5,7 +5,8 @@ static void _birth(void)
     object_type    forge;
 
     p_ptr->current_r_idx = MON_UMBER_HULK;
-    
+    skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
     add_outfit(&forge);
 
@@ -29,6 +30,7 @@ static void _calc_innate_attacks(void)
         a.flags |= INNATE_NO_DAM;
         a.effect[0] = GF_OLD_CONF;
         a.blows = 100;
+        a.to_h = p_ptr->lev/5;
         a.msg = "You gaze at %s.";
         a.name = "Gaze";
 

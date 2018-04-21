@@ -18,7 +18,7 @@ static void _small_force_ball_spell(int cmd, variant *res)
     {
         int dice = 3 + ((p_ptr->lev - 1) / 5) + _force_boost()/ 12;
         int sides = 4;
-        var_set_string(res, info_damage(spell_power(dice), sides, 0));
+        var_set_string(res, info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell)));
         break;
     }
     case SPELL_CAST:
@@ -29,7 +29,12 @@ static void _small_force_ball_spell(int cmd, variant *res)
         {
             int dice = 3 + ((p_ptr->lev - 1) / 5) + _force_boost()/ 12;
             int sides = 4;
-            fire_ball(GF_MISSILE, dir, spell_power(damroll(dice, sides)), 0);
+            fire_ball(
+                GF_MISSILE,
+                dir,
+                spell_power(damroll(dice, sides) + p_ptr->to_d_spell),
+                0
+            );
             var_set_bool(res, TRUE);
         }
         break;
@@ -76,7 +81,7 @@ static void _kamehameha_spell(int cmd, variant *res)
     {
         int dice = 5 + ((p_ptr->lev - 1) / 5) + _force_boost() / 10;
         int sides = 5;
-        var_set_string(res, info_damage(spell_power(dice), sides, 0));
+        var_set_string(res, info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell)));
         break;
     }
     case SPELL_CAST:
@@ -88,7 +93,11 @@ static void _kamehameha_spell(int cmd, variant *res)
         {
             int dice = 5 + ((p_ptr->lev - 1) / 5) + _force_boost() / 10;
             int sides = 5;
-            fire_beam(GF_MISSILE, dir, spell_power(damroll(dice, sides)));
+            fire_beam(
+                GF_MISSILE,
+                dir,
+                spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+            );
             var_set_bool(res, TRUE);
         }
         break;
@@ -201,7 +210,7 @@ static void _shock_power_spell(int cmd, variant *res)
     {
         int dice = 8 + ((p_ptr->lev - 5) / 4) + _force_boost() / 12;
         int sides = 8;
-        var_set_string(res, info_damage(spell_power(dice), sides, 0));
+        var_set_string(res, info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell)));
         break;
     }
     case SPELL_CAST:
@@ -216,7 +225,7 @@ static void _shock_power_spell(int cmd, variant *res)
 
         y = py + ddy[dir];
         x = px + ddx[dir];
-        dam = spell_power(damroll(8 + ((p_ptr->lev - 5) / 4) + _force_boost() / 12, 8));
+        dam = spell_power(damroll(8 + ((p_ptr->lev - 5) / 4) + _force_boost() / 12, 8) + p_ptr->to_d_spell);
         fire_beam(GF_MISSILE, dir, dam);
         if (cave[y][x].m_idx)
         {
@@ -288,7 +297,7 @@ static void _large_force_ball_spell(int cmd, variant *res)
     {
         int dice = spell_power(10);
         int sides = 6;
-        int base = spell_power(p_ptr->lev * 3 / 2 + _force_boost() * 3 / 5);
+        int base = spell_power(p_ptr->lev * 3 / 2 + _force_boost() * 3 / 5 + p_ptr->to_d_spell);
         var_set_string(res, info_damage(dice, sides, base));
         break;
     }
@@ -302,7 +311,7 @@ static void _large_force_ball_spell(int cmd, variant *res)
             int sides = 6;
             int base = p_ptr->lev * 3 / 2 + _force_boost() * 3 / 5;
             int radius = spell_power((p_ptr->lev < 30) ? 2 : 3);
-            int dam = spell_power(damroll(dice, sides) + base);
+            int dam = spell_power(damroll(dice, sides) + base + p_ptr->to_d_spell);
             fire_ball(GF_MISSILE, dir, dam, radius);
             var_set_bool(res, TRUE);
         }
@@ -356,11 +365,16 @@ static void _exploding_flame_spell(int cmd, variant *res)
         var_set_string(res, "Generates a huge ball of flame centered on you.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev + _force_boost())));
+        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev + _force_boost() + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
-        fire_ball(GF_FIRE, 0, spell_power(200 + (2 * p_ptr->lev) + _force_boost() * 2), 10);
+        fire_ball(
+            GF_FIRE,
+            0,
+            spell_power((100 +  p_ptr->lev + _force_boost() + p_ptr->to_d_spell) * 2),
+            10
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -384,7 +398,7 @@ static void _super_kamehameha_spell(int cmd, variant *res)
     {
         int dice = spell_power(10 + p_ptr->lev/2 + _force_boost()*3/10);
         int sides = 15;
-        var_set_string(res, info_damage(dice, sides, 0));
+        var_set_string(res, info_damage(dice, sides, spell_power(p_ptr->to_d_spell)));
         break;
     }
     case SPELL_CAST:
@@ -396,7 +410,11 @@ static void _super_kamehameha_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
 
-        fire_beam(GF_MANA, dir, spell_power(damroll(dice, sides)));
+        fire_beam(
+            GF_MANA,
+            dir,
+            spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }

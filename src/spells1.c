@@ -916,7 +916,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
         if (message)
         {
             msg_format("The web %s", message);
-            cave_set_feat(y, x, feat_floor);
+            cave_set_feat(y, x, floor_type[randint0(100)]);
             if (c_ptr->info & (CAVE_MARK)) obvious = TRUE;
         }
     }
@@ -1900,7 +1900,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     int caster_lev = (who > 0) ? r_info[caster_ptr->r_idx].level : spell_power(p_ptr->lev * 2);
 
     bool who_is_pet = FALSE;
-    if (who && is_pet(&m_list[who]))
+    if (who > 0 && is_pet(&m_list[who]))
         who_is_pet = TRUE;
 
     /* Nobody here */
@@ -2004,7 +2004,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 note = " resists.";
 
-                dam /= 2;
+                dam /= 3;
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ACID;
             }
             break;
@@ -2032,7 +2032,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 note = " resists.";
 
-                dam /= 2;
+                dam /= 3;
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ELEC;
             }
             break;
@@ -2060,7 +2060,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 note = " resists.";
 
-                dam /= 2;
+                dam /= 3;
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_FIRE;
             }
             else if (r_ptr->flags3 & RF3_HURT_FIRE)
@@ -2095,7 +2095,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 note = " resists.";
 
-                dam /= 2;
+                dam /= 3;
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_COLD;
             }
             else if (r_ptr->flags3 & RF3_HURT_COLD)
@@ -2130,7 +2130,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 note = " resists.";
 
-                dam /= 2;
+                dam /= 3;
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_POIS;
             }
             break;

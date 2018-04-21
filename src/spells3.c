@@ -11,6 +11,7 @@
 /* Purpose: Spell code (part 3) */
 
 #include "angband.h"
+#include <assert.h>
 
 /* Maximum number of tries for teleporting */
 #define MAX_TRIES 100
@@ -1217,11 +1218,13 @@ bool brand_weapon(int brand_type)
 
 bool brand_weapon_aux(int item)
 {
+    assert(item >= 0);
     apply_magic(&inventory[item], dun_level, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
     return TRUE;
 }
 bool brand_armour_aux(int item)
 {
+    assert(item >= 0);
     apply_magic(&inventory[item], dun_level, AM_GOOD | AM_GREAT | AM_NO_FIXED_ART | AM_CRAFTING);
     return TRUE;
 }
@@ -1934,8 +1937,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
                 idx -= 2*(psion_enchant_power() - 1);
             }
 
-            idx -= virtue_current(VIRTUE_ENCHANTMENT)/110;
-
             if (idx < 0) chance = 0;
             else if (idx > 15) chance = 1000;
             else chance = enchant_table[idx];
@@ -1962,8 +1963,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
             {
                 idx -= 2*(psion_enchant_power() - 1);
             }
-
-            idx -= virtue_current(VIRTUE_ENCHANTMENT)/110;
 
             if (idx < 0) chance = 0;
             else if (idx > 15) chance = 1000;
@@ -1992,8 +1991,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
             {
                 idx -= 2*(psion_enchant_power() - 1);
             }
-
-            idx -= virtue_current(VIRTUE_ENCHANTMENT)/110;
 
             if (idx < 0) chance = 0;
             else if (idx > 15) chance = 1000;
@@ -2799,21 +2796,27 @@ bool recharge(int power)
                 }
             }
 
-            /* Destroy all members of a stack of objects. */
+            /* Destroy multiple members of a stack of objects. */
             if (fail_type == 3)
             {
-                if (o_ptr->number > 1)
-                    msg_format("Wild magic consumes all your %s!", o_name);
+                int num = randint1(3);
 
+                if (num > o_ptr->number)
+                    num = o_ptr->number;
+
+                if (o_ptr->number == num)
+                    msg_format("Wild magic consumes all of your %s!", o_name);
+                else if (num > 1)
+                    msg_format("Wild magic consumes some of your %s!", o_name);
                 else
-                    msg_format("Wild magic consumes your %s!", o_name);
+                    msg_format("Wild magic consumes one of your %s!", o_name);
 
 
 
                 /* Reduce and describe inventory */
                 if (item >= 0)
                 {
-                    inven_item_increase(item, -999);
+                    inven_item_increase(item, -num);
                     inven_item_describe(item);
                     inven_item_optimize(item);
                 }
@@ -2821,7 +2824,7 @@ bool recharge(int power)
                 /* Reduce and describe floor item */
                 else
                 {
-                    floor_item_increase(0 - item, -999);
+                    floor_item_increase(0 - item, -num);
                     floor_item_describe(0 - item);
                     floor_item_optimize(0 - item);
                 }
@@ -4867,6 +4870,8 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
                 break;
             case RACE_DRACONIAN:
                 summon_kin_type = 'd';
+                if (p_ptr->lev >= 40)
+                    summon_kin_type = 'D';
                 break;
             case RACE_GOLEM:
             case RACE_ANDROID:

@@ -2034,8 +2034,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             /* Speed */
             else if (have_flag(flgs, TR_SPEED))
             {
-                /* Dump " to speed" */
-                t = object_desc_str(t, " to speed");
+                /* Dump " to speed"
+                t = object_desc_str(t, " to speed");*/
             }
 #if 0
             TODO: Blows are now fractional (currently +.50 attacks per pval)
@@ -2054,22 +2054,22 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
             /* Stealth */
             else if (have_flag(flgs, TR_STEALTH))
             {
-                /* Dump " to stealth" */
-                t = object_desc_str(t, " to stealth");
+                /* Dump " to stealth"
+                t = object_desc_str(t, " to stealth"); */
             }
 
             /* Search */
             else if (have_flag(flgs, TR_SEARCH))
             {
-                /* Dump " to searching" */
-                t = object_desc_str(t, " to searching");
+                /* Dump " to searching"
+                t = object_desc_str(t, " to searching"); */
             }
 
             /* Infravision */
             else if (have_flag(flgs, TR_INFRA))
             {
-                /* Dump " to infravision" */
-                t = object_desc_str(t, " to infravision");
+                /* Dump " to infravision"
+                t = object_desc_str(t, " to infravision"); */
             }
 
             /* Finish the display */
@@ -2160,8 +2160,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
     {
         char     buf[255];
         effect_t e = obj_get_effect(o_ptr);
+
+        if (strlen(tmp_val2) > 0)
+            strcat(tmp_val2, " ");
         
-        sprintf(buf, " A:%s", do_effect(&e, SPELL_NAME, 0));
+        sprintf(buf, "A:%s", do_effect(&e, SPELL_NAME, 0));
         strcat(tmp_val2, buf);
     }
 

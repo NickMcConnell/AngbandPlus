@@ -3546,7 +3546,7 @@ errr parse_r_info(char *buf, header *head)
                 else
                     return PARSE_ERROR_OUT_OF_BOUNDS;
 
-                idx = get_class_idx(zz[2]);
+                idx = lookup_class_idx(zz[2]);
                 if (idx >= 0)
                 {
                     class_t *class_ptr = get_class_t_aux(idx, 0);
@@ -4213,6 +4213,7 @@ struct dungeon_grid
     int        cave_info;        /* Flags for CAVE_MARK, CAVE_GLOW, CAVE_ICKY, CAVE_ROOM */
     int        special;        /* Reserved for special terrain info */
     int        random;            /* Number of the random effect */
+    int        level;          /* TODO: Quest Rewards should not be generated at DL0! Better solution? */
 };
 
 
@@ -4220,18 +4221,18 @@ static dungeon_grid letter[255];
 
 
 /*
- * Process "F:<letter>:<terrain>:<cave_info>:<monster>:<object>:<ego>:<artifact>:<trap>:<special>" -- info for dungeon grid
+ * Process "F:<letter>:<terrain>:<cave_info>:<monster>:<object>:<ego>:<artifact>:<trap>:<special>:<level>" -- info for dungeon grid
  */
 static errr parse_line_feature(char *buf)
 {
     int num;
-    char *zz[9];
+    char *zz[10];
 
 
     if (init_flags & INIT_ONLY_BUILDINGS) return (0);
 
     /* Tokenize the line */
-    if ((num = tokenize(buf+2, 9, zz, 0)) > 1)
+    if ((num = tokenize(buf+2, 10, zz, 0)) > 1)
     {
         /* Letter to assign */
         int index = zz[0][0];
@@ -4246,9 +4247,13 @@ static errr parse_line_feature(char *buf)
         letter[index].cave_info = 0;
         letter[index].special = 0;
         letter[index].random = RANDOM_NONE;
+        letter[index].level = 0;
 
         switch (num)
         {
+            case 10:
+                letter[index].level = atoi(zz[9]);
+                /* Fall through */
             /* Special */
             case 9:
                 letter[index].special = atoi(zz[8]);
@@ -4451,7 +4456,7 @@ static errr parse_line_building(char *buf)
                 }
                 else
                 {
-                    int idx = get_class_idx(zz[0]);
+                    int idx = lookup_class_idx(zz[0]);
                     if (idx < 0 || idx >= MAX_CLASS)
                         return PARSE_ERROR_GENERIC;
                     building[index].member_class[idx] = c;
@@ -4631,6 +4636,10 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
             int        random = letter[idx].random;
             int        artifact_index = letter[idx].artifact;
             int        ego_index = letter[idx].ego;
+            int        level = letter[idx].level;
+            int        old_base_level = base_level;
+            int        old_object_level = object_level;
+            int        old_dun_level = dun_level;
 
             if (!in_bounds2(y2, x2)) 
                 continue;
@@ -4653,6 +4662,14 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
             {
                 c_ptr->info |= letter[idx].cave_info;
                 continue;
+            }
+
+            /* Hack: Quest Rewards were being generated on DL0 rather than the Quest Level */
+            if (level > 0)
+            {
+                base_level = level;
+                object_level = level;
+                dun_level = level;
             }
 
             /* Cave info */
@@ -4806,6 +4823,12 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
                     if (create_named_art(artifact_index, y2, x2))
                         a_info[artifact_index].cur_num = 1;
                 }
+            }
+            if (level > 0)
+            {
+                base_level = old_base_level;
+                object_level = old_object_level;
+                dun_level = old_dun_level;
             }
         }
 

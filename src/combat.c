@@ -64,12 +64,7 @@ static _blow_info_t _get_blow_info(int hand)
     switch (p_ptr->pclass)
     {
     case CLASS_WARRIOR:
-        result.num = 600; result.wgt = 70; result.mul = 55; 
-        if (p_ptr->lev >= 40) 
-        {
-            result.mul = 75;
-            result.num = 700;
-        }
+        result.num = 600; result.wgt = 70; result.mul = 50 + p_ptr->lev/2;
         break;
 
     case CLASS_MAULER:
@@ -86,20 +81,20 @@ static _blow_info_t _get_blow_info(int hand)
     case CLASS_BLOOD_MAGE:
     case CLASS_HIGH_MAGE:
     case CLASS_BLUE_MAGE:
-        result.num = 300; result.wgt = 100; result.mul = 20; break;
+        result.num = 400; result.wgt = 100; result.mul = 20; break;
 
     case CLASS_WARLOCK:
-        result.num = 350; result.wgt = 70; result.mul = 25; 
+        result.num = 400; result.wgt = 70; result.mul = 25;
         if (p_ptr->psubclass == PACT_DRAGON) 
         {
             result.mul = 40;
-            if (p_ptr->lev >= 35) result.num = 550;
-            else result.num = 450;
+            if (p_ptr->lev >= 40) result.num = 550;
+            else result.num = 500;
         }
         break;
 
     case CLASS_PSION:
-        result.num = 350; result.wgt = 100; result.mul = 30; break;
+        result.num = 400; result.wgt = 100; result.mul = 30; break;
 
     case CLASS_PRIEST:
     case CLASS_MAGIC_EATER:
@@ -153,10 +148,10 @@ static _blow_info_t _get_blow_info(int hand)
         result.num = 400; result.wgt = 100; result.mul = 30; break;
 
     case CLASS_ARCHAEOLOGIST:
-        result.num = 500; result.wgt = 70; result.mul = 30; 
-        if (p_ptr->lev >= 40 && archaeologist_is_favored_weapon(o_ptr))
+        result.num = 400; result.wgt = 70; result.mul = 30;
+        if (archaeologist_is_favored_weapon(o_ptr))
         {
-            result.num = 600;
+            result.num = 500;
             result.mul = 40;
         }
         break;
@@ -180,7 +175,7 @@ static _blow_info_t _get_blow_info(int hand)
     {
         u32b flgs[TR_FLAG_SIZE];
         object_flags(o_ptr, flgs);
-        if (p_ptr->riding && have_flag(flgs, TR_RIDING)) {result.num = 550; result.wgt = 70; result.mul = 45;}
+        if (p_ptr->riding && have_flag(flgs, TR_RIDING)) {result.num = 550; result.wgt = 70; result.mul = 65;}
         else {result.num = 500; result.wgt = 100; result.mul = 35;}
         break;
     }
@@ -196,7 +191,7 @@ static _blow_info_t _get_blow_info(int hand)
 
     case CLASS_MIRROR_MASTER:
     case CLASS_SNIPER:
-        result.num = 300; result.wgt = 100; result.mul = 30; break;
+        result.num = 400; result.wgt = 100; result.mul = 30; break;
 
     case CLASS_NINJA:
         result.num = 425; result.wgt = 20; result.mul = 10; break;
@@ -236,7 +231,7 @@ static _blow_info_t _get_blow_info(int hand)
         }
         else if (prace_is_(RACE_MON_LEPRECHAUN)) 
         {
-            result.num = 350;
+            result.num = 300;
             result.mul = 20;
         }
         else if (prace_is_(RACE_MON_SWORD))
@@ -252,13 +247,10 @@ static _blow_info_t _get_blow_info(int hand)
         break;
     }
 
-    if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { result.num++; result.wgt /= 2; result.mul += 20; }
-    if (p_ptr->tim_building_up && p_ptr->pclass != CLASS_MAULER) 
-    { 
-        if (result.num < 400 && p_ptr->lev >= 40) 
-            result.num = 400; 
-        result.wgt /= 2; 
-        result.mul += 20; 
+    if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING) || p_ptr->tim_building_up)
+    {
+        result.wgt /= 2;
+        result.mul += 20;
     }
 
     /* Xorns and Mariliths have multiple sets of arms */
@@ -268,9 +260,6 @@ static _blow_info_t _get_blow_info(int hand)
         result.num = 100;
 
     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
-        result.num = 100;
-
-    if (o_ptr->name1 == ART_EVISCERATOR) 
         result.num = 100;
 
     return result;
@@ -773,6 +762,15 @@ int display_innate_attack_info(int which, int row, int col)
         put_str(buf, r++, c);
     }
 
+    {
+        cptr name = skills_innate_calc_name(a);
+        sprintf(buf, " %-7.7s: %s (%+d To Hit)",
+                    "Profic",
+                    skills_innate_describe_current(name),
+                    skills_innate_calc_bonus(name));
+        put_str(buf, r++, c);
+    }
+
     sprintf(buf, " %-7.7s: %d + %d = %d", "To Hit", a->to_h, p_ptr->to_h_m, to_h);
     put_str(buf, r++, c);
 
@@ -1041,7 +1039,7 @@ static int _shooter_info_aux(object_type *bow, object_type *arrow, int row, int 
     int          dd = arrow->dd;
     int          ds = arrow->ds;
     critical_t   crit = {0}; 
-    int             num_fire = 0;
+    int          num_fire = 0;
     int          r,c;
 
     missile_flags_known(arrow, flgs);
@@ -1121,6 +1119,12 @@ static int _shooter_info_aux(object_type *bow, object_type *arrow, int row, int 
     to_d_xtra = to_d_xtra + crit.to_d/100;
 
     _display_missile_slay(mult, 100, num_fire, dd, ds, to_d, to_d_xtra, "Normal", TERM_WHITE, r++, c);
+
+    if (p_ptr->tim_force && p_ptr->csp > (p_ptr->msp / 30))
+    {
+        mult = mult * 3 / 2;
+        _display_missile_slay(mult, 100, num_fire, dd, ds, to_d, to_d_xtra, "Force", TERM_L_BLUE, r++, c);
+    }
 
     if (have_flag(flgs, TR_KILL_ANIMAL)) 
         _display_missile_slay(mult, 270, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, r++, c);

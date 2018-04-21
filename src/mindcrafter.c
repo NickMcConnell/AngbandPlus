@@ -57,7 +57,7 @@ void _precognition_spell(int cmd, variant *res)
         }
 
         if ((p_ptr->lev > 24) && (p_ptr->lev < 40))
-            set_tim_esp(p_ptr->lev, FALSE);
+            set_tim_esp(p_ptr->lev + randint1(p_ptr->lev), FALSE);
 
         if (!b) msg_print("You feel safe.");
 
@@ -104,7 +104,7 @@ void _neural_blast_spell(int cmd, variant *res)
         var_set_string(res, "Fires a beam or ball (Radius 0) which inflicts (3 + (L-1)/4)d(3 + L/15) psionic damage.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 4)), (3 + p_ptr->lev / 15), 0));
+        var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 4)), 3 + p_ptr->lev / 15, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -116,9 +116,9 @@ void _neural_blast_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
 
         if (randint1(100) < p_ptr->lev * 2)
-            fire_beam(GF_PSI, dir, spell_power(damroll(dice, sides)));
+            fire_beam(GF_PSI, dir, spell_power(damroll(dice, sides) + p_ptr->to_d_spell));
         else
-            fire_ball(GF_PSI, dir, spell_power(damroll(dice, sides)), 0);
+            fire_ball(GF_PSI, dir, spell_power(damroll(dice, sides) + p_ptr->to_d_spell), 0);
 
         var_set_bool(res, TRUE);
         break;
@@ -251,7 +251,7 @@ void _pulverise_spell(int cmd, variant *res)
         var_set_string(res, "Fires a ball (Radius 0 or (L-20)/8 + 1) of Telekinesis (Damage (8 + (L-5)/4)d8).");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(8 + ((p_ptr->lev - 5) / 4)), 8, 0));
+        var_set_string(res, info_damage(spell_power(8 + ((p_ptr->lev - 5) / 4)), 8, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -263,7 +263,12 @@ void _pulverise_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
 
-        fire_ball(GF_TELEKINESIS, dir, spell_power(damroll(dice, sides)), rad);
+        fire_ball(
+            GF_TELEKINESIS,
+            dir,
+            spell_power(damroll(dice, sides) + p_ptr->to_d_spell),
+            rad
+        );
 
         var_set_bool(res, TRUE);
         break;
@@ -351,9 +356,9 @@ void _mind_wave_spell(int cmd, variant *res)
 
     case SPELL_INFO:
         if (p_ptr->lev < 25)
-            var_set_string(res, format("dam %d", spell_power(p_ptr->lev * 3 / 2)));
+            var_set_string(res, format("dam %d", spell_power(p_ptr->lev * 3 / 2 + p_ptr->to_d_spell)));
         else
-            var_set_string(res, format("dam d%d", spell_power(p_ptr->lev * ((p_ptr->lev - 5) / 10 + 1))));
+            var_set_string(res, info_damage(1, p_ptr->lev * ((p_ptr->lev - 5) / 10 + 1), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -362,10 +367,13 @@ void _mind_wave_spell(int cmd, variant *res)
         if (p_ptr->lev < 25)
         {
             project(0, 2 + p_ptr->lev / 10, py, px,
-                        spell_power(p_ptr->lev * 3), GF_PSI, PROJECT_KILL, -1);
+                        spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell), GF_PSI, PROJECT_KILL, -1);
         }
         else
-            mindblast_monsters(spell_power(randint1(p_ptr->lev * ((p_ptr->lev - 5) / 10 + 1))));
+        {
+            int ds = p_ptr->lev * ((p_ptr->lev - 5) / 10 + 1);
+            mindblast_monsters(spell_power(randint1(ds) + p_ptr->to_d_spell));
+        }
         var_set_bool(res, TRUE);
         break;
     }
@@ -455,12 +463,12 @@ void _psychic_drain_spell(int cmd, variant *res)
         var_set_string(res, "Drain target monster (Damage (L/2)d6) to regain 5d(damage)/4 spell points. But this spell also consumes 1d150 extra energy.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(p_ptr->lev/2), 6, 0));
+        var_set_string(res, info_damage(spell_power(p_ptr->lev/2), 6, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
-        int dam = spell_power(damroll(p_ptr->lev / 2, 6));
+        int dam = spell_power(damroll(p_ptr->lev / 2, 6) + p_ptr->to_d_spell);
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
 
@@ -487,18 +495,15 @@ void psycho_spear_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Fires a beam of pure energy which penetrate the invulnerability barrier.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Fires a beam of pure energy (Damage L*4 + 1d(L*4)) which penetrates the invulnerability barrier.");
-        break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 4), spell_power(p_ptr->lev * 4)));
+        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 3), spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*4)+p_ptr->lev*4));
+        fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*3)+p_ptr->lev*3 + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     }
@@ -519,7 +524,7 @@ void _psycho_storm_spell(int cmd, variant *res)
         var_set_string(res, "Fires a large ball of pure mental energy.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 5)));
+        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 5 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -527,7 +532,7 @@ void _psycho_storm_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
 
-        fire_ball(GF_PSI_STORM, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10)), 4);
+        fire_ball(GF_PSI_STORM, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10) + p_ptr->to_d_spell), 4);
 
         var_set_bool(res, TRUE);
         break;
@@ -582,6 +587,7 @@ static void _calc_bonuses(void)
     if (p_ptr->lev >= 15) p_ptr->clear_mind = TRUE;
     if (p_ptr->lev >= 10) res_add(RES_FEAR);
     if (p_ptr->lev >= 20) p_ptr->sustain_wis = TRUE;
+    if (p_ptr->lev >= 25) p_ptr->auto_id_sp = 12;
     if (p_ptr->lev >= 30) res_add(RES_CONF);
     if (p_ptr->lev >= 40) p_ptr->telepathy = TRUE;
 }

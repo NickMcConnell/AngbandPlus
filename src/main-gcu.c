@@ -253,6 +253,10 @@ static term_data data[MAX_TERM_DATA];
 # include <sys/types.h>
 #endif
 
+/**
+ * If you have errors relating to curs_set(), comment out the following line
+ */
+#define USE_CURS_SET
 
 /*
  * XXX XXX Hack -- POSIX uses "O_NONBLOCK" instead of "O_NDELAY"
@@ -581,6 +585,8 @@ static errr Term_xtra_gcu_alive(int v)
    /* Suspend */
    if (!v)
    {
+      int x, y;
+
       /* Go to normal keymap mode */
       keymap_norm();
 
@@ -595,13 +601,11 @@ static errr Term_xtra_gcu_alive(int v)
       /* Flush the curses buffer */
       (void)refresh();
 
-#ifdef SPECIAL_BSD
-      /* this moves curses to bottom right corner */
-      mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-      /* this moves curses to bottom right corner */
-      mvcur(getcury(curscr), getcurx(curscr), LINES - 1, 0);
-#endif
+      /* Get current cursor position */
+      getyx(stdscr, y, x);
+
+      /* Move the cursor to bottom right corner */
+      mvcur(y, x, LINES - 1, 0);
 
       /* Exit curses */
       endwin();
@@ -715,6 +719,7 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+   int x, y;
    term_data *td = (term_data *)(t->data);
 
    /* Delete this window */
@@ -731,13 +736,9 @@ static void Term_nuke_gcu(term *t)
   start_color();
 #endif
 
-#ifdef SPECIAL_BSD
    /* This moves curses to bottom right corner */
-   mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-   /* This moves curses to bottom right corner */
-   mvcur(getcury(curscr), getcurx(curscr), LINES - 1, 0);
-#endif
+   getyx(stdscr, y, x);
+   mvcur(y, x, LINES - 1, 0);
 
    /* Flush the curses buffer */
    (void)refresh();
@@ -1304,12 +1305,15 @@ static void hook_quit(cptr str)
 errr init_gcu(int argc, char *argv[])
 {
    int i;
-
    char path[1024];
+   bool big_map = FALSE;
 
-   /* Unused */
-   (void)argc;
-   (void)argv;
+   /* Parse Args */
+   for (i = 1; i < argc; i++)
+   {
+      if (strcmp(argv[i], "-b") == 0)
+         big_map = TRUE;
+   }
    
 #ifdef USE_SOUND
 
@@ -1452,6 +1456,12 @@ errr init_gcu(int argc, char *argv[])
          Sorry, but I prefer the map window to be as large as possible. This
          requires me to hard-code the secondary term sizes based on my preferences.
          Probably, they should be configurable. ***/
+    if (big_map)
+    {
+        term_data_init(&data[0], LINES, COLS, 0, 0);
+        angband_term[0] = Term;
+    }
+    else
     {
         const int desired_inv_cx = 60;
         const int desired_msg_cy = 7;

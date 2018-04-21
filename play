@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ "$1" == "" ]; then
+    echo 'Play which character?'
+    ls ~/.angband/PosChengband/save | grep 1000.* | sed 's/1000.//'
+else
+    # Why do these reset every time I reboot?
+    xset +fp /usr/share/fonts/truetype/dejavu
+    xset fp rehash
+
+
+    export ASAN_SYMBOLIZER_PATH='/usr/bin/llvm-symbolizer'
+
+    export ANGBAND_X11_FONT_0='-misc-dejavu sans mono-medium-r-normal--20-0-0-0-m-0-iso8859-1'
+    export ANGBAND_X11_AT_X_0=0
+    export ANGBAND_X11_AT_Y_0=0
+    export ANGBAND_X11_ROWS_0=150
+    #export ANGBAND_X11_COLS_0=94
+    export ANGBAND_X11_COLS_0=139
+
+    export ANGBAND_X11_FONT_1='-misc-dejavu sans mono-medium-r-normal--18-0-0-0-m-0-iso8859-1'
+    export ANGBAND_X11_AT_X_1=1222
+    export ANGBAND_X11_AT_Y_1=0
+    export ANGBAND_X11_ROWS_1=30
+    export ANGBAND_X11_COLS_1=50
+
+    export ANGBAND_X11_FONT_2='-misc-dejavu sans mono-medium-r-normal--18-0-0-0-m-0-iso8859-1'
+    export ANGBAND_X11_AT_X_2=1222
+    export ANGBAND_X11_AT_Y_2=800
+    export ANGBAND_X11_ROWS_2=16
+    export ANGBAND_X11_COLS_2=50
+
+    #export ANGBAND_X11_GAMMA=185
+
+    #./poschengband -g -mx11 -u$1 -- -n3
+    ./poschengband -g -mx11 -u$1 -- -n1
+fi

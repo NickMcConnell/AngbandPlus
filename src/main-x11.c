@@ -328,9 +328,9 @@ struct infoclr
 struct infofnt
 {
 #ifdef USE_FONTSET
-	XFontSet info;
+    XFontSet info;
 #else
-	XFontStruct *info;
+    XFontStruct *info;
 #endif
 
 	cptr name;
@@ -537,8 +537,6 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
 /*
  * Nuke the current metadpy
  */
@@ -563,9 +561,6 @@ static errr Metadpy_nuke(void)
 	/* Return Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
 
 /*
  * General Flush/ Sync/ Discard routine
@@ -629,6 +624,8 @@ static errr Infowin_set_icon_name(cptr name)
 	return (0);
 }
 
+#endif /* IGNORE_UNUSED_FUNCTIONS */
+
 
 /*
  * Nuke Infowin
@@ -647,9 +644,6 @@ static errr Infowin_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
 
 /*
  * Prepare a new 'infowin'.
@@ -1063,6 +1057,7 @@ static errr Infoclr_init_1(GC gc)
 	return (0);
 }
 
+#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 /*
  * Nuke an old 'infoclr'.
@@ -1084,9 +1079,6 @@ static errr Infoclr_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
 
 /*
  * Initialize an infoclr with some data
@@ -1197,8 +1189,6 @@ static errr Infoclr_change_fg(Pixell fg)
 
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
 /*
  * Nuke an old 'infofnt'.
  */
@@ -1228,9 +1218,6 @@ static errr Infofnt_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
 
 /*
  * Prepare a new 'infofnt'
@@ -1560,6 +1547,9 @@ struct term_data
 
 #endif
 
+    /* Pointers to allocated data, needed to clear up memory */
+    XClassHint *classh;
+    XSizeHints *sizeh;
 };
 
 
@@ -3086,12 +3076,9 @@ static errr term_data_init(term_data *td, int i)
 
 	int val;
 
-	XClassHint *ch;
-
 	char res_name[20];
 	char res_class[20];
 
-	XSizeHints *sh;
 #ifdef USE_XIM
 	XWMHints *wh;
 #endif
@@ -3234,59 +3221,59 @@ static errr term_data_init(term_data *td, int i)
 	Infowin->oy = oy;
 
 	/* Make Class Hints */
-	ch = XAllocClassHint();
+    td->classh = XAllocClassHint();
 
-	if (ch == NULL) quit("XAllocClassHint failed");
+    if (td->classh == NULL) quit("XAllocClassHint failed");
 
 	strcpy(res_name, name);
 	res_name[0] = FORCELOWER(res_name[0]);
-	ch->res_name = res_name;
+    td->classh->res_name = res_name;
 
 	strcpy(res_class, "Angband");
-	ch->res_class = res_class;
+    td->classh->res_class = res_class;
 
-	XSetClassHint(Metadpy->dpy, Infowin->win, ch);
+    XSetClassHint(Metadpy->dpy, Infowin->win, td->classh);
 
 	/* Make Size Hints */
-	sh = XAllocSizeHints();
+    td->sizeh = XAllocSizeHints();
 
 	/* Oops */
-	if (sh == NULL) quit("XAllocSizeHints failed");
+    if (td->sizeh == NULL) quit("XAllocSizeHints failed");
 
 	/* Main window has a differing minimum size */
 	if (i == 0)
 	{
-		/* Main window min size is 80x24 */
-		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = 80 * td->fnt->wid + (ox + ox);
-		sh->min_height = 24 * td->fnt->hgt + (oy + oy);
-		sh->max_width = 255 * td->fnt->wid + (ox + ox);
-		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
+        /* Main window min size is 80x27 */
+        td->sizeh->flags = PMinSize | PMaxSize;
+        td->sizeh->min_width = 80 * td->fnt->wid + (ox + ox);
+        td->sizeh->min_height = 27 * td->fnt->hgt + (oy + oy);
+        td->sizeh->max_width = 255 * td->fnt->wid + (ox + ox);
+        td->sizeh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}
 
 	/* Other windows can be shrunk to 1x1 */
 	else
 	{
 		/* Other windows */
-		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = td->fnt->wid + (ox + ox);
-		sh->min_height = td->fnt->hgt + (oy + oy);
-		sh->max_width = 256 * td->fnt->wid + (ox + ox);
-		sh->max_height = 256 * td->fnt->hgt + (oy + oy);
+        td->sizeh->flags = PMinSize | PMaxSize;
+        td->sizeh->min_width = td->fnt->wid + (ox + ox);
+        td->sizeh->min_height = td->fnt->hgt + (oy + oy);
+        td->sizeh->max_width = 256 * td->fnt->wid + (ox + ox);
+        td->sizeh->max_height = 256 * td->fnt->hgt + (oy + oy);
 	}
 
 	/* Resize increment */
-	sh->flags |= PResizeInc;
-	sh->width_inc = td->fnt->wid;
-	sh->height_inc = td->fnt->hgt;
+    td->sizeh->flags |= PResizeInc;
+    td->sizeh->width_inc = td->fnt->wid;
+    td->sizeh->height_inc = td->fnt->hgt;
 
 	/* Base window size */
-	sh->flags |= PBaseSize;
-	sh->base_width = (ox + ox);
-	sh->base_height = (oy + oy);
+    td->sizeh->flags |= PBaseSize;
+    td->sizeh->base_width = (ox + ox);
+    td->sizeh->base_height = (oy + oy);
 
 	/* Use the size hints */
-	XSetWMNormalHints(Metadpy->dpy, Infowin->win, sh);
+    XSetWMNormalHints(Metadpy->dpy, Infowin->win, td->sizeh);
 
 	/* Map the window */
 	Infowin_map();
@@ -3331,6 +3318,73 @@ static errr term_data_init(term_data *td, int i)
 	return (0);
 }
 
+/**
+ * Remember the number of terminal windows open
+ */
+static int term_windows_open;
+
+static void hook_quit(const char *str)
+{
+    int i;
+
+    /* Unused */
+    (void)str;
+
+    /*TODO: save_prefs();*/
+
+    /* Free allocated data */
+    for (i = 0; i < term_windows_open; i++) {
+        term_data *td = &data[i];
+        term *t = &td->t;
+
+#ifdef USE_GRAPHICS
+        if (use_graphics)
+        {
+            XDestroyImage(td->TmpImage);
+        }
+        /* TODO: This still leaks:
+            ================================================================
+            ==14300==ERROR: LeakSanitizer: detected memory leaks
+
+            Direct leak of 136 byte(s) in 1 object(s) allocated from:
+                #0 0x4be960 in calloc (/home/chris/Src/poschengband/poschengband+0x4be960)
+                #1 0x7f6769567877 in XCreateImage (/usr/lib/x86_64-linux-gnu/libX11.so.6+0x26877) */
+#endif
+
+        /* Free size hints */
+        XFree(td->sizeh);
+
+        /* Free class hints */
+        XFree(td->classh);
+
+        /* Free fonts */
+        Infofnt_set(td->fnt);
+        (void)Infofnt_nuke();
+        KILL(td->fnt, infofnt);
+
+        /* Free window */
+        Infowin_set(td->win);
+        (void)Infowin_nuke();
+        KILL(td->win, infowin);
+
+        /* Free term */
+        (void)term_nuke(t);
+    }
+
+    /* Free colors */
+    Infoclr_set(xor);
+    (void)Infoclr_nuke();
+    KILL(xor, infoclr);
+
+    for (i = 0; i < 256; ++i) {
+        Infoclr_set(clr[i]);
+        (void)Infoclr_nuke();
+        KILL(clr[i], infoclr);
+    }
+
+    /* Close link to display */
+    (void)Metadpy_nuke();
+}
 
 /*
  * Initialization function for an "X11" module to Angband
@@ -3350,7 +3404,7 @@ errr init_x11(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-	char *TmpData;
+    char *TmpData;
 #endif /* USE_GRAPHICS */
 
 
@@ -3584,10 +3638,10 @@ errr init_x11(int argc, char *argv[])
 			total = td->fnt->twid * td->fnt->hgt * ii;
 			
 			
-			TmpData = (char *)malloc(total);
+            TmpData = (char *)malloc(total);
 
 			td->TmpImage = XCreateImage(dpy,visual,depth,
-				ZPixmap, 0, TmpData,
+                ZPixmap, 0, TmpData,
 				td->fnt->twid, td->fnt->hgt, 8, 0);
 
 		}
@@ -3597,6 +3651,11 @@ errr init_x11(int argc, char *argv[])
 
 #endif /* USE_GRAPHICS */
 
+    /* Remember the number of terminal windows */
+    term_windows_open = num_term;
+
+    /* Activate hook */
+    quit_aux = hook_quit;
 
 	/* Success */
 	return (0);

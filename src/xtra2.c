@@ -805,17 +805,17 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
     if ( (r_ptr->flags1 & RF1_QUESTOR)
       || (r_ptr->flags7 & RF7_GUARDIAN) )
     {
-        if (one_in_(2))
+        if (one_in_(5))
             mo_mode |= AM_TAILORED;
     }
     if (r_ptr->flags1 & RF1_UNIQUE)
     {
-        if (one_in_(5))
+        if (one_in_(10))
             mo_mode |= AM_TAILORED;
     }
     else if (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
     {
-        if (one_in_(20 - MIN(10, p_ptr->fame/20)))
+        if (one_in_(30))
             mo_mode |= AM_TAILORED;
     }
 

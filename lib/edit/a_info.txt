@@ -80,7 +80,7 @@ E:The Jewel flashes bright red!
 
 N:4:of Carlammas
 I:40:0:2
-W:50:30:3:60000
+W:50:15:3:60000
 F:CON | HIDE_TYPE | RES_FIRE | RES_FEAR
 E:PROT_EVIL:30:300
 E:The amulet lets out a shrill wail...
@@ -88,7 +88,7 @@ D:A fiery circle of bronze, with mighty spells to ward off evil.
 
 N:5:of Ingwe
 I:40:0:3
-W:65:50:3:90000
+W:65:25:3:90000
 F:WIS | CHR | INFRA | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT |
 F:RES_ACID | RES_COLD | RES_ELEC |
@@ -99,7 +99,7 @@ D:of evil could stand.
 
 N:6:Necklace of the Dwarves
 I:40:0:3
-W:70:70:3:75000
+W:70:35:3:75000
 F:STR | CON | INFRA | HIDE_TYPE | RES_BLIND | DEC_STEALTH
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | FULL_NAME
 D:The Nauglamir; a carencet of gold set with a multitude of shining gems of 
@@ -117,7 +117,7 @@ D:invention including the incandescent lightbulb.
 
 N:8:'Frakir'
 I:45:0:1
-W:50:40:2:10000
+W:50:20:2:10000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | SPEED
 F:RES_POIS | SEE_INVIS | SEARCH | WARNING |
 E:DRAIN_LIFE:30:150:100
@@ -125,7 +125,7 @@ E:You order Frakir to strangle your opponent.
 
 N:9:of Tulkas
 I:45:0:4
-W:70:90:2:35000
+W:70:45:2:35000
 F:STR | DEX | CON | HIDE_TYPE | SPEED | 
 D:The treasure of Tulkas, most fleet and wrathful of the Valar.
 E:SPEED_HERO:25:225:75
@@ -135,7 +135,7 @@ E:The ring glows brightly...
 
 N:10:of Power (Narya)
 I:45:0:1
-W:70:100:2:100000
+W:70:50:2:100000
 P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:FREE_ACT | SEE_INVIS |
@@ -151,7 +151,7 @@ D:Sauron.
 
 N:11:of Power (Nenya)
 I:45:0:2
-W:80:140:2:200000
+W:80:70:2:200000
 P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:HOLD_LIFE | FREE_ACT | SEE_INVIS |
@@ -168,7 +168,7 @@ D:Sauron.
 
 N:12:of Power (Vilya)
 I:45:0:3
-W:90:170:2:300000
+W:90:85:2:300000
 P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:HOLD_LIFE | FREE_ACT | SEE_INVIS |
@@ -186,7 +186,7 @@ D:from Sauron.
 
 N:13:of Power (The One Ring)
 I:45:0:5
-W:100:255:2:5000000
+W:100:127:2:5000000
 P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:CURSED | HEAVY_CURSE | PERMA_CURSE |
@@ -207,7 +207,7 @@ D:who wears it.
 
 N:14:of Cower (Darnya)
 I:45:0:-5
-W:100:100:2:0
+W:100:50:2:0
 P:0:1d1:-15:-15:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:CURSED | HEAVY_CURSE | PERMA_CURSE |
@@ -218,7 +218,7 @@ D:Adorned, showy gilding,
 D:set with runes in the strange speech of Heheh, with power so great that it 
 D:inevitably twists and masters any earthly being who wears it.
 
-N:15:Palantir~ of Westernesse
+N:15:Palantir of Westernesse
 I:39:8:3
 W:60:50:10:60000
 P:0:1d1:0:0:0
@@ -248,7 +248,7 @@ D:understanding as you stare into its depths.
 
 N:18:of Faramir
 I:40:0:3
-W:30:60:2:20000
+W:30:30:2:20000
 P:0:0d0:12:0:0
 F:STEALTH | SHOW_MODS | HIDE_TYPE |
 F:RES_CONF | SUST_DEX |
@@ -959,7 +959,7 @@ I:23:20:5
 W:50:25:50:150000
 P:0:8d4:0:0:0
 F:DEX | HIDE_TYPE | VORPAL2 |
-F:SUST_DEX | SHOW_MODS | SPEED
+F:SUST_DEX | SHOW_MODS | SPEED | TUNNEL
 D:An utterly perfect, cleanly chiseled sword, with a edge that effortlessly
 D: slices rock and bone and spells to render the wearer lithe and nimble. It
 D: is combat incarnate.
@@ -1011,10 +1011,10 @@ E:ESCAPE:20:35
 # The Long Sword 'Elvagil'-> 'Chainsword'
 
 N:85:'Chainsword'
-I:23:16:-2
+I:23:16:2
 W:50:50:130:66666
-P:0:7d5:-30:7:0
-F:DEX | CHR | STEALTH | HIDE_TYPE | SPEED | AGGRAVATE | VORPAL2
+P:0:9d5:-30:7:0
+F:DEC_DEX | DEC_CHR | HIDE_TYPE | AGGRAVATE | VORPAL2
 F:SLAY_HUMAN | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS |
 F:ESP_ORC | ESP_TROLL | ESP_HUMAN
 
@@ -1043,7 +1043,7 @@ D:dismay to creatures natural and unnatural.
 # The Small Sword 'Sting'
 
 N:88:'Sting'
-I:23:8:3
+I:23:8:2
 W:20:15:75:100000
 P:0:1d6:7:8:0
 F:STR | DEX | CON | BLOWS | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC |
@@ -1077,14 +1077,14 @@ F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS | SEE_INVIS | RES_DISEN
 # The Blade of Chaos 'Doomcaller'
 
 N:91:'Doomcaller'
-I:23:30:-3
+I:23:30:3
 W:70:25:180:250000
 P:0:6d6:18:28:0
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_GOOD | BRAND_COLD | SLAY_TROLL |
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:RES_CONF | RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS |
 F:SLAY_HUMAN | CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE | 
-F:LIFE | CON | VAMPIRIC
+F:DEC_LIFE | DEC_CON | VAMPIRIC
 D:This weapon of wrath, cursed with a violent anger, dives hungrily 
 D:into the flesh of its enemies. It gathers shadows of death into its 
 D:owner as they inflict wounds that will never heal.
@@ -1689,7 +1689,7 @@ D:It is a look-alike for the strongest sword!
 
 N:143:of Boromir
 I:40:0:2
-W:30:60:2:25000
+W:30:30:2:25000
 P:0:0d0:0:8:0
 F:SHOW_MODS | HIDE_TYPE | 
 F:SUST_STR | RES_FEAR | 
@@ -1743,7 +1743,7 @@ F:DEX | HIDE_TYPE | SEE_INVIS | SHOW_MODS
 
 N:149:'Yasaka-no-Magatama'
 I:40:0:3
-W:65:50:3:90000
+W:65:25:3:90000
 F:INT | CHR | SEARCH | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT |
 F:RES_FIRE | RES_COLD | RES_ELEC | 
@@ -1884,7 +1884,7 @@ F:RES_NETHER | RES_CHAOS | LITE | FULL_NAME | VULN_SHARDS
 
 N:166:Inro of Mito Koumon
 I:40:0:2
-W:30:80:3:100000
+W:30:40:3:100000
 F:INT | WIS | CHR | SEARCH | INFRA | SEE_INVIS |
 F:HIDE_TYPE | FULL_NAME 
 E:MITO_KOUMON:30:225
@@ -2302,7 +2302,7 @@ D:who seek life beyond death.
 
 N:215:of The Pitch Dark Night
 I:40:0:4
-W:50:150:2:50000
+W:50:75:2:50000
 P:0:0d0:0:0:5
 F:STEALTH | SEARCH | HIDE_TYPE | SEE_INVIS |
 F:RES_DARK | LITE |
@@ -2319,7 +2319,7 @@ F:RES_NETHER | RES_FEAR | RES_DARK | RES_COLD
 
 N:217:of Sacred Knights
 I:40:0:2
-W:50:50:2:77777
+W:50:25:2:77777
 P:0:0d0:0:0:10
 F:STR | WIS | HIDE_TYPE |
 F:RES_CONF | RES_CHAOS | BLESSED | 
@@ -2329,7 +2329,7 @@ E:Your amulet exhibits the truth...
 
 N:218:Harness of the Hell
 I:40:0:-2
-W:50:40:30:66666
+W:50:20:30:66666
 P:0:0d0:15:15:-5
 F:INT | WIS | CHR | STEALTH | SPEED | HIDE_TYPE | FULL_NAME
 F:RES_DARK | RES_NETHER |
@@ -2339,7 +2339,7 @@ E:Your collar harness is coverd in pitch-darkness...
 
 N:219:Charmed Pendant
 I:40:0:2
-W:50:100:2:100000
+W:50:50:2:100000
 P:0:0d0:0:0:5
 F:INT | CHR | INFRA | SEARCH | HIDE_TYPE | FULL_NAME |
 F:SEE_INVIS | FREE_ACT | SLOW_DIGEST | REGEN | LITE | WARNING |
@@ -2349,7 +2349,7 @@ E:Your pendant glows pale...
 
 N:220:of Gogo
 I:40:0:4
-W:50:100:2:55555
+W:50:50:2:55555
 P:0:0d0:0:0:0
 F:INT | WIS | DEX | 
 F:SEE_INVIS | LITE |
@@ -2716,7 +2716,7 @@ D:This is the charm worn by Zeus, King of the Olympians and Bane of the Titans.
 N:257:of Poseidon
 I:22:5:3
 W:90:127:70:555555
-P:0:30d1:30:30:0
+P:0:20d1:30:30:0
 F:STR | DEX | SPEED | BRAND_ACID | SLAY_EVIL
 F:ORDER | RES_ACID | RES_FIRE | RES_SOUND |
 F:PERMA_CURSE | QUESTITEM
@@ -2896,18 +2896,19 @@ E:Your gun glows with blinding light...
 
 N:274:of the Ages
 I:45:0:4
-W:70:70:2:100000
+W:70:35:2:100000
 P:0:0d0:0:0:20
 F:CON | SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 F:RES_TIME | HOLD_LIFE | 
 D:Forged you know not when, this ring seems to have withstood the test of time.
 
-N:275:'Eviscerator'
-I:23:4:0
+N:275:'Assassinator'
+I:23:4:4
 W:44:250:12:110000
 P:0:1d4:44:4:0
-F:VORPAL
-D:A small dagger, impossibly sharp.
+F:VORPAL | STEALTH | DEX
+D:It is the ultimate weapon of the assassin who prefers to dispatch enemies
+D:while they sleep.
 
 N:276:of the Bard
 I:30:2:4
@@ -2945,7 +2946,7 @@ D:to constantly lose cash, and it seems impossible to leave its presence.
 
 N:280:of Destruction
 I:45:0:4
-W:90:70:2:100000
+W:90:35:2:100000
 P:0:0d0:0:0:0
 F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_ACID | BRAND_POIS | 
 F:VULN_ACID | VULN_ELEC | VULN_FIRE | VULN_COLD | VULN_POIS | DEC_CON
@@ -3048,7 +3049,7 @@ F:KILL_GIANT
 
 N:293:Goblet 'Holy Grail'
 I:40:0:3
-W:30:250:3:60000
+W:30:125:3:60000
 F:HIDE_TYPE | FULL_NAME
 F:WIS | CHR | RES_NETHER
 E:HOLY_GRAIL:30:12
@@ -3172,28 +3173,28 @@ F:SPEED | SUST_CON | SUST_STR | REGEN | RES_POIS
 E:HEAL_CURING:20:300:700
 E:The Eye engulfs you in healing flames!
 
-N:308:of Fang
+N:308:Dog Collar of Fang
 I:40:0:1
 W:5:70:30:5000
 P:0:0d0:2:3:0
 F:QUESTITEM
-F:HIDE_TYPE 
+F:HIDE_TYPE | FULL_NAME
 F:RES_FEAR | STR
 
-N:309:of Wolf
+N:309:Dog Collar of Wolf
 I:40:0:1
 W:5:70:30:5000
 P:0:0d0:0:0:7
 F:QUESTITEM
-F:HIDE_TYPE 
+F:HIDE_TYPE | FULL_NAME
 F:FREE_ACT | CON
 
-N:310:of Grip
+N:310:Dog Collar of Grip
 I:40:0:1
 W:5:70:30:5000
 P:0:0d0:0:0:0
 F:QUESTITEM
-F:HIDE_TYPE 
+F:HIDE_TYPE | FULL_NAME
 F:SPEED | DEX
 
 N:311:of the Cyberdemon Lord

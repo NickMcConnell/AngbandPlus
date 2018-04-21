@@ -38,7 +38,7 @@ N: 4:BIAS_COLD
 'Snow Avalanche'
 'Freeze!'
 'Freezing Blade'
-'Icy Clow'
+'Icy Claw'
 'Nimloth'
 'Bigfoot'
 of Liquid Helium
@@ -103,7 +103,7 @@ of Holy Smoke
 N: 9:BIAS_DEX
 N:16:BIAS_ROGUE
 'Whirlwind'
-'Cat's Clow'
+'Cat's Claw'
 'Sands of Time'
 'Raid'
 'Elusiveness'

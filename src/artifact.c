@@ -2868,7 +2868,10 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
         if (p_ptr->pclass == CLASS_WARRIOR || 
             p_ptr->pclass == CLASS_CAVALRY || 
             p_ptr->pclass == CLASS_BERSERKER ||
-            p_ptr->pclass == CLASS_MAULER )
+            p_ptr->pclass == CLASS_MAULER ||
+            p_ptr->prace == RACE_MON_HYDRA ||
+            p_ptr->prace == RACE_MON_TROLL ||
+            p_ptr->prace == RACE_MON_JELLY )
         {
             give_power = TRUE;
             give_resistance = TRUE;
@@ -3058,7 +3061,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
     {
         forge1.to_a = MAX(10, forge1.to_a);
     }
-    base_power = object_value_real(&forge1);
+    base_power = MAX(7500, object_value_real(&forge1));
     
     best_power = -10000000;
     power = 0;

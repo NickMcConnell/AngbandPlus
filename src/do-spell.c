@@ -277,28 +277,28 @@ void cast_wonder(int dir)
     else if (die < 31) poly_monster(dir);
     else if (die < 36)
         fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir,
-                  damroll(3 + ((plev - 1) / 5), 4));
+                  damroll(3 + ((plev - 1) / 5) + p_ptr->to_d_spell, 4));
     else if (die < 41) confuse_monster(dir, plev);
-    else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+    else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2) + p_ptr->to_d_spell, 3);
     else if (die < 51) (void)lite_line(dir);
     else if (die < 56)
         fire_bolt_or_beam(beam_chance() - 10, GF_ELEC, dir,
-                  damroll(3 + ((plev - 5) / 4), 8));
+                  damroll(3 + ((plev - 5) / 4) + p_ptr->to_d_spell, 8));
     else if (die < 61)
         fire_bolt_or_beam(beam_chance() - 10, GF_COLD, dir,
-                  damroll(5 + ((plev - 5) / 4), 8));
+                  damroll(5 + ((plev - 5) / 4) + p_ptr->to_d_spell, 8));
     else if (die < 66)
         fire_bolt_or_beam(beam_chance(), GF_ACID, dir,
-                  damroll(6 + ((plev - 5) / 4), 8));
+                  damroll(6 + ((plev - 5) / 4) + p_ptr->to_d_spell, 8));
     else if (die < 71)
         fire_bolt_or_beam(beam_chance(), GF_FIRE, dir,
-                  damroll(8 + ((plev - 5) / 4), 8));
-    else if (die < 76) drain_life(dir, 75);
-    else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
-    else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
-    else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
-    else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
-    else if (die < 101) drain_life(dir, 100 + plev);
+                  damroll(8 + ((plev - 5) / 4) + p_ptr->to_d_spell, 8));
+    else if (die < 76) drain_life(dir, 75 + p_ptr->to_d_spell);
+    else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2 + p_ptr->to_d_spell, 2);
+    else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev + p_ptr->to_d_spell, 2);
+    else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev + p_ptr->to_d_spell, 3);
+    else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev + p_ptr->to_d_spell, 3);
+    else if (die < 101) drain_life(dir, 100 + plev + p_ptr->to_d_spell);
     else if (die < 104)
     {
         earthquake(py, px, 12);
@@ -314,7 +314,7 @@ void cast_wonder(int dir)
     else if (die < 110) dispel_monsters(120);
     else /* RARE */
     {
-        dispel_monsters(150);
+        dispel_monsters(150 + p_ptr->to_d_spell);
         slow_monsters(p_ptr->lev);
         sleep_monsters(p_ptr->lev);
         hp_player(300);
@@ -374,7 +374,7 @@ static void cast_invoke_spirits(int dir)
     else if (die < 36)
     {
         fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir,
-                  damroll(3 + ((plev - 1) / 5), 4));
+                  damroll(3 + ((plev - 1) / 5) + p_ptr->to_d_spell, 4));
     }
     else if (die < 41)
     {
@@ -382,7 +382,7 @@ static void cast_invoke_spirits(int dir)
     }
     else if (die < 46)
     {
-        fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+        fire_ball(GF_POIS, dir, 20 + (plev / 2) + p_ptr->to_d_spell, 3);
     }
     else if (die < 51)
     {
@@ -391,46 +391,46 @@ static void cast_invoke_spirits(int dir)
     else if (die < 56)
     {
         fire_bolt_or_beam(beam_chance() - 10, GF_ELEC, dir,
-                  damroll(3+((plev-5)/4),8));
+                  damroll(3+((plev-5)/4),8) + p_ptr->to_d_spell);
     }
     else if (die < 61)
     {
         fire_bolt_or_beam(beam_chance() - 10, GF_COLD, dir,
-                  damroll(5+((plev-5)/4),8));
+                  damroll(5+((plev-5)/4),8) + p_ptr->to_d_spell);
     }
     else if (die < 66)
     {
         fire_bolt_or_beam(beam_chance(), GF_ACID, dir,
-                  damroll(6+((plev-5)/4),8));
+                  damroll(6+((plev-5)/4),8) + p_ptr->to_d_spell);
     }
     else if (die < 71)
     {
         fire_bolt_or_beam(beam_chance(), GF_FIRE, dir,
-                  damroll(8+((plev-5)/4),8));
+                  damroll(8+((plev-5)/4),8) + p_ptr->to_d_spell);
     }
     else if (die < 76)
     {
-        drain_life(dir, 75);
+        drain_life(dir, 75 + p_ptr->to_d_spell);
     }
     else if (die < 81)
     {
-        fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+        fire_ball(GF_ELEC, dir, 30 + plev / 2 + p_ptr->to_d_spell, 2);
     }
     else if (die < 86)
     {
-        fire_ball(GF_ACID, dir, 40 + plev, 2);
+        fire_ball(GF_ACID, dir, 40 + plev + p_ptr->to_d_spell, 2);
     }
     else if (die < 91)
     {
-        fire_ball(GF_ICE, dir, 70 + plev, 3);
+        fire_ball(GF_ICE, dir, 70 + plev + p_ptr->to_d_spell, 3);
     }
     else if (die < 96)
     {
-        fire_ball(GF_FIRE, dir, 80 + plev, 3);
+        fire_ball(GF_FIRE, dir, 80 + plev + p_ptr->to_d_spell, 3);
     }
     else if (die < 101)
     {
-        drain_life(dir, 100 + plev);
+        drain_life(dir, 100 + plev + p_ptr->to_d_spell);
     }
     else if (die < 104)
     {
@@ -446,11 +446,11 @@ static void cast_invoke_spirits(int dir)
     }
     else if (die < 110)
     {
-        dispel_monsters(120);
+        dispel_monsters(120 + p_ptr->to_d_spell);
     }
     else
     { /* RARE */
-        dispel_monsters(150);
+        dispel_monsters(150 + p_ptr->to_d_spell);
         slow_monsters(p_ptr->lev);
         sleep_monsters(p_ptr->lev);
         hp_player(300);
@@ -1288,13 +1288,13 @@ static cptr do_life_spell(int spell, int mode)
     
         {
             int dice = 1;
-            int sides = spell_power(plev * 5);
+            int sides = plev * 5;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(dice, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
-                dispel_undead(damroll(dice, sides));
+                dispel_undead(spell_power(damroll(dice, sides) + p_ptr->to_d_spell));
             }
         }
         break;
@@ -2085,9 +2085,6 @@ static cptr do_nature_spell(int spell, int mode)
     bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
     bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
 
-    static const char s_dam[] = "dam ";
-    static const char s_rng[] = "rng ";
-
     int dir;
     int plev = p_ptr->lev;
 
@@ -2118,7 +2115,7 @@ static cptr do_nature_spell(int spell, int mode)
             int sides = 4;
             int range = spell_power(plev / 6 + 2);
 
-            if (info) return format("%s%dd%d %s%d", s_dam, spell_power(dice), sides, s_rng, range);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
@@ -2126,7 +2123,7 @@ static cptr do_nature_spell(int spell, int mode)
 
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_beam(GF_ELEC, dir, spell_power(damroll(dice, sides)));
+                fire_beam(GF_ELEC, dir, spell_power(damroll(dice, sides) + p_ptr->to_d_spell));
             }
         }
         break;
@@ -2274,12 +2271,17 @@ static cptr do_nature_spell(int spell, int mode)
             int dice = 3 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance() - 10, GF_COLD, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance() - 10,
+                    GF_COLD,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -2313,12 +2315,17 @@ static cptr do_nature_spell(int spell, int mode)
             int dice = 5 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance() - 10, GF_FIRE, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance() - 10,
+                    GF_FIRE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -2331,14 +2338,19 @@ static cptr do_nature_spell(int spell, int mode)
             int dice = 6;
             int sides = 8;
 
-            if (info) return info_damage(dice, spell_power(sides), 0);
+            if (info) return info_damage(dice, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
                 msg_print("A line of sunlight appears.");
 
-                project_hook(GF_LITE_WEAK, dir, spell_power(damroll(6, 8)), PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL);
+                project_hook(
+                    GF_LITE_WEAK,
+                    dir,
+                    spell_power(damroll(6, 8) + p_ptr->to_d_spell),
+                    PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL
+                );
             }
         }
         break;
@@ -2514,7 +2526,7 @@ static cptr do_nature_spell(int spell, int mode)
         if (desc) return "Generates ball of light centered on you. Maps and lights whole dungeon level. Knows all objects location.";
     
         {
-            int dam = spell_power(150);
+            int dam = spell_power(150 + p_ptr->to_d_spell);
             int rad = 8;
 
             if (info) return info_damage(0, 0, dam/2);
@@ -2557,7 +2569,7 @@ static cptr do_nature_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of fire.";
     
         {
-            int dam = spell_power(60 + plev * 2);
+            int dam = spell_power(60 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
 
             if (info) return info_damage(0, 0, dam);
@@ -2575,7 +2587,7 @@ static cptr do_nature_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of cold.";
     
         {
-            int dam = spell_power(70 + plev * 2);
+            int dam = spell_power(70 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
 
             if (info) return info_damage(0, 0, dam);
@@ -2594,7 +2606,7 @@ static cptr do_nature_spell(int spell, int mode)
         if (desc) return "Fires a huge electric ball.";
     
         {
-            int dam = spell_power(90 + plev * 2);
+            int dam = spell_power(90 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
 
             if (info) return info_damage(0, 0, dam);
@@ -2613,7 +2625,7 @@ static cptr do_nature_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of water.";
     
         {
-            int dam = spell_power(100 + plev * 2);
+            int dam = spell_power(100 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
 
             if (info) return info_damage(0, 0, dam);
@@ -2634,12 +2646,16 @@ static cptr do_nature_spell(int spell, int mode)
             int dice = 5 + 15*plev/50;
             int sides = 15;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, p_ptr->to_d_spell);
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt(GF_ICE, dir, spell_power(damroll(dice, sides)));
+                fire_bolt(
+                    GF_ICE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -2649,7 +2665,7 @@ static cptr do_nature_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of gravity.";
     
         {
-            int dam = spell_power(70 + plev * 2);
+            int dam = spell_power(70 + plev * 2 + p_ptr->to_d_spell);
             int rad = plev / 12 + 1;
 
             if (info) return info_damage(0, 0, dam);
@@ -2673,39 +2689,79 @@ static cptr do_nature_spell(int spell, int mode)
             {
             case 1: /* The original effect: Line of Sight damage, earthquake, disintegration ball */
                 msg_print("Nature's Fury is unleashed!");
-                dispel_monsters(spell_power(4 * plev));
+                dispel_monsters(spell_power(4 * plev + p_ptr->to_d_spell));
                 earthquake(py, px, spell_power(20 + plev / 2));
-                project(0, spell_power(1 + plev / 12), py, px, spell_power((100 + plev) * 2), GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM, -1);
+                project(
+                    0,
+                    spell_power(1 + plev / 12),
+                    py,
+                    px,
+                    spell_power((100 + plev + p_ptr->to_d_spell) * 2),
+                    GF_DISINTEGRATE,
+                    PROJECT_KILL | PROJECT_ITEM,
+                    -1
+                );
                 break;
 
             case 2: /* Deadly bolt of lightning */
                 msg_print("Your hands crackle with electricity!");
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt(GF_ELEC, dir, spell_power(plev * 8));
+                fire_bolt(
+                    GF_ELEC,
+                    dir,
+                    spell_power(plev * 8 + p_ptr->to_d_spell)
+                );
                 break;
 
             case 3: /* Immense thunderclap */
                 msg_print("There is a large thunderclap!");
-                project_hack(GF_SOUND, spell_power(plev * 5));
+                project_hack(GF_SOUND, spell_power(plev * 5 + p_ptr->to_d_spell));
                 break;
 
             case 4: /* Gravitational Wave */
                 msg_print("Space warps around you!");
-                project_hack(GF_GRAVITY, spell_power(plev * 4));
+                project_hack(GF_GRAVITY, spell_power(plev * 4 + p_ptr->to_d_spell));
                 break;
 
             case 5: /* Elemental Storm */
                 msg_print("You unleash the elements!");
-                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_FIRE, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
-                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_COLD, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
-                project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_ELEC, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+                project(
+                    0,
+                    spell_power(1 + plev / 12),
+                    py,
+                    px,
+                    spell_power((120 + plev + p_ptr->to_d_spell) * 2),
+                    GF_FIRE,
+                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL,
+                    -1
+                );
+                project(
+                    0,
+                    spell_power(1 + plev / 12),
+                    py,
+                    px,
+                    spell_power((120 + plev + p_ptr->to_d_spell) * 2),
+                    GF_COLD,
+                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL,
+                    -1
+                );
+                project(
+                    0,
+                    spell_power(1 + plev / 12),
+                    py,
+                    px,
+                    spell_power((120 + plev + p_ptr->to_d_spell) * 2),
+                    GF_ELEC,
+                    PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL,
+                    -1
+                );
                 break;
 
             case 6: /* Rock Storm */
                 msg_print("You fire a storm of boulders!");
                 if (!get_aim_dir(&dir)) return NULL;
                 for (i = 0; i < 3; i++)
-                    fire_ball(GF_SHARDS, dir, spell_power(70 + plev), 1);
+                    fire_ball(GF_SHARDS, dir, spell_power(70 + plev + p_ptr->to_d_spell), 1);
                 break;
             }
         }
@@ -2736,16 +2792,21 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a weak bolt of magic.";
     
         {
-            int dice = spell_power(3 + ((plev - 1) / 5));
+            int dice = 3 + (plev - 1) / 5;
             int sides = 4;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir, damroll(dice, sides));
+                fire_bolt_or_beam(
+                    beam_chance() - 10,
+                    GF_MISSILE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -2808,7 +2869,7 @@ static cptr do_chaos_spell(int spell, int mode)
     
         {
             int dice = 3;
-            int sides = spell_power(5);
+            int sides = 5;
             int rad = spell_power((plev < 30) ? 2 : 3);
             int base;
 
@@ -2816,24 +2877,23 @@ static cptr do_chaos_spell(int spell, int mode)
                 p_ptr->pclass == CLASS_BLOOD_MAGE ||
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER)
-                base = spell_power(plev + plev / 2);
+                base = plev + plev / 2;
             else
-                base = spell_power(plev + plev / 4);
+                base = plev + plev / 4;
 
 
-            if (info) return info_damage(dice, sides, base);
+            if (info) return info_damage(dice, spell_power(sides), spell_power(base + p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball(GF_MISSILE, dir, damroll(dice, sides) + base, rad);
-
-                /*
-                 * Shouldn't actually use GF_MANA, as
-                 * it will destroy all items on the
-                 * floor
-                 */
+                fire_ball(
+                    GF_MISSILE, /* GF_MANA? */
+                    dir,
+                    spell_power(damroll(dice, sides) + base + p_ptr->to_d_spell),
+                    rad
+                );
             }
         }
         break;
@@ -2843,16 +2903,21 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a bolt or beam of fire.";
     
         {
-            int dice = spell_power(8 + (plev - 5) / 4);
+            int dice = 8 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(dice, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance(), GF_FIRE, dir, damroll(dice, sides));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_FIRE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -2862,17 +2927,21 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a tiny ball of disintegration.";
     
         {
-            int dice = spell_power(8 + ((plev - 5) / 4));
+            int dice = 8 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(dice, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball(GF_DISINTEGRATE, dir,
-                    damroll(dice, sides), 0);
+                fire_ball(
+                    GF_DISINTEGRATE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell),
+                    0
+                );
             }
         }
         break;
@@ -2915,16 +2984,21 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a bolt or ball of chaos.";
     
         {
-            int dice = spell_power(10 + (plev - 5) / 4);
+            int dice = 10 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance(), GF_CHAOS, dir, damroll(dice, sides));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_CHAOS,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -2934,7 +3008,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Generates a ball of sound centered on you.";
     
         {
-            int dam = spell_power(60 + plev*3/2);
+            int dam = spell_power(60 + plev*3/2 + p_ptr->to_d_spell*2);
             int rad = spell_power(plev / 10 + 2);
 
             if (info) return info_damage(0, 0, dam/2);
@@ -2953,16 +3027,20 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a beam of pure mana.";
     
         {
-            int dice = spell_power(11 + (plev - 5) / 4);
+            int dice = 11 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_beam(GF_MANA, dir, damroll(dice, sides));
+                fire_beam(
+                    GF_MANA,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -2972,7 +3050,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a ball of fire.";
     
         {
-            int dam = spell_power(plev + 55);
+            int dam = spell_power(plev + 55 + p_ptr->to_d_spell);
             int rad = spell_power(2);
 
             if (info) return info_damage(0, 0, dam);
@@ -3024,7 +3102,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of chaos.";
     
         {
-            int dam = spell_power(plev * 2 + 99);
+            int dam = spell_power(plev * 2 + 99 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 5);
 
             if (info) return info_damage(0, 0, dam);
@@ -3061,15 +3139,21 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires lightning beams in all directions.";
     
         {
-            int dice = spell_power(5 + plev / 10);
+            int dice = 5 + plev / 10;
             int sides = 8;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 for (dir = 0; dir <= 9; dir++)
-                    fire_beam(GF_ELEC, dir, damroll(dice, sides));
+                {
+                    fire_beam(
+                        GF_ELEC,
+                        dir,
+                        spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                    );
+                }
             }
         }
         break;
@@ -3095,7 +3179,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of disintegration.";
     
         {
-            int dam = spell_power(plev + 70);
+            int dam = spell_power(plev + 70 + p_ptr->to_d_spell);
             int rad = 3 + plev / 40;
 
             if (info) return info_damage(0, 0, dam);
@@ -3131,7 +3215,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a magic rocket.";
     
         {
-            int dam = spell_power(120 + plev * 2);
+            int dam = spell_power(120 + plev * 2 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -3195,16 +3279,20 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires a beam of gravity.";
     
         {
-            int dice = spell_power(9 + (plev - 5) / 4);
+            int dice = 9 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_beam(GF_GRAVITY, dir, damroll(dice, sides));
+                fire_beam(
+                    GF_GRAVITY,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -3214,7 +3302,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Makes meteor balls fall down to nearby random locations.";
     
         {
-            int dam = spell_power(plev * 2);
+            int dam = spell_power(plev * 2 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_multi_damage(dam);
@@ -3231,7 +3319,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Generate a huge ball of fire centered on you.";
     
         {
-            int dam = spell_power(300 + 3 * plev);
+            int dam = spell_power(300 + 3 * plev + p_ptr->to_d_spell*2);
             int rad = 8;
 
             if (info) return info_damage(0, 0, dam/2);
@@ -3248,8 +3336,6 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Generate random kind of balls or beams.";
     
         {
-            if (info) return format("%s150 / 250", s_dam);
-
             if (cast)
             {
                 call_chaos(100);
@@ -3275,7 +3361,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires an extremely powerful huge ball of pure mana.";
     
         {
-            int dam = spell_power(300 + plev * 4);
+            int dam = spell_power(300 + plev * 4 + p_ptr->to_d_spell);
             int rad = spell_power(4);
 
             if (info) return info_damage(0, 0, dam);
@@ -3294,7 +3380,7 @@ static cptr do_chaos_spell(int spell, int mode)
         if (desc) return "Fires an extremely powerful ball of chaos.";
     
         {
-            int dam = spell_power(p_ptr->chp);
+            int dam = spell_power(p_ptr->chp + p_ptr->to_d_spell);
             int rad = spell_power(2);
 
             if (info) return info_damage(0, 0, dam);
@@ -3367,13 +3453,13 @@ static cptr do_death_spell(int spell, int mode)
             int sides = 4;
             int rad = 0;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 int dam;
                 if (!get_aim_dir(&dir)) return NULL;
-                dam = spell_power(damroll(dice, sides));
+                dam = spell_power(damroll(dice, sides) + p_ptr->to_d_spell);
                 fire_ball(GF_HELL_FIRE, dir, dam, rad);
 
                 if (one_in_(5))
@@ -3415,7 +3501,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Fires a ball of poison.";
     
         {
-            int dam = spell_power(10 + plev / 2);
+            int dam = spell_power(10 + plev / 2 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -3520,13 +3606,18 @@ static cptr do_death_spell(int spell, int mode)
                 base = plev + plev / 4;
 
 
-            if (info) return info_damage(dice, spell_power(sides), spell_power(base));
+            if (info) return info_damage(dice, spell_power(sides), spell_power(base + p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball(GF_OLD_DRAIN, dir, spell_power(damroll(dice, sides) + base), rad);
+                fire_ball(
+                    GF_OLD_DRAIN,
+                    dir,
+                    spell_power(damroll(dice, sides) + base + p_ptr->to_d_spell),
+                    rad
+                );
             }
         }
         break;
@@ -3539,13 +3630,18 @@ static cptr do_death_spell(int spell, int mode)
             int dice = 8 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_NETHER,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -3555,7 +3651,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Generate a ball of poison centered on you.";
     
         {
-            int dam = spell_power((30 + plev) * 2);
+            int dam = spell_power((30 + plev) * 2 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 10 + 2);
 
             if (info) return info_damage(0, 0, dam/2);
@@ -3604,7 +3700,7 @@ static cptr do_death_spell(int spell, int mode)
         {
             int dice = 1;
             int sides = spell_power(plev * 2);
-            int base = spell_power(plev * 2);
+            int base = spell_power(plev * 2 + p_ptr->to_d_spell);
 
             if (info) return info_damage(dice, sides, base);
 
@@ -3717,13 +3813,18 @@ static cptr do_death_spell(int spell, int mode)
             int dice = 4 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance(), GF_DARK, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_DARK,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -3765,7 +3866,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Fires 3 bolts. Each of the bolts absorbs some HP from a monster and gives them to you.";
     
         {
-            int dam = spell_power(100);
+            int dam = spell_power(100 + p_ptr->to_d_spell/3);
 
             if (info) return format("%s3*%d", s_dam, dam);
 
@@ -3792,13 +3893,13 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Damages all living monsters in sight.";
     
         {
-            int sides = spell_power(plev * 3);
+            int sides = plev * 3;
 
-            if (info) return info_damage(1, sides, 0);
+            if (info) return info_damage(1, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
-                dispel_living(randint1(sides));
+                dispel_living(spell_power(randint1(sides) + p_ptr->to_d_spell));
             }
         }
         break;
@@ -3812,7 +3913,7 @@ static cptr do_death_spell(int spell, int mode)
             int dam = 100 + l + l*l/50 + l*l*l/1250;
             int rad = spell_power(4);
 
-            dam = spell_power(dam);
+            dam = spell_power(dam + p_ptr->to_d_spell);
 
             if (info) return info_damage(0, 0, dam);
 
@@ -3946,7 +4047,7 @@ static cptr do_death_spell(int spell, int mode)
         if (desc) return "Generate a huge ball of nether.";
     
         {
-            int dam = spell_power(plev * 15);
+            int dam = spell_power(plev * 15 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 5);
 
             if (info) return info_damage(0, 0, dam);
@@ -4562,7 +4663,7 @@ static cptr do_trump_spell(int spell, int mode)
         if (desc) return "Makes meteor balls fall down to nearby random locations.";
     
         {
-            int dam = spell_power(plev * 2);
+            int dam = spell_power(plev * 2 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_multi_damage(dam);
@@ -4664,16 +4765,21 @@ static cptr do_arcane_spell(int spell, int mode)
         if (desc) return "Fires a bolt or beam of lightning.";
     
         {
-            int dice = spell_power(3 + (plev - 1) / 5);
+            int dice = 3 + (plev - 1) / 5;
             int sides = 3;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance() - 10, GF_ELEC, dir, damroll(dice, sides));
+                fire_bolt_or_beam(
+                    beam_chance() - 10,
+                    GF_ELEC,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -5388,15 +5494,13 @@ static cptr do_craft_spell(int spell, int mode)
         break;
 
     case 9:
-        if (name) return "Elemental Cloak";
-        if (desc) return "You gain protective elemental auras for a short time.";
+        if (name) return "Remove Curse";
+        if (desc) return "Removes normal curses from equipped items.";
+
+        if (cast)
         {
-            int base = spell_power(10 + plev / 2);
-
-            if (info) return info_duration(base, base);
-
-            if (cast)
-                set_tim_sh_elements(randint1(base) + base, FALSE);
+            if (remove_curse())
+                msg_print("You feel as if someone is watching over you.");
         }
         break;
 
@@ -5446,32 +5550,29 @@ static cptr do_craft_spell(int spell, int mode)
         break;
 
     case 13:
-        if (name) return "Protection from Evil";
-        if (desc) return "Gives aura which protect you from evil monster's physical attack.";
-    
+        if (name) return "Identify";
+        if (desc) return "Identifies an item.";
+
         {
-            int base = spell_power(3 * plev);
-            int sides = spell_power(25);
-
-            if (info) return info_duration(base, sides);
-
             if (cast)
             {
-                set_protevil(randint1(sides) + base, FALSE);
+                if (!ident_spell(NULL)) return NULL;
             }
         }
         break;
 
     case 14:
-        if (name) return "Giant Strength";
-        if (desc) return "For a short time, you grow to a gigantic height and gain great powers of combat.";
+        if (name) return "Curing";
+        if (desc) return "It cures what ails you including fear, poison, stunning, cuts and hallucination.";
         {
-            int base = spell_power(5 + plev / 10);
-
-            if (info) return info_duration(base, base);
-
             if (cast)
-                set_tim_building_up(randint1(base) + base, FALSE);
+            {
+                fear_clear_p();
+                set_poisoned(0, TRUE);
+                set_stun(0, TRUE);
+                set_cut(0, TRUE);
+                set_image(0, TRUE);
+            }
         }
         break;
 
@@ -5569,10 +5670,10 @@ static cptr do_craft_spell(int spell, int mode)
         {
             if (cast)
             {
-                int y = 0, x = 0;
+                int              y = 0, x = 0;
                 cave_type       *c_ptr;
                 monster_type    *m_ptr;
-                int dir;
+                int              dir;
 
                 for (dir = 0; dir < 8; dir++)
                 {
@@ -5588,19 +5689,10 @@ static cptr do_craft_spell(int spell, int mode)
         break;
 
     case 21:
-        if (name) return "Recharging";
-        if (desc) return "Recharges staves, wands or rods.";
-
-        {
-            int power = spell_power(plev * 3);
-
-            if (info) return info_power(power);
-
-            if (cast)
-            {
-                if (!recharge(power)) return NULL;
-            }
-        }
+        if (name) return "Polish Shield";
+        if (desc) return "Makes your shield reflect missiles and bolt spells.";
+        if (cast)
+            polish_shield();
         break;
 
     case 22:
@@ -5652,7 +5744,7 @@ static cptr do_craft_spell(int spell, int mode)
         if (desc) return "Gives ability to pass walls for a while.";
     
         {
-            int base = spell_power(plev / 3);
+            int base = spell_power(plev / 2);
 
             if (info) return info_duration(base, base);
 
@@ -5688,10 +5780,14 @@ static cptr do_craft_spell(int spell, int mode)
         break;
 
     case 28:
-        if (name) return "Brand Weapon";
-        if (desc) return "Makes current weapon a random ego weapon.";
+        if (name) return "Crafting";
+        if (desc) return "Makes chosen weapon, armor or ammo an ego item.";
     
-        if (cast) brand_weapon(-1);
+        if (cast)
+        {
+            if (!cast_crafting())
+                return NULL;
+        }
         break;
 
     case 29:
@@ -5729,7 +5825,7 @@ static cptr do_craft_spell(int spell, int mode)
         break;
 
     case 31:
-        if (name) return "Force Branding";
+        if (name) return "Mana Branding";
         if (desc) return "Temporarily brands your weapon with force.";
     
         {
@@ -5770,13 +5866,18 @@ static cptr do_daemon_spell(int spell, int mode)
             int dice = 3 + (plev - 1) / 5;
             int sides = 4;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance() - 10,
+                    GF_MISSILE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -5856,13 +5957,18 @@ static cptr do_daemon_spell(int spell, int mode)
             int dice = 6 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_NETHER,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -5901,13 +6007,18 @@ static cptr do_daemon_spell(int spell, int mode)
                 base = plev + plev / 4;
 
 
-            if (info) return info_damage(dice, spell_power(sides), spell_power(base));
+            if (info) return info_damage(dice, spell_power(sides), spell_power(base + p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball(GF_HELL_FIRE, dir, spell_power(damroll(dice, sides) + base), rad);
+                fire_ball(
+                    GF_HELL_FIRE,
+                    dir,
+                    spell_power(damroll(dice, sides) + base + p_ptr->to_d_spell),
+                    rad
+                );
             }
         }
         break;
@@ -5970,13 +6081,18 @@ static cptr do_daemon_spell(int spell, int mode)
             int dice = 11 + (plev - 5) / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance(), GF_PLASMA, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_PLASMA,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -5986,7 +6102,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Fires a ball of fire.";
     
         {
-            int dam = spell_power(plev + 55);
+            int dam = spell_power(plev + 55 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -6017,7 +6133,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of nether.";
     
         {
-            int dam = spell_power(plev * 3 / 2 + 100);
+            int dam = spell_power(plev * 3 / 2 + 100 + p_ptr->to_d_spell);
             int rad = spell_power(plev / 20 + 2);
 
             if (info) return info_damage(0, 0, dam);
@@ -6112,7 +6228,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Generates a ball of fire centered on you which transforms floors to magma.";
     
         {
-            int dam = spell_power((55 + plev) * 2);
+            int dam = spell_power((55 + plev + p_ptr->to_d_spell) * 2);
             int rad = 3;
 
             if (info) return info_damage(0, 0, dam/2);
@@ -6130,7 +6246,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Fires a ball of plasma.";
     
         {
-            int dam = spell_power(plev * 3 / 2 + 80);
+            int dam = spell_power(plev * 3 / 2 + 80 + p_ptr->to_d_spell);
             int rad = spell_power(2 + plev / 40);
 
             if (info) return info_damage(0, 0, dam);
@@ -6165,15 +6281,12 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Damages all monsters in sight. Hurts good monsters greatly.";
     
         {
-            int sides1 = spell_power(plev * 2);
-            int sides2 = spell_power(plev * 2);
-
-            if (info) return format("%sd%d+d%d", s_dam, sides1, sides2);
+            if (info) return info_damage(1, spell_power(plev*2), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
-                dispel_monsters(randint1(sides1));
-                dispel_good(randint1(sides2));
+                dispel_monsters(spell_power(randint1(plev * 2) + p_ptr->to_d_spell));
+                dispel_good(spell_power(randint1(plev * 2) + p_ptr->to_d_spell));
             }
         }
         break;
@@ -6183,7 +6296,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Fires a ball of nexus.";
     
         {
-            int dam = spell_power(100 + plev * 2);
+            int dam = spell_power(100 + plev * 2 + p_ptr->to_d_spell);
             int rad = 4;
 
             if (info) return info_damage(0, 0, dam);
@@ -6248,7 +6361,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Generate balls of chaos, confusion and charm centered on you.";
     
         {
-            int dam = spell_power(50 + plev);
+            int dam = spell_power(50 + plev + p_ptr->to_d_spell);
             int power = spell_power(20 + plev);
             int rad = spell_power(3 + plev / 20);
 
@@ -6292,7 +6405,7 @@ static cptr do_daemon_spell(int spell, int mode)
         if (desc) return "Fires a powerful ball of evil power. Hurts good monsters greatly.";
     
         {
-            int dam = spell_power(666);
+            int dam = spell_power(666 + p_ptr->to_d_spell);
             int rad = 3;
 
             if (info) return info_damage(0, 0, dam);
@@ -6363,16 +6476,21 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Fires a bolt or beam of lightning.";
     
         {
-            int dice = spell_power(3 + (plev - 1) / 5);
+            int dice = 3 + (plev - 1) / 5;
             int sides = 4;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt_or_beam(beam_chance() - 10, GF_ELEC, dir, damroll(dice, sides));
+                fire_bolt_or_beam(
+                    beam_chance() - 10,
+                    GF_ELEC,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -6508,25 +6626,28 @@ static cptr do_crusade_spell(int spell, int mode)
     
         {
             int dice = 3;
-            int sides = spell_power(6);
+            int sides = 6;
             int rad = (plev < 30) ? 2 : 3;
             int base;
 
             if (p_ptr->pclass == CLASS_PRIEST ||
                 p_ptr->pclass == CLASS_HIGH_MAGE ||
                 p_ptr->pclass == CLASS_SORCERER)
-                base = spell_power(plev + plev / 2);
+                base = plev + plev / 2;
             else
-                base = spell_power(plev + plev / 4);
+                base = plev + plev / 4;
 
-
-            if (info) return info_damage(dice, sides, base);
+            if (info) return info_damage(dice, spell_power(sides), spell_power(base + p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-
-                fire_ball(GF_HOLY_FIRE, dir, damroll(dice, sides) + base, rad);
+                fire_ball(
+                    GF_HOLY_FIRE,
+                    dir,
+                    spell_power(damroll(dice, sides) + base + p_ptr->to_d_spell),
+                    rad
+                );
             }
         }
         break;
@@ -6536,15 +6657,15 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Damages all undead and demons in sight, and scares all evil monsters in sight.";
     
         {
-            int sides = spell_power(plev);
-            int power = spell_power(plev);
+            int sides = plev;
+            int power = plev;
 
-            if (info) return info_damage(1, sides, 0);
+            if (info) return info_damage(1, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
-                dispel_undead(randint1(sides));
-                dispel_demons(randint1(sides));
+                dispel_undead(spell_power(randint1(sides) + p_ptr->to_d_spell));
+                dispel_demons(spell_power(randint1(sides) + p_ptr->to_d_spell));
                 turn_evil(power);
             }
         }
@@ -6603,7 +6724,7 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Fires a powerful bolt of lightning.";
     
         {
-            int dam = spell_power(plev * 5);
+            int dam = spell_power(plev * 5 + p_ptr->to_d_spell);
 
             if (info) return info_damage(0, 0, dam);
 
@@ -6620,14 +6741,14 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Damages all evil monsters in sight, heals HP somewhat, and completely heals poison, stun and cut status.";
     
         {
-            int dam_sides = spell_power(plev * 6);
+            int dam_sides = plev * 6;
             int heal = spell_power(100);
 
-            if (info) return format("dam:d%d/h%d", dam_sides, heal);
+            if (info) return format("dam:d%d/h%d", spell_power(dam_sides), heal);
 
             if (cast)
             {
-                dispel_evil(randint1(dam_sides));
+                dispel_evil(spell_power(randint1(dam_sides) + p_ptr->to_d_spell));
                 if (p_ptr->pclass != CLASS_BLOOD_MAGE)
                     hp_player(heal);
                 set_poisoned(0, TRUE);
@@ -6709,13 +6830,13 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Damages all evil monsters in sight.";
     
         {
-            int sides = spell_power(plev * 4);
+            int sides = plev * 4;
 
-            if (info) return info_damage(1, sides, 0);
+            if (info) return info_damage(1, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
-                dispel_evil(randint1(sides));
+                dispel_evil(spell_power(randint1(sides) + p_ptr->to_d_spell));
             }
         }
         break;
@@ -6741,7 +6862,7 @@ static cptr do_crusade_spell(int spell, int mode)
             int dam = 100 + l + l*l/50 + l*l*l/1250;
             int rad = spell_power(4);
 
-            dam = spell_power(dam);
+            dam = spell_power(dam + p_ptr->to_d_spell);
 
             if (info) return info_damage(0, 0, dam);
 
@@ -6871,7 +6992,7 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Drops many balls of disintegration near the target.";
     
         {
-            int dam = spell_power(plev * 3 + 25);
+            int dam = spell_power(plev * 3 + 25 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_multi_damage(dam);
@@ -6888,8 +7009,8 @@ static cptr do_crusade_spell(int spell, int mode)
         if (desc) return "Damages all adjacent monsters with holy power. Damages and attempt to slow, stun, confuse, scare and freeze all monsters in sight. And heals HP.";
     
         {
-            int b_dam = spell_power(plev * 9);
-            int d_dam = spell_power(plev * 4);
+            int b_dam = spell_power(plev * 11);
+            int d_dam = spell_power(plev * 4 + p_ptr->to_d_spell);
             int heal = spell_power(100);
             int power = spell_power(plev * 4);
 
@@ -6962,8 +7083,6 @@ static cptr do_music_spell(int spell, int mode)
     bool cont = (mode == SPELL_CONT) ? TRUE : FALSE;
     bool stop = (mode == SPELL_STOP) ? TRUE : FALSE;
 
-    static const char s_dam[] = "dam ";
-
     int dir;
     int plev = p_ptr->lev;
 
@@ -7025,16 +7144,20 @@ static cptr do_music_spell(int spell, int mode)
         if (cast || fail) bard_stop_singing();
 
         {
-            int dice = spell_power(4 + (plev - 1) / 5);
+            int dice = 4 + (plev - 1) / 5;
             int sides = 4;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_bolt(GF_SOUND, dir, damroll(dice, sides));
+                fire_bolt(
+                    GF_SOUND,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -7251,13 +7374,16 @@ static cptr do_music_spell(int spell, int mode)
 
         {
             int dice = 1;
-            int sides = spell_power(plev * 3 / 2);
+            int sides = plev * 3 / 2;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(dice, spell_power(sides), spell_power(p_ptr->to_d_spell));
 
             if (cont)
             {
-                project_hack(GF_PSI, damroll(dice, sides));
+                project_hack(
+                    GF_PSI,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
 
@@ -7352,14 +7478,17 @@ static cptr do_music_spell(int spell, int mode)
         }
 
         {
-            int dice = spell_power(10 + plev / 5);
+            int dice = 10 + plev / 5;
             int sides = 7;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cont)
             {
-                project_hack(GF_SOUND, damroll(dice, sides));
+                project_hack(
+                    GF_SOUND,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
 
@@ -7533,15 +7662,15 @@ static cptr do_music_spell(int spell, int mode)
         }
 
         {
-            int m_sides = spell_power(plev * 3);
-            int e_sides = spell_power(plev * 3);
+            int m_sides = plev * 3;
+            int e_sides = plev * 3;
 
-            if (info) return format("%s1d%d+1d%d", s_dam, m_sides, e_sides);
+            if (info) return info_damage(1, spell_power(m_sides), spell_power(p_ptr->to_d_spell));
 
             if (cont)
             {
-                dispel_monsters(randint1(m_sides));
-                dispel_evil(randint1(e_sides));
+                dispel_monsters(spell_power(randint1(m_sides) + p_ptr->to_d_spell));
+                dispel_evil(spell_power(randint1(e_sides) + p_ptr->to_d_spell));
             }
         }
         break;
@@ -7578,10 +7707,10 @@ static cptr do_music_spell(int spell, int mode)
         if (desc) return "Fires a beam of sound.";
     
         {
-            int dice = spell_power(15 + (plev - 1) / 2);
+            int dice = 15 + (plev - 1) / 2;
             int sides = 10;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             /* Stop singing before start another */
             if (cast || fail) bard_stop_singing();
@@ -7590,7 +7719,11 @@ static cptr do_music_spell(int spell, int mode)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_beam(GF_SOUND, dir, damroll(dice, sides));
+                fire_beam(
+                    GF_SOUND,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -7724,11 +7857,11 @@ static cptr do_music_spell(int spell, int mode)
             int dice = 1;
             int sides = plev * 3;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(dice, sides, spell_power(p_ptr->to_d_spell));
 
             if (cont)
             {
-                dispel_monsters(damroll(dice, sides));
+                dispel_monsters(spell_power(damroll(dice, sides) + p_ptr->to_d_spell));
             }
         }
         break;
@@ -7789,11 +7922,11 @@ static cptr do_music_spell(int spell, int mode)
         if (desc) return "Fires an extremely powerful tiny ball of sound.";
     
         {
-            int dice = spell_power(50 + plev);
+            int dice = 50 + plev;
             int sides = 10;
             int rad = 0;
 
-            if (info) return info_damage(dice, sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             /* Stop singing before start another */
             if (cast || fail) bard_stop_singing();
@@ -7802,7 +7935,12 @@ static cptr do_music_spell(int spell, int mode)
             {
                 if (!get_aim_dir(&dir)) return NULL;
 
-                fire_ball(GF_SOUND, dir, damroll(dice, sides), rad);
+                fire_ball(
+                    GF_SOUND,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell),
+                    rad
+                );
             }
         }
         break;
@@ -8212,7 +8350,7 @@ static cptr do_hex_spell(int spell, int mode)
 
     case 17:
         if (name) return "Cure critical wounds";
-        if (desc) return "Heals cut and HP greatry.";
+        if (desc) return "Heals cut and HP greatly.";
         if (info) return info_heal(4, 10, 0);
         if (cast)
         {
@@ -9308,7 +9446,7 @@ static cptr do_burglary_spell(int spell, int mode)
         if (desc) return "Fires a huge ball of darkness.";
     
         {
-            int dam = spell_power(10 * (plev - 20));
+            int dam = spell_power(10 * (plev - 20) + p_ptr->to_d_spell);
             int rad = spell_power(4);
 
             if (info) return info_damage(0, 0, dam);
@@ -9416,12 +9554,17 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 3 + plev / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance(), GF_ELEC, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_ELEC,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9433,12 +9576,17 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 4 + plev / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance(), GF_COLD, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_COLD,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9450,12 +9598,17 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 5 + plev / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance(), GF_FIRE, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_FIRE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9467,12 +9620,17 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 5 + plev / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance(), GF_ACID, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_ACID,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9481,7 +9639,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a ball of electricity.";
     
         {
-            int dam = spell_power(3*plev/2 + 20);
+            int dam = spell_power(3*plev/2 + 20 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9498,7 +9656,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a ball of cold.";
     
         {
-            int dam = spell_power(3*plev/2 + 25);
+            int dam = spell_power(3*plev/2 + 25 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9515,7 +9673,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a ball of fire.";
     
         {
-            int dam = spell_power(3*plev/2 + 30);
+            int dam = spell_power(3*plev/2 + 30 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9532,7 +9690,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a ball of acid.";
     
         {
-            int dam = spell_power(3*plev/2 + 35);
+            int dam = spell_power(3*plev/2 + 35 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9554,12 +9712,17 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 7 + plev / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance(), GF_SHARDS, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_SHARDS,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9571,12 +9734,17 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 5 + plev / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance(), GF_GRAVITY, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_GRAVITY,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9588,12 +9756,17 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 11 + plev / 4;
             int sides = 8;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt_or_beam(beam_chance(), GF_PLASMA, dir, spell_power(damroll(dice, sides)));
+                fire_bolt_or_beam(
+                    beam_chance(),
+                    GF_PLASMA,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9602,7 +9775,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a meteor.";
     
         {
-            int dam = spell_power(plev + 60);
+            int dam = spell_power(plev + 60 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9619,7 +9792,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Generates a ball of sound centered on you.";
 
         {
-            int dam = spell_power((40 + plev)*2);
+            int dam = spell_power((40 + plev + p_ptr->to_d_spell)*2);
             int rad = plev / 10 + 2;
 
             if (info) return info_damage(0, 0, dam/2);
@@ -9637,7 +9810,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a microburst of strong winds.";
     
         {
-            int dam = spell_power(plev + 40);
+            int dam = spell_power(plev + 40 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9654,7 +9827,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Generates a huge ball of fire centered on you.";
 
         {
-            int dam = spell_power((6 * plev)*2);
+            int dam = spell_power((6 * plev + p_ptr->to_d_spell)*2);
             int rad = 8;
 
             if (info) return info_damage(0, 0, dam/2);
@@ -9668,7 +9841,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a rocket.";
     
         {
-            int dam = spell_power(60 + plev * 4);
+            int dam = spell_power(60 + plev * 4 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9691,12 +9864,16 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 5 + plev/4;
             int sides = 15;
 
-            if (info) return info_damage(spell_power(dice), sides, 0);
+            if (info) return info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt(GF_ICE, dir, spell_power(damroll(dice, sides)));
+                fire_bolt(
+                    GF_ICE,
+                    dir,
+                    spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9705,7 +9882,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a ball of water.";
     
         {
-            int dam = spell_power(2*plev + 30);
+            int dam = spell_power(2*plev + 30 + p_ptr->to_d_spell);
             int rad = 2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9722,7 +9899,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of electricity at chosen target.";
     
         {
-            int dam = spell_power(9*plev/2);
+            int dam = spell_power(9*plev/2 + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9739,7 +9916,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of cold at chosen target.";
     
         {
-            int dam = spell_power(9*plev/2);
+            int dam = spell_power(9*plev/2 + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9756,7 +9933,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of fire at chosen target.";
     
         {
-            int dam = spell_power(5*plev);
+            int dam = spell_power(5*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9773,7 +9950,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of acid at chosen target.";
     
         {
-            int dam = spell_power(5*plev);
+            int dam = spell_power(5*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9790,7 +9967,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of plasma at chosen target.";
     
         {
-            int dam = spell_power(11*plev/2);
+            int dam = spell_power(11*plev/2 + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9807,7 +9984,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of gravity at chosen target.";
     
         {
-            int dam = spell_power(4*plev);
+            int dam = spell_power(4*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9829,12 +10006,16 @@ static cptr do_armageddon_spell(int spell, int mode)
             int dice = 1;
             int sides = 5*plev;
 
-            if (info) return info_damage(dice, spell_power(sides), spell_power(50));
+            if (info) return info_damage(dice, spell_power(sides), spell_power(50 + p_ptr->to_d_spell));
 
             if (cast)
             {
                 if (!get_aim_dir(&dir)) return NULL;
-                fire_bolt(GF_MANA, dir, spell_power(damroll(dice, sides) + 50));
+                fire_bolt(
+                    GF_MANA,
+                    dir,
+                    spell_power(damroll(dice, sides) + 50 + p_ptr->to_d_spell)
+                );
             }
         }
         break;
@@ -9843,7 +10024,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a ball of plasma.";
     
         {
-            int dam = spell_power(2*plev + 90);
+            int dam = spell_power(2*plev + 90 + p_ptr->to_d_spell);
             int rad = 3;
 
             if (info) return info_damage(0, 0, dam);
@@ -9860,7 +10041,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Fires a ball of pure mana.";
     
         {
-            int dam = spell_power(4*plev + 100);
+            int dam = spell_power(4*plev + 100 + p_ptr->to_d_spell);
             int rad = 3;
 
             if (info) return info_damage(0, 0, dam);
@@ -9877,7 +10058,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of sound at chosen target.";
     
         {
-            int dam = spell_power(6*plev);
+            int dam = spell_power(6*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9894,7 +10075,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of inertia at chosen target.";
     
         {
-            int dam = spell_power(5*plev);
+            int dam = spell_power(5*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9911,7 +10092,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of disintegration at chosen target.";
     
         {
-            int dam = spell_power(7*plev);
+            int dam = spell_power(7*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9928,7 +10109,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of mana at chosen target.";
     
         {
-            int dam = spell_power(9*plev);
+            int dam = spell_power(9*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);
@@ -9945,7 +10126,7 @@ static cptr do_armageddon_spell(int spell, int mode)
         if (desc) return "Breathes a cone of shards at chosen target.";
     
         {
-            int dam = spell_power(10*plev);
+            int dam = spell_power(10*plev + p_ptr->to_d_spell);
             int rad = plev > 40 ? -3 : -2;
 
             if (info) return info_damage(0, 0, dam);

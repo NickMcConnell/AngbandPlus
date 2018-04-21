@@ -886,8 +886,9 @@ static int count_chests(int *y, int *x, bool trapped)
         /* Already open */
         if (o_ptr->pval == 0) continue;
 
-        /* No (known) traps here */
-        if (trapped && (!object_is_known(o_ptr) ||
+        /* No (known) traps here
+           CTK: pval is negative if chest is disarmed. Don't read out of bounds!! */
+        if (trapped && (!object_is_known(o_ptr) || o_ptr->pval < 0 ||
             !chest_traps[o_ptr->pval])) continue;
 
         /* OK */
@@ -3754,7 +3755,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
                             else if (p_ptr->tim_stealthy_snipe)
                             {
                             }
-                            else
+                            else if (one_in_(2))
                             {
                                 m_ptr->anger_ct++;
                             }
@@ -3955,7 +3956,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
             o_ptr = &o_list[o_idx];
             object_copy(o_ptr, q_ptr);
 
-            o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EGO_COUNTED);
+            o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
             o_ptr->iy = o_ptr->ix = 0;
             o_ptr->held_m_idx = m_idx;
             o_ptr->next_o_idx = m_ptr->hold_o_idx;

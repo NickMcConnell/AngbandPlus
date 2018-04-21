@@ -90,7 +90,7 @@ static void _banishing_mirror_spell(int cmd, variant *res)
 
 static void _binding_field_spell(int cmd, variant *res)
 {
-    int dam = spell_power(p_ptr->lev*11 + 5);
+    int dam = spell_power(p_ptr->lev*11 + 5 + p_ptr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -136,7 +136,7 @@ static void _break_mirrors_spell(int cmd, variant *res)
 static void _drip_of_light_spell(int cmd, variant *res)
 {
     int  dd = 3 + (p_ptr->lev-1)/5;
-    int     ds = 4;
+    int  ds = 4;
     bool beam = (p_ptr->lev >= 10 && _on_mirror) ? TRUE : FALSE;
 
     switch (cmd)
@@ -151,7 +151,7 @@ static void _drip_of_light_spell(int cmd, variant *res)
             var_set_string(res, "Fires a bolt of light");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, 0));
+        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -159,9 +159,9 @@ static void _drip_of_light_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         if (beam)
-            fire_beam(GF_LITE, dir,spell_power(damroll(dd, ds)));
+            fire_beam(GF_LITE, dir,spell_power(damroll(dd, ds) + p_ptr->to_d_spell));
         else
-            fire_bolt(GF_LITE, dir,spell_power(damroll(dd, ds)));
+            fire_bolt(GF_LITE, dir,spell_power(damroll(dd, ds) + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     }
@@ -240,14 +240,14 @@ static void _mirror_clashing_spell(int cmd, variant *res)
         var_set_string(res, "Fires a ball of shards.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, 0));
+        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball(GF_SHARDS, dir, spell_power(damroll(dd, ds)), rad);
+        fire_ball(GF_SHARDS, dir, spell_power(damroll(dd, ds) + p_ptr->to_d_spell), rad);
         var_set_bool(res, TRUE);
         break;
     }
@@ -604,14 +604,14 @@ static void _seeker_ray_spell(int cmd, variant *res)
         var_set_string(res, "Fires a beam of mana. If the beam hit a mirror, it breaks that mirror and reflects toward another mirror.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, 0));
+        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_beam(GF_SEEKER, dir, spell_power(damroll(dd,ds)));
+        fire_beam(GF_SEEKER, dir, spell_power(damroll(dd,ds) + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     }
@@ -656,7 +656,7 @@ static void _super_ray_spell(int cmd, variant *res)
 {
     int dd = 1;
     int ds = p_ptr->lev * 2;
-    int b = 150;
+    int b = 150 + p_ptr->to_d_spell;
 
     switch (cmd)
     {

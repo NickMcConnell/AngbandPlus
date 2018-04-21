@@ -1103,13 +1103,13 @@ static void _dump_book(FILE *fff, int realm, int book)
     else if (realm == p_ptr->realm2) increment = 32;
 
     if (realm == REALM_HISSATSU)
-        fprintf(fff, "     %-25.25s Lvl  SP %-15.15s Cast\n", k_name + k_info[k_idx].name, "Desc");
+        fprintf(fff, "    %-25.25s Lvl  SP %-15.15s  Cast\n", k_name + k_info[k_idx].name, "Desc");
     else
     {
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-            fprintf(fff, "     %-23.23s Profic Lvl  HP Fail %-15.15s Cast Fail\n", k_name + k_info[k_idx].name, "Desc");
+            fprintf(fff, "    %-23.23s Profic Lvl  HP Fail %-15.15s  Cast Fail\n", k_name + k_info[k_idx].name, "Desc");
         else
-            fprintf(fff, "     %-23.23s Profic Lvl  SP Fail %-15.15s Cast Fail\n", k_name + k_info[k_idx].name, "Desc");
+            fprintf(fff, "    %-23.23s Profic Lvl  SP Fail %-15.15s  Cast Fail\n", k_name + k_info[k_idx].name, "Desc");
     }
 
     for (i = 0; i < 8; i++)
@@ -1178,14 +1178,14 @@ static void _dump_book(FILE *fff, int realm, int book)
             comment = "untried";
         }
 
-        sprintf(line, "  %c) ", I2A(i));
+        sprintf(line, " %c) ", I2A(i));
         if (realm == REALM_HISSATSU)
         {
             spell_stats_ptr stats = _spell_stats_old(realm, s_idx);
             strcat(
                 line, 
                 format(
-                    "%-25s %3d %3d %-15.15s %4d",
+                    "%-25s %3d %3d %-15.15s %5d",
                     do_spell(realm, s_idx, SPELL_NAME),
                     s_ptr->slevel, 
                     cost, 
@@ -1200,7 +1200,7 @@ static void _dump_book(FILE *fff, int realm, int book)
             strcat(
                 line, 
                 format(
-                    "%-25s%c%-4s %3d %3d %3d%% %-15.15s %4d %4d %3d%%",
+                    "%-25s%c%-4s %3d %3d %3d%% %-15.15s %5d %4d %3d%%",
                     do_spell(realm, s_idx, SPELL_NAME),
                     (max ? '!' : ' '), 
                     proficiency,

@@ -734,7 +734,7 @@ static void _bat_calc_innate_attacks(void)
     a.dd = 1 + p_ptr->lev/12;
     a.ds = 4 + p_ptr->lev/15;
     a.weight = 50;
-    a.to_h = p_ptr->lev;
+    a.to_h = p_ptr->lev/5;
 
     a.effect[0] = GF_OLD_DRAIN;
     calc_innate_blows(&a, 400);

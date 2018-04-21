@@ -1234,7 +1234,7 @@ static void prt_ac(void)
 {
     char tmp[32];
 
-    put_str("Cur AC ", ROW_AC, COL_AC);
+    put_str("AC ", ROW_AC, COL_AC);
     sprintf(tmp, "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
     c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_AC + 7);
 
@@ -2349,17 +2349,8 @@ static void calc_spells(void)
     /* Hack -- handle "xtra" mode */
     if (character_xtra) return;
 
-    if ((p_ptr->pclass == CLASS_SORCERER) || 
-        (p_ptr->pclass == CLASS_RED_MAGE) || 
-        (p_ptr->pclass == CLASS_ARCHAEOLOGIST)|| 
-        (p_ptr->pclass == CLASS_TIME_LORD)|| 
-        (p_ptr->pclass == CLASS_WARLOCK)|| 
-        (p_ptr->pclass == CLASS_DUELIST)|| 
-        (p_ptr->pclass == CLASS_RUNE_KNIGHT)|| 
-        (p_ptr->pclass == CLASS_BLOOD_KNIGHT)|| 
-        (p_ptr->pclass == CLASS_MINDCRAFTER)|| 
-        (p_ptr->pclass == CLASS_PSION) ||
-        (p_ptr->pclass == CLASS_WILD_TALENT))
+    if ( p_ptr->pclass == CLASS_SORCERER
+      || p_ptr->pclass == CLASS_RED_MAGE )
     {
         p_ptr->new_spells = 0;
         return;
@@ -2751,7 +2742,7 @@ static void _calc_encumbrance(void)
 
     /* Armor/Weapon Weight */
     weight = equip_weight(object_is_armour);
-    switch (possessor_class_idx())
+    switch (get_class_idx())
     {
     case CLASS_MAGE:
     case CLASS_NECROMANCER:
@@ -2783,6 +2774,7 @@ static void _calc_encumbrance(void)
     case CLASS_RANGER:
     case CLASS_RED_MAGE:
     case CLASS_WARRIOR_MAGE:
+    case CLASS_ARCHAEOLOGIST:
         weight += equip_weight(object_is_melee_weapon) / 3;
         break;
 
@@ -2888,7 +2880,7 @@ static void calc_mana(void)
         }
 
         if (msp && (p_ptr->personality == PERS_MUNCHKIN)) msp += msp/2;
-        if (msp && (possessor_class_idx() == CLASS_SORCERER)) msp += msp*(25+p_ptr->lev)/100;
+        if (msp && (get_class_idx() == CLASS_SORCERER)) msp += msp*(25+p_ptr->lev)/100;
     }
 
     _calc_encumbrance();
@@ -2897,7 +2889,7 @@ static void calc_mana(void)
 
     if (p_ptr->cumber_armor)
     {
-        switch (possessor_class_idx())
+        switch (get_class_idx())
         {
         case CLASS_MAGE:
         case CLASS_NECROMANCER:
@@ -3209,6 +3201,9 @@ void calc_bonuses(void)
     p_ptr->shooter_info.to_mult = 0;
     p_ptr->shooter_info.tval_ammo = 0;
 
+    for (i = 0; i < TR_FLAG_SIZE; i++)
+        p_ptr->shooter_info.flags[i] = 0;
+
     if (p_ptr->tim_speed_essentia)
         p_ptr->shooter_info.num_fire += 100;
 
@@ -3218,6 +3213,8 @@ void calc_bonuses(void)
     p_ptr->easy_2weapon = FALSE;
     p_ptr->speciality_equip = FALSE;
     p_ptr->sneak_attack = FALSE;
+
+    p_ptr->to_d_spell = 0;
 
     p_ptr->to_m_chance = 0;
 
@@ -3277,10 +3274,12 @@ void calc_bonuses(void)
     p_ptr->free_act = FALSE;
     p_ptr->slow_digest = FALSE;
     p_ptr->regenerate = FALSE;
+    p_ptr->super_regenerate = FALSE;
     p_ptr->can_swim = FALSE;
     p_ptr->levitation = FALSE;
     p_ptr->hold_life = FALSE;
     p_ptr->loremaster = FALSE;
+    p_ptr->auto_id_sp = 0;
     p_ptr->cult_of_personality = FALSE;
     p_ptr->telepathy = FALSE;
     p_ptr->esp_animal = FALSE;
@@ -3379,26 +3378,31 @@ void calc_bonuses(void)
     {
         add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID);
         add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_ACID);
+        add_flag(p_ptr->shooter_info.flags, TR_BRAND_ACID);
     }
     if (p_ptr->special_attack & ATTACK_COLD)
     {
         add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_COLD);
         add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_COLD);
+        add_flag(p_ptr->shooter_info.flags, TR_BRAND_COLD);
     }
     if (p_ptr->special_attack & ATTACK_FIRE)
     {
         add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_FIRE);
         add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_FIRE);
+        add_flag(p_ptr->shooter_info.flags, TR_BRAND_FIRE);
     }
     if (p_ptr->special_attack & ATTACK_ELEC)
     {
         add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ELEC);
         add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_ELEC);
+        add_flag(p_ptr->shooter_info.flags, TR_BRAND_ELEC);
     }
     if (p_ptr->special_attack & ATTACK_POIS)
     {
         add_flag(p_ptr->weapon_info[0].flags, TR_BRAND_POIS);
         add_flag(p_ptr->weapon_info[1].flags, TR_BRAND_POIS);
+        add_flag(p_ptr->shooter_info.flags, TR_BRAND_POIS);
     }
 
     if (p_ptr->tim_device_power)
@@ -3562,14 +3566,18 @@ void calc_bonuses(void)
             p_ptr->sh_elec = TRUE;
     }
 
-    /* Sexy Gal */
+    /* Personalities */
     if (p_ptr->personality == PERS_SEXY) p_ptr->cursed |= TRC_AGGRAVATE;
     if (p_ptr->personality == PERS_LAZY) p_ptr->to_m_chance += 10;
     if (p_ptr->personality == PERS_SHREWD) p_ptr->to_m_chance -= 3;
     if (p_ptr->personality == PERS_PATIENT || p_ptr->personality == PERS_MIGHTY) p_ptr->to_m_chance++;
     if (p_ptr->personality == PERS_FEARLESS) res_add(RES_FEAR);
+    if (p_ptr->personality == PERS_HASTY)
+    {
+        p_ptr->pspeed += 2;
+        p_ptr->to_m_chance += 1;
+    }
 
-    /* Lucky man. TODO: This should become a birth event! */
     if ( p_ptr->personality == PERS_LUCKY
       && !mut_present(MUT_GOOD_LUCK) )
     {
@@ -4158,7 +4166,7 @@ void calc_bonuses(void)
     {
         if (p_ptr->weapon_info[i].wield_how != WIELD_NONE)
         {
-            p_ptr->weapon_info[i].dual_wield_pct = p_ptr->weapon_info[i].dual_wield_pct * 75 / 100;
+            p_ptr->weapon_info[i].dual_wield_pct = p_ptr->weapon_info[i].dual_wield_pct * 90 / 100;
             if (p_ptr->weapon_info[i].dual_wield_pct < 100)
                 p_ptr->weapon_info[i].dual_wield_pct = 100;
         }
@@ -4336,6 +4344,9 @@ void calc_bonuses(void)
 
         if (info_ptr->wield_how == WIELD_NONE) continue;
 
+        if (p_ptr->tim_weaponmastery) /* Note: Monks won't have an equipped weapon, but should still gain weaponmastery! */
+            info_ptr->to_dd += p_ptr->lev/23;
+
         o_ptr = equip_obj(info_ptr->slot);
         if (!o_ptr) continue;
         
@@ -4343,15 +4354,18 @@ void calc_bonuses(void)
 
         if (p_ptr->tim_enlarge_weapon)
         {
-            info_ptr->to_dd += 2;
-            info_ptr->to_ds += 2;
+            /* Hack: At the moment, only the Monkey King's Cudgel ('Ruyi Jingu Bang')
+             * should have this power, and it really should only enlarge that weapon (So
+             * no swapping, or dual wielding, or whatever) */
+            if (o_ptr->name1 == ART_MONKEY_KING)
+            {
+                info_ptr->to_dd += 2;
+                info_ptr->to_ds += 2;
 
-            info_ptr->dis_to_h -= 20;
-            info_ptr->to_h -= 20;
+                info_ptr->dis_to_h -= 20;
+                info_ptr->to_h -= 20;
+            }
         }
-
-        if (p_ptr->tim_weaponmastery)
-            info_ptr->to_dd += p_ptr->lev/23;
 
         if (info_ptr->wield_how == WIELD_TWO_HANDS)
             tmp_hold *= 2;
@@ -4393,12 +4407,6 @@ void calc_bonuses(void)
             if (p_ptr->special_defense & KATA_FUUJIN) info_ptr->xtra_blow -= 100;
 
             if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
-            {
-                info_ptr->base_blow = 100;
-                info_ptr->xtra_blow = 0;
-            }
-
-            if (o_ptr->name1 == ART_EVISCERATOR) 
             {
                 info_ptr->base_blow = 100;
                 info_ptr->xtra_blow = 0;
@@ -4494,6 +4502,16 @@ void calc_bonuses(void)
     if (race_ptr->calc_innate_attacks)
         race_ptr->calc_innate_attacks();
 
+    /* Adjust Innate Attacks for Proficiency */
+    for (i = 0; i < p_ptr->innate_attack_ct; i++)
+    {
+        innate_attack_ptr attack = &p_ptr->innate_attacks[i];
+        cptr              name = skills_innate_calc_name(attack);
+        int               bonus = skills_innate_calc_bonus(name);
+
+        attack->to_h += bonus;
+    }
+
     /* Kamikaze Warrior with a Monster Race/Possessor */
     if (!p_ptr->weapon_ct && p_ptr->tim_speed_essentia)
         p_ptr->innate_attack_info.xtra_blow += 200;
@@ -4527,26 +4545,7 @@ void calc_bonuses(void)
 
             if (p_ptr->pclass == CLASS_FORCETRAINER)
             {
-                if (blow_base > 5) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 9) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 14) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 18) p_ptr->weapon_info[i].base_blow += 25;
-
-                if (blow_base > 22) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 25) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 28) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 31) p_ptr->weapon_info[i].base_blow += 25;
-
-                if (blow_base > 35) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 38) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 41) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 44) p_ptr->weapon_info[i].base_blow += 25;
-
-                if (blow_base > 48) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 51) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 55) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 58) p_ptr->weapon_info[i].base_blow += 25;
-
+                p_ptr->weapon_info[i].base_blow += MIN(400, 400 * blow_base / 60);
                 if (p_ptr->magic_num1[0])
                 {
                     p_ptr->weapon_info[i].to_d += (p_ptr->magic_num1[0]/5);
@@ -4555,62 +4554,11 @@ void calc_bonuses(void)
             }
             else if (p_ptr->pclass == CLASS_MYSTIC)
             {
-                if (blow_base > 4) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 7) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 10) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 13) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 16) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 19) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 22) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 25) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 28) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 31) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 34) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 37) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 40) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 43) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 46) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 49) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 52) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 54) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 56) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 58) p_ptr->weapon_info[i].base_blow += 25;
+                p_ptr->weapon_info[i].base_blow += MIN(500, 500 * blow_base / 60);
             }
             else
             {
-                if (blow_base > 3) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 6) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 9) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 12) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 15) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 17) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 20) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 22) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 24) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 26) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 29) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 31) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 34) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 36) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 39) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 41) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 44) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 46) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 49) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 51) p_ptr->weapon_info[i].base_blow += 25;
-                
-                if (blow_base > 53) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 55) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 57) p_ptr->weapon_info[i].base_blow += 25;
-                if (blow_base > 59) p_ptr->weapon_info[i].base_blow += 25;
+                p_ptr->weapon_info[i].base_blow += MIN(600, 600 * blow_base / 60);
             }
 
             if (heavy_armor() && (p_ptr->pclass != CLASS_BERSERKER))

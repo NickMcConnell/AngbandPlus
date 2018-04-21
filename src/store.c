@@ -418,6 +418,9 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
         if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
             price = price / 2;
 
+        if (cur_store_num == STORE_JEWELER)
+            price = price / 2;
+
         if (cur_store_num == STORE_BLACK)
             price = price * (625 - virtue_current(VIRTUE_JUSTICE)) / 625;
 
@@ -437,6 +440,9 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
         /* Mega-Hack -- Black market sucks */
         if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY && !mut_present(MUT_BLACK_MARKETEER))
+            price = price * 2;
+
+        if (cur_store_num == STORE_JEWELER)
             price = price * 2;
 
         if (cur_store_num == STORE_BLACK)
@@ -1616,6 +1622,20 @@ static bool _book_accept(int k_idx)
     return FALSE;
 }
 
+static bool _jeweler_accept(int k_idx)
+{
+    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+        return FALSE;
+
+    switch (k_info[k_idx].tval)
+    {
+    case TV_RING:
+    case TV_AMULET:
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static bool _get_store_obj2(object_type *o_ptr)
 {
     int level1 = 20; /* Level of get_obj_num ... Second books are L20 */
@@ -1656,6 +1676,11 @@ static bool _get_store_obj2(object_type *o_ptr)
         level1 = 25 + randint0(25);
         level2 = 25 + randint0(25);
         break;
+    case STORE_JEWELER:
+        get_obj_num_hook = _jeweler_accept;
+        level1 = 10 + randint0(40);
+        level2 = 10 + randint0(40);
+        break;
     }
 
     if (cur_store_num == STORE_BLACK && one_in_(9))
@@ -1677,6 +1702,33 @@ static bool _get_store_obj2(object_type *o_ptr)
             k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT);
         else if (one_in_(20))
             k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
+    }
+    else if (cur_store_num == STORE_MAGIC && one_in_(20))
+    {
+        /* Hack: Early resists are hard to find, and Archviles are so damn nasty! */
+        if (one_in_(5))
+        {
+            object_prep(o_ptr, lookup_kind(TV_AMULET, 0));
+            o_ptr->name2 = EGO_AMULET_ELEMENTAL;
+        }
+        else
+        {
+            object_prep(o_ptr, lookup_kind(TV_RING, 0));
+            o_ptr->name2 = EGO_RING_ELEMENTAL;
+        }
+        switch (randint1(5))
+        {
+        case 1: case 2:
+            add_flag(o_ptr->art_flags, TR_RES_COLD);
+            break;
+        case 3: case 4:
+            add_flag(o_ptr->art_flags, TR_RES_FIRE);
+            break;
+        case 5:
+            add_flag(o_ptr->art_flags, TR_RES_ACID);
+            break;
+        }
+        return TRUE;
     }
     else if (cur_store_num == STORE_GENERAL)
     {
@@ -4080,7 +4132,7 @@ void do_cmd_store(void)
     int         i;
     cave_type   *c_ptr;
     bool        need_redraw_store_inv = FALSE; /* To redraw missiles damage and prices in store */
-    int w, h;
+    int         w, h;
     bool        vanilla_zerker_hack = FALSE;
     bool        friend_hack = FALSE;
     int         options = STORE_MAINT_NORMAL;
@@ -4100,7 +4152,6 @@ void do_cmd_store(void)
     if (!cave_have_flag_grid(c_ptr, FF_STORE))
     {
         msg_print("You see no store here.");
-
         return;
     }
 
@@ -4794,7 +4845,7 @@ static void _buyout(void)
     if (cur_store_num == STORE_MUSEUM || cur_store_num == STORE_HOME)
         return;
 
-    if (disturb_minor && !get_check("Are you sure you want to buy the entire inventory of this store? "))
+    if (!get_check("Are you sure you want to buy the entire inventory of this store? "))
         return;
 
     for (i = st_ptr->stock_num - 1; i >= 0; i--)

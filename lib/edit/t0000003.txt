@@ -91,10 +91,10 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:24
 
 # Quest 24 rewarding, reward is Ring (Defender)
 ?:[EQU $QUEST24 3]
-F:~:FLOOR:3:0:132:304
+F:~:FLOOR:3:0:132:304:0:NONE:0:50
 
 ?:[AND [EQU $QUEST24 3] [EQU $RACE Hydra] ]
-F:~:FLOOR:3:0:163:322
+F:~:FLOOR:3:0:163:322:0:NONE:0:50
 
 # Continue with "Quest 21 - Doom Quest 2
 # "Quest 24 - The Rise and Fall of Micro$oft" and

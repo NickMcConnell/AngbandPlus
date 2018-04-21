@@ -1414,6 +1414,15 @@ void equip_calc_bonuses(void)
             }
             continue;
         }
+        /* Hack -- Spell Damage on Wizard Egos */
+        if ( o_ptr->name2 == EGO_RING_WIZARDRY
+          || o_ptr->name2 == EGO_AMULET_MAGI
+          || o_ptr->name2 == EGO_CROWN_MAGI )
+        {
+            p_ptr->to_d_spell += o_ptr->to_d;
+            continue;
+        }
+
         /* Hack -- Archery now benefits from equipment slays. Without this, only
            Sniper gloves and Archery rings affect shooting, and that seems a bit
            unfair (especially since melee is so favored)  */

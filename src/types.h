@@ -941,10 +941,6 @@ struct store_type
     s16b last_lev;
     s32b last_exp;
 
-    s16b table_num;            /* Table -- Number of entries */
-    s16b table_size;        /* Table -- Total Size of Array */
-    s16b *table;            /* Table -- Legal item kinds */
-
     s16b stock_num;            /* Stock -- Number of entries */
     s16b stock_size;        /* Stock -- Total Size of Array */
     object_type *stock;        /* Stock -- Actual stock items */
@@ -1359,6 +1355,7 @@ struct player_type
     u32b muta[MUT_FLAG_SIZE];
     u32b muta_lock[MUT_FLAG_SIZE];   /* Mutations that can not be removed! */
     s16b demigod_power[MAX_DEMIGOD_POWERS];
+    s16b draconian_power;
 
     s16b virtues[8];
     s16b vir_types[8];
@@ -1536,9 +1533,11 @@ struct player_type
     bool free_act;        /* Never paralyzed */
     bool see_inv;        /* Can see invisible */
     bool regenerate;    /* Regenerate hit pts */
+    bool super_regenerate;
     bool hold_life;        /* Resist life draining */
 
     bool loremaster;
+    int  auto_id_sp;
     bool cult_of_personality;
     bool fairy_stealth;
 
@@ -1587,6 +1586,8 @@ struct player_type
     s16b to_h_m;            /* Bonus to hit (misc) */
     s16b to_d_m;            /* Bonus to dam (misc) */
     s16b to_a;            /* Bonus to ac */
+
+    s16b to_d_spell;
 
     s16b to_m_chance;        /* Minusses to cast chance */
 

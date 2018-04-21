@@ -518,11 +518,11 @@
   Ultimate Beholder      -3   +8   +0   +3   +0   +2  100%  +20  250%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Gazer                 30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
-  Spectator             30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
-  Beholder              30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
-  Undead Beholder       30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
-  Ultimate Beholder     30+10  50+20  47+15   7+1  20+20 20+20 34+12  20+7 
+  Gazer                 30+10  50+20  47+15   7+1  20+20 20+20 40+16  20+7 
+  Spectator             30+10  50+20  47+15   7+1  20+20 20+20 40+16  20+7 
+  Beholder              30+10  50+20  47+15   7+1  20+20 20+20 40+16  20+7 
+  Undead Beholder       30+10  50+20  47+15   7+1  20+20 20+20 40+16  20+7 
+  Ultimate Beholder     30+10  50+20  47+15   7+1  20+20 20+20 40+16  20+7 
 
 
 ***** <Demon>
@@ -940,10 +940,10 @@
 
 
 [[[[r|                        STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Soul                   -3   -3   -3   -3   -3   -8   56%  +15  250%
+  Soul                   -3   +0   -3   +0   -3   -7   60%  +15  250%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
-  Soul                  12+5   15+7   26+9    3+0  12+0   9+0  43+13  15+11
+  Soul                  17+5   22+7   34+9   11+0  17+0  17+0  43+13  15+11
 
 
 ***** <Vampire>
@@ -1053,7 +1053,6 @@
   Metallic blue centipe  +0   -3   -3   +2   +1   -3   94%  +15  100%
   Metallic red centiped  +1   -3   -3   +3   +2   -3   96%  +15  100%
   Giant clear centipede  +1   -3   -3   +4   +2   -3   98%  +15  100%
-  The Multi-hued Centip  +1   -3   -3   +5   +3   -3  100%  +15  100%
 
 [[[[r|                        Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
   Giant white centipede 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
@@ -1061,13 +1060,12 @@
   Metallic blue centipe 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
   Metallic red centiped 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
   Giant clear centipede 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
-  The Multi-hued Centip 25+12  21+10  35+10   5+0  10+0   7+0  45+15  10+2 
 
 
 
 
-***** [a] Rings.txt
+***** [a] rings.txt
 ***** [b] DragonRealms.txt
 
 
-[[[[s|  Automatically generated for PosChengband 3.4.1.
+[[[[s|  Automatically generated for PosChengband 3.5.0.

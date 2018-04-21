@@ -1611,12 +1611,13 @@ static cptr _do_scroll(int sval, int mode)
             }
         }
         break;
-    case SV_SCROLL_BRAND_WEAPON:
-        if (desc) return "It creates an ego item from a nameless weapon when you read it. ";
+    case SV_SCROLL_CRAFTING:
+        if (desc) return "It makes a chosen weapon, armor or ammo an ego item when you read it.";
         if (cast)
         {
             device_noticed = TRUE;
-            if (!brand_weapon(-1)) return NULL;
+            if (!cast_crafting())
+                return NULL;
         }
         break;
     case SV_SCROLL_RESET_RECALL:

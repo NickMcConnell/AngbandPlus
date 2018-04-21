@@ -47,6 +47,21 @@ static void _detect_prey_spell(int cmd, variant *res)
     }
 }
 
+static bool _place_web(int y, int x)
+{
+    if (!in_bounds(y, x))
+        return FALSE;
+    if (!cave_clean_bold(y,x) || cave[y][x].m_idx)
+        return FALSE;
+    cave_set_feat(y, x, feat_web);
+    return TRUE;
+}
+
+static int _web_attempts(void)
+{
+    return 8 * (p_ptr->lev - 25) / 25;
+}
+
 void _spider_web_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -58,10 +73,39 @@ void _spider_web_spell(int cmd, variant *res)
         var_set_string(res, "Weaves a fine, silky web which obstructs the movement of all save spiders.");
         break;
     case SPELL_CAST:
-        project(0, 1, py, px, 0, GF_WEB, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE, -1);
+        if (p_ptr->lev >= 50)
+            project(0, 1, py, px, 0, GF_WEB, PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE, -1);
+        else
+        {
+            int attempts = 0;
+            int max_attempts = _web_attempts();
+            int x, y, dir;
+
+            _place_web(py, px);
+
+            for (;;)
+            {
+                if (attempts >= max_attempts)
+                    break;
+
+                dir = randint0(9);
+                if (dir == 5) continue;
+
+                attempts++;
+                y = py + ddy[dir];
+                x = px + ddx[dir];
+                _place_web(y, x);
+            }
+        }
         p_ptr->update |= PU_FLOW;
         p_ptr->redraw |= PR_MAP;
         var_set_bool(res, TRUE);
+        break;
+    case SPELL_COST_EXTRA:
+        if (p_ptr->lev >= 50)
+            var_set_int(res, 40);
+        else
+            var_set_int(res, _web_attempts() * 5);
         break;
     default:
         default_spell(cmd, res);
@@ -231,12 +275,12 @@ static power_info _phase_spider_powers[] = {
     { A_DEX, {  1,  1, 30, _detect_prey_spell } },
     { A_DEX, {  5,  1, 30, phase_door_spell } },
     { A_DEX, { 10,  5, 30, teleport_spell } },
-    { A_DEX, { 12, 20, 60, _spider_web_spell } },
-    { A_DEX, { 17, 10, 30, teleport_to_spell } },
-    { A_DEX, { 20, 15, 30, teleport_level_spell } },
-    { A_DEX, { 25, 15, 30, teleport_other_spell } },
-    { A_DEX, { 30, 15, 40, _phase_shield_spell } },
-    { A_DEX, { 40, 20, 50, dimension_door_spell } },
+    { A_DEX, { 12, 10, 60, _spider_web_spell } },
+    { A_DEX, { 25, 10, 30, teleport_to_spell } },
+    { A_DEX, { 30, 15, 50, teleport_level_spell } },
+    { A_DEX, { 35, 20, 55, teleport_other_spell } },
+    { A_DEX, { 40, 25, 60, _phase_shield_spell } },
+    { A_DEX, { 50, 30, 60, dimension_door_spell } },
     {    -1, { -1, -1, -1, NULL } }
 };
 static int _phase_spider_get_powers(spell_info* spells, int max) {
@@ -248,6 +292,7 @@ static void _phase_spider_calc_innate_attacks(void)
 
     a.dd = 2 + p_ptr->lev / 15;
     a.ds = 5 + p_ptr->lev / 16;
+    a.to_h = p_ptr->lev/5;
     a.weight = 70;
     a.effect[0] = GF_MISSILE;
     a.effect[1] = GF_POIS;
@@ -265,7 +310,6 @@ static void _phase_spider_calc_bonuses(void)
     res_add_immune(RES_POIS);
     res_add(RES_NEXUS);
     res_add(RES_CONF);
-    res_add(RES_FEAR);
     res_add_immune(RES_TELEPORT);
     p_ptr->free_act = TRUE;
     p_ptr->see_nocto = TRUE;
@@ -275,7 +319,6 @@ static void _phase_spider_get_flags(u32b flgs[TR_FLAG_SIZE])
     add_flag(flgs, TR_SPEED);
     add_flag(flgs, TR_RES_NEXUS);
     add_flag(flgs, TR_RES_CONF);
-    add_flag(flgs, TR_RES_FEAR);
     add_flag(flgs, TR_FREE_ACT);
 }
 static void _phase_spider_get_immunities(u32b flgs[TR_FLAG_SIZE])
@@ -319,7 +362,7 @@ race_t *_phase_spider_get_race_t(void)
 /* Aranea */
 static power_info _aranea_powers[] = {
     { A_DEX, {  1,  1, 30, _detect_prey_spell } },
-    { A_DEX, { 12, 20, 60, _spider_web_spell } },
+    { A_DEX, { 12, 10, 60, _spider_web_spell } },
     {    -1, { -1, -1, -1, NULL } }
 };
 static int _aranea_get_powers(spell_info* spells, int max) {
@@ -331,6 +374,7 @@ static void _aranea_calc_innate_attacks(void)
 
     a.dd = 2 + p_ptr->lev / 14;
     a.ds = 7 + p_ptr->lev / 16;
+    a.to_h = p_ptr->lev/3;
     a.to_d = p_ptr->lev/5;
     a.weight = 70;
     a.effect[0] = GF_MISSILE;
@@ -537,7 +581,8 @@ static void _birth(void)
 
     p_ptr->current_r_idx = MON_CAVE_SPIDER;
     equip_on_change_race();
-    
+    skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_h = 7;

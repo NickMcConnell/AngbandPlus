@@ -305,7 +305,7 @@ static void _bolt_spell(int cmd, variant *res)
                             "effects on a monster including slowing, stasis, and many others.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, 0));
+        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -313,7 +313,12 @@ static void _bolt_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
 
-        fire_bolt_or_beam(beam_chance() - 10, GF_TIME, dir, spell_power(damroll(dd, ds)));
+        fire_bolt_or_beam(
+            beam_chance() - 10,
+            GF_TIME,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -445,7 +450,7 @@ static void _withering_spell(int cmd, variant *res)
 
 static void _blast_spell(int cmd, variant *res)
 {
-    int dam = spell_power(3*p_ptr->lev/2 + 15);
+    int dam = spell_power(3*p_ptr->lev/2 + 15 + p_ptr->to_d_spell);
     switch (cmd)
     {
     case SPELL_NAME:
@@ -545,7 +550,7 @@ static void _haste_spell(int cmd, variant *res)
 
 static void _wave_spell(int cmd, variant *res)
 {
-    int ds = spell_power(3*p_ptr->lev/2);
+    int ds = 3*p_ptr->lev/2;
     switch (cmd)
     {
     case SPELL_NAME:
@@ -555,10 +560,10 @@ static void _wave_spell(int cmd, variant *res)
         var_set_string(res, "Produce a wave of time, affecting all monsters in sight.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, ds, 0));
+        var_set_string(res, info_damage(1, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
-        project_hack(GF_TIME, randint1(ds));
+        project_hack(GF_TIME, spell_power(randint1(ds) + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -653,7 +658,7 @@ static void _rewind_time_spell(int cmd, variant *res)
 
 static int  _breath_dam(void) {
     int l = (p_ptr->lev - 30);
-    return spell_power(9*p_ptr->lev/2 + l*l/4); /* 325 max damage ... */
+    return spell_power(9*p_ptr->lev/2 + l*l/4 + p_ptr->to_d_spell); /* 325 max damage ... */
 }
 static void _breath_spell(int cmd, variant *res)
 {

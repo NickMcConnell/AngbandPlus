@@ -38,6 +38,7 @@ void foo_mut(int cmd, variant *res)
 }
 */
 
+
 void albino_mut(int cmd, variant *res)
 {
     switch (cmd)
@@ -572,6 +573,356 @@ void demonic_grasp_mut(int cmd, variant *res)
         break;
     case SPELL_HELP_DESC:
         var_set_string(res, "You resist charge draining.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_breath_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Deadly Breath");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You breathe more powerfully.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Your breath will become more deadly.");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_kin_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You can summon kin.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will be able to summon aid from dragons.");
+        break;
+    default:
+        summon_kin_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_lore_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Ancient Knowledge");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "Items automatically identify as you pick them up.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Items will automatically identify as you pick them up.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->loremaster = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_magic_resistance_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Magic Resistance");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are resistant to magic.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain an improved saving throw versus magical attacks.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->skills.sav += 15 + p_ptr->lev / 5;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_metamorphosis_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Metamorphosis");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have metamorphosed into a Dragon!");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "Your body will transform into a dragon (e.g. 6 ring slots and no weapons)");
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_regen_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Regeneration");
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You are regenerating extremely quickly.");
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will regenerate much more quickly.");
+        break;
+    case SPELL_CALC_BONUS:
+        p_ptr->super_regenerate = TRUE;
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_resistance_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Resistance");
+        break;
+    case SPELL_MUT_DESC:
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED:
+            var_set_string(res, "You gain extra fire resistance.");
+            break;
+        case DRACONIAN_WHITE:
+            var_set_string(res, "You gain extra cold resistance.");
+            break;
+        case DRACONIAN_BLUE:
+            var_set_string(res, "You gain extra electricity resistance.");
+            break;
+        case DRACONIAN_BLACK:
+            var_set_string(res, "You gain extra acid resistance.");
+            break;
+        case DRACONIAN_GREEN:
+            var_set_string(res, "You gain extra poison resistance.");
+            break;
+        case DRACONIAN_BRONZE:
+            var_set_string(res, "You gain extra confusion resistance.");
+            break;
+        case DRACONIAN_GOLD:
+            var_set_string(res, "You gain extra sound resistance.");
+            break;
+        case DRACONIAN_CRYSTAL:
+            var_set_string(res, "You gain extra shards resistance.");
+            break;
+        case DRACONIAN_SHADOW:
+            var_set_string(res, "You gain extra nether resistance.");
+            break;
+        }
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain extra resistance of the appropriate type (e.g. Fire or Cold).");
+        break;
+    case SPELL_CALC_BONUS:
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED:
+            res_add(RES_FIRE);
+            break;
+        case DRACONIAN_WHITE:
+            res_add(RES_COLD);
+            break;
+        case DRACONIAN_BLUE:
+            res_add(RES_ELEC);
+            break;
+        case DRACONIAN_BLACK:
+            res_add(RES_ACID);
+            break;
+        case DRACONIAN_GREEN:
+            res_add(RES_POIS);
+            break;
+        case DRACONIAN_BRONZE:
+            res_add(RES_CONF);
+            break;
+        case DRACONIAN_GOLD:
+            res_add(RES_SOUND);
+            break;
+        case DRACONIAN_CRYSTAL:
+            res_add(RES_SHARDS);
+            break;
+        case DRACONIAN_SHADOW:
+            res_add(RES_NETHER);
+            break;
+        }
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_shield_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Dragon Skin");
+        break;
+    case SPELL_MUT_DESC:
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED:
+            var_set_string(res, "Dragon Skin: You gain +15 AC and an aura of fire");
+            break;
+        case DRACONIAN_WHITE:
+            var_set_string(res, "Dragon Skin: You gain +15 AC and an aura of cold");
+            break;
+        case DRACONIAN_BLUE:
+            var_set_string(res, "Dragon Skin: You gain +15 AC and an aura of electricity");
+            break;
+        case DRACONIAN_CRYSTAL:
+            var_set_string(res, "Dragon Skin: You gain +10 AC and an aura of shards");
+            break;
+        default:
+            var_set_string(res, "Dragon Skin: You gain +25 AC");
+        }
+        break;
+    case SPELL_HELP_DESC:
+        var_set_string(res, "You will gain extra armor class and a defensive aura if available.");
+        break;
+    case SPELL_CALC_BONUS:
+    {
+        int amt = 25;
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED:
+            p_ptr->sh_fire = TRUE;
+            amt = 15;
+            break;
+        case DRACONIAN_WHITE:
+            p_ptr->sh_cold = TRUE;
+            amt = 15;
+            break;
+        case DRACONIAN_BLUE:
+            p_ptr->sh_elec = TRUE;
+            amt = 15;
+            break;
+        case DRACONIAN_CRYSTAL:
+            p_ptr->sh_shards = TRUE;
+            amt = 10;
+            break;
+        }
+        p_ptr->to_a += amt;
+        p_ptr->dis_to_a += amt;
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+void draconian_strike_mut(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Dragon Strike");
+        break;
+    case SPELL_DESC:
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED: var_set_string(res, "Attack an adjacent opponent with a fiery blow."); break;
+        case DRACONIAN_WHITE: var_set_string(res, "Attack an adjacent opponent with an icy blow."); break;
+        case DRACONIAN_BLUE: var_set_string(res, "Attack an adjacent opponent with a shocking blow."); break;
+        case DRACONIAN_BLACK: var_set_string(res, "Attack an adjacent opponent with a corrosive blow."); break;
+        case DRACONIAN_GREEN: var_set_string(res, "Attack an adjacent opponent with a poisoned blow."); break;
+        case DRACONIAN_GOLD: var_set_string(res, "Attack an adjacent opponent with a stunning blow."); break;
+        case DRACONIAN_BRONZE: var_set_string(res, "Attack an adjacent opponent with a confusing blow."); break;
+        case DRACONIAN_CRYSTAL: var_set_string(res, "Attack an adjacent opponent with a shredding blow."); break;
+        case DRACONIAN_SHADOW: var_set_string(res, "Attack an adjacent opponent with a vampiric blow."); break;
+        }
+        break;
+    case SPELL_MUT_DESC:
+        var_set_string(res, "You have the power of Dragon Strike.");
+        break;
+    case SPELL_HELP_DESC:
+        if (spoiler_hack)
+            var_set_string(res, "You will be able to attack an adjacent opponent with a special blow (Fire, Cold, etc).");
+        else
+        {
+            switch (p_ptr->psubrace)
+            {
+            case DRACONIAN_RED: var_set_string(res, "You will be able to attack an adjacent opponent with a fiery blow."); break;
+            case DRACONIAN_WHITE: var_set_string(res, "You will be able to attack an adjacent opponent with an icy blow."); break;
+            case DRACONIAN_BLUE: var_set_string(res, "You will be able to attack an adjacent opponent with a shocking blow."); break;
+            case DRACONIAN_BLACK: var_set_string(res, "You will be able to attack an adjacent opponent with a corrosive blow."); break;
+            case DRACONIAN_GREEN: var_set_string(res, "You will be able to attack an adjacent opponent with a poisoned blow."); break;
+            case DRACONIAN_GOLD: var_set_string(res, "You will be able to attack an adjacent opponent with a stunning blow."); break;
+            case DRACONIAN_BRONZE: var_set_string(res, "You will be able to attack an adjacent opponent with a confusing blow."); break;
+            case DRACONIAN_CRYSTAL: var_set_string(res, "You will be able to attack an adjacent opponent with a shredding blow."); break;
+            case DRACONIAN_SHADOW: var_set_string(res, "You will be able to attack an adjacent opponent with a vampiric blow."); break;
+            }
+        }
+        break;
+    case SPELL_CAST:
+    {
+        int mode = 0;
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED: mode = DRACONIAN_STRIKE_FIRE; break;
+        case DRACONIAN_WHITE: mode = DRACONIAN_STRIKE_COLD; break;
+        case DRACONIAN_BLUE: mode = DRACONIAN_STRIKE_ELEC; break;
+        case DRACONIAN_BLACK: mode = DRACONIAN_STRIKE_ACID; break;
+        case DRACONIAN_GREEN: mode = DRACONIAN_STRIKE_POIS; break;
+        case DRACONIAN_GOLD: mode = DRACONIAN_STRIKE_STUN; break;
+        case DRACONIAN_BRONZE: mode = DRACONIAN_STRIKE_CONF; break;
+        case DRACONIAN_CRYSTAL: mode = DRACONIAN_STRIKE_VORPAL; break;
+        case DRACONIAN_SHADOW: mode = DRACONIAN_STRIKE_VAMP; break;
+        }
+        var_set_bool(res, do_blow(mode));
+        break;
+    }
+    case SPELL_COST_EXTRA:
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED:
+        case DRACONIAN_WHITE:
+        case DRACONIAN_BLUE:
+        case DRACONIAN_BLACK:
+        case DRACONIAN_GREEN:
+            var_set_int(res, 15);
+            break;
+        case DRACONIAN_GOLD:
+        case DRACONIAN_BRONZE:
+            var_set_int(res, 20);
+            break;
+        case DRACONIAN_CRYSTAL:
+            var_set_int(res, 12);
+            break;
+        case DRACONIAN_SHADOW:
+            var_set_int(res, 7);
+            break;
+        }
         break;
     default:
         default_spell(cmd, res);

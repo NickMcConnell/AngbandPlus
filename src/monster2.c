@@ -4341,8 +4341,12 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
             if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
                 p_ptr->update |= (PU_MON_LITE);
 
+            summon_specific_type = 0;
+            summon_specific_who = 0;
             return TRUE;
         }
+        summon_specific_type = 0;
+        summon_specific_who = 0;
         return FALSE;
     }
 

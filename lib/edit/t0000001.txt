@@ -177,16 +177,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 ?:[EQU $QUEST14 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 
-# Quest 14 rewarding, reward is a Ring of Combat
+# Small metal shield
 # continue with quest 25
 ?:[EQU $QUEST14 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
-F:!:FLOOR:3:0:132:302
-
-# Ring of Archery
-?:[AND [EQU $QUEST14 3] [EQU $CLASS Archer Sniper Ranger] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:25
-F:!:FLOOR:3:0:132:303
+F:!:FLOOR:3:0:130
 
 # Another Long Sword
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Death-Sword] ]
@@ -199,7 +194,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:305
 
 # Ring of Combat
-?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Possessor Spider] ]
+?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Spider] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:302
 
@@ -625,7 +620,7 @@ F:@:FLOOR:3:0:0:0:215
 
 ##########################################################################
 # Archaeologist
-# Jewel?  Help me out here ... I'm thinking Claurvoiyance is a fit.
+# Jewel?  Help me out here ... I'm thinking Clairvoyance is a fit.
 # And it is a rare treasure :)
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3

@@ -500,7 +500,7 @@ void starburst_I_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of powerful light.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2)));
+        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -508,7 +508,7 @@ void starburst_I_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a starburst.");
-        fire_ball(GF_LITE, dir, spell_power(100 + p_ptr->lev * 2), spell_power(4));
+        fire_ball(GF_LITE, dir, spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell), spell_power(4));
         var_set_bool(res, TRUE);
         break;
     }
@@ -529,7 +529,7 @@ void starburst_II_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of powerful light.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 6)));
+        var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 6 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -538,7 +538,7 @@ void starburst_II_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a starburst.");
         fire_ball(GF_LITE, dir, 
-            spell_power(50 + p_ptr->lev * 6 + damroll(10, 10)), 
+            spell_power(50 + p_ptr->lev * 6 + damroll(10, 10) + p_ptr->to_d_spell),
             spell_power(4));
         var_set_bool(res, TRUE);
         break;
@@ -1809,7 +1809,7 @@ void water_ball_spell(int cmd, variant *res)
         var_set_string(res, "Fires a ball of water.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev*4 + 50)));
+        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev*4 + 50 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -1817,7 +1817,7 @@ void water_ball_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         msg_print("You gesture fluidly.");
-        fire_ball(GF_WATER, dir, spell_power(50 + p_ptr->lev*4), 2);
+        fire_ball(GF_WATER, dir, spell_power(50 + p_ptr->lev*4 + p_ptr->to_d_spell), 2);
         var_set_bool(res, TRUE);
         break;
     }
@@ -1841,14 +1841,18 @@ void water_bolt_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt of water.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), 0));
+        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt(GF_WATER, dir, spell_power(damroll(dd, ds)));
+        fire_bolt(
+            GF_WATER,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }

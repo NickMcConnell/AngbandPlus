@@ -2324,11 +2324,11 @@ bool _design_monkey_clone(void)
     r_ptr->flags2 = 0;
     r_ptr->flags7 = 0;
 
-    if (p_ptr->resist[RES_ACID]) r_ptr->flagsr |= RFR_IM_ACID;
-    if (p_ptr->resist[RES_ELEC]) r_ptr->flagsr |= RFR_IM_ELEC;
-    if (p_ptr->resist[RES_FIRE]) r_ptr->flagsr |= RFR_IM_FIRE;
-    if (p_ptr->resist[RES_COLD]) r_ptr->flagsr |= RFR_IM_COLD;
-    if (p_ptr->resist[RES_POIS]) r_ptr->flagsr |= RFR_IM_POIS;
+    if (p_ptr->resist[RES_ACID]) r_ptr->flagsr |= RFR_RES_ACID;
+    if (p_ptr->resist[RES_ELEC]) r_ptr->flagsr |= RFR_RES_ELEC;
+    if (p_ptr->resist[RES_FIRE]) r_ptr->flagsr |= RFR_RES_FIRE;
+    if (p_ptr->resist[RES_COLD]) r_ptr->flagsr |= RFR_RES_COLD;
+    if (p_ptr->resist[RES_POIS]) r_ptr->flagsr |= RFR_RES_POIS;
     if (p_ptr->resist[RES_LITE]) r_ptr->flagsr |= RFR_RES_LITE;
     if (p_ptr->resist[RES_DARK]) r_ptr->flagsr |= RFR_RES_DARK;
     if (p_ptr->resist[RES_NETHER]) r_ptr->flagsr |= RFR_RES_NETH;
@@ -2398,7 +2398,7 @@ void _circle_kick(void)
     int slot = equip_find_object(TV_BOOTS, SV_ANY);
 
     if (slot)
-        dd = k_info[equip_obj(slot)->k_idx].ac;
+        dd = equip_obj(slot)->ac;
     
     for (i = 0; i < 8; i++)
     {    
@@ -2466,6 +2466,18 @@ static void _circle_kick_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Kicks all adjacent opponents, stunning them.  Damage depends on your boots!");
         break;
+    case SPELL_INFO:
+    {
+        int ds = p_ptr->lev;
+        int dd = 0;
+        int slot = equip_find_object(TV_BOOTS, SV_ANY);
+
+        if (slot)
+            dd = equip_obj(slot)->ac;
+
+        var_set_string(res, info_damage(dd, ds, p_ptr->to_d_m));
+        break;
+    }
     case SPELL_CAST:
     {
         var_set_bool(res, FALSE);
@@ -2583,6 +2595,9 @@ static void _vault_attack_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Charge and attack a nearby opponent in a single move.");
         break;
+    case SPELL_INFO:
+        var_set_string(res, info_range(3));
+        break;
     case SPELL_CAST:
     {
         var_set_bool(res, FALSE);
@@ -2600,7 +2615,6 @@ static void _vault_attack_spell(int cmd, variant *res)
         break;
     }
 }
-
 
 static void _flurry_of_blows_spell(int cmd, variant *res)
 {
@@ -3025,8 +3039,8 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
             { 15, 15, 0, _vault_attack_spell },
             { 25, 20,50, _judge_spell },
             { 25, 25, 0, _circle_kick_spell },
-            { 30,  0, 0, _greater_flurry_spell },
             { 40,  0, 0, _monkey_king_spell },
+            { 45,  0, 0, _greater_flurry_spell },
             { -1,  0, 0, NULL },
           },
           { TV_HAFTED, SV_QUARTERSTAFF },
@@ -3177,7 +3191,7 @@ int weaponmaster_get_max_blows(object_type *o_ptr, int hand)
                 num = 525;
                 break;
             case WEAPONMASTER_STAVES:
-                num = 550;
+                num = 500;
                 break;
             case WEAPONMASTER_SWORDS:
                 num = 525;
@@ -3841,7 +3855,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     }
     else if (p_ptr->psubclass == WEAPONMASTER_STAVES)
     {
-        if (spec1 && p_ptr->speciality_equip && p_ptr->lev >= 45 && p_ptr->chp == p_ptr->mhp)
+        if (spec1 && p_ptr->speciality_equip && p_ptr->lev >= 30 && p_ptr->chp == p_ptr->mhp)
             info_ptr->xtra_blow += 100;
 
         if (spec1 && p_ptr->speciality_equip)
@@ -3922,13 +3936,19 @@ static void _process_player(void)
         {
             p_ptr->elaborate_defense--;
             if (p_ptr->elaborate_defense <= 0)
+            {
                 p_ptr->update |= PU_BONUS;
+                p_ptr->redraw |= PR_ARMOR;
+            }
         }
         if (p_ptr->cloak_of_shadows)
         {
             p_ptr->cloak_of_shadows--;
             if (p_ptr->cloak_of_shadows <= 0)
+            {
                 p_ptr->update |= PU_BONUS;
+                p_ptr->redraw |= PR_ARMOR;
+            }
         }
     }
 }
@@ -4001,8 +4021,12 @@ static void _move_player(void)
     {
         if (p_ptr->speciality_equip && p_ptr->lev >= 5)
         {
+            if (!p_ptr->cloak_of_shadows)
+            {
+                p_ptr->update |= PU_BONUS;
+                p_ptr->redraw |= PR_ARMOR;
+            }
             p_ptr->cloak_of_shadows = 1;
-            p_ptr->update |= PU_BONUS;
         }
     }
     else if (p_ptr->psubclass == WEAPONMASTER_DIGGERS)
@@ -4112,14 +4136,12 @@ static void _character_dump(FILE* file)
     {
         fprintf(file, "  * You gain a bonus to AC until your next turn after any successful hit when wielding a staff.\n");
         fprintf(file, "  * You suffer a penalty to speed when wielding a shield.\n");
-        if (p_ptr->lev >= 20)
-            fprintf(file, "  * You gain a bonus to speed when wielding a staff.\n");
-        if (p_ptr->lev >= 45)
-            fprintf(file, "  * You gain an extra attack when you are at full health and wielding a staff.\n");
-
         if (p_ptr->lev >= 5)
             fprintf(file, "  * You gain a bonus AC after moving until your next turn when wielding a staff.\n");
-
+        if (p_ptr->lev >= 20)
+            fprintf(file, "  * You gain a bonus to speed when wielding a staff.\n");
+        if (p_ptr->lev >= 30)
+            fprintf(file, "  * You gain an extra attack when you are at full health and wielding a staff.\n");
         if (p_ptr->lev >= 35)
             fprintf(file, "  * You are unaffected by monster auras when wielding a staff.\n");
     }

@@ -1571,6 +1571,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
           && (f6 & RF6_TELE_TO) 
           && m_ptr->cdis <= (MAX_RANGE * 2/3)
           && r_ptr->level >= 40
+          && (r_ptr->flags1 & RF1_UNIQUE)
           && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY) )
         {
             if (one_in_(15))
@@ -1617,7 +1618,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
               && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY)
               && !(cave[py][px].info & CAVE_ICKY)
               && !p_ptr->inside_quest 
-              && dun_level )
+              && dun_level
+              && (r_ptr->flags1 & RF1_UNIQUE) )
             {
                 y = m_ptr->fy;
                 x = m_ptr->fx;
@@ -1990,6 +1992,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             if (blind) msg_format("%^s mumbles powerfully.", m_name);
             else msg_format("%^s invokes polymorph other.", m_name);
             if (prace_is_(RACE_ANDROID) || p_ptr->pclass == CLASS_MONSTER)
+                msg_print("You are unaffected!");
+            else if (mut_present(MUT_DRACONIAN_METAMORPHOSIS))
                 msg_print("You are unaffected!");
             else if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
                 msg_print("You resist the effects!");
@@ -3639,7 +3643,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
             case MON_TALOS:
                 {
-                    int num = 3 + randint1(3);
+                    int num = randint1(3);
                     for (k = 0; k < num; k++)
                     {
                         count += summon_named_creature(m_idx, y, x, MON_SPELLWARP, mode);
@@ -3649,7 +3653,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
             case MON_MASTER_TONBERRY:
                 {
-                    int num = 3 + randint1(3);
+                    int num = randint1(3);
                     for (k = 0; k < num; k++)
                     {
                         if (one_in_(3))

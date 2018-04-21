@@ -45,7 +45,8 @@ static void _birth(void)
     object_type forge;
 
     p_ptr->current_r_idx = MON_CLAY_GOLEM;
-    
+    skills_innate_init("Fist", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
     add_outfit(&forge);
 

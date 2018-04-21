@@ -19,7 +19,8 @@ static void _birth(void)
     object_type    forge;
 
     p_ptr->current_r_idx = MON_LICH;
-    
+    skills_innate_init("Finger", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+
     object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
     add_outfit(&forge);
 
@@ -49,7 +50,7 @@ static void _calc_innate_attacks(void)
         a.dd = 1 + l / 12;
         a.ds = 6 + l / 15;
         a.weight = 2;
-        a.to_h = p_ptr->lev;
+        a.to_h = p_ptr->lev/5;
 
         a.effect[i++] = GF_NETHER;
         if (p_ptr->lev >= 25)

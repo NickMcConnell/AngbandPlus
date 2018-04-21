@@ -17,7 +17,9 @@
   preference for cleavers and large knives. They are, however, sluggish in
   their movements and reactions; young and inexperienced tonberries are often
   preyed on by the other races. They possess human-like intelligence, but
-  rarely become mages due to their culture and physiology.
+  rarely become mages due to their culture and physiology. Tonberries attack
+  very powerfully in melee, albeit with fewer attacks than normal. They are
+  also easily confused and move with reduced speed.
 
 
 ***** <Demigod>
@@ -39,9 +41,7 @@
   throws. They also are very good at searching, disarming, perception, and
   stealth; so they make excellent rogues, but prefer to be called burglars.
   They are much weaker than humans, and no good at melee fighting. Halflings
-  have fair infravision, so they can detect warm creatures at a distance. They
-  have a strong hold on their life force, and are thus intrinsically resistant
-  to life draining.
+  have fair infravision, so they can detect warm creatures at a distance.
 
 
 ***** <Gnome>
@@ -207,11 +207,15 @@
 ***** <Draconian>
 [[[[r|  Draconian
 
-  Draconians are a humanoid race with dragon-like attributes. As they advance
-  levels, they gain new elemental resistances (up to Poison Resistance), and
-  they also have a breath weapon, which becomes more powerful with experience.
-  The exact type of the breath weapon depends on the Draconian's class and
-  level.  With their wings, they can easily escape any pit trap unharmed.
+  Draconians are a humanoid race with dragon-like attributes. There are several
+  subtypes of draconians with different resistances, breaths and attributes.
+  For example, Red Draconians are resistant to fire which they may also breathe
+  at will, while White Draconians breathe and resist cold instead. All
+  draconians levitate. In addition, when they mature enough, they may choose a
+  special draconian power.
+
+
+  See [b] for more details on draconians.
 
 
 ***** <Mindflayer>
@@ -466,7 +470,7 @@
   [[[[w|Nibelung      |  +1   -1   +2   +0   +2   -2  103%  +22  165%
   [[[[w|Dark-Elf      |  -1   +3   +2   +2   -2   +3   97%  +18  155%
 [[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  [[[[w|Draconian     |  +2   +1   +1   +1   +2   +2  103%  +22  195%
+  [[[[w|Draconian     |  +2   +1   +1   +1   +2   +2  104%  +22  160%
   [[[[w|Mindflayer    |  -3   +4   +4   +0   -2   -1   97%  +18  150%
   [[[[w|Imp           |  +0   -1   -1   +1   +2   -1   99%  +19   90%
   [[[[w|Golem         |  +4   -5   -5   -2   +4   +0  105%  +23  185%
@@ -493,7 +497,7 @@
 [[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra
   [[[[w|Human         |   +0    +0    +0    +0    +0   +10     +0    +0     0'
   [[[[w|Tonberry      |   -5    +3    +3    +1    -2    +5    +20   -10    20'
-  [[[[w|Demigod       |   +2    +3    +1    +0    +0    +7    +10    +5     0'
+  [[[[w|Demigod       |   +2    +3    +1    -1    +0    +7    +10    +5     0'
   [[[[w|Hobbit        |  +15   +12   +10    +5   +12   +15    -10   +20    40'
   [[[[w|Gnome         |  +10    +8    +7    +3    +6   +13     -8   +12    40'
   [[[[w|Dwarf         |   +2    +7    +6    -1    +7   +10    +15    +0    50'
@@ -512,7 +516,7 @@
   [[[[w|Nibelung      |   +3    +5    +6    +1    +5   +10     +9    +0    50'
   [[[[w|Dark-Elf      |   +5   +10   +12    +3    +8   +12     -5   +10    50'
 [[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra
-  [[[[w|Draconian     |   -2    +5    +2    +0    +1   +10     +5    +5    20'
+  [[[[w|Draconian     |   -2    +2    +2    +0    +1   +10    +10    +5    20'
   [[[[w|Mindflayer    |  +10   +15    +9    +2    +5   +12    -10    -5    40'
   [[[[w|Imp           |   -3    +2    -1    +1    -1   +10     +5    -5    30'
   [[[[w|Golem         |   -5    -5    +6    -1    -1    +8    +20    +0    40'
@@ -535,6 +539,7 @@
 
 
 ***** [a] Demigods.txt
+***** [b] Draconians.txt
 
 
-[[[[s|  Automatically generated for PosChengband 3.4.1.
+[[[[s|  Automatically generated for PosChengband 3.5.0.

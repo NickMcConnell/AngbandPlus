@@ -777,6 +777,26 @@ void ego_aware(object_type *o_ptr)
    effect. This is better than leaking kind info in the various browser screens, 
    though.
 */
+counts_t stats_rand_art_counts = {0};
+
+void stats_on_load(savefile_ptr file)
+{
+    stats_rand_art_counts.generated = savefile_read_s32b(file);
+    stats_rand_art_counts.found = savefile_read_s32b(file);
+    stats_rand_art_counts.bought = savefile_read_s32b(file);
+    stats_rand_art_counts.used = savefile_read_s32b(file);
+    stats_rand_art_counts.destroyed = savefile_read_s32b(file);
+}
+
+void stats_on_save(savefile_ptr file)
+{
+    savefile_write_s32b(file, stats_rand_art_counts.generated);
+    savefile_write_s32b(file, stats_rand_art_counts.found);
+    savefile_write_s32b(file, stats_rand_art_counts.bought);
+    savefile_write_s32b(file, stats_rand_art_counts.used);      /* Artifact Devices */
+    savefile_write_s32b(file, stats_rand_art_counts.destroyed); /* Certain Class Powers */
+}
+
 void stats_on_purchase(object_type *o_ptr)
 {
     if (!(o_ptr->marked & OM_COUNTED))
@@ -788,6 +808,11 @@ void stats_on_purchase(object_type *o_ptr)
     {
         e_info[o_ptr->name2].counts.bought += o_ptr->number;
         o_ptr->marked |= OM_EGO_COUNTED;
+    }
+    if (o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    {
+        stats_rand_art_counts.bought += o_ptr->number;
+        o_ptr->marked |= OM_ART_COUNTED;
     }
 }
 
@@ -803,6 +828,11 @@ void stats_on_sell(object_type *o_ptr)
         e_info[o_ptr->name2].counts.found += o_ptr->number;
         o_ptr->marked |= OM_EGO_COUNTED;
     }
+    if (o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    {
+        stats_rand_art_counts.found += o_ptr->number;
+        o_ptr->marked |= OM_ART_COUNTED;
+    }
 }
 
 void stats_on_notice(object_type *o_ptr, int num)
@@ -811,6 +841,16 @@ void stats_on_notice(object_type *o_ptr, int num)
     {
         k_info[o_ptr->k_idx].counts.found += num;
         o_ptr->marked |= OM_COUNTED;
+    }
+    if (o_ptr->name2 && !(o_ptr->marked & OM_EGO_COUNTED))
+    {
+        e_info[o_ptr->name2].counts.found += num;
+        o_ptr->marked |= OM_EGO_COUNTED;
+    }
+    if (o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    {
+        stats_rand_art_counts.found += num;
+        o_ptr->marked |= OM_ART_COUNTED;
     }
 }
 
@@ -831,6 +871,10 @@ void stats_on_combine(object_type *dest, object_type *src)
 void stats_on_use(object_type *o_ptr, int num)
 {
     k_info[o_ptr->k_idx].counts.used += num;
+    if (o_ptr->name2)
+        e_info[o_ptr->name2].counts.used += num;
+    if (o_ptr->art_name)
+        stats_rand_art_counts.used += num;
 }
 
 void stats_on_p_destroy(object_type *o_ptr, int num)
@@ -845,10 +889,17 @@ void stats_on_p_destroy(object_type *o_ptr, int num)
         e_info[o_ptr->name2].counts.found += o_ptr->number;
         o_ptr->marked |= OM_EGO_COUNTED;
     }
+    if (o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    {
+        stats_rand_art_counts.found += num;
+        o_ptr->marked |= OM_ART_COUNTED;
+    }
 
     k_info[o_ptr->k_idx].counts.destroyed += num;
     if (o_ptr->name2)
         e_info[o_ptr->name2].counts.destroyed += num;
+    if (o_ptr->art_name)
+        stats_rand_art_counts.destroyed += num;
 }
 
 void stats_on_m_destroy(object_type *o_ptr, int num)
@@ -871,6 +922,12 @@ void stats_on_pickup(object_type *o_ptr)
         e_info[o_ptr->name2].counts.found += o_ptr->number;
         o_ptr->marked |= OM_EGO_COUNTED;
     }
+
+    if (object_is_known(o_ptr) && o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    {
+        stats_rand_art_counts.found += o_ptr->number;
+        o_ptr->marked |= OM_ART_COUNTED;
+    }
 }
 
 void stats_on_equip(object_type *o_ptr)
@@ -886,6 +943,12 @@ void stats_on_equip(object_type *o_ptr)
         e_info[o_ptr->name2].counts.found += o_ptr->number;
         o_ptr->marked |= OM_EGO_COUNTED;
     }
+
+    if (object_is_known(o_ptr) && o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    {
+        stats_rand_art_counts.found += o_ptr->number;
+        o_ptr->marked |= OM_ART_COUNTED;
+    }
 }
 
 void stats_on_identify(object_type *o_ptr)
@@ -900,6 +963,12 @@ void stats_on_identify(object_type *o_ptr)
     {
         e_info[o_ptr->name2].counts.found += o_ptr->number;
         o_ptr->marked |= OM_EGO_COUNTED;
+    }
+
+    if (object_is_known(o_ptr) && o_ptr->art_name && !(o_ptr->marked & OM_ART_COUNTED))
+    {
+        stats_rand_art_counts.found += o_ptr->number;
+        o_ptr->marked |= OM_ART_COUNTED;
     }
 }
 
@@ -2358,30 +2427,122 @@ static void _finalize_jewelry(object_type *o_ptr)
         add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
 }
 
+static void _create_defender(object_type *o_ptr, int level, int power)
+{
+    add_flag(o_ptr->art_flags, TR_FREE_ACT);
+    add_flag(o_ptr->art_flags, TR_SEE_INVIS);
+    if (abs(power) >= 2)
+    {
+        if (one_in_(2))
+            add_flag(o_ptr->art_flags, TR_LEVITATION);
+        while (one_in_(2))
+            one_sustain(o_ptr);
+        o_ptr->to_a = 5 + randint1(7) + m_bonus(7, level);
+        switch (randint1(4))
+        {
+        case 1: /* Classic Defender */
+            add_flag(o_ptr->art_flags, TR_RES_ACID);
+            add_flag(o_ptr->art_flags, TR_RES_ELEC);
+            add_flag(o_ptr->art_flags, TR_RES_FIRE);
+            add_flag(o_ptr->art_flags, TR_RES_COLD);
+            if (one_in_(3))
+                add_flag(o_ptr->art_flags, TR_RES_POIS);
+            else
+                one_high_resistance(o_ptr);
+            break;
+        case 2: /* High Defender */
+            one_high_resistance(o_ptr);
+            do
+            {
+                one_high_resistance(o_ptr);
+            }
+            while (one_in_(2));
+            break;
+        case 3: /* Lordly Protection */
+            o_ptr->to_a += 5;
+            add_flag(o_ptr->art_flags, TR_RES_POIS);
+            add_flag(o_ptr->art_flags, TR_RES_DISEN);
+            add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+            do
+            {
+                one_lordly_high_resistance(o_ptr);
+            }
+            while (one_in_(4));
+            break;
+        case 4: /* Revenge! */
+            add_flag(o_ptr->art_flags, TR_SH_COLD);
+            add_flag(o_ptr->art_flags, TR_SH_ELEC);
+            add_flag(o_ptr->art_flags, TR_SH_FIRE);
+            if (one_in_(2))
+                add_flag(o_ptr->art_flags, TR_SH_SHARDS);
+            if (one_in_(7))
+                add_flag(o_ptr->art_flags, TR_SH_REVENGE);
+            break;
+        }
+    }
+    else
+    {
+        if (one_in_(5))
+            add_flag(o_ptr->art_flags, TR_LEVITATION);
+        if (one_in_(5))
+            one_sustain(o_ptr);
+        o_ptr->to_a = randint1(5) + m_bonus(5, level);
+
+        if (one_in_(3))
+        {
+            one_high_resistance(o_ptr);
+            one_high_resistance(o_ptr);
+        }
+        else
+        {
+            one_ele_resistance(o_ptr);
+            one_ele_resistance(o_ptr);
+            one_ele_resistance(o_ptr);
+            one_ele_resistance(o_ptr);
+            one_ele_resistance(o_ptr);
+            one_ele_resistance(o_ptr);
+            one_ele_resistance(o_ptr);
+        }
+    }
+    if (one_in_(ACTIVATION_CHANCE))
+        effect_add_random(o_ptr, BIAS_PROTECTION);
+}
+
 static void _create_ring(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
     bool done = FALSE;
-    
+    bool force_great = FALSE;
+
+    if (!apply_magic_ego)
+    {
+        if ( ((mode & AM_GREAT) && randint0(50) < level)
+          || ((mode & AM_GOOD) && randint0(150) < level) )
+        {
+            force_great = TRUE;
+        }
+    }
+
     while (!done)
     {
         o_ptr->name2 = _get_random_ego(EGO_TYPE_RING);
         done = TRUE;
-        if ( ((mode & AM_GREAT) && randint0(50) < level)
-          || ((mode & AM_GOOD) && randint0(200) < level) )
+        if ( force_great
+          && o_ptr->name2 != EGO_RING_SPEED
+          && o_ptr->name2 != EGO_RING_DEFENDER )
         {
-            if ( !apply_magic_ego
-              && o_ptr->name2 != EGO_RING_SPEED
-              && o_ptr->name2 != EGO_RING_DEFENDER )
-            {
-                done = FALSE;
-            }
+            done = FALSE;
         }
     }
+
     switch (o_ptr->name2)
     {
     case EGO_RING_DWARVES:
         o_ptr->to_d += 5;
+        if (one_in_(3))
+            add_flag(o_ptr->art_flags, TR_DEC_DEX);
+        if (one_in_(3))
+            add_flag(o_ptr->art_flags, TR_WIS);
         if (one_in_(6))
             o_ptr->curse_flags |= TRC_PERMA_CURSE;
         if (one_in_(6))
@@ -2390,6 +2551,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
             add_flag(o_ptr->art_flags, TR_RES_DARK);
         if (one_in_(3))
             add_flag(o_ptr->art_flags, TR_RES_DISEN);
+        if (one_in_(3))
+            add_flag(o_ptr->art_flags, TR_SUST_STR);
         if (one_in_(6))
             one_high_resistance(o_ptr);
         if (one_in_(ACTIVATION_CHANCE))
@@ -2549,7 +2712,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                 one_high_resistance(o_ptr);
                 if (abs(power) >= 2)
                 {
-                    do { one_high_resistance(o_ptr); --power; } while(one_in_(2));
+                    do { one_high_resistance(o_ptr); --power; } while(one_in_(3));
                 }
                 break;
             case 2:
@@ -2611,7 +2774,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     add_flag(o_ptr->art_flags, TR_SH_FIRE);
                 if (one_in_(7))
                     add_flag(o_ptr->art_flags, TR_BRAND_FIRE);
-                else if (one_in_(100) && level >= 70)
+                else if (randint1(level) >= 70)
                     add_flag(o_ptr->art_flags, TR_IM_FIRE);
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_FIRE);
@@ -2623,7 +2786,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     add_flag(o_ptr->art_flags, TR_SH_COLD);
                 if (one_in_(7))
                     add_flag(o_ptr->art_flags, TR_BRAND_COLD);
-                else if (one_in_(100) && level >= 70)
+                else if (randint1(level) >= 70)
                     add_flag(o_ptr->art_flags, TR_IM_COLD);
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_COLD);
@@ -2635,7 +2798,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     add_flag(o_ptr->art_flags, TR_SH_ELEC);
                 if (one_in_(7))
                     add_flag(o_ptr->art_flags, TR_BRAND_ELEC);
-                else if (one_in_(100) && level >= 70)
+                else if (randint1(level) >= 75)
                     add_flag(o_ptr->art_flags, TR_IM_ELEC);
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_ELEC);
@@ -2645,7 +2808,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                 add_flag(o_ptr->art_flags, TR_RES_ACID);
                 if (one_in_(7))
                     add_flag(o_ptr->art_flags, TR_BRAND_ACID);
-                else if (one_in_(100) && level >= 70)
+                else if (randint1(level) >= 65)
                     add_flag(o_ptr->art_flags, TR_IM_ACID);
                 if (one_in_(ACTIVATION_CHANCE))
                     effect_add_random(o_ptr, BIAS_ACID);
@@ -2668,72 +2831,7 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
         }
         break;
     case EGO_RING_DEFENDER:
-        add_flag(o_ptr->art_flags, TR_FREE_ACT);
-        add_flag(o_ptr->art_flags, TR_SEE_INVIS);
-        if (abs(power) >= 2)
-        {
-            if (one_in_(2))
-                add_flag(o_ptr->art_flags, TR_LEVITATION);
-            if (one_in_(2))
-                one_sustain(o_ptr);
-            o_ptr->to_a = randint1(7) + m_bonus(7, level);
-            switch (randint1(4))
-            {
-            case 1: /* Classic Defender */
-                add_flag(o_ptr->art_flags, TR_RES_ACID);
-                add_flag(o_ptr->art_flags, TR_RES_ELEC);
-                add_flag(o_ptr->art_flags, TR_RES_FIRE);
-                add_flag(o_ptr->art_flags, TR_RES_COLD);
-                if (one_in_(3))
-                    add_flag(o_ptr->art_flags, TR_RES_POIS);
-                else if (one_in_(3))
-                    one_high_resistance(o_ptr);
-                break;
-            case 2: /* High Defender */
-                one_high_resistance(o_ptr);
-                do
-                {
-                    one_high_resistance(o_ptr);
-                } 
-                while (one_in_(2));
-                break;
-            case 3: /* Lordly Protection */
-                o_ptr->to_a += 5;
-                add_flag(o_ptr->art_flags, TR_RES_POIS);
-                add_flag(o_ptr->art_flags, TR_RES_DISEN);
-                add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-                do
-                {
-                    one_lordly_high_resistance(o_ptr);
-                }
-                while (one_in_(4));
-                break;
-            case 4: /* Revenge! */
-                add_flag(o_ptr->art_flags, TR_SH_COLD);
-                add_flag(o_ptr->art_flags, TR_SH_ELEC);
-                add_flag(o_ptr->art_flags, TR_SH_FIRE);
-                if (one_in_(2))
-                    add_flag(o_ptr->art_flags, TR_SH_SHARDS);
-                if (one_in_(7))
-                    add_flag(o_ptr->art_flags, TR_SH_REVENGE);
-                break;
-            }
-        }
-        else
-        {
-            if (one_in_(5))
-                add_flag(o_ptr->art_flags, TR_LEVITATION);
-            if (one_in_(5))
-                one_sustain(o_ptr);
-            o_ptr->to_a = randint1(5) + m_bonus(5, level);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-        }
-        if (one_in_(ACTIVATION_CHANCE))
-            effect_add_random(o_ptr, BIAS_PROTECTION);
+        _create_defender(o_ptr, level, power);
         break;
     case EGO_RING_SPEED:
         o_ptr->pval = randint1(5) + m_bonus(5, level);
@@ -2791,8 +2889,17 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     add_flag(o_ptr->art_flags, TR_DEC_DEX);
                     add_flag(o_ptr->art_flags, TR_DEC_CON);
                     o_ptr->pval = _jewelry_pval(2, level);
-                    break;
                 }
+                else
+                {
+                    o_ptr->to_d += randint1(5) + m_bonus(5, level);
+                    while (one_in_(2) && powers > 0)
+                    {
+                        o_ptr->to_d += randint1(5) + m_bonus(5, level);
+                        powers--;
+                    }
+                }
+                break;
             default:
                 if (abs(power) >= 2 && one_in_(15))
                     add_flag(o_ptr->art_flags, TR_TELEPATHY);
@@ -2800,6 +2907,8 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
                     one_low_esp(o_ptr);
             }
         }
+        if (o_ptr->to_d > 20)
+            o_ptr->to_d = 20;
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_MAGE);
         break;
@@ -2815,8 +2924,29 @@ static void _create_ring(object_type *o_ptr, int level, int power, int mode)
 static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
 {
     int powers = 0;
-    
-    o_ptr->name2 = _get_random_ego(EGO_TYPE_AMULET);
+    bool force_great = FALSE;
+    bool done = FALSE;
+
+    if (!apply_magic_ego)
+    {
+        if ( ((mode & AM_GREAT) && randint0(75) < level)
+          || ((mode & AM_GOOD) && randint0(300) < level) )
+        {
+            force_great = TRUE;
+        }
+    }
+
+    while (!done)
+    {
+        o_ptr->name2 = _get_random_ego(EGO_TYPE_AMULET);
+        done = TRUE;
+        if ( force_great
+          && o_ptr->name2 != EGO_AMULET_DEFENDER )
+        {
+            done = FALSE;
+        }
+    }
+
     switch (o_ptr->name2)
     {
     case EGO_AMULET_MAGI:
@@ -2861,14 +2991,25 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
                     add_flag(o_ptr->art_flags, TR_DEC_DEX);
                     add_flag(o_ptr->art_flags, TR_DEC_CON);
                     o_ptr->pval = _jewelry_pval(2, level);
-                    break;
                 }
+                else
+                {
+                    o_ptr->to_d += randint1(5) + m_bonus(5, level);
+                    while (one_in_(2) && powers > 0)
+                    {
+                        o_ptr->to_d += randint1(5) + m_bonus(5, level);
+                        powers--;
+                    }
+                }
+                break;
             default:
                 add_flag(o_ptr->art_flags, TR_INT);
                 if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
             }
         }
         if (!o_ptr->pval) o_ptr->pval = randint1(8); /* Searching */
+        if (o_ptr->to_d > 20)
+            o_ptr->to_d = 20;
         if (one_in_(ACTIVATION_CHANCE))
             effect_add_random(o_ptr, BIAS_MAGE);
         break;
@@ -2905,7 +3046,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
             case 5:
                 if (abs(power) >= 2 && one_in_(2) && level >= 30)
                 {
-                    do { one_high_resistance(o_ptr); } while (one_in_(2));
+                    do { one_high_resistance(o_ptr); } while (one_in_(3));
                     break;
                 }
             default:
@@ -2987,6 +3128,10 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
                     add_flag(o_ptr->art_flags, TR_DEC_DEX);
                 else
                     add_flag(o_ptr->art_flags, TR_DEC_STEALTH);
+
+                if (one_in_(5))
+                    add_flag(o_ptr->art_flags, TR_WIS);
+
                 if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(4, level);
                 break;
             case 3:
@@ -3217,72 +3362,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
             effect_add_random(o_ptr, BIAS_ELEMENTAL);
         break;
     case EGO_AMULET_DEFENDER:
-        add_flag(o_ptr->art_flags, TR_FREE_ACT);
-        add_flag(o_ptr->art_flags, TR_SEE_INVIS);
-        if (abs(power) >= 2)
-        {
-            if (one_in_(2))
-                add_flag(o_ptr->art_flags, TR_LEVITATION);
-            if (one_in_(2))
-                one_sustain(o_ptr);
-            o_ptr->to_a = randint1(7) + m_bonus(7, level);
-            switch (randint1(4))
-            {
-            case 1: /* Classic Defender */
-                add_flag(o_ptr->art_flags, TR_RES_ACID);
-                add_flag(o_ptr->art_flags, TR_RES_ELEC);
-                add_flag(o_ptr->art_flags, TR_RES_FIRE);
-                add_flag(o_ptr->art_flags, TR_RES_COLD);
-                if (one_in_(3))
-                    add_flag(o_ptr->art_flags, TR_RES_POIS);
-                else if (one_in_(3))
-                    one_high_resistance(o_ptr);
-                break;
-            case 2: /* High Defender */
-                one_high_resistance(o_ptr);
-                do
-                {
-                    one_high_resistance(o_ptr);
-                } 
-                while (one_in_(2));
-                break;
-            case 3: /* Lordly Protection */
-                o_ptr->to_a += 5;
-                add_flag(o_ptr->art_flags, TR_RES_POIS);
-                add_flag(o_ptr->art_flags, TR_RES_DISEN);
-                add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
-                do
-                {
-                    one_lordly_high_resistance(o_ptr);
-                }
-                while (one_in_(4));
-                break;
-            case 4: /* Revenge! */
-                add_flag(o_ptr->art_flags, TR_SH_COLD);
-                add_flag(o_ptr->art_flags, TR_SH_ELEC);
-                add_flag(o_ptr->art_flags, TR_SH_FIRE);
-                if (one_in_(2))
-                    add_flag(o_ptr->art_flags, TR_SH_SHARDS);
-                if (one_in_(7))
-                    add_flag(o_ptr->art_flags, TR_SH_REVENGE);
-                break;
-            }
-        }
-        else
-        {
-            if (one_in_(5))
-                add_flag(o_ptr->art_flags, TR_LEVITATION);
-            if (one_in_(5))
-                one_sustain(o_ptr);
-            o_ptr->to_a = randint1(5) + m_bonus(5, level);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-            one_ele_resistance(o_ptr);
-        }
-        if (one_in_(ACTIVATION_CHANCE))
-            effect_add_random(o_ptr, BIAS_PROTECTION);
+        _create_defender(o_ptr, level, power);
         break;
     }
 
@@ -4120,7 +4200,7 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 break;
             case EGO_BODY_CELESTIAL_PROTECTION:
                 one_high_resistance(o_ptr);
-                do { one_high_resistance(o_ptr); } while (one_in_(3));
+                do { one_high_resistance(o_ptr); } while (one_in_(2));
                 if (one_in_(7))
                     add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
                 if (one_in_(17))
@@ -4273,6 +4353,14 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                 add_flag(o_ptr->art_flags, TR_SPELL_POWER);
                 add_flag(o_ptr->art_flags, TR_DEC_CON);
             }
+            else if (one_in_(3))
+            {
+                o_ptr->to_d += 4 + randint1(11);
+                while (one_in_(2))
+                    o_ptr->to_d++;
+
+                add_flag(o_ptr->art_flags, TR_SHOW_MODS);
+            }
             break;
         case EGO_CROWN_LORDLINESS:
             if (one_in_(7))
@@ -4367,6 +4455,10 @@ static void _create_armor(object_type *o_ptr, int level, int power, int mode)
                     };
                     _effect_add_list(o_ptr, choices);
                 }
+                break;
+            case EGO_HELMET_RAGE:
+                o_ptr->to_d += 3;
+                o_ptr->to_d += m_bonus(7, level);
                 break;
             }
         }
@@ -4920,7 +5012,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
         rolls = 0;
         /* AM_FORCE_EGO is used for granting quest rewards. Ego rings and amulets
            can be achieved with just power 1 ... Indeed, power 2 is often too much! */
-        if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
+        if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && lev < 50)
             power = MAX(1, power);
         else
             power = 2;
@@ -5121,7 +5213,12 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 
         if (e_ptr->gen_flags & (TRG_ONE_SUSTAIN)) one_sustain(o_ptr);
         if (e_ptr->gen_flags & (TRG_XTRA_POWER)) one_ability(o_ptr);
-        if (e_ptr->gen_flags & (TRG_XTRA_H_RES)) one_high_resistance(o_ptr);
+        if (e_ptr->gen_flags & (TRG_XTRA_H_RES))
+        {
+            one_high_resistance(o_ptr);
+            if (randint1(object_level) > 60)
+                one_high_resistance(o_ptr);
+        }
         if (e_ptr->gen_flags & (TRG_XTRA_E_RES)) one_ele_resistance(o_ptr);
         if (e_ptr->gen_flags & (TRG_XTRA_D_RES)) one_dragon_ele_resistance(o_ptr);
         if (e_ptr->gen_flags & (TRG_XTRA_L_RES)) one_lordly_high_resistance(o_ptr);
@@ -5231,6 +5328,12 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
         return;
     }
 
+    if (o_ptr->art_name)
+    {
+        if (!store_hack)
+            stats_rand_art_counts.generated++;
+    }
+
     /* Examine real objects */
     if (o_ptr->k_idx)
     {
@@ -5259,6 +5362,30 @@ static bool _is_favorite_weapon(int tval, int sval)
         object_prep(&forge, k_idx);
         return object_is_favorite(&forge);
     }
+    return FALSE;
+}
+
+static bool _is_device_class(void)
+{
+    int class_idx = p_ptr->pclass;
+
+    if (class_idx == CLASS_MONSTER)
+        return get_race_t()->pseudo_class_idx;
+
+    switch (class_idx)
+    {
+    case CLASS_ARCHAEOLOGIST:
+    case CLASS_BLOOD_MAGE:
+    case CLASS_HIGH_MAGE:
+    case CLASS_MAGE:
+    case CLASS_MAGIC_EATER:
+    case CLASS_MIRROR_MASTER:
+    case CLASS_NECROMANCER:
+    case CLASS_ROGUE:
+    case CLASS_SORCERER:
+        return TRUE;
+    }
+    /* Note: Devicemasters only want their speciality, which is checked below. */
     return FALSE;
 }
 
@@ -5338,6 +5465,24 @@ static bool kind_is_tailored(int k_idx)
     case TV_BURGLARY_BOOK:
         return check_book_realm(k_ptr->tval, k_ptr->sval)
             && k_ptr->sval >= SV_BOOK_MIN_GOOD;
+
+    case TV_WAND:
+        return devicemaster_is_(DEVICEMASTER_WANDS)
+            || _is_device_class();
+
+    case TV_ROD:
+        return devicemaster_is_(DEVICEMASTER_RODS)
+            || _is_device_class();
+
+    case TV_STAFF:
+        return devicemaster_is_(DEVICEMASTER_STAVES)
+            || _is_device_class();
+
+    case TV_POTION:
+        return devicemaster_is_(DEVICEMASTER_POTIONS);
+
+    case TV_SCROLL:
+        return devicemaster_is_(DEVICEMASTER_SCROLLS);
     }
 
     return FALSE;
@@ -5407,7 +5552,7 @@ bool kind_is_great(int k_idx)
         case TV_RAGE_BOOK:
         case TV_BURGLARY_BOOK:
         {
-            /*if (k_ptr->sval == SV_BOOK_MIN_GOOD) return one_in_(3);  Third Spellbooks */
+            if (k_ptr->sval == SV_BOOK_MIN_GOOD) return TRUE; /* Third Spellbooks: I want ?Acquirement to grant these! */
             if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
             return (FALSE);
         }
@@ -5437,7 +5582,17 @@ bool kind_is_great(int k_idx)
         }
         case TV_STAFF:
         {
+            if (k_ptr->sval == SV_STAFF_GENOCIDE) return TRUE;
             if (k_ptr->sval == SV_STAFF_MSTORM) return TRUE;
+            return FALSE;
+        }
+        case TV_ROD:
+        {
+            if (k_ptr->sval == SV_ROD_HEALING) return TRUE;
+            if (k_ptr->sval == SV_ROD_RESTORATION) return TRUE;
+            if (k_ptr->sval == SV_ROD_HAVOC) return TRUE;
+            if (k_ptr->sval == SV_ROD_SPEED) return TRUE;
+            if (k_ptr->sval == SV_ROD_MANA_BALL) return TRUE;
             return FALSE;
         }
         case TV_RING:
@@ -5566,15 +5721,19 @@ bool kind_is_good(int k_idx)
             if (k_ptr->sval == SV_ROD_DETECTION) return TRUE;
             if (k_ptr->sval == SV_ROD_HEALING) return TRUE;
             if (k_ptr->sval == SV_ROD_RESTORATION) return TRUE;
-            if (k_ptr->sval == SV_ROD_HAVOC) return TRUE;
             if (k_ptr->sval == SV_ROD_SPEED) return TRUE;
-            if (k_ptr->sval == SV_ROD_MANA_BALL) return TRUE;
+            if (k_ptr->sval == SV_ROD_MANA_BOLT) return TRUE;
             return FALSE;
         }
         case TV_STAFF:
         {
+            if (k_ptr->sval == SV_STAFF_GENOCIDE) return TRUE;
+            /*if (k_ptr->sval == SV_STAFF_SPEED) return TRUE;*/
+            if (k_ptr->sval == SV_STAFF_HOLINESS) return TRUE;
+            if (k_ptr->sval == SV_STAFF_POWER) return TRUE;
             if (k_ptr->sval == SV_STAFF_HEALING) return TRUE;
             if (k_ptr->sval == SV_STAFF_MSTORM) return TRUE;
+            if (k_ptr->sval == SV_STAFF_DESTRUCTION) return TRUE;
             return FALSE;
         }
         case TV_RING:
@@ -5612,7 +5771,39 @@ static bool _kind_is_potion(int k_idx) {
     }
     return FALSE;
 }
-/*static bool _kind_is_potion_scroll(int k_idx) { 
+static bool _kind_is_scroll(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_SCROLL:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_is_wand(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_WAND:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_is_rod(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_ROD:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_is_staff(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_STAFF:
+        return TRUE;
+    }
+    return FALSE;
+}
+/*static bool _kind_is_potion_scroll(int k_idx) {
     switch (k_info[k_idx].tval)
     {
     case TV_POTION:
@@ -5620,7 +5811,7 @@ static bool _kind_is_potion(int k_idx) {
         return TRUE;
     }
     return FALSE;
-}
+}*/
 static bool _kind_is_wand_rod_staff(int k_idx) { 
     switch (k_info[k_idx].tval)
     {
@@ -5630,7 +5821,7 @@ static bool _kind_is_wand_rod_staff(int k_idx) {
         return TRUE;
     }
     return FALSE;
-}*/
+}
 bool kind_is_jewelry(int k_idx) { 
     switch (k_info[k_idx].tval)
     {
@@ -5639,7 +5830,23 @@ bool kind_is_jewelry(int k_idx) {
     }
     return FALSE;
 }
-bool kind_is_book(int k_idx) { 
+static bool _kind_is_ring(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_RING:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_is_amulet(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_AMULET:
+        return TRUE;
+    }
+    return FALSE;
+}
+bool kind_is_book(int k_idx) {
     if (TV_LIFE_BOOK <= k_info[k_idx].tval && k_info[k_idx].tval <= TV_BURGLARY_BOOK)
         return TRUE;
     return FALSE;
@@ -5662,7 +5869,31 @@ bool kind_is_other_armor(int k_idx) {
     }
     return FALSE;
 }
-bool kind_is_armor(int k_idx) { 
+static bool _kind_is_helm_cloak(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_HELM: case TV_CROWN: case TV_CLOAK:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_is_helm(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_HELM: case TV_CROWN:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _kind_is_boots(int k_idx) {
+    switch (k_info[k_idx].tval)
+    {
+    case TV_BOOTS:
+        return TRUE;
+    }
+    return FALSE;
+}
+bool kind_is_armor(int k_idx) {
     if (TV_ARMOR_BEGIN <= k_info[k_idx].tval && k_info[k_idx].tval <= TV_ARMOR_END)
         return TRUE;
     return FALSE;
@@ -5672,7 +5903,22 @@ bool kind_is_weapon(int k_idx) {
         return TRUE;
     return FALSE;
 }
-bool kind_is_bow_ammo(int k_idx) { 
+static bool _kind_is_whip(int k_idx) {
+    if (k_info[k_idx].tval == TV_HAFTED && k_info[k_idx].sval == SV_WHIP)
+        return TRUE;
+    return FALSE;
+}
+static bool _kind_is_lance(int k_idx) {
+    if (k_info[k_idx].tval == TV_POLEARM && (k_info[k_idx].sval == SV_LANCE || k_info[k_idx].sval == SV_HEAVY_LANCE))
+        return TRUE;
+    return FALSE;
+}
+static bool _kind_is_bow(int k_idx) {
+    if (k_info[k_idx].tval == TV_BOW && k_info[k_idx].sval != SV_HARP) /* Assume tailored Archer reward, and a harp is just insulting! */
+        return TRUE;
+    return FALSE;
+}
+bool kind_is_bow_ammo(int k_idx) {
     if (k_info[k_idx].tval == TV_BOW)
         return TRUE;
     if (TV_MISSILE_BEGIN <= k_info[k_idx].tval && k_info[k_idx].tval <= TV_MISSILE_END)
@@ -5723,8 +5969,8 @@ static int _kind_alloc_weight(_kind_alloc_entry *entry, u32b mode)
 }
 static _kind_p _choose_obj_kind(u32b mode)
 {
-    int i;
-    int tot = 0;
+    int  i;
+    int  tot = 0;
 
     _kind_hook1 = NULL;
     _kind_hook2 = NULL;
@@ -5736,28 +5982,134 @@ static _kind_p _choose_obj_kind(u32b mode)
     else if (_drop_tailored)
         _kind_hook2 = kind_is_tailored;
 
-    for (i = 0; ; i++)
+    /* Circumvent normal object kind frequencies for good, great and tailored drops.
+     * The goal here is, for example, to allow mages to find adequate spellbooks without
+     * drowning other characters with useless junk. */
+    if (_drop_tailored)
     {
-        if (!_kind_alloc_table[i].hook) break;
-        tot += _kind_alloc_weight(&_kind_alloc_table[i], mode);
-    }
-
-    if (tot > 0)
-    {
-        int j = randint0(tot);
-        
-        for (i = 0; ; i++)
+        switch (p_ptr->pclass)
         {
-            if (!_kind_alloc_table[i].hook) break;
-            j -= _kind_alloc_weight(&_kind_alloc_table[i], mode);
-            if (j < 0)
+        case CLASS_ARCHAEOLOGIST:
+            if (one_in_(5))
+                _kind_hook1 = _kind_is_whip; /* Diggers swamp out whips ... */
+            else if (one_in_(5))
+                _kind_hook1 = kind_is_weapon;
+            else if (one_in_(5))
+                _kind_hook1 = _kind_is_wand_rod_staff;
+            break;
+        case CLASS_ARCHER:
+        case CLASS_SNIPER:
+            if (one_in_(5))
+                _kind_hook1 = _kind_is_bow;
+            break;
+        case CLASS_DEVICEMASTER:
+            if (one_in_(5))
             {
-                _kind_hook1 = _kind_alloc_table[i].hook;
+                switch (p_ptr->psubclass)
+                {
+                case DEVICEMASTER_POTIONS:
+                    _kind_hook1 = _kind_is_potion;
+                    break;
+                case DEVICEMASTER_SCROLLS:
+                    _kind_hook1 = _kind_is_scroll;
+                    break;
+                case DEVICEMASTER_RODS:
+                    _kind_hook1 = _kind_is_rod;
+                    break;
+                case DEVICEMASTER_WANDS:
+                    _kind_hook1 = _kind_is_wand;
+                    break;
+                case DEVICEMASTER_STAVES:
+                    _kind_hook1 = _kind_is_staff;
+                    break;
+                }
+            }
+            break;
+        case CLASS_MAGIC_EATER:
+            if (one_in_(5))
+                _kind_hook1 = kind_is_device;
+            break;
+        case CLASS_RAGE_MAGE:
+            if (one_in_(3))
+                _kind_hook1 = kind_is_book;
+            break;
+        case CLASS_CAVALRY:
+        case CLASS_BEASTMASTER:
+            if (one_in_(7))
+                _kind_hook1 = _kind_is_lance;
+            break;
+
+        case CLASS_MONSTER:
+            switch (p_ptr->prace)
+            {
+            case RACE_MON_BEHOLDER:
+                if (one_in_(5))
+                    _kind_hook1 = _kind_is_ring;
+                else if (one_in_(7))
+                    _kind_hook1 = _kind_is_helm;
+                break;
+            case RACE_MON_CENTIPEDE:
+                if (one_in_(7))
+                    _kind_hook1 = _kind_is_boots;
+                break;
+            case RACE_MON_DRAGON:
+                if (one_in_(5))
+                    _kind_hook1 = _kind_is_ring;
+                else if (one_in_(7))
+                    _kind_hook1 = _kind_is_helm_cloak;
+                break;
+            case RACE_MON_HYDRA:
+                if (one_in_(5))
+                    _kind_hook1 = _kind_is_amulet;
+                else if (one_in_(7))
+                    _kind_hook1 = _kind_is_helm;
                 break;
             }
+            break;
+        }
+        if (!_kind_hook1 && mut_present(MUT_DRACONIAN_METAMORPHOSIS))
+        {
+            if (one_in_(5))
+                _kind_hook1 = _kind_is_ring;
+            else if (one_in_(7))
+                _kind_hook1 = _kind_is_helm_cloak;
+        }
+        if (!_kind_hook1)
+        {
+            if (is_magic(p_ptr->realm1) && one_in_(5))
+                _kind_hook1 = kind_is_book;
+            else if (_is_device_class() && one_in_(7))
+                _kind_hook1 = _kind_is_wand_rod_staff;
         }
     }
 
+    /* Otherwise, pick the kind of drop using the allocation table defined above.
+     * This allows us to design, say, 3% of drops to be jewelry, 4% potions, or
+     * whatever. */
+    if (!_kind_hook1)
+    {
+        for (i = 0; ; i++)
+        {
+            if (!_kind_alloc_table[i].hook) break;
+            tot += _kind_alloc_weight(&_kind_alloc_table[i], mode);
+        }
+
+        if (tot > 0)
+        {
+            int j = randint0(tot);
+
+            for (i = 0; ; i++)
+            {
+                if (!_kind_alloc_table[i].hook) break;
+                j -= _kind_alloc_weight(&_kind_alloc_table[i], mode);
+                if (j < 0)
+                {
+                    _kind_hook1 = _kind_alloc_table[i].hook;
+                    break;
+                }
+            }
+        }
+    }
     return _kind_hook;
 }
 
@@ -5780,12 +6132,6 @@ bool make_object(object_type *j_ptr, u32b mode)
 {
     int prob, base;
     byte obj_level;
-
-    /* Since object quality has improved, quantity must decrease.
-    if (!(mode & AM_GREAT) && !(mode & AM_GOOD))
-    {
-        if (randint1(100) < 30 * object_level / 100) return FALSE;
-    } */
 
     /* Chance of "special object" */
     prob = ((mode & AM_GOOD) ? 10 : 1000);
@@ -7041,7 +7387,7 @@ s16b inven_carry(object_type *o_ptr)
     j_ptr->iy = j_ptr->ix = 0;
 
     /* Player touches it, and no longer marked */
-    j_ptr->marked &= (OM_WORN | OM_COUNTED | OM_EGO_COUNTED);  /* Ah, but remember the "worn" status ... */
+    j_ptr->marked &= (OM_WORN | OM_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);  /* Ah, but remember the "worn" status ... */
     j_ptr->marked |= OM_TOUCHED;
 
     /* Increase the weight */

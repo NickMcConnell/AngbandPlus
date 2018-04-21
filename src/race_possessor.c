@@ -1988,13 +1988,3 @@ void possessor_on_load(savefile_ptr file)
     _history_on_load(file);
 }
 
-int possessor_class_idx(void)
-{
-    int result = p_ptr->pclass;
-    if ( (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
-      && p_ptr->current_r_idx )
-    {
-        result = r_info[p_ptr->current_r_idx].body.class_idx;
-    }
-    return result;
-}

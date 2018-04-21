@@ -39,7 +39,7 @@ static cptr pact_desc[MAX_PACTS] =
         "own ammo. At high levels, they gain the power of Dimension Door. Making a pact with Aberrations "
         "will reduce damage done to all humanoids (h) and people (p) by a substantial amount.",
 };
-static cptr seikaku_jouhou[MAX_SEIKAKU] =
+static cptr seikaku_jouhou[MAX_PERSONALITIES] =
 {
 "\"Ordinary\" is a personality with no special skills or talents, with unmodified stats and skills.",
 "\"Mighty\" raises your physical stats and skills, but reduces stats and skills which influence magic. It makes your stats suitable for a warrior. Also it directly influences your hit-points and spell fail rate.",
@@ -55,6 +55,7 @@ static cptr seikaku_jouhou[MAX_SEIKAKU] =
 "A \"Patient\" person does things carefully. Patient people have high constitution, and high resilience, but poor abilities in most other skills. Also it directly influences your hit-points.",
 "\"Munchkin\" is a personality for beginners. It raises all your stats and skills. With this personality, you can win the game easily, but gain little honor in doing so.",
 "A \"Craven\" person is a coward, preferring to avoid a fight at any cost. Craven adventurers shoot and use devices well, and their stealth is impressive. But their stats and other skills are somewhat wanting.",
+"A \"Hasty\" person edeavors to do all things quickly. Speed, rather than skill and patience, are paramount, and the Hasty adventure moves quickly through the dungeon, bungling much."
 };
 static cptr realm_jouhou[VALID_REALM] =
 {
@@ -1192,6 +1193,62 @@ static void _dragon_menu_fn(int cmd, int which, vptr cookie, variant *res)
     }
     }
 }
+static _name_desc_t _draconian_info[DRAGON_MAX] = {
+    { "Red",
+        "Red Draconians are resistant to fire and may scorch enemies with their fiery breath. "
+        "They are strong and fight very well though their skill with magic is slightly diminished." },
+    { "White",
+        "White Draconians are resistant to cold and may freeze enemies with their icy breath. "
+        "They are strong and fight very well though their skill with magic is slightly diminished." },
+    { "Blue",
+        "Blue Draconians are resistant to lightning and may shock enemies with their breath. "
+        "They are strong and fight very well though their skill with magic is slightly diminished." },
+    { "Black",
+        "Black Draconians are resistant to acid and may dissolve enemies with their breath. "
+        "They are strong and fight very well though their skill with magic is slightly diminished." },
+    { "Green",
+        "Green Draconians are resistant to poison which they may breathe at will." },
+    { "Bronze",
+        "Bronze Draconians are seldom confused, though the same may not be said of their enemies! "
+        "They are the smartest of their kind and use magical devices very well indeed." },
+    { "Crystal",
+        "Crystal Draconians are resistant to shards, have tough hides, and eventually reflect bolt spells. "
+        "They may breathe shards at will, are very hardy, and are excellent in melee. "
+        "Unfortunately, they are neither smart nor nimble, and find magical devices a bit difficult." },
+    { "Gold",
+        "Gold Draconians are resistant to sound which they may also breathe at will. "
+        "They are very wise and have enhanced magic resistance. They are also very good with magical devices." },
+    { "Shadow",
+        "Shadow Draconians are resistant to nether which they may also breathe at will. "
+        "Cloaked in darkness, they are very stealthy and are the most nimble of their kind, "
+        "though not particularly strong." },
+};
+static void _draconian_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, _draconian_info[which].name);
+        break;
+    case MENU_ON_BROWSE:
+    {
+        char buf[100];
+        race_t *race_ptr = get_race_t_aux(RACE_DRACONIAN, which);
+
+        c_put_str(TERM_L_BLUE, _draconian_info[which].name, 3, 40);
+        put_str(": Race modification", 3, 40+strlen(_draconian_info[which].name));
+        put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
+        sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
+            race_ptr->exp);
+        c_put_str(TERM_L_BLUE, buf, 5, 40);
+
+        var_set_bool(res, TRUE);
+        break;
+    }
+    }
+}
 static _name_desc_t _demon_info[DEMON_MAX] = {
     { "Balrog", 
         "Balrogs are demons of shadow and flame. Their evil knows no bounds. Their spells are "
@@ -1342,6 +1399,26 @@ static int _prompt_race(void)
                         p_ptr->psubrace = idx;
                         c_put_str(TERM_L_BLUE, format("%-19s", demigod_info[p_ptr->psubrace].name), 5, 14);
                         if (!_confirm_choice(demigod_info[p_ptr->psubrace].desc, menu3.count)) continue;
+                        idx = _prompt_class();
+                        if (idx == _BIRTH_ESCAPE) continue;
+                        return idx;
+                    }
+                }
+                else if (p_ptr->prace == RACE_DRACONIAN)
+                {
+                    for (;;)
+                    {
+                    menu_t menu3 = { "Subrace", "Draconians.txt#Tables", "Choose your subrace",
+                                        _draconian_menu_fn,
+                                        NULL, DRACONIAN_MAX};
+
+                        c_put_str(TERM_WHITE, "                        ", 5, 14);
+                        idx = _menu_choose(&menu3, p_ptr->psubrace);
+                        if (idx == _BIRTH_ESCAPE) break;
+                        if (idx < 0) return idx;
+                        p_ptr->psubrace = idx;
+                        c_put_str(TERM_L_BLUE, format("%-19s", _draconian_info[p_ptr->psubrace].name), 5, 14);
+                        if (!_confirm_choice(_draconian_info[p_ptr->psubrace].desc, menu3.count)) continue;
                         idx = _prompt_class();
                         if (idx == _BIRTH_ESCAPE) continue;
                         return idx;
@@ -1989,6 +2066,8 @@ static void k_info_reset(void)
         k_ptr->aware = FALSE;
         WIPE(&k_ptr->counts, counts_t);
     }
+
+    WIPE(&stats_rand_art_counts, counts_t);
 }
 
 /*
@@ -2177,6 +2256,8 @@ static void player_wipe(void)
 
     for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
         p_ptr->demigod_power[i] = -1;
+
+    p_ptr->draconian_power = -1;
 
     p_ptr->duelist_target_idx = 0;
 

@@ -595,12 +595,6 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Curses all nearby monsters, doing great damage and various effects.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Curses all monsters in line of sight for MIN(8%+L+dL, 400) damage. Additional effects "
-                                "include confusion (L46), slowing (L47), fear (L48), stun (L49) and stasis (L50). 20% "
-                                "chance of summoning a Greater Mummy as a pet (50%) or enemy (50%). Player takes "
-                                "L+dL damage as well.");
-        break;
     case SPELL_CAST:
         {
             int power = spell_power(p_ptr->lev * 4);
@@ -774,17 +768,6 @@ static void _calc_bonuses(void)
         res_add(RES_DARK);
 }
 
-static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
-{
-    if (_is_favored_weapon(o_ptr))
-    {
-        info_ptr->to_h += 10 * p_ptr->lev/50;
-        info_ptr->dis_to_h += 10 * p_ptr->lev/50;
-        info_ptr->to_d += 10 * p_ptr->lev/50;
-        info_ptr->dis_to_d += 10 * p_ptr->lev/50;
-    }
-}
-
 static caster_info * _caster_info(void)
 {
     static caster_info me = {0};
@@ -799,16 +782,23 @@ static caster_info * _caster_info(void)
     return &me;
 }
 
+static void _character_dump(FILE* file)
+{
+    spell_info spells[MAX_SPELLS];
+    int        ct = _get_spells(spells, MAX_SPELLS);
+
+    dump_spells_aux(file, spells, ct);
+}
+
 class_t *archaeologist_get_class_t(void)
 {
     static class_t me = {0};
     static bool init = FALSE;
 
-    /* static info never changes */
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 45,  50,  36,   4,  50,  32,  48,  35};
-    skills_t xs = { 15,  12,  10,   0,   0,   0,  13,  11};
+    skills_t bs = { 45,  40,  36,   4,  50,  32,  56,  35};
+    skills_t xs = { 15,  12,  10,   0,   0,   0,  18,  11};
 
         me.name = "Archaeologist";
         me.desc = "The Archaeologist is an erudite treasure hunter, seeking out the most valuable "
@@ -832,10 +822,11 @@ class_t *archaeologist_get_class_t(void)
         me.pets = 40;
 
         me.calc_bonuses = _calc_bonuses;
-        me.calc_weapon_bonuses = _calc_weapon_bonuses;
         me.process_player = _process_player;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
+        me.character_dump = _character_dump;
+
         init = TRUE;
     }
 

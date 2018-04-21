@@ -5161,23 +5161,22 @@ bool inc_stat(int stat)
             gain = ((randint0(100) < 75) ? 1 : 2);
             value += gain;
         }
-
-        /* Gain 1/6 to 1/3 of distance to 18/100 */
         else if (value < (p_ptr->stat_max_max[stat]-2))
-        {
-            /* Approximate gain value */
-            gain = (((p_ptr->stat_max_max[stat]) - value) / 2 + 3) / 2;
+        {                                                  /* v--- Scale all calcs by 10 */
+            int delta = (p_ptr->stat_max_max[stat] - value) * 10;
+            int pct = rand_range(200, 350);                /* Note: Old spread was about 14% to 40% */
+            int max_value = p_ptr->stat_max_max[stat] - 1; /* e.g. 18/99 if max is 18/100 */
+            int gain;
 
-            /* Paranoia */
-            if (gain < 1) gain = 1;
+            gain = delta * pct / 1000;
+            gain = (gain + 5) / 10; /* round back to an integer */
+            if (gain < 2)
+                gain = 2;
 
-            /* Apply the bonus */
-            value += randint1(gain) + gain / 2;
-
-            /* Maximal value */
-            if (value > (p_ptr->stat_max_max[stat]-1)) value = p_ptr->stat_max_max[stat]-1;
+            value += gain;
+            if (value > max_value)
+                value = max_value;
         }
-
         /* Gain one point at a time */
         else
         {
@@ -5760,6 +5759,19 @@ void change_race(int new_race, cptr effect_msg)
         }
         p_ptr->psubrace = 0;
     }
+    if (old_race == RACE_DRACONIAN)
+    {
+        int idx = p_ptr->draconian_power;
+        if (idx >= 0)
+        {
+            mut_unlock(idx);
+            mut_lose(idx);
+            p_ptr->draconian_power = -1;
+            if (idx == MUT_DRACONIAN_METAMORPHOSIS)
+                equip_on_change_race();
+        }
+        p_ptr->psubrace = 0;
+    }
 
     msg_format("You turn into %s %s%s!", (!effect_msg[0] && is_a_vowel(title[0]) ? "an" : "a"), effect_msg, title);
 
@@ -5784,7 +5796,7 @@ void change_race(int new_race, cptr effect_msg)
     /* The experience level may be modified */
     check_experience();
 
-    if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD)
+    if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD || p_ptr->prace == RACE_DRACONIAN)
     {
         race_t *race_ptr = get_true_race_t();
         if (race_ptr != NULL && race_ptr->gain_level != NULL)
@@ -7507,7 +7519,10 @@ bool set_tim_weaponmastery(int v, bool do_dec)
         }
         else if (!p_ptr->tim_weaponmastery)
         {
-            msg_print("Your weapon seems more powerful!");
+            if (p_ptr->weapon_info[0].bare_hands)
+                msg_print("Your fists seem more powerful!");
+            else
+                msg_print("Your weapon seems more powerful!");
             notice = TRUE;
         }
     }
@@ -7515,7 +7530,10 @@ bool set_tim_weaponmastery(int v, bool do_dec)
     {
         if (p_ptr->tim_weaponmastery)
         {
-            msg_print("Your weapon returns to normal.");
+            if (p_ptr->weapon_info[0].bare_hands)
+                msg_print("Your fists return to normal.");
+            else
+                msg_print("Your weapon returns to normal.");
             notice = TRUE;
         }
     }

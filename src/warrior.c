@@ -20,6 +20,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
     info_ptr->to_d += p_ptr->lev/5;
     info_ptr->dis_to_d += p_ptr->lev/5;
+    info_ptr->xtra_blow += p_ptr->lev*2;
 }
 
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)

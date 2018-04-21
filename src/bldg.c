@@ -1677,7 +1677,7 @@ static struct {
     {TV_POTION, SV_POTION_RESTORE_MANA},
     {TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION},
     {TV_POTION, SV_POTION_STAR_ENLIGHTENMENT},
-    {TV_SCROLL, SV_SCROLL_BRAND_WEAPON},
+    {TV_SCROLL, SV_SCROLL_CRAFTING},
 
     {TV_SCROLL, SV_SCROLL_GENOCIDE},
     {TV_POTION, SV_POTION_STAR_HEALING},
@@ -2511,7 +2511,7 @@ const _gamble_shop_t _gamble_shop_scrolls[] = {
     { TV_SCROLL, SV_SCROLL_MASS_GENOCIDE, 20},
     { TV_SCROLL, SV_SCROLL_GENOCIDE, 20},
     { TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT, 5},
-    { TV_SCROLL, SV_SCROLL_BRAND_WEAPON, 10},
+    { TV_SCROLL, SV_SCROLL_CRAFTING, 10},
     { TV_SCROLL, SV_SCROLL_MADNESS, 10},
     { TV_SCROLL, SV_SCROLL_ARTIFACT, 1},
     { TV_SCROLL, SV_SCROLL_PHASE_DOOR, 50},
@@ -2542,7 +2542,7 @@ const _gamble_shop_t _gamble_shop_staves[] = {
   { TV_STAFF, SV_STAFF_POWER, 20 }, 
   { TV_STAFF, SV_STAFF_DISPEL_EVIL, 40 }, 
   { TV_STAFF, SV_STAFF_SPEED, 35 }, 
-  { TV_STAFF, SV_STAFF_HEALING, 30 }, 
+  { TV_STAFF, SV_STAFF_HEALING, 10 },
   { TV_STAFF, SV_STAFF_DETECT_GOLD, 50 }, 
   { TV_STAFF, SV_STAFF_TELEPORTATION, 50 }, 
   { TV_STAFF, SV_STAFF_CURING, 50 }, 
@@ -2555,10 +2555,10 @@ const _gamble_shop_t _gamble_shop_staves[] = {
   { TV_STAFF, SV_STAFF_MAPPING, 50 }, 
   { TV_STAFF, SV_STAFF_LITE, 50 }, 
   { TV_STAFF, SV_STAFF_IDENTIFY, 50 }, 
-  { TV_STAFF, SV_STAFF_REMOVE_CURSE, 50 }, 
-  { TV_STAFF, SV_STAFF_STARLITE, 50 }, 
-  { TV_STAFF, SV_STAFF_DETECT_ITEM, 50 }, 
-  { TV_STAFF, SV_STAFF_DETECT_TRAP, 50 }, 
+  { TV_STAFF, SV_STAFF_REMOVE_CURSE, 55 },
+  { TV_STAFF, SV_STAFF_STARLITE, 55 },
+  { TV_STAFF, SV_STAFF_DETECT_ITEM, 55 },
+  { TV_STAFF, SV_STAFF_DETECT_TRAP, 55 },
   { 0, 0, 0}
 };
 
@@ -2795,7 +2795,8 @@ static bool _reforge_artifact(void)
     char o_name[MAX_NLEN];
     char buf[255];
     object_type *src, *dest;
-    int src_max_power = p_ptr->fame * p_ptr->fame * 10;
+    int f = MIN(200, p_ptr->fame);
+    int src_max_power = f * 750 + f * f;
     int dest_max_power = 0;
 
     if (p_ptr->prace == RACE_MON_SWORD || p_ptr->prace == RACE_MON_RING)
@@ -3002,7 +3003,8 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac, bool is_gu
             else
             {
                 int new_cost = new_object_cost(&copy);
-                choices[i].cost = (new_cost - old_cost)*m;
+                int unit_cost = MAX((i+1)*1500, (new_cost - old_cost)*m); /* Hack: No more cheap/free enchantments! */
+                choices[i].cost = unit_cost;
                 if (is_guild)
                     choices[i].cost /= 2;
             }
@@ -4038,17 +4040,17 @@ static void bldg_process_command(building_type *bldg, int i)
     case BACT_REPUTATION:
         if (p_ptr->fame <= 0)
             msg_format("Who the hell are you? (Fame = %d)", p_ptr->fame);
-        else if (p_ptr->fame < 5)
-            msg_format("I've never even heard of you! (Fame = %d)", p_ptr->fame);
-        else if (p_ptr->fame < 10)
-            msg_format("Hmmm ... You've done a few minor notable deeds, but hardly anything worth bragging about! (Fame = %d)", p_ptr->fame);
-        else if (p_ptr->fame < 15)
-            msg_format("Yes, I've heard of you. The townfolk are talking! (Fame = %d)", p_ptr->fame);
         else if (p_ptr->fame < 20)
+            msg_format("I've never even heard of you! (Fame = %d)", p_ptr->fame);
+        else if (p_ptr->fame < 40)
+            msg_format("Hmmm ... You've done a few minor notable deeds, but hardly anything worth bragging about! (Fame = %d)", p_ptr->fame);
+        else if (p_ptr->fame < 60)
+            msg_format("Yes, I've heard of you. The townfolk are talking! (Fame = %d)", p_ptr->fame);
+        else if (p_ptr->fame < 80)
             msg_format("Ah, good sir. 'Tis an honor to see you again! (Fame = %d)", p_ptr->fame);
-        else if (p_ptr->fame < 50)
+        else if (p_ptr->fame < 100)
             msg_format("You are a true hero! (Fame = %d)", p_ptr->fame);
-        else if (p_ptr->fame < 75)
+        else if (p_ptr->fame < 150)
             msg_format("You are the stuff of legends! (Fame = %d)", p_ptr->fame);
         else
             msg_format("The bards doth sing of ye: Heroic ballads both far 'n wide! (Fame = %d)", p_ptr->fame);

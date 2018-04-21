@@ -1,6 +1,7 @@
 #include "angband.h"
 
 #include <assert.h>
+#include "str-map.h"
 
 skill_table *s_info;
 
@@ -171,28 +172,6 @@ bool skills_weapon_is_icky(int tval, int sval)
     return result;
 }
 
-void skills_on_birth(void)
-{
-    int i, j;
-    int class_idx = _class_idx();
-    for (i = 0; i < 5; i++)
-    {
-        for (j = 0; j < 64; j++)
-        {
-            if (i == TV_BOW-TV_WEAPON_BEGIN && demigod_is_(DEMIGOD_ARTEMIS))
-                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
-            else if (demigod_is_(DEMIGOD_ARES))
-                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
-            else
-                p_ptr->weapon_exp[i][j] = s_info[class_idx].w_start[i][j];
-        }
-    }
-    if (p_ptr->personality == PERS_SEXY)
-        p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = MAX(WEAPON_EXP_BEGINNER, p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP]);
-    for (i = 0; i < 10; i++)
-        p_ptr->skill_exp[i] = s_info[class_idx].s_start[i];
-}
-
 void skills_martial_arts_gain(void)
 {
     int current = p_ptr->skill_exp[SKILL_MARTIAL_ARTS];
@@ -322,3 +301,231 @@ int skills_riding_max(void)
 {
     return s_info[_class_idx()].s_max[SKILL_RIDING];
 }
+
+/* Innate Attacks
+ * Note: The Possessor and The Mimic may need to learn a large number of
+ * innate attacks, and I'm thinking of making the proficiency depend on the
+ * body type as well as the attack type (So a Dragon's Bite requires different
+ * skill than a Tiger's Bite). For other classes, the number of possible forms
+ * to learn is small, and and this implementation may seem like so much overkill.
+ *
+ * Note: You need not call init to use innate skills. But failing to do so
+ * means you begin as unskilled. My thoughts are that normal guys like dragons
+ * will init their skills on birth, beginning life as a Beginner. This makes sense,
+ * since they have had time to grow up and are used to their body. But possessors
+ * and mimics will not init their skills as they change bodies, and this means
+ * that they always need to spend some time learning the new form. Again, this
+ * makes sense.
+ */
+struct _skill_info_s
+{
+    int current;
+    int max;
+};
+
+typedef struct _skill_info_s  _skill_info_t;
+typedef struct _skill_info_s *_skill_info_ptr;
+
+static str_map_ptr _innate_map(void)
+{
+    static str_map_ptr _map = NULL;
+    if (!_map)
+        _map = str_map_alloc(free);
+    return _map;
+}
+
+static _skill_info_ptr _innate_info(cptr name)
+{
+    _skill_info_ptr result = (_skill_info_ptr)str_map_find(_innate_map(), name);
+    return result;
+}
+
+void skills_innate_init(cptr name, int current, int max)
+{
+    _skill_info_ptr info = _innate_info(name);
+    if (!info)
+    {
+        info = malloc(sizeof(_skill_info_t));
+        str_map_add(_innate_map(), name, info);
+    }
+    info->current = current;
+    info->max = max;
+}
+
+int skills_innate_max(cptr name)
+{
+    _skill_info_ptr info = _innate_info(name);
+    int             result = WEAPON_EXP_MASTER;
+
+    if (info)
+        result = info->max;
+
+    return result;
+}
+
+int skills_innate_current(cptr name)
+{
+    _skill_info_ptr info = _innate_info(name);
+    int             result = WEAPON_EXP_UNSKILLED;
+
+    if (info)
+        result = info->current;
+
+    return result;
+}
+
+void skills_innate_gain(cptr name)
+{
+    _skill_info_ptr info = _innate_info(name);
+
+    /* Double Check initialization */
+    if (!info)
+    {
+        info = malloc(sizeof(_skill_info_t));
+        info->current = WEAPON_EXP_UNSKILLED;
+        info->max = WEAPON_EXP_MASTER;
+        str_map_add(_innate_map(), name, info);
+    }
+
+    if (info->current < info->max)
+    {
+        int add = 0;
+
+        if (info->current < WEAPON_EXP_BEGINNER) add = 80;
+        else if (info->current < WEAPON_EXP_SKILLED) add = 10;
+        else if (info->current < WEAPON_EXP_EXPERT && p_ptr->lev > 19) add = 1;
+        else if (p_ptr->lev > 34 && one_in_(2)) add = 1;
+
+        if (add > 0)
+        {
+            info->current += add;
+            if (info->current > info->max)
+                info->current = info->max;
+            p_ptr->update |= PU_BONUS;
+        }
+    }
+}
+
+int skills_innate_calc_bonus(cptr name)
+{
+    int current = skills_innate_current(name);
+    int bonus = (current - WEAPON_EXP_BEGINNER) / 200; /* -20 to +20 */
+    return bonus;
+}
+
+cptr skills_innate_calc_name(innate_attack_ptr attack)
+{
+    static char buf[MAX_NLEN];
+    buf[0] = '\0';
+    if ((p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC) && p_ptr->current_r_idx)
+    {
+        monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+        if (r_ptr->flags1 & RF1_UNIQUE)
+            sprintf(buf, "%d.%s", p_ptr->current_r_idx, attack->name);
+        else
+            sprintf(buf, "%c.%s", r_ptr->d_char, attack->name);
+    }
+    else
+        sprintf(buf, "%s", attack->name);
+    return buf;
+}
+
+cptr skills_innate_describe_current(cptr name)
+{
+    int         current = skills_innate_current(name);
+    cptr        desc;
+    static char buf[MAX_NLEN];
+
+    buf[0] = '\0';
+
+    if (current < WEAPON_EXP_BEGINNER)
+        desc = "Unskilled";
+    else if (current < WEAPON_EXP_SKILLED)
+        desc = "Beginner";
+    else if (current < WEAPON_EXP_EXPERT)
+        desc = "Skilled";
+    else if (current < WEAPON_EXP_MASTER)
+        desc = "Expert";
+    else
+        desc = "Master";
+
+    if (current == skills_innate_max(name))
+    {
+        sprintf(buf, "!%s", desc);
+        return buf;
+    }
+    return desc;
+}
+
+void skills_on_load(savefile_ptr file)
+{
+    str_map_ptr map = _innate_map();
+    int         ct, i;
+
+    str_map_clear(map);
+    ct = savefile_read_s32b(file);
+
+    for (i = 0; i < ct; i++)
+    {
+        char            name[255];
+        _skill_info_ptr info = malloc(sizeof(_skill_info_t));
+
+        savefile_read_string(file, name, sizeof(name));
+        info->current = savefile_read_s32b(file);
+        info->max = savefile_read_s32b(file);
+
+        str_map_add(map, name, info);
+    }
+
+    /* TODO: Spell Skills for Bookless Casters */
+    ct = savefile_read_s32b(file);
+}
+
+void skills_on_save(savefile_ptr file)
+{
+    str_map_ptr         map = _innate_map();
+    str_map_iter_ptr    iter;
+
+    savefile_write_s32b(file, str_map_count(map));
+
+    for (iter = str_map_iter_alloc(map);
+            str_map_iter_is_valid(iter);
+            str_map_iter_next(iter))
+    {
+        cptr            name = str_map_iter_current_key(iter);
+        _skill_info_ptr info = (_skill_info_ptr)str_map_iter_current(iter);
+
+        savefile_write_string(file, name);
+        savefile_write_s32b(file, info->current);
+        savefile_write_s32b(file, info->max);
+    }
+    str_map_iter_free(iter);
+
+    /* TODO: Spell Skills for Bookless Casters */
+    savefile_write_s32b(file, 0);
+}
+
+void skills_on_birth(void)
+{
+    int i, j;
+    int class_idx = _class_idx();
+    for (i = 0; i < 5; i++)
+    {
+        for (j = 0; j < 64; j++)
+        {
+            if (i == TV_BOW-TV_WEAPON_BEGIN && demigod_is_(DEMIGOD_ARTEMIS))
+                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
+            else if (demigod_is_(DEMIGOD_ARES))
+                p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
+            else
+                p_ptr->weapon_exp[i][j] = s_info[class_idx].w_start[i][j];
+        }
+    }
+    if (p_ptr->personality == PERS_SEXY)
+        p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = MAX(WEAPON_EXP_BEGINNER, p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP]);
+    for (i = 0; i < 10; i++)
+        p_ptr->skill_exp[i] = s_info[class_idx].s_start[i];
+
+    str_map_clear(_innate_map());
+}
+

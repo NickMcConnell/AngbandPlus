@@ -305,17 +305,19 @@ static void _test_specific_k_idx(void)
         object_type forge;
         
         object_prep(&forge, k_idx);
-        create_artifact(&forge, CREATE_ART_GOOD);
-        /*apply_magic(&forge, object_level, 0);*/
+        /*create_artifact(&forge, CREATE_ART_GOOD);*/
+        apply_magic(&forge, object_level, 0);
 
-        if (1 || forge.name2 == EGO_RING_COMBAT)
+        if ( forge.name2 == EGO_RING_WIZARDRY
+          || forge.name2 == EGO_AMULET_MAGI
+          || forge.name2 == EGO_CROWN_MAGI )
         {
             identify_item(&forge);
             forge.ident |= (IDENT_MENTAL); 
         
             object_desc(buf, &forge, 0);
             msg_format("%s (%d)", buf, object_value_real(&forge));
-            if (have_flag(forge.art_flags, TR_BLOWS))
+            if (forge.to_d)
                 drop_near(&forge, -1, py, px);
         }
     }
@@ -323,12 +325,12 @@ static void _test_specific_k_idx(void)
 
 static void do_cmd_wiz_hack_chris2(void)
 {
+    /* 
     _test_frequencies(_is_foo);
     _test_frequencies(_is_stat_potion);
-    /* 
     _test_frequencies(_is_rune_sword);
-    _test_specific_k_idx(); 
     */
+    _test_specific_k_idx();
 }
 
 static void do_cmd_wiz_hack_chris3_imp(FILE* file)
@@ -812,7 +814,7 @@ static void do_cmd_wiz_hack_chris7_imp(FILE* fff)
             int k;
 
             object_wipe(&forge);
-            if (!make_object(&forge, 0)) continue;
+            if (!make_object(&forge, AM_GOOD)) continue;
 
             for (k = 0; ; k++)
             {
@@ -893,7 +895,7 @@ static void do_cmd_wiz_hack_chris8(void)
         apply_magic(&forge, object_level, AM_GREAT);
         identify_item(&forge);
 
-        if (forge.name2 == EGO_HELMET_PIETY && forge.activation.type)
+        if (forge.name2 == EGO_HELMET_RAGE)
         {
             forge.ident |= (IDENT_MENTAL); 
             object_desc(buf, &forge, 0);
@@ -2853,8 +2855,9 @@ void do_cmd_debug(void)
         for (n = 0; n < 120; n++)
             mut_gain_random(NULL);*/
     /*  mut_gain_choice(mut_demigod_pred);*/
+        mut_gain_choice(mut_draconian_pred);
 
-        n = get_quantity("Which One? ", 500);
+    /*  n = get_quantity("Which One? ", 500);
         if (n == 500)
         {
             int i;
@@ -2862,7 +2865,7 @@ void do_cmd_debug(void)
                 mut_gain(i);
         }
         else
-            mut_gain(n);
+            mut_gain(n); */
         break;
     }
 
@@ -3029,28 +3032,46 @@ void do_cmd_debug(void)
 
     case '_':
     {
-        int ct = 10 * 1000;
         int i;
-        for (i = 0; i < ct; i++)
+        char buf[MAX_NLEN];
+        for (i = 1; i < 200; i++)
         {
-            object_type forge;
-            if (make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED))
+            object_type forge = {0};
+            if (!make_object(&forge, AM_GOOD | AM_GREAT | AM_TAILORED))
             {
-                if (!(forge.name1 || forge.name2 || forge.art_name))
-                {
-                    char buf[MAX_NLEN];
-                    identify_item(&forge);
-                    forge.ident |= (IDENT_MENTAL); 
-        
-                    object_desc(buf, &forge, 0);
-                    msg_format("%d) %s", i, buf);
-                }
+                msg_format("Whoops #%d", i);
+                continue;
             }
-            else
+            identify_item(&forge);
+            forge.ident |= (IDENT_MENTAL);
+
+            object_desc(buf, &forge, 0);
+            msg_format("%d) %s", i, buf);
+        }
+/*
+        int i, j, ct = 0;
+        object_type obj;
+        char buf[MAX_NLEN];
+
+        object_prep(&obj, 687);
+        apply_magic(&obj, 50, 0);
+        for (i = 0; i < max_r_idx; i++)
+        {
+            monster_race *r_ptr = &r_info[i];
+            if (r_ptr->level < 30) continue;
+            for (j = 0; j < r_ptr->r_akills; j++)
             {
-                msg_format("%d) FAILED!!", i);
+                rune_sword_kill(&obj, r_ptr);
+                ct++;
             }
-        }        
+        }
+
+        identify_item(&obj);
+        obj.ident |= (IDENT_MENTAL);
+
+        object_desc(buf, &obj, 0);
+        msg_format("%d) %s", ct, buf);
+*/
         break;
     }
     default:

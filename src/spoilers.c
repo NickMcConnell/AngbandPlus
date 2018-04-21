@@ -59,6 +59,11 @@ static void _race_help(FILE *fff, int idx)
         fprintf(fff, "\n\n");
         _wrap_text(fff, "See [a] for more details on demigod parentage.", 2, 80);
     }
+    if (idx == RACE_DRACONIAN)
+    {
+        fprintf(fff, "\n\n");
+        _wrap_text(fff, "See [b] for more details on draconians.", 2, 80);
+    }
     if (idx == RACE_MON_RING)
     {
         fprintf(fff, "\n\n");
@@ -127,6 +132,7 @@ static void _races_help(FILE* fff)
     }
     fprintf(fff, "\n\n");
     fprintf(fff, "***** [a] Demigods.txt\n");
+    fprintf(fff, "***** [b] Draconians.txt\n");
 }
 
 static void _monster_races_help(FILE* fff)
@@ -250,7 +256,7 @@ static void _monster_races_help(FILE* fff)
         fprintf(fff, "\n");
     }
     fprintf(fff, "\n\n");
-    fprintf(fff, "***** [a] Rings.txt\n");
+    fprintf(fff, "***** [a] rings.txt\n");
     fprintf(fff, "***** [b] DragonRealms.txt\n");
 
     *p_ptr = old;
@@ -318,6 +324,69 @@ static void _demigods_help(FILE* fff)
     for (i = 0; i < MAX_MUTATIONS; i++)
     {
         if (mut_demigod_pred(i))
+        {
+            char b1[255], b2[255];
+            mut_name(i, b1);
+            mut_help_desc(i, b2);
+            fprintf(fff, "  [[[[r|%-19s| %s\n", b1, b2);
+        }
+    }
+    fprintf(fff, "\n\n");
+}
+
+static void _draconians_help(FILE* fff)
+{
+    int i;
+
+    fprintf(fff, "[[[[B|  Draconians\n\n");
+    for (i = 0; i < DRACONIAN_MAX; i++)
+    {
+        /* TODO */
+    }
+
+    fprintf(fff, "***** <Tables>\n");
+    fprintf(fff, "[[[[y|  Table 1 - Race Statistic Bonus Table ---\n\n");
+    fprintf(fff, "[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");
+
+    for (i = 0; i < DRACONIAN_MAX; i++)
+    {
+        race_t *race_ptr = get_race_t_aux(RACE_DRACONIAN, i);
+
+        fprintf(fff, "  %-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%%\n",
+            race_ptr->subname,
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
+            race_ptr->life, race_ptr->exp
+        );
+    }
+    fprintf(fff, "\n\n");
+
+    fprintf(fff, "[[[[y|  Table 2 - Race Skill Bonus Table\n\n");
+    fprintf(fff, "[[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra\n");
+    for (i = 0; i < DRACONIAN_MAX; i++)
+    {
+        race_t *race_ptr = get_race_t_aux(RACE_DRACONIAN, i);
+
+        fprintf(fff, "  %-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %+4d  %4d'\n",
+            race_ptr->subname,
+            race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
+            race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
+            race_ptr->skills.thn, race_ptr->skills.thb, race_ptr->infra*10
+        );
+    }
+    fprintf(fff, "\n\n");
+
+    fprintf(fff, "[[[[y|  Table 3 - Draconian Special Powers\n\n");
+    _wrap_text(fff,
+                "All draconians have access to special powers. When they reach level 35, they may choose "
+                "a single power from the following list. "
+                "These powers can never be removed or changed, so you might want to study this list to "
+                "decide which power you will choose for your character.",
+                2, 80);
+    fprintf(fff, "\n");
+    for (i = 0; i < MAX_MUTATIONS; i++)
+    {
+        if (mut_draconian_pred(i))
         {
             char b1[255], b2[255];
             mut_name(i, b1);
@@ -490,7 +559,7 @@ static void _personalities_help(FILE* fff)
     int i;
 
     fprintf(fff, "[[[[B|  The Personalities\n\n");
-    for (i = 0; i < MAX_SEIKAKU; i++)
+    for (i = 0; i < MAX_PERSONALITIES; i++)
     {
         _personality_help(fff, i);
     }
@@ -499,7 +568,7 @@ static void _personalities_help(FILE* fff)
     fprintf(fff, "[[[[y|  Table 1 - Personality Statistic Bonus Table ---\n\n");
     fprintf(fff, "[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");    
 
-    for (i = 0; i < MAX_SEIKAKU; i++)
+    for (i = 0; i < MAX_PERSONALITIES; i++)
     {
         player_seikaku *a_ptr = &seikaku_info[i];
 
@@ -514,7 +583,7 @@ static void _personalities_help(FILE* fff)
 
     fprintf(fff, "[[[[y|  Table 2 - Personality Skill Bonus Table ---\n\n");
     fprintf(fff, "[[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows\n");
-    for (i = 0; i < MAX_SEIKAKU; i++)
+    for (i = 0; i < MAX_PERSONALITIES; i++)
     {
         player_seikaku *a_ptr = &seikaku_info[i];
 
@@ -587,6 +656,7 @@ void generate_spoilers(void)
     _text_file("Races.txt", _races_help);
     _text_file("MonsterRaces.txt", _monster_races_help);
     _text_file("Demigods.txt", _demigods_help);
+    _text_file("Draconians.txt", _draconians_help);
     _text_file("Classes.txt", _classes_help);
     _text_file("Personalities.txt", _personalities_help);
     _text_file("PossessorStats.csv", _possessor_stats_help);

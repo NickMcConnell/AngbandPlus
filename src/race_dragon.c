@@ -30,6 +30,9 @@ static void _dragon_birth(void)
     object_type    forge;
 
     equip_on_change_race();
+    skills_innate_init("Claw", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+    skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+
     
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
@@ -362,15 +365,16 @@ static int _attack_level(void)
 static void _calc_innate_attacks(void)
 {
     int l = _attack_level();
+    int l2 = p_ptr->lev; /* Note: Using attack_level() for both dd and ds gives too much variation */
     int to_d = 0;
-    int to_h = l/10 + l*l/500 + l*l*l/25000;
+    int to_h = l2*3/5;
 
     /* Claws */
     {
         innate_attack_t    a = {0};
 
         a.dd = 1 + l / 15;
-        a.ds = 3 + l / 30;
+        a.ds = 3 + l2 / 16; /* d6 max for everybody */
         a.to_h += to_h;
         a.to_d += to_d;
 
@@ -391,7 +395,7 @@ static void _calc_innate_attacks(void)
     {
         innate_attack_t    a = {0};
 
-        a.dd = 1 + l / 18;
+        a.dd = 1 + l2 / 10; /* 6d max for everybody */
         a.ds = 4 + l / 6;
         a.to_h += to_h;
         a.to_d += to_d;
@@ -3258,7 +3262,7 @@ race_t *mon_dragon_get_race_t(int psubrace)
     result->calc_innate_attacks = _calc_innate_attacks;
     result->equip_template = mon_get_equip_template();
     result->base_hp = 40;
-    result->pseudo_class_idx = CLASS_ROGUE;
+    result->pseudo_class_idx = CLASS_BEASTMASTER;
 
     result->boss_r_idx = MON_GLAURUNG;
     return result;

@@ -12,7 +12,7 @@
 
 #include "angband.h"
 #include "equip.h"
-
+#include <assert.h>
 static int _max_vampiric_drain(void)
 {
     if (prace_is_(RACE_MON_VAMPIRE) || prace_is_(MIMIC_BAT))
@@ -20,7 +20,7 @@ static int _max_vampiric_drain(void)
     return 50;
 }
 
-static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
+/*static*/ void rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 {
     if (o_ptr->curse_flags & TRC_PERMA_CURSE)
     {
@@ -63,7 +63,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
             if ((r_ptr->level > o_ptr->dd * o_ptr->ds))
             {
                 /*msg_print("Boost dd?");*/
-                if (one_in_((o_ptr->dd + 1) * (o_ptr->ds + 1)) && (unique || one_in_(6)))
+                if (one_in_((o_ptr->dd + 1) * o_ptr->ds) && (unique || one_in_(6)))
                 {
                     if (o_ptr->dd < 9 || one_in_(666))
                     {
@@ -78,7 +78,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
             if ((r_ptr->level > o_ptr->dd * o_ptr->ds))
             {
                 /*msg_print("Boost ds?");*/
-                if (one_in_((o_ptr->dd + 1) * (o_ptr->ds + 1)) && (unique || one_in_(6)))
+                if (one_in_(o_ptr->dd * (o_ptr->ds + 1)) && (unique || one_in_(6)))
                 {
                     if (o_ptr->ds < 9 || one_in_(666))
                     {
@@ -193,8 +193,8 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
             {  
                 o_ptr->curse_flags |= TRC_TY_CURSE;
                 msg_print("Your Rune Sword seeks to dominate you!");
-            /*  if (one_in_(13))
-                    add_flag(o_ptr->art_flags, TR_AGGRAVATE); */
+                if (one_in_(13))
+                    add_flag(o_ptr->art_flags, TR_AGGRAVATE);
                 if (one_in_(13))
                     add_flag(o_ptr->art_flags, TR_DRAIN_EXP);
             }
@@ -497,7 +497,7 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
       && p_ptr->pclass != CLASS_DUELIST 
       && !p_ptr->weapon_info[hand].omoi )
     {
-        roll = roll * 2 / 3;
+        roll = roll * 4 / 5;
     }
 
     /* Extract "blow" power */
@@ -571,7 +571,7 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
     const int monk_elem_slay = 17;
 
-    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID) || mode == MYSTIC_ACID)
+    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ACID) || mode == MYSTIC_ACID || mode == DRACONIAN_STRIKE_ACID)
     {
         if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
         {
@@ -588,7 +588,7 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         }
     }
 
-    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ELEC) || mode == MYSTIC_ELEC)
+    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_ELEC) || mode == MYSTIC_ELEC || mode == DRACONIAN_STRIKE_ELEC)
     {
         if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
         {
@@ -605,7 +605,7 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         }
     }
 
-    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_FIRE) || mode == MYSTIC_FIRE)
+    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_FIRE) || mode == MYSTIC_FIRE || mode == DRACONIAN_STRIKE_FIRE)
     {
         if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
         {
@@ -628,7 +628,7 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         }
     }
 
-    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_COLD) || mode == MYSTIC_COLD)
+    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_COLD) || mode == MYSTIC_COLD || mode == DRACONIAN_STRIKE_COLD)
     {
         if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
         {
@@ -651,7 +651,7 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         }
     }
 
-    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_POIS) || mode == MYSTIC_POIS)
+    if (have_flag(p_ptr->weapon_info[0].flags, TR_BRAND_POIS) || mode == MYSTIC_POIS || mode == DRACONIAN_STRIKE_POIS)
     {
         if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
         {
@@ -705,8 +705,27 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
     if (thrown)
         object_flags(o_ptr, flgs);
     else
+    {
         weapon_flags(hand, flgs);
-
+        switch (mode)
+        {
+        case DRACONIAN_STRIKE_ACID:
+            add_flag(flgs, TR_BRAND_ACID);
+            break;
+        case DRACONIAN_STRIKE_ELEC:
+            add_flag(flgs, TR_BRAND_ELEC);
+            break;
+        case DRACONIAN_STRIKE_FIRE:
+            add_flag(flgs, TR_BRAND_FIRE);
+            break;
+        case DRACONIAN_STRIKE_COLD:
+            add_flag(flgs, TR_BRAND_COLD);
+            break;
+        case DRACONIAN_STRIKE_POIS:
+            add_flag(flgs, TR_BRAND_POIS);
+            break;
+        }
+    }
     /* Chaos Weapons now have random slay effects, and the slay so
        chosen will augment any existing slay of the same type. */
     if (have_flag(flgs, TR_CHAOTIC))
@@ -1377,7 +1396,7 @@ void search(void)
                     if (o_ptr->tval != TV_CHEST) continue;
 
                     /* Skip non-trapped chests */
-                    if (!chest_traps[o_ptr->pval]) continue;
+                    if (o_ptr->pval < 0 || !chest_traps[o_ptr->pval]) continue;
 
                     /* Identify once */
                     if (!object_is_known(o_ptr))
@@ -2100,7 +2119,7 @@ void touch_zap_player(int m_idx)
     monster_type *m_ptr = &m_list[m_idx];
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-    if ((r_ptr->flags2 & RF2_AURA_REVENGE) && randint0(120) < r_ptr->level)
+    if ((r_ptr->flags2 & RF2_AURA_REVENGE) && !MON_CONFUSED(m_ptr) && randint0(120) < r_ptr->level)
     {
         if (p_ptr->lightning_reflexes)
         {
@@ -2253,6 +2272,9 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         int               blows = _get_num_blow_innate(i);
 
         if (a->flags & INNATE_SKIP) continue;
+
+        if (r_ptr->level + 10 > p_ptr->lev)
+            skills_innate_gain(skills_innate_calc_name(a));
 
         for (j = 0; j < blows; j++)
         {
@@ -2693,7 +2715,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     int             dd, ds;
     bool            hit_ct = 0;
     bool            poison_needle = FALSE;
-    bool            eviscerator = FALSE;
 
     if (!c_ptr->m_idx)
     {
@@ -2814,7 +2835,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         if (r_ptr->level + 10 > p_ptr->lev)
             skills_martial_arts_gain();
     }
-    
+
+    if (o_ptr && o_ptr->name1 == ART_ASSASSINATOR && MON_CSLEEP(m_ptr) && m_ptr->ml)
+    {
+        mode = ROGUE_ASSASSINATE;
+    }
+
+    /* Wake up monster */
     set_monster_csleep(c_ptr->m_idx, 0);
     monster_desc(m_name, m_ptr, 0);
 
@@ -2851,11 +2878,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (o_ptr && o_ptr->tval == TV_SWORD && o_ptr->sval == SV_POISON_NEEDLE) 
     {
         poison_needle = TRUE;
-        num_blow = 1;
-    }
-    if (o_ptr && o_ptr->name1 == ART_EVISCERATOR) 
-    {
-        eviscerator = TRUE;
         num_blow = 1;
     }
 
@@ -2924,8 +2946,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (have_flag(flgs, TR_VORPAL2))
                 vorpal_chance = 2;
 
-            if (eviscerator && !duelist_attack) num_blow++;
-
             hit_ct++;
             sound(SOUND_HIT);
 
@@ -2938,6 +2958,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                 if (update)
                 {
                     p_ptr->update |= PU_BONUS;
+                    p_ptr->redraw |= PR_ARMOR;
                     handle_stuff();
                 }
             }
@@ -2962,6 +2983,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if ( have_flag(flgs, TR_VAMPIRIC) 
               || chaos_effect == 1 
               || mode == HISSATSU_DRAIN 
+              || mode == DRACONIAN_STRIKE_VAMP
               || hex_spelling(HEX_VAMP_BLADE)
               || weaponmaster_get_toggle() == TOGGLE_BLOOD_BLADE
               || mauler_get_toggle() == MAULER_TOGGLE_DRAIN )
@@ -2974,7 +2996,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if (!zantetsu_mukou) /* No jelly cuts with Zantetsuken */
             {
                 if (have_flag(flgs, TR_VORPAL) && p_ptr->vorpal && vorpal_chance > 3) vorpal_chance = 3;
-                if (have_flag(flgs, TR_VORPAL) || have_flag(flgs, TR_VORPAL2) || hex_spelling(HEX_RUNESWORD) || p_ptr->vorpal)
+
+                if ( have_flag(flgs, TR_VORPAL)
+                  || have_flag(flgs, TR_VORPAL2)
+                  || hex_spelling(HEX_RUNESWORD)
+                  || p_ptr->vorpal
+                  || mode == DRACONIAN_STRIKE_VORPAL )
                 {
                     if (randint1(vorpal_chance*3/2) == 1)
                         vorpal_cut = TRUE;
@@ -3053,6 +3080,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                         m_ptr->mspeed -= 10;
                     }
                 }
+
+                if (mode == DRACONIAN_STRIKE_STUN)
+                    stun_effect *= 2;
 
                 /* Massive Hack: Monk stunning is now greatly biffed! */
                 if (r_ptr->flags1 & RF1_UNIQUE) stun_effect /= 2;
@@ -3574,7 +3604,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                   && o_ptr->tval == TV_SWORD
                   && o_ptr->sval == SV_RUNESWORD )
                 {
-                    _rune_sword_kill(o_ptr, r_ptr);
+                    rune_sword_kill(o_ptr, r_ptr);
                 }
 
                 if (duelist_attack)
@@ -3619,7 +3649,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                     m_ptr->maxhp -= amt;
                     msg_format("%^s seems weakened.", m_name);
                 }
-                if (mode == MAULER_STUNNING_BLOW)
+                if (mode == MAULER_STUNNING_BLOW || mode == DRACONIAN_STRIKE_STUN)
                 {
                     if (r_ptr->flagsr & RFR_RES_ALL)
                     {
@@ -3891,6 +3921,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
               || chaos_effect == 3 
               || mode == HISSATSU_CONF 
               || mode == MYSTIC_CONFUSE
+              || mode == DRACONIAN_STRIKE_CONF
               || hex_spelling(HEX_CONFUSION)
               || (giant_is_(GIANT_TITAN) && p_ptr->lev >= 30 && one_in_(5)) )
             {
@@ -4003,8 +4034,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
         {
             backstab = FALSE; /* Clumsy! */
             fuiuchi = FALSE; /* Clumsy! */
-
-            if (eviscerator && !duelist_attack && one_in_(2)) num_blow++;
 
             if ( o_ptr
               && o_ptr->tval == TV_POLEARM 
@@ -4481,23 +4510,21 @@ bool py_attack(int y, int x, int mode)
         }
     }
 
-    if (p_ptr->cleave && !fear_stop)
+    if (p_ptr->cleave && !fear_stop && mdeath && mode == 0)
     {
-        int y = 0, x = 0, i, dir = 0;
-        cave_type *c_ptr;
+        int ny = 0, nx = 0, i, dir = 0;
 
         melee_hack = FALSE;
-        for (i = 1; i <= 4; i++) /* TODO: Tweak the number of attempts */
+        for (i = 1; i <= 4 + p_ptr->lev/10; i++)
         {
             dir = randint0(8);
-            y = py + ddy_ddd[dir];
-            x = px + ddx_ddd[dir];
-            c_ptr = &cave[y][x];
+            ny = py + ddy_ddd[dir];
+            nx = px + ddx_ddd[dir];
 
-            if (c_ptr->m_idx)
+            if (cave[ny][nx].m_idx)
             {
                 msg_print("You attempt to cleave another foe!");
-                py_attack(y, x, 0);
+                py_attack(ny, nx, WEAPONMASTER_CLEAVE);
                 break;
             }
         }
@@ -5437,7 +5464,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
     if (oktomove)
     {
         if (have_flag(f_ptr->flags, FF_CAN_PASS) && !p_can_kill_walls && !elemental_is_(ELEMENTAL_EARTH))
-            energy_use *= 2;
+            energy_use = energy_use * 3 / 2;
 
         if (have_flag(f_ptr->flags, FF_LAVA) && elemental_is_(ELEMENTAL_FIRE))
             energy_use /= 2;

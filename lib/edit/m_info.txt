@@ -46,7 +46,8 @@ R:11:0
 ### Mage ###
 N:1
 I:SORCERY:INT:0x05:0:1:430
-# Life
+
+# Life (Mage)
 R:0:1
 T:1:1:30:4  #0
 T:3:2:35:4
@@ -81,7 +82,7 @@ T:48:50:80:100
 T:49:100:80:250
 T:50:100:80:250
 
-# Sorcery
+# Sorcery (Mage)
 R:1:1
 T:1:1:23:4  #0
 T:1:2:24:4
@@ -116,7 +117,7 @@ T:42:50:90:175
 T:43:40:55:200
 T:45:70:85:250
 
-# Nature
+# Nature (Mage)
 R:2:1
 T:1:1:23:4  #0
 T:3:3:25:3
@@ -151,7 +152,7 @@ T:37:40:75:250
 T:39:40:75:250
 T:40:75:65:150
 
-# Chaos
+# Chaos (Mage)
 R:3:1
 T:1:1:20:4  #0
 T:1:2:22:4
@@ -186,7 +187,7 @@ T:45:58:85:200
 T:47:75:80:200
 T:49:100:85:250
 
-# Death
+# Death (Mage)
 R:4:1
 T:1:1:25:4  #0
 T:2:2:25:4
@@ -221,7 +222,7 @@ T:43:75:80:100
 T:45:58:85:200
 T:47:100:90:250
 
-# Trump
+# Trump (Mage)
 R:5:1
 T:1:1:25:3  #0
 T:3:3:25:4
@@ -256,7 +257,7 @@ T:47:100:40:150
 T:48:100:40:200
 T:49:100:40:220
 
-# Arcane
+# Arcane (Mage)
 R:6:1
 T:1:1:20:4  #0
 T:1:1:33:5
@@ -361,7 +362,7 @@ T:45:95:90:250
 T:47:85:80:200
 T:49:80:85:250
 
-# Crusade
+# Crusade (Mage)
 R:9:1
 T:1:1:20:4  #0
 T:2:1:15:4
@@ -396,7 +397,7 @@ T:43:65:90:200
 T:46:90:90:200
 T:48:100:85:250
 
-# Necromancy
+# Necromancy (Mage)
 R:10:0
 
 # Armageddon (Mage)
@@ -437,7 +438,7 @@ T:47:55:85:250
 ### Priest ###
 N:2
 I:LIFE:WIS:0x04:1:1:430
-# Life
+# Life (Priest)
 R:0:1
 T:1:1:10:4  #0
 T:1:2:15:4
@@ -472,7 +473,7 @@ T:40:40:80:200
 T:42:90:85:200
 T:45:90:85:250
 
-# Sorcery
+# Sorcery (Priest)
 R:1:1
 T:2:1:18:4  #0
 T:3:2:19:4
@@ -507,7 +508,7 @@ T:45:50:85:175
 T:46:45:55:200
 T:48:70:80:250
 
-# Nature
+# Nature (Priest)
 R:2:1
 T:2:1:20:4  #0
 T:5:3:20:4
@@ -542,7 +543,7 @@ T:41:45:75:250
 T:42:45:75:250
 T:44:80:60:150
 
-# Chaos
+# Chaos (Priest)
 R:3:1
 T:2:1:17:4  #0
 T:3:2:19:4
@@ -577,7 +578,7 @@ T:47:60:90:200
 T:49:95:75:200
 T:50:100:90:250
 
-# Death
+# Death (Priest)
 R:4:1
 T:1:1:25:4  #0
 T:2:2:25:4
@@ -612,7 +613,7 @@ T:47:75:80:100
 T:47:60:90:150
 T:50:111:90:250
 
-# Trump
+# Trump (Priest)
 R:5:1
 T:1:1:20:3  #0
 T:4:4:20:4
@@ -647,7 +648,7 @@ T:48:115:35:150
 T:49:120:35:200
 T:50:125:35:220
 
-# Arcane
+# Arcane (Priest)
 R:6:1
 T:1:1:15:4  #0
 T:1:1:28:5
@@ -752,7 +753,7 @@ T:48:100:90:250
 T:49:95:80:200
 T:50:80:85:250
 
-# Crusade
+# Crusade (Priest)
 R:9:1
 T:1:1:20:4  #0
 T:1:1:10:4
@@ -787,7 +788,7 @@ T:43:65:90:200
 T:45:90:90:200
 T:46:100:85:250
 
-# Necromancy
+# Necromancy (Priest)
 R:10:0
 
 # Armageddon (Priest)
@@ -831,7 +832,7 @@ I:SORCERY:INT:0x07:0:5:400
 # Life
 R:0:0
 
-# Sorcery
+# Sorcery (Rogue)
 R:1:1
 T:5:1:50:1  #0
 T:7:2:55:1
@@ -866,13 +867,13 @@ T:45:50:70:100
 T:49:50:70:100
 T:99:0:0:0
 
-# Nature
+# Nature (Rogue)
 R:2:0
 
-# Chaos
+# Chaos (Rogue)
 R:3:0
 
-# Death
+# Death (Rogue)
 R:4:1
 T:5:3:40:1  #0
 T:7:4:40:1
@@ -907,7 +908,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:50:125:90:250
 
-# Trump
+# Trump (Rogue)
 R:5:1
 T:5:2:25:3  #0
 T:7:5:25:4
@@ -942,7 +943,7 @@ T:49:125:40:150
 T:99:0:0:0
 T:99:0:0:0
 
-# Arcane
+# Arcane (Rogue)
 R:6:1
 T:1:1:20:4  #0
 T:1:1:33:5
@@ -1012,25 +1013,26 @@ T:49:150:90:125
 T:99:0:0:0
 T:99:0:0:0
 
-# Deamon
+# Deamon (Rogue)
 R:8:0
 
-# Crusade
+# Crusade (Rogue)
 R:9:0
 
-# Necromancy
+# Necromancy (Rogue)
 R:10:0
 
-# Armageddon
+# Armageddon (Rogue)
 R:11:0
 
 ### Ranger ###
 N:4
 I:LIFE:WIS:0x06:0:3:450
-# Life
+
+# Life (Ranger)
 R:0:0
 
-# Sorcery
+# Sorcery (Ranger)
 R:1:1
 T:3:2:35:2  #0
 T:3:3:35:2
@@ -1065,7 +1067,7 @@ T:50:50:90:175
 T:99:0:0:0
 T:99:0:0:0
 
-# Nature
+# Nature (Ranger)
 R:2:1
 T:3:1:35:2  #0
 T:4:3:40:2
@@ -1100,7 +1102,7 @@ T:40:45:75:250
 T:41:45:75:250
 T:42:80:75:150
 
-# Chaos
+# Chaos (Ranger)
 R:3:1
 T:3:1:20:1  #0
 T:3:3:35:2
@@ -1135,7 +1137,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Death
+# Death (Ranger)
 R:4:1
 T:5:2:40:3  #0
 T:5:3:40:3
@@ -1170,7 +1172,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Trump
+# Trump (Ranger)
 R:5:1
 T:3:1:25:3  #0
 T:6:6:25:4
@@ -1205,7 +1207,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Arcane
+# Arcane (Ranger)
 R:6:1
 T:3:2:20:4  #0
 T:3:2:33:5
@@ -1240,7 +1242,7 @@ T:48:44:80:40
 T:49:65:70:50
 T:99:0:0:0
 
-# Craft
+# Craft (Ranger)
 R:7:0
 
 # Deamon (Ranger)
@@ -1278,19 +1280,20 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Crusade
+# Crusade (Ranger)
 R:9:0
 
-# Necromancy
+# Necromancy (Ranger)
 R:10:0
 
-# Armageddon
+# Armageddon (Ranger)
 R:11:0
 
 ### Paladin ###
 N:5
 I:LIFE:WIS:0x06:1:1:450
-# Life
+
+# Life (Paladin)
 R:0:1
 T:1:1:30:4  #0
 T:3:2:35:4
@@ -1325,16 +1328,16 @@ T:48:50:80:100
 T:49:100:80:250
 T:50:100:80:250
 
-# Sorcery
+# Sorcery (Paladin)
 R:1:0
 
-# Nature
+# Nature (Paladin)
 R:2:0
 
-# Chaos
+# Chaos (Paladin)
 R:3:0
 
-# Death
+# Death (Paladin)
 R:4:1
 T:1:1:25:4  #0
 T:3:2:25:4
@@ -1369,16 +1372,16 @@ T:48:75:85:100
 T:49:90:90:200
 T:50:111:95:250
 
-# Trump
+# Trump (Paladin)
 R:5:0
 
-# Arcane
+# Arcane (Paladin)
 R:6:0
 
-# Craft
+# Craft (Paladin)
 R:7:0
 
-# Deamon
+# Deamon (Paladin)
 R:8:1
 T:1:1:20:4  #0
 T:2:1:22:1
@@ -1413,7 +1416,7 @@ T:49:115:95:250
 T:50:85:80:200
 T:50:120:95:250
 
-# Crusade
+# Crusade (Paladin)
 R:9:1
 T:1:1:20:4  #0
 T:3:1:30:4
@@ -1448,16 +1451,17 @@ T:47:80:85:100
 T:48:100:90:200
 T:50:100:80:250
 
-# Necromancy
+# Necromancy (Paladin)
 R:10:0
 
-# Armageddon
+# Armageddon (Paladin)
 R:11:0
 
 ### Warrior-Mage ###
 N:6
 I:SORCERY:INT:0x07:0:1:430
-# Life
+
+# Life (Warrior-Mage)
 R:0:1
 T:2:2:30:4  #0
 T:4:4:35:4
@@ -1492,7 +1496,7 @@ T:48:50:80:100
 T:49:100:90:100
 T:50:100:80:250
 
-# Sorcery
+# Sorcery (Warrior-Mage)
 R:1:1
 T:1:1:23:4  #0
 T:2:2:24:4
@@ -1527,7 +1531,7 @@ T:46:55:90:175
 T:48:50:80:200
 T:48:75:85:250
 
-# Nature
+# Nature (Warrior-Mage)
 R:2:1
 T:2:2:23:4  #0
 T:3:3:25:3
@@ -1562,7 +1566,7 @@ T:43:45:75:250
 T:45:45:75:250
 T:50:85:65:150
 
-# Chaos
+# Chaos (Warrior-Mage)
 R:3:1
 T:2:2:20:4  #0
 T:3:3:22:4
@@ -1597,7 +1601,7 @@ T:49:60:85:200
 T:50:100:80:250
 T:50:100:85:250
 
-# Death
+# Death (Warrior-Mage)
 R:4:1
 T:1:1:25:4  #0
 T:2:2:25:4
@@ -1632,7 +1636,7 @@ T:48:85:80:100
 T:49:60:80:200
 T:50:123:95:250
 
-# Trump
+# Trump (Warrior-Mage)
 R:5:1
 T:1:1:25:3  #0
 T:5:5:25:4
@@ -1667,7 +1671,7 @@ T:48:125:40:150
 T:49:130:40:200
 T:50:135:40:220
 
-# Arcane
+# Arcane (Warrior-Mage)
 R:6:1
 T:1:1:20:4  #0
 T:2:1:33:5
@@ -1772,7 +1776,7 @@ T:50:110:95:250
 T:50:105:80:200
 T:50:80:85:250
 
-# Crusade
+# Crusade (Warrior-Mage)
 R:9:1
 T:2:1:20:4  #0
 T:4:2:30:4
@@ -1807,7 +1811,7 @@ T:48:80:85:100
 T:49:100:90:100
 T:50:100:80:250
 
-# Necromancy
+# Necromancy (Warrior-Mage)
 R:10:0
 
 # Armageddon (Warrior-Mage)
@@ -1848,16 +1852,17 @@ T:50:65:85:250
 ### Chaos Warrior ###
 N:7
 I:SORCERY:INT:0x07:0:2:450
-# Life
+
+# Life (Chaos Warrior)
 R:0:0
 
-# Sorcery
+# Sorcery (Chaos Warrior)
 R:1:0
 
-# Nature
+# Nature (Chaos Warrior)
 R:2:0
 
-# Chaos
+# Chaos (Chaos Warrior)
 R:3:1
 T:2:1:20:4  #0
 T:3:2:22:4
@@ -1892,16 +1897,16 @@ T:45:58:85:200
 T:48:100:80:220
 T:49:100:85:250
 
-# Death
+# Death (Chaos Warrior)
 R:4:0
 
-# Trump
+# Trump (Chaos Warrior)
 R:5:0
 
-# Arcane
+# Arcane (Chaos Warrior)
 R:6:0
 
-# Craft
+# Craft (Chaos Warrior)
 R:7:0
 
 # Deamon (Chaos-Warrior)
@@ -1939,19 +1944,20 @@ T:45:95:90:250
 T:48:105:80:200
 T:49:80:85:250
 
-# Crusade
+# Crusade (Chaos Warrior)
 R:9:0
 
-# Necromancy
+# Necromancy (Chaos Warrior)
 R:10:0
 
-# Armageddon
+# Armageddon (Chaos Warrior)
 R:11:0
 
 ### Monk ###
 N:8
 I:LIFE:WIS:0x06:0:1:350
-# Life
+
+# Life (Monk)
 R:0:1
 T:1:1:30:4  #0
 T:2:2:35:4
@@ -1986,10 +1992,10 @@ T:48:40:80:100
 T:49:100:90:200
 T:50:100:80:250
 
-# Sorcery
+# Sorcery (Monk)
 R:1:0
 
-# Nature
+# Nature (Monk)
 R:2:1
 T:1:1:35:2  #0
 T:3:3:40:2
@@ -2024,7 +2030,7 @@ T:43:45:75:250
 T:45:45:75:250
 T:48:85:75:150
 
-# Chaos
+# Chaos (Monk)
 R:3:0
 
 # Death (Monk)
@@ -2062,7 +2068,7 @@ T:49:80:80:125
 T:50:90:90:250
 T:50:115:95:250
 
-# Trump
+# Trump (Monk)
 R:5:1
 T:1:1:25:3  #0
 T:3:3:25:4
@@ -2097,7 +2103,7 @@ T:47:100:40:150
 T:48:100:40:200
 T:49:100:40:220
 
-# Arcane
+# Arcane (Monk)
 R:6:0
 
 # Craft (Monk)
@@ -2135,21 +2141,21 @@ T:47:120:90:250
 T:50:100:90:0
 T:99:0:0:0
 
-# Deamon
+# Deamon (Monk)
 R:8:0
 
-# Crusade
+# Crusade (Monk)
 R:9:0
 
-# Necromancy
+# Necromancy (Monk)
 R:10:0
 
-# Armageddon
+# Armageddon (Monk)
 R:11:0
 
 ### Mindcrafter ###
 N:9
-I:LIFE:WIS:0x00:0:99:400
+I:NONE:WIS:0x00:0:99:400
 # Life
 R:0:0
 
@@ -2189,7 +2195,8 @@ R:11:0
 ### High Mage ###
 N:10
 I:SORCERY:INT:0x05:0:1:430
-# Life
+
+# Life (High Mage)
 R:0:1
 T:1:1:20:4  #0
 T:2:2:25:4
@@ -2224,7 +2231,7 @@ T:45:40:60:100
 T:47:90:70:250
 T:49:90:70:250
 
-# Sorcery
+# Sorcery (High Mage)
 R:1:1
 T:1:1:15:4  #0
 T:1:1:15:4
@@ -2259,7 +2266,7 @@ T:40:40:80:175
 T:41:43:50:200
 T:42:65:75:250
 
-# Nature
+# Nature (High Mage)
 R:2:1
 T:1:1:15:4  #0
 T:2:1:15:3
@@ -2294,7 +2301,7 @@ T:36:32:65:250
 T:38:35:70:250
 T:39:65:55:300
 
-# Chaos
+# Chaos (High Mage)
 R:3:1
 T:1:1:15:4  #0
 T:1:1:15:4
@@ -2329,7 +2336,7 @@ T:40:53:75:200
 T:43:60:70:200
 T:46:90:75:250
 
-# Death (High-Mage)
+# Death (High Mage)
 R:4:1
 T:1:1:20:4  #0
 T:1:1:20:4
@@ -2364,7 +2371,7 @@ T:38:66:70:100
 T:40:53:70:200
 T:45:75:80:250
 
-# Trump
+# Trump (High Mage)
 R:5:1
 T:1:1:20:3  #0
 T:2:2:20:4
@@ -2399,7 +2406,7 @@ T:42:90:35:150
 T:44:90:35:200
 T:46:90:35:220
 
-# Arcane
+# Arcane (High Mage)
 R:6:1
 T:1:1:15:4  #0
 T:1:1:23:5
@@ -2469,7 +2476,7 @@ T:40:90:50:250
 T:44:65:70:250
 T:47:60:70:250
 
-# Deamon (High-Mage)
+# Deamon (High Mage)
 R:8:1
 T:1:1:15:4  #0
 T:1:1:15:4
@@ -2504,7 +2511,7 @@ T:42:85:85:250
 T:43:75:70:200
 T:46:70:75:250
 
-# Crusade
+# Crusade (High Mage)
 R:9:1
 T:1:1:15:4  #0
 T:1:1:10:4
@@ -2539,10 +2546,10 @@ T:39:55:75:200
 T:42:85:85:200
 T:45:90:75:250
 
-# Necromancy
+# Necromancy (High Mage)
 R:10:0
 
-# Armageddon (High-Mage)
+# Armageddon (High Mage)
 R:11:1
 T:1:2:25:4  #0
 T:2:2:25:4
@@ -2580,25 +2587,25 @@ T:44:49:75:250
 ### Tourist ###
 N:11
 I:SORCERY:INT:0x07:0:5:450
-# Life
+# Life (Tourist)
 R:0:0
 
-# Sorcery
+# Sorcery (Tourist)
 R:1:0
 
-# Nature
+# Nature (Tourist)
 R:2:0
 
-# Chaos
+# Chaos (Tourist)
 R:3:0
 
-# Death
+# Death (Tourist)
 R:4:0
 
-# Trump
+# Trump (Tourist)
 R:5:0
 
-# Arcane
+# Arcane (Tourist)
 R:6:1
 T:99:0:0:0  #0
 T:1:1:33:5
@@ -2633,19 +2640,19 @@ T:99:0:0:0
 T:48:70:70:50
 T:99:0:0:0
 
-# Craft
+# Craft (Tourist)
 R:7:0
 
-# Deamon
+# Deamon (Tourist)
 R:8:0
 
-# Crusade
+# Crusade (Tourist)
 R:9:0
 
-# Necromancy
+# Necromancy (Tourist)
 R:10:0
 
-# Armageddon
+# Armageddon (Tourist)
 R:11:0
 
 ### Imitator ###
@@ -2705,7 +2712,7 @@ R:3:0
 # Death
 R:4:0
 
-# Trump
+# Trump (Beastmaster)
 R:5:1
 T:5:3:25:3  #0
 T:3:3:25:4
@@ -2761,7 +2768,7 @@ R:11:0
 ### Sorcerer ###
 N:14
 I:SORCERY:CHR:0x01:0:1:40
-# Life
+# Life (Sorcerer)
 R:0:1
 T:1:1:30:4  #0
 T:3:2:35:4
@@ -2796,7 +2803,7 @@ T:48:50:80:100
 T:49:100:80:250
 T:50:100:80:250
 
-# Sorcery
+# Sorcery (Sorcerer)
 R:1:1
 T:1:1:23:4  #0
 T:1:2:24:4
@@ -2831,7 +2838,7 @@ T:42:50:90:175
 T:43:40:55:200
 T:45:70:85:250
 
-# Nature
+# Nature (Sorcerer)
 R:2:1
 T:1:1:23:4  #0
 T:3:3:25:3
@@ -2866,7 +2873,7 @@ T:37:40:75:250
 T:39:40:75:250
 T:40:75:65:150
 
-# Chaos
+# Chaos (Sorcerer)
 R:3:1
 T:1:1:20:4  #0
 T:1:2:22:4
@@ -2936,7 +2943,7 @@ T:43:75:80:100
 T:45:58:85:200
 T:47:100:90:250
 
-# Trump
+# Trump (Sorcerer)
 R:5:1
 T:1:1:25:3  #0
 T:3:3:25:4
@@ -2971,7 +2978,7 @@ T:47:100:40:150
 T:48:100:40:200
 T:49:100:40:220
 
-# Arcane
+# Arcane (Sorcerer)
 R:6:1
 T:1:1:20:4  #0
 T:1:1:33:5
@@ -3076,7 +3083,7 @@ T:45:95:90:250
 T:47:85:80:200
 T:49:80:85:250
 
-# Crusade
+# Crusade (Sorcerer)
 R:9:1
 T:1:1:20:4  #0
 T:2:1:15:4
@@ -3111,7 +3118,8 @@ T:43:65:90:200
 T:46:90:90:200
 T:48:100:85:250
 
-# Necromancy (Marking Realm as not allowed doesn't work ...)
+# Necromancy (Sorcerer)
+# (Marking Realm as not allowed doesn't work ...)
 R:10:1
 T:99:0:0:0
 T:99:0:0:0
@@ -3301,7 +3309,7 @@ R:11:0
 ### Red Mage ###
 N:18
 I:SORCERY:INT:0x03:0:1:430
-# Life
+# Life (Red Mage)
 R:0:1
 T:2:2:30:4  #0
 T:4:4:35:4
@@ -3336,7 +3344,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Sorcery
+# Sorcery (Red Mage)
 R:1:1
 T:3:1:50:1  #0
 T:5:2:55:1
@@ -3371,7 +3379,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Nature
+# Nature (Red Mage)
 R:2:1
 T:3:1:35:2  #0
 T:4:3:40:2
@@ -3406,7 +3414,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Chaos
+# Chaos (Red Mage)
 R:3:1
 T:3:2:20:1  #0
 T:4:3:35:2
@@ -3441,7 +3449,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Death
+# Death (Red Mage)
 R:4:1
 T:2:2:25:4  #0
 T:4:2:25:4
@@ -3476,7 +3484,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Trump
+# Trump (Red Mage)
 R:5:1
 T:3:2:25:3  #0
 T:7:5:25:4
@@ -3511,7 +3519,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Arcane
+# Arcane (Red Mage)
 R:6:1
 T:1:1:20:4  #0
 T:2:1:33:5
@@ -3581,7 +3589,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Deamon
+# Deamon (Red Mage)
 R:8:1
 T:3:2:20:1  #0
 T:5:3:35:2
@@ -3616,7 +3624,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Crusade
+# Crusade (Red Mage)
 R:9:1
 T:2:1:20:4  #0
 T:3:3:30:4
@@ -3651,7 +3659,8 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Necromancy (Marking Realm as not allowed doesn't work ...)
+# Necromancy (Red Mage)
+# (Marking Realm as not allowed doesn't work ...)
 R:10:1
 T:99:0:0:0
 T:99:0:0:0
@@ -3686,7 +3695,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Armageddon (Red-Mage)
+# Armageddon (Red Mage)
 R:11:1
 T:15:13:30:4  #0
 T:17:13:50:4
@@ -3760,10 +3769,11 @@ R:10:0
 # Armageddon
 R:11:0
 
-### ForceTrainer ###
+### Force Trainer ###
 N:20
 I:LIFE:WIS:0x06:0:1:350
-# Life
+
+# Life (Force Trainer)
 R:0:1
 T:1:1:30:4  #0
 T:2:2:35:4
@@ -3798,10 +3808,10 @@ T:48:40:80:100
 T:49:100:90:200
 T:50:100:80:250
 
-# Sorcery
+# Sorcery (Force Trainer)
 R:1:0
 
-# Nature
+# Nature (Force Trainer)
 R:2:1
 T:1:1:35:2  #0
 T:3:3:40:2
@@ -3836,10 +3846,10 @@ T:43:45:75:250
 T:45:45:75:250
 T:48:85:75:150
 
-# Chaos
+# Chaos (Force Trainer)
 R:3:0
 
-# Death
+# Death (Force Trainer)
 R:4:1
 T:1:1:25:4  #0
 T:2:2:25:4
@@ -3874,10 +3884,10 @@ T:48:80:80:125
 T:50:90:90:250
 T:50:115:95:250
 
-# Trump
+# Trump (Force Trainer)
 R:5:0
 
-# Arcane
+# Arcane (Force Trainer)
 R:6:0
 
 # Craft (Force Trainer)
@@ -3915,10 +3925,10 @@ T:47:120:90:250
 T:50:75:90:250
 T:99:0:0:0
 
-# Deamon
+# Deamon (Force Trainer)
 R:8:0
 
-# Crusade
+# Crusade (Force Trainer)
 R:9:1
 T:1:1:20:4  #0
 T:3:1:30:4
@@ -3953,10 +3963,10 @@ T:47:80:90:100
 T:48:100:90:200
 T:50:100:80:250
 
-# Necromancy
+# Necromancy (Force Trainer)
 R:10:0
 
-# Armageddon
+# Armageddon (Force Trainer)
 R:11:0
 
 ### Blue Mage ###
@@ -4117,7 +4127,7 @@ R:11:0
 
 ### Mirror Master ###
 N:25
-I:LIFE:INT:0x00:0:99:400
+I:NONE:INT:0x00:0:99:400
 # Life
 R:0:0
 
@@ -4234,7 +4244,7 @@ R:11:0
 
 ### Time Lord ###
 N:28
-I:LIFE:CHR:0x00:0:1:400
+I:NONE:CHR:0x00:0:1:400
 # Life
 R:0:0
 
@@ -4351,7 +4361,7 @@ R:11:0
 
 ### Archaeologist ###
 N:31
-I:LIFE:INT:0x00:0:1:400
+I:NONE:INT:0x00:0:1:400
 # Life
 R:0:0
 
@@ -4429,7 +4439,7 @@ R:11:0
 
 ### Wild-Talent ###
 N:33
-I:LIFE:INT:0x00:0:1:450
+I:NONE:INT:0x00:0:1:450
 # Life
 R:0:0
 
@@ -4468,7 +4478,7 @@ R:11:0
 
 ### Rune-Knight ###
 N:34
-I:LIFE:INT:0x00:0:1:450
+I:NONE:INT:0x00:0:1:450
 # Life
 R:0:0
 
@@ -4547,7 +4557,8 @@ R:11:0
 ### Blood Mage ###
 N:36
 I:SORCERY:INT:0x05:0:1:430
-# Life
+
+# Life (Blood Mage)
 R:0:1
 T:1:1:30:4  #0
 T:3:2:35:4
@@ -4582,7 +4593,7 @@ T:48:50:80:100
 T:49:100:80:250
 T:50:100:80:250
 
-# Sorcery
+# Sorcery (Blood Mage)
 R:1:1
 T:1:1:23:4  #0
 T:1:2:24:4
@@ -4617,7 +4628,7 @@ T:42:50:90:175
 T:43:40:55:200
 T:45:70:85:250
 
-# Nature
+# Nature (Blood Mage)
 R:2:1
 T:1:1:23:4  #0
 T:3:3:25:3
@@ -4723,7 +4734,7 @@ T:43:75:80:100
 T:45:58:85:200
 T:47:100:90:250
 
-# Trump
+# Trump (Blood Mage)
 R:5:1
 T:1:1:25:3  #0
 T:3:3:25:4
@@ -4758,7 +4769,7 @@ T:47:100:40:150
 T:48:100:40:200
 T:49:100:40:220
 
-# Arcane
+# Arcane (Blood Mage)
 R:6:1
 T:1:1:20:4  #0
 T:1:1:33:5
@@ -4863,7 +4874,7 @@ T:45:95:90:250
 T:47:85:80:200
 T:49:80:85:250
 
-# Crusade
+# Crusade (Blood Mage)
 R:9:1
 T:1:1:20:4  #0
 T:2:1:15:4
@@ -4898,7 +4909,7 @@ T:43:65:90:200
 T:46:90:90:200
 T:48:100:85:250
 
-# Necromancy
+# Necromancy (Blood Mage)
 R:10:0
 
 # Armageddon (Blood-Mage)
@@ -4969,7 +4980,7 @@ R:8:0
 # Crusade
 R:9:0
 
-# Necromancy
+# Necromancy (Necromancer)
 R:10:1
 T:1:1:30:4  #0
 T:2:3:35:4
@@ -5009,7 +5020,7 @@ R:11:0
 
 ### Psion ###
 N:38
-I:LIFE:INT:0x00:0:99:400
+I:NONE:INT:0x00:0:99:400
 # Life
 R:0:0
 
@@ -5087,7 +5098,7 @@ R:11:0
 
 ### Scout ###
 N:40
-I:LIFE:WIS:0x00:0:99:400
+I:NONE:WIS:0x00:0:99:400
 # Life
 R:0:0
 
@@ -5166,6 +5177,84 @@ R:11:0
 ### Monster ###
 N:42
 I:NONE:STR:0x00:0:99:0
+# Life
+R:0:0
+
+# Sorcery
+R:1:0
+
+# Nature
+R:2:0
+
+# Chaos
+R:3:0
+
+# Death
+R:4:0
+
+# Trump
+R:5:0
+
+# Arcane
+R:6:0
+
+# Craft
+R:7:0
+
+# Deamon
+R:8:0
+
+# Crusade
+R:9:0
+
+# Necromancy
+R:10:0
+
+# Armageddon
+R:11:0
+
+### Mystic ###
+N:43
+I:NONE:CHR:0x00:0:99:0
+# Life
+R:0:0
+
+# Sorcery
+R:1:0
+
+# Nature
+R:2:0
+
+# Chaos
+R:3:0
+
+# Death
+R:4:0
+
+# Trump
+R:5:0
+
+# Arcane
+R:6:0
+
+# Craft
+R:7:0
+
+# Deamon
+R:8:0
+
+# Crusade
+R:9:0
+
+# Necromancy
+R:10:0
+
+# Armageddon
+R:11:0
+
+### DeviceMaster ###
+N:44
+I:NONE:INT:0x00:0:99:0
 # Life
 R:0:0
 

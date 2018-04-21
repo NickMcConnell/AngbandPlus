@@ -44,14 +44,14 @@ static void _psycho_spear_spell(int cmd, variant *res)
         var_set_string(res, "Fires a beam of pure energy which penetrate the invulnerability barrier.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 3), spell_power(p_ptr->lev * 3)));
+        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 3), spell_power(p_ptr->lev * 3 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*3) + p_ptr->lev*3));
+        fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*3) + p_ptr->lev*3 + p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     }

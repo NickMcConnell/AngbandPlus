@@ -2028,7 +2028,14 @@ bool autopick_auto_id(object_type *o_ptr)
             return TRUE;
         }
 
-        /* Player spells not supported ... */
+        if (p_ptr->auto_id_sp && p_ptr->csp >= p_ptr->auto_id_sp)
+        {
+            identify_item(o_ptr);
+            p_ptr->csp -= p_ptr->auto_id_sp;
+            p_ptr->redraw |= PR_MANA;
+            p_ptr->window |= PW_SPELL;
+            return TRUE;
+        }
     }
     return FALSE;
 }
@@ -2263,6 +2270,7 @@ bool autopick_autoregister(object_type *o_ptr)
     char pref_file[1024];
     FILE *pref_fff;
     autopick_type an_entry, *entry = &an_entry;
+    cptr line;
 
     int match_autopick = is_autopick(o_ptr);
 
@@ -2381,7 +2389,9 @@ bool autopick_autoregister(object_type *o_ptr)
 
     /* Add a line to the file */
     /* Don't kill "entry" */
-    fprintf(pref_fff, "%s\n", autopick_line_from_entry(entry));
+    line = autopick_line_from_entry(entry);
+    fprintf(pref_fff, "%s\n", line);
+    string_free(line);
 
     /* Close the file */
     fclose(pref_fff);

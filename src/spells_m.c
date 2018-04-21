@@ -32,17 +32,22 @@ void magic_missile_spell(int cmd, variant *res)
         var_set_string(res, "Fires a weak bolt of unresistable magic.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 5)), 4, 0));
+        var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 5)), 4, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
-        int dice = spell_power(3 + ((p_ptr->lev - 1) / 5));
+        int dice = 3 + (p_ptr->lev - 1) / 5;
         int sides = 4;
         int dir = 0;
 
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir, damroll(dice, sides));
+        fire_bolt_or_beam(
+            beam_chance() - 10,
+            GF_MISSILE,
+            dir,
+            spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -83,7 +88,7 @@ void mana_bolt_I_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt of pure mana.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7 / 2), spell_power(p_ptr->lev)));
+        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7 / 2), spell_power(p_ptr->lev + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -92,7 +97,11 @@ void mana_bolt_I_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
 
         msg_print("You cast a mana bolt.");
-        fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7 / 2) + p_ptr->lev));
+        fire_bolt(
+            GF_MANA,
+            dir,
+            spell_power(randint1(p_ptr->lev * 7 / 2) + p_ptr->lev + p_ptr->to_d_spell)
+        );
 
         var_set_bool(res, TRUE);
         break;
@@ -114,7 +123,7 @@ void mana_bolt_II_spell(int cmd, variant *res)
         var_set_string(res, "Fires a powerful bolt of pure mana.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7), spell_power(p_ptr->lev*2)));
+        var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7), spell_power(p_ptr->lev*2 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -123,7 +132,11 @@ void mana_bolt_II_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
 
         msg_print("You cast a mana bolt.");
-        fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7) + p_ptr->lev*2));
+        fire_bolt(
+            GF_MANA,
+            dir,
+            spell_power(randint1(p_ptr->lev * 7) + p_ptr->lev*2 + p_ptr->to_d_spell)
+        );
 
         var_set_bool(res, TRUE);
         break;
@@ -145,7 +158,7 @@ void mana_storm_I_spell(int cmd, variant *res)
         var_set_string(res, "Fires a large ball of pure mana.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 5)));
+        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 5 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -154,7 +167,7 @@ void mana_storm_I_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
 
         msg_print("You cast a mana storm.");
-        fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10)), 4);
+        fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10) + p_ptr->to_d_spell), 4);
 
         var_set_bool(res, TRUE);
         break;
@@ -176,7 +189,7 @@ void mana_storm_II_spell(int cmd, variant *res)
         var_set_string(res, "Fires a large ball of pure mana.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 8 + 50)));
+        var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 8 + 50 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -185,7 +198,7 @@ void mana_storm_II_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
 
         msg_print("You cast a mana storm.");
-        fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 8 + 50 + damroll(10, 10)), 4);
+        fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 8 + 50 + damroll(10, 10) + p_ptr->to_d_spell), 4);
 
         var_set_bool(res, TRUE);
         break;
@@ -245,7 +258,7 @@ void mind_blast_spell(int cmd, variant *res)
         var_set_string(res, "Attempt to blast your opponent with psionic energy.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dice), sides, 0));
+        var_set_string(res, info_damage(spell_power(dice), sides, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_GAIN_MUT:
         msg_print("You gain the power of Mind Blast.");
@@ -263,7 +276,11 @@ void mind_blast_spell(int cmd, variant *res)
         if (get_aim_dir(&dir))
         {
             msg_print("You concentrate...");
-            fire_bolt(GF_PSI, dir, spell_power(damroll(dice, sides)));
+            fire_bolt(
+                GF_PSI,
+                dir,
+                spell_power(damroll(dice, sides) + p_ptr->to_d_spell)
+            );
             var_set_bool(res, TRUE);
         }
         break;
@@ -301,7 +318,7 @@ void nature_awareness_spell(int cmd, variant *res)
 
 void nether_ball_spell(int cmd, variant *res)
 {
-    int dam = spell_power(p_ptr->lev * 3 / 2 + 100);
+    int dam = spell_power(p_ptr->lev * 3 / 2 + 100 + p_ptr->to_d_spell);
     int rad = spell_power(p_ptr->lev / 20 + 2);
     switch (cmd)
     {
@@ -342,14 +359,19 @@ void nether_bolt_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt or beam of nether.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), 0));
+        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, spell_power(damroll(dd, ds)));
+        fire_bolt_or_beam(
+            beam_chance(),
+            GF_NETHER,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -377,7 +399,7 @@ void orb_of_entropy_spell(int cmd, variant *res)
         var_set_string(res, "Fires a ball which damages living monsters.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(3, spell_power(6), spell_power(base)));
+        var_set_string(res, info_damage(3, spell_power(6), spell_power(base + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -387,7 +409,7 @@ void orb_of_entropy_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         
         if (!get_aim_dir(&dir)) return;
-        fire_ball(GF_OLD_DRAIN, dir, spell_power(damroll(3, 6) + base), rad);
+        fire_ball(GF_OLD_DRAIN, dir, spell_power(damroll(3, 6) + base + p_ptr->to_d_spell), rad);
         
         var_set_bool(res, TRUE);
         break;
@@ -562,7 +584,7 @@ bool cast_phase_door(void) { return cast_spell(phase_door_spell); }
 
 void plasma_ball_spell(int cmd, variant *res)
 {
-    int dam = spell_power(p_ptr->lev * 3 / 2 + 80);
+    int dam = spell_power(p_ptr->lev * 3 / 2 + 80 + p_ptr->to_d_spell);
     int rad = spell_power(2 + p_ptr->lev / 40);
 
     switch (cmd)
@@ -605,14 +627,19 @@ void plasma_bolt_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt or beam of plasma.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), 0));
+        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt_or_beam(beam_chance(), GF_PLASMA, dir, spell_power(damroll(dd, ds)));
+        fire_bolt_or_beam(
+            beam_chance(),
+            GF_PLASMA,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -871,14 +898,19 @@ void punishment_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt or beam of lightning.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(spell_power(dd), ds, 0));
+        var_set_string(res, info_damage(spell_power(dd), ds, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt_or_beam(beam_chance() - 10, GF_ELEC, dir, spell_power(damroll(dd, ds)));
+        fire_bolt_or_beam(
+            beam_chance() - 10,
+            GF_ELEC,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -1349,12 +1381,12 @@ void rocket_I_spell(int cmd, variant *res)
         var_set_string(res, "Fires a magic rocket.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(120 + p_ptr->lev * 2)));
+        var_set_string(res, info_damage(0, 0, spell_power(120 + p_ptr->lev * 2 + p_ptr->to_d_spell)));
         break;    
     case SPELL_CAST:
     {
         int dir = 0;
-        int dam = spell_power(120 + p_ptr->lev * 2);
+        int dam = spell_power(120 + p_ptr->lev * 2 + p_ptr->to_d_spell);
         int rad = 2;
 
         var_set_bool(res, FALSE);
@@ -1383,12 +1415,12 @@ void rocket_II_spell(int cmd, variant *res)
         var_set_string(res, "Fires a magic rocket of unsurpassable fire power.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(500)));
+        var_set_string(res, info_damage(0, 0, spell_power(500 + p_ptr->to_d_spell)));
         break;    
     case SPELL_CAST:
     {
         int dir = 0;
-        int dam = spell_power(500);
+        int dam = spell_power(500 + p_ptr->to_d_spell);
         int rad = 2;
 
         var_set_bool(res, FALSE);

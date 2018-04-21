@@ -148,7 +148,7 @@ static _form_t _forms[] =
     { 24, 50, RACE_ZOMBIE }, 
     { 25, 50, RACE_GOLEM }, 
     { 26, 50, RACE_SPRITE }, 
-    { 27, 60, RACE_DRACONIAN }, 
+    /*{ 27, 60, RACE_DRACONIAN }, */
     { 28, 60, RACE_TONBERRY }, 
     { 29, 60, RACE_BALROG }, 
     { 30, 60, RACE_KUTAR }, 

@@ -87,7 +87,7 @@ extern player_sex sex_info[MAX_SEXES];
 extern player_pact pact_info[MAX_PACTS];
 extern demigod_type demigod_info[MAX_DEMIGOD_TYPES];
 extern magic_type technic_info[NUM_TECHNIC][32];
-extern player_seikaku seikaku_info[MAX_SEIKAKU];
+extern player_seikaku seikaku_info[MAX_PERSONALITIES];
 extern u32b fake_spell_flags[4];
 extern s32b realm_choices1[];
 extern s32b realm_choices2[];
@@ -707,6 +707,7 @@ extern void disturb(int stop_search, int flush_output);
 extern void glow_deep_lava_and_bldg(void);
 
 /* cmd1.c */
+extern void rune_sword_kill(object_type *o_ptr, monster_race *r_ptr);
 extern void touch_zap_player(int m_idx);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool random_opponent(int *y, int *x);
@@ -1194,6 +1195,9 @@ extern void stats_on_m_destroy(object_type *o_ptr, int num);
 extern void stats_on_pickup(object_type *o_ptr);
 extern void stats_on_equip(object_type *o_ptr);
 extern void stats_on_identify(object_type *o_ptr);
+extern void stats_on_load(savefile_ptr file);
+extern void stats_on_save(savefile_ptr file);
+extern counts_t stats_rand_art_counts;
 
 /* object3.c */
 typedef void (*debug_hook)(cptr msg);
@@ -1995,7 +1999,7 @@ extern race_t *dark_elf_get_race_t(void);
 extern race_t *demigod_get_race_t(int psubrace);
 extern void    demigod_rechoose_powers(void);
 extern race_t *doppelganger_get_race_t(void);
-extern race_t *draconian_get_race_t(void);
+extern race_t *draconian_get_race_t(int psubrace);
 extern race_t *dunadan_get_race_t(void);
 extern race_t *dwarf_get_race_t(void);
 extern race_t *ent_get_race_t(void);
@@ -2074,7 +2078,6 @@ extern int     possessor_get_spells(spell_info* spells, int max);
 extern 
 caster_info   *possessor_caster_info(void);
 extern void    possessor_calc_bonuses(void);
-extern int     possessor_class_idx(void);
 extern int     possessor_r_speed(int r_idx);
 extern int     possessor_r_ac(int r_idx);
 extern void    possessor_get_flags(u32b flgs[TR_FLAG_SIZE]);
@@ -2133,7 +2136,8 @@ extern race_t *wolf_get_race_t(void);
 /* classes.c */
 extern class_t *get_class_t(void);
 extern class_t *get_class_t_aux(int pclass, int psubclass);
-extern int get_class_idx(cptr name);
+extern int lookup_class_idx(cptr name);
+extern int get_class_idx(void);
 extern caster_info *get_caster_info(void);
 extern int get_powers_aux(spell_info* spells, int max, power_info* table);
 extern void dump_powers_aux(FILE *fff, spell_info *table, int ct);
@@ -2325,7 +2329,18 @@ extern void skills_riding_gain_archery(monster_race *r_ptr);
 extern int skills_riding_current(void);
 extern int skills_riding_max(void);
 
+extern int skills_innate_current(cptr name);
+extern int skills_innate_max(cptr name);
+extern void skills_innate_gain(cptr name);
+extern void skills_innate_init(cptr name, int current, int max);
+extern int skills_innate_calc_bonus(cptr name);
+extern cptr skills_innate_calc_name(innate_attack_ptr attack); /* Note: Uses a shared buffer so result valid only until the next call */
+extern cptr skills_innate_describe_current(cptr name);
+
 extern void skills_on_birth(void);
+extern void skills_on_load(savefile_ptr file);
+extern void skills_on_save(savefile_ptr file);
+
 
 /* time_lord.c */
 extern class_t *time_lord_get_class_t(void);

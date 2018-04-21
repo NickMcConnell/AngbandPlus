@@ -192,7 +192,7 @@ static int _pcts[_MAX_PCTS] = {
   97, 98, 99, 100
 };
 
-int  res_pct_aux(int count)
+int  res_pct_aux(int which, int count)
 {
     int result = 0;
     int idx = count;
@@ -204,16 +204,46 @@ int  res_pct_aux(int count)
         idx = _MAX_PCTS-1;
 
     result = _pcts[idx];
+
     if (count < 0)
         result *= -1;
+    else if (result < 100)
+    {
+        /* These restrictions are no laughing matter. Confusion is up to 600hp
+         * and Light is up to 500hp. In practice, players will be hard pressed to
+         * exceed 36% resistance, meaning they can expect around 400 and 320 dam */
+        if (which == RES_CONF)
+        {
+            if (prace_is_(RACE_TONBERRY))
+                result = (result + 1) / 2;
+        }
 
+        if (which == RES_LITE)
+        {
+            if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_MON_VAMPIRE) || prace_is_(MIMIC_VAMPIRE))
+                result = (result + 1) / 2;
+        }
+
+        /* Elemental Damage is more deadly, so I'm being a bit nicer here :) */
+        if (which == RES_FIRE)
+        {
+            if (prace_is_(RACE_ENT))
+                result = result * 7 / 10;
+        }
+
+        if (which == RES_ELEC)
+        {
+            if (prace_is_(RACE_ANDROID))
+                result = result * 7 / 10;
+        }
+    }
     return result;
 }
 
 int res_pct(int which)
 {
     int ct = p_ptr->resist[which];
-    return res_pct_aux(ct);
+    return res_pct_aux(which, ct);
 }
 
 bool res_save(int which, int power)

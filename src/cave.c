@@ -4519,7 +4519,7 @@ void wiz_dark(void)
         if (o_ptr->held_m_idx) continue;
 
         /* Forget the object */
-        o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EGO_COUNTED);
+        o_ptr->marked &= (OM_TOUCHED | OM_COUNTED | OM_EGO_COUNTED | OM_ART_COUNTED);
     }
 
     /* Mega-Hack -- Forget the view and lite */

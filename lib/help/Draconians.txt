@@ -1,0 +1,52 @@
+[[[[B|  Draconians
+
+***** <Tables>
+[[[[y|  Table 1 - Race Statistic Bonus Table ---
+
+[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  Exp
+  Red             +2   +1   +1   +1   +2   +2  104%  160%
+  White           +2   +1   +1   +1   +2   +2  104%  160%
+  Blue            +2   +1   +1   +1   +2   +2  104%  160%
+  Black           +2   +1   +1   +1   +2   +2  104%  160%
+  Green           +1   +1   +1   +1   +2   +2  103%  175%
+  Bronze          +1   +2   +1   +1   +2   +2  103%  185%
+  Crystal         +1   +0   +1   +0   +3   +2  105%  220%
+  Gold            +1   +1   +2   +1   +2   +2  104%  190%
+  Shadow          +0   +1   +1   +3   +2   +2  102%  195%
+
+
+[[[[y|  Table 2 - Race Skill Bonus Table
+
+[[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows  Infra
+  Red              -2    +2    +2    +0    +1   +10    +10    +5    20'
+  White            -2    +2    +2    +0    +1   +10    +10    +5    20'
+  Blue             -2    +2    +2    +0    +1   +10    +10    +5    20'
+  Black            -2    +2    +2    +0    +1   +10    +10    +5    20'
+  Green            -2    +5    +2    +1    +1   +10     +5    +5    20'
+  Bronze           -2   +12    +2    +1    +1   +10     +5    +5    20'
+  Crystal          -2    +0    +2    +0    +1   +10    +12    +5    20'
+  Gold             -2   +10    +5    +1    +1   +10     +5    +5    20'
+  Shadow           -2    +8    +2    +4    +1   +10     +0    +5    20'
+
+
+[[[[y|  Table 3 - Draconian Special Powers
+
+  All draconians have access to special powers. When they reach level 35, they
+  may choose a single power from the following list. These powers can never be
+  removed or changed, so you might want to study this list to decide which
+  power you will choose for your character.
+
+  [[[[r|Dragon Skin        | You will gain extra armor class and a defensive aura if available.
+  [[[[r|Magic Resistance   | You will gain an improved saving throw versus magical attacks.
+  [[[[r|Dragon Strike      | You will be able to attack an adjacent opponent with a special blow (Fire, Cold, etc).
+  [[[[r|Deadly Breath      | Your breath will become more deadly.
+  [[[[r|Regeneration       | You will regenerate much more quickly.
+  [[[[r|Summon Kin         | You will be able to summon aid from dragons.
+  [[[[r|Ancient Knowledge  | Items will automatically identify as you pick them up.
+  [[[[r|Resistance         | You will gain extra resistance of the appropriate type (e.g. Fire or Cold).
+  [[[[r|Metamorphosis      | Your body will transform into a dragon (e.g. 6 ring slots and no weapons)
+
+
+
+
+[[[[s|  Automatically generated for PosChengband 3.5.0.

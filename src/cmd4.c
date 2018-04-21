@@ -3721,9 +3721,9 @@ static cptr object_group_text[] =
     "Potions",
 /*  "Flasks", */
     "Scrolls",
-/*  "Rings",
+    "Rings",
     "Amulets",
-    "Whistle",
+/*  "Whistle",
     "Lanterns", */
     "Wands",
     "Staves",
@@ -3772,9 +3772,9 @@ static byte object_group_tval[] =
     TV_POTION,
 /*  TV_FLASK, */
     TV_SCROLL,
-/*  TV_RING, 
+    TV_RING,
     TV_AMULET,
-    TV_WHISTLE,
+/*  TV_WHISTLE,
     TV_LITE, */
     TV_WAND,
     TV_STAFF,
@@ -5338,6 +5338,24 @@ static void do_cmd_knowledge_skill_exp(void)
 /*
  * Pluralize a monster name
  */
+static bool _plural_imp(char *name, const char *suffix, const char *replacement)
+{
+    bool result = FALSE;
+    int l1 = strlen(name);
+    int l2 = strlen(suffix);
+
+    if (l1 >= l2)
+    {
+        char *tmp = name + (l1 - l2);
+        if (streq(tmp, suffix))
+        {
+            strcpy(tmp, replacement);
+            result = TRUE;
+        }
+    }
+    return result;
+}
+
 void plural_aux(char *Name)
 {
     int NameLen = strlen(Name);
@@ -5396,53 +5414,41 @@ void plural_aux(char *Name)
     {
         return;
     }
-    else if (streq(&(Name[NameLen - 2]), "ey"))
+    else if (_plural_imp(Name, "ey", "eys"))
     {
-        strcpy(&(Name[NameLen - 2]), "eys");
     }
-    else if (Name[NameLen - 1] == 'y')
+    else if (_plural_imp(Name, "y", "ies"))
     {
-        strcpy(&(Name[NameLen - 1]), "ies");
     }
-    else if (streq(&(Name[NameLen - 4]), "ouse"))
+    else if (_plural_imp(Name, "ouse", "ice"))
     {
-        strcpy(&(Name[NameLen - 4]), "ice");
     }
-    else if (streq(&(Name[NameLen - 2]), "us"))
+    else if (_plural_imp(Name, "us", "i"))
     {
-        strcpy(&(Name[NameLen - 2]), "i");
     }
-    else if (streq(&(Name[NameLen - 6]), "kelman"))
+    else if (_plural_imp(Name, "kelman", "kelmen"))
     {
-        strcpy(&(Name[NameLen - 6]), "kelmen");
     }
-    else if (streq(&(Name[NameLen - 8]), "wordsman"))
+    else if (_plural_imp(Name, "wordsman", "wordsmen"))
     {
-        strcpy(&(Name[NameLen - 8]), "wordsmen");
     }
-    else if (streq(&(Name[NameLen - 7]), "oodsman"))
+    else if (_plural_imp(Name, "oodsman", "oodsmen"))
     {
-        strcpy(&(Name[NameLen - 7]), "oodsmen");
     }
-    else if (streq(&(Name[NameLen - 7]), "eastman"))
+    else if (_plural_imp(Name, "eastman", "eastmen"))
     {
-        strcpy(&(Name[NameLen - 7]), "eastmen");
     }
-    else if (streq(&(Name[NameLen - 8]), "izardman"))
+    else if (_plural_imp(Name, "izardman", "izardmen"))
     {
-        strcpy(&(Name[NameLen - 8]), "izardmen");
     }
-    else if (streq(&(Name[NameLen - 5]), "geist"))
+    else if (_plural_imp(Name, "geist", "geister"))
     {
-        strcpy(&(Name[NameLen - 5]), "geister");
     }
-    else if (streq(&(Name[NameLen - 2]), "ex"))
+    else if (_plural_imp(Name, "ex", "ices"))
     {
-        strcpy(&(Name[NameLen - 2]), "ices");
     }
-    else if (streq(&(Name[NameLen - 2]), "lf"))
+    else if (_plural_imp(Name, "lf", "lves"))
     {
-        strcpy(&(Name[NameLen - 2]), "lves");
     }
     else if (suffix(Name, "ch") ||
          suffix(Name, "sh") ||
@@ -6646,7 +6652,7 @@ static _ego_type_t _ego_types[] = {
     { EGO_TYPE_LITE, "Lights" },
     { EGO_TYPE_BODY_ARMOR, "Armors" },
     { EGO_TYPE_ROBE, "Robes" },
-    { EGO_TYPE_CLOAK, "Shields" },
+    { EGO_TYPE_CLOAK, "Cloaks" },
     { EGO_TYPE_HELMET, "Helmets" },
     { EGO_TYPE_CROWN, "Crowns" },
     { EGO_TYPE_GLOVES, "Gloves" },

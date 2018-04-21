@@ -158,7 +158,8 @@ static void _birth(void)
 
     p_ptr->current_r_idx = MON_FOREST_TROLL;
     equip_on_change_race();
-    
+    skills_innate_init("Bite", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+
     object_prep(&forge, lookup_kind(TV_HARD_ARMOR, SV_CHAIN_MAIL));
     add_outfit(&forge);
 
@@ -257,7 +258,7 @@ static void _calc_bonuses(void)
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;
 
-    p_ptr->regenerate = TRUE; /* cf process_world_aux_hp_and_sp() in dungeon.c for the troll's special regeneration */
+    p_ptr->super_regenerate = TRUE; /* cf process_world_aux_hp_and_sp() in dungeon.c for the troll's special regeneration */
     switch (p_ptr->current_r_idx)
     {
     case MON_FOREST_TROLL:

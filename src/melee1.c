@@ -102,7 +102,7 @@ static cptr desc_insult[] =
     "defiles you!",
     "dances around you!",
     "makes obscene gestures!",
-    "moons you!!!"
+    "moons you!!!",
     "calls you a parasite!",
     "calls you a cyborg!"
 

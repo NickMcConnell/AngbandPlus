@@ -17,9 +17,9 @@
 
 
 #define VER_MAJOR 3
-#define VER_MINOR 4
-#define VER_PATCH 5
-#define VER_EXTRA 0
+#define VER_MINOR 5
+#define VER_PATCH 0
+#define VER_EXTRA 2
 
 /*
  * Number of grids in each block (vertically)
@@ -101,7 +101,7 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES      10
+#define MAX_STORES      11
 
 /*
  * Number of buildings
@@ -121,6 +121,7 @@
 #define STORE_HOME      7
 #define STORE_BOOK      8
 #define STORE_MUSEUM    9
+#define STORE_JEWELER  10
 
 
 #define BUILDING_NON_MEMBER 0
@@ -722,6 +723,17 @@
 #define DRAGON_STEEL    13
 #define DRAGON_MAX      14
 
+#define DRACONIAN_RED      0
+#define DRACONIAN_WHITE    1
+#define DRACONIAN_BLUE     2
+#define DRACONIAN_BLACK    3
+#define DRACONIAN_GREEN    4
+#define DRACONIAN_BRONZE   5
+#define DRACONIAN_CRYSTAL  6
+#define DRACONIAN_GOLD     7
+#define DRACONIAN_SHADOW   8
+#define DRACONIAN_MAX      9
+
 #define GIANT_FIRE      0
 #define GIANT_FROST     1
 #define GIANT_STORM     2
@@ -783,6 +795,7 @@ enum _mimic_types {
 #define giant_is_(B) (prace_is_(RACE_MON_GIANT) && p_ptr->psubrace == (B))
 #define demon_is_(B) (prace_is_(RACE_MON_DEMON) && p_ptr->psubrace == (B))
 #define elemental_is_(B) (prace_is_(RACE_MON_ELEMENTAL) && p_ptr->psubrace == (B))
+#define draconian_is_(B) (prace_is_(RACE_DRACONIAN) && p_ptr->psubrace == (B))
 
 
 /*
@@ -867,21 +880,21 @@ enum _mimic_types {
 #define DEVICEMASTER_MAX     5
 
 
-#define PERS_ORDINARY     0
-#define PERS_MIGHTY       1
-#define PERS_SHREWD      2
-#define PERS_PIOUS       3
-#define PERS_NIMBLE       4
-#define PERS_FEARLESS     5
-#define PERS_COMBAT         6
-#define PERS_LAZY         7
-#define PERS_SEXY         8
+#define PERS_ORDINARY      0
+#define PERS_MIGHTY        1
+#define PERS_SHREWD        2
+#define PERS_PIOUS         3
+#define PERS_NIMBLE        4
+#define PERS_FEARLESS      5
+#define PERS_COMBAT        6
+#define PERS_LAZY          7
+#define PERS_SEXY          8
 #define PERS_LUCKY         9
-#define PERS_PATIENT     10
-#define PERS_MUNCHKIN    11
-#define PERS_CRAVEN      12
-#define MAX_SEIKAKU      13
-#define MAX_PERSONALITIES 13
+#define PERS_PATIENT      10
+#define PERS_MUNCHKIN     11
+#define PERS_CRAVEN       12
+#define PERS_HASTY        13
+#define MAX_PERSONALITIES 14
 
 /*** Screen Locations ***/
 
@@ -1543,7 +1556,7 @@ enum _mimic_types {
 #define ART_BALLISTA        271
 #define ART_KAMIKAZE_ROBE   272
 #define ART_RAILGUN         273
-#define ART_EVISCERATOR     275
+#define ART_ASSASSINATOR    275
 #define ART_STOMPER         277
 #define ART_GONG            278
 
@@ -2107,9 +2120,9 @@ enum _mimic_types {
 #define SV_SCROLL_ARTIFACT              52
 #define SV_SCROLL_RESET_RECALL          53
 #define SV_SCROLL_SUMMON_KIN            54
-#define SV_SCROLL_BRAND_WEAPON          55
-#define SV_SCROLL_MADNESS                56
-#define SV_SCROLL_DETECT_MONSTERS        57
+#define SV_SCROLL_CRAFTING              55
+#define SV_SCROLL_MADNESS               56
+#define SV_SCROLL_DETECT_MONSTERS       57
 #define SV_SCROLL_FIRE                  58
 #define SV_SCROLL_ICE                   59
 #define SV_SCROLL_CHAOS                 60
@@ -2978,6 +2991,7 @@ enum summon_specific_e {
 #define OM_WORN         0x0040    /* Object was previously being worn but is possibly no longer a legal piece of equipment (Mimics) */
 #define OM_COUNTED      0x0080    /* Stats */
 #define OM_EGO_COUNTED  0x0100    /* Stats */
+#define OM_ART_COUNTED  0x0200    /* Stats */
 
 
 /*
@@ -5381,6 +5395,18 @@ extern int PlayerUID;
 #define DRAGON_POWER_STRIKE  72
 #define DRAGON_TAIL_SWEEP    73
 #define DRAGON_SMITE_EVIL    74
+
+#define WEAPONMASTER_CLEAVE  75
+
+#define DRACONIAN_STRIKE_FIRE 76
+#define DRACONIAN_STRIKE_COLD 77
+#define DRACONIAN_STRIKE_ELEC 78
+#define DRACONIAN_STRIKE_ACID 79
+#define DRACONIAN_STRIKE_POIS 80
+#define DRACONIAN_STRIKE_CONF 81
+#define DRACONIAN_STRIKE_STUN 82
+#define DRACONIAN_STRIKE_VORPAL 83
+#define DRACONIAN_STRIKE_VAMP 84
 
 #define HISSATSU_IAI    100
 

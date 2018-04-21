@@ -4,7 +4,7 @@
 
 #include "angband.h"
 
-int get_class_idx(cptr name)
+int lookup_class_idx(cptr name)
 {
     int i;
     for (i = 0; i < MAX_CLASS; i++)
@@ -13,6 +13,38 @@ int get_class_idx(cptr name)
             return i;
     }
     return -1;
+}
+
+/* In general, the class index is given by player_type.pclass. However, for various
+ * monster races, the "class" behavior is actually determined by the race, and we
+ * encode this desire with race_t.pseudo_class_idx. As another twist, consider the
+ * possessor. Here, the "class" behavior depends on the current body (see r_info.text).
+ */
+int get_class_idx(void)
+{
+    int result = p_ptr->pclass;
+
+    if (result == CLASS_MONSTER)
+    {
+        switch (p_ptr->prace)
+        {
+        case RACE_MON_POSSESSOR:
+        case RACE_MON_MIMIC:
+            if (p_ptr->current_r_idx)
+            {
+                result = r_info[p_ptr->current_r_idx].body.class_idx;
+                break;
+            }
+            /* vvv Fall Through vvv */
+        default:
+        {
+            race_t *race_ptr = get_race_t();
+            if (race_ptr->pseudo_class_idx)
+                result = race_ptr->pseudo_class_idx;
+        }
+        }
+    }
+    return result;
 }
 
 /* Goal: This should be the one and only switch off of p_ptr->pclass in the

@@ -462,14 +462,14 @@ race_t *demigod_get_race_t(int psubrace)
         me.stats[A_CON] =  1;
         me.stats[A_CHR] =  1;
         
-        me.skills.dis = 2;
-        me.skills.dev = 3;
-        me.skills.sav = 1;
-        me.skills.stl = 0;
-        me.skills.srh = 0;
-        me.skills.fos = 7;
+        me.skills.dis =  2;
+        me.skills.dev =  3;
+        me.skills.sav =  1;
+        me.skills.stl = -1;
+        me.skills.srh =  0;
+        me.skills.fos =  7;
         me.skills.thn = 10;
-        me.skills.thb = 5;
+        me.skills.thb =  5;
 
         me.life = 100;
         me.base_hp = 20;
@@ -486,12 +486,14 @@ race_t *demigod_get_race_t(int psubrace)
         case DEMIGOD_APHRODITE:
             me.stats[A_CHR] += 2;
             me.exp += 40;
+            me.skills.dev += 2;
             me.calc_bonuses = _aphrodite_calc_bonuses;
             me.get_powers = _aphrodite_get_powers;
             me.get_flags = _aphrodite_get_flags;
             break;
         case DEMIGOD_APOLLO:
             me.exp += 50;
+            me.skills.dev += 3;
             me.calc_bonuses = _apollo_calc_bonuses;
             me.get_powers = _apollo_get_powers;
             me.get_flags = _apollo_get_flags;
@@ -499,6 +501,7 @@ race_t *demigod_get_race_t(int psubrace)
             break;
         case DEMIGOD_ARES:
             me.stats[A_STR] += 2;
+            me.skills.dev -= 3;
             me.skills.sav -= 5;
             me.skills.stl -= 1;
             me.skills.thn += 15;
@@ -517,18 +520,23 @@ race_t *demigod_get_race_t(int psubrace)
         case DEMIGOD_ATHENA:
             me.stats[A_INT] += 2;
             me.exp += 60;
+            me.skills.dev += 10;
+            me.skills.sav += 2;
             me.calc_bonuses = _athena_calc_bonuses;
             me.get_flags = _athena_get_flags;
             break;
         case DEMIGOD_DEMETER:
             me.exp += 40;
+            me.skills.sav += 5;
             me.calc_bonuses = _demeter_calc_bonuses;
             me.get_powers = _demeter_get_powers;
             me.get_flags = _demeter_get_flags;
             break;
         case DEMIGOD_HADES:
             me.stats[A_CON] += 2;
-            me.skills.sav += 7;
+            me.skills.sav += 10;
+            me.skills.thn += 5;
+            me.skills.stl += 1;
             me.life += 7;
             me.exp += 60;
             me.calc_bonuses = _hades_calc_bonuses;
@@ -536,18 +544,25 @@ race_t *demigod_get_race_t(int psubrace)
             break;
         case DEMIGOD_HEPHAESTUS:
             me.exp += 50;
+            me.skills.thn += 10;
+            me.skills.sav += 2;
             me.calc_bonuses = _hephaestus_calc_bonuses;
             me.get_flags = _hephaestus_get_flags;
             break;
         case DEMIGOD_HERA:
             me.stats[A_WIS] += 2;
             me.exp += 40;
+            me.skills.sav += 5;
+            me.skills.dev += 5;
             me.calc_bonuses = _hera_calc_bonuses;
             me.get_powers = _hera_get_powers;
             me.get_flags = _hera_get_flags;
             break;
         case DEMIGOD_HERMES:
-            me.skills.stl += 2;
+            me.skills.dis += 10;
+            me.skills.stl += 3;
+            me.skills.srh += 5;
+            me.skills.fos += 5;
             me.exp += 60;
             me.calc_bonuses = _hermes_calc_bonuses;
             me.get_flags = _hermes_get_flags;
@@ -555,11 +570,17 @@ race_t *demigod_get_race_t(int psubrace)
         case DEMIGOD_POSEIDON:
             me.stats[A_STR] += 1;
             me.stats[A_DEX] += 1;
+            me.skills.thn += 7;
             me.exp += 60;
             me.calc_bonuses = _poseidon_calc_bonuses;
             me.get_flags = _poseidon_get_flags;
             break;
         case DEMIGOD_ZEUS:
+            me.skills.dis += 2;
+            me.skills.dev += 5;
+            me.skills.sav += 5;
+            me.skills.thn += 10;
+            me.skills.thb += 5;
             for (i = 0; i < 6; i++)
                 me.stats[i]++;
             me.exp += 70;

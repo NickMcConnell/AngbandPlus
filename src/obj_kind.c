@@ -174,6 +174,9 @@ bool object_is_favorite(object_type *o_ptr)
     case CLASS_MAULER:
         return o_ptr->weight >= 280;
 
+    case CLASS_ARCHAEOLOGIST:
+        return archaeologist_is_favored_weapon(o_ptr);
+
     default:
         /* All weapons are okay for non-special classes */
         return TRUE;

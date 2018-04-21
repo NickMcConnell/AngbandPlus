@@ -48,7 +48,7 @@ static int _necro_damroll(int dice, int sides, int base)
         dice *= 2;
         base *= 2;
     }
-    return damroll(dice, spell_power(sides)) + spell_power(base);
+    return spell_power(damroll(dice, sides) + base);
 }
 
 void on_p_hit_m(int m_idx)
@@ -195,8 +195,8 @@ cptr do_necromancy_spell(int spell, int mode)
     case 0:
         if (name) return "Cold Touch";
         if (desc) return "Damage an adjacent monster with a chilling touch.";
-        if (info) return _necro_info_damage(2, 6, plev);
-        if (cast && !_necro_do_touch(GF_COLD, 2, 6, plev)) return NULL;
+        if (info) return _necro_info_damage(2, 6, plev + p_ptr->to_d_spell);
+        if (cast && !_necro_do_touch(GF_COLD, 2, 6, plev + p_ptr->to_d_spell)) return NULL;
         break;
 
     case 1:
@@ -222,8 +222,8 @@ cptr do_necromancy_spell(int spell, int mode)
     case 4:
         if (name) return "Poison Touch";
         if (desc) return "Damage an adjacent monster with a venomous touch.";
-        if (info) return _necro_info_damage(4, 6, plev);
-        if (cast && !_necro_do_touch(GF_POIS, 4, 6, plev)) return NULL;
+        if (info) return _necro_info_damage(4, 6, plev + p_ptr->to_d_spell);
+        if (cast && !_necro_do_touch(GF_POIS, 4, 6, plev + p_ptr->to_d_spell)) return NULL;
         break;
 
     case 5:
@@ -241,8 +241,8 @@ cptr do_necromancy_spell(int spell, int mode)
     case 7:
         if (name) return "Black Touch";
         if (desc) return "Damage an adjacent monster with a dark touch.";
-        if (info) return _necro_info_damage(6, 6, plev * 3 / 2);
-        if (cast && !_necro_do_touch(GF_DARK, 6, 6, plev * 3 / 2)) return NULL;
+        if (info) return _necro_info_damage(6, 6, plev * 3 / 2 + p_ptr->to_d_spell);
+        if (cast && !_necro_do_touch(GF_DARK, 6, 6, plev * 3 / 2 + p_ptr->to_d_spell)) return NULL;
         break;
 
     /* Sepulchral Ways */
@@ -345,8 +345,8 @@ cptr do_necromancy_spell(int spell, int mode)
     case 13:
         if (name) return "Vampiric Touch";
         if (desc) return "Steal life from an adjacent foe.";
-        if (info) return _necro_info_damage(0, 0, plev * 4);
-        if (cast && !_necro_do_touch(GF_OLD_DRAIN, 0, 0, plev * 4)) return NULL;
+        if (info) return _necro_info_damage(0, 0, plev * 4 + p_ptr->to_d_spell);
+        if (cast && !_necro_do_touch(GF_OLD_DRAIN, 0, 0, plev * 4 + p_ptr->to_d_spell)) return NULL;
         break;
 
     case 14:
@@ -421,8 +421,8 @@ cptr do_necromancy_spell(int spell, int mode)
     case 24:
         if (name) return "Draining Touch";
         if (desc) return "Steal mana from an adjacent foe.";
-        if (info) return _necro_info_damage(5, 5, plev/2);
-        if (cast && !_necro_do_touch(GF_DRAINING_TOUCH, 5, 5, plev/2)) return NULL;
+        if (info) return _necro_info_damage(5, 5, plev/2 + p_ptr->to_d_spell);
+        if (cast && !_necro_do_touch(GF_DRAINING_TOUCH, 5, 5, plev/2 + p_ptr->to_d_spell)) return NULL;
         break;
 
     case 25:
@@ -449,8 +449,8 @@ cptr do_necromancy_spell(int spell, int mode)
     case 27:
         if (name) return "Rending Touch";
         if (desc) return "Damage an adjacent monster with a disintegrating touch.";
-        if (info) return _necro_info_damage(20, 20, p_ptr->lev);
-        if (cast && !_necro_do_touch(GF_DISINTEGRATE, 20, 20, p_ptr->lev)) return NULL;
+        if (info) return _necro_info_damage(20, 20, p_ptr->lev + p_ptr->to_d_spell);
+        if (cast && !_necro_do_touch(GF_DISINTEGRATE, 20, 20, p_ptr->lev + p_ptr->to_d_spell)) return NULL;
         break;
 
     case 28:

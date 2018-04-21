@@ -573,7 +573,26 @@
 [[[[r|  Duelist
 
   The duelist is the ultimate one-on-one fighter, but finds himself at a severe
-  disadvantage when facing numerous strong foes.
+  disadvantage when facing numerous strong foes. When facing an enemy, the
+  duelist first issues a challenge, marking that foe for a one on one duel. Of
+  course, this wakes the monster up (There is no honor in dueling a sleeping
+  enemy). And while the duelist will honor the fight as a one on one affair,
+  many monsters have no such scruples.
+   
+  Against a challenged foe, the duelist is very strong gaining a bonus to
+  saving throws, armor class, damage reduction and combat prowess. On the other
+  hand, due to the single-mindedness of their focus, the duelist is quite
+  vulnerable to unchallenged opponents. Most of the techniques of this class
+  aim at enforcing the sanctity of the duel.
+   
+  The duelist only ever gains a single attack in combat, but they make the most
+  of this blow by gaining enhanced effects as they gain experience. Able to
+  wound, stun, and even hamstring their foes, the prowess of the duelist in a
+  one on one encounter is legendary!
+   
+  Duelists favor light armors and cannot equip a shield. They gain no extra
+  bonus when wielding a weapon with both hands. For their techniques the
+  duelist relies on dexterity.
 
 
 ***** <Wild-Talent>
@@ -818,7 +837,7 @@
   Time-Lord      25+7   35+11  35+10     2    16     8  48+13  20+13
   Blood-Knight   25+12  18+7   32+10     2    16     6  70+23  20+15
   Warlock        20+8   24+10  34+11     1    16    20  34+10  20+8 
-  Archaeologist  45+15  50+12  36+10     4    50    32  48+13  35+11
+  Archaeologist  45+15  40+12  36+10     4    50    32  56+18  35+11
   Duelist        30+10  33+11  23+10     3    22    16  50+14   0+0 
   Wild-Talent    30+8   40+15  31+10     1    24    16  68+18  50+20
   Rune-Knight    30+7   35+10  36+10     2    18    16  50+15  25+11
@@ -836,4 +855,4 @@
 
 
 
-[[[[s|  Automatically generated for PosChengband 3.4.1.
+[[[[s|  Automatically generated for PosChengband 3.5.0.

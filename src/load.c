@@ -906,6 +906,11 @@ static void rd_extra(savefile_ptr file)
     for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
         p_ptr->demigod_power[i] = savefile_read_s16b(file);
 
+    if (savefile_is_older_than(file, 3, 5, 0, 0))
+        p_ptr->draconian_power = -1;
+    else
+        p_ptr->draconian_power = savefile_read_s16b(file);
+
     /* Virtues were removed in 1.0.17 and restored in 1.0.21 */
     if (!savefile_is_older_than(file, 1, 0, 17, 0) && savefile_is_older_than(file, 1, 0, 21, 0))
     {
@@ -1724,6 +1729,14 @@ static errr rd_savefile_new_aux(savefile_ptr file)
     if (!savefile_is_older_than(file, 3, 3, 4, 1))
     {
         spell_stats_on_load(file);
+    }
+    if (!savefile_is_older_than(file, 3, 5, 0, 1))
+    {
+        skills_on_load(file);
+    }
+    if (!savefile_is_older_than(file, 3, 5, 0, 2))
+    {
+        stats_on_load(file);
     }
 
     /* I'm not dead yet... */

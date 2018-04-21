@@ -134,20 +134,17 @@ static s32b _speed_p(int pval)
 {
     int result = 0;
 
-    switch (pval)
+    switch (abs(pval))
     {
-    case 1: result = 10000; break;
-    case 2: result = 20000; break;
-    case 3: result = 35000; break;
-    case 4: result = 60000; break;
-    case 5: result = 90000; break;
-    default:
-        if (pval < 0)
-            result = 10000 * pval; /* Otherwise, we destroy values for Chainsword */
-        else
-            result = 90000 + 40000*(pval - 5);
-        break;
+    case 1:  result = 10000; break;
+    case 2:  result = 20000; break;
+    case 3:  result = 35000; break;
+    case 4:  result = 60000; break;
+    case 5:  result = 90000; break;
+    default: result = 90000 + 40000*(pval - 5);
     }
+    if (pval < 0)
+        result *= -1;
     return result;
 }
 

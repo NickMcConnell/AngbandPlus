@@ -11,14 +11,14 @@ void acid_ball_spell(int cmd, variant *res)
         var_set_string(res, "Generate an Acid Ball on chosen target.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 35)));
+        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 35 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball(GF_ACID, dir, spell_power(3*p_ptr->lev/2 + 35), 2);
+        fire_ball(GF_ACID, dir, spell_power(3*p_ptr->lev/2 + 35 + p_ptr->to_d_spell), 2);
         var_set_bool(res, TRUE);
         break;
     }
@@ -42,14 +42,19 @@ void acid_bolt_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt or beam of acid.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), 0));
+        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt_or_beam(beam_chance(), GF_ACID, dir, spell_power(damroll(dd, ds)));
+        fire_bolt_or_beam(
+            beam_chance(),
+            GF_ACID,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -545,14 +550,19 @@ void brain_smash_spell(int cmd, variant *res)
         var_set_string(res, "Gaze intently at a single foe, causing damage, confusion and stunning");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(12, spell_power(12), 0));
+        var_set_string(res, info_damage(12, spell_power(12), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball_hide(GF_BRAIN_SMASH, dir, spell_power(damroll(12, 12)), 0);
+        fire_ball_hide(
+            GF_BRAIN_SMASH,
+            dir,
+            spell_power(damroll(12, 12) + p_ptr->to_d_spell),
+            0
+        );
         var_set_bool(res, TRUE);
         break;
     }

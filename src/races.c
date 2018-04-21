@@ -103,7 +103,7 @@ race_t *get_race_t_aux(int prace, int psubrace)
         result = dunadan_get_race_t();
         break;
     case RACE_DRACONIAN:
-        result = draconian_get_race_t();
+        result = draconian_get_race_t(psubrace);
         break;
     case RACE_DWARF:
         result = dwarf_get_race_t();

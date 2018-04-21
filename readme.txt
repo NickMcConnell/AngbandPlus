@@ -51,7 +51,72 @@
     Note, you need to remember to copy the executable up after every build (TODO: Fix Makefile to do this!)
     Also, I like to develop with the address sanitizer enabled at all times. This works best with clang as
     your compiler, rather than gcc. Of course, 3.5 should be replaced with latest version of clang.).
-  
+
+    ***Fonts on Linux: My experience with linux has been that the fonts are just plain awful. Here, I document
+    how I managed to install better fonts and use them in PosChengband. I spent nearly a day on this, so I'm
+    hoping this might prove useful to somebody else. But mostly, it is here to remind me how I did so I don't
+    stumble so much next time.
+
+    [1] Install some better fonts. For example
+    $ sudo apt-get install fonts-liberation
+
+    [2] See what fonts are on your system that PosChengband can use:
+    $ xlsfonts
+    Notice that the new fonts aren't there!
+
+    [3] Find where the new fonts were installed. For example
+    $ fc-list | grep liberation
+    /usr/share/fonts/truetype/liberation/LiberationSansNarrow-Italic.ttf: Liberation Sans Narrow:style=Italic
+    /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf: Liberation Sans:style=Regular
+    /usr/share/fonts/truetype/liberation/LiberationMono-BoldItalic.ttf: Liberation Mono:style=Bold Italic
+    /usr/share/fonts/truetype/liberation/LiberationSerif-Italic.ttf: Liberation Serif:style=Italic
+    /usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf: Liberation Mono:style=Bold
+    /usr/share/fonts/truetype/liberation/LiberationSansNarrow-Regular.ttf: Liberation Sans Narrow:style=Regular
+    /usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf: Liberation Serif:style=Bold
+    /usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf: Liberation Mono:style=Regular
+    /usr/share/fonts/truetype/liberation/LiberationSans-Italic.ttf: Liberation Sans:style=Italic
+    /usr/share/fonts/truetype/liberation/LiberationSerif-BoldItalic.ttf: Liberation Serif:style=Bold Italic
+    /usr/share/fonts/truetype/liberation/LiberationSansNarrow-BoldItalic.ttf: Liberation Sans Narrow:style=Bold Italic
+    /usr/share/fonts/truetype/liberation/LiberationMono-Italic.ttf: Liberation Mono:style=Italic
+    /usr/share/fonts/truetype/liberation/LiberationSans-BoldItalic.ttf: Liberation Sans:style=Bold Italic
+    /usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf: Liberation Serif:style=Regular
+    /usr/share/fonts/truetype/liberation/LiberationSansNarrow-Bold.ttf: Liberation Sans Narrow:style=Bold
+    /usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf: Liberation Sans:style=Bold
+
+    [4] Bang head on wall in frustration!!
+
+    [5] Tell X Server about the fonts:
+    $ cd /usr/share/fonts/truetype/liberation/
+    $ su
+    $ mkfontscale
+    $ mkfontdir
+    $ exit
+    $ cat fonts.dir
+    ...
+    LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-adobe-standard
+    LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-ascii-0
+    LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-ibm-cp437
+    ... [and many more]
+
+    $ xset +fp /usr/share/fonts/truetype/liberation
+    $ xset fp rehash
+    $ xlsfonts | grep liberation
+    ...
+    -misc-liberation sans-medium-i-normal--0-0-0-0-p-0-iso8859-1
+    -misc-liberation sans-medium-i-normal--0-0-0-0-p-0-iso8859-10
+    -misc-liberation sans-medium-i-normal--0-0-0-0-p-0-iso8859-13
+    -misc-liberation sans-medium-i-normal--0-0-0-0-p-0-iso8859-15
+    -misc-liberation sans-medium-i-normal--0-0-0-0-p-0-iso8859-16
+    ... [and many more]
+
+    [6] Now, try to find a font you like. For example:
+    $ cd [path to poschengband]
+    ~/Src/poschengband> ANGBAND_X11_FONT='-misc-liberation mono-medium-r-normal--20-0-0-0-m-0-iso8859-1' ./poschengband -mx11
+    You can play with the point size since these are vector fonts. I chose 20pt since my eyes suck!
+
+    [7] Smile. Grab beer to recover from step [4].
+
+
 --- Windows
 
   Download the binary archive for Windows.  Unzip it to any location that you 

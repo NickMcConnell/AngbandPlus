@@ -1330,7 +1330,7 @@ static object_type *choose_cursed_obj_name(u32b flag)
 
 static bool _fast_mana_regen(void)
 {
-    switch (possessor_class_idx())
+    switch (get_class_idx())
     {
     case CLASS_MAGE:
     case CLASS_BLOOD_MAGE:
@@ -1611,7 +1611,7 @@ static void process_world_aux_hp_and_sp(void)
         if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
             regen_amount += regen_amount*p_ptr->lev/50;
 
-        if (prace_is_(RACE_MON_TROLL))
+        if (p_ptr->super_regenerate)
             regen_amount += regen_amount + regen_amount*p_ptr->lev/10;
         else if (p_ptr->regenerate)
             regen_amount = regen_amount * 2;
@@ -3349,7 +3349,9 @@ static void process_world(void)
             int digestion = SPEED_TO_ENERGY(p_ptr->pspeed);
 
             /* Regeneration takes more food */
-            if (p_ptr->regenerate)
+            if (p_ptr->super_regenerate)
+                digestion += 30;
+            else if (p_ptr->regenerate)
                 digestion += 20;
             if (p_ptr->special_defense & (KAMAE_MASK | KATA_MASK))
                 digestion += 20;

@@ -1821,6 +1821,30 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_STEALTH);
     }
 
+    if (mut_present(MUT_DRACONIAN_SHIELD))
+    {
+        switch (p_ptr->psubrace)
+        {
+        case DRACONIAN_RED:
+            add_flag(flgs, TR_SH_FIRE);
+            break;
+        case DRACONIAN_WHITE:
+            add_flag(flgs, TR_SH_COLD);
+            break;
+        case DRACONIAN_BLUE:
+            add_flag(flgs, TR_SH_ELEC);
+            break;
+        case DRACONIAN_CRYSTAL:
+            add_flag(flgs, TR_SH_SHARDS);
+            break;
+        }
+    }
+
+    if (mut_present(MUT_DRACONIAN_REGEN))
+    {
+        add_flag(flgs, TR_REGEN);
+    }
+
     if (p_ptr->personality == PERS_SEXY)
         add_flag(flgs, TR_AGGRAVATE);
     if (p_ptr->personality == PERS_MUNCHKIN)
@@ -1836,6 +1860,10 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->personality == PERS_FEARLESS)
     {
         add_flag(flgs, TR_RES_FEAR);
+    }
+    if (p_ptr->personality == PERS_HASTY)
+    {
+        add_flag(flgs, TR_SPEED);
     }
     if (p_ptr->special_defense & KATA_FUUJIN)
         add_flag(flgs, TR_REFLECT);
@@ -2305,7 +2333,7 @@ static int _known_res_pct(int which)
 
     ct -= hidden;
 
-    return res_pct_aux(ct);
+    return res_pct_aux(which, ct);
 }
 
 /*
@@ -3061,6 +3089,8 @@ void display_player(int mode)
         }
         else if (p_ptr->prace == RACE_DEMIGOD)
             _print_field(5, 1, "Subrace    :", demigod_info[p_ptr->psubrace].name, TERM_L_BLUE, 0);
+        else if (p_ptr->prace == RACE_DRACONIAN)
+            _print_field(5, 1, "Subrace    :", race_ptr->subname, TERM_L_BLUE, 0);
         else
             _print_field(5, 1, "Subrace    :", "None", TERM_L_BLUE, 0);
 
@@ -3110,7 +3140,7 @@ void display_player(int mode)
         _print_field(16, 1, "Kills      :", format("%d", _kills()), TERM_L_GREEN, 21);
         _print_field(17, 1, "Uniques    :", format("%d", _uniques()), TERM_L_GREEN, 21);
         _print_field(18, 1, "Artifacts  :", 
-                                no_artifacts ? "N/A" : format("%d" , _artifacts()), 
+                                no_artifacts ? "N/A" : format("%d+%d" , _artifacts(), stats_rand_art_counts.found),
                                 TERM_L_GREEN, 21);
 
         {
@@ -3745,9 +3775,139 @@ static void dump_aux_ego_counts_imp(FILE *fff, int idx, cptr text)
     }
 }
 
-static void dump_aux_object_counts(FILE *fff)
+typedef bool (*_mon_p)(int r_idx);
+static bool _mon_drops_good(int r_idx)
+{
+    if (r_info[r_idx].flags1 & RF1_DROP_GOOD)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_drops_great(int r_idx)
+{
+    if (r_info[r_idx].flags1 & RF1_DROP_GREAT)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_animal(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_ANIMAL)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_breeder(int r_idx)
+{
+    if (r_info[r_idx].flags2 & RF2_MULTIPLY)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_demon(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_DEMON)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_dragon(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_DRAGON)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_evil(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_EVIL)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_giant(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_GIANT)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_good(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_GOOD)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_hound(int r_idx)
+{
+    if (r_info[r_idx].d_char == 'Z')
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_human(int r_idx)
+{
+    if (r_info[r_idx].flags2 & RF2_HUMAN)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_neutral(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_GOOD)
+        return FALSE;
+    if (r_info[r_idx].flags3 & RF3_EVIL)
+        return FALSE;
+    return TRUE;
+}
+static bool _mon_is_orc(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_ORC)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_troll(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_TROLL)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_undead(int r_idx)
+{
+    if (r_info[r_idx].flags3 & RF3_UNDEAD)
+        return TRUE;
+    return FALSE;
+}
+static bool _mon_is_unique(int r_idx)
+{
+    if (r_info[r_idx].flags1 & RF1_UNIQUE)
+        return TRUE;
+    return FALSE;
+}
+static void dump_aux_kill_counts_imp(FILE *fff, _mon_p p, cptr text, int total)
 {
     int i;
+    int kills = 0;
+    for (i = 0; i < max_r_idx; i++)
+    {
+        if (p(i))
+        {
+            if (_mon_is_unique(i))
+            {
+                if (r_info[i].max_num == 0)
+                    kills++;   /* Perhaps The Cloning Pits is messing up r_akills? */
+            }
+            else
+                kills += r_info[i].r_akills;
+        }
+    }
+
+    if (kills)
+    {
+        fprintf(
+            fff,
+            "  %-20.20s %5d %3d.%1d%%\n",
+            text,
+            kills,
+            kills*100/total,
+            (kills*1000/total)%10
+        );
+    }
+}
+
+static void dump_aux_object_counts(FILE *fff)
+{
+    int i, total_kills = _kills();
     counts_t totals = {0};
 
     fprintf(fff, "\n================================== Statistics =================================\n\n");
@@ -3783,6 +3943,7 @@ static void dump_aux_object_counts(FILE *fff)
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_INC_CON);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_INC_CHR);
     dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_NEW_LIFE);
+    dump_aux_object_counts_imp(fff, TV_POTION, SV_POTION_EXPERIENCE);
     dump_aux_group_counts_imp(fff, _kind_is_potion, "Totals");
 
     fprintf(fff, "\n  Scrolls              Found Bought  Used  Dest\n");
@@ -3840,6 +4001,7 @@ static void dump_aux_object_counts(FILE *fff)
     dump_aux_object_counts_imp(fff, TV_ROD, SV_ROD_HEALING);
     dump_aux_object_counts_imp(fff, TV_ROD, SV_ROD_RESTORATION);
     dump_aux_object_counts_imp(fff, TV_ROD, SV_ROD_SPEED);
+    dump_aux_object_counts_imp(fff, TV_ROD, SV_ROD_MANA_BALL);
     dump_aux_group_counts_imp(fff, _kind_is_rod, "Totals");
 
     fprintf(fff, "\n  Spellbooks           Found Bought  Used  Dest\n");
@@ -3865,9 +4027,34 @@ static void dump_aux_object_counts(FILE *fff)
     fprintf(fff, "\n  Egos                 Found Bought  Dest\n");
     fprintf(fff,   "  ---------------------------------------\n");
     dump_aux_ego_counts_imp(fff, EGO_RING_SPEED, "Ring of Speed");
+    dump_aux_ego_counts_imp(fff, EGO_RING_DEFENDER, "Ring (Defender)");
+    dump_aux_ego_counts_imp(fff, EGO_AMULET_DEFENDER, "Amulet (Defender)");
     dump_aux_ego_counts_imp(fff, EGO_BOOTS_ELVENKIND, "Boots of Elvenkind");
     dump_aux_ego_counts_imp(fff, EGO_BOOTS_SPEED, "Boots of Speed");
     dump_aux_ego_counts_imp(fff, EGO_BOOTS_FEANOR, "Boots of Feanor");
+
+    /* Monsters */
+    fprintf(fff, "\n  Monsters             Kills   Pct\n");
+    fprintf(fff,   "  --------------------------------\n");
+    dump_aux_kill_counts_imp(fff, _mon_is_animal, "Animals", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_breeder, "Breeders", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_demon, "Demons", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_dragon, "Dragons", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_giant, "Giants", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_hound, "Hounds", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_human, "Humans", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_orc, "Orcs", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_troll, "Trolls", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_undead, "Undead", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_unique, "Uniques", total_kills);
+    fprintf(fff, "\n");
+    dump_aux_kill_counts_imp(fff, _mon_is_evil, "Evil Monsters", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_good, "Good Monsters", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_is_neutral, "Neutral Monsters", total_kills);
+    fprintf(fff, "\n");
+    dump_aux_kill_counts_imp(fff, _mon_drops_good, "Good Droppers", total_kills);
+    dump_aux_kill_counts_imp(fff, _mon_drops_great, "Great Droppers", total_kills);
+    fprintf(fff, "  %-20.20s %5d\n", "Totals", total_kills);
 
     fprintf(fff, "\n");
 }

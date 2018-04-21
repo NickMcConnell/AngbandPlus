@@ -34,7 +34,7 @@ extern bool res_can_ignore(int which);
 extern void res_clear(void);
 extern cptr res_name(int which);
 extern int  res_pct(int which);
-extern int  res_pct_aux(int count);
+extern int  res_pct_aux(int which, int count);
 extern bool res_save(int which, int power);
 extern bool res_save_default(int which);
 extern bool res_save_inventory(int which);

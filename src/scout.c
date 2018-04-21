@@ -74,7 +74,7 @@ static void _greater_whirlwind_attack_spell(int cmd, variant *res)
         cave_type       *c_ptr;
         monster_type    *m_ptr;
 
-/*         cba
+/*       cba
         d218l
         e3@7k
         f456j

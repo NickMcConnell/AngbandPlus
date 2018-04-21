@@ -97,15 +97,6 @@
 /*#endif*/
 
 /*
- * OPTION: Use the "curs_set()" call in "main-gcu.c".
- * Hack -- This option will not work on most BSD machines
- */
-#ifdef SYS_V
-# define USE_CURS_SET
-#endif
-
-
-/*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
 /* #define USE_NCURSES */
@@ -193,13 +184,8 @@
  */
 /*#define ALLOW_BORG*/
 
-/* Debug options: To enable wizard commands in a custom build,
-   simply remove the following #ifdef _DEBUG and #endif guards. */
 #define ALLOW_WIZARD
-
-#ifdef _DEBUG
 #define ALLOW_SPOILERS
-#endif
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time

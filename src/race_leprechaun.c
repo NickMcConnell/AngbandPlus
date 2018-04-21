@@ -30,6 +30,7 @@ static cptr _desc =
 static void _birth(void) 
 { 
     p_ptr->current_r_idx = MON_CHEERFUL_LEPRECHAUN;
+    skills_innate_init("Greedy Hands", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
     msg_print("You feel the luck of the Irish!");
     mut_gain(MUT_GOOD_LUCK);
@@ -69,7 +70,7 @@ static void _calc_innate_attacks(void)
         a.dd = 1;
         a.ds = 3 + l / 15;
         a.weight = 2;
-        a.to_h = p_ptr->lev;
+        a.to_h = p_ptr->lev/5;
 
         a.effect[1] = GF_STEAL;
         
@@ -201,10 +202,15 @@ static void _calc_bonuses(void)
     p_ptr->to_a += ac;
     p_ptr->dis_to_a += ac;
 
+    if (p_ptr->au >= 10 * 1000 * 1000)
+    {
+        p_ptr->device_power++;
+    }
     if (p_ptr->au >= 5 * 1000 * 1000)
     {
         p_ptr->spell_power++;
         p_ptr->spell_cap++;
+        p_ptr->device_power++;
     }
     if (p_ptr->au >= 1000 * 1000)
     {
@@ -272,6 +278,21 @@ static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_RES_LITE);
         break;
     }
+}
+
+static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+{
+    if ( !p_ptr->shooter_info.heavy_shoot
+      && info_ptr->tval_ammo <= TV_BOLT
+      && info_ptr->tval_ammo >= TV_SHOT )
+    {
+        p_ptr->shooter_info.num_fire += MIN(p_ptr->au / 200000, 75);
+    }
+}
+
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+    info_ptr->xtra_blow += MIN(p_ptr->au / 200000, 100);
 }
 
 static void _player_action(int energy_use)
@@ -408,6 +429,8 @@ race_t *mon_leprechaun_get_race_t(void)
         me.caster_info = _caster_info;
         me.calc_innate_attacks = _calc_innate_attacks;
         me.calc_bonuses = _calc_bonuses;
+        me.calc_weapon_bonuses = _calc_weapon_bonuses;
+        me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_flags = _get_flags;
         me.get_vulnerabilities = _get_vulnerabilities;
         me.gain_level = _gain_level;

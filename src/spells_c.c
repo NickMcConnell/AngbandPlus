@@ -11,14 +11,14 @@ void cause_wounds_I_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to damage a single foe.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(3, spell_power(8), 0));
+        var_set_string(res, info_damage(3, spell_power(8), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_1, dir, spell_power(damroll(3, 8)), 0);
+        fire_ball_hide(GF_CAUSE_1, dir, spell_power(damroll(3, 8) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
     }
@@ -39,14 +39,14 @@ void cause_wounds_II_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to damage a single foe.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(8, spell_power(8), 0));
+        var_set_string(res, info_damage(8, spell_power(8), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_2, dir, spell_power(damroll(8, 8)), 0);
+        fire_ball_hide(GF_CAUSE_2, dir, spell_power(damroll(8, 8) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
     }
@@ -67,14 +67,14 @@ void cause_wounds_III_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to damage a single foe.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(15), 0));
+        var_set_string(res, info_damage(10, spell_power(15), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_3, dir, spell_power(damroll(10, 15)), 0);
+        fire_ball_hide(GF_CAUSE_3, dir, spell_power(damroll(10, 15) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
     }
@@ -95,14 +95,14 @@ void cause_wounds_IV_spell(int cmd, variant *res)
         var_set_string(res, "Attempts to damage a single foe.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(15, spell_power(15), 0));
+        var_set_string(res, info_damage(15, spell_power(15), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball_hide(GF_CAUSE_4, dir, spell_power(damroll(15, 15)), 0);
+        fire_ball_hide(GF_CAUSE_4, dir, spell_power(damroll(15, 15) + p_ptr->to_d_spell), 0);
         var_set_bool(res, TRUE);
         break;
     }
@@ -291,6 +291,81 @@ void confusing_lights_spell(int cmd, variant *res)
         break;
     }
 }
+
+void crafting_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Crafting");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Makes chosen weapon, armor or ammo an ego item.");
+        break;
+    case SPELL_CAST:
+    {
+        int          item;
+        bool         okay = FALSE;
+        object_type *o_ptr;
+        char         o_name[MAX_NLEN];
+
+        var_set_bool(res, FALSE);
+
+        item_tester_hook = object_is_weapon_armour_ammo;
+        item_tester_no_ryoute = TRUE;
+
+        if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", (USE_EQUIP | USE_INVEN)))
+            return;
+
+        o_ptr = &inventory[item];
+        object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+        if (object_is_nameless(o_ptr))
+        {
+            if (object_is_ammo(o_ptr) && randint1(30) > (o_ptr->number - 30))
+            {
+                brand_weapon_aux(item);
+                o_ptr->discount = 99;
+                okay = TRUE;
+            }
+            else if (object_is_weapon(o_ptr) && o_ptr->number == 1)
+            {
+                brand_weapon_aux(item);
+                o_ptr->discount = 99;
+                okay = TRUE;
+            }
+            else if (object_is_armour(o_ptr) && o_ptr->number == 1)
+            {
+                brand_armour_aux(item);
+                o_ptr->discount = 99;
+                okay = TRUE;
+            }
+        }
+
+        msg_format("%s %s glow%s brightly!",
+                ((item >= 0) ? "Your" : "The"), o_name,
+                ((o_ptr->number > 1) ? "" : "s"));
+
+        if (!okay)
+        {
+            if (flush_failure) flush();
+            msg_print("The enchantment failed.");
+            if (one_in_(3)) virtue_add(VIRTUE_ENCHANTMENT, -1);
+        }
+        else
+        {
+            virtue_add(VIRTUE_ENCHANTMENT, 1);
+            calc_android_exp();
+        }
+        var_set_bool(res, TRUE);
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+bool cast_crafting(void) { return cast_spell(crafting_spell); }
 
 void create_darkness_spell(int cmd, variant *res)
 {
@@ -536,7 +611,7 @@ void darkness_storm_I_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of darkness.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2)));
+        var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -544,7 +619,12 @@ void darkness_storm_I_spell(int cmd, variant *res)
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a darkness storm.");
-        fire_ball(GF_DARK, dir, spell_power(100 + p_ptr->lev * 2), spell_power(4));
+        fire_ball(
+            GF_DARK,
+            dir,
+            spell_power(100 + p_ptr->lev * 2 + p_ptr->to_d_spell),
+            spell_power(4)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -565,7 +645,7 @@ void darkness_storm_II_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of darkness of unmatched power");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 6)));
+        var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 6 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
@@ -574,7 +654,7 @@ void darkness_storm_II_spell(int cmd, variant *res)
         if (!get_aim_dir(&dir)) return;
         msg_print("You invoke a darkness storm.");
         fire_ball(GF_DARK, dir, 
-            spell_power(50 + p_ptr->lev * 6 + damroll(10, 10)), 
+            spell_power(50 + p_ptr->lev * 6 + damroll(10, 10) + p_ptr->to_d_spell),
             spell_power(4));
         var_set_bool(res, TRUE);
         break;
@@ -995,11 +1075,11 @@ void disintegrate_spell(int cmd, variant *res)
         var_set_string(res, "Fires a huge ball of disintegration.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev + 70)));
+        var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev + 70 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
-        int dam = spell_power(p_ptr->lev + 70);
+        int dam = spell_power(p_ptr->lev + 70 + p_ptr->to_d_spell);
         int rad = 3 + p_ptr->lev / 40;
         int dir;
             
@@ -1029,10 +1109,10 @@ void dispel_evil_spell(int cmd, variant *res)
         var_set_string(res, "Damages all evil monsters in sight.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, sides, 0));
+        var_set_string(res, info_damage(1, sides, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
-        dispel_evil(randint1(sides));
+        dispel_evil(randint1(sides) + spell_power(p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1053,10 +1133,10 @@ void dispel_life_spell(int cmd, variant *res)
         var_set_string(res, "Damages all living monsters in sight.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(1, ds, 0));
+        var_set_string(res, info_damage(1, ds, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
-        dispel_living(randint1(ds));
+        dispel_living(randint1(ds) + spell_power(p_ptr->to_d_spell));
         var_set_bool(res, TRUE);
         break;
     default:
@@ -1109,10 +1189,10 @@ void dispel_undead_spell(int cmd, variant *res)
         var_set_string(res, "Damages all undead monsters in sight.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dice, sides, 0));
+        var_set_string(res, info_damage(dice, sides, spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
-        if(project_hack(GF_DISP_UNDEAD, damroll(dice, sides)))
+        if(project_hack(GF_DISP_UNDEAD, damroll(dice, sides) + spell_power(p_ptr->to_d_spell)))
             virtue_add(VIRTUE_UNLIFE, -2);
         var_set_bool(res, TRUE);
         break;
@@ -1545,6 +1625,7 @@ void evil_bless_spell(int cmd, variant *res)
 
 void evocation_spell(int cmd, variant *res)
 {
+    int dam = spell_power(p_ptr->lev * 4 + p_ptr->to_d_spell);
     int power = spell_power(p_ptr->lev * 4);
     switch (cmd)
     {
@@ -1555,10 +1636,10 @@ void evocation_spell(int cmd, variant *res)
         var_set_string(res, "Dispels, scares and banishes all monsters in view.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, power));
+        var_set_string(res, info_damage(0, 0, dam));
         break;
     case SPELL_CAST:
-        dispel_monsters(power);
+        dispel_monsters(dam);
         turn_monsters(power);
         banish_monsters(power);
         var_set_bool(res, TRUE);
@@ -1681,7 +1762,7 @@ void enchantment_spell(int cmd, variant *res)
         }
         else
         {
-            if (enchant(o_ptr, randint0(3) + 2, ENCH_TOAC)) okay = TRUE;            
+            if (enchant(o_ptr, randint0(3) + 2, ENCH_TOAC)) okay = TRUE;
         }
             
 
@@ -1792,14 +1873,19 @@ void fire_ball_spell(int cmd, variant *res)
         var_set_string(res, "Generate a Fire Ball on chosen target.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 30)));
+        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 30 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball(GF_FIRE, dir, spell_power(3*p_ptr->lev/2 + 30), 2);
+        fire_ball(
+            GF_FIRE,
+            dir,
+            spell_power(3*p_ptr->lev/2 + 30 + p_ptr->to_d_spell),
+            2
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -1823,14 +1909,19 @@ void fire_bolt_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt or beam of fire.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), 0));
+        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt_or_beam(beam_chance(), GF_FIRE, dir, spell_power(damroll(dd, ds)));
+        fire_bolt_or_beam(
+            beam_chance(),
+            GF_FIRE,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }
@@ -1851,10 +1942,10 @@ void flow_of_lava_spell(int cmd, variant *res)
         var_set_string(res, "Generates a ball of fire centered on you which transforms floors to magma.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(55 + p_ptr->lev)));
+        var_set_string(res, info_damage(0, 0, spell_power(55 + p_ptr->lev + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
-        fire_ball(GF_FIRE, 0, spell_power(55 + p_ptr->lev), 3);
+        fire_ball(GF_FIRE, 0, spell_power(55 + p_ptr->lev + p_ptr->to_d_spell), 3);
         fire_ball_hide(GF_LAVA_FLOW, 0, 2 + randint1(2), 3);
         var_set_bool(res, TRUE);
         break;
@@ -1898,14 +1989,14 @@ void frost_ball_spell(int cmd, variant *res)
         var_set_string(res, "Generate a Frost Ball on chosen target.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 25)));
+        var_set_string(res, info_damage(0, 0, spell_power(3*p_ptr->lev/2 + 25 + p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_ball(GF_COLD, dir, spell_power(3*p_ptr->lev/2 + 25), 2);
+        fire_ball(GF_COLD, dir, spell_power(3*p_ptr->lev/2 + 25 + p_ptr->to_d_spell), 2);
         var_set_bool(res, TRUE);
         break;
     }
@@ -1929,14 +2020,19 @@ void frost_bolt_spell(int cmd, variant *res)
         var_set_string(res, "Fires a bolt or beam of frost.");
         break;
     case SPELL_INFO:
-        var_set_string(res, info_damage(dd, spell_power(ds), 0));
+        var_set_string(res, info_damage(dd, spell_power(ds), spell_power(p_ptr->to_d_spell)));
         break;
     case SPELL_CAST:
     {
         int dir = 0;
         var_set_bool(res, FALSE);
         if (!get_aim_dir(&dir)) return;
-        fire_bolt_or_beam(beam_chance(), GF_COLD, dir, spell_power(damroll(dd, ds)));
+        fire_bolt_or_beam(
+            beam_chance(),
+            GF_COLD,
+            dir,
+            spell_power(damroll(dd, ds) + p_ptr->to_d_spell)
+        );
         var_set_bool(res, TRUE);
         break;
     }

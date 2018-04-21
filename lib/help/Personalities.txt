@@ -100,6 +100,14 @@
   impressive. But their stats and other skills are somewhat wanting.
 
 
+***** <Hasty>
+[[[[r|  Hasty
+
+  A "Hasty" person edeavors to do all things quickly. Speed, rather than skill
+  and patience, are paramount, and the Hasty adventure moves quickly through
+  the dungeon, bungling much.
+
+
 ***** <Tables>
 [[[[y|  Table 1 - Personality Statistic Bonus Table ---
 
@@ -117,6 +125,7 @@
   Patient         -1   -1   +1   -2   +2   +0  102%  100%
   Munchkin        +3   +3   +3   +3   +3   +3  150%   50%
   Craven          -1   +1   +1   -1   -1   -3   99%  100%
+  Hasty           +0   -1   -2   +2   -1   +0  100%  100%
 
 
 [[[[y|  Table 2 - Personality Skill Bonus Table ---
@@ -126,17 +135,18 @@
   Mighty           -5    -5    -3    -1    -2    -2    +10    +0
   Shrewd           +3    +8    +2    +0    -2    +5     -8    -5
   Pious            -5    +2    +4    -1    +3    -2     -3    -6
-  Nimble           +7    +2    -1    +1    +5    +5     +0   +10
-  Fearless         -5    +0    -2    +0    +2    -2     +5    +0
+  Nimble           +7    +3    -1    +1    +5    +5     +0   +10
+  Fearless         -5    +2    -2    +0    +2    -2     +5    +0
   Combat           -2    -3    -3    +0    -1    +2     +5    +5
   Lazy             -5    -5    -3    -1    -4    -2     -8    -8
   Sexy            +10    +5    +3    +0    +4    +2    +10   +10
   Lucky           +10    +7    +3    +2   +10    +8    +15   +15
   Patient          -5    -3    +3    +1    +0    -3     -6    -6
   Munchkin        +10   +20   +15    +5   +20   +20    +40   +40
-  Craven           +0    +5    -1    +3    +0    +0    -10   +10
+  Craven           +5    +6    -1    +3    +0    +0    -10   +10
+  Hasty            -5    -5    -3    -1    -4    -2     -5    -5
 
 
 
 
-[[[[s|  Automatically generated for PosChengband 3.4.1.
+[[[[s|  Automatically generated for PosChengband 3.5.0.
