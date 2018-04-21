@@ -93,6 +93,13 @@ cptr info_range(int range)
  */
 cptr info_heal(int dice, int sides, int base)
 {
+    if ( p_ptr->pclass == CLASS_BLOOD_MAGE
+      || p_ptr->pclass == CLASS_BLOOD_KNIGHT )
+    {
+        sides /= 2;
+        base /= 2;
+    }
+
     return info_string_dice("heal ", dice, sides, base);
 }
 
@@ -2231,7 +2238,8 @@ static cptr do_nature_spell(int spell, int mode)
 
             if (cast)
             {
-                hp_player(damroll(dice, sides));
+                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
+                    hp_player(damroll(dice, sides));
                 set_cut(0, TRUE);
                 set_poisoned(0, TRUE);
             }
@@ -3615,6 +3623,12 @@ static cptr do_death_spell(int spell, int mode)
 
                 if (drain_life(dir, dam))
                 {
+                    if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+                    {
+                        msg_print("You are unaffected.");
+                        break;
+                    }
+
                     virtue_add(VIRTUE_SACRIFICE, -1);
                     virtue_add(VIRTUE_VITALITY, -1);
 
@@ -3773,7 +3787,7 @@ static cptr do_death_spell(int spell, int mode)
 
                 for (i = 0; i < 3; i++)
                 {
-                    if (drain_life(dir, dam))
+                    if (drain_life(dir, dam) && p_ptr->pclass != CLASS_BLOOD_MAGE)
                         hp_player(dam);
                 }
             }
@@ -6621,7 +6635,8 @@ static cptr do_crusade_spell(int spell, int mode)
             if (cast)
             {
                 dispel_evil(randint1(dam_sides));
-                hp_player(heal);
+                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
+                    hp_player(heal);
                 set_poisoned(0, TRUE);
                 set_stun(0, TRUE);
                 set_cut(0, TRUE);
@@ -6896,7 +6911,8 @@ static cptr do_crusade_spell(int spell, int mode)
                 confuse_monsters(power);
                 turn_monsters(power);
                 stasis_monsters(power/3);
-                hp_player(heal);
+                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
+                    hp_player(heal);
             }
         }
         break;

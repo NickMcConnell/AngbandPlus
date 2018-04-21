@@ -834,6 +834,7 @@ int display_innate_attack_info(int which, int row, int col)
             c_put_str(TERM_L_BLUE, format("Sleeps%s", xtra), r++, c+10);
             break;
         case GF_STASIS:
+        case GF_PARALYSIS:
             c_put_str(TERM_L_BLUE, format("Paralyzes%s", xtra), r++, c+10);
             break;
         case GF_DRAIN_MANA:

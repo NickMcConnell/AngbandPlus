@@ -172,14 +172,16 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 ?:[EQU $QUEST14 3]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:302
-# Old:
-# Quest 14 rewarding, reward is a Small Metal Shield,
-#F:!:FLOOR:3:0:130
 
 # Another Long Sword
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Death-Sword] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:42
+
+# Ring of Wizardry
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Mage High-Mage Blue-Mage Sorcerer Mirror-Master Blood-Mage] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:132:305
 
 # Ring of Combat
 ?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Possessor Spider] ]

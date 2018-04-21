@@ -631,7 +631,7 @@ static cptr _do_potion(int sval, int mode)
         break;
     case SV_POTION_BLOOD:
         if (desc) return "A much needed infusion! It heals you a bit and cures blindness, confusion, poison, and stunned when you quaff it.";
-        if (info) return info_heal(0, 0, _potion_power(100)); /* Bloodknights heal 50% ... */
+        if (info) return info_heal(0, 0, _potion_power(200));
         if (cast)
         {
             if (hp_player(_potion_power(200))) device_noticed = TRUE;
@@ -657,10 +657,10 @@ static cptr _do_potion(int sval, int mode)
         break;
     case SV_POTION_STAR_HEALING:
         if (desc) return "It heals you and cures blindness, confusion, poison, stunned, cuts and berserk when you quaff it.";
-        if (info) return info_heal(0, 0, _potion_power(1200)); 
+        if (info) return info_heal(0, 0, _potion_power(1000)); 
         if (cast)
         {
-            if (hp_player(_potion_power(1200))) device_noticed = TRUE;
+            if (hp_player(_potion_power(1000))) device_noticed = TRUE;
             if (set_blind(0, TRUE)) device_noticed = TRUE;
             if (set_confused(0, TRUE)) device_noticed = TRUE;
             if (set_poisoned(0, TRUE)) device_noticed = TRUE;
@@ -2162,7 +2162,8 @@ static cptr _do_wand(int sval, int mode)
             int dam = _wand_power(50 + p_ptr->lev/2);
             if (drain_life(dir, dam)) 
             {
-                hp_player(dam);
+                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
+                    hp_player(dam);
                 device_noticed = TRUE;
             }
         }
@@ -2541,7 +2542,8 @@ static cptr _do_rod(int sval, int mode)
             if (device_known && !get_aim_dir(&dir)) return NULL;
             if (drain_life(dir, dam)) 
             {
-                hp_player(dam);
+                if (p_ptr->pclass != CLASS_BLOOD_MAGE)
+                    hp_player(dam);
                 device_noticed = TRUE;
             }
         }

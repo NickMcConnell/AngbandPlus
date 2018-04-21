@@ -3926,7 +3926,6 @@ static void bldg_process_command(building_type *bldg, int i)
         if (do_res_stat(A_DEX)) paid = TRUE;
         if (do_res_stat(A_CON)) paid = TRUE;
         if (do_res_stat(A_CHR)) paid = TRUE;
-        if (restore_level()) paid = TRUE;
         break;
     case BACT_ENCHANT_ARROWS:
         item_tester_hook = item_tester_hook_ammo;

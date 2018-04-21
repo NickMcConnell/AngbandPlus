@@ -290,6 +290,32 @@ static bool alloc_stairs(int feat, int num, int walls)
     return TRUE;
 }
 
+static bool _get_loc(int set, int* x, int *y)
+{
+    int dummy = 0;
+    while (dummy < SAFE_MAX_ATTEMPTS)
+    {
+        bool       room;
+        cave_type *c_ptr;
+
+        dummy++;
+
+        *x = randint0(cur_wid);
+        *y = randint0(cur_hgt);
+
+        c_ptr = &cave[*y][*x];
+
+        if (!is_floor_grid(c_ptr) || c_ptr->o_idx || c_ptr->m_idx) continue;
+        if (player_bold(*y, *x)) continue;
+
+        room = (cave[*y][*x].info & CAVE_ROOM) ? TRUE : FALSE;
+        if (set == ALLOC_SET_CORR && room) continue;
+        if (set == ALLOC_SET_ROOM && !room) continue;
+
+        return TRUE;
+    }
+    return FALSE;
+}
 
 /*
  * Allocates some objects (using "place" and "type")
@@ -297,94 +323,123 @@ static bool alloc_stairs(int feat, int num, int walls)
 static void alloc_object(int set, int typ, int num)
 {
     int y = 0, x = 0, k;
-    int dummy = 0;
-    cave_type *c_ptr;
 
     /* A small level has few objects. */
-    num = num * cur_hgt * cur_wid / (MAX_HGT*MAX_WID) +1;
+    num = MAX(1, num * cur_hgt * cur_wid / (MAX_HGT*MAX_WID));
 
     /* Diligent players should be encouraged to explore more! */
     if (typ == ALLOC_TYP_OBJECT || typ == ALLOC_TYP_GOLD)
         num = num * (625 + virtue_current(VIRTUE_DILIGENCE)) / 625;
 
-    /* Place some objects */
     for (k = 0; k < num; k++)
     {
-        /* Pick a "legal" spot */
-        while (dummy < SAFE_MAX_ATTEMPTS)
-        {
-            bool room;
+        object_type forge;
+        int         k_idx;
 
-            dummy++;
-
-            /* Location */
-            y = randint0(cur_hgt);
-            x = randint0(cur_wid);
-
-            c_ptr = &cave[y][x];
-
-            /* Require "naked" floor grid */
-            if (!is_floor_grid(c_ptr) || c_ptr->o_idx || c_ptr->m_idx) continue;
-
-            /* Avoid player location */
-            if (player_bold(y, x)) continue;
-
-            /* Check for "room" */
-            room = (cave[y][x].info & CAVE_ROOM) ? TRUE : FALSE;
-
-            /* Require corridor? */
-            if ((set == ALLOC_SET_CORR) && room) continue;
-
-            /* Require room? */
-            if ((set == ALLOC_SET_ROOM) && !room) continue;
-
-            /* Accept it */
-            break;
-        }
-
-        if (dummy >= SAFE_MAX_ATTEMPTS)
+        if (!_get_loc(set, &x, &y))
         {
             if (cheat_room)
-            {
                 msg_print("Warning! Could not place object!");
 
-            }
             return;
         }
 
-
-        /* Place something */
         switch (typ)
         {
-            case ALLOC_TYP_RUBBLE:
-            {
-                place_rubble(y, x);
-                cave[y][x].info &= ~(CAVE_FLOOR);
-                break;
-            }
+        case ALLOC_TYP_RUBBLE:
+            place_rubble(y, x);
+            cave[y][x].info &= ~(CAVE_FLOOR);
+            break;
 
-            case ALLOC_TYP_TRAP:
-            {
-                place_trap(y, x);
-                cave[y][x].info &= ~(CAVE_FLOOR);
-                break;
-            }
+        case ALLOC_TYP_TRAP:
+            place_trap(y, x);
+            cave[y][x].info &= ~(CAVE_FLOOR);
+            break;
 
-            case ALLOC_TYP_GOLD:
-            {
-                place_gold(y, x);
-                break;
-            }
+        case ALLOC_TYP_GOLD:
+            place_gold(y, x);
+            break;
 
-            case ALLOC_TYP_OBJECT:
+        case ALLOC_TYP_OBJECT:
+            place_object(y, x, 0L);
+            break;
+
+        case ALLOC_TYP_FOOD:
+            if (prace_is_(RACE_ENT))
+                k_idx = lookup_kind(TV_POTION, SV_POTION_WATER);
+            else
+                k_idx = lookup_kind(TV_FOOD, SV_FOOD_RATION);
+            object_prep(&forge, k_idx);
+            mass_produce(&forge);
+            drop_near(&forge, -1, y, x);
+            break;
+
+        case ALLOC_TYP_LIGHT:
+            if (one_in_(3))
+                k_idx = lookup_kind(TV_FLASK, SV_FLASK_OIL);
+            else
+                k_idx = lookup_kind(TV_LITE, SV_LITE_LANTERN);
+            object_prep(&forge, k_idx);
+            apply_magic(&forge, dun_level, 0);
+            mass_produce(&forge);
+            drop_near(&forge, -1, y, x);
+            break;
+
+        case ALLOC_TYP_RECALL:
+            k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
+            object_prep(&forge, k_idx);
+            /*mass_produce(&forge);*/
+            drop_near(&forge, -1, y, x);
+            break;
+
+        case ALLOC_TYP_SKELETON:
+            k_idx = lookup_kind(TV_CORPSE, SV_SKELETON);
+            object_prep(&forge, k_idx);
+            apply_magic(&forge, dun_level, 0);
+            drop_near(&forge, -1, y, x);
+            break;
+        }
+    }
+}
+
+static void _mon_give_extra_drop(u32b flag, int ct)
+{
+    int tot = 0;
+    int i;
+
+    for (i = 0; i < max_m_idx; i++)
+    {
+        monster_type *m_ptr = &m_list[i];
+        
+        if (!m_ptr->r_idx) continue;
+        if (!m_ptr->drop_ct) continue;
+        if (r_info[m_ptr->r_idx].flags1 & RF1_ONLY_GOLD) continue;
+        
+        tot++;
+    }
+
+    ct = MIN(ct, tot);
+
+    for (i = 0; i < ct; i++)
+    {
+        int j = randint1(tot);
+        int k;
+        for (k = 0; k < max_m_idx; k++)
+        {
+            monster_type *m_ptr = &m_list[k];
+            if (!m_ptr->r_idx) continue;
+            if (!m_ptr->drop_ct) continue;
+            if (r_info[m_ptr->r_idx].flags1 & RF1_ONLY_GOLD) continue;
+
+            --j;
+            if (j <= 0)
             {
-                place_object(y, x, 0L);
+                m_ptr->mflag2 |= flag;
                 break;
             }
         }
     }
 }
-
 
 /*
  * Count the number of "corridor" grids adjacent to the given grid.
@@ -1068,6 +1123,22 @@ static bool cave_gen(void)
         /* Put some objects/gold in the dungeon */
         alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ITEM, 3));
         alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
+
+        /* Experimental: Guarantee certain objects. Give surprise goodies. */
+        if (one_in_(2))
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_FOOD, 1);
+        if (dun_level <= 15)
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_LIGHT, 1);
+        if (dun_level >= 10 && one_in_(2))
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_RECALL, 1);
+        if (dun_level >= 10 && one_in_(20))
+            alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_SKELETON, damroll(3, 5));
+
+        _mon_give_extra_drop(MFLAG2_DROP_BASIC, 1);
+        _mon_give_extra_drop(MFLAG2_DROP_UTILITY, randint0(4));
+        if (dun_level > max_dlv[dungeon_type])
+            _mon_give_extra_drop(MFLAG2_DROP_PRIZE, 1);
+
     }
 
     /* Set back to default */

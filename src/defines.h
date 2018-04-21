@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 3
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 0
 
 /*
@@ -2839,8 +2839,9 @@ enum summon_specific_e {
 #define GF_QUAKE    142
 #define GF_CHARM_RING_BEARER  143
 #define GF_SUBJUGATION 144
+#define GF_PARALYSIS 145
 
-#define MAX_GF                144
+#define MAX_GF                145
 
 /*
  * Some things which induce learning
@@ -2981,17 +2982,21 @@ enum summon_specific_e {
 #define MFLAG_BORN      0x10    /* Monster is still being born */
 #define MFLAG_NICE      0x20    /* Monster is still being nice */
 
-#define MFLAG2_KAGE       0x00000001    /* Monster is kage */
-#define MFLAG2_NOPET      0x00000002    /* Cannot make monster pet */
-#define MFLAG2_NOGENO     0x00000004    /* Cannot genocide */
-#define MFLAG2_CHAMELEON  0x00000008    /* Monster is chameleon */
-#define MFLAG2_NOFLOW     0x00000010    /* Monster is in no_flow_by_smell mode */
-#define MFLAG2_SHOW       0x00000020    /* Monster is recently memorized */
-#define MFLAG2_MARK       0x00000040    /* Monster is currently memorized */
-#define MFLAG2_TRIPPED      0x00000080
-#define MFLAG2_XXXXXXXX   0x00000100
-#define MFLAG2_NODESTRUCT 0x00000200    /* Cannot destruct */
-#define MFLAG2_AWARE      0x00000400
+#define MFLAG2_KAGE             0x00000001    /* Monster is kage */
+#define MFLAG2_NOPET            0x00000002    /* Cannot make monster pet */
+#define MFLAG2_NOGENO           0x00000004    /* Cannot genocide */
+#define MFLAG2_CHAMELEON        0x00000008    /* Monster is chameleon */
+#define MFLAG2_NOFLOW           0x00000010    /* Monster is in no_flow_by_smell mode */
+#define MFLAG2_SHOW             0x00000020    /* Monster is recently memorized */
+#define MFLAG2_MARK             0x00000040    /* Monster is currently memorized */
+#define MFLAG2_TRIPPED          0x00000080
+#define MFLAG2_XXXXXXXX         0x00000100
+#define MFLAG2_NODESTRUCT       0x00000200
+#define MFLAG2_AWARE            0x00000400
+#define MFLAG2_DROP_BASIC       0x00000800
+#define MFLAG2_DROP_UTILITY     0x00001000
+#define MFLAG2_DROP_PRIZE       0X00002000
+#define MFLAG2_DROP_MASK        (MFLAG2_DROP_BASIC | MFLAG2_DROP_UTILITY | MFLAG2_DROP_PRIZE)
 
 
 /*
@@ -3212,7 +3217,8 @@ enum summon_specific_e {
 #define TRG_RANDOM_CURSE0       0x00002000     /* Item is Random Cursed */
 #define TRG_RANDOM_CURSE1       0x00004000     /* Item is Random Cursed */
 #define TRG_RANDOM_CURSE2       0x00008000     /* Item is Random Cursed */
-#define TRG_STACK               0x00010000       /* Item spawns as multiple items */
+#define TRG_XXX                 0x00010000
+#define TRG_TOWN                0x00020000     /* Item is allowed to be stocked in town */
 
 
 #define MAX_CURSE 17
@@ -5539,6 +5545,8 @@ enum mon_save_fields_e {
     SAVE_MON_SUMMON_CT,
     SAVE_MON_DROP_CT,
     SAVE_MON_STOLEN_CT,
+    SAVE_MON_PEXP,
+    SAVE_MON_PARALYZED,
 };
 
 /* Sub-alignment flags for neutral monsters */

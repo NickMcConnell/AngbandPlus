@@ -1919,14 +1919,14 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
         "Mighty",
         {  2,  -2,  -2,  0,  1,  1 },
         {-5,  -5,  -3,  -1,  -2,  -2,  10,  0},
-        103, 1, 0, 100
+        102, 1, 0, 100
     },
 
     {
         "Shrewd",
         {  -2,  2,  0,  1,  -1,  -1 },
         {3,  8,  2,  0,  -2,  5,  -8,  -5},
-        95, 1, 0, 100
+        97, 1, 0, 100
     },
 
     {
@@ -1947,14 +1947,14 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
         "Fearless",
         {  1,  0,  0,  -1,  -1,  1 },
         {-5,  0,  -2,  0,  2,  -2,  5,  0},
-        97, 1, 0, 100
+        98, 1, 0, 100
     },
 
     {
         "Combat",
         {  1,  -1,  -1,  1,  0,  0 },
         {-2,  -3,  -3,  0,  -1,  2,  5,  5},
-        101, 0, 0, 100
+        100, 0, 0, 100
     },
 
     {
@@ -1982,7 +1982,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
         "Patient",
         {  -1,  -1,  1,  -2,  2,  0 },
         {-5,  -3,  3,  1,  0,  -3,  -6,  -6},
-        103, 0, 0, 100
+        102, 0, 0, 100
     },
 
     {
@@ -2261,7 +2261,7 @@ s32b realm_choices1[MAX_CLASS] =
     (CH_NONE),                /* Wild-Talent */
     (CH_NONE),                /* Rune-Knight */
     (CH_NONE),                /* Weaponmaster */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
+    (CH_SORCERY | CH_NATURE |
      CH_CHAOS | CH_DEATH | CH_TRUMP |
      CH_ARCANE | CH_ENCHANT | CH_DAEMON |
      CH_CRUSADE | CH_ARMAGEDDON), /* Blood-Mage */
@@ -2324,7 +2324,7 @@ s32b realm_choices2[MAX_CLASS] =
     (CH_NONE),                /* Wild-Talent */
     (CH_NONE),                /* Rune-Knight */
     (CH_NONE),                /* Weaponmaster */
-    (CH_LIFE | CH_SORCERY | CH_NATURE |
+    (CH_SORCERY | CH_NATURE |
      CH_CHAOS | CH_DEATH | CH_TRUMP |
      CH_ARCANE | CH_ENCHANT | CH_DAEMON |
      CH_CRUSADE | CH_ARMAGEDDON), /* Blood-Mage */

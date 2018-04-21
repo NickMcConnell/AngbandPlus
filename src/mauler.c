@@ -680,7 +680,7 @@ class_t *mauler_get_class_t(void)
         me.stats[A_CHR] =  2;
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 119;
+        me.life = 111;
         me.base_hp = 18;
         me.exp = 120;
         me.pets = 40;

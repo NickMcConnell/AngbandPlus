@@ -450,7 +450,7 @@
   [[[[w|Barbarian     |  +3   -2   -1   +1   +2   +2  103%  +22  135%
   [[[[w|Half-Ogre     |  +3   -2   +0   -1   +3   +1  106%  +23  140%
   [[[[w|Half-Giant    |  +4   -2   -2   -2   +3   +0  108%  +26  150%
-  [[[[w|Half-Titan    |  +5   +1   +2   -2   +3   +3  112%  +28  255%
+  [[[[w|Half-Titan    |  +5   +1   +2   -2   +3   +3  110%  +28  200%
   [[[[w|Cyclops       |  +4   -3   -2   -3   +4   -1  108%  +24  155%
   [[[[w|Yeek          |  -2   +1   -2   +1   -2   -4   92%  +14   70%
   [[[[w|Klackon       |  +2   -1   -1   +1   +2   +1  105%  +23  170%
@@ -527,4 +527,4 @@
 ***** [a] Demigods.txt
 
 
-[[[[s|  Automatically generated for PosChengband 3.3.1.
+[[[[s|  Automatically generated for PosChengband 3.3.2.

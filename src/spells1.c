@@ -1870,6 +1870,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
     /* Sleep amount (amount to sleep) */
     int do_sleep = 0;
+    int do_paralyzed = 0;
 
     /* Fear amount (amount to fear) */
     int do_fear = 0;
@@ -2794,7 +2795,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                         if (!unique)
                         {
                             note = " is suspended!";
-                            do_sleep = 500;
+                            do_paralyzed = 5;
                         }
                         else
                         {
@@ -3382,7 +3383,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                             if (!unique && randint1(r_ptr->level) < randint1(power))
                             {
                                 note = " is frozen in terror!";
-                                do_sleep = 500;
+                                do_paralyzed = randint1(3);
                             }
                             else
                             {
@@ -3856,14 +3857,37 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 /* Go to sleep (much) later */
                 note = " is suspended!";
-
-                do_sleep = 500;
+                do_paralyzed = 5;
             }
 
             /* No "real" damage */
             dam = 0;
             break;
         }
+
+        case GF_PARALYSIS:
+            if (seen) obvious = TRUE;
+            if (r_ptr->flagsr & RFR_RES_ALL)
+            {
+                note = " is immune.";
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+                break;
+            }
+            if ((r_ptr->flags1 & RF1_UNIQUE) || r_ptr->level > randint1(dam))
+            {
+                note = " is unaffected!";
+                obvious = FALSE;
+            }
+            else
+            {
+                note = " is paralyzed!";
+                do_paralyzed = randint1(3);
+            }
+
+            /* No "real" damage */
+            dam = 0;
+            break;
 
         /* Sleep (Use "dam" as "power") */
         case GF_STASIS:
@@ -3888,8 +3912,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 /* Go to sleep (much) later */
                 note = " is suspended!";
-
-                do_sleep = 500;
+                do_paralyzed = 5;
             }
 
             /* No "real" damage */
@@ -3938,7 +3961,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     if (!unique && randint1(r_ptr->level) <= randint1(dam))
                     {
                         note = " is frozen in terror!";
-                        do_sleep = 500;
+                        do_paralyzed = randint1(3);
                         attempts = 0;
                         ct++;
                     }
@@ -4011,7 +4034,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             else if (r_ptr->level <= randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
             {
                 note = " is frozen with terror!";
-                do_sleep = 500;
+                do_paralyzed = randint1(3);
             }
             dam = 0;
             break;
@@ -5574,8 +5597,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 {
                     /* Go to sleep (much) later */
                     note = " falls asleep!";
-
-                    do_sleep = 500;
+                    do_paralyzed = 5;
                 }
             }
 
@@ -6025,6 +6047,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             /* Hack -- handle sleep */
             if (do_sleep) (void)set_monster_csleep(c_ptr->m_idx, do_sleep);
+            if (do_paralyzed && !m_ptr->paralyzed)
+                set_monster_paralyzed(c_ptr->m_idx, do_paralyzed);
         }
     }
     else if (heal_leper)
@@ -6106,6 +6130,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             /* Hack -- handle sleep */
             if (do_sleep) (void)set_monster_csleep(c_ptr->m_idx, do_sleep);
+            if (do_paralyzed && !m_ptr->paralyzed)
+                set_monster_paralyzed(c_ptr->m_idx, do_paralyzed);
         }
     }
 

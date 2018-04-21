@@ -1336,9 +1336,9 @@ race_t *half_titan_get_race_t(void)
         me.skills.thn = 25;
         me.skills.thb =- 0;
 
-        me.life = 112;
+        me.life = 110;
         me.base_hp = 28;
-        me.exp = 255;
+        me.exp = 200;
         me.infra = 0;
 
         me.calc_bonuses = _half_titan_calc_bonuses;

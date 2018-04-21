@@ -401,7 +401,7 @@ int calculate_cost(int cost)
     if (caster_ptr && (caster_ptr->options & CASTER_NO_SPELL_COST))
         return 0;
 
-    if (_allow_dec_mana(caster_ptr))
+    if (_allow_dec_mana(caster_ptr) && cost > 0)
     {
         if (p_ptr->dec_mana)
             result = MAX(1, result * 3 / 4);

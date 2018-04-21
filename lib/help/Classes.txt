@@ -610,11 +610,13 @@
 ***** <Blood-Mage>
 [[[[r|  Blood-Mage
 
-  A blood mage is similar to a normal mage in his selection and variety of
-  spells, but differs in that he has no separate Spell Point pool.  Instead,
-  all his spells are powered by his HP.  However, due to the Blood Mage's
-  abnormal constitution, all healing (spells, potions) is only half as
-  effective.
+  A Blood Mage is similar to a normal mage in his selection and variety of
+  spells, but differs in that he has no separate mana pool.  Instead, all his
+  spells are powered by his health.  Moreover, due to the Blood Mage's abnormal
+  constitution, all healing is much less effective than normal. In fact, the
+  Blood Mage completely eschews all healing magic as this disrupts the flow of
+  blood that is the essence of their power. They completely shun the realm of
+  Life as anathema to all that is sacred.
 
 
 ***** <Necromancer>
@@ -734,7 +736,7 @@
 [[[[y|  Table 1 - Class Statistic Bonus Table ---
 
 [[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
-  Warrior         +4   -2   -2   +2   +2   +1  117%  +18  100%
+  Warrior         +4   -2   -2   +2   +2   +1  115%  +18  100%
   Mage            -4 [[[[G|  +3 |  +0   +1   -2   -2   95%   +0  130%
   Priest          -1   -3 [[[[G|  +3 |  -1   +0   +2  100%   +4  120%
   Rogue           +2 [[[[G|  +1 |  -1   +3   +1   +1  110%  +12  125%
@@ -771,13 +773,13 @@
   Wild-Talent     -1 [[[[G|  +2 |  -1   +2   -2   +1  100%   +4  110%
   Rune-Knight     +2 [[[[G|  +2 |  +0   +1   +0   +1  107%   +6  150%
   Weaponmaster  [[[[G|  +3 |  -1   -1   +1   +1   +1  109%  +12  135%
-  Blood-Mage      -4 [[[[G|  +3 |  -2   +1   +2   -2  108%  +10  150%
+  Blood-Mage      -4 [[[[G|  +3 |  -2   +1   +2   -2  108%  +10  135%
   Necromancer     -2 [[[[G|  +3 |  -4   +1   -1   -2   95%   +2  125%
   Psion           -1   +2   +2   -1   -1   +2  100%   +4  150%
   Rage-Mage     [[[[G|  +3 |  -2   -2   -2   +2   +1  106%   +6  150%
 [[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  BHP  Exp
   Scout           +1   -1 [[[[G|  +2 |  +3   +0   +0  104%   +8  130%
-  Mauler        [[[[G|  +5 |  -2   -2   -1   +3   +2  119%  +18  120%
+  Mauler        [[[[G|  +5 |  -2   -2   -1   +3   +2  111%  +18  120%
   Mystic          +2   -1   -2   +3   +1 [[[[G|  +2 | 100%   +4  130%
   Devicemaster    -1 [[[[G|  +2 |  +1   +2   -2   -2  101%   +6  130%
 
@@ -834,4 +836,4 @@
 
 
 
-[[[[s|  Automatically generated for PosChengband 3.3.1.
+[[[[s|  Automatically generated for PosChengband 3.3.2.

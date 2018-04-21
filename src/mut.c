@@ -535,7 +535,6 @@ bool mut_demigod_pred(int mut_idx)
     case MUT_SPEED_READER:
     case MUT_ONE_WITH_MAGIC:
     case MUT_PEERLESS_TRACKER:
-    case MUT_INFERNAL_DEAL:
     case MUT_MERCHANTS_FRIEND:
     case MUT_SACRED_VITALITY:
     case MUT_CULT_OF_PERSONALITY:
@@ -546,6 +545,10 @@ bool mut_demigod_pred(int mut_idx)
     case MUT_FELL_SORCERY:
     case MUT_TREAD_SOFTLY:
         return TRUE;
+        break;
+
+    case MUT_INFERNAL_DEAL:
+        if (p_ptr->pclass != CLASS_BLOOD_MAGE) return TRUE;
         break;
 
     case MUT_ASTRAL_GUIDE:

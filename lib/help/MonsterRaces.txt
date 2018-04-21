@@ -1040,4 +1040,4 @@
 ***** [b] DragonRealms.txt
 
 
-[[[[s|  Automatically generated for PosChengband 3.3.1.
+[[[[s|  Automatically generated for PosChengband 3.3.2.

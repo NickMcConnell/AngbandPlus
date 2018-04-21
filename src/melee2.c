@@ -3837,7 +3837,14 @@ void process_monsters(void)
             continue;
         }
 
-        if (!fear_process_m(i)) continue;
+        if (!fear_process_m(i)) 
+            continue;
+        
+        if (m_ptr->paralyzed)
+        {
+            set_monster_paralyzed(i, m_ptr->paralyzed - 1);
+            continue;
+        }
 
         /* Save global index */
         hack_m_idx = i;
@@ -3945,6 +3952,34 @@ void mproc_init(void)
     }
 }
 
+bool set_monster_paralyzed(int m_idx, int v)
+{
+    monster_type *m_ptr = &m_list[m_idx];
+    bool notice = FALSE;
+
+    if (v)
+    {
+        if (!m_ptr->paralyzed)
+            notice = TRUE;
+    }
+    else
+    {
+        if (m_ptr->paralyzed)
+            notice = TRUE;
+    }
+    m_ptr->paralyzed = v;
+    if (notice)
+    {
+        if (m_ptr->ml)
+        {
+            if (p_ptr->health_who == m_idx) p_ptr->redraw |= PR_HEALTH;
+            if (p_ptr->riding == m_idx) p_ptr->redraw |= PR_UHEALTH;
+        }
+
+        if (r_info[m_ptr->r_idx].flags7 & RF7_HAS_LD_MASK) p_ptr->update |= PU_MON_LITE;
+    }
+    return notice;
+}
 
 /*
  * Set "m_ptr->mtimed[MTIMED_CSLEEP]", notice observable changes

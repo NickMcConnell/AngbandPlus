@@ -1886,6 +1886,7 @@ static void health_redraw(bool riding)
         byte attr = TERM_RED;
 
         if (MON_INVULNER(m_ptr)) attr = TERM_WHITE;
+        else if (m_ptr->paralyzed) attr = TERM_BLUE;
         else if (MON_CSLEEP(m_ptr)) attr = TERM_BLUE;
         else if (MON_STUNNED(m_ptr)) attr = TERM_L_BLUE;
         else if (MON_CONFUSED(m_ptr)) attr = TERM_UMBER;
@@ -2716,11 +2717,119 @@ static int _racial_mana_adjust(int i)
     return result;
 }
 
+static void _calc_encumbrance(void)
+{
+    caster_info *caster_ptr = get_caster_info();
+    int          weight = 0;
+
+    /* Gloves */
+    if (caster_ptr->options & CASTER_GLOVE_ENCUMBRANCE)
+    {
+        int slot;
+        for (slot = equip_find_first(object_is_gloves);
+                slot;
+                slot = equip_find_next(object_is_gloves, slot))
+        {
+            u32b         flgs[TR_FLAG_SIZE];
+            object_type *o_ptr = equip_obj(slot);
+
+            object_flags(o_ptr, flgs);
+
+            if (!(have_flag(flgs, TR_FREE_ACT)) &&
+                !(have_flag(flgs, TR_MAGIC_MASTERY)) &&
+                !((have_flag(flgs, TR_DEX)) && (o_ptr->pval > 0)))
+            {
+                p_ptr->cumber_glove = TRUE;
+                break;
+            }
+        }
+    }
+
+    /* Armor/Weapon Weight */
+    weight = equip_weight(object_is_armour);
+    switch (p_ptr->pclass)
+    {
+    case CLASS_MAGE:
+    case CLASS_NECROMANCER:
+    case CLASS_BLOOD_MAGE:
+    case CLASS_HIGH_MAGE:
+    case CLASS_BLUE_MAGE:
+    case CLASS_MONK:
+    case CLASS_FORCETRAINER:
+    case CLASS_SORCERER:
+        weight += equip_weight(object_is_melee_weapon);
+        break;
+
+    case CLASS_PRIEST:
+    case CLASS_BARD:
+    case CLASS_TOURIST:
+    case CLASS_SCOUT:
+    case CLASS_MONSTER:
+        weight += equip_weight(object_is_melee_weapon) * 2 / 3;
+        break;
+
+    case CLASS_MINDCRAFTER:
+    case CLASS_PSION:
+    case CLASS_BEASTMASTER:
+    case CLASS_MIRROR_MASTER:
+        weight += equip_weight(object_is_melee_weapon) / 2;
+        break;
+
+    case CLASS_ROGUE:
+    case CLASS_RANGER:
+    case CLASS_RED_MAGE:
+    case CLASS_WARRIOR_MAGE:
+        weight += equip_weight(object_is_melee_weapon) / 3;
+        break;
+
+    case CLASS_PALADIN:
+    case CLASS_CHAOS_WARRIOR:
+    case CLASS_RAGE_MAGE:
+        weight += equip_weight(object_is_melee_weapon) / 5;
+        break;
+
+    default:
+        weight += equip_weight(object_is_melee_weapon);
+    }
+
+    if (weight > caster_ptr->weight)
+    {
+        p_ptr->cumber_armor = TRUE;
+        p_ptr->cumber_armor_amt = weight - caster_ptr->weight;
+    }
+}
+
+static void _report_encumbrance(void)
+{
+    if (character_xtra) return;
+
+    if (p_ptr->old_cumber_glove != p_ptr->cumber_glove)
+    {
+        if (p_ptr->cumber_glove)
+            msg_print("Your covered hands feel unsuitable for spellcasting.");
+        else
+            msg_print("Your hands feel more suitable for spellcasting.");
+        p_ptr->old_cumber_glove = p_ptr->cumber_glove;
+    }
+
+    if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
+    {
+        if (p_ptr->cumber_armor)
+            msg_print("The weight of your equipment encumbers your movement.");
+        else
+            msg_print("You feel able to move more freely.");
+        p_ptr->old_cumber_armor = p_ptr->cumber_armor;
+    }
+}
+
 static void calc_mana(void)
 {
-    int             msp, lvl, cur_wgt, max_wgt;
-    object_type    *o_ptr;
+    int             msp, lvl;
     caster_info    *caster_ptr = get_caster_info();
+
+    p_ptr->cumber_glove = FALSE;
+    p_ptr->cumber_armor = FALSE;
+    p_ptr->cumber_armor_amt = 0;
 
     if (!caster_ptr)
     {
@@ -2739,6 +2848,15 @@ static void calc_mana(void)
         p_ptr->msp = 0;
         p_ptr->csp = 0;
         p_ptr->redraw |= (PR_MANA);
+
+        if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+        {
+            /* No more free ride for Blood Mages. They will get increased fail rates
+               instead.  See mod_spell_chance_* in spells3.c for details */
+            _calc_encumbrance();
+            _report_encumbrance();
+        }
+
         return;
     }
 
@@ -2769,81 +2887,12 @@ static void calc_mana(void)
         if (msp && (p_ptr->pclass == CLASS_SORCERER)) msp += msp*(25+p_ptr->lev)/100;
     }
 
-    p_ptr->cumber_glove = FALSE;
-    if (caster_ptr->options & CASTER_GLOVE_ENCUMBRANCE)
+    _calc_encumbrance();
+    if (p_ptr->cumber_glove)
+        msp = (3 * msp) / 4;
+
+    if (p_ptr->cumber_armor)
     {
-        int slot;
-        for (slot = equip_find_first(object_is_gloves);
-                slot;
-                slot = equip_find_next(object_is_gloves, slot))
-        {
-            u32b flgs[TR_FLAG_SIZE];
-            o_ptr = equip_obj(slot);
-            object_flags(o_ptr, flgs);
-
-            if (!(have_flag(flgs, TR_FREE_ACT)) &&
-                !(have_flag(flgs, TR_MAGIC_MASTERY)) &&
-                !((have_flag(flgs, TR_DEX)) && (o_ptr->pval > 0)))
-            {
-                p_ptr->cumber_glove = TRUE;
-                msp = (3 * msp) / 4;
-                break;
-            }
-        }
-    }
-
-    p_ptr->cumber_armor = FALSE;
-    cur_wgt = equip_weight(object_is_armour);
-    switch (p_ptr->pclass)
-    {
-    case CLASS_MAGE:
-    case CLASS_NECROMANCER:
-    case CLASS_BLOOD_MAGE:
-    case CLASS_HIGH_MAGE:
-    case CLASS_BLUE_MAGE:
-    case CLASS_MONK:
-    case CLASS_FORCETRAINER:
-    case CLASS_SORCERER:
-        cur_wgt += equip_weight(object_is_melee_weapon);
-        break;
-
-    case CLASS_PRIEST:
-    case CLASS_BARD:
-    case CLASS_TOURIST:
-    case CLASS_SCOUT:
-    case CLASS_MONSTER:
-        cur_wgt += equip_weight(object_is_melee_weapon) * 2 / 3;
-        break;
-
-    case CLASS_MINDCRAFTER:
-    case CLASS_PSION:
-    case CLASS_BEASTMASTER:
-    case CLASS_MIRROR_MASTER:
-        cur_wgt += equip_weight(object_is_melee_weapon) / 2;
-        break;
-
-    case CLASS_ROGUE:
-    case CLASS_RANGER:
-    case CLASS_RED_MAGE:
-    case CLASS_WARRIOR_MAGE:
-        cur_wgt += equip_weight(object_is_melee_weapon) / 3;
-        break;
-
-    case CLASS_PALADIN:
-    case CLASS_CHAOS_WARRIOR:
-    case CLASS_RAGE_MAGE:
-        cur_wgt += equip_weight(object_is_melee_weapon) / 5;
-        break;
-
-    default:
-        cur_wgt += equip_weight(object_is_melee_weapon);
-    }
-
-    /* Heavy armor penalizes mana by a percentage.  -LM- */
-    max_wgt = caster_ptr->weight;
-    if ((cur_wgt - max_wgt) > 0)
-    {
-        p_ptr->cumber_armor = TRUE;
         switch (p_ptr->pclass)
         {
         case CLASS_MAGE:
@@ -2851,7 +2900,7 @@ static void calc_mana(void)
         case CLASS_BLOOD_MAGE:
         case CLASS_HIGH_MAGE:
         case CLASS_BLUE_MAGE:
-            msp -= msp * (cur_wgt - max_wgt) / 600;
+            msp -= msp * p_ptr->cumber_armor_amt / 600;
             break;
 
         case CLASS_PRIEST:
@@ -2863,34 +2912,35 @@ static void calc_mana(void)
         case CLASS_TOURIST:
         case CLASS_MIRROR_MASTER:
         case CLASS_MONSTER:
-            msp -= msp * (cur_wgt - max_wgt) / 800;
+            msp -= msp * p_ptr->cumber_armor_amt / 800;
             break;
 
         case CLASS_SORCERER:
-            msp -= msp * (cur_wgt - max_wgt) / 900;
+            msp -= msp * p_ptr->cumber_armor_amt / 900;
             break;
 
         case CLASS_ROGUE:
         case CLASS_RANGER:
         case CLASS_MONK:
         case CLASS_RED_MAGE:
-            msp -= msp * (cur_wgt - max_wgt) / 1000;
+            msp -= msp * p_ptr->cumber_armor_amt / 1000;
             break;
 
         case CLASS_PALADIN:
         case CLASS_CHAOS_WARRIOR:
         case CLASS_WARRIOR_MAGE:
         case CLASS_RAGE_MAGE:
-            msp -= msp * (cur_wgt - max_wgt) / 1200;
+            msp -= msp * p_ptr->cumber_armor_amt / 1200;
             break;
 
         case CLASS_SAMURAI:
         case CLASS_MYSTIC:
             p_ptr->cumber_armor = FALSE;
+            p_ptr->cumber_armor_amt = 0;
             break;
 
         default:
-            msp -= msp * (cur_wgt - max_wgt) / 800;
+            msp -= msp * p_ptr->cumber_armor_amt / 800;
         }
     }
 
@@ -2919,25 +2969,7 @@ static void calc_mana(void)
         p_ptr->window |= (PW_SPELL);
     }
 
-    if (character_xtra) return;
-
-    if (p_ptr->old_cumber_glove != p_ptr->cumber_glove)
-    {
-        if (p_ptr->cumber_glove)
-            msg_print("Your covered hands feel unsuitable for spellcasting.");
-        else
-            msg_print("Your hands feel more suitable for spellcasting.");
-        p_ptr->old_cumber_glove = p_ptr->cumber_glove;
-    }
-
-    if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
-    {
-        if (p_ptr->cumber_armor)
-            msg_print("The weight of your equipment encumbers your movement.");
-        else
-            msg_print("You feel able to move more freely.");
-        p_ptr->old_cumber_armor = p_ptr->cumber_armor;
-    }
+    _report_encumbrance();
 }
 
 /*

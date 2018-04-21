@@ -3340,7 +3340,7 @@ void do_cmd_fire_aux2(int item, object_type *bow, int sx, int sy, int tx, int ty
     for (i = 0; i < num_shots; i++)
     {
         /* Make sure there is ammo left over for this shot */
-        if (item != INVEN_UNLIMITED_QUIVER)
+        if (item >= 0 && item != INVEN_UNLIMITED_QUIVER)
         {
             if (inventory[item].tval != p_ptr->shooter_info.tval_ammo)
             {

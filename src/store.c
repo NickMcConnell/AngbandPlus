@@ -12,6 +12,8 @@
 
 #include "angband.h"
 
+#include <assert.h>
+
 #define MIN_STOCK 12
 
 static int cur_store_num = 0;
@@ -489,118 +491,32 @@ void discount(object_type *o_ptr)
 
 }
 
-/* Note: make_object() now uses this for dungeon drops!!!! */
+/* Note: make_object() now uses this for dungeon drops!!!! 
+   Note: This is now controlled by the M:P:XdY line in k_info.txt
+*/
 void mass_produce(object_type *o_ptr)
 {
-    int size = 1;
+    int          size = 1;
+    object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
     if (object_is_artifact(o_ptr)) return;
+    if (object_is_ego(o_ptr) && !object_is_ammo(o_ptr)) return;
+    if (!k_ptr->stack_chance) return;
+    if (randint1(100) > k_ptr->stack_chance) return;
 
-    switch (o_ptr->tval)
-    {
-        case TV_FOOD:
-        case TV_FLASK:
-        {
-            if (object_is_ego(o_ptr)) return;    
-            size += damroll(1, 5);
-            break;
-        }
+    assert(k_ptr->stack_dice);
+    assert(k_ptr->stack_sides);
+    size = damroll(k_ptr->stack_dice, k_ptr->stack_sides);
 
-        case TV_LITE:
-        {
-            if (object_is_ego(o_ptr)) return;    
-            if (o_ptr->sval != SV_LITE_FEANOR)
-                size += damroll(1, 5);
-            break;
-        }
-
-        case TV_POTION:
-        case TV_SCROLL:
-        {
-            size += damroll(1, 5);
-            break;
-        }
-
-        case TV_LIFE_BOOK:
-        case TV_SORCERY_BOOK:
-        case TV_NATURE_BOOK:
-        case TV_CHAOS_BOOK:
-        case TV_DEATH_BOOK:
-        case TV_TRUMP_BOOK:
-        case TV_ARCANE_BOOK:
-        case TV_CRAFT_BOOK:
-        case TV_DAEMON_BOOK:
-        case TV_CRUSADE_BOOK:
-        case TV_NECROMANCY_BOOK:
-        case TV_ARMAGEDDON_BOOK:
-        case TV_BURGLARY_BOOK:
-        case TV_MUSIC_BOOK:
-        case TV_HISSATSU_BOOK:
-        case TV_HEX_BOOK:
-        case TV_RAGE_BOOK:
-        {
-            size += damroll(1, 2);
-            break;
-        }
-
-        case TV_SOFT_ARMOR:
-        case TV_HARD_ARMOR:
-        case TV_SHIELD:
-        case TV_GLOVES:
-        case TV_BOOTS:
-        case TV_CLOAK:
-        case TV_HELM:
-        case TV_CROWN:
-        case TV_SWORD:
-        case TV_POLEARM:
-        case TV_HAFTED:
-        case TV_DIGGING:
-        case TV_BOW:
-        {
-            if (object_is_artifact(o_ptr)) break;
-            if (object_is_ego(o_ptr)) break;
-            break;
-        }
-
-        case TV_SPIKE:
-        case TV_SHOT:
-        case TV_ARROW:
-        case TV_BOLT:
-            if (object_is_artifact(o_ptr)) break;
-            size = damroll(6, 7);
-            break;
-
-        case TV_FIGURINE:
-        case TV_CAPTURE:
-        case TV_STATUE:
-        case TV_CARD:
-        {
-            size = 1;
-            break;
-        }
-
-        case TV_ROD:
-        case TV_WAND:
-        case TV_STAFF:
-        {
-        /*    if (!dun_level && (cur_store_num == STORE_BLACK) && one_in_(3))
-            {
-                if (cost < 1601L) size += damroll(1, 5);
-                else if (cost < 3201L) size += damroll(1, 3);
-            }*/
-            break;
-        }
-    }
-
+    if (size <= 1) return;
 
     /* Save the total pile size (Call discount() before mass_produce() for shops)*/
-    size = MAX(1, size); /* paranoia */
     o_ptr->number = size;
     if (!dun_level)
         o_ptr->number -= (size * o_ptr->discount / 100);
 
     /* Ensure that mass-produced rods and wands get the correct pvals. */
-    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+    if (o_ptr->tval == TV_ROD || o_ptr->tval == TV_WAND)
     {
         o_ptr->pval *= o_ptr->number;
     }
@@ -1502,208 +1418,115 @@ static void store_delete(void)
     store_item_optimize(what);
 }
 
-/* The new way. This is experimental ... */
-static bool _general_store_accept(int k_idx)
+/* Store Stocking:
+   [1] We use normal object allocation to determine object frequencies.
+   [2] k_info.txt uses the TOWN attribute to determine allowable objects (except BM)
+   [3] Object quantities (i.e., stacking) is specified by k_info's M:P:XdY line. (Idea from Vanilla).
+   [4] Most stores won't auto restock just by resting. Instead, the player needs to
+       actually play a bit as well (We use experience as a proxy to test this).
+ */
+static bool _town_accept_aux(int k_idx)
 {
     if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
         return FALSE;
 
+    if (!(k_info[k_idx].gen_flags & TRG_TOWN))
+        return FALSE;
+
+    return TRUE;
+}
+
+static bool _general_store_accept(int k_idx)
+{
+    if (!_town_accept_aux(k_idx)) 
+        return FALSE;
+
     switch (k_info[k_idx].tval)
     {
-    case TV_FLASK:    case TV_SPIKE:    case TV_SHOT:    case TV_ARROW:    case TV_BOLT:
-    case TV_CAPTURE: case TV_FIGURINE:
-        return TRUE;
-
-    case TV_CLOAK:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_DRAGON_CLOAK:
-        case SV_WIZARD_CLOAK:
-        case SV_SHADOW_CLOAK:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-
+    case TV_FLASK:    
+    case TV_SPIKE:    
+    case TV_SHOT:    
+    case TV_ARROW:    
+    case TV_BOLT:
+    case TV_CAPTURE: 
+    case TV_FIGURINE: 
+    case TV_CLOAK: 
     case TV_LITE:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_LITE_FEANOR:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-
     case TV_FOOD:
-        if (k_info[k_idx].sval < SV_FOOD_MAX_MUSHROOM)
-            return FALSE;
-
-        switch (k_info[k_idx].sval)
-        {
-        case SV_FOOD_SLIME_MOLD:
-        case SV_FOOD_AMBROSIA:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-    
-    case TV_POTION:
-        if (k_info[k_idx].sval == SV_POTION_WATER)
-            return TRUE;
-        break;
-
     case TV_DIGGING: 
-        switch (k_info[k_idx].sval)
-        {
-        case SV_GNOMISH_SHOVEL:
-        case SV_DWARVEN_SHOVEL:
-        case SV_ORCISH_PICK:
-        case SV_DWARVEN_PICK:
-            return FALSE;
-        }
         return TRUE;
-        break;
     }
     return FALSE;
 }
 static bool _armoury_accept(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (!_town_accept_aux(k_idx)) 
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
     case TV_HARD_ARMOR:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_RUSTY_CHAIN_MAIL:
-        case SV_ADAMANTITE_PLATE_MAIL:
-        case SV_MITHRIL_PLATE_MAIL:
-        case SV_MITHRIL_CHAIN_MAIL:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-
     case TV_SOFT_ARMOR:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_FILTHY_RAG:
-        case SV_KUROSHOUZOKU:
-        case SV_ABUNAI_MIZUGI:
-        case SV_YOIYAMI_ROBE:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-
     case TV_GLOVES:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_SET_OF_DRAGON_GLOVES:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-
     case TV_HELM:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_DRAGON_HELM:
-            return FALSE;
-        }
-        return TRUE;
-        break;
     case TV_BOOTS:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_PAIR_OF_DRAGON_GREAVE:
-            return FALSE;
-        }
-        return TRUE;
-        break;
     case TV_SHIELD:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_DRAGON_SHIELD:
-        case SV_MIRROR_SHIELD:
-            return FALSE;
-        }
         return TRUE;
-        break;
     }
     return FALSE;
 }
 static bool _weapon_accept(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (!_town_accept_aux(k_idx)) 
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
-    case TV_SHOT:    case TV_ARROW:    case TV_BOLT:
-        return TRUE;
-
-    case TV_BOW:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_HARP:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-
     case TV_POLEARM: 
-        switch (k_info[k_idx].sval)
-        {
-        case SV_SCYTHE_OF_SLICING:
-        case SV_DEATH_SCYTHE:
-            return FALSE;
-        }
-        return TRUE;
-        break;
     case TV_SWORD:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_BROKEN_DAGGER:
-        case SV_BROKEN_SWORD:
-        case SV_BLADE_OF_CHAOS:
-        case SV_DIAMOND_EDGE:
-        case SV_DOKUBARI:
-        case SV_HAYABUSA:
-        case SV_RUNESWORD:
-        case SV_DRAGON_FANG:
-            return FALSE;
-        }
-        return TRUE;
-        break;
-
     case TV_HISSATSU_BOOK: 
     case TV_RAGE_BOOK:
-        if (k_info[k_idx].sval < 2)
-            return TRUE;
-        break;
+        return TRUE;
     }
     return FALSE;
 }
-
+static bool _weapon_accept_shooter(int k_idx)
+{
+    if (!_town_accept_aux(k_idx)) 
+        return FALSE;
+    switch (k_info[k_idx].tval)
+    {
+    case TV_BOW:
+        return TRUE;
+    }
+    return FALSE;
+}
+static bool _weapon_accept_ammo(int k_idx)
+{
+    if (!_town_accept_aux(k_idx)) 
+        return FALSE;
+    switch (k_info[k_idx].tval)
+    {
+    case TV_SHOT:    
+    case TV_ARROW:    
+    case TV_BOLT:
+        return TRUE;
+    }
+    return FALSE;
+}
 static bool _temple_accept(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (!_town_accept_aux(k_idx)) 
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
     case TV_HAFTED:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_MACE_OF_DISRUPTION:
-        case SV_WIZSTAFF:
-            return FALSE;
-        }
+    case TV_LIFE_BOOK: 
+    case TV_CRUSADE_BOOK:
         return TRUE;
-        break;
-    
+
+    /* Scrolls and Potions are also stocked by the Alchemist */
     case TV_SCROLL:
         switch (k_info[k_idx].sval)
         {
@@ -1716,7 +1539,6 @@ static bool _temple_accept(int k_idx)
             return TRUE;
         }
         return FALSE;
-        break;
 
     case TV_POTION:
         switch (k_info[k_idx].sval)
@@ -1732,60 +1554,22 @@ static bool _temple_accept(int k_idx)
             return TRUE;
         }
         return FALSE;
-        break;
-
-    case TV_LIFE_BOOK: 
-    case TV_CRUSADE_BOOK:
-        if (k_info[k_idx].sval < 2)
-            return TRUE;
-        break;
     }
     return FALSE;
 }
 
 static bool _alchemist_accept(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (!_town_accept_aux(k_idx)) 
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
+    /* Scrolls and Potions are also stocked by the Temple. */
     case TV_SCROLL:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_SCROLL_MAPPING:
-        case SV_SCROLL_IDENTIFY:
-        case SV_SCROLL_LIGHT:
-        case SV_SCROLL_PHASE_DOOR:
-        case SV_SCROLL_TELEPORT:
-        case SV_SCROLL_MONSTER_CONFUSION:
-        case SV_SCROLL_DETECT_GOLD:
-        case SV_SCROLL_DETECT_ITEM:
-        case SV_SCROLL_DETECT_TRAP:
-        case SV_SCROLL_DETECT_INVIS:
-        case SV_SCROLL_DETECT_MONSTERS:
-        case SV_SCROLL_RECHARGING:
-        case SV_SCROLL_WORD_OF_RECALL:
-        case SV_SCROLL_STAR_IDENTIFY:
-            return TRUE;
-        }
-        return FALSE;
-        break;
-
     case TV_POTION:
-        switch (k_info[k_idx].sval)
-        {
-        case SV_POTION_CLARITY:
-        case SV_POTION_BOLDNESS:
-        case SV_POTION_RES_STR:
-        case SV_POTION_RES_INT:
-        case SV_POTION_RES_WIS:
-        case SV_POTION_RES_DEX:
-        case SV_POTION_RES_CON:
-        case SV_POTION_RES_CHR:
+        if (!_temple_accept(k_idx))
             return TRUE;
-        }
-        return FALSE;
         break;
     }
     return FALSE;
@@ -1793,39 +1577,29 @@ static bool _alchemist_accept(int k_idx)
 
 static bool _magic_accept(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (!_town_accept_aux(k_idx)) 
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
     case TV_WAND:
     case TV_STAFF:
-        if (k_info[k_idx].level < 20)
-            return TRUE;
-        break;
-
     case TV_FIGURINE:
     case TV_ARCANE_BOOK:
-        return TRUE;
-
     case TV_SORCERY_BOOK: 
-        if (k_info[k_idx].sval < 2)
-            return TRUE;
-        break;
+        return TRUE;
     }
     return FALSE;
 }
 
 static bool _book_accept(int k_idx)
 {
-    if (k_info[k_idx].gen_flags & TRG_INSTA_ART)
+    if (!_town_accept_aux(k_idx)) 
         return FALSE;
 
     switch (k_info[k_idx].tval)
     {
     case TV_ARCANE_BOOK:
-        return TRUE;
-
     case TV_SORCERY_BOOK: 
     case TV_NATURE_BOOK:
     case TV_CHAOS_BOOK:
@@ -1837,9 +1611,7 @@ static bool _book_accept(int k_idx)
     case TV_HEX_BOOK:
     case TV_NECROMANCY_BOOK:
     case TV_ARMAGEDDON_BOOK:
-        if (k_info[k_idx].sval < 2)
-            return TRUE;
-        break;
+        return TRUE;
     }
     return FALSE;
 }
@@ -1859,7 +1631,13 @@ static bool _get_store_obj2(object_type *o_ptr)
         get_obj_num_hook = _armoury_accept;
         break;
     case STORE_WEAPON:
-        get_obj_num_hook = _weapon_accept;
+        /* Hack: Try to make sure archery is not swamped by melee weapons ... */
+        if (one_in_(4))
+            get_obj_num_hook = _weapon_accept_shooter;
+        else if (one_in_(4))
+            get_obj_num_hook = _weapon_accept_ammo;
+        else
+            get_obj_num_hook = _weapon_accept;
         break;
     case STORE_TEMPLE:
         get_obj_num_hook = _temple_accept;
@@ -1884,17 +1662,36 @@ static bool _get_store_obj2(object_type *o_ptr)
     {
         k_idx = lookup_kind(TV_BURGLARY_BOOK, randint0(2));
     }
-    else if (cur_store_num == STORE_TEMPLE && one_in_(20))
+    else if (cur_store_num == STORE_TEMPLE)
     {
-        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
+        if (one_in_(3))
+            k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
+        else if (one_in_(20))
+            k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE);
     }
-    else if (cur_store_num == STORE_ALCHEMIST && one_in_(20))
+    else if (cur_store_num == STORE_ALCHEMIST)
     {
-        k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
+        if (one_in_(3))
+            k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL);
+        else if (one_in_(20))
+            k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY);
     }
-    else if (cur_store_num == STORE_GENERAL && one_in_(50))
+    else if (cur_store_num == STORE_GENERAL)
     {
-        k_idx = lookup_kind(TV_CAPTURE, 0);
+        if (one_in_(50))
+            k_idx = lookup_kind(TV_CAPTURE, 0);
+        else if (one_in_(3))
+            k_idx = lookup_kind(TV_FOOD, SV_FOOD_RATION);
+        else if (one_in_(3))
+            k_idx = lookup_kind(TV_POTION, SV_POTION_WATER);
+        else if (one_in_(3))
+            k_idx = lookup_kind(TV_FLASK, SV_FLASK_OIL);
+        else if (one_in_(3))
+            k_idx = lookup_kind(TV_LITE, SV_LITE_LANTERN);
+        else if (one_in_(3))
+            k_idx = lookup_kind(TV_DIGGING, SV_SHOVEL);
+        else if (one_in_(5))
+            k_idx = lookup_kind(TV_DIGGING, SV_PICK);
     }
     
     if (!k_idx)
@@ -1968,8 +1765,7 @@ static void store_create(void)
 
         /* Mass produce and/or Apply discount (mass_produce needs to know about the discount) */
         discount(&forge);
-        if (k_info[forge.k_idx].gen_flags & TRG_STACK)
-            mass_produce(&forge);
+        mass_produce(&forge);
 
         /* Attempt to carry the (known) item */
         (void)store_carry(&forge);
@@ -4320,8 +4116,8 @@ void do_cmd_store(void)
        Let's cut them some slack by giving extra options in the BM.
     */
     if ( which == STORE_BLACK
-        && (p_ptr->pclass == CLASS_BERSERKER || prace_is_(RACE_MON_JELLY))
-        && vanilla_town )
+      && p_ptr->pclass == CLASS_BERSERKER
+      && vanilla_town )
     {
         vanilla_zerker_hack = TRUE;
         --xtra_stock;
@@ -4338,11 +4134,13 @@ void do_cmd_store(void)
     }
 
     /* Hack -- Check the "locked doors" */
-    if ((town[p_ptr->town_num].store[which].store_open >= turn) ||
-        (ironman_shops))
+    if (which == STORE_HOME)
+    {
+        /* New: Home is always open! */
+    }
+    else if (town[p_ptr->town_num].store[which].store_open >= turn || ironman_shops)
     {
         msg_print("The doors are locked.");
-
         p_ptr->town_num = old_town_num;
         return;
     }

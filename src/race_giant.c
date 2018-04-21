@@ -577,7 +577,8 @@ static race_t *_hru_get_race_t(void)
         me.exp = 225;
 
         me.birth = _birth;
-        me.calc_innate_attacks = _hru_calc_innate_attacks;
+        /* This defeats the purpose of their monster king reward:
+        me.calc_innate_attacks = _hru_calc_innate_attacks;*/
         me.get_powers = _hru_get_powers;
         me.calc_bonuses = _hru_calc_bonuses;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;

@@ -143,6 +143,8 @@ struct object_kind
     u32b flags[TR_FLAG_SIZE];    /* Flags */
 
     u32b gen_flags;        /* flags for generate */
+    byte stack_chance;
+    byte stack_dice, stack_sides;
 
     byte locale[4];        /* Allocation level(s) */
     byte chance[4];        /* Allocation chance(s) */
@@ -724,14 +726,15 @@ struct monster_type
     s16b melee_adj;
 
     s16b mtimed[MAX_MTIMED];    /* Timed status counter */
+    s16b paralyzed;
 
     byte mspeed;            /* Monster "speed" */
     s16b energy_need;    /* Monster "energy" */
 
     byte cdis;        /* Current dis from player */
 
-    u32b mflag;        /* Extra monster flags */
-    u32b mflag2;        /* Extra monster flags */
+    u32b mflag;        /* Extra monster flags. (Note: Not saved!) */
+    u32b mflag2;        /* Extra monster flags. (This one *is* saved)  */
 
     bool ml;        /* Monster is "visible" */
 
@@ -760,6 +763,8 @@ struct monster_type
     u32b forgot4;
     u32b forgot5;
     u32b forgot6;
+
+    s32b pexp;    /* player experience gained (x100). kept <= r_ptr->mexp */
 };
 
 enum {
@@ -1445,6 +1450,7 @@ struct player_type
     s16b old_lite;        /* Old radius of lite (if any) */
 
     bool cumber_armor;    /* Mana draining armor */
+    int  cumber_armor_amt;
     bool cumber_glove;    /* Mana draining gloves */
     bool riding_ryoute;    /* Riding weapon */
     bool monlite;

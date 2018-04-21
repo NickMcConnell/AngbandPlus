@@ -102,15 +102,17 @@ static void _demeter_clw_spell(int cmd, variant *res)
     case SPELL_DESC:
         var_set_string(res, "Heals cut and HP a little.");
         break;
-    case SPELL_SPOIL_DESC:
-        var_set_string(res, "Decreases cut status by 10 and heals (L/12 + 1)d10 hp.");
-        break;
     case SPELL_INFO:
         var_set_string(res, info_damage(p_ptr->lev/12 + 1, 10, 0));
         break;
     case SPELL_CAST:
-        hp_player(damroll(p_ptr->lev/12 + 1, 10));
-        set_cut(p_ptr->cut - 10, TRUE);
+        if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+            msg_print("There is no effect.");
+        else
+        {
+            hp_player(damroll(p_ptr->lev/12 + 1, 10));
+            set_cut(p_ptr->cut - 10, TRUE);
+        }
         var_set_bool(res, TRUE);
         break;
     default:

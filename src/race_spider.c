@@ -231,7 +231,7 @@ static power_info _phase_spider_powers[] = {
     { A_DEX, {  1,  1, 30, _detect_prey_spell } },
     { A_DEX, {  5,  1, 30, phase_door_spell } },
     { A_DEX, { 10,  5, 30, teleport_spell } },
-    { A_DEX, { 12,  7, 30, _spider_web_spell } },
+    { A_DEX, { 12, 20, 60, _spider_web_spell } },
     { A_DEX, { 17, 10, 30, teleport_to_spell } },
     { A_DEX, { 20, 15, 30, teleport_level_spell } },
     { A_DEX, { 25, 15, 30, teleport_other_spell } },
@@ -319,7 +319,7 @@ race_t *_phase_spider_get_race_t(void)
 /* Aranea */
 static power_info _aranea_powers[] = {
     { A_DEX, {  1,  1, 30, _detect_prey_spell } },
-    { A_DEX, { 12,  7, 30, _spider_web_spell } },
+    { A_DEX, { 12, 20, 60, _spider_web_spell } },
     {    -1, { -1, -1, -1, NULL } }
 };
 static int _aranea_get_powers(spell_info* spells, int max) {
@@ -412,7 +412,7 @@ static void _elder_aranea_calc_innate_attacks(void)
     a.weight = 200;
     a.effect[0] = GF_MISSILE;
     a.effect[1] = GF_POIS;
-    a.effect[2] = GF_STASIS;
+    a.effect[2] = GF_PARALYSIS;
     a.effect_chance[2] = 25 + 5*(p_ptr->lev - 40);
     calc_innate_blows(&a, 550);
     a.msg = "You bite %s.";

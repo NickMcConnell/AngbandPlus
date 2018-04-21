@@ -338,7 +338,7 @@ void possessor_calc_innate_attacks(void)
             a.effect[1] = GF_TURN_ALL;
             break;
         case RBE_PARALYZE:
-            a.effect[1] = GF_STASIS;
+            a.effect[1] = GF_PARALYSIS;
             break;
         case RBE_SUPERHURT:
             a.to_d += a.dd * (a.ds + 1) / 4;
@@ -1067,29 +1067,33 @@ int possessor_get_spells(spell_info* spells, int max)
 
 caster_info *possessor_caster_info(void)
 {
-    static caster_info me = {0};
-    monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
+    static caster_info info = {0};
+    monster_race      *r_ptr = &r_info[p_ptr->current_r_idx];
 
-    me.options = 0;
-    me.which_stat = r_ptr->body.spell_stat;
+    /* This is a hack since the mimic's default class (Imitator)
+       normally lacks mana. But if we do this, then every time the
+       mimic assumes a magical form, they will start with 0sp! */
+    if (p_ptr->current_r_idx == MON_MIMIC)
+    {
+        info.which_stat = r_ptr->body.spell_stat;
+        info.magic_desc = "power";
+        info.options = 0;
+        info.weight = 450;
+        return &info;
+    }
 
-    if (me.which_stat == A_INT)
+
+    if (r_ptr->body.class_idx)
     {
-        me.magic_desc = "spell";
-        me.options = CASTER_ALLOW_DEC_MANA;
-        me.weight = 350;
+        class_t *class_ptr = get_class_t_aux(r_ptr->body.class_idx, 0);
+        if (class_ptr && class_ptr->caster_info)
+        {
+            info = *class_ptr->caster_info();
+            info.which_stat = r_ptr->body.spell_stat; /* r_info can now override the default spell stat */
+            return &info;
+        }
     }
-    else if (me.which_stat == A_WIS)
-    {
-        me.magic_desc = "prayer";
-        me.weight = 450;
-    }
-    else
-    {
-        me.magic_desc = "power";
-        me.weight = 450;
-    }
-    return &me;
+    return NULL;
 }
 
 /**********************************************************************
@@ -1612,6 +1616,7 @@ void possessor_set_current_r_idx(int r_idx)
     {
         int mana_ratio = p_ptr->csp * 100 / MAX(1, p_ptr->msp);
 
+        p_ptr->magic_num1[0] = 0; /* Blinking Death ... */
         p_ptr->current_r_idx = r_idx;
         lore_do_probe(r_idx);
 

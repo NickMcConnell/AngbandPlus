@@ -648,6 +648,7 @@ void equip_wield_aux(object_type *src, int slot)
     
     object_copy(dest, src);
     dest->marked |= OM_TOUCHED;
+    dest->marked &= ~OM_WORN;
     p_ptr->total_weight += dest->weight;
 
     /* Hack: Extra Might and Weaponmastery require a calc_bonus() to display correctly */

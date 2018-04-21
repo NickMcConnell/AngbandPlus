@@ -997,6 +997,7 @@ extern bool set_monster_stunned(int m_idx, int v);
 extern bool set_monster_confused(int m_idx, int v);
 extern bool set_monster_monfear(int m_idx, int v);
 extern bool set_monster_invulner(int m_idx, int v, bool energy_need);
+extern bool set_monster_paralyzed(int m_idx, int v);
 extern void process_monsters_mtimed(int mtimed_idx);
 extern void dispel_monster_status(int m_idx);
 extern u32b get_curse(int power, object_type *o_ptr);

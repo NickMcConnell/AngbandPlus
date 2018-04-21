@@ -73,7 +73,7 @@ class_t *warrior_get_class_t(void)
         me.stats[A_CHR] =  1;
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 117;
+        me.life = 115;
         me.base_hp = 18;
         me.exp = 100;
         me.pets = 40;

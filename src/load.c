@@ -293,6 +293,12 @@ static void rd_monster(savefile_ptr file, monster_type *m_ptr)
         case SAVE_MON_ANTI_MAGIC:
             m_ptr->anti_magic_ct = savefile_read_byte(file);
             break;
+        case SAVE_MON_PEXP:
+            m_ptr->pexp = savefile_read_s32b(file);
+            break;
+        case SAVE_MON_PARALYZED:
+            m_ptr->paralyzed = savefile_read_s16b(file);
+            break;
         /* default:
             TODO: Report an error back to the load routine!!*/
         }

@@ -332,9 +332,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:0:8000  # SUDE
-S:1:0:8000  # NITOURYU
-S:2:0:5000  # RIDING
+S:0:0:8000  # Martial Arts
+S:1:0:8000  # Dual Wielding
+S:2:0:5000  # Riding
 
 ### MAGE ###
 N:1
@@ -664,9 +664,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### PRIEST ###
 N:2
@@ -996,9 +996,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:500  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:500  # Riding
 
 ### ROGUE ###
 N:3
@@ -1328,9 +1328,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:8000  # SUDE
-S:1:0:8000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:8000  # Martial Arts
+S:1:0:8000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### RANGER ###
 N:4
@@ -1660,9 +1660,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:6000  # SUDE
-S:1:0:6000  # NITOURYU
-S:2:0:5000  # RIDING
+S:0:0:6000  # Martial Arts
+S:1:0:6000  # Dual Wielding
+S:2:0:5000  # Riding
 
 ### PALADIN ###
 N:5
@@ -1992,9 +1992,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:7000  # NITOURYU
-S:2:0:5000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:7000  # Dual Wielding
+S:2:0:5000  # Riding
 
 ### Warrior-Mage ###
 N:6
@@ -2324,9 +2324,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:6000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:6000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### CHAOS_WARRIOR ###
 N:7
@@ -2656,9 +2656,9 @@ W:4:61:0:3  #
 W:4:62:0:3  # 
 W:4:63:0:3  # 
 # Skill
-S:0:0:7000  # SUDE
-S:1:0:7000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:7000  # Martial Arts
+S:1:0:7000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### MONK ###
 N:8
@@ -2988,9 +2988,9 @@ W:4:61:0:0  #
 W:4:62:0:0  # 
 W:4:63:0:0  # 
 # Skill
-S:0:4000:8000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:4000:8000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### MINDCRAFTER ###
 N:9
@@ -3320,9 +3320,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:500  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:500  # Riding
 
 ### HIGH_MAGE ###
 N:10
@@ -3652,9 +3652,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### TOURIST ###
 N:11
@@ -3984,9 +3984,9 @@ W:4:61:0:4  #
 W:4:62:0:4  # 
 W:4:63:0:4  # 
 # Skill
-S:0:0:8000  # SUDE
-S:1:0:8000  # NITOURYU
-S:2:0:5000  # RIDING
+S:0:0:8000  # Martial Arts
+S:1:0:8000  # Dual Wielding
+S:2:0:5000  # Riding
 
 ### IMITATOR ###
 N:12
@@ -4316,9 +4316,9 @@ W:4:61:0:3  #
 W:4:62:0:3  # 
 W:4:63:0:3  # 
 # Skill
-S:0:0:7000  # SUDE
-S:1:0:7000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:7000  # Martial Arts
+S:1:0:7000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### BEASTMASTER ###
 N:13
@@ -4648,9 +4648,9 @@ W:4:61:0:4  #
 W:4:62:0:4  # 
 W:4:63:0:4  # 
 # Skill
-S:0:0:6000  # SUDE
-S:1:0:6000  # NITOURYU
-S:2:500:8000  # RIDING
+S:0:0:6000  # Martial Arts
+S:1:0:6000  # Dual Wielding
+S:2:500:8000  # Riding
 
 ### SORCERER ###
 N:14
@@ -4980,9 +4980,9 @@ W:4:61:0:0  #
 W:4:62:0:0  # 
 W:4:63:0:0  # 
 # Skill
-S:0:0:0  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:0  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### ARCHER ###
 N:15
@@ -5312,9 +5312,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### MAGIC_EATER ###
 N:16
@@ -5644,9 +5644,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:0  # Riding
 
 ### HARPER ###
 N:17
@@ -5976,9 +5976,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:500  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:500  # Riding
 
 ### RED_MAGE ###
 N:18
@@ -6308,9 +6308,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### SAMURAI ###
 N:19
@@ -6640,9 +6640,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:8000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:8000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### ForceTrainer ###
 N:20
@@ -6972,9 +6972,9 @@ W:4:61:0:0  #
 W:4:62:0:0  # 
 W:4:63:0:0  # 
 # Skill
-S:0:4000:8000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:4000:8000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### BLUE MAGE ###
 N:21
@@ -7304,9 +7304,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### KIHEI ###
 N:22
@@ -7636,9 +7636,9 @@ W:4:61:0:4  #
 W:4:62:0:4  # 
 W:4:63:0:4  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:500:8000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:500:8000  # Riding
 
 ### BERSERKER ###
 N:23
@@ -7968,9 +7968,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:4000:8000  # SUDE
-S:1:4000:8000  # NITOURYU
-S:2:0:0  # RIDING
+S:0:4000:8000  # Martial Arts
+S:1:4000:8000  # Dual Wielding
+S:2:0:0  # Riding
 
 ### KAJI ###
 N:24
@@ -8300,9 +8300,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### MIRROR MASTER ###
 N:25
@@ -8632,9 +8632,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### NINJA ###
 N:26
@@ -8964,9 +8964,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:7000  # SUDE
-S:1:0:8000  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:7000  # Martial Arts
+S:1:0:8000  # Dual Wielding
+S:2:0:0  # Riding
 
 ### SNIPER ###
 N:27
@@ -9296,9 +9296,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:2000  # SUDE
-S:1:0:1000  # NITOURYU
-S:2:0:0     # RIDING
+S:0:0:2000  # Martial Arts
+S:1:0:1000  # Dual Wielding
+S:2:0:0     # Riding
 
 ### TIME LORD ###
 N:28
@@ -9628,9 +9628,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:6000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:6000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### Blood-Knight ###
 N:29
@@ -9960,9 +9960,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:8000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:8000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### WARLOCK ###
 N:30
@@ -10292,9 +10292,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:500  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:500  # Riding
 
 ### ARCHAEOLOGIST ###
 N:31
@@ -10624,9 +10624,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:500  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:500  # Riding
 
 ### DUELIST ###
 N:32
@@ -10956,9 +10956,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:0  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:0  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### Wild-Talent ###
 N:33
@@ -11288,9 +11288,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:6000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:6000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### Rune Knight ###
 N:34
@@ -11620,9 +11620,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:7000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:7000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### WEAPONMASTER ###
 N:35
@@ -11952,9 +11952,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:7000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:7000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### BLOOD MAGE ###
 N:36
@@ -12284,9 +12284,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### NECROMANCER ###
 N:37
@@ -12616,9 +12616,9 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:0  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:0  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### PSION ###
 N:38
@@ -12948,9 +12948,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:500  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:500  # Riding
 
 ### Rage-Mage ###
 N:39
@@ -13280,9 +13280,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:6000  # NITOURYU
-S:2:0:2000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:6000  # Dual Wielding
+S:2:0:2000  # Riding
 
 ### SCOUT ###
 N:40
@@ -13612,9 +13612,9 @@ W:4:61:0:2  #
 W:4:62:0:2  # 
 W:4:63:0:2  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:6000  # NITOURYU
-S:2:0:6000  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:6000  # Dual Wielding
+S:2:0:6000  # Riding
 
 ### MAULER ###
 N:41
@@ -13944,9 +13944,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:0:0  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:0  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### MONSTER ###
 N:42
@@ -14276,9 +14276,9 @@ W:4:61:1:4  #
 W:4:62:1:4  # 
 W:4:63:1:4  # 
 # Skill
-S:0:0:8000  # SUDE
-S:1:0:8000  # NITOURYU
-S:2:0:5000  # RIDING
+S:0:0:0     # Martial Arts
+S:1:0:8000  # Dual Wielding
+S:2:0:0     # Riding
 
 ### MYSTIC ###
 N:43
@@ -14608,9 +14608,9 @@ W:4:61:0:0  #
 W:4:62:0:0  # 
 W:4:63:0:0  # 
 # Skill
-S:0:4000:8000  # SUDE
-S:1:0:0  # NITOURYU
-S:2:0:0  # RIDING
+S:0:4000:8000  # Martial Arts
+S:1:0:0  # Dual Wielding
+S:2:0:0  # Riding
 
 ### Devicemaster ###
 N:44
@@ -14940,6 +14940,6 @@ W:4:61:0:1  #
 W:4:62:0:1  # 
 W:4:63:0:1  # 
 # Skill
-S:0:0:4000  # SUDE
-S:1:0:4000  # NITOURYU
-S:2:0:0  # RIDING
+S:0:0:4000  # Martial Arts
+S:1:0:4000  # Dual Wielding
+S:2:0:0  # Riding

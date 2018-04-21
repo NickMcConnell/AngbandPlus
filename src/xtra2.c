@@ -12,6 +12,8 @@
 
 #include "angband.h"
 
+#include <assert.h>
+
 #define REWARD_CHANCE 10
 
 
@@ -857,6 +859,155 @@ static bool _mon_is_wanted(int m_idx)
     return FALSE;
 }
 
+static bool _kind_is_basic(int k_idx)
+{
+    object_kind *k_ptr = &k_info[k_idx];
+    switch (k_ptr->tval)
+    {
+    case TV_FOOD:
+        switch (k_ptr->sval)
+        {
+        case SV_FOOD_RATION:
+        case SV_FOOD_WAYBREAD:
+            return TRUE;
+        }
+        break;
+
+    case TV_SCROLL:
+        switch (k_ptr->sval)
+        {
+        case SV_SCROLL_TELEPORT:
+        case SV_SCROLL_WORD_OF_RECALL:
+            return TRUE;
+        }
+        break;
+
+    case TV_FLASK:
+        switch (k_ptr->sval)
+        {
+        case SV_FLASK_OIL:
+            return (dun_level < 15) ? TRUE : FALSE;
+        }
+        break;
+
+    case TV_LITE:
+        switch (k_ptr->sval)
+        {
+        case SV_LITE_TORCH:
+        case SV_LITE_LANTERN:
+            return (dun_level < 15) ? TRUE : FALSE;
+        }
+        break;
+
+    case TV_DIGGING:            
+        switch (k_ptr->sval)
+        {
+        case SV_SHOVEL:
+        case SV_PICK:
+            return (dun_level < 15) ? TRUE : FALSE;
+        }
+        break;
+    }
+    return FALSE;
+}
+
+static bool _kind_is_stat_potion(int k_idx)
+{
+    object_kind *k_ptr = &k_info[k_idx];
+    switch (k_ptr->tval)
+    {
+    case TV_POTION:
+        switch (k_ptr->sval)
+        {
+        case SV_POTION_INC_STR:
+        case SV_POTION_INC_INT:
+        case SV_POTION_INC_WIS:
+        case SV_POTION_INC_DEX:
+        case SV_POTION_INC_CON:
+        case SV_POTION_INC_CHR:
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE;
+}
+
+static bool _kind_is_utility(int k_idx)
+{
+    object_kind *k_ptr = &k_info[k_idx];
+    switch (k_ptr->tval)
+    {
+    case TV_SCROLL:
+        switch (k_ptr->sval)
+        {
+        case SV_SCROLL_TELEPORT:
+        case SV_SCROLL_PHASE_DOOR:
+        case SV_SCROLL_WORD_OF_RECALL:
+        case SV_SCROLL_IDENTIFY:
+        case SV_SCROLL_STAR_IDENTIFY:
+        case SV_SCROLL_REMOVE_CURSE:
+        case SV_SCROLL_STAR_REMOVE_CURSE:
+        case SV_SCROLL_MAPPING:
+        case SV_SCROLL_PROTECTION_FROM_EVIL:
+        case SV_SCROLL_DETECT_MONSTERS:
+            return TRUE;
+        }
+        break;
+
+    case TV_POTION:
+        switch (k_ptr->sval)
+        {
+        case SV_POTION_SPEED:
+        case SV_POTION_RESIST_HEAT:
+        case SV_POTION_RESIST_COLD:
+        case SV_POTION_RESISTANCE:
+        case SV_POTION_HEROISM:
+        case SV_POTION_CURE_SERIOUS:
+        case SV_POTION_CURE_CRITICAL:
+        case SV_POTION_CURING:
+        case SV_POTION_RESTORE_EXP:
+        case SV_POTION_RES_STR:
+        case SV_POTION_RES_INT:
+        case SV_POTION_RES_WIS:
+        case SV_POTION_RES_DEX:
+        case SV_POTION_RES_CON:
+        case SV_POTION_RES_CHR:
+        case SV_POTION_CLARITY:
+            return TRUE;
+        }
+        break;
+
+    case TV_STAFF:
+        switch (k_ptr->sval)
+        {
+        case SV_STAFF_MAPPING:
+        case SV_STAFF_DETECT_EVIL:
+        case SV_STAFF_CURING:
+        case SV_STAFF_CURE_LIGHT:
+        case SV_STAFF_SPEED:
+            return TRUE;
+        }
+        break;
+
+    case TV_ROD:
+        switch (k_ptr->sval)
+        {
+        case SV_ROD_DETECT_TRAP:
+        case SV_ROD_DETECT_DOOR:
+        case SV_ROD_IDENTIFY:
+        case SV_ROD_RECALL:
+        case SV_ROD_ILLUMINATION:
+        case SV_ROD_MAPPING:
+        case SV_ROD_DETECTION:
+        case SV_ROD_TELEPORT_AWAY:
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE;
+}
+
+
 /*
  * Handle the "death" of a monster.
  *
@@ -1398,6 +1549,48 @@ void monster_death(int m_idx, bool drop_item)
             break;
         }
         break;
+    }
+
+    if (drop_chosen_item && (m_ptr->mflag2 & MFLAG2_DROP_MASK))
+    {
+        int k_idx;
+        int mode = 0;
+        object_type forge;
+
+        if (m_ptr->mflag2 & MFLAG2_DROP_PRIZE)
+        {
+            if (dun_level >= 30 && dun_level <= 60  && one_in_(3))
+                get_obj_num_hook = _kind_is_stat_potion;
+            else 
+            {
+                if (dun_level >= 20 && one_in_(3))
+                    mode |= AM_GREAT;
+                else
+                    mode |= AM_GOOD;
+
+                if (one_in_(3))
+                    mode |= AM_TAILORED;
+            }
+        }
+        else if (m_ptr->mflag2 & MFLAG2_DROP_UTILITY)
+        {
+            get_obj_num_hook = _kind_is_utility;
+        }
+        else if (m_ptr->mflag2 & MFLAG2_DROP_BASIC)
+            get_obj_num_hook = _kind_is_basic;
+
+        if (get_obj_num_hook) get_obj_num_prep();
+        k_idx = get_obj_num(object_level);
+        if (get_obj_num_hook)
+        {
+            get_obj_num_hook = NULL;
+            get_obj_num_prep();
+        }
+
+        object_prep(&forge, k_idx);
+        apply_magic(&forge, object_level, mode);
+        mass_produce(&forge);
+        drop_near(&forge, -1, y, x);
     }
 
     /* Mega-Hack -- drop fixed items */
@@ -1968,6 +2161,7 @@ void monster_death(int m_idx, bool drop_item)
     {
         if (get_monster_drop(m_idx, &forge))
         {
+            assert(forge.k_idx);
             if (forge.tval == TV_GOLD)
                 dump_gold++;
             else
@@ -2208,6 +2402,57 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
     /* Finally multiply base experience point of the monster */
     s64b_mul(&new_exp, &new_exp_frac, 0, r_ptr->mexp);
 
+    /* Limit the amount of Exp gained from a single monster to remove
+       player exploits that deliberately allow monsters to rest (= infinite exp) */
+    {
+        s32b n_h, d_h;
+        u32b n_l, d_l;
+        s32b pexp, mexp;
+
+        /* Figure out the max experience to gain from this monster */
+        if (r_ptr->flags2 & RF2_MULTIPLY)
+            n_h = r_ptr->level * SPEED_TO_ENERGY(r_ptr->speed);
+        else
+            n_h = r_ptr->level * SPEED_TO_ENERGY(m_ptr->mspeed);
+        n_l = 0;
+        d_h = 0;
+        d_l = (p_ptr->max_plv+2) * SPEED_TO_ENERGY(r_ptr->speed);
+
+        s64b_div(&n_h, &n_l, d_h, d_l);
+        s64b_mul(&n_h, &n_l, 0, r_ptr->mexp);
+
+        mexp = n_h * 100;
+        n_h = 0;
+        s64b_mul(&n_h, &n_l, 0, 100);
+        mexp += n_h;
+
+        /* Figure out how much we are gaining */
+        pexp = new_exp * 100;
+        n_h = 0;
+        n_l = new_exp_frac;
+        s64b_mul(&n_h, &n_l, 0, 100);
+        pexp += n_h;
+
+        if (m_ptr->pexp + pexp > mexp)
+        {
+            pexp = MAX(0, mexp - m_ptr->pexp);
+            new_exp = pexp / 100;
+            n_h = pexp % 100;
+            new_exp_frac = 0;
+            s64b_div(&n_h, &new_exp_frac, 0, 100);
+        }
+        m_ptr->pexp += pexp;
+#ifdef _DEBUG        
+        msg_format(
+            "Gain %d.%2.2d XP (Max %d.%2.2d, Mon %d.%2.2d, Actual %d %u)", 
+            pexp/100, pexp%100, 
+            mexp/100, mexp%100, 
+            m_ptr->pexp/100, m_ptr->pexp%100, 
+            new_exp, new_exp_frac
+        );
+#endif
+    }
+
     if (mut_present(MUT_FAST_LEARNER))
     {
         s64b_mul(&new_exp, &new_exp_frac, 0, 6);
@@ -2307,8 +2552,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
-    monster_type    exp_mon;
-
     /* Innocent until proven otherwise */
     bool        innocent = TRUE, thief = FALSE;
     int         i;
@@ -2335,13 +2578,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
         }
     }
 
-    (void)COPY(&exp_mon, m_ptr, monster_type);
     if (!(r_ptr->flags7 & RF7_KILL_EXP))
     {
         expdam = (m_ptr->hp > dam) ? dam : m_ptr->hp;
         if (r_ptr->flags6 & RF6_HEAL) expdam = (expdam+1) * 2 / 3;
 
-        get_exp_from_mon(expdam, &exp_mon);
+        get_exp_from_mon(expdam, m_ptr);
 
         /* Genocided by chaos patron */
         if (!m_ptr->r_idx) m_idx = 0;
@@ -2394,7 +2636,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
     /* It is dead now */
     if (m_ptr->hp < 0)
     {
-        char m_name[MAX_NLEN];
+        char         m_name[MAX_NLEN];
+        monster_type exp_mon = *m_ptr; /* Copy since we will delete_monster_idx before granting experience */
 
         monster_desc(m_name, m_ptr, MD_TRUE_NAME);
 

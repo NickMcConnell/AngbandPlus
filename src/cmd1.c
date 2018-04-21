@@ -2226,6 +2226,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     int             i, j, k;
     int             delay_sleep = 0;
     int             delay_stasis = 0;
+    int             delay_paralysis = 0;
     bool            delay_quake = FALSE;
     int             drain_amt = 0;
     int             steal_ct = 0;
@@ -2466,6 +2467,9 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         else
                             delay_stasis += base_dam;
                         break;
+                    case GF_PARALYSIS:
+                        delay_paralysis += base_dam;
+                        break;
                     case GF_OLD_CONF:
                     case GF_OLD_SLOW:
                     case GF_STUN:
@@ -2554,6 +2558,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         project(0, 0, m_ptr->fy, m_ptr->fx, delay_sleep, GF_OLD_SLEEP, PROJECT_KILL|PROJECT_HIDE, -1);
     if (delay_stasis && !*mdeath)
         project(0, 0, m_ptr->fy, m_ptr->fx, delay_stasis, GF_STASIS, PROJECT_KILL|PROJECT_HIDE, -1);
+    if (delay_paralysis && !*mdeath)
+        project(0, 0, m_ptr->fy, m_ptr->fx, delay_paralysis, GF_PARALYSIS, PROJECT_KILL|PROJECT_HIDE, -1);
     if (steal_ct && !*mdeath)
     {
         if (mon_save_p(m_ptr->r_idx, A_DEX))

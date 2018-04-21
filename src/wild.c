@@ -266,14 +266,22 @@ static bool _is_boundary(int x, int y)
 static void _scroll_grid(int src_x, int src_y, int dest_x, int dest_y)
 {
     cave_type *src = &cave[src_y][src_x];
+    s16b       this_o_idx, next_o_idx = 0;
+
     assert(!(src->info & CAVE_TEMP));
+
     if (in_bounds2(dest_y, dest_x))
     {
         cave_type *dest = &cave[dest_y][dest_x];
+
         if (dest->m_idx)
             delete_monster_idx(dest->m_idx);
-        if (dest->o_idx)
-            delete_object_idx(dest->o_idx);
+
+        for (this_o_idx = dest->o_idx; this_o_idx; this_o_idx = next_o_idx)
+        {
+            next_o_idx = o_list[this_o_idx].next_o_idx;
+            delete_object_idx(this_o_idx);
+        }
 
         *dest = *src;
         WIPE(src, cave_type);
@@ -286,20 +294,24 @@ static void _scroll_grid(int src_x, int src_y, int dest_x, int dest_y)
             if (_is_boundary(dest_x, dest_y))
                 delete_monster_idx(dest->m_idx);
         }
-        if (dest->o_idx)
+        for (this_o_idx = dest->o_idx; this_o_idx; this_o_idx = next_o_idx)
         {
-            o_list[dest->o_idx].iy = dest_y;
-            o_list[dest->o_idx].ix = dest_x;
+            next_o_idx = o_list[this_o_idx].next_o_idx;
+            o_list[this_o_idx].iy = dest_y;
+            o_list[this_o_idx].ix = dest_x;
             if (_is_boundary(dest_x, dest_y))
-                delete_object_idx(dest->o_idx);
+                delete_object_idx(this_o_idx);
         }
     }
     else
     {
         if (src->m_idx)
             delete_monster_idx(src->m_idx);
-        if (src->o_idx)
-            delete_object_idx(src->o_idx);
+        for (this_o_idx = src->o_idx; this_o_idx; this_o_idx = next_o_idx)
+        {
+            next_o_idx = o_list[this_o_idx].next_o_idx;
+            delete_object_idx(this_o_idx);
+        }
         WIPE(src, cave_type);
         src->info |= CAVE_TEMP;  /* Mark for _apply_glow */
     }

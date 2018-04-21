@@ -3617,17 +3617,20 @@ static bool place_monster_group(int who, int y, int x, int r_idx, int pack_idx, 
     total = randint1(10);
 
     /* Hard monsters, small groups */
-    if (r_ptr->level > dun_level)
+    if (dun_level)
     {
-        extra = r_ptr->level - dun_level;
-        extra = 0 - randint1(extra);
-    }
+        if (r_ptr->level > dun_level)
+        {
+            extra = r_ptr->level - dun_level;
+            extra = 0 - randint1(extra);
+        }
 
-    /* Easy monsters, large groups */
-    else if (r_ptr->level < dun_level)
-    {
-        extra = dun_level - r_ptr->level;
-        extra = randint1(extra);
+        /* Easy monsters, large groups */
+        else if (r_ptr->level < dun_level)
+        {
+            extra = dun_level - r_ptr->level;
+            extra = randint1(extra);
+        }
     }
 
     /* Hack -- limit group reduction */

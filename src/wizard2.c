@@ -12,6 +12,7 @@
 
 #include "angband.h"
 
+#include <assert.h>
 
 /*
  * Strip an "object name" into a buffer
@@ -3021,9 +3022,35 @@ void do_cmd_debug(void)
         break;
 
     case '_':
-        /* Placeholder for quick and dirty debugging ... */
+    {
+        int i;
+        for (i = 0; i < 100*1000; i++)
+        {
+            object_type forge;
+            make_object(&forge, AM_GOOD | AM_TAILORED);
+            switch (forge.tval)
+            {
+            case TV_LIFE_BOOK:
+            case TV_SORCERY_BOOK:
+            case TV_NATURE_BOOK:
+            case TV_CHAOS_BOOK:
+            case TV_DEATH_BOOK:
+            case TV_TRUMP_BOOK:
+            case TV_CRAFT_BOOK:
+            case TV_DAEMON_BOOK:
+            case TV_CRUSADE_BOOK:
+            case TV_NECROMANCY_BOOK:
+            case TV_ARMAGEDDON_BOOK:
+            case TV_MUSIC_BOOK:
+            case TV_HISSATSU_BOOK:
+            case TV_HEX_BOOK:
+                assert(forge.sval >= SV_BOOK_MIN_GOOD);
+                break;
+            }
+        }
+        
         break;
-
+    }
     default:
         msg_print("That is not a valid debug command.");
         break;

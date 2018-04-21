@@ -3275,6 +3275,12 @@ int mod_spell_chance_1(int chance, int realm)
 
     if (p_ptr->heavy_spell) chance += 20;
 
+    if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+    {
+        if (p_ptr->cumber_glove) chance += 20;
+        if (p_ptr->cumber_armor) chance += 100 * p_ptr->cumber_armor_amt / 600;
+    }
+
     if (dec_mana && p_ptr->easy_spell) chance -= 4;
     else if (p_ptr->easy_spell) chance -= 3;
     else if (dec_mana) chance -= 2;
@@ -3302,6 +3308,11 @@ int mod_spell_chance_2(int chance, int realm)
 
     if (dec_mana) chance--;
     if (p_ptr->heavy_spell) chance += 5;
+    if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+    {
+        if (p_ptr->cumber_glove) chance += 5;
+        if (p_ptr->cumber_armor) chance += 5;
+    }
 
     return MAX(chance, 0);
 }

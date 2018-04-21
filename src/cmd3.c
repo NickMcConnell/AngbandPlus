@@ -1597,13 +1597,12 @@ void do_cmd_list_objects(void)
 
         auto_pick_idx = is_autopick(o_ptr);
 
-#if 0
-        if (auto_pick_idx >= 0 && autopick_list[auto_pick_idx].action & DO_AUTODESTROY) continue;
-#else
-        if (auto_pick_idx < 0) continue;
-        if (!(autopick_list[auto_pick_idx].action & DO_DISPLAY)) continue;
-        if (!(autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK))) continue;
-#endif
+        if (!p_ptr->wizard)
+        {
+            if (auto_pick_idx < 0) continue;
+            if (!(autopick_list[auto_pick_idx].action & DO_DISPLAY)) continue;
+            if (!(autopick_list[auto_pick_idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK))) continue;
+        }
         list[ct++] = i;
     }
 

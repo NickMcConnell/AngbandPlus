@@ -2663,6 +2663,7 @@ static void _create_amulet(object_type *o_ptr, int level, int power, int mode)
                 else if (one_in_(2))
                 {
                     add_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
+                    if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(6, level);
                     break;
                 }
             case 6:
@@ -3400,7 +3401,7 @@ static void _create_weapon(object_type *o_ptr, int level, int power, int mode)
                     if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_KATANA)
                     {
                         o_ptr->dd = 8; /* Aglarang */
-                        o_ptr->ds = 6;
+                        o_ptr->ds = 4;
                         if (one_in_(100))
                         {
                             o_ptr->dd = 10;
@@ -4398,7 +4399,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, int mode)
                 count++;
                 if (count > 100) break;
 
-                i = get_mon_num(0);
+                i = get_mon_num(dun_level);
 
                 r_ptr = &r_info[i];
 
@@ -5035,7 +5036,10 @@ static bool kind_is_tailored(int k_idx)
     case TV_MUSIC_BOOK:
     case TV_HISSATSU_BOOK:
     case TV_HEX_BOOK:
-        return check_book_realm(k_ptr->tval, k_ptr->sval);
+    case TV_RAGE_BOOK:
+    case TV_BURGLARY_BOOK:
+        return check_book_realm(k_ptr->tval, k_ptr->sval)
+            && k_ptr->sval >= SV_BOOK_MIN_GOOD;
     }
 
     return FALSE;
@@ -5102,6 +5106,8 @@ static bool kind_is_great(int k_idx)
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
+        case TV_RAGE_BOOK:
+        case TV_BURGLARY_BOOK:
         {
             /*if (k_ptr->sval == SV_BOOK_MIN_GOOD) return one_in_(3);  Third Spellbooks */
             if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
@@ -5204,6 +5210,8 @@ static bool kind_is_good(int k_idx)
         case TV_MUSIC_BOOK:
         case TV_HISSATSU_BOOK:
         case TV_HEX_BOOK:
+        case TV_RAGE_BOOK:
+        case TV_BURGLARY_BOOK:
         {
             if (k_ptr->sval == SV_BOOK_MIN_GOOD) return TRUE; /* Third Spellbooks */
             if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
@@ -5514,8 +5522,7 @@ bool make_object(object_type *j_ptr, u32b mode)
     /* Note: It is important to do this *after* apply_magic rather than in, say, 
        object_prep() since artifacts should never spawn multiple copies. Ego ammo
        should, but other egos (e.g. lights) should not. */
-    if (k_info[j_ptr->k_idx].gen_flags & TRG_STACK)
-        mass_produce(j_ptr);
+    mass_produce(j_ptr);
 
     obj_level = k_info[j_ptr->k_idx].level;
     if (object_is_fixed_artifact(j_ptr)) obj_level = a_info[j_ptr->name1].level;
