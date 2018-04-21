@@ -3465,7 +3465,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 obvious = FALSE;
                 dam = 0;
             }
-            else do_time = (dam+7)/8;
+            else
+            {
+                if (dragon_vamp_hack)
+                    dragon_vamp_amt += dam;
+                do_time = (dam+7)/8;
+            }
 
             break;
         }
@@ -3892,6 +3897,93 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             break;
         }
 
+        case GF_SUBJUGATION:
+        {
+            bool unique = (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ? TRUE : FALSE;
+            int  attempts = randint1(1 + p_ptr->lev/50);
+            int  ct = 0;
+
+            if (seen) obvious = TRUE;
+            set_monster_csleep(c_ptr->m_idx, 0);
+
+            if (r_ptr->flagsr & RFR_RES_ALL)
+            {
+                dam = 0;
+                if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+                break;
+            }
+
+            if (is_pet(m_ptr))
+                return FALSE;
+
+            while (attempts--)
+            {
+                switch (randint1(5))
+                {
+                case 1:
+                    if (randint1(r_ptr->level) <= randint1(dam))
+                    {
+                        do_stun = dam / 2;
+                        ct++;
+                    }
+                    break;
+                case 2:
+                    if (!(r_ptr->flags3 & RF3_NO_CONF) && randint1(r_ptr->level) <= randint1(dam))
+                    {
+                        do_conf = dam / 2;
+                        ct++;
+                    }
+                    break;
+                case 3:
+                    if (!unique && randint1(r_ptr->level) <= randint1(dam))
+                    {
+                        note = " is frozen in terror!";
+                        do_sleep = 500;
+                        attempts = 0;
+                        ct++;
+                    }
+                    break;
+                case 4:
+                    if (randint1(r_ptr->level) <= randint1(dam))
+                    {
+                        do_fear = dam;
+                        ct++;
+                    }
+                    break;
+                default:
+                    if (unique || p_ptr->inside_arena)
+                    {
+                    }
+                    else if ((m_ptr->mflag2 & MFLAG2_NOPET) || randint1(r_ptr->level) > randint1(dam))
+                    {
+                        if (one_in_(4)) 
+                            m_ptr->mflag2 |= MFLAG2_NOPET;
+                    }
+                    else
+                    {
+                        msg_format("%s bows to your will!", m_name);
+
+                        set_pet(m_ptr);
+                        attempts = 0;
+                        ct++;
+
+                        virtue_add(VIRTUE_INDIVIDUALISM, -1);
+                        if (r_ptr->flags3 & RF3_ANIMAL)
+                            virtue_add(VIRTUE_NATURE, 1);
+
+                        /* Ignore any prior effects */
+                        return TRUE;
+                    }
+                }
+            }
+            if (!ct)
+                note = " resists";
+
+            /* No "real" damage */
+            dam = 0;
+            break;
+        }
+
         case GF_ELDRITCH_HOWL:
         {
             if (r_ptr->flagsr & RFR_RES_ALL)
@@ -3946,15 +4038,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 dam -= virtue_current(VIRTUE_INDIVIDUALISM)/20;
                 if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL))
                     dam = dam * 2 / 3;
-
-                if (r_ptr->flags3 & RF3_NO_CONF)
-                {
-                    if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
-                    note = " is unaffected!";
-                    obvious = FALSE;
-                    dam = 0;
-                    break;
-                }
             }
 
             if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)

@@ -1629,6 +1629,15 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
     /* Hack -- Require identical "cursed" status */
     if (o_ptr->curse_flags != j_ptr->curse_flags) return 0;
 
+    /* Require identical activations */
+    if ( o_ptr->activation.type != j_ptr->activation.type
+      || o_ptr->activation.timeout != j_ptr->activation.timeout
+      || o_ptr->activation.level != j_ptr->activation.level
+      || o_ptr->activation.extra != j_ptr->activation.extra )
+    {
+        return 0;
+    }
+
     /* Hack -- Require identical "broken" status */
     if ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))) return 0;
 
@@ -5001,13 +5010,16 @@ static bool kind_is_tailored(int k_idx)
             && _is_favorite(k_ptr->tval, k_ptr->sval);
 
     case TV_SHOT:
-        return equip_can_wield_kind(TV_BOW, SV_SLING);
+        /*return equip_can_wield_kind(TV_BOW, SV_SLING);*/
+        return FALSE;
 
     case TV_BOLT:
-        return equip_can_wield_kind(TV_BOW, SV_LIGHT_XBOW);
+        /*return equip_can_wield_kind(TV_BOW, SV_LIGHT_XBOW);*/
+        return FALSE;
 
     case TV_ARROW:
-        return equip_can_wield_kind(TV_BOW, SV_LONG_BOW);
+        /*return equip_can_wield_kind(TV_BOW, SV_LONG_BOW);*/
+        return FALSE;
 
     case TV_LIFE_BOOK:
     case TV_SORCERY_BOOK:

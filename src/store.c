@@ -4481,7 +4481,10 @@ void do_cmd_store(void)
             if (!no_selling)
                 prt("s) Sell an item", 22 + xtra_stock, 30);
             prt("x) eXamine an item", 23 + xtra_stock,30);
-            prt("  b) Buyout store", 23 + xtra_stock, 56);
+            if (rogue_like_commands) /* P -> b coincidentally and 'P'urchase entire stock works */
+                prt("  P) Purchase entire stock", 23 + xtra_stock, 56);
+            else
+                prt("  b) Buyout store", 23 + xtra_stock, 56);
         }
 
         prt("i/e) Inventry/Equipment list", 21 + xtra_stock, 56);

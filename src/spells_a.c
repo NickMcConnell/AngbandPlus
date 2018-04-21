@@ -479,7 +479,7 @@ void berserk_spell(int cmd, variant *res)
         break;
     case SPELL_CAST:
     {
-        msg_print("Raaagh!  You feel like hitting something.");
+        msg_print("Raaagh! You feel like hitting something.");
         set_shero(10 + randint1(p_ptr->lev), FALSE);
         var_set_bool(res, TRUE);
         break;

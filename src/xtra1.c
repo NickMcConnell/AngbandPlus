@@ -416,6 +416,8 @@ static void prt_stat(int stat)
 #define BAR_DTRAP_EDGE 162
 #define BAR_VAMPIRE_LIGHT 163
 #define BAR_VAMPIRE_DARK  164
+#define BAR_SH_SHARDS 165
+#define BAR_SH_DOMINATION 166
 
 static struct {
     byte attr;
@@ -589,6 +591,8 @@ static struct {
     {TERM_YELLOW, "DT", "DTrap"},
     {TERM_YELLOW, "Lt", "Light"},
     {TERM_L_DARK, "Dk", "Dark"},
+    {TERM_UMBER, "SSh", "SShards"},
+    {TERM_L_BLUE, "Dom", "Dominate"},
     {0, NULL, NULL}
 };
 
@@ -758,6 +762,8 @@ static void prt_status(void)
     if (p_ptr->special_defense & NINJA_S_STEALTH) ADD_FLG(BAR_SUPERSTEALTH);
 
     if (p_ptr->tim_sh_fire) ADD_FLG(BAR_SHFIRE);
+    if (p_ptr->tim_sh_shards) ADD_FLG(BAR_SH_SHARDS);
+    if (p_ptr->tim_sh_domination) ADD_FLG(BAR_SH_DOMINATION);
     if (p_ptr->tim_sh_elements)
     {
         ADD_FLG(BAR_SHFIRE);
@@ -2955,6 +2961,12 @@ static void calc_hitpoints(void)
 /*    mhp = mhp * pers_ptr->life / 100; */
     mhp = mhp * ap_ptr->life / 100;
     mhp = mhp * p_ptr->life / 100;
+    
+    if (p_ptr->prace == RACE_MON_DRAGON)
+    {
+        dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
+        mhp = mhp * realm->life / 100;
+    }
 
     mhp += class_ptr->base_hp;
     mhp += race_ptr->base_hp;
@@ -3234,6 +3246,8 @@ void calc_bonuses(void)
     p_ptr->can_swim = FALSE;
     p_ptr->levitation = FALSE;
     p_ptr->hold_life = FALSE;
+    p_ptr->loremaster = FALSE;
+    p_ptr->cult_of_personality = FALSE;
     p_ptr->telepathy = FALSE;
     p_ptr->esp_animal = FALSE;
     p_ptr->esp_undead = FALSE;
@@ -3381,6 +3395,18 @@ void calc_bonuses(void)
         skills_add(&p_ptr->skills, &r_extra);
         skills_add(&p_ptr->skills, &ap_ptr->skills);
         skills_add(&p_ptr->skills, &a_extra);
+
+        if (p_ptr->prace == RACE_MON_DRAGON)
+        {
+            dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
+            skills_t         extra = realm->skills;
+
+            extra.stl = 0;
+            skills_scale(&extra, p_ptr->lev, 10);
+
+            skills_add(&p_ptr->skills, &realm->skills);
+            skills_add(&p_ptr->skills, &extra);
+        }
     }
 
     p_ptr->skill_tht = p_ptr->skills.thb;
@@ -3487,6 +3513,9 @@ void calc_bonuses(void)
     
     if (p_ptr->tim_sh_fire)
         p_ptr->sh_fire = TRUE;
+
+    if (p_ptr->tim_sh_shards)
+        p_ptr->sh_shards = TRUE;
 
     if (p_ptr->tim_sh_elements)
     {

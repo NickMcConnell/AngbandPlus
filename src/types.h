@@ -1084,6 +1084,9 @@ typedef struct {
 #define MAX_WILD_COUNTERS  5
 #define MAX_INNATE_EFFECTS 7
 
+#define INNATE_SKIP        0x0001
+#define INNATE_VORPAL      0x0002
+
 typedef struct {
     int dd;
     int ds;
@@ -1093,6 +1096,7 @@ typedef struct {
     int weight;
     int effect[MAX_INNATE_EFFECTS];
     int effect_chance[MAX_INNATE_EFFECTS];
+    int flags;
     cptr msg;   /* "You bite %s.", "You hit %s with your horns.", etc. */
     cptr name;
 } innate_attack_t, *innate_attack_ptr;
@@ -1109,6 +1113,7 @@ struct player_type
     byte personality;        /* Seikaku index */
     byte realm1;        /* First magic realm */
     byte realm2;        /* Second magic realm */
+    byte dragon_realm;
     byte psubclass;        /* e.g. Pacts on Warlocks. Type of Weaponmaster.*/
     byte psubrace;      /* e.g. Parentage on Demigods */
     s16b current_r_idx;
@@ -1208,6 +1213,8 @@ struct player_type
     s16b tim_mimic;
     s16b tim_sh_fire;
     s16b tim_sh_elements;
+    s16b tim_sh_shards;
+    s16b tim_sh_domination;
     s16b tim_weaponmastery;
     s16b tim_sh_holy;
     s16b tim_eyeeye;
@@ -1504,6 +1511,9 @@ struct player_type
     bool regenerate;    /* Regenerate hit pts */
     bool hold_life;        /* Resist life draining */
 
+    bool loremaster;
+    bool cult_of_personality;
+
     bool telepathy;        /* Telepathy */
     bool esp_animal;
     bool esp_undead;
@@ -1588,6 +1598,7 @@ struct birther
     byte personality;     /* Seikaku index */
     byte realm1;       /* First magic realm */
     byte realm2;       /* Second magic realm */
+    byte dragon_realm;
 
     s16b age;
     s16b ht;
@@ -2087,3 +2098,14 @@ typedef struct equip_template_s {
     slot_t     slots[EQUIP_MAX_SLOTS];
 } equip_template_t, *equip_template_ptr;
 
+typedef struct {
+    cptr                    name;
+    cptr                    desc;
+    s16b                    stats[MAX_STATS];
+    skills_t                skills;
+    s16b                    life;
+    s16b                    exp;
+    s16b                    attack;
+    s16b                    breath;
+    s16b                    spell_stat;
+} dragon_realm_t, *dragon_realm_ptr;

@@ -4254,7 +4254,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 
     if ((type == SUMMON_BLUE_HORROR) || (type == SUMMON_DAWN)) mode |= PM_NO_KAGE;
 
-    if (who > 0 && hack_m_spell && mut_present(MUT_CULT_OF_PERSONALITY))
+    if (who > 0 && hack_m_spell && p_ptr->cult_of_personality)
     {
         if (one_in_(2) && !mon_save_p(r_idx, A_CHR))
         {

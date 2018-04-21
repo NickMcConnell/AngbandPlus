@@ -1736,6 +1736,23 @@ bool make_attack_normal(int m_idx)
                         teleport_player(10, 0L);
                 }
 
+                if (p_ptr->tim_sh_domination && alive && !p_ptr->is_dead)
+                {
+                    if (!(r_ptr->flagsr & RFR_RES_ALL))
+                    {
+                        int dam = (subjugation_power()+1)/2;
+                        msg_format("%^s feels the force of your presence!", m_name);
+                        project(0, 0, m_ptr->fy, m_ptr->fx, dam, GF_SUBJUGATION, PROJECT_STOP | PROJECT_KILL | PROJECT_GRID, -1);
+                        if (MON_CSLEEP(m_ptr) || !is_hostile(m_ptr) || MON_MONFEAR(m_ptr))
+                            break;
+                    }
+                    else
+                    {
+                        if (is_original_ap_and_seen(m_ptr))
+                            r_ptr->r_flagsr |= RFR_RES_ALL;
+                    }
+                }
+
                 if (p_ptr->tim_sh_time && alive && !p_ptr->is_dead)
                 {
                     if (!(r_ptr->flagsr & RFR_EFF_RES_TIME_MASK))

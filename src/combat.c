@@ -548,8 +548,16 @@ int display_weapon_info(int hand, int row, int col)
 
     if (!have_flag(flgs, TR_ORDER))
     {
-        sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits",
-                        crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
+        if (crit.to_d)
+        {
+            sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits",
+                            crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
+        }
+        else
+        {
+            sprintf(buf, " %-7.7s: %d.%02dx", "Crits",
+                            crit.mul/100, crit.mul%100);
+        }
         put_str(buf, r++, c);
     }
 
@@ -716,7 +724,7 @@ int display_innate_attack_info(int which, int row, int col)
     int to_d = p_ptr->to_d_m + a->to_d;
     int dd = a->dd + p_ptr->innate_attack_info.to_dd;
     char buf[100];
-    int mult = 100;
+    int mult;
     int r, c;
     int result = row;
 
@@ -748,6 +756,14 @@ int display_innate_attack_info(int which, int row, int col)
     sprintf(buf, " %-7.7s", "Damage");
     c_put_str(TERM_L_GREEN, buf, r++, c);
 
+    mult = 100;
+    if (a->flags & INNATE_VORPAL)
+    {
+        mult = mult * 11 / 9;
+        sprintf(buf, " %-7.7s: %d.%02dx", "Vorpal", mult/100, mult%100);
+        put_str(buf, r++, c);
+    }
+
     for (i = 0; i < ct; i++)
     {
         critical_t tmp = critical_norm(a->weight, to_h, 0, 0, HAND_NONE);
@@ -761,8 +777,11 @@ int display_innate_attack_info(int which, int row, int col)
     }
     crit.mul = crit.mul / ct;
     crit.to_d = crit.to_d * 100 / ct;
-    sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits",
-                    crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
+    if (crit.to_d)
+        sprintf(buf, " %-7.7s: %d.%02dx + %d.%02d", "Crits", crit.mul/100, crit.mul%100, crit.to_d/100, crit.to_d%100);
+    else
+        sprintf(buf, " %-7.7s: %d.%02dx", "Crits", crit.mul/100, crit.mul%100);
+
     put_str(buf, r++, c);
     crit.to_d /= 100;
     mult = mult * crit.mul / 100;
@@ -794,7 +813,7 @@ int display_innate_attack_info(int which, int row, int col)
     {
         int p = a->effect_chance[i];
         char xtra[255];
-        if (!a->effect[i]) break;
+        if (!a->effect[i]) continue;
         if (!p)
             sprintf(xtra, "%s", "");
         else

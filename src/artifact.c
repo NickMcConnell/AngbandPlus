@@ -2937,7 +2937,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
     }
 }
 
-bool reforge_artifact(object_type *src, object_type *dest)
+bool reforge_artifact(object_type *src, object_type *dest, int fame)
 {
     bool        result = FALSE;
     object_type forge = {0};    
@@ -2950,7 +2950,7 @@ bool reforge_artifact(object_type *src, object_type *dest)
     base_power = object_value_real(src);
 
     /* Pay a Power Tax! */
-    base_power = base_power/2 + randint1(base_power*p_ptr->fame/500);
+    base_power = base_power/2 + randint1(base_power*fame/500);
 
     /* Setup thresholds. For weak objects, its better to use a generous range ... */
     if (base_power < 1000)
@@ -2966,7 +2966,7 @@ bool reforge_artifact(object_type *src, object_type *dest)
 
     /* Better Fame means better results! */
     old_level = object_level;
-    object_level = MIN(p_ptr->fame/2, 75);
+    object_level = MIN(fame/2, 75);
 
     for (i = 0; i < 1000 && !result; i++)
     {

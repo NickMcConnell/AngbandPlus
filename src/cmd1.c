@@ -92,7 +92,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 
         if (unique && one_in_(200 / MAX(r_ptr->level, 1)))
         {
-            switch (randint1(11))
+            switch (randint1(12))
             {
             case 1:
                 if (one_in_(6)) 
@@ -171,6 +171,18 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
                     add_flag(o_ptr->art_flags, TR_SLAY_EVIL); 
                 } 
                 break;
+            case 12:
+                if (one_in_(666)) 
+                { 
+                    feed = TRUE; 
+                    add_flag(o_ptr->art_flags, TR_VORPAL2); 
+                }
+                else if (one_in_(6))
+                {
+                    feed = TRUE; 
+                    add_flag(o_ptr->art_flags, TR_VORPAL); 
+                }
+                break;
             }
         }
 
@@ -181,6 +193,10 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
             {  
                 o_ptr->curse_flags |= TRC_TY_CURSE;
                 msg_print("Your Rune Sword seeks to dominate you!");
+            /*  if (one_in_(13))
+                    add_flag(o_ptr->art_flags, TR_AGGRAVATE); */
+                if (one_in_(13))
+                    add_flag(o_ptr->art_flags, TR_DRAIN_EXP);
             }
             else if ((o_ptr->curse_flags & TRC_AGGRAVATE) == 0
                    && o_ptr->dd * o_ptr->ds > 30 )
@@ -552,6 +568,7 @@ critical_t critical_norm(int weight, int plus, s16b meichuu, int mode, int hand)
 s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
 {
     int mult = 10;
+    int bonus = 0;
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
     const int monk_elem_slay = 17;
 
@@ -563,7 +580,8 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         }
         else if (mode == MYSTIC_ACID)
         {
-            if (mult < 20) mult = 20;
+            mult = MAX(mult, 20);
+            bonus = MAX(bonus, 5);
         }
         else
         {
@@ -579,7 +597,8 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         }
         else if (mode == MYSTIC_ELEC)
         {
-            if (mult < 25) mult = 25;
+            mult = MAX(mult, 25);
+            bonus = MAX(bonus, 7);
         }
         else
         {
@@ -600,6 +619,11 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
                 mult = MAX(mult, 25);
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_FIRE;
             }
+            else if (mode == MYSTIC_FIRE)
+            {
+                mult = MAX(mult, 17);
+                bonus = MAX(bonus, 3);
+            }
             else 
                 mult = MAX(mult, monk_elem_slay);
         }
@@ -618,6 +642,11 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
                 mult = MAX(mult, 25);
                 if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_COLD;
             }
+            else if (mode == MYSTIC_COLD)
+            {
+                mult = MAX(mult, 17);
+                bonus = MAX(bonus, 3);
+            }
             else 
                 mult = MAX(mult, monk_elem_slay);
         }
@@ -629,13 +658,18 @@ s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr, int mode)
         {
             if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK);
         }
+        else if (mode == MYSTIC_POIS)
+        {
+            mult = MAX(mult, 17);
+            bonus = MAX(bonus, 3);
+        }
         else
         {
             if (mult < monk_elem_slay) mult = monk_elem_slay;
         }
     }
 
-    return (tdam * mult / 10);
+    return tdam * mult / 10 + bonus;
 }
 
 #define _MAX_CHAOS_SLAYS 15
@@ -2181,6 +2215,8 @@ static int _get_num_blow_innate(int which)
     return result;
 }
 
+static void do_monster_knockback(int x, int y, int dist);
+
 static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 {
     int             dam, base_dam, to_h, chance;
@@ -2193,6 +2229,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     bool            delay_quake = FALSE;
     int             drain_amt = 0;
     int             steal_ct = 0;
+    int             hit_ct = 0;
     const int       max_drain_amt = _max_vampiric_drain();
 
     set_monster_csleep(m_idx, 0);
@@ -2215,6 +2252,8 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         innate_attack_ptr a = &p_ptr->innate_attacks[i];
         int               blows = _get_num_blow_innate(i);
 
+        if (a->flags & INNATE_SKIP) continue;
+
         for (j = 0; j < blows; j++)
         {
             to_h = a->to_h + p_ptr->to_h_m;
@@ -2224,10 +2263,31 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 critical_t crit;
                 int        dd = a->dd + p_ptr->innate_attack_info.to_dd;
 
+                hit_ct++;
                 sound(SOUND_HIT);
                 msg_format(a->msg, m_name);
 
-                base_dam = damroll(dd, a->ds) + a->to_d;
+                base_dam = damroll(dd, a->ds);
+                if ( ((a->flags & INNATE_VORPAL) || mode == DRAGON_REND) 
+                  && one_in_(6) )
+                {
+                    int m = 2;
+                    while (one_in_(4))
+                        m++;
+
+                    base_dam *= m;
+                    switch (m)
+                    {
+                    case 2: msg_format("You gouge %s!", m_name); break;
+                    case 3: msg_format("You maim %s!", m_name); break;
+                    case 4: msg_format("You carve %s!", m_name); break;
+                    case 5: msg_format("You cleave %s!", m_name); break;
+                    case 6: msg_format("You smite %s!", m_name); break;
+                    case 7: msg_format("You eviscerate %s!", m_name); break;
+                    default: msg_format("You shred %s!", m_name); break;
+                    }
+                }
+                base_dam += a->to_d;
                 crit = critical_norm(a->weight, to_h, 0, mode, HAND_NONE);
                 if (crit.desc)
                 {
@@ -2252,7 +2312,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                        I inadvertantly made dragon bite attacks too strong. Let's
                        emulate the way branded weapons work, but only when the elemental
                        effect is added on top of some base effect (generally GF_MISSILE). */
-                    if (k)
+                    if (k && mode == DRAGON_DEADLY_BITE)
                     {
                         switch (e)
                         {
@@ -2293,6 +2353,78 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                             {
                                 if (is_original_ap_and_seen(m_ptr)) 
                                     r_ptr->r_flagsr |= r_ptr->flagsr & RFR_EFF_IM_POIS_MASK;
+                                e = 0;
+                            }
+                            break;
+                        case GF_CONFUSION:
+                            if (r_ptr->flags3 & RF3_NO_CONF)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flags3 |= RF3_NO_CONF;
+                                e = 0;
+                            }
+                            break;
+                        case GF_SOUND:
+                            if (r_ptr->flagsr & RFR_RES_SOUN)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_SOUN;
+                                e = 0;
+                            }
+                            break;
+                        case GF_SHARDS:
+                            if (r_ptr->flagsr & RFR_RES_SHAR)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_SHAR;
+                                e = 0;
+                            }
+                            break;
+                        case GF_NETHER:
+                            if (r_ptr->flagsr & RFR_RES_NETH)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_NETH;
+                                e = 0;
+                            }
+                            break;
+                        case GF_NEXUS:
+                            if (r_ptr->flagsr & RFR_RES_NEXU)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_NEXU;
+                                e = 0;
+                            }
+                            break;
+                        case GF_CHAOS:
+                            if (r_ptr->flagsr & RFR_RES_CHAO)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_CHAO;
+                                e = 0;
+                            }
+                            break;
+                        case GF_DISENCHANT:
+                            if (r_ptr->flagsr & RFR_RES_DISE)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_DISE;
+                                e = 0;
+                            }
+                            break;
+                        case GF_LITE:
+                            if (r_ptr->flagsr & RFR_RES_LITE)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_LITE;
+                                e = 0;
+                            }
+                            break;
+                        case GF_DARK:
+                            if (r_ptr->flagsr & RFR_RES_DARK)
+                            {
+                                if (is_original_ap_and_seen(m_ptr)) 
+                                    r_ptr->r_flagsr |= RFR_RES_DARK;
                                 e = 0;
                             }
                             break;
@@ -2349,7 +2481,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         break;
                     }
                     case GF_OLD_DRAIN:
-                        if (project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1))
+                        if (monster_living(r_ptr) && project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, e, PROJECT_KILL|PROJECT_HIDE, -1))
                         {
                             int amt = MIN(base_dam, max_drain_amt - drain_amt);
                             if (prace_is_(MIMIC_BAT))
@@ -2384,6 +2516,13 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 /* TODO: Should rings of power brand innate attacks? */
                 touch_zap_player(m_idx);
                 if (*mdeath) return;
+
+                if (mode == DRAGON_SNATCH)
+                {
+                    msg_format("You grab %s in your jaws.", m_name);
+                    monster_toss(m_idx);
+                    return;
+                }
             }
             else
             {
@@ -2396,6 +2535,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         }
         if (mode == WEAPONMASTER_RETALIATION)
             break;
+    }
+    if (mode == DRAGON_TAIL_SWEEP && !*mdeath && hit_ct)
+    {
+        int dist = randint1(1 + p_ptr->lev/20);
+        do_monster_knockback(m_ptr->fx, m_ptr->fy, dist);
     }
     if (delay_quake)
         earthquake(py, px, 10);
@@ -2449,6 +2593,54 @@ static int get_next_dir(int dir)
     case 2: return 1;
     }
     return 5;
+}
+
+static void do_monster_knockback(int x, int y, int dist)
+{   
+    monster_type   *m_ptr = &m_list[cave[y][x].m_idx];   
+    int             dir = calculate_dir(px, py, x, y);
+
+    if (dir != 5)
+    {
+        int i;
+        int msec = delay_factor * delay_factor * delay_factor;
+
+        for (i = 0; i < dist; i++)
+        {
+            int ty = y, tx = x;
+            int oy = y, ox = x;
+
+            y += ddy[dir];
+            x += ddx[dir];
+            if (cave_empty_bold(y, x))
+            {
+                ty = y;
+                tx = x;
+            }
+            if (ty != oy || tx != ox)
+            {
+                int m_idx = cave[oy][ox].m_idx;
+
+                cave[oy][ox].m_idx = 0;
+                cave[ty][tx].m_idx = m_idx;
+                m_ptr->fy = ty;
+                m_ptr->fx = tx;
+    
+                Term_fresh();
+                update_mon(m_idx, TRUE);
+                lite_spot(oy, ox);
+                lite_spot(ty, tx);
+    
+                if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+                    p_ptr->update |= PU_MON_LITE;
+                    
+                Term_xtra(TERM_XTRA_DELAY, msec);
+                Term_fresh();
+            }
+            else
+                break;
+        }
+    }
 }
 
 static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int mode)
@@ -3852,57 +4044,18 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
     if (mode == WEAPONMASTER_ELUSIVE_STRIKE && hit_ct)
         teleport_player(10, TELEPORT_LINE_OF_SIGHT);
 
-    if ((mode == WEAPONMASTER_KNOCK_BACK || mode == MAULER_KNOCKBACK || mode == MAULER_SCATTER) && hit_ct)
+    if ( (mode == WEAPONMASTER_KNOCK_BACK || mode == MAULER_KNOCKBACK || mode == MAULER_SCATTER) 
+      && hit_ct
+      && !*mdeath )
     {
-        int dir = calculate_dir(px, py, x, y);
-        if (dir != 5)
-        {
-            int i;
-            int msec = delay_factor * delay_factor * delay_factor;
-            int dist = hit_ct * 2;
+        int dist = hit_ct * 2;
 
-            if (mode == MAULER_KNOCKBACK)
-                dist = 8;
+        if (mode == MAULER_KNOCKBACK)
+            dist = 8;
+        if (mode == MAULER_SCATTER)
+            dist = 3;
 
-            if (mode == MAULER_SCATTER)
-                dist = 3;
-
-            for (i = 0; i < dist; i++)
-            {
-                int ty = y, tx = x;
-                int oy = y, ox = x;
-
-                y += ddy[dir];
-                x += ddx[dir];
-                if (cave_empty_bold(y, x))
-                {
-                    ty = y;
-                    tx = x;
-                }
-                if (ty != oy || tx != ox)
-                {
-                    int m_idx = cave[oy][ox].m_idx;
-
-                    cave[oy][ox].m_idx = 0;
-                    cave[ty][tx].m_idx = m_idx;
-                    m_ptr->fy = ty;
-                    m_ptr->fx = tx;
-    
-                    Term_fresh();
-                    update_mon(m_idx, TRUE);
-                    lite_spot(oy, ox);
-                    lite_spot(ty, tx);
-    
-                    if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
-                        p_ptr->update |= PU_MON_LITE;
-                    
-                    Term_xtra(TERM_XTRA_DELAY, msec);
-                    Term_fresh();
-                }
-                else
-                    break;
-            }
-        }
+        do_monster_knockback(x, y, dist);
     }
 
     /* Sleep counter ticks down in energy units ... Also, *lots* of code
@@ -4339,7 +4492,55 @@ bool py_attack(int y, int x, int mode)
             do_innate_attacks = FALSE;
 
         if (do_innate_attacks)
-            innate_attacks(c_ptr->m_idx, &fear, &mdeath, mode);
+        {
+            if (mode == DRAGON_TAIL_SWEEP)
+            {
+                int           ct = 3 + p_ptr->lev / 25;
+                int           x2, y2, dir, start_dir;
+                int           msec = delay_factor * delay_factor * delay_factor;
+
+                start_dir = calculate_dir(px, py, x, y);
+                dir = start_dir;
+
+                while(ct--)
+                {
+                    x2 = px + ddx[dir];
+                    y2 = py + ddy[dir];
+
+                    if (in_bounds(y2, x2))
+                    {
+                        cave_type    *c_ptr2 = &cave[y2][x2];
+                        monster_type *m_ptr2 = &m_list[c_ptr2->m_idx];
+
+                        if (panel_contains(y2, x2) && player_can_see_bold(y2, x2))
+                        {
+                            char c = '*';
+                            byte a = TERM_WHITE;
+
+                            print_rel(c, a, y2, x2);
+                            move_cursor_relative(y2, x2);
+                            Term_fresh();
+                            Term_xtra(TERM_XTRA_DELAY, msec);
+                            lite_spot(y2, x2);
+                            Term_fresh();
+                        }
+                        else
+                            Term_xtra(TERM_XTRA_DELAY, msec);
+
+                        if (c_ptr2->m_idx && (m_ptr2->ml || cave_have_flag_bold(y2, x2, FF_PROJECT)))
+                        {
+                            bool fear2 = FALSE, mdeath2 = FALSE;
+                            innate_attacks(c_ptr2->m_idx, &fear2, &mdeath2, DRAGON_TAIL_SWEEP);
+                        }
+                    }
+                    dir = get_next_dir(dir);
+                    if (dir == start_dir || dir == 5) break;
+                }
+            }
+            else
+                innate_attacks(c_ptr->m_idx, &fear, &mdeath, mode);
+
+        }
     }
 
     melee_hack = FALSE;

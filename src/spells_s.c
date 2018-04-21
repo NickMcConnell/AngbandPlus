@@ -81,6 +81,26 @@ void scare_spell(int cmd, variant *res)
     }
 }
 
+void self_knowledge_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Self Knowledge");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Gives you useful info regarding your current resistances, the powers of your weapon and maximum limits of your stats.");
+        break;
+    case SPELL_CAST:
+        self_knowledge();
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void sense_surroundings_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -930,6 +950,9 @@ void summon_hi_dragon_spell(int cmd, variant *res)
         int num = randint0(p_ptr->lev/10);
         int ct = 0, i;
         int l = p_ptr->lev + randint1(p_ptr->lev);
+
+        if (p_ptr->dragon_realm == DRAGON_REALM_DOMINATION)
+            num = 2 + randint1(3);
 
         for (i = 0; i < num; i++)
         {

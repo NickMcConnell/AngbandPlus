@@ -243,7 +243,36 @@ static void do_cmd_wiz_hack_chris1(void)
 
 }
 
-static void do_cmd_wiz_hack_chris2(void)
+static void _test_frequencies(void)
+{
+    const int tries = 10 * 1000;
+    int hits = 0;
+    int i;
+    for (i = 0; i < tries; i++)
+    {
+        object_type forge;
+
+        object_wipe(&forge);
+        if (!make_object(&forge, 0)) continue;
+        if (forge.tval == TV_POTION)
+        {
+            switch (forge.sval)
+            {
+            case SV_POTION_INC_STR:
+            case SV_POTION_INC_INT:
+            case SV_POTION_INC_WIS:
+            case SV_POTION_INC_DEX:
+            case SV_POTION_INC_CON:
+            case SV_POTION_INC_CHR:
+                hits++;
+                break;
+            }
+        }
+    }
+    msg_format("%d hits in %d tries (%.4f%%)", hits, tries, (double)hits/(double)tries*100.0);
+}
+
+static void _test_specific_k_idx(void)
 {
     int k_idx = get_quantity("Enter k_idx: ", 1000);
     int ct = get_quantity("How Many?", 10000);
@@ -268,6 +297,12 @@ static void do_cmd_wiz_hack_chris2(void)
                 drop_near(&forge, -1, py, px);
         }
     }
+}
+
+static void do_cmd_wiz_hack_chris2(void)
+{
+    _test_frequencies();
+    /* _test_specific_k_idx(); */
 }
 
 static void do_cmd_wiz_hack_chris3_imp(FILE* file)
@@ -865,7 +900,7 @@ static bool do_cmd_wiz_hack_chris9(void)
         char buf[MAX_NLEN];
 
         object_copy(&forge, dest);
-        reforge_artifact(src, &forge);
+        reforge_artifact(src, &forge, p_ptr->fame);
         identify_item(&forge);
         forge.ident |= (IDENT_MENTAL); 
         object_desc(buf, &forge, 0);

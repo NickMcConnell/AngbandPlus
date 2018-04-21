@@ -1833,6 +1833,10 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
         if (p_ptr->lev > 9)
             add_flag(flgs, TR_SPEED);
     }
+    if (p_ptr->personality == PERS_FEARLESS)
+    {
+        add_flag(flgs, TR_RES_FEAR);
+    }
     if (p_ptr->special_defense & KATA_FUUJIN)
         add_flag(flgs, TR_REFLECT);
     if (p_ptr->special_defense & KAMAE_GENBU)
@@ -1980,6 +1984,10 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
     if (p_ptr->tim_sh_fire)
     {
         add_flag(flgs, TR_SH_FIRE);
+    }
+    if (p_ptr->tim_sh_shards)
+    {
+        add_flag(flgs, TR_SH_SHARDS);
     }
     if (p_ptr->tim_sh_elements)
     {
@@ -3067,6 +3075,12 @@ void display_player(int mode)
             else
                 strcpy(tmp, realm_names[p_ptr->realm1]);
             _print_field(7, 1, "Realm      :", tmp, TERM_L_BLUE, 0);
+        }
+
+        if (p_ptr->prace == RACE_MON_DRAGON)
+        {
+            dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
+            _print_field(7, 1, "Realm      :", realm->name, TERM_L_BLUE, 0);
         }
 
         if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))

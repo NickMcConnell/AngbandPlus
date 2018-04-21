@@ -1,8 +1,8 @@
 #include "angband.h"
 
-int _force_boost(void) { return p_ptr->magic_num1[0]; }
+static int _force_boost(void) { return p_ptr->magic_num1[0]; }
 
-void _small_force_ball_spell(int cmd, variant *res)
+static void _small_force_ball_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -40,7 +40,7 @@ void _small_force_ball_spell(int cmd, variant *res)
     }
 }
 
-void _flying_technique_spell(int cmd, variant *res)
+static void _flying_technique_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -62,7 +62,7 @@ void _flying_technique_spell(int cmd, variant *res)
     }
 }
 
-void _kamehameha_spell(int cmd, variant *res)
+static void _kamehameha_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -99,7 +99,7 @@ void _kamehameha_spell(int cmd, variant *res)
     }
 }
 
-void _magic_resistance_spell(int cmd, variant *res)
+static void _magic_resistance_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -122,7 +122,7 @@ void _magic_resistance_spell(int cmd, variant *res)
     }
 }
 
-void _improve_force_spell(int cmd, variant *res)
+static void _improve_force_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -165,7 +165,7 @@ void _improve_force_spell(int cmd, variant *res)
     }
 }
 
-void _aura_of_force_spell(int cmd, variant *res)
+static void _aura_of_force_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -187,7 +187,7 @@ void _aura_of_force_spell(int cmd, variant *res)
     }
 }
 
-void _shock_power_spell(int cmd, variant *res)
+static void _shock_power_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -274,7 +274,7 @@ void _shock_power_spell(int cmd, variant *res)
     }
 }
 
-void _large_force_ball_spell(int cmd, variant *res)
+static void _large_force_ball_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -314,7 +314,7 @@ void _large_force_ball_spell(int cmd, variant *res)
     }
 }
 
-void _summon_ghost_spell(int cmd, variant *res)
+static void _summon_ghost_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -345,7 +345,7 @@ void _summon_ghost_spell(int cmd, variant *res)
     }
 }
 
-void _exploding_flame_spell(int cmd, variant *res)
+static void _exploding_flame_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -370,7 +370,7 @@ void _exploding_flame_spell(int cmd, variant *res)
     }
 }
 
-void _super_kamehameha_spell(int cmd, variant *res)
+static void _super_kamehameha_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
@@ -406,7 +406,7 @@ void _super_kamehameha_spell(int cmd, variant *res)
     }
 }
 
-void _light_speed_spell(int cmd, variant *res)
+static void _light_speed_spell(int cmd, variant *res)
 {
     switch (cmd)
     {

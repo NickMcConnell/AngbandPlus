@@ -1170,5 +1170,8 @@
     <None Include="..\lib\help\rings.txt">
       <Filter>Edit\Help</Filter>
     </None>
+    <None Include="..\lib\help\DragonRealms.txt">
+      <Filter>Edit\Help</Filter>
+    </None>
   </ItemGroup>
 </Project>

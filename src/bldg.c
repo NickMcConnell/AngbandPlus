@@ -1371,7 +1371,7 @@ void battle_monsters(void)
                 case MON_VORPAL_BUNNY:
                 case MON_SHAGRAT:
                 case MON_GORBAG:
-                case MON_LOG_MASTER:
+                case MON_LOGRUS_MASTER:
                 case MON_JURT:
                 case MON_GRAV_HOUND:
                 case MON_SHIM_VOR:
@@ -2269,7 +2269,6 @@ static void castle_quest(void)
     if (!q_index)
     {
         put_str("I don't have a quest for you at the moment.", 8, 0);
-
         return;
     }
 
@@ -2303,7 +2302,6 @@ static void castle_quest(void)
         put_str("Use CTRL-Q to check the status of your quest.", 9, 0);
 
         put_str("Return when you have completed your quest.", 12, 0);
-
     }
     /* No quest yet */
     else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
@@ -2889,7 +2887,7 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
-    if (!reforge_artifact(src, dest))
+    if (!reforge_artifact(src, dest, p_ptr->fame))
     {
         msg_print("The reforging failed!");
         return FALSE;

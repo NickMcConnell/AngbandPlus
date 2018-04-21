@@ -798,3 +798,18 @@ S:HELMET:Helm
 
 N:75:Ring
 S:RING:You
+
+N:76:Tiamat
+S:RING:Ring
+S:RING:Ring
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:AMULET:Amulet
+S:LITE:Light
+S:HELMET:Helm
+S:HELMET:Helm
+S:HELMET:Helm
+S:HELMET:Helm
+S:HELMET:Helm

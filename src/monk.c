@@ -243,7 +243,11 @@ void monk_display_attack_info(int hand, int row, int col)
 
 static bool _monk_check_spell(void)
 {
-    if (p_ptr->pclass != CLASS_WILD_TALENT && !p_ptr->weapon_info[0].bare_hands)
+    if (p_ptr->pclass == CLASS_WILD_TALENT)
+        return TRUE;
+    if (p_ptr->prace == RACE_MON_POSSESSOR && !p_ptr->weapon_ct)
+        return TRUE;
+    if (!p_ptr->weapon_info[0].bare_hands)
     {
         msg_print("You need to fight bare handed.");
         return FALSE;

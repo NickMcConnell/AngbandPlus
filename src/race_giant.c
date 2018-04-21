@@ -168,7 +168,7 @@ typedef struct {
 } _monster_toss_info;
 static void _monster_toss_imp(_monster_toss_info *info);
 
-static bool _monster_toss(int m_idx)
+bool monster_toss(int m_idx)
 {
     int dir, chance;
     _monster_toss_info info = {0};
@@ -191,7 +191,7 @@ static bool _monster_toss(int m_idx)
     chance = p_ptr->skills.thn + ((p_ptr->lev + p_ptr->to_h_m) * BTH_PLUS_ADJ);
     if (!test_hit_norm(chance, MON_AC(r_ptr, m_ptr), TRUE))
     {
-        msg_format("You failed to grab %s.", m_name);
+        msg_format("You lose hold of %s.", m_name);
         return TRUE;
     }
 
@@ -465,7 +465,7 @@ static void _monster_toss_spell(int cmd, variant *res)
             return;
         }
 
-        var_set_bool(res, _monster_toss(m_idx));
+        var_set_bool(res, monster_toss(m_idx));
         break;
     }
     default:

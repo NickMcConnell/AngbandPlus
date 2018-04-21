@@ -17,10 +17,9 @@
 
 
 #define VER_MAJOR 3
-#define VER_MINOR 1
-#define VER_PATCH 5
+#define VER_MINOR 2
+#define VER_PATCH 0
 #define VER_EXTRA 0
-
 
 /*
  * Number of grids in each block (vertically)
@@ -2835,8 +2834,9 @@ enum summon_specific_e {
 #define GF_STORM    141
 #define GF_QUAKE    142
 #define GF_CHARM_RING_BEARER  143
+#define GF_SUBJUGATION 144
 
-#define MAX_GF                143
+#define MAX_GF                144
 
 /*
  * Some things which induce learning
@@ -4875,7 +4875,7 @@ extern int PlayerUID;
 #define MON_BICLOPS       490
 #define MON_IVORY_MONK    492
 #define MON_ANTI_PALADIN 497
-#define MON_LOG_MASTER    498
+#define MON_LOGRUS_MASTER    498
 #define MON_CHAOS_DRAKE           501
 #define MON_LAW_DRAKE             502
 #define MON_BALANCE_DRAKE         503
@@ -4930,6 +4930,7 @@ extern int PlayerUID;
 #define MON_BEHOLDER 603
 #define MON_SERAPH        605
 #define MON_LOGE            606
+#define MON_MONASTIC_LICH 611
 #define MON_SEVEN_HEADED_HYDRA 614
 #define MON_MOIRE           615
 #define MON_KAVLAX        616
@@ -5099,8 +5100,11 @@ extern int PlayerUID;
 #define MON_FIRE_TROLL          899
 #define MON_SMALL_KRAKEN        903
 #define MON_POLEAXE_OF_ANIMATED_ATTACK 908
+#define MON_MYSTIC              915
 #define MON_MASTER_MYS          916
+#define MON_MASTER_MYSTIC       916
 #define MON_G_MASTER_MYS        917
+#define MON_GRAND_MASTER_MYSTIC 917
 #define MON_IE                  921
 #define MON_TSUCHINOKO          926
 #define MON_GCWADL              929
@@ -5110,6 +5114,7 @@ extern int PlayerUID;
 #define MON_BANOR               933
 #define MON_LUPART              934
 #define MON_KENSHIROU           936
+#define MON_LEMS                937
 #define MON_W_KNIGHT            938
 #define MON_HOARMOUTH           939
 #define MON_LESSER_BALROG       940
@@ -5336,6 +5341,14 @@ extern int PlayerUID;
 #define GOLEM_BIG_PUNCH      66
 
 #define PY_POWER_ATTACK      67
+
+#define DRAGON_REND          68
+#define DRAGON_DEADLY_BITE   69
+#define DRAGON_SNATCH        70
+#define DRAGON_RAPID_STRIKE  71
+#define DRAGON_POWER_STRIKE  72
+#define DRAGON_TAIL_SWEEP    73
+#define DRAGON_SMITE_EVIL    74
 
 #define HISSATSU_IAI    100
 
@@ -6355,3 +6368,16 @@ enum effect_e
 #define BIAS_PROTECTION      0x00100000
 #define BIAS_ARCHER          0x00200000
 
+enum dragon_realm_e
+{
+    DRAGON_REALM_NONE, /* Steel dragons and upgrading old savefiles */
+    DRAGON_REALM_LORE,
+    DRAGON_REALM_BREATH,
+    DRAGON_REALM_ATTACK,
+    DRAGON_REALM_CRAFT,
+    DRAGON_REALM_ARMOR,
+    DRAGON_REALM_DOMINATION,
+    DRAGON_REALM_CRUSADE,
+    DRAGON_REALM_DEATH,
+    DRAGON_REALM_MAX
+};

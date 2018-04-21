@@ -404,6 +404,7 @@
     <None Include="..\lib\help\defend.hlp" />
     <None Include="..\lib\help\defend.txt" />
     <None Include="..\lib\help\Demigods.txt" />
+    <None Include="..\lib\help\DragonRealms.txt" />
     <None Include="..\lib\help\dungeon.hlp" />
     <None Include="..\lib\help\dungeon.txt" />
     <None Include="..\lib\help\editor.txt" />

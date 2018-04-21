@@ -1,6 +1,6 @@
 #include "angband.h"
 
-void _charge_spell(int cmd, variant *res)
+static void _charge_spell(int cmd, variant *res)
 {
     switch (cmd)
     {

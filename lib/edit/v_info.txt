@@ -4114,7 +4114,7 @@ M:%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N:425:Object Vault (Potions)
 T:ROOM:NORMAL:FORMATION
-W:20:*:32
+W:20:*:8
 L:$:OBJ(POTION)
 L:0:MON(*, 10)
 M:%%%%%%%%%%%%%%%%%%%%%%%%%

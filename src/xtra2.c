@@ -2535,11 +2535,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
         if (!(d_info[dungeon_type].flags1 & DF1_BEGINNER))
         {
-            if (!dun_level && !p_ptr->inside_arena)
-            {
-                virtue_add(VIRTUE_VALOUR, -1);
-            }
-            else if (r_ptr->level > dun_level)
+            if (r_ptr->level > dun_level)
             {
                 if (randint1(10) <= (r_ptr->level - dun_level))
                     virtue_add(VIRTUE_VALOUR, 1);

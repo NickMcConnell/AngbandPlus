@@ -120,6 +120,7 @@ static int _menu_choose(menu_ptr menu, int start_choice)
     int  k, i, cs, os;
     char keys[100];
     char buf[80], cur[80];
+    int  cur_color = TERM_WHITE;
     char c;
 
     if (menu->count == 1) return 0;
@@ -132,9 +133,10 @@ static int _menu_choose(menu_ptr menu, int start_choice)
     /* List */
     for (i = 0; i < menu->count; i++)
     {
-        variant key, text;
+        variant key, text, color;
         var_init(&key);
         var_init(&text);
+        var_init(&color);
 
         menu->fn(MENU_KEY, i, menu->cookie, &key);
         if (var_is_null(&key))
@@ -149,21 +151,28 @@ static int _menu_choose(menu_ptr menu, int start_choice)
         if (var_is_null(&text))
             var_set_string(&text, "");
 
+        menu->fn(MENU_COLOR, i, menu->cookie, &color);
+        if (var_is_null(&color))
+            var_set_int(&color, TERM_WHITE);
+
         sprintf(buf, "%c) %s", keys[i], var_get_string(&text));
         if (i == start_choice)
         {
             sprintf(cur, "%s", buf);
+            cur_color = var_get_int(&color);
             c_put_str(TERM_YELLOW, buf, 12 + i/3, 1 + 20 * (i%3));
         }
         else
-            c_put_str(TERM_WHITE, buf, 12 + i/3, 1 + 20 * (i%3));
+            c_put_str(var_get_int(&color), buf, 12 + i/3, 1 + 20 * (i%3));
 
         var_clear(&key);
         var_clear(&text);
+        var_clear(&color);
     }
     if (start_choice == menu->count)
     {
         sprintf(cur, "*) Random");
+        cur_color = TERM_WHITE;
         c_put_str(TERM_YELLOW, "*) Random", 12 + menu->count/3, 1 + 20 * (menu->count%3));
     }
     else
@@ -177,13 +186,14 @@ static int _menu_choose(menu_ptr menu, int start_choice)
     {
         if (cs != os)
         {
-            c_put_str(TERM_WHITE, cur, 12 + (os/3), 1 + 20 * (os%3));
+            c_put_str(cur_color, cur, 12 + (os/3), 1 + 20 * (os%3));
             put_str("                                      ", 3, 40);
             put_str("                                      ", 4, 40);
             put_str("                                      ", 5, 40);
             if(cs == menu->count)
             {
                 sprintf(cur, "*) Random");
+                cur_color = TERM_WHITE;
             }
             else
             {
@@ -193,8 +203,15 @@ static int _menu_choose(menu_ptr menu, int start_choice)
                 menu->fn(MENU_TEXT, cs, menu->cookie, &res);
                 sprintf(cur, "%c) %s", keys[cs], var_get_string(&res));
 
+                var_clear(&res);
+                menu->fn(MENU_COLOR, cs, menu->cookie, &res);
+                if (var_is_null(&res))
+                    var_set_int(&res, TERM_WHITE);
+                cur_color = var_get_int(&res);
+
                 menu->fn(MENU_ON_BROWSE, cs, menu->cookie, &res);
                 var_clear(&res);
+
             }
             c_put_str(TERM_YELLOW, cur, 12 + (cs/3), 1 + 20 * (cs%3));
             os = cs;
@@ -464,10 +481,88 @@ static int _prompt_realm2(void)
     /* return _BIRTH_ESCAPE; unreachable */
 }
 
+static void _dragon_realm_menu_fn(int cmd, int which, vptr cookie, variant *res)
+{
+    int  idx = ((int*)cookie)[which];
+    char buf[100];
+    dragon_realm_ptr realm = dragon_get_realm(idx);
+
+    switch (cmd)
+    {
+    case MENU_TEXT:
+        var_set_string(res, realm->name);
+        break;
+    case MENU_ON_BROWSE:
+        c_put_str(TERM_L_BLUE, realm->name, 3, 40);
+        put_str(": Realm modification", 3, 40+strlen(realm->name));
+        put_str("Str  Int  Wis  Dex  Con  Chr   Exp ", 4, 40);
+        sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",           
+            realm->stats[A_STR], realm->stats[A_INT], realm->stats[A_WIS], 
+            realm->stats[A_DEX], realm->stats[A_CON], realm->stats[A_CHR], 
+            realm->exp);
+        c_put_str(TERM_L_BLUE, buf, 5, 40);
+        var_set_bool(res, TRUE);
+        break;
+    case MENU_COLOR:
+        if (!realm->desc || !strlen(realm->desc))
+            var_set_int(res, TERM_L_DARK);
+        else
+            var_set_int(res, TERM_WHITE);
+        break;
+    }
+}
+
 static int _prompt_realm1(void)
 {
     put_str("Realm      :", 7, 1);
     c_put_str(TERM_L_BLUE, format("%-20s", ""), 7, 14);
+
+    if (p_ptr->prace == RACE_MON_DRAGON)
+    {
+        p_ptr->realm1 = p_ptr->realm2 = 0;
+        if (p_ptr->psubrace == DRAGON_STEEL)
+        {
+            p_ptr->dragon_realm = DRAGON_REALM_NONE;
+            return _prompt_personality();
+        }
+        else
+        {
+            for (;;)
+            {
+                int    idx, ct = 0;
+                int    choices[DRAGON_REALM_MAX];
+                menu_t menu = { "Dragon Realm", "DragonRealms.txt#Tables", "", _dragon_realm_menu_fn, choices, 0 };
+                dragon_realm_ptr realm = NULL;
+                
+                /* TODO: Subracial restrictions? */
+                choices[ct++] = DRAGON_REALM_LORE;
+                choices[ct++] = DRAGON_REALM_BREATH;
+                choices[ct++] = DRAGON_REALM_ATTACK;
+                choices[ct++] = DRAGON_REALM_CRAFT;
+                choices[ct++] = DRAGON_REALM_ARMOR;
+                choices[ct++] = DRAGON_REALM_DOMINATION;
+                if (p_ptr->psubrace == DRAGON_LAW || p_ptr->psubrace == DRAGON_GOLD)
+                    choices[ct++] = DRAGON_REALM_CRUSADE;
+                if (p_ptr->psubrace == DRAGON_NETHER || p_ptr->psubrace == DRAGON_CHAOS)
+                    choices[ct++] = DRAGON_REALM_DEATH;
+
+                menu.count = ct;
+                choices[ct] = -1;
+
+                c_put_str(TERM_WHITE, "                   ", 7, 14);
+                idx = _menu_choose(&menu, _find_id(choices, p_ptr->dragon_realm));
+                if (idx < 0) return idx;
+                p_ptr->dragon_realm = choices[idx];
+                realm = dragon_get_realm(p_ptr->dragon_realm);
+                c_put_str(TERM_L_BLUE, realm->name, 7, 14);
+                if (!_confirm_choice(realm->desc, menu.count)) continue;
+                idx = _prompt_personality();
+                if (idx == _BIRTH_ESCAPE) continue;
+                return idx;
+            }
+        }
+    }
+    p_ptr->dragon_realm = 0;
     if (!realm_choices1[p_ptr->pclass]) 
     {
         p_ptr->realm1 = p_ptr->realm2 = 0;
@@ -624,8 +719,13 @@ static int _prompt_class(void)
         mp_ptr = &m_info[p_ptr->pclass];
         p_ptr->psubclass = 0;
         p_ptr->realm1 = p_ptr->realm2 = 0;
+        p_ptr->dragon_realm = 0;
         c_put_str(TERM_L_BLUE, "Monster", 6, 14);
-        return _prompt_personality();
+
+        if (p_ptr->prace == RACE_MON_DRAGON)
+            return _prompt_realm1();
+        else
+            return _prompt_personality();
     }
 
     for (;;)
@@ -676,6 +776,7 @@ static int _prompt_class(void)
                     p_ptr->psubclass = 0;
                     p_ptr->realm1 = 0;
                     p_ptr->realm2 = 0;
+                    p_ptr->dragon_realm = 0;
                 }
                 mp_ptr = &m_info[p_ptr->pclass];
                 class_ptr = get_class_t();
@@ -1475,6 +1576,7 @@ static void save_prev_data(birther *birther_ptr)
     birther_ptr->personality = p_ptr->personality;
     birther_ptr->realm1 = p_ptr->realm1;
     birther_ptr->realm2 = p_ptr->realm2;
+    birther_ptr->dragon_realm = p_ptr->dragon_realm;
     birther_ptr->au = p_ptr->au;
 
     /* Save the stats */
@@ -1526,6 +1628,7 @@ static void load_prev_data(bool swap)
     p_ptr->personality = previous_char.personality;
     p_ptr->realm1 = previous_char.realm1;
     p_ptr->realm2 = previous_char.realm2;
+    p_ptr->dragon_realm = previous_char.dragon_realm;
     p_ptr->au = previous_char.au;
 
     /* Load the stats */
@@ -1723,6 +1826,12 @@ int calc_exp_factor(void)
 
     exp = r_exp * c_exp / 100;
     exp = exp * a_exp / 100;
+
+    if (p_ptr->prace == RACE_MON_DRAGON)
+    {
+        dragon_realm_ptr realm = dragon_get_realm(p_ptr->dragon_realm);
+        exp = exp * realm->exp / 100;
+    }
 
     return exp;
 }

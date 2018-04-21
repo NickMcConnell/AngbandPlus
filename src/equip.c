@@ -1097,6 +1097,9 @@ void equip_calc_bonuses(void)
         if (o_ptr->name1 == ART_MAUL_OF_VICE)
             p_ptr->maul_of_vice = TRUE;
 
+        if (o_ptr->name1 == ART_STONE_LORE)
+            p_ptr->loremaster = TRUE;
+
         rune_calc_bonuses(o_ptr);
 
         if (have_flag(flgs, TR_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;

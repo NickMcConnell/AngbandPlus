@@ -1827,7 +1827,7 @@ static void _sense_object_floor(object_type *o_ptr)
 void autopick_pickup_items(cave_type *c_ptr)
 {
     s16b this_o_idx, next_o_idx = 0;
-    bool auto_lore = equip_find_artifact(ART_STONE_LORE) || mut_present(MUT_LOREMASTER);
+    bool auto_lore = p_ptr->loremaster;
     bool auto_sense = p_ptr->lev >= 35;
     
     /* Scan the pile of objects */

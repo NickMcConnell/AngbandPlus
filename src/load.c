@@ -587,6 +587,10 @@ static void rd_quick_start(savefile_ptr file)
     previous_char.personality = savefile_read_byte(file);
     previous_char.realm1 = savefile_read_byte(file);
     previous_char.realm2 = savefile_read_byte(file);
+    if (savefile_is_older_than(file, 3, 1, 6, 1))
+        previous_char.dragon_realm = 0;
+    else
+        previous_char.dragon_realm = savefile_read_byte(file);
     previous_char.age = savefile_read_s16b(file);
     previous_char.au = savefile_read_s32b(file);
 
@@ -620,6 +624,10 @@ static void rd_extra(savefile_ptr file)
     p_ptr->psex = savefile_read_byte(file);
     p_ptr->realm1 = savefile_read_byte(file);
     p_ptr->realm2 = savefile_read_byte(file);
+    if (savefile_is_older_than(file, 3, 1, 6, 1))
+        p_ptr->dragon_realm = 0;
+    else
+        p_ptr->dragon_realm = savefile_read_byte(file);
     p_ptr->psubclass = savefile_read_byte(file);
     p_ptr->psubrace = savefile_read_byte(file);
     p_ptr->current_r_idx = savefile_read_s16b(file);
@@ -764,6 +772,14 @@ static void rd_extra(savefile_ptr file)
     p_ptr->tim_mimic = savefile_read_s16b(file);
     p_ptr->tim_sh_fire = savefile_read_s16b(file);
     p_ptr->tim_sh_elements = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 3, 1, 6, 2))
+        p_ptr->tim_sh_shards = 0;
+    else
+        p_ptr->tim_sh_shards = savefile_read_s16b(file);
+    if (savefile_is_older_than(file, 3, 1, 6, 3))
+        p_ptr->tim_sh_domination = 0;
+    else
+        p_ptr->tim_sh_domination = savefile_read_s16b(file);
     p_ptr->tim_weaponmastery = savefile_read_s16b(file);
     p_ptr->tim_sh_holy = savefile_read_s16b(file);
     p_ptr->tim_eyeeye = savefile_read_s16b(file);

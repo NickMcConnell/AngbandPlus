@@ -432,6 +432,7 @@ static void wr_quick_start(savefile_ptr file)
     savefile_write_byte(file, previous_char.personality);
     savefile_write_byte(file, previous_char.realm1);
     savefile_write_byte(file, previous_char.realm2);
+    savefile_write_byte(file, previous_char.dragon_realm);
     savefile_write_s16b(file, previous_char.age);
     savefile_write_s32b(file, previous_char.au);
 
@@ -467,6 +468,7 @@ static void wr_extra(savefile_ptr file)
     savefile_write_byte(file, p_ptr->psex);
     savefile_write_byte(file, p_ptr->realm1);
     savefile_write_byte(file, p_ptr->realm2);
+    savefile_write_byte(file, p_ptr->dragon_realm);
     savefile_write_byte(file, p_ptr->psubclass);
     savefile_write_byte(file, p_ptr->psubrace);
     savefile_write_s16b(file, p_ptr->current_r_idx);
@@ -587,6 +589,8 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->tim_mimic);
     savefile_write_s16b(file, p_ptr->tim_sh_fire);
     savefile_write_s16b(file, p_ptr->tim_sh_elements);
+    savefile_write_s16b(file, p_ptr->tim_sh_shards);
+    savefile_write_s16b(file, p_ptr->tim_sh_domination);
     savefile_write_s16b(file, p_ptr->tim_weaponmastery);
     savefile_write_s16b(file, p_ptr->tim_sh_holy);
     savefile_write_s16b(file, p_ptr->tim_eyeeye);

@@ -20,6 +20,14 @@
 
 monster_hook_type wilderness_mon_hook = NULL;
 
+/* One way to scum the wilderness was to use "stair scumming", continually
+   entering and leaving wild_mode while waiting for desired monsters to get
+   spawned adjacent to the player. For example, dragons in the mountains
+   were a good, quick source of experience and loot for a mid level player.
+   Let's prevent any encounters when the player leaves wild mode (excepting ambushes, 
+   of course). To get encounters, the player must seek them by traveling about. */
+bool no_encounters_hack = FALSE;
+
 /* Trivial rectangle utility to make code a bit more readable */
 
 rect_t rect_create(int x, int y, int cx, int cy)
@@ -469,6 +477,7 @@ void wilderness_move_player(int old_x, int old_y)
         return;
     }
 
+    no_encounters_hack = FALSE;
     _unset_boundary();
     _scroll_cave(-dx*WILD_SCROLL_CX, -dy*WILD_SCROLL_CY);
     
@@ -622,7 +631,7 @@ static bool _generate_special_encounter(room_template_t *room_ptr, int x, int y,
         }
 
         _build_room(room_ptr, &room_rect);
-        if (is_daytime() && room_ptr->type == ROOM_WILDERNESS)
+        if (is_daytime() && room_ptr->type == ROOM_WILDERNESS && disturb_minor)
         {
             msg_print("You've stumbled onto something interesting ...");
             disturb(0, 0);
@@ -671,6 +680,7 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
       && !vanilla_town
       && !lite_town
       && !generate_encounter
+      && !no_encounters_hack
       && one_in_(15))
     {
         room_template_t *room_ptr = choose_room_template(ROOM_WILDERNESS, _encounter_terrain_type(x, y));
@@ -696,6 +706,8 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     /* Random Monsters */
     if (generate_encounter) /* Unscripted Ambush? */
         ct = 40;    
+    else if (no_encounters_hack)
+        ct = 0;
     else if (!wilderness[y][x].road)
         ct = 10;
     else
@@ -1616,6 +1628,8 @@ bool change_wild_mode(void)
         /* Leaving */
         p_ptr->leaving = TRUE;
 
+        no_encounters_hack = TRUE;
+
         /* Succeed */
         return TRUE;
     }
@@ -1623,11 +1637,13 @@ bool change_wild_mode(void)
     for (i = 1; i < m_max; i++)
     {
         monster_type *m_ptr = &m_list[i];
+        monster_race *r_ptr;
 
         if (!m_ptr->r_idx) continue;
+        r_ptr = &r_info[m_ptr->r_idx];
         if (is_pet(m_ptr) && i != p_ptr->riding) have_pet = TRUE;
         if (MON_CSLEEP(m_ptr)) continue;
-        if (m_ptr->cdis > MAX_SIGHT) continue;
+        if (m_ptr->cdis > MIN(MAX_SIGHT, r_ptr->aaf)) continue;
         if (!is_hostile(m_ptr)) continue;
         /* Monster Awareness of the player is a TODO concept, not yet correctly implemented.
            At the moment, only the Ring player race uses this and there is a slight bug as well!

@@ -64,7 +64,11 @@ static void _race_help(FILE *fff, int idx)
         fprintf(fff, "\n\n");
         _wrap_text(fff, "See [a] for more details on rings.", 2, 80);
     }
-
+    if (idx == RACE_MON_DRAGON)
+    {
+        fprintf(fff, "\n\n");
+        _wrap_text(fff, "See [b] for more details on dragons.", 2, 80);
+    }
     fprintf(fff, "\n\n");
 }
 
@@ -247,6 +251,7 @@ static void _monster_races_help(FILE* fff)
     }
     fprintf(fff, "\n\n");
     fprintf(fff, "***** [a] Rings.txt\n");
+    fprintf(fff, "***** [b] DragonRealms.txt\n");
 
     *p_ptr = old;
 }
@@ -330,6 +335,72 @@ static void _class_help(FILE *fff, int idx)
     fprintf(fff, "***** <%s>\n", class_ptr->name);
     fprintf(fff, "[[[[r|  %s\n\n", class_ptr->name);
     _wrap_text(fff, class_ptr->desc, 2, 80);
+    fprintf(fff, "\n\n");
+}
+
+static void _dragon_realms_help(FILE* fff)
+{
+    int i, j;
+    fprintf(fff, "[[[[B|  Dragon Realms\n\n");
+    _wrap_text(fff, 
+               "Dragons are magical creatures and may choose to learn a particular branch of "
+               "dragon magic. Unlike normal spell casters, dragons do not need spell books to "
+               "cast or learn powers. Instead, they simply gain spells as they mature. Each "
+               "realm of dragon magic has a direct impact on the player's stats and skills, and "
+               "each realm also requires a different stat for casting purposes.", 
+               2, 80);
+    fprintf(fff, "\n\n");
+    for (i = 1; i < DRAGON_REALM_MAX; i++)
+    {
+        dragon_realm_ptr realm = dragon_get_realm(i);
+        fprintf(fff, "***** <%s>\n", realm->name);
+        fprintf(fff, "[[[[r|  %s\n\n", realm->name);
+        _wrap_text(fff, realm->desc, 2, 80);
+        fprintf(fff, "\n\n");
+    }
+
+    fprintf(fff, "***** <Tables>\n");
+    fprintf(fff, "[[[[y|  Table 1 - Realm Statistic Bonus Table ---\n\n");
+    fprintf(fff, "[[[[r|                 STR  INT  WIS  DEX  CON  CHR  Life  Exp\n");
+    for (i = 1; i < DRAGON_REALM_MAX; i++)
+    {
+        dragon_realm_ptr realm = dragon_get_realm(i);
+        char             line[255];
+        char             tmp[255];
+
+        sprintf(line, "  %-14s", realm->name);
+        for (j = 0; j < 6; j++)
+        {
+            if (j == realm->spell_stat)
+                sprintf(tmp, "[[[[G| %+3d |", realm->stats[j]);
+            else
+                sprintf(tmp, " %+3d ", realm->stats[j]);
+            strcat(line, tmp);
+        }
+        sprintf(tmp, " %3d%%  %3d%%", realm->life, realm->exp);
+        strcat(line, tmp);
+        fprintf(fff, "%s\n", line);
+    }
+    fprintf(fff, "\n\n");
+
+    fprintf(fff, "[[[[y|  Table 2 - Realm Skill Bonus Table\n\n");
+    fprintf(fff, "[[[[r|                 Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Attack  Breath\n");
+    for (i = 1; i < DRAGON_REALM_MAX; i++)
+    {
+        dragon_realm_ptr realm = dragon_get_realm(i);
+        fprintf(fff, "  %-14s %+4d  %+4d  %+4d  %+4d  %+4d  %+4d  %+5d  %5d%%  %5d%%\n", 
+            realm->name,
+            realm->skills.dis, 
+            realm->skills.dev,
+            realm->skills.sav,
+            realm->skills.stl, 
+            realm->skills.srh, 
+            realm->skills.fos,
+            realm->skills.thn,
+            realm->attack,
+            realm->breath
+        );
+    }
     fprintf(fff, "\n\n");
 }
 
@@ -519,6 +590,7 @@ void generate_spoilers(void)
     _text_file("Classes.txt", _classes_help);
     _text_file("Personalities.txt", _personalities_help);
     _text_file("PossessorStats.csv", _possessor_stats_help);
+    _text_file("DragonRealms.txt", _dragon_realms_help);
 
     _show_help("Personalities.txt");
     spoiler_hack = FALSE;
