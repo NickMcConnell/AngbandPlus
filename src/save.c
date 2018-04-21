@@ -29,7 +29,7 @@ void wr_item(savefile_ptr file, object_type *o_ptr)
         savefile_write_byte(file, o_ptr->discount);
     }
     if (o_ptr->number != 1)
-    { 
+    {
         savefile_write_byte(file, SAVE_ITEM_NUMBER);
         savefile_write_byte(file, o_ptr->number);
     }
@@ -215,6 +215,11 @@ void wr_item(savefile_ptr file, object_type *o_ptr)
         savefile_write_s16b(file, o_ptr->activation.cost);
         savefile_write_s16b(file, o_ptr->activation.extra);
     }
+    if (o_ptr->level)
+    {
+        savefile_write_byte(file, SAVE_ITEM_LEVEL);
+        savefile_write_s16b(file, o_ptr->level);
+    }
 
     savefile_write_byte(file, SAVE_ITEM_DONE);
 }
@@ -363,6 +368,8 @@ static void wr_lore(savefile_ptr file, int r_idx)
     savefile_write_byte(file, r_ptr->r_drop_gold);
     savefile_write_byte(file, r_ptr->r_drop_item);
     savefile_write_byte(file, r_ptr->r_cast_spell);
+    savefile_write_u32b(file, r_ptr->r_spell_turns);
+    savefile_write_u32b(file, r_ptr->r_move_turns);
     savefile_write_byte(file, r_ptr->r_blows[0]);
     savefile_write_byte(file, r_ptr->r_blows[1]);
     savefile_write_byte(file, r_ptr->r_blows[2]);
@@ -614,14 +621,14 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s32b(file, p_ptr->csp);
     savefile_write_u32b(file, p_ptr->csp_frac);
     savefile_write_s16b(file, p_ptr->max_plv);
-    
+
     tmp8u = (byte)max_d_idx;
     savefile_write_byte(file, tmp8u);
     for (i = 0; i < tmp8u; i++)
         savefile_write_s16b(file, max_dlv[i]);
     for (i = 0; i < tmp8u; i++)
         savefile_write_u32b(file, dungeon_flags[i]);
-    
+
     savefile_write_s16b(file, p_ptr->concent);
     savefile_write_s16b(file, p_ptr->blind);
     savefile_write_s16b(file, p_ptr->paralyzed);
@@ -701,7 +708,7 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->tim_building_up);
     savefile_write_s16b(file, p_ptr->tim_vicious_strike);
     savefile_write_s16b(file, p_ptr->tim_enlarge_weapon);
-    
+
     savefile_write_s16b(file, p_ptr->tim_spell_reaction);
     savefile_write_s16b(file, p_ptr->tim_resist_curses);
     savefile_write_s16b(file, p_ptr->tim_armor_of_fury);
@@ -714,7 +721,7 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->tim_killing_spree);
     savefile_write_s16b(file, p_ptr->tim_slay_sentient);
     savefile_write_s16b(file, p_ptr->tim_shrike);
-    
+
     {
         int i;
         savefile_write_s16b(file, MAX_WILD_COUNTERS);
@@ -1368,7 +1375,7 @@ static bool save_player_aux(char *name)
     }
 
     /* Remove "broken" files */
-    if (!ok) 
+    if (!ok)
     {
         safe_setuid_grab();
         fd_kill(name);

@@ -1177,8 +1177,9 @@ static bool get_moves(int m_idx, int *mm)
             y = 0;
             done = TRUE;
         }
-
-        if (pack_ptr->ai == AI_GUARD_POS && m_ptr->cdis > 3)
+        if ( pack_ptr->ai == AI_GUARD_POS
+          && m_ptr->cdis > 3    /* abandon guarding if the player gets close ... */
+          && !m_ptr->anger_ct ) /* ... or if we get ticked off. */
         {
             x = m_ptr->fx - pack_ptr->guard_x;
             y = m_ptr->fy - pack_ptr->guard_y;
@@ -2669,6 +2670,7 @@ static void process_monster(int m_idx)
                 break;
             case AI_LURE:
             case AI_FEAR:
+            case AI_GUARD_POS:
                 freq_n -= 1;
                 if (freq_n < 2)
                     freq_n = 2;
@@ -2757,6 +2759,12 @@ static void process_monster(int m_idx)
             }
         }
     }
+
+    /* Really, a non-spell turn. The monster may never move, or may be blocked, and we still
+       want to track those turns for accurate reporting of spell frequency. Also, don't count
+       unless the monster could spell.*/
+    if (projectable(py, px, m_ptr->fy, m_ptr->fx))
+        mon_lore_move(m_ptr);
 
     /* Hack -- Assume no movement */
     mm[0] = mm[1] = mm[2] = mm[3] = 0;

@@ -358,8 +358,8 @@ static void _demigods_help(FILE* fp)
 
         fprintf(fp, "%-14s %+3d  %+3d  %+3d  %+3d  %+3d  %+3d  %3d%%  %3d%% %4d%%\n",
             race_ptr->subname,
-            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
-            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+            race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS],
+            race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR],
             race_ptr->life, race_ptr->exp, race_ptr->shop_adjust
         );
     }
@@ -1440,7 +1440,7 @@ static void _mon_dam_table(FILE* fp)
         if (r_ptr->flags4 & RF4_BR_POIS)
             dam[RES_POIS] = MAX(dam[RES_POIS], MIN(hp / 5, 600));
         if (r_ptr->flags4 & RF4_BR_NETH)
-            dam[RES_NETHER] = MAX(dam[RES_NETHER], MIN(hp / 6, 550));
+            dam[RES_NETHER] = MAX(dam[RES_NETHER], MIN(hp / 7, 550));
         if (r_ptr->flags4 & RF4_BR_LITE)
             dam[RES_LITE] = MAX(dam[RES_LITE], MIN(hp / 6, 400));
         if (r_ptr->flags4 & RF4_BR_DARK)
@@ -1511,19 +1511,19 @@ static void _possessor_stats_table(FILE* fp)
             }
 
             fprintf(fp, "\"%s\",%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,%d,=\"%d+%d\",=\"%d+%d\"\n",
-                r_name + r_ptr->name, i, r_ptr->level, 
+                r_name + r_ptr->name, i, r_ptr->level,
                 r_ptr->speed - 110, ac, attacks, dam,
                 b_name + b_info[r_ptr->body.body_idx].name,
                 r_ptr->body.stats[A_STR], r_ptr->body.stats[A_INT], r_ptr->body.stats[A_WIS],
                 r_ptr->body.stats[A_DEX], r_ptr->body.stats[A_CON], r_ptr->body.stats[A_CHR],
                 r_ptr->body.life,
-                r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis, 
-                r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev, 
+                r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis,
+                r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev,
                 r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
                 r_ptr->body.skills.stl,
-                r_ptr->body.skills.srh, 
+                r_ptr->body.skills.srh,
                 r_ptr->body.skills.fos,
-                r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn, 
+                r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn,
                 r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
             );
         }

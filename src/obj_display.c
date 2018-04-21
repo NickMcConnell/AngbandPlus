@@ -920,7 +920,11 @@ static void _display_score(object_type *o_ptr, doc_ptr doc)
     int score = obj_value(o_ptr);
     char buf[10];
     big_num_display(score, buf);
-    doc_printf(doc, "<color:B>Score:</color> <color:%c>%s</color>\n", _score_color(score), buf);
+    doc_printf(doc, "<color:B>Score:</color> <color:%c>%s</color>", _score_color(score), buf);
+    if (o_ptr->level)
+        doc_printf(doc, " (L%d)\n", o_ptr->level);
+    else
+        doc_newline(doc);
 
     if (p_ptr->prace == RACE_ANDROID && obj_is_identified(o_ptr))
     {

@@ -40,6 +40,10 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:22
 F:b:BUILDING_1:3:0:0:0:0:NONE:19
 F:!:FLOOR:3:0:123:54
 
+?:[AND [EQU $QUEST22 3] [EQU $RACE Beholder] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:19
+F:!:FLOOR:3:0:132:205
+
 # Quest 22 finished, continue with quest 19
 ?:[EQU $QUEST22 4]
 F:b:BUILDING_1:3:0:0:0:0:NONE:19

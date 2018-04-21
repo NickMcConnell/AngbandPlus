@@ -822,7 +822,7 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
         }
         if (r_ptr->flags1 & RF1_UNIQUE)
         {
-            if (one_in_(10))
+            if (one_in_(10) || m_ptr->r_idx == MON_NAMI)
                 mo_mode |= AM_TAILORED;
         }
         else if (r_ptr->flags1 & (RF1_DROP_GOOD | RF1_DROP_GREAT))
@@ -2531,18 +2531,14 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
     /* Special penalty for mutiply-monster    */
     if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN))
     {
-        int monnum_penalty = r_ptr->r_akills / 400;
-        if (monnum_penalty > 8) monnum_penalty = 8;
-
-        while (monnum_penalty--)
-        {
-            /* Divide by 2 */
-            s64b_RSHIFT(new_exp, new_exp_frac, 1);
-        }
+        int biff = r_ptr->r_akills / 400;
+        if (biff > 8) biff = 8;
+        if (biff) s64b_RSHIFT(new_exp, new_exp_frac, biff);
     }
 
-    /* Farming Summoners for xp is now biffed! */
-    if (m_ptr->parent_m_idx)
+    /* Farming Summoners for xp is now biffed! For example, farming
+       The Queen Ant for infinite Giant Fire Ants and a quick CL50. */
+    if (m_ptr->parent_m_idx && !(r_ptr->flags1 & RF1_UNIQUE))
     {
         monster_type *pm_ptr = &m_list[m_ptr->parent_m_idx];
 
@@ -2553,12 +2549,11 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 
             if (pr_ptr->flags1 & RF1_UNIQUE)
                 biff = pr_ptr->r_skills / 100;
-            else
+            else /* Draconic Q's? */
                 biff = pr_ptr->r_skills / 250;
 
             if (biff > 8) biff = 8;
-            while (biff--)
-                s64b_RSHIFT(new_exp, new_exp_frac, 1);
+            if (biff) s64b_RSHIFT(new_exp, new_exp_frac, biff);
         }
     }
 

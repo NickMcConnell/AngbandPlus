@@ -2324,6 +2324,8 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     /* Maximum "level" for various things */
     if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
+    o_ptr->level = lev; /* Wizard statistics ... */
+
     /* Base chance of being "good" */
     f1 = lev + 10;
 
@@ -2466,6 +2468,11 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
         }
     }
 
+    /* Hack -- Creating an artifact will re-prep the object, zeroing out level field.
+       Not everybody calls into artifact.c with a prep'd object, so I guess we need to
+       handle this here. */
+    if (!o_ptr->level)
+        o_ptr->level = lev;
 
     /* Hack -- analyze replacement artifacts */
     if (o_ptr->name3)

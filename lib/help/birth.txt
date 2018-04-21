@@ -131,24 +131,24 @@ Perhaps one of the most important features of the birth options is the ability t
 The auto-roller is a quick means of generating start-up characters based on a set of user-selected criteria. If you choose to use the auto-roller, you will be presented with a column giving the maximum possible statistics (see <link:birth.txt#PrimaryStats> below) for your choice of race, class and personality (see <link:raceclass_contents.txt>). Then you can specify your desired statistics using keypad or cursor keys. The game will score each roll of your stats using a point based system and only scores in the range of 20 to 30 are accepted. So don't be too greedy in specifying you minimal limits. Even forcing 30 points worth of constraints is a bad idea, since you are unlikely to roll 8's for all the remaining unconstrained stats. An example of a reasonable choice is the following:
 <style:screenshot>
  Name       : <color:B>Test</color>
- Sex        : <color:B>Female        </color>
- Personality: <color:B>Mighty        </color>
- Race       : <color:B>High-Elf      </color>
+ Sex        : <color:B>Male          </color>
+ Personality: <color:B>Combat        </color>
+ Race       : <color:B>Nibelung      </color>
  Subrace    :
- Class      : <color:B>Warrior       </color>
- Realm      : <color:B>                    </color>
+ Class      : <color:B>Priest        </color>
+ Realm      : <color:B>Crusade, Life       </color>
 
           Make your character. ('S' Restart, 'Q' Quit, '?' Help)
           Set minimum stats.
           2/8 for Select, 4/6 for Change value, Enter for Goto next
 
                      Base   Rac  Cla  Per      Total  Maximum  Points
-          STR :        16    +1   +4   +2  =   18/50   18/60      12
-          INT :         8    +3   -2   -2  =       7      16      -2
-          WIS :         8    -1   -2   -2  =       3      12      -2
-          DEX :        16    +3   +2   +0  =   18/30   18/40      12
-          <color:y>CON :        14    +1   +2   +1  =      18   18/30       5</color>
-          CHR :         8    +1   +1   +1  =      11   18/20      -2
+          STR :        16    +1   -1   +1  =      17      18      10
+          INT :         8    -1   -3   -1  =       3      12      -3
+          WIS :        15    +2   +3   -1  =   18/10   18/30       6
+          DEX :        16    +0   -1   +1  =      16      17      10
+          <color:y>CON :        14    +2   +0   +0  =      16   18/10       3</color>
+          CHR :         8    -2   +2   +0  =       8      17      -3
 
                                    Accept                     <color:G>    23</color>
 </style>
@@ -156,31 +156,31 @@ Once you have specified your desired statistics, the computer will then randomly
 
 Once a character that matches or exceeds your expectations has been rolled, the Auto-Roller stops to ask you whether you accept or not. If you accept the rolled character (by pressing <color:keypress>Enter</color>), you will be asked for its name. If not, you may press <color:keypress>r</color> to resume rolling and searching for the next match or, if this is not your first match, <color:keypress>p</color> to return to the previous character which met your criteria.
 
-Note: The statistics are not independent of each other and trying to maximize each one using the auto-roller will not work. A good idea is to specify statistics close to maximum that are critical for your class (for example, high wisdom for priests, intelligence for mages and strength and dexterity for warriors). You should set minimum acceptable levels for the remaining statistics rather than looking for high rolls. Also note that the game significantly "nerfs" the power of the Auto-roller relative to other variants. After 50,000 rolls the Auto-roller simply stops and forces you to accept the best match (if any) or to repick minimums. A good idea is to pick constraints on 2 stats at most, and even then, you are unlikely to roll 17s in both stats. A 17 and a 16 is rare as well, so perhaps try a 17 and a 15, or two 16s. For example, my above restrictions (16, 16, 14) yielded a handful of matches, the best being the following:
+Note: The statistics are not independent of each other and trying to maximize each one using the auto-roller will not work. A good idea is to specify statistics close to maximum that are critical for your class (for example, high wisdom for priests, intelligence for mages and strength and dexterity for warriors). You should set minimum acceptable levels for the remaining statistics rather than looking for high rolls. Also note that the game significantly "nerfs" the power of the Auto-roller relative to other variants. After 50,000 rolls the Auto-roller simply stops and forces you to accept the best match (if any) or to repick minimums. A good idea is to pick constraints on as few stats as possible. The more constraints, the less quality you can get. For example, you can ask for 2 17s, but then you probably won't get anything better than an 11 on a third stat. You could instead ask for 3 16s with fair success. For 4 stats, you could do 16, 15, 15, 15, or perhaps 16, 16, 15, 14 ... You can work out the possibilities, and the UI coloring will let you know what is likely and what is not (<color:G>Green</color> scores almost always work while <color:o>Orange</color> is very unlikely and <color:r>Red</color> is impossible). For example, my above restrictions (16, 16, 15, 14) yielded a handful of matches, the best being the following:
 <style:screenshot>
+
  Name       : <color:B>Test</color><color:d>                      </color>   ========== Stats ==========
- Sex        : <color:B>Female</color><color:d>                    </color>         STR  : <color:G>    18/50</color>
- Personality: <color:B>Mighty</color><color:d>                    </color>         INT  : <color:G>        8</color>
- Race       : <color:B>High-Elf</color><color:d>                  </color>         WIS  : <color:G>        6</color>
- Subrace    : <color:B>None                      </color>         DEX  : <color:G>    18/30</color>
- Class      : <color:B>Warrior</color><color:d>                   </color>         CON  : <color:G>       18</color>
-<color:d>                                        </color>         CHR  : <color:G>       12</color>
+ Sex        : <color:B>Male</color><color:d>                      </color>         STR  : <color:G>       17</color>
+ Personality: <color:B>Combat</color><color:d>                    </color>         INT  : <color:G>        5</color>
+ Race       : <color:B>Nibelung</color><color:d>                  </color>         WIS  : <color:G>    18/20</color>
+ Subrace    : <color:B>None                      </color>         DEX  : <color:G>       16</color>
+ Class      : <color:B>Priest</color><color:d>                    </color>         CON  : <color:G>       16</color>
+ Realm      : <color:B>Crusade, Life</color><color:d>             </color>         CHR  : <color:G>        9</color>
 <color:d>                                        </color>
- Level      : <color:G>       1</color><color:d>                  </color>         HP   : <color:G>    54/54</color>
- Cur Exp    : <color:G>       0</color><color:d>                  </color>         SP   : <color:G>      0/0</color>
- Max Exp    : <color:G>       0</color><color:d>                  </color>         AC   : <color:G>        2</color>
+ Level      : <color:G>       1</color><color:d>                  </color>         HP   : <color:G>    38/38</color>
+ Cur Exp    : <color:G>       0</color><color:d>                  </color>         SP   : <color:G>    13/13</color>
+ Max Exp    : <color:G>       0</color><color:d>                  </color>         AC   : <color:G>        1</color>
  Adv Exp    : <color:G>      19</color><color:d>                  </color>         Speed: <color:U>       +0</color>
 <color:d>                                        </color>
 <color:d>                                        </color>   ========== Skills =========
- Gold       : <color:G>     435</color><color:d>                  </color>   Melee      : <color:G>Excellent</color>
- Kills      : <color:G>       0</color><color:d>                  </color>   Ranged     : <color:y>Very Good</color>
- Uniques    : <color:G>       0</color><color:d>                  </color>   SavingThrow: <color:y>Good</color>
- Artifacts  : <color:G>     0+0</color><color:d>                  </color>   Stealth    : <color:y>Good</color>
-<color:d>                                        </color>   Perception : <color:R>Poor</color>
- Game Day   : <color:G>       1</color><color:d>                  </color>   Searching  : <color:R>Poor</color>
+ Gold       : <color:G>     161</color><color:d>                  </color>   Melee      : <color:y>Good</color>
+ Kills      : <color:G>       0</color><color:d>                  </color>   Ranged     : <color:o>Fair</color>
+ Uniques    : <color:G>       0</color><color:d>                  </color>   SavingThrow: <color:y>Very Good</color>
+ Artifacts  : <color:G>     0+0</color><color:d>                  </color>   Stealth    : <color:o>Fair</color>
+<color:d>                                        </color>   Perception : <color:o>Fair</color>
+ Game Day   : <color:G>       1</color><color:d>                  </color>   Searching  : <color:o>Fair</color>
  Game Time  : <color:G>    6:00</color><color:d>                  </color>   Disarming  : <color:o>Fair</color>
- Play Time  : <color:G>   00:08</color><color:d>                  </color>   Device     : <color:o>Fair</color>
-<color:d>  </color>[You must accept, or Enter to accept]<color:d> </color>
+ Play Time  : <color:G>   00:00</color><color:d>                  </color>   Device     : <color:y>Very Good</color>
 </style>
 If you select not to use the auto-roller, the computer will roll one random character at a time and then display it for you to either accept or reject. The 'r', 'p' and Enter keys will work as outlined above. Since this is a difficult game, we recommend using the auto-roller. However, if you are bold, you might consider playing the game in the <color:keyword>Real Life</color> mode. With this option, the game rolls up your sex, race and stats just once, and you must accept this, just like in real life. However, you are still free to choose your class and personality based upon your strengths and weaknesses.
 

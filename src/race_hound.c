@@ -285,6 +285,27 @@ static void _breathe_spell(int cmd, variant *res)
     }
 }
 
+void _bark_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Bark");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "You will make enough noise to wake the neighbors.");
+        break;
+    case SPELL_CAST:
+        msg_print("Woof! Woof!");
+        aggravate_monsters(0);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
 void hound_leap_spell(int cmd, variant *res)
 {
     switch (cmd)
@@ -365,6 +386,7 @@ void hound_stalk_spell(int cmd, variant *res)
  * Hounds: Evolution is tier based with a random choice from each tier.
  **********************************************************************/
 static power_info _powers[] = {
+    { A_DEX, {  1,  0,  0, _bark_spell } },
     { A_DEX, {  1,  1, 30, hound_sniff_spell } },
     { A_CON, {  8,  5, 30, _breathe_spell}},
     { A_DEX, { 10,  0,  0, hound_stalk_spell}},

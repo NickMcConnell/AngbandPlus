@@ -3859,8 +3859,13 @@ void calc_bonuses(void)
 
     if (p_ptr->special_defense & KAMAE_MASK)
     {
-        if (p_ptr->pclass != CLASS_WILD_TALENT && !mut_present(MUT_DRACONIAN_METAMORPHOSIS) && !p_ptr->weapon_info[0].bare_hands)
+        if ( p_ptr->pclass != CLASS_WILD_TALENT
+          && !mut_present(MUT_DRACONIAN_METAMORPHOSIS)
+          && !p_ptr->weapon_info[0].bare_hands
+          && !p_ptr->weapon_info[1].bare_hands )
+        {
             set_action(ACTION_NONE);
+        }
     }
     mut_calc_stats(stats); /* mut goes first for MUT_ILL_NORM, which masks charisma mods of other mutations */
     tim_player_stats(stats);
@@ -4029,7 +4034,8 @@ void calc_bonuses(void)
         p_ptr->weapon_info[1].to_h += 12;
         p_ptr->shooter_info.to_h  -= 12;
         p_ptr->to_h_m  += 12;
-        p_ptr->to_d_m  += 3+(p_ptr->lev/5);
+        if (p_ptr->prace != RACE_MON_BEHOLDER)
+            p_ptr->to_d_m  += 3+(p_ptr->lev/5);
         p_ptr->shooter_info.dis_to_h  -= 12;
         p_ptr->to_a -= 10;
         p_ptr->dis_to_a -= 10;
@@ -4397,9 +4403,12 @@ void calc_bonuses(void)
     p_ptr->to_a += calc_adj_dex_ta();
     p_ptr->dis_to_a += calc_adj_dex_ta();
 
-    p_ptr->to_d_m  += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-    p_ptr->to_h_m  += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-    p_ptr->to_h_m  += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+    if (p_ptr->prace != RACE_MON_BEHOLDER)
+    {
+        p_ptr->to_d_m  += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+        p_ptr->to_h_m  += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+        p_ptr->to_h_m  += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+    }
 
     p_ptr->shooter_info.to_h  += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
     p_ptr->shooter_info.dis_to_h  += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);

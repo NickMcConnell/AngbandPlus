@@ -773,7 +773,7 @@ void display_innate_attack_info(doc_ptr doc, int which)
     else
         doc_printf(cols[0], "<color:y> %-7.7s</color>: Your %s (%dd%d)\n", "Attack", a->name, dd, a->ds);
 
-    if (a->weight && !(a->flags & INNATE_NO_DAM))
+    if (a->weight && !(a->flags & INNATE_NO_DAM) && p_ptr->prace != RACE_MON_BEHOLDER)
         doc_printf(cols[0], " %-7.7s: %d.%d lbs\n", "Weight", a->weight/10, a->weight%10);
 
     {
@@ -803,7 +803,7 @@ void display_innate_attack_info(doc_ptr doc, int which)
         }
     }
 
-    if (!(a->flags & INNATE_NO_DAM))
+    if (!(a->flags & (INNATE_NO_DAM | INNATE_NO_CRIT)))
     {
         critical_t crit = {0};
         const int ct = 10 * 1000;
@@ -861,23 +861,26 @@ void display_innate_attack_info(doc_ptr doc, int which)
             doc_printf(cols[0], "<tab:10><color:B>Steals%s</color>\n", xtra);
             break;
         case GF_OLD_SLOW:
-            doc_printf(cols[0], "<tab:10><color:B>Slows%s</color>\n", xtra);
+            doc_printf(cols[0], "<tab:10><color:U>Slows%s</color>\n", xtra);
             break;
         case GF_OLD_CONF:
-            doc_printf(cols[0], "<tab:10><color:B>Confuses%s</color>\n", xtra);
+            doc_printf(cols[0], "<tab:10><color:u>Confuses%s</color>\n", xtra);
             break;
         case GF_OLD_SLEEP:
-            doc_printf(cols[0], "<tab:10><color:B>Sleeps%s</color>\n", xtra);
+            doc_printf(cols[0], "<tab:10><color:b>Sleeps%s</color>\n", xtra);
             break;
         case GF_STASIS:
         case GF_PARALYSIS:
-            doc_printf(cols[0], "<tab:10><color:B>Paralyzes%s</color>\n", xtra);
+            doc_printf(cols[0], "<tab:10><color:r>Paralyzes%s</color>\n", xtra);
             break;
         case GF_DRAIN_MANA:
             doc_printf(cols[0], "<tab:10><color:B>Drains Mana%s</color>\n", xtra);
             break;
         case GF_STUN:
             doc_printf(cols[0], "<tab:10><color:B>Stuns%s</color>\n", xtra);
+            break;
+        case GF_AMNESIA:
+            doc_printf(cols[0], "<tab:10><color:R>Causes Amnesia%s</color>\n", xtra);
             break;
         case GF_TURN_ALL:
             doc_printf(cols[0], "<tab:10><color:r>Terrifies%s</color>\n", xtra);

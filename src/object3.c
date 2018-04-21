@@ -624,7 +624,8 @@ s32b jewelry_cost(object_type *o_ptr, int options)
             p += 25 * y;
             break;
         default:
-            p += 100 * y;
+            /*p += 100 * y;*/
+            p += 100 * to_d + 25 * to_d * ABS(to_d) + 3 * to_d * to_d * to_d;
         }
 
         if (cost_calc_hook)

@@ -1059,6 +1059,7 @@ extern void mon_lore_4(monster_type *m_ptr, u32b mask);
 extern void mon_lore_5(monster_type *m_ptr, u32b mask);
 extern void mon_lore_6(monster_type *m_ptr, u32b mask);
 extern void mon_lore_r(monster_type *m_ptr, u32b mask);
+extern void mon_lore_move(monster_type *m_ptr);
 
 extern void mon_lore_aux_1(monster_race *r_ptr, u32b mask);
 extern void mon_lore_aux_2(monster_race *r_ptr, u32b mask);
@@ -1067,6 +1068,7 @@ extern void mon_lore_aux_4(monster_race *r_ptr, u32b mask);
 extern void mon_lore_aux_5(monster_race *r_ptr, u32b mask);
 extern void mon_lore_aux_6(monster_race *r_ptr, u32b mask);
 extern void mon_lore_aux_r(monster_race *r_ptr, u32b mask);
+extern void mon_lore_aux_spell(monster_race *r_ptr);
 
 #define MON_BLOW_SILLY   0x01
 #define MON_BLOW_OBVIOUS 0x02

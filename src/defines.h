@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 5
 #define VER_MINOR 0
-#define VER_PATCH 1
+#define VER_PATCH 2
 #define VER_EXTRA 1
 
 #define GAME_MODE_BEGINNER  0
@@ -997,7 +997,7 @@ enum {
 /* #define FF_ACID          49 */
 /* #define FF_OIL           50 */
 /* #define FF_XXX04      51 */
-/* #define FF_CAN_CLIMB     52 */
+#define FF_CAN_CLIMB     52
 #define FF_CAN_FLY       53
 #define FF_CAN_SWIM      54
 #define FF_CAN_PASS      55
@@ -1173,6 +1173,7 @@ enum {
  */
 #define CEM_RIDING              0x0001
 #define CEM_P_CAN_ENTER_PATTERN 0x0002
+#define CEM_MIMIC               0x0004
 
 
 /* Lighting levels of features' attr and char */
@@ -2159,6 +2160,7 @@ enum {
 #define PROJECT_LOS         0x8000
 #define PROJECT_FULL_DAM    0x10000
 #define PROJECT_NO_PAIN     0x20000  /* Omit the pain messages. Note: Mon vs Mon melee is implemented with project()! */
+#define PROJECT_SHORT_MON_NAME 0x40000 /* "It falls asleep" rather than "The Icky Blue Mean Monster falls asleep." */
 
 
 /*
@@ -3464,6 +3466,7 @@ enum obj_flags_e {
 #define RF7_SELF_DARK_1         0x00020000  /* Monster darkens itself */
 #define RF7_HAS_DARK_2          0x00040000  /* Monster carries darkness */
 #define RF7_SELF_DARK_2         0x00080000  /* Monster darkens itself */
+#define RF7_CAN_CLIMB           0x00100000
 
 /*
  * Monster race flags
@@ -5054,6 +5057,7 @@ extern int PlayerUID;
 #define MON_A_SILVER            1011
 #define MON_ROLENTO             1013
 #define MON_RAOU                1018
+#define MON_NAMI                1021
 #define MON_SHURYUUDAN          1023
 #define MON_WAHHA               1031
 #define MON_DEBBY               1032
@@ -5276,6 +5280,8 @@ extern int PlayerUID;
 
 #define WEAPONMASTER_FLURRY  85
 
+#define BEHOLDER_GAZE        86
+
 #define HISSATSU_IAI    100
 
 #define DUNGEON_MODE_NONE       0
@@ -5422,6 +5428,7 @@ enum object_save_fields_e {
     SAVE_ITEM_KNOWN_FLAGS_8,
     SAVE_ITEM_KNOWN_FLAGS_9,
     SAVE_ITEM_KNOWN_CURSE_FLAGS,
+    SAVE_ITEM_LEVEL,
 };
 
 /*

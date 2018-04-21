@@ -7,7 +7,7 @@
 #define MON_CENTIPEDE_CLEAR       276
 #define MON_CENTIPEDE_MULTIHUED  1132
 
-static const char * _desc = 
+static const char * _desc =
  "Centipedes are natural creatures with many legs. As they "
  "evolve, they change colors, but not much else seems to differentiate the various forms. "
  "Perhaps you prefer blue to red or green? Eventually, once you have evolved into your "
@@ -20,8 +20,8 @@ static const char * _desc =
  *                  7        14      21     28       35
  * Evolution: White -> Green -> Blue -> Red -> Clear -> Multihued
  **********************************************************************/
-static void _birth(void) 
-{ 
+static void _birth(void)
+{
     object_type    forge;
 
     p_ptr->current_r_idx = MON_CENTIPEDE_WHITE;
@@ -30,7 +30,7 @@ static void _birth(void)
     skills_innate_init("Sting", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
     skills_innate_init("Crawl", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
 
-    
+
     object_prep(&forge, lookup_kind(TV_RING, 0));
     forge.name2 = EGO_RING_COMBAT;
     forge.to_h = 3;
@@ -60,7 +60,7 @@ static int _rank(void)
     return 0;
 }
 
-static void _gain_level(int new_level) 
+static void _gain_level(int new_level)
 {
     if (p_ptr->current_r_idx == MON_CENTIPEDE_WHITE && new_level >= 7)
     {
@@ -113,7 +113,7 @@ static void _calc_innate_attacks(void)
         a.dd = 1;
         a.ds = 3 + r;
         a.to_h = p_ptr->lev/3;
-        a.to_d = r;
+        a.to_d = 2*r;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         a.blows = 100;
@@ -130,7 +130,7 @@ static void _calc_innate_attacks(void)
         a.dd = 1;
         a.ds = 2 + r;
         a.to_h = p_ptr->lev/3;
-        a.to_d = r;
+        a.to_d = 2*r;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         if (r >= 5)
@@ -151,7 +151,7 @@ static void _calc_innate_attacks(void)
         if (r >= 5)
             a.ds += 7;
         a.to_h = p_ptr->lev/3;
-        a.to_d = r;
+        a.to_d = 2*r;
         a.weight = 70;
         a.effect[0] = GF_MISSILE;
         calc_innate_blows(&a, 100 + 50*r);
@@ -165,13 +165,17 @@ static void _calc_innate_attacks(void)
 /**********************************************************************
  * Bonuses
  **********************************************************************/
-static void _calc_bonuses(void) 
+static void _calc_bonuses(void)
 {
+    int r = _rank();
+    p_ptr->to_a += 2*r;
+    p_ptr->dis_to_a += 2*r;
+
     p_ptr->skill_dig += 50;
     p_ptr->pspeed += _rank();
 }
 
-static void _get_flags(u32b flgs[OF_ARRAY_SIZE]) 
+static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
     if (_rank())
         add_flag(flgs, OF_SPEED);
@@ -184,9 +188,9 @@ race_t *mon_centipede_get_race(void)
     static race_t me = {0};
     static bool   init = FALSE;
     int           r = _rank();
-    static cptr   titles[6] =  {"Giant white centipede", "Metallic green centipede", 
-                                "Metallic blue centipede", "Metallic red centipede", 
-                                "Giant clear centipede", "The Multi-hued Centipede"};    
+    static cptr   titles[6] =  {"Giant white centipede", "Metallic green centipede",
+                                "Metallic blue centipede", "Metallic red centipede",
+                                "Giant clear centipede", "The Multi-hued Centipede"};
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */

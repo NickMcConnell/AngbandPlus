@@ -206,6 +206,14 @@ Beholder
   legendary and they are quite capable with magical devices. However, 
   they are not very strong and won't be able to stand long against 
   multiple foes.
+   
+  The attack of the beholder is unique. Since their gaze is not a 
+  normal physical attack, they receive no benefit to melee from their 
+  Strength and Dexterity. Also, the number of attacks is determined by 
+  level rather than the normal way: in this respect, they resemble 
+  monks. Finally, the beholder need not be next to their foes in order 
+  to attack with melee. They may gaze at distant monsters, though the 
+  range of their gaze is somewhat restricted.
   
     Stats                   Skills
     Strength      -3        Disarming   Good         
@@ -216,7 +224,7 @@ Beholder
     Charisma      +0        Perception  Legendary[7] 
     Life Rating  100%       Melee       Fair         
     Base HP       20        Bows        Very Bad     
-    Experience   250%       Infravision 80'
+    Experience   200%       Infravision 80'
     
   
 Dragon
@@ -705,7 +713,7 @@ Hound         +1   -3   -5   +2   +1   +0  100%  +22  150%  110%
 Hydra         +0   -2   -2   +0   +0   +0  100%  +45  130%  130%
 Spider        -2   -1   -1   +2   -2   -3   70%  +25  200%  115%
 Angel         +1   +1   +4   +1   +1   +1   90%  +26  325%   90%
-Beholder      -3   +4   +0   +1   +0   +0  100%  +20  250%  140%
+Beholder      -3   +4   +0   +1   +0   +0  100%  +20  200%  140%
 Dragon        +1   -1   -2   -2   +0   -1  100%  +40  250%  130%
 Elemental     +2   -5   -5   -2   +2   +0  105%  +30  170%  120%
 Golem         +1   -2   -2   -1   +1   +0  100%  +50  200%  130%
@@ -777,5 +785,5 @@ Xorn         Poor          Bad           Excellent     Bad             50'
 
 
 
-Automatically generated for PosChengband 5.0.1.
+Automatically generated for PosChengband 5.0.2.
 

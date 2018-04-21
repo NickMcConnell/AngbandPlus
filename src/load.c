@@ -188,6 +188,9 @@ void rd_item(savefile_ptr file, object_type *o_ptr)
             o_ptr->activation.cost = savefile_read_s16b(file);
             o_ptr->activation.extra = savefile_read_s16b(file);
             break;
+        case SAVE_ITEM_LEVEL:
+            o_ptr->level = savefile_read_s16b(file);
+            break;
         /* default:
             TODO: Report an error back to the load routine!!*/
         }
@@ -322,6 +325,16 @@ static void rd_lore(savefile_ptr file, int r_idx)
     r_ptr->r_drop_gold = savefile_read_byte(file);
     r_ptr->r_drop_item = savefile_read_byte(file);
     r_ptr->r_cast_spell = savefile_read_byte(file);
+    if (savefile_is_older_than(file, 5, 0, 2, 1))
+    {
+        r_ptr->r_spell_turns = 0;
+        r_ptr->r_move_turns = 0;
+    }
+    else
+    {
+        r_ptr->r_spell_turns = savefile_read_u32b(file);
+        r_ptr->r_move_turns = savefile_read_u32b(file);
+    }
     r_ptr->r_blows[0] = savefile_read_byte(file);
     r_ptr->r_blows[1] = savefile_read_byte(file);
     r_ptr->r_blows[2] = savefile_read_byte(file);

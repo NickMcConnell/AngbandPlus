@@ -1664,6 +1664,21 @@ s16b get_mon_num(int level)
         }
 
         table[i].prob3 = table[i].prob2;
+
+        /* Hack: Undersized monsters become more rare ... but only for max_depth restricted monsters.
+           The goal is that these monsters gradually become less and less common, rather than suddenly
+           disappearing. About 50% of monsters currently have depth restrictions. */
+        if ( table[i].prob3
+          && r_ptr->max_level != 999 /* <=== Remove this, and the end game becomes too difficult */
+          && level > r_ptr->level + 9
+          && !(r_ptr->flags1 & RF1_UNIQUE) ) /* Redundant. Uniques never have depth restrictions. */
+        {
+            int delta = level - r_ptr->level;
+            table[i].prob3 = table[i].prob3 >> (delta/10);
+            if (!table[i].prob3)
+                table[i].prob3 = 1;
+        }
+
         total += table[i].prob3;
     }
 
@@ -3618,6 +3633,7 @@ int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
             {
                 object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
                 msg_format("%s glows %s.", o_name, color);
+                obj_learn_flag(o_ptr, OF_WARNING);
             }
             else
             {

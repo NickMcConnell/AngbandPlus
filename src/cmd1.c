@@ -2341,7 +2341,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     int             dam, base_dam, effect_pow, to_h, chance;
     monster_type    *m_ptr = &m_list[m_idx];
     monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-    char            m_name[80];
+    char            m_name_subject[MAX_NLEN], m_name_object[MAX_NLEN];
     int             i, j, k;
     int             delay_sleep = 0;
     int             delay_stasis = 0;
@@ -2354,14 +2354,16 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     bool            backstab = FALSE, fuiuchi = FALSE, stab_fleeing = FALSE;
 
     set_monster_csleep(m_idx, 0);
-    monster_desc(m_name, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
+
+    monster_desc(m_name_subject, m_ptr, MD_PRON_VISIBLE);
+    monster_desc(m_name_object, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
 
     if (p_ptr->afraid)
     {
         if (!fear_allow_melee(m_idx))
         {
             if (m_ptr->ml)
-                cmsg_format(TERM_VIOLET, "You are too afraid to attack %s!", m_name);
+                cmsg_format(TERM_VIOLET, "You are too afraid to attack %s!", m_name_object);
             else
                 cmsg_format(TERM_VIOLET, "There is something scary in your way!");
             return;
@@ -2424,13 +2426,13 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
             {
                 int dd = a->dd + p_ptr->innate_attack_info.to_dd;
 
-                if (backstab) cmsg_format(TERM_L_GREEN, "You cruelly attack %s!", m_name);
-                else if (fuiuchi) cmsg_format(TERM_L_GREEN, "You make a surprise attack, and hit %s with a powerful blow!", m_name);
-                else if (stab_fleeing) cmsg_format(TERM_L_GREEN, "You attack %s in the back!",  m_name);
+                if (backstab) cmsg_format(TERM_L_GREEN, "You cruelly attack %s!", m_name_object);
+                else if (fuiuchi) cmsg_format(TERM_L_GREEN, "You make a surprise attack, and hit %s with a powerful blow!", m_name_object);
+                else if (stab_fleeing) cmsg_format(TERM_L_GREEN, "You attack %s in the back!",  m_name_object);
 
                 hit_ct++;
                 sound(SOUND_HIT);
-                msg_format(a->msg, m_name);
+                msg_format(a->msg, m_name_object);
 
                 base_dam = damroll(dd, a->ds);
                 if ((a->flags & INNATE_VORPAL) && one_in_(6))
@@ -2442,13 +2444,13 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     base_dam *= m;
                     switch (m)
                     {
-                    case 2: msg_format("You <color:U>gouge</color> %s!", m_name); break;
-                    case 3: msg_format("You <color:y>maim</color> %s!", m_name); break;
-                    case 4: msg_format("You <color:R>carve</color> %s!", m_name); break;
-                    case 5: msg_format("You <color:r>cleave</color> %s!", m_name); break;
-                    case 6: msg_format("You <color:v>smite</color> %s!", m_name); break;
-                    case 7: msg_format("You <color:v>eviscerate</color> %s!", m_name); break;
-                    default: msg_format("You <color:v>shred</color> %s!", m_name); break;
+                    case 2: msg_format("You <color:U>gouge</color> %s!", m_name_object); break;
+                    case 3: msg_format("You <color:y>maim</color> %s!", m_name_object); break;
+                    case 4: msg_format("You <color:R>carve</color> %s!", m_name_object); break;
+                    case 5: msg_format("You <color:r>cleave</color> %s!", m_name_object); break;
+                    case 6: msg_format("You <color:v>smite</color> %s!", m_name_object); break;
+                    case 7: msg_format("You <color:v>eviscerate</color> %s!", m_name_object); break;
+                    default: msg_format("You <color:v>shred</color> %s!", m_name_object); break;
                     }
                 }
 
@@ -2470,7 +2472,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                 }
 
                 base_dam += a->to_d;
-                if (!(a->flags & INNATE_NO_DAM))
+                if (!(a->flags & (INNATE_NO_DAM | INNATE_NO_CRIT)))
                 {
                     critical_t crit = critical_norm(a->weight, to_h, 0, mode, HAND_NONE);
                     if (crit.desc)
@@ -2490,7 +2492,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     if (one_in_(backstab ? 13 : (stab_fleeing || fuiuchi) ? 15 : 27))
                     {
                         dam *= 5;
-                        msg_format("You critically injured %s!", m_name);
+                        msg_format("You critically injured %s!", m_name_object);
                     }
                     else if ( (m_ptr->hp < maxhp/2 && one_in_(50))
                            || ( (one_in_(666) || ((backstab || fuiuchi) && one_in_(11)))
@@ -2500,12 +2502,12 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || (m_ptr->hp >= maxhp/2))
                         {
                             dam = MAX(dam*5, m_ptr->hp/2);
-                            msg_format("You fatally injured %s!", m_name);
+                            msg_format("You fatally injured %s!", m_name_object);
                         }
                         else
                         {
                             dam = m_ptr->hp + 1;
-                            msg_format("You hit %s on a fatal spot!", m_name);
+                            msg_format("You hit %s on a fatal spot!", m_name_object);
                         }
                     }
                 }
@@ -2672,19 +2674,19 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                     case GF_OLD_CONF:
                     case GF_OLD_SLOW:
                     case GF_STUN:
-                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE, -1);
+                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
                         *mdeath = (m_ptr->r_idx == 0);
                         break;
                     case GF_DRAIN_MANA:
                     {
                         int amt = MIN(effect_pow, max_drain_amt - drain_amt);
-                        if (amt && project(0, 0, m_ptr->fy, m_ptr->fx, amt, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN, -1))
+                        if (amt && project(0, 0, m_ptr->fy, m_ptr->fx, amt, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1))
                             drain_amt += amt;
                         *mdeath = (m_ptr->r_idx == 0);
                         break;
                     }
                     case GF_OLD_DRAIN:
-                        if (monster_living(r_ptr) && project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN, -1))
+                        if (monster_living(r_ptr) && project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1))
                         {
                             int amt = MIN(effect_pow, max_drain_amt - drain_amt);
                             if (prace_is_(MIMIC_BAT))
@@ -2693,7 +2695,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                             }
                             else
                             {
-                                msg_format("You <color:D>drain life</color> from %s!", m_name);
+                                msg_format("You <color:D>drain life</color> from %s!", m_name_object);
                                 hp_player(amt);
                             }
                             drain_amt += amt;
@@ -2708,11 +2710,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
                         if (base_dam > 50 || one_in_(7))
                         {
                             delay_quake = TRUE;
-                            project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, GF_STUN, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN, -1);
+                            project(0, 0, m_ptr->fy, m_ptr->fx, base_dam, GF_STUN, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1);
                         }
                         break;
                     default:
-                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN, -1);
+                        project(0, 0, m_ptr->fy, m_ptr->fx, effect_pow, e, PROJECT_KILL|PROJECT_HIDE|PROJECT_NO_PAIN|PROJECT_SHORT_MON_NAME, -1);
                         *mdeath = (m_ptr->r_idx == 0);
                     }
                 }
@@ -2731,7 +2733,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 
                 if (mode == DRAGON_SNATCH)
                 {
-                    msg_format("You grab %s in your jaws.", m_name);
+                    msg_format("You grab %s in your jaws.", m_name_object);
                     monster_toss(m_idx);
                     return;
                 }
@@ -2739,14 +2741,16 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
             else
             {
                 sound(SOUND_MISS);
-                msg_format("You miss.", m_name);
+                if (p_ptr->prace == RACE_MON_BEHOLDER)
+                    msg_format("%^s avoids your gaze.", m_name_subject);
+                else
+                    msg_print("You miss.");
             }
             fuiuchi = FALSE; /* Clumsy! */
-            if (mode == WEAPONMASTER_RETALIATION)
-                break;
+
+            if (mode == WEAPONMASTER_RETALIATION) break;
         }
-        if (mode == WEAPONMASTER_RETALIATION)
-            break;
+        if (mode == WEAPONMASTER_RETALIATION) break;
     }
     if (mode == DRAGON_TAIL_SWEEP && !*mdeath && hit_ct)
     {
@@ -2756,11 +2760,11 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
     if (delay_quake)
         earthquake(py, px, 10);
     if (delay_sleep && !*mdeath)
-        project(0, 0, m_ptr->fy, m_ptr->fx, delay_sleep, GF_OLD_SLEEP, PROJECT_KILL|PROJECT_HIDE, -1);
+        project(0, 0, m_ptr->fy, m_ptr->fx, delay_sleep, GF_OLD_SLEEP, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
     if (delay_stasis && !*mdeath)
-        project(0, 0, m_ptr->fy, m_ptr->fx, delay_stasis, GF_STASIS, PROJECT_KILL|PROJECT_HIDE, -1);
+        project(0, 0, m_ptr->fy, m_ptr->fx, delay_stasis, GF_STASIS, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
     if (delay_paralysis && !*mdeath)
-        project(0, 0, m_ptr->fy, m_ptr->fx, delay_paralysis, GF_PARALYSIS, PROJECT_KILL|PROJECT_HIDE, -1);
+        project(0, 0, m_ptr->fy, m_ptr->fx, delay_paralysis, GF_PARALYSIS, PROJECT_KILL|PROJECT_HIDE|PROJECT_SHORT_MON_NAME, -1);
     if (steal_ct && !*mdeath)
     {
         if (mon_save_p(m_ptr->r_idx, A_DEX))
@@ -4964,7 +4968,14 @@ bool player_can_enter(s16b feature, u16b mode)
 {
     feature_type *f_ptr = &f_info[feature];
 
-    if (p_ptr->riding) return monster_can_cross_terrain(feature, &r_info[m_list[p_ptr->riding].r_idx], mode | CEM_RIDING);
+    if (p_ptr->riding)
+        return monster_can_cross_terrain(feature, &r_info[m_list[p_ptr->riding].r_idx], mode | CEM_RIDING);
+
+    if (p_ptr->prace == RACE_MON_POSSESSOR && p_ptr->current_r_idx != MON_POSSESSOR_SOUL)
+        return monster_can_cross_terrain(feature, &r_info[p_ptr->current_r_idx], mode | CEM_MIMIC);
+
+    if (p_ptr->prace == RACE_MON_MIMIC && p_ptr->current_r_idx != MON_MIMIC)
+        return monster_can_cross_terrain(feature, &r_info[p_ptr->current_r_idx], mode | CEM_MIMIC);
 
     /* Pattern */
     if (have_flag(f_ptr->flags, FF_PATTERN))
@@ -4974,6 +4985,7 @@ bool player_can_enter(s16b feature, u16b mode)
 
     /* "CAN" flags */
     if (have_flag(f_ptr->flags, FF_CAN_FLY) && p_ptr->levitation) return TRUE;
+    /*if (have_flag(f_ptr->flags, FF_CAN_CLIMB) && p_ptr->climbing) return TRUE;*/
     if (have_flag(f_ptr->flags, FF_CAN_SWIM) && p_ptr->can_swim) return TRUE;
     if (have_flag(f_ptr->flags, FF_CAN_PASS) && p_ptr->pass_wall) return TRUE;
 
@@ -5441,7 +5453,10 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         }
     }
 
-    if (oktomove && (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC))
+    if (!oktomove)
+    {
+    }
+    else if (p_ptr->prace == RACE_MON_POSSESSOR || p_ptr->prace == RACE_MON_MIMIC)
     {
         monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
         if (r_ptr->flags1 & RF1_NEVER_MOVE)
@@ -5453,6 +5468,10 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             disturb(0, 0);*/
         }
         else if (have_flag(f_ptr->flags, FF_CAN_FLY) && ((r_ptr->flags7 & RF7_CAN_FLY) || p_ptr->levitation))
+        {
+            /* Allow moving */
+        }
+        else if (have_flag(f_ptr->flags, FF_CAN_CLIMB) && (r_ptr->flags7 & RF7_CAN_CLIMB))
         {
             /* Allow moving */
         }
@@ -5477,16 +5496,14 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             disturb(0, 0);
         }
     }
-
-    if (oktomove && p_ptr->prace == RACE_MON_RING && !p_ptr->riding)
+    else if (p_ptr->prace == RACE_MON_RING && !p_ptr->riding)
     {
         msg_print("You can't move! Try using your Glitter power to lure a ringbearer instead.");
         energy_use = 0;
         oktomove = FALSE;
         disturb(0, 0);
     }
-
-    if (oktomove && p_ptr->riding)
+    else if (p_ptr->riding)
     {
         if (riding_r_ptr->flags1 & RF1_NEVER_MOVE)
         {
@@ -5532,6 +5549,10 @@ void move_player(int dir, bool do_pickup, bool break_trap)
         {
             /* Allow moving */
         }
+        else if (have_flag(f_ptr->flags, FF_CAN_CLIMB) && (riding_r_ptr->flags7 & RF7_CAN_CLIMB))
+        {
+            /* Allow moving */
+        }
         else if (have_flag(f_ptr->flags, FF_CAN_SWIM) && ((riding_r_ptr->flags7 & RF7_CAN_SWIM) || ring_lev))
         {
             /* Allow moving */
@@ -5569,35 +5590,23 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             disturb(0, 0);
         }
     }
-
-    if (!oktomove)
-    {
-    }
     else if ( !have_flag(f_ptr->flags, FF_MOVE)
-           && have_flag(f_ptr->flags, FF_CAN_FLY)
-           && p_ptr->riding
-           && !((riding_r_ptr->flags7 & RF7_CAN_FLY) || ring_lev) )
-    {
-        msg_format("Your mount needs to fly to go through the %s.", f_name + f_info[get_feat_mimic(c_ptr)].name);
-
-        if (!shadow_strike)
-            energy_use = 0;
-        running = 0;
-        oktomove = FALSE;
-    }
-    else if ( !have_flag(f_ptr->flags, FF_MOVE)
-           && have_flag(f_ptr->flags, FF_CAN_FLY)
-           && !p_ptr->riding
+           && (have_flag(f_ptr->flags, FF_CAN_FLY) || have_flag(f_ptr->flags, FF_CAN_CLIMB))
            && !p_ptr->levitation )
     {
         msg_format("You need to fly to go through the %s.", f_name + f_info[get_feat_mimic(c_ptr)].name);
-
+        oktomove = FALSE;
         if (!shadow_strike)
             energy_use = 0;
         running = 0;
-        oktomove = FALSE;
     }
 
+
+    if (!oktomove)
+    {
+        /* FYI: Either the player was blocked from movement -OR- the player attacked
+           because a monster was in the way.*/
+    }
     /*
      * Player can move through trees and
      * has effective -10 speed

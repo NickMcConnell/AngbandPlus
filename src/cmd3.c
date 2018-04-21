@@ -1502,6 +1502,11 @@ static _mon_list_ptr _create_monster_list(int mode)
 
         if (!r_idx) continue;
         if (!m_ptr->ml) continue;
+        if (p_ptr->image)
+        {
+            /* TODO: Zany stuff in the list?? */
+            continue;
+        }
 
         los = projectable(py, px, m_ptr->fy, m_ptr->fx);
         if (mode == MON_LIST_PROBING) /* No grouping and only display los monsters */

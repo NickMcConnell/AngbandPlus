@@ -41,7 +41,7 @@ bool allow_ticked_off(monster_race *r_ptr)
 }
 
 /*
- * Get another mirror. for SEEKER 
+ * Get another mirror. for SEEKER
  */
 static void next_mirror( int* next_y , int* next_x , int cury, int curx)
 {
@@ -72,7 +72,7 @@ static void next_mirror( int* next_y , int* next_x , int cury, int curx)
     *next_x=curx+randint0(5)-2;
     return;
 }
-        
+
 /*
  * Get a legal "multi-hued" color for drawing "spells"
  */
@@ -129,7 +129,7 @@ static byte spell_color(int type)
 
             case GF_ARROW:          return (0x0F);
             case GF_STORM:
-            case GF_WATER: 
+            case GF_WATER:
             case GF_WATER2: return (0x04);
             case GF_WEB:          return (0x04);
             case GF_NETHER:         return (0x07);
@@ -612,14 +612,14 @@ static bool _path_continue(int n, int y, int x, int flg)
     return TRUE;
 }
 
-/* Try a given projection with horizontal major axis 
+/* Try a given projection with horizontal major axis
    These projections handle arbitrary rational slope values by the use of integer
    counters. The steps are always +-1 along the major axis, but may be any of -1,0,+1
    along the minor axis. The start values are used to select different tile paths between
    the end points whenever there might be any ambiguity. We return whether or not the
    desired endpoint was reached, but note that the path may extend beyond this point.
 */
-static bool _project_path_x(u16b *path, int* ct, int range, int y1, int x1, int y2, int x2, 
+static bool _project_path_x(u16b *path, int* ct, int range, int y1, int x1, int y2, int x2,
     int step_x, int step_y, int count_x, int count_y, int start_cx, int start_cy,
     int flg)
 {
@@ -668,7 +668,7 @@ static bool _project_path_x(u16b *path, int* ct, int range, int y1, int x1, int 
 }
 
 /* Try a given projection with vertical major axis */
-static bool _project_path_y(u16b *path, int *ct, int range, int y1, int x1, int y2, int x2, 
+static bool _project_path_y(u16b *path, int *ct, int range, int y1, int x1, int y2, int x2,
     int step_x, int step_y, int count_x, int count_y, int start_cx, int start_cy,
     int flg)
 {
@@ -880,7 +880,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
         case GF_FIRE:
         case GF_ELEC:
         case GF_PLASMA:
-            message = "burns up."; 
+            message = "burns up.";
             break;
         case GF_METEOR:
         case GF_CHAOS:
@@ -889,7 +889,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
         case GF_ROCK:
         case GF_ROCKET:
         case GF_FORCE:
-            message = "is blasted."; 
+            message = "is blasted.";
             break;
         case GF_ACID:
             message = "melts.";
@@ -1075,7 +1075,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
         case GF_REMOVE_OBSTACLE:
         {
             /* Destroy all doors and traps */
-            if (is_trap(c_ptr->feat) || have_flag(f_ptr->flags, FF_DOOR) || 
+            if (is_trap(c_ptr->feat) || have_flag(f_ptr->flags, FF_DOOR) ||
                 (typ == GF_REMOVE_OBSTACLE && have_flag(f_ptr->flags, FF_TREE)))
             {
                 /* Check line of sight */
@@ -1882,7 +1882,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     bool heal_leper = FALSE;
 
     /* Hold the monster name */
-    char m_name[80];
+    char m_name[MAX_NLEN];
+    char m_name_object[MAX_NLEN];
 
     char m_poss[80];
 
@@ -1937,8 +1938,16 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     }
 
     /* Get the monster name (BEFORE polymorphing) */
-    monster_desc(m_name, m_ptr, 0);
-
+    if (flg & PROJECT_SHORT_MON_NAME)
+    {
+        monster_desc(m_name, m_ptr, MD_PRON_VISIBLE);
+        monster_desc(m_name_object, m_ptr, MD_PRON_VISIBLE | MD_OBJECTIVE);
+    }
+    else
+    {
+        monster_desc(m_name, m_ptr, 0);
+        monster_desc(m_name_object, m_ptr, 0);
+    }
     /* Get the monster possessive ("his"/"her"/"its") */
     monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
 
@@ -2416,7 +2425,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 mon_lore_r(m_ptr, RFR_RES_ALL);
                 break;
             }
-            if (r_ptr->flagsr & RFR_RES_SOUN) 
+            if (r_ptr->flagsr & RFR_RES_SOUN)
             {
                 mon_lore_r(m_ptr, RFR_RES_SOUN);
             }
@@ -2428,7 +2437,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             {
                 note = " is already stunned.";
             }
-            else if (mon_save_p(m_ptr->r_idx, A_CHR) 
+            else if (mon_save_p(m_ptr->r_idx, A_CHR)
                   || ((r_ptr->flags1 & RF1_UNIQUE) && mon_save_p(m_ptr->r_idx, A_CHR)) )
             {
                 note = " resists stunning.";
@@ -2540,7 +2549,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 break;
             }
 
-            /* 593 monsters have NO_CONF ... it is more widely resisted than fire ... 
+            /* 593 monsters have NO_CONF ... it is more widely resisted than fire ...
                Eldritch confusion will bypass this check, but that is hacked below */
             if (MON_CONFUSED(m_ptr))
             {
@@ -2687,7 +2696,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             int ml = r_ptr->level;
             if (r_ptr->flags1 & RF1_UNIQUE)
                 ml += 10;
-            
+
             if (seen) obvious = TRUE;
 
             if (r_ptr->flagsr & RFR_RES_ALL)
@@ -3473,8 +3482,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 obvious = FALSE;
                 dam = 0;
             }
-            else if (((r_ptr->flags1 & RF1_UNIQUE) && randint1(888) != 666) 
-                    || mon_save_p(m_ptr->r_idx, A_INT) 
+            else if (((r_ptr->flags1 & RF1_UNIQUE) && randint1(888) != 666)
+                    || mon_save_p(m_ptr->r_idx, A_INT)
                     || mon_save_p(m_ptr->r_idx, A_INT) )
             {
                 note = " resists!";
@@ -3505,7 +3514,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 obvious = FALSE;
                 dam = 0;
             }
-            else if ( ((r_ptr->flags1 & RF1_UNIQUE) && randint1(888) != 666) 
+            else if ( ((r_ptr->flags1 & RF1_UNIQUE) && randint1(888) != 666)
                    || (r_ptr->level + randint1(20) > randint1(caster_lev)))
             {
                 note = " resists!";
@@ -3705,7 +3714,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 mon_lore_r(m_ptr, RFR_RES_ALL);
                 break;
             }
-            if ( (r_ptr->flags1 & RF1_UNIQUE) 
+            if ( (r_ptr->flags1 & RF1_UNIQUE)
               || r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10 )
             {
                 note = " is unaffected!";
@@ -3900,7 +3909,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     }
                     else if ((m_ptr->mflag2 & MFLAG2_NOPET) || randint1(r_ptr->level) > randint1(dam))
                     {
-                        if (one_in_(4)) 
+                        if (one_in_(4))
                             m_ptr->mflag2 |= MFLAG2_NOPET;
                     }
                     else
@@ -4231,7 +4240,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             if (r_ptr->flags3 & (RF3_NO_CONF)) dam -= 30;
             if (dam < 1) dam = 1;
-            msg_format("You stare into %s.", m_name);
+            msg_format("You stare into %s.", m_name_object);
             if ((r_ptr->flagsr & RFR_RES_ALL) || p_ptr->inside_arena)
             {
                 note = " is immune.";
@@ -4632,7 +4641,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         case GF_ISOLATION:
         {
             bool resists_tele = FALSE;
-            if (c_ptr->m_idx == p_ptr->duelist_target_idx) 
+            if (c_ptr->m_idx == p_ptr->duelist_target_idx)
             {
                 dam = 0;
                 return TRUE;
@@ -5047,12 +5056,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     p_ptr->csp = p_ptr->msp;
                     p_ptr->csp_frac = 0;
                 }
-                p_ptr->redraw |= PR_MANA;        
+                p_ptr->redraw |= PR_MANA;
             }
             else
             {
-                if (see_s_msg) 
-                    msg_format("%s is unaffected.", m_name);
+                if (see_s_msg)
+                    msg_format("%^s is unaffected.", m_name);
                 dam = 0;
             }
             break;
@@ -5096,14 +5105,14 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 else
                 {
                     /* Message */
-                    msg_format("You draw psychic energy from %s.", m_name);
+                    msg_format("You draw psychic energy from %s.", m_name_object);
 
                     (void)hp_player(dam);
                 }
             }
             else
             {
-                if (see_s_msg) msg_format("%s is unaffected.", m_name);
+                if (see_s_msg) msg_format("%^s is unaffected.", m_name);
             }
             dam = 0;
             break;
@@ -5215,7 +5224,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         {
             if (seen) obvious = TRUE;
             /* Message */
-            if (!who) msg_format("You gaze intently at %s.", m_name);
+            if (!who) msg_format("You gaze intently at %s.", m_name_object);
 
             if (r_ptr->flagsr & RFR_RES_ALL)
             {
@@ -5266,7 +5275,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         {
             if (seen) obvious = TRUE;
             /* Message */
-            if (!who) msg_format("You gaze intently at %s.", m_name);
+            if (!who) msg_format("You gaze intently at %s.", m_name_object);
 
             if (r_ptr->flagsr & RFR_RES_ALL)
             {
@@ -5414,7 +5423,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             else
             {
-                save = ((randint0(100 + (caster_lev / 2)) < (r_ptr->level + 35)) 
+                save = ((randint0(100 + (caster_lev / 2)) < (r_ptr->level + 35))
                     && ((who <= 0) || (caster_ptr->r_idx != MON_KENSHIROU)));
             }
 
@@ -5517,6 +5526,13 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         /* Attack (Use "dam" as attack type) */
         case GF_ATTACK:
         {
+            if (dam == BEHOLDER_GAZE && !los(m_ptr->fy, m_ptr->fx, py, px))
+            {
+                if (seen_msg) msg_format("%^s can't see you, and isn't affected!", m_name);
+                skipped = TRUE;
+                break;
+            }
+
             /* Return this monster's death */
             return py_attack(y, x, dam);
         }
@@ -5669,14 +5685,14 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
 
             if (genocide_aux(c_ptr->m_idx, dam, !who, (r_ptr->level + 1) / 2, "Genocide One"))
             {
-                if (seen_msg) 
+                if (seen_msg)
                 {
                     if (dam == 666) /* Hack for Daemon flavored message */
                         msg_format("%^s is sent directly to hell!", m_name);
                     else
                         msg_format("%^s disappeared!", m_name);
                 }
-                
+
                 virtue_add(VIRTUE_VITALITY, -1);
                 return TRUE;
             }
@@ -5837,8 +5853,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
     if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_poly = FALSE;
 
     /* "Unique" and "quest" monsters can only be "killed" by the player. */
-    if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & RF7_NAZGUL)) 
-      && !p_ptr->inside_battle 
+    if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & RF7_NAZGUL))
+      && !p_ptr->inside_battle
       && !prace_is_(RACE_MON_QUYLTHULG))
     {
         if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
@@ -5859,7 +5875,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
         else
             dam = mon_damage_mod(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
     }
-    if (tmp > 0 && dam == 0) 
+    if (tmp > 0 && dam == 0)
         note = " is unharmed.";
 
     /* Check for death */
@@ -6132,6 +6148,19 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                         m_ptr->anger_ct++;
                     if (splashed)
                         m_ptr->anger_ct++;
+                    /* Attempt to deal with Dungeon Guardians splash exploit.
+                       Dungeon guardians use AI_GUARD_POS, so cannot be lured
+                       away from the dungeon entrance. Attempting this exploit
+                       makes them really mad, and if they are mad enough, then
+                       they will actually pursue the player (cf get_moves in melee2.c) */
+                    if (splashed && m_ptr->cdis > MAX_RANGE)
+                    {
+                        pack_info_t *pack_ptr = pack_info_ptr(c_ptr->m_idx);
+                        if (pack_ptr && pack_ptr->ai == AI_GUARD_POS)
+                            m_ptr->anger_ct += 10;
+                        else
+                            m_ptr->anger_ct++;
+                    }
                 }
                 /* Splashing Uniques out of LOS makes them rethink their approach */
                 if (splashed && (r_ptr->flags1 & RF1_UNIQUE))
@@ -6211,7 +6240,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     earthquake(ty, tx, 4 + randint0(4));
                     if (!one_in_(6)) break;
                 }
-            case 3: case 4: case 5: case 6: case 7: case 8: 
+            case 3: case 4: case 5: case 6: case 7: case 8:
                 if (!count)
                 {
                     int dam = damroll(10, 10);
@@ -6220,7 +6249,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     project(0, 8, ty,tx, dam, GF_MANA, curse_flg, -1);
                     if (!one_in_(6)) break;
                 }
-            case 9: case 10: case 11: 
+            case 9: case 10: case 11:
                 if (!count)
                 {
                     msg_print("Space warps about it!");
@@ -6229,18 +6258,18 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                     if (one_in_(13)) count += activate_hi_summon(ty, tx, TRUE);
                     if (!one_in_(6)) break;
                 }
-            case 12: case 13: case 14: case 15: case 16: 
+            case 12: case 13: case 14: case 15: case 16:
                 msg_print("It feels a surge of energy!");
 
                 project(0, 7, ty, tx, 50, GF_DISINTEGRATE, curse_flg, -1);
                 if (!one_in_(6)) break;
-            case 17: case 18: case 19: 
+            case 17: case 18: case 19:
                 aggravate_monsters(0);
                 if (!one_in_(6)) break;
-            case 20: case 21: 
+            case 20: case 21:
                 count += activate_hi_summon(ty, tx, TRUE);
                 if (!one_in_(6)) break;
-            case 22: case 23: case 24: case 25: case 26: 
+            case 22: case 23: case 24: case 25: case 26:
             {
                 bool pet = !one_in_(3);
                 u32b mode = PM_ALLOW_GROUP;
@@ -6251,7 +6280,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 count += summon_specific((pet ? -1 : 0), py, px, (pet ? p_ptr->lev*2/3+randint1(p_ptr->lev/2) : dun_level), 0, mode);
                 if (!one_in_(6)) break;
             }
-            case 27: 
+            case 27:
                 if (p_ptr->hold_life && (randint0(100) < 75)) break;
                 msg_print("You feel your life draining away...");
 
@@ -6434,6 +6463,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
         if (blind) msg_print("Something bounces!");
         else msg_print("The attack bounces!");
 
+        equip_learn_flag(OF_REFLECT);
 
         /* Choose 'new' target */
         if (who > 0)
@@ -6467,7 +6497,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
     /* XXX XXX XXX */
     /* Limit maximum damage */
     if (dam > 1600) dam = 1600;
-    
+
     p_ptr->spell_turned = FALSE;
     if (p_ptr->tim_spell_turning)
     {
@@ -6476,7 +6506,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
             turn = (randint1(100) <= p_ptr->lev) ? TRUE : FALSE;
         else
             turn = (randint1(200) <= 20 + p_ptr->lev) ? TRUE : FALSE;
-            
+
         if (turn)
         {
             msg_print("You turn the magic on the caster!");
@@ -6515,7 +6545,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
         {
             msg_print("You evade the attack!");
             dam -= dam * (10 + randint1(10))/100;
-        }        
+        }
     }
     else
     {
@@ -6836,7 +6866,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
         case GF_INERT:
         {
             if (fuzzy) msg_print("You are hit by something slow!");
-            if (!CHECK_MULTISHADOW()) 
+            if (!CHECK_MULTISHADOW())
                 (void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
             get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
             break;
@@ -7367,7 +7397,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
     {
         rakubadam_p = (dam > 200) ? 200 : dam;
     }
-    
+
     if (who > 0 && get_damage && p_ptr->tim_armor_of_fury)
     {
         if (!MON_SLOW(m_ptr) || !MON_STUNNED(m_ptr))
@@ -8520,7 +8550,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
     }
 
     /* Speed -- ignore "non-explosions" */
-    if (!grids) 
+    if (!grids)
     {
         if (who > 0 && p_ptr->spell_turned)
             project(-1, old_rad, y1, x1, dam, typ, flg, 0);
@@ -8779,7 +8809,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
                     else
                     {
                         /*
-                         * The spell is not well aimed, 
+                         * The spell is not well aimed,
                          * So partly affect the mount too.
                          */
                         effective_dist++;
@@ -8925,7 +8955,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
                 else
                 {
                     /*
-                     * The spell is not well aimed, 
+                     * The spell is not well aimed,
                      * So partly affect the player too.
                      */
                     effective_dist++;
@@ -9021,7 +9051,7 @@ bool binding_field( int dam )
     centersign = (point_x[0]*3-x)*(point_y[1]*3-y)
         - (point_y[0]*3-y)*(point_x[1]*3-x);
     if( centersign == 0 )return FALSE;
-                
+
     x1 = point_x[0] < point_x[1] ? point_x[0] : point_x[1];
     x1 = x1 < point_x[2] ? x1 : point_x[2];
     y1 = point_y[0] < point_y[1] ? point_y[0] : point_y[1];
@@ -9066,7 +9096,7 @@ bool binding_field( int dam )
                      -(point_y[2]-y)*(point_x[0]-x)) >=0 )
             {
                 if (player_has_los_bold(y, x) && projectable(py, px, y, x)) {
-                    (void)project_f(0,0,y,x,dam,GF_MANA); 
+                    (void)project_f(0,0,y,x,dam,GF_MANA);
                 }
             }
         }
@@ -9081,7 +9111,7 @@ bool binding_field( int dam )
                      -(point_y[2]-y)*(point_x[0]-x)) >=0 )
             {
                 if (player_has_los_bold(y, x) && projectable(py, px, y, x)) {
-                    (void)project_o(0,0,y,x,dam,GF_MANA); 
+                    (void)project_o(0,0,y,x,dam,GF_MANA);
                 }
             }
         }
@@ -9110,4 +9140,4 @@ bool binding_field( int dam )
     return TRUE;
 }
 
-     
+

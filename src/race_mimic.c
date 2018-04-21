@@ -33,8 +33,8 @@ static int _count_memorized(void)
 
 /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
    You are about to enter UI hell. The road looks dangerous and a hot
-   breeze carries odors most foul. Do you dare continue? 
-   
+   breeze carries odors most foul. Do you dare continue?
+
    I suggest you start reading at the bottom of this section and work
    your way upwards. */
 
@@ -42,26 +42,26 @@ static int _count_memorized(void)
           1         2         3         4         5         6         7
 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 <----------Name-----------><--------------Extra Info ----------------------->
-Name                       STR  INT  WIS  DEX  CON  CHR  Life  Body          
+Name                       STR  INT  WIS  DEX  CON  CHR  Life  Body
 =============================================================================
-Xiclotlan                   +6   -2   +0   -1   +4   +1  +122% ********      
+Xiclotlan                   +6   -2   +0   -1   +4   +1  +122% ********
 Great Storm Wyrm            +7   +0   +1   -1   +4   +6  +126% ======"~(]
 
           1         2         3         4         5         6         7
 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 <----------Name-----------><--------------Extra Info ----------------------->
-Name                       Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows 
-============================================================================= 
+Name                       Dsrm   Dvce   Save   Stlh  Srch  Prcp  Melee  Bows
+=============================================================================
 Xiclotlan                  20+12  20+7   36+10     0    14    11  85+30  50+30
 Great Storm Wyrm           15+7   30+10  33+10     0    19    24  77+14  63+25
 
           1         2         3         4         5         6         7
 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 <----------Name-----------><--------------Extra Info ----------------------->
-Name                       Lvl  Max  Speed    AC  Pseudo-Class               
+Name                       Lvl  Max  Speed    AC  Pseudo-Class
 =============================================================================
-Xiclotlan                   25   30     +0   +60  Warrior                    
-Great Storm Wyrm            58   63    +10  +175  Beastmaster                
+Xiclotlan                   25   30     +0   +60  Warrior
+Great Storm Wyrm            58   63    +10  +175  Beastmaster
 */
 enum _choice_type_e
 {
@@ -223,7 +223,7 @@ static void _list(_choice_array_t *choices)
         {
             assert(choice->type == _TYPE_KNOWN);
             c_put_str((i == choices->current) ? TERM_L_BLUE : TERM_L_DARK,
-                  format(" %-23.23s", "Unused"), 
+                  format(" %-23.23s", "Unused"),
                   row, start_col + 1
             );
         }
@@ -254,7 +254,7 @@ static void _list(_choice_array_t *choices)
                     equip_template_ptr body = &b_info[r_ptr->body.body_idx];
 
                     for (j = 0; j < 6; j++)
-                    {                      
+                    {
                         sprintf(buf, "%+3d", r_ptr->body.stats[j]);
                         c_put_str(j == r_ptr->body.spell_stat ? TERM_L_GREEN : TERM_WHITE,
                                     buf, row, extra_col + j * 5);
@@ -280,31 +280,31 @@ static void _list(_choice_array_t *choices)
                         case EQUIP_SLOT_WEAPON:
                             _prt_equippy(r, c, TV_SWORD, SV_LONG_SWORD);
                             break;
-                        case EQUIP_SLOT_RING:         
+                        case EQUIP_SLOT_RING:
                             _prt_equippy(r, c, TV_RING, 0);
                             break;
-                        case EQUIP_SLOT_BOW:          
+                        case EQUIP_SLOT_BOW:
                             _prt_equippy(r, c, TV_BOW, SV_LONG_BOW);
                             break;
-                        case EQUIP_SLOT_AMULET:       
+                        case EQUIP_SLOT_AMULET:
                             _prt_equippy(r, c, TV_AMULET, 0);
                             break;
-                        case EQUIP_SLOT_LITE:         
+                        case EQUIP_SLOT_LITE:
                             _prt_equippy(r, c, TV_LITE, SV_LITE_FEANOR);
                             break;
-                        case EQUIP_SLOT_BODY_ARMOR:   
+                        case EQUIP_SLOT_BODY_ARMOR:
                             _prt_equippy(r, c, TV_HARD_ARMOR, SV_CHAIN_MAIL);
                             break;
-                        case EQUIP_SLOT_CLOAK:        
+                        case EQUIP_SLOT_CLOAK:
                             _prt_equippy(r, c, TV_CLOAK, SV_CLOAK);
                             break;
-                        case EQUIP_SLOT_BOOTS:        
+                        case EQUIP_SLOT_BOOTS:
                             _prt_equippy(r, c, TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS);
                             break;
-                        case EQUIP_SLOT_HELMET:       
+                        case EQUIP_SLOT_HELMET:
                             _prt_equippy(r, c, TV_HELM, SV_IRON_HELM);
                             break;
-                        case EQUIP_SLOT_ANY:             
+                        case EQUIP_SLOT_ANY:
                             Term_putch(r, c, TERM_WHITE, '*');
                             break;
                         case EQUIP_SLOT_CAPTURE_BALL:
@@ -315,14 +315,14 @@ static void _list(_choice_array_t *choices)
                 }
                 else if (_display_mode == _DISPLAY_MODE_SKILLS)
                 {
-                    sprintf(buf, "%2d+%-2d  %2d+%-2d  %2d+%-2d  %4d  %4d  %4d  %2d+%-2d  %2d+%-2d\n", 
-                        r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis, 
-                        r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev, 
+                    sprintf(buf, "%2d+%-2d  %2d+%-2d  %2d+%-2d  %4d  %4d  %4d  %2d+%-2d  %2d+%-2d\n",
+                        r_ptr->body.skills.dis, r_ptr->body.extra_skills.dis,
+                        r_ptr->body.skills.dev, r_ptr->body.extra_skills.dev,
                         r_ptr->body.skills.sav, r_ptr->body.extra_skills.sav,
-                        r_ptr->body.skills.stl, 
-                        r_ptr->body.skills.srh, 
+                        r_ptr->body.skills.stl,
+                        r_ptr->body.skills.srh,
                         r_ptr->body.skills.fos,
-                        r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn, 
+                        r_ptr->body.skills.thn, r_ptr->body.extra_skills.thn,
                         r_ptr->body.skills.thb, r_ptr->body.extra_skills.thb
                     );
                     c_put_str(TERM_WHITE, buf, row, extra_col);
@@ -332,14 +332,14 @@ static void _list(_choice_array_t *choices)
                     int speed = possessor_r_speed(choice->r_idx);
                     int ac = possessor_r_ac(choice->r_idx);
 
-                    sprintf(buf, "%3d  %3d  %+5d  %+4d  %s", 
+                    sprintf(buf, "%3d  %3d  %+5d  %+4d  %s",
                         r_ptr->level, MAX(15, r_ptr->level + 5), speed, ac,
                         get_class_aux(r_ptr->body.class_idx, 0)->name
                     );
                     c_put_str(TERM_WHITE, buf, row, extra_col);
                 }
             }
-        } 
+        }
         row++;
     }
     _clear_row(row++);
@@ -360,7 +360,7 @@ static bool _confirm(_choice_array_t *choices, int which)
         {
             msg_print("Choose an existing slot for this new form.");
             return FALSE;
-        }            
+        }
         assert(0 <= choice->slot && choice->slot < _MAX_FORMS);
         if (_forms[choice->slot])
         {
@@ -412,7 +412,7 @@ static bool _choose(_choice_array_t *choices)
 
         /* No macros. The problem is that arrow keys are implemented with macros! */
         key = inkey_special(TRUE);
-        
+
         switch (key)
         {
         case ESCAPE:
@@ -577,7 +577,7 @@ static int _choose_mimic_form(void)
     for (i = 0; i < choices.size; i++)
     {
         _choice_t *choice = &choices.choices[i];
-        
+
         if (choice->type == _TYPE_VISIBLE)
             choice->key = I2A(i);
     }
@@ -656,7 +656,7 @@ static bool _memorize_form(int r_idx)
     }
     return FALSE;
 }
-/* You have finally left UI hell. A bit singed but unbroken! 
+/* You have finally left UI hell. A bit singed but unbroken!
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 
 static void _load(savefile_ptr file)
@@ -719,8 +719,8 @@ static void _set_current_r_idx(int r_idx)
     equip_shuffle("@mimic");
 }
 
-static void _birth(void) 
-{ 
+static void _birth(void)
+{
     object_type forge;
     int i;
 
@@ -731,7 +731,7 @@ static void _birth(void)
 
     p_ptr->current_r_idx = MON_MIMIC;
     equip_on_change_race();
-    
+
     object_prep(&forge, lookup_kind(TV_SWORD, SV_LONG_SWORD));
     add_outfit(&forge);
 
@@ -767,12 +767,12 @@ static void _player_action(int energy_use)
     if (p_ptr->wild_mode)
         return;
 
-    /* Maintain current form. 
-       Rules: If the source is visible, then we can always maintain the form. 
-       Otherwise, memorized forms get a saving throw to maintain, but non-memorized 
+    /* Maintain current form.
+       Rules: If the source is visible, then we can always maintain the form.
+       Otherwise, memorized forms get a saving throw to maintain, but non-memorized
        forms are simply lost. */
-    if ( p_ptr->current_r_idx != MON_MIMIC 
-      && one_in_(100) 
+    if ( p_ptr->current_r_idx != MON_MIMIC
+      && one_in_(100)
       && !_is_visible(p_ptr->current_r_idx) )
     {
         bool lose_form = FALSE;
@@ -860,7 +860,7 @@ static void _add_power(spell_info* spell, int lvl, int cost, int fail, ang_spell
 {
     spell->level = lvl;
     spell->cost = cost;
-    spell->fail = calculate_fail_rate(lvl, fail, stat_idx); 
+    spell->fail = calculate_fail_rate(lvl, fail, stat_idx);
     spell->fn = fn;
 }
 
@@ -938,7 +938,7 @@ race_t *mon_mimic_get_race(void)
 
         me.load_player = _load;
         me.save_player = _save;
-        
+
         me.calc_innate_attacks = possessor_calc_innate_attacks;
 
         me.flags = RACE_IS_MONSTER;
@@ -953,7 +953,12 @@ race_t *mon_mimic_get_race(void)
 void mimic_dispel_player(void)
 {
     if (p_ptr->prace != RACE_MON_MIMIC) return;
-    _set_current_r_idx(MON_MIMIC);
+    if (p_ptr->current_r_idx == MON_MIMIC) return;
+
+    if (randint0(150) < p_ptr->skills.sav) /* Anti-magic gives 145 */
+        msg_print("You maintain your current form.");
+    else
+        _set_current_r_idx(MON_MIMIC);
 }
 
 void mimic_on_kill_monster(int r_idx)

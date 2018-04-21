@@ -368,6 +368,8 @@ struct object_type
 
     s16b held_m_idx;    /* Monster holding us (if any) */
     effect_t activation;
+
+    s16b level;         /* object_level on generation for my statistical pleasures */
 };
 #define object_is_(O, T, S) ((O)->tval == (T) && (O)->sval == (S))
 
@@ -524,7 +526,11 @@ struct monster_race
     byte r_drop_gold;         /* Max number of gold dropped at once */
     byte r_drop_item;         /* Max number of item dropped at once */
 
-    byte r_cast_spell;        /* Max number of other spells seen */
+    byte r_cast_spell;        /* (DEPRECATED) Max number of other spells seen */
+
+    u32b r_spell_turns;       /* Same as r_cast_spell, but keep on counting 'em (savefile compat) */
+    u32b r_move_turns;        /* Includes attacking the player */
+                              /* Now we can report accurate observed spell frequencies! */
 
     byte r_blows[4];          /* Number of times each blow type was seen */
 
@@ -1095,12 +1101,13 @@ typedef struct {
 } counter_t;
 
 #define MAX_WILD_COUNTERS  5
-#define MAX_INNATE_EFFECTS 7
+#define MAX_INNATE_EFFECTS 8
 
 #define INNATE_SKIP        0x0001
 #define INNATE_VORPAL      0x0002
 #define INNATE_EXPLODE     0x0004
 #define INNATE_NO_DAM      0x0008
+#define INNATE_NO_CRIT     0x0010
 
 typedef struct {
     int dd;

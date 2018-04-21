@@ -1567,9 +1567,9 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 success = TRUE;
             }
         }
-                
+
         if ( !success                      /* <=== Raphael can Breathe Light *and* Teleport To */
-          && (f6 & RF6_TELE_TO) 
+          && (f6 & RF6_TELE_TO)
           && m_ptr->cdis <= (MAX_RANGE * 2/3)
           && r_ptr->level >= 40
           && (r_ptr->flags1 & RF1_UNIQUE)
@@ -1618,7 +1618,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
               && !cave[m_ptr->fy][m_ptr->fx].dist
               && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY)
               && !(cave[py][px].info & CAVE_ICKY)
-              && !p_ptr->inside_quest 
+              && !p_ptr->inside_quest
               && dun_level
               && (r_ptr->flags1 & RF1_UNIQUE) )
             {
@@ -1864,9 +1864,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
         && (in_no_magic_dungeon || (MON_STUNNED(m_ptr) && one_in_(2)) || (randint0(100) < failrate)))
     {
         disturb(1, 0);
-        /* Message */
+        mon_lore_aux_spell(r_ptr);
         msg_format("%^s tries to cast a spell, but fails.", m_name);
-
         return (TRUE);
     }
 
@@ -1906,7 +1905,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s shouts, 'Haa!!'.", m_name);
             else msg_format("%^s throws a large rock.", m_name);
-             sound(SOUND_MISS); /* (Sound substitute) Throwing a rock isn't a rocket sound anyway */ 
+             sound(SOUND_MISS); /* (Sound substitute) Throwing a rock isn't a rocket sound anyway */
             dam = rlev * 3;
             breath(y, x, m_idx, GF_ROCK, dam, 1, FALSE, MS_THROW, learnable);
             update_smart_learn(m_idx, DRS_SHARD);
@@ -1975,7 +1974,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
         {
             if (blind) msg_format("%^s mumbles powerfully.", m_name);
             else msg_format("%^s invokes anti-magic.", m_name);
-            
+
             if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
                 msg_print("You resist the effects!");
             else if (check_foresight())
@@ -2031,11 +2030,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                     for (;;)
                     {
                         which = randint0(MAX_RACES);
-                        if ( which != RACE_HUMAN 
-                          && which != RACE_DEMIGOD 
+                        if ( which != RACE_HUMAN
+                          && which != RACE_DEMIGOD
                           && which != RACE_DRACONIAN
-                          && which != RACE_ANDROID 
-                          && p_ptr->prace != which 
+                          && which != RACE_ANDROID
+                          && p_ptr->prace != which
                           && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
                         {
                             break;
@@ -2117,7 +2116,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s breathes.", m_name);
             else msg_format("%^s breathes nether.", m_name);
-            dam = MIN(m_ptr->hp / 6, 550);
+            dam = MIN(m_ptr->hp / 7, 550);
             breath(y, x, m_idx, GF_NETHER, dam,0, TRUE, MS_BR_NETHER, learnable);
             update_smart_learn(m_idx, DRS_NETH);
             break;
@@ -2741,7 +2740,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
             else msg_format("%^s casts a fearful illusion.", m_name);
 
-            fear_scare_p(m_ptr);    
+            fear_scare_p(m_ptr);
             learn_spell(MS_SCARE);
             update_smart_learn(m_idx, DRS_FEAR);
             if (p_ptr->tim_spell_reaction && !p_ptr->fast)
@@ -2781,7 +2780,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
             else msg_format("%^s creates a mesmerising illusion.", m_name);
-            
+
             if (res_save_default(RES_CONF))
                 msg_print("You disbelieve the feeble spell.");
             else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
@@ -3114,11 +3113,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 fire_ball_hide(GF_LAVA_FLOW, 0, 3, 8);
                 msg_format("%^s summons Death!", m_name);
                 for (k = 0; k < num; k++)
-                { 
+                {
                     summon_named_creature(m_idx, y, x, MON_GREATER_BALROG, mode);
                 }
                 for (k = 0; k < num; k++)
-                { 
+                {
                     summon_named_creature(m_idx, y, x, MON_ARCHLICH, mode);
                 }
                 break;
@@ -3144,7 +3143,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 msg_format("%^s yells 'Mommy! Daddy! Help!!'", m_name);
                 if (r_info[MON_ZEUS].max_num == 1)
                 {
-                    summon_named_creature(m_idx, y, x, MON_ZEUS, mode); 
+                    summon_named_creature(m_idx, y, x, MON_ZEUS, mode);
                 }
                 if (r_info[MON_HERA].max_num == 1)
                 {
@@ -3185,7 +3184,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                     if (summon_named_creature(m_idx, y, x, MON_ZEUS, mode))
                         break;
                 }
-                
+
                 if (one_in_(3) && r_info[MON_HERA].max_num == 1)
                 {
                     summon_named_creature(m_idx, y, x, MON_HERA, mode);
@@ -3324,9 +3323,9 @@ bool make_attack_spell(int m_idx, bool ticked_off)
             disturb(1, 0);
             msg_format("%^s commands you to return.", m_name);
 
-            /* Only powerful monsters can choose this spell when the player is not in 
+            /* Only powerful monsters can choose this spell when the player is not in
                los. In this case, it is nasty enough to warrant a saving throw. */
-            if (!projectable(m_ptr->fy, m_ptr->fx, py, px) 
+            if (!projectable(m_ptr->fy, m_ptr->fx, py, px)
               && randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2 )
             {
                 msg_print("You resist the effects!");
@@ -3482,11 +3481,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 for (k = 0; k < 2; k++)
                 {
                     count += summon_specific(
-                        m_idx, 
-                        y, 
-                        x, 
-                        500 /*rlev - Hack: Olympain Summoning should never fail!*/, 
-                        SUMMON_OLYMPIAN, 
+                        m_idx,
+                        y,
+                        x,
+                        500 /*rlev - Hack: Olympain Summoning should never fail!*/,
+                        SUMMON_OLYMPIAN,
                         PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | mode
                     );
                 }
@@ -3505,12 +3504,12 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 for (k = 0; k < 2; k++)
                 {
                     count += summon_specific(
-                        m_idx, 
-                        y, 
-                        x, 
-                        rlev, 
-                        SUMMON_KNIGHT, 
-                        PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | mode 
+                        m_idx,
+                        y,
+                        x,
+                        rlev,
+                        SUMMON_KNIGHT,
+                        PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | mode
                     );
                 }
                 if (blind && count)
@@ -3528,11 +3527,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 for (k = 0; k < 2; k++)
                 {
                     count += summon_specific(
-                        m_idx, 
-                        y, 
-                        x, 
-                        rlev, 
-                        SUMMON_CAMELOT, 
+                        m_idx,
+                        y,
+                        x,
+                        rlev,
+                        SUMMON_CAMELOT,
                         PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | mode
                     );
                 }
@@ -3541,11 +3540,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                     for (k = 0; k < 2; k++)
                     {
                         count += summon_specific(
-                            m_idx, 
-                            y, 
-                            x, 
-                            rlev, 
-                            SUMMON_KNIGHT, 
+                            m_idx,
+                            y,
+                            x,
+                            rlev,
+                            SUMMON_KNIGHT,
                             PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | mode
                         );
                     }
@@ -3565,11 +3564,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
                 for (k = 0; k < s_num_4; k++)
                 {
                     count += summon_specific(
-                        m_idx, 
-                        y, 
-                        x, 
-                        rlev, 
-                        SUMMON_NIGHTMARE, 
+                        m_idx,
+                        y,
+                        x,
+                        rlev,
+                        SUMMON_NIGHTMARE,
                         PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | mode
                     );
                 }

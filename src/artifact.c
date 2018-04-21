@@ -9,6 +9,7 @@
  */
 
 #include "angband.h"
+#include <assert.h>
 
 static void random_resistance(object_type * o_ptr);
 static void random_slay(object_type *o_ptr);
@@ -3152,7 +3153,7 @@ bool reforge_artifact(object_type *src, object_type *dest, int fame)
     if (!result)
     {
         /* Failed! Return best or worst */
-        if (worst_power > min_power)
+        if (worst_power > min_power && worst.k_idx)
             object_copy(dest, &worst);
         else
             object_copy(dest, &best);

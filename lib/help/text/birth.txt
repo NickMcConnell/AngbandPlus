@@ -375,24 +375,24 @@ since you are unlikely to roll 8's for all the remaining unconstrained
 stats. An example of a reasonable choice is the following:
 
  Name       : Test
- Sex        : Female        
- Personality: Mighty        
- Race       : High-Elf      
+ Sex        : Male          
+ Personality: Combat        
+ Race       : Nibelung      
  Subrace    :
- Class      : Warrior       
- Realm      :                     
+ Class      : Priest        
+ Realm      : Crusade, Life       
 
           Make your character. ('S' Restart, 'Q' Quit, '?' Help)
           Set minimum stats.
           2/8 for Select, 4/6 for Change value, Enter for Goto next
 
                      Base   Rac  Cla  Per      Total  Maximum  Points
-          STR :        16    +1   +4   +2  =   18/50   18/60      12
-          INT :         8    +3   -2   -2  =       7      16      -2
-          WIS :         8    -1   -2   -2  =       3      12      -2
-          DEX :        16    +3   +2   +0  =   18/30   18/40      12
-          CON :        14    +1   +2   +1  =      18   18/30       5
-          CHR :         8    +1   +1   +1  =      11   18/20      -2
+          STR :        16    +1   -1   +1  =      17      18      10
+          INT :         8    -1   -3   -1  =       3      12      -3
+          WIS :        15    +2   +3   -1  =   18/10   18/30       6
+          DEX :        16    +0   -1   +1  =      16      17      10
+          CON :        14    +2   +0   +0  =      16   18/10       3
+          CHR :         8    -2   +2   +0  =       8      17      -3
 
                                    Accept                         23
 
@@ -420,35 +420,40 @@ levels for the remaining statistics rather than looking for high rolls.
 Also note that the game significantly "nerfs" the power of the 
 Auto-roller relative to other variants. After 50,000 rolls the 
 Auto-roller simply stops and forces you to accept the best match (if 
-any) or to repick minimums. A good idea is to pick constraints on 2 
-stats at most, and even then, you are unlikely to roll 17s in both 
-stats. A 17 and a 16 is rare as well, so perhaps try a 17 and a 15, or 
-two 16s. For example, my above restrictions (16, 16, 14) yielded a 
-handful of matches, the best being the following:
+any) or to repick minimums. A good idea is to pick constraints on as 
+few stats as possible. The more constraints, the less quality you can 
+get. For example, you can ask for 2 17s, but then you probably won't 
+get anything better than an 11 on a third stat. You could instead ask 
+for 3 16s with fair success. For 4 stats, you could do 16, 15, 15, 15, 
+or perhaps 16, 16, 15, 14 ... You can work out the possibilities, and 
+the UI coloring will let you know what is likely and what is not (Green 
+scores almost always work while Orange is very unlikely and Red is 
+impossible). For example, my above restrictions (16, 16, 15, 14) 
+yielded a handful of matches, the best being the following:
+
 
  Name       : Test                         ========== Stats ==========
- Sex        : Female                             STR  :     18/50
- Personality: Mighty                             INT  :         8
- Race       : High-Elf                           WIS  :         6
- Subrace    : None                               DEX  :     18/30
- Class      : Warrior                            CON  :        18
-                                                 CHR  :        12
+ Sex        : Male                               STR  :        17
+ Personality: Combat                             INT  :         5
+ Race       : Nibelung                           WIS  :     18/20
+ Subrace    : None                               DEX  :        16
+ Class      : Priest                             CON  :        16
+ Realm      : Crusade, Life                      CHR  :         9
                                         
- Level      :        1                           HP   :     54/54
- Cur Exp    :        0                           SP   :       0/0
- Max Exp    :        0                           AC   :         2
+ Level      :        1                           HP   :     38/38
+ Cur Exp    :        0                           SP   :     13/13
+ Max Exp    :        0                           AC   :         1
  Adv Exp    :       19                           Speed:        +0
                                         
                                            ========== Skills =========
- Gold       :      435                     Melee      : Excellent
- Kills      :        0                     Ranged     : Very Good
- Uniques    :        0                     SavingThrow: Good
- Artifacts  :      0+0                     Stealth    : Good
-                                           Perception : Poor
- Game Day   :        1                     Searching  : Poor
+ Gold       :      161                     Melee      : Good
+ Kills      :        0                     Ranged     : Fair
+ Uniques    :        0                     SavingThrow: Very Good
+ Artifacts  :      0+0                     Stealth    : Fair
+                                           Perception : Fair
+ Game Day   :        1                     Searching  : Fair
  Game Time  :     6:00                     Disarming  : Fair
- Play Time  :    00:08                     Device     : Fair
-  [You must accept, or Enter to accept] 
+ Play Time  :    00:00                     Device     : Very Good
 
 If you select not to use the auto-roller, the computer will roll one 
 random character at a time and then display it for you to either accept 

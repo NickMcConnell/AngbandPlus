@@ -3349,11 +3349,15 @@ static bool get_stat_limits(void)
         if (cs != os)
         {
             int  score = _birth_stats_score(cval);
-            byte score_a = TERM_L_GREEN;
+            byte score_a;
 
             if (score > 30)
                 score_a = TERM_RED;
-            else if (score < 20)
+            else if (score > 23)
+                score_a = TERM_ORANGE;
+            else if (score > 15)
+                score_a = TERM_L_GREEN;
+            else
                 score_a = TERM_L_DARK;
 
             if(os == 6)

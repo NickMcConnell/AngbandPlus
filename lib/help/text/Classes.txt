@@ -1351,5 +1351,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 5.0.1.
+Automatically generated for PosChengband 5.0.2.
 

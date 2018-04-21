@@ -306,8 +306,8 @@ static _power_limit_t _art_power_limits[] = {
     { 30,     0,  10000 },
     { 40,     0,  20000 },
     { 50,     0,  30000 },
-    { 60, 10000, 100000 },
-    { 70, 20000,      0 },
+    { 60, 10000,  50000 },
+    { 70, 20000,  80000 },
     { 80, 30000,      0 },
     { 90, 40000,      0 },
     {999, 40000,      0 }
@@ -329,7 +329,10 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
         }
     }
     if (one_in_(GREAT_OBJ))
+    {
+        if (min < 5000) min = 5000;
         max *= 2;
+    }
 
     if (power < 0)
         mode = CREATE_ART_CURSED;
@@ -346,8 +349,9 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
         if (max > 0 && score > max) continue;
 
         *o_ptr = forge;
-        break;
+        return;
     }
+    create_artifact(o_ptr, mode); /* Missed the threshold for some reason ... */
 }
 
 static _power_limit_t _jewelry_power_limits[] = {
@@ -363,29 +367,45 @@ static _power_limit_t _jewelry_power_limits[] = {
     {999, 15000,      0 }
 };
 
-void ego_create_ring(object_type *o_ptr, int level, int power, int mode)
+static _power_limit_t _get_jewelry_power_limit(int level, int mode)
 {
-    int  i;
-    int  min = 0, max = 0;
+    _power_limit_t rng = {0};
+    int            i;
 
     for (i = 0; ; i++)
     {
         if (level < _jewelry_power_limits[i].lvl)
         {
-            min = _jewelry_power_limits[i].min;
-            max = _jewelry_power_limits[i].max;
+            rng.min = _jewelry_power_limits[i].min;
+            rng.max = _jewelry_power_limits[i].max;
             break;
         }
     }
 
-    if (mode & (AM_FORCE_EGO | AM_GREAT | AM_GUARDIAN)) /* Quest rewards and early dungeon guardians ... */
+    if (mode & (AM_FORCE_EGO | AM_GREAT | AM_GUARDIAN)) /* Quest rewards and early dungeon guardians ... and Smeagol, Robin Hood, Wormy, etc. */
     {
-        if (min < 5000) min = 5000;
-        if (max < 10000) max = 10000;
+        if (rng.min < 5000) rng.min = 5000;
+        if (rng.max && rng.max < 10000) rng.max = 10000;
+    }
+    else if (mode & AM_GOOD) /* Early game uniques all DROP_GOOD */
+    {
+        if (rng.min < 2500) rng.min = 2500;
+        if (rng.max && rng.max < 7500) rng.max = 7500;
     }
 
     if (one_in_(GREAT_OBJ))
-        max *= 2;
+    {
+        if (rng.min < 5000) rng.min = 5000;
+        rng.max *= 2;
+    }
+
+    return rng;
+}
+
+void ego_create_ring(object_type *o_ptr, int level, int power, int mode)
+{
+    int  i;
+    _power_limit_t rng = _get_jewelry_power_limit(level, mode);
 
     for (i = 0; i < 1000 ; i++)
     {
@@ -395,37 +415,19 @@ void ego_create_ring(object_type *o_ptr, int level, int power, int mode)
         _create_ring_aux(&forge, level, power, mode);
         score = obj_value_real(&forge);
 
-        if (min > 0 && score < min) continue;
-        if (max > 0 && score > max) continue;
+        if (rng.min > 0 && score < rng.min) continue;
+        if (rng.max > 0 && score > rng.max) continue;
 
         *o_ptr = forge;
-        break;
+        return;
     }
+    _create_ring_aux(o_ptr, level, power, mode); /* ooops */
 }
 
 void ego_create_amulet(object_type *o_ptr, int level, int power, int mode)
 {
     int  i;
-    int  min = 0, max = 0;
-
-    for (i = 0; ; i++)
-    {
-        if (level < _jewelry_power_limits[i].lvl)
-        {
-            min = _jewelry_power_limits[i].min;
-            max = _jewelry_power_limits[i].max;
-            break;
-        }
-    }
-
-    if (mode & (AM_FORCE_EGO | AM_GREAT | AM_GUARDIAN)) /* Quest rewards and early dungeon guardians ... */
-    {
-        if (min < 5000) min = 5000;
-        if (max < 10000) max = 10000;
-    }
-
-    if (one_in_(GREAT_OBJ))
-        max *= 2;
+    _power_limit_t rng = _get_jewelry_power_limit(level, mode);
 
     for (i = 0; i < 1000 ; i++)
     {
@@ -435,12 +437,13 @@ void ego_create_amulet(object_type *o_ptr, int level, int power, int mode)
         _create_amulet_aux(&forge, level, power, mode);
         score = obj_value_real(&forge);
 
-        if (min > 0 && score < min) continue;
-        if (max > 0 && score > max) continue;
+        if (rng.min > 0 && score < rng.min) continue;
+        if (rng.max > 0 && score > rng.max) continue;
 
         *o_ptr = forge;
-        break;
+        return;
     }
+    _create_amulet_aux(o_ptr, level, power, mode); /* ooops */
 }
 
 /*************************************************************************
@@ -792,6 +795,8 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                     break;
                 }
             default:
+                if (one_in_(4))
+                    o_ptr->to_h += randint1(3) + m_bonus(3, level);
                 o_ptr->to_d += randint1(5) + m_bonus(5, level);
             }
         }
@@ -979,13 +984,20 @@ static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode)
                 if (abs(power) >= 2)
                 {
                     add_flag(o_ptr->flags, OF_DEC_MANA);
-                    break;
+                }
+                else if (one_in_(3))
+                {
+                    add_flag(o_ptr->flags, OF_RES_CONF);
+                }
+                else if (one_in_(3))
+                {
+                    add_flag(o_ptr->flags, OF_RES_BLIND);
                 }
                 else
                 {
                     add_flag(o_ptr->flags, OF_LEVITATION);
-                    break;
                 }
+                break;
             case 6:
                 if (abs(power) >= 2 && one_in_(30))
                 {
@@ -1068,6 +1080,16 @@ static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mod
                 {
                     add_flag(o_ptr->flags, OF_MAGIC_MASTERY);
                     if (!o_ptr->pval) o_ptr->pval = _jewelry_pval(5, level);
+                    break;
+                }
+                else if (one_in_(3))
+                {
+                    add_flag(o_ptr->flags, OF_RES_CONF);
+                    break;
+                }
+                else if (one_in_(3))
+                {
+                    add_flag(o_ptr->flags, OF_RES_BLIND);
                     break;
                 }
             case 6:

@@ -1020,8 +1020,6 @@ static void store_item_optimize(int item)
  */
 static bool black_market_crap(object_type *o_ptr)
 {
-    int     i, j;
-
     /* Ego items are never crap */
     if (object_is_ego(o_ptr)) return (FALSE);
     if (o_ptr->marked & OM_RESERVED) return FALSE;
@@ -1034,18 +1032,8 @@ static bool black_market_crap(object_type *o_ptr)
     /* All devices now share a common k_idx! */
     if (o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF || o_ptr->tval == TV_ROD) return FALSE;
 
-    /* Check all stores */
-    for (i = 0; i < MAX_STORES; i++)
-    {
-        if (i == STORE_HOME) continue;
-        if (i == STORE_MUSEUM) continue;
-
-        for (j = 0; j < town[p_ptr->town_num].store[i].stock_num; j++)
-        {
-            object_type *j_ptr = &town[p_ptr->town_num].store[i].stock[j];
-            if (o_ptr->k_idx == j_ptr->k_idx) return (TRUE);
-        }
-    }
+    if (k_info[o_ptr->k_idx].gen_flags & OFG_TOWN)
+        return TRUE;
 
     /* Assume okay */
     return (FALSE);

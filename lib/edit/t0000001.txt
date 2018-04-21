@@ -204,7 +204,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:208
 
 # Ring of Combat
-?:[AND [EQU $QUEST14 3] [EQU $RACE Beholder Dragon Hound Spider] ]
+?:[AND [EQU $QUEST14 3] [EQU $RACE Dragon Hound Spider] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:206
 
@@ -214,7 +214,7 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:93
 
 # Elemental Ring
-?:[AND [EQU $QUEST14 3] [EQU $RACE Ring] ]
+?:[AND [EQU $QUEST14 3] [EQU $RACE Ring Beholder] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:132:201
 

@@ -516,7 +516,7 @@ static cptr r_info_flags7[] =
     "SELF_DARK_1",
     "HAS_DARK_2",
     "SELF_DARK_2",
-    "XXX7X20",
+    "CAN_CLIMB",
     "XXX7X21",
     "XXX7X22",
     "XXX7X23",

@@ -387,20 +387,27 @@ static void _display_resists(monster_race *r_ptr, doc_ptr doc)
 static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
 {
     int pct = 0;
-    if (r_ptr->r_cast_spell > 100 || _easy_lore(r_ptr))
-        pct = r_ptr->freq_spell;
-    else if (r_ptr->r_cast_spell)
-        pct = ((r_ptr->freq_spell + 9) / 10) * 10; /* ?? */
+    if (_easy_lore(r_ptr))
+        pct = r_ptr->freq_spell * 100;
+    else if (r_ptr->r_spell_turns)
+    {
+        int total = r_ptr->r_spell_turns + r_ptr->r_move_turns;
+        pct = r_ptr->r_spell_turns * 10000 / total;
+    }
     if (pct)
     {
         vec_ptr v = vec_alloc((vec_free_f)string_free);
-        doc_printf(doc, "Spells  : <color:G>%d%%</color> ", pct);
+
+        doc_printf(doc, "Spells  : <indent><color:G>%d.%02d%%</color> ", pct/100, pct%100);
+        doc_printf(doc, "(%d of %d moves) ", r_ptr->r_spell_turns, r_ptr->r_spell_turns + r_ptr->r_move_turns);
+
         if (r_ptr->flags2 & RF2_SMART)
             vec_add(v, string_copy_s("<color:y>Intelligent</color>"));
         if (r_ptr->flags2 & RF2_POWERFUL)
             vec_add(v, string_copy_s("<color:v>Powerful</color>"));
         _print_list(v, doc, ',', '\0');
         vec_free(v);
+        doc_insert(doc, "</indent>");
     }
     else
     {

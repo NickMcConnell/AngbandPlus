@@ -1,27 +1,20 @@
 #include "angband.h"
 
-static void _birth(void) 
-{ 
-    object_type    forge;
-
+static void _birth(void)
+{
     p_ptr->current_r_idx = MON_GAZER;
     equip_on_change_race();
     skills_innate_init("Gaze", WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
-    
-    object_prep(&forge, lookup_kind(TV_CROWN, SV_IRON_CROWN));
-    forge.name2 = EGO_ARMOR_SEEING;
-    forge.pval = 4;
-    forge.to_a = 10;
-    add_esp_weak(&forge, FALSE);
-    add_outfit(&forge);
+}
 
-    object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
-    if (device_init_fixed(&forge, EFFECT_BOLT_FIRE))
-        add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_WAND, SV_ANY));
-    if (device_init_fixed(&forge, EFFECT_BOLT_COLD))
-        add_outfit(&forge);
+static int _rank(void)
+{
+    int rank = 0;
+    if (p_ptr->lev >= 10) rank++;
+    if (p_ptr->lev >= 25) rank++;
+    if (p_ptr->lev >= 35) rank++;
+    if (p_ptr->lev >= 45) rank++;
+    return rank;
 }
 
 /**********************************************************************
@@ -31,13 +24,21 @@ static void _calc_innate_attacks(void)
 {
     if (!p_ptr->blind)
     {
-        innate_attack_t    a = {0};
+        innate_attack_t a = {0};
         int l = p_ptr->lev;
+        int r = _rank();
 
-        a.dd = 1 + (l + 5)/12;
-        a.ds = 6 + l/15;
-        a.weight = 250;
-        a.to_h = p_ptr->lev/5;
+        /* Beholder melee is unusual as the attacks are not physical. So, Str and Dex
+           do not affect blows, accuracy or damage (cf calc_bonuses in xtra1.c). Rings
+           of Combat still work, though, as does Weaponmastery (if you can find it!) */
+
+        a.weight = 250; /* unused */
+        a.flags = INNATE_NO_CRIT; /* You are gazing at enemies, not bashing them with your eyeballs! */
+
+        a.dd = 2 + r;    /* Max: 6d7 (+50, +25) ... We miss out (+32, +20) from Str and Dex bonuses! */
+        a.ds = 3 + r;
+        a.to_h = p_ptr->lev;
+        a.to_d = p_ptr->lev/2;
 
         a.effect[0] = GF_MISSILE;
 
@@ -58,17 +59,83 @@ static void _calc_innate_attacks(void)
             a.effect_chance[3] = 30+l;
         }
 
+        a.effect[4] = GF_TURN_ALL;
+        a.effect_chance[4] = 15 + l/2;
+
         if (p_ptr->lev >= 35)
         {
-            a.effect[4] = GF_STUN;
-            a.effect_chance[4] = 15 + l/2;
+            a.effect[5] = GF_STUN;
+            a.effect_chance[5] = 15 + l/2;
+
+            a.effect[6] = GF_AMNESIA;
+            a.effect_chance[6] = 15 + l/2;
         }
 
-        calc_innate_blows(&a, 400);
+        {
+            int pow = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_INT]];
+            a.blows = 100 + MIN(300, 300 * pow / 60);
+        }
         a.msg = "You gaze.";
         a.name = "Gaze";
 
         p_ptr->innate_attacks[p_ptr->innate_attack_ct++] = a;
+    }
+}
+
+static void _gaze_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Gaze");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Gaze at a nearby monster for various effects.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_range(6 + _rank()));
+        break;
+    case SPELL_COST_EXTRA:
+    {
+        int costs[5] = {1, 5, 15, 25, 35};
+        var_set_int(res, costs[_rank()]);
+        break;
+    }
+    case SPELL_CAST:
+    {
+        int dir = 0;
+        var_set_bool(res, FALSE);
+        project_length = 6 + _rank();
+        if (get_aim_dir(&dir))
+        {
+            project_hook(GF_ATTACK, dir, BEHOLDER_GAZE, PROJECT_STOP | PROJECT_KILL);
+            var_set_bool(res, TRUE);
+        }
+        break;
+    }
+    default:
+        default_spell(cmd, res);
+        break;
+    }
+}
+
+static void _vision_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Vision");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Maps your nearby location.");
+        break;
+    case SPELL_CAST:
+        map_area(DETECT_RAD_MAP);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+        break;
     }
 }
 
@@ -77,46 +144,34 @@ static void _calc_innate_attacks(void)
  * Beholder: Gazer -> Spectator -> Beholder -> Undead Beholder -> Ultimate Beholder
  ***********************************************************************************/
 static spell_info _beholder_spells[] = {
-    {  1,  1, 30, paralyze_spell},
-    {  1,  2, 30, confuse_spell},
-    { 10,  4, 30, cause_wounds_II_spell},
-    { 10,  5, 30, slow_spell},
-    { 10,  7, 30, amnesia_spell},
+    {  1,  1, 30, detect_monsters_spell},
+    {  1,  0,  0, _gaze_spell},
+    { 15,  7, 30, _vision_spell},
     { 25,  7, 30, drain_mana_spell},
     { 25,  4, 30, frost_bolt_spell},
     { 25,  6, 30, fire_bolt_spell},
     { 25,  7, 30, acid_bolt_spell},
-    { 25,  7, 30, scare_spell},
-    { 25, 10, 50, mind_blast_spell},
     { -1, -1, -1, NULL}
 };
 static spell_info _undead_beholder_spells[] = {
-    {  1,  1, 30, paralyze_spell},
-    {  1,  2, 30, confuse_spell},
-    { 10,  5, 30, slow_spell},
-    { 10,  7, 30, amnesia_spell},
+    {  1,  1, 30, detect_monsters_spell},
+    {  1,  0,  0, _gaze_spell},
+    { 15,  7, 30, _vision_spell},
     { 25,  7, 30, drain_mana_spell},
-    { 25,  7, 30, scare_spell},
-    { 25, 10, 50, mind_blast_spell},
     { 35, 10, 30, animate_dead_spell},
-    { 35, 12, 40, cause_wounds_IV_spell},
     { 35, 15, 50, mana_bolt_I_spell},
     { 35, 20, 50, brain_smash_spell},
     { 35, 30, 50, summon_undead_spell},
     { -1, -1, -1, NULL}
 };
 static spell_info _ultimate_beholder_spells[] = {
-    {  1,  1, 30, paralyze_spell},
-    {  1,  2, 30, confuse_spell},
-    { 10,  5, 30, slow_spell},
-    { 10,  7, 30, amnesia_spell},
+    {  1,  1, 30, detect_monsters_spell},
+    {  1,  0,  0, _gaze_spell},
+    { 15,  7, 30, _vision_spell},
     { 25,  7, 30, drain_mana_spell},
     { 25, 10, 30, frost_ball_spell},
     { 25, 12, 30, fire_ball_spell},
     { 25, 14, 30, acid_ball_spell},
-    { 25,  7, 30, scare_spell},
-    { 25, 10, 50, mind_blast_spell},
-    { 35, 12, 30, cause_wounds_IV_spell},
     { 35, 20, 50, brain_smash_spell},
     { 45, 30, 50, mana_bolt_II_spell},
     { 45, 40, 60, summon_kin_spell},
@@ -152,7 +207,7 @@ static int _get_powers(spell_info* spells, int max)
 }
 static void _calc_bonuses(void) {
     int l = p_ptr->lev;
-    int ac = l/2 + l*l/100;
+    int ac = l/2;
 
     p_ptr->to_a += ac;
     p_ptr->dis_to_a += ac;
@@ -160,6 +215,9 @@ static void _calc_bonuses(void) {
     p_ptr->levitation = TRUE;
     if (p_ptr->lev >= 45)
     {
+        p_ptr->to_a += 40;
+        p_ptr->dis_to_a += 40;
+
         p_ptr->telepathy = TRUE;
         res_add(RES_TELEPORT);
         res_add(RES_POIS);
@@ -169,6 +227,9 @@ static void _calc_bonuses(void) {
     }
     else if (p_ptr->lev >= 35)
     {
+        p_ptr->to_a += 30;
+        p_ptr->dis_to_a += 30;
+
         p_ptr->telepathy = TRUE;
         res_add(RES_TELEPORT);
         res_add(RES_ACID);
@@ -184,6 +245,9 @@ static void _calc_bonuses(void) {
     }
     else if (p_ptr->lev >= 25)
     {
+        p_ptr->to_a += 20;
+        p_ptr->dis_to_a += 20;
+
         res_add(RES_TELEPORT);
         res_add(RES_POIS);
         res_add(RES_CONF);
@@ -192,6 +256,9 @@ static void _calc_bonuses(void) {
     }
     else if (p_ptr->lev >= 10)
     {
+        p_ptr->to_a += 10;
+        p_ptr->dis_to_a += 10;
+
         res_add(RES_FEAR);
         res_add(RES_CONF);
         p_ptr->free_act = TRUE;
@@ -297,13 +364,8 @@ race_t *mon_beholder_get_race(void)
 {
     static race_t me = {0};
     static bool   init = FALSE;
-    static cptr   titles[5] =  {"Gazer", "Spectator", "Beholder", "Undead Beholder", "Ultimate Beholder"};    
-    int           rank = 0;
-
-    if (p_ptr->lev >= 10) rank++;
-    if (p_ptr->lev >= 25) rank++;
-    if (p_ptr->lev >= 35) rank++;
-    if (p_ptr->lev >= 45) rank++;
+    static cptr   titles[5] =  {"Gazer", "Spectator", "Beholder", "Undead Beholder", "Ultimate Beholder"};
+    int           rank = _rank();
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
@@ -322,13 +384,19 @@ race_t *mon_beholder_get_race(void)
                     "spell stat and beholders are quite intelligent indeed. Their searching and "
                     "perception are legendary and they are quite capable with magical devices. "
                     "However, they are not very strong and won't be able to stand long against "
-                    "multiple foes.";
+                    "multiple foes.\n \n"
+                    "The attack of the beholder is unique. Since their gaze is not a normal physical "
+                    "attack, they receive no benefit to melee from their Strength and Dexterity. Also, "
+                    "the number of attacks is determined by level rather than the normal way: in this "
+                    "respect, they resemble monks. Finally, the beholder need not be next to their foes "
+                    "in order to attack with melee. They may gaze at distant monsters, though the range "
+                    "of their gaze is somewhat restricted.";
 
         me.skills = bs;
         me.extra_skills = xs;
 
         me.infra = 8;
-        me.exp = 250;
+        me.exp = 200;
         me.base_hp = 20;
         me.life = 100;
         me.shop_adjust = 140;
