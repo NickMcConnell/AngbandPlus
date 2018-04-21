@@ -104,16 +104,19 @@ Makes it easy for your character to open a door: simply by walking into it! Also
 Makes it easy for your character disarms a trap: simply by walking into it! Also the disarm command will automatically select one direction if only one known trap is near you.
 
 <topic:auto_get_ammo><color:U>Automatically get nearby ammo</color> <color:D>(auto_get_ammo)</color>
-This option enhances the Get Objects command (<color:keypress>g</color>) to automatically travel to nearby, visible ammo which is inscribed with <color:keypress>=g</color> (i.e., ammo which you have instructed the autopicker to automatically pickup). This enhancement is useful for archer builds after all nearby monsters have been slain. You might consider using the stronger <color:keyword>auto_get_objects</color> option instead.
+This option instructs the Auto-Get Objects command (<color:keypress>^G</color>) to automatically travel to nearby, visible ammo which is inscribed with <color:keypress>=g</color> (i.e., ammo which you have instructed the autopicker to automatically pickup). This enhancement is useful for archer builds after all nearby monsters have been slain. You might consider using the stronger <color:keyword>auto_get_objects</color> option instead.
 
 <topic:auto_get_objects><color:U>Automatically get nearby objects</color> <color:D>(auto_get_objects)</color>
-This option enhances the Get Objects command (<color:keypress>g</color>) to automatically travel to nearby visible objects which you have registered to either pickup or destroy. This option subsumes (and extends) the <color:keyword>auto_get_ammo</color> option since ammo inscribed with <color:keypress>=g</color> is certainly registered for auto-pickup.
+This option instructs the Auto-Get Objects command (<color:keypress>^G</color>) to automatically travel to nearby visible objects which you have registered to either pickup or destroy. This option subsumes (and extends) the <color:keyword>auto_get_ammo</color> option since ammo inscribed with <color:keypress>=g</color> is certainly registered for auto-pickup.
 
 <topic:easy_floor><color:U>Display floor stacks in a list</color> <color:D>(easy_floor)</color>
 Lets you select an item from a stack on the floor by browsing a list. Also the look command will describe floor stack as "You see a stack of n items.", when there is more than one item on a floor grid, and display a list of items when you press 'x' at that time.
 
 <topic:numpad_as_cursorkey><color:U>Use numpad keys as cursor keys in editor mode</color> <color:D>(numpad_as_cursorkey)</color>
 This option makes numpad keys work as cursor movement keys while text editing mode. Which include auto-picker editor, inputing an inscription, a macro action, and etc.
+
+<topic:use_pack_slots><color:U>Use and Display Inventory Slots</color> <color:D>(use_pack_slots)</color>
+With this option, the object prompt will use and display the current inventory slot for objects in question. For example, if your food happens to currently be in slot h), the the <color:keypress>E</color>at command will require you to press <color:keypress>h</color> to use this item. Without this option, each object prompt will begin labels at a). Some players prefer to keep the inventory slot, even though it constantly shifts as you add and remove new objects to your pack. Other players prefer to have commands use the same labels for the same objects upon successive calls (For example, pick up a spellbook and your food is now in the i) slot. This may puzzle you, since the last time you were hungry you pressed <color:keypress>Eh</color>, but now you need to press <color:keypress>Ei</color>. With this option turned off, eating rations of food will always be <color:keypress>Ea</color> ... at least until you pick up some mushrooms! However, if you do, then your eye will quickly perceive the presence of two items in the object prompt next time you <color:keypress>E</color>at).
 </indent>
 <topic:MapScreen><style:heading>Map & Screen Options</style>
   <indent>

@@ -47,7 +47,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    $  Reload Auto-picker pref             <color:D>^D  (unused)</color>
    %  Interact with visuals               <color:D>^E  (unused)</color>
    ^  (special - control key)             ^F  Repeat level feeling
-   &  Interact with colors                <color:D>^G  (unused)</color>
+   &  Interact with colors                ^G  Auto-Get nearby objects
    <color:y>*</color>  Target monster or location          <color:D>^H  (unused)</color>
    <color:D>(  (unused)</color>                            ^I  Toggle Choice Window
    )  Create screen dump                  ^J  (special - linefeed)
@@ -111,7 +111,7 @@ Don't be overwhelmed by the sheer number of commands. Many are not often used or
    $  Reload Auto-picker pref             ^D  Destroy item
    %  Interact with visuals               <color:D>^E  (unused)</color>
    ^  (special - control key)             ^F  Repeat level feeling
-   &  Interact with colors                <color:D>^G  (unused)</color>
+   &  Interact with colors                ^G  Auto-Get nearby objects
    <color:y>*</color>  Target monster or location          ^H  (tunnel - west)
    <color:D>(  (unused)</color>                            ^I  Toggle Choice Window
    )  Create screen dump                  ^J  (tunnel - south)

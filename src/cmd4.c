@@ -17,7 +17,6 @@
 
 #include <assert.h>
 
-static void do_cmd_knowledge_shooter(void);
 static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt, int *list_cur, int list_cnt);
 
 /*
@@ -3210,7 +3209,19 @@ void do_cmd_note(void)
  */
 void do_cmd_version(void)
 {
-    msg_format("You are playing PosChengband %d.%d.%d.", VER_MAJOR, VER_MINOR, VER_PATCH);
+    cptr xtra = "";
+    if (VER_MINOR == 0)
+    {
+        if (VER_PATCH == 0) xtra = " (Alpha)";
+        else xtra = " (Beta)";
+    }
+    msg_format("You are playing <color:B>PosChengband</color> <color:r>%d.%d.%d%s</color>.",
+        VER_MAJOR, VER_MINOR, VER_PATCH, xtra);
+    if (1)
+    {
+        rect_t r = ui_map_rect();
+        msg_format("Map display is %dx%d.", r.cx, r.cy);
+    }
 }
 
 
@@ -4343,7 +4354,7 @@ static void do_cmd_knowledge_uniques(void)
     fd_kill(file_name);
 }
 
-static void do_cmd_knowledge_shooter(void)
+void do_cmd_knowledge_shooter(void)
 {
     doc_ptr doc = doc_alloc(80);
 

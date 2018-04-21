@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 6
 #define VER_MINOR 0
-#define VER_PATCH 4
+#define VER_PATCH 5
 #define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
@@ -1606,6 +1606,7 @@ enum {
 #define SV_STEEL_BOLT    2
 #define SV_MITHRIL_BOLT  3
 #define SV_SEEKER_BOLT   4
+#define SV_ADAMANTINE_BOLT 5
 
 /* TV_SHOT */
 #define SV_PEBBLE        1
@@ -2247,6 +2248,7 @@ enum {
  */
 #define PN_OPTIMIZE_PACK   0x0001
 #define PN_OPTIMIZE_QUIVER 0x0002
+#define PN_CARRY           0x0004
 /* xxx (many) */
 
 
@@ -2788,6 +2790,7 @@ enum summon_specific_e {
 #define OM_EGO_COUNTED     0x0100    /* Stats */
 #define OM_ART_COUNTED     0x0200    /* Stats */
 #define OM_EFFECT_COUNTED  0x0400    /* Stats */
+#define OM_DELAYED_MSG     0x0800    /* Describe inventory slot *after* resorting */
 
 
 /*
@@ -5472,23 +5475,6 @@ enum mon_save_fields_e {
 #define SCROBJ_FAKE_OBJECT  0x00000001
 #define SCROBJ_FORCE_DETAIL 0x00000002
 
-/* Sniper */
-#define SP_NONE          0
-#define SP_LITE          1
-#define SP_AWAY          2
-#define SP_FIRE          3
-#define SP_KILL_WALL     4
-#define SP_COLD          5
-#define SP_KILL_TRAP     6
-#define SP_ELEC          7
-#define SP_PIERCE        8
-#define SP_RUSH          9
-#define SP_DOUBLE        10
-#define SP_EXPLODE       11
-#define SP_EVILNESS      12
-#define SP_HOLYNESS      13
-#define SP_FINAL         14
-#define SP_NEEDLE        15
 
 #define CONCENT_RADAR_THRESHOLD 2
 #define CONCENT_TELE_THRESHOLD  5
@@ -5569,22 +5555,42 @@ enum mon_save_fields_e {
 #define RUNE_GOOD_FORTUNE         22
 #define RUNE_IMMORTALITY          23
 
-/* Weaponmaster shooting powers */
-#define SHOOT_NONE          0
-#define SHOOT_BOUNCE        1
-#define SHOOT_PIERCE        2
-#define SHOOT_RUN           3
-#define SHOOT_MANY          4
-#define SHOOT_ALL           5
-#define SHOOT_VOLLEY        7
-#define SHOOT_TRANQUILIZE   8
-#define SHOOT_NEEDLE        9
-#define SHOOT_DISINTEGRATE 10
-#define SHOOT_RETALIATE    11
-#define SHOOT_SHATTER      12
-#define SHOOT_KNOCKBACK    13
-#define SHOOT_ELEMENTAL    14
-#define SHOOT_SNIPING      15  /* Scout */
+/* Weaponmaster/Sniper shooting powers
+ * These are in a single list for shoot_hack and
+ * do_cmd_knowledge_shooter() (cf display_shooter_mode) */
+enum {
+    SHOOT_NONE = 0, /* weaponmaster, scout */
+    SP_NONE = 0,    /* sniper */
+    SHOOT_BOUNCE,
+    SHOOT_PIERCE,
+    SHOOT_RUN,
+    SHOOT_MANY,
+    SHOOT_ALL,
+    SHOOT_VOLLEY,
+    SHOOT_TRANQUILIZE,
+    SHOOT_NEEDLE,
+    SHOOT_DISINTEGRATE,
+    SHOOT_RETALIATE,
+    SHOOT_SHATTER,
+    SHOOT_KNOCKBACK,
+    SHOOT_ELEMENTAL,
+    SHOOT_SNIPING,
+    SP_LITE,
+    SP_AWAY,
+    SP_FIRE,
+    SP_KILL_WALL,
+    SP_COLD,
+    SP_KILL_TRAP,
+    SP_ELEC,
+    SP_PIERCE,
+    SP_RUSH,
+    SP_DOUBLE,
+    SP_EXPLODE,
+    SP_EVILNESS,
+    SP_HOLYNESS,
+    SP_FINAL,
+    SP_NEEDLE,
+};
 
 /* Weaponmaster et. al. toggle modes. These
  * values are written to savefiles, so do not

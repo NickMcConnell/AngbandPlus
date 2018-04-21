@@ -19,6 +19,7 @@ extern bool    quiver_tolerates(obj_ptr obj);
 extern int     quiver_capacity(void);
 extern void    quiver_carry(obj_ptr obj); /* combines quiver, then carries pack, then overflows */
 extern void    quiver_remove(slot_t slot);
+extern void    quiver_remove_all(void); /* player lost quiver due to shapeshifting ... */
 extern void    quiver_drop(obj_ptr obj);
 
 /* Accessing, Iterating, Searching */
@@ -40,6 +41,7 @@ extern slot_t  quiver_random_slot(obj_p p);
  * I've combined into a single method since it is unclear why 
  * they need to be separate. */
 extern bool    quiver_optimize(void);
+extern void    quiver_delayed_describe(void);
 
 /* Properties of the Entire Inventory */
 extern int     quiver_weight(obj_p p);

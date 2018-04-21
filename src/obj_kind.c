@@ -223,7 +223,7 @@ bool object_is_rare(object_type *o_ptr)
         break;
 
     case TV_BOLT:
-        if (o_ptr->sval == SV_SEEKER_BOLT || o_ptr->sval == SV_MITHRIL_BOLT)
+        if (o_ptr->sval == SV_SEEKER_BOLT || o_ptr->sval == SV_MITHRIL_BOLT || o_ptr->sval == SV_ADAMANTINE_BOLT)
             return TRUE;
         break;
 

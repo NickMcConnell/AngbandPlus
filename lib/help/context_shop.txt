@@ -61,6 +61,8 @@ Every store owner has access to limited funds, and will only pay so much for ite
 <color:G>Navigation</color>
 <color:keypress>Page Up</color>   Scroll Through Long Object Lists
 <color:keypress>Page Down</color>
+<color:keypress>Space</color>     Same as Page Up
+<color:keypress>-</color>         Same as Page Down
 
 <color:G>Display Options</color>
 <color:keypress>^W</color>        Toggle Weights (see <link:option.txt#show_weights>)

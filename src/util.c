@@ -3085,6 +3085,7 @@ bool get_com(cptr prompt, char *command, bool z_escape)
     /* Wednesday 2016-07-27 20:14:30 lumiera: removing this to avoid annoying -more- prompt in capture ball activation
     msg_print(NULL);
     */
+    msg_line_clear();
 
     /* Display a prompt */
     prt(prompt, 0, 0);

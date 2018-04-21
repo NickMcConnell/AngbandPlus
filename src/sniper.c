@@ -1,81 +1,37 @@
 #include "angband.h"
 
-#define MAX_SNIPE_POWERS 16
-
-typedef struct snipe_power snipe_power;
-struct snipe_power
+static void _birth(void)
 {
-    int     min_lev;
-    int     mana_cost;
-    const char *name;
-};
+    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
+    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
+    py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
+    py_birth_obj_aux(TV_BOLT, SV_BOLT, rand_range(20, 30));
+}
 
-static const char *snipe_tips[MAX_SNIPE_POWERS] =
+/************************************************************************
+ * Bonuses
+ ***********************************************************************/
+static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
-    "Concentrate your mind for shooting.",
-    "Shoot an arrow with brightness.",
-    "Blink after shooting.",
-    "Shoot an arrow able to shatter traps.",
-    "Deals extra damege of fire.",
-    "Shoot an arrow able to shatter rocks.",
-    "Deals extra damege of ice.",
-    "An arrow rushes away a target.",
-    "An arrow pierces some monsters.",
-    "Deals more damage to good monsters.",
-    "Deals more damage to evil monsters.",
-    "An arrow explodes when it hits a monster.",
-    "Shoot arrows twice.",
-    "Deals great extra damage of lightning.",
-    "Deals quick death or 1 damage.",
-    "Deals great damage to all monsters, and some side effects to you.",
-};
+    if (info_ptr->tval_ammo == TV_BOLT)
+    {
+        info_ptr->to_h += 10 + p_ptr->lev/5;
+        info_ptr->dis_to_h += 10 + p_ptr->lev/5;
+    }
+}
 
-snipe_power snipe_powers[MAX_SNIPE_POWERS] =
+/************************************************************************
+ * Concentration
+ ***********************************************************************/
+static int _max_concentration(void)
 {
-   /*lvl, cst,  name */
-    {  1,   0,  "Concentration" },
-    {  2,   1,  "Flush Arrow" },
-    {  3,   1,  "Shoot & Away" },
-    {  5,   1,  "Disarm Shot" },
-    {  8,   2,  "Fire Shot" },
-    { 10,   2,  "Shatter Arrow" },
-    { 13,   2,  "Ice Shot" },
-    { 18,   2,  "Rushing Arrow" },
-    { 22,   3,  "Piercing Shot" },
-    { 25,   4,  "Evil Shot"},
-    { 26,   4,  "Holy Shot" },
-    { 30,   3,  "Missile"},
-    { 32,   4,  "Double Shot" },
-    { 36,   3,  "Thunder Shot" },
-    { 40,   3,  "Needle Shot" },
-    { 48,   7,  "Saint Stars Arrow" },
-};
-
-
-static bool snipe_concentrate(void)
-{
-    int concent_max = (2 + (p_ptr->lev + 5) / 10);
-
-    if (p_ptr->concent < concent_max)
-        p_ptr->concent++;
-
-    if (p_ptr->concent < concent_max)
-        msg_format("You concentrate deeply. (lvl %d)", p_ptr->concent);
-    else
-        msg_format("You are fully concentrated. (lvl %d)", p_ptr->concent);
-
-    reset_concent = FALSE;
-
-    p_ptr->update |= PU_BONUS;
-    p_ptr->redraw |= PR_STATUS;
-    p_ptr->update |= PU_MONSTERS;
-    return TRUE;
+    return 2 + (p_ptr->lev + 5)/10;
 }
 
 void reset_concentration(bool msg)
 {
     if (msg)
-        msg_print("Stop concentrating.");
+        msg_print("You stop concentrating.");
 
     p_ptr->concent = 0;
     reset_concent = FALSE;
@@ -86,426 +42,464 @@ void reset_concentration(bool msg)
 
 int boost_concentration_damage(int tdam)
 {
-    tdam *= (10 + p_ptr->concent);
-    tdam /= 10;
-    return tdam;
+    return tdam * (10 + p_ptr->concent) / 10;
 }
 
-void display_snipe_list(void)
+static void _concentrate(int cmd, variant *res)
 {
-    int             i;
-    int             y = 1;
-    int             x = 1;
-    int             plev = p_ptr->lev;
-    snipe_power     spell;
-    char            desc[80];
-
-    prt("", y, x);
-    put_str("Name", y, x + 5);
-    put_str("Lv Mana", y, x + 35);
-
-    for (i = 0; i < MAX_SNIPE_POWERS; i++)
+    switch (cmd)
     {
-        spell = snipe_powers[i];
-        if (spell.min_lev > plev) continue;
-        if (spell.mana_cost > (int)p_ptr->concent) continue;
-        sprintf(desc, "  %c) %-30s%2d %4d",
-            I2A(i), spell.name, spell.min_lev, spell.mana_cost);
-        Term_putstr(x, y + i + 1, -1, TERM_WHITE, desc);
+    case SPELL_NAME:
+        var_set_string(res, "Concentration");
+        break;
+    case SPELL_DESC:
+        var_set_string(res,
+            "Concentrate your mind for more powerful shooting. As you increase "
+            "your focus, you will gain access to more deadly archery techniques. "
+            "In addition, you will land more critical shots as your aim improves.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, format("(%d of %d)", p_ptr->concent, _max_concentration()));
+        break;
+    case SPELL_CAST: {
+        int max = _max_concentration();
+        if (p_ptr->concent < max)
+        {
+            p_ptr->concent++;
+            msg_format("You concentrate deeply (<color:%c>%dx</color>).",
+                p_ptr->concent == max ? 'r' : 'B',
+                p_ptr->concent);
+            p_ptr->update |= PU_BONUS;
+            p_ptr->redraw |= PR_STATUS;
+            p_ptr->update |= PU_MONSTERS;
+        }
+        else
+            msg_format("You maintain maximum focus (<color:r>%dx</color>).", p_ptr->concent);
+        reset_concent = FALSE;
+        var_set_bool(res, TRUE);
+        break; }
+    default:
+        default_spell(cmd, res);
     }
-    return;
 }
 
-static int get_snipe_power(int *sn, bool only_browse)
+/************************************************************************
+ * Snipe Techniques: Callbacks for do_cmd_fire based on shoot_hack
+ ***********************************************************************/
+int sniper_multiplier(int which, obj_ptr ammo, monster_type *m_ptr)
 {
-    int             i;
-    int             num = 0;
-    int             y = 1;
-    int             x = 20;
-    int             plev = p_ptr->lev;
-    int             ask;
-    char            choice;
-    char            out_val[160];
-    cptr            p = "power";
-    snipe_power     spell;
-    bool            flag, redraw;
+    int           mult = 10;
+    monster_race *r_ptr = NULL;
+    u32b          flgs[OF_ARRAY_SIZE] = {0};
 
-#ifdef ALLOW_REPEAT /* TNB */
+    if (m_ptr)
+        r_ptr = &r_info[m_ptr->r_idx];
+    if (ammo)
+        missile_flags(ammo, flgs);
 
-    repeat_push(*sn);
-
-    /* Assume cancelled */
-    *sn = (-1);
-
-    /* Repeat previous command */
-    /* Get the spell, if available */
-    if (repeat_pull(sn))
-    {
-        /* Verify the spell */
-        if ((snipe_powers[*sn].min_lev <= plev) && (snipe_powers[*sn].mana_cost <= (int)p_ptr->concent))
-        {
-            /* Success */
-            return (TRUE);
-        }
-    }
-
-#endif /* ALLOW_REPEAT -- TNB */
-
-    /* Nothing chosen yet */
-    flag = FALSE;
-
-    /* No redraw yet */
-    redraw = FALSE;
-
-    for (i = 0; i < MAX_SNIPE_POWERS; i++)
-    {
-        if ((snipe_powers[i].min_lev <= plev) &&
-            ((only_browse) || (snipe_powers[i].mana_cost <= (int)p_ptr->concent)))
-        {
-            num = i;
-        }
-    }
-
-    /* Build a prompt (accept all spells) */
-    if (only_browse)
-    {
-        (void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
-                  p, I2A(0), I2A(num), p);
-    }
-    else
-    {
-        (void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
-              p, I2A(0), I2A(num), p);
-    }
-
-    /* Get a spell from the user */
-    choice = always_show_list ? ESCAPE : 1;
-    while (!flag)
-    {
-        if(choice == ESCAPE) choice = ' ';
-        else if( !get_com(out_val, &choice, FALSE) )break; 
-
-        /* Request redraw */
-        if ((choice == ' ') || (choice == '*') || (choice == '?'))
-        {
-            /* Show the list */
-            if (!redraw)
-            {
-                char psi_desc[80];
-
-                /* Show list */
-                redraw = TRUE;
-
-                /* Save the screen */
-                if (!only_browse) screen_save();
-
-                /* Display a list of spells */
-                prt("", y, x);
-                put_str("Name", y, x + 5);
-                if (only_browse) put_str("Lv Pow", y, x + 35);
-
-                /* Dump the spells */
-                for (i = 0; i < MAX_SNIPE_POWERS; i++)
-                {
-                    Term_erase(x, y + i + 1, 255);
-
-                    /* Access the spell */
-                    spell = snipe_powers[i];
-                    if (spell.min_lev > plev) continue;
-                    if (!only_browse && (spell.mana_cost > (int)p_ptr->concent)) continue;
-
-                    /* Dump the spell --(-- */
-                    if (only_browse)
-                        sprintf(psi_desc, "  %c) %-30s%2d %4d",
-                            I2A(i), spell.name,    spell.min_lev, spell.mana_cost);
-                    else
-                        sprintf(psi_desc, "  %c) %-30s", I2A(i), spell.name);
-                    prt(psi_desc, y + i + 1, x);
-                }
-
-                /* Clear the bottom line */
-                prt("", y + i + 1, x);
-            }
-
-            /* Hide the list */
-            else
-            {
-                /* Hide list */
-                redraw = FALSE;
-
-                /* Restore the screen */
-                if (!only_browse) screen_load();
-            }
-
-            /* Redo asking */
-            continue;
-        }
-
-        /* Note verify */
-        ask = isupper(choice);
-
-        /* Lowercase */
-        if (ask) choice = tolower(choice);
-
-        /* Extract request */
-        i = (islower(choice) ? A2I(choice) : -1);
-
-        /* Totally Illegal */
-        if ((i < 0) || (i > num) || 
-            (!only_browse &&(snipe_powers[i].mana_cost > (int)p_ptr->concent)))
-        {
-            bell();
-            continue;
-        }
-
-        /* Save the spell index */
-        spell = snipe_powers[i];
-
-        /* Verify it */
-        if (ask)
-        {
-            char tmp_val[160];
-
-            /* Prompt */
-            (void)strnfmt(tmp_val, 78, "Use %s? ", snipe_powers[i].name);
-
-            /* Belay that order */
-            if (!get_check(tmp_val)) continue;
-        }
-
-        /* Stop the loop */
-        flag = TRUE;
-    }
-
-    /* Restore the screen */
-    if (redraw && !only_browse) screen_load();
-
-    /* Show choices */
-    p_ptr->window |= (PW_SPELL);
-
-    /* Window stuff */
-    window_stuff();
-
-    /* Abort if needed */
-    if (!flag) return (FALSE);
-
-    /* Save the choice */
-    (*sn) = i;
-
-#ifdef ALLOW_REPEAT /* TNB */
-
-    repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
-
-    /* Success */
-    return (TRUE);
-}
-
-
-int tot_dam_aux_snipe (int mult, monster_type *m_ptr)
-{
-    monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-    switch (snipe_type)
+    switch (which)
     {
     case SP_LITE:
-        if (r_ptr->flags3 & (RF3_HURT_LITE))
+        if (!r_ptr || (r_ptr->flags3 & RF3_HURT_LITE))
         {
-            int n = 30 + p_ptr->concent;
-            mon_lore_3(m_ptr, RF3_HURT_LITE);
-            if (mult < n) mult = n;
+            mult = 30 + p_ptr->concent;
+            if (m_ptr) mon_lore_3(m_ptr, RF3_HURT_LITE);
         }
         break;
     case SP_FIRE:
-        if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
+        if (r_ptr && (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
         {
             mon_lore_r(m_ptr, RFR_EFF_IM_FIRE_MASK);
         }
         else
         {
-            int n = 20 + (p_ptr->concent * 3);
-            if (mult < n) mult = n;
+            mult = 10 + 5*p_ptr->concent;
+            if (have_flag(flgs, OF_BRAND_FIRE))
+                mult += 10;
+            if (r_ptr && (r_ptr->flags3 & RF3_HURT_FIRE))
+            {
+                mult *= 2;
+                mon_lore_3(m_ptr, RF3_HURT_FIRE);
+            }
         }
         break;
     case SP_COLD:
-        if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
+        if (r_ptr && (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK))
         {
             mon_lore_r(m_ptr, RFR_EFF_IM_COLD_MASK);
         }
         else
         {
-            int n = 20 + (p_ptr->concent * 3);
-            if (mult < n) mult = n;
+            mult = 10 + 5*p_ptr->concent;
+            if (have_flag(flgs, OF_BRAND_COLD))
+                mult += 10;
+            if (r_ptr && (r_ptr->flags3 & RF3_HURT_COLD))
+            {
+                mult *= 2;
+                mon_lore_3(m_ptr, RF3_HURT_COLD);
+            }
         }
         break;
     case SP_ELEC:
-        if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
+        if (r_ptr && (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK))
         {
             mon_lore_r(m_ptr, RFR_EFF_IM_ELEC_MASK);
         }
         else
         {
-            int n = 23 + (p_ptr->concent * 4);
-            if (mult < n) mult = n;
+            mult = 13 + 6*p_ptr->concent;
+            if (have_flag(flgs, OF_BRAND_ELEC))
+                mult += 15;
         }
         break;
     case SP_KILL_WALL:
-        if (r_ptr->flags3 & RF3_HURT_ROCK)
+        if (!r_ptr || (r_ptr->flags3 & RF3_HURT_ROCK))
         {
-            int n = 20 + (p_ptr->concent * 2);
-            mon_lore_3(m_ptr, RF3_HURT_ROCK);
-            if (mult < n) mult = n;
+            mult = 20 + 2*p_ptr->concent;
+            if (m_ptr) mon_lore_3(m_ptr, RF3_HURT_ROCK);
         }
-        else if (r_ptr->flags3 & RF3_NONLIVING)
+        else if (!r_ptr || (r_ptr->flags3 & RF3_NONLIVING))
         {
-            int n = 20 + (p_ptr->concent * 2);
-            mon_lore_3(m_ptr, RF3_NONLIVING);
-            if (mult < n) mult = n;
+            mult = 20 + 2*p_ptr->concent;
+            if (m_ptr) mon_lore_3(m_ptr, RF3_NONLIVING);
         }
         break;
     case SP_EVILNESS:
-        if (r_ptr->flags3 & RF3_GOOD)
+        if (!r_ptr || (r_ptr->flags3 & RF3_GOOD))
         {
-            int n = 20 + (p_ptr->concent * 4);
-            mon_lore_3(m_ptr, RF3_GOOD);
-            if (mult < n) mult = n;
+            mult = 10 + 4*p_ptr->concent;
+            if (m_ptr) mon_lore_3(m_ptr, RF3_GOOD);
+            if (have_flag(flgs, OF_SLAY_GOOD))
+                mult += 10;
         }
         break;
     case SP_HOLYNESS:
-        if (r_ptr->flags3 & RF3_EVIL)
+        if (!r_ptr || (r_ptr->flags3 & RF3_EVIL))
         {
-            int n = 17 + (p_ptr->concent * 3);
-            mon_lore_3(m_ptr, RF3_EVIL);
-            if (r_ptr->flags3 & (RF3_HURT_LITE))
+            mult = 10 + 4*p_ptr->concent;
+            if (m_ptr) mon_lore_3(m_ptr, RF3_EVIL);
+            if (r_ptr && (r_ptr->flags3 & RF3_HURT_LITE))
             {
-                n += (p_ptr->concent * 3);
+                mult += 4*p_ptr->concent;
                 mon_lore_3(m_ptr, RF3_HURT_LITE);
             }
-            if (mult < n) mult = n;
+            if (have_flag(flgs, OF_KILL_EVIL))
+                mult += 20;
+            if (have_flag(flgs, OF_SLAY_EVIL))
+                mult += 10;
         }
         break;
     case SP_FINAL:
-        if (mult < 60) mult = 60;
+        mult = 70;
         break;
     }
 
-    return (mult);
+    return mult;
 }
-
-static bool cast_sniper_spell(int spell)
+/************************************************************************
+ * Spells
+ ***********************************************************************/
+static bool _do_shot(int which)
 {
+    bool result = FALSE;
     if (!equip_find_obj(TV_BOW, SV_ANY))
     {
-        msg_print("You wield no bow!");
-        return (FALSE);
+        msg_print("You need to wield a bow!");
+        return FALSE;
     }
-
-    /* spell code */
-    switch (spell)
+    shoot_hack = which;
+    command_cmd = 'f'; /* hack for @fa inscriptions */
+    result = do_cmd_fire();
+    shoot_hack = 0;
+    return result;
+}
+static char *_mult_info(int mult)
+{
+    return format("%d.%dx", mult/10, mult%10);
+}
+static void _default(int which, int cmd, variant *res)
+{
+    switch (cmd)
     {
-    case 0: /* Concentration */
-        if (!snipe_concentrate()) return (FALSE);
-        energy_use = 100;
-        return (TRUE);
-    case 1: snipe_type = SP_LITE; break;
-    case 2: snipe_type = SP_AWAY; break;
-    case 3: snipe_type = SP_KILL_TRAP; break;
-    case 4: snipe_type = SP_FIRE; break;
-    case 5: snipe_type = SP_KILL_WALL; break;
-    case 6: snipe_type = SP_COLD; break;
-    case 7: snipe_type = SP_RUSH; break;
-    case 8: snipe_type = SP_PIERCE; break;
-    case 9: snipe_type = SP_EVILNESS; break;
-    case 10: snipe_type = SP_HOLYNESS; break;
-    case 11: snipe_type = SP_EXPLODE; break;
-    case 12: snipe_type = SP_DOUBLE; break;
-    case 13: snipe_type = SP_ELEC; break;
-    case 14: snipe_type = SP_NEEDLE; break;
-    case 15: snipe_type = SP_FINAL; break;
+    case SPELL_INFO:
+        var_set_string(res, _mult_info(sniper_multiplier(which, NULL, NULL)));
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, _do_shot(which));
+        break;
+    case SPELL_ON_BROWSE: {
+        bool screen_hack = screen_is_saved();
+        if (screen_hack) screen_load();
+
+        display_shooter_mode = which;
+        do_cmd_knowledge_shooter();
+        display_shooter_mode = 0;
+
+        if (screen_hack) screen_save();
+        var_set_bool(res, TRUE);
+        break; }
+    case SPELL_ENERGY:
+        var_set_int(res, energy_use); /* roundabout ... but do_cmd_fire already set this */
+        break;
     default:
-        msg_print("Zap?");
+        default_spell(cmd, res);
     }
-
-    command_cmd = 'f';
-    do_cmd_fire();
-    snipe_type = 0;
-    return is_fired;
 }
-
-
-void do_cmd_snipe(void)
+static void _shining_arrow(int cmd, variant *res)
 {
-    int  n = 0;
-    bool cast;
-
-    if (p_ptr->confused)
+    switch (cmd)
     {
-        msg_print("You are too confused!");
-        return;
+    case SPELL_NAME:
+        var_set_string(res, "Shining Arrow");
+        break;
+    case SPELL_DESC:
+        var_set_string(res,
+            "Shoot a glowing arrow that lights up the dungeon. This "
+            "shot also does increased damage from light against "
+            "enemies that are hurt by bright light.");
+        break;
+    default:
+        _default(SP_LITE, cmd, res);
     }
-    if (p_ptr->image)
-    {
-        msg_print("You are hallucinating!");
-        return;
-    }
-    if (p_ptr->stun)
-    {
-        msg_print("You are too stuned!");
-        return;
-    }
-
-    if (!get_snipe_power(&n, FALSE)) return;
-    sound(SOUND_SHOOT);
-    cast = cast_sniper_spell(n);
-    if (!cast) return;
-
-    p_ptr->redraw |= (PR_HP | PR_MANA);
-    p_ptr->window |= (PW_SPELL);
 }
-
-void do_cmd_snipe_browse(void)
+static void _shoot_and_away(int cmd, variant *res)
 {
-    int n = 0;
-    int j, line;
-    char temp[62 * 4];
-
-    screen_save();
-
-    while(1)
+    switch (cmd)
     {
-        /* get power */
-        if (!get_snipe_power(&n, TRUE))
-        {
-            screen_load();
-            return;
-        }
-
-        /* Clear lines, position cursor  (really should use strlen here) */
-        Term_erase(12, 22, 255);
-        Term_erase(12, 21, 255);
-        Term_erase(12, 20, 255);
-        Term_erase(12, 19, 255);
-        Term_erase(12, 18, 255);
-
-        roff_to_buf(snipe_tips[n], 62, temp, sizeof(temp));
-        for(j = 0, line = 19; temp[j]; j += (1 + strlen(&temp[j])))
-        {
-            prt(&temp[j], line, 15);
-            line++;
-        }
+    case SPELL_NAME:
+        var_set_string(res, "Shoot and Away");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Shoot at target and then blink away in a single move.");
+        break;
+    default:
+        _default(SP_AWAY, cmd, res);
     }
 }
-
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
+static void _disarming_shot(int cmd, variant *res)
 {
-    if (info_ptr->tval_ammo == TV_BOLT)
+    switch (cmd)
     {
-        info_ptr->to_h += 10 + p_ptr->lev/5;
-        info_ptr->dis_to_h += 10 + p_ptr->lev/5;
+    case SPELL_NAME:
+        var_set_string(res, "Disarming Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Shoot an arrow able to shatter traps.");
+        break;
+    default:
+        _default(SP_KILL_TRAP, cmd, res);
     }
 }
+static void _burning_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Burning Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Deals extra damage of fire.");
+        break;
+    default:
+        _default(SP_FIRE, cmd, res);
+    }
+}
+static void _shatter(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Shatter");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Shoot an arrow able to shatter rocks.");
+        break;
+    default:
+        _default(SP_KILL_WALL, cmd, res);
+    }
+}
+static void _freezing_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Freezing Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Deals extra damage of cold.");
+        break;
+    default:
+        _default(SP_COLD, cmd, res);
+    }
+}
+static void _knockback(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Knockback");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "A powerful shot that knocks an enemy target backwards.");
+        break;
+    default:
+        _default(SP_RUSH, cmd, res);
+    }
+}
+static void _piercing_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Piercing Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "An arrow pierces some monsters.");
+        break;
+    default:
+        _default(SP_RUSH, cmd, res);
+    }
+}
+static void _evil_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Evil Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Deals more damage to good monsters.");
+        break;
+    default:
+        _default(SP_EVILNESS, cmd, res);
+    }
+}
+static void _holy_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Holy Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Deals more damage to evil monsters.");
+        break;
+    default:
+        _default(SP_HOLYNESS, cmd, res);
+    }
+}
+static void _exploding_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Exploding Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "An arrow explodes when it hits a monster.");
+        break;
+    default:
+        _default(SP_EXPLODE, cmd, res);
+    }
+}
+static void _double_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Double Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Shoot arrows twice.");
+        break;
+    default:
+        _default(SP_DOUBLE, cmd, res);
+    }
+}
+static void _thunder_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Thunder Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Deals great extra damage of lightning.");
+        break;
+    default:
+        _default(SP_ELEC, cmd, res);
+    }
+}
+static void _needle_shot(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Needle Shot");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Deals quick death or 1 damage.");
+        break;
+    default:
+        _default(SP_NEEDLE, cmd, res);
+    }
+}
+static void _saint_stars_arrow(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Saint Stars Arrow");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Deals great damage to all monsters, and some side effects to you.");
+        break;
+    default:
+        _default(SP_FINAL, cmd, res);
+    }
+}
+static spell_info _spells[] = 
+{
+   /*lvl  cst fail  spell */
+    {  1,   0,   0, _concentrate },
+    {  2,   1,   0, _shining_arrow },
+    {  3,   1,   0, _shoot_and_away },
+    {  5,   1,   0, _disarming_shot },
+    {  8,   2,   0, _burning_shot },
+    { 10,   2,   0, _shatter },
+    { 13,   2,   0, _freezing_shot },
+    { 18,   2,   0, _knockback },
+    { 22,   3,   0, _piercing_shot },
+    { 25,   4,   0, _evil_shot },
+    { 26,   4,   0, _holy_shot },
+    { 30,   3,   0, _exploding_shot },
+    { 32,   4,   0, _double_shot },
+    { 36,   3,   0, _thunder_shot },
+    { 40,   3,   0, _needle_shot },
+    { 48,   7,   0, _saint_stars_arrow },
+    { -1,  -1,  -1, NULL}
+};
+static int _get_spells(spell_info* spells, int max)
+{
+    return get_spells_aux(spells, max, _spells);
+}
+static caster_info * _caster_info(void)
+{
+    static caster_info me = {0};
+    static bool init = FALSE;
+    if (!init)
+    {
+        me.magic_desc = "sniping";
+        me.options = CASTER_USE_CONCENTRATION;
+        me.which_stat = A_DEX;
+        init = TRUE;
+    }
+    return &me;
+}
 
+/************************************************************************
+ * Powers
+ ***********************************************************************/
 static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
@@ -519,14 +513,16 @@ static int _get_powers(spell_info* spells, int max)
     return ct;
 }
 
-static void _birth(void)
+/************************************************************************
+ * Class
+ ***********************************************************************/
+static void _character_dump(doc_ptr doc)
 {
-    py_birth_obj_aux(TV_SWORD, SV_DAGGER, 1);
-    py_birth_obj_aux(TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1);
-    py_birth_obj_aux(TV_BOW, SV_LIGHT_XBOW, 1);
-    py_birth_obj_aux(TV_BOLT, SV_BOLT, rand_range(20, 30));
-}
+    spell_info spells[MAX_SPELLS];
+    int        ct = _get_spells(spells, MAX_SPELLS);
 
+    py_display_spells(doc, spells, ct);
+}
 class_t *sniper_get_class(void)
 {
     static class_t me = {0};
@@ -565,6 +561,9 @@ class_t *sniper_get_class(void)
         me.birth = _birth;
         me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_powers = _get_powers;
+        me.caster_info = _caster_info;
+        me.get_spells = _get_spells;
+        me.character_dump = _character_dump;
         init = TRUE;
     }
 

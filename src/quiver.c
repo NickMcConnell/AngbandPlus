@@ -21,7 +21,17 @@ void quiver_display(doc_ptr doc, obj_p p, int flags)
  * quivers in the dungeon. */
 bool quiver_likes(obj_ptr obj)
 {
-    return equip_find_obj(TV_QUIVER, SV_ANY) && obj->tval == p_ptr->shooter_info.tval_ammo;
+    if (!equip_find_obj(TV_QUIVER, SV_ANY)) return FALSE;
+    if (obj->tval != p_ptr->shooter_info.tval_ammo) return FALSE;
+    if (!obj_is_identified(obj)) return FALSE;
+    /* Restrict what automatically goes into the quiver a bit. For
+     * example, if an Archer is doing a lot of Create Ammo, then it
+     * is annoying to have the junk results automatically added. On
+     * the other hand, one wants artifact ammo to always add, so we
+     * can't just rely on object piles ... */
+    if (inv_can_combine(_inv, obj)) return TRUE;
+    if (obj->inscription && strstr(quark_str(obj->inscription), "=g")) return TRUE;
+    return FALSE;
 }
 
 bool quiver_tolerates(obj_ptr obj)
@@ -62,11 +72,26 @@ void quiver_carry(obj_ptr obj)
     }
     obj->number += xtra;
     p_ptr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
+    p_ptr->notice |= PN_CARRY;
 }
 
 void quiver_remove(slot_t slot)
 {
     inv_remove(_inv, slot);
+}
+
+void quiver_remove_all(void)
+{
+    slot_t slot;
+    for (slot = 1; slot <= QUIVER_MAX; slot++)
+    {
+        obj_ptr obj = quiver_obj(slot);
+
+        if (!obj) continue;
+        obj->marked |= OM_WORN;
+        pack_carry_aux(obj);
+        obj_release(obj, OBJ_RELEASE_QUIET);
+    }
 }
 
 void quiver_drop(obj_ptr obj)
@@ -89,6 +114,7 @@ void quiver_drop(obj_ptr obj)
 
     obj_drop(obj, amt);
 }
+
 /* Accessing, Iterating, Searching */
 obj_ptr quiver_obj(slot_t slot)
 {
@@ -154,6 +180,10 @@ bool quiver_optimize(void)
         return TRUE;
     }
     return FALSE;
+}
+void quiver_delayed_describe(void)
+{
+    quiver_for_each(obj_delayed_describe);
 }
 
 /* Properties of the Entire Inventory */

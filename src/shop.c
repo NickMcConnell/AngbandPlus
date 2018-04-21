@@ -1325,11 +1325,11 @@ static void _loop(_ui_context_ptr context)
                 doc_display_help("context_shop.txt", NULL);
                 Term_clear_rect(ui_shop_msg_rect());
                 break;
-            case SKEY_PGDOWN: case '3':
+            case SKEY_PGDOWN: case '3': case ' ':
                 if (context->top + context->page_size - 1 < max)
                     context->top += context->page_size;
                 break;
-            case SKEY_PGUP: case '9':
+            case SKEY_PGUP: case '9': case '-':
                 if (context->top > context->page_size)
                     context->top -= context->page_size;
                 break;
@@ -1487,7 +1487,9 @@ static bool _buy_aux(shop_ptr shop, obj_ptr obj)
     obj_identify_fully(obj);
     stats_on_purchase(obj);
 
-    object_desc(name, obj, OD_COLOR_CODED); /* again...in case *id* */
+    /* This message may seem like spam, but it is not. Selling an
+     * un-identified potion of augmentation, for example. */
+    object_desc(name, obj, OD_COLOR_CODED);
     if (no_selling)
         msg_format("You gave %s.", name);
     else
@@ -1552,6 +1554,12 @@ static void _buy(_ui_context_ptr context)
         {
             obj_identify_fully(prompt.obj);
             prompt.obj->number -= amt;
+            prompt.obj->marked |= OM_DELAYED_MSG;
+            p_ptr->notice |= PN_CARRY;
+            if (prompt.obj->loc.where == INV_QUIVER)
+                p_ptr->notice |= PN_OPTIMIZE_QUIVER;
+            else if (prompt.obj->loc.where == INV_PACK)
+                p_ptr->notice |= PN_OPTIMIZE_PACK;
         }
     }
     else
@@ -1681,7 +1689,7 @@ static bool _sell_aux(shop_ptr shop, obj_ptr obj)
         virtue_add(VIRTUE_NATURE, -1);
 
     pack_carry(obj);
-    msg_format("You have %s.", name);
+    /*msg_format("You have %s.", name);*/
     return TRUE;
 }
 
@@ -1981,7 +1989,6 @@ bool shop_common_cmd_handler(int cmd)
 {
     switch (cmd)
     {
-    case ' ':
     case '\r':
         return TRUE;
     case 'w':
@@ -2229,7 +2236,7 @@ town_ptr towns_current_town(void)
         return towns_get_town(TOWN_RANDOM);
     else if (p_ptr->town_num)
         return towns_get_town(p_ptr->town_num);
-    return NULL;
+    return towns_get_town(TOWN_RANDOM); /* wilderness encounter */
 }
 
 

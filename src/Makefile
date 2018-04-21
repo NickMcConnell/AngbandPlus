@@ -12,7 +12,7 @@ ifneq (${VERSION},)
 	CFLAGS += -DBUILD_ID=${VERSION}
 endif
 
-CFLAGS += -I. -std=c99 -O0 -Wdeclaration-after-statement -fno-omit-frame-pointer
+CFLAGS += -I. -std=c99 -O2 -Wdeclaration-after-statement -fno-omit-frame-pointer
 
 CLEAN = poschengband.o $(OBJECTS) win/poschengband.res
 DISTCLEAN = autoconf.h

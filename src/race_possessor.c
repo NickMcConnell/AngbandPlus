@@ -83,7 +83,7 @@ static void _history_on_possess(int r_idx)
             else if (quests_get_current())
             {
                 p->d_idx = DUNGEON_QUEST;
-                p->d_lvl = quests_get_current()->level;
+                p->d_lvl = quests_get_current()->id;
             }
             else /* ??? */
             {
@@ -1906,6 +1906,7 @@ void possessor_character_dump(doc_ptr doc)
     char         loc[255];
     
     doc_printf(doc, "<topic:RecentForms>================================ <color:keypress>R</color>ecent Forms =================================\n\n");
+    doc_insert(doc, "<style:table>");
     doc_printf(doc, "<color:G>%-33.33s CL Day  Time  DL %-28.28s</color>\n", "Most Recent Forms", "Location");
 
     while (p && ct < 100)
@@ -1931,7 +1932,7 @@ void possessor_character_dump(doc_ptr doc)
                 sprintf(lvl, "%s", "   ");
             break;
         }
-        doc_printf(doc, "%-33.33s %2d %3d %2d:%02d %s %-15.15s\n",
+        doc_printf(doc, "%-33.33s %2d %3d %2d:%02d %s %-25.25s\n",
             mon_name(p->r_idx), 
             p->p_lvl, 
             day, hour, min,
@@ -1940,6 +1941,7 @@ void possessor_character_dump(doc_ptr doc)
         p = p->next;
         ct++;
     }
+    doc_insert(doc, "</style>");
     doc_newline(doc);
 }
 

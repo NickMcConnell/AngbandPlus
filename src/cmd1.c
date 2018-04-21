@@ -455,42 +455,28 @@ critical_t critical_shot(int weight, int plus)
     if (p_ptr->pclass == CLASS_SNIPER && p_ptr->shooter_info.tval_ammo == TV_BOLT) i = i * 3 / 2;
     if (weaponmaster_get_toggle() == TOGGLE_CAREFUL_AIM)
         i *= 3;
+    if (p_ptr->pclass == CLASS_ARCHER) i += i * p_ptr->lev / 100;
 
     /* Critical hit */
     if (randint1(5000) <= i)
     {
         k = weight * randint1(500);
+        result.mul = 150 + k * 200 / 2000;
 
-        if (k < 400)
-        {
-            result.desc = "It was a <color:y>fair</color> shot!";
-            result.mul = 175;
-        }
-        else if (k < 700)
-        {
+        if (result.mul < 200)
             result.desc = "It was a <color:y>decent</color> shot!";
-            result.mul = 200;
-        }
-        else if (k < 1000)
-        {
+        /* k >= 500 */
+        else if (result.mul < 240)
             result.desc = "It was a <color:R>good</color> shot!";
-            result.mul = 225;
-        }
-        else if (k < 1350)
-        {
+        /* k >= 900 */
+        else if (result.mul < 270)
             result.desc = "It was a <color:r>great</color> shot!";
-            result.mul = 250;
-        }
-        else if (k < 1800)
-        {
+        /* k >= 1200 */
+        else if (result.mul < 300)
             result.desc = "It was a <color:v>superb</color> shot!";
-            result.mul = 300;
-        }
-        else /* requires 0.4+lb ammo: steel bolt or sheaf arrow or sling ammo */
-        {
+        /* k >= 1500 */
+        else
             result.desc = "It was a <color:v>*GREAT*</color> shot!";
-            result.mul = 350;
-        }
     }
 
     return result;
@@ -2247,11 +2233,17 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
 
         for (j = 0; j < blows; j++)
         {
+            int ac = MON_AC(r_ptr, m_ptr);
+
             if (m_ptr->fy != old_fy || m_ptr->fx != old_fx) break; /* Teleport Effect? */
 
             to_h = a->to_h + p_ptr->to_h_m;
             chance = p_ptr->skills.thn + (to_h * BTH_PLUS_ADJ);
-            if (fuiuchi || test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
+
+            if (prace_is_(RACE_MON_GOLEM))
+                ac = ac * (100 - p_ptr->lev) / 100;
+
+            if (fuiuchi || test_hit_norm(chance, ac, m_ptr->ml))
             {
                 int dd = a->dd + p_ptr->innate_attack_info.to_dd;
 
@@ -6565,13 +6557,20 @@ static bool travel_abort(void)
     return FALSE;
 }
 
+static int travel_cost(point_t pt)
+{
+    return travel.cost[pt.y][pt.x];
+}
+
 void travel_step(void)
 {
     int i;
-    int dir = travel.dir;
+    int dir = 0;
     int old_run = travel.run;
+    int dirs[8] = { 2, 4, 6, 8, 1, 7, 9, 3 };
+    point_t pt_best = {0};
 
-    find_prevdir = dir;
+    find_prevdir = travel.dir;
 
     if (travel_abort())
     {
@@ -6583,25 +6582,27 @@ void travel_step(void)
 
     energy_use = 100;
 
-    for (i = 1; i <= 9; i++)
+    for (i = 0; i < 8; i++)
     {
-        if (i == 5) continue;
+        int     d = dirs[i];
+        point_t pt = point(px + ddx[d], py + ddy[d]);
 
-        if (travel.cost[py+ddy[i]][px+ddx[i]] < travel.cost[py+ddy[dir]][px+ddx[dir]])
+        if (!dir || travel_cost(pt) < travel_cost(pt_best))
         {
-            dir = i;
+            dir = d;
+            pt_best = pt;
         }
     }
 
     /* Travelling is bumping into jammed doors and getting stuck */
-    if (is_jammed_door(cave[py+ddy[dir]][px+ddx[dir]].feat))
+    if (is_jammed_door(cave[pt_best.y][pt_best.x].feat))
     {
         disturb(0, 0);
         return;
     }
 
     /* Closed door */
-    else if (is_closed_door(cave[py+ddy[dir]][px+ddx[dir]].feat))
+    else if (is_closed_door(cave[pt_best.y][pt_best.x].feat))
     {
         if (!easy_open)
         {
@@ -6610,7 +6611,7 @@ void travel_step(void)
         }
     }
     /* Travelling is bumping into mountains and permanent walls and getting stuck */
-    else if (!player_can_enter(cave[py+ddy[dir]][px+ddx[dir]].feat, 0))
+    else if (!player_can_enter(cave[pt_best.y][pt_best.x].feat, 0))
     {
         disturb(0, 0);
         return;

@@ -75,12 +75,14 @@ extern int     pack_overflow_count(void);
  * but you can lock() the pack just to be safe. Be sure to unlock(). */
 extern void    pack_lock(void);
 extern bool    pack_optimize(void);
+extern void    pack_delayed_describe(void);
 extern void    pack_unlock(void);
 
 /* Properties of the Entire Inventory */
 extern int     pack_weight(obj_p p);
 extern int     pack_count(obj_p p);
 extern int     pack_count_slots(obj_p p);
+extern bool    pack_is_full(void);
 
 /* Savefiles */
 extern void    pack_load(savefile_ptr file);

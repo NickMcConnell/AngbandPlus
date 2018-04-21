@@ -25,9 +25,10 @@ extern obj_ptr obj_split(obj_ptr obj, int amt);
 extern obj_ptr obj_copy(obj_ptr obj);
 extern void    obj_free(obj_ptr obj);
 
-#define OBJ_RELEASE_QUIET   0x0001
-#define OBJ_RELEASE_ENCHANT 0x0002
-#define OBJ_RELEASE_ID      0x0004
+#define OBJ_RELEASE_QUIET       0x0001
+#define OBJ_RELEASE_ENCHANT     0x0002
+#define OBJ_RELEASE_ID          0x0004
+#define OBJ_RELEASE_DELAYED_MSG 0x0008
 extern void    obj_release(obj_ptr obj, int options);
 extern void    gear_notice_id(obj_ptr obj);
 extern void    gear_notice_enchant(obj_ptr obj);
@@ -57,6 +58,7 @@ extern bool obj_is_blessed(obj_ptr obj);
 extern bool obj_is_book(obj_ptr obj);
 extern bool obj_is_device(obj_ptr obj);
 extern bool obj_is_ego(obj_ptr obj);
+extern bool obj_is_found(obj_ptr obj);
 extern bool obj_is_inscribed(obj_ptr obj);
 extern bool obj_is_quiver(obj_ptr obj);
 extern bool obj_is_readable_book(obj_ptr obj);
@@ -79,6 +81,7 @@ extern bool obj_confirm_choice(obj_ptr obj);
 #define OBJ_STACK_MAX 99
 extern bool obj_can_combine(obj_ptr dest, obj_ptr obj, int options);
 extern int  obj_combine(obj_ptr dest, obj_ptr obj, int options);
+extern void obj_delayed_describe(obj_ptr obj);
 
 /* Helpers */
 extern void obj_clear_dun_info(obj_ptr obj);

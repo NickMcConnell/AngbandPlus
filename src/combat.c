@@ -8,6 +8,9 @@ int hit_chance_innate(int to_h, int ac)
 
     if (chance <= 0) return 0;
 
+    if (prace_is_(RACE_MON_GOLEM))
+        ac = ac * (100 - p_ptr->lev) / 100;
+
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
     if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
     if (odds < 50) odds = 50;
@@ -53,6 +56,11 @@ int bow_hit_chance(int sval, int to_h, int ac)
         chance = (p_ptr->skills.thb + ((skills_bow_current(sval) - (WEAPON_EXP_MASTER / 2)) / 200 + to_h) * BTH_PLUS_ADJ);
 
     if (chance <= 0) return 0;
+    if (p_ptr->concent)
+    {
+        ac *= (10 - p_ptr->concent);
+        ac /= 10;
+    }
 
     odds = 95*(chance - ac*3/4)*1000/(chance*100);
     if (p_ptr->personality == PERS_LAZY) odds = (19*odds+10)/20;
@@ -883,7 +891,7 @@ void display_innate_attack_info(doc_ptr doc, int which)
         int min3 = 9*(min_base + a->to_d)/4 + p_ptr->to_d_m; /* 1 + .75 + .5 = 2.25 = 9/4 */
         int max3 = 9*(max_base + a->to_d)/4 + p_ptr->to_d_m;
         doc_printf(cols[0], "<color:r> %-7.7s</color>: %d\n",
-                _effect_name(a->effect[i]),
+                _effect_name(a->effect[0]),
                 blows * (min3 + max3)/200
         );
     }
@@ -961,6 +969,7 @@ void display_innate_attack_info(doc_ptr doc, int which)
 /**********************************************************************
  * Ranged Attacks
  **********************************************************************/
+int display_shooter_mode = 0;
 
 /* Multiplier scaled by 100 */
 int bow_mult(object_type *o_ptr)
@@ -1123,6 +1132,12 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         _display_missile_slay(mult, 100, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Force", TERM_L_BLUE, cols[0]);
     }
 
+    if (display_shooter_mode == SP_FINAL)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "All", TERM_VIOLET, cols[0]);
+    }
+
     if (have_flag(flgs, OF_SLAY_LIVING))
         _display_missile_slay(mult, 200, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Living", TERM_YELLOW, cols[0]);
 
@@ -1131,12 +1146,22 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
     else if (have_flag(flgs, OF_SLAY_ANIMAL))
         _display_missile_slay(mult, 250, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Animals", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_KILL_EVIL))
+    if (display_shooter_mode == SP_HOLYNESS)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_VIOLET, cols[0]);
+    }
+    else if (have_flag(flgs, OF_KILL_EVIL))
         _display_missile_slay(mult, 350, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, cols[0]);
     else if (have_flag(flgs, OF_SLAY_EVIL))
         _display_missile_slay(mult, 200, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Evil", TERM_YELLOW, cols[0]);
 
-    if (have_flag(flgs, OF_SLAY_GOOD))
+    if (display_shooter_mode == SP_EVILNESS)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Good", TERM_VIOLET, cols[0]);
+    }
+    else if (have_flag(flgs, OF_SLAY_GOOD))
         _display_missile_slay(mult, 200, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Good", TERM_YELLOW, cols[0]);
 
     if (have_flag(flgs, OF_KILL_HUMAN))
@@ -1177,18 +1202,44 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
     if (have_flag(flgs, OF_BRAND_ACID))
         _display_missile_slay(mult, 250, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Acid", TERM_RED, cols[0]);
 
-    if (have_flag(flgs, OF_BRAND_ELEC))
+    if (display_shooter_mode == SP_ELEC)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Elec", TERM_VIOLET, cols[0]);
+    }
+    else if (have_flag(flgs, OF_BRAND_ELEC))
         _display_missile_slay(mult, 250, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Elec", TERM_RED, cols[0]);
 
-    if (have_flag(flgs, OF_BRAND_FIRE))
+    if (display_shooter_mode == SP_FIRE)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Fire", TERM_VIOLET, cols[0]);
+    }
+    else if (have_flag(flgs, OF_BRAND_FIRE))
         _display_missile_slay(mult, 250, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Fire", TERM_RED, cols[0]);
 
-    if (have_flag(flgs, OF_BRAND_COLD))
+    if (display_shooter_mode == SP_COLD)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Cold", TERM_VIOLET, cols[0]);
+    }
+    else if (have_flag(flgs, OF_BRAND_COLD))
         _display_missile_slay(mult, 250, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Cold", TERM_RED, cols[0]);
 
     if (have_flag(flgs, OF_BRAND_POIS))
         _display_missile_slay(mult, 250, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Poison", TERM_RED, cols[0]);
 
+    if (display_shooter_mode == SP_KILL_WALL)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "HurtRock", TERM_VIOLET, cols[0]);
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "Nonliving", TERM_VIOLET, cols[0]);
+    }
+    if (display_shooter_mode == SP_LITE)
+    {
+        int snipe = sniper_multiplier(display_shooter_mode, arrow, NULL) * 10;
+        _display_missile_slay(mult, snipe, crit.mul, force, num_fire, dd, ds, to_d, to_d_xtra, "HurtLite", TERM_VIOLET, cols[0]);
+    }
     /* Second Column */
     to_h = to_h + to_h_bow + to_h_xtra;
 

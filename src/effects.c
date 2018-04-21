@@ -4668,8 +4668,16 @@ bool set_food(int v)
     v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
     /* CTK: I added a "food bar" to track hunger ... */
-    old_pct = MIN(10, p_ptr->food * 10 / PY_FOOD_FULL);
-    new_pct = MIN(10, v * 10 / PY_FOOD_FULL);
+    if (display_percentages)
+    {
+        old_pct = p_ptr->food * 100 / PY_FOOD_FULL;
+        new_pct = v * 100 / PY_FOOD_FULL;
+    }
+    else
+    {
+        old_pct = MIN(10, p_ptr->food * 10 / PY_FOOD_FULL);
+        new_pct = MIN(10, v * 10 / PY_FOOD_FULL);
+    }
 
     /* Fainting / Starving */
     if (p_ptr->food < PY_FOOD_FAINT)

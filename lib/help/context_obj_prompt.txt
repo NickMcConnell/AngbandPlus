@@ -108,6 +108,7 @@ This time, when I make a selection, the dialog is dismissed and the scroll is re
 <color:keypress>A-Z</color>       Inspect Indicated Object
 <color:keypress>Page Up</color>   Scroll Through Long Object Lists
 <color:keypress>Page Down</color>
+<color:keypress>Space</color>
 <color:keypress>Esc</color>       Cancel the Prompt
 
 <color:G>Tab Navigation</color>

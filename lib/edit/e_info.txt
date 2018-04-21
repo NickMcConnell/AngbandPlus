@@ -327,7 +327,7 @@ F:RES_LITE | RES_DARK
 N:64:of Endurance
 T:SHIELD
 W:0:70:4
-C:0:0:0:3
+C:0:0:0:5
 F:CON
 
 ##################
@@ -531,13 +531,13 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 N:110:of Knowledge
 T:HELMET
 W:0:40:1
-C:0:0:0:2
+C:0:0:0:3
 F:INT | SUST_INT | LORE1
 
 N:111:of Piety
 T:HELMET
 W:0:40:1
-C:0:0:0:2
+C:0:0:0:3
 F:WIS | SUST_WIS
 
 N:112:of Domination
@@ -549,7 +549,7 @@ F:CHR | SUST_CHR | RES_FEAR
 N:113:of Fortitude
 T:HELMET
 W:0:50:4
-C:0:0:0:2
+C:0:0:0:5
 F:CON | SUST_CON
 
 N:114:of the Kobold

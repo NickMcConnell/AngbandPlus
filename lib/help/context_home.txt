@@ -63,6 +63,8 @@ The Museum is another building present in each town that behaves very much like 
 <color:G>Navigation</color>
 <color:keypress>Page Up</color>   Scroll Through Long Object Lists
 <color:keypress>Page Down</color>
+<color:keypress>Space</color>     Same as Page Up
+<color:keypress>-</color>         Same as Page Down
 
 <color:G>Display Options</color>
 <color:keypress>^W</color>        Toggle Weights (see <link:option.txt#show_weights>)

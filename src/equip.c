@@ -451,8 +451,7 @@ void equip_wield_ui(void)
     if (!obj) return;
     if (obj_is_ammo(obj))
     {
-        int  amt = obj->number;
-        char name[MAX_NLEN];
+        int amt = obj->number;
         assert(equip_find_obj(TV_QUIVER, SV_ANY));
         if (quiver_capacity() <= quiver_count(NULL))
         {
@@ -466,11 +465,7 @@ void equip_wield_ui(void)
             quiver_carry(&copy);
             amt -= copy.number; /* quiver might not hold the requested amt */
             obj->number -= amt;
-
-            copy.number = amt;
-            object_desc(name, &copy, OD_COLOR_CODED);
-            msg_format("You add %s to your quiver.", name);
-            obj_release(obj, obj->number ? 0 : OBJ_RELEASE_QUIET);
+            obj_release(obj, obj->number ? OBJ_RELEASE_DELAYED_MSG : OBJ_RELEASE_QUIET);
             energy_use = 50;
         }
     }
@@ -612,6 +607,7 @@ static void _wield(obj_ptr obj, slot_t slot)
     if (old_obj)
         equip_takeoff(slot);
 
+    stats_on_use(obj, 1);
     inv_add_at(_inv, obj, slot);
 }
 
@@ -801,22 +797,18 @@ void _unwield(obj_ptr obj, bool drop)
 {
     if (obj->loc.where == INV_QUIVER)
     {
-        int  amt = obj->number;
-        char name[MAX_NLEN];
+        int amt = obj->number;
         assert(equip_find_obj(TV_QUIVER, SV_ANY));
         assert(!drop); /* quiver_drop ... not us. cf do_cmd_drop */
-        if (msg_input_num("Quantity", &amt, 1, obj->number))
+        if (obj->number == 1 || msg_input_num("Quantity", &amt, 1, obj->number))
         {
             obj_t copy = *obj;
 
             copy.number = amt;
-            object_desc(name, &copy, OD_COLOR_CODED);
-            msg_format("You remove %s from your quiver.", name);
-
             pack_carry_aux(&copy); /* Hack: don't put ammo back in the quiver if we just removed it! */
 
             obj->number -= amt;
-            obj_release(obj, obj->number ? 0 : OBJ_RELEASE_QUIET);
+            obj_release(obj, obj->number ? OBJ_RELEASE_DELAYED_MSG : OBJ_RELEASE_QUIET);
             energy_use = 50;
         }
     }
@@ -1732,6 +1724,9 @@ void equip_on_change_race(void)
         inv_free(temp);
         temp = NULL;
 
+        if (!equip_find_obj(TV_QUIVER, SV_ANY))
+            quiver_remove_all();
+
         pack_overflow();
         for (slot = 1; slot <= pack_max(); slot++)
         {
@@ -1741,12 +1736,24 @@ void equip_on_change_race(void)
             if (!obj) continue;
             if (!(obj->marked & OM_WORN)) continue;
 
-            new_slot = equip_first_empty_slot(obj);
-            if (new_slot && obj->number == 1)
+            if (obj_is_ammo(obj))
             {
-                obj->marked &= ~OM_WORN;
-                equip_wield(obj, new_slot);
-                obj_release(obj, OBJ_RELEASE_QUIET);
+                if (equip_find_obj(TV_QUIVER, SV_ANY))
+                {
+                    obj->marked &= ~OM_WORN;
+                    quiver_carry(obj);
+                    obj_release(obj, OBJ_RELEASE_QUIET);
+                }
+            }
+            else
+            {
+                new_slot = equip_first_empty_slot(obj);
+                if (new_slot && obj->number == 1)
+                {
+                    obj->marked &= ~OM_WORN;
+                    equip_wield(obj, new_slot);
+                    obj_release(obj, OBJ_RELEASE_QUIET);
+                }
             }
         }
 

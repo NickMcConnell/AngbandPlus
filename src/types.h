@@ -1857,6 +1857,7 @@ typedef spell_stats_t        *spell_stats_ptr;
 #define CASTER_GAIN_SKILL           0x0020
 #define CASTER_USE_AU               0x0040 /* Leprechauns */
 #define CASTER_SUPERCHARGE_MANA     0x0080
+#define CASTER_USE_CONCENTRATION    0x0100 /* Sniper */
 
 typedef struct {
     int max_wgt;    /* max weight before encumbrance */

@@ -2020,6 +2020,7 @@ static void auto_destroy_obj(object_type *o_ptr, int autopick_idx)
     }
     /* Now decided to destroy
     disturb(0,0);*/
+    obj_delayed_describe(o_ptr); /* mass identify */
 
     /* Artifact? */
     if (!can_player_destroy_object(o_ptr))
@@ -2172,7 +2173,7 @@ bool autopick_auto_id(object_type *o_ptr)
             identify_item(o_ptr);
             stats_on_use(scroll, 1);
             scroll->number--;
-            obj_release(scroll, 0);
+            obj_release(scroll, OBJ_RELEASE_DELAYED_MSG);
             return TRUE;
         }
 
@@ -2245,7 +2246,7 @@ static void _get_obj(obj_ptr obj)
     if (idx >= 0 &&
         (autopick_list[idx].action & (DO_AUTOPICK | DO_QUERY_AUTOPICK)))
     {
-        /*disturb(0,0);*/
+        disturb(0,0);
 
         if (destroy_debug)
             msg_autopick(idx, "Pickup");
@@ -2284,7 +2285,7 @@ static void _get_obj(obj_ptr obj)
 
 void autopick_get_floor(void)
 {
-    inv_ptr floor = inv_filter_floor(NULL);
+    inv_ptr floor = inv_filter_floor(point(px, py), NULL);
     inv_for_each(floor, _get_obj);
     inv_free(floor);
 }

@@ -2205,6 +2205,8 @@ option_type option_info[] =
     { &numpad_as_cursorkey,         TRUE, OPT_PAGE_INPUT, 2, 31,
     "numpad_as_cursorkey",          "Use numpad keys as cursor keys in editor mode" },
 
+    { &use_pack_slots,              TRUE,  OPT_PAGE_INPUT, 0, 3,
+    "use_pack_slots",               "Use/Display slots in your inventory" },
     /*** Map Screen Options ***/
 
     { &center_player,               FALSE, OPT_PAGE_MAPSCREEN, 5, 11,
@@ -2283,6 +2285,9 @@ option_type option_info[] =
 
     { &display_food_bar,            FALSE,  OPT_PAGE_TEXT, 1, 13,
     "display_food_bar",             "Display detailed food status" },
+
+    { &display_percentages,         FALSE,  OPT_PAGE_TEXT, 1, 10,
+    "display_percentages",          "Display percentages rather than status bars" },
 
     { &compress_savefile,           FALSE, OPT_PAGE_TEXT, 1, 26,
     "compress_savefile",            "Compress messages in savefiles" },

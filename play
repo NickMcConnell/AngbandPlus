@@ -30,7 +30,7 @@ else
     export ANGBAND_X11_FONT_2='-misc-liberation mono-medium-r-normal--18-0-0-0-m-0-iso8859-1'
     export ANGBAND_X11_AT_X_2=0
     export ANGBAND_X11_AT_Y_2=630
-    export ANGBAND_X11_ROWS_2=18
+    export ANGBAND_X11_ROWS_2=19
     export ANGBAND_X11_COLS_2=45
 
     #export ANGBAND_X11_GAMMA=185

@@ -54,9 +54,12 @@ int  effect_calc_fail_rate(effect_t *effect)
     if (chance < USE_DEVICE) chance = USE_DEVICE;
 
     if (chance > fail)
-        return fail * 1000 / (chance*2);
+        fail = fail * 1000 / (chance*2);
     else
-        return 1000 - chance * 1000 / (fail*2);
+        fail = 1000 - chance * 1000 / (fail*2);
+    if (p_ptr->stun > 50 && fail < 250) fail = 250;
+    else if (p_ptr->stun && fail < 150) fail = 150;
+    return fail;
 }
 
 int device_calc_fail_rate(object_type *o_ptr)
@@ -91,6 +94,8 @@ int device_calc_fail_rate(object_type *o_ptr)
         fail = (USE_DEVICE-1)*1000/chance;
 
     if (o_ptr->tval == TV_SCROLL && fail > 500) fail = 500;
+    if (p_ptr->stun > 50 && fail < 250) fail = 250;
+    else if (p_ptr->stun && fail < 150) fail = 150;
 
     return fail;
 }
@@ -129,11 +134,16 @@ static void _do_identify_aux(obj_ptr obj)
         msg_format("%^s: %s (%c).", equip_describe_slot(obj->loc.slot),
                 name, slot_label(obj->loc.slot));
         break;
-    case INV_PACK:
-        msg_format("In your pack: %s (%c).", name, slot_label(obj->loc.slot));
+/* case INV_PACK:
+        msg_format("In your pack: %s.", name);
         break;
     case INV_QUIVER:
-        msg_format("In your quiver: %s (%c).", name, slot_label(obj->loc.slot));
+        msg_format("In your quiver: %s.", name);
+        break;*/
+    case INV_PACK:
+    case INV_QUIVER:
+        obj->marked |= OM_DELAYED_MSG;
+        p_ptr->notice |= PN_CARRY;
         break;
     case INV_FLOOR:
         msg_format("On the ground: %s.", name);
@@ -146,7 +156,7 @@ static void _do_identify_aux(obj_ptr obj)
 
 void mass_identify(bool use_charges) /* shared with Sorcery spell */
 {
-    inv_ptr floor = inv_filter_floor(obj_exists);
+    inv_ptr floor = inv_filter_floor(point(px, py), obj_exists);
 
     _use_charges = use_charges;
     pack_for_each_that(_do_identify_aux, obj_is_unknown);
@@ -2480,10 +2490,10 @@ static void _device_pick_effect(object_type *o_ptr, device_effect_info_ptr table
                Difficulty is the level of the effect, and determines the fail rate of the effect.
                We scale up the difficulty a bit depending on the level of the device. */
             o_ptr->activation.power = device_level(o_ptr);
-            o_ptr->activation.difficulty = _bounds_check(_rand_normal(entry->level, 10), 1, o_ptr->activation.power);
+            o_ptr->activation.difficulty = _bounds_check(_rand_normal(entry->level, 5), 1, o_ptr->activation.power);
             o_ptr->activation.difficulty += (o_ptr->activation.power - o_ptr->activation.difficulty) / 3;
 
-            o_ptr->activation.cost = _bounds_check(_rand_normal(entry->cost, 10), 1, 1000);
+            o_ptr->activation.cost = _bounds_check(_rand_normal(entry->cost, 5), 1, 1000);
             o_ptr->activation.extra = entry->extra;
 
             if (entry->flags & _NO_DESTROY)

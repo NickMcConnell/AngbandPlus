@@ -2070,6 +2070,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         strcat(tmp_val2, buf);
     }
 
+    if (object_is_device(o_ptr) && obj_is_identified_fully(o_ptr))
+    {
+        int  fail = device_calc_fail_rate(o_ptr);
+        strcat(tmp_val2, format("%d%%", fail/10));
+    }
+
     if (o_ptr->name3 && object_is_known(o_ptr) && abbrev_all)
     {
         cptr  t = a_name + a_info[o_ptr->name3].name;

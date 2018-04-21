@@ -73,6 +73,7 @@ void pack_carry_aux(obj_ptr obj)
         pack_push_overflow(obj);
     p_ptr->update |= PU_BONUS; /* Weight changed */
     p_ptr->window |= PW_INVEN;
+    p_ptr->notice |= PN_CARRY;
 }
 
 /* Helper for pack_get_floor ... probably s/b private but the autopicker needs it */
@@ -107,7 +108,7 @@ void pack_get(obj_ptr obj)
         if (class_ptr->get_object)
             class_ptr->get_object(obj);
 
-        msg_format("You get %s.", name);
+        /*msg_format("You get %s.", name);*/
 
         quests_on_get_obj(obj);
         pack_carry(obj);
@@ -117,8 +118,25 @@ void pack_get(obj_ptr obj)
 
 static int _get_cmd_handler(obj_prompt_context_ptr context, int cmd)
 {
+    obj_prompt_tab_ptr tab = vec_get(context->tabs, context->tab);
     if (cmd == '*')
+    {
+        inv_for_each(tab->inv, pack_get);
         return OP_CMD_DISMISS;
+    }
+    else
+    {
+        slot_t slot = inv_label_slot(tab->inv, cmd);
+        if (slot)
+        {
+            obj_ptr obj = inv_obj(tab->inv, slot);
+            pack_get(obj);
+            inv_remove(tab->inv, slot);
+            if (!inv_count_slots(tab->inv, obj_exists))
+                return OP_CMD_DISMISS;
+            return OP_CMD_HANDLED;
+        }
+    }
     return OP_CMD_SKIPPED;
 }
 
@@ -146,12 +164,7 @@ static bool _get_floor(inv_ptr floor)
     switch (obj_prompt(&prompt))
     {
     case OP_CUSTOM:
-        inv_for_each(floor, pack_get);
-        return TRUE;
-
     case OP_SUCCESS:
-        assert(prompt.obj);
-        pack_get(prompt.obj);
         return TRUE;
     }
     return FALSE;
@@ -164,7 +177,7 @@ bool pack_get_floor(void)
 
     autopick_get_floor(); /* no energy charge */
 
-    floor = inv_filter_floor(NULL);
+    floor = inv_filter_floor(point(px, py), NULL);
     result = _get_floor(floor);
     inv_free(floor);
 
@@ -174,7 +187,6 @@ bool pack_get_floor(void)
 void pack_drop(obj_ptr obj)
 {
     int  amt = obj->number;
-    bool msg = FALSE;
 
     assert(obj);
     assert(obj->loc.where == INV_PACK);
@@ -190,13 +202,7 @@ void pack_drop(obj_ptr obj)
         }
     }
 
-    if (amt < obj->number)
-        msg = TRUE;
     obj_drop(obj, amt);
-    if (msg)
-        pack_describe(obj);
-    p_ptr->update |= PU_BONUS; /* Weight changed */
-    p_ptr->window |= PW_INVEN;
 }
 
 void pack_describe(obj_ptr obj)
@@ -208,7 +214,7 @@ void pack_describe(obj_ptr obj)
     assert(1 <= obj->loc.slot && obj->loc.slot <= 26);
 
     object_desc(name, obj, OD_COLOR_CODED);
-    msg_format("You have %s in your pack (%c).", name, slot_label(obj->loc.slot));
+    msg_format("You have %s (%c).", name, slot_label(obj->loc.slot));
 }
 
 void pack_remove(slot_t slot)
@@ -331,9 +337,24 @@ bool pack_overflow(void)
     bool result = FALSE;
     char name[MAX_NLEN];
 
+    /* quest reward on a full pack ... the reward forces
+     * reinit_wilderness, but we better wait to drop the reward! */
+    if (p_ptr->leaving) return FALSE;
+
     while (vec_length(_overflow))
     {
         obj_ptr obj = vec_pop(_overflow);
+        /* Weird case: Wield an item from your full pack. This first
+         * removes the item from your equipment, placing it in your
+         * full pack (hence, into _overflow). Then it wears the selected
+         * object, freeing up an equipment slot. Your pack shouldn't
+         * overflow after all! */
+        if (!pack_is_full())
+        {
+            pack_carry_aux(obj);
+            free(obj);
+            continue;
+        }
         if (!result)
         {
             disturb(0, 0);
@@ -368,10 +389,19 @@ bool pack_optimize(void)
     else if (inv_optimize(_inv))
     {
         p_ptr->window |= PW_INVEN;
-        /*cmsg_print(TERM_YELLOW, "You reorder your pack.");*/
         return TRUE;
     }
     return FALSE;
+}
+void pack_delayed_describe(void)
+{
+    if (_lock)
+        p_ptr->notice |= PN_CARRY;
+    else
+    {
+        msg_boundary();
+        pack_for_each(obj_delayed_describe);
+    }
 }
 
 /* Properties of the Entire Inventory */
@@ -388,6 +418,11 @@ int pack_count(obj_p p)
 int pack_count_slots(obj_p p)
 {
     return inv_count_slots(_inv, p);
+}
+
+bool pack_is_full(void)
+{
+    return pack_count_slots(obj_exists) == PACK_MAX;
 }
 
 /* Savefiles */

@@ -224,11 +224,11 @@ static void _ui(_ui_context_ptr context)
                 doc_display_help("context_home.txt", inv_loc(context->inv) == INV_MUSEUM ? "Museum" : NULL);
                 Term_clear_rect(ui_shop_msg_rect());
                 break;
-            case SKEY_PGDOWN: case '3':
+            case SKEY_PGDOWN: case '3': case ' ':
                 if (context->top + context->page_size - 1 < max)
                     context->top += context->page_size;
                 break;
-            case SKEY_PGUP: case '9':
+            case SKEY_PGUP: case '9': case '-':
                 if (context->top > context->page_size)
                     context->top -= context->page_size;
                 break;
@@ -325,9 +325,9 @@ static void _display(_ui_context_ptr context)
 
 static void _get_aux(obj_ptr obj)
 {
-    char name[MAX_NLEN];
+    /*char name[MAX_NLEN];
     object_desc(name, obj, OD_COLOR_CODED);
-    msg_format("You get %s.", name);
+    msg_format("You get %s.", name);*/
     pack_carry(obj);
 }
 

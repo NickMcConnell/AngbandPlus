@@ -62,7 +62,6 @@ int obj_prompt(obj_prompt_ptr prompt)
         _display(&context);
 
         cmd = inkey_special(TRUE);
-        if (cmd == ' ') continue;
         if (prompt->cmd_handler)
         {
             tmp = prompt->cmd_handler(&context, cmd);
@@ -158,7 +157,7 @@ static void _context_make(obj_prompt_context_ptr context)
         switch (context->prompt->where[i])
         {
         case INV_FLOOR:
-            inv = inv_filter_floor(filter);
+            inv = inv_filter_floor(point(px, py), filter);
             inv_sort(inv);
             break;
         case INV_EQUIP:
@@ -169,11 +168,13 @@ static void _context_make(obj_prompt_context_ptr context)
             break;
         case INV_PACK:
             inv = pack_filter(filter);
-            inv_sort(inv);
+            if (!use_pack_slots)
+                inv_sort(inv);
             break;
         case INV_QUIVER:
             inv = quiver_filter(filter);
-            inv_sort(inv);
+            if (!use_pack_slots) /* quiver might contain non-matching ammo */
+                inv_sort(inv);
             break;
         }
         if (inv)
@@ -343,15 +344,19 @@ static int _basic_cmd(obj_prompt_context_ptr context, int cmd)
     case KTRL('L'):
         show_labels = !show_labels;
         return OP_CMD_HANDLED;
-    case SKEY_PGDOWN: case '3': {
+    case SKEY_PGDOWN: case '3': case ' ': {
         obj_prompt_tab_ptr tab = vec_get(context->tabs, context->tab);
         if (tab->page < tab->page_ct - 1)
             tab->page++;
+        else if (tab->page_ct > 1) /* wrap */
+            tab->page = 0;
         return OP_CMD_HANDLED; }
     case SKEY_PGUP: case '9': {
         obj_prompt_tab_ptr tab = vec_get(context->tabs, context->tab);
         if (tab->page > 0)
             tab->page--;
+        else if (tab->page_ct > 1) /* wrap */
+            tab->page = tab->page_ct - 1;
         return OP_CMD_HANDLED; }
     case '?':
         if (context->prompt->help)

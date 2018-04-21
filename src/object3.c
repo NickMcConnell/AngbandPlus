@@ -1340,17 +1340,20 @@ s32b ammo_cost(object_type *o_ptr, int options)
        Also, some egos, like EGO_AMMO_RETURNING will not score properly */
     s32b result = weapon_cost(o_ptr, options);
     result /= 25;
-    switch (o_ptr->name2)
+    if ((options & COST_REAL) || object_is_known(o_ptr))
     {
-    case EGO_AMMO_ENDURANCE:
-        result += 200;
-        break;
-    case EGO_AMMO_EXPLODING:
-        result += 50;
-        break;
-    case EGO_AMMO_RETURNING:
-        result += 150;
-        break;
+        switch (o_ptr->name2)
+        {
+        case EGO_AMMO_ENDURANCE:
+            result += 200;
+            break;
+        case EGO_AMMO_EXPLODING:
+            result += 50;
+            break;
+        case EGO_AMMO_RETURNING:
+            result += 150;
+            break;
+        }
     }
     if (!result)
         result = 1;

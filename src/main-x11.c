@@ -2936,9 +2936,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 				for (l = 0; l < td->fnt->hgt; l++)
 				{
 					/* If mask set... */
-					/* Hack: I'm turning off the "blending" as it makes many tiles 
-					   unrecognizable in various situations */
-					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank && FALSE)
+					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
 					{
 						/* Output from the terrain */
 						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);

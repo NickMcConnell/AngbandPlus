@@ -2107,7 +2107,7 @@ void monster_death(int m_idx, bool drop_item)
         msg_print("*** CONGRATULATIONS ***");
         msg_print("You have won the game!");
         msg_print("You may retire (commit suicide) when you are ready.");
-        msg_add_tiny_screenshot(50, 24);
+        /*cf quest_complete: msg_add_tiny_screenshot(50, 24);*/
     }
 }
 
@@ -3642,6 +3642,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
     feature_type *f_ptr;
     int query = '\001';
     char out_val[MAX_NLEN+80];
+    inv_ptr inv = NULL;
+    int obj_ct = 0;
 
     /* Hack -- under the player */
     if (player_bold(y, x))
@@ -3685,6 +3687,10 @@ static int target_set_aux(int y, int x, int mode, cptr info)
         return 0;
     }
 
+    inv = inv_filter_floor(point(x, y), obj_is_found);
+    obj_ct = inv_count_slots(inv, obj_exists);
+    if (obj_ct)
+        x_info = "x,";
 
     /* Actual monsters */
     if (c_ptr->m_idx && m_list[c_ptr->m_idx].ml)
@@ -3774,10 +3780,18 @@ static int target_set_aux(int y, int x, int mode, cptr info)
         }
 
         /* Always stop at "normal" keys */
-        if ((query != '\r') && (query != '\n') && (query != ' ') && (query != 'x')) return query;
+        if ((query != '\r') && (query != '\n') && (query != ' ') && (query != 'x'))
+        {
+            inv_free(inv);
+            return query;
+        }
 
         /* Sometimes stop at "space" key */
-        if ((query == ' ') && !(mode & (TARGET_LOOK))) return query;
+        if ((query == ' ') && !(mode & (TARGET_LOOK)))
+        {
+            inv_free(inv);
+            return query;
+        }
 
         /* Change the intro */
         s1 = "It is ";
@@ -3817,10 +3831,18 @@ static int target_set_aux(int y, int x, int mode, cptr info)
             query = inkey();
 
             /* Always stop at "normal" keys */
-            if ((query != '\r') && (query != '\n') && (query != ' ') && (query != 'x')) return query;
+            if ((query != '\r') && (query != '\n') && (query != ' ') && (query != 'x'))
+            {
+                inv_free(inv);
+                return query;
+            }
 
             /* Sometimes stop at "space" key */
-            if ((query == ' ') && !(mode & (TARGET_LOOK))) return query;
+            if ((query == ' ') && !(mode & (TARGET_LOOK)))
+            {
+                inv_free(inv);
+                return query;
+            }
 
             /* Change the intro */
             s2 = "also carrying ";
@@ -3830,55 +3852,75 @@ static int target_set_aux(int y, int x, int mode, cptr info)
         s2 = "on ";
     }
 
-    /* Scan all objects in the grid */
-    for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+    /* Show objects on this grid. If multiple, show a list. If the
+     * list won't fit on the screen, <CR> scrolls the list */
+    if (obj_ct == 1)
     {
-        object_type *o_ptr;
+        obj_ptr obj = inv_obj(inv, 1);
+        char name[MAX_NLEN];
 
-        /* Acquire object */
-        o_ptr = &o_list[this_o_idx];
+        object_desc(name, obj, 0);
 
-        /* Acquire next object */
-        next_o_idx = o_ptr->next_o_idx;
+        sprintf(out_val, "%s%s%s%s [%s]",
+            s1, s2, s3, name, info);
 
-        /* Describe it */
-        if (o_ptr->marked & OM_FOUND)
+        prt(out_val, 0, 0);
+        move_cursor_relative(y, x);
+
+        query = inkey();
+        inv_free(inv);
+        return query;
+    }
+    else if (obj_ct > 1)
+    {
+        doc_ptr doc = NULL;
+        rect_t  r = ui_map_rect();
+        int     top = 0, lines = r.cy - 1;
+        if (boring)
         {
-            char o_name[MAX_NLEN];
-
-            /* Not boring */
-            boring = FALSE;
-
-            /* Obtain an object description */
-            object_desc(o_name, o_ptr, 0);
-
-            /* Describe the object */
-            sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+            /* Display rough information about items */
+            sprintf(out_val, "%s%s%sa pile of %d items [x,%s]",
+                s1, s2, s3, obj_ct, info);
 
             prt(out_val, 0, 0);
             move_cursor_relative(y, x);
+
             query = inkey();
 
-            /* Always stop at "normal" keys */
-            if ((query != '\r') && (query != '\n') && (query != ' ') && (query != 'x')) return query;
-
-            /* Sometimes stop at "space" key */
-            if ((query == ' ') && !(mode & TARGET_LOOK)) return query;
-
-            /* Change the intro */
-            s1 = "It is ";
-
-
-            /* Plurals */
-            if (o_ptr->number != 1) s1 = "They are ";
-
-
-            /* Preposition */
-            s2 = "on ";
-
+            if (query != 'x' && query != ' ')
+            {
+                inv_free(inv);
+                return query;
+            }
         }
-    }
+        doc = doc_alloc(72);
+        inv_display(inv, 1, 0, obj_exists, doc, INV_SHOW_SLOT);
+        for (;;)
+        {
+            screen_save();
+            doc_sync_term(doc,
+                doc_range_middle_lines(doc, top, top + lines),
+                doc_pos_create(r.x, r.y));
 
+            sprintf(out_val, "%s%s%sa pile of %d items [Enter,%s]",
+                s1, s2, s3, obj_ct, info);
+            prt(out_val, 0, 0);
+            query = inkey();
+            screen_load();
+
+            if (query != '\\' && query != '\r')
+            {
+                doc_free(doc);
+                inv_free(inv);
+                return query;
+            }
+            if (query == '\r' && top + lines < obj_ct) top++;
+            if (query == '\\' && top > 0) top--;
+        }
+        /* unreachable */
+    }
+    assert(obj_ct == 0);
+    inv_free(inv);
 
     /* Feature code (applying "mimic" field) */
     feat = get_feat_mimic(c_ptr);

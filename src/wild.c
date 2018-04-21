@@ -1217,7 +1217,7 @@ void wilderness_gen(void)
 
     /* Force scroll after wilderness travel since we are typically
        placed in a boundary "quadrant" */
-    viewport_verify();
+    viewport_verify_aux(VIEWPORT_FORCE_CENTER);
     wilderness_move_player(p_ptr->oldpx, p_ptr->oldpy);
 }
 

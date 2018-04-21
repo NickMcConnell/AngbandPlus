@@ -85,6 +85,7 @@ void obj_release(obj_ptr obj, int options)
 {
     char name[MAX_NLEN];
     bool quiet = BOOL(options & OBJ_RELEASE_QUIET);
+    bool delayed = BOOL(options & OBJ_RELEASE_DELAYED_MSG);
 
     if (!obj) return;
     if (!quiet)
@@ -121,17 +122,27 @@ void obj_release(obj_ptr obj, int options)
         p_ptr->window |= PW_EQUIP;
         break;
     case INV_PACK:
-        if (!quiet)
+        if (!quiet && !delayed)
             msg_format("You have %s in your pack.", name);
         if (obj->number <= 0)
             pack_remove(obj->loc.slot);
+        else if (delayed)
+        {
+            obj->marked |= OM_DELAYED_MSG;
+            p_ptr->notice |= PN_CARRY;
+        }
         p_ptr->window |= PW_INVEN;
         break;
     case INV_QUIVER:
-        if (!quiet)
+        if (!quiet && !delayed)
             msg_format("You have %s in your quiver.", name);
         if (obj->number <= 0)
             quiver_remove(obj->loc.slot);
+        else if (delayed)
+        {
+            obj->marked |= OM_DELAYED_MSG;
+            p_ptr->notice |= PN_CARRY;
+        }
         p_ptr->window |= PW_EQUIP; /* a Quiver [32 of 110] */
         break;
     case INV_TMP_ALLOC:
@@ -279,6 +290,7 @@ bool obj_is_art(obj_ptr obj)     { return obj->name1 || obj->art_name; }
 bool obj_is_book(obj_ptr obj)    { return TV_BOOK_BEGIN <= obj->tval && obj->tval <= TV_BOOK_END; }
 bool obj_is_device(obj_ptr obj)  { return obj_is_wand(obj) || obj_is_rod(obj) || obj_is_staff(obj); }
 bool obj_is_ego(obj_ptr obj)     { return BOOL(obj->name2); }
+bool obj_is_found(obj_ptr obj)   { return BOOL(obj->marked & OM_FOUND); }
 bool obj_is_inscribed(obj_ptr obj) { return BOOL(obj->inscription); }
 bool obj_is_quiver(obj_ptr obj)  { return obj->tval == TV_QUIVER; }
 bool obj_is_rod(obj_ptr obj)     { return obj->tval == TV_ROD; }
@@ -646,12 +658,50 @@ int obj_combine(obj_ptr dest, obj_ptr obj, int loc)
 
         /* Hack -- blend "feelings" */
         if (obj->feeling) dest->feeling = obj->feeling;
+        if (obj->marked & OM_DELAYED_MSG) dest->marked |= OM_DELAYED_MSG;
 
         /* Hack -- could average discounts XXX XXX XXX */
         /* Hack -- save largest discount XXX XXX XXX */
         if (dest->discount < obj->discount) dest->discount = obj->discount;
     }
     return amt;
+}
+
+void obj_delayed_describe(obj_ptr obj)
+{
+    if (obj->marked & OM_DELAYED_MSG)
+    {
+        string_ptr msg = string_alloc();
+        char       name[MAX_NLEN];
+        bool       show_slot = FALSE;
+
+        object_desc(name, obj, OD_COLOR_CODED);
+        if (obj->loc.where == INV_EQUIP) /* paranoia */
+            string_append_s(msg, "You are wearing");
+        else
+            string_append_s(msg, "You have");
+        string_printf(msg, " %s", name);
+        if (obj->loc.where == INV_QUIVER)
+            string_append_s(msg, " in your quiver");
+
+        switch (obj->loc.where)
+        {
+        case INV_QUIVER:
+        case INV_PACK:
+            show_slot = use_pack_slots;
+            break;
+        case INV_EQUIP:
+            show_slot = TRUE;
+            break;
+        }
+        if (show_slot)
+            string_printf(msg, " (%c)", slot_label(obj->loc.slot));
+        string_append_c(msg, '.');
+        msg_print(string_buffer(msg));
+        string_free(msg);
+
+        obj->marked &= ~OM_DELAYED_MSG;
+    }
 }
 
 /************************************************************************
@@ -814,6 +864,9 @@ static void _drop(obj_ptr obj)
     object_desc(name, obj, OD_COLOR_CODED);
     msg_format("You drop %s.", name);
     drop_near(obj, 0, py, px);
+    p_ptr->update |= PU_BONUS; /* Weight changed */
+    if (obj->loc.where == INV_PACK)
+        p_ptr->window |= PW_INVEN;
 }
 
 void obj_drop(obj_ptr obj, int amt)
@@ -828,6 +881,14 @@ void obj_drop(obj_ptr obj, int amt)
         obj_t copy = *obj;
         copy.number = amt;
         obj->number -= amt;
+
+        obj->marked |= OM_DELAYED_MSG;
+        p_ptr->notice |= PN_CARRY;
+        if (obj->loc.where == INV_PACK)
+            p_ptr->notice |= PN_OPTIMIZE_PACK;
+        else if (obj->loc.where == INV_QUIVER)
+            p_ptr->notice |= PN_OPTIMIZE_QUIVER;
+
         copy.marked &= ~OM_WORN;
         _drop(&copy);
     }

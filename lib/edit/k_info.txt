@@ -1291,6 +1291,16 @@ F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 M:100:6d7
 D:A mighty quarrel, bound about with battle magics.
 
+N:189:& Adamantine Bolt~
+G:{:G
+I:18:5:0
+W:90:0:0:5:35
+A:90/4
+P:0:7d5:0:0:0
+F:SHOW_MODS
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
+M:100:6d7
+
 ########################################################################
 # Shots (TV_SHOT)
 ########################################################################

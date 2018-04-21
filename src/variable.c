@@ -204,6 +204,7 @@ bool auto_get_ammo;
 bool auto_get_objects;
 
 bool numpad_as_cursorkey;    /* Use numpad keys as cursor key in editor mode */
+bool use_pack_slots;
 
 
 /*** Map Screen Options ***/
@@ -237,6 +238,7 @@ bool equippy_chars;    /* Display 'equippy' chars */
 bool display_food_bar;
 bool display_hp_bar;
 bool display_sp_bar;
+bool display_percentages;
 bool compress_savefile;    /* Compress messages in savefiles */
 bool abbrev_extra;    /* Describe obj's extra resistances by abbreviation */
 bool abbrev_all;    /* Describe obj's all resistances by abbreviation */
@@ -1158,6 +1160,4 @@ bool use_menu;
 travel_type travel;
 
 /* for snipers */
-int snipe_type = SP_NONE;
 bool reset_concent = FALSE;   /* Concentration reset flag */
-bool is_fired = FALSE;

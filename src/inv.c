@@ -113,10 +113,10 @@ inv_ptr inv_filter(inv_ptr src, obj_p p)
 
 /* floor objects form a linked list. There is no slot structure to
  * preserve. This 'fake inventory' is useful for obj_prompt */
-inv_ptr inv_filter_floor(obj_p p)
+inv_ptr inv_filter_floor(point_t loc, obj_p p)
 {
     inv_ptr    result = malloc(sizeof(inv_t));
-    cave_type *c_ptr = &cave[py][px];
+    cave_type *c_ptr = &cave[loc.y][loc.x];
     int        this_o_idx, next_o_idx = 0;
 
     result->name = "Floor";
@@ -193,6 +193,7 @@ static void _add_aux(inv_ptr inv, obj_ptr obj, slot_t slot)
     if (slot >= vec_length(inv->objects))
         _grow(inv, slot);
     vec_set(inv->objects, slot, copy);
+    copy->marked |= OM_DELAYED_MSG;
 
     obj->number -= ct;
 }
@@ -239,11 +240,37 @@ slot_t inv_combine(inv_ptr inv, obj_ptr obj)
           && dest->number + obj->number <= OBJ_STACK_MAX )
         {
             obj_combine(dest, obj, inv->type);
+            dest->marked |= OM_DELAYED_MSG;
             return slot;
         }
     }
     assert(obj->number);
     return 0;
+}
+
+bool inv_can_combine(inv_ptr inv, obj_ptr obj)
+{
+    slot_t slot;
+
+    assert(obj->number);
+    assert(!(inv->flags & _FILTER));
+
+    /* Assume that inv is optimized. This means that if obj
+     * could be combined into an existing pile, then there
+     * is only one possible candidate pile. In other words,
+     * if there are multiple piles of the same object, all
+     * but one contain 99 items. */
+    for (slot = 1; slot < vec_length(inv->objects); slot++)
+    {
+        obj_ptr dest = vec_get(inv->objects, slot);
+        if (!dest) continue;
+        if ( obj_can_combine(dest, obj, inv->type)
+          && dest->number + obj->number <= OBJ_STACK_MAX )
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* This version will combine the obj pile (if pile it be)
@@ -266,7 +293,9 @@ int inv_combine_ex(inv_ptr inv, obj_ptr obj)
         if (!dest) continue;
         if (obj_can_combine(dest, obj, inv->type))
         {
-            ct += obj_combine(dest, obj, inv->type);
+            int n = obj_combine(dest, obj, inv->type);
+            ct += n;
+            if (n) dest->marked |= OM_DELAYED_MSG;
             if (!obj->number) break;
         }
     }
@@ -580,7 +609,8 @@ void inv_display(inv_ptr inv, slot_t start, slot_t stop, obj_p p, doc_ptr doc, i
     else if (show_weights)
         xtra = 9;  /* " 123.0 lbs" */
 
-    inv_calculate_labels(inv, start, stop, flags);
+    if (!(flags & (INV_NO_LABELS | INV_SHOW_SLOT)))
+        inv_calculate_labels(inv, start, stop, flags);
 
     doc_insert(doc, "<style:table>");
     for (slot = start; slot <= stop; slot++)
@@ -592,7 +622,9 @@ void inv_display(inv_ptr inv, slot_t start, slot_t stop, obj_p p, doc_ptr doc, i
 
         if (!obj)
         {
-            if (!(flags & INV_NO_LABELS))
+            if (flags & INV_SHOW_SLOT)
+                doc_printf(doc, " %d)", slot);
+            else if (!(flags & INV_NO_LABELS))
                 doc_printf(doc, " %c)", slot_label(slot - start + 1));
             doc_insert(doc, " ");
             if (show_item_graph)
@@ -615,7 +647,9 @@ void inv_display(inv_ptr inv, slot_t start, slot_t stop, obj_p p, doc_ptr doc, i
             }
             else
                 object_desc(name, obj, OD_COLOR_CODED);
-            if (!(flags & INV_NO_LABELS))
+            if (flags & INV_SHOW_SLOT)
+                doc_printf(doc, " %d)", slot);
+            else if (!(flags & INV_NO_LABELS))
                 doc_printf(doc, " %c)", inv_slot_label(inv, slot));
             doc_insert(doc, " ");
             if (show_item_graph)
