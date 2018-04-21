@@ -1941,7 +1941,7 @@ bool item_tester_hook_activate(const object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Hack -- for spells that can activate. They are always 'charging', so would never activate otherwise. */
-	if ((o_ptr->tval == TV_SPELL) && (p_ptr->rest < PY_REST_FAINT)) return (FALSE);
+	if ((o_ptr->tval == TV_SPELL) && (p_ptr->rest > PY_REST_FAINT)) return (TRUE);
 
 	/* Check the recharge */
 	else if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
@@ -2143,7 +2143,7 @@ bool player_activate(int item)
 	if ((item == INVEN_SELF) || (o_ptr->tval == TV_SPELL))
 	{
 		/* Tire out the player */
-		p_ptr->rest -= PY_REST_FAINT;
+		p_ptr->rest -= PY_REST_WEAK;
 
 		/* Redraw stuff */
 		p_ptr->redraw |= (PR_STATE);
@@ -2449,15 +2449,15 @@ bool player_apply_rune_or_coating2(int item2)
 		}
 
 		/* Clear feeling */
-		if (o_ptr->feeling == INSCRIP_COATED) o_ptr->feeling = 0;
+		if (j_ptr->feeling == INSCRIP_COATED) o_ptr->feeling = 0;
 
 		/* Clear coating */
-		o_ptr->xtra1 = 0;
-		o_ptr->xtra2 = 0;
+		j_ptr->xtra1 = 0;
+		j_ptr->xtra2 = 0;
 
 		/* Clear charges */
-		o_ptr->charges = 0;
-		o_ptr->stackc = 0;
+		j_ptr->charges = 0;
+		j_ptr->stackc = 0;
 	}
 
 	/* Can't apply if artifact or other magical item */

@@ -13,6 +13,7 @@
 # N: number : name
 # A: tval : sval : slot
 # C: class : level : mana : failure : min failure
+# P: prerequisite : prerequisite
 # F: flags
 # B: attack method : attack effect : damage
 # L: duration
@@ -3728,6 +3729,7 @@ C:11:15:7:60:29
 P:0:0
 S:DELAY_SPELL:43
 L:1d24+24
+D:The next spell you cast will be delayed.
 
 N:277:Spell Trap
 A:90:69:5
@@ -3743,6 +3745,7 @@ C:11:15:7:60:29
 P:0:0
 S:DELAY_SPELL:42
 L:0d0+1
+D:The next spell you cast will be made into a trap.
 
 N:278:Witchblooms
 A:90:68:2
@@ -6771,7 +6774,7 @@ B:STORM:FIRE:7
 S:REGION:41
 L:1d10+10
 
-N:556:Cyrokinesis
+N:556:Cryokinesis
 A:90:68:10
 A:90:16:8
 C:1:7:6:40:6
