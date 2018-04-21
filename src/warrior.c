@@ -22,16 +22,6 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     info_ptr->xtra_blow += py_prorata_level_aux(100, 0, 1, 1);
 }
 
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
-{
-    if ( !p_ptr->shooter_info.heavy_shoot
-      && info_ptr->tval_ammo <= TV_BOLT
-      && info_ptr->tval_ammo >= TV_SHOT )
-    {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
-    }
-}
-
 static int _get_powers(spell_info* spells, int max)
 {
     int ct = 0;
@@ -90,7 +80,6 @@ class_t *warrior_get_class(void)
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_powers = _get_powers;
         me.get_flags = _get_flags;
         init = TRUE;

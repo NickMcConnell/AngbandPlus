@@ -23,7 +23,7 @@ of Dragon Strike, their blows will burn their enemies.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  106%       Melee       Superb       
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   190%       Infravision 20'
   
 White
@@ -42,7 +42,7 @@ Dragon Strike, their blows will freeze their enemies.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  106%       Melee       Superb       
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   190%       Infravision 20'
   
 Blue
@@ -60,7 +60,7 @@ Dragon Strike, their blows will electrocute their enemies.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  105%       Melee       Excellent    
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   190%       Infravision 20'
   
 Black
@@ -77,7 +77,7 @@ their enemies.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  105%       Melee       Superb       
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   190%       Infravision 20'
   
 Green
@@ -94,7 +94,7 @@ their enemies.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  103%       Melee       Good         
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   205%       Infravision 20'
   
 Bronze
@@ -111,7 +111,7 @@ melee attacks of the Bronze Draconian will baffle their enemies.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  103%       Melee       Fair         
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   215%       Infravision 20'
   
 Crystal
@@ -130,7 +130,7 @@ enemies.
   Constitution  +3        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  105%       Melee       Excellent    
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   250%       Infravision 20'
   
 Gold
@@ -147,7 +147,7 @@ Strike, even their melee attacks will stun their enemies.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  104%       Melee       Good         
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   220%       Infravision 20'
   
 Shadow
@@ -165,7 +165,7 @@ Dragon Strike, they may steal life from their enemies in melee.
   Constitution  +2        Searching   Bad          
   Charisma      +2        Perception  Superb       
   Life Rating  102%       Melee       Poor         
-  Base HP       22        Bows        Good         
+  Base HP       22        Bows        Very Good    
   Experience   225%       Infravision 40'
   
 Table 1 - Draconian Statistic Bonus Table
@@ -199,15 +199,15 @@ Shadow       Bad           Very Good     Fair          Very Good
 Table 3 - Draconian Skill Bonus Table II
 
              Searching     Perception    Melee         Bows          Infra
-Red          Bad           Superb        Superb        Good            20'
-White        Bad           Superb        Superb        Good            20'
-Blue         Bad           Superb        Excellent     Good            20'
-Black        Bad           Superb        Superb        Good            20'
-Green        Bad           Superb        Good          Good            20'
-Bronze       Bad           Superb        Fair          Good            20'
-Crystal      Bad           Superb        Excellent     Good            20'
-Gold         Bad           Superb        Good          Good            20'
-Shadow       Bad           Superb        Poor          Good            40'
+Red          Bad           Superb        Superb        Very Good       20'
+White        Bad           Superb        Superb        Very Good       20'
+Blue         Bad           Superb        Excellent     Very Good       20'
+Black        Bad           Superb        Superb        Very Good       20'
+Green        Bad           Superb        Good          Very Good       20'
+Bronze       Bad           Superb        Fair          Very Good       20'
+Crystal      Bad           Superb        Excellent     Very Good       20'
+Gold         Bad           Superb        Good          Very Good       20'
+Shadow       Bad           Superb        Poor          Very Good       40'
 
 
 Table 4 - Draconian Special Powers
@@ -251,5 +251,5 @@ to decide which power you will choose for your character.
 
 
 
-Automatically generated for PosChengband 6.0.3.
+Automatically generated for PosChengband 6.0.7.
 

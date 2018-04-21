@@ -17,8 +17,8 @@
 
 
 #define VER_MAJOR 6
-#define VER_MINOR 0
-#define VER_PATCH 5
+#define VER_MINOR 1
+#define VER_PATCH 0
 #define VER_EXTRA 0
 
 #define GAME_MODE_BEGINNER  0
@@ -534,6 +534,7 @@
 #define SPELL_HELP_DESC      18
 #define SPELL_VALUE          19      /* For valuing object activations */
 #define SPELL_ON_BROWSE      20      /* Custom Handler for browsing the spell */
+#define SPELL_STAT_NAME      21      /* In case display name (SPELL_NAME) is duplicated/renamed */
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
@@ -3082,7 +3083,7 @@ enum obj_flags_e {
 #define OFG_RANDOM_CURSE2       0x00008000     /* Item is Random Cursed */
 #define OFG_AWARE               0x00010000
 #define OFG_TOWN                0x00020000     /* Item is allowed to be stocked in town */
-
+#define OFG_FIXED_ART           0x00040000     /* Never replace this art when using random_artifacts */
 
 /* Object Flags for Curses (OFC_*) */
 #define MAX_CURSE 17
@@ -5239,13 +5240,15 @@ extern int PlayerUID;
 #define DRACONIAN_STRIKE_POIS 80
 #define DRACONIAN_STRIKE_CONF 81
 #define DRACONIAN_STRIKE_STUN 82
-#define DRACONIAN_STRIKE_VORPAL 83
-#define DRACONIAN_STRIKE_VAMP 84
+#define PY_ATTACK_VORPAL      83
+#define PY_ATTACK_VAMP        84
 
 #define WEAPONMASTER_FLURRY  85
 
 #define BEHOLDER_GAZE        86
 #define MODE_THROWING        87
+
+#define PY_ATTACK_MANA       88
 
 #define HISSATSU_IAI    100
 

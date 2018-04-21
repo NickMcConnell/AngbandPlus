@@ -110,6 +110,7 @@ X:ironman_empty_levels
 X:ironman_rooms
 X:ironman_nightmare
 Y:enable_virtues
+Y:enable_spell_prof
 Y:preserve_mode
 
 ##### Easy Object Auto-Destroyer #####

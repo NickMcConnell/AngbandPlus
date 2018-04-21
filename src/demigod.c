@@ -472,7 +472,7 @@ race_t *demigod_get_race(int psubrace)
         me.skills.srh =  0;
         me.skills.fos =  7;
         me.skills.thn = 10;
-        me.skills.thb =  5;
+        me.skills.thb =  3;
 
         me.life = 100;
         me.base_hp = 20;
@@ -551,7 +551,7 @@ race_t *demigod_get_race(int psubrace)
                          "nimble. Your skills with the bow are unmatched and you shoot arrows "
                          "with increased range and deadliness.";
             me.stats[A_DEX] += 2;
-            me.skills.thb += 15;
+            me.skills.thb += 12;
             me.exp += 50;
             me.birth = _artemis_birth;
             me.calc_bonuses = _artemis_calc_bonuses;
@@ -661,7 +661,7 @@ race_t *demigod_get_race(int psubrace)
             me.skills.dev += 5;
             me.skills.sav += 5;
             me.skills.thn += 10;
-            me.skills.thb += 5;
+            me.skills.thb += 3;
             for (i = 0; i < 6; i++)
                 me.stats[i]++;
             me.exp += 70;

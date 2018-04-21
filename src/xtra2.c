@@ -5402,7 +5402,8 @@ int bow_energy(int sval)
         /* Sling and ammo */
         case SV_SLING:
         {
-            energy = 8000;
+            /*energy = 8000;*/
+            energy = 7150;
             break;
         }
 

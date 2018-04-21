@@ -67,7 +67,7 @@ Humans
     Constitution  +1        Searching   Bad          
     Charisma      +1        Perception  Excellent    
     Life Rating  100%       Melee       Excellent    
-    Base HP       20        Bows        Good         
+    Base HP       20        Bows        Very Good    
     Experience   180%       Infravision 0'
     
   Dunadan
@@ -104,7 +104,7 @@ Humans
     Constitution  +0        Searching   Bad          
     Charisma      +0        Perception  Superb       
     Life Rating  100%       Melee       Poor         
-    Base HP       20        Bows        Poor         
+    Base HP       20        Bows        Fair         
     Experience   100%       Infravision 0'
     
   
@@ -143,7 +143,7 @@ Elves
     Constitution  +1        Searching   Fair         
     Charisma      +1        Perception  Heroic       
     Life Rating   99%       Melee       Excellent    
-    Base HP       19        Bows        Heroic       
+    Base HP       19        Bows        Superb       
     Experience   190%       Infravision 40'
     
   Wood-Elf
@@ -181,7 +181,7 @@ Hobbits/Dwarves
     Constitution  +2        Searching   Excellent    
     Charisma      +1        Perception  Superb       
     Life Rating  103%       Melee       Superb       
-    Base HP       22        Bows        Poor         
+    Base HP       22        Bows        Fair         
     Experience   135%       Infravision 50'
     
   Gnome
@@ -238,7 +238,7 @@ Hobbits/Dwarves
     Constitution  +2        Searching   Good         
     Charisma      -2        Perception  Superb       
     Life Rating  103%       Melee       Excellent    
-    Base HP       22        Bows        Poor         
+    Base HP       22        Bows        Fair         
     Experience   165%       Infravision 50'
     
   
@@ -261,7 +261,7 @@ Fairies
     Constitution  -1        Searching   Superb       
     Charisma      -3        Perception  Heroic       
     Life Rating   91%       Melee       Very Bad     
-    Base HP       13        Bows        Bad          
+    Base HP       13        Bows        Fair         
     Experience   140%       Infravision 40'
     
   Sprite
@@ -281,7 +281,7 @@ Fairies
     Constitution  -2        Searching   Superb       
     Charisma      -2        Perception  Superb       
     Life Rating   92%       Melee       Very Bad     
-    Base HP       14        Bows        Poor         
+    Base HP       14        Bows        Fair         
     Experience   135%       Infravision 40'
     
   
@@ -322,7 +322,7 @@ Angels/Demons
     Constitution  +3        Searching   Bad          
     Charisma      +2        Perception  Excellent    
     Life Rating  106%       Melee       Superb       
-    Base HP       24        Bows        Poor         
+    Base HP       24        Bows        Fair         
     Experience   180%       Infravision 50'
     
   Imp
@@ -340,7 +340,7 @@ Angels/Demons
     Constitution  +2        Searching   Very Bad     
     Charisma      -1        Perception  Superb       
     Life Rating   99%       Melee       Good         
-    Base HP       19        Bows        Bad          
+    Base HP       19        Bows        Fair         
     Experience    90%       Infravision 30'
     
   
@@ -360,7 +360,7 @@ Orcs/Trolls/Giants
     Constitution  +4        Searching   Very Bad     
     Charisma      -1        Perception  Good         
     Life Rating  108%       Melee       Superb       
-    Base HP       24        Bows        Excellent    
+    Base HP       24        Bows        Superb       
     Experience   155%       Infravision 10'
     
   Half-Giant
@@ -378,7 +378,7 @@ Orcs/Trolls/Giants
     Constitution  +3        Searching   Very Bad     
     Charisma      +0        Perception  Good         
     Life Rating  108%       Melee       Heroic       
-    Base HP       26        Bows        Good         
+    Base HP       26        Bows        Very Good    
     Experience   150%       Infravision 30'
     
   Half-Ogre
@@ -397,7 +397,7 @@ Orcs/Trolls/Giants
     Constitution  +3        Searching   Very Bad     
     Charisma      +1        Perception  Good         
     Life Rating  106%       Melee       Superb       
-    Base HP       23        Bows        Poor         
+    Base HP       23        Bows        Fair         
     Experience   140%       Infravision 30'
     
   Half-Titan
@@ -416,7 +416,7 @@ Orcs/Trolls/Giants
     Constitution  +3        Searching   Bad          
     Charisma      +3        Perception  Excellent    
     Life Rating  110%       Melee       Heroic       
-    Base HP       28        Bows        Poor         
+    Base HP       28        Bows        Fair         
     Experience   200%       Infravision 0'
     
   Half-Troll
@@ -435,7 +435,7 @@ Orcs/Trolls/Giants
     Constitution  +3        Searching   Very Bad     
     Charisma      -2        Perception  Good         
     Life Rating  107%       Melee       Superb       
-    Base HP       25        Bows        Very Bad     
+    Base HP       25        Bows        Bad          
     Experience   150%       Infravision 30'
     
   Kobold
@@ -452,7 +452,7 @@ Orcs/Trolls/Giants
     Constitution  +0        Searching   Bad          
     Charisma      -2        Perception  Excellent    
     Life Rating   98%       Melee       Excellent    
-    Base HP       19        Bows        Very Bad     
+    Base HP       19        Bows        Very Good    
     Experience    90%       Infravision 30'
     
   Snotling
@@ -469,8 +469,8 @@ Orcs/Trolls/Giants
     Dexterity     -2        Stealth     Fair         
     Constitution  -2        Searching   Bad          
     Charisma      -5        Perception  Excellent    
-    Life Rating   85%       Melee       Bad          
-    Base HP       10        Bows        Bad          
+    Life Rating   85%       Melee       Very Bad     
+    Base HP       10        Bows        Poor         
     Experience    45%       Infravision 20'
     
   
@@ -496,7 +496,7 @@ The Undead
     Constitution  +1        Searching   Very Bad     
     Charisma      +1        Perception  Excellent    
     Life Rating  100%       Melee       Excellent    
-    Base HP       21        Bows        Poor         
+    Base HP       21        Bows        Fair         
     Experience   115%       Infravision 20'
     
   Spectre
@@ -518,7 +518,7 @@ The Undead
     Constitution  -2        Searching   Good         
     Charisma      -3        Perception  Heroic       
     Life Rating   90%       Melee       Very Bad     
-    Base HP       13        Bows        Bad          
+    Base HP       13        Bows        Poor         
     Experience   250%       Infravision 50'
     
   Vampire
@@ -540,7 +540,7 @@ The Undead
     Constitution  +1        Searching   Bad          
     Charisma      +2        Perception  Excellent    
     Life Rating  102%       Melee       Good         
-    Base HP       22        Bows        Poor         
+    Base HP       22        Bows        Fair         
     Experience   200%       Infravision 50'
     
   Zombie
@@ -561,7 +561,7 @@ The Undead
     Constitution  +4        Searching   Very Bad     
     Charisma      -3        Perception  Good         
     Life Rating  108%       Melee       Superb       
-    Base HP       24        Bows        Poor         
+    Base HP       24        Bows        Fair         
     Experience   180%       Infravision 20'
     
   
@@ -612,7 +612,7 @@ Other Races
     Constitution  +2        Searching   Very Bad     
     Charisma      +1        Perception  Good         
     Life Rating  102%       Melee       Excellent    
-    Base HP       22        Bows        Good         
+    Base HP       22        Bows        Very Good    
     Experience   150%       Infravision 0'
     
   Centaur
@@ -655,7 +655,7 @@ Other Races
     Constitution  +2        Searching   Bad          
     Charisma      +2        Perception  Superb       
     Life Rating  106%       Melee       Superb       
-    Base HP       22        Bows        Good         
+    Base HP       22        Bows        Very Good    
     Experience   190%       Infravision 20'
     
   Doppelganger
@@ -692,7 +692,7 @@ Other Races
     Constitution  +2        Searching   Bad          
     Charisma      +0        Perception  Superb       
     Life Rating  105%       Melee       Superb       
-    Base HP       25        Bows        Bad          
+    Base HP       25        Bows        Fair         
     Experience   135%       Infravision 0'
     
   Golem
@@ -715,7 +715,7 @@ Other Races
     Constitution  +4        Searching   Very Bad     
     Charisma      +0        Perception  Excellent    
     Life Rating  105%       Melee       Superb       
-    Base HP       23        Bows        Poor         
+    Base HP       23        Bows        Fair         
     Experience   185%       Infravision 40'
     
   Klackon
@@ -728,13 +728,13 @@ Other Races
   
     Stats                   Skills
     Strength      +2        Disarming   Excellent    
-    Intelligence  -1        Device      Good         
+    Intelligence  -1        Device      Bad          
     Wisdom        -1        Save        Fair         
     Dexterity     +1        Stealth     Poor         
     Constitution  +2        Searching   Very Bad     
     Charisma      +1        Perception  Superb       
     Life Rating  105%       Melee       Good         
-    Base HP       23        Bows        Good         
+    Base HP       23        Bows        Very Good    
     Experience   170%       Infravision 20'
     
   Kutar
@@ -755,7 +755,7 @@ Other Races
     Constitution  +2        Searching   Very Bad     
     Charisma      +2        Perception  Very Good    
     Life Rating  102%       Melee       Poor         
-    Base HP       21        Bows        Bad          
+    Base HP       21        Bows        Fair         
     Experience   175%       Infravision 0'
     
   Mindflayer
@@ -775,7 +775,7 @@ Other Races
     Constitution  -2        Searching   Good         
     Charisma      -1        Perception  Superb       
     Life Rating   97%       Melee       Very Bad     
-    Base HP       18        Bows        Bad          
+    Base HP       18        Bows        Poor         
     Experience   150%       Infravision 40'
     
   Tonberry
@@ -790,13 +790,13 @@ Other Races
   
     Stats                   Skills
     Strength      +4        Disarming   Bad          
-    Intelligence  +0        Device      Fair         
+    Intelligence  +0        Device      Bad          
     Wisdom        -2        Save        Fair         
     Dexterity     -4        Stealth     Fair         
     Constitution  +5        Searching   Very Bad     
     Charisma      +0        Perception  Good         
     Life Rating  108%       Melee       Superb       
-    Base HP       26        Bows        Very Bad     
+    Base HP       26        Bows        Bad          
     Experience   175%       Infravision 20'
     
   Yeek
@@ -814,7 +814,7 @@ Other Races
     Constitution  -2        Searching   Good         
     Charisma      -4        Perception  Heroic       
     Life Rating   92%       Melee       Bad          
-    Base HP       14        Bows        Bad          
+    Base HP       14        Bows        Fair         
     Experience    70%       Infravision 20'
     
   
@@ -901,10 +901,10 @@ Draconian    Bad           Poor          Fair          Bad
 Doppelganger Very Bad      Very Bad      Very Bad      Excellent    
 Ent          Bad           Fair          Good          Bad          
 Golem        Bad           Bad           Good          Bad          
-Klackon      Excellent     Good          Fair          Poor         
+Klackon      Excellent     Bad           Fair          Poor         
 Kutar        Bad           Good          Good          Excellent    
 Mindflayer   Excellent     Superb        Excellent     Fair         
-Tonberry     Bad           Fair          Fair          Fair         
+Tonberry     Bad           Bad           Fair          Fair         
 Yeek         Fair          Fair          Good          Good         
 
 
@@ -913,47 +913,47 @@ Table 3 - Race Skill Bonus Table II
              Searching     Perception    Melee         Bows          Infra
 Amberite     Fair          Superb        Superb        Excellent        0'
 Barbarian    Bad           Excellent     Excellent     Excellent        0'
-Demigod      Bad           Excellent     Excellent     Good             0'
+Demigod      Bad           Excellent     Excellent     Very Good        0'
 Dunadan      Fair          Superb        Superb        Excellent        0'
-Human        Bad           Superb        Poor          Poor             0'
+Human        Bad           Superb        Poor          Fair             0'
 Dark-Elf     Excellent     Superb        Bad           Excellent       50'
-High-Elf     Fair          Heroic        Excellent     Heroic          40'
+High-Elf     Fair          Heroic        Excellent     Superb          40'
 Wood-Elf     Excellent     Superb        Bad           Superb          30'
-Dwarf        Excellent     Superb        Superb        Poor            50'
+Dwarf        Excellent     Superb        Superb        Fair            50'
 Gnome        Very Good     Superb        Very Bad      Excellent       40'
 Hobbit       Superb        Heroic        Very Bad      Superb          40'
-Nibelung     Good          Superb        Excellent     Poor            50'
-Shadow-Fairy Superb        Heroic        Very Bad      Bad             40'
-Sprite       Superb        Superb        Very Bad      Poor            40'
+Nibelung     Good          Superb        Excellent     Fair            50'
+Shadow-Fairy Superb        Heroic        Very Bad      Fair            40'
+Sprite       Superb        Superb        Very Bad      Fair            40'
 Archon       Poor          Superb        Excellent     Excellent       30'
-Balrog       Bad           Excellent     Superb        Poor            50'
-Imp          Very Bad      Superb        Good          Bad             30'
-Cyclops      Very Bad      Good          Superb        Excellent       10'
-Half-Giant   Very Bad      Good          Heroic        Good            30'
-Half-Ogre    Very Bad      Good          Superb        Poor            30'
-Half-Titan   Bad           Excellent     Heroic        Poor             0'
-Half-Troll   Very Bad      Good          Superb        Very Bad        30'
-Kobold       Bad           Excellent     Excellent     Very Bad        30'
-Snotling     Bad           Excellent     Bad           Bad             20'
-Skeleton     Very Bad      Excellent     Excellent     Poor            20'
-Spectre      Good          Heroic        Very Bad      Bad             50'
-Vampire      Bad           Excellent     Good          Poor            50'
-Zombie       Very Bad      Good          Superb        Poor            20'
+Balrog       Bad           Excellent     Superb        Fair            50'
+Imp          Very Bad      Superb        Good          Fair            30'
+Cyclops      Very Bad      Good          Superb        Superb          10'
+Half-Giant   Very Bad      Good          Heroic        Very Good       30'
+Half-Ogre    Very Bad      Good          Superb        Fair            30'
+Half-Titan   Bad           Excellent     Heroic        Fair             0'
+Half-Troll   Very Bad      Good          Superb        Bad             30'
+Kobold       Bad           Excellent     Excellent     Very Good       30'
+Snotling     Bad           Excellent     Very Bad      Poor            20'
+Skeleton     Very Bad      Excellent     Excellent     Fair            20'
+Spectre      Good          Heroic        Very Bad      Poor            50'
+Vampire      Bad           Excellent     Good          Fair            50'
+Zombie       Very Bad      Good          Superb        Fair            20'
 Android      Fair          Heroic        Superb        Excellent        0'
-Beastman     Very Bad      Good          Excellent     Good             0'
+Beastman     Very Bad      Good          Excellent     Very Good        0'
 Centaur      Fair          Good          Excellent     Excellent        0'
-Draconian    Bad           Superb        Superb        Good            20'
+Draconian    Bad           Superb        Superb        Very Good       20'
 Doppelganger Very Bad      Superb        Very Bad      Very Bad         0'
-Ent          Bad           Superb        Superb        Bad              0'
-Golem        Very Bad      Excellent     Superb        Poor            40'
-Klackon      Very Bad      Superb        Good          Good            20'
-Kutar        Very Bad      Very Good     Poor          Bad              0'
-Mindflayer   Good          Superb        Very Bad      Bad             40'
-Tonberry     Very Bad      Good          Superb        Very Bad        20'
-Yeek         Good          Heroic        Bad           Bad             20'
+Ent          Bad           Superb        Superb        Fair             0'
+Golem        Very Bad      Excellent     Superb        Fair            40'
+Klackon      Very Bad      Superb        Good          Very Good       20'
+Kutar        Very Bad      Very Good     Poor          Fair             0'
+Mindflayer   Good          Superb        Very Bad      Poor            40'
+Tonberry     Very Bad      Good          Superb        Bad             20'
+Yeek         Good          Heroic        Bad           Fair            20'
 
 
 
 
-Automatically generated for PosChengband 6.0.3.
+Automatically generated for PosChengband 6.0.7.
 

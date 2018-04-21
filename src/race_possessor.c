@@ -1376,19 +1376,16 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
     {
         monster_race *r_ptr = &r_info[p_ptr->current_r_idx];
 
-        if ( r_ptr->body.class_idx == CLASS_ARCHER
-          && p_ptr->shooter_info.tval_ammo <= TV_BOLT
-          && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
+        if ( r_ptr->body.class_idx == CLASS_RANGER
+          && p_ptr->shooter_info.tval_ammo != TV_ARROW )
         {
-            p_ptr->shooter_info.num_fire += p_ptr->lev * 3;
+            p_ptr->shooter_info.base_shot = 100;
         }
-        else if ( r_ptr->body.class_idx == CLASS_RANGER
-               && p_ptr->shooter_info.tval_ammo == TV_ARROW )
+        if ( r_ptr->body.class_idx == CLASS_ROGUE
+          && p_ptr->shooter_info.tval_ammo != TV_SHOT )
         {
-            p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
+            p_ptr->shooter_info.base_shot = 100;
         }
-        /* Note: I would do rogues as well, but many rogue forms probably shouldn't get
-           this bonus (e.g. Hounds).*/
     }
 }
 

@@ -162,7 +162,7 @@ void do_cmd_go_down(void)
         quests_on_leave(); /* QS_COMPLETED and taking the victory stairs? */
 
         /* Go down */
-        if (have_flag(f_ptr->flags, FF_SHAFT)) down_num += 2;
+        if (have_flag(f_ptr->flags, FF_SHAFT) && quests_allow_downshaft()) down_num += 2;
         else down_num += 1;
 
         if (!dun_level)
@@ -199,7 +199,8 @@ void do_cmd_go_down(void)
         }
         else
         {
-            if (have_flag(f_ptr->flags, FF_SHAFT))
+            /* XXX It is CFM_SHAFT, not down_num, that determines that we descend by 2 */
+            if (have_flag(f_ptr->flags, FF_SHAFT) && quests_allow_downshaft())
             {
                 /* Create a way back */
                 prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_SHAFT);
@@ -3034,7 +3035,7 @@ bool do_cmd_fire_aux1(obj_ptr bow, obj_ptr arrows)
     if (!fear_allow_shoot())
     {
         msg_print("You are too scared!");
-        energy_use = bow_energy(bow->sval)/p_ptr->shooter_info.num_fire;
+        energy_use = bow_energy(bow->sval)/NUM_SHOTS;
         if (shoot_hack == SP_AWAY) shoot_hack = SP_NONE;
         return FALSE;
     }
@@ -3045,8 +3046,8 @@ bool do_cmd_fire_aux1(obj_ptr bow, obj_ptr arrows)
 }
 void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int ty)
 {
-    int  i, break_chance, y, x, ny, nx, prev_y, prev_x, dd;
-    int  tdis, thits, tmul;
+    int  i, break_chance, y, x, ny, nx, prev_y, prev_x, dd, ds;
+    int  tdis, tmul;
     int  bonus, chance;
     int  cur_dis, visible;
     bool no_energy = FALSE;
@@ -3066,13 +3067,11 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
     /* Describe the object */
     object_desc(o_name, arrows, OD_OMIT_PREFIX | OD_NO_PLURAL | OD_OMIT_INSCRIPTION);
 
-    /* Use the proper number of shots */
-    thits = p_ptr->shooter_info.num_fire;
-
     /* Base damage from thrown object plus launcher bonus */
     dd = arrows->dd;
+    ds = arrows->ds;
     if (p_ptr->big_shot)
-        dd *= 2;
+        ds += 2;
 
     /* Actually "fire" the object */
     bonus = (p_ptr->shooter_info.to_h + arrows->to_h + bow->to_h);
@@ -3128,7 +3127,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
         /* Calculate shots per round
            CTK: energy_fire has four decimal places implied
                 p_ptr->num_fire only has two decimal places implied */
-        num_shots = p_ptr->shooter_info.num_fire * 100;  /* rescale to 4 decimal places */
+        num_shots = NUM_SHOTS * 100;  /* rescale to 4 decimal places */
         num_shots = num_shots * 120 / 100;  /* rapid fire gives 1.2x the number of shots */
         frac = (num_shots * 100 / energy_fire) % 100;
         num_shots /= energy_fire;
@@ -3159,7 +3158,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
 
     /* Take a (partial) turn */
     if (!no_energy)
-        energy_use = (bow_energy(bow->sval) / thits);
+        energy_use = bow_energy(bow->sval) / NUM_SHOTS;
 
     /* Sniper - Difficult to shot twice at 1 turn */
     if (shoot_hack == SP_DOUBLE)  p_ptr->concent = (p_ptr->concent + 1) / 2;
@@ -3456,7 +3455,7 @@ void do_cmd_fire_aux2(obj_ptr bow, obj_ptr arrows, int sx, int sy, int tx, int t
                         critical_t crit = {0};
 
                         /* The Damage Calculation (Changed) */
-                        tdam = damroll(dd, arrow.ds);
+                        tdam = damroll(dd, ds);
                         if (shoot_hack != SHOOT_SHATTER && shoot_hack != SHOOT_ELEMENTAL)
                             tdam = tot_dam_aux_shot(&arrow, tdam, m_ptr);
                         if (ambush) tdam *= 2;
@@ -3916,6 +3915,11 @@ static bool travel_flow_aux(int y, int x, int n, bool wall)
     /* Ignore out of bounds or undiscovered terrain */
     if (!in_bounds(y, x)) return wall;
     if (!(c_ptr->info & CAVE_AWARE)) return wall;
+
+    /* Don't travel thru traps ... code will attempt a disarm, but this
+     * can be dangerous for some players. Often, there is an alternate
+     * route around the trap anyway ... */
+    if (is_known_trap(c_ptr)) return wall;
 
     /* Ignore "pre-stamped" entries */
     if (travel.cost[y][x] != TRAVEL_UNABLE) return wall;

@@ -27,7 +27,7 @@ talents nor stat adjustments.
   Constitution  +0        Searching   Fair         
   Charisma      +0        Perception  Fair         
   Life Rating  100%       Melee       Poor         
-  Experience   100%       Bows        Poor         
+  Experience   100%       Bows        Fair         
   
 Mighty
 Mighty raises your physical stats and skills, but reduces stats and 
@@ -42,8 +42,8 @@ rate.
   Dexterity     +0        Stealth     Bad          
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Bad          
-  Life Rating  102%       Melee       Superb       
-  Experience   100%       Bows        Poor         
+  Life Rating  102%       Melee       Heroic       
+  Experience   100%       Bows        Fair         
   
 Shrewd
 Shrewd reduces your physical stats, and raises your intelligence and 
@@ -58,7 +58,7 @@ directly influences your hit-points and spell fail rate.
   Constitution  -1        Searching   Bad          
   Charisma      -1        Perception  Excellent    
   Life Rating   97%       Melee       Very Bad     
-  Experience   100%       Bows        Very Bad     
+  Experience   100%       Bows        Bad          
   
 Pious
 Pious deepens your faith in your God. It makes your physical ability 
@@ -72,7 +72,7 @@ average, and your stats suitable for priest.
   Constitution  +0        Searching   Very Good    
   Charisma      +0        Perception  Bad          
   Life Rating  100%       Melee       Very Bad     
-  Experience   100%       Bows        Very Bad     
+  Experience   100%       Bows        Bad          
   
 Nimble
 Nimble renders you highly skilled comparatively well, but reduces your 
@@ -101,7 +101,7 @@ influence on your hit-points.
   Constitution  -1        Searching   Good         
   Charisma      +1        Perception  Bad          
   Life Rating   98%       Melee       Excellent    
-  Experience   100%       Bows        Poor         
+  Experience   100%       Bows        Fair         
   
 Combat
 The Combat personality favors melee and shooting at the expense of 
@@ -161,8 +161,8 @@ players.
   Dexterity     -2        Stealth     Fair         
   Constitution  -2        Searching   Superb       
   Charisma      -2        Perception  Superb       
-  Life Rating  100%       Melee       Heroic       
-  Experience   100%       Bows        Heroic       
+  Life Rating   98%       Melee       Heroic       
+  Experience   100%       Bows        Superb       
   
 Patient
 A Patient person does things carefully. Patient people have high 
@@ -177,7 +177,7 @@ skills. Also it directly influences your life rating.
   Constitution  +2        Searching   Fair         
   Charisma      +0        Perception  Bad          
   Life Rating  102%       Melee       Very Bad     
-  Experience   100%       Bows        Very Bad     
+  Experience   100%       Bows        Bad          
   
 Craven
 A Craven person is a coward, preferring to avoid a fight at any cost. 
@@ -207,7 +207,7 @@ quickly through the dungeon, bungling much.
   Constitution  -1        Searching   Very Bad     
   Charisma      +0        Perception  Bad          
   Life Rating  100%       Melee       Very Bad     
-  Experience   100%       Bows        Very Bad     
+  Experience   100%       Bows        Bad          
   
 Table 1 - Personality Statistic Bonus Table
 
@@ -221,7 +221,7 @@ Fearless        +1   +0   +0   -1   -1   +1   98%  100%
 Combat          +1   -1   -1   +1   +0   +0  100%  100%
 Lazy            -2   -2   -2   -2   -2   -2   95%  100%
 Sexy            +1   +1   +1   +1   +1   +1  100%  100%
-Lucky           -2   -2   -2   -2   -2   -2  100%  100%
+Lucky           -2   -2   -2   -2   -2   -2   98%  100%
 Patient         -1   -1   +1   -2   +2   +0  102%  100%
 Craven          -1   +1   +1   -1   -1   -3   99%  100%
 Hasty           +0   -1   -2   +2   -1   +0  100%  100%
@@ -248,22 +248,22 @@ Hasty        Very Bad      Very Bad      Very Bad      Bad
 Table 3 - Personality Skill Bonus Table II
 
              Searching     Perception    Melee         Bows         
-Ordinary     Fair          Fair          Poor          Poor         
-Mighty       Bad           Bad           Superb        Poor         
-Shrewd       Bad           Excellent     Very Bad      Very Bad     
-Pious        Very Good     Bad           Very Bad      Very Bad     
+Ordinary     Fair          Fair          Poor          Fair         
+Mighty       Bad           Bad           Heroic        Fair         
+Shrewd       Bad           Excellent     Very Bad      Bad          
+Pious        Very Good     Bad           Very Bad      Bad          
 Nimble       Excellent     Excellent     Poor          Superb       
-Fearless     Good          Bad           Excellent     Poor         
+Fearless     Good          Bad           Excellent     Fair         
 Combat       Poor          Good          Excellent     Excellent    
 Lazy         Very Bad      Bad           Very Bad      Very Bad     
 Sexy         Excellent     Good          Superb        Superb       
-Lucky        Superb        Superb        Heroic        Heroic       
-Patient      Fair          Bad           Very Bad      Very Bad     
+Lucky        Superb        Superb        Heroic        Superb       
+Patient      Fair          Bad           Very Bad      Bad          
 Craven       Fair          Fair          Very Bad      Superb       
-Hasty        Very Bad      Bad           Very Bad      Very Bad     
+Hasty        Very Bad      Bad           Very Bad      Bad          
 
 
 
 
-Automatically generated for PosChengband 6.0.3.
+Automatically generated for PosChengband 6.0.7.
 

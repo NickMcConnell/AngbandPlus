@@ -77,6 +77,8 @@ Quick Reference
   Navigation
   Page Up   Scroll Through Long Object Lists
   Page Down
+  Space     Same as Page Up
+  -         Same as Page Down
   
   Display Options
   ^W        Toggle Weights (see [b])

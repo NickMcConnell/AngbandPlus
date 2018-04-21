@@ -352,7 +352,7 @@ B:12:C:Paladin:Owner
 
 B:13:N:Trump Tower:Pelloi:Amberite
 B:13:A:0:Recall to dungeon:100:200:r:33:0
-B:13:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
+#B:13:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
 B:13:A:2:Request quest:0:0:q:6:0
 B:13:M:*:None
 B:13:M:Trump:Owner

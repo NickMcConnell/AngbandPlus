@@ -246,6 +246,7 @@ int main (int argc, char *argv[])
       (($sdl_major_version == major) && ($sdl_minor_version > minor)) ||
       (($sdl_major_version == major) && ($sdl_minor_version == minor) && ($sdl_micro_version >= micro)))
     {
+      free(tmp_version); /* sanitizer will change return code to 1 */
       return 0;
     }
   else

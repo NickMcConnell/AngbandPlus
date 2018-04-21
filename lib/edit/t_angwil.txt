@@ -163,7 +163,7 @@ B:12:C:Paladin:Owner
 
 B:13:N:Trump Tower:Colleuse:Amberite
 B:13:A:0:Recall to dungeon:0:150:r:33:0
-B:13:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
+#B:13:A:1:Teleport to dungeon-level:100000:1000000:t:34:0
 B:13:R:*:None
 B:13:R:Amberite:Member
 B:13:M:*:None

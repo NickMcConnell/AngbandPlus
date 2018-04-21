@@ -43,6 +43,6 @@ M:X;;#;;;;;;;;;;;;;...;#;;;..C;;;;;;X
 M:X;;;;;;;;;;#;;;#;;;;;;;;;#;;;;#;;;X
 M:X;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;X
 M:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-R:ART(stone of lore)
+R:OBJ(blade of chaos)
 
 # vim: filetype=q :

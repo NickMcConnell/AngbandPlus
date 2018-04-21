@@ -200,19 +200,19 @@ Input Options
   direction if only one known trap is near you.
   
   Automatically get nearby ammo (auto_get_ammo)
-  This option enhances the Get Objects command (g) to automatically 
-  travel to nearby, visible ammo which is inscribed with =g (i.e., ammo 
-  which you have instructed the autopicker to automatically pickup). 
-  This enhancement is useful for archer builds after all nearby 
-  monsters have been slain. You might consider using the stronger 
-  auto_get_objects option instead.
+  This option instructs the Auto-Get Objects command (^G) to 
+  automatically travel to nearby, visible ammo which is inscribed with 
+  =g (i.e., ammo which you have instructed the autopicker to 
+  automatically pickup). This enhancement is useful for archer builds 
+  after all nearby monsters have been slain. You might consider using 
+  the stronger auto_get_objects option instead.
   
   Automatically get nearby objects (auto_get_objects)
-  This option enhances the Get Objects command (g) to automatically 
-  travel to nearby visible objects which you have registered to either 
-  pickup or destroy. This option subsumes (and extends) the 
-  auto_get_ammo option since ammo inscribed with =g is certainly 
-  registered for auto-pickup.
+  This option instructs the Auto-Get Objects command (^G) to 
+  automatically travel to nearby visible objects which you have 
+  registered to either pickup or destroy. This option subsumes (and 
+  extends) the auto_get_ammo option since ammo inscribed with =g is 
+  certainly registered for auto-pickup.
   
   Display floor stacks in a list (easy_floor)
   Lets you select an item from a stack on the floor by browsing a list. 
@@ -224,6 +224,23 @@ Input Options
   This option makes numpad keys work as cursor movement keys while text 
   editing mode. Which include auto-picker editor, inputing an 
   inscription, a macro action, and etc.
+  
+  Use and Display Inventory Slots (use_pack_slots)
+  With this option, the object prompt will use and display the current 
+  inventory slot for objects in question. For example, if your food 
+  happens to currently be in slot h), the the Eat command will require 
+  you to press h to use this item. Without this option, each object 
+  prompt will begin labels at a). Some players prefer to keep the 
+  inventory slot, even though it constantly shifts as you add and 
+  remove new objects to your pack. Other players prefer to have 
+  commands use the same labels for the same objects upon successive 
+  calls (For example, pick up a spellbook and your food is now in the 
+  i) slot. This may puzzle you, since the last time you were hungry you 
+  pressed Eh, but now you need to press Ei. With this option turned 
+  off, eating rations of food will always be Ea ... at least until you 
+  pick up some mushrooms! However, if you do, then your eye will 
+  quickly perceive the presence of two items in the object prompt next 
+  time you Eat).
   
 Map & Screen Options
   

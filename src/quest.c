@@ -125,10 +125,10 @@ void quest_reward(quest_ptr q)
     reward = quest_get_reward(q);
     if (reward)
     {
-        char name[MAX_NLEN];
+        /*char name[MAX_NLEN];*/
         obj_identify_fully(reward);
-        object_desc(name, reward, OD_COLOR_CODED);
-        msg_format("You receive %s as a reward.", name);
+        /*object_desc(name, reward, OD_COLOR_CODED);
+        msg_format("You receive %s as a reward.", name);*/
         pack_carry(reward);
         obj_free(reward);
     }
@@ -613,15 +613,19 @@ static void _get_questor(quest_ptr q)
 
     for(attempt = 0;; attempt++)
     {
-        int accept_lev = q->level + q->level / 20;
-        int mon_lev = q->level + 5 + randint1(q->level / 10);
-
-        /* Hacks for high level quests */
-        if (accept_lev > 88)
-            accept_lev = 88;
-
-        if (mon_lev > 88)
-            mon_lev = 88;
+        int min_lev = q->level + 1;
+        int max_lev = q->level + 9;
+        int mon_lev;
+        if (q->level < 10)
+            max_lev -= 2;
+        else if (q->level < 20)
+            max_lev -= 1;
+        else if (q->level > 80)
+            max_lev += 2;
+        else if (q->level > 70)
+            max_lev += 1;
+        mon_lev = (min_lev + max_lev + 1) / 2;
+        mon_lev += randint0(max_lev - mon_lev + 1);
 
         unique_count = 0; /* Hack: get_mon_num assume level generation and restricts uniques per level */
         r_idx = get_mon_num(mon_lev);
@@ -641,8 +645,8 @@ static void _get_questor(quest_ptr q)
         if (r_ptr->flags7 & RF7_FRIENDLY) continue;
         if (r_ptr->flags7 & RF7_AQUATIC) continue;
         if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
-        if (r_ptr->level > q->level + 12) continue;
-        if (r_ptr->level > accept_lev || attempt > 5000)
+        if (r_ptr->level > max_lev) continue;
+        if (r_ptr->level > min_lev || attempt > 5000)
         {
             q->goal_idx = r_idx;
             if (r_ptr->flags1 & RF1_UNIQUE)
@@ -661,7 +665,7 @@ static void _get_questor(quest_ptr q)
 void quests_on_birth(void)
 {
     vec_ptr v;
-    int i;
+    int i, last = 0;
 
     /* stale data from the last character */
     quests_cleanup();
@@ -672,6 +676,18 @@ void quests_on_birth(void)
     for (i = 0; i < vec_length(v); i++)
     {
         quest_ptr q = vec_get(v, i);
+        int       spread = MIN(8, MAX(3, q->level/10));
+        int       lvl, attempt = 0;
+
+        assert(q->level + spread > last);
+        do
+        {
+            lvl = rand_range(q->level - spread, q->level + spread);
+            ++attempt;
+        } while (lvl <= last && attempt < 1000);
+        last = lvl;
+        q->level = lvl;
+
         if (q->goal == QG_KILL_MON)
         {
             if (q->goal_idx) r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
@@ -904,17 +920,31 @@ void quests_on_leave(void)
     assert(q);
     if (q->status == QS_IN_PROGRESS)
     {
+        bool fail = TRUE;
         if (q->flags & QF_RETAKE)
         {
-            q->status = QS_TAKEN;
-            _remove_questors();
+            fail = FALSE;
+            if (q->flags & QF_RANDOM)
+            {
+                cptr p = "If you like, you may choose to intentionally fail this quest. "
+                    "Choose this option if you feel that you really cannot handle this opponent or "
+                    "would rather not wait until you can. <color:v>Fail this quest?</color> "
+                    "<color:y>[Y,n]</color>";
+                char c = msg_prompt(p, "nY", PROMPT_NEW_LINE | PROMPT_ESCAPE_DEFAULT | PROMPT_CASE_SENSITIVE);
+                if (c == 'Y') fail = TRUE;
+            }
         }
-        else
+        if (fail)
         {
             quest_fail(q);
             if (q->goal == QG_KILL_MON)
                 r_info[q->goal_idx].flagsx &= ~RFX_QUESTOR;
             prepare_change_floor_mode(CFM_NO_RETURN);
+        }
+        else
+        {
+            q->status = QS_TAKEN;
+            _remove_questors();
         }
     }
     /* Hack: Return to surface */

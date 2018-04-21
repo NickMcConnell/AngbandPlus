@@ -924,7 +924,7 @@ void leave_floor(void)
         }
 
         /* Mark shaft up/down */
-        if (have_flag(f_ptr->flags, FF_STAIRS) && have_flag(f_ptr->flags, FF_SHAFT))
+        if (have_flag(f_ptr->flags, FF_STAIRS) && have_flag(f_ptr->flags, FF_SHAFT) && quests_allow_downshaft())
         {
             prepare_change_floor_mode(CFM_SHAFT);
         }
@@ -1339,7 +1339,7 @@ void change_floor(void)
         {
             if (!p_ptr->blind)
             {
-                msg_print("Suddenly the stairs is blocked!");
+                msg_print("Suddenly the stairs are blocked!");
             }
             else
             {

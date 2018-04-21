@@ -21,9 +21,9 @@ debug_hook cost_calc_hook = NULL;
 static double _calc_cost(double cost, int count)
 {
     int c = count - 1;
-    /* It gets harder to add new stuff to an enchanted item
-    return cost * (1.0 + c/10.0 + c*c/50.0); */
-    return cost * (1.0 + c/5.0 + c*c/25.0);
+    /* It gets harder to add new stuff to an enchanted item */
+    return cost * (1.0 + c/10.0 + c*c/50.0);
+    /*return cost * (1.0 + c/5.0 + c*c/25.0);*/
 }
 
 static double _check_flag_and_score(u32b flgs[OF_ARRAY_SIZE], u32b flg, u32b score, int *count)
@@ -98,7 +98,7 @@ static s32b _stats_q(u32b flgs[OF_ARRAY_SIZE], int pval)
     count = 0;
 
     cost += _check_flag_and_score(flgs, OF_MAGIC_MASTERY,  1500*mult, &count);
-    cost += _check_flag_and_score(flgs, OF_STEALTH,  1000*mult, &count);
+    cost += _check_flag_and_score(flgs, OF_STEALTH,  500*mult, &count);
     cost += _check_flag_and_score(flgs, OF_SPELL_CAP,  1000*mult, &count);
     cost += _check_flag_and_score(flgs, OF_SPELL_POWER,  2500*mult, &count);
     cost += _check_flag_and_score(flgs, OF_LIFE,  1000*mult, &count);
@@ -106,7 +106,7 @@ static s32b _stats_q(u32b flgs[OF_ARRAY_SIZE], int pval)
 
     count = 0;
     cost -= _check_flag_and_score(flgs, OF_DEC_MAGIC_MASTERY,  1500*mult, &count);
-    cost -= _check_flag_and_score(flgs, OF_DEC_STEALTH,  1000*mult, &count);
+    cost -= _check_flag_and_score(flgs, OF_DEC_STEALTH,  500*mult, &count);
     cost -= _check_flag_and_score(flgs, OF_DEC_SPELL_CAP,  1000*mult, &count);
     cost -= _check_flag_and_score(flgs, OF_DEC_SPELL_POWER,  2500*mult, &count);
     cost -= _check_flag_and_score(flgs, OF_DEC_LIFE, 1000*mult, &count);
@@ -118,9 +118,7 @@ static s32b _stats_q(u32b flgs[OF_ARRAY_SIZE], int pval)
 
 static s32b _speed_p(int pval)
 {
-    int mult = pval * ABS(pval);
-
-    return 1000 * mult;
+    return 1000 * pval + 500 * pval * ABS(pval);
 }
 
 static s32b _abilities_q(u32b flgs[OF_ARRAY_SIZE])
@@ -253,10 +251,11 @@ static s32b _resistances_q(u32b flgs[OF_ARRAY_SIZE])
     return (u32b) cost;
 }
 
-s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
+s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr, int options)
 {
     char dbg_msg[512];
     s32b y;
+    bool known = obj_is_identified(o_ptr) || (options & COST_REAL);
 
     y = _activation_p(flgs, o_ptr);
     if (y != 0)
@@ -269,7 +268,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
         }
     }
 
-    if (obj_is_identified(o_ptr))
+    if (known)
     {
         int xtra = 0;
         if (o_ptr->name2 == EGO_ROBE_TWILIGHT)
@@ -335,7 +334,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
         }
     }
 
-    if (have_flag(flgs, OF_NO_MAGIC) && o_ptr->tval != TV_AMULET)
+    if (have_flag(flgs, OF_NO_MAGIC) && o_ptr->tval != TV_AMULET) /* XXX This isn't always bad! */
     {
         p = p * 9 / 10;
         if (cost_calc_hook)
@@ -365,7 +364,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
         }
     }
 
-    if (obj_is_identified(o_ptr) && o_ptr->curse_flags & OFC_PERMA_CURSE)
+    if (known && (o_ptr->curse_flags & OFC_PERMA_CURSE))
     {
         p = p * 8 / 10;
         if (cost_calc_hook)
@@ -378,7 +377,7 @@ s32b _finalize_p(s32b p, u32b flgs[OF_ARRAY_SIZE], object_type *o_ptr)
     if (o_ptr->tval != TV_LITE && !object_is_jewelry(o_ptr))
     {
         /* Do we know this is an artifact? */
-        if ( (obj_is_identified(o_ptr) && object_is_artifact(o_ptr))
+        if ( (known && object_is_artifact(o_ptr))
           || (o_ptr->feeling & (FEEL_SPECIAL | FEEL_TERRIBLE)) )
         {
         }
@@ -636,7 +635,7 @@ s32b jewelry_cost(object_type *o_ptr, int options)
         }
     }
 
-    p = _finalize_p(p, flgs, o_ptr);
+    p = _finalize_p(p, flgs, o_ptr, options);
     return p;
 }
 
@@ -768,7 +767,7 @@ s32b lite_cost(object_type *o_ptr, int options)
         }
     }
 
-    p = _finalize_p(p, flgs, o_ptr);
+    p = _finalize_p(p, flgs, o_ptr, options);
     return p;
 }
 
@@ -895,7 +894,7 @@ s32b quiver_cost(object_type *o_ptr, int options)
         }
     }
 
-    p = _finalize_p(p, flgs, o_ptr);
+    p = _finalize_p(p, flgs, o_ptr, options);
     return p;
 }
 s32b armor_cost(object_type *o_ptr, int options)
@@ -945,11 +944,21 @@ s32b armor_cost(object_type *o_ptr, int options)
         cost_calc_hook(dbg_msg);
     }
 
-    /* +AC ... Note, negative ac should decrease the cost! */
-    if (have_flag(flgs, OF_IGNORE_ACID))
-        a += 200*to_a + 20 * to_a * ABS(to_a);
-    else
-        a += 100*to_a + 10 * to_a * ABS(to_a);
+    /* +AC
+     * XXX A few unusual outliers (Dasai +64 and Julian +40)
+     * skew any sort of exponential formula.
+     * XXX [8, +64] vs [40, +32] ... in other words, perhaps we should
+     * consider the total ac when scoring? */
+    {
+        point_t tbl[8] = { {1, 200}, {5, 1500}, {10, 4000}, {15, 7500}, {20, 11000},
+                           {25, 15000}, {30, 20000}, {100, 90000} };
+        int boost = interpolate(ABS(to_a), tbl, 8);
+        if (!have_flag(flgs, OF_IGNORE_ACID))
+            boost /= 2;
+        if (to_a < 0)
+            boost *= -1;
+        a += boost;
+    }
 
     if (cost_calc_hook)
     {
@@ -1061,19 +1070,19 @@ s32b armor_cost(object_type *o_ptr, int options)
         int x = to_h * ABS(to_h);
         int y = to_d * ABS(to_d);
 
-        p += 100 * to_h + 10 * x;
+        p += 250 * to_h + 25 * x;
 
         if (to_d > 20) /* Master Tonberry, Destroyer */
         {
-            p += 40000; /* +20 damage */
+            p += 35000; /* +20 damage */
             p += (to_d - 20) * 1000;
         }
         else
         {
             if (o_ptr->name2 == EGO_CROWN_MAGI)
                 p += 25 * y;
-            else
-                p += 100 * y;
+            else /* Note: damage on armor should score fairly high ... e.g. Cambeleg's (+8,+8) */
+                p += 750 * to_d + 50 * y;
         }
         if (cost_calc_hook)
         {
@@ -1082,7 +1091,7 @@ s32b armor_cost(object_type *o_ptr, int options)
         }
     }
 
-    p = _finalize_p(p, flgs, o_ptr);
+    p = _finalize_p(p, flgs, o_ptr, options);
     return p;
 }
 
@@ -1330,7 +1339,7 @@ s32b weapon_cost(object_type *o_ptr, int options)
         cost_calc_hook(dbg_msg);
     }
 
-    p = _finalize_p(p, flgs, o_ptr);
+    p = _finalize_p(p, flgs, o_ptr, options);
     return p;
 }
 
@@ -1391,12 +1400,8 @@ static s32b _avg_dam_bow(object_type *o_ptr, int options) /* scaled by 10 */
         d = m*25 / 10;
         break;
 
-    case SV_HARP:
-        d = 200;
-        break;
-
     default:
-        d = 500; /* Gun */
+        d = 0; /* Gun, Harp */
     }
 
     return MAX(0, d);
@@ -1437,48 +1442,64 @@ s32b bow_cost(object_type *o_ptr, int options)
        Note: our damages are scaled by 10 */
     object_prep(&base_obj, o_ptr->k_idx);
     base_dam = _avg_dam_bow(&base_obj, options);
-    dam = _avg_dam_bow(o_ptr, options);
-    xtra_dam = MAX(0, dam - base_dam);
-
-    w = base_dam/10 + (base_dam - 320)*(base_dam - 320)/200;
-    w += 10*xtra_dam + xtra_dam*xtra_dam*xtra_dam/1000;
-
-    if (have_flag(flgs, OF_BRAND_POIS)) w = w * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_ACID)) w = w * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_ELEC)) w = w * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_FIRE)) w = w * 5 / 4;
-    if (have_flag(flgs, OF_BRAND_COLD)) w = w * 5 / 4;
-
-    /* ??? w = w * 10000 / bow_energy(o_ptr->sval);*/
-    if (cost_calc_hook)
+    if (!base_dam)
     {
-        sprintf(dbg_msg, "  * Base Cost: w = %d", w);
-        cost_calc_hook(dbg_msg);
-    }
-
-    /* (+x,+y) */
-    if (to_h != 0 || to_d != 0)
-    {
-        int x = to_h * ABS(to_h);
-        int y = to_d * ABS(to_d);
-
-        w += 100 * to_h + 10 * x;
-        w += 25 * y;
-
+        /* harps and guns are not really bows after all
+         * Note: Crimson used to have a hidden/meaningless
+         * (+20,+20) combat bonus in a_info, which would
+         * throw the scoring algorithm as well. */
+        w = 50;
         if (cost_calc_hook)
         {
-            sprintf(dbg_msg, "  * (+x,+y): w = %d", w);
+            sprintf(dbg_msg, "  * Base Cost: w = %d", w);
             cost_calc_hook(dbg_msg);
         }
     }
-
-    if (have_flag(flgs, OF_XTRA_SHOTS)) /* score xtra shots *after* scoring (+x,+y) */
+    else
     {
-        w += w * pval * 15 / 100; /* +.15 shots per pval */
+        dam = _avg_dam_bow(o_ptr, options);
+        xtra_dam = MAX(0, dam - base_dam);
+
+        w = base_dam/10 + (base_dam - 320)*(base_dam - 320)/200;
+        w += 10*xtra_dam + xtra_dam*xtra_dam*xtra_dam/1000;
+
+        if (have_flag(flgs, OF_BRAND_POIS)) w = w * 5 / 4;
+        if (have_flag(flgs, OF_BRAND_ACID)) w = w * 5 / 4;
+        if (have_flag(flgs, OF_BRAND_ELEC)) w = w * 5 / 4;
+        if (have_flag(flgs, OF_BRAND_FIRE)) w = w * 5 / 4;
+        if (have_flag(flgs, OF_BRAND_COLD)) w = w * 5 / 4;
+
+        /* ??? w = w * 10000 / bow_energy(o_ptr->sval);*/
         if (cost_calc_hook)
         {
-            sprintf(dbg_msg, "  * Extra Shots: w = %d", w);
+            sprintf(dbg_msg, "  * Base Cost: w = %d", w);
             cost_calc_hook(dbg_msg);
+        }
+
+        /* (+x,+y) */
+        if (to_h != 0 || to_d != 0)
+        {
+            int x = to_h * ABS(to_h);
+            int y = to_d * ABS(to_d);
+
+            w += 100 * to_h + 10 * x;
+            w += 25 * y;
+
+            if (cost_calc_hook)
+            {
+                sprintf(dbg_msg, "  * (+x,+y): w = %d", w);
+                cost_calc_hook(dbg_msg);
+            }
+        }
+
+        if (have_flag(flgs, OF_XTRA_SHOTS)) /* score xtra shots *after* scoring (+x,+y) */
+        {
+            w += w * pval * 15 / 100; /* +.15 shots per pval */
+            if (cost_calc_hook)
+            {
+                sprintf(dbg_msg, "  * Extra Shots: w = %d", w);
+                cost_calc_hook(dbg_msg);
+            }
         }
     }
 
@@ -1576,7 +1597,7 @@ s32b bow_cost(object_type *o_ptr, int options)
         cost_calc_hook(dbg_msg);
     }
 
-    p = _finalize_p(p, flgs, o_ptr);
+    p = _finalize_p(p, flgs, o_ptr, options);
     return p;
 }
 

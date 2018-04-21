@@ -415,7 +415,7 @@ static void _mana_clash_spell(int cmd, variant *res)
         int dir;
         var_set_bool(res, FALSE);
         if (!get_fire_dir(&dir)) return;
-        fire_ball(GF_MANA_CLASH, dir, 24 * p_ptr->lev, 2); /* damage later divided by Y + 1 in spells1!project_m where Y is spell freq */
+        fire_ball(GF_MANA_CLASH, dir, 18 * p_ptr->lev, 2); /* dam = dam * spell_freq / 100 in spells1.c */
         var_set_bool(res, TRUE);
         break;
     }
@@ -1150,11 +1150,12 @@ static void _player_action(int energy_use)
 
 static void _calc_bonuses(void)
 {
+    int squish = 5 + py_prorata_level(55);
     p_ptr->spell_cap += 3;
 
     /* Squishy */
-    p_ptr->to_a -= p_ptr->lev + 10;
-    p_ptr->dis_to_a -= p_ptr->lev + 10;
+    p_ptr->to_a -= squish;
+    p_ptr->dis_to_a -= squish;
 
     if (p_ptr->tim_resist_curses)
     {
@@ -1244,8 +1245,8 @@ class_t *rage_mage_get_class(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 20,  24,  40,  -1,  12,   2,  50,  30 };
-    skills_t xs = {  7,  10,  15,   0,   0,   0,  15,  15 };
+    skills_t bs = { 20,  20,  40,  -1,  12,   2,  50,  30 };
+    skills_t xs = {  7,   8,  15,   0,   0,   0,  15,  15 };
 
         me.name = "Rage-Mage";
         me.desc = "The Rage Mage is part of a secret sect descending from the Barbarians "

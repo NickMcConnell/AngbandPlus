@@ -257,6 +257,11 @@ int skills_weapon_max(int tval, int sval)
     return s_info[_class_idx()].w_max[tval-TV_WEAPON_BEGIN][sval];
 }
 
+/* Weapons: Gaining Proficiency
+ * [1] r_level must exceed a min_r_level(plvl)
+ * [2] current skill must not exceed a max_skill(rlvl)
+ * [3] amount gained decays exponentially with skill
+ * [4] effects of skill are linear */
 static int _weapon_calc_bonus_aux(int skill)
 {
     int bonus = (skill - WEAPON_EXP_BEGINNER) / 200; /* -20 to +20 */
@@ -269,7 +274,27 @@ int skills_weapon_calc_bonus(int tval, int sval)
     return _weapon_calc_bonus_aux(current);
 }
 
-void skills_weapon_gain(int tval, int sval)
+static int _weapon_gain_amt(int skill)
+{
+    static point_t tbl[9] = {
+        {0, 1280}, {1000, 640}, {2000, 320}, {3000, 160}, {4000, 80},
+        {5000, 40}, {6000, 20}, {7000, 10}, {8000, 1} };
+    return interpolate(skill, tbl, 9);
+}
+static int _weapon_max_skill(int rlvl)
+{
+    static point_t tbl[5] = { {1, 2000}, {20, 5000}, {30, 6000}, {60, 7500}, {80, 8000} };
+
+    if (rlvl <= 0) return 0;
+    return interpolate(rlvl, tbl, 5);
+}
+static int _weapon_min_rlvl(int plvl)
+{
+    static point_t tbl[6] = { {20, 1}, {30, 10}, {35, 15}, {40, 25}, {45, 30}, {50, 35} };
+    return interpolate(plvl, tbl, 6);
+}
+
+void skills_weapon_gain(int tval, int sval, int rlvl)
 {
     int max;
     int cur;
@@ -284,12 +309,29 @@ void skills_weapon_gain(int tval, int sval)
 
     if (cur < max)
     {
-        int add = 0;
+        int step;
+        int add;
 
-        if (cur < WEAPON_EXP_BEGINNER) add = 80;
-        else if (cur < WEAPON_EXP_SKILLED) add = 10;
-        else if (cur < WEAPON_EXP_EXPERT && p_ptr->lev > 19) add = 1;
-        else if (p_ptr->lev > 34 && one_in_(2)) add = 1;
+        if (rlvl < _weapon_min_rlvl(p_ptr->lev))
+        {
+            if (p_ptr->wizard)
+                msg_format("<color:B>You must fight level <color:R>%d</color> monsters to gain weapon proficiency.</color>", _weapon_min_rlvl(p_ptr->lev));
+            return;
+        }
+        if (cur >= _weapon_max_skill(rlvl))
+        {
+            if (p_ptr->wizard)
+            {
+                msg_format("<color:B>Against level <color:R>%d</color> foes, you can only train weapon "
+                    "proficiency to <color:R>%d</color> (Current Skill: <color:R>%d</color>).</color>",
+                    rlvl, _weapon_max_skill(rlvl), cur);
+            }
+            return;
+        }
+
+        step = _weapon_gain_amt(cur);
+        add = step / 10;
+        if (step%10 && randint0(10) < step%10) add++;
 
         if (add > 0)
         {
@@ -299,9 +341,15 @@ void skills_weapon_gain(int tval, int sval)
             if (cur > max)
                 cur = max;
             new_bonus = _weapon_calc_bonus_aux(cur);
-            p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval] += add;
+            p_ptr->weapon_exp[tval-TV_WEAPON_BEGIN][sval] = cur;
             if (old_bonus != new_bonus)
+            {
+                int k_idx = lookup_kind(tval, sval);
+                char buf[MAX_NLEN];
+                strip_name(buf, k_idx);
+                msg_format("<color:B>Your <color:R>%s</color> skills are improving.</color>", buf);
                 p_ptr->update |= PU_BONUS;
+            }
         }
     }
 }
@@ -382,16 +430,22 @@ int skills_shield_current(int sval)
         skills_shield_calc_name(sval));
 }
 
+void skills_shield_init(int sval, int current, int max)
+{
+    skills_innate_init(
+        skills_shield_calc_name(sval), current, max);
+}
+
 int skills_shield_max(int sval)
 {
     return skills_innate_max(
         skills_shield_calc_name(sval));
 }
 
-void skills_shield_gain(int sval)
+void skills_shield_gain(int sval, int rlvl)
 {
     skills_innate_gain(
-        skills_shield_calc_name(sval));
+        skills_shield_calc_name(sval), rlvl);
 }
 
 int skills_shield_calc_bonus(int sval)
@@ -716,7 +770,7 @@ int skills_innate_calc_bonus(cptr name)
     return _innate_calc_bonus_aux(current);
 }
 
-void skills_innate_gain(cptr name)
+void skills_innate_gain(cptr name, int rlvl)
 {
     _skill_info_ptr info = _innate_info(name);
 
@@ -731,12 +785,30 @@ void skills_innate_gain(cptr name)
 
     if (info->current < info->max)
     {
-        int add = 0;
+        int step;
+        int add;
 
-        if (info->current < WEAPON_EXP_BEGINNER) add = 80;
-        else if (info->current < WEAPON_EXP_SKILLED) add = 10;
-        else if (info->current < WEAPON_EXP_EXPERT && p_ptr->lev > 19) add = 1;
-        else if (p_ptr->lev > 34 && one_in_(2)) add = 1;
+        if (rlvl < _weapon_min_rlvl(p_ptr->lev))
+        {
+            if (p_ptr->wizard)
+                msg_format("<color:B>You must fight level <color:R>%d</color> monsters to gain weapon proficiency.</color>", _weapon_min_rlvl(p_ptr->lev));
+            return;
+        }
+
+        if (info->current >= _weapon_max_skill(rlvl))
+        {
+            if (p_ptr->wizard)
+            {
+                msg_format("<color:B>Against level <color:R>%d</color> foes, you can only train weapon "
+                    "proficiency to <color:R>%d</color> (Current Skill: <color:R>%d</color>).</color>",
+                    rlvl, _weapon_max_skill(rlvl), info->current);
+            }
+            return;
+        }
+
+        step = _weapon_gain_amt(info->current);
+        add = step / 10;
+        if (step%10 && randint0(10) < step%10) add++;
 
         if (add > 0)
         {
@@ -747,7 +819,10 @@ void skills_innate_gain(cptr name)
                 info->current = info->max;
             new_bonus = _innate_calc_bonus_aux(info->current);
             if (old_bonus != new_bonus)
+            {
+                msg_format("<color:B>Your <color:R>%s</color> skills are improving.</color>", name);
                 p_ptr->update |= PU_BONUS;
+            }
         }
     }
 }

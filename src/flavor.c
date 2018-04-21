@@ -1757,7 +1757,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         int ds = o_ptr->ds;
 
         if (p_ptr->big_shot && o_ptr->tval == p_ptr->shooter_info.tval_ammo)
-            dd *= 2;
+            ds += 2;
 
         if (hand >= 0 && hand < MAX_HANDS && !(mode & OD_THROWING))
         {
@@ -2066,14 +2066,17 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
         if (strlen(tmp_val2) > 0)
             strcat(tmp_val2, " ");
         
-        sprintf(buf, "A:%s", do_effect(&e, SPELL_NAME, 0));
+        if (mode & OD_COLOR_CODED)
+            sprintf(buf, "<color:B>A:%s</color>", do_effect(&e, SPELL_NAME, 0));
+        else
+            sprintf(buf, "A:%s", do_effect(&e, SPELL_NAME, 0));
         strcat(tmp_val2, buf);
     }
 
     if (object_is_device(o_ptr) && obj_is_identified_fully(o_ptr))
     {
         int  fail = device_calc_fail_rate(o_ptr);
-        strcat(tmp_val2, format("%d%%", fail/10));
+        strcat(tmp_val2, format("%d%%", (fail + 5)/10));
     }
 
     if (o_ptr->name3 && object_is_known(o_ptr) && abbrev_all)

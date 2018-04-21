@@ -203,7 +203,11 @@ static bool alloc_stairs(int feat, int num, int walls)
         /* No downstairs at the bottom */
         if (dun_level >= d_info[dungeon_type].maxdepth) return TRUE;
 
-        if (dun_level < d_info[dungeon_type].maxdepth-1 && quests_allow_downshaft())
+        if ( dun_level < d_info[dungeon_type].maxdepth - 1
+        /* Note: If we exclude downshafts, then the astute player can be certain
+         * that normal stairs do *not* lead to a quest level. Instead, we'll change
+         * the behavior of FF_SHAFT in do_cmd_go_down. */
+        /*&& quests_allow_downshaft()*/)
         {
             shaft_num = (randint1(num)+1)/2;
             if (quickband) shaft_num *= 2;

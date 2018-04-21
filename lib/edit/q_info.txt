@@ -156,53 +156,53 @@ F:q_worms.txt
 ########################################################################
 # Random Quests ... assigned in quests_on_birth()
 ########################################################################
-N:40:12:Angband L12
-T:RANDOM
+N:40:10:Random 1
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:41:24:Angband L24
-T:RANDOM
+N:41:18:Random 2
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:42:38:Angband L38
-T:RANDOM
+N:42:26:Random 3
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:43:44:Angband L44
-T:RANDOM
+N:43:34:Random 4
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:44:50:Angband L50
-T:RANDOM
+N:44:42:Random 5
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:45:56:Angband L56
-T:RANDOM
+N:45:50:Random 6
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:46:62:Angband L62
-T:RANDOM
+N:46:58:Random 7
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:47:68:Angband L68
-T:RANDOM
+N:47:66:Random 8
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:48:76:Angband L76
-T:RANDOM
+N:48:74:Random 9
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 
-N:49:88:Angband L88
-T:RANDOM
+N:49:82:Random 10
+T:RANDOM | RETAKE
 W:angband
 G:KILL(*)
 

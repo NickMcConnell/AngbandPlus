@@ -328,6 +328,7 @@ extern bool no_artifacts;
 extern bool no_egos;
 extern bool no_selling;
 extern bool enable_virtues;
+extern bool enable_spell_prof;
 extern bool reduce_uniques;
 extern byte reduce_uniques_pct;
 extern bool quickband;
@@ -806,6 +807,7 @@ extern bool restore_mana(void);
 
 /* devices.c */
 extern int  device_calc_fail_rate(object_type *o_ptr); /*95.2% returned as 952*/
+extern int  device_calc_fail_rate_aux(int skill, int difficulty);
 extern bool device_try(object_type *o_ptr);
 extern bool device_use(object_type *o_ptr, int boost);
 extern bool device_known;
@@ -1866,6 +1868,8 @@ extern void get_project_point(int sy, int sx, int *ty, int *tx, int flg);
 extern bool mon_spell_mon(int m_idx, int options);
 
 /* artifact.c */
+extern int original_score;
+extern int replacement_score;
 extern bool immunity_hack;
 extern void one_sustain(object_type *o_ptr);
 extern void one_high_resistance(object_type *o_ptr);
@@ -1901,6 +1905,7 @@ extern bool create_named_art_aux_aux(int a_idx, object_type *o_ptr);
 extern bool create_replacement_art(int a_idx, object_type *o_ptr);
 extern bool reforge_artifact(object_type *src, object_type *dest, int fame);
 extern void get_random_name(char *return_name, object_type *o_ptr, int power);
+extern int get_slot_power(obj_ptr obj);
 
 /* scores.c */
 extern void display_scores_aux(int from, int to, int note, high_score *score);
@@ -2454,6 +2459,7 @@ extern cptr     rune_desc(int which);
 extern void     rune_calc_bonuses(object_type *o_ptr);
 extern void     rune_calc_stats(object_type *o_ptr, s16b stats[MAX_STATS]);
 extern class_t *rune_knight_get_class(void);
+extern int      rune_knight_absorption(int m_idx, int type, int dam);
 
 extern void     samurai_concentration_spell(int cmd, variant *res);
 extern void     cast_concentration(void);
@@ -2522,15 +2528,16 @@ extern void skills_bow_gain(int sval);
 
 extern int skills_weapon_current(int tval, int sval);
 extern int skills_weapon_max(int tval, int sval);
-extern void skills_weapon_gain(int tval, int sval);
+extern void skills_weapon_gain(int tval, int sval, int rlvl);
 extern void skills_weapon_init(int tval, int sval, int skill);
 extern bool skills_weapon_is_icky(int tval, int sval);
 extern int skills_weapon_calc_bonus(int tval, int sval);
 extern cptr skills_weapon_describe_current(int tval, int sval);
 
+extern void skills_shield_init(int sval, int current, int max);
 extern int skills_shield_current(int sval);
 extern int skills_shield_max(int sval);
-extern void skills_shield_gain(int sval);
+extern void skills_shield_gain(int sval, int rlvl);
 extern int skills_shield_calc_bonus(int sval);
 extern cptr skills_shield_describe_current(int sval);
 
@@ -2550,7 +2557,7 @@ extern int skills_riding_max(void);
 
 extern int skills_innate_current(cptr name);
 extern int skills_innate_max(cptr name);
-extern void skills_innate_gain(cptr name);
+extern void skills_innate_gain(cptr name, int rlvl);
 extern void skills_innate_init(cptr name, int current, int max);
 extern int skills_innate_calc_bonus(cptr name);
 extern cptr skills_innate_calc_name(innate_attack_ptr attack); /* Note: Uses a shared buffer so result valid only until the next call */

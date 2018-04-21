@@ -13,7 +13,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  106%       Melee       <color:g>Superb       </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   190%       Infravision 20'
 </style></indent>
 <topic:White><color:o>White</color>
@@ -27,7 +27,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  106%       Melee       <color:g>Superb       </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   190%       Infravision 20'
 </style></indent>
 <topic:Blue><color:o>Blue</color>
@@ -41,7 +41,7 @@ Dexterity     +1        Stealth     <color:R>Poor         </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  105%       Melee       <color:G>Excellent    </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   190%       Infravision 20'
 </style></indent>
 <topic:Black><color:o>Black</color>
@@ -55,7 +55,7 @@ Dexterity     +1        Stealth     <color:R>Poor         </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  105%       Melee       <color:g>Superb       </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   190%       Infravision 20'
 </style></indent>
 <topic:Green><color:o>Green</color>
@@ -69,7 +69,7 @@ Dexterity     +1        Stealth     <color:o>Fair         </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  103%       Melee       <color:y>Good         </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   205%       Infravision 20'
 </style></indent>
 <topic:Bronze><color:o>Bronze</color>
@@ -83,7 +83,7 @@ Dexterity     +1        Stealth     <color:o>Fair         </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  103%       Melee       <color:o>Fair         </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   215%       Infravision 20'
 </style></indent>
 <topic:Crystal><color:o>Crystal</color>
@@ -97,7 +97,7 @@ Dexterity     +0        Stealth     <color:R>Poor         </color>
 Constitution  +3        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  105%       Melee       <color:G>Excellent    </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   250%       Infravision 20'
 </style></indent>
 <topic:Gold><color:o>Gold</color>
@@ -111,7 +111,7 @@ Dexterity     +1        Stealth     <color:o>Fair         </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  104%       Melee       <color:y>Good         </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   220%       Infravision 20'
 </style></indent>
 <topic:Shadow><color:o>Shadow</color>
@@ -125,7 +125,7 @@ Dexterity     +3        Stealth     <color:y>Very Good    </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  102%       Melee       <color:R>Poor         </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   225%       Infravision 40'
 </style></indent>
 <topic:Tables><style:heading>Table 1 - Draconian Statistic Bonus Table</style>
@@ -159,15 +159,15 @@ Shadow       <color:r>Bad          </color> <color:y>Very Good    </color> <colo
 <topic:Skills2><style:heading>Table 3 - Draconian Skill Bonus Table II</style>
 <style:table>
              <color:w>Searching     Perception    Melee         Bows          Infra</color>
-Red          <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Good         </color>   20'
-White        <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Good         </color>   20'
-Blue         <color:r>Bad          </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color>   20'
-Black        <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Good         </color>   20'
-Green        <color:r>Bad          </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>   20'
-Bronze       <color:r>Bad          </color> <color:g>Superb       </color> <color:o>Fair         </color> <color:y>Good         </color>   20'
-Crystal      <color:r>Bad          </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color>   20'
-Gold         <color:r>Bad          </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>   20'
-Shadow       <color:r>Bad          </color> <color:g>Superb       </color> <color:R>Poor         </color> <color:y>Good         </color>   40'
+Red          <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Very Good    </color>   20'
+White        <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Very Good    </color>   20'
+Blue         <color:r>Bad          </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Very Good    </color>   20'
+Black        <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Very Good    </color>   20'
+Green        <color:r>Bad          </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Very Good    </color>   20'
+Bronze       <color:r>Bad          </color> <color:g>Superb       </color> <color:o>Fair         </color> <color:y>Very Good    </color>   20'
+Crystal      <color:r>Bad          </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Very Good    </color>   20'
+Gold         <color:r>Bad          </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Very Good    </color>   20'
+Shadow       <color:r>Bad          </color> <color:g>Superb       </color> <color:R>Poor         </color> <color:y>Very Good    </color>   40'
 
 </style>
 <topic:Powers><style:heading>Table 4 - Draconian Special Powers</style>
@@ -205,4 +205,4 @@ You will be able to summon aid from dragons.</indent>
 
 
 
-<color:s>Automatically generated for PosChengband 6.0.3.</color>
+<color:s>Automatically generated for PosChengband 6.0.7.</color>

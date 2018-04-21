@@ -24,7 +24,7 @@ L:*:DEEP_WATER
 L:a:MON(giant white rat)
 L:b:MON(bat of gorgoroth)
 L:c:SHALLOW_WATER:MON(giant slug)
-L:d:SHALLOW_WATER:MON(devilfish)
+L:d:SHALLOW_WATER:MON(^devilfish$)
 L:e:MON(wererat)
 L:f:MON(blue icky thing)
 L:g:MON(giant spider)

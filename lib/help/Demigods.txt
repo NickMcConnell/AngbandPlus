@@ -13,7 +13,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   180%       Infravision 0'
 </style></indent>
 <topic:Zeus><color:o>Zeus</color>
@@ -41,7 +41,7 @@ Dexterity     +2        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:g>Superb       </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   240%       Infravision 0'
 </style></indent>
 <topic:Hades><color:o>Hades</color>
@@ -55,7 +55,7 @@ Dexterity     +1        Stealth     <color:R>Poor         </color>
 Constitution  +3        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  107%       Melee       <color:g>Superb       </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   240%       Infravision 0'
 </style></indent>
 <topic:Athena><color:o>Athena</color>
@@ -69,7 +69,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   240%       Infravision 0'
 </style></indent>
 <topic:Ares><color:o>Ares</color>
@@ -83,7 +83,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:b>Heroic       </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   240%       Infravision 0'
 </style></indent>
 <topic:Hermes><color:o>Hermes</color>
@@ -97,7 +97,7 @@ Dexterity     +1        Stealth     <color:o>Fair         </color>
 Constitution  +1        Searching   <color:y>Good         </color>
 Charisma      +1        Perception  <color:g>Superb       </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   240%       Infravision 0'
 </style></indent>
 <topic:Apollo><color:o>Apollo</color>
@@ -111,7 +111,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   230%       Infravision 0'
 </style></indent>
 <topic:Artemis><color:o>Artemis</color>
@@ -139,7 +139,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:g>Superb       </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   230%       Infravision 0'
 </style></indent>
 <topic:Hera><color:o>Hera</color>
@@ -153,7 +153,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   220%       Infravision 0'
 </style></indent>
 <topic:Demeter><color:o>Demeter</color>
@@ -167,7 +167,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   220%       Infravision 0'
 </style></indent>
 <topic:Aphrodite><color:o>Aphrodite</color>
@@ -181,7 +181,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +3        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   220%       Infravision 0'
 </style></indent>
 <topic:Tables><style:heading>Table 1 - Demigod Statistic Bonus Table</style>
@@ -223,19 +223,19 @@ Aphrodite    <color:o>Fair         </color> <color:y>Good         </color> <colo
 <topic:Skills2><style:heading>Table 3 - Demigod Skill Bonus Table II</style>
 <style:table>
              <color:w>Searching     Perception    Melee         Bows          Infra</color>
-Minor-God    <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
+Minor-God    <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
 Zeus         <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:G>Excellent    </color>    0'
-Poseidon     <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:y>Good         </color>    0'
-Hades        <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:y>Good         </color>    0'
-Athena       <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
-Ares         <color:r>Bad          </color> <color:G>Excellent    </color> <color:b>Heroic       </color> <color:y>Good         </color>    0'
-Hermes       <color:y>Good         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
-Apollo       <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
+Poseidon     <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:y>Very Good    </color>    0'
+Hades        <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:y>Very Good    </color>    0'
+Athena       <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
+Ares         <color:r>Bad          </color> <color:G>Excellent    </color> <color:b>Heroic       </color> <color:y>Very Good    </color>    0'
+Hermes       <color:y>Good         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
+Apollo       <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
 Artemis      <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:g>Superb       </color>    0'
-Hephaestus   <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:y>Good         </color>    0'
-Hera         <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
-Demeter      <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
-Aphrodite    <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
+Hephaestus   <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:y>Very Good    </color>    0'
+Hera         <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
+Demeter      <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
+Aphrodite    <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
 
 </style>
 <topic:Powers><style:heading>Table 4 - Demigod Special Powers</style>
@@ -324,4 +324,4 @@ You resist the Eldritch Horror.</indent>
 
 
 
-<color:s>Automatically generated for PosChengband 6.0.3.</color>
+<color:s>Automatically generated for PosChengband 6.0.7.</color>

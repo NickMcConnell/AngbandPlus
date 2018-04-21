@@ -898,7 +898,7 @@ static cptr k_info_gen_flags[] =
     "RANDOM_CURSE2",
     "AWARE",
     "TOWN",
-    "XXX",
+    "FIXED_ART",
     "XXX",
     "XXX",
     "XXX",

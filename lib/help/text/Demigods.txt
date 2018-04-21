@@ -16,7 +16,7 @@ Fathered by a minor god, you gain no starting powers.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   180%       Infravision 0'
   
 Zeus
@@ -49,7 +49,7 @@ foes.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Superb       
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   240%       Infravision 0'
   
 Hades
@@ -64,7 +64,7 @@ increased fortitude and have a firm grasp on your life and health.
   Constitution  +3        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  107%       Melee       Superb       
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   240%       Infravision 0'
   
 Athena
@@ -84,7 +84,7 @@ mental prowess.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   240%       Infravision 0'
   
 Ares
@@ -105,7 +105,7 @@ resistance to magic is suspect as well.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Heroic       
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   240%       Infravision 0'
   
 Hermes
@@ -124,7 +124,7 @@ with experience.
   Constitution  +1        Searching   Good         
   Charisma      +1        Perception  Superb       
   Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   240%       Infravision 0'
   
 Apollo
@@ -141,7 +141,7 @@ completely immune to light based attacks. You are seldom blinded.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   230%       Infravision 0'
   
 Artemis
@@ -180,7 +180,7 @@ equipment will not suffer diminution by corrosion or magical attack.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Superb       
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   230%       Infravision 0'
   
 Hera
@@ -197,7 +197,7 @@ your magical energy, which is even augmented.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   220%       Infravision 0'
   
 Demeter
@@ -214,7 +214,7 @@ resistant to the ravages of time.
   Constitution  +1        Searching   Bad          
   Charisma      +1        Perception  Excellent    
   Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   220%       Infravision 0'
   
 Aphrodite
@@ -232,7 +232,7 @@ slavish devotion, though sometimes this just angers them.
   Constitution  +1        Searching   Bad          
   Charisma      +3        Perception  Excellent    
   Life Rating  100%       Melee       Excellent    
-  Base HP       20        Bows        Good         
+  Base HP       20        Bows        Very Good    
   Experience   220%       Infravision 0'
   
 Table 1 - Demigod Statistic Bonus Table
@@ -274,19 +274,19 @@ Aphrodite    Fair          Good          Fair          Bad
 Table 3 - Demigod Skill Bonus Table II
 
              Searching     Perception    Melee         Bows          Infra
-Minor-God    Bad           Excellent     Excellent     Good             0'
+Minor-God    Bad           Excellent     Excellent     Very Good        0'
 Zeus         Bad           Excellent     Superb        Excellent        0'
-Poseidon     Bad           Excellent     Superb        Good             0'
-Hades        Bad           Excellent     Superb        Good             0'
-Athena       Bad           Excellent     Excellent     Good             0'
-Ares         Bad           Excellent     Heroic        Good             0'
-Hermes       Good          Superb        Excellent     Good             0'
-Apollo       Bad           Excellent     Excellent     Good             0'
+Poseidon     Bad           Excellent     Superb        Very Good        0'
+Hades        Bad           Excellent     Superb        Very Good        0'
+Athena       Bad           Excellent     Excellent     Very Good        0'
+Ares         Bad           Excellent     Heroic        Very Good        0'
+Hermes       Good          Superb        Excellent     Very Good        0'
+Apollo       Bad           Excellent     Excellent     Very Good        0'
 Artemis      Bad           Excellent     Excellent     Superb           0'
-Hephaestus   Bad           Excellent     Superb        Good             0'
-Hera         Bad           Excellent     Excellent     Good             0'
-Demeter      Bad           Excellent     Excellent     Good             0'
-Aphrodite    Bad           Excellent     Excellent     Good             0'
+Hephaestus   Bad           Excellent     Superb        Very Good        0'
+Hera         Bad           Excellent     Excellent     Very Good        0'
+Demeter      Bad           Excellent     Excellent     Very Good        0'
+Aphrodite    Bad           Excellent     Excellent     Very Good        0'
 
 
 Table 4 - Demigod Special Powers
@@ -382,5 +382,5 @@ you will choose for your character.
 
 
 
-Automatically generated for PosChengband 6.0.3.
+Automatically generated for PosChengband 6.0.7.
 

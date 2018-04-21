@@ -98,11 +98,8 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
-    if ( !p_ptr->shooter_info.heavy_shoot
-      && p_ptr->shooter_info.tval_ammo == TV_ARROW )
-    {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
-    }
+    if (p_ptr->shooter_info.tval_ammo != TV_ARROW )
+        p_ptr->shooter_info.base_shot = 100;
 }
 
 static int _get_powers(spell_info* spells, int max)

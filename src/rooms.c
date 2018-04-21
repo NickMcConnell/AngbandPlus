@@ -1823,6 +1823,18 @@ static void _apply_room_grid_mon(point_t p, room_grid_ptr grid, u16b room_flags)
     }
 }
 
+static bool _replace_art(int a_idx)
+{
+    if (a_info[a_idx].generated) return TRUE;
+    if ( random_artifacts
+      && !(a_info[a_idx].gen_flags & OFG_FIXED_ART)
+      && randint0(100) < random_artifact_pct )
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+
 obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
 {
     obj_t forge = {0};
@@ -1831,8 +1843,7 @@ obj_ptr room_grid_make_obj(room_grid_ptr grid, int level)
     {
         if (no_artifacts)
             object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT));
-        else if ( a_info[grid->object].generated
-               || (random_artifacts && randint0(100) < random_artifact_pct))
+        else if (_replace_art(grid->object))
         {
             create_replacement_art(grid->object, &forge);
             a_info[grid->object].generated = TRUE;

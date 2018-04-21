@@ -1563,6 +1563,7 @@ void object_mention(object_type *o_ptr)
 
 static void dragon_resist(object_type * o_ptr)
 {
+    int ct = 0;
     do
     {
         if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DRAGON_FANG && one_in_(3))
@@ -1571,8 +1572,9 @@ static void dragon_resist(object_type * o_ptr)
             one_dragon_ele_resistance(o_ptr);
         else
             one_high_resistance(o_ptr);
+        ct++;
     }
-    while (one_in_(2));
+    while (one_in_(1 + ct));
 }
 
 /*
@@ -1632,8 +1634,12 @@ static bool make_artifact_special(object_type *o_ptr)
             if (!one_in_(d)) continue;
         }
 
-        if (random_artifacts && randint0(100) < random_artifact_pct)
+        if ( random_artifacts
+          && !(a_ptr->gen_flags & OFG_FIXED_ART)
+          && randint0(100) < random_artifact_pct )
+        {
             create_replacement_art(i, o_ptr);
+        }
         else
             create_named_art_aux(i, o_ptr);
 
@@ -1689,8 +1695,12 @@ static bool make_artifact(object_type *o_ptr)
 
         if (!one_in_(a_ptr->rarity)) continue;
 
-        if (random_artifacts && randint0(100) < random_artifact_pct)
+        if ( random_artifacts
+          && !(a_ptr->gen_flags & OFG_FIXED_ART)
+          && randint0(100) < random_artifact_pct )
+        {
             create_replacement_art(i, o_ptr);
+        }
         else
             create_named_art_aux(i, o_ptr);
 
@@ -2020,7 +2030,8 @@ bool apply_magic(object_type *o_ptr, int lev, u32b mode)
     /* Maximum "level" for various things */
     if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-    o_ptr->level = lev; /* Wizard statistics ... */
+    if (!o_ptr->level)
+        o_ptr->level = lev; /* Wizard statistics ... */
 
     /* Base chance of being "good" */
     f1 = lev + 10;

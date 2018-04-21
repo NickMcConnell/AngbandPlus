@@ -2747,6 +2747,13 @@ void _on_birth(void)
             p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
     }
 
+    if (p_ptr->psubclass == WEAPONMASTER_SHIELDS)
+    {
+        skills_shield_init(SV_SMALL_LEATHER_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+        skills_shield_init(SV_SMALL_METAL_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+        skills_shield_init(SV_LARGE_LEATHER_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+        skills_shield_init(SV_LARGE_METAL_SHIELD, WEAPON_EXP_BEGINNER, WEAPON_EXP_MASTER);
+    }
     weaponmaster_adjust_skills();
 
     py_birth_obj_aux(TV_SOFT_ARMOR, SV_LEATHER_JACK, 1);
@@ -2780,7 +2787,7 @@ void weaponmaster_adjust_skills(void)
         break;
 
     case _WEAPONMASTER_SHIELDS:
-        /* TODO: We do not keep skills for shields. Probably never will, either ... */
+        /* This only needs to be done once, in _birth. */
         break;
     }
 
@@ -2788,7 +2795,7 @@ void weaponmaster_adjust_skills(void)
     for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
     {
         kind = _specialities[p_ptr->psubclass].objects[i];
-        if (kind.tval == 0) break;
+        if (kind.tval == 0 || kind.tval == TV_SHIELD) break;
 
         s_info[p_ptr->pclass].w_max[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_MASTER;
     }
@@ -3243,12 +3250,9 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
     int spec = _check_speciality_aux(o_ptr);
 
+    if (!spec) p_ptr->shooter_info.base_shot = 100;
     if (spec && !p_ptr->shooter_info.heavy_shoot)
     {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
-        if (p_ptr->psubclass == WEAPONMASTER_SLINGS && p_ptr->lev >= 40)
-            p_ptr->shooter_info.num_fire += 50;
-
         p_ptr->shooter_info.to_d += p_ptr->lev/5;
         p_ptr->shooter_info.dis_to_d += p_ptr->lev/5;
         p_ptr->shooter_info.to_h += p_ptr->lev/5;
@@ -3261,10 +3265,10 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
             case TOGGLE_RAPID_RELOAD:
                 p_ptr->shooter_info.to_h -= 10;
                 p_ptr->shooter_info.dis_to_h -= 10;
-                p_ptr->shooter_info.num_fire += p_ptr->shooter_info.num_fire * (10 + p_ptr->lev/3) / 100;
+                p_ptr->shooter_info.base_shot += p_ptr->shooter_info.base_shot * (10 + p_ptr->lev/3) / 100;
                 break;
             case TOGGLE_EXPLODING_BOLT:
-                p_ptr->shooter_info.num_fire -= p_ptr->lev;
+                p_ptr->shooter_info.base_shot -= p_ptr->lev;
                 break;
             case TOGGLE_OVERDRAW:
                 p_ptr->shooter_info.to_mult += 100;
@@ -3274,7 +3278,7 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
             case TOGGLE_CAREFUL_AIM:
                 p_ptr->shooter_info.to_h += 20;
                 p_ptr->shooter_info.dis_to_h += 20;
-                p_ptr->shooter_info.num_fire -= p_ptr->lev * 2;
+                p_ptr->shooter_info.base_shot -= p_ptr->lev * 2;
                 break;
             }
         }
@@ -3563,7 +3567,7 @@ static void _move_player(void)
     if (_get_toggle() == TOGGLE_SHOT_ON_THE_RUN)
     {
         int idx = -1;
-        int num_shots = 1 + p_ptr->shooter_info.num_fire / 400;
+        int num_shots = 1 + NUM_SHOTS / 400;
         obj_ptr ammo;
         int i;
 

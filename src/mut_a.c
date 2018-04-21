@@ -890,8 +890,8 @@ void draconian_strike_mut(int cmd, variant *res)
         case DRACONIAN_GREEN: mode = DRACONIAN_STRIKE_POIS; break;
         case DRACONIAN_GOLD: mode = DRACONIAN_STRIKE_STUN; break;
         case DRACONIAN_BRONZE: mode = DRACONIAN_STRIKE_CONF; break;
-        case DRACONIAN_CRYSTAL: mode = DRACONIAN_STRIKE_VORPAL; break;
-        case DRACONIAN_SHADOW: mode = DRACONIAN_STRIKE_VAMP; break;
+        case DRACONIAN_CRYSTAL: mode = PY_ATTACK_VORPAL; break;
+        case DRACONIAN_SHADOW: mode = PY_ATTACK_VAMP; break;
         }
         var_set_bool(res, do_blow(mode));
         break;

@@ -120,7 +120,7 @@ static cptr _thb_skill_desc(int base, int xtra) { return _skill_desc(base + 5*xt
 static cptr _class_thb_skill_desc(class_t *class_ptr) { return _thb_skill_desc(class_ptr->base_skills.thb, class_ptr->extra_skills.thb); }
 static cptr _mon_race_thb_skill_desc(race_t *race_ptr) { return _thb_skill_desc(race_ptr->skills.thb, race_ptr->extra_skills.thb); }
 
-static cptr _thb_skill_desc2(int base) { return _skill_desc(base + 5, 2); }
+static cptr _thb_skill_desc2(int base) { return _skill_desc(base + 9, 2); }
 static cptr _race_thb_skill_desc(race_t *race_ptr) { return _thb_skill_desc2(race_ptr->skills.thb); }
 static cptr _pers_thb_skill_desc(personality_ptr pers_ptr) { return _thb_skill_desc2(pers_ptr->skills.thb*2); }
 
@@ -1421,81 +1421,6 @@ static void _personalities_help(FILE* fp)
 }
 
 /******************************************************************************
- * Spoilers: Monster max damage by type (Sort it by level for best results)
- ******************************************************************************/
-static void _mon_dam_table(FILE* fp)
-{
-    int i, j;
-    fprintf(fp, "Name,Idx,Lvl,HP,Ac,El,Fi,Co,Po,Li,Dk,Cf,Nt,Nx,So,Sh,Ca,Di\n");
-    for (i = 0; i < max_r_idx; i++)
-    {
-        monster_race *r_ptr = &r_info[i];
-        int           hp = 0;
-        int           dam[RES_MAX] = {0};
-        bool          show = FALSE;
-
-        if (r_ptr->flags1 & RF1_FORCE_MAXHP)
-            hp = r_ptr->hdice * r_ptr->hside;
-        else
-            hp = r_ptr->hdice * (1 + r_ptr->hside)/2;
-
-        /* Damage Logic Duplicated from mspells1.c */
-        if (r_ptr->flags4 & RF4_ROCKET)
-            dam[RES_SHARDS] = MAX(dam[RES_SHARDS], MIN(hp / 4, 600));
-        if (r_ptr->flags4 & RF4_BR_ACID)
-            dam[RES_ACID] = MAX(dam[RES_ACID], MIN(hp / 4, 900));
-        if (r_ptr->flags4 & RF4_BR_ELEC)
-            dam[RES_ELEC] = MAX(dam[RES_ELEC], MIN(hp / 4, 900));
-        if (r_ptr->flags4 & RF4_BR_FIRE)
-            dam[RES_FIRE] = MAX(dam[RES_FIRE], MIN(hp / 4, 900));
-        if (r_ptr->flags4 & RF4_BR_COLD)
-            dam[RES_COLD] = MAX(dam[RES_COLD], MIN(hp / 4, 900));
-        if (r_ptr->flags4 & RF4_BR_POIS)
-            dam[RES_POIS] = MAX(dam[RES_POIS], MIN(hp / 5, 600));
-        if (r_ptr->flags4 & RF4_BR_NETH)
-            dam[RES_NETHER] = MAX(dam[RES_NETHER], MIN(hp / 7, 550));
-        if (r_ptr->flags4 & RF4_BR_LITE)
-            dam[RES_LITE] = MAX(dam[RES_LITE], MIN(hp / 6, 400));
-        if (r_ptr->flags4 & RF4_BR_DARK)
-            dam[RES_DARK] = MAX(dam[RES_DARK], MIN(hp / 6, 400));
-        if (r_ptr->flags4 & RF4_BR_CONF)
-            dam[RES_CONF] = MAX(dam[RES_CONF], MIN(hp / 6, 400));
-        if (r_ptr->flags4 & RF4_BR_SOUN)
-            dam[RES_SOUND] = MAX(dam[RES_SOUND], MIN(hp / 6, 450));
-        if (r_ptr->flags4 & RF4_BR_CHAO)
-            dam[RES_CHAOS] = MAX(dam[RES_CHAOS], MIN(hp / 6, 600));
-        if (r_ptr->flags4 & RF4_BR_DISE)
-            dam[RES_DISEN] = MAX(dam[RES_DISEN], MIN(hp / 6, 500));
-        if (r_ptr->flags4 & RF4_BR_NEXU)
-            dam[RES_NEXUS] = MAX(dam[RES_NEXUS], MIN(hp / 3, 250));
-        if (r_ptr->flags4 & RF4_BR_SHAR)
-            dam[RES_SHARDS] = MAX(dam[RES_SHARDS], MIN(hp / 6, 500));
-        if (r_ptr->flags4 & RF4_BR_NUKE)
-            dam[RES_POIS] = MAX(dam[RES_POIS], MIN(hp / 5, 600));
-        if (r_ptr->flags5 & RF5_BA_DARK)
-            dam[RES_DARK] = MAX(dam[RES_DARK], r_ptr->level*4 + 105);
-        if (r_ptr->flags5 & RF5_BA_LITE)
-            dam[RES_LITE] = MAX(dam[RES_LITE], r_ptr->level*4 + 105);
-
-        for (j = 0; j < RES_MAX; j++)
-        {
-            if (dam[j] > 0)
-                show = TRUE;
-        }
-
-        if (show)
-        {
-            fprintf(fp, "\"%s\",%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-                r_name + r_ptr->name, i, r_ptr->level, hp,
-                dam[RES_ACID], dam[RES_ELEC], dam[RES_FIRE], dam[RES_COLD], dam[RES_POIS],
-                dam[RES_LITE], dam[RES_DARK], dam[RES_CONF], dam[RES_NETHER], dam[RES_NEXUS],
-                dam[RES_SOUND], dam[RES_SHARDS], dam[RES_CHAOS], dam[RES_DISEN]
-            );
-        }
-    }
-}
-
-/******************************************************************************
  * Spoilers: All the various possessor body types
  ******************************************************************************/
 static void _possessor_stats_table(FILE* fp)
@@ -1506,7 +1431,7 @@ static void _possessor_stats_table(FILE* fp)
     {
         monster_race *r_ptr = &r_info[i];
 
-        if (r_ptr->flags9 & RF9_DROP_CORPSE)
+        /*XXX if (r_ptr->flags9 & RF9_DROP_CORPSE)*/
         {
             int ac = 0, dam = 0, attacks = 0, j;
 
@@ -1524,7 +1449,7 @@ static void _possessor_stats_table(FILE* fp)
             }
 
             fprintf(fp, "\"%s\",%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%d,%d,%d,%d,=\"%d+%d\",=\"%d+%d\",=\"%d+%d\",%d,%d,%d,=\"%d+%d\",=\"%d+%d\"\n",
-                r_name + r_ptr->name, i, r_ptr->level,
+                i == MON_ECHIZEN ? "Combat Echizen" : r_name + r_ptr->name, i, r_ptr->level,
                 r_ptr->speed - 110, ac, attacks, dam,
                 b_name + b_info[r_ptr->body.body_idx].name,
                 r_ptr->body.stats[A_STR], r_ptr->body.stats[A_INT], r_ptr->body.stats[A_WIS],
@@ -1591,7 +1516,7 @@ static void _skills_race_table(FILE* fp)
 static void _skills_class_table(FILE* fp)
 {
     int i,j;
-    fputs("Class,Dis,Dev,Sav,Stl,Srh,Fos,Thn,Thb,Dis2,Dev2,Sav2,Thn2,Thb2,Riding,DualWielding\n", fp);
+    fputs("Class,Dis,Dev,Sav,Stl,Srh,Fos,Thn,Thb,Dis2,Dev2,Sav2,Thn2,Thb2,Life,BHP,Riding,DualWielding\n", fp);
     for (i = 0; i < MAX_CLASS; i++)
     {
         int max_j = 1;
@@ -1611,7 +1536,7 @@ static void _skills_class_table(FILE* fp)
                 fprintf(fp, "\"%s:%s\",", class_ptr->name, class_ptr->subname);
             else
                 fprintf(fp, "\"%s\",", class_ptr->name);
-            fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d+%d,%d+%d,%d+%d,%d+%d,%d+%d,%d,%d\n",
+            fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d+%d,%d+%d,%d+%d,%d+%d,%d+%d,%d,%d,%d,%d\n",
                 class_ptr->base_skills.dis + 5*class_ptr->extra_skills.dis,
                 class_ptr->base_skills.dev + 5*class_ptr->extra_skills.dev,
                 class_ptr->base_skills.sav + 5*class_ptr->extra_skills.sav,
@@ -1625,6 +1550,7 @@ static void _skills_class_table(FILE* fp)
                 class_ptr->base_skills.sav, class_ptr->extra_skills.sav,
                 class_ptr->base_skills.thn, class_ptr->extra_skills.thn,
                 class_ptr->base_skills.thb, class_ptr->extra_skills.thb,
+                class_ptr->life, class_ptr->base_hp,
                 s_info[i].s_max[SKILL_RIDING],
                 s_info[i].s_max[SKILL_DUAL_WIELDING]
             );
@@ -1830,7 +1756,6 @@ void generate_spoilers(void)
     _help_file("DragonRealms.txt", _dragon_realms_help);
 
     _csv_file("PossessorStats.csv", _possessor_stats_table);
-    _csv_file("MonsterDam.csv", _mon_dam_table);
     _csv_file("Skills-Racial.csv", _skills_race_table);
     _csv_file("Skills-Class.csv", _skills_class_table);
     /*_csv_file("Skills-Monster.csv", _skills_mon_table);*/

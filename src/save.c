@@ -347,7 +347,6 @@ static void wr_extra(savefile_ptr file)
     savefile_write_s16b(file, p_ptr->lev);
 
     for (i = 0; i < 64; i++) savefile_write_s16b(file, p_ptr->spell_exp[i]);
-    for (i = 0; i < 64; i++) savefile_write_s32b(file, p_ptr->spell_turn[i]);
     for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) savefile_write_s16b(file, p_ptr->weapon_exp[i][j]);
     for (i = 0; i < 10; i++) savefile_write_s16b(file, p_ptr->skill_exp[i]);
     for (i = 0; i < MAX_MAGIC_NUM; i++) savefile_write_s32b(file, p_ptr->magic_num1[i]);

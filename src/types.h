@@ -924,12 +924,15 @@ typedef struct {
     int dis_to_h;
     int dis_to_d;
     int to_mult;
-    int num_fire;
+    int base_shot;
+    int xtra_shot;
     byte tval_ammo;
     int breakage; /* pct of normal breakage odds ... default is 100 */
     bool heavy_shoot;
     u32b flags[OF_ARRAY_SIZE];
 } shooter_info_t;
+
+#define NUM_SHOTS (p_ptr->shooter_info.base_shot + p_ptr->shooter_info.xtra_shot)
 
 typedef struct {
     int to_dd;
@@ -1214,7 +1217,6 @@ struct player_type
     byte spell_order[64];      /* order spells learned/remembered/forgotten */
 
     s16b spell_exp[64];       /* Proficiency of spells */
-    s32b spell_turn[64];      /* Turn last cast successfully, or 0 */
     s16b weapon_exp[5][64];   /* Proficiency of weapons */
     s16b skill_exp[10];       /* Proficiency of misc. skill */
     s16b spells_per_round;    /* 175 = 1.75 spells per round, etc. Calculated in calc_bonuses(). Only works for book casters (do_cmd_cast) at the moment. */
@@ -1839,7 +1841,6 @@ struct spell_stats_s
     int ct_fail;
     int skill;      /* CASTER_GAIN_SKILL */
     int max_skill;
-    int last_turn;  /* Track last turn cast to prevent spell skill spamming */
 };
 
 typedef struct spell_stats_s  spell_stats_t;
@@ -2014,6 +2015,7 @@ struct device_effect_info_s
     int      extra;
     int      flags;
     counts_t counts;
+    int      prob;
 };
 
 typedef struct device_effect_info_s  device_effect_info_t;

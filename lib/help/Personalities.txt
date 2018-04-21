@@ -15,7 +15,7 @@ Dexterity     +0        Stealth     <color:R>Poor         </color>
 Constitution  +0        Searching   <color:o>Fair         </color>
 Charisma      +0        Perception  <color:o>Fair         </color>
 Life Rating  100%       Melee       <color:R>Poor         </color>
-Experience   100%       Bows        <color:R>Poor         </color>
+Experience   100%       Bows        <color:o>Fair         </color>
 </style></indent>
 <topic:Mighty><color:o>Mighty</color>
 Mighty raises your physical stats and skills, but reduces stats and skills which influence magic. It makes your stats suitable for a warrior. Also it directly influences your hit-points and spell fail rate.
@@ -27,8 +27,8 @@ Wisdom        -2        Save        <color:D>Very Bad     </color>
 Dexterity     +0        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:r>Bad          </color>
-Life Rating  102%       Melee       <color:g>Superb       </color>
-Experience   100%       Bows        <color:R>Poor         </color>
+Life Rating  102%       Melee       <color:b>Heroic       </color>
+Experience   100%       Bows        <color:o>Fair         </color>
 </style></indent>
 <topic:Shrewd><color:o>Shrewd</color>
 Shrewd reduces your physical stats, and raises your intelligence and magical skills. It makes your stats suitable for a mage. Also it directly influences your hit-points and spell fail rate.
@@ -41,7 +41,7 @@ Dexterity     +1        Stealth     <color:R>Poor         </color>
 Constitution  -1        Searching   <color:r>Bad          </color>
 Charisma      -1        Perception  <color:G>Excellent    </color>
 Life Rating   97%       Melee       <color:D>Very Bad     </color>
-Experience   100%       Bows        <color:D>Very Bad     </color>
+Experience   100%       Bows        <color:r>Bad          </color>
 </style></indent>
 <topic:Pious><color:o>Pious</color>
 Pious deepens your faith in your God. It makes your physical ability average, and your stats suitable for priest.
@@ -54,7 +54,7 @@ Dexterity     -1        Stealth     <color:r>Bad          </color>
 Constitution  +0        Searching   <color:y>Very Good    </color>
 Charisma      +0        Perception  <color:r>Bad          </color>
 Life Rating  100%       Melee       <color:D>Very Bad     </color>
-Experience   100%       Bows        <color:D>Very Bad     </color>
+Experience   100%       Bows        <color:r>Bad          </color>
 </style></indent>
 <topic:Nimble><color:o>Nimble</color>
 Nimble renders you highly skilled comparatively well, but reduces your physical ability.
@@ -80,7 +80,7 @@ Dexterity     -1        Stealth     <color:R>Poor         </color>
 Constitution  -1        Searching   <color:y>Good         </color>
 Charisma      +1        Perception  <color:r>Bad          </color>
 Life Rating   98%       Melee       <color:G>Excellent    </color>
-Experience   100%       Bows        <color:R>Poor         </color>
+Experience   100%       Bows        <color:o>Fair         </color>
 </style></indent>
 <topic:Combat><color:o>Combat</color>
 The Combat personality favors melee and shooting at the expense of other skills such as disarming, devices, and saving throws. Strength and agility are enhanced, but intelligence and wisdom are decreased. All Combat people have great respect for the legendary "Combat Echizen".
@@ -132,8 +132,8 @@ Wisdom        -2        Save        <color:y>Good         </color>
 Dexterity     -2        Stealth     <color:o>Fair         </color>
 Constitution  -2        Searching   <color:g>Superb       </color>
 Charisma      -2        Perception  <color:g>Superb       </color>
-Life Rating  100%       Melee       <color:b>Heroic       </color>
-Experience   100%       Bows        <color:b>Heroic       </color>
+Life Rating   98%       Melee       <color:b>Heroic       </color>
+Experience   100%       Bows        <color:g>Superb       </color>
 </style></indent>
 <topic:Patient><color:o>Patient</color>
 A Patient person does things carefully. Patient people have high constitution, and high resilience, but poor abilities in most other skills. Also it directly influences your life rating.
@@ -146,7 +146,7 @@ Dexterity     -2        Stealth     <color:o>Fair         </color>
 Constitution  +2        Searching   <color:o>Fair         </color>
 Charisma      +0        Perception  <color:r>Bad          </color>
 Life Rating  102%       Melee       <color:D>Very Bad     </color>
-Experience   100%       Bows        <color:D>Very Bad     </color>
+Experience   100%       Bows        <color:r>Bad          </color>
 </style></indent>
 <topic:Craven><color:o>Craven</color>
 A Craven person is a coward, preferring to avoid a fight at any cost. Craven adventurers shoot and use devices well, and their stealth is impressive. But their stats and other skills are somewhat wanting.
@@ -172,7 +172,7 @@ Dexterity     +2        Stealth     <color:r>Bad          </color>
 Constitution  -1        Searching   <color:D>Very Bad     </color>
 Charisma      +0        Perception  <color:r>Bad          </color>
 Life Rating  100%       Melee       <color:D>Very Bad     </color>
-Experience   100%       Bows        <color:D>Very Bad     </color>
+Experience   100%       Bows        <color:r>Bad          </color>
 </style></indent>
 <topic:Tables><style:heading>Table 1 - Personality Statistic Bonus Table</style>
 
@@ -186,7 +186,7 @@ Fearless        +1   +0   +0   -1   -1   +1   98%  100%
 Combat          +1   -1   -1   +1   +0   +0  100%  100%
 Lazy            -2   -2   -2   -2   -2   -2   95%  100%
 Sexy            +1   +1   +1   +1   +1   +1  100%  100%
-Lucky           -2   -2   -2   -2   -2   -2  100%  100%
+Lucky           -2   -2   -2   -2   -2   -2   98%  100%
 Patient         -1   -1   +1   -2   +2   +0  102%  100%
 Craven          -1   +1   +1   -1   -1   -3   99%  100%
 Hasty           +0   -1   -2   +2   -1   +0  100%  100%
@@ -213,21 +213,21 @@ Hasty        <color:D>Very Bad     </color> <color:D>Very Bad     </color> <colo
 <topic:Skills2><style:heading>Table 3 - Personality Skill Bonus Table II</style>
 <style:table>
              <color:w>Searching     Perception    Melee         Bows         </color>
-Ordinary     <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color> <color:R>Poor         </color>
-Mighty       <color:r>Bad          </color> <color:r>Bad          </color> <color:g>Superb       </color> <color:R>Poor         </color>
-Shrewd       <color:r>Bad          </color> <color:G>Excellent    </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
-Pious        <color:y>Very Good    </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
+Ordinary     <color:o>Fair         </color> <color:o>Fair         </color> <color:R>Poor         </color> <color:o>Fair         </color>
+Mighty       <color:r>Bad          </color> <color:r>Bad          </color> <color:b>Heroic       </color> <color:o>Fair         </color>
+Shrewd       <color:r>Bad          </color> <color:G>Excellent    </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
+Pious        <color:y>Very Good    </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 Nimble       <color:G>Excellent    </color> <color:G>Excellent    </color> <color:R>Poor         </color> <color:g>Superb       </color>
-Fearless     <color:y>Good         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:R>Poor         </color>
+Fearless     <color:y>Good         </color> <color:r>Bad          </color> <color:G>Excellent    </color> <color:o>Fair         </color>
 Combat       <color:R>Poor         </color> <color:y>Good         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>
 Lazy         <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
 Sexy         <color:G>Excellent    </color> <color:y>Good         </color> <color:g>Superb       </color> <color:g>Superb       </color>
-Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:b>Heroic       </color> <color:b>Heroic       </color>
-Patient      <color:o>Fair         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
+Lucky        <color:g>Superb       </color> <color:g>Superb       </color> <color:b>Heroic       </color> <color:g>Superb       </color>
+Patient      <color:o>Fair         </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 Craven       <color:o>Fair         </color> <color:o>Fair         </color> <color:D>Very Bad     </color> <color:g>Superb       </color>
-Hasty        <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>
+Hasty        <color:D>Very Bad     </color> <color:r>Bad          </color> <color:D>Very Bad     </color> <color:r>Bad          </color>
 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.3.</color>
+<color:s>Automatically generated for PosChengband 6.0.7.</color>

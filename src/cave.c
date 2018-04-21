@@ -1364,6 +1364,15 @@ void py_get_display_char_attr(char *c, byte *a)
     {
         switch (p_ptr->mimic_form)
         {
+        case MIMIC_VAMPIRE:
+            r_ptr = &r_info[MON_MASTER_VAMPIRE];
+            break;
+        case MIMIC_DEMON:
+            r_ptr = &r_info[MON_G_BALROG];
+            break;
+        case MIMIC_DEMON_LORD:
+            r_ptr = &r_info[MON_GOTHMOG];
+            break;
         case MIMIC_BAT:
             r_ptr = &r_info[MON_VAMPIRE_BAT];
             break;

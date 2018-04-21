@@ -460,16 +460,6 @@ static void _calc_bonuses(void)
 static void _get_flags(u32b flgs[OF_ARRAY_SIZE])
 {
 }
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
-{
-    if ( !p_ptr->shooter_info.heavy_shoot
-      && !heavy_armor()
-      && p_ptr->shooter_info.tval_ammo <= TV_BOLT
-      && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
-    {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
-    }
-}
 
 static void _character_dump(doc_ptr doc)
 {
@@ -569,8 +559,8 @@ class_t *scout_get_class(void)
     /* static info never changes */
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  33,  34,   6,  50,  24,  50,  50 };
-    skills_t xs = { 15,  11,  10,   0,   0,   0,  20,  20 };
+    skills_t bs = { 30,  33,  34,   6,  50,  24,  50,  65 };
+    skills_t xs = { 15,  11,  10,   0,   0,   0,  20,  25 };
 
         me.name = "Scout";
         me.desc = "The scout is the vanguard of any attack, and excels at stealth and observation "
@@ -598,7 +588,6 @@ class_t *scout_get_class(void)
         me.birth = _birth;
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.move_player = _move_player;

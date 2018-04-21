@@ -3182,6 +3182,7 @@ static int _calc_xtra_hp(int amt)
     case CLASS_ARCHER:
     case CLASS_WEAPONSMITH:
     case CLASS_WEAPONMASTER:
+    case CLASS_RAGE_MAGE:
         w1 = 2; w2 = 1; w3 = 0;
         break;
 
@@ -3481,7 +3482,8 @@ void calc_bonuses(void)
     p_ptr->shooter_info.to_d = 0;
     p_ptr->shooter_info.dis_to_h = 0;
     p_ptr->shooter_info.dis_to_d = 0;
-    p_ptr->shooter_info.num_fire = 100;
+    p_ptr->shooter_info.base_shot = 100;
+    p_ptr->shooter_info.xtra_shot = 0;
     p_ptr->shooter_info.heavy_shoot = FALSE;
     p_ptr->shooter_info.to_mult = 0;
     p_ptr->shooter_info.tval_ammo = 0;
@@ -4029,6 +4031,7 @@ void calc_bonuses(void)
     {
         int ct = 0;
         int to_d = 3 + p_ptr->lev/5;
+        int pct = p_ptr->pclass == CLASS_RAGE_MAGE ? 50 : 100; /* XXX tweak me */
 
         res_add_immune(RES_FEAR);
 
@@ -4060,13 +4063,14 @@ void calc_bonuses(void)
         if (p_ptr->prace != RACE_MON_BEHOLDER)
             p_ptr->to_d_m  += 3+(p_ptr->lev/5);
         p_ptr->shooter_info.dis_to_h  -= 12;
-        p_ptr->to_a -= 10;
-        p_ptr->dis_to_a -= 10;
-        p_ptr->skills.stl -= 7;
-        p_ptr->skills.dev -= 20;
-        p_ptr->skills.sav -= 30;
-        p_ptr->skills.srh -= 15;
-        p_ptr->skills.fos -= 15;
+        /* Note: The Rage Mage is no longer skill smashed by Berserk */
+        p_ptr->to_a -= 10 * pct / 100;
+        p_ptr->dis_to_a -= 10 * pct / 100;
+        p_ptr->skills.stl -= 7 * pct / 100;
+        p_ptr->skills.dev -= 20 * pct / 100;
+        p_ptr->skills.sav -= 30 * pct / 100;
+        p_ptr->skills.srh -= 15 * pct / 100;
+        p_ptr->skills.fos -= 15 * pct / 100;
         p_ptr->skill_tht -= 20;
         p_ptr->skill_dig += 30;
     }
@@ -4468,7 +4472,8 @@ void calc_bonuses(void)
             p_ptr->shooter_info.to_h  += 2 * (hold - o_ptr->weight / 10);
             p_ptr->shooter_info.dis_to_h  += 2 * (hold - o_ptr->weight / 10);
             p_ptr->shooter_info.heavy_shoot = TRUE;
-            p_ptr->shooter_info.num_fire = 100;
+            p_ptr->shooter_info.base_shot = 100;
+            p_ptr->shooter_info.xtra_shot = 0;
         }
 
         /* Hack: hold is also used for inventory weapons and other stuff, so undo
@@ -4515,14 +4520,19 @@ void calc_bonuses(void)
         if (p_ptr->skills.thb > 80)
             p_ptr->shooter_info.breakage = 90 - (p_ptr->skills.thb - 80)/2;
 
-        if (race_ptr != NULL && race_ptr->calc_shooter_bonuses != NULL)
+        /* Experimental: Everbody gets extra shots based on bow skill. This
+         * makes Race and Personality choices relevant. */
+        if (p_ptr->shooter_info.base_shot < p_ptr->skills.thb && !p_ptr->shooter_info.heavy_shoot && !heavy_armor())
+            p_ptr->shooter_info.base_shot = p_ptr->skills.thb;
+
+        if (race_ptr->calc_shooter_bonuses)
             race_ptr->calc_shooter_bonuses(o_ptr, &p_ptr->shooter_info);
 
-        if (class_ptr != NULL && class_ptr->calc_shooter_bonuses != NULL)
+        if (class_ptr->calc_shooter_bonuses)
             class_ptr->calc_shooter_bonuses(o_ptr, &p_ptr->shooter_info);
 
         if (p_ptr->shooter_info.breakage < 0) p_ptr->shooter_info.breakage = 0;
-        if (p_ptr->shooter_info.num_fire < 0) p_ptr->shooter_info.num_fire = 0;
+        if (p_ptr->shooter_info.base_shot < 0) p_ptr->shooter_info.base_shot = 0;
     }
 
     /* Blows Calculation */
@@ -4735,7 +4745,7 @@ void calc_bonuses(void)
 
             if (p_ptr->pclass == CLASS_FORCETRAINER)
             {
-                p_ptr->weapon_info[i].base_blow += MIN(400, 400 * blow_base / 60);
+                p_ptr->weapon_info[i].base_blow += MIN(400, 400 * blow_base / 57);
                 if (p_ptr->magic_num1[0])
                 {
                     p_ptr->weapon_info[i].to_d += (p_ptr->magic_num1[0]/5);
@@ -5056,7 +5066,8 @@ void calc_bonuses(void)
     if (p_ptr->pass_wall && !p_ptr->kill_wall) p_ptr->no_flowed = TRUE;
     */
 
-    /* Apply some maximums ... */
+    /* Apply some maximums ... Note: Rune-Knights must limit to just 15%
+     * Otherwise, they could use double or even triple {absorption}! */
     if ( p_ptr->magic_resistance > 15
       && !prace_is_(RACE_MON_GOLEM)
       && !prace_is_(MIMIC_MIST)

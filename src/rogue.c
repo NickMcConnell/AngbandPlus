@@ -738,11 +738,8 @@ cptr do_burglary_spell(int spell, int mode)
  ****************************************************************************/
 static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
 {
-    if ( !p_ptr->shooter_info.heavy_shoot
-      && p_ptr->shooter_info.tval_ammo == TV_SHOT )
-    {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 2;
-    }
+    if (p_ptr->shooter_info.tval_ammo != TV_SHOT )
+        p_ptr->shooter_info.base_shot = 100;
 }
 
 static void _calc_bonuses(void)
@@ -800,7 +797,7 @@ class_t *rogue_get_class(void)
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
     skills_t bs = { 45,  37,  36,   5,  32,  24,  60,  66};
-    skills_t xs = { 15,  12,  10,   0,   0,   0,  21,  18};
+    skills_t xs = { 15,  12,  10,   0,   0,   0,  21,  20};
 
         me.name = "Rogue";
         me.desc = "A Rogue is a character that prefers to live by his cunning, but is "

@@ -359,7 +359,10 @@ static void rd_extra(savefile_ptr file)
     p_ptr->lev = savefile_read_s16b(file);
 
     for (i = 0; i < 64; i++) p_ptr->spell_exp[i] = savefile_read_s16b(file);
-    for (i = 0; i < 64; i++) p_ptr->spell_turn[i] = savefile_read_s32b(file);
+    if (savefile_is_older_than(file, 6, 0, 6, 1))
+    {
+        for (i = 0; i < 64; i++) savefile_read_s32b(file);
+    }
     for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) p_ptr->weapon_exp[i][j] = savefile_read_s16b(file);
     for (i = 0; i < 10; i++) p_ptr->skill_exp[i] = savefile_read_s16b(file);
     for (i = 0; i < MAX_MAGIC_NUM; i++) p_ptr->magic_num1[i] = savefile_read_s32b(file);

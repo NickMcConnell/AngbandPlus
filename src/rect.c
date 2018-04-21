@@ -1,5 +1,7 @@
 #include "rect.h"
 
+#include <assert.h>
+
 point_t point(int x, int y)
 {
     point_t p;
@@ -37,6 +39,38 @@ int point_compare(point_t p1, point_t p2)
 point_t size(int cx, int cy)
 {
     return point(cx, cy);
+}
+
+/* Interpolate a function value based on sample points. Interpolation is
+ * linear, of course, but you can approximate highly non-linear functions
+ * by adding a suitable number of points. For example, here is a candidate
+ * for gaining weapon proficiency where the amount gained decays exponentially
+ * with the current skill:
+        static point_t tbl[9] = {
+            {0, 1280}, {1000, 640}, {2000, 320}, {3000, 160}, {4000, 80},
+            {5000, 40}, {6000, 20}, {7000, 10}, {8000, 1} };
+        int step = interpolate(skill, tbl, 9);
+        skill += step/10;
+        if ((step % 10) && randint0(10) < (step % 10))
+            skill++;
+*/
+int interpolate(int x, point_ptr tbl, int ct)
+{
+    point_t prev, current;
+    int     i;
+
+    assert(ct);
+    assert(tbl);
+
+    for (i = 0; i < ct; i++)
+    {
+        current = tbl[i];
+        if (x < current.x) break;
+        prev = current;
+    }
+    if (i == 0) return current.y;  /* Out of bounds: x too low for tbl */
+    if (i == ct) return current.y; /* Out of bounds: x too high for tbl */
+    return prev.y + (x - prev.x)*(current.y - prev.y)/(current.x - prev.x);
 }
 
 /* Trivial rectangle utility to make code a bit more readable */

@@ -269,11 +269,6 @@ number of a random type of monster with a birth option [d]. Be warned:
 unique monsters are generally powerful for their native depths, so 
 fighting them out of depth is especially difficult!
 
-Random quests appear on level 6, 12, 24, 38, 44, 50, 56, 62, 76 and 88. 
-On entering a random quest level you will be told what the quest 
-monster is (for example, 'Beware, this level is protected by The 
-Borshin.').
-
 On random quest levels, no down staircases are generated until the last 
 monster is killed which means that you cannot continue further into the 
 dungeon until you have completed your quests. When you kill the quest 
@@ -281,9 +276,16 @@ monster, the down staircase will be created and the monster will drop
 an item of 'excellent' quality or above. This is true even of monsters 
 that do not normally drop items.
 
-If the quest monster is too strong for you, simply run away using up 
-staircase or recall. In such case, the quest will be treated as 
-'failed' and you cannot challenge that quest never again.
+The random quests in Angband will appear on random levels, so you won't 
+be able to know or guess when they might happen. Should a given quest 
+prove too difficult for you, then you may retreat to safety until you 
+are more powerful. The quest monster will patiently await your return. 
+To retreat is to shame oneself, but it is better to know your own 
+limits then to die in a foolhearty attempt (with full honor). Upon 
+retreating from a quest, you are also given the option to intentionally 
+fail the quest. If you choose this path, then your fame will be greatly 
+diminished, but at least you will be able to continue your descent in 
+Angband.
 
 
 Original   : (??)

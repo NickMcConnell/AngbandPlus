@@ -52,7 +52,7 @@ race_t *amberite_get_race(void)
         me.skills.srh =  3;
         me.skills.fos = 13;
         me.skills.thn = 15;
-        me.skills.thb = 10;
+        me.skills.thb =  7;
 
         me.life = 100;
         me.base_hp = 20;
@@ -274,7 +274,7 @@ race_t *android_get_race(void)
         me.skills.srh =  3;
         me.skills.fos = 14;
         me.skills.thn = 20;
-        me.skills.thb = 10;
+        me.skills.thb =  6;
 
         me.life = 108;
         me.base_hp = 26;
@@ -337,7 +337,7 @@ race_t *archon_get_race(void)
         me.skills.srh =  2;
         me.skills.fos = 11;
         me.skills.thn = 10;
-        me.skills.thb = 10;
+        me.skills.thb =  7;
 
         me.life = 103;
         me.base_hp = 22;
@@ -490,7 +490,7 @@ race_t *barbarian_get_race(void)
         me.skills.srh = 1;
         me.skills.fos = 7;
         me.skills.thn = 12;
-        me.skills.thb = 10;
+        me.skills.thb =  6;
 
         me.life = 103;
         me.base_hp = 22;
@@ -565,7 +565,7 @@ race_t *beastman_get_race(void)
         me.skills.srh = -1;
         me.skills.fos = 5;
         me.skills.thn = 12;
-        me.skills.thb = 5;
+        me.skills.thb = 3;
 
         me.life = 102;
         me.base_hp = 22;
@@ -727,7 +727,7 @@ race_t *centaur_get_race(void)
         me.skills.srh =  3;
         me.skills.fos =  5;
         me.skills.thn = 10;
-        me.skills.thb = 12;
+        me.skills.thb =  8;
 
         me.life = 103;
         me.base_hp = 22;
@@ -796,7 +796,7 @@ race_t *cyclops_get_race(void)
         me.skills.srh = -2;
         me.skills.fos =  5;
         me.skills.thn = 20;
-        me.skills.thb = 12;
+        me.skills.thb = 10;
 
         me.life = 108;
         me.base_hp = 24;
@@ -866,7 +866,7 @@ race_t *dark_elf_get_race(void)
         me.skills.srh = 8;
         me.skills.fos = 12;
         me.skills.thn = -5;
-        me.skills.thb = 10;
+        me.skills.thb =  6;
 
         me.life = 97;
         me.base_hp = 18;
@@ -1341,7 +1341,7 @@ race_t *draconian_get_race(int psubrace)
         me.skills.srh = 1;
         me.skills.fos = 10;
         me.skills.thn = 5;
-        me.skills.thb = 5;
+        me.skills.thb = 3;
 
         me.infra = 2;
 
@@ -1527,7 +1527,7 @@ race_t *dunadan_get_race(void)
         me.skills.srh =  3;
         me.skills.fos = 13;
         me.skills.thn = 15;
-        me.skills.thb = 10;
+        me.skills.thb =  7;
 
         me.life = 100;
         me.base_hp = 20;
@@ -1659,7 +1659,7 @@ race_t *ent_get_race(void)
         me.skills.srh =  0;
         me.skills.fos =  9;
         me.skills.thn = 15;
-        me.skills.thb = -5;
+        me.skills.thb = -3;
 
         me.life = 105;
         me.base_hp = 25;
@@ -1748,7 +1748,7 @@ race_t *gnome_get_race(void)
         me.skills.srh = 6;
         me.skills.fos = 13;
         me.skills.thn = -8;
-        me.skills.thb = 12;
+        me.skills.thb =  8;
 
         me.life = 95;
         me.base_hp = 16;
@@ -1909,7 +1909,7 @@ race_t *half_giant_get_race(void)
         me.skills.srh = -1;
         me.skills.fos =  5;
         me.skills.thn = 25;
-        me.skills.thb =  5;
+        me.skills.thb =  3;
 
         me.life = 108;
         me.base_hp = 26;
@@ -2111,7 +2111,7 @@ race_t *half_troll_get_race(void)
         me.skills.srh = -1;
         me.skills.fos =  5;
         me.skills.thn = 20;
-        me.skills.thb =-10;
+        me.skills.thb = -6;
 
         me.life = 107;
         me.base_hp = 25;
@@ -2170,7 +2170,7 @@ race_t *high_elf_get_race(void)
         me.skills.srh =  3;
         me.skills.fos = 14;
         me.skills.thn = 10;
-        me.skills.thb = 25;
+        me.skills.thb = 15;
 
         me.life = 99;
         me.base_hp = 19;
@@ -2226,7 +2226,7 @@ race_t *hobbit_get_race(void)
         me.skills.srh = 12;
         me.skills.fos = 15;
         me.skills.thn = -10;
-        me.skills.thb = 20;
+        me.skills.thb = 10;
 
         me.life = 92;
         me.base_hp = 14;
@@ -2356,7 +2356,7 @@ race_t *imp_get_race(void)
         me.skills.srh = -1;
         me.skills.fos = 10;
         me.skills.thn = 5;
-        me.skills.thb = -5;
+        me.skills.thb = -3;
 
         me.life = 99;
         me.base_hp = 19;

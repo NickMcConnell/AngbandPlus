@@ -257,7 +257,7 @@ static void _build_general2(doc_ptr doc)
 
         /* Display */
         _display_skill(doc, "Melee", skills.thn, 12);
-        _display_skill(doc, "Ranged", skills.thb, 12);
+        _display_skill(doc, "Archery", skills.thb, 12);
         _display_skill(doc, "SavingThrow", skills.sav, 7);
         _display_skill(doc, "Stealth", skills.stl, 1);
         _display_skill(doc, "Perception", skills.fos, 6);
@@ -347,7 +347,23 @@ static _flagzilla_ptr _flagzilla_alloc(void)
         object_type *o_ptr = equip_obj(i);
 
         if (o_ptr)
+        {
             obj_flags_known(o_ptr, flagzilla->obj_flgs[i]);
+            switch (o_ptr->rune)
+            {
+            case RUNE_ABSORPTION:
+                add_flag(flagzilla->obj_flgs[i], OF_MAGIC_RESISTANCE);
+                break;
+            case RUNE_SHADOW:
+                if (object_is_body_armour(o_ptr) || o_ptr->tval == TV_CLOAK)
+                    add_flag(flagzilla->obj_flgs[i], OF_STEALTH);
+                break;
+            case RUNE_HASTE:
+                if (o_ptr->tval == TV_BOOTS)
+                    add_flag(flagzilla->obj_flgs[i], OF_SPEED);
+                break;
+            }
+        }
     }
 
     return flagzilla;
@@ -1850,8 +1866,10 @@ static void _build_statistics(doc_ptr doc)
     {
         _device_counts_imp(doc, TV_STAFF, EFFECT_IDENTIFY);
         _device_counts_imp(doc, TV_STAFF, EFFECT_ENLIGHTENMENT);
+        _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL);
         _device_counts_imp(doc, TV_STAFF, EFFECT_TELEPATHY);
         _device_counts_imp(doc, TV_STAFF, EFFECT_SPEED);
+        _device_counts_imp(doc, TV_STAFF, EFFECT_HOLINESS);
         _device_counts_imp(doc, TV_STAFF, EFFECT_IDENTIFY_FULL);
         _device_counts_imp(doc, TV_STAFF, EFFECT_DESTRUCTION);
         _device_counts_imp(doc, TV_STAFF, EFFECT_HEAL_CURING);

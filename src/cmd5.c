@@ -494,7 +494,7 @@ void do_cmd_study(void)
         int new_rank = EXP_LEVEL_UNSKILLED;
         cptr name = do_spell(increment ? p_ptr->realm2 : p_ptr->realm1, spell%32, SPELL_NAME);
 
-        if (old_exp >= max_exp)
+        if (old_exp >= max_exp || !enable_spell_prof)
         {
             msg_format("You don't need to study this %s anymore.", p);
             return;
@@ -1041,49 +1041,81 @@ void do_cmd_cast(void)
 
         virtue_on_cast_spell(use_realm, need_mana, chance);
 
-        if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
+        /* Casting spells for no purpose other than gaining proficiency is considered
+         * a scum ... You should not do this! If you cannot restrain yourself, then
+         * disable spell proficiency by turning off the enable_spell_prof birth option.
+         * But for those players who like an interesting game, I tweaked the progression
+         * and depth limits quite a bit. I'll publish my design spreadsheet once I have
+         * time to clean it up ...*/
+        if (enable_spell_prof && (mp_ptr->spell_xtra & MAGIC_GAIN_EXP))
         {
-            s16b cur_exp = p_ptr->spell_exp[(increment ? 32 : 0)+spell];
+            int  index = (increment ? 32 : 0)+spell;
+            s16b cur_exp = p_ptr->spell_exp[index];
+            int  dlvl = MAX(base_level, dun_level); /* gain prof in wilderness ... */
             s16b exp_gain = 0;
-            static s32b last_pexp = 0;
-            s32b last_turn = p_ptr->spell_turn[(increment ? 32 : 0)+spell];
 
-            /* Hack: Try to eliminate spell spamming for experience.
-               The experience check is for blasting monsters with consecutive Mana Bursts
-               which should be granting spell experience, provided one is damaging monsters.
+            if (dlvl) /* ... but not in town */
+            {  /* You'll need to spreadsheet this to see if this is any good ...
+                * Try a cross tab spell level vs dun level. Here is a rough summary
+                * of minimum dlvl to reach desired proficiency (but remember that
+                * interpolation smooths things out. So you can reach 1530 prof with
+                * a L50 spell on DL90, for instance):
+                * SLvl  Be  Sk  Ex  Ma
+                *   50  24  57  73 100
+                *   40  19  47  61  84
+                *   30  14  37  49  68
+                *   20   9  27  36  51
+                *   10   4  17  24  35
+                *    5   1  12  18  27
+                *    1   1   8  13  20 */
+                int ratio = (17 + s_ptr->slevel) * 100 / (10 + dlvl);
+                point_t max_tbl[4] = { {60, 1600}, {100, 1200}, {200, 900}, {300, 0} };
+                int max_exp = interpolate(ratio, max_tbl, 4);
 
-               The turn check is for utility spells (Teleport & Detect tactics) since one
-               might be doing a bunch of legitimate casting without fighting monsters.
-
-               The quest check is to prohibit spamming on completed quest levels.
-
-               Note: Androids will probably always fail to pass the xp check! Hmm ...
-               Note: One still might be able to macro up a cast followed by a rest command.
-            */
-            if ( last_pexp != p_ptr->exp
-              || (!quests_get_current() && game_turn > last_turn + 50 + randint1(50)) )
-            {
-                if (cur_exp < SPELL_EXP_BEGINNER)
-                    exp_gain += 60;
-                else if (cur_exp < SPELL_EXP_SKILLED)
+                if (cur_exp < max_exp)
                 {
-                    if ((MAX(base_level, dun_level) > 4) && ((MAX(base_level, dun_level) + 10) > p_ptr->lev))
-                        exp_gain = 8;
+                    point_t gain_tbl[9] = { /* 0->900->1200->1400->1600 */
+                        {0, 128}, {200, 64}, {400, 32}, {600, 16},
+                        {800, 8}, {1000, 4}, {1200, 2}, {1400, 1}, {1600, 1} };
+                    exp_gain = interpolate(cur_exp, gain_tbl, 9);
                 }
-                else if (cur_exp < SPELL_EXP_EXPERT)
+                else if (p_ptr->wizard)
                 {
-                    if (((MAX(base_level, dun_level) + 5) > p_ptr->lev) && ((MAX(base_level, dun_level) + 5) > s_ptr->slevel))
-                        exp_gain = 2;
+                    msg_format("<color:B>When casting an <color:R>L%d</color> spell on "
+                        "<color:R>DL%d</color> your max proficiency is <color:R>%d</color> "
+                        "(Current: <color:R>%d</color>).</color> <color:D>%d</color>",
+                        s_ptr->slevel, dlvl, max_exp, cur_exp, ratio);
                 }
-                else if ((cur_exp < SPELL_EXP_MASTER) && !increment)
-                {
-                    if (((MAX(base_level, dun_level) + 5) > p_ptr->lev) && (MAX(base_level, dun_level) > s_ptr->slevel))
-                        exp_gain = 1;
-                }
-                p_ptr->spell_exp[(increment ? 32 : 0) + spell] += exp_gain;
             }
-            last_pexp = p_ptr->exp;
-            p_ptr->spell_turn[(increment ? 32 : 0)+spell] = game_turn;
+
+            if (exp_gain)
+            {
+                int  old_level = spell_exp_level(cur_exp);
+                int  new_level = old_level;
+
+                p_ptr->spell_exp[index] += exp_gain;
+                if (p_ptr->spell_exp[index] > SPELL_EXP_MASTER)
+                    p_ptr->spell_exp[index] = SPELL_EXP_MASTER;
+                new_level = spell_exp_level(p_ptr->spell_exp[index]);
+                if (new_level > old_level)
+                {
+                    cptr desc[5] = { "Unskilled", "a Beginner", "Skilled", "an Expert", "a Master" };
+                    msg_format("You are now <color:B>%s</color> in <color:R>%s</color>.",
+                        desc[new_level],
+                        do_spell(use_realm, spell % 32, SPELL_NAME));
+                }
+                else if (p_ptr->wizard)
+                {
+                    msg_format("You now have <color:B>%d</color> proficiency in <color:R>%s</color>.",
+                        p_ptr->spell_exp[index],
+                        do_spell(use_realm, spell % 32, SPELL_NAME));
+                }
+                else if (p_ptr->spell_exp[index]/100 > cur_exp/100)
+                {
+                    msg_format("<color:B>You are getting more proficient with <color:R>%s</color>.</color>",
+                        do_spell(use_realm, spell % 32, SPELL_NAME));
+                }
+            }
         }
     }
 

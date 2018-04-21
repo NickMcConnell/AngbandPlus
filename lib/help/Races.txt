@@ -45,7 +45,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       20        Bows        <color:y>Good         </color>
+Base HP       20        Bows        <color:y>Very Good    </color>
 Experience   180%       Infravision 0'
 </style></indent>
 <topic:Dunadan><color:o>Dunadan</color>
@@ -73,7 +73,7 @@ Dexterity     +0        Stealth     <color:R>Poor         </color>
 Constitution  +0        Searching   <color:r>Bad          </color>
 Charisma      +0        Perception  <color:g>Superb       </color>
 Life Rating  100%       Melee       <color:R>Poor         </color>
-Base HP       20        Bows        <color:R>Poor         </color>
+Base HP       20        Bows        <color:o>Fair         </color>
 Experience   100%       Infravision 0'
 </style></indent>
 </indent>
@@ -103,7 +103,7 @@ Dexterity     +3        Stealth     <color:y>Very Good    </color>
 Constitution  +1        Searching   <color:o>Fair         </color>
 Charisma      +1        Perception  <color:b>Heroic       </color>
 Life Rating   99%       Melee       <color:G>Excellent    </color>
-Base HP       19        Bows        <color:b>Heroic       </color>
+Base HP       19        Bows        <color:g>Superb       </color>
 Experience   190%       Infravision 40'
 </style></indent>
 <topic:Wood-Elf><color:o>Wood-Elf</color>
@@ -133,7 +133,7 @@ Dexterity     -2        Stealth     <color:r>Bad          </color>
 Constitution  +2        Searching   <color:G>Excellent    </color>
 Charisma      +1        Perception  <color:g>Superb       </color>
 Life Rating  103%       Melee       <color:g>Superb       </color>
-Base HP       22        Bows        <color:R>Poor         </color>
+Base HP       22        Bows        <color:o>Fair         </color>
 Experience   135%       Infravision 50'
 </style></indent>
 <topic:Gnome><color:o>Gnome</color>
@@ -175,7 +175,7 @@ Dexterity     +0        Stealth     <color:o>Fair         </color>
 Constitution  +2        Searching   <color:y>Good         </color>
 Charisma      -2        Perception  <color:g>Superb       </color>
 Life Rating  103%       Melee       <color:G>Excellent    </color>
-Base HP       22        Bows        <color:R>Poor         </color>
+Base HP       22        Bows        <color:o>Fair         </color>
 Experience   165%       Infravision 50'
 </style></indent>
 </indent>
@@ -191,7 +191,7 @@ Dexterity     +1        Stealth     <color:G>Excellent    </color>
 Constitution  -1        Searching   <color:g>Superb       </color>
 Charisma      -3        Perception  <color:b>Heroic       </color>
 Life Rating   91%       Melee       <color:D>Very Bad     </color>
-Base HP       13        Bows        <color:r>Bad          </color>
+Base HP       13        Bows        <color:o>Fair         </color>
 Experience   140%       Infravision 40'
 </style></indent>
 <topic:Sprite><color:o>Sprite</color>
@@ -205,7 +205,7 @@ Dexterity     +3        Stealth     <color:y>Very Good    </color>
 Constitution  -2        Searching   <color:g>Superb       </color>
 Charisma      -2        Perception  <color:g>Superb       </color>
 Life Rating   92%       Melee       <color:D>Very Bad     </color>
-Base HP       14        Bows        <color:R>Poor         </color>
+Base HP       14        Bows        <color:o>Fair         </color>
 Experience   135%       Infravision 40'
 </style></indent>
 </indent>
@@ -235,7 +235,7 @@ Dexterity     +2        Stealth     <color:r>Bad          </color>
 Constitution  +3        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:G>Excellent    </color>
 Life Rating  106%       Melee       <color:g>Superb       </color>
-Base HP       24        Bows        <color:R>Poor         </color>
+Base HP       24        Bows        <color:o>Fair         </color>
 Experience   180%       Infravision 50'
 </style></indent>
 <topic:Imp><color:o>Imp</color>
@@ -249,7 +249,7 @@ Dexterity     +1        Stealth     <color:o>Fair         </color>
 Constitution  +2        Searching   <color:D>Very Bad     </color>
 Charisma      -1        Perception  <color:g>Superb       </color>
 Life Rating   99%       Melee       <color:y>Good         </color>
-Base HP       19        Bows        <color:r>Bad          </color>
+Base HP       19        Bows        <color:o>Fair         </color>
 Experience    90%       Infravision 30'
 </style></indent>
 </indent>
@@ -265,7 +265,7 @@ Dexterity     -3        Stealth     <color:r>Bad          </color>
 Constitution  +4        Searching   <color:D>Very Bad     </color>
 Charisma      -1        Perception  <color:y>Good         </color>
 Life Rating  108%       Melee       <color:g>Superb       </color>
-Base HP       24        Bows        <color:G>Excellent    </color>
+Base HP       24        Bows        <color:g>Superb       </color>
 Experience   155%       Infravision 10'
 </style></indent>
 <topic:Half-Giant><color:o>Half-Giant</color>
@@ -279,7 +279,7 @@ Dexterity     -2        Stealth     <color:r>Bad          </color>
 Constitution  +3        Searching   <color:D>Very Bad     </color>
 Charisma      +0        Perception  <color:y>Good         </color>
 Life Rating  108%       Melee       <color:b>Heroic       </color>
-Base HP       26        Bows        <color:y>Good         </color>
+Base HP       26        Bows        <color:y>Very Good    </color>
 Experience   150%       Infravision 30'
 </style></indent>
 <topic:Half-Ogre><color:o>Half-Ogre</color>
@@ -293,7 +293,7 @@ Dexterity     -1        Stealth     <color:r>Bad          </color>
 Constitution  +3        Searching   <color:D>Very Bad     </color>
 Charisma      +1        Perception  <color:y>Good         </color>
 Life Rating  106%       Melee       <color:g>Superb       </color>
-Base HP       23        Bows        <color:R>Poor         </color>
+Base HP       23        Bows        <color:o>Fair         </color>
 Experience   140%       Infravision 30'
 </style></indent>
 <topic:Half-Titan><color:o>Half-Titan</color>
@@ -307,7 +307,7 @@ Dexterity     -2        Stealth     <color:r>Bad          </color>
 Constitution  +3        Searching   <color:r>Bad          </color>
 Charisma      +3        Perception  <color:G>Excellent    </color>
 Life Rating  110%       Melee       <color:b>Heroic       </color>
-Base HP       28        Bows        <color:R>Poor         </color>
+Base HP       28        Bows        <color:o>Fair         </color>
 Experience   200%       Infravision 0'
 </style></indent>
 <topic:Half-Troll><color:o>Half-Troll</color>
@@ -321,7 +321,7 @@ Dexterity     -3        Stealth     <color:r>Bad          </color>
 Constitution  +3        Searching   <color:D>Very Bad     </color>
 Charisma      -2        Perception  <color:y>Good         </color>
 Life Rating  107%       Melee       <color:g>Superb       </color>
-Base HP       25        Bows        <color:D>Very Bad     </color>
+Base HP       25        Bows        <color:r>Bad          </color>
 Experience   150%       Infravision 30'
 </style></indent>
 <topic:Kobold><color:o>Kobold</color>
@@ -335,7 +335,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +0        Searching   <color:r>Bad          </color>
 Charisma      -2        Perception  <color:G>Excellent    </color>
 Life Rating   98%       Melee       <color:G>Excellent    </color>
-Base HP       19        Bows        <color:D>Very Bad     </color>
+Base HP       19        Bows        <color:y>Very Good    </color>
 Experience    90%       Infravision 30'
 </style></indent>
 <topic:Snotling><color:o>Snotling</color>
@@ -348,8 +348,8 @@ Wisdom        -2        Save        <color:r>Bad          </color>
 Dexterity     -2        Stealth     <color:o>Fair         </color>
 Constitution  -2        Searching   <color:r>Bad          </color>
 Charisma      -5        Perception  <color:G>Excellent    </color>
-Life Rating   85%       Melee       <color:r>Bad          </color>
-Base HP       10        Bows        <color:r>Bad          </color>
+Life Rating   85%       Melee       <color:D>Very Bad     </color>
+Base HP       10        Bows        <color:R>Poor         </color>
 Experience    45%       Infravision 20'
 </style></indent>
 </indent>
@@ -365,7 +365,7 @@ Dexterity     +0        Stealth     <color:r>Bad          </color>
 Constitution  +1        Searching   <color:D>Very Bad     </color>
 Charisma      +1        Perception  <color:G>Excellent    </color>
 Life Rating  100%       Melee       <color:G>Excellent    </color>
-Base HP       21        Bows        <color:R>Poor         </color>
+Base HP       21        Bows        <color:o>Fair         </color>
 Experience   115%       Infravision 20'
 </style></indent>
 <topic:Spectre><color:o>Spectre</color>
@@ -379,7 +379,7 @@ Dexterity     +2        Stealth     <color:G>Excellent    </color>
 Constitution  -2        Searching   <color:y>Good         </color>
 Charisma      -3        Perception  <color:b>Heroic       </color>
 Life Rating   90%       Melee       <color:D>Very Bad     </color>
-Base HP       13        Bows        <color:r>Bad          </color>
+Base HP       13        Bows        <color:R>Poor         </color>
 Experience   250%       Infravision 50'
 </style></indent>
 <topic:Vampire><color:o>Vampire</color>
@@ -393,7 +393,7 @@ Dexterity     -1        Stealth     <color:y>Very Good    </color>
 Constitution  +1        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:G>Excellent    </color>
 Life Rating  102%       Melee       <color:y>Good         </color>
-Base HP       22        Bows        <color:R>Poor         </color>
+Base HP       22        Bows        <color:o>Fair         </color>
 Experience   200%       Infravision 50'
 </style></indent>
 <topic:Zombie><color:o>Zombie</color>
@@ -407,7 +407,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +4        Searching   <color:D>Very Bad     </color>
 Charisma      -3        Perception  <color:y>Good         </color>
 Life Rating  108%       Melee       <color:g>Superb       </color>
-Base HP       24        Bows        <color:R>Poor         </color>
+Base HP       24        Bows        <color:o>Fair         </color>
 Experience   180%       Infravision 20'
 </style></indent>
 </indent>
@@ -437,7 +437,7 @@ Dexterity     -1        Stealth     <color:r>Bad          </color>
 Constitution  +2        Searching   <color:D>Very Bad     </color>
 Charisma      +1        Perception  <color:y>Good         </color>
 Life Rating  102%       Melee       <color:G>Excellent    </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   150%       Infravision 0'
 </style></indent>
 <topic:Centaur><color:o>Centaur</color>
@@ -467,7 +467,7 @@ Dexterity     +1        Stealth     <color:r>Bad          </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +2        Perception  <color:g>Superb       </color>
 Life Rating  106%       Melee       <color:g>Superb       </color>
-Base HP       22        Bows        <color:y>Good         </color>
+Base HP       22        Bows        <color:y>Very Good    </color>
 Experience   190%       Infravision 20'
 </style></indent>
 <topic:Doppelganger><color:o>Doppelganger</color>
@@ -495,7 +495,7 @@ Dexterity     -3        Stealth     <color:r>Bad          </color>
 Constitution  +2        Searching   <color:r>Bad          </color>
 Charisma      +0        Perception  <color:g>Superb       </color>
 Life Rating  105%       Melee       <color:g>Superb       </color>
-Base HP       25        Bows        <color:r>Bad          </color>
+Base HP       25        Bows        <color:o>Fair         </color>
 Experience   135%       Infravision 0'
 </style></indent>
 <topic:Golem><color:o>Golem</color>
@@ -509,7 +509,7 @@ Dexterity     -2        Stealth     <color:r>Bad          </color>
 Constitution  +4        Searching   <color:D>Very Bad     </color>
 Charisma      +0        Perception  <color:G>Excellent    </color>
 Life Rating  105%       Melee       <color:g>Superb       </color>
-Base HP       23        Bows        <color:R>Poor         </color>
+Base HP       23        Bows        <color:o>Fair         </color>
 Experience   185%       Infravision 40'
 </style></indent>
 <topic:Klackon><color:o>Klackon</color>
@@ -517,13 +517,13 @@ Klackons are bizarre semi-intelligent ant-like insectoid creatures. They make gr
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +2        Disarming   <color:G>Excellent    </color>
-Intelligence  -1        Device      <color:y>Good         </color>
+Intelligence  -1        Device      <color:r>Bad          </color>
 Wisdom        -1        Save        <color:o>Fair         </color>
 Dexterity     +1        Stealth     <color:R>Poor         </color>
 Constitution  +2        Searching   <color:D>Very Bad     </color>
 Charisma      +1        Perception  <color:g>Superb       </color>
 Life Rating  105%       Melee       <color:y>Good         </color>
-Base HP       23        Bows        <color:y>Good         </color>
+Base HP       23        Bows        <color:y>Very Good    </color>
 Experience   170%       Infravision 20'
 </style></indent>
 <topic:Kutar><color:o>Kutar</color>
@@ -537,7 +537,7 @@ Dexterity     +1        Stealth     <color:G>Excellent    </color>
 Constitution  +2        Searching   <color:D>Very Bad     </color>
 Charisma      +2        Perception  <color:y>Very Good    </color>
 Life Rating  102%       Melee       <color:R>Poor         </color>
-Base HP       21        Bows        <color:r>Bad          </color>
+Base HP       21        Bows        <color:o>Fair         </color>
 Experience   175%       Infravision 0'
 </style></indent>
 <topic:Mindflayer><color:o>Mindflayer</color>
@@ -551,7 +551,7 @@ Dexterity     +0        Stealth     <color:o>Fair         </color>
 Constitution  -2        Searching   <color:y>Good         </color>
 Charisma      -1        Perception  <color:g>Superb       </color>
 Life Rating   97%       Melee       <color:D>Very Bad     </color>
-Base HP       18        Bows        <color:r>Bad          </color>
+Base HP       18        Bows        <color:R>Poor         </color>
 Experience   150%       Infravision 40'
 </style></indent>
 <topic:Tonberry><color:o>Tonberry</color>
@@ -559,13 +559,13 @@ Tonberries are lizard-like creatures who possess enormous strength and have a pr
 
   <indent><style:table><color:G>Stats                   Skills</color>
 Strength      +4        Disarming   <color:r>Bad          </color>
-Intelligence  +0        Device      <color:o>Fair         </color>
+Intelligence  +0        Device      <color:r>Bad          </color>
 Wisdom        -2        Save        <color:o>Fair         </color>
 Dexterity     -4        Stealth     <color:o>Fair         </color>
 Constitution  +5        Searching   <color:D>Very Bad     </color>
 Charisma      +0        Perception  <color:y>Good         </color>
 Life Rating  108%       Melee       <color:g>Superb       </color>
-Base HP       26        Bows        <color:D>Very Bad     </color>
+Base HP       26        Bows        <color:r>Bad          </color>
 Experience   175%       Infravision 20'
 </style></indent>
 <topic:Yeek><color:o>Yeek</color>
@@ -579,7 +579,7 @@ Dexterity     +1        Stealth     <color:y>Good         </color>
 Constitution  -2        Searching   <color:y>Good         </color>
 Charisma      -4        Perception  <color:b>Heroic       </color>
 Life Rating   92%       Melee       <color:r>Bad          </color>
-Base HP       14        Bows        <color:r>Bad          </color>
+Base HP       14        Bows        <color:o>Fair         </color>
 Experience    70%       Infravision 20'
 </style></indent>
 </indent>
@@ -666,10 +666,10 @@ Draconian    <color:r>Bad          </color> <color:R>Poor         </color> <colo
 Doppelganger <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color> <color:G>Excellent    </color>
 Ent          <color:r>Bad          </color> <color:o>Fair         </color> <color:y>Good         </color> <color:r>Bad          </color>
 Golem        <color:r>Bad          </color> <color:r>Bad          </color> <color:y>Good         </color> <color:r>Bad          </color>
-Klackon      <color:G>Excellent    </color> <color:y>Good         </color> <color:o>Fair         </color> <color:R>Poor         </color>
+Klackon      <color:G>Excellent    </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:R>Poor         </color>
 Kutar        <color:r>Bad          </color> <color:y>Good         </color> <color:y>Good         </color> <color:G>Excellent    </color>
 Mindflayer   <color:G>Excellent    </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:o>Fair         </color>
-Tonberry     <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color> <color:o>Fair         </color>
+Tonberry     <color:r>Bad          </color> <color:r>Bad          </color> <color:o>Fair         </color> <color:o>Fair         </color>
 Yeek         <color:o>Fair         </color> <color:o>Fair         </color> <color:y>Good         </color> <color:y>Good         </color>
 
 </style>
@@ -678,46 +678,46 @@ Yeek         <color:o>Fair         </color> <color:o>Fair         </color> <colo
              <color:w>Searching     Perception    Melee         Bows          Infra</color>
 Amberite     <color:o>Fair         </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:G>Excellent    </color>    0'
 Barbarian    <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:G>Excellent    </color>    0'
-Demigod      <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
+Demigod      <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
 Dunadan      <color:o>Fair         </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:G>Excellent    </color>    0'
-Human        <color:r>Bad          </color> <color:g>Superb       </color> <color:R>Poor         </color> <color:R>Poor         </color>    0'
+Human        <color:r>Bad          </color> <color:g>Superb       </color> <color:R>Poor         </color> <color:o>Fair         </color>    0'
 Dark-Elf     <color:G>Excellent    </color> <color:g>Superb       </color> <color:r>Bad          </color> <color:G>Excellent    </color>   50'
-High-Elf     <color:o>Fair         </color> <color:b>Heroic       </color> <color:G>Excellent    </color> <color:b>Heroic       </color>   40'
+High-Elf     <color:o>Fair         </color> <color:b>Heroic       </color> <color:G>Excellent    </color> <color:g>Superb       </color>   40'
 Wood-Elf     <color:G>Excellent    </color> <color:g>Superb       </color> <color:r>Bad          </color> <color:g>Superb       </color>   30'
-Dwarf        <color:G>Excellent    </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:R>Poor         </color>   50'
+Dwarf        <color:G>Excellent    </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:o>Fair         </color>   50'
 Gnome        <color:y>Very Good    </color> <color:g>Superb       </color> <color:D>Very Bad     </color> <color:G>Excellent    </color>   40'
 Hobbit       <color:g>Superb       </color> <color:b>Heroic       </color> <color:D>Very Bad     </color> <color:g>Superb       </color>   40'
-Nibelung     <color:y>Good         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:R>Poor         </color>   50'
-Shadow-Fairy <color:g>Superb       </color> <color:b>Heroic       </color> <color:D>Very Bad     </color> <color:r>Bad          </color>   40'
-Sprite       <color:g>Superb       </color> <color:g>Superb       </color> <color:D>Very Bad     </color> <color:R>Poor         </color>   40'
+Nibelung     <color:y>Good         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:o>Fair         </color>   50'
+Shadow-Fairy <color:g>Superb       </color> <color:b>Heroic       </color> <color:D>Very Bad     </color> <color:o>Fair         </color>   40'
+Sprite       <color:g>Superb       </color> <color:g>Superb       </color> <color:D>Very Bad     </color> <color:o>Fair         </color>   40'
 Archon       <color:R>Poor         </color> <color:g>Superb       </color> <color:G>Excellent    </color> <color:G>Excellent    </color>   30'
-Balrog       <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:R>Poor         </color>   50'
-Imp          <color:D>Very Bad     </color> <color:g>Superb       </color> <color:y>Good         </color> <color:r>Bad          </color>   30'
-Cyclops      <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:G>Excellent    </color>   10'
-Half-Giant   <color:D>Very Bad     </color> <color:y>Good         </color> <color:b>Heroic       </color> <color:y>Good         </color>   30'
-Half-Ogre    <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:R>Poor         </color>   30'
-Half-Titan   <color:r>Bad          </color> <color:G>Excellent    </color> <color:b>Heroic       </color> <color:R>Poor         </color>    0'
-Half-Troll   <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:D>Very Bad     </color>   30'
-Kobold       <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:D>Very Bad     </color>   30'
-Snotling     <color:r>Bad          </color> <color:G>Excellent    </color> <color:r>Bad          </color> <color:r>Bad          </color>   20'
-Skeleton     <color:D>Very Bad     </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:R>Poor         </color>   20'
-Spectre      <color:y>Good         </color> <color:b>Heroic       </color> <color:D>Very Bad     </color> <color:r>Bad          </color>   50'
-Vampire      <color:r>Bad          </color> <color:G>Excellent    </color> <color:y>Good         </color> <color:R>Poor         </color>   50'
-Zombie       <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:R>Poor         </color>   20'
+Balrog       <color:r>Bad          </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:o>Fair         </color>   50'
+Imp          <color:D>Very Bad     </color> <color:g>Superb       </color> <color:y>Good         </color> <color:o>Fair         </color>   30'
+Cyclops      <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:g>Superb       </color>   10'
+Half-Giant   <color:D>Very Bad     </color> <color:y>Good         </color> <color:b>Heroic       </color> <color:y>Very Good    </color>   30'
+Half-Ogre    <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:o>Fair         </color>   30'
+Half-Titan   <color:r>Bad          </color> <color:G>Excellent    </color> <color:b>Heroic       </color> <color:o>Fair         </color>    0'
+Half-Troll   <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:r>Bad          </color>   30'
+Kobold       <color:r>Bad          </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:y>Very Good    </color>   30'
+Snotling     <color:r>Bad          </color> <color:G>Excellent    </color> <color:D>Very Bad     </color> <color:R>Poor         </color>   20'
+Skeleton     <color:D>Very Bad     </color> <color:G>Excellent    </color> <color:G>Excellent    </color> <color:o>Fair         </color>   20'
+Spectre      <color:y>Good         </color> <color:b>Heroic       </color> <color:D>Very Bad     </color> <color:R>Poor         </color>   50'
+Vampire      <color:r>Bad          </color> <color:G>Excellent    </color> <color:y>Good         </color> <color:o>Fair         </color>   50'
+Zombie       <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:o>Fair         </color>   20'
 Android      <color:o>Fair         </color> <color:b>Heroic       </color> <color:g>Superb       </color> <color:G>Excellent    </color>    0'
-Beastman     <color:D>Very Bad     </color> <color:y>Good         </color> <color:G>Excellent    </color> <color:y>Good         </color>    0'
+Beastman     <color:D>Very Bad     </color> <color:y>Good         </color> <color:G>Excellent    </color> <color:y>Very Good    </color>    0'
 Centaur      <color:o>Fair         </color> <color:y>Good         </color> <color:G>Excellent    </color> <color:G>Excellent    </color>    0'
-Draconian    <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Good         </color>   20'
+Draconian    <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:y>Very Good    </color>   20'
 Doppelganger <color:D>Very Bad     </color> <color:g>Superb       </color> <color:D>Very Bad     </color> <color:D>Very Bad     </color>    0'
-Ent          <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:r>Bad          </color>    0'
-Golem        <color:D>Very Bad     </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:R>Poor         </color>   40'
-Klackon      <color:D>Very Bad     </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Good         </color>   20'
-Kutar        <color:D>Very Bad     </color> <color:y>Very Good    </color> <color:R>Poor         </color> <color:r>Bad          </color>    0'
-Mindflayer   <color:y>Good         </color> <color:g>Superb       </color> <color:D>Very Bad     </color> <color:r>Bad          </color>   40'
-Tonberry     <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:D>Very Bad     </color>   20'
-Yeek         <color:y>Good         </color> <color:b>Heroic       </color> <color:r>Bad          </color> <color:r>Bad          </color>   20'
+Ent          <color:r>Bad          </color> <color:g>Superb       </color> <color:g>Superb       </color> <color:o>Fair         </color>    0'
+Golem        <color:D>Very Bad     </color> <color:G>Excellent    </color> <color:g>Superb       </color> <color:o>Fair         </color>   40'
+Klackon      <color:D>Very Bad     </color> <color:g>Superb       </color> <color:y>Good         </color> <color:y>Very Good    </color>   20'
+Kutar        <color:D>Very Bad     </color> <color:y>Very Good    </color> <color:R>Poor         </color> <color:o>Fair         </color>    0'
+Mindflayer   <color:y>Good         </color> <color:g>Superb       </color> <color:D>Very Bad     </color> <color:R>Poor         </color>   40'
+Tonberry     <color:D>Very Bad     </color> <color:y>Good         </color> <color:g>Superb       </color> <color:r>Bad          </color>   20'
+Yeek         <color:y>Good         </color> <color:b>Heroic       </color> <color:r>Bad          </color> <color:o>Fair         </color>   20'
 
 </style>
 
 
-<color:s>Automatically generated for PosChengband 6.0.3.</color>
+<color:s>Automatically generated for PosChengband 6.0.7.</color>

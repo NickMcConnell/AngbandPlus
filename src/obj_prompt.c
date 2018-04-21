@@ -314,6 +314,12 @@ static int _basic_cmd(obj_prompt_context_ptr context, int cmd)
         if (context->tab < 0)
             context->tab = vec_length(context->tabs) - 1;
         return OP_CMD_HANDLED;
+    case '@':
+        if (context->prompt->flags & INV_IGNORE_INSCRIPTIONS)
+            context->prompt->flags &= ~INV_IGNORE_INSCRIPTIONS;
+        else
+            context->prompt->flags |= INV_IGNORE_INSCRIPTIONS;
+        break;
     case KTRL('I'): case KTRL('P'): { /* fyi, TAB is ^I in current encoding scheme ... */
         int tab = _find_tab(context->tabs, INV_PACK);
         if (tab >= 0)

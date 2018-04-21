@@ -18,6 +18,8 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
         info_ptr->to_h += 10 + p_ptr->lev/5;
         info_ptr->dis_to_h += 10 + p_ptr->lev/5;
     }
+    if (info_ptr->base_shot > 100)
+        info_ptr->base_shot = 100 + (info_ptr->base_shot - 100) / 2;
 }
 
 /************************************************************************

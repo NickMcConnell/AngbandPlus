@@ -31,7 +31,7 @@ In this section, each rune is displayed along with each type of object to which 
 <color:R>Gloves</color>        <color:G>L45</color> Flame Tongue
 
 <color:B>Air</color>
-<color:R>Melee Weapons</color> <color:G>L40</color> +1 Attack
+<color:R>Melee Weapons</color> <color:G>L40</color> +.75 Attacks
 <color:R>Cloaks</color>        <color:G>L11</color> Levitation
 <color:R>Boots</color>         <color:G>L11</color> Levitation
 
@@ -67,25 +67,22 @@ If this rune is carried in your pack then your gear receives increased protectio
 
 <color:B>Haste</color>
 <color:R>Gloves</color>        <color:G>L25</color> +2 DEX
-<color:R>Boots</color>         <color:G>L45</color> +3 Speed
+<color:R>Boots</color>         <color:G>L25</color> +3L/50 Speed
 
 <color:B>Seeing</color>
 <color:R>Helmets</color>       <color:G>L27</color> Resist Blindness; See Invisible
 <color:R>Lights</color>        <color:G>L27</color> Resist Blindness
 
-<color:B>Sacrifice</color>
-This rune may be attached to any artifact allowing you to destroy that artifact at a later time. Doing so grants healing and restores your mana as you recapture the power of the destroyed object. A sacrifice is much more effective if the object is being worn at the time of its destruction.
-
 <color:B>Life</color>
-<color:R>Shields</color>       <color:G>L31</color> Hold Life
-<color:R>Body Armor</color>    <color:G>L31</color> Hold Life; +1 CON
-<color:R>Lights</color>        <color:G>L31</color> Hold Life
+<color:R>Shields</color>       <color:G>L29</color> Hold Life
+<color:R>Body Armor</color>    <color:G>L29</color> Hold Life; +1 CON
+<color:R>Lights</color>        <color:G>L29</color> Hold Life
 
 <color:B>Stability</color>
-<color:R>Body Armor</color>    <color:G>L32</color> Resist Nexus, Chaos and Disenchantment
-<color:R>Helmets</color>       <color:G>L32</color> Resist Nexus
-<color:R>Cloaks</color>        <color:G>L32</color> Resist Nexus
-<color:R>Boots</color>         <color:G>L32</color> Resist Nexus
+<color:R>Body Armor</color>    <color:G>L31</color> Resist Nexus, Chaos and Disenchantment
+<color:R>Helmets</color>       <color:G>L31</color> Resist Nexus
+<color:R>Cloaks</color>        <color:G>L31</color> Resist Nexus
+<color:R>Boots</color>         <color:G>L31</color> Resist Nexus
 
 <color:B>Reflection</color>
 <color:R>Shields</color>       <color:G>L33</color> Reflection
@@ -127,7 +124,7 @@ In this section, the various runes are grouped according to equipment slot. This
 <color:B>Water</color>         <color:G>L13</color> Acid Brand
 <color:B>Earth</color>         <color:G>L35</color> Vorpal
 <color:B>Death</color>         <color:G>L35</color> Vampiric
-<color:B>Air</color>           <color:G>L40</color> +1 Attack
+<color:B>Air</color>           <color:G>L40</color> +.75 Attacks
 <color:B>Destruction</color>   <color:G>L41</color> +2 Damage Dice
 
 <color:R>Shields</color>
@@ -137,7 +134,7 @@ In this section, the various runes are grouped according to equipment slot. This
 <color:B>Water</color>         <color:G>L13</color> Resist Acid
 <color:B>Shadow</color>        <color:G>L17</color> Resist Darkness
 <color:B>Earth</color>         <color:G>L19</color> Resist Shards
-<color:B>Life</color>          <color:G>L31</color> Hold Life
+<color:B>Life</color>          <color:G>L29</color> Hold Life
 <color:B>Reflection</color>    <color:G>L33</color> Reflection
 <color:B>Death</color>         <color:G>L35</color> Resist Nether
 <color:B>Immortality</color>   <color:G>L45</color> Resist Time
@@ -150,8 +147,8 @@ In this section, the various runes are grouped according to equipment slot. This
 <color:B>Water</color>         <color:G>L13</color> Resist Acid and Stunning
 <color:B>Shadow</color>        <color:G>L17</color> Resist Darkness; Stealth
 <color:B>Earth</color>         <color:G>L19</color> Resist Shards; Aura of Shards
-<color:B>Life</color>          <color:G>L31</color> Hold Life; +1 CON
-<color:B>Stability</color>     <color:G>L32</color> Resist Nexus, Chaos and Disenchantment
+<color:B>Life</color>          <color:G>L29</color> Hold Life; +1 CON
+<color:B>Stability</color>     <color:G>L31</color> Resist Nexus, Chaos and Disenchantment
 <color:B>Death</color>         <color:G>L35</color> Resist Nether and Poison
 <color:B>Might</color>         <color:G>L39</color> +2 STR, DEX, CON; Sustain STR, DEX, CON
 <color:B>Immortality</color>   <color:G>L45</color> Resist Time; Hold Life; Sustain All Stats
@@ -162,7 +159,7 @@ In this section, the various runes are grouped according to equipment slot. This
 <color:B>Shadow</color>        <color:G>L17</color> Resist Darkness
 <color:B>Understanding</color> <color:G>L21</color> +2 INT; Fast Pseudo-id
 <color:B>Seeing</color>        <color:G>L27</color> Resist Blindness; See Invisible
-<color:B>Stability</color>     <color:G>L32</color> Resist Nexus
+<color:B>Stability</color>     <color:G>L31</color> Resist Nexus
 <color:B>Death</color>         <color:G>L35</color> Resist Nether
 <color:B>Mind</color>          <color:G>L37</color> +2 INT; Sustain Int; Telepathy
 <color:B>Might</color>         <color:G>L39</color> +2 STR, CON
@@ -176,7 +173,7 @@ In this section, the various runes are grouped according to equipment slot. This
 <color:B>Water</color>         <color:G>L13</color> Resist Acid
 <color:B>Shadow</color>        <color:G>L17</color> Stealth
 <color:B>Earth</color>         <color:G>L19</color> Aura of Shards
-<color:B>Stability</color>     <color:G>L32</color> Resist Nexus
+<color:B>Stability</color>     <color:G>L31</color> Resist Nexus
 <color:B>Immortality</color>   <color:G>L45</color> Resist Time
 
 <color:R>Gloves</color>
@@ -189,15 +186,15 @@ In this section, the various runes are grouped according to equipment slot. This
 <color:R>Boots</color>
 <color:B>Protection</color>    <color:G>L5</color>  AC Bonus; Protection from Corrosion
 <color:B>Air</color>           <color:G>L11</color> Levitation
-<color:B>Stability</color>     <color:G>L32</color> Resist Nexus
-<color:B>Haste</color>         <color:G>L45</color> +3 Speed
+<color:B>Haste</color>         <color:G>L25</color> +3L/50 Speed
+<color:B>Stability</color>     <color:G>L31</color> Resist Nexus
 
 <color:R>Lights</color>
 <color:B>Fire</color>          <color:G>L9</color>  Fiery Aura
 <color:B>Light</color>         <color:G>L15</color> Resist Light
 <color:B>Understanding</color> <color:G>L21</color> +1 INT
 <color:B>Seeing</color>        <color:G>L27</color> Resist Blindness
-<color:B>Life</color>          <color:G>L31</color> Hold Life
+<color:B>Life</color>          <color:G>L29</color> Hold Life
 <color:B>Mind</color>          <color:G>L37</color> Telepathy
 
 

@@ -391,8 +391,42 @@ static void _display_resists(monster_race *r_ptr, doc_ptr doc)
 static void _display_frequency(monster_race *r_ptr, doc_ptr doc)
 {
     int pct = 0;
-    if (spoiler_hack || (!r_ptr->r_spell_turns && _easy_lore(r_ptr)))
+    /* monster_race.freq_spell is often inaccurate and doesn't account for
+     * variable AI strategies (uniques) or to other in-game spell frequency
+     * adjustments (anger_ct or ASC avoidance). Personally, I'd much prefer
+     * to show the actual observed frequency. If you keep your lore for long
+     * (same savefile) then this will be more accurate over time. It will also
+     * more truly reflect your playstyle, and the game's adjustments to that
+     * style (if any). Finally, and this is just personal preference, I prefer
+     * to reset my lore every game. Then, I have a nice handy record of all the
+     * battles I have fought. I can look up uniques and see what they did and
+     * how often they did it. If I remember a tough unique, I can consult the lore
+     * and see ... hmmm, Fangorn tossed boulders on 7 of 8 moves. Showing the
+     * "True Frequency" of 25% is not what I saw, and I really only care about
+     * my actual experiences, not my theoretical ones. But again, this is me, and
+     * I tend to use lore in a backward fashion (after the fact).
+     * Exceptions to my personal preference are for spoilers (ignore) and for
+     * probing. If the player probes a monster, then, in this case, we should indeed
+     * show the r_info spell frequency. At least if it is a new monster that we
+     * have yet to observe in action.
+     * Here is an example:
+     * Spells: 25.00% (11 of 21 moves) (easy_lore turned on)
+     * Spells: 52.38% (11 of 21 moves) (easy_lore turned off)
+     * One of these is grossly inaccurate. People have complained ...
+     * (BTW, _easy_lore() is much broader than easy_lore)
+     *
+     * UPDATE: If a monster has no non-innate attacks, you can correct the frequency
+     * as follows: f = 2 f*f / 100. So, Light Hounds spell 1_IN_5 for f = 20. This
+     * really needs to be f = 2 * 20 * 20 / 100 = 8. cf mspells1.c where I commented
+     * on this oddness (Hengband). Orc shooters are even worse: 1_IN_15 is actually
+     * more like 1 in 139! But 33% casting only goes down to ~22%, which is probably
+     * what is was designed for. */
+    if ( spoiler_hack
+      || easy_lore
+      || (!r_ptr->r_spell_turns && (r_ptr->r_xtra1 & MR1_LORE)) ) /* probing */
+    {
         pct = r_ptr->freq_spell * 100;
+    }
     else if (r_ptr->r_spell_turns)
     {
         int total = r_ptr->r_spell_turns + r_ptr->r_move_turns;

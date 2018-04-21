@@ -109,7 +109,7 @@ race_t *colossus_get_race(void)
         me.skills.srh = -2;
         me.skills.fos = 5;
         me.skills.thn = 90;
-        me.skills.thb = -20;
+        me.skills.thb = -12;
 
         me.life = 115;
         me.base_hp = 30;
@@ -184,7 +184,7 @@ race_t *demon_get_race(void)
         me.skills.srh =  3;
         me.skills.fos = 10;
         me.skills.thn = 40;
-        me.skills.thb = 20;
+        me.skills.thb = 10;
 
         me.life = 106;
         me.base_hp = 24;
@@ -270,12 +270,12 @@ race_t *demon_lord_get_race(void)
         me.name = "Demon-Lord";
         me.desc = "";
 
-        me.stats[A_STR] = 20;
-        me.stats[A_INT] = 20;
-        me.stats[A_WIS] = 20;
-        me.stats[A_DEX] = 20;
-        me.stats[A_CON] = 20;
-        me.stats[A_CHR] = 20;
+        me.stats[A_STR] = 10;
+        me.stats[A_INT] = 10;
+        me.stats[A_WIS] = 10;
+        me.stats[A_DEX] = 10;
+        me.stats[A_CON] = 10;
+        me.stats[A_CHR] = 10;
         
         me.skills.dis = 20;
         me.skills.dev = 20;
@@ -284,7 +284,7 @@ race_t *demon_lord_get_race(void)
         me.skills.srh =  3;
         me.skills.fos = 10;
         me.skills.thn = 70;
-        me.skills.thb = 40;
+        me.skills.thb = 15;
 
         me.life = 110;
         me.base_hp = 28;
@@ -453,7 +453,7 @@ race_t *mithril_golem_get_race(void)
         me.skills.srh = -2;
         me.skills.fos = 5;
         me.skills.thn = 50;
-        me.skills.thb = -10;
+        me.skills.thb = -7;
 
         me.life = 109;
         me.base_hp = 27;
@@ -506,7 +506,7 @@ race_t *small_kobold_get_race(void)
         me.skills.srh =  1;
         me.skills.fos =  8;
         me.skills.thn =  5;
-        me.skills.thb = -12;
+        me.skills.thb = -8;
 
         me.life = 91;
         me.base_hp = 13;
@@ -587,7 +587,7 @@ race_t *vampire_lord_get_race(void)
         me.skills.srh = 2;
         me.skills.fos = 12;
         me.skills.thn = 30;
-        me.skills.thb = 20;
+        me.skills.thb = 10;
 
         me.life = 103;
         me.base_hp = 22;

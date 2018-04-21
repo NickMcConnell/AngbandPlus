@@ -1033,6 +1033,26 @@ extern void do_cmd_spoilers(void);
 
 static doc_ptr _wiz_doc = NULL;
 static bool    _wiz_show_scores = TRUE;
+static int     _wiz_obj_count = 0;
+static int     _wiz_obj_score = 0;
+
+static void _wiz_doc_init(doc_ptr doc)
+{
+    _wiz_doc = doc;
+    _wiz_obj_count = 0;
+    _wiz_obj_score = 0;
+}
+
+static void _wiz_doc_obj_summary(void)
+{
+    if (_wiz_obj_count)
+    {
+        doc_printf(_wiz_doc, "\n\n<color:R>%d</color> objects. <color:R>%d</color> average score.\n",
+            _wiz_obj_count, _wiz_obj_score / _wiz_obj_count);
+    }
+    if (original_score)
+        doc_printf(_wiz_doc, "<color:R>%d%%</color> replacement power.\n", replacement_score * 100 / original_score);
+}
 
 static char _score_color(int score)
 {
@@ -1083,10 +1103,12 @@ static void _wiz_stats_log_obj(int level, object_type *o_ptr)
     char buf[MAX_NLEN];
     if (!_wiz_doc) return;
     object_desc(buf, o_ptr, OD_COLOR_CODED);
+    _wiz_obj_count++;
     if (_wiz_show_scores)
     {
         int  score;
         score = obj_value_real(o_ptr);
+        _wiz_obj_score += score;
         doc_printf(_wiz_doc, "C%2d D%2d O%2d <color:%c>%6d</color>: <indent><style:indent>%s</style></indent>\n",
             p_ptr->lev, level, o_ptr->level, _score_color(score), score, buf);
     }
@@ -1114,7 +1136,8 @@ static void _wiz_stats_log_books(int level, object_type *o_ptr, int max3, int ma
 }
 static void _wiz_stats_log_devices(int level, object_type *o_ptr)
 {
-    if (o_ptr->tval == TV_WAND && o_ptr->activation.type == EFFECT_ROCKET)
+    /*if (o_ptr->tval == TV_WAND && o_ptr->activation.type == EFFECT_ROCKET)*/
+    if (obj_is_device(o_ptr)/* && o_ptr->activation.difficulty >= 60*/)
         _wiz_stats_log_obj(level, o_ptr);
 }
 static void _wiz_stats_log_arts(int level, object_type *o_ptr)
@@ -1150,6 +1173,58 @@ static void _wiz_kill_monsters(int level)
         if (slot) rune_sword_kill(equip_obj(slot), r_ptr);
     }
 }
+static bool _is_stat_potion(obj_ptr obj)
+{
+    if (obj->tval != TV_POTION) return FALSE;
+    switch (obj->sval)
+    {
+    case SV_POTION_INC_STR:
+    case SV_POTION_INC_INT:
+    case SV_POTION_INC_WIS:
+    case SV_POTION_INC_DEX:
+    case SV_POTION_INC_CON:
+    case SV_POTION_INC_CHR: return TRUE;
+    }
+    return FALSE;
+}
+
+static bool _wiz_improve_gear_aux(obj_ptr obj, slot_t slot)
+{
+    obj_ptr old = equip_obj(slot);
+    if (old)
+    {
+        int score, old_score;
+        if (object_is_melee_weapon(old) && !object_is_melee_weapon(obj)) return FALSE;
+        if (object_is_shield(old) && !object_is_shield(obj)) return FALSE;
+        score = obj_value_real(obj);
+        old_score = obj_value_real(old);
+        if (score > old_score)
+        {
+            old->marked |= OM_COUNTED;
+            equip_drop(old); /* prevent pack from filling with 'junk' */
+            equip_wield(obj, slot);
+            return TRUE;
+        }
+    }
+    else
+    {
+        equip_wield(obj, slot);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void _wiz_improve_gear(obj_ptr obj)
+{
+    slot_t slot;
+    /* hydras have many heads ... */
+    for (slot = equip_first_slot(obj); slot; slot = equip_next_slot(obj, slot))
+    {
+        if (_wiz_improve_gear_aux(obj, slot))
+            break;
+    }
+}
+
 static void _wiz_inspect_objects(int level)
 {
     race_t  *race_ptr = get_race();
@@ -1163,6 +1238,7 @@ static void _wiz_inspect_objects(int level)
         if (!o_ptr->k_idx) continue;
         if (o_ptr->tval == TV_GOLD) continue;
         if (o_ptr->held_m_idx) continue;
+        if (o_ptr->marked & OM_COUNTED) continue; /* skip player drops */
 
         /* Skip Vaults ...
         if (cave[o_ptr->iy][o_ptr->ix].info & CAVE_ICKY) continue;*/
@@ -1178,6 +1254,7 @@ static void _wiz_inspect_objects(int level)
         if (o_ptr->name2)
             stats_add_ego(o_ptr);
 
+        /* Logging: I simply hand-edit this and recompile as desired */
         if (0 && (o_ptr->name1 || o_ptr->name3))
             _wiz_stats_log_obj(level, o_ptr);
 
@@ -1186,6 +1263,9 @@ static void _wiz_inspect_objects(int level)
         if (1) _wiz_stats_log_devices(level, o_ptr);
         if (0) _wiz_stats_log_arts(level, o_ptr);
         if (0) _wiz_stats_log_rand_arts(level, o_ptr);
+
+        if (0 && o_ptr->name3)
+            _wiz_stats_log_obj(level, o_ptr);
 
         if (0 && o_ptr->name2 && !object_is_device(o_ptr) && !object_is_ammo(o_ptr))
             _wiz_stats_log_obj(level, o_ptr);
@@ -1202,12 +1282,27 @@ static void _wiz_inspect_objects(int level)
         if (0 && o_ptr->name2 && object_is_jewelry(o_ptr))
             _wiz_stats_log_obj(level, o_ptr);
 
+        if (0 && object_is_dragon_armor(o_ptr))
+            _wiz_stats_log_obj(level, o_ptr);
+
+        /* Use Resources: Quaff stat potions and improve equipment (mindlessly).
+         * This makes it easier for me to poke around a bit after a stat run.
+         * Destroying objects is for Death-swords or other race/classes that
+         * gain powers that way. */
+        if (_is_stat_potion(o_ptr))
+            do_device(o_ptr, SPELL_CAST, 0);
+
+        if (1 && !object_is_nameless(o_ptr))
+            _wiz_improve_gear(o_ptr);
+
         if (race_ptr->destroy_object)
             race_ptr->destroy_object(o_ptr);
 
         if (class_ptr->destroy_object)
             class_ptr->destroy_object(o_ptr);
     }
+    pack_overflow();
+    if (p_ptr->cursed) remove_all_curse();
 }
 static void _wiz_gather_stats(int which_dungeon, int level, int reps)
 {
@@ -1573,29 +1668,27 @@ void do_cmd_debug(void)
         int lev;
         int max_depth = get_quantity("Max Depth? ", 100);
 
-        _wiz_doc = doc_alloc(80);
+        _wiz_doc_init(doc_alloc(80));
         doc_insert(_wiz_doc, "<style:wide>");
 
         _stats_reset_monster_levels();
         _stats_reset_object_levels();
         statistics_hack = TRUE; /* No messages, no damage, no prompts for stat gains, no AFC */
-#if 1
-        for (lev = dun_level + 2; lev <= max_depth; lev += 2)
+
+        for (lev = MAX(1, dun_level); lev <= max_depth; lev += 1)
         {
             int reps = 1;
 
-            if (lev % 10 == 0) reps += 2;
-            if (lev % 20 == 0) reps += 2;
-            if (lev % 30 == 0) reps += 7;
+            if (lev % 10 == 0) reps += 1;
+            if (lev % 20 == 0) reps += 1;
+            if (lev % 30 == 0) reps += 2;
 
             _wiz_gather_stats(DUNGEON_ANGBAND, lev, reps);
         }
-#else
-        for (lev = 5; lev <= 100; lev += 5)
-            _wiz_gather_stats(DUNGEON_ANGBAND, lev, 5);
-#endif
+        _wiz_doc_obj_summary();
         statistics_hack = FALSE;
 
+#if 0
         {
             _tally_t mon_total_tally = {0};
             _tally_t obj_total_tally = {0};
@@ -1657,6 +1750,7 @@ void do_cmd_debug(void)
             }
             doc_newline(_wiz_doc);
         }
+#endif
 
         doc_insert(_wiz_doc, "</style>");
         if (doc_line_count(_wiz_doc))
@@ -1674,10 +1768,11 @@ void do_cmd_debug(void)
            current dungeon. You still want to start with a fresh character. */
         int reps = get_quantity("How many reps? ", 100);
 
-        _wiz_doc = doc_alloc(80);
+        _wiz_doc_init(doc_alloc(80));
 
         statistics_hack = TRUE;
         _wiz_gather_stats(dungeon_type, dun_level, reps);
+        _wiz_doc_obj_summary();
         statistics_hack = FALSE;
 
         if (doc_line_count(_wiz_doc))
@@ -1689,6 +1784,30 @@ void do_cmd_debug(void)
         do_cmd_redraw();
         break;
     }
+    case '_':
+    {
+        static point_t tbl[9] = {
+            {0, 1280}, {1000, 640}, {2000, 320}, {3000, 160}, {4000, 80},
+            {5000, 40}, {6000, 20}, {7000, 10}, {8000, 1} };
+        int skill = 0, max = 8000, i = 0;
+        if (!msg_input_num("Start: ", &skill, 0, 8000)) return;
+        if (!msg_input_num("Stop: ", &max, skill, 8000)) return;
+        while (skill < max)
+        {
+            int step = interpolate(skill, tbl, 9);
+            skill += step/10;
+            if ((step % 10) && randint0(10) < (step % 10))
+                skill++;
+            i++;
+            msg_format("%d", skill);
+        }
+        msg_boundary();
+        msg_format("%d steps", i);
+        break;
+    }
+    case '+':
+        mutate_player();
+        break;
     default:
         msg_print("That is not a valid debug command.");
         break;

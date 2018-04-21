@@ -44,7 +44,7 @@ Cloaks        L9  Fiery Aura
 Gloves        L45 Flame Tongue
 
 Air
-Melee Weapons L40 +1 Attack
+Melee Weapons L40 +.75 Attacks
 Cloaks        L11 Levitation
 Boots         L11 Levitation
 
@@ -81,29 +81,22 @@ protection against accidental destruction by elemental attacks.
 
 Haste
 Gloves        L25 +2 DEX
-Boots         L45 +3 Speed
+Boots         L25 +3L/50 Speed
 
 Seeing
 Helmets       L27 Resist Blindness; See Invisible
 Lights        L27 Resist Blindness
 
-Sacrifice
-This rune may be attached to any artifact allowing you to destroy that 
-artifact at a later time. Doing so grants healing and restores your 
-mana as you recapture the power of the destroyed object. A sacrifice is 
-much more effective if the object is being worn at the time of its 
-destruction.
-
 Life
-Shields       L31 Hold Life
-Body Armor    L31 Hold Life; +1 CON
-Lights        L31 Hold Life
+Shields       L29 Hold Life
+Body Armor    L29 Hold Life; +1 CON
+Lights        L29 Hold Life
 
 Stability
-Body Armor    L32 Resist Nexus, Chaos and Disenchantment
-Helmets       L32 Resist Nexus
-Cloaks        L32 Resist Nexus
-Boots         L32 Resist Nexus
+Body Armor    L31 Resist Nexus, Chaos and Disenchantment
+Helmets       L31 Resist Nexus
+Cloaks        L31 Resist Nexus
+Boots         L31 Resist Nexus
 
 Reflection
 Shields       L33 Reflection
@@ -150,7 +143,7 @@ Fire          L9  Flame Tongue
 Water         L13 Acid Brand
 Earth         L35 Vorpal
 Death         L35 Vampiric
-Air           L40 +1 Attack
+Air           L40 +.75 Attacks
 Destruction   L41 +2 Damage Dice
 
 Shields
@@ -160,7 +153,7 @@ Fire          L9  Resist Fire
 Water         L13 Resist Acid
 Shadow        L17 Resist Darkness
 Earth         L19 Resist Shards
-Life          L31 Hold Life
+Life          L29 Hold Life
 Reflection    L33 Reflection
 Death         L35 Resist Nether
 Immortality   L45 Resist Time
@@ -173,8 +166,8 @@ Fire          L9  Resist Fire; Fiery Aura
 Water         L13 Resist Acid and Stunning
 Shadow        L17 Resist Darkness; Stealth
 Earth         L19 Resist Shards; Aura of Shards
-Life          L31 Hold Life; +1 CON
-Stability     L32 Resist Nexus, Chaos and Disenchantment
+Life          L29 Hold Life; +1 CON
+Stability     L31 Resist Nexus, Chaos and Disenchantment
 Death         L35 Resist Nether and Poison
 Might         L39 +2 STR, DEX, CON; Sustain STR, DEX, CON
 Immortality   L45 Resist Time; Hold Life; Sustain All Stats
@@ -185,7 +178,7 @@ Light         L15 Resist Light
 Shadow        L17 Resist Darkness
 Understanding L21 +2 INT; Fast Pseudo-id
 Seeing        L27 Resist Blindness; See Invisible
-Stability     L32 Resist Nexus
+Stability     L31 Resist Nexus
 Death         L35 Resist Nether
 Mind          L37 +2 INT; Sustain Int; Telepathy
 Might         L39 +2 STR, CON
@@ -199,7 +192,7 @@ Air           L11 Levitation
 Water         L13 Resist Acid
 Shadow        L17 Stealth
 Earth         L19 Aura of Shards
-Stability     L32 Resist Nexus
+Stability     L31 Resist Nexus
 Immortality   L45 Resist Time
 
 Gloves
@@ -212,15 +205,15 @@ Water         L45 Acid Brand
 Boots
 Protection    L5  AC Bonus; Protection from Corrosion
 Air           L11 Levitation
-Stability     L32 Resist Nexus
-Haste         L45 +3 Speed
+Haste         L25 +3L/50 Speed
+Stability     L31 Resist Nexus
 
 Lights
 Fire          L9  Fiery Aura
 Light         L15 Resist Light
 Understanding L21 +1 INT
 Seeing        L27 Resist Blindness
-Life          L31 Hold Life
+Life          L29 Hold Life
 Mind          L37 Telepathy
 
 

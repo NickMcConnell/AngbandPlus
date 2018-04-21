@@ -2895,9 +2895,6 @@ static void process_world(void)
     /* Process recharging */
     process_world_aux_recharge();
 
-    if (p_ptr->auto_id && !p_ptr->wild_mode)
-        identify_pack();
-
     /* Feel the inventory */
     sense_inventory1();
     sense_inventory2();

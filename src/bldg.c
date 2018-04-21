@@ -40,7 +40,7 @@ static bool is_owner(building_type *bldg)
         return (TRUE);
     }
 
-    if (bldg->member_race[race_idx] == BUILDING_OWNER)
+    if (race_idx < MAX_RACES && bldg->member_race[race_idx] == BUILDING_OWNER)
     {
         return (TRUE);
     }
@@ -64,7 +64,7 @@ static bool is_member(building_type *bldg)
         return (TRUE);
     }
 
-    if (bldg->member_race[race_idx])
+    if (race_idx < MAX_RACES && bldg->member_race[race_idx])
     {
         return (TRUE);
     }
@@ -1826,7 +1826,7 @@ static void _process_wanted_corpse(obj_ptr obj)
     msg_format("You earned %d point%s total.", num, num > 1 ? "s" : "");
 
     object_desc(name, &prize, OD_COLOR_CODED);
-    msg_format("You get %s.", name);
+    /*msg_format("You get %s.", name);*/
     pack_carry(&prize);
 }
 static bool kankin(void)
@@ -2682,6 +2682,35 @@ static bool _reforge_artifact(void)
         return FALSE;
     }
 
+    if (p_ptr->wizard)
+    {
+        doc_ptr doc = doc_alloc(80);
+        int     i;
+        int     ct = 100;
+        int     base = obj_value_real(src);
+        int     total = 0;
+        char    buf[MAX_NLEN];
+
+        object_desc(buf, src, OD_COLOR_CODED);
+        doc_printf(doc, "Reforging %s (%d):\n", buf, base);
+        for (i = 0; i < ct; i++)
+        {
+            obj_t forge = *dest;
+            int   score = 0;
+            reforge_artifact(src, &forge, p_ptr->fame);
+            obj_identify_fully(&forge);
+            score = obj_value_real(&forge);
+            total += score;
+            object_desc(buf, &forge, OD_COLOR_CODED);
+            doc_printf(doc, "%d) <indent><style:indent>%s (%d%%)</style></indent>\n",
+                i + 1, buf, score * 100 / base);
+        }
+        doc_printf(doc, "\n\n<color:B>Average Reforge: <color:R>%d%%</color></color>\n",
+            total * 100 / (base * ct));
+        doc_display(doc, "Reforging", 0);
+        doc_free(doc);
+        return FALSE;
+    }
     if (!reforge_artifact(src, dest, p_ptr->fame))
     {
         msg_print("The reforging failed!");
@@ -2773,6 +2802,7 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
     {
         int idx = -1;
         int old_cost;
+        int unit_cost_sum = 0;
         _enchant_choice_t choices[25];
         object_type copy = {0};
         menu_t menu = { "Enchant How Much?", NULL, 
@@ -2823,10 +2853,14 @@ static bool enchant_item(obj_p filter, int cost, int to_hit, int to_dam, int to_
             else
             {
                 int new_cost = new_object_cost(&copy, COST_REAL);
-                int unit_cost = new_cost - old_cost;
+                int unit_cost_add = new_cost - old_cost;
                 int min_cost = (i+1)*cost;
+                int unit_cost;
+                old_cost = new_cost;
 
-                unit_cost *= m;
+                unit_cost_add *= m;
+                unit_cost_sum += unit_cost_add;
+                unit_cost = unit_cost_sum;
 
                 unit_cost = town_service_price(unit_cost);
 

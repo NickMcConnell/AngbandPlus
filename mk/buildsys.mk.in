@@ -111,6 +111,8 @@ all:
 	${MAKE} ${MFLAGS} depend
 	${MAKE} ${STATIC_LIB} ${STATIC_LIB_NOINST} ${STATIC_PIC_LIB} ${STATIC_PIC_LIB_NOINST} ${SHARED_LIB} ${SHARED_LIB_NOINST} ${PLUGIN} ${PLUGIN_NOINST} ${PROG} ${PROG_NOINST} ${JARFILE} locales
 
+print-%: ; @echo $* = $($*)
+
 subdirs:
 	for i in ${SUBDIRS}; do \
 		${DIR_ENTER}; \

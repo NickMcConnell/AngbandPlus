@@ -463,7 +463,7 @@ bool obj_confirm_choice(obj_ptr obj)
                 if (!ct++)
                 {
                     object_desc(name, obj, OD_COLOR_CODED);
-                    sprintf(prompt, "Really try %s? ", name);
+                    sprintf(prompt, "Really choose %s? ", name);
                 }
                 if (!get_check(prompt)) return FALSE;
             }

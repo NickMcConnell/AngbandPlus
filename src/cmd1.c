@@ -781,6 +781,9 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
         case DRACONIAN_STRIKE_POIS:
             add_flag(flgs, OF_BRAND_POIS);
             break;
+        case PY_ATTACK_MANA:
+            add_flag(flgs, OF_BRAND_MANA);
+            break;
         }
     }
     /* Chaos Weapons now have random slay effects, and the slay so
@@ -2228,8 +2231,7 @@ static void innate_attacks(s16b m_idx, bool *fear, bool *mdeath, int mode)
         if (a->flags & INNATE_SKIP) continue;
         if (m_ptr->fy != old_fy || m_ptr->fx != old_fx) break; /* Teleport Effect? */
 
-        if (r_ptr->level + 10 > p_ptr->lev)
-            skills_innate_gain(skills_innate_calc_name(a));
+        skills_innate_gain(skills_innate_calc_name(a), r_ptr->level);
 
         for (j = 0; j < blows; j++)
         {
@@ -2870,13 +2872,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
     if (o_ptr)
     {
-        if (r_ptr->level + 10 > p_ptr->lev)
-        {
-            if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && o_ptr->tval == TV_SHIELD)
-                skills_shield_gain(o_ptr->sval);
-            else
-                skills_weapon_gain(o_ptr->tval, o_ptr->sval);
-        }
+        if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && o_ptr->tval == TV_SHIELD)
+            skills_shield_gain(o_ptr->sval, r_ptr->level);
+        else
+            skills_weapon_gain(o_ptr->tval, o_ptr->sval, r_ptr->level);
     }
     else
     {
@@ -3033,7 +3032,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
             if ( have_flag(flgs, OF_BRAND_VAMP)
               || chaos_effect == 1
               || mode == HISSATSU_DRAIN
-              || mode == DRACONIAN_STRIKE_VAMP
+              || mode == PY_ATTACK_VAMP
               || hex_spelling(HEX_VAMP_BLADE)
               || weaponmaster_get_toggle() == TOGGLE_BLOOD_BLADE
               || mauler_get_toggle() == MAULER_TOGGLE_DRAIN )
@@ -3051,7 +3050,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
                   || have_flag(flgs, OF_VORPAL2)
                   || hex_spelling(HEX_RUNESWORD)
                   || p_ptr->vorpal
-                  || mode == DRACONIAN_STRIKE_VORPAL )
+                  || mode == PY_ATTACK_VORPAL )
                 {
                     if (randint1(vorpal_chance*3/2) == 1)
                         vorpal_cut = TRUE;

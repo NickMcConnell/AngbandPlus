@@ -1058,8 +1058,8 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
 
     if (object_is_artifact(arrow))
         num_fire = 100;
-    else if (p_ptr->shooter_info.num_fire)
-        num_fire = p_ptr->shooter_info.num_fire * 100 * 100 / bow_energy(bow->sval);
+    else if (p_ptr->shooter_info.base_shot)
+        num_fire = NUM_SHOTS * 100 * 100 / bow_energy(bow->sval);
 
     if (object_is_known(bow))
     {
@@ -1077,7 +1077,7 @@ static void _shooter_info_aux(doc_ptr doc, object_type *bow, object_type *arrow,
         to_d += 1 + p_ptr->lev/10;
 
     if (p_ptr->big_shot)
-        dd *= 2;
+        ds += 2;
 
     {
         const int ct = 10 * 1000;
@@ -1275,8 +1275,8 @@ void display_shooter_info(doc_ptr doc)
 
     mult = bow_mult(bow_ptr);
 
-    if (p_ptr->shooter_info.num_fire)
-        num_fire = p_ptr->shooter_info.num_fire * 100 * 100 / bow_energy(bow_ptr->sval);
+    if (p_ptr->shooter_info.base_shot)
+        num_fire = NUM_SHOTS * 100 * 100 / bow_energy(bow_ptr->sval);
 
     if (object_is_known(bow_ptr))
     {

@@ -47,13 +47,13 @@ race_t *klackon_get_race(void)
         me.stats[A_CHR] =  1;
 
         me.skills.dis = 10;
-        me.skills.dev = 5;
+        me.skills.dev = -3;
         me.skills.sav = 3;
         me.skills.stl = 0;
         me.skills.srh = -1;
         me.skills.fos = 10;
         me.skills.thn = 5;
-        me.skills.thb = 5;
+        me.skills.thb = 3;
 
         me.life = 105;
         me.base_hp = 23;
@@ -116,7 +116,7 @@ race_t *kobold_get_race(void)
         me.skills.srh =  1;
         me.skills.fos =  8;
         me.skills.thn = 10;
-        me.skills.thb = -8;
+        me.skills.thb =  3;
 
         me.life = 98;
         me.base_hp = 19;
@@ -184,7 +184,7 @@ race_t *kutar_get_race(void)
         me.skills.srh = -2;
         me.skills.fos = 6;
         me.skills.thn = 0;
-        me.skills.thb = -5;
+        me.skills.thb = -3;
 
         me.life = 102;
         me.base_hp = 21;
@@ -386,7 +386,7 @@ race_t *shadow_fairy_get_race(void)
         me.skills.srh = 12;
         me.skills.fos = 15;
         me.skills.thn =-10;
-        me.skills.thb = -5;
+        me.skills.thb = -3;
 
         me.life = 91;
         me.base_hp = 13;
@@ -563,7 +563,7 @@ race_t *snotling_get_race(void)
         me.skills.stl = 2;
         me.skills.srh = 0;
         me.skills.fos = 7;
-        me.skills.thn = -5;
+        me.skills.thn = -10;
         me.skills.thb = -5;
 
         me.life = 85;
@@ -809,13 +809,13 @@ race_t *tonberry_get_race(void)
         me.stats[A_CHR] =  0;
 
         me.skills.dis = -5;
-        me.skills.dev =  3;
+        me.skills.dev = -5;
         me.skills.sav =  3;
         me.skills.stl =  1;
         me.skills.srh = -2;
         me.skills.fos =  5;
         me.skills.thn = 20;
-        me.skills.thb =-10;
+        me.skills.thb = -7;
 
         me.life = 108;
         me.base_hp = 26;
@@ -957,7 +957,7 @@ race_t *wood_elf_get_race(void)
         me.skills.srh = 8;
         me.skills.fos = 12;
         me.skills.thn = -5;
-        me.skills.thb = 15;
+        me.skills.thb = 12;
 
         me.life = 97;
         me.base_hp = 16;
@@ -1023,7 +1023,7 @@ race_t *yeek_get_race(void)
         me.skills.srh = 5;
         me.skills.fos = 15;
         me.skills.thn = -5;
-        me.skills.thb = -5;
+        me.skills.thb = -3;
 
         me.life = 92;
         me.base_hp = 14;

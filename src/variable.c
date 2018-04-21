@@ -311,6 +311,7 @@ bool no_artifacts;
 bool no_egos;
 bool no_selling;
 bool enable_virtues;
+bool enable_spell_prof;
 bool reduce_uniques;
 byte reduce_uniques_pct = 100; /* This is the pct of uniques to face */
 bool quickband;

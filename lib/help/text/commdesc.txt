@@ -72,6 +72,11 @@ Inventory Commands
 
   Get Objects (g)
   This command will get any objects located on the same tile as the 
+  player (autodestroyer applies). If there are no objects under the 
+  player, then this command does not cause the player to lose a turn.
+
+  Auto-Get Objects (^G)
+  This command will get any objects located on the same tile as the 
   player (autodestroyer applies). In addition, this command will 
   automatically get nearby objects by travelling to them (similar to 
   running). With auto_get_objects enabled, any object registered for 

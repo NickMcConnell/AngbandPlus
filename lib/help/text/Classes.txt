@@ -100,7 +100,7 @@ Melee
   
     Stats                   Skills
     Strength      +2        Disarming   Good         
-    Intelligence  +1        Device      Very Good    
+    Intelligence  +1        Device      Fair         
     Wisdom        -2        Save        Bad          
     Dexterity     +2        Stealth     Good         
     Constitution  -3        Searching   Fair         
@@ -130,27 +130,41 @@ Melee
     Experience   120%
     
   Rune-Knight
-  The Rune Knight is a mythical warrior-mage who is dedicated to the 
-  power of ancient Runes that hold immense power. By affixing these 
-  Runes to his equipment, the Rune Knight can become an avatar of 
-  destruction, or an invulnerable bastion. Unlike the Warrior-Mage and 
-  all other casters, the Rune Knight's mana does not regenerate on its 
-  own; rather, the Rune Knight must siphon mana from magical attacks 
-  directed at him. The Rune Knight has a fixed (though very large) 
-  selection of spells that he can use his mana on, in addition to his 
-  unique Rune spells.
+  The Rune Knight is a mythical warrior who is dedicated to the 
+  discovery of ancient runes that hold immense power. They may fix 
+  mystical runes of various types to their equipment in order to gain 
+  permanent bonuses, even on artifacts! Alternatively, they may conjure 
+  a temporary rune which, when placed on their weapon, allows them to 
+  attack with enhanced effects. They may also place temporary runes 
+  directly on their person for one time or temporary bonuses. Finally, 
+  they may even alter their surroundings with various runes of change.
+   
+  All runes (except {Absorption}) require mana for creation. However, 
+  unlike ordinary spell casters, the Rune Knight does not regenerate 
+  mana on their own. Rather, they must siphon mana from magical or 
+  elemental attacks directed against them, and doing so requires a 
+  special rune of {Absorption}. This rune should be worn at all times 
+  (or at least kept handy).
+   
+  The Rune Knight does not play like an ordinary spell caster. Rather, 
+  think of them as a cross between a a warrior and a weaponsmith that 
+  can, on occasion, cast a useful spell. If you have mana available, 
+  then consider using spells. Otherwise, play as a warrior and wait to 
+  absorb mana. This can take time, depending on the foes you face, but 
+  the Rune Knight's honor should prevent them from seeking out weak, 
+  defensless spell casters.
   
   See [d] for more details on rune knights.
   
     Stats                   Skills
     Strength      +2        Disarming   Fair         
-    Intelligence  +2        Device      Good         
-    Wisdom        +0        Save        Fair         
+    Intelligence  +1        Device      Good         
+    Wisdom        -1        Save        Fair         
     Dexterity     +1        Stealth     Fair         
     Constitution  +0        Searching   Fair         
     Charisma      +1        Perception  Poor         
-    Life Rating  107%       Melee       Fair         
-    Base HP        6        Bows        Bad          
+    Life Rating  102%       Melee       Fair         
+    Base HP        6        Bows        Poor         
     Experience   150%
     
   Samurai
@@ -768,7 +782,7 @@ Stealth
     Constitution  +0        Searching   Excellent    
     Charisma      +0        Perception  Fair         
     Life Rating  104%       Melee       Very Good    
-    Base HP        8        Bows        Excellent    
+    Base HP        8        Bows        Superb       
     Experience   130%
     
   
@@ -1205,7 +1219,7 @@ Other
   
     Stats                   Skills
     Strength      +3        Disarming   Bad          
-    Intelligence  -2        Device      Fair         
+    Intelligence  -2        Device      Bad          
     Wisdom        -2        Save        Superb       
     Dexterity     -2        Stealth     Bad          
     Constitution  +2        Searching   Poor         
@@ -1300,7 +1314,7 @@ Berserker      +8  -20  -20   +4   +4   +4  200%  +22  160%
 Blood-Knight   +2   -2   -2   +0   +3   +2  120%  +20  150%
 Duelist        +2   +1   -2   +2   -3   +2  100%   +4  150%
 Mauler         +5   -2   -2   -1   +3   +2  111%  +18  120%
-Rune-Knight    +2   +2   +0   +1   +0   +1  107%   +6  150%
+Rune-Knight    +2   +1   -1   +1   +0   +1  102%   +6  150%
 Samurai        +3   -2   +1   +2   +1   +1  111%  +12  130%
 Warrior        +4   -2   -2   +2   +2   +1  115%  +18  100%
 Weaponmaster   +4   -3   -2   -1   +2   +1  109%  +12  135%
@@ -1350,7 +1364,7 @@ Table 2 - Class Skill Bonus Table I
               Disarming     Device        Save          Stealth      
 Berserker     Very Bad      Very Bad      Very Bad      Very Bad     
 Blood-Knight  Good          Bad           Fair          Fair         
-Duelist       Good          Very Good     Bad           Good         
+Duelist       Good          Fair          Bad           Good         
 Mauler        Good          Fair          Very Good     Poor         
 Rune-Knight   Fair          Good          Fair          Fair         
 Samurai       Good          Bad           Fair          Fair         
@@ -1391,7 +1405,7 @@ Warlock       Poor          Superb        Excellent     Very Good
 Archaeologist Superb        Excellent     Fair          Very Good    
 Bard          Poor          Excellent     Fair          Very Bad     
 Imitator      Poor          Good          Fair          Fair         
-Rage-Mage     Bad           Fair          Superb        Bad          
+Rage-Mage     Bad           Bad           Superb        Bad          
 Skillmaster   Very Bad      Very Bad      Very Bad      Poor         
 Tourist       Bad           Bad           Bad           Fair         
 Wild-Talent   Fair          Good          Fair          Fair         
@@ -1404,7 +1418,7 @@ Berserker     Very Bad      Very Bad      Amber[20]     Very Bad
 Blood-Knight  Poor          Bad           Superb        Poor         
 Duelist       Fair          Poor          Fair          Very Bad     
 Mauler        Poor          Bad           Superb        Very Bad     
-Rune-Knight   Fair          Poor          Fair          Bad          
+Rune-Knight   Fair          Poor          Fair          Poor         
 Samurai       Poor          Bad           Superb        Good         
 Warrior       Poor          Bad           Superb        Superb       
 Weaponmaster  Poor          Bad           Superb        Bad          
@@ -1427,7 +1441,7 @@ Magic-Eater   Fair          Poor          Fair          Poor
 Priest        Poor          Bad           Fair          Poor         
 Ninja         Excellent     Good          Superb        Excellent    
 Rogue         Good          Fair          Excellent     Excellent    
-Scout         Excellent     Fair          Very Good     Excellent    
+Scout         Excellent     Fair          Very Good     Superb       
 Chaos-Warrior Poor          Poor          Excellent     Good         
 Paladin       Poor          Bad           Excellent     Good         
 Ranger        Fair          Poor          Very Good     Superb       
@@ -1451,5 +1465,5 @@ Wild-Talent   Fair          Poor          Very Good     Very Good
 
 
 
-Automatically generated for PosChengband 6.0.3.
+Automatically generated for PosChengband 6.0.7.
 

@@ -3305,14 +3305,32 @@ static cptr do_chaos_spell(int spell, int mode)
 
     case 28:
         if (name) return "Polymorph Self";
-        if (desc) return "Polymorphs yourself.";
+        if (desc) return "Polymorphs yourself into a new form.";
 
+        if (cast)
         {
-            if (cast)
+            int which;
+            switch (randint1(50))
             {
-                if (!get_check("You will polymorph yourself. Are you sure? ")) return NULL;
-                do_poly_self();
+            case 1: which = one_in_(10) ? MIMIC_DEMON_LORD : MIMIC_DEMON; break;
+            case 2: which = MIMIC_VAMPIRE; break;
+            default:
+                for (;;)
+                {
+                    which = randint0(MAX_RACES);
+                    if ( which != RACE_HUMAN
+                      && which != RACE_DEMIGOD
+                      && which != RACE_DRACONIAN
+                      && which != RACE_ANDROID
+                      && which != RACE_DOPPELGANGER
+                      && p_ptr->prace != which
+                      && !(get_race_aux(which, 0)->flags & RACE_IS_MONSTER) )
+                    {
+                        break;
+                    }
+                }
             }
+            set_mimic(50 + randint1(50), which, FALSE);
         }
         break;
 
@@ -5262,6 +5280,10 @@ static cptr do_arcane_spell(int spell, int mode)
     return "";
 }
 
+static bool _can_enchant(obj_ptr obj) {
+    if (object_is_(obj, TV_SWORD, SV_POISON_NEEDLE)) return FALSE;
+    return object_is_weapon_armour_ammo(obj);
+}
 bool craft_enchant(int max, int inc)
 {
     obj_prompt_t prompt = {0};
@@ -5271,7 +5293,7 @@ bool craft_enchant(int max, int inc)
 
     prompt.prompt = "Enchant which item?";
     prompt.error = "You have nothing to enchant.";
-    prompt.filter = object_is_weapon_armour_ammo;
+    prompt.filter = _can_enchant;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;

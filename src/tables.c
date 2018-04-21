@@ -2432,6 +2432,9 @@ option_type option_info[] =
     { &enable_virtues,              FALSE, OPT_PAGE_BIRTH, 6, 13,
     "enable_virtues",               "Enable the Virtue System" },
 
+    { &enable_spell_prof,           FALSE, OPT_PAGE_BIRTH, 6, 15,
+    "enable_spell_prof",            "Enable the Spell Proficiency System" },
+
     { &preserve_mode,               TRUE,  OPT_PAGE_BIRTH, 6, 14,
     "preserve_mode",                "Preserve artifacts (*)" },
 

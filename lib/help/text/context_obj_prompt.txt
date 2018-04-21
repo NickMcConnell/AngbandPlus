@@ -131,6 +131,7 @@ Quick Reference
   A-Z       Inspect Indicated Object
   Page Up   Scroll Through Long Object Lists
   Page Down
+  Space
   Esc       Cancel the Prompt
   
   Tab Navigation
@@ -147,6 +148,7 @@ Quick Reference
   ^W        Toggle Weights (see [a])
   ^G        Toggle Graphics (see [b])
   ^L        Toggle Labels (see [c])
+  @         Toggle Inscription Label Overrides (Default On)
   
   
 

@@ -1997,11 +1997,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 note = " is immune.";
                 dam = 0;
             }
-            else
+            else /* 900 max dam coming in ... ~600 max dam going out */
             {
-                int div = 100/r_ptr->freq_spell;
-                /*msg_format("Mana Clash: Freq=%d, 1 in %d", r_ptr->freq_spell, div);*/
-                dam /= div + 1;
+                dam = dam * MIN(66, r_ptr->freq_spell) / 100;
             }
             break;
         }
@@ -5140,7 +5138,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
                 mon_lore_r(m_ptr, RFR_RES_ALL);
                 break;
             }
-            if (mon_save_p(m_ptr->r_idx, A_STR))
+            if ( mon_save_p(m_ptr->r_idx, A_STR)
+              && (!p_ptr->shero || mon_save_p(m_ptr->r_idx, A_STR)) )
             {
                 msg_format("%^s resists!", m_name);
                 dam = 0;
@@ -5149,8 +5148,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, bool see
             }
             else
             {
+                int dur = 2 + randint1(2);
+                /* XXX Better odds of success is probably enough.
+                 * if (p_ptr->shero) dur *= 2; */
+                m_ptr->anti_magic_ct = dur;
                 msg_format("%^s can no longer cast spells!", m_name);
-                m_ptr->anti_magic_ct = 2 + randint1(2);
                 dam = 0;
                 return TRUE;
             }
@@ -6477,6 +6479,24 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
         set_fast(4, FALSE);
     }
 
+    /* Magic Resistance for the Rune Knight works differently than for
+     * other classes (notably golems). They gain this thru their {absorption}
+     * rune which absorbs not just magical energy, but elemental attacks
+     * (e.g. breaths) as well. Restricting their mana gain to only magical
+     * attacks is far too annoyingly rare to matter much for 99% of the game.
+     * Of course, this makes it easier for the Rune-Knight to scum mana ...
+     * I can only appeal to your sense of honor in this regard!
+     * We check this first, before applying evasion or even reflection!
+     *
+     * XXX Damage has not been reduced yet for distance. Let's even leave
+     * that alone for the time being. SP regain should be quicker than before.
+     *
+     * XXX Not sure about the who check (who > 0 is the m_idx). Currently, it
+     * is ignored, but might be useful to prevent players scumming weak casters.
+     */
+    if (p_ptr->pclass == CLASS_RUNE_KNIGHT && who > 0)
+        dam = rune_knight_absorption(who, typ, dam);
+
     if ((p_ptr->reflect || ((p_ptr->special_defense & KATA_FUUJIN) && !p_ptr->blind)) && (flg & PROJECT_REFLECTABLE) && !one_in_(4))
     {
         byte t_y, t_x;
@@ -6549,6 +6569,10 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
        96+1 = RF4_THROW
        96+3 = RF4_ROCKET
        96+4 = RF4_SHOOT
+       
+       Note: See above for comments on the Rune-Knight. They absorb before
+       they evade (for demigods) and we need to exclude them in the magic
+       resistance check in the else branch below.
      */
     if ( (hack_m_spell >= 96+7 && hack_m_spell <= 96+31)
       || hack_m_spell == 96+1 || hack_m_spell == 96+3 || hack_m_spell == 96+4)
@@ -6572,15 +6596,9 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
             dam -= dam * (10 + randint1(10))/100;
         }
     }
-    else
+    else if (p_ptr->pclass != CLASS_RUNE_KNIGHT && p_ptr->magic_resistance)
     {
-        if (p_ptr->magic_resistance)
-        {
-            int x = dam * p_ptr->magic_resistance / 100;
-            dam -= x;
-            if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
-                sp_player(MAX(x, 3 + p_ptr->lev/5));
-        }
+        dam -= dam * p_ptr->magic_resistance / 100;
     }
 
 

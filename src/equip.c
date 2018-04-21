@@ -287,7 +287,7 @@ int equip_first_slot(obj_ptr obj)
     return equip_next_slot(obj, 0);
 }
 
-int equip_next_slot(obj_ptr obj, int last)
+int equip_next_slot(obj_ptr obj, slot_t last)
 {
     slot_t slot;
     for (slot = last + 1; slot <= _template->max; slot++)
@@ -1343,7 +1343,7 @@ void equip_calc_bonuses(void)
         }
 
         if (have_flag(flgs, OF_XTRA_SHOTS))
-            p_ptr->shooter_info.num_fire += 15 * obj->pval;
+            p_ptr->shooter_info.xtra_shot += 15 * obj->pval;
 
         if (have_flag(flgs, OF_LIFE))
             p_ptr->life += 3*obj->pval;

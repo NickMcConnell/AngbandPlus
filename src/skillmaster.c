@@ -502,19 +502,23 @@ void _melee_get_flags(u32b flgs[OF_ARRAY_SIZE])
 /************************************************************************
  * Shoot Skills
  ***********************************************************************/
+typedef struct { int base_thb; int xtra_thb; int prof; } _shoot_info_t;
+static _shoot_info_t _shoot_info[6] = {
+    { 20, 10, 2000 },
+    { 40, 12, 4000 }, /* 100 */
+    { 50, 15, 5000 }, /* 125 */
+    { 60, 18, 6000 }, /* 150 */
+    { 65, 22, 7000 }, /* 175 */
+    { 70, 26, 8000 }  /* 200 */
+};
 static void _shoot_init_class(class_t *class_ptr)
 {
-    typedef struct { int base_thb; int xtra_thb; } _shoot_skill_t;
-    static _shoot_skill_t _tbl[6] = {
-        { 20, 11 },
-        { 40, 15 },
-        { 50, 20 },
-        { 55, 25 },
-        { 60, 27 },
-        { 70, 28 }
-    };
-    int pts = MIN(5, _get_group_pts(_TYPE_SHOOT));
-    _shoot_skill_t row = _tbl[pts];
+    /* Note: Bow skill (thb) now governs many aspects of archery,
+     * including ammo breakage and shots per round. Throwing skill
+     * (tht) needs to stop piggy-backing off archery skills, or the
+     * player can just choose _THROWING to gain both benefits! */
+    int pts = MIN(5, _get_skill_pts(_TYPE_SHOOT, _ARCHERY));
+    _shoot_info_t row = _shoot_info[pts];
     class_ptr->base_skills.thb += row.base_thb;
     class_ptr->extra_skills.thb += row.xtra_thb;
 
@@ -525,39 +529,9 @@ static void _shoot_init_class(class_t *class_ptr)
     class_ptr->base_skills.stl += (pts + 1) / 2;
 }
 
-typedef struct { int to_h; int to_d; int prof; int shots; } _shoot_info_t;
-static _shoot_info_t _shoot_info[6] = {
-    {  0,  0, 2000,   0 },
-
-    {  0,  0, 4000,   0 },
-    {  0,  0, 5000,  25 },
-    {  0,  0, 6000,  50 },
-    {  0,  0, 7000,  75 },
-    {  0,  0, 8000, 100 }
-};
-
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
-{
-    if ( !p_ptr->shooter_info.heavy_shoot
-      && info_ptr->tval_ammo <= TV_BOLT
-      && info_ptr->tval_ammo >= TV_SHOT )
-    {
-        int pts = _get_skill_pts(_TYPE_SHOOT, _ARCHERY);
-        _shoot_info_t row;
-        assert(0 <= pts && pts <= 5);
-        row = _shoot_info[pts];
-        p_ptr->shooter_info.to_h += row.to_h;
-        p_ptr->shooter_info.dis_to_h += row.to_h;
-        p_ptr->shooter_info.to_d += row.to_d;
-        p_ptr->shooter_info.dis_to_d += row.to_d;
-        p_ptr->shooter_info.num_fire += row.shots * p_ptr->lev / 50;
-    }
-}
-
 int skillmaster_bow_prof(void)
 {
-    int pts = _get_skill_pts(_TYPE_SHOOT, _ARCHERY);
-    assert(0 <= pts && pts <= 5);
+    int pts = MIN(5, _get_skill_pts(_TYPE_SHOOT, _ARCHERY));
     return _shoot_info[pts].prof;
 }
 
@@ -573,11 +547,14 @@ static _throw_info_t _throw_info[6] = {
 
 static void _shoot_calc_bonuses(void)
 {
-    int pts = _get_skill_pts(_TYPE_SHOOT, _THROWING);
-    assert(0 <= pts && pts <= 5);
-    /* Bow skills are a bit low for effective throwing, presumably since
-     * the code expects to_h bonuses from both shooter and ammo? Note that
-     * skill_tht is already initialized to skills.thb in calc_bonuses() */
+    int pts = MIN(5, _get_skill_pts(_TYPE_SHOOT, _THROWING));
+    _shoot_info_t row = _shoot_info[pts];
+
+    /* thb and tht should be separate ... _ARCHERY determines thb, while
+     * _THROWING determines tht. Choosing _THROWING no longer benefits archery,
+     * and vice versa */
+    p_ptr->skill_tht = row.base_thb + p_ptr->lev * row.xtra_thb / 10;
+    /* bonus skill, since throwing does not gain xtra to_h from ammo */
     p_ptr->skill_tht += _throw_info[pts].skill;
 }
 
@@ -1785,7 +1762,6 @@ class_t *skillmaster_get_class(void)
         me.gain_level = _gain_level;
         me.calc_bonuses = _calc_bonuses;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.get_powers = _get_powers;
         me.get_flags = _get_flags;
         me.load_player = _load_player;

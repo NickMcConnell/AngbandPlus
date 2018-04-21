@@ -1052,10 +1052,33 @@ bool apply_disenchant(int mode)
 void mutate_player(void)
 {
     int max1, cur1, max2, cur2, ii, jj, i;
+    bool sustains[6] = {0};
 
-    /* Pick a pair of stats */
-    ii = randint0(6);
-    for (jj = ii; jj == ii; jj = randint0(6)) /* loop */;
+    /* Pick a pair of stats. Sustains give players a chance to protect
+     * key stats in the early game (e.g. mages are forced to hyper focus
+     * stat boosts on Int and swapping 18/50 with 12 might as well just
+     * kill the player). Nexus is common around DL30 while stat potions
+     * are not.*/
+    sustains[A_STR] = p_ptr->sustain_str;
+    sustains[A_INT] = p_ptr->sustain_int;
+    sustains[A_WIS] = p_ptr->sustain_wis;
+    sustains[A_DEX] = p_ptr->sustain_dex;
+    sustains[A_CON] = p_ptr->sustain_con;
+    sustains[A_CHR] = p_ptr->sustain_chr;
+
+    for (;;)
+    {
+        ii = randint0(6);
+        if (!sustains[ii]) break;
+        if (one_in_(6)) break;
+    }
+    for (;;)
+    {
+        jj = randint0(6);
+        if (jj == ii) continue;
+        if (!sustains[jj]) break;
+        if (one_in_(6)) break;
+    }
 
     max1 = p_ptr->stat_max[ii];
     cur1 = p_ptr->stat_cur[ii];
@@ -1073,6 +1096,11 @@ void mutate_player(void)
         if(p_ptr->stat_cur[i] > p_ptr->stat_max_max[i]) p_ptr->stat_cur[i] = p_ptr->stat_max_max[i];
     }
 
+    if (p_ptr->wizard)
+    {
+        msg_format("<color:v>Swapped <color:R>%s</color> with <color:R>%s</color>.</color>",
+            stat_abbrev_true[ii], stat_abbrev_true[jj]);
+    }
     p_ptr->update |= (PU_BONUS);
 }
 
@@ -1164,10 +1192,20 @@ void phlogiston(void)
         msg_print("Nothing happens.");
 }
 
-
 /*
  * Brand the current weapon
  */
+static bool _can_brand_weapon(obj_ptr obj)
+{
+    if (!object_is_melee_weapon(obj)) return FALSE;
+    if (!object_is_nameless(obj)) return FALSE;
+    if (object_is_(obj, TV_SWORD, SV_POISON_NEEDLE)) return FALSE;
+    if (object_is_(obj, TV_SWORD, SV_RUNESWORD)) return FALSE;
+    /* Hengband: if (object_is_(obj, TV_SWORD, SV_DIAMOND_EDGE)) return FALSE;*/
+    if (have_flag(obj->flags, OF_NO_REMOVE)) return FALSE;
+    return TRUE;
+}
+
 bool brand_weapon(int brand_type)
 {
     obj_prompt_t prompt = {0};
@@ -1175,7 +1213,7 @@ bool brand_weapon(int brand_type)
 
     prompt.prompt = "Enchant which weapon?";
     prompt.error = "You have nothing to enchant.";
-    prompt.filter = object_allow_enchant_melee_weapon;
+    prompt.filter = _can_brand_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_QUIVER;
@@ -1184,14 +1222,7 @@ bool brand_weapon(int brand_type)
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
 
-    if (prompt.obj->name1 || prompt.obj->name2)
-    {
-    }
-    else if (have_flag(prompt.obj->flags, OF_NO_REMOVE))
-    {
-        msg_print("You are already excellent!");
-    }
-    else if (brand_type == -1)
+    if (brand_type == -1)
     {
         result = brand_weapon_aux(prompt.obj);
     }
@@ -1208,6 +1239,7 @@ bool brand_weapon(int brand_type)
         virtue_add(VIRTUE_ENCHANTMENT, 2);
         obj_identify_fully(prompt.obj);
         obj_display(prompt.obj);
+        obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
     }
     else
     {
@@ -1215,18 +1247,16 @@ bool brand_weapon(int brand_type)
         msg_print("The Branding failed.");
         virtue_add(VIRTUE_ENCHANTMENT, -2);
     }
-    android_calc_exp();
     return TRUE;
 }
 /* Hack for old branding spells attempting to make now non-existent ego types! */
 bool brand_weapon_slaying(int brand_flag, int res_flag)
 {
     obj_prompt_t prompt = {0};
-    bool         result = FALSE;
 
     prompt.prompt = "Enchant which weapon?";
     prompt.error = "You have nothing to enchant.";
-    prompt.filter = object_allow_enchant_melee_weapon;
+    prompt.filter = _can_brand_weapon;
     prompt.where[0] = INV_PACK;
     prompt.where[1] = INV_EQUIP;
     prompt.where[2] = INV_FLOOR;
@@ -1234,48 +1264,18 @@ bool brand_weapon_slaying(int brand_flag, int res_flag)
     obj_prompt(&prompt);
     if (!prompt.obj) return FALSE;
 
-    if (prompt.obj->name1 || prompt.obj->name2)
-    {
-    }
-    else if (have_flag(prompt.obj->flags, OF_NO_REMOVE))
-    {
-        msg_print("You are already excellent!");
-    }
-    else
-    {
-        prompt.obj->name2 = EGO_WEAPON_SLAYING;
-        add_flag(prompt.obj->flags, brand_flag);
-        if (res_flag != OF_INVALID)
-            add_flag(prompt.obj->flags, res_flag);
-        result = TRUE;
-    }
-    if (result)
-    {
-        enchant(prompt.obj, randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-        prompt.obj->discount = 99;
+    prompt.obj->name2 = EGO_WEAPON_SLAYING;
+    add_flag(prompt.obj->flags, brand_flag);
+    if (res_flag != OF_INVALID)
+        add_flag(prompt.obj->flags, res_flag);
 
-        virtue_add(VIRTUE_ENCHANTMENT, 2);
-        obj_identify_fully(prompt.obj);
-        obj_display(prompt.obj);
-    }
-    else
-    {
-        if (flush_failure) flush();
-        msg_print("The Branding failed.");
-        virtue_add(VIRTUE_ENCHANTMENT, -2);
-    }
-    switch (prompt.obj->loc.where)
-    {
-    case INV_EQUIP:
-        p_ptr->update |= PU_BONUS;
-        p_ptr->window |= PW_EQUIP;
-        android_calc_exp();
-        break;
-    case INV_PACK:
-        p_ptr->window |= PW_INVEN;
-        p_ptr->notice |= PN_OPTIMIZE_PACK;
-        break;
-    }
+    enchant(prompt.obj, randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+    prompt.obj->discount = 99;
+
+    virtue_add(VIRTUE_ENCHANTMENT, 2);
+    obj_identify_fully(prompt.obj);
+    obj_display(prompt.obj);
+    obj_release(prompt.obj, OBJ_RELEASE_ENCHANT);
     return TRUE;
 }
 bool brand_weapon_aux(object_type *o_ptr)
@@ -1709,6 +1709,7 @@ void identify_pack(void)
 {
     pack_for_each(_identify_obj);
     equip_for_each(_identify_obj);
+    quiver_for_each(_identify_obj);
 }
 
 
@@ -2935,6 +2936,7 @@ s16b experience_of_spell(int spell, int use_realm)
 {
     if (p_ptr->pclass == CLASS_SORCERER) return SPELL_EXP_MASTER;
     else if (p_ptr->pclass == CLASS_RED_MAGE) return SPELL_EXP_SKILLED;
+    else if (!enable_spell_prof) return SPELL_EXP_EXPERT; /* XXX */
     else if (use_realm == p_ptr->realm1) return p_ptr->spell_exp[spell];
     else if (use_realm == p_ptr->realm2) return p_ptr->spell_exp[spell + 32];
     else return 0;
@@ -3223,14 +3225,21 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
     else
     {
         if (caster_ptr && (caster_ptr->options & CASTER_USE_HP))
-            strcpy(buf,"Profic Lvl  HP Fail Desc");
-        else
+        {
+            if (enable_spell_prof)
+                strcpy(buf,"Profic Lvl  HP Fail Desc");
+            else
+                strcpy(buf, "Lvl  HP Fail Desc");
+        }
+        else if (enable_spell_prof)
             strcpy(buf,"Profic Lvl  SP Fail Desc");
+        else
+            strcpy(buf,"Lvl  SP Fail Desc");
     }
 
     Term_erase(display.x, display.y, display.cx);
     put_str("Name", display.y, display.x + 5);
-    put_str(buf, display.y, display.x + 29);
+    put_str(buf, display.y, display.x + enable_spell_prof ? 29 : 31);
 
     if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE)) increment = 0;
     else if (use_realm == p_ptr->realm1) increment = 0;
@@ -3355,14 +3364,20 @@ void print_spells(int target_spell, byte *spells, int num, rect_t display, int u
         if (use_realm == REALM_HISSATSU)
         {
             strcat(out_val, format("%-25s %3d %3d",
-                do_spell(use_realm, spell, SPELL_NAME), /* realm, spell */
+                do_spell(use_realm, spell, SPELL_NAME),
                 s_ptr->slevel, need_mana));
+        }
+        else if (enable_spell_prof)
+        {
+            strcat(out_val, format("%-25s%c%-4s %3d %3d %3d%% %s",
+                do_spell(use_realm, spell, SPELL_NAME),
+                (max ? '!' : ' '), ryakuji,
+                s_ptr->slevel, need_mana, spell_chance(spell, use_realm), comment));
         }
         else
         {
-            strcat(out_val, format("%-25s%c%-4s %3d %3d %3d%% %s",
-                do_spell(use_realm, spell, SPELL_NAME), /* realm, spell */
-                (max ? '!' : ' '), ryakuji,
+            strcat(out_val, format("%-25s %3d %3d %3d%% %s",
+                do_spell(use_realm, spell, SPELL_NAME),
                 s_ptr->slevel, need_mana, spell_chance(spell, use_realm), comment));
         }
         c_put_str(line_attr, out_val, display.y + i + 1, display.x);

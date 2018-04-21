@@ -33,6 +33,7 @@ static bool _create_arrows(void)
     msg_format("You make %s.", name);
     pack_carry(&forge);
 
+    stats_on_use(prompt.obj, 1);
     prompt.obj->number--;
     obj_release(prompt.obj, 0);
     return TRUE;
@@ -64,6 +65,7 @@ static bool _create_bolts(void)
     msg_format("You make %s.", name);
     pack_carry(&forge);
 
+    stats_on_use(prompt.obj, 1);
     prompt.obj->number--;
     obj_release(prompt.obj, 0);
     return TRUE;
@@ -198,7 +200,6 @@ static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
       && p_ptr->shooter_info.tval_ammo <= TV_BOLT
       && p_ptr->shooter_info.tval_ammo >= TV_SHOT )
     {
-        p_ptr->shooter_info.num_fire += p_ptr->lev * 3;
         p_ptr->shooter_info.breakage -= 10;
     }
 }

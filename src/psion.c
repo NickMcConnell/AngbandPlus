@@ -1986,6 +1986,7 @@ static void _calc_bonuses(void)
 
     if (p_ptr->magic_num1[_ARCHERY])
     {
+        /* Note: This also increases shots per round ... cf calc_bonuses in xtra1.c */
         p_ptr->skills.thb += 20*p_ptr->magic_num2[_ARCHERY];
     }
 
@@ -2046,14 +2047,6 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
     if (p_ptr->magic_num1[_COMBAT])
     {
         info_ptr->xtra_blow += p_ptr->magic_num2[_COMBAT] * 50;
-    }
-}
-
-static void _calc_shooter_bonuses(object_type *o_ptr, shooter_info_t *info_ptr)
-{
-    if (p_ptr->magic_num1[_ARCHERY])
-    {
-        info_ptr->num_fire += p_ptr->magic_num2[_ARCHERY] * 20;
     }
 }
 
@@ -2251,7 +2244,6 @@ class_t *psion_get_class(void)
         me.calc_bonuses = _calc_bonuses;
         me.get_flags = _get_flags;
         me.calc_weapon_bonuses = _calc_weapon_bonuses;
-        me.calc_shooter_bonuses = _calc_shooter_bonuses;
         me.caster_info = _caster_info;
         me.get_spells = _get_spells;
         me.get_powers = _get_powers;

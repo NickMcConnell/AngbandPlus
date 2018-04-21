@@ -5384,14 +5384,16 @@ bool lose_all_info(void)
     virtue_add(VIRTUE_KNOWLEDGE, -5);
     virtue_add(VIRTUE_ENLIGHTENMENT, -5);
 
-    pack_for_each(_forget);
-    equip_for_each(_forget);
-    quiver_for_each(_forget);
+    if (!p_ptr->auto_id)
+    {
+        pack_for_each(_forget);
+        equip_for_each(_forget);
+        quiver_for_each(_forget);
 
-    p_ptr->update |= PU_BONUS;
-    p_ptr->notice |= PN_OPTIMIZE_PACK;
-    p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_OBJECT_LIST);
-
+        p_ptr->update |= PU_BONUS;
+        p_ptr->notice |= PN_OPTIMIZE_PACK;
+        p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_OBJECT_LIST);
+    }
     wiz_dark();
 
     return TRUE;
@@ -6691,7 +6693,7 @@ bool set_tim_dark_stalker(int v, bool do_dec)
         {
             if (p_ptr->pclass == CLASS_ROGUE || p_ptr->pclass == CLASS_SKILLMASTER)
                 msg_print("You begin to tread softly.");
-            else if (p_ptr->pclass == CLASS_NECROMANCER)
+            else if (p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are cloaked in darkness.");
             else
                 msg_print("You begin to stalk your prey.");
@@ -6705,7 +6707,7 @@ bool set_tim_dark_stalker(int v, bool do_dec)
         {
             if (p_ptr->pclass == CLASS_ROGUE || p_ptr->pclass == CLASS_SKILLMASTER)
                 msg_print("You no longer tread softly.");
-            else if (p_ptr->pclass == CLASS_NECROMANCER)
+            else if (p_ptr->pclass == CLASS_NECROMANCER || p_ptr->pclass == CLASS_RUNE_KNIGHT)
                 msg_print("You are no longer cloaked in darkness.");
             else
                 msg_print("You no longer stalk your prey.");

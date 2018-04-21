@@ -33,7 +33,7 @@ static personality_ptr _get_combat_personality(void)
         me.skills.srh = -1;
         me.skills.fos =  2;
         me.skills.thn =  5;
-        me.skills.thb =  5;
+        me.skills.thb =  3;
 
         me.life = 100;
         me.exp = 100;
@@ -73,7 +73,7 @@ static personality_ptr _get_craven_personality(void)
         me.skills.srh =  0;
         me.skills.fos =  0;
         me.skills.thn =-10;
-        me.skills.thb = 10;
+        me.skills.thb =  7;
 
         me.life = 99;
         me.exp = 100;
@@ -172,7 +172,7 @@ static personality_ptr _get_hasty_personality(void)
         me.skills.srh = -4;
         me.skills.fos = -2;
         me.skills.thn = -5;
-        me.skills.thb = -5;
+        me.skills.thb = -3;
 
         me.life = 100;
         me.exp = 100;
@@ -221,7 +221,7 @@ static personality_ptr _get_lazy_personality(void)
         me.skills.srh = -4;
         me.skills.fos = -2;
         me.skills.thn = -8;
-        me.skills.thb = -8;
+        me.skills.thb = -5;
 
         me.life = 95;
         me.exp = 100;
@@ -268,9 +268,9 @@ static personality_ptr _get_lucky_personality(void)
         me.skills.srh = 10;
         me.skills.fos =  8;
         me.skills.thn = 15;
-        me.skills.thb = 15;
+        me.skills.thb =  9;
 
-        me.life = 100;
+        me.life = 98;
         me.exp = 100;
 
         me.birth = _lucky_birth;
@@ -313,7 +313,7 @@ static personality_ptr _get_mighty_personality(void)
         me.skills.stl = -1;
         me.skills.srh = -2;
         me.skills.fos = -2;
-        me.skills.thn = 10;
+        me.skills.thn = 15;
         me.skills.thb =  0;
 
         me.life = 102;
@@ -380,7 +380,7 @@ static personality_ptr _get_munchkin_personality(void)
         me.skills.srh = 20;
         me.skills.fos = 20;
         me.skills.thn = 40;
-        me.skills.thb = 40;
+        me.skills.thb = 24;
 
         me.life = 150;
         me.exp = 50;
@@ -423,7 +423,7 @@ static personality_ptr _get_nimble_personality(void)
         me.skills.srh =  5;
         me.skills.fos =  5;
         me.skills.thn =  0;
-        me.skills.thb = 10;
+        me.skills.thb =  7;
 
         me.life = 99;
         me.exp = 100;
@@ -488,7 +488,7 @@ static personality_ptr _get_patient_personality(void)
         me.skills.srh =  0;
         me.skills.fos = -3;
         me.skills.thn = -6;
-        me.skills.thb = -6;
+        me.skills.thb = -3;
 
         me.life = 102;
         me.exp = 100;
@@ -528,7 +528,7 @@ static personality_ptr _get_pious_personality(void)
         me.skills.srh =  3;
         me.skills.fos = -2;
         me.skills.thn = -3;
-        me.skills.thb = -6;
+        me.skills.thb = -3;
 
         me.life = 100;
         me.exp = 100;
@@ -586,7 +586,7 @@ static personality_ptr _get_sexy_personality(void)
         me.skills.srh =  4;
         me.skills.fos =  2;
         me.skills.thn = 10;
-        me.skills.thb = 10;
+        me.skills.thb =  7;
 
         me.life = 100;
         me.exp = 100;
@@ -633,7 +633,7 @@ static personality_ptr _get_shrewd_personality(void)
         me.skills.srh = -2;
         me.skills.fos =  5;
         me.skills.thn = -8;
-        me.skills.thb = -5;
+        me.skills.thb = -3;
 
         me.life = 97;
         me.exp = 100;

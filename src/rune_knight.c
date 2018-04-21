@@ -7,6 +7,21 @@
 /****************************************************************
  * Public Helpers
  ****************************************************************/
+int rune_knight_absorption(int m_idx, int type, int dam)
+{
+    int drain = 0;
+
+    if (p_ptr->pclass != CLASS_RUNE_KNIGHT) return dam;
+    if (!p_ptr->magic_resistance) return dam;
+    if (type == GF_ARROW || type == GF_ROCK) return dam;
+
+    drain = dam * p_ptr->magic_resistance / 100;
+    /* XXX Decline mana gain if player is scumming weak casters? */
+    sp_player(MAX(drain, 2 + p_ptr->lev/10));
+
+    return dam - drain;
+}
+
 void rune_calc_bonuses(object_type *o_ptr)
 {
     if (o_ptr->rune == RUNE_ABSORPTION)
@@ -311,7 +326,7 @@ bool rune_add(object_type *o_ptr, int which, bool prompt)    /* Birthing needs a
 }
 
 /****************************************************************
- * Private Spells and Helpers
+ * Runes of Creation
  ****************************************************************/
 static object_type *_rune_object_prompt(obj_p filter)
 {
@@ -340,11 +355,10 @@ static void _rune_default_spell(int cmd, variant *res)
         break; */
     default:
         default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_absorption_pred(object_type *o_ptr)
+static bool _obj_absorption_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr)
       || object_is_melee_weapon(o_ptr)
@@ -354,19 +368,22 @@ static bool _rune_of_absorption_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_absorption_spell(int cmd, variant *res)
+static void _obj_absorption_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Absorption");
+        var_set_string(res, "Absorption");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_absorption");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Absorption on chosen melee weapon, body armor or shield. This rune grants a special magical defense that absorbs damage from all monster spells restoring your mana in the process.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_absorption_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_absorption_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -379,29 +396,31 @@ static void _rune_of_absorption_spell(int cmd, variant *res)
         break;
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_protection_pred(object_type *o_ptr)
+static bool _obj_protection_pred(object_type *o_ptr)
 {
     if (object_is_armour(o_ptr))
         return TRUE;
     return FALSE;
 }
-static void _rune_of_protection_spell(int cmd, variant *res)
+static void _obj_protection_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Protection");
+        var_set_string(res, "Protection");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_protection");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Protection on chosen armor making it immune to acid while slightly enhancing its protective capabilities.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_protection_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_protection_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -414,11 +433,10 @@ static void _rune_of_protection_spell(int cmd, variant *res)
         break;
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_regeneration_pred(object_type *o_ptr)
+static bool _obj_regeneration_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr)
       || o_ptr->tval == TV_CLOAK )
@@ -427,19 +445,22 @@ static bool _rune_of_regeneration_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_regeneration_spell(int cmd, variant *res)
+static void _obj_regeneration_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Regeneration");
+        var_set_string(res, "Regeneration");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_regeneration");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Regeneration on chosen item granting powers of regeneration.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_regeneration_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_regeneration_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -452,11 +473,10 @@ static void _rune_of_regeneration_spell(int cmd, variant *res)
         break;
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_fire_pred(object_type *o_ptr)
+static bool _obj_fire_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr)
       || object_is_melee_weapon(o_ptr)
@@ -469,19 +489,22 @@ static bool _rune_of_fire_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_fire_spell(int cmd, variant *res)
+static void _obj_fire_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Fire");
+        var_set_string(res, "Fire");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_fire");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Fire on chosen item granting special fire based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_fire_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_fire_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -491,11 +514,10 @@ static void _rune_of_fire_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_air_pred(object_type *o_ptr)
+static bool _obj_air_pred(object_type *o_ptr)
 {
     if ( (object_is_melee_weapon(o_ptr) && p_ptr->lev >= 40)
       || o_ptr->tval == TV_CLOAK
@@ -505,19 +527,22 @@ static bool _rune_of_air_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_air_spell(int cmd, variant *res)
+static void _obj_air_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Air");
+        var_set_string(res, "Air");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_air");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Air on chosen item granting special wind based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_air_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_air_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -527,11 +552,10 @@ static void _rune_of_air_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_water_pred(object_type *o_ptr)
+static bool _obj_water_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr)
       || object_is_melee_weapon(o_ptr)
@@ -543,19 +567,22 @@ static bool _rune_of_water_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_water_spell(int cmd, variant *res)
+static void _obj_water_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Water");
+        var_set_string(res, "Water");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_water");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Water on chosen item granting special acid based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_water_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_water_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -565,11 +592,10 @@ static void _rune_of_water_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_light_pred(object_type *o_ptr)
+static bool _obj_light_pred(object_type *o_ptr)
 {
     if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
@@ -578,19 +604,22 @@ static bool _rune_of_light_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_light_spell(int cmd, variant *res)
+static void _obj_light_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Light");
+        var_set_string(res, "Light");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_light");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Light on chosen item granting special light based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_light_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_light_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -600,11 +629,10 @@ static void _rune_of_light_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_shadow_pred(object_type *o_ptr)
+static bool _obj_shadow_pred(object_type *o_ptr)
 {
     if ( object_is_shield(o_ptr)
       || object_is_body_armour(o_ptr)
@@ -615,19 +643,22 @@ static bool _rune_of_shadow_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_shadow_spell(int cmd, variant *res)
+static void _obj_shadow_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Shadow");
+        var_set_string(res, "Shadow");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_shadow");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Shadow on chosen item granting special darkness based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_shadow_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_shadow_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -637,11 +668,10 @@ static void _rune_of_shadow_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_earth_pred(object_type *o_ptr)
+static bool _obj_earth_pred(object_type *o_ptr)
 {
     if ( (object_is_melee_weapon(o_ptr) && p_ptr->lev >= 35)
       || object_is_shield(o_ptr)
@@ -652,19 +682,22 @@ static bool _rune_of_earth_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_earth_spell(int cmd, variant *res)
+static void _obj_earth_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Earth");
+        var_set_string(res, "Earth");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_earth");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Earth on chosen item granting special shard based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_earth_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_earth_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -674,11 +707,10 @@ static void _rune_of_earth_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_understanding_pred(object_type *o_ptr)
+static bool _obj_understanding_pred(object_type *o_ptr)
 {
     if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
@@ -687,19 +719,22 @@ static bool _rune_of_understanding_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_understanding_spell(int cmd, variant *res)
+static void _obj_understanding_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Understanding");
+        var_set_string(res, "Understanding");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_understanding");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Understanding on chosen item granting special knowledge based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_understanding_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_understanding_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -709,16 +744,18 @@ static void _rune_of_understanding_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static void _rune_of_elemental_protection_spell(int cmd, variant *res)
+static void _obj_elemental_protection_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Preservation");
+        var_set_string(res, "Preservation");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_preservation");
         break;
     case SPELL_DESC:
         var_set_string(res, "Creates a standalone rune. As long as you have this rune in your inventory, your inventory items are less likely to be destroyed by elemental attacks.");
@@ -736,11 +773,10 @@ static void _rune_of_elemental_protection_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_haste_pred(object_type *o_ptr)
+static bool _obj_haste_pred(object_type *o_ptr)
 {
     if ( o_ptr->tval == TV_GLOVES
       || o_ptr->tval == TV_BOOTS )
@@ -749,19 +785,22 @@ static bool _rune_of_haste_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_haste_spell(int cmd, variant *res)
+static void _obj_haste_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Haste");
+        var_set_string(res, "Haste");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_haste");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Haste on chosen item granting special speed based powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_haste_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_haste_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -771,11 +810,10 @@ static void _rune_of_haste_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_seeing_pred(object_type *o_ptr)
+static bool _obj_seeing_pred(object_type *o_ptr)
 {
     if ( object_is_helmet(o_ptr)
       || o_ptr->tval == TV_LITE )
@@ -784,19 +822,22 @@ static bool _rune_of_seeing_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_seeing_spell(int cmd, variant *res)
+static void _obj_seeing_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Seeing");
+        var_set_string(res, "Seeing");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_seeing");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Seeing on chosen item granting powers of sight.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_seeing_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_seeing_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -806,16 +847,19 @@ static void _rune_of_seeing_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static void _rune_of_sacrifice_spell(int cmd, variant *res)
+/* XXX see comments in the spell table below ...
+static void _obj_sacrifice_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Sacrifice");
+        var_set_string(res, "Sacrifice");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_sacrifice");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Sacrifice on an artifact. You can now destroy (with 'k' command) the artifact, and if you do so, you restore HP and SP.");
@@ -832,11 +876,11 @@ static void _rune_of_sacrifice_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
+*/
 
-static bool _rune_of_life_pred(object_type *o_ptr)
+static bool _obj_life_pred(object_type *o_ptr)
 {
     if ( object_is_shield(o_ptr)
       || object_is_body_armour(o_ptr)
@@ -846,19 +890,22 @@ static bool _rune_of_life_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_life_spell(int cmd, variant *res)
+static void _obj_life_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Life");
+        var_set_string(res, "Life");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_life");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Life on chosen item protecting your living essence.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_life_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_life_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -868,11 +915,10 @@ static void _rune_of_life_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_stability_pred(object_type *o_ptr)
+static bool _obj_stability_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr)
       || object_is_helmet(o_ptr)
@@ -883,19 +929,22 @@ static bool _rune_of_stability_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_stability_spell(int cmd, variant *res)
+static void _obj_stability_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Stability");
+        var_set_string(res, "Stability");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_stability");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Stability on chosen item protecting you from the vicissitudes of the world around you.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_stability_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_stability_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -905,16 +954,18 @@ static void _rune_of_stability_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static void _rune_of_reflection_spell(int cmd, variant *res)
+static void _obj_reflection_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Reflection");
+        var_set_string(res, "Reflection");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_reflection");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Reflection on your shield. Your shield gains the Reflection property.");
@@ -931,11 +982,10 @@ static void _rune_of_reflection_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_death_pred(object_type *o_ptr)
+static bool _obj_death_pred(object_type *o_ptr)
 {
     if ( object_is_melee_weapon(o_ptr)
       || object_is_shield(o_ptr)
@@ -946,19 +996,22 @@ static bool _rune_of_death_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_death_spell(int cmd, variant *res)
+static void _obj_death_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Death");
+        var_set_string(res, "Death");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_death");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Death on chosen item granting powers of the nether world.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_death_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_death_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -968,11 +1021,10 @@ static void _rune_of_death_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_mind_pred(object_type *o_ptr)
+static bool _obj_mind_pred(object_type *o_ptr)
 {
     if ( object_is_helmet(o_ptr) 
       || o_ptr->tval == TV_LITE ) 
@@ -981,19 +1033,22 @@ static bool _rune_of_mind_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_mind_spell(int cmd, variant *res)
+static void _obj_mind_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Mind");
+        var_set_string(res, "Mind");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_mind");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Mind on chosen item granting powers of thought and awareness.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_mind_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_mind_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -1003,11 +1058,10 @@ static void _rune_of_mind_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_might_pred(object_type *o_ptr)
+static bool _obj_might_pred(object_type *o_ptr)
 {
     if ( object_is_body_armour(o_ptr) 
       || object_is_helmet(o_ptr) ) 
@@ -1016,19 +1070,22 @@ static bool _rune_of_might_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_might_spell(int cmd, variant *res)
+static void _obj_might_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Might");
+        var_set_string(res, "Might");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_might");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Might on chosen item granting powers of strength and fortitude.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_might_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_might_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -1038,11 +1095,10 @@ static void _rune_of_might_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_destruction_pred(object_type *o_ptr)
+static bool _obj_destruction_pred(object_type *o_ptr)
 {
     if ( object_is_melee_weapon(o_ptr) 
       || o_ptr->tval == TV_GLOVES ) 
@@ -1051,19 +1107,22 @@ static bool _rune_of_destruction_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_destruction_spell(int cmd, variant *res)
+static void _obj_destruction_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Destruction");
+        var_set_string(res, "Destruction");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_destruction");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Destruction on chosen item granting great combat powers.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_destruction_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_destruction_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -1073,16 +1132,18 @@ static void _rune_of_destruction_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static void _rune_of_good_fortune_spell(int cmd, variant *res)
+static void _obj_good_fortune_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Luck");
+        var_set_string(res, "Luck");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_luck");
         break;
     case SPELL_DESC:
         var_set_string(res, "Creates a standalone rune. As long as you have this rune in your inventory you will experience better luck during your adventures.");
@@ -1100,11 +1161,10 @@ static void _rune_of_good_fortune_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
-        break;
     }
 }
 
-static bool _rune_of_immortality_pred(object_type *o_ptr)
+static bool _obj_immortality_pred(object_type *o_ptr)
 {
     if ( object_is_shield(o_ptr) 
       || object_is_body_armour(o_ptr)
@@ -1115,19 +1175,22 @@ static bool _rune_of_immortality_pred(object_type *o_ptr)
     }
     return FALSE;
 }
-static void _rune_of_immortality_spell(int cmd, variant *res)
+static void _obj_immortality_spell(int cmd, variant *res)
 {
     switch (cmd)
     {
     case SPELL_NAME:
-        var_set_string(res, "Rune of Immortality");
+        var_set_string(res, "Immortality");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_obj_immortality");
         break;
     case SPELL_DESC:
         var_set_string(res, "Places a Rune of Immortality on chosen item granting power over time itself.");
         break;
     case SPELL_CAST:
     {
-        object_type *o_ptr = _rune_object_prompt(_rune_of_immortality_pred);
+        object_type *o_ptr = _rune_object_prompt(_obj_immortality_pred);
         var_set_bool(res, FALSE);
 
         if (o_ptr)
@@ -1137,14 +1200,604 @@ static void _rune_of_immortality_spell(int cmd, variant *res)
     }
     default:
         _rune_default_spell(cmd, res);
+    }
+}
+
+/****************************************************************
+ * Runes of Enhancement
+ *
+ * Note: Durations are long since mana is often scarce. Feel free
+ * to tweak upwards as playtesting dictates.
+ ****************************************************************/
+#define _DURATION 100
+
+void _self_darkness_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Darkness");
         break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_darkness");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Place a temporary Rune of Darkness on your person, granting enhanced stealth.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(_DURATION, _DURATION));
+        break;
+    case SPELL_CAST:
+        set_tim_dark_stalker(_DURATION + randint1(_DURATION), FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _self_seeing_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Seeing");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_seeing");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Place a temporary Rune of Seeing on your person, granting telepathic powers.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(_DURATION, _DURATION));
+        break;
+    case SPELL_CAST:
+        set_tim_esp(randint1(_DURATION) + _DURATION, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _self_understanding_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Understanding");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_understanding");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Place a temporary Rune of Understanding on your person, granting knowledge of yourself.");
+        break;
+    default:
+        self_knowledge_spell(cmd, res);
+    }
+}
+
+void _self_haste_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Haste");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_haste");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Place a temporary Rune of Haste on your person, granting enhanced speed of motion.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(_DURATION, _DURATION));
+        break;
+    case SPELL_CAST:
+        set_fast(randint1(_DURATION) + _DURATION, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _self_protection_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Protection");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_protection");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Place a temporary Rune of Protection on your person, granting temporary resistance to the basic elements.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(_DURATION, _DURATION));
+        break;
+    case SPELL_CAST:
+        set_oppose_acid(randint1(_DURATION) + _DURATION, FALSE);
+        set_oppose_elec(randint1(_DURATION) + _DURATION, FALSE);
+        set_oppose_fire(randint1(_DURATION) + _DURATION, FALSE);
+        set_oppose_cold(randint1(_DURATION) + _DURATION, FALSE);
+        set_oppose_pois(randint1(_DURATION) + _DURATION, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _self_earth_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Earth");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_earth");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Place a temporary Rune of Earth on your person, hardening your skin to ward off enemy blows.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(_DURATION, _DURATION));
+        break;
+    case SPELL_CAST:
+        set_shield(randint1(_DURATION) + _DURATION, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _self_life_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Life");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_life");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "By placing a temporary Rune of Life on your person, you may recover that which was lost.");
+        break;
+    default:
+        restore_life_spell(cmd, res);
+    }
+}
+
+void _self_daemon_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Daemon");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_daemon");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "By placing a temporary Demonic Rune on your person you transform yourself into a more powerful form.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(_DURATION, _DURATION));
+        break;
+    case SPELL_CAST:
+        set_mimic(_DURATION + randint1(_DURATION), MIMIC_DEMON, FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _self_might_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Might");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_self_might");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "By placing a temporary Rune of Might on your person you gain the strength of giants.");
+        break;
+    case SPELL_INFO:
+        var_set_string(res, info_duration(_DURATION/2, _DURATION/2));
+        break;
+    case SPELL_CAST:
+        set_tim_building_up(_DURATION/2 + randint1(_DURATION/2), FALSE);
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+/****************************************************************
+ * Runes of Alteration
+ ****************************************************************/
+void _feat_spell(int feat, int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_CAST: {
+        int        dir, x, y;
+        cave_type *c_ptr;
+
+        var_set_bool(res, FALSE);
+
+        if (!get_rep_dir2(&dir)) return;
+        if (dir == 5) return;
+
+        y = py + ddy[dir];
+        x = px + ddx[dir];
+        if (!in_bounds(y, x)) return;
+        c_ptr = &cave[y][x];
+        if ((c_ptr->info & CAVE_OBJECT) || c_ptr->o_idx)
+            msg_print("<color:r>The object resists your rune.</color>");
+        else if (c_ptr->m_idx)
+            msg_print("<color:r>There is a monster in your way.</color>");
+        else
+            cave_set_feat(y, x, feat);
+
+        var_set_bool(res, TRUE);
+        break; }
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _feat_light_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Light");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_light");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "By placing a Rune of Light at your current location you may light up your surroundings.");
+        break;
+    default:
+        light_area_spell(cmd, res);
+    }
+}
+
+void _feat_water_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Water");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_water");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This rune washes away all in its path.");
+        break;
+    default:
+        _feat_spell(p_ptr->lev < 35 ? feat_shallow_water : feat_deep_water, cmd, res);
+    }
+}
+
+void _feat_earth_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Earth");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_earth");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This rune blocks the passage of your foes.");
+        break;
+    default:
+        _feat_spell(p_ptr->lev < 45 ? feat_rubble : feat_granite, cmd, res);
+    }
+}
+
+void _feat_fire_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fire");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_fire");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This rune burns the surrounding landscape.");
+        break;
+    default:
+        _feat_spell(p_ptr->lev < 40 ? feat_shallow_lava : feat_deep_lava, cmd, res);
+    }
+}
+
+void _feat_air_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Air");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_air");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This rune summons air where once there was none.");
+        break;
+    default:
+        _feat_spell(feat_dark_pit, cmd, res);
+    }
+}
+
+void _feat_stability_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Stability");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_stability");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This rune creates solid footing of the most ordinary sort.");
+        break;
+    default:
+        _feat_spell(feat_floor, cmd, res);
+    }
+}
+
+void _feat_life_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Life");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_life");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This rune causes rapid plant growth wherever it is placed.");
+        break;
+    default:
+        _feat_spell(feat_tree, cmd, res);
+    }
+}
+
+void _feat_protection_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Protection");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_protection");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "By placing a Rune of Protection at your current location you may block the passage of all save the mightiest of enemies.");
+        break;
+    default:
+        glyph_of_warding_spell(cmd, res);
+    }
+}
+
+void _feat_destruction_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Destruction");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_feat_destruction");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "By placing a highly unstable Rune of Destruction at your current location you may destroy your nearby surroundings.");
+        break;
+    case SPELL_CAST:
+        destroy_area(py, px, 12 + randint1(4), spell_power(8 * p_ptr->lev));
+        var_set_bool(res, TRUE);
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+/****************************************************************
+ * Runes of Battle
+ ****************************************************************/
+void _blow_confusion_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Confusion");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_confusion");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This temporary rune enhances your melee attacks to baffle your enemies.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(HISSATSU_CONF));
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _blow_fire_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Fire");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_fire");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This temporary rune enhances your melee attacks to burn your enemies.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(HISSATSU_FIRE));
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _blow_water_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Water");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_water");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This temporary rune enhances your melee attacks to corrode your enemies.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(PY_ATTACK_ACID));
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _blow_earth_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Earth");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_earth");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This temporary rune enhances your melee attacks to cut your enemies.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(PY_ATTACK_VORPAL));
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _blow_death_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Death");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_death");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This temporary rune enhances your melee attacks to drain life from your enemies.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(PY_ATTACK_VAMP));
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _blow_elec_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Lightning");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_lightning");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This temporary rune enhances your melee attacks to shock your enemies.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(HISSATSU_ELEC));
+        break;
+    default:
+        default_spell(cmd, res);
+    }
+}
+
+void _blow_air_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Air");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_air");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "This temporary rune allows you to attack all adjacent foes in a whirlwind of destruction.");
+        break;
+    default:
+        massacre_spell(cmd, res);
+    }
+}
+
+void _blow_mana_spell(int cmd, variant *res)
+{
+    switch (cmd)
+    {
+    case SPELL_NAME:
+        var_set_string(res, "Mana");
+        break;
+    case SPELL_STAT_NAME:
+        var_set_string(res, "_blow_mana");
+        break;
+    case SPELL_DESC:
+        var_set_string(res, "Your most powerful battle rune uses your mana to powerfully rend your enemies.");
+        break;
+    case SPELL_CAST:
+        var_set_bool(res, do_blow(PY_ATTACK_MANA));
+        break;
+    default:
+        default_spell(cmd, res);
     }
 }
 
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
- #define _MAX_SPELLS_PER_GROUP    25
+ #define _MAX_SPELLS_PER_GROUP  25
  #define _MAX_SPELL_GROUPS       4
 
 typedef struct {
@@ -1161,82 +1814,83 @@ static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
       "inventory. Be sure to always keep Absorption handy, for it is your only means "
       "of regaining spell points!",
       TERM_L_BLUE,
-      { {  1,   0, 0, _rune_of_absorption_spell },
-        {  5,   0, 0, _rune_of_protection_spell },
-        {  7,   0, 0, _rune_of_regeneration_spell },
-        {  9,   0, 0, _rune_of_fire_spell },
-        { 11,   0, 0, _rune_of_air_spell },
-        { 13,   0, 0, _rune_of_water_spell },
-        { 15,   0, 0, _rune_of_light_spell },
-        { 17,   0, 0, _rune_of_shadow_spell },
-        { 19,   0, 0, _rune_of_earth_spell },
-        { 21,   0, 0, _rune_of_understanding_spell },
-        { 23,   0, 0, _rune_of_elemental_protection_spell },
-        { 25,   0, 0, _rune_of_haste_spell },
-        { 27,   0, 0, _rune_of_seeing_spell },
-        { 29,   0, 0, _rune_of_sacrifice_spell },
-        { 31,   0, 0, _rune_of_life_spell },
-        { 32,   0, 0, _rune_of_stability_spell },
-        { 33,   0, 0, _rune_of_reflection_spell },
-        { 35,   0, 0, _rune_of_death_spell },
-        { 37,   0, 0, _rune_of_mind_spell },
-        { 39,   0, 0, _rune_of_might_spell },
-        { 41,   0, 0, _rune_of_destruction_spell },
-        { 43,   0, 0, _rune_of_good_fortune_spell },
-        { 45,   0, 0, _rune_of_immortality_spell },
+      { {  1,   0, 0, _obj_absorption_spell },
+        {  5,   0, 0, _obj_protection_spell },
+        {  7,   0, 0, _obj_regeneration_spell },
+        {  9,   0, 0, _obj_fire_spell },
+        { 11,   0, 0, _obj_air_spell },
+        { 13,   0, 0, _obj_water_spell },
+        { 15,   0, 0, _obj_light_spell },
+        { 17,   0, 0, _obj_shadow_spell },
+        { 19,   0, 0, _obj_earth_spell },
+        { 21,   0, 0, _obj_understanding_spell },
+        { 23,   0, 0, _obj_elemental_protection_spell },
+        { 25,   0, 0, _obj_haste_spell },
+        { 27,   0, 0, _obj_seeing_spell },
+        /* XXX I really don't like the playstyle that {Sacrifice} encourages:
+         * viz., a tedious process of storing up mana, denying interesting spell
+         * casting opportunities, in order to stock pile for the end game. Look,
+         * there will be hundreds of junk artifacts, yet it takes about 30 minutes
+         * to recover full mana for each rune (Might be faster later on ... and, no,
+         * I don't scum for sp). How long should the game be? Personally, I found
+         * myself using {Sacrifice} to speed up equipment reshuffles, which is
+         * probably not the intended purpose!
+        { 29,   0, 0, _obj_sacrifice_spell }, */
+        { 29,   0, 0, _obj_life_spell },
+        { 31,   0, 0, _obj_stability_spell },
+        { 33,   0, 0, _obj_reflection_spell },
+        { 35,   0, 0, _obj_death_spell },
+        { 37,   0, 0, _obj_mind_spell },
+        { 39,   0, 0, _obj_might_spell },
+        { 41,   0, 0, _obj_destruction_spell },
+        { 43,   0, 0, _obj_good_fortune_spell },
+        { 45,   0, 0, _obj_immortality_spell },
+        { -1,   0, 0, NULL },
+      }
+    },
+    { "Runes of Enhancement",
+      "Place runes on yourself for temporary or one time effects.",
+      TERM_L_GREEN, {
+        { 10,   5, 20, _self_darkness_spell },
+        { 20,   9, 30, _self_seeing_spell },
+        { 25,  50, 35, _self_understanding_spell },
+        { 30,  25, 35, _self_haste_spell },
+        { 32,  15, 35, _self_protection_spell },
+        { 37,  20, 50, _self_earth_spell },
+        { 39,  15, 50, _self_life_spell },
+        { 41,  60, 70, _self_daemon_spell },
+        { 50, 100, 80, _self_might_spell },
         { -1,   0,  0, NULL },
       }
     },
-    { "Runes of the Novice",
-      "Minor spells and powers, available to the weakest of Rune-Knights. "
-      "While hardly awe-inspiring, these powers grant detection and weak "
-      "utility that are designed to assist the novice in their quest for deeper "
-      "understanding.",
-      TERM_L_GREEN,
-      { {  1,   1, 20, detect_monsters_spell },
-        {  1,   2, 25, phase_door_spell },
-        {  3,   3, 25, detect_doors_stairs_traps_spell },
-        {  5,   5, 35, light_area_spell },
-        {  7,  10, 75, resist_poison_spell },
-        {  9,   7, 75, magic_mapping_spell },
-        { 11,   9, 35, summon_manes_spell },
-        { 12,  12, 40, orb_of_entropy_spell },
-        { 15,   9, 35, teleport_spell },
-        { -1,   0,  0, NULL },
+    { "Runes of Alteration",
+      "These runes of change allow you to permanently alter your surroundings.",
+      TERM_UMBER, { 
+        {  5,  1, 20, _feat_light_spell },
+        {  7,  5, 30, _feat_water_spell },
+        { 15, 15, 50, _feat_earth_spell },
+        { 20, 10, 50, _feat_fire_spell },
+        { 25, 15, 60, _feat_air_spell },
+        { 30, 15, 65, _feat_stability_spell },
+        { 35, 20, 70, _feat_life_spell },
+        { 40, 70, 70, _feat_protection_spell },
+        { 45, 35, 80, _feat_destruction_spell },
+        { -1,  0,  0, NULL },
       }
     },
-    { "Runes of the Initiate",
-      "Stronger rune powers, available to the experienced Rune-Knight. "
-      "These powers offer great utility to assist you on your journey "
-      "of knowledge.",
-      TERM_UMBER,
-      { { 16,  16, 45, remove_curse_I_spell },
-        { 18,  12, 60, teleport_other_spell },
-        { 20,  20, 85, satisfy_hunger_spell },
-        { 21,  20, 80, explosive_rune_spell },
-        { 22,  16, 60, stone_to_mud_spell },
-        { 25,  25, 85, disintegrate_spell },
-        { 28,  20, 70, resistance_spell },
-        { 29,  23, 60, protection_from_evil_spell },
-        { 30,  25, 75, battle_frenzy_spell },
-        { -1,   0,  0, NULL },
-      }
-    },
-    { "Runes of the Master",
-      "Mighty powers indeed. Use them wisely, for the forces of evil have "
-      "grown strong and don't take well to rivals in their quest for domination.",
-      TERM_RED,
-      { { 33,  30, 75, identify_fully_spell },
-        { 35,  33, 45, dimension_door_spell },
-        { 36,  70, 75, glyph_of_warding_spell },
-        { 38,  65, 85, mana_branding_spell },
-        { 40,  40, 80, eye_for_an_eye_spell },
-        { 42, 100, 80, clairvoyance_spell },
-        { 43, 100, 45, living_trump_spell },
-        { 45,  58, 85, mana_storm_II_spell },
-        { 47, 100, 90, wraithform_spell },
-        { 49,  80, 85, polymorph_demonlord_spell },
-        { -1,   0,  0, NULL },
+    { "Runes of Battle",
+      "These runes allow you to effect adjacent enemies. By creating a temporary rune "
+      "attached to your melee weapon, you may make a single attack with enhanced power.",
+      TERM_RED, {
+        { 10,  5,  0, _blow_confusion_spell },
+        { 15,  7,  0, _blow_fire_spell },
+        { 25,  9,  0, _blow_water_spell },
+        { 30,  5,  0, _blow_earth_spell },
+        { 35, 12,  0, _blow_death_spell },
+        { 40, 20,  0, _blow_elec_spell },
+        { 45, 30, 80, _blow_air_spell },
+        { 50, 20,  0, _blow_mana_spell },
+        { -1,  0,  0, NULL },
       }
     },
 };
@@ -1328,8 +1982,8 @@ static caster_info * _caster_info(void)
     {
         me.magic_desc = "spell";
         me.which_stat = A_INT;
-        me.encumbrance.max_wgt = 450;
-        me.encumbrance.weapon_pct = 20;
+        me.encumbrance.max_wgt = 3000;
+        me.encumbrance.weapon_pct = 0;
         me.encumbrance.enc_wgt = 1200;
         init = TRUE;
     }
@@ -1350,7 +2004,8 @@ static void _birth(void)
 static bool _destroy_object(obj_ptr obj)
 {
     if (obj->rune == RUNE_SACRIFICE)
-    {
+    {   /* XXX Score the object and scale the effect. The bigger the 'sacrifice'
+         * the greater the benefit, no? Perhaps allow non-artifacts as well? */
         bool is_equipped = obj->loc.where == INV_EQUIP;
         int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
         int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
@@ -1383,28 +2038,43 @@ class_t *rune_knight_get_class(void)
 
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  35,  36,   2,  18,  16,  50,  25};
-    skills_t xs = {  7,  10,  10,   0,   0,   0,  15,  11};
+    skills_t bs = { 30,  25,  36,   2,  18,  16,  50,  35};
+    skills_t xs = {  7,  11,  10,   0,   0,   0,  15,  11};
 
         me.name = "Rune-Knight";
-        me.desc = "The Rune Knight is a mythical warrior-mage who is dedicated to the power "
-                  "of ancient Runes that hold immense power. By affixing these Runes to his "
-                  "equipment, the Rune Knight can become an avatar of destruction, or an "
-                  "invulnerable bastion. Unlike the Warrior-Mage and all other casters, the "
-                  "Rune Knight's mana does not regenerate on its own; rather, the Rune Knight "
-                  "must siphon mana from magical attacks directed at him. The Rune Knight has "
-                  "a fixed (though very large) selection of spells that he can use his mana on, "
-                  "in addition to his unique Rune spells.";
+        me.desc = 
+            "The <color:keyword>Rune Knight</color> is a mythical warrior who is "
+            "dedicated to the discovery of ancient runes that hold immense power. They "
+            "may fix mystical runes of various types to their equipment in order to "
+            "gain permanent bonuses, even on artifacts! Alternatively, they may "
+            "conjure a temporary rune which, when placed on their weapon, allows "
+            "them to attack with enhanced effects. They may also place temporary "
+            "runes directly on their person for one time or temporary bonuses. "
+            "Finally, they may even alter their surroundings with various runes of "
+            "change.\n \n"
+            "All runes (except <color:B>{Absorption}</color>) require mana for "
+            "creation. However, unlike ordinary spell casters, the Rune Knight "
+            "does not regenerate mana on their own. Rather, they must siphon mana "
+            "from magical or elemental attacks directed against them, and doing "
+            "so requires a special rune of <color:B>{Absorption}</color>. This "
+            "rune should be worn at all times (or at least kept handy).\n \n"
+            "The Rune Knight does not play like an ordinary spell caster. Rather, "
+            "think of them as a cross between a a warrior and a weaponsmith that "
+            "can, on occasion, cast a useful spell. If you have mana available, "
+            "then consider using spells. Otherwise, play as a warrior and wait to "
+            "absorb mana. This can take time, depending on the foes you face, "
+            "but the Rune Knight's honor should prevent them from seeking out weak, "
+            "defensless spell casters.";
 
-        me.stats[A_STR] = 2;
-        me.stats[A_INT] = 2;
-        me.stats[A_WIS] = 0;
-        me.stats[A_DEX] = 1;
-        me.stats[A_CON] = 0;
-        me.stats[A_CHR] = 1;
+        me.stats[A_STR] =  2;
+        me.stats[A_INT] =  1;
+        me.stats[A_WIS] = -1;
+        me.stats[A_DEX] =  1;
+        me.stats[A_CON] =  0;
+        me.stats[A_CHR] =  1;
         me.base_skills = bs;
         me.extra_skills = xs;
-        me.life = 107;
+        me.life = 102;
         me.base_hp = 6;
         me.exp = 150;
         me.pets = 35;

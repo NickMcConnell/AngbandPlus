@@ -605,7 +605,7 @@ static int _smith_reroll(object_type *o_ptr)
         doc_insert(_doc, "   <color:y>g</color>) Good\n");
         doc_insert(_doc, "   <color:y>e</color>) Excellent\n");
         doc_insert(_doc, "   <color:y>r</color>) Random Artifact\n");
-        if (o_ptr->name1)
+        if (o_ptr->name1 || o_ptr->name3)
             doc_insert(_doc, "   <color:y>R</color>) Replacement Artifact\n");
 
         doc_newline(_doc);
@@ -644,10 +644,12 @@ static int _smith_reroll(object_type *o_ptr)
         case 'g': _reroll_aux(&copy, AM_GOOD, min); break;
         case 'e': _reroll_aux(&copy, AM_GOOD | AM_GREAT, min); break;
         case 'r': _reroll_aux(&copy, AM_GOOD | AM_GREAT | AM_SPECIAL, min); break;
-        case 'R':
-            create_replacement_art(o_ptr->name1, &copy);
+        case 'R': {
+            int which = o_ptr->name1;
+            if (!which) which = o_ptr->name3;
+            create_replacement_art(which, &copy);
             obj_identify_fully(&copy);
-            break;
+            break;}
         }
     }
 }

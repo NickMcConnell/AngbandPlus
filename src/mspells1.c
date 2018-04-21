@@ -1455,7 +1455,11 @@ bool make_attack_spell(int m_idx, bool ticked_off)
     if (!is_aware(m_ptr)) return FALSE;
 
 
-    /* Sometimes forbid inate attacks (breaths) */
+    /* Sometimes forbid inate attacks (breaths)
+     * XXX This is really counter-intuitive for some monsters.
+     * For example, an orc that RF4_SHOOTs 1 in 15 actually only
+     * does so 0.72% of the time (expected 6%). Turning 1_IN_15
+     * into 1_IN_138.889 is rather weird ...*/
     if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
 
     /* XXX XXX XXX Handle "track_target" option (?) */

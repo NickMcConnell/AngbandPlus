@@ -299,40 +299,35 @@ int ego_choose_type(int type, int level)
 static void _create_amulet_aux(object_type *o_ptr, int level, int power, int mode);
 static void _create_ring_aux(object_type *o_ptr, int level, int power, int mode);
 
-typedef struct { int lvl, min, max; } _power_limit_t;
-static _power_limit_t _art_power_limits[] = {
-    { 10,     0,   5000 },
-    { 20,     0,   7000 },
-    { 30,     0,  10000 },
-    { 40,     0,  20000 },
-    { 50,     0,  30000 },
-    { 60, 10000,  50000 },
-    { 70, 20000,  80000 },
-    { 80, 30000,      0 },
-    { 90, 40000,      0 },
-    {999, 40000,      0 }
-};
+static bool _check_rand_art(int base, int level, int power, int mode)
+{
+    if (mode & AM_CRAFTING) return FALSE;
+    if (power > 2) return TRUE;
+    /*if (statistics_hack && one_in_(3)) return TRUE;  XXX Temp */
+    if (one_in_(base)) return TRUE;
+    return FALSE;
+}
 
 static void _art_create_random(object_type *o_ptr, int level, int power)
 {
-    int  i;
-    u32b mode = CREATE_ART_NORMAL;
-    int  min = 0, max = 0;
+    int     i;
+    u32b    mode = CREATE_ART_NORMAL;
+    point_t min_tbl[4] = {            {30,     0}, {50, 15000}, {70, 40000},               {100,  50000} };
+    point_t max_tbl[6] = { {0, 5000}, {30, 20000}, {50, 40000}, {70, 80000}, {90, 130000}, {100, 300000} };
+    int     min = interpolate(level, min_tbl, 4);
+    int     max = interpolate(level, max_tbl, 6);
+    int     pct = get_slot_power(o_ptr);
 
-    for (i = 0; ; i++)
-    {
-        if (level < _art_power_limits[i].lvl)
-        {
-            min = _art_power_limits[i].min;
-            max = _art_power_limits[i].max;
-            break;
-        }
-    }
     if (one_in_(GREAT_OBJ))
     {
-        if (min < 5000) min = 5000;
-        max *= 2;
+        min = MAX(5000, min);
+        max = MAX(20000, max*3/2);
     }
+
+    /* normalize based on the slot for this object (cf artifact.c)
+     * weapons/armor are 100%; amulets/lights 50%; etc. */
+    min = min * pct / 100;
+    max = max * pct / 100;
 
     if (power < 0)
         mode = CREATE_ART_CURSED;
@@ -345,8 +340,8 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
         create_artifact(&forge, mode);
         score = obj_value_real(&forge);
 
-        if (min > 0 && score < min) continue;
-        if (max > 0 && score > max) continue;
+        if (score < min) continue;
+        if (score > max) continue;
 
         *o_ptr = forge;
         return;
@@ -354,6 +349,7 @@ static void _art_create_random(object_type *o_ptr, int level, int power)
     create_artifact(o_ptr, mode); /* Missed the threshold for some reason ... */
 }
 
+typedef struct { int lvl, min, max; } _power_limit_t;
 static _power_limit_t _jewelry_power_limits[] = {
     { 10,     0,   5000 },
     { 20,     0,   7000 },
@@ -2217,7 +2213,7 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
     switch (o_ptr->tval)
     {
     case TV_BOW:
-        if ((!crafting && one_in_(20)) || power > 2)
+        if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else if (o_ptr->sval == SV_HARP)
             _ego_create_harp(o_ptr, level);
@@ -2258,7 +2254,7 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
         break;
 
     case TV_DIGGING:
-        if ((!crafting && one_in_(30)) || power > 2)
+        if (_check_rand_art(30, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_digger(o_ptr, level);
@@ -2267,7 +2263,7 @@ void obj_create_weapon(object_type *o_ptr, int level, int power, int mode)
     case TV_HAFTED:
     case TV_POLEARM:
     case TV_SWORD:
-        if ((!crafting && one_in_(40)) || power > 2)
+        if (_check_rand_art(40, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_weapon(o_ptr, level);
@@ -2666,9 +2662,7 @@ static void _ego_create_crown(object_type *o_ptr, int level)
         if (one_in_(3))
             add_flag(o_ptr->flags, OF_DEC_STR);
 
-        if (one_in_(5))
-            add_flag(o_ptr->flags, OF_MAGIC_MASTERY);
-        else if (one_in_(66))
+        if (one_in_(30))
         {
             add_flag(o_ptr->flags, OF_SPELL_POWER);
             add_flag(o_ptr->flags, OF_DEC_CON);
@@ -2809,6 +2803,10 @@ static void _ego_create_helmet(object_type *o_ptr, int level)
             o_ptr->to_d += m_bonus(7, level);
             break;
         case EGO_HELMET_VAMPIRE:
+            if (one_in_(2))
+                add_flag(o_ptr->flags, OF_RES_COLD);
+            if (one_in_(2))
+                add_flag(o_ptr->flags, OF_RES_NETHER);
             if (one_in_(3))
                 add_flag(o_ptr->flags, OF_VULN_LITE);
             if (one_in_(6))
@@ -2962,14 +2960,14 @@ void obj_create_armor(object_type *o_ptr, int level, int power, int mode)
     switch (o_ptr->tval)
     {
     case TV_DRAG_ARMOR:
-        if ((!crafting && one_in_(50)) || power > 2)
+        if (_check_rand_art(50, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_dragon_armor(o_ptr, level);
         break;
 
     case TV_GLOVES:
-        if ((!crafting && one_in_(20)) || power > 2)
+        if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_gloves(o_ptr, level);
@@ -2979,41 +2977,41 @@ void obj_create_armor(object_type *o_ptr, int level, int power, int mode)
     case TV_SOFT_ARMOR:
         if (object_is_(o_ptr, TV_SOFT_ARMOR, SV_ROBE) && level >= 30 && one_in_(7))
             _ego_create_robe(o_ptr, level);
-        else if ((!crafting && one_in_(20)) || power > 2)
+        else if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_body_armor(o_ptr, level);
         break;
 
     case TV_SHIELD:
-        if ((!crafting && one_in_(20)) || power > 2)
+        if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_shield(o_ptr, level);
         break;
 
     case TV_CROWN:
-        if ((!crafting && one_in_(20)) || power > 2)
+        if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_crown(o_ptr, level);
         break;
     case TV_HELM:
-        if ((!crafting && one_in_(20)) || power > 2)
+        if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_helmet(o_ptr, level);
         break;
 
     case TV_CLOAK:
-        if ((!crafting && one_in_(20)) || power > 2)
+        if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_cloak(o_ptr, level);
         break;
 
     case TV_BOOTS:
-        if ((!crafting && one_in_(20)) || power > 2)
+        if (_check_rand_art(20, level, power, mode))
             _art_create_random(o_ptr, level, power);
         else
             _ego_create_boots(o_ptr, level);

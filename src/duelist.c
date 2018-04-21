@@ -604,8 +604,8 @@ class_t *duelist_get_class(void)
     /* static info never changes */
     if (!init)
     {           /* dis, dev, sav, stl, srh, fos, thn, thb */
-    skills_t bs = { 30,  33,  23,   3,  22,  16,  50,   0};
-    skills_t xs = { 10,  11,  10,   0,   0,   0,  14,   0};
+    skills_t bs = { 30,  24,  23,   3,  22,  16,  50,   0};
+    skills_t xs = { 10,  10,  10,   0,   0,   0,  14,   0};
 
         me.name = "Duelist";
         me.desc = "The duelist is the ultimate one-on-one fighter, but finds himself at a severe "

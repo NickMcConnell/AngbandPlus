@@ -73,7 +73,7 @@ Original Keyset
    $  Reload Auto-picker pref             ^D  (unused)
    %  Interact with visuals               ^E  (unused)
    ^  (special - control key)             ^F  Repeat level feeling
-   &  Interact with colors                ^G  (unused)
+   &  Interact with colors                ^G  Auto-Get nearby objects
    *  Target monster or location          ^H  (unused)
    (  (unused)                            ^I  Toggle Choice Window
    )  Create screen dump                  ^J  (special - linefeed)
@@ -137,7 +137,7 @@ Roguelike Keyset
    $  Reload Auto-picker pref             ^D  Destroy item
    %  Interact with visuals               ^E  (unused)
    ^  (special - control key)             ^F  Repeat level feeling
-   &  Interact with colors                ^G  (unused)
+   &  Interact with colors                ^G  Auto-Get nearby objects
    *  Target monster or location          ^H  (tunnel - west)
    (  (unused)                            ^I  Toggle Choice Window
    )  Create screen dump                  ^J  (tunnel - south)
