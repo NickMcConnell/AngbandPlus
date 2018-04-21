@@ -3359,7 +3359,11 @@ static void process_monster(int m_idx)
                 /* Hack: Some classes have techniques to apply whenever a monster
                    moves too close */
                 if (class_ptr && class_ptr->move_monster)
+                {
                     class_ptr->move_monster(m_idx);
+                    if (!m_list[m_idx].r_idx) /* dead? */
+                        return;
+                }
             }
             else
             {
@@ -4491,7 +4495,7 @@ bool process_the_world(int num, int who, bool vs_player)
 {
     monster_type *m_ptr = &m_list[hack_m_idx];  /* the world monster */
 
-    if(world_monster) return (FALSE);
+    if (world_monster) return (FALSE);
 
     if(vs_player)
     {
@@ -4503,6 +4507,12 @@ bool process_the_world(int num, int who, bool vs_player)
         else if (who == 3)
             msg_format("%s yells 'Time!'", m_name);
         else msg_print("hek!");
+
+        if (p_ptr->pclass == CLASS_TIME_LORD && !mon_save_p(m_ptr->r_idx, A_WIS))
+        {
+            msg_format("You grin as time begins to flow once again!");
+            return TRUE;
+        }
 
         msg_print(NULL);
     }

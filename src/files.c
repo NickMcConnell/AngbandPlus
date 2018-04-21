@@ -1035,8 +1035,10 @@ cptr process_pref_file_expr(char **sp, char *fp)
             /* Race */
             else if (streq(b+1, "RACE"))
             {
-                v = get_true_race_t()->name;
-            /*    v = get_race_t()->name; */
+                if (p_ptr->prace == RACE_DOPPELGANGER) /* Use appropriate visuals for mimicked race */
+                    v = get_race_t()->name;
+                else
+                    v = get_true_race_t()->name;
             }
 
             /* Class */

@@ -1001,4 +1001,4 @@
 ***** [a] Rings.txt
 
 
-[[[[s|  Automatically generated for PosChengband 3.1.1.
+[[[[s|  Automatically generated for PosChengband 3.1.5.

@@ -58,10 +58,11 @@ void mimic_race(int new_race)
         }
     }
 
-    p_ptr->redraw |= (PR_BASIC | PR_STATUS);
+    p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP);
     p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
     equip_on_change_race();
+    reset_visuals();
     handle_stuff();
 }
 

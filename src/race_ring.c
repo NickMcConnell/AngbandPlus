@@ -347,10 +347,12 @@ static int _res_power(int which)
 {
     switch (which)
     {
+    case RES_ELEC:
+        return 3;
+
     case RES_ACID:
     case RES_FIRE:
     case RES_COLD:
-    case RES_ELEC:
     case RES_CONF:
     case RES_FEAR:
     case RES_TIME:
@@ -372,6 +374,23 @@ static int _res_power(int which)
     }
 
     return 2;
+}
+static int _calculate_cost(int which, int base)
+{
+    int result = base;
+    int dec = 8 * _calc_amount(_essences[TR_DEC_MANA], 1, 1);
+    dec += 5 * _calc_amount(_effects[which] - 1, 1, 1);
+    
+    if (dec > 60)
+        dec = 60;
+
+    if (dec)
+    {
+        result -= dec * base / 100;
+        if (result < 1)
+            result = 1;
+    }
+    return result;
 }
 
 /**********************************************************************
@@ -717,6 +736,8 @@ typedef struct {
     int     level;
     int     cost;
     int     fail;
+/*  TODO
+    s16b    extra; */
 } _spell_t, *_spell_ptr;
 
 #define _MAX_PER_GROUP 30
@@ -788,7 +809,8 @@ static _group_t _groups[] = {
         { EFFECT_NONE } } },
 
     { "Offense: Other", '4', TERM_RED,
-      { { EFFECT_DRAIN_LIFE,          30,  20, 50 },
+      { { EFFECT_DISPEL_MONSTERS,     10,   5, 40 }, /* Faramir for only 4 damage */
+        { EFFECT_DRAIN_LIFE,          30,  20, 50 },
         { EFFECT_ARROW,               30,  20, 50 },
         { EFFECT_DISPEL_UNDEAD,       32,  30, 50 }, 
         { EFFECT_DISPEL_DEMON,        32,  30, 50 },
@@ -861,8 +883,8 @@ static _group_t _groups[] = {
     { "Teleportations", 'T', TERM_L_BLUE,
       { { EFFECT_PHASE_DOOR,           3,   3, 35 },
         { EFFECT_TELEPORT,            12,   7, 45 },
+        { EFFECT_STRAFING,            15,   8, 55 },
         { EFFECT_TELEPORT_AWAY,       20,  15, 55 },
-        { EFFECT_STRAFING,            20,  15, 55 },
         { EFFECT_RECALL,              25,  20, 55 },
         { EFFECT_TELEKINESIS,         27,  22, 60 },
         { EFFECT_ESCAPE,              30,  25, 60 },
@@ -1070,7 +1092,7 @@ static _spell_t _prompt_spell(_spell_ptr spells)
             
             choice->effect = spell->effect;
             choice->level = spell->level;
-            choice->cost = calculate_cost(spell->cost);
+            choice->cost = _calculate_cost(spell->effect, spell->cost);
             choice->fail = calculate_fail_rate(spell->level, spell->fail, p_ptr->stat_ind[A_INT]);
 
             ct_avail++;
@@ -1218,23 +1240,17 @@ static void _calc_bonuses(void)
     int l = p_ptr->lev;
     int to_a = l;
 
+    p_ptr->skill_dig += 30;
+
     to_a += _calc_amount(_essences[TR_ES_AC], 1, 15);
     p_ptr->to_a += to_a;
     p_ptr->dis_to_a += to_a;
 
+    res_add_vuln(RES_ELEC);
     p_ptr->no_cut = TRUE;
-    res_add(RES_BLIND);
-    res_add(RES_POIS);
-    p_ptr->hold_life = TRUE;
 
     /* Speed rings come very late, and very unreliably ... */
     p_ptr->pspeed += p_ptr->lev / 10;
-
-    if (p_ptr->lev >= 25)
-    {
-        res_add(RES_COLD);
-        res_add(RES_ELEC);
-    }
 
     for (i = 0; i < 6; i++) /* Assume in order */
         p_ptr->stat_add[A_STR + i] += _calc_stat_bonus(TR_STR + i);
@@ -1272,6 +1288,9 @@ static void _calc_bonuses(void)
         p_ptr->dec_mana = TRUE;
     if (_essences[TR_EASY_SPELL] >= 7)
         p_ptr->easy_spell = TRUE;
+
+    if (_essences[TR_HOLD_LIFE] >= 7)
+        p_ptr->hold_life = TRUE;
 
     if (_essences[TR_SUST_STR] >= 5)
         p_ptr->sustain_str = TRUE;
@@ -1323,7 +1342,7 @@ static void _calc_bonuses(void)
         p_ptr->slow_digest = TRUE;
     if (_essences[TR_REGEN] >= 7)
         p_ptr->regenerate = TRUE;
-    if (_essences[TR_REFLECT] >= 3)
+    if (_essences[TR_REFLECT] >= 7)
         p_ptr->reflect = TRUE;
 
     if (_essences[TR_SH_FIRE] >= 7)
@@ -1332,6 +1351,11 @@ static void _calc_bonuses(void)
         p_ptr->sh_elec = TRUE;
     if (_essences[TR_SH_COLD] >= 7)
         p_ptr->sh_cold = TRUE;
+}
+
+static void _get_vulnerabilities(u32b flgs[TR_FLAG_SIZE]) 
+{
+    add_flag(flgs, TR_RES_ELEC);
 }
 
 static void _get_immunities(u32b flgs[TR_FLAG_SIZE]) 
@@ -1351,15 +1375,6 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
     int i;
 
     add_flag(flgs, TR_LITE);
-    add_flag(flgs, TR_RES_BLIND);
-    add_flag(flgs, TR_RES_POIS);
-    add_flag(flgs, TR_HOLD_LIFE);
-
-    if (p_ptr->lev >= 25)
-    {
-        add_flag(flgs, TR_RES_COLD);
-        add_flag(flgs, TR_RES_ELEC);
-    }
 
     for (i = 0; i < 6; i++) /* Assume in order */
     {
@@ -1374,6 +1389,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
         int j = res_get_object_flag(i);
         int n = _calc_amount(_essences[j], _res_power(i), 1);
 
+        if (j == TR_NO_TELE) continue; /* TODO: Need TR_RES_TELE */
         if (n)
             add_flag(flgs, j);
     }
@@ -1382,6 +1398,9 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_DEC_MANA);
     if (_essences[TR_EASY_SPELL] >= 7)
         add_flag(flgs, TR_EASY_SPELL);
+
+    if (_essences[TR_HOLD_LIFE] >= 7)
+        add_flag(flgs, TR_HOLD_LIFE);
 
     if (p_ptr->lev >= 10 || _calc_amount(_essences[TR_SPEED], 1, 5))
         add_flag(flgs, TR_SPEED);
@@ -1413,7 +1432,7 @@ static void _get_flags(u32b flgs[TR_FLAG_SIZE])
         add_flag(flgs, TR_SLOW_DIGEST);
     if (_essences[TR_REGEN] >= 7)
         add_flag(flgs, TR_REGEN);
-    if (_essences[TR_REFLECT] >= 3)
+    if (_essences[TR_REFLECT] >= 7)
         add_flag(flgs, TR_REFLECT);
 
     if (_essences[TR_SH_FIRE] >= 7)
@@ -1480,7 +1499,7 @@ static void _dump_effects(FILE* fff)
                 sprintf(info, "%s", do_effect(&effect, SPELL_INFO, _boost(s->effect)));
 
                 sprintf(buf, "%-30.30s %3d %3d %3d %3d%% ", 
-                              name, _effects[s->effect], s->level, calculate_cost(s->cost), 
+                              name, _effects[s->effect], s->level, _calculate_cost(s->effect, s->cost), 
                               calculate_fail_rate(s->level, s->fail, p_ptr->stat_ind[A_INT]));
                 if (info)
                     strcat(buf, info);
@@ -1537,10 +1556,11 @@ static void _character_dump(FILE* fff)
     _dump_ability_flag(fff, TR_SEE_INVIS, 1, "See Invisible");
     _dump_ability_flag(fff, TR_LEVITATION, 2, "Levitation");
     _dump_ability_flag(fff, TR_SLOW_DIGEST, 2, "Slow Digestion");
+    _dump_ability_flag(fff, TR_HOLD_LIFE, 7, "Hold Life");
     _dump_ability_flag(fff, TR_REGEN, 7, "Regeneration");
-    _dump_ability_flag(fff, TR_DEC_MANA, 7, "Economical Mana");
+    _dump_bonus_flag(fff, TR_DEC_MANA, 1, 1, "Economical Mana");
     _dump_ability_flag(fff, TR_EASY_SPELL, 7, "Wizardry");
-    _dump_ability_flag(fff, TR_REFLECT, 3, "Reflection");
+    _dump_ability_flag(fff, TR_REFLECT, 7, "Reflection");
     _dump_ability_flag(fff, TR_SH_FIRE, 7, "Aura Fire");
     _dump_ability_flag(fff, TR_SH_ELEC, 7, "Aura Elec");
     _dump_ability_flag(fff, TR_SH_COLD, 7, "Aura Cold");
@@ -1616,6 +1636,7 @@ race_t *mon_ring_get_race_t(void)
         me.character_dump = _character_dump;
         me.get_flags = _get_flags;
         me.get_immunities = _get_immunities;
+        me.get_vulnerabilities = _get_vulnerabilities;
         me.gain_level = _gain_level;
         me.birth = _birth;
 

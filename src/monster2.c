@@ -1097,6 +1097,12 @@ bool mon_is_type(int r_idx, int type)
             return TRUE;
         else if (r_idx == MON_ANGMAR || r_idx == MON_HOARMOUTH)
              return TRUE;
+        else if (r_ptr->d_char == 'V' && r_idx != 521 && r_idx != 536 && r_idx != 613)
+            return TRUE;
+        else if (r_ptr->d_char == 'L' && r_idx != 666)
+            return TRUE;
+        else if (r_idx == 112 || r_idx == 748)
+            return TRUE;
         break;
     }
     return FALSE;

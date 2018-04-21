@@ -18,7 +18,7 @@
 
 #define VER_MAJOR 3
 #define VER_MINOR 1
-#define VER_PATCH 4
+#define VER_PATCH 5
 #define VER_EXTRA 0
 
 
@@ -5811,7 +5811,6 @@ enum mon_save_fields_e {
 #define MYSTIC_TOGGLE_DEFENSE    43
 
 #define LEPRECHAUN_TOGGLE_BLINK  44
-
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1

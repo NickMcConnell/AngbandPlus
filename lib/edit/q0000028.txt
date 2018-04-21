@@ -33,92 +33,93 @@ Q:28:T:I trusted you and you have failed me. Heaven knows how
 Q:28:T:we will appease the spirits of the king's ancestors now!
 ?:1
 
-# Floor, dark, no teleport
-F:,:FLOOR:12
+# CTK: I removed all the no teleport aspects of this quest.
+# Floor, dark
+F:,:FLOOR:8
 
 # Deep water
-F:W:DEEP_WATER:12
+F:W:DEEP_WATER:8
 
 # Locked door (power 6)
-F:+:LOCKED_DOOR_7:12
+F:+:LOCKED_DOOR_7:8
 
 # Broken door
-F:':BROKEN_DOOR:12
+F:':BROKEN_DOOR:8
 
 # Trap
-F:^:FLOOR:12:0:0:0:0:*
+F:^:FLOOR:8:0:0:0:0:*
 
 # Normal wall
-F:#:GRANITE:12
+F:#:GRANITE:8
 
 # Flor + skeleton (junk)
-F:~:FLOOR:12:0:395
+F:~:FLOOR:8:0:395
 
 # Floor + crypt creep 
-F:a:FLOOR:12:124
+F:a:FLOOR:8:124
 
 # Floor + phantom beast 
-F:b:FLOOR:12:385
+F:b:FLOOR:8:385
 
 # Floor + greater mummy 
-F:c:FLOOR:12:522
+F:c:FLOOR:8:522
 
 # Floor + grey wraith 
-F:d:FLOOR:12:554
+F:d:FLOOR:8:554
 
 # Floor + master vampire 
-F:e:FLOOR:12:520
+F:e:FLOOR:8:520
 
 # Floor + crypt thing 
-F:f:FLOOR:12:577
+F:f:FLOOR:8:577
 
 # Floor + black wraith 
-F:g:FLOOR:12:607
+F:g:FLOOR:8:607
 
 # Floor + monastic lich 
-F:h:FLOOR:12:611
+F:h:FLOOR:8:611
 
 # Floor + nether wraith 
-F:i:FLOOR:12:612
+F:i:FLOOR:8:612
 
 # Floor + vampire lord
-F:j:FLOOR:12:623
+F:j:FLOOR:8:623
 
 # Floor + master lich 
-F:k:FLOOR:12:658
+F:k:FLOOR:8:658
 
 # Floor + iron lich 
-F:l:FLOOR:12:666
+F:l:FLOOR:8:666
 
 # Floor + dread 
-F:m:FLOOR:12:667
+F:m:FLOOR:8:667
 
 # Floor + dreadmaster
-F:n:FLOOR:12:690
+F:n:FLOOR:8:690
 
 # Floor + lesser black reaver
-F:o:FLOOR:12:694
+F:o:FLOOR:8:694
 
 # Floor + demilich
-F:p:FLOOR:12:742
+F:p:FLOOR:8:742
 
 # Floor + eye druj
-F:q:FLOOR:12:749
+F:q:FLOOR:8:749
 
 # Floor + skull druj
-F:r:FLOOR:12:750
+F:r:FLOOR:8:750
 
 # Floor + shadowlord
-F:s:FLOOR:12:774
+F:s:FLOOR:8:774
 
 # Floor + archlich
-F:t:FLOOR:12:776
+F:t:FLOOR:8:776
 
 # Floor + black reaver
-F:u:FLOOR:12:798
+F:u:FLOOR:8:798
 
 # up staircase
-F:<:UP_STAIR:12
+F:<:UP_STAIR:8
 
 # The Royal Catacoombs
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

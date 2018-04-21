@@ -4826,6 +4826,11 @@ void move_player(int dir, bool do_pickup, bool break_trap)
     bool oktomove = TRUE;
     bool do_past = FALSE;
 
+    bool ring_lev = FALSE;
+
+    if (p_ptr->prace == RACE_MON_RING && p_ptr->levitation)
+        ring_lev = TRUE;
+
     /* Get the monster */
     m_ptr = &m_list[c_ptr->m_idx];
 
@@ -4965,11 +4970,11 @@ void move_player(int dir, bool do_pickup, bool break_trap)
             oktomove = FALSE;
             disturb(0, 0);
         }
-        else if (have_flag(f_ptr->flags, FF_CAN_FLY) && (riding_r_ptr->flags7 & RF7_CAN_FLY))
+        else if (have_flag(f_ptr->flags, FF_CAN_FLY) && ((riding_r_ptr->flags7 & RF7_CAN_FLY) || ring_lev))
         {
             /* Allow moving */
         }
-        else if (have_flag(f_ptr->flags, FF_CAN_SWIM) && (riding_r_ptr->flags7 & RF7_CAN_SWIM))
+        else if (have_flag(f_ptr->flags, FF_CAN_SWIM) && ((riding_r_ptr->flags7 & RF7_CAN_SWIM) || ring_lev))
         {
             /* Allow moving */
         }
@@ -5011,7 +5016,9 @@ void move_player(int dir, bool do_pickup, bool break_trap)
     {
     }
 
-    else if (!have_flag(f_ptr->flags, FF_MOVE) && have_flag(f_ptr->flags, FF_CAN_FLY) && !p_ptr->levitation)
+    else if ( !have_flag(f_ptr->flags, FF_MOVE) 
+           && have_flag(f_ptr->flags, FF_CAN_FLY) 
+           && !(p_ptr->levitation || ring_lev) )
     {
         msg_format("You need to fly to go through the %s.", f_name + f_info[get_feat_mimic(c_ptr)].name);
 

@@ -19,12 +19,7 @@ static void _birth(void)
 
     p_ptr->current_r_idx = MON_ANGEL;
     
-    object_prep(&forge, lookup_kind(TV_STAFF, SV_STAFF_HEALING));
-    apply_magic(&forge, 1, AM_AVERAGE);
-    add_outfit(&forge);
-
-    object_prep(&forge, lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT));
-    apply_magic(&forge, 1, AM_AVERAGE);
+    object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_HEALING));
     add_outfit(&forge);
 
     object_prep(&forge, lookup_kind(TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL));

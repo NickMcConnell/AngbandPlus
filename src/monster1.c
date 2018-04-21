@@ -2154,6 +2154,10 @@ void anger_monster(monster_type *m_ptr)
 bool monster_can_cross_terrain(s16b feat, monster_race *r_ptr, u16b mode)
 {
     feature_type *f_ptr = &f_info[feat];
+    bool          ring_lev = FALSE;
+
+    if ((mode & CEM_RIDING) && p_ptr->prace == RACE_MON_RING && p_ptr->levitation)
+        ring_lev = TRUE;
 
     /* Pattern */
     if (have_flag(f_ptr->flags, FF_PATTERN))
@@ -2169,8 +2173,8 @@ bool monster_can_cross_terrain(s16b feat, monster_race *r_ptr, u16b mode)
     }
 
     /* "CAN" flags */
-    if (have_flag(f_ptr->flags, FF_CAN_FLY) && (r_ptr->flags7 & RF7_CAN_FLY)) return TRUE;
-    if (have_flag(f_ptr->flags, FF_CAN_SWIM) && (r_ptr->flags7 & RF7_CAN_SWIM)) return TRUE;
+    if (have_flag(f_ptr->flags, FF_CAN_FLY) && ((r_ptr->flags7 & RF7_CAN_FLY) || ring_lev)) return TRUE;
+    if (have_flag(f_ptr->flags, FF_CAN_SWIM) && ((r_ptr->flags7 & RF7_CAN_SWIM) || ring_lev)) return TRUE;
     if (have_flag(f_ptr->flags, FF_CAN_PASS))
     {
         if ((r_ptr->flags2 & RF2_PASS_WALL) && (!(mode & CEM_RIDING) || p_ptr->pass_wall)) return TRUE;

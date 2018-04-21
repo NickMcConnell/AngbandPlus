@@ -858,7 +858,6 @@ extern cptr     do_effect(effect_t *effect_ptr, int mode, int boost);
 
 /* do-spell.c */
 extern int get_realm_idx(cptr name);
-extern bool repose_of_the_dead;
 extern int beam_chance(void);
 extern void cast_wonder(int dir);
 extern int device_power(int pow);
@@ -878,6 +877,7 @@ extern cptr info_delay(int base, int sides);
 extern cptr info_weight(int weight);
 extern bool cast_summon_greater_demon(void);
 extern bool cast_wrath_of_the_god(int dam, int rad);
+bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, u32b mode);
 
 /* dungeon.c */
 extern void leave_quest_check(void);
@@ -2162,7 +2162,6 @@ extern void     monk_posture_calc_bonuses(void);
 extern void     monk_ac_bonus(void);
 extern class_t *monster_get_class_t(void);
 extern class_t *ninja_get_class_t(void);
-extern class_t *necromancer_get_class_t(void);
 extern class_t *paladin_get_class_t(void);
 extern bool     player_is_monster_king(void);
 extern class_t *priest_get_class_t(void);
@@ -2215,6 +2214,11 @@ extern class_t *warrior_mage_get_class_t(void);
 extern class_t *weaponsmith_get_class_t(void);
 
 extern cptr do_hissatsu_spell(int spell, int mode);
+
+/* necromancer.c */
+extern bool     repose_of_the_dead;
+extern cptr     do_necromancy_spell(int spell, int mode);
+extern class_t *necromancer_get_class_t(void);
 
 /* skills.c */
 extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/

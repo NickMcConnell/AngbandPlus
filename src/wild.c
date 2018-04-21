@@ -655,6 +655,9 @@ static void _generate_encounters(int x, int y, const rect_t *r, const rect_t *ex
     if (r->cx < 10 || r->cy < 10)
         return;
 
+    if (wilderness[y][x].terrain == TERRAIN_EDGE)
+        return;
+
     wilderness_mon_hook = get_wilderness_monster_hook(x, y);
     get_mon_num_prep(wilderness_mon_hook, NULL);
     base_level = wilderness_level(x, y);
@@ -1626,8 +1629,9 @@ bool change_wild_mode(void)
         if (MON_CSLEEP(m_ptr)) continue;
         if (m_ptr->cdis > MAX_SIGHT) continue;
         if (!is_hostile(m_ptr)) continue;
-        if (!is_aware(m_ptr)) continue;
-        /*if (r_info[m_ptr->r_idx].level < p_ptr->lev - 10) continue;*/
+        /* Monster Awareness of the player is a TODO concept, not yet correctly implemented.
+           At the moment, only the Ring player race uses this and there is a slight bug as well!
+        if (!is_aware(m_ptr)) continue;*/
         msg_print("You cannot enter the global map since there are some monsters nearby!");
         energy_use = 0;
         return FALSE;

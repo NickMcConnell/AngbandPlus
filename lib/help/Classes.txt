@@ -507,7 +507,7 @@
   Time-Lords are mediocre fighters and not good at archery at all. They are OK
   with magical devices, but nowhere near as proficient as are mages. They have
   midling stealth. At high levels, they become resistant to time. The
-  Time-Lord's primary magic stat is Charisma.
+  Time-Lord's primary magic stat is Wisdom.
 
 
 ***** <Blood-Knight>
@@ -763,7 +763,7 @@
   Mirror-Master   -2 [[[[G|  +3 |  +1   -1   -2   -2  100%   +4  130%
   Ninja           +0   -1   -1 [[[[G|  +3 |  +2   +2  100%   +4  120%
   Sniper          +2   -1   -1   +2   +1   +0  100%   +4  110%
-  Time-Lord       -1   +0   +0   -1   -1 [[[[G|  +3 |  96%   +0  125%
+  Time-Lord       -1   +0 [[[[G|  +3 |  -1   -1   +0   96%   +0  125%
   Blood-Knight    +2   -2   -2   +0 [[[[G|  +3 |  +2  120%  +20  150%
   Warlock         -2   +1   +2   -1   -2 [[[[G|  +4 | 100%   +4  125%
   Archaeologist   -1   +1 [[[[G|  +2 |  +1   -1   +0  106%   +8  120%
@@ -834,4 +834,4 @@
 
 
 
-[[[[s|  Automatically generated for PosChengband 3.1.1.
+[[[[s|  Automatically generated for PosChengband 3.1.5.

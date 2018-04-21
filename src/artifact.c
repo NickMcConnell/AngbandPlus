@@ -2448,6 +2448,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
                         add_flag(o_ptr->art_flags, TR_DEX);
                         has_pval = TRUE;
                     }
+                    else if (o_ptr->tval == TV_GLOVES && one_in_(77))
+                    {
+                        add_flag(o_ptr->art_flags, TR_BLOWS);
+                        has_pval = TRUE;
+                    }
                     else
                         one_high_resistance(o_ptr);
                     break;
@@ -2469,7 +2474,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
     {
         if (have_flag(o_ptr->art_flags, TR_BLOWS))
         {
-            if (o_ptr->tval == TV_RING)
+            if (o_ptr->tval == TV_RING || o_ptr->tval == TV_GLOVES)
             {
                 o_ptr->pval = randint1(2);
                 if (one_in_(30)) o_ptr->pval++;

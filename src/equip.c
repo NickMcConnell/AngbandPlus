@@ -1166,6 +1166,20 @@ void equip_calc_bonuses(void)
                     p_ptr->innate_attack_info.xtra_blow += amt;
                 break;
             }
+            case EQUIP_SLOT_RING:
+                if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)
+                    p_ptr->weapon_info[hand].xtra_blow += amt;
+                else
+                {
+                    int other_hand;
+                    if (hand % 2 == 0)
+                        other_hand = hand + 1;
+                    else
+                        other_hand = hand - 1;
+                    if (p_ptr->weapon_info[other_hand].wield_how == WIELD_TWO_HANDS)
+                        p_ptr->weapon_info[other_hand].xtra_blow += amt;
+                }
+                break;
             case EQUIP_SLOT_WEAPON_SHIELD:
             case EQUIP_SLOT_WEAPON:
                 if (p_ptr->weapon_info[hand].wield_how != WIELD_NONE)

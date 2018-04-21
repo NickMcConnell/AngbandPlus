@@ -975,17 +975,15 @@ F:@:FLOOR:3:0:0:0:132
 
 ##########################################################################
 # Time-Lord
-# TODO
-# The Ring of Ages
+# Eternity
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Time-Lord] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:274
+F:@:FLOOR:3:0:0:0:244
 
-# TODO
-# Numenor
+# The Ring of Ages
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Time-Lord] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:132
+F:@:FLOOR:3:0:0:0:274
 
 ##########################################################################
 # Samurai

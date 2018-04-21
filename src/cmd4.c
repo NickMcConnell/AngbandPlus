@@ -3395,7 +3395,8 @@ static cptr monster_group_text[] =
     "Uniques",
     "Ridable monsters",
     "Wanted monsters",
-    "Ambertite",
+    "Amberite",
+    "Olympian",
     "Ant",
     "Bat",
     "Centipede",
@@ -3466,6 +3467,7 @@ static cptr monster_group_char[] =
     (char *) -2L,
     (char *) -3L,
     (char *) -4L,
+    (char *) -5L,
     "a",
     "b",
     "c",
@@ -3576,6 +3578,7 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
 
     /* XXX Hack -- Check if this is the "Amberite" group */
     bool grp_amberite = (monster_group_char[grp_cur] == (char *) -4L);
+    bool grp_olympian = (monster_group_char[grp_cur] == (char *) -5L);
 
 
     /* Check every race */
@@ -3619,6 +3622,11 @@ static int collect_monsters(int grp_cur, s16b mon_idx[], byte mode)
         else if (grp_amberite)
         {
             if (!(r_ptr->flags3 & RF3_AMBERITE)) continue;
+        }
+
+        else if (grp_olympian)
+        {
+            if (!(r_ptr->flags3 & RF3_OLYMPIAN)) continue;
         }
 
         else

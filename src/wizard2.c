@@ -254,17 +254,18 @@ static void do_cmd_wiz_hack_chris2(void)
         object_type forge;
         
         object_prep(&forge, k_idx);
-        /*create_artifact(&forge, CREATE_ART_CURSED);*/
-        apply_magic(&forge, object_level, AM_GREAT);
+        create_artifact(&forge, CREATE_ART_GOOD);
+        /*apply_magic(&forge, object_level, 0);*/
 
-        if (1 || forge.name2 == EGO_BOW_EXTRA_SHOTS)
+        if (1 || forge.name2 == EGO_RING_COMBAT)
         {
             identify_item(&forge);
             forge.ident |= (IDENT_MENTAL); 
         
             object_desc(buf, &forge, 0);
             msg_format("%s (%d)", buf, object_value_real(&forge));
-        /*    drop_near(&forge, -1, py, px); */
+            if (have_flag(forge.art_flags, TR_BLOWS))
+                drop_near(&forge, -1, py, px);
         }
     }
 }
