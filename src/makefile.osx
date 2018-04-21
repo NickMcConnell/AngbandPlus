@@ -3,17 +3,20 @@
 # not support graphic tiles or sound.
 
 ###################### DEFINES ######################
-
+# ATTENTION, remove -arch i386 -mmacosx-version-min=10.4 if you are compiling on an older OS than Snow Leopard
+# ATTENTION, add -ggdb to debug in XCode
 CC = gcc
-CFLAGS = -w -g -O2 -fpascal-strings -DMACH_O_CARBON
+CFLAGS = -m32 -w -O2 -fpascal-strings -DMACH_O_CARBON -arch i386 -arch ppc -mmacosx-version-min=10.4 -DPRIVATE_USER_PATH=\"~/Library/angband\" -DUSE_PRIVATE_PATHS 
 LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
-APPNAME = hellband.app
+APPNAME = Hellband.app
+NAME = Hellband
+VERSION = 0.8.7
 APPBNDL = ../$(APPNAME)
 APPCONT = $(APPBNDL)/Contents
 APPBIN = $(APPCONT)/MacOS
 APPRES = $(APPCONT)/Resources
 PLIST = hellband.xml
-RESSRCS = osx/hellband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+RESSRCS = osx/Hellband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
 REZ = hellband.r
 
 # object files and headers
@@ -30,27 +33,78 @@ OBJS = \
 ###################### TARGETS ######################
 
 # Install the game as an application bundle.
-install: hellband $(RESSRCS) $(PLIST)
+install: Hellband $(RESSRCS) $(PLIST)
 	echo $(APPBNDL)
 	echo $(APPCONT)
 	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
 	[ -d $(APPCONT) ] || mkdir $(APPCONT)
 	[ -d $(APPBIN) ] || mkdir $(APPBIN)
 	[ -d $(APPRES) ] || mkdir $(APPRES)
-	install -m 755 hellband $(APPBIN)
+	install -m 755 Hellband $(APPBIN)/hellband
 	install -m 644 $(RESSRCS) $(APPRES)
 	install -m 644 $(PLIST) $(APPCONT)/Info.plist
 	/Developer/Tools/Rez -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON -o $(APPRES)/hellband.rsrc $(REZ)
 	/Developer/Tools/SetFile -a B $(APPBNDL)
+	cp -R -f ../lib ../Hellband.app/Contents/Resources
+	rm -R -f ../Hellband.app/Contents/Resources/lib/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/apex/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/bone/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/edit/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/data/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/file/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/help/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/info/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/pref/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/save/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/user/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/xtra/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/xtra/font/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/user/graf/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/user/sound/.svn
+	rm -R -f ../Hellband.app/Contents/Resources/lib/apex/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/bone/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/data/*
+	rm -R -f ../Hellband.app/Contents/Resources/lib/edit/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/edit/*.judo
+	rm -R -f ../Hellband.app/Contents/Resources/lib/edit/*backup*
+	rm -R -f ../Hellband.app/Contents/Resources/lib/edit/*fix*		
+	rm -R -f ../Hellband.app/Contents/Resources/lib/file/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/help/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/info/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/pref/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/save/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/user/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/xtra/delete.me
+	rm -R -f ../Hellband.app/Contents/Resources/lib/xtra/font/*
+	rm -R -f ../Hellband.app/Contents/Resources/lib/xtra/graf/*
+	rm -R -f ../Hellband.app/Contents/Resources/lib/xtra/sound/*
 
 # Build the "hellband" program
-hellband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o hellband $(OBJS) $(LIBS)
+Hellband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o Hellband $(OBJS) $(LIBS)
 
 # Clean up old junk
 clean:
-	-rm -f *.o hellband
+	-rm -f *.o Hellband
 
+
+PACKAGE_NAME = $(NAME)-$(VERSION)
+
+# In the unlikely event that tar+zip isn't enough...
+dist: install
+	@rm -rf disttemp*
+	mkdir -p disttemp
+#	cp ../COPYING.TXT ../changes.txt disttemp/Docs
+	cp -R -p "$(APPBNDL)" disttemp
+	setFile -a B disttemp/$(APPNAME)
+	ln -s /Applications disttemp/Applications
+
+	@-rm ../"$(PACKAGE_NAME)-osx.dmg"
+
+	hdiutil create -quiet -fs HFS+ -volname $(PACKAGE_NAME) -srcfolder disttemp disttemp.dmg
+	hdiutil convert disttemp.dmg -quiet -format UDZO -imagekey zlib-level=6 -o ../"$(PACKAGE_NAME)-osx.dmg"
+
+	rm -rf disttemp*
 
 ###################### RULES ######################
 

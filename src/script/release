@@ -1,16 +1,26 @@
 echo on
 echo Master install script
-echo rm -rv hb084
-rm -rv hb084win
-rm hb084src.zip
-rm hb084win.zip
+echo rm -rv hb088
+rm -rfv hb088win
+rm -f hb088src.zip
+rm -f hb088win.zip
 
-svn export https://hellband.googlecode.com/svn/trunk/ hb084
+#REM svn export https://hellband.googlecode.com/svn/trunk/ hb088
+#REM we need to archive from the prototype
+
+mkdir hb088
+
+cd ..
+cd ..
+git archive master | tar -x -C ./src/script/hb088
+cd src
+cd script
 
 echo zipping up source ...
 
-cd hb084
-rm -rv www
+cd hb088
+rm -rvf www
+rm -rvf js2018
 rm pkg_win
 cd lib
 cd edit
@@ -20,20 +30,21 @@ cd ..
 cd ..
 cd ..
 
-zip -9 -r -q hb084src.zip hb084
+zip -9 -r -q hb088src.zip hb088
 
-cd hb084
-cd src 
-mkdir mingw32
-export FOREIGN=win-mingw32-primitive
-#export WARNINGS=all
-make -fmakefile.sid
+cd hb088
+cd src
+#REM mkdir mingw32
+#REM export FOREIGN=win-mingw32-primitive
+#REM #export WARNINGS=all
+#REM make -fmakefile.sid
+make -fmakefile.cyg install
 
 cd ..
 cd ..
 
-cp -r hb084 hb084win
-cd hb084win
+cp -r hb088 hb088win
+cd hb088win
 
 rm -rv src
 rm .svnignore
@@ -56,4 +67,4 @@ rm lib/apex/*.raw
 
 cd ..
 
-zip -9 -r hb084win.zip hb084win
+zip -9 -r hb088win.zip hb088win

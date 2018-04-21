@@ -121,7 +121,7 @@ endif
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"USE_CLANG"
 #LIBS = -lX11 -lcurses -ltermcap
 
 
@@ -165,12 +165,16 @@ endif
 
 
 ##
-## Options that were copied from Steamband's Makefile.std
+## Variation -- compfile for Ternux
+##Choose -O2 for distributed builds
+##Choose -O0 for debug buils
+##Remove -g -ggdb3 -v for distributed build, this is meant to debug
 ##
-CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall -g \
-         -O2 -fno-strength-reduce -pedantic\
-         -D"USE_GCU" -D"USE_NCURSES" -std=c99
-LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+CFLAGS = -I~/../usr/include -Wall \
+         -O0 -pedantic \
+         -g -ggdb3 \
+         -D"USE_GCU" -D"USE_NCURSES" -D"linux" -D"USE_CLANG" -std=c99 -DPRIVATE_USER_PATH=\"~/.angband\" -DUSE_PRIVATE_PATHS
+LIBS = -L~/../usr/lib -lncurses
 
 
 ##

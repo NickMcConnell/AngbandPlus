@@ -11,18 +11,18 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 #include "angband.h"
 
@@ -179,34 +179,42 @@ static byte sf_get(void)
 	return (v);
 }
 
-/* HACK^3 Changing this means changing sf_get !!!! */
+/* HACK^3 Changing this means changing sf_get !!!!
+We will only need this on the day we starting write and reading chars
 static char sf_get_char(void)
 {
 	char cc;
 	byte c, v;
 	
-	/* Get a character, decode the value */
+	Get a character, decode the value
 	cc = getc(fff);
 	c = cc & 0xFF;
 	v = c ^ xor_byte;
 	xor_byte = c;
 	
-	/* Maintain the checksum info */
+	Maintain the checksum info
 	v_check += v;
 	x_check += xor_byte;
 	
-	/* Return the value */
+	Return the value
 	return (cc);
 }
-
+*/
+static void rd_byte(byte *ip)
+{
+	*ip = sf_get();
+}
+/* One day we might need this, we would need to write an equivalent wr_char
 static void rd_char(char *ip)
 {
 	*ip = sf_get_char();
 }
-
-static void rd_byte(byte *ip)
+*/
+static void rd_byte_char( char *ip)
 {
-	*ip = sf_get();
+	byte b = 0;
+	rd_byte( &b );
+	(*ip) = (char)b;
 }
 
 static void rd_u16b(u16b *ip)
@@ -343,6 +351,18 @@ static void rd_item(object_type *o_ptr)
 	rd_u32b(&o_ptr->art_flags2);
 	rd_u32b(&o_ptr->art_flags3);
 
+	/* Conditional read, elevel and exp can stay 0 otherwise */
+	if( o_ptr->art_flags3 & TR3_XP )
+	{
+		rd_byte(&o_ptr->elevel);
+		rd_s32b(&o_ptr->exp);
+	}
+	else
+	{
+		o_ptr->elevel = 0;
+		o_ptr->exp = 0;
+	}
+
 	/* New version */
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
@@ -433,7 +453,8 @@ static void rd_item(object_type *o_ptr)
 	o_ptr->weight = k_ptr->weight;
 
 	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+	/*This used to be (!o_ptr->pval < 0) which cant be right*/
+	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -575,7 +596,7 @@ static void rd_lore(int r_idx)
 	r_ptr->r_flags4 &= r_ptr->flags4;
 	r_ptr->r_flags5 &= r_ptr->flags5;
 	r_ptr->r_flags6 &= r_ptr->flags6;
-	r_ptr->r_flags7 &= r_ptr->flags7;	
+	r_ptr->r_flags7 &= r_ptr->flags7;
 }
 
 
@@ -760,7 +781,7 @@ static void rd_options(void)
 						/* Clear */
 						option_flag[n] &= ~(1L << i);
 					}
-				}                           
+				}
 			}
 		}
 	}
@@ -807,30 +828,29 @@ static void rd_options(void)
 						/* Clear */
 						window_flag[n] &= ~(1L << i);
 					}
-				}                           
+				}
 			}
 		}
 	}
 }
 
-
-
-
-
 /*
-* Hack -- read the "ghost" info
+* Hack -- read the custom info
 *
 */
-static void rd_ghost(void)
+static void rd_custom(int idx)
 {
 	int i;
 
-	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
+	monster_race *r_ptr = &r_info[idx];
+
+	init_custom_race( idx );
+
 	/* Name */
 	rd_string(r_name + r_ptr->name, 64);
 
 	/* Visuals */
-	rd_char(&r_ptr->d_char);
+	rd_byte_char(&r_ptr->d_char);
 	rd_byte(&r_ptr->d_attr);
 
 	/* Level/Rarity */
@@ -866,6 +886,14 @@ static void rd_ghost(void)
 	rd_u32b(&r_ptr->flags5);
 	rd_u32b(&r_ptr->flags6);
 
+	/* Observed Flags */
+	rd_u32b(&r_ptr->r_flags1);
+	rd_u32b(&r_ptr->r_flags2);
+	rd_u32b(&r_ptr->r_flags3);
+	rd_u32b(&r_ptr->r_flags4);
+	rd_u32b(&r_ptr->r_flags5);
+	rd_u32b(&r_ptr->r_flags6);
+
 	/* Attacks */
 	for (i = 0; i < 4; i++)
 	{
@@ -881,6 +909,37 @@ static void rd_ghost(void)
 
 }
 
+/*
+* Hack -- read the "ghost" info
+*
+*/
+static void rd_ghost(void)
+{
+	rd_custom( MAX_R_IDX-1 );
+}
+
+/*
+* Hack -- Read all the custom r_ptr info's
+*/
+static void rd_customs(void)
+{
+	int i;
+	u16b idx;
+	u16b custom_count;
+
+	/* How many did we find ? */
+	rd_u16b( &custom_count );
+
+	/*If we dont have customs get out*/
+	if(!custom_count) return;
+
+	for( i = 0 ; i < custom_count ; i++ )
+	{
+		rd_u16b( &idx );
+		rd_custom( idx );
+		r_info[idx].custom = 1;
+	}
+}
 
 
 
@@ -903,7 +962,7 @@ static void rd_extra(void)
 
 	/* Class/Race/Gender/Spells */
 	rd_byte(&p_ptr->prace);
-	rd_byte(&p_ptr->psign);	
+	rd_byte(&p_ptr->psign);
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
 	rd_u16b(&p_ptr->realm1);
@@ -986,6 +1045,9 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->oppose_conf);
+	rd_s16b(&p_ptr->oppose_fear);
+	rd_s16b(&p_ptr->oppose_blind);
 
 	rd_s16b(&p_ptr->tim_esp);
 	rd_s16b(&p_ptr->wraith_form);
@@ -1522,13 +1584,13 @@ static errr rd_savefile_new_aux(void)
 	/* Read the available records */
 	for (i = 0; i < tmp16u; i++)
 	{
-		monster_race *r_ptr;
+		/*monster_race *r_ptr; UNUSED*/
 
 		/* Read the lore */
 		rd_lore(i);
 
 		/* Access that monster */
-		r_ptr = &r_info[i];
+		/*r_ptr = &r_info[i]; UNUSED*/
 	}
 	if (arg_fiddle) note("Loaded Monster Memory");
 
@@ -1571,7 +1633,7 @@ static errr rd_savefile_new_aux(void)
 		return (23);
 	}
 	/*  Load the known formulas*/
-	for (i = 0; i < tmp16u; i++) 
+	for (i = 0; i < tmp16u; i++)
 	{
 		rd_byte(&tmp8u);
 		potion_alch[i].known1 = (tmp8u & 0x01) ? TRUE: FALSE;
@@ -1703,6 +1765,9 @@ static errr rd_savefile_new_aux(void)
 
 		/* Read the ghost info */
 		rd_ghost();
+
+		/* Read the customs info*/
+		rd_customs();
 	}
 
 

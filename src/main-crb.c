@@ -2452,6 +2452,12 @@ static void Term_init_mac(term *t)
 		EraseRect(&portRect);
 	}
 
+	/* Sanitize these values */
+	if( td->r.left < 50 )td->r.left = 50;
+	if( td->r.top < 50  )td->r.top  = 50;
+	/* Make sure these new values are taken into account */
+	MoveWindow(td->w, td->r.left, td->r.top, 1);
+	
 	/*
 	 * A certain release of OS X fails to display windows at proper
 	 * locations (_ _#)
@@ -3840,145 +3846,114 @@ static void save_pref_file(void)
 
 
 /*
- * Prepare savefile dialogue and set the variable
- * savefile accordingly. Returns true if it succeeds, false (or
- * aborts) otherwise. If all is false, only allow files whose type
- * is 'SAVE'.
- * Originally written by Peter Ammon
- */
-static bool select_savefile(bool all)
-{
-	OSErr err;
-	FSSpec theFolderSpec;
-	FSSpec savedGameSpec;
-	NavDialogOptions dialogOptions;
-	NavReplyRecord reply;
-	/* Used only when 'all' is true */
-	NavTypeList types = {ANGBAND_CREATOR, 1, 1, {'SAVE'}};
-	NavTypeListHandle myTypeList;
-	AEDesc defaultLocation;
-
-#ifdef MACH_O_CARBON
-
-	short foundVRefNum;
-	long foundDirID;
-
-	/* Find the preferences folder */
-	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder,
-	                 &foundVRefNum, &foundDirID);
-
-	if (err != noErr) quit("Couldn't find the preferences folder!");
-
-	/* Look for the "Angband/save/" sub-folder */
-	err = FSMakeFSSpec(foundVRefNum, foundDirID, "\p:NPPAngband:save:", &theFolderSpec);
-
-	/* Oops */
-	if (err != noErr) quit_fmt("Unable to find the savefile folder! (Error %d)", err);
-
-#else
-
-	/* Find :lib:save: folder */
-	err = FSMakeFSSpec(app_vol, app_dir, "\p:lib:save:", &theFolderSpec);
-
-
-	/* Oops */
-	if (err != noErr) quit("Unable to find the folder :lib:save:");
-
-#endif
-
-	/* Get default Navigator dialog options */
-	err = NavGetDefaultDialogOptions(&dialogOptions);
-
-	/* Clear preview option */
-	dialogOptions.dialogOptionFlags &= ~kNavAllowPreviews;
-
-	/* Disable multiple file selection */
-	dialogOptions.dialogOptionFlags &= ~kNavAllowMultipleFiles;
-
-	/* Make descriptor for default location */
-	err = AECreateDesc(typeFSS, &theFolderSpec, sizeof(FSSpec),
-		&defaultLocation);
-
-	/* Oops */
-	if (err != noErr) quit("Unable to allocate descriptor");
-
-	/* We are indifferent to signature and file types */
-	if (all)
+ 	 * Prepare savefile dialogue and set the variable
+ 	 * savefile accordingly. Returns true if it succeeds, false (or
+ 	 * aborts) otherwise. If all is false, only allow files whose type
+ 	 * is 'SAVE'.
+ 	 * Originally written by Peter Ammon
+ 	 */
+	static bool select_savefile(bool all)
 	{
-		myTypeList = (NavTypeListHandle)nil;
+		        OSErr err;
+		        FSSpec theFolderSpec;
+		        FSSpec savedGameSpec;
+		        NavDialogOptions dialogOptions;
+		        NavReplyRecord reply;
+		        /* Used only when 'all' is true */
+		        NavTypeList types = {'A271', 1, 1, {'SAVE'}};
+		        NavTypeListHandle myTypeList;
+		        AEDesc defaultLocation;
+		
+				/* Konijn hack due to not understanding file types... */
+				all = 1;	
+		
+		        /* Look for the "Angband/save/" sub-folder */
+		        char path[1024];
+		        char parse_path[1024];	
+		        path_build(path, sizeof(path), ANGBAND_DIR_USER, "save");
+		
+				path_parse(parse_path, sizeof(parse_path), path);
+		
+		        err = path_to_spec(parse_path, &theFolderSpec);
+		
+		        if (err != noErr) quit_fmt("Unable to find savefile folder (%s) ! (Error %d)", parse_path , err);
+			
+			        /* Get default Navigator dialog options */
+			        err = NavGetDefaultDialogOptions(&dialogOptions);
+			
+			        /* Clear preview option */
+			        dialogOptions.dialogOptionFlags &= ~kNavAllowPreviews;
+			
+			        /* Disable multiple file selection */
+			        dialogOptions.dialogOptionFlags &= ~kNavAllowMultipleFiles;
+			
+			        /* Make descriptor for default location */
+			        err = AECreateDesc(typeFSS, &theFolderSpec, sizeof(FSSpec), &defaultLocation);
+			
+			        /* Oops */
+			        if (err != noErr) quit("Unable to allocate descriptor");
+
+				        /* We are indifferent to signature and file types */
+				        if (all)
+					    {
+							myTypeList = (NavTypeListHandle)nil;
+						}
+		
+		        /* Set up type handle */
+		        else
+			        {
+				                err = PtrToHand(&types, (Handle *)&myTypeList, sizeof(NavTypeList));
+				
+				                /* Oops */
+				                if (err != noErr) quit("Error in PtrToHand. Try enlarging heap");
+				
+				        }
+		
+		        /* Call NavGetFile() with the types list */
+		        err = NavChooseFile(&defaultLocation, &reply, &dialogOptions, NULL, NULL, NULL, myTypeList, NULL);
+		
+		        /* Free type list */
+		        if (!all) DisposeHandle((Handle)myTypeList);
+			
+			        /* Error */
+			        if (err != noErr)
+				        {
+					                /* Nothing */
+					        }
+		
+		        /* Invalid response -- allow the user to cancel */
+		        else if (!reply.validRecord)
+			        {
+				                /* Hack -- Fake error */
+				                err = -1;
+				        }
+		
+		        /* Retrieve FSSpec from the reply */
+		        else
+			        {
+				                AEKeyword theKeyword;
+				                DescType actualType;
+				                Size actualSize;
+				
+				                /* Get a pointer to selected file */
+				                (void)AEGetNthPtr(&reply.selection, 1, typeFSS, &theKeyword, &actualType, &savedGameSpec, sizeof(FSSpec), &actualSize);
+				
+				                /* Dispose NavReplyRecord, resources and descriptors */
+				                (void)NavDisposeReply(&reply);
+				        }
+		
+		        /* Dispose location info */
+		        AEDisposeDesc(&defaultLocation);
+		
+		        /* Error */
+		        if (err != noErr) return (FALSE);
+		
+		        /* Convert FSSpec to pathname and store it in variable savefile */
+		        (void)spec_to_path(&savedGameSpec, savefile, sizeof(savefile));
+		
+		        /* Success */
+		        return (TRUE);
 	}
-
-	/* Set up type handle */
-	else
-	{
-		err = PtrToHand(&types, (Handle *)&myTypeList, sizeof(NavTypeList));
-
-		/* Oops */
-		if (err != noErr) quit("Error in PtrToHand. Try enlarging heap");
-
-	}
-
-	/* Call NavGetFile() with the types list */
-	err = NavChooseFile(&defaultLocation, &reply, &dialogOptions, NULL,
-		NULL, NULL, myTypeList, NULL);
-
-	/* Free type list */
-	if (!all) DisposeHandle((Handle)myTypeList);
-
-	/* Error */
-	if (err != noErr)
-	{
-		/* Nothing */
-	}
-
-	/* Invalid response -- allow the user to cancel */
-	else if (!reply.validRecord)
-	{
-		/* Hack -- Fake error */
-		err = -1;
-	}
-
-	/* Retrieve FSSpec from the reply */
-	else
-	{
-		AEKeyword theKeyword;
-		DescType actualType;
-		Size actualSize;
-
-		/* Get a pointer to selected file */
-		(void)AEGetNthPtr(&reply.selection, 1, typeFSS, &theKeyword,
-			&actualType, &savedGameSpec, sizeof(FSSpec), &actualSize);
-
-		/* Dispose NavReplyRecord, resources and descriptors */
-		(void)NavDisposeReply(&reply);
-	}
-
-	/* Dispose location info */
-	AEDisposeDesc(&defaultLocation);
-
-	/* Error */
-	if (err != noErr) return (FALSE);
-
-#ifdef MACH_O_CARBON
-
-	/* Convert FSSpec to pathname and store it in variable savefile */
-	(void)spec_to_path(&savedGameSpec, savefile, sizeof(savefile));
-
-#else
-
-	/* Convert FSSpec to pathname and store it in variable savefile */
-	refnum_to_name(
-		savefile,
-		savedGameSpec.parID,
-		savedGameSpec.vRefNum,
-		(char *)savedGameSpec.name);
-
-#endif
-
-	/* Success */
-	return (TRUE);
-}
-
 
 /*
  * Handle menu: "File" + "New"
@@ -4058,15 +4033,10 @@ static void handle_open_when_ready(void)
 #define MENU_FILE	129
 # define ITEM_NEW	1
 # define ITEM_OPEN	2
-# define ITEM_IMPORT	3
-# define ITEM_CLOSE	4
-# define ITEM_SAVE	5
-# ifdef HAS_SCORE_MENU
-#  define ITEM_SCORE 7
-#  define ITEM_QUIT	8
-# else
-#  define ITEM_QUIT	7
-# endif /* HAS_SCORE_MENU */
+# define ITEM_SAVE	3
+# define ITEM_CLOSE 4
+# define ITEM_QUIT	5
+
 
 /* Edit menu */
 #define MENU_EDIT	130
@@ -4506,7 +4476,6 @@ static void setup_menus(void)
 	{
 		EnableMenuItem(m, ITEM_NEW);
 		EnableMenuItem(m, ITEM_OPEN);
-		EnableMenuItem(m, ITEM_IMPORT);
 	}
 
 	/* Enable "close" */
@@ -4945,14 +4914,6 @@ static void menu(long mc)
 					do_menu_file_open(FALSE);
 					break;
 				}
-
-				/* Import... */
-				case ITEM_IMPORT:
-				{
-					do_menu_file_open(TRUE);
-					break;
-				}
-
 				/* Close */
 				case ITEM_CLOSE:
 				{
@@ -5263,27 +5224,52 @@ static void menu(long mc)
 			/* Obtain the window */
 			td = &data[i];
 
-			/* Mapped */
-			td->mapped = TRUE;
+			
+			if( !td->mapped )
+			{
+				/* Mapped */
+				td->mapped = TRUE;
 
-			/* Link */
-			term_data_link(i);
+				/* Link */
+				term_data_link(i);
 
-			/* Mapped (?) */
-			td->t->mapped_flag = TRUE;
+				/* Mapped (?) */
+				td->t->mapped_flag = TRUE;
 
-			/* Show the window */
-			TransitionWindow(td->w,
-				kWindowZoomTransitionEffect,
-				kWindowShowTransitionAction,
-				NULL);
+				/* Show the window */
+				TransitionWindow(td->w, kWindowZoomTransitionEffect, kWindowShowTransitionAction, NULL);
 
-			/* Bring to the front */
-			SelectWindow(td->w);
+				/* Bring to the front */
+				SelectWindow(td->w);
+
+			}
+			else 
+			{
+				/* Mapped */
+				td->mapped = FALSE;
+				
+				/* Link */
+				term_data_link(i);
+				
+				/* Mapped (?) */
+				td->t->mapped_flag = FALSE;
+				
+				/* Hide the window */
+				HideWindow( td->w );
+				
+				/* Try and focus on main screen */
+				td = &data[0];				
+				
+				/* Show the window */
+				TransitionWindow(td->w, kWindowZoomTransitionEffect, kWindowShowTransitionAction, NULL);
+				
+				/* Bring to the front */
+				SelectWindow(td->w);				
+				
+			}
 
 			break;
 		}
-
 		/* Special menu */
 		case MENU_SPECIAL:
 		{
@@ -6330,7 +6316,7 @@ static void init_stuff(void)
 	while (1)
 	{
 		/* Create directories for the users files */
-		/* create_user_dirs(); */
+		 create_user_dirs();
 
 		/* Prepare the paths */
 		init_file_paths(path,1);
@@ -6577,9 +6563,26 @@ int main(void)
 	/* Note the "system" */
 	ANGBAND_SYS = "mac";
 
+	
+#ifdef SET_UID
+	/* Default permissions on files */
+	(void)umask(022);
+#endif /* SET_UID */
 
 	/* Initialize */
 	init_stuff();
+	
+#ifdef SET_UID
+
+	/* Get the user id */
+	player_uid = getuid();
+	/* Save the effective GID for later recall */
+	player_egid = getegid();
+	
+#endif /* SET_UID */	
+	
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Initialize */
 	init_angband();

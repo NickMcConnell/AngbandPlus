@@ -10,13 +10,13 @@
  * are included in all such copies.
  *
  * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
@@ -306,7 +306,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Greiz - Mercenary Captain",             20000,  250, 150, 10,  5, HUMAN}, /* Diablo II, act 2 */
 		{ "Asheara, Iron Wolf",          20000,  250, 150, 10,  5, HUMAN}, /* Diablo II, act 3 */
 		{ "Lucius Apuleius",          30000,  250, 150, 10,  5, HUMAN}, /* A Discourse on Magic ;) */
-		{ "Elymas",           30000,  250, 150, 10,  5, HUMAN}, /* Bibilic Jewish Magician */	
+		{ "Elymas",           30000,  250, 150, 10,  5, HUMAN}, /* Bibilic Jewish Magician */
     },
 	{
 		/* Store 7 (Home)*/
@@ -330,12 +330,12 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{
 		/*Eliezer of Worms*/
 		/* Store 8 (Bookstore)*/
-		{ "Johann Weyer", 15000, 175, 108, 4, 12, HUMAN}, /* Pseudomonarchia Daemonum (between February 24, 1515 and February 24, 1516 Ð February 24, 1588)*/
+		{ "Johann Weyer", 15000, 175, 108, 4, 12, HUMAN}, /* Pseudomonarchia Daemonum (between February 24, 1515 and February 24, 1516 ï¿½ February 24, 1588)*/
 		{ "Ludovico Antonio Muratori", 20000, 120, 105, 6, 16, HUMAN},  /* Ludovico Antonio Muratori (1672 - 1750) was an Italian historian */
 		{ "Johannes Trithemius", 25000, 120, 110, 7, 19, HUMAN}, /* Steganographia  (1 February 1462 - 13 December 1516) */
 		{ "Abra-Melin", 30000, 140, 105, 6, 12, HUMAN}, /* The Book of the Sacred Magic of Abramelin the Mage  - 1458 */
 		{ "Alibek the Egyptian", 15000, 175, 108, 4, 12, HUMAN}, /* The Grand Grimoir - 13th century */
-		{ "John Dee", 20000, 120, 105, 6, 16, HUMAN}, /* Wrote books in the enochian language - (July 13, 1527 Ð 1608 or 1609)*/
+		{ "John Dee", 20000, 120, 105, 6, 16, HUMAN}, /* Wrote books in the enochian language - (July 13, 1527 ï¿½ 1608 or 1609)*/
 		{ "Heinrich Cornelius Agrippa", 25000, 120, 110, 7, 19, HUMAN}, /* Libri tres de occulta philosophia - born of noble birth in Cologne September 14, 1486, died in Grenoble February 18, 1535) */
 		{ "Peter de Abano", 30000, 140, 105, 6, 12, HUMAN}, /* Heptameron - (c. 1250-1316)  */
 		{ "Hypatia of Alexandria", 15000, 175, 108, 4, 12, HUMAN}, /* philosopher, mathematician, and teacher,  (c. 370 - 415) */
@@ -406,7 +406,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	},
 	{
 		/* Store 12 (Mage Guild) , is run by the book owner for now */
-		{ " ",                                   0,      100, 100,  0, 99, 99},
+		{ " ",                          0,      100, 100,  0, 99, 99},
 		{ " ",                          0,      100, 100,  0, 99, 99},
 		{ " ",                          0,      100, 100,  0, 99, 99},
 		{ " ",                          0,      100, 100,  0, 99, 99},
@@ -484,11 +484,6 @@ u16b extract_energy[200] =
 /* F+70 */    20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
 /* Fast */    20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
 };
-
-
-
-
-
 
 
 /*
@@ -569,50 +564,50 @@ player_sex sex_info[MAX_SEXES] =
 *      {STR,INT,WIS,DEX,CON,CHA},
 *      r_dis(arm), r_dev(ices), r_sav(ingthrow), r_stl(stealth), r_srh(search), r_fos(frequency of search), r_thn, r_thb,
 *      hitdie, exp base,
-*      Age (Base, Mod),			
+*      Age (Base, Mod),
 *      Male (Hgt, Wgt),
 *      Female (Hgt, Wgt)
 *      infra,
 *      class-choices
 */
-player_race race_info[COUNT_SUBRACES] = { 	
-/*     Name					 STRINTWISDEXCONCHA    dis  dev sav stl sh  shf th thshoot  hd  exp  age1   2   hgt1  2  whgt1 2  hght1 2 whgt1   2  infra  choices	rations undead  f3rles  !light*/	
-   {  "Florentian",			{ 0, 0, 0, 0, 0, 0 }, 	 0,  0,  0,  0,  0, 10,  0,  0, 	10, 100,  14,   6,   72,  6, 180, 25,  66,  4, 150,  20,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
-   {  "Gypsy",				{ 0, 0, 0, 1, 0, 1 }, 	 5,  5,  3,  3,  0, 10,  0,  0, 	10, 120,  14,   6,   72,  6, 180, 25,  66,  4, 150,  20,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */	
-   {  "Nordic",				{ 0,+1,+1, 0, 0, 0 },	 2,-10,  2,  1,  1,  7, 12, 10,		11, 120,  14,   8,   82,  5, 200, 20,  78,  6, 190,  15,  0,  0x1FFF, 	TRUE,	FALSE,	TRUE,	FALSE,}, /* All */
-   {  "Atlantian",			{-1, 3, 2, 2,-2, 1 }, 	 5, 15, 20,  3,  8, 12, -5, 10, 	 9, 150,  75,  75,   60,  4, 100,  6,  54,  4,  80,   6,  5,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
-   {  "Dwarf descendant",	{ 1, 1,-1,-1, 1,-1 }, 	 2,  9, 10, -1,  7, 10, 15,  0, 	11, 125,  35,  15,   48,  3, 150, 10,  46,  3, 120,  10,  5,  0x1FFF,   TRUE,	FALSE,	FALSE,	FALSE,}, /* Warrior, Priest and Druid */
-   {  "Elf descendant",		{-1, 1, 1, 1,-1, 1 }, 	 5,  6,  6,  2,  8, 12, -5, 15, 	 8, 120,  75,  75,   60,  4, 100,  6,  54,  4,  80,   6,  3,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Ogre descendant",	{ 3,-1,-1,-1, 3,-1 }, 	-3, -5, -5, -2, -1,  5, 20,  0, 	12, 130,  40,  10,   92, 10, 255, 60,  80,  8, 235,  60,  3,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Troll descendant",	{ 4,-3,-2,-3, 3,-2 }, 	-5, -8, -8, -2, -1,  5, 20,-10, 	12, 137,  20,  10,   96, 10, 250, 50,  84,  8, 225,  40,  3,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Giant descendant",	{ 4,-2,-2,-2, 3,-3 }, 	-6, -8, -6, -2, -1,  5, 25,  5, 	13, 150,  40,  10,  100, 10, 255, 65,  80, 10, 240,  64,  3,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Titan descendant",	{ 5, 1, 1,-2, 3, 1 }, 	-5,  5,  2, -2,  1,  8, 25,  0, 	14, 255, 100,  30,  111, 11, 255, 86,  99, 11, 250,  86,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Nephilim",			{ 1, 2, 2, 2, 3, 2 }, 	 4,  5,  5,  2,  3, 13, 15, 10, 	10, 225,  50,  50,   82,  5, 190, 20,  78,  6, 180,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /*All*/   
-   {  "Human",				{ 1, 2, 2, 2, 3, 2 }, 	 4,  5,  5,  2,  3, 13, 15, 10, 	10, 225,  50,  50,   82,  5, 190, 20,  78,  6, 180,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /*This should never happen*/
-   {  "Seelie Fae",			{-4, 3, 3, 3,-2, 2 }, 	10, 10, 10,  4, 10, 10,-12,  0, 	 7, 175,  50,  25,   32,  2,  75,  2,  29,  2,  65,   2,  4,  0x1E5E, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Gnome",				{-1, 2, 0, 2, 1,-2 }, 	10, 12, 12,  3,  6, 13, -8, 12, 	 8, 135,  50,  40,   42,  3,  90,  6,  39,  3,  75,   3,  4,  0x1E5E, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Leprechaun",			{-4, 3, 3, 4,-4, 7 }, 	 2,  4, 10, 15,  5, 15, -5, -5, 	 7, 100,  14,   3,   50,  3,  90,  6,  50,  3,  75,   3,  2,  0x1E5E, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Kobold",				{ 1,-1, 0, 1, 0,-4 }, 	-2, -3, -2, -1,  1,  8, 10, -8, 	 9, 125,  11,   3,   60,  1, 130,  5,  55,  1, 100,   5,  3,  0x0009, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Devilspawn",			{ 2,-2,-1,-1, 2,-4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 140,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
-   {  "Imp",				{-1,-1,-1, 1, 2,-3 }, 	-3,  2, -1,  1, -1, 10,  5, -5, 	10, 110,  13,   4,   68,  1, 150,  5,  64,  1, 120,   5,  3,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Succubus",			{ 0, 2, 0, 2, 0, 4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 160,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
-   {  "Lili",				{ 0, 0, 0, 0, 4, 4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 160,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
-   {  "Elder",				{ 1, 3, 2, 3, 1, 5 }, 	 4, 20, 20,  4,  3, 14, 10, 25, 	10, 200, 100,  30,   90, 10, 190, 20,  82, 10, 180,  15,  4,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Elder Guardian",     { 4,-5,-5, 0, 4,-4 }, 	-5, -5, 10, -1, -1,  8, 20,  0, 	12, 200,   1, 100,   66,  1, 200,  6,  62,  1, 180,   6,  4,  0x0001, 	FALSE,	FALSE,	TRUE,	FALSE,}, 
-   {  "Elder Horror",		{-3, 4, 4, 0,-2,-5 }, 	10, 25, 15,  2,  5, 12,-10, -5, 	 9, 140, 100,  25,   68,  6, 142, 15,  63,  6, 112,  10,  4,  0x1746, 	TRUE,	FALSE,	FALSE,	FALSE,},
-   {  "Vampire",			{ 3, 3,-1,-1, 1, 2 }, 	 4, 10, 10,  4,  1,  8,  5,  0, 	11, 200, 100,  30,   72,  6, 180, 25,  66,  4, 150,  20,  5,  0x1FFF, 	FALSE,	TRUE,	FALSE,	TRUE,}, /* All */
-   {  "Werewolf",			{ 3, 3,-1,-1, 1, 2 }, 	 4, 10, 10,  4,  1,  8,  5,  0, 	11, 200, 100,  30,   72,  6, 180, 25,  66,  4, 150,  20,  5,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
-   {  "Skeleton",			{ 0,-2,-2, 0, 1,-4 }, 	-5, -5,  5, -1, -1,  8, 10,  0, 	10, 145, 100,  35,   72,  6,  50,  5,  66,  4,  50,   5,  2,  0x1F0F, 	FALSE,	FALSE,	FALSE,	FALSE,},
-   {  "Mummy",				{ 2,-6,-6, 1, 4,-5 }, 	-5, -5,  8, -1, -1,  5, 15,  0, 	13, 135, 100,  30,   72,  6, 100, 25,  66,  4, 100,  20,  2,  0x0001, 	FALSE,	TRUE,	FALSE,	FALSE,}, /*Only warrior*/
-   {  "Spectre",			{-5, 4, 4, 2,-3,-6 }, 	10, 25, 20,  5,  5, 14,-15, -5, 	 7, 180, 100,  30,   72,  6, 100, 25,  66,  4, 100,  20,  5,  0x1F4E,   FALSE,	TRUE,	FALSE,	FALSE,},/* Mage, Priest, Rogue, Warrior-Mage, Mystic */
-}; 
+player_race race_info[COUNT_SUBRACES] = {
+/*     Name					 STRINTWISDEXCONCHA    dis  dev sav stl sh  shf th thshoot  hd  exp  age1   2   hgt1  2  whgt1 2  hght1 2 whgt1   2  infra  choices	rations undead  f3rles  !light*/
+   {  "Florentine",			{ 0, 0, 0, 0, 0, 0 }, 	 0,  0,  0,  0,  0, 10,  0,  0, 	10, 100,  14,   6,   72,  6, 180, 25,  66,  4, 150,  20,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
+   {  "Gypsy",				{ 0, 0, 0, 1, 0, 1 }, 	 5,  5,  3,  3,  0, 10,  0,  0, 	10, 120,  14,   6,   72,  6, 180, 25,  66,  4, 150,  20,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
+   {  "Nordic",				{ 0,+1,+1, 0, 0, 0 },	 2,-10,  2,  1,  1,  7, 12, 10,		11, 120,  14,   8,   82,  5, 200, 20,  78,  6, 190,  15,  0,  0xFFFF, 	TRUE,	FALSE,	TRUE,	FALSE,}, /* All */
+   {  "Atlantean",			{-1, 3, 2, 2,-2, 1 }, 	 5, 15, 20,  3,  8, 12, -5, 10, 	 9, 150,  75,  75,   60,  4, 100,  6,  54,  4,  80,   6,  5,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
+   {  "Dwarf descendant",	{ 1, 1,-1,-1, 1,-1 }, 	 2,  9, 10, -1,  7, 10, 15,  0, 	11, 125,  35,  15,   48,  3, 150, 10,  46,  3, 120,  10,  5,  0xFFFF,   TRUE,	FALSE,	FALSE,	FALSE,}, /* Warrior, Priest and Druid */
+   {  "Elf descendant",		{-1, 1, 1, 1,-1, 1 }, 	 5,  6,  6,  2,  8, 12, -5, 15, 	 8, 120,  75,  75,   60,  4, 100,  6,  54,  4,  80,   6,  3,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Ogre descendant",	{ 3,-1,-1,-1, 3,-1 }, 	-3, -5, -5, -2, -1,  5, 20,  0, 	12, 130,  40,  10,   92, 10, 255, 60,  80,  8, 235,  60,  3,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Troll descendant",	{ 4,-3,-2,-3, 3,-2 }, 	-5, -8, -8, -2, -1,  5, 20,-10, 	12, 137,  20,  10,   96, 10, 250, 50,  84,  8, 225,  40,  3,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Giant descendant",	{ 4,-2,-2,-2, 3,-3 }, 	-6, -8, -6, -2, -1,  5, 25,  5, 	13, 150,  40,  10,  100, 10, 255, 65,  80, 10, 240,  64,  3,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Titan descendant",	{ 5, 1, 1,-2, 3, 1 }, 	-5,  5,  2, -2,  1,  8, 25,  0, 	14, 255, 100,  30,  111, 11, 255, 86,  99, 11, 250,  86,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Nephilim",			{ 1, 2, 2, 2, 3, 2 }, 	 4,  5,  5,  2,  3, 13, 15, 10, 	10, 225,  50,  50,   82,  5, 190, 20,  78,  6, 180,  15,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /*All*/
+   {  "Human",				{ 1, 2, 2, 2, 3, 2 }, 	 4,  5,  5,  2,  3, 13, 15, 10, 	10, 225,  50,  50,   82,  5, 190, 20,  78,  6, 180,  15,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /*This should never happen*/
+   {  "Seelie Fae",			{-4, 3, 3, 3,-2, 2 }, 	10, 10, 10,  4, 10, 10,-12,  0, 	 7, 175,  50,  25,   32,  2,  75,  2,  29,  2,  65,   2,  4,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Gnome",				{-1, 2, 0, 2, 1,-2 }, 	10, 12, 12,  3,  6, 13, -8, 12, 	 8, 135,  50,  40,   42,  3,  90,  6,  39,  3,  75,   3,  4,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Leprechaun",			{-4, 3, 3, 4,-4, 7 }, 	 2,  4, 10, 15,  5, 15, -5, -5, 	 7, 100,  14,   3,   50,  3,  90,  6,  50,  3,  75,   3,  2,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Kobold",				{ 1,-1, 0, 1, 0,-4 }, 	-2, -3, -2, -1,  1,  8, 10, -8, 	 9, 125,  11,   3,   60,  1, 130,  5,  55,  1, 100,   5,  3,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Devilspawn",			{ 2,-2,-1,-1, 2,-4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 140,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
+   {  "Imp",				{-1,-1,-1, 1, 2,-3 }, 	-3,  2, -1,  1, -1, 10,  5, -5, 	10, 110,  13,   4,   68,  1, 150,  5,  64,  1, 120,   5,  3,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Succubus",			{ 0, 2, 0, 2, 0, 4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 160,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
+   {  "Lili",				{ 0, 0, 0, 0, 4, 4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 160,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
+   {  "Elder",				{ 1, 3, 2, 3, 1, 5 }, 	 4, 20, 20,  4,  3, 14, 10, 25, 	10, 200, 100,  30,   90, 10, 190, 20,  82, 10, 180,  15,  4,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Elder Guardian",     { 4,-5,-5, 0, 4,-4 }, 	-5, -5, 10, -1, -1,  8, 20,  0, 	12, 200,   1, 100,   66,  1, 200,  6,  62,  1, 180,   6,  4,  0xFFFF, 	FALSE,	FALSE,	TRUE,	FALSE,},
+   {  "Elder Horror",		{-3, 4, 4, 0,-2,-5 }, 	10, 25, 15,  2,  5, 12,-10, -5, 	 9, 140, 100,  25,   68,  6, 142, 15,  63,  6, 112,  10,  4,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
+   {  "Vampire",			{ 3, 3,-1,-1, 1, 2 }, 	 4, 10, 10,  4,  1,  8,  5,  0, 	11, 200, 100,  30,   72,  6, 180, 25,  66,  4, 150,  20,  5,  0xFFFF, 	FALSE,	TRUE,	FALSE,	TRUE,}, /* All */
+   {  "Werewolf",			{ 3, 3,-1,-1, 1, 2 }, 	 4, 10, 10,  4,  1,  8,  5,  0, 	11, 200, 100,  30,   72,  6, 180, 25,  66,  4, 150,  20,  5,  0xFFFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
+   {  "Skeleton",			{ 0,-2,-2, 0, 1,-4 }, 	-5, -5,  5, -1, -1,  8, 10,  0, 	10, 145, 100,  35,   72,  6,  50,  5,  66,  4,  50,   5,  2,  0xFFFF, 	FALSE,	FALSE,	FALSE,	FALSE,},
+   {  "Mummy",				{ 2,-6,-6, 1, 4,-5 }, 	-5, -5,  8, -1, -1,  5, 15,  0, 	13, 135, 100,  30,   72,  6, 100, 25,  66,  4, 100,  20,  2,  0xFFFF, 	FALSE,	TRUE,	FALSE,	FALSE,}, /*Only warrior*/
+   {  "Spectre",			{-5, 4, 4, 2,-3,-6 }, 	10, 25, 20,  5,  5, 14,-15, -5, 	 7, 180, 100,  30,   72,  6, 100, 25,  66,  4, 100,  20,  5,  0xFFFF,   FALSE,	TRUE,	FALSE,	FALSE,},/* Mage, Priest, Rogue, Warrior-Mage, Mystic */
+};
 
-player_race sign_info[COUNT_SIGNS] = { 	
-/*     Name					 STRINTWISDEXCONCHA    dis  dev sav stl sh  shf th thshoot  hd  exp  age1   2   hgt1  2  whgt1 2  hght1 2 whgt1   2  infra  choices rations	undead, f3rles	!light*/	
-	{  "Free",				{ 0, 0, 0, 0, 0, 0 }, 	 0,  0,  0,  0,  0,  0,  0,  0, 	0,   0,  0,   0,   0,  0,   0,  0,   0,  0,   0,   0,  0,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All */	
-	{  "Draco",				{ 2, 1, 1, 1, 2,-3 }, 	-2,  5,  3,  0,  1, 10,  5,  5, 	0, 150, 75,  33,   0,  0,   0,  0,   0,  0,   0,   0,  2,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Rogue, Paladin and Hell Knight */	
-	{  "Serpens",			{ 0, 0, 0, 0, 0, 0 }, 	 0,  0,  0, 10,  0, 10,  0,  0, 	0,   0,  0,   0,   0,  0,   0,  0,   0,  0,   0,   0,  0,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All */	
-	{  "Plutus",			{ 0, 0, 0, 0, 0, 0 }, 	 0, 10,  0,  0,  0, 10,  0,  0, 	0,   0,  0,   0,   0,  0,   0,  0,   0,  0,   0,   0,  0,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All */	
+player_race sign_info[COUNT_SIGNS] = {
+/*     Name					 STRINTWISDEXCONCHA    dis  dev sav stl sh  shf th thshoot  hd  exp  age1   2   hgt1  2  whgt1 2  hght1 2 whgt1   2  infra  choices rations	undead, f3rles	!light*/
+	{  "Free",				{ 0, 0, 0, 0, 0, 0 }, 	 0,  0,  0,  0,  0,  0,  0,  0, 	0,   0,  0,   0,   0,  0,   0,  0,   0,  0,   0,   0,  0,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
+	{  "Draco",				{ 2, 1, 1, 1, 2,-3 }, 	-2,  5,  3,  0,  1, 10,  5,  5, 	0, 150, 75,  33,   0,  0,   0,  0,   0,  0,   0,   0,  2,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Rogue, Paladin and Hell Knight */
+	{  "Serpens",			{ 0, 0, 0, 0, 0, 0 }, 	 0,  0,  0, 10,  0, 10,  0,  0, 	0,   0,  0,   0,   0,  0,   0,  0,   0,  0,   0,   0,  0,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
+	{  "Plutus",			{ 0, 0, 0, 0, 0, 0 }, 	 0, 10,  0,  0,  0, 10,  0,  0, 	0,   0,  0,   0,   0,  0,   0,  0,   0,  0,   0,   0,  0,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,}, /* All */
     {  "Morui",				{ 2,-1,-1, 1, 2,-2 }, 	10,  5,  5,  0, -1, 10,  5,  5, 	2,  35,  6,   0,   0,  0,   0,  0,   0,  0,   0,   0,  2,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,},
 };
 
@@ -629,7 +624,7 @@ U_power racial_powers[] = {
 	{ NEPHILIM		, "use divine powers",		30,	50,		0,		A_INT,	NULL,			0,},
 	{ OGRE			, "set a trap",				25,	35,		0,		A_INT,	NULL,			0,},
 	{ GIANT			, "bash a wall",			20,	10,		0,		A_STR,	NULL,			0,},
-	{ TITAN			, "probe",					25,	20,		0,		A_INT,	NULL,			0,},		
+	{ TITAN			, "probe",					25,	20,		0,		A_INT,	NULL,			0,},
 	{ SPECTRE		, "scare",					4,	3,		0,		A_INT,	NULL,			0,},
 	{ KOBOLD		, "spit poison",			12,	8,		0,		A_DEX,	"dam lvl",		0},
 	{ ATLANTIAN		, "conjure a  missile",		2,	2,		0,		A_INT,	NULL,			0,},
@@ -637,11 +632,11 @@ U_power racial_powers[] = {
 	{ IMP			, "blast fire",				9,	15,		0,		A_WIS,	"dam lvl",		0},
 	{ GUARDIAN		, "cast stone skin",		20,	15,		0,		A_CON,	"dur 30+d20",	0},
 	{ SKELETON		, "restore life",			30,	30,		0,		A_WIS,	NULL,			0,},
-	{ MUMMY			, "restore life",			30,	30,		0,		A_WIS,	NULL,			0,},				
+	{ MUMMY			, "restore life",			30,	30,		0,		A_WIS,	NULL,			0,},
 	{ VAMPIRE		, "drain life",				2,	1,		3,		A_CON,	NULL,			0,},
-	{ FAE			, "throw faerie dust",		12,	12,		0,		A_INT,	NULL,			0,},	
-	{ 0				, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/	
-	
+	{ FAE			, "throw faerie dust",		12,	12,		0,		A_INT,	NULL,			0,},
+	{ 0				, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/
+
 };
 
 /*  The description should be no longer than 20 characters if you want it to look pretty in the 'U'se menu */
@@ -650,8 +645,8 @@ U_power sign_powers[] = {
 	/*Sign                 desc5678901234567890                   lev  cost cost/level   stat   extra_info		power*/
 	{ SIGN_PLUTUS		, "detect doors & traps",	5,	5,		0,		A_WIS,	NULL,			ABILITY_DETECT_DOOR_TRAPS,},
 	{ SIGN_MORUI		, "spit acid",				9,	9,		0,		A_DEX,	NULL,			ABILITY_SPIT_ACID,},
-	{ SIGN_DRACO		, "breathe the elements",	1,	0,		1,		A_CON,	"dam 2*lvl",	ABILITY_BREATHE_ELEMENTS,},		
-	{ 0					, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/	
+	{ SIGN_DRACO		, "breathe the elements",	1,	0,		1,		A_CON,	"dam 2*lvl",	ABILITY_BREATHE_ELEMENTS,},
+	{ 0					, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/
 };
 
 /*  The description should be no longer than 20 characters if you want it to look pretty in the 'U'se menu */
@@ -666,8 +661,8 @@ U_power freak_powers[] = {
 	{ COR1_MIND_BLST	, "mind blast",				5,	3,		0,		A_WIS,	NULL,			COR1_MIND_BLST,},
 	{ COR1_SLIME		, "hellslime",				15,	15,		0,		A_CON,	NULL,			COR1_SLIME,},
 	{ COR1_VAMPIRISM	, "vampiric drain",			13,	0,		1,		A_CON,	NULL,			COR1_VAMPIRISM,},
-	{ COR1_SMELL_MET	, "sense metal",			3,	2,		0,		A_INT,	NULL,			COR1_SMELL_MET,},	
-	{ COR1_SMELL_MON	, "sense monsters",			5,	4,		0,		A_INT,	NULL,			COR1_SMELL_MON,},		
+	{ COR1_SMELL_MET	, "sense metal",			3,	2,		0,		A_INT,	NULL,			COR1_SMELL_MET,},
+	{ COR1_SMELL_MON	, "sense monsters",			5,	4,		0,		A_INT,	NULL,			COR1_SMELL_MON,},
 	{ COR1_BLINK		, "blink",					3,	3,		0,		A_WIS,	NULL,			COR1_BLINK,},
 	{ COR1_EAT_ROCK		, "eat rock",				8,	12,		0,		A_CON,	NULL,			COR1_EAT_ROCK,},
 	{ COR1_SWAP_POS		, "swap position",			15,	12,		0,		A_DEX,	NULL,			COR1_SWAP_POS,},
@@ -678,19 +673,19 @@ U_power freak_powers[] = {
 	{ COR1_POLYMORPH	, "polymorph",				18,	20,		0,		A_CON,	NULL,			COR1_POLYMORPH,},
 	{ COR1_MIDAS_TCH	, "midas touch",			10,	5,		0,		A_INT,	NULL,			COR1_MIDAS_TCH,},
 	{ COR1_GROW_MOLD	, "grow mold",				1,	6,		0,		A_CON,	NULL,			COR1_GROW_MOLD,},
-	{ COR1_RESIST		, "resist elements",		10,	12,		0,		A_CON,	NULL,			COR1_RESIST,},	
-	{ COR1_EARTHQUAKE	, "earthquake",				12,	12,		0,		A_STR,	NULL,			COR1_EARTHQUAKE,},		
-	{ COR1_EAT_MAGIC	, "eat magic",				17,	1,		0,		A_WIS,	NULL,			COR1_EAT_MAGIC,},			
-	{ COR1_WEIGH_MAG	, "weigh magic",			6,	6,		0,		A_INT,	NULL,			COR1_WEIGH_MAG,},				
+	{ COR1_RESIST		, "resist elements",		10,	12,		0,		A_CON,	NULL,			COR1_RESIST,},
+	{ COR1_EARTHQUAKE	, "earthquake",				12,	12,		0,		A_STR,	NULL,			COR1_EARTHQUAKE,},
+	{ COR1_EAT_MAGIC	, "eat magic",				17,	1,		0,		A_WIS,	NULL,			COR1_EAT_MAGIC,},
+	{ COR1_WEIGH_MAG	, "weigh magic",			6,	6,		0,		A_INT,	NULL,			COR1_WEIGH_MAG,},
 	{ COR1_STERILITY	, "sterilize",				20,	40,		0,		A_CHA,	NULL,			COR1_STERILITY,},
 	{ COR1_PANIC_HIT	, "panic hit",				10,	12,		0,		A_DEX,	NULL,			COR1_PANIC_HIT,},
-	{ COR1_DAZZLE		, "dazzle",					7,	15,		0,		A_CHA,	NULL,			COR1_DAZZLE,},	
+	{ COR1_DAZZLE		, "dazzle",					7,	15,		0,		A_CHA,	NULL,			COR1_DAZZLE,},
 	{ COR1_EYE_BEAM		, "eye beams",				7,	10,		0,		A_WIS,	NULL,			COR1_EYE_BEAM,},
-	{ COR1_RECALL		, "recall",					17,	50,		0,		A_INT,	NULL,			COR1_RECALL,},	
-	{ COR1_BANISH		, "banish evil",			25,	25,		0,		A_WIS,	NULL,			COR1_BANISH,},		
-	{ COR1_COLD_TOUCH	, "cold touch",				2,	2,		0,		A_CON,	NULL,			COR1_COLD_TOUCH,},			
-	{ COR1_LAUNCHER		, "cold touch",				2,	2,		0,		A_CON,	NULL,			3,}, /* XXX_XXX_XXX Hack! COR1_LAUNCHER counts as negative... */			
-	{ 0					, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/	
+	{ COR1_RECALL		, "recall",					17,	50,		0,		A_INT,	NULL,			COR1_RECALL,},
+	{ COR1_BANISH		, "banish evil",			25,	25,		0,		A_WIS,	NULL,			COR1_BANISH,},
+	{ COR1_COLD_TOUCH	, "cold touch",				2,	2,		0,		A_CON,	NULL,			COR1_COLD_TOUCH,},
+	{ COR1_LAUNCHER		, "cold touch",				2,	2,		0,		A_CON,	NULL,			3,}, /* XXX_XXX_XXX Hack! COR1_LAUNCHER counts as negative... */
+	{ 0					, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/
 };
 
 corruption_type corruptions[COUNT_CORRUPTIONS]={
@@ -794,24 +789,24 @@ corruption_type corruptions[COUNT_CORRUPTIONS]={
 
 opposed_corruptions_type opposed_corruptions[] = {
 	{	3,	COR3_PUNY,			3, COR3_HYPER_STR,		"You no longer feel super-strong!"		},
-	{	3,	COR3_HYPER_STR,		3, COR3_PUNY,			"You no longer feel puny!"				},			
+	{	3,	COR3_HYPER_STR,		3, COR3_PUNY,			"You no longer feel puny!"				},
 	{	3,	COR3_IDIOTIC,		3, COR3_HYPER_INT,		"You are no longer a genius."			},
-	{	3,	COR3_HYPER_INT,		3, COR3_IDIOTIC,		"You are no longer an idiot."			},		
-	{	3,	COR3_IRON_SKIN,		3, COR3_SCALES,			"You lose your scales."					},					
-	{	3,	COR3_IRON_SKIN,		3, COR3_FLESH_ROT,		"Your flesh rots no longer."			},					
-	{	3,	COR3_IRON_SKIN,		3, COR3_WART_SKIN,		"You lose your warts."					},	
+	{	3,	COR3_HYPER_INT,		3, COR3_IDIOTIC,		"You are no longer an idiot."			},
+	{	3,	COR3_IRON_SKIN,		3, COR3_SCALES,			"You lose your scales."					},
+	{	3,	COR3_IRON_SKIN,		3, COR3_FLESH_ROT,		"Your flesh rots no longer."			},
+	{	3,	COR3_IRON_SKIN,		3, COR3_WART_SKIN,		"You lose your warts."					},
 	{	3,	COR3_SCALES,		3, COR3_IRON_SKIN,		"Your skin is no longer made of steel."	},
 	{	3,	COR3_FLESH_ROT,		3, COR3_IRON_SKIN,		"Your skin is no longer made of steel."	},
-	{	3,	COR3_WART_SKIN,		3, COR3_IRON_SKIN,		"Your skin is no longer made of steel."	},			
+	{	3,	COR3_WART_SKIN,		3, COR3_IRON_SKIN,		"Your skin is no longer made of steel."	},
 	{	3,	COR3_FEARLESS,		2, COR2_COWARDICE,		"You are no longer cowardly."			},
-	{	2,	COR2_COWARDICE,		3, COR3_FEARLESS,		"You no longer feel fearless."			},			
+	{	2,	COR2_COWARDICE,		3, COR3_FEARLESS,		"You no longer feel fearless."			},
 	{	3,	COR3_FLESH_ROT,		3, COR3_REGEN,			"You stop regenerating."				},
 	{	3,	COR3_REGEN,			3, COR3_FLESH_ROT,		"You flesh stops rotting."				},
 	{	3,	COR3_LIMBER,		3, COR3_ARTHRITIS,		"Your joints stop hurting."				},
 	{	3,	COR3_ARTHRITIS,		3, COR3_LIMBER,			"You no longer feel limber."			},
-	{	2,	COR2_LARGE_HORNS,	2, COR2_SMALL_HORNS,	"Your horns grow larger."				},			
+	{	2,	COR2_LARGE_HORNS,	2, COR2_SMALL_HORNS,	"Your horns grow larger."				},
 	{	2,	COR2_SMALL_HORNS,	2, COR2_LARGE_HORNS,	"Your horns shrink."					},
-	{	0,	0,					0, 0,					NULL									}, /*Famous NULL record*/	
+	{	0,	0,					0, 0,					NULL									}, /*Famous NULL record*/
 };
 
 
@@ -828,17 +823,20 @@ player_class class_info[MAX_CLASS] =
 {
 	{		"Warrior",		{ 5,-2,-2, 2, 2,-1},	25,  18,  18,  1,  14,  2,   70,  55,	12,  7,   10,  0,  0,  0,  45,  45,  9,  0	},
 	{		"Mage",			{-5, 3, 0, 1,-2, 1},	30,  36,  30,  2,  16,  20,  34,  20,	7,   13,  9,   0,  0,  0,  15,  15,	 0,  30	},
-	{		"Priest",		{-1,-3, 3,-1, 0, 2},	25,  30,  32,  2,  16,  8,   48,  35,	7,   10,  12,  0,  0,  0,  20,  20,	 2,  20	},
 	{		"Rogue",		{ 2, 1,-2, 3, 1,-1},	45,  32,  28,  5,  32,  24,  60,  66,	15,  10,  10,  0,  0,  0,  40,  30,	 6,  25	},
+	{		"Priest",		{-1,-3, 3,-1, 0, 2},	25,  30,  32,  2,  16,  8,   48,  35,	7,   10,  12,  0,  0,  0,  20,  20,	 2,  20	},
 	{		"Ranger",		{ 2, 2, 0, 1, 1, 1},	30,  32,  28,  3,  24,  16,  56,  72,	8,   10,  10,  0,  0,  0,  30,  45,	 4,  30	},
 	{		"Paladin",		{ 3,-3, 1, 0, 2, 2},	20,  24,  26,  1,  12,  2,   68,  40,	7,   10,  11,  0,  0,  0,  35,  30,	 6,  35	},
-	{		"Warrior-Mage",	{ 2, 2, 0, 1, 0, 1},	30,  30,  28,  2,  18,  16,  50,  25,	7,   10,  9,   0,  0,  0,  20,  20,	 4,  50	},
+	{		"Black Knight",	{ 2, 1, 0, 1, 2,-2},	20,  25,  25,  1,  14,  12,  65,  40,	7,   11,  10,  0,  0,  0,  34,  29,	 6,  35	},
+	{		"Chaos Knight",	{ 2, 1, 0, 1, 2,-2},	20,  25,  25,  1,  14,  12,  65,  40,	7,   11,  10,  0,  0,  0,  34,  29,	 6,  35	},
 	{		"Hell Knight",	{ 2, 1, 0, 1, 2,-2},	20,  25,  25,  1,  14,  12,  65,  40,	7,   11,  10,  0,  0,  0,  34,  29,	 6,  35	},
-	{		"Mystic",		{ 2,-1, 1, 3, 2, 1},	45,  32,  28,  5,  32,  24,  64,  60,	15,  11,  10,  0,  0,  0,  40,  30,	 6,  40	},
-	{		"Mindcrafter",	{-1, 0, 3,-1,-1, 2},   	30,  30,  30,  3,  22,  16,  50,  40,	10,  10,  10,  0,  0,  0,  20,  30,	 2,  25	},/* note: spell stat is Wis */
-	{		"High-Mage",	{-5, 4, 0, 0,-2, 1},	30,  36,  30,  2,  16,  20,  34,  20,	7,   13,  9,   0,  0,  0,  15,  15,	 0,  30	},
-	{		"Druid",		{-1,-3, 4,-2, 0, 3},	25,  30,  32,  2,  16,  8,   48,  35,	7,   10,  12,  0,  0,  0,  20,  20,	 2,  20	},
+	{		"Warrior Mage",	{ 2, 2, 0, 1, 0, 1},	30,  30,  28,  2,  18,  16,  50,  25,	7,   10,  9,   0,  0,  0,  20,  20,	 4,  50	},
+	{		"High Mage",	{-5, 4, 0, 0,-2, 1},	30,  36,  30,  2,  16,  20,  34,  20,	7,   13,  9,   0,  0,  0,  15,  15,	 0,  30	},
+	{		"Blood Mage",	{-5, 4, 0, 0, 2, 1},	30,  36,  30,  2,  16,  20,  34,  20,	7,   13,  9,   0,  0,  0,  15,  15,	 7,  30	},
 	{		"Warlock",		{-5, 4, 0, 0,-2, 1},	30,  36,  30,  2,  16,  20,  34,  20,	7,   13,  9,   0,  0,  0,  15,  15,	 0,  30	},
+	{		"Mystic",		{ 2,-1, 1, 3, 2, 1},	45,  32,  28,  5,  32,  24,  64,  60,	15,  11,  10,  0,  0,  0,  40,  30,	 6,  40	},
+	{		"Orphic",		{-1, 0, 3,-1,-1, 2},   	30,  30,  30,  3,  22,  16,  50,  40,	10,  10,  10,  0,  0,  0,  20,  30,	 2,  25	},/* note: spell stat is Wis */
+	{		"Druid",		{-1,-3, 4,-2, 0, 3},	25,  30,  32,  2,  16,  8,   48,  35,	7,   10,  12,  0,  0,  0,  20,  20,	 2,  20	},
 };
 
 /*
@@ -851,58 +849,44 @@ player_class class_info[MAX_CLASS] =
  *   Array of skill per realm
  */
 
-class_magic realms_info[] = {
+class_magic realms_info[MAX_CLASS] = {
 	/*Class Name		Book				Xtra    Stat,	Type,	Level,	Encumbrance,  MIRACLES	SORCERY NATURE	CHAOS	DEATH	TAROT	CHARMS	SOMATIC DEMONIC*/
-	/*Warrior     */{	0,					0,		A_STR,	0,		99,		0,			{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		},},
-	/*Mage        */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		300,		{ SAME,		SAME,	SAME,	SAME,	SAME,	SAME,	SAME,	SAME,	SAME,	},},
-	/*Priest      */{	TV_MIRACLES_BOOK,	0,		A_WIS,	1,		1,		350,		{ SUPER,	WORSE,	SAME,	WORSE,	SUPER,	WORSE,	WORSE,	WORSE,	POOR,	},},
-	/*Rogue       */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		5,		350,		{ POOR,		SAME,	POOR,	SAME,	BETTER,	BETTER,	BETTER,	WORSE,	WORSE,	},},
-	/*Ranger      */{	TV_MIRACLES_BOOK,	0,		A_INT,	0,		3,		400,		{ NO,		WORSE,	BETTER,	NO,		NO,		WORSE,	WORSE,	WORSE,	NO,		},},
-	/*Paladin     */{	TV_MIRACLES_BOOK,	0,		A_WIS,	1,		1,		400,		{ BETTER,	NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		},},
-	/*Warrior-Mage*/{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		350,		{ WORSE,	WORSE,	WORSE,	WORSE,	WORSE,	WORSE,	SUPER,	WORSE,	WORSE,  },},
-	/*Hell Knight */{	TV_MIRACLES_BOOK,	0,		A_INT,	1,		2,		400,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		BETTER, },},
-	/*Mystic      */{	TV_MIRACLES_BOOK,	0,		A_WIS,	0,		1,		300,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		SUPER,	NO,		},},
-	/*Mindcrafter */{	TV_MIRACLES_BOOK,	0,		A_WIS,	0,		99,		300,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		},},
-	/*High Mage   */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		300,		{ BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER, },},
-	/*Druid       */{	TV_MIRACLES_BOOK,	0,		A_WIS,	1,		1,		350,		{ NO,		NO,		SUPER,	NO,		NO,		NO,		NO,		NO,		NO,		},},
-	/*Warlock     */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		300,		{ WORSE,	WORSE,	WORSE,	BETTER,	WORSE,	WORSE,	WORSE,	WORSE,	BETTER, },},
+	/*Warrior      */{	0,					0,		A_STR,	0,		99,		0,			{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		},},
+	/*Mage         */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		300,		{ SAME,		SAME,	SAME,	SAME,	SAME,	SAME,	SAME,	SAME,	SAME,	},},
+	/*Rogue        */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		5,		350,		{ POOR,		SAME,	POOR,	SAME,	BETTER,	BETTER,	BETTER,	WORSE,	WORSE,	},},
+	/*Priest       */{	TV_MIRACLES_BOOK,	0,		A_WIS,	1,		1,		350,		{ SUPER,	WORSE,	SAME,	WORSE,	SUPER,	WORSE,	WORSE,	WORSE,	POOR,	},},
+	/*Ranger       */{	TV_MIRACLES_BOOK,	0,		A_INT,	0,		3,		400,		{ NO,		WORSE,	BETTER,	NO,		NO,		WORSE,	WORSE,	WORSE,	NO,		},},
+	/*Paladin      */{	TV_MIRACLES_BOOK,	0,		A_WIS,	1,		1,		400,		{ BETTER,	NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		},},
+	/*Black Knight */{	TV_MIRACLES_BOOK,	0,		A_INT,	1,		2,		400,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		BETTER, },},
+	/*Chaos Knight */{	TV_MIRACLES_BOOK,	0,		A_INT,	1,		2,		400,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		BETTER, },},
+	/*Hell Knight  */{	TV_MIRACLES_BOOK,	0,		A_INT,	1,		2,		400,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		BETTER, },},
+	/*Warrior-Mage */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		350,		{ WORSE,	WORSE,	WORSE,	WORSE,	WORSE,	WORSE,	SUPER,	WORSE,	WORSE,  },},
+	/*High Mage    */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		300,		{ BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER,	BETTER, },},
+	/*Blood Mage   */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		300,		{ NO,	    NO,	    NO,	    BETTER,	BETTER,	NO,	    NO,	    NO,  	BETTER, },},
+	/*Warlock      */{	TV_SORCERY_BOOK,	0,		A_INT,	0,		1,		300,		{ WORSE,	WORSE,	WORSE,	BETTER,	WORSE,	WORSE,	WORSE,	WORSE,	BETTER, },},
+	/*Mystic       */{	TV_MIRACLES_BOOK,	0,		A_WIS,	0,		1,		300,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		SUPER,	NO,		},},
+	/*Orphic       */{	TV_MIRACLES_BOOK,	0,		A_WIS,	0,		99,		300,		{ NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		NO,		},},
+	/*Druid        */{	TV_MIRACLES_BOOK,	0,		A_WIS,	1,		1,		350,		{ NO,		NO,		SUPER,	NO,		NO,		NO,		NO,		NO,		NO,		},},
 };
 
 u16b realm_choices[MAX_CLASS][2]=
 {
-	/* Warrior */      { (CH_NONE)                , (CH_NONE) },
-	/* Mage */         { (CH_ALL)                 , (CH_ALL) },
-	/* Priest */       { (CH_MIRACLES | CH_DEATH) ,  CH_ALL - (CH_MIRACLES | CH_DEATH) },
-	/* Rogue */        { (CH_ALL)                 , (CH_NONE) },
-	/* Ranger */       { (CH_NATURE)              , (CH_TAROT | CH_CHARMS | CH_SOMATIC | CH_SORCERY) },
-	/* Paladin */      { (CH_MIRACLES | CH_DEATH) , (CH_NONE) },
-	/* Warrior-Mage */ { (CH_CHARMS)              ,  CH_ALL - CH_CHARMS },
-	/* Hell Knight */  { (CH_DEMONIC)             , (CH_NONE) },
-	/* Mystic */       { (CH_SOMATIC)             , (CH_NONE) },
-	/* Mindcrafter */  { (CH_NONE)                , (CH_NONE) },
-	/* High Mage */    { (CH_ALL)                 , (CH_NONE) },
-	/* Druid */        { (CH_NATURE)              , (CH_NONE) },
-	/* Warlock */      { (CH_DEMONIC)             ,  CH_ALL - CH_DEMONIC },
-};
-
-/* Class Sub-Names based on realm */
-cptr class_sub_name[MAX_CLASS][MAX_REALM+1] =
-{
-/* Warrior Default = No Magic*/
-/*	Default			Miracles		Sorcery		Nature		Chaos			Death			Tarot			Charms			Somatic        Demonic*/
-{	"Warrior",		"-",			"-",		"-",		"-",			"-",			"-",			"-",			"-",            "-" 			},
-{	"Mage",			"Mage",			"Mage",		"Mage",		"Mage",			"Mage",			"Mage",			"Mage",			"Mage",			"Mage"			},
-{	"Priest",		"Priest",		"-",		"-",		"-",			"Cultist",		"-",			"-",			"-",			"-"				},
-{	"Rogue",		"Rogue",		"Burglar",	"Rogue",	"Rogue",		"Assassin",		"Card Sharp",	"Thief",		"Rogue",		"Rogue"			},
-{	"Ranger",		"-",			"-",		"Ranger",	"-",			"-",			"-",			"-",			"-",			"-"				},
-{	"Paladin",		"Paladin",		"-",		"-",		"-",			"Death Knight", "-",			"-",			"-",			"-"				},
-{	"Warrior-Mage", "-",			"-",		"-",		"-",			"-",			"-",			"Warrior-Mage", "-",			"-"				},
-{	"Hell Knight",	"-",			"-",		"-",		"-",            "-",			"-",			"-",			"-",			"Hell Knight"	},
-{	"Mystic",		"-",			"-",		"-",		"-",			"-",			"-",			"-",			"Mystic",		"-"				},
-{	"Mindcrafter",	"-",			"-",		"-",		"-",			"-",			"-",			"-",			"-",			"-"				},
-{	"High-Mage",	"Vivimancer",	"Sorceror", "Naturist", "Warlock",		"Necromancer",	"Seer",			"Hedge Wizard",	"Zen Master",	"Warlock"		},
-{	"Druid",		"-",			"-",		"Druid",	"-",			"-",			"-",			"-",			"-",			"-"				},
-{   "Warlock",		"-",			"-",		"-",		"-",			"-",			"-",			"-",			"-",			"Warlock"		},
+	/* Warrior */      { (CH_NONE)                          , (CH_NONE) },
+	/* Mage */         { (CH_ALL)                           , (CH_ALL) },
+	/* Rogue */        { (CH_ALL)                           , (CH_NONE) },
+	/* Priest */       { (CH_MIRACLES | CH_DEATH)           ,  CH_ALL - (CH_MIRACLES | CH_DEATH) },
+	/* Ranger */       { (CH_NATURE)                        , (CH_TAROT | CH_CHARMS | CH_SOMATIC | CH_SORCERY) },
+	/* Paladin */      { (CH_MIRACLES)                      , (CH_NONE) },
+	/* Black Knight */ { (CH_DEATH)                         , (CH_NONE) },
+	/* Chaos Knight */ { (CH_CHAOS)                         , (CH_NONE) },
+	/* Hell Knight */  { (CH_DEMONIC)                       , (CH_NONE) },
+	/* Warrior-Mage */ { (CH_CHARMS)                        ,  CH_ALL - CH_CHARMS },
+	/* High Mage */    { (CH_ALL)                           , (CH_NONE) },
+	/* Blood Mage */   { (CH_DEATH | CH_DEMONIC | CH_CHAOS) , (CH_NONE) },
+	/* Warlock */      { (CH_DEMONIC)                       ,  CH_ALL - CH_DEMONIC },
+	/* Mystic */       { (CH_SOMATIC)                       , (CH_NONE) },
+	/* Orphic */       { (CH_NONE)                          , (CH_NONE) },
+	/* Druid */        { (CH_NATURE)                        , (CH_NONE) },
 };
 
 /*
@@ -969,18 +953,18 @@ byte spell_skill_level[50][5]={
 
 
 /*
- * This table contains the cost of the spells, the center column simply goes up from 1 to 25 
+ * This table contains the cost of the spells, the center column simply goes up from 1 to 25
  * and then shows the delta's for costs higher than 25
  * from left to right you see the worst progression to the best progression
  * technically I could have left out the middle column, but it makes it now easier to wrap your brain
  * around it.
  * So example : if a Miracle Spell cost 13 for mage, it would cost 9 for a palladin or a high-mage, 4 for a priest,
  * 15 for a warlock. 21 for a thief
- * Example 2 explaining last line : A miracle spell costing 100 for a mage , is 90 for high=mage and 
+ * Example 2 explaining last line : A miracle spell costing 100 for a mage , is 90 for high=mage and
  */
 int spell_skill_mana[26][5] = {
 	/* POOR WORSE MAGE BETTER SUPER */
-	{  2,   2,    1,   1,     1,}, 
+	{  2,   2,    1,   1,     1,},
 	{  4,   4,    2,   2,     2,},
 	{  5,   5,    3,   3,     2,},
 	{  6,   5,    4,   3,     2,},
@@ -1004,8 +988,8 @@ int spell_skill_mana[26][5] = {
 	{  33,  27,   22,  15,    10,},
 	{  34,  27,   23,  15,    12,},
 	{  34,  28,   24,  15,    12,},
-	{  35,  28,   25,  24,    14,}, 
-	{  10,  5,    0,  -10    -15,},   
+	{  35,  28,   25,  24,    14,},
+	{  10,  5,    0,  -10    -15,},
 };
 
 
@@ -1031,11 +1015,11 @@ realm_type realm_names[MAX_REALM+1] =
 	{ TV_DEMONIC_BOOK  , "Demonic"  , "& Book~ of the Damned #"    , "& Demonic Spellbook~ #" },
 };
 
-spell_type spells[MAX_REALM][32] = 
+spell_type spells[MAX_REALM][32] =
 {
 	/*Miracles */
 	{
-	{ 1, 1, 30, 4,      "Detect Evil",                  NULL,  "Detects all evil creatures that are nearby.",},    
+	{ 1, 1, 30, 4,      "Detect Evil",                  NULL,  "Detects all evil creatures that are nearby.",},
 	{ 3, 2, 35, 4,      "Cure Light Wounds",            "heal: 2d10",  "Cures you of 2d10 damage, and reduces bleeding.",},
 	{ 4, 3, 35, 4,      "Bless",                        "dur: 12+1d12",  "Blesses you, giving you a +5 bonus to armour class and a +10 bonus to hit.",},
 	{ 5, 5, 35, 4,      "Remove Fear",                  NULL,  "Stops you from being afraid.  ",},
@@ -1043,7 +1027,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 9, 8, 40, 4,      "Detect Traps and Secret Doors",NULL,  "Finds all traps, stairs and secret doors in your surrounding area.",},
 	{ 12, 12, 40, 3,    "Cure Medium Wounds",           "heal: 4d10",  "Cures you of 4d10 damage, and reduces bleeding.",},
 	{ 15, 14, 45, 3,    "Satisfy Hunger",               NULL,  "Removes all hunger, leaving you comfortably full.",},
-		
+
 	{ 16, 16, 45, 4,    "Remove Curse",                 NULL,  "Removes minor curses from carried objects, allowing them to be taken off.",},
 	{ 17, 17, 50, 4,    "Cure Poison",                  NULL,  "Removes all poison from your system.",},
 	{ 18, 18, 50, 4,    "Cure Critical Wounds",         "heal: 8d10",  "Heals 8d10 damage, and completely stops bleeding or stunning.",},
@@ -1052,7 +1036,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 23, 23, 50, 4,    "Protection from Evil",         "dur: 1d25+3*PLEV",  "Puts up a barrier around yourself that has a chance of stopping attacks from evil creatures.",},
 	{ 30, 30, 55, 5,    "Healing",                      "heal: 300",  "Heals 300 damage and completely stops bleeding and stunning.",},
 	{ 35, 70, 75, 5,    "Glyph of Warding",             NULL,  "Places a rune on the floor that many creatures will be unable to pass",},
-		
+
 	{ 26, 30, 50, 75,   "Exorcism",                     "dam: PLEV",  "Banishes demons and undead, and scares other evil creatures.",},
 	{ 28, 25, 70, 150,  "Dispel Curse",                 NULL,  "Removes more powerful curses from carried objects.",},
 	{ 33, 33, 60, 75,   "Dispel Undead & Demons",       "dam: PLEV*3",  "Triple strength banishment against undead and demonic creatures.",},
@@ -1061,7 +1045,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 35, 55, 80, 115,  "Banish",                       "dam: 100",  "Teleports away all nearby evil creatures to elsewhere on the level.",},
 	{ 39, 40, 80, 125,  "Holy Word",                    "dam: PLEV*4; heal: 1000",  "Banishes evil, heals 1000 damage, removes bleeding, fear, poison and stunning.",},
 	{ 46, 70, 80, 150,  "Warding True",                 NULL,  "Surrounds you with Glyphs of Warding.",},
-		
+
 	{ 9, 9, 50, 40,     "Heroism",                      "dur: 1d25+25; heal: 10",  "Gives you a +12 bonus to hit, 10 extra hit points and protection from fear.",},
 	{ 25, 25, 50, 50,   "Prayer",                       "dur: 1d48+48",  "Like Bless, except that it lasts longer.",},
 	{ 35, 85, 80, 115,  "Bless Weapon",                 NULL,  "Makes a weapon blessed - and thus usable by priests. This also removes any curse on the weapon. It is dangerous to use this spell on artifacts, as it may damage them.",},
@@ -1069,10 +1053,10 @@ spell_type spells[MAX_REALM][32] =
 	{ 45, 90, 80, 115,  "Healing True",                 "heal: 2000",  "Heals 2000 damage, all bleeding and all stunning.",},
 	{ 48, 50, 80, 100,  "Holy Vision",                  NULL,  "Fully identifies an item",},
 	{ 49, 100, 80, 250, "Divine Intervention",          "heal: 300; dam: PLEV*4",  "This banishes, stuns, confuses, scares, slows and paralyses monsters that surround you, as well as healing you and hasting you to allow you a retreat.",},
-	{ 50, 100, 80, 250, "Holy Invulnerability",         "dur: 7+1d7",  "Makes you completely immune to damage for a short period of time.",}, 
+	{ 50, 100, 80, 250, "Holy Invulnerability",         "dur: 7+1d7",  "Makes you completely immune to damage for a short period of time.",},
 	},
 	/*Sorcery*/
-	{                                                                 
+	{
 	{ 1, 1, 23, 4,      "Detect Monsters",              NULL,  "Detects the presence of all monsters in the nearby area.",},
 	{ 1, 2, 24, 4,      "Phase Door",                   "range: 10",  "Teleports you to a random location within 10o'",},
 	{ 3, 3, 25, 1,      "Detect Doors and Traps",       NULL,  "Reveals any doors, stairs and traps that are in the nearby area.",},
@@ -1081,7 +1065,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 5, 5, 35, 5,      "Teleport",                     "range : PLEV*5",  "Teleports you to a random location on the level.",},
 	{ 6, 5, 30, 4,      "Sleep Monster",                NULL,  "Sends a nearby monster to sleep.",},
 	{ 7, 7, 75, 9,      "Recharging",                   NULL,  "Recharges a wand, rod or staff.",},
-		
+
 	{ 9, 7, 75, 8,      "Magic Mapping",                NULL,  "Reveals the layout of your nearby surroundings.",},
 	{ 10, 7, 75, 8,     "Identify",                     NULL,  "Identifies the basic abilities of an item.",},
 	{ 11, 7, 75, 7,     "Slow Monster",                 NULL,  "Slows down the movement and attacks of a nearby monster.",},
@@ -1090,7 +1074,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 22, 12, 60, 8,    "Haste Self",                   "dur: 1d(20+PLEV)+PLEV",  "Speeds your movement for a limited duration. ",},
 	{ 28, 20, 70, 15,   "Detection True",               NULL,  "Detects secret doors, stairs, traps, treasure, objects and monsters (including invisible ones).",},
 	{ 33, 30, 75, 20,   "Identify True",                NULL,  "Fully identifies an item.",},
-		
+
 	{ 3, 3, 25, 15,     "Detect Objects and Treasure",  NULL,  "Reveals the location of all objects and money. ",},
 	{ 10, 10, 70, 40,   "Detect Enchantment",           NULL,  "Reveals the location of magical items.",},
 	{ 10, 10, 80, 40,   "Charm Monster",                NULL,  "Makes a nearby monster friendly.",},
@@ -1099,7 +1083,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 20, 18, 85, 50,   "Self Knowledge",               NULL,  "Reveals knowledge about yourself and your abilities (including those given by items).",},
 	{ 20, 18, 60, 25,   "Teleport Level",               NULL,  "Teleports you completely off the level - either to the level below or the level above.",},
 	{ 25, 25, 75, 19,   "Word of Recall",               "delay: 15+1d21",  "Teleports you back to the town, or - if you are in the town - back to the deepest level you have explored.",},
-		
+
 	{ 10, 10, 40, 20,   "Stasis",                       NULL,  "Freezes a monster in time, preventing it from taking any actions for a while.",},
 	{ 25, 25, 75, 70,   "Telekinesis",                  "weight: PLEV*15/10",  "Picks up an object from a distance. ",},
 	{ 25, 30, 95, 160,  "Explosive Rune",               "dam: 7d7+PLEV/2",  "Leaves a rune on the floor that will explode when a creature walks over it.",},
@@ -1107,7 +1091,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 40, 80, 95, 200,  "Enchant Weapon",               NULL,  "Increases the magical bonuses on your weapon.",},
 	{ 40, 100, 95, 200, "Enchant Armour",               NULL,  "Increases the magical bonuses on a piece of your armour.",},
 	{ 42, 50, 90, 175,  "Alchemy",                      NULL,  "Turns an item to gold, giving you approximately a third of the amount you would be able to get by selling it.",},
-	{ 45, 70, 75, 250,  "Globe of Invulnerability",     "dur: 8+1d8",  "Makes you completely immune to damage for a short while.",}, 
+	{ 45, 70, 75, 250,  "Globe of Invulnerability",     "dur: 8+1d8",  "Makes you completely immune to damage for a short while.",},
 	},
 	/*Nature*/
 	{
@@ -1119,7 +1103,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 4, 5, 50, 5,      "Animal Taming",                "charm: PLEV",  "Makes an animal your friend.",},
 	{ 5, 5, 50, 5,      "Resist Environment",           "dur: 20+1d20",  "Gives you a temporary resistance to cold, fire and electricity.",},
 	{ 5, 5, 35, 4,      "Cure Cuts & Poison",			NULL,  "Removes all poison and bleeding.",},
-		
+
 	{ 5, 5, 40, 6,      "Stone to Mud",                 NULL,  "Turns a square of rock into loose mud, effectively removing it.",},
 	{ 5, 5, 30, 6,      "Lightning Bolt",               "dam: (3+((PLEV-5)/4))d8",  "Fires a bolt of lightning doing electricity damage.",},
 	{ 7, 6, 45, 6,      "Nature Awareness",             NULL,  "Reveals the layout of the local area, as well as finding secret doors, stairs and traps. Also reveals the location of any nearby monsters.",},
@@ -1128,7 +1112,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 19, 12, 55, 8,    "Entangle",                     NULL,  "Causes vines to grow from the floor, slowing all nearby monsters.",},
 	{ 25, 25, 90, 50,   "Summon Animal",                NULL,  "Summons an animal ally to help you.",},
 	{ 40, 100, 95, 50,  "Herbal Healing",               "heal: 1000",  "Cures 1000 damage, and removes bleeding, poison and stunning.",},
-		
+
 	{ 7, 7, 20, 28,     "Door Building",                NULL,  "Makes a door to protect you from anything which might be following you.",},
 	{ 9, 12, 40, 44,    "Stair Building",               NULL,  "Creates a staircase at your feet for quick escape.",},
 	{ 10, 12, 75, 120,  "Stone Skin",                   "dur: 1d20+30",  "Adds 50 to your armour class for a short while.",},
@@ -1137,7 +1121,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 37, 40, 90, 200,  "Stone Tell",                   NULL,  "Fully identifies an item.",},
 	{ 38, 45, 75, 200,  "Wall of Stone",                NULL,  "Creates a wall of stone to protect you from anything which might be following you.",},
 	{ 40, 90, 90, 250,  "Protect from Corrosion",       NULL,  "Permanently protects an item from acid damage.",},
-		
+
 	{ 20, 18, 60, 25,   "Earthquake",                   "rad: 10",  "Creates a large earthquake centered on your location, strong enough to collapse the roof. You are protected from the effects of this spell, safe in the epicenter.",},
 	{ 23, 23, 80, 50,   "Whirlwind Attack",             NULL,  "Allows you to attack all adjacent creatures in melee.",},
 	{ 25, 25, 75, 29,   "Blizzard",                     "dam: 70+PLEV;rad: (PLEV/12)+1",  "Creates a ball of frost, dealing cold damage.",},
@@ -1157,7 +1141,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 13, 9, 45, 6,     "Fire Bolt",                    "dam: (8+((PLEV-5)/4))d8", "Fires a bolt of flame that does fire damage.",},
 	{ 14, 9, 45, 6,     "Fist of Force",                "dam: (8+((PLEV-5)/4))d8", "Fires a bolt of pure force, that can disintegrate what it touches.",},
 	{ 15, 9, 35, 5,     "Teleport Self",                NULL, "Teleports you to a random place on the level.",},
-		
+
 	{ 17, 10, 25, 5,    "Wonder",                       NULL, "Creates a random (but often useful) chaotic effect. The more powerful you are, the more useful the effect is likely to be.",},
 	{ 19, 12, 45, 9,    "Chaos Bolt",                   "dam: (10+((PLEV-5)/4))d8", "Fires a bolt of raw chaos.",},
 	{ 21, 13, 45, 10,   "Sonic Boom",                   "dam: PLEV+45", "Fires a ball of sound.",},
@@ -1166,16 +1150,16 @@ spell_type spells[MAX_REALM][32] =
 	{ 25, 18, 60, 8,    "Teleport Other",               NULL, "Teleports the targeted creature to somewhere random on the level.",},
 	{ 30, 20, 80, 15,   "Word of Destruction",          "rad:15", "Causes the roof to collapse around you, much like the effects of an earthquake.",},
 	{ 35, 40, 85, 40,   "Invoke Primal Chaos",          "dam: PLEV+66", "Fires a ball of raw chaos.",},
-		
+
 	{ 11, 7, 45, 9,     "Polymorph Other",              NULL, "Turns the target into a random creature.",},
 	{ 15, 15, 80, 35,   "Chain Lightning",              "dam: (5+(PLEV/10))d8", "Fires bolts of lightning in eight directions, doing electricity damage.",},
 	{ 16, 14, 80, 35,   "Arcane Binding",               NULL, "Recharges a wand, staff or rod.",},
-	{ 25, 25, 85, 100,   "Disintegrate",                "dam: PLEV+80; rad: 3+PLEV/40", "Fires a powerful beam of disintegrating energy.",},
+	{ 25, 25, 85, 100,  "Disintegrate",                 "dam: PLEV+80; rad: 3+PLEV/40", "Fires a powerful beam of disintegrating energy.",},
 	{ 30, 25, 85, 150,  "Alter Reality",                NULL, "Completely alters reality, placing you in a different (but similar depth) dungeon level.",},
 	{ 42, 50, 85, 250,  "Polymorph Self",               NULL, "Invokes chaos into your own body, warping it in a random way.",},
 	{ 45, 90, 80, 250,  "Chaos Branding",               NULL, "Invokes chaos into your weapon, changing it.",},
 	{ 47, 100, 90, 250, "Summon Demon",                 NULL, "Summons a friendly demon to help you.",},
-		
+
 	{ 20, 20, 66, 8,    "Beam of Gravity",              "dam: (9+((PLEV-5)/4))d8", "Fires a beam of elemental gravity.",},
 	{ 35, 32, 85, 35,   "Meteor Swarm",                 "dam: (3*PLEV)/2;each: -1", "Makes a number of meteors appear and explode in your vicinity.",},
 	{ 37, 34, 75, 40,   "Flame Strike",                 "dam: 150+2*PLEV", "Fires an intense ball of flame, doing massive amounts of fire damage.",},
@@ -1183,7 +1167,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 43, 44, 80, 150,  "Shard Ball",                   "dam: 120+PLEV; rad:2", "Fires a ball of sharp shards of metal and stone.",},
 	{ 45, 48, 85, 200,  "Mana Storm",                   "dam: 300+PLEV*2; rad: 4", "Fires a ball of extreme magical energy.",},
 	{ 47, 75, 80, 200,  "Breathe Primal Chaos",         "dam: CHP; rad: 2", "Makes you breathe a huge gout of raw chaos.",},
-	{ 49, 100, 85, 250, "Call the Void",                "dam: 175; times: 3", "Invokes an extremely destructive series of explosions around yourself that might be very dangerous in an enclosed area.",},    
+	{ 49, 100, 85, 250, "Call the Void",                "dam: 175; times: 3", "Invokes an extremely destructive series of explosions around yourself that might be very dangerous in an enclosed area.",},
 	},
 	/*Death*/
 	{
@@ -1195,7 +1179,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 7, 10, 75, 6,     "Resist Poison",                "dur: 1d20+20",  "Gives you a temporary resistance to poison.",},
 	{ 9, 9, 30, 4,      "Horrify",                      "scare: PLEV",  "Scares and stuns a nearby monster.",},
 	{ 10, 10, 30, 4,    "Enslave Undead",               "charm: PLEV",  "Makes an undead your friend.",},
-		
+
 	{ 12, 12, 40, 5,    "Orb of Entropy",               "dam: 3d6+ORB",  "Fires a life draining ball of energy.",},
 	{ 13, 12, 30, 4,    "Nether Bolt",                  "dam: (6+((PLEV-5)/4))d8",  "Fires a bolt of nether.",},
 	{ 18, 15, 50, 10,   "Terror",                       "scare: PLEV+30",  "Scares away all nearby monsters.",},
@@ -1204,7 +1188,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 33, 35, 60, 16,   "Dispel Good",                  "dam: PLEV*4",  "Banishes good creatures.",},
 	{ 37, 25, 95, 25,   "Genocide",                     NULL,  "Destroys all creatures of a chosen type on a level. Unique creatures are teleported off the level, rather than destroyed. You get no experience for monsters killed with Genocide.",},
 	{ 45, 50, 95, 150,  "Restore Life",                 NULL,  "Restores any drained experience you have.",},
-		
+
 	{ 10, 20, 80, 180,  "Berserk",                      "dur: 25+1d25; heal:30",  "Sends you berserk giving you 30 extra hit points, +24 to hit and -10 to armour class.",},
 	{ 10, 15, 80, 30,   "Invoke Spirits",               NULL,  "Has a random (but usually beneficial) effect. The higher level you are, the more likely it is to be useful.",},
 	{ 11, 11, 30, 15,   "Dark Bolt",                    "dam: (4+((PLEV-5)/4))d8",  "Fires a bolt of darkness.",},
@@ -1213,7 +1197,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 33, 90, 70, 90,   "Vampiric Branding",            NULL,  "Permanently turns your weapon into a life-draining vampiric blade.",},
 	{ 40, 40, 70, 200,  "Darkness Storm",               "dam:120; rad:4",  "Fires a ball of darkness.",},
 	{ 40, 75, 80, 100,  "Mass Genocide",                NULL,  "Destroys all non-unique creatures on the level. You get no experience for monsters killed with Mass Genocide.",},
-		
+
 	{ 20, 20, 75, 50,   "Death Ray",                    "dam : PLEV",  "Fires a ray that will kill almost any living creature.",},
 	{ 25, 66, 95, 250,  "Raise the Dead",               NULL,  "Creates undead servants to help you.",},
 	{ 30, 40, 95, 250,  "Esoteria",                     NULL,  "Identifies (with varying accuracy) an item you are carrying.",},
@@ -1233,7 +1217,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 9, 9, 60, 6,      "Sleight of Hand",				"range: PLEV+2",  "Teleports you to a nearby location that you specify.",},
 	{ 14, 12, 60, 6,    "The High Priestess",			"dur: 25+1d30",  "Gives you temporary ESP.",},
 	{ 17, 15, 60, 5,    "The Chariot",					"range: PLEV",  "Teleports a creature to a random place on the level.",},
-		
+
 	{ 20, 20, 80, 8,    "The Wheel of Fortune",			"weight:  PLEV*15/10",  "Teleports a nearby object to your hand.",},
 	{ 23, 5,  50, 5,    "Temperance",					"dur: 20+1d20",  "Gives you a temporary resistance to cold, fire and electricity.",},
 	{ 28, 24, 60, 8,    "King of Swords",				NULL,  "Summons a demon to serve you.",},
@@ -1242,7 +1226,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 35, 30, 70, 10,   "The Hermit",					NULL,  "Teleports you off the level you are on, onto either the one above or the one below.",},
 	{ 40, 35, 80, 15,   "Search for the Self",			"delay: 15+1d21",  "Teleports you back to the town, or - if you are in the town - down to the deepest dungeon level that you have yet visited.",},
 	{ 42, 40, 70, 12,   "Shuffle",						NULL,  "Teleports all nearby monsters to elsewhere on the level.",},
-		
+
 	{ 15, 15, 80, 20,   "Ink Blot",						NULL,  "Summons a bizarre creature to help you.",},
 	{ 24, 24, 70, 25,   "The Star",						"heal: 150",  "Heals 150 damage and completely stops bleeding or stunning.",},
 	{ 26, 26, 70, 30,   "Fortitude",					"dur: PLEV",  "Blesses and also hastes you for a short while.",},
@@ -1251,7 +1235,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 40, 100, 90, 250, "Tarot Ascension",				NULL,  "Attunes you with the planes, altering your body.",},
 	{ 42, 50, 50, 75,   "Death",						"dispel: PLEV*3",  "Banishes all nearby living creatures.",},
 	{ 45, 100, 90, 200, "The Devil",					NULL,  "Summons devils to help you.",},
-		
+
 	{ 30, 30, 60, 50,   "Read The Lay",					NULL,  "Detects secret doors, stairs, traps, treasure, objects and monsters (including invisible ones).",},
 	{ 35, 50, 90, 100,  "The Magician",					NULL,  "Fully identifies an item.",},
 	{ 36, 80, 80, 150,  "Patter",						"dam: 200; rad:5",  "Confuse surrounding monsters.",},
@@ -1271,7 +1255,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 4, 4, 40, 6,      "Light Area",					"dam: 2d(PLEV/2)",  "Permanently lights the nearby area, possibly damaging creatures.",},
 	{ 5, 5, 33, 7,      "Trap & Door Destruction",		NULL,  "Destroys any adjacent doors or traps.",},
 	{ 6, 5, 44, 5,      "Cure Light Wounds",			"heal: 2d8",  "Heals 2d8 damage and reduces bleeding.",},
-		
+
 	{ 7, 6, 40, 7,      "Detect Doors & Traps",			NULL,  "Detects all nearby secret doors, traps and stairs.",},
 	{ 8, 8, 60, 7,      "Phlogiston",					NULL,  "Provides extra fuel for a light source.",},
 	{ 9, 8, 50, 6,      "Detect Treasure",				NULL,  "Detects nearby money and seams of treasure.",},
@@ -1280,7 +1264,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 11, 10, 50, 6,    "Cure Poison",					NULL,  "Removes all poison from your system.",},
 	{ 12, 12, 50, 5,    "Resist Cold",					"dur: 1d20+20",  "Provides a temporary resistance to cold.",},
 	{ 13, 12, 50, 5,    "Resist Fire",					"dur: 1d20+20",  "Provides a temporary resistance to fire.",},
-		
+
 	{ 14, 12, 50, 5,    "Resist Lightning",				"dur: 1d20+20",  "Provides a temporary resistance to electricity.",},
 	{ 15, 12, 50, 5,    "Resist Acid",					"dur: 1d20+20",  "Provides a temporary resistance to acid.",},
 	{ 16, 14, 33, 6,    "Cure Medium Wounds",			"heal: 4d8",  "Cures 4d8 damage and severely reduces bleeding.",},
@@ -1289,7 +1273,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 23, 18, 60, 9,    "Ray of Light",					"dam: 6d8",  "Creates a beam of permanent light, possibly damaging creatures.",},
 	{ 25, 20, 70, 12,   "Satisfy Hunger",				NULL,  "Removes all hunger, leaving you comfortably full.",},
 	{ 25, 20, 60, 13,   "See Invisible",				"dur: 1d24+24",  "Allows you to see invisible creatures for a short while.",},
-		
+
 	{ 28, 25, 70, 30,   "Recharging",					NULL,  "Recharges a wand, staff or rod.",},
 	{ 35, 35, 80, 25,   "Teleport Level",				NULL,  "Teleports you off the level you are on, onto either the one above or the one below.",},
 	{ 38, 30, 60, 25,   "Identify",						NULL,  "Identifies the basic abilities of an item.",},
@@ -1297,10 +1281,10 @@ spell_type spells[MAX_REALM][32] =
 	{ 41, 30, 66, 30,   "Elemental Ball",				"dam: 75+PLEV;rad: 2",  "Fires a ball of a random element (fire, cold, acid of electricity).",},
 	{ 42, 30, 80, 40,   "Detection",					NULL,  "Detects secret doors, stairs, traps, treasure, objects and monsters (including invisible ones).",},
 	{ 45, 50, 70, 50,   "Word of Recall",				"delay: 15+1d21",  "Teleports you back to the town, or - if you are in the town - back to the deepest level you have explored.",},
-	{ 49, 100, 80, 200, "Clairvoyance",					"dur: 1d30+25",  "Gives you temporary ESP.",},  
+	{ 49, 100, 80, 200, "Clairvoyance",					"dur: 1d30+25",  "Gives you temporary ESP.",},
 	},
 	/*Somatic*/
-	{                                            
+	{
 	{ 1, 1, 23, 4,      "Cure Light Wounds",			"heal: 2d10",  "Heals 2d10 damage and reduces bleeding.",},
 	{ 1, 2, 24, 4,      "Shift",						"range: 10",  "Teleports you to a random nearby location.",},
 	{ 3, 3, 25, 1,      "Embrace Fear",					NULL,  "Stops you being afraid.",},
@@ -1309,7 +1293,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 5, 5, 35, 5,      "Mind Vision",					"dur: 1d30+25",  "Gives you temporary ESP.",},
 	{ 6, 5, 30, 4,      "Cure Medium Wounds",			"heal: 4d10",  "Cures 4d10 damage and severely reduces bleeding.",},
 	{ 7, 7, 75, 9,      "Satisfy Hunger",				NULL,  "Removes all hunger, leaving you comfortably full.",},
-		
+
 	{ 9, 7, 75, 8,      "Burn Resistance",				"dur: 1d20+20",  "Gives you temporary resistance to fire, acid and electricity.",},
 	{ 10, 7, 75, 8,     "Detoxify",						NULL,  "Removes all poison from your system.",},
 	{ 11, 7, 75, 7,     "Cure Critical Wounds",			"heal: 8d10",  "Heals 8d10 damage, and completely stops bleeding or stunning.",},
@@ -1318,7 +1302,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 22, 12, 60, 8,    "Haste",						"dur: 1d(PLEV+20)+PLEV",  "Temporarily speeds up your movement.",},
 	{ 28, 20, 70, 15,   "Healing",						"heal: 300",  "Heals 300 damage and completely stops bleeding and stunning.",},
 	{ 33, 30, 75, 20,   "Resist True",					"dur: 1d25+25",  "Gives you a temporary resistance to acid, cold, fire, electricity and poison.",},
-		
+
 	{ 3, 3, 25, 15,     "Horrific Visage",				"scare: PLEV",  "Scares and stuns a nearby monster.",},
 	{ 10, 10, 70, 40,   "See Magic",					NULL,  "Detects nearby magical items.",},
 	{ 10, 10, 80, 40,   "Stone Skin",					"dur: 1d20+30",  "Adds 50 to your armour class for a short while.",},
@@ -1327,7 +1311,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 20, 18, 85, 50,   "Know Self",					NULL,  "Reveals knowledge about yourself and your abilities (including those given by items).",},
 	{ 20, 18, 60, 25,   "Teleport Level",				NULL,  "Teleports you off the level you are on, onto either the one above or the one below.",},
 	{ 25, 25, 75, 19,   "Word of Recall",				"delay: 15+1d21",  "Teleports you back to the town, or - if you are in the town - back to the deepest level you have explored.",},
-		
+
 	{ 10, 10, 40, 20,   "Heroism",						"dur: 1d25+25; heal:10",  "Makes you feel heroic, giving you a +12 bonus to hit and 10 extra hit points.Also removes all fear.",},
 	{ 25, 25, 75, 70,   "Wraithform",					"dur: 1d(PLEV/2)+1d(PLEV/2)",  "Temporarily makes you intangible so that you can walk through walls.",},
 	{ 25, 30, 95, 160,  "Attune to Magic",				NULL,  "Fully identifies an item.",},
@@ -1335,11 +1319,11 @@ spell_type spells[MAX_REALM][32] =
 	{ 40, 80, 95, 200,  "Healing True",					"heal: 2000",  "Heals 2000 damage, all bleeding and all stunning.",},
 	{ 40, 100, 95, 200, "Hypnotic Eyes",				"charm: PLEV",  "Makes a monster your friend.",},
 	{ 42, 50, 90, 175,  "Restore Soul",					NULL,  "Restores any drained experience.",},
-	{ 45, 70, 75, 250,  "Invulnerability",				"dur: 1d7+7",  "Makes you completely immune to damage for a short while.",},    
+	{ 45, 70, 75, 250,  "Invulnerability",				"dur: 1d7+7",  "Makes you completely immune to damage for a short while.",},
 	},
 	/*Demonic*/
 	{
-	{ 1,  3,  25, 4,    "Unholy Strength",				"dur: 1d25+25;dam: (PLEV/10)*5+5",  "+12 bonus to hit, 10 extra hit points, protection from fear at the cost of hitpoints",}, 
+	{ 1,  3,  25, 4,    "Unholy Strength",				"dur: 1d25+25;dam: (PLEV/10)*5+5",  "+12 bonus to hit, 10 extra hit points, protection from fear at the cost of hitpoints",},
 	{ 1,  1,  30, 4,    "Sense Evil",					NULL,  "Detects all evil creatures that are nearby.",},
 	{ 2,  2,  20, 4,    "Scorch",						"dam: (3+(PLEV - 1) / 5)d4",  "Fires a bolt of flame that does fire damage.",},
 	{ 4,  2,  30, 4,    "Perilous Shadows",				"dam: (3+(PLEV - 1) / 5)d4",  "Fires a bolt of darkness that does darkness damage.",},
@@ -1347,8 +1331,8 @@ spell_type spells[MAX_REALM][32] =
 	{ 14, 9,  45, 6,    "Disintegrate",					"dam: (8+((PLEV-5)/4))d8",  "Fires a bolt of pure force, that can disintegrate what it touches.",},
 	{ 25, 30, 95, 10,   "Demonic Sigil",				"dam: 7d7+PLEV/2",  "Leaves a rune on the floor that will explode when a creature walks over it.",},
 	{ 25, 30, 95, 10,   "Hecate's Radiance",			"charm: (PLEV/10)+1",  "Lights up your surrounding, causing monster to be charmed, confused or affraid.",},
-		
-	{10, 20, 80, 15,    "Abaddon's Rage",				"dur: 1d25+25",  "+ 5 AC, +22 to hit, 10 extra hit points, protection from fear",},   
+
+	{10, 20, 80, 15,    "Abaddon's Rage",				"dur: 1d25+25",  "+ 5 AC, +22 to hit, 10 extra hit points, protection from fear",},
 	{15,  1, 15, 15,    "Mind Leech",					NULL,  "Converts all your mana into physical health",},
 	{15,  1, 15, 15,    "Blood Leech",					NULL,  "Converts your health into mana, potentially leaving you with 1 hit point",},
 	{35, 70, 75, 5,     "Glyph of Warding",				NULL,  "Places a rune on the floor that many creatures will be unable to pass",},
@@ -1356,22 +1340,22 @@ spell_type spells[MAX_REALM][32] =
 	{37, 100, 80, 150,  "Summon Demons",				NULL,  "Summons Higher Demons to help you.",},
 	{37, 100, 80, 150,  "Summon the Fallen",			NULL,  "Summons Fallen Angels to help you.",},
 	{28, 20, 70, 15,    "Balm of the Cocytus",			"heal: 300; drain: -1; con: -1",  "Heals 300 damage and completely stops bleeding and stunning at the cost of your constitution.",},
-		
+
 	{ 20, 18, 60, 25,   "Araqiel's Wrath",				"rad: 8",  "Creates a large earthquake centered on your location, strong enough to collapse the roof. You are protected from the effects of this spell, safe in the epicenter.",},
-	{ 42, 100, 80, 200, "Kokabiel's Call",				NULL,  "Summons multiple spirits to help you.",},                             
+	{ 42, 100, 80, 200, "Kokabiel's Call",				NULL,  "Summons multiple spirits to help you.",},
 	{ 30, 40, 80, 120,  "Baraquiel's Guile",			NULL,  "Detects and pseudo-id's all magical items on the floor",},
-	{ 30, 25, 75, 50,   "Sariel's Ire",					"dur: 1d50+25",  "+12 bonus to hit, 10 extra hit points, protection from fear while in a magical shell.",},               
+	{ 30, 25, 75, 50,   "Sariel's Ire",					"dur: 1d50+25",  "+12 bonus to hit, 10 extra hit points, protection from fear while in a magical shell.",},
 	{ 33, 35, 60, 125,  "Azazel's Rule",				NULL,  "Charm all goats on the entire level",},
 	{ 40, 40, 70, 200,  "Danel's Deluge",				"dam: 3d6+PLEV+PLEV/3",  "Radiate strong sunlight.",},
 	{ 40, 75, 80, 100,  "Amaros' Grief",				"dam: PLEV*4",  "Banish all Demons, Devils and Fallen Angels",},
-	{ 40, 40, 80, 120,  "Teachings of Kasyade",			NULL,  "Light up the entire level"},    
-		
-	{ 12, 12, 40, 5,    "Orb of Impending Doom",		"dam: 3d6+ORB+PLEV",  "Fires a damaging ball of hellfire.",},     
+	{ 40, 40, 80, 120,  "Teachings of Kasyade",			NULL,  "Light up the entire level"},
+
+	{ 12, 12, 40, 5,    "Orb of Impending Doom",		"dam: 3d6+ORB+PLEV",  "Fires a damaging ball of hellfire.",},
 	{ 15, 5, 50, 5,     "Temperance",					"dur: 1d50+50",  "Resist fire and cold.",},
 	{ 46, 70, 80, 150,  "True Warding",					NULL,  "Surrounds you with Glyphs of Warding.",},
 	{ 30, 20, 80, 15,   "Word of Destruction",			"rad: 15",  "Causes the roof to collapse around you, much like the effects of an earthquake.",},
-	{ 40, 100, 95, 200, "Gift of Malphas ",				NULL,  "Not done yet",},     
-	{ 40, 100, 95, 200, "Kiss of Lillith",				"charm: PLEV*4",  "Quadriple charm attack on all monsters around you.",},
+	{ 40, 100, 95, 200, "Gift of Malphas ",				NULL,  "Not done yet",},
+	{ 40, 100, 95, 200, "Kiss of Lilith",				"charm: PLEV*4",  "Quadriple charm attack on all monsters around you.",},
 	{ 40, 100, 95, 200, "Behemoth's Call",				"rad: 16",  "Flood the dungeon with its items and monsters around you.",},
 	{ 47, 75, 80, 200,  "Chaos Rift",					"dam: MHP;rad: 2",  "Creates a huge rift causing Primal Chaos damage."},
 	}
@@ -1461,19 +1445,22 @@ byte chest_traps[64] =
 */
 cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 {
-/* Warrior */		{"Rookie",		"Soldier",		"Mercenary",	"Veteran",		"Swordsman",	"Champion",		"Hero",			"Baron",			"Duke",				"Lord",},
-/* Mage*/			{"Neophyte",	"Trickster",	"Green Mage",	"Spellbinder",	"High Mage",	"High Mage",	"Magister",		"Magus",			"Ipsissimus",		"Arch Mage",},
-/* Priest */		{"Believer",	"Acolyte",		"Adept",		"Curate",		"Canon",		"Priest",		"High Priest",	"Cardinal",			"Inquisitor",		"Heir",},
-/* Rogues */		{"Cutpurse",	"Robber",		"Burglar",		"Filcher",		"Sharper",		"Low Thief",	"High Thief",	"Master Thief",		"Assassin",			"Guildmaster",},
-/* Rangers */		{"Runner",		"Strider",		"Scout",		"Courser",		"Tracker",		"Guide",		"Pathfinder",	"Low Ranger",		"High Ranger",		"Ranger Lord",},
-/* Paladins */		{"Gallant",		"Keeper",		"Protector",	"Defender",		"Warder",		"Knight",		"Guardian",		"Low Paladin",		"High Paladin",		"Paladin Lord",},
-/* Warrior-Mage */	{"Novice",		"Apprentice",	"Journeyman",	"Veteran",		"Enchanter",	"Champion",		"Mage-Hero",	"Baron Mage",		"Battlemage",		"Wizard Lord",},
-/* Hell Knight */	{"Apprentice",	"Initiate",		"Hell's Slave",	"Hell's Guard",	"Hell Knight",	"Hell Knight",	"Hell Knight",	"Hell Knight",		"Master Knight",	"First Knight",},
-/* Mystic */		{"Initiate",	"Brother",		"Disciple",		"Immaculate",	"Master",		"Soft Master",	"Hard Master",	"Flower Master",	"Dragon Master",	"Grand Master",},
-/* Mindcrafter */	{"Trainee",		"Acolyte",		"Adept",		"Immaculate",	"Contemplator",	"Mentalist",	"Psychic",		"Psionicist",		"Esper",			"Mindmaster",},
-/* High Mage*/		{"Neophyte",	"Trickster",	"Mage",			"Spellbinder",	"High Mage",	"High Mage",	"Magister",		"Magus",			"Ipsissimus",		"Arch Mage",},
-/* Druid */			{"Neophyte",	"Initiate",		"Adept",		"Lesser Druid",	"Druid",		"Druid",		"Oak Druid",	"Great Druid",		"Grand Druid",		"Arch Druid",},
-/* Warlock */		{"Apprentice",	"Initiate",		"Oath Breaker",	"Hell's Guard",	"Warlock",		"Warlock",		"Warlock",		"Warlock",			"Master Warlock",	"First Warlock",},
+/* Warrior */		{"Rookie",		"Soldier",		"Mercenary",	 "Veteran",       "Swordsman",    "Champion",     "Hero",         "Baron",         "Duke",           "Lord",          },
+/* Mage*/			{"Neophyte",	"Trickster",	"Green Mage",	 "Spellbinder",   "High Mage",    "High Mage",    "Magister",     "Magus",         "Ipsissimus",     "Arch Mage",     },
+/* Rogues */		{"Cutpurse",	"Robber",		"Burglar",		 "Filcher",       "Sharper",      "Low Thief",    "High Thief",   "Master Thief",  "Assassin",       "Guildmaster",   },
+/* Priest */		{"Believer",	"Acolyte",		"Adept",		 "Curate",        "Canon",        "Priest",       "High Priest",  "Cardinal",      "Inquisitor",     "Heir",          },
+/* Rangers */		{"Runner",		"Strider",		"Scout",		 "Courser",       "Tracker",      "Guide",        "Pathfinder",   "Low Ranger",    "High Ranger",    "Ranger Lord",   },
+/* Paladins */		{"Gallant",		"Keeper",		"Protector",	 "Defender",      "Warder",       "Knight",       "Guardian",     "Low Paladin",   "High Paladin",   "Paladin Lord",  },
+/* Black Knight */	{"Apprentice",	"Initiate",		"Death's Slave", "Death's Guard", "Black Knight", "Black Knight", "Black Knight", "Black Knight",  "Master Knight",	 "First Knight",  },
+/* Chaos Knight */	{"Apprentice",	"Initiate",		"Chaos Slave",	 "Chaos Guard",	  "Chaos Knight", "Chaos Knight", "Chaos Knight", "Chaos Knight",  "Master Knight",	 "First Knight" , },
+/* Hell Knight */	{"Apprentice",	"Initiate",		"Hell's Slave",	 "Hell's Guard",  "Hell Knight",  "Hell Knight",  "Hell Knight",  "Hell Knight",   "Master Knight",	 "First Knight" , },
+/* Warrior-Mage */	{"Novice",		"Apprentice",	"Journeyman",	 "Veteran",       "Enchanter",    "Champion",     "Mage-Hero",    "Baron Mage",    "Battlemage",     "Wizard Lord"  , },
+/* High Mage*/		{"Neophyte",	"Trickster",	"Mage",			 "Spellbinder",   "High Mage",    "High Mage",    "Magister",     "Magus",         "Ipsissimus",     "Arch Mage"    , },
+/* Blood Mage*/		{"Neophyte",	"Neophyte",		"Blood Mage",	 "Blood Mage",    "Blood Mage",   "Blood Mage",   "Magister",     "Magus",         "Magus",          "Arch Mage"    , },
+/* Warlock */		{"Apprentice",	"Initiate",		"Oath Breaker",	 "Hell's Guard",  "Warlock",      "Warlock",      "Warlock",      "Warlock",       "Master Warlock", "First Warlock", },
+/* Mystic */		{"Initiate",	"Brother",		"Disciple",		 "Immaculate",    "Master",       "Soft Master",  "Hard Master",  "Flower Master", "Dragon Master",  "Grand Master",  },
+/* Orphic */        {"Trainee",		"Acolyte",		"Adept",		 "Immaculate",    "Contemplator", "Mentalist",    "Psychic",      "Psionicist",    "Esper",          "Mindmaster",    },
+/* Druid */			{"Neophyte",	"Initiate",		"Adept",		 "Lesser Druid",  "Druid",        "Druid",        "Oak Druid",    "Great Druid",   "Grand Druid",    "Arch Druid",    },
 };
 
 /*
@@ -1502,6 +1489,7 @@ cptr colour_names[16] =
 cptr stat_names[STAT_COUNT]         = {"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHA: " }; /* Abbreviations of healthy stats */
 cptr stats_short[STAT_COUNT]        = {"STR"  , "INT"  , "WIS"  , "DEX"  , "CON"  , "CHA"   }; /* Yes, this is braindead, one day I will fix it */
 cptr stat_names_reduced[STAT_COUNT] = {"str: ", "int: ", "wis: ", "dex: ", "con: ", "cha: " }; /* Abbreviations of damaged stats */
+cptr desc_stat_neg[STAT_COUNT]      = {"weak", "stupid", "naive","clumsy","sickly","ugly"   }; /* Array of stat "descriptions */
 
 /*
 * Certain "screens" always use the main screen, including News, Birth,
@@ -1531,7 +1519,7 @@ NULL,
 "Display object recall",
 "Display visible monsters",
 "Display snap-shot",
-NULL,
+"Display visible items",
 NULL,
 "Display borg messages",
 "Display borg status",
@@ -1561,22 +1549,22 @@ option_type option_info[] =
 {
 /*** User-Interface ***/
 
-{ &rogue_like_commands, FALSE,	1,      0, 0,			"rogue_like_commands",          "Rogue-like commands" },
-{ &quick_messages,		TRUE,	1,      0, 1,			"quick_messages",               "Activate quick messages" },
-{ &other_query_flag,    FALSE,  1,      0, 2,			"other_query_flag",             "Prompt for item confirmation" },
-{ &carry_query_flag,    FALSE,  4,      0, 3,			"carry_query_flag",             "Prompt before picking things up" },
-{ &use_old_target,      FALSE,  3,      0, 4,			"use_old_target",               "Use old target by default" },
-{ &always_pickup,       TRUE,   4,      0, 5,			"always_pickup",                "Pick things up by default" },
-{ &always_repeat,       TRUE,   1,      0, 6,			"always_repeat",                "Repeat obvious commands" },
-{ &depth_in_feet,       FALSE,  1,      0, 7,			"depth_in_feet",                "Show dungeon level in feet" },
-{ &stack_force_notes,   TRUE,	4,      0, 8,			"stack_force_notes",			"Merge inscriptions when stacking" },
-{ &stack_force_costs,   TRUE,	4,      0, 9,			"stack_force_costs",			"Merge discounts when stacking" },
-{ &show_labels,         TRUE,   4,      0, 10,			"show_labels",                  "Show labels in object listings" },
-{ &show_weights,        TRUE,	4,      0, 11,			"show_weights",                 "Show weights in object listings" },
-{ &show_choices,        TRUE,	1,      0, 12,			"show_choices",                 "Show choices in certain sub-windows" },
-{ &show_details,        TRUE,	1,      0, 13,			"show_details",                 "Show description in monster details" },
-{ &ring_bell,           FALSE,  1,      0, 14,			"ring_bell",                    "Audible bell (on errors, etc)" },
-{ &use_colour,          TRUE,   1,      0, 15,			"use_colour",                   "Use colour if possible" },
+{ &rogue_like_commands, FALSE, 1,      0, 0,			"rogue_like_commands",          "Rogue-like commands" },
+{ &quick_messages,      TRUE,  1,      0, 1,			"quick_messages",               "Activate quick messages" },
+{ &other_query_flag,    FALSE, 1,      0, 2,			"other_query_flag",             "Prompt for item confirmation" },
+{ &carry_query_flag,    FALSE, 4,      0, 3,			"carry_query_flag",             "Prompt before picking things up" },
+{ &use_old_target,      FALSE, 3,      0, 4,			"use_old_target",               "Use old target by default" },
+{ &always_pickup,       TRUE,  4,      0, 5,			"always_pickup",                "Pick things up by default" },
+{ &always_repeat,       TRUE,  1,      0, 6,			"always_repeat",                "Repeat obvious commands" },
+{ &depth_in_feet,       FALSE, 1,      0, 7,			"depth_in_feet",                "Show dungeon level in feet" },
+{ &stack_force_notes,   TRUE,  4,      0, 8,			"stack_force_notes",			"Merge inscriptions when stacking" },
+{ &stack_force_costs,   TRUE,  4,      0, 9,			"stack_force_costs",			"Merge discounts when stacking" },
+{ &show_labels,         TRUE,  4,      0, 10,			"show_labels",                  "Show labels in object listings" },
+{ &show_weights,        TRUE,  4,      0, 11,			"show_weights",                 "Show weights in object listings" },
+{ &show_choices,        TRUE,  1,      0, 12,			"show_choices",                 "Show choices in certain sub-windows" },
+{ &show_details,        TRUE,  1,      0, 13,			"show_details",                 "Show description in monster details" },
+{ &ring_bell,           FALSE, 1,      0, 14,			"ring_bell",                    "Audible bell (on errors, etc)" },
+{ &use_colour,          TRUE,  1,      0, 15,			"use_colour",                   "Use colour if possible" },
 
 /*** Disturbance ***/
 
@@ -1653,20 +1641,19 @@ option_type option_info[] =
 { &use_autoroller,		FALSE,  7,		2, 20,			"use_autoroller",               "Stats are rolled repeatedly with minima" },
 { &spend_points,		TRUE,   7,		2, 21,			"spend_points",					"Stats are not rolled, points are spent on them" },
 { &ironman_shop,		FALSE,  7,		2, 22,			"ironman_shop",					"Shops (except for libraries) are locked" },
-{ &apply_k_storebought,	FALSE,  8,		2, 23,			"inscribe_shop",				"Apply {!k} on storebought items" },	
-{ &apply_k_discover,	FALSE,  8,		2, 24,			"inscribe_id",					"Apply {!k} on discovery of new item types" },	
-{ &sanity_store,		TRUE,   9,		2, 25,			"sanity_store",					"Keep storebought items" },	
-{ &sanity_speed,		TRUE,   9,		2, 26,			"sanity_speed",					"Keep items giving speed bonuses" },	
-{ &sanity_immune,		TRUE,   9,		2, 27,			"sanity_immune",				"Keep items giving immunity" },	
-{ &sanity_telepathy,	TRUE,   9,		2, 28,			"sanity_telepathy",				"Keep items giving telepathy" },	
-{ &sanity_high_resist,	TRUE,   9,		2, 29,			"sanity_high_resists",			"Keep items giving high resists" },	
-{ &sanity_stat,			TRUE,   9,		2, 30,			"sanity_stat",					"Keep items boosting stats" },	
-{ &sanity_verbose,		TRUE,   9,		2, 31,			"sanity_verbose",				"Inform when sanity checks are used" },	
-{ &sanity_id,			TRUE,   9,		3, 1,			"sanity_id",					"Keep unknown consumables" },			
-{ &sanity_realm,		TRUE,   9,		3, 0,			"sanity_realm",					"Keep books from own realm" },		
-{ &sanity_price,		TRUE,   9,		3, 1,			"sanity_price",					"Keep items worth more than x gold" },	
-{ &reverse_xp,          TRUE,   1,		3, 2,			"reverse_xp",					"Show xp untill next level" },		
-	
+{ &apply_k_storebought,	FALSE,  8,		2, 23,			"inscribe_shop",				"Apply {!k} on storebought items" },
+{ &apply_k_discover,	FALSE,  8,		2, 24,			"inscribe_id",					"Apply {!k} on discovery of new item types" },
+{ &sanity_store,		TRUE,   9,		2, 25,			"sanity_store",					"Keep storebought items" },
+{ &sanity_speed,		TRUE,   9,		2, 26,			"sanity_speed",					"Keep items giving speed bonuses" },
+{ &sanity_immune,		TRUE,   9,		2, 27,			"sanity_immune",				"Keep items giving immunity" },
+{ &sanity_telepathy,	TRUE,   9,		2, 28,			"sanity_telepathy",				"Keep items giving telepathy" },
+{ &sanity_high_resist,	TRUE,   9,		2, 29,			"sanity_high_resists",			"Keep items giving high resists" },
+{ &sanity_stat,			TRUE,   9,		2, 30,			"sanity_stat",					"Keep items boosting stats" },
+{ &sanity_verbose,		TRUE,   9,		2, 31,			"sanity_verbose",				"Inform when sanity checks are used" },
+{ &sanity_id,			TRUE,   9,		3, 1,			"sanity_id",					"Keep unknown consumables" },
+{ &sanity_realm,		TRUE,   9,		3, 0,			"sanity_realm",					"Keep books from own realm" },
+{ &sanity_price,		TRUE,   9,		3, 1,			"sanity_price",					"Keep items worth more than x gold" },
+{ &reverse_xp,          TRUE,   1,		3, 2,			"reverse_xp",					"Show xp untill next level" },
 
 /*** End of Table ***/
 
@@ -1674,210 +1661,24 @@ option_type option_info[] =
 };
 
 
-cptr evil_patron_shorts[MAX_PATRON] =
-{
-"Abaddon",
-"Asmodeus",
-"Astoreth",
-"Baal",
-"Balaam",
-
-"Belial",
-"Belphegor",
-"Bifrons",
-"Dispater",
-"Hauras",
-
-"Kobal",
-"Mephistopheles",
-"Nergal",
-"Pazzuzzu",
-"Sargatanas",
-
-"Lucifer"
-};
-
-cptr evil_patron_longs[MAX_PATRON] =
-{
-"Abaddon, Leader of Hell's Army",
-"Asmodeus, Prince of Lust",
-"Astoreth, Treasurer of Hell",
-"Baal, Duke of Sloth",
-"Balaam the Prophet",
-
-"Belial, Lord of Darkness",
-"Belphegor the Temptress",
-"Bifrons, Prince of Sorcery",
-"Dispater of the Underworld",
-"Hauras, Lord of Fire",
-
-"Kobal, the Dark Entertainer",
-"Mephistopheles the Dealmaker",
-"Nergal the Inquisitor",
-"Pazzuzzu, Lord of the Air",
-"Sargatanas, Brigadeer of Infernal Spirits",
-
-"Lucifer Morningstar"
-};
-
-int evil_stats[MAX_PATRON] =
-{
-A_CON,  /* Abaddon */
-A_CON,  /* Asmodeus */
-A_STR,  /* Astoreth */
-A_STR,  /* Baal */
-A_STR,  /* Balaam */
-
-A_INT,  /* Belial */
-A_STR,  /* Belphegor */
-A_INT,  /* Bifrons */
-A_CON,  /* Dispater */
-A_CHA,  /* Hauras */
-
--1,     /* Kobal */
-A_STR,  /* Mephistopheles */
-A_CHA,  /* Nergal */
-A_CON,  /* Pazzuzzu */
-A_INT,  /* Sargatanas */
-
-A_STR,  /* Lucifer */
-};
-
-
-
-
-int chaos_rewards[MAX_PATRON][20] =
-{
-
-/* Thed, Mother of Devilspawn: */
-{
-REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP,
-REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL, REW_AUGM_ABL
-},
-
-/* Ragnaglar the Unclean: */
-{
-REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_H_SUMMON, REW_SUMMON_M,
-REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_WND,
-REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_ABL, REW_SER_UNDE,
-REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GOOD_OBS
-},
-
-/* Cacodemon, Spawn of the Devil: */
-{
-REW_WRATH, REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_H_SUMMON,
-REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_DESTRUCT, REW_SER_UNDE,
-REW_GENOCIDE, REW_MASS_GEN, REW_MASS_GEN, REW_DISPEL_C, REW_GOOD_OBJ,
-REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-},
-
-/* Malia, Mistress of Disease: */
-{
-REW_WRATH, REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-REW_IGNORE, REW_IGNORE, REW_SER_UNDE, REW_DESTRUCT, REW_GENOCIDE,
-REW_MASS_GEN, REW_MASS_GEN, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-},
-
-/* Pochnargo the Mutator: */
-{
-REW_TY_CURSE, REW_TY_CURSE, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND, REW_POLY_WND,
-REW_GENOCIDE, REW_DISPEL_C, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS,
-REW_GAIN_ABL, REW_CHAOS_WP, REW_GAIN_EXP, REW_AUGM_ABL, REW_GOOD_OBS
-},
-
-
-/* Thanatar the Assassin: */
-{
-REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_H_SUMMON, REW_H_SUMMON,
-REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-REW_POLY_SLF, REW_SER_DEMO, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-REW_CHAOS_WP, REW_DO_HAVOC, REW_GOOD_OBJ, REW_GREA_OBJ, REW_GREA_OBS
-},
-
-/* Gbaji the Deceiver: */
-{
-REW_TY_CURSE, REW_HURT_LOT, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-REW_SUMMON_M, REW_LOSE_EXP, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-REW_SER_UNDE, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_GAIN_EXP,
-REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GREA_OBS, REW_AUGM_ABL
-},
-
-
-/* Vivamort the Vampire Lord: */
-{
-REW_WRATH, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_EXP, REW_H_SUMMON,
-REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-REW_POLY_SLF, REW_MASS_GEN, REW_SER_DEMO, REW_HEAL_FUL, REW_CHAOS_WP,
-REW_CHAOS_WP, REW_GOOD_OBJ, REW_GAIN_EXP, REW_GREA_OBJ, REW_AUGM_ABL
-},
-
-/* Krarsht, the Hungry One: */
-{
-REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_CURSE_WP, REW_RUIN_ABL,
-REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS, REW_HEAL_FUL, REW_GAIN_EXP,
-REW_GAIN_ABL, REW_CHAOS_WP, REW_GOOD_OBS, REW_GREA_OBJ, REW_AUGM_ABL
-},
-
-/* Wakboth, the Devil: */
-{
-REW_WRATH, REW_CURSE_AR, REW_CURSE_WP, REW_CURSE_WP, REW_CURSE_AR,
-REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF,
-REW_POLY_WND, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_AUGM_ABL,
-REW_GOOD_OBJ, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GREA_OBS
-},
-
-/* Bagog, the Scorpion Queen: */
-{
-REW_WRATH, REW_SER_DEMO, REW_CURSE_WP, REW_CURSE_AR, REW_LOSE_EXP,
-REW_GAIN_ABL, REW_LOSE_ABL, REW_POLY_WND, REW_POLY_SLF, REW_IGNORE,
-REW_DESTRUCT, REW_MASS_GEN, REW_CHAOS_WP, REW_GREA_OBJ, REW_HURT_LOT,
-REW_AUGM_ABL, REW_RUIN_ABL, REW_H_SUMMON, REW_GREA_OBS, REW_AUGM_ABL
-},
-
-/* Gark the Calm: */
-{
-REW_WRATH, REW_HURT_LOT, REW_HURT_LOT, REW_H_SUMMON, REW_H_SUMMON,
-REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_SER_MONS, REW_SER_DEMO,
-REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GOOD_OBJ,
-REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_GREA_OBJ, REW_GREA_OBS
-},
-
-/* Ikadz, Lord of Torture: */
-{
-REW_WRATH, REW_PISS_OFF, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_SER_DEMO,
-REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_EXP,
-REW_GAIN_EXP, REW_CHAOS_WP, REW_GAIN_ABL, REW_GREA_OBJ, REW_AUGM_ABL
-},
-
-/* Kajabor: */
-{
-REW_WRATH, REW_PISS_OFF, REW_HURT_LOT, REW_RUIN_ABL, REW_LOSE_ABL,
-REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_ABL,
-REW_GAIN_ABL, REW_SER_UNDE, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL
-},
-
-/* Krjalk, the Traitor: */
-{
-REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-REW_LOSE_EXP, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_SLF,
-REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_CHAOS_WP, REW_GREA_OBJ,
-REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP, REW_GAIN_EXP, REW_AUGM_ABL
-},
-
-/* Ompalam, Lord of Slavery: */
-{
-REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_LOSE_ABL, REW_LOSE_EXP,
-REW_IGNORE,   REW_IGNORE,   REW_DISPEL_C, REW_DO_HAVOC, REW_DO_HAVOC,
-REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_EXP, REW_GAIN_ABL, REW_GAIN_ABL,
-REW_SER_MONS, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GOOD_OBS
-}
+patron_type patrons[] =
+{/*                A/D Short Name      ,Stat  ,pref.race,pref.clss,o_char1,o_char2,f1,f1,f2,f2,f3,f3,f4,f4,like,hate,vault,gift,steal, long */
+/*Destroyer     */{ 1, "Abaddon"       , A_STR,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Abaddon, the Destroyer"                    , },
+/*Schemer       */{ 1, "Asmodeus"      , A_INT,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Asmodeus, Prince of Lust"                  , },
+/*Love&War      */{ 1, "Astoreth"      , A_CHA,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Astoreth, Treasurer of Hell"               , },
+/*Possessor&Lord*/{ 1, "Baal"          , A_CON,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Baal, Lord of Sloth"                       , },
+/*Prophecy      */{ 1, "Balaam"        , A_INT,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Balaam the Prophet"                        , },
+/*PropecyWar    */{ 1, "Hauras"        , A_STR,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Hauras, Lord of Fire"                      , },
+/*Magicians     */{ 1, "Belial"        , A_INT,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Belial, Prince of Sorcery"                 , },
+/*Inventions/$$$*/{ 1, "Belphegor"     , A_INT,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Belphegor the Temptress"                   , },
+/*Speed,Electr. */{ 1, "Furcifer"      , A_DEX,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Furcifer, "                                , },
+/*Death,Underwld*/{ 1, "Dispater"      , A_CON,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Dispater of the Underworld"                , },
+/*Joker, wind   */{ 1, "Kobal"         , A_INT,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Kobal, the Dark Entertainer"               , },
+/*Soul Eater    */{ 1, "Mephistopheles", A_CHA,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Mephistopheles, Soul Eater"                , },
+/*Pestilence Dth*/{ 1, "Nergal"        , A_CHA,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Nergal the Inquisitor"                     , },
+/*Storms!       */{ 1, "Pazuzu"        , A_STR,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Pazuzu, the Storm Lord"                    , },
+/*Moth, fighter */{ 1, "Sargatanas"    , A_STR,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Sargatanas, Brigadeer of Infernal Spirits" , },
+/*Ultimate      */{ 1, "Lucifer"       , A_CON,0        ,0        ,""     , ""    ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0   ,0   ,97   ,0   ,0    , "Lucifer Morningstar"                       , },
 };
 
 martial_arts ma_blows[MAX_MA] =
@@ -1939,35 +1740,39 @@ mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] = {
 };
 
 
+/* Warning, do not forget to update TIMED_COUNT!! */
 
-timed_type timed[] = 
-{/*	  s16b *timer;			  cptr status					cptr gain;									cptr lose;									u32b redraw;		u32b update;*/
-	{ &(p_body.fast),	      "hastened",					"You feel time slowing down!",				"You regain normal speed",					0,					PU_BONUS, },
-	{ &(p_body.slow),	      "slowed",						"You feel yourself moving slower!",			"You feel yourself speed up.",				0,					PU_BONUS, },
-	{ &(p_body.blind),	      "blind",						"You are blind!",							"You can see again.",						PR_MAP|PR_BLIND,	PU_UN_VIEW|PU_UN_LITE|PU_VIEW|PU_LITE|PU_MONSTERS, }, /*PW_OVERHEAD*/
-	{ &(p_body.paralyzed),	  "paralyzed",					"You are paralyzed!",						"You can move again.",						PR_STATE,			0, }, 
-	{ &(p_body.confused),	  "confused",					"You are confused!",						"You feel less confused now.",				PR_CONFUSED,		0, }, 
-	{ &(p_body.afraid),	      "terrified",					"You are terrified!",						"You feel bolder now.",						PR_AFRAID,			0, },
-	{ &(p_body.image),	      "hallucinating",				"Oh, wow! Everything looks so cosmic now!", "You can see clearly again.",				PR_MAP,				PU_MONSTERS, }, /*PW_OVERHEAD*/
-	{ &(p_body.poisoned),	  "poisoned",					"You are poisoned!",                        "You are no longer poisoned.",				PR_POISONED,		0, },
-	{ &(p_body.cut),	      "cut",						"You are cut!",								"You are no longer bleeding.",				PR_CUT,				0, }, /*Call to custom code */
-	{ &(p_body.stun),	      "stunned",					"You are stunned!",							"You are no longer stunned.",				PR_STUN,			PU_BONUS, }, /*Call to custom code */
-	{ &(p_body.protevil),	  "protected from evil",		"You feel safe from evil!",                 "You no longer feel safe from evil.",		0,					0, }, 
-	{ &(p_body.invuln),	      "invulnerable",				"Invulnerability!",                         "The invulnerability wears off.",			PR_MAP,				PU_BONUS|PU_MONSTERS, }, /*PW_OVERHEAD*/
-	{ &(p_body.hero),	      "heroic",						"You feel like a hero!",                    "The heroism wears off.",					0,					PU_BONUS|PU_HP, },
-	{ &(p_body.shero),	      "raging",						"You feel the surge of a cold rage!",       "Your rage wears down.",					0,					PU_BONUS|PU_HP, },
-	{ &(p_body.shield),		  "shielded",					"Your are shielded.",						"Your shield dissipates.",					0,					PU_BONUS, },
-	{ &(p_body.blessed),	  "blessed",					"You feel righteous!",                      "The prayer has expired.",					0,					PU_BONUS, },
-	{ &(p_body.tim_invis),	  "seeing invisible",			"Your eyes feel very sensitive!",           "Your eyes feel less sensitive.",			0,					PU_BONUS|PU_MONSTERS, },
-	{ &(p_body.tim_infra),	  "seeing infra-red",			"Your eyes begin to tingle!",               "Your eyes stop tingling.",					0,					PU_BONUS|PU_MONSTERS, },
-	{ &(p_body.magic_shell),  "anti-magical",				"You feel shielded from magic.",            "You no longer feel shielded from magic.",  0,					PU_BONUS, },
-	{ &(p_body.oppose_acid),  "resistant to acid",			"You feel resistant to acid!",              "You feel less resistant to acid.",         0,					0, },
-	{ &(p_body.oppose_elec),  "resistant to electricity",	"You feel resistant to electricity!",       "You feel less resistant to electricity.",  0,					0, },
-	{ &(p_body.oppose_fire),  "resistant to fire",			"You feel resistant to fire!",              "You feel less resistant to fire.",         0,					0, },
-	{ &(p_body.oppose_cold),  "resistant to cold",			"You feel resistant to cold!",              "You feel less resistant to cold.",         0,					0, },
-	{ &(p_body.oppose_pois),  "resistant to poison",		"You feel resistant to poison!",            "You feel less resistant to poison.",       0,					0, },
-	{ &(p_body.tim_esp),      "psychic",					"You feel your consciousness expand!",      "Your consciousness contracts again.",      0,					PU_BONUS|PU_MONSTERS, },
-	{ &(p_body.wraith_form),  "incorporeal",				"You become a ghastly wraith-being!",       "You are no longer a wraith.",              PR_MAP,				PU_BONUS|PU_MONSTERS, },   /*PW_OVERHEAD*/
+timed_type timed[] =
+{/*	      good,  s16b *timer;			cptr status					cptr gain;									cptr lose;									u32b redraw;		u32b update;*/
+/* 0*/	{ TRUE,  &(p_body.fast),	    "hastened",					"You feel time slowing down!",				"You regain normal speed",					0,					PU_BONUS, },
+/* 1*/	{ FALSE, &(p_body.slow),	    "slowed",					"You feel yourself moving slower!",			"You feel yourself speed up.",				0,					PU_BONUS, },
+/* 2*/	{ FALSE, &(p_body.blind),	    "blind",					"You are blind!",							"You can see again.",						PR_MAP|PR_BLIND,	PU_UN_VIEW|PU_UN_LITE|PU_VIEW|PU_LITE|PU_MONSTERS, }, /*PW_OVERHEAD*/
+/* 3*/	{ FALSE, &(p_body.paralyzed),	"paralyzed",				"You are paralyzed!",						"You can move again.",						PR_STATE,			0, },
+/* 4*/	{ FALSE, &(p_body.confused),	"confused",					"You are confused!",						"You feel less confused now.",				PR_CONFUSED,		0, },
+/* 5*/	{ FALSE, &(p_body.afraid),	    "terrified",				"You are terrified!",						"You feel bolder now.",						PR_AFRAID,			0, },
+/* 6*/	{ FALSE, &(p_body.image),	    "hallucinating",			"Oh, wow! Everything looks so cosmic now!", "You can see clearly again.",				PR_MAP,				PU_MONSTERS, }, /*PW_OVERHEAD*/
+/* 7*/	{ FALSE, &(p_body.poisoned),	"poisoned",					"You are poisoned!",                        "You are no longer poisoned.",				PR_POISONED,		0, },
+/* 8*/	{ FALSE, &(p_body.cut),         "cut",						"You are cut!",								"You are no longer bleeding.",				PR_CUT,				0, }, /*Call to custom code */
+/* 9*/	{ FALSE, &(p_body.stun),	    "stunned",					"You are stunned!",							"You are no longer stunned.",				PR_STUN,			PU_BONUS, }, /*Call to custom code */
+/*10*/	{ TRUE,  &(p_body.protevil),	"protected from evil",		"You feel safe from evil!",                 "You no longer feel safe from evil.",		0,					0, },
+/*11*/	{ TRUE,  &(p_body.invuln),	    "invulnerable",				"Invulnerability!",                         "The invulnerability wears off.",			PR_MAP,				PU_BONUS|PU_MONSTERS, }, /*PW_OVERHEAD*/
+/*12*/	{ TRUE,  &(p_body.hero),	    "heroic",					"You feel like a hero!",                    "The heroism wears off.",					0,					PU_BONUS|PU_HP, },
+/*13*/	{ TRUE,  &(p_body.shero),	    "raging",					"You feel the surge of a cold rage!",       "Your rage wears down.",					0,					PU_BONUS|PU_HP, },
+/*14*/	{ TRUE,  &(p_body.shield),		"shielded",					"Your are shielded.",						"Your shield dissipates.",					0,					PU_BONUS, },
+/*15*/	{ TRUE,  &(p_body.blessed),	    "blessed",					"You feel righteous!",                      "The prayer has expired.",					0,					PU_BONUS, },
+/*16*/	{ TRUE,  &(p_body.tim_invis),	"seeing invisible",			"Your eyes feel very sensitive!",           "Your eyes feel less sensitive.",			0,					PU_BONUS|PU_MONSTERS, },
+/*17*/	{ TRUE,  &(p_body.tim_infra),	"seeing infra-red",			"Your eyes begin to tingle!",               "Your eyes stop tingling.",					0,					PU_BONUS|PU_MONSTERS, },
+/*18*/	{ TRUE,  &(p_body.magic_shell), "anti-magical",				"You feel shielded from magic.",            "You no longer feel shielded from magic.",  0,					PU_BONUS, },
+/*19*/	{ TRUE,  &(p_body.oppose_acid), "resistant to acid",		"You feel resistant to acid!",              "You feel less resistant to acid.",         0,					0, },
+/*20*/	{ TRUE,  &(p_body.oppose_elec), "resistant to electricity",	"You feel resistant to electricity!",       "You feel less resistant to electricity.",  0,					0, },
+/*21*/	{ TRUE,  &(p_body.oppose_fire), "resistant to fire",		"You feel resistant to fire!",              "You feel less resistant to fire.",         0,					0, },
+/*22*/	{ TRUE,  &(p_body.oppose_cold), "resistant to cold",		"You feel resistant to cold!",              "You feel less resistant to cold.",         0,					0, },
+/*23*/	{ TRUE,  &(p_body.oppose_pois), "resistant to poison",		"You feel resistant to poison!",            "You feel less resistant to poison.",       0,					0, },
+/*24*/	{ TRUE,  &(p_body.tim_esp),     "psychic",					"You feel your consciousness expand!",      "Your consciousness contracts again.",      0,					PU_BONUS|PU_MONSTERS, },
+/*25*/	{ TRUE,  &(p_body.wraith_form), "incorporeal",				"You become a ghastly wraith-being!",       "You are no longer a wraith.",              PR_MAP,				PU_BONUS|PU_MONSTERS, },   /*PW_OVERHEAD*/
+/*26*/	{ TRUE,  &(p_body.oppose_conf), "resistant to confusion",	"You feel resistant to confusion!",         "You are no longer resistant to confusion.",0,				    0, },
+/*27*/	{ TRUE,  &(p_body.oppose_fear), "resistant to fear",		"You feel resistant to fear!",              "You are no longer resistant to fear."     ,0,				    0, },
+/*28*/	{ TRUE,  &(p_body.oppose_blind), "resistant to blindness",	"You feel resistant to blindness!",         "You are no longer resistant to blindness.",0,				    0, },
 };
 
 menu_type menu_info[10][10] =
@@ -1984,7 +1789,7 @@ menu_type menu_info[10][10] =
     {"Other commands", '9', FALSE},
     {"Documentation (?)", '?', TRUE},
 	},
-    
+
 	{
     {"Use", 'm', TRUE},
     {"See tips", 'b', TRUE},
@@ -1997,7 +1802,7 @@ menu_type menu_info[10][10] =
     {"", 0, FALSE},
     {"", 0, FALSE}
 	},
-    
+
 	{
     {"Rest", 'R', TRUE},
     {"Disarm a trap", 'D', TRUE},
@@ -2008,9 +1813,9 @@ menu_type menu_info[10][10] =
     {"Go up stairs", '<', TRUE},
     {"Go down stairs", '>', TRUE},
     {"Search mode ON/OFF", 'S', TRUE},
-    {"", 0, FALSE},        
+    {"", 0, FALSE},
 	},
-    
+
 	{
     {"Read a scroll", 'r', TRUE},
     {"Drink a potion", 'q', TRUE},
@@ -2023,7 +1828,7 @@ menu_type menu_info[10][10] =
     {"Throw an item", 'v', TRUE},
     {"Mix potions", 'p' , TRUE}
 	},
-    
+
 	{
     {"Get items", 'g', TRUE},
     {"Drop an item", 'd', TRUE},
@@ -2036,7 +1841,7 @@ menu_type menu_info[10][10] =
     {"", 0, FALSE},
     {"", 0, FALSE}
 	},
-    
+
 	{
     {"Wear", 'w', TRUE},
     {"Take off", 't', TRUE},
@@ -2049,7 +1854,7 @@ menu_type menu_info[10][10] =
     {"", 0, FALSE},
     {"", 0, FALSE}
 	},
-    
+
 	{
     {"Open", 'o', TRUE},
     {"Close", 'c', TRUE},
@@ -2062,7 +1867,7 @@ menu_type menu_info[10][10] =
     {"", 0, FALSE},
     {"", 0, FALSE}
 	},
-    
+
 	{
     {"Full map", 'M', TRUE},
     {"Map", 'L', TRUE},
@@ -2075,7 +1880,7 @@ menu_type menu_info[10][10] =
     {"Play record menu", '|', TRUE},
     {"", 0, FALSE}
 	},
-    
+
 	{
     {"Set options", '=', TRUE},
     {"Interact with macros", '@', TRUE},
@@ -2088,7 +1893,7 @@ menu_type menu_info[10][10] =
     {"", 0, FALSE},
     {"", 0, FALSE}
 	},
-        
+
 	{
     {"Save and quit", KTRL('X'), TRUE},
     {"Save", KTRL('S'), TRUE},
@@ -2109,10 +1914,97 @@ cptr squelch_strings[] = {
 	"Keep all",
 	"Keep good and better",
 	"Keep excellent and better",
-	"Keep great",		
-	"Keep unknown",	
-	"Keep only dungeon books",				
-	"Keep closed",						
-	"Keep none",				
+	"Keep great",
+	"Keep unknown",
+	"Keep only dungeon books",
+	"Keep closed",
+	"Keep none",
 	"Keep only artefacts",
 	 NULL,};
+
+
+/*
+ * Flag groups used for art creation, level gaining weapons, ...
+ * -----
+ * Name,
+ * Price,
+ * Flags 1,
+ * Flags 2,
+ * Flags 3,
+ * Note, all bad flags have been removed, they just took all the fun out of it.
+ * Note, some too good flags have been removed as well
+ */
+realm_flag realm_flags[MAX_EGO_REALMS] =
+{
+	{
+		"Fire",	TERM_L_RED,	1,
+		TR1_BRAND_FIRE,
+		TR2_RES_FIRE,
+		TR3_SH_FIRE | TR3_LITE | TR3_IGNORE_FIRE,
+	},
+	{
+		"Cold",	TERM_WHITE,	1, TR1_BRAND_COLD,
+		TR2_RES_COLD,
+		TR3_IGNORE_COLD,
+	},
+	{
+		"Acid", TERM_GREEN, 3,
+		TR1_TUNNEL | TR1_BRAND_ACID,
+		TR2_RES_ACID,
+		TR3_IGNORE_ACID,
+	},
+	{
+		"Lightning", TERM_L_BLUE, 1,
+		TR1_BRAND_ELEC | TR1_SPEED,
+		TR2_RES_ELEC,
+		TR3_IGNORE_ELEC | TR3_SH_ELEC,
+	},
+	{
+		"Poison", TERM_L_GREEN,	1,
+		TR1_BRAND_POIS,
+		TR2_SUST_CHA | TR2_RES_POIS,
+		0,
+	},
+	{
+		"Air", TERM_BLUE, 1,
+		TR1_STEALTH | TR1_BLOWS,
+		TR2_FREE_ACT,
+		TR3_FEATHER,
+	},
+	{
+		"Mind", TERM_YELLOW, 2,
+		TR1_INT | TR1_WIS |
+		TR2_SUST_INT |TR2_SUST_WIS | TR2_RES_CONF | TR2_RES_FEAR,
+		TR3_TELEPATHY,
+	},
+	{
+		"Earth", TERM_L_UMBER, 3,
+		TR1_TUNNEL | TR1_IMPACT,
+		TR2_SUST_STR | TR2_SUST_CON | TR2_RES_SHARDS,
+		TR3_REGEN | TR3_SLOW_DIGEST,
+	},
+	{
+		"Preservation",	TERM_RED, 5,
+		TR1_DEX | TR1_STEALTH | TR1_CON,
+		TR2_SUST_DEX | TR2_SUST_CON | TR2_REFLECT | TR2_HOLD_LIFE | TR2_RES_ACID | TR2_RES_FIRE | TR2_RES_COLD | TR2_RES_ELEC,
+		TR3_REGEN | TR3_WRAITH,
+	},
+	{
+		"Chaos", TERM_VIOLET, 5,
+		TR1_CHAOTIC | TR1_IMPACT | TR1_KILL_ANGEL,
+		TR2_RES_CHAOS | TR2_RES_DISEN | TR2_RES_FIRE,
+		TR3_REGEN,
+	},
+	{
+		"Magic", TERM_L_BLUE, 5,
+		TR1_INT | TR1_WIS |
+		TR2_RES_DISEN | TR2_SUST_INT |TR2_SUST_WIS,
+		0,
+	},
+	{
+		"The Deep Abyss", TERM_L_DARK, 5,
+		TR1_VAMPIRIC | TR1_CHAOTIC | TR1_BLOWS | TR1_SPEED,
+		TR2_REFLECT | TR2_FREE_ACT | TR2_HOLD_LIFE,
+		TR3_SEE_INVIS,
+	},
+};

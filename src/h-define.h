@@ -133,7 +133,7 @@
 #define I2D(X)	((X) + '0')
 #define KTRL(X)	((X) & 0x1F)
 #define ESCAPE	'\033'
-
+#define ENTER   13
 
 #endif
 

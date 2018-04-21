@@ -22,7 +22,7 @@ type AngbandSignature as 'STR ';
 
 resource AngbandSignature(0, "Owner resource", purgeable)
 {
-	"Hellband 1.8.7"
+	"Hellband 0.8.x SVN"
 };
 
 /*
@@ -39,10 +39,10 @@ resource 'vers' (1) {
 	verUS,
 
 	/* Short version string */
-	"0.8.7",
+	"0.8.x SVN",
 
 	/* What really gets displayed as version info */
-	"0.8.7 by Konijn"
+	"0.8.x SVN by Konijn"
 };
 
 resource 'vers' (2) {
@@ -56,11 +56,11 @@ resource 'vers' (2) {
 	verUS,
 
 	/* Short version string */
-	"0.3.2",
+	"0.8.x SVN",
 
 	/* What really gets displayed just below the icon */
 	/* Say whatever you like here, for example, "It ROCKS!" :) */
-	"That Fun Variant!"
+	"0.8.x SVN by Konijn"
 };
 
 
@@ -258,7 +258,7 @@ resource 'MENU' (128, preload)
 	/* its contents */
 	{
 		/* First item */
-		"About Angband...", noicon, nokey, nomark, plain;
+		"About Hellband...", noicon, nokey, nomark, plain;
 
 		/* Second item - divider */
 		"-", noicon, nokey, nomark, plain;
@@ -291,26 +291,14 @@ resource 'MENU' (129, preload)
 		"Open", noicon, "O", nomark, plain;
 
 		/* item #3 */
-		"Import", noicon, "I", nomark, plain;
-
-		/* item #4 */
-		"Close", noicon, "W", nomark, plain;
-
-		/* item #5 */
 		"Save", noicon, "S", nomark, plain;
-
-		/* item #6 */
-		"-", noicon, nokey, nomark, plain;
-
-#if !defined(CARBON) && !defined(MACH_O_CARBON)
-
-		/* item #7 */
-		"Exit", noicon, "E", nomark, plain;
-
-#endif /* !CARBON && !MACH_O_CARBON */
-
-		/* item #8 */
+		
+		/* item #4 */
+		"Close", noicon, "W", nomark, plain;	
+		
+		/* item #5 */
 		"Quit", noicon, "Q", nomark, plain;
+		
 	}
 };
 

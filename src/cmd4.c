@@ -11,14 +11,14 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 #include "angband.h"
 
@@ -40,14 +40,11 @@ void do_cmd_redraw(void)
 
 	term *old = Term;
 
-
 	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 
 	/* Update torch */
 	p_ptr->update |= (PU_TORCH);
@@ -65,17 +62,16 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+	p_ptr->window |= (0xFFFFFFFFL);
 
 	/* Hack -- update */
 	handle_stuff();
-
 
 	/* Redraw every window */
 	for (j = 0; j < 8; j++)
@@ -124,7 +120,7 @@ void do_cmd_change_name(void)
 
 		/* Prompt */
 		Term_putstr(2, 23, -1, TERM_WHITE,
-			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
+			"['c' to change name, 'f' to file, 'h' or 'n' to change mode, or ESC]");
 
 		/* Query */
 		c = inkey();
@@ -160,10 +156,10 @@ void do_cmd_change_name(void)
 		}
 
 		/* Toggle mode */
-		else if (c == 'h')
+		else if (c == 'h' || c == 'n' )
 		{
 			mode++;
-            /*Hack, because of how files are displayed, 
+            /*Hack, because of how files are displayed,
             I needed to show something straight after the corruptions,
             which is the first screen, so we jump after that to 2nd (0 base)*/
             if (mode == 4)
@@ -188,7 +184,7 @@ void do_cmd_change_name(void)
 
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
 
 	handle_stuff();
 }
@@ -203,6 +199,55 @@ void do_cmd_message_one(void)
 	prt(format("> %s", message_str(0)), 0, 0);
 }
 
+/*
+* Show objects to the user, leveraging the objects window code
+*
+*/
+void do_cmd_objects(void)
+{
+	/* Enter "icky" mode */
+	character_icky = TRUE;
+
+	/* Save the screen */
+	Term_save();
+
+	/* Show the objects*/
+	display_visible_items();
+
+	/* Get a command */
+	inkey();
+
+	/* Restore the screen */
+	Term_load();
+
+	/* Leave "icky" mode */
+	character_icky = FALSE;
+}
+
+/*
+* Show visible monsters to the user, leveraging the monsters window code
+*
+*/
+void do_cmd_monsters(void)
+{
+	/* Enter "icky" mode */
+	character_icky = TRUE;
+
+	/* Save the screen */
+	Term_save();
+
+	/* Show the objects*/
+	display_visible();
+
+	/* Get a command */
+	inkey();
+
+	/* Restore the screen */
+	Term_load();
+
+	/* Leave "icky" mode */
+	character_icky = FALSE;
+}
 
 /*
 * Show previous messages to the user	-BEN-
@@ -743,9 +788,9 @@ void do_cmd_options_aux(int page, cptr info)
 				sprintf(buf, "%-48s: %d gold (press $ to cycle)","Squelch treshold" , (int)sane_price );
 			else
 				sprintf(buf, "%-80s","");
-			c_prt(TERM_WHITE, buf, i + 2, 0);	
+			c_prt(TERM_WHITE, buf, i + 2, 0);
 		}
-		
+
 		/* Hilite current option */
 		move_cursor(k + 2, 50);
 
@@ -820,24 +865,24 @@ static void do_cmd_options_squelcher_rules(void)
 		CH_SQUELCH_EXCELLENT,
 		CH_SQUELCH_GREAT,
 		CH_SQUELCH_ALL_ID,
-		CH_SQUELCH_TOWN_BOOKS,		
-		CH_SQUELCH_OPENED,		
-		CH_SQUELCH_ALL,				
+		CH_SQUELCH_TOWN_BOOKS,
+		CH_SQUELCH_OPENED,
+		CH_SQUELCH_ALL,
 		CH_SQUELCH_ARTIFACT,
 		0};
-	
+
 	byte squelch_possibilities[] = {
 		CH_SQUELCH_NO | CH_SQUELCH_GOOD | CH_SQUELCH_EXCELLENT | CH_SQUELCH_ARTIFACT,  /* Weapons */
 		CH_SQUELCH_NO | CH_SQUELCH_GOOD | CH_SQUELCH_EXCELLENT | CH_SQUELCH_ARTIFACT,  /* Armour  */
-		CH_SQUELCH_NO | CH_SQUELCH_GOOD | CH_SQUELCH_EXCELLENT | CH_SQUELCH_ALL,	   /* Ammo    */		
+		CH_SQUELCH_NO | CH_SQUELCH_GOOD | CH_SQUELCH_EXCELLENT | CH_SQUELCH_ALL,	   /* Ammo    */
 		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ARTIFACT,  /* Jewelry */
 		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ARTIFACT,  /* Lights */
 		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Wands */
-		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Staves */		
-		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Rods */		
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Staves */
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Rods */
 		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Scrolls */
 		CH_SQUELCH_NO | CH_SQUELCH_TOWN_BOOKS | CH_SQUELCH_ALL,  /* Books */
-		CH_SQUELCH_NO | CH_SQUELCH_ALL,  /* Misc */		
+		CH_SQUELCH_NO | CH_SQUELCH_ALL,  /* Misc */
 		CH_SQUELCH_NO | CH_SQUELCH_OPENED | CH_SQUELCH_ALL,  /* Chests */
 		0,
 	};
@@ -849,38 +894,38 @@ static void do_cmd_options_squelcher_rules(void)
 		"Lights",
 		"Wands",
 		"Staves",
-		"Rods",		
+		"Rods",
 		"Scrolls",
 		"Books",
-		"Misc",		
-		"Chests",		
+		"Misc",
+		"Chests",
 		NULL,
-	};	
-	
+	};
+
 	char	ch;
-	
+
 	int	i, k = 0, n = SQ_HL_COUNT;
-	
+
 	char	buf[80];
-	
+
 	/* Clear screen */
 	Term_clear();
-	
+
 	/* Interact with the player */
 	while (TRUE)
 	{
 		/* Prompt XXX XXX XXX */
 		sprintf(buf, "%s (RET to advance, SPACE to cycle, ESC to accept) ", "High Level Squelch Rules");
 		prt(buf, 0, 0);
-		
+
 		/* Display the options */
 		for (i = 0; i < SQ_HL_COUNT; i++)
 		{
 			byte a = TERM_WHITE;
-			
+
 			/* Color current option */
 			if (i == k) a = TERM_L_BLUE;
-			
+
 			/* Display the option text */
 			sprintf(buf, "%-20s: %-28s  (%s)",
 					squelch_option_strings[i],
@@ -888,13 +933,13 @@ static void do_cmd_options_squelcher_rules(void)
 					"SPACE to cycle");
 			c_prt(a, buf, i + 2, 0);
 		}
-		
+
 		/* Hilite current option */
 		move_cursor(k + 2, 50);
-		
+
 		/* Get a key */
 		ch = inkey();
-		
+
 		/* Analyze */
 		switch (ch)
 		{
@@ -908,7 +953,7 @@ static void do_cmd_options_squelcher_rules(void)
 				k = (n + k - 1) % n;
 				break;
 			}
-			case '+':				
+			case '+':
 			case '\n':
 			case '\r':
 			case '2':
@@ -916,14 +961,14 @@ static void do_cmd_options_squelcher_rules(void)
 				k = (k + 1) % n;
 				break;
 			}
-				
+
 			case 'y':
 			case 'Y':
 			case '6':
 			case 'n':
 			case 'N':
 			case '4':
-			case ' ':	
+			case ' ':
 			{
 				/*
 				 * Yeah, see this piece of code right here, checks what is the next option, since we
@@ -939,10 +984,10 @@ static void do_cmd_options_squelcher_rules(void)
 					{;}
 				}
 				else
-				 squelch_options[k] = SQUELCH_NO;	
+				 squelch_options[k] = SQUELCH_NO;
 				break;
 			}
-				
+
 			default:
 			{
 				bell();
@@ -950,13 +995,13 @@ static void do_cmd_options_squelcher_rules(void)
 			}
 		}
 	}
-	
-	
+
+
 }
 
 static void do_cmd_options_squelcher_sanity(void)
 {
-	do_cmd_options_aux(9, "Squelch Inscription Options");	
+	do_cmd_options_aux(9, "Squelch Inscription Options");
 }
 
 
@@ -972,7 +1017,7 @@ static void do_cmd_options_squelcher_inscribe(void)
  */
 static void do_cmd_options_squelcher(void)
 {
-	
+
 	/*
 	  Squelch Rules are cumulative
 1		- Very High Level 16 bits -> u32b
@@ -986,7 +1031,7 @@ static void do_cmd_options_squelcher(void)
 9			3 choices = 2bits Books ( all books, dungeon books, no books )							4
 10			2 choices = 1bits Spikes , Food, Flasks ( all , none )									5
 11			2 choices = 1bits Chests ( all , squelchh when opened , none )							6
-12	 
+12
 13	  Sanity Checks ( 2 bytes )
 14		- 1 Dont kill storebought items
 15		- 2 Dont kill items inscribed with !k
@@ -997,47 +1042,47 @@ static void do_cmd_options_squelcher(void)
 19		- 6 Dont kill items with stat bonuses
 20		- 7 Inform player when a sanity check is used
 21		- 8 Dont kill books of the realm I use
-22		- u32b Dont kill items more expensive then	 
-23	 
+22		- u32b Dont kill items more expensive then
+23
 24	 Inscription Rules ( 1 byte )
 25		- Apply {!k} to storebought items ( off )
 26		- When discovering a new consumable with 'id', offer to apply {!k}
-	 
+
 	*/
-	
+
 	int k;
-	
-	
+
+
 	/* Enter "icky" mode */
 	character_icky = TRUE;
-	
+
 	/* Save the screen */
 	Term_save();
-	
-	
+
+
 	/* Interact */
 	while (1)
 	{
 		/* Clear screen */
 		Term_clear();
-		
+
 		/* Why are we here */
 		prt("Hellband Squelcher Options", 2, 0);
-		
+
 		/* Give some choices */
 		prt("(1) Squelch Rules", 4, 5);
 		prt("(2) Sanity Checks", 5, 5);
 		prt("(3) Incription Options", 6, 5);
-		
+
 		/* Prompt */
 		prt("Command: ", 17, 0);
-		
+
 		/* Get command */
 		k = inkey();
-		
+
 		/* Exit */
 		if (k == ESCAPE) break;
-		
+
 		/* Analyze */
 		switch (k)
 		{
@@ -1054,7 +1099,7 @@ static void do_cmd_options_squelcher(void)
 				do_cmd_options_squelcher_sanity();
 				break;
 			}
-				
+
 				/* Inscription options */
 			case '3':
 			{
@@ -1062,7 +1107,7 @@ static void do_cmd_options_squelcher(void)
 				do_cmd_options_squelcher_inscribe();
 				break;
 			}
-				
+
 				/* Unknown option */
 			default:
 			{
@@ -1071,15 +1116,15 @@ static void do_cmd_options_squelcher(void)
 				break;
 			}
 		}
-		
+
 		/* Flush messages */
 		msg_print(NULL);
 	}
-	
-	
+
+
 	/* Restore the screen */
 	Term_load();
-	
+
 	/* Leave "icky" mode */
 	character_icky = FALSE;
 
@@ -1302,7 +1347,7 @@ void do_cmd_options(void)
 
 		/* Window flags */
 		prt("(W) Window Flags", 14, 5);
-		
+
 		/* Da squelcher */
 		prt("(S) Squelcher",15, 5);
 
@@ -1458,6 +1503,9 @@ void do_cmd_options(void)
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
+
+	/* And everything else ;) */
+	do_cmd_redraw();
 }
 
 
@@ -1506,8 +1554,10 @@ static errr macro_dump(cptr fname)
 	fff = my_fopen(buf, "a");
 
 	/* Failure */
-	if (!fff) return (-1);
-
+	if (!fff){
+	  msg_print(strerror(errno));
+    return (-1);
+	}
 
 	/* Skip space */
 	fprintf(fff, "\n\n");
@@ -2937,9 +2987,9 @@ void restore_screen(void)
 {
 	/* Restore the screen */
 	Term_load();
-	
+
 	/* Leave "icky" mode */
-	character_icky = FALSE;	
+	character_icky = FALSE;
 }
 
 
@@ -3009,14 +3059,14 @@ void do_cmd_load_screen(cptr path, cptr file)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
-			
+
 			if( buf[x] == ' ' )
 			{
 			    a = TERM_WHITE;
 			}
 			else
-			{	
-			
+			{
+
 			    /* Look up the attr */
 			    for (i = 0; i < 16; i++)
 			    {
@@ -3046,7 +3096,7 @@ void do_cmd_load_screen(cptr path, cptr file)
 
 
 	/* Hack Message , Not usefull for general purpose*/
-	
+
 	/*msg_print(NULL);*/
 
 }
@@ -3059,14 +3109,201 @@ void do_cmd_load_screen(cptr path, cptr file)
 void (*screendump_aux)(void) = NULL;
 
 
+/*
+ * Save a simple text screendump.
+ */
+static void do_cmd_save_screen_text(void)
+{
+	int y, x;
+
+	byte a = 0;
+	char c = ' ';
+
+	FILE *fff;
+
+	char buf[1024];
+	char tmp[1024];
+
+	/* Build the filename */
+	/* Holders for time information */
+	time_t          c_time;
+	struct tm		*tp;
+
+	/* Check for time violation */
+	c_time = time((time_t *)0);
+	tp = localtime(&c_time);
+
+	sprintf(tmp, "%s_%d%02d%02d_%02d%02d_screen.txt", player_base , tp->tm_year+1900 , tp->tm_mon+1 , tp->tm_mday , tp->tm_hour , tp->tm_min );
+
+	/* Ask for a file */
+	if (!get_string("File: ", tmp, sizeof(tmp))) return;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DUMP, tmp );
+	fff = my_fopen(buf, "w");
+	if (!fff) return;
+
+	/* Save screen */
+	Term_save();
 
 
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
 
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = hack[a & 0x0F];
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Close it */
+	my_fclose(fff);
+
+
+	/* Message */
+	msg_print("Screen dump saved.");
+	msg_print(NULL);
+
+
+	/* Load screen */
+	Term_load();
+}
+
+
+/*
+ * Hack -- save a screen dump to a file in html format
+ */
+static void do_cmd_save_screen_html(int mode)
+{
+	char tmp_val[256];
+
+	/* Build the filename */
+	/* Holders for time information */
+	time_t          c_time;
+	struct tm		*tp;
+
+	/* Check for time violation */
+	c_time = time((time_t *)0);
+	tp = localtime(&c_time);
+
+	sprintf(tmp_val, "%s_%d%02d%02d_%02d%02d_screen.%s", player_base , tp->tm_year+1900 , tp->tm_mon+1 , tp->tm_mday , tp->tm_hour , tp->tm_min , mode==0?"html":"forum.txt" );
+
+	/* Ask for a file */
+	if (!get_string("File: ", tmp_val, sizeof(tmp_val))) return;
+
+	/* Dump the screen with raw character attributes
+	   Yes, there is probably a hell for people who repeatly call control R ;]
+	*/
+	if( use_graphics ){
+		/* Go ASCII */
+		use_graphics = !use_graphics;
+		arg_graphics = !arg_graphics;
+
+		Term_key_push(KTRL('R'));
+		reset_visuals();
+		Term_key_push(KTRL('R'));
+		reset_visuals();
+		Term_key_push(KTRL('R'));
+		do_cmd_redraw();
+
+		/* Go ASCII */
+		html_screenshot(tmp_val, mode);
+
+		/* Go gfx */
+		use_graphics = !use_graphics;
+		arg_graphics = !arg_graphics;
+
+		Term_key_push(KTRL('R'));
+		reset_visuals();
+		Term_key_push(KTRL('R'));
+		reset_visuals();
+		Term_key_push(KTRL('R'));
+		do_cmd_redraw();
+	}
+	else
+	{
+		html_screenshot(tmp_val, mode);
+	}
+
+	msg_print("Screen dump saved.");
+	msg_print(NULL);
+}
+
+
+/*
+ * Hack -- save a screen dump to a file
+ */
+void do_cmd_save_screen(void)
+{
+	msg_print("Dump type [(t)ext; (h)tml; (f)orum embedded html]:");
+
+	while (TRUE)
+	{
+		char c = inkey();
+
+		switch (c)
+		{
+			case ESCAPE:
+				return;
+
+			case 't':
+				do_cmd_save_screen_text();
+				return;
+
+			case 'h':
+				do_cmd_save_screen_html(0);
+				return;
+
+			case 'f':
+				do_cmd_save_screen_html(1);
+				return;
+		}
+	}
+}
 
 /*
 * Hack -- save a screen dump to a file
 */
-void do_cmd_save_screen(void)
+void do_cmd_save_screen_old(void)
 {
 	/* Do we use a special screendump function ? */
 	if (screendump_aux)
@@ -3084,10 +3321,21 @@ void do_cmd_save_screen(void)
 		FILE *fff;
 
 		char buf[1024];
-
+		char tmp[1024];
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_PREF, "dump.txt");
+		/* Holders for time information */
+		time_t          c_time;
+		struct tm		*tp;
+
+		/* Check for time violation */
+		c_time = time((time_t *)0);
+		tp = localtime(&c_time);
+
+		sprintf(tmp, "%s_%d%02d%02d_%02d%02d_screen.txt", player_base , tp->tm_year+1900 , tp->tm_mon+1 , tp->tm_mday , tp->tm_hour , tp->tm_min );
+
+
+		path_build(buf, 1024, ANGBAND_DIR_DUMP, tmp);
 
 		/* File type is "TEXT" */
 		FILE_TYPE(FILE_TYPE_TEXT);
@@ -3193,9 +3441,8 @@ void do_cmd_knowledge_artefacts(void)
 
 	bool okay[MAX_A_IDX];
 
-
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	path_build(file_name, 1024, ANGBAND_DIR_DUMP, "cmd_a.tmp");
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -3329,9 +3576,8 @@ static void do_cmd_knowledge_uniques(void)
 
 	char file_name[1024];
 
-
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	path_build(file_name, 1024, ANGBAND_DIR_DUMP, "cmd_u.tmp");
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -3449,21 +3695,33 @@ void plural_aux(char * Name)
 static void do_cmd_knowledge_alchemy(void)
 {
 	int i;
-	
+	int idx;
+
 	FILE *fff;
-	
+
 	char line[80];
+	char buf[80];
+	char potion_description[80];
+	object_type *o_ptr;
+	object_kind *k_ptr;
 	char file_name[1024];
-	
+	/* The last item must be NULL, to indicate the end of the array*/
+  /* Based on comments of Silk and the use of */
+  cptr *carried_potions;
+	cptr *stored_potions;
+  /* Allocate memorie*/
+	C_MAKE(carried_potions, INVEN_TOTAL*3+1, cptr);
+	C_MAKE(stored_potions, SV_POTION_MAX*3+1, cptr);
+
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-	
+	path_build(file_name, 1024, ANGBAND_DIR_DUMP, "cmd_al.tmp");
+
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
-	
+
 	/* Failure */
 	if (!fff) return;
-	
+
 	/* Scan the alchemy info, wizards know it all ;) */
 	for (i = 0; i < SV_POTION_MAX; i++)
 	{
@@ -3471,18 +3729,60 @@ static void do_cmd_knowledge_alchemy(void)
 		if ( ( (potion_alch[i].known1) || (potion_alch[i].known2) || debug_mode == TRUE)  && potion_alch[i].sval1 != i )
 		{
 			alchemy_describe(line, sizeof(line), i);
-			
+
 			/* Print a message */
 			fprintf(fff, " %s\n", line);
 		}
 	}
-	
+
+	/* Find the carried potions */
+	for (i = 0, idx = 0; i < INVEN_PACK; i++)
+	{
+		/* Get the item from inventory */
+		o_ptr = &inventory[i];
+		/* Only continue if we deal with a potion */
+		if (!o_ptr->k_idx || o_ptr->tval != TV_POTION ) continue;
+		/* Get the kind info*/
+		k_ptr = &k_info[o_ptr->k_idx];
+		/* Describe */
+		if (k_ptr->aware || debug_mode == TRUE)
+			strcpy(potion_description,(k_name + k_ptr->name));
+		else
+			object_desc(potion_description, o_ptr, FALSE, 0);
+		/* We want o keep the highlighting feature generic ,
+     * but we have a number of potion names that are part of another
+		 * Water is part of Salt Water, Wisdom is part of Restore wisdom
+		 * So we need to encode surrounding markers
+		 */
+		strnfmt(buf, sizeof(line), "  %s", potion_description);
+		carried_potions[idx++] = string_make(buf);
+
+	}
+	carried_potions[idx] = NULL;
+	stored_potions[0] = NULL;
+
 	/* Close the file */
 	my_fclose(fff);
-	
+
 	/* Display the file contents */
-	show_file(file_name, "Known Alchemical Combinations" );
-	
+	show_highlighted_file(file_name, "Known Alchemical Combinations", carried_potions, stored_potions);
+
+  /*Free the strings*/
+  idx = 0;
+	while(carried_potions[idx]!=NULL){
+    string_free(carried_potions[idx]);
+		idx++;
+	}
+	idx = 0;
+	while(stored_potions[idx]!=NULL){
+    string_free(stored_potions[idx]);
+		idx++;
+	}
+	/*Free the string pointer array*/
+	FREE(carried_potions);
+	FREE(stored_potions);
+
+
 	/* Remove the file */
 	fd_kill(file_name);
 }
@@ -3509,13 +3809,14 @@ static void do_cmd_knowledge_pets(void)
 
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	path_build(file_name, 1024, ANGBAND_DIR_DUMP, "cmd_p.tmp");
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
 	if (p_ptr->pclass == CLASS_MAGE) upkeep_divider = 15;
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE) upkeep_divider = 12;
+	else if (p_ptr->pclass == CLASS_BLOOD_MAGE) upkeep_divider = 12;
 	else if (p_ptr->pclass == CLASS_DRUID) upkeep_divider = 10;
 
 	/* Process the monsters (backwards) */
@@ -3536,7 +3837,7 @@ static void do_cmd_knowledge_pets(void)
 			t_levels += r_info[m_ptr->r_idx].level;
 			monster_desc(pet_name, m_ptr, 0x88);
 			strcat(pet_name, "\n");
-			fprintf(fff,pet_name);
+			fprintf(fff, "%s", pet_name);
 		}
 	}
 
@@ -3585,7 +3886,7 @@ static void do_cmd_knowledge_kill_count(void)
 
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	path_build(file_name, 1024, ANGBAND_DIR_DUMP, "cmd_kk.tmp");
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -3702,9 +4003,7 @@ static void do_cmd_knowledge_objects(void)
 
 	char file_name[1024];
 
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	path_build(file_name, 1024, ANGBAND_DIR_DUMP, "cmd_k.tmp");
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -3759,8 +4058,8 @@ void do_cmd_knowledge_corruptions(void)
 	char file_name[1024];
 
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	/* Temporary file for corruptions*/
+	path_build(file_name, 1024, ANGBAND_DIR_DUMP, "cmd_cc.tmp");
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -3866,7 +4165,7 @@ void do_cmd_knowledge(void)
 		{
 			do_cmd_knowledge_pets();
 		}
-		
+
 		/*Alchemic formulas*/
 		else if( i == '7' )
 		{
@@ -3896,4 +4195,3 @@ void do_cmd_knowledge(void)
 	/* Leave "icky" mode */
 	character_icky = FALSE;
 }
-

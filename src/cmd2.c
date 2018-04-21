@@ -11,14 +11,14 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 #include "angband.h"
 
@@ -179,7 +179,7 @@ void do_cmd_go_up(void)
 				is_autosave = FALSE;
 			}
 			dun_level--;
-			if(dun_level<0)dun_level=0;				
+			if(dun_level<0)dun_level=0;
 			/* Check for leaving dungeon */
 			if(dun_level == 0)
 			{
@@ -269,7 +269,7 @@ void do_cmd_go_down(void)
 						msg_print(NULL);
 
 						/* Show the appropriate file */
-						do_cmd_load_screen(ANGBAND_DIR_FILE, 
+						do_cmd_load_screen(ANGBAND_DIR_FILE,
 						            format("level%d.txt", dun_level + 1));
 
 						(void)msg_flush_wait();
@@ -454,7 +454,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		{
 			/* Make some gold , square it to insure some serious coin */
 			if (!make_gold(q_ptr)) continue;
-			q_ptr->pval = q_ptr->pval * q_ptr->pval;
+			q_ptr->pval = (q_ptr->pval * q_ptr->pval > 25193 ) ? 25193 : q_ptr->pval * q_ptr->pval;
 		}
 
 		/* Otherwise drop an item */
@@ -656,7 +656,7 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 	cave_type *c_ptr;
 
 	bool more = FALSE;
-	
+
 	(void)dir; /* I prefer to acknowledge oddness than break interfaces */
 
 	/* Take a turn */
@@ -864,7 +864,7 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 	bool		more = FALSE;
 
 	(void)dir; /* I prefer to acknowledge oddness than break interfaces */
-	
+
 	/* Take a turn */
 	energy_use = 100;
 
@@ -1025,7 +1025,7 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 	bool more = FALSE;
 
 	(void)dir; /* I prefer to acknowledge oddness than break interfaces */
-	
+
 	/* Take a turn */
 	energy_use = 100;
 
@@ -1248,8 +1248,7 @@ void do_cmd_tunnel(void)
 		c_ptr = &cave[y][x];
 
 		/* Oops */
-		if (cave_floor_grid(c_ptr) || ((c_ptr->feat >= FEAT_MINOR_GLYPH)
-			&& (c_ptr->feat <= FEAT_PATTERN_XTRA2)))
+		if (cave_floor_grid(c_ptr))
 		{
 			/* Message */
 			msg_print("You cannot tunnel through air.");
@@ -1405,9 +1404,9 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
-	
+
 	char o_name[80];
-	
+
 	char out_val[160];
 
 
@@ -1436,26 +1435,26 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	/* Already disarmed/unlocked */
 	else if (o_ptr->pval <= 0)
 	{
-		/* Message */	
+		/* Message */
 		object_desc(o_name, o_ptr, TRUE, 3);
-		sprintf(out_val, "There are no traps on %s.", o_name);						
+		sprintf(out_val, "There are no traps on %s.", o_name);
 		msg_print(out_val);	}
 
 	/* No traps to find. */
 	else if (!chest_traps[o_ptr->pval])
 	{
-		/* Message */	
+		/* Message */
 		object_desc(o_name, o_ptr, TRUE, 3);
-		sprintf(out_val, "There are no traps on %s.", o_name);						
+		sprintf(out_val, "There are no traps on %s.", o_name);
 		msg_print(out_val);
 	}
 
 	/* Success (get a lot of experience) */
 	else if (rand_int(100) < j)
 	{
-		/* Message */	
+		/* Message */
 		object_desc(o_name, o_ptr, TRUE, 3);
-		sprintf(out_val, "You have disarmed %s.", o_name);						
+		sprintf(out_val, "You have disarmed %s.", o_name);
 		msg_print(out_val);
 		gain_exp(o_ptr->pval);
 		o_ptr->pval = (0 - o_ptr->pval);
@@ -1467,9 +1466,9 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 		/* We may keep trying */
 		more = TRUE;
 		if (flush_failure) flush();
-		/* Message */	
+		/* Message */
 		object_desc(o_name, o_ptr, TRUE, 3);
-		sprintf(out_val, "You failed to disarm %s.", o_name);						
+		sprintf(out_val, "You failed to disarm %s.", o_name);
 		msg_print(out_val);
 	}
 
@@ -2088,8 +2087,6 @@ void do_cmd_spike(void)
 	}
 }
 
-
-
 /*
 * Support code for the "Walk" and "Jump" commands
 */
@@ -2117,7 +2114,7 @@ void do_cmd_walk(int pickup)
 	if (get_rep_dir(&dir))
 	{
 		/* Take a turn */
-		energy_use = extract_energy[p_ptr->pspeed]; 
+		energy_use = extract_energy[p_ptr->pspeed];
 
 		/* Actually move the character */
 		move_player(dir, pickup);
@@ -2167,7 +2164,6 @@ void do_cmd_stay(int pickup)
 {
 	cave_type *c_ptr = &cave[py][px];
 
-
 	/* Allow repeated command */
 	if (command_arg)
 	{
@@ -2181,10 +2177,8 @@ void do_cmd_stay(int pickup)
 		command_arg = 0;
 	}
 
-
 	/* Take a turn */
 	energy_use = 100;
-
 
 	/* Spontaneous Searching */
 	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
@@ -2198,10 +2192,8 @@ void do_cmd_stay(int pickup)
 		search();
 	}
 
-
 	/* Handle "objects" */
 	carry(pickup);
-
 
 	/* Hack -- enter a store if we are on one */
 	if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
@@ -2214,10 +2206,6 @@ void do_cmd_stay(int pickup)
 		command_new = '_';
 	}
 }
-
-
-
-
 
 
 /*
@@ -2661,7 +2649,7 @@ void do_cmd_fire(void)
 				/* Deviation of standard code because we need to know if we're healing or damaging  */
 				/* And also the mutiplier is now in percent*/
 				mult = tot_dam_aux(q_ptr, tdam, m_ptr);
-				tdam = (int)(tdam * mult / 100 );				
+				tdam = (int)(tdam * mult / 100 );
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 				/* No negative damage */
@@ -2673,13 +2661,14 @@ void do_cmd_fire(void)
 				if (debug_mode)
 				{
 						msg_format("You do %d (hp: %d) damage.", tdam, m_ptr->hp);
-				}				
-			
+				}
+
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
 				{
-					/* Dead monster */
+					/* Dead monster, update potential xp decreases and stuff */
+					p_ptr->window |= (PW_MONSTER);
 				}
 
 				/* No death */
@@ -2752,7 +2741,6 @@ void do_cmd_throw(void)
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
-
 	/* Get an item (from inven or floor) */
 	if (!get_item(&item, "Throw which item? ", "You have nothing to throw." , USE_INVEN|USE_FLOOR))
 	{
@@ -2769,10 +2757,8 @@ void do_cmd_throw(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -2782,7 +2768,7 @@ void do_cmd_throw(void)
 
 	/* Single object */
 	q_ptr->number = 1;
-	
+
 	/* Modify charges for wands */
 	if(o_ptr->tval==TV_WAND)
 	{
@@ -2794,16 +2780,14 @@ void do_cmd_throw(void)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
-		inven_item_optimize(item);
+		/*Dangerous, inven_item_optimize is at the exit, in case a potion gets identified*/
 	}
-
 	/* Reduce and describe floor item */
 	else
 	{
 		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
+		/*Dangerous, inven_item_optimize */
 	}
-
 
 	/* Description */
 	object_desc(o_name, q_ptr, FALSE, 3);
@@ -2811,7 +2795,6 @@ void do_cmd_throw(void)
 	/* Find the colour and symbol for the object for throwing */
 	missile_attr = object_attr(q_ptr);
 	missile_char = object_char(q_ptr);
-
 
 	/* Extract a "distance multiplier" */
 	/* Changed for 'launcher' corruption */
@@ -2833,10 +2816,8 @@ void do_cmd_throw(void)
 	/* Chance of hitting */
 	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
 
-
 	/* Take a turn */
 	energy_use = 100;
-
 
 	/* Start at the player */
 	y = py;
@@ -2853,10 +2834,8 @@ void do_cmd_throw(void)
 		ty = target_row;
 	}
 
-
 	/* Hack -- Handle stuff */
 	handle_stuff();
-
 
 	/* Travel until stopped */
 	for (cur_dis = 0; cur_dis <= tdis; )
@@ -2961,12 +2940,12 @@ void do_cmd_throw(void)
 
 				/* Apply special damage XXX XXX XXX */
 				mult = tot_dam_aux(q_ptr, tdam, m_ptr);
-				tdam = (int)(tdam * mult / 100 );				
+				tdam = (int)(tdam * mult / 100 );
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 				/* No negative damage */
 				/*Lets face it, even if an element heals you, an arrow in your eye has gotta hurt */
-				/*So no healing here, not that immunity and resistance still work*/				
+				/*So no healing here, note that immunity and resistance still work*/
 				if (tdam < 0) tdam = 0;
 
 				/* Complex message */
@@ -3028,10 +3007,10 @@ void do_cmd_throw(void)
 		if ((hit_body) || (!cave_floor_bold(ny, nx)) || (cave[ny][nx].feat == FEAT_WATER) || (randint(100) < j)) {
 			/* Message */
 			msg_format("The %s shatters!", o_name);
-			if (potion_smash_effect(1, y, x, q_ptr->sval))
+			if (potion_smash_effect(1, y, x, q_ptr, &m_list[cave[y][x].m_idx]))
 			{
-				if ( cave[y][x].m_idx && 
-					 is_potential_hater( &(m_list[cave[y][x].m_idx]) ) 
+				if ( cave[y][x].m_idx &&
+					 is_potential_hater( &(m_list[cave[y][x].m_idx]) )
 				   )
 				{
 					char m_name[80];
@@ -3041,13 +3020,32 @@ void do_cmd_throw(void)
 					set_hate_player( &(m_list[cave[y][x].m_idx]) );
 				}
 			}
-
+			/* Reduce and describe inventory */
+			if (item >= 0)
+			{
+				inven_item_optimize(item);
+			}
+			/* Reduce and describe floor item */
+			else
+			{
+				floor_item_optimize(0 - item);
+			}
 			return;
 		} else {
 			j = 0;
 		}
 	}
 
+	/* Reduce and describe inventory */
+	if (item >= 0)
+	{
+		inven_item_optimize(item);
+	}
+	/* Reduce and describe floor item */
+	else
+	{
+		floor_item_optimize(0 - item);
+	}
 
 	/* Drop (or break) near that location */
 	drop_near(q_ptr, j, y, x);
@@ -3102,9 +3100,8 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 	/* take time and pay the price */
 	energy_use = 100;
-	if (use_hp) take_hit (((cost / 2) + (randint(cost / 2))),
-		"concentrating too hard");
-	else p_ptr->csp -= (cost / 2 ) + (randint(cost / 2));
+	if (use_hp) take_hit ( (cost / 2) + (s16b)randint(cost / 2) , "concentrating too hard");
+	else p_ptr->csp -= (cost / 2 ) + (s16b)randint(cost / 2);
 
 	p_ptr->redraw |= (PR_HP);
 
@@ -3274,7 +3271,7 @@ static void cmd_racial_power_aux (void)
 			(void)fear_monster(dir, plev);
 		}
 		break;
-*/		
+*/
 
 	case KOBOLD:
 		if (racial_aux(12, 8, A_DEX, 14))
@@ -3403,7 +3400,7 @@ void do_cmd_racial_power(void)
 {
 	int                     i = 0;
 
-	int                     Power = -1;
+	/*int                     Power = -1; UNUSED*/
 	int                     num = 0, dir = 0;
 
 	int             powers[36];
@@ -3428,13 +3425,13 @@ void do_cmd_racial_power(void)
 
 	/*cptr racial_power = "(none)";*/
 	char       racial_power[80];
-	
-	
+
+
 	/* 3 vars nicked from cmd_racial_power_aux to make the birth ability of the Morui work */
 	s16b plev = p_ptr->lev;
 	int Type = (randint(3)==1?GF_COLD:GF_FIRE);
 	cptr Type_desc = (Type == GF_COLD?"cold":"fire");
-	
+
 
 	for (num = 0; num < 36; num++)
 	{
@@ -3476,7 +3473,7 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 		}
 	}
-	
+
 	if (!(has_racial) && !(p_ptr->muta1) && !(p_ptr->psign))
 	{
 		msg_print("You have no powers to activate.");
@@ -3490,7 +3487,7 @@ void do_cmd_racial_power(void)
 		strcpy(power_desc[0], racial_power);
 		num++;
 	}
-	
+
 	if(p_ptr->psign)
 		/* New and improved sign power descriptions*/
 		for( i = 0 ; sign_powers[i].description != NULL ; i++)
@@ -3517,7 +3514,7 @@ void do_cmd_racial_power(void)
 				powers[num++] = sign_powers[i].power;
 			}
 		}
-			
+
 	if (p_ptr->muta1)
 		/* New and improved sign power descriptions*/
 		for( i = 0 ; freak_powers[i].description != NULL ; i++)
@@ -3644,7 +3641,7 @@ void do_cmd_racial_power(void)
 		}
 
 		/* Save the spell index */
-		Power = powers[i];
+		/*Power = powers[i]; UNUSED*/
 
 		/* Verify it */
 		if (ask)
@@ -3667,7 +3664,7 @@ void do_cmd_racial_power(void)
 	if (redraw) Term_load();
 
 	/* Abort if needed */
-	if (!flag) 
+	if (!flag)
 	{
 		energy_use = 0;
 		return;
@@ -3755,6 +3752,18 @@ void do_cmd_racial_power(void)
 							Type_desc = "shards";
 						}
 						break;
+					case CLASS_BLOOD_MAGE:
+						if (randint(3)==1)
+						{
+							Type = GF_MANA;
+							Type_desc = "mana";
+						}
+						else
+						{
+							Type = GF_FORCE;
+							Type_desc = "raw power";
+						}
+						break;
 					case CLASS_MAGE: case CLASS_WARRIOR_MAGE:
 					case CLASS_HIGH_MAGE:
 						if (randint(3)==1)
@@ -3768,7 +3777,7 @@ void do_cmd_racial_power(void)
 							Type_desc = "disenchantment";
 						}
 						break;
-					case CLASS_HELL_KNIGHT: case CLASS_WARLOCK:
+					case CLASS_HELL_KNIGHT: case CLASS_WARLOCK: case CLASS_CHAOS_KNIGHT:
 						if (randint(3)!=1)
 						{
 							Type = GF_CONFUSION;
@@ -3792,7 +3801,7 @@ void do_cmd_racial_power(void)
 							Type_desc = "sound";
 						}
 						break;
-					case CLASS_MINDCRAFTER:
+					case CLASS_ORPHIC:
 						if (randint(3)!=1)
 						{
 							Type = GF_CONFUSION;
@@ -3814,6 +3823,18 @@ void do_cmd_racial_power(void)
 						{
 							Type = GF_HOLY_FIRE;
 							Type_desc = "holy fire";
+						}
+						break;
+					case CLASS_BLACK_KNIGHT:
+						if (randint(3)==1)
+						{
+							Type = GF_DARK;
+							Type_desc = "darkness";
+						}
+						else
+						{
+							Type = GF_NETHER;
+							Type_desc = "nether";
 						}
 						break;
 					case CLASS_ROGUE:
@@ -3846,7 +3867,7 @@ void do_cmd_racial_power(void)
 				(void)detect_doors();
 				(void)detect_stairs();
 			}
-			break;	
+			break;
 		case COR1_SPIT_ACID:
 			if (racial_aux(9, 9, A_DEX, 15))
 			{
@@ -4320,4 +4341,3 @@ void do_cmd_racial_power(void)
 	/* Success */
 	return;
 }
-

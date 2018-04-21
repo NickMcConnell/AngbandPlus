@@ -1,9 +1,9 @@
 # File: makefile.cyg
 
 # Purpose: Makefile support for "main-win.c" compiling with Cygwin.
-
-#
-# Note: Rename to "Makefile" before using
+# This got updated in 2018
+# Run in cygwin with
+#make -fmakefile.cyg install
 
 #
 # Basic definitions
@@ -36,13 +36,19 @@ INCS = \
 	z-virt.h $(HDRS)
 
 # Compiler
-CC = gcc
+# So... I dislike needing to install mingw separately,
+# So I am using x86_64-w64-mingw32-gcc which uses a separate
+# Cygwin package (make sure to install it), on older 32 bit systems
+# you could just use gcc
+#CC = gcc
+CC=x86_64-w64-mingw32-gcc
 
-# Compiler flags
-CFLAGS = -Wall -O2 -fno-strength-reduce -DWINDOWS -mno-cygwin
+# Compiler flags, you are allowed to remove -ggdb3 which adds a ton of debug info
+# Also set Optimizer to 3 for a release
+CFLAGS = -Wall -O3 -fno-strength-reduce -DWINDOWS 
 
 # Libraries
-LIBS = -s -mwindows -e _mainCRTStartup -lwinmm -mno-cygwin
+LIBS = -s -mwindows  -lwinmm
 
 WRES = windres
 
@@ -70,14 +76,17 @@ clean:  cleanobjs cleanbin
 #
 
 hellband: $(EXOBJS)
-	$(CC) -o hellband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS) -mno-cygwin
+	$(CC) -o hellband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
 #
 # Compile source files
 #
 
+#If you are on 64 bit, then you need to remove the angband.rc to force re-compiling
+#32 bit	$(WRES) $< -O coff -o $@
+#64 bit	$(WRES) $< -O coff --target=pe-x86-64 -o $@
 angband.res : angband.rc
-	$(WRES) $< -O coff -o $@
+	$(WRES) $< -O coff -v --target=pe-x86-64 -o $@
 
 #
 # Compiling objects

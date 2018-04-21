@@ -10,13 +10,13 @@
  * are included in all such copies.
  *
  * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
@@ -29,8 +29,9 @@
 
 
 extern void do_poly_self();
-
-
+extern bool item_tester_hook_armour(object_type *o_ptr);
+extern int get_spell(int *sn, cptr prompt, int use_realm , int sval, bool known );
+extern void do_cmd_rerate(void);
 
 /*
 * Helper function -- return a "nearby" race for polymorphing
@@ -129,15 +130,11 @@ void teleport_away(int m_idx, int dis)
 
 			/* Require "empty" floor space */
 			/*if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER && !water_ok(m_ptr->r_idx))) continue;*/
-			if(!can_place_monster(ny,nx,m_ptr->r_idx))continue;	
+			if(!can_place_monster(ny,nx,m_ptr->r_idx))continue;
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
 			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
-
-			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-				(cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
 
 			/* No teleporting into vaults and such */
 			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
@@ -186,7 +183,7 @@ void teleport_away(int m_idx, int dis)
 */
 void teleport_to_player(int m_idx)
 {
-	int  oy, ox, d, i, min;	
+	int  oy, ox, d, i, min;
 	int  nx   = 0;
 	int  ny   = 0;
 	int  dis  = 2;
@@ -233,15 +230,11 @@ void teleport_to_player(int m_idx)
 
 			/* Require "empty" floor space */
 			/*if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER && !water_ok(m_ptr->r_idx))) continue;*/
-			if(!can_place_monster(ny,nx,m_ptr->r_idx))continue;	
+			if(!can_place_monster(ny,nx,m_ptr->r_idx))continue;
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
 			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
-
-			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-				(cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
 
 			/* No teleporting into vaults and such */
 			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
@@ -560,11 +553,6 @@ void teleport_player_level(void)
 	sound(SOUND_TPLEVEL);
 }
 
-
-
-
-
-
 /*
 * Get a legal "multi-hued" colour for drawing "spells"
 */
@@ -605,6 +593,7 @@ static byte spell_colour(int type)
 	switch (type)
 	{
 	case GF_MISSILE:        return (TERM_SLATE);
+	case GF_EXP:	        return (TERM_YELLOW);
 	case GF_ACID:           return (randint(5)<3?TERM_YELLOW:TERM_L_GREEN);
 	case GF_ELEC:           return (randint(7)<6?TERM_WHITE:(randint(4)==1?TERM_BLUE:TERM_L_BLUE));
 	case GF_FIRE:           return (randint(6)<4?TERM_YELLOW:(randint(4)==1?TERM_RED:TERM_L_RED));
@@ -641,7 +630,7 @@ static byte spell_colour(int type)
 	case GF_PSI_DRAIN:
 	case GF_TELEKINESIS:
 	case GF_DOMINATION:		return (randint(3)!=1?TERM_L_BLUE:TERM_WHITE);
-    case GF_HECATE:           return (randint(4)==1?TERM_ORANGE:TERM_YELLOW);;        
+    case GF_HECATE:           return (randint(4)==1?TERM_ORANGE:TERM_YELLOW);;
 	}
 
 	/* Standard "colour" */
@@ -679,7 +668,7 @@ static byte bolt_graf_attr(int type)
 	case GF_TIME:           return (144);
 	case GF_LITE_WEAK:      return (143);
 	case GF_LITE:           return (143);
-    case GF_HECATE:         return (143);
+	case GF_HECATE:         return (143);
 	case GF_DARK_WEAK:      return (143);
 	case GF_DARK:           return (143);
 	case GF_PLASMA:         return (144);
@@ -740,7 +729,7 @@ static byte ball_graf_char(int type)
 	case GF_TIME:           return (145);
 	case GF_LITE_WEAK:      return (142);
 	case GF_LITE:           return (142);
-   	case GF_HECATE:         return (142); 
+	case GF_HECATE:         return (142);
 	case GF_DARK_WEAK:      return (143);
 	case GF_DARK:           return (143);
 	case GF_PLASMA:         return (147);
@@ -792,7 +781,7 @@ static byte base_bolt_char(int type)
 	case GF_TIME:           return (132);
 	case GF_LITE_WEAK:      return (152);
 	case GF_LITE:           return (152);
-	case GF_HECATE:         return (152);        
+	case GF_HECATE:         return (152);
 	case GF_DARK_WEAK:      return (156);
 	case GF_DARK:           return (156);
 	case GF_PLASMA:         return (140);
@@ -833,7 +822,6 @@ void take_hit(int damage, cptr hit_from)
 
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
-
 	/* Paranoia */
 	if (death) return;
 
@@ -851,7 +839,7 @@ void take_hit(int damage, cptr hit_from)
 		return;
 	}
 	}
-
+	/* Wraith form is awesome for preventing damage ;] */
 	if (p_ptr->wraith_form)
 	{
 		damage /= 10;
@@ -1198,7 +1186,7 @@ static int inven_damage(inven_func typ, int perc)
 
 				/* Potions smash open */
 				if (k_info[o_ptr->k_idx].tval == TV_POTION) {
-					(void)potion_smash_effect(0, py, px, o_ptr->sval);
+					(void)potion_smash_effect(0, py, px, o_ptr, NULL);
 				}
 
 
@@ -1643,9 +1631,10 @@ bool apply_disenchant(int mode)
 	char            o_name[80];
 
 
-	/* Unused */
-	mode = mode;
-
+	/* Unused, for now we only accept 0 */
+	if(mode != 0){
+		return (FALSE);
+	}
 
 	/* Pick a random slot */
 	switch (randint(8))
@@ -1678,7 +1667,6 @@ bool apply_disenchant(int mode)
 	/* Describe the object */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
-
 	/* Artifacts have 71% chance to resist */
 	if ((artefact_p(o_ptr) || o_ptr->art_name) && (rand_int(100) < 71))
 	{
@@ -1690,7 +1678,6 @@ bool apply_disenchant(int mode)
 		/* Notice */
 		return (TRUE);
 	}
-
 
 	/* Disenchant tohit */
 	if (o_ptr->to_h > 0) o_ptr->to_h--;
@@ -1748,52 +1735,26 @@ void corruption_shuffle(void)
 */
 static void apply_nexus(monster_type *m_ptr)
 {
+	switch (randint(7)){
 
-	switch (randint(7))
-	{
-	case 1: case 2: case 3:
-		{
-			teleport_player(200);
-			break;
-		}
-
-	case 4: case 5:
-		{
-			teleport_player_to(m_ptr->fy, m_ptr->fx);
-			break;
-		}
-
+	case 1: case 2: case 3: teleport_player(200); break;
+	case 4: case 5:	teleport_player_to(m_ptr->fy, m_ptr->fx); break;
 	case 6:
-		{
-			if (rand_int(100) < p_ptr->skill_sav)
-			{
-				msg_print("You resist the effects!");
-				break;
-			}
-
-			/* Teleport Level */
+		if (rand_int(100) < p_ptr->skill_sav)
+			msg_print("You resist the effects!");
+		else
 			teleport_player_level();
-			break;
-		}
-
+		break;
 	case 7:
-		{
-			if (rand_int(100) < p_ptr->skill_sav)
-			{
-				msg_print("You resist the effects!");
-				break;
-			}
-
+		if (rand_int(100) < p_ptr->skill_sav){
+			msg_print("You resist the effects!");
+		} else {
 			msg_print("Your body starts to scramble...");
 			corruption_shuffle();
-			break;
 		}
+		break;
 	}
 }
-
-
-
-
 
 /*
 * Mega-Hack -- track "affected" monsters (see "project()" comments)
@@ -1801,7 +1762,6 @@ static void apply_nexus(monster_type *m_ptr)
 static int project_m_n;
 static int project_m_x;
 static int project_m_y;
-
 
 
 /*
@@ -1826,13 +1786,11 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 	bool    obvious = FALSE;
 
-
 	/* XXX XXX XXX */
 	who = who ? who : 0;
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
-
 
 	/* Analyze the type */
 	switch (typ)
@@ -2084,14 +2042,14 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 	{
 		/* Non-walls (etc) */
 		if (cave_floor_bold(y, x)) break;
-		
+
 		/* Permanent walls */
 		if (c_ptr->feat >= FEAT_PERM_BUILDING) break;
-		
+
 		/* Only give a message when we see the thing happening*/
 		if (c_ptr->info & (CAVE_MARK))
-		{		
-			obvious = TRUE;			
+		{
+			obvious = TRUE;
 			/* Granite */
 			if (c_ptr->feat >= FEAT_WALL_EXTRA)
 				msg_print("The wall turns into rubble!");
@@ -2111,10 +2069,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		cave_set_feat(y, x, FEAT_RUBBLE);
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
-		
+
 		break;
 	}
-		
+
 		/* Make doors */
 	case GF_MAKE_DOOR:
 		{
@@ -2145,7 +2103,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-
 	case GF_MAKE_GLYPH:
 		{
 			/* Require a "naked" floor grid */
@@ -2155,8 +2112,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 			break;
 		}
-
-
 
 	case GF_STONE_WALL:
 		{
@@ -2172,7 +2127,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Lite up the grid */
 	case GF_LITE_WEAK:
 	case GF_LITE:
-    case GF_HECATE:    
+    case GF_HECATE:
 		{
 			/* Turn on the light */
 			c_ptr->info |= (CAVE_GLOW);
@@ -2259,7 +2214,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	char o_name[80];
 
-	int o_sval = 0;
+	/*int o_sval = 0; UNUSED*/
 	bool is_potion = FALSE;
 
 
@@ -2268,7 +2223,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
-
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2401,7 +2355,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Mana and Primal Chaos -- destroy everything */
-		case GF_MANA: 
+		case GF_MANA:
 			{
 				do_kill = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
@@ -2423,7 +2377,16 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				if (f2 & (TR2_RES_CHAOS)) ignore = TRUE;
 			}
 			break;
-
+		case GF_EXP:
+			{
+				if( (f3 & (TR3_XP)) && o_ptr->elevel < 50 )
+				{
+					o_ptr->elevel++;
+					o_ptr->exp = player_exp[o_ptr->elevel-1];
+					object_desc( o_name , o_ptr , FALSE , 0 );
+					msg_format( "The %s grows stronger!" , o_name );
+				}
+			}
 			/* Holy Fire and Hell Fire -- destroys cursed non-artefacts */
 		case GF_HOLY_FIRE:
 		case GF_HELL_FIRE:
@@ -2465,7 +2428,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			}
 		}
 
-
 		/* Attempt to destroy the object */
 		if (do_kill)
 		{
@@ -2496,18 +2458,16 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					msg_format("The %s%s", o_name, note_kill);
 				}
 
-				o_sval = o_ptr->sval;
+				/*o_sval = o_ptr->sval; UNUSED*/
 				is_potion = (k_info[o_ptr->k_idx].tval == TV_POTION);
-
-
-				/* Delete the object */
-				delete_object_idx(this_o_idx);
 
 				/* Potions produce effects when 'shattered' */
 				if (is_potion) {
-					(void)potion_smash_effect(who, y, x, o_sval);
+					(void)potion_smash_effect(who, y, x, o_ptr, NULL);
 				}
 
+				/* Delete the object */
+				delete_object_idx(this_o_idx);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -2528,7 +2488,7 @@ int project_m_helper( bool seen , u32b monsterflags , u32b *recallflags , u32b s
 		*note = potential_note;
 		if (seen) *recallflags |= (specific_monsterflag);
 		return TRUE;
-	}	
+	}
 	return FALSE;
 }
 
@@ -2641,15 +2601,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Never affect projector */
 	if (who && (c_ptr->m_idx == who)) return (FALSE);
 
-
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
-
 	/* Get the monster name (BEFORE polymorphing) */
 	monster_desc(m_name, m_ptr, 0);
-
-
 
 	/* Some monsters get "destroyed" */
 	if ((r_ptr->flags3 & (RF3_DEMON)) ||
@@ -2707,11 +2663,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_DISP_FALLEN_ANGEL:
 			if (r_ptr->flags3 & RF3_FALLEN_ANGEL)
 				get_angry = TRUE;
-			break;			
+			break;
 		case GF_DISP_DEVIL:
 			if (r_ptr->flags3 & RF3_DEVIL)
 				get_angry = TRUE;
-			break;						
+			break;
 		case GF_DISP_LIVING:
 			if (!(r_ptr->flags3 & (RF3_UNDEAD)) &&
 				!(r_ptr->flags3 & (RF3_NONLIVING)))
@@ -2763,7 +2719,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Acid */
 	case GF_ACID:
 		{
-			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ACID	 , &dam , dam /2 , &note , " resists.");			
+			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ACID	 , &dam , dam /2 , &note , " resists.");
 			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ACID	 , &dam , dam /9 , &note , " resists a lot.");
 			break;
 		}
@@ -2771,37 +2727,37 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Electricity */
 	case GF_ELEC:
 		{
-			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ELEC  , &dam , dam /2 , &note , " resists.");			
+			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ELEC  , &dam , dam /2 , &note , " resists.");
 			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ELEC	 , &dam , dam /9 , &note , " resists a lot.");
 			/*project_m_helper( r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_ELEC , &dam , dam *3 , &note , " shakes violently.");*/
-			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_ELEC , &dam , -dam   , &note , " heals up.");			
+			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_ELEC , &dam , -dam   , &note , " heals up.");
 			break;
 		}
 
 		/* Fire damage */
 	case GF_FIRE:
 		{
-			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_FIRE  , &dam , dam /2 , &note , " resists.");			
+			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_FIRE  , &dam , dam /2 , &note , " resists.");
 			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_FIRE   , &dam , dam /9 , &note , " resists a lot.");
-			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_FIRE , &dam , dam *3 , &note , " bursts in flames.");			
-			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_FIRE , &dam , -dam   , &note , " heals up.");			
+			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_FIRE , &dam , dam *3 , &note , " bursts in flames.");
+			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_FIRE , &dam , -dam   , &note , " heals up.");
 			break;
 		}
 
 		/* Cold */
 	case GF_COLD:
 		{
-			project_m_helper( seen , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_COLD  , &dam , dam /2 , &note , " resists.");			
-			project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_COLD	 , &dam , dam /9 , &note , " resists a lot.");
-			project_m_helper( seen , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_COLD , &dam , dam *3 , &note , " freezes up.");			
-			project_m_helper( seen , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_COLD , &dam , -dam   , &note , " heals up.");	
+			project_m_helper( seen , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_COLD  , &dam , dam /2 , &note , " resists.");
+			project_m_helper( seen , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_COLD  , &dam , dam /9 , &note , " resists a lot.");
+			project_m_helper( seen , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_COLD , &dam , dam *3 , &note , " freezes up.");
+			project_m_helper( seen , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_COLD , &dam , -dam   , &note , " heals up.");
 			break;
 		}
 
 		/* Poison */
 	case GF_POIS:
 		{
-			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_POIS  , &dam , dam /2 , &note , " resists.");			
+			project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_POIS  , &dam , dam /2 , &note , " resists.");
 			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_POIS   , &dam , dam /9 , &note , " resists a lot.");
 			break;
 		}
@@ -2809,7 +2765,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Nuclear waste */
 	case GF_HELLSLIME:
 		{
-			
+
 			if(!project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_POIS   , &dam , dam * 3 / (randint(6)+6) , &note , " resists.") )
 				if (randint(3)==1) do_poly = TRUE;
  			break;
@@ -2819,10 +2775,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_HELL_FIRE:
 		{
 				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_EVIL    , &dam , dam * 2 , &note , " is hit hard.");
-				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_GOOD    , &dam , dam * 2 , &note , " is hit hard.");				
-				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DEMON   , &dam , 0 , &note , " is immune.");				
-				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DEVIL   , &dam , 0 , &note , " is immune.");				
-				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DRAGON  , &dam , 0 , &note , " is immune.");								
+				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_GOOD    , &dam , dam * 2 , &note , " is hit hard.");
+				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DEMON   , &dam , 0 , &note , " is immune.");
+				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DEVIL   , &dam , 0 , &note , " is immune.");
+				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DRAGON  , &dam , 0 , &note , " is immune.");
 			break;
 		}
 		/* Holy Fire -- hurts Evil, Good are immune, others _resist_ */
@@ -2832,7 +2788,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				!project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_GOOD    , &dam , 0 , &note , " is immune.") )
 			{
 				note = " resists.";
-				dam *= 3; dam /= (randint(6)+6);			
+				dam *= 3; dam /= (randint(6)+6);
 			}
 			break;
 		}
@@ -2845,7 +2801,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_PLASMA:
 		{
 			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_FIRE  , &dam , dam / 10 * 7 , &note , " resists a little.");
-			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ELEC  , &dam , dam / 10 * 7 , &note , " resists a little.");			
+			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ELEC  , &dam , dam / 10 * 7 , &note , " resists a little.");
 			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_PLAS , &dam , dam * 3 / (randint(6)+6) , &note , " resists.");
 			break;
 		}
@@ -2853,29 +2809,29 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_NETHER:
 		{
 			if(project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_NETH , &dam , -dam , &note , " heals up!"))
-				break;	
+				break;
 			if(!project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_EVIL     , &dam , dam / 2 , &note , " resists a little.") )
-				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_NETH , &dam , dam * 3 / (randint(6)+6) , &note , " resists.");			
+				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_NETH , &dam , dam * 3 / (randint(6)+6) , &note , " resists.");
 			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_UNDEAD   , &dam , 0 , &note , " is immune.");
 			break;
 		}
 
 		/* Water (acid) damage -- Water spirits/elementals are immune */
-	case GF_WATER:	
+	case GF_WATER:
 		{
 
 			if ( (strstr((r_name + r_ptr->name),"Lasha, Mistress of Water")) ||
 				 (strstr((r_name + r_ptr->name),"Rahab, Dragon of the Waters")) ||
-				 (strstr((r_name + r_ptr->name),"Vinea")) ||				 
-				 (strstr((r_name + r_ptr->name),"Leviathan, Admiral of the Devil's Navy")) ||				 				 
-				 (strstr((r_name + r_ptr->name),"Behemoth, the Cupbearer")) 				 				 
+				 (strstr((r_name + r_ptr->name),"Vinea")) ||
+				 (strstr((r_name + r_ptr->name),"Leviathan, Admiral of the Devil's Navy")) ||
+				 (strstr((r_name + r_ptr->name),"Behemoth, the Cupbearer"))
 				 )
 			{
 				note = " is immune.";
 				dam = 0;
 			}
-			else  
-				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_WATE   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");	
+			else
+				project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_WATE   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");
 			break;
 		}
 
@@ -2902,43 +2858,43 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Shard ball */
 	case GF_SHARD:
 		{
-		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_SHAR   , &dam , dam / 2 , &note , " resists somewhat.");	
+		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_SHAR   , &dam , dam / 2 , &note , " resists somewhat.");
 			break;
 		}
 		/* Sound -- Sound breathers resist */
 	case GF_SOUND:
 		{
 			do_stun = (10 + randint(15) + r) / (r + 1);
-		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_SOUN   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");	
-			break;			
+		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_SOUN   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");
+			break;
 		}
 		/* Confusion */
 	case GF_CONFUSION:
 		{
 			do_conf = (10 + randint(15) + r) / (r + 1);
 		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_CONF   , &dam , dam * 2 / (randint(6) + 6) , &note , " resists.");
-			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_NO_CONF   , &dam , dam / 2 , &note , " resists somewhat.");	
+			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_NO_CONF   , &dam , dam / 2 , &note , " resists somewhat.");
 			break;
 		}
 		/* Disenchantment -- Breathers and Disenchanters resist */
 	case GF_DISENCHANT:
 		{
-		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_DISE   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");				
-			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_DISE  , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");			
+		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_DISE   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");
+			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_DISE  , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");
 			break;
 		}
 		/* Nexus -- Breathers and Existers resist */
 	case GF_NEXUS:
 		{
-		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_NEXU   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");				
-			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_NEXU  , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");			
-			break;			
+		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_NEXU   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");
+			project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_RES_NEXU  , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");
+			break;
 		}
 		/* Force */
 	case GF_FORCE:
 		{
 			do_stun = (randint(15) + r) / (r + 1);
-		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_WALL   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");						
+		    project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_WALL   , &dam , dam * 3 / (randint(6) + 6) , &note , " resists.");
 			break;
 		}
 
@@ -2955,7 +2911,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Normal monsters slow down */
 				else
 				{
-					if (m_ptr->mspeed > 60) 
+					if (m_ptr->mspeed > 60)
 					{
 						m_ptr->mspeed -= 10;
 						note = " starts moving slower.";
@@ -2999,16 +2955,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			if (!resist_tele) do_dist = 10;
 			else do_dist = 0;
-			
+
 			/* If we resisted, dont do this rigamarole */
-			if(	do_dist > 0 && project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_GRAV  , &dam , dam * 3 / (randint(6)+6)  , &note , " resists.") )			
+			if(	do_dist > 0 && project_m_helper( seen, r_ptr->flags4 , &r_ptr->r_flags4 , RF4_BR_GRAV  , &dam , dam * 3 / (randint(6)+6)  , &note , " resists.") )
 			{
 				do_dist = 0;
-			}			
+			}
 			else
 			{
 				/*Stun*/
-				do_stun = damroll((p_ptr->lev / 10) + 3 , (dam)) + 1;				
+				do_stun = damroll((p_ptr->lev / 10) + 3 , (dam)) + 1;
 				/* 1. stun & slowness, powerful monsters can resist */
 				if ( (r_ptr->flags1 & (RF1_UNIQUE)) || dam < 11 || r_ptr->level > randint(dam - 10) )
 				{
@@ -3019,7 +2975,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Normal monsters slow down */
 				else
 				{
-					if (m_ptr->mspeed > 60) 
+					if (m_ptr->mspeed > 60)
 					{
 						m_ptr->mspeed -= 10;
 						note = " starts moving slower.";
@@ -3041,8 +2997,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_DISINTEGRATE:
 		{
 			if(	project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_ROCK  , &dam , dam * 2  , &note , " disintegrates!.") )
-			{	
-				note_dies = " evaporates!";			
+			{
+				note_dies = " evaporates!";
 			}
 			else
 			{
@@ -3052,20 +3008,20 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 						dam >>= 3;
 				}
 			}
-			break;	
+			break;
 		}
 		/*  psi attack as in mind blast, potentially backfiring, potentially confusing/stunning/paralyzing */
 	case GF_PSI:
 		{
 			if(	!project_m_helper( seen, r_ptr->flags2 , &r_ptr->r_flags2 , RF2_EMPTY_MIND  , &dam , 0 , &note , " is immune!.") )
 			{
-				if ((r_ptr->flags2 & RF2_STUPID) ||	(r_ptr->flags2 & RF2_WEIRD_MIND) ||	(r_ptr->flags3 & RF3_ANIMAL) || (r_ptr->level > randint(3 * dam))) 
+				if ((r_ptr->flags2 & RF2_STUPID) ||	(r_ptr->flags2 & RF2_WEIRD_MIND) ||	(r_ptr->flags3 & RF3_ANIMAL) || (r_ptr->level > randint(3 * dam)))
 				{
 					dam /= 3;
 					note = " resists.";
 				}
-				/* Powerful demons & undead can turn a mindcrafter's attacks back on them */
-				if (((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON)) && (r_ptr->level > p_ptr->lev/2) && (randint(2) == 1)) 
+				/* Powerful demons & undead can turn a orphic's attacks back on them */
+				if (((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON)) && (r_ptr->level > p_ptr->lev/2) && (randint(2) == 1))
 				{
 					note = NULL;
 					msg_format("%^s%s corrupted mind backlashes your attack!", m_name, (seen ? "'s" : "s"));
@@ -3076,7 +3032,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 						/* Injure +/- confusion */
 						monster_desc(killer, m_ptr, 0x88);
 						take_hit(dam, killer);  /* has already been /3 */
-						if (randint(4) == 1) 
+						if (randint(4) == 1)
 						{
 							switch (randint(4)) {
 								case 1:
@@ -3102,7 +3058,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 					}/* End of backlash*/
 				}/*End of powerful undead or demon*/
 				/* Work out potential damage from a psi attack*/
-				if ((dam > 0) && (randint(4) == 1)) 
+				if ((dam > 0) && (randint(4) == 1))
 				{
 					switch (randint(4)) {
 						case 1:
@@ -3123,13 +3079,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if(	!project_m_helper( seen, r_ptr->flags2 , &r_ptr->r_flags2 , RF2_EMPTY_MIND  , &dam , 0 , &note , " is immune!.") )
 			{
-				if ((r_ptr->flags2 & RF2_STUPID) ||	(r_ptr->flags2 & RF2_WEIRD_MIND) ||	(r_ptr->flags3 & RF3_ANIMAL) || (r_ptr->level > randint(3 * dam))) 
+				if ((r_ptr->flags2 & RF2_STUPID) ||	(r_ptr->flags2 & RF2_WEIRD_MIND) ||	(r_ptr->flags3 & RF3_ANIMAL) || (r_ptr->level > randint(3 * dam)))
 				{
 					dam /= 3;
 					note = " resists.";
 				}
-				/* Powerful demons & undead can turn a mindcrafter's attacks back on them */
-				if ( ( (r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON) ) &&	(r_ptr->level > p_ptr->lev/2) && (randint(2) == 1) ) 
+				/* Powerful demons & undead can turn a orphic's attacks back on them */
+				if ( ( (r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON) ) &&	(r_ptr->level > p_ptr->lev/2) && (randint(2) == 1) )
 				{
 					note = NULL;
 					msg_format("%^s%s corrupted mind backlashes your attack!", m_name, (seen ? "'s" : "s") );
@@ -3191,7 +3147,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (r_ptr->flags3 & (RF3_NO_CONF) && seen ) r_ptr->r_flags3 |= (RF3_NO_CONF);
 				/* Resist */
 				do_conf = 0;
-				/* Powerful demons & undead can turn a mindcrafter's
+				/* Powerful demons & undead can turn a orphic's
 				* attacks back on them */
 				if (((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON)) && (r_ptr->level > p_ptr->lev/2) && (randint(2) == 1) )
 				{
@@ -3200,8 +3156,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 					/* Saving throw */
 					if (rand_int(100) < p_ptr->skill_sav) {
 						msg_print("You resist the effects!");
-					} 
-					else 
+					}
+					else
 					{
 						/* Confuse, stun, terrify */
 						switch (randint(4)) {
@@ -3220,28 +3176,28 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 								}
 						}/*End of switch*/
 					}/*End of backlash*/
-				} 
-				else 
+				}
+				else
 				{
 					/* No obvious effect */
 					note = " is unaffected!";
 					obvious = FALSE;
 				}
-			} 
-			else 
+			}
+			else
 			{
-				if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD) ) 
+				if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD) )
 				{
 					note = " hates you too much!";
-				} 
-				else 
+				}
+				else
 				{
 					if ((dam > 29) && (randint(100) < dam)) {
 						note = " is in your thrall!";
 						/*Set monster charmed, but not super charmed*/
 						set_ally( m_ptr, ALLY_PLAYER);
-					} 
-					else 
+					}
+					else
 					{
 						switch (randint(4)) {
 							case 1:
@@ -3263,22 +3219,22 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_ICE:
 		{
 			do_stun = (randint(15) + 1) / (r + 1);
-			project_m_helper( seen , r_ptr->flags7  , &r_ptr->r_flags7  , RF7_RES_COLD  , &dam , dam /2 , &note , " resists.");			
+			project_m_helper( seen , r_ptr->flags7  , &r_ptr->r_flags7  , RF7_RES_COLD  , &dam , dam /2 , &note , " resists.");
 			project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_IM_COLD	, &dam , dam /9 , &note , " resists a lot.");
-			project_m_helper( seen , r_ptr->flags3  , &r_ptr->r_flags3  , RF3_HURT_COLD , &dam , dam *3 , &note , " freezes up.");			
-			project_m_helper( seen , r_ptr->flags7  , &r_ptr->r_flags7  , RF7_HEAL_COLD , &dam , -dam   , &note , " heals up.");				
+			project_m_helper( seen , r_ptr->flags3  , &r_ptr->r_flags3  , RF3_HURT_COLD , &dam , dam *3 , &note , " freezes up.");
+			project_m_helper( seen , r_ptr->flags7  , &r_ptr->r_flags7  , RF7_HEAL_COLD , &dam , -dam   , &note , " heals up.");
 			break;
 		}
 		/* Drain Life */
 	case GF_OLD_DRAIN:
 		{
-			if(	
+			if(
 				project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_UNDEAD	, &dam , 0 , &note , " is unaffected.") ||
 				project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_DEMON		, &dam , 0 , &note , " is unaffected.") ||
 				project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_NONLIVING	, &dam , 0 , &note , " is unaffected.") ||
 				(strchr("Egv", r_ptr->d_char)))
-			{	
-				obvious = FALSE;				
+			{
+				obvious = FALSE;
 				note = " is unaffected!";  /* Silly 4th if clause ;{ */
 			}
 			break;
@@ -3286,10 +3242,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Death Ray */
 	case GF_DEATH_RAY:
 		{
-			if(	
+			if(
 				project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_UNDEAD	, &dam , 0 , &note , " is unaffected.") ||
-				project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_NONLIVING	, &dam , 0 , &note , " is unaffected.") )	
-				obvious = FALSE;				
+				project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_NONLIVING	, &dam , 0 , &note , " is unaffected.") )
+				obvious = FALSE;
 			/* if the monster is unique AND on a 1/888 chance OR the level plus d20 is > the damage + d10 AND you have a 1 in 66 chance , thanks Elly*/
 			else if ( ( (r_ptr->flags1 & (RF1_UNIQUE)) && (randint(888) != 666)) || ( ( (r_ptr->level + randint(20) ) > randint( (dam)+randint(10) ) ) && randint(100) != 66 ) )
 			{
@@ -3387,7 +3343,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				}
 				else{
 					note = " is unaffected";
-					obvious = FALSE;					
+					obvious = FALSE;
 				}
 			}
 
@@ -3600,16 +3556,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             /* Memorize a flag */
             if (r_ptr->flags3 & (RF3_NO_CONF) && seen ) r_ptr->r_flags3 |= (RF3_NO_CONF);
         }
-        else if (randint(100) < dam) 
+        else if (randint(100) < dam)
         {
             note = " is in your thrall!";
 			set_ally( m_ptr, ALLY_PLAYER);
-        } 
+        }
         if (!(is_ally(m_ptr)))
         {
             if (randint(100) < dam)
-			{ 
-                do_stun = dam; 
+			{
+                do_stun = dam;
             }
             else if (randint(100) < dam)
 			{
@@ -3624,16 +3580,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
         if( !(r_ptr->flags3 & RF3_HURT_LITE) )
             dam = 0;
         break;
-    }        
+    }
 		/* Lite -- opposite of Dark */
 	case GF_LITE:
 		{
 			if( project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_HURT_LITE	, &dam , dam * 2  , &note , " cringes from the light!.")	)
-				note_dies = " shrivels away in the light!";			
+				note_dies = " shrivels away in the light!";
 			project_m_helper( seen ,  r_ptr->flags4 , &r_ptr->r_flags4  , RF4_BR_LITE	, &dam , dam * 2 / (randint(6)+6) , &note , " resists.");
 			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_RES_LITE	, &dam , dam / 3 , &note , " resists.");
-			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_IM_LITE	, &dam , dam / 9 , &note , " resists a lot.");			
-			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_HEAL_LITE	, &dam , -dam    , &note , " heals up!.");				
+			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_IM_LITE	, &dam , dam / 9 , &note , " resists a lot.");
+			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_HEAL_LITE	, &dam , -dam    , &note , " heals up!.");
 			break;
 		}
 		/* Dark -- opposite of Lite */
@@ -3641,29 +3597,29 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			project_m_helper( seen ,  r_ptr->flags4 , &r_ptr->r_flags4  , RF4_BR_DARK	, &dam , dam * 2 / (randint(6)+6) , &note , " resists.");
 			project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_HURT_LITE	, &dam , dam * 2 / (randint(6)+6) , &note , " resists.");
-			project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_TROLL		, &dam , dam * 2 / (randint(6)+6) , &note , " resists.");			
-			
+			project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_TROLL		, &dam , dam * 2 / (randint(6)+6) , &note , " resists.");
+
 			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_RES_DARK	, &dam , dam / 3 , &note , " resists.");
 			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_IM_DARK	, &dam , dam / 9 , &note , " resists a lot.");
-			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_HURT_DARK	, &dam , dam * 3 , &note , " fades!.");		
-			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_HEAL_DARK	, &dam , -dam    , &note , " heals up!.");	
-			
+			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_HURT_DARK	, &dam , dam * 3 , &note , " fades!.");
+			project_m_helper( seen ,  r_ptr->flags7 , &r_ptr->r_flags7  , RF7_HEAL_DARK	, &dam , -dam    , &note , " heals up!.");
+
 			break;
 		}
 		/* Stone to Mud */
 	case GF_BLASTED_TOWER:
 	{
-		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ELEC  , &dam , dam /2 , &note , " resists.");			
-		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_FIRE  , &dam , dam /2 , &note , " resists.");			
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ELEC  , &dam , dam /2 , &note , " resists.");
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_FIRE  , &dam , dam /2 , &note , " resists.");
 
 		project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ELEC	 , &dam , dam /9 , &note , " resists a lot.");
 		project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_FIRE   , &dam , dam /9 , &note , " resists a lot.");
 
-		project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_FIRE , &dam , dam *3 , &note , " bursts in flames.");					
-		
-		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_ELEC , &dam , -dam   , &note , " heals up.");			
-		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_FIRE , &dam , -dam   , &note , " heals up.");			
-		
+		project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_FIRE , &dam , dam *3 , &note , " bursts in flames.");
+
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_ELEC , &dam , -dam   , &note , " heals up.");
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_FIRE , &dam , -dam   , &note , " heals up.");
+
 		break;
 	}
 	case GF_KILL_WALL:
@@ -3673,14 +3629,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else{
 				/* No damage */
 				dam = 0;
-				obvious = FALSE;					
-			}	
+				obvious = FALSE;
+			}
 			break;
 		}
 		/* Teleport undead (Use "dam" as "power") */
 	case GF_AWAY_UNDEAD:
 		{
-			
+
 			/* Only affect undead */
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
@@ -3758,7 +3714,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				else
 				{
 					obvious = FALSE;
-				}				
+				}
 			}
 
 			/* Others ignore */
@@ -3803,7 +3759,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				obvious = FALSE;
-			}	
+			}
 
 			/* No "real" damage */
 			dam = 0;
@@ -4061,63 +4017,63 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 		/*Dispel fallen angels*/
-	case GF_DISP_FALLEN_ANGEL:	
+	case GF_DISP_FALLEN_ANGEL:
 	{
 		/* Only affect fallen angels */
 		if (r_ptr->flags3 & (RF3_FALLEN_ANGEL))
 		{
 			/* Learn about type */
 			if (seen) r_ptr->r_flags3 |= (RF3_FALLEN_ANGEL);
-			
+
 			/* Obvious */
 			if (seen) obvious = TRUE;
-			
+
 			/* Message */
 			note = " shudders.";
 			note_dies = " dissolves!";
 		}
-		
+
 		/* Others ignore */
 		else
 		{
 			/* Irrelevant */
 			skipped = TRUE;
-			
+
 			/* No damage */
 			dam = 0;
 		}
-		
+
 		break;
 	}
 		/*Dispel devils*/
-	case GF_DISP_DEVIL:	
+	case GF_DISP_DEVIL:
 	{
 		/* Only affect devils */
 		if (r_ptr->flags3 & (RF3_DEVIL))
 		{
 			/* Learn about type */
 			if (seen) r_ptr->r_flags3 |= (RF3_DEVIL);
-			
+
 			/* Obvious */
 			if (seen) obvious = TRUE;
-			
+
 			/* Message */
 			note = " shudders.";
 			note_dies = " dissolves!";
 		}
-		
+
 		/* Others ignore */
 		else
 		{
 			/* Irrelevant */
 			skipped = TRUE;
-			
+
 			/* No damage */
 			dam = 0;
 		}
-		
+
 		break;
-	}		
+	}
 		/* Dispel monster */
 	case GF_DISP_ALL:
 		{
@@ -4150,11 +4106,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* "Unique" monsters cannot be polymorphed */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
 
-
-	/*
-	* "Quest" monsters cannot be polymorphed
-	* Heino Vander Sanden
-	*/
+	/* "Quest" monsters cannot be polymorphed */
 	if (r_ptr->flags1 & (RF1_GUARDIAN)) do_poly = FALSE;
 
 
@@ -4165,15 +4117,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
-	/*
-	* "Quest" monsters can only be "killed" by the player
-	* Heino Vander Sanden
-	*/
+	/* "Quest" monsters can only be "killed" by the player */
 	if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD))
 	{
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
-
 
 	/* Check for death */
 	if ( dam > m_ptr->hp)
@@ -4190,7 +4138,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
 
-		charm = is_ally(m_ptr); 
+		charm = is_ally(m_ptr);
 
 		/* Pick a "new" monster race */
 		tmp = poly_r_idx(m_ptr->r_idx);
@@ -4317,7 +4265,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 		/* Redraw (later) if needed */
 		if (health_who == c_ptr->m_idx) p_ptr->redraw |= (PR_HEALTH);
-		
+
 		/* Dead monster */
 		if (m_ptr->hp < 0)
 		{
@@ -4372,7 +4320,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (health_who == c_ptr->m_idx) p_ptr->redraw |= (PR_HEALTH);
 			dam = 0;
 		}
-		
+
 		/* Hurt the monster, check for fear and death */
 		if (mon_take_hit(c_ptr->m_idx, dam, &fear, note_dies))
 		{
@@ -4502,14 +4450,14 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		/* Choose 'new' target */
 		do
 		{
-			t_y = m_list[who].fy - 1 + randint(3);
-			t_x = m_list[who].fx - 1 + randint(3);
+			t_y = m_list[who].fy - 1 + (byte_hack)randint(3);
+			t_x = m_list[who].fx - 1 + (byte_hack)randint(3);
 			max_attempts--;
 		}
 
-		while (  (max_attempts > 0) 
-				 && 
-				 in_bounds2_unsigned(t_y, t_x) 
+		while (  (max_attempts > 0)
+				 &&
+				 in_bounds2_unsigned(t_y, t_x)
 				 &&
 			     !(player_has_los_bold(t_y, t_x))
 			  );
@@ -4689,8 +4637,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by nether forces!");
 			if (p_ptr->resist_neth)
 			{
-				if (!(p_ptr->prace == SPECTRE))
+				if (p_ptr->prace != SPECTRE)
+				{
 					dam *= 6; dam /= (randint(6) + 6);
+				}
 			}
 			else
 			{
@@ -5183,7 +5133,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 * It is moving (or has moved) from (x,y) to (nx,ny).
 * If the distance is not "one", we (may) return "*".
 */
-static char bolt_char(int y, int x, int ny, int nx) 
+static char bolt_char(int y, int x, int ny, int nx)
 {
 	if ((ny == y) && (nx == x)) return '*';
 	if (ny == y) return '-';
@@ -5352,7 +5302,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 {
 	int i, t, dist;
 	int y1, x1, y2, x2;
-	int y0, x0, y9, x9;
+	int /*y0, x0, UNUSED*/ y9, x9;
 	int dist_hack = 0;
 	int y_saver, x_saver; /* For reflecting monsters */
 
@@ -5390,9 +5340,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 
 	/* Location of player */
-	y0 = py;
-	x0 = px;
-
+	/* y0 = py; x0 = px; UNUSED */
 
 	/* Hack -- Jump to target */
 	if (flg & (PROJECT_JUMP))
@@ -5662,9 +5610,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 						/* Ball explosions are stopped by walls */
 						if (typ == GF_DISINTEGRATE)
 						{
-							if (cave_valid_bold(y,x) &&
-								(c_ptr->feat < FEAT_PATTERN_START
-								|| c_ptr->feat > FEAT_PATTERN_XTRA2))
+							if (cave_valid_bold(y,x))
 								cave_set_feat(y, x, FEAT_FLOOR);
 
 							/* Update some things -- similar to GF_KILL_WALL */
@@ -5849,14 +5795,14 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 					/* Choose 'new' target */
 					do
 					{
-						t_y = y_saver - 1 + randint(3);
-						t_x = x_saver - 1 + randint(3);
+						t_y = y_saver - 1 + (byte_hack)randint(3);
+						t_x = x_saver - 1 + (byte_hack)randint(3);
 						max_attempts--;
 					}
 				/* One day, I will know what this means :  */
-					while ( (max_attempts > 0) 
-						    && 
-							in_bounds2_unsigned(t_y, t_x) 
+					while ( (max_attempts > 0)
+						    &&
+							in_bounds2_unsigned(t_y, t_x)
 							&&
 						    !(los(y, x, t_y, t_x))
 						  );
@@ -5947,156 +5893,233 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 *
 * Arguments:
 *    who   ---  who caused the potion to shatter (0=player)
-*          potions that smash on the floor are assumed to
-*          be caused by no-one (who = 1), as are those that
-*          shatter inside the player inventory.
-*          (Not anymore -- I changed this; TY)
+*               potions that smash on the floor are assumed to
+*               be caused by no-one (who = 1), as are those that
+*               shatter inside the player inventory.
+*              (Not anymore -- I changed this; TY)
 *    y, x  --- coordinates of the potion (or player if
 *          the potion was in her inventory);
 *    o_ptr --- pointer to the potion object.
 */
-bool potion_smash_effect(int who, int y, int x, int o_sval)
+bool potion_smash_effect(int who, int y, int x, object_type *o_ptr, monster_type *m_ptr)
 {
-	int       radius = 2;
-	int       dt = 0;
-	int       dam = 0;
-	bool  ident = FALSE;
+	int radius = 2;
+	int     dt = 0;
+	int    dam = 0;
+	bool ident = FALSE;
 	bool angry = FALSE;
+	char m_name[80];
+	monster_race *r_ptr;
 
-	switch(o_sval) {
-
-	  case SV_POTION_SALT_WATER:
-	  case SV_POTION_SLIME_MOLD:
-	  case SV_POTION_LOSE_MEMORIES:
-	  case SV_POTION_DEC_STR:
-	  case SV_POTION_DEC_INT:
-	  case SV_POTION_DEC_WIS:
-	  case SV_POTION_DEC_DEX:
-	  case SV_POTION_DEC_CON:
-	  case SV_POTION_DEC_CHA:
-	  case SV_POTION_WATER:   /* perhaps a 'water' attack? */
-	  case SV_POTION_APPLE_JUICE:
-
-		  return TRUE;
-
-	  case SV_POTION_INFRAVISION:
-	  case SV_POTION_DETECT_INVIS:
-	  case SV_POTION_SLOW_POISON:
-	  case SV_POTION_CURE_POISON:
-	  case SV_POTION_BOLDNESS:
-	  case SV_POTION_RESIST_HEAT:
-	  case SV_POTION_RESIST_COLD:
-	  case SV_POTION_HEROISM:
-	  case SV_POTION_BESERK_STRENGTH:
-	  case SV_POTION_RESTORE_EXP:
-	  case SV_POTION_RES_STR:
-	  case SV_POTION_RES_INT:
-	  case SV_POTION_RES_WIS:
-	  case SV_POTION_RES_DEX:
-	  case SV_POTION_RES_CON:
-	  case SV_POTION_RES_CHA:
-	  case SV_POTION_INC_STR:
-	  case SV_POTION_INC_INT:
-	  case SV_POTION_INC_WIS:
-	  case SV_POTION_INC_DEX:
-	  case SV_POTION_INC_CON:
-	  case SV_POTION_INC_CHA:
-	  case SV_POTION_AUGMENTATION:
-	  case SV_POTION_ENLIGHTENMENT:
-	  case SV_POTION_STAR_ENLIGHTENMENT:
-	  case SV_POTION_SELF_KNOWLEDGE:
-	  case SV_POTION_EXPERIENCE:
-	  case SV_POTION_RESISTANCE:
-	  case SV_POTION_INVULNERABILITY:
-	  case SV_POTION_NEW_LIFE:
-
-		  /* All of the above potions have no effect when shattered */
-		  return FALSE;
-	  case SV_POTION_SLOWNESS:
-		  dt = GF_OLD_SLOW;
-		  dam = 5;
-		  ident = TRUE;
-		  angry = TRUE;
-		  break;
-	  case SV_POTION_POISON:
-		  dt = GF_POIS;
-		  dam = 3;
-		  ident = TRUE;
-		  angry = TRUE;
-		  break;
-	  case SV_POTION_BLINDNESS:
-		  dt = GF_DARK;
-		  ident = TRUE;
-		  angry = TRUE;
-		  break;
-	  case SV_POTION_CONFUSION: /* Booze */
-		  dt = GF_OLD_CONF;
-		  ident = TRUE;
-		  angry = TRUE;
-		  break;
-	  case SV_POTION_SLEEP:
-		  dt = GF_OLD_SLEEP;
-		  angry = TRUE;
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_RUINATION:
-	  case SV_POTION_DETONATIONS:
-		  dt = GF_SHARDS;
-		  dam = damroll(25, 25);
-		  angry = TRUE;
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_DEATH:
-		  dt = GF_DEATH_RAY;    /* !! */
-		  angry = TRUE;
-		  radius = 1;
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_SPEED:
-		  dt = GF_OLD_SPEED;
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_CURE_LIGHT:
-		  dt = GF_OLD_HEAL;
-		  dam = damroll(2,3);
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_CURE_SERIOUS:
-		  dt = GF_OLD_HEAL;
-		  dam = damroll(4,3);
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_CURE_CRITICAL:
-	  case SV_POTION_CURING:
-		  dt = GF_OLD_HEAL;
-		  dam = damroll(6,3);
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_HEALING:
-		  dt = GF_OLD_HEAL;
-		  dam = damroll(10,10);
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_STAR_HEALING:
-	  case SV_POTION_LIFE:
-		  dt = GF_OLD_HEAL;
-		  dam = damroll(50,50);
-		  radius = 1;
-		  ident = TRUE;
-		  break;
-	  case SV_POTION_RESTORE_MANA:   /* MANA */
-		  dt = GF_MANA;
-		  dam = damroll(10,10);
-		  radius = 1;
-		  ident = TRUE;
-		  break;
-	  default:
-		  /* Do nothing */  ;
+	if(m_ptr!=NULL)
+	{
+		/* Get the monster name (or "it") */
+		r_ptr = &r_info[m_ptr->r_idx];
+		monster_desc(m_name, m_ptr, 0);
 	}
 
-	(void) project(who, radius, y, x, dam, dt,
-		(PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
-	/* XXX  those potions that explode need to become "known" */
+	int o_sval = o_ptr->sval;
+
+	/* Check for the human applicable ones up front */
+	if(m_ptr!=NULL && r_ptr->d_char == 'p' && o_sval >= SV_POTION_DEC_STR && o_sval <= SV_POTION_DEC_CHA)
+	{
+		if (o_sval == SV_POTION_DEC_STR)
+		{
+			msg_format("%^s weakens in front of you!", m_name);
+		}else if (o_sval == SV_POTION_DEC_CON)
+		{
+			msg_format("%^s shrivels in front of you!", m_name);
+		}else if (o_sval == SV_POTION_DEC_DEX)
+		{
+			msg_format("%^s slows in front of you!", m_name);
+		}else if (o_sval == SV_POTION_DEC_INT)
+		{
+			msg_format("%^s drools in front of you!", m_name);
+		}else if (o_sval == SV_POTION_DEC_WIS)
+		{
+			msg_format("%^s slobbers in front of you!", m_name);
+		}else if (o_sval == SV_POTION_DEC_CHA)
+		{
+			msg_format("%^s becomes uglier in front of you!", m_name);
+		}else if (o_sval == SV_POTION_LOSE_MEMORIES)
+		{
+			msg_format("%^s becomes lesser in front of you!", m_name);
+		}
+		/*Do 12 percent damage to current hitpoints*/
+		project(who, 0, y, x, m_ptr->hp >> 3, GF_ARROW, (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
+		/*User becomes aware*/
+		object_aware(o_ptr);
+		object_known(o_ptr, FALSE);
+		return TRUE;
+	}
+
+	/* Check for the human applicable ones up front */
+	if(m_ptr!=NULL && o_sval >= SV_POTION_INC_STR && o_sval <= SV_POTION_INC_CHA)
+	{
+		if (o_sval == SV_POTION_INC_STR || o_sval == SV_POTION_INC_CON)
+		{
+			msg_format("%^s bulks up in front of you!", m_name);
+		}else if (o_sval == SV_POTION_INC_DEX)
+		{
+			msg_format("%^s speeds up in front of you!", m_name);
+		}else if (o_sval == SV_POTION_INC_INT || o_sval == SV_POTION_INC_WIS)
+		{
+			msg_format("%^s glares at you with new understanding!", m_name);
+		}else if (o_sval == SV_POTION_INC_CHA)
+		{
+			msg_format("%^s becomes more beautiful by the second!", m_name);
+		}
+		/*Add 12 percent damage to current hitpoints*/
+		m_ptr->maxhp = m_ptr->maxhp + (m_ptr->maxhp >> 3);
+		project(who, 0, y, x, m_ptr->hp >> 3, GF_OLD_HEAL, (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
+		/*Gives some extra speed ;]*/
+		m_ptr->mspeed = 150;
+		/*User becomes aware*/
+		object_aware(o_ptr);
+		object_known(o_ptr, FALSE);
+		return TRUE;
+	}
+
+
+	switch(o_sval) {
+	/* These do upset monsters , without actually damaging them */
+		/*This is in case the monster is not a human*/
+		case SV_POTION_LOSE_MEMORIES:
+		case SV_POTION_DEC_STR:
+		case SV_POTION_DEC_INT:
+		case SV_POTION_DEC_WIS:
+		case SV_POTION_DEC_DEX:
+		case SV_POTION_DEC_CON:
+		case SV_POTION_DEC_CHA:
+			return TRUE;
+		/*I cant help it.. Getting salty, lol!*/
+		case SV_POTION_SALT_WATER:
+			if(m_ptr!=NULL) msg_format("%^s gets salty!", m_name);
+		case SV_POTION_WATER: /* perhaps a 'water' attack? */
+			if(m_ptr!=NULL) msg_format("%^s gets wet!", m_name);
+			object_aware(o_ptr);
+			object_known(o_ptr, FALSE);
+			return FALSE;
+		/* Slime mold, water and apple juice used to upset allies ?? */
+		case SV_POTION_SLIME_MOLD:
+		case SV_POTION_APPLE_JUICE:
+		/* These do not upset monsters ever */
+		case SV_POTION_INFRAVISION:
+		case SV_POTION_DETECT_INVIS:
+		case SV_POTION_SLOW_POISON:
+		case SV_POTION_CURE_POISON:
+		case SV_POTION_BOLDNESS:
+		case SV_POTION_RESIST_HEAT:
+		case SV_POTION_RESIST_COLD:
+		case SV_POTION_HEROISM:
+		case SV_POTION_BESERK_STRENGTH:
+		case SV_POTION_RESTORE_EXP:
+		case SV_POTION_RES_STR:
+		case SV_POTION_RES_INT:
+		case SV_POTION_RES_WIS:
+		case SV_POTION_RES_DEX:
+		case SV_POTION_RES_CON:
+		case SV_POTION_RES_CHA:
+		case SV_POTION_INC_STR:
+		case SV_POTION_INC_INT:
+		case SV_POTION_INC_WIS:
+		case SV_POTION_INC_DEX:
+		case SV_POTION_INC_CON:
+		case SV_POTION_INC_CHA:
+		case SV_POTION_ENLIGHTENMENT:
+		case SV_POTION_STAR_ENLIGHTENMENT:
+		case SV_POTION_SELF_KNOWLEDGE:
+		case SV_POTION_RESISTANCE:
+		case SV_POTION_INVULNERABILITY:
+		case SV_POTION_NEW_LIFE:
+		/* All of the above potions have no effect when shattered */
+			return FALSE;
+		case SV_POTION_SLOWNESS:
+			dt = GF_OLD_SLOW;
+			dam = 5;
+			angry = TRUE;
+			break;
+		case SV_POTION_POISON:
+			dt = GF_POIS;
+			dam = 3;
+			angry = TRUE;
+			break;
+		case SV_POTION_BLINDNESS:
+			dt = GF_DARK;
+			angry = TRUE;
+			break;
+		case SV_POTION_CONFUSION: /* Booze */
+			dt = GF_OLD_CONF;
+			angry = TRUE;
+			break;
+		case SV_POTION_SLEEP:
+			dt = GF_OLD_SLEEP;
+			angry = TRUE;
+			break;
+		case SV_POTION_RUINATION:
+		case SV_POTION_DETONATIONS:
+			dt = GF_SHARDS;
+			dam = damroll(25, 25);
+			angry = TRUE;
+			break;
+		case SV_POTION_IOCAINE:
+			dt = GF_DEATH_RAY; /* !! */
+			angry = TRUE;
+			radius = 1;
+			break;
+		case SV_POTION_SPEED:
+			dt = GF_OLD_SPEED;
+			break;
+		case SV_POTION_CURE_LIGHT:
+			dt = GF_OLD_HEAL;
+			dam = damroll(2,3);
+			break;
+		case SV_POTION_CURE_SERIOUS:
+			dt = GF_OLD_HEAL;
+			dam = damroll(4,3);
+			break;
+		case SV_POTION_CURE_CRITICAL:
+		case SV_POTION_CURING:
+			dt = GF_OLD_HEAL;
+			dam = damroll(6,3);
+			break;
+		case SV_POTION_HEALING:
+			dt = GF_OLD_HEAL;
+			dam = damroll(10,10);
+			break;
+		case SV_POTION_EXPERIENCE:
+		case SV_POTION_AUGMENTATION:
+			dt = GF_EXP;
+			dam = 1;
+			radius = 1;
+			break;
+		case SV_POTION_STAR_HEALING:
+		case SV_POTION_LIFE:
+			dt = GF_OLD_HEAL;
+			dam = damroll(50,50);
+			radius = 1;
+			break;
+		case SV_POTION_RESTORE_MANA: /* MANA */
+			dt = GF_MANA;
+			dam = damroll(10,10);
+			radius = 1;
+			break;
+	default:
+			/* Do nothing */	;
+	}
+
+	if(dt)
+	{
+		project(who, radius, y, x, dam, dt, (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
+		ident = TRUE;
+	}
+
+	if(ident)
+	{
+		object_aware(o_ptr);
+		object_known(o_ptr,FALSE);
+	}
+
 	return angry;
 }
 
@@ -6141,7 +6164,7 @@ bool spell_learned( u16b realm  , int spell )
 bool spell_worked( u16b realm  , int spell )
 {
 	/*Silly 0 is no realm except if it is Miracles ...*/
-	realm++;	
+	realm++;
 	/*Check if we are checking for realm1 and return value accordingly*/
 	if(realm==p_ptr->realm1)
 	{
@@ -6159,7 +6182,7 @@ void get_spell_info( u16b realm  , int spell , magic_type *s_ptr )
 {
 	int spell_skill;
 	spell_type *spell_info;
-	
+
 	/* How well can the player cast spells from this realm ?*/
 	spell_skill = mp_ptr->skill[realm]-1;
 	/* Browsing realms with skill NO, have now -1 in spell_skill, not good for array access*/
@@ -6181,20 +6204,20 @@ void get_spell_info( u16b realm  , int spell , magic_type *s_ptr )
 			s_ptr->sfail = spell_info->sfail - 10;
 			break;
 		case WORSE:
-			s_ptr->sfail = spell_info->sfail - 5;		
-			break;		
+			s_ptr->sfail = spell_info->sfail - 5;
+			break;
 		case SAME:
 			s_ptr->sfail = spell_info->sfail;
-			break;		
+			break;
 		case BETTER:
 			s_ptr->sfail = spell_info->sfail + 10;
-			break;		
+			break;
 		case SUPER:
 			s_ptr->sfail = spell_info->sfail - 15;
-			break;		
+			break;
 	}
 	/* Translate the level*/
-	/*msg_format( "TODO%d with %d -> %d" , spell_info->slevel  
+	/*msg_format( "TODO%d with %d -> %d" , spell_info->slevel
 		, spell_skill
 		, spell_skill_level[ spell_info->slevel - 1 ][spell_skill]);	*/
 	s_ptr->slevel = spell_skill_level[ spell_info->slevel - 1 ][spell_skill];
@@ -6243,7 +6266,7 @@ void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr )
 	else if ( !s_ptr->learned  )
 	{
 		s_ptr->attr_info = TERM_L_DARK;
-		s_ptr->info      = "unknown";	
+		s_ptr->info      = "unknown";
 	}
 	else if ( !s_ptr->worked )
 	{
@@ -6251,6 +6274,2467 @@ void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr )
 		s_ptr->info      = "untried";
 	}
 }
-	
+
+static void phlogiston (void)
+{
+
+	int max_flog = 0;
+	object_type * o_ptr = &inventory[INVEN_LITE];
+
+	/* It's a lamp */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
+	{
+		max_flog = FUEL_LAMP;
+	}
+
+	/* It's a torch */
+	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+	{
+		max_flog = FUEL_TORCH;
+	}
+
+	/* No torch to refill */
+	else
+	{
+		msg_print("You are not wielding anything which uses phlogiston.");
+		return;
+	}
+
+	if (o_ptr->pval >= max_flog)
+	{
+		msg_print("No more phlogiston can be put in this item.");
+		return;
+	}
+
+	/* Refuel */
+	o_ptr->pval += (max_flog / 2);
+
+	/* Message */
+	msg_print("You add phlogiston to your light item.");
+
+	/* Comment */
+	if (o_ptr->pval >= max_flog)
+	{
+		o_ptr->pval = max_flog;
+		msg_print("Your light item is full.");
+	}
 
 
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+}
+
+
+static void brand_weapon(int brand_type)
+{
+	object_type *o_ptr;
+
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/* you can never modify artefacts / ego-items */
+	/* you can never modify cursed items */
+	/* TY: You _can_ modify broken items (if you're silly enough) */
+	if ((o_ptr->k_idx) &&
+		(!artefact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+		(!(o_ptr->art_name)) && (!cursed_p(o_ptr)))
+	{
+		cptr act = NULL;
+
+		char o_name[80];
+		object_desc(o_name, o_ptr, FALSE, 0); /* Let's get the name before
+											  it is changed... */
+
+		switch (brand_type)
+		{
+		case 5:
+			act = "can barely contain the elemental violence within.";
+			o_ptr->name2 = EGO_ELEMENTS_MINCHIATE;
+			break;
+		case 4:
+			act = "seems very unstable now.";
+			o_ptr->name2 = EGO_PLANAR;
+			o_ptr->pval = (s16b)randint(2);
+			break;
+		case 3:
+			act = "thirsts for blood!";
+			o_ptr->name2 = EGO_VAMPIRIC;
+			break;
+		case 2:
+			act = "is coated with poison.";
+			o_ptr->name2 = EGO_BRAND_POIS;
+			break;
+		case 1:
+			act = "is engulfed in raw chaos!";
+			o_ptr->name2 = EGO_CHAOTIC;
+			break;
+		default:
+			if (rand_int(100) < 25)
+			{
+				act = "is covered in a fiery shield!";
+				o_ptr->name2 = EGO_BRAND_FIRE;
+			}
+
+			else
+			{
+				act = "glows deep, icy blue!";
+				o_ptr->name2 = EGO_BRAND_COLD;
+			}
+		}
+
+		msg_format("Your %s %s", o_name, act);
+
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+
+		msg_print("The Branding failed.");
+	}
+}
+
+
+static void call_the_(void)
+{
+	int i;
+
+	if (cave_floor_bold(py-1,px-1) && cave_floor_bold(py-1, px) &&
+		cave_floor_bold(py-1,px+1) && cave_floor_bold(py,px-1) &&
+		cave_floor_bold(py,px+1) && cave_floor_bold(py+1,px-1) &&
+		cave_floor_bold(py+1,px) && cave_floor_bold(py+1,px+1))
+
+	{
+		for (i = 1; i < 10; i++)
+			if (i-5) fire_ball(GF_SHARD, i,
+				175, 2);
+
+		for (i = 1; i < 10; i++)
+			if (i-5) fire_ball(GF_MANA, i,
+				175, 3);
+
+		for (i = 1; i < 10; i++)
+			if (i-5) fire_ball(GF_HELLSLIME, i,
+				175, 4);
+	}
+
+
+
+
+	else
+	{
+		msg_format("You %s the %s too close to a wall!",
+			((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"),
+			((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell"));
+		msg_print("There is a loud explosion!");
+		destroy_area(py, px, 20+(p_ptr->lev), TRUE);
+		msg_print("The dungeon collapses...");
+		take_hit(100 + (randint(150)), "a suicidal Call the Void");
+	}
+}
+
+void rustproof(void)
+{
+	int		item;
+
+	object_type	*o_ptr;
+
+	char		o_name[80];
+
+	/* Select a piece of armour */
+	item_tester_hook = item_tester_hook_armour;
+
+	/* Get an item (from equip or inven or floor) */
+	if (!get_item(&item, "Rustproof which piece of armour? ", "You have nothing to rustproof." , USE_INVEN | USE_EQUIP | USE_FLOOR))
+	{
+		return;
+	}
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	o_ptr->art_flags3 |= TR3_IGNORE_ACID;
+
+	if ((o_ptr->to_a < 0) && !(o_ptr->ident & IDENT_CURSED))
+	{
+		msg_format("%s %s look%s as good as new!",
+			((item >= 0) ? "Your" : "The"), o_name,
+			((o_ptr->number > 1) ? "" : "s"));
+		o_ptr->to_a = 0;
+	}
+
+	msg_format("%s %s %s now protected against corrosion.",
+		((item >= 0) ? "Your" : "The"), o_name,
+		((o_ptr->number > 1) ? "are" : "is"));
+
+}
+
+void wild_magic(int spell)
+{
+	int counter = 0;
+	int type = FILTER_BIZARRE1 - 1 + (randint(6));
+	if (type < FILTER_BIZARRE1) type = FILTER_BIZARRE1;
+	else if (type > FILTER_BIZARRE6) type = FILTER_BIZARRE6;
+
+	switch(randint(spell) + randint(8) + 1)
+
+	{
+	case 1: case 2: case 3:
+		teleport_player(10);
+		break;
+	case 4: case 5: case 6:
+		teleport_player(100);
+		break;
+	case 7: case 8:
+		teleport_player(200);
+		break;
+	case 9: case 10: case 11:
+		unlite_area(10,3);
+		break;
+	case 12: case 13: case 14:
+		lite_area(damroll(2,3),2);
+		break;
+	case 15:
+		destroy_doors_touch();
+		break;
+	case 16: case 17:
+		wall_breaker();
+	case 18:
+		sleep_monsters_touch();
+		break;
+	case 19: case 20:
+		trap_creation();
+		break;
+	case 21: case 22:
+		door_creation();
+		break;
+	case 23: case 24: case 25:
+		aggravate_monsters(1);
+		break;
+	case 26:
+		earthquake(py, px, 5);
+		break;
+	case 27: case 28:
+		(void) gain_corruption(0);
+		break;
+	case 29: case 30:
+		apply_disenchant(0);
+		break;
+	case 31:
+		lose_all_info();
+		break;
+	case 32:
+		fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell/10));
+		break;
+	case 33:
+		wall_stone();
+		break;
+	case 34: case 35:
+		while (counter++ < 8)
+		{
+			(void) summon_specific(py, px, (dun_level * 3) / 2, type);
+		}
+		break;
+	case 36: case 37:
+		activate_hi_summon();
+		break;
+	case 38:
+		summon_reaver();
+	default:
+		activate_ty_curse();
+	}
+	return;
+}
+
+/*
+ *  Checks odds of a friendly monster, if the odds are good, try to summon the monster ( return success of it, sometimes noone appears )
+ *  Otherwise try to summon an enemy of the same type and show a message that the monster is not coming in peace
+ *  Return success of summoning an angry monster as well.
+ */
+bool summon_specific_potential_ally( int type , int treshold_friendly , int dice , cptr angry )
+{
+	if (randint(dice)>treshold_friendly)
+	{
+		return (summon_specific_friendly(py, px, p_ptr->lev, type, FALSE));
+	}
+	else
+	{
+		if (summon_specific(py, px, p_ptr->lev, FILTER_DEMON))
+		{
+			msg_print( angry );
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+/* Fetch an item (teleport it right underneath the caster) */
+void fetch(int dir, int wgt, bool require_los)
+{
+	int ty, tx, i;
+	/*bool flag; UNUSED*/
+	cave_type *c_ptr;
+	object_type *o_ptr;
+
+	/* Check to see if an object is already there */
+	if(cave[py][px].o_idx)
+	{
+		msg_print("You can't fetch when you're already standing on something.");
+		return;
+	}
+
+	/* Use a target */
+	if(dir==5 && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+		if(distance(py, px, ty, tx)>MAX_RANGE)
+		{
+			msg_print("You can't fetch something that far away!");
+			return;
+		}
+		c_ptr = &cave[ty][tx];
+
+		if (require_los && (!player_has_los_bold(ty,tx)))
+		{
+			msg_print("You have no direct line of sight to that location.");
+			return;
+		}
+	}
+	else
+	{
+		/* Use a direction */
+		ty = py; /* Where to drop the item */
+		tx = px;
+		/*flag = FALSE; UNUSED*/
+		do
+		{
+			ty += ddy[dir];
+			tx += ddx[dir];
+			c_ptr = &cave[ty][tx];
+			if ((distance(py, px, ty, tx)> MAX_RANGE)
+				|| !cave_floor_bold(ty, tx)) return;
+		} while(!c_ptr->o_idx);
+	}
+	o_ptr = &o_list[c_ptr->o_idx];
+	if (o_ptr->weight > wgt)
+	{   /* Too heavy to 'fetch' */
+		msg_print("The object is too heavy.");
+		return;
+	}
+	i = c_ptr->o_idx;
+	c_ptr->o_idx = 0;
+	cave[py][px].o_idx = i; /* 'move' it */
+	o_ptr->iy = (byte)py;
+	o_ptr->ix = (byte)px;
+
+
+	note_spot(py,px);
+	p_ptr->redraw |= PR_MAP;
+
+}
+
+/*
+* Cast a spell
+*/
+void do_cmd_cast(void)
+{
+	int	item, sval, spell, dir, realm;
+	int	chance, beam;
+	int	plev = p_ptr->lev;
+	int	increment = 0, dummy = 0;
+	int	use_realm, i;
+
+	bool  first_time =  FALSE;
+	int   xp_gain = 0;
+	bool  none_came = FALSE;
+	const cptr prayer = ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell");
+
+	object_type	*o_ptr;
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
+
+	char	ppp[80];
+
+	char	tmp_val[160];
+
+	/* Require spell ability */
+	if (p_ptr->realm1 == 0)
+	{
+		msg_print("You cannot cast spells!");
+		return;
+	}
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* Restrict choices to spell books */
+	item_tester_tval = (byte)mp_ptr->spell_book;
+
+	/* Get an item (from inven or floor) */
+	if (!get_item(&item, "Use which book? ", "You have no spell books!", USE_INVEN | USE_FLOOR))
+	{
+		return;
+	}
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Access the item's sval */
+	sval = o_ptr->sval;
+
+	if (o_ptr->tval == p_ptr->realm2+89) increment = 32;
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	if (increment) realm = p_ptr->realm2-1;
+	else realm = p_ptr->realm1-1;
+
+	/* Ask for a spell */
+	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"), (increment?p_ptr->realm2:p_ptr->realm1), sval, TRUE ) )
+	{
+		if (spell == -2)
+			msg_format("You don't know any %ss in that book.", prayer);
+		return;
+	}
+
+	/* Access the spell */
+	use_realm = (increment?p_ptr->realm2:p_ptr->realm1);
+
+	get_extended_spell_info( use_realm-1  , spell , s_ptr );
+
+	/* Verify "dangerous" spells */
+
+	if( p_ptr->pclass != CLASS_BLOOD_MAGE )
+	{
+		if (s_ptr->smana > p_ptr->csp)
+		{
+			/* Warning */
+			msg_format("You do not have enough mana to %s this %s.",
+				((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"),
+				prayer);
+			/* Verify */
+			if (!get_check("Attempt it anyway? ")) return;
+		}
+	}
+	else
+	{
+		if (s_ptr->smana > p_ptr->chp)
+		{
+			/* Warning */
+			msg_format("You do not have enough blood to %s this %s.",
+				((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"),
+				prayer);
+			/* Verify */
+			if (!get_check("Attempt it anyway? ")) return;
+		}
+	}
+
+	/* Spell failure chance */
+	chance = spell_chance(spell,use_realm-1);
+
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+
+		msg_format("You failed to get the %s off!", prayer);
+
+		if (o_ptr->tval == TV_CHAOS_BOOK && (randint(100)<spell))
+		{
+			msg_print("You produce a chaotic effect!");
+			wild_magic(spell);
+		}
+		if (o_ptr->tval == TV_DEMONIC_BOOK && (randint(100)<spell))
+		{
+			msg_print("You anger your patron!");
+			summon_specific(py,px,dun_level,FILTER_DEMON);
+		}
+		else if (o_ptr->tval == TV_DEATH_BOOK && (randint(100)<spell))
+		{
+				msg_print("It hurts!");
+				take_hit(damroll((o_ptr->sval)+1,6), "a miscast Death spell");
+				if (spell>15 && randint(6)==1 && !(p_ptr->hold_life))
+					lose_exp(spell * 250);
+		}
+	}
+
+	/* Process spell */
+	else
+	{
+
+		if (p_ptr->pclass == CLASS_MAGE) beam = plev;
+		else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+		else if (p_ptr->pclass == CLASS_BLOOD_MAGE) beam = plev + 10;
+		else beam = plev / 2;
+
+
+		/* Spells.  */
+		switch (realm)
+		{
+		case 0: /* * LIFE * */
+			switch (spell)
+			{
+			case 0: /* Detect Evil */
+				(void)detect_monsters_evil();
+				break;
+			case 1: /* Cure Light Wounds */
+				(void)hp_player(damroll(2, 10));
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut - 10);
+				break;
+			case 2: /* Bless */
+				(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + randint(12) + 12);
+				break;
+			case 3: /* Remove Fear */
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				break;
+			case 4: /* Call Light */
+				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+				break;
+			case 5: /* Detect Traps + Secret Doors */
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				break;
+			case 6: /* Cure Medium Wounds */
+				(void)hp_player(damroll(4, 10));
+				(void)set_timed_effect( TIMED_CUT, (p_ptr->cut / 2) - 20);
+				break;
+			case 7: /* Satisfy Hunger */
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			case 8: /* Remove Curse */
+				remove_curse();
+				break;
+			case 9: /* Cure Poison */
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				break;
+			case 10: /* Cure Critical Wounds */
+				(void)hp_player(damroll(8, 10));
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				break;
+			case 11: /* Sense Unseen */
+				(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis + randint(24) + 24);
+				break;
+			case 12: /* Orb or Draining */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_HOLY_FIRE, dir,
+					(damroll(3, 6) + plev +
+					(plev / ((p_ptr->pclass == CLASS_PRIEST
+					       || p_ptr->pclass == CLASS_HIGH_MAGE
+						   || p_ptr->pclass == CLASS_BLOOD_MAGE ) ? 2 : 4))),
+					((plev < 30) ? 2 : 3));
+				break;
+			case 13: /* Protection from Evil */
+				(void)set_timed_effect( TIMED_PROTEVIL, p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+				break;
+			case 14: /* Healing */
+				(void)hp_player(300);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				break;
+			case 15: /* Glyph of Warding */
+				warding_glyph();
+				break;
+			case 16: /* Exorcism */
+				(void) dispel_undead(plev);
+				(void) dispel_demons(plev);
+				(void) turn_evil(plev);
+				break;
+			case 17: /* Dispel Curse */
+				(void)remove_all_curse();
+				break;
+			case 18: /* Dispel Undead + Demons */
+				(void)dispel_undead(plev * 3);
+				(void)dispel_demons(plev * 3);
+				break;
+			case 19: /* 'Day of the Dove' */
+				charm_monsters(plev * 2);
+				break;
+			case 20: /* Dispel Evil */
+				(void)dispel_evil(plev * 4);
+				break;
+			case 21: /* Banishment */
+				if (banish_evil(100))
+				{
+					msg_print("The power of your god banishes evil!");
+				}
+				break;
+			case 22: /* Holy Word */
+				(void)dispel_evil(plev * 4);
+				(void)hp_player(1000);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				break;
+			case 23: /* Warding True */
+				warding_glyph();
+				glyph_creation();
+				break;
+			case 24: /* Heroism */
+				(void)set_timed_effect( TIMED_HERO, p_ptr->hero + randint(25) + 25);
+				(void)hp_player(10);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				break;
+			case 25: /* Prayer */
+				(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + randint(48) + 48);
+				break;
+			case 26:
+				bless_weapon();
+				break;
+			case 27: /* Restoration */
+				(void)do_res_stat(A_STR);
+				(void)do_res_stat(A_INT);
+				(void)do_res_stat(A_WIS);
+				(void)do_res_stat(A_DEX);
+				(void)do_res_stat(A_CON);
+				(void)do_res_stat(A_CHA);
+				(void)restore_level();
+				break;
+			case 28: /* Healing True */
+				(void)hp_player(2000);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				break;
+			case 29: /* Holy Vision */
+				identify_fully();
+				break;
+			case 30: /* Divine Intervention */
+				project(0, 1, py, px, 777, GF_HOLY_FIRE,   PROJECT_KILL);
+				dispel_monsters(plev * 4);
+				slow_monsters();
+				stun_monsters(plev*4);
+				confuse_monsters(plev*4);
+				turn_monsters(plev*4);
+				stasis_monsters(plev*4);
+				(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
+				(void)hp_player(300);
+				if (!p_ptr->fast) {   /* Haste */
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev) ) + plev);
+				} else {
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
+				}
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				break;
+			case 31: /* Holy Invulnerability */
+				(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln + randint(7) + 7);
+				break;
+			default:
+				msg_format("You cast an unknown Miracle: %d.", spell);
+				msg_print(NULL);
+			}
+			break;
+
+		case 1: /* * SORCERY * */
+			switch (spell)
+			{
+			case 0: /* Detect Monsters */
+				(void)detect_monsters_normal();
+				break;
+			case 1: /* Phase Door */
+				teleport_player(10);
+				break;
+			case 2: /* Detect Doors and Traps */
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				break;
+			case 3: /* Light Area */
+				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+				break;
+			case 4: /* Confuse Monster */
+				if (!get_aim_dir(&dir)) return;
+				(void)confuse_monster(dir, ( plev * 3) / 2 );
+				break;
+			case 5: /* Teleport Self */
+				teleport_player(plev * 5);
+				break;
+			case 6: /* Sleep Monster */
+				if (!get_aim_dir(&dir)) return;
+				(void)sleep_monster(dir);
+				break;
+			case 7: /* Recharging */
+				(void)recharge(plev * 2);
+				break;
+			case 8: /* Magic Mapping */
+				map_area();
+				break;
+			case 9: /* Identify */
+				(void)ident_spell();
+				break;
+			case 10: /* Slow Monster */
+				if (!get_aim_dir(&dir)) return;
+				(void)slow_monster(dir);
+				break;
+			case 11: /* Mass Sleep */
+				(void)sleep_monsters();
+				break;
+			case 12: /* Teleport Away */
+				if (!get_aim_dir(&dir)) return;
+				(void)fire_beam(GF_AWAY_ALL, dir, plev);
+				break;
+			case 13: /* Haste Self */
+				if (!p_ptr->fast)
+				{
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev) ) + plev);
+				}
+				else
+				{
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
+				}
+				break;
+			case 14: /* Detection True */
+				(void)detect_all();
+				break;
+			case 15: /* Identify True */
+				identify_fully();
+				break;
+			case 16: /* Detect Objects and Treasure*/
+				(void)detect_objects_normal();
+				(void)detect_treasure();
+				(void)detect_objects_gold();
+				break;
+			case 17: /* Detect Enchantment */
+				(void)detect_objects_magic(FALSE,FALSE);
+				break;
+			case 18: /* Charm Monster */
+				if (!get_aim_dir(&dir)) return;
+				(void) charm_monster(dir, plev);
+				break;
+			case 19: /* Dimension Door */
+				{
+					msg_print("You open a dimensional gate. ");
+					if (!spell_dimensional_gate( plev )) return;
+					break;
+				}
+
+			case 20: /* Sense Minds */
+				(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
+				break;
+			case 21: /* Self knowledge */
+				(void)self_knowledge();
+				break;
+			case 22: /* Teleport Level */
+				(void)teleport_player_level();
+				break;
+			case 23: /* Word of Recall */
+				{
+					do_recall( NULL );
+					break;
+				}
+			case 24: /* Stasis */
+				if (!get_aim_dir(&dir)) return;
+				(void)stasis_monster(dir);
+				break;
+			case 25: /* Telekinesis */
+				if (!get_aim_dir(&dir)) return;
+				fetch(dir, plev*15, FALSE);
+				break;
+			case 26: /* Recharging True -- replaced by Explosive Rune */
+				explosive_rune();
+				break;
+			case 27: /* Clairvoyance */
+				wiz_lite();
+				if (!(p_ptr->telepathy))
+				{
+					(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
+				}
+				break;
+			case 28: /* Enchant Weapon */
+				(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
+				break;
+			case 29: /* Enchant Armour */
+				(void)enchant_spell(0, 0, rand_int(3) + 2);
+				break;
+			case 30: /* Alchemy */
+				(void) alchemy();
+				break;
+			case 31: /* Globe of Invulnerability */
+				(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln + randint(8) + 8);
+				break;
+			default:
+				msg_format("You cast an unknown Sorcery spell: %d.", spell);
+				msg_print(NULL);
+			}
+			break;
+		case 2: /* * NATURE * */
+			switch (spell)
+			{
+			case 0: /* Detect Creatures */
+				(void)detect_monsters_normal();
+				break;
+			case 1: /* First Aid */
+				(void)hp_player(damroll(2, 8));
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut - 15);
+				break;
+			case 2: /* Detect Doors + Traps */
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				break;
+			case 3: /* Produce Food */
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			case 4: /* Daylight */
+				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+				/*some races do not like light very much*/
+				if ((rp_ptr->hates_light) && !(p_ptr->resist_lite))
+				{
+					msg_print("The daylight scorches your flesh!");
+					take_hit(damroll(2,2), "daylight");
+				}
+				break;
+			case 5: /* Animal Taming */
+				if (!get_aim_dir(&dir)) return;
+				(void) charm_animal(dir, plev);
+				break;
+			case 6: /* Resist Environment */
+				(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
+				break;
+			case 7: /* Cure Wounds + Poison */
+				(void)set_timed_effect( TIMED_CUT, 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				break;
+			case 8: /* Stone to Mud */
+				if (!get_aim_dir(&dir)) return;
+				(void)wall_to_mud(dir);
+				break;
+			case 9: /* Lightning Bolt */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+					damroll(3+((plev-5)/4), 8));
+				break;
+			case 10: /* Nature Awareness -- downgraded */
+				map_area();
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				(void)detect_monsters_normal();
+				break;
+			case 11: /* Frost Bolt */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_COLD, dir,
+					damroll(5+((plev-5)/4), 8));
+				break;
+			case 12: /* Ray of Sunlight */
+				if (!get_aim_dir(&dir)) return;
+				msg_print("A line of bleak sunlight appears.");
+				lite_line(dir);
+				break;
+			case 13: /* Entangle */
+				slow_monsters();
+				break;
+			case 14: /* Summon Animals */
+				if (!(summon_specific_friendly(py, px, plev, FILTER_ANIMAL_RANGER, TRUE)))
+					none_came = TRUE;
+				break;
+			case 15: /* Herbal Healing */
+				(void)hp_player(1000);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				break;
+			case 16: /* Door Building */
+				(void)door_creation();
+				break;
+			case 17: /* Stair Building */
+				(void)stair_creation();
+				break;
+			case 18: /* Stone Skin */
+				(void)set_timed_effect( TIMED_SHIELD, p_ptr->shield + randint(20) + 30);
+				break;
+			case 19: /* Resistance True */
+				(void) spell_basic_resistance( 20 );
+				break;
+			case 20: /* Animal Friendship */
+				(void) charm_animals(plev * 2);
+				break;
+			case 21: /* Stone Tell */
+				identify_fully();
+				break;
+			case 22: /* Wall of Stone */
+				(void)wall_stone();
+				break;
+			case 23: /* Protection from Corrosion */
+				rustproof();
+				break;
+			case 24: /* Earthquake */
+				earthquake(py, px, 10);
+				break;
+			case 25: /* Whirlwind Attack */
+				{
+					int y = 0, x = 0;
+					cave_type       *c_ptr;
+					monster_type    *m_ptr;
+
+					for (dir = 0; dir <= 9; dir++) {
+						y = py + ddy[dir];
+						x = px + ddx[dir];
+						c_ptr = &cave[y][x];
+
+						/* Get the monster */
+						m_ptr = &m_list[c_ptr->m_idx];
+
+						/* Hack -- attack monsters */
+						if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
+							py_attack(y, x);
+					}
+				}
+				break;
+			case 26: /* Blizzard */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_COLD, dir,	70 + (plev), (plev/12)+1);
+				break;
+			case 27: /* Lightning Storm */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_ELEC, dir,	90 + (plev), (plev/12)+1);
+				break;
+			case 28: /* Whirlpool */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_WATER, dir,100 + (plev), (plev/12)+1);
+				break;
+			case 29: /* Call Sunlight */
+
+				fire_ball(GF_LITE, 0, 150, 8);
+				wiz_lite();
+				if ((rp_ptr->hates_light) && !(p_ptr->resist_lite))
+				{
+					msg_print("The sunlight scorches your flesh!");
+					take_hit(50, "sunlight");
+				}
+				break;
+			case 30: /* Elemental Brand */
+				brand_weapon(0);
+				break;
+			case 31: /* Nature's Wrath */
+				(void)dispel_monsters(plev * 4);
+				earthquake(py, px, 20 + (plev / 2) );
+				project(0, 1+plev/12, py, px,
+					100+plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM);
+				break;
+			default:
+				msg_format("You cast an unknown Nature spell: %d.", spell);
+				msg_print(NULL);
+			}
+			if (none_came)
+				msg_print("No animals arrive.");
+			break;
+
+		case 3: /* * CHAOS * */
+			switch (spell)
+			{
+			case 0: /* Magic Missile */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
+					damroll(3 + ((plev - 1) / 5), 4));
+				break;
+			case 1: /* Trap / Door destruction, was: Blink */
+				(void)destroy_doors_touch();
+				break;
+			case 2: /* Flash of Light == Light Area */
+				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+				break;
+			case 3: /* Touch of Confusion */
+				if (!(p_ptr->confusing))
+				{
+					msg_print("Your hands start glowing.");
+					p_ptr->confusing = TRUE;
+				}
+				break;
+			case 4: /* Manaburst */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_MISSILE, dir,
+					(damroll(3, 5) + plev +
+					(plev / (((p_ptr->pclass == CLASS_MAGE)
+				       	   || (p_ptr->pclass == CLASS_HIGH_MAGE)
+						   || (p_ptr->pclass == CLASS_BLOOD_MAGE)) ? 2 : 4))),
+					((plev < 30) ? 2 : 3));
+				/* Shouldn't actually use GF_MANA, as it will destroy all
+				* items on the floor */
+				break;
+			case 5: /* Fire Bolt */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_FIRE, dir,
+					damroll(8+((plev-5)/4), 8));
+				break;
+			case 6: /* Fist of Force ("Fist of Fun") */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_DISINTEGRATE, dir,
+					damroll(8+((plev-5)/4), 8), 0);
+				break;
+			case 7: /* Teleport Self */
+				teleport_player(plev * 5);
+				break;
+			case 8: /* Wonder */
+				{
+					/* This spell should become more useful (more
+					controlled) as the player gains experience levels.
+					Thus, add 1/5 of the player's level to the die roll.
+					This eliminates the worst effects later on, while
+					keeping the results quite random.  It also allows
+					some potent effects only at high level. */
+
+					int die = randint(100) + plev / 5;
+
+					if (!get_aim_dir(&dir)) return;
+					if (die > 100)
+						msg_print ("You feel a surge of power!");
+					if (die < 8) clone_monster (dir);
+					else if (die < 14) speed_monster (dir);
+					else if (die < 26) heal_monster (dir);
+					else if (die < 31) poly_monster (dir);
+					else if (die < 36)
+						fire_bolt_or_beam (beam - 10,
+						GF_MISSILE, dir,
+						damroll(3 + ((plev - 1) / 5), 4));
+					else if (die < 41) confuse_monster (dir, plev);
+					else if (die < 46) fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
+					else if (die < 51) lite_line (dir);
+					else if (die < 56)
+						fire_bolt_or_beam (beam - 10, GF_ELEC, dir,
+						damroll(3+((plev-5)/4),8));
+					else if (die < 61)
+						fire_bolt_or_beam (beam - 10, GF_COLD, dir,
+						damroll(5+((plev-5)/4),8));
+					else if (die < 66)
+						fire_bolt_or_beam (beam, GF_ACID, dir,
+						damroll(6+((plev-5)/4),8));
+					else if (die < 71)
+						fire_bolt_or_beam (beam, GF_FIRE, dir,
+						damroll(8+((plev-5)/4),8));
+					else if (die < 76) drain_life (dir, 75);
+					else if (die < 81) fire_ball (GF_ELEC, dir, 30 + plev / 2, 2);
+					else if (die < 86) fire_ball (GF_ACID, dir, 40 + plev, 2);
+					else if (die < 91) fire_ball (GF_ICE, dir, 70 + plev, 3);
+					else if (die < 96) fire_ball (GF_FIRE, dir, 80 + plev, 3);
+					else if (die < 101) drain_life (dir, 100 + plev);
+					else if (die < 104) earthquake (py, px, 12);
+					else if (die < 106) destroy_area (py, px, 15, TRUE);
+					else if (die < 108) genocide(TRUE);
+					else if (die < 110) dispel_monsters (120);
+					else /* RARE */
+					{
+						dispel_monsters (150);
+						slow_monsters();
+						sleep_monsters();
+						hp_player (300);
+					}
+					break;
+				}
+				break;
+			case 9: /* Chaos Bolt */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_CHAOS, dir,
+					damroll(10+((plev-5)/4), 8));
+				break;
+			case 10: /* Sonic Boom */
+				project(0, 2+plev/10, py, px,
+					45+plev, GF_SOUND, PROJECT_KILL|PROJECT_ITEM);
+				break;
+			case 11: /* Doom Bolt -- always beam in 2.0.7 or later */
+				if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_MANA, dir, damroll(11+((plev-5)/4), 8));
+				break;
+			case 12: /* Fire Ball */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FIRE, dir,
+					55 + (plev), 2);
+				break;
+			case 13: /* Teleport Other */
+				if (!get_aim_dir(&dir)) return;
+				(void)fire_beam(GF_AWAY_ALL, dir, plev);
+				break;
+			case 14: /* Word of Destruction */
+				destroy_area(py, px, 15, TRUE);
+				break;
+			case 15: /* Invoke chaos */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_CHAOS, dir,
+					66 + (plev), (plev / 5));
+				break;
+			case 16: /* Polymorph Other */
+				if (!get_aim_dir(&dir)) return;
+				(void)poly_monster(dir);
+				break;
+			case 17: /* Chain Lightning */
+				for (dir = 0; dir <= 9; dir++)
+					fire_beam(GF_ELEC, dir, damroll(5+(plev/10), 8));
+				break;
+			case 18: /* Arcane Binding == Charging */
+				(void)recharge(40);
+				break;
+			case 19: /* Disintegration */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_DISINTEGRATE, dir,
+					80 + (plev), 3 + (plev/40));
+				break;
+				break;
+			case 20: /* Alter Reality */
+				msg_print("The world changes!");
+				if (autosave_l)
+				{
+					is_autosave = TRUE;
+					msg_print("Autosaving the game...");
+					do_cmd_save_game();
+					is_autosave = FALSE;
+				}
+				new_level_flag = TRUE;
+				came_from=START_RANDOM;
+				break;
+			case 21: /* Polymorph Self */
+				do_poly_self();
+				break;
+			case 22: /* Chaos Branding */
+				brand_weapon(1);
+				break;
+			case 23: /* Summon monster, demon */
+				if (randint(3) == 1)
+				{
+					if (summon_specific(py, px, (plev*3)/2, FILTER_DEMON))
+					{
+						msg_print("The area fills with a stench of sulphur and brimstone.");
+						msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
+					}
+				}
+				else
+				{
+					if (summon_specific_friendly((int)py,(int) px, (plev*3)/2,
+						FILTER_DEMON, (bool)(plev == 50 ? TRUE : FALSE)))
+					{
+						msg_print("The area fills with a stench of sulphur and brimstone.");
+						msg_print("'What is thy bidding... Master?'");
+					}
+				}
+				break;
+			case 24: /* Beam of Gravity */
+				if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_GRAVITY, dir, damroll(9+((plev-5)/4), 8));
+				break;
+			case 25: /* Meteor Swarm  */
+				{
+					int x, y, dx, dy, d, count = 0;
+					int b = 10 + randint(10);
+					for (i = 0; i < b; i++) {
+						do {
+							count++;
+							if (count > 1000)  break;
+							x = px - 5 + randint(10);
+							y = py - 5 + randint(10);
+							dx = (px > x) ? (px - x) : (x - px);
+							dy = (py > y) ? (py - y) : (y - py);
+							/* Approximate distance */
+							d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+						} while ((d > 5) || (!(player_has_los_bold(y, x))));
+
+						if (count > 1000)   break;
+						count = 0;
+						project(0, 2, y, x, (plev*3)/2, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
+					}
+				}
+				break;
+			case 26: /* Flame Strike */
+				fire_ball(GF_FIRE, 0, 150 + (2*plev), 8);
+				break;
+			case 27: /* Call Primal Chaos */
+				call_chaos();
+				break;
+			case 28: /* Shard Ball */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_SHARD, dir, 120 + (plev), 2);
+				break;
+			case 29: /* Mana Storm */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_MANA, dir,	300 + (plev * 2), 4);
+				break;
+			case 30: /* Breathe chaos */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_CHAOS,dir,p_ptr->chp,2);
+				break;
+			case 31: /* Call the Void */
+				call_the_();
+				break;
+			default:
+				msg_format("You cast an unknown demonic spell: %d.", spell);
+				msg_print(NULL);
+			}
+			break;
+
+		case 4: /* * DEATH * */
+			switch (spell)
+			{
+			case 0: /* Detect Undead & Demons -> Unlife*/
+				(void) detect_monsters_nonliving();
+				break;
+			case 1: /* Malediction */
+				if (!get_aim_dir(&dir)) return;
+				/* A radius-0 ball may (1) be aimed at objects etc.,
+				* and will affect them; (2) may be aimed at ANY
+				* visible monster, unlike a 'bolt' which must travel
+				* to the monster. */
+
+				fire_ball(GF_HELL_FIRE, dir,
+					damroll(3 + ((plev - 1) / 5), 3), 0);
+				if (randint(5)==1) {   /* Special effect first */
+					dummy = randint(1000);
+					if (dummy == 666)
+						fire_bolt(GF_DEATH_RAY, dir, plev);
+					else if (dummy < 500)
+						fire_bolt(GF_TURN_ALL, dir, plev);
+					else if (dummy < 800)
+						fire_bolt(GF_OLD_CONF, dir, plev);
+					else
+						fire_bolt(GF_STUN, dir, plev);
+				}
+				break;
+			case 2: /* Detect Evil */
+				(void)detect_monsters_evil();
+				break;
+			case 3: /* Stinking Cloud */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_POIS, dir,	10 + (plev / 2), 2);
+				break;
+			case 4: /* Black Sleep */
+				if (!get_aim_dir(&dir)) return;
+				(void)sleep_monster(dir);
+				break;
+			case 5: /* Resist Poison */
+				(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois + randint(20) + 20);
+				break;
+			case 6: /* Horrify */
+				if (!get_aim_dir(&dir)) return;
+				(void)fear_monster(dir, plev);
+				(void) stun_monster(dir, plev);
+				break;
+			case 7: /* Enslave the Undead */
+				if (!get_aim_dir(&dir)) return;
+				(void)control_one_undead(dir, plev);
+				break;
+			case 8: /* Orb of Entropy */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_OLD_DRAIN, dir,
+					(damroll(3, 6) + plev +
+					(plev / (((p_ptr->pclass == CLASS_MAGE)
+					       || (p_ptr->pclass == CLASS_HIGH_MAGE)
+						   || (p_ptr->pclass == CLASS_BLOOD_MAGE)) ? 2 : 4))),
+					((plev < 30) ? 2 : 3));
+				break;
+			case 9: /* Nether Bolt */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_NETHER, dir,
+					damroll(6+((plev-5)/4), 8));
+				break;
+			case 10: /* Terror */
+				turn_monsters(30+plev);
+				break;
+			case 11: /* Vampiric Drain */
+				if (!get_aim_dir(&dir)) return;
+				dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
+				if (drain_life(dir, dummy)) {
+					(void)hp_player(dummy);
+					/* Gain nutritional sustenance: 150/hp drained */
+					/* A Food ration gives 5000 food points (by contrast) */
+					/* Don't ever get more than "Full" this way */
+					/* But if we ARE Gorged,  it won't cure us */
+					dummy = p_ptr->food + MIN(5000, 100 * dummy);
+					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
+						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+				}
+				break;
+			case 12: /* Poison Branding */
+				brand_weapon(2);
+				break;
+			case 13: /* Dispel Good */
+				(void)dispel_good(plev * 4);
+				break;
+			case 14: /* Genocide */
+				(void)genocide(TRUE);
+				break;
+			case 15: /* Restore Life */
+				(void)restore_level();
+				break;
+			case 16: /* Berserk */
+				(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
+				(void)hp_player(30);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				break;
+			case 17: /* Invoke Spirits */
+				{
+					int die = randint(100) + plev / 5;
+					if (!get_aim_dir(&dir)) return;
+
+					msg_print("You call on the power of the dead...");
+					if (die > 100)
+						msg_print ("You feel a surge of eldritch force!");
+
+					if (die < 8) {
+						msg_print("Oh no! Mouldering forms rise from the earth around you!");
+						(void) summon_specific(py, px, dun_level, FILTER_UNDEAD);
+					} else if (die < 14) {
+						msg_print("An unnamable evil brushes against your mind...");
+						set_timed_effect( TIMED_AFRAID , p_ptr->afraid + randint(4) + 4);
+					} else if (die < 26) {
+						msg_print("Your head is invaded by a horde of gibbering spectral voices...");
+						set_timed_effect( TIMED_CONFUSED , p_ptr->confused + randint(4) + 4);
+					} else if (die < 31) {
+						poly_monster (dir);
+					} else if (die < 36) {
+						fire_bolt_or_beam (beam - 10,
+							GF_MISSILE, dir,
+							damroll(3 + ((plev - 1) / 5), 4));
+					} else if (die < 41) {
+						confuse_monster (dir, plev);
+					} else if (die < 46) {
+						fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
+					} else if (die < 51) {
+						lite_line (dir);
+					} else if (die < 56) {
+						fire_bolt_or_beam (beam - 10, GF_ELEC, dir,
+							damroll(3+((plev-5)/4),8));
+					} else if (die < 61) {
+						fire_bolt_or_beam (beam - 10, GF_COLD, dir,
+							damroll(5+((plev-5)/4),8));
+					} else if (die < 66) {
+						fire_bolt_or_beam (beam, GF_ACID, dir,
+							damroll(6+((plev-5)/4),8));
+					} else if (die < 71) {
+						fire_bolt_or_beam (beam, GF_FIRE, dir,
+							damroll(8+((plev-5)/4),8));
+					} else if (die < 76) {
+						drain_life (dir, 75);
+					} else if (die < 81) {
+						fire_ball (GF_ELEC, dir, 30 + plev / 2, 2);
+					} else if (die < 86) {
+						fire_ball (GF_ACID, dir, 40 + plev, 2);
+					} else if (die < 91) {
+						fire_ball (GF_ICE, dir, 70 + plev, 3);
+					} else if (die < 96) {
+						fire_ball (GF_FIRE, dir, 80 + plev, 3);
+					} else if (die < 101) {
+						drain_life (dir, 100 + plev);
+					} else if (die < 104) {
+						earthquake (py, px, 12);
+					} else if (die < 106) {
+						destroy_area (py, px, 15, TRUE);
+					} else if (die < 108) {
+						genocide(TRUE);
+					} else if (die < 110) {
+						dispel_monsters (120);
+					} else { /* RARE */
+						dispel_monsters (150);
+						slow_monsters();
+						sleep_monsters();
+						hp_player (300);
+					}
+
+					if (die < 31)
+						msg_print("Sepulchral voices chuckle. 'Soon you will join us, mortal.'");
+					break;
+				}
+			case 18: /* Dark Bolt */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_DARK, dir, damroll(4+((plev-5)/4), 8));
+				break;
+			case 19: /* Battle Frenzy */
+				(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
+				(void)hp_player(30);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				if (!p_ptr->fast)
+				{
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev / 2) ) + (plev / 2));
+				}
+				else
+				{
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
+				}
+				break;
+			case 20: /* Vampirism True */
+				if (!get_aim_dir(&dir)) return;
+				for (dummy = 0; dummy < 3; dummy++)
+				{
+					if (drain_life(dir, 100))
+						hp_player(100);
+				}
+				break;
+			case 21: /* Vampiric Branding */
+				brand_weapon(3);
+				break;
+			case 22: /* Darkness Storm */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_DARK, dir,	120, 4);
+				break;
+			case 23: /* Mass Genocide */
+				(void)mass_genocide(TRUE);
+				break;
+			case 24: /* Death Ray */
+				if (!get_aim_dir(&dir)) return;
+				(void)death_ray(dir, plev);
+				break;
+			case 25: /* Raise the Dead */
+				if (randint(3) == 1) {
+					if (summon_specific(py, px, (plev*3)/2,
+						(plev > 47 ? FILTER_HI_UNDEAD : FILTER_UNDEAD))) {
+							msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
+							msg_print("'The dead arise... to punish you for disturbing them!'");
+						}
+				} else {
+					if (summon_specific_friendly((int)py,(int)px, (plev*3)/2,
+						(plev > 47 ? FILTER_HI_UNDEAD_NO_UNIQUES : FILTER_UNDEAD),
+						(bool)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE))) {
+							msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
+							msg_print("Ancient, long-dead forms arise from the ground to serve you!");
+						}
+				}
+				break;
+			case 26: /* Esoteria */
+				if (randint(50)>plev)
+					(void) ident_spell();
+				else
+					identify_fully();
+				break;
+			case 27: /* Word of Death */
+				(void)dispel_living(plev * 3);
+				break;
+			case 28: /* Evocation       */
+				(void)dispel_monsters(plev * 4);
+				turn_monsters(plev*4);
+				banish_monsters(plev*4);
+				break;
+			case 29: /* Hellfire */
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_HELL_FIRE, dir,
+					666, 3);
+				take_hit(50+randint(50), "the strain of casting Hellfire");
+				break;
+			case 30: /* Omnicide */
+				p_ptr->csp -= 100;  /* Display doesn't show mana cost (100)
+									* as deleted until the spell has finished. This gives a
+									* false impression of how high your mana is climbing.
+									* Therefore, 'deduct' the cost temporarily before entering the
+									* loop, then add it back at the end so that the rest of the
+									* program can deduct it properly */
+				for (i = 1; i < m_max; i++)
+				{
+					monster_type    *m_ptr = &m_list[i];
+					monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+					/* Paranoia -- Skip dead monsters */
+					if (!m_ptr->r_idx) continue;
+
+					/* Hack -- Skip Unique Monsters */
+					if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+					/* Skip Quest Monsters */
+					if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)) continue;
+
+					/* Delete the monster */
+					delete_monster_idx(i,TRUE);
+
+					/* Take damage */
+					take_hit(randint(4), "the strain of casting Omnicide");
+
+					/* Absorb power of dead soul */
+					p_ptr->csp++;
+
+					/* Visual feedback */
+					move_cursor_relative(py, px);
+
+					/* Redraw */
+					p_ptr->redraw |= (PR_HP | PR_MANA);
+
+					/* Window stuff */
+					p_ptr->window |= (PW_PLAYER);
+					p_ptr->window |=(PW_SPELL);
+
+					/* Handle */
+					handle_stuff();
+
+					/* Fresh */
+					Term_fresh();
+
+					/* Delay */
+					Term_xtra(TERM_XTRA_DELAY,
+						delay_factor * delay_factor * delay_factor);
+				}
+				p_ptr->csp += 100;   /* Restore, ready to be deducted properly */
+
+				break;
+			case 31: /* Wraithform */
+				set_timed_effect( TIMED_WRAITH_FORM, p_ptr->wraith_form + randint(plev/2) + (plev/2));
+				break;
+			default:
+				msg_format("You cast an unknown Death spell: %d.", spell);
+				msg_print(NULL);
+			}
+			break;
+
+		case 5: /* TAROT */
+			switch (spell)
+			{
+			case 0: /* Shift */
+				teleport_player(10);
+				break;
+			case 1: /* The Challenge */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_PSI, dir,
+					damroll(3 + ((plev - 1) / 5), 3));
+				break;
+			case 2: /* Fears & Hopes */
+
+				{
+					/* A limited power 'wonder' spell */
+
+					int die = randint(120);
+
+					if ((p_ptr->pclass == CLASS_ROGUE) ||
+						(p_ptr->pclass == CLASS_HIGH_MAGE))
+						die = (randint(110)) + plev / 5;
+					/* Card sharks and high mages get a level bonus */
+
+					msg_print("You shuffle your Tarot deck and draw a card...");
+
+					if (die < 7 )
+					{
+						msg_print("Oh no! It's the Blasted Tower!");
+						for (dummy = 0; dummy < randint(3); dummy++)
+							(void)activate_hi_summon();
+					}
+					else if (die < 14)
+					{
+						msg_print("Oh no! It's the Devil!");
+						(void) summon_specific(py, px, dun_level, FILTER_DEMON);
+					}
+					else if (die < 18 )
+					{
+						msg_print("Oh no! It's the Hanged Man.");
+						activate_ty_curse();
+					}
+					else if (die < 22 )
+					{
+						msg_print("It's the swords of discord.");
+						aggravate_monsters(1);
+					}
+					else if (die < 26)
+					{
+						msg_print("It's the Fool.");
+						(void) do_dec_stat(A_INT);
+						(void) do_dec_stat(A_WIS);
+					}
+					else if (die < 30)
+					{
+						msg_print("It's a picture of a strange monster.");
+						if (!(summon_specific(py, px, (dun_level * 3) / 2, 32 + randint(6))))
+							none_came = TRUE;
+					}
+					else if (die < 33)
+					{
+						msg_print("It's the Moon.");
+						unlite_area(10,3);
+					}
+					else if (die < 38)
+					{
+						msg_print("It's the Wheel of Fortune.");
+						wild_magic((randint(32))-1);
+					}
+					else if (die < 40)
+					{
+						msg_print("It's a teleport card.");
+						teleport_player(10);
+					}
+					else if (die <42)
+					{
+						msg_print("It's the Star.");
+						set_timed_effect( TIMED_BLESSED, p_ptr->blessed + p_ptr->lev);
+					}
+					else if (die <47)
+					{
+						msg_print("It's a teleport card.");
+						teleport_player(100);
+					}
+					else if (die <52)
+					{
+						msg_print("It's a teleport card.");
+						teleport_player(200);
+					}
+					else if (die <60)
+					{
+						msg_print("It's the Tower.");
+						wall_breaker();
+					}
+					else if (die <72)
+					{
+						msg_print("It's Temperance.");
+						sleep_monsters_touch();
+					}
+					else if (die <80)
+					{
+						msg_print("It's the Tower.");
+						earthquake(py, px, 5);
+					}
+					else if (die<82)
+					{
+						msg_print("It's a picture of a friendly monster.");
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE1, FALSE)))
+							none_came = TRUE;
+					}
+					else if (die<84)
+					{
+						msg_print("It's a picture of a friendly monster.");
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE2, FALSE)))
+							none_came = TRUE;
+					}
+					else if (die<86)
+					{
+						msg_print("It's a picture of a friendly monster.");
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE4, FALSE)))
+							none_came = TRUE;
+					}
+					else if (die<88)
+					{
+						msg_print("It's a picture of a friendly monster.");
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE5, FALSE)))
+							none_came = TRUE;
+					}
+					else if (die<96)
+					{
+						msg_print("It's the Lovers.");
+						if (!get_aim_dir(&dir)) return;
+						(void) charm_monster(dir, MIN(p_ptr->lev, 20));
+					}
+					else if (die<101)
+					{
+						msg_print("It's the Hermit.");
+						wall_stone();
+					}
+					else if (die< 111)
+					{
+						msg_print("It's the Judgement.");
+						do_cmd_rerate();
+						if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+						{
+							msg_print("You are cured of all corruptions.");
+							p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+							p_ptr->update |= PU_BONUS;
+							handle_stuff();
+						}
+
+					}
+					else if (die < 120)
+					{
+						msg_print("It's the Sun.");
+						wiz_lite();
+					}
+					else
+					{
+						msg_print("It's the World.");
+						if (p_ptr->exp < PY_MAX_EXP)
+						{
+							s32b ee = (p_ptr->exp / 25) + 1;
+							if (ee > 5000) ee = 5000;
+							msg_print("You feel more experienced.");
+							gain_exp(ee);
+						}
+					}
+
+				}
+				break;
+			case 3: /* Restack */
+				{
+					/* Prompt */
+					sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dun_level);
+
+					/* Default */
+					sprintf(tmp_val, "%d", MAX(dun_level,1));
+
+					/* Ask for a level */
+					if (!get_string(ppp, tmp_val, 10)) return;
+
+					/* Extract request */
+					dummy = atoi(tmp_val);
+
+					/* Paranoia */
+					if (dummy < 1) dummy = 1;
+
+					/* Paranoia */
+					if (dummy > p_ptr->max_dun_level) dummy = p_ptr->max_dun_level;
+
+					/*Actually set the new depth*/
+					p_ptr->max_dun_level= dummy;
+
+					/* Accept request */
+					msg_format("Recall depth set to level %d (%d').", p_ptr->max_dun_level, p_ptr->max_dun_level * 50 );
+				}
+				break;
+			case 4: /* Fool's Journey */
+				teleport_player(plev * 4);
+				break;
+			case 5: /* Sleight of Hand */
+				{
+					msg_print("You open a dimensional gate. ");
+					if (!spell_dimensional_gate( plev )) return;
+					break;
+				}
+			case 6: /* The High Priestess"*/
+				(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
+				break;
+			case 7: /* The Chariot */
+				if (!get_aim_dir(&dir)) return;
+				(void)fire_beam(GF_AWAY_ALL, dir, plev);
+				break;
+			case 8: /* Wheel of Fortune */
+				if (!get_aim_dir(&dir)) return;
+				fetch(dir, plev*15, TRUE);
+				break;
+			case 9: /* Temperance */
+				{
+					(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(20) + 20);
+					(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+					(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
+				}
+					break;
+			case 10: /* King of Swords */
+				if (summon_specific_friendly(py, px, (plev*3)/2, FILTER_DEMON, FALSE))
+					msg_print ("'Your wish, master?'");
+				else
+					none_came = TRUE;
+				break;
+			case 11: /* The lovers */
+				{
+					if (!get_aim_dir(&dir)) return;
+					(void)charm_monster_type( dir, MIN(p_ptr->lev, 20), FILTER_HUMAN);
+				}
+				break;
+			case 12: /* Elements of The Minchiate */
+				{
+					if (!(summon_specific_friendly(py, px, plev, FILTER_ELEMENTAL, FALSE)))
+					none_came = TRUE;
+				}
+				break;
+			case 13: /* The Hermit */
+				msg_print("You withdraw yourself.");
+				(void)teleport_player_level();
+				break;
+			case 14: /* Search for the Self */
+				{
+					do_recall( NULL );
+					break;
+				}
+			case 15: /* Shuffle */
+				banish_monsters(plev*4);
+				break;
+			case 16: /* Ink Blot */
+				msg_print("You concentrate on a joker card...");
+				switch(randint(4))
+				{
+					case 1: dummy = FILTER_BIZARRE1; break;
+					case 2: dummy = FILTER_BIZARRE2; break;
+					case 3: dummy = FILTER_BIZARRE4; break;
+					case 4: dummy = FILTER_BIZARRE5; break;
+
+				}
+					if (randint(2)==1)
+					{
+						if (summon_specific(py, px, plev, dummy))
+							msg_print("The summoned creature gets angry!");
+						else
+							none_came = TRUE;
+					}
+					else
+					{
+						if (!(summon_specific_friendly(py, px, plev, dummy, FALSE)))
+							none_came = TRUE;
+					}
+					break;
+			case 17: /* The Star */
+				{
+					(void)hp_player(150);
+					(void)set_timed_effect( TIMED_STUN, 0);
+					(void)set_timed_effect( TIMED_CUT, 0);
+					break;
+				}
+				break;
+			case 18: /* Fortitude */
+				{
+					(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + plev);
+					(void)set_timed_effect( TIMED_HERO, p_ptr->hero + plev);
+					(void)set_timed_effect( TIMED_FAST, p_ptr->hero + plev);
+				}
+				break;
+			case 19: /* The Emperor */
+				{
+					charm_monsters(p_ptr->lev * 2);
+					break;
+				}
+				break;
+			case 20: /* Branding of the Minchiate */
+				brand_weapon(5);
+				break;
+			case 21: /* Tarot Ascension */
+				if ( gain_corruption(8) || gain_corruption(16) )
+					msg_print("You have turned into a Planar Being.");
+				break;
+			case 22: /* Death */
+				(void)dispel_living(plev * 3);
+				break;
+			case 23: /* The Devil */
+				{
+					msg_print ("You concentrate on an image of The Devil...");
+					if (randint(10)>3)
+					{
+						if (!(summon_specific_friendly(py, px, plev, FILTER_DEVIL, FALSE)))
+							none_came = TRUE;
+					}
+					else
+					{
+						if (summon_specific(py, px, plev, FILTER_DEVIL))
+						{
+							msg_print("The summoned Black Reaver gets angry!");
+						}
+						else
+						{
+							none_came = TRUE;
+						}
+					}
+				}
+				break;
+			case 24: /* Read The Lay */
+				(void)detect_all();
+				break;
+			case 25: /* Tarot Lore */
+				identify_fully();
+				break;
+			case 26: /* Patter */
+				{
+					fire_ball(GF_CONFUSION  , 5, 200, 5);
+					teleport_player(10);
+				}
+				break;
+			case 27: /* The Tower */
+				{
+					fire_ball(GF_BLASTED_TOWER , 5, 200, 7);
+				}
+				break;
+			case 28: /* Lay of The Celtic Cross */
+				{
+					none_came = TRUE;
+					msg_print ("You concentrate on several images at once...");
+					for (dummy = 0; dummy < 3 + (plev / 10); dummy++)
+					{
+						if (randint(10)>3)
+						{
+							if (summon_specific_friendly(py, px, plev, FILTER_NO_UNIQUES, FALSE))
+								none_came = FALSE;
+						}
+						else
+						{
+							if (summon_specific(py, px, plev, 0))
+							{
+								msg_print("A summoned creature gets angry!");
+								none_came = FALSE;
+							}
+						}
+					}
+				}
+				break;
+			case 29: /* Ten of Pentacles */
+				{
+					msg_print ("You concentrate on the image of a demon...");
+					if (randint(10)>3)
+					{
+						if (!(summon_specific_friendly(py, px, plev, FILTER_DEMON, FALSE)))
+							none_came = TRUE;
+					}
+					else
+					{
+						if (summon_specific(py, px, plev, FILTER_DEMON))
+						{
+							msg_print("The summoned demon gets angry!");
+						}
+						else
+						{
+							none_came = TRUE;
+						}
+					}
+				}
+				break;
+			case 30: /* The Traitor */
+			{
+
+				none_came = !summon_specific_potential_ally( FILTER_FALLEN_ANGELS, 3, 10, "The Fallen Angel gets angry!");
+				break;
+			}
+			case 31: /* Justice */
+				{
+					(void)dispel_demons(plev * 3);
+					(void)dispel_devils(plev * 3);
+					(void)dispel_fallen_angels(plev * 3);
+				}
+				break;
+			default:
+				msg_format("You cast an unknown Tarot spell: %d.", spell);
+				msg_print(NULL);
+			}
+			if (none_came)
+			{
+				msg_print("Nobody answers to your call.");
+			}
+			break;
+		case 6: /* Charms */
+			switch (spell)
+			{
+			case 0: /* Zap */
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+					damroll(3 + ((plev - 1) / 5), 3));
+				break;
+			case 1: /* Wizard Lock */
+				if (!(get_aim_dir(&dir))) break;
+				(void) wizard_lock(dir);
+				break;
+			case 2: /* Detect Invisibility */
+				(void)detect_monsters_invis();
+				break;
+			case 3: /* Detect Monsters */
+				(void)detect_monsters_normal();
+				break;
+			case 4: /* Blink */
+				teleport_player(10);
+				break;
+			case 5: /* Light Area */
+				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+				break;
+			case 6: /* Trap & Door Destruction */
+				if (!(get_aim_dir(&dir))) return;
+				(void) destroy_door(dir);
+				break;
+			case 7: /* Cure Light Wounds */
+				(void) hp_player(damroll(2, 8));
+				(void) set_timed_effect( TIMED_CUT, p_ptr->cut - 10);
+				break;
+			case 8: /* Detect Doors & Traps */
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				break;
+			case 9: /* Phlogiston */
+				phlogiston();
+				break;
+			case 10: /* Detect Treasure */
+				(void)detect_treasure();
+				(void)detect_objects_gold();
+
+				break;
+			case 11: /* Detect Enchantment */
+				(void)detect_objects_magic(FALSE,FALSE);
+				break;
+			case 12: /* Detect Object */
+				(void)detect_objects_normal();
+				break;
+			case 13: /* Cure Poison */
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				break;
+			case 14: /* Resist Cold */
+				(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(20) + 20);
+				break;
+			case 15: /* Resist Fire */
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+				break;
+			case 16: /* Resist Lightning */
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
+				break;
+			case 17: /* Resist Acid */
+				(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + randint(20) + 20);
+				break;
+			case 18: /* Cure Medium Wounds */
+				(void)hp_player(damroll(4, 8));
+				(void)set_timed_effect( TIMED_CUT, (p_ptr->cut / 2) - 50);
+				break;
+			case 19: /* Teleport */
+				teleport_player(plev * 5);
+				break;
+			case 20: /* Stone to Mud */
+				if (!get_aim_dir(&dir)) return;
+				(void)wall_to_mud(dir);
+				break;
+			case 21: /* Ray of Light */
+				if (!get_aim_dir(&dir)) return;
+				msg_print("A line of light appears.");
+				lite_line(dir);
+				break;
+			case 22: /* Satisfy Hunger */
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			case 23: /* See Invisible */
+				(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis + randint(24) + 24);
+				break;
+			case 24: /* Recharging */
+				(void)recharge(plev * 2);
+				break;
+			case 25: /* Teleport Level */
+				(void)teleport_player_level();
+				break;
+			case 26: /* Identify */
+				(void)ident_spell();
+				break;
+			case 27: /* Teleport Away */
+				if (!get_aim_dir(&dir)) return;
+				(void)fire_beam(GF_AWAY_ALL, dir, plev);
+				break;
+			case 28: /* Elemental Ball */
+				if (!get_aim_dir(&dir)) return;
+				switch (randint(4))
+				{
+				case 1: dummy = GF_FIRE;
+				case 2: dummy = GF_ELEC;
+				case 3: dummy = GF_COLD;
+				default: dummy = GF_ACID;
+				}
+				fire_ball(dummy, dir,
+					75 + (plev), 2);
+				break;
+			case 29: /* Detection */
+				(void)detect_all();
+				break;
+			case 30: /* Word of Recall */
+				{
+					do_recall( NULL );
+					break;
+				}
+			case 31: /* Clairvoyance */
+				wiz_lite();
+				if (!(p_ptr->telepathy))
+				{
+					(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
+				}
+				break;
+			default:
+				msg_format("You cast an unknown Charm: %d.", spell);
+				msg_print(NULL);
+			}
+			break;
+		case 7: /* * Somatic * */
+			switch (spell)
+			{
+			case 0: /* Cure Light Wounds */
+				(void)hp_player(damroll(2, 10));
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut - 10);
+				break;
+			case 1: /* Shift */
+				teleport_player(10);
+				break;
+			case 2: /* Bravery */
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				break;
+			case 3: /* Bat's Sense */
+				map_area();
+				break;
+			case 4: /* Eagle's Vision */
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				break;
+			case 5: /* Mind Vision */
+				(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
+				break;
+			case 6: /* Cure Medium Wounds */
+				(void)hp_player(damroll(4, 10));
+				(void)set_timed_effect( TIMED_CUT, (p_ptr->cut / 2) - 20);
+				break;
+			case 7: /* Satisfy Hunger */
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			case 8: /* Burn Resistance */
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + randint(20) + 20);
+				break;
+			case 9: /* Detoxify */
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				break;
+			case 10: /* Cure Critical Wounds */
+				(void)hp_player(damroll(8, 10));
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				break;
+			case 11: /* See Invisible */
+				(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis + randint(24) + 24);
+				break;
+			case 12: /* Teleport */
+				teleport_player(plev * 3);
+				break;
+			case 13: /* Haste */
+				if (!p_ptr->fast)
+				{
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev) ) + plev);
+				}
+				else
+				{
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
+				}
+				break;
+			case 14: /* Healing */
+				(void)hp_player(300);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				break;
+			case 15: /* Resist True */
+				(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois + randint(25) + 25);
+				break;
+			case 16: /* Horrific Visage */
+				if (!get_aim_dir(&dir)) return;
+				(void)fear_monster(dir, plev);
+				(void) stun_monster(dir, plev);
+				break;
+			case 17: /* See Magic */
+				(void)detect_objects_magic(FALSE,FALSE);
+				break;
+			case 18: /* Stone Skin */
+				(void)set_timed_effect( TIMED_SHIELD, p_ptr->shield + randint(20) + 30);
+				break;
+			case 19: /* Move Body */
+				msg_print("You focus your Chi. ");
+				if (!spell_dimensional_gate( plev )) return;
+				break;
+			case 20: /* Corrupt Body */
+				gain_corruption(0);
+				break;
+			case 21: /* Know Self */
+
+				(void)self_knowledge();
+				break;
+			case 22: /* Teleport Level */
+				(void)teleport_player_level();
+				break;
+			case 23: /* Word of Recall */
+				{
+					do_recall( NULL );
+					break;
+				}
+			case 24: /* Heroism */
+				(void)set_timed_effect( TIMED_HERO, p_ptr->hero + randint(25) + 25);
+				(void)hp_player(10);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				break;
+			case 25: /* Wraithform */
+				set_timed_effect( TIMED_WRAITH_FORM, p_ptr->wraith_form + randint(plev/2) + (plev/2));
+				break;
+			case 26: /* Attune to Magic */
+				identify_fully();
+				break;
+			case 27: /* Restore Body */
+				(void)do_res_stat(A_STR);
+				(void)do_res_stat(A_INT);
+				(void)do_res_stat(A_WIS);
+				(void)do_res_stat(A_DEX);
+				(void)do_res_stat(A_CON);
+				(void)do_res_stat(A_CHA);
+				break;
+			case 28: /* Healing True */
+				(void)hp_player(2000);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				break;
+			case 29: /* Hypnotic Eyes */
+				if (!get_aim_dir(&dir)) return;
+				(void) charm_monster(dir, plev);
+				break;
+			case 30: /* Restore Soul */
+				(void)restore_level();
+				break;
+			case 31: /* Invulnerability */
+				(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln + randint(7) + 7);
+				break;
+			default:
+				msg_format("You cast an unknown Somatic spell: %d.", spell);
+				msg_print(NULL);
+			}
+			break;
+		case REALM_DEMONIC-1: /* * DEMONIC * */
+			switch (spell)
+			{
+				case 0: /* Unholy strength */
+					(void)set_timed_effect( TIMED_HERO, p_ptr->hero + randint(25) + 25);
+					(void)take_hit( (p_ptr->lev/10)*5+5 , "Strain of Unholy Strength");
+					break;
+				case 1: /* Sense Evil */
+					(void)detect_monsters_evil();
+					break;
+				case 2: /* Scorch */
+					if (!get_aim_dir(&dir)) return;
+					fire_bolt_or_beam(beam-10, GF_FIRE, dir, damroll(3 + ((plev - 1) / 5), 4));
+					break;
+				case 3: /* Perilous Shadows */
+					if (!get_aim_dir(&dir)) return;
+					fire_bolt_or_beam(beam-10, GF_DARK, dir, damroll(3 + ((plev - 1) / 5), 4));
+					break;
+				case 4: /* Teleport */
+					teleport_player(75);
+					break;
+				case 5: /* Disintegrate  */
+					if (!get_aim_dir(&dir)) return;
+					fire_ball(GF_DISINTEGRATE, dir, damroll(8+((plev-5)/4), 8), 0);
+					break;
+				case 6: /* Demonic Sigil */
+					msg_print("You carefully draw a sigil on the floor...");
+					explosive_rune();
+					break;
+				case 7: /* Hecate's Radiance ( weak light damage + medium charm/confuse/fear spell ) */
+					(void)lite_area_hecate(damroll(plev, 2), (plev / 10) + 1);
+					break;
+				case 8: /* Abaddon's Rage */
+					(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
+					(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + randint(25) + 25);
+					(void)set_timed_effect( TIMED_AFRAID , 0);
+					break;
+				case 9: /* Mind Leech */
+					(void)mind_leech();
+					break;
+				case 10: /* Body Leech*/
+					(void)body_leech();
+					break;
+				case 11: /* Glyph of Warding */
+					warding_glyph();
+					break;
+				case 12: /* Protection from Evil */
+					(void)set_timed_effect( TIMED_PROTEVIL, p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+					break;
+				case 13: /* Summon Demons */
+					if (!(summon_specific_friendly(py, px, plev, FILTER_DEMON, TRUE)))
+						if (!(summon_specific_friendly(py, px, plev, FILTER_DEVIL, TRUE)))
+							none_came = TRUE;
+					break;
+				case 14: /* Summon the Fallen */
+					if (!(summon_specific_friendly(py, px, plev, FILTER_FALLEN_ANGELS, TRUE)))
+						none_came = TRUE;
+					break;
+				case 15: /* Balm of the Cocytus */
+					hp_player(300);
+					/* Actually set the stat to its new value. */
+					p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON]-1;
+					/* Recalculate bonuses */
+					p_ptr->update |= (PU_BONUS);
+					break;
+				case 16: /* Araqiel's Wrath ( Earthquake )  */
+					(void) earthquake(py,px,8);
+					break;
+				case 17: /*Kokabiel's Call  ( Summon Spirits, lots of them ) */
+					none_came = summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE) +
+					summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE) +
+					summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE) +
+					summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE);
+					none_came = !none_came;
+					break;
+				case 18: /* Baraquiel's Guile (detect enchantment on entire level of excellents and specials) */
+					(void)detect_objects_magic(TRUE,TRUE);
+					break;
+				case 19: /* Sariel's Ire  */
+					dummy = randint(50) + 25;
+					(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + dummy);
+					(void)set_timed_effect( TIMED_HERO, p_ptr->hero + dummy);
+					(void)set_timed_effect( TIMED_MAGIC_SHELL, p_ptr->magic_shell + dummy);
+					break;
+				case 20: /* Azazel's Rule */
+					(void)charm_all_goats();
+					break;
+				case 21: /* Danel's Deluge */
+					if (!get_aim_dir(&dir)) return;
+					fire_ball(GF_LITE, dir,
+							  (damroll(3, 6) + plev +
+							   (plev / ((p_ptr->pclass == CLASS_HELL_KNIGHT
+										 || p_ptr->pclass == CLASS_WARLOCK
+										 || p_ptr->pclass == CLASS_BLOOD_MAGE
+										 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 1 : 3))),
+							  ((plev < 30) ? 2 : 3));
+					break;
+				case 22: /* Amaros' Grief  */
+					(void) dispel_demons(plev*4);
+					(void) dispel_fallen_angels(plev*4);
+					break;
+				case 23: /* Teachings of Kasyade */
+					wiz_lite();
+					break;
+				case 24: /* Orb of Impending Doom */
+					if (!get_aim_dir(&dir)) return;
+					fire_ball(GF_HELL_FIRE, dir, (damroll(3, 6) + plev +
+												  (plev / (( p_ptr->pclass == CLASS_HELL_KNIGHT || p_ptr->pclass == CLASS_WARLOCK || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4))),
+							  ((plev < 30) ? 2 : 3));
+					break;
+				case 25: /* Temperance */
+					dummy = randint(50) + 50;
+					(void)set_timed_effect( TIMED_OPPOSE_COLD,  dummy );
+					(void)set_timed_effect( TIMED_OPPOSE_FIRE,  dummy );
+					break;
+				case 26: /* True Warding */
+					warding_glyph();
+					glyph_creation();
+					break;
+				case 27: /* Word of Destruction */
+					destroy_area(py, px, 15, TRUE);
+					break;
+				case 28: /* Gift of Malphas ( Adding weapon flags, Malphas being a friend of artificers ] */
+					(void)malphas_gift();
+					break;
+				case 29: /* Lilith's Kiss  */
+					charm_monsters(p_ptr->lev * 4);
+					break;
+				case 30: /* Behemoth's Call */
+					msg_print("You open your mouth while it deforms into a gaping hole, spewing wind and water!");
+					(void)behemoth_call();
+					break;
+				case 31: /* Chaos Rift */
+					if (!get_aim_dir(&dir)) return;
+					fire_ball(GF_CHAOS,dir,p_ptr->mhp,2);
+					break;
+				default:
+					msg_format("You cast an unknown Demonic spell: %d.", spell);
+					msg_print(NULL);
+			}
+			break;
+		default:
+			msg_format("You cast a spell from an unknown realm: realm %d, spell %d.", realm, spell);
+			msg_print(NULL);
+		}
+		get_extended_spell_info( realm , spell , s_ptr);
+		/* Did we ever cast this spell succesfully */
+		if(!s_ptr->worked)
+		{
+			int spell_skill = mp_ptr->skill[realm]-1;
+			first_time = TRUE;
+			if( spell_skill == SUPER || spell_skill == BETTER )
+				xp_gain = s_ptr->sexp;
+			else
+				xp_gain = s_ptr->sexp *  s_ptr->sexp;
+			if (realm == p_ptr->realm1-1)
+				spell_worked1 |= (1L << spell);
+			else
+				spell_worked2 |= (1L << spell);
+		}
+	}
+
+	/* Take some time - a spell of your level takes 100, lower level spells take less */
+	energy_use = 100-(5*(p_ptr->lev-s_ptr->slevel));
+	if(energy_use < 10) energy_use = 10;
+
+	if( p_ptr->pclass != CLASS_BLOOD_MAGE)
+	{
+		/* Sufficient mana */
+		if (s_ptr->smana <= p_ptr->csp)
+		{
+			/* Use some mana */
+			p_ptr->csp -= s_ptr->smana;
+		}
+		/* Over-exert the player */
+		else
+		{
+			int oops = s_ptr->smana - p_ptr->csp;
+
+			/* No mana left */
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
+
+			/* Message */
+			msg_print("You faint from the effort!");
+
+			/* Hack -- Bypass free action */
+			(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + randint(5 * oops + 1));
+
+			/* Damage CON (possibly permanently) */
+			if (rand_int(100) < 50)
+			{
+				bool perm = (rand_int(100) < 25);
+
+				/* Message */
+				msg_print("You have damaged your health!");
+
+				/* Reduce constitution */
+				(void)dec_stat(A_CON, 15 + randint(10), perm);
+			}
+		}
+	}
+	else
+	/*We are dealing with a blood mage*/
+	{
+		/* Sufficient hitpoints */
+		if (s_ptr->smana <= p_ptr->chp)
+		{
+			/* Use some mana */
+			p_ptr->chp -= s_ptr->smana;
+		}
+		/* Over-exert the player */
+		else
+		{
+			int oops = s_ptr->smana - p_ptr->chp;
+
+			/* Leave one hitpoint */
+			p_ptr->chp = 1;
+			p_ptr->chp_frac = 0;
+
+			/* Message */
+			msg_print("You faint from the effort!");
+			/* Hack -- Bypass free action */
+			(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + randint(5 * oops + 1));
+			/* Whack that constitution like there is no tomorrow */
+			(void)dec_stat(A_CON, 25, TRUE);
+		}
+	}
+
+	/* Redraw mana */
+	if( p_ptr->pclass != CLASS_BLOOD_MAGE )
+		p_ptr->redraw |= (PR_MANA);
+	else
+		p_ptr->redraw |= (PR_HP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |=(PW_SPELL);
+
+	/*  Gain experience, we put this here since leveling screws up the spell info pointer,
+		that is very bad karma and it is all my fault, big todo!
+	*/
+	if(first_time)
+		gain_exp(xp_gain);
+}

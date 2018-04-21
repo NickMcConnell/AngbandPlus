@@ -60,7 +60,6 @@ void do_cmd_inven(void)
 	/* Restore the screen */
 	Term_load();
 
-
 	/* Process "Escape" */
 	if (command_new == ESCAPE)
 	{
@@ -361,8 +360,6 @@ void do_cmd_wield(void)
 	/* Recalculate mana */
 	p_ptr->update |= (PU_MANA);
 
-	p_ptr->redraw |= (PR_EQUIPPY);
-
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
@@ -378,25 +375,14 @@ void do_cmd_takeoff(void)
 
 	object_type *o_ptr;
 
-
 	/* Get an item (from equip) */
 	if (!get_item(&item, "Take off which item? ", "You are not wearing anything to take off.", USE_EQUIP))
 	{
 		return;
 	}
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* you cannot take off items from the floor */
+	o_ptr = &inventory[item];
 
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
@@ -408,14 +394,11 @@ void do_cmd_takeoff(void)
 		return;
 	}
 
-
 	/* Take a turn */
 	energy_use = 100;
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
-
-	p_ptr->redraw |= (PR_EQUIPPY);
 }
 
 
@@ -475,7 +458,7 @@ void do_cmd_drop(void)
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
 
-	p_ptr->redraw |= (PR_EQUIPPY);
+	p_ptr->window |= (PW_VISIBLE_ITEMS);
 }
 
 
@@ -557,22 +540,18 @@ void do_cmd_destroy_all()
 */
 void do_cmd_destroy(void)
 {
-	int			item, amt = 1;
-	int			old_number;
-	s16b        old_charges;
-
-	bool		force = FALSE;
+	int  item, amt = 1;
+	int  old_number;
+	s16b old_charges;
+	bool force = FALSE;
 
 	object_type		*o_ptr;
 
-	char		o_name[80];
-
-	char		out_val[160];
-
+	char o_name[80];
+	char out_val[160];
 
 	/* Hack -- force destruction */
 	if (command_arg > 0) force = TRUE;
-
 
 	/* Get an item (from inven or floor) */
 	if (!get_item(&item, "Destroy which item? ", "You have nothing to destroy." , USE_INVEN | USE_FLOOR))
@@ -649,8 +628,6 @@ void do_cmd_destroy(void)
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
 
-		p_ptr->redraw |= (PR_EQUIPPY);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
@@ -665,7 +642,10 @@ void do_cmd_destroy(void)
 	{
 		bool gain_expr = FALSE;
 		if (p_ptr->pclass == CLASS_WARRIOR) gain_expr = TRUE;
-		else if (p_ptr->pclass == CLASS_PALADIN || p_ptr->pclass == CLASS_HELL_KNIGHT)
+		else if (p_ptr->pclass == CLASS_PALADIN || 
+			     p_ptr->pclass == CLASS_HELL_KNIGHT || 
+				 p_ptr->pclass == CLASS_BLACK_KNIGHT ||
+				 p_ptr->pclass == CLASS_CHAOS_KNIGHT )
 		{
 			if (p_ptr->realm1 == 1)
 			{
@@ -754,8 +734,7 @@ void do_cmd_observe(void)
 
 	char		o_name[80];
     
-    object_kind *k_ptr;
-
+    /*object_kind *k_ptr; UNUSED*/
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Examine which item? ", "You have nothing to examine.", USE_EQUIP | USE_INVEN | USE_FLOOR))
@@ -775,15 +754,16 @@ void do_cmd_observe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-    k_ptr = &k_info[ o_ptr->k_idx ];
+    /*k_ptr = &k_info[ o_ptr->k_idx ]; UNUSED*/
     
-	/* Require full knowledge, konijn */
+	/* Require full knowledge, konijn
 	if (  !(o_ptr->ident & (IDENT_MENTAL) || k_ptr->flags3 & (TR3_EASY_KNOW) )  )
 	{
 		msg_print("You have no special knowledge about that item.");
 		return;
-	}
+	}*/
 
+	object_track( o_ptr , "You are examining" );
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1891,6 +1871,99 @@ void do_cmd_handle(void)
 			item_tester_hook=0;
 			return;
 		}
+	}
+}
+
+void do_cmd_magic_spell(void)
+{
+	if (p_ptr->anti_magic)
+	{
+		cptr which_power = "magic";
+		if (p_ptr->pclass == CLASS_ORPHIC)
+			which_power = "psionic powers";
+		else if (mp_ptr->spell_book == TV_MIRACLES_BOOK)
+			which_power = "prayer";
+
+		msg_format("An anti-magic shell disrupts your %s!", which_power);
+
+		energy_use = 5; /* Still use a bit */
+	}
+	else
+	{
+		if (p_ptr->pclass == CLASS_ORPHIC)
+			do_cmd_mindcraft();
+		else
+			do_cmd_cast();
+	}
+}
+
+void do_cmd_gain_spell(void)
+{
+	/* Require spell ability */
+	if (p_ptr->realm1 == 0)
+	{
+		msg_print("You cannot cast spells!");
+	}
+	else
+	{
+		msg_format("You need some peace and quiet to research.");
+		msg_format("Why not try a bookstore?");
+	}
+}
+
+void do_cmd_screen_dump(void)
+{
+	do_cmd_load_screen( ANGBAND_DIR_PREF ,  "dump.txt" );
+	(void)msg_flush_wait();
+	(void)restore_screen();
+}
+
+void do_cmd_time(void)
+{
+	/* dummy is % thru day/night */
+	bool morning = FALSE;
+	int  dummy   = ((turn % ((10L * TOWN_DAWN)/2) * 100) / ((10L * TOWN_DAWN)/2));
+	int  minute  = ((turn % ((10L * TOWN_DAWN)/2) * 720) / ((10L * TOWN_DAWN)/2)) % 60;
+	int  hour    = ((12 * dummy) / 100) - 6;    /* -6 to +6 */
+	int  hour12  = 0;
+	/*int  day     = 0
+	if (turn <= (10L * TOWN_DAWN)/4)
+		day = 1;
+	else
+		day = (turn - (10L * TOWN_DAWN / 4)) / (10L * TOWN_DAWN) + 1;
+	UNUSED
+	*/
+
+	/* night: 6pm -- 6am */
+	if ((turn / ((10L * TOWN_DAWN)/2)) % 2)
+	{   
+		hour12 = (hour <= 0)?(12 - (hour * -1)):(hour);
+		morning = (hour >= 0);
+
+		msg_format("%d:%02d %s, day %d.", hour12, minute, (morning? "AM" : "PM"), turn / (10L * TOWN_DAWN) + 1);
+
+		if      (dummy < 5)                     msg_print("The sun has set.");
+		else if (dummy == 50)			        msg_print("It is midnight.");
+		else if ((dummy > 94) && (dummy < 101)) msg_print("The sun is near to rising.");
+		else if ((dummy > 75) && (dummy < 95))  msg_print("It is early morning, but still dark.");
+		else if (dummy > 100                 )  msg_format("What a funny night-time! (%d)", dummy);
+		else                                    msg_format("It is night.");
+	} 
+	else /* day */
+	{  
+		hour12 = (hour <= 0)?(12 - (hour * -1)):(hour);
+		morning =  (hour >= 0);
+
+		msg_format("%d:%02d %s, day %d.", hour12, minute, (morning? "AM" : "PM"), turn / (10L * TOWN_DAWN) + 1);
+		if      (dummy <  5  ) msg_print("Morning has broken...");
+		else if (dummy <  25 ) msg_print("It is early morning.");
+		else if (dummy <  50 ) msg_print("It is late morning.");
+		else if (dummy == 50 ) msg_print("It is noon.");
+		else if (dummy <  65 ) msg_print("It is early afternoon.");
+		else if (dummy <  85 ) msg_print("It is late afternoon.");
+		else if (dummy <  95 ) msg_print("It is early evening.");
+		else if (dummy <  101) msg_print("The sun is setting.");
+		else                  msg_format("What a strange daytime! (%d)", dummy);
 	}
 }
 

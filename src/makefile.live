@@ -1,0 +1,185 @@
+# File: Makefile, meant for Raspbian with angband-webclient
+#
+# Note that you may have to make modifications below according
+# to your machine, available libraries, compilation options,
+# and your "visual module" of choice.  This Makefile is intended
+# for use with Unix machines running X11, Curses, Ncurses, or Vt100,
+# or possibly for "Atari" or "Amiga" computers with "Curses" ports,
+# see below for more information.
+#
+
+#
+# The "source" and "object" files.
+#
+
+SRCS = \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  variable.c tables.c util.c cave.c \
+  object1.c object2.c monster1.c monster2.c \
+  xtra1.c xtra2.c spells1.c spells2.c \
+  melee1.c melee2.c save.c files.c \
+  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
+  store.c birth.c load.c \
+  wizard1.c wizard2.c \
+  generate.c dungeon.c init1.c init2.c \
+  quest.c \
+  main-gcu.c maid-x11.c main-x11.c main.c
+
+OBJS = \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+  variable.o tables.o util.o cave.o \
+  object1.o object2.o monster1.o monster2.o \
+  xtra1.o xtra2.o spells1.o spells2.o \
+  melee1.o melee2.o save.o files.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  store.o birth.o load.o \
+  wizard1.o wizard2.o \
+  generate.o dungeon.o init1.o init2.o \
+  quest.o \
+  main-gcu.o maid-x11.o main-x11.o main.o
+
+
+
+##
+## Following are some "system" definitions
+##
+## No changes are needed to compile a version that will run on both
+## X11 and Curses, in debugging mode, with maximal warnings, on many
+## normal Unix machines of the Sun OS variety (non-solaris).
+##
+## See also "config.h" and "h-config.h" for important information.
+##
+## This is not intended to be a "good" Makefile, just a "simple" one.
+##
+
+
+#
+# This is my compiler of choice, it seems to work most everywhere
+# Modified by konijn, if you set CACHE as an environment variable it'll ccache
+# This can be useful if you're working a lot on the header files.
+
+CC = gcc
+ifeq ($(CACHE),X)
+  CC = ccache gcc
+endif
+
+# You may have to replace "-lcurses" with "-lncurses" to use the
+# "new curses" library instead of the "old curses" library, and
+# you may have to add "-l/usr/include/ncurses" to the "CFLAGS".
+
+# See "main-gcu.c" and "config.h" for some optional "curses" defines,
+# including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
+# attempt to "guess" at many of these flags based on your system.
+
+## Variation -- Only work on simple vt100 terminals
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_CAP" -D"USE_HARDCODE"
+
+## Variation -- this might work for Linux 1.1.93 using ncurses-1.8.7.
+##
+#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses \
+#         -Wall -O2 -fomit-frame-pointer -m486 \
+#         -D"USE_X11" -D"USE_GCU"
+#LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap
+
+##
+## Variation -- Raspbian angband.live
+##Choose -O2 for distributed builds
+##Choose -O0 for debug buils
+##Remove -g -ggdb3 -v for distributed build, this is meant to debug
+##Add -v for verbose builds, not sure when you would need this
+##Raspbian should always use -lncurses, -lcurses is ancient
+##Other ancient options for references: -ltermcap -linet -lcposix
+##You need -D"linux" for proper header including 'sys/time.h'
+##
+CFLAGS = -I/usr/include -Wall \
+         -O0 -pedantic \
+         -g -ggdb3 \
+         -D"USE_GCU" -D"linux" -std=c99 -DDEFAULT_PATH=\"~/git/hellband/lib/\" -Dlive
+LIBS = -L/usr/lib -lncurses
+
+#
+# Hack -- "install" as the base target
+#
+
+install: hellband
+	cp hellband ~/games/
+
+#
+# Build the "Angband" program
+#
+
+hellband: $(OBJS)
+	$(CC) $(CFLAGS) -o hellband $(OBJS) $(LDFLAGS) $(LIBS)
+
+
+#
+# Clean up old junk
+#
+
+clean:
+	\rm *.o
+
+#
+# Generate dependancies automatically
+#
+
+depend:
+	makedepend -D__MAKEDEPEND__ $(SRCS)
+
+
+#
+# Hack -- some file dependencies
+#
+
+HDRS = \
+  h-basic.h \
+  h-define.h h-type.h h-system.h h-config.h
+
+INCS = \
+  angband.h \
+  config.h defines.h types.h externs.h \
+  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
+
+
+birth.o: birth.c $(INCS)
+cave.o: cave.c $(INCS)
+cmd1.o: cmd1.c $(INCS)
+cmd2.o: cmd2.c $(INCS)
+cmd3.o: cmd3.c $(INCS)
+cmd4.o: cmd4.c $(INCS)
+cmd5.o: cmd5.c $(INCS)
+cmd6.o: cmd6.c $(INCS)
+dungeon.o: dungeon.c $(INCS)
+files.o: files.c $(INCS)
+generate.o: generate.c $(INCS)
+init1.o: init1.c $(INCS)
+init2.o: init2.c $(INCS)
+load.o: load.c $(INCS)
+main-gcu.o: main-gcu.c $(INCS)
+main-x11.o: main-x11.c $(INCS)
+main.o: main.c $(INCS)
+melee1.o: melee1.c $(INCS)
+melee2.o: melee2.c $(INCS)
+monster1.o: monster1.c $(INCS)
+monster2.o: monster2.c $(INCS)
+object1.o: object1.c $(INCS)
+object2.o: object2.c $(INCS)
+quest.o: quest.c $(INCS)
+save.o: save.c $(INCS)
+spells1.o: spells1.c $(INCS)
+spells2.o: spells2.c $(INCS)
+store.o: store.c $(INCS)
+tables.o: tables.c $(INCS)
+util.o: util.c $(INCS)
+variable.o: variable.c $(INCS)
+wizard1.o: wizard1.c $(INCS)
+wizard2.o: wizard2.c $(INCS)
+xtra1.o: xtra1.c $(INCS)
+xtra2.o: xtra2.c $(INCS)
+z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
+z-rand.o: z-rand.c $(HDRS) z-rand.h
+z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
+z-util.o: z-util.c $(HDRS) z-util.h
+z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
+

@@ -9,13 +9,13 @@
  * are included in all such copies.
  *
  * James E. Wilson and Robert A. Koeneke and Ben Harrison have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
@@ -149,45 +149,45 @@ void user_name(char *buf, int id)
 #else /* ACORN */
 
 
-#ifdef SET_UID
+#if defined(SET_UID) || defined(USE_PRIVATE_PATHS)
 
 /*
-* Extract a "parsed" path from an initial filename
-* Normally, we simply copy the filename into the buffer
-* But leading tilde symbols must be handled in a special way
-* Replace "~user/" by the home directory of the user named "user"
-* Replace "~/" by the home directory of the current user
-*/
-errr path_parse(char *buf, int max, cptr file)
+ * Extract a "parsed" path from an initial filename
+ * Normally, we simply copy the filename into the buffer
+ * But leading tilde symbols must be handled in a special way
+ * Replace "~user/" by the home directory of the user named "user"
+ * Replace "~/" by the home directory of the current user
+ */
+errr path_parse(char *buf, size_t max, cptr file)
 {
-	cptr		u, s;
+	cptr u, s;
 	struct passwd	*pw;
-	char		user[128];
 
-	(void)max;
-
+	char user[128];
+	
+	
 	/* Assume no result */
 	buf[0] = '\0';
-
+	
 	/* No file? */
 	if (!file) return (-1);
-
+	
 	/* File needs no parsing */
 	if (file[0] != '~')
 	{
-		strcpy(buf, file);
+		my_strcpy(buf, file, max);
 		return (0);
 	}
-
+	
 	/* Point at the user */
 	u = file+1;
-
+	
 	/* Look for non-user portion of the file */
 	s = strstr(u, PATH_SEP);
-
+	
 	/* Hack -- no long user names */
 	if (s && (s >= u + sizeof(user))) return (1);
-
+	
 	/* Extract a user name */
 	if (s)
 	{
@@ -196,23 +196,25 @@ errr path_parse(char *buf, int max, cptr file)
 		user[i] = '\0';
 		u = user;
 	}
-
+	
 	/* Look up the "current" user */
 	if (u[0] == '\0') u = getlogin();
-
+	
 	/* Look up a user (or "current" user) */
 	if (u) pw = getpwnam(u);
 	else pw = getpwuid(getuid());
-
+	
+	pw = u?getpwnam(u):getpwuid(getuid());
+	
 	/* Nothing found? */
 	if (!pw) return (1);
-
+	
 	/* Make use of the info */
-	(void)strcpy(buf, pw->pw_dir);
-
+	my_strcpy(buf, pw->pw_dir, max);
+	
 	/* Append the rest of the filename, if any */
-	if (s) (void)strcat(buf, s);
-
+	if (s) my_strcat(buf, s, max);
+	
 	/* Success */
 	return (0);
 }
@@ -222,16 +224,23 @@ errr path_parse(char *buf, int max, cptr file)
 
 
 /*
-* Extract a "parsed" path from an initial filename
-*
-* This requires no special processing on simple machines,
-* except for verifying the size of the filename.
-*/
-errr path_parse(char *buf, int max, cptr file)
+ * Extract a "parsed" path from an initial filename
+ *
+ * This requires no special processing on simple machines,
+ * except for verifying the size of the filename.
+ */
+errr path_parse(char *buf, size_t max, cptr file)
 {
 	/* Accept the filename */
-	strnfmt(buf, max, "%s", file);
-
+	my_strcpy(buf, file, max);
+	
+# ifdef MACH_O_CARBON
+	
+	/* Fix it according to the current operating system */
+	convert_pathname(buf);
+	
+# endif
+	
 	/* Success */
 	return (0);
 }
@@ -240,48 +249,6 @@ errr path_parse(char *buf, int max, cptr file)
 #endif /* SET_UID */
 
 
-/*
- * Kenneth 'Bessarion' Boyd: next two from Zaiband; relicensed per Hellband license
- */
-
-static char tmp_file[L_tmpnam] = "";
-
-static void instantiate_tmp_file(void)
-{
-	/* instantiate tmp_file buffer, if it has not already been initialized */
-	if (!tmp_file[0])
-		{
-		tmpnam(tmp_file);
-#ifdef WINDOWS
-		/* defeat Vista's breakage of tmpnam/tmpfile for non-administrators */
-		if ('\\'==tmp_file[0])
-			{
-			memmove(tmp_file,tmp_file+1,L_tmpnam-1);
-			tmp_file[L_tmpnam-1] = '\0';
-			}
-#endif		
-		}
-}
-
-
-/*
-* Hack -- acquire a "temporary" file name if possible
-*
-* This filename is always in "system-specific" form.
-*/
-errr path_temp(char *buf, int max)
-{
-	instantiate_tmp_file();
-
-	/* Oops */
-	if (!*tmp_file) return (-1);
-
-	/* Format to length */
-	strnfmt(buf, max, "%s", tmp_file);
-
-	/* Success */
-	return (0);
-}
 
 
 /*
@@ -300,8 +267,12 @@ errr path_temp(char *buf, int max)
 * Konijn changed cptr to char* for file
 * I want to build my filenames dynamically, gosh darnit
 * If this would happen to blow up later, let me know
+*
+* Update : changing cptr to char* because linux build would blow up
+* so I put back cptr, knowing that I am not passing a cptr, which
+* might blow up as well..
 */
-errr path_build(char *buf, int max, cptr path, char *file)
+errr path_build(char *buf, int max, cptr path, cptr file)
 {
 	/* Special file */
 	if (file[0] == '~')
@@ -597,7 +568,11 @@ int fd_make(cptr file, int mode)
 #else /* BEN_HACK */
 
 	/* Create the file, fail if exists, write-only, binary */
+#ifndef MSVC_POSIX_IO
 	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+#else
+	return (_open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+#endif /* MSVC_POSIX_IO */
 
 #endif /* BEN_HACK */
 
@@ -620,7 +595,13 @@ int fd_open(cptr file, int flags)
 	if (path_parse(buf, 1024, file)) return (-1);
 
 	/* Attempt to open the file */
+#ifndef MSVC_POSIX_IO
 	return_int = (open(buf, flags | O_BINARY, 0));
+#else
+	return_int = (_open(buf, flags | O_BINARY, 0));
+#endif /* MSVC_POSIX_IO */
+
+
 	if( return_int < 0)
 	{
 		plog_fmt_fiddle(  "Failed to open %s" , file );
@@ -704,13 +685,17 @@ errr fd_seek(int fd, huge n)
 	if (fd < 0) return (-1);
 
 	/* Seek to the given position */
+#ifndef MSVC_POSIX_IO
 	p = lseek(fd, n, SEEK_SET);
+#else
+	p = _lseek(fd, n, SEEK_SET);
+#endif /* MSVC_POSIX_IO */
 
 	/* Failure */
 	if (p < 0) return (1);
 
 	/* Failure */
-	if (p != (long)n) return (1); 
+	if (p != (long)n) return (1);
 
 	/* Success */
 	return (0);
@@ -752,8 +737,11 @@ errr fd_read(int fd, char *buf, huge n)
 	while (n >= 16384)
 	{
 		/* Read a piece */
+#ifndef MSVC_POSIX_IO
 		if (read(fd, buf, 16384) != 16384) return (1);
-
+#else
+		if (_read(fd, buf, 16384) != 16384) return (1);
+#endif /* MSVC_POSIX_IO */
 		/* Shorten the task */
 		buf += 16384;
 
@@ -764,7 +752,11 @@ errr fd_read(int fd, char *buf, huge n)
 #endif
 
 	/* Read the final piece */
+#ifndef MSVC_POSIX_IO
 	if (read(fd, buf, n) != (long)n) return (1);
+#else
+	if (_read(fd, buf, n) != (long)n) return (1);
+#endif /* MSVC_POSIX_IO */
 
 	/* Success */
 	return (0);
@@ -785,8 +777,11 @@ errr fd_write(int fd, cptr buf, huge n)
 	while (n >= 16384)
 	{
 		/* Write a piece */
+#ifndef MSVC_POSIX_IO
 		if (write(fd, buf, 16384) != 16384) return (1);
-
+#else
+		if (_write(fd, buf, 16384) != 16384) return (1);
+#endif /* MSVC_POSIX_IO */
 		/* Shorten the task */
 		buf += 16384;
 
@@ -796,8 +791,12 @@ errr fd_write(int fd, cptr buf, huge n)
 
 #endif
 
+#ifndef MSVC_POSIX_IO
 	/* Write the final piece */
 	if (write(fd, buf, n) != (long)n) return (1);
+#else
+	if (_write(fd, buf, n) != (long)n) return (1);
+#endif /* MSVC_POSIX_IO */
 
 	/* Success */
 	return (0);
@@ -812,8 +811,14 @@ errr fd_close(int fd)
 	/* Verify the fd */
 	if (fd < 0) return (-1);
 
+#ifndef MSVC_POSIX_IO
 	/* Close */
 	(void)close(fd);
+#else
+	(void)_close(fd);
+
+#endif /* MSVC_POSIX_IO */
+
 
 	/* XXX XXX XXX */
 	return (0);
@@ -2078,7 +2083,7 @@ void message_add(cptr str)
 		}
 
 		/* Limit the multiplier to 1000 */
-		if (buf && streq(buf, str) && (j < 1000))
+		if (buf[0] != '\0' && streq(buf, str) && (j < 1000))
 		{
 			j++;
 
@@ -2421,8 +2426,8 @@ void msg_note(cptr msg)
 	msg_print(NULL);
 }
 
-/*  
- * Do 1 message print and beep. I find this less hackisch than 
+/*
+ * Do 1 message print and beep. I find this less hackisch than
  * overwriting the standardish 'bell()' function
  */
 void msg_bell(cptr msg)
@@ -2685,8 +2690,6 @@ void clear_from(int row)
 }
 
 
-
-
 /*
 * Get some input at the cursor location.
 * Assume the buffer is initialized to a default string.
@@ -2908,7 +2911,7 @@ bool get_com_rep(cptr prompt, char *command)
 
 	repeat_push_char(*command);
 	
-#endif /* ALLOW_REPEAT -- TNB */	
+#endif /* ALLOW_REPEAT -- TNB */
 	
 	/* Success */
 	return (TRUE);
@@ -3018,10 +3021,9 @@ s16b get_quantity(cptr prompt, int max,bool allbydefault)
 */
 void pause_line(int row)
 {
-	int i;
 	prt("", row, 0);
 	put_str("[Press any key to continue]", row, 23);
-	i = inkey();
+	inkey();
 	prt("", row, 0);
 }
 
@@ -3559,7 +3561,7 @@ char menu_key_help(void)
 			if (!menu_info[menu][i].cmd) break;
 			menu_name = menu_info[menu][i].name;
 			/* In the first menu we dont show shortcuts, it would be confusing */
-			/* This does not prevent you from creating menu_names with shortcuts in them */	
+			/* This does not prevent you from creating menu_names with shortcuts in them */
 			/* Like 'Documentation (?)' */
 			/*	On the 31 deal, because control character are anded with 1F , we basically only keep
 				the control character ( all characters less than 32 ), 65 -> 1 , so in order to restore
@@ -3570,7 +3572,7 @@ char menu_key_help(void)
 				else
 					put_str( format("%s (^%c)", menu_name, menu_info[menu][i].cmd + 64 ), basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
 			else
-				put_str( menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24); 
+				put_str( menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
 			}
 
 			/* Remember how many real entries there are , is current spot odd and which row are we on ?*/
@@ -3626,7 +3628,7 @@ char menu_key_help(void)
 		{
 			if (odd)
 				cur_num = (cur_num + 2) % (max_num + (cur_col?-1:+1) );
-			else 
+			else
 				cur_num = (cur_num + 2) % max_num;
 		}
 		/* Are we going up, note support for roguelike key settings*/
@@ -3689,7 +3691,7 @@ char menu_key_help(void)
 /**BEGIN**/
 
 /* script to be analyzed */
-char *script; 
+char *script;
 /*Current token*/
 char token[SCRIPT_MAX_LENGTH];
 char peek_token[SCRIPT_MAX_LENGTH];
@@ -3730,8 +3732,8 @@ double find_var(char *s)
 	/*Run over all the possible vars*/
 	if( prefix(s , "PLEV" ) ) return (double)p_ptr->lev;
 	if( prefix(s , "CLEV" ) ) return (double)p_ptr->lev;
-	if( prefix(s , "ORB" ) )  return (double)(p_ptr->lev / ((p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
-	if( prefix(s , "DLEV" ) ) return (double)dun_level; 
+	if( prefix(s , "ORB" ) )  return (double)(p_ptr->lev / ((p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE ) ? 2 : 4));
+	if( prefix(s , "DLEV" ) ) return (double)dun_level;
 	if( prefix(s , "CHP" ) )  return (double)p_ptr->chp;
 	if( prefix(s , "MHP" ) )  return (double)p_ptr->mhp;
 	if( prefix(s , "CSP" ) )  return (double)p_ptr->csp;
@@ -3773,14 +3775,14 @@ void get_token(void)
 		token_type = DELIMITER;
 		*cur_token++ = *script++;
 	}
-	else if(isalpha(*script)) 
+	else if(isalpha(*script))
 	{
-		token_type = VARIABLE;		
+		token_type = VARIABLE;
 		while(!isdelim(*script)) *cur_token++ = *script++;
 	}
-	else if(isdigit(*script)) 
+	else if(isdigit(*script))
 	{
-		token_type = NUMBER;		
+		token_type = NUMBER;
 		while(!isdelim(*script)) *cur_token++ = *script++;
 	}
 	/*Properly delimit token*/
@@ -3819,7 +3821,7 @@ void get_peek(void)
 /* Process a parenthesized expression. */
 void eval_subexpression(double *out)
 {
-	if((*token == '(')) {
+	if(*token == '(') {
 		get_token();
 		eval_plusminus(out);
 		if(*token != ')')
@@ -3859,7 +3861,7 @@ void eval_dice(double *out)
 		}
 		if( dice_mode == WORST_CASE ) *out = dice_count;
 		if( dice_mode == BEST_CASE  ) *out = dice_count*sides;
-		if( dice_mode == ROLL       ) *out = damroll( dice_count, sides );
+		if( dice_mode == ROLL       ) *out = damroll( (int)dice_count, (int)sides );
 	}
 }
 
@@ -3924,9 +3926,9 @@ void eval_assignment(double *out)
 		{
 			script_error(5);
 		}
-		else 
+		else
 		{	/*Find out what the new value will be*/
-			get_token(); 
+			get_token();
 			eval_plusminus(out);
 			/*vars[slot] = *out;*/
 		}

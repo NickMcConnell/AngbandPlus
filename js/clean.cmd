@@ -1,1 +1,0 @@
-java judo -q clean.judo %1.js

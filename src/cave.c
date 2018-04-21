@@ -2,9 +2,7 @@
 
 /* Purpose: low level dungeon routines -BEN- */
 
-
 #include "angband.h"
-
 
 /*
 * Support for Adam Bolt's tileset, lighting and transparency effects
@@ -20,14 +18,14 @@
  *
  *
  * Robert Ruehlmann and Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 /*
 * Approximate Distance between two points.
@@ -59,8 +57,8 @@ int distance(int y1, int x1, int y2, int x2)
  *
  * ADDENDUM : Robert Hall placed this code in public domain. I Konijn have taken
  * the code and hereby release it and all changes under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  *
  * Returns TRUE if a line of sight can be traced from (x1,y1) to (x2,y2).
  *
@@ -447,8 +445,9 @@ bool cave_valid_bold(int y, int x)
 static cptr image_monster_hack = \
 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+/*This used to be encoded with the actual bytes, check initial commit if you require those*/
 static cptr image_monster_hack_ibm = \
-"ƒ„…†‡ˆ‰Š‘’•–™š›œŸ¡¥¨©ª¯°²³´µ¶·¸¾ÇÌÑÔÕ×ÙİŞßàáâãåèéæêëìíîïğñòóôõö÷øùúûüış";
+"\006\026\037\311\321\326\334\341\340\342\344\347\351\350\352\353\355\357\361\364\366\365\372\371\373\374\260\200\256\251\201\330\203\276\204\245\265\217\205\275\346\253\303\213\214\271\327\215\360\336\376\375\267\222\223\302\313\310\312\315\316\317\314\323\324\225\322\332\333\331\236\226\227\257\230\231\232\270\233\234";
 
 
 /*
@@ -471,7 +470,7 @@ static void image_monster(byte *ap, char *cp)
 			n = strlen(image_monster_hack_ibm);
 			(*cp) = (image_monster_hack_ibm[rand_int(n)]);
 			/* Random colour */
-			(*ap) = randint(15);
+			(*ap) = (byte_hack)randint(15);
 		}
 	}
 	else
@@ -479,7 +478,7 @@ static void image_monster(byte *ap, char *cp)
 		(*cp) = (image_monster_hack[rand_int(n)]);
 
 		/* Random colour */
-		(*ap) = randint(15);
+		(*ap) = (byte_hack)randint(15);
 	}
 }
 
@@ -493,7 +492,7 @@ static cptr image_object_hack = \
 "?/|\\\"!$()_-=[]{},~";
 
 static cptr image_object_hack_ibm = \
-"€“”—¤¦«­®º»¼½ÀÁÂÃÄÈÉÊËÍÎÓÚç";
+"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
 
 /*
 * Mega-Hack -- Hallucinatory object
@@ -514,14 +513,14 @@ static void image_object(byte *ap, char *cp)
 			n = strlen(image_object_hack_ibm);
 			(*cp) = (image_object_hack_ibm[rand_int(n)]);
 			/* Random colour */
-			(*ap) = randint(15);
+			(*ap) = (byte_hack)randint(15);
 		}
 	}
 	else
 	{
 		(*cp) = (image_object_hack[rand_int(n)]);
 		/* Random colour */
-		(*ap) = randint(15);
+		(*ap) = (byte_hack)randint(15);
 	}
 }
 
@@ -683,9 +682,22 @@ void map_info(int y, int x, byte *ap, char *cp)
 	byte a;
 	char c;
 
+	/* Paranoia due to full screen not necessarily multiple of 33  */
+	if( x < 0 || x > MAX_WID -1 ){
+		(*ap) = (*tap) = TERM_WHITE;
+		(*cp) = (*tcp) = ' ';
+		return;
+	}
+
+	/* Paranoia due to full screen not necessarily multiple of 33  */
+	if( y < 0 || y > MAX_HGT -1 ){
+		(*ap) = (*tap) = TERM_WHITE;
+		(*cp) = (*tcp) = ' ';
+		return;
+	}
+
 	/* Get the cave */
 	c_ptr = &cave[y][x];
-
 
 	/* Feature code */
 	feat = c_ptr->feat;
@@ -818,11 +830,22 @@ void map_info(int y, int x, byte *ap, char *cp)
 			a = f_ptr->z_attr;
 
 			/* Special lighting effects */
-			if (view_granite_lite && ((a == TERM_WHITE) || (use_graphics)) &&
-				(((feat >= FEAT_SECRET) && (feat <= FEAT_PERM_SOLID) &&
-				(feat !=FEAT_MAGMA_K) && (feat !=FEAT_QUARTZ_K) &&
-				(feat !=FEAT_RUBBLE)) || ((feat == FEAT_TREE) || (feat == FEAT_BUSH)
-				|| (feat == FEAT_WATER))))
+			if (	view_granite_lite &&
+					((a == TERM_WHITE) || (use_graphics)) &&
+					(
+						(
+							(feat >= FEAT_SECRET) &&
+							(
+								(feat <= FEAT_PERM_BUILDING && !use_graphics ) ||
+								(feat <= FEAT_PERM_SOLID    &&  use_graphics )
+							) &&
+							(feat !=FEAT_MAGMA_K) &&
+							(feat !=FEAT_QUARTZ_K) &&
+							(feat !=FEAT_RUBBLE)
+						)
+						|| ((feat == FEAT_TREE) || (feat == FEAT_BUSH) || (feat == FEAT_WATER))
+					)
+			   )
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
@@ -1040,7 +1063,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							int n =  strlen(image_monster_hack_ibm);
 							(*cp) = (image_monster_hack_ibm[rand_int(n)]);
 							/* Random colour */
-							(*ap) = randint(15);
+							(*ap) = (byte_hack)randint(15);
 						}
 					}
 
@@ -1065,12 +1088,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* color of the baddie w ( white )                               */
 				/* If you want a logical cycling, you need to put the darkest    */
 				/* color in the G line                                           */
-				 
+
 				if ( r_ptr->x_attr == TERM_WHITE )
 				{
 					/* Multi-hued attr */
 					if (r_ptr->flags2 & (RF2_ATTR_ANY))
-						(*ap) = randint(15);
+						(*ap) = (byte_hack)randint(15);
 					else switch (randint(7))
 					{  case 1:
 						(*ap)=TERM_RED;
@@ -1093,7 +1116,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					case 7:
 						(*ap)=TERM_GREEN;
 						break;
-					}		
+					}
 				}
 				else
 				{  /* We are cycling between 2 colors, half of the time */
@@ -1105,7 +1128,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					}
 					else{
 						switch (r_ptr->x_attr)
-						{  
+						{
 						case TERM_RED:
 							(*ap)=TERM_L_RED;
 							break;
@@ -1114,7 +1137,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
 						case TERM_VIOLET:
 							(*ap)=TERM_L_BLUE;
-							break;							
+							break;
 						case TERM_YELLOW:
 							(*ap)=TERM_WHITE;
 							break;
@@ -1129,16 +1152,16 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
 						case TERM_WHITE:
 							(*ap)=TERM_L_WHITE;
-							break;	
+							break;
 						case TERM_UMBER:
 							(*ap)=TERM_L_UMBER;
-							break;						
+							break;
 						default:
 							(*ap) = r_ptr->x_attr;
 						}
 					}
 				}
-				
+
 			}
 
 			/* Normal monster (not "clear" in any way) */
@@ -1232,10 +1255,13 @@ void print_rel(char c, byte a, int y, int x)
 	if (panel_contains(y, x))
 	{
 		/* Hack -- fake monochrome */
+		/* Konijn has declared this is ridiculous..
+		   TODO : maybe just do the outer square..
 		if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			&& (p_ptr->invuln || !use_colour )) a = TERM_WHITE;
 		else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			&& (p_ptr->wraith_form && use_colour )) a = TERM_L_DARK;
+		*/
 
 		/* Draw the char using the attr */
 		Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
@@ -1305,7 +1331,6 @@ void note_spot(int y, int x)
 		if (!(c_ptr->info & (CAVE_GLOW))) return;
 	}
 
-
 	/* Hack -- memorize objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -1316,8 +1341,10 @@ void note_spot(int y, int x)
 
 		/* Memorize objects */
 		o_ptr->marked = TRUE;
-	}
 
+		/* Once we memorize stuff, we should redraw visible items */
+		p_ptr->window |= (PW_VISIBLE_ITEMS);
+	}
 
 	/* Hack -- memorize grids */
 	if (!(c_ptr->info & (CAVE_MARK)))
@@ -1390,11 +1417,14 @@ void lite_spot(int y, int x)
 		/* Examine the grid */
 		map_info(y, x, &a, &c, &ta, &tc);
 
-		/* Hack -- fake monochrome */
+		/* Hack -- fake monochrome
+		   Konijn has declared this is ridiculous..
+		   TODO : maybe just do the outer square..
 		if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			&& (p_ptr->invuln || !use_colour)) a = TERM_WHITE;
 		else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			&& (p_ptr->wraith_form && use_colour )) a = TERM_L_DARK;
+		*/
 
 		/* Hack -- Queue it */
 		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
@@ -1439,10 +1469,13 @@ void prt_map(void)
 			map_info(y, x, &a, &c, &ta, &tc);
 
 			/* Hack -- fake monochrome */
+			/* Konijn has declared this is ridiculous..
+			   TODO : maybe just do the outer square..
 			if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
 				&& (p_ptr->invuln || !use_colour)) a = TERM_WHITE;
 			else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
 				&& (p_ptr->wraith_form && use_colour )) a = TERM_L_DARK;
+			*/
 
 			/* Efficiency -- Redraw that grid of the map */
 			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
@@ -1648,8 +1681,8 @@ void display_map(int *cy, int *cx)
 	y = maxy+1;
 
 	/* Offsets to centre map */
-	x_offset=(80-x)/2;
-	y_offset=(24-y)/2;
+	x_offset=(SCREEN_HGT-x)/2;
+	y_offset=(SCREEN_WID-y)/2;
 
 	/* Draw the corners */
 	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
@@ -1674,10 +1707,13 @@ void display_map(int *cy, int *cx)
 			tc = mc[y][x];
 
 			/* Hack -- fake monochrome */
-			if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-				&& (p_ptr->invuln || !use_colour)) ta = TERM_WHITE;
-			else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-				&& (p_ptr->wraith_form && use_colour )) ta = TERM_L_DARK;
+			/* Konijn has declared this is ridiculous..
+			   TODO : maybe just do the outer square..
+				if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+					&& (p_ptr->invuln || !use_colour)) ta = TERM_WHITE;
+				else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+					&& (p_ptr->wraith_form && use_colour )) ta = TERM_L_DARK;
+			*/
 
 			/* Add the character */
 			Term_addch(ta, tc);
@@ -1950,12 +1986,6 @@ void do_cmd_view_map(void)
 */
 
 
-
-
-
-
-
-
 /*
 * Actually erase the entire "lite" array, redrawing every grid
 */
@@ -1997,8 +2027,6 @@ void forget_lite(void)
 	lite_y[lite_n] = (Y); \
 	lite_x[lite_n] = (X); \
 	lite_n++
-
-
 
 /*
 * Update the set of grids "illuminated" by the player's lite.
@@ -3468,9 +3496,8 @@ bool projectable(int y1, int x1, int y2, int x2)
 		if ((x == x2) && (y == y2)) return (TRUE);
 
 		/* Never pass through walls */
-		if (dist && !cave_floor_bold(y, x) &&
-			!((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-			(cave[y][x].feat >= FEAT_MINOR_GLYPH))) break;
+		if (dist && !cave_floor_bold(y, x))
+		  break;
 
 		/* Calculate the new location */
 		mmove2(&y, &x, y1, x1, y2, x2);
@@ -3492,14 +3519,10 @@ bool projectable(int y1, int x1, int y2, int x2)
 *
 * Currently the "m" parameter is unused.
 */
-void scatter(int *yp, int *xp, int y, int x, int d, int m)
+void scatter(int *yp, int *xp, int y, int x, int d /* int m*/)
 {
 	int nx, ny;
 	int attempts_left = 5000;
-
-	/* Unused */
-	m = m;
-
 
 	/* Pick a location */
 	while (--attempts_left)
@@ -3535,10 +3558,15 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 void health_track(int m_idx)
 {
 	/* Track a new guy */
-	health_who = m_idx;
+   	health_who = m_idx;
+
+	/* Also track on the panel */
+	if( m_idx )
+		monster_race_track( m_list[health_who].r_idx );
 
 	/* Redraw (later) */
 	p_ptr->redraw |= (PR_HEALTH);
+	p_ptr->window |= (PW_MONSTER);
 }
 
 
@@ -3555,15 +3583,25 @@ void monster_race_track(int r_idx)
 	p_ptr->window |= (PW_MONSTER);
 }
 
-
-
 /*
 * Hack -- track the given object kind
 */
 void object_kind_track(int k_idx)
 {
-	/* Save this monster ID */
-	object_kind_idx = k_idx;
+	/* Set item kind & remove reference to object tracker */
+	term_k_idx = k_idx;
+	term_o_ptr = NULL;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
+
+void object_track( object_type *o_ptr  , cptr activity )
+{
+	/* Set reference to object tracker & clear out item kind */
+	term_o_ptr = o_ptr;
+	term_k_idx = 0;
+	term_activity = activity;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OBJECT);
@@ -3582,8 +3620,10 @@ void object_kind_track(int k_idx)
 */
 void disturb(int stop_stealth, int unused_flag)
 {
-	/* Unused */
-	unused_flag = unused_flag;
+	/* Unused, but it better be zero ;) */
+	if(unused_flag != 0){
+		return;
+	}
 
 	/* Cancel auto-commands */
 	/* command_new = 0; */
@@ -3644,7 +3684,7 @@ bool is_quest(int level)
 
 	/* Town is never a quest */
 	if (!level) return (FALSE);
-	
+
 	/* No quests in Dis */
 	if ( level > DIS_START && level < DIS_END )
 	{
@@ -3661,6 +3701,3 @@ bool is_quest(int level)
 	/* Nope */
 	return (FALSE);
 }
-
-
-

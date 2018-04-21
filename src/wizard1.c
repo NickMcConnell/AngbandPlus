@@ -398,26 +398,22 @@ static void spoil_obj_desc(cptr fname)
 */
 static grouper group_artefact[] =
 {
-	{ TV_SWORD,             "Edged Weapons" },
-	{ TV_POLEARM,   "Polearms" },
-	{ TV_HAFTED,    "Hafted Weapons" },
-	{ TV_BOW,               "Bows" },
-
-	{ TV_SOFT_ARMOR,        "Body Armor" },
-	{ TV_HARD_ARMOR,          NULL },
-	{ TV_DRAG_ARMOR,          NULL },
-
-	{ TV_CLOAK,             "Cloaks" },
-	{ TV_SHIELD,    "Shields" },
-	{ TV_HELM,              "Helms/Crowns" },
-	{ TV_CROWN,               NULL },
-	{ TV_GLOVES,    "Gloves" },
-	{ TV_BOOTS,             "Boots" },
-
-	{ TV_LITE,              "Light Sources" },
-	{ TV_AMULET,    "Amulets" },
-	{ TV_RING,              "Rings" },
-
+	{ TV_SWORD,      "Edged Weapons" },
+	{ TV_POLEARM,    "Polearms" },
+	{ TV_HAFTED,     "Hafted Weapons" },
+	{ TV_BOW,        "Bows" },
+	{ TV_SOFT_ARMOR, "Body Armor - Soft" },
+	{ TV_HARD_ARMOR, "Body Armor - Hard" },
+	{ TV_DRAG_ARMOR, "Dragon Armor" },
+	{ TV_CLOAK,      "Cloaks" },
+	{ TV_SHIELD,     "Shields" },
+	{ TV_HELM,       "Helms" },
+	{ TV_CROWN,      "Crowns" },
+	{ TV_GLOVES,     "Gloves" },
+	{ TV_BOOTS,      "Boots" },
+	{ TV_LITE,       "Light Sources" },
+	{ TV_AMULET,     "Amulets" },
+	{ TV_RING,       "Rings" },
 	{ 0, NULL }
 };
 
@@ -962,10 +958,23 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 static void analyze_misc (object_type *o_ptr, char *misc_desc)
 {
 	artefact_type *a_ptr = &a_info[o_ptr->name1];
+	u32b f1, f2, f3;
 
-	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
-		a_ptr->level, a_ptr->rarity,
-		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+	/* Skip this for randarts and sentient weapons */
+	if( !o_ptr->name1 )
+	{
+		object_flags(o_ptr, &f1, &f2, &f3);
+		sprintf(misc_desc, ( f3 & TR3_XP )?"Sentient Weapon":"Random Artefact" );
+	}
+	else
+	{
+		sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
+		                   a_ptr->level, 
+						   a_ptr->rarity,
+			               a_ptr->weight / 10, 
+						   a_ptr->weight % 10, 
+						   a_ptr->cost);
+	}
 }
 
 /*
@@ -1964,10 +1973,10 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect inate attacks */
 		vn = 0;
-		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
-		if (flags4 & (RF4_SHARD)) vp[vn++] = "produce shard balls";
+		if (flags4 & (RF4_SHRIEK)) vp[vn++]  = "shriek for help";
+		if (flags4 & (RF4_CUSTOM)) vp[vn++]  = "be the only of its kind";
+		if (flags4 & (RF4_XXX3)) vp[vn++]    = "do something";
+		if (flags4 & (RF4_SHARD)) vp[vn++]   = "produce shard balls";
 		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
@@ -2411,7 +2420,7 @@ static void spoil_mon_info(cptr fname)
 			case RBM_CLAW:  p = "claw"; break;
 			case RBM_BITE:  p = "bite"; break;
 			case RBM_STING: p = "sting"; break;
-			case RBM_XXX1:  break;
+			case RBM_SLASH:	p = "slash"; break;
 			case RBM_BUTT:  p = "butt"; break;
 			case RBM_CRUSH: p = "crush"; break;
 			case RBM_ENGULF:        p = "engulf"; break;
@@ -2428,6 +2437,7 @@ static void spoil_mon_info(cptr fname)
 			case RBM_INSULT:        p = "insult"; break;
 			case RBM_MOAN:  p = "moan"; break;
 			case RBM_SHOW:  p = "sing"; break;
+			case RBM_SWIPE: p = "swipe"; break;
 			}
 
 

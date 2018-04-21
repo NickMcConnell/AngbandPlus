@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.8.7
+V:0.8.8
 
 
 ### Body Armor ###
@@ -326,7 +326,7 @@ F:DEX
 
 ### Boots ###
 
-N:56:(Winged)
+N:56:Winged &
 X:35:7
 W:0:0:0:250
 F:FEATHER
@@ -393,7 +393,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OneAbility
 
-N:66:(Blessed)
+N:66:Blessed &
 X:24:20
 W:0:0:0:5000
 C:0:0:0:3
@@ -402,7 +402,7 @@ F:BLESSED
 
 # 67 (unused)
 
-N:68:(Angelic)
+N:68:Angelic &
 X:24:20
 W:0:0:0:20000
 C:5:5:0:2
@@ -421,7 +421,11 @@ X:24:15
 W:0:0:0:2500
 C:0:0:0:0
 
-# 71 (unused)
+N:71:Demonic &
+X:24:25
+W:0:0:0:2500
+C:0:0:0:0
+F:XP
 
 # The "Elemental" brands (4) (6)
 
@@ -450,7 +454,7 @@ X:24:20
 W:0:0:0:4500
 F:BRAND_POIS | RES_POIS
 
-N:77:(Chaotic)
+N:77:Chaotic &
 X:24:28
 W:0:0:0:10000
 F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
@@ -558,21 +562,21 @@ W:0:0:0:6000
 C:0:0:0:1
 F:CON | SLAY_DRAGON | KILL_DRAGON
 
-N:96:(Vampiric)
+N:96:Vampiric &
 X:24:25
 W:0:0:0:10000
 F:VAMPIRIC | HOLD_LIFE
 
 # 97 (unused)
 
-N:98:(Planar Weapon)
+N:98:Orphic &
 X:24:22
 W:0:0:0:7000
 C:4:4:0:2
 F:SLAY_EVIL | TELEPORT | FREE_ACT | SEARCH |
 F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE
 
-N:99:(Weapon of Law)
+N:99:of Retribution
 X:24:26
 W:0:0:0:25000
 C:6:6:0:2
@@ -698,14 +702,14 @@ C:50:50:0:0
 ### Special Broken Items ###
 
 # Destroyed Weapon
-N:126:(Shattered)
+N:126:Shattered &
 X:24:0
 W:0:0:0:0
 C:5:5:0:0
 
 # Destroyed Body Armor
 
-N:127:(Blasted)
+N:127:Blasted &
 X:30:0
 W:0:0:0:0
 C:0:0:10:0
@@ -713,7 +717,7 @@ C:0:0:10:0
 ### Orbs ###
 
 N:128:of Flame
-F:RES_FIRE
+F:RES_FIRE | SH_FIRE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 W:0:0:0:1000
 
@@ -728,7 +732,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 W:0:0:0:1000
 
 N:131:of Lightning
-F:RES_ELEC
+F:RES_ELEC | SH_ELEC
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 W:0:0:0:1000
 

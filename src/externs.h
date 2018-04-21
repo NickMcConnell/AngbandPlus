@@ -11,14 +11,14 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 /*
 * Note that some files have their own header files
@@ -61,21 +61,19 @@ extern spell_type spells[MAX_REALM][32];
 extern byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr colour_names[16];
-extern cptr stat_names[6];
-extern cptr stat_names_reduced[6];
-extern cptr stats_short[6];
+extern cptr stat_names[STAT_COUNT];
+extern cptr stat_names_reduced[STAT_COUNT];
+extern cptr stats_short[STAT_COUNT];
+extern cptr desc_stat_neg[STAT_COUNT];
 extern cptr window_flag_desc[32];
 extern option_type option_info[];
-extern cptr evil_patron_shorts[MAX_PATRON];
-extern cptr evil_patron_longs[MAX_PATRON];
-extern int evil_stats[MAX_PATRON];
-extern int chaos_rewards[MAX_PATRON][20];
 extern martial_arts ma_blows[MAX_MA];
 extern mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS];
-extern cptr class_sub_name[MAX_CLASS][MAX_REALM+1];
 extern timed_type timed[];
 extern cptr squelch_strings[];
 extern menu_type menu_info[10][10];
+extern patron_type patrons[];
+extern realm_flag realm_flags[MAX_EGO_REALMS];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -215,7 +213,7 @@ extern bool preserve_mode;
 extern bool use_autoroller;
 extern bool spend_points;
 extern bool ironman_shop;
-extern bool apply_k_storebought;	
+extern bool apply_k_storebought;
 extern bool apply_k_discover;
 extern bool sanity_store; /* Dont kill storebought items */
 extern bool sanity_speed; /* Dont kill items giving speed bonuses*/
@@ -228,7 +226,7 @@ extern bool sanity_realm; /* Dont kill books of the realm I use */
 extern bool sanity_price;	/* Dont kill items more expensive then this */
 extern bool sanity_id; /* Dont kill unknown consumables */
 extern bool reverse_xp;
-extern u32b sane_price;	/* Dont kill items more expensive then this */
+extern u32b sane_price;	/* Dont kill items more expensive then this, cant go negative */
 extern bool use_bigtile;
 extern byte squelch_options[SQ_HL_COUNT];
 extern bool unify_commands;
@@ -296,7 +294,7 @@ extern s16b target_col;
 extern s16b target_row;
 extern s16b health_who;
 extern s16b monster_race_idx;
-extern s16b object_kind_idx;
+extern s16b term_k_idx;
 extern int player_uid;
 extern int player_euid;
 extern int player_egid;
@@ -333,6 +331,8 @@ extern u32b window_flag[8];
 extern u32b window_mask[8];
 extern term *angband_term[8];
 extern char angband_term_name[8][16];
+extern int session_width;
+extern int session_height;
 extern byte angband_colour_table[256][4];
 extern char angband_sound_name[SOUND_MAX][16];
 extern cave_type *cave[MAX_HGT];
@@ -404,8 +404,10 @@ extern cptr ANGBAND_DIR_HELP;
 extern cptr ANGBAND_DIR_INFO;
 extern cptr ANGBAND_DIR_SAVE;
 extern cptr ANGBAND_DIR_PREF;
+extern cptr ANGBAND_DIR_LIB_PREF;
 extern cptr ANGBAND_DIR_XTRA;
 extern cptr ANGBAND_DIR_USER;
+extern cptr ANGBAND_DIR_DUMP;
 extern bool item_tester_full;
 extern byte item_tester_tval;
 extern bool (*item_tester_hook)(object_type *o_ptr);
@@ -458,9 +460,10 @@ extern void wiz_dark(void);
 extern void cave_set_feat(int y, int x, int feat);
 extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
 extern bool projectable(int y1, int x1, int y2, int x2);
-extern void scatter(int *yp, int *xp, int y, int x, int d, int m);
+extern void scatter(int *yp, int *xp, int y, int x, int d /*int m*/);
 extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
+extern void object_track( object_type *o_ptr  , cptr activity );
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int flush_output);
 extern bool is_quest(int level);
@@ -476,6 +479,7 @@ extern void carry(int pickup);
 extern void py_attack(int y, int x);
 extern void move_player(int dir, int do_pickup);
 extern void run_step(int dir);
+extern void term_show_most_expensive_item( int x , int y , cptr activity );
 
 /* cmd2.c */
 extern void do_cmd_go_up(void);
@@ -516,12 +520,18 @@ extern void do_cmd_locate(void);
 extern void do_cmd_query_symbol(void);
 extern void do_cmd_racial_power(void);
 extern void destroy_pack(void);
+extern void do_cmd_time(void);
+extern void do_cmd_screen_dump(void);
+extern void do_cmd_gain_spell(void);
+extern void do_cmd_magic_spell(void);
 
 /* cmd4.c */
 extern void do_cmd_redraw(void);
 extern void do_cmd_change_name(void);
 extern void do_cmd_message_one(void);
 extern void do_cmd_messages(void);
+extern void do_cmd_objects(void);
+extern void do_cmd_monsters(void);
 extern void do_cmd_options(void);
 extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
@@ -563,6 +573,10 @@ extern bool has_heavy_pseudo_id(void);
 extern void do_recall( cptr activation );
 
 /* files.c */
+#ifdef SET_UID
+extern int player_uid;
+extern int player_egid;
+#endif /* SET_UID */
 extern void safe_setuid_drop(void);
 extern void safe_setuid_grab(void);
 extern s16b tokenize(char *buf, s16b num, char **tokens);
@@ -577,6 +591,7 @@ extern errr check_time(void);
 extern errr check_load(void);
 extern void read_times(void);
 extern errr show_file(cptr name, cptr what);
+extern errr show_highlighted_file(cptr name, cptr what, cptr *blue_highlights, cptr *green_highlights);
 extern void do_cmd_help(cptr name);
 extern void process_player_name(void);
 extern void get_name(void);
@@ -592,6 +607,9 @@ extern void signals_init(void);
 extern errr get_rnd_line(char * file_name, char * output);
 extern void race_score(int race_num);
 extern void show_highclass(int pclass, int psubclasscode);
+extern void html_screenshot(cptr name, int mode);
+extern int calc_freak_stat_bonus(int stat);
+extern void player_flags(u32b *f1, u32b *f2, u32b *f3);
 
 /* generate.c */
 extern void generate_cave(void);
@@ -607,6 +625,9 @@ extern errr init_e_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
 
 /* init.c */
+#ifdef PRIVATE_USER_PATH
+  extern void create_user_dirs(void);
+#endif
 extern void init_file_paths( char *path ,  int attempt );
 extern void init_angband();
 extern cptr r_info_flags1[];
@@ -634,9 +655,17 @@ extern void curse_equipment(int chance, int heavy_chance);
 extern void screen_roff(int r_idx);
 extern void display_roff(int r_idx);
 extern void display_visible(void);
+extern void display_visible_items(void);
 
 /* monster2.c */
 extern s16b place_ghost(void);
+extern void init_custom_race( int idx );
+extern int patron_undead_servant(void);
+extern int patron_demon_servant(void);
+extern int patron_angel_servant(void);
+extern int patron_undead_foe(void);
+extern int patron_demon_foe(void);
+extern int patron_angel_foe(void);
 extern void delete_monster_idx(int i,bool visibly);
 extern void delete_monster(int y, int x);
 extern void compact_monsters(int size);
@@ -677,6 +706,7 @@ extern void set_ally( monster_type *m_ptr , byte ally );
 /* object1.c */
 extern void alchemy_init(void);
 extern int scan_floor(int *items, int size, int y, int x, int mode);
+extern void check_experience_obj(object_type *o_ptr);
 /* object2.c */
 extern void flavor_init(void);
 extern void reset_visuals(void);
@@ -776,7 +806,7 @@ extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
-extern bool potion_smash_effect(int who, int y, int x, int o_sval);
+extern bool potion_smash_effect(int who, int y, int x, object_type *o_ptr, monster_type *m_ptr);
 extern void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr );
 
 /* spells2.c */
@@ -898,18 +928,20 @@ extern void teleport_swap(int dir);
 extern void alter_reality(void);
 extern void malphas_gift(void);
 extern void behemoth_call(void);
+extern int spell_dimensional_gate(int plev);
+extern bool spell_basic_resistance(int duration);
 
 /* store.c */
 extern void do_cmd_store(void);
 extern void store_shuffle(int which);
-/*extern void store_maint(int which);*/ 
+/*extern void store_maint(int which);*/
 extern void store_maint_all( int times );
 extern void store_init(int which);
 extern void move_to_black_market(object_type * o_ptr);
 extern int get_which_store(void);
 extern void do_store_browse( object_type *o_ptr);
 /* util.c */
-extern errr path_parse(char *buf, int max, cptr file);
+extern errr path_parse(char *buf, size_t max, cptr file);
 extern errr path_temp(char *buf, int max);
 extern errr path_build(char *buf, int max, cptr path, cptr file);
 extern FILE *my_fopen(cptr file, cptr mode);
@@ -1013,6 +1045,8 @@ extern bool gain_corruption(int choose_mut);
 extern void dump_corruptions(FILE *OutFile);
 extern bool lose_corruption(int choose_mut);
 extern u32b *corruption_idx_to_u32b(byte b);
+extern reward_type patron_rewards[];
+extern void calculate_xp(monster_race *r_ptr, s32b *exp , s32b *exp_frac);
 
 /* quest.c */
 extern int get_quest_monster(void);
@@ -1050,9 +1084,11 @@ extern char *memset(char*, int, huge);
 extern int stricmp(cptr a, cptr b);
 #endif
 
-#ifndef HAS_USLEEP
 /* util.c */
+#ifndef HAS_USLEEP
+#  ifndef MACH_O_CARBON
 extern int usleep(huge usecs);
+#  endif
 #endif
 
 #ifdef MACINTOSH
@@ -1073,7 +1109,7 @@ extern void repeat_push_char(char what);
 extern bool repeat_pull_char(char *what);
 extern void repeat_check(void);
 
-extern char *script; 
+extern char *script;
 extern char variable_token[SCRIPT_MAX_LENGTH];
 extern char dice_mode;
 extern void eval_script(double *out);
@@ -1092,6 +1128,8 @@ extern int  arg_tile_size;
 
 extern bool easy_disarm;
 extern bool reallyTRUE;
+extern object_type *term_o_ptr;
+extern cptr term_activity;
 
 /* cmd2.c */
 extern bool easy_open_door(int y, int x);

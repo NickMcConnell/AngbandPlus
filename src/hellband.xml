@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
   <dict>
-    <key>CFBundleName</key><string>hellband</string>
-    <key>CFBundleDisplayName</key><string>hellband</string>
+    <key>CFBundleName</key><string>Hellband</string>
+    <key>CFBundleDisplayName</key><string>Hellband</string>
     <key>CFBundleExecutable</key><string>hellband</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleSignature</key><string>A303</string>
-    <key>CFBundleVersion</key><string>0.3.2</string>
-    <key>CFBundleShortVersionString</key><string>0.3.2</string>
+    <key>CFBundleVersion</key><string>0.8.x SVN</string>
+    <key>CFBundleShortVersionString</key><string>0.8.x SVN</string>
     <key>CFBundleIconFile</key><string>hellband</string>
-    <key>CFBundleIdentifier</key><string>net.thangorodrim.Angband.hellband</string>
+    <key>CFBundleIdentifier</key><string>net.hellband</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
     <key>CFBundleDocumentTypes</key>
       <array>

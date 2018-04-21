@@ -10,13 +10,13 @@
  * are included in all such copies.
  *
  * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
@@ -189,10 +189,10 @@ void room_rest(bool night)
 	}
 	/* Store globals to stop them getting corrupted */
 	temp_store_num=cur_store_num;
-	
+
 	/* Maintain each shop (except homes etc) once */
 	store_maint_all(1);
-	
+
 	/* And restore the globals */
 	cur_store_num=temp_store_num;
 	/* Reset the Store and Owner pointers */
@@ -203,8 +203,8 @@ void room_rest(bool night)
 	{
 		/*msg_note( timed[n].lose );*/
 		*(timed[n].timer) = 0;
-	}	
-	
+	}
+
 	new_level_flag = TRUE;
 	came_from = START_WALK; /* We don't want the player to be moved */
 }
@@ -412,32 +412,32 @@ static byte rgold_adj[COUNT_SUBRACES][COUNT_SUBRACES] =
 
 /* Florentian  0*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
 /* Gipsy       1*/ { 90,  90, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
-/* Nordic      2*/ { 90, 105,  90, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },	
-/* Atlantian   3*/ { 90, 105, 105,  90, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },		
-/* Dwarf       4*/ { 90, 105, 105, 110,  90, 115, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },		
-/* Elf         5*/ { 90, 105, 105, 110, 130,  90, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },				
-/* Ogre        6*/ {115, 115, 115, 115, 115, 115,  90,  90,  90, 100, 100, 100, 100, 105, 100, 100, 125, 125, 125, 125, 100, 115, 130, 130, 100, 115, 115, 115 },			
+/* Nordic      2*/ { 90, 105,  90, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
+/* Atlantian   3*/ { 90, 105, 105,  90, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
+/* Dwarf       4*/ { 90, 105, 105, 110,  90, 115, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
+/* Elf         5*/ { 90, 105, 105, 110, 130,  90, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
+/* Ogre        6*/ {115, 115, 115, 115, 115, 115,  90,  90,  90, 100, 100, 100, 100, 105, 100, 100, 125, 125, 125, 125, 100, 115, 130, 130, 100, 115, 115, 115 },
 /* Troll       7*/ {115, 115, 115, 115, 115, 115,  90,  90,  90, 100, 100, 100, 100, 105, 100, 100, 125, 125, 125, 125, 100, 115, 130, 130, 100, 115, 115, 115 },
 /* Giant       8*/ {115, 115, 115, 115, 115, 115,  90,  90,  90, 100, 100, 100, 100, 105, 100, 100, 125, 125, 125, 125, 100, 115, 130, 130, 100, 115, 115, 115 },
-/* Titan       9*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90, 100,  90, 100, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },			
+/* Titan       9*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90, 100,  90, 100, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },
 /* Nephilim   10*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
 /* Afflicted  11*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
-/* Fae        12*/ { 90,  90,  90,  90,  90,  90,  90, 115, 115,  90,  90, 100,  90,  90,  90, 115, 130, 130, 130, 130,  90,  90,  90, 130, 130, 130, 130, 130 },	
-/* Gnome      13*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90,  90, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },			
-/* Leprechaun 14*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90,  90, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },				
-/* Kobold     15*/ {120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 125, 125, 125, 125, 120, 120, 130, 120, 120, 120, 120, 120 },				
+/* Fae        12*/ { 90,  90,  90,  90,  90,  90,  90, 115, 115,  90,  90, 100,  90,  90,  90, 115, 130, 130, 130, 130,  90,  90,  90, 130, 130, 130, 130, 130 },
+/* Gnome      13*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90,  90, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },
+/* Leprechaun 14*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90,  90, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },
+/* Kobold     15*/ {120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 125, 125, 125, 125, 120, 120, 130, 120, 120, 120, 120, 120 },
 /* Devilspawn 16*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },
 /* Imp        17*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },
 /* Succubus   18*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },
-/* Lili       19*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },	
-/* Elder      20*/ { 90, 105, 105, 105, 105, 105, 105, 105, 105, 105,  90, 105,  90, 105, 105, 105, 105, 105, 115, 115,  90, 105, 105, 105, 105, 105, 105, 105 },				
+/* Lili       19*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },
+/* Elder      20*/ { 90, 105, 105, 105, 105, 105, 105, 105, 105, 105,  90, 105,  90, 105, 105, 105, 105, 105, 115, 115,  90, 105, 105, 105, 105, 105, 105, 105 },
 /* Guardian   21*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },
-/* Horror     22*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },	
+/* Horror     22*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },
 /* Vampire    23*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130,  90, 140, 100, 100, 100 },
-/* Werewolf   24*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 140,  90, 100, 100, 100 },	
+/* Werewolf   24*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 140,  90, 100, 100, 100 },
 /* Skeleton   25*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },
-/* Mummy      26*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },	
-/* Spectre    27*/ { 90, 105, 105, 105, 105, 105, 105, 105, 105, 105,  90, 105,  90, 105, 105, 105, 105, 105, 115, 115,  90, 105, 105, 105, 105, 105, 105, 105 },				
+/* Mummy      26*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },
+/* Spectre    27*/ { 90, 105, 105, 105, 105, 105, 105, 105, 105, 105,  90, 105,  90, 105, 105, 105, 105, 105, 115, 115,  90, 105, 105, 105, 105, 105, 105, 105 },
 
 };
 
@@ -494,7 +494,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
 		/* Mega-Hack -- Black market sucks */
 		if (cur_store_num == STORE_BLACK) price = price / 2;
-		if (cur_store_num == STORE_PAWN) price = price / 3; 
+		if (cur_store_num == STORE_PAWN) price = price / 3;
 	}
 
 	/* Shop is selling */
@@ -574,7 +574,7 @@ static void mass_produce(object_type *o_ptr)
 	case TV_TAROT_BOOK:
 	case TV_CHARMS_BOOK:
 	case TV_SOMATIC_BOOK:
-	case TV_DEMONIC_BOOK:        
+	case TV_DEMONIC_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -868,8 +868,8 @@ static bool store_will_buy(object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 			case TV_MIRACLES_BOOK:
-            case TV_DEMONIC_BOOK:   
-            case TV_DEATH_BOOK:                   
+            case TV_DEMONIC_BOOK:
+            case TV_DEATH_BOOK:
 			case TV_SCROLL:
 			case TV_POTION:
 			case TV_HAFTED:
@@ -909,8 +909,8 @@ static bool store_will_buy(object_type *o_ptr)
             {
                 if(o_ptr->sval!=SV_LITE_ORB)
                     return (FALSE);
-                 break;        
-            }                
+                 break;
+            }
 			case TV_SORCERY_BOOK:
 			case TV_NATURE_BOOK:
 			case TV_CHAOS_BOOK:
@@ -918,7 +918,7 @@ static bool store_will_buy(object_type *o_ptr)
 			case TV_TAROT_BOOK:
 			case TV_CHARMS_BOOK:
 			case TV_SOMATIC_BOOK:
-            case TV_DEMONIC_BOOK:    
+            case TV_DEMONIC_BOOK:
 			case TV_AMULET:
 			case TV_RING:
 			case TV_STAFF:
@@ -947,7 +947,7 @@ static bool store_will_buy(object_type *o_ptr)
 			case TV_TAROT_BOOK:
 			case TV_CHARMS_BOOK:
 			case TV_SOMATIC_BOOK:
-            case TV_DEMONIC_BOOK:  
+            case TV_DEMONIC_BOOK:
 				/* Player needs to start donating a really rare book */
 				if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought && o_ptr->sval != 3 )
 					return (FALSE);
@@ -961,7 +961,9 @@ static bool store_will_buy(object_type *o_ptr)
 	case 9:
 		/* The Inn will not buy anything */
 		{
-			return (FALSE);
+			if(o_ptr->tval != TV_FOOD && o_ptr->tval != TV_BOTTLE )
+				return (FALSE);
+			break;
 		}
 		/* Hall of Records */
 	case 10:
@@ -1318,7 +1320,7 @@ static void store_delete(void)
 */
 static void store_create(void)
 {
-	int i, tries, level, bm_dice, tries_count;
+	int i, tries, level, tries_count, bm_dice;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -1339,10 +1341,16 @@ static void store_create(void)
 		/* Black Market */
 		if (cur_store_num == STORE_BLACK)
 		{
-			bm_dice = p_ptr->lev>25?p_ptr->lev:25; 
-			
+			/*
+			  Konijn decided to potentially mess this up
+			  In that this might make stat potions less frequent in the BM
+			  And we all know that that is really the only reason the BM exists ;)
+			  To restore the old logic, just go for `level = 25 + rand_int(bm_dice);`
+			*/
+			bm_dice = (p_ptr->lev >> 1) + (p_ptr->max_dun_level >> 2);
+
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = 25 + rand_int(bm_dice);
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1569,7 +1577,7 @@ static void display_entry(int pos)
 			/* Actually draw the price (not fixed) */
 			(void)sprintf(out_val, "%9ld F", (long)x);
 			if(x>p_ptr->au)
-				c_put_str(TERM_L_DARK, out_val, i+6, 68);	
+				c_put_str(TERM_L_DARK, out_val, i+6, 68);
 			else
 				put_str(out_val, i+6, 68);
 		}
@@ -1586,7 +1594,7 @@ static void display_entry(int pos)
 			/* Actually draw the price (with tax) */
 			(void)sprintf(out_val, "%9ld  ", (long)x);
 			if(x>p_ptr->au)
-				c_put_str(TERM_L_DARK, out_val, i+6, 68);	
+				c_put_str(TERM_L_DARK, out_val, i+6, 68);
 			else
 				put_str(out_val, i+6, 68);		}
 
@@ -1599,7 +1607,7 @@ static void display_entry(int pos)
 			/* Actually draw the price (not fixed) */
 			(void)sprintf(out_val, "%9ld  ", (long)x);
 			if(x>p_ptr->au)
-				c_put_str(TERM_L_DARK, out_val, i+6, 68);	
+				c_put_str(TERM_L_DARK, out_val, i+6, 68);
 			else
 				put_str(out_val, i+6, 68);
 		}
@@ -1703,22 +1711,22 @@ static void display_store(void)
 		cptr owner_name = (ot_ptr->owner_name);
 		cptr race_name = race_info[ot_ptr->owner_race].title;
 		if(cur_store_num != STORE_BOOK_SWAP)
-		{	
+		{
 			store_name = (f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name);
 		}
 		else
 		{
 			/*Hack, this is one the second floor of the feature ;\ */
 			store_name = "Mage Guild";
-		}	
+		}
 
 		/* Put the owner name and race for all except Inn, where only owner_name is shown*/
 		if( cur_store_num != STORE_INN )
 		{
 		  sprintf(buf, "%s (%s)", owner_name, race_name);
 		}else{
-		  sprintf(buf, "%s", owner_name );	
-		}	
+		  sprintf(buf, "%s", owner_name );
+		}
 		put_str(buf, 3, 10);
 
 		/* Show the max price in the store (above prices) */
@@ -2208,7 +2216,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 
 	/* Update bargaining info */
 	updatebargain(*price, final_ask);
-	
+
 	/* Those born under plutus can only part with a quarter of their treasure at a time */
 	if( p_ptr->psign==SIGN_PLUTUS && *price > p_ptr->au/4)
 	{
@@ -2382,7 +2390,7 @@ static bool service_haggle(s32b service_cost, s32b *price)
 
 	/* Update bargaining info */
 	updatebargain(*price, final_ask);
-		
+
 	/* Those born under plutus can only part with a quarter of their treasure at a time */
 	if( p_ptr->psign==SIGN_PLUTUS && *price > p_ptr->au/4)
 	{
@@ -2790,7 +2798,7 @@ static void store_purchase(void)
 	j_ptr->number = amt;
 
 
-	
+
 
 
 	/* Hack -- require room in pack */
@@ -3050,6 +3058,9 @@ static void store_sell(void)
 
 	char o_name[80];
 
+	/* Going overboard probably ;] */
+	if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+		pmt = "Donate which item? ";
 
 	/* Prepare a prompt */
 	if (cur_store_num == STORE_HOME) pmt = "Drop which item? ";
@@ -3106,12 +3117,12 @@ static void store_sell(void)
 
 	/* Modify quantity */
 	q_ptr->number = amt;
-	
+
 	/* Modify charges for wands */
 	if(o_ptr->tval==TV_WAND)
 	{
 		q_ptr->pval = o_ptr->pval / o_ptr->number * amt;
-	}	
+	}
 
 	/* Get a full description */
 	object_desc(o_name, q_ptr, TRUE, 3);
@@ -3130,7 +3141,16 @@ static void store_sell(void)
 	/* Real store */
 	if (cur_store_num != STORE_HOME)
 	{
-		if (object_value(o_ptr) > 0 )
+		if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+		{
+			/* Describe the transaction */
+			msg_format("Donating %s (%c).", o_name, index_to_label(item));
+			msg_print(NULL);
+			/* Haggle for it */
+			choice = 0; /* Paradoxically, this means a succesful sale */
+			price = 30000;
+		}
+		else if (object_value(o_ptr) > 0 )
 		{
 			/* Describe the transaction */
 			msg_format("Selling %s (%c).", o_name, index_to_label(item));
@@ -3154,7 +3174,7 @@ static void store_sell(void)
 			}
 			else{
 				/* Identify it fully, just to show the customer why the store owner wanted to junk it */
-				object_full_id( q_ptr );				
+				object_full_id( q_ptr );
 				return;
 			}
 		}
@@ -3174,8 +3194,9 @@ static void store_sell(void)
 			/* Be happy */
 			decrease_insults();
 
-			/* Get some money */
-			p_ptr->au += price;
+			/* Get some money, except if we donate */
+			if(!( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought ) )
+				p_ptr->au += price;
 
 			/* Update the display */
 			store_prt_gold();
@@ -3204,12 +3225,12 @@ static void store_sell(void)
 
 			/* Modify quantity */
 			q_ptr->number = amt;
-			
+
 			/* Modify charges for wands */
 			if(o_ptr->tval==TV_WAND)
 			{
 				q_ptr->pval = o_ptr->pval / o_ptr->number * amt;
-			}	
+			}
 
 			/* Get the "actual" value */
 			if (cur_store_num == STORE_PAWN)
@@ -3226,7 +3247,14 @@ static void store_sell(void)
 			if( price <= 0)
 			{
 				/* Describe the result (in message buffer) */
-				msg_format("You junked the %s.", o_name);				
+				msg_format("You junked the %s.", o_name);
+			}
+			/* If we are dealing with the Mage Guild, then Mage Guild will open it */
+			else if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+			{
+				price = 0;
+				value = 0;
+				msg_format("You donate the %s.", o_name, (long)price);
 			}
 			else if (cur_store_num != STORE_PAWN)
 			{
@@ -3246,13 +3274,21 @@ static void store_sell(void)
 			inven_item_describe(item);
 			inven_item_optimize(item);
 
+			/* If we are dealing with the Mage Guild, then Mage Guild will open it */
+			if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+			{
+				store[cur_store_num].bought = 1;
+				display_store();
+				msg_print("Welcome to the Mages Guild!");
+			}
+
 			/* Handle stuff */
 			handle_stuff();
-			
+
 			/*** XXX XXX XXX Hack, get out of void function because we did the job if we junked */
 			if(price<=0)return;
-			
-			if( 
+
+			if(
 				(cur_store_num == STORE_TEMPLE && q_ptr->tval == TV_DEMONIC_BOOK ) ||
 				(cur_store_num == STORE_TEMPLE && q_ptr->tval == TV_DEATH_BOOK )
 			  )
@@ -3278,15 +3314,6 @@ static void store_sell(void)
 				store_top = (item_pos / 12) * 12;
 				display_inventory();
 			}
-
-			/* If we are dealing with the Mage Guild, then Mage Guild will open it */
-			if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
-			{
-				store[cur_store_num].bought = 1;
-				msg_print("Welcome to the Mages Guild!");
-				display_inventory();
-			}
-
 
 			}
 		}
@@ -3482,7 +3509,26 @@ static void store_process_command(void)
 			store_examine();
 			break;
 		}
-
+	case 'a':
+		if(cur_store_num == STORE_INN)
+		{
+			price = 200;
+			if (price >= p_ptr->au)
+			{
+				msg_format("You do not have the gold, I am sorry.");
+			}
+			else
+			{
+				/*Mimic a scroll of Rumor*/
+				p_ptr->au -= price;
+				char rumor[80];
+				get_rnd_line("rumors.txt", rumor);
+				msg_format("Someone tells you '%s'.", rumor);
+			}
+			p_ptr->window |= (PW_PLAYER);
+			handle_stuff();
+		}
+		break;
 		/* View hiscores in hall */
 	case 'c':
 		{
@@ -3492,8 +3538,8 @@ static void store_process_command(void)
 				if (price >= p_ptr->au)
 				{
 					msg_format("You do not have the gold, I am sorry.");
-				} 
-				else			
+				}
+				else
 				{
 					p_ptr->au -= price;
 					/* Say "okay" */
@@ -4118,8 +4164,8 @@ void put_store_commands()
 		{
 			prt(" s) Sell", 22, 15);
 			prt(" p) Purchase", 22, 30);
-		}		
-		
+		}
+
 		/* Home commands */
 		if (cur_store_num == STORE_HOME)
 		{
@@ -4137,7 +4183,7 @@ void put_store_commands()
 		{
 			prt(" x) eXamine", 22, 45);
 		}
-		
+
 		/* Browse if necessary */
 		if (st_ptr->stock_num > 12)
 		{
@@ -4193,6 +4239,7 @@ void put_store_commands()
 		case STORE_INN:
 			{
 				prt(" r) Rent a Room", 22,60);
+				prt(" a) Research Rumours", 23,5);
 				break;
 			}
 		case STORE_HALL:
@@ -4312,7 +4359,7 @@ void do_cmd_store(void)
 
 		/* Clear */
 		clear_from(21);
-		
+
 		/* Prompt */
 		put_str("You may: ", 21, 0);
 
@@ -4337,7 +4384,7 @@ void do_cmd_store(void)
 		/* XXX XXX XXX Pack Overflow */
 		if (inventory[INVEN_PACK].k_idx)
 		{
-			int item = INVEN_PACK;			
+			int item = INVEN_PACK;
 
 			object_type *o_ptr = &inventory[item];
 
@@ -4443,7 +4490,7 @@ void do_cmd_store(void)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw entire screen */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -4475,7 +4522,7 @@ void store_shuffle(int which)
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )
 	{
-		st_ptr->owner = (byte)(rand_int(MAX_OWNERS)); 
+		st_ptr->owner = (byte)(rand_int(MAX_OWNERS));
 	}
 
 	/* Activate the new owner */
@@ -4637,5 +4684,3 @@ void do_store_browse( object_type *o_ptr)
 	/* Spoil the spells*/
 	spoil_spells( o_ptr );
 }
-
-

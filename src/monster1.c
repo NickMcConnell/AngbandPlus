@@ -398,7 +398,7 @@ static void roff_aux(int r_idx)
 
 		/* Dump it */
 		roff(buf);
-		roff("  ");
+		roff(" ");
 	}
 
 
@@ -548,15 +548,13 @@ static void roff_aux(int r_idx)
 		/* Group some variables */
 		if (TRUE)
 		{
-			long i, j;
+			s32b i, j;
 
-			/* calculate the integer exp part */
-			i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
-
-			/* calculate the fractional exp part scaled by 100, */
-			/* must use long arithmetic to avoid overflow  */
-			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-				(long)1000 / p_ptr->lev + 5) / 10);
+			/* How much xp would we get ? */
+			calculate_xp( r_ptr, &i , &j );
+			
+			/* Convert the fraction into a percentage */
+			j = j * 100 / 0x10000L ;
 
 			/* Mention the experience */
 			roff(format(" is worth %ld.%02ld point%s",
@@ -619,9 +617,9 @@ static void roff_aux(int r_idx)
 	/* Collect inate attacks */
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
-	if (flags4 & (RF4_XXX2))		vp[vn++] = "do something";
+	if (flags4 & (RF4_CUSTOM))		vp[vn++] = "be the only of its kind";
 	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
-	if (flags4 & (RF4_SHARD))      vp[vn++] = "produce shard balls";
+	if (flags4 & (RF4_SHARD))       vp[vn++] = "produce shard balls";
 	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow";
 	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire arrows";
 	if (flags4 & (RF4_ARROW_3))		vp[vn++] = "fire a missile";
@@ -711,7 +709,7 @@ static void roff_aux(int r_idx)
 	if (flags5 & (RF5_BA_MANA))		vp[vn++] = "invoke mana storms";
 	if (flags5 & (RF5_BA_DARK))		vp[vn++] = "invoke darkness storms";
 	if (flags4 & (RF4_BA_CHAO))     vp[vn++] = "invoke raw chaos";
-	if (flags6 & (RF6_MARK_CAIN))        vp[vn++] = "invoke the mark of Cain";
+	if (flags6 & (RF6_MARK_CAIN))   vp[vn++] = "invoke the mark of Cain";
 	if (flags5 & (RF5_DRAIN_MANA))	vp[vn++] = "drain mana";
 	if (flags5 & (RF5_MIND_BLAST))	vp[vn++] = "cause mind blasting";
 	if (flags5 & (RF5_BRAIN_SMASH))	vp[vn++] = "cause brain smashing";
@@ -1270,7 +1268,7 @@ static void roff_aux(int r_idx)
 		case RBM_CLAW:	p = "claw"; break;
 		case RBM_BITE:	p = "bite"; break;
 		case RBM_STING:	p = "sting"; break;
-		case RBM_XXX1:	break;
+		case RBM_SLASH:	p = "slash"; break;
 		case RBM_BUTT:	p = "butt"; break;
 		case RBM_CRUSH:	p = "crush"; break;
 		case RBM_ENGULF:	p = "engulf"; break;
@@ -1287,6 +1285,7 @@ static void roff_aux(int r_idx)
 		case RBM_INSULT:	p = "insult"; break;
 		case RBM_MOAN:	p = "moan"; break;
 		case RBM_SHOW:  p = "sing"; break;
+		case RBM_SWIPE: p = "swipe"; break;
 		}
 
 
@@ -1572,13 +1571,130 @@ void display_roff(int r_idx)
 /*
  * Hack -- show a list of the visible monsters in the current "term" window
  */
+void display_visible_items(void)
+{
+	int i, j, gap, len, count = 0;
+	int items = 0;
+
+	item_list_entry *what;
+	item_list_entry temp_item;
+    
+	/* Clear */
+	Term_clear();
+
+	/* Allocate the "who" array */
+	C_MAKE(what, o_max, item_list_entry);
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects and held objects*/
+		if (!o_ptr->k_idx || o_ptr->held_m_idx) continue;
+
+		/* Location, which we don't us any more right now
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+		*/
+
+		/* Detect "real" objects */
+		if (o_ptr->marked)
+		{
+			if(items)
+			{
+				int counter = 0;
+				int found   = 0;
+				for( counter = 0; counter < items ; counter++){
+					object_type *q_ptr = &o_list[what[counter].o_idx];
+					if( o_ptr->tval >= TV_MIRACLES_BOOK && q_ptr->tval == o_ptr->tval && q_ptr->sval == o_ptr->sval  )
+					{
+						what[counter].count += o_ptr->number;
+						count = count + o_ptr->number;
+						found = 1;
+						break;
+					}
+					if( q_ptr->tval == o_ptr->tval && q_ptr->sval == o_ptr->sval && !object_known_p( q_ptr ) && !object_known_p( o_ptr ) )
+					{
+						what[counter].count += o_ptr->number;
+						count = count + o_ptr->number;
+						found = 1;
+						break;
+					}
+				}
+				if(found)
+					continue;
+			}
+
+			/* Print it out, baby */
+			what[items].o_idx = i;
+			what[items].object_value = object_value( o_ptr );
+			what[items].count = o_ptr->number;
+			count = count + o_ptr->number;
+			items++;
+		}
+	}
+
+	if( items )
+	{
+		int w, h, num = 0;
+
+		/* Sort the items according to cost */
+		len = items;
+		for (gap = len / 2; gap > 0; gap /= 2)
+			for (i = gap; i < len; i++)
+				for (j = i-gap; j >= 0 && what[j].object_value < what[j + gap].object_value ; j -= gap) {
+					temp_item = what[j];
+					what[j] =  what[j + gap];
+					what[j+gap] = temp_item;
+				}
+		/* Print them */
+		(void)Term_get_size(&w, &h);
+
+		c_prt(TERM_WHITE,format("You can see %d item%s", count, (count != 1 ? "s:" : ":")), 0, 0);
+
+		for (i = 0; i < items && i < h-1 ; i++){
+			object_type *o_ptr = &o_list[ what[i].o_idx ];
+			char o_name[80];
+			byte number_swap;
+
+			/* Default Colour */
+			byte attr = TERM_WHITE;
+
+			/* Naughty, naughty, we swap the count ;] */
+			number_swap = o_ptr->number;
+			/* Just in case, make sure large counts do not mess up Hellband */
+			o_ptr->number = (what[i].count>255)?255:(byte_hack)what[i].count;
+
+			/* Get a description */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Naughty, naughty, we swap the count back ;] */
+			o_ptr->number = number_swap;
+
+			c_prt( attr, o_name , (num % (h - 1)) + 1, (num / (h - 1) * 26));
+			num++;
+		}
+	}
+	else
+	{
+		c_prt(TERM_WHITE,"You see no items.",0,0);
+	}
+	FREE(what);
+}
+
+/*
+ * Hack -- show a list of the visible monsters in the current "term" window
+ */
 void display_visible(void)
 {
 	int i, j;
 	int c = 0;
 	int items = 0;
-    
+	
 	monster_list_entry *who;
+
+	byte mflag_show = MFLAG_VIEW | MFLAG_MARK | MFLAG_SHOW;
     
 	/* Clear */
 	Term_clear();
@@ -1593,7 +1709,7 @@ void display_visible(void)
 	/* Allocate the "who" array */
 	C_MAKE(who, m_max, monster_list_entry);
     
-	/* Count up the number visible in each race */
+	/* Count up the number visible in each race, consider using m_cnt */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
@@ -1604,10 +1720,10 @@ void display_visible(void)
 		if (!m_ptr->r_idx) continue;
         
 		/* Skip unseen monsters */
-		if (!(m_ptr->ml || m_ptr->mflag)) continue;
+		if (!(m_ptr->ml || (m_ptr->mflag & mflag_show )) && m_ptr->hp > 0) continue;
         
 		/* Increase for this race */
-		if (items)
+  		if (items)
 		{
 			for (j = 0; j < items; j++)
 			{
@@ -1663,7 +1779,7 @@ void display_visible(void)
                 attr = TERM_L_RED;
             
 			/* Have we ever killed one? */
-			if (r_ptr->r_tkills)
+			else if (r_ptr->r_tkills)
 			{
 				if (r_ptr->level > p_ptr->max_dun_level  )
 				{

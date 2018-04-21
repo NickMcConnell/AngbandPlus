@@ -8,13 +8,13 @@
  * are included in all such copies.
  *
  * Ben Harrison and others have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
@@ -237,7 +237,7 @@ errr dump_test()
 	char		buf[1024];
 	FILE		*fff = NULL;
 		
-	strcpy( buf, "./killmenow");	
+	strcpy( buf, "./killmenow");
 	fff = my_fopen(buf, "w");
 
 	if (!fff)
@@ -365,6 +365,13 @@ int main(int argc, char *argv[])
 	user_name(player_name, player_uid);
 
 #endif /* SET_UID */
+
+#ifdef PRIVATE_USER_PATH
+
+  /* Create directories for the users files */
+  create_user_dirs();
+
+#endif
 
 
 	/* Process the command line arguments */
@@ -524,7 +531,7 @@ usage:
 	if (!done && (!mstr || (streq(mstr, "x11"))))
 	{
 		extern errr init_x11(int, char**);
-        plog_fmt_fiddle("About to init X11.");        
+        plog_fmt_fiddle("About to init X11.");
 		if (0 == init_x11(argc, argv))
 		{
             plog_fmt_fiddle("X11 successfully inited.");

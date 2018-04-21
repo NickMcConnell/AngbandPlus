@@ -10,13 +10,13 @@
  * are included in all such copies.
  *
  * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
@@ -38,9 +38,10 @@ int monster_filter_type = 0;
 /*
 * Set a "blow" record for the ghost
 */
-static void ghost_blow(int i, int m, int e, int d, int s)
+static void custom_blow(int idx, int i, int m, int e, int d, int s)
 {
-	monster_race *g = &r_info[MAX_R_IDX-1];
+	/* idx must be MAX_R_IDX-1 for ghost*/
+	monster_race *g = &r_info[idx];
 
 	/* Save the data */
 	g->blow[i].method = m;
@@ -92,11 +93,11 @@ static void set_ghost_aux_2(void)
 			if (grace == NEPHILIM) r_ptr->flags3 |= (RF3_FALLEN_ANGEL);
 			if (grace == TROLL) r_ptr->flags3 |= (RF3_TROLL);
 			if (grace == GIANT) r_ptr->flags3 |= (RF3_GIANT);
-			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);	
+			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);
 			r_ptr->ac = 26;
 			r_ptr->speed = 110;
 			r_ptr->num_blows=2;
-			ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
+			custom_blow( MAX_R_IDX-1, 0, RBM_HIT, RBE_HURT, 2, 6);
 
 			break;
 		}
@@ -113,12 +114,12 @@ static void set_ghost_aux_2(void)
 			if (grace == NEPHILIM) r_ptr->flags3 |= (RF3_FALLEN_ANGEL);
 			if (grace == TROLL) r_ptr->flags3 |= (RF3_TROLL);
 			if (grace == GIANT) r_ptr->flags3 |= (RF3_GIANT);
-			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);	
+			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);
 			r_ptr->ac = 30;
 			r_ptr->speed = 110;
 			r_ptr->hside *= 2;
 			r_ptr->num_blows=1;
-			ghost_blow(0, RBM_HIT, RBE_HURT, 2, 9);
+			custom_blow( MAX_R_IDX-1, 0, RBM_HIT, RBE_HURT, 2, 9);
 
 			break;
 		}
@@ -135,13 +136,13 @@ static void set_ghost_aux_2(void)
 			if (grace == NEPHILIM) r_ptr->flags3 |= (RF3_FALLEN_ANGEL);
 			if (grace == TROLL) r_ptr->flags3 |= (RF3_TROLL);
 			if (grace == GIANT) r_ptr->flags3 |= (RF3_GIANT);
-			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);	
+			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);
 			r_ptr->ac = 35;
 			r_ptr->speed = 110;
 			r_ptr->hside *= 2;
 			r_ptr->mexp = (r_ptr->mexp * 3) / 2;
 			r_ptr->num_blows=3;
-			ghost_blow(0, RBM_HIT, RBE_HURT, 3, 8);
+			custom_blow( MAX_R_IDX-1, 0, RBM_HIT, RBE_HURT, 3, 8);
 
 			break;
 		}
@@ -160,8 +161,8 @@ static void set_ghost_aux_2(void)
 			r_ptr->speed = 130;
 			r_ptr->mexp = (r_ptr->mexp * 3) / 2;
 			r_ptr->num_blows=3;
-			ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
-			ghost_blow(1, RBM_TOUCH, RBE_TERRIFY, 0, 0);
+			custom_blow( MAX_R_IDX-1, 0, RBM_HIT, RBE_HURT, 2, 6);
+			custom_blow( MAX_R_IDX-1, 1, RBM_TOUCH, RBE_TERRIFY, 0, 0);
 
 			break;
 		}
@@ -181,10 +182,10 @@ static void set_ghost_aux_2(void)
 			r_ptr->hside *= 2;
 			r_ptr->mexp = r_ptr->mexp * 3;
 			r_ptr->num_blows=4;
-			ghost_blow(0, RBM_TOUCH, RBE_LOSE_WIS, 2, 6);
-			ghost_blow(1, RBM_TOUCH, RBE_LOSE_DEX, 2, 6);
-			ghost_blow(2, RBM_HIT, RBE_HURT, 4, 6);
-			ghost_blow(3, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			custom_blow( MAX_R_IDX-1, 0, RBM_TOUCH, RBE_LOSE_WIS, 2, 6);
+			custom_blow( MAX_R_IDX-1, 1, RBM_TOUCH, RBE_LOSE_DEX, 2, 6);
+			custom_blow( MAX_R_IDX-1, 2, RBM_HIT, RBE_HURT, 4, 6);
+			custom_blow( MAX_R_IDX-1, 3, RBM_WAIL, RBE_TERRIFY, 0, 0);
 
 			break;
 		}
@@ -206,10 +207,10 @@ static void set_ghost_aux_2(void)
 			r_ptr->hside *= 2;
 			r_ptr->mexp = (r_ptr->mexp * 7) / 2;
 			r_ptr->num_blows=5;
-			ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
-			ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
-			ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
-			ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+			custom_blow( MAX_R_IDX-1, 0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			custom_blow( MAX_R_IDX-1, 1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			custom_blow( MAX_R_IDX-1, 2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			custom_blow( MAX_R_IDX-1, 3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
 
 			break;
 		}
@@ -232,8 +233,8 @@ static void set_ghost_aux_2(void)
 			r_ptr->hside *= 3;
 			r_ptr->mexp = r_ptr->mexp * 3;
 			r_ptr->num_blows=5;
-			ghost_blow(0, RBM_HIT, RBE_HURT, 5, 8);
-			ghost_blow(2, RBM_BITE, RBE_EXP_40, 0, 0);
+			custom_blow( MAX_R_IDX-1, 0, RBM_HIT, RBE_HURT, 5, 8);
+			custom_blow( MAX_R_IDX-1, 2, RBM_BITE, RBE_EXP_40, 0, 0);
 
 			break;
 		}
@@ -256,8 +257,8 @@ static void set_ghost_aux_2(void)
 			r_ptr->hside *= 3;
 			r_ptr->mexp = r_ptr->mexp * 5;
 			r_ptr->num_blows=6;
-			ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
-			ghost_blow(2, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			custom_blow( MAX_R_IDX-1, 0, RBM_HIT, RBE_HURT, 6, 8);
+			custom_blow( MAX_R_IDX-1, 2, RBM_TOUCH, RBE_EXP_20, 0, 0);
 
 			break;
 		}
@@ -281,8 +282,8 @@ static void set_ghost_aux_2(void)
 			r_ptr->hdice *= 2;
 			r_ptr->mexp = r_ptr->mexp * 20;
 			r_ptr->num_blows=6;
-			ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
-			ghost_blow(3, RBM_BITE, RBE_EXP_80, 0, 0);
+			custom_blow( MAX_R_IDX-1, 0, RBM_HIT, RBE_HURT, 6, 8);
+			custom_blow( MAX_R_IDX-1, 3, RBM_BITE, RBE_EXP_80, 0, 0);
 
 			break;
 		}
@@ -304,10 +305,10 @@ static void set_ghost_aux_2(void)
 			r_ptr->hside *= 3;
 			r_ptr->mexp = r_ptr->mexp * 20;
 			r_ptr->num_blows=7;
-			ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
-			ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
-			ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
-			ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+			custom_blow( MAX_R_IDX-1, 0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			custom_blow( MAX_R_IDX-1, 1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			custom_blow( MAX_R_IDX-1, 2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			custom_blow( MAX_R_IDX-1, 3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
 
 			break;
 		}
@@ -333,9 +334,9 @@ static void set_ghost_aux_2(void)
 			r_ptr->hdice *= 2;
 			r_ptr->mexp = r_ptr->mexp * 50;
 			r_ptr->num_blows=6;
-			ghost_blow(0, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
-			ghost_blow(2, RBM_TOUCH, RBE_UN_POWER, 0, 0);
-			ghost_blow(3, RBM_TOUCH, RBE_EXP_40, 0, 0);
+			custom_blow( MAX_R_IDX-1, 0, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
+			custom_blow( MAX_R_IDX-1, 2, RBM_TOUCH, RBE_UN_POWER, 0, 0);
+			custom_blow( MAX_R_IDX-1, 3, RBM_TOUCH, RBE_EXP_40, 0, 0);
 
 			break;
 		}
@@ -360,15 +361,15 @@ static void set_ghost_aux_2(void)
 			r_ptr->hdice *= 2;
 			r_ptr->mexp = r_ptr->mexp * 30;
 			r_ptr->num_blows=7;
-			ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
-			ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
-			ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
-			ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+			custom_blow( MAX_R_IDX-1, 0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			custom_blow( MAX_R_IDX-1, 1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			custom_blow( MAX_R_IDX-1, 2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			custom_blow( MAX_R_IDX-1, 3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
 
 			break;
 		}
 	}
-}	
+}
 
 
 /*
@@ -410,7 +411,7 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev)
 	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
 
 	(void)gclass;/* gclass is no longer used */
-	
+
 	/* Extract the basic ghost name */
 	strcpy(gb_name, pname);
 
@@ -426,20 +427,17 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev)
 	/* Capitalize the name */
 	if (islower(gb_name[0])) gb_name[0] = toupper(gb_name[0]);
 
-
 	/* Clear the normal flags */
 	r_ptr->flags1 = r_ptr->flags2 = r_ptr->flags3 = 0L;
 
 	/* Clear the spell flags */
 	r_ptr->flags4 = r_ptr->flags5 = r_ptr->flags6 = 0L;
 
-
 	/* Clear the attacks */
-	ghost_blow(0, 0, 0, 0, 0);
-	ghost_blow(1, 0, 0, 0, 0);
-	ghost_blow(2, 0, 0, 0, 0);
-	ghost_blow(3, 0, 0, 0, 0);
-
+	custom_blow( MAX_R_IDX-1, 0, 0, 0, 0, 0);
+	custom_blow( MAX_R_IDX-1, 1, 0, 0, 0, 0);
+	custom_blow( MAX_R_IDX-1, 2, 0, 0, 0, 0);
+	custom_blow( MAX_R_IDX-1, 3, 0, 0, 0, 0);
 
 	/* The ghost never sleeps */
 	r_ptr->sleep = 0;
@@ -447,20 +445,17 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev)
 	/* The ghost is very attentive */
 	r_ptr->aaf = 100;
 
-
 	/* Save the level */
 	r_ptr->level = lev;
 
 	/* Extract the default experience */
 	r_ptr->mexp = lev * 5 + 5;
 
-
 	/* Hack -- Break up the hitpoints */
 	for (i = 1; i * i < hp; i++);
 
 	/* Extract the basic hit dice and sides */
 	r_ptr->hdice = r_ptr->hside = i;
-
 
 	/* Unique monster */
 	r_ptr->flags1 |= (RF1_UNIQUE);
@@ -480,12 +475,552 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev)
 	/* Save the race and class */
 	ghost_race = grace;
 
-
 	/* Prepare the ghost (method 2) */
 	set_ghost_aux_2();
 }
 
 
+
+/*
+* Prepare the ghost -- method 2
+*/
+static void set_custom_aux( int idx, char mrace, cptr pname )
+{
+	monster_race *r_ptr = &r_info[idx];
+
+	sprintf(r_name + r_ptr->name, "%s", pname);
+	r_ptr->d_char = r_ptr->x_char = mrace;
+
+	/* Skeleton.. */
+	if( mrace == 's' )
+	{
+		r_ptr->d_attr = TERM_WHITE;
+		/* OMG... Mega-Hack use the current 'Skeleton Human' graphic */
+		r_ptr->x_attr = r_info[174].x_attr;
+		r_ptr->x_char = r_info[174].x_char;
+		r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+		r_ptr->flags3 |= ( RF3_UNDEAD | RF3_IM_COLD );
+		r_ptr->ac = 26;
+		r_ptr->speed = 110;
+		r_ptr->num_blows=2;
+		custom_blow( idx, 0, RBM_HIT, RBE_HURT, 2, 6);
+	}
+
+	/* Zombie.. */
+	if( mrace == 'z' && r_ptr->level < 50 )
+	{
+		r_ptr->d_attr = TERM_L_DARK;
+		/* OMG.. Mega-Hack use the current 'Zombified Human' graphic */
+		r_ptr->x_attr = r_info[175].x_attr;
+		r_ptr->x_char = r_info[175].x_char;
+		r_ptr->flags1 |= ( RF1_DROP_60 | RF1_DROP_90 );
+		r_ptr->flags2 |= ( RF2_OPEN_DOOR | RF2_BASH_DOOR | RF2_STUPID );
+		r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS);
+		r_ptr->ac = 30;
+		r_ptr->speed = 110;
+		r_ptr->hside *= 2;
+		r_ptr->num_blows=1;
+		custom_blow( idx, 0, RBM_HIT, RBE_HURT, 2, 9);
+	}
+
+	/* Mummy.. */
+	if( mrace == 'z' && r_ptr->level > 49 )
+	{
+		r_ptr->d_attr = TERM_YELLOW;
+		/* OMG Mega-Hack use the current 'Mummified Human' graphic */
+		r_ptr->x_attr = r_info[281].x_attr;
+		r_ptr->x_char = r_info[281].x_char;
+		r_ptr->flags1 |= ( RF1_DROP_1D2 );
+		r_ptr->flags2 |= ( RF2_OPEN_DOOR | RF2_BASH_DOOR );
+		r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_HURT_FIRE );
+		r_ptr->ac = 35;
+		r_ptr->speed = 110;
+		r_ptr->hside *= 2;
+		r_ptr->mexp = (r_ptr->mexp * 3) / 2;
+		r_ptr->num_blows=3;
+		custom_blow( idx, 0, RBM_HIT, RBE_HURT, 3, 8 );
+	}
+
+	if( mrace == 'G' )
+	{
+		/* Poltergeist.. */
+		if( r_ptr->level < 20 )
+		{
+			r_ptr->d_attr = TERM_WHITE;
+			/* OMG : Mega-Hack use the current 'Poltergeist' graphic */
+			r_ptr->x_attr = r_info[56].x_attr;
+			r_ptr->x_char = r_info[56].x_char;
+			r_ptr->flags1 |= (RF1_DROP_1D2);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS );
+			r_ptr->ac = 20;
+			r_ptr->speed = 130;
+			r_ptr->mexp = (r_ptr->mexp * 3) / 2;
+			r_ptr->num_blows=3;
+			custom_blow( idx, 0, RBM_HIT, RBE_HURT, 2, 6);
+			custom_blow( idx, 1, RBM_TOUCH, RBE_TERRIFY, 0, 0);
+		}
+		/* Spirit.. */
+		else if( r_ptr->level < 40 )
+		{
+			r_ptr->d_attr = TERM_WHITE;
+			/* Mega-Hack use the current 'Moaning Spirit' graphic */
+			r_ptr->x_attr = r_info[177].x_attr;
+			r_ptr->x_char = r_info[177].x_char;
+			r_ptr->flags1 |= (RF1_DROP_1D2);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS );
+			r_ptr->ac = 20;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 2;
+			r_ptr->mexp = r_ptr->mexp * 3;
+			r_ptr->num_blows=4;
+			custom_blow( idx, 0, RBM_TOUCH, RBE_LOSE_WIS, 2, 6);
+			custom_blow( idx, 1, RBM_TOUCH, RBE_LOSE_DEX, 2, 6);
+			custom_blow( idx, 2, RBM_HIT, RBE_HURT, 4, 6);
+			custom_blow( idx, 3, RBM_WAIL, RBE_TERRIFY, 0, 0);
+		}
+		/* Ghost I */
+		else if( r_ptr->level < 60 )
+		{
+			r_ptr->d_attr = TERM_WHITE;
+			/* OMG: Mega-Hack use the current 'Ghost' graphic */
+			r_ptr->x_attr = r_info[338].x_attr;
+			r_ptr->x_char = r_info[338].x_char;
+			r_ptr->flags1 |= (RF1_DROP_1D2);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS );
+			r_ptr->flags5 |= (RF5_BLIND | RF5_HOLD | RF5_DRAIN_MANA);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 15;
+			r_ptr->ac = 40;
+			r_ptr->speed = 120;
+			r_ptr->hside *= 2;
+			r_ptr->mexp = (r_ptr->mexp * 7) / 2;
+			r_ptr->num_blows=5;
+			custom_blow( idx, 0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			custom_blow( idx, 1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			custom_blow( idx, 2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			custom_blow( idx, 3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+		}
+		else if( r_ptr->level < 80 )
+		{
+			r_ptr->d_attr = TERM_WHITE;
+			/* Mega-Hack use the current 'Law Ghost' graphic */
+			r_ptr->x_attr = r_info[388].x_attr;
+			r_ptr->x_char = r_info[388].x_char;
+			r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_GREAT);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS );
+			r_ptr->flags5 |= (RF5_BLIND | RF5_CONF | RF5_HOLD | RF5_DRAIN_MANA);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 5;
+			r_ptr->ac = 90;
+			r_ptr->speed = 130;
+			r_ptr->hside *= 3;
+			r_ptr->mexp = r_ptr->mexp * 20;
+			r_ptr->num_blows=7;
+			custom_blow( idx, 0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			custom_blow( idx, 1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			custom_blow( idx, 2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			custom_blow( idx, 3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+		}
+		else
+		{
+			r_ptr->d_attr = TERM_WHITE;
+			/* Mega-Hack use the current 'Chaos Ghost' graphic */
+			r_ptr->x_attr = r_info[358].x_attr;
+			r_ptr->x_char = r_info[358].x_char;
+			r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_2D2 | RF1_DROP_GREAT);
+			r_ptr->flags2 |= (RF2_SMART | RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS );
+			r_ptr->flags5 |= (RF5_BLIND | RF5_CONF | RF5_HOLD | RF5_BRAIN_SMASH);
+			r_ptr->flags5 |= (RF5_DRAIN_MANA | RF5_BA_NETH | RF5_BO_NETH);
+			r_ptr->flags6 |= (RF6_TELE_TO | RF6_TELE_LEVEL);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 2;
+			r_ptr->ac = 130;
+			r_ptr->speed = 130;
+			r_ptr->hside *= 2;
+			r_ptr->hdice *= 2;
+			r_ptr->mexp = r_ptr->mexp * 30;
+			r_ptr->num_blows=7;
+			custom_blow( idx, 0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			custom_blow( idx, 1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			custom_blow( idx, 2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			custom_blow( idx, 3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+		}
+	}
+
+	/* Vampire */
+	if( mrace == 'V' )
+	{
+		if( r_ptr->level < 40 )
+		{
+			r_ptr->d_attr = TERM_VIOLET;
+			/* Mega-Hack use the current 'Master Vampire' graphic */
+			r_ptr->x_attr = r_info[370].x_attr;
+			r_ptr->x_char = r_info[370].x_char;
+			r_ptr->flags1 |= ( RF1_DROP_2D2 );
+			r_ptr->flags2 |= ( RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS | RF3_HURT_LITE );
+			r_ptr->flags5 |= ( RF5_SCARE | RF5_HOLD | RF5_CAUSE_2 );
+			r_ptr->flags6 |= ( RF6_TELE_TO );
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
+			r_ptr->ac = 40;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 3;
+			r_ptr->mexp = r_ptr->mexp * 3;
+			r_ptr->num_blows=5;
+			custom_blow( idx, 0, RBM_HIT, RBE_HURT, 5, 8);
+			custom_blow( idx, 1, RBM_BITE, RBE_EXP_40, 0, 0);
+		}
+		else /* Vampire Lord.. */
+		{
+			r_ptr->d_attr = TERM_BLUE;
+			/* Mega-Hack use the current 'Vampire Lord' graphic */
+			r_ptr->x_attr = r_info[439].x_attr;
+			r_ptr->x_char = r_info[439].x_char;
+			r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_GREAT);
+			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS | RF3_HURT_LITE );
+			r_ptr->flags5 |= (RF5_SCARE | RF5_HOLD | RF5_CAUSE_3 | RF5_BO_NETH);
+			r_ptr->flags6 |= (RF6_TELE_TO);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
+			r_ptr->ac = 80;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 2;
+			r_ptr->hdice *= 2;
+			r_ptr->mexp = r_ptr->mexp * 20;
+			r_ptr->num_blows=6;
+			custom_blow( idx, 0, RBM_HIT, RBE_HURT, 6, 8);
+			custom_blow( idx, 1, RBM_BITE, RBE_EXP_80, 0, 0);
+		}
+	}
+
+	/* Lich.. */
+	if( mrace == 'L' )
+	{
+		r_ptr->d_attr = TERM_ORANGE;
+		/* Mega-Hack use the current 'Master Lich' graphic */
+		r_ptr->x_attr = r_info[461].x_attr;
+		r_ptr->x_char = r_info[461].x_char;
+		r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_1D2 | RF1_DROP_GREAT);
+		r_ptr->flags2 |= (RF2_SMART | RF2_OPEN_DOOR | RF2_BASH_DOOR);
+		r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS );
+		r_ptr->flags5 |= (RF5_BLIND | RF5_SCARE | RF5_CONF | RF5_HOLD);
+		r_ptr->flags5 |= (RF5_DRAIN_MANA | RF5_BA_FIRE | RF5_BA_COLD);
+		r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BRAIN_SMASH);
+		r_ptr->flags6 |= (RF6_BLINK | RF6_TPORT | RF6_TELE_TO | RF6_S_UNDEAD);
+		r_ptr->freq_inate = r_ptr->freq_spell = 100 / 3;
+		r_ptr->ac = 120;
+		r_ptr->speed = 120;
+		r_ptr->hside *= 3;
+		r_ptr->hdice *= 2;
+		r_ptr->mexp = r_ptr->mexp * 50;
+		r_ptr->num_blows=6;
+		custom_blow( idx , 0, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
+		custom_blow( idx , 1, RBM_TOUCH, RBE_UN_POWER, 0, 0);
+		custom_blow( idx , 2, RBM_TOUCH, RBE_EXP_40, 0, 0);
+	}
+
+	/* Wraith.. */
+	if( mrace == 'W' )
+	{
+		/* Mega-Hack use the current 'Black Wraith' graphic */
+		r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
+		/*
+		r_ptr->x_attr = r_info[429].x_attr;
+		r_ptr->x_char = r_info[429].x_char;
+		*/
+		r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_4D2);
+		r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+		r_ptr->flags3 |= ( RF3_UNDEAD | RF3_EVIL | RF3_IM_COLD | RF3_IM_POIS | RF3_HURT_LITE );
+		r_ptr->flags5 |= (RF5_BLIND | RF5_SCARE | RF5_HOLD);
+		r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_BO_NETH);
+		r_ptr->freq_inate = r_ptr->freq_spell = 100 / 7;
+		r_ptr->ac = 60;
+		r_ptr->speed = 120;
+		r_ptr->hside *= 3;
+		r_ptr->mexp = r_ptr->mexp * 5;
+		r_ptr->num_blows=6;
+		custom_blow( idx, 0, RBM_HIT  , RBE_HURT, 6, 8);
+		custom_blow( idx, 1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+	}
+	/* Demon.. */
+	if( mrace == 'U' )
+	{
+		/* Mega-Hack use the current 'Black Wraith' graphic */
+		r_ptr->d_attr = r_ptr->x_attr = TERM_VIOLET;
+		/*
+		r_ptr->x_attr = r_info[429].x_attr;
+		r_ptr->x_char = r_info[429].x_char;
+		*/
+		r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_4D2);
+		r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+		r_ptr->flags3 |= ( RF3_DEMON | RF3_EVIL | RF3_IM_FIRE | RF3_IM_POIS );
+		r_ptr->flags5 |= (RF5_BLIND | RF5_SCARE | RF5_HOLD);
+		r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_BO_FIRE);
+		r_ptr->freq_inate = r_ptr->freq_spell = 100 / 7;
+		r_ptr->ac = 60;
+		r_ptr->speed = 120;
+		r_ptr->hside *= 3;
+		r_ptr->mexp = r_ptr->mexp * 5;
+		r_ptr->num_blows=6;
+		custom_blow( idx, 0, RBM_HIT  , RBE_HURT, 6, 8);
+		custom_blow( idx, 1, RBM_TOUCH, RBE_HURT, 6, 8);
+	}
+	/* Demon.. */
+	if( mrace == 'A' )
+	{
+		/* Mega-Hack use the current 'Black Wraith' graphic */
+		r_ptr->d_attr = r_ptr->x_attr = TERM_SLATE;
+		/*
+		r_ptr->x_attr = r_info[429].x_attr;
+		r_ptr->x_char = r_info[429].x_char;
+		*/
+		r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_4D2);
+		r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+		r_ptr->flags3 |= ( RF3_FALLEN_ANGEL | RF3_EVIL | RF3_IM_FIRE | RF3_IM_POIS );
+		r_ptr->flags5 |= (RF5_BLIND | RF5_HOLD);
+		r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_BO_NETH);
+		r_ptr->freq_inate = r_ptr->freq_spell = 100 / 7;
+		r_ptr->ac = 60;
+		r_ptr->speed = 120;
+		r_ptr->hside *= 3;
+		r_ptr->mexp = r_ptr->mexp * 5;
+		r_ptr->num_blows=6;
+		custom_blow( idx, 0, RBM_HIT  , RBE_HURT, 6, 8);
+		custom_blow( idx, 1, RBM_TOUCH, RBE_HURT, 6, 8);
+	}
+}
+
+void init_custom_race( int idx )
+{
+	monster_race *r_ptr = &r_info[idx];
+
+	if( !r_ptr->name )
+	{
+		/* Complete the "name" and "text" sizes */
+		++r_head->name_size;
+		++r_head->text_size;
+
+		/* Minor hack -- acquire custom r_ptr */
+		r_ptr = &r_info[idx];
+
+		/* Acquire the next index */
+		r_ptr->name = r_head->name_size;
+		r_ptr->text = r_head->text_size;
+
+		/* Save some space for the ghost info */
+		r_head->name_size += 64;
+		r_head->text_size += 64;
+
+		/* Hack -- Default name/text for the ghost */
+		strcpy(r_name + r_ptr->name, "Nobody, the Bugged One");
+		strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
+	}
+
+	/* Hack -- set the char/attr info */
+	r_ptr->d_attr = r_ptr->x_attr = TERM_VIOLET;
+	r_ptr->d_char = r_ptr->x_char = '#';
+
+	/* Hack -- Try to prevent a few "potential" bugs */
+	r_ptr->hdice = r_ptr->hside = 1;
+	r_ptr->mexp = 1L;
+}
+
+/*
+* Hack -- Prepare the "custom" race
+*
+* We are given the following parameters
+* int  idx       -> r_ptr index
+* cptr name      -> a "name" of the form "Bob" (or "Bob, the xxx")
+* char mrace     -> a monster race that will determine many of the r_ptr flags
+* int  dlevel    -> a dungeon level that will determein many of the r_ptr flags
+* int  alignment -> friend or foe
+*
+* We will store the custom races in the save file, since
+* they are different from game to game
+*
+* Eventually we should probably save the custom ghost in such a way as
+* to allow it to be "re-extracted" from a small amount of info,
+* such as the the given parameters and a seed. An exercise that I will
+* leave to the reader ;)
+*/
+static void set_custom_race_slot(int idx, cptr pname, int hp, int mrace, int dlevel , int alignment )
+{
+	int i;
+
+	monster_race *r_ptr = &r_info[idx];
+
+	/* Copy the custom name */
+	strcpy(gb_name, pname);
+
+	/* Force a name */
+	if (!gb_name[1]) strcpy(gb_name, "Nobody");
+
+	/* Capitalize the name */
+	if (islower(gb_name[0])) gb_name[0] = toupper(gb_name[0]);
+
+	/* Clear the normal & spell flags */
+	r_ptr->flags1 = r_ptr->flags2 = r_ptr->flags3 = 0L;
+	r_ptr->flags4 = r_ptr->flags5 = r_ptr->flags6 = 0L;
+	r_ptr->r_flags1 = r_ptr->r_flags2 = r_ptr->r_flags3 = 0L;
+	r_ptr->r_flags4 = r_ptr->r_flags5 = r_ptr->r_flags6 = 0L;
+
+	/* Clear the attacks */
+	custom_blow( idx, 0, 0, 0, 0, 0);
+	custom_blow( idx, 1, 0, 0, 0, 0);
+	custom_blow( idx, 2, 0, 0, 0, 0);
+	custom_blow( idx, 3, 0, 0, 0, 0);
+
+	/* Custom monsters dont sleep */
+	r_ptr->sleep = 0;
+
+	/* The ghost is very attentive */
+	r_ptr->aaf = 100;
+
+	/* Save the level */
+	r_ptr->level = dlevel;
+
+	/* Extract the default experience */
+	r_ptr->mexp = dlevel * 5 + 5;
+
+	/* Only do this when we're serious about providing hitpoints */
+	if( hp > 0 ){
+		for (i = 1; i * i < hp; i++);    /* Hack -- Break up the hitpoints, old fashioned square root.. */
+		r_ptr->hdice = r_ptr->hside = i; /* Extract the basic hit dice and sides */
+	}
+
+	/* Servants carry good items and foes carry great items */
+	if( alignment == ALLY_PLAYER )
+	{
+		r_ptr->flags1 |= (RF1_ONLY_ITEM | RF1_DROP_GOOD);
+	}
+	else
+	{
+		r_ptr->flags1 |= (RF1_ONLY_ITEM | RF1_DROP_GOOD | RF1_DROP_GREAT);
+	}
+
+	/* Currently this flag is unused */
+	r_ptr->flags4 |= RF4_CUSTOM;
+	r_ptr->custom = 1;
+
+	/* Prepare the custom race */
+	set_custom_aux( idx, mrace , gb_name );
+}
+
+/*
+ * Find a slot for a custom race
+ * custom races are an extension to player ghosts
+ * except that at the time of writing they will be used
+ * for patron reward servants & opponents
+ */
+int find_custom_race_slot()
+{
+	int i;
+	/* Look for an empty slot for a custom monster */
+	/* Make absolutely certain that the player ghost is skipped */
+	for( i = MAX_R_IDX-2 ; i ; i-- )
+	{
+		monster_race *r_ptr = &r_info[i];
+		/* Its not a custom nor from r_info */
+		if( !r_ptr->custom )
+		{
+			return (r_ptr->hside?-1:i);
+		}
+	}
+	return -1;
+}
+
+
+int find_summon_player_spot( int *x , int *y )
+{
+	cave_type c;
+	int i;
+
+	/* Look for a location */
+	for ( i = 0; i < 20; ++i)
+	{
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+
+		/* Pick a location */
+		scatter( y, x, py, px, d);
+
+		/* Require "empty" floor grid with some exceptions ( water ) */
+		/* For now we dont place servants on water */
+		if(!can_place_monster_type(*y,*x,0 ))continue;
+
+		/* Minor shortcut */
+		c = cave[*y][*x];
+
+		/* Hack -- no summon on glyph of warding */
+		if (c.feat == FEAT_GLYPH) continue;
+		if (c.feat == FEAT_MINOR_GLYPH) continue;
+
+		/* Okay */
+		return TRUE;
+	}
+	return FALSE;
+}
+
+int patron_monster( cptr name, char c , int charmed )
+{
+	int idx, x,y;
+
+	idx = find_custom_race_slot();
+	if( idx != -1 )
+	{
+		init_custom_race( idx );
+		set_custom_race_slot( idx, name , p_ptr->mhp , c , dun_level ,ALLY_PLAYER );
+
+		if( find_summon_player_spot( &x,&y ) )
+			return place_monster_one(y, x, idx, FALSE, charmed);
+	}
+	return 0;
+}
+
+
+int patron_servant( cptr name , char c )
+{
+	msg_format("%s considers helping you.",patrons[p_ptr->evil_patron].short_name);
+	return patron_monster( name , c , TRUE );
+}
+
+int patron_foe( cptr name , char c )
+{
+	msg_format("The voice of %s booms out: 'Thou needst a worthier opponent!'",	patrons[p_ptr->evil_patron].short_name);
+	return patron_monster( name , c , FALSE );
+}
+
+int patron_undead_servant()
+{
+	return patron_servant( "Servant Wraith" , 'W' );
+}
+
+int patron_demon_servant()
+{
+	return patron_servant( "Servant Demon" , 'U' );
+}
+
+int patron_angel_servant()
+{
+	return patron_servant( "Fallen Servant" , 'A' );
+}
+
+int patron_undead_foe()
+{
+	return patron_foe( "Killer Wraith" , 'W' );
+}
+
+int patron_demon_foe()
+{
+	return patron_foe( "Avenger Demon" , 'U' );
+}
+
+int patron_angel_foe()
+{
+	return patron_foe( "Fallen Avenger" , 'A' );
+}
 
 /*
 * Places a ghost somewhere.
@@ -513,7 +1048,6 @@ s16b place_ghost(void)
 		if (debug_mode) msg_format("cur_num = %d, max_num - %d",r_ptr->cur_num,r_ptr->max_num);
 		return (FALSE);
 	}
-
 	/* Dungeon -- Use Dungeon Level */
 	else
 	{
@@ -539,7 +1073,6 @@ s16b place_ghost(void)
 
 	/* Scan the file */
 	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", name, &hp, &grace, &gclass) != 4);
-
 
 	/* Close the file */
 	fclose(fp);
@@ -612,13 +1145,11 @@ void delete_monster_idx(int i,bool visibly)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-
 	/* Hack -- Reduce the racial counter */
 	r_ptr->cur_num--;
 
 	/* Hack -- count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
-
 
 	/* Hack -- remove target monster */
 	if (i == target_who) target_who = 0;
@@ -626,10 +1157,8 @@ void delete_monster_idx(int i,bool visibly)
 	/* Hack -- remove tracked monster */
 	if (i == health_who) health_track(0);
 
-
 	/* Monster is gone */
 	cave[y][x].m_idx = 0;
-
 
 	/* Delete objects */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -649,13 +1178,11 @@ void delete_monster_idx(int i,bool visibly)
 		delete_object_idx(this_o_idx);
 	}
 
-
 	/* Wipe the Monster */
 	WIPE(m_ptr, monster_type);
 
 	/* Count monsters */
 	m_cnt--;
-
 
 	/* Visual update */
 	if (visibly) lite_spot(y, x);
@@ -876,7 +1403,7 @@ void remove_non_pets(void)
 * Delete/Remove all the monsters when the player leaves the level
 *
 * This code has now been replaced by "remove_non_pets()"
-* 
+*
 * This is an efficient method of simulating multiple calls to the
 * "delete_monster()" function, with no visual effects.
 */
@@ -1045,9 +1572,9 @@ s16b get_mon_num(int level)
 
 	alloc_entry		*table = alloc_race_table;
 
-	/* Shielded levels only contain monsters of that depth */	
+	/* Shielded levels only contain monsters of that depth */
 	bool       shielded_level;
-	
+
 	/* Shielded levels only contain monsters of that depth */
 	if ( dun_level > DIS_START && dun_level < DIS_END )
 	{
@@ -1110,7 +1637,7 @@ s16b get_mon_num(int level)
 		{
 			continue;
 		}
-		
+
 		/* Hack? -- no NO_SPAWN monsters */
 		if ( (r_ptr->flags7 & (RF7_NO_SPAWN)) /*&& monster_filter_hook== NULL*/ )
 		{
@@ -1126,13 +1653,13 @@ s16b get_mon_num(int level)
 		if( shielded_level == FALSE && ( table[i].level > DIS_START && table[i].level < DIS_END /*&& *monster_filter_hook== NULL*/ ) )
 		{
 			continue;
-		}		
+		}
 		/*Hack levels after Dis, should have no monsters from before Dis*/
 		if( dun_level >= DIS_END && table[i].level < DIS_END )
 		{
 			continue;
 		}
-		
+
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
@@ -1412,10 +1939,15 @@ void lore_do_probe(int m_idx)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	/* Hack -- Memorize some flags */
+	/* Hack -- Memorize some flags
+	           Konijn has decided that all flags become known now
+	*/
 	r_ptr->r_flags1 = r_ptr->flags1;
 	r_ptr->r_flags2 = r_ptr->flags2;
 	r_ptr->r_flags3 = r_ptr->flags3;
+	r_ptr->r_flags4 = r_ptr->flags4;
+	r_ptr->r_flags5 = r_ptr->flags5;
+	r_ptr->r_flags6 = r_ptr->flags6;
 	r_ptr->r_flags7 = r_ptr->flags7;
 
 	/* Update monster recall window */
@@ -1647,9 +2179,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-            
+
 			/* Update monster list window */
-			p_ptr->window |= (PW_VISIBLE);            
+			p_ptr->window |= (PW_VISIBLE);
 
 			/* Hack -- Count "fresh" sightings */
 			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
@@ -1687,9 +2219,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Erase the monster */
 			lite_spot(fy, fx);
-            
+
 			/* Update monster list window */
-			p_ptr->window |= (PW_VISIBLE);                 
+			p_ptr->window |= (PW_VISIBLE);
 
 			/* Update health bar as needed */
 			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1795,7 +2327,7 @@ int can_place_monster( int y , int x , int r_idx)
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
 	/* No walls */
-	if(!cave_empty_bold(y, x)) return (FALSE); 
+	if(!cave_empty_bold(y, x)) return (FALSE);
 	/* Only on water in some cases */
 	if( cave[y][x].feat == FEAT_WATER  && !water_ok(r_idx) )return (FALSE);
 	return (TRUE);
@@ -1810,7 +2342,7 @@ int can_go_monster( int y , int x , int r_idx)
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
 	/* No walls , but doors etc. are allowed! */
-	if(!cave_floor_bold(y, x)) return (FALSE); 
+	if(!cave_floor_bold(y, x)) return (FALSE);
 	/* Only on water in some cases */
 	if( cave[y][x].feat == FEAT_WATER  && !water_ok(r_idx) )return (FALSE);
 	return (TRUE);
@@ -1825,10 +2357,10 @@ int can_place_monster_type( int y , int x , int summon_type)
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
 	/* No walls */
-	if(!cave_empty_bold(y, x)) return (FALSE); 
+	if(!cave_empty_bold(y, x)) return (FALSE);
 	/* Only on water in some cases */
 	if( cave[y][x].feat == FEAT_WATER  && !water_ok_type(summon_type) )return (FALSE);
-	return (TRUE);	
+	return (TRUE);
 }
 
 
@@ -1862,13 +2394,13 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	cptr		name = (r_name + r_ptr->name);
-	
+
 	/*Variables for Satan's circle*/
 	int lx,ly,x1,y1,k;
 
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
-	
+
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
 
@@ -1879,11 +2411,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Hack -- no creation on glyph of warding */
 	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
 	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
-
-	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START)
-		&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-		return (FALSE);
 
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
@@ -1996,7 +2523,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	if (slp && r_ptr->sleep)
 	{
 		int val = r_ptr->sleep;
-		m_ptr->csleep = ((val * 2) + randint(val * 10));
+		m_ptr->csleep = ((val * 2) + rand_s16b(val * 10));
 	}
 
 
@@ -2019,7 +2546,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	{
 		m_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
 	}
-	
+
 	/* Set the monster neutral if the info file says so */
 	if( r_ptr->flags7 & RF7_NEUTRAL )
 	{
@@ -2037,11 +2564,11 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	{
 		/* Allow some small variation per monster */
 		i = extract_energy[r_ptr->speed] / 10;
-		if (i) m_ptr->mspeed += rand_spread(0, i);
+		if (i) m_ptr->mspeed += (byte_hack)rand_spread(0, i);
 	}
 
 	/* Give a random starting energy */
-	m_ptr->energy = rand_int(100)+900;
+	m_ptr->energy = rand_s16b(100)+900;
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
@@ -2071,13 +2598,13 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 
 	/* Hack -- Notice new multi-hued monsters */
 	if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
-	
+
 	/* Hack - Satan's disintegrating powers have created a circular area for him*/
 	if( dun_level == DIS_END-1 )
 	{
 	x1 = x;
 	y1 = y;
-	
+
 	/* Big area of affect */
 	for (ly = (y1 - 15); ly <= (y1 + 15); ly++)
 	{
@@ -2085,37 +2612,37 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		{
 			/* Skip illegal grids */
 			if (!in_bounds(ly, lx)) continue;
-			
+
 			/* Extract the distance */
 			k = distance(y1, x1, ly, lx);
-			
+
 			/* Stay in the circle of death */
 			if (k >= 16) continue;
-			
+
 			/* Dont Delete the monster, only Satan should be there */
 			/* delete_monster(ly, lx); */
-			
+
 			/* Destroy valid grids */
 			if (cave_valid_bold(ly, lx))
 			{
 				/* Delete objects */
 				delete_object(ly, lx);
-				
+
 				/* Access the grid */
 				c_ptr = &cave[ly][lx];
-				
+
 				/* Create floor */
 				c_ptr->feat = FEAT_FLOOR;
-				
+
 				/* No longer part of a room or vault */
 				c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-				
+
 				/* No longer illuminated or known */
 				c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
 			}/* End of fixing cave*/
 		}/* End of x */
-	}/* End of y */ 
-	}/* End of Satan code */	
+	}/* End of y */
+	}/* End of Satan code */
 
 	/* Success */
 	return (TRUE);
@@ -2287,7 +2814,7 @@ byte place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			int nx, ny, z, d = 3;
 
 			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
+			scatter(&ny, &nx, y, x, d);
 
 			if( r_ptr->r_escort > 0 )
 			{
@@ -2295,22 +2822,22 @@ byte place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 				z = r_ptr->r_escort;
 			}
 			else
-			{	
+			{
 				/* Set the escort index */
 				place_monster_idx = r_idx;
-				
+
 				/* Set the escort hook */
 				monster_filter_hook = place_monster_okay;
-				
+
 				/* Prepare allocation table */
 				get_mon_num_prep();
-				
+
 				/* Pick a random race */
 				z = get_mon_num(r_ptr->level);
-				
+
 				/* Remove restriction */
 				monster_filter_hook = NULL;
-				
+
 				/* Prepare allocation table */
 				get_mon_num_prep();
 			}
@@ -2318,7 +2845,7 @@ byte place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 
 			/* Handle failure */
 			if (!z) break;
-			
+
 			/* Require empty grids */
 			/*if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER)) continue;*/
 			if(!can_place_monster(ny,nx,z))continue;
@@ -2474,7 +3001,7 @@ byte alloc_monster(int dis, int slp)
 {
 	int y, x;
 	int attempts_left = 10000;
-	
+
 	/* Find a legal, distant, unoccupied, space */
 	while (attempts_left)
 	{
@@ -2539,10 +3066,10 @@ bool monster_filter_okay(int r_idx)
 	/*Dont waste cycles if we got what we want*/
 	if(okay)
 		return okay;
-	
+
 	/*From here on only regular monsters are allowed to be summoned*/
 	if( r_ptr->flags7 & (RF7_NO_SPAWN) )
-		return FALSE;	
+		return FALSE;
 
 	/* Check our requirements */
 	switch (monster_filter_type)
@@ -2622,34 +3149,15 @@ bool monster_filter_okay(int r_idx)
 			break;
 		}
 
-	case FILTER_GOO:
+	case FILTER_FALLEN_ANGELS:
 		{
-			okay = (bool)(r_ptr->flags3 & (RF3_FALLEN_ANGEL)); 
+			okay = (bool)(r_ptr->flags3 & (RF3_FALLEN_ANGEL));
 			break;
 		}
 
 	case FILTER_UNIQUE:
 		{
 			okay = (bool)(r_ptr->flags1 & (RF1_UNIQUE));
-			break;
-		}
-
-	case FILTER_ORC:
-		{
-			okay = ((r_ptr->d_char == 'o') &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-	case FILTER_KOBOLD:
-		{
-			okay = ((r_ptr->d_char == 'k') &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-	case FILTER_YEEK:
-		{
-			okay = ((r_ptr->d_char == 'y') &&
-				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 	case FILTER_HUMAN:
@@ -2707,11 +3215,8 @@ bool monster_filter_okay(int r_idx)
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
-
-
 	case FILTER_KIN:
 		{
-
 			okay = ((r_ptr->d_char == summon_kin_type) &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
@@ -2722,7 +3227,6 @@ bool monster_filter_okay(int r_idx)
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
-
 	case FILTER_ANIMAL_RANGER:
 		{
 			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
@@ -2754,13 +3258,8 @@ bool monster_filter_okay(int r_idx)
     case FILTER_SPIRITS:
     {
         okay = ((r_ptr->d_char == 'G') && !(r_ptr->flags1 &(RF1_UNIQUE)));
-        break;            
+        break;
     }
-    case FILTER_FALLEN_ANGELS:
-    {
-        okay = ((r_ptr->d_char == 'A') && !(r_ptr->flags1 &(RF1_UNIQUE)));
-        break;            
-    }        
 	case FILTER_NO_UNIQUES:
 		{
 			okay = (!(r_ptr->flags1 & (RF1_UNIQUE)));
@@ -2792,7 +3291,7 @@ bool monster_filter_okay(int r_idx)
 *
 * We will attempt to place the monster up to 10 times before giving up.
 *
-* Note: FILTER_UNIQUE and FILTER_GOO (XXX) will summon Unique's
+* Note: FILTER_UNIQUE and FILTER_FALLEN_ANGELS (XXX) might summon Unique's
 * Note: FILTER_HI_UNDEAD and FILTER_HI_DRAGON may summon Unique's
 * Note: None of the other summon codes will ever summon Unique's.
 *
@@ -2824,7 +3323,7 @@ byte summon_specific(int y1, int x1, int lev, int type)
 		int d = (i / 15) + 1;
 
 		/* Pick a location */
-		scatter(&y, &x, y1, x1, d, 0);
+		scatter(&y, &x, y1, x1, d);
 
 		/* Require "empty" floor grid */
 		/*if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;*/
@@ -2833,11 +3332,6 @@ byte summon_specific(int y1, int x1, int lev, int type)
 		/* Hack -- no summon on glyph of warding */
 		if (cave[y][x].feat == FEAT_GLYPH) continue;
 		if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
-
-		/* ... nor on the Pattern */
-		if ((cave[y][x].feat >= FEAT_PATTERN_START)
-			&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-			continue;
 
 		/* Okay */
 		break;
@@ -2874,10 +3368,10 @@ byte summon_specific(int y1, int x1, int lev, int type)
 	{
 		Group_ok = FALSE;
 	}
-*/ 
+*/
 	/* Reset it since we abuse it somewhere else */
     monster_filter_type = 0;
-	
+
 	/* Attempt to place the monster (awake, allow groups) */
 	return(place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE));
 
@@ -2888,31 +3382,26 @@ byte summon_specific(int y1, int x1, int lev, int type)
 bool summon_skulls(int y1, int x1)
 {
 	int i, x, y, r_idx;
-	
+
 	bool Group_ok = TRUE;
-	
-	
+
+
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
 	{
 		/* Pick a distance */
 		int d = (i / 15) + 1;
-		
+
 		/* Pick a location */
-		scatter(&y, &x, y1, x1, d, 0);
-		
+		scatter(&y, &x, y1, x1, d);
+
 		/* Require "empty" floor grid */
 		if (!cave_empty_bold(y, x) ) continue;
-		
+
 		/* Hack -- no summon on glyph of warding */
 		if (cave[y][x].feat == FEAT_GLYPH) continue;
 		if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
-		
-		/* ... nor on the Pattern */
-		if ((cave[y][x].feat >= FEAT_PATTERN_START)
-			&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-			continue;
-		
+
 		/* Okay */
 		break;
 	}
@@ -2930,7 +3419,7 @@ bool summon_skulls(int y1, int x1)
 				/* Attempt to place the monster (awake, allow groups) */
 				if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE)) return (FALSE);
 				/* Success */
-				return (TRUE);				
+				return (TRUE);
 			}
 		}
 		return(FALSE);
@@ -2950,20 +3439,15 @@ bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok)
 		int d = (i / 15) + 1;
 
 		/* Pick a location */
-		scatter(&y, &x, y1, x1, d, 0);
+		scatter(&y, &x, y1, x1, d);
 
 		/* Require "empty" floor grid */
 		/*if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;*/
-		if(!can_place_monster_type(y,x,type))continue;		
+		if(!can_place_monster_type(y,x,type))continue;
 
 		/* Hack -- no summon on glyph of warding */
 		if (cave[y][x].feat == FEAT_GLYPH) continue;
 		if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
-
-		/* ... nor on the Pattern */
-		if ((cave[y][x].feat >= FEAT_PATTERN_START)
-			&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-			continue;
 
 		/* Okay */
 		break;
@@ -3023,11 +3507,11 @@ bool multiply_monster(int m_idx, bool charm, bool clone)
 
 
 		/* Pick a location */
-		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d, 0);
+		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d);
 
 		/* Require an "empty" floor grid */
 		/*if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;*/
-		if(!can_place_monster(y,x,m_ptr->r_idx))continue;		
+		if(!can_place_monster(y,x,m_ptr->r_idx))continue;
 
 		/* Create a new monster (awake, no groups) */
 		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, charm);
@@ -3182,7 +3666,7 @@ bool is_player_killer( monster_type *m_ptr )
 void set_hate_player( monster_type *m_ptr )
 {
 	m_ptr->ally &=  ~ALLY_PLAYER;
-	m_ptr->ally &=  ~ALLY_SELF;	
+	m_ptr->ally &=  ~ALLY_SELF;
 }
 
 /* Remove all ally flags, just set allied or super allied status */
@@ -3207,8 +3691,8 @@ bool is_monster_killer( monster_type *beholder , monster_type *m_ptr )
 		return TRUE;
 	/* If both are allies of the player, they shouldnt attack each other */
 	if( is_ally( beholder ) )
-		return FALSE;	
-	/* So they are not allied, but in a different ( aggresive ) faction, 
+		return FALSE;
+	/* So they are not allied, but in a different ( aggresive ) faction,
 	   this should happen only on very rare occasions !!, so let them have it ;)
 	*/
 	return TRUE;
@@ -3341,5 +3825,3 @@ void update_smart_learn(int m_idx, int what)
 #endif /* DRS_SMART_OPTIONS */
 
 }
-
-

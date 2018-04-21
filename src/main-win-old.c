@@ -917,7 +917,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 {
 	char tmp[1024];
 
-	int wid, hgt;
+	/* int wid, hgt; Not referenced .. */
 
 	/* Visible */
 	td->visible = (GetPrivateProfileInt(sec_name, "Visible", td->visible, ini_file) != 0);
@@ -1041,7 +1041,7 @@ static int new_palette(void)
 			plog_fmt("Unusable bitmap palette (%d entries)", nEntries);
 
 			/* Cleanup */
-			rnfree(lppe, lppeSize);
+			rnfree(lppe); /*, lppeSize);*/
 
 			/* Fail */
 			return (FALSE);
@@ -1086,14 +1086,14 @@ static int new_palette(void)
 	}
 
 	/* Free something */
-	if (lppe) rnfree(lppe, lppeSize);
+	if (lppe) rnfree(lppe); /*, lppeSize);*/
 
 	/* Create a new palette, or fail */
 	hNewPal = CreatePalette(pLogPal);
 	if (!hNewPal) quit("Cannot create palette!");
 
 	/* Free the palette */
-	rnfree(pLogPal, pLogPalSize);
+	rnfree(pLogPal); /* , pLogPalSize); */
 
 	/* Main window */
 	td = &data[0];
@@ -1266,15 +1266,13 @@ static void term_window_resize(term_data *td)
 */
 static errr term_force_font(term_data *td, cptr path)
 {
-	int i;
+	/* int i;HDC hdc; */
 
 	int wid, hgt;
 
 	char *base;
 
 	char buf[1024];
-
-	HDC hdc;
 
 	/* Forget the old font (if needed) */
 	if (td->font_id) DeleteObject(td->font_id);
@@ -2314,6 +2312,7 @@ static void term_data_link(term_data *td)
 	t->curs_hook = Term_curs_win;
 	t->wipe_hook = Term_wipe_win;
 	t->text_hook = Term_text_win;
+	/* Hack^3, wish I could say I knew the impact */
 	t->pict_hook = Term_pict_win;
 
 	/* Remember where we came from */
@@ -2336,8 +2335,7 @@ static void init_windows(void)
 
 	term_data *td;
 
-	char buf[1024];
-
+	/* char buf[1024]; */
 
 	/* Main window */
 	td = &data[0];

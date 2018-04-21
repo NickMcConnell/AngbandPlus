@@ -68,7 +68,7 @@
 
 # Version stamp (required)
 
-V:0.8.7
+V:0.8.8
 
 #####################################################################################################################
 #######################################                                       #######################################
@@ -104,9 +104,9 @@ F:SPEED
 F:SEE_INVIS | HOLD_LIFE | RES_POIS
 F:INSTA_ART | ACTIVATE
 
-#Gem ofAugustine of Hippo, random stuff 
+#Gem of Augustine of Hippo, or Austin, random stuff 
 #define ART_HIPPO        3
-N:3:of Hippo
+N:3:of Austin
 I:39:6:3
 W:50:50:5:70000
 P:0:1d1:0:0:0
@@ -884,7 +884,7 @@ F:SLAY_DEMON | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
 #I lost the reference, if anybody finds out who Montoya could be ...
 #John is the most contemporary person in this game
 N:73:of Homer
-I:23:20:0
+I:23:21:0
 W:15:8:40:15000
 P:0:1d6:12:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
@@ -1049,9 +1049,9 @@ P:0:4d6:-40:-60:-50
 F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR |
 F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | TY_CURSE | LITE
 
-# The Katana of the East
+# The Tulwar of the East
 N:90:of the East
-I:23:20:3
+I:23:15:3
 W:30:25:50:75000
 P:0:8d4:0:0:0
 F:DEX | HIDE_TYPE | BLOWS | VORPAL |
@@ -1415,7 +1415,7 @@ F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 
 # The Lucerne Hammer 'Justice'
 N:123:'Justice'
-I:21:10:4
+I:21:8:4
 W:20:15:120:30000
 P:0:2d5:10:6:8
 F:WIS | INFRA | HIDE_TYPE | 

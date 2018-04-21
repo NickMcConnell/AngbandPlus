@@ -11,14 +11,14 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 #include "angband.h"
 #define SAFE_MAX_ATTEMPTS 5000
@@ -337,10 +337,6 @@ void replace_friend(int m_idx)
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
 			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
 
-			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-				(cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
-
 			/* This grid looks good */
 			look = FALSE;
 
@@ -355,7 +351,7 @@ void replace_friend(int m_idx)
 		min = min / 2;
 	}
 
-	if (attempts < 1) 
+	if (attempts < 1)
 	{
 		char m_name[80];
 		monster_desc(m_name,m_ptr,0x80);
@@ -450,13 +446,13 @@ static bool new_player_spot(void)
 
 		/* Refuse to start on anti-teleport grids */
 		if (cave[y][x].info & (CAVE_ICKY)) continue;
-		
+
 		/*Refuse to place the player in the center of Satan's level*/
 		if( dun_level == DIS_END - 1 )
 		{
-			if( x > (cur_wid>>3) && 
-				x < cur_wid - (cur_wid>>3) && 
-				y > (cur_hgt>>3) && 
+			if( x > (cur_wid>>3) &&
+				x < cur_wid - (cur_wid>>3) &&
+				y > (cur_hgt>>3) &&
 				y < cur_hgt - (cur_hgt>>3) )
 				continue;
 		}
@@ -576,7 +572,7 @@ static void place_locked_door(int y, int x)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Create locked door */
-	c_ptr->feat = FEAT_DOOR_HEAD + randint(7);
+	c_ptr->feat = FEAT_DOOR_HEAD + (byte_hack)randint(7);
 }
 
 
@@ -636,7 +632,7 @@ static void place_random_door(int y, int x)
 	else if (tmp < 999)
 	{
 		/* Create locked door */
-		c_ptr->feat = FEAT_DOOR_HEAD + randint(7);
+		c_ptr->feat = FEAT_DOOR_HEAD + (byte_hack)randint(7);
 	}
 
 	/* Stuck doors (1/1000) */
@@ -912,7 +908,7 @@ static void destroy_level(void)
 
 	/* Note destroyed levels */
 	if (debug_room) msg_print("Destroyed Level");
-	
+
 	/* Satan's level is extremely destroyed */
 	if( dun_level == DIS_END-1 )
 	{
@@ -1130,7 +1126,7 @@ static void vault_monsters(int y1, int x1, int num)
 			int d = 1;
 
 			/* Pick a nearby location */
-			scatter(&y, &x, y1, x1, d, 0);
+			scatter(&y, &x, y1, x1, d);
 
 			/* Require "empty" floor grids */
 			if (!cave_empty_bold(y, x)) continue;
@@ -1952,17 +1948,17 @@ static void build_type4(int yval, int xval)
 static bool vault_aux_snake(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-	
+
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
-	
+
 	/* Also decline evil jellies (like death molds and shoggoths) */
 	/* Well, evil snakes are more than welcome */
 	/* if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE); */
-	
+
 	/* Require snakes */
 	if (!strchr("J", r_ptr->d_char)) return (FALSE);
-	
+
 	/* Okay */
 	return (TRUE);
 }
@@ -2186,13 +2182,13 @@ static bool vault_aux_demon(int r_idx)
 static bool vault_aux_minordemon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-	
+
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
-	
+
 	/* Hack -- Require "U" monsters */
 	if (!strchr("u", r_ptr->d_char)) return (FALSE);
-	
+
 	/* Okay */
 	return (TRUE);
 }
@@ -2884,6 +2880,9 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 
 	cave_type *c_ptr;
 
+	/* My goodness, how did players survive ;) */
+	if( yval - ( ymax / 2 ) < 0 ) return;
+	if( xval - ( xmax / 2 ) < 0 ) return;
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
@@ -3026,31 +3025,14 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 				}
 
 			case 'p':
-				cave_set_feat(y, x, FEAT_PATTERN_START);
-				break;
-
 			case 'a':
-				cave_set_feat(y, x, FEAT_PATTERN_1);
-				break;
-
 			case 'b':
-				cave_set_feat(y, x, FEAT_PATTERN_2);
-				break;
-
 			case 'c':
-				cave_set_feat(y, x, FEAT_PATTERN_3);
-				break;
-
 			case 'd':
-				cave_set_feat(y, x, FEAT_PATTERN_4);
-				break;
-
 			case 'P':
-				cave_set_feat(y, x, FEAT_PATTERN_END);
-				break;
-
 			case 'B':
-				cave_set_feat(y, x, FEAT_PATTERN_XTRA1);
+				/* Replace the pattern with water */
+				cave_set_feat(y, x, FEAT_WATER);
 				break;
 
 			case 'A':
@@ -3096,7 +3078,6 @@ static void build_type7(int yval, int xval)
 		return;
 	}
 
-
 #ifdef FORCE_V_IDX
 	v_ptr = &v_info[2];
 #endif
@@ -3117,7 +3098,6 @@ static void build_type7(int yval, int xval)
 	/* Hack -- Build the vault */
 	build_vault(yval, xval, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 }
-
 
 
 /*
@@ -3639,22 +3619,21 @@ static bool cave_gen(void)
 
 	if (!(max_panel_rows)) max_vault_ok--;
 	if (!(max_panel_cols)) max_vault_ok--;
-	
-	/* These are the rules of Dis : 
+
+	/* These are the rules of Dis :
 	   There shall be no vaults in Dis
 	   There shall be no quests in Dis
 	   There shall be no empty levels in Dis
 	   There shall be no destroyed levels in Dis
-	*/	
-	
+	*/
+
 	if ( dun_level > DIS_START && dun_level < DIS_END )
 	{
 		shielded_level = TRUE;
-		max_vault_ok = 0; 
+		max_vault_ok = 0;
 	}else{
 		shielded_level = FALSE;
 	}
- 
 
 	if ((randint(EMPTY_LEVEL)==1) && empty_levels && shielded_level == FALSE )
 	{
@@ -3663,15 +3642,13 @@ static bool cave_gen(void)
 			msg_print("Arena level.");
 	}
 
-	
 	/* Determine whether to start with granite or with floor */
 	if (empty_level)
 		/* Create granite wall */
 		base_feat = FEAT_FLOOR;
 	else
 		/* Create granite wall */
-		base_feat = FEAT_WALL_EXTRA;	
-
+		base_feat = FEAT_WALL_EXTRA;
 
 	/* Hack -- Start with basic granite or floor */
 	for (y = 0; y < cur_hgt; y++)
@@ -3687,7 +3664,7 @@ static bool cave_gen(void)
 	/* Possible "destroyed" level */
 	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (small_levels) && shielded_level == FALSE)
 		destroyed = TRUE;
-	
+
 	/*The level with Satan is destroyed*/
 	if( dun_level == DIS_END-1 )
 		destroyed = TRUE;
@@ -3959,10 +3936,10 @@ static bool cave_gen(void)
 
 	i += randint(8);
 
-	/* 
-	   Put some monsters in the dungeon 
-	   Used to be i = i + k  
-	   Then, because sometimes no monster might be found and we wanted to decrease for sure 
+	/*
+	   Put some monsters in the dungeon
+	   Used to be i = i + k
+	   Then, because sometimes no monster might be found and we wanted to decrease for sure
 	   it became i = (i + k)*2
 	   but because of previous shenanigans, the dungeon starts to look empty or sparse
 	   so I upped it just a tad ;)
@@ -4015,8 +3992,6 @@ static bool cave_gen(void)
 	return TRUE;
 
 }
-
-
 
 /*
 * Builds a store at a given (row, column)
@@ -4402,12 +4377,12 @@ void generate_cave(void)
 		if (dun_level == 0)
 		{
 			/* Small town */
-			cur_hgt = (2*SCREEN_HGT);
-			cur_wid = (SCREEN_WID);
+			cur_hgt = (2*DUNGEON_HGT);
+			cur_wid = (DUNGEON_WID);
 
 			/* Determine number of panels */
-			max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-			max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+			max_panel_rows = (cur_hgt / DUNGEON_HGT) * 2 - 2;
+			max_panel_cols = (cur_wid / DUNGEON_WID) * 2 - 2;
 
 			/* Assume illegal panel */
 			panel_row = max_panel_rows;
@@ -4425,15 +4400,15 @@ void generate_cave(void)
 			{
 				if (debug_room)
 					msg_print ("A 'small' dungeon level.");
-				tester_1 = randint(MAX_HGT/SCREEN_HGT);
-				tester_2 = randint(MAX_WID/SCREEN_WID);
+				tester_1 = randint(MAX_HGT/DUNGEON_HGT);
+				tester_2 = randint(MAX_WID/DUNGEON_WID);
 
-				cur_hgt = tester_1 * SCREEN_HGT;
-				cur_wid = tester_2 * SCREEN_WID;
+				cur_hgt = tester_1 * DUNGEON_HGT;
+				cur_wid = tester_2 * DUNGEON_WID;
 
 				/* Determine number of panels */
-				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+				max_panel_rows = (cur_hgt / DUNGEON_HGT) * 2 - 2;
+				max_panel_cols = (cur_wid / DUNGEON_WID) * 2 - 2;
 
 				/* Assume illegal panel */
 				panel_row = max_panel_rows;
@@ -4449,8 +4424,8 @@ void generate_cave(void)
 				cur_wid = MAX_WID;
 
 				/* Determine number of panels */
-				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+				max_panel_rows = (cur_hgt / DUNGEON_HGT) * 2 - 2;
+				max_panel_cols = (cur_wid / DUNGEON_WID) * 2 - 2;
 
 				/* Assume illegal panel */
 				panel_row = max_panel_rows;
@@ -4549,4 +4524,3 @@ void generate_cave(void)
 	/* Remember when this level was "created" */
 	old_turn = turn;
 }
-

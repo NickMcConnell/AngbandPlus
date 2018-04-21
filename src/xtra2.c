@@ -10,19 +10,16 @@
  * are included in all such copies.
  *
  * James E. Wilson and Robert A. Koeneke and Ben Harrison have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
-
-#define REWARD_CHANCE 10
-
 
 extern void do_poly_self();
 extern void do_poly_wounds();
@@ -41,63 +38,63 @@ extern void do_cmd_wiz_cure_all(void);
 bool set_stun( int v)
 {
 	int old_aux, new_aux;
-	
+
 	bool notice = FALSE;
-	
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-	
+
 	if (p_ptr->prace == GUARDIAN)
 		v = 0;
-	
+
 	/* Knocked out */
 	if (p_ptr->stun > 100)
 	{
 		old_aux = 3;
 	}
-	
+
 	/* Heavy stun */
 	else if (p_ptr->stun > 50)
 	{
 		old_aux = 2;
 	}
-	
+
 	/* Stun */
 	else if (p_ptr->stun > 0)
 	{
 		old_aux = 1;
 	}
-	
+
 	/* None */
 	else
 	{
 		old_aux = 0;
 	}
-	
+
 	/* Knocked out */
 	if (v > 100)
 	{
 		new_aux = 3;
 	}
-	
+
 	/* Heavy stun */
 	else if (v > 50)
 	{
 		new_aux = 2;
 	}
-	
+
 	/* Stun */
 	else if (v > 0)
 	{
 		new_aux = 1;
 	}
-	
+
 	/* None */
 	else
 	{
 		new_aux = 0;
 	}
-	
+
 	/* Increase cut */
 	if (new_aux > old_aux)
 	{
@@ -108,21 +105,21 @@ bool set_stun( int v)
 			case 1:
 				msg_print("You have been stunned.");
 				break;
-				
+
 				/* Heavy stun */
 			case 2:
 				msg_print("You have been heavily stunned.");
 				break;
-				
+
 				/* Knocked out */
 			case 3:
 				msg_print("You have been knocked out.");
 				break;
 		}
-		
+
 		if (randint(1000)<v || randint(16)==1)
 		{
-			
+
 			msg_print("A vicious blow hits your head.");
 			if(randint(3)==1)
 			{
@@ -138,11 +135,11 @@ bool set_stun( int v)
 				if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS); }
 			}
 		}
-		
+
 		/* Notice */
 		notice = TRUE;
 	}
-	
+
 	/* Decrease cut */
 	else if (new_aux < old_aux)
 	{
@@ -155,29 +152,29 @@ bool set_stun( int v)
 				if (disturb_state) disturb(0, 0);
 					break;
 		}
-		
+
 		/* Notice */
 		notice = TRUE;
 	}
-	
+
 	/* Use the value */
 	p_ptr->stun = v;
-	
+
 	/* No change */
 	if (!notice) return (FALSE);
-	
+
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-	
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-	
+
 	/* Redraw the "stun" */
 	p_ptr->redraw |= (PR_STUN);
-	
+
 	/* Handle stuff */
 	handle_stuff();
-	
+
 	/* Result */
 	return (TRUE);
 }
@@ -190,114 +187,114 @@ bool set_stun( int v)
 bool set_cut(int v)
 {
 	int old_aux, new_aux;
-	
+
 	bool notice = FALSE;
-	
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-	
+
 	if (p_ptr->prace == GUARDIAN || p_ptr->prace == SKELETON ||
 		p_ptr->prace == SPECTRE )
 		v = 0;
 	else if (p_ptr->prace == MUMMY && p_ptr->lev > 11)
 		v = 0;
-	
+
 	/* Mortal wound */
 	if (p_ptr->cut > 1000)
 	{
 		old_aux = 7;
 	}
-	
+
 	/* Deep gash */
 	else if (p_ptr->cut > 200)
 	{
 		old_aux = 6;
 	}
-	
+
 	/* Severe cut */
 	else if (p_ptr->cut > 100)
 	{
 		old_aux = 5;
 	}
-	
+
 	/* Nasty cut */
 	else if (p_ptr->cut > 50)
 	{
 		old_aux = 4;
 	}
-	
+
 	/* Bad cut */
 	else if (p_ptr->cut > 25)
 	{
 		old_aux = 3;
 	}
-	
+
 	/* Light cut */
 	else if (p_ptr->cut > 10)
 	{
 		old_aux = 2;
 	}
-	
+
 	/* Graze */
 	else if (p_ptr->cut > 0)
 	{
 		old_aux = 1;
 	}
-	
+
 	/* None */
 	else
 	{
 		old_aux = 0;
 	}
-	
+
 	/* Mortal wound */
 	if (v > 1000)
 	{
 		new_aux = 7;
 	}
-	
+
 	/* Deep gash */
 	else if (v > 200)
 	{
 		new_aux = 6;
 	}
-	
+
 	/* Severe cut */
 	else if (v > 100)
 	{
 		new_aux = 5;
 	}
-	
+
 	/* Nasty cut */
 	else if (v > 50)
 	{
 		new_aux = 4;
 	}
-	
+
 	/* Bad cut */
 	else if (v > 25)
 	{
 		new_aux = 3;
 	}
-	
+
 	/* Light cut */
 	else if (v > 10)
 	{
 		new_aux = 2;
 	}
-	
+
 	/* Graze */
 	else if (v > 0)
 	{
 		new_aux = 1;
 	}
-	
+
 	/* None */
 	else
 	{
 		new_aux = 0;
 	}
-	
+
 	/* Increase cut */
 	if (new_aux > old_aux)
 	{
@@ -308,53 +305,53 @@ bool set_cut(int v)
 			case 1:
 				msg_print("You have been given a graze.");
 				break;
-				
+
 				/* Light cut */
 			case 2:
 				msg_print("You have been given a light cut.");
 				break;
-				
+
 				/* Bad cut */
 			case 3:
 				msg_print("You have been given a bad cut.");
 				break;
-				
+
 				/* Nasty cut */
 			case 4:
 				msg_print("You have been given a nasty cut.");
 				break;
-				
+
 				/* Severe cut */
 			case 5:
 				msg_print("You have been given a severe cut.");
 				break;
-				
+
 				/* Deep gash */
 			case 6:
 				msg_print("You have been given a deep gash.");
 				break;
-				
+
 				/* Mortal wound */
 			case 7:
 				msg_print("You have been given a mortal wound.");
 				break;
 		}
-		
+
 		/* Notice */
 		notice = TRUE;
-		
+
 		if (randint(1000)<v || randint(16)==1)
-		{ 
+		{
 			if(!p_ptr->sustain_cha)
 			{
 				msg_print("You have been horribly scarred.");
-				
+
 				do_dec_stat(A_CHA);
 			}
 		}
-		
+
 	}
-		
+
 	/* Decrease cut */
 	else if (new_aux < old_aux)
 	{
@@ -367,29 +364,29 @@ bool set_cut(int v)
 				if (disturb_state) disturb(0, 0);
 					break;
 		}
-		
+
 		/* Notice */
 		notice = TRUE;
 	}
-	
+
 	/* Use the value */
 	p_ptr->cut = v;
-	
+
 	/* No change */
 	if (!notice) return (FALSE);
-	
+
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-	
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-	
+
 	/* Redraw the "cut" */
 	p_ptr->redraw |= (PR_CUT);
-	
+
 	/* Handle stuff */
 	handle_stuff();
-	
+
 	/* Result */
 	return (TRUE);
 }
@@ -399,23 +396,27 @@ bool set_timed_effect( byte effect , int v )
 	/* Is there a noticable change ( nothing is noticed only if duration is increased */
 	bool notice = FALSE;
 	/* Access data of the timed effect */
-	timed_type *te_ptr = &timed[effect];	
-	
+	timed_type *te_ptr = &timed[effect];
+
 	/*Some timed effects are not that easy*/
 	if( effect == TIMED_CUT )
 		return set_cut(v);
 	if( effect == TIMED_STUN )
 		return set_stun(v);
+	if( effect == TIMED_OPPOSE_CONF )
+		set_timed_effect( TIMED_CONFUSED , 0);
+	if( effect == TIMED_OPPOSE_FEAR )
+		set_timed_effect( TIMED_AFRAID , 0);
 
 	/* paranoid , check the effect index  */
 	if( effect >= TIMED_COUNT )
 	{
 		msg_note("Trying to access an unknown timed effect");
 	}
-	
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-	
+
 	/* Start effect */
 	if (v)
 	{
@@ -425,7 +426,7 @@ bool set_timed_effect( byte effect , int v )
 			notice = TRUE;
 		}
 	}
-	
+
 	/* Shut down effect */
 	else
 	{
@@ -435,36 +436,35 @@ bool set_timed_effect( byte effect , int v )
 			notice = TRUE;
 		}
 	}
-	
+
 	/* Use the value */
 	*( te_ptr->timer ) = v;
-	
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
-	
+
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-	
+
 	/* Update stuff */
 	p_ptr->update |= te_ptr->update;
-	
+
 	/* Redraw stuff */
 	p_ptr->redraw |= te_ptr->redraw;
-	
+
 	/* Window stuff, Hack !! */
 	if( effect == TIMED_BLIND || effect == TIMED_IMAGE || effect == TIMED_INVULN || effect == TIMED_WRAITH_FORM )
 		p_ptr->window |= (PW_OVERHEAD);
-	
+
     /* Window stuff, hack if we need to update monsters, we better update the visible monsters window*/
     if( te_ptr->update & PU_MONSTERS )
-		p_ptr->window |= (PW_VISIBLE);    
-    
+		p_ptr->window |= (PW_VISIBLE);
+
 	/* Handle stuff */
 	handle_stuff();
-	
+
 	/* Result */
 	return (TRUE);
-
 }
 
 /*
@@ -670,14 +670,8 @@ bool set_food(int v)
 */
 void check_experience(void)
 {
-	int		i;
 	bool level_reward = FALSE;
 	bool level_corruption = FALSE;
-
-
-	/* Note current level */
-	i = p_ptr->lev;
-
 
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -765,14 +759,15 @@ void check_experience(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 		p_ptr->window |= (PW_SPELL);
-		
+
 		/* Handle stuff */
 		handle_stuff();
-		
+
 		/* Give the player the good news */
 		msg_format("You feel magically reinvigorated.");
 		/* Cure the player completely */
 		(void)do_cmd_wiz_cure_all();
+
 		if(level_reward)
 		{
 			gain_level_reward(0);
@@ -793,6 +788,18 @@ void check_experience(void)
 */
 void gain_exp(s32b amount)
 {
+	/* Have the weapon gain some xp first */
+	{
+		object_type *o_ptr = &inventory[INVEN_WIELD];
+		u32b f1, f2, f3;
+		object_flags(o_ptr, &f1, &f2, &f3);
+		if( o_ptr->k_idx && o_ptr->tval && (f3 & TR3_XP) )
+		{
+			o_ptr->exp += 2 * amount / 3;
+			check_experience_obj( o_ptr );
+		}
+	}
+
 	/* Gain some experience */
 	p_ptr->exp += amount;
 
@@ -858,6 +865,35 @@ static int get_coin_type(monster_race *r_ptr)
 	return (0);
 }
 
+void calculate_xp(monster_race *r_ptr, s32b *exp , s32b *exp_frac)
+{
+	s32b div;
+
+	/* Start from zero to prevent all kinds of bugs */
+	*exp = 0;
+	*exp_frac = 0;
+
+	/*No exp for reborns */
+	if( (r_ptr->flags7 & RF7_REBORN) && ( r_ptr->r_pkills > 0 ) ) return;
+
+	/* Maximum player level */
+	div = 10*p_ptr->max_plv;
+
+	if (r_ptr->r_pkills >= 19) div = div * 2; /* Half experience for common monsters */
+	if (r_ptr->r_pkills ==  0) div = div / 3; /* Triple experience for first kill */
+	if (r_ptr->r_pkills ==  1) div = div / 2; /* Double experience for third kill */
+	if (r_ptr->r_pkills ==  2) div = div / 2; /* Double experience for second kill */
+
+	/* don't divide by 0 */
+	if (div < 1) div = 1;
+
+	/* Give some experience for the kill */
+	*exp = ((long)r_ptr->mexp * r_ptr->level*10) / div;
+
+	/* Handle fractional experience */
+	*exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div) * 0x10000L / div);
+}
+
 
 /*
 * Handle the "death" of a monster.
@@ -909,6 +945,7 @@ void monster_death(int m_idx)
 
     /* Update monster list window */
 	p_ptr->window |= (PW_VISIBLE);
+	p_ptr->window |= (PW_MONSTER);
 
 	/* Get the location */
 	y = m_ptr->fy;
@@ -1129,9 +1166,9 @@ void monster_death(int m_idx)
 			/* Make some gold */
 			if (!make_gold(q_ptr)) continue;
 
-			/* Unique only golds should give loads of gold */
+			/* Unique only golds should give loads of gold, make sure there is no overflow */
 			if( ( r_ptr->flags1 & (RF1_UNIQUE) ) && (r_ptr->flags1 & (RF1_ONLY_GOLD)) )
-				q_ptr->pval = q_ptr->pval * q_ptr->pval;
+				q_ptr->pval = (q_ptr->pval * q_ptr->pval > 25193 ) ? 25193 : q_ptr->pval * q_ptr->pval;
 
 			/* XXX XXX XXX */
 			dump_gold++;
@@ -1197,7 +1234,7 @@ void monster_death(int m_idx)
 			int d = 1;
 
 			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
+			scatter(&ny, &nx, y, x, d);
 
 			/* Stagger */
 			y = ny; x = nx;
@@ -1265,13 +1302,11 @@ void monster_death(int m_idx)
 */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
 	char tmp[1024];
-
-	monster_type	*m_ptr = &m_list[m_idx];
-
-	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
-
-	s32b		div, new_exp, new_exp_frac;
+	s32b new_exp, new_exp_frac;
 
 	/* Redraw (later) if needed */
 	if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1313,7 +1348,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 				}
 				else
 				/* Oops, I feel bad for monks.. */
-				{				
+				{
 					curse_equipment(100, 50);
 					do { activate_ty_curse(); } while (--curses);\
 				}
@@ -1352,51 +1387,27 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			msg_format("You have slain %s.", m_name);
 		}
 
-		/* Maximum player level */
-		div = 10*p_ptr->max_plv;
+		/* Get the experience for that monster with current player level */
+		calculate_xp( r_ptr , &new_exp , &new_exp_frac );
 
-		/* Half experience for common monsters */
-		if(r_ptr->r_pkills >= 19) 
-		{
-			div = div * 2;
-		}
-		/* Triple experience for first kill */
-		if(r_ptr->r_pkills == 0)
-		{
-			div = div / 3;
-		}
-		/* double experience for second or third kill */
-		if (r_ptr->r_pkills == 1) 
-		{
-			div = div /2;
-		}
-		if (r_ptr->r_pkills == 2) 
-		{
-			div = div/2;
-		}
-		/* don't divide by 0 */
-		if (div < 1) div = 1;
-		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level*10) / div;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-			* 0x10000L / div) + p_ptr->exp_frac;
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-		}
-		else
-		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
-		}
-		
 		/*No exp or treasure for reborns */
 		if(!((r_ptr->flags7 & (RF7_REBORN)) && r_ptr->r_pkills > 0 ))
 		{
+
+			/* Handle fractional experience */
+			new_exp_frac += p_ptr->exp_frac;
+
+			/* Keep track of experience, overflowing if needed */
+			if (new_exp_frac >= 0x10000L)
+			{
+				new_exp++;
+				p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+			}
+			else
+			{
+				p_ptr->exp_frac = (u16b)new_exp_frac;
+			}
+
 			/* Gain experience */
 			gain_exp(new_exp);
 			/* Generate treasure */
@@ -1435,9 +1446,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Delete the monster */
 		delete_monster_idx(m_idx,TRUE);
-        
+
         /* Update monster list window */
-        p_ptr->window |= (PW_VISIBLE);        
+        p_ptr->window |= (PW_VISIBLE);
+		/* Dead monster, update potential xp decreases and stuff */
+		p_ptr->window |= (PW_MONSTER);
+		/* I hate sprinkling handle_stuffs until it works..*/
+		handle_stuff();
 
 		/* Not afraid */
 		(*fear) = FALSE;
@@ -1491,7 +1506,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			(*fear) = TRUE;
 
 			/* XXX XXX XXX Hack -- Add some timed fear */
-			m_ptr->monfear = (randint(10) +
+			m_ptr->monfear = (byte_hack)(randint(10) +
 				(((dam >= m_ptr->hp) && (percentage > 7)) ?
 				20 : ((11 - percentage) * 5)));
 		}
@@ -1499,12 +1514,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 #endif
 
-
 	/* Not dead yet */
 	return (FALSE);
 }
 
 
+#define PANEL_SIZE 11
+#define PANEL_SCROLL_WIDTH PANEL_SIZE *3
+#define PANEL_SCROLL_HEIGHT PANEL_SIZE *2
 
 /*
 * Calculates current boundaries
@@ -1515,9 +1532,11 @@ void panel_bounds(void)
 	panel_row_min = panel_row * (SCREEN_HGT / 2);
 	panel_row_max = panel_row_min + SCREEN_HGT - 1;
 	panel_row_prt = panel_row_min - 1;
-	panel_col_min = panel_col * (SCREEN_WID / 2);
+
+/* min used to be SCREEN_WID / 2, since SCREEN_WID used to be 66..  */
+	panel_col_min = panel_col * (SCREEN_WID /2);
 	panel_col_max = panel_col_min + SCREEN_WID - 1;
-	panel_col_prt = panel_col_min - 13;
+	panel_col_prt = panel_col_min /*- 13*/;
 }
 
 void panel_bounds_center(void)
@@ -1525,9 +1544,10 @@ void panel_bounds_center(void)
 	panel_row = panel_row_min / (SCREEN_HGT / 2);
 	panel_row_max = panel_row_min + SCREEN_HGT - 1;
 	panel_row_prt = panel_row_min - 1;
+
 	panel_col = panel_col_min / (SCREEN_WID / 2);
 	panel_col_max = panel_col_min + SCREEN_WID - 1;
-	panel_col_prt = panel_col_min - 13;
+	panel_col_prt = panel_col_min /*- 13*/;
 }
 
 
@@ -1577,10 +1597,21 @@ void verify_panel(void)
 	{
 
 		int prow = panel_row;
-		int pcol = panel_col;
+		int pcol = panel_col;;
+
+		/*
+		* In the olden days, a 25 line screen used to scroll 2 spaces of the horizontal edges,
+		* and a 80 column screen used to scroll 4 spaces of the vertical edges
+		* These numbers seem stupid now, so why not use the player view distance?
+		* Though that actually does not really work for the original size screen..
+		* So we just scale the original values
+		*/
+
+		int row_trigger = SCREEN_HGT * 2 / 25;
+		int col_trigger = SCREEN_WID * 4 / 80;
 
 		/* Scroll screen when 2 grids from top/bottom edge */
-		if ((y < panel_row_min + 2) || (y > panel_row_max - 2))
+		if ((y < panel_row_min + row_trigger) || (y > panel_row_max - row_trigger))
 		{
 			prow = ((y - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
 			if (prow > max_panel_rows) prow = max_panel_rows;
@@ -1588,7 +1619,7 @@ void verify_panel(void)
 		}
 
 		/* Scroll screen when 4 grids from left/right edge */
-		if ((x < panel_col_min + 4) || (x > panel_col_max - 4))
+		if ((x < panel_col_min + col_trigger) || (x > panel_col_max - col_trigger))
 		{
 			pcol = ((x - SCREEN_WID / 4) / (SCREEN_WID / 2));
 			if (pcol > max_panel_cols) pcol = max_panel_cols;
@@ -1934,14 +1965,15 @@ static bool target_set_accept(int y, int x)
 
 	s16b this_o_idx, next_o_idx = 0;
 
+	/* More Paranoia */
+	if( x >= MAX_WID ) return FALSE;
+	if( y >= MAX_HGT ) return FALSE;
 
 	/* Player grid is always interesting */
 	if ((y == py) && (x == px)) return (TRUE);
 
-
 	/* Handle hallucination */
 	if (p_ptr->image) return (FALSE);
-
 
 	/* Examine the grid */
 	c_ptr = &cave[y][x];
@@ -1976,11 +2008,6 @@ static bool target_set_accept(int y, int x)
 		/* Notice glyphs */
 		if (c_ptr->feat == FEAT_GLYPH) return (TRUE);
 		if (c_ptr->feat == FEAT_MINOR_GLYPH) return (TRUE);
-
-		/* Notice the Pattern */
-		if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
-			(c_ptr->feat >= FEAT_PATTERN_START))
-			return (TRUE);
 
 		/* Notice doors */
 		if (c_ptr->feat == FEAT_OPEN) return (TRUE);
@@ -2199,7 +2226,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 							s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx),
 							(m_ptr->smart & SM_CLONED ? " (clone)": ""),
 							(is_ally( m_ptr ) ? " (allied) " : " "),
-							(m_ptr->ally & ALLY_SELF ? " (neutral) " : " "),								
+							(m_ptr->ally & ALLY_SELF ? " (neutral) " : " "),
 							info);
 
 						prt(out_val, 0, 0);
@@ -2274,6 +2301,11 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			}
 		}
 
+		if( c_ptr->o_idx )
+		{
+			term_show_most_expensive_item( x , y , "There is" );
+			window_stuff();
+		}
 
 		/* Scan all objects in the grid */
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2343,8 +2375,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-			if (*s2 && ((feat >= FEAT_MINOR_GLYPH) &&
-				(feat <= FEAT_PATTERN_XTRA2))) s2 = "on ";
+			if (*s2 && (feat == FEAT_MINOR_GLYPH || feat == FEAT_GLYPH)) s2 = "on ";
 			else if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
 
 			/* Pick proper indefinite article */
@@ -2436,10 +2467,8 @@ bool target_set(int mode)
 	/* Cancel target */
 	target_who = 0;
 
-
 	/* Cancel tracking */
 	/* health_track(0); */
-
 
 	/* Prepare the "temp" array */
 	target_set_prepare(mode);
@@ -2473,9 +2502,6 @@ bool target_set(int mode)
 
 			/* Describe and Prompt */
 			query = target_set_aux(y, x, mode, info);
-
-			/* Cancel tracking */
-			/* health_track(0); */
 
 			/* Assume no "direction" */
 			d = 0;
@@ -2899,347 +2925,372 @@ int get_evil_patron()
 	return (((p_ptr->age)+(p_ptr->sc))%MAX_PATRON);
 }
 
-void gain_level_reward(int chosen_reward)
+int patron_poly_self()
 {
-	int type, effect;
-	char wrath_reason[32] = "";
-	int dummy = 0, dummy2 = 0;
+		msg_format("The voice of %s booms out: 'Thou needst a new form!'", patrons[p_ptr->evil_patron].short_name);
+		do_poly_self();
+		return 1;
+}
+
+int patron_poly_gain_exp()
+{
+	msg_format("The voice of %s booms out: 'Well done! Lead on!'", patrons[p_ptr->evil_patron].short_name);
+	if (p_ptr->lev < PY_MAX_LEVEL)
+	{
+		s32b ee = (p_ptr->exp / 2) + 10;
+		if (ee > 100000L) ee = 100000L;
+		msg_print("You feel more experienced.");
+		gain_exp(ee);
+		return 1;
+	}
+	return 0;
+}
+
+int patron_poly_loose_exp()
+{
+	msg_format("The voice of %s booms out: Thou does not deserve that power just yet!", patrons[p_ptr->evil_patron].short_name);
+	/* Lose some experience */
+	p_ptr->max_exp -= p_ptr->max_exp / 6;
+	if( p_ptr->exp > p_ptr->max_exp )
+		p_ptr->exp = p_ptr->max_exp;
+	/* Check Experience */
+	check_experience();
+	return 1;
+}
+
+int patron_great_object()
+{
+	if (p_ptr->lev < PY_MAX_LEVEL - 10 )
+	{
+		msg_format("The voice of %s booms out: 'Use my gift wisely.'", patrons[p_ptr->evil_patron].short_name);
+		acquirement(py, px, 1, TRUE);
+		return 1;
+	}
+	return 0;
+}
+
+int patron_great_objects()
+{
+	if (p_ptr->lev < PY_MAX_LEVEL - 5 )
+	{
+		msg_format("The voice of %s booms out: 'Behold, how generously I reward thy loyalty.'",patrons[p_ptr->evil_patron].short_name);
+		acquirement(py, px, randint(2) + 3, TRUE);
+		return 1;
+	}
+	return 0;
+}
+
+int patron_ty_curse()
+{
+	msg_format("The voice of %s whispers: 'Power requires suffering, true power requires true suffering.'",patrons[p_ptr->evil_patron].short_name);
+	activate_ty_curse();
+	return 1;
+}
+
+static int patron_chaos_weapon()
+{
 	object_type *q_ptr;
 	object_type forge;
-	int nasty_chance = 6;
+	int dummy = 0, dummy2 = 0;
 
+	msg_format("The voice of %s booms out: 'Thy deed hath earned thee a worthy blade.'",patrons[p_ptr->evil_patron].short_name);
+	/* Get local object */
+	q_ptr = &forge;
+	dummy = TV_SWORD;
+	switch(randint(p_ptr->lev))
+	{
+		case 1: case 2: case 0:    dummy2 = SV_DAGGER;             break;
+		case 3: case 4:            dummy2 = SV_PARRYING_DAGGER;    break;
+		case 5: case 6:            dummy2 = SV_RAPIER;             break;
+		case 7: case 8:            dummy2 = SV_SMALL_SWORD;        break;
+		case 9: case 10:           dummy2 = SV_SHORT_SWORD;        break;
+		case 11: case 12: case 13: dummy2 = SV_SABRE;              break;
+		case 14: case 15: case 16: dummy2 = SV_CUTLASS;            break;
+		case 17: case 27:          dummy2 = SV_TULWAR;             break;
+		case 18: case 19: case 20: dummy2 = SV_BROAD_SWORD;        break;
+		case 21: case 22: case 23: dummy2 = SV_LONG_SWORD;         break;
+		case 24: case 25: case 26: dummy2 = SV_SCIMITAR;           break;
+		case 28: case 29:          dummy2 = SV_GLADIUS;            break;
+		case 30: case 31:          dummy2 = SV_TWO_HANDED_SWORD;   break;
+		case 32:                   dummy2 = SV_EXECUTIONERS_SWORD; break;
+		default:                   dummy2 = SV_BLADE_OF_CHAOS;
+	}
+	object_prep(q_ptr, lookup_kind(dummy, dummy2));
+	q_ptr->to_h = 3 + (randint(dun_level))%10;
+	q_ptr->to_d = 3 + (randint(dun_level))%10;
+	random_resistance(q_ptr, FALSE, ((randint(34))+4));
+
+	if( randint(p_ptr->lev) > 32 ){
+		create_artefact(q_ptr, FALSE);
+		q_ptr->art_flags2 |= TR2_RES_CHAOS;
+		q_ptr->art_flags2 |= TR2_RES_CONF;
+		q_ptr->art_flags2 |= TR2_RES_DISEN;
+	}else{
+		q_ptr->name2 = EGO_CHAOTIC;
+	}
+	/* Drop it in the dungeon */
+	drop_near(q_ptr, -1, py, px);
+	return 1;
+}
+
+/* Yes, this has become _much_ nastier, you could die. */
+int patron_summon_normal()
+{
+	int dummy;
+	msg_format("The voice of %s booms out: 'You have grown soft, maybe this will keep you sharp.'", patrons[p_ptr->evil_patron].short_name);
+	for (dummy = 0; dummy < p_ptr->lev / 3 + 1; dummy++)
+		(void) summon_specific(py, px, dun_level + p_ptr->lev / 5, 0);
+	return 1;
+}
+
+/* Yes, this has become _much_ nastier, you could die. */
+int patron_summon_deep()
+{
+	int dummy;
+	msg_format("The voice of %s booms out: 'You have grown soft, maybe this will keep you sharp.'", patrons[p_ptr->evil_patron].short_name);
+	for (dummy = 0; dummy < p_ptr->lev / 15 + 1; dummy++)
+		(void) summon_specific(py, px, dun_level + 15, 0);
+	return 1;
+}
+
+int patron_havoc()
+{
+	msg_format("The voice of %s booms out: 'Death and destruction! This pleaseth me!'", patrons[p_ptr->evil_patron].short_name);
+	fire_ball( GF_DISINTEGRATE, 0, 300, 8);
+	call_chaos();
+	return 1;
+}
+
+int patron_destruction()
+{
+		msg_format("The voice of %s booms out: 'Death and destruction! This pleaseth me!'", patrons[p_ptr->evil_patron].short_name);
+		destroy_area(py, px, 25, TRUE);
+		return 1;
+}
+
+int patron_curse_weapon()
+{
+	msg_format("The voice of %s booms out: 'Thou reliest too much on thy weapon.'", patrons[p_ptr->evil_patron].short_name);
+	return curse_weapon();
+}
+
+int patron_curse_armor()
+{
+	msg_format("The voice of %s booms out: 'Thou reliest too much on thine equipment.'", patrons[p_ptr->evil_patron].short_name);
+	return curse_armour();
+}
+
+int patron_hurt(){
+
+	/* TODO: we need to make sure that this does never surpasses 32... */
+	char wrath_reason[32];
+	int damage    = 0;
+	int treshold  = 0;
+	sprintf(wrath_reason, "the Wrath of %s", patrons[p_ptr->evil_patron].short_name);
+
+	/* Inform the player that someone is really unhappy */
+	msg_format("The voice of %s thunders: 'You no longer serve my purposes!'" , patrons[p_ptr->evil_patron].short_name);
+
+	/* Make sure that at least 10% of the hp are left, a fighting chance.. */
+	damage   = p_ptr->lev * 4;
+	treshold = p_ptr->mhp / 10;
+	damage = ( p_ptr->chp - damage < treshold  )?(p_ptr->chp - treshold):damage;
+	if( damage > 0 )
+		take_hit( damage , format( "the Wrath of %s", patrons[p_ptr->evil_patron].short_name ) );
+
+	/*Negative damage does not count*/
+	return damage<0?0:damage;
+}
+
+int patron_gain_stat()
+{
+	int chosen_stat;
+	msg_format("The voice of %s rings out: 'Stay and let me mold thee!'", patrons[p_ptr->evil_patron].short_name);
+	/* 1 time in 3 the prefered stat is increased, otherwise a random stat is increased */
+	chosen_stat = ( randint(3) == 1 ) ? patrons[p_ptr->evil_patron].stat : randint(6)-1;
+	/* If one of the increases is usefull ( increases or restores ), TRUE is returned   */
+	return ( do_inc_stat( chosen_stat ) + do_inc_stat( chosen_stat ) + do_inc_stat( chosen_stat ) );
+}
+
+int patron_loose_stat()
+{
+	int chosen_stat;
+	msg_format("The voice of %s booms out: 'It takes pressure to become a diamond.'", patrons[p_ptr->evil_patron].short_name);
+	/* 1 time in 3 the prefered stat is increased, otherwise a random stat is increased */
+	chosen_stat = ( randint(3) == 1 ) ? patrons[p_ptr->evil_patron].stat : randint(6)-1;
+	do_dec_stat( chosen_stat );
+	do_dec_stat( chosen_stat );
+	/* */
+	if( p_ptr->stat_cur[chosen_stat] < p_ptr->stat_max[chosen_stat] )
+	{
+		/* Evil, drop max value as well, update bonus and let caller know */
+		p_ptr->stat_max[chosen_stat] = p_ptr->stat_cur[chosen_stat];
+		p_ptr->update |= (PU_BONUS);
+		return 1;
+	}
+	return 0;
+}
+
+
+int patron_raise_stats()
+{
+	int dummy;
+	int total = 0;
+	msg_format("The voice of %s booms out: 'Receive this modest gift from me!'", patrons[p_ptr->evil_patron].short_name);
+		for (dummy = 0; dummy < 6; dummy++)
+			total += do_inc_stat(dummy);
+	return total;
+}
+
+int patron_loose_stats()
+{ 	int dummy;
+	msg_format("The voice of %s thunders: 'Patience and humility!'", patrons[p_ptr->evil_patron].short_name);
+	for (dummy = 0; dummy < 6; dummy++)
+		dec_stat(dummy, 10 + randint(15), TRUE);
+	return 1;
+}
+
+int patron_mass_gen()
+{
+		msg_format("The voice of %s booms out: 'Let me relieve thee of thine oppressors!'", patrons[p_ptr->evil_patron].short_name);
+		return mass_genocide(FALSE);
+}
+
+int patron_ignore()
+{
+		msg_format("%s ignores you.", patrons[p_ptr->evil_patron].short_name);
+		return 1;
+}
+
+int patron_wrath()
+{
+	int effect; /* Is there any effect, there might not be.. */
+	/* These are guaranteed */
+	effect = patron_hurt() + patron_loose_stats() + patron_summon_normal() + patron_ty_curse();
+	/* These happen half of the time */
+	if (randint(2)==1) effect += patron_curse_weapon();
+	if (randint(2)==1) effect += patron_curse_armor();
+	return effect;
+}
+
+int patron_permanent_walls()
+{
+	int x,y;
+
+	msg_format("%s says 'I like what you've done with the place.'", patrons[p_ptr->evil_patron].short_name);
+	/* Scan all normal grids */
+	for (y = 1; y < cur_hgt-1; y++)
+	{
+		for (x = 1; x < cur_wid-1; x++)
+		{
+			cave_type *c_ptr = &cave[y][x];
+			if( c_ptr->feat >= FEAT_MAGMA && c_ptr->feat <= FEAT_PERM_OUTER )
+				c_ptr->feat = FEAT_PERM_SOLID;
+		}
+	}
+	/* Mega-Hack -- Forget the view and lite */
+	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+	return 1;
+}
+
+int patron_mutation()
+{
+	msg_format("%^s corrupts you!", patrons[p_ptr->evil_patron].short_name);
+	(void)gain_corruption(0);
+	return 0;
+}
+
+/* I just know this can be done better, please dont post this on the WTF du jour ;] */
+int patron_null(){ return 0; }
+
+#define REWARD_GOOD   0
+#define REWARD_BAD    1
+#define REWARD_FICKLE 2
+
+reward_type patron_rewards[] =
+{
+	{ REWARD_FICKLE , patron_poly_self       , "Poly self" },
+	{ REWARD_GOOD   , patron_poly_gain_exp   , "Gain experience" },
+	{ REWARD_BAD    , patron_poly_loose_exp  , "Loose experience" },
+	{ REWARD_GOOD   , patron_great_object    , "Give great object" },
+	{ REWARD_GOOD   , patron_great_objects   , "Give great objects" },
+	{ REWARD_FICKLE , patron_chaos_weapon    , "Give chaos weapon" },
+	{ REWARD_BAD    , patron_ty_curse        , "TY curse" },
+	{ REWARD_BAD    , patron_summon_normal   , "Summon normal" },
+	{ REWARD_GOOD   , patron_havoc           , "Havoc" },
+	{ REWARD_GOOD   , patron_gain_stat       , "Increase stat" },
+	{ REWARD_BAD    , patron_loose_stat      , "Loose stat" },
+	{ REWARD_BAD    , patron_loose_stats     , "Loose stats" },
+	{ REWARD_GOOD   , patron_raise_stats     , "Raise stats" },
+	{ REWARD_FICKLE , patron_destruction     , "Destruction" },
+	{ REWARD_BAD    , patron_wrath           , "Wrath" },
+	{ REWARD_BAD    , patron_hurt            , "Hurt" },
+	{ REWARD_BAD    , patron_curse_armor     , "Curse Armor" },
+	{ REWARD_BAD    , patron_curse_weapon    , "Curse Weapon" },
+	{ REWARD_BAD    , patron_summon_deep     , "Summon Deep" },
+	{ REWARD_GOOD   , patron_mass_gen        , "Mass Genocide" },
+	{ REWARD_FICKLE , patron_ignore          , "Ignore" },
+	{ REWARD_GOOD   , patron_undead_servant  , "Undead Servant" },
+	{ REWARD_GOOD   , patron_demon_servant   , "Demon Servant" },
+	{ REWARD_GOOD   , patron_angel_servant   , "Angel Servant" },
+	{ REWARD_BAD    , patron_undead_foe      , "Undead Foe" },
+	{ REWARD_BAD    , patron_demon_foe       , "Demon Foe" },
+	{ REWARD_BAD    , patron_angel_foe       , "Angel Foe" },
+	{ REWARD_FICKLE , patron_permanent_walls , "Permanent Level" },
+	{ REWARD_FICKLE , patron_mutation        , "Gain Mutation" },
+	{ REWARD_FICKLE , patron_null            , NULL },
+};
+
+void gain_level_reward(int chosen_reward)
+{
+	int nasty_chance = 6;
+	int nasty_ok = FALSE;
+	int reward_count = 0;
+	int reward_idx = 0;
+	int tries = 0;
+
+	/* Only 1 reward per level gain, thats kinda boring really..
+	   TODO: Reconsider this */
 	if (!chosen_reward)
 	{
 		if (multi_rew) return;
 		else multi_rew = TRUE;
 	}
-
-	if (p_ptr->lev == 13) nasty_chance = 2;
+	/* Level 13 and products of 13: BAD!, level 7 and 9 and their products should be fine */
+	if (p_ptr->lev == 13)        nasty_chance = 2;
 	else if (!(p_ptr->lev % 13)) nasty_chance = 3;
-	else if (!(p_ptr->lev % 14)) nasty_chance = 12;
+	else if (!(p_ptr->lev % 7 )) nasty_chance = 12;
+	else if (!(p_ptr->lev % 9 )) nasty_chance = 12;
 
+	/* Can bad things happen ? */
 	if (randint(nasty_chance)==1)
-		type = randint(20); /* Allow the 'nasty' effects */
-	else
-		type = randint(15) + 5; /* Or disallow them */
+		nasty_ok = TRUE;
 
-	if (type < 1) type = 1;
-	if (type > 20) type = 20;
-	type--;
+	/* Count the possible effects */
+	while( patron_rewards[reward_count].description != NULL )
+		reward_count++;
 
-	sprintf(wrath_reason, "the Wrath of %s",
-		evil_patron_shorts[p_ptr->evil_patron]);
-
-	effect = chaos_rewards[p_ptr->evil_patron][type];
-
-	if ((randint(6)==1) && !(chosen_reward))
+	/* Give up after a while */
+	while( tries++ < 100 )
 	{
-		msg_format("%^s rewards you with a corruption!",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		(void)gain_corruption(0);
-		return;
-	}
-
-	switch (chosen_reward?chosen_reward:effect)
-	{
-	case REW_POLY_SLF:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou needst a new form!'");
-		do_poly_self();
-		break;
-	case REW_GAIN_EXP:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Well done! Lead on!'");
-		if (p_ptr->exp < PY_MAX_EXP)
-		{
-			s32b ee = (p_ptr->exp / 2) + 10;
-			if (ee > 100000L) ee = 100000L;
-			msg_print("You feel more experienced.");
-			gain_exp(ee);
-		}
-		break;
-	case REW_LOSE_EXP:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou does not deserve that power just yet!'");
-		lose_exp(p_ptr->exp / 6);
-		break;
-	case REW_GOOD_OBJ:
-		msg_format("The voice of %s whispers:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Use my gift wisely.'");
-		acquirement(py, px, 1, FALSE);
-		break;
-	case REW_GREA_OBJ:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Use my gift wisely.'");
-		acquirement(py, px, 1, TRUE);
-		break;
-	case REW_CHAOS_WP:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thy deed hath earned thee a worthy blade.'");
-		/* Get local object */
-		q_ptr = &forge;
-		dummy = TV_SWORD;
-		switch(randint(p_ptr->lev))
-		{
-		case 1: case 2: case 0:
-			dummy2 = SV_DAGGER;
-			break;
-		case 3: case 4:
-			dummy2 = SV_MAIN_GAUCHE;
-			break;
-		case 5: case 6:
-			dummy2 = SV_RAPIER;
-			break;
-		case 7: case 8:
-			dummy2 = SV_SMALL_SWORD;
-			break;
-		case 9: case 10:
-			dummy2 = SV_SHORT_SWORD;
-			break;
-		case 11: case 12: case 13:
-			dummy2 = SV_SABRE;
-			break;
-		case 14: case 15: case 16:
-			dummy2 = SV_CUTLASS;
-			break;
-		case 17:
-			dummy2 = SV_TULWAR;
-			break;
-		case 18: case 19: case 20:
-			dummy2 = SV_BROAD_SWORD;
-			break;
-		case 21: case 22: case 23:
-			dummy2 = SV_LONG_SWORD;
-			break;
-		case 24: case 25: case 26:
-			dummy2 = SV_SCIMITAR;
-			break;
-		case 27:
-			dummy2 = SV_KATANA;
-			break;
-		case 28: case 29:
-			dummy2 = SV_BASTARD_SWORD;
-			break;
-		case 30: case 31:
-			dummy2 = SV_TWO_HANDED_SWORD;
-			break;
-		case 32:
-			dummy2 = SV_EXECUTIONERS_SWORD;
-			break;
-		default:
-			dummy2 = SV_BLADE_OF_CHAOS;
-		}
-
-		object_prep(q_ptr, lookup_kind(dummy, dummy2));
-		q_ptr->to_h = 3 + (randint(dun_level))%10;
-		q_ptr->to_d = 3 + (randint(dun_level))%10;
-		random_resistance(q_ptr, FALSE, ((randint(34))+4));
-		q_ptr->name2 = EGO_CHAOTIC;
-		/* Drop it in the dungeon */
-		drop_near(q_ptr, -1, py, px);
-		break;
-	case REW_GOOD_OBS:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thy deeds have earned thee a worthy reward.'");
-		acquirement(py, px, randint(2) + 1, FALSE);
-		break;
-	case REW_GREA_OBS:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Behold, how generously I reward thy loyalty.'");
-		acquirement(py, px, randint(2) + 1, TRUE);
-		break;
-	case REW_TY_CURSE:
-		msg_format("The voice of %s whispers:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Greatness requires suffering, true power requires true suffering.'");
-		activate_ty_curse();
-		break;
-	case REW_SUMMON_M:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'You have grown soft, maybe this will keep you sharp.'");
-		for (dummy = 0; dummy < randint(5) + 1; dummy++)
-		{
-			(void) summon_specific(py, px, dun_level, 0);
-		}
-		break;
-	case REW_H_SUMMON:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou needst worthier opponents!'");
-		activate_hi_summon();
-		break;
-	case REW_DO_HAVOC:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Death and destruction! This pleaseth me!'");
-		call_chaos();
-		break;
-	case REW_GAIN_ABL:                
-		msg_format("The voice of %s rings out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Stay and let me mold thee!'");
-		if ((randint(3)==1) && !(evil_stats[p_ptr->evil_patron] < 0))
-			do_inc_stat(evil_stats[p_ptr->evil_patron]);
-		else
-			do_inc_stat((randint(6))-1);
-		break;
-	case REW_LOSE_ABL:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'It takes pressure to become a diamond.'");
-		if ((randint(3)==1) && !(evil_stats[p_ptr->evil_patron] < 0))
-			do_dec_stat(evil_stats[p_ptr->evil_patron]);
-		else
-			(void) do_dec_stat(randint(6)-1);
-		break;
-	case REW_RUIN_ABL:
-		msg_format("The voice of %s thunders:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Patience and humility!'");
-		for (dummy = 0; dummy < 6; dummy++)
-		{
-			(void) dec_stat(dummy, 10 + randint(15), TRUE);
-		}
-		break;
-	case REW_POLY_WND:
-		msg_format("You feel the power of %s touch you.",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		do_poly_wounds();
-		break;
-	case REW_AUGM_ABL:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Receive this modest gift from me!'");
-		for (dummy = 0; dummy < 6; dummy++)
-		{
-			(void) do_inc_stat(dummy);
-		}
-		break;
-	case REW_HURT_LOT:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Suffer, pathetic fool!'");
-		fire_ball(GF_DISINTEGRATE, 0, (p_ptr->lev * 4), 4);
-		take_hit(p_ptr->lev * 4, wrath_reason);
-		break;
-	case REW_HEAL_FUL:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Rise, my servant!'");
-		restore_level();
-		(void)set_timed_effect( TIMED_POISONED , 0);
-		(void)set_timed_effect( TIMED_BLIND , 0);
-		(void)set_timed_effect( TIMED_CONFUSED , 0);
-		(void)set_timed_effect( TIMED_IMAGE , 0);
-		(void)set_timed_effect( TIMED_STUN, 0);
-		(void)set_timed_effect( TIMED_CUT, 0);
-		hp_player(5000);
-		for (dummy = 0; dummy < 6; dummy++)
-		{
-			(void) do_res_stat(dummy);
-		}
-		break;
-	case REW_CURSE_WP:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou reliest too much on thy weapon.'");
-		(void)curse_weapon();
-		break;
-	case REW_CURSE_AR:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou reliest too much on thine equipment.'");
-		(void)curse_armour();
-		break;
-	case REW_PISS_OFF:
-		msg_format("The voice of %s whispers:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Now thou shalt pay for annoying me.'");
-		switch(randint(4))
-		{
-		case 1:
-			activate_ty_curse();
-			break;
-		case 2:
-			activate_hi_summon();
-			break;
-		case 3:
-			if (randint(2)==1) (void)curse_weapon();
-			else (void)curse_armour();
-			break;
-		default:
-			for (dummy = 0; dummy < 6; dummy++)
-			{
-				(void) dec_stat(dummy, 10 + randint(15), TRUE);
-			}
-		}
-		break;
-	case REW_WRATH:
-		msg_format("The voice of %s thunders:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'You no longer serve my purposes!'");
-		take_hit(p_ptr->lev * 4, wrath_reason);
-		for (dummy = 0; dummy < 6; dummy++)
-		{
-			(void) dec_stat(dummy, 10 + randint(15), FALSE);
-		}
-		activate_hi_summon();
-		activate_ty_curse();
-		if (randint(2)==1) (void)curse_weapon();
-		if (randint(2)==1) (void)curse_armour();
-		break;
-	case REW_DESTRUCT:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Death and destruction! This pleaseth me!'");
-		destroy_area(py, px, 25, TRUE);
-		break;
-	case REW_GENOCIDE:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Let me relieve thee of thine oppressors!'");
-		(void) genocide(FALSE);
-		break;
-	case REW_MASS_GEN:
-		msg_format("The voice of %s booms out:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Let me relieve thee of thine oppressors!'");
-		(void) mass_genocide(FALSE);
-		break;
-	case REW_DISPEL_C:
-		msg_format("You can feel the power of %s assault your enemies!",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		(void) dispel_monsters(p_ptr->lev * 4);
-		break;
-	case REW_IGNORE:
-		msg_format("%s ignores you.",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		break;
-	case REW_SER_DEMO:
-		msg_format("%s considers helping you.",evil_patron_shorts[p_ptr->evil_patron]);
-		summon_specific_friendly(py, px, dun_level, FILTER_DEMON, FALSE);
-		break;
-	case REW_SER_MONS:
-		msg_format("%s considers helping you.",evil_patron_shorts[p_ptr->evil_patron]);
-		summon_specific_friendly(py, px, dun_level, FILTER_NO_UNIQUES, FALSE);
-		break;
-	case REW_SER_UNDE:
-		msg_format("%s considers helping you.",evil_patron_shorts[p_ptr->evil_patron]);
-		summon_specific_friendly(py, px, dun_level, FILTER_UNDEAD, FALSE);
-		break;
-	default:
-		msg_format("The voice of %s stammers:",
-			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_format("'Uh... uh... the answer's %d/%d, what's the question?'", type, effect );
+		reward_idx = rand_int( reward_count );
+		if( //Not nasty and good reward
+			( !nasty_ok && patron_rewards[reward_idx].nasty == REWARD_GOOD ) ||
+			//Not nasty and fickle reward with type 0 which means abyssal patron
+			( !nasty_ok && patron_rewards[reward_idx].nasty == REWARD_FICKLE && patrons[p_ptr->evil_patron].type == 0 ) ||
+			//With nasty, anything goes
+			( nasty_ok ) )
+				tries = tries + patron_rewards[reward_idx].func() * 100;
 	}
 }
 
@@ -3304,7 +3355,7 @@ int count_corruption_options()
 	int count = 0;
 	for( i = 0 ; i < COUNT_CORRUPTIONS ; i++ )
 		count = count + corruptions[i].odds;
-	return count;	
+	return count;
 }
 
 /*Converts a dice throw for a corruption into the actual corruption*/
@@ -3314,7 +3365,7 @@ int get_corruption( int option)
 	int count = 0;
 	for( i = 0 ; i < COUNT_CORRUPTIONS ; i++ )
 	{
-		count = count + corruptions[i].odds;	
+		count = count + corruptions[i].odds;
 		if(count>=option)
 			return i;
 	}
@@ -3332,11 +3383,11 @@ u32b *corruption_idx_to_u32b( byte b )
 		case 2:
 			return &(p_ptr->muta2);
 		case 3:
-			return &(p_ptr->muta3);			
+			return &(p_ptr->muta3);
 	}
 	msg_format("Getting corruption idx (%d) failed.", b );msg_print(NULL);
 	/*Need to return a valid memory address anyway to avoid panick*/
-	return &(p_ptr->muta1);	
+	return &(p_ptr->muta1);
 }
 
 
@@ -3346,9 +3397,9 @@ bool gain_corruption(int choose_mut)
 	cptr muta_desc = "";
 	bool muta_chosen = FALSE;
 	u32b muta_which = 0;
-	int opposed_muta_which = 0;	
+	int opposed_muta_which = 0;
 	u32b *muta_class = 0;
-	u32b *opposed_muta_class = 0;	
+	u32b *opposed_muta_class = 0;
 	int options = count_corruption_options();
 	int die;
 	int idx;
@@ -3441,7 +3492,7 @@ bool gain_corruption(int choose_mut)
 		 * will screw up/cure their opposites. Gaining supercomputer brain (+4int/wis)
 		 * will fix idiocy(-4wis/int). The opposite is true of course as well ( for now ).
 		 */
-		
+
 		/* Go over all the opposed corruptions, NULL record has message NULL */
 		for( i = 0 ; opposed_corruptions[i].message ; i++ )
 		{
@@ -3465,7 +3516,7 @@ bool gain_corruption(int choose_mut)
 				}
 			}
 		}
-		
+
 		p_ptr->update |= PU_BONUS;
 		handle_stuff();
 		return TRUE;
@@ -3631,17 +3682,16 @@ void dump_corruptions(FILE * OutFile)
 	int i;
 	u32b *muta_class = 0;
 	if (!OutFile) return;
-	
+
 	for( i = 0 ; i < COUNT_CORRUPTIONS ; i++ )
 	{
-		muta_class = corruption_idx_to_u32b( corruptions[i].idx );	
+		muta_class = corruption_idx_to_u32b( corruptions[i].idx );
 		if (*(muta_class) & corruptions[i].bitflag )
 		{
 			/*Dump the description*/
-			fprintf(OutFile, corruptions[i].description);
+			fprintf(OutFile, "%s", corruptions[i].description);
 			/*And a new line*/
-			fprintf(OutFile, "\n");			
+			fprintf(OutFile, "\n");
 		}
-	}			
+	}
 }
-

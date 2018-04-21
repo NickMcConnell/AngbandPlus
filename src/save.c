@@ -10,13 +10,13 @@
  * are included in all such copies.
  *
  * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
  */
 
 #include "angband.h"
@@ -521,7 +521,7 @@ static void wr_s16b(s16b v)
 
 static void wr_u32b(u32b v)
 {
-	sf_put((byte)(v & 0xFF)); 
+	sf_put((byte)(v & 0xFF));
 	sf_put((byte)((v >> 8) & 0xFF));
 	sf_put((byte)((v >> 16) & 0xFF));
 	sf_put((byte)((v >> 24) & 0xFF));
@@ -553,6 +553,13 @@ static void wr_string(cptr str)
 */
 static void wr_item(object_type *o_ptr)
 {
+	u32b f1,f2,f3;
+	object_flags( o_ptr , &f1 , &f2 , &f3 );
+	/* Guarantee _xp flag in art_flags1 */
+	if( f3 & TR3_XP ){
+		o_ptr->art_flags3 = o_ptr->art_flags3 | TR3_XP;
+	}
+
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
@@ -586,6 +593,13 @@ static void wr_item(object_type *o_ptr)
 	wr_u32b(o_ptr->art_flags2);
 	wr_u32b(o_ptr->art_flags3);
 
+	/* Dont pollute save games for nuthing */
+	if( o_ptr->art_flags3 & TR3_XP )
+	{
+		wr_byte(o_ptr->elevel);
+		wr_s32b(o_ptr->exp);
+	}
+
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
 
@@ -603,7 +617,7 @@ static void wr_item(object_type *o_ptr)
 		wr_string("");
 	}
 
-	/* If it is a "new" named artefact, save the name */        
+	/* If it is a "new" named artefact, save the name */
 	if (o_ptr->art_name)
 	{
 		wr_string(quark_str(o_ptr->art_name));
@@ -681,7 +695,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(r_ptr->r_flags4);
 	wr_u32b(r_ptr->r_flags5);
 	wr_u32b(r_ptr->r_flags6);
-	wr_u32b(r_ptr->r_flags7);	
+	wr_u32b(r_ptr->r_flags7);
 
 
 	/* Monster limit per level */
@@ -873,16 +887,14 @@ static void wr_options(void)
 	for (i = 0; i < 8; i++) wr_u32b(window_mask[i]);
 }
 
-
 /*
 * Hack -- Write the "ghost" info
 */
-static void wr_ghost(void)
+static void wr_custom(int idx)
 {
 	int i;
 
-	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
-
+	monster_race *r_ptr = &r_info[idx];
 
 	/* Name */
 	wr_string(r_name + r_ptr->name);
@@ -924,6 +936,15 @@ static void wr_ghost(void)
 	wr_u32b(r_ptr->flags5);
 	wr_u32b(r_ptr->flags6);
 
+	/* Observed Flags */
+	wr_u32b(r_ptr->r_flags1);
+	wr_u32b(r_ptr->r_flags2);
+	wr_u32b(r_ptr->r_flags3);
+	wr_u32b(r_ptr->r_flags4);
+	wr_u32b(r_ptr->r_flags5);
+	wr_u32b(r_ptr->r_flags6);
+
+
 	/* Attacks */
 	for (i = 0; i < 4; i++)
 	{
@@ -932,6 +953,48 @@ static void wr_ghost(void)
 		wr_byte(r_ptr->blow[i].d_dice);
 		wr_byte(r_ptr->blow[i].d_side);
 	}
+}
+
+/*
+* Hack -- Write all the custom r_ptr info's
+*/
+static void wr_customs(void)
+{
+	int i;
+	int custom_count;
+
+	/* First count how many customs we have */
+	custom_count = 0;
+
+	for( i = MAX_R_IDX-2 ; i ; i-- )
+	{
+		if( r_info[i].custom )
+			custom_count++;
+	}
+
+	/* How many did we find ? */
+	wr_u16b( custom_count );
+
+	/*If we dont have customs get out*/
+	if(!custom_count) return;
+
+	for( i = MAX_R_IDX-2 ; i ; i-- )
+	{
+		if( r_info[i].custom )
+		{
+			wr_u16b( i );
+			wr_custom( i );
+		}
+			
+	}
+}
+
+/*
+* Hack -- Write the "ghost" info
+*/
+static void wr_ghost(void)
+{
+	wr_custom( MAX_R_IDX-1 );
 }
 
 
@@ -953,7 +1016,7 @@ static void wr_extra(void)
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
-	wr_byte(p_ptr->psign);	
+	wr_byte(p_ptr->psign);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_u16b(p_ptr->realm1);
@@ -1035,6 +1098,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->oppose_conf);
+	wr_s16b(p_ptr->oppose_fear);
+	wr_s16b(p_ptr->oppose_blind);
+
 	wr_s16b(p_ptr->tim_esp);
 	wr_s16b(p_ptr->wraith_form);
 	wr_s16b(p_ptr->resist_magic);
@@ -1260,7 +1327,7 @@ static bool wr_savefile_new(void)
 
 
 	/* Guess at the current time */
-	now = time((time_t *)0);
+	now = (u32b)time((time_t *)0);
 
 
 	/* Note the operating system */
@@ -1358,7 +1425,7 @@ static bool wr_savefile_new(void)
 		if (potion_alch[i].known1) tmp8u |= 0x01; /* because 1 binary is 0001 */
 		if (potion_alch[i].known2) tmp8u |= 0x02; /* because 2 binary is 0010 */
 		wr_byte(tmp8u);                           /* resulting in 11 ( both ) , 01 ( first only ) or 10 ( second only ) */
-	}	
+	}
 	
 	/* Hack -- Dump the quests */
 	tmp16u = MAX_Q_IDX;
@@ -1448,6 +1515,9 @@ static bool wr_savefile_new(void)
 
 		/* Dump the ghost */
 		wr_ghost();
+
+		/* Dump the customs */
+		wr_customs();
 	}
 
 
@@ -1627,15 +1697,19 @@ bool load_player(void)
 	if (!savefile[0]) return (TRUE);
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS)
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(USE_CLANG)  && !defined(live)
 
 	/* XXX XXX XXX Fix this */
 
 	/* Verify the existance of the savefile */
-	if (access(savefile, 0) < 0)
+	int has_access = access(savefile, 0);
+	if ( has_access < 0)
 	{
+		msg_print(strerror(errno));
 		/* Give a message */
-		msg_print("Savefile does not exist.");
+		msg_print("Savefile");
+		msg_print(savefile);
+		msg_print("does not exist.");
 		msg_print(NULL);
 
 		/* Allow this */

@@ -372,9 +372,9 @@ bool make_attack_normal(int m_idx)
 				break;
 			}
 
-		case RBM_XXX1:
+		case RBM_SLASH:
 			{
-				act = "XXX1's you.";
+				act = "slashes into you.";
 				break;
 			}
 
@@ -448,6 +448,12 @@ bool make_attack_normal(int m_idx)
 		case RBM_SPORE:
 			{
 				act = "releases spores at you.";
+				break;
+			}
+
+		case RBM_SWIPE:
+			{
+				act = "swipes at you.";
 				break;
 			}
 
@@ -860,7 +866,7 @@ bool make_attack_normal(int m_idx)
 				if ((o_ptr->pval > 0) && (!artefact_p(o_ptr)))
 				{
 					/* Reduce fuel */
-					o_ptr->pval -= (250 + randint(250));
+					o_ptr->pval -= (250 + rand_s16b(250));
 					if (o_ptr->pval < 1) o_ptr->pval = 1;
 
 					/* Notice */
@@ -1371,7 +1377,8 @@ bool make_attack_normal(int m_idx)
 		case RBM_CLAW:
 		case RBM_BITE:
 		case RBM_STING:
-		case RBM_XXX1:
+		case RBM_SLASH:
+		case RBM_SWIPE:
 		case RBM_BUTT:
 		case RBM_CRUSH:
 		case RBM_ENGULF:

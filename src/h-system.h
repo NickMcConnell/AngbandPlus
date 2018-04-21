@@ -12,14 +12,14 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 /*
  * Include the basic "system" files.
@@ -54,7 +54,7 @@ defined(linux)
 #  include <sys/time.h>
 # endif
 
-# if !defined(SGI) && !defined(ULTRIX)
+# if !defined(SGI) && !defined(ULTRIX) && !defined(USE_CLANG)
 #  include <sys/timeb.h>
 # endif
 
@@ -87,6 +87,9 @@ defined(linux)
 # include <fcntl.h>
 #endif
 
+#if defined(SET_UID) || defined(USE_PRIVATE_PATHS)
+# include <pwd.h>
+#endif
 
 #ifdef SET_UID
 
@@ -98,8 +101,6 @@ defined(linux)
 # ifdef linux
 #  include <sys/file.h>
 # endif
-
-# include <pwd.h>
 
 # include <unistd.h>
 

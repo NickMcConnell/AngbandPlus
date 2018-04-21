@@ -1,70 +1,75 @@
 Greating a Character
 ====================
 
-Before you can play Hellband, you must create a character. This help file 
+Before you can descend into Hell, you must generate ar character. This help file
 explains the creation of your character.
 
 Making a choice
 ===============
 
-You can look at the different choices by pressing either up/down or '8'/'2', you
-can confirm your choice by pressing space or enter. The current selection is
-always preceded with the '>' character.
+You can look at the different choices by pressing either the up/down keys or the
+'8'/'2' keys, you can confirm by pressing space or enter. The selected choice is
+always preceded with the '>' character and in a different color.
 
 Gender
 ======
 
-The first choice you must make is the gender of your character. Unlike other 
-roguelikes Hellband does take the gender of you character into account. Men make
-easy targets for succubi and lilu. Some demons will hit harder on women. There 
-is no 'better' gender.
+The first choice is your character's gender. Most roguelikes treat gender like a
+roleplaying choice. In Hellband you will find male characters to be easy targets
+for succubi and lilu. You will also find that some races like the Leprechaun are
+only available to a single gender. There is no 'better' gender in Hellband.
 
 Genus
 =====
 
-The second choice is your genus, your race. There are 4 main races you can play
-with : human, fae, spawn and Elder. Each race has subraces with different 
-powers. Only humans can choose a birth sign. You are advised to make
-your fist few characters human without a special bloodstrain. This will allow
-for a less complex game.
+The second choice is your character's genus or race. The four main races you can
+choose from are Human, Fae, Spawn and Elder. Each race has subspecies with diff-
+erent powers. Only the human race can choose a birth sign, except for the cursed
+ones like vampires and werewolves. Fae, Spawns and the Elder races are generally
+chosen by more advanced players.
 
 Subspecies
 ==========
 
-The third choice is your subspecies, this will influence your initial strength, 
+The third choice is your character's subspecies, this will impact your strength,
 dexterity, constitution, wisdom, intelligence and charisma. ( Your stats )
 
-It will also influence your 'Hit Dice'. The higher the Hit Dice, the more 
-hitpoints you get when gaining a level. More hitpoints mean you can take more
-damage without dying.
+It will also influence your 'Hit Dice'. High Hit Dice mean beefy characters, low
+Hit Dice mean wimpy characters.
 
-It will also influence your 'Experience Factor'. Subspecies with a higher 
-Experience Factor need to put more effort in gaining levels.
+It will also influence your 'Experience Factor'. A lower Experience Factor means
+less effort to gain levels.
 
 Finally some subspecies have special powers that are described on the right hand
 side of the screen.
 
 Birthsign
-==========
+=========
 
-Humans alone can be affected by the star sign they were born under. Humans that
-are afflicted ( Vampires, werewolves etc. ) no longer are under the influence
-of their birthsign.
+Only humans can be affected by their birth sign. Afflicted humans like vampires,
+werewolves or zombies are no longer under the influence of their birthsign.
 
-Birthsigns, like subspecies, can influence the initial stats, Hit Dice and 
-Experience Factor. Some birthsigns have special powers and drawbacks that are 
-described on the right hand side of the screen.
+Birthsigns, like subspecies, can influence initial stats, hit dice, extra powers
+and sometimes impacts experience gain. Special powers are described on the left-
+hands side of the screen.
 
-Choosing to be 'Free' means that your faith is not determined by the stars, it
-is said that the Elder Gods are very concerned with those that are born Free.
+Choosing to be 'Free' means that your faith is not determined by the stars, it's
+said that the Elder Gods are very concerned with those that are born Free.
 
 Vocation
 ========
 
-The next choice is your vocation or class, as with subspecies, the vocation
-can influence the initial stats, Hit Dice and Experience Factor. Some vocations
-have special powers and drawbacks that are described on the right hand side of
-the screen.
+The next choice is the character's vocation or class. Like subspecies, vocations
+influence initial stats, hit dice and experience factor. A vocation's powers and
+drawbacks are described on the right hand side of the screen.
+
+Realm(s)
+========
+
+Spellcasters need to choose one or two magic realms. Some vocations allow you to
+choose any realm but others restrict your choice. In some cases, the choice will
+be automatic and this stage of character creation will be skipped. You will find
+descriptions of each realm on the right hand side of the screen.
 
 Stats
 =====
@@ -125,14 +130,6 @@ of any of the six stats.
 During character generation, starting stats are either bought with
 points or rolled randomly (depending on which option you have selected).
 
-Realm(s)
-========
-
-Once you have generated the stat scores for your character, you will be asked
-to choose which realm or realms of magic they will use. Some classes give you a
-free choice of realms, but others restrict your choice. In some cases, this
-choice will be automatic and this stage of character creation will be skipped
-completely.
                 /-------------------------------------\
                 |Press '?' to return to main help file|
                 \-------------------------------------/

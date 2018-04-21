@@ -11,14 +11,14 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 
 #include "angband.h"
@@ -64,7 +64,7 @@ cptr value_check_aux1(object_type *o_ptr)
 
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
-	
+
 	/*If the shopkeeper doesnt like it, it's worthless ;)*/
 	if( object_value(o_ptr) <= 0 )
 		return "worthless";
@@ -108,11 +108,13 @@ bool has_heavy_pseudo_id()
 		return TRUE;
 	switch (p_ptr->pclass)
 	{
-		case CLASS_WARRIOR:
-		case CLASS_ROGUE:
-		case CLASS_RANGER:
-		case CLASS_PALADIN:
+		case CLASS_BLACK_KNIGHT:
+		case CLASS_CHAOS_KNIGHT:
 		case CLASS_HELL_KNIGHT:
+		case CLASS_PALADIN:
+		case CLASS_WARRIOR:
+		case CLASS_RANGER:
+		case CLASS_ROGUE:
 			return( TRUE );
 		default:
 			return (FALSE);
@@ -148,7 +150,7 @@ static void sense_inventory(void)
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
-	
+
 	heavy = has_heavy_pseudo_id();
 
 	/* Analyze the class */
@@ -163,7 +165,7 @@ static void sense_inventory(void)
 			break;
 		}
 
-	case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_WARLOCK:
+	case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_WARLOCK: case CLASS_BLOOD_MAGE:
 		{
 			/* Very bad (light) sensing */
 			if (0 != rand_int(240000L / (plev + 5))) return;
@@ -216,7 +218,7 @@ static void sense_inventory(void)
 			break;
 		}
 
-	case CLASS_MINDCRAFTER:
+	case CLASS_ORPHIC:
 		{
 			/* Bad sensing */
 			if (0 != rand_int(55000L / (plev * plev + 40))) return;
@@ -225,7 +227,7 @@ static void sense_inventory(void)
 			break;
 		}
 
-	case CLASS_HELL_KNIGHT:
+	case CLASS_HELL_KNIGHT:case CLASS_CHAOS_KNIGHT: case CLASS_BLACK_KNIGHT:
 		{
 			/* Bad sensing */
 			if (0 != rand_int(80000L / (plev * plev + 40))) return;
@@ -294,7 +296,7 @@ static void sense_inventory(void)
 			default:
 			{
 				if( !object_aware_p(o_ptr) && heavy )
-					okay = TRUE;				
+					okay = TRUE;
 			}
 		}
 
@@ -306,7 +308,7 @@ static void sense_inventory(void)
 
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
-		
+
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 
@@ -318,7 +320,7 @@ static void sense_inventory(void)
 
 		/*Should we be squelchin' ?*/
 		consider_squelch( o_ptr );
-		
+
 		/* Skip non-feelings */
 		if (!feel) continue;
 
@@ -354,179 +356,6 @@ static void sense_inventory(void)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
 }
-
-/*
-* Go to any level (ripped off from wiz_jump)
-*/
-
-static void pattern_teleport(void)
-{
-	char highestquest;
-
-	/* Ask for level */
-	if (get_check("Teleport level? "))
-	{
-		char	ppp[80];
-
-		char	tmp_val[160];
-		int i;
-
-		highestquest=99;
-
-		for (i = 0; i < MAX_Q_IDX; i++)
-		{
-			if ((q_list[i].level || (q_list[i].cur_num != q_list[i].max_num)) && (q_list[i].level < (unsigned int)abs(highestquest)))   highestquest = q_list[i].level;
-		}
-		if(highestquest > p_ptr->max_dun_level) highestquest = p_ptr->max_dun_level;
-		/* Prompt */
-		sprintf(ppp, "Teleport to level (0-%d): ", highestquest);
-
-		/* Default */
-		sprintf(tmp_val, "%d", dun_level);
-
-		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 10)) return;
-
-		/* Extract request */
-		command_arg = atoi(tmp_val);
-	}
-	else if (get_check("Normal teleport? "))
-	{
-		teleport_player(200);
-		return;
-	}
-	else
-	{
-		return;
-	}
-
-	/* Paranoia */
-	if (command_arg < 1) command_arg = 1;
-
-	/* Paranoia */
-	if (command_arg > highestquest) command_arg = highestquest;
-
-	/* Accept request */
-	msg_format("You teleport to dungeon level %d.", command_arg);
-
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
-
-	/* Change level */
-	dun_level = command_arg;
-	new_level_flag = TRUE;
-}
-
-
-static void wreck_the_pattern(void)
-{
-	int to_ruin = 0, r_y, r_x;
-
-	if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
-	{
-		/* Ruined already */
-		return;
-	}
-
-	msg_print("You bleed on the Pattern!");
-	msg_print("Something terrible happens!");
-
-	if (!(p_ptr->invuln))
-		take_hit(damroll(10,8), "corrupting the Pattern");
-
-	to_ruin = randint(45) + 35;
-	while (to_ruin--)
-	{
-		scatter(&r_y, &r_x, py, px, 4, 0);
-		if ((cave[r_y][r_x].feat >= FEAT_PATTERN_START)
-			&& (cave[r_y][r_x].feat < FEAT_PATTERN_XTRA2))
-		{
-			cave_set_feat(r_y, r_x, FEAT_PATTERN_XTRA2);
-		}
-	}
-	cave_set_feat(py, px, FEAT_PATTERN_XTRA2);
-
-}
-
-
-/* Returns TRUE if we are on the Pattern... */
-static bool pattern_effect(void)
-{
-	if ((cave[py][px].feat < FEAT_PATTERN_START)
-		|| (cave[py][px].feat > FEAT_PATTERN_XTRA2))
-		return FALSE;
-
-
-	if ((p_ptr->prace == NEPHILIM) && (p_ptr->cut>0) &&
-		(randint(10)==1))
-	{
-		wreck_the_pattern();
-	}
-
-	if (cave[py][px].feat == FEAT_PATTERN_END)
-	{
-
-		(void)set_timed_effect( TIMED_POISONED , 0);
-		(void)set_timed_effect( TIMED_IMAGE , 0);
-		(void)set_timed_effect( TIMED_STUN, 0);
-		(void)set_timed_effect( TIMED_CUT, 0);
-		(void)set_timed_effect( TIMED_BLIND , 0);
-		(void)set_timed_effect( TIMED_AFRAID , 0);
-		(void)do_res_stat(A_STR);
-		(void)do_res_stat(A_INT);
-		(void)do_res_stat(A_WIS);
-		(void)do_res_stat(A_DEX);
-		(void)do_res_stat(A_CON);
-		(void)do_res_stat(A_CHA);
-		(void)restore_level();
-		(void)hp_player(1000);
-		cave_set_feat(py, px, FEAT_PATTERN_OLD);
-		msg_print("This section of the Pattern looks less powerful.");
-	}
-
-
-	/* We could make the healing effect of the
-	Pattern center one-time only to avoid various kinds
-	of abuse, like luring the win monster into fighting you
-	in the middle of the pattern... */
-
-	else if (cave[py][px].feat == FEAT_PATTERN_OLD)
-	{
-		/* No effect */
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA1)
-	{
-		pattern_teleport();
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
-	{
-		if (!(p_ptr->invuln))
-			take_hit(200, "walking the corrupted Pattern");
-	}
-
-	else
-	{
-		if ((p_ptr->prace == NEPHILIM) && (randint(2)!=1))
-			return TRUE;
-		else
-			if (!(p_ptr->invuln))
-				take_hit(damroll(1,3),
-				"walking the Pattern");
-	}
-
-	return TRUE;
-
-
-}
-
-
-
-
 
 /*
 * Regenerate hit points				-RAK-
@@ -674,7 +503,7 @@ static void regen_monsters(void)
 }
 
 /*
- * Centralized Recall effect 
+ * Centralized Recall effect
  */
 void do_recall( cptr activation )
 {
@@ -684,12 +513,12 @@ void do_recall( cptr activation )
 		if (get_check("Reset recall depth? "))
 		p_ptr->max_dun_level = dun_level;
 	}
-	
+
 	if (p_ptr->word_recall == 0)
 	{
 		if( activation != NULL )
 			msg_print(activation);
-		p_ptr->word_recall = randint(21) + 15;
+		p_ptr->word_recall = rand_s16b(21) + 15;
 		msg_print("The air about you becomes charged...");
 	}
 	else
@@ -704,7 +533,7 @@ void do_recall( cptr activation )
 /*
 * Forcibly pseudo-identify an object in the inventory
 * (or on the floor)
-* 
+*
 * note: currently this function allows pseudo-id of any object,
 * including silly ones like potions & scrolls, which always
 * get '{average}'. This should be changed, either to stop such
@@ -791,20 +620,17 @@ static void process_world(void)
 	int		regen_amount;
 	bool    cave_no_regen = FALSE;
 	int     upkeep_factor = 0;
-	s16b day;
+	s32b day;
 
 	cave_type		*c_ptr;
 
 	object_type		*o_ptr;
 	u32b            f1 = 0 , f2 = 0 , f3 = 0;
 
-
+	int timed_counter;
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
-
-	/* Redraw Time */
-	p_ptr->redraw |= PR_TIME;
 
 	/*** Check the Time and Load ***/
 
@@ -902,13 +728,13 @@ static void process_world(void)
 			msg_print("Happy Konijn Day!");
 			acquirement(py,px,randint(2)+1,FALSE);
 			break;
-		}			
+		}
 		case 152: /* Dante's birthday 1 july*/
 		{
 			msg_print("When Dis celebrates, the devils come out to play...");
 			summon_specific(py,px,dun_level,FILTER_DEVIL);
 			break;
-		}						
+		}
 		case 303: /* November 1st (Night of October 31st) */
 			{
 				msg_print("All Hallows Eve and the ghouls come out to play...");
@@ -1233,23 +1059,11 @@ static void process_world(void)
 		}
 	}
 
-
-
-	/* Are we walking the pattern? */
-
-	if (pattern_effect())
+	/* Regeneration ability */
+	if (p_ptr->regenerate)
 	{
-		cave_no_regen = TRUE;
+		regen_amount = regen_amount * 2;
 	}
-	else
-	{
-		/* Regeneration ability */
-		if (p_ptr->regenerate)
-		{
-			regen_amount = regen_amount * 2;
-		}
-	}
-
 
 	/* Searching or Resting */
 	if (p_ptr->searching || resting)
@@ -1263,6 +1077,8 @@ static void process_world(void)
 
 		if (p_ptr->pclass == CLASS_MAGE)
 			upkeep_divider = 15;
+		else if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+			upkeep_divider = 12;
 		else if (p_ptr->pclass == CLASS_HIGH_MAGE)
 			upkeep_divider = 12;
 
@@ -1314,193 +1130,55 @@ static void process_world(void)
 	/* Regenerate Hit Points if needed */
 	if ((p_ptr->chp < p_ptr->mhp) && !(cave_no_regen))
 	{
-		if ((cave[py][px].feat < FEAT_PATTERN_END) &&
-			(cave[py][px].feat >= FEAT_PATTERN_START))
-			regenhp(regen_amount / 5); /* Hmmm. this should never happen? */
-		else
-			regenhp(regen_amount);
+		regenhp(regen_amount);
 	}
-
 
 	/*** Timeout Various Things ***/
 
-	/* Hack -- Hallucinating */
-	if (p_ptr->image)
-	{
-		(void)set_timed_effect( TIMED_IMAGE , p_ptr->image - 1);
-	}
-
-	/* Blindness */
-	if (p_ptr->blind)
-	{
-		(void)set_timed_effect( TIMED_BLIND , p_ptr->blind - 1);
-	}
-
-	/* Times see-invisible */
-	if (p_ptr->tim_invis)
-	{
-		(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis - 1);
-	}
-
 	if (multi_rew)
-	{
 		multi_rew = FALSE;
-	}
 
-	/* Timed esp */
-	if (p_ptr->tim_esp)
+	/* Count down all timed effects */
+	for( timed_counter = 0 ; timed_counter < TIMED_COUNT ; timed_counter++ )
 	{
-		(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp - 1);
+		 if( *(timed[timed_counter].timer) )
+			(void)set_timed_effect( timed_counter , *(timed[timed_counter].timer) - 1);
 	}
-
-	/* Timed infra-vision */
-	if (p_ptr->tim_infra)
-	{
-		(void)set_timed_effect( TIMED_TIM_INFRA, p_ptr->tim_infra - 1);
-	}
-
-	/* Paralysis */
-	if (p_ptr->paralyzed)
-	{
-		(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed - 1);
-	}
-
-	/* Confusion */
-	if (p_ptr->confused)
-	{
-		(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused - 1);
-	}
-
-	/* Afraid */
-	if (p_ptr->afraid)
-	{
-		(void)set_timed_effect( TIMED_AFRAID , p_ptr->afraid - 1);
-	}
-
-	/* Fast */
-	if (p_ptr->fast)
-	{
-		(void)set_timed_effect( TIMED_FAST, p_ptr->fast - 1);
-	}
-
-	/* Slow */
-	if (p_ptr->slow)
-	{
-		(void)set_timed_effect( TIMED_SLOW, p_ptr->slow - 1);
-	}
-
-	/* Protection from evil */
-	if (p_ptr->protevil)
-	{
-		(void)set_timed_effect( TIMED_PROTEVIL, p_ptr->protevil - 1);
-	}
-
-	/* Invulnerability */
-	if (p_ptr->invuln)
-	{
-		(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln - 1);
-	}
-
-	/* Wraith form */
-	if (p_ptr->wraith_form)
-	{
-		(void)set_timed_effect( TIMED_WRAITH_FORM, p_ptr->wraith_form - 1);
-	}
-
-	/* Heroism */
-	if (p_ptr->hero)
-	{
-		(void)set_timed_effect( TIMED_HERO, p_ptr->hero - 1);
-	}
-
-	/* Super Heroism */
-	if (p_ptr->shero)
-	{
-		(void)set_timed_effect( TIMED_SHERO, p_ptr->shero - 1);
-	}
-	
-	/* Anti-magic Shell */
-	if (p_ptr->magic_shell)
-	{
-		(void)set_timed_effect( TIMED_MAGIC_SHELL, p_ptr->magic_shell - 1);
-	}
-	
-	/* Blessed */
-	if (p_ptr->blessed)
-	{
-		(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed - 1);
-	}
-
-	/* Shield */
-	if (p_ptr->shield)
-	{
-		(void)set_timed_effect( TIMED_SHIELD, p_ptr->shield - 1);
-	}
-
-	/* Oppose Acid */
-	if (p_ptr->oppose_acid)
-	{
-		(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid - 1);
-	}
-
-	/* Oppose Lightning */
-	if (p_ptr->oppose_elec)
-	{
-		(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec - 1);
-	}
-
-	/* Oppose Fire */
-	if (p_ptr->oppose_fire)
-	{
-		(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire - 1);
-	}
-
-	/* Oppose Cold */
-	if (p_ptr->oppose_cold)
-	{
-		(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold - 1);
-	}
-
-	/* Oppose Poison */
-	if (p_ptr->oppose_pois)
-	{
-		(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois - 1);
-	}
-
 
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */
 	if (p_ptr->poisoned)
 	{
-		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] + 1);
+		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] );
 
 		/* Apply some healing */
-		(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned - adjust);
+		if( adjust )
+			(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned - adjust);
 	}
 
 	/* Stun */
 	if (p_ptr->stun)
 	{
-		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] + 1);
+		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] );
 
 		/* Apply some healing */
-		(void)set_timed_effect( TIMED_STUN, p_ptr->stun - adjust);
+		if( adjust )
+			(void)set_timed_effect( TIMED_STUN, p_ptr->stun - adjust);
 	}
 
 	/* Cut */
 	if (p_ptr->cut)
 	{
-		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] + 1);
+		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] );
 
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
 		/* Apply some healing */
-		(void)set_timed_effect( TIMED_CUT, p_ptr->cut - adjust);
+		if( adjust )
+			(void)set_timed_effect( TIMED_CUT, p_ptr->cut - adjust);
 	}
-
-
 
 	/*** Process Light ***/
 
@@ -1618,7 +1296,7 @@ static void process_world(void)
 					disturb(0,0);
 					msg_print("It's so dark... so scary!");
 					p_ptr->redraw |= PR_AFRAID;
-					p_ptr->afraid = (p_ptr->afraid) + 13 + randint(26);
+					p_ptr->afraid = (p_ptr->afraid) + 13 + rand_s16b(26);
 				}
 			}
 
@@ -2230,7 +1908,19 @@ extern void do_cmd_borg(void);
 
 #endif
 
-
+/*
+ * Deal with unified commands or specific command, based on unify_commands
+ * This prevented much copy pasting..
+ */
+static void do_cmd_considering_unified(  void (*command)(int)  )
+{
+	if(!unify_commands)
+	{
+		command(-999);
+	}else{
+		do_cmd_handle();
+	}
+}
 
 /*
 * Parse and execute the current command
@@ -2268,742 +1958,121 @@ static void process_command(void)
 	/* Parse the command */
 	switch (command_cmd)
 	{
-		/* Ignore */
-	case ESCAPE:
-	case ' ':
-		{
-			break;
-		}
-
-		/* Ignore return */
-	case '\r':
-		{
-			break;
-		}
-
-
-
-		/*** Wizard Commands ***/
 
 #ifdef ALLOW_WIZARD
-
-		/* Special "debug" commands */
+	/* Special "debug" commands */
 	case KTRL('A'):
-		{
-			/* Enter debug mode */
-			if (debug_mode)
-			{
-				do_cmd_debug();
-			}
-			else
-			{
-				prt("Type '?' for help.", 0, 0);
-			}
-			break;
-		}
-
+	{
+		/* Enter debug mode */
+		if (debug_mode)
+			do_cmd_debug();
+		else
+			prt("Your name is not wizardly enough..", 0, 0);
+		break;
+	}
 #endif
-
 
 #ifdef ALLOW_BORG
-
-		/* Special "borg" commands */
+	/* Special "borg" commands */
 	case KTRL('Z'):
-		{
-			/* Enter borg mode */
-			if (enter_borg_mode())
-			{
-				do_cmd_borg();
-			}
-
-			break;
-		}
-
-#endif
-
-
-
-		/*** Inventory Commands ***/
-
-		/* Wear/wield equipment */
-	case 'w':
-		{
-			do_cmd_wield();
-			break;
-		}
-
-		/* Take off equipment */
-	case 't':
-		{
-			do_cmd_takeoff();
-			break;
-		}
-
-		/* Drop an item */
-	case 'd':
-		{
-			do_cmd_drop();
-			break;
-		}
-
-		/* Destroy an item */
-	case 'k':
-		{
-			do_cmd_destroy();
-			break;
-		}
-
-		/* Destroy all worthless items */
-	case 'K':
-		{
-			do_cmd_destroy_all();
-			break;
-		}
-
-		/* Equipment list */
-	case 'e':
-		{
-			do_cmd_equip();
-			break;
-		}
-
-		/* Inventory list */
-	case 'i':
-		{
-			do_cmd_inven();
-			break;
-		}
-
-
-		/*** Various commands ***/
-
-		/* Identify an object */
-	case 'I':
-		{
-			do_cmd_observe();
-			break;
-		}
-
-		/* Hack -- toggle windows */
-	case KTRL('I'):
-		{
-			toggle_inven_equip();
-			break;
-		}
-
-
-		/*** Standard "Movement" Commands ***/
-
-		/* Alter a grid */
-	case '+':
-		{
-			do_cmd_alter();
-			break;
-		}
-
-		/* Dig a tunnel */
-	case 'T':
-		{
-			do_cmd_tunnel();
-			break;
-		}
-
-		/* Move (pick up things) */
-	case ';':
-		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-			do_cmd_walk(FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-			break;
-		}
-
-		/* Move (do not pick up) */
-	case '-':
-		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-			do_cmd_walk(TRUE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(!always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-			break;
-		}
-
-
-		/*** Running, Resting, Searching, Staying */
-
-		/* Begin Running -- Arg is Max Distance */
-	case '.':
-		{
-			do_cmd_run();
-			break;
-		}
-
-		/* Stay still (usually pick things up) */
-	case ',':
-		{
-			do_cmd_stay(always_pickup);
-			break;
-		}
-
-		/* Stay still (usually do not pick up) */
-	case 'g':
-		{
-			do_cmd_stay(!always_pickup);
-			break;
-		}
-
-		/* Rest -- Arg is time */
-	case 'R':
-		{
-			do_cmd_rest();
-			break;
-		}
-
-		/* Search for traps/doors */
-	case 's':
-		{
-			do_cmd_search();
-			break;
-		}
-
-		/* Toggle search mode */
-	case 'S':
-		{
-			do_cmd_toggle_search();
-			break;
-		}
-
-
-		/*** Stairs and Doors and Chests and Traps ***/
-
-		/* Enter store */
-	case '_':
-		{
-			do_cmd_store();
-			break;
-		}
-
-		/* Go up staircase */
-	case '<':
-		{
-			do_cmd_go_up();
-			break;
-		}
-
-		/* Go down staircase */
-	case '>':
-		{
-			do_cmd_go_down();
-			break;
-		}
-
-		/* Open a door or chest */
-	case 'o':
-		{
-			do_cmd_open();
-			break;
-		}
-
-		/* Close a door */
-	case 'c':
-		{
-			do_cmd_close();
-			break;
-		}
-
-		/* Jam a door with spikes */
-	case 'j':
-		{
-			do_cmd_spike();
-			break;
-		}
-
-		/* Bash a door */
-	case 'B':
-		{
-			do_cmd_bash();
-			break;
-		}
-
-		/* Disarm a trap or chest */
-	case 'D':
-		{
-			do_cmd_disarm();
-			break;
-		}
-
-
-		/*** Magic and Prayers ***/
-
-		/* Gain new spells/prayers */
-	case 'G':
-		{
-			/* Require spell ability */
-			if (p_ptr->realm1 == 0)
-			{
-				msg_print("You cannot cast spells!");
-			}
-			else
-			{
-				msg_format("You need some peace and quiet to research.");
-				msg_format("Why not try a bookstore?");
-			}
-			break;
-		}
-
-		/* Browse a book */
-	case 'b':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_browse(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Cast a spell */
-	case 'm':
-		{
-			if (p_ptr->anti_magic)
-			{
-				cptr which_power = "magic";
-				if (p_ptr->pclass == CLASS_MINDCRAFTER)
-					which_power = "psionic powers";
-				else if (mp_ptr->spell_book == TV_MIRACLES_BOOK)
-					which_power = "prayer";
-
-				msg_format("An anti-magic shell disrupts your %s!", which_power);
-
-				energy_use = 5; /* Still use a bit */
-			}
-			else
-			{
-				if (p_ptr->pclass == CLASS_MINDCRAFTER)
-					do_cmd_mindcraft();
-				else
-					do_cmd_cast();
-
-			}
-			break;
-		}
-
-		/* Pray a prayer */
-	case 'p':
-		{
-            do_cmd_mix();
-			break;
-		}
-
-
-		/*** Use various objects ***/
-
-		/* Inscribe an object */
-	case '{':
-		{
-			do_cmd_inscribe();
-			break;
-		}
-
-		/* Uninscribe an object */
-	case '}':
-		{
-			do_cmd_uninscribe();
-			break;
-		}
-
-		/* Activate an artefact */
-	case 'A':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_activate(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Eat some food */
-	case 'E':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_eat_food(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Fuel your lantern/torch */
-	case 'F':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_refill(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Fire an item */
-	case 'f':
-		{
-			do_cmd_fire();
-			break;
-		}
-
-		/* Throw an item */
-	case 'v':
-		{
-			do_cmd_throw();
-			break;
-		}
-
-		/* Aim a wand */
-	case 'a':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_aim_wand(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Zap a rod */
-	case 'z':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_zap_rod(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Quaff a potion */
-	case 'q':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_quaff_potion(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Read a scroll */
-	case 'r':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_read_scroll(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-		/* Use a staff */
-	case 'u':
-		{
-			if(!unify_commands)
-			{
-				do_cmd_use_staff(-999);
-			} else {
-				do_cmd_handle();
-			}
-			break;
-		}
-
-
-	case 'U':
-		{
-			do_cmd_racial_power();
-			break;
-		}
-
-
-		/*** Looking at Things (nearby or on map) ***/
-
-		/* Full dungeon map */
-	case 'M':
-		{
-			do_cmd_view_map();
-			break;
-		}
-
-		/* Locate player on map */
-	case 'L':
-		{
-			do_cmd_locate();
-			break;
-		}
-
-		/* Look around */
-	case 'l':
-		{
-			do_cmd_look();
-			break;
-		}
-
-		/* Target monster or location */
-	case '*':
-		{
-			do_cmd_target();
-			break;
-		}
-		/* Identify symbol */
-	case '/':
-		{
-			do_cmd_query_symbol();
-			break;
-		}
-
-		/* Character description */
-	case 'C':
-		{
-			do_cmd_change_name();
-			break;
-		}
-
-
-		/*** System Commands ***/
-
-		/* Hack -- User interface */
-	case '!':
-		{
-			(void)Term_user(0);
-			break;
-		}
-
-		/* Single line from a pref file */
-	case '"':
-		{
-			do_cmd_pref();
-			break;
-		}
-
-		/* Interact with macros */
-	case '@':
-		{
-			do_cmd_macros();
-			break;
-		}
-
-		/* Interact with visuals */
-	case '%':
-		{
-			do_cmd_visuals();
-			break;
-		}
-
-		/* Interact with colours */
-	case '&':
-		{
-			do_cmd_colours();
-			break;
-		}
-
-		/* Interact with options */
-	case '=':
-		{
-			do_cmd_options();
-			p_ptr->redraw |= (PR_EQUIPPY);
-			do_cmd_redraw();
-			break;
-		}
-
-
-		/*** Misc Commands ***/
-
-		/* Take notes */
-	case ':':
-		{
-			do_cmd_note();
-			break;
-		}
-
-		/* Version info */
-	case 'V':
-		{
-			do_cmd_version();
-			break;
-		}
-
-		/* Repeat level feeling */
-	case KTRL('F'):
-		{
-			do_cmd_feeling(FALSE);
-			break;
-		}
-
-		/* Show previous message */
-	case KTRL('O'):
-		{
-			do_cmd_message_one();
-			break;
-		}
-
-		/* Show previous messages */
-	case KTRL('P'):
-		{
-			do_cmd_messages();
-			break;
-		}
-
-		/* Redraw the screen */
-	case KTRL('R'):
-		{
-			do_cmd_redraw();
-			break;
-		}
-
-#ifndef VERIFY_SAVEFILE
-
-		/* Hack -- Save and don't quit */
-	case KTRL('S'):
-		{
-			is_autosave = FALSE;
-			do_cmd_save_game();
-			break;
-		}
-
-#endif
-
-	case KTRL('T'):
-		{
-			/* dummy is % thru day/night */
-			int dummy = ((turn % ((10L * TOWN_DAWN)/2) * 100) / ((10L * TOWN_DAWN)/2));
-			int minute = ((turn % ((10L * TOWN_DAWN)/2) * 720) / ((10L * TOWN_DAWN)/2)) % 60;
-			int hour = ((12 * dummy) / 100) - 6;    /* -6 to +6 */
-			int hour12 = 0;
-			bool morning = FALSE;
-			int day = 0;
-
-			if (turn <= (10L * TOWN_DAWN)/4)
-				day = 1;
-			else
-				day = (turn - (10L * TOWN_DAWN / 4)) / (10L * TOWN_DAWN) + 1;
-
-			if ((turn / ((10L * TOWN_DAWN)/2)) % 2) {   /* night: 6pm -- 6am */
-				if (hour <= 0) {
-					hour12 = 12 - (hour * -1);
-				} else {
-					hour12 = hour;
-				}
-				if (hour >= 0)  morning = TRUE;  else morning = FALSE;
-				msg_format("%d:%02d %s, day %d.", hour12, minute, (morning? "AM" : "PM"),
-					turn / (10L * TOWN_DAWN) + 1);
-
-				if (dummy < 5)
-					msg_print("The sun has set.");
-				else if (dummy == 50)
-					msg_print("It is midnight.");
-				else if ((dummy > 94) && (dummy < 101))
-					msg_print("The sun is near to rising.");
-				else if ((dummy > 75) && (dummy < 95))
-					msg_print("It is early morning, but still dark.");
-				else if (dummy > 100)
-					msg_format("What a funny night-time! (%d)", dummy);
-				else
-					msg_format("It is night.");
-			} else {  /* day */
-				if (hour <= 0) {
-					hour12 = 12 - (hour * -1);
-				} else {
-					hour12 = hour;
-				}
-				if (hour >= 0)  morning = FALSE;  else morning = TRUE;
-				msg_format("%d:%02d %s, day %d.", hour12, minute, (morning? "AM" : "PM"),
-					turn / (10L * TOWN_DAWN) + 1);
-				if (dummy < 5)
-					msg_print("Morning has broken...");
-				else if (dummy < 25)
-					msg_print("It is early morning.");
-				else if (dummy < 50)
-					msg_print("It is late morning.");
-				else if (dummy == 50)
-					msg_print("It is noon.");
-				else if (dummy < 65)
-					msg_print("It is early afternoon.");
-				else if (dummy < 85)
-					msg_print("It is late afternoon.");
-				else if (dummy < 95)
-					msg_print("It is early evening.");
-				else if (dummy < 101)
-					msg_print("The sun is setting.");
-				else
-					msg_format("What a strange daytime! (%d)", dummy);
-			}
+	{
+		/* Enter borg mode */
+		if (enter_borg_mode())
+		{
+			do_cmd_borg();
 		}
 		break;
+	}
+#endif
 
+#ifndef VERIFY_SAVEFILE
+	/* Hack -- Save and don't quit */
+	case KTRL('S'):
+	{
+		is_autosave = FALSE;
+		do_cmd_save_game();
+		break;
+	}
+#endif
 
-		/* Save and quit */
-	case KTRL('X'):
-		{
-			alive = FALSE;
-			break;
-		}
+	/* Ignore                      */ case ESCAPE : {  break; }
+	/* Ignore                      */ case ' ' : { break; }
+	/* Ignore return               */ case '\r': { break; }
+	/* Wear/wield equipment        */ case 'w' : { do_cmd_wield();              break; }
+	/* Take off equipment          */ case 't' : { do_cmd_takeoff();            break; }
+	/* Drop an item                */ case 'd' : { do_cmd_drop();               break; }
+	/* Destroy an item             */ case 'k' : { do_cmd_destroy();            break; }
+	/* Destroy all worthless items */ case 'K' : { do_cmd_destroy_all();        break; }
+	/* Equipment list              */ case 'e' : { do_cmd_equip();              break; }
+	/* Inventory list              */ case 'i' : { do_cmd_inven();              break; }
+	/* Identify an object          */ case 'I' : { do_cmd_observe();            break; }
+	/* Alter a grid                */ case '+' : { do_cmd_alter();              break; }
+	/* Dig a tunnel                */ case 'T' : { do_cmd_tunnel();             break; }
+	/* Move (pick up things)       */ case ';' : { do_cmd_walk(FALSE);          break; }
+	/* Move (do not pick up)       */ case '-' : { do_cmd_walk(TRUE);           break; }
+	/* Begin Running               */ case '.' : { do_cmd_run();                break; }
+	/* Stay still , pick up        */ case ',' : { do_cmd_stay(0);              break; }
+	/* Stay still , no pick up     */ case 'g' : { do_cmd_stay(1);              break; }
+	/* Rest -- Arg is time         */ case 'R' : { do_cmd_rest();               break; }
+	/* Search for traps/doors      */ case 's' : { do_cmd_search();             break; }
+	/* Toggle search mode          */ case 'S' : { do_cmd_toggle_search();      break; }
+	/* Enter store                 */ case '_' : { do_cmd_store();              break; }
+	/* Go up staircase             */ case '<' : { do_cmd_go_up();              break; }
+	/* Go down staircase           */ case '>' : { do_cmd_go_down();            break; }
+	/* Open a door or chest        */ case 'o' : { do_cmd_open();               break; }
+	/* Close a door                */ case 'c' : { do_cmd_close();              break; }
+	/* Jam a door with spikes      */ case 'j' : { do_cmd_spike();              break; }
+	/* Bash a door                 */ case 'B' : { do_cmd_bash();               break; }
+	/* Disarm a trap or chest      */ case 'D' : { do_cmd_disarm();             break; }
+	/* Gain new spells/prayers     */ case 'G' : { do_cmd_gain_spell();         break; }
+	/* Cast a spell                */ case 'm' : { do_cmd_magic_spell();        break; }
+	/* Do alchemy                  */ case 'p' : { do_cmd_mix();                break; }
+	/* Inscribe an object          */ case '{' : { do_cmd_inscribe();           break; }
+	/* Uninscribe an object        */ case '}' : { do_cmd_uninscribe();	        break; }
+	/* Fire an item                */ case 'f' : { do_cmd_fire();               break; }
+	/* Throw an item               */ case 'v' : { do_cmd_throw();              break; }
+	/* Racial Power                */ case 'U' : { do_cmd_racial_power();       break; }
+	/* Full dungeon map            */ case 'M' : { do_cmd_view_map();           break; }
+	/* Locate player on map        */ case 'L' : { do_cmd_locate();             break; }
+	/* Look around                 */ case 'l' : { do_cmd_look();               break; }
+	/* Target monster or location  */ case '*' : { do_cmd_target();             break; }
+	/* Identify symbol             */ case '/' : { do_cmd_query_symbol();       break; }
+	/* Character description       */ case 'C' : { do_cmd_change_name();        break; }
+	/* Hack -- User interface      */ case '!' : { Term_user(0);                break; }
+	/* 1 line from a pref file     */ case '"' : { do_cmd_pref();               break; }
+	/* Interact with macros        */ case '@' : { do_cmd_macros();             break; }
+	/* Interact with visuals       */ case '%' : { do_cmd_visuals();            break; }
+	/* Interact with colours       */ case '&' : { do_cmd_colours();            break; }
+	/* Interact with options       */ case '=' : { do_cmd_options();            break; }
+	/* Take notes                  */ case ':' : { do_cmd_note();               break; }
+	/* Version info                */ case 'V' : { do_cmd_version();            break; }
+	/* Commit suicide              */ case 'Q' : { do_cmd_suicide();            break; }
+	/* Check knowledge             */ case '~' : { do_cmd_knowledge();          break; }
+    /* Check knowledge             */ case '|' : { do_cmd_knowledge();          break; }
+	/* Load "screen dump"          */ case '(' : { do_cmd_screen_dump();        break; }
+	/* Save "screen dump"          */ case ')' : { do_cmd_save_screen();        break; }
+	/* Show visible monsters       */ case '[' : { do_cmd_monsters();           break; }
+	/* Show visible objects        */ case ']' : { do_cmd_objects();            break; }
+	/* Browse a book               */ case 'b' : {do_cmd_considering_unified( do_cmd_browse );       break; }
+	/* Activate an artefact        */ case 'A' : {do_cmd_considering_unified( do_cmd_activate );     break; }
+	/* Eat some food               */ case 'E' : {do_cmd_considering_unified( do_cmd_eat_food );     break; }
+	/* Fuel your lantern/torch     */ case 'F' : {do_cmd_considering_unified( do_cmd_refill );       break; }
+	/* Aim a wand                  */ case 'a' : {do_cmd_considering_unified( do_cmd_aim_wand );     break; }
+	/* Zap a rod                   */ case 'z' : {do_cmd_considering_unified( do_cmd_zap_rod );      break; }
+	/* Quaff a potion              */ case 'q' : {do_cmd_considering_unified( do_cmd_quaff_potion ); break; }
+	/* Read a scroll               */ case 'r' : {do_cmd_considering_unified( do_cmd_read_scroll );  break; }
+	/* Use a staff                 */ case 'u' : {do_cmd_considering_unified( do_cmd_use_staff );    break; }
 
-		/* Quit (commit suicide) */
-	case 'Q':
-		{
-			do_cmd_suicide();
-			break;
-		}
-
-		/* Check artefacts, uniques, objects */
-	case '~':
-	case '|':
-		{
-			do_cmd_knowledge();
-			break;
-		}
-
-		/* Load "screen dump" */
-	case '(':
-		{
-			do_cmd_load_screen( ANGBAND_DIR_PREF ,  "dump.txt" );
-			(void)msg_flush_wait();
-			(void)restore_screen();
-			break;
-		}
-
-		/* Save "screen dump" */
-	case ')':
-		{
-			do_cmd_save_screen();
-			break;
-		}
-
-		/* Hack -- Unknown command */
-	default:
-		{
-			prt("Type '?' for help.", 0, 0);
-		}
+	/* Repeat level feeling   */ case KTRL('F'): { do_cmd_feeling(FALSE); break; }
+	/* Show previous message  */ case KTRL('O'): { do_cmd_message_one();  break; }
+	/* Show previous messages */ case KTRL('P'): { do_cmd_messages();     break; }
+	/* Redraw the screen      */ case KTRL('R'): { do_cmd_redraw();       break; }
+	/* Time of day            */ case KTRL('T'): { do_cmd_time();         break; }
+	/* Save and quit          */ case KTRL('X'): { alive = FALSE;         break; }
+	/* Toggle windows         */ case KTRL('I'): { toggle_inven_equip();  break; }
+	/* Unknown command        */ default       : {  prt("Type '?' for help.", 0, 0); }
 	}
 }
-
-
 
 
 /*
@@ -3027,7 +2096,7 @@ static void process_player(void)
 	}
 
 	/* Give the player some energy */
-	p_ptr->energy += 10; 
+	p_ptr->energy += 10;
 
 	/* No turn yet */
 	if (p_ptr->energy < 1000) return;
@@ -3160,7 +2229,7 @@ static void process_player(void)
 			/* Redraw stuff (if needed) */
 			if (p_ptr->window) window_stuff();
 		}
-		
+
 		/* Squelch stuff */
 		do_squelch();
 
@@ -3349,7 +2418,6 @@ static void process_player(void)
 }
 
 
-
 /*
 * Interact with the current dungeon level.
 *
@@ -3385,10 +2453,8 @@ static void dungeon(void)
 	repair_monsters = TRUE;
 	repair_objects = TRUE;
 
-
 	/* Disturb */
 	disturb(1, 0);
-
 
 	/* Track maximum player level */
 	if (p_ptr->max_plv < p_ptr->lev)
@@ -3467,7 +2533,7 @@ static void dungeon(void)
     p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
 
 	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -3539,7 +2605,7 @@ static void dungeon(void)
 	object_level = dun_level;
 
 	hack_mind = TRUE;
-	
+
 	if(arg_fiddle)msg_note( "About to go into the main loop" );
 
 	/* Main loop */
@@ -3678,8 +2744,10 @@ static void load_all_pref_files(void)
 	process_pref_file(buf);
 
 	/* Access the "realm 1" pref file */
-	if (realm_names[p_ptr->realm1].name != "no magic")
-		if (realm_names[p_ptr->realm1].name != "unknown")
+	/* But only if the realm name is NOT set to 'no magic' */
+	if (strcmp(realm_names[p_ptr->realm1].name, "no magic") != 0)
+		/* And the realm name is NOT set to 'unknown' */
+		if (strcmp(realm_names[p_ptr->realm1].name, "unknown") != 0)
 		{
 			sprintf(buf, "%s.prf",realm_names[p_ptr->realm1].name);
 
@@ -3687,9 +2755,11 @@ static void load_all_pref_files(void)
 			process_pref_file(buf);
 		}
 
-		/* Access the "realm 2" pref file */
-		if (realm_names[p_ptr->realm2].name!="no magic")
-			if (realm_names[p_ptr->realm2].name!="unknown")
+	/* Access the "realm 2" pref file */
+	/* But only if the realm name is NOT set to 'no magic' */
+	if (strcmp(realm_names[p_ptr->realm2].name, "no magic") != 0)
+		/* And the realm name is NOT set to 'unknown' */
+		if (strcmp(realm_names[p_ptr->realm2].name, "unknown") != 0)
 			{
 				sprintf(buf, "%s.prf",realm_names[p_ptr->realm2].name);
 
@@ -3708,7 +2778,7 @@ static void load_all_pref_files(void)
 void play_game(bool new_game)
 {
 	/*,j,x,y; removed for some compiler warning */
-	int i; 
+	int i;
 
 	hack_corruption = FALSE;
 
@@ -3767,8 +2837,8 @@ void play_game(bool new_game)
 	{
 		u32b seed;
 
-		/* Basic seed */
-		seed = (time(NULL));
+		/* Basic seed, casting time_t to u32b */
+		seed = (u32b)(time(NULL));
 
 #ifdef SET_UID
 
@@ -3808,6 +2878,12 @@ void play_game(bool new_game)
 			}
 		}
 	}
+#ifdef live
+	/* On live, we should save every 50 turns, it can crash after all */
+	autosave_l = TRUE;
+	autosave_t = TRUE;
+	autosave_freq = 50;
+#endif
 
 	/* Roll new character */
 	if (new_game)
@@ -3815,10 +2891,9 @@ void play_game(bool new_game)
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
 
-		/* Hack -- seeds for flavors and wilderness*/
+		/* Hack -- seeds for flavors, wilderness & alchemy */
 		seed_flavor = rand_int(0x10000000);
 		seed_town = rand_int(0x10000000);
-		/* Hack -- seed for alchemy */
 		seed_alchemy = rand_int(0x10000000);
 
 		/* Start in town */
@@ -3837,7 +2912,7 @@ void play_game(bool new_game)
 		{
 			turn=1;
 		}
-		
+
 		/* You have received a letter */
 		msg_print("You have a received a letter.");
 		msg_print(NULL);
@@ -3850,7 +2925,7 @@ void play_game(bool new_game)
 		msg_print("You travel to Volterra in Italy.");
 		msg_print(NULL);
 		msg_print("You mutter 'Lasciate ogne esperanza, voi chi intrate'.");
-		msg_print(NULL);		
+		msg_print(NULL);
 	}
 
 
@@ -3862,7 +2937,7 @@ void play_game(bool new_game)
 
 	/* Flavor the objects */
 	flavor_init();
-	
+
 	/* Generate alchemy tables */
 	alchemy_init();
 
@@ -3875,7 +2950,7 @@ void play_game(bool new_game)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
-	
+
 	/* Window stuff */
 	if(arg_fiddle)msg_note( "Doing windows stuff" );
 	window_stuff();
@@ -3916,21 +2991,21 @@ void play_game(bool new_game)
 		/* Process the level */
 		if(arg_fiddle)msg_note( "Process the level" );
 		dungeon();
-		
+
 		/* Notice stuff */
-		if(arg_fiddle)msg_note( "Notice stuff" );		
+		if(arg_fiddle)msg_note( "Notice stuff" );
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		if(arg_fiddle)msg_note( " Update stuff" );				
+		if(arg_fiddle)msg_note( " Update stuff" );
 		if (p_ptr->update) update_stuff();
 
 		/* Redraw stuff */
-		if(arg_fiddle)msg_note( "Redraw stuff" );				
+		if(arg_fiddle)msg_note( "Redraw stuff" );
 		if (p_ptr->redraw) redraw_stuff();
 
 		/* Window stuff */
-		if(arg_fiddle)msg_note( "Window stuff" );				
+		if(arg_fiddle)msg_note( "Window stuff" );
 		if (p_ptr->window) window_stuff();
 
 
@@ -4099,5 +3174,3 @@ void play_game(bool new_game)
 	/* Quit */
 	quit(NULL);
 }
-
-

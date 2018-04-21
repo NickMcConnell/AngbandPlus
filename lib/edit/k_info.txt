@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.8.7
+V:0.8.8
 
 
 ##### Something special #####
@@ -46,53 +46,70 @@ G:&:w
 
 ##### Mushrooms #####
 
-N:1:Blindness
+N:1:the Third Sight
 G:,:d
 I:80:1:500
-W:5:0:1:0
+W:5:0:1:1
 A:5/1
+D:Eating this mushroom will cause your eyes to go blind, inducing some confusion for a short while,
+D:however you will also gain access to a new level of awareness.
 
-N:2:Paranoia
+N:2:Fright
 G:,:d
 I:80:2:500
-W:5:0:1:0
+W:5:0:1:1
 A:5/1
+D:Without precaution, eating this mushroom will cause your body to panic.
+D:You will be unable to attack in close combat but you will be able to outrun most enemies.
 
 N:3:Confusion
 G:,:d
 I:80:3:500
 W:5:0:1:0
 A:5/1
+D:Without precaution this mushroom will confuse you, causing you to fumble with your weapon
+D:and wander around aimlessly.
 
 N:4:Hallucination
 G:,:d
 I:80:4:500
 W:10:0:1:0
 A:10/1
+D:Without precaution this mushroom will cause you to hallucinate, you will no longer be able
+D:to make sense of your environment. The best thing to do when hallucinating is finding an empty
+D:spot and rest until it wears off.
 
 N:5:Cure Poison
 G:,:d
 I:80:12:500
 W:10:0:1:60
 A:10/1
+D:Eating this mushroom will burn away any poison in your system, it will also restore your strength
+D:and constitution.
 
 N:6:Cure Blindness
 G:,:d
 I:80:13:500
 W:10:0:1:50
 A:10/1
+D:Eating this mushroom will cure you blindness and heal you a little.
+D:It will also protect you from blindness for some time.
 
 N:7:Cure Paranoia
 G:,:d
 I:80:14:500
 W:10:0:1:25
 A:10/1
+D:Eating this mushroom will cure your paranoia and heal you a little.
+D:It will also protect you from fear for some time.
 
 N:8:Cure Confusion
 G:,:d
 I:80:15:500
 W:10:0:1:50
 A:10/1
+D:Eating this mushroom will cure your confusion and heal you a little.
+D:It will also protect you from confusion for some time.
 
 N:9:Weakness
 G:,:d
@@ -100,6 +117,7 @@ I:80:6:500
 W:10:0:1:0
 A:10/1
 P:0:5d5:0:0:0
+D:Without precaution, eating this mushroom will drain your strength.
 
 N:10:Unhealth
 G:,:d
@@ -107,30 +125,35 @@ I:80:10:500
 W:15:0:1:50
 A:15/1
 P:0:10d10:0:0:0
+D:Eating this mushroom will waste your body gravely regardless of any sustaining magicks.
 
 N:11:Restore Constitution
 G:,:d
 I:80:18:500
 W:20:0:1:350
 A:20/1
+D:Eating this rare mushroom will restore your constitution.
 
 N:12:Restoring
 G:,:d
 I:80:19:500
 W:20:0:1:1000
 A:20/8:30/4:40/1
+D:Eating this rare mushroom will restore your body and mind.
 
 N:13:Stupidity
 G:,:d
 I:80:8:500
 W:15:0:1:0
 A:15/1
+D:Without precaution, eating this mushroom has a debilitating effect.
 
 N:14:Naivety
 G:,:d
 I:80:9:500
 W:15:0:1:0
 A:15/1
+D:Without precaution, eating this mushroom has a debilitating effect.
 
 N:15:Poison
 G:,:d
@@ -138,6 +161,7 @@ I:80:0:500
 W:5:0:1:0
 A:5/1:5/1
 P:0:4d4:0:0:0
+D:Without precaution, eating this mushroom will poison you, damaging you strentgh and constitution.
 
 N:16:Sickness
 G:,:d
@@ -145,18 +169,21 @@ I:80:7:500
 W:10:0:1:0
 A:10/1
 P:0:4d4:0:0:0
+D:Without precaution, eating this mushroom will weaken you.
 
 N:17:Paralysis
 G:,:d
 I:80:5:500
 W:20:0:1:0
 A:20/1
+D:Without precaution, eating this mushroom will paralyze you. Throwing this mushroom might damage weaker creatures.
 
 N:18:Restore Strength
 G:,:d
 I:80:17:500
 W:20:0:1:350
 A:20/1
+D:Eating this rare mushroom will restore your strength.
 
 N:19:Disease
 G:,:d
@@ -164,53 +191,77 @@ I:80:11:500
 W:20:0:1:50
 A:20/1
 P:0:10d10:0:0:0
+D:Without precaution, eating this mushroom will waste your body.
 
 N:20:Cure Serious Wounds
 G:,:d
 I:80:16:500
 W:15:0:2:75
 A:15/1
+D:Eating this mushroom will cure serious wounds.
 
 ##### Normal Food #####
 
-N:21:& Ration~
+N:21:& Hard Biscuit~
 G:,:U
 I:80:35:5000
 W:0:0:10:3
 A:0/1:5/1:10/1
+D:Gaius Plinius Secundus of the Roman Empire boasted that these biscuits would be edible for centuries.
+D:Such non-perishable food was particularly useful during journeys and wars, and twice baked biscuits
+D:were a staple food of the Roman Legions.
 
 N:22:& Hard Biscuit~
 G:,:U
-I:80:32:500
+I:80:32:5000
 W:0:0:2:1
+A:20/1:40/1
+D:Gaius Plinius Secundus of the Roman Empire boasted that these biscuits would be edible for centuries.
+D:Such non-perishable food was particularly useful during journeys and wars, and twice baked biscuits
+D:were a staple food of the Roman Legions.
 
-N:23:& Strip~ of Venison
+N:23:& Black Summer Truffle~
 G:,:u
 I:80:33:1500
-W:0:0:2:2
+W:0:0:2:500
+A:20/1
+D:The black summer truffle thrives in northern Italy, summer truffles do not have as strong an aroma
+D:or taste as winter truffles do. They are mainly harvested in June and usually sell for a good price.
 
-N:24:& Slime Mold~
-G:,:g
+N:24:& White Truffle~
+G:,:w
 I:80:36:3000
-W:1:0:5:2
+W:1:0:5:2000
 A:1/1
+D:The White truffle or Alba Truffle comes from the Langhe area of the Piedmont region in northern Italy and,
+D:most famously, in the countryside around the city of Alba. Growing symbiotically with oak, hazel, poplar
+D:and beech and fruiting in autumn, they can reach 12 cm diameter and 500 g, though are usually much smaller.
+D:The flesh is pale cream or brown with white marbling, they usually sell for a good price.
 
 N:25:& Piece~ of Ambrosia
 G:,:B
 I:80:37:7500
 W:5:0:3:10
 A:5/1:10/1:20/1
+D:Food of the gods! In Homer's poem Hera "cleansed all defilement from her lovely flesh" (Iliad xiv.170).
+D:When eaten by you it will cure poison, heal damage and restore your charisma.
 
-N:26:& Pint~ of Fine Ale
+N:26:& Bottle~ of Brunello
 G:,:y
 I:80:38:500
 W:0:0:5:1
+A:10/1:20/1
+D:Brunello di Montalcino is a wine made from grapes grown in vineyards surrounding the hilltop town of Montalcino
+D:(about 5 miles south of Sienna) in Tuscany.
 
-N:27:& Pint~ of Fine Wine
+N:27:& Bottle~ of Chianti
 G:,:r
 I:80:39:1000
 W:0:0:10:2
-
+A:0/1:5/1:10/1
+D:Chianti is a very dry red wine, with very concentrated fruit character, most often made entirely from the Sangiovese grape.
+D:Sangiovese or Sanguis Jovis, the Latin origin for the varietal name, literally means "blood of Jove" and it is likely that
+D:Sangiovese (a.k.a. Sangioveto or San Gioveto) was known by Etruscan winemakers.
 
 ## XXX 28 XXX ##
 
@@ -225,15 +276,20 @@ I:23:1:0
 W:0:0:5:1
 A:0/1
 P:0:1d1:-2:-4:0
-F:SHOW_MODS | 
+F:SHOW_MODS |
+D:A dagger is essentially a special form of knife, where the tang is placed along the center line of the blade.
+D:This one is broken.
 
-N:31:& Bastard Sword~
+#KONIJN 31 was bastard sword
+N:31:& Gladius
 G:|:W
 I:23:21:0
-W:15:0:140:350
+W:15:0:30:350
 A:15/1
-P:0:3d4:0:0:0
+P:0:2d4:0:0:0
 F:SHOW_MODS
+D:This blade was common in the Roman Empire, long and slender it's considered good for cutting, chopping and thrusting.
+D:It can inflict a surprising amount of damage given it's weight.
 
 N:32:& Scimitar~
 G:|:W
@@ -242,6 +298,8 @@ W:10:0:130:250
 A:10/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:This sword is common in the Middle East, it has a curved blade with a ridge near the end. It's considered good for slashing
+D:and is the preferred weapon for many heroes. It is the forefather of the sabre.
 
 N:33:& Tulwar~
 G:|:W
@@ -250,6 +308,8 @@ W:5:0:100:200
 A:5/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:This sword is common in India, it has a curved blade and was clearly inspired by the Persian scimitar. It is made with
+D:distinctive looking Indian wootz steel, known across Asia for its' flexibility and strength.
 
 N:34:& Broad Sword~
 G:|:W
@@ -258,6 +318,10 @@ W:10:0:150:255
 A:10/1:15/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:This sword is also called a knight's or knightly sword. It looks different due to the flat bar used as a guard. The overall
+D:shape of the sword when held point down is that of a cross. It is believed this shape was encouraged by the church to remind
+D:Knights of their religion. It was however very popular due to the protection it offered to the hand and certain attacks that
+D:rely on the cross to trap the blade of the enemy.
 
 N:35:& Short Sword~
 G:|:W
@@ -266,14 +330,19 @@ W:5:0:80:90
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
+D:This common sword is the sword of rogues and brawlers. Easy to hide, fairly lethal and sporting a large eight-shaped guard it
+D:is considered to be good for cutting and stabbing.
 
-N:36:& Blade~ of Chaos
+N:36:& Blade~ of the Abyss
 G:|:v
 I:23:30:0
 W:70:0:180:4000
 A:70/8
 P:0:6d5:0:0:0
 F:RES_CHAOS | SHOW_MODS
+D:This blade twists and turns as you look at it, shifting shape and size constantly. It was forged in the Abyss below Hell before the
+D:war of Angels took place. While it is a symbol of chaos and can inflict dislocation, confusion, draining and tranformations on its
+D:victims, it will shield you from Chaos.
 
 N:37:& Two-Handed Sword~
 G:|:W
@@ -282,14 +351,20 @@ W:30:0:200:775
 A:30/1:40/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
+D:This sword is really a longsword with a longer grip providing room for two hands. It's commonly held in combat with both hands,
+D:though sometimes may be used single-handed. This sword is used for striking, cutting, and thrusting.
 
-N:38:& Main Gauche~
+#KONIJN 38 was main gauche
+N:38:& Parrying Dagger~
 G:|:W
 I:23:5:0
 W:3:0:30:25
 A:3/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
+D:Designed to be used together with a rapier, this dagger is fitted with a side ring, recurved quillons,
+D:and a depression at the base of one side of the blade to accommodate the thumb and facilitate a firmer grip.
+D:The waves in the blade are intended to act like "speed bumps" in breaking the impact of a blow from an opponent's blade.
 
 N:39:& Cutlass~
 G:|:W
@@ -298,6 +373,10 @@ W:5:0:110:85
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
+D:This blade is a short, slashing sword, with a slightly curved blade sharpened on the cutting edge,
+D:and a hilt featuring a solid cupped guard. It's best known as a sailor's weapon of choice, because
+D:it's robust enough to hack through heavy ropes, canvas, and wood. It's also short enough to use
+D:in relatively close quarters, such as during boarding actions, in the rigging, or below decks.
 
 N:40:& Executioner's Sword~
 G:|:r
@@ -306,14 +385,12 @@ W:40:0:260:850
 A:40/1
 P:0:4d5:0:0:0
 F:SHOW_MODS
+D:This sword was designed specifically for decapitation of condemned criminals. It is intended for two-handed use, but lacks a point,
+D:so that its' overall length is that of a long sword. The quillions are quite short and straight with a faceted pommel.
 
-N:41:& Katana~
-G:|:W
-I:23:20:0
-W:20:0:120:400
-A:20/1
-P:0:3d4:0:0:0
-F:SHOW_MODS
+#KONIJN 41 was katana
+#N:41:& Katana~
+#I:23:20:0
 
 N:42:& Long Sword~
 G:|:W
@@ -322,6 +399,8 @@ W:10:0:130:300
 A:10/1:20/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:This sword is commonly found all over Europe, it's long and has a cruciform hilt. All parts of the sword are used for offensive purposes,
+D:including the pommel and crossguard.
 
 N:43:& Dagger~
 G:|:W
@@ -330,6 +409,7 @@ W:0:0:12:10
 A:0/1:5/1:10/1:20/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
+D:A dagger is essentially a special form of knife, where the tang is placed along the center line of the blade.
 
 N:44:& Rapier~
 G:|:W
@@ -338,6 +418,9 @@ W:5:0:40:42
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
+D:This blade is common in Europe, it's a relatively slender, sharply pointed sword, used mainly for thrusting attacks.
+D:It has a complex hilt which is constructed to provide protection for the hand wielding it. While the blade might be broad
+D:enough to cut to some degree, the strength of the rapier is its ability as a thrusting weapon.
 
 N:45:& Sabre~
 G:|:W
@@ -346,6 +429,8 @@ W:5:0:50:50
 A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
+D:This blade is a backsword with a curved, single-edged blade and a rather large hand guard, covering the
+D:knuckles of the hand as well as the thumb and forefinger.
 
 N:46:& Small Sword~
 G:|:W
@@ -354,14 +439,16 @@ W:5:0:75:48
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
+D:This sword is commonly found in France, this French version of the rapier is shorter, quicker, lighter and almost edgeless.
 
 N:47:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:30:2
-A:0/1
+A:0/4
 P:0:1d2:-2:-4:0
 F:SHOW_MODS
+D:Only the pommel and crossguard are left intact, you suspect a magical attack blasted this blade into its sorry state.
 
 ##### Hafted Weapons #####
 
@@ -372,6 +459,8 @@ W:20:0:150:200
 A:20/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:It's a heavy metal ball linked by a chain and metal ring,
+D:designed for maximum impact damage.
 
 N:49:& Whip~
 G:\:D
@@ -380,6 +469,7 @@ W:3:0:30:30
 A:3/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
+D:A long flexible stick, with a small bit of leather or cord, called a "popper", on the end.
 
 N:50:& Flail~
 G:\:D
@@ -388,6 +478,8 @@ W:10:0:150:353
 A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
+D:This flail is made from two metal sticks attached by a short chain; one stick is held, the other one connects.
+D:Its considered a weapon of the peasants and the poor.
 
 N:51:& Two-Handed Flail~
 G:\:y
@@ -396,6 +488,8 @@ W:45:0:280:590
 A:45/1
 P:0:3d6:0:0:0
 F:SHOW_MODS
+D:This flail is made from a half dozen of metal sticks attached by a short chain; one stick is held, the other five connect.
+D:Its considered a weapon of the peasants and the poor.
 
 N:52:& Morning Star~
 G:\:D
@@ -404,6 +498,7 @@ W:10:0:150:396
 A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
+D:This club has a dozen of metal spikes sticking out of the head. It provides an effective combination of blunt-force and puncture attacks.
 
 N:53:& Mace~
 G:\:D
@@ -412,6 +507,7 @@ W:5:0:120:130
 A:5/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
+D:This is a simple weapon. It has a strong, heavy wooden, metal-reinforced shaft with steel head.
 
 N:54:& Quarterstaff~
 G:\:U
@@ -420,6 +516,7 @@ W:10:0:150:200
 A:10/1
 P:0:1d9:0:0:0
 F:SHOW_MODS
+D:This is a simple weapon. It has a long hardwood shaft with metal tips. It is named after it's size; an average wielder's height plus another quarter.
 
 N:55:& War Hammer~
 G:\:D
@@ -428,6 +525,7 @@ W:5:0:120:225
 A:5/1
 P:0:3d3:0:0:0
 F:SHOW_MODS
+D:A large hammer with a spike on one end of the head, it is the weapon of choice for delivering massive blunt damage.
 
 N:56:& Lead-Filled Mace~
 G:\:D
@@ -436,6 +534,7 @@ W:15:0:180:502
 A:15/1
 P:0:3d4:0:0:0
 F:SHOW_MODS
+D:This is a heavier version of the regular mace. The added weight allows for a much greater impact.
 
 N:57:& Mace~ of Disruption
 G:\:v
@@ -445,13 +544,9 @@ A:80/8
 P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS
 
-N:58:& Lucerne Hammer~
-G:\:B
-I:21:10:0
-W:10:0:120:376
-A:10/1
-P:0:2d5:0:0:0
-F:SHOW_MODS
+#Konijn removed the Lucerne hammer, its really a war hammer
+#N:58:& Lucerne Hammer~
+#I:21:10:0
 
 ##### Polearms #####
 
@@ -462,6 +557,8 @@ W:15:0:180:408
 A:15/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
+D:This double bladed weapon has an axe blade on one end and a mean looking spike
+D:on the other end. The axe blade itself tapers off into a spike as well.
 
 N:60:& Glaive~
 G:/:s
@@ -470,6 +567,8 @@ W:20:0:190:363
 A:20/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
+D:This single bladed weapon has a single edged bladed fixed onto the socket of a long shaft like an axe.
+D:It is used in mostly the same manner as a quarterstaff.
 
 N:61:& Halberd~
 G:/:s
@@ -478,6 +577,8 @@ W:25:0:190:430
 A:25/1
 P:0:3d5:0:0:0
 F:SHOW_MODS
+D:This two-handed pole weapon consists of an axe blade topped with a spike mounted on a long shaft.
+D:The shaft of this weapon has been reinforced with metal rims to block swords more effectively.
 
 N:62:& Awl-Pike~
 G:/:s
@@ -486,6 +587,8 @@ W:10:0:160:340
 A:10/1
 P:0:1d8:0:0:0
 F:SHOW_MODS
+D:This weapon is a thrusting spear, it consists of a long thin spike of square cross section measuring
+D:a meter or more, mounted to a round wooden shaft and secured with a pair of langets extending from the socket.
 
 N:63:& Pike~
 G:/:s
@@ -494,6 +597,8 @@ W:15:0:160:358
 A:15/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
+D:This weapon is a pole weapon, a very long thrusting spear used two-handed and used extensively by infantry
+D:both for attacks on enemy foot soldiers and as a counter-measure against cavalry assaults.
 
 N:64:& Spear~
 G:/:s
@@ -502,6 +607,8 @@ W:5:0:50:36
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
+D:This weapon is a pole weapon consisting of a wooden shaft with a sharpened leaf-shaped metal head.
+D:This spear is used primarily for thrusting with one hand and is heavier and sturdier than those intended exclusively for throwing.
 
 N:65:& Trident~
 G:/:y
@@ -510,14 +617,17 @@ W:5:0:70:120
 A:5/1
 P:0:1d8:0:0:0
 F:SHOW_MODS
+D:This weapon is a three-pronged spear. It is known for its long reach and ability to trap other long-weapons
+D:between prongs to disarm their wielder.
 
-N:66:& Lance~
+N:66:& Contus~
 G:/:s
 I:22:20:0
 W:10:0:300:230
 A:10/1
 P:0:2d8:0:0:0
 F:SHOW_MODS
+D:This is a Roman cavalry long thrusting spear, it is 3 meters long, and grasped with both hands.
 
 N:67:& Great Axe~
 G:/:s
@@ -526,6 +636,8 @@ W:40:0:230:500
 A:40/1
 P:0:4d4:0:0:0
 F:SHOW_MODS
+D:A huge and heavy two-headed axe it is used by only the strongest of warriors. Its crushing blow usually
+D:disables any enemy with the first blow.
 
 N:68:& Battle Axe~
 G:/:s
@@ -534,6 +646,8 @@ W:15:0:170:334
 A:15/1
 P:0:2d8:0:0:0
 F:SHOW_MODS
+D:This weapon is the Nordic version of the halberd. The pole arm of choice for most Nordics it is ideally
+D:suited for slashing and thrusting.
 
 N:69:& Lochaber Axe~
 G:/:D
@@ -542,6 +656,10 @@ W:45:0:250:750
 A:45/1
 P:0:3d8:0:0:0
 F:SHOW_MODS
+D:This heavy war weapon consists of parts: shaft and blade. The shaft is about two meters long and mounted with blade of about
+D:half a meter. The blade is attached in two places and has a sharp point coming off the top. In addition a hook is attached
+D:to the back of the blade. A butt spike is included as a counterweight to the heavy axe head. Langlets are incorporated down
+D:each side of the shaft to prevent the head from being cut off.
 
 N:70:& Broad Axe~
 G:/:s
@@ -550,6 +668,7 @@ W:15:0:160:304
 A:15/1
 P:0:2d6:0:0:0
 F:SHOW_MODS
+D:This is a large-headed axe designed for wood cutting. It is inferior to the Lochaber axe which was actually designed for combat.
 
 N:71:& Scythe~
 G:/:s
@@ -558,6 +677,8 @@ W:45:0:250:800
 A:45/1
 P:0:5d3:0:0:0
 F:SHOW_MODS
+D:This scythe has had its blade transformed so that it extends upright from the staff, and is used much like a halberd.
+D:It consists of a wooden shaft of 170 centimetres with 2 handles and one long curved blade mounted at the lower end.
 
 N:72:& Scythe~ of Slicing
 G:/:r
@@ -566,6 +687,8 @@ W:60:0:250:3500
 A:60/4
 P:0:8d4:0:0:0
 F:SHOW_MODS
+D:This weapon looks at first sight like a regular war scythe. On closer inspection you find the blades
+D:have a deadly, vorpal quality to them.
 
 
 ##### Bows, Crossbows, Slings #####
@@ -939,7 +1062,6 @@ W:30:0:250:850
 A:30/1
 P:16:1d4:-2:0:0
 
-
 # This shield does not belong here
 
 N:122:& Shield~ of Deflection
@@ -949,7 +1071,6 @@ W:70:0:100:10000
 A:70/8
 P:10:1d1:0:0:10
 F:IGNORE_ACID
-
 
 ### The Cloaks ###
 
@@ -967,7 +1088,6 @@ W:60:0:5:7500
 A:75/5
 P:6:0d0:0:0:4
 F:RES_DARK | RES_LITE
-
 
 ### The Gloves ###
 
@@ -991,7 +1111,6 @@ I:31:5:0
 W:50:0:40:100
 A:50/1
 P:5:1d1:0:0:0
-
 
 ### The shields ###
 
@@ -1032,6 +1151,7 @@ I:45:24:0
 W:30:0:2:500
 A:30/1
 F:STR | HIDE_TYPE | SUST_STR
+D:This ring has an image of Ares engraved on it, providing strength to the wearer.
 
 N:133:Dexterity
 G:=:y
@@ -1039,6 +1159,7 @@ I:45:26:0
 W:30:0:2:500
 A:30/1
 F:DEX | HIDE_TYPE | SUST_DEX
+D:This ring has a Neqa'el or demon cat engraved on it, boosting your dexterity supernaturally.
 
 N:134:Constitution
 G:=:y
@@ -1046,6 +1167,7 @@ I:45:27:0
 W:30:0:2:500
 A:30/1
 F:CON | HIDE_TYPE | SUST_CON
+D:This ring has the demon Abaddon engraved on it, boosting your constitution supernaturally.
 
 N:135:Intelligence
 G:=:y
@@ -1053,6 +1175,7 @@ I:45:25:0
 W:30:0:2:500
 A:30/1
 F:INT | HIDE_TYPE | SUST_INT
+D:This ring has an image of Athena engraved on it, providing intelligence to the wearer.
 
 N:136:Speed
 G:=:y
@@ -1060,6 +1183,7 @@ I:45:31:0
 W:80:0:2:100000
 A:80/1
 F:SPEED | HIDE_TYPE
+D:This ring has the demon Furcifer engraved on it, speeding its' wearer supernaturally.
 
 N:137:Searching
 G:=:y
@@ -1067,6 +1191,7 @@ I:45:23:0
 W:5:0:2:250
 A:5/1
 F:SEARCH | HIDE_TYPE
+D:This ring has an Egyptian eye hieroglyph engraved in it, aiding the wearer to find what was meant to stay hidden.
 
 N:138:Teleportation
 G:=:y
@@ -1074,6 +1199,7 @@ I:45:4:0
 W:5:0:2:250
 A:5/1
 F:CURSED | TELEPORT | EASY_KNOW
+D:This ring throbs violently now that you've discovered its true purpose.
 
 N:139:Slow Digestion
 G:=:y
@@ -1081,6 +1207,7 @@ I:45:6:0
 W:5:0:2:250
 A:5/1
 F:SLOW_DIGEST | EASY_KNOW
+D:This ring has a Greek omega engraved in it, forcing the wearer to look beyond his next lunch.
 
 N:140:Resist Fire
 G:=:y
@@ -1088,6 +1215,7 @@ I:45:8:0
 W:10:0:2:250
 A:10/1
 F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
+D:This ring is covered with a thin sheet of ice.
 
 N:141:Resist Cold
 G:=:y
@@ -1095,6 +1223,7 @@ I:45:9:0
 W:10:0:2:250
 A:10/1
 F:RES_COLD | IGNORE_COLD | EASY_KNOW
+D:This ring feels hot to the touch.
 
 N:142:Levitation
 G:=:y
@@ -1102,6 +1231,7 @@ I:45:7:0
 W:5:0:2:200
 A:5/1
 F:FEATHER | EASY_KNOW
+D:This ring has an image of Gabriel, the Messenger inscribed on it.
 
 N:143:Poison Resistance
 G:=:y
@@ -1109,6 +1239,7 @@ I:45:20:0
 W:60:0:2:16000
 A:60/2
 F:RES_POIS | EASY_KNOW
+D:This ring has an image of Raphael, the Healer inscribed on it.
 
 N:144:Free Action
 G:=:y
@@ -1116,6 +1247,7 @@ I:45:21:0
 W:20:0:2:1500
 A:20/1
 F:FREE_ACT | EASY_KNOW
+D:This ring is covered with the alchemical symbol of mercury, providing resistance to paralysing effects.
 
 N:145:Weakness
 G:=:y
@@ -1123,6 +1255,8 @@ I:45:2:-5
 W:5:0:2:0
 A:5/1
 F:CURSED | STR | HIDE_TYPE
+D:This is a splendid looking ring, only because you know it's a ring of Weakness
+D:can you make out a depiction of Rath the Lion-bearer on the inside of the ring.
 
 N:146:Flames
 G:=:y
@@ -1131,6 +1265,7 @@ W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
 F:RES_FIRE | IGNORE_FIRE | ACTIVATE
+D:This ring is covered with the alchemical symbol of fire, ready to do your bidding.
 
 N:147:Acid
 G:=:y
@@ -1139,6 +1274,7 @@ W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID | ACTIVATE
+D:This ring is covered with the alchemical symbol of vitriol, ready to do your bidding.
 
 N:148:Ice
 G:=:y
@@ -1147,6 +1283,7 @@ W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD | ACTIVATE
+D:This ring is covered with a thin sheet of ice, ready to do your bidding.
 
 N:149:Woe
 G:=:y
@@ -1154,6 +1291,8 @@ I:45:0:-5
 W:50:0:2:0
 A:50/1
 F:CURSED | TELEPORT | WIS | CHA | HIDE_TYPE
+D:This ring looks like it was made for a king, only because you know it's a ring Woe
+D:can you make out a depiction of Error, the sixth element of the dark ruler, on the inside of the ring.
 
 N:150:Stupidity
 G:=:y
@@ -1161,24 +1300,29 @@ I:45:3:-5
 W:5:0:2:0
 A:5/1
 F:CURSED | INT | HIDE_TYPE
+D:This is a splendid looking ring, only because you know it's a ring of Stupidity
+D:can you make out a depiction of Deception, the first element of the dark ruler, on the inside of the ring.
 
 N:151:Damage
 G:=:y
 I:45:29:0
 W:20:0:2:500
 A:20/1
+D:This ring has the alchemical symbol of Saturn inscribed on it, providing sheer blunt force to your blows.
 
 N:152:Accuracy
 G:=:y
 I:45:28:0
 W:20:0:2:500
 A:20/1
+D:This ring has the alchemical symbol of Mercury inscribed on it, providing speed and accuracy to your blows.
 
 N:153:Protection
 G:=:y
 I:45:16:0
 W:10:0:2:500
 A:10/1
+D:This ring has the alchemical symbol of Earth inscribed on it, providing protection from combat blows.
 
 N:154:Aggravation
 G:=:y
@@ -1186,6 +1330,7 @@ I:45:1:0
 W:5:0:2:0
 A:5/1
 F:CURSED | AGGRAVATE | EASY_KNOW
+D:This ring pulses angrily now that you know what it is. It tries to attract and aggravate monsters around you.
 
 N:155:See Invisible
 G:=:y
@@ -1193,8 +1338,9 @@ I:45:22:0
 W:30:0:2:340
 A:30/1
 F:SEE_INVIS | EASY_KNOW
+D:This ring has dozens of eyes engraved all over it, obviously granting the Second Sight when worn.
 
-#I have always hated the sustain rings with a passion 
+#I have always hated the sustain rings with a passion
 #I have never ever worn one...
 #These are sustain rings I might wear
 N:156:Sustain Body
@@ -1203,6 +1349,7 @@ I:45:10:0
 W:30:0:2:750
 A:30/1
 F:SUST_STR | SUST_CON | SUST_DEX | EASY_KNOW
+D:This ring has an image of Anouket, the Egyptian war goddess inscribed on it.
 
 N:157:Sustain Mind
 G:=:b
@@ -1210,6 +1357,7 @@ I:45:11:0
 W:30:0:2:600
 A:30/1
 F:SUST_INT | SUST_WIS | EASY_KNOW
+D:This ring has an image of Thoth, scribe of the Underworld, protector of the mind.
 
 N:158:Combat Lust
 G:=:r
@@ -1218,6 +1366,8 @@ W:30:0:2:600
 P:0:0d0:5:5:0
 A:30/1
 F:AGGRAVATE | EASY_KNOW
+D:This ring has hair fine lines all over the surface with blood flowing through them,
+D:when worn this ring will enhance your combat skills but aggravate all monsters around you.
 
 N:159:Elevation
 G:=:y
@@ -1225,6 +1375,7 @@ I:45:13:1
 W:30:0:2:750
 A:30/1
 F:STR | CON | DEX | CHA | WIS | INT | EASY_KNOW
+D:This is a ring of the Ha-Qodeshim or the Holy ones, when worn it will enhance all your stats.
 
 N:160:Temperance
 G:=:y
@@ -1232,6 +1383,7 @@ I:45:14:0
 W:30:0:2:750
 A:30/1
 F:RES_COLD | RES_FIRE | EASY_KNOW
+D:This ring is attuned to the forces of fire and frost, protecting you from both.
 
 N:161:Shadows
 G:=:d
@@ -1239,6 +1391,7 @@ I:45:15:0
 W:30:0:2:500
 A:30/1
 F:RES_LITE | RES_DARK | EASY_KNOW
+D:This ring is attuned to the forces of light and shadow, protecting you from both.
 
 N:162:Slaying
 G:=:y
@@ -1246,6 +1399,7 @@ I:45:30:0
 W:40:0:2:1000
 A:40/1
 F:SHOW_MODS
+D:This ring has the name of Ares engraved in Celtic runes, its magic enhancing every blow you strike.
 
 ##### Amulets #####
 
@@ -1255,6 +1409,7 @@ I:40:6:2
 W:20:0:3:500
 A:20/1
 F:INT | WIS | HIDE_TYPE
+D:This amulet has an image of Athena engraved on it, providing intelligence and wisdom to the wearer.
 
 N:164:Charisma
 G:":d
@@ -1262,6 +1417,7 @@ I:40:7:0
 W:20:0:3:500
 A:20/1
 F:CHA | HIDE_TYPE | SUST_CHA
+D:This amulet has an image of Venus engraved on it, sustaining the beauty and charisma of the wearer.
 
 N:165:Searching
 G:":d
@@ -1269,6 +1425,7 @@ I:40:5:0
 W:30:0:3:600
 A:30/4
 F:SEARCH | HIDE_TYPE
+D:This amulet has an Egyptian eye hieroglyph engraved in it, aiding the wearer to find what was meant to stay hidden.
 
 N:166:Teleportation
 G:":d
@@ -1276,6 +1433,7 @@ I:40:1:0
 W:15:0:3:250
 A:15/1
 F:CURSED | TELEPORT | EASY_KNOW
+D:This amulet throbs violently now that you've discovered its true purpose.
 
 N:167:Slow Digestion
 G:":d
@@ -1283,6 +1441,7 @@ I:40:3:0
 W:15:0:3:200
 A:15/1
 F:SLOW_DIGEST | EASY_KNOW
+D:This amulet has a Greek omega engraved in it, forcing the wearer to look beyond his next lunch.
 
 N:168:Resist Acid
 G:":d
@@ -1290,6 +1449,8 @@ I:40:4:0
 W:20:0:3:300
 A:20/1
 F:RES_ACID | IGNORE_ACID | EASY_KNOW
+#So sorry, Explorington III died, this is my hidden tribute to his terrible puns ;]
+D:This amulet is very basic.
 
 N:169:Adornment
 G:":d
@@ -1297,6 +1458,7 @@ I:40:2:0
 W:15:0:3:20
 A:15/1
 F:EASY_KNOW
+D:A worthless bauble, you're not sure why you're inspecting it.
 
 ## XXX 170 XXX ##
 
@@ -1306,8 +1468,9 @@ I:40:8:0
 W:50:0:3:30000
 A:50/4:80/3
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
+F:FREE_ACT | SEE_INVIS | SEARCH | RES_CONF
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This softly glowing amulet has been created for a member of the venerable order of the Magi.
 
 N:172:DOOM
 G:":d
@@ -1315,7 +1478,7 @@ I:40:0:-5
 W:50:0:3:0
 A:50/1
 F:CURSED | STR | INT | WIS | DEX | CON | CHA | HIDE_TYPE
-
+D:This amulet will turn you into an abomination.
 
 ##### Scrolls #####
 
@@ -1324,36 +1487,43 @@ G:?:d
 I:70:17:0
 W:15:0:5:125
 A:15/1
+D:When read, this scroll will enchant a weapon trying to improve its to hit bonus.
 
 N:174:Enchant Weapon To-Dam
 G:?:d
 I:70:18:0
 W:15:0:5:125
 A:15/1
+D:When read, this scroll will enchant a weapon trying to improve its damage bonus.
 
 N:175:Enchant Armor
 G:?:d
 I:70:16:0
 W:15:0:5:125
 A:15/1
+D:When read, this scroll will enchant a piece of armour trying to improve its armour bonus.
 
 N:176:Identify
 G:?:d
 I:70:12:0
 W:1:0:5:50
 A:1/1:5/1:10/1:30/1
+D:When read, this scroll will identify an item of your choice, revealing bonuses to combat and armour and obvious powers.
+D:You need a scroll of *identify* or have the town Alchemist research an item to know all powers, resistances and brands.
 
 N:177:*Identify*
 G:?:d
 I:70:13:0
 W:30:0:5:1000
 A:30/1:50/2:80/1:100/1
+D:When read, this scroll will completely identify an item of your choice, revealing all powers, resistances and brands.
 
 N:178:Rumour
 G:?:d
 I:70:51:0
 W:1:0:5:10
-A:1/1
+A:1/1:5/1
+D:It reads, 'Help, I have been kidnapped and forced to work as a prisoner in the fortune cookie factory!'.
 
 N:179:Chaos
 G:?:d
@@ -1361,98 +1531,115 @@ I:70:50:0
 W:100:0:5:10000
 A:100/8
 F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC
+D:When read, this scroll will conjure a storm of primordial chaos around you.
 
 N:180:Remove Curse
 G:?:d
 I:70:14:0
 W:10:0:5:100
 A:10/1:20/2:40/2
+D:When read, this scroll removes common curses on all item in your equipment and inventory.
 
 N:181:Light
 G:?:d
 I:70:24:0
 W:0:0:5:15
 A:0/1:3/1:10/1
+D:When read, this scroll will light up your surroundings.
 
-N:182:Fire
+N:182:Fire Storm
 G:?:d
 I:70:48:0
 W:50:0:5:1000
 A:50/4
 F:IGNORE_FIRE
+D:When read, this scroll will conjure a storm of fire around you.
 
-N:183:Ice
+N:183:Hail Storm
 G:?:d
 I:70:49:0
 W:75:0:5:5000
 A:75/6
 F:IGNORE_COLD
+D:When read, this scroll will conjure a storm of frost around you.
 
 N:184:Summon Monster
 G:?:d
 I:70:4:0
 W:1:0:5:0
 A:1/1
+D:When read, this scroll will summon hostile monsters around you.
 
 N:185:Phase Door
 G:?:d
 I:70:8:0
 W:1:0:5:15
 A:1/1
+D:When read, this scroll will teleport you away a short distance.
 
 N:186:Teleportation
 G:?:d
 I:70:9:0
 W:10:0:5:40
 A:10/1
+D:When read, this scroll will teleport you away a long distance.
 
 N:187:Teleport Level
 G:?:d
 I:70:10:0
 W:20:0:5:50
 A:20/1
+D:When read, this scroll will teleport you up or down a level.
 
 N:188:Monster Confusion
 G:?:d
 I:70:36:0
 W:5:0:5:30
 A:5/1
+D:When read, an aura of confusion will surround you. This aura will trigger the first time you hit a monster,
+D:it will coalesce into a single touch of confusion which might or might not confuse the monster you touch.
 
 N:189:Magic Mapping
 G:?:d
 I:70:25:0
 W:5:0:5:40
 A:5/1
+D:When read, this scroll will map your surroundings.
 
 N:190:Rune of Protection
 G:?:d
 I:70:38:0
 W:50:0:5:500
 A:50/2:90/4
+D:When read, this scroll will draw a rune on where you stand. No monster can walk on that rune or can be summoned onto that rune until it's been broken.
 
 N:191:*Remove Curse*
 G:?:d
 I:70:15:0
 W:50:0:5:8000
 A:50/2:75/2:85/2:95/1
+D:When read, this scroll will remove regular and heavy curses from items you wear in your inventory or carry as equipment.
 
 N:192:Treasure Detection
 G:?:d
 I:70:26:0
 W:0:0:5:15
 A:0/1
+D:When read, this scroll will detect treasure around you.
 
 N:193:Object Detection
 G:?:d
 I:70:27:0
 W:0:0:5:15
 A:0/1
+D:When read, this scroll will detect objects around you.
 
 N:194:Trap Detection
 G:?:d
 I:70:28:0
 W:5:0:5:35
 A:5/1:10/1
+D:When read, this scroll will detect traps around you.
 
 ## XXX 195 XXX ##
 
@@ -1463,150 +1650,176 @@ G:?:d
 I:70:29:0
 W:5:0:5:35
 A:5/1:10/1:15/1
+D:When read, this scroll will detect all doors and stairs around you.
 
 N:198:Acquirement
 G:?:d
 I:70:46:0
 W:20:0:5:100000
 A:20/8
+D:When read, this scroll will fabricate a valuable item.
 
 N:199:*Acquirement*
 G:?:d
 I:70:47:0
 W:60:0:5:200000
 A:60/16
+D:When read, this scroll will fabricate a very valuable item.
 
 N:200:Mass Genocide
 G:?:d
 I:70:45:0
 W:50:0:5:1000
 A:50/4:100/4
+D:When read, this scroll will banish all monsters around you, damaging you a little for each monster.
 
 N:201:Detect Invisible
 G:?:d
 I:70:30:0
 W:1:0:5:15
 A:1/1
+D:When read, this scroll will detect all visible monsters around you.
 
 N:202:Aggravate Monster
 G:?:d
 I:70:1:0
 W:5:0:5:0
 A:5/1
+D:When read, this scroll will destroy aggravate all monsters around you.
 
 N:203:Trap Creation
 G:?:d
 I:70:7:0
 W:10:0:5:0
 A:10/1
+D:When read, this scroll will create traps all around you.
 
 N:204:Trap/Door Destruction
 G:?:d
 I:70:39:0
 W:10:0:5:50
 A:10/1
+D:When read, this scroll will destroy all doors and traps surrounding the player.
 
 N:205:Artifact Creation
 G:?:d
 I:70:52:0
 W:70:0:5:200000
 A:70/16
+D:When read, this valuable, rare and fickle scroll will try to turn a basic or ego item into an artifact.
 
 N:206:Recharging
 G:?:d
 I:70:22:0
 W:40:0:5:200
 A:40/1
+D:When read, this scroll will recharge a wand or a staff. The odds of the wand or staff to blow up increase with the amount of charges left.
 
 N:207:Genocide
 G:?:d
 I:70:44:0
 W:40:0:5:750
 A:40/4:80/4
+D:When read, this scroll will genocide a type of monster of your choice.
 
 N:208:Darkness
 G:?:d
 I:70:0:0
 W:1:0:5:0
 A:1/1
+D:When read, this scroll will surround you from darkness.
 
 N:209:Protection from Evil
 G:?:d
 I:70:37:0
 W:30:0:5:250
 A:30/1
+D:When read, this scroll will protect you from evil.
 
 N:210:Satisfy Hunger
 G:?:d
 I:70:32:0
 W:5:0:5:10
 A:5/1:20/1:50/1:75/1
+D:When read, this scroll will satisfy your hunger.
 
 N:211:Dispel Undead
 G:?:d
 I:70:42:0
 W:40:0:5:200
 A:40/1
+D:When read, this scroll will damage or outright banish undead monsters.
 
 N:212:*Enchant Weapon*
 G:?:d
 I:70:21:0
 W:50:0:5:500
 A:50/1
+D:When read, this scroll will enchant your weapon beyond the limits of regular enchant armor scrolls.
 
 N:213:Curse Weapon
 G:?:d
 I:70:3:0
 W:50:0:5:0
 A:50/1
+D:When read, this scroll will infuse your weapon with malevolent forces.
 
 N:214:*Enchant Armor*
 G:?:d
 I:70:20:0
 W:50:0:5:500
 A:50/1:50/1
+D:When read, this scroll will enchant your armour beyond the limits of regular enchant armor scrolls.
 
 N:215:Curse Armor
 G:?:d
 I:70:2:0
 W:50:0:5:0
 A:50/1
+D:When read, this scroll will infuse your armor with malevolent forces.
 
 N:216:Summon Undead
 G:?:d
 I:70:5:0
 W:15:0:5:0
 A:15/1
+D:When read, this scroll will summon hostile undead.
 
 N:217:Blessing
 G:?:d
 I:70:33:0
 W:1:0:5:15
 A:1/1
+D:When read, this scroll will bless you, make you hit harder and harder to hit.
 
 N:218:Holy Chant
 G:?:d
 I:70:34:0
 W:10:0:5:40
 A:10/1
+D:When read, this scroll will bless you two times longer than a Blessing scroll.
 
 N:219:Holy Prayer
 G:?:d
 I:70:35:0
 W:25:0:5:80
 A:25/1
+D:When read, this scroll will bless you four times longer than a Blessing scroll.
 
 N:220:Word of Recall
 G:?:d
 I:70:11:0
 W:5:0:5:150
 A:5/1
+D:When read in the dungeon, this scroll will with some delay teleport you into the town.
+D:When read in the town, this scroll will will with some delay  teleport you back into Hell.
 
 N:221:*Destruction*
 G:?:d
 I:70:41:0
 W:40:0:5:250
 A:40/1
+D:When read, this scroll will destroy all monsters and items around you while collapsing the ceiling.
 
 ##### Potions #####
 
@@ -1616,6 +1829,7 @@ I:75:2:400
 W:0:0:4:2
 A:0/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will fill your stomach.
 
 N:223:Apple Juice
 G:!:d
@@ -1623,6 +1837,7 @@ I:75:1:250
 W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will have you wanting more juice.
 
 N:224:Water
 G:!:d
@@ -1630,6 +1845,7 @@ I:75:0:200
 W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will quench your thirst.
 
 N:225:Strength
 G:!:d
@@ -1637,6 +1853,7 @@ I:75:48:0
 W:20:0:4:8000
 A:20/6:25/3:30/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will permanently increase your strength.
 
 N:226:Weakness
 G:!:d
@@ -1644,6 +1861,7 @@ I:75:16:0
 W:3:0:4:0
 A:3/1
 P:0:3d12:0:0:0
+D:When quaffed, this potion will damage your strength.
 
 N:227:Restore Strength
 G:!:d
@@ -1651,6 +1869,7 @@ I:75:42:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore your strength.
 
 N:228:Intelligence
 G:!:d
@@ -1658,6 +1877,7 @@ I:75:49:0
 W:20:0:4:8000
 A:20/6:25/3:30/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will permanently increase your intelligence.
 
 N:229:Stupidity
 G:!:d
@@ -1665,6 +1885,7 @@ I:75:17:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will damage your intelligence.
 
 N:230:Restore Intelligence
 G:!:d
@@ -1672,6 +1893,7 @@ I:75:43:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore your intelligence.
 
 N:231:Wisdom
 G:!:d
@@ -1679,6 +1901,7 @@ I:75:50:0
 W:20:0:4:8000
 A:20/6:25/3:30/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will permanently increase your wisdom.
 
 N:232:Naivety
 G:!:d
@@ -1686,6 +1909,7 @@ I:75:18:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will damage your wisdom.
 
 N:233:Restore Wisdom
 G:!:d
@@ -1693,6 +1917,7 @@ I:75:44:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore your wisdom.
 
 N:234:Charisma
 G:!:d
@@ -1700,6 +1925,7 @@ I:75:53:0
 W:20:0:4:1000
 A:20/1:25/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will permanently increase your charisma.
 
 N:235:Ugliness
 G:!:d
@@ -1707,6 +1933,7 @@ I:75:21:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will damage your charisma.
 
 N:236:Restore Charisma
 G:!:d
@@ -1714,13 +1941,15 @@ I:75:47:0
 W:20:0:4:300
 A:20/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore your charisma.
 
 N:237:Curing
 G:!:d
 I:75:61:100
 W:18:0:4:250
-A:18/1,40/1
+A:18/1:40/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will heal a lot and cure all your ailments.
 
 # Note! Invulnerability decreases your food...
 
@@ -1730,6 +1959,7 @@ I:75:62:-2500
 W:90:0:4:100000
 A:90/9
 P:0:1d1:0:0:0
+D:When quaffed, this potion will make you invulernable for a short while.
 
 N:239:New Life
 G:!:d
@@ -1737,6 +1967,7 @@ I:75:63:100
 W:50:0:4:750000
 A:50/20:100/10:120/5
 P:0:1d1:0:0:0
+D:When quaffed, this potion will completely heal you and potentially increase your hitpoints permanently.
 
 N:240:Cure Serious Wounds
 G:!:d
@@ -1744,6 +1975,7 @@ I:75:35:100
 W:3:0:4:40
 A:3/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will heal a little bit.
 
 N:241:Cure Critical Wounds
 G:!:d
@@ -1751,6 +1983,7 @@ I:75:36:100
 W:5:0:4:100
 A:5/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will heal a bit.
 
 N:242:Healing
 G:!:d
@@ -1758,6 +1991,7 @@ I:75:37:200
 W:15:0:4:300
 A:15/1:30/1:60/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will heal you a lot.
 
 N:243:Constitution
 G:!:d
@@ -1765,6 +1999,7 @@ I:75:52:0
 W:20:0:4:8000
 A:20/6:25/3:30/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will permanently enhance your constituion.
 
 N:244:Experience
 G:!:d
@@ -1772,6 +2007,7 @@ I:75:59:0
 W:65:0:4:25000
 A:65/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will permanently increase your experience.
 
 N:245:Sleep
 G:!:d
@@ -1779,6 +2015,7 @@ I:75:11:100
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will put you asleep for a while.
 
 N:246:Blindness
 G:!:d
@@ -1786,6 +2023,7 @@ I:75:7:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will blind you for a while.
 
 N:247:Booze
 G:!:d
@@ -1793,6 +2031,7 @@ I:75:9:50
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion might confuse you, it might also cause hallucinations and in some rare cases it might make you end up in new and dark places.
 
 N:248:Poison
 G:!:d
@@ -1800,6 +2039,7 @@ I:75:6:0
 W:3:0:4:0
 A:3/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will poison you.
 
 N:249:Speed
 G:!:d
@@ -1807,6 +2047,7 @@ I:75:29:0
 W:1:0:4:75
 A:1/1:40/1:60/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will magically hasten you for a while.
 
 N:250:Slowness
 G:!:d
@@ -1814,6 +2055,7 @@ I:75:4:50
 W:1:0:4:0
 A:1/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion slow you down for a while.
 
 N:251:Dexterity
 G:!:d
@@ -1821,6 +2063,7 @@ I:75:51:0
 W:20:0:4:8000
 A:20/6:25/3:30/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will permanently enhance your dexterity.
 
 N:252:Restore Dexterity
 G:!:d
@@ -1828,6 +2071,7 @@ I:75:45:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore you dexterity.
 
 N:253:Restore Constitution
 G:!:d
@@ -1835,6 +2079,7 @@ I:75:46:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore you constitution.
 
 N:254:Lose Memories
 G:!:d
@@ -1842,13 +2087,15 @@ I:75:13:0
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will drain experience.
 
-N:255:Salt Water
+N:255:Salium
 G:!:d
 I:75:5:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will make you go weak of hunger and remove all poison from your system.
 
 N:256:Enlightenment
 G:!:d
@@ -1856,6 +2103,7 @@ I:75:56:0
 W:25:0:4:800
 A:25/1:50/1:100/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will show you every floor tile on the dungeon with all the items and traps.
 
 N:257:Heroism
 G:!:d
@@ -1863,6 +2111,7 @@ I:75:32:0
 W:1:0:4:35
 A:1/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will make you go heroic, effectively make you bold, hit harder and make you a harder target for your enemies.
 
 N:258:Berserk Strength
 G:!:d
@@ -1870,6 +2119,7 @@ I:75:33:0
 W:3:0:4:100
 A:3/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will make you go berserk, effectively make you bold, hit harder and easier target for your enemies.
 
 N:259:Boldness
 G:!:d
@@ -1877,6 +2127,7 @@ I:75:28:0
 W:1:0:4:10
 A:1/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will temporary shield you from fright.
 
 N:260:Restore Life Levels
 G:!:d
@@ -1884,6 +2135,7 @@ I:75:41:0
 W:40:0:4:400
 A:40/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore any experience points that were drained.
 
 N:261:Resist Heat
 G:!:d
@@ -1891,6 +2143,7 @@ I:75:30:0
 W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will provide temporary resistance to heat.
 
 N:262:Resist Cold
 G:!:d
@@ -1898,6 +2151,7 @@ I:75:31:0
 W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will provide temporary resistance to cold.
 
 N:263:Detect Invisible
 G:!:d
@@ -1905,6 +2159,7 @@ I:75:25:0
 W:3:0:4:50
 A:3/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will allow you to detect invisible monsters around you.
 
 N:264:Slow Poison
 G:!:d
@@ -1912,6 +2167,7 @@ I:75:26:0
 W:1:0:4:25
 A:1/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will stop poison from harming you for a while, this does not remove the poison though.
 
 N:265:Neutralize Poison
 G:!:d
@@ -1919,6 +2175,7 @@ I:75:27:0
 W:5:0:4:75
 A:5/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will remove all poison in your body.
 
 N:266:Restore Mana
 G:!:d
@@ -1926,6 +2183,7 @@ I:75:40:50
 W:25:0:4:350
 A:25/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will restore your mana.
 
 N:267:Infra-vision
 G:!:d
@@ -1933,6 +2191,7 @@ I:75:24:0
 W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
+D:When quaffed, this potion will provide temporary infra-vision.
 
 N:268:Resistance
 G:!:d
@@ -1941,7 +2200,7 @@ W:20:0:4:250
 A:20/1:45/1:80/1:100/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
+D:When quaffed, this potion will provide temporary resistance to fire, frost, acid, lightning and poison.
 
 ##### Wands #####
 # Note : some of the old wands have been taken higher (low level characters
@@ -1953,6 +2212,7 @@ I:65:7:0
 W:3:0:10:200
 A:3/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will conjure a beam of light.
 
 N:270:Tame Monster
 G:-:d
@@ -1960,6 +2220,7 @@ I:65:17:0
 W:30:0:10:1500
 A:30/2
 P:0:1d1:0:0:0
+D:When aimed, this wand will attempt to charm the closest monster you point at.
 
 N:271:Frost Bolts
 G:-:d
@@ -1967,6 +2228,7 @@ I:65:19:0
 W:20:0:10:800
 A:20/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will conjure a bolt of frost.
 
 N:272:Fire Bolts
 G:-:d
@@ -1974,6 +2236,7 @@ I:65:18:0
 W:30:0:10:1000
 A:30/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will conjure a bolt of fire.
 
 # More common now...
 N:273:Stone to Mud
@@ -1982,6 +2245,7 @@ I:65:6:0
 W:10:0:10:300
 A:10/1:40/1:80/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will turn the closest wall you point at into a floor.
 
 N:274:Polymorph
 G:-:d
@@ -1989,6 +2253,7 @@ I:65:13:0
 W:20:0:10:400
 A:20/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will attempt to transmogrify the closest monster you point at.
 
 N:275:Heal Monster
 G:-:d
@@ -1996,6 +2261,7 @@ I:65:0:0
 W:2:0:10:0
 A:2/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will heal the closest monster you point at.
 
 N:276:Haste Monster
 G:-:d
@@ -2003,6 +2269,7 @@ I:65:1:0
 W:2:0:10:0
 A:2/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will attempt to speed up the closest monster you point at.
 
 N:277:Slow Monster
 G:-:d
@@ -2010,6 +2277,7 @@ I:65:9:0
 W:5:0:10:500
 A:2/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will attempt to slow down the closest monster you point at.
 
 N:278:Confuse Monster
 G:-:d
@@ -2017,6 +2285,7 @@ I:65:10:0
 W:5:0:10:500
 A:3/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will attempt to confuse the closest monster you point at.
 
 N:279:Sleep Monster
 G:-:d
@@ -2024,6 +2293,7 @@ I:65:8:0
 W:5:0:10:500
 A:5/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will attempt to put asleep the closest monster you point at.
 
 N:280:Drain Life
 G:-:d
@@ -2031,6 +2301,7 @@ I:65:12:0
 W:50:0:10:1200
 A:50/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will conjure a bolt of life draining.
 
 N:281:Trap/Door Destruction
 G:-:d
@@ -2038,6 +2309,7 @@ I:65:5:0
 W:10:0:10:100
 A:10/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will disarm all traps and doors you point at.
 
 N:282:Magic Missile
 G:-:d
@@ -2045,6 +2317,7 @@ I:65:15:0
 W:2:0:10:200
 A:2/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will conjure a bolt of pure magic.
 
 N:283:Clone Monster
 G:-:d
@@ -2052,6 +2325,7 @@ I:65:2:0
 W:15:0:10:0
 A:15/1:50/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will clone the closest monster you point at.
 
 N:284:Scare Monster
 G:-:d
@@ -2059,6 +2333,7 @@ I:65:11:0
 W:10:0:10:500
 A:10/4
 P:0:1d1:0:0:0
+D:When aimed, this wand will attempt to scare the closest monster you point at.
 
 N:285:Teleport Other
 G:-:d
@@ -2066,6 +2341,7 @@ I:65:3:0
 W:20:0:10:350
 A:20/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will teleport all monster you point at.
 
 N:286:Disarming
 G:-:d
@@ -2073,6 +2349,7 @@ I:65:4:0
 W:20:0:10:700
 A:20/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will disarm all traps you point at.
 
 N:287:Lightning Balls
 G:-:d
@@ -2081,6 +2358,7 @@ W:35:0:10:1200
 A:35/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC
+D:When aimed, this wand will conjure a large ball of lightning.
 
 #Yeah right, as if 'Cold Balls' is better
 #it sounds more like a curse than a spell
@@ -2091,6 +2369,7 @@ W:40:0:10:1500
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_COLD
+D:When aimed, this wand will conjure a large ball of frost.
 
 N:289:Fire Balls
 G:-:d
@@ -2099,6 +2378,7 @@ W:50:0:10:1800
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
+D:When aimed, this wand will conjure a large ball of ball.
 
 N:290:Stinking Cloud
 G:-:d
@@ -2106,14 +2386,16 @@ I:65:14:0
 W:5:0:10:400
 A:5/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will conjure a large ball of poison.
 
-N:291:Acid
+N:291:Sulfuric Cloud
 G:-:d
 I:65:20:0
 W:50:0:10:1650
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
+D:When aimed, this wand will conjure a large ball of acid.
 
 N:292:Wonder
 G:-:d
@@ -2122,6 +2404,7 @@ W:3:0:10:250
 A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:When aimed, this wand will conjure a different effect every single time, some are helpful and some are not.
 
 # XXX 293 XXX
 
@@ -2131,6 +2414,7 @@ I:65:16:0
 W:30:0:10:950
 A:30/1
 P:0:1d1:0:0:0
+D:When aimed, this wand will conjure a bolt of acid.
 
 N:295:Dragon's Flame
 G:-:d
@@ -2139,6 +2423,7 @@ W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:When aimed, this wand will conjure a large ball of flame.
 
 N:296:Dragon's Frost
 G:-:d
@@ -2147,6 +2432,7 @@ W:50:0:10:2400
 A:50/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:When aimed, this wand will conjure a large ball of frost.
 
 N:297:Dragon's Breath
 G:-:d
@@ -2155,6 +2441,7 @@ W:60:0:10:2400
 A:60/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:When aimed, this wand will conjure a ball of a either fire, frost, lighning, acid or poison.
 
 N:298:Annihilation
 G:-:d
@@ -2163,6 +2450,7 @@ W:60:0:10:3000
 A:60/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:When aimed, this wand will conjure a bolt of life draining.
 
 N:299:Shards
 G:-:d
@@ -2171,7 +2459,7 @@ W:75:0:10:95000
 A:75/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
+D:When aimed, this wand will conjure a ball of earth shards which damages monsters and potions.
 
 
 ##### Staffs #####
@@ -2182,6 +2470,7 @@ I:55:12:0
 W:10:0:50:350
 A:10/1
 P:0:1d2:0:0:0
+D:When used, this staff will detect traps around you.
 
 N:301:Treasure Location
 G:_:d
@@ -2189,6 +2478,7 @@ I:55:10:0
 W:5:0:50:200
 A:5/1
 P:0:1d2:0:0:0
+D:When used, this staff will detect treasure around you.
 
 N:302:Object Location
 G:_:d
@@ -2196,6 +2486,7 @@ I:55:11:0
 W:5:0:50:200
 A:5/1
 P:0:1d2:0:0:0
+D:When used, this staff will detect objects around you.
 
 N:303:Teleportation
 G:_:d
@@ -2203,6 +2494,7 @@ I:55:4:0
 W:20:0:50:2000
 A:20/1
 P:0:1d2:0:0:0
+D:When used, this staff will teleport you to a different location.
 
 N:304:Earthquakes
 G:_:d
@@ -2210,6 +2502,7 @@ I:55:28:0
 W:40:0:50:350
 A:40/1
 P:0:1d2:0:0:0
+D:When used, this staff will cause an earthquake around you.
 
 N:305:Summoning
 G:_:d
@@ -2217,6 +2510,7 @@ I:55:3:0
 W:10:0:50:0
 A:10/1:50/1
 P:0:1d2:0:0:0
+D:When used, this staff will summon hostile creatures.
 
 N:306:Light
 G:_:d
@@ -2224,6 +2518,7 @@ I:55:8:0
 W:5:0:50:250
 A:5/1
 P:0:1d2:0:0:0
+D:When used, this staff will light up your environment.
 
 N:307:*Destruction*
 G:_:d
@@ -2231,6 +2526,7 @@ I:55:29:0
 W:50:0:50:2500
 A:50/1:70/1
 P:0:1d2:0:0:0
+D:When used, this staff will attempt to destroy everything around you.
 
 N:308:Starlight
 G:_:d
@@ -2238,6 +2534,7 @@ I:55:7:0
 W:20:0:50:800
 A:20/1
 P:0:1d2:0:0:0
+D:When used, this staff will attempt to destroy everything arround you.
 
 N:309:Haste Monsters
 G:_:d
@@ -2245,6 +2542,7 @@ I:55:2:0
 W:10:0:50:0
 A:10/1
 P:0:1d2:0:0:0
+D:When used, this staff will haste all monsters around you.
 
 N:310:Slow Monsters
 G:_:d
@@ -2252,6 +2550,7 @@ I:55:21:0
 W:10:0:50:800
 A:10/1
 P:0:1d2:0:0:0
+D:When used, this staff will try to slow all monsters around you.
 
 N:311:Sleep Monsters
 G:_:d
@@ -2259,6 +2558,7 @@ I:55:20:0
 W:10:0:50:700
 A:10/1
 P:0:1d2:0:0:0
+D:When used, this staff will try to put all monsters around you to sleep.
 
 N:312:Cure Light Wounds
 G:_:d
@@ -2266,6 +2566,7 @@ I:55:16:0
 W:5:0:50:350
 A:5/1
 P:0:1d2:0:0:0
+D:When used, this staff will heal you a little.
 
 N:313:Detect Invisible
 G:_:d
@@ -2273,6 +2574,7 @@ I:55:14:0
 W:5:0:50:200
 A:5/1
 P:0:1d2:0:0:0
+D:When used, this staff will detect invisible monsters around you.
 
 N:314:Speed
 G:_:d
@@ -2280,6 +2582,7 @@ I:55:22:0
 W:40:0:50:1000
 A:40/1
 P:0:1d2:0:0:0
+D:When used, this staff will speed you up for a while.
 
 N:315:Slowness
 G:_:d
@@ -2287,6 +2590,7 @@ I:55:1:0
 W:40:0:50:0
 A:40/1
 P:0:1d2:0:0:0
+D:When used, this staff will slow you down for a while.
 
 N:316:Door/Stair Location
 G:_:d
@@ -2294,6 +2598,7 @@ I:55:13:0
 W:10:0:50:350
 A:10/1
 P:0:1d2:0:0:0
+D:When used, this staff will detect doors and stairs around you.
 
 N:317:Remove Curse
 G:_:d
@@ -2301,6 +2606,7 @@ I:55:6:0
 W:40:0:50:500
 A:40/1
 P:0:1d2:0:0:0
+D:When used, this staff removes common curses on all item in your equipment and inventory.
 
 N:318:Detect Evil
 G:_:d
@@ -2308,6 +2614,7 @@ I:55:15:0
 W:20:0:50:350
 A:20/1
 P:0:1d2:0:0:0
+D:When used, this staff will detect all evil monsters around you.
 
 N:319:Curing
 G:_:d
@@ -2315,6 +2622,7 @@ I:55:17:0
 W:25:0:50:1000
 A:25/1
 P:0:1d2:0:0:0
+D:When used, this staff will cure your blindness, poison, confusion, stuns, cuts, hallucination and damage.
 
 N:320:Dispel Evil
 G:_:d
@@ -2322,6 +2630,7 @@ I:55:24:0
 W:50:0:50:1200
 A:50/1
 P:0:1d2:0:0:0
+D:When used, this staff will damage or dispel all evil monsters in sight.
 
 N:321:Probing
 G:_:d
@@ -2329,6 +2638,7 @@ I:55:23:0
 W:30:0:50:2000
 A:30/1
 P:0:1d2:0:0:0
+D:When used, this staff will inform the player about hit points, resistances and abilities of all monsters surrounding him.
 
 N:322:Darkness
 G:_:d
@@ -2336,6 +2646,7 @@ I:55:0:0
 W:5:0:50:0
 A:5/1:50/1
 P:0:1d2:0:0:0
+D:When used, this staff will surround you with darkness.
 
 N:323:Genocide
 G:_:d
@@ -2343,6 +2654,7 @@ I:55:27:0
 W:70:0:50:3500
 A:70/4
 P:0:1d2:0:0:0
+D:When used, this staff will banish 1 type of monsters, damaging you a little for each monster.
 
 N:324:Power
 G:_:d
@@ -2350,6 +2662,7 @@ I:55:25:0
 W:70:0:50:4000
 A:70/2
 P:0:1d2:0:0:0
+D:When used, this staff will damage or dispel all monsters in sight.
 
 N:325:the Magi
 G:_:d
@@ -2357,6 +2670,7 @@ I:55:19:0
 W:70:0:50:4500
 A:70/2
 P:0:1d2:0:0:0
+D:When used, this staff will restore your intelligence and mana.
 
 N:326:Perception
 G:_:d
@@ -2364,6 +2678,7 @@ I:55:5:0
 W:10:0:50:400
 A:10/1
 P:0:1d2:0:0:0
+D:When used, this staff will identify any item you select.
 
 N:327:Holiness
 G:_:d
@@ -2371,13 +2686,15 @@ I:55:26:0
 W:70:0:50:4500
 A:70/2
 P:0:1d2:0:0:0
+D:When used, this staff will dispel evil, protect you from evil and cure poison, stuns, cuts, fear and damage.
 
-N:328:Enlightenment
+N:328:Mapping
 G:_:d
 I:55:9:0
 W:20:0:50:750
 A:20/1
 P:0:1d2:0:0:0
+D:When used, this staff will map your surroundings.
 
 N:329:Healing
 G:_:d
@@ -2385,39 +2702,43 @@ I:55:18:0
 W:70:0:50:5000
 A:70/2
 P:0:1d2:0:0:0
-
+D:When used, this staff will heal you.
 
 ##### Basic Books #####
 
-N:330:[Book of Common Prayer]
+N:330:[Book of Minor Miracles]
 G:?:W
 I:90:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+D:This is the first book of Miracle magic, containing all beginner Miracles.
 
-N:331:[High Mass]
+N:331:[Book of Supplications]
 G:?:W
 I:90:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
+D:This is the second book of Miracle magic, containing spells of curing, detection, protection and removal of curses.
 
-N:332:[Book of the Unicorn]
+N:332:[Blessings of the Trinity]
 G:?:w
 I:90:2:0
 W:40:0:30:25000
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Miracle magic, containing spells of banishment, healing and protection.
 
-N:333:[Blessings of the Grail]
+N:333:[Tome of the Holy Grail]
 G:?:w
 I:90:3:0
 W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Miracle magic, containing the most powerful spells of the Miracles realm.
 
 N:334:[Beginner's Handbook]
 G:?:B
@@ -2425,6 +2746,7 @@ I:91:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+D:This is the first book of Sorcerous magic, containing all sorcerous beginner spells.
 
 N:335:[Master Sorcerer's Handbook]
 G:?:B
@@ -2432,6 +2754,7 @@ I:91:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
+D:This is the second book of Sorcerous magic, containing spells of detection, teleportation and enhancement.
 
 N:336:[Pattern Sorcery]
 G:?:b
@@ -2440,6 +2763,7 @@ W:40:0:30:25000
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Sorcerous magic, containing spells of detection, charming and teleportation.
 
 N:337:[Grimoire of Power]
 G:?:b
@@ -2448,6 +2772,7 @@ W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Sorcerous magic, containing the most powerful spells of the Sorcery realm.
 
 ##### Chests #####
 
@@ -2457,6 +2782,7 @@ I:7:1:0
 W:5:0:250:20
 A:5/1
 P:0:2d3:0:0:0
+D:This crude wooden chest contains no runes nor jewellery, its probably not worth opening.
 
 N:339:& Large wooden chest~
 G:~:s
@@ -2464,6 +2790,7 @@ I:7:5:0
 W:15:0:500:60
 A:15/1
 P:0:2d5:0:0:0
+D:This crude wooden chest contains no runes nor jewellery, you doubt the loot will be exciting.
 
 N:340:& Small iron chest~
 G:~:s
@@ -2471,6 +2798,7 @@ I:7:2:0
 W:25:0:300:100
 A:25/1
 P:0:2d4:0:0:0
+D:This small iron chest has some runes, there might be something interesting in it.
 
 N:341:& Large iron chest~
 G:~:s
@@ -2478,6 +2806,7 @@ I:7:6:0
 W:35:0:1000:150
 A:35/1
 P:0:2d6:0:0:0
+D:This sturdy iron chest has some runes and jewellery, there might be something interesting in it.
 
 N:342:& Small steel chest~
 G:~:s
@@ -2485,6 +2814,7 @@ I:7:3:0
 W:45:0:500:200
 A:45/1
 P:0:2d4:0:0:0
+D:This small steel chest is adorned with so many runes, it must be important!
 
 N:343:& Large steel chest~
 G:~:s
@@ -2492,13 +2822,15 @@ I:7:7:0
 W:55:0:1000:250
 A:55/1
 P:0:2d6:0:0:0
+D:This sturdy steel chest is adorned with so many runes and jewellery, it must be important!
 
 N:344:& Ruined chest~
 G:~:s
 I:7:0:0
 W:0:0:250:0
 A:75/1
-
+D:You look at the sorry remains of what was once a beautiful chest,
+D:you remind yourself to be more careful when disarming this things.
 
 ##### Various Stuff #####
 
@@ -2508,6 +2840,7 @@ I:5:0:0
 W:1:0:10:1
 A:1/1
 P:0:1d1:0:0:0
+D:Crude metal spikes, they can be used to jam doors or throw at monsters as a last resort.
 
 N:346:& Wooden Torch~
 G:~:u
@@ -2516,6 +2849,7 @@ W:1:0:30:2
 A:1/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
+D:It's an incredible wooden torch, designed for adventurers that need to carry a weapon, a shield, a dungeon map, a spell book and a light source.
 
 N:347:& Brass Lantern~
 G:~:U
@@ -2524,6 +2858,7 @@ W:3:0:50:35
 A:3/1
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE
+D:It's an incredible brass lantern, designed for adventurers that need to carry a weapon, a shield, a dungeon map, a spell book and a light source.
 
 N:348:& Flask~ of oil
 G:!:y
@@ -2531,6 +2866,8 @@ I:77:0:7500
 W:1:0:10:3
 A:1/1
 P:0:2d6:0:0:0
+D:It's a flask made of camel leather, its been closed with a cork stopper and tightly wound rope.
+D:Inside it is a foul smelling liquid found in the sands of Persia. You should handle it with care.
 
 N:349:& Empty Bottle~
 G:!:w
@@ -2538,9 +2875,7 @@ I:2:1:0
 W:0:0:2:1
 A:0/1
 P:0:1d1:0:0:0
-
-
-
+D:It's an empty bottle, you're not sure why you're inspecting it.
 
 ##### Here are the Rods #####
 
@@ -2550,6 +2885,8 @@ I:66:28:0
 W:95:0:15:150000
 A:100/16
 P:0:1d1:0:0:0
+D:This is the most destructive rod type in existence. You need
+D:to be gifted with magic devices to activate it reliably.
 
 N:351:Door/Stair Location
 G:-:d
@@ -2557,6 +2894,7 @@ I:66:1:0
 W:15:0:15:1000
 A:15/1
 P:0:1d1:0:0:0
+D:When zapped, this rod will detect doors and stairs.
 
 N:352:Trap Location
 G:-:d
@@ -2564,6 +2902,7 @@ I:66:0:0
 W:5:0:15:100
 A:5/1
 P:0:1d1:0:0:0
+D:When zapped, this rod will detect traps.
 
 N:353:Probing
 G:-:d
@@ -2571,6 +2910,7 @@ I:66:7:0
 W:40:0:15:4000
 A:40/4
 P:0:1d1:0:0:0
+D:When zapped, this rod will inform you about hit points, resistances and abilities of all monsters surrounding him.
 
 N:354:Recall
 G:-:d
@@ -2578,6 +2918,8 @@ I:66:3:0
 W:30:0:15:4000
 A:30/4
 P:0:1d1:0:0:0
+D:When zapped in the dungeon, this rod will with some delay teleport you into the town.
+D:When zapped in the town, this rod will with some delay teleport you back into Hell.
 
 N:355:Illumination
 G:-:d
@@ -2585,6 +2927,7 @@ I:66:4:0
 W:20:0:15:1000
 A:20/1
 P:0:1d1:0:0:0
+D:When zapped, this rod illuminates your surroundings.
 
 N:356:Light
 G:-:d
@@ -2592,6 +2935,7 @@ I:66:15:0
 W:10:0:15:500
 A:10/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a beam of light.
 
 N:357:Lightning Bolts
 G:-:d
@@ -2599,6 +2943,7 @@ I:66:21:0
 W:20:0:15:2000
 A:20/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a bolt of lightning.
 
 N:358:Frost Bolts
 G:-:d
@@ -2606,6 +2951,7 @@ I:66:23:0
 W:25:0:15:2500
 A:25/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a bolt of frost.
 
 N:359:Fire Bolts
 G:-:d
@@ -2613,6 +2959,7 @@ I:66:22:0
 W:30:0:15:3000
 A:30/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a bolt of fire.
 
 N:360:Polymorph
 G:-:d
@@ -2620,6 +2967,7 @@ I:66:19:0
 W:35:0:15:1200
 A:35/1
 P:0:1d1:0:0:0
+D:When zapped, this rod might cause a creature you point at to polymorph into a different creature.
 
 N:361:Slow Monster
 G:-:d
@@ -2627,6 +2975,7 @@ I:66:17:0
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
+D:When zapped, this rod might cause a creature you point at to slow down.
 
 N:362:Sleep Monster
 G:-:d
@@ -2634,6 +2983,7 @@ I:66:16:0
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
+D:When zapped, this rod might cause a creature you point at to fall asleep.
 
 N:363:Drain Life
 G:-:d
@@ -2641,6 +2991,7 @@ I:66:18:0
 W:75:0:15:3600
 A:75/4
 P:0:1d1:0:0:0
+D:When zapped, this rod causes damage to any living creature you point at. Demons, undead, golems and many other creatures are not considered alive.
 
 N:364:Teleport Other
 G:-:d
@@ -2648,6 +2999,7 @@ I:66:13:0
 W:45:0:15:1400
 A:45/2
 P:0:1d1:0:0:0
+D:When zapped, this rod will teleport away all monster you it point at.
 
 N:365:Disarming
 G:-:d
@@ -2655,6 +3007,7 @@ I:66:14:0
 W:35:0:15:2100
 A:35/1
 P:0:1d1:0:0:0
+D:When zapped, this rod disarms all traps adjacent to you.
 
 N:366:Lightning Balls
 G:-:d
@@ -2662,6 +3015,7 @@ I:66:25:0
 W:55:0:15:4000
 A:55/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a ball of lightning.
 
 N:367:Cold Balls
 G:-:d
@@ -2669,6 +3023,7 @@ I:66:27:0
 W:60:0:15:4500
 A:60/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a ball of frost.
 
 N:368:Fire Balls
 G:-:d
@@ -2676,6 +3031,7 @@ I:66:26:0
 W:75:0:15:5000
 A:75/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a ball of fire.
 
 N:369:Acid Balls
 G:-:d
@@ -2683,6 +3039,7 @@ I:66:24:0
 W:70:0:15:5500
 A:70/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a ball of acid.
 
 N:370:Acid Bolts
 G:-:d
@@ -2690,20 +3047,23 @@ I:66:20:0
 W:40:0:15:3500
 A:40/1
 P:0:1d1:0:0:0
+D:When zapped, this rod shoots a bolt of acid.
 
-N:371:Enlightenment
+N:371:Mapping
 G:-:d
 I:66:5:0
 W:65:0:15:10000
 A:65/4
 P:0:1d1:0:0:0
+D:When zapped, this rod will map your surroundings.
 
 N:372:Perception
 G:-:d
 I:66:2:0
 W:50:0:15:13000
-A:50/8,100/8
+A:50/8:100/8
 P:0:1d1:0:0:0
+D:When zapped, this rod will allow you to identify a selected object.
 
 N:373:Curing
 G:-:d
@@ -2711,6 +3071,7 @@ I:66:8:0
 W:65:0:15:15000
 A:65/8
 P:0:1d1:0:0:0
+D:When zapped, this rod will cure you from blindness, paranoia, poison, confusion, stunning, cuts, hallucinations and damage.
 
 N:374:Healing
 G:-:d
@@ -2718,6 +3079,7 @@ I:66:9:0
 W:80:0:15:20000
 A:80/8
 P:0:1d1:0:0:0
+D:When zapped, this rod will heal you.
 
 N:375:Detection
 G:-:d
@@ -2725,6 +3087,8 @@ I:66:6:0
 W:30:0:15:5000
 A:30/8
 P:0:1d1:0:0:0
+D:When zapped, this rod will detect traps, doors, stairs, treasure, objects and all monsters.
+
 
 N:376:Restoration
 G:-:d
@@ -2732,6 +3096,7 @@ I:66:10:0
 W:80:0:15:25000
 A:80/16
 P:0:1d1:0:0:0
+D:When zapped, this rod will give restore you experience, strengh, dexterity, constitution, wisdom, intelligence and charisma.
 
 N:377:Speed
 G:-:d
@@ -2739,6 +3104,7 @@ I:66:11:0
 W:95:0:15:50000
 A:95/16
 P:0:1d1:0:0:0
+D:When zapped, this rod will give you a speed boost for a short while.
 
 
 ##### Special Books (note resistances) #####
@@ -2746,16 +3112,18 @@ P:0:1d1:0:0:0
 N:379:[Call of the Wild]
 G:?:G
 I:92:0:0
-W:10:0:30:100 
+W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+D:This is the first book of Nature magic, containing spells of detection, healing, charming and enhancement.
 
 N:380:[Nature Mastery]
 G:?:G
 I:92:1:0
-W:20:0:30:1000 
+W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
+D:This is the second book of Nature magic, containing spells of dungeon alteration, destruction, detection, charming and healing.
 
 N:381:[Nature's Gifts]
 G:?:g
@@ -2764,6 +3132,7 @@ W:50:0:30:25000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Nature magic, containing spells of dungeon alteration, enhancement and charming.
 
 N:382:[Nature's Wrath]
 G:?:g
@@ -2772,6 +3141,7 @@ W:80:0:30:100000
 A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Nature magic, containing the most powerful spells of the Nature realm.
 
 N:383:[Sign of Chaos]
 G:?:R
@@ -2779,6 +3149,8 @@ I:93:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+F:IGNORE_FIRE
+D:This is the first book of Chaos magic, containing spells of destruction, alteration and teleportation.
 
 N:384:[Chaos Mastery]
 G:?:R
@@ -2786,6 +3158,8 @@ I:93:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
+F:IGNORE_FIRE
+D:This is the second book of Chaos magic, containing only spells of destruction.
 
 N:385:[Chaos Channels]
 G:?:r
@@ -2794,6 +3168,7 @@ W:50:0:30:25000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Chaos magic, containing spells of alteration, destruction, recharging, branding and summoning.
 
 N:386:[Armageddon Tome]
 G:?:r
@@ -2802,6 +3177,7 @@ W:100:0:30:100000
 A:100/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Chaos magic, containing the most powerful spells of the Chaos realm.
 
 N:387:[Black Prayers]
 G:?:D
@@ -2809,6 +3185,7 @@ I:94:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+D:This is the first book of Death magic, it contains spells of detection, destruction, terror and charming.
 
 N:388:[Black Mass]
 G:?:D
@@ -2816,6 +3193,7 @@ I:94:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
+D:This is the second book of Death magic, it contains spells of destruction, terror, branding, banishment and restoration.
 
 
 ##### Junk #####
@@ -2824,15 +3202,17 @@ N:389:& Shard~ of Pottery
 G:~:r
 I:3:3:0
 W:0:0:5:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
 N:390:& Broken Stick~
 G:~:r
 I:3:6:0
 W:0:0:3:0
-A:0/1
+A:0/3
 P:0:1d1:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
 
 ##### Skeletons #####
@@ -2843,6 +3223,7 @@ I:1:1:0
 W:0:0:1:0
 A:0/1
 P:0:1d1:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
 N:392:& Broken Bone~
 G:~:w
@@ -2850,41 +3231,49 @@ I:1:2:0
 W:0:0:2:0
 A:0/1
 P:0:1d1:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
-N:393:& Leg~
+N:393:& Torn Leg~
 G:~:w
 I:1:4:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
-N:394:& Arm~
+N:394:& Torn Arm~
 G:~:w
 I:1:3:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
-N:395:& Hand~
+N:395:& Blackened Hand~
 G:~:w
 I:1:8:0
 W:5:0:60:0
 A:5/1
 P:0:1d2:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
-N:396:Human Skin~
-G:~:w
-I:1:7:0
-W:5:0:50:0
-A:5/1
-P:0:1d2:0:0:0
+#Whatever, lack of fantasy, not like the 'skin' idea any more
+#maybe I need a euphemism..
+#N:396:& ~
+#G:~:w
+#I:1:7:0
+#W:5:0:50:0
+#A:5/1
+#P:0:1d2:0:0:0
+#D:It's junk. You're not sure why you're inspecting it.
 
-N:397:& Skeleton~
+N:397:& Crumbling Skeleton~
 G:~:w
 I:1:6:0
 W:5:0:40:0
 A:5/1
 P:0:1d2:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
 N:398:& Rib~
 G:~:w
@@ -2892,6 +3281,7 @@ I:1:5:0
 W:5:0:30:0
 A:5/1
 P:0:1d2:0:0:0
+D:It's junk. You're not sure why you're inspecting it.
 
 ## XXX 399 XXX ##
 
@@ -2906,6 +3296,7 @@ A:60/8
 P:30:2d4:-2:0:10
 F:RES_ACID |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a black dragon looks like, but its' armor sure looks awesome.
 
 N:401:Blue Dragon Scale Mail~
 G:[:b
@@ -2915,6 +3306,7 @@ A:40/8
 P:30:2d4:-2:0:10
 F:RES_ELEC |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a blue dragon looks like, but its' armor sure looks awesome.
 
 N:402:White Dragon Scale Mail~
 G:[:w
@@ -2924,6 +3316,7 @@ A:50/8
 P:30:2d4:-2:0:10
 F:RES_COLD |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a white dragon looks like, but its' armor sure looks awesome.
 
 N:403:Red Dragon Scale Mail~
 G:[:r
@@ -2933,6 +3326,7 @@ A:80/8
 P:30:2d4:-2:0:10
 F:RES_FIRE |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:The armor looks exactly like the red dragon in the paintings with the dragonslayer Saint George.
 
 N:404:Green Dragon Scale Mail~
 G:[:g
@@ -2942,6 +3336,7 @@ A:70/8
 P:30:2d4:-2:0:10
 F:RES_POIS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a green dragon looks like, but its' armor sure looks awesome.
 
 N:405:Multi-Hued Dragon Scale Mail~
 G:[:v
@@ -2951,6 +3346,7 @@ A:100/16
 P:30:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a multi-hued dragon is, but its' armor sure looks awesome.
 
 N:406:Pseudo Dragon Scale Mail~
 G:[:v
@@ -2960,6 +3356,7 @@ A:65/16
 P:30:2d4:-2:0:10
 F:RES_LITE | RES_DARK |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a pseudo dragon is, but its' armor sure looks awesome.
 
 N:407:Law Dragon Scale Mail~
 G:[:B
@@ -2969,6 +3366,7 @@ A:80/16
 P:30:2d4:-2:0:10
 F:RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a law dragon is, but its' armor sure looks awesome.
 
 N:408:Bronze Dragon Scale Mail~
 G:[:U
@@ -2978,6 +3376,7 @@ A:55/8
 P:30:2d4:-2:0:10
 F:RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a bronze dragon is, but its' armor sure looks awesome.
 
 N:409:Gold Dragon Scale Mail~
 G:[:y
@@ -2987,6 +3386,7 @@ A:65/8
 P:30:2d4:-2:0:10
 F:RES_SOUND |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a gold dragon is, but its' armor sure looks awesome.
 
 N:410:Chaos Dragon Scale Mail~
 G:[:v
@@ -2996,6 +3396,7 @@ A:75/16
 P:30:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a chaos dragon is, but its' armor sure looks awesome.
 
 N:411:Balance Dragon Scale Mail~
 G:[:v
@@ -3005,6 +3406,7 @@ A:90/16
 P:30:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | RES_SOUND | RES_SHARDS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:You are not sure what a balance dragon is, but its' armor sure looks awesome.
 
 N:412:Power Dragon Scale Mail~
 G:[:v
@@ -3012,28 +3414,38 @@ I:38:30:0
 W:110:0:250:350000
 A:110/64
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:The dragon armor of legend, it provides resistance to all known elements,
+D:can be activated for massive damage and provides a lot of protection.
 
 ## PDSM has been restored to (almost) its former glory in Zangband
 
-N:413:& Shedu Helmet~
+N:413:& Helmet~ of the Shedu
 G:]:G
 I:32:7:0
 W:45:0:50:10000
 A:80/4
 P:8:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+D:The Shedu are celestial beings from Mesopotamian mythology, they are
+D:depicted as bulls below the waist and human above the waist. They also
+D:have the ears and horns of a bull. Their helmets are known to be exceptionally
+D:hardy with multiple enchantments protecting the bearer from various elements.
 
-N:414:& Shedu Shield~
+N:414:& Shield~ of the Shedu
 G:[:G
 I:34:6:0
 W:70:0:100:10000
 A:80/4
 P:8:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
+D:The Shedu are celestial beings from Mesopotamian mythology, they are
+D:depicted as bulls below the waist and human above the waist. They also
+D:have the ears and horns of a bull. Their shields are known to be exceptionally
+D:hardy with multiple enchantments protecting the bearer from various elements.
 
 ##### Extra potions #####
 
@@ -3043,6 +3455,7 @@ I:75:23:-1
 W:55:0:4:0
 A:55/4
 P:0:20d20:0:0:0
+D:This vial will damage you (5000 HP).
 
 N:416:Ruination
 G:!:d
@@ -3050,6 +3463,8 @@ I:75:15:-1
 W:40:0:4:0
 A:40/8
 P:0:20d20:0:0:0
+D:This vial will damage you (10d10 HP), and damage your strength, constitution, dexterity,
+D:intelligence, wisdom and charisma.
 
 N:417:Detonations
 G:!:d
@@ -3057,6 +3472,7 @@ I:75:22:-1
 W:60:0:4:10000
 A:60/8
 P:0:25d25:0:0:0
+D:This vial will damage you severely (50d20 HP), it will also stun and cut you.
 
 N:418:Augmentation
 G:!:d
@@ -3064,6 +3480,7 @@ I:75:55:100
 W:40:0:4:60000
 A:40/16
 P:0:1d1:0:0:0
+D:This potion will raise your strength, constitution, dexterity, intelligence, wisdom, and charisma.
 
 N:419:*Healing*
 G:!:d
@@ -3071,6 +3488,8 @@ I:75:38:200
 W:40:0:4:1500
 A:40/4:60/2:80/1
 P:0:1d1:0:0:0
+D:This potion will heal 1200 hit points and
+D:cure poison, blindness, confusion, stunning, and cuts.
 
 N:420:Life
 G:!:d
@@ -3078,6 +3497,9 @@ I:75:39:200
 W:60:0:4:5000
 A:60/4:100/2
 P:0:1d1:0:0:0
+D:This potion will restore all drained experience, heal 5000 hit points,
+D:cure poison, blindness, confusion, hallucination, stunning and cuts.
+D:It will restore you strength, constitution, dexterity, intelligence, wisdom, and charisma.
 
 N:421:Self Knowledge
 G:!:d
@@ -3085,6 +3507,7 @@ I:75:58:20
 W:40:0:4:2000
 A:40/1
 P:0:1d1:0:0:0
+D:This potion will provide a complete analysis of your strengths and weaknesses.
 
 N:422:*Enlightenment*
 G:!:d
@@ -3092,6 +3515,9 @@ I:75:57:50
 W:70:0:4:80000
 A:70/4
 P:0:1d1:0:0:0
+D:This potion will light up the entire level, increase your intelligence and wisdom,
+D:detect traps, doors, stairs, treasure and objects, identify everything in your pack,
+D:and provide a complete analysis of your strengths and weaknesses.
 
 N:423:[Black Channels]
 G:?:v
@@ -3100,6 +3526,7 @@ W:50:0:30:25000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Death magic, it contains spells of enhancement, destruction, branding and banishment.
 
 N:424:[Necronomicon]
 G:?:v
@@ -3108,13 +3535,15 @@ W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Death magic, containing the most powerful spells of the Death realm.
 
 N:425:Fear Resistance
 G:=:y
 I:45:38:0
-W:10:0:2:300 
+W:10:0:2:300
 A:10/2
 F:RES_FEAR | EASY_KNOW
+D:You cannot become afraid when wearing this ring.
 
 N:426:Playful Shadows
 G:=:d
@@ -3122,6 +3551,7 @@ I:45:39:4
 W:30:0:2:3000
 A:30/2
 F:RES_LITE | RES_DARK | STEALTH | EASY_KNOW
+D:This ring provides resistance to light and dark, it also allows you to become more stealthy when worn.
 
 N:427:Nether Resistance
 G:=:y
@@ -3129,6 +3559,7 @@ I:45:40:0
 W:34:0:2:14500
 A:34/2
 F:RES_NETHER | HOLD_LIFE | EASY_KNOW
+D:This ring provides resistance to the effects of nether and life draining.
 
 N:428:Nexus Resistance
 G:=:y
@@ -3136,6 +3567,8 @@ I:45:41:0
 W:24:0:2:3000
 A:24/2
 F:RES_NEXUS | EASY_KNOW
+D:This ring provides resistance to the effects of nexus when worn, you will not be displaced by nexus, your stats can no
+D:longer become scrambled and storms of nexus will do less damage.
 
 N:429:Sound Resistance
 G:=:y
@@ -3143,6 +3576,7 @@ I:45:42:0
 W:26:0:2:3000
 A:26/2
 F:RES_SOUND | EASY_KNOW
+D:This ring provides resistance to sound when worn.
 
 N:430:Confusion Resistance
 G:=:y
@@ -3150,6 +3584,7 @@ I:45:43:0
 W:22:0:2:3000
 A:22/2
 F:RES_CONF | EASY_KNOW
+D:You cannot be confused when wearing this ring, it will also provide resistance to confusion storms.
 
 N:431:Shard Resistance
 G:=:y
@@ -3157,6 +3592,7 @@ I:45:44:0
 W:25:0:2:3000
 A:25/2
 F:RES_SHARDS | EASY_KNOW
+D:This ring provides resistance to shards when worn.
 
 N:432:Disenchantment Resistance
 G:=:y
@@ -3164,6 +3600,7 @@ I:45:45:0
 W:90:0:2:15000
 A:90/10
 F:RES_DISEN | EASY_KNOW
+D:This ring provides resistance to disenchantment when worn.
 
 N:433:Chaos Resistance
 G:=:y
@@ -3171,6 +3608,7 @@ I:45:46:0
 W:50:0:2:13000
 A:50/2
 F:RES_CHAOS | RES_CONF | EASY_KNOW
+D:This ring provides resistance to chaos and confusion when worn.
 
 N:434:Blindness Resistance
 G:=:y
@@ -3178,6 +3616,7 @@ I:45:47:0
 W:60:0:2:7500
 A:60/2
 F:RES_BLIND | EASY_KNOW
+D:You cannot be blinded when wearing this ring.
 
 N:435:Lordly Protection
 G:=:y
@@ -3185,6 +3624,7 @@ I:45:48:0
 W:100:0:2:100000
 A:100/5
 F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
+D:This ring provides resistance to poison, paralysis and experience draining when worn.
 
 N:436:Extra Attacks
 G:=:y
@@ -3192,6 +3632,7 @@ I:45:49:0
 W:50:0:2:100000
 A:50/2
 F:BLOWS
+D:This ring provides extra combat attacks when worn.
 
 N:437:Cure Light Wounds
 G:!:d
@@ -3199,6 +3640,7 @@ I:75:34:50
 W:0:0:4:15
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0
+D:This potion will heal some hit points when quaffed.
 
 N:438:Clumsiness
 G:!:d
@@ -3206,6 +3648,7 @@ I:75:19:0
 W:5:0:4:0
 A:5/1
 P:0:1d1:0:0:0
+D:This potion will damage your dexterity when quaffed.
 
 N:439:Sickliness
 G:!:d
@@ -3213,6 +3656,7 @@ I:75:20:0
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
+D:This potion will damage your constitution when drunk.
 
 ##### Items 440 to 444 reserved (old "fake" objects) #####
 
@@ -3237,91 +3681,109 @@ N:480:copper
 G:$:u
 I:100:1:0
 W:1:0:0:3
+D:These are copper coins with the faces of rules past and present.
 
 N:481:copper
 G:$:u
 I:100:2:0
 W:1:0:0:4
+D:These are copper coins with the faces of rules past and present.
 
 N:482:copper
 G:$:u
 I:100:3:0
 W:1:0:0:5
+D:These are copper coins with the faces of rules past and present.
 
 N:483:silver
 G:$:s
 I:100:4:0
 W:1:0:0:6
+D:These are silver coins with the faces of rules past and present.
 
 N:484:silver
 G:$:s
 I:100:5:0
 W:1:0:0:7
+D:These are silver coins with the faces of rules past and present.
 
 N:485:silver
 G:$:s
 I:100:6:0
 W:1:0:0:8
+D:These are silver coins with the faces of rules past and present.
 
 N:486:garnets
 G:$:r
 I:100:7:0
 W:1:0:0:9
+D:These are crystal gemstones, most of them are red or orange
 
 N:487:garnets
 G:$:r
 I:100:8:0
 W:1:0:0:10
+D:These are crystal gemstones, most of them are red or orange
 
 N:488:gold
 G:$:y
 I:100:9:0
 W:1:0:0:12
+D:These are gold coins with the faces of rules past and present.
 
 N:489:gold
 G:$:y
 I:100:10:0
 W:1:0:0:14
+D:These are gold coins with the faces of rules past and present.
 
 N:490:gold
 G:$:y
 I:100:11:0
 W:1:0:0:16
+D:These are gold coins with the faces of rules past and present.
 
 N:491:opals
 G:$:W
 I:100:12:0
 W:1:0:0:18
+D:These are bits and pieces of topaz, they have all colours of the rainbow.
 
 N:492:sapphires
 G:$:b
 I:100:13:0
 W:1:0:0:20
+D:These are bits of the famous blue gem.
 
 N:493:rubies
 G:$:r
 I:100:14:0
 W:1:0:0:24
+D:These are bits of the famous red gem.
 
 N:494:diamonds
 G:$:w
 I:100:15:0
 W:1:0:0:28
+D:These are bits of the hardest gem known to mankind.
 
 N:495:emeralds
 G:$:g
 I:100:16:0
 W:1:0:0:32
+D:These are bits of the famous green gem.
 
 N:496:topaz
 G:$:B
 I:100:17:0
 W:1:0:0:40
+D:These are bits and pieces of topaz, they have all colours of the rainbow.
 
 N:497:adamantite
 G:$:G
 I:100:18:0
 W:1:0:0:80
+D:These are adamantite bits and pieces, chipped from the gates of Tartarus.
 
 ##### Objects 498 and 499 are the "Morgoth Artifacts" #####
 
@@ -3329,20 +3791,23 @@ W:1:0:0:80
 # without being turned into artefacts.  This simplifies the
 # code for "killing the winner monster".
 
+#Mighty Hammer of Abaddon, Destroyer of the Apocalypse - see artefact list
 N:498:& Mighty Hammer~
 G:\:D
 I:21:50:0
 W:15:0:200:1000
 P:0:3d9:0:0:0
 F:SHOW_MODS | INSTA_ART
+D:It's a gigantic hammer, it requires giant strength to wield it correctly.
 
+#Crown of the Seventh Day - see artefact list
 N:499:& Lead Crown~
 G:]:D
 I:33:50:0
 W:44:0:20:1000
 P:0:1d1:0:0:0
 F:INSTA_ART
-
+D:You can only stare at it in shock and awe.
 
 ##### Objects 500 to 511 are the "Special Artifacts" #####
 
@@ -3353,7 +3818,7 @@ F:INSTA_ART
 # is "aware" (always true for lites)
 #
 # The Lites specify "physical colors", which
-# over-ride the "flavor" colors, if any.  
+# over-ride the "flavor" colors, if any.
 #
 # Note that ALL artefacts are given "IGNORE_ACID/ELEC/FIRE/COLD",
 # so we do not need to specify that here.
@@ -3369,109 +3834,109 @@ F:INSTA_ART
 
 
 # The Phial of Galadriel -- see artefact list
-
 N:500:& Phial~
 G:!:y
 I:39:4:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
 F:INSTA_ART
+D:A curious container with a glowing liquid.
 
-# The Gem of Seeing-- see artefact list
-
+# The Gem of Eos - see artefact list
 N:501:& Gem~
 G:*:y
 I:39:5:0
 W:30:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
+D:It appears to be just a glowing gem.
 
-# The Gem of Insight-- see artefact list
-
+# The Gem of Austin - see artefact list
 N:502:& Gem~
 G:*:R
 I:39:6:0
 W:60:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
+D:It appears to be just a glowing gem.
 
-# The Amulet of Purity -- see artefact list
-
+# The Amulet of Fiery Doom - see artefact list
 N:503:& Amulet~
 G:":w
 I:40:10:0
 W:50:0:3:60000
 F:INSTA_ART
+D:It appears to be just a plain golden amulet.
 
-# The Amulet of Inquisition -- see artefact list
-
+# The Amulet of Raphael - see artefact list
+# The Amulet of Michael - see artefact list
 N:504:& Amulet~
 G:":o
 I:40:11:0
 W:60:0:3:90000
 F:INSTA_ART
+D:It appears to be just a plain golden amulet.
 
-# The Necklace of the Dwarves -- see artefact list
-
+# The Necklace of the Nephilim - see artefact list
 N:505:& Necklace~
 G:":o
 I:40:12:0
 W:70:0:3:75000
 F:INSTA_ART
+D:It appears to be just a plain golden necklace.
 
-
-# The Ring of Magic-- see artefact list
-
+# The Ring of Gabriel, the Messenger - see artefact list
 N:506:& Ring~
 G:=:g
 I:45:32:0
 W:50:0:2:65000
 F:INSTA_ART
+D:It appears to be just a plain golden ring.
 
-# The Ring of Bast -- see artefact list
-
+# The Ring of Saint George, the Slayer - see artefact list
 N:507:& Ring~
 G:=:y
 I:45:33:0
 W:90:0:2:150000
 F:INSTA_ART
+D:It appears to be just a plain golden ring.
 
-# The Ring of Elemental Power (Fire) -- see artefact list
-
+# The Ring of Saint Raphael, the Healer - see artefact list
 N:508:& Ring~
 G:=:r
 I:45:34:0
 W:80:0:2:100000
 F:INSTA_ART
+D:It appears to be just a plain golden ring.
 
-# The Ring of Elemental Power (Ice) -- see artefact list
-
+# The Ring of Saint Michael, Prince of Mercy - see artefact list
 N:509:& Ring~
 G:=:b
 I:45:35:0
 W:90:0:2:200000
 F:INSTA_ART
+D:It appears to be just a plain golden ring.
 
-# The Ring of Elemental Power (Storm) -- see artefact list
-
+# The Ring of the Emmanuel - see artefact list
 N:510:& Ring~
 G:=:b
 I:45:36:0
 W:100:0:2:300000
 F:INSTA_ART
+D:It appears to be just a plain golden ring.
 
-# The Ring of Power (The One Ring) -- see artefact list
-
+# The First Ring - see artefact list
 N:511:& Ring~
 G:=:y
 I:45:37:0
 W:110:0:2:5000000
 F:INSTA_ART
+D:It appears to be just a plain golden ring.
 
 
 ### Room for new objects added after 511 (Zangband 2.1.0): 512-575
 
-# Tarot Spellbooks
+# Tarot Spell books
 
 N:512:[Initiations]
 G:?:U
@@ -3479,6 +3944,7 @@ I:95:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+D:This is the first book of Tarot magic, it contains spells of destruction, recalling, teleportation and enhancement.
 
 N:513:[Minchiate]
 G:?:U
@@ -3486,6 +3952,7 @@ I:95:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
+D:This is the second book of Tarot magic, it contains spells of telekinesis, enhancement, charming, summoning and teleportation.
 
 N:514:[Book of Thoth]
 G:?:o
@@ -3494,6 +3961,7 @@ W:40:0:30:25000
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Tarot magic, it contains spells of summoning, healing, enhancement, charming and branding.
 
 N:515:[Major Arcana]
 G:?:o
@@ -3502,6 +3970,7 @@ W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Tarot magic, containing the most powerful spells of the Tarot realm.
 
 # Charms Spellbooks
 
@@ -3511,6 +3980,7 @@ I:96:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+D:This is the first book of Charms, it contains basic utility spells.
 
 N:517:[Minor Magicks]
 G:?:s
@@ -3518,6 +3988,7 @@ I:96:1:0
 W:20:0:30:250
 A:20/1
 P:0:1d1:0:0:0
+D:This is the second book of Charms, it contains mostly detection spells.
 
 N:518:[Major Magicks]
 G:?:s
@@ -3525,6 +3996,7 @@ I:96:2:0
 W:10:0:30:1000
 A:10/1
 P:0:1d1:0:0:0
+D:This is the third book of Charms, it contains utility spells.
 
 N:519:[Magicks of Mastery]
 G:?:s
@@ -3532,6 +4004,7 @@ I:96:3:0
 W:20:0:30:2500
 A:20/1
 P:0:1d1:0:0:0
+D:This is the final book of Charms, containing the most powerful spells of the charms realm.
 
 N:520:Reflection
 G:":d
@@ -3540,6 +4013,8 @@ W:60:0:3:30000
 A:60/4
 F:REFLECT | EASY_KNOW
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This amulet reflects all bolts and arrows that are aimed at you,
+D:effectively damaging anyone taking aim at you.
 
 #521 and 522 cannot have EASY_KNOW because they may be cursed
 
@@ -3550,6 +4025,8 @@ W:40:0:3:30000
 A:40/4
 F:NO_MAGIC
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This magical amulet protects you from most forms of magic,
+D:it also prevents you from using magic.
 
 N:522:Anti-Teleportation
 G:":d
@@ -3558,6 +4035,8 @@ W:30:0:3:15000
 A:30/4
 F:NO_TELE
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This magical amulet prevents you from teleporting,
+D:it can help you finish off demons that keep teleporting you away.
 
 #523 cannot have EASY_KNOW because it can get random resistances
 
@@ -3568,8 +4047,9 @@ W:50:0:3:25000
 A:50/4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This magical amulet protects you from the four basic elements.
 
-# Somatic Spellbooks
+# Somatic Spell books
 
 N:524:[Basic Chi Flow]
 G:?:U
@@ -3577,6 +4057,7 @@ I:97:0:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
+D:This is the first book of Somatics, it contains spells of healing, teleportation and enhancement.
 
 N:525:[Yogic Mastery]
 G:?:U
@@ -3584,6 +4065,7 @@ I:97:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
+D:This is the second book of Somatics, it contains spells of enhancement, healing and teleportation.
 
 N:526:[Temple of the Soul]
 G:?:y
@@ -3592,6 +4074,7 @@ W:40:0:30:25000
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Somatics, it contains spells of enhancement, detection, terror and teleportation.
 
 N:527:[Perfection of Body]
 G:?:y
@@ -3600,6 +4083,8 @@ W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Somatics, containing the most powerful spells of the Somatic realm.
+
 
 #### Hellband Specific Items
 
@@ -3609,14 +4094,19 @@ I:39:7:0
 W:10:0:5:1000
 A:10/1
 P:0:1d1:0:0:0
+F:EASY_KNOW
+D:This orb lights up if you let it float around you. It does not
+D:require oil and will light for ever.
 
-N:529:Golden corslet~
+N:529:Golden Corslet~
 G:[:y
 I:37:35:0
-W:40:0:340:7500
+W:40:0:340:75000
 A:40/3
 P:40:2d4:-6:0:15
 F:IGNORE_ACID
+D:This item is much too heavy to be useful in combat without heavy enchantment.
+D:It should still fetch a handsome price.
 
 #TODO : make this stuff useful, until then it is just a rare find
 N:530:& Small bag~
@@ -3625,13 +4115,15 @@ I:7:8:0
 W:5:0:25:20
 A:95/4
 P:0:2d3:0:0:0
+D:This bag is rare, you should tell someone you found it!
 
 N:531:bronze
 G:$:r
 I:100:19:0
 W:1:0:0:10
+D:These are bronze coins with the faces of rules past and present.
 
-# Demonic Spellbooks
+# Demonic Spell books
 N:532:[Lesser Pacts]
 G:?:U
 I:98:0:0
@@ -3639,6 +4131,7 @@ W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
+D:This is the first book of Demonic magic, it contains spells of enhancement, detection, destruction, teleportation, runes and confusion.
 
 N:533:[Ghastly Endeavours]
 G:?:U
@@ -3647,6 +4140,7 @@ W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
+D:This is the second book of Demonic magic, it contains spells of mana conversion, enhancement, runes, summoning and hazardous healing.
 
 N:534:[Book of the Grigori]
 G:?:y
@@ -3655,6 +4149,7 @@ W:40:0:30:25000
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the third book of Demonic magic, it contains spells of charm, destruction, detection, summoning and enhancement.
 
 N:535:[Lucifer's Spurn]
 G:?:y
@@ -3663,13 +4158,16 @@ W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:This is the final book of Demonic magic, containing the most powerful spells of the Demonic realm.
 
 N:536:& White Banner~
 G:!:w
 I:39:8:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
-F:INSTA_ART
+F:INSTA_ART | SPEED | AGGRAVATE
+D:This virgin white banner is the stuff of Legends,
+D:all who see it will want to kill for it.
 
 N:537:& Banner~
 G:!:R
@@ -3677,4 +4175,6 @@ I:39:9:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
 A:60/3
-
+F:INSTA_ART
+D:This banner bears the intricate symbols of a demon lord,
+D:you're not sure whether wearing this is a great idea.

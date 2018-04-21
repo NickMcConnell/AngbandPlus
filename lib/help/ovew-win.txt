@@ -1,161 +1,160 @@
-What is Hellband
-================
+What is Hellband ?
+==================
 
-Welcome to Hellband. This is a turn-based game of strategy, skill and luck.
+Welcome to Hellband. This is a turn-based game of strategy, skill and some luck.
 Hellband has its roots in the game 'Rogue' (an old computer game from around the
 time of Pong and Space Invaders) and falls into the genre of 'Rogue-like' games.
 
-More specifically, Hellband is a variant of the popular roguelike 'Angband'.
+More specifically, Hellband is the offspring of the popular roguelike 'Angband'.
 
-Hellband is similar in theme to modern computer 'RPG's like Diablo, Dungeon
-Siege, and so on. You control a character who equips him or herself with basic
-equipment and explores an underground 'dungeon', searching for treasure.
+Hellband is similar to recent computer RPG's like Diablo 3 or Final Fantasy, and
+so on. You control a customized character who gets geared up and explores a vast
+underground 'dungeon', searching for treasure and glory.
+
 Fighting creatures gains you experience - which improves your abilities. Finding
 better treasure and magical items also improves your abilities and your fighting
-capability. The big difference between Hellband and these games is that whereas
-most modern computer RPGs are 'real-time', Hellband is turn based. You do not
-need to click the screen with the mouse frantically trying to kill something.
-Instead, you can take your time and think about what you are doing and about
-what tactics to use.
+capability. What sets apart Hellband from the other games is that whereas modern
+computer RPGs are 'real-time', Hellband is turn based. There is no need to click
+frantically around the screen  to kill something. Instead, you can take time and
+think about what you are doing and about what tactics to use.
 
-The other main difference between Hellband and most modern computer games is in
-graphics and sound. Most modern games will have maybe two dozen types of
-monster, and each one will be rendered in 3D-accelerated polygons. Hellband does
-not have a fancy graphics system. Each type of monster is represented by a
-color and a letter. This allows for vastly more monsters and wider
-variety than would be financially feasible for a commercial software company to
-include in a game. Indeed, Hellband has over 600 different types of monster
-spread over 120+ levels of play - a variety that commercial games simply cannot
-afford to produce professional graphics for.
+The other big difference between Hellband and most modern computer games are the
+graphics and sound. Most games nowadays have about two dozen monsters, where all
+off them are rendered in 3D-accelerated polygons and textures. Hellband does not
+have a fancy graphics system. Each type of monster is represented by a color and
+a letter. This allows for a ton more monsters and variety than would be feasible
+for a commercial software company to put in a game. You will encounter more than
+600 different monsters spread over 120 levels of play, a variety that commercial
+games simply cannot afford to produce professional graphics for.
 
 On save files and Dying
-====================
+=======================
 
-Hellband is different to most computer games in the way that it handles save 
-files.
+Hellband is different from most computer games in how it treats saving progress.
 
-Whereas most games allow you to save the game as often as you like, so that if
-you come across a difficult part you can re-load repeatedly and try again,
-Hellband is more realistic.
+Whereas other games allow you to save as often as you would like, so that if you
+come across a tough part you can load repeatedly and try again, Hellband is more
+realistic.
 
-A Hellband save-file is *not* a 'Saved Game'. It is a 'Player Profile'. It does
-contain information about the current game state (as most save files in other
-games do, but it also stores information about the history of the player's
-previous games and characters and stores information about the options that the
-player is using.
+In this game you can't reload after when death occurs. You only have one life in
+this game, so if you do something dangerous and you die,you will have to restart
+with a new character.
 
-A saved player profile must be either loaded or created on start-up and is only 
-saved when Hellband is closed. This has two major implications.
+That does not mean that you need to create a new 'save game'. Next time you load
+Hellband , you can use your saved profile as normal. You will keep the values of
+any options that you set in your previous game, and it will keep the memories of
+your previous character, like monster weaknesses.
 
-Firstly, as mentioned above, you can not 'save' before doing something 
-dangerous. You only have one 'life' in the game, and if you do something 
-dangerous and your character dies then you will have to re-start with a new 
-character.
-
-Secondly, when you do die, you do not need to create a new 'save game'. Next
-time you start Hellband, you should load your saved profile as normal. You will
-keep the values of any options that you set in your previous game, and the
-information that your previous characters found out will be still available to
-you.
-
-In this Windows version of Hellband, you may have many player-profiles in your
-'save' folder, each with its own options and its own history of characters. In
-this way, many players can play with their own preferences set.
+With this Windows version, you can have different player-profiles in your 'save'
+folder , each with its own options and its own history of characters. Also, this
+allows for 'save scumming'. Save scumming is the practice to save before a scary
+event and make a copy of the file in Windows Explorer. This is generally frowned
+upon by the community, but my motto is that 'More fun is better'.
 
 Basic Gameplay
 ==============
 
-You start the game (after having generated a character) in the town of
-Volterra. Your first task is to explore the shops and purchase equipment 
-(keeping your distance from the various town inhabitants, since most of them are 
-tougher than you at this point in the game - and this magical marketplace 
-attracts all sorts of unsavoury types). After you have purchased whatever 
-starting equipment you can afford in order to supplement your starting goods, 
-you should wear your armour, wield your weapon, learn spells in the library if 
-you are a spellcaster, and then find the red staircase leading down into the 
-Inferno.
+The game starts (after generating a new character) in the town of Volterra. Your
+first task is to explore the shops and purchase equipment (keeping your distance
+from the locals, as this odd marketplace attracts all sorts of unsavoury types).
+Your character starts fully outfitted for combat, but you probably want to learn
+your starter spell in the library if you are a spellcaster and visit the alchemy
+shop for potions and scrolls. With that done, you can head for the red staircase
+leading down into the sewers of Volterra.
 
-Once you have descended to Hell, your task changes. You need to explore the 
-dungeons around you, looking for treasure and practicing your fighting. There
-are lots of opportunities to descend deeper into hell, but you should be very
-wary since descending too quickly will almost certainly result in your death.
+Once you start descending deeper into Hell, the game changes. You need will need
+to explore the dungeons around you, looking for treasure and killing sinners and
+demons alike. There are lots of opportunities to descend fast into Hell, but you
+should be very wary since descending too quickly will almost certainly result in
+your death.
 
 User Interface
 ==============
 
-During gameplay, the screen is split into four sections.
+During gameplay, the screen is split into two sections.
 
-The main section is a top-down representation of you and your surroundings. This
-is where most of the activity takes place. You will normally see an 'aura'
-around yourself. This is your 'line of sight', and shows what you can see.
-Anywhere outside this aura is outside your field of vision. If you are carrying
-a light source, then you will also see a (usually) smaller aura around yourself
-which shows the area illuminated by your light. Different light sources shed
-light out to different radii. If you do not have the power of 'Infravision',
-then you will not be able to see anything outside this illuminated area (unless 
-it is in an independently lit area).
+The largest part is a top-down representation of you and your surroundings. This
+is where most of the activity takes place. You will usually see an 'aura' around
+yourself. This is your 'line of sight', and shows what you can see. Anything out
+side this aura is outside your field of vision. If you carry a light source, you
+will also see a usually smaller aura around yourself which shows the area lit by
+your light. Different light sources shed light at different ranges. If you don't
+have the power of 'Infravision', then you can not look past the illuminated area
+unless you are looking at an independently lit area.
 
-Along the top of the screen is an area reserved for text messages. As you play
-the game, various message will be displayed there. Often, if the game needs an
-input from you, you will type text there.
+At the top of the screen is an area reserved for text messages. As you play this
+game, various message will be displayed there. Often, if the game needs an input
+from you, you will type text there.
 
-On the left hand side of the screen is a summary of your character status. At 
-the top is the in-game time and date. Underneath this is a display of your base
-attributes. Normally these are all capitalised, but if one of your attributes
-has been damaged then the attribute name will be in lower case.
-
-Under the base attributes are a set of secondary attributes, such as hit points,
-mana and armour class.
-
-The final section of the user interface covers the bottom third of the left hand
-panel and extends across the bottom of the screen. This contains various
-indicators of temporary conditions (such as whether you are currently bleeding
-or stunned or slowed) and also a 'Health Bar' tracking the health and status of
-the most recent creature targeted by you.
+At the bottom of the screen you will find the most important attributes, such as
+hit points, spell points, gold, monster health bar, dungeon level and indicators
+of temporary conditions (Are you bleeding, stunned, shielded, blessed etc.). The
+'monster health bar' tracks both health and status of monsters that attacked you
+or that you targeted.
 
 Time and Turns
 ==============
 
-Every time you press a key in order to perform an action, some time is taken in
-the game world.
+Time passes in the game world with almost every key press you make to perform an
+action.
 
-Each 24-hour period within the game is split into 10,000 turns of just under 10
-seconds each. The game times things in hundredths of turns, so it is possible
-for actions to not take an exact number of turns to perform.
+One day in the game is split into 10000 turns of just under 10 seconds each. The
+game times things in hundredths of a turns, so it is possible for actions to not
+take an exact number of turns to perform.
 
-Assuming you are moving without any external influences speeding you up or
-slowing you down, a single movement will take 1 turn. Having your speed
-magically increased or decreased (or decreased through carrying too much weight)
-will alter this - causing each move to take more than or less than a turn.
-
-Various other actions are rated based on this turn-scale - usually as a
-percentage of a turn.
+Assuming you are moving at at regular speed, a single movement will take 1 turn.
+Having your speed magically increased or decreased (or decreased by carrying too 
+much weight) will alter this, causing each move to take more than or less than a 
+turn.
 
 Attacking a creature will take anywhere from 10% of a turn to a full turn, based
 on the number of attacks that you have.
 
-Casting a spell will similarly take from 10% of a turn to a full turn, based on
-how many far above the spell level your character's level is.
+Casting spells will similarly take from 10% of a turn to a full turn, determined
+by how many far above the spell level your character's level is.
 
-Combat and Health
-=================
+The other actions are rated based on this turn-scale, usually as a percentage of
+a turn.
 
-There is no separate 'combat turn' in Hellband. Combat takes place on the same
-timescale as movement.
+Combat Speed
+============
+
+There are no separate 'combat turns' in Hellband like in most D&D based computer
+games, instead you are experiencing a feature called "fractional blows". Whereas
+in other games you use all your attack blows on one monster, hellband allows you
+to spread your attacks. This means that if you have 3 blows with your character,
+and you are standing near an almost dead Heretic, you can slay that Heretic with
+one blow and use your 2 other blows for other adjacent monsters. This way your 2
+remaining blows don't get wasted.
+
+It is the same way for monsters, if they have 4 attacks, you will never bear all
+4 at once (unless you're really slow), but you will be trading blows. Just think
+of it as being in the Matrix in slow motion.
+
+Combat Stats
+============
 
 Each creature (yourself included) has three scores relative to combat.
 
-Firstly, you have a number of 'Hit Points'. These represent a combination of 
-both endurance and physical toughness. Each time you are hit in combat, you will
-lose an amount of hit points. Should you ever get below 0 hit points you will
-die from your wounds.
+Firstly, you have a number of 'Hit Points'. They represent a combination of both
+endurance and physical toughness. Each time you are hit, you will lose an amount
+of hit points. Should you ever get below 0 hit points you will die.
 
-Secondly, you have an Armour Class. This is a number starting at 0 and
-increasing. It represents a combination of how good at dodging blows you are and
-how well armoured you are. The higher the number, the more difficult you are to
-hit - and the more the amount of damage you take if you are hit is reduced.
+Secondly, you have an 'Armor Class'. This number starts at 0 and increases as it
+gets better. It represents both your skil at dodging blows and how well armoured
+you are. The higher the number, the more difficult you are to hit - and the more
+the damage gets soaked by your armor.
 
-Finally, you have an attack score. This number is used internally when you
-attack something - it is compared to the Armour Class of the thing you are
-hitting - but is never directly shown. Your character sheet will display a guide
-to how good your attack score is, but not the exact numerical value.
+Finally, you have an 'Attack Score'. The exact value is hidden from you and gets
+used when you combat an opponent, it is compared to the AC (Armour Class) of the
+opponent you are fighting. Your character sheet will display a guide to how good
+your attack score is, but not the exact numerical value.
+
+More Documentation
+==================
+
+If you can beat Angband, you can beat Hellband. You can find great documentation
+on how to play Angband on http://www.rephial.org, if however you are looking for
+a community you can visit http://angband.oook.cz. If you have specific questions
+or you wish to provide documentation that you wrote for Hellband, please contact
+me at konijn@gmail.com.

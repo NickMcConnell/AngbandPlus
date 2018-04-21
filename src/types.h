@@ -148,7 +148,7 @@ typedef struct object_kind object_kind;
 struct object_kind
 {
 	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
@@ -329,6 +329,7 @@ struct monster_race
 {
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
+	byte custom;			/* Custom one-off race ? */
 
 	byte hdice;				/* Creatures hit dice count */
 	byte hside;				/* Creatures hit dice sides */
@@ -356,23 +357,18 @@ struct monster_race
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
-
 	byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
-
 
 	byte d_attr;			/* Default monster attribute */
 	char d_char;			/* Default monster character */
 
-
 	byte x_attr;			/* Desired monster attribute */
 	char x_char;			/* Desired monster character */
-
 
 	byte max_num;			/* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
-
 
 	s16b r_sights;			/* Count sightings of this monster */
 	s16b r_deaths;			/* Count deaths from this monster */
@@ -392,7 +388,7 @@ struct monster_race
 	byte r_cast_inate;		/* Max number of inate spells seen */
 	byte r_cast_spell;		/* Max number of other spells seen */
 
-	byte num_blows;        /* Attack speed (equates to p_ptr->num_blows) */
+	byte num_blows;         /* Attack speed (equates to p_ptr->num_blows) */
 	byte r_blows[4];		/* Number of times each blow type was seen */
 
 	u32b r_flags1;			/* Observed racial flags */
@@ -405,8 +401,6 @@ struct monster_race
 	
 	int  r_escort;          /* *** Inferno : what specific escort is defined ? *** */
 };
-
-
 
 /*
 * Information about "vault generation"
@@ -526,6 +520,9 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
+	byte elevel;		/* Item exp level */
+	s32b exp;			/* Item exp */
+
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
@@ -628,8 +625,6 @@ struct monster_type
 };
 
 
-
-
 /*
 * An entry for the object/monster allocation functions
 *
@@ -687,6 +682,41 @@ struct option_type
 	cptr	o_desc;
 };
 
+typedef struct reward_type reward_type;
+
+struct reward_type
+{
+	int nasty;        /* 0 good 1 nasty 2 chaotic */
+    int (*func)();    /* The function */
+	cptr description; /* Description */
+};
+
+typedef struct patron_type patron_type;
+
+struct patron_type
+{
+	byte	type;           /* 0 is Abyssal Patron , 1 is Demonic Patron  */
+	cptr	short_name;     /* 'C'haracter overview screen */
+	int		stat;           /* preferred stat */
+	int		races_liked;    /* bit field */
+	int     classes_liked;  /* bit field */
+	cptr    monsters;       /* monster races.. */
+	cptr    monsters_filler; /* for hordes.. */
+	cptr	weapon_f1_liked; /* which f1 flags does he like */
+	cptr	armor_f1_liked;  /* which f1 flags does he like */
+	cptr	weapon_f2_liked; /* which f1 flags does he like */
+	cptr	armor_f2_liked;  /* which f1 flags does he like */
+	cptr	weapon_f3_liked; /* which f1 flags does he like */
+	cptr	armor_f3_liked;  /* which f1 flags does he like */
+	cptr	weapon_f4_liked; /* which f1 flags does he like */
+	cptr	armor_f4_liked;  /* which f1 flags does he like */
+	int     tval_like;      /* which tval does he like */
+	int     tval_hate;      /* which tval does he hate */
+	int	    vault_like;     /* which vault does he like ?*/
+	int     gifts;          /* likes to give bitflag objects, stats, experience */
+	int     steals;         /* likes to give bitflag objects, stats, experience */
+	cptr    long_name;      /* messages --more--, should be last esthetically */
+};
 
 
 /*
@@ -1043,15 +1073,14 @@ struct player_type
 						Note: was byte, causing overflow for Nephilim
 						characters (such as Nephilim Paladins) */
 
-	byte ritual;			  /* Flag for recall ritual */
+	byte ritual;		/* Flag for recall ritual */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
-	s16b birthday;    /* Player's Birthday */
-	s16b startdate;   /* The start date of the adventure */
-
+	s16b birthday;		/* Player's Birthday */
+	s16b startdate;		/* The start date of the adventure */
 
 	s32b au;			/* Current Gold */
 
@@ -1102,7 +1131,9 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
-
+	s16b oppose_conf;   /* Timed -- oppose confusion */
+	s16b oppose_fear;   /* Timed -- oppose fear */
+	s16b oppose_blind;  /* Timed -- oppose blind */
 
 	s16b tim_esp;       /* Timed ESP */
 	s16b wraith_form;   /* Timed wraithform */
@@ -1276,7 +1307,7 @@ struct martial_arts
 
 
 
-/* Mindcrafters */
+/* Orphics */
 
 typedef struct mindcraft_power mindcraft_power;
 struct mindcraft_power {
@@ -1320,6 +1351,7 @@ struct opposed_corruptions_type {
 
 typedef struct timed_type timed_type;
 struct timed_type {
+	byte good;
 	s16b *timer;
 	cptr status;
 	cptr gain;
@@ -1338,6 +1370,18 @@ struct monster_list_entry
 	byte amount;
 };
 
+/*
+ * Structure for building item "lists"
+ */
+typedef struct item_list_entry item_list_entry;
+struct item_list_entry
+{
+	s16b o_idx;			/* Item index */
+	s32b object_value;	/* Item price, for sorting */
+	s16b count;         /* Count.. */
+};
+
+
 typedef struct menu_type menu_type;
 struct menu_type
 {
@@ -1345,3 +1389,33 @@ struct menu_type
 	byte cmd;
 	bool fin;
 };
+
+/* For level gaining artifacts, artifact creation, ... */
+typedef struct realm_flag realm_flag;
+struct realm_flag
+{
+	char name[30];          /* Name */
+	byte color;             /* Color */
+
+	byte price;             /* Price to "buy" it */
+
+	u32b flags1;            /* Flags set 1 */
+	u32b flags2;            /* Flags set 2 */
+	u32b flags3;            /* Flags set 3 */
+};
+
+/* For artefact biased and unbiased resistance assignments */
+typedef struct art_bias_entry art_bias_entry;
+struct art_bias_entry
+{
+	byte random_odds;              /* How likely is this to happen  */
+	byte addbias_odds;               /* How likely will this set this the bias ? */
+	byte bias;                       /* What bias are we talking about ? */
+	byte flag_odds;                  /* What are the magic odds the flag can get assigned ? */
+	u32b flag1;                      /* What flag1 flag are we dealing with ? */
+	u32b flag2;                      /* What flag2 flag are we dealing with ? */
+	u32b flag3;                      /* What flag3 flag are we dealing with ? */
+	int (*func)(object_type *o_ptr); /* The function that can filter whether the flag is applicable */
+	byte calculated_odds;             /* Calculated odds, get filled in at runtime */
+};
+

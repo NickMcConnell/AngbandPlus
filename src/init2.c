@@ -11,18 +11,18 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 #include "angband.h"
 
@@ -65,6 +65,8 @@ static void init_angband_aux(cptr why)
 {
 	/* Why */
 	plog(why);
+	/* On Ternux, plog does not cut it */
+	puts(why);
 
 	/* Explain */
 	plog("The 'lib' directory is probably missing or broken.");
@@ -76,7 +78,7 @@ static void init_angband_aux(cptr why)
 	plog("See the 'README' file for more information.");
 
 	/* Quit with error */
-	quit("Fatal Error.");
+	quit(why/*"Fatal Error."*/);
 }
 
 /*
@@ -99,7 +101,7 @@ static void init_angband_aux(cptr why)
  *
  * In general, the initial path should end in the appropriate "PATH_SEP"
  * string.  All of the "sub-directory" paths (created below or supplied
-											  * by the user) will NOT end in the "PATH_SEP" string, see the special
+ * by the user) will NOT end in the "PATH_SEP" string, see the special
  * "path_build()" function in "util.c" for more information.
  *
  * Mega-Hack -- support fat raw files under NEXTSTEP, using special
@@ -137,6 +139,7 @@ void init_file_paths(char *path , int attempt)
 	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
+	string_free(ANGBAND_DIR_DUMP);
 	
 	/*** Prepare the "path" ***/
 	
@@ -155,6 +158,10 @@ void init_file_paths(char *path , int attempt)
 	/* Build a path name */
 	strcpy(tail, "file");
 	ANGBAND_DIR_FILE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "pref");
+	ANGBAND_DIR_LIB_PREF = string_make(path);
 	
 	/* Build a path name */
 	strcpy(tail, "help");
@@ -164,9 +171,6 @@ void init_file_paths(char *path , int attempt)
 	strcpy(tail, "info");
 	ANGBAND_DIR_INFO = string_make(path);
 	
-	/* Build a path name */
-	strcpy(tail, "pref");
-	ANGBAND_DIR_PREF = string_make(path);
 	
 #ifdef PRIVATE_USER_PATH
 	
@@ -210,8 +214,24 @@ void init_file_paths(char *path , int attempt)
 	/* Build a relative path name */
 	ANGBAND_DIR_SAVE = string_make(buf);
 	
-#else /* USE_PRIVATE_PATHS */
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump");
 	
+	/* Build a relative path name */
+	ANGBAND_DIR_DUMP = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "pref");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_PREF = string_make(buf);
+
+#else /* USE_PRIVATE_PATHS */
+
+	/* Build a path name */
+	strcpy(tail, "pref");
+	ANGBAND_DIR_PREF = string_make(path);
+
 	/* Build a path name */
 	strcpy(tail, "apex");
 	ANGBAND_DIR_APEX = string_make(path);
@@ -227,6 +247,10 @@ void init_file_paths(char *path , int attempt)
 	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
+	
+	/* Build a path name */
+	strcpy(tail, "dump");
+	ANGBAND_DIR_DUMP = string_make(path);
 	
 #endif /* USE_PRIVATE_PATHS */
 	
@@ -290,7 +314,7 @@ void init_file_paths(char *path , int attempt)
 		if( attempt == 1 )
 		{
 			/* This is the first time we are trying, lets see if we can h4x0r this */
-			char path[1024];			
+			char path[1024];
 			strcpy( path, argv0 );
 			path_separator = strrchr( path , '/' );
 
@@ -313,7 +337,7 @@ void init_file_paths(char *path , int attempt)
 		else
 		{
 			/* Message */
-			sprintf(why, "Cannot access the '%s' file!", buf);	
+			sprintf(why, "Cannot access the '%s' file!", buf);
 			/* Crash and burn */
 			init_angband_aux(why);
 		}
@@ -337,14 +361,14 @@ void create_user_dirs(void)
 {
 	char dirpath[1024];
 	char subdirpath[1024];
-	
+	int status;
 	
 	/* Get an absolute path from the filename */
 	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
 	
 	/* Create the ~/.angband/ directory */
-	mkdir(dirpath, 0700);
-	
+	status = mkdir(dirpath, 0700);
+
 	/* Build the path to the variant-specific sub-directory */
 	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
 	
@@ -375,6 +399,19 @@ void create_user_dirs(void)
 	
 	/* Create the directory */
 	mkdir(dirpath, 0700);
+	
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "dump");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "pref");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
 #endif /* USE_PRIVATE_PATHS */
 }
 
@@ -428,16 +465,24 @@ static errr check_modification_date(int fd, cptr template_file)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
 
+	int fd_text = fd_open(buf, O_RDONLY);
+
 	/* Access stats on text file */
-	if (stat(buf, &txt_stat))
+	if (fstat(fd_text, &txt_stat))
 	{
 		/* Error */
+		msg_format("Oh dear, something went wrong with stat()! %s", strerror(errno));
+		msg_format("Could not retrieve stats on the text file at {%s}", buf);
+		(void)fd_close(fd_text);
 		return (-1);
 	}
+	(void)fd_close(fd_text);
+
 
 	/* Access stats on raw file */
 	if (fstat(fd, &raw_stat))
 	{
+		msg_print("Could not call fstat() on the raw file");
 		/* Error */
 		return (-1);
 	}
@@ -573,6 +618,9 @@ static errr init_f_info(void)
 #ifdef CHECK_MODIFICATION_TIME
 
 		err = check_modification_date(fd, "f_info.txt");
+		if(err){
+			msg_print("The 'f_info.raw' file is obsolete.");
+		}
 
 #endif /* CHECK_MODIFICATION_TIME */
 		/* Attempt to parse the "raw" file */
@@ -585,7 +633,11 @@ static errr init_f_info(void)
 		if (!err) return (0);
 
 		/* Information */
+#ifdef live
+		msg_format("Ignoring obsolete/defective 'f_info.raw' file at %s." , buf);
+#else
 		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
+#endif
 		msg_print(NULL);
 	}
 
@@ -860,8 +912,7 @@ static errr init_k_info(void)
 	/* Hack -- make "fake" arrays */
 	C_MAKE(k_name, fake_name_size, char);
 	C_MAKE(k_text, fake_text_size, char);
-
-
+	
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
@@ -1883,7 +1934,7 @@ static errr init_v_info(void)
 
 	/* Fake the size of "v_name" and "v_text" */
 	fake_name_size = 70 * 1024L;
-	fake_text_size = 90 * 1024L; 
+	fake_text_size = 90 * 1024L;
 
 	/* Allocate the "k_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
@@ -1905,7 +1956,7 @@ static errr init_v_info(void)
 	if (!fp) quit("Cannot open 'v_info.txt' file.");
 
 	/* Parse the file */
-	err = init_v_info_txt(fp, buf); 
+	err = init_v_info_txt(fp, buf);
 
 	/* Close it */
 	my_fclose(fp);
@@ -2145,7 +2196,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
 		/* 2 = Weaponsmith */
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_MAIN_GAUCHE },
+		{ TV_SWORD, SV_PARRYING_DAGGER },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
 
@@ -2157,9 +2208,9 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
-		{ TV_SWORD, SV_KATANA },
+		{ TV_SWORD, SV_BROAD_SWORD },
 
-		{ TV_SWORD, SV_BASTARD_SWORD },
+		{ TV_SWORD, SV_GLADIUS },
 		{ TV_POLEARM, SV_SPEAR },
 		{ TV_POLEARM, SV_AWL_PIKE },
 		{ TV_POLEARM, SV_TRIDENT },
@@ -2194,7 +2245,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_SWORD, SV_DAGGER },
 
-		{ TV_SWORD, SV_MAIN_GAUCHE },
+		{ TV_SWORD, SV_PARRYING_DAGGER },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SWORD, SV_SHORT_SWORD },
@@ -2213,7 +2264,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_BALL_AND_CHAIN },
 
 		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_LUCERN_HAMMER },
+		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
 		{ TV_HAFTED, SV_FLAIL },
 
@@ -2667,18 +2718,18 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 			},
 	{
     /* 12 = Mage guild */
-    { TV_SORCERY_BOOK   , 2 }  , { TV_SORCERY_BOOK   , 2 }  , { TV_SORCERY_BOOK   , 3 }  , { TV_SORCERY_BOOK   , 3 }  , 
-    { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 3 }  , { TV_NATURE_BOOK    , 3 }  , 
-    { TV_CHAOS_BOOK     , 2 }  , { TV_CHAOS_BOOK     , 2 }  , { TV_CHAOS_BOOK     , 3 }  , { TV_CHAOS_BOOK     , 3 }  , 
-    { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 3 }  , { TV_DEATH_BOOK     , 3 }  , 
-    { TV_TAROT_BOOK     , 2 }  , { TV_TAROT_BOOK     , 2 }  , { TV_TAROT_BOOK     , 3 }  , { TV_TAROT_BOOK     , 3 }  , 
-    { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 3 }  , { TV_CHARMS_BOOK    , 3 }  , 
-    { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 3 }  , { TV_CHARMS_BOOK    , 3 }  , 
-    { TV_MIRACLES_BOOK  , 2 }  , { TV_MIRACLES_BOOK  , 2 }  , { TV_MIRACLES_BOOK  , 3 }  , { TV_MIRACLES_BOOK  , 3 }  , 
-    { TV_DEMONIC_BOOK   , 2 }  , { TV_DEMONIC_BOOK   , 2 }  , { TV_DEMONIC_BOOK   , 3 }  , { TV_DEMONIC_BOOK   , 3 }  , 
-    { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 3 }  , { TV_DEATH_BOOK     , 3 }  , 
-    { TV_SOMATIC_BOOK   , 2 }  , { TV_SOMATIC_BOOK   , 2 }  , { TV_SOMATIC_BOOK   , 3 }  , { TV_SOMATIC_BOOK   , 3 }  , 
-    { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 3 }  , { TV_NATURE_BOOK    , 3 }  , 
+    { TV_SORCERY_BOOK   , 2 }  , { TV_SORCERY_BOOK   , 2 }  , { TV_SORCERY_BOOK   , 3 }  , { TV_SORCERY_BOOK   , 3 }  ,
+    { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 3 }  , { TV_NATURE_BOOK    , 3 }  ,
+    { TV_CHAOS_BOOK     , 2 }  , { TV_CHAOS_BOOK     , 2 }  , { TV_CHAOS_BOOK     , 3 }  , { TV_CHAOS_BOOK     , 3 }  ,
+    { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 3 }  , { TV_DEATH_BOOK     , 3 }  ,
+    { TV_TAROT_BOOK     , 2 }  , { TV_TAROT_BOOK     , 2 }  , { TV_TAROT_BOOK     , 3 }  , { TV_TAROT_BOOK     , 3 }  ,
+    { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 3 }  , { TV_CHARMS_BOOK    , 3 }  ,
+    { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 3 }  , { TV_CHARMS_BOOK    , 3 }  ,
+    { TV_MIRACLES_BOOK  , 2 }  , { TV_MIRACLES_BOOK  , 2 }  , { TV_MIRACLES_BOOK  , 3 }  , { TV_MIRACLES_BOOK  , 3 }  ,
+    { TV_DEMONIC_BOOK   , 2 }  , { TV_DEMONIC_BOOK   , 2 }  , { TV_DEMONIC_BOOK   , 3 }  , { TV_DEMONIC_BOOK   , 3 }  ,
+    { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 3 }  , { TV_DEATH_BOOK     , 3 }  ,
+    { TV_SOMATIC_BOOK   , 2 }  , { TV_SOMATIC_BOOK   , 2 }  , { TV_SOMATIC_BOOK   , 3 }  , { TV_SOMATIC_BOOK   , 3 }  ,
+    { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 3 }  , { TV_NATURE_BOOK    , 3 }  ,
 	},
 };
 
@@ -3140,7 +3191,7 @@ void init_angband()
 
     /* Hack, now we cannot changes really news_color.txt, not drastically anyway */
     Term_putstr(61, 5, -1, TERM_RED, VERSION);
-    Term_fresh();    
+    Term_fresh();
 
 	/*** Verify (or create) the "high score" file ***/
 
@@ -3319,6 +3370,7 @@ void cleanup_angband(void)
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
 	string_free(ANGBAND_DIR_SAVE);
+	string_free(ANGBAND_DIR_DUMP);
 	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);

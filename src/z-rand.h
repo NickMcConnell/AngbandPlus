@@ -47,7 +47,6 @@
 #define rand_int(M) \
 	((rand_unbiased) ? ((s32b)(Rand_num(M))) : ((s32b)(Rand_div(M))))
 
-
 /*
  * Generates a random long integer X where 1<=X<=M.
  *
@@ -56,6 +55,10 @@
 #define randint(M) \
 	(rand_int(M) + 1)
 
+
+/* macronize the casting */
+#define rand_s16b(M) \
+	(s16b)randint(M)
 
 /*
  * Generates a random long integer X where A<=X<=B

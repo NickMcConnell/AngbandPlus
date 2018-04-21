@@ -11,18 +11,18 @@
  *
  *
  * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
- * or under the terms of the traditional Angband license. 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version),
+ * or under the terms of the traditional Angband license.
  *
  * All changes in Hellband are Copyright (c) 2005-2007 Konijn
  * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
- * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
- * or under the terms of the traditional Angband license. 
- */ 
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2),
+ * or under the terms of the traditional Angband license.
+ */
 
 /*
  * To use this file, you must define "USE_GCU" in the Makefile.
@@ -235,6 +235,12 @@ static int can_fix_color = FALSE;
  * Simple Angband to Curses color conversion table
  */
 static int colortable[16];
+
+
+/**
+ * Background color we should draw with; either BLACK or DEFAULT
+ */
+static int bg_color = COLOR_BLACK;
 
 #endif
 
@@ -659,6 +665,61 @@ static errr Term_xtra_gcu_event(int v)
 
 #endif	/* USE_GETCH */
 
+static int scale_color(int i, int j, int scale)
+{
+    return (angband_colour_table[i][j] * (scale - 1) + 127) / 255;
+}
+
+static int create_color(int i, int scale)
+{
+    int r = scale_color(i, 1, scale);
+    int g = scale_color(i, 2, scale);
+    int b = scale_color(i, 3, scale);
+    int rgb = 16 + scale * scale * r + scale * g + b;
+    /* In the case of white and black we need to use the ANSI colors */
+    if (r == g && g == b)
+    {
+        if (b == 0) rgb = 0;
+        if (b == scale) rgb = 15;
+    }
+    return rgb;
+}
+
+/*
+ * React to changes
+ */
+static errr Term_xtra_gcu_react(void)
+{
+
+#ifdef A_COLOR
+    if (COLORS == 256 || COLORS == 88)
+    {
+        /* CTK: I snagged this color handling from current Vanilla */
+        /* If we have more than 16 colors, find the best matches. These numbers
+        * correspond to xterm/rxvt's builtin color numbers--they do not
+        * correspond to curses' constants OR with curses' color pairs.
+        *
+        * XTerm has 216 (6*6*6) RGB colors, with each RGB setting 0-5.
+        * RXVT has 64 (4*4*4) RGB colors, with each RGB setting 0-3.
+        *
+        * Both also have the basic 16 ANSI colors, plus some extra grayscale
+        * colors which we do not use.
+        */
+        int i;
+        int scale = COLORS == 256 ? 6 : 4;
+        for (i = 0; i < 16; i++)
+        {
+            int fg = create_color(i, scale);
+            init_pair(i + 1, fg, bg_color);
+            colortable[i] = COLOR_PAIR(i + 1) | A_NORMAL;
+        }
+    }
+
+#endif
+
+	/* Success */
+	return (0);
+}
 
 /*
  * Handle a "special request"
@@ -710,6 +771,12 @@ static errr Term_xtra_gcu(int n, int v)
 		case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
+
+      /* React to events */
+      case TERM_XTRA_REACT:
+      Term_xtra_gcu_react();
+      return (0);
+
 	}
 
 	/* Unknown */
@@ -740,7 +807,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 	move(y, x);
 
 	/* Clear to end of line */
-	if (x + n >= 80)
+	if (x + n >= SCREEN_WID)
 	{
 		clrtoeol();
 	}
@@ -818,10 +885,15 @@ errr init_gcu(void)
 	if (initscr() == (WINDOW*)ERR) return (-1);
 #endif
 
-
 	/* Hack -- Require large screen, or Quit with message */
 	i = ((LINES < 24) || (COLS < 80));
 	if (i) quit("Angband needs an 80x24 'curses' screen");
+
+	/*
+	* flexible term width & heigh
+	*/
+	session_width = COLS;
+	session_height = LINES-2;
 
 #ifdef A_COLOR
 
@@ -928,7 +1000,7 @@ errr init_gcu(void)
 	/*** Now prepare the term ***/
 
 	/* Initialize the term */
-	term_init(t, 80, 24, 256);
+	term_init(t, SCREEN_WID, SCREEN_HGT+2, 256);
 
 	/* Avoid the bottom right corner */
 	t->icky_corner = TRUE;

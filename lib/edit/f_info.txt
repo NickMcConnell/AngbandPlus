@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:0.8.7
+V:0.8.8
 
 
 # 0x00 --> nothing
@@ -350,13 +350,10 @@ N:60:building wall
 G:#:w
 
 # 0x3D --> permanent wall -- inner (perm)
-
 N:61:permanent wall
 G:#:w
 
-
 # 0x3E --> permanent wall -- outer (perm)
-
 N:62:permanent wall
 G:#:w
 M:61

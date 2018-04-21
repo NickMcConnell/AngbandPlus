@@ -5,6 +5,9 @@
   - No more worshipping friends that run in your way
   - No more friends tout court
 
+* Playing live
+  - Auto-save is turned on for every 50 turns when compiled with 'live' flag
+
 *Changed some features
   - Red stairways are so much cooler
   - Yellow walls give more an impression of heat
@@ -19,18 +22,20 @@
   - Removed out of theme monster pits ( orcs & trolls & coins ), added snakes pit I think
 
 *Creatures
+  - 0.8.8 All in-game support for orcs, yeeks and kobolds is gone
+  - 0.8.8 Summon high monster spell no longer will try to summon ants or hydra's
   - 0.8.7 Quite a few creatures had double genus flags, some even contradictory ones
   - 0.8.7 Uniques that only drop gold drop much more gold now
   - 0.8.7 Added Babylonians on level 24 to speed up level generation, Nimrod was feeling lonely
   - 0.8.6 Uniques with reborn now properly respawn, but without xp or treasure
   - 0.8.6 Bodyguards of the judges properly named now. ( more properly at least )
-  - 0.8.6 Fixed space after perjurer, fixed various french characters ( need unicode soon )
+  - 0.8.6 Fixed space after perjurer, fixed various French characters ( need Unicode soon )
   - 0.8.5 Fixed again Pit Fiend, Osyluth, Hell knight, Barbazu, ( all these xp ), Revenant( seriously buffed hp, be scared of revenants )
   - 0.8.5 Monsters can now do off screen breathing ( reversal pending user input )
   - 0.8.4 Marilith xp has been 'fixed' as well
   - 0.8.4 #define RF7_AQUATIC         0x00080000    /* Thrives in water */
   - 0.8.4 #define RF7_FLIGHT          0x00100000    /* Can fly or levitate */
-  - 0.8.4 #define RF7_NEUTRAL         0x00200000    /* Doesnt want to kill player when generated */
+  - 0.8.4 #define RF7_NEUTRAL         0x00200000    /* Doesn't want to kill player when generated */
   - 0.8.4 Made those flags do something and update source code to make them work
   - 0.8.4 The giants in the ninth circle now start out neutral, you better be ready for major rumbling if you decide to bother them
   - 0.8.4 Headless Ghosts, Vrock, Hezrou & Glabrezou no longer have insane xp rewards ( sorry ;)
@@ -65,17 +70,18 @@
   - Disembodied hand is no longer a unique ;)
   - Some more shriekers to stir things up, everybody likes Discord
   - Coins have friends, good for money gathering, bad for equipment ;)
-  - Added most Julian Lightion higher demons
+  - Added most Julian Lighton higher demons
   - Added ANNOYED monster flag, do not even think of attacking monsters with this flag, these monsters cannot be used for quests
-  - Added NO_SPAWN monster flag, these monsters cannot be generated ( they can be summoned though, grin grin grin grin grin )
+  - Added NO_SPAWN monster flag, these monsters cannot be generated (they can be summoned though)
   - UNIQUE flag now implies MAX_HP at the code level
   - ESCORTS flag now implies ESCORT at the code level
   - DROP_GREAT flag now implies DROP_GOOD at the code level
   - Monsters can now have specific escorts : ESCORT_XXX
 
 *Flavours
+  - 0.8.8 So many spelling mistakes, I should have had an integrated spelling checker since the start
   - 0.8.5 Staves : umber , wands green, food umber ( instead of violet , violet and green )
-  - Changed most ring flavours and quite a bit of staf flavors.
+  - Changed most ring flavours and quite a bit of staff flavours.
   - Changed most wand flavours
   - Changed all store owners, who will notice ;)
   - Inns do not show owner name
@@ -83,7 +89,7 @@
 *Story
   - 0.8.7 Story added for the Heretics level
   - 0.8.7 Story added for the Satan level
-  - 0.8.7 Story added for the first pos Dis level
+  - 0.8.7 Story added for the first post Dis level
   - Intro story added
   - Level 1 story added
   - Level 2 story added
@@ -92,31 +98,57 @@
   - 0.8.5 X11 preference file location is now dumped to console in fiddle mode
 
 *Equipment
+  - 0.8.8 Terror masks are awesome now for Black Knights, Hell Knights, and Chaos Knights as well
+  - 0.8.8 Made Orbs of Powers greater (7 random flags instead of 3)
+  - 0.8.8 Stat potions, experience potions, and invulnerability potions are now considered good
+  - 0.8.8 Players are now told that an object has been *identified* when 'I'nspecting it -MITZE-
+  - 0.8.8 Potions that decrease stats now damage monsters and get identified on throw
+  - 0.8.8 Identified summoning staves and scrolls now have a 1 in 3 chance to summon a unique
+  - 0.8.8 Scrolls of *enchantment* are much more useful now..
+  - 0.8.8 Staff of detect invisible now also gives temporary detect invisible
+  - 0.8.8 Rods and Staves of Enlightenment are now called rods and staves of Mapping as to remove any confusion
+  - 0.8.8 Warriors can now find artefacts with NO_MAGIC flag
+  - 0.8.8 Probing reveals all monster flags and finally becomes useful
+  - 0.8.8* curse* armour now will also mess up to hit to dam
+  - 0.8.8 *curse* armour now might give immunity cold, res dark, res disenchantment, res col, res poison, res dark, res nether, hold life, slow digestion, heavy cursed, drain exp, aggravation and finally potentially wraith form (!)
+  - 0.8.8 Resistance to disenchantment gives 50% extra chance of resisting *curse armour*
+  - 0.8.8 Scrolls of Artefact Creation now work on ego items, keeping the properties of the ego item and improving it
+  - 0.8.8 Mushrooms of cure blindness prevent blindness for a while.
+  - 0.8.8 Katana swords are gone, especially the one Homerus had :)
+  - 0.8.8 Bastard Swords are now Gladii, single Gladius, Hellband can now properly convert from ius to ii
+  - 0.8.8 No more slime mold, white truffles instead
+  - 0.8.8 No more venison strips, black summer truffles instead
+  - 0.8.8 Mushrooms of blindness also give ESP and potentially confuse a little, now called 'of the Third Sight'
+  - 0.8.8 Mushrooms of paranoia are now mushrooms of fright, they give a speed bonus during the fright period
+  - 0.8.8 Mushroom of poison will now hurt CON and STR as well
+  - 0.8.8 Mushroom of cure poison will now restore con and STR as well and give temporary resistance to poison
+  - 0.8.8 Mushrooms of cure paranoia now also heal medium damage and help resisting fear for some time.
+  - 0.8.8 Mushrooms of cure confusion now also heal medium damage and help resisting confusion for some time.
   - 0.8.7 Added the infamous white banner of hell, when carrying you should experience 'hmm','cool!','wot?','f!!','oh','heh'
   - 0.8.6 All ridiculous Z artefact names are replaced with in-theme names.
-  - 0.8.6 Items will no longer use elvish names
+  - 0.8.6 Items will no longer use Elvish names
   - 0.8.6 Items like rods/staffs/wands that are known will no longer be pseudo-sensed
   - 0.8.6 Shop owners now will junk {broken} items and identify them for you
-  - 0.8.6 Added flavors Dragon Tooth and Dragon Claw for amulets
+  - 0.8.6 Added flavours Dragon Tooth and Dragon Claw for amulets
   - 0.8.5 Fixed a fair amount of rings being black, fear the copy-paste !!
   - 0.8.5 There is message on the scroll. -> There is a message on the scroll.
-  - 0.8.5 Fire sheath now correctly says 'fire sheath triggers' instead of electric sheath triggers. (bugfix)
-  - 0.8.5 Orcish Pick -> Ekkuyan Pick ( From Ekku, the high grade ore for Damascan Steel )
+  - 0.8.5 Fire sheath now correctly says 'fire sheath triggers' instead of electric sheath triggers. (bug fix)
+  - 0.8.5 Orcish Pick -> Ekkuyan Pick ( From Ekku, the high grade ore for Damascus Steel )
   - 0.8.4 Temple will buy now Demonic and Death books but will destroy them instead of putting them for sale
   - 0.8.4 Magic store now not only sells but also buys orbs
-  - 0.8.4 ego item 'of the Minchiate Elements' added , fire+cold+fire branding , only possible with 'Book of Toth'
-  - 0.8.3 All tolkien skeletons have changed to body parts
+  - 0.8.4 ego item 'of the Minchiate Elements' added , fire + cold + fire branding , only possible with 'Book of Toth'
+  - 0.8.3 All Tolkien skeletons have changed to body parts
   - 0.8.3 Mithril -> Platinum( thanks Twisted ) in k_info, historically almost correct
   - 0.8.3 Mithril -> topaz for the coins
   - 0.8.3 Added Small bag as an item, changed all messages that hardcoded "chest" instead of taking the object name
-  - 0.8.2 Elvish waybread is now Ambrosia, slightly upgraded.
+  - 0.8.2 Elvish Way Bread is now Ambrosia, slightly upgraded.
   - Removed slay Troll and Slay orc, added slay angel and **Slay angel**
   - Sword of St Michael executes Angels ( almost only way to kill Lucifer right now ;(
-  - Re-organized almost all artefacts , removed _all_ tolkien ones
+  - Re-organized almost all artefacts , removed _all_ Tolkien ones
   - All initial gauntlets are now interesting ;)
   - All initial daggers are now interesting ;)
   - Some stupid sustain rings/amulets are now less stupid
-  - Some berserking jewelry
+  - Some berserking jewellery
   - Add golden corselets for the Golden Corselet of the Mistress of the Waters
   - Highly improved the artefact bows/crossbows
   - Added more flavours for the missiles ( holy fire, hunt demon )
@@ -126,6 +158,8 @@
   - Added !xxxx for artefact names, this will takes as the name whatever comes after !, ignoring base name
 
 *Character Building
+  - 0.8.8 Turns out Florentians should be Florentines
+  - 0.8.8 Turns out Atlantians should be Atlanteans
   - 0.8.7 Restarting character creation allows you to re-choose stats
   - 0.8.7 Mindcrafters can now be generated again, *blush*
   - 0.8.7 The temple can now remove all your corruptions for 1.500.000 gold
@@ -143,14 +177,14 @@
   - 0.8.4 Morui still talked about Klackons, fixed
   - 0.8.3 Different sex descriptions : Lady/Sir Dame/Lord
   - 0.8.3 Revamped races : 4 major races : Human, Fae, Spawn & Elder
-  - 0.8.3 Human subraces : Florentian, Gipsy, Nordic ( thanks Steam), Atlantian, Dwarf/elf/ogre/troll/giant/titan descendant/nephilim/afflicted
-  - 0.8.3 Fae subraces : Seelie Fae ( thanks Steam ), Gnome, Leprechaun, Kobold
-  - 0.8.3 Spawn subraces : Devilspawn , Imp , Succubus, Lili
-  - 0.8.3 Elder Subraces : Elder , Elder Guardian, Horror
+  - 0.8.3 Human sub-races : Florentian, Gipsy, Nordic ( thanks Steam), Atlantian, Dwarf/elf/ogre/troll/giant/titan descendant/Nephilim/afflicted
+  - 0.8.3 Fae sub-races : Seelie Fae ( thanks Steam ), Gnome, Leprechaun, Kobold
+  - 0.8.3 Spawn sub-races : Devil spawn , Imp , Succubus, Lili
+  - 0.8.3 Elder Sub-races : Elder , Elder Guardian, Horror
   - 0.8.3 Birth signs added, any non-afflicted human can choose to be born under a magical constellation, at the cost of xp
-  - 0.8.3 Birth Sign Draco : All powers of a draconion ( breathes and resists elements, stronger, faster ), dragons will not harm the player
+  - 0.8.3 Birth Sign Draco : All powers of a draconian ( breathes and resists elements, stronger, faster ), dragons will not harm the player
   - 0.8.3 Birth Sign Serpens : Resistance to poison, stealth bonus, snakes will not harm the player
-  - 0.8.3 Birth Sign Plutus : Restistance to disenchantment, instant pseudo-id, at level 15 id, at level 30 *id*, detect door traps, can only spend 25% of budget at once ( ironman... )
+  - 0.8.3 Birth Sign Plutus : Resistance to disenchantment, instant pseudo-id, at level 15 id, at level 30 *id*, detect door traps, can only spend 25% of budget at once ( ironman... )
   - 0.8.3 Birth Sign Morui : All Klackon powers
   - 0.8.3 Diabolists are now called Hell Knights
   - 0.8.3 Demonologist are now called call Warlocks
@@ -158,51 +192,71 @@
   - 0.8.3 Life Magic is now called Miracles, its books are called Books of Miracles
   - 0.8.3 Corporeal Magic is now called Somatic Magic ( go Prodigy! )
   - 0.8.3 Folk Magic is now called Charms, books are called Books of Charms
-  - 0.8.3 Succubus & Lili cannot be male any more (bugfix)
+  - 0.8.3 Succubus & Lili cannot be male any more (bug fix)
   - 0.8.2 Added EyAngband alchemy, press 'p' to activate, thanks Eytan !!
-  - Player leveling causes a complete heal and restoration.
+  - Player levelling causes a complete heal and restoration.
 
 *Start Up
+  - 0.8.8 No more confusing use of Escape to continue the process of birthing, just Enter
   - 0.8.6 Exp factor, hit dice and stat mods are now straight from proper tables instead of out of help files
   - 0.8.6 Fixed message for male lilu's
   - 0.8.6 No more female Leprechauns with appropriate message
   - 0.8.5 Intro screen now mentions version number
   - 0.8.5 Lilu now have con bonus as mentioned in the char creation screen
-  - 0.8.5 History background revamped and improved, real backgrounds now for werewolves, florentians, Lilu, gypies etc.
+  - 0.8.5 History background revamped and improved, real backgrounds now for werewolves, Florentians, Lilu, gypsies etc.
   - 0.8.3 Added dedication to Miss Konijn in start-up screen
   - 0.8.3 Completely rewrote birth sequence
-  - 0.8.2 Birth screen does not allow to increase a stat when 0 points available (bugfix)
-  - 0.8.2 Bugfix for windows start up screen
-  - 0.8.2 Players start with weapons/armor equipped
+  - 0.8.2 Birth screen does not allow to increase a stat when 0 points available (bug fix)
+  - 0.8.2 Bug fix for windows start up screen
+  - 0.8.2 Players start with weapons/armour equipped
   - 0.8.2 Players start with Lantern fully charged
   - 0.8.2 Players start with 2 or 3 scrolls of teleport
-  - Created color intro screen
+  - Created colour intro screen
   - Players start with a scroll of recall
   - High mages start with 2 spell books
 
 *Wizard Commands
+  - 0.8.8 Fix object creation so that all svals can now be created
+  - 0.8.8 Wizard playing with objects can now re-roll for rand arts
+  - 0.8.8 Rewrote Wizard support for rewards from scratch, all 15 lines ;]
   - 0.8.7 ']' now induces amnesia so I can test graphic effects with telepathy and squelching better
   - 0.8.5 '2' now evaluates an expression with the PFH for testing purposes
   - 0.8.4 '1' now makes all spells learned, beats pressing 'G' 64 times all the time
   - 0.8.4 '-' now makes you loose a corruption
   - 0.8.4 '0' now creates permanent walls around the player ( to test stacking or to be experiment without being bothered by monsters )
   - 0.8.4 Playing with objects now allows to set ego type
-  - 'A' , get ArchAngel Michaels' equipment
-  - 'S' , get usefull supplies
+  - 'A' , get Archangel Michaels' equipment
+  - 'S' , get useful supplies
 
 *Stores
-  - 0.8.6 Inn no longer shows all the effects that have been reset ( bugfix )
+  - 0.8.8 The Inn now allows you to research rumors (mimicking scrolls of Rumour)
+  - 0.8.6 Inn no longer shows all the effects that have been reset (bug fix)
   - 0.8.6 Alchemist will now *ID* potions and tell you the alchemical formula
-  
+
 *UI
-  - 0.8.7 Editing colors now shows the colors against the 3 differently lit dungeon floors, so the effect can be measured
+  - 0.8.8 Alchemy knowledge overview will now highlight carried potions
+  - 0.8.8 Pressing ']' now shows all visible objects --MITZE--
+  - 0.8.8 Pressing '[' now shows all visible monsters --MITZE--
+  - 0.8.8 Also, let the map cover the screen --MITZE--
+  - 0.8.8 Make the list auto-display --MITZE--
+  - 0.8.8 Permanent walls in ASCII mode no longer show up as yellow under torch light
+  - 0.8.8 'C'haracter now shows maxed out stats
+  - 0.8.8 Wraith mode and god mode no longer turn the screen in mono colour
+  - 0.8.8 Turn count is now in 'C'haracter overview and thus in the player dump
+  - 0.8.8 Current item is now new and improved, showing last 'I'nspected, walked over or 'l'ooked at
+  - 0.8.8 Visible items term is now implemented
+  - 0.8.8 Pet Peeve, 'n' now switches between 'C'haracter screens like 'h' does
+  - 0.8.8 Temporary good effects now use array magic, which now allows for the UI to show timed bad effects as well.
+  - 0.8.8 HTML improved code with mono-size font and improved line height for Chrome browser
+  - 0.8.8 HTML and forum dumping is now supported, stolen from Vanilla, slightly retrofitted and modified
+  - 0.8.7 Editing colours now shows the colours against the 3 differently lit dungeon floors, so the effect can be measured
   - 0.8.7 Added support for 32px tile set and made it the default in fact
   - 0.8.7 Since nothing except floor/walls/doors is done, support for transparent ASCII symbolds is coded for windows
   - 0.8.7 casting *id* now only shows items that have not been *id*'d yet
   - 0.8.7 casting id now only shows items that have not been id'd yet
   - 0.8.7 Picking up from the floor now presents a list if more than 1 item is on the floor
   - 0.8.7 Ring choosing now asks left or right while showing the rings in those locations
-  - 0.8.7 Dragon Armor no longer gets squelched
+  - 0.8.7 Dragon Armour no longer gets squelched
   - 0.8.7 Squelch no longer squelches boots of speed, even if set at 'keep artefact only'
   - 0.8.7 Squelch will not squelch terrible artefacts.
   - 0.8.7 Native Mac support for intel macs <- broken, sorry
@@ -210,42 +264,44 @@
   - 0.8.6 Inscriptions and stuff now get concatenated, example: {average, tried, empty}
   - 0.8.6 Character dump now shows all info on artefacts, somewhat ugly but acceptable for this release.
   - 0.8.5 Visible monsters panel is added
-  - 0.8.5 XP on main screen is now standarly showing how much xp is needed for next level
+  - 0.8.5 XP on main screen is now standardly showing how much xp is needed for next level
   - 0.8.5 Fix demon power descriptions
-  - 0.8.5 Quick start now properly says 'hey, I dont support that!' before quitting
+  - 0.8.5 Quick start now properly says 'hey, I don't support that!' before quitting
   - 0.8.5 Added floor list functionality
   - 0.8.4 Added squelcher functionality ( first phase ) from scratch
-  - 0.8.4 Spells Screen is now actually useful and no longer hacked ( more color, all spells shown )
+  - 0.8.4 Spells Screen is now actually useful and no longer hacked (more colour, all spells shown)
   - 0.8.4 Browsing books allows now for spell descriptions to pop up
-  - 0.8.4 Equipment bonus now properly calculated ( the hard way )(bugfix)
-  - 0.8.3 Stores have priced colored in grey if the item is too expensive
+  - 0.8.4 Equipment bonus now properly calculated ( the hard way )(bug fix)
+  - 0.8.3 Stores have priced coloured in grey if the item is too expensive
   - 0.8.3 In order to allow the final blow of a vampiric to drain 'your weapons drains' becomes 'your weapon drained'
   - 0.8.3 Character screen 'C' had a face lift.
   - 0.8.3 Download to file had a face lift
   - 0.8.3 History is now 70 characters, allowing most backgrounds to fit in 3 lines which looks better.
-  - 0.8.3 Bookstore now mentions 'r' to gain spells instead of 'G' (bugfix)
-  - 0.8.2 Alchemist no longer declares that 'all is identified' (bugfix)
+  - 0.8.3 Bookstore now mentions 'r' to gain spells instead of 'G' (bug fix)
+  - 0.8.2 Alchemist no longer declares that 'all is identified' (bug fix)
   - 0.8.2 Shop services are now displayed in a more terse fashion to allow for more future services
   - 0.8.2 Racial powers are now 'n' repeatable, making Dark Elf a 'blast'
   - 0.8.2 New level names for first 26 levels
-  - Study indicator now only appears in town, it really only is usefull there
+  - Study indicator now only appears in town, it really only is useful there
   - Longer dungeon names are now possible ( up to 18 characters , starting where study used to start )
   - Old study position has been shifted to the left 2 positions
 
 *Help Files
   - 0.8.7 Alchemy command key is now integrated into interactive help
-  - 0.8.5 '?' now first shows an interactive menu, pressing '?' again shows documentation ( thank you Hengband )
+  - 0.8.5 '?' now first shows an interactive menu, pressing '?' again shows documentation (thank you Hengband)
   - 0.8.4 Help on Help is rewritten
-  - 0.8.4 Birthsigns are added to help
+  - 0.8.4 Birth signs are added to help
   - 0.8.4 History is updated
   - 0.8.4 Commands are updated
 
-* Stuff
+* Loot
+  - 0.8.8 Potions with pval -1 are now shown as 'Vials', drinking vials will harm you
   - 0.8.7 Chests are now much more interesting like in cool variants
-  - 0.8.7 Weapons of KILL_ANGEL now protect the player from Lucifers' curse
-
+  - 0.8.7 Weapons of KILL_ANGEL now protect the player from Lucifer's curse
 
 *Combat & Magic
+  - 0.8.8 Abaddon's Rage stops time fear now
+  - 0.8.8 Call Chaos no longer asks for directions any more, a random direction is chosen for the player.
   - 0.8.6 Spell spoilers are now available inside stores as well, so you can check out what those spells mean
   - 0.8.6 Angelic weapons are blessed now
   - 0.8.4 Various changes to the parser macro's because of case sensitivity
@@ -254,7 +310,7 @@
   - 0.8.4 Removed a braces bug in the Malediction spell ( Chris Hughes reported )
   - 0.8.4 Somatic spell 'Resist True' now last slightly longer (  1d20+20 <> 1d25+25 )
   - 0.8.4 New ally scheme : creatures can be allied to a faction ( God, Lucifer, Order of the Watchers ), neutral , like you or really like you
-  - 0.8.4 Monsters really liking you are not be aggravatable, dont mind getting in the way of your fireballs and wont even budge if you 'k'ick them )
+  - 0.8.4 Monsters really liking cannot be aggravated, don't mind getting in the way of your fireballs and wont even budge if you 'k'ick them )
   - 0.8.4 New Damage type 'Blasted Tower' fire damage + elec damage + turns walls into rubble
   - 0.8.4 New Damage type Dispel Fallen Angel
   - 0.8.4 New Damage type Dispel Devil
@@ -294,10 +350,10 @@
   - 0.8.4 "Ten of Pentacles",
   - 0.8.4 "The Traitor",
   - 0.8.4 "Justice",
-  - 0.8.4 New scheme of mana/level/failurechance, nothing changes for mage, all the other classes should see differences
-  - 0.8.4 Hitpoint warning is now standard 60%
-  - 0.8.4 When a monster is afraid, confused or stunned, it will be shown now in the monster hp bar.
-  - 0.8.4 New elemental attack type : hecate, ( light, odds to charm , confuse , stun or scare )
+  - 0.8.4 New scheme of mana/level/failure chance, nothing changes for mage, all the other classes should see differences
+  - 0.8.4 Hit point warning is now standard 60%
+  - 0.8.4 When a monster is afraid, confused or stunned, it will be shown now in the monster HP bar.
+  - 0.8.4 New elemental attack type : Hecate, ( light, odds to charm , confuse , stun or scare )
   - 0.8.4 Chaos weapons no longer work post-mortem ( except life draining )
   - 0.8.4 A ninth realm of magic : demonic
   - 0.8.4 "Unholy Strength",
@@ -332,7 +388,7 @@
   - 0.8.4 "True Warding",
   - 0.8.4 "Word of Destruction",
   - 0.8.4 "Gift of Malphas ",
-  - 0.8.4 "Kiss of Lillith",
+  - 0.8.4 "Kiss of Lilith",
   - 0.8.4 "Behemoth's Call",
   - 0.8.4 "Chaos Rift",
   - 0.8.3 Staff of cure light wounds now heals 25+d10 instead of d8
@@ -342,12 +398,25 @@
   - 0.8.2 Disintegrate checked wrong flag set for uniqueness of monster ( bugfix )
 
 *Patrons
+  - 0.8.8 No more zero effect rewards ( curse weapon when not wearing a weapon can no longer happen )
+  - 0.8.8 New reward : player / dungeon level based killer enemies
+  - 0.8.8 New reward : player / dungeon level based servants
+  - 0.8.8 New reward : turn entire level into perm wall
+  - 0.8.8 New reward : activate sorcerous ritual (!)
+  - 0.8.8 Complete rewrite of patrons
+  - 0.8.8 Furcifer added as Patron
   - 0.8.6 No more references to 'Mortal', about half of the races is not mortal
 
 *Stores
+  - 0.8.8 Black Markets have deeper items, based on both character level and max dungeon level
   - 0.8.7 Black Markets have deeper items once you start to get over character level 25
 
 *Internals
+  - 0.8.8 Vaults referring to patterns will now show water instead of the pattern
+  - 0.8.8 Zelazny patterns are completely ripped out of the code base now
+  - 0.8.8 When compiling for 'live' mode, turn on auto save on every 50 levels
+  - 0.8.8 Player and screen dumps are now in a dump sub folder
+  - 0.8.8 For some reason dungeon.c only now uses fully the timed[] array, another 100 lines of code goners
   - 0.8.7 Remove compile option ALLOW_EASY_DISARM and ALLOW_EASY_DISARM, why would you not want it ??
   - 0.8.7 Fixed evil wand stacking 'problem'
   - 0.8.7 level creation time has decreased MUCH both on count of object generation and monster generation being more stable
@@ -355,7 +424,7 @@
   - 0.8.7 store item maintenance is now centralize instead of copy pasted in 4 locations
   - 0.8.7 makefile.WHICH now has proper code
   - 0.8.7 Stat adjustment tables are merged into 1 2D matrix, cleaning up 900 lines of code
-  - 0.8.7 Fixed warlock realm choice 
+  - 0.8.7 Fixed warlock realm choice
   - 0.8.6 Squashed the last 2 compiler warnings after a discussion on const correctness on rgrd
   - 0.8.6 "blue eyes, and a very fair complexion" is left in, it is a called an Oxford comma ;)
   - 0.8.6 After 3 hours 'fixed' software bug by deleting scores files which was in old format
@@ -363,19 +432,19 @@
   - 0.8.6 Removed long stairs option while cleaning up char dump
   - 0.8.5 s_ptr ( spell pointer ) is no longer global, removing tons of (potential) bugs
   - 0.8.5 First few thousand lines of xtra2.c no longer unholy repetitive heap of code
-  - 0.8.5 Added makefile.WHICH pointing which makefile to use ( and which makefiles not to use )  
+  - 0.8.5 Added makefile.WHICH pointing which makefile to use ( and which makefiles not to use )
   - 0.8.5 Rumors have been changed/added/removed
-  - 0.8.5 Rumors have been fixed ( too long rumor stopped further rumors to be properly displayed
+  - 0.8.5 Rumors have been fixed ( too long rumour stopped further rumors to be properly displayed
   - 0.8.5 Added improved fiddle mode support
   - 0.8.4 Added cygwin makefile ( thanks Chris Hughes )
   - 0.8.4 Found several instances where the smart bit flag was checked for SM_SMART with '&&', fixed now, have not tested the consequences
-  - 0.8.4 Removed ally status from the smart bit field, which means you can now actually turn off the smart directive without loosing ally/neutral/etc functionality
+  - 0.8.4 Removed ally status from the smart bit field, which means you can now actually turn off the smart directive without loosing ally/neutral/etc. functionality
   - 0.8.4 There was a poly morph where the old race count was used, one chance in 30 for it to happen, and of course it happened to a player
   - 0.8.4 Enhanced c_roff to dump starting from a given cursor location ( or not ) and wrap at a given column, not necessarily beginning of screen
-  - 0.8.4 Refactored spell mana/level/failurechance/descriptions/spoiler  completely
+  - 0.8.4 Refactored spell mana/level/failure chance/descriptions/spoiler  completely
   - 0.8.4 Refactored corruptions/mutations completely to something sane
   - 0.8.3 Refactored character display
-  - 0.8.3 Centralized colouring of hitpoints and mana
+  - 0.8.3 Centralized colouring of hit points and mana
   - 0.8.2 Revamped brand/slay handling completely
   - 0.8.2 Revamped most of damage type handling with spells completely
   - 0.8.2 Rewrote how sheaths work
@@ -383,32 +452,47 @@
 
 *Artefacts :
   - 0.8.4 Cloak of Jean de Nynauld -> Cloak of Nynauld
-  - 0.8.2 Draebors cloak now activates for mass confusion and blink
+  - 0.8.2 Draebors' cloak now activates for mass confusion and blink
   - 0.8.2 Furcifers' and Michaels' swords are now more restricted with their slays
-  - Changed most of them, made sure that worhtless artefacts are not stomped
-  
+  - Changed most of them, made sure that worthless artefacts are not stomped
+
 * GPL
   - 0.8.6 Found license of Sprite World II, zlib, I re-release it under GPL
   - 0.8.6 Found and got GPL release of Maarten Hazewinkel
   - 0.8.5 Found and got GPL release of Scott Egashira
   - 0.8.5 Found and got GPL release of David Boeren
   - 0.8.5 Found and got GPL release of Steve Linberg
-  - 0.8.5 Found and got GPL release of Mike Marcelais 
+  - 0.8.5 Found and got GPL release of Mike Marcelais
   - 0.8.5 Found and got GPL release of Skirmantas Kligys
   - 0.8.5 Found and got GPL release of Chris R. Martin
   - 0.8.5 Found and got GPL release of Kevin Bracey
 
 - TODO :
 
+* Somehow books are targets for identification??
+* Icy Lantern Holder should hold a Icy Lantern
+* Do something with flasks
+
+
+
+* MITZE Get allies, have them fight, dismiss them, walk around, see monsters that are there/not there
+
+* Dont auto kill wands of TO
+* Berserk spell should clear fear
 
 - ONE DAY
 
-When a patron helps by destroying monsters in sight, there should be drops
+
+
+* Alchemy overview: ideally carried potions should be coloured
+* Ideally, the potion shop should rent it's space for 30K as well
+* When finding a new item that fits what you wear with !k, don't kill it
+
+Make sure that arte 5 and 6 can get generated..
 
 - DREAMS
 
 
-- Remove Pattern Walking, its an integrated, undocumented, unholy mess..
 - Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble ( go calamarain ;)
 - Allow Hell Knights to control the powers of Demonic Weapons ( basically : todo demonic weapons )
 - allow clean_shot to use is_monster_killer(enemy, m_ptr)
@@ -416,10 +500,10 @@ When a patron helps by destroying monsters in sight, there should be drops
 - Chaos Knights are not in
 - drop_good_only drop_great_only bm_sells_thegoodstuff are not in
 - cmd5.c is not using to the fullest the new spell capabilities
-- Same classes should get access to more realms ( they will be bad at it, but roleplayers dont care )
-- unique set drops 
+- Same classes should get access to more realms ( they will be bad at it, but role-players don't care )
+- unique set drops
 - Need a centralized U_power to description algorithm
-- They say that Scrolls of *Curse Weapon* can create powerful cursed artifacts.
+
 
 - Find Roland Jay Roberts ( Found and waiting )
 - Find Ross E Becker ( Found and waiting )
@@ -427,11 +511,12 @@ When a patron helps by destroying monsters in sight, there should be drops
 
 - Do the major step of updating code to be doxygen compliant
 - When generating skeletons, generate 2/3 'bad' object, 1/3 good object
+	if ( dam > m_ptr->hp)
 
 add #define STORES_SECOND_FLOOR 1          /**< Total number of stores in game, this includes 2nd floor stores, see store.c */
 
 the stores array :
-- Does store have inventory flux( no for townhall, house , chop shop, mages guild )
+- Does store have inventory flux( no for town hall, house , chop shop, mages guild )
 - Does store have multiple for selling ?
 - Does store have multiple for buying ?
 - Does never buy
@@ -439,8 +524,5 @@ the stores array :
 
 GREAT IDEAS:
 
-Thieves have greed level, once passed they leave the level, gold is bye bye, otherwise you can get it back.
+Thieves have greed level, once passed they leave the level, gold is gone, otherwise you can get it back.
 Throwing potions should cause the potions effect on the target
-
-
-
